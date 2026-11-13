@@ -403,7 +403,7 @@ const ArrayValidationKeywordsWithSchema = Type.Object({
   /** Schema for array items. */
   items: Type.Optional(Type.Union([schemaOrReference, Type.Boolean()])),
   /** Schema for tuple validation. */
-  prefixItems: Type.Optional(Type.Array(schemaOrReference)),
+  prefixItems: Type.Optional(Type.Array(Type.Union([schemaOrReference, Type.Boolean()]))),
 })
 
 const ArrayValidationPropertiesWithSchema = compose(
@@ -429,7 +429,7 @@ type ArrayKeywords = {
   /** Schema for array items. */
   items?: boolean | SchemaReferenceType<SchemaObject>
   /** Schema for tuple validation. */
-  prefixItems?: SchemaReferenceType<SchemaObject>[]
+  prefixItems?: (SchemaReferenceType<SchemaObject> | boolean)[]
 }
 
 type ArrayObject = CoreProperties &
@@ -447,7 +447,7 @@ const ObjectValidationKeywordsWithSchema = Type.Object({
   /** Object property definitions. */
   properties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
   /** Schema for additional properties. */
-  additionalProperties: Type.Optional(Type.Union([schemaOrReference, Type.Boolean()])),
+  additionalProperties: Type.Optional(Type.Union([Type.Boolean(), schemaOrReference])),
   /** Properties matching regex patterns. */
   patternProperties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
   /** Constraints on property names (JSON Schema propertyNames keyword). */

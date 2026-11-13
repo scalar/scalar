@@ -281,7 +281,9 @@ export const generateSchemaObject = (maybeRef: (inner: Schema) => Schema): Schem
     minItems: optional(number({ typeComment: 'Minimum number of items in array.' })),
     uniqueItems: optional(boolean({ typeComment: 'Whether array items must be unique.' })),
     items: optional(union([boolean(), maybeRef(lazy((): Schema => schema))])),
-    prefixItems: optional(array(maybeRef(lazy((): Schema => schema)), { typeComment: 'Schema for tuple validation.' })),
+    prefixItems: optional(
+      array(union([boolean(), maybeRef(lazy((): Schema => schema))]), { typeComment: 'Schema for tuple validation.' }),
+    ),
   })
 
   const arraySchema = intersection(

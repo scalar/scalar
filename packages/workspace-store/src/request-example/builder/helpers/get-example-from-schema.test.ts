@@ -210,6 +210,72 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual([2, 1, 1])
   })
 
+  it('keeps root reference and sibling contains assertions independent', () => {
+    const target = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 2,
+      maxItems: 2,
+      contains: { const: 2 },
+      maxContains: 1,
+    }
+    validateArray({
+      $defs: { target },
+      $ref: '#/$defs/target',
+      '$ref-value': target,
+      contains: { const: 3 },
+      maxContains: 1,
+    })
+    expect(
+      getExampleFromSchema({ $ref: '#/array', '$ref-value': target } as unknown as SchemaObject, {
+        openapiVersion: '3.0.4',
+      }),
+    ).toStrictEqual([1, 1])
+  })
+
+  it('retains legacy XML item wrappers for referenced arrays', () => {
+    const target = {
+      type: 'array',
+      xml: { wrapped: true },
+      items: { type: 'integer', xml: { name: 'number' } },
+      minItems: 2,
+      contains: { const: 2 },
+      maxContains: 1,
+    }
+    expect(
+      getExampleFromSchema({ $ref: '#/array', '$ref-value': target } as unknown as SchemaObject, { xml: true }),
+    ).toStrictEqual([{ number: 2 }, { number: 1 }])
+  })
+
+  it.each([true, false])('preserves boolean tuple prefixes during coercion: %s', (prefix) => {
+    const definition = {
+      type: 'array',
+      prefixItems: [prefix],
+      items: false,
+      contains: false,
+      minContains: 0,
+      maxContains: 0,
+    }
+    const coerced = coerceValue(SchemaObjectSchema, definition)
+    expect('prefixItems' in coerced && coerced.prefixItems).toStrictEqual([prefix])
+    const value = getExampleFromSchema(coerced)
+    expect(new Ajv2020({ strict: false }).validate(definition, value)).toBe(true)
+    expect(value).toStrictEqual(prefix ? [null] : [])
+  })
+
+  it('ignores store reference bookkeeping when counting matches', () => {
+    const target = { type: 'integer' }
+    validateArray({
+      type: 'array',
+      $defs: { target },
+      items: { $ref: '#/$defs/target', '$ref-value': target, $global: true, $status: 'resolved' },
+      minItems: 3,
+      maxItems: 3,
+      contains: { const: 2 },
+      maxContains: 1,
+    })
+  })
+
   it('keeps authored arrays even when they contradict contains', () => {
     const schema = { type: 'array', example: [9], items: { type: 'integer' }, contains: { const: 2 } } as SchemaObject
     expect(getExampleFromSchema(schema)).toStrictEqual([9])

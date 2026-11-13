@@ -963,7 +963,8 @@ const handleArraySchema = (
   schemaPath: string[],
   dynamicScope: DynamicScope,
 ) => {
-  const childScope = pushDynamicScope(dynamicScope, schema)
+  const displaySchema = '$ref' in schema ? resolve.schema(schema) : schema
+  const childScope = pushDynamicScope(dynamicScope, displaySchema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
   const dialect = getArrayDialect(options?.jsonSchemaDialect, options?.openapiVersion)
@@ -994,7 +995,7 @@ const handleArraySchema = (
     const evaluation = options?.[EXAMPLE_EVALUATION]?.stack.at(-1)
     if (evaluation) {
       evaluation.arrayItems = value.map((item, index) => {
-        const prefix = 'prefixItems' in schema ? schema.prefixItems?.[index] : undefined
+        const prefix = 'prefixItems' in displaySchema ? displaySchema.prefixItems?.[index] : undefined
         const source = itemSchemas[index] ?? {}
         const selected = getContainsItemSchema(source, item, dialect) as SchemaObject
         const capture: ExampleEvaluationState = { stack: [] }
@@ -1011,11 +1012,12 @@ const handleArraySchema = (
         return { ...capture.root!, value: item }
       })
     }
-    const items = 'items' in schema ? resolve.schema(schema.items) : undefined
+    const items = 'items' in displaySchema ? resolve.schema(displaySchema.items) : undefined
     const tag = items && 'xml' in items ? items.xml?.name : undefined
-    const prefixes = 'prefixItems' in schema && Array.isArray(schema.prefixItems) ? schema.prefixItems.length : 0
+    const prefixes =
+      'prefixItems' in displaySchema && Array.isArray(displaySchema.prefixItems) ? displaySchema.prefixItems.length : 0
     const result =
-      options?.xml && 'xml' in schema && schema.xml?.wrapped && tag
+      options?.xml && 'xml' in displaySchema && displaySchema.xml?.wrapped && tag
         ? value.map((item, index) => (index < prefixes ? item : { [tag]: item }))
         : value
     return cache(schema, result, cacheKey, skipCache)
@@ -1840,7 +1842,10 @@ const generateExampleFromSchema = (
     return undefined
   }
 
-  if (typeof _schema.$schema === 'string' && _schema.$schema !== options?.jsonSchemaDialect) {
+  // Reference siblings are independent assertions; the display resolver merges their keywords.
+  const containsReference =
+    typeof schema === 'object' && schema !== null && '$ref' in schema && hasArrayContains(schema)
+  if (!containsReference && typeof _schema.$schema === 'string' && _schema.$schema !== options?.jsonSchemaDialect) {
     options = { ...options, jsonSchemaDialect: _schema.$schema }
   }
 
@@ -1977,12 +1982,20 @@ const generateExampleFromSchema = (
   // Keep same-instance containment assertions together before union selection merges keywords.
   if (
     getArrayDialect(options?.jsonSchemaDialect, options?.openapiVersion) !== 'unsupported' &&
-    hasArrayContains(_schema) &&
+    hasArrayContains(containsReference ? schema : _schema) &&
     (('type' in _schema && _schema.type === 'array') || (!('type' in _schema) && !('properties' in _schema)))
   ) {
-    const result = handleArraySchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope)
+    const result = handleArraySchema(
+      containsReference ? schema : _schema,
+      options,
+      level,
+      seen,
+      cacheKey,
+      schemaPath,
+      dynamicScope,
+    )
     seen.delete(targetValue)
-    return result
+    return cache(_schema, result, cacheKey, skipCache)
   }
 
   // Resolve non-object unions before type dispatch so shared root keywords do not

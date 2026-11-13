@@ -9,16 +9,19 @@ const compact = { format: false, xmlDeclaration: false }
 const schema = (value: unknown): SchemaObject => value as SchemaObject
 
 describe('get-xml-example', () => {
-  it.each(['3.1.0', '3.2.0'])('keeps XML metadata on the selected contains item branches in %s', (openapiVersion) => {
+  it.each(
+    ['3.1.0', '3.2.0'].flatMap((openapiVersion) => [false, true].map((reference) => ({ openapiVersion, reference }))),
+  )('keeps XML metadata on the selected contains item branches: %j', ({ openapiVersion, reference }) => {
+    const items = {
+      anyOf: [
+        { type: 'integer', xml: { name: 'number' } },
+        { type: 'string', const: 'x', xml: { name: 'word' } },
+      ],
+    }
     const schema = {
       type: 'array',
       xml: { name: 'values', wrapped: true },
-      items: {
-        anyOf: [
-          { type: 'integer', xml: { name: 'number' } },
-          { type: 'string', const: 'x', xml: { name: 'word' } },
-        ],
-      },
+      items: reference ? { $ref: '#/item', '$ref-value': items } : items,
       minItems: 2,
       maxItems: 2,
       contains: { const: 'x' },

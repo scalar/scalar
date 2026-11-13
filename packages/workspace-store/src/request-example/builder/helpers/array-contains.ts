@@ -44,6 +44,8 @@ const annotations = new Set([
   'definitions',
   '$schema',
   '$ref-value',
+  '$global',
+  '$status',
   'title',
   'description',
   'default',
@@ -524,6 +526,9 @@ export const generateContainsArray = (
 export const getContainsItemSchema = (source: unknown, value: unknown, dialect: ArrayDialect, depth = 0): unknown => {
   if (!isObject(source) || depth >= MAX_SCHEMA_DEPTH) return {}
   if (typeof source.$schema === 'string') dialect = getArrayDialect(source.$schema)
+  if ('$ref-value' in source)
+    source = { ...source, '$ref-value': getContainsItemSchema(source['$ref-value'], value, dialect, depth + 1) }
+  if (!isObject(source)) return {}
   if (Array.isArray(source.allOf))
     source = {
       ...source,
