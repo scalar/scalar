@@ -158,7 +158,7 @@ overrides:
   undici@<8: 7.30.2
   undici@>=8: catalog:*
 
-# Wait one day before installing newly published dependency versions.
+# Keep a short buffer for newly published dependencies.
 minimumReleaseAge: 1440 # 1 day
 
 minimumReleaseAgeExclude:
@@ -168,7 +168,7 @@ minimumReleaseAgeExclude:
   - '@nestjs/platform-express@11.2.9'
   - '@nestjs/platform-fastify@11.2.9'
   - '@nestjs/testing@11.2.9'
-  # Allow our own packages immediately after publishing.
+  # Trust packages published by Scalar.
   - '@scalar/*'
   # Security patches for the November 2026 Undici advisories.
   - undici@7.30.2
