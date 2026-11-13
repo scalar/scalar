@@ -75,7 +75,7 @@ catalogs:
     fastify: ^5.12.7
     flatted: ^3.4.4
     fuse.js: ^7.5.0
-    hono: ^4.13.13
+    hono: ^4.13.16
     get-port-please: 3.2.0
     github-slugger: 2.0.0
     highlight.js: ^11.12.0
@@ -195,5 +195,7 @@ minimumReleaseAgeExclude:
   - pnpm@10.34.5
   # Renovate security update: @sveltejs/kit@3.0.0
   - '@sveltejs/kit@3.0.0'
+  # Renovate security update: hono@4.13.16
+  - hono@4.13.16
 patchedDependencies:
   proto-parser@0.0.9: patches/proto-parser@0.0.9.patch
