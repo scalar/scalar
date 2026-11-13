@@ -795,6 +795,8 @@ type ExtendedConfiguration = {
   hideSearch: boolean
   /** Whether to show the operationId */
   showOperationId: boolean
+  /** Whether to show the x-badges of operations, webhooks, tags, tag groups and models in the sidebar */
+  showBadgesInSidebar: boolean
   /** Extension keys to display on Paths Objects, Path Items, operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions?: string[]
   /** Whether dark mode is on or off initially (light mode) */

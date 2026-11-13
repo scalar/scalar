@@ -762,6 +762,22 @@ By default we don't render it in the UI. If it's helpful to show it to your user
 }
 ```
 
+### showBadgesInSidebar
+
+**Type:** `boolean`
+
+Whether to show [`x-badges`](openapi.md#x-badges) in the sidebar, next to the titles of operations, webhooks, tags, tag groups (`x-tagGroups`) and models. Badges with `position: before` show before the title, all other badges after it.
+
+By default, badges only show in the content and the sidebar looks the same as before.
+
+**Default:** `false`
+
+```javascript
+{
+  showBadgesInSidebar: true
+}
+```
+
 ### hideModels
 
 **Type:** `boolean`

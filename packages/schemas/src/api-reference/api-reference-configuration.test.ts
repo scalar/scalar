@@ -15,6 +15,14 @@ describe('api-reference-configuration', () => {
     )
   })
 
+  it('turns sidebar badges off by default and keeps them on when set', () => {
+    expect(coerce(apiReferenceConfigurationSchema, {}).showBadgesInSidebar).toBe(false)
+    expect(
+      apiReferenceConfigurationWithSourceSchema({ showBadgesInSidebar: true, url: '/openapi.json' })
+        .showBadgesInSidebar,
+    ).toBe(true)
+  })
+
   it.each([undefined, true, false])('preserves urlRouting %s through configuration normalization', (urlRouting) => {
     expect(apiReferenceConfigurationWithSourceSchema({ urlRouting, url: '/openapi.json' }).urlRouting).toBe(urlRouting)
   })

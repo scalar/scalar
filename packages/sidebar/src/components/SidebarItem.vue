@@ -26,6 +26,7 @@ import {
 import type { Item, Layout, SidebarOptions } from '@/types'
 
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
+import SidebarItemBadges from './SidebarItemBadges.vue'
 import SidebarItemLabel from './SidebarItemLabel.vue'
 
 const {
@@ -144,6 +145,11 @@ const { draggableAttrs, draggableEvents } = useDraggable({
   isDroppable,
   onDragEnd,
 })
+
+/** The `x-badges` of the item, only when the sidebar is set to show them */
+const badges = computed(() =>
+  options?.showBadgesInSidebar && 'badges' in item ? (item.badges ?? []) : [],
+)
 
 const children = computed(() =>
   hasChildren(item)
@@ -316,6 +322,10 @@ const handleSelect = (event: MouseEvent) => {
               " />
           </slot>
         </template>
+        <SidebarItemBadges
+          v-if="badges.length"
+          :badges
+          position="before" />
         <span
           v-if="isDeprecated(item)"
           class="line-through">
@@ -327,6 +337,10 @@ const handleSelect = (event: MouseEvent) => {
           v-else
           :item
           :operationTitleSource="options?.operationTitleSource" />
+        <SidebarItemBadges
+          v-if="badges.length"
+          :badges
+          position="after" />
         <template #aside>
           <SidebarHttpBadge
             v-if="'method' in item"
@@ -439,6 +453,10 @@ const handleSelect = (event: MouseEvent) => {
             name="icon"
             :open="true" />
         </template>
+        <SidebarItemBadges
+          v-if="badges.length"
+          :badges
+          position="before" />
         <span
           v-if="isDeprecated(item)"
           class="line-through">
@@ -450,6 +468,10 @@ const handleSelect = (event: MouseEvent) => {
           v-else
           :item
           :operationTitleSource="options?.operationTitleSource" />
+        <SidebarItemBadges
+          v-if="badges.length"
+          :badges
+          position="after" />
         <template
           v-if="'method' in item"
           #aside>

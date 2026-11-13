@@ -15,6 +15,12 @@ export type SidebarOptions = Partial<{
    * @default false
    */
   hideOperationDefaultExamples: boolean
+  /**
+   * Whether to show the `x-badges` of operations, webhooks, tags, tag groups and models next to their titles.
+   *
+   * @default false
+   */
+  showBadgesInSidebar: boolean
   labels: Partial<{
     closeGroup: string
     httpMethod: string
