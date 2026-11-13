@@ -33,6 +33,15 @@ export type Celebration = {
  */
 const CELEBRATIONS: readonly Celebration[] = [
   {
+    // Programmer's Day is the 256th day of the year: September 13, or September 12 in leap
+    // years. A window only knows month and day, so it covers both dates every year rather than
+    // working out which one is the 256th.
+    name: "Programmer's Day",
+    theme: 'programmersDay',
+    start: { month: 9, day: 12 },
+    end: { month: 9, day: 13 },
+  },
+  {
     name: 'Halloween',
     theme: 'halloween',
     start: { month: 10, day: 1 },
