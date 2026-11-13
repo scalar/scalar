@@ -1,6 +1,15 @@
 export { resolveReferencePath } from '@/helpers/resolve-reference-path'
 
-export type { Config as BundleConfig, LifecyclePlugin, LoaderPlugin, Plugin, ResolveResult } from './bundle'
+export type {
+  Config as BundleConfig,
+  DocumentLoadContext,
+  LifecyclePlugin,
+  LoaderPlugin,
+  Plugin,
+  ResolveResult,
+  TargetProcessContext,
+  TargetTransformation,
+} from './bundle'
 export {
   bundle,
   extensions,

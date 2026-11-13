@@ -15,9 +15,14 @@ import type { UnknownObject } from '@/types'
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
 import type { ReferenceDiagnostic } from './bundle-with-diagnostics'
-import { type DocumentResolver, bundledDocumentUri, documentReferences } from './document-references'
+import {
+  type DocumentLocation,
+  type DocumentResolver,
+  bundledDocumentUri,
+  documentReferences,
+} from './document-references'
 import { documentTraversal } from './document-traversal'
-import { isReferenceContext } from './reference-context'
+import { type ReferenceContext, isReferenceContext } from './reference-context'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
@@ -364,6 +369,25 @@ type NodeProcessContext = {
   ) => { path: readonly string[]; value: unknown; resourceRelative: boolean } | undefined
 }
 
+/** Resource loading is shared by transforms and the bundler; source values are never upgraded in place. */
+export type DocumentLoadContext = {
+  uri: string
+  loadDocument: (uri: string) => Promise<ResolveResult>
+}
+
+/** A resolved target retains its resource and referring location before bundle storage is assigned. */
+export type TargetProcessContext = {
+  document: unknown
+  path: readonly string[]
+  uri: string
+  referencedFrom: NodeProcessContext
+  /** Semantic source location, including the owning location for a partial input or server chunk. */
+  referenceSource: DocumentLocation
+}
+
+/** A transformed target may occupy a separate path when its interpretation depends on the referring context. */
+export type TargetTransformation = { value: unknown; path?: readonly string[] }
+
 /**
  * A plugin type for lifecycle hooks, allowing custom logic to be injected into the bundler's process.
  * This type extends the Config['hooks'] interface and is identified by type: 'lifecycle'.
@@ -414,6 +438,8 @@ export type Config = {
    * ensuring proper path resolution for nested references.
    */
   root?: UnknownObject
+  /** Location of a partial input within root, for lifecycle context. */
+  inputPath?: readonly string[]
 
   /**
    * Optional maximum depth for reference resolution.
@@ -485,6 +511,14 @@ export type Config = {
    * Allows tracking the progress and status of reference resolution.
    */
   hooks?: Partial<{
+    /** Transform a parsed resource before it is indexed, including input and cached resources. */
+    onDocumentLoaded: (document: unknown, context: DocumentLoadContext) => unknown | Promise<unknown>
+    /** Transform a resolved fragment before traversing it. Return undefined to leave it unchanged. */
+    onBeforeTargetProcess: (
+      target: unknown,
+      context: TargetProcessContext,
+    ) => TargetTransformation | undefined | Promise<TargetTransformation | undefined>
+
     /** Called once a complete document is available, including cached and saved documents.
      * The first resolver returning an identity supplies its base URI and retained metadata.
      * This hook is synchronous because identities are indexed before following references.
@@ -631,6 +665,64 @@ export const bundleDocument = async (
   const lifecyclePlugin = config.plugins.filter((it) => it.type === 'lifecycle')
 
   /**
+   * Executes lifecycle hooks defined both in the bundler configuration and any extended lifecycle plugins.
+   * This utility function ensures that all relevant hooks for a given event type are called in order:
+   * - First, the hook directly provided via the config (if present)
+   * - Then, all matching hooks from registered lifecycle plugins (if present)
+   *
+   * Hooks are awaited in sequence for the given event type and argument list.
+   *
+   * @param type The hook event type, corresponding to a key of Config['hooks'].
+   * @param args Arguments to pass to the hook function, matching HookFn<T>.
+   */
+  const executeHooks = async <T extends keyof Config['hooks']>(
+    type: T,
+    ...args: Parameters<HookFn<T>>
+  ): Promise<void> => {
+    // Run hook defined directly in config, if present
+    const hook = config.hooks?.[type] as HookFn<T> | undefined
+    if (hook) {
+      await hook(...args)
+    }
+    // Additionally run the hook for every lifecycle plugin, if present
+    for (const plugin of lifecyclePlugin) {
+      const pluginHook = plugin[type] as HookFn<T> | undefined
+      if (pluginHook) {
+        await pluginHook(...args)
+      }
+    }
+  }
+
+  const sourceDocuments = new Map<string, Promise<ResolveResult>>()
+  const loadDocument = (uri: string): Promise<ResolveResult> => {
+    const existing = sourceDocuments.get(uri)
+    if (existing) {
+      return existing
+    }
+    const pending =
+      config.cache?.get(uri) ??
+      config.cache?.get(toRelativePath(uri, getDefaultOrigin())) ??
+      resolveContents(uri, loaderPlugins)
+    sourceDocuments.set(uri, pending)
+    return pending
+  }
+  const preparedDocuments = new Map<unknown, unknown>()
+  const prepareDocument = async (value: unknown, uri: string): Promise<unknown> => {
+    if (preparedDocuments.has(value)) {
+      return preparedDocuments.get(value)
+    }
+    let document = value
+    for (const hook of [config.hooks?.onDocumentLoaded, ...lifecyclePlugin.map((plugin) => plugin.onDocumentLoaded)]) {
+      if (hook) {
+        document = (await hook(document, { uri, loadDocument })) ?? document
+      }
+    }
+    preparedDocuments.set(value, document)
+    preparedDocuments.set(document, document)
+    return document
+  }
+
+  /**
    * Resolves the input value by either returning it directly if it's not a string,
    * or attempting to resolve it using the provided plugins if it is a string.
    * @returns The resolved input data or throws an error if resolution fails
@@ -639,7 +731,7 @@ export const bundleDocument = async (
     if (typeof input !== 'string') {
       return input
     }
-    const result = await resolveContents(input, loaderPlugins)
+    const result = await loadDocument(input)
 
     if (result.ok && typeof result.data === 'object' && (!diagnostics || isObject(result.data))) {
       return result.data
@@ -649,24 +741,6 @@ export const bundleDocument = async (
       'Failed to resolve input: Please provide a valid string value or pass a loader to process the input',
     )
   }
-
-  // Resolve the input specification, which could be either a direct object or a string URL/path
-  const rawSpecification = await resolveInput()
-
-  // Document root used to write all external documents
-  // We need this when we want to do a partial bundle of a document
-  const documentRoot = config.root ?? rawSpecification
-
-  // Determines if the bundling operation is partial.
-  // Partial bundling occurs when:
-  // - A root document is provided that is different from the raw specification being bundled, or
-  // - A maximum depth is specified in the config.
-  // In these cases, only a subset of the document may be bundled.
-  const isPartialBundling =
-    (config.root !== undefined && config.root !== rawSpecification) || config.depth !== undefined
-
-  // Set of nodes that have already been processed during bundling to prevent duplicate processing
-  const processedNodes = config.visitedNodes ?? new Set()
 
   // Determines the initial origin path for the bundler based on the input type.
   // For string inputs that are URLs or file paths, uses the input as the origin.
@@ -686,6 +760,45 @@ export const bundleDocument = async (
 
     return '/'
   }
+
+  // Resolve the input specification, which could be either a direct object or a string URL/path
+  const sourceSpecification = await resolveInput()
+  const sourceRoot = config.root ?? sourceSpecification
+  sourceDocuments.set(
+    getDefaultOrigin(),
+    Promise.resolve({
+      ok: true,
+      raw: '',
+      data:
+        config.hooks?.onDocumentLoaded || lifecyclePlugin.some((plugin) => plugin.onDocumentLoaded)
+          ? structuredClone(sourceRoot)
+          : sourceRoot,
+    }),
+  )
+  const transformedRoot = await prepareDocument(sourceRoot, getDefaultOrigin())
+  // Preserve the public in-place bundle contract while keeping source data separate.
+  if (transformedRoot !== sourceRoot && isObject(sourceRoot) && isObject(transformedRoot)) {
+    for (const key of Object.keys(sourceRoot)) {
+      delete sourceRoot[key]
+    }
+    Object.assign(sourceRoot, transformedRoot)
+  }
+  const rawSpecification = sourceSpecification
+
+  // Document root used to write all external documents
+  // We need this when we want to do a partial bundle of a document
+  const documentRoot = config.root ?? rawSpecification
+
+  // Determines if the bundling operation is partial.
+  // Partial bundling occurs when:
+  // - A root document is provided that is different from the raw specification being bundled, or
+  // - A maximum depth is specified in the config.
+  // In these cases, only a subset of the document may be bundled.
+  const isPartialBundling =
+    (config.root !== undefined && config.root !== rawSpecification) || config.depth !== undefined
+
+  // Set of nodes that have already been processed during bundling to prevent duplicate processing
+  const processedNodes = config.visitedNodes ?? new Set()
 
   // Registry paths are JSON pointers; only authored URI fragments need percent decoding.
   const parsePath = (pointer: string): string[] => pointer.split('/').slice(1).map(unescapeJsonPointerSegment)
@@ -719,14 +832,19 @@ export const bundleDocument = async (
         (node) => traversal.location(node)?.context !== 'data',
         (node, ref) => {
           const context = traversal.location(node)?.context
-          if (context && !isReferenceContext(context)) return undefined
+          if (context && !isReferenceContext(context)) {
+            return undefined
+          }
           const target = references.resolve(ref, references.origin(node) ?? defaultOrigin)
           return target?.value !== undefined ? `#/${target.path}` : ref
         },
         parsePath,
       )
-    if (diagnostics) deferredCopies.push(copy)
-    else copy()
+    if (diagnostics) {
+      deferredCopies.push(copy)
+    } else {
+      copy()
+    }
   }
   const references = documentReferences(
     config.externalDocumentsKey,
@@ -786,12 +904,16 @@ export const bundleDocument = async (
         documentRoot[config.externalDocumentsMappingsKey][key],
       )
       const source = documentRoot[config.externalDocumentsMappingsKey][key]
+      const prepared = await prepareDocument(document, retrievalUri)
+      if (prepared !== document) {
+        storedDocuments[key] = prepared
+      }
       traversal.register(
-        document,
+        prepared,
         source ? retrievalUri : `#/${escapeJsonPointer(config.externalDocumentsKey)}/${escapeJsonPointer(key)}`,
       )
       references.register(
-        document,
+        prepared,
         retrievalUri,
         [config.externalDocumentsKey, key],
         resolveReferencePath(defaultOrigin, source ?? key),
@@ -803,39 +925,18 @@ export const bundleDocument = async (
     if (result.ok) {
       const retrievalUri = resolveReferencePath(defaultOrigin, uri)
       const relativeUri = toRelativePath(retrievalUri, defaultOrigin)
-      if (diagnostics) cache.set(relativeUri, pending)
-      const key = await generate(relativeUri)
-      traversal.register(result.data, retrievalUri)
-      references.register(result.data, retrievalUri, [config.externalDocumentsKey, key])
-    }
-  }
-
-  /**
-   * Executes lifecycle hooks defined both in the bundler configuration and any extended lifecycle plugins.
-   * This utility function ensures that all relevant hooks for a given event type are called in order:
-   * - First, the hook directly provided via the config (if present)
-   * - Then, all matching hooks from registered lifecycle plugins (if present)
-   *
-   * Hooks are awaited in sequence for the given event type and argument list.
-   *
-   * @param type The hook event type, corresponding to a key of Config['hooks'].
-   * @param args Arguments to pass to the hook function, matching HookFn<T>.
-   */
-  const executeHooks = async <T extends keyof Config['hooks']>(
-    type: T,
-    ...args: Parameters<HookFn<T>>
-  ): Promise<void> => {
-    // Run hook defined directly in config, if present
-    const hook = config.hooks?.[type] as HookFn<T> | undefined
-    if (hook) {
-      await hook(...args)
-    }
-    // Additionally run the hook for every lifecycle plugin, if present
-    for (const plugin of lifecyclePlugin) {
-      const pluginHook = plugin[type] as HookFn<T> | undefined
-      if (pluginHook) {
-        await pluginHook(...args)
+      if (diagnostics) {
+        cache.set(relativeUri, pending)
       }
+      const key = await generate(relativeUri)
+      sourceDocuments.set(retrievalUri, pending)
+      const data = await prepareDocument(result.data, retrievalUri)
+      const prepared = Promise.resolve({ ...result, data })
+      if (data !== result.data) {
+        cache.set(uri, prepared)
+      }
+      traversal.register(data, retrievalUri)
+      references.register(data, retrievalUri, [config.externalDocumentsKey, key])
     }
   }
 
@@ -848,27 +949,87 @@ export const bundleDocument = async (
     origin: string,
     key: string,
   ): ReturnType<typeof documentReferences> => {
-    if (!isChunk) return references
+    if (!isChunk) {
+      return references
+    }
     const existing = chunkReferences.get(origin)
-    if (existing) return existing
+    if (existing) {
+      return existing
+    }
     const targets = documentReferences(config.externalDocumentsKey)
     targets.register(document, origin, [config.externalDocumentsKey, key])
     chunkReferences.set(origin, targets)
     return targets
   }
 
+  const prepareTarget = async (
+    target: NonNullable<ReturnType<typeof references.resolve>>,
+    context: NodeProcessContext,
+    kind: ReferenceContext | undefined,
+    referenceSource: DocumentLocation,
+  ): Promise<NonNullable<ReturnType<typeof references.resolve>>> => {
+    const originalPath = target.segments.slice(target.documentPath.length)
+    let path = originalPath
+    let value = target.value
+    for (const hook of [
+      config.hooks?.onBeforeTargetProcess,
+      ...lifecyclePlugin.map((plugin) => plugin.onBeforeTargetProcess),
+    ]) {
+      const transformed = await hook?.(value, {
+        document: target.document,
+        path: originalPath,
+        uri: isObject(target.document)
+          ? (references.retrievalOrigin(target.document) ?? context.origin)
+          : context.origin,
+        referencedFrom: context,
+        referenceSource,
+      })
+      if (transformed) {
+        value = transformed.value
+        path = transformed.path ? [...transformed.path] : path
+      }
+    }
+    if (value === target.value && path === originalPath) {
+      return target
+    }
+    if (path.length) {
+      setPath(target.document as object, `/${path.map(escapeJsonPointer).join('/')}`, value)
+    } else if (isObject(target.document) && isObject(value)) {
+      for (const key of Object.keys(target.document)) {
+        delete target.document[key]
+      }
+      Object.assign(target.document, value)
+    }
+    const uri = isObject(target.document)
+      ? (references.retrievalOrigin(target.document) ?? context.origin)
+      : context.origin
+    traversal.register(target.document, uri, kind, path)
+    references.refresh(target.document, path)
+    const segments = [...target.documentPath, ...path]
+    return { ...target, value, segments, path: segments.map(escapeJsonPointer).join('/'), preserveReference: false }
+  }
+
   const pendingAnchors: (() => Promise<void>)[] = []
   /** Anchors can become visible when a later reference exposes a literal-data subtree. */
   const resolvePendingAnchors = async (): Promise<void> => {
-    for (const resolveAnchor of pendingAnchors) await resolveAnchor()
+    for (const resolveAnchor of pendingAnchors) {
+      await resolveAnchor()
+    }
   }
 
   /** Retain complete source documents until every reference has been checked. */
   const applyDeferredCopies = (): void => {
-    if (!diagnostics || !config.treeShake || diagnostics.length > 0) return
-    if (storedDocuments === undefined) delete documentRoot[config.externalDocumentsKey]
-    else documentRoot[config.externalDocumentsKey] = storedDocuments
-    for (const copy of deferredCopies) copy()
+    if (!diagnostics || !config.treeShake || diagnostics.length > 0) {
+      return
+    }
+    if (storedDocuments === undefined) {
+      delete documentRoot[config.externalDocumentsKey]
+    } else {
+      documentRoot[config.externalDocumentsKey] = storedDocuments
+    }
+    for (const copy of deferredCopies) {
+      copy()
+    }
   }
 
   const bundler = async (
@@ -890,7 +1051,9 @@ export const bundleDocument = async (
     }
 
     const location = traversal.location(root)
-    if (location?.context === 'data') return
+    if (location?.context === 'data') {
+      return
+    }
 
     // Skip if this node has already been processed to prevent infinite recursion
     // and duplicate processing of the same node
@@ -924,13 +1087,20 @@ export const bundleDocument = async (
       },
     }
 
+    const referenceSource = references.source(root) ?? {
+      document: documentRoot,
+      uri: defaultOrigin,
+      path: referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
+    }
+
     const authoredReference = hasRef(root) ? root.$ref : undefined
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
 
     const visitChildren = async (): Promise<void> => {
       for (const key of Object.keys(root)) {
-        if (key === '$ref' || key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey)
+        if (key === '$ref' || key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey) {
           continue
+        }
         await bundler(
           root[key],
           nodeOrigin,
@@ -956,10 +1126,13 @@ export const bundleDocument = async (
       if (
         config.traversal === 'document' &&
         (location?.context === 'path-item' || (location?.context === 'schema' && location.schemaSiblings))
-      )
+      ) {
         await visitChildren()
+      }
       if (config.preserveReference?.(ref, { origin: nodeOrigin })) {
-        if (config.traversal !== 'document') await visitChildren()
+        if (config.traversal !== 'document') {
+          await visitChildren()
+        }
         await executeHooks('onAfterNodeProcess', root, context)
         return
       }
@@ -972,7 +1145,10 @@ export const bundleDocument = async (
       // In case of partial bundling, we still need to ensure that all dependencies
       // of the local reference are bundled to create a complete and self-contained partial bundle
       // This is important to maintain the integrity of the partial bundle
-      const local = resolveReference(ref)
+      const initialTarget = resolveReference(ref)
+      const local = initialTarget
+        ? await prepareTarget(initialTarget, context, location?.context, referenceSource)
+        : undefined
       const localRef = local?.path
 
       if (localRef !== undefined) {
@@ -1005,7 +1181,12 @@ export const bundleDocument = async (
           traversal.register(local.document, source ?? location.source, location.context, targetPath)
           references.refresh(local.document, targetPath)
         }
-        if (isPartialBundling || (diagnostics && config.traversal === 'document')) {
+        if (
+          isPartialBundling ||
+          lifecyclePlugin.some((plugin) => plugin.onBeforeTargetProcess) ||
+          config.hooks?.onBeforeTargetProcess ||
+          (diagnostics && config.traversal === 'document')
+        ) {
           const segments = parsePath(`/${localRef}`)
           const parent = segments.length > 0 ? getValueByPath(documentRoot, segments.slice(0, -1)).value : undefined
 
@@ -1036,7 +1217,9 @@ export const bundleDocument = async (
         if (local.documentPath.length > 0) {
           const origin =
             isObject(local.document) || Array.isArray(local.document) ? references.origin(local.document) : nodeOrigin
-          await bundler(local.document, origin, isChunkParent, depth + 1, local.documentPath)
+          if (!references.identity(local.document)?.visitReferencedSubtrees) {
+            await bundler(local.document, origin, isChunkParent, depth + 1, local.documentPath)
+          }
           if (config.treeShake) {
             const [key, documentKey] = local.documentPath
             copyReferences(
@@ -1069,7 +1252,9 @@ export const bundleDocument = async (
         pendingAnchors.push(async () => {
           const target = references.resolve(ref, nodeOrigin)
           if (target?.value !== undefined) {
-            if (!target.preserveReference) root.$ref = referenceToRoot(`#/${target.path}`, nodeOrigin)
+            if (!target.preserveReference) {
+              root.$ref = referenceToRoot(`#/${target.path}`, nodeOrigin)
+            }
           } else {
             report('missing-target')
             await executeHooks('onResolveError', root)
@@ -1093,7 +1278,12 @@ export const bundleDocument = async (
       const seen = cache.has(relativePath)
 
       if (!seen) {
-        cache.set(relativePath, resolveContents(resolvedPath, loaderPlugins))
+        cache.set(
+          relativePath,
+          loadDocument(resolvedPath).then(async (result) =>
+            result.ok ? { ...result, data: await prepareDocument(result.data, resolvedPath) } : result,
+          ),
+        )
       }
 
       await executeHooks('onResolveStart', root)
@@ -1117,16 +1307,18 @@ export const bundleDocument = async (
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
-          await bundler(
-            result.data,
-            isChunk ? origin : resolvedPath,
-            isChunk,
-            depth + 1,
-            [config.externalDocumentsKey, compressedPath],
-            null,
-            // Keep the referring document path across external hops, replacing the storage wrapper.
-            referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
-          )
+          if (isChunk || !references.identity(result.data)?.visitReferencedSubtrees) {
+            await bundler(
+              result.data,
+              isChunk ? origin : resolvedPath,
+              isChunk,
+              depth + 1,
+              [config.externalDocumentsKey, compressedPath],
+              null,
+              // Keep the referring document path across external hops, replacing the storage wrapper.
+              referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
+            )
+          }
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
@@ -1139,7 +1331,22 @@ export const bundleDocument = async (
 
         const targetReferences = getTargetReferences(isChunk, result.data, resolvedPath, compressedPath)
         const finishResolution = async (): Promise<void> => {
-          const target = targetReferences.resolve(ref, retrievalOrigin)
+          const initialTarget = targetReferences.resolve(ref, retrievalOrigin)
+          const target =
+            initialTarget && !isChunk
+              ? await prepareTarget(initialTarget, context, location?.context, referenceSource)
+              : initialTarget
+          if (target && !isChunk && references.identity(result.data)?.visitReferencedSubtrees) {
+            await bundler(
+              target.value,
+              resolvedPath,
+              false,
+              depth + 1,
+              target.segments,
+              null,
+              referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
+            )
+          }
           if (diagnostics && target?.value === undefined) {
             setPath(documentRoot, `/${config.externalDocumentsKey}/${escapeJsonPointer(compressedPath)}`, result.data)
             report('missing-target')
@@ -1206,7 +1413,9 @@ export const bundleDocument = async (
       await executeHooks('onResolveError', root)
 
       await executeHooks('onAfterNodeProcess', root, context)
-      if (diagnostics) return
+      if (diagnostics) {
+        return
+      }
       return console.warn(
         `Failed to resolve external reference "${resolvedPath}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )
@@ -1234,7 +1443,7 @@ export const bundleDocument = async (
     await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
   }
 
-  await bundler(rawSpecification)
+  await bundler(rawSpecification, defaultOrigin, false, 0, config.inputPath ?? [])
   if (diagnostics && !config.treeShake && isObject(storedDocuments)) {
     for (const [key, document] of Object.entries(storedDocuments)) {
       await bundler(document, defaultOrigin, false, 1, [config.externalDocumentsKey, key], storedDocuments)
