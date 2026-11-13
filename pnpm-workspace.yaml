@@ -195,5 +195,7 @@ minimumReleaseAgeExclude:
   - pnpm@10.34.5
   # Renovate security update: @sveltejs/kit@3.0.0
   - '@sveltejs/kit@3.0.0'
+  # Renovate security update: hono@4.13.16
+  - hono@4.13.16
 patchedDependencies:
   proto-parser@0.0.9: patches/proto-parser@0.0.9.patch
