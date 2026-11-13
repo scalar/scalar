@@ -198,8 +198,8 @@ catalogs:
       specifier: 1.7.23
       version: 1.7.23
     '@hono/node-server':
-      specifier: ^2.1.5
-      version: 2.1.5
+      specifier: ^2.1.6
+      version: 2.1.6
     '@microsoft/api-extractor':
       specifier: ^7.59.4
       version: 7.59.4
@@ -1146,7 +1146,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 2.1.5(hono@4.13.17)
+        version: 2.1.6(hono@4.13.17)
       '@hono/zod-openapi':
         specifier: ^1.6.3
         version: 1.6.3(hono@4.13.17)(zod@4.6.7)
@@ -1723,7 +1723,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 2.1.5(hono@4.13.17)
+        version: 2.1.6(hono@4.13.17)
       '@playwright/test':
         specifier: catalog:*
         version: 1.62.1
@@ -2503,7 +2503,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 2.1.5(hono@4.13.17)
+        version: 2.1.6(hono@4.13.17)
       '@types/node':
         specifier: ^24.19.2
         version: 24.19.2
@@ -2524,7 +2524,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 2.1.5(hono@4.13.17)
+        version: 2.1.6(hono@4.13.17)
       '@scalar/hono-api-reference':
         specifier: workspace:*
         version: link:../../../integrations/hono
@@ -2975,7 +2975,7 @@ importers:
     devDependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 2.1.5(hono@4.13.17)
+        version: 2.1.6(hono@4.13.17)
       hono:
         specifier: catalog:*
         version: 4.13.17
@@ -3244,7 +3244,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: catalog:*
-        version: 2.1.5(hono@4.13.17)
+        version: 2.1.6(hono@4.13.17)
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -6376,8 +6376,8 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
-  '@hono/node-server@2.1.5':
-    resolution: {integrity: sha512-MgP/I06GdvsilDspMk/qmRzpk8LOUStP6jFAbSRi40W09DhoyUn+Mj7eyKICPqeYKybOjVFLVIAQzvu1bfIa7Q==}
+  '@hono/node-server@2.1.6':
+    resolution: {integrity: sha512-p/KH9MnfNcsm3sR6x4lNgm5j+QN4Et8srKredl9DZfXiyZ1UQ3aQ2YVpFLbqktYN5JI+DB+VZFKM2PqE5hLKjQ==}
     engines: {node: '>=20'}
     peerDependencies:
       hono: ^4 || ^5.0.0-0
@@ -25356,7 +25356,7 @@ snapshots:
       '@tanstack/vue-virtual': 3.8.5(vue@3.5.44(typescript@5.9.3))
       vue: 3.5.44(typescript@5.9.3)
 
-  '@hono/node-server@2.1.5(hono@4.13.17)':
+  '@hono/node-server@2.1.6(hono@4.13.17)':
     dependencies:
       hono: 4.13.17
 
