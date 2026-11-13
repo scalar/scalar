@@ -163,6 +163,14 @@ Before writing a new utility function, check `@scalar/helpers` (`packages/helper
 
 If the helper you need already exists there, import it from `@scalar/helpers`. Only add a new helper to `@scalar/helpers` (or another package) if nothing suitable already exists.
 
+### Workspace document formats
+
+- A `WorkspaceDocument` may be OpenAPI, AsyncAPI, or plugin-defined. Use `isOpenApiDocument` or `isAsyncApiDocument` before format-specific processing.
+- Do not infer OpenAPI from the absence of AsyncAPI, or classify workspace documents through field existence alone. Plugin documents may carry fields named `openapi`, `asyncapi`, `paths`, or `servers` with different semantics.
+- Shared metadata such as `info.title` does not require format-specific narrowing. Helpers restricted to a built-in format should accept that narrowed type.
+- The workspace store owns `x-scalar-document-type`: registered detectors claim raw documents and ingestion assigns the marker. Document authors must not supply it. `loadWorkspace` restores already-processed snapshots (including their markers); raw documents must go through `addDocument` or `replaceDocument`.
+- Unsupported consumers must explicitly skip or reject plugin documents. Cover mixed-format workspaces and misleading built-in fields when changing document handling.
+
 ### TypeScript
 
 - Prefer `type` over `interface`

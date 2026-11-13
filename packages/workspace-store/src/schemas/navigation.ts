@@ -278,6 +278,31 @@ export type TraversedModels = BaseSchema & {
   children?: TraversedEntry[]
 }
 
+export const TraversedPluginEntrySchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('plugin'),
+    documentType: Type.String(),
+    kind: Type.Optional(Type.String()),
+    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+  }),
+)
+
+/**
+ * An entry contributed by a registered document type (see `DocumentTypeDefinition`).
+ *
+ * The store and sidebar only rely on the base fields; `kind` lets the document type tell its own
+ * entries apart (e.g. a workflow and a step) when it renders them.
+ */
+export type TraversedPluginEntry = BaseSchema & {
+  type: 'plugin'
+  /** The document type that produced the entry */
+  documentType: string
+  /** Free-form discriminator owned by the document type */
+  kind?: string
+  children?: TraversedEntry[]
+}
+
 export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedDescriptionSchemaDefinition,
   TraversedOperationSchemaDefinition,
@@ -290,6 +315,7 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedExampleSchemaDefinition,
   TraversedDocumentSchemaDefinition,
   TraversedModelsSchemaDefinition,
+  TraversedPluginEntrySchemaDefinition,
 ])
 
 export type TraversedEntry =
@@ -304,6 +330,7 @@ export type TraversedEntry =
   | TraversedExample
   | TraversedDocument
   | TraversedModels
+  | TraversedPluginEntry
 
 /**
  * Type helper for when we are storing the parent entry in the entry itself.

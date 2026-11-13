@@ -7,7 +7,7 @@ import { coerce } from '@scalar/validation'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import { isAsyncApiDocument, isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { DefaultChatTransport, type UIDataTypes, type UIMessage, lastAssistantMessageIsCompleteWithToolCalls } from 'ai'
 import { n } from 'neverpanic'
 import { type ComputedRef, type InjectionKey, type Ref, computed, inject, reactive, ref, watch } from 'vue'
@@ -133,15 +133,16 @@ function createChat({
       if (
         (toolCall.toolName === EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME ||
           toolCall.toolName === 'ask-for-authentication') &&
-        isAsyncApiDocument(workspaceStore.workspace.documents[toolCall.input.documentName])
+        !isOpenApiDocument(workspaceStore.workspace.documents[toolCall.input.documentName])
       ) {
         // Tool callbacks run inside the stream queue; enqueue the result without waiting on that queue.
         void chat.addToolOutput({
           tool: toolCall.toolName,
           toolCallId: toolCall.toolCallId,
           state: 'output-error',
-          errorText:
-            'Live AsyncAPI messaging and authentication are not supported in Ask AI. Ask for an explanation or code example instead.',
+          errorText: isAsyncApiDocument(workspaceStore.workspace.documents[toolCall.input.documentName])
+            ? 'Live AsyncAPI messaging and authentication are not supported in Ask AI. Ask for an explanation or code example instead.'
+            : 'Requests and authentication require an OpenAPI document. This document format is not supported in Ask AI.',
         })
         return
       }

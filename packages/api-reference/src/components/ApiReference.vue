@@ -72,6 +72,7 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
+import { isPluginDocument } from '@scalar/workspace-store/schemas/plugin-document'
 import {
   isAsyncApiDocument,
   isOpenApiDocument,
@@ -161,6 +162,7 @@ import {
 } from '@/helpers/normalize-configurations'
 import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
+import { toStoreDocumentTypes } from '@/helpers/to-store-document-types'
 import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
@@ -527,6 +529,46 @@ function syncSlugAndUrlWithDocument(
 }
 
 // ---------------------------------------------------------------------------
+/** Plugin Initialization */
+
+/**
+ * Plugin injection is not reactive. All plugins must be provided at first render.
+ *
+ * Created before the stores so they can be given the plugins' document types. The auth accessor
+ * reads the client store lazily: the reference-side Authentication panel (Content → Auth.vue)
+ * persists credentials into `clientStore.auth`, so plugins must read the same store to see what the
+ * user entered. Hooks only run from `notifyInit` onwards, once the client store exists.
+ */
+const pluginManager = createPluginManager({
+  plugins: Object.values(configList.value).flatMap(
+    (c) => c.config.plugins ?? [],
+  ),
+  /**
+   * Read-only view of the global authentication state, so plugins can read stored secrets and
+   * the selected security schemes without being able to mutate them. Wraps the client store's
+   * auth methods (rather than passing the store directly) to keep the setters out of the plugin API.
+   *
+   * The getters return a deep copy (`export` already snapshots internally, the others go through
+   * `toJsonCompatible`) so plugins receive plain data rather than the store's live reactive proxies —
+   * mutating what they get back can never leak into the store.
+   */
+  auth: {
+    export: () => clientStore.auth.export(),
+    getAuthSecrets: (documentName, schemeName) =>
+      toJsonCompatible(
+        clientStore.auth.getAuthSecrets(documentName, schemeName),
+      ),
+    getAuthSelectedSchemas: (payload) =>
+      toJsonCompatible(clientStore.auth.getAuthSelectedSchemas(payload)),
+  },
+})
+provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+provide(MARKDOWN_RENDER_HOOKS, pluginManager.getMarkdownRenderHooks())
+
+/** Document formats contributed by plugins, registered with both stores so they agree on every document. */
+const documentTypes = toStoreDocumentTypes(pluginManager.getDocumentTypes())
+
+// ---------------------------------------------------------------------------
 /** Workspace Store Initialization */
 
 /**
@@ -534,6 +576,7 @@ function syncSlugAndUrlWithDocument(
  */
 const workspaceStore = createWorkspaceStore({
   verbose: isDevelopment,
+  documentTypes,
 })
 
 provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
@@ -544,6 +587,7 @@ provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
  */
 const clientStore = createWorkspaceStore({
   verbose: isDevelopment,
+  documentTypes,
   plugins: [
     persistencePlugin({
       persistAuth: () => mergedConfig.value.persistAuth ?? false,
@@ -593,40 +637,7 @@ const runtimeConfig = computed<ApiReferenceConfiguration>(() => {
     : config
 })
 
-/**
- * Plugin injection is not reactive. All plugins must be provided at first render.
- *
- * Created after the client store so the auth accessor below can read from it — plugin `onInit`
- * hooks may call `auth` synchronously during `notifyInit`. The reference-side Authentication panel
- * (Content → Auth.vue) persists credentials into `clientStore.auth`, so plugins must read the same
- * store to see what the user entered.
- */
-const pluginManager = createPluginManager({
-  plugins: Object.values(configList.value).flatMap(
-    (c) => c.config.plugins ?? [],
-  ),
-  /**
-   * Read-only view of the global authentication state, so plugins can read stored secrets and
-   * the selected security schemes without being able to mutate them. Wraps the client store's
-   * auth methods (rather than passing the store directly) to keep the setters out of the plugin API.
-   *
-   * The getters return a deep copy (`export` already snapshots internally, the others go through
-   * `toJsonCompatible`) so plugins receive plain data rather than the store's live reactive proxies —
-   * mutating what they get back can never leak into the store.
-   */
-  auth: {
-    export: () => clientStore.auth.export(),
-    getAuthSecrets: (documentName, schemeName) =>
-      toJsonCompatible(
-        clientStore.auth.getAuthSecrets(documentName, schemeName),
-      ),
-    getAuthSelectedSchemas: (payload) =>
-      toJsonCompatible(clientStore.auth.getAuthSelectedSchemas(payload)),
-  },
-})
-provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
-provide(MARKDOWN_RENDER_HOOKS, pluginManager.getMarkdownRenderHooks())
-
+// Plugin `onInit` hooks may call `auth` synchronously, so they only run once the client store exists.
 pluginManager.notifyInit(mergedConfig.value)
 
 watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
@@ -645,10 +656,12 @@ const { toggleColorMode, isDarkMode } = useColorMode({
 /**
  * The active document passed to the search modal. Both OpenAPI and AsyncAPI
  * documents are surfaced so the search index can include their navigation content.
+ * Documents of a registered document type are not indexed yet.
  */
-const activeSearchableDocument = computed(
-  () => workspaceStore.workspace.activeDocument,
-)
+const activeSearchableDocument = computed(() => {
+  const document = workspaceStore.workspace.activeDocument
+  return isPluginDocument(document) ? undefined : document
+})
 
 /**
  * Sidebar entries contributed by plugin views (content.start / content.end).
@@ -844,11 +857,18 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
   return docItems
 })
 
-/** Find the sidebar entry that represents the introduction section */
+/**
+ * Find the sidebar entry that represents the introduction section.
+ *
+ * A plugin document has no introduction, so the top of the page belongs to the document itself.
+ * Falling through to the suffix would put an id in the URL that resolves to nothing.
+ */
 const infoSectionId = computed(
   () =>
     sidebarItems.value.find(isIntroductionEntry)?.id ??
-    `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`,
+    (isPluginDocument(workspaceStore.workspace.activeDocument)
+      ? activeSlug.value
+      : `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`),
 )
 
 /**
@@ -1525,6 +1545,11 @@ const agent = useAgent({
   agentEnabled: computed(() => {
     const currentConfiguration = configList.value[activeSlug.value]
 
+    const document = workspaceStore.workspace.activeDocument
+    if (!isOpenApiDocument(document) && !isAsyncApiDocument(document)) {
+      return false
+    }
+
     if (currentConfiguration?.agent?.disabled) {
       return false
     }
@@ -1535,6 +1560,11 @@ const agent = useAgent({
 
     return Boolean(configList.value[activeSlug.value]?.agent?.key)
   }),
+})
+watch(agent.agentEnabled, (enabled) => {
+  if (!enabled) {
+    agent.closeAgent()
+  }
 })
 provide(AGENT_CONTEXT_SYMBOL, agent)
 
@@ -2460,6 +2490,7 @@ const sidebarCta = computed((): SidebarCta => {
           :contextChain
           :document="workspaceStore.workspace.activeDocument"
           :documentSlug="activeSlug"
+          :documents="workspaceStore.workspace.documents"
           :environment
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"

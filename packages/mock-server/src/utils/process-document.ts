@@ -11,6 +11,8 @@ import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import { upgrade } from '@scalar/openapi-upgrader'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { openApiDocument, resolveOpenApiDocument } from '@scalar/workspace-store/plugins/bundler'
+import { isPluginDocument } from '@scalar/workspace-store/schemas/plugin-document'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 
 import { cloneDocument } from '@/utils/clone-document'
 
@@ -28,6 +30,10 @@ export const processDocument = async (
   document: string | Record<string, unknown> | undefined,
   origin?: string,
 ): Promise<ProcessedDocument> => {
+  if (isPluginDocument(document)) {
+    throw new Error('Plugin documents are not supported by the mock server')
+  }
+
   // Handle empty/undefined input gracefully
   if (!document || (typeof document === 'object' && Object.keys(document).length === 0)) {
     // Return a minimal valid OpenAPI 3.2 document
@@ -76,7 +82,11 @@ export const processDocument = async (
     throw new Error('Bundled document is invalid: expected an object')
   }
 
-  if ('asyncapi' in bundled) {
+  if (isPluginDocument(bundled)) {
+    throw new Error('Plugin documents are not supported by the mock server')
+  }
+
+  if (isAsyncApiDocument(bundled)) {
     return { type: 'asyncapi', document: createMagicProxy(bundled) as AsyncApiDocument }
   }
 
