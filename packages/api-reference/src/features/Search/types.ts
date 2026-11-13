@@ -31,5 +31,7 @@ export type FuseData = {
   method?: string
   path?: string
   operationId?: string
+  /** OpenAPI tag names and display titles, searchable independently of the operation title. */
+  tags?: string[]
   entry: TraversedEntry
 }

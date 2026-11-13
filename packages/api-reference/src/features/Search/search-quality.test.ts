@@ -472,11 +472,12 @@ describe('search-quality', () => {
     expect(result[1]?.item?.path).toContain('/auth')
   })
 
-  it.todo('finds operations by tag', () => {
+  it('finds operations by tag', () => {
     const query = 'Foobar'
 
     const document: Partial<OpenApiDocument> = {
       paths: {
+        '/health': { get: { summary: 'Service health', tags: ['Monitoring'] } },
         '/auth/token': {
           post: {
             tags: ['Foobar'],
@@ -498,9 +499,35 @@ describe('search-quality', () => {
 
     const result = search(query, document)
 
-    expect(result[0]?.item?.type).toEqual('operation')
-    expect(result[1]?.item?.type).toEqual('operation')
-    expect(result).toHaveLength(3)
+    expect(result.map(({ item }) => ({ type: item.type, title: item.title }))).toStrictEqual([
+      { type: 'tag', title: 'Foobar' },
+      { type: 'operation', title: 'Get a token' },
+      { type: 'operation', title: 'Logout user' },
+    ])
+  })
+
+  it.each([
+    { name: 'internal_accounts', 'x-displayName': 'Authentication' },
+    { name: 'internal_accounts', summary: 'Authentication' },
+    { name: 'internal_accounts', 'x-displayName': 'Authentication', summary: 'Legacy group' },
+  ])('finds operations by the displayed tag title: %j', (tag) => {
+    const document: Partial<OpenApiDocument> = {
+      openapi: '3.2.0',
+      tags: [tag],
+      paths: {
+        '/session/start': { post: { tags: ['internal_accounts'], summary: 'Start a session' } },
+        '/health': { get: { summary: 'Service health' } },
+      },
+    }
+
+    expect(
+      search('Authentication', document).map(({ item }) => ({ type: item.type, title: item.title })),
+    ).toStrictEqual([
+      { type: 'tag', title: 'Authentication' },
+      { type: 'operation', title: 'Start a session' },
+    ])
+    expect(search('internal_accounts', document).map(({ item }) => item.title)).toStrictEqual(['Start a session'])
+    expect(search('Legacy group', document)).toStrictEqual([])
   })
 
   it('finds operations by description content', () => {

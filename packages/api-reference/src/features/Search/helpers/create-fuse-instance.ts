@@ -36,7 +36,7 @@ export function createFuseInstance(): Fuse<FuseData> {
       // Endpoint paths.
       { name: 'path', weight: 0.5 },
       // Tag names — useful for categorization.
-      { name: 'tag', weight: 0.4 },
+      { name: 'tags', weight: 0.4 },
       // Verbose prose — helpful but often noisy.
       { name: 'description', weight: 0.3 },
       // HTTP method - useful for filtering.
