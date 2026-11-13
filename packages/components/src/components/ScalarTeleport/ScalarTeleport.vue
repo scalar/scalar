@@ -70,7 +70,7 @@ const root = useTeleport()
  */
 const isServerRendering = inject<unknown>(ssrContextKey, null) !== null
 const isHydrating = getCurrentInstance()?.vnode.el != null
-const renderInPlace = ref(isServerRendering || isHydrating)
+const renderInPlace = ref<boolean>(isServerRendering || isHydrating)
 
 /**
  * Vue looks up the target once, while it hydrates the teleport, and keeps
