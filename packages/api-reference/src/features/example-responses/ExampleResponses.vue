@@ -48,8 +48,10 @@ const {
   eventBus,
   selectedContentTypes,
   openapiVersion,
+  jsonSchemaDialect,
 } = defineProps<{
   openapiVersion?: string
+  jsonSchemaDialect?: string
   responses: ResponsesObject
   /**
    * The document-wide selected example key. Honored only when the current response defines an
@@ -260,6 +262,7 @@ const exampleResult = computed(() => {
             }
           : undefined,
         openapiVersion,
+        jsonSchemaDialect,
         onDiagnostic: (diagnostic) => {
           if (diagnostic.severity === 'error' && !error) {
             error = diagnostic
@@ -349,6 +352,7 @@ const exampleContent = computed(() => exampleResult.value.content)
         :contentType="currentContentType"
         :example="currentExample"
         :generationError="exampleResult.error"
+        :jsonSchemaDialect
         :openapiVersion
         :pending="externalExamples.pending.value"
         :response="currentResponseContent" />

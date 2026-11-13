@@ -21,6 +21,7 @@ const {
   content,
   contentType = 'application/json',
   openapiVersion,
+  jsonSchemaDialect,
   generationError,
   pending = false,
 } = defineProps<{
@@ -29,6 +30,7 @@ const {
   /** Reuse the card's formatted value so generation and copying cannot diverge. */
   content?: string
   openapiVersion?: string
+  jsonSchemaDialect?: string
   generationError?: XmlDiagnostic
   pending?: boolean
   contentType?: string
@@ -47,6 +49,7 @@ const generatedExample = computed(() => {
         getExampleContent(response, example, {
           contentType,
           openapiVersion,
+          jsonSchemaDialect,
           onDiagnostic: (diagnostic) => {
             if (diagnostic.severity === 'error' && error === undefined) {
               error = diagnostic

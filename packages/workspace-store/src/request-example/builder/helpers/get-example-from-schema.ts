@@ -972,15 +972,22 @@ const handleArraySchema = (
     const { values: value, itemSchemas } = generateContainsArray(
       schema,
       dialect,
-      (candidate, path) => {
+      (candidate, path, candidateDialect) => {
         if (typeof candidate === 'boolean') return candidate ? null : undefined
         if (!candidate || typeof candidate !== 'object') return undefined
-        return getExampleFromSchema(candidate as SchemaObject, probeOptions, {
-          level: level + 1,
-          schemaPath: [...schemaPath, ...path],
-          seen,
-          dynamicScope: childScope,
-        })
+        return getExampleFromSchema(
+          candidate as SchemaObject,
+          {
+            ...probeOptions,
+            jsonSchemaDialect: candidateDialect,
+          },
+          {
+            level: level + 1,
+            schemaPath: [...schemaPath, ...path],
+            seen,
+            dynamicScope: childScope,
+          },
+        )
       },
       (candidate, path) => selectExampleComposition(candidate as SchemaObject, [...schemaPath, ...path], options),
     )

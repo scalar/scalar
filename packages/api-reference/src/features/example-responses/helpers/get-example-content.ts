@@ -25,10 +25,12 @@ export const getExampleContent = (
     contentType = 'application/json',
     compositionSelection,
     openapiVersion,
+    jsonSchemaDialect,
     onDiagnostic,
   }: {
     onDiagnostic?: XmlExampleOptions['onDiagnostic']
     openapiVersion?: string
+    jsonSchemaDialect?: string
     contentType?: string
     compositionSelection?: Record<string, number>
   } = {},
@@ -39,6 +41,7 @@ export const getExampleContent = (
       compositionSelection,
       emptyString: 'string',
       openapiVersion,
+      jsonSchemaDialect,
       onDiagnostic,
     }).xml
   }
@@ -73,6 +76,8 @@ export const getExampleContent = (
       emptyString: 'string',
       mode: 'read',
       compositionSelection,
+      openapiVersion,
+      jsonSchemaDialect,
     })
     if (content === undefined) {
       return undefined

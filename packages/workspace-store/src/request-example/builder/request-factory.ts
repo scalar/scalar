@@ -259,7 +259,9 @@ export const requestFactory = ({
   const querystringParameter = operation.parameters
     ?.map((parameter) => getResolvedRef(parameter))
     .find((parameter) => parameter?.in === 'querystring')
-  const querystring = querystringParameter ? getQuerystringParameter(querystringParameter, exampleName) : undefined
+  const querystring = querystringParameter
+    ? getQuerystringParameter(querystringParameter, exampleName, { openapiVersion, jsonSchemaDialect })
+    : undefined
   const security = buildRequestSecurity(selectedSecuritySchemes)
 
   const headers = new Headers({

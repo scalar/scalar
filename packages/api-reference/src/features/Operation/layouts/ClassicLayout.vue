@@ -343,6 +343,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
         v-if="operation.responses"
         class="operation-example-card"
         :eventBus
+        :jsonSchemaDialect="document?.jsonSchemaDialect"
         :openapiVersion="document?.openapi"
         :responses="operation.responses"
         :selectedContentTypes="selectedResponseContentTypes"
@@ -369,6 +370,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :eventBus
             fallback
             :isWebhook
+            :jsonSchemaDialect="document?.jsonSchemaDialect"
             :method
             :openapiVersion="document?.openapi"
             :operation

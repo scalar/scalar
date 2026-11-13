@@ -389,7 +389,7 @@ type StringObject = CoreProperties &
 
 const ArrayValidationKeywordsWithSchema = Type.Object({
   /** Schema matched by a bounded number of array items. */
-  contains: Type.Optional(Type.Union([Type.Boolean(), schemaOrReference])),
+  contains: Type.Optional(Type.Union([schemaOrReference, Type.Boolean()])),
   /** Minimum matches; defaults to one when contains is present. */
   minContains: Type.Optional(Type.Integer({ minimum: 0 })),
   /** Maximum matches; ignored without contains. */
@@ -401,7 +401,7 @@ const ArrayValidationKeywordsWithSchema = Type.Object({
   /** Whether array items must be unique. */
   uniqueItems: Type.Optional(Type.Boolean()),
   /** Schema for array items. */
-  items: Type.Optional(Type.Union([Type.Boolean(), schemaOrReference])),
+  items: Type.Optional(Type.Union([schemaOrReference, Type.Boolean()])),
   /** Schema for tuple validation. */
   prefixItems: Type.Optional(Type.Array(schemaOrReference)),
 })
@@ -447,7 +447,7 @@ const ObjectValidationKeywordsWithSchema = Type.Object({
   /** Object property definitions. */
   properties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
   /** Schema for additional properties. */
-  additionalProperties: Type.Optional(Type.Union([Type.Boolean(), schemaOrReference])),
+  additionalProperties: Type.Optional(Type.Union([schemaOrReference, Type.Boolean()])),
   /** Properties matching regex patterns. */
   patternProperties: Type.Optional(Type.Record(Type.String(), schemaOrReference)),
   /** Constraints on property names (JSON Schema propertyNames keyword). */

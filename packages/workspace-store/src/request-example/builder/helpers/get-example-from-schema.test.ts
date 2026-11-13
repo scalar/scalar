@@ -162,6 +162,54 @@ describe('getExampleFromSchema', () => {
     expect(schema).toStrictEqual({ type: 'array', contains: false, minContains: 0, maxContains: 0 })
   })
 
+  it.each([
+    { items: { enum: [-0, 0, 1] }, contains: { const: 0 } },
+    { items: { enum: [{ id: -0 }, { id: 0 }, { id: 1 }] }, contains: { const: { id: 0 } } },
+  ])('uses JSON numeric equality for counts and uniqueness: %j', (constraints) => {
+    validateArray({
+      type: 'array',
+      ...constraints,
+      minContains: 1,
+      maxContains: 1,
+      minItems: 2,
+      maxItems: 2,
+      uniqueItems: true,
+    })
+  })
+
+  it.each([
+    { $ref: '#/item', '$ref-value': { type: 'integer', example: 2 } },
+    { allOf: [{ type: 'integer', example: 2 }] },
+    { anyOf: [{ type: 'integer', examples: [2] }, { type: 'string' }] },
+  ])('preserves authored item examples through references and compositions: %j', (items) => {
+    expect(
+      getExampleFromSchema({
+        type: 'array',
+        items,
+        contains: { const: 2 },
+        maxContains: 1,
+        minItems: 3,
+      } as SchemaObject),
+    ).toStrictEqual([2])
+  })
+
+  it('uses the referenced resource dialect for count and item constraints', () => {
+    const resource = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      contains: { const: 2 },
+      minContains: 0,
+      maxContains: 0,
+    }
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 3,
+      maxItems: 3,
+      allOf: [{ $ref: '#/resource', '$ref-value': resource }],
+    } as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual([2, 1, 1])
+  })
+
   it('keeps authored arrays even when they contradict contains', () => {
     const schema = { type: 'array', example: [9], items: { type: 'integer' }, contains: { const: 2 } } as SchemaObject
     expect(getExampleFromSchema(schema)).toStrictEqual([9])

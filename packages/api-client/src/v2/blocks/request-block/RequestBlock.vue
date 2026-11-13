@@ -79,6 +79,7 @@ export type RequestBlockProps = {
   securitySchemes: MergedSecuritySchemes
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  jsonSchemaDialect?: string
   requestBodyCompositionSelection?: Record<string, number>
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   selectedSecurity: SelectedSecurity
@@ -110,6 +111,7 @@ const {
   proxyUrl,
   requestBodyCompositionSelection,
   openapiVersion,
+  jsonSchemaDialect,
   securityRequirements,
   securitySchemes,
   selectedClient,
@@ -230,6 +232,8 @@ const sections = computed(() =>
         return []
       }
       return createParameterRows(param, exampleKey, {
+        openapiVersion,
+        jsonSchemaDialect,
         hiddenValuePaths:
           param.in === 'query' ? getHiddenValuePaths(param) : [],
         renamedValuePaths:
@@ -601,6 +605,8 @@ const handleGenerateExample = ({
     requestBody,
     contentType,
     requestBodyCompositionSelection,
+    openapiVersion,
+    jsonSchemaDialect,
   )
 
   // A schema that generates nothing writable would leave the user on an empty new example.
@@ -806,6 +812,7 @@ const filterLabels = computed(() => ({
         :defaultView="defaultRequestBodyView"
         :environment
         :exampleKey
+        :jsonSchemaDialect
         :openapiVersion
         :requestBody="getResolvedRef(operation.requestBody)"
         :requestBodyCompositionSelection
@@ -838,6 +845,7 @@ const filterLabels = computed(() => ({
         :eventBus
         :globalCookies
         integration="client"
+        :jsonSchemaDialect
         :method
         :openapiVersion
         :operation

@@ -23,8 +23,16 @@ import {
 } from '@/v2/blocks/request-block/helpers/multipart-body'
 import { useLocalization } from '@/v2/features/localization'
 
-const { value, media, compositionSelection } = defineProps<{
+const {
+  value,
+  media,
+  compositionSelection,
+  openapiVersion,
+  jsonSchemaDialect,
+} = defineProps<{
   value: MultipartBodyValue
+  openapiVersion?: string
+  jsonSchemaDialect?: string
   media: MediaTypeObject
   compositionSelection?: Record<string, number>
 }>()
@@ -141,7 +149,13 @@ const addPart = (): void => {
     localValue.value.length,
     media.itemSchema,
   )
-  const next = schema ? getExampleFromSchema(schema, { mode: 'write' }) : ''
+  const next = schema
+    ? getExampleFromSchema(schema, {
+        mode: 'write',
+        openapiVersion,
+        jsonSchemaDialect,
+      })
+    : ''
   localValue.value = [...localValue.value, next ?? '']
   emit('update:value', localValue.value)
 }

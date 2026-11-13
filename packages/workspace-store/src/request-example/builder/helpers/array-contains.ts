@@ -1,8 +1,13 @@
 import { isObject } from '@scalar/helpers/object/is-object'
-import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 
 /** Dialects whose array assertions this bounded generator understands. */
 type ArrayDialect = 'modern' | 'draft7' | 'unsupported'
+
+const dialectUris: Record<ArrayDialect, string> = {
+  modern: 'https://json-schema.org/draft/2020-12/schema',
+  draft7: 'http://json-schema.org/draft-07/schema#',
+  unsupported: 'urn:unsupported',
+}
 
 /** Unknown dialects and pre-3.1 OpenAPI must not acquire modern contains semantics. */
 export const getArrayDialect = (dialect?: string, openapiVersion?: string): ArrayDialect => {
@@ -85,6 +90,21 @@ const assertions = new Set([
   'maxContains',
 ])
 
+/** JSON Schema considers both signs of zero equal, unlike the generic Object.is-based helper. */
+const equal = (left: unknown, right: unknown): boolean => {
+  if (left === right) return true
+  if (Array.isArray(left))
+    return (
+      Array.isArray(right) && left.length === right.length && left.every((value, index) => equal(value, right[index]))
+    )
+  if (!isObject(left) || !isObject(right)) return false
+  const keys = Object.keys(left)
+  return (
+    keys.length === Object.keys(right).length &&
+    keys.every((key) => Object.hasOwn(right, key) && equal(left[key], right[key]))
+  )
+}
+
 /** Count before comparing or repeating values, including authored cyclic/non-JSON values. */
 const sizeOf = (value: unknown, seen = new Set<object>(), remaining = MAX_NODES): number => {
   if (value === null || typeof value !== 'object') {
@@ -116,7 +136,7 @@ const matches = (
   budget: { steps: number },
   seen = new Set<object>(),
 ): boolean | undefined => {
-  if (--budget.steps < 0 || seen.size >= MAX_SCHEMA_DEPTH) {
+  if (dialect === 'unsupported' || --budget.steps < 0 || seen.size >= MAX_SCHEMA_DEPTH) {
     return undefined
   }
   if (typeof schema === 'boolean') {
@@ -155,12 +175,11 @@ const matches = (
         }),
       )
     }
-    if ('const' in schema)
-      checks.push(sizeOf(schema.const) <= MAX_NODES ? isObjectEqual(value, schema.const) : undefined)
+    if ('const' in schema) checks.push(sizeOf(schema.const) <= MAX_NODES ? equal(value, schema.const) : undefined)
     if (Array.isArray(schema.enum)) {
       checks.push(
         schema.enum.length <= MAX_CANDIDATES && schema.enum.every((item) => sizeOf(item) <= MAX_NODES)
-          ? schema.enum.some((item) => isObjectEqual(value, item))
+          ? schema.enum.some((item) => equal(value, item))
           : undefined,
       )
     }
@@ -232,7 +251,7 @@ const matches = (
         value.length >= bound(schema.minItems, 0) && value.length <= bound(schema.maxItems, Number.POSITIVE_INFINITY),
       )
       if (schema.uniqueItems)
-        checks.push(value.every((item, index) => !value.slice(0, index).some((other) => isObjectEqual(item, other))))
+        checks.push(value.every((item, index) => !value.slice(0, index).some((other) => equal(item, other))))
       const prefixes = dialect === 'modern' && Array.isArray(schema.prefixItems) ? schema.prefixItems : []
       for (let index = 0; index < value.length; index++) {
         checks.push(check(prefixes[index] ?? schema.items ?? true, value[index]))
@@ -257,26 +276,30 @@ const matches = (
   }
 }
 
-type ArrayLayer = { schema: Record<string, unknown>; path: string[] }
+type ArrayLayer = { schema: Record<string, unknown>; path: string[]; dialect: ArrayDialect }
 
 /** Visit same-instance array applicators without following item schemas or entering cycles. */
 const arrayLayers = (
   schema: unknown,
+  dialect: ArrayDialect,
   select: (schema: Record<string, unknown>, path: string[]) => unknown,
   path: string[] = [],
   seen = new Set<object>(),
 ): ArrayLayer[] => {
   if (!isObject(schema) || seen.has(schema) || seen.size >= MAX_SCHEMA_VISITS) return []
   seen.add(schema)
-  const layers = [{ schema, path }]
-  if ('$ref-value' in schema) layers.push(...arrayLayers(schema['$ref-value'], select, path, seen))
+  if (typeof schema.$schema === 'string') dialect = getArrayDialect(schema.$schema)
+  // A draft-07 reference replaces its siblings, including count and item assertions.
+  if (dialect === 'draft7' && '$ref' in schema) return arrayLayers(schema['$ref-value'], dialect, select, path, seen)
+  const layers = [{ schema, path, dialect }]
+  if ('$ref-value' in schema) layers.push(...arrayLayers(schema['$ref-value'], dialect, select, path, seen))
   if (Array.isArray(schema.allOf)) {
     for (const [index, child] of schema.allOf.slice(0, MAX_SCHEMA_VISITS).entries()) {
-      layers.push(...arrayLayers(child, select, [...path, 'allOf', String(index)], seen))
+      layers.push(...arrayLayers(child, dialect, select, [...path, 'allOf', String(index)], seen))
     }
   }
   const selected = select(schema, path)
-  if (selected !== undefined) layers.push(...arrayLayers(selected, select, path, seen))
+  if (selected !== undefined) layers.push(...arrayLayers(selected, dialect, select, path, seen))
   return layers
 }
 
@@ -303,14 +326,15 @@ export const hasArrayContains = (schema: unknown, seen = new Set<object>()): boo
 export const generateContainsArray = (
   schema: Record<string, unknown>,
   dialect: ArrayDialect,
-  generate: (schema: unknown, path: string[]) => unknown,
+  generate: (schema: unknown, path: string[], dialect: string) => unknown,
   select: (schema: Record<string, unknown>, path: string[]) => unknown,
 ): { values: unknown[]; itemSchemas: unknown[] } => {
-  const layers = arrayLayers(schema, select)
+  const layers = arrayLayers(schema, dialect, select)
   const rules = layers
     .filter((layer) => 'contains' in layer.schema)
-    .map(({ schema: source }) => ({
+    .map(({ schema: source, dialect }) => ({
       schema: source.contains,
+      dialect,
       min: dialect === 'modern' ? bound(source.minContains, 1) : 1,
       max: dialect === 'modern' ? bound(source.maxContains, Number.POSITIVE_INFINITY) : Number.POSITIVE_INFINITY,
     }))
@@ -320,7 +344,7 @@ export const generateContainsArray = (
     MAX_NODES - 1,
     Math.max(
       0,
-      ...layers.map(({ schema: source }) =>
+      ...layers.map(({ schema: source, dialect }) =>
         dialect === 'modern' && Array.isArray(source.prefixItems) ? source.prefixItems.length : 0,
       ),
     ),
@@ -341,15 +365,16 @@ export const generateContainsArray = (
       value !== undefined &&
       candidates.length < MAX_CANDIDATES &&
       sizeOf(value) < MAX_NODES &&
-      !candidates.some((other) => isObjectEqual(value, other))
+      !candidates.some((other) => equal(value, other))
     )
       candidates.push(value)
   }
   let visits = MAX_SCHEMA_VISITS
-  const harvest = (source: unknown, path: string[], seen = new Set<object>()): void => {
+  const harvest = (source: unknown, path: string[], dialect: ArrayDialect, seen = new Set<object>()): void => {
     if (!isObject(source) || seen.has(source) || --visits < 0) return
     seen.add(source)
-    add(generate(source, path))
+    if (typeof source.$schema === 'string') dialect = getArrayDialect(source.$schema)
+    add(generate(source, path, dialectUris[dialect]))
     if ('const' in source) add(source.const)
     if (Array.isArray(source.enum)) source.enum.slice(0, MAX_CANDIDATES).forEach(add)
     for (const key of ['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum'] as const) {
@@ -361,26 +386,26 @@ export const generateContainsArray = (
         }
       }
     }
-    if ('$ref' in source) harvest(source['$ref-value'], path, seen)
+    if ('$ref' in source) harvest(source['$ref-value'], path, dialect, seen)
     for (const key of ['allOf', 'oneOf', 'anyOf'] as const) {
       const members = source[key]
       if (Array.isArray(members))
         members
           .slice(0, MAX_SCHEMA_VISITS)
-          .forEach((member, index) => harvest(member, [...path, key, String(index)], seen))
+          .forEach((member, index) => harvest(member, [...path, key, String(index)], dialect, seen))
     }
     seen.delete(source)
   }
-  for (const { schema: source, path } of layers) {
-    harvest(source.items, [...path, 'items'])
-    harvest(source.contains, [...path, 'contains'])
+  for (const { schema: source, path, dialect } of layers) {
+    harvest(source.items, [...path, 'items'], dialect)
+    harvest(source.contains, [...path, 'contains'], dialect)
     if (dialect === 'modern' && Array.isArray(source.prefixItems)) {
       source.prefixItems
         .slice(0, MAX_SCHEMA_VISITS)
-        .forEach((prefix, index) => harvest(prefix, [...path, 'prefixItems', String(index)]))
+        .forEach((prefix, index) => harvest(prefix, [...path, 'prefixItems', String(index)], dialect))
     }
-    const item = generate(source.items, [...path, 'items'])
-    const contains = generate(source.contains, [...path, 'contains'])
+    const item = generate(source.items, [...path, 'items'], dialectUris[dialect])
+    const contains = generate(source.contains, [...path, 'contains'], dialectUris[dialect])
     if (isObject(item) && isObject(contains)) add({ ...item, ...contains })
   }
   for (const value of [null, 1, 2, 3, 0, -1, true, false, '', 'string', 'a', [], {}]) add(value)
@@ -395,34 +420,52 @@ export const generateContainsArray = (
     const cached = slots.get(key)
     if (cached) return cached
     const sources = layers.map(
-      ({ schema: source }) =>
+      ({ schema: source, dialect }) =>
         (dialect === 'modern' && Array.isArray(source.prefixItems) ? source.prefixItems[index] : undefined) ??
         source.items ??
         true,
     )
-    const itemSchema = sources.length === 1 ? sources[0] : { allOf: sources }
+    const itemSchemas = sources.map((source, layerIndex) =>
+      layers[layerIndex]!.dialect === dialect
+        ? source
+        : {
+            $schema: dialectUris[layers[layerIndex]!.dialect],
+            allOf: [source],
+          },
+    )
+    const itemSchema = itemSchemas.length === 1 ? itemSchemas[0] : { allOf: itemSchemas }
     const local: unknown[] = []
+    const authoredSamples: unknown[] = []
     let omitted = false
-    let authored = false
     for (const [layerIndex, source] of sources.entries()) {
-      const sample = generate(source, [
-        ...layers[layerIndex]!.path,
-        ...(index < prefixLength ? ['prefixItems', String(index)] : ['items']),
-      ])
+      const layer = layers[layerIndex]!
+      const path = [
+        ...layer.path,
+        ...(Array.isArray(layer.schema.prefixItems) &&
+        index < layer.schema.prefixItems.length &&
+        layer.dialect === 'modern'
+          ? ['prefixItems', String(index)]
+          : ['items']),
+      ]
+      const sample = generate(source, path, dialectUris[layer.dialect])
       if (sample === undefined) omitted = true
-      if (
-        isObject(source) &&
-        (source.example !== undefined || (Array.isArray(source.examples) && source.examples.length > 0))
+      const authored = arrayLayers(source, layer.dialect, select, path).some(
+        ({ schema }) => schema.example !== undefined || (Array.isArray(schema.examples) && schema.examples.length > 0),
       )
-        authored = true
-      if (sample !== undefined && sizeOf(sample) < MAX_NODES && (index < prefixLength || authored)) local.push(sample)
+      if (sample !== undefined && sizeOf(sample) < MAX_NODES) {
+        if (authored) authoredSamples.push(sample)
+        else if (index < prefixLength) local.push(sample)
+      }
     }
-    if (!authored) local.push(...candidates)
+    const choices = authoredSamples.length ? authoredSamples : [...local, ...candidates]
     const valid = omitted
       ? []
-      : local.flatMap((value) => {
-          if (matches(itemSchema, value, dialect, budget) !== true) return []
-          const results = rules.map((rule) => matches(rule.schema, value, dialect, budget))
+      : choices.flatMap((value) => {
+          if (
+            sources.some((source, layerIndex) => matches(source, value, layers[layerIndex]!.dialect, budget) !== true)
+          )
+            return []
+          const results = rules.map((rule) => matches(rule.schema, value, rule.dialect, budget))
           return results.some((result) => result === undefined)
             ? []
             : [{ value, matches: results as boolean[], size: sizeOf(value) }]
@@ -461,7 +504,7 @@ export const generateContainsArray = (
         candidate.matches.some((match, ruleIndex) => match && counts[ruleIndex]! < rules[ruleIndex]!.min)) &&
       rules.every((rule, ruleIndex) => counts[ruleIndex]! + Number(candidate.matches[ruleIndex]) <= rule.max) &&
       size + candidate.size <= MAX_NODES &&
-      (!unique || !values.some((value) => isObjectEqual(value, candidate.value)))
+      (!unique || !values.some((value) => equal(value, candidate.value)))
     ) {
       values.push(candidate.value)
       counts = counts.map((count, ruleIndex) => count + Number(candidate.matches[ruleIndex]))
@@ -480,6 +523,7 @@ export const generateContainsArray = (
 /** Keep XML metadata on the item branch that actually accepts the chosen value. */
 export const getContainsItemSchema = (source: unknown, value: unknown, dialect: ArrayDialect, depth = 0): unknown => {
   if (!isObject(source) || depth >= MAX_SCHEMA_DEPTH) return {}
+  if (typeof source.$schema === 'string') dialect = getArrayDialect(source.$schema)
   if (Array.isArray(source.allOf))
     source = {
       ...source,

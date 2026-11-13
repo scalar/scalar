@@ -1,6 +1,9 @@
 ---
 '@scalar/workspace-store': patch
 '@scalar/mock-server': patch
+'@scalar/blocks': patch
+'@scalar/api-reference': patch
+'@scalar/api-client': patch
 ---
 
 fix: generate array examples with bounded contains match counts

@@ -381,6 +381,8 @@ export const createParameterRows = (
   parameter: ParameterObject,
   exampleKey: string,
   options: {
+    openapiVersion?: string
+    jsonSchemaDialect?: string
     hiddenValuePaths?: readonly string[][]
     renamedValuePaths?: readonly { from: string[]; to: string[] }[]
   } = {},
@@ -393,7 +395,11 @@ export const createParameterRows = (
   const isDisabledByDefault = !parameter.required && parameter.in !== 'path' && example?.['x-disabled'] === undefined
   const schema = getParameterSchema(parameter)
   if (parameter.in === 'querystring') {
-    const querystring = getQuerystringParameter(parameter, exampleKey, { includeDisabled: true })
+    const querystring = getQuerystringParameter(parameter, exampleKey, {
+      includeDisabled: true,
+      openapiVersion: options.openapiVersion,
+      jsonSchemaDialect: options.jsonSchemaDialect,
+    })
     return [
       toSingleParameterRow(
         parameter,

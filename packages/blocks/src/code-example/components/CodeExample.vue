@@ -119,6 +119,7 @@ export type CodeExampleProps = {
    */
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  jsonSchemaDialect?: string
   requestBodyCompositionSelection?: Record<string, number>
 }
 
@@ -213,6 +214,7 @@ const {
   generateLabel,
   globalCookies,
   openapiVersion,
+  jsonSchemaDialect,
   requestBodyCompositionSelection,
 } = defineProps<CodeExampleProps>()
 
@@ -397,6 +399,7 @@ const webhookHar = computed(() => {
       path,
       example: localExampleKey.value,
       openapiVersion,
+      jsonSchemaDialect,
       requestBodyCompositionSelection,
       // Only required parameters are shown in code examples; optional parameters
       // are omitted unless explicitly enabled via `x-disabled: false`.
@@ -430,6 +433,7 @@ const generatedTemplate = computed<string | null>(() => {
     example: localExampleKey.value,
     globalCookies,
     openapiVersion,
+    jsonSchemaDialect,
     requestBodyCompositionSelection,
   })
 })

@@ -66,6 +66,7 @@ const {
   environment,
   requestBodyCompositionSelection,
   openapiVersion,
+  jsonSchemaDialect,
   title,
   defaultView = 'raw',
 } = defineProps<{
@@ -79,6 +80,7 @@ const {
   environment: XScalarEnvironment
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  jsonSchemaDialect?: string
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
   /**
@@ -238,6 +240,7 @@ const example = computed(
       exampleKey,
       requestBodyCompositionSelection,
       openapiVersion,
+      jsonSchemaDialect,
     ),
 )
 
@@ -381,6 +384,7 @@ watch(
       selectedContentType.value,
       requestBodyCompositionSelection,
       openapiVersion,
+      jsonSchemaDialect,
     )
 
     if (isForm) {
@@ -656,7 +660,9 @@ const canGenerateExample = computed(() =>
           v-else-if="multipartBody"
           :key="selectedContentType"
           :compositionSelection="requestBodyCompositionSelection"
+          :jsonSchemaDialect
           :media="multipartBody.media"
+          :openapiVersion
           :value="multipartBody.value"
           @update:value="
             (payload) =>
