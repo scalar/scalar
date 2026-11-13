@@ -1,4 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import Ajv2020 from 'ajv/dist/2020.js'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
 
@@ -20,6 +21,61 @@ const person = {
 }
 
 describe('mock-any-response', () => {
+  it.each([
+    { dialect: undefined, expected: '2\n1\n1\n' },
+    { dialect: 'https://example.com/unsupported', expected: '1\n1\n1\n' },
+  ])('keeps document dialect context for streaming responses: $dialect', async ({ dialect, expected }) => {
+    const schema = { type: 'array', minItems: 3, maxItems: 3, contains: { const: 2 }, maxContains: 1 }
+    const app = new Hono().get('/', (c) =>
+      mockAnyResponse(
+        c,
+        operation('application/x-ndjson', { schema, itemSchema: { type: 'integer' } }),
+        '3.2.0',
+        dialect,
+      ),
+    )
+    expect(await (await app.request('/')).text()).toBe(expected)
+  })
+
+  it.each([false, true])('sends arrays satisfying the complete contains schema (unique: %s)', async (uniqueItems) => {
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 3,
+      maxItems: 3,
+      contains: { const: 2 },
+      minContains: 1,
+      maxContains: 1,
+      uniqueItems,
+    }
+    const app = new Hono().get('/', (c) => mockAnyResponse(c, operation('application/json', { schema }), '3.1.0'))
+    const response = await app.request('/')
+    const value = await response.json()
+    const validate = new Ajv2020({ strict: false }).compile(schema)
+    expect(response.status).toBe(200)
+    expect({ valid: validate(value), errors: validate.errors }).toStrictEqual({ valid: true, errors: null })
+    expect(value).toStrictEqual(uniqueItems ? [2, 1, 3] : [2, 1, 1])
+  })
+
+  it.each([
+    { version: '3.0.4', dialect: undefined, expected: [1, 1, 1] },
+    { version: '3.1.0', dialect: undefined, expected: [2, 1, 1] },
+    { version: '3.2.0', dialect: 'https://example.com/unknown-dialect', expected: [1, 1, 1] },
+  ])('uses the response document dialect for $version/$dialect', async ({ version, dialect, expected }) => {
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 3,
+      maxItems: 3,
+      contains: { const: 2 },
+      maxContains: 1,
+    }
+    const app = new Hono().get('/', (c) =>
+      mockAnyResponse(c, operation('application/json', { schema }), version, dialect),
+    )
+    expect(await (await app.request('/')).json()).toStrictEqual(expected)
+  })
+
   it('preserves transport headers set by middleware when the document declares different values', async () => {
     const app = new Hono()
       .use((c, next) => {

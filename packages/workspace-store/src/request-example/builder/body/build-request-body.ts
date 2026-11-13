@@ -140,6 +140,7 @@ export const buildRequestBody = (
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>,
   openapiVersion?: string,
+  jsonSchemaDialect?: string,
 ): RequestBody | null => {
   if (!requestBody) {
     return null
@@ -158,6 +159,7 @@ export const buildRequestBody = (
     exampleName,
     requestBodyCompositionSelection,
     openapiVersion,
+    jsonSchemaDialect,
   )
   if (!example) {
     return null

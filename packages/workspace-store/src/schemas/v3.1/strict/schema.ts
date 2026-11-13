@@ -102,6 +102,8 @@ type Extensions = XScalarIgnore &
   XTags
 
 const CorePropertiesWithSchema = Type.Object({
+  /** JSON Schema dialect for this schema resource. */
+  $schema: Type.Optional(Type.String()),
   /**
    * JSON Schema 2020-12 core reference keywords.
    *
@@ -169,6 +171,8 @@ const CorePropertiesWithSchema = Type.Object({
 })
 
 type CoreProperties = {
+  /** JSON Schema dialect for this schema resource. */
+  $schema?: string
   /**
    * JSON Schema 2020-12 core reference keywords.
    *
@@ -384,6 +388,12 @@ type StringObject = CoreProperties &
   } & Extensions
 
 const ArrayValidationKeywordsWithSchema = Type.Object({
+  /** Schema matched by a bounded number of array items. */
+  contains: Type.Optional(Type.Union([Type.Boolean(), schemaOrReference])),
+  /** Minimum matches; defaults to one when contains is present. */
+  minContains: Type.Optional(Type.Integer({ minimum: 0 })),
+  /** Maximum matches; ignored without contains. */
+  maxContains: Type.Optional(Type.Integer({ minimum: 0 })),
   /** Maximum number of items in array. */
   maxItems: Type.Optional(Type.Integer({ minimum: 0 })),
   /** Minimum number of items in array. */
@@ -391,7 +401,7 @@ const ArrayValidationKeywordsWithSchema = Type.Object({
   /** Whether array items must be unique. */
   uniqueItems: Type.Optional(Type.Boolean()),
   /** Schema for array items. */
-  items: Type.Optional(schemaOrReference),
+  items: Type.Optional(Type.Union([Type.Boolean(), schemaOrReference])),
   /** Schema for tuple validation. */
   prefixItems: Type.Optional(Type.Array(schemaOrReference)),
 })
@@ -404,6 +414,12 @@ const ArrayValidationPropertiesWithSchema = compose(
 )
 
 type ArrayKeywords = {
+  /** Schema matched by a bounded number of array items. */
+  contains?: boolean | SchemaReferenceType<SchemaObject>
+  /** Minimum matches; defaults to one when contains is present. */
+  minContains?: number
+  /** Maximum matches; ignored without contains. */
+  maxContains?: number
   /** Maximum number of items in array. */
   maxItems?: number
   /** Minimum number of items in array. */
@@ -411,7 +427,7 @@ type ArrayKeywords = {
   /** Whether array items must be unique. */
   uniqueItems?: boolean
   /** Schema for array items. */
-  items?: SchemaReferenceType<SchemaObject>
+  items?: boolean | SchemaReferenceType<SchemaObject>
   /** Schema for tuple validation. */
   prefixItems?: SchemaReferenceType<SchemaObject>[]
 }

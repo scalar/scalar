@@ -37,7 +37,12 @@ const IGNORED_RESPONSE_HEADERS = new Set([
 /**
  * Mock any response
  */
-export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObject, openapiVersion?: string) {
+export function mockAnyResponse(
+  c: Context,
+  operation: OpenAPIV3_1.OperationObject,
+  openapiVersion?: string,
+  jsonSchemaDialect?: string,
+) {
   // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
   // for requests rejected before reaching this handler.
 
@@ -77,7 +82,9 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
 
     const headerObject = getResolvedRef(headers[header])
     // Headers use the generator defaults to preserve their declared values.
-    const value = headerObject?.schema ? getExampleFromSchema(getResolvedRefDeep(headerObject.schema)) : null
+    const value = headerObject?.schema
+      ? getExampleFromSchema(getResolvedRefDeep(headerObject.schema), { openapiVersion, jsonSchemaDialect })
+      : null
     // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
     // thing to set the declared headers, so in practice a delete removes a header set earlier by
     // middleware — `cors()` sets `Access-Control-Allow-Origin` before the handler runs.
@@ -117,6 +124,8 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   const acceptedResponse = selectedResponse?.content?.[acceptedContentType]
 
   const streamingResponse = getStreamingResponse(acceptedResponse, acceptedContentType, {
+    openapiVersion,
+    jsonSchemaDialect,
     exampleName: prefer.example,
     variables: pathParameters(c),
   })
@@ -129,7 +138,9 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
 
   /** Generates the response body from the schema, or returns `undefined` when there is no schema. */
   const generateFromSchema = (): unknown =>
-    responseSchema ? generateResponseExample(responseSchema, pathParameters(c)) : undefined
+    responseSchema
+      ? generateResponseExample(responseSchema, pathParameters(c), openapiVersion, jsonSchemaDialect)
+      : undefined
 
   // Server-Sent Events are a framed, multi-event wire format, so they cannot go out as one buffered
   // body: a client reading the stream expects `data:` lines terminated by a blank line. Everything
@@ -164,6 +175,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   if (isXmlMediaType(acceptedContentType)) {
     const result = getXmlBodyExample(acceptedResponse?.schema as SchemaObject | undefined, selectedExample, {
       openapiVersion,
+      jsonSchemaDialect,
       emptyString: 'string',
       variables: pathParameters(c),
       mode: 'read',

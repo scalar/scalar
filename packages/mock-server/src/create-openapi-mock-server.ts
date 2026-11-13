@@ -313,7 +313,7 @@ export const createOpenApiMockServer = async (
       if (hasHandler) {
         handlers.push(async (c) => await mockHandlerResponse(c, operation, pathItem?.parameters, schema.openapi))
       } else {
-        handlers.push(async (c) => await mockAnyResponse(c, operation, schema.openapi))
+        handlers.push(async (c) => await mockAnyResponse(c, operation, schema.openapi, schema.jsonSchemaDialect))
       }
 
       // The pinned query parameters are not part of the route, so they are checked here. A request

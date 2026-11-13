@@ -1,5 +1,6 @@
 import { isIP } from 'node:net'
 
+import Ajv2020 from 'ajv/dist/2020.js'
 import { assert, describe, expect, it, vi } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -8,6 +9,237 @@ import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/ope
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
+  const validateArray = (definition: Record<string, unknown>): unknown => {
+    const value = getExampleFromSchema(definition as SchemaObject)
+    const validate = new Ajv2020({ strict: false }).compile(definition)
+    expect({ value, errors: validate(value) ? [] : validate.errors }).toStrictEqual({ value, errors: [] })
+    return value
+  }
+
+  it.each([
+    { name: 'typed integers', items: { type: 'integer' } },
+    { name: 'unrestricted items' },
+    { name: 'true items', items: true },
+    { name: 'empty items', items: {} },
+    { name: 'annotation-only items', items: { title: 'Any value' } },
+    { name: 'item union', items: { anyOf: [{ type: 'integer' }, { type: 'string' }] } },
+    { name: 'item intersection', items: { allOf: [{ type: 'integer' }, { minimum: 1, maximum: 4 }] } },
+  ])('satisfies contains counts for $name', ({ name: _name, ...items }) => {
+    for (const uniqueItems of [false, true]) {
+      validateArray({
+        type: 'array',
+        ...items,
+        minItems: 3,
+        maxItems: 3,
+        contains: { const: 2 },
+        minContains: 1,
+        maxContains: 1,
+        uniqueItems,
+      })
+    }
+  })
+
+  it.each([
+    { prefixItems: [{ const: 2 }], items: { type: 'integer' }, minItems: 3 },
+    { prefixItems: [{ const: 1 }], items: { type: 'integer' }, maxItems: 2 },
+    { prefixItems: [{ type: 'integer' }, { type: 'integer' }], items: false, minItems: 2 },
+    { prefixItems: [{ const: 1 }, { const: 2 }], items: false, maxItems: 2 },
+  ])('counts tuple matches before extending the array: %j', (tuple) => {
+    validateArray({
+      type: 'array',
+      ...tuple,
+      contains: { const: 2 },
+      minContains: 1,
+      maxContains: 1,
+      uniqueItems: true,
+    })
+  })
+
+  it.each([
+    { contains: { const: 2 }, minContains: 0, maxContains: 0, items: { type: 'integer' }, minItems: 3 },
+    { contains: false, minContains: 0, maxContains: 0, items: true, minItems: 2 },
+    { contains: true, minContains: 2, maxContains: 2, items: { type: 'boolean' }, uniqueItems: true },
+    {
+      contains: { oneOf: [{ const: 2 }, { const: 3 }] },
+      minContains: 2,
+      maxContains: 2,
+      items: { enum: [1, 2, 3, 4] },
+      minItems: 4,
+      uniqueItems: true,
+    },
+    {
+      contains: { allOf: [{ type: 'integer' }, { minimum: 2 }, { maximum: 3 }] },
+      minContains: 2,
+      maxContains: 2,
+      items: { type: 'integer' },
+      minItems: 4,
+      uniqueItems: true,
+    },
+    { contains: { not: { const: 1 } }, minContains: 1, maxContains: 1, items: { type: 'integer' }, minItems: 3 },
+    {
+      contains: { const: { id: 2 } },
+      minContains: 1,
+      maxContains: 1,
+      items: { type: 'object', properties: { id: { type: 'integer' } }, required: ['id'], additionalProperties: false },
+      minItems: 3,
+    },
+  ])('validates the complete array including zero and composed counts: %j', (constraints) => {
+    validateArray({ type: 'array', ...constraints })
+  })
+
+  it.each([
+    { items: { type: 'integer' }, minItems: 2, maxItems: 2, allOf: [{ contains: { const: 2 }, maxContains: 1 }] },
+    {
+      items: { type: 'integer' },
+      minItems: 2,
+      maxItems: 2,
+      contains: { const: 2 },
+      maxContains: 1,
+      anyOf: [{ contains: { const: 3 }, maxContains: 1 }],
+    },
+    {
+      prefixItems: [{ enum: [40, 41] }, { const: 40 }],
+      items: false,
+      minItems: 2,
+      contains: { const: 40 },
+      maxContains: 1,
+      uniqueItems: true,
+    },
+    {
+      items: { type: 'integer', minimum: 100 },
+      minItems: 3,
+      maxItems: 3,
+      contains: { const: 100 },
+      maxContains: 1,
+      uniqueItems: true,
+    },
+  ])('searches composed array constraints and alternatives beyond default samples: %j', (constraints) => {
+    validateArray({ type: 'array', ...constraints })
+  })
+
+  it('validates resolved references and their assertion siblings', () => {
+    const integer = { type: 'integer', minimum: 1 }
+    const match = { const: 2 }
+    validateArray({
+      type: 'array',
+      $defs: { integer, match },
+      items: { $ref: '#/$defs/integer', '$ref-value': integer, maximum: 3 },
+      contains: { $ref: '#/$defs/match', '$ref-value': match },
+      minItems: 3,
+      maxItems: 3,
+      minContains: 1,
+      maxContains: 1,
+      uniqueItems: true,
+    })
+  })
+
+  it.each([false, true])('preserves boolean items during coercion: %s', (items) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items,
+      contains: true,
+      minContains: 0,
+      minItems: 2,
+    })
+    expect('items' in schema && schema.items).toBe(items)
+    expect(getExampleFromSchema(schema)).toStrictEqual(items ? [null, null] : [])
+  })
+
+  it('matches untyped contains schemas retained by coercion', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: { type: 'integer' },
+      contains: { const: 2 },
+      minItems: 3,
+      maxItems: 3,
+      maxContains: 1,
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual([2, 1, 1])
+  })
+
+  it('retains the typed contains keywords during schema coercion', () => {
+    const schema = coerceValue(SchemaObjectSchema, { type: 'array', contains: false, minContains: 0, maxContains: 0 })
+    expect(schema).toStrictEqual({ type: 'array', contains: false, minContains: 0, maxContains: 0 })
+  })
+
+  it('keeps authored arrays even when they contradict contains', () => {
+    const schema = { type: 'array', example: [9], items: { type: 'integer' }, contains: { const: 2 } } as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual([9])
+  })
+
+  it.each([
+    { contains: { const: 2 }, minContains: 2, maxContains: 1, items: { const: 2 }, expected: [2] },
+    { contains: false, items: true, expected: [null] },
+    { contains: { pattern: '(a+)+$' }, minContains: 0, maxContains: 0, minItems: 1, expected: [] },
+    { contains: { $ref: '#/missing' }, minItems: 1, expected: [] },
+    { contains: { const: 2 }, items: { const: 1 }, minItems: 3, expected: [1, 1, 1] },
+    { contains: true, items: { type: 'boolean' }, uniqueItems: true, minItems: 3, expected: [true, false] },
+  ])(
+    'returns a deterministic partial example for unsupported or impossible constraints: %j',
+    ({ expected, ...constraints }) => {
+      const schema = { type: 'array', ...constraints } as unknown as SchemaObject
+      expect(getExampleFromSchema(schema)).toStrictEqual(expected)
+      expect(getExampleFromSchema(schema)).toStrictEqual(expected)
+    },
+  )
+
+  it('preserves an authored item example and stops before exceeding maxContains', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'array',
+        items: { type: 'integer', example: 2 },
+        contains: { const: 2 } as SchemaObject,
+        minItems: 3,
+        maxContains: 1,
+      }),
+    ).toStrictEqual([2])
+  })
+
+  it('retains tuple prefixes when the tail is omitted in write mode', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          type: 'array',
+          prefixItems: [{ type: 'integer', const: 2 }],
+          items: { type: 'integer', readOnly: true },
+          contains: { type: 'integer', const: 2 },
+          minItems: 3,
+        },
+        { mode: 'write' },
+      ),
+    ).toStrictEqual([2])
+  })
+
+  it('bounds contains generation for very large minima', () => {
+    const value = getExampleFromSchema({
+      type: 'array',
+      contains: true,
+      minContains: 1_000_000,
+      items: { type: 'integer' },
+    })
+    expect(value).toStrictEqual(Array.from({ length: 999 }, () => 1))
+  })
+
+  it('honors declared dialects without leaking cache results', () => {
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 3,
+      maxItems: 3,
+      contains: { const: 2 },
+      minContains: 0,
+      maxContains: 0,
+    } as SchemaObject
+    expect(getExampleFromSchema(schema, { openapiVersion: '3.0.4' })).toStrictEqual([1, 1, 1])
+    expect(getExampleFromSchema(schema, { openapiVersion: '3.1.2' })).toStrictEqual([1, 1, 1])
+    expect(
+      getExampleFromSchema(schema, { jsonSchemaDialect: 'http://json-schema.org/draft-07/schema#' }),
+    ).toStrictEqual([2, 1, 1])
+    expect(
+      getExampleFromSchema({ ...schema, $schema: 'http://json-schema.org/draft-07/schema#' } as SchemaObject),
+    ).toStrictEqual([2, 1, 1])
+  })
+
   it.each([
     {
       minItems: 2,
