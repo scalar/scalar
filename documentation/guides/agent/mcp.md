@@ -118,7 +118,7 @@ Any client that supports remote MCP servers over HTTP, including Claude Code, Cl
 
 <scalar-detail title="Can agents change data through my API?">
 
-Only if you allow it. Only the operations you turn on become tools. In Dynamic mode, Search lets the agent look an operation up and Execute lets it send real authenticated requests, and you turn each on separately. In Individual mode, every operation that is a tool can send requests. Keep write operations off, or without Execute in Dynamic mode, until you are comfortable. In Individual mode, [MCP annotations](tools.md#mcp-annotations) also let clients ask before running a tool that changes data.
+Only if you allow it. Only the operations you turn on become tools. In Dynamic mode, Search lets the agent look an operation up and Execute lets it send real authenticated requests, and you turn each on separately. In Individual mode, every operation that is a tool can send requests. Keep write operations off, or without Execute in Dynamic mode, until you are comfortable. [MCP annotations](tools.md#mcp-annotations) also let clients ask before running a tool that changes data. In Dynamic mode, `execute` is always marked destructive.
 
 </scalar-detail>
 

@@ -106,7 +106,7 @@ On a tag or the document root, `name` and `description` set the name and descrip
 
 [Tool annotations](https://modelcontextprotocol.io/specification/2025-11-25/schema#toolannotations) are hints about what a tool does. Clients use them to group tools and to ask before running a tool that changes data. Some app directories require them: for example, OpenAI's review of ChatGPT apps checks them.
 
-Scalar sends only the annotations you set. It does not guess them from the HTTP method. A tool without annotations is not read-only by default under the MCP specification, and clients may treat it as destructive. Annotations apply to Individual mode, where each operation is its own tool. The `search` and `execute` tools of Dynamic mode do not carry them.
+Scalar sends only the annotations you set. It does not guess them from the HTTP method. A tool without annotations is not read-only by default under the MCP specification, and clients may treat it as destructive. You set annotations in Individual mode, where each operation is its own tool. In Dynamic mode, Scalar's own tools have fixed annotations that you cannot change: `search` is read-only, and `execute` is marked destructive, not idempotent, and open world, since it can call any exposed operation.
 
 | Annotation | Type | Meaning |
 | --- | --- | --- |
