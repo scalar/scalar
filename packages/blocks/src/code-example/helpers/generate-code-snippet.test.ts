@@ -28,6 +28,17 @@ describe('generateCodeSnippet', () => {
     securitySchemes: [],
   }
 
+  it.each([undefined, 'basic'])('marks unresolved code files unavailable (example: %s)', (example) => {
+    expect(
+      generateCodeSnippet({
+        ...baseParams,
+        example,
+        clientId: 'custom/python',
+        customCodeSamples: [{ lang: 'python', example, source: { $ref: 'https://example.test/sample.py' } }],
+      }),
+    ).toBeNull()
+  })
+
   it('matches linked samples by both example key and media type', () => {
     const customCodeSamples: XCodeSample[] = [
       { lang: 'python', example: 'basic', contentType: 'application/json', source: 'json_sample()' },

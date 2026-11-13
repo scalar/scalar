@@ -68,7 +68,8 @@ export const generateCodeSnippet = ({
       const ids = getCustomClientIds(customCodeSamples)
       const samples = customCodeSamples.filter((_, index) => ids[index] === clientId)
       if (!samples.some((sample) => sample.example !== undefined)) {
-        return samples[0]?.source ?? 'Custom example not found'
+        const source = samples[0]?.source
+        return typeof source === 'object' ? null : (source ?? 'Custom example not found')
       }
 
       const content = getResolvedRef(operation.requestBody)?.content ?? {}
@@ -77,7 +78,7 @@ export const generateCodeSnippet = ({
       const sample =
         samples.find((sample) => sample.example === exampleKey && sample.contentType === mediaType) ??
         samples.find((sample) => sample.example === exampleKey && sample.contentType === undefined)
-      return sample?.source ?? null
+      return typeof sample?.source === 'string' ? sample.source : null
     }
 
     const harRequest = operationToHar({

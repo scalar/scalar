@@ -334,7 +334,10 @@ export type LoaderPlugin = {
   // Returns true if this plugin can handle the given reference value
   validate: (value: string) => boolean
   // Asynchronously fetches and resolves the reference, returning the resolved data
-  exec: (value: string) => Promise<ResolveResult>
+  exec: (
+    value: string,
+    options?: { /** Read source code without parsing it as JSON or YAML. */ parseAs?: 'text' },
+  ) => Promise<ResolveResult>
 }
 
 /**

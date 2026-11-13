@@ -2,10 +2,12 @@ import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { getActiveOpenApiDocument, getOpenApiDocument } from '@test/helpers'
+import { literalReferencesDocument } from '@test/literal-references'
 import fastify, { type FastifyInstance } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -107,6 +109,89 @@ const REGISTRY_META = {
 } as const
 
 describe('create-workspace-store', () => {
+  it.each(['3.1.0', '3.2.0'])('preserves literal references when importing OpenAPI %s', async (openapi) => {
+    const fetchDocument = vi.fn(() => Promise.resolve(new Response('{"type":"object"}')))
+    const store = createWorkspaceStore({ fetch: fetchDocument })
+    const document = { ...structuredClone(literalReferencesDocument), openapi }
+    await store.addDocument({ name: 'literal', document, documentSource: 'https://example.test/openapi.json' })
+    const raw = getRaw(store.workspace.documents.literal)
+
+    const literalPaths = [
+      ['info', 'x-data'],
+      ['paths', '/x', 'post', 'x-ms-examples'],
+      ['paths', '/x', 'post', 'requestBody', 'content', 'application/json', 'examples'],
+      ['paths', '/x', 'post', 'responses', '200', 'links'],
+      ['components', 'parameters', 'query', 'example'],
+      ...['default', 'enum', 'const', 'examples'].map((key) => ['components', 'schemas', 'Pet', key]),
+    ]
+    for (const path of literalPaths) {
+      expect(getValueAtPath(raw, path), path.join('/')).toStrictEqual(getValueAtPath(document, path))
+    }
+    expect(fetchDocument).toHaveBeenCalledTimes(0)
+  })
+
+  it.each([false, true])('preserves literal references during lazy resolution (chunked: %s)', async (chunked) => {
+    const server = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.test',
+      documents: [{ name: 'literal', document: structuredClone(literalReferencesDocument) }],
+    })
+    const fetched: string[] = []
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        fetched.push(String(input))
+        return Promise.resolve(new Response(JSON.stringify(server.get(String(input)) ?? {})))
+      },
+    })
+    const document = chunked ? server.getWorkspace().documents.literal : server.getResolvedDocument('literal')
+    assert(document)
+    await store.addDocument({ name: 'literal', document: getRaw(document) })
+    expect(fetched).toStrictEqual([])
+
+    await store.resolve(['paths', '/x', 'post'])
+    const pathItem = getResolvedRef(getOpenApiDocument(store, 'literal')?.paths?.['/x'])
+    const operation = getRaw(getResolvedRef(pathItem?.post))
+    const expected = literalReferencesDocument.paths['/x'].post
+    expect(operation?.requestBody).toStrictEqual(expected.requestBody)
+    expect(operation?.responses).toStrictEqual(expected.responses)
+    expect(getValueAtPath(operation, ['x-ms-examples'])).toStrictEqual(expected['x-ms-examples'])
+    expect(fetched).toStrictEqual(chunked ? ['https://example.test/literal/operations/~1x/post'] : [])
+  })
+
+  it('loads real references while preserving literal values in referenced examples', async () => {
+    const resources: Record<string, unknown> = {
+      'https://example.test/info.json': { title: 'Referenced info', version: '1' },
+      'https://example.test/schema.json': { type: 'object' },
+      'https://example.test/example.json': { value: { $ref: './literal.json', id: 7 } },
+    }
+    const fetched: string[] = []
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        fetched.push(String(input))
+        return Promise.resolve(new Response(JSON.stringify(resources[String(input)] ?? {})))
+      },
+    })
+    await store.addDocument({
+      name: 'references',
+      document: {
+        openapi: '3.1.0',
+        info: { $ref: 'https://example.test/info.json' },
+        paths: {},
+        components: {
+          schemas: { Pet: { $ref: 'https://example.test/schema.json', description: 'Schema sibling' } },
+          examples: { sample: { $ref: 'https://example.test/example.json' } },
+        },
+      },
+    })
+    const document = getOpenApiDocument(store, 'references')
+    expect(getRaw(document?.info)).toStrictEqual(resources['https://example.test/info.json'])
+    expect(document?.components?.schemas?.Pet?.description).toBe('Schema sibling')
+    expect(getRaw(getResolvedRef(document?.components?.examples?.sample))).toStrictEqual(
+      resources['https://example.test/example.json'],
+    )
+    expect(fetched).toStrictEqual(Object.keys(resources))
+  })
+
   it.each(['3.0.4', '3.1.2', '3.2.1'])('preserves arbitrary Paths extensions when importing %s', async (openapi) => {
     const store = createWorkspaceStore()
     const extensions = {
