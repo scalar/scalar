@@ -1,3 +1,4 @@
+import { type RenderedExample, normalizeRenderedExamples } from '@scalar/blocks/schema/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -9,19 +10,14 @@ import {
   type SchemaReferenceType,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import { getRenderedExample } from './get-rendered-example'
+type HeaderExamples = RenderedExample[]
 
-type HeaderExamples = { value: unknown }[]
-
-/** Keep a wrapper because the schema renderer unwraps Example Objects once, including object data. */
+/** Preserve the source name and summary separately from the example payload. */
 const getExamples = (source: HeaderObject | MediaTypeObject | undefined): HeaderExamples => {
   if (source && 'example' in source && source.example !== undefined) {
-    return [{ value: source.example }]
+    return normalizeRenderedExamples([source.example])
   }
-  return Object.values(source && 'examples' in source ? (source.examples ?? {}) : {}).flatMap((entry) => {
-    const example = getRenderedExample(entry)
-    return example ? [example] : []
-  })
+  return normalizeRenderedExamples(source && 'examples' in source ? source.examples : undefined)
 }
 
 /** Compositions describe the same header value; property and item schemas describe different values. */

@@ -24,6 +24,44 @@ describe('ExamplePicker', () => {
     },
   }
 
+  it.each([
+    ['Use-specific label', 'Use-specific label'],
+    ['', 'sample-name'],
+  ])('prefers the reference summary override %j', (summary, label) => {
+    const wrapper = mount(ExamplePicker, {
+      props: {
+        modelValue: 'sample-name',
+        examples: {
+          'sample-name': {
+            $ref: '#/components/examples/Common',
+            summary,
+            '$ref-value': { summary: 'Shared label', value: 'sample' },
+          },
+        },
+      },
+    })
+    expect(wrapper.find('button').text()).toBe(label)
+  })
+
+  it('inherits a summary through a description-only reference', () => {
+    const wrapper = mount(ExamplePicker, {
+      props: {
+        modelValue: 'named',
+        examples: {
+          named: {
+            $ref: '#/components/examples/A',
+            '$ref-value': {
+              $ref: '#/components/examples/B',
+              description: 'Annotation',
+              '$ref-value': { summary: 'Shared label', value: 'sample' },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.find('button').text()).toBe('Shared label')
+  })
+
   it('renders with default state', () => {
     const wrapper = mount(ExamplePicker, {
       props: {
@@ -186,5 +224,20 @@ describe('ExamplePicker', () => {
     expect(items!.length).toBe(2)
     expect(items![0]?.textContent).toBe('null-example')
     expect(items![1]?.textContent).toBe('undefined-example')
+  })
+  it('uses resolved summaries and falls back to names for empty summaries', async () => {
+    const wrapper = mount(ExamplePicker, {
+      props: {
+        examples: {
+          referenced: { $ref: '#/components/examples/Body', '$ref-value': { summary: 'Body summary', value: 'same' } },
+          fallback: { summary: '', value: 'same' },
+        },
+        modelValue: 'referenced',
+      },
+    })
+    expect(wrapper.get('button').text()).toBe('Body summary')
+    await wrapper.setProps({ modelValue: 'fallback' })
+    expect(wrapper.get('button').text()).toBe('fallback')
+    wrapper.unmount()
   })
 })
