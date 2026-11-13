@@ -1,11 +1,32 @@
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
 
 import { assert, describe, expect, it } from 'vitest'
 
-import { readFile } from '.'
+import { readFile, readFiles } from '.'
 
 describe('readFile', () => {
+  it('reads a confined code file as text without weakening path restrictions', async () => {
+    const source = 'const value = {\r\n  text: "hello",\r\n};\r\n'
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-text-loader-'))
+    try {
+      const file = path.join(directory, 'sample.js')
+      await fs.writeFile(file, source)
+      expect(await readFiles({ basePath: directory }).exec(file, { parseAs: 'text' })).toStrictEqual({
+        ok: true,
+        data: source,
+        raw: source,
+      })
+      expect(
+        await readFiles({ basePath: path.join(directory, 'nested') }).exec(file, { parseAs: 'text' }),
+      ).toStrictEqual({ ok: false })
+    } finally {
+      await fs.rm(directory, { recursive: true, force: true })
+    }
+  })
+
   it('reads json contents of a file', async () => {
     const contents = { message: 'ok' }
     const path = randomUUID()
