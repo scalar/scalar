@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Generate GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@v3.2.0
         with:
           app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
@@ -33,17 +33,17 @@ jobs:
           permission-pull-requests: write
 
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@v6.0.3
         with:
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Update the list of contributors
-        uses: ./.github/actions/update-contributors
+        uses: $/.github/actions/update-contributors
         with:
           github-token: ${{ steps.app-token.outputs.token }}
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+        uses: peter-evans/create-pull-request@v8.1.0
         with:
           token: ${{ steps.app-token.outputs.token }}
           branch: contributors-readme-action-update

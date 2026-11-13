@@ -20,7 +20,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - uses: ./.github/actions/setup-node
+    - uses: $/.github/actions/setup-node
 
     - name: Install dependencies
       shell: bash

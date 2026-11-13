@@ -25,9 +25,9 @@ jobs:
         shard-index: [1, 2, 3]
         shard-total: [3]
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Check built declaration alias imports
         if: matrix.shard-index == 1
         run: pnpm lint:check:dist-dts-aliases
@@ -118,9 +118,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Run project tests
         run: |
           args=()

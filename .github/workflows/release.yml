@@ -95,11 +95,11 @@ jobs:
       # protection rules.
       - name: Generate GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@v3.2.0
         with:
           client-id: ${{ secrets.RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
@@ -153,7 +153,7 @@ jobs:
           done < <(git diff --name-only HEAD~1 HEAD)
           echo "published=$published" >> "$GITHUB_OUTPUT"
       - name: Build
-        uses: ./.github/actions/build
+        uses: $/.github/actions/build
         with:
           # Every public package lives under packages/ or integrations/, so
           # those are all `pnpm -r publish` can reach. We also build tooling/
@@ -170,7 +170,7 @@ jobs:
       # Request provenance explicitly to retain the previous provenance=true behavior.
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
+        uses: changesets/action@v2.1.2
         with:
           # The pull request title.
           pr-title: 'chore: release'
@@ -205,28 +205,28 @@ jobs:
 
       - name: Purge CDN Cache
         if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
+        uses: fjogeleit/http-request-action@v1.16.4
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
           method: 'GET'
 
       - name: Purge CDN Cache (standalone bundle)
         if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
+        uses: fjogeleit/http-request-action@v1.16.4
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.js'
           method: 'GET'
 
       - name: Purge CDN Cache (ESM entry point)
         if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
+        uses: fjogeleit/http-request-action@v1.16.4
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/esm.js'
           method: 'GET'
 
       - name: Purge CDN Cache (standalone ESM bundle)
         if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
+        uses: fjogeleit/http-request-action@v1.16.4
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/dist/browser/standalone.esm.js'
           method: 'GET'
@@ -252,7 +252,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 0
       - name: Generate release tag
@@ -303,14 +303,14 @@ jobs:
     needs: [npm-publish]
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Build @scalar/galaxy
-        uses: ./.github/actions/build
+        uses: $/.github/actions/build
         with:
           packages: '@scalar/galaxy...'
       - name: Check whether there's a new version of @scalar/galaxy
         id: changed-files
-        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
+        uses: step-security/changed-files@v47.0.1
         with:
           files_yaml: |
             galaxy:
