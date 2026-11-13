@@ -171,7 +171,7 @@ overrides:
   undici@>=8: catalog:*
 
 # Do not lower this value; add popular packages to minimumReleaseAgeExclude or wait before updating.
-minimumReleaseAge: 7200 # 5 days
+minimumReleaseAge: 1440 # 1 day
 
 minimumReleaseAgeExclude:
   # AI SDK update removes its transitive Undici dependency.
@@ -186,33 +186,11 @@ minimumReleaseAgeExclude:
   - '@nestjs/platform-express@11.2.9'
   - '@nestjs/platform-fastify@11.2.9'
   - '@nestjs/testing@11.2.9'
-  # Lets trust ourselves
+  # Trust packages published by Scalar.
   - '@scalar/*'
-  # Renovate security update: flatted@3.4.0
-  - flatted@3.4.0
-  # Renovate security update: astro@6.0.0 || 5.18.1
-  - astro@6.0.0 || 5.18.1
-  # Renovate security update: yaml@2.8.3
-  - yaml@2.8.3
-  # Renovate security update: picomatch@4.0.4
-  - picomatch@4.0.4
-  # Renovate security update: next@15.5.14
-  - next@15.5.14
-  # Renovate security update: ajv@8.18.0
-  - ajv@8.18.0
-  # Electron runtime update, released September 29, 2026 || 44.9.1
-  - electron@44.5.1 || 44.9.1
   # Security patches for the November 2026 Undici advisories.
   - undici@7.30.2
   - undici@8.12.4
-  # Renovate security update: fast-uri@3.1.9 || 4.2.3
-  - fast-uri@3.1.9 || 4.2.3
-  # Renovate security update: nuxt@4.6.3
-  - nuxt@4.6.3
-  # Renovate security update: pnpm@10.34.5
-  - pnpm@10.34.5
-  # Renovate security update: @sveltejs/kit@3.0.0
-  - '@sveltejs/kit@3.0.0'
   # Renovate security update: hono@4.13.16
   - hono@4.13.16
 patchedDependencies:
