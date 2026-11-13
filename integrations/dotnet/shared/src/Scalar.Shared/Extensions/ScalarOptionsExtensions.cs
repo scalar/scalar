@@ -774,6 +774,17 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Controls whether built-in HTTP clients appear alongside SDK installation tabs in the introduction.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="showDefaultClients">Whether to show built-in clients alongside SDK installation tabs.</param>
+    public static TOptions WithDefaultClientsWithSdkInstallation<TOptions>(this TOptions options, bool showDefaultClients = true) where TOptions : ScalarOptions
+    {
+        options.ShowDefaultClientsWithSdkInstallation = showDefaultClients;
+        return options;
+    }
+
+    /// <summary>
     /// Controls the route pattern of the OpenAPI document.
     /// Can also be a complete URL to a remote OpenAPI document, just be aware of CORS restrictions in this case.
     /// The pattern can include the '{documentName}' placeholder which will be replaced with the document name.

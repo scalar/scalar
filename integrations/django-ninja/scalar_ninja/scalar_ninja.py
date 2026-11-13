@@ -258,6 +258,11 @@ class ScalarConfig(BaseModel):
         description="A dictionary of additional authentication information. Default is {} which means no authentication information is provided.",
     )
 
+    show_default_clients_with_sdk_installation: bool = Field(
+        default=False,
+        description="Show built-in HTTP clients alongside SDK installation tabs in the introduction. Default is False, which shows only SDK tabs when installation instructions are available.",
+    )
+
     hide_client_button: bool = Field(
         default=False,
         description="Whether to show the client button from the reference sidebar and modal. Default is False which means the client button is shown.",
@@ -484,6 +489,11 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
 
     if config.authentication:  # Default is {}
         js_config["authentication"] = config.authentication
+
+    if config.show_default_clients_with_sdk_installation:
+        js_config["showDefaultClientsWithSdkInstallation"] = (
+            config.show_default_clients_with_sdk_installation
+        )
 
     if config.hide_client_button:  # Default is False
         js_config["hideClientButton"] = config.hide_client_button

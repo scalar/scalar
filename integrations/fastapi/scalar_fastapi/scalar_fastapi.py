@@ -492,6 +492,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = None,
+    show_default_clients_with_sdk_installation: Annotated[
+        bool,
+        Doc(
+            """
+            Show built-in HTTP clients alongside SDK installation tabs in the introduction.
+            Default is False, which shows only SDK tabs when installation instructions are available.
+            """
+        ),
+    ] = False,
     hide_client_button: Annotated[
         bool,
         Doc(
@@ -690,6 +699,11 @@ def get_scalar_api_reference(
 
     if authentication:  # Default is {}
         config["authentication"] = authentication
+
+    if show_default_clients_with_sdk_installation:
+        config["showDefaultClientsWithSdkInstallation"] = (
+            show_default_clients_with_sdk_installation
+        )
 
     if hide_client_button:  # Default is False
         config["hideClientButton"] = hide_client_button

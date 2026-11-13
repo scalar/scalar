@@ -324,6 +324,19 @@ class TestScalarConfig:
 class TestGetScalarApiReference:
     """Test the get_scalar_api_reference function"""
 
+    @pytest.mark.parametrize("enabled", [True, False])
+    def test_show_default_clients_with_sdk_installation(self, enabled):
+        response = get_scalar_api_reference(
+            ScalarConfig(show_default_clients_with_sdk_installation=enabled)
+        )
+        configuration, _ = json.JSONDecoder().raw_decode(
+            response.content.decode().split('Scalar.createApiReference("#app", ', 1)[1]
+        )
+        if enabled:
+            assert configuration["showDefaultClientsWithSdkInstallation"] is True
+        else:
+            assert "showDefaultClientsWithSdkInstallation" not in configuration
+
     def test_basic_functionality(self):
         """Test basic functionality with minimal parameters"""
         config = ScalarConfig(openapi_url="/openapi.json", title="Test API")
@@ -364,6 +377,7 @@ class TestGetScalarApiReference:
         assert "defaultOpenAllTags" not in config_section
         assert "authentication" not in config_section
         assert "hideClientButton" not in config_section
+        assert "showDefaultClientsWithSdkInstallation" not in config_section
         assert "theme" not in config_section
 
     def test_default_openapi_url(self):

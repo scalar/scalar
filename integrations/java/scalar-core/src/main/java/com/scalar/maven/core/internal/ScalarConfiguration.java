@@ -136,6 +136,9 @@ public class ScalarConfiguration {
     @JsonProperty("defaultHttpClient")
     private DefaultHttpClient defaultHttpClient;
 
+    @JsonProperty("showDefaultClientsWithSdkInstallation")
+    private Boolean showDefaultClientsWithSdkInstallation;
+
     @JsonProperty("authentication")
     private ScalarAuthenticationOptions authentication;
 
@@ -331,6 +334,14 @@ public class ScalarConfiguration {
 
     public void setMetaData(Map<String, String> metaData) {
         this.metaData = metaData;
+    }
+
+    public Boolean getShowDefaultClientsWithSdkInstallation() {
+        return showDefaultClientsWithSdkInstallation;
+    }
+
+    public void setShowDefaultClientsWithSdkInstallation(Boolean showDefaultClientsWithSdkInstallation) {
+        this.showDefaultClientsWithSdkInstallation = showDefaultClientsWithSdkInstallation;
     }
 
     public DefaultHttpClient getDefaultHttpClient() {

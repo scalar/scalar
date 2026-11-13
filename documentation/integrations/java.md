@@ -168,6 +168,7 @@ These options work in both WebMVC and WebFlux. Omitted values use the frontend d
 | `scalar.default-request-body-view` | `form` or `raw` |
 | `scalar.show-extensions` | List of extension keys such as `x-internal` |
 | `scalar.featured-clients` | Ordered list of full client IDs such as `node/fetch` |
+| `scalar.show-default-clients-with-sdk-installation` | Show built-in HTTP clients alongside SDK installation tabs (default: `false`) |
 | `scalar.url-routing` | `false` leaves the browser URL and history unchanged |
 | `scalar.oauth2-redirect-uri` | Default OAuth redirect URI |
 | `scalar.agent.hide-add-api` | Hide the agent's control for adding APIs; also available under each source |
