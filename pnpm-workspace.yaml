@@ -215,5 +215,7 @@ minimumReleaseAgeExclude:
   - '@sveltejs/kit@3.0.0'
   # Renovate security update: hono@4.13.16
   - hono@4.13.16
+  # Renovate security update: @nuxt/schema@4.6.4
+  - "@nuxt/schema@4.6.4"
 patchedDependencies:
   proto-parser@0.0.9: patches/proto-parser@0.0.9.patch
