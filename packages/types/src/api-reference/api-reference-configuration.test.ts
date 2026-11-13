@@ -7,6 +7,14 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it.each([
+    { config: {}, expected: true },
+    { config: { persistSelectedClient: true }, expected: true },
+    { config: { persistSelectedClient: false }, expected: false },
+  ])('parses selected client persistence as $expected for $config', ({ config, expected }) => {
+    expect(apiReferenceConfigurationSchema.parse(config).persistSelectedClient).toBe(expected)
+  })
+
   it('preserves a custom default client', () => {
     const defaultHttpClient = { targetKey: 'custom', clientKey: 'python/1' }
     expect(apiReferenceConfigurationSchema.parse({ defaultHttpClient }).defaultHttpClient).toStrictEqual(

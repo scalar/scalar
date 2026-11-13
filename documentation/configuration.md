@@ -1101,6 +1101,20 @@ Configuration for path-based routing instead of hash-based routing. Your server 
 }
 ```
 
+### persistSelectedClient
+
+**Type:** `boolean`
+
+**Default:** `true`
+
+Save and restore the selected code sample client using local storage. Set this to `false` to prevent reads and writes to `scalar-reference-selected-client-v2`, including when `defaultHttpClient` is configured. Client selection still works for the current page, and existing stored values are left untouched. Authentication persistence is controlled separately by `persistAuth`.
+
+```javascript
+{
+  persistSelectedClient: false
+}
+```
+
 ### persistAuth
 
 **Type:** `boolean`

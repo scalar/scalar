@@ -12,7 +12,55 @@ describe('persistence-plugin', () => {
   })
 
   afterEach(() => {
+    vi.restoreAllMocks()
     vi.useRealTimers()
+  })
+
+  it.each([undefined, true])('persists the selected client when the option is %s', async (persistSelectedClient) => {
+    const plugin = persistencePlugin({ persistSelectedClient, debounceDelay: 100 })
+
+    plugin.hooks?.onWorkspaceStateChanges?.({
+      type: 'meta',
+      value: { 'x-scalar-default-client': 'js/fetch' },
+    })
+    await vi.runAllTimersAsync()
+
+    expect(localStorage.getItem(REFERENCE_LS_KEYS.SELECTED_CLIENT)).toBe('js/fetch')
+  })
+
+  it('leaves the saved client untouched while persisting auth independently', async () => {
+    localStorage.setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, 'shell/curl')
+    const setItem = vi.spyOn(Storage.prototype, 'setItem')
+    const plugin = persistencePlugin({ persistSelectedClient: false, persistAuth: true, debounceDelay: 100 })
+    const auth = { secrets: {}, selected: { document: undefined, path: undefined } }
+
+    plugin.hooks?.onWorkspaceStateChanges?.({ type: 'meta', value: { 'x-scalar-default-client': 'js/fetch' } })
+    plugin.hooks?.onWorkspaceStateChanges?.({ type: 'auth', documentName: 'doc-a', value: auth })
+    await vi.runAllTimersAsync()
+
+    expect(setItem.mock.calls).toStrictEqual([[AUTH_KEY('doc-a'), JSON.stringify(auth)]])
+    expect(localStorage.getItem(REFERENCE_LS_KEYS.SELECTED_CLIENT)).toBe('shell/curl')
+    setItem.mockRestore()
+  })
+
+  it('rechecks reactive persistence before a queued write and permits later selections when enabled', async () => {
+    const configuration = { persistSelectedClient: true }
+    const plugin = persistencePlugin({
+      persistSelectedClient: () => configuration.persistSelectedClient,
+      debounceDelay: 100,
+    })
+    const setItem = vi.spyOn(Storage.prototype, 'setItem')
+
+    plugin.hooks?.onWorkspaceStateChanges?.({ type: 'meta', value: { 'x-scalar-default-client': 'js/fetch' } })
+    configuration.persistSelectedClient = false
+    await vi.runAllTimersAsync()
+    expect(setItem).not.toHaveBeenCalled()
+
+    configuration.persistSelectedClient = true
+    plugin.hooks?.onWorkspaceStateChanges?.({ type: 'meta', value: { 'x-scalar-default-client': 'php/guzzle' } })
+    await vi.runAllTimersAsync()
+    expect(setItem.mock.calls).toStrictEqual([[REFERENCE_LS_KEYS.SELECTED_CLIENT, 'php/guzzle']])
+    setItem.mockRestore()
   })
 
   it('persists auth changes to the correct document slug from the event', async () => {

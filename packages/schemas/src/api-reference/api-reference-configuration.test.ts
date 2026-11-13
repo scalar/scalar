@@ -8,6 +8,16 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it.each([
+    { config: {}, expected: true },
+    { config: { persistSelectedClient: true }, expected: true },
+    { config: { persistSelectedClient: false }, expected: false },
+  ])('preserves selected client persistence as $expected for $config', ({ config, expected }) => {
+    expect(apiReferenceConfigurationWithSourceSchema({ ...config, url: '/openapi.json' }).persistSelectedClient).toBe(
+      expected,
+    )
+  })
+
   it('preserves a custom default client through normalization', () => {
     const defaultHttpClient = { targetKey: 'custom', clientKey: 'python/1' }
     expect(coerce(apiReferenceConfigurationSchema, { defaultHttpClient }).defaultHttpClient).toStrictEqual(
