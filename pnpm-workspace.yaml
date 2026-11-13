@@ -62,7 +62,7 @@ catalogs:
     ajv-draft-04: ^1.0.0
     ajv-formats: ^3.0.1
     ansis: 4.4.0
-    astro: 7.4.0
+    astro: 7.4.7
     remark-gfm: ^4.0.1
     remark-stringify: ^11.0.0
     unified: ^11.0.5
@@ -190,8 +190,8 @@ minimumReleaseAgeExclude:
   - '@scalar/*'
   # Renovate security update: flatted@3.4.0
   - flatted@3.4.0
-  # Renovate security update: astro@6.0.0 || 5.18.1
-  - astro@6.0.0 || 5.18.1
+  # Renovate security update: astro@6.0.0 || 5.18.1 || 7.4.7
+  - astro@6.0.0 || 5.18.1 || 7.4.7
   # Renovate security update: yaml@2.8.3
   - yaml@2.8.3
   # Renovate security update: picomatch@4.0.4
