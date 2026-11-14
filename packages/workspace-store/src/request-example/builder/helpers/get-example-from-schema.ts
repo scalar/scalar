@@ -1123,7 +1123,9 @@ const handleArraySchema = (
     (('type' in items && items.type === 'array') || 'items' in items || 'prefixItems' in items)
 
   const hasDeclaredItem = values.length < minItems && items && getDeclaredValue(items) !== undefined
-  if (items && (('type' in items && items.type) || isObjectItems || isArray || hasDeclaredItem)) {
+  // Untyped binary items are files, so a repeated upload keeps one example part.
+  const isFileItems = !!items && isFileSchema(items, false)
+  if (items && (('type' in items && items.type) || isObjectItems || isArray || hasDeclaredItem || isFileItems)) {
     const ex = getExampleFromSchema(items, options, {
       level: level + 1,
       schemaPath: itemsSchemaPath,
@@ -2075,6 +2077,12 @@ const generateExampleFromSchema = (
   if (unionPrimitive !== undefined) {
     seen.delete(targetValue)
     return cache(_schema, unionPrimitive, cacheKey, skipCache)
+  }
+
+  // OAS 3.1 describes raw binary with contentMediaType and no type, which is also what upgraded 3.0 files become.
+  if (isFileSchema(_schema, false)) {
+    seen.delete(targetValue)
+    return cache(_schema, '@filename', cacheKey, skipCache)
   }
 
   // Default fallback
