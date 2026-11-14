@@ -6,8 +6,7 @@ Publishing is **opt-in** and **off by default**. Nothing is published until you 
 
 <scalar-image
   src="/sdks/sdk-overview.png"
-  src-dark="/sdks/sdk-overview-dark.png"
-  alt="The SDK studio in the Scalar dashboard showing a TypeScript target with a linked GitHub repository"
+  alt="The SDK overview page in the Scalar dashboard showing a target with a linked GitHub repository"
   size="full">
 </scalar-image>
 
@@ -54,9 +53,9 @@ Every target with a linked repository gets its release machinery committed along
 | File | Trigger | What it does |
 | ---- | ------- | ------------ |
 | `.github/workflows/sdk-ci.yml` | `push`, `pull_request` | Installs dependencies and builds the SDK so every change is checked. |
-| `.github/workflows/release-please.yml` | `push` to the default branch | Cuts the tag and GitHub Release when a release pull request merges, publishes from its inline `publish` job, and syncs the release back to `scalar-next`. |
+| `.github/workflows/release-please.yml` | `push` to the default branch | Cuts the tag and GitHub Release when a release pull request merges, publishes from its `publish` job, and syncs the release back to `scalar-next`. For a Dart target authenticating with OIDC, that job dispatches `sdk-release.yml` at the release tag instead of publishing itself. |
 | `.github/workflows/release-title-edit.yml` | `pull_request` | Runs the `Release PR version` check, which holds a retitled release pull request pending until Scalar has re-rendered it at the new version. |
-| `.github/workflows/sdk-release.yml` | `workflow_dispatch` | Manually re-publishes an existing tag. Only generated when the target publishes at release time. |
+| `.github/workflows/sdk-release.yml` | `workflow_dispatch` | Manually re-publishes an existing tag. For a Dart target authenticating with OIDC, it is also where every release publishes. Only generated when the target publishes at release time. |
 | `release-please-config.json`, `.release-please-manifest.json` | — | release-please's configuration and version state. The manifest is seeded once and then owned by your repository. |
 | `VERSIONING.md` | — | Documents the branch model, how to pick an exact version, and the repository prerequisites. |
 
@@ -90,7 +89,7 @@ You can enable publishing two ways. Both set the same thing.
   size="full">
 </scalar-image>
 
-The registry key depends on the target (`npm`, `pypi`, `cargo`, `maven`, and so on). The C#, Swift, Rust, Dart, and C++ targets are experimental. For the full list and each registry's setup, see [Package Registries](registries.md); each target's [configuration page](../configuration.md#targets) documents its `publish` options. The CLI's three channels (npm, standalone binaries, and Homebrew) are covered in the [CLI guide](cli.md).
+The registry key depends on the target (`npm`, `pypi`, `cargo`, `maven`, and so on). The Swift, Rust, and C++ targets are experimental. For the full list and each registry's setup, see [Package Registries](registries.md); each target's [configuration page](../configuration.md#targets) documents its `publish` options. The CLI's three channels (npm, standalone binaries, and Homebrew) are covered in the [CLI guide](cli.md).
 
 Publishing requires a [linked repository](github.md): a target with no `destinations.production` gets no workflows at all.
 
@@ -130,12 +129,12 @@ A taken name is a **warning, never a block**: the registry cannot tell whether a
 
 ## Authentication
 
-By default Scalar uses **OIDC trusted publishing** wherever the registry supports it. The publish job exchanges a short-lived GitHub identity token for a registry credential at publish time, so there is **no token to create, store, or rotate**. You register your repository and workflow as a trusted publisher on the registry once. Two exceptions: npm and crates.io only register a trusted publisher on a package that already exists, so their first release uses a token, and NuGet's OIDC login still reads your profile name from a `NUGET_USER` secret.
+By default Scalar uses **OIDC trusted publishing** wherever the registry supports it. The publish job exchanges a short-lived GitHub identity token for a registry credential at publish time, so there is **no token to create, store, or rotate**. You register your repository and workflow as a trusted publisher on the registry once. Two exceptions: npm and crates.io only register a trusted publisher on a package that already exists, so their first release uses a token (pub.dev likewise, whose first version is published by hand with `dart pub publish`), and NuGet's OIDC login still reads your profile name from a `NUGET_USER` secret.
 
 > [!IMPORTANT]
-> Register **`release-please.yml`** as the trusted publisher's workflow, not `sdk-release.yml`. The automated publish runs as a job inside `release-please.yml`, so that is the file the OIDC claims name. `sdk-release.yml` exists for manual re-publishes; register it as an *additional* trusted publisher only if you use it.
+> Register **`release-please.yml`** as the trusted publisher's workflow, not `sdk-release.yml`. The automated publish runs as a job inside `release-please.yml`, so that is the file the OIDC claims name. `sdk-release.yml` exists for manual re-publishes; register it as an *additional* trusted publisher only if you use it. pub.dev is the exception: it registers a tag pattern rather than a workflow, and a Dart release publishes from `sdk-release.yml` dispatched at the release tag (see [Dart](dart.md)).
 
-Registries that do not support OIDC (Maven Central, which also requires GPG signing, and a Homebrew tap) use repository secrets instead, and so does pub.dev: it authorizes a tag pattern the generated workflows cannot satisfy, so a Dart target sets `authMethod` to `access-token`. Setup for each registry is covered in [Package Registries](registries.md) and the per-language guides it links.
+Registries that do not support OIDC (Maven Central, which also requires GPG signing, and a Homebrew tap) use repository secrets instead. Setup for each registry is covered in [Package Registries](registries.md) and the per-language guides it links.
 
 ## Versioning and releases
 
