@@ -2627,4 +2627,46 @@ describe('processBody', () => {
       })
     },
   )
+
+  it.each([
+    [
+      'a property',
+      { file: { contentMediaType: 'application/octet-stream' } },
+      [{ name: 'file', value: '@filename', fileName: 'filename' }],
+    ],
+    [
+      'array items',
+      { files: { type: 'array', items: { contentMediaType: 'image/png' } } },
+      [{ name: 'files', value: '@filename', fileName: 'filename' }],
+    ],
+  ])('sends untyped contentMediaType in %s as a file part', (_, properties, params) => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/form-data': { schema: coerceValue(SchemaObjectSchema, { type: 'object', properties }) },
+        },
+      },
+      contentType: 'multipart/form-data',
+    })
+    expect(result).toStrictEqual({ mimeType: 'multipart/form-data', params })
+  })
+
+  it.each(['application/octet-stream', 'image/png', 'application/pdf'])(
+    'sends an untyped %s body as a file instead of null',
+    (contentType) => {
+      const result = processBody({
+        requestBody: { content: { [contentType]: { schema: coerceValue(SchemaObjectSchema, {}) } } },
+        contentType,
+      })
+      expect(result).toStrictEqual({ mimeType: contentType, text: '@filename' })
+    },
+  )
+
+  it.each(['application/json', 'text/plain'])('keeps the untyped %s body as data', (contentType) => {
+    const result = processBody({
+      requestBody: { content: { [contentType]: { schema: coerceValue(SchemaObjectSchema, {}) } } },
+      contentType,
+    })
+    expect(result).toStrictEqual({ mimeType: contentType, text: 'null' })
+  })
 })

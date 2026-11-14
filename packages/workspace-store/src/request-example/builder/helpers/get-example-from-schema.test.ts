@@ -260,6 +260,29 @@ describe('getExampleFromSchema', () => {
     },
   )
 
+  it.each(['application/octet-stream', 'image/png', 'text/plain'])(
+    'generates a file placeholder for untyped contentMediaType %s',
+    (contentMediaType) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: { upload: { contentMediaType }, uploads: { type: 'array', items: { contentMediaType } } },
+      })
+      expect(getExampleFromSchema(schema)).toStrictEqual({ upload: '@filename', uploads: ['@filename'] })
+      const example = getExampleFromSchema(schema, { binaryAsFile: true }) as { upload: File; uploads: File[] }
+      expect(example.upload).toBeInstanceOf(File)
+      expect(example.upload.name).toBe('filename')
+      expect(example.uploads.map((file) => file.name)).toStrictEqual(['filename'])
+    },
+  )
+
+  it.each([
+    [{ contentMediaType: 'application/octet-stream', contentEncoding: 'base64' }, null],
+    [{}, null],
+    [{ contentMediaType: 'application/json', contentSchema: { type: 'object' } }, '{}'],
+  ])('does not treat %j as a file', (definition, expected) => {
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, definition))).toBe(expected)
+  })
+
   it('refreshes generated dates and times in reused nested schemas', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',
