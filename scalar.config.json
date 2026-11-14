@@ -1272,6 +1272,456 @@
               ]
             }
           },
+          "/use-cases": {
+            "title": "Use cases",
+            "description": "See how teams in fintech, healthcare, e-commerce, logistics and more use Scalar to ship API docs, SDKs and MCP servers from one OpenAPI document.",
+            "filepath": "documentation/guides/use-cases/use-cases.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false,
+              "pageActions": false,
+              "feedback": false
+            },
+            "head": {
+              "title": "Scalar Use Cases — API Docs, SDKs & MCP for Every Industry",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/use-cases-hero.js",
+                  "defer": true
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/use-cases"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "See how teams in fintech, healthcare, e-commerce, logistics and more use Scalar to ship API docs, SDKs and MCP servers from one OpenAPI document."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar Use Cases — API Docs, SDKs & MCP for Every Industry"
+                },
+                {
+                  "property": "og:description",
+                  "content": "See how teams in fintech, healthcare, e-commerce, logistics and more use Scalar to ship API docs, SDKs and MCP servers from one OpenAPI document."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "/use-cases/fintech": {
+            "title": "Fintech",
+            "description": "Payments, banking and lending APIs with versioned references, typed SDKs and private partner docs.",
+            "filepath": "documentation/guides/use-cases/fintech.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false,
+              "pageActions": false,
+              "feedback": false
+            },
+            "head": {
+              "title": "Scalar for Fintech — API Docs, SDKs & MCP for Payments and Banking APIs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/use-cases-hero.js",
+                  "defer": true
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/use-cases/fintech"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Payments, banking and lending APIs with versioned references, typed SDKs and private partner docs."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar for Fintech — API Docs, SDKs & MCP for Payments and Banking APIs"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Payments, banking and lending APIs with versioned references, typed SDKs and private partner docs."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "/use-cases/healthcare": {
+            "title": "Healthcare",
+            "description": "Patient, scheduling and claims APIs behind private docs, access groups and SSO.",
+            "filepath": "documentation/guides/use-cases/healthcare.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false,
+              "pageActions": false,
+              "feedback": false
+            },
+            "head": {
+              "title": "Scalar for Healthcare — Private API Docs, SDKs & MCP for Health APIs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/use-cases-hero.js",
+                  "defer": true
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/use-cases/healthcare"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Patient, scheduling and claims APIs behind private docs, access groups and SSO."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar for Healthcare — Private API Docs, SDKs & MCP for Health APIs"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Patient, scheduling and claims APIs behind private docs, access groups and SSO."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "/use-cases/ecommerce": {
+            "title": "E-commerce",
+            "description": "Catalog, cart and order APIs with SDKs for storefront teams and MCP for shopping agents.",
+            "filepath": "documentation/guides/use-cases/ecommerce.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false,
+              "pageActions": false,
+              "feedback": false
+            },
+            "head": {
+              "title": "Scalar for E-commerce — API Docs, SDKs & MCP for Commerce APIs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/use-cases-hero.js",
+                  "defer": true
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/use-cases/ecommerce"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Catalog, cart and order APIs with SDKs for storefront teams and MCP for shopping agents."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar for E-commerce — API Docs, SDKs & MCP for Commerce APIs"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Catalog, cart and order APIs with SDKs for storefront teams and MCP for shopping agents."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "/use-cases/logistics": {
+            "title": "Logistics",
+            "description": "Shipping, tracking and freight APIs, with webhooks and event streams documented in AsyncAPI.",
+            "filepath": "documentation/guides/use-cases/logistics.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false,
+              "pageActions": false,
+              "feedback": false
+            },
+            "head": {
+              "title": "Scalar for Logistics — API Docs, SDKs & AsyncAPI for Shipping APIs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/use-cases-hero.js",
+                  "defer": true
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/use-cases/logistics"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Shipping, tracking and freight APIs, with webhooks and event streams documented in AsyncAPI."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar for Logistics — API Docs, SDKs & AsyncAPI for Shipping APIs"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Shipping, tracking and freight APIs, with webhooks and event streams documented in AsyncAPI."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "/use-cases/travel": {
+            "title": "Travel",
+            "description": "Booking, inventory and loyalty APIs, versioned so partner integrations keep working.",
+            "filepath": "documentation/guides/use-cases/travel.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false,
+              "pageActions": false,
+              "feedback": false
+            },
+            "head": {
+              "title": "Scalar for Travel — Versioned API Docs & SDKs for Booking APIs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/use-cases-hero.js",
+                  "defer": true
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/use-cases/travel"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Booking, inventory and loyalty APIs, versioned so partner integrations keep working."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar for Travel — Versioned API Docs & SDKs for Booking APIs"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Booking, inventory and loyalty APIs, versioned so partner integrations keep working."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "/use-cases/ai-platforms": {
+            "title": "AI platforms",
+            "description": "Model and tool APIs that agents can discover, read and call through MCP and llms.txt.",
+            "filepath": "documentation/guides/use-cases/ai-platforms.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false,
+              "pageActions": false,
+              "feedback": false
+            },
+            "head": {
+              "title": "Scalar for AI Platforms — MCP Servers, API Docs & SDKs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/use-cases-hero.js",
+                  "defer": true
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/use-cases/ai-platforms"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Model and tool APIs that agents can discover, read and call through MCP and llms.txt."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar for AI Platforms — MCP Servers, API Docs & SDKs"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Model and tool APIs that agents can discover, read and call through MCP and llms.txt."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "/use-cases/developer-tools": {
+            "title": "Developer tools",
+            "description": "Docs, SDKs and a CLI for the developers who build on your platform.",
+            "filepath": "documentation/guides/use-cases/developer-tools.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false,
+              "pageActions": false,
+              "feedback": false
+            },
+            "head": {
+              "title": "Scalar for Developer Tools — API Docs, SDKs & CLIs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/use-cases-hero.js",
+                  "defer": true
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/use-cases/developer-tools"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Docs, SDKs and a CLI for the developers who build on your platform."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar for Developer Tools — API Docs, SDKs & CLIs"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Docs, SDKs and a CLI for the developers who build on your platform."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
+          "/use-cases/telecom": {
+            "title": "Telecom & IoT",
+            "description": "Network, messaging and device APIs, from REST endpoints to AsyncAPI event streams.",
+            "filepath": "documentation/guides/use-cases/telecom.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false,
+              "pageActions": false,
+              "feedback": false
+            },
+            "head": {
+              "title": "Scalar for Telecom & IoT — API Docs for REST and Event-Driven APIs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/use-cases-hero.js",
+                  "defer": true
+                }
+              ],
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/use-cases/telecom"
+                }
+              ],
+              "meta": [
+                {
+                  "name": "description",
+                  "content": "Network, messaging and device APIs, from REST endpoints to AsyncAPI event streams."
+                },
+                {
+                  "property": "og:title",
+                  "content": "Scalar for Telecom & IoT — API Docs for REST and Event-Driven APIs"
+                },
+                {
+                  "property": "og:description",
+                  "content": "Network, messaging and device APIs, from REST endpoints to AsyncAPI event streams."
+                },
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                }
+              ]
+            }
+          },
           "/enterprise": {
             "title": "Enterprise",
             "type": "page",
