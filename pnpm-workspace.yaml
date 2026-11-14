@@ -211,8 +211,8 @@ minimumReleaseAgeExclude:
   - nuxt@4.6.3
   # Renovate security update: pnpm@10.34.5
   - pnpm@10.34.5
-  # Renovate security update: @sveltejs/kit@3.0.0
-  - '@sveltejs/kit@3.0.0'
+  # Renovate security update: @sveltejs/kit@3.0.0 || 3.1.1
+  - '@sveltejs/kit@3.0.0 || 3.1.1'
   # Renovate security update: hono@4.13.16
   - hono@4.13.16
 patchedDependencies:
