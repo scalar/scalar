@@ -1,370 +1,197 @@
+import { createHash } from 'node:crypto'
 import http from 'node:http'
 
-import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { exchangeTokenMock, openExternalMock } = vi.hoisted(() => ({
   exchangeTokenMock: vi.fn(),
   openExternalMock: vi.fn(),
 }))
 
-vi.mock('electron/common', () => ({
-  shell: {
-    openExternal: openExternalMock,
-  },
-}))
-
-vi.mock('@/environment', () => ({
-  env: {
-    VITE_DASHBOARD_URL: 'https://dashboard.scalar.test',
-  },
-}))
-
-vi.mock('@/helpers/auth/exchange-token', () => ({
-  exchangeToken: exchangeTokenMock,
-}))
-
-import type { TokenResponse } from '@/helpers/auth/schema'
+vi.mock('electron/common', () => ({ shell: { openExternal: openExternalMock } }))
+vi.mock('@/environment', () => ({ env: { VITE_DASHBOARD_URL: 'https://dashboard.scalar.test' } }))
+vi.mock('@/helpers/auth/exchange-token', () => ({ exchangeToken: exchangeTokenMock }))
 
 import { getExchangeToken } from './get-exchange-token'
 
-type CallbackResponse = {
-  body: {
-    error: boolean
-    message: string
-    success: boolean
-  }
+const TOKENS = { accessToken: 'access-token-value', refreshToken: 'refresh-token-value' }
+
+const sendRequest = (
+  port: number,
+  path: string,
+  method = 'GET',
+  host = `127.0.0.1:${port}`,
+): Promise<{
+  status: number | undefined
   headers: http.IncomingHttpHeaders
-  statusCode: number
-}
-
-const VALID_TOKEN_RESPONSE = {
-  accessToken: 'access-token-value',
-  refreshToken: 'refresh-token-value',
-} satisfies TokenResponse
-
-const parseOpenedCallbackPort = (): number => {
-  const openedUrl = new URL(openExternalMock.mock.calls[0]![0]!)
-  const port = openedUrl.searchParams.get('port')
-
-  if (!port) {
-    throw new Error('Expected openExternal URL to include a port')
-  }
-
-  return Number(port)
-}
-
-const waitForLoginPageToOpen = async (): Promise<void> => {
-  await vi.waitFor(() => {
-    expect(openExternalMock).toHaveBeenCalled()
-  })
-
-  // Give the callback server a tick to settle before the test client connects.
-  await new Promise((resolve) => setTimeout(resolve, 0))
-}
-
-const sendCallbackRequest = ({
-  host = '127.0.0.1',
-  method = 'POST',
-  path,
-  port,
-}: {
-  host?: string
-  method?: string
-  path: string
-  port: number
-}): Promise<CallbackResponse> =>
+  body: string
+}> =>
   new Promise((resolve, reject) => {
-    const request = http.request(
-      {
-        host,
-        method,
-        path,
-        port,
-      },
-      (response) => {
-        let body = ''
-
-        response.setEncoding('utf8')
-        response.on('data', (chunk) => {
-          body += chunk
-        })
-        response.on('end', () => {
-          resolve({
-            body: JSON.parse(body) as CallbackResponse['body'],
-            headers: response.headers,
-            statusCode: response.statusCode ?? 0,
-          })
-        })
-      },
-    )
-
+    const request = http.request({ hostname: '127.0.0.1', port, method, path, headers: { Host: host } }, (response) => {
+      let body = ''
+      response.setEncoding('utf8')
+      response.on('data', (chunk) => {
+        body += chunk
+      })
+      response.on('end', () => resolve({ status: response.statusCode, headers: response.headers, body }))
+    })
     request.on('error', reject)
     request.end()
   })
 
-describe('get-exchange-token', () => {
-  let consoleErrorSpy: Mock
+const startLogin = async (
+  flow: 'login' | 'register' = 'login',
+): Promise<{ result: ReturnType<typeof getExchangeToken>; url: URL; port: number; state: string; path: string }> => {
+  const result = getExchangeToken(flow)
+  await vi.waitFor(() => expect(openExternalMock).toHaveBeenCalled())
+  const url = new URL(openExternalMock.mock.lastCall![0])
+  const port = Number(url.searchParams.get('port'))
+  const state = url.searchParams.get('state')!
+  const path = `/callback?${new URLSearchParams({ state, exchangeToken: 'exchange-token' })}`
+  return { result, url, port, state, path }
+}
 
+describe('get-exchange-token', () => {
   beforeEach(() => {
-    exchangeTokenMock.mockResolvedValue([null, VALID_TOKEN_RESPONSE])
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    exchangeTokenMock.mockResolvedValue([null, TOKENS])
+    openExternalMock.mockResolvedValue(undefined)
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
   })
 
   afterEach(() => {
     vi.useRealTimers()
     vi.clearAllMocks()
-    consoleErrorSpy.mockRestore()
+    vi.restoreAllMocks()
   })
 
-  it('opens the dashboard login page with the local callback port', async () => {
-    const resultPromise = getExchangeToken('login')
-    await waitForLoginPageToOpen()
+  it.each(['login', 'register'] as const)(
+    'finishes %s through a state-checked redirect and PKCE exchange',
+    async (flow) => {
+      const { result, url, port, state, path } = await startLogin(flow)
+      expect(url.origin).toBe('https://dashboard.scalar.test')
+      expect(url.pathname).toBe(`/${flow}`)
+      expect(url.searchParams.get('externalRedirect')).toBe('local')
+      expect(url.searchParams.get('callback')).toBe('redirect')
+      expect(state).toMatch(/^[A-Za-z0-9_-]{43}$/)
+      expect(url.searchParams.has('codeVerifier')).toBe(false)
 
-    const port = parseOpenedCallbackPort()
-
-    expect(openExternalMock).toHaveBeenCalledWith(
-      `https://dashboard.scalar.test/login?externalRedirect=local&port=${port}`,
-      { activate: true },
-    )
-
-    await sendCallbackRequest({
-      path: '/callback?exchangeToken=external-login-token',
-      port,
-    })
-
-    await resultPromise
-  })
-
-  it('logs in while the default port is occupied', async () => {
-    const blocker = http.createServer()
-    await new Promise<void>((resolve, reject) => {
-      blocker.once('error', (error: NodeJS.ErrnoException) => {
-        // Another test or local service may already occupy the default port.
-        if (error.code === 'EADDRINUSE') {
-          resolve()
-        } else {
-          reject(error)
-        }
-      })
-      blocker.listen({ host: '127.0.0.1', port: 3000 }, resolve)
-    })
-
-    try {
-      const resultPromise = getExchangeToken('login')
-      await waitForLoginPageToOpen()
-      const port = parseOpenedCallbackPort()
-      await sendCallbackRequest({ path: '/callback?exchangeToken=token', port })
-
-      expect(await resultPromise).toStrictEqual(VALID_TOKEN_RESPONSE)
-      expect(port).not.toBe(3000)
-    } finally {
-      if (blocker.listening) {
-        await new Promise<void>((resolve) => blocker.close(() => resolve()))
-      }
-    }
-  })
-
-  it('opens the dashboard register page when flow is register', async () => {
-    const resultPromise = getExchangeToken('register')
-    await waitForLoginPageToOpen()
-
-    const port = parseOpenedCallbackPort()
-
-    expect(openExternalMock).toHaveBeenCalledWith(
-      `https://dashboard.scalar.test/register?externalRedirect=local&port=${port}`,
-      { activate: true },
-    )
-
-    await sendCallbackRequest({
-      path: '/callback?exchangeToken=external-register-token',
-      port,
-    })
-
-    await resultPromise
-  })
-
-  it('returns exchanged tokens after a valid POST callback', async () => {
-    const resultPromise = getExchangeToken('login')
-    await waitForLoginPageToOpen()
-
-    const port = parseOpenedCallbackPort()
-    const response = await sendCallbackRequest({
-      path: '/callback?exchangeToken=external-login-token',
-      port,
-    })
-    const result = await resultPromise
-
-    expect(exchangeTokenMock).toHaveBeenCalledWith('external-login-token')
-    expect(result).toEqual(VALID_TOKEN_RESPONSE)
-    expect(response).toEqual(
-      expect.objectContaining({
-        body: {
-          error: false,
-          message: 'Token exchanged.',
-          success: true,
-        },
-        statusCode: 200,
-      }),
-    )
-    expect(response.headers['content-type']).toBe('application/json')
-    expect(response.headers['access-control-allow-origin']).toBe('https://dashboard.scalar.test')
-  })
-
-  it('tears down the callback server after the login attempt finishes', async () => {
-    const resultPromise = getExchangeToken('login')
-    await waitForLoginPageToOpen()
-
-    const port = parseOpenedCallbackPort()
-    await sendCallbackRequest({
-      path: '/callback?exchangeToken=external-login-token',
-      port,
-    })
-    await resultPromise
-
-    await expect(
-      sendCallbackRequest({
-        path: '/callback?exchangeToken=stale-token',
-        port,
-      }),
-    ).rejects.toBeInstanceOf(Error)
-  })
-
-  it('accepts the dashboard callback sent to localhost', async () => {
-    const resultPromise = getExchangeToken('login')
-    await waitForLoginPageToOpen()
-
-    const port = parseOpenedCallbackPort()
-    let callbackReachedServer = false
-
-    try {
-      const response = await sendCallbackRequest({
-        host: 'localhost',
-        path: '/callback?exchangeToken=external-login-token',
-        port,
-      })
-      callbackReachedServer = true
-      const result = await resultPromise
-
-      expect(exchangeTokenMock).toHaveBeenCalledWith('external-login-token')
-      expect(result).toEqual(VALID_TOKEN_RESPONSE)
-      expect(response.statusCode).toBe(200)
-    } finally {
-      if (!callbackReachedServer) {
-        await sendCallbackRequest({
-          path: '/callback?exchangeToken=cleanup-token',
-          port,
-        }).catch(() => undefined)
-        await resultPromise.catch(() => undefined)
-      }
-    }
-  })
-
-  it('passes URL-decoded exchange tokens to the exchange endpoint', async () => {
-    const resultPromise = getExchangeToken('login')
-    await waitForLoginPageToOpen()
-
-    const port = parseOpenedCallbackPort()
-    await sendCallbackRequest({
-      path: '/callback?exchangeToken=token%20with%20spaces%2Band%2Bsymbols',
-      port,
-    })
-    await resultPromise
-
-    expect(exchangeTokenMock).toHaveBeenCalledWith('token with spaces+and+symbols')
-  })
-
-  it('returns null and a 405 response for non-POST callbacks', async () => {
-    const resultPromise = getExchangeToken('login')
-    await waitForLoginPageToOpen()
-
-    const port = parseOpenedCallbackPort()
-    const response = await sendCallbackRequest({
-      method: 'GET',
-      path: '/callback?exchangeToken=external-login-token',
-      port,
-    })
-    const result = await resultPromise
-
-    expect(exchangeTokenMock).not.toHaveBeenCalled()
-    expect(result).toBeNull()
-    expect(response).toEqual(
-      expect.objectContaining({
-        body: {
-          error: true,
-          message: 'Method not allowed',
-          success: false,
-        },
-        statusCode: 405,
-      }),
-    )
-    expect(response.headers['access-control-allow-origin']).toBe('https://dashboard.scalar.test')
-    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.any(Error))
-  })
+      const response = await sendRequest(port, path)
+      expect(await result).toStrictEqual(TOKENS)
+      expect(response.status).toBe(303)
+      expect(response.headers.location).toBe('https://dashboard.scalar.test/login/exchange/success')
+      expect(response.headers['cache-control']).toBe('no-store')
+      expect(response.headers['referrer-policy']).toBe('no-referrer')
+      expect(response.body).toBe('')
+      expect(exchangeTokenMock.mock.calls.length).toBe(1)
+      const [token, { codeVerifier, signal }] = exchangeTokenMock.mock.calls[0]!
+      expect(token).toBe('exchange-token')
+      expect(codeVerifier).toMatch(/^[A-Za-z0-9_-]{43}$/)
+      expect(createHash('sha256').update(codeVerifier).digest('base64url')).toBe(url.searchParams.get('codeChallenge'))
+      expect(signal).toBeInstanceOf(AbortSignal)
+      await expect(sendRequest(port, path)).rejects.toThrow()
+    },
+  )
 
   it.each([
-    ['/callback', 'without a query parameter'],
-    ['/callback?exchangeToken=', 'with a blank query parameter'],
-  ])('returns null and a 400 response when the token is missing %s', async (path) => {
-    const resultPromise = getExchangeToken('login')
-    await waitForLoginPageToOpen()
-
-    const port = parseOpenedCallbackPort()
-    const response = await sendCallbackRequest({ path, port })
-    const result = await resultPromise
-
+    { name: 'favicon', path: '/favicon.ico', status: 404 },
+    { name: 'missing state', path: '/callback?exchangeToken=token', status: 400 },
+    { name: 'incorrect state', path: '/callback?exchangeToken=token&state=wrong', status: 400 },
+    { name: 'OPTIONS preflight', path: null, method: 'OPTIONS', status: 405 },
+    { name: 'POST callback', path: null, method: 'POST', status: 405 },
+    { name: 'foreign Host header', path: null, host: 'evil.example', status: 400 },
+  ])('ignores $name without consuming the login attempt', async ({ path: invalidPath, method, host, status }) => {
+    const { result, port, path } = await startLogin()
+    const response = await sendRequest(port, invalidPath ?? path, method, host)
+    expect(response.status).toBe(status)
     expect(exchangeTokenMock).not.toHaveBeenCalled()
-    expect(result).toBeNull()
-    expect(response).toEqual(
-      expect.objectContaining({
-        body: {
-          error: true,
-          message: 'Missing exchange token',
-          success: false,
-        },
-        statusCode: 400,
-      }),
-    )
+    await sendRequest(port, path)
+    expect(await result).toStrictEqual(TOKENS)
   })
 
-  it('returns null and a 400 response when the exchange endpoint rejects the token', async () => {
-    exchangeTokenMock.mockResolvedValue([new Error('Invalid exchange token'), null])
+  it.each(['', '&exchangeToken=', '&exchangeToken=one&exchangeToken=two', '&exchangeToken=one&state=other'])(
+    'rejects missing or ambiguous callback parameters: %s',
+    async (query) => {
+      const { result, port, state, path } = await startLogin()
+      expect((await sendRequest(port, `/callback?state=${state}${query}`)).status).toBe(400)
+      expect(exchangeTokenMock).not.toHaveBeenCalled()
+      await sendRequest(port, path)
+      expect(await result).toStrictEqual(TOKENS)
+    },
+  )
 
-    const resultPromise = getExchangeToken('login')
-    await waitForLoginPageToOpen()
+  it('decodes the exchange token without including it in the return URL', async () => {
+    const { result, port, state } = await startLogin()
+    const response = await sendRequest(port, `/callback?state=${state}&exchangeToken=token%20with%2Bsymbols`)
+    await result
+    expect(exchangeTokenMock.mock.calls[0]![0]).toBe('token with+symbols')
+    expect(response.headers.location).toBe('https://dashboard.scalar.test/login/exchange/success')
+  })
 
-    const port = parseOpenedCallbackPort()
-    const response = await sendCallbackRequest({
-      path: '/callback?exchangeToken=bad-token',
-      port,
+  it('returns to the failure page when code redemption fails', async () => {
+    exchangeTokenMock.mockResolvedValue([new Error('Invalid code'), null])
+    const { result, port, path } = await startLogin()
+    const response = await sendRequest(port, path)
+    expect(await result).toBeNull()
+    expect(response.status).toBe(303)
+    expect(response.headers.location).toBe('https://dashboard.scalar.test/login/exchange/failure')
+    await expect(sendRequest(port, path)).rejects.toThrow()
+  })
+
+  it('exchanges only once when two valid callbacks arrive together', async () => {
+    let resolve!: (value: [null, typeof TOKENS]) => void
+    const promise = new Promise<[null, typeof TOKENS]>((complete) => {
+      resolve = complete
     })
-    const result = await resultPromise
-
-    expect(exchangeTokenMock).toHaveBeenCalledWith('bad-token')
-    expect(result).toBeNull()
-    expect(response).toEqual(
-      expect.objectContaining({
-        body: {
-          error: true,
-          message: 'Failed to exchange token',
-          success: false,
-        },
-        statusCode: 400,
-      }),
-    )
+    exchangeTokenMock.mockReturnValue(promise)
+    const { result, port, path } = await startLogin()
+    const first = sendRequest(port, path)
+    await vi.waitFor(() => expect(exchangeTokenMock).toHaveBeenCalledTimes(1))
+    expect((await sendRequest(port, path)).status).toBe(409)
+    resolve([null, TOKENS])
+    expect((await first).status).toBe(303)
+    expect(await result).toStrictEqual(TOKENS)
+    expect(exchangeTokenMock).toHaveBeenCalledTimes(1)
   })
 
-  it('returns null when no callback arrives before the timeout', async () => {
+  it('keeps a redeemed session when the browser closes during the exchange', async () => {
+    let resolve!: (value: [null, typeof TOKENS]) => void
+    exchangeTokenMock.mockReturnValue(
+      new Promise<[null, typeof TOKENS]>((complete) => {
+        resolve = complete
+      }),
+    )
+    const { result, port, path } = await startLogin()
+    const request = http.get({ hostname: '127.0.0.1', port, path })
+    request.on('error', () => undefined)
+    await vi.waitFor(() => expect(exchangeTokenMock).toHaveBeenCalledTimes(1))
+    const closed = new Promise<void>((complete) => request.once('close', complete))
+    request.destroy()
+    await closed
+    resolve([null, TOKENS])
+    expect(await result).toStrictEqual(TOKENS)
+    await expect(sendRequest(port, path)).rejects.toThrow()
+  })
+
+  it('uses different state and PKCE secrets for each attempt', async () => {
+    const first = await startLogin()
+    await sendRequest(first.port, first.path)
+    await first.result
+    openExternalMock.mockClear()
+    const second = await startLogin()
+    expect(second.state).not.toBe(first.state)
+    expect(second.url.searchParams.get('codeChallenge')).not.toBe(first.url.searchParams.get('codeChallenge'))
+    await sendRequest(second.port, second.path)
+    await second.result
+  })
+
+  it('times out and releases the listener when the browser never returns', async () => {
     vi.useFakeTimers()
-
-    const resultPromise = getExchangeToken('login')
-    await vi.dynamicImportSettled()
-
-    expect(openExternalMock).toHaveBeenCalled()
-
-    await vi.advanceTimersByTimeAsync(3 * 60 * 1e3)
-
-    await expect(resultPromise).resolves.toBeNull()
-    expect(exchangeTokenMock).not.toHaveBeenCalled()
-    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.any(Error))
+    const pending = getExchangeToken('login')
+    await vi.waitFor(() => expect(openExternalMock).toHaveBeenCalled())
+    const timeoutPort = Number(new URL(openExternalMock.mock.lastCall![0]).searchParams.get('port'))
+    await vi.advanceTimersByTimeAsync(3 * 60 * 1000)
+    expect(await pending).toBeNull()
+    vi.useRealTimers()
+    await expect(sendRequest(timeoutPort, '/callback')).rejects.toThrow()
   })
 })
