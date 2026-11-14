@@ -714,4 +714,23 @@ $response = $client->request('POST', 'https://example.com', [
   'body' => 'tag=a+b&other=a%26b&tag='
 ]);`)
   })
+
+  it.each([
+    ["https://example.com/Customers('ALFKI')/$count", "'https://example.com/Customers(\\'ALFKI\\')/$count'"],
+    ['https://example.com/files/a\\b', "'https://example.com/files/a\\\\b'"],
+    ['https://example.com/{$id}/${id}', "'https://example.com/{$id}/${id}'"],
+  ])('escapes the request URL %s', (url, expected) => {
+    expect(phpGuzzle.generate({ url })).toBe(
+      `$client = new GuzzleHttp\\Client();\n\n$response = $client->request('GET', ${expected});`,
+    )
+  })
+
+  it.each([
+    ['PURGE', "'PURGE'"],
+    ["X-It's", "'X-It\\'s'"],
+  ])('escapes the method %s', (method, expected) => {
+    expect(phpGuzzle.generate({ url: 'https://example.com', method })).toBe(
+      `$client = new GuzzleHttp\\Client();\n\n$response = $client->request(${expected}, 'https://example.com');`,
+    )
+  })
 })

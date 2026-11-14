@@ -638,4 +638,11 @@ describe('pythonHttpxSync', () => {
 
     expect(result).toBe(`httpx.request("${method}", "https://example.com", json="hello")`)
   })
+
+  it.each([
+    ['https://example.com/a"b', 'httpx.get("https://example.com/a\\"b")'],
+    ['https://example.com/files/a\\b', 'httpx.get("https://example.com/files/a\\\\b")'],
+  ])('escapes the request URL %s', (url, expected) => {
+    expect(pythonHttpxSync.generate({ url })).toBe(expected)
+  })
 })

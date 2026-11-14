@@ -86,6 +86,34 @@ describe('nodeUndici', () => {
     15000,
   )
 
+  it('requests an OData style URL from a fresh Node process', async () => {
+    let requestedUrl: string | undefined
+    const server = createServer((request, response) => {
+      requestedUrl = request.url
+      response.end('{}')
+    })
+    try {
+      await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+      const address = server.address()
+      if (!address || typeof address === 'string') {
+        throw new Error('Expected a local server address')
+      }
+      const snippet = nodeUndici.generate({
+        url: `http://127.0.0.1:${address.port}/Customers('ALFKI')/$count`,
+        queryString: [{ name: '$filter', value: "Name eq 'John'" }],
+      })
+      const undici = import.meta.resolve('undici')
+      const source =
+        snippet.replace("from 'undici'", `from ${JSON.stringify(undici)}`) +
+        `\nawait body.dump();\nawait (await import(${JSON.stringify(undici)})).getGlobalDispatcher().destroy();`
+      await promisify(execFile)(process.execPath, ['--input-type=module', '-e', source], { timeout: 10000 })
+      expect(requestedUrl).toBe("/Customers('ALFKI')/$count?%24filter=Name%20eq%20%27John%27")
+    } finally {
+      server.closeAllConnections()
+      await new Promise<void>((resolve) => server.close(() => resolve()))
+    }
+  }, 15000)
+
   it('keeps repeated urlencoded names', () => {
     const result = nodeUndici.generate({
       url: 'https://example.com',
@@ -330,5 +358,24 @@ const { statusCode, body } = await request('https://example.com', {
     expect(result).toBe(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com')`)
+  })
+
+  it.each([
+    ["https://example.com/Customers('ALFKI')/$count", "request('https://example.com/Customers(\\'ALFKI\\')/$count')"],
+    ['https://example.com/files/a\\b', "request('https://example.com/files/a\\\\b')"],
+  ])('escapes the request URL %s', (url, expected) => {
+    expect(nodeUndici.generate({ url })).toBe(
+      `import { request } from 'undici'\n\nconst { statusCode, body } = await ${expected}`,
+    )
+  })
+
+  it('escapes apostrophes that the query string keeps', () => {
+    const result = nodeUndici.generate({
+      url: 'https://example.com/Products',
+      queryString: [{ name: '$filter', value: "Name eq 'John'" }],
+    })
+    expect(result).toBe(
+      "import { request } from 'undici'\n\nconst { statusCode, body } = await request('https://example.com/Products?%24filter=Name%20eq%20\\'John\\'')",
+    )
   })
 })

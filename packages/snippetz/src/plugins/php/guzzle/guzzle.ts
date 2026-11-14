@@ -125,9 +125,9 @@ export const phpGuzzle: Plugin = {
     if (Object.keys(options).length > 0) {
       // Format the options array with proper indentation
       const formattedOptions = objectToString(options)
-      code += `$response = $client->request('${method}', '${url}', ${formattedOptions});`
+      code += `$response = $client->request(${objectToString(method)}, ${objectToString(url)}, ${formattedOptions});`
     } else {
-      code += `$response = $client->request('${method}', '${url}');`
+      code += `$response = $client->request(${objectToString(method)}, ${objectToString(url)});`
     }
 
     return code
