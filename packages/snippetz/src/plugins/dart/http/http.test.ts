@@ -278,6 +278,24 @@ void main() async {
 }`)
   })
 
+  it('escapes quotes and dollar signs in auth credentials', () => {
+    const result = dartHttp.generate(
+      { url: 'https://example.com' },
+      { auth: { username: "o'neil", password: 'pa$word\\' } },
+    )
+
+    expect(result).toBe(`import 'package:http/http.dart' as http;
+
+void main() async {
+  final headers = <String,String>{
+    'Authorization': 'Basic ' + base64Encode(utf8.encode('o\\'neil:pa\\$word\\\\')),
+  };
+
+  final response = await http.get(Uri.parse('https://example.com'), headers: headers);
+  print(response.body);
+}`)
+  })
+
   it('handles undefined auth object', () => {
     const result = dartHttp.generate(
       {
@@ -660,6 +678,27 @@ void main() async {
 
   final request = http.Request('${method}', Uri.parse('https://example.com'));
   request.body = body;
+  final response = await http.Response.fromStream(await request.send());
+  print(response.body);
+}`)
+  })
+
+  it.each([
+    ["https://example.com/Customers('ALFKI')/$count", "'https://example.com/Customers(\\'ALFKI\\')/\\$count'"],
+    ['https://example.com/files/a\\b', "'https://example.com/files/a\\\\b'"],
+    ['https://example.com/${id}/$id', "'https://example.com/\\${id}/\\$id'"],
+  ])('escapes the request URL %s', (url, expected) => {
+    expect(dartHttp.generate({ url })).toBe(
+      `import 'package:http/http.dart' as http;\n\nvoid main() async {\n  final response = await http.get(Uri.parse(${expected}));\n  print(response.body);\n}`,
+    )
+  })
+
+  it('escapes the request URL of a generic request', () => {
+    const result = dartHttp.generate({ url: "https://example.com/Customers('ALFKI')/$count", method: 'PURGE' })
+    expect(result).toBe(`import 'package:http/http.dart' as http;
+
+void main() async {
+  final request = http.Request('PURGE', Uri.parse('https://example.com/Customers(\\'ALFKI\\')/\\$count'));
   final response = await http.Response.fromStream(await request.send());
   print(response.body);
 }`)

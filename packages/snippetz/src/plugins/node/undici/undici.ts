@@ -3,7 +3,7 @@ import type { Plugin } from '@scalar/types/snippetz'
 import { mergeCookieHeaders } from '@/libs/cookies'
 import { buildFormData, formDataHeaders, urlSearchParams } from '@/libs/form-data'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
-import { Raw, objectToString } from '@/libs/javascript'
+import { Raw, escapeJsString, objectToString } from '@/libs/javascript'
 
 /**
  * node/undici
@@ -78,6 +78,6 @@ export const nodeUndici: Plugin = {
     // Code Template
     return `import { ${imports} } from 'undici'
 
-${prefix}const { statusCode, body } = await request('${url}'${jsonOptions})`
+${prefix}const { statusCode, body } = await request('${escapeJsString(url)}'${jsonOptions})`
   },
 }

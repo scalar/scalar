@@ -3,7 +3,7 @@ import type { Plugin } from '@scalar/types/snippetz'
 import { prepareBrowserCookies } from '@/libs/browser-request'
 import { buildFormData, formDataHeaders, urlSearchParams } from '@/libs/form-data'
 import { normalizeMethod, reduceQueryParams } from '@/libs/http'
-import { Raw, formatSetup, objectToString } from '@/libs/javascript'
+import { Raw, escapeJsString, formatSetup, objectToString } from '@/libs/javascript'
 
 /**
  * js/ofetch
@@ -83,6 +83,6 @@ export const jsOfetch: Plugin = {
     // Code Template
     return `import { ofetch } from 'ofetch'
 
-${prefix}ofetch('${normalizedRequest.url}'${jsonOptions})`
+${prefix}ofetch('${escapeJsString(normalizedRequest.url ?? '')}'${jsonOptions})`
   },
 }

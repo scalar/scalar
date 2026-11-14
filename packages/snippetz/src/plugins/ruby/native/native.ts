@@ -3,7 +3,12 @@ import type { Plugin } from '@scalar/types/snippetz'
 import { mergeCookieHeaders } from '@/libs/cookies'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 
-const escapeRubyDoubleQuoted = (value: string): string => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+/** Escapes a double-quoted Ruby string, including a `#` that would otherwise start `#{}`, `#$` or `#@` interpolation. */
+const escapeRubyDoubleQuoted = (value: string): string =>
+  value
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/#(?=[{$@])/g, '\\#')
 
 const escapeRubySingleQuoted = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 

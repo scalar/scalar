@@ -128,9 +128,12 @@ describe('php', () => {
       expect(objectToString('it\'s a "test"')).toBe("'it\\'s a \"test\"'")
     })
 
-    it('handles object keys with special characters', () => {
-      // Note: keys are not escaped, only values are escaped
-      expect(objectToString({ "key'with'quotes": 'value' })).toBe("[\n  'key'with'quotes' => 'value'\n]")
+    it.each([
+      ["key'with'quotes", "'key\\'with\\'quotes'"],
+      ['back\\slash', "'back\\\\slash'"],
+      ['$var', "'$var'"],
+    ])('escapes the object key %s', (key, expected) => {
+      expect(objectToString({ [key]: 'value' })).toBe(`[\n  ${expected} => 'value'\n]`)
     })
 
     it('handles complex nested structure with arrays and objects', () => {

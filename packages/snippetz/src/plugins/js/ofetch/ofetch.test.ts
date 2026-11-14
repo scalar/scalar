@@ -232,4 +232,11 @@ ofetch('https://example.com', {
 
     expect(String(body)).toStrictEqual(`${name}=a&tag=b&tag=`)
   })
+
+  it.each([
+    ["https://example.com/Customers('ALFKI')/$count", "ofetch('https://example.com/Customers(\\'ALFKI\\')/$count')"],
+    ['https://example.com/files/a\\b', "ofetch('https://example.com/files/a\\\\b')"],
+  ])('escapes the request URL %s', (url, expected) => {
+    expect(jsOfetch.generate({ url })).toBe(`import { ofetch } from 'ofetch'\n\n${expected}`)
+  })
 })
