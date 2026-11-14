@@ -35,7 +35,9 @@ These three channels are independent, and you can enable any combination:
 
 ## Publish to npm
 
-The CLI publishes to [npm](https://www.npmjs.com/) exactly like the TypeScript SDK, so follow the [TypeScript publishing guide](typescript.md) with `cli` in place of `typescript`:
+The npm package is ESM only: unlike the TypeScript SDK it has no CommonJS build, so code that loads it with `require()` (to reach `getProgram()`, for example) needs Node.js 20.19+ or 22.12+. Running the installed command works on any supported Node.js version.
+
+The CLI publishes to [npm](https://www.npmjs.com/) like the TypeScript SDK, so follow the [TypeScript publishing guide](typescript.md) with `cli` in place of `typescript`:
 
 - **First release:** npm can only register a trusted publisher on a package that already exists, so a new package publishes its first version with a granular access token stored as **`NPM_TOKEN`** and `authMethod` set to `access-token`.
 - **After that:** add a trusted publisher on npm for `release-please.yml` (and `sdk-release.yml` if you re-publish tags by hand), then remove the override so releases use OIDC.
@@ -109,7 +111,7 @@ By default each release commits straight to the tap's default branch. If that br
 </scalar-steps>
 
 > [!WARNING]
-> A fine-grained token expires. An expired one fails the release when it clones the tap, after the version has already been published to every other channel, so the fix is a re-run. Renew it ahead of time.
+> A fine-grained token expires. The publish job checks the token against the tap before anything is compiled or published, so a missing, expired, or revoked token, or one that cannot push to the tap, fails the release before npm or the release assets get the new version. The tag and the GitHub Release already exist by then, without their executables, so store a new token and re-run the failed publish job on its own. Re-running the release-please job as well, through **Re-run all jobs** or through **Re-run failed jobs** when it failed too, finds the release already tagged and skips the publish job, so that run succeeds without publishing anything. Renew the token ahead of time to avoid the failed run. With `pullRequest` the token also needs Pull requests: read and write, which the check does not test: a token without it still fails at the end, after the other channels have published.
 
 The SDK repository's own release assets also have to be downloadable anonymously: the Homebrew step downloads the executables it just uploaded with a plain `curl` and pins those URLs into the formula. A private SDK repository fails the release at that step.
 
@@ -160,7 +162,7 @@ The release reads these repository secrets:
 | `MACOS_NOTARY_KEY_ID` | The API key's ID, the `<ID>` in `AuthKey_<ID>.p8` (`sign-and-notarize` only) |
 | `MACOS_NOTARY_KEY` | The API key's `.p8` private key, as PEM or base64 (`sign-and-notarize` only) |
 
-The signing secrets are checked at the start of the publish job, before anything is compiled or published. Other channels' credentials, such as `NPM_TOKEN` and `HOMEBREW_TAP_TOKEN`, are first used at the step that needs them. The npm package is unaffected: it contains no compiled executable.
+The signing secrets are checked at the start of the publish job, before anything is compiled or published, and so is `HOMEBREW_TAP_TOKEN`'s push access to the tap when Homebrew is enabled. Other channels' credentials, such as `NPM_TOKEN`, are first used at the step that needs them. The npm package is unaffected: it contains no compiled executable.
 
 ## One release environment
 

@@ -141,7 +141,7 @@ Linking from the dashboard sets the target's `destinations` in your SDK configur
 
 ## Adding repository secrets
 
-[OIDC trusted publishing](overview.md#authentication) needs no secrets, with two exceptions: NuGet's OIDC login reads your profile name from `NUGET_USER`, and npm and crates.io only accept a trusted publisher for a package that already exists, so their first release uses a token secret. Token-based publishing, and Maven Central's GPG signing, store credentials as secrets on the SDK repository. The generated workflows read them by exact name, so the name has to match.
+[OIDC trusted publishing](overview.md#authentication) needs no secrets, with two exceptions: NuGet's OIDC login reads your profile name from `NUGET_USER`, and npm and crates.io only accept a trusted publisher for a package that already exists, so their first release uses a token secret (pub.dev likewise, whose first version is published by hand with `dart pub publish`). Token-based publishing, Maven Central's GPG signing, and a C# strong-name key you choose not to commit (`STRONG_NAME_KEY`, see [Strong naming](csharp.md#strong-naming)) store credentials as secrets on the SDK repository. The generated workflows read them by exact name, so the name has to match.
 
 <scalar-steps>
   <scalar-step id="secret-open" title="Open the repository's Actions secrets">

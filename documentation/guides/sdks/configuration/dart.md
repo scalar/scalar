@@ -6,9 +6,6 @@ pages outside this reference resolve.
 -->
 # Dart
 
-> [!NOTE]
-> The Dart target is experimental.
-
 Add `dart` under `targets` to generate a Dart SDK package.
 
 ```json
@@ -23,7 +20,7 @@ Add `dart` under `targets` to generate a Dart SDK package.
       },
       "publish": {
         "pub": {
-          "authMethod": "access-token",
+          "authMethod": "oidc",
           "releaseEnvironment": "production"
         }
       }
@@ -70,7 +67,7 @@ pub.dev publishing configuration.
 
 Publishes the Dart package to pub.dev. `true` publishes with the defaults; an object tunes them.
 
-`authMethod` defaults to `oidc`, [pub.dev automated publishing](https://dart.dev/tools/pub/automated-publishing) configured on `https://pub.dev/packages/<package>/admin`, but the generated workflows cannot use it: pub.dev accepts an OIDC publish only from a run that a matching tag push triggered, and neither release workflow is one. Set `authMethod` to `access-token`, which reads a [pub.dev token](https://dart.dev/tools/pub/publishing#publishing-from-ci) from the `PUB_TOKEN` repository secret.
+`authMethod` defaults to `oidc`, [pub.dev automated publishing](https://dart.dev/tools/pub/automated-publishing) configured on `https://pub.dev/packages/<package>/admin` with the tag pattern `v{{version}}` and publishing from `workflow_dispatch` events enabled: pub.dev accepts an OIDC publish only from a run at the release tag, so each release's `publish` job dispatches `sdk-release.yml` at its tag and that run publishes. pub.dev enables automated publishing only on an existing package, so the first version is published by hand. GitHub dispatches only workflows on the repository's default branch, so releases cut on another branch need `sdk-release.yml` there too, and a `releaseEnvironment` has to admit `v*` tags, which GitHub's "Protected branches only" policy never does: set it to "Selected branches and tags" with a `v*` tag rule. `access-token` reads a [pub.dev token](https://dart.dev/tools/pub/publishing#publishing-from-ci) from the `PUB_TOKEN` repository secret and publishes from `release-please.yml` itself.
 
 #### authMethod
 
