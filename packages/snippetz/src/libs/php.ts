@@ -5,6 +5,9 @@ function indent(level: number): string {
   return ' '.repeat(level * 2)
 }
 
+/** Escapes a value for a single-quoted PHP string literal, where only backslashes and quotes are special. */
+export const escapePhpString = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+
 /**
  * Represents a raw PHP code that should not be quoted, e.g. `fopen('test.txt', 'r')`.
  * If it consists of multiple lines, they will be indented properly.
@@ -42,7 +45,7 @@ export function objectToString(data: unknown, level = 0): string {
   }
 
   if (typeof data === 'string') {
-    return `'${data.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+    return `'${escapePhpString(data)}'`
   }
 
   if (typeof data === 'number' || typeof data === 'boolean') {
@@ -66,7 +69,7 @@ export function objectToString(data: unknown, level = 0): string {
     }
 
     const items = entries
-      .map(([key, value]) => `'${key}' => ${objectToString(value, level + 1)}`)
+      .map(([key, value]) => `'${escapePhpString(key)}' => ${objectToString(value, level + 1)}`)
       .join(',\n' + indent(level + 1))
 
     return `[\n${indent(level + 1)}${items}\n${indent(level)}]`

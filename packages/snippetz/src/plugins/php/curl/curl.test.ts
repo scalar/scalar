@@ -892,4 +892,13 @@ curl_exec($ch);
 
 curl_close($ch);`)
   })
+
+  it('escapes JSON body keys', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'application/json', text: JSON.stringify({ "it's": 1 }) },
+    })
+    expect(result).toContain("curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([\n  'it\\'s' => 1\n]));")
+  })
 })

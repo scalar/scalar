@@ -733,4 +733,22 @@ $response = $client->request('POST', 'https://example.com', [
       `$client = new GuzzleHttp\\Client();\n\n$response = $client->request(${expected}, 'https://example.com');`,
     )
   })
+
+  it('escapes header and query names', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://example.com',
+      headers: [{ name: "X-It's", value: 'a' }],
+      queryString: [{ name: "it's", value: 'b' }],
+    })
+    expect(result).toBe(`$client = new GuzzleHttp\\Client();
+
+$response = $client->request('GET', 'https://example.com', [
+  'headers' => [
+    'X-It\\'s' => 'a'
+  ],
+  'query' => [
+    'it\\'s' => 'b'
+  ]
+]);`)
+  })
 })

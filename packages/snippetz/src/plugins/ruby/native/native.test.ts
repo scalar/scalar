@@ -767,4 +767,15 @@ puts response.read_body`)
     expect(result).toContain("REQUEST_HAS_BODY = 'true'")
     expect(result).toContain('request = Net::HTTP::CustomRequest.new(url)')
   })
+
+  it.each([
+    ['https://example.com/docs#{id}', 'https://example.com/docs\\#{id}'],
+    ['https://example.com/docs#$id', 'https://example.com/docs\\#$id'],
+    ['https://example.com/docs#@id', 'https://example.com/docs\\#@id'],
+    ['https://example.com/docs#section', 'https://example.com/docs#section'],
+  ])('escapes interpolation in the request URL %s', (url, expected) => {
+    expect(rubyNative.generate({ url })).toBe(
+      baseHttpsRequest.replace('URI("https://example.com")', `URI("${expected}")`),
+    )
+  })
 })
