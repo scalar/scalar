@@ -411,3 +411,265 @@ button[data-sidebar-id] > .mr-1:has(> svg.size-full) {
     max-height: 28px;
   }
 }
+
+/* ------------------------------------------------------------------
+   The use cases pages (/use-cases and /use-cases/<industry>): the
+   home page's hero box with the copy and its two calls to action, and
+   under it a painting headless-hero.js draws into the stage's canvas
+   (the forest on the overview, each industry's own on its page, the
+   page's data-hl-mode). Each page keeps its own few page-level rules.
+   ------------------------------------------------------------------ */
+/* The home page's hero box, so the h1 lands on the same line as the other heroes'; then the sky under the words,
+   as deep as the home page's picture, which runs the hero on past the box. */
+.uc-hero {
+  --uc-w: calc(100dvw - var(--scalar-sidebar-width, 0px));
+  --uc-box: min(calc(90dvh - var(--scalar-header-height, 48px)), 640px);
+  --uc-line: 130.5px;
+  --uc-top: max(48px, calc(var(--uc-box) / 2 - var(--uc-line)));
+  /* How far the sky's canvas reaches below the words, as on the home page: the land's deepest foot is 1.3 rooms
+     of 256px under its top line and stands 19px above the canvas's foot, and its top line sits a little under the
+     words. */
+  --uc-land: calc(1.3 * 256px + 19px + 14px - 40px);
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  min-height: var(--uc-box);
+  padding: var(--uc-top) 0 0;
+  margin-bottom: 40px;
+}
+/* the home page's steps, where its padding grows and its lede rewraps */
+@media screen and (max-width: 1100px) {
+  .uc-hero {
+    --uc-line: 138.5px;
+  }
+}
+@media screen and (max-width: 560px) {
+  .uc-hero {
+    --uc-line: 154.4px;
+  }
+}
+@media screen and (max-width: 439px) {
+  .uc-hero {
+    --uc-line: 190.9px;
+  }
+}
+/* The copy as the home page sets it: a 680px block, balanced lines. */
+.uc-copy {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 680px;
+  align-self: start;
+  margin: 0 0 var(--uc-land);
+  text-align: center;
+  text-wrap: balance;
+}
+/* The land fills the hero from the header down, across the whole column to the right of the sidebar. It is placed
+   in the grid's row and reaches up through the padding above it, and fades in once its first picture is drawn. */
+.uc-stage {
+  position: absolute;
+  grid-row: 1 / 2;
+  top: calc(-1 * var(--uc-top));
+  bottom: 0;
+  left: 50%;
+  width: var(--uc-w);
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 700ms ease-out;
+}
+.uc-hero[data-hl-ready] .uc-stage {
+  opacity: 1;
+}
+.uc-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.uc-copy > * {
+  margin: 0;
+}
+.uc-copy .t-editor__heading {
+  justify-content: center;
+}
+/* The heading's anchor button only shows its icon on hover, which widens the centred heading and shifts it. */
+.uc-copy .notify-container {
+  display: none;
+}
+/* the home page's lede: a narrow measure under the heading */
+.uc-copy p {
+  max-width: 460px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--scalar-color-1);
+  text-wrap: pretty;
+}
+/* The two calls to action under the lede, as on the home page:
+   12px on top of the hero's 12px gap, so they sit
+   24px under it, a little apart from the copy. */
+.uc-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+/* no margin: the theme's button carries one, which drops it below the
+   other pill */
+.uc-cta .uc-pill {
+  min-width: 0;
+  height: 40px;
+  margin: 0;
+  padding: 0 20px;
+  border-radius: 999px;
+}
+/* The second call to action, after the home page's: three agents in a stack, the label and a copy mark. A
+   click puts the Scalar setup prompt on the clipboard; the mark turns into a check and the label says to
+   paste, for a moment. The label keeps the width of its wider wording so the pill never jumps. */
+.uc-cta .lp-onboard {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 0 8px;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  background: var(--scalar-background-1);
+  color: var(--scalar-color-1);
+  font-family: var(--scalar-font);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 150ms ease-in-out,
+    border-color 150ms ease-in-out;
+}
+.uc-cta .lp-onboard:hover {
+  background: var(--scalar-background-2);
+}
+.uc-cta .lp-onboard:focus-visible {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: 2px;
+}
+.lp-onboard-agents {
+  display: flex;
+}
+.lp-onboard-agent {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--scalar-background-1);
+  box-shadow: inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
+  color: var(--scalar-color-1);
+  transition:
+    background 200ms,
+    box-shadow 200ms;
+}
+.lp-onboard-agent + .lp-onboard-agent {
+  margin-left: -8px;
+}
+.lp-onboard:hover .lp-onboard-agent {
+  background: var(--scalar-background-2);
+  box-shadow: inset 0 0 0 var(--scalar-border-width)
+    color-mix(in srgb, var(--scalar-border-color), var(--scalar-color-1) 15%);
+}
+.lp-onboard-agent svg {
+  width: 14px;
+  height: 14px;
+}
+/* the marks in the text colour, their own colours set aside */
+.lp-onboard-agent svg [fill] {
+  fill: currentColor;
+}
+.lp-onboard-text {
+  display: grid;
+}
+.lp-onboard-text > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+.lp-onboard-done,
+.lp-onboard.is-copied .lp-onboard-rest {
+  visibility: hidden;
+}
+.lp-onboard.is-copied .lp-onboard-done {
+  visibility: visible;
+  animation: lp-onboard-in 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+@keyframes lp-onboard-in {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+}
+.lp-onboard-icon {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;
+  color: var(--scalar-color-3);
+}
+/* the build inlines each scalar-icon as an svg carrying its class, so the two marks are styled as svgs,
+   stacked in the one box */
+.lp-onboard-icon svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 16px;
+  height: 16px;
+  transition:
+    opacity 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    scale 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.lp-onboard-check,
+.lp-onboard.is-copied .lp-onboard-copy {
+  opacity: 0;
+  scale: 0.5;
+}
+.lp-onboard.is-copied .lp-onboard-check {
+  opacity: 1;
+  scale: 1;
+}
+/* Where WebGL2 is unavailable the hero is the copy on its own, with room under it, rather than an empty room where
+   a drawing should be. */
+[data-hl-fallback="true"] .uc-stage {
+  display: none;
+}
+[data-hl-fallback="true"] .uc-copy {
+  margin-bottom: 48px;
+}
+.uc-hero[data-hl-fallback="true"] {
+  min-height: 0;
+}
+/* Below 1000px the docs hide the sidebar but leave its width set, so the stage takes the whole screen there. */
+@media screen and (max-width: 1000px) {
+  .uc-hero {
+    --uc-w: 100dvw;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .uc-stage {
+    transition: none;
+  }
+  .lp-onboard-icon svg {
+    transition: none;
+  }
+  .lp-onboard.is-copied .lp-onboard-done {
+    animation: none;
+  }
+}
+/* An industry page whose painting is not made yet: the copy on its own, its h1 on the other heroes' line, with
+   room under it rather than an empty room where a drawing should be. */
+.uc-hero:not([data-hl-hero]) {
+  min-height: 0;
+}
+.uc-hero:not([data-hl-hero]) .uc-copy {
+  margin-bottom: 48px;
+}
