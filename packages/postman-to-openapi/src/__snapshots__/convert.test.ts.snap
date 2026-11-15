@@ -2735,9 +2735,7 @@ exports[`fixtures > ResponsesEmpty 1`] = `
               "application/json": {
                 "examples": {
                   "default": {
-                    "value": {
-                      "rawContent": "",
-                    },
+                    "value": "",
                   },
                 },
                 "schema": {

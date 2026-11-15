@@ -142,9 +142,7 @@ describe('responses', () => {
     const result = extractResponses(responses)
 
     expect(result?.['200']?.content?.['application/json']?.examples?.default).toEqual({
-      value: {
-        rawContent: 'invalid json',
-      },
+      value: 'invalid json',
     })
   })
 
