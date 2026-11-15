@@ -63,7 +63,9 @@ export function extractResponses(
             [mediaType]: {
               schema: inferSchemaFromExample(response.body || ''),
               examples: {
-                default: tryParseJson(response.body || ''),
+                default: {
+                  value: tryParseJson(response.body || ''),
+                },
               },
             },
           }

@@ -2324,10 +2324,12 @@ exports[`fixtures > Responses 1`] = `
               "application/json": {
                 "examples": {
                   "default": {
-                    "avatar": "https://assets.example.com/avatars/nelsonjoyce_128.jpg",
-                    "createdAt": "2021-06-04T15:50:38.568Z",
-                    "id": "54",
-                    "name": "Carol",
+                    "value": {
+                      "avatar": "https://assets.example.com/avatars/nelsonjoyce_128.jpg",
+                      "createdAt": "2021-06-04T15:50:38.568Z",
+                      "id": "54",
+                      "name": "Carol",
+                    },
                   },
                 },
                 "schema": {
@@ -2457,10 +2459,12 @@ exports[`fixtures > Responses 1`] = `
               "application/json": {
                 "examples": {
                   "default": {
-                    "avatar": "https://assets.example.com/avatars/bartjo_128.jpg",
-                    "createdAt": "2021-06-04T23:41:02.287Z",
-                    "id": "50",
-                    "name": "Leanne",
+                    "value": {
+                      "avatar": "https://assets.example.com/avatars/bartjo_128.jpg",
+                      "createdAt": "2021-06-04T23:41:02.287Z",
+                      "id": "50",
+                      "name": "Leanne",
+                    },
                   },
                 },
                 "schema": {
@@ -2572,7 +2576,9 @@ exports[`fixtures > Responses 1`] = `
             "content": {
               "application/json": {
                 "examples": {
-                  "default": "Not found",
+                  "default": {
+                    "value": "Not found",
+                  },
                 },
                 "schema": {
                   "type": "string",
@@ -2729,7 +2735,9 @@ exports[`fixtures > ResponsesEmpty 1`] = `
               "application/json": {
                 "examples": {
                   "default": {
-                    "rawContent": "",
+                    "value": {
+                      "rawContent": "",
+                    },
                   },
                 },
                 "schema": {
@@ -2859,10 +2867,12 @@ exports[`fixtures > ResponsesEmpty 1`] = `
               "application/json": {
                 "examples": {
                   "default": {
-                    "avatar": "https://assets.example.com/avatars/bartjo_128.jpg",
-                    "createdAt": "2021-06-04T23:41:02.287Z",
-                    "id": "50",
-                    "name": "Leanne",
+                    "value": {
+                      "avatar": "https://assets.example.com/avatars/bartjo_128.jpg",
+                      "createdAt": "2021-06-04T23:41:02.287Z",
+                      "id": "50",
+                      "name": "Leanne",
+                    },
                   },
                 },
                 "schema": {
@@ -2974,7 +2984,9 @@ exports[`fixtures > ResponsesEmpty 1`] = `
             "content": {
               "application/json": {
                 "examples": {
-                  "default": "Not found",
+                  "default": {
+                    "value": "Not found",
+                  },
                 },
                 "schema": {
                   "type": "string",
