@@ -10,9 +10,7 @@ describe('phpCurl', () => {
 
     expect(result).toBe(`$ch = curl_init('https://example.com');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('returns a POST request', () => {
@@ -25,9 +23,7 @@ curl_close($ch);`)
 
 curl_setopt($ch, CURLOPT_POST, true);
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('has headers', () => {
@@ -45,9 +41,7 @@ curl_close($ch);`)
 
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it("doesn't add empty headers", () => {
@@ -58,9 +52,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init('https://example.com');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('has JSON body with PHP array', () => {
@@ -89,9 +81,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
   'hello' => 'world'
 ]));
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('has query string', () => {
@@ -111,9 +101,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init('https://example.com?foo=bar&bar=foo');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('has cookies', () => {
@@ -135,9 +123,7 @@ curl_close($ch);`)
 
 curl_setopt($ch, CURLOPT_COOKIE, 'foo=bar; bar=foo');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it("doesn't add empty cookies", () => {
@@ -148,9 +134,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init('https://example.com');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('adds basic auth credentials', () => {
@@ -170,9 +154,7 @@ curl_close($ch);`)
 
 curl_setopt($ch, CURLOPT_USERPWD, 'user:pass');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('omits auth when not provided', () => {
@@ -182,9 +164,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init('https://example.com');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('omits auth when username is missing', () => {
@@ -202,9 +182,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init('https://example.com');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('omits auth when password is missing', () => {
@@ -222,9 +200,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init('https://example.com');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles special characters in auth credentials', () => {
@@ -244,9 +220,7 @@ curl_close($ch);`)
 
 curl_setopt($ch, CURLOPT_USERPWD, 'user@example.com:pass:word!');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles undefined auth object', () => {
@@ -261,9 +235,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init('https://example.com');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles multipart form data with files', () => {
@@ -310,9 +282,7 @@ $body .= str_replace('scalar-boundary', $boundary, '--scalar-boundary--\r
 ');
 curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('preserves duplicate multipart field names in the serialized body', () => {
@@ -357,9 +327,7 @@ $body .= '--scalar-boundary--\r
 ';
 curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles multipart form data with JSON payload', () => {
@@ -388,9 +356,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
   'foo' => 'bar'
 ]));
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles url-encoded form data with special characters', () => {
@@ -414,9 +380,7 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, 'special%20chars!%40%23=value');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles binary data flag', () => {
@@ -435,9 +399,7 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/octet-stream']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, 'binary content');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles compressed response', () => {
@@ -456,9 +418,7 @@ curl_close($ch);`)
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept-Encoding: gzip, deflate']);
 curl_setopt($ch, CURLOPT_ENCODING, '');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles special characters in URL', () => {
@@ -468,9 +428,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init('https://example.com/path with spaces/[brackets]');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles special characters in query parameters', () => {
@@ -492,9 +450,7 @@ curl_close($ch);`)
       result,
     ).toBe(`$ch = curl_init('https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles empty URL', () => {
@@ -504,9 +460,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init('');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles extremely long URLs', () => {
@@ -516,9 +470,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init('https://example.com/${'a'.repeat(2000)}');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles multiple headers with same name', () => {
@@ -534,9 +486,7 @@ curl_close($ch);`)
 
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Custom: value1', 'X-Custom: value2']);
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles headers with empty values', () => {
@@ -549,9 +499,7 @@ curl_close($ch);`)
 
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Empty: ']);
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles multipart form data with empty file names', () => {
@@ -587,9 +535,7 @@ $body .= str_replace('scalar-boundary', $boundary, '--scalar-boundary--\r
 ');
 curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles JSON body with special characters using PHP array', () => {
@@ -628,9 +574,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
   ]
 ]));
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('handles cookies with special characters', () => {
@@ -648,9 +592,7 @@ curl_close($ch);`)
 
 curl_setopt($ch, CURLOPT_COOKIE, 'special%3Bcookie=value%20with%20spaces');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('does not duplicate CURLOPT_HTTPHEADER when headers and form-urlencoded body both set Content-Type', () => {
@@ -683,9 +625,7 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, 'username=john_doe&email=john%40example.com&password=securePassword123');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('does not duplicate CURLOPT_HTTPHEADER with custom headers and form-urlencoded body', () => {
@@ -726,9 +666,7 @@ curl_close($ch);`)
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer YOUR_SECRET_TOKEN']);
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('sets CURLOPT_CUSTOMREQUEST for PUT requests', () => {
@@ -741,9 +679,7 @@ curl_close($ch);`)
 
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('sets CURLOPT_CUSTOMREQUEST for PATCH requests', () => {
@@ -756,9 +692,7 @@ curl_close($ch);`)
 
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('prettifies JSON body using PHP array', () => {
@@ -801,9 +735,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
   'simple' => 'value'
 ]));
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
   it('escapes quotes and backslashes in a plain text body', () => {
     const result = phpCurl.generate({
@@ -865,7 +797,7 @@ curl_close($ch);`)
     ['https://example.com/{$id}/${id}', "'https://example.com/{$id}/${id}'"],
     ['https://example.com/a"b', `'https://example.com/a"b'`],
   ])('escapes the request URL %s', (url, expected) => {
-    expect(phpCurl.generate({ url })).toBe(`$ch = curl_init(${expected});\n\ncurl_exec($ch);\n\ncurl_close($ch);`)
+    expect(phpCurl.generate({ url })).toBe(`$ch = curl_init(${expected});\n\ncurl_exec($ch);`)
   })
 
   it('escapes apostrophes that the query string keeps', () => {
@@ -874,7 +806,7 @@ curl_close($ch);`)
       queryString: [{ name: '$filter', value: "Name eq 'John'" }],
     })
     expect(result).toBe(
-      "$ch = curl_init('https://example.com/Products?%24filter=Name%20eq%20\\'John\\'');\n\ncurl_exec($ch);\n\ncurl_close($ch);",
+      "$ch = curl_init('https://example.com/Products?%24filter=Name%20eq%20\\'John\\'');\n\ncurl_exec($ch);",
     )
   })
 
@@ -888,9 +820,7 @@ curl_close($ch);`)
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PURGE');
 curl_setopt($ch, CURLOPT_USERPWD, 'o\\'neil:p\\\\w');
 
-curl_exec($ch);
-
-curl_close($ch);`)
+curl_exec($ch);`)
   })
 
   it('escapes JSON body keys', () => {
