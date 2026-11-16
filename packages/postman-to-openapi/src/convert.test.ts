@@ -1075,4 +1075,118 @@ describe('convert', () => {
       },
     ])
   })
+  const SCHEMA = 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json'
+
+  it.each(['awsv4', 'oauth1', 'hawk', 'ntlm', 'edgegrid', 'jwt', 'asap', 'akamai'])(
+    'converts a collection with %s authentication without security',
+    (type) => {
+      const collection: PostmanCollection = {
+        info: { name: 'Unsupported auth', schema: SCHEMA },
+        auth: { type },
+        item: [
+          { name: 'Users', request: { method: 'GET', url: 'https://api.scalar.com/users' } },
+          { name: 'Orders', request: { method: 'GET', url: 'https://api.scalar.com/orders', auth: { type } } },
+        ],
+      }
+      const original = structuredClone(collection)
+
+      const result = convert(collection)
+
+      expect(Object.keys(result.paths ?? {})).toStrictEqual(['/users', '/orders'])
+      expect(result.security).toBeUndefined()
+      expect(result.components).toBeUndefined()
+      expect(result.paths?.['/users']?.get?.security).toBeUndefined()
+      expect(result.paths?.['/orders']?.get?.security).toStrictEqual([])
+      expect(collection).toStrictEqual(original)
+    },
+  )
+
+  it('converts digest authentication to an http digest scheme', () => {
+    const collection: PostmanCollection = {
+      info: { name: 'Digest', schema: SCHEMA },
+      auth: { type: 'digest' },
+      item: [{ name: 'Users', request: { method: 'GET', url: 'https://api.scalar.com/users' } }],
+    }
+
+    const result = convert(collection)
+
+    expect(result.security).toStrictEqual([{ digestAuth: [] }])
+    expect(result.components?.securitySchemes).toStrictEqual({ digestAuth: { type: 'http', scheme: 'digest' } })
+  })
+
+  it.each(['awsv4', 'hawk', 'jwt'])(
+    'keeps the collection security off an operation that overrides it with %s authentication',
+    (type) => {
+      const collection: PostmanCollection = {
+        info: { name: 'Override', schema: SCHEMA },
+        auth: { type: 'bearer' },
+        item: [
+          { name: 'Users', request: { method: 'GET', url: 'https://api.scalar.com/users' } },
+          { name: 'Orders', request: { method: 'GET', url: 'https://api.scalar.com/orders', auth: { type } } },
+        ],
+      }
+
+      const result = convert(collection)
+
+      expect(result.security).toStrictEqual([{ bearerAuth: [] }])
+      expect(result.components?.securitySchemes).toStrictEqual({ bearerAuth: { type: 'http', scheme: 'bearer' } })
+      expect(result.paths?.['/users']?.get?.security).toBeUndefined()
+      expect(result.paths?.['/orders']?.get?.security).toStrictEqual([])
+    },
+  )
+
+  it('keeps a supported request authentication under an unsupported collection authentication', () => {
+    const collection: PostmanCollection = {
+      info: { name: 'Mixed', schema: SCHEMA },
+      auth: { type: 'awsv4' },
+      item: [
+        { name: 'Users', request: { method: 'GET', url: 'https://api.scalar.com/users', auth: { type: 'basic' } } },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.security).toBeUndefined()
+    expect(result.components?.securitySchemes).toStrictEqual({ basicAuth: { type: 'http', scheme: 'basic' } })
+    expect(result.paths?.['/users']?.get?.security).toStrictEqual([{ basicAuth: [] }])
+  })
+
+  it('keeps API keys with different names and locations as separate schemes', () => {
+    const collection: PostmanCollection = {
+      info: { name: 'API keys', schema: SCHEMA },
+      auth: {
+        type: 'apikey',
+        apikey: [
+          { key: 'key', value: 'X-API-Key' },
+          { key: 'in', value: 'header' },
+        ],
+      },
+      item: [
+        { name: 'Users', request: { method: 'GET', url: 'https://api.scalar.com/users' } },
+        {
+          name: 'Orders',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/orders',
+            auth: {
+              type: 'apikey',
+              apikey: [
+                { key: 'key', value: 'api_token' },
+                { key: 'in', value: 'query' },
+              ],
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.security).toStrictEqual([{ 'apikeyAuth_header_X-API-Key': [] }])
+    expect(result.components?.securitySchemes).toStrictEqual({
+      'apikeyAuth_header_X-API-Key': { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+      apikeyAuth_query_api_token: { type: 'apiKey', name: 'api_token', in: 'query' },
+    })
+    expect(result.paths?.['/orders']?.get?.security).toStrictEqual([{ apikeyAuth_query_api_token: [] }])
+  })
 })
