@@ -65,7 +65,7 @@ export const upsertOperationParameter = (
   if (originalParameter) {
     const querystring = getQuerystringParameter(originalParameter, meta.exampleKey, {
       includeDisabled: true,
-      ...(document && 'openapi' in document
+      ...(isOpenApiDocument(document)
         ? {
             openapiVersion: document['x-original-oas-version'] || document.openapi,
             jsonSchemaDialect: document.jsonSchemaDialect,
