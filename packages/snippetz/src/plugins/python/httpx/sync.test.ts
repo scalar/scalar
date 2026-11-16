@@ -177,6 +177,27 @@ describe('pythonHttpxSync', () => {
 )`)
   })
 
+  it('sends multipart form data without files as multipart', () => {
+    const result = pythonHttpxSync.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'name', value: 'Ada' },
+          { name: 'age', value: '36' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`httpx.post("https://example.com",
+    files=[
+      ("name", (None, "Ada")),
+      ("age", (None, "36"))
+    ]
+)`)
+  })
+
   it('handles multipart form data with multiple files', () => {
     const result = pythonHttpxSync.generate({
       url: 'https://example.com',

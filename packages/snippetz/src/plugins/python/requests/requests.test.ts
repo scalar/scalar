@@ -255,12 +255,10 @@ describe('pythonRequests', () => {
     })
 
     expect(result).toBe(`requests.post("https://example.com",
-    data={
-      "file": [
-        "@first.png",
-        "@second.png"
-      ]
-    }
+    files=[
+      ("file", (None, "@first.png")),
+      ("file", (None, "@second.png"))
+    ]
 )`)
   })
 
