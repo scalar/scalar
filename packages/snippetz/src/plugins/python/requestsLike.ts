@@ -152,7 +152,7 @@ export function requestsLikeGenerate(
   const formattedParams: string[] = []
 
   // Format URL based on length
-  const urlParam = `"${normalizedRequest.url}"`
+  const urlParam = JSON.stringify(normalizedRequest.url)
   if (normalizedRequest.url.length > LENGTH_CONSIDERED_AS_SHORT) {
     formattedParams.push(urlParam)
   } else {

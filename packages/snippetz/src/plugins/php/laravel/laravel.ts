@@ -1,29 +1,9 @@
-import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { accumulateRepeatedValue, joinUrlAndQuery, normalizeMethod } from '@/libs/http'
-import { objectToString } from '@/libs/php'
-
-const escapePhpString = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+import { escapePhpString, objectToString } from '@/libs/php'
 
 const quotePhpString = (value: string): string => `'${escapePhpString(value)}'`
-
-const escapePhpObjectKey = escapePhpString
-
-const escapeObjectKeys = (value: unknown): unknown => {
-  if (Array.isArray(value)) {
-    return value.map((item) => escapeObjectKeys(item))
-  }
-
-  if (isObjectLike(value)) {
-    return Object.entries(value).reduce<Record<string, unknown>>((acc, [key, nestedValue]) => {
-      acc[escapePhpObjectKey(key)] = escapeObjectKeys(nestedValue)
-      return acc
-    }, {})
-  }
-
-  return value
-}
 
 const getCookieDomain = (url: string): string => {
   if (!url) {
@@ -69,7 +49,7 @@ export const phpLaravel: Plugin = {
         accumulateRepeatedValue(headers, header.name, header.value)
       })
 
-      chain.push(`withHeaders(${objectToString(escapeObjectKeys(headers))})`)
+      chain.push(`withHeaders(${objectToString(headers)})`)
     }
 
     if (normalizedRequest.cookies?.length) {
@@ -80,7 +60,7 @@ export const phpLaravel: Plugin = {
       })
 
       chain.push(
-        `withCookies(${objectToString(escapeObjectKeys(cookies))}, ${quotePhpString(getCookieDomain(normalizedRequest.url ?? ''))})`,
+        `withCookies(${objectToString(cookies)}, ${quotePhpString(getCookieDomain(normalizedRequest.url ?? ''))})`,
       )
     }
 
@@ -119,15 +99,13 @@ export const phpLaravel: Plugin = {
             ]
 
             if (param.contentType) {
-              args.push(objectToString(escapeObjectKeys({ 'Content-Type': param.contentType })))
+              args.push(objectToString({ 'Content-Type': param.contentType }))
             }
 
             chain.push(`attach(${args.join(', ')})`)
           } else if (param.contentType) {
             chain.push(
-              `attach(${quotePhpString(param.name)}, ${quotePhpString(param.value ?? '')}, null, ${objectToString(
-                escapeObjectKeys({ 'Content-Type': param.contentType }),
-              )})`,
+              `attach(${quotePhpString(param.name)}, ${quotePhpString(param.value ?? '')}, null, ${objectToString({ 'Content-Type': param.contentType })})`,
             )
           } else {
             accumulateRepeatedValue(multipartData, param.name, param.value ?? '')
@@ -157,12 +135,12 @@ export const phpLaravel: Plugin = {
     if (supportsDirectMethod) {
       requestCall =
         payload !== undefined && requestMethod !== 'head'
-          ? `${requestMethod}(${quotePhpString(url)}, ${objectToString(escapeObjectKeys(payload), 1)})`
+          ? `${requestMethod}(${quotePhpString(url)}, ${objectToString(payload, 1)})`
           : `${requestMethod}(${quotePhpString(url)})`
     } else {
       requestCall =
         payload !== undefined
-          ? `send(${quotePhpString(normalizedRequest.method)}, ${quotePhpString(url)}, ${objectToString(escapeObjectKeys(payload), 1)})`
+          ? `send(${quotePhpString(normalizedRequest.method)}, ${quotePhpString(url)}, ${objectToString(payload, 1)})`
           : `send(${quotePhpString(normalizedRequest.method)}, ${quotePhpString(url)})`
     }
 

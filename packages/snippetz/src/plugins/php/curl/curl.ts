@@ -39,19 +39,21 @@ export const phpCurl: Plugin = {
     // Initialize cURL
     // URL (with query parameters)
     const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
-    parts.push(`$ch = curl_init("${url}");`)
+    parts.push(`$ch = curl_init(${objectToString(url)});`)
     parts.push('')
 
     // Method
     if (normalizedRequest.method === 'POST') {
       parts.push('curl_setopt($ch, CURLOPT_POST, true);')
     } else if (normalizedRequest.method !== 'GET') {
-      parts.push(`curl_setopt($ch, CURLOPT_CUSTOMREQUEST, '${normalizedRequest.method}');`)
+      parts.push(`curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ${objectToString(normalizedRequest.method)});`)
     }
 
     // Basic Auth
     if (configuration?.auth?.username && configuration?.auth?.password) {
-      parts.push(`curl_setopt($ch, CURLOPT_USERPWD, '${configuration.auth.username}:${configuration.auth.password}');`)
+      parts.push(
+        `curl_setopt($ch, CURLOPT_USERPWD, ${objectToString(`${configuration.auth.username}:${configuration.auth.password}`)});`,
+      )
     }
 
     // Collect all headers to emit once, avoiding duplicate CURLOPT_HTTPHEADER calls.
