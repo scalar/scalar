@@ -23,8 +23,10 @@ const schemaDetails = computed<string[]>(() => {
     return []
   }
 
+  const type = 'type' in schema ? schema.type : undefined
+
   return [
-    'type' in schema ? toDisplayString(schema.type) : '',
+    Array.isArray(type) ? type.join(' | ') : (type ?? ''),
     'format' in schema ? (schema.format ?? '') : '',
     'minimum' in schema && schema.minimum !== undefined
       ? `${translate('apiClient.requestTableTooltip.min')} ${schema.minimum}`

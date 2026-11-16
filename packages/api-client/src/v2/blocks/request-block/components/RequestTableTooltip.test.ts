@@ -49,6 +49,16 @@ describe('RequestTableTooltip', () => {
     expect(document.querySelector('[data-testid="request-table-tooltip-content"]')?.textContent).toContain('string')
   })
 
+  it.each([
+    { type: ['string', 'null'], expected: 'string | null' },
+    { type: ['string', 'number', 'boolean'], expected: 'string | number | boolean' },
+    { type: ['string'], expected: 'string' },
+  ] as const)('displays type arrays as readable alternatives: $expected', async ({ type, expected }) => {
+    const wrapper = mountTooltip({ value: '', schema: { type: [...type] } })
+
+    expect(await openTooltip(wrapper)).toBe(expected)
+  })
+
   it('preserves all supported schema details and zero bounds', async () => {
     const wrapper = mountTooltip({
       value: '0',
