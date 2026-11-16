@@ -33,6 +33,8 @@ export const compactUpgradeMetadata = (document: Record<string, unknown>): void 
   // but descendants that follow the same prefix substitution need no separate entry.
   const mappings = new Map<string, readonly string[]>()
   if (Array.isArray(metadata.locations)) {
+    // upgradeFragment records parents before visiting their children. Preserve that order:
+    // descendant mappings can only be omitted after their inherited prefix is known.
     metadata.locations = metadata.locations.filter((location) => {
       if (!isObject(location) || !Array.isArray(location.source) || !Array.isArray(location.output)) {
         return false

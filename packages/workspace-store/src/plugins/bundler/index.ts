@@ -255,7 +255,7 @@ export const normalizeAuthSchemes = (): LifecyclePlugin => {
 /**
  * Lifecycle plugin to normalize $ref nodes:
  * Ensures that for any OpenAPI Reference Object containing a $ref, only $ref,
- * summary, description, and $status properties are preserved.
+ * summary, description, $status, and $global properties are preserved.
  * This keeps $ref references clean and predictable for downstream consumers.
  *
  * Schema Objects are deliberately skipped: in JSON Schema 2020-12 a $ref may
