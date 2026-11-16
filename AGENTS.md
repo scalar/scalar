@@ -127,7 +127,7 @@ Type checking uses `tsgo --noEmit` in many pure TypeScript packages, `tsc --noEm
 
 ### API Reference configuration parity
 
-When adding, changing, renaming, or removing configuration options for `@scalar/api-reference`, update them across all integrations in the same change. Start with the shared configuration types and schemas in `packages/types/src/api-reference/`, then check every integration under `integrations/` for explicit option lists, defaults, validation, and serialization or mapping code. Integrations that use the shared types still need to be checked for wrapper-specific handling; non-TypeScript integrations may maintain their own configuration models.
+When adding, changing, renaming, or removing configuration options for `@scalar/api-reference`, update them across all integrations in the same change. Start with the shared configuration types in `packages/types/src/api-reference/` and schemas in `packages/schemas/src/api-reference/`, then check every integration under `integrations/` for explicit option lists, defaults, validation, and serialization or mapping code. Integrations that use the shared types still need to be checked for wrapper-specific handling; non-TypeScript integrations may maintain their own configuration models.
 
 Keep integration tests, examples, and configuration documentation in sync, including `documentation/configuration.md`. Regenerate generated files through their source scripts rather than editing them by hand (see [CONTRIBUTING.md](./CONTRIBUTING.md#auto-generated-files)). If an option cannot be supported by an integration, document the limitation explicitly rather than silently omitting it.
 
