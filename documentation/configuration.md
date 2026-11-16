@@ -1101,6 +1101,31 @@ Configuration for path-based routing instead of hash-based routing. Your server 
 }
 ```
 
+### persistSelectedClient
+
+**Type:** `boolean`
+
+**Default:** `true`
+
+Save and restore the selected code sample client using local storage. Set this to `false` to prevent reads and writes to `scalar-reference-selected-client-v2`, including when `defaultHttpClient` is configured. Client selection still works for the current page, and existing stored values are left untouched. Authentication persistence is controlled separately by `persistAuth`.
+
+```javascript
+{
+  persistSelectedClient: false
+}
+```
+
+The same option is available through the integrations:
+
+| Integration                                              | Disable selected client persistence                                                     |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| JavaScript and TypeScript integrations, including React  | `persistSelectedClient: false` in the API Reference configuration                       |
+| .NET (ASP.NET Core, Aspire, AWS Lambda, Azure Functions) | `options.DisableSelectedClientPersistence()` or `options.PersistSelectedClient = false` |
+| Java (Spring MVC and WebFlux)                            | `scalar.persistSelectedClient=false`                                                    |
+| FastAPI and Django Ninja                                 | `persist_selected_client=False`                                                         |
+| Rust                                                     | `"persistSelectedClient": false` in the JSON configuration                              |
+| Docker                                                   | `"persistSelectedClient": false` inside `API_REFERENCE_CONFIG`                          |
+
 ### persistAuth
 
 **Type:** `boolean`

@@ -817,6 +817,11 @@ type ExtendedConfiguration = {
     | Partial<Record<TargetId, boolean | ClientId<TargetId>[]>>
     | Array<TargetId | ClientId<TargetId> | AvailableClient>
     | true
+  /**
+   * Whether to save and restore the selected code sample client using local storage.
+   * @default true
+   */
+  persistSelectedClient?: boolean
   /** Determine the HTTP client that is selected by default */
   defaultHttpClient?:
     | {

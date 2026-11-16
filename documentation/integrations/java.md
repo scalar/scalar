@@ -290,6 +290,16 @@ special map keys. `content-map` remains available when these limitations are
 acceptable. Programmatic Java callers can use `setContent(String)` or pass a
 `Map<String, Object>` to `setContent(Object)`.
 
+### Selected client persistence
+
+The selected code sample client is saved in local storage by default. Disable saving and restoring it with:
+
+```properties
+scalar.persistSelectedClient=false
+```
+
+For programmatic configuration, call `properties.setPersistSelectedClient(false)`. This applies to both Spring MVC and WebFlux. Client selection still works for the current page, and `persistAuth` is controlled separately.
+
 ### Authentication Alternatives
 
 `scalar.authentication.create-any-security-scheme=true` allows users to add

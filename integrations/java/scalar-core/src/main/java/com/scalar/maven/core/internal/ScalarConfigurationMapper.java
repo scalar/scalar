@@ -61,6 +61,7 @@ public class ScalarConfigurationMapper {
         }
         config.setBaseServerUrl(properties.getBaseServerUrl());
         config.setPersistAuth(properties.isPersistAuth());
+        config.setPersistSelectedClient(properties.isPersistSelectedClient());
         config.setTelemetry(properties.isTelemetry());
         config.setOrderRequiredPropertiesFirst(properties.isOrderRequiredPropertiesFirst());
         config.setShowOperationId(properties.isShowOperationId());

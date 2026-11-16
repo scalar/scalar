@@ -263,6 +263,11 @@ class ScalarConfig(BaseModel):
         description="Whether to show the client button from the reference sidebar and modal. Default is False which means the client button is shown.",
     )
 
+    persist_selected_client: bool = Field(
+        default=True,
+        description="Whether to save and restore the selected code sample client in local storage. Set to False to keep client selection on the current page only.",
+    )
+
     persist_auth: bool = Field(
         default=False,
         description="Whether to persist authentication credentials in local storage. Default is False which means authentication is not persisted.",
@@ -487,6 +492,9 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
 
     if config.hide_client_button:  # Default is False
         js_config["hideClientButton"] = config.hide_client_button
+
+    if not config.persist_selected_client:  # Default is True
+        js_config["persistSelectedClient"] = config.persist_selected_client
 
     if config.persist_auth:  # Default is False
         js_config["persistAuth"] = config.persist_auth
