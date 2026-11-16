@@ -286,6 +286,9 @@ type SelectArrayComposition = (schema: Record<string, unknown>, path: string[], 
 
 type ArrayLayer = { schema: Record<string, unknown>; path: string[]; dialect: ArrayDialect; incomplete?: boolean }
 
+/** Original selection paths survive synthetic combinations used only for XML provenance. */
+type ItemSchemaLayer = { schema: unknown; path: string[]; dialect: ArrayDialect }
+
 /** A missing reference target can hide array assertions, so it cannot establish a safe prefix. */
 const hasUnresolvedReference = (schema: Record<string, unknown>): boolean =>
   '$ref' in schema && typeof schema['$ref-value'] !== 'boolean' && !isObject(schema['$ref-value'])
@@ -387,7 +390,7 @@ export const generateContainsArray = (
   dialect: ArrayDialect,
   generate: (schema: unknown, path: string[], dialect: string) => unknown,
   select: SelectArrayComposition,
-): { values: unknown[]; itemSchemas: unknown[] } => {
+): { values: unknown[]; itemSchemas: ItemSchemaLayer[][] } => {
   const layers = arrayLayers(schema, dialect, select)
   // Unvisited assertions may prohibit every candidate, so no nonempty prefix is known to be safe.
   if (layers.some((layer) => layer.incomplete)) return { values: [], itemSchemas: [] }
@@ -544,8 +547,8 @@ export const generateContainsArray = (
   }
 
   type Candidate = { value: unknown; matches: boolean[]; size: number }
-  const slots = new Map<number, { schema: unknown; candidates: Candidate[] }>()
-  const getSlot = (index: number): { schema: unknown; candidates: Candidate[] } => {
+  const slots = new Map<number, { schemas: ItemSchemaLayer[]; candidates: Candidate[] }>()
+  const getSlot = (index: number): { schemas: ItemSchemaLayer[]; candidates: Candidate[] } => {
     const key = index < prefixLength ? index : -1
     const cached = slots.get(key)
     if (cached) return cached
@@ -555,15 +558,6 @@ export const generateContainsArray = (
         source.items ??
         true,
     )
-    const itemSchemas = sources.map((source, layerIndex) =>
-      layers[layerIndex]!.dialect === dialect
-        ? source
-        : {
-            $schema: dialectUris[layers[layerIndex]!.dialect],
-            allOf: [source],
-          },
-    )
-    const itemSchema = itemSchemas.length === 1 ? itemSchemas[0] : { allOf: itemSchemas }
     const local: unknown[] = []
     const authoredSamples: unknown[] = []
     const probes: { source: unknown; sample: unknown; path: string[]; dialect: ArrayDialect }[] = []
@@ -604,15 +598,18 @@ export const generateContainsArray = (
             ? []
             : [{ value, matches: results as boolean[], size: sizeOf(value) }]
         })
-    const slot = { schema: itemSchema, candidates: valid }
+    const slot = {
+      schemas: probes.map(({ source, path, dialect }) => ({ schema: source, path, dialect })),
+      candidates: valid,
+    }
     slots.set(key, slot)
     return slot
   }
   const values: unknown[] = []
   let best: unknown[] = []
-  const finish = (result: unknown[]): { values: unknown[]; itemSchemas: unknown[] } => ({
+  const finish = (result: unknown[]): { values: unknown[]; itemSchemas: ItemSchemaLayer[][] } => ({
     values: result,
-    itemSchemas: result.map((_, index) => getSlot(index).schema),
+    itemSchemas: result.map((_, index) => getSlot(index).schemas),
   })
   // Iterative DFS keeps large minItems from exhausting the JavaScript stack.
   const stack: { next: number; counts: number[]; size: number; candidates: Candidate[] }[] = []
@@ -729,5 +726,6 @@ export const getContainsItemSchema = (
     }
     return result
   }
-  return visit(source, value, dialect, 0, path, [])
+  const selected = visit(source, value, dialect, 0, path, [])
+  return isObject(selected) ? { $schema: dialectUris[dialect], ...selected } : selected
 }

@@ -1031,9 +1031,12 @@ const handleArraySchema = (
     if (evaluation) {
       evaluation.arrayItems = value.map((item, index) => {
         const prefix = 'prefixItems' in displaySchema ? displaySchema.prefixItems?.[index] : undefined
-        const source = itemSchemas[index] ?? {}
         const itemPath = prefix ? ['prefixItems', String(index)] : ['items']
-        const selected = getContainsItemSchema(source, item, dialect, select, itemPath) as SchemaObject
+        // Resolve choices at each original path before combining layers for XML provenance.
+        const selectedLayers = (itemSchemas[index] ?? []).map((layer) =>
+          getContainsItemSchema(layer.schema, item, layer.dialect, select, layer.path),
+        )
+        const selected = (selectedLayers.length === 1 ? selectedLayers[0] : { allOf: selectedLayers }) as SchemaObject
         const capture: ExampleEvaluationState = { stack: [] }
         getExampleFromSchema(
           selected,

@@ -21,6 +21,24 @@ describe('get-xml-example', () => {
       const cases = [
         { keywords: { items: choice }, target: 2, path: 'items.anyOf', content: '<selected>2</selected>' },
         {
+          keywords: { items: choice, allOf: [{ contains: { const: 2 } }] },
+          target: 2,
+          path: 'items.anyOf',
+          content: '<selected>2</selected>',
+        },
+        {
+          keywords: { allOf: [{ items: choice }, { contains: { const: 2 } }] },
+          target: 2,
+          path: 'items.anyOf',
+          content: '<selected>2</selected>',
+        },
+        {
+          keywords: { allOf: [{ anyOf: [{ items: choice }] }], contains: { const: 2 } },
+          target: 2,
+          path: '0.items.anyOf',
+          content: '<selected>2</selected>',
+        },
+        {
           keywords: { items: { $ref: '#/item', '$ref-value': choice } },
           target: 2,
           path: 'items.anyOf',
