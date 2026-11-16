@@ -14,6 +14,7 @@ export const documentTraversal = (
   swagger: boolean,
   schemaSiblings: boolean,
   enabled = true,
+  asyncapi = false,
 ): {
   register: (document: unknown, source: string, context?: ReferenceContext, targetPath?: readonly string[]) => void
   location: (node: object) => SourceLocation | undefined
@@ -32,6 +33,8 @@ export const documentTraversal = (
     const api = isObject(document) && ['openapi', 'swagger', 'asyncapi'].some((key) => key in document)
     const targetContext = context ?? (api ? 'object' : 'schema')
     const isSwagger = api ? document.swagger === '2.0' : swagger
+    // External fragments inherit the root API type; complete documents use their own.
+    const isAsyncApi = api ? typeof document.asyncapi === 'string' : asyncapi
     const siblings = api ? document.swagger !== '2.0' && !String(document.openapi).startsWith('3.0.') : schemaSiblings
     const visit = (value: unknown, path: string[], inherited: ReferenceContext, inheritedSiblings: boolean): void => {
       if (value === null || typeof value !== 'object' || visited.has(value)) return
@@ -56,7 +59,12 @@ export const documentTraversal = (
         const next =
           Array.isArray(value) && !['objects', 'schemas', 'messages'].includes(current)
             ? current
-            : childReferenceContext(current, key, isSwagger, isObject(value) && typeof value.schemaFormat === 'string')
+            : childReferenceContext(
+                current,
+                key,
+                isSwagger,
+                isAsyncApi && isObject(value) && typeof value.schemaFormat === 'string',
+              )
         visit(child, [...path, key], next, currentSiblings)
       }
     }

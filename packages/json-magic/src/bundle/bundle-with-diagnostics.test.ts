@@ -168,6 +168,60 @@ describe('bundle-with-diagnostics', () => {
     expect(result.document['components'].schemas.Test.example).toStrictEqual(literal)
   })
 
+  it.each(['3.1.0', '3.2.0'])(
+    'preserves custom schemaFormat and schema fields in OpenAPI %s schemas',
+    async (openapi) => {
+      const customSchema = {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { $ref: './literal.json' },
+        properties: { value: { $ref: './value.json' } },
+      }
+      const input = { openapi, components: { schemas: { Custom: customSchema } } }
+      const loader = sources({ '/value.json': { type: 'string' } })
+      const result = await bundleWithDiagnostics(input, {
+        origin: '/root.json',
+        plugins: [loader.plugin],
+        treeShake: false,
+        traversal: 'document',
+        compress: (uri) => (uri.includes('literal') ? 'literal' : 'value'),
+      })
+      expect(result.diagnostics).toStrictEqual([])
+      expect(loader.calls).toStrictEqual(['/value.json'])
+      expect(customSchema).toStrictEqual({
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { $ref: './literal.json' },
+        properties: { value: { $ref: '#/x-ext/value' } },
+      })
+    },
+  )
+
+  it.each(['3.0.0', '3.1.0'])('resolves external Multi Format Schema wrappers in AsyncAPI %s', async (asyncapi) => {
+    const input = { asyncapi, components: { schemas: { Event: { $ref: './wrapper.json' } } } }
+    const loader = sources({
+      '/wrapper.json': {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { $ref: './value.json' },
+      },
+      '/value.json': { type: 'string' },
+    })
+    const result = await bundleWithDiagnostics(input, {
+      origin: '/root.json',
+      plugins: [loader.plugin],
+      treeShake: false,
+      traversal: 'document',
+      compress: (uri) => (uri.includes('wrapper') ? 'wrapper' : 'value'),
+    })
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['/wrapper.json', '/value.json'])
+    expect(result.document['x-ext']).toStrictEqual({
+      wrapper: {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { $ref: '#/x-ext/value' },
+      },
+      value: { type: 'string' },
+    })
+  })
+
   it.each(['default', 'example', 'enum', 'const', 'x-name'])(
     'resolves itemSchema properties named %s while preserving literal defaults',
     async (name) => {

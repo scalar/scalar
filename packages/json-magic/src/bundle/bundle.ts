@@ -698,6 +698,7 @@ export const bundleDocument = async (
     documentRoot['swagger'] === '2.0',
     documentRoot['swagger'] !== '2.0' && !String(documentRoot['openapi']).startsWith('3.0.'),
     config.traversal === 'document' || diagnostics !== undefined,
+    typeof documentRoot['asyncapi'] === 'string',
   )
   traversal.register(
     documentRoot,
