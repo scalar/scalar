@@ -124,8 +124,10 @@ describe('responses', () => {
     const result = extractResponses(responses)
 
     expect(result?.['200']?.content?.['application/json']?.examples?.default).toEqual({
-      id: 1,
-      name: 'John',
+      value: {
+        id: 1,
+        name: 'John',
+      },
     })
   })
 
@@ -140,7 +142,7 @@ describe('responses', () => {
     const result = extractResponses(responses)
 
     expect(result?.['200']?.content?.['application/json']?.examples?.default).toEqual({
-      rawContent: 'invalid json',
+      value: 'invalid json',
     })
   })
 
@@ -362,7 +364,9 @@ describe('responses', () => {
     const result = extractResponses(responses)
 
     expect(result?.['204']?.content?.['application/json']?.examples?.default).toStrictEqual({
-      message: 'actually has content',
+      value: {
+        message: 'actually has content',
+      },
     })
     expect(warnSpy).toHaveBeenCalledWith(
       '[postman-to-openapi] Response 204 usually has no body, but Postman includes a body example. Keeping OpenAPI content.',
