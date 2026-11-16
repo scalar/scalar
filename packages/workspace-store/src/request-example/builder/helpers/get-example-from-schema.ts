@@ -908,6 +908,10 @@ const readArrayLengthBound = (value: unknown, fallback: number): number =>
 const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
   !('properties' in schema) && ('items' in schema || 'prefixItems' in schema) ? 'array' : undefined
 
+/** Nullable and other multi-type arrays need the same independent containment assertions. */
+const includesArrayType = (type: string | string[] | undefined): boolean =>
+  type === 'array' || (Array.isArray(type) && type.includes('array'))
+
 /** Apply the same explicit-type and inference precedence at either union selection site. */
 const getSelectedType = (variant: SchemaObject | undefined, holder: SchemaObject): string | string[] | undefined =>
   (variant && 'type' in variant ? variant.type : undefined) ??
@@ -2031,10 +2035,10 @@ const generateExampleFromSchema = (
     getArrayDialect(options?.jsonSchemaDialect, options?.originalOpenapiVersion ?? options?.openapiVersion) !==
       'unsupported' &&
     hasArrayContains(containsReference ? schema : _schema) &&
-    (('type' in _schema && _schema.type === 'array') ||
+    (('type' in _schema && includesArrayType(_schema.type)) ||
       (!('type' in _schema) &&
         !('properties' in _schema) &&
-        (selectedSchemaType === undefined || selectedSchemaType === 'array')))
+        (selectedSchemaType === undefined || includesArrayType(selectedSchemaType))))
   ) {
     const result = handleArraySchema(
       containsReference ? schema : _schema,

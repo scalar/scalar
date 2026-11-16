@@ -233,6 +233,28 @@ describe('getExampleFromSchema', () => {
     ).toStrictEqual([1, 1])
   })
 
+  it.each([{ type: ['array', 'null'] }, { type: ['null', 'array'] }, { type: ['array', 'string'] }])(
+    'keeps reference and sibling counts for multi-type arrays: %j',
+    ({ type }) => {
+      const target = {
+        type: 'array',
+        items: { type: 'integer' },
+        minItems: 2,
+        maxItems: 2,
+        contains: { const: 2 },
+        maxContains: 1,
+      }
+      validateArray({
+        $defs: { target },
+        $ref: '#/$defs/target',
+        '$ref-value': target,
+        type,
+        contains: { const: 3 },
+        maxContains: 1,
+      })
+    },
+  )
+
   it('retains legacy XML item wrappers for referenced arrays', () => {
     const target = {
       type: 'array',
