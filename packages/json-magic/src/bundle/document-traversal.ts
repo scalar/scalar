@@ -48,7 +48,10 @@ export const documentTraversal = (
         source,
         pointer: `#${path.map((key) => `/${escapeJsonPointer(key)}`).join('')}`,
         context: current,
-        schemaSiblings: currentSiblings,
+        // Native AsyncAPI schemas and draft-07 use Reference Objects whose siblings
+        // are ignored. Keep the inherited dialect separate for wrapped newer schemas.
+        schemaSiblings:
+          currentSiblings && !['asyncapi-schema', 'asyncapi-schema-object', 'draft-07-schema'].includes(current),
       })
       // Virtual $ref-value links can reach a message before its authored location and
       // give it the wrong context. Enumerate authored keys but retain proxied reads

@@ -311,6 +311,31 @@ describe('bundle-with-diagnostics', () => {
     })
   })
 
+  it('resolves supported siblings in a newer JSON Schema wrapper', async () => {
+    const wrapper = {
+      schemaFormat: 'application/schema+json;version=draft-2020-12',
+      schema: {
+        $ref: 'https://example.test/base.json',
+        properties: { extra: { $ref: 'https://example.test/extra.json' } },
+      },
+    }
+    const loader = sources({
+      'https://example.test/base.json': { type: 'object' },
+      'https://example.test/extra.json': { type: 'string' },
+    })
+    const result = await bundleWithDiagnostics(
+      { asyncapi: '3.1.0', components: { schemas: { Wrapped: wrapper } } },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: (uri) => uri.split('/').at(-1)! },
+    )
+    expect(result.complete).toBe(true)
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/extra.json', 'https://example.test/base.json'])
+    expect(wrapper.schema).toStrictEqual({
+      $ref: '#/x-ext/base.json',
+      properties: { extra: { $ref: '#/x-ext/extra.json' } },
+    })
+  })
+
   it.each(['3.1.0', '3.2.0', 'standalone'])(
     'preserves schemaFormat and schema annotations in %s schemas',
     async (version) => {

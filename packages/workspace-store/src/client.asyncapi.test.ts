@@ -64,6 +64,60 @@ describe('client.asyncapi', () => {
     { asyncapi: '3.1.0', lazy: false },
     { asyncapi: '3.0.0', lazy: true },
     { asyncapi: '3.1.0', lazy: true },
+  ])('ignores schema reference siblings ($asyncapi, lazy: $lazy)', async ({ asyncapi, lazy }) => {
+    const requests: string[] = []
+    const ignored = { ignored: { $ref: 'https://example.test/ignored.json' } }
+    const reference = { $ref: 'https://example.test/actual.json', properties: ignored }
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        const url = String(input)
+        requests.push(url)
+        if (url === 'https://example.test/actual.json') return Promise.resolve(Response.json({ type: 'string' }))
+        throw new Error(`Unexpected fetch: ${url}`)
+      },
+    })
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi,
+        info: { title: 'Events', version: '1' },
+        components: {
+          schemas: {
+            Actual: { type: 'string' },
+            Local: { ...structuredClone(reference), $ref: '#/components/schemas/Actual' },
+            Native: structuredClone(reference),
+            Wrapped: {
+              schemaFormat: `application/vnd.aai.asyncapi+json;version=${asyncapi}`,
+              schema: structuredClone(reference),
+            },
+            Draft07: {
+              schemaFormat: 'application/schema+json;version=draft-07',
+              schema: structuredClone(reference),
+            },
+          },
+        },
+        ...(lazy ? { 'x-scalar-navigation': {} } : {}),
+      },
+    })
+    const paths = [['Local'], ['Native'], ['Wrapped', 'schema'], ['Draft07', 'schema']]
+    if (lazy) {
+      expect(requests).toStrictEqual([])
+      for (const [name] of paths) await store.resolve(['components', 'schemas', name!])
+    }
+    for (const path of paths) {
+      const loaded = getValueAtPath(store.workspace.documents.events, ['components', 'schemas', ...path])
+      expect(getRaw(getResolvedRef(loaded))).toStrictEqual({ type: 'string' })
+      expect(getValueAtPath(getRaw(loaded), ['properties'])).toStrictEqual(ignored)
+      await store.resolve(['components', 'schemas', path[0]!])
+    }
+    expect(requests).toStrictEqual(['https://example.test/actual.json'])
+  })
+
+  it.each([
+    { asyncapi: '3.0.0', lazy: false },
+    { asyncapi: '3.1.0', lazy: false },
+    { asyncapi: '3.0.0', lazy: true },
+    { asyncapi: '3.1.0', lazy: true },
   ])('resolves named servers and variables ($asyncapi, lazy: $lazy)', async ({ asyncapi, lazy }) => {
     const requests: string[] = []
     const server = {
