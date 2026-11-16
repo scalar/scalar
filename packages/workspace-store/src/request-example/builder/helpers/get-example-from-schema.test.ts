@@ -340,6 +340,20 @@ describe('getExampleFromSchema', () => {
     },
   )
 
+  it.each([1, 2, 5])('resolves %s annotated reference hops at the root', (hops) => {
+    const schema = Array.from({ length: hops }).reduce<Record<string, unknown>>(
+      (target, _, index) => ({ $ref: `#/alias${index}`, description: 'Annotated', '$ref-value': target }),
+      { type: 'string', const: 'hello' },
+    )
+    expect(getExampleFromSchema(schema as SchemaObject)).toBe('hello')
+  })
+
+  it('bounds annotated reference cycles at the root', () => {
+    const schema: Record<string, unknown> = { $ref: '#/self', description: 'Annotated' }
+    schema['$ref-value'] = schema
+    expect(getExampleFromSchema(schema as SchemaObject)).toBeUndefined()
+  })
+
   it.each(['properties', 'patternProperties', 'additionalProperties'])(
     'retains legacy annotated reference resolution through %s',
     (keyword) => {

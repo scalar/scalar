@@ -21,6 +21,21 @@ const person = {
 }
 
 describe('mock-any-response', () => {
+  it('resolves annotated reference chains in JSON responses', async () => {
+    const schema = {
+      $ref: '#/outer',
+      '$ref-value': {
+        $ref: '#/inner',
+        description: 'Annotated',
+        '$ref-value': { type: 'string', const: 'hello' },
+      },
+    }
+    const app = new Hono().get('/', (c) => mockAnyResponse(c, operation('application/json', { schema })))
+    const response = await app.request('/')
+    expect(response.status).toBe(200)
+    expect(await response.json()).toBe('hello')
+  })
+
   it.each(['application/json', 'application/x-ndjson'])('retains reference assertions for %s', async (contentType) => {
     const target = {
       type: 'array',

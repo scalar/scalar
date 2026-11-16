@@ -1886,15 +1886,29 @@ const generateExampleFromSchema = (
     discriminatorExamples = new WeakMap()
   }
 
-  // Resolve any $ref references to get the actual schema
-  const _schema = resolve.schema(schema)
+  // Reference siblings are independent assertions; the display resolver merges their keywords.
+  const containsReference =
+    typeof schema === 'object' && schema !== null && '$ref' in schema && mayHaveArrayContains(schema)
+  const resolveReferenceChain = (source: SchemaObject, references: Set<object>): SchemaObject | undefined => {
+    const resolved = resolve.schema(source)
+    if (!resolved || containsReference || !('$ref-value' in resolved) || !isObject(resolved['$ref-value'])) {
+      return resolved
+    }
+    // Callers retain the original graph for containment. Other schemas still need every annotated
+    // reference hop, including at the root, where callers previously resolved the graph beforehand.
+    const target = getSchemaCacheTarget(resolved['$ref-value'])
+    if (references.has(target) || references.size >= MAX_COMPOSITION_DEPTH) {
+      truncated = true
+      return undefined
+    }
+    references.add(target)
+    return resolveReferenceChain(resolved, references)
+  }
+  const _schema = resolveReferenceChain(schema, new Set())
   if (!isDefined(_schema)) {
     return undefined
   }
 
-  // Reference siblings are independent assertions; the display resolver merges their keywords.
-  const containsReference =
-    typeof schema === 'object' && schema !== null && '$ref' in schema && mayHaveArrayContains(schema)
   if (!containsReference && typeof _schema.$schema === 'string' && _schema.$schema !== options?.jsonSchemaDialect) {
     options = { ...options, jsonSchemaDialect: _schema.$schema }
   }
