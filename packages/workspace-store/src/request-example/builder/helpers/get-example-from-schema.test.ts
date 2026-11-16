@@ -210,6 +210,37 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual([2, 1, 1])
   })
 
+  it('evaluates shared composition members at each selected path', () => {
+    const choice = { anyOf: [{ contains: { const: 2 }, minContains: 0, maxContains: 0 }, {}] }
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 1,
+      maxItems: 1,
+      contains: { const: 2 },
+      allOf: [choice, choice],
+    } as SchemaObject
+    const options = { compositionSelection: { '0.anyOf': 1, '1.anyOf': 0 } }
+    expect(getExampleFromSchema(schema, options)).toStrictEqual([1])
+    expect(getExampleFromSchema(JSON.parse(JSON.stringify(schema)), options)).toStrictEqual([1])
+  })
+
+  it('evaluates shared schemas in each inherited dialect', () => {
+    const shared = { contains: { const: 2 }, minContains: 0, maxContains: 0 }
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 1,
+      maxItems: 1,
+      allOf: [
+        { $id: 'https://example.com/legacy', $schema: 'http://json-schema.org/draft-07/schema#', allOf: [shared] },
+        shared,
+      ],
+    } as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual([1])
+    expect(getExampleFromSchema(JSON.parse(JSON.stringify(schema)))).toStrictEqual([1])
+  })
+
   it('keeps root reference and sibling contains assertions independent', () => {
     const target = {
       type: 'array',

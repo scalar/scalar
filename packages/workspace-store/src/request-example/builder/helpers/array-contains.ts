@@ -296,44 +296,50 @@ const arrayLayers = (
   dialect: ArrayDialect,
   select: SelectArrayComposition,
   path: string[] = [],
-  seen = new Set<object>(),
+  traversal: { active: Set<object>; remaining: number } = { active: new Set(), remaining: MAX_SCHEMA_VISITS },
   consumed: ConsumedChoice[] = [],
 ): ArrayLayer[] => {
-  if (!isObject(schema) || seen.has(schema)) return []
-  if (seen.size >= MAX_SCHEMA_VISITS) return [{ schema: {}, path, dialect, incomplete: true }]
-  seen.add(schema)
-  if (typeof schema.$schema === 'string') dialect = getArrayDialect(schema.$schema)
-  if (hasUnresolvedReference(schema)) {
-    return [{ schema: dialect === 'draft7' ? {} : schema, path, dialect, incomplete: true }]
-  }
-  // A draft-07 reference replaces its siblings, including count and item assertions.
-  if (dialect === 'draft7' && '$ref' in schema)
-    return arrayLayers(schema['$ref-value'], dialect, select, path, seen, consumed)
-  const layers: ArrayLayer[] = [{ schema, path, dialect }]
-  if ('$ref-value' in schema) layers.push(...arrayLayers(schema['$ref-value'], dialect, select, path, seen, consumed))
-  if (Array.isArray(schema.allOf)) {
-    if (schema.allOf.length > MAX_SCHEMA_VISITS) {
-      layers.push({ schema: {}, path, dialect, incomplete: true })
+  if (!isObject(schema) || traversal.active.has(schema)) return []
+  if (traversal.remaining-- <= 0) return [{ schema: {}, path, dialect, incomplete: true }]
+  traversal.active.add(schema)
+  try {
+    if (typeof schema.$schema === 'string') dialect = getArrayDialect(schema.$schema)
+    if (hasUnresolvedReference(schema)) {
+      return [{ schema: dialect === 'draft7' ? {} : schema, path, dialect, incomplete: true }]
     }
-    let choiceIndex = 0
-    for (const child of schema.allOf.slice(0, MAX_SCHEMA_VISITS)) {
-      const resolved = resolve.schema(child as SchemaObject)
-      const isChoice = resolved && (Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf))
-      // Selection keys use choice ordinals, not JSON Schema keyword paths.
-      const childPath = isChoice ? [...path, String(choiceIndex++)] : path
-      layers.push(...arrayLayers(child, dialect, select, childPath, seen, consumed))
+    // A draft-07 reference replaces its siblings, including count and item assertions.
+    if (dialect === 'draft7' && '$ref' in schema)
+      return arrayLayers(schema['$ref-value'], dialect, select, path, traversal, consumed)
+    const layers: ArrayLayer[] = [{ schema, path, dialect }]
+    if ('$ref-value' in schema)
+      layers.push(...arrayLayers(schema['$ref-value'], dialect, select, path, traversal, consumed))
+    if (Array.isArray(schema.allOf)) {
+      if (schema.allOf.length > MAX_SCHEMA_VISITS) {
+        layers.push({ schema: {}, path, dialect, incomplete: true })
+      }
+      let choiceIndex = 0
+      for (const child of schema.allOf.slice(0, MAX_SCHEMA_VISITS)) {
+        const resolved = resolve.schema(child as SchemaObject)
+        const isChoice = resolved && (Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf))
+        // Selection keys use choice ordinals, not JSON Schema keyword paths.
+        const childPath = isChoice ? [...path, String(choiceIndex++)] : path
+        layers.push(...arrayLayers(child, dialect, select, childPath, traversal, consumed))
+      }
     }
-  }
-  // Both applicators constrain the same value when present together, even though each chooses a branch.
-  for (const keyword of ['oneOf', 'anyOf'] as const) {
-    if (!Array.isArray(schema[keyword])) continue
-    const other = keyword === 'oneOf' ? 'anyOf' : 'oneOf'
-    const selected = select({ ...schema, [other]: undefined }, path, consumed)
-    if (selected !== undefined) {
-      layers.push(...arrayLayers(selected, dialect, select, path, seen, [...consumed, { path, keyword }]))
+    // Both applicators constrain the same value when present together, even though each chooses a branch.
+    for (const keyword of ['oneOf', 'anyOf'] as const) {
+      if (!Array.isArray(schema[keyword])) continue
+      const other = keyword === 'oneOf' ? 'anyOf' : 'oneOf'
+      const selected = select({ ...schema, [other]: undefined }, path, consumed)
+      if (selected !== undefined) {
+        layers.push(...arrayLayers(selected, dialect, select, path, traversal, [...consumed, { path, keyword }]))
+      }
     }
+    return layers
+  } finally {
+    // A shared node can select different assertions at another path or inherit another dialect.
+    traversal.active.delete(schema)
   }
-  return layers
 }
 
 /** Route known containment and inconclusive bounded scans through the conservative array generator. */
