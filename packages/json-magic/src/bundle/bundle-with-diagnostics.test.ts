@@ -168,6 +168,60 @@ describe('bundle-with-diagnostics', () => {
     expect(result.document['components'].schemas.Test.example).toStrictEqual(literal)
   })
 
+  it.each(['default', 'example', 'enum', 'const', 'x-name'])(
+    'resolves itemSchema properties named %s while preserving literal defaults',
+    async (name) => {
+      const literal = { $ref: '/literal.json' }
+      const itemSchema = { properties: { [name]: { $ref: './value.json' } }, default: literal }
+      const input = {
+        openapi: '3.2.0',
+        paths: {
+          '/events': {
+            get: { responses: { '200': { description: 'Events', content: { 'application/jsonl': { itemSchema } } } } },
+          },
+        },
+      }
+      const loader = sources({ '/value.json': { type: 'string' } })
+      const result = await bundleWithDiagnostics(input, {
+        origin: '/root.json',
+        plugins: [loader.plugin],
+        treeShake: false,
+        traversal: 'document',
+        compress: () => 'value',
+      })
+      expect(result.diagnostics).toStrictEqual([])
+      expect(loader.calls).toStrictEqual(['/value.json'])
+      expect(itemSchema).toStrictEqual({
+        properties: { [name]: { $ref: '#/x-ext/value' } },
+        default: literal,
+      })
+    },
+  )
+
+  it('indexes itemSchema identifiers and anchors without fetching their canonical URLs', async () => {
+    const itemSchema = { $id: './stream.json', $anchor: 'event', type: 'object' }
+    const input = {
+      openapi: '3.2.0',
+      paths: {
+        '/events': {
+          get: { responses: { '200': { description: 'Events', content: { 'application/jsonl': { itemSchema } } } } },
+        },
+      },
+      components: { schemas: { Event: { $ref: './stream.json#event' } } },
+    }
+    const loader = sources({})
+    const result = await bundleWithDiagnostics(input, {
+      origin: '/root.json',
+      plugins: [loader.plugin],
+      treeShake: false,
+      traversal: 'document',
+    })
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual([])
+    expect(result.complete).toBe(true)
+    expect(input.components.schemas.Event.$ref).toBe('./stream.json#event')
+  })
+
   it('processes real Example Object and callback references', async () => {
     const input = {
       openapi: '3.1.0',

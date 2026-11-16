@@ -36,6 +36,56 @@ const fixture = () => ({
 })
 
 describe('asyncapi-chunks', () => {
+  it.each(['3.0.0', '3.1.0'])('resolves external Multi Format Schemas from %s chunks', async (asyncapi) => {
+    const reference = {
+      schemaFormat: 'application/schema+json;version=draft-07',
+      schema: { $ref: 'https://example.com/event.json' },
+    }
+    const server = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [
+        {
+          name: 'events',
+          document: {
+            asyncapi,
+            info: { title: 'Events', version: '1' },
+            channels: {
+              events: { address: 'events', messages: { event: { payload: reference, headers: reference } } },
+            },
+            components: { schemas: { Event: reference } },
+          },
+        },
+      ],
+    })
+    const requests: string[] = []
+    const schema = { type: 'object', properties: { id: { type: 'string' } } }
+    const client = createWorkspaceStore({
+      fetch: async (url) => {
+        const path = new URL(String(url)).pathname
+        requests.push(path)
+        return new Response(JSON.stringify(path === '/event.json' ? schema : await server.get(String(url))), {
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+    })
+    await client.addDocument({ name: 'events', document: server.getWorkspace().documents.events! })
+    client.update('x-scalar-active-document', 'events')
+    await client.resolve(['channels', 'events'])
+    const document = client.workspace.activeDocument
+    assert(isAsyncApiDocument(document))
+    const message = getResolvedRef(getResolvedRef(document.channels?.events)?.messages?.event)
+    expect(getResolvedRef(getValueAtPath(message, ['payload', 'schema']))).toStrictEqual(schema)
+    expect(getResolvedRef(getValueAtPath(message, ['headers', 'schema']))).toStrictEqual(schema)
+    await client.resolve(['components', 'schemas', 'Event'])
+    const component = getResolvedRef(getResolvedRef(document.components)?.schemas?.Event)
+    expect(getResolvedRef(getValueAtPath(component, ['schema']))).toStrictEqual(schema)
+    expect(requests).toStrictEqual(['/events/asyncapi/channels/events', '/event.json', '/events/asyncapi/models/Event'])
+    await client.resolve(['channels', 'events'])
+    await client.resolve(['components', 'schemas', 'Event'])
+    expect(requests).toStrictEqual(['/events/asyncapi/channels/events', '/event.json', '/events/asyncapi/models/Event'])
+  })
+
   it('ignores sibling overrides through SSR chunks and direct client loading', async () => {
     const input = {
       asyncapi: '3.1.0',

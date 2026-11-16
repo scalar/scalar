@@ -48,6 +48,8 @@ export const childReferenceContext = (context: ReferenceContext, key: string, sw
       return 'schemas'
     if (
       [
+        // AsyncAPI Multi Format Schema Objects wrap their schema in this field.
+        'schema',
         'items',
         'additionalProperties',
         'unevaluatedProperties',
@@ -80,7 +82,7 @@ export const childReferenceContext = (context: ReferenceContext, key: string, sw
   if (['example', 'default', 'enum', 'const', 'value', 'dataValue', 'serializedValue'].includes(key)) return 'data'
   if (key === 'examples') return 'objects'
   if (['schemas', 'definitions', '$defs'].includes(key)) return 'schemas'
-  if (key === 'schema') return 'schema'
+  if (['schema', 'itemSchema'].includes(key)) return 'schema'
   if (
     [
       'content',
