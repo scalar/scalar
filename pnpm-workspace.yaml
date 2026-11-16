@@ -62,7 +62,7 @@ catalogs:
     ajv-draft-04: ^1.0.0
     ajv-formats: ^3.0.1
     ansis: 4.4.0
-    astro: 7.4.0
+    astro: 7.4.7
     remark-gfm: ^4.0.1
     remark-stringify: ^11.0.0
     unified: ^11.0.5
@@ -193,5 +193,7 @@ minimumReleaseAgeExclude:
   - undici@8.12.4
   # Renovate security update: hono@4.13.16
   - hono@4.13.16
+  # Renovate security update: astro@7.4.7
+  - astro@7.4.7
 patchedDependencies:
   proto-parser@0.0.9: patches/proto-parser@0.0.9.patch
