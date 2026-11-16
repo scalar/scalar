@@ -57,12 +57,21 @@ export const documentTraversal = (
       for (const key of Object.keys(getRaw(value))) {
         const child = (value as Record<string, unknown>)[key]
         const next =
-          Array.isArray(value) && !['objects', 'schemas', 'asyncapi-schemas', 'messages'].includes(current)
+          Array.isArray(value) &&
+          ![
+            'objects',
+            'schemas',
+            'asyncapi-schemas',
+            'asyncapi-schema-objects',
+            'draft-07-schemas',
+            'messages',
+          ].includes(current)
             ? current
             : childReferenceContext(current, key, {
                 swagger: isSwagger,
                 asyncapi: isAsyncApi,
-                multiFormatSchema: isObject(value) && typeof value.schemaFormat === 'string',
+                schemaFormat:
+                  isObject(value) && typeof value.schemaFormat === 'string' ? value.schemaFormat : undefined,
               })
         visit(child, [...path, key], next, currentSiblings)
       }

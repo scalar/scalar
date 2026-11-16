@@ -10,6 +10,10 @@ export type ReferenceContext =
   | 'schemas'
   | 'asyncapi-schema'
   | 'asyncapi-schemas'
+  | 'asyncapi-schema-object'
+  | 'asyncapi-schema-objects'
+  | 'draft-07-schema'
+  | 'draft-07-schemas'
   | 'data'
   | 'data-container'
   | 'response'
@@ -27,7 +31,7 @@ export type ReferenceContext =
 export const childReferenceContext = (
   context: ReferenceContext,
   key: string,
-  { swagger, asyncapi, multiFormatSchema }: { swagger: boolean; asyncapi: boolean; multiFormatSchema: boolean },
+  { swagger, asyncapi, schemaFormat }: { swagger: boolean; asyncapi: boolean; schemaFormat?: string },
 ): ReferenceContext => {
   if (context === 'generic') return 'generic'
   if (context === 'data-container') return 'data'
@@ -47,14 +51,26 @@ export const childReferenceContext = (
   if (context === 'callback') return key.startsWith('x-') ? 'data' : 'path-item'
   if (context === 'schemas') return 'schema'
   if (context === 'asyncapi-schemas') return 'asyncapi-schema'
+  if (context === 'asyncapi-schema-objects') return 'asyncapi-schema-object'
+  if (context === 'draft-07-schemas') return 'draft-07-schema'
   if (context === 'objects') return 'object'
   if (context === 'responses') return key.startsWith('x-') ? 'data' : 'response'
   if (context === 'links') return 'link'
   if (isSchemaContext(context)) {
-    // AsyncAPI Multi Format Schema Objects wrap their reference-bearing schema.
-    if (context === 'asyncapi-schema' && multiFormatSchema && key === 'schema') return 'schema'
+    // Wrapper formats select a schema vocabulary; subschemas cannot introduce another wrapper.
+    if (context === 'asyncapi-schema' && schemaFormat !== undefined && key === 'schema') {
+      if (/^application\/vnd\.aai\.asyncapi(?:\+json|\+yaml)?;version=3\.[01]\.\d+$/.test(schemaFormat))
+        return 'asyncapi-schema-object'
+      if (/^application\/schema\+(?:json|yaml);version=draft-07$/.test(schemaFormat)) return 'draft-07-schema'
+      return 'schema'
+    }
+    const nativeSchema =
+      context === 'asyncapi-schema-object' || (context === 'asyncapi-schema' && schemaFormat === undefined)
+    const schemaContext = nativeSchema ? 'asyncapi-schema-object' : context === 'draft-07-schema' ? context : 'schema'
+    if (nativeSchema && key === 'externalDocs') return 'object'
+    if ((nativeSchema || context === 'draft-07-schema') && key === 'additionalItems') return schemaContext
     if (['properties', 'patternProperties', 'dependentSchemas', 'dependencies', '$defs', 'definitions'].includes(key))
-      return 'schemas'
+      return nativeSchema ? 'asyncapi-schema-objects' : context === 'draft-07-schema' ? 'draft-07-schemas' : 'schemas'
     if (
       [
         'items',
@@ -74,7 +90,7 @@ export const childReferenceContext = (
         'prefixItems',
       ].includes(key)
     )
-      return 'schema'
+      return schemaContext
     return 'data'
   }
   if (context === 'link' && ['parameters', 'requestBody'].includes(key)) return 'data'
@@ -112,6 +128,6 @@ export const isReferenceContext = (context: ReferenceContext): boolean =>
   isSchemaContext(context) ||
   ['generic', 'object', 'response', 'link', 'path-item', 'callback', 'message'].includes(context)
 
-/** Both ordinary schemas and AsyncAPI wrapper positions may identify or reference schemas. */
+/** Schema vocabularies and AsyncAPI wrapper positions may identify or reference schemas. */
 export const isSchemaContext = (context: ReferenceContext | undefined): boolean =>
-  context === 'schema' || context === 'asyncapi-schema'
+  context !== undefined && ['schema', 'asyncapi-schema', 'asyncapi-schema-object', 'draft-07-schema'].includes(context)

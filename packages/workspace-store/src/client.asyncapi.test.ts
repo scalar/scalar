@@ -64,6 +64,83 @@ describe('client.asyncapi', () => {
     { asyncapi: '3.1.0', lazy: false },
     { asyncapi: '3.0.0', lazy: true },
     { asyncapi: '3.1.0', lazy: true },
+  ])('resolves schema vocabulary references ($asyncapi, lazy: $lazy)', async ({ asyncapi, lazy }) => {
+    const requests: string[] = []
+    const extraItem = { type: 'integer' }
+    const externalDocs = { url: 'https://example.test/docs', description: 'Schema documentation' }
+    const literalDocs = { $ref: 'https://example.test/literal.json', name: 'kept' }
+    const schema = {
+      type: 'object',
+      properties: {
+        list: {
+          type: 'array',
+          items: [{ type: 'string' }],
+          additionalItems: { $ref: 'https://example.test/item.json' },
+        },
+        metadata: { type: 'object', externalDocs: { $ref: 'https://example.test/docs.json' } },
+      },
+    }
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        const url = String(input)
+        requests.push(url)
+        if (url === 'https://example.test/item.json') return Promise.resolve(Response.json(extraItem))
+        if (url === 'https://example.test/docs.json') return Promise.resolve(Response.json(externalDocs))
+        throw new Error(`Unexpected fetch: ${url}`)
+      },
+    })
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi,
+        info: { title: 'Events', version: '1' },
+        components: {
+          schemas: {
+            Native: structuredClone(schema),
+            Wrapped: {
+              schemaFormat: `application/vnd.aai.asyncapi+json;version=${asyncapi}`,
+              schema: structuredClone(schema),
+            },
+            JsonSchema: {
+              schemaFormat: 'application/schema+json;version=draft-07',
+              schema: { ...structuredClone(schema.properties.list), externalDocs: literalDocs },
+            },
+          },
+        },
+        ...(lazy ? { 'x-scalar-navigation': {} } : {}),
+      },
+    })
+    if (lazy) {
+      expect(requests).toStrictEqual([])
+      for (const name of ['Native', 'Wrapped', 'JsonSchema']) {
+        await store.resolve(['components', 'schemas', name])
+      }
+    }
+    const loaded = store.workspace.documents.events
+    expect(requests).toStrictEqual(['https://example.test/item.json', 'https://example.test/docs.json'])
+    for (const path of [['Native'], ['Wrapped', 'schema']]) {
+      const resolved = getValueAtPath(loaded, ['components', 'schemas', ...path])
+      expect(getRaw(getResolvedRef(getValueAtPath(resolved, ['properties', 'list', 'additionalItems'])))).toStrictEqual(
+        extraItem,
+      )
+      expect(
+        getRaw(getResolvedRef(getValueAtPath(resolved, ['properties', 'metadata', 'externalDocs']))),
+      ).toStrictEqual(externalDocs)
+    }
+    const jsonSchema = getValueAtPath(loaded, ['components', 'schemas', 'JsonSchema', 'schema'])
+    expect(getRaw(getResolvedRef(getValueAtPath(jsonSchema, ['additionalItems'])))).toStrictEqual(extraItem)
+    expect(getValueAtPath(getRaw(jsonSchema), ['externalDocs'])).toStrictEqual(literalDocs)
+    for (const name of ['Native', 'Wrapped', 'JsonSchema']) {
+      await store.resolve(['components', 'schemas', name])
+    }
+    expect(requests).toStrictEqual(['https://example.test/item.json', 'https://example.test/docs.json'])
+  })
+
+  it.each([
+    { asyncapi: '3.0.0', lazy: false },
+    { asyncapi: '3.1.0', lazy: false },
+    { asyncapi: '3.0.0', lazy: true },
+    { asyncapi: '3.1.0', lazy: true },
   ])('resolves Multi Format Schema references ($asyncapi, lazy: $lazy)', async ({ asyncapi, lazy }) => {
     const fetched: string[] = []
     const schema = {

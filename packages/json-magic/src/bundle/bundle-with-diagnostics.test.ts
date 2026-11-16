@@ -229,6 +229,8 @@ describe('bundle-with-diagnostics', () => {
         type: 'object',
         schemaFormat: 'annotation',
         schema: { $ref: 'https://example.test/literal.json', name: 'kept' },
+        externalDocs: { $ref: 'https://example.test/docs.json' },
+        additionalItems: { $ref: 'https://example.test/item.json' },
       }
       const original = structuredClone(schema)
       const input =

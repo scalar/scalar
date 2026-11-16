@@ -10,6 +10,7 @@ import { isHttpUrl } from '@/helpers/is-http-url'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 import { setValueAtPath } from '@/helpers/set-value-at-path'
 import { toRelativePath } from '@/helpers/to-relative-path'
+import { getRaw } from '@/magic-proxy/proxy'
 import type { UnknownObject } from '@/types'
 
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
@@ -932,7 +933,7 @@ export const bundleDocument = async (
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
 
     const visitChildren = async (): Promise<void> => {
-      for (const key of Object.keys(root)) {
+      for (const key of Object.keys(config.traversal === 'document' ? getRaw(root) : root)) {
         if (key === '$ref' || key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey)
           continue
         await bundler(
@@ -1219,7 +1220,10 @@ export const bundleDocument = async (
     // Recursively traverse all child properties of the current object to resolve nested $ref references.
     // This step ensures that any $refs located deeper within the object hierarchy are discovered and processed.
     // We explicitly skip the extension keys (x-ext and x-ext-urls) to avoid reprocessing already bundled or mapped content.
+    // Match the authored keys indexed by document traversal; virtual proxy links
+    // can otherwise revisit the document through nodes that have no data context.
     for (const key in root) {
+      if (config.traversal === 'document' && !Object.hasOwn(getRaw(root), key)) continue
       if (key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey) {
         continue
       }
