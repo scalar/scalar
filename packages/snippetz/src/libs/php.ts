@@ -6,7 +6,7 @@ function indent(level: number): string {
 }
 
 /** Escapes a value for a single-quoted PHP string literal, where only backslashes and quotes are special. */
-export const escapePhpString = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+const escapePhpString = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 
 /** Wraps a value in a single-quoted PHP string literal. */
 export const quotePhpString = (value: string): string => `'${escapePhpString(value)}'`
