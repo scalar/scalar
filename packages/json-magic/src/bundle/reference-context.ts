@@ -1,3 +1,5 @@
+import { objectEntries } from '@scalar/helpers/object/object-entries'
+
 /** Schema-valued fields defined by the AsyncAPI protocol binding specifications. */
 const bindingSchemaProperties: Record<string, readonly string[]> = {
   'binding:http': ['query', 'headers'],
@@ -68,6 +70,10 @@ const schemaMapContexts: Record<SchemaContext, ReferenceContext> = {
   'openapi-3.0-schema': 'openapi-3.0-schemas',
 }
 
+const schemaContextsByMap = new Map<ReferenceContext, SchemaContext>(
+  objectEntries(schemaMapContexts).map(([context, mapContext]) => [mapContext, context]),
+)
+
 /** Determine the interpretation of a child without treating data keywords as references. */
 export const childReferenceContext = (
   context: ReferenceContext,
@@ -93,13 +99,8 @@ export const childReferenceContext = (
   if (context === 'path-items') return 'path-item'
   if (context === 'callbacks') return 'callback'
   if (context === 'callback') return key.startsWith('x-') ? 'data' : 'path-item'
-  if (context === 'schemas') return 'schema'
-  if (context === 'asyncapi-schemas') return 'asyncapi-schema'
-  if (context === 'asyncapi-schema-objects') return 'asyncapi-schema-object'
-  if (context === 'draft-04-schemas') return 'draft-04-schema'
-  if (context === 'draft-06-schemas') return 'draft-06-schema'
-  if (context === 'draft-07-schemas') return 'draft-07-schema'
-  if (context === 'openapi-3.0-schemas') return 'openapi-3.0-schema'
+  const mappedContext = schemaContextsByMap.get(context)
+  if (mappedContext !== undefined) return mappedContext
   if (context === 'objects') return 'object'
   if (context === 'responses') return key.startsWith('x-') ? 'data' : 'response'
   if (context === 'links') return 'link'
@@ -203,3 +204,6 @@ export const isReferenceContext = (context: ReferenceContext): boolean =>
 /** Schema vocabularies and AsyncAPI wrapper positions may identify or reference schemas. */
 export const isSchemaContext = (context: ReferenceContext | undefined): context is SchemaContext =>
   context !== undefined && Object.hasOwn(schemaMapContexts, context)
+
+/** Whether the node contains named schemas rather than schema keywords. */
+export const isSchemaMapContext = (context: ReferenceContext): boolean => schemaContextsByMap.has(context)

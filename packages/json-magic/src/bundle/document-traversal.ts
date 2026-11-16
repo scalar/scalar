@@ -3,7 +3,13 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getRaw } from '@/magic-proxy/proxy'
 
-import { type ReferenceContext, childReferenceContext, isReferenceContext, isSchemaContext } from './reference-context'
+import {
+  type ReferenceContext,
+  childReferenceContext,
+  isReferenceContext,
+  isSchemaContext,
+  isSchemaMapContext,
+} from './reference-context'
 
 /** The authored location survives relocation into external document storage. */
 type SourceLocation = { source: string; pointer: string; context: ReferenceContext; schemaSiblings: boolean }
@@ -79,18 +85,7 @@ export const documentTraversal = (
         // Ignored reference siblings must not introduce schema resources or anchors.
         const next = ignoredSiblings
           ? 'data'
-          : Array.isArray(value) &&
-              ![
-                'objects',
-                'schemas',
-                'asyncapi-schemas',
-                'asyncapi-schema-objects',
-                'draft-04-schemas',
-                'draft-06-schemas',
-                'draft-07-schemas',
-                'openapi-3.0-schemas',
-                'messages',
-              ].includes(current)
+          : Array.isArray(value) && !['objects', 'messages'].includes(current) && !isSchemaMapContext(current)
             ? current
             : childReferenceContext(current, key, {
                 swagger: isSwagger,
