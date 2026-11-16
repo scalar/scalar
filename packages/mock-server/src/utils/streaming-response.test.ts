@@ -38,6 +38,30 @@ describe('streaming-response', () => {
     ).toStrictEqual(['7\n'])
   })
 
+  it.each([
+    { schema: { type: 'array' as const, example: [7] }, expected: [7] },
+    {
+      schema: {
+        type: 'array' as const,
+        prefixItems: [{ type: 'integer' as const, const: 7 }],
+        minItems: 2,
+        maxItems: 2,
+      },
+      expected: [7, 1],
+    },
+  ])('preserves complete schemas when adding fallback stream items: $schema', ({ schema, expected }) => {
+    for (const referenced of [false, true]) {
+      const source = referenced ? { $ref: '#/array' } : schema
+      if (referenced) {
+        Object.defineProperty(source, '$ref-value', { value: schema })
+      }
+      expect(
+        getStreamingResponse({ schema: source, itemSchema: { type: 'integer' } }, 'application/jsonl')?.body,
+      ).toStrictEqual(expected)
+      expect('items' in source).toBe(false)
+    }
+  })
+
   it('preserves explicitly serialized examples', () => {
     const value = 'data: [DONE]\n\n'
     expect(getStreamingResponse({ itemSchema: {}, example: value }, 'text/event-stream')?.chunks).toStrictEqual([value])

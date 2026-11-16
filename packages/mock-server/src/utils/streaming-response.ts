@@ -1,7 +1,8 @@
 import { getStreamFormat } from '@scalar/helpers/http/is-streaming-content-type'
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
-import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
+import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Context } from 'hono'
@@ -50,9 +51,8 @@ export const getStreamingResponse = (
   }
 
   const itemSchema =
-    typeof mediaType.itemSchema === 'boolean' ? mediaType.itemSchema : getResolvedRef(mediaType.itemSchema)
-  const completeSchema =
-    typeof mediaType.schema === 'boolean' ? mediaType.schema : getResolvedRef(mediaType.schema, mergeSiblingReferences)
+    typeof mediaType.itemSchema === 'boolean' ? mediaType.itemSchema : getResolvedRefDeep(mediaType.itemSchema)
+  const completeSchema = typeof mediaType.schema === 'boolean' ? mediaType.schema : getResolvedRefDeep(mediaType.schema)
   const generateBody = (): unknown => {
     if (itemSchema === false || completeSchema === false) {
       return []
@@ -71,17 +71,14 @@ export const getStreamingResponse = (
       )
     }
     if (typeof completeSchema === 'object' && 'type' in completeSchema && completeSchema.type === 'array') {
+      // Inspect the resolved shape, but generate from the original graph so reference assertions,
+      // authored examples, and tuple prefixes survive the addition of fallback stream items.
       return generateResponseExample(
         ('items' in completeSchema && completeSchema.items !== undefined
           ? mediaType.schema
-          : {
-              type: 'array',
-              minItems: completeSchema.minItems,
-              maxItems: completeSchema.maxItems,
-              uniqueItems: completeSchema.uniqueItems,
-              allOf: [mediaType.schema],
+          : Object.assign(snapshotSchema(mediaType.schema as ExampleSchema), {
               items: mediaType.itemSchema,
-            }) as ExampleSchema,
+            })) as ExampleSchema,
         options.variables,
         options,
       )
