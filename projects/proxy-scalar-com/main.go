@@ -247,7 +247,7 @@ func main() {
 	// Add our custom CORS middleware to handle cross-origin requests
 	handler := corsMiddleware(mux)
 
-	// A proxy that can reach private networks only listens on this machine
+	// Keep development binding independent of private-target access.
 	server := newHTTPServer(listenAddress(os.Getenv("ENV") == "dev", os.Getenv("PROXY_LISTEN_HOST"), port), handler)
 
 	log.Println("🥤 Proxy Server listening on " + server.Addr)

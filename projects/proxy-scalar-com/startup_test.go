@@ -40,7 +40,7 @@ func startProxySubprocess(t *testing.T, testName string, environment []string) s
 	listener.Close()
 	command := exec.Command(os.Args[0], "-test.run=^"+testName+"$")
 	for _, entry := range os.Environ() {
-		if !strings.HasPrefix(entry, "ENV=") && !strings.HasPrefix(entry, "PORT=") && !strings.HasPrefix(entry, "ALLOW_PRIVATE_ADDRESSES=") && !strings.HasPrefix(entry, "SCALAR_PROXY_STARTUP_TEST=") && !strings.HasPrefix(entry, "SCALAR_PROXY_FIXTURE_SERVER=") {
+		if !strings.HasPrefix(entry, "ENV=") && !strings.HasPrefix(entry, "PORT=") && !strings.HasPrefix(entry, "PROXY_LISTEN_HOST=") && !strings.HasPrefix(entry, "ALLOW_PRIVATE_ADDRESSES=") && !strings.HasPrefix(entry, "SCALAR_PROXY_STARTUP_TEST=") && !strings.HasPrefix(entry, "SCALAR_PROXY_FIXTURE_SERVER=") {
 			command.Env = append(command.Env, entry)
 		}
 	}
@@ -99,15 +99,19 @@ func TestProxyStartupBinding(t *testing.T) {
 		t.Skip("no non-loopback IPv4 interface")
 	}
 	for _, tc := range []struct {
-		name, environment, allowPrivate string
-		external                        bool
+		name, environment, allowPrivate, listenHost string
+		external                                    bool
 	}{
 		{name: "development", environment: "dev"},
 		{name: "development ignored private flag", environment: "dev", allowPrivate: "true"},
+		{name: "development ignored listen host", environment: "dev", listenHost: "0.0.0.0"},
 		{name: "production", external: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			address := startProxyProcess(t, tc.environment, tc.allowPrivate)
+			address := startProxySubprocess(t, "TestProxyStartupProcess", []string{
+				"SCALAR_PROXY_STARTUP_TEST=1", "ENV=" + tc.environment,
+				"ALLOW_PRIVATE_ADDRESSES=" + tc.allowPrivate, "PROXY_LISTEN_HOST=" + tc.listenHost,
+			})
 			_, port, _ := net.SplitHostPort(address)
 			connection, err := net.DialTimeout("tcp4", net.JoinHostPort(networkIP.String(), port), time.Second)
 			if connection != nil {
