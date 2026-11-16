@@ -275,8 +275,8 @@ export const normalizeRefs = (): LifecyclePlugin => {
       // and in raw external schema documents. Stripping those siblings would discard the binding and leave
       // `$dynamicRef` resolving to the template's empty fallback. See https://github.com/scalar/scalar/issues/9414.
       if (typeof node['$ref'] === 'string' && !isSchema) {
-        // Remove any other properties from the node and only keep the '$ref', 'summary', 'description' and '$status'
-        const keepProperties = new Set(['$ref', 'summary', 'description', '$status'])
+        // Keep the server chunk marker so reloads retain the owning document's dialect and media types.
+        const keepProperties = new Set(['$ref', 'summary', 'description', '$status', '$global'])
 
         Object.keys(node).forEach((key) => {
           if (!keepProperties.has(key)) {

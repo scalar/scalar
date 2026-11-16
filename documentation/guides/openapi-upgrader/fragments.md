@@ -30,3 +30,5 @@ A document resolver can return `remapPointer(pointer)` for authored pointers int
 The workspace store uses these hooks to upgrade complete resources according to their declared version, and bare fragments according to the original owning API description. It caches contextual variants separately and persists `x-scalar-upgrade` metadata with relocation mappings and source context so serialization and lazy loading preserve resolution behavior.
 
 Server chunks are already upgraded. References marked with `$global: true` bypass reference-target transforms, while external fragments reached from a chunk still inherit the original source dialect.
+
+Server payloads and editable exports omit upgrade metadata when no external references remain. When external resources are still loaded lazily, they retain the source dialect, compact relocation mappings for references back into the entry document, and media-type contexts for the operations that need them. This preserves lazy loading and save/reload behavior without carrying redundant descendant mappings or unrelated operation contexts.
