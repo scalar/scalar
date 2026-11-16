@@ -39,7 +39,7 @@ import { type UploadTmpDocumentState, removeTmpDocFromLocalStorage } from '@/hoo
 import { persistencePlugin } from '@/plugins/persistance'
 import { loadDocument } from '@/registry/add-documents-to-store'
 import { createDocumentName } from '@/registry/create-document-name'
-import type { ChatMode } from '@/types'
+import type { ChatMode, SelectedDocument } from '@/types'
 
 export type RegistryDocument = {
   namespace: string
@@ -99,7 +99,6 @@ type State = {
   uploadedTmpDocumentUrl: Ref<string | undefined>
   curatedDocuments: Ref<ApiMetadata[]>
   getActiveDocumentJson?: () => string
-  getActiveDocumentContext?: () => string | undefined
   hideAddApi?: boolean
 }
 
@@ -109,14 +108,14 @@ function createChat({
   baseUrl,
   getAccessToken,
   getAgentKey,
-  getActiveDocumentContext,
+  getActiveDocumentSelection,
 }: {
   registryDocuments: Ref<ApiMetadata[]>
   workspaceStore: WorkspaceStore
   baseUrl: string
   getAccessToken?: () => string
   getAgentKey?: () => string
-  getActiveDocumentContext?: () => string | undefined
+  getActiveDocumentSelection?: () => SelectedDocument | undefined
 }) {
   const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
@@ -125,23 +124,8 @@ function createChat({
       headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
       body: () => ({
         registryDocuments: registryDocuments.value,
+        selectedDocument: getActiveDocumentSelection?.(),
       }),
-      prepareSendMessagesRequest: ({ id, messages, body, trigger, messageId }): { body: Record<string, unknown> } => {
-        const context = getActiveDocumentContext?.()
-        // Keep API context in the request without adding it to the visible conversation.
-        const contextMessages: UIMessage[] = context
-          ? [
-              {
-                id: 'selected-api-context',
-                role: 'user',
-                parts: [{ type: 'text', text: `Selected API description: ${context}` }],
-              },
-            ]
-          : []
-        return {
-          body: { ...body, id, messages: [...contextMessages, ...messages], trigger, messageId },
-        }
-      },
     }),
     onToolCall({ toolCall }): void {
       if (toolCall.dynamic) {
@@ -181,7 +165,7 @@ export function createState({
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
-  getActiveDocumentContext,
+  getActiveDocumentSelection,
   prefilledMessageRef,
   hideAddApi,
 }: {
@@ -195,7 +179,7 @@ export function createState({
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
-  getActiveDocumentContext?: () => string | undefined
+  getActiveDocumentSelection?: () => SelectedDocument | undefined
   prefilledMessageRef?: Ref<string>
   hideAddApi?: boolean
 }): State {
@@ -230,7 +214,7 @@ export function createState({
     baseUrl,
     getAccessToken,
     getAgentKey,
-    getActiveDocumentContext,
+    getActiveDocumentSelection,
   })
 
   const api = createApi({
@@ -411,7 +395,6 @@ export function createState({
     uploadedTmpDocumentUrl,
     curatedDocuments,
     getActiveDocumentJson,
-    getActiveDocumentContext,
     hideAddApi,
   }
 }

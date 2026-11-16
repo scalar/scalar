@@ -1,5 +1,6 @@
 ---
 '@scalar/agent-chat': patch
+'@scalar/api-reference': patch
 ---
 
-Send selected API context separately from the visible user message in Ask AI.
+Send the selected API source and version as structured chat request metadata, keeping user messages unchanged.
