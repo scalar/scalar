@@ -15,9 +15,9 @@
   "recreateWhen": "never",
   "packageRules": [
     {
-      "description": "Keep this in sync with package.json minimumReleaseAge",
+      "description": "Keep this in sync with pnpm-workspace.yaml minimumReleaseAge",
       "matchDatasources": ["npm"],
-      "minimumReleaseAge": "5 days"
+      "minimumReleaseAge": "1 day"
     },
 
     {
