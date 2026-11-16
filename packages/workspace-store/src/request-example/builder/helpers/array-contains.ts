@@ -651,28 +651,51 @@ export const generateContainsArray = (
 }
 
 /** Keep XML metadata on every branch that actually accepts the chosen item and its children. */
-export const getContainsItemSchema = (source: unknown, value: unknown, dialect: ArrayDialect): unknown => {
+export const getContainsItemSchema = (
+  source: unknown,
+  value: unknown,
+  dialect: ArrayDialect,
+  select: SelectArrayComposition,
+  path: string[],
+): unknown => {
   const budget = { steps: MAX_MATCH_STEPS }
   let remaining = MAX_NODES
-  const visit = (input: unknown, value: unknown, dialect: ArrayDialect, depth: number): unknown => {
+  const visit = (
+    input: unknown,
+    value: unknown,
+    dialect: ArrayDialect,
+    depth: number,
+    path: string[],
+    consumed: ConsumedChoice[],
+  ): unknown => {
     if (!isObject(input) || depth >= MAX_SCHEMA_DEPTH || --remaining < 0) return {}
     if (typeof input.$schema === 'string') dialect = getArrayDialect(input.$schema)
     const result = { ...input }
-    if ('$ref-value' in input) result['$ref-value'] = visit(input['$ref-value'], value, dialect, depth + 1)
-    if (Array.isArray(input.allOf))
-      result.allOf = input.allOf.slice(0, MAX_SCHEMA_VISITS).map((member) => visit(member, value, dialect, depth + 1))
+    if ('$ref-value' in input)
+      result['$ref-value'] = visit(input['$ref-value'], value, dialect, depth + 1, path, consumed)
+    if (Array.isArray(input.allOf)) {
+      let choiceIndex = 0
+      result.allOf = input.allOf.slice(0, MAX_SCHEMA_VISITS).map((member) => {
+        const resolved = resolve.schema(member as SchemaObject)
+        const isChoice = resolved && (Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf))
+        const memberPath = isChoice ? [...path, String(choiceIndex++)] : path
+        return visit(member, value, dialect, depth + 1, memberPath, consumed)
+      })
+    }
     const keyword = Array.isArray(input.oneOf) ? 'oneOf' : Array.isArray(input.anyOf) ? 'anyOf' : undefined
     if (keyword) {
       const members = input[keyword] as unknown[]
-      const selected = members
-        .slice(0, MAX_CANDIDATES)
-        .find((member) => matches(member, value, dialect, budget) === true)
+      const preferred = select(input, path, consumed)
+      const selected =
+        preferred !== undefined && matches(preferred, value, dialect, budget) === true
+          ? preferred
+          : members.slice(0, MAX_CANDIDATES).find((member) => matches(member, value, dialect, budget) === true)
       if (selected !== undefined) {
         delete result.oneOf
         delete result.anyOf
         result.allOf = [
           ...(Array.isArray(result.allOf) ? result.allOf : []),
-          visit(selected, value, dialect, depth + 1),
+          visit(selected, value, dialect, depth + 1, path, [...consumed, { path, keyword }]),
         ]
       }
     }
@@ -683,23 +706,24 @@ export const getContainsItemSchema = (source: unknown, value: unknown, dialect: 
           .slice(0, MAX_NODES)
           .map(([key, child]) => [
             key,
-            visit(properties[key] ?? input.additionalProperties, child, dialect, depth + 1),
+            visit(properties[key] ?? input.additionalProperties, child, dialect, depth + 1, [...path, key], consumed),
           ]),
       )
     }
     if (Array.isArray(value) && dialect === 'modern') {
-      result.prefixItems = value
-        .slice(0, MAX_NODES)
-        .map((child, index) =>
-          visit(
-            Array.isArray(input.prefixItems) ? (input.prefixItems[index] ?? input.items) : input.items,
-            child,
-            dialect,
-            depth + 1,
-          ),
+      result.prefixItems = value.slice(0, MAX_NODES).map((child, index) => {
+        const prefix = Array.isArray(input.prefixItems) && index < input.prefixItems.length
+        return visit(
+          prefix ? (input.prefixItems as unknown[])[index] : input.items,
+          child,
+          dialect,
+          depth + 1,
+          [...path, ...(prefix ? ['prefixItems', String(index)] : ['items'])],
+          consumed,
         )
+      })
     }
     return result
   }
-  return visit(source, value, dialect, 0)
+  return visit(source, value, dialect, 0, path, [])
 }

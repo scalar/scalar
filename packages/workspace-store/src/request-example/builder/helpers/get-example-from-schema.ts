@@ -1032,14 +1032,15 @@ const handleArraySchema = (
       evaluation.arrayItems = value.map((item, index) => {
         const prefix = 'prefixItems' in displaySchema ? displaySchema.prefixItems?.[index] : undefined
         const source = itemSchemas[index] ?? {}
-        const selected = getContainsItemSchema(source, item, dialect) as SchemaObject
+        const itemPath = prefix ? ['prefixItems', String(index)] : ['items']
+        const selected = getContainsItemSchema(source, item, dialect, select, itemPath) as SchemaObject
         const capture: ExampleEvaluationState = { stack: [] }
         getExampleFromSchema(
           selected,
           { ...options, [EXAMPLE_EVALUATION]: capture },
           {
             level: level + 1,
-            schemaPath: [...schemaPath, ...(prefix ? ['prefixItems', String(index)] : ['items'])],
+            schemaPath: [...schemaPath, ...itemPath],
             seen,
             dynamicScope: childScope,
           },
