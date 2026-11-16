@@ -14,7 +14,7 @@ import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 import {
   generateContainsArray,
   getArrayDialect,
-  getAuthoredArrayExample,
+  getAuthoredArrayValue,
   getContainsItemSchema,
   mayHaveArrayContains,
 } from './array-contains'
@@ -1000,7 +1000,11 @@ const handleArraySchema = (
           options,
         ),
       )
-    const authored = getAuthoredArrayExample(schema, dialect, select)
+    const authored = getAuthoredArrayValue(schema, dialect, select, (source) => {
+      if (source.default === undefined) return undefined
+      const value = normalizeSchemaDefault(source as SchemaObject)
+      return value === INVALID_DEFAULT ? undefined : { value }
+    })
     if (authored) {
       return cache(schema, authored.value, cacheKey, skipCache)
     }

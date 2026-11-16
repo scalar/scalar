@@ -364,19 +364,25 @@ export const mayHaveArrayContains = (schema: unknown, seen = new Set<object>()):
   })
 }
 
-/** Authored examples on active composition members remain authoritative even when constraints conflict. */
-export const getAuthoredArrayExample = (
+/** Active whole-value examples and valid defaults retain their priority over generated items. */
+export const getAuthoredArrayValue = (
   schema: Record<string, unknown>,
   dialect: ArrayDialect,
   select: SelectArrayComposition,
+  getDefault: (schema: Record<string, unknown>) => { value: unknown } | undefined,
 ): { value: unknown } | undefined => {
-  for (const { schema: source } of arrayLayers(schema, dialect, select)) {
+  const layers = arrayLayers(schema, dialect, select)
+  for (const { schema: source } of layers) {
     if (Array.isArray(source.examples) && source.examples.length > 0) {
       return { value: source.examples[0] }
     }
     if (source.example !== undefined) {
       return { value: source.example }
     }
+  }
+  for (const { schema: source } of layers) {
+    const value = getDefault(source)
+    if (value) return value
   }
   return undefined
 }

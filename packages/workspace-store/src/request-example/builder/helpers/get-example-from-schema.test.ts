@@ -530,6 +530,39 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual([{ additionalProperty: 1 }, { additionalProperty: 1 }])
   })
 
+  it.each(['anyOf', 'oneOf', 'allOf'] as const)('keeps whole-array defaults on active %s members', (keyword) => {
+    expect(
+      getExampleFromSchema({
+        [keyword]: [{ type: 'array', items: { type: 'integer' }, default: [9] }],
+        contains: { type: 'integer', const: 2 },
+      } as unknown as SchemaObject),
+    ).toStrictEqual([9])
+  })
+
+  it('uses only the selected whole-array default', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          anyOf: [
+            { type: 'array', default: [8] },
+            { type: 'array', default: [9] },
+          ],
+          contains: { const: 2 },
+        } as SchemaObject,
+        { compositionSelection: { anyOf: 1 } },
+      ),
+    ).toStrictEqual([9])
+  })
+
+  it('ignores invalid whole-array defaults while satisfying contains', () => {
+    expect(
+      validateArray({
+        anyOf: [{ type: 'array', items: { type: 'integer' }, default: 'not an array' }],
+        contains: { const: 2 },
+      }),
+    ).toStrictEqual([2])
+  })
+
   it('keeps authored arrays even when they contradict contains', () => {
     const schema = { type: 'array', example: [9], items: { type: 'integer' }, contains: { const: 2 } } as SchemaObject
     expect(getExampleFromSchema(schema)).toStrictEqual([9])
