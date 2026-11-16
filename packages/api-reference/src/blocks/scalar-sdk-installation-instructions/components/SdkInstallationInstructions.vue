@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import {
+  filterClientsByQuery,
+  getClients,
   getCustomClientIds,
   type ClientOptionGroup,
 } from '@scalar/blocks/code-example'
@@ -191,22 +193,38 @@ const visibleEntries = computed(() =>
 /** Whether the selection lives in the "More" dropdown */
 const isMoreActive = computed(() => selectedIndex.value >= visibleCount.value)
 
-/** Overflowing tabs and non-featured clients, keyed by their original index. */
-const moreOptions = computed<ScalarComboboxOption[]>(() =>
-  entries.value.slice(visibleCount.value).map((entry, index) => ({
-    id: String(visibleCount.value + index),
-    label: entry.title || entry.label,
-  })),
-)
+/** Keep SDK overflow separate and preserve language groups for built-in clients. */
+const moreOptions = computed(() => {
+  const overflowIds = new Set(
+    entries.value.slice(visibleCount.value).map((entry) => entry.id),
+  )
+  return getClients(
+    sdkEntries.value.map((sdk) => ({
+      lang: sdk.lang,
+      label: sdk.label,
+      source: '',
+    })),
+    clientOptions,
+    'SDK',
+  )
+    .map((group) => ({
+      ...group,
+      options: group.options.filter((option) => overflowIds.has(option.id)),
+    }))
+    .filter((group) => group.options.length > 0)
+})
 
 /** The selected option within the "More" dropdown, if any */
 const selectedMoreOption = computed(() =>
-  moreOptions.value.find((option) => option.id === String(selectedIndex.value)),
+  moreOptions.value
+    .flatMap((group) => group.options)
+    .find((option) => option.id === selected.value?.id),
 )
 
-const selectMore = (option: ScalarComboboxOption | undefined) => {
-  if (option) {
-    select(Number(option.id))
+const selectMore = (option: ScalarComboboxOption | undefined): void => {
+  const index = entries.value.findIndex((entry) => entry.id === option?.id)
+  if (index >= 0) {
+    select(index)
   }
 }
 
@@ -341,6 +359,8 @@ onBeforeUnmount(() => {
         <!-- More dropdown (not a tab — lives beside the tablist) -->
         <ScalarCombobox
           v-if="visibleCount < entries.length"
+          :filterFn="filterClientsByQuery"
+          :inputLabel="translate('clientLibraries.searchLabel')"
           :modelValue="selectedMoreOption"
           :options="moreOptions"
           placement="bottom-end"
