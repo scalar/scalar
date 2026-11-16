@@ -22,7 +22,12 @@ export type ReferenceContext =
   | 'messages'
 
 /** Determine the interpretation of a child without treating data keywords as references. */
-export const childReferenceContext = (context: ReferenceContext, key: string, swagger: boolean): ReferenceContext => {
+export const childReferenceContext = (
+  context: ReferenceContext,
+  key: string,
+  swagger: boolean,
+  multiFormatSchema = false,
+): ReferenceContext => {
   if (context === 'generic') return 'generic'
   if (context === 'data-container') return 'data'
   if (context === 'messages') return 'message'
@@ -44,12 +49,12 @@ export const childReferenceContext = (context: ReferenceContext, key: string, sw
   if (context === 'responses') return key.startsWith('x-') ? 'data' : 'response'
   if (context === 'links') return 'link'
   if (context === 'schema') {
+    // AsyncAPI Multi Format Schema Objects wrap their reference-bearing schema.
+    if (multiFormatSchema && key === 'schema') return 'schema'
     if (['properties', 'patternProperties', 'dependentSchemas', 'dependencies', '$defs', 'definitions'].includes(key))
       return 'schemas'
     if (
       [
-        // AsyncAPI Multi Format Schema Objects wrap their schema in this field.
-        'schema',
         'items',
         'additionalProperties',
         'unevaluatedProperties',
