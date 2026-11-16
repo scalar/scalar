@@ -168,6 +168,55 @@ describe('bundle-with-diagnostics', () => {
     expect(result.document['components'].schemas.Test.example).toStrictEqual(literal)
   })
 
+  it.each([
+    ['operationBindings', 'http', 'query'],
+    ['messageBindings', 'http', 'headers'],
+    ['channelBindings', 'ws', 'query'],
+    ['channelBindings', 'ws', 'headers'],
+    ['messageBindings', 'anypointmq', 'headers'],
+    ['messageBindings', 'jms', 'headers'],
+    ['operationBindings', 'kafka', 'groupId'],
+    ['operationBindings', 'kafka', 'clientId'],
+    ['messageBindings', 'kafka', 'key'],
+    ['serverBindings', 'mqtt', 'sessionExpiryInterval'],
+    ['serverBindings', 'mqtt', 'maximumPacketSize'],
+    ['operationBindings', 'mqtt', 'messageExpiryInterval'],
+    ['messageBindings', 'mqtt', 'correlationData'],
+    ['messageBindings', 'mqtt', 'responseTopic'],
+    ['serverBindings', 'mqtt5', 'sessionExpiryInterval'],
+    ['operationBindings', 'solace', 'timeToLive'],
+    ['operationBindings', 'solace', 'priority'],
+  ])('resolves schema references in %s.%s.%s', async (section, protocol, field) => {
+    const literal = { $ref: 'https://example.test/literal.json', name: 'kept' }
+    const schema = {
+      type: 'object',
+      properties: {
+        default: { $ref: 'https://example.test/id.json' },
+        'x-id': { $ref: 'https://example.test/id.json' },
+      },
+      default: structuredClone(literal),
+      examples: [structuredClone(literal)],
+    }
+    const loader = sources({ 'https://example.test/id.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        info: { title: 'Bindings', version: '1' },
+        components: { [section]: { Shared: { [protocol]: { [field]: schema } } } },
+      },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: () => 'id' },
+    )
+    expect(result.complete).toBe(true)
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/id.json'])
+    expect(schema.properties).toStrictEqual({
+      default: { $ref: '#/x-ext/id' },
+      'x-id': { $ref: '#/x-ext/id' },
+    })
+    expect(schema.default).toStrictEqual(literal)
+    expect(schema.examples).toStrictEqual([literal])
+  })
+
   it.each(['3.1.0', '3.2.0'])(
     'preserves custom schemaFormat and schema fields in OpenAPI %s schemas',
     async (openapi) => {

@@ -1,3 +1,21 @@
+/** Schema-valued fields defined by the AsyncAPI protocol binding specifications. */
+const bindingSchemaProperties: Record<string, readonly string[]> = {
+  'binding:http': ['query', 'headers'],
+  'binding:ws': ['query', 'headers'],
+  'binding:anypointmq': ['headers'],
+  'binding:jms': ['headers'],
+  'binding:kafka': ['groupId', 'clientId', 'key'],
+  'binding:mqtt': [
+    'sessionExpiryInterval',
+    'maximumPacketSize',
+    'messageExpiryInterval',
+    'correlationData',
+    'responseTopic',
+  ],
+  'binding:mqtt5': ['sessionExpiryInterval'],
+  'binding:solace': ['timeToLive', 'priority'],
+}
+
 /** Distinguish reference-bearing document structures from literal instance data without validating the document. */
 export type ReferenceContext =
   | 'generic'
@@ -26,6 +44,9 @@ export type ReferenceContext =
   | 'callbacks'
   | 'message'
   | 'messages'
+  | 'bindings'
+  | 'binding-sets'
+  | `binding:${string}`
 
 /** Determine the interpretation of a child without treating data keywords as references. */
 export const childReferenceContext = (
@@ -35,6 +56,9 @@ export const childReferenceContext = (
 ): ReferenceContext => {
   if (context === 'generic') return 'generic'
   if (context === 'data-container') return 'data'
+  if (context === 'binding-sets') return 'bindings'
+  if (context === 'bindings') return key.startsWith('x-') ? 'data' : `binding:${key}`
+  if (context.startsWith('binding:') && bindingSchemaProperties[context]?.includes(key)) return 'asyncapi-schema-object'
   if (context === 'messages') return 'message'
   if (context === 'message' && key === 'traits') return 'messages'
   if (context === 'message' && key === 'oneOf') return 'messages'
@@ -102,6 +126,13 @@ export const childReferenceContext = (
   if (key === 'responses') return context === 'components' ? 'named-responses' : 'responses'
   if (key === 'links') return 'links'
   if (key.startsWith('x-')) return 'data'
+  if (asyncapi && key === 'bindings') return 'bindings'
+  if (
+    asyncapi &&
+    context === 'components' &&
+    ['serverBindings', 'channelBindings', 'operationBindings', 'messageBindings'].includes(key)
+  )
+    return 'binding-sets'
   if (['example', 'default', 'enum', 'const', 'value', 'dataValue', 'serializedValue'].includes(key)) return 'data'
   if (key === 'examples') return 'objects'
   if (asyncapi && context === 'components' && key === 'schemas') return 'asyncapi-schemas'
@@ -126,7 +157,8 @@ export const childReferenceContext = (
 /** Whether the node itself can contain a reference, rather than named entries. */
 export const isReferenceContext = (context: ReferenceContext): boolean =>
   isSchemaContext(context) ||
-  ['generic', 'object', 'response', 'link', 'path-item', 'callback', 'message'].includes(context)
+  context.startsWith('binding:') ||
+  ['generic', 'object', 'response', 'link', 'path-item', 'callback', 'message', 'bindings'].includes(context)
 
 /** Schema vocabularies and AsyncAPI wrapper positions may identify or reference schemas. */
 export const isSchemaContext = (context: ReferenceContext | undefined): boolean =>

@@ -64,6 +64,58 @@ describe('client.asyncapi', () => {
     { asyncapi: '3.1.0', lazy: false },
     { asyncapi: '3.0.0', lazy: true },
     { asyncapi: '3.1.0', lazy: true },
+  ])('resolves binding query schemas ($asyncapi, lazy: $lazy)', async ({ asyncapi, lazy }) => {
+    const requests: string[] = []
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        requests.push(String(input))
+        if (String(input) === 'https://example.test/id.json') return Promise.resolve(Response.json({ type: 'string' }))
+        throw new Error(`Unexpected fetch: ${input}`)
+      },
+    })
+    const path = ['operations', 'send', 'bindings', 'http', 'query']
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi,
+        info: { title: 'Events', version: '1' },
+        channels: { events: { address: '/events' } },
+        operations: {
+          send: {
+            action: 'send',
+            channel: { $ref: '#/channels/events' },
+            bindings: {
+              http: {
+                method: 'GET',
+                bindingVersion: '0.3.0',
+                query: {
+                  type: 'object',
+                  properties: { default: { $ref: 'https://example.test/id.json' } },
+                  default: structuredClone(literal),
+                },
+              },
+            },
+          },
+        },
+        ...(lazy ? { 'x-scalar-navigation': {} } : {}),
+      },
+    })
+    if (lazy) {
+      expect(requests).toStrictEqual([])
+      await store.resolve(['operations', 'send'])
+    }
+    const query = getValueAtPath(store.workspace.documents.events, path)
+    expect(getRaw(getResolvedRef(getValueAtPath(query, ['properties', 'default'])))).toStrictEqual({ type: 'string' })
+    expect(getValueAtPath(getRaw(query), ['default'])).toStrictEqual(literal)
+    await store.resolve(['operations', 'send'])
+    expect(requests).toStrictEqual(['https://example.test/id.json'])
+  })
+
+  it.each([
+    { asyncapi: '3.0.0', lazy: false },
+    { asyncapi: '3.1.0', lazy: false },
+    { asyncapi: '3.0.0', lazy: true },
+    { asyncapi: '3.1.0', lazy: true },
   ])('resolves schema vocabulary references ($asyncapi, lazy: $lazy)', async ({ asyncapi, lazy }) => {
     const requests: string[] = []
     const extraItem = { type: 'integer' }
