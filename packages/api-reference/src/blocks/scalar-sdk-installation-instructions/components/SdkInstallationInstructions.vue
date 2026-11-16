@@ -11,8 +11,8 @@ import {
 } from '@scalar/components/combobox'
 import { ScalarIcon } from '@scalar/components/icon'
 import type { AvailableClient } from '@scalar/types/snippetz'
-import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
 import {
   computed,

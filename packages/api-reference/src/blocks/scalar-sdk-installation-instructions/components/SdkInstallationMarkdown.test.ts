@@ -1,3 +1,4 @@
+import { generateClientOptions } from '@scalar/blocks/code-example'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -14,17 +15,26 @@ const makeScheme = (token: string): SecuritySchemeObjectSecret => ({
 })
 
 describe('SdkInstallationMarkdown', () => {
-  it('substitutes the legacy SDK source field through installation instructions', async () => {
+  it('keeps SDK credentials masked when switching between SDK and built-in clients', async () => {
     const wrapper = mount(SdkInstallationInstructions, {
       attachTo: document.body,
       props: {
         xScalarSdkInstallation: [{ lang: 'shell', source: 'configure {{apiKey}}' }],
         securitySchemes: [makeScheme('example-key')],
+        clientOptions: generateClientOptions(['shell/curl']),
+        featuredClients: ['shell/curl'],
       },
     })
     try {
       await flushPromises()
       expect(wrapper.text()).toContain('configure ••••••••')
+      expect(wrapper.text()).not.toContain('example-key')
+      expect(wrapper.find('[aria-label="Copy code"]').exists()).toBe(true)
+      await wrapper.findAll('[role="tab"]')[1]?.trigger('click')
+      expect(wrapper.get('[role="tabpanel"]').text()).toBe('Shell Curl')
+      await wrapper.findAll('[role="tab"]')[0]?.trigger('click')
+      await flushPromises()
+      expect(wrapper.get('[role="tabpanel"]').text()).toContain('configure ••••••••')
       expect(wrapper.text()).not.toContain('example-key')
       expect(wrapper.find('[aria-label="Copy code"]').exists()).toBe(true)
     } finally {
