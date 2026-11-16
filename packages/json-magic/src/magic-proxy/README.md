@@ -4,7 +4,7 @@
 
 ## Scan cost
 
-Reference indexing (`getSchemas`) already walks the document when the root proxy is created. Dynamic scoping adds no second document-wide walk. Instead, when traversal reaches a candidate resource (a schema with `$id`, `$defs`, or `$dynamicAnchor`), the proxy collects that resource's `$dynamicAnchor` declarations. The collection is cached per resource object, so each candidate is scanned at most once.
+Reference indexing (`documentReferences`) already walks the document when the root proxy is created. Dynamic scoping adds no second document-wide walk. Instead, when traversal reaches a candidate resource (a schema with `$id`, `$defs`, or `$dynamicAnchor`), the proxy collects that resource's `$dynamicAnchor` declarations. The collection is cached per resource object, so each candidate is scanned at most once.
 
 A document without those keywords never scans anything extra. A document with `$id` or `$defs` but no dynamic anchors pays for one scan per candidate resource and keeps the ordinary cache. The benchmark covers both cases; absence of dynamic references does not mean zero overhead.
 
@@ -28,31 +28,21 @@ Vue/jsdom measures component mounting only; it does not measure browser layout o
 
 Results are local measurements, not CI thresholds or a general claim about all API descriptions.
 
-### Local comparison
-
-These figures were measured before the document-wide probe was replaced with per-resource anchor scans; treat them as indicative. Measured on macOS arm64 with Node 24.8.0 and Vitest 4.1.10. The comparison uses the proxy from the PR merge-base (`94091b585f`) and PR head (`14b3381fde`), with the remaining store/renderer code held at the PR version. Temporary source aliases avoid stale installed workspace builds. A selector delegates proxy creation to the relevant implementation, and raw unwrapping supports both implementations; baseline and PR measurements alternate order in the same process. Each row is the median of ten samples after four warm-up pairs.
-
-| Resource keywords | Operation                          | Base (ms) | PR (ms) | Change |
-| ----------------- | ---------------------------------- | --------: | ------: | -----: |
-| None              | Store ingestion                    |    318.16 |  319.71 |  +0.5% |
-| None              | Vue mount (20 fields)              |      9.60 |    8.77 |  -8.6% |
-| None              | Proxy creation + indexing          |      1.86 |    1.81 |  -3.0% |
-| None              | Cold reads (all 2,000 responses)   |     28.15 |   32.85 | +16.7% |
-| None              | Cached reads (all 2,000 responses) |     29.90 |   33.13 | +10.8% |
-| `$id` + `$defs`   | Store ingestion                    |    314.17 |  334.30 |  +6.4% |
-| `$id` + `$defs`   | Vue mount (20 fields)              |      8.40 |   10.15 | +20.8% |
-| `$id` + `$defs`   | Proxy creation + indexing          |      1.81 |    1.90 |  +5.0% |
-| `$id` + `$defs`   | Cold reads (all 2,000 responses)   |     34.76 |   36.61 |  +5.3% |
-| `$id` + `$defs`   | Cached reads (all 2,000 responses) |     27.89 |   25.38 |  -9.0% |
-
-The ordinary-document case is not free: this run observed about 4.7 ms additional cold-read time and 3.2 ms additional cached-read time across 2,000 responses. Store ingestion differed by 1.6 ms without resource keywords and 20.1 ms with them. The small Vue mount measurements varied in both directions. Ten local samples on a shared machine cannot establish a reliable browser-render regression or improvement; these figures describe this workload, not a performance guarantee. Earlier separate-process runs were strongly affected by concurrent machine load and are excluded from this comparison.
-
 To rerun the benchmark suite after installing and building the workspace dependencies:
 
 ```sh
-pnpm vitest bench --run --config packages/blocks/vite.config.ts packages/blocks/src/schema/proxy-performance.bench.ts
+cd packages/blocks
+pnpm vitest bench --run src/schema/proxy-performance.bench.ts
 ```
 
-The benchmark suite uses Vitest's timed sampling and reports means; the alternating comparison above reports medians. Do not compare those statistics as if they were the same measurement.
+Set `SCALAR_BENCHMARK_QUICK=1` to check the benchmark harness with two operations, two schemas, two fields, and minimal sampling. That mode is for validation only; its timings are not representative performance measurements.
 
 Edits through the magic proxy's `set` and `deleteProperty` traps invalidate anchor collections and resolved reference caches. Scoped proxies refresh after a mutation, while ordinary target-cached proxies retain their identity. Saved child proxies refresh their inherited scope too, including when the parent gains its first anchor after the child was read. Anchor collections are isolated by document revision, traversal mode, and resource view. Collections track the revisions of documents they read, including proxy children inside plain merged schemas. Editing one document leaves unrelated documents’ cached collections intact. Within the edited document, every value-changing write still refreshes scoped proxies and reference caches: even an ordinary field may be a referenced target or part of a merged anchor schema. Mutations made directly to raw objects bypass the traps and require replacing the edited resource objects before recreating the root proxy.
+
+## Supported references
+
+Dynamic binding currently supports plain-name fragments such as `#item`. URI-qualified references such as `urn:page#item` and JSON-pointer fragments do not bind through `$dynamicRef-value`.
+
+The holding resource is inferred from the traversal scope: the nearest entry with a string `$id`, or the collected document-resource entries when none has an identifier. This also supports templates reached through document pointers without explicit resource identifiers; it is more permissive than deriving the holding resource exclusively from the reference's lexical location.
+
+When that resource has no matching `$dynamicAnchor`, the accessor returns `undefined`. It does not fall back to a static `$ref` lookup (for example an ordinary `$anchor` with the same name), although JSON Schema 2020-12 specifies that fallback. Consumers leave those dynamic references unresolved.

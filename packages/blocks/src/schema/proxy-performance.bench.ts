@@ -2,16 +2,23 @@ import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { bench, describe } from 'vitest'
+import { describe, it } from 'vitest'
 
 import Schema from './Schema.vue'
+
+/** A short run checks the harness without collecting representative performance measurements. */
+const quick = process.env.SCALAR_BENCHMARK_QUICK === '1'
+const operationCount = quick ? 2 : 2000
+const schemaCount = quick ? 2 : 200
+const fieldCount = quick ? 2 : 20
+const samples = { time: quick ? 1 : 2000, iterations: quick ? 1 : 20, warmup: !quick }
 
 /** A large API description with shared schemas and no dynamic references. */
 const createDocument = (resources: boolean): Record<string, unknown> => ({
   openapi: '3.1.0',
   info: { title: 'Proxy benchmark', version: '1.0.0' },
   paths: Object.fromEntries(
-    Array.from({ length: 2000 }, (_, index) => [
+    Array.from({ length: operationCount }, (_, index) => [
       `/items/${index}`,
       {
         get: {
@@ -19,7 +26,7 @@ const createDocument = (resources: boolean): Record<string, unknown> => ({
             '200': {
               description: 'OK',
               content: {
-                'application/json': { schema: { $ref: `#/components/schemas/Item${index % 200}` } },
+                'application/json': { schema: { $ref: `#/components/schemas/Item${index % schemaCount}` } },
               },
             },
           },
@@ -29,13 +36,13 @@ const createDocument = (resources: boolean): Record<string, unknown> => ({
   ),
   components: {
     schemas: Object.fromEntries(
-      Array.from({ length: 200 }, (_, index) => [
+      Array.from({ length: schemaCount }, (_, index) => [
         `Item${index}`,
         {
           ...(resources ? { $id: `urn:item:${index}`, $defs: { unused: { type: 'string' } } } : {}),
           type: 'object',
           properties: Object.fromEntries(
-            Array.from({ length: 20 }, (_, property) => [
+            Array.from({ length: fieldCount }, (_, property) => [
               `field${property}`,
               { type: 'string', description: `Field ${property}` },
             ]),
@@ -74,7 +81,7 @@ const readSchemas = (document: Record<string, unknown>): void => {
   }
 }
 
-describe('magic proxy without dynamic references: 2000 operations, 200 schemas, 20 fields', () => {
+describe('magic proxy without dynamic references', () => {
   for (const resources of [false, true]) {
     const document = createDocument(resources)
     const warm = createMagicProxy(document)
@@ -82,18 +89,13 @@ describe('magic proxy without dynamic references: 2000 operations, 200 schemas, 
     const schemas = (warm.components as { schemas: Record<string, SchemaObject> }).schemas
     const label = resources ? 'with $id and $defs' : 'without resource keywords'
 
-    bench(
-      `${label}: ingest into workspace store`,
-      async () => {
+    it(label, { timeout: 120000 }, async ({ bench }) => {
+      await bench(`${label}: ingest into workspace store`, async () => {
         const store = createWorkspaceStore()
         await store.addDocument({ name: 'benchmark', document: structuredClone(document) })
-      },
-      { time: 2000, iterations: 20 },
-    )
+      }).run(samples)
 
-    bench(
-      `${label}: mount one 20-field response schema`,
-      () => {
+      await bench(`${label}: mount one 20-field response schema`, () => {
         mount(Schema, {
           props: {
             schema: schemas.Item0,
@@ -101,32 +103,19 @@ describe('magic proxy without dynamic references: 2000 operations, 200 schemas, 
             eventBus: null,
           },
         }).unmount()
-      },
-      { time: 2000, iterations: 50 },
-    )
+      }).run({ ...samples, iterations: quick ? 1 : 50 })
 
-    bench(
-      `${label}: create proxy and index references`,
-      () => {
+      await bench(`${label}: create proxy and index references`, () => {
         createMagicProxy(document)
-      },
-      { time: 2000, iterations: 50 },
-    )
+      }).run({ ...samples, iterations: quick ? 1 : 50 })
 
-    bench(
-      `${label}: create proxy and read every response schema`,
-      () => {
+      await bench(`${label}: create proxy and read every response schema`, () => {
         readSchemas(createMagicProxy(document))
-      },
-      { time: 2000, iterations: 50 },
-    )
+      }).run({ ...samples, iterations: quick ? 1 : 50 })
 
-    bench(
-      `${label}: read cached response schemas`,
-      () => {
+      await bench(`${label}: read cached response schemas`, () => {
         readSchemas(warm)
-      },
-      { time: 2000, iterations: 50 },
-    )
+      }).run({ ...samples, iterations: quick ? 1 : 50 })
+    })
   }
 })
