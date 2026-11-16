@@ -37,6 +37,7 @@ import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { resolveSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
+import { codeSampleSources, loadCodeSampleSources } from '@/plugins/bundler/code-sample-sources'
 import { openApiDocument, resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
 import { extensions } from '@/schemas/extensions'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
@@ -828,7 +829,7 @@ export async function createServerWorkspaceStore(
       const loaded = document.data as Record<string, unknown>
       const isThreeTwo = typeof loaded.openapi === 'string' && /^3\.2\.\d+$/.test(loaded.openapi)
       // URI resolution adds working aliases; keep the caller's authored object unchanged.
-      const data: Record<string, unknown> = isThreeTwo ? JSON.parse(document.raw) : loaded
+      const data: Record<string, unknown> = JSON.parse(JSON.stringify(loaded))
       const fileOrigin = 'path' in input ? input.path : undefined
       const origin = 'url' in input ? input.url : fileOrigin
       const options = workspaceProps.documentLoading
@@ -837,10 +838,22 @@ export async function createServerWorkspaceStore(
         ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),
       ]
       if (isThreeTwo) {
-        await bundle(data, { origin, treeShake: false, urlMap: true, plugins: [openApiDocument(), ...loaders] })
+        await bundle(data, {
+          traversal: 'document',
+          origin,
+          treeShake: false,
+          urlMap: true,
+          plugins: [codeSampleSources(), openApiDocument(), ...loaders],
+        })
         await resolveSecurityRequirements(data, { origin, loaders })
+      } else if (!isAsyncApiDocument(data)) {
+        await loadCodeSampleSources(data, origin ?? '/', loaders)
       }
-      addDocumentSync(data, { name: input.name, ...input.meta }, navigationOptions)
+      addDocumentSync(
+        data,
+        { name: input.name, ...(origin ? { 'x-scalar-original-source-url': origin } : {}), ...input.meta },
+        navigationOptions,
+      )
     } catch (error) {
       // Honours the contract above: a document that cannot be processed is skipped rather than
       // taking the workspace with it, since the initial documents are ingested together and one

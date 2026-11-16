@@ -81,6 +81,28 @@ x-scalar-active-environment: staging
 
 ## x-codeSamples
 
+`x-codeSamples` and its legacy spelling `x-code-samples` also support a code file as the source:
+
+```yaml
+openapi: 3.1.0
+info: { title: Code samples, version: '1' }
+paths:
+  /pets:
+    get:
+      x-codeSamples:
+        - lang: Python
+          source:
+            $ref: ./code/list-pets.py
+      responses:
+        '200': { description: OK }
+```
+
+Scalar loads the whole file as source text, preserving its formatting. Relative paths resolve against the API description that contains the operation. In-memory descriptions need a source URL to resolve relative files. A server-preprocessed operation can load its code file when the operation is loaded lazily. Local file references require a configured file loader.
+
+Code files use the same network and filesystem controls as other external references. On the server, local files require `documentLoading.basePath`, and traversal and symlink escapes outside that directory are refused. A client running in Node uses the host-provided `fileLoader`; configure its `basePath` when using `readFiles` to confine reads. Any file readable by that loader can become sample text, regardless of its extension. Fetched code files have no built-in size limit, just like other external references.
+
+If a file cannot be loaded, the sample is unavailable and its reference is retained. JSON Pointer fragments, such as `#/components/schemas/Pet`, are not code-file sources. Only these two extensions load code files; `$ref` keys in other extensions and example data remain literal.
+
 We provide examples for a lot of popular HTTP clients and frameworks. For something completely custom, for example to show the use of your own SDK, you can use `x-codeSamples`:
 
 ```diff
