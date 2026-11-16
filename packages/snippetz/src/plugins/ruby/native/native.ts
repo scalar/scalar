@@ -7,6 +7,12 @@ const escapeRubyDoubleQuoted = (value: string): string => value.replace(/\\/g, '
 
 const escapeRubySingleQuoted = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 
+/**
+ * Builds a double-quoted Ruby string literal. JSON string escapes are valid in Ruby, but a `#` followed by
+ * `{`, `$` or `@` would start interpolation, so it is escaped as well.
+ */
+const toRubyStringLiteral = (value: string): string => JSON.stringify(value).replace(/#(?=[{$@])/g, '\\#')
+
 const encodeFormComponent = (value: string): string => encodeURIComponent(value).replace(/'/g, '%27')
 
 const standardMethods = new Set([
@@ -110,11 +116,12 @@ export const rubyNative: Plugin = {
         try {
           const parsed = JSON.parse(text)
           const prettyJson = JSON.stringify(parsed, null, 2)
-          lines.push('request.body = <<~JSON')
+          // Quote the delimiter so Ruby keeps backslashes and `#{}` in the JSON as written
+          lines.push("request.body = <<~'JSON'")
           lines.push(prettyJson)
           lines.push('JSON')
         } catch {
-          lines.push(`request.body = ${JSON.stringify(text)}`)
+          lines.push(`request.body = ${toRubyStringLiteral(text)}`)
         }
       } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
         const encodedForm = params
@@ -146,9 +153,9 @@ export const rubyNative: Plugin = {
         })
         lines.push("request.set_form(form_data, 'multipart/form-data')")
       } else if (mimeType === 'application/octet-stream') {
-        lines.push(`request.body = ${JSON.stringify(text ?? '')}`)
+        lines.push(`request.body = ${toRubyStringLiteral(text ?? '')}`)
       } else if (text !== undefined) {
-        lines.push(`request.body = ${JSON.stringify(text)}`)
+        lines.push(`request.body = ${toRubyStringLiteral(text)}`)
       }
     }
 
