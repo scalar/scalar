@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.79.0 (2026-11-16)
+
+### Redesigned code cards, SDK installation alongside built-in clients, and hydration fixes
+
+Code cards across the API reference now render on a lifted surface with updated styling. SDK installation tabs can appear alongside built-in HTTP clients in the introduction. Server-side rendering now hydrates correctly without replacing markup or breaking the host page.
+
+- Code cards redesigned with a padded shell and lifted surface for better visual hierarchy. Cards now use a 12px radius with 4px padding and surfaces with subtle shadows.
+- Show SDK installation tabs alongside built-in HTTP clients with the new showDefaultClientsWithSdkInstallation option. SDK tabs appear first with additional clients in a grouped More menu.
+- Disable saving selected code sample client to local storage with persistSelectedClient: false. Useful when embedding on third-party pages.
+- Server-rendered references now hydrate without replacing markup or breaking host page elements. Fixes issues with dropdowns, tag accordions, and teleported content.
+- Parameter, body, and header examples now display their summary or name as muted labels above value boxes while keeping copy buttons focused on values only.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1790)
+
 ## 1.78.1 (2026-11-12)
 
 ### Large API documents with shared components now parse successfully

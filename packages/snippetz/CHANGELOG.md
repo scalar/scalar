@@ -1,5 +1,15 @@
 # @scalar/snippetz
 
+## 0.10.18
+
+### Patch Changes
+
+- [#10981](https://github.com/scalar/scalar/pull/10981): Remove unnecessary curl_close from php
+- [#11048](https://github.com/scalar/scalar/pull/11048): Escape the request URL in the fetch, ofetch, undici, Guzzle, PHP cURL, Dart, Requests and HTTPX snippets, the method in the Guzzle and PHP cURL snippets, the Basic auth credentials in the PHP cURL and Dart snippets, array keys in the PHP snippets, and `#{`, `#$` and `#@` interpolation in the Ruby snippet.
+- [#11056](https://github.com/scalar/scalar/pull/11056): fix(snippetz): keep Ruby request bodies as written
+
+  The `ruby/native` JSON body now uses a quoted heredoc (`<<~'JSON'`), so Ruby no longer turns `\"` into `"`, `\\` into `\`, or runs `#{}` inside the payload. String bodies (the JSON fallback, `application/octet-stream` and other text types) also escape a `#` that would start `#{}`, `#$` or `#@` interpolation.
+
 ## 0.10.17
 
 No changes in this release.

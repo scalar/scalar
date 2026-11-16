@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.79.0
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
 ## 1.78.1
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 3.26.0
+
+### Minor Changes
+
+- [#10986](https://github.com/scalar/scalar/pull/10986): Add an Open in browser action for GET requests using the configured URL and parameters.
+
+### Patch Changes
+
+- [#11041](https://github.com/scalar/scalar/pull/11041): fix: keep the auth form's rows inside their table in server-rendered markup
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+- [#11041](https://github.com/scalar/scalar/pull/11041): fix: render the OAuth 2.0 redirect URL field the same way on the server and in the browser
+
 ## 3.25.1
 
 ### Patch Changes

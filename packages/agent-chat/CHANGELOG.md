@@ -1,5 +1,12 @@
 # @scalar/agent-chat
 
+## 0.12.53
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+- [#11035](https://github.com/scalar/scalar/pull/11035): Update the AI SDK dependencies to remove their transitive Undici dependency.
+
 ## 0.12.52
 
 No changes in this release.

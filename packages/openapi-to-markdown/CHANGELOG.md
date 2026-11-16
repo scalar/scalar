@@ -1,5 +1,11 @@
 # @scalar/openapi-to-markdown
 
+## 1.7.7
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
 ## 1.7.6
 
 No changes in this release.

@@ -1,5 +1,16 @@
 # @scalar/json-magic
 
+## 0.20.0
+
+### Minor Changes
+
+- [#11037](https://github.com/scalar/scalar/pull/11037): Load object-valued `x-codeSamples.source` and `x-code-samples.source` file references as raw code text, with relative origins and lazy operation loading. Retain failed references and show an unavailable sample instead of silently replacing them with an empty string. Preserve literal `$ref` values in other extensions and example data.
+
+### Patch Changes
+
+- [#11015](https://github.com/scalar/scalar/pull/11015): Update Undici to address CVE-2026-116592 and allow compatible Undici 8 updates without requiring a new Scalar release.
+- [#11005](https://github.com/scalar/scalar/pull/11005): Preserve nested deletions and their application order when a covering parent deletion conflicts with another change.
+
 ## 0.19.1
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/types
 
+## 0.29.0
+
+### Minor Changes
+
+- [#11037](https://github.com/scalar/scalar/pull/11037): Load object-valued `x-codeSamples.source` and `x-code-samples.source` file references as raw code text, with relative origins and lazy operation loading. Retain failed references and show an unavailable sample instead of silently replacing them with an empty string. Preserve literal `$ref` values in other extensions and example data.
+- [#11036](https://github.com/scalar/scalar/pull/11036): Add `showDefaultClientsWithSdkInstallation` to show SDK installation tabs alongside built-in HTTP clients in the introduction.
+- [#11033](https://github.com/scalar/scalar/pull/11033): Add `persistSelectedClient` to disable saving and restoring the selected code sample client in local storage.
+
+### Patch Changes
+
+- [#10986](https://github.com/scalar/scalar/pull/10986): Add an Open in browser action for GET requests using the configured URL and parameters.
+
 ## 0.28.1
 
 No changes in this release.

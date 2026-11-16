@@ -1,5 +1,11 @@
 # @scalar/mermaid-plugin
 
+## 0.1.8
+
+### Patch Changes
+
+- [#11032](https://github.com/scalar/scalar/pull/11032): Update Mermaid to use a patched KaTeX dependency.
+
 ## 0.1.7
 
 No changes in this release.

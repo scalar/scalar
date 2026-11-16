@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.10.7
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
 ## 0.10.6
 
 ### Patch Changes

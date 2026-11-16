@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.50 (2026-11-16)
+
+### Open GET requests in browser and faster import with polish
+
+This release adds a one-click browser navigation option for GET requests, speeds up API description imports from extensionless URLs, and fixes server-side rendering hydration issues.
+
+- Open GET requests directly in a browser tab with configured URL and query parameters
+- Import API descriptions from extensionless URLs without duplicate downloads
+- Fix server-rendered references hydrating without replacing markup or logging mismatches
+- Update Undici dependency to address CVE-2026-116592
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1150)
+
 ## 1.1.49 (2026-11-12)
 
 ### Improved handling for large API specifications with merge keys

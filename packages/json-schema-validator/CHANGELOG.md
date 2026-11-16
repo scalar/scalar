@@ -1,5 +1,9 @@
 # @scalar/json-schema-validator
 
+## 0.1.21
+
+No changes in this release.
+
 ## 0.1.20
 
 ### Patch Changes
