@@ -180,62 +180,42 @@ describe('useThemes', () => {
   })
 
   // -------------------------------------------------------------------------
-  // themeStyleTag — verifies the <style> tag wrapper format
-  // -------------------------------------------------------------------------
-  describe('themeStyleTag', () => {
-    it('wraps resolved styles in a <style> tag with the correct id and data-testid', () => {
-      const { themeStyleTag } = useThemes({ store: mockStore('purple') })
-
-      expect(themeStyleTag.value).toContain('<style id="scalar-theme" data-testid="purple">')
-      expect(themeStyleTag.value).toContain('</style>')
-    })
-
-    it('includes the resolved CSS content', () => {
-      mockQueryData.value = [customTheme]
-
-      const { themeStyleTag } = useThemes({ store: mockStore('my-custom-theme') })
-
-      expect(themeStyleTag.value).toContain('--custom-color: red')
-    })
-  })
-
-  // -------------------------------------------------------------------------
   // Reactivity — the core value-add of the hook over raw helpers
   // -------------------------------------------------------------------------
   describe('reactivity', () => {
     it('updates when the store ref changes', async () => {
       const storeRef = ref<WorkspaceStore>(mockStore('default'))
 
-      const { themeStyleTag } = useThemes({ store: storeRef })
-      expect(themeStyleTag.value).toContain('data-testid="default"')
+      const { themeStyles } = useThemes({ store: storeRef })
+      expect(themeStyles.value.themeSlug).toBe('default')
 
       storeRef.value = mockStore('purple')
       await nextTick()
 
-      expect(themeStyleTag.value).toContain('data-testid="purple"')
+      expect(themeStyles.value.themeSlug).toBe('purple')
     })
 
     it('updates when custom themes arrive from the query', async () => {
-      const { themeStyleTag } = useThemes({ store: mockStore('my-custom-theme') })
+      const { themeStyles } = useThemes({ store: mockStore('my-custom-theme') })
 
       // Custom theme not loaded yet — falls through to default
-      expect(themeStyleTag.value).toContain('data-testid="default"')
+      expect(themeStyles.value.themeSlug).toBe('default')
 
       mockQueryData.value = [customTheme]
       await nextTick()
 
-      expect(themeStyleTag.value).toContain('data-testid="my-custom-theme"')
-      expect(themeStyleTag.value).toContain('--custom-color: red')
+      expect(themeStyles.value.themeSlug).toBe('my-custom-theme')
+      expect(themeStyles.value.themeStyles).toContain('--custom-color: red')
     })
 
     it('updates when the fallback theme slug changes', async () => {
-      const { themeStyleTag } = useThemes({ store: mockStore('none') })
-      expect(themeStyleTag.value).toContain('data-testid="default"')
+      const { themeStyles } = useThemes({ store: mockStore('none') })
+      expect(themeStyles.value.themeSlug).toBe('default')
 
       mockCurrentUser.value = { theme: 'purple' }
       await nextTick()
 
-      expect(themeStyleTag.value).toContain('data-testid="purple"')
+      expect(themeStyles.value.themeSlug).toBe('purple')
     })
   })
 })
