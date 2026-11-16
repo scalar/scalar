@@ -371,6 +371,88 @@ describe('bundle-with-diagnostics', () => {
     expect(result.document['x-ext']['value.json']).toStrictEqual({ $ref: '#/x-ext/actual.json', ...ignored })
   })
 
+  it.each(['own', 'nested'])('does not register %s identities in ignored reference siblings', async (kind) => {
+    const uri = 'https://example.test/ignored.json'
+    const ignored = kind === 'own' ? { $id: uri } : { definitions: { Hidden: { $id: uri, type: 'string' } } }
+    const wrapper = {
+      schemaFormat: 'application/schema+json;version=draft-07',
+      schema: { $ref: '#/components/schemas/Base', ...ignored },
+    }
+    const other = { schemaFormat: wrapper.schemaFormat, schema: { $ref: uri } }
+    const loader = sources({ [uri]: { type: 'boolean' } })
+    const result = await bundleWithDiagnostics(
+      { asyncapi: '3.1.0', components: { schemas: { Base: { type: 'number' }, Wrapped: wrapper, Other: other } } },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: () => 'ignored' },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual([uri])
+    expect(wrapper.schema).toStrictEqual({ $ref: '#/components/schemas/Base', ...ignored })
+    expect(other.schema).toStrictEqual({ $ref: '#/x-ext/ignored' })
+    expect(result.document['x-ext']).toStrictEqual({ ignored: { type: 'boolean' } })
+  })
+
+  it('removes ignored cached identities after inheriting a wrapper dialect', async () => {
+    const cached = { $ref: 'https://example.test/actual.json', $id: 'https://example.test/ignored.json' }
+    const schemaFormat = 'application/schema+json;version=draft-07'
+    const loader = sources({
+      'https://example.test/actual.json': { type: 'number' },
+      'https://example.test/ignored.json': { type: 'boolean' },
+    })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Wrapped: { schemaFormat, schema: { $ref: 'https://example.test/cached.json' } },
+            Other: { schemaFormat, schema: { $ref: 'https://example.test/ignored.json' } },
+          },
+        },
+      },
+      {
+        traversal: 'document',
+        treeShake: false,
+        plugins: [loader.plugin],
+        cache: new Map([
+          [
+            'https://example.test/cached.json',
+            Promise.resolve({ ok: true, data: cached, raw: JSON.stringify(cached) }),
+          ],
+        ]),
+        compress: (uri) => uri.split('/').at(-1)!,
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/actual.json', 'https://example.test/ignored.json'])
+    expect(result.document['components'].schemas.Other.schema).toStrictEqual({ $ref: '#/x-ext/ignored.json' })
+    expect(result.document['x-ext']['ignored.json']).toStrictEqual({ type: 'boolean' })
+  })
+
+  it('does not register anchors in ignored reference siblings', async () => {
+    const wrapper = {
+      schemaFormat: 'application/schema+json;version=draft-07',
+      schema: { $ref: '#/components/schemas/Base', $anchor: 'ignored' },
+    }
+    const loader = sources({})
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Base: { type: 'number' },
+            Wrapped: wrapper,
+            Other: { schemaFormat: wrapper.schemaFormat, schema: { $ref: '#ignored' } },
+          },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin] },
+    )
+    expect(result.diagnostics).toStrictEqual([
+      { kind: 'missing-target', reference: '#ignored', source: '/', pointer: '#/components/schemas/Other/schema/$ref' },
+    ])
+    expect(loader.calls).toStrictEqual([])
+    expect(wrapper.schema).toStrictEqual({ $ref: '#/components/schemas/Base', $anchor: 'ignored' })
+  })
+
   it('resolves supported siblings in a newer JSON Schema wrapper', async () => {
     const wrapper = {
       schemaFormat: 'application/schema+json;version=draft-2020-12',

@@ -3,7 +3,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getRaw } from '@/magic-proxy/proxy'
 
-import { type ReferenceContext, childReferenceContext, isSchemaContext } from './reference-context'
+import { type ReferenceContext, childReferenceContext, isReferenceContext, isSchemaContext } from './reference-context'
 
 /** The authored location survives relocation into external document storage. */
 type SourceLocation = { source: string; pointer: string; context: ReferenceContext; schemaSiblings: boolean }
@@ -44,16 +44,24 @@ export const documentTraversal = (
         isObject(value) && typeof value.$schema === 'string'
           ? inheritedSiblings && !/draft-0[3467]/.test(value.$schema)
           : inheritedSiblings
+      // Keep the inherited dialect separate for wrappers containing newer schemas.
+      const schemaSiblings =
+        currentSiblings &&
+        !['asyncapi-schema', 'asyncapi-schema-object', 'legacy-json-schema', 'openapi-3.0-schema'].includes(current)
       locations.set(value, {
         source,
         pointer: `#${path.map((key) => `/${escapeJsonPointer(key)}`).join('')}`,
         context: current,
-        // Native AsyncAPI schemas and older wrapped dialects ignore reference siblings.
-        // Keep the inherited dialect separate for wrapped newer schemas.
-        schemaSiblings:
-          currentSiblings &&
-          !['asyncapi-schema', 'asyncapi-schema-object', 'legacy-json-schema', 'openapi-3.0-schema'].includes(current),
+        schemaSiblings,
       })
+      const ignoredSiblings =
+        aware &&
+        current !== 'generic' &&
+        current !== 'path-item' &&
+        isReferenceContext(current) &&
+        isObject(value) &&
+        typeof value.$ref === 'string' &&
+        (!isSchemaContext(current) || !schemaSiblings)
       const schemaFormat = isObject(value) && typeof value.schemaFormat === 'string' ? value.schemaFormat : undefined
       // Virtual $ref-value links can reach a message before its authored location and
       // give it the wrong context. Enumerate authored keys but retain proxied reads
@@ -61,17 +69,19 @@ export const documentTraversal = (
       // Keys present only in an overrides layer are not indexed.
       for (const key of Object.keys(getRaw(value))) {
         const child = (value as Record<string, unknown>)[key]
-        const next =
-          Array.isArray(value) &&
-          ![
-            'objects',
-            'schemas',
-            'asyncapi-schemas',
-            'asyncapi-schema-objects',
-            'legacy-json-schemas',
-            'openapi-3.0-schemas',
-            'messages',
-          ].includes(current)
+        // Ignored reference siblings must not introduce schema resources or anchors.
+        const next = ignoredSiblings
+          ? 'data'
+          : Array.isArray(value) &&
+              ![
+                'objects',
+                'schemas',
+                'asyncapi-schemas',
+                'asyncapi-schema-objects',
+                'legacy-json-schemas',
+                'openapi-3.0-schemas',
+                'messages',
+              ].includes(current)
             ? current
             : childReferenceContext(current, key, {
                 swagger: isSwagger,

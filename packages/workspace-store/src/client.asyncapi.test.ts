@@ -58,6 +58,19 @@ const literalPaths = [
   [...messagePath, 'x-data'],
 ]
 
+/** Reject unexpected loads so traversal tests also catch requests for literal values. */
+const createStoreWithStringSchema = (): { store: ReturnType<typeof createWorkspaceStore>; requests: string[] } => {
+  const requests: string[] = []
+  const store = createWorkspaceStore({
+    fetch: (input) => {
+      requests.push(String(input))
+      if (String(input) === 'https://example.test/value.json') return Promise.resolve(Response.json({ type: 'string' }))
+      throw new Error(`Unexpected fetch: ${input}`)
+    },
+  })
+  return { store, requests }
+}
+
 describe('client.asyncapi', () => {
   it.each([
     { lazy: false, wrapperFirst: false },
@@ -67,15 +80,7 @@ describe('client.asyncapi', () => {
   ])(
     'retains referenced wrapper vocabulary (lazy: $lazy, wrapper first: $wrapperFirst)',
     async ({ lazy, wrapperFirst }) => {
-      const requests: string[] = []
-      const store = createWorkspaceStore({
-        fetch: (input) => {
-          requests.push(String(input))
-          if (String(input) === 'https://example.test/value.json')
-            return Promise.resolve(Response.json({ type: 'string' }))
-          throw new Error(`Unexpected fetch: ${input}`)
-        },
-      })
+      const { store, requests } = createStoreWithStringSchema()
       const wrapper = {
         schemaFormat: 'application/schema+json;version=draft-07',
         schema: { $ref: 'https://example.test/value.json' },
@@ -112,15 +117,7 @@ describe('client.asyncapi', () => {
       'application/vnd.oai.openapi+yaml;version=3.0.0',
     ].flatMap((schemaFormat) => [false, true].map((lazy) => ({ schemaFormat, lazy }))),
   )('ignores legacy wrapper reference siblings ($schemaFormat, lazy: $lazy)', async ({ schemaFormat, lazy }) => {
-    const requests: string[] = []
-    const store = createWorkspaceStore({
-      fetch: (input) => {
-        requests.push(String(input))
-        if (String(input) === 'https://example.test/value.json')
-          return Promise.resolve(Response.json({ type: 'string' }))
-        throw new Error(`Unexpected fetch: ${input}`)
-      },
-    })
+    const { store, requests } = createStoreWithStringSchema()
     const ignored = { properties: { sibling: { $ref: 'https://example.test/ignored.json' } } }
     await store.addDocument({
       name: 'events',
@@ -146,15 +143,7 @@ describe('client.asyncapi', () => {
   })
 
   it.each([false, true])('ignores AsyncAPI 2.x parameter schema reference siblings (lazy: %s)', async (lazy) => {
-    const requests: string[] = []
-    const store = createWorkspaceStore({
-      fetch: (input) => {
-        requests.push(String(input))
-        if (String(input) === 'https://example.test/value.json')
-          return Promise.resolve(Response.json({ type: 'string' }))
-        throw new Error(`Unexpected fetch: ${input}`)
-      },
-    })
+    const { store, requests } = createStoreWithStringSchema()
     await store.addDocument({
       name: 'events',
       document: {

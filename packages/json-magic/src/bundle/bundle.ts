@@ -749,7 +749,14 @@ export const bundleDocument = async (
     },
     config.preserveReference !== undefined,
     (node) => traversal.location(node)?.context !== 'data',
-    (node) => config.traversal !== 'document' || isSchemaContext(traversal.location(node)?.context),
+    (node) => {
+      const location = traversal.location(node)
+      // Identifiers on a Reference Object are ignored along with its other siblings.
+      return (
+        config.traversal !== 'document' ||
+        (isSchemaContext(location?.context) && (!hasRef(node) || location?.schemaSiblings === true))
+      )
+    },
   )
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()

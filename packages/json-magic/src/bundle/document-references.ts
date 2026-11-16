@@ -78,7 +78,10 @@ export const documentReferences = (
 
   let rootUri: string | undefined
 
-  const registrations = new Map<unknown, { base: string; path: string[]; retrievalBase: string }>()
+  const registrations = new Map<
+    unknown,
+    { base: string; path: string[]; retrievalBase: string; retrievalUri: string; resource: Resource }
+  >()
 
   const register = (
     document: unknown,
@@ -102,7 +105,7 @@ export const documentReferences = (
       bundledResources.set(path[1], resource)
     }
     const retrievalOrigin = identity ? resolveReferencePath(retrievalBase, identity.baseUri) : retrievalBase
-    registrations.set(document, { base, path, retrievalBase: retrievalOrigin })
+    registrations.set(document, { base, path, retrievalBase: retrievalOrigin, retrievalUri, resource })
     index(document, base, path, [], retrievalOrigin)
   }
 
@@ -190,7 +193,16 @@ export const documentReferences = (
     register,
     refresh: (document, targetPath) => {
       const registration = registrations.get(document)
-      if (registration) index(document, registration.base, registration.path, targetPath, registration.retrievalBase)
+      if (!registration) return
+      // A cached fragment can acquire its actual dialect after its first indexing.
+      // Drop identities that became literal while keeping fetchable retrieval aliases.
+      for (const [uri, resource] of resources) {
+        if (resource.document !== document || !resource.schema || !isObject(resource.value)) continue
+        if (shouldVisit(resource.value) && hasSchemaIdentity(resource.value)) continue
+        if (uri === registration.base || uri === registration.retrievalUri) resources.set(uri, registration.resource)
+        else resources.delete(uri)
+      }
+      index(document, registration.base, registration.path, targetPath, registration.retrievalBase)
     },
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,
     origin: (node) => origins.get(node),
