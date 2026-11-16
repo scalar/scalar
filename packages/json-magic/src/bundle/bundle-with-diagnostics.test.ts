@@ -222,6 +222,79 @@ describe('bundle-with-diagnostics', () => {
     })
   })
 
+  it.each(['3.1.0', '3.2.0', 'standalone'])(
+    'preserves schemaFormat and schema annotations in %s schemas',
+    async (version) => {
+      const schema = {
+        type: 'object',
+        schemaFormat: 'annotation',
+        schema: { $ref: 'https://example.test/literal.json', name: 'kept' },
+      }
+      const original = structuredClone(schema)
+      const input =
+        version === 'standalone'
+          ? schema
+          : {
+              openapi: version,
+              info: { title: 'Annotations', version: '1' },
+              components: { schemas: { Metadata: schema } },
+            }
+      const loader = sources({})
+      const result = await bundleWithDiagnostics(input, {
+        traversal: 'document',
+        treeShake: false,
+        plugins: [loader.plugin],
+      })
+      expect(result.complete).toBe(true)
+      expect(result.diagnostics).toStrictEqual([])
+      expect(loader.calls).toStrictEqual([])
+      expect(schema).toStrictEqual(original)
+    },
+  )
+
+  it.each(['3.0.0', '3.1.0'])(
+    'resolves external AsyncAPI %s wrappers while preserving nested schema annotations',
+    async (asyncapi) => {
+      const annotation = {
+        schemaFormat: 'annotation',
+        schema: { $ref: 'https://example.test/literal.json', name: 'kept' },
+      }
+      const wrapper = {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { type: 'object', properties: { metadata: annotation, id: { $ref: './id.json' } } },
+      }
+      const loader = sources({
+        '/message.json': { payload: { $ref: './wrapper.json' }, headers: { $ref: './wrapper.json' } },
+        '/wrapper.json': wrapper,
+        '/id.json': { type: 'string' },
+      })
+      const result = await bundleWithDiagnostics(
+        {
+          asyncapi,
+          info: { title: 'Events', version: '1' },
+          components: {
+            messages: { Event: { $ref: './message.json' } },
+            schemas: { Event: { $ref: './wrapper.json' } },
+          },
+        },
+        {
+          origin: '/root.json',
+          traversal: 'document',
+          treeShake: false,
+          plugins: [loader.plugin],
+          compress: (uri) => uri.split('/').at(-1)!,
+        },
+      )
+      expect(result.complete).toBe(true)
+      expect(result.diagnostics).toStrictEqual([])
+      expect(loader.calls).toStrictEqual(['/message.json', '/wrapper.json', '/id.json'])
+      expect(result.document['x-ext']['wrapper.json']).toStrictEqual({
+        schemaFormat: wrapper.schemaFormat,
+        schema: { type: 'object', properties: { metadata: annotation, id: { $ref: '#/x-ext/id.json' } } },
+      })
+    },
+  )
+
   it.each(['default', 'example', 'enum', 'const', 'x-name'])(
     'resolves itemSchema properties named %s while preserving literal defaults',
     async (name) => {

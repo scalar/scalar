@@ -31,10 +31,10 @@ export const documentTraversal = (
     if (!enabled || document === null || typeof document !== 'object') return
     let visited = new WeakSet<object>()
     const api = isObject(document) && ['openapi', 'swagger', 'asyncapi'].some((key) => key in document)
-    const targetContext = context ?? (api ? 'object' : 'schema')
-    const isSwagger = api ? document.swagger === '2.0' : swagger
     // External fragments inherit the root API type; complete documents use their own.
     const isAsyncApi = api ? typeof document.asyncapi === 'string' : asyncapi
+    const targetContext = context ?? (api ? 'object' : 'schema')
+    const isSwagger = api ? document.swagger === '2.0' : swagger
     const siblings = api ? document.swagger !== '2.0' && !String(document.openapi).startsWith('3.0.') : schemaSiblings
     const visit = (value: unknown, path: string[], inherited: ReferenceContext, inheritedSiblings: boolean): void => {
       if (value === null || typeof value !== 'object' || visited.has(value)) return
@@ -57,14 +57,13 @@ export const documentTraversal = (
       for (const key of Object.keys(getRaw(value))) {
         const child = (value as Record<string, unknown>)[key]
         const next =
-          Array.isArray(value) && !['objects', 'schemas', 'messages'].includes(current)
+          Array.isArray(value) && !['objects', 'schemas', 'asyncapi-schemas', 'messages'].includes(current)
             ? current
-            : childReferenceContext(
-                current,
-                key,
-                isSwagger,
-                isAsyncApi && isObject(value) && typeof value.schemaFormat === 'string',
-              )
+            : childReferenceContext(current, key, {
+                swagger: isSwagger,
+                asyncapi: isAsyncApi,
+                multiFormatSchema: isObject(value) && typeof value.schemaFormat === 'string',
+              })
         visit(child, [...path, key], next, currentSiblings)
       }
     }

@@ -17,7 +17,7 @@ import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
 import type { ReferenceDiagnostic } from './bundle-with-diagnostics'
 import { type DocumentResolver, bundledDocumentUri, documentReferences } from './document-references'
 import { documentTraversal } from './document-traversal'
-import { isReferenceContext } from './reference-context'
+import { isReferenceContext, isSchemaContext } from './reference-context'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
@@ -748,7 +748,7 @@ export const bundleDocument = async (
     },
     config.preserveReference !== undefined,
     (node) => traversal.location(node)?.context !== 'data',
-    (node) => config.traversal !== 'document' || traversal.location(node)?.context === 'schema',
+    (node) => config.traversal !== 'document' || isSchemaContext(traversal.location(node)?.context),
   )
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
@@ -959,7 +959,7 @@ export const bundleDocument = async (
       // Schema and Path Item siblings retain their authored structure; they are not merged.
       if (
         config.traversal === 'document' &&
-        (location?.context === 'path-item' || (location?.context === 'schema' && location.schemaSiblings))
+        (location?.context === 'path-item' || (isSchemaContext(location?.context) && location?.schemaSiblings))
       )
         await visitChildren()
       if (config.preserveReference?.(ref, { origin: nodeOrigin })) {

@@ -8,6 +8,8 @@ export type ReferenceContext =
   | 'schema'
   | 'objects'
   | 'schemas'
+  | 'asyncapi-schema'
+  | 'asyncapi-schemas'
   | 'data'
   | 'data-container'
   | 'response'
@@ -25,8 +27,7 @@ export type ReferenceContext =
 export const childReferenceContext = (
   context: ReferenceContext,
   key: string,
-  swagger: boolean,
-  multiFormatSchema = false,
+  { swagger, asyncapi, multiFormatSchema }: { swagger: boolean; asyncapi: boolean; multiFormatSchema: boolean },
 ): ReferenceContext => {
   if (context === 'generic') return 'generic'
   if (context === 'data-container') return 'data'
@@ -35,7 +36,7 @@ export const childReferenceContext = (
   if (context === 'message' && key === 'oneOf') return 'messages'
   if (['object', 'components'].includes(context) && key === 'messageTraits') return 'messages'
   if (context === 'message' && key === 'examples') return 'data'
-  if (context === 'message' && ['payload', 'headers'].includes(key)) return 'schema'
+  if (context === 'message' && ['payload', 'headers'].includes(key)) return asyncapi ? 'asyncapi-schema' : 'schema'
   if (key === 'message' && context === 'object') return 'message'
   if (key === 'messages' && ['object', 'components'].includes(context)) return 'messages'
   if (context === 'data') return 'data'
@@ -45,12 +46,13 @@ export const childReferenceContext = (
   if (context === 'callbacks') return 'callback'
   if (context === 'callback') return key.startsWith('x-') ? 'data' : 'path-item'
   if (context === 'schemas') return 'schema'
+  if (context === 'asyncapi-schemas') return 'asyncapi-schema'
   if (context === 'objects') return 'object'
   if (context === 'responses') return key.startsWith('x-') ? 'data' : 'response'
   if (context === 'links') return 'link'
-  if (context === 'schema') {
+  if (isSchemaContext(context)) {
     // AsyncAPI Multi Format Schema Objects wrap their reference-bearing schema.
-    if (multiFormatSchema && key === 'schema') return 'schema'
+    if (context === 'asyncapi-schema' && multiFormatSchema && key === 'schema') return 'schema'
     if (['properties', 'patternProperties', 'dependentSchemas', 'dependencies', '$defs', 'definitions'].includes(key))
       return 'schemas'
     if (
@@ -86,6 +88,7 @@ export const childReferenceContext = (
   if (key.startsWith('x-')) return 'data'
   if (['example', 'default', 'enum', 'const', 'value', 'dataValue', 'serializedValue'].includes(key)) return 'data'
   if (key === 'examples') return 'objects'
+  if (asyncapi && context === 'components' && key === 'schemas') return 'asyncapi-schemas'
   if (['schemas', 'definitions', '$defs'].includes(key)) return 'schemas'
   if (['schema', 'itemSchema'].includes(key)) return 'schema'
   if (
@@ -106,4 +109,9 @@ export const childReferenceContext = (
 
 /** Whether the node itself can contain a reference, rather than named entries. */
 export const isReferenceContext = (context: ReferenceContext): boolean =>
-  ['generic', 'object', 'schema', 'response', 'link', 'path-item', 'callback', 'message'].includes(context)
+  isSchemaContext(context) ||
+  ['generic', 'object', 'response', 'link', 'path-item', 'callback', 'message'].includes(context)
+
+/** Both ordinary schemas and AsyncAPI wrapper positions may identify or reference schemas. */
+export const isSchemaContext = (context: ReferenceContext | undefined): boolean =>
+  context === 'schema' || context === 'asyncapi-schema'
