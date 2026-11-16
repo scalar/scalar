@@ -59,6 +59,75 @@ const literalPaths = [
 ]
 
 describe('client AsyncAPI literal references', () => {
+  it.each([
+    { asyncapi: '3.0.0', lazy: false },
+    { asyncapi: '3.1.0', lazy: false },
+    { asyncapi: '3.0.0', lazy: true },
+    { asyncapi: '3.1.0', lazy: true },
+  ])('resolves Multi Format Schema references ($asyncapi, lazy: $lazy)', async ({ asyncapi, lazy }) => {
+    const fetched: string[] = []
+    const schema = {
+      type: 'object',
+      properties: { id: { $ref: './id.json' } },
+      default: structuredClone(literal),
+      examples: [structuredClone(literal)],
+    }
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        const url = String(input)
+        fetched.push(url)
+        if (url === 'https://example.test/schema.json') {
+          return Promise.resolve(new Response(JSON.stringify(schema)))
+        }
+        if (url === 'https://example.test/id.json') {
+          return Promise.resolve(new Response('{"type":"integer"}'))
+        }
+        throw new Error(`Unexpected fetch: ${url}`)
+      },
+    })
+    const multiFormatSchema = {
+      schemaFormat: 'application/schema+json;version=draft-07',
+      schema: { $ref: './schema.json' },
+    }
+    await store.addDocument({
+      name: 'events',
+      documentSource: 'https://example.test/events.json',
+      document: {
+        asyncapi,
+        info: { title: 'Events', version: '1' },
+        channels: { events: { messages: { event: { $ref: '#/components/messages/Event' } } } },
+        components: {
+          messages: {
+            Event: { payload: structuredClone(multiFormatSchema), headers: structuredClone(multiFormatSchema) },
+          },
+          schemas: { Event: structuredClone(multiFormatSchema) },
+        },
+        ...(lazy ? { 'x-scalar-navigation': {} } : {}),
+      },
+    })
+    if (lazy) {
+      expect(fetched).toStrictEqual([])
+      await store.resolve(messagePath)
+      await store.resolve(['components', 'schemas', 'Event'])
+    }
+    const loaded = store.workspace.documents.events
+    for (const path of [
+      [...messagePath, 'payload'],
+      [...messagePath, 'headers'],
+      ['components', 'schemas', 'Event'],
+    ]) {
+      const resolved = getResolvedRef(getValueAtPath(loaded, [...path, 'schema']))
+      expect(getValueAtPath(resolved, ['type'])).toBe('object')
+      expect(getRaw(getResolvedRef(getValueAtPath(resolved, ['properties', 'id'])))).toStrictEqual({ type: 'integer' })
+      expect(getValueAtPath(getRaw(resolved), ['default'])).toStrictEqual(literal)
+      expect(getValueAtPath(getRaw(resolved), ['examples'])).toStrictEqual([literal])
+    }
+    expect(fetched).toStrictEqual(['https://example.test/schema.json', 'https://example.test/id.json'])
+    await store.resolve(messagePath)
+    await store.resolve(['components', 'schemas', 'Event'])
+    expect(fetched).toStrictEqual(['https://example.test/schema.json', 'https://example.test/id.json'])
+  })
+
   it.each(['3.0.0', '3.1.0'])('preserves literal data when initially loading AsyncAPI %s', async (asyncapi) => {
     const fetched: string[] = []
     const reads: string[] = []

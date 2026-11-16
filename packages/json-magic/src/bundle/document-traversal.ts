@@ -50,12 +50,13 @@ export const documentTraversal = (
       // Virtual $ref-value links can reach a message before its authored location and
       // give it the wrong context. Enumerate authored keys but retain proxied reads
       // so locations use the same identities as the bundler and preserve overrides.
+      // Keys present only in an overrides layer are not indexed.
       for (const key of Object.keys(getRaw(value))) {
         const child = (value as Record<string, unknown>)[key]
         const next =
           Array.isArray(value) && !['objects', 'schemas', 'messages'].includes(current)
             ? current
-            : childReferenceContext(current, key, isSwagger)
+            : childReferenceContext(current, key, isSwagger, isObject(value) && typeof value.schemaFormat === 'string')
         visit(child, [...path, key], next, currentSiblings)
       }
     }

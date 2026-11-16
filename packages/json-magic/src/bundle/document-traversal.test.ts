@@ -110,4 +110,32 @@ describe('document-traversal', () => {
     expect(traversal.location(root.components.messages['$ref-value'])?.context).toBe('message')
     expect(traversal.location(root.components.messages['$ref-value'].examples[0]!.payload)?.context).toBe('data')
   })
+
+  it.each([false, true])(
+    'indexes Multi Format Schema references without following literal values (proxied: %s)',
+    (proxied) => {
+      const multiFormatSchema = {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: {
+          $ref: './schema.json',
+          default: { schemaFormat: 'application/json', schema: { $ref: './literal.json' } },
+        },
+      }
+      const input = {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Event: multiFormatSchema,
+            LiteralKeyword: { schema: { $ref: './unknown-keyword.json' } },
+          },
+        },
+      }
+      const root = proxied ? createMagicProxy(input) : input
+      const traversal = documentTraversal(true, false, true)
+      traversal.register(root, '/')
+      expect(traversal.location(root.components.schemas.Event.schema)?.context).toBe('schema')
+      expect(traversal.location(root.components.schemas.Event.schema.default.schema)?.context).toBe('data')
+      expect(traversal.location(root.components.schemas.LiteralKeyword.schema)?.context).toBe('data')
+    },
+  )
 })
