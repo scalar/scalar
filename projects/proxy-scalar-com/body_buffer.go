@@ -30,7 +30,8 @@ const maxReplayableBodySize = 10 << 20
 // up to maxReplayableBodySize, without any authentication. Past the limit bodies
 // are streamed, which costs no memory and only loses 307 and 308 replays. The
 // budget counts payload bytes, not buffer capacity, transport allocations, or
-// the headroom needed by the garbage collector.
+// the headroom needed by the garbage collector. At saturation, plan for about
+// three times this budget in process memory because of GC headroom.
 const maxBufferedBodyBytes = 128 << 20
 
 // bufferedBody owns the replay copy and counts readers still used by the transport.

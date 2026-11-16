@@ -71,6 +71,9 @@ But you can customize it using the `PORT` environment variable:
 PORT=8080 go run .
 ```
 
+The Docker command keeps private-address checks and upstream TLS verification enabled,
+so local and LAN targets are blocked. It publishes the proxy only on localhost.
+
 ### Configuration
 
 | Environment variable          | Description                                                                                                                                                                                                                                                        |
