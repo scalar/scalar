@@ -256,15 +256,10 @@ describe('generateCodeSnippet', () => {
     })
 
     expect(code).toBe(`requests.post("https://api.example.com/uploads",
-    headers={
-      "Content-Type": "multipart/form-data"
-    },
-    data={
-      "file": [
-        "@first.png",
-        "@second.png"
-      ]
-    }
+    files=[
+      ("file", (None, "@first.png")),
+      ("file", (None, "@second.png"))
+    ]
 )`)
   })
 
