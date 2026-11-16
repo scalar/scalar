@@ -91,6 +91,7 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",
+    "@scalar/json-magic": "workspace:*",
     "@storybook/addon-docs": "10.6.2",
     "@storybook/addon-links": "10.6.2",
     "@storybook/vue3-vite": "10.6.2",

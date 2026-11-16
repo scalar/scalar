@@ -1996,6 +1996,9 @@ importers:
       '@playwright/test':
         specifier: catalog:*
         version: 1.62.1
+      '@scalar/json-magic':
+        specifier: workspace:*
+        version: link:../json-magic
       '@storybook/addon-docs':
         specifier: 10.6.2
         version: 10.6.2(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(storybook@10.6.2(@types/react@19.3.0)(prettier@3.9.10)(react@19.3.1))
