@@ -132,8 +132,9 @@ export const en = {
     value: 'Value',
     delete: 'Delete',
     selectFile: 'Select File',
-    selectFiles: 'Select Files',
+    selectFiles: 'Select files',
     addFiles: 'Add files',
+    uploadFor: '{action} for {name}',
     removeFile: 'Remove {name} from {field}',
     globalCookieHint: 'Global cookies are shared across the whole workspace. Click to navigate.',
     readOnlyHint:

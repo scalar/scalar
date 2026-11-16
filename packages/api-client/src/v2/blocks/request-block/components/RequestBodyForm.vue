@@ -160,12 +160,37 @@ const handleUpsertRow = (
   handleUpdateFormValue(localFormBodyRows.value)
 }
 
+/** Remember individual choices while the whole file field is temporarily disabled. */
+const disabledFileChoices = new WeakMap<File, boolean>()
+
 /** Apply field edits to all its parts without replacing sibling files with the first file. */
 const handleFieldUpsert = (
   index: number,
   payload: Parameters<typeof handleUpsertRow>[1],
 ): void => {
   const field = formFields.value[index]
+  if (
+    field?.data.files?.length &&
+    payload.isDisabled !== undefined &&
+    payload.isDisabled !== field.data.isDisabled
+  ) {
+    localFormBodyRows.value = localFormBodyRows.value.map((row, i) => {
+      if (!field.sourceIndices.includes(i) || !(row.value instanceof File)) {
+        return row
+      }
+      if (payload.isDisabled) {
+        disabledFileChoices.set(row.value, row.isDisabled ?? false)
+      }
+      const isDisabled =
+        payload.isDisabled || (disabledFileChoices.get(row.value) ?? false)
+      if (!payload.isDisabled) {
+        disabledFileChoices.delete(row.value)
+      }
+      return { ...row, isDisabled, isDisabledByDefault: false }
+    })
+    handleUpdateFormValue(localFormBodyRows.value)
+    return
+  }
   handleUpsertRow(
     field?.sourceIndices ?? localFormBodyRows.value.length,
     field?.data.files
@@ -225,8 +250,7 @@ const handleFileUpload = (index: number): void => {
   const sourceIndices = field?.sourceIndices ?? [localFormBodyRows.value.length]
   const sourceIndex = sourceIndices[0] ?? localFormBodyRows.value.length
   const currentRow = localFormBodyRows.value[sourceIndex]
-  // Array-typed fields (e.g. `files: string[]`) accept several files in a single pick, like
-  // Postman. Other fields stay single-file so an existing value is not silently replaced.
+  // Array fields accept multiple files, serialized as separate multipart parts under the same name.
   const allowMultiple = Boolean(
     currentRow?.schema && isArraySchema(currentRow.schema),
   )
@@ -254,22 +278,19 @@ const handleFileUpload = (index: number): void => {
           : (field?.data.isDisabled ?? false),
         isDisabledByDefault: false,
       }))
-      const insertionIndex = Math.min(
-        sourceIndex,
-        localFormBodyRows.value.length,
-      )
       const existingFiles = field?.data.files
         ? localFormBodyRows.value.filter(
             (row, i) => sourceIndices.includes(i) && row.value instanceof File,
           )
         : []
+      const remaining = localFormBodyRows.value.filter(
+        (_, i) => !sourceIndices.includes(i),
+      )
       localFormBodyRows.value = [
-        ...localFormBodyRows.value.slice(0, insertionIndex),
+        ...remaining.slice(0, sourceIndex),
         ...existingFiles,
         ...selectedRows,
-        ...localFormBodyRows.value
-          .slice(insertionIndex + 1)
-          .filter((_, i) => !sourceIndices.includes(insertionIndex + i + 1)),
+        ...remaining.slice(sourceIndex),
       ]
       handleUpdateFormValue(localFormBodyRows.value)
     },

@@ -135,6 +135,7 @@ export const pt = {
     'selectFile': 'Selecionar arquivo',
     'selectFiles': 'Selecionar arquivos',
     'addFiles': 'Adicionar arquivos',
+    'uploadFor': '{action} para {name}',
     'removeFile': 'Remover {name} de {field}',
     'globalCookieHint': 'Os cookies globais são compartilhados em todo o espaço de trabalho. Clique para acessá-los.',
     'readOnlyHint':

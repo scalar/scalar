@@ -135,6 +135,7 @@ export const zhTw = {
     'selectFile': '選擇檔案',
     'selectFiles': '選擇檔案',
     'addFiles': '新增檔案',
+    'uploadFor': '{action}（{name}）',
     'removeFile': '從 {field} 中移除 {name}',
     'globalCookieHint': '全域 Cookie 在整個工作區中共用。點擊前往檢視。',
     'readOnlyHint': '此屬性為唯讀。若要更改，請覆蓋該屬性或透過核取方塊停用它。',

@@ -180,6 +180,13 @@ const fileUploadLabel = computed<string>(() =>
   ),
 )
 
+const hasMixedFileSelection = computed<boolean>(() =>
+  Boolean(
+    data.files?.some((file) => file.isDisabled) &&
+    data.files.some((file) => !file.isDisabled),
+  ),
+)
+
 /** Display value handles File instances and shows filename instead */
 const displayValue = computed(
   () =>
@@ -319,6 +326,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
       class="!border-r"
       :class="{ 'max-h-none': data.files }"
       :disabled="hasCheckboxDisabled ?? false"
+      :indeterminate="hasMixedFileSelection"
       :modelValue="!isDisabled"
       @update:modelValue="(v) => handleUpdateRow({ isDisabled: !v })" />
 
@@ -456,6 +464,12 @@ const handleKeydown = (event: KeyboardEvent): void => {
       <template v-else-if="canUploadFile">
         <div class="p-0.5">
           <ScalarButton
+            :aria-label="
+              translate('apiClient.requestTableRow.uploadFor', {
+                action: fileUploadLabel,
+                name: name || translate('apiClient.requestTableRow.row'),
+              })
+            "
             class="bg-b-2 hover:bg-b-3 text-c-2 h-fit border-0 py-px shadow-none"
             size="sm"
             variant="outlined"

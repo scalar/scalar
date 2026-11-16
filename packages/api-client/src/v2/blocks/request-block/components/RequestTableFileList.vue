@@ -3,7 +3,7 @@ import { ScalarButton } from '@scalar/components/button'
 import { ScalarCheckboxInput } from '@scalar/components/checkbox-input'
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconPlus, ScalarIconUpload, ScalarIconX } from '@scalar/icons'
-import { nextTick, useTemplateRef } from 'vue'
+import { computed, nextTick, useTemplateRef } from 'vue'
 
 import { useLocalization } from '@/v2/features/localization'
 
@@ -31,6 +31,13 @@ const emit = defineEmits<{
 }>()
 
 const { translate } = useLocalization()
+const uploadLabel = computed<string>(() =>
+  translate(
+    files.length
+      ? 'apiClient.requestTableRow.addFiles'
+      : 'apiClient.requestTableRow.selectFiles',
+  ),
+)
 const root = useTemplateRef('root')
 
 defineExpose({
@@ -100,6 +107,12 @@ const handleRemove = async (index: number, position: number): Promise<void> => {
     </ul>
     <div class="flex items-center gap-1">
       <ScalarButton
+        :aria-label="
+          translate('apiClient.requestTableRow.uploadFor', {
+            action: uploadLabel,
+            name: name || translate('apiClient.requestTableRow.row'),
+          })
+        "
         class="text-c-2 h-7 px-1"
         data-upload-files
         :disabled="disabled"
@@ -107,13 +120,7 @@ const handleRemove = async (index: number, position: number): Promise<void> => {
         size="sm"
         variant="ghost"
         @click="emit('uploadFile')">
-        {{
-          translate(
-            files.length
-              ? 'apiClient.requestTableRow.addFiles'
-              : 'apiClient.requestTableRow.selectFiles',
-          )
-        }}
+        {{ uploadLabel }}
       </ScalarButton>
       <slot />
     </div>

@@ -1,7 +1,6 @@
 ---
 '@scalar/api-client': minor
+'@scalar/types': patch
 ---
 
-feat(api-client): select multiple files at once for array-typed form fields
-
-When a `multipart/form-data` field is declared as an array (e.g. `files: string[]`), the upload button now opens a multi-select picker. Each selected file becomes its own row reusing the field name, so the request sends one part per file (`files=@a`, `files=@b`) just like Postman.
+Select multiple files for array-typed multipart fields and display them in one field with controls to add, remove, and disable individual files. Each enabled file is sent as a separate multipart part under the same field name. Preserve text editing for arrays that also accept text and individual file choices when toggling the field.

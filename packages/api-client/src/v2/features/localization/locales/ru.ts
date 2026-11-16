@@ -135,6 +135,7 @@ export const ru = {
     'selectFile': 'Выбрать файл',
     'selectFiles': 'Выбрать файлы',
     'addFiles': 'Добавить файлы',
+    'uploadFor': '{action} для {name}',
     'removeFile': 'Удалить {name} из {field}',
     'globalCookieHint': 'Глобальные cookie используются во всём рабочем пространстве. Нажмите, чтобы перейти к ним.',
     'readOnlyHint':

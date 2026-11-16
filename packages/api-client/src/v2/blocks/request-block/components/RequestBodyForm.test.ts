@@ -109,7 +109,7 @@ describe('RequestBodyForm', () => {
       },
     })
     const row = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'avatar')!
-    expect(row.findAll('button').some((button) => /^Select Files?$/.test(button.text()))).toBe(canUpload)
+    expect(row.findAll('button').some((button) => /^Select [Ff]iles?$/.test(button.text()))).toBe(canUpload)
     wrapper.unmount()
   })
 
@@ -126,7 +126,7 @@ describe('RequestBodyForm', () => {
       },
     })
     const fileRow = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'file')!
-    expect(fileRow.findAll('button').some((button) => /^Select Files?$/.test(button.text()))).toBe(true)
+    expect(fileRow.findAll('button').some((button) => /^Select [Ff]iles?$/.test(button.text()))).toBe(true)
     wrapper.unmount()
   })
 
@@ -148,7 +148,7 @@ describe('RequestBodyForm', () => {
     expect(
       wrapper.findAllComponents(RequestTableRow).map((row) => ({
         name: row.props('data').name,
-        canUpload: row.findAll('button').some((button) => /^Select Files?$/.test(button.text())),
+        canUpload: row.findAll('button').some((button) => /^Select [Ff]iles?$/.test(button.text())),
       })),
     ).toStrictEqual([
       { name: 'title', canUpload: false },
@@ -168,7 +168,7 @@ describe('RequestBodyForm', () => {
           environment: defaultEnvironment,
         },
       })
-      expect(wrapper.findAll('button').some((button) => /^Select Files?$/.test(button.text()))).toBe(false)
+      expect(wrapper.findAll('button').some((button) => /^Select [Ff]iles?$/.test(button.text()))).toBe(false)
       wrapper.unmount()
     }
   })
@@ -188,7 +188,7 @@ describe('RequestBodyForm', () => {
     const rows = wrapper.findAllComponents(RequestTableRow)
     expect(
       rows
-        .filter((row) => row.findAll('button').some((button) => /^Select Files?$/.test(button.text())))
+        .filter((row) => row.findAll('button').some((button) => /^Select [Ff]iles?$/.test(button.text())))
         .map((row) => row.props('data').name),
     ).toStrictEqual(expected)
     wrapper.unmount()
@@ -232,21 +232,21 @@ describe('RequestBodyForm', () => {
       wrapper
         .findAllComponents(RequestTableRow)[0]!
         .findAll('button')
-        .filter((button) => /^Select Files?$/.test(button.text())).length,
+        .filter((button) => /^Select [Ff]iles?$/.test(button.text())).length,
     ).toBe(0)
     await wrapper.setProps({ compositionSelection: { [selectionKey]: 1 } })
     expect(
       wrapper
         .findAllComponents(RequestTableRow)[0]!
         .findAll('button')
-        .filter((button) => /^Select Files?$/.test(button.text())).length,
+        .filter((button) => /^Select [Ff]iles?$/.test(button.text())).length,
     ).toBe(1)
     await wrapper.setProps({ compositionSelection: { [selectionKey]: 0 } })
     expect(
       wrapper
         .findAllComponents(RequestTableRow)[0]!
         .findAll('button')
-        .filter((button) => /^Select Files?$/.test(button.text())).length,
+        .filter((button) => /^Select [Ff]iles?$/.test(button.text())).length,
     ).toBe(0)
     wrapper.unmount()
   })
@@ -264,7 +264,7 @@ describe('RequestBodyForm', () => {
         environment: defaultEnvironment,
       },
     })
-    const upload = wrapper.findAll('button').find((button) => /^Select Files?$/.test(button.text()))!
+    const upload = wrapper.findAll('button').find((button) => /^Select [Ff]iles?$/.test(button.text()))!
     await upload.trigger('click')
     const file = new File(['test content'], 'test.txt', { type: 'text/plain' })
     expect(wrapper.emitted('update:formValue')).toStrictEqual([
@@ -287,7 +287,7 @@ describe('RequestBodyForm', () => {
       wrapper
         .findAllComponents(RequestTableRow)[1]!
         .findAll('button')
-        .filter((button) => /^Select Files?$/.test(button.text())).length,
+        .filter((button) => /^Select [Ff]iles?$/.test(button.text())).length,
     ).toBe(1)
     wrapper.unmount()
   })
@@ -307,7 +307,7 @@ describe('RequestBodyForm', () => {
       wrapper
         .findAllComponents(RequestTableRow)[0]!
         .findAll('button')
-        .filter((button) => /^Select Files?$/.test(button.text())).length,
+        .filter((button) => /^Select [Ff]iles?$/.test(button.text())).length,
     ).toBe(0)
     wrapper.unmount()
   })
@@ -930,7 +930,7 @@ describe('RequestBodyForm', () => {
     })
     await nextTick()
 
-    const uploadButton = wrapper.findAll('button').find((button) => button.text() === 'Select Files')!
+    const uploadButton = wrapper.findAll('button').find((button) => button.text() === 'Select files')!
     await uploadButton.trigger('click')
     await nextTick()
 
@@ -956,7 +956,7 @@ describe('RequestBodyForm', () => {
         .findAll('li')
         .map((item) => item.get('span[title]').text()),
     ).toStrictEqual(['a.txt', 'b.txt', 'c.txt'])
-    expect(wrapper.findAll('button').some((button) => button.text() === 'Add files')).toBe(true)
+    expect(wrapper.get('button[aria-label="Add files for files"]').text()).toBe('Add files')
 
     expect(wrapper.emitted('update:formValue')).toStrictEqual([
       [
@@ -1066,7 +1066,7 @@ describe('RequestBodyForm', () => {
         '',
       ])
       expect(wrapper.find('ul[aria-label="files"]').exists()).toBe(false)
-      expect(wrapper.get('[data-upload-files]').text()).toBe('Select Files')
+      expect(wrapper.get('[data-upload-files]').text()).toBe('Select files')
       expect(document.activeElement).toBe(wrapper.get('[data-upload-files]').element)
     } finally {
       wrapper.unmount()
@@ -1090,6 +1090,10 @@ describe('RequestBodyForm', () => {
       },
     })
     await wrapper.get('input[aria-label="Include files: first.txt in request"]').setValue(false)
+    expect(wrapper.get<HTMLInputElement>('input[aria-label="Include files in request"]').element.indeterminate).toBe(
+      true,
+    )
+    expect(wrapper.get('input[aria-label="Include files in request"]').attributes('aria-checked')).toBe('mixed')
     await wrapper.get('input[aria-label="Include files in request"]').setValue(false)
     await wrapper.get('input[aria-label="Include files in request"]').setValue(true)
 
@@ -1108,10 +1112,31 @@ describe('RequestBodyForm', () => {
       ],
       [
         [
-          { name: 'files', value: first, isDisabled: false },
+          { name: 'files', value: first, isDisabled: true },
           { name: 'files', value: second, isDisabled: false },
         ],
       ],
+    ])
+    expect(wrapper.get<HTMLInputElement>('input[aria-label="Include files in request"]').element.indeterminate).toBe(
+      true,
+    )
+    wrapper.unmount()
+  })
+
+  it('toggles an empty file array before any files are selected', async () => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: [{ name: 'files', value: [], isDisabled: false }] },
+        bodySchema: arrayFieldSchema,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    await wrapper.get('input[aria-label="Include files in request"]').setValue(false)
+    await wrapper.get('input[aria-label="Include files in request"]').setValue(true)
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [[{ name: 'files', value: [], isDisabled: true, isArray: true }]],
+      [[{ name: 'files', value: [], isDisabled: false, isArray: true }]],
     ])
     wrapper.unmount()
   })
@@ -1220,6 +1245,55 @@ describe('RequestBodyForm', () => {
     ])
     wrapper.unmount()
   })
+
+  it('gives upload buttons distinct accessible names for each array field', () => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { images: [], attachments: [] } },
+        bodySchema: {
+          type: 'object',
+          properties: {
+            images: { type: 'array', items: { type: 'string', format: 'binary' } },
+            attachments: { type: 'array', items: { type: 'string', format: 'binary' } },
+          },
+        },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    expect(wrapper.findAll('[data-upload-files]').map((button) => button.attributes('aria-label'))).toStrictEqual([
+      'Select files for images',
+      'Select files for attachments',
+    ])
+    wrapper.unmount()
+  })
+
+  it.each([
+    { __scalar_: '' },
+    { __scalar_: '', oneOf: [{ type: 'string', format: 'binary' }, { type: 'string' }] },
+    { __scalar_: '', anyOf: [{ type: 'string', format: 'binary' }, { type: 'string' }] },
+  ] satisfies SchemaObject[])(
+    'keeps text input and file selection available for mixed array items %j',
+    async (items) => {
+      const wrapper = mount(RequestBodyForm, {
+        props: {
+          example: { value: { files: [] } },
+          bodySchema: { type: 'object', properties: { files: { type: 'array', items } } },
+          selectedContentType: 'multipart/form-data',
+          environment: defaultEnvironment,
+        },
+      })
+      const row = wrapper.findComponent(RequestTableRow)
+      expect(row.findAllComponents(CodeInputLite).length).toBe(2)
+      expect(row.get('button[aria-label="Select files for files"]').text()).toBe('Select files')
+      row.findAllComponents(CodeInputLite)[1]!.vm.$emit('update:modelValue', '["text"]')
+      await nextTick()
+      expect(wrapper.emitted('update:formValue')?.at(-1)).toStrictEqual([
+        [{ name: 'files', value: ['text'], isDisabled: false, isArray: true }],
+      ])
+      wrapper.unmount()
+    },
+  )
 
   it('keeps the file picker single-select for non-array fields', async () => {
     const wrapper = mount(RequestBodyForm, {

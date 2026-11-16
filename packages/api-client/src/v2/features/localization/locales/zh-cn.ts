@@ -135,6 +135,7 @@ export const zhCn = {
     'selectFile': '选择文件',
     'selectFiles': '选择文件',
     'addFiles': '添加文件',
+    'uploadFor': '{action}（{name}）',
     'removeFile': '从 {field} 中移除 {name}',
     'globalCookieHint': '全局 Cookie 在整个工作区中共享。点击前往查看。',
     'readOnlyHint': '此属性为只读。若要更改，请覆盖该属性或通过复选框禁用它。',
