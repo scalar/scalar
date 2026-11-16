@@ -1,6 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { getDynamicAnchorCacheKey, getRaw } from '@/magic-proxy/proxy'
+import { getDynamicAnchorCacheKey, getRaw } from '@/magic-proxy/symbols'
 import type { UnknownObject } from '@/types'
 
 /**
@@ -29,10 +29,7 @@ export type DynamicScope = UnknownObject[]
 
 /** Narrow a value to a schema carrying a string `$dynamicRef`. */
 export const isDynamicRef = (schema: unknown): schema is UnknownObject & { $dynamicRef: string } =>
-  typeof schema === 'object' &&
-  schema !== null &&
-  '$dynamicRef' in schema &&
-  typeof (schema as { $dynamicRef?: unknown }).$dynamicRef === 'string'
+  isObject(schema) && typeof schema.$dynamicRef === 'string'
 
 /**
  * Whether a schema introduces something a `$dynamicRef` could later bind to.
@@ -47,9 +44,9 @@ export const isDynamicRef = (schema: unknown): schema is UnknownObject & { $dyna
  *   `$ref` from inside an `$id` resource is not part of that resource.
  */
 export const carriesDynamicAnchor = (schema: UnknownObject, withinExplicitResource = false): boolean =>
-  '$id' in schema ||
+  typeof schema.$id === 'string' ||
   // Inline anchors and definition containers belong to their enclosing explicit resource.
-  (!withinExplicitResource && ('$dynamicAnchor' in schema || '$defs' in schema))
+  (!withinExplicitResource && (typeof schema.$dynamicAnchor === 'string' || isObject(schema.$defs)))
 
 /**
  * Subschema-bearing keywords we descend into when collecting anchors. Covers the object, array and
@@ -97,7 +94,8 @@ const dereferenceSiblingRef = (node: UnknownObject): UnknownObject => {
 
 type AnchorCollection = {
   anchors: Map<string, UnknownObject>
-  revisions: Map<{ revision: number }, number>
+  revision?: { key: { revision: number }; value: number }
+  additionalRevisions?: [{ revision: number }, number][]
 }
 
 const anchorCaches = new WeakMap<object, WeakMap<Unwrap, WeakMap<object, AnchorCollection>>>()
@@ -139,7 +137,11 @@ export const collectDynamicAnchors = (
   }
   const cacheTarget = resource
   const cached = anchorCache.get(cacheTarget)
-  if (cached && [...cached.revisions].every(([state, revision]) => state.revision === revision)) {
+  if (
+    cached &&
+    (!cached.revision || cached.revision.key.revision === cached.revision.value) &&
+    (!cached.additionalRevisions || cached.additionalRevisions.every(([key, revision]) => key.revision === revision))
+  ) {
     return cached.anchors
   }
 
@@ -172,7 +174,7 @@ export const collectDynamicAnchors = (
     const keyed = node as UnknownObject
 
     // A nested `$id` starts a new schema resource; its anchors are collected when that resource is entered.
-    if (!isRoot && '$id' in keyed) {
+    if (!isRoot && typeof keyed.$id === 'string') {
       return
     }
 
@@ -207,7 +209,12 @@ export const collectDynamicAnchors = (
 
   visit(resource, true)
 
-  anchorCache.set(cacheTarget, { anchors, revisions })
+  const [first, ...additionalRevisions] = revisions
+  anchorCache.set(cacheTarget, {
+    anchors,
+    revision: first ? { key: first[0], value: first[1] } : undefined,
+    additionalRevisions: additionalRevisions.length > 0 ? additionalRevisions : undefined,
+  })
   return anchors
 }
 
@@ -220,7 +227,7 @@ export const collectDynamicAnchors = (
 export const pushDynamicScope = (
   scope: DynamicScope,
   schema: UnknownObject,
-  withinExplicitResource = scope.some((resource) => '$id' in resource),
+  withinExplicitResource = scope.some((resource) => typeof resource.$id === 'string'),
 ): DynamicScope => (carriesDynamicAnchor(schema, withinExplicitResource) ? [...scope, schema] : scope)
 
 /**
@@ -253,7 +260,7 @@ export const resolveDynamicRef = (
   // Bookending: the resource holding the reference must declare the anchor, otherwise there is no
   // dynamic binding and we leave the reference unresolved.
   let resourceStart = scope.length - 1
-  while (resourceStart > 0 && !('$id' in (scope[resourceStart] ?? {}))) {
+  while (resourceStart > 0 && typeof scope[resourceStart]?.$id !== 'string') {
     resourceStart--
   }
   const holdingResource = scope.slice(resourceStart)

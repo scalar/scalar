@@ -12,6 +12,81 @@ type ProxyNode = { readonly [key: string]: ProxyNode }
  * exercise that behavior through the proxy itself (not the standalone resolver). See #9414.
  */
 describe('proxy-dynamic-ref', () => {
+  it('does not treat keyword maps or example data as schema resources', () => {
+    const proxy = createMagicProxy({
+      $defs: { item: { $dynamicAnchor: 'item', title: 'User' } },
+      properties: {
+        $defs: { type: 'string' },
+        list: { items: { $dynamicRef: '#item' } },
+      },
+      example: { $id: 'urn:payload', $defs: { item: { $dynamicAnchor: 'item', title: 'Payload' } } },
+    }) as unknown as ProxyNode
+
+    expect(proxy.properties.list.items['$dynamicRef-value'].title).toBe('User')
+    expect(proxy.example.$defs.item).toBe(proxy.example.$defs.item)
+    expect(collectDynamicAnchors(proxy.example).get('item')?.title).toBe('Payload')
+  })
+
+  it('keeps a property named $id inside its schema resource', () => {
+    const proxy = createMagicProxy({
+      $defs: {
+        Page: {
+          $id: 'urn:page',
+          $defs: { item: { $dynamicAnchor: 'item', title: 'Default' } },
+          properties: { $id: { type: 'string' }, list: { items: { $dynamicRef: '#item' } } },
+        },
+        UserPage: {
+          $id: 'urn:users',
+          $ref: 'urn:page',
+          $defs: { item: { $dynamicAnchor: 'item', title: 'User' } },
+        },
+      },
+    }) as unknown as ProxyNode
+
+    expect(proxy.$defs.UserPage['$ref-value'].properties.list.items['$dynamicRef-value'].title).toBe('User')
+  })
+
+  it.each(['#detail', 'detail.json'])('resolves %s inside a bound anchor against its owning resource', (ref) => {
+    const proxy = createMagicProxy({
+      $defs: {
+        Page: {
+          $id: 'https://example.com/page.json',
+          $defs: {
+            item: { $dynamicAnchor: 'item' },
+            detail: { $anchor: 'detail', title: 'Wrong' },
+          },
+          items: { $dynamicRef: '#item' },
+        },
+        UserPage: {
+          $id: 'https://example.com/users/page.json',
+          $ref: 'https://example.com/page.json',
+          $defs: {
+            item: { $dynamicAnchor: 'item', properties: { detail: { $ref: ref } } },
+            detail: { $id: 'detail.json', title: 'User' },
+            anchored: { $anchor: 'detail', title: 'User' },
+          },
+        },
+      },
+    }) as unknown as ProxyNode
+
+    const bound = proxy.$defs.UserPage['$ref-value'].items['$dynamicRef-value']
+    expect(bound.properties.detail['$ref-value'].title).toBe('User')
+    expect(proxy.$defs.UserPage['$ref-value'].items['$dynamicRef-value']).toBe(bound)
+  })
+
+  it('reads and writes percent-encoded references under an active dynamic scope', () => {
+    const proxy = createMagicProxy({
+      $id: 'urn:encoded',
+      $defs: { item: { $dynamicAnchor: 'item' }, 'a/b %': { title: 'Original' } },
+      properties: { value: { $ref: '#/$defs/a~1b%20%25' } },
+    }) as unknown as ProxyNode
+    const reference = proxy.properties.value
+    expect(reference['$ref-value'].title).toBe('Original')
+    Reflect.set(reference, '$ref-value', { title: 'Updated' })
+    expect(reference['$ref-value'].title).toBe('Updated')
+    expect(proxy.$defs['a/b %'].title).toBe('Updated')
+  })
+
   it.each([false, true])('invalidates only the edited document, with a merged view: %s', (merged) => {
     const createDocument = () =>
       createMagicProxy({
