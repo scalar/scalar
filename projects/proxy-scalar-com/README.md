@@ -58,7 +58,7 @@ Hop-by-hop headers, including every field named by `Connection`, are removed fro
 You can start the proxy server in two ways. The default port is 1337:
 
 ```bash
-go run main.go
+go run .
 ```
 
 ```bash
@@ -68,8 +68,11 @@ go run main.go
 But you can customize it using the `PORT` environment variable:
 
 ```bash
-PORT=8080 go run main.go
+PORT=8080 go run .
 ```
+
+The Docker command keeps private-address checks and upstream TLS verification enabled,
+so local and LAN targets are blocked. It publishes the proxy only on localhost.
 
 ### Configuration
 
