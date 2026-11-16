@@ -133,6 +133,10 @@ export const pt = {
     'value': 'Valor',
     'delete': 'Excluir',
     'selectFile': 'Selecionar arquivo',
+    'selectFiles': 'Selecionar arquivos',
+    'addFiles': 'Adicionar arquivos',
+    'uploadFor': '{action} para {name}',
+    'removeFile': 'Remover {name} de {field}',
     'globalCookieHint': 'Os cookies globais são compartilhados em todo o espaço de trabalho. Clique para acessá-los.',
     'readOnlyHint':
       'Esta propriedade é somente leitura. Para alterá-la, você precisa sobrescrevê-la ou desativá-la usando a caixa de seleção.',

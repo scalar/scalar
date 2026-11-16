@@ -133,6 +133,10 @@ export const de = {
     'value': 'Wert',
     'delete': 'Löschen',
     'selectFile': 'Datei auswählen',
+    'selectFiles': 'Dateien auswählen',
+    'addFiles': 'Dateien hinzufügen',
+    'uploadFor': '{action} für {name}',
+    'removeFile': '{name} aus {field} entfernen',
     'globalCookieHint':
       'Globale Cookies werden im gesamten Arbeitsbereich gemeinsam genutzt. Klicken Sie, um dorthin zu navigieren.',
     'readOnlyHint':
