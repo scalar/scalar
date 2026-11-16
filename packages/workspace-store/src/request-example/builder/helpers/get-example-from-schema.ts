@@ -1898,8 +1898,9 @@ const generateExampleFromSchema = (
     // reference hop, including at the root, where callers previously resolved the graph beforehand.
     const target = getSchemaCacheTarget(resolved['$ref-value'])
     if (references.has(target) || references.size >= MAX_COMPOSITION_DEPTH) {
+      // Stop resolving, but let the normal authored-value checks below retain explicit examples.
       truncated = true
-      return undefined
+      return resolved
     }
     references.add(target)
     return resolveReferenceChain(resolved, references)

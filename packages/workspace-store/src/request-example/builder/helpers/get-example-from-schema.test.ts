@@ -348,10 +348,19 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema as SchemaObject)).toBe('hello')
   })
 
+  it.each([{ example: [7] }, { examples: [[7]] }, { const: [7] }, { default: [7] }, { enum: [[7]] }])(
+    'preserves authored values on annotated reference cycles: %j',
+    (authored) => {
+      const schema: Record<string, unknown> = { $ref: '#/self', type: 'array', ...authored }
+      schema['$ref-value'] = schema
+      expect(getExampleFromSchema(schema as SchemaObject)).toStrictEqual([7])
+    },
+  )
+
   it('bounds annotated reference cycles at the root', () => {
     const schema: Record<string, unknown> = { $ref: '#/self', description: 'Annotated' }
     schema['$ref-value'] = schema
-    expect(getExampleFromSchema(schema as SchemaObject)).toBeUndefined()
+    expect(getExampleFromSchema(schema as SchemaObject)).toBeNull()
   })
 
   it.each(['properties', 'patternProperties', 'additionalProperties'])(
