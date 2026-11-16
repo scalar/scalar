@@ -447,6 +447,42 @@ describe('getExampleFromSchema', () => {
     ])
   })
 
+  it.each(['{"id":2}', 'not JSON'])('preserves authored children in JSON string content against %s', (target) => {
+    const schema = {
+      type: 'array',
+      minItems: 1,
+      maxItems: 1,
+      items: {
+        type: 'string',
+        contentMediaType: 'application/problem+json',
+        contentSchema: {
+          type: 'object',
+          properties: { id: { anyOf: [{ type: 'integer' }, { type: 'integer', example: 1 }] } },
+        },
+      },
+      contains: { const: target },
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema, { compositionSelection: { 'items.contentSchema.id.anyOf': 1 } })).toStrictEqual(
+      ['{"id":1}'],
+    )
+  })
+
+  it('can change JSON content without authored child examples', () => {
+    expect(
+      validateArray({
+        type: 'array',
+        minItems: 1,
+        maxItems: 1,
+        items: {
+          type: 'string',
+          contentMediaType: 'application/json',
+          contentSchema: { type: 'object', properties: { id: { type: 'integer' } } },
+        },
+        contains: { const: '{"id":2}' },
+      }),
+    ).toStrictEqual(['{"id":2}'])
+  })
+
   it('changes unauthored fields without replacing authored properties', () => {
     const value = validateArray({
       type: 'array',

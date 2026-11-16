@@ -1,5 +1,4 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 import { isObject } from '@scalar/helpers/object/is-object'
@@ -20,6 +19,7 @@ import {
   mayHaveArrayContains,
 } from './array-contains'
 import { EXAMPLE_EVALUATION, type ExampleEvaluation, type ExampleEvaluationState } from './example-evaluation'
+import { hasUnencodedJsonContent } from './has-unencoded-json-content'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
@@ -1830,12 +1830,6 @@ const getMaxDepthValue = (
 
   truncated = true
   return emptySchemaValue
-}
-
-const hasUnencodedJsonContent = (schema: SchemaObject): boolean => {
-  if (!('contentSchema' in schema) || !isJsonMediaType(schema.contentMediaType)) return false
-  if ('contentEncoding' in schema) return false
-  return !('type' in schema) || getDeclaredTypes(schema).includes('string')
 }
 
 /**

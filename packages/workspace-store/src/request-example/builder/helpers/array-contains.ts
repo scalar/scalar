@@ -3,6 +3,8 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
+import { hasUnencodedJsonContent } from './has-unencoded-json-content'
+
 /** Dialects whose array assertions this bounded generator understands. */
 type ArrayDialect = 'modern' | 'draft7' | 'unsupported'
 
@@ -477,6 +479,14 @@ export const generateContainsArray = (
     add(index)
     add(`string${index}`)
   }
+  // Non-JSON candidates are ordinary search values, so decoding failures must remain silent.
+  const decodeContent = (value: unknown): unknown => {
+    try {
+      return typeof value === 'string' ? JSON.parse(value) : undefined
+    } catch {
+      return undefined
+    }
+  }
   // Candidate synthesis may change unauthored fields, but must retain explicit nested values.
   const preservesAuthored = (
     source: unknown,
@@ -491,6 +501,19 @@ export const generateContainsArray = (
     for (const layer of arrayLayers(source, dialect, select, path)) {
       const node = layer.schema
       if (node.example !== undefined || (Array.isArray(node.examples) && node.examples.length > 0)) return false
+      if (
+        typeof sample === 'string' &&
+        hasUnencodedJsonContent(node as SchemaObject) &&
+        !preservesAuthored(
+          node.contentSchema,
+          decodeContent(sample),
+          decodeContent(value),
+          layer.dialect,
+          [...layer.path, 'contentSchema'],
+          depth + 1,
+        )
+      )
+        return false
       if (isObject(node.properties) && isObject(sample)) {
         for (const [key, child] of Object.entries(node.properties)) {
           if (
