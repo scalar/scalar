@@ -58,7 +58,7 @@ const literalPaths = [
   [...messagePath, 'x-data'],
 ]
 
-describe('client AsyncAPI literal references', () => {
+describe('client.asyncapi', () => {
   it.each([
     { asyncapi: '3.0.0', lazy: false },
     { asyncapi: '3.1.0', lazy: false },
