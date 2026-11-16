@@ -306,7 +306,7 @@ const getAddressBarUrl = (allowMissingRequestServerBase = true): string => {
     server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
-    openapiVersion: document.openapi,
+    openapiVersion: document['x-original-oas-version'] || document.openapi,
     jsonSchemaDialect: document.jsonSchemaDialect,
     requestBodyCompositionSelection,
   })
@@ -393,7 +393,7 @@ const handleExecute = async () => {
     server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
-    openapiVersion: document.openapi,
+    openapiVersion: document['x-original-oas-version'] || document.openapi,
     jsonSchemaDialect: document.jsonSchemaDialect,
     requestBodyCompositionSelection,
   })
@@ -847,7 +847,9 @@ onBeforeUnmount(() => {
           :jsonSchemaDialect="document.jsonSchemaDialect"
           :layout
           :method
-          :openapiVersion="document.openapi"
+          :openapiVersion="
+            document['x-original-oas-version'] || document.openapi
+          "
           :operation
           :options="toValue(options)"
           :path="requestPath"

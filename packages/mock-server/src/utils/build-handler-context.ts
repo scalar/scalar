@@ -46,6 +46,7 @@ function getExampleFromResponse(
   responses: OpenAPIV3_1.ResponsesObject | undefined,
   openapiVersion?: string,
   jsonSchemaDialect?: string,
+  originalOpenapiVersion?: string,
 ): any {
   if (!responses) {
     return null
@@ -82,6 +83,7 @@ function getExampleFromResponse(
   const streamingResponse = getStreamingResponse(acceptedResponse, acceptedContentType, {
     openapiVersion,
     jsonSchemaDialect,
+    originalOpenapiVersion,
     exampleName: parsePreferHeader(c.req.header('Prefer')).example,
     variables: pathParameters(c),
   })
@@ -102,6 +104,7 @@ function getExampleFromResponse(
           pathParameters(c),
           openapiVersion,
           jsonSchemaDialect,
+          originalOpenapiVersion,
         ),
         responseSchema,
       )
@@ -117,6 +120,7 @@ export async function buildHandlerContext(
   pathItemParameters?: OpenAPIV3_1.PathItemObject['parameters'],
   openapiVersion?: string,
   jsonSchemaDialect?: string,
+  originalOpenapiVersion?: string,
 ): Promise<HandlerContextResult> {
   let body: any = undefined
 
@@ -155,7 +159,14 @@ export async function buildHandlerContext(
   const res: Record<string, any> = {}
   if (operation?.responses) {
     for (const statusCode of Object.keys(operation.responses)) {
-      res[statusCode] = getExampleFromResponse(c, statusCode, operation.responses, openapiVersion, jsonSchemaDialect)
+      res[statusCode] = getExampleFromResponse(
+        c,
+        statusCode,
+        operation.responses,
+        openapiVersion,
+        jsonSchemaDialect,
+        originalOpenapiVersion,
+      )
     }
   }
 

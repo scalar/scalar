@@ -66,7 +66,10 @@ export const upsertOperationParameter = (
     const querystring = getQuerystringParameter(originalParameter, meta.exampleKey, {
       includeDisabled: true,
       ...(document && 'openapi' in document
-        ? { openapiVersion: document.openapi, jsonSchemaDialect: document.jsonSchemaDialect }
+        ? {
+            openapiVersion: document['x-original-oas-version'] || document.openapi,
+            jsonSchemaDialect: document.jsonSchemaDialect,
+          }
         : {}),
     })
     const preserveQuerystringValue = querystring && payload.value === serializeQuerystringParameter(querystring)

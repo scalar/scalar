@@ -18,6 +18,10 @@ import { EXAMPLE_EVALUATION, type ExampleEvaluation, type ExampleEvaluationState
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
 
+/** Preserve containment assertions without changing legacy resolution of other child schemas. */
+const getGenerationSchema = (source: unknown, resolved: SchemaObject): SchemaObject =>
+  hasArrayContains(source) ? (source as SchemaObject) : resolved
+
 /** Default name used for additional properties when no custom name is provided */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
@@ -741,7 +745,7 @@ const handleObjectSchema = (
       }
       const value = discriminatorExample
         ? discriminatorExample.value
-        : getExampleFromSchema(propertySchema, options, {
+        : getExampleFromSchema(getGenerationSchema(properties[propertyName], propertySchema), options, {
             level: level + 1,
             parentSchema: schema,
             name: propertyName,
@@ -763,14 +767,18 @@ const handleObjectSchema = (
       if (!propertySchema) {
         continue
       }
-      response[pattern] = getExampleFromSchema(propertySchema, options, {
-        level: level + 1,
-        parentSchema: schema,
-        name: pattern,
-        schemaPath: [...schemaPath, pattern],
-        seen,
-        dynamicScope: childScope,
-      })
+      response[pattern] = getExampleFromSchema(
+        getGenerationSchema(schema.patternProperties[pattern], propertySchema),
+        options,
+        {
+          level: level + 1,
+          parentSchema: schema,
+          name: pattern,
+          schemaPath: [...schemaPath, pattern],
+          seen,
+          dynamicScope: childScope,
+        },
+      )
     }
   }
 
@@ -797,7 +805,7 @@ const handleObjectSchema = (
 
     const additionalValue =
       !isAnyType && typeof additional === 'object'
-        ? getExampleFromSchema(additional, options, {
+        ? getExampleFromSchema(getGenerationSchema(schema.additionalProperties, additional), options, {
             level: level + 1,
             schemaPath: [...schemaPath, additionalName],
             seen,
@@ -844,7 +852,7 @@ const handleObjectSchema = (
       const resolvedItem = resolve.schema(item)
       const isChoiceMember = !!resolvedItem && (Array.isArray(resolvedItem.oneOf) || Array.isArray(resolvedItem.anyOf))
       const memberSchemaPath = isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath
-      const ex = getExampleFromSchema(resolvedItem, options, {
+      const ex = getExampleFromSchema(getGenerationSchema(item, resolvedItem), options, {
         level: level + 1,
         parentSchema: schema,
         seen,
@@ -967,7 +975,10 @@ const handleArraySchema = (
   const childScope = pushDynamicScope(dynamicScope, displaySchema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
-  const dialect = getArrayDialect(options?.jsonSchemaDialect, options?.openapiVersion)
+  const dialect = getArrayDialect(
+    options?.jsonSchemaDialect,
+    options?.originalOpenapiVersion ?? options?.openapiVersion,
+  )
   if (hasArrayContains(schema) && dialect !== 'unsupported') {
     const probeOptions = options?.[EXAMPLE_EVALUATION] ? { ...options, [EXAMPLE_EVALUATION]: undefined } : options
     const { values: value, itemSchemas } = generateContainsArray(
@@ -1099,6 +1110,17 @@ const handleArraySchema = (
     return cache(schema, values, cacheKey, skipCache)
   }
 
+  // Keep independent reference and composition assertions together before item branch selection.
+  if (hasArrayContains(itemSchema) && itemsSeen === seen) {
+    const example = getExampleFromSchema(itemSchema as SchemaObject, options, {
+      level: level + 1,
+      schemaPath: itemsSchemaPath,
+      seen: itemsSeen,
+      dynamicScope: childScope,
+    })
+    return completeArrayExample(isDefined(example) ? [example] : [])
+  }
+
   if (items && typeof items === 'object') {
     if (Array.isArray(items.allOf) && items.allOf.length > 0) {
       const allOf = items.allOf.filter(isDefined)
@@ -1118,7 +1140,7 @@ const handleArraySchema = (
 
       const examples = allOf
         .map((s) =>
-          getExampleFromSchema(resolve.schema(s), options, {
+          getExampleFromSchema(getGenerationSchema(s, resolve.schema(s)), options, {
             level: level + 1,
             parentSchema: schema,
             schemaPath: itemsSchemaPath,
@@ -1256,6 +1278,8 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
 export type GetExampleFromSchemaOptions = {
   /** Declared document version; absent means a standalone modern schema. */
   openapiVersion?: string
+  /** Original version when a loader upgraded the document; keeps newer assertions from activating. */
+  originalOpenapiVersion?: string
   /** Default JSON Schema dialect, overridden by a schema resource's $schema. */
   jsonSchemaDialect?: string
   /** Internal provenance capture, excluded from persistent result caches. */
@@ -1280,6 +1304,7 @@ export type GetExampleFromSchemaOptions = {
 const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined) =>
   JSON.stringify({
     openapiVersion: options?.openapiVersion,
+    originalOpenapiVersion: options?.originalOpenapiVersion,
     jsonSchemaDialect: options?.jsonSchemaDialect,
     binaryAsFile: options?.binaryAsFile,
     emptyString: options?.emptyString,
@@ -1980,10 +2005,16 @@ const generateExampleFromSchema = (
       : undefined)
 
   // Keep same-instance containment assertions together before union selection merges keywords.
+  const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
+  const selectedSchemaType = getSelectedType(selectedVariant, _schema)
   if (
-    getArrayDialect(options?.jsonSchemaDialect, options?.openapiVersion) !== 'unsupported' &&
+    getArrayDialect(options?.jsonSchemaDialect, options?.originalOpenapiVersion ?? options?.openapiVersion) !==
+      'unsupported' &&
     hasArrayContains(containsReference ? schema : _schema) &&
-    (('type' in _schema && _schema.type === 'array') || (!('type' in _schema) && !('properties' in _schema)))
+    (('type' in _schema && _schema.type === 'array') ||
+      (!('type' in _schema) &&
+        !('properties' in _schema) &&
+        (selectedSchemaType === undefined || selectedSchemaType === 'array')))
   ) {
     const result = handleArraySchema(
       containsReference ? schema : _schema,
@@ -2002,7 +2033,6 @@ const generateExampleFromSchema = (
   // hide the selected member. Use the same selection and discriminator rules as other unions.
   const selectedAnyOf = _schema.anyOf ? 'anyOf' : undefined
   const selectedComposition = _schema.oneOf ? 'oneOf' : selectedAnyOf
-  const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
   if (selectedComposition && selectedVariant) {
     const selectedType = getSelectedType(selectedVariant, _schema)
     if (selectedType !== undefined && selectedType !== 'object') {
@@ -2038,7 +2068,7 @@ const generateExampleFromSchema = (
     if (contentSchema) {
       // JSON content preserves strings and property names regardless of the enclosing wire format.
       const content = getExampleFromSchema(
-        contentSchema,
+        getGenerationSchema(_schema.contentSchema, contentSchema),
         { ...options, xml: false, binaryAsFile: false },
         {
           level: level + 1,
@@ -2123,7 +2153,7 @@ const generateExampleFromSchema = (
       const resolvedItem = resolve.schema(item)
       const isChoiceMember = !!resolvedItem && (Array.isArray(resolvedItem.oneOf) || Array.isArray(resolvedItem.anyOf))
       const memberSchemaPath = isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath
-      const ex = getExampleFromSchema(item as SchemaObject, options, {
+      const ex = getExampleFromSchema(getGenerationSchema(item, resolvedItem), options, {
         level: level + 1,
         parentSchema: _schema,
         schemaPath: memberSchemaPath,

@@ -43,6 +43,7 @@ export function mockAnyResponse(
   operation: OpenAPIV3_1.OperationObject,
   openapiVersion?: string,
   jsonSchemaDialect?: string,
+  originalOpenapiVersion?: string,
 ) {
   // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
   // for requests rejected before reaching this handler.
@@ -84,7 +85,11 @@ export function mockAnyResponse(
     const headerObject = getResolvedRef(headers[header])
     // Headers use the generator defaults to preserve their declared values.
     const value = headerObject?.schema
-      ? getExampleFromSchema(snapshotSchema(headerObject.schema) as SchemaObject, { openapiVersion, jsonSchemaDialect })
+      ? getExampleFromSchema(snapshotSchema(headerObject.schema) as SchemaObject, {
+          openapiVersion,
+          jsonSchemaDialect,
+          originalOpenapiVersion,
+        })
       : null
     // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
     // thing to set the declared headers, so in practice a delete removes a header set earlier by
@@ -127,6 +132,7 @@ export function mockAnyResponse(
   const streamingResponse = getStreamingResponse(acceptedResponse, acceptedContentType, {
     openapiVersion,
     jsonSchemaDialect,
+    originalOpenapiVersion,
     exampleName: prefer.example,
     variables: pathParameters(c),
   })
@@ -145,6 +151,7 @@ export function mockAnyResponse(
           pathParameters(c),
           openapiVersion,
           jsonSchemaDialect,
+          originalOpenapiVersion,
         )
       : undefined
 
@@ -182,6 +189,7 @@ export function mockAnyResponse(
     const result = getXmlBodyExample(acceptedResponse?.schema as SchemaObject | undefined, selectedExample, {
       openapiVersion,
       jsonSchemaDialect,
+      originalOpenapiVersion,
       emptyString: 'string',
       variables: pathParameters(c),
       mode: 'read',

@@ -35,6 +35,7 @@ export const getStreamingResponse = (
     body?: unknown
     openapiVersion?: string
     jsonSchemaDialect?: string
+    originalOpenapiVersion?: string
   } = {},
 ): StreamingResponse | undefined => {
   if (mediaType?.itemSchema === undefined) {
@@ -70,6 +71,7 @@ export const getStreamingResponse = (
               options.variables,
               options.openapiVersion,
               options.jsonSchemaDialect,
+              options.originalOpenapiVersion,
             ),
       )
     }
@@ -88,6 +90,7 @@ export const getStreamingResponse = (
         options.variables,
         options.openapiVersion,
         options.jsonSchemaDialect,
+        options.originalOpenapiVersion,
       )
     }
     return generateResponseExample(
@@ -97,6 +100,7 @@ export const getStreamingResponse = (
       options.variables,
       options.openapiVersion,
       options.jsonSchemaDialect,
+      options.originalOpenapiVersion,
     )
   }
   const body = example ? example.value : generateBody()

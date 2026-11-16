@@ -263,6 +263,60 @@ describe('getExampleFromSchema', () => {
     expect(value).toStrictEqual(prefix ? [null] : [])
   })
 
+  it.each(['properties', 'patternProperties', 'additionalProperties', 'items', 'prefixItems'])(
+    'retains reference assertions when descending through %s',
+    (keyword) => {
+      const target = {
+        type: 'array',
+        items: { type: 'integer' },
+        minItems: 2,
+        maxItems: 2,
+        contains: { const: 2 },
+        maxContains: 1,
+      }
+      const child = { $ref: '#/$defs/target', '$ref-value': target, contains: { const: 3 }, maxContains: 1 }
+      const schema =
+        keyword === 'properties' || keyword === 'patternProperties'
+          ? { type: 'object', [keyword]: { numbers: child } }
+          : keyword === 'additionalProperties'
+            ? { type: 'object', additionalProperties: child }
+            : { type: 'array', [keyword]: keyword === 'prefixItems' ? [child] : child }
+      const value = validateArray({ ...schema, $defs: { target } })
+      const nested = Object.values(value as Record<string, number[]>)[0]!
+      expect([...nested].sort()).toStrictEqual([2, 3])
+    },
+  )
+
+  it.each(['properties', 'patternProperties', 'additionalProperties'])(
+    'retains legacy annotated reference resolution through %s',
+    (keyword) => {
+      const child = {
+        $ref: '#/outer',
+        '$ref-value': { $ref: '#/inner', description: 'Annotated', '$ref-value': { type: 'string', const: 'hello' } },
+      }
+      const definition =
+        keyword === 'additionalProperties'
+          ? { type: 'object', additionalProperties: child }
+          : { type: 'object', [keyword]: { value: child } }
+      expect(getExampleFromSchema(definition as unknown as SchemaObject)).toStrictEqual({
+        [keyword === 'additionalProperties' ? 'additionalProperty' : 'value']: 'hello',
+      })
+    },
+  )
+
+  it.each(['oneOf', 'anyOf'])('keeps non-array selections when another %s branch contains an array', (keyword) => {
+    for (const [first, expected] of [
+      [{ type: 'object', properties: { value: { type: 'string', const: 'hello' } } }, { value: 'hello' }],
+      [{ type: 'string', const: 'hello' }, 'hello'],
+    ]) {
+      const schema = {
+        [keyword]: [first, { type: 'array', items: { type: 'integer' }, contains: { const: 2 } }],
+      } as unknown as SchemaObject
+      expect(getExampleFromSchema(schema)).toStrictEqual(expected)
+      expect(getExampleFromSchema(schema, { compositionSelection: { [keyword]: 1 } })).toStrictEqual([2])
+    }
+  })
+
   it('ignores store reference bookkeeping when counting matches', () => {
     const target = { type: 'integer' }
     validateArray({

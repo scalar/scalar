@@ -32,6 +32,60 @@ describe('get-xml-example', () => {
       diagnostics: [],
     })
   })
+  it.each(['3.1.0', '3.2.0'])('selects nested XML branches for counted objects in %s', (openapiVersion) => {
+    const input = schema({
+      type: 'array',
+      xml: { name: 'values', wrapped: true },
+      items: {
+        type: 'object',
+        xml: { name: 'item' },
+        properties: {
+          value: {
+            anyOf: [
+              { type: 'string', xml: { name: 'text' } },
+              { type: 'integer', xml: { name: 'number' } },
+            ],
+          },
+        },
+        required: ['value'],
+      },
+      minItems: 1,
+      maxItems: 1,
+      contains: { const: { value: 2 } },
+    })
+    expect(getXmlExampleFromSchema(input, { ...compact, openapiVersion })).toStrictEqual({
+      xml: '<values><item><number>2</number></item></values>',
+      diagnostics: [],
+    })
+  })
+
+  it.each([false, true])('selects nested array XML branches through a union: %s', (union) => {
+    const item = {
+      type: 'array',
+      xml: { name: 'group', wrapped: true },
+      items: {
+        anyOf: [
+          { type: 'string', xml: { name: 'text' } },
+          { type: 'integer', xml: { name: 'number' } },
+        ],
+      },
+      minItems: 2,
+      maxItems: 2,
+    }
+    const input = schema({
+      type: 'array',
+      xml: { name: 'values', wrapped: true },
+      items: union ? { anyOf: [item] } : item,
+      minItems: 1,
+      maxItems: 1,
+      contains: { const: [2, 'x'] },
+    })
+    expect(getXmlExampleFromSchema(input, compact)).toStrictEqual({
+      xml: '<values><group><number>2</number><text>x</text></group></values>',
+      diagnostics: [],
+    })
+  })
+
   it('serializes counted matches with item XML metadata', () => {
     const schema = {
       type: 'array',

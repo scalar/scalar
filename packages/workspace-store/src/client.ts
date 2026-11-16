@@ -1266,7 +1266,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         // Partial API descriptions still need document traversal rather than standalone schema traversal.
         openapi: inputDocument.openapi ?? '',
         ...meta,
-        'x-original-oas-version': clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger,
+        'x-original-oas-version':
+          clonedRawInputDocument['x-original-oas-version'] ??
+          clonedRawInputDocument.openapi ??
+          clonedRawInputDocument.swagger,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
       },

@@ -47,7 +47,7 @@ export const resetOperationRequestBody = async (
               body,
               contentType,
               requestBodyCompositionSelection,
-              openapiVersion ?? document.openapi,
+              openapiVersion ?? (document['x-original-oas-version'] || document.openapi),
               document.jsonSchemaDialect,
             ) ?? '',
         }

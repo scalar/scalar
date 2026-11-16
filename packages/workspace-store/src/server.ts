@@ -707,10 +707,16 @@ export async function createServerWorkspaceStore(
       return
     }
 
+    const originalOpenapiVersion = document['x-original-oas-version'] ?? document.openapi ?? document.swagger
     const upgradedDocument = upgrade(document, '3.1')
     // Copy only containers changed by normalization; unchanged x-ext graphs remain shared.
     const normalizedDocument = normalizeBooleanSchemas(upgradedDocument)
-    const documentV3 = coerceValue(OpenAPIDocumentSchema, normalizedDocument)
+    const documentV3 = coerceValue(OpenAPIDocumentSchema, {
+      ...normalizedDocument,
+      ...(originalOpenapiVersion !== upgradedDocument.openapi
+        ? { 'x-original-oas-version': originalOpenapiVersion }
+        : {}),
+    })
     preserveBundledExternals(normalizedDocument, documentV3)
 
     // Everything that inspects the document reads through this; everything that stores a piece of it

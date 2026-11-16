@@ -13,10 +13,12 @@ export const generateResponseExample = (
   variables?: Record<string, unknown>,
   openapiVersion?: string,
   jsonSchemaDialect?: string,
+  originalOpenapiVersion?: string,
 ): unknown =>
   getExampleFromSchema(snapshotSchema(schema), {
     openapiVersion,
     jsonSchemaDialect,
+    originalOpenapiVersion,
     emptyString: 'string',
     variables,
     mode: 'read',

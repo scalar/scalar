@@ -65,6 +65,85 @@ const documentWithBrokenResponseHeader: Record<string, unknown> = {
 }
 
 describe('createMockServer', () => {
+  it.each(
+    ['3.0.4', '3.1.0'].flatMap((openapi) =>
+      [undefined, 'return res[200];', 'return undefined;'].map((handler) => ({ openapi, handler })),
+    ),
+  )('keeps declared array semantics after upgrading $openapi ($handler)', async ({ openapi, handler }) => {
+    const app = await createMockServer({
+      document: {
+        openapi,
+        info: { title: 'Numbers', version: '1' },
+        paths: {
+          '/numbers': {
+            get: {
+              ...(handler ? { 'x-handler': handler } : {}),
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'array',
+                        items: { type: 'integer' },
+                        minItems: 3,
+                        maxItems: 3,
+                        contains: { const: 2 },
+                        minContains: 1,
+                        maxContains: 1,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      logger: false,
+    })
+    expect(await (await app.request('/numbers')).json()).toStrictEqual(openapi === '3.0.4' ? [1, 1, 1] : [2, 1, 1])
+  })
+
+  it('keeps upgraded XML metadata while ignoring newer assertions from OpenAPI 3.0', async () => {
+    const app = await createMockServer({
+      document: {
+        openapi: '3.0.4',
+        info: { title: 'Numbers', version: '1' },
+        paths: {
+          '/numbers': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/xml': {
+                      schema: {
+                        type: 'array',
+                        xml: { name: 'numbers', wrapped: true },
+                        items: { type: 'integer', xml: { name: 'number' } },
+                        minItems: 3,
+                        maxItems: 3,
+                        contains: { const: 2 },
+                        maxContains: 1,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      logger: false,
+    })
+    const response = await app.request('/numbers')
+    expect(response.headers.get('X-Scalar-XML-Error')).toBeNull()
+    expect((await response.text()).replace(/>\s+</g, '><')).toContain(
+      '<numbers><number>1</number><number>1</number><number>1</number></numbers>',
+    )
+  })
+
   it.each([undefined, 'return res[200];', 'return undefined;'])(
     'retains referenced array constraints through document loading and handlers: %s',
     async (handler) => {

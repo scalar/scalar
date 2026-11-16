@@ -580,27 +580,56 @@ export const generateContainsArray = (
   return finish(best)
 }
 
-/** Keep XML metadata on the item branch that actually accepts the chosen value. */
-export const getContainsItemSchema = (source: unknown, value: unknown, dialect: ArrayDialect, depth = 0): unknown => {
-  if (!isObject(source) || depth >= MAX_SCHEMA_DEPTH) return {}
-  if (typeof source.$schema === 'string') dialect = getArrayDialect(source.$schema)
-  if ('$ref-value' in source)
-    source = { ...source, '$ref-value': getContainsItemSchema(source['$ref-value'], value, dialect, depth + 1) }
-  if (!isObject(source)) return {}
-  if (Array.isArray(source.allOf))
-    source = {
-      ...source,
-      allOf: source.allOf
-        .slice(0, MAX_SCHEMA_VISITS)
-        .map((member) => getContainsItemSchema(member, value, dialect, depth + 1)),
+/** Keep XML metadata on every branch that actually accepts the chosen item and its children. */
+export const getContainsItemSchema = (source: unknown, value: unknown, dialect: ArrayDialect): unknown => {
+  const budget = { steps: MAX_MATCH_STEPS }
+  let remaining = MAX_NODES
+  const visit = (input: unknown, value: unknown, dialect: ArrayDialect, depth: number): unknown => {
+    if (!isObject(input) || depth >= MAX_SCHEMA_DEPTH || --remaining < 0) return {}
+    if (typeof input.$schema === 'string') dialect = getArrayDialect(input.$schema)
+    const result = { ...input }
+    if ('$ref-value' in input) result['$ref-value'] = visit(input['$ref-value'], value, dialect, depth + 1)
+    if (Array.isArray(input.allOf))
+      result.allOf = input.allOf.slice(0, MAX_SCHEMA_VISITS).map((member) => visit(member, value, dialect, depth + 1))
+    const keyword = Array.isArray(input.oneOf) ? 'oneOf' : Array.isArray(input.anyOf) ? 'anyOf' : undefined
+    if (keyword) {
+      const members = input[keyword] as unknown[]
+      const selected = members
+        .slice(0, MAX_CANDIDATES)
+        .find((member) => matches(member, value, dialect, budget) === true)
+      if (selected !== undefined) {
+        delete result.oneOf
+        delete result.anyOf
+        result.allOf = [
+          ...(Array.isArray(result.allOf) ? result.allOf : []),
+          visit(selected, value, dialect, depth + 1),
+        ]
+      }
     }
-  if (!isObject(source)) return {}
-  const keyword = Array.isArray(source.oneOf) ? 'oneOf' : Array.isArray(source.anyOf) ? 'anyOf' : undefined
-  if (!keyword) return source
-  const members = source[keyword] as unknown[]
-  const budget = { steps: MAX_NODES }
-  const selected = members.slice(0, MAX_CANDIDATES).find((member) => matches(member, value, dialect, budget) === true)
-  if (selected === undefined) return source
-  const { oneOf: _oneOf, anyOf: _anyOf, ...base } = source
-  return { ...base, allOf: [...(Array.isArray(base.allOf) ? base.allOf : []), selected] }
+    if (isObject(value)) {
+      const properties = isObject(input.properties) ? input.properties : {}
+      result.properties = Object.fromEntries(
+        Object.entries(value)
+          .slice(0, MAX_NODES)
+          .map(([key, child]) => [
+            key,
+            visit(properties[key] ?? input.additionalProperties, child, dialect, depth + 1),
+          ]),
+      )
+    }
+    if (Array.isArray(value) && dialect === 'modern') {
+      result.prefixItems = value
+        .slice(0, MAX_NODES)
+        .map((child, index) =>
+          visit(
+            Array.isArray(input.prefixItems) ? (input.prefixItems[index] ?? input.items) : input.items,
+            child,
+            dialect,
+            depth + 1,
+          ),
+        )
+    }
+    return result
+  }
+  return visit(source, value, dialect, 0)
 }

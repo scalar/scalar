@@ -253,7 +253,7 @@ describe('has-complex-array-items', () => {
     })
 
     it('returns false for array with items as non-object', () => {
-      // Pass invalid data directly because coercion converts strings into boolean schemas.
+      // Pass invalid data directly so this exercises the helper without schema coercion.
       const schema = {
         type: 'array',
         items: 'string',

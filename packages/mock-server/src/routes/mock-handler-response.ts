@@ -32,6 +32,7 @@ function getExampleFromResponse(
   exampleName?: string,
   openapiVersion?: string,
   jsonSchemaDialect?: string,
+  originalOpenapiVersion?: string,
 ): string | null {
   if (!responses) {
     return null
@@ -69,6 +70,7 @@ function getExampleFromResponse(
     const result = getXmlBodyExample(acceptedResponse.schema as SchemaObject | undefined, selectedExample, {
       openapiVersion,
       jsonSchemaDialect,
+      originalOpenapiVersion,
       emptyString: 'string',
       variables: pathParameters(c),
       mode: 'read',
@@ -96,6 +98,7 @@ function getExampleFromResponse(
         pathParameters(c),
         openapiVersion,
         jsonSchemaDialect,
+        originalOpenapiVersion,
       ),
       responseSchema,
     )
@@ -172,6 +175,7 @@ export async function mockHandlerResponse(
   pathItemParameters?: OpenAPIV3_1.PathItemObject['parameters'],
   openapiVersion?: string,
   jsonSchemaDialect?: string,
+  originalOpenapiVersion?: string,
 ) {
   // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
   // for requests rejected before reaching this handler.
@@ -192,6 +196,7 @@ export async function mockHandlerResponse(
       pathItemParameters,
       openapiVersion,
       jsonSchemaDialect,
+      originalOpenapiVersion,
     )
 
     // Execute handler
@@ -213,6 +218,7 @@ export async function mockHandlerResponse(
     const streamingResponse = getStreamingResponse(response?.content?.[contentType], contentType, {
       openapiVersion,
       jsonSchemaDialect,
+      originalOpenapiVersion,
       body: result ?? undefined,
       exampleName: parsePreferHeader(c.req.header('Prefer')).example,
       variables: pathParameters(c),
@@ -236,6 +242,7 @@ export async function mockHandlerResponse(
         prefer.example,
         openapiVersion,
         jsonSchemaDialect,
+        originalOpenapiVersion,
       )
       if (exampleResponse !== null) {
         return c.body(exampleResponse)

@@ -12,6 +12,7 @@ import { literalReferencesDocument } from '@test/literal-references'
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas'
@@ -52,6 +53,22 @@ describe('create-server-store', () => {
     } finally {
       fetchDocument.mockRestore()
     }
+  })
+
+  it('retains the original OpenAPI version across server and client upgrades', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: '/docs',
+      documents: [{ name: 'api', document: { openapi: '3.0.4', info: { title: 'Numbers', version: '1' }, paths: {} } }],
+    })
+    const document = store.getResolvedDocument('api')!
+    assert('openapi' in document)
+    expect(document['x-original-oas-version']).toBe('3.0.4')
+    const client = createWorkspaceStore()
+    await client.addDocument({ name: 'api', document })
+    const clientDocument = client.workspace.documents.api
+    assert(clientDocument && 'openapi' in clientDocument)
+    expect(clientDocument['x-original-oas-version']).toBe('3.0.4')
   })
 
   it('preserves Paths Object extensions when externalizing operations', () => {

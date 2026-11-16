@@ -298,7 +298,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
               :isWebhook
               :jsonSchemaDialect="document?.jsonSchemaDialect"
               :method
-              :openapiVersion="document?.openapi"
+              :openapiVersion="
+                document?.['x-original-oas-version'] || document?.openapi
+              "
               :operation
               :path
               :requestBodyCompositionSelection="
@@ -339,7 +341,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
               v-if="operation.responses"
               :eventBus
               :jsonSchemaDialect="document?.jsonSchemaDialect"
-              :openapiVersion="document?.openapi"
+              :openapiVersion="
+                document?.['x-original-oas-version'] || document?.openapi
+              "
               :responses="operation.responses"
               :selectedContentTypes="selectedResponseContentTypes"
               :selectedExample

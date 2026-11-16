@@ -106,6 +106,7 @@ const carriesResponse = (error: Error): error is Error & { getResponse: () => Re
 export const createOpenApiMockServer = async (
   configuration: MockServerOptions,
   schema: Extract<ProcessedDocument, { type: 'openapi' }>['document'],
+  originalOpenapiVersion?: string,
 ): Promise<Hono> => {
   const app = new Hono()
 
@@ -313,10 +314,20 @@ export const createOpenApiMockServer = async (
       if (hasHandler) {
         handlers.push(
           async (c) =>
-            await mockHandlerResponse(c, operation, pathItem?.parameters, schema.openapi, schema.jsonSchemaDialect),
+            await mockHandlerResponse(
+              c,
+              operation,
+              pathItem?.parameters,
+              schema.openapi,
+              schema.jsonSchemaDialect,
+              originalOpenapiVersion,
+            ),
         )
       } else {
-        handlers.push(async (c) => await mockAnyResponse(c, operation, schema.openapi, schema.jsonSchemaDialect))
+        handlers.push(
+          async (c) =>
+            await mockAnyResponse(c, operation, schema.openapi, schema.jsonSchemaDialect, originalOpenapiVersion),
+        )
       }
 
       // The pinned query parameters are not part of the route, so they are checked here. A request
