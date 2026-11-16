@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { getCustomClientIds } from '@scalar/blocks/code-example'
+import {
+  getCustomClientIds,
+  type ClientOptionGroup,
+} from '@scalar/blocks/code-example'
 import {
   ScalarCombobox,
   type ScalarComboboxOption,
 } from '@scalar/components/combobox'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import type { AvailableClient } from '@scalar/types/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
 import {
@@ -18,25 +22,33 @@ import {
   watch,
 } from 'vue'
 
+import { getFeaturedClients } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
 import { useLocalization } from '@/features/localization'
 
 import { getLanguageIcon } from '../helpers/language-icon'
 import { getRenderableSdks } from '../helpers/renderable-sdks'
 import { getVisibleTabCount } from '../helpers/visible-tab-count'
 
-const { xScalarSdkInstallation, selectedClient, eventBus } = defineProps<{
+const {
+  xScalarSdkInstallation,
+  selectedClient,
+  eventBus,
+  clientOptions = [],
+  featuredClients,
+} = defineProps<{
+  /** Built-in clients to show alongside SDKs when the combined view is enabled. */
+  clientOptions?: ClientOptionGroup[]
+  /** Built-in clients shown inline, in order, after the SDK tabs. */
+  featuredClients?: AvailableClient[]
   /** Custom SDK installation instructions from `x-scalar-sdk-installation` */
   xScalarSdkInstallation?: XScalarSdkInstallation['x-scalar-sdk-installation']
   /**
-   * The globally selected client id. When it matches one of the SDK languages
-   * (as a `custom/<lang>` id) the matching tab is shown as active, keeping the
-   * tabs in sync with the operation code samples.
+   * The globally selected built-in or `custom/<lang>` client id, keeping the
+   * introduction in sync with the operation code samples.
    */
   selectedClient?: string
   /**
-   * Event bus used to broadcast the selected client. Picking a language here
-   * switches the operation code samples to that language's custom example, the
-   * same channel the generic client selector uses.
+   * Event bus used to select the matching generated or custom operation example.
    */
   eventBus?: WorkspaceEventBus
 }>()
@@ -47,50 +59,64 @@ const baseId = useId()
 const panelId = `${baseId}-panel`
 const { translate } = useLocalization()
 
-/** Only the SDKs that actually have something to show, with their resolved icon */
-const sdks = computed(() =>
-  getRenderableSdks(xScalarSdkInstallation).map((sdk) => ({
+/** SDK IDs stay identical to the IDs used by operation code samples. */
+const sdkEntries = computed(() => {
+  const sdks = getRenderableSdks(xScalarSdkInstallation)
+  const ids = getCustomClientIds(
+    sdks.map((sdk) => ({ lang: sdk.lang, source: '' })),
+  )
+  return sdks.map((sdk, index) => ({
     ...sdk,
+    id: ids[index],
+    title: '',
     icon: getLanguageIcon(sdk.lang),
-  })),
+  }))
+})
+
+const featured = computed(() =>
+  getFeaturedClients(clientOptions, featuredClients),
 )
 
-/** Index of the currently selected SDK */
+/** SDKs and featured clients are eligible for inline tabs; the rest stay in More. */
+const inlineCount = computed(
+  () => sdkEntries.value.length + featured.value.length,
+)
+
+const entries = computed(() => {
+  const featuredIds = new Set(featured.value.map((client) => client.id))
+  const otherClients = clientOptions.flatMap((group) =>
+    group.options.filter((client) => !featuredIds.has(client.id)),
+  )
+  return [
+    ...sdkEntries.value,
+    ...[...featured.value, ...otherClients].map((client) => ({
+      id: client.id,
+      label: client.targetTitle,
+      title: client.title,
+      description: '',
+      icon: getLanguageIcon(client.targetKey),
+    })),
+  ]
+})
+
 const selectedIndex = ref(0)
+const selected = computed(() => entries.value[selectedIndex.value])
+const clientIds = computed(() => entries.value.map((entry) => entry.id))
 
-/** The currently selected SDK */
-const selected = computed(() => sdks.value[selectedIndex.value])
-
-/**
- * The `custom/<lang>` client id for each SDK, aligned by index with `sdks`.
- *
- * We reuse the exact id scheme the operation code samples use for their custom
- * examples, so selecting a language here resolves to the same id those samples
- * are keyed by — that shared id is what keeps the two surfaces in sync.
- */
-const sdkClientIds = computed(() =>
-  getCustomClientIds(sdks.value.map((sdk) => ({ lang: sdk.lang, source: '' }))),
-)
-
-/** Select an SDK by index and broadcast it so the operation code samples follow */
-const select = (index: number) => {
+/** Broadcast selection so the operation code samples follow the introduction. */
+const select = (index: number): void => {
   selectedIndex.value = index
 
-  const id = sdkClientIds.value[index]
+  const id = clientIds.value[index]
   if (id) {
     eventBus?.emit('workspace:update:selected-client', id)
   }
 }
 
-// Keep the active tab aligned with the global selection, re-evaluating whenever
-// either the selection or the available SDKs change. Watching `sdkClientIds`
-// (not just `selectedClient`) is what stops the intro tab and the operation
-// samples from disagreeing after the SDK list is reordered or resized: the tab
-// follows the selected language to its new position. When the selection is a
-// built-in client (or a language this document has no install entry for) we keep
-// the current tab, only clamping it back into range if the list shrank past it.
+// Follow matching global selections, including reordered or filtered options.
+// In SDK-only mode an unrelated built-in selection keeps the current SDK tab.
 watch(
-  [() => selectedClient, sdkClientIds],
+  [() => selectedClient, clientIds],
   ([client, ids]) => {
     const matched = client ? ids.findIndex((id) => id === client) : -1
 
@@ -106,7 +132,7 @@ watch(
 // Re-measure labels as well as languages so renamed SDKs do not leave stale
 // tab widths or an incorrect number of options in the "More" menu.
 watch(
-  () => JSON.stringify(sdks.value.map(({ lang, label }) => [lang, label])),
+  () => JSON.stringify(entries.value.map(({ id, label }) => [id, label])),
   () => void nextTick(measure),
 )
 
@@ -137,8 +163,8 @@ const measure = () => {
     (child) => (child as HTMLElement).offsetWidth,
   )
 
-  tabWidths.value = widths.slice(0, sdks.value.length)
-  moreWidth.value = widths[sdks.value.length] ?? 0
+  tabWidths.value = widths.slice(0, inlineCount.value)
+  moreWidth.value = widths[inlineCount.value] ?? 0
   availableWidth.value = rowEl.clientWidth
 }
 
@@ -146,27 +172,30 @@ const measure = () => {
 const visibleCount = computed(() => {
   // Until we have measured, render everything (also the server-rendered state)
   if (!tabWidths.value.length || availableWidth.value <= 0) {
-    return sdks.value.length
+    return inlineCount.value
   }
 
   return getVisibleTabCount(
     tabWidths.value,
     availableWidth.value,
     moreWidth.value,
+    entries.value.length > inlineCount.value,
   )
 })
 
-/** The SDKs shown as inline tabs */
-const visibleSdks = computed(() => sdks.value.slice(0, visibleCount.value))
+/** SDKs and featured clients that fit inline. */
+const visibleEntries = computed(() =>
+  entries.value.slice(0, visibleCount.value),
+)
 
-/** Whether the selected SDK lives in the "More" dropdown */
+/** Whether the selection lives in the "More" dropdown */
 const isMoreActive = computed(() => selectedIndex.value >= visibleCount.value)
 
-/** The overflowing SDKs as combobox options, keyed by their original index */
+/** Overflowing tabs and non-featured clients, keyed by their original index. */
 const moreOptions = computed<ScalarComboboxOption[]>(() =>
-  sdks.value.slice(visibleCount.value).map((sdk, index) => ({
+  entries.value.slice(visibleCount.value).map((entry, index) => ({
     id: String(visibleCount.value + index),
-    label: sdk.label,
+    label: entry.title || entry.label,
   })),
 )
 
@@ -272,7 +301,7 @@ onBeforeUnmount(() => {
 })
 </script>
 <template>
-  <div v-if="sdks.length">
+  <div v-if="entries.length">
     <div
       :id="headingId"
       class="client-libraries-heading">
@@ -291,7 +320,7 @@ onBeforeUnmount(() => {
           class="client-libraries-tabs"
           role="tablist">
           <button
-            v-for="(sdk, index) in visibleSdks"
+            v-for="(sdk, index) in visibleEntries"
             :id="`${baseId}-tab-${index}`"
             :key="index"
             :aria-controls="panelId"
@@ -313,7 +342,7 @@ onBeforeUnmount(() => {
 
         <!-- More dropdown (not a tab — lives beside the tablist) -->
         <ScalarCombobox
-          v-if="visibleCount < sdks.length"
+          v-if="visibleCount < entries.length"
           :modelValue="selectedMoreOption"
           :options="moreOptions"
           placement="bottom-end"
@@ -345,7 +374,7 @@ onBeforeUnmount(() => {
           ref="measureRef"
           class="client-libraries-row client-libraries-row--measure">
           <span
-            v-for="(sdk, index) in sdks"
+            v-for="(sdk, index) in entries.slice(0, inlineCount)"
             :key="index"
             class="client-libraries">
             <ScalarIcon
@@ -368,13 +397,20 @@ onBeforeUnmount(() => {
 
     <!-- Content: Markdown installation instructions (supports code blocks) -->
     <div
-      v-if="selected?.description"
+      v-if="selected"
       :id="panelId"
       :aria-labelledby="activeTabId"
       class="selected-client"
       role="tabpanel"
       tabindex="0">
-      <ScalarMarkdown :value="selected.description" />
+      <ScalarMarkdown
+        v-if="selected.description"
+        :value="selected.description" />
+      <span
+        v-else
+        class="font-code"
+        >{{ selected.title }}</span
+      >
     </div>
   </div>
 </template>

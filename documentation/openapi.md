@@ -684,6 +684,8 @@ Aliases: `x-enumNames`
 
 We generate custom code examples for all languages, but you might have a custom SDK for your API. Provide installation instructions in the header and they replace the generic HTTP clients in the introduction.
 
+Set [`showDefaultClientsWithSdkInstallation`](./configuration.md#showdefaultclientswithsdkinstallation) to `true` to show SDK tabs and built-in HTTP clients together in the same card.
+
 Each entry has a `lang` (used to pick a matching language icon and synchronize code sample selection) and a `description`. Set an optional `label` to customize the tab text, for example `lang: python` with `label: Python SDK`. If `label` is missing or blank, the tab displays `lang`. The `description` supports Markdown, including fenced code blocks with syntax highlighting, so a single tab can show multiple snippets (for example Maven and Gradle for Java).
 
 ````diff

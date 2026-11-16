@@ -1,3 +1,5 @@
+import { generateClientOptions } from '@scalar/blocks/code-example'
+import type { ScalarComboboxOption } from '@scalar/components/combobox'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -9,6 +11,84 @@ describe('SdkInstallationInstructions', () => {
     ScalarMarkdown: true,
     ScalarIcon: true,
   }
+
+  it('combines SDK tabs with featured clients and broadcasts both selections', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('workspace:update:selected-client', listener)
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        eventBus,
+        selectedClient: 'custom/php',
+        clientOptions: generateClientOptions(),
+        featuredClients: ['shell/curl', 'node/undici'],
+        xScalarSdkInstallation: [{ lang: 'php', label: 'PHP SDK', description: 'Install the PHP SDK' }],
+      },
+    })
+    expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(['PHP SDK', 'Shell', 'Node.js'])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install the PHP SDK')
+    await wrapper.findAll('[role="tab"]')[1]?.trigger('click')
+    expect(listener.mock.calls).toStrictEqual([['shell/curl']])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Shell Curl')
+    await wrapper.setProps({ selectedClient: 'node/undici' })
+    expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toBe('Node.js')
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Node.js undici')
+    await wrapper.findAll('[role="tab"]')[0]?.trigger('click')
+    expect(listener.mock.calls).toStrictEqual([['shell/curl'], ['custom/php']])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install the PHP SDK')
+    wrapper.unmount()
+  })
+
+  it('keeps non-featured clients in More and follows external selections', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('workspace:update:selected-client', listener)
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        eventBus,
+        selectedClient: 'python/requests',
+        clientOptions: generateClientOptions(),
+        featuredClients: [],
+        xScalarSdkInstallation: [{ lang: 'php', description: 'Install PHP' }],
+      },
+    })
+    expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(['php'])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Python Requests')
+    expect(wrapper.findAll('[role="tab"][aria-selected="true"]').length).toBe(0)
+    const combobox = wrapper.getComponent({ name: 'ScalarCombobox' })
+    const option = (combobox.props('options') as ScalarComboboxOption[]).find((entry) => entry.label === 'Shell Curl')
+    expect(option?.label).toBe('Shell Curl')
+    await combobox.vm.$emit('update:modelValue', option)
+    expect(listener.mock.calls).toStrictEqual([['shell/curl']])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Shell Curl')
+    await wrapper.setProps({ selectedClient: 'custom/php' })
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install PHP')
+    wrapper.unmount()
+  })
+
+  it('excludes hidden clients and follows selections when featured clients change', async () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        selectedClient: 'node/undici',
+        clientOptions: generateClientOptions(['node/undici', 'python/requests']),
+        featuredClients: ['shell/curl', 'node/undici'],
+        xScalarSdkInstallation: [{ lang: 'php', description: 'Install PHP' }],
+      },
+    })
+    expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(['php', 'Node.js'])
+    expect(
+      (wrapper.getComponent({ name: 'ScalarCombobox' }).props('options') as ScalarComboboxOption[]).some((entry) =>
+        entry.label.startsWith('Shell '),
+      ),
+    ).toBe(false)
+    await wrapper.setProps({ featuredClients: ['python/requests', 'node/undici'] })
+    expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toBe('Node.js')
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Node.js undici')
+    await wrapper.setProps({ clientOptions: [] })
+    expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(['php'])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install PHP')
+    wrapper.unmount()
+  })
 
   it('uses display labels while preserving language selection', async () => {
     const eventBus = createWorkspaceEventBus()
