@@ -17,7 +17,7 @@ import {
   getArrayDialect,
   getAuthoredArrayExample,
   getContainsItemSchema,
-  hasArrayContains,
+  mayHaveArrayContains,
 } from './array-contains'
 import { EXAMPLE_EVALUATION, type ExampleEvaluation, type ExampleEvaluationState } from './example-evaluation'
 
@@ -26,7 +26,7 @@ const MAX_LEVELS_DEEP = 10
 
 /** Preserve containment assertions without changing legacy resolution of other child schemas. */
 const getGenerationSchema = (source: unknown, resolved: SchemaObject): SchemaObject =>
-  hasArrayContains(source) ? (source as SchemaObject) : resolved
+  mayHaveArrayContains(source) ? (source as SchemaObject) : resolved
 
 /** Default name used for additional properties when no custom name is provided */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
@@ -989,7 +989,7 @@ const handleArraySchema = (
     options?.jsonSchemaDialect,
     options?.originalOpenapiVersion ?? options?.openapiVersion,
   )
-  if (hasArrayContains(schema) && dialect !== 'unsupported') {
+  if (mayHaveArrayContains(schema) && dialect !== 'unsupported') {
     const select: Parameters<typeof generateContainsArray>[3] = (candidate, path, consumed): unknown =>
       selectExampleComposition(
         candidate as SchemaObject,
@@ -1135,7 +1135,7 @@ const handleArraySchema = (
   }
 
   // Keep independent reference and composition assertions together before item branch selection.
-  if (hasArrayContains(itemSchema) && itemsSeen === seen) {
+  if (mayHaveArrayContains(itemSchema) && itemsSeen === seen) {
     const example = getExampleFromSchema(itemSchema as SchemaObject, options, {
       level: level + 1,
       schemaPath: itemsSchemaPath,
@@ -1893,7 +1893,7 @@ const generateExampleFromSchema = (
 
   // Reference siblings are independent assertions; the display resolver merges their keywords.
   const containsReference =
-    typeof schema === 'object' && schema !== null && '$ref' in schema && hasArrayContains(schema)
+    typeof schema === 'object' && schema !== null && '$ref' in schema && mayHaveArrayContains(schema)
   if (!containsReference && typeof _schema.$schema === 'string' && _schema.$schema !== options?.jsonSchemaDialect) {
     options = { ...options, jsonSchemaDialect: _schema.$schema }
   }
@@ -2034,7 +2034,7 @@ const generateExampleFromSchema = (
   if (
     getArrayDialect(options?.jsonSchemaDialect, options?.originalOpenapiVersion ?? options?.openapiVersion) !==
       'unsupported' &&
-    hasArrayContains(containsReference ? schema : _schema) &&
+    mayHaveArrayContains(containsReference ? schema : _schema) &&
     (('type' in _schema && includesArrayType(_schema.type)) ||
       (!('type' in _schema) &&
         !('properties' in _schema) &&

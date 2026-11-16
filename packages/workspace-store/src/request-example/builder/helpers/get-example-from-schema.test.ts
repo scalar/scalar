@@ -555,6 +555,23 @@ describe('getExampleFromSchema', () => {
     expect({ valid: validate(value), errors: validate.errors }).toStrictEqual({ valid: true, errors: null })
   })
 
+  it.each([62, 63, 80])('keeps an undiscovered contains bound safe after %i members', (emptyMembers) => {
+    const schema = {
+      type: 'array',
+      items: { const: 2 },
+      minItems: 1,
+      maxItems: 1,
+      allOf: [
+        ...Array.from({ length: emptyMembers }, () => ({})),
+        { contains: { const: 2 }, minContains: 0, maxContains: 0 },
+      ],
+    }
+    const value = getExampleFromSchema(schema as SchemaObject)
+    expect(value).toStrictEqual([])
+    const validate = new Ajv2020({ strict: false }).compile({ ...schema, minItems: 0 })
+    expect({ valid: validate(value), errors: validate.errors }).toStrictEqual({ valid: true, errors: null })
+  })
+
   it('retains tuple prefixes when the tail is omitted in write mode', () => {
     expect(
       getExampleFromSchema(

@@ -329,16 +329,19 @@ const arrayLayers = (
   return layers
 }
 
-/** Detect containment before normal array union selection can overwrite surrounding assertions. */
-export const hasArrayContains = (schema: unknown, seen = new Set<object>()): boolean => {
-  if (!isObject(schema) || seen.has(schema) || seen.size >= MAX_SCHEMA_VISITS) return false
+/** Route known containment and inconclusive bounded scans through the conservative array generator. */
+export const mayHaveArrayContains = (schema: unknown, seen = new Set<object>()): boolean => {
+  if (!isObject(schema) || seen.has(schema)) return false
+  if (seen.size >= MAX_SCHEMA_VISITS) return true
   seen.add(schema)
   if ('contains' in schema) return true
-  if ('$ref-value' in schema && hasArrayContains(schema['$ref-value'], seen)) return true
+  if ('$ref-value' in schema && mayHaveArrayContains(schema['$ref-value'], seen)) return true
   return ['allOf', 'anyOf', 'oneOf'].some((keyword) => {
     const members = schema[keyword]
     return (
-      Array.isArray(members) && members.slice(0, MAX_SCHEMA_VISITS).some((member) => hasArrayContains(member, seen))
+      Array.isArray(members) &&
+      (members.length > MAX_SCHEMA_VISITS ||
+        members.slice(0, MAX_SCHEMA_VISITS).some((member) => mayHaveArrayContains(member, seen)))
     )
   })
 }
