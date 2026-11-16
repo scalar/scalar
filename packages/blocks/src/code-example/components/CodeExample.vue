@@ -171,7 +171,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   computed,
-  onBeforeMount,
   ref,
   useId,
   watch,
@@ -268,10 +267,9 @@ const resolveExampleKey = (preferred: string | undefined): string => {
   return keys[0] ?? ''
 }
 
-// Set the initial example from the document-wide selection, falling back to the first example
-onBeforeMount(() => {
-  localExampleKey.value = resolveExampleKey(selectedExample)
-})
+// Set the initial example from the document-wide selection, falling back to the first example.
+// This runs during setup so the server renders the same example as the browser.
+localExampleKey.value = resolveExampleKey(selectedExample)
 
 // Follow the document-wide selection when it changes and this operation has that example
 watch(
