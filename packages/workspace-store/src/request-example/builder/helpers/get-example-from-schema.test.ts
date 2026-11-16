@@ -397,6 +397,29 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual([9])
   })
 
+  it.each(['anyOf', 'oneOf', 'allOf'] as const)(
+    'keeps authored examples on active %s members even when they contradict contains',
+    (keyword) => {
+      for (const authored of [{ example: [9] }, { examples: [[9], [8]] }]) {
+        const schema = {
+          [keyword]: [{ type: 'array', ...authored }],
+          contains: { const: 2 },
+          maxItems: 0,
+        } as unknown as SchemaObject
+        expect(getExampleFromSchema(schema)).toStrictEqual([9])
+      }
+    },
+  )
+
+  it('ignores authored examples on unselected array members', () => {
+    expect(
+      getExampleFromSchema({
+        anyOf: [{ type: 'array' }, { type: 'array', example: [9] }],
+        contains: { const: 2 },
+      } as SchemaObject),
+    ).toStrictEqual([2])
+  })
+
   it.each([
     { contains: { const: 2 }, minContains: 2, maxContains: 1, items: { const: 2 }, expected: [2] },
     { contains: false, items: true, expected: [null] },

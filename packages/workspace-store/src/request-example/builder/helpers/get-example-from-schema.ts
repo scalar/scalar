@@ -12,7 +12,13 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
-import { generateContainsArray, getArrayDialect, getContainsItemSchema, hasArrayContains } from './array-contains'
+import {
+  generateContainsArray,
+  getArrayDialect,
+  getAuthoredArrayExample,
+  getContainsItemSchema,
+  hasArrayContains,
+} from './array-contains'
 import { EXAMPLE_EVALUATION, type ExampleEvaluation, type ExampleEvaluationState } from './example-evaluation'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
@@ -980,6 +986,12 @@ const handleArraySchema = (
     options?.originalOpenapiVersion ?? options?.openapiVersion,
   )
   if (hasArrayContains(schema) && dialect !== 'unsupported') {
+    const select = (candidate: Record<string, unknown>, path: string[]): unknown =>
+      selectExampleComposition(candidate as SchemaObject, [...schemaPath, ...path], options)
+    const authored = getAuthoredArrayExample(schema, dialect, select)
+    if (authored) {
+      return cache(schema, authored.value, cacheKey, skipCache)
+    }
     const probeOptions = options?.[EXAMPLE_EVALUATION] ? { ...options, [EXAMPLE_EVALUATION]: undefined } : options
     const { values: value, itemSchemas } = generateContainsArray(
       schema,
@@ -1001,7 +1013,7 @@ const handleArraySchema = (
           },
         )
       },
-      (candidate, path) => selectExampleComposition(candidate as SchemaObject, [...schemaPath, ...path], options),
+      select,
     )
     const evaluation = options?.[EXAMPLE_EVALUATION]?.stack.at(-1)
     if (evaluation) {

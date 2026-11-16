@@ -109,6 +109,11 @@ export const createOpenApiMockServer = async (
   originalOpenapiVersion?: string,
 ): Promise<Hono> => {
   const app = new Hono()
+  const generationContext = {
+    openapiVersion: schema.openapi,
+    jsonSchemaDialect: schema.jsonSchemaDialect,
+    originalOpenapiVersion,
+  }
 
   // Unhandled errors would otherwise reach Hono's default handler, which answers with a plain-text
   // `Internal Server Error` that says nothing about what broke. A mock server fails for mundane,
@@ -312,22 +317,9 @@ export const createOpenApiMockServer = async (
 
       // Route to appropriate handler
       if (hasHandler) {
-        handlers.push(
-          async (c) =>
-            await mockHandlerResponse(
-              c,
-              operation,
-              pathItem?.parameters,
-              schema.openapi,
-              schema.jsonSchemaDialect,
-              originalOpenapiVersion,
-            ),
-        )
+        handlers.push(async (c) => await mockHandlerResponse(c, operation, pathItem?.parameters, generationContext))
       } else {
-        handlers.push(
-          async (c) =>
-            await mockAnyResponse(c, operation, schema.openapi, schema.jsonSchemaDialect, originalOpenapiVersion),
-        )
+        handlers.push(async (c) => await mockAnyResponse(c, operation, generationContext))
       }
 
       // The pinned query parameters are not part of the route, so they are checked here. A request

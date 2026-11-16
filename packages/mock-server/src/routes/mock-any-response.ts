@@ -11,7 +11,7 @@ import type { StatusCode } from 'hono/utils/http-status'
 
 import { collectSseEvents, isEventStreamContentType } from '@/utils/collect-sse-events'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
-import { generateResponseExample } from '@/utils/generate-response-example'
+import { type ExampleGenerationContext, generateResponseExample } from '@/utils/generate-response-example'
 import { isSettableResponseHeader } from '@/utils/is-settable-response-header'
 import { negotiateContentType } from '@/utils/negotiate-content-type'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
@@ -41,9 +41,7 @@ const IGNORED_RESPONSE_HEADERS = new Set([
 export function mockAnyResponse(
   c: Context,
   operation: OpenAPIV3_1.OperationObject,
-  openapiVersion?: string,
-  jsonSchemaDialect?: string,
-  originalOpenapiVersion?: string,
+  generationContext: ExampleGenerationContext = {},
 ) {
   // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
   // for requests rejected before reaching this handler.
@@ -85,11 +83,7 @@ export function mockAnyResponse(
     const headerObject = getResolvedRef(headers[header])
     // Headers use the generator defaults to preserve their declared values.
     const value = headerObject?.schema
-      ? getExampleFromSchema(snapshotSchema(headerObject.schema) as SchemaObject, {
-          openapiVersion,
-          jsonSchemaDialect,
-          originalOpenapiVersion,
-        })
+      ? getExampleFromSchema(snapshotSchema(headerObject.schema) as SchemaObject, generationContext)
       : null
     // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
     // thing to set the declared headers, so in practice a delete removes a header set earlier by
@@ -130,9 +124,7 @@ export function mockAnyResponse(
   const acceptedResponse = selectedResponse?.content?.[acceptedContentType]
 
   const streamingResponse = getStreamingResponse(acceptedResponse, acceptedContentType, {
-    openapiVersion,
-    jsonSchemaDialect,
-    originalOpenapiVersion,
+    ...generationContext,
     exampleName: prefer.example,
     variables: pathParameters(c),
   })
@@ -146,13 +138,7 @@ export function mockAnyResponse(
   /** Generates the response body from the schema, or returns `undefined` when there is no schema. */
   const generateFromSchema = (): unknown =>
     responseSchema
-      ? generateResponseExample(
-          acceptedResponse!.schema as SchemaObject,
-          pathParameters(c),
-          openapiVersion,
-          jsonSchemaDialect,
-          originalOpenapiVersion,
-        )
+      ? generateResponseExample(acceptedResponse!.schema as SchemaObject, pathParameters(c), generationContext)
       : undefined
 
   // Server-Sent Events are a framed, multi-event wire format, so they cannot go out as one buffered
@@ -187,9 +173,7 @@ export function mockAnyResponse(
 
   if (isXmlMediaType(acceptedContentType)) {
     const result = getXmlBodyExample(acceptedResponse?.schema as SchemaObject | undefined, selectedExample, {
-      openapiVersion,
-      jsonSchemaDialect,
-      originalOpenapiVersion,
+      ...generationContext,
       emptyString: 'string',
       variables: pathParameters(c),
       mode: 'read',

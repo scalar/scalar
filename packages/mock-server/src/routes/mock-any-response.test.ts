@@ -38,7 +38,7 @@ describe('mock-any-response', () => {
           schema,
           ...(contentType === 'application/x-ndjson' ? { itemSchema: { type: 'integer' } } : {}),
         }),
-        contentType === 'application/x-ndjson' ? '3.2.0' : '3.1.0',
+        { openapiVersion: contentType === 'application/x-ndjson' ? '3.2.0' : '3.1.0' },
       ),
     )
     const response = await app.request('/')
@@ -58,12 +58,10 @@ describe('mock-any-response', () => {
   ])('keeps document dialect context for streaming responses: $dialect', async ({ dialect, expected }) => {
     const schema = { type: 'array', minItems: 3, maxItems: 3, contains: { const: 2 }, maxContains: 1 }
     const app = new Hono().get('/', (c) =>
-      mockAnyResponse(
-        c,
-        operation('application/x-ndjson', { schema, itemSchema: { type: 'integer' } }),
-        '3.2.0',
-        dialect,
-      ),
+      mockAnyResponse(c, operation('application/x-ndjson', { schema, itemSchema: { type: 'integer' } }), {
+        openapiVersion: '3.2.0',
+        jsonSchemaDialect: dialect,
+      }),
     )
     expect(await (await app.request('/')).text()).toBe(expected)
   })
@@ -79,7 +77,9 @@ describe('mock-any-response', () => {
       maxContains: 1,
       uniqueItems,
     }
-    const app = new Hono().get('/', (c) => mockAnyResponse(c, operation('application/json', { schema }), '3.1.0'))
+    const app = new Hono().get('/', (c) =>
+      mockAnyResponse(c, operation('application/json', { schema }), { openapiVersion: '3.1.0' }),
+    )
     const response = await app.request('/')
     const value = await response.json()
     const validate = new Ajv2020({ strict: false }).compile(schema)
@@ -102,7 +102,10 @@ describe('mock-any-response', () => {
       maxContains: 1,
     }
     const app = new Hono().get('/', (c) =>
-      mockAnyResponse(c, operation('application/json', { schema }), version, dialect),
+      mockAnyResponse(c, operation('application/json', { schema }), {
+        openapiVersion: version,
+        jsonSchemaDialect: dialect,
+      }),
     )
     expect(await (await app.request('/')).json()).toStrictEqual(expected)
   })

@@ -5,7 +5,7 @@ import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 
 import { store } from '../libs/store'
-import { type ExampleSchema, generateResponseExample } from './generate-response-example'
+import { type ExampleGenerationContext, type ExampleSchema, generateResponseExample } from './generate-response-example'
 import { normalizeResponseBody } from './normalize-response-body'
 import { parsePreferHeader } from './parse-prefer-header'
 import { pathParameters } from './path-parameters'
@@ -44,9 +44,7 @@ function getExampleFromResponse(
   c: Context,
   statusCode: string,
   responses: OpenAPIV3_1.ResponsesObject | undefined,
-  openapiVersion?: string,
-  jsonSchemaDialect?: string,
-  originalOpenapiVersion?: string,
+  generationContext: ExampleGenerationContext = {},
 ): any {
   if (!responses) {
     return null
@@ -81,9 +79,7 @@ function getExampleFromResponse(
   }
 
   const streamingResponse = getStreamingResponse(acceptedResponse, acceptedContentType, {
-    openapiVersion,
-    jsonSchemaDialect,
-    originalOpenapiVersion,
+    ...generationContext,
     exampleName: parsePreferHeader(c.req.header('Prefer')).example,
     variables: pathParameters(c),
   })
@@ -99,13 +95,7 @@ function getExampleFromResponse(
   }
   return responseSchema
     ? normalizeResponseBody(
-        generateResponseExample(
-          acceptedResponse.schema as ExampleSchema,
-          pathParameters(c),
-          openapiVersion,
-          jsonSchemaDialect,
-          originalOpenapiVersion,
-        ),
+        generateResponseExample(acceptedResponse.schema as ExampleSchema, pathParameters(c), generationContext),
         responseSchema,
       )
     : null
@@ -118,9 +108,7 @@ export async function buildHandlerContext(
   c: Context,
   operation?: OpenAPIV3_1.OperationObject,
   pathItemParameters?: OpenAPIV3_1.PathItemObject['parameters'],
-  openapiVersion?: string,
-  jsonSchemaDialect?: string,
-  originalOpenapiVersion?: string,
+  generationContext: ExampleGenerationContext = {},
 ): Promise<HandlerContextResult> {
   let body: any = undefined
 
@@ -159,14 +147,7 @@ export async function buildHandlerContext(
   const res: Record<string, any> = {}
   if (operation?.responses) {
     for (const statusCode of Object.keys(operation.responses)) {
-      res[statusCode] = getExampleFromResponse(
-        c,
-        statusCode,
-        operation.responses,
-        openapiVersion,
-        jsonSchemaDialect,
-        originalOpenapiVersion,
-      )
+      res[statusCode] = getExampleFromResponse(c, statusCode, operation.responses, generationContext)
     }
   }
 

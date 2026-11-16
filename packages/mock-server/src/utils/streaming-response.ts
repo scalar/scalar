@@ -7,7 +7,7 @@ import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/
 import type { Context } from 'hono'
 import { stream } from 'hono/streaming'
 
-import { type ExampleSchema, generateResponseExample } from './generate-response-example'
+import { type ExampleGenerationContext, type ExampleSchema, generateResponseExample } from './generate-response-example'
 import { selectResponseExample } from './select-response-example'
 
 /** A finite mock stream, with its data-model value available to custom handlers. */
@@ -29,13 +29,10 @@ export const getStreamingResponse = (
       })
     | undefined,
   contentType: string,
-  options: {
+  options: ExampleGenerationContext & {
     exampleName?: string
     variables?: Record<string, unknown>
     body?: unknown
-    openapiVersion?: string
-    jsonSchemaDialect?: string
-    originalOpenapiVersion?: string
   } = {},
 ): StreamingResponse | undefined => {
   if (mediaType?.itemSchema === undefined) {
@@ -69,9 +66,7 @@ export const getStreamingResponse = (
                 ? coerceValue(SchemaObjectSchema, mediaType.itemSchema)
                 : mediaType.itemSchema) as ExampleSchema,
               options.variables,
-              options.openapiVersion,
-              options.jsonSchemaDialect,
-              options.originalOpenapiVersion,
+              options,
             ),
       )
     }
@@ -88,9 +83,7 @@ export const getStreamingResponse = (
               items: mediaType.itemSchema,
             }) as ExampleSchema,
         options.variables,
-        options.openapiVersion,
-        options.jsonSchemaDialect,
-        options.originalOpenapiVersion,
+        options,
       )
     }
     return generateResponseExample(
@@ -98,9 +91,7 @@ export const getStreamingResponse = (
         ? coerceValue(SchemaObjectSchema, mediaType.schema)
         : mediaType.schema) as ExampleSchema,
       options.variables,
-      options.openapiVersion,
-      options.jsonSchemaDialect,
-      options.originalOpenapiVersion,
+      options,
     )
   }
   const body = example ? example.value : generateBody()

@@ -319,6 +319,23 @@ export const hasArrayContains = (schema: unknown, seen = new Set<object>()): boo
   })
 }
 
+/** Authored examples on active composition members remain authoritative even when constraints conflict. */
+export const getAuthoredArrayExample = (
+  schema: Record<string, unknown>,
+  dialect: ArrayDialect,
+  select: (schema: Record<string, unknown>, path: string[]) => unknown,
+): { value: unknown } | undefined => {
+  for (const { schema: source } of arrayLayers(schema, dialect, select)) {
+    if (Array.isArray(source.examples) && source.examples.length > 0) {
+      return { value: source.examples[0] }
+    }
+    if (source.example !== undefined) {
+      return { value: source.example }
+    }
+  }
+  return undefined
+}
+
 /**
  * Search at most 128 candidates, 64 schema nodes, 50,000 matching steps and 4,096 search steps.
  * Contradictions, unsupported assertions and exhausted budgets return the longest visited prefix

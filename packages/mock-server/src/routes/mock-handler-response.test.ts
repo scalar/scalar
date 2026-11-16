@@ -21,7 +21,7 @@ describe('mock-handler-response', () => {
         'x-handler': handler,
         responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } },
       } as unknown as OpenAPIV3_1.OperationObject
-      const app = new Hono().get('/', (c) => mockHandlerResponse(c, operation, undefined, '3.1.0'))
+      const app = new Hono().get('/', (c) => mockHandlerResponse(c, operation, undefined, { openapiVersion: '3.1.0' }))
       const response = await app.request('/')
       expect(((await response.json()) as number[]).sort()).toStrictEqual([2, 3])
     },
