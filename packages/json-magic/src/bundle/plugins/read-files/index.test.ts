@@ -77,7 +77,7 @@ describe('readFile', () => {
     }
   })
 
-  it('refuses a symlink inside the base path that points outside it', async () => {
+  it.each([undefined, 'text'] as const)('refuses a symlink escape with parseAs=%s', async (parseAs) => {
     const os = await import('node:os')
     const path = await import('node:path')
 
@@ -91,7 +91,7 @@ describe('readFile', () => {
       const link = path.join(base, 'link.json')
       await fs.symlink(path.join(outside, 'secret.json'), link)
 
-      expect((await readFile(link, base)).ok).toBe(false)
+      expect(await readFiles({ basePath: base }).exec(link, { parseAs })).toStrictEqual({ ok: false })
     } finally {
       await fs.rm(base, { recursive: true, force: true })
       await fs.rm(outside, { recursive: true, force: true })
