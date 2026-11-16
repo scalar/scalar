@@ -151,6 +151,64 @@ const createBasicDocument = (title = 'Test API') => ({
 })
 
 describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
+  it.each([undefined, false, true])(
+    'shows built-in clients with SDK installation only when enabled (%s)',
+    async (enabled) => {
+      const wrapper = mount(ApiReference, {
+        props: {
+          configuration: {
+            showDefaultClientsWithSdkInstallation: enabled,
+            featuredClients: ['shell/curl', 'node/undici'],
+            hiddenClients: ['node'],
+            defaultHttpClient: { targetKey: 'custom', clientKey: 'php' },
+            content: {
+              openapi: '3.1.0',
+              info: {
+                title: 'SDK example',
+                version: '1.0.0',
+                'x-scalar-sdk-installation': [{ lang: 'php', label: 'PHP SDK', description: 'Install PHP SDK' }],
+              },
+              paths: {},
+            },
+          },
+        },
+      })
+      await flushPromises()
+      const card = wrapper.getComponent({ name: 'SdkInstallationInstructions' })
+      expect(card.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(
+        enabled ? ['PHP SDK', 'Shell'] : ['PHP SDK'],
+      )
+      expect(card.get('[role="tabpanel"]').text()).toBe('Install PHP SDK')
+      if (enabled) {
+        await card.findAll('[role="tab"]')[1]?.trigger('click')
+        await flushPromises()
+        expect(card.props('selectedClient')).toBe('shell/curl')
+        expect(card.get('[role="tabpanel"]').text()).toBe('Shell Curl')
+        await card.findAll('[role="tab"]')[0]?.trigger('click')
+        await flushPromises()
+        expect(card.props('selectedClient')).toBe('custom/php')
+      }
+    },
+  )
+
+  it('keeps the built-in selector when combined mode has no renderable SDK', async () => {
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          showDefaultClientsWithSdkInstallation: true,
+          content: {
+            openapi: '3.1.0',
+            info: { title: 'Empty SDK', version: '1.0.0', 'x-scalar-sdk-installation': [{ lang: 'php' }] },
+            paths: {},
+          },
+        },
+      },
+    })
+    await flushPromises()
+    expect(wrapper.findComponent({ name: 'SdkInstallationInstructions' }).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'ClientSelector' }).exists()).toBe(true)
+  })
+
   it.each([
     ['http://localhost:3000/?api=second#second/tag/users', undefined, true],
     ['http://localhost:3000/#second/model/User', undefined, false],

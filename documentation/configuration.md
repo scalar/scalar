@@ -514,6 +514,18 @@ To select a custom code sample, use `custom` as the target and the sample ID wit
 
 This selects `custom/python`, matching a Python entry in `x-codeSamples`. The language is lowercased in the ID. Repeated languages use suffixes such as `python/1`. An operation without that sample falls back to its first custom sample, then an available built-in client. An explicit default takes precedence over a previously saved selection.
 
+### showDefaultClientsWithSdkInstallation
+
+Show built-in HTTP clients alongside the SDK tabs from `info.x-scalar-sdk-installation` in the introduction's Client Libraries card. Defaults to `false`, which shows only SDK tabs when installation instructions are available.
+
+SDK tabs appear first, followed by the built-in `featuredClients`. Additional clients remain available in **More**, and `hiddenClients` still applies. Selecting an SDK tab selects its matching custom operation example; selecting a built-in client selects its generated examples. You do not need to provide custom examples for the built-in clients.
+
+```js
+const configuration = {
+  showDefaultClientsWithSdkInstallation: true,
+}
+```
+
 ### featuredClients
 
 **Type:** `AvailableClient[]`

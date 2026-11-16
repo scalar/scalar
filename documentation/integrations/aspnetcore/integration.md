@@ -591,6 +591,14 @@ app.MapScalarApiReference(options =>
 
 Leave `FeaturedClients` unset to keep the default tabs. Call `WithFeaturedClients()` with no arguments to put all clients under **More**. Clients excluded by `EnabledClients` or `EnabledTargets` are skipped. This controls the tab row; use `WithDefaultHttpClient` separately to choose the initial selection.
 
+To show built-in HTTP clients alongside SDK installation tabs from `info.x-scalar-sdk-installation`, enable:
+
+```csharp
+app.MapScalarApiReference(options => options.WithDefaultClientsWithSdkInstallation());
+```
+
+This sets `ShowDefaultClientsWithSdkInstallation` to `true`. The default is `false`, which shows only SDK tabs when installation instructions are available. The same option and fluent method are available in Aspire, Azure Functions, and AWS Lambda.
+
 ### Selected client persistence
 
 The selected code sample client is saved and restored using local storage by default. To keep the selection on the current page only:
