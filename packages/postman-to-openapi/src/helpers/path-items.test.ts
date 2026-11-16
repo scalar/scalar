@@ -1034,6 +1034,19 @@ describe('path-items', () => {
       expect((disabledHeader as any)?.['x-scalar-disabled']).toBe(true)
     })
   })
+
+  it('leaves security to the collection when a request inherits authentication', () => {
+    const item: Item = {
+      name: 'Get User',
+      request: { method: 'GET', url: { raw: 'https://api.example.com/users' }, auth: { type: 'inherit' } },
+    }
+
+    const result = processItem(item)
+
+    expect(result.paths['/users']?.get?.security).toBeUndefined()
+    expect(result.components).toStrictEqual({})
+  })
+
   it.each(['awsv4', 'oauth1', 'hawk', 'ntlm', 'edgegrid', 'jwt', 'asap', 'akamai'])(
     'overrides inherited security with no requirement for %s authentication',
     (type) => {

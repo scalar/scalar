@@ -2,4 +2,4 @@
 '@scalar/postman-to-openapi': patch
 ---
 
-Read the API key name and location from Postman apikey auth under distinct scheme names, accept the Postman v2.0 attribute object form, convert digest auth to an http digest scheme, and skip auth types OpenAPI cannot describe, such as awsv4, so the collection still converts and an operation overriding auth with one of them drops the inherited security.
+Skip Postman auth types that OpenAPI cannot describe, such as AWS Signature, OAuth 1.0 and Hawk, instead of failing the whole conversion, convert digest auth to an HTTP digest scheme, and read the API key name and location from apikey auth, naming every key other than the default `api_key` header after its location and name so different keys no longer overwrite each other.

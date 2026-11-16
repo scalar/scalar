@@ -243,7 +243,8 @@ export function processItem(
     operationObject.parameters = Array.from(mergedParameters.values())
   }
 
-  if (typeof request !== 'string' && request.auth) {
+  // An `inherit` request uses the collection auth, so it must not override the inherited security.
+  if (typeof request !== 'string' && request.auth && request.auth.type !== 'inherit') {
     if (!operationObject.security) {
       operationObject.security = []
     }
