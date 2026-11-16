@@ -317,10 +317,14 @@ const arrayLayers = (
       layers.push(...arrayLayers(child, dialect, select, childPath, seen, consumed))
     }
   }
-  const selected = select(schema, path, consumed)
-  const keyword = schema.oneOf ? 'oneOf' : 'anyOf'
-  if (selected !== undefined) {
-    layers.push(...arrayLayers(selected, dialect, select, path, seen, [...consumed, { path, keyword }]))
+  // Both applicators constrain the same value when present together, even though each chooses a branch.
+  for (const keyword of ['oneOf', 'anyOf'] as const) {
+    if (!Array.isArray(schema[keyword])) continue
+    const other = keyword === 'oneOf' ? 'anyOf' : 'oneOf'
+    const selected = select({ ...schema, [other]: undefined }, path, consumed)
+    if (selected !== undefined) {
+      layers.push(...arrayLayers(selected, dialect, select, path, seen, [...consumed, { path, keyword }]))
+    }
   }
   return layers
 }

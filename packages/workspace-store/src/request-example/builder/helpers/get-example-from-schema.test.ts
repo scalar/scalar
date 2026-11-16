@@ -419,6 +419,36 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual([9])
   })
 
+  it('applies simultaneous oneOf and anyOf item constraints', () => {
+    const value = validateArray({
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 1,
+      maxItems: 1,
+      contains: { const: 2 },
+      minContains: 0,
+      anyOf: [{ items: { const: 40 } }],
+      oneOf: [{}],
+    })
+    expect(value).toStrictEqual([40])
+  })
+
+  it('retains maximum counts from both simultaneous applicators in partial arrays', () => {
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 1,
+      maxItems: 1,
+      contains: { const: 2 },
+      anyOf: [{ contains: { const: 2 }, minContains: 0, maxContains: 0 }],
+      oneOf: [{}],
+    }
+    const value = getExampleFromSchema(schema as SchemaObject)
+    expect(value).toStrictEqual([1])
+    const validate = new Ajv2020({ strict: false }).compile({ ...schema, minItems: 0, minContains: 0 })
+    expect({ valid: validate(value), errors: validate.errors }).toStrictEqual({ valid: true, errors: null })
+  })
+
   it.each(['anyOf', 'oneOf', 'allOf'] as const)(
     'keeps authored examples on active %s members even when they contradict contains',
     (keyword) => {
