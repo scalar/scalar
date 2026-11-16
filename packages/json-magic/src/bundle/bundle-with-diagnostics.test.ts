@@ -453,6 +453,75 @@ describe('bundle-with-diagnostics', () => {
     expect(wrapper.schema).toStrictEqual({ $ref: '#/components/schemas/Base', $anchor: 'ignored' })
   })
 
+  it.each(['04', '06', '07'])('preserves unknown keywords in inline and external draft-%s schemas', async (draft) => {
+    const literal = { $ref: 'https://example.test/literal.json', note: 'keep' }
+    const annotations = {
+      $defs: { Named: structuredClone(literal) },
+      dependentSchemas: { value: structuredClone(literal) },
+      prefixItems: [structuredClone(literal)],
+      contentSchema: structuredClone(literal),
+      unevaluatedProperties: structuredClone(literal),
+      unevaluatedItems: structuredClone(literal),
+      ...(draft === '04' ? { contains: structuredClone(literal), propertyNames: structuredClone(literal) } : {}),
+      ...(draft !== '07'
+        ? { if: structuredClone(literal), then: structuredClone(literal), else: structuredClone(literal) }
+        : {}),
+    }
+    const schema = {
+      type: 'object',
+      properties: { value: { $ref: 'https://example.test/value.json' } },
+      ...annotations,
+    }
+    const schemaFormat = `application/schema+json;version=draft-${draft}`
+    const loader = sources({
+      'https://example.test/value.json': { type: 'string' },
+      'https://example.test/external.json': structuredClone(schema),
+    })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Inline: { schemaFormat, schema },
+            External: { schemaFormat, schema: { $ref: 'https://example.test/external.json' } },
+          },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: (uri) => uri.split('/').at(-1)! },
+    )
+    const expected = { type: 'object', properties: { value: { $ref: '#/x-ext/value.json' } }, ...annotations }
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/value.json', 'https://example.test/external.json'])
+    expect(schema).toStrictEqual(expected)
+    expect(result.document['x-ext']['external.json']).toStrictEqual(expected)
+  })
+
+  it.each([
+    { draft: '04', keyword: 'contains', resolves: false },
+    { draft: '06', keyword: 'contains', resolves: true },
+    { draft: '07', keyword: 'contains', resolves: true },
+    { draft: '04', keyword: 'if', resolves: false },
+    { draft: '06', keyword: 'if', resolves: false },
+    { draft: '07', keyword: 'if', resolves: true },
+  ])('uses the draft-$draft vocabulary for $keyword', async ({ draft, keyword, resolves }) => {
+    const child = { $ref: 'https://example.test/value.json' }
+    const loader = sources({ 'https://example.test/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Wrapped: { schemaFormat: `application/schema+json;version=draft-${draft}`, schema: { [keyword]: child } },
+          },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: () => 'value' },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(resolves ? ['https://example.test/value.json'] : [])
+    expect(child).toStrictEqual({ $ref: resolves ? '#/x-ext/value' : 'https://example.test/value.json' })
+  })
+
   it('resolves supported siblings in a newer JSON Schema wrapper', async () => {
     const wrapper = {
       schemaFormat: 'application/schema+json;version=draft-2020-12',

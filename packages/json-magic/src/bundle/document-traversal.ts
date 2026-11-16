@@ -47,7 +47,14 @@ export const documentTraversal = (
       // Keep the inherited dialect separate for wrappers containing newer schemas.
       const schemaSiblings =
         currentSiblings &&
-        !['asyncapi-schema', 'asyncapi-schema-object', 'legacy-json-schema', 'openapi-3.0-schema'].includes(current)
+        ![
+          'asyncapi-schema',
+          'asyncapi-schema-object',
+          'draft-04-schema',
+          'draft-06-schema',
+          'draft-07-schema',
+          'openapi-3.0-schema',
+        ].includes(current)
       locations.set(value, {
         source,
         pointer: `#${path.map((key) => `/${escapeJsonPointer(key)}`).join('')}`,
@@ -78,7 +85,9 @@ export const documentTraversal = (
                 'schemas',
                 'asyncapi-schemas',
                 'asyncapi-schema-objects',
-                'legacy-json-schemas',
+                'draft-04-schemas',
+                'draft-06-schemas',
+                'draft-07-schemas',
                 'openapi-3.0-schemas',
                 'messages',
               ].includes(current)

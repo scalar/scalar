@@ -16,23 +16,31 @@ const bindingSchemaProperties: Record<string, readonly string[]> = {
   'binding:solace': ['timeToLive', 'priority'],
 }
 
+/** Schema positions retain the vocabulary inherited by their subschemas and references. */
+type SchemaContext =
+  | 'schema'
+  | 'asyncapi-schema'
+  | 'asyncapi-schema-object'
+  | 'draft-04-schema'
+  | 'draft-06-schema'
+  | 'draft-07-schema'
+  | 'openapi-3.0-schema'
+
 /** Distinguish reference-bearing document structures from literal instance data without validating the document. */
 export type ReferenceContext =
+  | SchemaContext
   | 'generic'
   | 'object'
   | 'components'
   | 'paths'
   | 'named-responses'
-  | 'schema'
   | 'objects'
   | 'schemas'
-  | 'asyncapi-schema'
   | 'asyncapi-schemas'
-  | 'asyncapi-schema-object'
   | 'asyncapi-schema-objects'
-  | 'legacy-json-schema'
-  | 'legacy-json-schemas'
-  | 'openapi-3.0-schema'
+  | 'draft-04-schemas'
+  | 'draft-06-schemas'
+  | 'draft-07-schemas'
   | 'openapi-3.0-schemas'
   | 'data'
   | 'data-container'
@@ -49,6 +57,16 @@ export type ReferenceContext =
   | 'bindings'
   | 'binding-sets'
   | `binding:${string}`
+
+const schemaMapContexts: Record<SchemaContext, ReferenceContext> = {
+  schema: 'schemas',
+  'asyncapi-schema': 'asyncapi-schemas',
+  'asyncapi-schema-object': 'asyncapi-schema-objects',
+  'draft-04-schema': 'draft-04-schemas',
+  'draft-06-schema': 'draft-06-schemas',
+  'draft-07-schema': 'draft-07-schemas',
+  'openapi-3.0-schema': 'openapi-3.0-schemas',
+}
 
 /** Determine the interpretation of a child without treating data keywords as references. */
 export const childReferenceContext = (
@@ -78,7 +96,9 @@ export const childReferenceContext = (
   if (context === 'schemas') return 'schema'
   if (context === 'asyncapi-schemas') return 'asyncapi-schema'
   if (context === 'asyncapi-schema-objects') return 'asyncapi-schema-object'
-  if (context === 'legacy-json-schemas') return 'legacy-json-schema'
+  if (context === 'draft-04-schemas') return 'draft-04-schema'
+  if (context === 'draft-06-schemas') return 'draft-06-schema'
+  if (context === 'draft-07-schemas') return 'draft-07-schema'
   if (context === 'openapi-3.0-schemas') return 'openapi-3.0-schema'
   if (context === 'objects') return 'object'
   if (context === 'responses') return key.startsWith('x-') ? 'data' : 'response'
@@ -88,46 +108,35 @@ export const childReferenceContext = (
     if (context === 'asyncapi-schema' && schemaFormat !== undefined && key === 'schema') {
       if (/^application\/vnd\.aai\.asyncapi(?:\+json|\+yaml)?;version=3\.[01]\.\d+$/.test(schemaFormat))
         return 'asyncapi-schema-object'
-      if (/^application\/schema\+(?:json|yaml);version=draft-0[467]$/.test(schemaFormat)) return 'legacy-json-schema'
+      const draft = /^application\/schema\+(?:json|yaml);version=draft-(04|06|07)$/.exec(schemaFormat)?.[1]
+      if (draft === '04' || draft === '06' || draft === '07') return `draft-${draft}-schema`
       if (/^application\/vnd\.oai\.openapi(?:\+json|\+yaml)?;version=3\.0\.\d+$/.test(schemaFormat))
         return 'openapi-3.0-schema'
       return 'schema'
     }
     const nativeSchema =
       context === 'asyncapi-schema-object' || (context === 'asyncapi-schema' && schemaFormat === undefined)
+    const legacyJsonSchema = ['draft-04-schema', 'draft-06-schema', 'draft-07-schema'].includes(context)
+    const modernSchema = context === 'schema'
     const schemaContext = nativeSchema
       ? 'asyncapi-schema-object'
-      : context === 'legacy-json-schema' || context === 'openapi-3.0-schema'
+      : legacyJsonSchema || context === 'openapi-3.0-schema'
         ? context
         : 'schema'
     if (nativeSchema && key === 'externalDocs') return 'object'
-    if ((nativeSchema || context === 'legacy-json-schema') && key === 'additionalItems') return schemaContext
-    if (['properties', 'patternProperties', 'dependentSchemas', 'dependencies', '$defs', 'definitions'].includes(key))
-      return nativeSchema
-        ? 'asyncapi-schema-objects'
-        : context === 'legacy-json-schema'
-          ? 'legacy-json-schemas'
-          : context === 'openapi-3.0-schema'
-            ? 'openapi-3.0-schemas'
-            : 'schemas'
+    if ((nativeSchema || legacyJsonSchema) && key === 'additionalItems') return schemaContext
     if (
-      [
-        'items',
-        'additionalProperties',
-        'unevaluatedProperties',
-        'unevaluatedItems',
-        'contains',
-        'contentSchema',
-        'propertyNames',
-        'not',
-        'if',
-        'then',
-        'else',
-        'allOf',
-        'anyOf',
-        'oneOf',
-        'prefixItems',
-      ].includes(key)
+      key === 'properties' ||
+      (context !== 'openapi-3.0-schema' && ['patternProperties', 'dependencies', 'definitions'].includes(key)) ||
+      (modernSchema && ['dependentSchemas', '$defs'].includes(key))
+    )
+      return schemaMapContexts[schemaContext]
+    if (
+      ['items', 'additionalProperties', 'not', 'allOf', 'anyOf', 'oneOf'].includes(key) ||
+      ((modernSchema || nativeSchema || context === 'draft-06-schema' || context === 'draft-07-schema') &&
+        ['contains', 'propertyNames'].includes(key)) ||
+      ((modernSchema || nativeSchema || context === 'draft-07-schema') && ['if', 'then', 'else'].includes(key)) ||
+      (modernSchema && ['unevaluatedProperties', 'unevaluatedItems', 'contentSchema', 'prefixItems'].includes(key))
     )
       return schemaContext
     return 'data'
@@ -192,6 +201,5 @@ export const isReferenceContext = (context: ReferenceContext): boolean =>
   ['generic', 'object', 'response', 'link', 'path-item', 'callback', 'message', 'bindings'].includes(context)
 
 /** Schema vocabularies and AsyncAPI wrapper positions may identify or reference schemas. */
-export const isSchemaContext = (context: ReferenceContext | undefined): boolean =>
-  context !== undefined &&
-  ['schema', 'asyncapi-schema', 'asyncapi-schema-object', 'legacy-json-schema', 'openapi-3.0-schema'].includes(context)
+export const isSchemaContext = (context: ReferenceContext | undefined): context is SchemaContext =>
+  context !== undefined && Object.hasOwn(schemaMapContexts, context)
