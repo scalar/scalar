@@ -284,7 +284,7 @@ const matches = (
 type ConsumedChoice = { path: string[]; keyword: 'oneOf' | 'anyOf' }
 type SelectArrayComposition = (schema: Record<string, unknown>, path: string[], consumed: ConsumedChoice[]) => unknown
 
-type ArrayLayer = { schema: Record<string, unknown>; path: string[]; dialect: ArrayDialect }
+type ArrayLayer = { schema: Record<string, unknown>; path: string[]; dialect: ArrayDialect; incomplete?: boolean }
 
 /** Visit same-instance array applicators without following item schemas or entering cycles. */
 const arrayLayers = (
@@ -295,15 +295,19 @@ const arrayLayers = (
   seen = new Set<object>(),
   consumed: ConsumedChoice[] = [],
 ): ArrayLayer[] => {
-  if (!isObject(schema) || seen.has(schema) || seen.size >= MAX_SCHEMA_VISITS) return []
+  if (!isObject(schema) || seen.has(schema)) return []
+  if (seen.size >= MAX_SCHEMA_VISITS) return [{ schema: {}, path, dialect, incomplete: true }]
   seen.add(schema)
   if (typeof schema.$schema === 'string') dialect = getArrayDialect(schema.$schema)
   // A draft-07 reference replaces its siblings, including count and item assertions.
   if (dialect === 'draft7' && '$ref' in schema)
     return arrayLayers(schema['$ref-value'], dialect, select, path, seen, consumed)
-  const layers = [{ schema, path, dialect }]
+  const layers: ArrayLayer[] = [{ schema, path, dialect }]
   if ('$ref-value' in schema) layers.push(...arrayLayers(schema['$ref-value'], dialect, select, path, seen, consumed))
   if (Array.isArray(schema.allOf)) {
+    if (schema.allOf.length > MAX_SCHEMA_VISITS) {
+      layers.push({ schema: {}, path, dialect, incomplete: true })
+    }
     let choiceIndex = 0
     for (const child of schema.allOf.slice(0, MAX_SCHEMA_VISITS)) {
       const resolved = resolve.schema(child as SchemaObject)
@@ -365,6 +369,8 @@ export const generateContainsArray = (
   select: SelectArrayComposition,
 ): { values: unknown[]; itemSchemas: unknown[] } => {
   const layers = arrayLayers(schema, dialect, select)
+  // Unvisited assertions may prohibit every candidate, so no nonempty prefix is known to be safe.
+  if (layers.some((layer) => layer.incomplete)) return { values: [], itemSchemas: [] }
   const rules = layers
     .filter((layer) => 'contains' in layer.schema)
     .map(({ schema: source, dialect }) => ({

@@ -502,6 +502,29 @@ describe('getExampleFromSchema', () => {
     ).toStrictEqual([2])
   })
 
+  it.each([
+    { emptyMembers: 62, expected: [1] },
+    { emptyMembers: 63, expected: [] },
+    { emptyMembers: 80, expected: [] },
+  ])('keeps partial arrays safe when traversal is bounded at $emptyMembers members', ({ emptyMembers, expected }) => {
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 1,
+      maxItems: 1,
+      contains: { const: 2 },
+      allOf: [
+        ...Array.from({ length: emptyMembers }, () => ({})),
+        { contains: { const: 2 }, minContains: 0, maxContains: 0 },
+      ],
+    }
+    const value = getExampleFromSchema(schema as SchemaObject)
+    expect(value).toStrictEqual(expected)
+    // Only minima may be missed by a partial; all item and upper-bound constraints still apply.
+    const validate = new Ajv2020({ strict: false }).compile({ ...schema, minItems: 0, minContains: 0 })
+    expect({ valid: validate(value), errors: validate.errors }).toStrictEqual({ valid: true, errors: null })
+  })
+
   it('retains tuple prefixes when the tail is omitted in write mode', () => {
     expect(
       getExampleFromSchema(
