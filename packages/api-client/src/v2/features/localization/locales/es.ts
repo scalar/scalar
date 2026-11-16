@@ -133,6 +133,9 @@ export const es = {
     'value': 'Valor',
     'delete': 'Eliminar',
     'selectFile': 'Seleccionar archivo',
+    'selectFiles': 'Seleccionar archivos',
+    'addFiles': 'Añadir archivos',
+    'removeFile': 'Quitar {name} de {field}',
     'globalCookieHint':
       'Las cookies globales se comparten en todo el espacio de trabajo. Haga clic para acceder a ellas.',
     'readOnlyHint':

@@ -128,6 +128,9 @@ export type ApiClientTranslations = {
     value: string
     delete: string
     selectFile: string
+    selectFiles: string
+    addFiles: string
+    removeFile: string
     globalCookieHint: string
     readOnlyHint: string
     include: string

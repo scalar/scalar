@@ -132,6 +132,9 @@ export const en = {
     value: 'Value',
     delete: 'Delete',
     selectFile: 'Select File',
+    selectFiles: 'Select Files',
+    addFiles: 'Add files',
+    removeFile: 'Remove {name} from {field}',
     globalCookieHint: 'Global cookies are shared across the whole workspace. Click to navigate.',
     readOnlyHint:
       'This is a readonly property and you can not modify it! If you want to change it you have to override it or disable it using the checkbox',

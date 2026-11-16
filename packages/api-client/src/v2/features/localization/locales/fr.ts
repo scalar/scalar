@@ -133,6 +133,9 @@ export const fr = {
     'value': 'Valeur',
     'delete': 'Supprimer',
     'selectFile': 'Sélectionner un fichier',
+    'selectFiles': 'Sélectionner des fichiers',
+    'addFiles': 'Ajouter des fichiers',
+    'removeFile': 'Retirer {name} de {field}',
     'globalCookieHint': 'Les cookies globaux sont partagés dans tout l’espace de travail. Cliquez pour y accéder.',
     'readOnlyHint':
       'Cette propriété est en lecture seule. Pour la modifier, vous devez la remplacer ou la désactiver à l’aide de la case à cocher.',

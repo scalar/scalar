@@ -8,6 +8,7 @@ import type {
   MediaTypeObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import { computed, ref, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
@@ -17,6 +18,7 @@ import {
   getFormBodyRows,
   getFormBodyValue,
 } from '@/v2/blocks/request-block/helpers/get-form-body-rows'
+import { groupFormBodyFiles } from '@/v2/blocks/request-block/helpers/group-form-body-files'
 
 const {
   example,
@@ -46,6 +48,18 @@ const emit = defineEmits<{
 
 /** Local state for form body rows */
 const localFormBodyRows = ref<TableRow[]>([])
+
+const formFields = computed(() =>
+  selectedContentType === 'multipart/form-data'
+    ? groupFormBodyFiles(localFormBodyRows.value)
+    : localFormBodyRows.value.map((data, index) => ({
+        data,
+        sourceIndices: [index],
+      })),
+)
+const displayedRows = computed<TableRow[]>(() =>
+  formFields.value.map((field) => field.data),
+)
 
 /** Sync the local form body rows with the example and schema */
 watch(
@@ -81,7 +95,7 @@ const allowUnknownFileUploads = computed<boolean>(() => {
     : additional !== false
 })
 
-const handleUpdateFormValue = (rows: TableRow[]) => {
+const handleUpdateFormValue = (rows: TableRow[]): void => {
   emit(
     'update:formValue',
     rows.map((row) => ({
@@ -101,15 +115,19 @@ const handleUpdateFormValue = (rows: TableRow[]) => {
 
 /** Update a row in the table, combines with the previous data so we emit a whole row */
 const handleUpsertRow = (
-  index: number,
+  index: number | number[],
   payload: Partial<{
     name: string
     value: string | File | undefined
     isDisabled: boolean
   }>,
-) => {
+): void => {
+  const indices = Array.isArray(index) ? index : [index]
   // Add new row
-  if (index >= localFormBodyRows.value.length) {
+  if (
+    indices[0] !== undefined &&
+    indices[0] >= localFormBodyRows.value.length
+  ) {
     localFormBodyRows.value = [
       ...localFormBodyRows.value,
       { name: '', value: '', ...payload, isDisabled: false },
@@ -119,7 +137,7 @@ const handleUpsertRow = (
   }
 
   localFormBodyRows.value = localFormBodyRows.value.map((row, i) => {
-    if (i !== index) {
+    if (!indices.includes(i)) {
       return row
     }
 
@@ -142,26 +160,76 @@ const handleUpsertRow = (
   handleUpdateFormValue(localFormBodyRows.value)
 }
 
+/** Apply field edits to all its parts without replacing sibling files with the first file. */
+const handleFieldUpsert = (
+  index: number,
+  payload: Parameters<typeof handleUpsertRow>[1],
+): void => {
+  const field = formFields.value[index]
+  handleUpsertRow(
+    field?.sourceIndices ?? localFormBodyRows.value.length,
+    field?.data.files
+      ? {
+          ...(payload.name !== undefined ? { name: payload.name } : {}),
+          ...(payload.isDisabled !== undefined &&
+          payload.isDisabled !== field.data.isDisabled
+            ? { isDisabled: payload.isDisabled }
+            : {}),
+        }
+      : payload,
+  )
+}
+
 /** Delete a row from the table */
-const handleDeleteRow = (index: number) => {
+const handleDeleteRow = (index: number): void => {
+  const indices = formFields.value[index]?.sourceIndices ?? [index]
   localFormBodyRows.value = localFormBodyRows.value.filter(
-    (_, i) => i !== index,
+    (_, i) => !indices.includes(i),
   )
   handleUpdateFormValue(localFormBodyRows.value)
 }
 
-/** True when the row's schema declares an array-typed property (e.g. `files: string[]`). */
-const isArrayField = (row: TableRow | undefined): boolean => {
-  const type = row?.schema && 'type' in row.schema ? row.schema.type : undefined
-  return Array.isArray(type) ? type.includes('array') : type === 'array'
+/** Remove a selected file, retaining one empty field after the last file is removed. */
+const handleRemoveFile = (index: number, fileIndex?: number): void => {
+  const field = formFields.value[index]
+  const sourceIndex = fileIndex ?? field?.sourceIndices[0] ?? index
+  if (field?.data.files) {
+    const remaining = localFormBodyRows.value.filter(
+      (row, i) =>
+        field.sourceIndices.includes(i) &&
+        i !== sourceIndex &&
+        row.value instanceof File,
+    )
+    const original = localFormBodyRows.value[sourceIndex]
+    if (!original) {
+      return
+    }
+    const replacement = remaining.length
+      ? remaining
+      : [{ ...original, value: '[]', isArray: true }]
+    localFormBodyRows.value = localFormBodyRows.value.flatMap((row, i) => {
+      if (i === field.sourceIndices[0]) {
+        return replacement
+      }
+      return field.sourceIndices.includes(i) ? [] : [row]
+    })
+    handleUpdateFormValue(localFormBodyRows.value)
+    return
+  }
+  handleUpsertRow(sourceIndex, { value: undefined })
 }
 
 /** Handle file upload for a specific row index */
-const handleFileUpload = (index: number) => {
-  const currentRow = localFormBodyRows.value[index]
+const handleFileUpload = (index: number): void => {
+  const field = formFields.value[index]
+  const sourceIndices = field?.sourceIndices ?? [localFormBodyRows.value.length]
+  const sourceIndex = sourceIndices[0] ?? localFormBodyRows.value.length
+  const currentRow = localFormBodyRows.value[sourceIndex]
   // Array-typed fields (e.g. `files: string[]`) accept several files in a single pick, like
   // Postman. Other fields stay single-file so an existing value is not silently replaced.
-  const allowMultiple = isArrayField(currentRow)
+  const allowMultiple = Boolean(
+    currentRow?.schema && isArraySchema(currentRow.schema),
+  )
 
   const { open } = useFileDialog({
     onChange: (files) => {
@@ -181,16 +249,27 @@ const handleFileUpload = (index: number) => {
         name: fieldName,
         value: file,
         // Selecting files enables untouched optional fields while preserving explicit choices.
-        isDisabled: currentRow?.isDisabledByDefault
+        isDisabled: field?.data.isDisabledByDefault
           ? false
-          : (currentRow?.isDisabled ?? false),
+          : (field?.data.isDisabled ?? false),
         isDisabledByDefault: false,
       }))
-      const insertionIndex = Math.min(index, localFormBodyRows.value.length)
+      const insertionIndex = Math.min(
+        sourceIndex,
+        localFormBodyRows.value.length,
+      )
+      const existingFiles = field?.data.files
+        ? localFormBodyRows.value.filter(
+            (row, i) => sourceIndices.includes(i) && row.value instanceof File,
+          )
+        : []
       localFormBodyRows.value = [
         ...localFormBodyRows.value.slice(0, insertionIndex),
+        ...existingFiles,
         ...selectedRows,
-        ...localFormBodyRows.value.slice(insertionIndex + 1),
+        ...localFormBodyRows.value
+          .slice(insertionIndex + 1)
+          .filter((_, i) => !sourceIndices.includes(insertionIndex + i + 1)),
       ]
       handleUpdateFormValue(localFormBodyRows.value)
     },
@@ -206,14 +285,17 @@ const handleFileUpload = (index: number) => {
   <template v-if="selectedContentType === 'multipart/form-data'">
     <RequestTable
       :allowUnknownFileUploads="allowUnknownFileUploads"
-      :data="localFormBodyRows"
+      :data="displayedRows"
       deferKeyUpdates
       :environment="environment"
       showUploadButton
       @deleteRow="handleDeleteRow"
-      @removeFile="(index) => handleUpsertRow(index, { value: undefined })"
+      @removeFile="handleRemoveFile"
+      @updateFile="
+        (index, disabled) => handleUpsertRow(index, { isDisabled: disabled })
+      "
       @uploadFile="handleFileUpload"
-      @upsertRow="handleUpsertRow" />
+      @upsertRow="handleFieldUpsert" />
   </template>
 
   <!-- Form URL Encoded -->
