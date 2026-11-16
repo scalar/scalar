@@ -36,12 +36,33 @@ pub fn get_mime_type(path: &str) -> String {
 }
 
 /// Render Scalar HTML with embedded configuration and optional JS bundle URL
+///
+/// `config_json` must be valid JSON, not JavaScript source. Use
+/// [`scalar_html_from_json`] to validate JSON before rendering it.
+/// The bundle URL must point to trusted JavaScript.
 pub fn render_scalar(config_json: &str, js_bundle_url: Option<&str>) -> String {
     let html_template = include_str!("../ui/index.html");
     let js_url = js_bundle_url.unwrap_or("https://cdn.jsdelivr.net/npm/@scalar/api-reference");
+
+    // JSON quoting alone does not prevent the HTML parser from closing a script tag.
+    let config_json = config_json
+        .replace('<', "\\u003c")
+        .replace('>', "\\u003e")
+        .replace('&', "\\u0026")
+        .replace('\u{2028}', "\\u2028")
+        .replace('\u{2029}', "\\u2029");
+    let js_url = js_url
+        .replace('&', "&amp;")
+        .replace('"', "&quot;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;");
+
+    // Replace placeholders only in the template, never in inserted configuration or URLs.
     html_template
-        .replace("__CONFIGURATION__", config_json)
-        .replace("__JS_BUNDLE_URL__", js_url)
+        .split("__CONFIGURATION__")
+        .map(|part| part.replace("__JS_BUNDLE_URL__", &js_url))
+        .collect::<Vec<_>>()
+        .join(&config_json)
 }
 
 /// Return the Scalar HTML with embedded config and optional JS bundle URL
@@ -342,10 +363,82 @@ pub mod warp {
 #[cfg(test)]
 mod tests {
     use crate::{
-        get_asset, get_asset_with_mime, get_mime_type, scalar_html, scalar_html_default,
-        scalar_html_from_json, scalar_html_from_json_default, AgentOptions, Source,
+        get_asset, get_asset_with_mime, get_mime_type, render_scalar, scalar_html,
+        scalar_html_default, scalar_html_from_json, scalar_html_from_json_default, AgentOptions,
+        Source,
     };
     use serde_json::json;
+
+    fn embedded_configuration(html: &str) -> serde_json::Value {
+        let script = html
+            .split_once("Scalar.createApiReference('#app', ")
+            .unwrap()
+            .1
+            .split_once("</script>")
+            .unwrap()
+            .0;
+        serde_json::from_str(script.trim().strip_suffix(')').unwrap()).unwrap()
+    }
+
+    #[test]
+    fn test_configuration_remains_data_in_every_renderer() {
+        for payload in [
+            "</script><script>document.title='SCALAR_RUST_CANARY'</script>",
+            "</ScRiPt ><script>document.title='SCALAR_RUST_CANARY'</script>",
+            "<!--<script></script>-->",
+            "<>&\"'\\\u{2028}\u{2029}ü",
+            r"\u003c/script\u003e",
+        ] {
+            let config = json!({
+                "content": {
+                    "openapi": "3.0.0",
+                    "info": { "title": payload, "version": "1.0" },
+                    "paths": {}
+                },
+                payload: [payload, { "nested": payload }, null, true, 42]
+            });
+            let serialized = config.to_string();
+            let preescaped = serialized.replace('<', "\\u003c");
+            let outputs = [
+                render_scalar(&serialized, None),
+                render_scalar(&preescaped, None),
+                scalar_html(&config, None),
+                scalar_html_default(&config),
+                scalar_html_from_json(&serialized, None).unwrap(),
+                scalar_html_from_json_default(&serialized).unwrap(),
+                scalar_html_from_json(&preescaped, None).unwrap(),
+            ];
+            for html in outputs {
+                assert_eq!(html.to_ascii_lowercase().matches("<script").count(), 2);
+                assert_eq!(html.to_ascii_lowercase().matches("</script").count(), 2);
+                assert_eq!(embedded_configuration(&html), config);
+            }
+        }
+    }
+
+    #[test]
+    fn test_bundle_url_stays_inside_its_attribute() {
+        let url = "/bundle.js?x=&quot;&y='\"></script><script>document.title='SCALAR_RUST_CANARY'</script>";
+        let html = scalar_html(&json!({}), Some(url));
+
+        assert!(html.contains("<script src=\"/bundle.js?x=&amp;quot;&amp;y='&quot;&gt;&lt;/script&gt;&lt;script&gt;document.title='SCALAR_RUST_CANARY'&lt;/script&gt;\"></script>"));
+        assert_eq!(html.matches("<script").count(), 2);
+        assert_eq!(html.matches("</script>").count(), 2);
+        assert_eq!(embedded_configuration(&html), json!({}));
+    }
+
+    #[test]
+    fn test_placeholder_text_is_preserved_in_configuration_and_bundle_url() {
+        let config = json!({
+            "__CONFIGURATION__": "__JS_BUNDLE_URL__",
+            "__JS_BUNDLE_URL__": ["__CONFIGURATION__", "__JS_BUNDLE_URL__"]
+        });
+        let url = "/__CONFIGURATION__/__JS_BUNDLE_URL__/bundle.js?x=1&y=2";
+        let html = scalar_html(&config, Some(url));
+
+        assert_eq!(embedded_configuration(&html), config);
+        assert!(html.contains("src=\"/__CONFIGURATION__/__JS_BUNDLE_URL__/bundle.js?x=1&amp;y=2\""));
+    }
 
     #[test]
     fn test_scalar_html_generation() {
@@ -512,8 +605,7 @@ mod tests {
             "description": "API with special chars: <>&\"'"
         });
         let html = scalar_html(&special_config, None);
-        assert!(html.contains("/api/v1/test?param=value&other=test"));
-        assert!(html.contains("purple"));
+        assert_eq!(embedded_configuration(&html), special_config);
 
         // Test paths with special characters
         let config_with_special_path = json!({
