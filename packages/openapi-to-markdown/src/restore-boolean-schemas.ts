@@ -93,7 +93,7 @@ export const restoreBooleanSchemas = (
         }
         Object.defineProperty(coerced, index, {
           ...property,
-          value: visit(value, property.value, context, contextKind),
+          value: visit(value, property.value, context, contextKind && getChildKind(contextKind, String(index))),
         })
       }
     } else if (isObject(original) && isObject(coerced)) {

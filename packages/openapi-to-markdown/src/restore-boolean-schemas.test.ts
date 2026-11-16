@@ -34,6 +34,21 @@ describe('restore-boolean-schemas', () => {
     },
   )
 
+  it('restores schemas inside arrays of OpenAPI objects while keeping their examples as data', () => {
+    const source = {
+      get: { parameters: [{ name: 'default', in: 'query', schema: true, example: { schema: false } }] },
+    }
+    const target = {
+      get: { parameters: [{ name: 'default', in: 'query', schema: {}, example: { schema: {} } }] },
+    }
+
+    restoreBooleanSchemas(source, target, 'document', 'pathItem')
+
+    expect(target).toStrictEqual({
+      get: { parameters: [{ name: 'default', in: 'query', schema: true, example: { schema: {} } }] },
+    })
+  })
+
   it('does not restore inherited schema entries', () => {
     const source = {
       components: { schemas: JSON.parse('{"__proto__":false,"constructor":true,"toString":false,"own":true}') },
