@@ -30,7 +30,7 @@ import type {
   Workspace,
   WorkspaceDocument,
 } from '@scalar/workspace-store/schemas/workspace'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { AsyncApiServerSelector } from '@/blocks/scalar-asyncapi-server-selector-block'
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
@@ -288,8 +288,16 @@ const showAuthSelector = computed(
     (Boolean(asyncApiDocument.value) || !options.hideTestRequestButton),
 )
 
+/**
+ * The server always renders the placeholder, but firstLazyLoadComplete is shared by every instance in a
+ * document and stays true once an earlier instance has loaded. Keeping the placeholder until mount makes a
+ * later instance hydrate against the same markup.
+ */
+const isMounted = ref(false)
+
 /** Ensures firstLazyLoadComplete is set for documents with no Lazy sections (e.g. no operations/tags/models). */
 onMounted(() => {
+  isMounted.value = true
   scheduleInitialLoadComplete()
 })
 
@@ -463,7 +471,7 @@ provideDocumentOutline('document')
     <slot name="end" />
     <!-- Placeholder content to allow the active item to be scrolled to the top while the rest of the content is lazy loaded -->
     <div
-      v-if="!firstLazyLoadComplete"
+      v-if="!isMounted || !firstLazyLoadComplete"
       class="h-dvh"></div>
   </div>
 </template>
