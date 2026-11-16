@@ -154,11 +154,13 @@ $response = $client->request('GET', 'https://example.com', [
 
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
+$jar = \\GuzzleHttp\\Cookie\\CookieJar::fromArray([
+  'foo' => 'bar',
+  'bar' => 'foo'
+], 'example.com');
+
 $response = $client->request('GET', 'https://example.com', [
-  'cookies' => [
-    'foo' => 'bar',
-    'bar' => 'foo'
-  ]
+  'cookies' => $jar
 ]);`)
   })
 
@@ -621,11 +623,37 @@ $response = $client->request('POST', 'https://example.com', [
 
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
+$jar = \\GuzzleHttp\\Cookie\\CookieJar::fromArray([
+  'special;cookie' => 'value with spaces'
+], 'example.com');
+
 $response = $client->request('GET', 'https://example.com', [
-  'cookies' => [
-    'special;cookie' => 'value with spaces'
-  ]
+  'cookies' => $jar
 ]);`)
+  })
+
+  it('scopes the cookie jar to the request host', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://api.example.com:8080/v1/users',
+      cookies: [{ name: 'session', value: 'abc' }],
+    })
+
+    expect(result).toContain(`CookieJar::fromArray([
+  'session' => 'abc'
+], 'api.example.com');`)
+  })
+
+  it('escapes quotes and backslashes in multipart file names', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'file', fileName: "it's\\here.png" }],
+      },
+    })
+
+    expect(result).toContain(`'contents' => fopen('it\\'s\\\\here.png', 'rb')`)
   })
 
   it('prettifies JSON body using PHP array', () => {

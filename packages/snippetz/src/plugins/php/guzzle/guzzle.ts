@@ -1,7 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
-import { Raw, objectToString } from '@/libs/php'
+import { Raw, getCookieDomain, objectToString, quotePhpString } from '@/libs/php'
 
 /**
  * php/guzzle
@@ -39,13 +39,15 @@ export const phpGuzzle: Plugin = {
       options.query = reduceQueryParams(request.queryString)
     }
 
-    // Handle cookies
+    // Handle cookies: Guzzle only accepts a CookieJarInterface for the `cookies` option
+    let cookieJar = ''
     if (request.cookies && request.cookies.length > 0) {
       const cookies: Record<string, string> = {}
       request.cookies.forEach((cookie) => {
         cookies[cookie.name] = cookie.value
       })
-      options.cookies = cookies
+      cookieJar = `$jar = \\GuzzleHttp\\Cookie\\CookieJar::fromArray(${objectToString(cookies)}, ${quotePhpString(getCookieDomain(url))});\n\n`
+      options.cookies = new Raw('$jar')
     }
 
     // Handle authentication
@@ -67,7 +69,7 @@ export const phpGuzzle: Plugin = {
           options.multipart = request.postData.params.map((param) => {
             const part: Record<string, any> = {
               name: param.name,
-              contents: param.fileName ? new Raw(`fopen('${param.fileName}', 'rb')`) : param.value || '',
+              contents: param.fileName ? new Raw(`fopen(${quotePhpString(param.fileName)}, 'rb')`) : param.value || '',
             }
 
             if (param.contentType) {
@@ -120,7 +122,7 @@ export const phpGuzzle: Plugin = {
     }
 
     // Generate the PHP code
-    let code = '$client = new GuzzleHttp\\Client();\n\n'
+    let code = `$client = new GuzzleHttp\\Client();\n\n${cookieJar}`
 
     if (Object.keys(options).length > 0) {
       // Format the options array with proper indentation

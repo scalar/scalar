@@ -1,21 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { accumulateRepeatedValue, joinUrlAndQuery, normalizeMethod } from '@/libs/http'
-import { escapePhpString, objectToString } from '@/libs/php'
-
-const quotePhpString = (value: string): string => `'${escapePhpString(value)}'`
-
-const getCookieDomain = (url: string): string => {
-  if (!url) {
-    return 'localhost'
-  }
-
-  try {
-    return new URL(url).hostname || 'localhost'
-  } catch {
-    return 'localhost'
-  }
-}
+import { getCookieDomain, objectToString, quotePhpString } from '@/libs/php'
 
 /**
  * php/laravel
