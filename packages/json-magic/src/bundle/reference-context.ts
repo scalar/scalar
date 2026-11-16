@@ -55,8 +55,6 @@ export const childReferenceContext = (
       return 'schemas'
     if (
       [
-        // AsyncAPI Multi Format Schema Objects wrap their schema in this field.
-        'schema',
         'items',
         'additionalProperties',
         'unevaluatedProperties',
