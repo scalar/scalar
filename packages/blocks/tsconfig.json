@@ -5,7 +5,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
-    }
+    },
+    "types": ["node", "vite/client"]
   },
   "include": [
     "src/**/*.ts",
