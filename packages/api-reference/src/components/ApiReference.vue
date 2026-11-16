@@ -653,7 +653,7 @@ watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 
 // TODO: persistence should be hoisted into standalone
 // Client side integrations will want to handle dark mode externally
-const { toggleColorMode, isDarkMode } = useColorMode({
+const { toggleColorMode, isDarkMode: browserIsDarkMode } = useColorMode({
   initialColorMode: {
     true: 'dark' as const,
     false: 'light' as const,
@@ -661,6 +661,16 @@ const { toggleColorMode, isDarkMode } = useColorMode({
   }[String(mergedConfig.value.darkMode)],
   overrideColorMode: mergedConfig.value.forceDarkModeState,
 })
+
+/** Browser preferences must not overwrite the server's controls before hydration finishes. */
+const hydratedIsDarkMode = hydrationState.value
+  ? workspaceStore.workspace['x-scalar-color-mode'] === 'dark'
+  : undefined
+const isDarkMode = computed(() =>
+  hydrationState.value && hydratedIsDarkMode !== undefined
+    ? hydratedIsDarkMode
+    : browserIsDarkMode.value,
+)
 
 /**
  * The active document passed to the search modal. Both OpenAPI and AsyncAPI
