@@ -1,5 +1,12 @@
 # scalar-ninja
 
+## 0.4.0
+
+### Minor Changes
+
+- [#11036](https://github.com/scalar/scalar/pull/11036): Expose `showDefaultClientsWithSdkInstallation` through the Python, Java, and .NET integrations to show built-in HTTP clients alongside SDK installation tabs.
+- [#11033](https://github.com/scalar/scalar/pull/11033): Expose the selected code sample client persistence option in .NET, Java, FastAPI, and Django Ninja. Disable it to avoid reading or writing the selected-client local storage key while keeping page-local selection available.
+
 ## 0.3.3
 
 ### Patch Changes

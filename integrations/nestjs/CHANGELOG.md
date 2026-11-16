@@ -1,5 +1,9 @@
 # @scalar/nestjs-api-reference
 
+## 1.2.38
+
+No changes in this release.
+
 ## 1.2.37
 
 No changes in this release.

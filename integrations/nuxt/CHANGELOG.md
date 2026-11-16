@@ -1,5 +1,11 @@
 # @scalar/nuxt
 
+## 0.6.91
+
+### Patch Changes
+
+- [#11057](https://github.com/scalar/scalar/pull/11057): Update @nuxt/kit and @nuxt/schema to 4.6.4 to keep the module utilities and schema types aligned.
+
 ## 0.6.90
 
 No changes in this release.

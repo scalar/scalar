@@ -1,5 +1,11 @@
 # @scalar/nextjs-api-reference
 
+## 0.12.19
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
 ## 0.12.18
 
 No changes in this release.

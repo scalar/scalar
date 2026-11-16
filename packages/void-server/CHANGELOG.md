@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.5.23
+
+### Patch Changes
+
+- [#11032](https://github.com/scalar/scalar/pull/11032): Update the Hono Node adapter to fix request path handling and WebSocket upgrade vulnerabilities.
+
 ## 2.5.22
 
 No changes in this release.
