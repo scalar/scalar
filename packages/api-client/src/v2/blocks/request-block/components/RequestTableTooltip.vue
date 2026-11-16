@@ -37,8 +37,8 @@ const schemaDetails = computed<string[]>(() => {
       : '',
   ].filter((detail) => detail.trim().length > 0)
 })
-const hasDescription = computed(() => Boolean(description?.trim()))
-const hasContent = computed(
+const hasDescription = computed<boolean>(() => Boolean(description?.trim()))
+const hasContent = computed<boolean>(
   () =>
     isInvalid.value || schemaDetails.value.length > 0 || hasDescription.value,
 )
