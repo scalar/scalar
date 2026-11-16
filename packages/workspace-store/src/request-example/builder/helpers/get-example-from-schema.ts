@@ -986,8 +986,16 @@ const handleArraySchema = (
     options?.originalOpenapiVersion ?? options?.openapiVersion,
   )
   if (hasArrayContains(schema) && dialect !== 'unsupported') {
-    const select = (candidate: Record<string, unknown>, path: string[]): unknown =>
-      selectExampleComposition(candidate as SchemaObject, [...schemaPath, ...path], options)
+    const select: Parameters<typeof generateContainsArray>[3] = (candidate, path, consumed): unknown =>
+      selectExampleComposition(
+        candidate as SchemaObject,
+        [...schemaPath, ...path],
+        consumed.reduce(
+          (remaining, choice) =>
+            consumeCompositionSelection(remaining, [...schemaPath, ...choice.path], choice.keyword),
+          options,
+        ),
+      )
     const authored = getAuthoredArrayExample(schema, dialect, select)
     if (authored) {
       return cache(schema, authored.value, cacheKey, skipCache)

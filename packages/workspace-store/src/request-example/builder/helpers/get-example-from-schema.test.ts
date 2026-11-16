@@ -420,6 +420,38 @@ describe('getExampleFromSchema', () => {
     ).toStrictEqual([2])
   })
 
+  it.each(['anyOf', 'oneOf'] as const)('preserves the selected %s branch inside allOf', (keyword) => {
+    const choice = {
+      [keyword]: [
+        { type: 'array', example: [8] },
+        { type: 'array', example: [9] },
+      ],
+    }
+    for (const member of [choice, { $ref: '#/choice', '$ref-value': choice }]) {
+      const schema = {
+        allOf: [{ type: 'array' }, member],
+        contains: { const: 2 },
+      } as unknown as SchemaObject
+      expect(getExampleFromSchema(schema, { compositionSelection: { [`0.${keyword}`]: 1 } })).toStrictEqual([9])
+    }
+  })
+
+  it.each(['anyOf', 'oneOf'] as const)('consumes an explicit %s selection before nested choices', (keyword) => {
+    const schema = {
+      [keyword]: [
+        { type: 'array', example: [7] },
+        {
+          [keyword]: [
+            { type: 'array', example: [8] },
+            { type: 'array', example: [9] },
+          ],
+        },
+      ],
+      contains: { const: 2 },
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema, { compositionSelection: { [keyword]: 1 } })).toStrictEqual([8])
+  })
+
   it.each([
     { contains: { const: 2 }, minContains: 2, maxContains: 1, items: { const: 2 }, expected: [2] },
     { contains: false, items: true, expected: [null] },

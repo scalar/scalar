@@ -1,5 +1,8 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
+import { resolve } from '@/resolve'
+import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
+
 /** Dialects whose array assertions this bounded generator understands. */
 type ArrayDialect = 'modern' | 'draft7' | 'unsupported'
 
@@ -278,30 +281,43 @@ const matches = (
   }
 }
 
+type ConsumedChoice = { path: string[]; keyword: 'oneOf' | 'anyOf' }
+type SelectArrayComposition = (schema: Record<string, unknown>, path: string[], consumed: ConsumedChoice[]) => unknown
+
 type ArrayLayer = { schema: Record<string, unknown>; path: string[]; dialect: ArrayDialect }
 
 /** Visit same-instance array applicators without following item schemas or entering cycles. */
 const arrayLayers = (
   schema: unknown,
   dialect: ArrayDialect,
-  select: (schema: Record<string, unknown>, path: string[]) => unknown,
+  select: SelectArrayComposition,
   path: string[] = [],
   seen = new Set<object>(),
+  consumed: ConsumedChoice[] = [],
 ): ArrayLayer[] => {
   if (!isObject(schema) || seen.has(schema) || seen.size >= MAX_SCHEMA_VISITS) return []
   seen.add(schema)
   if (typeof schema.$schema === 'string') dialect = getArrayDialect(schema.$schema)
   // A draft-07 reference replaces its siblings, including count and item assertions.
-  if (dialect === 'draft7' && '$ref' in schema) return arrayLayers(schema['$ref-value'], dialect, select, path, seen)
+  if (dialect === 'draft7' && '$ref' in schema)
+    return arrayLayers(schema['$ref-value'], dialect, select, path, seen, consumed)
   const layers = [{ schema, path, dialect }]
-  if ('$ref-value' in schema) layers.push(...arrayLayers(schema['$ref-value'], dialect, select, path, seen))
+  if ('$ref-value' in schema) layers.push(...arrayLayers(schema['$ref-value'], dialect, select, path, seen, consumed))
   if (Array.isArray(schema.allOf)) {
-    for (const [index, child] of schema.allOf.slice(0, MAX_SCHEMA_VISITS).entries()) {
-      layers.push(...arrayLayers(child, dialect, select, [...path, 'allOf', String(index)], seen))
+    let choiceIndex = 0
+    for (const child of schema.allOf.slice(0, MAX_SCHEMA_VISITS)) {
+      const resolved = resolve.schema(child as SchemaObject)
+      const isChoice = resolved && (Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf))
+      // Selection keys use choice ordinals, not JSON Schema keyword paths.
+      const childPath = isChoice ? [...path, String(choiceIndex++)] : path
+      layers.push(...arrayLayers(child, dialect, select, childPath, seen, consumed))
     }
   }
-  const selected = select(schema, path)
-  if (selected !== undefined) layers.push(...arrayLayers(selected, dialect, select, path, seen))
+  const selected = select(schema, path, consumed)
+  const keyword = schema.oneOf ? 'oneOf' : 'anyOf'
+  if (selected !== undefined) {
+    layers.push(...arrayLayers(selected, dialect, select, path, seen, [...consumed, { path, keyword }]))
+  }
   return layers
 }
 
@@ -323,7 +339,7 @@ export const hasArrayContains = (schema: unknown, seen = new Set<object>()): boo
 export const getAuthoredArrayExample = (
   schema: Record<string, unknown>,
   dialect: ArrayDialect,
-  select: (schema: Record<string, unknown>, path: string[]) => unknown,
+  select: SelectArrayComposition,
 ): { value: unknown } | undefined => {
   for (const { schema: source } of arrayLayers(schema, dialect, select)) {
     if (Array.isArray(source.examples) && source.examples.length > 0) {
@@ -346,7 +362,7 @@ export const generateContainsArray = (
   schema: Record<string, unknown>,
   dialect: ArrayDialect,
   generate: (schema: unknown, path: string[], dialect: string) => unknown,
-  select: (schema: Record<string, unknown>, path: string[]) => unknown,
+  select: SelectArrayComposition,
 ): { values: unknown[]; itemSchemas: unknown[] } => {
   const layers = arrayLayers(schema, dialect, select)
   const rules = layers
