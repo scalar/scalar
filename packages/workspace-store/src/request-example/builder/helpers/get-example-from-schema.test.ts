@@ -419,6 +419,28 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual([9])
   })
 
+  it('returns an empty partial for unresolved array assertions alongside contains', () => {
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 2,
+      maxItems: 2,
+      contains: { const: 2 },
+      maxContains: 1,
+      allOf: [{ $ref: '#/missing' }],
+    } as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual([])
+  })
+
+  it('keeps authored arrays on unresolved modern reference sites', () => {
+    const schema = {
+      type: 'array',
+      allOf: [{ $ref: '#/missing', example: [9] }],
+      contains: { const: 2 },
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual([9])
+  })
+
   it('applies simultaneous oneOf and anyOf item constraints', () => {
     const value = validateArray({
       type: 'array',

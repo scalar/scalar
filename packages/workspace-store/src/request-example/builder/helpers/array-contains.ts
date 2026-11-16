@@ -286,6 +286,10 @@ type SelectArrayComposition = (schema: Record<string, unknown>, path: string[], 
 
 type ArrayLayer = { schema: Record<string, unknown>; path: string[]; dialect: ArrayDialect; incomplete?: boolean }
 
+/** A missing reference target can hide array assertions, so it cannot establish a safe prefix. */
+const hasUnresolvedReference = (schema: Record<string, unknown>): boolean =>
+  '$ref' in schema && typeof schema['$ref-value'] !== 'boolean' && !isObject(schema['$ref-value'])
+
 /** Visit same-instance array applicators without following item schemas or entering cycles. */
 const arrayLayers = (
   schema: unknown,
@@ -299,6 +303,9 @@ const arrayLayers = (
   if (seen.size >= MAX_SCHEMA_VISITS) return [{ schema: {}, path, dialect, incomplete: true }]
   seen.add(schema)
   if (typeof schema.$schema === 'string') dialect = getArrayDialect(schema.$schema)
+  if (hasUnresolvedReference(schema)) {
+    return [{ schema: dialect === 'draft7' ? {} : schema, path, dialect, incomplete: true }]
+  }
   // A draft-07 reference replaces its siblings, including count and item assertions.
   if (dialect === 'draft7' && '$ref' in schema)
     return arrayLayers(schema['$ref-value'], dialect, select, path, seen, consumed)
