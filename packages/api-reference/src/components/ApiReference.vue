@@ -665,11 +665,9 @@ const { toggleColorMode, isDarkMode: browserIsDarkMode } = useColorMode({
 /** Browser preferences must not overwrite the server's controls before hydration finishes. */
 const hydratedIsDarkMode = hydrationState.value
   ? workspaceStore.workspace['x-scalar-color-mode'] === 'dark'
-  : undefined
+  : browserIsDarkMode.value
 const isDarkMode = computed(() =>
-  hydrationState.value && hydratedIsDarkMode !== undefined
-    ? hydratedIsDarkMode
-    : browserIsDarkMode.value,
+  hydrationState.value ? hydratedIsDarkMode : browserIsDarkMode.value,
 )
 
 /**

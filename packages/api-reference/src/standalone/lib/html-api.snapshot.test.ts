@@ -32,6 +32,22 @@ afterEach(() => {
 
 describe('html-api.snapshot', () => {
   it.each(['modern', 'classic'] as const)(
+    'preserves configured dark mode during server rendering in %s layout',
+    async (layout) => {
+      window.localStorage.removeItem('colorMode')
+      const configuration = apiReferenceConfigurationWithSourceSchema({ content, layout, darkMode: true })
+      const app = createSSRApp({ render: () => h(ApiReference, { configuration }) })
+      const element = document.createElement('div')
+      element.innerHTML = await renderToString(app)
+
+      expect(element.querySelector('[aria-label="Set light mode"]')?.getAttribute('aria-label')).toBe('Set light mode')
+      expect(element.querySelector('[aria-label="Set dark mode"]')).toBeNull()
+      const state = parseHydrationState(element.querySelector('script[data-scalar-hydration]')!.textContent!)
+      expect(state.reference.meta['x-scalar-color-mode']).toBe('dark')
+    },
+  )
+
+  it.each(['modern', 'classic'] as const)(
     'applies a saved dark preference after direct Vue hydration in %s layout',
     async (layout) => {
       window.localStorage.removeItem('colorMode')
