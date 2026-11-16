@@ -301,7 +301,11 @@ const arrayLayers = (
   dialect: ArrayDialect,
   select: SelectArrayComposition,
   path: string[] = [],
-  traversal: { active: Set<object>; remaining: number } = { active: new Set(), remaining: MAX_SCHEMA_VISITS },
+  traversal: {
+    active: Set<object>
+    remaining: number
+    stopAt?: (schema: Record<string, unknown>) => boolean
+  } = { active: new Set(), remaining: MAX_SCHEMA_VISITS },
   consumed: ConsumedChoice[] = [],
 ): ArrayLayer[] => {
   if (!isObject(schema) || traversal.active.has(schema)) return []
@@ -316,6 +320,7 @@ const arrayLayers = (
     if (dialect === 'draft7' && '$ref' in schema)
       return arrayLayers(schema['$ref-value'], dialect, select, path, traversal, consumed)
     const layers: ArrayLayer[] = [{ schema, path, dialect }]
+    if (traversal.stopAt?.(schema)) return layers
     if ('$ref-value' in schema)
       layers.push(...arrayLayers(schema['$ref-value'], dialect, select, path, traversal, consumed))
     if (Array.isArray(schema.allOf)) {
@@ -370,21 +375,29 @@ export const getAuthoredArrayValue = (
   dialect: ArrayDialect,
   select: SelectArrayComposition,
   getDefault: (schema: Record<string, unknown>) => { value: unknown } | undefined,
+  merge: (base: unknown, contribution: unknown) => unknown,
 ): { value: unknown } | undefined => {
-  const layers = arrayLayers(schema, dialect, select)
-  for (const { schema: source } of layers) {
+  const getValue = (source: Record<string, unknown>): { value: unknown } | undefined => {
     if (Array.isArray(source.examples) && source.examples.length > 0) {
       return { value: source.examples[0] }
     }
     if (source.example !== undefined) {
       return { value: source.example }
     }
+    return getDefault(source)
   }
+  // An explicit value replaces its own descendants, while sibling allOf values still contribute.
+  const layers = arrayLayers(schema, dialect, select, [], {
+    active: new Set(),
+    remaining: MAX_SCHEMA_VISITS,
+    stopAt: (source) => getValue(source) !== undefined,
+  })
+  let result: { value: unknown } | undefined
   for (const { schema: source } of layers) {
-    const value = getDefault(source)
-    if (value) return value
+    const value = getValue(source)
+    if (value) result = result ? { value: merge(result.value, value.value) } : value
   }
-  return undefined
+  return result
 }
 
 /**

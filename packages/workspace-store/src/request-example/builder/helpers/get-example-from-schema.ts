@@ -1000,11 +1000,17 @@ const handleArraySchema = (
           options,
         ),
       )
-    const authored = getAuthoredArrayValue(schema, dialect, select, (source) => {
-      if (source.default === undefined) return undefined
-      const value = normalizeSchemaDefault(source as SchemaObject)
-      return value === INVALID_DEFAULT ? undefined : { value }
-    })
+    const authored = getAuthoredArrayValue(
+      schema,
+      dialect,
+      select,
+      (source) => {
+        if (source.default === undefined) return undefined
+        const value = normalizeSchemaDefault(source as SchemaObject)
+        return value === INVALID_DEFAULT ? undefined : { value }
+      },
+      mergeExamples,
+    )
     if (authored) {
       return cache(schema, authored.value, cacheKey, skipCache)
     }

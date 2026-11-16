@@ -539,6 +539,20 @@ describe('getExampleFromSchema', () => {
     ).toStrictEqual([9])
   })
 
+  it.each([
+    [{ default: [8] }, { default: [9] }],
+    [{ example: [8] }, { example: [9] }],
+    [{ default: [8] }, { examples: [[9]] }],
+    [{ default: [8], allOf: [{ type: 'array', example: [7] }] }, { example: [9] }],
+  ])('merges authored whole-array contributions across allOf: %j', (first, second) => {
+    expect(
+      getExampleFromSchema({
+        allOf: [first, second].map((member) => ({ type: 'array', ...member })),
+        contains: { const: 2 },
+      } as SchemaObject),
+    ).toStrictEqual([8, 9])
+  })
+
   it('uses only the selected whole-array default', () => {
     expect(
       getExampleFromSchema(
