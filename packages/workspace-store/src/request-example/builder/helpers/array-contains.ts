@@ -496,7 +496,7 @@ export const generateContainsArray = (
               sample[key],
               isObject(value) ? value[key] : undefined,
               layer.dialect,
-              [...layer.path, 'properties', key],
+              [...layer.path, key],
               depth + 1,
             )
           )
@@ -504,7 +504,11 @@ export const generateContainsArray = (
         }
       }
       if (isObject(node.additionalProperties) && isObject(sample)) {
-        const childPath = [...layer.path, 'additionalProperties']
+        // Selection paths use the generated property name, including the custom-name extension.
+        const additionalSchema = resolve.schema(node.additionalProperties as SchemaObject)
+        const customName = additionalSchema['x-additionalPropertiesName']
+        const name = typeof customName === 'string' && customName.trim() ? customName.trim() : 'additionalProperty'
+        const childPath = [...layer.path, name]
         const additional = Object.entries(isObject(value) ? value : {}).filter(
           ([key]) => !isObject(node.properties) || !(key in node.properties),
         )

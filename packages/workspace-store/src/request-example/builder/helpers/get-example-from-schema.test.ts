@@ -421,6 +421,32 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1 }, { id: 1 }, { id: 1 }])
   })
 
+  it.each([
+    { keyword: 'properties', name: 'value', customName: undefined },
+    { keyword: 'additionalProperties', name: 'additionalProperty', customName: undefined },
+    { keyword: 'additionalProperties', name: 'custom', customName: ' custom ' },
+  ])('preserves selected authored children under $keyword ($name)', ({ keyword, name, customName }) => {
+    const child = {
+      anyOf: [{ type: 'integer' }, { type: 'integer', example: 1 }],
+      ...(customName ? { 'x-additionalPropertiesName': customName } : {}),
+    }
+    const schema = {
+      type: 'array',
+      items: {
+        type: 'object',
+        ...(keyword === 'properties'
+          ? { properties: { value: child }, required: ['value'] }
+          : { additionalProperties: child }),
+      },
+      minItems: 1,
+      maxItems: 1,
+      contains: { const: { [name]: 2 } },
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema, { compositionSelection: { [`items.${name}.anyOf`]: 1 } })).toStrictEqual([
+      { [name]: 1 },
+    ])
+  })
+
   it('changes unauthored fields without replacing authored properties', () => {
     const value = validateArray({
       type: 'array',
