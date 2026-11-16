@@ -503,25 +503,36 @@ export const generateContainsArray = (
             return false
         }
       }
-      if (isObject(node.additionalProperties) && isObject(sample) && isObject(value)) {
+      if (isObject(node.additionalProperties) && isObject(sample)) {
         const childPath = [...layer.path, 'additionalProperties']
-        for (const [key, item] of Object.entries(value)) {
-          if (isObject(node.properties) && key in node.properties) continue
+        const additional = Object.entries(isObject(value) ? value : {}).filter(
+          ([key]) => !isObject(node.properties) || !(key in node.properties),
+        )
+        for (const [key, item] of additional) {
           const expected =
             key in sample ? sample[key] : generate(node.additionalProperties, childPath, dialectUris[layer.dialect])
           if (!preservesAuthored(node.additionalProperties, expected, item, layer.dialect, childPath, depth + 1))
             return false
         }
+        // Generated additional-property names may change, but deleting every authored child may not.
+        if (additional.length === 0) {
+          for (const [key, expected] of Object.entries(sample)) {
+            if (isObject(node.properties) && key in node.properties) continue
+            if (!preservesAuthored(node.additionalProperties, expected, undefined, layer.dialect, childPath, depth + 1))
+              return false
+          }
+        }
       }
-      if (Array.isArray(sample) && Array.isArray(value)) {
-        for (const [index, item] of value.entries()) {
+      if (Array.isArray(sample)) {
+        const items = Array.isArray(value) ? value : []
+        for (let index = 0; index < Math.max(sample.length, items.length); index++) {
           const prefix =
             layer.dialect === 'modern' && Array.isArray(node.prefixItems) && index < node.prefixItems.length
           const child = prefix ? (node.prefixItems as unknown[])[index] : (node.items ?? true)
           const childPath = [...layer.path, ...(prefix ? ['prefixItems', String(index)] : ['items'])]
           const expected =
             index < sample.length ? sample[index] : generate(child, childPath, dialectUris[layer.dialect])
-          if (!preservesAuthored(child, expected, item, layer.dialect, childPath, depth + 1)) return false
+          if (!preservesAuthored(child, expected, items[index], layer.dialect, childPath, depth + 1)) return false
         }
       }
     }

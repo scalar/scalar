@@ -450,6 +450,25 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual([9])
   })
 
+  it.each([
+    {
+      items: { type: 'object', additionalProperties: { type: 'integer', example: 1 } },
+      target: {},
+      expected: [{ additionalProperty: 1 }],
+    },
+    { items: { type: 'array', items: { type: 'integer', example: 1 } }, target: [], expected: [[1]] },
+    { items: { type: 'array', prefixItems: [{ type: 'integer', example: 1 }] }, target: [], expected: [[1]] },
+  ])('keeps authored children when a matching candidate would delete them: %j', ({ items, target, expected }) => {
+    const schema = {
+      type: 'array',
+      items,
+      contains: { const: target },
+      minItems: 1,
+      maxItems: 1,
+    } as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual(expected)
+  })
+
   it('returns an empty partial for unresolved array assertions alongside contains', () => {
     const schema = {
       type: 'array',
