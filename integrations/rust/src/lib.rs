@@ -40,7 +40,7 @@ pub fn get_mime_type(path: &str) -> String {
 /// `config_json` must be valid JSON, not JavaScript source. Use
 /// [`scalar_html_from_json`] to validate JSON before rendering it.
 /// The bundle URL must point to trusted JavaScript.
-pub fn render_scalar(config_json: &str, js_bundle_url: Option<&str>) -> String {
+pub(crate) fn render_scalar(config_json: &str, js_bundle_url: Option<&str>) -> String {
     let html_template = include_str!("../ui/index.html");
     let js_url = js_bundle_url.unwrap_or("https://cdn.jsdelivr.net/npm/@scalar/api-reference");
 
@@ -76,6 +76,14 @@ pub fn scalar_html_default(config: &Value) -> String {
 }
 
 /// Return the Scalar HTML with embedded config from a JSON string and optional JS bundle URL
+///
+/// Returns an error if the configuration is not valid JSON, including JavaScript
+/// function values. Use this validated entry point instead of the internal renderer.
+///
+/// ```compile_fail
+/// // Raw rendering is internal so public callers cannot bypass JSON validation.
+/// scalar_api_reference::render_scalar("{ onReady: () => 1 < 2 }", None);
+/// ```
 pub fn scalar_html_from_json(
     config_json: &str,
     js_bundle_url: Option<&str>,
@@ -538,6 +546,14 @@ mod tests {
         assert_eq!(get_mime_type("icon.svg"), "image/svg+xml");
         assert_eq!(get_mime_type("favicon.ico"), "image/x-icon");
         assert_eq!(get_mime_type("unknown.xyz"), "application/octet-stream");
+    }
+
+    #[test]
+    fn test_json_renderers_reject_javascript_source() {
+        let config = r#"{"onReady": function () { return 1 < 2; }}"#;
+
+        assert!(scalar_html_from_json(config, None).is_err());
+        assert!(scalar_html_from_json_default(config).is_err());
     }
 
     #[test]
