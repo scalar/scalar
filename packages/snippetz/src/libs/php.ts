@@ -8,6 +8,22 @@ function indent(level: number): string {
 /** Escapes a value for a single-quoted PHP string literal, where only backslashes and quotes are special. */
 export const escapePhpString = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 
+/** Wraps a value in a single-quoted PHP string literal. */
+export const quotePhpString = (value: string): string => `'${escapePhpString(value)}'`
+
+/** Returns the host a cookie jar should scope cookies to, falling back to localhost. */
+export const getCookieDomain = (url: string): string => {
+  if (!url) {
+    return 'localhost'
+  }
+
+  try {
+    return new URL(url).hostname || 'localhost'
+  } catch {
+    return 'localhost'
+  }
+}
+
 /**
  * Represents a raw PHP code that should not be quoted, e.g. `fopen('test.txt', 'r')`.
  * If it consists of multiple lines, they will be indented properly.
