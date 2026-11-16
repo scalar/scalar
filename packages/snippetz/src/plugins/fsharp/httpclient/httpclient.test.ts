@@ -125,7 +125,7 @@ describe('fsharpHttpclient.generate - postData', () => {
         mimeType: 'application/json',
         text: '{"key":"value"}',
       },
-    } as any
+    }
     const result = fsharpHttpclient.generate(request, {})
     expect(result).not.toContain('httpRequestMessage.Headers.Add("Content-Type"')
     expect(result).toContain('httpRequestMessage.Headers.Add("Authorization", "Bearer token")')
@@ -142,7 +142,7 @@ describe('fsharpHttpclient.generate - postData', () => {
         method: 'POST',
         headers: [{ name: 'content-type', value: postData.mimeType }],
         postData,
-      } as any
+      }
       const result = fsharpHttpclient.generate(request, {})
       expect(result).not.toContain('httpRequestMessage.Headers.Add("content-type"')
       expect(result).toContain('httpRequestMessage.Content <- content')
@@ -154,7 +154,7 @@ describe('fsharpHttpclient.generate - postData', () => {
       url: 'https://api.com/',
       method: 'GET',
       headers: [{ name: 'Content-Type', value: 'application/json' }],
-    } as any
+    }
     const result = fsharpHttpclient.generate(request, {})
     expect(result).toContain('httpRequestMessage.Headers.Add("Content-Type", "application/json")')
   })
