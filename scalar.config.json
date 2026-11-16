@@ -4363,6 +4363,12 @@
                     "type": "page",
                     "title": "Autocompletion"
                   },
+                  "transform": {
+                    "description": "Generate public production and private staging API descriptions from one source with ordered filtering, metadata edits, and component pruning.",
+                    "filepath": "documentation/guides/cli/transform.md",
+                    "type": "page",
+                    "title": "Transform API Descriptions"
+                  },
                   "ci-and-scripting": {
                     "description": "Run the Scalar CLI in CI: authenticate with tokens, publish lint reports, adopt lint baselines, and read JSON output.",
                     "filepath": "documentation/guides/cli/ci-and-scripting.md",
