@@ -15,6 +15,7 @@
     "src/helpers/auth/schema.ts"
   ],
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "moduleResolution": "bundler",
     "composite": true,
     "baseUrl": ".",
