@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { createMagicProxy } from '@/magic-proxy/proxy'
+
 import { type LoaderPlugin, type ResolveResult, bundle } from './bundle'
 import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { fetchUrls } from './plugins/fetch-urls'
@@ -624,6 +626,67 @@ describe('bundle-with-diagnostics', () => {
     expect(loader.calls).toStrictEqual(['https://example.test/nested/value.json'])
     expect(schema.id).toBe('https://example.test/nested/')
     expect(schema.$id).toBe('https://ignored.test/')
+  })
+
+  it('restores cached annotations after selecting a draft-04 vocabulary', async () => {
+    const cached = { $id: './literal/', type: 'string' }
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Wrapped: {
+              schemaFormat: 'application/schema+json;version=draft-04',
+              schema: { $ref: 'https://example.test/cached.json' },
+            },
+          },
+        },
+      },
+      {
+        origin: 'https://example.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        preserveReference: () => false,
+        cache: new Map([
+          [
+            'https://example.test/cached.json',
+            Promise.resolve({ ok: true, data: cached, raw: JSON.stringify(cached) }),
+          ],
+        ]),
+        plugins: [],
+        compress: () => 'cached',
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(result.document['x-ext']).toStrictEqual({ cached: { $id: './literal/', type: 'string' } })
+    expect(cached).toStrictEqual({ $id: './literal/', type: 'string' })
+  })
+
+  it.each([false, true])('indexes authored identity paths with proxied input: %s', async (proxied) => {
+    const input = {
+      asyncapi: '3.1.0',
+      components: {
+        messages: { M: { payload: { $ref: '#/components/schemas/S' } } },
+        schemas: {
+          S: { $id: './schema.json', properties: { id: { $ref: './id.json' } } },
+          Other: { $ref: 'https://example.test/schema.json' },
+        },
+      },
+    }
+    const loader = sources({ 'https://example.test/id.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(proxied ? createMagicProxy(input) : input, {
+      traversal: 'document',
+      treeShake: false,
+      origin: 'https://example.test/root.json',
+      plugins: [loader.plugin],
+      compress: () => 'id',
+    })
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/id.json'])
+    expect(input.components.schemas.Other.$ref).toBe('#/components/schemas/S')
+    expect(JSON.parse(JSON.stringify(input)).components.schemas.Other).toStrictEqual({
+      $ref: '#/components/schemas/S',
+    })
   })
 
   it('resolves draft-04 fragment identifiers declared with id', async () => {
