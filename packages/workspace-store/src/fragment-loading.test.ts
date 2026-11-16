@@ -117,4 +117,58 @@ describe('fragment-loading', () => {
       getValueAtPath(reloaded.workspace.documents.modern, ['components', 'schemas', 'Item', '$ref-value', 'type']),
     ).toStrictEqual(['string', 'null'])
   })
+  it('preserves upgraded response headers in serialized 2.0 server component chunks', async () => {
+    const server = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com/docs',
+      documents: [
+        {
+          name: 'legacy',
+          document: {
+            swagger: '2.0',
+            info: { title: 'Legacy', version: '1' },
+            paths: { '/items': { get: { responses: { '200': { $ref: '#/responses/Success' } } } } },
+            responses: { Success: { description: 'OK', headers: { Count: { type: 'integer', minimum: 0 } } } },
+          },
+        },
+      ],
+    })
+    const client = createWorkspaceStore()
+    await client.addDocument({
+      name: 'legacy',
+      document: JSON.parse(JSON.stringify(server.getWorkspace().documents.legacy)),
+      fetch: (input) =>
+        Promise.resolve(
+          new Response(JSON.stringify(server.get(new URL(String(input)).pathname.slice('/docs'.length)))),
+        ),
+    })
+    await client.resolve(['components', 'responses', 'Success'])
+    await client.resolve(['paths', '/items', 'get'])
+    expect(
+      getValueAtPath(client.workspace.documents.legacy, [
+        'components',
+        'responses',
+        'Success',
+        '$ref-value',
+        'headers',
+        'Count',
+        'schema',
+      ]),
+    ).toStrictEqual({ type: 'integer', minimum: 0 })
+    expect(
+      getValueAtPath(client.workspace.documents.legacy, [
+        'paths',
+        '/items',
+        'get',
+        '$ref-value',
+        'responses',
+        '200',
+        '$ref-value',
+        '$ref-value',
+        'headers',
+        'Count',
+        'schema',
+      ]),
+    ).toStrictEqual({ type: 'integer', minimum: 0 })
+  })
 })

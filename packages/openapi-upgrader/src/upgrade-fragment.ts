@@ -500,14 +500,27 @@ export const upgradeFragment = async (
     }
     if (isObject(result.content)) {
       for (const [media, entry] of Object.entries(result.content)) {
-        if (!isObject(entry) || entry.schema === undefined) {
+        if (!isObject(entry)) {
           continue
         }
-        const from = v2 && (kind === 'response' || value.in === 'body') ? ['schema'] : ['content', media, 'schema']
-        entry.schema = await child(entry.schema, 'schema', from, ['content', media, 'schema'])
+        if (entry.schema !== undefined) {
+          const from = v2 && (kind === 'response' || value.in === 'body') ? ['schema'] : ['content', media, 'schema']
+          entry.schema = await child(entry.schema, 'schema', from, ['content', media, 'schema'])
+        }
+        if (isObject(entry.encoding)) {
+          for (const [name, encoding] of Object.entries(entry.encoding)) {
+            if (isObject(encoding) && isObject(encoding.headers)) {
+              encoding.headers = await map(encoding.headers, 'header', ['content', media, 'encoding', name, 'headers'])
+            }
+          }
+        }
+        applyChangesToDocument(entry, [...semanticPath, 'content', media])
       }
     }
-    // Examples on Parameter/Header/Media Type Objects retain their native shape.
+    // Match the document upgrader's example normalization without traversing literal values.
+    if (kind === 'parameter' || kind === 'header') {
+      applyChangesToDocument(result, semanticPath)
+    }
     return result
   }
   const semanticPath = options.kind === 'schema' ? ['components', 'schemas', 'fragment'] : []

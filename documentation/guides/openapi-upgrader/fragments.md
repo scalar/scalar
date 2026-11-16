@@ -12,7 +12,7 @@ const { value, locations } = await upgradeFragment(
 // value: { type: ['string', 'null'] }
 ```
 
-Kinds include `document`, `schema`, `parameter`, `header`, `response`, `path-item`, `operation`, `request-body`, and `callback`. Pass effective `consumes` and `produces` for OpenAPI 2.0 fragments; both default to `application/json`. Form parameters use form-compatible media types and fall back to `multipart/form-data`. A schema with an explicit `$schema` is retained in its declared dialect. Examples, defaults, and extension payloads remain literal data.
+Kinds include `document`, `schema`, `parameter`, `header`, `response`, `path-item`, `operation`, `request-body`, and `callback`. Pass effective `consumes` and `produces` for OpenAPI 2.0 fragments; both default to `application/json`. Form parameters use form-compatible media types and fall back to `multipart/form-data`. A schema with an explicit `$schema` is retained in its declared dialect. Examples, defaults, and extension payloads remain literal data. Parameter, Header, and Media Type `example` fields become `examples.default`, matching `upgrade`; Schema `example` fields become `examples` arrays. Encoding header schemas are upgraded too.
 
 For OpenAPI 2.0 operations containing parameter references, supply `resolveSource(ref)`, an asynchronous lookup of the original parameter. Body parameters become the operation's `requestBody`, while form parameters combine into one request body. These parameter objects are inlined; nested schema references remain references. A body or form parameter cannot be upgraded as `kind: 'parameter'`: use the owning operation, or `request-body` when that is explicitly the intended destination.
 
@@ -28,3 +28,5 @@ JSON Magic exposes two asynchronous lifecycle hooks through `BundleConfig.hooks`
 A document resolver can return `remapPointer(pointer)` for authored pointers into transformed resources, and `visitReferencedSubtrees: true` for headerless resources that need reference context before traversal. For a partial bundle, pass `root` and its `inputPath` so hooks receive the semantic referring location.
 
 The workspace store uses these hooks to upgrade complete resources according to their declared version, and bare fragments according to the original owning API description. It caches contextual variants separately and persists `x-scalar-upgrade` metadata with relocation mappings and source context so serialization and lazy loading preserve resolution behavior.
+
+Server chunks are already upgraded. References marked with `$global: true` bypass reference-target transforms, while external fragments reached from a chunk still inherit the original source dialect.

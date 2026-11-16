@@ -15,7 +15,7 @@ describe('upgrade-fragment', () => {
     expect(input.properties.name).toStrictEqual({ type: 'string', nullable: true })
   })
 
-  it('preserves parameter examples and schema examples in their respective shapes', async () => {
+  it('normalizes parameter and schema examples to their respective shapes', async () => {
     const result = await upgradeFragment(
       { name: 'q', in: 'query', example: 'sample', schema: { type: 'string', example: 'sample', nullable: true } },
       { from: '3.0', to: '3.1', kind: 'parameter' },
@@ -23,7 +23,7 @@ describe('upgrade-fragment', () => {
     expect(result.value).toStrictEqual({
       name: 'q',
       in: 'query',
-      example: 'sample',
+      examples: { default: { value: 'sample' } },
       schema: { type: ['string', 'null'], examples: ['sample'] },
     })
   })
@@ -205,5 +205,47 @@ describe('upgrade-fragment', () => {
     expect(combined.locations.filter((location) => location.source.join('/') === 'parameters/0/items')).toStrictEqual([
       { source: ['parameters', '0', 'items'], output: ['requestBody', ...property] },
     ])
+  })
+  it('normalizes parameter and media type examples without changing literal payloads', async () => {
+    const example = { nullable: true, $ref: '#/literal' }
+    const result = await upgradeFragment(
+      {
+        name: 'filter',
+        in: 'query',
+        example,
+        content: { 'application/json': { example, schema: { type: 'string' } } },
+      },
+      { from: '3.0', to: '3.1', kind: 'parameter' },
+    )
+    expect(result.value).toStrictEqual({
+      name: 'filter',
+      in: 'query',
+      examples: { default: { value: example } },
+      content: { 'application/json': { examples: { default: { value: example } }, schema: { type: 'string' } } },
+    })
+  })
+
+  it('upgrades encoding header schemas even when the media type has no schema', async () => {
+    const result = await upgradeFragment(
+      {
+        content: {
+          'multipart/form-data': {
+            encoding: { file: { headers: { Checksum: { schema: { type: 'string', nullable: true } } } } },
+          },
+        },
+      },
+      { from: '3.0', to: '3.1', kind: 'request-body' },
+    )
+    expect(result.value).toStrictEqual({
+      content: {
+        'multipart/form-data': {
+          encoding: { file: { headers: { Checksum: { schema: { type: ['string', 'null'] } } } } },
+        },
+      },
+    })
+    expect(result.locations).toContainEqual({
+      source: ['content', 'multipart/form-data', 'encoding', 'file', 'headers', 'Checksum', 'schema'],
+      output: ['content', 'multipart/form-data', 'encoding', 'file', 'headers', 'Checksum', 'schema'],
+    })
   })
 })

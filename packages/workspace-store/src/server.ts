@@ -146,6 +146,7 @@ const resolveLocalReferences = <T extends object>(document: T): T =>
 const BUNDLED_EXTERNAL_KEYS = [
   bundleExtensions.externalDocuments,
   bundleExtensions.externalDocumentsMappings,
+  'x-scalar-upgrade',
   'x-scalar-security-uri-aliases',
   'x-scalar-original-security-keys',
 ] as const
@@ -848,7 +849,10 @@ export async function createServerWorkspaceStore(
       if (loaded.swagger === '2.0' || (typeof loaded.openapi === 'string' && loaded.openapi.startsWith('3.0.'))) {
         await bundle(data, {
           origin,
-          depth: 0,
+          traversal: 'document',
+          // Relocated local pointers must be rewritten before components become server chunks.
+          // External fragments remain lazy and retain their original owning dialect.
+          preserveReference: (ref) => !ref.startsWith('#'),
           treeShake: false,
           plugins: [upgradeDocuments(loaded.openapi ?? loaded.swagger), ...loaders],
         })

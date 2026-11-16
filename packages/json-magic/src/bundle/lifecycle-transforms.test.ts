@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { type LoaderPlugin, type ResolveResult, bundle } from './bundle'
 
@@ -93,5 +93,40 @@ describe('lifecycle-transforms', () => {
         },
       },
     })
+  })
+  it('retains an own __proto__ storage key when a loaded resource is transformed', async () => {
+    const input = JSON.parse('{"x-ext":{"__proto__":{"legacy":{"type":"string"}}}}')
+    const stored = input['x-ext']
+    await bundle(input, {
+      treeShake: false,
+      plugins: [
+        {
+          type: 'lifecycle',
+          onDocumentLoaded: (document, { uri }) => (uri.includes('__proto__') ? { modern: resource.legacy } : document),
+          resolveDocument: (_document, uri) =>
+            uri.includes('__proto__')
+              ? {
+                  baseUri: uri,
+                  remapPointer: (pointer) => (pointer[0] === 'legacy' ? ['modern', ...pointer.slice(1)] : pointer),
+                }
+              : undefined,
+        },
+      ],
+    })
+    expect(Object.getPrototypeOf(stored)).toBe(Object.prototype)
+    expect(Object.hasOwn(stored, '__proto__')).toBe(true)
+    expect(stored.__proto__).toStrictEqual({ modern: { type: 'string' } })
+    expect(Object.prototype).not.toHaveProperty('modern')
+  })
+
+  it('does not clone a root when loaded-resource hooks leave it unchanged', async () => {
+    const input = { title: 'Already upgraded', paths: {} }
+    const clone = vi.spyOn(globalThis, 'structuredClone')
+    try {
+      await bundle(input, { treeShake: false, plugins: [{ type: 'lifecycle', onDocumentLoaded: (value) => value }] })
+      expect(clone.mock.calls.some(([value]) => value === input)).toBe(false)
+    } finally {
+      clone.mockRestore()
+    }
   })
 })

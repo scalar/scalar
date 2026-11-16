@@ -129,7 +129,9 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
           ? (sourceVersion(document['x-original-oas-version']) ??
             (typeof document.openapi === 'string' || typeof document.swagger === 'string' ? 'modern' : undefined))
           : undefined)
-      sources.set(uri, { document: structuredClone(document), version })
+      // Retain source context only when a complete legacy resource will be replaced.
+      // Lazy resolves of an already upgraded root must not copy the whole API description.
+      sources.set(uri, { document: from && !metadata(document) ? structuredClone(document) : document, version })
       const resolveSource = async (ref: string, origin = uri, visited = new Set<string>()): Promise<unknown> => {
         const absolute = resolveReferencePath(origin, ref)
         if (visited.has(absolute)) {

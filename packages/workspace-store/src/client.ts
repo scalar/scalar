@@ -1780,7 +1780,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return bundle(target, {
         inputPath: path,
         traversal: 'document',
-        root: activeDocument ? unpackProxyObject(activeDocument) : undefined,
+        root: activeDocument,
         origin: activeDocument?.['x-scalar-original-source-url'],
         treeShake: false,
         plugins: [

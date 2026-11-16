@@ -1,7 +1,7 @@
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { upgradeDocuments } from './upgrade-documents'
 
@@ -366,5 +366,28 @@ describe('upgrade-documents', () => {
     expect(
       getRaw(read(saved, ['paths', '/items', '$ref-value', 'get', 'responses', '200', '$ref-value', 'content'])),
     ).toStrictEqual({ 'application/xml': { schema: { type: 'string' } } })
+  })
+  it('does not copy the full root while resolving an already upgraded document', async () => {
+    const input = { openapi: '3.1.1', 'x-original-oas-version': '2.0', paths: {} }
+    const clone = vi.spyOn(globalThis, 'structuredClone')
+    try {
+      await bundle(input, { traversal: 'document', treeShake: false, plugins: [upgradeDocuments('2.0')] })
+      expect(clone.mock.calls.some(([value]) => value === input)).toBe(false)
+    } finally {
+      clone.mockRestore()
+    }
+  })
+
+  it('preserves content-based parameters reached through cached global chunk references', async () => {
+    const parameter = { name: 'filter', in: 'query', content: { 'application/json': { schema: { type: 'string' } } } }
+    const input = {
+      openapi: '3.1.1',
+      'x-original-oas-version': '2.0',
+      components: { parameters: { Filter: { $ref: '#/x-ext/chunk', $global: true } } },
+      'x-ext': { chunk: parameter },
+    }
+    await bundle(input, { traversal: 'document', treeShake: false, plugins: [upgradeDocuments('2.0')] })
+    expect(read(input, ['components', 'parameters', 'Filter', '$ref-value'])).toStrictEqual(parameter)
+    expect(parameter).not.toHaveProperty('schema')
   })
 })

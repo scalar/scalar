@@ -776,15 +776,13 @@ export const bundleDocument = async (
     Promise.resolve({
       ok: true,
       raw: '',
-      data:
-        config.hooks?.onDocumentLoaded || lifecyclePlugin.some((plugin) => plugin.onDocumentLoaded)
-          ? structuredClone(sourceRoot)
-          : sourceRoot,
+      data: sourceRoot,
     }),
   )
   const transformedRoot = await prepareDocument(sourceRoot, getDefaultOrigin())
   // Preserve the public in-place bundle contract while keeping source data separate.
   if (transformedRoot !== sourceRoot && isObject(sourceRoot) && isObject(transformedRoot)) {
+    sourceDocuments.set(getDefaultOrigin(), Promise.resolve({ ok: true, raw: '', data: structuredClone(sourceRoot) }))
     for (const key of Object.keys(sourceRoot)) {
       delete sourceRoot[key]
     }
@@ -925,15 +923,16 @@ export const bundleDocument = async (
   const storedDocuments = documentRoot[config.externalDocumentsKey]
   if (isObject(storedDocuments)) {
     for (const [key, document] of Object.entries(storedDocuments)) {
-      const retrievalUri = bundledDocumentUri(
-        defaultOrigin,
-        key,
-        documentRoot[config.externalDocumentsMappingsKey][key],
-      )
-      const source = documentRoot[config.externalDocumentsMappingsKey][key]
+      const source = Object.hasOwn(mappings, key) ? mappings[key] : undefined
+      const retrievalUri = bundledDocumentUri(defaultOrigin, key, source)
       const prepared = await prepareDocument(document, retrievalUri)
       if (prepared !== document) {
-        storedDocuments[key] = prepared
+        Object.defineProperty(storedDocuments, key, {
+          value: prepared,
+          enumerable: true,
+          configurable: true,
+          writable: true,
+        })
       }
       traversal.register(
         prepared,
@@ -1174,9 +1173,10 @@ export const bundleDocument = async (
       // of the local reference are bundled to create a complete and self-contained partial bundle
       // This is important to maintain the integrity of the partial bundle
       const initialTarget = resolveReference(ref)
-      const local = initialTarget
-        ? await prepareTarget(initialTarget, context, location?.context, referenceSource)
-        : undefined
+      const local =
+        initialTarget && !isChunk
+          ? await prepareTarget(initialTarget, context, location?.context, referenceSource)
+          : initialTarget
       const localRef = local?.path
 
       if (localRef !== undefined) {
