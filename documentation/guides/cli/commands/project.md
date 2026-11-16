@@ -68,7 +68,7 @@ scalar project init [options]
 | --- | --- |
 | `--json` | Output the result as JSON without prompting. |
 | `-s, --subdomain [url]` | Subdomain for the published documentation. |
-| `--force` | Overwrite existing configuration. |
+| `--force` | Replace the configuration, docs-quickstart.md, and docs-openapi.json. |
 | `--no-input` | Disable prompts and browser launches. |
 
 ## check-config
