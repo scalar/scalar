@@ -60,6 +60,137 @@ const literalPaths = [
 
 describe('client.asyncapi', () => {
   it.each([
+    { lazy: false, wrapperFirst: false },
+    { lazy: false, wrapperFirst: true },
+    { lazy: true, wrapperFirst: false },
+    { lazy: true, wrapperFirst: true },
+  ])(
+    'retains referenced wrapper vocabulary (lazy: $lazy, wrapper first: $wrapperFirst)',
+    async ({ lazy, wrapperFirst }) => {
+      const requests: string[] = []
+      const store = createWorkspaceStore({
+        fetch: (input) => {
+          requests.push(String(input))
+          if (String(input) === 'https://example.test/value.json')
+            return Promise.resolve(Response.json({ type: 'string' }))
+          throw new Error(`Unexpected fetch: ${input}`)
+        },
+      })
+      const wrapper = {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { $ref: 'https://example.test/value.json' },
+      }
+      const native = { properties: { value: { $ref: '#/components/schemas/Wrapped' } } }
+      await store.addDocument({
+        name: 'events',
+        document: {
+          asyncapi: '3.1.0',
+          info: { title: 'Events', version: '1' },
+          components: {
+            schemas: wrapperFirst ? { Wrapped: wrapper, Native: native } : { Native: native, Wrapped: wrapper },
+          },
+          ...(lazy ? { 'x-scalar-navigation': {} } : {}),
+        },
+      })
+      if (lazy) {
+        expect(requests).toStrictEqual([])
+        await store.resolve(['components', 'schemas', 'Native'])
+        await store.resolve(['components', 'schemas', 'Wrapped'])
+      }
+      const loaded = getValueAtPath(store.workspace.documents.events, ['components', 'schemas', 'Wrapped', 'schema'])
+      expect(getRaw(getResolvedRef(loaded))).toStrictEqual({ type: 'string' })
+      expect(requests).toStrictEqual(['https://example.test/value.json'])
+    },
+  )
+
+  it.each(
+    [
+      'application/schema+json;version=draft-04',
+      'application/schema+yaml;version=draft-06',
+      'application/vnd.oai.openapi;version=3.0.0',
+      'application/vnd.oai.openapi+json;version=3.0.4',
+      'application/vnd.oai.openapi+yaml;version=3.0.0',
+    ].flatMap((schemaFormat) => [false, true].map((lazy) => ({ schemaFormat, lazy }))),
+  )('ignores legacy wrapper reference siblings ($schemaFormat, lazy: $lazy)', async ({ schemaFormat, lazy }) => {
+    const requests: string[] = []
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        requests.push(String(input))
+        if (String(input) === 'https://example.test/value.json')
+          return Promise.resolve(Response.json({ type: 'string' }))
+        throw new Error(`Unexpected fetch: ${input}`)
+      },
+    })
+    const ignored = { properties: { sibling: { $ref: 'https://example.test/ignored.json' } } }
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi: '3.1.0',
+        info: { title: 'Events', version: '1' },
+        components: {
+          schemas: {
+            Wrapped: { schemaFormat, schema: { $ref: 'https://example.test/value.json', ...ignored } },
+          },
+        },
+        ...(lazy ? { 'x-scalar-navigation': {} } : {}),
+      },
+    })
+    if (lazy) {
+      expect(requests).toStrictEqual([])
+      await store.resolve(['components', 'schemas', 'Wrapped'])
+    }
+    const loaded = getValueAtPath(store.workspace.documents.events, ['components', 'schemas', 'Wrapped', 'schema'])
+    expect(getRaw(getResolvedRef(loaded))).toStrictEqual({ type: 'string' })
+    expect(getValueAtPath(getRaw(loaded), ['properties'])).toStrictEqual(ignored.properties)
+    expect(requests).toStrictEqual(['https://example.test/value.json'])
+  })
+
+  it.each([false, true])('ignores AsyncAPI 2.x parameter schema reference siblings (lazy: %s)', async (lazy) => {
+    const requests: string[] = []
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        requests.push(String(input))
+        if (String(input) === 'https://example.test/value.json')
+          return Promise.resolve(Response.json({ type: 'string' }))
+        throw new Error(`Unexpected fetch: ${input}`)
+      },
+    })
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi: '2.6.0',
+        info: { title: 'Events', version: '1' },
+        channels: {
+          events: {
+            parameters: {
+              id: {
+                schema: {
+                  $ref: 'https://example.test/value.json',
+                  properties: { sibling: { $ref: 'https://example.test/ignored.json' } },
+                },
+              },
+            },
+          },
+        },
+        ...(lazy ? { 'x-scalar-navigation': {} } : {}),
+      },
+    })
+    if (lazy) {
+      expect(requests).toStrictEqual([])
+      await store.resolve(['channels', 'events'])
+    }
+    const loaded = getValueAtPath(store.workspace.documents.events, [
+      'channels',
+      'events',
+      'parameters',
+      'id',
+      'schema',
+    ])
+    expect(getRaw(getResolvedRef(loaded))).toStrictEqual({ type: 'string' })
+    expect(requests).toStrictEqual(['https://example.test/value.json'])
+  })
+
+  it.each([
     { asyncapi: '3.0.0', lazy: false },
     { asyncapi: '3.1.0', lazy: false },
     { asyncapi: '3.0.0', lazy: true },

@@ -133,7 +133,7 @@ describe('document-traversal', () => {
       const root = proxied ? createMagicProxy(input) : input
       const traversal = documentTraversal(true, false, true)
       traversal.register(root, '/')
-      expect(traversal.location(root.components.schemas.Event.schema)?.context).toBe('draft-07-schema')
+      expect(traversal.location(root.components.schemas.Event.schema)?.context).toBe('legacy-json-schema')
       expect(traversal.location(root.components.schemas.Event.schema.default.schema)?.context).toBe('data')
       expect(traversal.location(root.components.schemas.LiteralKeyword.schema)?.context).toBe('data')
     },

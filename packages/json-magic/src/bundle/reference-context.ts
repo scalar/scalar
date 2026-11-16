@@ -30,8 +30,10 @@ export type ReferenceContext =
   | 'asyncapi-schemas'
   | 'asyncapi-schema-object'
   | 'asyncapi-schema-objects'
-  | 'draft-07-schema'
-  | 'draft-07-schemas'
+  | 'legacy-json-schema'
+  | 'legacy-json-schemas'
+  | 'openapi-3.0-schema'
+  | 'openapi-3.0-schemas'
   | 'data'
   | 'data-container'
   | 'response'
@@ -76,7 +78,8 @@ export const childReferenceContext = (
   if (context === 'schemas') return 'schema'
   if (context === 'asyncapi-schemas') return 'asyncapi-schema'
   if (context === 'asyncapi-schema-objects') return 'asyncapi-schema-object'
-  if (context === 'draft-07-schemas') return 'draft-07-schema'
+  if (context === 'legacy-json-schemas') return 'legacy-json-schema'
+  if (context === 'openapi-3.0-schemas') return 'openapi-3.0-schema'
   if (context === 'objects') return 'object'
   if (context === 'responses') return key.startsWith('x-') ? 'data' : 'response'
   if (context === 'links') return 'link'
@@ -85,16 +88,28 @@ export const childReferenceContext = (
     if (context === 'asyncapi-schema' && schemaFormat !== undefined && key === 'schema') {
       if (/^application\/vnd\.aai\.asyncapi(?:\+json|\+yaml)?;version=3\.[01]\.\d+$/.test(schemaFormat))
         return 'asyncapi-schema-object'
-      if (/^application\/schema\+(?:json|yaml);version=draft-07$/.test(schemaFormat)) return 'draft-07-schema'
+      if (/^application\/schema\+(?:json|yaml);version=draft-0[467]$/.test(schemaFormat)) return 'legacy-json-schema'
+      if (/^application\/vnd\.oai\.openapi(?:\+json|\+yaml)?;version=3\.0\.\d+$/.test(schemaFormat))
+        return 'openapi-3.0-schema'
       return 'schema'
     }
     const nativeSchema =
       context === 'asyncapi-schema-object' || (context === 'asyncapi-schema' && schemaFormat === undefined)
-    const schemaContext = nativeSchema ? 'asyncapi-schema-object' : context === 'draft-07-schema' ? context : 'schema'
+    const schemaContext = nativeSchema
+      ? 'asyncapi-schema-object'
+      : context === 'legacy-json-schema' || context === 'openapi-3.0-schema'
+        ? context
+        : 'schema'
     if (nativeSchema && key === 'externalDocs') return 'object'
-    if ((nativeSchema || context === 'draft-07-schema') && key === 'additionalItems') return schemaContext
+    if ((nativeSchema || context === 'legacy-json-schema') && key === 'additionalItems') return schemaContext
     if (['properties', 'patternProperties', 'dependentSchemas', 'dependencies', '$defs', 'definitions'].includes(key))
-      return nativeSchema ? 'asyncapi-schema-objects' : context === 'draft-07-schema' ? 'draft-07-schemas' : 'schemas'
+      return nativeSchema
+        ? 'asyncapi-schema-objects'
+        : context === 'legacy-json-schema'
+          ? 'legacy-json-schemas'
+          : context === 'openapi-3.0-schema'
+            ? 'openapi-3.0-schemas'
+            : 'schemas'
     if (
       [
         'items',
@@ -152,7 +167,8 @@ export const childReferenceContext = (
   )
     return 'objects'
   if (['schemas', 'definitions', '$defs'].includes(key)) return 'schemas'
-  if (['schema', 'itemSchema'].includes(key)) return 'schema'
+  if (key === 'schema') return asyncapi ? 'asyncapi-schema-object' : 'schema'
+  if (key === 'itemSchema') return 'schema'
   if (
     [
       'content',
@@ -177,4 +193,5 @@ export const isReferenceContext = (context: ReferenceContext): boolean =>
 
 /** Schema vocabularies and AsyncAPI wrapper positions may identify or reference schemas. */
 export const isSchemaContext = (context: ReferenceContext | undefined): boolean =>
-  context !== undefined && ['schema', 'asyncapi-schema', 'asyncapi-schema-object', 'draft-07-schema'].includes(context)
+  context !== undefined &&
+  ['schema', 'asyncapi-schema', 'asyncapi-schema-object', 'legacy-json-schema', 'openapi-3.0-schema'].includes(context)

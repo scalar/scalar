@@ -3,7 +3,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getRaw } from '@/magic-proxy/proxy'
 
-import { type ReferenceContext, childReferenceContext } from './reference-context'
+import { type ReferenceContext, childReferenceContext, isSchemaContext } from './reference-context'
 
 /** The authored location survives relocation into external document storage. */
 type SourceLocation = { source: string; pointer: string; context: ReferenceContext; schemaSiblings: boolean }
@@ -48,11 +48,13 @@ export const documentTraversal = (
         source,
         pointer: `#${path.map((key) => `/${escapeJsonPointer(key)}`).join('')}`,
         context: current,
-        // Native AsyncAPI schemas and draft-07 use Reference Objects whose siblings
-        // are ignored. Keep the inherited dialect separate for wrapped newer schemas.
+        // Native AsyncAPI schemas and older wrapped dialects ignore reference siblings.
+        // Keep the inherited dialect separate for wrapped newer schemas.
         schemaSiblings:
-          currentSiblings && !['asyncapi-schema', 'asyncapi-schema-object', 'draft-07-schema'].includes(current),
+          currentSiblings &&
+          !['asyncapi-schema', 'asyncapi-schema-object', 'legacy-json-schema', 'openapi-3.0-schema'].includes(current),
       })
+      const schemaFormat = isObject(value) && typeof value.schemaFormat === 'string' ? value.schemaFormat : undefined
       // Virtual $ref-value links can reach a message before its authored location and
       // give it the wrong context. Enumerate authored keys but retain proxied reads
       // so locations use the same identities as the bundler and preserve overrides.
@@ -66,15 +68,15 @@ export const documentTraversal = (
             'schemas',
             'asyncapi-schemas',
             'asyncapi-schema-objects',
-            'draft-07-schemas',
+            'legacy-json-schemas',
+            'openapi-3.0-schemas',
             'messages',
           ].includes(current)
             ? current
             : childReferenceContext(current, key, {
                 swagger: isSwagger,
                 asyncapi: isAsyncApi,
-                schemaFormat:
-                  isObject(value) && typeof value.schemaFormat === 'string' ? value.schemaFormat : undefined,
+                schemaFormat,
               })
         visit(child, [...path, key], next, currentSiblings)
       }
@@ -96,10 +98,19 @@ export const documentTraversal = (
       target = (target as Record<string, unknown>)[key]
     }
     if (target === null || typeof target !== 'object') return
+    const targetLocation = locations.get(target)
+    // References retain the target's authored vocabulary. Only a fragment initially
+    // guessed to be a generic schema needs its referring schema context applied.
+    if (
+      isSchemaContext(targetLocation?.context) &&
+      isSchemaContext(context) &&
+      (api || targetLocation?.context !== 'schema')
+    )
+      return
     exposures.set(target, context)
-    if (locations.get(target)?.context === context) return
+    if (targetLocation?.context === context) return
     // The initial walk may already have visited descendants with a different context.
-    const targetSiblings = locations.get(target)?.schemaSiblings ?? siblings
+    const targetSiblings = targetLocation?.schemaSiblings ?? siblings
     visited = new WeakSet<object>()
     visit(target, [...targetPath], context, targetSiblings)
   }

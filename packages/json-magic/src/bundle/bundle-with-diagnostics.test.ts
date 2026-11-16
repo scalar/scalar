@@ -311,6 +311,66 @@ describe('bundle-with-diagnostics', () => {
     })
   })
 
+  it.each([false, true])('preserves the target wrapper vocabulary (wrapper first: %s)', async (wrapperFirst) => {
+    const wrapper = {
+      schemaFormat: 'application/schema+json;version=draft-07',
+      schema: { $ref: 'https://example.test/value.json' },
+    }
+    const native = { properties: { value: { $ref: '#/components/schemas/Wrapped' } } }
+    const loader = sources({ 'https://example.test/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: wrapperFirst ? { Wrapped: wrapper, Native: native } : { Native: native, Wrapped: wrapper },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: () => 'value' },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/value.json'])
+    expect(wrapper.schema).toStrictEqual({ $ref: '#/x-ext/value' })
+  })
+
+  it('ignores AsyncAPI 2.x parameter schema reference siblings', async () => {
+    const ignored = { properties: { sibling: { $ref: 'https://example.test/ignored.json' } } }
+    const parameter = { schema: { $ref: 'https://example.test/value.json', ...ignored } }
+    const loader = sources({ 'https://example.test/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      { asyncapi: '2.6.0', channels: { 'events/{id}': { parameters: { id: parameter } } } },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: (uri) => uri.split('/').at(-1)! },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/value.json'])
+    expect(parameter.schema).toStrictEqual({ $ref: '#/x-ext/value.json', ...ignored })
+  })
+
+  it.each([
+    'application/schema+json;version=draft-04',
+    'application/schema+yaml;version=draft-06',
+    'application/vnd.oai.openapi;version=3.0.0',
+    'application/vnd.oai.openapi+json;version=3.0.4',
+    'application/vnd.oai.openapi+yaml;version=3.0.0',
+  ])('ignores reference siblings in %s wrappers and their subschemas', async (schemaFormat) => {
+    const ignored = { properties: { sibling: { $ref: 'https://example.test/ignored.json' } } }
+    const reference = { $ref: 'https://example.test/value.json', ...ignored }
+    const wrapper = { schemaFormat, schema: structuredClone(reference) }
+    const nested = { schemaFormat, schema: { properties: { value: structuredClone(reference) } } }
+    const loader = sources({
+      'https://example.test/value.json': { $ref: './actual.json', ...ignored },
+      'https://example.test/actual.json': { type: 'string' },
+    })
+    const result = await bundleWithDiagnostics(
+      { asyncapi: '3.1.0', components: { schemas: { Wrapped: wrapper, Nested: nested } } },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: (uri) => uri.split('/').at(-1)! },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/value.json', 'https://example.test/actual.json'])
+    expect(wrapper.schema).toStrictEqual({ $ref: '#/x-ext/value.json', ...ignored })
+    expect(nested.schema.properties.value).toStrictEqual({ $ref: '#/x-ext/value.json', ...ignored })
+    expect(result.document['x-ext']['value.json']).toStrictEqual({ $ref: '#/x-ext/actual.json', ...ignored })
+  })
+
   it('resolves supported siblings in a newer JSON Schema wrapper', async () => {
     const wrapper = {
       schemaFormat: 'application/schema+json;version=draft-2020-12',
