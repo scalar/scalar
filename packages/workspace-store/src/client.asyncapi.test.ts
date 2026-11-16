@@ -64,6 +64,51 @@ describe('client.asyncapi', () => {
     { asyncapi: '3.1.0', lazy: false },
     { asyncapi: '3.0.0', lazy: true },
     { asyncapi: '3.1.0', lazy: true },
+  ])('resolves named servers and variables ($asyncapi, lazy: $lazy)', async ({ asyncapi, lazy }) => {
+    const requests: string[] = []
+    const server = {
+      host: '{default}.example.test',
+      protocol: 'kafka',
+      variables: { default: { $ref: 'https://example.test/variable.json' } },
+      'x-data': structuredClone(literal),
+    }
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        const url = String(input)
+        requests.push(url)
+        if (url === 'https://example.test/server.json') return Promise.resolve(Response.json(server))
+        if (url === 'https://example.test/variable.json') return Promise.resolve(Response.json({ default: 'events' }))
+        throw new Error(`Unexpected fetch: ${url}`)
+      },
+    })
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi,
+        info: { title: 'Events', version: '1' },
+        servers: { default: { $ref: 'https://example.test/server.json' } },
+        ...(lazy ? { 'x-scalar-navigation': {} } : {}),
+      },
+    })
+    if (lazy) {
+      expect(requests).toStrictEqual([])
+      await store.resolve(['servers', 'default'])
+    }
+    const loaded = getResolvedRef(getValueAtPath(store.workspace.documents.events, ['servers', 'default']))
+    expect(getValueAtPath(loaded, ['host'])).toBe('{default}.example.test')
+    expect(getRaw(getResolvedRef(getValueAtPath(loaded, ['variables', 'default'])))).toStrictEqual({
+      default: 'events',
+    })
+    expect(getValueAtPath(getRaw(loaded), ['x-data'])).toStrictEqual(literal)
+    await store.resolve(['servers', 'default'])
+    expect(requests).toStrictEqual(['https://example.test/server.json', 'https://example.test/variable.json'])
+  })
+
+  it.each([
+    { asyncapi: '3.0.0', lazy: false },
+    { asyncapi: '3.1.0', lazy: false },
+    { asyncapi: '3.0.0', lazy: true },
+    { asyncapi: '3.1.0', lazy: true },
   ])('resolves binding query schemas ($asyncapi, lazy: $lazy)', async ({ asyncapi, lazy }) => {
     const requests: string[] = []
     const store = createWorkspaceStore({

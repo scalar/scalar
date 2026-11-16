@@ -169,6 +169,46 @@ describe('bundle-with-diagnostics', () => {
   })
 
   it.each([
+    'schemas',
+    'servers',
+    'channels',
+    'operations',
+    'messages',
+    'securitySchemes',
+    'serverVariables',
+    'parameters',
+    'correlationIds',
+    'replies',
+    'replyAddresses',
+    'externalDocs',
+    'tags',
+    'operationTraits',
+    'messageTraits',
+    'serverBindings',
+    'channelBindings',
+    'operationBindings',
+    'messageBindings',
+  ])('resolves AsyncAPI component names that resemble data keywords in %s', async (section) => {
+    const entries = Object.fromEntries(
+      ['default', 'examples', 'enum', 'const', 'value', 'x-entry'].map((name) => [
+        name,
+        { $ref: 'https://example.test/entry.json' },
+      ]),
+    )
+    const literal = { $ref: 'https://example.test/literal.json', name: 'kept' }
+    const loader = sources({ 'https://example.test/entry.json': { description: 'Entry', 'x-data': literal } })
+    const result = await bundleWithDiagnostics(
+      { asyncapi: '3.1.0', components: { [section]: entries } },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: () => 'entry' },
+    )
+    expect(result.complete).toBe(true)
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/entry.json'])
+    for (const entry of Object.values(entries)) expect(entry).toStrictEqual({ $ref: '#/x-ext/entry' })
+    expect(result.document['x-ext'].entry['x-data']).toStrictEqual(literal)
+  })
+
+  it.each([
     ['operationBindings', 'http', 'query'],
     ['messageBindings', 'http', 'headers'],
     ['channelBindings', 'ws', 'query'],

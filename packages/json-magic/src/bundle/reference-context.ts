@@ -136,6 +136,21 @@ export const childReferenceContext = (
   if (['example', 'default', 'enum', 'const', 'value', 'dataValue', 'serializedValue'].includes(key)) return 'data'
   if (key === 'examples') return 'objects'
   if (asyncapi && context === 'components' && key === 'schemas') return 'asyncapi-schemas'
+  if (asyncapi && ['servers', 'variables'].includes(key)) return 'objects'
+  if (
+    asyncapi &&
+    context === 'components' &&
+    [
+      'serverVariables',
+      'correlationIds',
+      'replies',
+      'replyAddresses',
+      'externalDocs',
+      'tags',
+      'operationTraits',
+    ].includes(key)
+  )
+    return 'objects'
   if (['schemas', 'definitions', '$defs'].includes(key)) return 'schemas'
   if (['schema', 'itemSchema'].includes(key)) return 'schema'
   if (
