@@ -6,6 +6,7 @@ import { getRaw } from '@/magic-proxy/proxy'
 import {
   type ReferenceContext,
   childReferenceContext,
+  getSchemaVocabulary,
   isReferenceContext,
   isSchemaContext,
   isSchemaMapContext,
@@ -51,16 +52,7 @@ export const documentTraversal = (
           ? inheritedSiblings && !/draft-0[3467]/.test(value.$schema)
           : inheritedSiblings
       // Keep the inherited dialect separate for wrappers containing newer schemas.
-      const schemaSiblings =
-        currentSiblings &&
-        ![
-          'asyncapi-schema',
-          'asyncapi-schema-object',
-          'draft-04-schema',
-          'draft-06-schema',
-          'draft-07-schema',
-          'openapi-3.0-schema',
-        ].includes(current)
+      const schemaSiblings = currentSiblings && (getSchemaVocabulary(current)?.referenceSiblings ?? true)
       locations.set(value, {
         source,
         pointer: `#${path.map((key) => `/${escapeJsonPointer(key)}`).join('')}`,

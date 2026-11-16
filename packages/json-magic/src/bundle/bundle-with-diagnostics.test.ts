@@ -522,6 +522,165 @@ describe('bundle-with-diagnostics', () => {
     expect(child).toStrictEqual({ $ref: resolves ? '#/x-ext/value' : 'https://example.test/value.json' })
   })
 
+  it.each([
+    { draft: '04', idKeyword: 'id' },
+    { draft: '06', idKeyword: '$id' },
+    { draft: '07', idKeyword: '$id' },
+  ] as const)('uses $idKeyword as the draft-$draft identifier', async ({ draft, idKeyword }) => {
+    const schema = {
+      id: 'https://ignored.test/',
+      $id: 'https://ignored.test/',
+      [idKeyword]: 'https://example.test/nested/base.json',
+      properties: { value: { $ref: 'value.json' } },
+    }
+    const loader = sources({ 'https://example.test/nested/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: { Wrapped: { schemaFormat: `application/schema+json;version=draft-${draft}`, schema } },
+        },
+      },
+      {
+        origin: 'https://example.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [loader.plugin],
+        compress: () => 'value',
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/nested/value.json'])
+    expect(schema.properties.value.$ref).toBe('#/x-ext/value')
+  })
+
+  it.each([
+    'application/schema+json;version=draft-04',
+    'application/schema+json;version=draft-06',
+    'application/schema+json;version=draft-07',
+    'application/vnd.oai.openapi+json;version=3.0.0',
+    'application/vnd.aai.asyncapi+json;version=3.1.0',
+  ])('does not register $anchor annotations in %s', async (schemaFormat) => {
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Target: { schemaFormat, schema: { type: 'string', $anchor: 'literal-anchor' } },
+            Source: { schemaFormat, schema: { $ref: '#literal-anchor' } },
+          },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [] },
+    )
+    expect(result.diagnostics).toStrictEqual([
+      {
+        kind: 'missing-target',
+        reference: '#literal-anchor',
+        source: '/',
+        pointer: '#/components/schemas/Source/schema/$ref',
+      },
+    ])
+  })
+
+  it('ignores OpenAPI 3.0 wrapper $id annotations when resolving relative references', async () => {
+    const schema = { $id: 'https://ignored.test/', properties: { value: { $ref: 'value.json' } } }
+    const loader = sources({ 'https://example.test/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: { schemas: { Wrapped: { schemaFormat: 'application/vnd.oai.openapi;version=3.0.0', schema } } },
+      },
+      {
+        origin: 'https://example.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [loader.plugin],
+        compress: () => 'value',
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/value.json'])
+  })
+
+  it('canonicalizes draft-04 id without promoting its $id annotation', async () => {
+    const schema = { id: './nested/', $id: 'https://ignored.test/', properties: { value: { $ref: 'value.json' } } }
+    const loader = sources({ 'https://example.test/nested/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: { schemas: { Wrapped: { schemaFormat: 'application/schema+json;version=draft-04', schema } } },
+      },
+      {
+        origin: 'https://example.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [loader.plugin],
+        compress: () => 'value',
+        preserveReference: () => false,
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/nested/value.json'])
+    expect(schema.id).toBe('https://example.test/nested/')
+    expect(schema.$id).toBe('https://ignored.test/')
+  })
+
+  it('resolves draft-04 fragment identifiers declared with id', async () => {
+    const schemaFormat = 'application/schema+json;version=draft-04'
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Target: { schemaFormat, schema: { id: '#named', type: 'string' } },
+            Source: { schemaFormat, schema: { $ref: '#named' } },
+          },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [] },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(result.complete).toBe(true)
+  })
+
+  it('drops cached legacy anchors while keeping valid identifiers', async () => {
+    const cached = { $id: 'https://example.test/cached.json', $anchor: 'ignored', type: 'string' }
+    const schemaFormat = 'application/schema+json;version=draft-07'
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Wrapped: { schemaFormat, schema: { $ref: 'https://example.test/cached.json' } },
+            Other: { schemaFormat, schema: { $ref: 'https://example.test/cached.json#ignored' } },
+          },
+        },
+      },
+      {
+        traversal: 'document',
+        treeShake: false,
+        plugins: [],
+        cache: new Map([
+          [
+            'https://example.test/cached.json',
+            Promise.resolve({ ok: true, data: cached, raw: JSON.stringify(cached) }),
+          ],
+        ]),
+        compress: () => 'cached',
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([
+      {
+        kind: 'missing-target',
+        reference: 'https://example.test/cached.json#ignored',
+        source: '/',
+        pointer: '#/components/schemas/Other/schema/$ref',
+      },
+    ])
+    expect(cached).toStrictEqual({ $id: 'https://example.test/cached.json', $anchor: 'ignored', type: 'string' })
+  })
+
   it('resolves supported siblings in a newer JSON Schema wrapper', async () => {
     const wrapper = {
       schemaFormat: 'application/schema+json;version=draft-2020-12',

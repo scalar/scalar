@@ -16,9 +16,14 @@ import type { UnknownObject } from '@/types'
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
 import type { ReferenceDiagnostic } from './bundle-with-diagnostics'
-import { type DocumentResolver, bundledDocumentUri, documentReferences } from './document-references'
+import {
+  type DocumentResolver,
+  type SchemaIdentity,
+  bundledDocumentUri,
+  documentReferences,
+} from './document-references'
 import { documentTraversal } from './document-traversal'
-import { isReferenceContext, isSchemaContext } from './reference-context'
+import { getSchemaVocabulary, isReferenceContext, isSchemaContext } from './reference-context'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
@@ -733,6 +738,24 @@ export const bundleDocument = async (
     if (diagnostics) deferredCopies.push(copy)
     else copy()
   }
+  const identifySchema = (node: object): SchemaIdentity | undefined => {
+    if (!isObject(node)) return undefined
+    const location = traversal.location(node)
+    const vocabulary = getSchemaVocabulary(config.traversal === 'document' ? location?.context : 'schema')
+    if (!vocabulary) return undefined
+    if (
+      config.traversal === 'document' &&
+      ((hasRef(node) && location?.schemaSiblings !== true) ||
+        (location?.context === 'asyncapi-schema' && typeof node.schemaFormat === 'string'))
+    )
+      return undefined
+    const id = vocabulary.idKeyword === undefined ? undefined : node[vocabulary.idKeyword]
+    return {
+      id: typeof id === 'string' && id !== '' ? id : undefined,
+      idKeyword: vocabulary.idKeyword,
+      anchor: vocabulary.anchors && typeof node.$anchor === 'string' ? node.$anchor : undefined,
+    }
+  }
   const references = documentReferences(
     config.externalDocumentsKey,
     (document, retrievalUri) => {
@@ -749,18 +772,12 @@ export const bundleDocument = async (
     },
     config.preserveReference !== undefined,
     (node) => traversal.location(node)?.context !== 'data',
-    (node) => {
-      const location = traversal.location(node)
-      // Identifiers on a Reference Object are ignored along with its other siblings.
-      return (
-        config.traversal !== 'document' ||
-        (isSchemaContext(location?.context) && (!hasRef(node) || location?.schemaSiblings === true))
-      )
-    },
+    identifySchema,
   )
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
-  const hasRootIdentity = references.identity(documentRoot) !== undefined || getId(documentRoot) !== undefined
+  const hasRootIdentity =
+    references.identity(documentRoot) !== undefined || identifySchema(documentRoot)?.id !== undefined
   const referenceToRoot = (pointer: string, sourceOrigin: string): string => {
     const fragment = pointer
       .split('/')

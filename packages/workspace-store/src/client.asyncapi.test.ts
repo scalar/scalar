@@ -72,6 +72,51 @@ const createStoreWithStringSchema = (): { store: ReturnType<typeof createWorkspa
 }
 
 describe('client.asyncapi', () => {
+  it.each(
+    [
+      { draft: '04', idKeyword: 'id' },
+      { draft: '06', idKeyword: '$id' },
+      { draft: '07', idKeyword: '$id' },
+    ].flatMap((format) => [false, true].map((lazy) => ({ ...format, lazy }))),
+  )('uses the draft-$draft identifier for relative references (lazy: $lazy)', async ({ draft, idKeyword, lazy }) => {
+    const { store, requests } = createStoreWithStringSchema()
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi: '3.1.0',
+        info: { title: 'Events', version: '1' },
+        components: {
+          schemas: {
+            Wrapped: {
+              schemaFormat: `application/schema+json;version=draft-${draft}`,
+              schema: {
+                id: 'https://ignored.test/',
+                $id: 'https://ignored.test/',
+                [idKeyword]: 'https://example.test/base.json',
+                properties: { value: { $ref: 'value.json' } },
+              },
+            },
+          },
+        },
+        ...(lazy ? { 'x-scalar-navigation': {} } : {}),
+      },
+    })
+    if (lazy) {
+      expect(requests).toStrictEqual([])
+      await store.resolve(['components', 'schemas', 'Wrapped'])
+    }
+    const value = getValueAtPath(store.workspace.documents.events, [
+      'components',
+      'schemas',
+      'Wrapped',
+      'schema',
+      'properties',
+      'value',
+    ])
+    expect(requests).toStrictEqual(['https://example.test/value.json'])
+    expect(getRaw(getResolvedRef(value))).toStrictEqual({ type: 'string' })
+  })
+
   it.each(['04', '06', '07'].flatMap((draft) => [false, true].map((lazy) => ({ draft, lazy }))))(
     'preserves unknown keywords in draft-$draft wrappers (lazy: $lazy)',
     async ({ draft, lazy }) => {

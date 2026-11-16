@@ -60,18 +60,31 @@ export type ReferenceContext =
   | 'binding-sets'
   | `binding:${string}`
 
-const schemaMapContexts: Record<SchemaContext, ReferenceContext> = {
-  schema: 'schemas',
-  'asyncapi-schema': 'asyncapi-schemas',
-  'asyncapi-schema-object': 'asyncapi-schema-objects',
-  'draft-04-schema': 'draft-04-schemas',
-  'draft-06-schema': 'draft-06-schemas',
-  'draft-07-schema': 'draft-07-schemas',
-  'openapi-3.0-schema': 'openapi-3.0-schemas',
+/** Identity and reference rules selected by a schema vocabulary. */
+type SchemaVocabulary = {
+  map: ReferenceContext
+  idKeyword: 'id' | '$id' | undefined
+  anchors: boolean
+  referenceSiblings: boolean
+}
+
+const schemaVocabularies: Record<SchemaContext, SchemaVocabulary> = {
+  schema: { map: 'schemas', idKeyword: '$id', anchors: true, referenceSiblings: true },
+  'asyncapi-schema': { map: 'asyncapi-schemas', idKeyword: '$id', anchors: false, referenceSiblings: false },
+  'asyncapi-schema-object': {
+    map: 'asyncapi-schema-objects',
+    idKeyword: '$id',
+    anchors: false,
+    referenceSiblings: false,
+  },
+  'draft-04-schema': { map: 'draft-04-schemas', idKeyword: 'id', anchors: false, referenceSiblings: false },
+  'draft-06-schema': { map: 'draft-06-schemas', idKeyword: '$id', anchors: false, referenceSiblings: false },
+  'draft-07-schema': { map: 'draft-07-schemas', idKeyword: '$id', anchors: false, referenceSiblings: false },
+  'openapi-3.0-schema': { map: 'openapi-3.0-schemas', idKeyword: undefined, anchors: false, referenceSiblings: false },
 }
 
 const schemaContextsByMap = new Map<ReferenceContext, SchemaContext>(
-  objectEntries(schemaMapContexts).map(([context, mapContext]) => [mapContext, context]),
+  objectEntries(schemaVocabularies).map(([context, vocabulary]) => [vocabulary.map, context]),
 )
 
 /** Determine the interpretation of a child without treating data keywords as references. */
@@ -131,7 +144,7 @@ export const childReferenceContext = (
       (context !== 'openapi-3.0-schema' && ['patternProperties', 'dependencies', 'definitions'].includes(key)) ||
       (modernSchema && ['dependentSchemas', '$defs'].includes(key))
     )
-      return schemaMapContexts[schemaContext]
+      return schemaVocabularies[schemaContext].map
     if (
       ['items', 'additionalProperties', 'not', 'allOf', 'anyOf', 'oneOf'].includes(key) ||
       ((modernSchema || nativeSchema || context === 'draft-06-schema' || context === 'draft-07-schema') &&
@@ -203,7 +216,11 @@ export const isReferenceContext = (context: ReferenceContext): boolean =>
 
 /** Schema vocabularies and AsyncAPI wrapper positions may identify or reference schemas. */
 export const isSchemaContext = (context: ReferenceContext | undefined): context is SchemaContext =>
-  context !== undefined && Object.hasOwn(schemaMapContexts, context)
+  context !== undefined && Object.hasOwn(schemaVocabularies, context)
+
+/** Select the identity and reference rules for a recognized schema position. */
+export const getSchemaVocabulary = (context: ReferenceContext | undefined): SchemaVocabulary | undefined =>
+  isSchemaContext(context) ? schemaVocabularies[context] : undefined
 
 /** Whether the node contains named schemas rather than schema keywords. */
 export const isSchemaMapContext = (context: ReferenceContext): boolean => schemaContextsByMap.has(context)

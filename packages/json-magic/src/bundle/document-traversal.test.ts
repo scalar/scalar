@@ -1,3 +1,4 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import { describe, expect, it } from 'vitest'
 
 import { createMagicProxy } from '@/magic-proxy/proxy'
@@ -47,7 +48,13 @@ describe('document-traversal', () => {
       undefined,
       false,
       (node) => traversal.location(node)?.context !== 'data',
-      (node) => traversal.location(node)?.context === 'schema',
+      (node) =>
+        traversal.location(node)?.context === 'schema' && isObject(node)
+          ? {
+              id: typeof node.$id === 'string' ? node.$id : undefined,
+              anchor: typeof node.$anchor === 'string' ? node.$anchor : undefined,
+            }
+          : undefined,
     )
     traversal.register(input, 'https://example.com/root')
     references.register(input, 'https://example.com/root')
