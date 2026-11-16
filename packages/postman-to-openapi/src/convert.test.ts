@@ -23,6 +23,41 @@ describe('fixtures', () => {
 })
 
 describe('convert', () => {
+  it.each([
+    ['formdata', 'multipart/form-data'],
+    ['urlencoded', 'application/x-www-form-urlencoded'],
+  ] as const)('imports a %s field named __proto__ as an ordinary field', (mode, mediaType) => {
+    const rows = [
+      { key: '__proto__', value: 'p', type: 'text' as const, description: 'Field [required]' },
+      { key: 'name', value: 'n', type: 'text' as const },
+    ]
+    const collection: PostmanCollection = {
+      info: { name: 'Forms', schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json' },
+      item: [
+        {
+          name: 'Submit',
+          request: {
+            method: 'POST',
+            url: 'https://api.example.com/submit',
+            body: mode === 'formdata' ? { mode, formdata: rows } : { mode, urlencoded: rows },
+          },
+        },
+      ],
+    }
+
+    const requestBody = convert(collection).paths?.['/submit']?.post?.requestBody as OpenAPIV3_1.RequestBodyObject
+    const media = requestBody.content?.[mediaType]
+    const properties = media?.schema?.properties ?? {}
+
+    expect(Object.keys(properties)).toStrictEqual(['__proto__', 'name'])
+    expect(Object.getPrototypeOf(properties)).toBe(Object.prototype)
+    expect(media?.schema?.required).toStrictEqual(['__proto__'])
+    expect(media?.examples?.['Default example']?.value).toStrictEqual([
+      { name: '__proto__', value: 'p', isDisabled: false },
+      { name: 'name', value: 'n', isDisabled: false },
+    ])
+  })
+
   it('merges into an existing OpenAPI document', () => {
     const collection: PostmanCollection = {
       info: {

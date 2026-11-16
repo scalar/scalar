@@ -967,28 +967,24 @@ exports[`fixtures > FormData 1`] = `
                 "Default example": {
                   "value": [
                     {
-                      "description": "full name of the user (accepts spaces) [required]",
-                      "key": "name",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "name",
                       "value": "New User",
                     },
                     {
-                      "description": "email of the user (for notifications and login) [required]",
-                      "key": "email",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "email",
                       "value": "newuser@example.com",
                     },
                     {
-                      "key": "password",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "password",
                       "value": "super-secret-password",
                     },
                     {
-                      "contentType": "application/octet-stream",
-                      "description": "User avatar",
-                      "key": "profileImage",
-                      "src": [],
-                      "type": "file",
+                      "isDisabled": false,
+                      "name": "profileImage",
+                      "value": "",
                     },
                   ],
                 },
@@ -1053,21 +1049,18 @@ exports[`fixtures > FormUrlencoded 1`] = `
                 "Default example": {
                   "value": [
                     {
-                      "description": "full name of the user (accepts spaces) [required]",
-                      "key": "name",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "name",
                       "value": "New User",
                     },
                     {
-                      "description": "email of the user (for notifications and login) [required]",
-                      "key": "email",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "email",
                       "value": "newuser@example.com",
                     },
                     {
-                      "description": "password (to be used for logging in) [required]",
-                      "key": "password",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "password",
                       "value": "super-secret-password",
                     },
                   ],
