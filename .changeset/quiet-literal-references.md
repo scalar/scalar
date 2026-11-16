@@ -1,5 +1,6 @@
 ---
 '@scalar/workspace-store': patch
+'@scalar/json-magic': patch
 ---
 
-Preserve literal `$ref` keys and sibling fields in examples, schema values, and extensions without fetching them during document loading or lazy resolution.
+Resolve references inside AsyncAPI Multi Format Schema Objects and OpenAPI 3.2 media type `itemSchema` fields while preserving literal schema values.
