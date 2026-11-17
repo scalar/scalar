@@ -337,6 +337,7 @@ test.describe('reference controls', () => {
 
       // The picker still works from the keyboard
       await picker.focus()
+      await expect(card.locator('.request-card-footer')).toHaveScreenshot(`request-example-footer-${width}.png`)
       await page.keyboard.press('ArrowDown')
       await expect(page.getByRole('option', { name: 'Mars', exact: true })).toBeVisible()
       await page.keyboard.press('ArrowDown')
