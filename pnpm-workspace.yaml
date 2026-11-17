@@ -87,7 +87,7 @@ catalogs:
     monaco-editor: 0.57.0
     monaco-yaml: 5.5.1
     nanoid: ^5.1.16
-    next: ^16.4.3
+    next: ^16.4.5
     neverpanic: 0.0.8
     picomatch: ^4.0.7
     proto-parser: 0.0.9
@@ -195,5 +195,7 @@ minimumReleaseAgeExclude:
   - hono@4.13.16
   # Renovate security update: nuxt@4.6.4
   - nuxt@4.6.4
+  # Renovate security update: next@16.4.5
+  - next@16.4.5
 patchedDependencies:
   proto-parser@0.0.9: patches/proto-parser@0.0.9.patch
