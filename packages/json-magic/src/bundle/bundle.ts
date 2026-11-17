@@ -25,6 +25,7 @@ import {
 } from './document-references'
 import { documentTraversal } from './document-traversal'
 import { type ReferenceContext, getSchemaVocabulary, isReferenceContext, isSchemaContext } from './reference-context'
+import { type RelocationTarget, relocateReferences } from './relocate-references'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
@@ -814,13 +815,15 @@ export const bundleDocument = async (
   // Registry paths are JSON pointers; only authored URI fragments need percent decoding.
   const parsePath = (pointer: string): string[] => pointer.split('/').slice(1).map(unescapeJsonPointerSegment)
   const setPath = (target: object, path: string, value: unknown): void => setValueAtPath(target, path, value, parsePath)
-  const traversal = documentTraversal(
-    config.traversal === 'document',
-    documentRoot['swagger'] === '2.0',
-    documentRoot['swagger'] !== '2.0' && !String(documentRoot['openapi']).startsWith('3.0.'),
-    config.traversal === 'document' || diagnostics !== undefined,
-    typeof documentRoot['asyncapi'] === 'string',
-  )
+  const createTraversal = (): ReturnType<typeof documentTraversal> =>
+    documentTraversal(
+      config.traversal === 'document',
+      documentRoot['swagger'] === '2.0',
+      documentRoot['swagger'] !== '2.0' && !String(documentRoot['openapi']).startsWith('3.0.'),
+      config.traversal === 'document' || diagnostics !== undefined,
+      typeof documentRoot['asyncapi'] === 'string',
+    )
+  const traversal = createTraversal()
   traversal.register(
     documentRoot,
     getDefaultOrigin(),
@@ -903,6 +906,7 @@ export const bundleDocument = async (
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
   const hasRootIdentity =
     references.identity(documentRoot) !== undefined || identifySchema(documentRoot)?.id !== undefined
+  const relocationTargets = new WeakMap<object, RelocationTarget>()
   const referenceToRoot = (pointer: string, sourceOrigin: string): string => {
     const fragment = pointer
       .split('/')
@@ -1197,6 +1201,8 @@ export const bundleDocument = async (
           await executeHooks('onAfterNodeProcess', root, context)
           return
         }
+        if (config.preserveReference && local.value !== undefined)
+          relocationTargets.set(root, { path: local.segments, context: location?.context ?? 'schema' })
         // A fragment under an embedded $id resolves within that schema, not the document.
         // Without a declared root identity, retain references to root resources rather
         // than baking a retrieval location into an otherwise portable bundle.
@@ -1291,6 +1297,9 @@ export const bundleDocument = async (
         pendingAnchors.push(async () => {
           const target = references.resolve(ref, nodeOrigin)
           if (target?.value !== undefined) {
+            if (config.preserveReference) {
+              relocationTargets.set(root, { path: target.segments, context: location?.context ?? 'schema' })
+            }
             if (!target.preserveReference) {
               root.$ref = referenceToRoot(`#/${target.path}`, nodeOrigin)
             }
@@ -1396,6 +1405,11 @@ export const bundleDocument = async (
           const bundledReference = target
             ? `#/${target.path}`
             : prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
+          if (config.preserveReference)
+            relocationTargets.set(root, {
+              path: parsePath(bundledReference.substring(1)),
+              context: location?.context ?? 'schema',
+            })
           if (config.treeShake === true) {
             // Store only the subtree that is actually used
             // This optimizes the bundle size by only including the parts of the external document
@@ -1499,6 +1513,13 @@ export const bundleDocument = async (
   // Cache indexing reserves keys before we know which edges will be preserved.
   // Do not expose reservations for resources that were never included in the output.
   if (config.preserveReference) {
+    relocateReferences(
+      documentRoot,
+      relocationTargets,
+      references.schemas(),
+      config.externalDocumentsKey,
+      createTraversal,
+    )
     const documents = documentRoot[config.externalDocumentsKey]
     const mappings = Object.fromEntries(
       Object.entries(documentRoot[config.externalDocumentsMappingsKey]).filter(

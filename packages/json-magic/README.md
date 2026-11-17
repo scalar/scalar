@@ -144,13 +144,18 @@ existing bundling behavior. Predicates preserving relative references are
 responsible for ensuring those references remain meaningful at the output base;
 use the absolute HTTP(S) predicate above for portable external references.
 
-Known limitation: an embedded schema with its own `$id` cannot reliably reference
-another bundled resource through the outer document when that outer document has
-no declared identity. For example, a fragment-only `#/x-ext/...` reference inside
-that schema resolves against the schema, not the outer bundle. Supplying a
-format-appropriate root identity through `resolveDocument` avoids this case.
-Preserving selected references does not currently fix anonymous-root cross-scope
-bundling; `$id` normalization alone does not make that output portable.
+References inside a schema with its own `$id` remain relative to that schema
+resource. References to another named resource use its canonical identity;
+anonymous dependencies outside the schema are copied into resource-local
+`x-ext` storage (or `externalDocumentsKey`) and addressed with local pointers.
+Cycles reuse that storage, and copied subtrees reference named resources rather
+than duplicating their identities. Anonymous copies omit anchor declarations that
+would acquire the referring resource's identity; their bundled references use
+pointers instead. Literal example and default values remain literal data.
+This also works when the outer API description
+has no declared identity: the bundler does not add `$id` to that document.
+Local filesystem schema identities become `file:` URIs, including escaped path
+characters, while loaders continue to receive filesystem paths.
 
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
 

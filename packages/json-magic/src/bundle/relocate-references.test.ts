@@ -1,0 +1,323 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+import { describe, expect, it } from 'vitest'
+
+import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
+import { getValueByPath } from '@/helpers/get-value-by-path'
+
+import { type LoaderPlugin, bundle } from './bundle'
+import { bundleWithDiagnostics } from './bundle-with-diagnostics'
+
+describe('relocate-references', () => {
+  it.each([true, false])('keeps cross-resource references portable (treeShake: %s)', async (treeShake) => {
+    const reads: string[] = []
+    const documents = {
+      'https://source.test/api/root.json': {
+        openapi: '3.1.0',
+        info: { title: 'Portable references', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            Pet: { $ref: './pet.json' },
+            Local: { type: 'integer' },
+          },
+        },
+      },
+      'https://source.test/api/pet.json': {
+        $id: './schemas/Pet.json',
+        $anchor: 'pet',
+        type: 'object',
+        properties: {
+          category: { $ref: './category.json' },
+          local: { $ref: '../root.json#/components/schemas/Local' },
+          self: { $ref: '#pet' },
+          remote: { $ref: 'https://unreachable.test/schema#anchor' },
+        },
+      },
+      'https://source.test/api/schemas/category.json': {
+        type: 'object',
+        properties: {
+          pet: { $ref: './Pet.json#pet' },
+          detail: { $ref: './detail.json' },
+        },
+      },
+      'https://source.test/api/schemas/detail.json': {
+        type: 'object',
+        properties: { category: { $ref: './category.json' } },
+      },
+    }
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: (uri) => {
+        reads.push(uri)
+        const data = documents[uri]
+        return Promise.resolve(data ? { ok: true, data, raw: '' } : { ok: false })
+      },
+    }
+    const result = await bundle('https://source.test/api/root.json', {
+      plugins: [loader],
+      treeShake,
+      traversal: 'document',
+      preserveReference: (ref) => /^https?:\/\//i.test(ref),
+    })
+    const exported = JSON.parse(JSON.stringify(result))
+    const rootRef = exported.components.schemas.Pet.$ref
+    const pet = getValueByPath(
+      exported,
+      getSegmentsFromPath(new URL(rootRef, 'https://download.test/bundle.json').hash),
+    ).value
+    expect(pet.$id).toBe('https://source.test/api/schemas/Pet.json')
+    const resolveLocal = (ref: string): unknown => {
+      const uri = new URL(ref, pet.$id)
+      expect(`${uri.origin}${uri.pathname}`).toBe(pet.$id)
+      return getValueByPath(pet, getSegmentsFromPath(uri.hash)).value
+    }
+    const category = resolveLocal(
+      pet.properties.category.$ref,
+    ) as (typeof documents)['https://source.test/api/schemas/category.json']
+    expect(category.type).toBe('object')
+    expect(resolveLocal(category.properties.pet.$ref)).toBe(pet)
+    const detail = resolveLocal(
+      category.properties.detail.$ref,
+    ) as (typeof documents)['https://source.test/api/schemas/detail.json']
+    expect(resolveLocal(detail.properties.category.$ref)).toBe(category)
+    expect(resolveLocal(pet.properties.local.$ref)).toEqual({ type: 'integer' })
+    expect(pet.properties.self.$ref).toBe('#')
+    expect(pet.$anchor).toBe('pet')
+    expect(pet.properties.remote.$ref).toBe('https://unreachable.test/schema#anchor')
+    expect(reads).toEqual([
+      'https://source.test/api/root.json',
+      'https://source.test/api/pet.json',
+      'https://source.test/api/schemas/category.json',
+      'https://source.test/api/schemas/detail.json',
+    ])
+    expect(exported.$id).toBeUndefined()
+  })
+  it.each([true, false])('retains file identities and nested anchors (treeShake: %s)', async (treeShake) => {
+    const input = {
+      openapi: '3.1.0',
+      info: { title: 'File identities', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: {
+            $id: './schemas/Pet.json',
+            properties: {
+              category: { $ref: './Category.json#category' },
+              local: { $ref: '../root.json#/components/schemas/Local' },
+            },
+          },
+          Category: { $id: './schemas/Category.json', $anchor: 'category', type: 'string' },
+          Local: { type: 'boolean' },
+        },
+      },
+    }
+    const reads: string[] = []
+    const result = await bundleWithDiagnostics(input, {
+      origin: '/tmp/source dir/root.json',
+      plugins: [
+        {
+          type: 'loader',
+          validate: () => true,
+          exec: (uri) => {
+            reads.push(uri)
+            return Promise.resolve({ ok: false })
+          },
+        },
+      ],
+      traversal: 'document',
+      treeShake,
+      preserveReference: (ref) => /^https?:\/\//i.test(ref),
+    })
+    expect(result.diagnostics).toEqual([])
+    expect(reads).toEqual([])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    const { Pet, Category } = exported.components.schemas
+    expect(Pet.$id).toBe('file:///tmp/source%20dir/schemas/Pet.json')
+    expect(Category.$id).toBe('file:///tmp/source%20dir/schemas/Category.json')
+    expect(new URL(Pet.properties.category.$ref, Pet.$id).href).toBe(Category.$id)
+    const local = new URL(Pet.properties.local.$ref, Pet.$id)
+    expect(getValueByPath(Pet, getSegmentsFromPath(local.hash)).value).toEqual({ type: 'boolean' })
+    expect(Category.$anchor).toBe('category')
+  })
+  it.each([true, false])(
+    'copies cached boolean targets with custom storage keys (treeShake: %s)',
+    async (treeShake) => {
+      const input = {
+        openapi: '3.1.0',
+        info: { title: 'Cached references', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            Pet: {
+              $id: 'https://source.test/schemas/Pet.json',
+              properties: { allowed: { $ref: '../values.json#/$defs/a~1b~0%20%23' } },
+              'x-resources': { 'bundle-0': { description: 'Keep authored storage' } },
+            },
+          },
+        },
+      }
+      const result = await bundleWithDiagnostics(input, {
+        origin: 'https://source.test/root.json',
+        treeShake,
+        traversal: 'document',
+        externalDocumentsKey: 'x-resources',
+        externalDocumentsMappingsKey: 'x-sources',
+        urlMap: true,
+        plugins: [],
+        preserveReference: (ref) => /^https?:\/\//i.test(ref),
+        cache: new Map([
+          [
+            'https://source.test/values.json',
+            Promise.resolve({
+              ok: true as const,
+              data: { $defs: { 'a/b~ #': true, unused: { type: 'string' } } },
+              raw: '',
+            }),
+          ],
+        ]),
+      })
+      expect(result.complete).toBe(true)
+      const exported = JSON.parse(JSON.stringify(result.document))
+      const pet = exported.components.schemas.Pet
+      const ref = new URL(pet.properties.allowed.$ref, pet.$id)
+      expect(getValueByPath(pet, getSegmentsFromPath(decodeURIComponent(ref.hash))).value).toBe(true)
+      expect(pet['x-resources']['bundle-0']).toEqual({ description: 'Keep authored storage' })
+      expect(Object.keys(pet['x-resources'])).toHaveLength(2)
+      expect(exported['x-sources']).toEqual({ [Object.keys(exported['x-resources'])[0]]: 'values.json' })
+    },
+  )
+  it('retains resource scopes reconstructed by tree shaking fragment imports', async () => {
+    const result = await bundleWithDiagnostics(
+      {
+        openapi: '3.1.0',
+        info: { title: 'Fragment', version: '1.0.0' },
+        paths: {},
+        components: { schemas: { Value: { $ref: './a.json#/$defs/Used' } } },
+      },
+      {
+        origin: 'https://source.test/root.json',
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: (uri) =>
+              Promise.resolve({
+                ok: true,
+                data: uri.endsWith('/a.json')
+                  ? {
+                      $id: 'https://schemas.test/A',
+                      $defs: { Used: { properties: { x: { $ref: './b.json' } } }, Unused: {} },
+                    }
+                  : { type: 'string' },
+                raw: '',
+              }),
+          },
+        ],
+        treeShake: true,
+        traversal: 'document',
+        preserveReference: () => false,
+      },
+    )
+    expect(result.complete).toBe(true)
+    const exported = JSON.parse(JSON.stringify(result.document))
+    const resource = Object.values(exported['x-ext']).find((node) => isObject(node) && node.$id) as {
+      $id: string
+      $defs: { Used: { properties: { x: { $ref: string } } }; Unused?: unknown }
+    }
+    const ref = resource.$defs.Used.properties.x.$ref
+    expect(new URL(ref, resource.$id).href.startsWith(resource.$id)).toBe(true)
+    expect(getValueByPath(resource, getSegmentsFromPath(new URL(ref, resource.$id).hash)).value).toEqual({
+      type: 'string',
+    })
+    expect(resource.$defs.Unused).toBeUndefined()
+  })
+
+  it('keeps literal data unchanged when another reference exposes it as a named schema', async () => {
+    const literal = { $id: 'https://source.test/default', type: 'string' }
+    const result = await bundleWithDiagnostics(
+      {
+        openapi: '3.1.0',
+        info: { title: 'Literal data', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            A: {
+              $id: 'https://source.test/A',
+              properties: { x: { $ref: './b.json' }, y: { $ref: './b.json#/default' } },
+            },
+          },
+        },
+      },
+      {
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: () =>
+              Promise.resolve({
+                ok: true,
+                data: { type: 'object', default: literal },
+                raw: '',
+              }),
+          },
+        ],
+        treeShake: false,
+        traversal: 'document',
+        preserveReference: (ref) => /^https?:\/\//.test(ref),
+      },
+    )
+    expect(result.complete).toBe(true)
+    const exported = JSON.parse(JSON.stringify(result.document))
+    const a = exported.components.schemas.A
+    const x = getValueByPath(a, getSegmentsFromPath(a.properties.x.$ref)).value
+    expect(x.default).toEqual(literal)
+  })
+
+  it('keeps preserved anchor references unambiguous when anonymous dependencies use the same anchor', async () => {
+    const result = await bundleWithDiagnostics(
+      {
+        openapi: '3.1.0',
+        info: { title: 'Anchors', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            A: {
+              $id: 'https://source.test/A',
+              $anchor: 'same',
+              properties: {
+                self: { $ref: 'https://source.test/A#same' },
+                child: { $ref: './b.json' },
+              },
+            },
+          },
+        },
+      },
+      {
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: () =>
+              Promise.resolve({
+                ok: true,
+                data: { $anchor: 'same', type: 'string' },
+                raw: '',
+              }),
+          },
+        ],
+        externalDocumentsKey: '$defs',
+        treeShake: true,
+        traversal: 'document',
+        preserveReference: (ref) => /^https?:\/\//.test(ref),
+      },
+    )
+    expect(result.complete).toBe(true)
+    const exported = JSON.parse(JSON.stringify(result.document))
+    const a = exported.components.schemas.A
+    expect(a.properties.self.$ref).toBe('https://source.test/A#same')
+    const child = getValueByPath(a, getSegmentsFromPath(decodeURIComponent(a.properties.child.$ref))).value
+    expect(child, JSON.stringify(exported)).toEqual({ type: 'string' })
+    expect(a.$anchor).toBe('same')
+  })
+})
