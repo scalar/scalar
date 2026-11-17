@@ -1046,10 +1046,8 @@ const handleArraySchema = (
       const allOf = items.allOf.filter(isDefined)
       const first = resolve.schema(allOf[0])
 
-      const hasObjectItems = first && typeof first === 'object' && 'type' in first && first.type === 'object'
-      if (hasObjectItems || isFileSchema(items, false)) {
-        // File metadata can live beside allOf, so retain the containing item schema.
-        const combined: SchemaObject = hasObjectItems ? { type: 'object', allOf } : items
+      if (first && typeof first === 'object' && 'type' in first && first.type === 'object') {
+        const combined: SchemaObject = { type: 'object', allOf }
         const merged = getExampleFromSchema(combined, options, {
           level: level + 1,
           parentSchema: schema,
@@ -1125,9 +1123,7 @@ const handleArraySchema = (
     (('type' in items && items.type === 'array') || 'items' in items || 'prefixItems' in items)
 
   const hasDeclaredItem = values.length < minItems && items && getDeclaredValue(items) !== undefined
-  // Untyped binary items are files, so a repeated upload keeps one example part.
-  const isFileItems = !!items && isFileSchema(items, false)
-  if (items && (('type' in items && items.type) || isObjectItems || isArray || hasDeclaredItem || isFileItems)) {
+  if (items && (('type' in items && items.type) || isObjectItems || isArray || hasDeclaredItem)) {
     const ex = getExampleFromSchema(items, options, {
       level: level + 1,
       schemaPath: itemsSchemaPath,
@@ -1766,8 +1762,6 @@ const generateExampleFromSchema = (
     dynamicScope = [],
     requiredScope,
     isRequiredProperty = false,
-    contentType,
-    onGeneratedFallback,
   }: Partial<{
     level: number
     parentSchema: SchemaObject
@@ -1781,10 +1775,6 @@ const generateExampleFromSchema = (
     requiredScope: ReadonlySet<string>
     /** Use null for an unconstrained required property without confusing explicit values with the depth marker. */
     isRequiredProperty: boolean
-    /** Media type of this value; selected alternatives inherit it, nested values do not. */
-    contentType: string
-    /** Distinguish generated placeholders from declared values when merging binary intersections. */
-    onGeneratedFallback: () => void
   }> = {},
 ): unknown => {
   // Cache restrictions only apply to the current traversal, so every top-level call starts clean.
@@ -1820,8 +1810,6 @@ const generateExampleFromSchema = (
         dynamicScope,
         requiredScope,
         isRequiredProperty,
-        contentType,
-        onGeneratedFallback,
       })
     }
   }
@@ -1838,11 +1826,8 @@ const generateExampleFromSchema = (
   }
   seen.add(targetValue)
 
-  /** Make the cache key unique per options, schema path, and media type. */
-  const cacheKey =
-    getOptionsCacheKey(options, level) +
-    (schemaPath.length > 0 ? `:path:${schemaPath.join('.')}` : '') +
-    (contentType ? `:media:${contentType}` : '')
+  /** Make the cache key unique per options and schema path */
+  const cacheKey = getOptionsCacheKey(options, level) + (schemaPath.length > 0 ? `:path:${schemaPath.join('.')}` : '')
 
   // Check cache first for performance - avoid recomputing the same schema (skipped under a dynamic scope)
   if (!skipCache) {
@@ -1965,8 +1950,6 @@ const generateExampleFromSchema = (
           seen,
           dynamicScope: childScope,
           isRequiredProperty,
-          contentType,
-          onGeneratedFallback,
         },
       )
       seen.delete(targetValue)
@@ -2017,14 +2000,6 @@ const generateExampleFromSchema = (
   const primitive = getPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
   if (primitive !== undefined) {
     seen.delete(targetValue)
-    // Schema normalization can infer a string type from constraints such as maxLength.
-    if (
-      primitive === (options?.emptyString ?? '') &&
-      !_schema.contentEncoding &&
-      !('format' in _schema && _schema.format === 'byte')
-    ) {
-      onGeneratedFallback?.()
-    }
     return cache(_schema, primitive, cacheKey, skipCache)
   }
 
@@ -2050,8 +2025,6 @@ const generateExampleFromSchema = (
               dynamicScope: childScope,
               requiredScope: memberRequiredScope,
               isRequiredProperty,
-              contentType,
-              onGeneratedFallback,
             }),
             options,
             schemaPath,
@@ -2067,9 +2040,6 @@ const generateExampleFromSchema = (
 
   // Handle allOf at root level (non-object/array schemas)
   if (Array.isArray(_schema.allOf) && _schema.allOf.length > 0) {
-    const binarySchema = !('type' in _schema) && isFileSchema(_schema, false, contentType)
-    const trackFallbacks = binarySchema || onGeneratedFallback !== undefined
-    let onlyFallbacks = trackFallbacks
     let merged: unknown = undefined
     const items = _schema.allOf
     let choiceIndex = 0
@@ -2077,7 +2047,6 @@ const generateExampleFromSchema = (
       const resolvedItem = resolve.schema(item)
       const isChoiceMember = !!resolvedItem && (Array.isArray(resolvedItem.oneOf) || Array.isArray(resolvedItem.anyOf))
       const memberSchemaPath = isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath
-      let isGeneratedFallback = false
       const ex = getExampleFromSchema(item as SchemaObject, options, {
         level: level + 1,
         parentSchema: _schema,
@@ -2086,16 +2055,7 @@ const generateExampleFromSchema = (
         dynamicScope: childScope,
         requiredScope: memberRequiredScope,
         isRequiredProperty,
-        onGeneratedFallback: trackFallbacks
-          ? () => {
-              isGeneratedFallback = true
-            }
-          : undefined,
       })
-      onlyFallbacks = onlyFallbacks && isGeneratedFallback
-      if (isGeneratedFallback) {
-        continue
-      }
       if (merged === undefined) {
         merged = ex
       } else if (merged && typeof merged === 'object' && ex && typeof ex === 'object') {
@@ -2107,15 +2067,6 @@ const generateExampleFromSchema = (
       }
     }
     seen.delete(targetValue)
-    if (onlyFallbacks && !('type' in _schema)) {
-      // Constraints alone must not hide a file, but declared values keep priority.
-      if (binarySchema) {
-        // Preserve binary provenance when form projection infers a string type from the constraints.
-        const value = options?.binaryAsFile ? new File([], 'filename', { lastModified: 0 }) : '@filename'
-        return cache(_schema, value, cacheKey, skipCache)
-      }
-      onGeneratedFallback?.()
-    }
     return cache(_schema, merged ?? null, cacheKey, skipCache)
   }
 
@@ -2126,17 +2077,8 @@ const generateExampleFromSchema = (
     return cache(_schema, unionPrimitive, cacheKey, skipCache)
   }
 
-  // Infer raw binary only after declared examples and typed values have had priority.
-  if (!('type' in _schema) && isFileSchema(_schema, false, contentType)) {
-    seen.delete(targetValue)
-    return cache(_schema, '@filename', cacheKey, skipCache)
-  }
-
   // Default fallback
   seen.delete(targetValue)
-  if (!('type' in _schema) && !_schema.contentEncoding) {
-    onGeneratedFallback?.()
-  }
   return cache(_schema, null, cacheKey, skipCache)
 }
 
@@ -2150,16 +2092,7 @@ const asBinaryFile = (
   if (!options?.binaryAsFile || typeof value !== 'string' || !value.startsWith('@')) {
     return value
   }
-  const resolved = resolve.schema(schema)
-  const binaryIntersection =
-    resolved.allOf?.length &&
-    !('type' in resolved) &&
-    resolved.contentMediaType !== undefined &&
-    isFileSchema(resolved, false)
-  if (
-    binaryIntersection ||
-    isFileSchema(resolveFormSchema(schema, options.compositionSelection, schemaPath) ?? schema)
-  ) {
+  if (isFileSchema(resolveFormSchema(schema, options.compositionSelection, schemaPath) ?? schema)) {
     return new File([], value.slice(1), { lastModified: 0 })
   }
   return value

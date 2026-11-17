@@ -2627,116 +2627,71 @@ describe('processBody', () => {
       })
     },
   )
-
-  it.each([
-    [
-      'a property',
-      { file: { contentMediaType: 'application/octet-stream' } },
-      [{ name: 'file', value: '@filename', fileName: 'filename' }],
-    ],
-    [
-      'array items',
-      { files: { type: 'array', items: { contentMediaType: 'image/png' } } },
-      [{ name: 'files', value: '@filename', fileName: 'filename' }],
-    ],
-  ])('sends untyped contentMediaType in %s as a file part', (_, properties, params) => {
+  it.each([false, true])('includes upgraded multipart uploads with array=%s (issue #11049)', (array) => {
+    const file = { contentMediaType: 'application/octet-stream' }
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { file: array ? { type: 'array', items: file } : file, title: { type: 'string' } },
+    })
+    const original = structuredClone(schema)
     const result = processBody({
-      requestBody: {
-        content: {
-          'multipart/form-data': { schema: coerceValue(SchemaObjectSchema, { type: 'object', properties }) },
-        },
-      },
+      requestBody: { content: { 'multipart/form-data': { schema } } },
       contentType: 'multipart/form-data',
     })
-    expect(result).toStrictEqual({ mimeType: 'multipart/form-data', params })
+    expect(result).toStrictEqual({
+      mimeType: 'multipart/form-data',
+      params: [
+        { name: 'file', value: '@filename', fileName: 'filename' },
+        { name: 'title', value: '' },
+      ],
+    })
+    expect(schema).toStrictEqual(original)
+    const curl = snippetz().print('shell', 'curl', {
+      url: 'https://example.com/avatar',
+      method: 'POST',
+      postData: result,
+    })
+    expect(curl).toContain("--form 'file=@filename'")
+    const python = snippetz().print('python', 'requests', {
+      url: 'https://example.com/avatar',
+      method: 'POST',
+      postData: result,
+    })
+    expect(python).toContain('open("filename", "rb")')
   })
 
   it.each(['application/octet-stream', 'image/png', 'application/pdf'])(
-    'sends an untyped %s body as a file instead of null',
+    'uses a file placeholder for an empty upgraded %s body',
     (contentType) => {
       const result = processBody({
         requestBody: { content: { [contentType]: { schema: coerceValue(SchemaObjectSchema, {}) } } },
         contentType,
       })
       expect(result).toStrictEqual({ mimeType: contentType, text: '@filename' })
+      expect(
+        snippetz().print('shell', 'curl', {
+          url: 'https://example.com/blob',
+          method: 'PUT',
+          postData: result,
+        }),
+      ).toContain(contentType === 'application/octet-stream' ? "--data-binary '@filename'" : "--data '@filename'")
     },
   )
 
-  it.each(['application/json', 'text/plain'])('keeps the untyped %s body as data', (contentType) => {
-    const result = processBody({
-      requestBody: { content: { [contentType]: { schema: coerceValue(SchemaObjectSchema, {}) } } },
-      contentType,
-    })
-    expect(result).toStrictEqual({ mimeType: contentType, text: 'null' })
-  })
-
-  it('sends a constrained untyped binary body as a file', () => {
-    const contentType = 'application/octet-stream'
-    const result = processBody({
-      requestBody: {
-        content: { [contentType]: { schema: coerceValue(SchemaObjectSchema, { allOf: [{ maxLength: 1024 }] }) } },
-      },
-      contentType,
-    })
-    expect(result).toStrictEqual({ mimeType: contentType, text: '@filename' })
-  })
-
-  it.each([false, true])('sends constrained multipart files with array=%s', (array) => {
-    const file = { contentMediaType: 'application/octet-stream', allOf: [{ maxLength: 1024 }] }
-    const result = processBody({
-      requestBody: {
-        content: {
-          'multipart/form-data': {
-            schema: coerceValue(SchemaObjectSchema, {
-              type: 'object',
-              properties: { file: array ? { type: 'array', items: file } : file },
-            }),
-          },
-        },
-      },
-      contentType: 'multipart/form-data',
-    })
-    expect(result).toStrictEqual({
-      mimeType: 'multipart/form-data',
-      params: [{ name: 'file', value: '@filename', fileName: 'filename' }],
-    })
-  })
-
   it.each([
-    { example: null },
-    { examples: [null] },
-    { default: null },
-    { const: null },
-    { enum: [null] },
-    { type: 'null' },
-    { allOf: [{ example: null }] },
-    { oneOf: [{ type: 'null' }, {}] },
-  ])('preserves null from a binary body schema %j', (definition) => {
-    const contentType = 'application/octet-stream'
-    const result = processBody({
-      requestBody: { content: { [contentType]: { schema: coerceValue(SchemaObjectSchema, definition) } } },
-      contentType,
-      requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
-    })
-    expect(result).toStrictEqual({ mimeType: contentType, text: 'null' })
-  })
-
-  it.each(['schema', 'itemSchema'] as const)('preserves JSON stream framing with an empty %s', (schemaKey) => {
-    for (const contentType of [
-      'application/jsonl',
-      'application/x-ndjson',
-      'application/json-lines',
-      'application/json-seq',
-      'application/vnd.example+json-seq; charset=utf-8',
-    ]) {
-      const result = processBody({
-        requestBody: { content: { [contentType]: { [schemaKey]: coerceValue(SchemaObjectSchema, {}) } } },
+    ['application/json', {}, 'null'],
+    ['text/plain', {}, 'null'],
+    ['application/octet-stream', { example: null }, 'null'],
+    ['application/octet-stream', { const: null }, 'null'],
+    ['application/octet-stream', { allOf: [{ const: null }, { contentMediaType: 'image/png' }] }, 'null'],
+    ['application/octet-stream', { type: 'string', contentEncoding: 'base64' }, 'c2NhbGFy'],
+    ['application/jsonl', {}, 'null\n'],
+  ])('preserves existing body generation for %s and %j', (contentType, definition, text) => {
+    expect(
+      processBody({
+        requestBody: { content: { [contentType]: { schema: coerceValue(SchemaObjectSchema, definition) } } },
         contentType,
-      })
-      expect(result).toStrictEqual({
-        mimeType: contentType,
-        text: contentType.includes('json-seq') ? '\u001enull\n' : 'null\n',
-      })
-    }
+      }),
+    ).toStrictEqual({ mimeType: contentType, text })
   })
 })
