@@ -1586,10 +1586,14 @@ export const bundleDocument = async (
       schemas: references.schemas(),
       externalDocumentsKey: config.externalDocumentsKey,
       createTraversal,
-      documents: references.documents().map(({ path, value }) => ({
-        path,
-        ...relocationContext(value, 'schema'),
-      })),
+      documents: references.documents().map(({ path, value }) => {
+        const location = isObject(value) ? traversal.location(value) : undefined
+        return {
+          path,
+          context: location?.context ?? 'schema',
+          ...(location?.customReferences ? { customReferences: location.customReferences } : {}),
+        }
+      }),
       sourceReferences,
       outputBase: config.outputBase,
     })
