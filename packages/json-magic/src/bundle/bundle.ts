@@ -8,6 +8,7 @@ import { getValueByPath } from '@/helpers/get-value-by-path'
 import { isFilePath } from '@/helpers/is-file-path'
 import { isHttpUrl } from '@/helpers/is-http-url'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
+import { resolveResourcePath } from '@/helpers/resolve-resource-path'
 import { setValueAtPath } from '@/helpers/set-value-at-path'
 import { toRelativePath } from '@/helpers/to-relative-path'
 import { getRaw } from '@/magic-proxy/proxy'
@@ -1325,7 +1326,9 @@ export const bundleDocument = async (
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
       const retrievalOrigin = references.retrievalOrigin(root) ?? nodeOrigin
-      const resolvedPath = resolveReferencePath(retrievalOrigin, prefix)
+      const resolvedPath = config.preserveReference
+        ? resolveResourcePath(retrievalOrigin, prefix)
+        : resolveReferencePath(retrievalOrigin, prefix)
       const relativePath = toRelativePath(resolvedPath, mappingOrigin)
 
       // Generate a unique compressed path for the external document

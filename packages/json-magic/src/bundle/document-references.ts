@@ -6,6 +6,7 @@ import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getId } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
+import { resolveResourcePath } from '@/helpers/resolve-resource-path'
 import { toResourceUri } from '@/helpers/to-resource-uri'
 import { getRaw } from '@/magic-proxy/proxy'
 
@@ -191,14 +192,19 @@ export const documentReferences = (
       const id = schemaIdentity?.id
       const identifier = id ?? inheritedIdentifier
       const resolved = id === undefined ? origin : resolveReferencePath(origin, id)
-      const current = canonicalizeIds && id !== undefined ? toResourceUri(resolved) : resolved
+      const current =
+        canonicalizeIds && id !== undefined
+          ? resolveReferencePath(toResourceUri(origin), id).replace(/#$/, '')
+          : resolved
       // A refresh can encounter an identifier that this index already canonicalized.
       const currentRetrieval =
         canonicalizeIds && id === origins.get(value) && retrievalOrigins.has(value)
           ? retrievalOrigins.get(value)!
           : id === undefined
             ? retrievalOrigin
-            : resolveReferencePath(retrievalOrigin, id)
+            : canonicalizeIds
+              ? resolveResourcePath(retrievalOrigin, id)
+              : resolveReferencePath(retrievalOrigin, id)
       sources.set(value, { document, path: location.slice(path.length), uri: retrievalBase })
       origins.set(value, current)
       retrievalOrigins.set(value, currentRetrieval)
@@ -227,7 +233,7 @@ export const documentReferences = (
         }
         if (id !== undefined) {
           resources.set(current, schemaResource)
-          if (canonicalizeIds) resources.set(resolved, schemaResource)
+          if (canonicalizeIds) resources.set(currentRetrieval, schemaResource)
         }
         if (anchor !== undefined) {
           resources.set(`${current}#${anchor}`, schemaResource)
@@ -305,7 +311,11 @@ export const documentReferences = (
     resolve: (ref, base, rootFallback = false) => {
       const [prefix, authoredFragment = ''] = ref.split('#', 2)
       const fragment = decodeUriFragment(authoredFragment)
-      const uri = prefix ? resolveReferencePath(base, prefix) : base
+      const uri = prefix
+        ? canonicalizeIds
+          ? resolveResourcePath(base, prefix)
+          : resolveReferencePath(base, prefix)
+        : base
       const pointer = fragment.startsWith('/') ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
       const documentResource = resources.get(uri)
       const localStorage = isObject(documentResource?.value) ? documentResource.value[externalDocumentsKey] : undefined

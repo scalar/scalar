@@ -14,6 +14,58 @@ import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { readFiles } from './plugins/read-files'
 
 describe('relocate-references', () => {
+  it.each([
+    ['./schemas/Pet%20Profile.json', 'file:///tmp/source/schemas/Pet%20Profile.json'],
+    ['./schemas/Pet.json?version=1', 'file:///tmp/source/schemas/Pet.json?version=1'],
+    ['./schemas/Pet.json#', 'file:///tmp/source/schemas/Pet.json'],
+  ])('preserves URI syntax in local identifiers %s', async ($id, expected) => {
+    const result = await bundleWithDiagnostics(
+      { $id, $anchor: 'pet', properties: { self: { $ref: '#pet' } } },
+      {
+        origin: '/tmp/source/root.json',
+        plugins: [],
+        treeShake: false,
+        traversal: 'document',
+        preserveReference: (ref) => /^https?:\/\//.test(ref),
+      },
+    )
+    expect(result.complete).toBe(true)
+    const exported = JSON.parse(JSON.stringify(result.document))
+    expect(exported.$id).toBe(expected)
+    expect(new URL(exported.properties.self.$ref, exported.$id).href).toBe(`${expected}#`)
+    expect(exported.$anchor).toBe('pet')
+  })
+
+  it('resolves encoded local identifier directories and reference paths as URIs', async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-uri-syntax-'))
+    try {
+      const schemas = path.join(directory, 'encoded directory')
+      await fs.mkdir(schemas)
+      await fs.writeFile(path.join(schemas, 'Pet Profile.json'), '{"type":"string"}')
+      const result = await bundleWithDiagnostics(
+        {
+          $id: './encoded%20directory/Root.json',
+          properties: { pet: { $ref: './Pet%20Profile.json' } },
+        },
+        {
+          origin: path.join(directory, 'root.json'),
+          plugins: [readFiles({ basePath: directory })],
+          treeShake: true,
+          traversal: 'document',
+          preserveReference: (ref) => /^https?:\/\//.test(ref),
+        },
+      )
+      expect(result.diagnostics).toEqual([])
+      const exported = JSON.parse(JSON.stringify(result.document))
+      const pet = getValueByPath(
+        exported,
+        getSegmentsFromPath(decodeURIComponent(new URL(exported.properties.pet.$ref, exported.$id).hash)),
+      ).value
+      expect(pet).toEqual({ type: 'string' })
+    } finally {
+      await fs.rm(directory, { recursive: true, force: true })
+    }
+  })
   it.each([true, false])('keeps cross-resource references portable (treeShake: %s)', async (treeShake) => {
     const reads: string[] = []
     const documents = {
