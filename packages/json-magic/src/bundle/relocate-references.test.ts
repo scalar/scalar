@@ -14,6 +14,80 @@ import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { readFiles } from './plugins/read-files'
 
 describe('relocate-references', () => {
+  it.each(['04', '06', '07'])('keeps draft-%s fragment IDs separate from pointer roots', async (draft) => {
+    const schemaFormat = `application/schema+json;version=draft-${draft}`
+    const idKeyword = draft === '04' ? 'id' : '$id'
+    const reads: string[] = []
+    const preserved = 'https://source.test/root.json#scalar-bundle-0'
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Target: {
+              schemaFormat,
+              schema: {
+                [idKeyword]: '#named',
+                properties: {
+                  child: { $ref: './child.json' },
+                  preserved: { $ref: preserved },
+                  self: { $ref: '#named' },
+                  local: { $ref: '#/components/schemas/Plain/schema' },
+                },
+                definitions: { 'bundle-0': { type: 'number' } },
+              },
+            },
+            Source: { schemaFormat, schema: { $ref: '#named' } },
+            Plain: { schemaFormat, schema: { type: 'integer' } },
+          },
+        },
+      },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        externalDocumentsKey: 'x-resources',
+        preserveReference: (ref) => /^https?:\/\//.test(ref),
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: (uri) => {
+              reads.push(uri)
+              return Promise.resolve({
+                ok: true,
+                data: { type: 'string', allOf: [{ $ref: './root.json#named' }] },
+                raw: '',
+              })
+            },
+          },
+        ],
+      },
+    )
+    expect(result.diagnostics).toEqual([])
+    expect(reads).toEqual(['https://source.test/child.json'])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    const target = exported.components.schemas.Target.schema
+    const child = target.definitions['bundle-1']
+    expect(child[idKeyword]).toBe('https://source.test/root.json#scalar-bundle-1')
+    expect(target.properties.child.$ref).toBe(child[idKeyword])
+    expect(target.properties.preserved.$ref).toBe(preserved)
+    expect(target.properties.self.$ref).toBe(target[idKeyword])
+    expect(target.properties.local.$ref).toBe(target.definitions['bundle-2'][idKeyword])
+    expect(target.definitions['bundle-2'].allOf).toEqual([{ type: 'integer' }])
+    expect(child.allOf[0].type).toBe('string')
+    expect(child.allOf[0].allOf[0].$ref).toBe(target[idKeyword])
+    expect(exported.components.schemas.Source.schema.$ref).toBe(target[idKeyword])
+    const retried = await bundleWithDiagnostics(exported, {
+      origin: 'https://download.test/bundle.json',
+      traversal: 'document',
+      plugins: [],
+      treeShake: false,
+      preserveReference: (ref) => ref === preserved,
+    })
+    expect(retried.diagnostics).toEqual([])
+  })
+
   it.each([
     ['./schemas/Pet%20Profile.json', 'file:///tmp/source/schemas/Pet%20Profile.json'],
     ['./schemas/Pet.json?version=1', 'file:///tmp/source/schemas/Pet.json?version=1'],

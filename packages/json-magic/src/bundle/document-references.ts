@@ -52,7 +52,7 @@ export type DocumentReferences = {
   /** Retrieval document boundaries remain distinct even without a declared identity. */
   documents: () => { path: string[]; value: unknown }[]
   /** Declared schema identities and their output paths, including reconstructed ancestors. */
-  schemas: () => { path: string[]; uri: string }[]
+  schemas: () => { path: string[]; uri: string; idKeyword: 'id' | '$id' }[]
   identity: (document: unknown) => DocumentIdentity | undefined
   register: (document: unknown, retrievalUri: string, path?: string[], retrievalBase?: string) => void
   refresh: (document: unknown, targetPath: string[]) => void
@@ -266,7 +266,7 @@ export const documentReferences = (
         isObject(resource.value) &&
         identifySchema(resource.value)?.id !== undefined &&
         uri === origins.get(resource.value)
-          ? [{ uri, path: resource.path }]
+          ? [{ uri, path: resource.path, idKeyword: identifySchema(resource.value)?.idKeyword ?? '$id' }]
           : [],
       ),
     identity: (document) => identities.get(document),
@@ -311,7 +311,9 @@ export const documentReferences = (
         ? canonicalizeIds
           ? resolveResourcePath(base, prefix)
           : resolveReferencePath(base, prefix)
-        : base
+        : canonicalizeIds
+          ? base.split('#', 1)[0]!
+          : base
       const pointer = fragment.startsWith('/') ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
       const documentResource = resources.get(uri)
       const localStorage = isObject(documentResource?.value) ? documentResource.value[externalDocumentsKey] : undefined

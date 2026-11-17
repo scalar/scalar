@@ -148,6 +148,10 @@ References inside a schema with its own `$id` remain relative to that schema
 resource. References to another named resource use its canonical identity;
 anonymous dependencies outside the schema are copied into resource-local
 `x-ext` storage (or `externalDocumentsKey`) and addressed with local pointers.
+Legacy fragment-bearing `id` / `$id` values use named aliases in schema
+`definitions`, since a fragment identifier cannot serve as a JSON Pointer root.
+These aliases use the active dialect's identifier keyword and avoid existing
+identities and preserved references.
 Cycles reuse that storage, and copied subtrees reference named resources rather
 than duplicating their identities. Anonymous imports and their local copies omit
 anchor declarations whose scope would otherwise change; bundled references

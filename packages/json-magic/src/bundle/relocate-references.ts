@@ -10,7 +10,7 @@ import type { UnknownObject } from '@/types'
 import type { documentTraversal } from './document-traversal'
 import { type ReferenceContext, getSchemaVocabulary } from './reference-context'
 
-type Resource = { node: UnknownObject; path: string[]; uri: string }
+type Resource = { node: UnknownObject; path: string[]; uri: string; idKeyword: 'id' | '$id' }
 
 /** A resolved target before its reference is rewritten for output. */
 export type RelocationTarget = { path: string[]; context: ReferenceContext }
@@ -20,7 +20,7 @@ export type SourceReference = { reference: string; origin: string; path: readonl
 
 type RelocationOptions = {
   targets: WeakMap<object, RelocationTarget>
-  schemas: { path: string[]; uri: string }[]
+  schemas: { path: string[]; uri: string; idKeyword: 'id' | '$id' }[]
   externalDocumentsKey: string
   createTraversal: () => ReturnType<typeof documentTraversal>
   documents: { path: string[]; context: ReferenceContext }[]
@@ -34,12 +34,12 @@ export const relocateReferences = (
 ): void => {
   const resources: Resource[] = []
   const identities = new WeakMap<object, string>()
-  for (const { path, uri } of schemas) {
+  for (const { path, uri, idKeyword } of schemas) {
     const node = getValueByPath(root, path).value
     if (!isObject(node)) {
       continue
     }
-    resources.push({ node, path, uri })
+    resources.push({ node, path, uri, idKeyword })
     identities.set(getRaw(node), uri)
   }
   resources.sort((a, b) => b.path.length - a.path.length)
@@ -89,7 +89,15 @@ export const relocateReferences = (
     stripAnchors(node)
   }
   for (const [node, reference] of sourceReferences) {
-    if (targets.has(node) || !isObject(node)) {
+    if (!isObject(node)) {
+      continue
+    }
+    const target = targets.get(node)
+    if (target) {
+      const destination = resourceAt(target.path)
+      if (destination?.uri.includes('#') && target.path.length === destination.path.length) {
+        node.$ref = destination.uri
+      }
       continue
     }
     const document = documents.find((document) => contains(document.path, [...reference.path]))
@@ -98,24 +106,47 @@ export const relocateReferences = (
     }
   }
 
+  const reservedUris = new Set(schemas.map(({ uri }) => uri))
+  const scanned = new WeakSet<object>()
+  const reserveReferences = (value: unknown): void => {
+    if (value === null || typeof value !== 'object' || scanned.has(getRaw(value))) {
+      return
+    }
+    scanned.add(getRaw(value))
+    if (isObject(value) && typeof value.$ref === 'string') {
+      reservedUris.add(value.$ref)
+    }
+    for (const key of Object.keys(getRaw(value))) {
+      reserveReferences(Reflect.get(value, key))
+    }
+  }
+  reserveReferences(root)
+
   for (const owner of resources) {
-    const copies: { source: string[]; destination: string[] }[] = []
+    const fragmentIdentity = owner.uri.includes('#')
+    const copies: { source: string[]; destination: string[]; uri?: string }[] = []
     const visited = new WeakSet<object>()
     const reference = ({ path: target, context }: RelocationTarget): string => {
       const destination = resourceAt(target)
-      if (destination) {
+      if (destination && (!destination.uri.includes('#') || target.length === destination.path.length)) {
+        if (destination.uri.includes('#')) {
+          return destination.uri
+        }
         const fragment = pointer(target.slice(destination.path.length))
         return destination === owner ? fragment : `${destination.uri}${fragment === '#' ? '' : fragment}`
       }
       // Reserve the copy before walking it: anonymous dependency cycles share storage.
-      const existing = copies.find(({ source }) => contains(source, target))
+      const existing = copies.find(({ source }) =>
+        fragmentIdentity ? source.length === target.length && contains(source, target) : contains(source, target),
+      )
       if (existing) {
-        return pointer([...existing.destination, ...target.slice(existing.source.length)])
+        return existing.uri ?? pointer([...existing.destination, ...target.slice(existing.source.length)])
       }
-      const storage = Object.hasOwn(owner.node, externalDocumentsKey) ? owner.node[externalDocumentsKey] : undefined
+      const storageKey = fragmentIdentity ? 'definitions' : externalDocumentsKey
+      const storage = Object.hasOwn(owner.node, storageKey) ? owner.node[storageKey] : undefined
       const documents: UnknownObject = isObject(storage) ? storage : {}
       if (storage !== documents) {
-        Object.defineProperty(owner.node, externalDocumentsKey, {
+        Object.defineProperty(owner.node, storageKey, {
           value: documents,
           enumerable: true,
           configurable: true,
@@ -127,15 +158,25 @@ export const relocateReferences = (
         index++
       }
       const key = `bundle-${index}`
-      const location = [externalDocumentsKey, key]
-      copies.push({ source: target, destination: location })
+      const location = [storageKey, key]
+      let uri: string | undefined
+      if (fragmentIdentity) {
+        let alias = index
+        do {
+          uri = `${owner.uri.split('#', 1)[0]}#scalar-bundle-${alias++}`
+        } while (reservedUris.has(uri))
+        reservedUris.add(uri)
+      }
+      copies.push({ source: target, destination: location, uri })
+      const value = copy(getValueByPath(root, target).value, context)
       Object.defineProperty(documents, key, {
-        value: copy(getValueByPath(root, target).value, context),
+        // Legacy fragment IDs name subschemas, so pointers cannot use them as document roots.
+        value: uri ? { [owner.idKeyword]: uri, allOf: [value] } : value,
         enumerable: true,
         configurable: true,
         writable: true,
       })
-      return pointer(location)
+      return uri ?? pointer(location)
     }
     const copy = (value: unknown, context: ReferenceContext): unknown => {
       // A reference exposing literal data as a schema does not change its other occurrences.
