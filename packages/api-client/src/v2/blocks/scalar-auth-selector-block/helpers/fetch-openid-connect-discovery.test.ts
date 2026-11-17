@@ -123,7 +123,7 @@ describe('fetch-openid-connect-discovery', () => {
         authorization_endpoint: 'https://issuer.example.com/authorize',
         token_endpoint: 123,
         scopes_supported: 'openid',
-        grant_types_supported: ['authorization_code', 123],
+        grant_types_supported: ['authorization_code', 123, '', null, false, {}, 'refresh_token'],
         code_challenge_methods_supported: null,
       }),
     )
@@ -134,7 +134,7 @@ describe('fetch-openid-connect-discovery', () => {
         authorization_endpoint: 'https://issuer.example.com/authorize',
         token_endpoint: '',
         scopes_supported: [],
-        grant_types_supported: ['authorization_code', ''],
+        grant_types_supported: ['authorization_code', 'refresh_token'],
         code_challenge_methods_supported: [],
       },
     ])

@@ -96,6 +96,26 @@ describe('fetch-oauth2-metadata', () => {
     expect(data).toStrictEqual({ token_endpoint: metadata.token_endpoint, scopes_supported: [] })
   })
 
+  it.each([
+    [
+      ['client_credentials', 123, '', null, false, {}, 'refresh_token'],
+      ['client_credentials', 'refresh_token'],
+    ],
+    [[123, '', null, false, {}], []],
+    ['client_credentials', []],
+  ])('removes invalid and empty grant types from %j', async (grantTypes, expected) => {
+    const customFetch = vi
+      .fn()
+      .mockResolvedValue(
+        Response.json({ token_endpoint: 'https://example.com/token', grant_types_supported: grantTypes }),
+      )
+
+    expect(await fetchOAuth2Metadata('https://example.com/metadata', '', customFetch)).toStrictEqual([
+      null,
+      { token_endpoint: 'https://example.com/token', grant_types_supported: expected },
+    ])
+  })
+
   it('returns HTTP failures', async () => {
     const [error, data] = await fetchOAuth2Metadata(
       'https://example.com/metadata',

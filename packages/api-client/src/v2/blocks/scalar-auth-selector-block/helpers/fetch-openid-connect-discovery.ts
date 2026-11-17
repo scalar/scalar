@@ -1,6 +1,6 @@
 import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
-import { type Static, array, coerce, object, optional, string } from '@scalar/validation'
+import { type Static, array, coerce, evaluate, object, optional, string } from '@scalar/validation'
 
 import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 
@@ -20,7 +20,12 @@ export const OpenIDConnectDiscoverySchema = object({
   /** List of OAuth 2.0 scope values that this server supports */
   scopes_supported: optional(array(string())),
   /** List of OAuth 2.0 grant type values that this server supports */
-  grant_types_supported: optional(array(string())),
+  grant_types_supported: optional(
+    evaluate(
+      (value) => (Array.isArray(value) ? value.filter((item) => typeof item === 'string' && item.length > 0) : value),
+      array(string()),
+    ),
+  ),
   /** Supported PKCE code challenge methods (RFC 7636) */
   code_challenge_methods_supported: optional(array(string())),
 })
