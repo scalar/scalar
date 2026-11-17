@@ -434,14 +434,42 @@ provide(NAVIGATION_HREF, (id: string): string =>
 const getSidebarItemHref = (item: Item): string =>
   makeHrefFromId(item.id, basePath.value, isMultiDocument.value)
 
+/**
+ * The theme picked in the localhost developer tools, if it differs from the configured one.
+ *
+ * Integrations (FastAPI, Django Ninja, the JavaScript server integrations) inject their own
+ * default theme as unlayered CSS when no theme is configured. Unlayered styles always beat the
+ * `scalar-theme` cascade layer, so a theme picked in the toolbar would have no visible effect.
+ * We therefore emit the picked theme without a layer, which wins because our style tag comes
+ * after the integration styles in the document.
+ */
+const toolbarTheme = computed<ApiReferenceConfiguration['theme'] | undefined>(
+  () => {
+    const overrideTheme = configurationOverrides.value.theme
+    if (!overrideTheme) {
+      return undefined
+    }
+
+    const configuredTheme =
+      configList.value[activeSlug.value]?.config?.theme ?? 'default'
+
+    return overrideTheme === configuredTheme ? undefined : overrideTheme
+  },
+)
+
 const themeStyle = computed(() =>
-  getThemeStyles(mergedConfig.value.theme, {
+  getThemeStyles(toolbarTheme.value ?? mergedConfig.value.theme, {
     fonts: mergedConfig.value.withDefaultFonts,
+    // Only the toolbar theme is unlayered, so hosted pages keep the layered output
+    layer: toolbarTheme.value ? false : undefined,
   }),
 )
 
 /**
  * Custom CSS plus the theme styles, injected into a single `<style>` tag.
+ *
+ * A theme picked in the toolbar is unlayered, so it goes first: `customCss` is unlayered too and
+ * comes later, so it still wins over the picked theme.
  *
  * This is rendered with `v-html` so the CSS is emitted verbatim. Interpolating
  * it as text content makes Vue HTML-escape characters like `"` into `&quot;` on
@@ -453,11 +481,15 @@ const themeStyle = computed(() =>
  * `customCss` coming from a docs platform where readers can supply their own
  * theme would otherwise be able to close the tag and open a `<script>`.
  */
-const styleContent = computed(() =>
-  escapeCssForStyleTag(
-    `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`,
-  ),
-)
+const styleContent = computed(() => {
+  const customCss = mergedConfig.value.customCss ?? ''
+
+  return escapeCssForStyleTag(
+    toolbarTheme.value
+      ? `${themeStyle.value}\n${customCss}`
+      : `${customCss}\n${themeStyle.value}`,
+  )
+})
 
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
