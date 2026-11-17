@@ -293,6 +293,75 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema, undefined, { contentType: 'application/octet-stream' })).toStrictEqual(expected)
   })
 
+  it.each([
+    { allOf: [{ maxLength: 1024 }] },
+    { allOf: [{ maxLength: 1024 }, { minLength: 1 }] },
+    { allOf: [{ allOf: [{ maxLength: 1024 }] }] },
+    { allOf: [{ oneOf: [{ maxLength: 1024 }] }] },
+    { allOf: [{}, { type: 'string' }] },
+  ])('retains binary examples through constraint-only intersections %j', (definition) => {
+    const file = { contentMediaType: 'application/octet-stream', ...definition }
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, file))).toBe('@filename')
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, file), { emptyString: 'sample' })).toBe('@filename')
+    const example = getExampleFromSchema(coerceValue(SchemaObjectSchema, file), { binaryAsFile: true })
+    expect(example).toBeInstanceOf(File)
+    expect((example as File).name).toBe('filename')
+    expect(
+      getExampleFromSchema(coerceValue(SchemaObjectSchema, definition), undefined, {
+        contentType: 'application/octet-stream',
+      }),
+    ).toBe('@filename')
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'array', items: file }))).toStrictEqual([
+      '@filename',
+    ])
+  })
+
+  it.each([
+    [{ allOf: [{ maxLength: 1024 }, { example: null }] }, null],
+    [{ allOf: [{ example: null }, { maxLength: 1024 }] }, null],
+    [{ allOf: [{ allOf: [{ const: null }] }] }, null],
+    [{ allOf: [{ oneOf: [{ type: 'null' }] }] }, null],
+    [{ allOf: [{ enum: [null] }, {}] }, null],
+    [{ allOf: [{ default: null }, {}] }, null],
+    [{ allOf: [{ examples: [null] }, {}] }, null],
+    [{ allOf: [{ type: 'null' }, {}] }, null],
+    [{ type: 'null', allOf: [{}] }, null],
+    [{ allOf: [{ contentEncoding: 'base64' }] }, null],
+    [{ allOf: [{ type: 'object', properties: { id: { type: 'number' } } }, {}] }, { id: 1 }],
+    [{ allOf: [{ maxLength: 1024 }, { example: '' }] }, ''],
+    [{ allOf: [{ example: '' }, { maxLength: 1024 }] }, ''],
+  ])('preserves declared intersection values under a binary media type %j', (definition, expected) => {
+    expect(
+      getExampleFromSchema(coerceValue(SchemaObjectSchema, definition), undefined, {
+        contentType: 'application/octet-stream',
+      }),
+    ).toStrictEqual(expected)
+  })
+
+  it.each([{ allOf: [{ maxLength: 1024 }] }, { oneOf: [{ allOf: [{ maxLength: 1024 }] }] }])(
+    'does not reuse inferred binary files for another media type %j',
+    (definition) => {
+      const schema = coerceValue(SchemaObjectSchema, definition)
+      const example = getExampleFromSchema(schema, { binaryAsFile: true }, { contentType: 'application/octet-stream' })
+      expect(example).toBeInstanceOf(File)
+      expect((example as File).name).toBe('filename')
+      expect(getExampleFromSchema(schema, { binaryAsFile: true }, { contentType: 'application/json' })).toBe('')
+      expect(getExampleFromSchema(schema, { binaryAsFile: true })).toBe('')
+    },
+  )
+
+  it.each([false, true])('retains authored constrained file examples with reference=%s', (reference) => {
+    const file = coerceValue(SchemaObjectSchema, {
+      contentMediaType: 'application/octet-stream',
+      allOf: [{ maxLength: 1024 }],
+      example: '@upload.bin',
+    })
+    const schema = reference ? { __scalar_: '', $ref: '#/components/schemas/Upload', '$ref-value': file } : file
+    const example = getExampleFromSchema(schema, { binaryAsFile: true })
+    expect(example).toBeInstanceOf(File)
+    expect((example as File).name).toBe('upload.bin')
+  })
+
   it('refreshes generated dates and times in reused nested schemas', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',

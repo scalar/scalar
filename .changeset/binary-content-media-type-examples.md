@@ -6,3 +6,5 @@
 Generate file examples for binary schemas that only declare `contentMediaType`, including upgraded OpenAPI 3.0 and Swagger 2.0 file uploads and arrays of them, and send an untyped binary request body as a file in code examples instead of `null`.
 
 Preserve declared null values and JSON stream framing when inferring binary body examples.
+
+Retain file examples for single uploads and file arrays whose binary schemas include `allOf` constraints.

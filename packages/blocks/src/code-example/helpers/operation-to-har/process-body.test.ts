@@ -2670,6 +2670,38 @@ describe('processBody', () => {
     expect(result).toStrictEqual({ mimeType: contentType, text: 'null' })
   })
 
+  it('sends a constrained untyped binary body as a file', () => {
+    const contentType = 'application/octet-stream'
+    const result = processBody({
+      requestBody: {
+        content: { [contentType]: { schema: coerceValue(SchemaObjectSchema, { allOf: [{ maxLength: 1024 }] }) } },
+      },
+      contentType,
+    })
+    expect(result).toStrictEqual({ mimeType: contentType, text: '@filename' })
+  })
+
+  it.each([false, true])('sends constrained multipart files with array=%s', (array) => {
+    const file = { contentMediaType: 'application/octet-stream', allOf: [{ maxLength: 1024 }] }
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/form-data': {
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: { file: array ? { type: 'array', items: file } : file },
+            }),
+          },
+        },
+      },
+      contentType: 'multipart/form-data',
+    })
+    expect(result).toStrictEqual({
+      mimeType: 'multipart/form-data',
+      params: [{ name: 'file', value: '@filename', fileName: 'filename' }],
+    })
+  })
+
   it.each([
     { example: null },
     { examples: [null] },
