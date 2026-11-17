@@ -168,6 +168,12 @@ including its existing base-directory and symlink confinement checks. References
 from documents retrieved over HTTP(S) cannot load non-HTTP(S) targets, even when
 an authored `$id` changes the resolution base to a `file:` URI.
 
+When passing an in-memory object that your application fetched over HTTP(S), set
+`origin` to its retrieval URL so the filesystem guard retains that source boundary.
+For untrusted local input, configure `readFiles({ basePath: allowedDirectory })` to
+confine reads to an allowed directory. `outputBase` controls output identities;
+it does not establish the input's source or grant filesystem access.
+
 Relative native retrieval paths resolve against the current working directory;
 canonical local identities therefore include absolute filesystem paths. In-memory
 input without an origin uses the virtual output base `https://scalar.invalid/`
