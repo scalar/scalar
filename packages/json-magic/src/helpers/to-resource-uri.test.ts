@@ -1,3 +1,6 @@
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+
 import { describe, expect, it } from 'vitest'
 
 import { toResourceUri } from './to-resource-uri'
@@ -9,8 +12,10 @@ describe('to-resource-uri', () => {
     ['file:///tmp/schema.json', 'file:///tmp/schema.json'],
     ['https://example.test/schema.json', 'https://example.test/schema.json'],
     ['urn:example:schema', 'urn:example:schema'],
-    ['relative/schema.json', 'relative/schema.json'],
   ])('converts %s to %s', (source, expected) => {
     expect(toResourceUri(source)).toBe(expected)
+  })
+  it('canonicalizes relative retrieval paths against the working directory', () => {
+    expect(toResourceUri('./schemas/Pet.json')).toBe(pathToFileURL(path.resolve('./schemas/Pet.json')).href)
   })
 })

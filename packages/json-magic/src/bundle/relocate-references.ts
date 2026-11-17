@@ -56,7 +56,8 @@ export const relocateReferences = (
   }
   const absoluteReference = ({ reference, origin }: SourceReference): string => {
     const [prefix, fragment] = reference.split('#', 2)
-    return `${toResourceUri(prefix ? resolveReferencePath(origin, prefix) : origin)}${fragment === undefined ? '' : `#${fragment}`}`
+    const base = toResourceUri(origin)
+    return `${prefix ? resolveReferencePath(base, prefix) : base}${fragment === undefined ? '' : `#${fragment}`}`
   }
 
   // Anonymous imported documents lose their retrieval scope when embedded. Their
