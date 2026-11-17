@@ -626,7 +626,7 @@ const id = useId()
       class="request-card-footer"
       :class="{
         'request-card-footer--wraps':
-          !showExamplePicker && $slots['footer-start'],
+          showExamplePicker || $slots['footer-start'],
       }">
       <!-- Example picker -->
       <div
@@ -693,8 +693,8 @@ const id = useId()
   position: relative;
 }
 /*
- * Footer-start content keeps its full width; when the footer is too narrow for everything,
- * the end controls wrap onto a second line instead of squeezing or covering it.
+ * The example picker or footer-start content keeps room for itself; when the footer is too narrow
+ * for everything, the end controls wrap onto a second line instead of squeezing or covering it.
  */
 .request-card-footer--wraps {
   flex-wrap: wrap;
@@ -705,12 +705,20 @@ const id = useId()
   align-items: center;
   flex: 1 0 auto;
 }
+/*
+ * The picker asks for its example name's width, capped at 7em (about eight characters), so on a
+ * narrow card the end controls wrap rather than squeeze the name out of view. The cap keeps a long
+ * name truncating beside them on wider cards, as before. The picker never grows past its name, and
+ * the end margin holds it at the start of the line.
+ */
 .request-card-footer-addon {
   display: flex;
   align-items: center;
 
-  flex: 1;
+  flex: 1 1 7em;
   min-width: 0;
+  max-width: max-content;
+  margin-inline-end: auto;
 }
 .request-editor-section {
   display: flex;
