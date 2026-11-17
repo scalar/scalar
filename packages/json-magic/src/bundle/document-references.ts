@@ -6,6 +6,7 @@ import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getId } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
+import { toResourceUri } from '@/helpers/to-resource-uri'
 import { getRaw } from '@/magic-proxy/proxy'
 
 /** Format-specific document identity, supplied by the caller. */
@@ -47,6 +48,8 @@ export type DocumentLocation = { document: unknown; path: readonly string[]; uri
 /** Resolution metadata survives moving documents into the bundle. */
 export type DocumentReferences = {
   source: (node: object) => DocumentLocation | undefined
+  /** Declared schema identities and their output paths, including reconstructed ancestors. */
+  schemas: () => { path: string[]; uri: string }[]
   identity: (document: unknown) => DocumentIdentity | undefined
   register: (document: unknown, retrievalUri: string, path?: string[], retrievalBase?: string) => void
   refresh: (document: unknown, targetPath: string[]) => void
@@ -144,6 +147,10 @@ export const documentReferences = (
     if (identity !== undefined && URL.canParse(base)) {
       resources.set(new URL(base).href, resource)
     }
+    if (canonicalizeIds) {
+      resources.set(toResourceUri(retrievalUri), resource)
+      resources.set(toResourceUri(base), resource)
+    }
     if (path.length > 1) {
       bundledResources.set(path[1], resource)
     }
@@ -181,7 +188,8 @@ export const documentReferences = (
       const schemaIdentity = identifySchema(value)
       const id = schemaIdentity?.id
       const identifier = id ?? inheritedIdentifier
-      const current = id === undefined ? origin : resolveReferencePath(origin, id)
+      const resolved = id === undefined ? origin : resolveReferencePath(origin, id)
+      const current = canonicalizeIds && id !== undefined ? toResourceUri(resolved) : resolved
       // A refresh can encounter an identifier that this index already canonicalized.
       const currentRetrieval =
         canonicalizeIds && id === origins.get(value) && retrievalOrigins.has(value)
@@ -217,6 +225,7 @@ export const documentReferences = (
         }
         if (id !== undefined) {
           resources.set(current, schemaResource)
+          if (canonicalizeIds) resources.set(resolved, schemaResource)
         }
         if (anchor !== undefined) {
           resources.set(`${current}#${anchor}`, schemaResource)
@@ -246,6 +255,15 @@ export const documentReferences = (
 
   return {
     source: (node) => sources.get(node),
+    schemas: () =>
+      [...resources].flatMap(([uri, resource]) =>
+        resource.schema &&
+        isObject(resource.value) &&
+        identifySchema(resource.value)?.id !== undefined &&
+        uri === origins.get(resource.value)
+          ? [{ uri, path: resource.path }]
+          : [],
+      ),
     identity: (document) => identities.get(document),
     register,
     refresh: (document, targetPath) => {
@@ -265,7 +283,8 @@ export const documentReferences = (
         const origin = origins.get(resource.value)
         if (
           shouldVisit(resource.value) &&
-          ((identity?.id !== undefined && uri === origin) ||
+          ((identity?.id !== undefined &&
+            (uri === origin || (canonicalizeIds && uri === retrievalOrigins.get(resource.value)))) ||
             (identity?.anchor !== undefined && uri === `${origin}#${identity.anchor}`))
         ) {
           continue
