@@ -56,9 +56,10 @@ const parseRequestBodyData = (data: string): ParsedData => {
  * otherwise uses the header value.
  */
 const detectContentType = (body: string, headers: Record<string, string>): string => {
-  // If Content-Type header is explicitly provided, use it
-  if (headers['Content-Type']) {
-    return headers['Content-Type']
+  // If Content-Type header is explicitly provided, use it, whatever its case
+  const contentTypeHeader = Object.entries(headers).find(([name]) => name.toLowerCase() === 'content-type')?.[1]
+  if (contentTypeHeader) {
+    return contentTypeHeader
   }
 
   // Check if body looks like JSON (starts with { or [)

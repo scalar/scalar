@@ -759,4 +759,115 @@ describe('parseCurlCommand', () => {
       expect(result.body).toBe('name=value1')
     })
   })
+
+  describe('attached long flag values', () => {
+    it('reads every flag read from --flag=value', () => {
+      const result = parseCurlCommand(
+        `curl --url=https://example.com/users --request=PUT --header='X-Tag: v1' --data='{"name":"Ada"}'`,
+      )
+      expect(result).toStrictEqual({
+        url: 'https://example.com/users',
+        servers: ['https://example.com'],
+        path: '/users',
+        queryParameters: [],
+        headers: { 'X-Tag': 'v1' },
+        body: '{"name":"Ada"}',
+        method: 'put',
+      })
+    })
+
+    it.each(['--data', '--data-raw', '--data-binary', '--data-ascii', '--data-urlencode'])(
+      'reads the data of %s=value and infers POST',
+      (flag) => {
+        const result = parseCurlCommand(`curl ${flag}=name=example https://example.com/users`)
+        expect(result.url).toBe('https://example.com/users')
+        expect(result.body).toBe('name=example')
+        expect(result.method).toBe('post')
+      },
+    )
+
+    it('reads --json=value as a JSON body with its headers', () => {
+      const result = parseCurlCommand(`curl --json='{"name":"Ada"}' https://example.com/users`)
+      expect(result.body).toBe('{"name":"Ada"}')
+      expect(result.method).toBe('post')
+      expect(result.headers).toStrictEqual({ 'Content-Type': 'application/json', Accept: 'application/json' })
+    })
+
+    it.each([
+      ['--user=user:pass', { Authorization: `Basic ${btoa('user:pass')}` }],
+      ['--cookie=name=value', { Cookie: 'name=value' }],
+    ])('reads %s', (flag, headers) => {
+      const result = parseCurlCommand(`curl ${flag} https://example.com/users`)
+      expect(result.headers).toStrictEqual(headers)
+    })
+
+    it('keeps the equal signs of the value and ignores an empty value next to other data', () => {
+      const result = parseCurlCommand('curl --data=a=b=c --data= https://example.com/users')
+      expect(result.body).toBe('a=b=c')
+      expect(result.url).toBe('https://example.com/users')
+    })
+
+    it('keeps the explicit method of --request=value when data is sent', () => {
+      const result = parseCurlCommand(`curl -d 'name=example' --request=GET https://example.com/users`)
+      expect(result.method).toBe('get')
+    })
+
+    it('sends the attached data in the query with -G', () => {
+      const result = parseCurlCommand('curl -G --data=name=value1 https://example.com/users')
+      expect(result.method).toBeUndefined()
+      expect(result.queryParameters).toStrictEqual([{ key: 'name', value: 'value1' }])
+    })
+
+    it.each([
+      '--proxy=http://proxy.example.com:8080',
+      '--referer=https://referrer.example.com',
+      '--user-agent=http-client/1',
+    ])('does not read the attached value of %s as the URL', (flag) => {
+      const result = parseCurlCommand(`curl ${flag} https://example.com/users -d name=example`)
+      expect(result.url).toBe('https://example.com/users')
+      expect(result.method).toBe('post')
+    })
+
+    it.each([
+      ['-d', '--request=PUT'],
+      ['--data', '--url=https://example.com/other'],
+    ])('does not expand the value of %s that looks like an attached flag', (flag, value) => {
+      const result = parseCurlCommand(`curl ${flag} '${value}' https://example.com/users`)
+      expect(result.body).toBe(value)
+      expect(result.url).toBe('https://example.com/users')
+      expect(result.method).toBe('post')
+    })
+  })
+
+  describe('data-urlencode', () => {
+    it.each([
+      ['q=a&b c', 'q=a%26b%20c'],
+      ['a&b', 'a%26b'],
+      ['=a&b', 'a%26b'],
+      ['q=1=2', 'q=1%3D2'],
+      ['q=', 'q='],
+      ['q@file.txt', 'q='],
+      ['@file.txt', ''],
+      ['name=é', 'name=%C3%A9'],
+    ])('percent-encodes the content of %s like curl', (argument, body) => {
+      const result = parseCurlCommand(`curl --data-urlencode '${argument}' https://example.com/users`)
+      expect(result.body).toBe(body)
+      expect(result.method).toBe('post')
+    })
+
+    it('joins encoded content with other data using an ampersand', () => {
+      const result = parseCurlCommand(`curl --data-urlencode 'q=a&b' -d 'limit=10' https://example.com/users`)
+      expect(result.body).toBe('q=a%26b&limit=10')
+    })
+
+    it('keeps an encoded & inside its value with -G', () => {
+      const result = parseCurlCommand(`curl -G --data-urlencode 'q=a&b c' https://example.com/search`)
+      expect(result.queryParameters).toStrictEqual([{ key: 'q', value: 'a&b c' }])
+    })
+
+    it('does not encode the other data flags', () => {
+      const result = parseCurlCommand(`curl -d 'q=a&b c' https://example.com/users`)
+      expect(result.body).toBe('q=a&b c')
+    })
+  })
 })

@@ -17,8 +17,29 @@ type DataPiece = { value: string; isJson: boolean }
 /** The headers --json sets unless the command already sets them. */
 const JSON_HEADERS = ['Content-Type', 'Accept']
 
+/** The long flags with a value that are read below, curl also takes their value attached as --flag=value. */
+const READ_LONG_FLAGS_WITH_VALUE = new Set([
+  ...DATA_FLAGS,
+  '--json',
+  '--request',
+  '--url',
+  '--header',
+  '--user',
+  '--cookie',
+])
+
 /** Short flags can be bundled (-sG) and carry their value attached (-XPOST), unlike long flags. */
 const isShortFlagBundle = (arg: string): boolean => arg.startsWith('-') && !arg.startsWith('--') && arg.length > 2
+
+/** Only the flags read here are split, so a flag that is skipped like --proxy=http://host never leaves its value to be read as the URL. */
+const isLongFlagWithAttachedValue = (arg: string): boolean =>
+  arg.startsWith('--') && arg.includes('=') && READ_LONG_FLAGS_WITH_VALUE.has(arg.slice(0, arg.indexOf('=')))
+
+/** Split --flag=value into the flag and its value, the value can hold more equal signs. */
+function splitLongFlag(arg: string): string[] {
+  const separatorIndex = arg.indexOf('=')
+  return [arg.slice(0, separatorIndex), arg.slice(separatorIndex + 1)]
+}
 
 /** Split a short flag bundle into the flags curl sees, stopping at the first flag that takes a value. */
 function splitShortFlags(bundle: string): string[] {
@@ -78,6 +99,9 @@ export function parseCurlCommand(curlCommand: string) {
     if (typeof arg === 'string' && isShortFlagBundle(arg)) {
       // Expand bundled and attached short flags e.g -sG or -XPOST
       queue.unshift(...splitShortFlags(arg))
+    } else if (typeof arg === 'string' && isLongFlagWithAttachedValue(arg)) {
+      // Expand attached long flag values e.g --request=PUT
+      queue.unshift(...splitLongFlag(arg))
     } else if (arg === '-X' || arg === '--request') {
       // Extract method e.g curl -X POST
       parseMethod(iterator as Iterator<string>, result)
@@ -217,13 +241,36 @@ function parseCookie(iterator: Iterator<string>, result: any) {
   }
 }
 
+/** Curl percent-encodes the content of --data-urlencode, so an & or = inside a value stays part of it, and a name before = or @ is kept as it is. */
+function encodeUrlencodedData(argument: string): string {
+  const separator = argument.includes('=') ? '=' : '@'
+  const separatorIndex = argument.indexOf(separator)
+
+  if (separatorIndex === -1) {
+    return encodeURIComponent(argument)
+  }
+
+  const name = argument.slice(0, separatorIndex)
+  // Mock reading the content from a file
+  const content = separator === '@' ? '' : encodeURIComponent(argument.slice(separatorIndex + 1))
+
+  return name ? `${name}=${content}` : content
+}
+
+/** Mock reading data from a file, --data-raw is the only flag that sends an @ as it is. */
+function readDataValue(argument: string, flag: string): string {
+  if (flag === '--data-urlencode') {
+    return encodeUrlencodedData(argument)
+  }
+
+  return argument.startsWith('@') && flag !== '--data-raw' ? '' : argument
+}
+
 /** Collect the data of a curl data flag, an empty value is still data and the value of a flag is never another flag. */
 function parseData(queue: unknown[], data: DataPiece[], flag: string) {
   const nextArg = queue.shift()
   if (typeof nextArg === 'string') {
-    // Mock reading data from file, --data-raw is the only flag that sends an @ as it is
-    const isFile = nextArg.startsWith('@') && flag !== '--data-raw'
-    data.push({ value: isFile ? '' : nextArg, isJson: flag === '--json' })
+    data.push({ value: readDataValue(nextArg, flag), isJson: flag === '--json' })
   }
 }
 

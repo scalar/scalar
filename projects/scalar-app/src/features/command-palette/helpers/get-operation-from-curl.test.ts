@@ -654,4 +654,45 @@ describe('get-operation-from-curl', () => {
     expect(result.path).toBe('/v1/users')
     expect(result.operation.servers).toStrictEqual([{ url: 'https://api.example.com' }])
   })
+
+  it.each([
+    ['content-type', 'text/plain'],
+    ['CONTENT-TYPE', 'text/plain'],
+    ['content-type', 'application/vnd.api+json'],
+    ['Content-Type', 'application/vnd.api+json'],
+  ])('keeps the %s header %s of the command over the type of the body', (name, contentType) => {
+    const result = getOperationFromCurl(
+      `curl -H '${name}: ${contentType}' -d '{"name":"Ada"}' https://api.example.com/v1/users`,
+    )
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(Object.keys(requestBody?.content ?? {})).toStrictEqual([contentType])
+    expect(requestBody?.['x-scalar-selected-content-type']).toStrictEqual({ curl: contentType })
+  })
+
+  it.each([
+    `curl --url=https://api.example.com/v1/users --data='{"name":"Ada"}'`,
+    `curl --json='{"name":"Ada"}' https://api.example.com/v1/users`,
+  ])('imports attached long flag values in %s as a POST with the body', (curl) => {
+    const result = getOperationFromCurl(curl)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe('post')
+    expect(result.path).toBe('/v1/users')
+    expect(requestBody?.content['application/json']?.examples).toStrictEqual({
+      curl: { value: { name: 'Ada' } },
+    })
+  })
+
+  it('imports --data-urlencode content with an ampersand as one body field', () => {
+    const result = getOperationFromCurl(`curl --data-urlencode 'note=a&b' https://api.example.com/v1/notes`)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(requestBody?.content['application/x-www-form-urlencoded']?.examples).toStrictEqual({
+      curl: { value: { note: 'a&b' } },
+    })
+  })
 })
