@@ -2,7 +2,6 @@
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
-import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XmlDiagnostic } from '@scalar/workspace-store/request-example'
 import type {
@@ -14,6 +13,7 @@ import { computed } from 'vue'
 import { useLocalization } from '@/features/localization'
 
 import { getExampleContent } from './helpers/get-example-content'
+import { getExampleLanguage } from './helpers/get-example-language'
 
 const {
   example,
@@ -60,6 +60,7 @@ const generatedExample = computed(() => {
   return { value, error }
 })
 const prettyPrintedContent = computed(() => generatedExample.value.value)
+const language = computed(() => getExampleLanguage(contentType))
 const errorMessage = computed(() => {
   const error = generatedExample.value.error
   if (!error) {
@@ -103,14 +104,14 @@ const shouldVirtualize = computed(() => {
     <ScalarCodeBlock
       v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
       class="bg-transparent"
-      :lang="isXmlMediaType(contentType) ? 'xml' : 'json'"
+      :lang="language"
       :prettyPrintedContent="prettyPrintedContent" />
 
     <ScalarVirtualCodeBlock
       v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
       class="bg-transparent"
       :content="prettyPrintedContent"
-      :lang="isXmlMediaType(contentType) ? 'xml' : 'json'" />
+      :lang="language" />
 
     <div
       v-else

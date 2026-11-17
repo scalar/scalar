@@ -1,3 +1,4 @@
+import { ScalarCopy } from '@scalar/components/copy'
 import { createDetectChangesProxy } from '@scalar/workspace-store/helpers/detect-changes-proxy'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -17,6 +18,45 @@ const displayedExample = (wrapper: VueWrapper): string =>
   wrapper.findComponent({ name: 'ExampleResponse' }).props('content') as string
 
 describe('ExampleResponses', () => {
+  it('updates the language label and copy content when selecting CSV after JSON', async () => {
+    const csv = 'id,name\n1,Ada\n'
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'JSON or CSV',
+            content: {
+              'application/json': { example: { id: 1, name: 'Ada' } },
+              'text/csv': { schema: { type: 'string' }, example: csv },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.get('button[aria-label="Copy JSON code"]').text()).toContain('JSON')
+    await wrapper.setProps({ selectedContentTypes: { '200': 'text/csv' } })
+    expect(wrapper.get('button[aria-label="Copy Plain Text code"]').text()).toContain('Plain Text')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(csv)
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+    expect(wrapper.get('button[aria-label="Copy JSON code"]').text()).toContain('JSON')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe('{\n  "type": "string"\n}')
+    wrapper.unmount()
+  })
+
+  it('labels a sole CSV media type with a schema example as plain text', () => {
+    const csv = 'id,name\n1,Ada\n'
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': { description: 'CSV', content: { 'text/csv': { schema: { type: 'string', example: csv } } } },
+        },
+      },
+    })
+    expect(wrapper.get('button[aria-label="Copy Plain Text code"]').text()).toContain('Plain Text')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(csv)
+    wrapper.unmount()
+  })
+
   it('keeps distinct examples selectable when media types normalize to the same key', async () => {
     const wrapper = mount(ExampleResponses, {
       props: {

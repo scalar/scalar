@@ -1,3 +1,4 @@
+import { ScalarCopy } from '@scalar/components/copy'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ExampleObject, MediaTypeObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -14,6 +15,42 @@ import { provideLocalization } from '@/features/localization'
 import ExampleResponse from './ExampleResponse.vue'
 
 describe('ExampleResponse', () => {
+  it.each([
+    { contentType: 'text/csv', value: 'id,name\n1,Ada\n', label: 'Plain Text' },
+    { contentType: 'TEXT/CSV; charset=utf-8', value: 'id,name\n1,Ada\n', label: 'Plain Text' },
+    { contentType: 'text/plain', value: 'hello\nworld\n', label: 'Plain Text' },
+    { contentType: 'text/plain', value: '{\n  "id": 1\n}', label: 'Plain Text' },
+    { contentType: 'text/html', value: '<p>hello</p>\n', label: 'HTML' },
+    { contentType: 'application/yaml', value: 'id: 1\nname: Ada\n', label: 'YAML' },
+    { contentType: 'text/x-yaml', value: 'id: 1\n', label: 'YAML' },
+    { contentType: 'application/openapi+yaml; charset=utf-8', value: 'id: 1\n', label: 'YAML' },
+    { contentType: 'text/event-stream', value: 'data: hello\n\n', label: 'Plain Text' },
+    { contentType: 'application/x-custom', value: 'hello\nworld\n', label: 'Plain Text' },
+    { contentType: 'invalid', value: 'hello\nworld\n', label: 'Plain Text' },
+    { contentType: 'application/json', value: '{\n  "id": 1\n}', label: 'JSON' },
+    { contentType: 'APPLICATION/PROBLEM+JSON; charset=utf-8', value: '{\n  "id": 1\n}', label: 'JSON' },
+    { contentType: 'application/jsonl', value: '{"id":1}\n{"id":2}\n', label: 'JSON' },
+    { contentType: 'application/x-ndjson', value: '{"id":1}\n{"id":2}\n', label: 'JSON' },
+    { contentType: 'application/json-seq', value: '\u001e{"id":1}\n', label: 'JSON' },
+    { contentType: 'application/xml', value: '<id>1</id>\n', label: 'XML' },
+    { contentType: 'application/problem+xml; charset=utf-8', value: '<id>1</id>\n', label: 'XML' },
+  ])('labels $contentType examples as $label and preserves clipboard content', ({ contentType, value, label }) => {
+    const wrapper = mount(ExampleResponse, { props: { contentType, response: undefined, example: { value } } })
+    expect(wrapper.get(`button[aria-label="Copy ${label} code"]`).text()).toContain(label)
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(value)
+    wrapper.unmount()
+  })
+
+  it.each([20_000, 20_001])('preserves the CSV label and clipboard at %i characters', (length) => {
+    const value = `id,name\n${'1,Ada\n'.repeat(4000)}`.slice(0, length)
+    const wrapper = mount(ExampleResponse, {
+      props: { contentType: 'text/csv', response: undefined, example: { value } },
+    })
+    expect(wrapper.get('button[aria-label="Copy Plain Text code"]').text()).toContain('Plain Text')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(value)
+    wrapper.unmount()
+  })
+
   it('does not generate an example while an external example is pending', () => {
     const wrapper = mount(ExampleResponse, {
       props: {
