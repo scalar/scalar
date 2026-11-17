@@ -605,19 +605,53 @@ describe('get-operation-from-curl', () => {
   it('imports -G data as query parameters of a GET', () => {
     const result = getOperationFromCurl('curl -G -d "q=ada" -d "limit=10" https://api.example.com/search')
 
-    const requestBody = getResolvedRef(result.operation.requestBody)
-
     expect(result.method).toBe('get')
     expect(result.operation.parameters?.map((parameter) => getResolvedRef(parameter)?.name)).toStrictEqual([
       'q',
       'limit',
     ])
-    expect(requestBody?.content['']?.examples).toStrictEqual({ curl: { value: {} } })
   })
 
   it('keeps an explicit method when data is sent', () => {
     const result = getOperationFromCurl(`curl -X PUT https://api.example.com/v1/users/1 -d '{"name":"Ada"}'`)
 
     expect(result.method).toBe('put')
+  })
+
+  it('imports --json as a JSON body of a POST', () => {
+    const result = getOperationFromCurl(`curl --json '{"name":"Ada","age":36}' https://api.example.com/v1/users`)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe('post')
+    expect(requestBody?.content['application/json']?.examples).toStrictEqual({
+      curl: { value: { name: 'Ada', age: 36 } },
+    })
+    expect(result.operation.parameters?.map((parameter) => getResolvedRef(parameter)?.name)).toStrictEqual([
+      'Content-Type',
+      'Accept',
+    ])
+  })
+
+  it('imports a bundled -sG command as a GET with query parameters', () => {
+    const result = getOperationFromCurl('curl -sG -d "q=ada" https://api.example.com/search')
+
+    expect(result.method).toBe('get')
+    expect(result.operation.parameters?.map((parameter) => getResolvedRef(parameter)?.name)).toStrictEqual(['q'])
+  })
+
+  it('imports an attached -XPOST with data', () => {
+    const result = getOperationFromCurl(`curl -XPOST -d '{"name":"Ada"}' https://api.example.com/v1/users`)
+
+    expect(result.method).toBe('post')
+    expect(result.path).toBe('/v1/users')
+  })
+
+  it('imports empty data as a POST to the URL', () => {
+    const result = getOperationFromCurl(`curl -d '' https://api.example.com/v1/users`)
+
+    expect(result.method).toBe('post')
+    expect(result.path).toBe('/v1/users')
+    expect(result.operation.servers).toStrictEqual([{ url: 'https://api.example.com' }])
   })
 })

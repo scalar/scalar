@@ -106,6 +106,17 @@ describe('parseCurlCommand', () => {
       },
     )
 
+    it.each(['-d', '--data', '--data-binary', '--data-ascii'])('treats the @ of %s as a file', (flag) => {
+      const result = parseCurlCommand(`curl ${flag} '@mention hi' http://example.com`)
+      expect(result.body).toBe('')
+    })
+
+    it('sends the @ of --data-raw as it is', () => {
+      const result = parseCurlCommand(`curl --data-raw '@mention hi' http://example.com`)
+      expect(result.body).toBe('@mention hi')
+      expect(result.method).toBe('post')
+    })
+
     it('infers POST from data that is read from a file', () => {
       const result = parseCurlCommand('curl -d @file.txt http://example.com')
       expect(result.method).toBe('post')
@@ -562,6 +573,190 @@ describe('parseCurlCommand', () => {
       const curlCommand = 'curl --cookie "name1=value1; name2=value2" http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers).toHaveProperty('Cookie', 'name1=value1; name2=value2')
+    })
+  })
+
+  describe('short flags', () => {
+    it.each(['-sG', '-Gs', '-sSG', '-sLG', '-vG', '-sSLG'])('reads -G from the bundle %s', (bundle) => {
+      const result = parseCurlCommand(`curl ${bundle} -d 'name=value1' http://example.com`)
+      expect(result.method).toBeUndefined()
+      expect(result.body).toBeUndefined()
+      expect(result.queryParameters).toStrictEqual([{ key: 'name', value: 'value1' }])
+    })
+
+    it.each([
+      ['-sLX POST', 'post'],
+      ['-sX PUT', 'put'],
+      ['-sSLXDELETE', 'delete'],
+      ['-XPOST', 'post'],
+      ['-XPATCH', 'patch'],
+    ])('reads the method from %s', (flags, method) => {
+      const result = parseCurlCommand(`curl ${flags} http://example.com`)
+      expect(result.method).toBe(method)
+    })
+
+    it.each([
+      ['-sdname=example', 'name=example'],
+      ['-sLd name=example', 'name=example'],
+      ['-dname=example', 'name=example'],
+      ['-d@file.txt', ''],
+      ['-sd@file.txt', ''],
+    ])('reads the data from %s', (flags, body) => {
+      const result = parseCurlCommand(`curl ${flags} http://example.com`)
+      expect(result.body).toBe(body)
+      expect(result.method).toBe('post')
+    })
+
+    it('reads attached values for the other flags with a value', () => {
+      const result = parseCurlCommand(`curl -H'Accept: application/json' -uuser:pass -bname=value http://example.com`)
+      expect(result.headers).toStrictEqual({
+        Accept: 'application/json',
+        Authorization: `Basic ${btoa('user:pass')}`,
+        Cookie: 'name=value',
+      })
+    })
+
+    it('keeps the method of a bundle that ends in -X when the data comes first', () => {
+      const result = parseCurlCommand(`curl -d 'name=example' -sX PUT http://example.com`)
+      expect(result.method).toBe('put')
+    })
+
+    it.each(['-oG', '-sSoG', '-AG'])('does not read the value attached to %s as the -G flag', (flags) => {
+      const result = parseCurlCommand(`curl ${flags} http://example.com -d name=example`)
+      expect(result.method).toBe('post')
+      expect(result.body).toBe('name=example')
+      expect(result.queryParameters).toStrictEqual([])
+    })
+
+    it.each([
+      ['-d', '-sG'],
+      ['--data-raw', '-XPUT'],
+      ['--json', '-sG'],
+    ])('does not expand the value of %s that looks like a bundle', (flag, value) => {
+      const result = parseCurlCommand(`curl ${flag} '${value}' http://example.com`)
+      expect(result.body).toBe(value)
+      expect(result.method).toBe('post')
+    })
+
+    it.each([
+      ['-xhttp://proxy.example.com:8080', 'http://proxy.example.com:8080'],
+      ['-Ahttp-client/1', 'http-client/1'],
+      ['-sSLohttp.out', 'http.out'],
+      ['-ehttps://referrer.example.com', 'https://referrer.example.com'],
+    ])('does not read the attached value of %s as the URL', (flags) => {
+      const result = parseCurlCommand(`curl ${flags} https://example.com/users -d name=example`)
+      expect(result.url).toBe('https://example.com/users')
+      expect(result.method).toBe('post')
+    })
+
+    it('keeps the method of -X when -G sends the data in the query', () => {
+      const result = parseCurlCommand(`curl -sGX POST -d 'name=value1' http://example.com`)
+      expect(result.method).toBe('post')
+      expect(result.queryParameters).toStrictEqual([{ key: 'name', value: 'value1' }])
+    })
+
+    it('does not expand the value of a header that looks like a bundle', () => {
+      const result = parseCurlCommand(`curl -H '-sG: x' http://example.com`)
+      expect(result.headers).toStrictEqual({ '-sG': 'x' })
+      expect(result.method).toBeUndefined()
+    })
+
+    it('still reads separate short flags and long flags', () => {
+      const result = parseCurlCommand('curl -s -L -X PUT --compressed --url http://example.com/a')
+      expect(result.method).toBe('put')
+      expect(result.url).toBe('http://example.com/a')
+    })
+  })
+
+  describe('json', () => {
+    it('sends --json as the body, defaults to POST and sets the JSON headers', () => {
+      const result = parseCurlCommand(`curl --json '{"name":"Ada"}' https://example.com/users`)
+      expect(result).toStrictEqual({
+        url: 'https://example.com/users',
+        servers: ['https://example.com'],
+        path: '/users',
+        queryParameters: [],
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: '{"name":"Ada"}',
+        method: 'post',
+      })
+    })
+
+    it.each([
+      ['-H "content-type: application/vnd.api+json"', 'content-type', 'application/vnd.api+json', 'Accept'],
+      ['-H "CONTENT-TYPE: text/plain"', 'CONTENT-TYPE', 'text/plain', 'Accept'],
+      ['-H "accept: text/plain"', 'accept', 'text/plain', 'Content-Type'],
+      ['-H "Accept: */*"', 'Accept', '*/*', 'Content-Type'],
+    ])('keeps the header the command sets with %s', (headerFlag, name, value, addedName) => {
+      const result = parseCurlCommand(`curl ${headerFlag} --json '{}' https://example.com/users`)
+      expect(result.headers).toStrictEqual({ [name]: value, [addedName]: 'application/json' })
+    })
+
+    it('keeps the headers of the command when they come after --json', () => {
+      const result = parseCurlCommand(
+        `curl --json '{}' -H 'Content-Type: text/plain' -H 'Accept: text/plain' https://example.com/users`,
+      )
+      expect(result.headers).toStrictEqual({ 'Content-Type': 'text/plain', Accept: 'text/plain' })
+    })
+
+    it('keeps an explicit method with --json', () => {
+      const result = parseCurlCommand(`curl -X PUT --json '{"name":"Ada"}' https://example.com/users/1`)
+      expect(result.method).toBe('put')
+    })
+
+    it('infers POST from --json data that is read from a file', () => {
+      const result = parseCurlCommand('curl --json @body.json https://example.com/users')
+      expect(result.method).toBe('post')
+      expect(result.body).toBe('')
+    })
+
+    it('joins repeated --json flags without an ampersand like curl', () => {
+      const result = parseCurlCommand(`curl --json '{"name":' --json '"Ada"}' https://example.com/users`)
+      expect(result.body).toBe('{"name":"Ada"}')
+    })
+
+    it('does not add the JSON headers for other data flags', () => {
+      const result = parseCurlCommand(`curl -d '{"name":"Ada"}' https://example.com/users`)
+      expect(result.headers).toBeUndefined()
+    })
+
+    it('does not add headers to a command without data', () => {
+      const result = parseCurlCommand('curl https://example.com/users')
+      expect(result.headers).toBeUndefined()
+    })
+  })
+
+  describe('empty data', () => {
+    it.each([
+      ['-d', `curl -d '' https://example.com/users`],
+      ['--data-raw', `curl --data-raw '' https://example.com/users`],
+      ['--data-binary', `curl --data-binary "" https://example.com/users`],
+      ['whitespace', `curl -d '   ' https://example.com/users`],
+      ['-d after the URL', `curl https://example.com/users -d ''`],
+      ['-d in a bundle', `curl -sd '' https://example.com/users`],
+      ['--json', `curl --json '' https://example.com/users`],
+    ])('keeps the URL and sends an empty POST for %s', (_, curlCommand) => {
+      const result = parseCurlCommand(curlCommand)
+      expect(result.url).toBe('https://example.com/users')
+      expect(result.body).toBe('')
+      expect(result.method).toBe('post')
+    })
+
+    it('ignores an empty data argument next to other data', () => {
+      const result = parseCurlCommand(`curl -d '' -d 'name=value1' https://example.com/users`)
+      expect(result.body).toBe('name=value1')
+    })
+
+    it('adds nothing to the query for empty data with -G', () => {
+      const result = parseCurlCommand(`curl -G -d '' https://example.com/users`)
+      expect(result.url).toBe('https://example.com/users')
+      expect(result.queryParameters).toStrictEqual([])
+    })
+
+    it('still ignores an empty argument where a flag is expected', () => {
+      const result = parseCurlCommand(`curl '' -d name=value1 '' https://example.com/users`)
+      expect(result.url).toBe('https://example.com/users')
+      expect(result.body).toBe('name=value1')
     })
   })
 })

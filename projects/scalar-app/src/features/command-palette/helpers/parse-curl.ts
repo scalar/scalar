@@ -2,19 +2,61 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { encode } from 'js-base64'
 import { parse as parseShellCommand } from 'shell-quote'
 
-/** Every flag that sends its next argument as request data. */
+/** Every flag that sends its next argument as request data, --json is handled apart because it also sets headers. */
 const DATA_FLAGS = new Set(['--data', '-d', '--data-raw', '--data-urlencode', '--data-binary', '--data-ascii'])
+
+/** Curl short flags that take a value, so the rest of a bundle like -XPOST or -sdfoo is that value rather than more flags. */
+const SHORT_FLAGS_WITH_VALUE = new Set('AbcCdDeEFHKmoPQrtTuUwxXyYz')
+
+/** The short flags with a value that are read below, an attached value of any other flag is dropped instead of read as an argument. */
+const READ_SHORT_FLAGS_WITH_VALUE = new Set('XHduPb')
+
+/** One argument of a data flag, flagged when it came from --json because curl joins those without an ampersand. */
+type DataPiece = { value: string; isJson: boolean }
+
+/** The headers --json sets unless the command already sets them. */
+const JSON_HEADERS = ['Content-Type', 'Accept']
+
+/** Short flags can be bundled (-sG) and carry their value attached (-XPOST), unlike long flags. */
+const isShortFlagBundle = (arg: string): boolean => arg.startsWith('-') && !arg.startsWith('--') && arg.length > 2
+
+/** Split a short flag bundle into the flags curl sees, stopping at the first flag that takes a value. */
+function splitShortFlags(bundle: string): string[] {
+  const [, ...flags] = [...bundle]
+  const tokens: string[] = []
+
+  for (const [index, flag] of flags.entries()) {
+    tokens.push(`-${flag}`)
+
+    if (SHORT_FLAGS_WITH_VALUE.has(flag)) {
+      const attachedValue = flags.slice(index + 1).join('')
+      if (attachedValue && READ_SHORT_FLAGS_WITH_VALUE.has(flag)) {
+        tokens.push(attachedValue)
+      }
+      break
+    }
+  }
+
+  return tokens
+}
+
+/** Empty arguments are not flags, so skip them wherever a flag or the value of a flag other than data is expected. */
+function nextArgument<T>(queue: T[]): T | undefined {
+  let next = queue.shift()
+  while (next === '') {
+    next = queue.shift()
+  }
+  return next
+}
 
 /** Parse and normalize a curl command */
 export function parseCurlCommand(curlCommand: string) {
-  const args = parseShellCommand(curlCommand)
-    .map((arg) => {
-      if (typeof arg === 'object' && 'op' in arg && arg.op === 'glob') {
-        return arg.pattern.trim()
-      }
-      return typeof arg === 'string' ? arg.trim() : arg
-    })
-    .filter((arg) => arg !== '')
+  const args = parseShellCommand(curlCommand).map((arg) => {
+    if (typeof arg === 'object' && 'op' in arg && arg.op === 'glob') {
+      return arg.pattern.trim()
+    }
+    return typeof arg === 'string' ? arg.trim() : arg
+  })
 
   const result: {
     url: string
@@ -25,14 +67,18 @@ export function parseCurlCommand(curlCommand: string) {
     servers?: string[]
   } = { url: '' }
 
-  const data: string[] = []
+  const data: DataPiece[] = []
   let isGet = false
 
-  const iterator = args[Symbol.iterator]()
+  const queue = [...args]
+  const iterator = { next: () => ({ value: nextArgument(queue) }) }
   let arg = iterator.next().value
 
-  while (arg) {
-    if (arg === '-X' || arg === '--request') {
+  while (arg !== undefined) {
+    if (typeof arg === 'string' && isShortFlagBundle(arg)) {
+      // Expand bundled and attached short flags e.g -sG or -XPOST
+      queue.unshift(...splitShortFlags(arg))
+    } else if (arg === '-X' || arg === '--request') {
       // Extract method e.g curl -X POST
       parseMethod(iterator as Iterator<string>, result)
     } else if (arg === '--url') {
@@ -42,7 +88,10 @@ export function parseCurlCommand(curlCommand: string) {
       // Extract headers e.g -H 'Content-Type: application/json'
       parseHeader(iterator as Iterator<string>, result)
     } else if (typeof arg === 'string' && DATA_FLAGS.has(arg)) {
-      parseData(iterator as Iterator<string>, data)
+      parseData(queue, data, arg)
+    } else if (arg === '--json') {
+      // Send the data as JSON e.g curl --json '{"a":1}'
+      parseData(queue, data, arg)
     } else if (arg === '-G' || arg === '--get') {
       // Send the data in the query string instead of the body e.g curl -G -d 'a=b'
       isGet = true
@@ -168,18 +217,30 @@ function parseCookie(iterator: Iterator<string>, result: any) {
   }
 }
 
-/** Collect the data of a curl data flag, curl sends the repeated flags joined with an ampersand */
-function parseData(iterator: Iterator<string>, data: string[]) {
-  const nextArg = iterator.next().value
+/** Collect the data of a curl data flag, an empty value is still data and the value of a flag is never another flag. */
+function parseData(queue: unknown[], data: DataPiece[], flag: string) {
+  const nextArg = queue.shift()
   if (typeof nextArg === 'string') {
-    // Mock reading data from file
-    data.push(nextArg.startsWith('@') ? '' : nextArg)
+    // Mock reading data from file, --data-raw is the only flag that sends an @ as it is
+    const isFile = nextArg.startsWith('@') && flag !== '--data-raw'
+    data.push({ value: isFile ? '' : nextArg, isJson: flag === '--json' })
   }
 }
 
+/** Curl joins repeated data flags with an ampersand and repeated --json flags without one. */
+function joinData(data: DataPiece[]): string {
+  return data
+    .filter(({ value }) => value)
+    .reduce((joined, { value, isJson }) => (joined ? `${joined}${isJson ? '' : '&'}${value}` : value), '')
+}
+
 /** Curl appends the data to the URL with -G, otherwise sends it as the body and defaults the method to POST */
-function applyData(result: any, data: string[], isGet: boolean) {
-  const joinedData = data.filter(Boolean).join('&')
+function applyData(result: any, data: DataPiece[], isGet: boolean) {
+  if (data.some(({ isJson }) => isJson)) {
+    applyJsonHeaders(result)
+  }
+
+  const joinedData = joinData(data)
 
   if (isGet) {
     const dataQueryParameters = parseQueryParameters(`?${joinedData}`)
@@ -191,4 +252,16 @@ function applyData(result: any, data: string[], isGet: boolean) {
 
   result.body = joinedData
   result.method ??= 'post'
+}
+
+/** Curl only adds the JSON headers of --json when the command does not set them, whatever their case. */
+function applyJsonHeaders(result: any) {
+  result.headers = result.headers || {}
+  const existingNames = new Set(Object.keys(result.headers).map((name) => name.toLowerCase()))
+
+  for (const name of JSON_HEADERS) {
+    if (!existingNames.has(name.toLowerCase())) {
+      result.headers[name] = 'application/json'
+    }
+  }
 }

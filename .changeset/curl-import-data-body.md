@@ -2,4 +2,4 @@
 'scalar-app': patch
 ---
 
-Import cURL data flags as the request body and default the method to POST, as curl does. A command such as Chrome's copy as cURL for a POST, which has no `-X`, is no longer imported as a GET, a body placed before the URL is no longer turned into a query parameter, and a `-G` anywhere else in the command no longer counts as the flag. Data is added to the query string only with `-G` or `--get`, and repeated data flags are joined with an ampersand instead of keeping the last one.
+Import cURL data flags as the request body and default the method to POST, as curl does, so Chrome's copy as cURL for a POST is no longer a GET and a body before the URL is no longer a query parameter. Only `-G` or `--get`, also inside a bundle such as `-sG`, puts the data in the query string, repeated data flags are joined with an ampersand, `--json` sends JSON with its headers, attached short flags such as `-XPOST` are read, and `-d ''` no longer swallows the URL.
