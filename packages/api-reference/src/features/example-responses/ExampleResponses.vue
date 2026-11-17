@@ -39,6 +39,7 @@ import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
 import { getExampleContent } from './helpers/get-example-content'
+import { getExampleLanguage } from './helpers/get-example-language'
 import { getResponseVariants } from './helpers/get-response-variants'
 import { hasResponseContent } from './helpers/has-response-content'
 
@@ -251,6 +252,7 @@ watch(
 
 const exampleResult = computed(() => {
   let error: XmlDiagnostic | undefined
+  let language = getExampleLanguage(currentContentType.value)
   const content = externalExamples.pending.value
     ? undefined
     : getExampleContent(currentResponseContent.value, currentExample.value, {
@@ -264,13 +266,16 @@ const exampleResult = computed(() => {
           : undefined,
         openapiVersion,
         jsonSchemaDialect,
+        onLanguage: (value) => {
+          language = value
+        },
         onDiagnostic: (diagnostic) => {
           if (diagnostic.severity === 'error' && !error) {
             error = diagnostic
           }
         },
       })
-  return { content, error }
+  return { content, error, language }
 })
 const exampleContent = computed(() => exampleResult.value.content)
 </script>
@@ -354,6 +359,7 @@ const exampleContent = computed(() => exampleResult.value.content)
         :example="currentExample"
         :generationError="exampleResult.error"
         :jsonSchemaDialect
+        :language="exampleResult.language"
         :openapiVersion
         :pending="externalExamples.pending.value"
         :response="currentResponseContent" />

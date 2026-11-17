@@ -17,6 +17,8 @@ import type {
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { type ExampleLanguage, getExampleLanguage } from './get-example-language'
+
 /** Keep the displayed response and its clipboard action on the same resolved, formatted value. */
 export const getExampleContent = (
   response: MediaTypeObject | undefined,
@@ -27,14 +29,25 @@ export const getExampleContent = (
     openapiVersion,
     jsonSchemaDialect,
     onDiagnostic,
+    onLanguage,
   }: {
     onDiagnostic?: XmlExampleOptions['onDiagnostic']
     openapiVersion?: string
     jsonSchemaDialect?: string
     contentType?: string
     compositionSelection?: Record<string, number>
+    /** Report the rendered grammar when structured data falls back to JSON formatting. */
+    onLanguage?: (language: ExampleLanguage) => void
   } = {},
 ): string | undefined => {
+  onLanguage?.(getExampleLanguage(contentType))
+  // Non-JSON media types do not have a general-purpose serializer. When their
+  // structured values are displayed as JSON, keep that representation's label.
+  const reportStructuredLanguage = (value: unknown): void => {
+    if (typeof value === 'object' && value !== null) {
+      onLanguage?.('json')
+    }
+  }
   if (isXmlMediaType(contentType)) {
     return getXmlBodyExample(response?.schema as SchemaObject | undefined, example, {
       mode: 'read',
@@ -55,13 +68,19 @@ export const getExampleContent = (
       if (typeof value === 'string') {
         return value
       }
-      return serializeStreamExample(value, contentType, false) ?? JSON.stringify(value, null, 2)
+      const stream = serializeStreamExample(value, contentType, false)
+      if (stream !== undefined) {
+        return stream
+      }
+      reportStructuredLanguage(value)
+      return JSON.stringify(value, null, 2)
     }
     const explicitText = getExplicitExampleText(selected, contentType, 2)
     if (explicitText !== undefined) {
       return explicitText
     }
     const value = selected?.value
+    reportStructuredLanguage(value)
     if (selected?.source === 'value') {
       // Keep the formatter's expansion budget for shared, resolved legacy examples.
       return prettyPrintJson((value === undefined ? '' : value) as Parameters<typeof prettyPrintJson>[0])
@@ -82,11 +101,13 @@ export const getExampleContent = (
     if (content === undefined) {
       return undefined
     }
+    const stream = serializeStreamExample(content, contentType, response?.schema === undefined)
+    if (stream !== undefined) {
+      return stream
+    }
+    reportStructuredLanguage(content)
     // Schema generation returns unknown, but produces JSON values supported by the formatter.
-    return (
-      serializeStreamExample(content, contentType, response?.schema === undefined) ??
-      prettyPrintJson(content as Parameters<typeof prettyPrintJson>[0])
-    )
+    return prettyPrintJson(content as Parameters<typeof prettyPrintJson>[0])
   }
 
   return undefined

@@ -18,6 +18,24 @@ const displayedExample = (wrapper: VueWrapper): string =>
   wrapper.findComponent({ name: 'ExampleResponse' }).props('content') as string
 
 describe('ExampleResponses', () => {
+  it('keeps generated JSON labeled correctly when the card shares its HTML example', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Structure without HTML serialization',
+            content: {
+              'text/html': { schema: { type: 'object', properties: { id: { type: 'integer', const: 7 } } } },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.get('button[aria-label="Copy JSON code"]').text()).toContain('JSON')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe('{\n  "id": 7\n}')
+    wrapper.unmount()
+  })
+
   it('updates the language label and copy content when selecting CSV after JSON', async () => {
     const csv = 'id,name\n1,Ada\n'
     const wrapper = mount(ExampleResponses, {

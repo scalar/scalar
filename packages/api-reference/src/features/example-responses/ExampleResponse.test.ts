@@ -15,6 +15,32 @@ import { provideLocalization } from '@/features/localization'
 import ExampleResponse from './ExampleResponse.vue'
 
 describe('ExampleResponse', () => {
+  it.each(['text/html', 'application/yaml', 'text/csv'])(
+    'keeps generated structures labeled JSON for %s',
+    (contentType) => {
+      const wrapper = mount(ExampleResponse, {
+        props: {
+          contentType,
+          example: undefined,
+          response: { schema: { type: 'object', properties: { id: { type: 'integer', const: 7 } } } },
+        },
+      })
+      expect(wrapper.get('button[aria-label="Copy JSON code"]').text()).toContain('JSON')
+      expect(wrapper.getComponent(ScalarCopy).props('content')).toBe('{\n  "id": 7\n}')
+      wrapper.unmount()
+    },
+  )
+
+  it('keeps structured authored data labeled JSON in a virtualized HTML example', () => {
+    const value = { message: 'x'.repeat(20_001) }
+    const wrapper = mount(ExampleResponse, {
+      props: { contentType: 'text/html', response: undefined, example: { dataValue: value } },
+    })
+    expect(wrapper.get('button[aria-label="Copy JSON code"]').text()).toContain('JSON')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(JSON.stringify(value, null, 2))
+    wrapper.unmount()
+  })
+
   it.each([
     { contentType: 'text/csv', value: 'id,name\n1,Ada\n', label: 'Plain Text' },
     { contentType: 'TEXT/CSV; charset=utf-8', value: 'id,name\n1,Ada\n', label: 'Plain Text' },

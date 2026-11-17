@@ -13,13 +13,17 @@ import { computed } from 'vue'
 import { useLocalization } from '@/features/localization'
 
 import { getExampleContent } from './helpers/get-example-content'
-import { getExampleLanguage } from './helpers/get-example-language'
+import {
+  type ExampleLanguage,
+  getExampleLanguage,
+} from './helpers/get-example-language'
 
 const {
   example,
   response,
   content,
   contentType = 'application/json',
+  language: contentLanguage,
   openapiVersion,
   jsonSchemaDialect,
   generationError,
@@ -35,6 +39,8 @@ const {
   generationError?: XmlDiagnostic
   pending?: boolean
   contentType?: string
+  /** Grammar selected while formatting the shared content. */
+  language?: ExampleLanguage
 }>()
 const { translate } = useLocalization()
 
@@ -43,6 +49,7 @@ const resolvedExample = computed(() => getResolvedRef(example))
 /** Preformatted content is shared with the response card clipboard action. */
 const generatedExample = computed(() => {
   let error = generationError
+  let language = getExampleLanguage(contentType)
   const value =
     pending || error
       ? undefined
@@ -51,16 +58,21 @@ const generatedExample = computed(() => {
           contentType,
           openapiVersion,
           jsonSchemaDialect,
+          onLanguage: (formattedLanguage) => {
+            language = formattedLanguage
+          },
           onDiagnostic: (diagnostic) => {
             if (diagnostic.severity === 'error' && error === undefined) {
               error = diagnostic
             }
           },
         }))
-  return { value, error }
+  return { value, error, language }
 })
 const prettyPrintedContent = computed(() => generatedExample.value.value)
-const language = computed(() => getExampleLanguage(contentType))
+const language = computed<ExampleLanguage>(
+  () => contentLanguage ?? generatedExample.value.language,
+)
 const errorMessage = computed(() => {
   const error = generatedExample.value.error
   if (!error) {
