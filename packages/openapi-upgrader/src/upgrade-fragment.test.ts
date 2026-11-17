@@ -248,4 +248,127 @@ describe('upgrade-fragment', () => {
       output: ['content', 'multipart/form-data', 'encoding', 'file', 'headers', 'Checksum', 'schema'],
     })
   })
+  it.each(['2.0', '3.0'] as const)('upgrades inline legacy schemas carrying $schema in %s documents', async (from) => {
+    const schema = {
+      $schema: 'http://json-schema.org/draft-04/schema#',
+      properties: {
+        name: { type: 'string', ...(from === '2.0' ? { 'x-nullable': true } : { nullable: true }) },
+        age: { type: 'integer', minimum: 0, exclusiveMinimum: true },
+      },
+    }
+    const result = await upgradeFragment(
+      from === '2.0'
+        ? { swagger: '2.0', definitions: { Pet: schema } }
+        : {
+            openapi: '3.0.3',
+            components: { schemas: { Pet: schema } },
+          },
+      { from, to: '3.1', kind: 'document' },
+    )
+    expect((result.value as { components: { schemas: { Pet: unknown } } }).components.schemas.Pet).toStrictEqual({
+      $schema: schema.$schema,
+      properties: { name: { type: ['string', 'null'] }, age: { type: 'integer', exclusiveMinimum: 0 } },
+    })
+  })
+
+  it('retains the dialect of a standalone schema resource', async () => {
+    const schema = { $schema: 'http://json-schema.org/draft-04/schema#', type: 'string', nullable: true }
+    const result = await upgradeFragment(schema, { from: '3.0', to: '3.1', kind: 'schema' })
+    expect(result.value).toStrictEqual(schema)
+  })
+
+  it('retains unresolved parameters when the source lookup rejects', async () => {
+    const result = await upgradeFragment(
+      { parameters: [{ $ref: './missing.yaml' }] },
+      {
+        from: '2.0',
+        to: '3.1',
+        kind: 'operation',
+        resolveSource: () => Promise.reject(new Error('Not found')),
+      },
+    )
+    expect(result.value).toStrictEqual({ parameters: [{ $ref: './missing.yaml' }] })
+  })
+
+  it('keeps allOf locations when nullable conversion retains allOf', async () => {
+    const result = await upgradeFragment(
+      { nullable: true, $ref: '#/Pet', allOf: [{ type: 'string' }] },
+      {
+        from: '3.0',
+        to: '3.1',
+        kind: 'schema',
+      },
+    )
+    expect(result.locations.find(({ source }) => source.join('/') === 'allOf/0')).toStrictEqual({
+      source: ['allOf', '0'],
+      output: ['allOf', '0'],
+    })
+  })
+
+  it('converts 2.0 x-webhooks without dropping their contents', async () => {
+    const result = await upgradeFragment(
+      {
+        swagger: '2.0',
+        'x-webhooks': {
+          event: {
+            post: { responses: { '200': { description: 'OK', schema: { type: 'string', 'x-nullable': true } } } },
+          },
+        },
+      },
+      { from: '2.0', to: '3.1', kind: 'document' },
+    )
+    expect((result.value as { webhooks: unknown }).webhooks).toStrictEqual({
+      event: {
+        post: {
+          responses: {
+            '200': { description: 'OK', content: { 'application/json': { schema: { type: ['string', 'null'] } } } },
+          },
+        },
+      },
+    })
+  })
+
+  it('uses operation media types over document defaults', async () => {
+    const result = await upgradeFragment(
+      {
+        swagger: '2.0',
+        produces: ['application/json'],
+        paths: {
+          '/pets': {
+            get: {
+              produces: ['application/xml'],
+              responses: { '200': { description: 'OK', schema: { type: 'string' } } },
+            },
+          },
+        },
+      },
+      { from: '2.0', to: '3.1', kind: 'document' },
+    )
+    expect(
+      (result.value as { paths: Record<string, { get: { responses: unknown } }> }).paths['/pets']?.get.responses,
+    ).toStrictEqual({
+      '200': { description: 'OK', content: { 'application/xml': { schema: { type: 'string' } } } },
+    })
+  })
+
+  it.each([
+    { collectionFormat: 'multi', style: 'form', explode: true },
+    { collectionFormat: 'pipes', style: 'pipeDelimited', explode: false },
+  ])('preserves $collectionFormat parameter serialization', async ({ collectionFormat, style, explode }) => {
+    const result = await upgradeFragment(
+      { name: 'tags', in: 'query', type: 'array', items: { type: 'string' }, collectionFormat },
+      {
+        from: '2.0',
+        to: '3.1',
+        kind: 'parameter',
+      },
+    )
+    expect(result.value).toStrictEqual({
+      name: 'tags',
+      in: 'query',
+      schema: { type: 'array', items: { type: 'string' } },
+      style,
+      explode,
+    })
+  })
 })

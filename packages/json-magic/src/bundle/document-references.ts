@@ -221,9 +221,7 @@ export const documentReferences = (
     let identifier = ''
     let retrievalOrigin = retrievalBase
     for (const key of targetPath) {
-      if (target === null || typeof target !== 'object') {
-        return
-      }
+      if (target === null || typeof target !== 'object') return
       origin = origins.get(target) ?? origin
       retrievalOrigin = retrievalOrigins.get(target) ?? retrievalOrigin
       identifier = identifySchema(target)?.id ?? identifier

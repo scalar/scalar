@@ -28,7 +28,10 @@ export type FragmentKind =
   | 'request-body'
   | 'callback'
 
-/** Original and converted JSON Pointer segments, relative to the fragment root. */
+/** Original and converted JSON Pointer segments, relative to the fragment root.
+ * Apply the longest source prefix to authored pointers; the first output is canonical when media types copy a schema.
+ * Generated bundle pointers and already converted discriminator mappings must not be remapped.
+ */
 export type FragmentLocation = { source: readonly string[]; output: readonly string[] }
 
 /** Context required to interpret a fragment that has no version header. */
@@ -38,14 +41,20 @@ export type FragmentUpgradeOptions = {
   kind: FragmentKind
   consumes?: readonly string[]
   produces?: readonly string[]
-  /** Inspect referenced parameters before deciding which operation field owns them. */
+  /**
+   * Resolve original 2.0 parameter aliases before choosing parameters or requestBody.
+   * Return source content with nested refs rebased to the consuming resource. Failed lookups
+   * retain the authored reference. Without this callback, referenced body/form parameters stay in parameters.
+   */
   resolveSource?: (ref: string) => Promise<unknown>
 }
 
 /** Converted content and the locations of original reference targets. */
 export type FragmentUpgradeResult = {
   value: unknown
+  /** Relocations in parent-before-child order. Unchanged descendants may inherit a parent mapping. */
   locations: FragmentLocation[]
+  /** Effective operation media types, needed when later loading bare external fragments. */
   contexts: { path: readonly string[]; consumes: readonly string[]; produces: readonly string[] }[]
 }
 
@@ -78,9 +87,16 @@ type FragmentTraversalContext = {
   parameterSources?: string[][]
 }
 
+/** Define authored keys without invoking inherited setters. */
+const setOwn = (target: UnknownObject, key: string, value: unknown): void => {
+  Object.defineProperty(target, key, { value, enumerable: true, configurable: true, writable: true })
+}
+
 /**
  * Upgrade a complete document or a typed fragment without inventing a wrapper document.
- * Literal examples and extension payloads are copied without schema transformations.
+ * Returns a copy; literal examples and extension payloads remain data.
+ * Authored references retain source pointers: use locations to resolve them against converted content.
+ * A standalone schema resource with $schema retains its declared dialect.
  */
 export const upgradeFragment = async (
   input: unknown,
@@ -98,7 +114,10 @@ export const upgradeFragment = async (
     if (cached) {
       return cached
     }
-    const resolved = options.resolveSource(parameter.$ref)
+    const resolved = Promise.resolve()
+      .then(() => options.resolveSource?.(parameter.$ref as string))
+      .then((value) => value ?? parameter)
+      .catch(() => parameter)
     resolvedParameters.set(parameter.$ref, resolved)
     return resolved
   }
@@ -126,13 +145,13 @@ export const upgradeFragment = async (
   ): Promise<unknown> => {
     remember(source, output)
     if (!isObject(value)) {
-      return structuredClone(value)
+      return value
     }
     // A declared JSON Schema dialect must not be interpreted as an OpenAPI 3.0 schema.
-    if (kind === 'schema' && typeof value.$schema === 'string') {
-      return structuredClone(value)
+    if (kind === 'schema' && options.kind === 'schema' && source.length === 0 && typeof value.$schema === 'string') {
+      return value
     }
-    let result: UnknownObject = structuredClone(value)
+    let result: UnknownObject = { ...value }
     const child = (entry: unknown, childKind: FragmentKind, from: string[], to: string[] = from): Promise<unknown> =>
       visit(entry, {
         kind: childKind,
@@ -153,12 +172,7 @@ export const upgradeFragment = async (
         return converted
       }
       for (const [name, entry] of Object.entries(entries)) {
-        Object.defineProperty(converted, name, {
-          value: await child(entry, childKind, [...from, name], [...to, name]),
-          enumerable: true,
-          configurable: true,
-          writable: true,
-        })
+        setOwn(converted, name, await child(entry, childKind, [...from, name], [...to, name]))
       }
       return converted
     }
@@ -173,10 +187,10 @@ export const upgradeFragment = async (
       result = v2 ? upgradeFromTwoToThree(metadata) : result
       result.openapi = '3.1.1'
       if (v2 && isObject(definitions)) {
-        Object.values(definitions).forEach(migrateSchema)
+        Object.values(definitions).forEach((schema) => migrateSchema(schema))
         migrateDiscriminatorMappings(definitions)
       }
-      const convertedComponents: UnknownObject = isObject(components) ? structuredClone(components) : {}
+      const convertedComponents: UnknownObject = isObject(components) ? { ...components } : {}
       const sections: [unknown, FragmentKind, string[], string[]][] = v2
         ? [
             [definitions, 'schema', ['definitions'], ['components', 'schemas']],
@@ -202,11 +216,10 @@ export const upgradeFragment = async (
         }
         const values: UnknownObject = {}
         for (const [name, entry] of Object.entries(entries)) {
-          Object.defineProperty(values, name, {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: await visit(entry, {
+          setOwn(
+            values,
+            name,
+            await visit(entry, {
               kind: childKind,
               source: [...source, ...from, name],
               output: [...output, ...to, name],
@@ -214,21 +227,21 @@ export const upgradeFragment = async (
               produces: sourceProduces,
               semanticPath: [...to, name],
             }),
-          })
+          )
         }
         convertedComponents[to[1]!] = values
       }
       if (v2 && isObject(parameters)) {
         for (const [name, parameter] of Object.entries(parameters)) {
-          const body = isObject(parameter) && (parameter.in === 'body' || parameter.in === 'formData')
+          const resolved = await resolveParameter(parameter)
+          const body = isObject(resolved) && (resolved.in === 'body' || resolved.in === 'formData')
           const section = body ? 'requestBodies' : 'parameters'
           const entries = isObject(convertedComponents[section]) ? convertedComponents[section] : {}
           convertedComponents[section] = entries
-          Object.defineProperty(entries, name, {
-            enumerable: true,
-            configurable: true,
-            writable: true,
-            value: await visit(parameter, {
+          setOwn(
+            entries,
+            name,
+            await visit(body ? structuredClone(resolved) : parameter, {
               kind: body ? 'request-body' : 'parameter',
               source: [...source, 'parameters', name],
               output: [...output, 'components', section, name],
@@ -236,7 +249,7 @@ export const upgradeFragment = async (
               produces: sourceProduces,
               semanticPath: ['components', section, name],
             }),
-          })
+          )
         }
       }
       if (Object.keys(convertedComponents).length) {
@@ -246,7 +259,7 @@ export const upgradeFragment = async (
         const convertedPaths: UnknownObject = {}
         result.paths = convertedPaths
         for (const [name, entry] of Object.entries(paths)) {
-          convertedPaths[name] = name.startsWith('x-')
+          const converted = name.startsWith('x-')
             ? structuredClone(entry)
             : await visit(entry, {
                 kind: 'path-item',
@@ -256,9 +269,10 @@ export const upgradeFragment = async (
                 produces: sourceProduces,
                 semanticPath: ['paths', name],
               })
+          setOwn(convertedPaths, name, converted)
         }
       }
-      if (isObject(value['x-webhooks']) && !v2) {
+      if (isObject(value['x-webhooks'])) {
         result.webhooks = await map(value['x-webhooks'], 'path-item', ['x-webhooks'], ['webhooks'])
       }
       delete result['x-webhooks']
@@ -267,12 +281,7 @@ export const upgradeFragment = async (
     if (kind === 'callback') {
       for (const [expression, pathItem] of Object.entries(value)) {
         if (!expression.startsWith('x-') && expression !== '$ref') {
-          Object.defineProperty(result, expression, {
-            value: await child(pathItem, 'path-item', [expression]),
-            enumerable: true,
-            configurable: true,
-            writable: true,
-          })
+          setOwn(result, expression, await child(pathItem, 'path-item', [expression]))
         }
       }
       return result
@@ -394,7 +403,7 @@ export const upgradeFragment = async (
         const convertedResponses: UnknownObject = {}
         result.responses = convertedResponses
         for (const [status, response] of Object.entries(value.responses)) {
-          convertedResponses[status] = await visit(response, {
+          const converted = await visit(response, {
             kind: 'response',
             source: [...source, 'responses', status],
             output: [...output, 'responses', status],
@@ -402,6 +411,7 @@ export const upgradeFragment = async (
             produces: effectiveProduces,
             semanticPath: [...semanticPath, 'responses', status],
           })
+          setOwn(convertedResponses, status, converted)
         }
       }
       if (isObject(value.requestBody)) {
@@ -413,7 +423,7 @@ export const upgradeFragment = async (
     }
     if (kind === 'schema') {
       if (v2) {
-        migrateSchema(result)
+        migrateSchema(result, false)
         if (result.type === 'file') {
           result.type = 'string'
           result.format = 'binary'
@@ -432,7 +442,7 @@ export const upgradeFragment = async (
       }
       const nullable = result.nullable === true
       const converted = applyChangesToDocument(result, semanticPath)
-      if (nullable && Array.isArray(result.allOf) && converted !== result) {
+      if (nullable && Array.isArray(result.allOf) && Array.isArray(converted.anyOf) && !converted.allOf) {
         for (const location of locations) {
           const prefix = [...output, 'allOf']
           if (prefix.every((segment, index) => location.output[index] === segment)) {
@@ -479,7 +489,9 @@ export const upgradeFragment = async (
       }
     }
     if (v2 && kind === 'response' && !result.$ref) {
-      result = transformResponseObject(result, [...produces])
+      const { headers, ...response } = result
+      result = transformResponseObject(response, [...produces])
+      if (headers !== undefined) result.headers = headers
       for (const media of produces) {
         remember([...source, 'schema'], [...output, 'content', media, 'schema'])
       }
@@ -524,7 +536,7 @@ export const upgradeFragment = async (
     return result
   }
   const semanticPath = options.kind === 'schema' ? ['components', 'schemas', 'fragment'] : []
-  const value = await visit(input, {
+  const value = await visit(structuredClone(input), {
     kind: options.kind,
     source: [],
     output: [],

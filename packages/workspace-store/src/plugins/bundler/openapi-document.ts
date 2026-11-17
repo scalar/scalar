@@ -16,7 +16,11 @@ export const resolveOpenApiDocument: DocumentResolver = (document, retrievalUri)
 }
 
 /** Honors `$self` for complete OpenAPI documents, including external and cached documents. */
-export const openApiDocument = (options?: { preserveOriginalRefs?: boolean }): LifecyclePlugin => {
+export const openApiDocument = (options?: {
+  preserveOriginalRefs?: boolean
+  /** The caller already supplies the node location within the complete bundle. */
+  useContextPath?: boolean
+}): LifecyclePlugin => {
   const authoredRefs = new WeakMap<object, string>()
   const paths = new WeakMap<object, readonly string[]>()
   const indexPaths = (value: unknown, path: readonly string[]): void => {
@@ -38,7 +42,8 @@ export const openApiDocument = (options?: { preserveOriginalRefs?: boolean }): L
       ) {
         // Partial bundles report paths relative to the selected subtree. Index the supplied root
         // so the saved references can also be restored when exporting the entire document.
-        indexPaths(context.rootNode, [])
+        if (options?.useContextPath) paths.set(node, context.path)
+        else indexPaths(context.rootNode, [])
         authoredRefs.set(node, node.$ref)
       }
     },

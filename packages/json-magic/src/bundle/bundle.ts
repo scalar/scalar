@@ -376,8 +376,10 @@ type NodeProcessContext = {
   ) => { path: readonly string[]; value: unknown; resourceRelative: boolean } | undefined
 }
 
-/** Resource loading is shared by transforms and the bundler; source values are never upgraded in place. */
+/** Resource loading is shared by transforms and the bundler. Bundling mutates input, cache, and target resources. */
 export type DocumentLoadContext = {
+  /** True for resources already stored inside the input bundle. */
+  stored?: boolean
   uri: string
   loadDocument: (uri: string) => Promise<ResolveResult>
 }
@@ -392,7 +394,9 @@ export type TargetProcessContext = {
   referenceSource: DocumentLocation
 }
 
-/** A transformed target may occupy a separate path when its interpretation depends on the referring context. */
+/** A transformed value is written at path (the original target path by default).
+ * An empty path replaces the resource keys; a separate path retains contextual variants.
+ */
 export type TargetTransformation = { value: unknown; path?: readonly string[] }
 
 /**
@@ -445,7 +449,7 @@ export type Config = {
    * ensuring proper path resolution for nested references.
    */
   root?: UnknownObject
-  /** Location of a partial input within root, for lifecycle context. */
+  /** Location of a partial input within root; prefixes context.path for every node lifecycle hook. */
   inputPath?: readonly string[]
 
   /**
@@ -520,7 +524,9 @@ export type Config = {
   hooks?: Partial<{
     /** Transform a parsed resource before it is indexed, including input and cached resources. */
     onDocumentLoaded: (document: unknown, context: DocumentLoadContext) => unknown | Promise<unknown>
-    /** Transform a resolved fragment before traversing it. Return undefined to leave it unchanged. */
+    /** Transform a resolved fragment before traversing it. Return undefined to leave it unchanged.
+     * Returned values are written into the resource at path; path: [] replaces its keys.
+     */
     onBeforeTargetProcess: (
       target: unknown,
       context: TargetProcessContext,
@@ -703,9 +709,7 @@ export const bundleDocument = async (
   const sourceDocuments = new Map<string, Promise<ResolveResult>>()
   const loadDocument = (uri: string): Promise<ResolveResult> => {
     const existing = sourceDocuments.get(uri)
-    if (existing) {
-      return existing
-    }
+    if (existing) return existing
     const pending =
       config.cache?.get(uri) ??
       config.cache?.get(toRelativePath(uri, getDefaultOrigin())) ??
@@ -714,14 +718,14 @@ export const bundleDocument = async (
     return pending
   }
   const preparedDocuments = new Map<unknown, unknown>()
-  const prepareDocument = async (value: unknown, uri: string): Promise<unknown> => {
+  const prepareDocument = async (value: unknown, uri: string, stored = false): Promise<unknown> => {
     if (preparedDocuments.has(value)) {
       return preparedDocuments.get(value)
     }
     let document = value
     for (const hook of [config.hooks?.onDocumentLoaded, ...lifecyclePlugin.map((plugin) => plugin.onDocumentLoaded)]) {
       if (hook) {
-        document = (await hook(document, { uri, loadDocument })) ?? document
+        document = (await hook(document, { uri, loadDocument, stored })) ?? document
       }
     }
     preparedDocuments.set(value, document)
@@ -838,9 +842,7 @@ export const bundleDocument = async (
         (node) => traversal.location(node)?.context !== 'data',
         (node, ref) => {
           const context = traversal.location(node)?.context
-          if (context && !isReferenceContext(context)) {
-            return undefined
-          }
+          if (context && !isReferenceContext(context)) return undefined
           const target = references.resolve(ref, references.origin(node) ?? defaultOrigin)
           return target?.value !== undefined ? `#/${target.path}` : ref
         },
@@ -925,7 +927,7 @@ export const bundleDocument = async (
     for (const [key, document] of Object.entries(storedDocuments)) {
       const source = Object.hasOwn(mappings, key) ? mappings[key] : undefined
       const retrievalUri = bundledDocumentUri(defaultOrigin, key, source)
-      const prepared = await prepareDocument(document, retrievalUri)
+      const prepared = await prepareDocument(document, retrievalUri, true)
       if (prepared !== document) {
         Object.defineProperty(storedDocuments, key, {
           value: prepared,
@@ -951,9 +953,7 @@ export const bundleDocument = async (
     if (result.ok) {
       const retrievalUri = resolveReferencePath(defaultOrigin, uri)
       const relativeUri = toRelativePath(retrievalUri, defaultOrigin)
-      if (diagnostics) {
-        cache.set(relativeUri, pending)
-      }
+      if (diagnostics) cache.set(relativeUri, pending)
       const key = await generate(relativeUri)
       sourceDocuments.set(retrievalUri, pending)
       const data = await prepareDocument(result.data, retrievalUri)
@@ -975,13 +975,9 @@ export const bundleDocument = async (
     origin: string,
     key: string,
   ): ReturnType<typeof documentReferences> => {
-    if (!isChunk) {
-      return references
-    }
+    if (!isChunk) return references
     const existing = chunkReferences.get(origin)
-    if (existing) {
-      return existing
-    }
+    if (existing) return existing
     const targets = documentReferences(config.externalDocumentsKey)
     targets.register(document, origin, [config.externalDocumentsKey, key])
     chunkReferences.set(origin, targets)
@@ -1045,9 +1041,7 @@ export const bundleDocument = async (
 
   /** Retain complete source documents until every reference has been checked. */
   const applyDeferredCopies = (): void => {
-    if (!diagnostics || !config.treeShake || diagnostics.length > 0) {
-      return
-    }
+    if (!diagnostics || !config.treeShake || diagnostics.length > 0) return
     if (storedDocuments === undefined) {
       delete documentRoot[config.externalDocumentsKey]
     } else {
@@ -1077,9 +1071,7 @@ export const bundleDocument = async (
     }
 
     const location = traversal.location(root)
-    if (location?.context === 'data') {
-      return
-    }
+    if (location?.context === 'data') return
 
     // Skip if this node has already been processed to prevent infinite recursion
     // and duplicate processing of the same node
@@ -1157,9 +1149,7 @@ export const bundleDocument = async (
         await visitChildren()
       }
       if (config.preserveReference?.(ref, { origin: nodeOrigin })) {
-        if (config.traversal !== 'document') {
-          await visitChildren()
-        }
+        if (config.traversal !== 'document') await visitChildren()
         await executeHooks('onAfterNodeProcess', root, context)
         return
       }
@@ -1280,9 +1270,7 @@ export const bundleDocument = async (
         pendingAnchors.push(async () => {
           const target = references.resolve(ref, nodeOrigin)
           if (target?.value !== undefined) {
-            if (!target.preserveReference) {
-              root.$ref = referenceToRoot(`#/${target.path}`, nodeOrigin)
-            }
+            if (!target.preserveReference) root.$ref = referenceToRoot(`#/${target.path}`, nodeOrigin)
           } else {
             report('missing-target')
             await executeHooks('onResolveError', root)
@@ -1441,9 +1429,7 @@ export const bundleDocument = async (
       await executeHooks('onResolveError', root)
 
       await executeHooks('onAfterNodeProcess', root, context)
-      if (diagnostics) {
-        return
-      }
+      if (diagnostics) return
       return console.warn(
         `Failed to resolve external reference "${resolvedPath}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )

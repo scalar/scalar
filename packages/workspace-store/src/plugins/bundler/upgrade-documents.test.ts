@@ -390,4 +390,163 @@ describe('upgrade-documents', () => {
     expect(read(input, ['components', 'parameters', 'Filter', '$ref-value'])).toStrictEqual(parameter)
     expect(parameter).not.toHaveProperty('schema')
   })
+  it.each(['/srv/specs/swagger.yaml', 'https://example.com/swagger.yaml'])(
+    'keeps local body schema references local with origin %s',
+    async (origin) => {
+      const input = {
+        swagger: '2.0',
+        parameters: {
+          Body: { in: 'body', name: 'body', schema: { $ref: '#/definitions/Pet' } },
+          Limit: { in: 'query', name: 'limit', type: 'integer' },
+        },
+        definitions: { Pet: { type: 'string' } },
+        paths: {
+          '/pets': {
+            post: {
+              parameters: [{ $ref: '#/parameters/Body' }, { $ref: '#/parameters/Limit' }],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+      const externalLoads = vi.fn(() => Promise.resolve({ ok: false as const, error: 'Unexpected external load' }))
+      await bundle(input, {
+        origin,
+        traversal: 'document',
+        treeShake: false,
+        plugins: [upgradeDocuments('2.0'), { type: 'loader', validate: () => true, exec: externalLoads }],
+      })
+      expect(
+        read(input, [
+          'paths',
+          '/pets',
+          'post',
+          'requestBody',
+          'content',
+          'application/json',
+          'schema',
+          '$ref-value',
+          'type',
+        ]),
+      ).toBe('string')
+      expect(read(input, ['paths', '/pets', 'post', 'parameters', '0', '$ref-value', 'schema', 'type'])).toBe('integer')
+      expect(externalLoads).not.toHaveBeenCalled()
+    },
+  )
+
+  it.each(['missing', 'cyclic'] as const)('loads the rest of a document with %s parameter refs', async (kind) => {
+    const input = {
+      swagger: '2.0',
+      parameters: {
+        A: { $ref: '#/parameters/B' },
+        B: { $ref: '#/parameters/A' },
+      },
+      paths: {
+        '/pets': {
+          get: {
+            parameters: [{ $ref: kind === 'missing' ? './missing.yaml' : '#/parameters/A' }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    await bundle(input, {
+      origin: '/srv/specs/swagger.yaml',
+      traversal: 'document',
+      treeShake: false,
+      plugins: [upgradeDocuments('2.0')],
+    })
+    expect(read(input, ['paths', '/pets', 'get', 'responses', '200', 'description'])).toBe('OK')
+  })
+
+  it.each(['body', 'formData'] as const)('relocates reusable external %s aliases', async (location) => {
+    const parameter =
+      location === 'body'
+        ? { name: 'pet', in: location, schema: { type: 'string' } }
+        : { name: 'pet', in: location, type: 'string' }
+    const input = {
+      swagger: '2.0',
+      parameters: {
+        Body: { $ref: './body.yaml' },
+        Alias: { $ref: '#/parameters/Body' },
+      },
+      paths: { '/pets': { post: { parameters: [{ $ref: '#/parameters/Alias' }] } } },
+    }
+    await bundle(input, {
+      origin: 'https://example.com/swagger.yaml',
+      traversal: 'document',
+      treeShake: false,
+      plugins: [upgradeDocuments('2.0'), loader({ 'https://example.com/body.yaml': parameter })],
+    })
+    const media = location === 'body' ? 'application/json' : 'multipart/form-data'
+    expect(read(input, ['components', 'requestBodies', 'Body', 'content', media, 'schema', 'type'])).toBe(
+      location === 'body' ? 'string' : 'object',
+    )
+    expect(read(input, ['components', 'requestBodies', 'Alias', 'content', media, 'schema', 'type'])).toBe(
+      location === 'body' ? 'string' : 'object',
+    )
+  })
+
+  it('retains the layout of legacy resources in an existing bundle', async () => {
+    const input = {
+      openapi: '3.1.0',
+      components: { schemas: { Pet: { $ref: '#/x-ext/old/definitions/Pet' } } },
+      'x-ext': { old: { swagger: '2.0', definitions: { Pet: { type: 'string' } } } },
+      'x-ext-urls': { old: './old.yaml' },
+    }
+    await bundle(input, {
+      origin: 'https://example.com/api.yaml',
+      traversal: 'document',
+      treeShake: false,
+      plugins: [upgradeDocuments('3.1.0')],
+    })
+    expect(read(input, ['components', 'schemas', 'Pet', '$ref-value', 'type'])).toBe('string')
+    expect(input['x-ext'].old.swagger).toBe('2.0')
+  })
+
+  it('ignores unsafe mapping keys and malformed saved media types', async () => {
+    const input = { openapi: '3.0.3', components: { responses: { OK: { $ref: './response.yaml' } } } }
+    await bundle(input, {
+      origin: 'https://example.com/api.yaml',
+      traversal: 'document',
+      treeShake: false,
+      plugins: [
+        upgradeDocuments('3.0.3'),
+        loader({
+          'https://example.com/response.yaml': {
+            description: 'OK',
+            schema: { type: 'string' },
+            'x-scalar-upgrade': {
+              mappings: Object.fromEntries([
+                ['__proto__', JSON.stringify([[], '3.0', 'response', undefined, undefined])],
+              ]),
+              contexts: [{ path: [], consumes: [3], produces: [3] }],
+            },
+          },
+        }),
+      ],
+    })
+    expect(read(input, ['components', 'responses', 'OK', '$ref-value', 'description'])).toBe('OK')
+  })
+
+  it('rebases an aliased parameter with a recursive YAML object without overflowing', async () => {
+    const body: Record<string, unknown> = { name: 'body', in: 'body', schema: { type: 'string' } }
+    body.recursive = body
+    const input = {
+      swagger: '2.0',
+      parameters: { Body: body },
+      paths: {
+        '/pets': { post: { parameters: [{ $ref: '#/parameters/Body' }] } },
+      },
+    }
+    await bundle(input, {
+      origin: '/srv/specs/swagger.yaml',
+      traversal: 'document',
+      treeShake: false,
+      plugins: [upgradeDocuments('2.0')],
+    })
+    expect(
+      read(input, ['paths', '/pets', 'post', 'requestBody', 'content', 'application/json', 'schema', 'type']),
+    ).toBe('string')
+  })
 })

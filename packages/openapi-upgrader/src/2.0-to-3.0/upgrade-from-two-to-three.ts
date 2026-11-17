@@ -576,8 +576,9 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 /**
  * Converts Swagger discriminator and nullability fields to their OpenAPI 3.0 forms.
  * Visit only OpenAPI 2.0 subschema keywords so example/default values and custom extensions remain user data.
+ * Set recursive to false when the caller already owns schema traversal.
  */
-export const migrateSchema = (schema: unknown): void => {
+export const migrateSchema = (schema: unknown, recursive = true): void => {
   if (!isObjectLike(schema)) {
     return
   }
@@ -599,6 +600,10 @@ export const migrateSchema = (schema: unknown): void => {
       schema.nullable = true
     }
     delete schema['x-nullable']
+  }
+
+  if (!recursive) {
+    return
   }
 
   if (isObjectLike(schema.properties)) {

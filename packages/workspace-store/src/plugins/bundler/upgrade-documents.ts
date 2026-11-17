@@ -1,8 +1,9 @@
-import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
 import { type LifecyclePlugin, resolveReferencePath } from '@scalar/json-magic/bundle'
 import { getHash, uniqueValueGeneratorFactory } from '@scalar/json-magic/bundle/value-generator'
+import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
 import { type FragmentKind, type FragmentLocation, upgradeFragment } from '@scalar/openapi-upgrader'
 
 import { openApiDocument, resolveOpenApiDocument } from './openapi-document'
@@ -10,7 +11,7 @@ import { openApiDocument, resolveOpenApiDocument } from './openapi-document'
 const metadataKey = 'x-scalar-upgrade'
 type SourceVersion = '2.0' | '3.0'
 type SourceDialect = SourceVersion | 'modern'
-type UpgradeMetadata = { from: SourceVersion; locations: FragmentLocation[] }
+type UpgradeMetadata = { from: SourceVersion; locations: FragmentLocation[]; pointers: Map<string, readonly string[]> }
 
 const sourceVersion = (value: unknown): SourceVersion | undefined => {
   if (value === '2.0') {
@@ -25,11 +26,16 @@ const sourceVersion = (value: unknown): SourceVersion | undefined => {
   return undefined
 }
 
+const metadataCache = new WeakMap<object, UpgradeMetadata | undefined>()
+
 const metadata = (document: unknown): UpgradeMetadata | undefined => {
   if (!isObject(document) || !isObject(document[metadataKey])) {
     return undefined
   }
   const entry = document[metadataKey]
+  if (metadataCache.has(entry)) {
+    return metadataCache.get(entry)
+  }
   const from = sourceVersion(entry.from)
   const locations = Array.isArray(entry.locations)
     ? entry.locations.filter(
@@ -41,7 +47,14 @@ const metadata = (document: unknown): UpgradeMetadata | undefined => {
           location.output.every((part) => typeof part === 'string'),
       )
     : undefined
-  return from && locations ? { from, locations } : undefined
+  const pointers = new Map<string, readonly string[]>()
+  for (const location of locations ?? []) {
+    const key = JSON.stringify(location.source)
+    if (!pointers.has(key)) pointers.set(key, location.output)
+  }
+  const result = from && locations ? { from, locations, pointers } : undefined
+  metadataCache.set(entry, result)
+  return result
 }
 
 const pointerSegments = (fragment: string): string[] => {
@@ -51,22 +64,13 @@ const pointerSegments = (fragment: string): string[] => {
   } catch {
     /* Retain legacy literal percent characters. */
   }
-  return decoded.startsWith('/') ? decoded.slice(1).split('/').map(unescapeJsonPointerSegment) : []
+  return decoded.startsWith('/') ? parseJsonPointerSegments(decoded) : []
 }
 
-const atPath = (value: unknown, path: readonly string[]): unknown => {
-  let current = value
-  for (const key of path) {
-    if (!isObject(current) && !Array.isArray(current)) {
-      return undefined
-    }
-    if (!Object.hasOwn(current, key)) {
-      return undefined
-    }
-    current = (current as Record<string, unknown>)[key]
-  }
-  return current
-}
+const atPath = (value: unknown, path: readonly string[]): unknown => getValueByPath(value, [...path]).value
+
+const stringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((part) => typeof part === 'string')
 
 const fragmentKind = (path: readonly string[]): FragmentKind | undefined => {
   if (isSchemaPath([...path])) {
@@ -103,7 +107,7 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
   const resolvers = new Map<string, (ref: string) => Promise<unknown>>()
   const converted = new WeakSet<object>()
   const transformedReferences = new WeakSet<object>()
-  const originalReferences = openApiDocument({ preserveOriginalRefs: true })
+  const originalReferences = openApiDocument({ preserveOriginalRefs: true, useContextPath: true })
   const markConverted = (value: unknown): void => {
     if (value === null || typeof value !== 'object' || converted.has(value)) {
       return
@@ -113,15 +117,14 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
   }
   return {
     type: 'lifecycle',
-    onBeforeNodeProcess: originalReferences.onBeforeNodeProcess,
     onAfterNodeProcess: (node, context) => {
       if (transformedReferences.has(node)) {
         return originalReferences.onAfterNodeProcess?.(node, context)
       }
     },
-    onDocumentLoaded: async (document, { uri, loadDocument }) => {
+    onDocumentLoaded: async (document, { uri, loadDocument, stored }) => {
       entryUri ??= uri
-      const from = isObject(document) ? sourceVersion(document.swagger ?? document.openapi) : undefined
+      const from = !stored && isObject(document) ? sourceVersion(document.swagger ?? document.openapi) : undefined
       const version =
         from ??
         metadata(document)?.from ??
@@ -133,12 +136,13 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
       // Lazy resolves of an already upgraded root must not copy the whole API description.
       sources.set(uri, { document: from && !metadata(document) ? structuredClone(document) : document, version })
       const resolveSource = async (ref: string, origin = uri, visited = new Set<string>()): Promise<unknown> => {
-        const absolute = resolveReferencePath(origin, ref)
+        const [prefix, fragment = ''] = ref.split('#', 2)
+        const resource = prefix ? resolveReferencePath(origin, prefix) : origin
+        const absolute = `${resource}#${fragment}`
         if (visited.has(absolute)) {
           throw new Error(`Cyclic parameter reference: ${absolute}`)
         }
         visited.add(absolute)
-        const [resource, fragment = ''] = absolute.split('#', 2)
         const loaded = resource === uri ? { ok: true, data: document } : await loadDocument(resource!)
         if (!loaded.ok) {
           throw new Error(`Cannot upgrade referenced parameter: ${absolute}`)
@@ -149,17 +153,25 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
         }
         // The operation may inline a referenced body/form parameter. Rebase its schema refs
         // before moving it out of its resource; example/default payloads remain literal data.
+        const rebased = new WeakMap<object, unknown>()
         const rebase = (value: unknown, kind: 'object' | 'schema' | 'map' = 'object'): unknown => {
+          if (value === null || typeof value !== 'object') return value
+          if (rebased.has(value)) return rebased.get(value)
           if (Array.isArray(value)) {
-            return value.map((entry) => rebase(entry, kind))
+            const result: unknown[] = []
+            rebased.set(value, result)
+            result.push(...value.map((entry) => rebase(entry, kind)))
+            return result
           }
-          if (!isObject(value)) {
-            return value
-          }
-          return Object.fromEntries(
-            Object.entries(value).map(([key, child]) => {
+          const result = Object.create(null) as Record<string, unknown>
+          rebased.set(value, result)
+          for (const [key, child] of Object.entries(value)) {
+            const [name, entry] = (() => {
               if (key === '$ref' && typeof child === 'string') {
-                return [key, resolveReferencePath(resource!, child)]
+                const [relative, pointer] = child.split('#', 2)
+                const targetResource = relative ? resolveReferencePath(resource, relative) : resource
+                const base = targetResource === uri ? '' : targetResource
+                return [key, `${base}${pointer === undefined ? '' : `#${pointer}`}`] as const
               }
               if (['example', 'examples', 'default', 'enum', 'const'].includes(key) && kind !== 'map') {
                 return [key, structuredClone(child)]
@@ -177,9 +189,11 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
                       ? 'schema'
                       : kind,
                 ),
-              ]
-            }),
-          )
+              ] as const
+            })()
+            result[name] = entry
+          }
+          return result
         }
         return rebase(target)
       }
@@ -191,9 +205,18 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
       if (!isObject(result.value)) {
         return result.value
       }
-      const locations = result.locations.filter(
-        ({ source, output }) => JSON.stringify(source) !== JSON.stringify(output),
-      )
+      // Keep only prefix substitutions that cannot be inherited from a relocated parent.
+      const prefixes = new Map<string, readonly string[]>()
+      const locations = result.locations.filter(({ source, output }) => {
+        const key = JSON.stringify(source)
+        if (prefixes.has(key)) return false
+        prefixes.set(key, output)
+        for (let length = source.length - 1; length >= 0; length--) {
+          const parent = prefixes.get(JSON.stringify(source.slice(0, length)))
+          if (parent) return JSON.stringify([...parent, ...source.slice(length)]) !== JSON.stringify(output)
+        }
+        return JSON.stringify(source) !== JSON.stringify(output)
+      })
       const keepMetadata = uri !== entryUri || locations.length > 0 || result.contexts.length > 0
       const upgraded = {
         ...result.value,
@@ -217,11 +240,11 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
         ...identity,
         baseUri: identity?.baseUri ?? uri,
         remapPointer: (pointer) => {
-          const matches = upgrade.locations.filter(({ source }) =>
-            source.every((part, index) => part === pointer[index]),
-          )
-          const match = matches.sort((a, b) => b.source.length - a.source.length)[0]
-          return match ? [...match.output, ...pointer.slice(match.source.length)] : pointer
+          for (let length = pointer.length; length >= 0; length--) {
+            const output = upgrade.pointers.get(JSON.stringify(pointer.slice(0, length)))
+            if (output) return [...output, ...pointer.slice(length)]
+          }
+          return pointer
         },
       }
     },
@@ -236,6 +259,13 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
       const referenceNode = atPath(context.referenceSource.document, context.referenceSource.path)
       if (isObject(document) && (document.openapi || document.swagger || metadata(document))) {
         if (metadata(document) && document !== context.referencedFrom.rootNode && isObject(referenceNode)) {
+          originalReferences.onBeforeNodeProcess?.(referenceNode, {
+            ...context.referencedFrom,
+            path:
+              context.referenceSource.document === context.referencedFrom.rootNode
+                ? [...context.referenceSource.path]
+                : context.referencedFrom.path,
+          })
           transformedReferences.add(referenceNode)
         }
         return undefined
@@ -255,7 +285,7 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
         return undefined
       }
       const path =
-        isObject(variant) && Array.isArray(variant.semanticPath)
+        isObject(variant) && stringArray(variant.semanticPath)
           ? [...variant.semanticPath, ...storedPath.slice(4)]
           : storedPath
       const kind = fragmentKind(path)
@@ -263,6 +293,13 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
         return undefined
       }
       if (isObject(referenceNode)) {
+        originalReferences.onBeforeNodeProcess?.(referenceNode, {
+          ...context.referencedFrom,
+          path:
+            context.referenceSource.document === context.referencedFrom.rootNode
+              ? [...context.referenceSource.path]
+              : context.referencedFrom.path,
+        })
         transformedReferences.add(referenceNode)
       }
       // Saved API descriptions restore external refs and discard bundled resources. Keep
@@ -284,29 +321,38 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
             .filter(
               (item) =>
                 isObject(item) &&
-                Array.isArray(item.path) &&
+                stringArray(item.consumes) &&
+                stringArray(item.produces) &&
+                stringArray(item.path) &&
                 item.path.every((segment, index) => segment === path[index]),
             )
             .sort((a, b) => b.path.length - a.path.length)[0]
         : undefined
       const consumes =
-        isObject(variant) && Array.isArray(variant.consumes)
+        isObject(variant) && stringArray(variant.consumes)
           ? variant.consumes
-          : isObject(operation) && Array.isArray(operation.consumes)
+          : isObject(operation) && stringArray(operation.consumes)
             ? operation.consumes
-            : isObject(owner) && Array.isArray(owner.consumes)
+            : isObject(owner) && stringArray(owner.consumes)
               ? owner.consumes
               : saved?.consumes
       const produces =
-        isObject(variant) && Array.isArray(variant.produces)
+        isObject(variant) && stringArray(variant.produces)
           ? variant.produces
-          : isObject(operation) && Array.isArray(operation.produces)
+          : isObject(operation) && stringArray(operation.produces)
             ? operation.produces
-            : isObject(owner) && Array.isArray(owner.produces)
+            : isObject(owner) && stringArray(owner.produces)
               ? owner.produces
               : saved?.produces
-      const storage = isObject(document[metadataKey]) ? document[metadataKey] : {}
-      const mappings = isObject(storage.mappings) ? (storage.mappings as Record<string, string>) : {}
+      const storage = Object.assign(Object.create(null), isObject(document[metadataKey]) ? document[metadataKey] : {})
+      const mappings = Object.assign(
+        Object.create(null),
+        Object.fromEntries(
+          Object.entries(isObject(storage.mappings) ? storage.mappings : {}).filter(
+            ([key, value]) => !['__proto__', 'prototype', 'constructor'].includes(key) && typeof value === 'string',
+          ),
+        ),
+      ) as Record<string, string>
       const { generate } = uniqueValueGeneratorFactory(getHash, mappings)
       const key = await generate(JSON.stringify([context.path, from, kind, consumes, produces]))
       storage.mappings = mappings
@@ -325,7 +371,10 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
         resolveSource: resolvers.get(context.uri),
       })
       markConverted(result.value)
-      const variants = isObject(storage.variants) ? storage.variants : {}
+      const variants: Record<string, unknown> = Object.assign(
+        Object.create(null),
+        isObject(storage.variants) ? storage.variants : {},
+      )
       variants[key] = { from, semanticPath: path, consumes, produces, value: result.value }
       storage.variants = variants
       document[metadataKey] = storage
