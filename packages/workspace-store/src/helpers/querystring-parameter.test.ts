@@ -21,8 +21,8 @@ const serialize = (input: ParameterObject, variables: Record<string, string> = {
 }
 
 describe('querystring-parameter', () => {
-  it('retains reference assertions for generated whole-query values', () => {
-    const target = {
+  it('generates whole-query arrays with simple contains counts', () => {
+    const schema = {
       type: 'array',
       items: { type: 'integer' },
       minItems: 2,
@@ -30,14 +30,13 @@ describe('querystring-parameter', () => {
       contains: { const: 2 },
       maxContains: 1,
     }
-    const schema = { $ref: '#/array', '$ref-value': target, contains: { const: 3 }, maxContains: 1 }
     const input = {
       name: 'query',
       in: 'querystring',
       required: true,
       content: { 'application/json': { schema } },
     } as unknown as ParameterObject
-    expect((getQuerystringParameter(input, 'default')!.value as number[]).slice().sort()).toStrictEqual([2, 3])
+    expect(getQuerystringParameter(input, 'default')!.value).toStrictEqual([2, 1])
   })
 
   it.each([

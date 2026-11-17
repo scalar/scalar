@@ -10,7 +10,6 @@ import {
   getQuerystringParameter,
   serializeQuerystringParameter,
 } from '@scalar/workspace-store/helpers/querystring-parameter'
-import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import {
   deSerializeParameter,
   filterDisabledProperties,
@@ -25,11 +24,7 @@ import {
   serializeSimpleStyle,
   serializeSpaceDelimitedStyle,
 } from '@scalar/workspace-store/request-example'
-import type {
-  OperationObject,
-  ParameterObject,
-  SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 
 /** An invalid cookie declaration that authors can repair before generating a sample. */
@@ -143,8 +138,8 @@ const getParameterValue = (
     jsonSchemaDialect,
     ...(param.in === 'path' ? { emptyString: `{${param.name}}` } : {}),
   }
-  const schema = param.schema
-  return schema ? getExampleFromSchema(snapshotSchema(schema) as SchemaObject, options) : undefined
+  const schema = getResolvedRef(param.schema)
+  return schema ? getExampleFromSchema(schema, options) : undefined
 }
 
 /**

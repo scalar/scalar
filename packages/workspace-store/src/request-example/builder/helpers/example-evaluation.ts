@@ -9,8 +9,6 @@ export type ExampleEvaluation = {
   name?: string
   dynamicScope: DynamicScope
   children: ExampleEvaluation[]
-  /** Per-position provenance for arrays whose items were chosen by constraint matching. */
-  arrayItems?: ExampleEvaluation[]
 }
 
 /** Per-call capture state; never shared with the JSON result cache. */

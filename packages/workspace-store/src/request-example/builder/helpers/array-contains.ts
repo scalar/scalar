@@ -1,25 +1,15 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { resolve } from '@/resolve'
-import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
-
-import { hasUnencodedJsonContent } from './has-unencoded-json-content'
-
-/** Dialects whose array assertions this bounded generator understands. */
+/** Dialects whose direct array assertions this generator understands. */
 type ArrayDialect = 'modern' | 'draft7' | 'unsupported'
-
-const dialectUris: Record<ArrayDialect, string> = {
-  modern: 'https://json-schema.org/draft/2020-12/schema',
-  draft7: 'http://json-schema.org/draft-07/schema#',
-  unsupported: 'urn:unsupported',
-}
+type Primitive = string | number | boolean | null
 
 /** Unknown dialects and pre-3.1 OpenAPI must not acquire modern contains semantics. */
 export const getArrayDialect = (dialect?: string, openapiVersion?: string): ArrayDialect => {
   if (openapiVersion && !/^3\.[1-9](?:\.|$)/.test(openapiVersion)) {
     return 'unsupported'
   }
-  if (!dialect || /^https:\/\/spec\.openapis\.org\/oas\/3\.[12]\/dialect\//.test(dialect)) {
+  if (!dialect || /^https:\/\/spec\.openapis\.org\/oas\/3\.[12]\/dialect\/base#?$/.test(dialect)) {
     return 'modern'
   }
   const uri = dialect.replace(/#$/, '')
@@ -29,28 +19,27 @@ export const getArrayDialect = (dialect?: string, openapiVersion?: string): Arra
   return uri === 'http://json-schema.org/draft-07/schema' ? 'draft7' : 'unsupported'
 }
 
-const MAX_NODES = 1000
+const MAX_ITEMS = 999
 const MAX_CANDIDATES = 128
-const MAX_SCHEMA_VISITS = 64
-const MAX_MATCH_STEPS = 50_000
-const MAX_SEARCH_STEPS = 4096
-const MAX_SCHEMA_DEPTH = 32
+const isPrimitive = (value: unknown): value is Primitive =>
+  value === null ||
+  typeof value === 'string' ||
+  typeof value === 'boolean' ||
+  (typeof value === 'number' && Number.isFinite(value))
 
-/** Malformed constraints are ignored consistently with the existing length generator. */
-const bound = (value: unknown, fallback: number): number =>
-  typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : fallback
-
-const annotations = new Set([
+const keywords = new Set([
   '__scalar_',
-  '$id',
-  '$anchor',
-  '$comment',
-  '$defs',
-  'definitions',
-  '$schema',
-  '$ref-value',
-  '$global',
   '$status',
+  '$global',
+  'type',
+  'const',
+  'enum',
+  'minimum',
+  'maximum',
+  'exclusiveMinimum',
+  'exclusiveMaximum',
+  'minLength',
+  'maxLength',
   'title',
   'description',
   'default',
@@ -61,713 +50,177 @@ const annotations = new Set([
   'writeOnly',
   'xml',
   'externalDocs',
-  'discriminator',
-  'format',
-  'contentEncoding',
-  'contentMediaType',
-  'contentSchema',
-])
-const assertions = new Set([
-  '$ref',
-  'type',
-  'const',
-  'enum',
-  'allOf',
-  'anyOf',
-  'oneOf',
-  'not',
-  'minimum',
-  'maximum',
-  'exclusiveMinimum',
-  'exclusiveMaximum',
-  'minLength',
-  'maxLength',
-  'properties',
-  'required',
-  'additionalProperties',
-  'minProperties',
-  'maxProperties',
-  'items',
-  'prefixItems',
-  'minItems',
-  'maxItems',
-  'uniqueItems',
-  'contains',
-  'minContains',
-  'maxContains',
 ])
 
-/** JSON Schema considers both signs of zero equal, unlike the generic Object.is-based helper. */
-const equal = (left: unknown, right: unknown): boolean => {
-  if (left === right) return true
-  if (Array.isArray(left))
-    return (
-      Array.isArray(right) && left.length === right.length && left.every((value, index) => equal(value, right[index]))
-    )
-  if (!isObject(left) || !isObject(right)) return false
-  const keys = Object.keys(left)
+/** Complex assertions are left to the existing best-effort generator, never treated as nonmatches. */
+const isSimple = (schema: unknown): schema is boolean | Record<string, unknown> => {
+  if (typeof schema === 'boolean') {
+    return true
+  }
+  if (!isObject(schema) || Object.keys(schema).some((key) => !keywords.has(key) && !key.startsWith('x-'))) {
+    return false
+  }
+  if (
+    schema.type !== undefined &&
+    (typeof schema.type !== 'string' || !['string', 'number', 'integer', 'boolean', 'null'].includes(schema.type))
+  ) {
+    return false
+  }
+  if ('const' in schema && !isPrimitive(schema.const)) {
+    return false
+  }
   return (
-    keys.length === Object.keys(right).length &&
-    keys.every((key) => Object.hasOwn(right, key) && equal(left[key], right[key]))
+    !('enum' in schema) ||
+    (Array.isArray(schema.enum) && schema.enum.length <= MAX_CANDIDATES && schema.enum.every(isPrimitive))
   )
 }
 
-/** Count before comparing or repeating values, including authored cyclic/non-JSON values. */
-const sizeOf = (value: unknown, seen = new Set<object>(), remaining = MAX_NODES): number => {
-  if (value === null || typeof value !== 'object') {
-    return 1
-  }
-  if (remaining <= 0 || seen.has(value)) {
-    return MAX_NODES + 1
-  }
-  seen.add(value)
-  let size = 1
-  for (const child of Object.values(value)) {
-    size += sizeOf(child, seen, remaining - size)
-    if (size > remaining) {
-      break
-    }
-  }
-  seen.delete(value)
-  return size
-}
+const bound = (value: unknown, fallback: number): number =>
+  typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : fallback
 
-/**
- * Three-state matching: an unsupported assertion or a reference/depth limit is unknown, never a
- * proven nonmatch. This is deliberately a bounded subset, not a general JSON Schema validator.
- */
-const matches = (
-  schema: unknown,
-  value: unknown,
-  dialect: ArrayDialect,
-  budget: { steps: number },
-  seen = new Set<object>(),
-): boolean | undefined => {
-  if (dialect === 'unsupported' || --budget.steps < 0 || seen.size >= MAX_SCHEMA_DEPTH) {
-    return undefined
-  }
+const matches = (schema: boolean | Record<string, unknown>, value: Primitive): boolean => {
   if (typeof schema === 'boolean') {
     return schema
   }
-  if (!isObject(schema) || seen.has(schema)) {
-    return undefined
+  if ('const' in schema && value !== schema.const) {
+    return false
   }
-  seen.add(schema)
-  try {
-    if (typeof schema.$schema === 'string') {
-      dialect = getArrayDialect(schema.$schema)
-      if (dialect === 'unsupported') return undefined
-    }
-    const checks: (boolean | undefined)[] = []
-    const check = (child: unknown, data = value): boolean | undefined => matches(child, data, dialect, budget, seen)
-    if (Object.keys(schema).some((key) => !assertions.has(key) && !annotations.has(key) && !key.startsWith('x-'))) {
-      checks.push(undefined)
-    }
-    if ('$ref' in schema) {
-      checks.push(check(schema['$ref-value']))
-      // Draft-07 ignores reference siblings.
-      if (dialect === 'draft7') {
-        return checks.at(-1)
-      }
-    }
-    if (schema.type !== undefined) {
-      const types = Array.isArray(schema.type) ? schema.type : [schema.type]
-      checks.push(
-        types.some((type) => {
-          if (type === 'null') return value === null
-          if (type === 'array') return Array.isArray(value)
-          if (type === 'object') return isObject(value)
-          if (type === 'integer') return typeof value === 'number' && Number.isInteger(value)
-          return typeof value === type
-        }),
-      )
-    }
-    if ('const' in schema) checks.push(sizeOf(schema.const) <= MAX_NODES ? equal(value, schema.const) : undefined)
-    if (Array.isArray(schema.enum)) {
-      checks.push(
-        schema.enum.length <= MAX_CANDIDATES && schema.enum.every((item) => sizeOf(item) <= MAX_NODES)
-          ? schema.enum.some((item) => equal(value, item))
-          : undefined,
-      )
-    }
-    for (const keyword of ['allOf', 'anyOf', 'oneOf'] as const) {
-      const members = schema[keyword]
-      if (!Array.isArray(members)) continue
-      if (members.length > MAX_CANDIDATES) {
-        checks.push(undefined)
-        continue
-      }
-      const results = members.map((member) => check(member))
-      checks.push(
-        keyword === 'allOf'
-          ? results.includes(false)
-            ? false
-            : results.includes(undefined)
-              ? undefined
-              : true
-          : keyword === 'anyOf'
-            ? results.includes(true)
-              ? true
-              : results.includes(undefined)
-                ? undefined
-                : false
-            : results.includes(undefined)
-              ? undefined
-              : results.filter(Boolean).length === 1,
-      )
-    }
-    if ('not' in schema) {
-      const result = check(schema.not)
-      checks.push(result === undefined ? undefined : !result)
-    }
-    if (typeof value === 'number') {
-      for (const key of ['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum'] as const) {
-        const limit = schema[key]
-        if (typeof limit !== 'number') continue
-        checks.push(
-          key === 'minimum'
-            ? value >= limit
-            : key === 'maximum'
-              ? value <= limit
-              : key === 'exclusiveMinimum'
-                ? value > limit
-                : value < limit,
-        )
-      }
-    }
-    if (typeof value === 'string') {
-      const length = Array.from(value).length
-      checks.push(length >= bound(schema.minLength, 0) && length <= bound(schema.maxLength, Number.POSITIVE_INFINITY))
-    }
-    if (isObject(value)) {
-      const keys = Object.keys(value)
-      checks.push(
-        keys.length >= bound(schema.minProperties, 0) &&
-          keys.length <= bound(schema.maxProperties, Number.POSITIVE_INFINITY),
-      )
-      if (Array.isArray(schema.required))
-        checks.push(schema.required.every((key) => typeof key === 'string' && Object.hasOwn(value, key)))
-      const properties = isObject(schema.properties) ? schema.properties : {}
-      for (const key of keys) {
-        if (Object.hasOwn(properties, key)) checks.push(check(properties[key], value[key]))
-        else if (schema.additionalProperties !== undefined) checks.push(check(schema.additionalProperties, value[key]))
-      }
-    }
-    if (Array.isArray(value)) {
-      checks.push(
-        value.length >= bound(schema.minItems, 0) && value.length <= bound(schema.maxItems, Number.POSITIVE_INFINITY),
-      )
-      if (schema.uniqueItems)
-        checks.push(value.every((item, index) => !value.slice(0, index).some((other) => equal(item, other))))
-      const prefixes = dialect === 'modern' && Array.isArray(schema.prefixItems) ? schema.prefixItems : []
-      for (let index = 0; index < value.length; index++) {
-        checks.push(check(prefixes[index] ?? schema.items ?? true, value[index]))
-      }
-      if ('contains' in schema) {
-        const results = value.map((item) => check(schema.contains, item))
-        const count = results.filter((result) => result === true).length
-        checks.push(
-          results.includes(undefined)
-            ? undefined
-            : count >= (dialect === 'modern' ? bound(schema.minContains, 1) : 1) &&
-                count <=
-                  (dialect === 'modern'
-                    ? bound(schema.maxContains, Number.POSITIVE_INFINITY)
-                    : Number.POSITIVE_INFINITY),
-        )
-      }
-    }
-    return checks.includes(false) ? false : checks.includes(undefined) ? undefined : true
-  } finally {
-    seen.delete(schema)
+  if (Array.isArray(schema.enum) && !schema.enum.includes(value)) {
+    return false
   }
-}
-
-type ConsumedChoice = { path: string[]; keyword: 'oneOf' | 'anyOf' }
-type SelectArrayComposition = (schema: Record<string, unknown>, path: string[], consumed: ConsumedChoice[]) => unknown
-
-type ArrayLayer = { schema: Record<string, unknown>; path: string[]; dialect: ArrayDialect; incomplete?: boolean }
-
-/** Original selection paths survive synthetic combinations used only for XML provenance. */
-type ItemSchemaLayer = { schema: unknown; path: string[]; dialect: ArrayDialect }
-
-/** A missing reference target can hide array assertions, so it cannot establish a safe prefix. */
-const hasUnresolvedReference = (schema: Record<string, unknown>): boolean =>
-  '$ref' in schema && typeof schema['$ref-value'] !== 'boolean' && !isObject(schema['$ref-value'])
-
-/** Visit same-instance array applicators without following item schemas or entering cycles. */
-const arrayLayers = (
-  schema: unknown,
-  dialect: ArrayDialect,
-  select: SelectArrayComposition,
-  path: string[] = [],
-  traversal: {
-    active: Set<object>
-    remaining: number
-    stopAt?: (schema: Record<string, unknown>) => boolean
-  } = { active: new Set(), remaining: MAX_SCHEMA_VISITS },
-  consumed: ConsumedChoice[] = [],
-): ArrayLayer[] => {
-  if (!isObject(schema) || traversal.active.has(schema)) return []
-  if (traversal.remaining-- <= 0) return [{ schema: {}, path, dialect, incomplete: true }]
-  traversal.active.add(schema)
-  try {
-    if (typeof schema.$schema === 'string') dialect = getArrayDialect(schema.$schema)
-    if (hasUnresolvedReference(schema)) {
-      return [{ schema: dialect === 'draft7' ? {} : schema, path, dialect, incomplete: true }]
+  if (schema.type !== undefined) {
+    const type = value === null ? 'null' : typeof value
+    if (schema.type === 'integer' ? typeof value !== 'number' || !Number.isInteger(value) : schema.type !== type) {
+      return false
     }
-    // A draft-07 reference replaces its siblings, including count and item assertions.
-    if (dialect === 'draft7' && '$ref' in schema)
-      return arrayLayers(schema['$ref-value'], dialect, select, path, traversal, consumed)
-    const layers: ArrayLayer[] = [{ schema, path, dialect }]
-    if (traversal.stopAt?.(schema)) return layers
-    if ('$ref-value' in schema)
-      layers.push(...arrayLayers(schema['$ref-value'], dialect, select, path, traversal, consumed))
-    if (Array.isArray(schema.allOf)) {
-      if (schema.allOf.length > MAX_SCHEMA_VISITS) {
-        layers.push({ schema: {}, path, dialect, incomplete: true })
-      }
-      let choiceIndex = 0
-      for (const child of schema.allOf.slice(0, MAX_SCHEMA_VISITS)) {
-        const resolved = resolve.schema(child as SchemaObject)
-        const isChoice = resolved && (Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf))
-        // Selection keys use choice ordinals, not JSON Schema keyword paths.
-        const childPath = isChoice ? [...path, String(choiceIndex++)] : path
-        layers.push(...arrayLayers(child, dialect, select, childPath, traversal, consumed))
-      }
-    }
-    // Both applicators constrain the same value when present together, even though each chooses a branch.
-    for (const keyword of ['oneOf', 'anyOf'] as const) {
-      if (!Array.isArray(schema[keyword])) continue
-      const other = keyword === 'oneOf' ? 'anyOf' : 'oneOf'
-      const selected = select({ ...schema, [other]: undefined }, path, consumed)
-      if (selected !== undefined) {
-        layers.push(...arrayLayers(selected, dialect, select, path, traversal, [...consumed, { path, keyword }]))
-      }
-    }
-    return layers
-  } finally {
-    // A shared node can select different assertions at another path or inherit another dialect.
-    traversal.active.delete(schema)
   }
-}
-
-/** Route known containment and inconclusive bounded scans through the conservative array generator. */
-export const mayHaveArrayContains = (schema: unknown, seen = new Set<object>()): boolean => {
-  if (!isObject(schema) || seen.has(schema)) return false
-  if (seen.size >= MAX_SCHEMA_VISITS) return true
-  seen.add(schema)
-  if ('contains' in schema) return true
-  if ('$ref-value' in schema && mayHaveArrayContains(schema['$ref-value'], seen)) return true
-  return ['allOf', 'anyOf', 'oneOf'].some((keyword) => {
-    const members = schema[keyword]
-    return (
-      Array.isArray(members) &&
-      (members.length > MAX_SCHEMA_VISITS ||
-        members.slice(0, MAX_SCHEMA_VISITS).some((member) => mayHaveArrayContains(member, seen)))
-    )
-  })
-}
-
-/** Active whole-value examples and valid defaults retain their priority over generated items. */
-export const getAuthoredArrayValue = (
-  schema: Record<string, unknown>,
-  dialect: ArrayDialect,
-  select: SelectArrayComposition,
-  getDefault: (schema: Record<string, unknown>) => { value: unknown } | undefined,
-  merge: (base: unknown, contribution: unknown) => unknown,
-): { value: unknown } | undefined => {
-  const getValue = (source: Record<string, unknown>): { value: unknown } | undefined => {
-    if (Array.isArray(source.examples) && source.examples.length > 0) {
-      return { value: source.examples[0] }
+  if (typeof value === 'number') {
+    if (typeof schema.minimum === 'number' && value < schema.minimum) {
+      return false
     }
-    if (source.example !== undefined) {
-      return { value: source.example }
+    if (typeof schema.maximum === 'number' && value > schema.maximum) {
+      return false
     }
-    return getDefault(source)
+    if (typeof schema.exclusiveMinimum === 'number' && value <= schema.exclusiveMinimum) {
+      return false
+    }
+    if (typeof schema.exclusiveMaximum === 'number' && value >= schema.exclusiveMaximum) {
+      return false
+    }
   }
-  // An explicit value replaces its own descendants, while sibling allOf values still contribute.
-  const layers = arrayLayers(schema, dialect, select, [], {
-    active: new Set(),
-    remaining: MAX_SCHEMA_VISITS,
-    stopAt: (source) => getValue(source) !== undefined,
-  })
-  let result: { value: unknown } | undefined
-  for (const { schema: source } of layers) {
-    const value = getValue(source)
-    if (value) result = result ? { value: merge(result.value, value.value) } : value
+  if (typeof value === 'string') {
+    const length = Array.from(value).length
+    if (length < bound(schema.minLength, 0) || length > bound(schema.maxLength, Number.POSITIVE_INFINITY)) {
+      return false
+    }
   }
-  return result
+  return true
 }
 
 /**
- * Search at most 128 candidates, 64 schema nodes, 50,000 matching steps and 4,096 search steps.
- * Contradictions, unsupported assertions and exhausted budgets return the longest visited prefix
- * that obeys item schemas, maximum match counts, uniqueness and the 1,000-node output cap. This
- * partial example can miss minima; it is not a claim that arbitrary schemas are satisfiable.
+ * Fill direct primitive arrays with a single contains rule. Tuple values count toward the same
+ * limits as tail values. Candidates are bounded and selected linearly; no composition traversal,
+ * nested value synthesis, or XML branch selection is attempted. Unsupported schemas return undefined
+ * for the existing generator. Contradictions or exhausted candidates return a partial example.
+ * TODO: Handle independent contains rules across references and compositions in a follow-up.
  */
 export const generateContainsArray = (
   schema: Record<string, unknown>,
+  prefixes: unknown[],
+  generate: (schema: unknown) => unknown,
   dialect: ArrayDialect,
-  generate: (schema: unknown, path: string[], dialect: string) => unknown,
-  select: SelectArrayComposition,
-): { values: unknown[]; itemSchemas: ItemSchemaLayer[][] } => {
-  const layers = arrayLayers(schema, dialect, select)
-  // Unvisited assertions may prohibit every candidate, so no nonempty prefix is known to be safe.
-  if (layers.some((layer) => layer.incomplete)) return { values: [], itemSchemas: [] }
-  const rules = layers
-    .filter((layer) => 'contains' in layer.schema)
-    .map(({ schema: source, dialect }) => ({
-      schema: source.contains,
-      dialect,
-      min: dialect === 'modern' ? bound(source.minContains, 1) : 1,
-      max: dialect === 'modern' ? bound(source.maxContains, Number.POSITIVE_INFINITY) : Number.POSITIVE_INFINITY,
-    }))
-  const maximum = Math.min(MAX_NODES - 1, ...layers.map(({ schema: source }) => bound(source.maxItems, MAX_NODES)))
-  if (maximum === 0) return { values: [], itemSchemas: [] }
-  const prefixLength = Math.min(
-    MAX_NODES - 1,
-    Math.max(
-      0,
-      ...layers.map(({ schema: source, dialect }) =>
-        dialect === 'modern' && Array.isArray(source.prefixItems) ? source.prefixItems.length : 0,
-      ),
-    ),
-  )
-  const length = Math.min(
-    maximum,
-    Math.max(
-      prefixLength,
-      ...layers.map(({ schema: source }) => bound(source.minItems, 0)),
-      ...rules.map((rule) => rule.min),
-    ),
-  )
-  const unique = layers.some((layer) => layer.schema.uniqueItems === true)
-  const budget = { steps: MAX_MATCH_STEPS }
-  const candidates: unknown[] = []
+): Primitive[] | undefined => {
+  if (dialect === 'unsupported' || !('contains' in schema) || !isSimple(schema.contains)) {
+    return undefined
+  }
+  if (schema.allOf || schema.anyOf || schema.oneOf || schema.$ref) {
+    return undefined
+  }
+  const contains = schema.contains
+  const items = schema.items ?? true
+  const tuple = dialect === 'modern' && Array.isArray(schema.prefixItems) ? schema.prefixItems : []
+  if (!isSimple(items) || !tuple.every(isSimple) || (dialect === 'draft7' && schema.prefixItems)) {
+    return undefined
+  }
+  const minimum = dialect === 'modern' ? bound(schema.minContains, 1) : 1
+  const maximum = dialect === 'modern' ? bound(schema.maxContains, Number.POSITIVE_INFINITY) : Number.POSITIVE_INFINITY
+  const maxItems = Math.min(bound(schema.maxItems, MAX_ITEMS), MAX_ITEMS)
+  const length = Math.min(maxItems, Math.max(bound(schema.minItems, 0), minimum, prefixes.length))
+  const values: Primitive[] = []
+  const candidates: Primitive[] = []
   const add = (value: unknown): void => {
-    if (
-      value !== undefined &&
-      candidates.length < MAX_CANDIDATES &&
-      sizeOf(value) < MAX_NODES &&
-      !candidates.some((other) => equal(value, other))
-    )
+    if (isPrimitive(value) && candidates.length < MAX_CANDIDATES && !candidates.includes(value)) {
       candidates.push(value)
+    }
   }
-  let visits = MAX_SCHEMA_VISITS
-  const harvest = (source: unknown, path: string[], dialect: ArrayDialect, seen = new Set<object>()): void => {
-    if (!isObject(source) || seen.has(source) || --visits < 0) return
-    seen.add(source)
-    if (typeof source.$schema === 'string') dialect = getArrayDialect(source.$schema)
-    add(generate(source, path, dialectUris[dialect]))
-    if ('const' in source) add(source.const)
-    if (Array.isArray(source.enum)) source.enum.slice(0, MAX_CANDIDATES).forEach(add)
-    for (const key of ['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum'] as const) {
-      const value = source[key]
-      if (typeof value === 'number' && Number.isFinite(value)) {
-        for (let offset = 0; offset <= Math.min(length + 1, MAX_CANDIDATES / 2); offset++) {
-          add(value + offset)
-          add(value - offset)
-        }
+  // Authored item examples remain fixed even when they cannot satisfy the array constraints.
+  const unrestricted =
+    items === true ||
+    (isObject(items) && !['type', 'const', 'enum', 'example', 'examples', 'default'].some((key) => key in items))
+  const sampleSchema = unrestricted ? contains : items
+  const generatedSample = typeof sampleSchema === 'boolean' ? null : generate(sampleSchema)
+  const sample = unrestricted ? (generatedSample ?? null) : generatedSample
+  const authored =
+    isObject(items) && (items.example !== undefined || (Array.isArray(items.examples) && items.examples.length > 0))
+  add(sample)
+  if (!authored) {
+    for (const source of [contains, items]) {
+      if (!isObject(source)) {
+        continue
       }
-    }
-    if ('$ref' in source) harvest(source['$ref-value'], path, dialect, seen)
-    for (const key of ['allOf', 'oneOf', 'anyOf'] as const) {
-      const members = source[key]
-      if (Array.isArray(members))
-        members
-          .slice(0, MAX_SCHEMA_VISITS)
-          .forEach((member, index) => harvest(member, [...path, key, String(index)], dialect, seen))
-    }
-    seen.delete(source)
-  }
-  for (const { schema: source, path, dialect } of layers) {
-    harvest(source.items, [...path, 'items'], dialect)
-    harvest(source.contains, [...path, 'contains'], dialect)
-    if (dialect === 'modern' && Array.isArray(source.prefixItems)) {
-      source.prefixItems
-        .slice(0, MAX_SCHEMA_VISITS)
-        .forEach((prefix, index) => harvest(prefix, [...path, 'prefixItems', String(index)], dialect))
-    }
-    const item = generate(source.items, [...path, 'items'], dialectUris[dialect])
-    const contains = generate(source.contains, [...path, 'contains'], dialectUris[dialect])
-    if (isObject(item) && isObject(contains)) add({ ...item, ...contains })
-  }
-  for (const value of [null, 1, 2, 3, 0, -1, true, false, '', 'string', 'a', [], {}]) add(value)
-  for (let index = 4; index < MAX_SCHEMA_DEPTH; index++) {
-    add(index)
-    add(`string${index}`)
-  }
-  // Non-JSON candidates are ordinary search values, so decoding failures must remain silent.
-  const decodeContent = (value: unknown): unknown => {
-    try {
-      return typeof value === 'string' ? JSON.parse(value) : undefined
-    } catch {
-      return undefined
-    }
-  }
-  // Candidate synthesis may change unauthored fields, but must retain explicit nested values.
-  const preservesAuthored = (
-    source: unknown,
-    sample: unknown,
-    value: unknown,
-    dialect: ArrayDialect,
-    path: string[],
-    depth = 0,
-  ): boolean => {
-    if (equal(sample, value)) return true
-    if (--budget.steps < 0 || depth >= MAX_SCHEMA_DEPTH || sample === undefined) return false
-    for (const layer of arrayLayers(source, dialect, select, path)) {
-      const node = layer.schema
-      if (node.example !== undefined || (Array.isArray(node.examples) && node.examples.length > 0)) return false
-      if (
-        typeof sample === 'string' &&
-        hasUnencodedJsonContent(node as SchemaObject) &&
-        !preservesAuthored(
-          node.contentSchema,
-          decodeContent(sample),
-          decodeContent(value),
-          layer.dialect,
-          [...layer.path, 'contentSchema'],
-          depth + 1,
-        )
-      )
-        return false
-      if (isObject(node.properties) && isObject(sample)) {
-        for (const [key, child] of Object.entries(node.properties)) {
-          if (
-            !preservesAuthored(
-              child,
-              sample[key],
-              isObject(value) ? value[key] : undefined,
-              layer.dialect,
-              [...layer.path, key],
-              depth + 1,
-            )
-          )
-            return false
-        }
+      if ('const' in source) {
+        add(source.const)
       }
-      if (isObject(node.additionalProperties) && isObject(sample)) {
-        // Selection paths use the generated property name, including the custom-name extension.
-        const additionalSchema = resolve.schema(node.additionalProperties as SchemaObject)
-        const customName = additionalSchema['x-additionalPropertiesName']
-        const name = typeof customName === 'string' && customName.trim() ? customName.trim() : 'additionalProperty'
-        const childPath = [...layer.path, name]
-        const additional = Object.entries(isObject(value) ? value : {}).filter(
-          ([key]) => !isObject(node.properties) || !(key in node.properties),
-        )
-        for (const [key, item] of additional) {
-          const expected =
-            key in sample ? sample[key] : generate(node.additionalProperties, childPath, dialectUris[layer.dialect])
-          if (!preservesAuthored(node.additionalProperties, expected, item, layer.dialect, childPath, depth + 1))
-            return false
-        }
-        // Generated additional-property names may change, but deleting every authored child may not.
-        if (additional.length === 0) {
-          for (const [key, expected] of Object.entries(sample)) {
-            if (isObject(node.properties) && key in node.properties) continue
-            if (!preservesAuthored(node.additionalProperties, expected, undefined, layer.dialect, childPath, depth + 1))
-              return false
+      if (Array.isArray(source.enum)) {
+        source.enum.forEach(add)
+      }
+      add(generate(source))
+      for (const key of ['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum'] as const) {
+        const limit = source[key]
+        if (typeof limit === 'number') {
+          for (const offset of [0, 1, -1]) {
+            add(limit + offset)
           }
         }
       }
-      if (Array.isArray(sample)) {
-        const items = Array.isArray(value) ? value : []
-        for (let index = 0; index < Math.max(sample.length, items.length); index++) {
-          const prefix =
-            layer.dialect === 'modern' && Array.isArray(node.prefixItems) && index < node.prefixItems.length
-          const child = prefix ? (node.prefixItems as unknown[])[index] : (node.items ?? true)
-          const childPath = [...layer.path, ...(prefix ? ['prefixItems', String(index)] : ['items'])]
-          const expected =
-            index < sample.length ? sample[index] : generate(child, childPath, dialectUris[layer.dialect])
-          if (!preservesAuthored(child, expected, items[index], layer.dialect, childPath, depth + 1)) return false
-        }
-      }
     }
+    for (const value of [null, 1, 2, 3, 0, -1, true, false, '', 'string', 'a']) {
+      add(value)
+    }
+    for (let index = 4; index < 32; index++) {
+      add(index)
+      add(`string${index}`)
+    }
+  }
+  const available = candidates.filter((value) => matches(items, value))
+  let count = 0
+  const append = (value: Primitive): boolean => {
+    const match = matches(contains, value)
+    if ((match && count >= maximum) || (schema.uniqueItems === true && values.includes(value))) {
+      return false
+    }
+    values.push(value)
+    count += Number(match)
     return true
   }
-
-  type Candidate = { value: unknown; matches: boolean[]; size: number }
-  const slots = new Map<number, { schemas: ItemSchemaLayer[]; candidates: Candidate[] }>()
-  const getSlot = (index: number): { schemas: ItemSchemaLayer[]; candidates: Candidate[] } => {
-    const key = index < prefixLength ? index : -1
-    const cached = slots.get(key)
-    if (cached) return cached
-    const sources = layers.map(
-      ({ schema: source, dialect }) =>
-        (dialect === 'modern' && Array.isArray(source.prefixItems) ? source.prefixItems[index] : undefined) ??
-        source.items ??
-        true,
+  for (const [index, value] of prefixes.slice(0, maxItems).entries()) {
+    if (!isPrimitive(value) || !matches(tuple[index] ?? true, value) || !append(value)) {
+      return values
+    }
+  }
+  if (items === false || (sample === undefined && typeof items !== 'boolean')) {
+    return values
+  }
+  while (values.length < maxItems && (values.length < length || count < minimum)) {
+    const candidate = available.find(
+      (value) =>
+        (count >= minimum || matches(contains, value)) &&
+        (!matches(contains, value) || count < maximum) &&
+        (schema.uniqueItems !== true || !values.includes(value)),
     )
-    const local: unknown[] = []
-    const authoredSamples: unknown[] = []
-    const probes: { source: unknown; sample: unknown; path: string[]; dialect: ArrayDialect }[] = []
-    let omitted = false
-    for (const [layerIndex, source] of sources.entries()) {
-      const layer = layers[layerIndex]!
-      const path = [
-        ...layer.path,
-        ...(Array.isArray(layer.schema.prefixItems) &&
-        index < layer.schema.prefixItems.length &&
-        layer.dialect === 'modern'
-          ? ['prefixItems', String(index)]
-          : ['items']),
-      ]
-      const sample = generate(source, path, dialectUris[layer.dialect])
-      probes.push({ source, sample, path, dialect: layer.dialect })
-      if (sample === undefined) omitted = true
-      const authored = arrayLayers(source, layer.dialect, select, path).some(
-        ({ schema }) => schema.example !== undefined || (Array.isArray(schema.examples) && schema.examples.length > 0),
-      )
-      if (sample !== undefined && sizeOf(sample) < MAX_NODES) {
-        if (authored) authoredSamples.push(sample)
-        else if (index < prefixLength) local.push(sample)
-      }
-    }
-    const choices = authoredSamples.length ? authoredSamples : [...local, ...candidates]
-    const valid = omitted
-      ? []
-      : choices.flatMap((value) => {
-          if (
-            sources.some((source, layerIndex) => matches(source, value, layers[layerIndex]!.dialect, budget) !== true)
-          )
-            return []
-          if (probes.some((probe) => !preservesAuthored(probe.source, probe.sample, value, probe.dialect, probe.path)))
-            return []
-          const results = rules.map((rule) => matches(rule.schema, value, rule.dialect, budget))
-          return results.some((result) => result === undefined)
-            ? []
-            : [{ value, matches: results as boolean[], size: sizeOf(value) }]
-        })
-    const slot = {
-      schemas: probes.map(({ source, path, dialect }) => ({ schema: source, path, dialect })),
-      candidates: valid,
-    }
-    slots.set(key, slot)
-    return slot
-  }
-  const values: unknown[] = []
-  let best: unknown[] = []
-  const finish = (result: unknown[]): { values: unknown[]; itemSchemas: ItemSchemaLayer[][] } => ({
-    values: result,
-    itemSchemas: result.map((_, index) => getSlot(index).schemas),
-  })
-  // Iterative DFS keeps large minItems from exhausting the JavaScript stack.
-  const stack: { next: number; counts: number[]; size: number; candidates: Candidate[] }[] = []
-  let counts = rules.map(() => 0)
-  let size = 1
-  let steps = MAX_SEARCH_STEPS
-  while (--steps >= 0 && budget.steps >= 0) {
-    const index = values.length
-    if (values.length > best.length) best = values.slice()
-    const needsMatch = rules.some((rule, ruleIndex) => counts[ruleIndex]! < rule.min)
-    if (index >= length && !needsMatch && matches(schema, values, dialect, budget) === true) return finish(values)
-    if (!stack[index]) {
-      const choices = index < maximum ? getSlot(index).candidates : []
-      const score = (candidate: Candidate): number =>
-        candidate.matches.filter((match, ruleIndex) => match && counts[ruleIndex]! < rules[ruleIndex]!.min).length
-      stack[index] = { next: 0, counts, size, candidates: [...choices].sort((a, b) => score(b) - score(a)) }
-    }
-    const frame = stack[index]!
-    const candidate = frame.candidates[frame.next++]
-    if (
-      candidate &&
-      (index < length ||
-        candidate.matches.some((match, ruleIndex) => match && counts[ruleIndex]! < rules[ruleIndex]!.min)) &&
-      rules.every((rule, ruleIndex) => counts[ruleIndex]! + Number(candidate.matches[ruleIndex]) <= rule.max) &&
-      size + candidate.size <= MAX_NODES &&
-      (!unique || !values.some((value) => equal(value, candidate.value)))
-    ) {
-      values.push(candidate.value)
-      counts = counts.map((count, ruleIndex) => count + Number(candidate.matches[ruleIndex]))
-      size += candidate.size
-    } else if (!candidate) {
-      stack.pop()
-      if (index === 0) break
-      values.pop()
-      counts = stack[index - 1]!.counts
-      size = stack[index - 1]!.size
+    if (candidate === undefined || !append(candidate)) {
+      break
     }
   }
-  return finish(best)
-}
-
-/** Keep XML metadata on every branch that actually accepts the chosen item and its children. */
-export const getContainsItemSchema = (
-  source: unknown,
-  value: unknown,
-  dialect: ArrayDialect,
-  select: SelectArrayComposition,
-  path: string[],
-): unknown => {
-  const budget = { steps: MAX_MATCH_STEPS }
-  let remaining = MAX_NODES
-  const visit = (
-    input: unknown,
-    value: unknown,
-    dialect: ArrayDialect,
-    depth: number,
-    path: string[],
-    consumed: ConsumedChoice[],
-  ): unknown => {
-    if (!isObject(input) || depth >= MAX_SCHEMA_DEPTH || --remaining < 0) return {}
-    if (typeof input.$schema === 'string') dialect = getArrayDialect(input.$schema)
-    const result = { ...input }
-    if ('$ref-value' in input)
-      result['$ref-value'] = visit(input['$ref-value'], value, dialect, depth + 1, path, consumed)
-    if (Array.isArray(input.allOf)) {
-      let choiceIndex = 0
-      result.allOf = input.allOf.slice(0, MAX_SCHEMA_VISITS).map((member) => {
-        const resolved = resolve.schema(member as SchemaObject)
-        const isChoice = resolved && (Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf))
-        const memberPath = isChoice ? [...path, String(choiceIndex++)] : path
-        return visit(member, value, dialect, depth + 1, memberPath, consumed)
-      })
-    }
-    const keyword = Array.isArray(input.oneOf) ? 'oneOf' : Array.isArray(input.anyOf) ? 'anyOf' : undefined
-    if (keyword) {
-      const members = input[keyword] as unknown[]
-      const preferred = select(input, path, consumed)
-      const selected =
-        preferred !== undefined && matches(preferred, value, dialect, budget) === true
-          ? preferred
-          : members.slice(0, MAX_CANDIDATES).find((member) => matches(member, value, dialect, budget) === true)
-      if (selected !== undefined) {
-        delete result.oneOf
-        delete result.anyOf
-        result.allOf = [
-          ...(Array.isArray(result.allOf) ? result.allOf : []),
-          visit(selected, value, dialect, depth + 1, path, [...consumed, { path, keyword }]),
-        ]
-      }
-    }
-    if (isObject(value)) {
-      const properties = isObject(input.properties) ? input.properties : {}
-      result.properties = Object.fromEntries(
-        Object.entries(value)
-          .slice(0, MAX_NODES)
-          .map(([key, child]) => [
-            key,
-            visit(properties[key] ?? input.additionalProperties, child, dialect, depth + 1, [...path, key], consumed),
-          ]),
-      )
-    }
-    if (Array.isArray(value) && dialect === 'modern') {
-      result.prefixItems = value.slice(0, MAX_NODES).map((child, index) => {
-        const prefix = Array.isArray(input.prefixItems) && index < input.prefixItems.length
-        return visit(
-          prefix ? (input.prefixItems as unknown[])[index] : input.items,
-          child,
-          dialect,
-          depth + 1,
-          [...path, ...(prefix ? ['prefixItems', String(index)] : ['items'])],
-          consumed,
-        )
-      })
-    }
-    return result
-  }
-  const selected = visit(source, value, dialect, 0, path, [])
-  return isObject(selected) ? { $schema: dialectUris[dialect], ...selected } : selected
+  return values
 }

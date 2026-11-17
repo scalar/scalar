@@ -9,184 +9,23 @@ const compact = { format: false, xmlDeclaration: false }
 const schema = (value: unknown): SchemaObject => value as SchemaObject
 
 describe('get-xml-example', () => {
-  it.each(['3.1.0', '3.2.0'])(
-    'keeps explicit accepting XML branch selections with contains in %s',
-    (openapiVersion) => {
-      const choice = {
-        anyOf: [
-          { type: 'integer', xml: { name: 'first' } },
-          { type: 'integer', xml: { name: 'selected' } },
-        ],
-      }
-      const cases = [
-        { keywords: { items: choice }, target: 2, path: 'items.anyOf', content: '<selected>2</selected>' },
-        {
-          keywords: { items: choice, allOf: [{ contains: { const: 2 } }] },
-          target: 2,
-          path: 'items.anyOf',
-          content: '<selected>2</selected>',
-        },
-        {
-          keywords: { allOf: [{ items: choice }, { contains: { const: 2 } }] },
-          target: 2,
-          path: 'items.anyOf',
-          content: '<selected>2</selected>',
-        },
-        {
-          keywords: { allOf: [{ anyOf: [{ items: choice }] }], contains: { const: 2 } },
-          target: 2,
-          path: '0.items.anyOf',
-          content: '<selected>2</selected>',
-        },
-        {
-          keywords: { items: { $ref: '#/item', '$ref-value': choice } },
-          target: 2,
-          path: 'items.anyOf',
-          content: '<selected>2</selected>',
-        },
-        {
-          keywords: { prefixItems: [choice], items: false },
-          target: 2,
-          path: 'prefixItems.0.anyOf',
-          content: '<selected>2</selected>',
-        },
-        {
-          keywords: { items: { allOf: [choice] } },
-          target: 2,
-          path: 'items.0.anyOf',
-          content: '<selected>2</selected>',
-        },
-        {
-          keywords: {
-            items: { type: 'object', xml: { name: 'item' }, properties: { value: choice }, required: ['value'] },
-          },
-          target: { value: 2 },
-          path: 'items.value.anyOf',
-          content: '<item><selected>2</selected></item>',
-        },
-        {
-          keywords: {
-            items: { type: 'array', xml: { name: 'group', wrapped: true }, items: choice, minItems: 1, maxItems: 1 },
-          },
-          target: [2],
-          path: 'items.items.anyOf',
-          content: '<group><selected>2</selected></group>',
-        },
-      ]
-      for (const { keywords, target, path, content } of cases) {
-        const input = schema({
-          type: 'array',
-          xml: { name: 'values', wrapped: true },
-          ...keywords,
-          minItems: 1,
-          maxItems: 1,
-          contains: { const: target },
-        })
-        expect(
-          getXmlExampleFromSchema(input, {
-            ...compact,
-            openapiVersion,
-            compositionSelection: { [path]: 1 },
-          }),
-        ).toStrictEqual({ xml: `<values>${content}</values>`, diagnostics: [] })
-      }
-    },
-  )
-
-  it.each(
-    ['3.1.0', '3.2.0'].flatMap((openapiVersion) => [false, true].map((reference) => ({ openapiVersion, reference }))),
-  )('keeps XML metadata on the selected contains item branches: %j', ({ openapiVersion, reference }) => {
-    const items = {
-      anyOf: [
-        { type: 'integer', xml: { name: 'number' } },
-        { type: 'string', const: 'x', xml: { name: 'word' } },
-      ],
-    }
-    const schema = {
-      type: 'array',
-      xml: { name: 'values', wrapped: true },
-      items: reference ? { $ref: '#/item', '$ref-value': items } : items,
-      minItems: 2,
-      maxItems: 2,
-      contains: { const: 'x' },
-      maxContains: 1,
-    } as unknown as SchemaObject
-    expect(getXmlExampleFromSchema(schema, { ...compact, openapiVersion })).toStrictEqual({
-      xml: '<values><word>x</word><number>1</number></values>',
-      diagnostics: [],
-    })
-  })
-  it.each(['3.1.0', '3.2.0'])('selects nested XML branches for counted objects in %s', (openapiVersion) => {
+  it('serializes simple contains matches with the item XML name', () => {
     const input = schema({
       type: 'array',
-      xml: { name: 'values', wrapped: true },
-      items: {
-        type: 'object',
-        xml: { name: 'item' },
-        properties: {
-          value: {
-            anyOf: [
-              { type: 'string', xml: { name: 'text' } },
-              { type: 'integer', xml: { name: 'number' } },
-            ],
-          },
-        },
-        required: ['value'],
-      },
-      minItems: 1,
-      maxItems: 1,
-      contains: { const: { value: 2 } },
-    })
-    expect(getXmlExampleFromSchema(input, { ...compact, openapiVersion })).toStrictEqual({
-      xml: '<values><item><number>2</number></item></values>',
-      diagnostics: [],
-    })
-  })
-
-  it.each([false, true])('selects nested array XML branches through a union: %s', (union) => {
-    const item = {
-      type: 'array',
-      xml: { name: 'group', wrapped: true },
-      items: {
-        anyOf: [
-          { type: 'string', xml: { name: 'text' } },
-          { type: 'integer', xml: { name: 'number' } },
-        ],
-      },
-      minItems: 2,
-      maxItems: 2,
-    }
-    const input = schema({
-      type: 'array',
-      xml: { name: 'values', wrapped: true },
-      items: union ? { anyOf: [item] } : item,
-      minItems: 1,
-      maxItems: 1,
-      contains: { const: [2, 'x'] },
-    })
-    expect(getXmlExampleFromSchema(input, compact)).toStrictEqual({
-      xml: '<values><group><number>2</number><text>x</text></group></values>',
-      diagnostics: [],
-    })
-  })
-
-  it('serializes counted matches with item XML metadata', () => {
-    const schema = {
-      type: 'array',
-      xml: { name: 'numbers', wrapped: true },
       items: { type: 'integer', xml: { name: 'number' } },
+      xml: { name: 'numbers', wrapped: true },
       minItems: 3,
       maxItems: 3,
       uniqueItems: true,
       contains: { const: 2 },
-      minContains: 1,
       maxContains: 1,
-    } as unknown as SchemaObject
-    expect(getXmlExampleFromSchema(schema, compact)).toStrictEqual({
+    })
+    expect(getXmlExampleFromSchema(input, compact)).toStrictEqual({
       xml: '<numbers><number>2</number><number>1</number><number>3</number></numbers>',
       diagnostics: [],
     })
   })
+
   it('pads array items through XML serialization', () => {
     const input: SchemaObject = {
       type: 'array',

@@ -1,4 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 import { isObject } from '@scalar/helpers/object/is-object'
@@ -11,22 +12,11 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
-import {
-  generateContainsArray,
-  getArrayDialect,
-  getAuthoredArrayValue,
-  getContainsItemSchema,
-  mayHaveArrayContains,
-} from './array-contains'
+import { generateContainsArray, getArrayDialect } from './array-contains'
 import { EXAMPLE_EVALUATION, type ExampleEvaluation, type ExampleEvaluationState } from './example-evaluation'
-import { hasUnencodedJsonContent } from './has-unencoded-json-content'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
-
-/** Preserve containment assertions without changing legacy resolution of other child schemas. */
-const getGenerationSchema = (source: unknown, resolved: SchemaObject): SchemaObject =>
-  mayHaveArrayContains(source) ? (source as SchemaObject) : resolved
 
 /** Default name used for additional properties when no custom name is provided */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
@@ -751,7 +741,7 @@ const handleObjectSchema = (
       }
       const value = discriminatorExample
         ? discriminatorExample.value
-        : getExampleFromSchema(getGenerationSchema(properties[propertyName], propertySchema), options, {
+        : getExampleFromSchema(propertySchema, options, {
             level: level + 1,
             parentSchema: schema,
             name: propertyName,
@@ -773,18 +763,14 @@ const handleObjectSchema = (
       if (!propertySchema) {
         continue
       }
-      response[pattern] = getExampleFromSchema(
-        getGenerationSchema(schema.patternProperties[pattern], propertySchema),
-        options,
-        {
-          level: level + 1,
-          parentSchema: schema,
-          name: pattern,
-          schemaPath: [...schemaPath, pattern],
-          seen,
-          dynamicScope: childScope,
-        },
-      )
+      response[pattern] = getExampleFromSchema(propertySchema, options, {
+        level: level + 1,
+        parentSchema: schema,
+        name: pattern,
+        schemaPath: [...schemaPath, pattern],
+        seen,
+        dynamicScope: childScope,
+      })
     }
   }
 
@@ -811,7 +797,7 @@ const handleObjectSchema = (
 
     const additionalValue =
       !isAnyType && typeof additional === 'object'
-        ? getExampleFromSchema(getGenerationSchema(schema.additionalProperties, additional), options, {
+        ? getExampleFromSchema(additional, options, {
             level: level + 1,
             schemaPath: [...schemaPath, additionalName],
             seen,
@@ -858,7 +844,7 @@ const handleObjectSchema = (
       const resolvedItem = resolve.schema(item)
       const isChoiceMember = !!resolvedItem && (Array.isArray(resolvedItem.oneOf) || Array.isArray(resolvedItem.anyOf))
       const memberSchemaPath = isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath
-      const ex = getExampleFromSchema(getGenerationSchema(item, resolvedItem), options, {
+      const ex = getExampleFromSchema(resolvedItem, options, {
         level: level + 1,
         parentSchema: schema,
         seen,
@@ -907,10 +893,6 @@ const readArrayLengthBound = (value: unknown, fallback: number): number =>
 /** Recognize an array described by its item keywords when no type was declared. */
 const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
   !('properties' in schema) && ('items' in schema || 'prefixItems' in schema) ? 'array' : undefined
-
-/** Nullable and other multi-type arrays need the same independent containment assertions. */
-const includesArrayType = (type: string | string[] | undefined): boolean =>
-  type === 'array' || (Array.isArray(type) && type.includes('array'))
 
 /** Apply the same explicit-type and inference precedence at either union selection site. */
 const getSelectedType = (variant: SchemaObject | undefined, holder: SchemaObject): string | string[] | undefined =>
@@ -981,96 +963,8 @@ const handleArraySchema = (
   schemaPath: string[],
   dynamicScope: DynamicScope,
 ) => {
-  const displaySchema = '$ref' in schema ? resolve.schema(schema) : schema
-  const childScope = pushDynamicScope(dynamicScope, displaySchema)
+  const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
-
-  const dialect = getArrayDialect(
-    options?.jsonSchemaDialect,
-    options?.originalOpenapiVersion ?? options?.openapiVersion,
-  )
-  if (mayHaveArrayContains(schema) && dialect !== 'unsupported') {
-    const select: Parameters<typeof generateContainsArray>[3] = (candidate, path, consumed): unknown =>
-      selectExampleComposition(
-        candidate as SchemaObject,
-        [...schemaPath, ...path],
-        consumed.reduce(
-          (remaining, choice) =>
-            consumeCompositionSelection(remaining, [...schemaPath, ...choice.path], choice.keyword),
-          options,
-        ),
-      )
-    const authored = getAuthoredArrayValue(
-      schema,
-      dialect,
-      select,
-      (source) => {
-        if (source.default === undefined) return undefined
-        const value = normalizeSchemaDefault(source as SchemaObject)
-        return value === INVALID_DEFAULT ? undefined : { value }
-      },
-      mergeExamples,
-    )
-    if (authored) {
-      return cache(schema, authored.value, cacheKey, skipCache)
-    }
-    const probeOptions = options?.[EXAMPLE_EVALUATION] ? { ...options, [EXAMPLE_EVALUATION]: undefined } : options
-    const { values: value, itemSchemas } = generateContainsArray(
-      schema,
-      dialect,
-      (candidate, path, candidateDialect) => {
-        if (typeof candidate === 'boolean') return candidate ? null : undefined
-        if (!candidate || typeof candidate !== 'object') return undefined
-        return getExampleFromSchema(
-          candidate as SchemaObject,
-          {
-            ...probeOptions,
-            jsonSchemaDialect: candidateDialect,
-          },
-          {
-            level: level + 1,
-            schemaPath: [...schemaPath, ...path],
-            seen,
-            dynamicScope: childScope,
-          },
-        )
-      },
-      select,
-    )
-    const evaluation = options?.[EXAMPLE_EVALUATION]?.stack.at(-1)
-    if (evaluation) {
-      evaluation.arrayItems = value.map((item, index) => {
-        const prefix = 'prefixItems' in displaySchema ? displaySchema.prefixItems?.[index] : undefined
-        const itemPath = prefix ? ['prefixItems', String(index)] : ['items']
-        // Resolve choices at each original path before combining layers for XML provenance.
-        const selectedLayers = (itemSchemas[index] ?? []).map((layer) =>
-          getContainsItemSchema(layer.schema, item, layer.dialect, select, layer.path),
-        )
-        const selected = (selectedLayers.length === 1 ? selectedLayers[0] : { allOf: selectedLayers }) as SchemaObject
-        const capture: ExampleEvaluationState = { stack: [] }
-        getExampleFromSchema(
-          selected,
-          { ...options, [EXAMPLE_EVALUATION]: capture },
-          {
-            level: level + 1,
-            schemaPath: [...schemaPath, ...itemPath],
-            seen,
-            dynamicScope: childScope,
-          },
-        )
-        return { ...capture.root!, value: item }
-      })
-    }
-    const items = 'items' in displaySchema ? resolve.schema(displaySchema.items) : undefined
-    const tag = items && 'xml' in items ? items.xml?.name : undefined
-    const prefixes =
-      'prefixItems' in displaySchema && Array.isArray(displaySchema.prefixItems) ? displaySchema.prefixItems.length : 0
-    const result =
-      options?.xml && 'xml' in displaySchema && displaySchema.xml?.wrapped && tag
-        ? value.map((item, index) => (index < prefixes ? item : { [tag]: item }))
-        : value
-    return cache(schema, result, cacheKey, skipCache)
-  }
 
   const maxItems = readArrayLengthBound('maxItems' in schema ? schema.maxItems : undefined, Number.POSITIVE_INFINITY)
   const minItems = Math.min(
@@ -1093,6 +987,28 @@ const handleArraySchema = (
         dynamicScope: childScope,
       }),
     ) ?? []
+
+  const counted = generateContainsArray(
+    schema,
+    values,
+    (item) =>
+      getExampleFromSchema(item as SchemaObject, options, {
+        level: level + 1,
+        schemaPath: [...schemaPath, 'items'],
+        seen,
+        dynamicScope: childScope,
+      }),
+    getArrayDialect(options?.jsonSchemaDialect, options?.originalOpenapiVersion ?? options?.openapiVersion),
+  )
+  if (counted) {
+    const items = 'items' in schema ? resolve.schema(schema.items) : undefined
+    const tag = items && 'xml' in items ? items.xml?.name : undefined
+    const result =
+      options?.xml && 'xml' in schema && schema.xml?.wrapped && tag
+        ? counted.map((item, index) => (index < (prefixes?.length ?? 0) ? item : { [tag]: item }))
+        : counted
+    return cache(schema, result, cacheKey, skipCache)
+  }
 
   if (prefixes && values.length >= minItems) {
     return cache(schema, values, cacheKey, skipCache)
@@ -1148,17 +1064,6 @@ const handleArraySchema = (
     return cache(schema, values, cacheKey, skipCache)
   }
 
-  // Keep independent reference and composition assertions together before item branch selection.
-  if (mayHaveArrayContains(itemSchema) && itemsSeen === seen) {
-    const example = getExampleFromSchema(itemSchema as SchemaObject, options, {
-      level: level + 1,
-      schemaPath: itemsSchemaPath,
-      seen: itemsSeen,
-      dynamicScope: childScope,
-    })
-    return completeArrayExample(isDefined(example) ? [example] : [])
-  }
-
   if (items && typeof items === 'object') {
     if (Array.isArray(items.allOf) && items.allOf.length > 0) {
       const allOf = items.allOf.filter(isDefined)
@@ -1178,7 +1083,7 @@ const handleArraySchema = (
 
       const examples = allOf
         .map((s) =>
-          getExampleFromSchema(getGenerationSchema(s, resolve.schema(s)), options, {
+          getExampleFromSchema(resolve.schema(s), options, {
             level: level + 1,
             parentSchema: schema,
             schemaPath: itemsSchemaPath,
@@ -1260,6 +1165,25 @@ const handleArraySchema = (
     itemSchema === undefined ||
     target === true ||
     (target !== undefined && items && Object.keys(items).every((key) => ITEM_ANNOTATIONS.has(key)))
+  // Preserve the legacy sample for unsupported unrestricted schemas.
+  const contains =
+    'contains' in schema && schema.contains && typeof schema.contains === 'object' && !Array.isArray(schema.contains)
+      ? resolve.schema(schema.contains as SchemaObject)
+      : undefined
+  if (
+    unrestricted &&
+    contains &&
+    getArrayDialect(options?.jsonSchemaDialect, options?.originalOpenapiVersion ?? options?.openapiVersion) !==
+      'unsupported'
+  ) {
+    const sample = getExampleFromSchema(contains, options, {
+      level: level + 1,
+      schemaPath: [...schemaPath, 'contains'],
+      seen: itemsSeen,
+      dynamicScope: childScope,
+    })
+    return completeArrayExample(sample === undefined ? [] : [sample])
+  }
   return completeArrayExample([], unrestricted ? null : undefined)
 }
 
@@ -1316,9 +1240,9 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
 export type GetExampleFromSchemaOptions = {
   /** Declared document version; absent means a standalone modern schema. */
   openapiVersion?: string
-  /** Original version when a loader upgraded the document; keeps newer assertions from activating. */
+  /** Original version when a loader upgraded the document. */
   originalOpenapiVersion?: string
-  /** Default JSON Schema dialect, overridden by a schema resource's $schema. */
+  /** Default dialect, overridden by a schema resource's $schema. */
   jsonSchemaDialect?: string
   /** Internal provenance capture, excluded from persistent result caches. */
   [EXAMPLE_EVALUATION]?: ExampleEvaluationState
@@ -1842,6 +1766,12 @@ const getMaxDepthValue = (
   return emptySchemaValue
 }
 
+const hasUnencodedJsonContent = (schema: SchemaObject): boolean => {
+  if (!('contentSchema' in schema) || !isJsonMediaType(schema.contentMediaType)) return false
+  if ('contentEncoding' in schema) return false
+  return !('type' in schema) || getDeclaredTypes(schema).includes('string')
+}
+
 /**
  * Generate an example value from a given OpenAPI SchemaObject.
  *
@@ -1893,31 +1823,13 @@ const generateExampleFromSchema = (
     discriminatorExamples = new WeakMap()
   }
 
-  // Reference siblings are independent assertions; the display resolver merges their keywords.
-  const containsReference =
-    typeof schema === 'object' && schema !== null && '$ref' in schema && mayHaveArrayContains(schema)
-  const resolveReferenceChain = (source: SchemaObject, references: Set<object>): SchemaObject | undefined => {
-    const resolved = resolve.schema(source)
-    if (!resolved || containsReference || !('$ref-value' in resolved) || !isObject(resolved['$ref-value'])) {
-      return resolved
-    }
-    // Callers retain the original graph for containment. Other schemas still need every annotated
-    // reference hop, including at the root, where callers previously resolved the graph beforehand.
-    const target = getSchemaCacheTarget(resolved['$ref-value'])
-    if (references.has(target) || references.size >= MAX_COMPOSITION_DEPTH) {
-      // Stop resolving, but let the normal authored-value checks below retain explicit examples.
-      truncated = true
-      return resolved
-    }
-    references.add(target)
-    return resolveReferenceChain(resolved, references)
-  }
-  const _schema = resolveReferenceChain(schema, new Set())
+  // Resolve any $ref references to get the actual schema
+  const _schema = resolve.schema(schema)
   if (!isDefined(_schema)) {
     return undefined
   }
 
-  if (!containsReference && typeof _schema.$schema === 'string' && _schema.$schema !== options?.jsonSchemaDialect) {
+  if (typeof _schema.$schema === 'string') {
     options = { ...options, jsonSchemaDialect: _schema.$schema }
   }
 
@@ -2051,35 +1963,11 @@ const generateExampleFromSchema = (
       ? getCompositionRequiredNames(_schema, options, schemaPath, level, seen, dynamicScope)
       : undefined)
 
-  // Keep same-instance containment assertions together before union selection merges keywords.
-  const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
-  const selectedSchemaType = getSelectedType(selectedVariant, _schema)
-  if (
-    getArrayDialect(options?.jsonSchemaDialect, options?.originalOpenapiVersion ?? options?.openapiVersion) !==
-      'unsupported' &&
-    mayHaveArrayContains(containsReference ? schema : _schema) &&
-    (('type' in _schema && includesArrayType(_schema.type)) ||
-      (!('type' in _schema) &&
-        !('properties' in _schema) &&
-        (selectedSchemaType === undefined || includesArrayType(selectedSchemaType))))
-  ) {
-    const result = handleArraySchema(
-      containsReference ? schema : _schema,
-      options,
-      level,
-      seen,
-      cacheKey,
-      schemaPath,
-      dynamicScope,
-    )
-    seen.delete(targetValue)
-    return cache(_schema, result, cacheKey, skipCache)
-  }
-
   // Resolve non-object unions before type dispatch so shared root keywords do not
   // hide the selected member. Use the same selection and discriminator rules as other unions.
   const selectedAnyOf = _schema.anyOf ? 'anyOf' : undefined
   const selectedComposition = _schema.oneOf ? 'oneOf' : selectedAnyOf
+  const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
   if (selectedComposition && selectedVariant) {
     const selectedType = getSelectedType(selectedVariant, _schema)
     if (selectedType !== undefined && selectedType !== 'object') {
@@ -2115,7 +2003,7 @@ const generateExampleFromSchema = (
     if (contentSchema) {
       // JSON content preserves strings and property names regardless of the enclosing wire format.
       const content = getExampleFromSchema(
-        getGenerationSchema(_schema.contentSchema, contentSchema),
+        contentSchema,
         { ...options, xml: false, binaryAsFile: false },
         {
           level: level + 1,
@@ -2200,7 +2088,7 @@ const generateExampleFromSchema = (
       const resolvedItem = resolve.schema(item)
       const isChoiceMember = !!resolvedItem && (Array.isArray(resolvedItem.oneOf) || Array.isArray(resolvedItem.anyOf))
       const memberSchemaPath = isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath
-      const ex = getExampleFromSchema(getGenerationSchema(item, resolvedItem), options, {
+      const ex = getExampleFromSchema(item as SchemaObject, options, {
         level: level + 1,
         parentSchema: _schema,
         schemaPath: memberSchemaPath,

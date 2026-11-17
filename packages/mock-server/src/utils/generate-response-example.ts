@@ -1,4 +1,3 @@
-import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 
 /** The schema shape `getExampleFromSchema` accepts, so callers do not have to name it themselves. */
@@ -19,7 +18,7 @@ export const generateResponseExample = (
   variables?: Record<string, unknown>,
   generationContext: ExampleGenerationContext = {},
 ): unknown =>
-  getExampleFromSchema(snapshotSchema(schema), {
+  getExampleFromSchema(schema, {
     ...generationContext,
     emptyString: 'string',
     variables,

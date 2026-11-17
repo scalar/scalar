@@ -2,13 +2,12 @@ import { getStreamFormat } from '@scalar/helpers/http/is-streaming-content-type'
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
-import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Context } from 'hono'
 import { stream } from 'hono/streaming'
 
-import { type ExampleGenerationContext, type ExampleSchema, generateResponseExample } from './generate-response-example'
+import { type ExampleGenerationContext, generateResponseExample } from './generate-response-example'
 import { selectResponseExample } from './select-response-example'
 
 /** A finite mock stream, with its data-model value available to custom handlers. */
@@ -59,37 +58,22 @@ export const getStreamingResponse = (
     }
     if (completeSchema === undefined) {
       return Array.from({ length: 3 }, () =>
-        mediaType.itemSchema === true
+        itemSchema === true
           ? null
-          : generateResponseExample(
-              (typeof mediaType.itemSchema === 'boolean'
-                ? coerceValue(SchemaObjectSchema, mediaType.itemSchema)
-                : mediaType.itemSchema) as ExampleSchema,
-              options.variables,
-              options,
-            ),
+          : generateResponseExample(coerceValue(SchemaObjectSchema, itemSchema), options.variables, options),
       )
     }
     if (typeof completeSchema === 'object' && 'type' in completeSchema && completeSchema.type === 'array') {
-      // Inspect the resolved shape, but generate from the original graph so reference assertions,
-      // authored examples, and tuple prefixes survive the addition of fallback stream items.
       return generateResponseExample(
-        ('items' in completeSchema && completeSchema.items !== undefined
-          ? mediaType.schema
-          : Object.assign(snapshotSchema(mediaType.schema as ExampleSchema), {
-              items: mediaType.itemSchema,
-            })) as ExampleSchema,
+        coerceValue(SchemaObjectSchema, {
+          ...completeSchema,
+          items: ('items' in completeSchema ? completeSchema.items : undefined) ?? itemSchema,
+        }),
         options.variables,
         options,
       )
     }
-    return generateResponseExample(
-      (typeof mediaType.schema === 'boolean'
-        ? coerceValue(SchemaObjectSchema, mediaType.schema)
-        : mediaType.schema) as ExampleSchema,
-      options.variables,
-      options,
-    )
+    return generateResponseExample(coerceValue(SchemaObjectSchema, completeSchema), options.variables, options)
   }
   const body = example ? example.value : generateBody()
   const items = Array.isArray(body) ? body : [body]

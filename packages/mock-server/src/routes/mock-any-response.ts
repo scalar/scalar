@@ -2,7 +2,6 @@ import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { getExampleFromSchema, getXmlBodyExample } from '@scalar/workspace-store/request-example'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Context } from 'hono'
@@ -83,7 +82,7 @@ export function mockAnyResponse(
     const headerObject = getResolvedRef(headers[header])
     // Headers use the generator defaults to preserve their declared values.
     const value = headerObject?.schema
-      ? getExampleFromSchema(snapshotSchema(headerObject.schema) as SchemaObject, generationContext)
+      ? getExampleFromSchema(getResolvedRefDeep(headerObject.schema), generationContext)
       : null
     // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
     // thing to set the declared headers, so in practice a delete removes a header set earlier by
@@ -137,9 +136,7 @@ export function mockAnyResponse(
 
   /** Generates the response body from the schema, or returns `undefined` when there is no schema. */
   const generateFromSchema = (): unknown =>
-    responseSchema
-      ? generateResponseExample(acceptedResponse!.schema as SchemaObject, pathParameters(c), generationContext)
-      : undefined
+    responseSchema ? generateResponseExample(responseSchema, pathParameters(c), generationContext) : undefined
 
   // Server-Sent Events are a framed, multi-event wire format, so they cannot go out as one buffered
   // body: a client reading the stream expects `data:` lines terminated by a blank line. Everything

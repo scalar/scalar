@@ -5,7 +5,7 @@ import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 
 import { store } from '../libs/store'
-import { type ExampleGenerationContext, type ExampleSchema, generateResponseExample } from './generate-response-example'
+import { type ExampleGenerationContext, generateResponseExample } from './generate-response-example'
 import { normalizeResponseBody } from './normalize-response-body'
 import { parsePreferHeader } from './parse-prefer-header'
 import { pathParameters } from './path-parameters'
@@ -95,7 +95,7 @@ function getExampleFromResponse(
   }
   return responseSchema
     ? normalizeResponseBody(
-        generateResponseExample(acceptedResponse.schema as ExampleSchema, pathParameters(c), generationContext),
+        generateResponseExample(responseSchema, pathParameters(c), generationContext),
         responseSchema,
       )
     : null

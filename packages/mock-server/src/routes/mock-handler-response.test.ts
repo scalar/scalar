@@ -6,9 +6,9 @@ import { mockHandlerResponse } from './mock-handler-response'
 
 describe('mock-handler-response', () => {
   it.each(['return res[200];', 'return undefined;'])(
-    'retains reference constraints through handler examples: %s',
+    'generates simple contains counts through handler examples: %s',
     async (handler) => {
-      const target = {
+      const schema = {
         type: 'array',
         items: { type: 'integer' },
         minItems: 2,
@@ -16,14 +16,13 @@ describe('mock-handler-response', () => {
         contains: { const: 2 },
         maxContains: 1,
       }
-      const schema = { $ref: '#/array', '$ref-value': target, contains: { const: 3 }, maxContains: 1 }
       const operation = {
         'x-handler': handler,
         responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } },
       } as unknown as OpenAPIV3_1.OperationObject
       const app = new Hono().get('/', (c) => mockHandlerResponse(c, operation, undefined, { openapiVersion: '3.1.0' }))
       const response = await app.request('/')
-      expect(((await response.json()) as number[]).sort()).toStrictEqual([2, 3])
+      expect(await response.json()).toStrictEqual([2, 1])
     },
   )
 

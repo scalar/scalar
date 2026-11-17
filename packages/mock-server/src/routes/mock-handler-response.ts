@@ -89,7 +89,7 @@ function getExampleFromResponse(
     value = normalizeResponseBody(selectedExample.value, responseSchema)
   } else if (responseSchema) {
     value = normalizeResponseBody(
-      generateResponseExample(acceptedResponse.schema as SchemaObject, pathParameters(c), generationContext),
+      generateResponseExample(responseSchema, pathParameters(c), generationContext),
       responseSchema,
     )
   }

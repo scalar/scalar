@@ -349,13 +349,11 @@ const buildXmlExample = (
           ? [...context.path, 'prefixItems', String(index)]
           : [...context.path, 'items']
         const itemEvaluations = evaluations.filter((child) => child.path.join('.') === itemPath.join('.'))
-        const countedItem = context.evaluation?.arrayItems?.[index]
-        const itemEvaluation =
-          countedItem ?? (itemEvaluations.length === data.length ? itemEvaluations[index] : itemEvaluations[0])
+        const itemEvaluation = itemEvaluations.length === data.length ? itemEvaluations[index] : itemEvaluations[0]
         children.push(
           ...map(
             data[index],
-            (countedItem?.schema ?? prefixes?.[index] ?? itemSchema) as SchemaObject,
+            (prefixes?.[index] ?? itemSchema) as SchemaObject,
             inheritedName ?? nodeName,
             {
               path: itemPath,
