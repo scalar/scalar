@@ -23,10 +23,11 @@ export const loadProtobufFiles = (
   const owners = new WeakMap<Definition, ProtobufFile>()
   const state = { size: source.length, nodes: 0 }
   const load = (text: string, uri: string, depth: number, root = false): ProtobufFile => {
-    if (depth > 20 || text.length > 200_000 || state.size > 1_000_000 || files.size >= 65 || active.has(uri))
+    if (depth > 20 || text.length > 200_000 || state.size > 1_000_000 || active.has(uri))
       throw new Error('Invalid Protobuf dependency graph')
     const cached = files.get(uri)
     if (cached) return cached
+    if (files.size >= 65) throw new Error('Too many Protobuf dependencies')
     active.add(uri)
     const document = parse(text, {
       keepCase: true,

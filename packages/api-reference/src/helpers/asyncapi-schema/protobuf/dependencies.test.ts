@@ -66,6 +66,19 @@ describe('dependencies', () => {
     expect(result?.nodes[0]?.children?.map(({ type }) => type)).toStrictEqual(['message a.Value', 'message b.Value'])
   })
 
+  it('reuses imports at the 64 external file limit and rejects an additional file', () => {
+    const imports = Array.from({ length: 64 }, (_, index) => `import "${index}.proto";`).join(' ')
+    const files = Object.fromEntries(
+      Array.from({ length: 65 }, (_, index) => [
+        `/${index}.proto`,
+        `syntax="proto3"; message Value${index} { string id=1; }`,
+      ]),
+    )
+    const source = `syntax="proto3"; ${imports} import "0.proto"; message Root { Value0 value=1; }`
+    expect(readSchema(format, source, resources(files))?.nodes[0]?.children?.[0]?.type).toBe('message Value0')
+    expect(readSchema(format, `${source} import "64.proto";`, resources(files))).toBeUndefined()
+  })
+
   it.each<Record<string, string>>([
     { '/a.proto': 'syntax="proto3"; import "a.proto"; package pkg; message A {}' },
     { '/a.proto': 'syntax="proto3"; package pkg; message A {} message Root {}', '/b.proto': '' },

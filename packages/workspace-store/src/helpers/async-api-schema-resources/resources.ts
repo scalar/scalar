@@ -2,7 +2,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 
 import { protobufImports } from './protobuf-imports'
-import { RamlInclude, parseRamlSource } from './raml-source'
+import { RamlInclude, type RamlPosition, parseRamlSource, ramlChildPosition } from './raml-source'
 import { schemaResourcePath } from './schema-resource-path'
 
 /** Raw dependencies travel with a schema across server chunks, without changing its authored source. */
@@ -29,12 +29,11 @@ export const createSchemaResourceLoader = (): ((
     const state = { size: typeof source === 'string' ? source.length : 0, nodes: 0 }
     const done = new Set<string>()
     const active = new Set<string>()
-    type Position = 'schema' | 'properties' | 'text' | 'data'
     const load = async (
       reference: string,
       base: string,
       depth: number,
-      position: Position = 'schema',
+      position: RamlPosition = 'schema',
     ): Promise<void> => {
       if (depth > 20) throw new Error('Dependency graph is too deep')
       const url = schemaResourcePath(base, reference)
@@ -64,7 +63,12 @@ export const createSchemaResourceLoader = (): ((
       active.delete(identity)
       done.add(identity)
     }
-    const scan = async (value: unknown, base: string, depth: number, position: Position = 'schema'): Promise<void> => {
+    const scan = async (
+      value: unknown,
+      base: string,
+      depth: number,
+      position: RamlPosition = 'schema',
+    ): Promise<void> => {
       if (position === 'text') return
       if (depth > 40 || ++state.nodes > 10_000) throw new Error('Schema is too large')
       if (proto) {
@@ -75,7 +79,7 @@ export const createSchemaResourceLoader = (): ((
       const parsed = typeof value === 'string' ? parseRamlSource(value) : value
       const seen = new Set<unknown>()
       const library = typeof value === 'string' && /^#%RAML 1\.0 Library/.test(value)
-      const walk = async (node: unknown, level: number, position: Position): Promise<void> => {
+      const walk = async (node: unknown, level: number, position: RamlPosition): Promise<void> => {
         if (level > 40 || ++state.nodes > 10_000) throw new Error('RAML is too large')
         if (node instanceof RamlInclude) {
           await load(node.path, base, depth, position)
@@ -89,18 +93,10 @@ export const createSchemaResourceLoader = (): ((
                 await load(path, base, depth)
               }
             } else {
-              const next: Position =
-                position === 'data'
-                  ? 'data'
-                  : position === 'properties'
-                    ? 'schema'
-                    : key === 'properties' || (library && node === parsed && key === 'types')
-                      ? 'properties'
-                      : ['description', 'displayName', 'usage'].includes(key)
-                        ? 'text'
-                        : ['example', 'examples', 'default', 'enum'].includes(key)
-                          ? 'data'
-                          : 'schema'
+              const next = ramlChildPosition(
+                library && node === parsed && position === 'schema' ? 'library' : position,
+                key,
+              )
               await walk(child, level + 1, next)
             }
           }

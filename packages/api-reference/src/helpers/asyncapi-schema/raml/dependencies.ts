@@ -1,5 +1,10 @@
 import { isObject } from '@scalar/helpers/object/is-object'
-import { RamlInclude, parseRamlSource } from '@scalar/workspace-store/helpers/async-api-schema-resources/raml-source'
+import {
+  RamlInclude,
+  type RamlPosition,
+  parseRamlSource,
+  ramlChildPosition,
+} from '@scalar/workspace-store/helpers/async-api-schema-resources/raml-source'
 import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
 import { schemaResourcePath } from '@scalar/workspace-store/helpers/async-api-schema-resources/schema-resource-path'
 
@@ -11,8 +16,6 @@ export type RamlContext = {
   libraries: Map<string, RamlContext>
   scope?: RamlContext
 }
-
-type Position = 'schema' | 'properties' | 'text' | 'data' | 'library'
 
 /** Substitute includes before interpretation, retaining file provenance separately from authored values. */
 export const ramlDependencies = (
@@ -47,7 +50,7 @@ export const ramlDependencies = (
   const create = (
     source: unknown,
     uri: string,
-    position: Position,
+    position: RamlPosition,
     depth: number,
     parent?: RamlContext,
   ): RamlContext => {
@@ -108,7 +111,7 @@ export const ramlDependencies = (
     return context
   }
   const path = new Set<object>()
-  const expand = (value: unknown, context: RamlContext, position: Position, depth: number): unknown => {
+  const expand = (value: unknown, context: RamlContext, position: RamlPosition, depth: number): unknown => {
     budget(depth)
     if (value instanceof RamlInclude) {
       const { content, uri } = read(value.path, context)
@@ -117,20 +120,8 @@ export const ramlDependencies = (
     if (!isObject(value) && !Array.isArray(value)) return value
     if (path.has(value)) throw new Error('Cyclic RAML YAML aliases')
     path.add(value)
-    const nextPosition = (key: string): Position =>
-      position === 'properties'
-        ? 'schema'
-        : position === 'data' || position === 'text'
-          ? 'data'
-          : key === 'properties' || (position === 'library' && key === 'types')
-            ? 'properties'
-            : ['description', 'displayName', 'usage'].includes(key)
-              ? 'text'
-              : ['example', 'examples', 'default', 'enum'].includes(key)
-                ? 'data'
-                : 'schema'
     const locations = new Map<string, RamlContext>()
-    const child = (key: string, value: unknown, position: Position): unknown => {
+    const child = (key: string, value: unknown, position: RamlPosition): unknown => {
       if (!(value instanceof RamlInclude)) return expand(value, context, position, depth + 1)
       const { content, uri } = read(value.path, context)
       const included = create(content, uri, position, depth + 1, context)
@@ -139,7 +130,9 @@ export const ramlDependencies = (
     }
     const result = Array.isArray(value)
       ? value.map((value, index) => child(String(index), value, position))
-      : Object.fromEntries(Object.entries(value).map(([key, value]) => [key, child(key, value, nextPosition(key))]))
+      : Object.fromEntries(
+          Object.entries(value).map(([key, value]) => [key, child(key, value, ramlChildPosition(position, key))]),
+        )
     contexts.set(result, context)
     children.set(result, locations)
     path.delete(value)
