@@ -3,6 +3,16 @@ import { expect, test } from '@test/helpers'
 // These stories need interaction and geometry assertions: an initial screenshot cannot
 // detect a heading hidden behind a header or an ancestor that never scrolled.
 test.describe('LazyBus', () => {
+  test('Late Layout', async ({ page }) => {
+    const target = page.getByRole('heading', { name: 'Scroll target' })
+    await page.evaluate(() => {
+      document.documentElement.style.overflowAnchor = 'none'
+    })
+    await page.getByRole('button', { name: 'Scroll to target' }).click()
+    await expect(page.locator('[data-layout-shifted="true"]')).toHaveCount(1)
+    await expect.poll(async () => (await target.boundingBox())?.y).toBe(60)
+  })
+
   for (const [story, expectedTop] of [
     ['Sidebar', 0],
     ['Sticky Header', 60],

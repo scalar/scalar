@@ -160,6 +160,7 @@ describe('lazy-bus', () => {
       vi.advanceTimersToNextFrame()
       expect(scrolledTo).toStrictEqual([targets[2]])
 
+      await vi.advanceTimersByTimeAsync(200)
       scrolledTo.length = 0
       vi.advanceTimersToNextFrame()
       expect(scrolledTo).toStrictEqual([])
@@ -168,13 +169,15 @@ describe('lazy-bus', () => {
     }
   })
 
-  it('scrolls for one final settling frame after lazy rendering completes', async () => {
+  it('holds the target until delayed layout changes settle after lazy rendering completes', async () => {
     vi.useFakeTimers()
 
     try {
       const id = 'tag/settling/GET/settling'
       const element = document.createElement('section')
       element.id = id
+      let top = 1000
+      vi.spyOn(element, 'getBoundingClientRect').mockImplementation(() => new DOMRect(0, top, 400, 30))
       const scrollIntoView = vi.fn()
       element.scrollIntoView = scrollIntoView
       document.body.append(element)
@@ -194,13 +197,20 @@ describe('lazy-bus', () => {
       await nextTick()
       await nextTick()
 
-      // Completing the bus must leave one frame to settle the rendered layout.
+      // The queue can finish before later sections change height.
       scrollIntoView.mockClear()
       vi.advanceTimersToNextFrame()
       expect(scrollIntoView).toHaveBeenCalledTimes(1)
 
+      await vi.advanceTimersByTimeAsync(80)
+      top += 1200
+      await vi.advanceTimersByTimeAsync(100)
       scrollIntoView.mockClear()
       vi.advanceTimersToNextFrame()
+      expect(scrollIntoView).toHaveBeenCalledTimes(1)
+
+      await vi.advanceTimersByTimeAsync(200)
+      scrollIntoView.mockClear()
       vi.advanceTimersToNextFrame()
       expect(scrollIntoView).not.toHaveBeenCalled()
     } finally {
@@ -208,7 +218,146 @@ describe('lazy-bus', () => {
     }
   })
 
+  it.each(['wheel', 'touchstart', 'pointerdown', 'keydown'])(
+    'releases the target and pending retries when the reader sends %s input',
+    async (eventType) => {
+      vi.useFakeTimers()
+      const id = `cancel-${eventType}`
+      scrollToLazy(
+        id,
+        () => undefined,
+        () => undefined,
+      )
+      await nextTick()
+      const event = eventType === 'keydown' ? new KeyboardEvent('keydown', { key: 'PageDown' }) : new Event(eventType)
+      window.dispatchEvent(event)
+
+      // The target appears after cancellation, as it can during slow lazy rendering.
+      const element = document.createElement('h2')
+      element.id = id
+      element.scrollIntoView = vi.fn()
+      document.body.append(element)
+      await vi.advanceTimersByTimeAsync(500)
+      expect(element.scrollIntoView).not.toHaveBeenCalled()
+    },
+  )
+
+  it('does not retry an obsolete destination after a newer navigation', async () => {
+    vi.useFakeTimers()
+    scrollToLazy(
+      'obsolete-target',
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    const latest = document.createElement('h2')
+    latest.id = 'latest-target'
+    latest.scrollIntoView = vi.fn()
+    document.body.append(latest)
+    scrollToLazy(
+      latest.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+
+    const obsolete = document.createElement('h2')
+    obsolete.id = 'obsolete-target'
+    obsolete.scrollIntoView = vi.fn()
+    document.body.append(obsolete)
+    await vi.advanceTimersByTimeAsync(100)
+    expect(obsolete.scrollIntoView).not.toHaveBeenCalled()
+    expect(latest.scrollIntoView).toHaveBeenCalled()
+  })
+
+  it('bounds the hold when layout keeps changing', async () => {
+    vi.useFakeTimers()
+    const element = document.createElement('h2')
+    element.id = 'continuously-moving-target'
+    element.scrollIntoView = vi.fn()
+    vi.spyOn(element, 'getBoundingClientRect').mockImplementation(() => new DOMRect(0, Date.now(), 400, 30))
+    document.body.append(element)
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(3300)
+    vi.mocked(element.scrollIntoView).mockClear()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(element.scrollIntoView).not.toHaveBeenCalled()
+  })
+
+  it('keeps retrying a missing property before falling back to its operation', async () => {
+    vi.useFakeTimers()
+    const fallback = document.createElement('h2')
+    fallback.id = 'tag/fallback/GET/fallback'
+    fallback.scrollIntoView = vi.fn()
+    document.body.append(fallback)
+    const missing = `${fallback.id}.body.missing`
+    scrollToLazy(
+      missing,
+      () => undefined,
+      (id) => (id === fallback.id ? { id } : undefined),
+    )
+    // A large document can spend time flushing Vue before the first scroll attempt.
+    vi.advanceTimersByTime(200)
+    await nextTick()
+    requestLazyRender(missing, true)
+    await nextTick()
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(3100)
+    expect(fallback.scrollIntoView).toHaveBeenCalledTimes(1)
+  })
+
+  it('holds an already-rendered target while other layout work settles', async () => {
+    vi.useFakeTimers()
+    const element = document.createElement('h2')
+    element.id = 'ready-target'
+    element.scrollIntoView = vi.fn()
+    document.body.append(element)
+    requestLazyRender(element.id, true)
+    await nextTick()
+    await nextTick()
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(80)
+    vi.mocked(element.scrollIntoView).mockClear()
+    vi.advanceTimersToNextFrame()
+    expect(element.scrollIntoView).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps intersection tracking paused through settling and releases it afterward', async () => {
+    vi.useFakeTimers()
+    vi.resetModules()
+    const bus = await import('./lazy-bus')
+    const element = document.createElement('h2')
+    element.id = 'intersection-target'
+    element.scrollIntoView = vi.fn()
+    document.body.append(element)
+    bus.scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    bus.requestLazyRender(element.id, true)
+    await nextTick()
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(120)
+    expect(bus.intersectionEnabled.value).toBe(false)
+    await vi.advanceTimersByTimeAsync(200)
+    expect(bus.intersectionEnabled.value).toBe(true)
+  })
+
   afterEach(() => {
+    window.dispatchEvent(new Event('wheel'))
+    vi.useRealTimers()
     vi.restoreAllMocks()
     document.body.replaceChildren()
   })
