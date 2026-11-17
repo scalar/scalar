@@ -3,7 +3,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { decodeUriFragment } from '@/helpers/decode-uri-fragment'
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getValueByPath } from '@/helpers/get-value-by-path'
-import { resolveReferencePath } from '@/helpers/resolve-reference-path'
+import { resolveResourcePath } from '@/helpers/resolve-resource-path'
 import { toResourceUri } from '@/helpers/to-resource-uri'
 import { getRaw } from '@/magic-proxy/proxy'
 import type { UnknownObject } from '@/types'
@@ -57,7 +57,7 @@ export const relocateReferences = (
     return document && resource && document.path.length > resource.path.length ? undefined : resource
   }
   const absoluteReference = ({ reference, origin }: SourceReference): string =>
-    resolveReferencePath(toResourceUri(origin), reference)
+    resolveResourcePath(toResourceUri(origin), reference)
 
   // Anonymous imported documents lose their retrieval scope when embedded. Their
   // resolved edges use pointers, so retaining those anchors would bind another URI.
@@ -80,6 +80,7 @@ export const relocateReferences = (
       }
       if (isObject(value) && (getSchemaVocabulary(context ?? 'schema')?.anchors || context === 'generic')) {
         delete value.$anchor
+        delete value.$dynamicAnchor
       }
       for (const key of Object.keys(getRaw(value))) {
         stripAnchors(Reflect.get(value, key))
@@ -222,6 +223,7 @@ export const relocateReferences = (
         // Resolved edges to these values use pointers; authored external edges stay external.
         if (!data && (getSchemaVocabulary(location?.context ?? 'schema')?.anchors || location?.context === 'generic')) {
           delete result.$anchor
+          delete result.$dynamicAnchor
         }
         return result
       }

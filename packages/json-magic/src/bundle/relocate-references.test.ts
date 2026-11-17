@@ -15,6 +15,185 @@ import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { readFiles } from './plugins/read-files'
 
 describe('relocate-references', () => {
+  it.each(['$id', '$ref'])('reports malformed %s URI syntax without rejecting', async (keyword) => {
+    const schema =
+      keyword === '$id'
+        ? { $id: '//[x', properties: { child: { $ref: './missing.json' } } }
+        : { properties: { child: { $ref: '//[x' } } }
+    const result = await bundleWithDiagnostics(schema, {
+      origin: '/tmp/root.json',
+      traversal: 'document',
+      treeShake: false,
+      plugins: [],
+      preserveReference: () => false,
+    })
+    expect(result.complete).toBe(false)
+    expect(result.diagnostics).toStrictEqual([
+      {
+        kind: 'unresolved-document',
+        reference: keyword === '$id' ? './missing.json' : '//[x',
+        source: '/tmp/root.json',
+        pointer: '#/properties/child/$ref',
+      },
+    ])
+  })
+
+  it('keeps nested schema identities and references scoped to their nearest resource', async () => {
+    const result = await bundleWithDiagnostics(
+      {
+        $id: './outer.json',
+        $defs: {
+          inner: {
+            $id: './nested/inner.json',
+            $defs: { value: { type: 'string' } },
+            properties: {
+              local: { $ref: '#/$defs/value' },
+              outer: { $ref: '../outer.json#/$defs/value' },
+            },
+          },
+          value: { type: 'integer' },
+        },
+        properties: { inner: { $ref: './nested/inner.json#/$defs/value' } },
+      },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [],
+        preserveReference: () => false,
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    expect(exported.$id).toBe('https://source.test/outer.json')
+    expect(exported.$defs.inner.$id).toBe('https://source.test/nested/inner.json')
+    expect(exported.$defs.inner.properties).toStrictEqual({
+      local: { $ref: '#/%24defs/value' },
+      outer: { $ref: 'https://source.test/outer.json#/%24defs/value' },
+    })
+    expect(exported.properties.inner.$ref).toBe('https://source.test/nested/inner.json#/%24defs/value')
+  })
+
+  it.each(['generic', 'document'] as const)(
+    'pins OpenAPI 3.0 identifier handling in %s traversal',
+    async (traversal) => {
+      const result = await bundleWithDiagnostics(
+        {
+          openapi: '3.0.4',
+          info: { title: 'Legacy', version: '1.0' },
+          paths: {},
+          components: {
+            schemas: {
+              Named: { $id: './named.json', properties: { value: { $ref: '#/components/schemas/Value' } } },
+              Value: { type: 'string' },
+            },
+          },
+        },
+        {
+          origin: 'https://source.test/root.json',
+          traversal,
+          treeShake: false,
+          plugins: [],
+          preserveReference: () => false,
+        },
+      )
+      expect(result.diagnostics).toStrictEqual([])
+      const exported = JSON.parse(JSON.stringify(result.document))
+      const named = exported.components.schemas.Named
+      expect(named.$id).toBe(traversal === 'document' ? './named.json' : 'https://source.test/named.json')
+      expect(named.properties.value.$ref).toBe(
+        traversal === 'document' ? '#/components/schemas/Value' : '#/x-ext/bundle-0',
+      )
+      expect(named['x-ext']).toStrictEqual(traversal === 'document' ? undefined : { 'bundle-0': { type: 'string' } })
+    },
+  )
+
+  it('leaves schema identities and output unchanged when preservation is unset', async () => {
+    const input = {
+      $id: './schema.json',
+      $defs: { value: { type: 'string' } },
+      properties: { value: { $ref: '#/$defs/value' } },
+    }
+    const result = await bundleWithDiagnostics(structuredClone(input), {
+      origin: '/tmp/root.json',
+      plugins: [],
+      traversal: 'document',
+      treeShake: false,
+    })
+    expect(result.diagnostics).toStrictEqual([])
+    expect(JSON.parse(JSON.stringify(result.document))).toStrictEqual(input)
+  })
+
+  it('removes copied dynamic anchors while retaining named and literal declarations', async () => {
+    const literal = { $dynamicAnchor: 'literal', $anchor: 'literal' }
+    const result = await bundleWithDiagnostics(
+      {
+        $defs: {
+          owner: {
+            $id: './owner.json',
+            $dynamicAnchor: 'owner',
+            properties: { copy: { $ref: './root.json#/$defs/value' } },
+          },
+          value: { $anchor: 'value', $dynamicAnchor: 'value', type: 'string', default: literal },
+        },
+      },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [],
+        preserveReference: () => false,
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    expect(exported.$defs.owner.$dynamicAnchor).toBe('owner')
+    expect(exported.$defs.owner['x-ext']).toStrictEqual({ 'bundle-0': { type: 'string', default: literal } })
+    expect(exported.$defs.value.$dynamicAnchor).toBe('value')
+  })
+
+  it('uses a virtual file base for in-memory input without an origin', async () => {
+    const result = await bundleWithDiagnostics(
+      { $id: './schema.json', type: 'string' },
+      {
+        plugins: [],
+        treeShake: false,
+        traversal: 'document',
+        preserveReference: () => false,
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(JSON.parse(JSON.stringify(result.document))).toStrictEqual({ $id: 'file:///schema.json', type: 'string' })
+  })
+
+  it('strips dynamic anchors from anonymous imports without changing literal data', async () => {
+    const literal = { $dynamicAnchor: 'literal' }
+    const result = await bundleWithDiagnostics(
+      { $ref: './child.json' },
+      {
+        origin: 'https://source.test/root.json',
+        treeShake: false,
+        traversal: 'document',
+        preserveReference: () => false,
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: (): Promise<{ ok: true; data: unknown; raw: string }> =>
+              Promise.resolve({
+                ok: true,
+                data: { $dynamicAnchor: 'child', type: 'string', default: literal },
+                raw: '',
+              }),
+          },
+        ],
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    expect(Object.values(exported['x-ext'])).toStrictEqual([{ type: 'string', default: literal }])
+  })
+
   it('retains relative POSIX retrieval paths containing literal backslashes', async () => {
     const origin = String.raw`./source\dir/root.json`
     const result = await bundleWithDiagnostics(

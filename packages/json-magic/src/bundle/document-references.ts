@@ -57,10 +57,18 @@ export type DocumentReferences = {
   /** Declared schema identities and their output paths, including reconstructed ancestors. */
   schemas: () => SchemaResourceLocation[]
   identity: (document: unknown) => DocumentIdentity | undefined
-  register: (document: unknown, retrievalUri: string, path?: string[], retrievalBase?: string) => void
+  register: (
+    document: unknown,
+    retrievalUri: string,
+    path?: string[],
+    retrievalBase?: string,
+    sourceUri?: string,
+  ) => void
   refresh: (document: unknown, targetPath: string[]) => void
   isSchemaResource: (uri: string) => boolean
   origin: (node: object) => string | undefined
+  /** Retrieval source before authored identifiers change the reference base. */
+  sourceOrigin: (node: object) => string | undefined
   /** Fetchable base, without the private namespace used to isolate stored schemas. */
   retrievalOrigin: (node: object) => string | undefined
   resolve: (
@@ -102,6 +110,7 @@ export const documentReferences = (
   const resources = new Map<string, Resource>()
   const sources = new WeakMap<object, DocumentLocation>()
   const origins = new WeakMap<object, string>()
+  const sourceOrigins = new WeakMap<object, string>()
   const retrievalOrigins = new WeakMap<object, string>()
   const bundledResources = new Map<string, Resource>()
 
@@ -128,7 +137,7 @@ export const documentReferences = (
 
   const registrations = new Map<
     unknown,
-    { base: string; path: string[]; retrievalBase: string; retrievalUri: string; resource: Resource }
+    { base: string; path: string[]; retrievalBase: string; retrievalUri: string; sourceUri: string; resource: Resource }
   >()
 
   const register = (
@@ -136,6 +145,7 @@ export const documentReferences = (
     retrievalUri: string,
     path: string[] = [],
     retrievalBase = retrievalUri,
+    sourceUri = retrievalUri,
   ): void => {
     if (path.length === 0) {
       rootUri = retrievalUri
@@ -161,7 +171,7 @@ export const documentReferences = (
       bundledResources.set(path[1], resource)
     }
     const retrievalOrigin = identity ? resolveReferencePath(retrievalBase, identity.baseUri) : retrievalBase
-    registrations.set(document, { base, path, retrievalBase: retrievalOrigin, retrievalUri, resource })
+    registrations.set(document, { base, path, retrievalBase: retrievalOrigin, retrievalUri, sourceUri, resource })
     index(document, base, path, [], retrievalOrigin)
   }
 
@@ -188,16 +198,18 @@ export const documentReferences = (
         return
       }
       visited.add(value)
+      sourceOrigins.set(value, registrations.get(document)!.sourceUri)
       if (isObject(value)) {
         restoreLiteralIdentifier(value)
       }
       const schemaIdentity = identifySchema(value)
       const id = schemaIdentity?.id
       const identifier = id ?? inheritedIdentifier
-      const resolved = id === undefined ? origin : resolveReferencePath(origin, id)
+      const resolved =
+        id === undefined ? origin : canonicalizeIds ? resolveResourcePath(origin, id) : resolveReferencePath(origin, id)
       const current =
         canonicalizeIds && id !== undefined
-          ? resolveReferencePath(toResourceUri(origin), id).replace(/#$/, '')
+          ? resolveResourcePath(toResourceUri(origin), id).replace(/#$/, '')
           : resolved
       // A refresh can encounter an identifier that this index already canonicalized.
       const currentRetrieval =
@@ -311,6 +323,7 @@ export const documentReferences = (
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,
     origin: (node) => origins.get(node),
     retrievalOrigin: (node) => retrievalOrigins.get(node),
+    sourceOrigin: (node) => sourceOrigins.get(node),
     resolve: (ref, base, rootFallback = false) => {
       const [prefix, authoredFragment = ''] = ref.split('#', 2)
       const fragment = decodeUriFragment(authoredFragment)

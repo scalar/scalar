@@ -4,7 +4,14 @@ import { toResourceUri } from './to-resource-uri'
 /** Resolve URI syntax without turning filesystem retrieval paths into encoded filenames. */
 export const resolveResourcePath = (base: string, reference: string): string => {
   const baseUri = toResourceUri(base)
-  const resolved = resolveReferencePath(baseUri, reference)
+  const resolved = ((): string => {
+    try {
+      return resolveReferencePath(baseUri, reference)
+    } catch {
+      // Invalid URI syntax must reach the normal unresolved-document diagnostic.
+      return reference
+    }
+  })()
   if (baseUri === base || !resolved.startsWith('file:')) {
     return resolved
   }

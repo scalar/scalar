@@ -163,7 +163,18 @@ This also works when the outer API description
 has no declared identity: the bundler does not add `$id` to that document.
 Local filesystem schema identities become `file:` URIs, including escaped path
 characters. The Node file loader accepts these URIs as well as filesystem paths,
-including its existing base-directory and symlink confinement checks.
+including its existing base-directory and symlink confinement checks. References
+from documents retrieved over HTTP(S) cannot load non-HTTP(S) targets, even when
+an authored `$id` changes the resolution base to a `file:` URI.
+
+Relative native retrieval paths resolve against the current working directory;
+canonical local identities therefore include absolute filesystem paths. In-memory
+input without an origin uses `/` as its virtual retrieval base, so relative schema
+identifiers become `file:///…` identities. Supply a public absolute URI as `origin`
+(or use absolute public schema identifiers) when output must not expose local paths.
+Use `traversal: 'document'` for format-aware identity rules, including OpenAPI 3.0,
+which does not define `$id`. The default generic traversal treats objects as schemas
+regardless of a document's declared OpenAPI version.
 
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
 
