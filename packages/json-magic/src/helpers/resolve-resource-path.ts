@@ -12,6 +12,10 @@ export const resolveResourcePath = (base: string, reference: string): string => 
   if (uri.host || uri.search || uri.hash || /%2f|%5c/i.test(uri.pathname)) {
     return resolved
   }
-  const path = decodeURIComponent(uri.pathname)
-  return /^[a-z]:[\\/]/i.test(base) ? path.slice(1) : path
+  try {
+    const path = decodeURIComponent(uri.pathname)
+    return /^[a-z]:[\\/]/i.test(base) ? path.slice(1) : path
+  } catch {
+    return resolved
+  }
 }
