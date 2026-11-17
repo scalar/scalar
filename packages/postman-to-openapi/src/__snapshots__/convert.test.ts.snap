@@ -684,7 +684,7 @@ exports[`fixtures > Folders 1`] = `
       "post": {
         "requestBody": {
           "content": {
-            "text/plain": {},
+            "application/octet-stream": {},
           },
         },
         "summary": "Create a post",
@@ -1267,6 +1267,57 @@ exports[`fixtures > GetMethods 1`] = `
 }
 `;
 
+exports[`fixtures > GraphqlFileBodies 1`] = `
+{
+  "info": {
+    "title": "C3",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/graphql": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": {
+                    "query": "query Item($id: ID!) { item(id: $id) { id } }",
+                    "variables": {
+                      "id": "1",
+                    },
+                  },
+                },
+              },
+              "schema": {
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Query",
+      },
+    },
+    "/uploads": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {},
+          },
+        },
+        "summary": "Upload",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
 exports[`fixtures > Headers 1`] = `
 {
   "info": {
@@ -1558,7 +1609,7 @@ exports[`fixtures > MultipleServers 1`] = `
       "post": {
         "requestBody": {
           "content": {
-            "text/plain": {},
+            "application/octet-stream": {},
           },
         },
         "servers": [
@@ -1944,7 +1995,7 @@ exports[`fixtures > OperationIds 1`] = `
         "operationId": "createPost",
         "requestBody": {
           "content": {
-            "text/plain": {},
+            "application/octet-stream": {},
           },
         },
         "summary": "Create a post",
@@ -2443,7 +2494,7 @@ exports[`fixtures > Responses 1`] = `
         ],
         "requestBody": {
           "content": {
-            "text/plain": {},
+            "application/octet-stream": {},
           },
         },
         "responses": {
@@ -2849,7 +2900,7 @@ exports[`fixtures > ResponsesEmpty 1`] = `
         ],
         "requestBody": {
           "content": {
-            "text/plain": {},
+            "application/octet-stream": {},
           },
         },
         "responses": {

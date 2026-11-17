@@ -167,7 +167,7 @@ export type RequestBody = {
   raw?: string
   graphql?: {
     query?: string
-    variables?: Record<string, string | number | boolean | null>
+    variables?: string | Record<string, unknown> | null
   }
   urlencoded?: UrlEncodedParameter[]
   formdata?: FormParameter[]

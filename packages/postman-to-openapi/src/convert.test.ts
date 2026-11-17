@@ -24,6 +24,86 @@ describe('fixtures', () => {
 
 describe('convert', () => {
   it.each([
+    { header: [], graphqlType: 'application/json', fileType: 'application/octet-stream' },
+    { header: [{ key: 'Content-Type', value: 'image/png' }], graphqlType: 'image/png', fileType: 'image/png' },
+    {
+      header: [{ key: 'content-type', value: 'application/json; charset=utf-8' }],
+      graphqlType: 'application/json',
+      fileType: 'application/json',
+    },
+    {
+      header: [{ key: 'Content-Type', value: 'text/plain', disabled: true }],
+      graphqlType: 'application/json',
+      fileType: 'application/octet-stream',
+    },
+  ])('converts GraphQL and file bodies with headers $header', ({ header, graphqlType, fileType }) => {
+    const query = 'query Item($id: ID!) { item(id: $id) { id } }'
+    const collection: PostmanCollection = {
+      info: {
+        name: 'GraphQL and files',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          request: {
+            method: 'POST',
+            url: 'https://api.example.com/graphql',
+            header,
+            body: { mode: 'graphql', graphql: { query, variables: '{"id":"1"}' } },
+          },
+        },
+        {
+          request: {
+            method: 'PUT',
+            url: 'https://api.example.com/uploads',
+            header,
+            body: { mode: 'file', file: { src: 'photo.png' } },
+          },
+        },
+      ],
+    }
+    const result = convert(collection)
+    expect(result.paths?.['/graphql']?.post?.requestBody).toStrictEqual({
+      content: {
+        [graphqlType]: {
+          schema: { type: 'object' },
+          examples: { 'Default example': { value: { query, variables: { id: '1' } } } },
+        },
+      },
+    })
+    expect(result.paths?.['/uploads']?.put?.requestBody).toStrictEqual({ content: { [fileType]: {} } })
+  })
+
+  it('keeps distinct GraphQL examples when requests are merged', () => {
+    const collection: PostmanCollection = {
+      info: { name: 'Queries', schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json' },
+      item: ['First', 'Second'].map((name) => ({
+        name,
+        request: {
+          method: 'POST',
+          url: 'https://api.example.com/graphql',
+          body: {
+            mode: 'graphql',
+            graphql: { query: 'query Item($id: ID!) { item(id: $id) { id } }', variables: { id: name } },
+          },
+        },
+      })),
+    }
+    const result = convert(collection, { mergeOperation: true, requestIndexPaths: [[0], [1]] })
+    expect(result.paths?.['/graphql']?.post?.requestBody).toStrictEqual({
+      content: {
+        'application/json': {
+          schema: { type: 'object' },
+          examples: {
+            First: { value: { query: 'query Item($id: ID!) { item(id: $id) { id } }', variables: { id: 'First' } } },
+            Second: { value: { query: 'query Item($id: ID!) { item(id: $id) { id } }', variables: { id: 'Second' } } },
+          },
+        },
+      },
+    })
+  })
+
+  it.each([
     ['formdata', 'multipart/form-data'],
     ['urlencoded', 'application/x-www-form-urlencoded'],
   ] as const)('imports a %s field named __proto__ as an ordinary field', (mode, mediaType) => {
@@ -548,10 +628,7 @@ describe('convert', () => {
           request: {
             method: 'POST',
             url: 'https://api.scalar.com/upload',
-            body: {
-              mode: 'file',
-              file: { src: null },
-            },
+            body: {},
           },
         },
       ],

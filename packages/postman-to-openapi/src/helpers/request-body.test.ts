@@ -289,7 +289,7 @@ describe('request-body', () => {
     })
   })
 
-  it('returns empty content for unsupported mode', () => {
+  it('keeps file bodies binary when no file is selected', () => {
     const body: RequestBody = {
       mode: 'file',
       file: {
@@ -299,8 +299,55 @@ describe('request-body', () => {
 
     const result = extractRequestBody(body, 'default')
 
-    expect(result).toEqual({
-      content: {},
+    expect(result).toStrictEqual({
+      content: { 'application/octet-stream': {} },
+    })
+  })
+
+  it.each([undefined, 'application/octet-stream', 'image/png', 'text/plain'])(
+    'uses the declared file media type %s or the binary default',
+    (contentType) => {
+      expect(extractRequestBody({ mode: 'file', file: { src: 'photo.png' } }, 'upload', contentType)).toStrictEqual({
+        content: { [contentType ?? 'application/octet-stream']: {} },
+      })
+    },
+  )
+
+  it.each([
+    { variables: '{"id":"1"}', expected: { id: '1' } },
+    { variables: { id: '1' }, expected: { id: '1' } },
+    {
+      variables: '{"filter":{"ids":[1,2],"enabled":true},"cursor":null}',
+      expected: { filter: { ids: [1, 2], enabled: true }, cursor: null },
+    },
+    { variables: { filter: { ids: [1, 2] } }, expected: { filter: { ids: [1, 2] } } },
+    { variables: null, expected: null },
+    { variables: 'null', expected: null },
+    { variables: undefined, expected: undefined },
+    { variables: '', expected: undefined },
+    { variables: '  ', expected: undefined },
+    { variables: '{{variables}}', expected: '{{variables}}' },
+    { variables: '{invalid', expected: '{invalid' },
+  ])('preserves GraphQL variables from $variables', ({ variables, expected }) => {
+    const query = 'query Item($id: ID!) { item(id: $id) { id } }'
+    expect(extractRequestBody({ mode: 'graphql', graphql: { query, variables } }, 'query')).toStrictEqual({
+      content: {
+        'application/json': {
+          schema: { type: 'object' },
+          examples: { query: { value: { query, ...(expected !== undefined && { variables: expected }) } } },
+        },
+      },
+    })
+  })
+
+  it('preserves an empty GraphQL query', () => {
+    expect(extractRequestBody({ mode: 'graphql', graphql: { query: '' } }, 'query')).toStrictEqual({
+      content: {
+        'application/json': {
+          schema: { type: 'object' },
+          examples: { query: { value: { query: '' } } },
+        },
+      },
     })
   })
 
