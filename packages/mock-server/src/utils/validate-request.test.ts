@@ -1759,6 +1759,31 @@ describe('validate-request', () => {
     })
 
     it.each([
+      ['3.0.3', 'text', 200],
+      ['3.0.3', null, 200],
+      ['3.0.3', 3, 422],
+      ['3.1.0', 'text', 200],
+      ['3.1.0', null, 200],
+      ['3.1.0', 3, 422],
+    ])(
+      'reads a oneOf arm that only says nullable as null in an OpenAPI %s document for %j',
+      async (openapi, value, status) => {
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+        const response = await postRecord(
+          openapi,
+          { oneOf: [{ nullable: true }, { type: 'string' }] },
+          { name: 'x', value },
+        )
+
+        expect(consoleErrorSpy).not.toHaveBeenCalled()
+        expect(response.status).toBe(status)
+
+        consoleErrorSpy.mockRestore()
+      },
+    )
+
+    it.each([
       ['null', { type: 'null', nullable: false }],
       ['a list with null', { type: ['string', 'null'], nullable: false }],
     ])('keeps body validation on for nullable false beside the type %s', async (_name, value) => {

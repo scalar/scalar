@@ -184,6 +184,20 @@ describe('normalizeNullable', () => {
     expect(result.not).toStrictEqual({})
   })
 
+  it.each(['oneOf', 'anyOf'])('turns a %s arm that only says nullable into the null arm', (keyword) => {
+    expect(
+      normalizeNullable({ [keyword]: [{ nullable: true, description: 'None', 'x-tag': 1 }, { type: 'string' }] }),
+    ).toStrictEqual({ [keyword]: [{ description: 'None', 'x-tag': 1, type: 'null' }, { type: 'string' }] })
+  })
+
+  it.each([
+    ['a constrained oneOf arm', { oneOf: [{ nullable: true, enum: ['a'] }] }, { oneOf: [{ enum: ['a'] }] }],
+    ['an allOf member', { allOf: [{ nullable: true }] }, { allOf: [{}] }],
+    ['a not', { not: { nullable: true } }, { not: {} }],
+  ])('drops the nullable of %s rather than reading it as the null arm', (_name, schema, expected) => {
+    expect(normalizeNullable(schema)).toStrictEqual(expected)
+  })
+
   it('returns values that are not schemas as they are', () => {
     expect(normalizeNullable(true)).toBe(true)
     expect(normalizeNullable(null)).toBe(null)
@@ -214,6 +228,14 @@ describe('normalizeNullable', () => {
       expect(validate(null)).toBe(true)
       expect(validate(3)).toBe(true)
       expect(validate(true)).toBe(false)
+    })
+
+    it('accepts the real arm of a oneOf whose other arm only says nullable', () => {
+      const validate = compile(normalizeNullable({ oneOf: [{ nullable: true }, { type: 'string' }] }))
+
+      expect(validate('text')).toBe(true)
+      expect(validate(null)).toBe(true)
+      expect(validate(3)).toBe(false)
     })
 
     it('still enforces the required properties around a nullable union', () => {

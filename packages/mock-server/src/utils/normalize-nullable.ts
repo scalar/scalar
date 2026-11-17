@@ -5,6 +5,32 @@ import { SCHEMA_KEYWORDS, SCHEMA_MAP_KEYWORDS } from './replace-circular-markers
 /** Keywords that combine other schemas, which is where a `nullable` without a `type` has something to widen */
 const COMPOSITION_KEYWORDS = ['allOf', 'anyOf', 'oneOf'] as const
 
+/** Keywords whose branches are alternatives, so an arm that only says `nullable: true` is the "or null" arm */
+const UNION_KEYWORDS = new Set(['anyOf', 'oneOf'])
+
+/** Keywords that only describe a schema, matching the list the OpenAPI 3.0 upgrader uses for the same arm */
+const ANNOTATION_KEYWORDS = new Set([
+  'title',
+  'description',
+  'deprecated',
+  'default',
+  'example',
+  'examples',
+  'externalDocs',
+  'readOnly',
+  'writeOnly',
+])
+
+/**
+ * Whether a union arm carries `nullable: true` and nothing but annotations and extensions, which is how some
+ * OpenAPI 3.0 exporters spell `oneOf: [{ nullable: true }, { $ref: X }]`. Dropped to `{}`, the arm would match
+ * every value and make a `oneOf` reject each value the real arm accepts.
+ */
+const isNullArm = (schema: unknown): schema is Record<string, unknown> =>
+  isObject(schema) &&
+  schema.nullable === true &&
+  Object.keys(schema).every((key) => key === 'nullable' || ANNOTATION_KEYWORDS.has(key) || key.startsWith('x-'))
+
 /**
  * Whether the schema declares a type, mirroring how Ajv reads it: a string, or a non-empty array.
  * Ajv only accepts `nullable` next to one of these.
@@ -53,6 +79,8 @@ const withoutNullable = (schema: Record<string, unknown>): Record<string, unknow
  * request validation off for the operation. The upgrader leaves exactly that shape behind on purpose,
  * because there is nothing to widen, and a 3.1 document can carry the keyword as well.
  *
+ * A `oneOf` or `anyOf` arm that only says `nullable: true` becomes `{ type: 'null' }`, as the upgrader does for
+ * a 3.0 document, so a 3.1 document that kept the spelling does not get an arm that matches every value.
  * Other typed nodes are returned as they are, because Ajv widens their type itself. Only known schema
  * positions are rewritten, so a property that is named `nullable` and a `nullable` key inside `enum`,
  * `const`, `default` or an example are data and are carried over untouched. The input is never mutated,
@@ -87,7 +115,9 @@ export const normalizeNullable = (schema: unknown): unknown => {
     for (const [keyword, child] of Object.entries(value)) {
       let next: unknown = child
 
-      if (SCHEMA_KEYWORDS.has(keyword)) {
+      if (UNION_KEYWORDS.has(keyword) && Array.isArray(child)) {
+        next = asUnion(child)
+      } else if (SCHEMA_KEYWORDS.has(keyword)) {
         next = asSchema(child)
       } else if (SCHEMA_MAP_KEYWORDS.has(keyword) && isObject(child)) {
         next = asSchemaMap(child)
@@ -106,6 +136,18 @@ export const normalizeNullable = (schema: unknown): unknown => {
 
     rewritten.set(value, result)
     return result
+  }
+
+  /** Rewrite the arms of a `oneOf` or `anyOf`, turning an arm that only says `nullable: true` into the null arm */
+  const asUnion = (arms: unknown[]): unknown[] => {
+    const result = arms.map((arm): unknown => {
+      if (!isNullArm(arm)) {
+        return asSchema(arm)
+      }
+      const { nullable: _nullable, ...annotations } = arm
+      return { ...annotations, type: 'null' }
+    })
+    return result.some((arm, index) => arm !== arms[index]) ? result : arms
   }
 
   /** Rewrite every schema under a map keyword, keeping its author-chosen names as they are */
