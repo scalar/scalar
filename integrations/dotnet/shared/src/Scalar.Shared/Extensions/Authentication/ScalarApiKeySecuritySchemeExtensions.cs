@@ -14,6 +14,17 @@ namespace Scalar.AspNetCore;
 public static class ScalarApiKeySecuritySchemeExtensions
 {
     /// <summary>
+    /// Sets the prefix added to header API keys. Credentials must not include the prefix.
+    /// </summary>
+    /// <param name="scheme">The security scheme.</param>
+    /// <param name="prefix">The token prefix.</param>
+    public static ScalarApiKeySecurityScheme WithTokenPrefix(this ScalarApiKeySecurityScheme scheme, string prefix)
+    {
+        scheme.TokenPrefix = prefix;
+        return scheme;
+    }
+
+    /// <summary>
     /// Sets the name of the HTTP header to be used for authentication.
     /// </summary>
     /// <param name="scheme"><see cref="ScalarApiKeySecurityScheme"/>.</param>

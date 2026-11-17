@@ -1,3 +1,4 @@
+import { formatTokenPrefix } from '@scalar/helpers/http/format-token-prefix'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { X_SCALAR_DATE, X_SCALAR_DNT, X_SCALAR_REFERER, X_SCALAR_USER_AGENT } from '@scalar/helpers/http/scalar-headers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
@@ -49,7 +50,7 @@ const formatSecurityValue = (
     return `Bearer ${substitutedValue.trim()}`
   }
 
-  return substitutedValue
+  return security.in === 'header' ? formatTokenPrefix(substitutedValue, security.tokenPrefix) : substitutedValue
 }
 
 const createEnvReplaceFn = (envVariables: Record<string, string>): ((value: string) => string | null) => {

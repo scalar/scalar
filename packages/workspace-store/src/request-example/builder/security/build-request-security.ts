@@ -43,6 +43,8 @@ export type BuildRequestSecurityResult = {
   name: string
   /** Format code for HTTP schemes (e.g., 'basic' | 'bearer'), if relevant */
   format?: 'basic' | 'bearer'
+  /** Explicit header API-key prefix, applied after resolving credential variables. */
+  tokenPrefix?: string
   /**
    * The fully resolved authentication value to use (may include tokens, encoded credentials, etc.)
    */
@@ -71,6 +73,7 @@ export const buildRequestSecurity = (
           in: scheme.in,
           name: scheme.name,
           value,
+          ...(scheme['x-scalar-token-prefix'] ? { tokenPrefix: scheme['x-scalar-token-prefix'] } : {}),
         })
       }
       if (scheme.in === 'query') {
