@@ -51,6 +51,7 @@ import {
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
+import { asyncApiSchemaResources } from '@/plugins/bundler/async-api-schema-resources'
 import { codeSampleSources } from '@/plugins/bundler/code-sample-sources'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
@@ -1235,7 +1236,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             await bundle(getRaw(asyncApiDocument), {
               traversal: 'document',
               treeShake: false,
-              plugins: loaders,
+              plugins: [asyncApiSchemaResources(), ...loaders],
               urlMap: true,
               origin: input.documentSource,
             }),
@@ -1768,6 +1769,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         treeShake: false,
         plugins: [
           codeSampleSources(path),
+          asyncApiSchemaResources(),
           openApiDocument(),
           fetchUrls({
             fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,

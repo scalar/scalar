@@ -6,12 +6,19 @@ import type { SchemaNode } from './types'
 /** Adapt native documentation for the shared renderer only, never for validation or example generation. */
 export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
   const mapKey = node.mapKey
-  const description = [node.description, ...(node.details ?? []), ...(mapKey ? [`Map keys: ${mapKey}`] : [])]
+  const description = [
+    node.description,
+    ...(node.referenceName ? [`RAML type: ${node.referenceName}`] : []),
+    ...(node.details ?? []),
+    ...(mapKey ? [`Map keys: ${mapKey}`] : []),
+  ]
     .filter(Boolean)
     .join('\n\n')
   const common = {
     ...(node.presence ? { [protobufPresence]: node.presence } : {}),
-    ...(node.recursive ? { [schemaRecursiveTarget]: node.type.replace(/^(message |record )/, '') } : {}),
+    ...(node.recursive
+      ? { [schemaRecursiveTarget]: node.referenceName ?? node.type.replace(/^(message |record )/, '') }
+      : {}),
     ...(description ? { description } : {}),
     ...('readerDefault' in node ? { default: node.readerDefault } : {}),
     ...(node.fieldNumber !== undefined ? { [protobufFieldNumber]: node.fieldNumber } : {}),

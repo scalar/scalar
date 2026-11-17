@@ -1,6 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
 import type { SchemaObject } from '../schemas/v3.2/strict/openapi-document'
+import type { AsyncApiSchemaResources } from './async-api-schema-resources/resources'
 import { getAsyncApiSchemaView } from './get-async-api-schema-view'
 import { getBooleanSchema } from './get-boolean-schema'
 import { getResolvedAsyncApiRef } from './get-resolved-async-api-ref'
@@ -27,7 +28,9 @@ export const isAsyncApiJsonSchemaFormat = (format: unknown): boolean => {
 }
 
 /** A schema that can use the shared renderer, or source in another schema language. */
-type AsyncApiSchema = { kind: 'schema'; schema: SchemaObject } | { kind: 'source'; format: string; value: unknown }
+type AsyncApiSchema =
+  | { kind: 'schema'; schema: SchemaObject }
+  | { kind: 'source'; format: string; value: unknown; resources?: AsyncApiSchemaResources }
 
 /** Resolve the wrapper and its schema without discarding the declared schema language. */
 export const resolveAsyncApiSchema = (value: unknown): AsyncApiSchema | undefined => {
@@ -38,7 +41,18 @@ export const resolveAsyncApiSchema = (value: unknown): AsyncApiSchema | undefine
     return undefined
   }
   if (wrapped && !isAsyncApiJsonSchemaFormat(resolved.schemaFormat)) {
-    return { kind: 'source', format: String(resolved.schemaFormat), value: schema }
+    const resources = resolved['x-scalar-schema-resources']
+    return {
+      kind: 'source',
+      format: String(resolved.schemaFormat),
+      value: schema,
+      ...(isObject(resources) &&
+      typeof resources.origin === 'string' &&
+      isObject(resources.files) &&
+      Object.values(resources.files).every((value) => typeof value === 'string')
+        ? { resources: resources as AsyncApiSchemaResources }
+        : {}),
+    }
   }
   if (typeof schema === 'boolean') {
     return { kind: 'schema', schema: getBooleanSchema(schema) }

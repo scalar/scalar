@@ -175,4 +175,34 @@ describe('SchemaLanguage', () => {
     expect(wrapper.text()).toContain('<script>')
     wrapper.unmount()
   })
+  it.each([false, true])('renders resolved imported object fields for payloads and headers (%s)', (headers) => {
+    const wrapper = mount(SchemaLanguage, {
+      props: {
+        headers,
+        format: 'application/vnd.google.protobuf;version=3',
+        value: 'syntax="proto3"; import "user.proto"; message Root { User user=1; }',
+        resources: {
+          origin: '/root.proto',
+          files: { '/user.proto': 'syntax="proto3"; message User { string external_id=1; }' },
+        },
+        options: { expandAllSchemaProperties: true },
+      },
+    })
+    expect(wrapper.text()).toContain('external_id')
+    expect(wrapper.findComponent(SchemaSource).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('preserves the complete authored source when an imported field cannot resolve', () => {
+    const value = 'syntax="proto3"; import "missing.proto"; message Root { Missing user=1; }'
+    const wrapper = mount(SchemaLanguage, {
+      props: {
+        format: 'application/vnd.google.protobuf;version=3',
+        value,
+        resources: { origin: '/root.proto', files: {} },
+      },
+    })
+    expect(wrapper.getComponent(SchemaSource).props('value')).toBe(value)
+    wrapper.unmount()
+  })
 })

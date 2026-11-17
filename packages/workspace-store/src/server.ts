@@ -16,6 +16,7 @@ import { asyncApiObjectSchema } from '@scalar/schemas/asyncapi/3.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { type Schema, coerce } from '@scalar/validation'
 
+import { loadInlineAsyncApiSchemaResources } from '@/helpers/async-api-schema-resources/load-inline'
 import { asyncApiChunkGroups } from '@/helpers/asyncapi-chunk-groups'
 import {
   CHUNK_INDEX_KEY,
@@ -846,7 +847,9 @@ export async function createServerWorkspaceStore(
           plugins: [codeSampleSources(), openApiDocument(), ...loaders],
         })
         await resolveSecurityRequirements(data, { origin, loaders })
-      } else if (!isAsyncApiDocument(data)) {
+      } else if (isAsyncApiDocument(data)) {
+        await loadInlineAsyncApiSchemaResources(data, origin ?? '/', loaders)
+      } else {
         await loadCodeSampleSources(data, origin ?? '/', loaders)
       }
       addDocumentSync(
