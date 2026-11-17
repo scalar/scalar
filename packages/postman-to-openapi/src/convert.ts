@@ -899,6 +899,7 @@ export function convert(
 
   // Process each item in the collection and merge into OpenAPI spec
   const allServerUsage: ServerUsage[] = []
+  const securitySchemes = { ...openapi.components?.securitySchemes }
 
   const collectionVariableLookup = createCollectionVariableLookup(collection.variable)
 
@@ -930,7 +931,7 @@ export function convert(
           resolveTagName,
           collectionVariableLookup,
           keepHeaders,
-          parentContext.auth,
+          { inheritedAuth: parentContext.auth, securitySchemes },
         )
 
         allServerUsage.push(...serverUsage)
@@ -967,6 +968,7 @@ export function convert(
           resolveTagName,
           collectionVariableLookup,
           keepHeaders,
+          { securitySchemes },
         )
 
         allServerUsage.push(...serverUsage)

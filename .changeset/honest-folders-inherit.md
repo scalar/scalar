@@ -3,3 +3,4 @@
 ---
 
 Preserve folder authentication inheritance when converting collections and selected requests or folders.
+Keep distinct authentication schemes separate so folder overrides do not change sibling authentication.

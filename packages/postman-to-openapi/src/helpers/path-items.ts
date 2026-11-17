@@ -34,6 +34,11 @@ export type ServerUsage = {
 
 type CollectionVariableLookup = ReadonlyMap<string, string>
 
+type AuthContext = {
+  inheritedAuth?: Auth
+  securitySchemes: NonNullable<OpenAPIV3_1.ComponentsObject['securitySchemes']>
+}
+
 function ensureRequestBodyContent(requestBody: OpenAPIV3_1.RequestBodyObject): void {
   const content = requestBody.content ?? {}
 
@@ -67,7 +72,7 @@ export function processItem(
   resolveTagName?: (segments: string[]) => string | undefined,
   collectionVariableLookup: CollectionVariableLookup = new Map(),
   keepHeaders?: readonly string[],
-  parentAuth?: Auth,
+  authContext: AuthContext = { securitySchemes: {} },
 ): {
   paths: OpenAPIV3_1.PathsObject
   components: OpenAPIV3_1.ComponentsObject
@@ -89,7 +94,7 @@ export function processItem(
         resolveTagName,
         collectionVariableLookup,
         keepHeaders,
-        resolveAuth(item.auth, parentAuth),
+        { ...authContext, inheritedAuth: resolveAuth(item.auth, authContext.inheritedAuth) },
       )
       // Merge child paths and components
       for (const [pathKey, pathItem] of Object.entries(childResult.paths)) {
@@ -246,12 +251,13 @@ export function processItem(
   }
 
   // Only folder and request overrides need operation security; collection auth stays at the document root.
-  const auth = resolveAuth(typeof request === 'string' ? undefined : request.auth, parentAuth)
+  const auth = resolveAuth(typeof request === 'string' ? undefined : request.auth, authContext.inheritedAuth)
   if (auth) {
     if (!operationObject.security) {
       operationObject.security = []
     }
-    const { securitySchemes, security } = processAuth(auth)
+    const { securitySchemes, security } = processAuth(auth, authContext.securitySchemes)
+    Object.assign(authContext.securitySchemes, securitySchemes)
 
     if (!components.securitySchemes) {
       components.securitySchemes = {}

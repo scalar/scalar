@@ -1439,4 +1439,61 @@ describe('convert', () => {
     expect(Object.keys(selected.paths ?? {})).toStrictEqual(['/sibling'])
     expect(selected.components?.securitySchemes).toStrictEqual({ bearerAuth: { type: 'http', scheme: 'bearer' } })
   })
+
+  it.each([
+    { label: 'full collection', options: {} },
+    { label: 'selected requests', options: { requestIndexPaths: [[0, 0], [0, 1], [1, 0], [2]] } },
+    { label: 'selected folders', options: { requestIndexPaths: [[0], [1], [2]] } },
+  ] satisfies { label: string; options: ConvertOptions }[])(
+    'keeps distinct OAuth2 settings isolated for $label',
+    ({ options }) => {
+      const oauthAuth = (name: string): Auth => ({
+        type: 'oauth2',
+        oauth2: [
+          { key: 'authUrl', value: `https://${name}.example/authorize` },
+          { key: 'accessTokenUrl', value: `https://${name}.example/token` },
+          { key: 'scope', value: name },
+        ],
+      })
+      const oauthScheme = (name: string): OpenAPIV3_1.SecuritySchemeObject => ({
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: `https://${name}.example/authorize`,
+            tokenUrl: `https://${name}.example/token`,
+            scopes: { [name]: name },
+          },
+        },
+      })
+      const collection: PostmanCollection = {
+        info: { name: 'OAuth folders', schema: SCHEMA },
+        auth: oauthAuth('collection'),
+        item: [
+          {
+            name: 'Folder',
+            auth: oauthAuth('folder'),
+            item: [{ request: 'https://api.example.com/first' }, { request: 'https://api.example.com/second' }],
+          },
+          {
+            name: 'Other folder',
+            auth: oauthAuth('other'),
+            item: [{ request: 'https://api.example.com/other' }],
+          },
+          { request: 'https://api.example.com/sibling' },
+        ],
+      }
+
+      const result = convert(collection, options)
+      expect(result.security).toStrictEqual([{ oauth2Auth: ['collection'] }])
+      expect(result.paths?.['/sibling']?.get?.security).toBeUndefined()
+      expect(result.paths?.['/first']?.get?.security).toStrictEqual([{ oauth2Auth_2: ['folder'] }])
+      expect(result.paths?.['/second']?.get?.security).toStrictEqual([{ oauth2Auth_2: ['folder'] }])
+      expect(result.paths?.['/other']?.get?.security).toStrictEqual([{ oauth2Auth_3: ['other'] }])
+      expect(result.components?.securitySchemes).toStrictEqual({
+        oauth2Auth: oauthScheme('collection'),
+        oauth2Auth_2: oauthScheme('folder'),
+        oauth2Auth_3: oauthScheme('other'),
+      })
+    },
+  )
 })
