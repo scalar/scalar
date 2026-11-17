@@ -15,12 +15,24 @@ function handleSubmit() {
   agentContext.value?.openAgent(message.value)
   message.value = ''
 }
+
+/**
+ * The field only stays expanded while focus is inside it, so pressing its icon, its padding or the
+ * send button must not take focus from the input. Safari and Firefox on macOS do not focus a clicked
+ * button: focus would fall back to the page and collapse the field before the click could send.
+ */
+const keepFocusInInput = (event: MouseEvent): void => {
+  if (event.target !== inputRef.value) {
+    event.preventDefault()
+  }
+}
 </script>
 <template>
   <form
     v-if="agentContext?.agentEnabled.value"
     class="agent-button-container"
     @click="inputRef?.focus()"
+    @mousedown="keepFocusInInput"
     @submit.prevent="handleSubmit()">
     <ScalarIconSparkle
       class="size-3 shrink-0"
@@ -61,7 +73,11 @@ function handleSubmit() {
 .agent-button-container:hover:not(:focus-within) {
   background: color-mix(in srgb, var(--scalar-background-3), white 20%);
 }
-.agent-button-container:has(.ask-agent-scalar-input-not-empty),
+/*
+ * Expanded, the field is drawn over the whole footer, so it only stays open while focus is inside it.
+ * Focus moving on to the example picker or Test Request collapses it and uncovers them. A typed
+ * question is kept and comes back with the field.
+ */
 .agent-button-container:focus-within {
   position: absolute;
   inset: 2px;
@@ -79,8 +95,6 @@ function handleSubmit() {
   font-size: 0px;
   border: none;
 }
-.agent-button-container:has(.ask-agent-scalar-input-not-empty)
-  .ask-agent-scalar-input,
 .agent-button-container:focus-within .ask-agent-scalar-input {
   width: 100%;
   font-size: inherit;
@@ -100,8 +114,6 @@ function handleSubmit() {
   font-weight: var(--scalar-semibold);
   margin-left: 4px;
 }
-.agent-button-container:has(.ask-agent-scalar-input-not-empty)
-  .ask-agent-scalar-input-label,
 .agent-button-container:focus-within .ask-agent-scalar-input-label {
   /** Hidden when input is focused */
   display: none;
@@ -121,9 +133,9 @@ function handleSubmit() {
   /* Hidden by default */
   display: none;
 }
-.agent-button-container:has(.ask-agent-scalar-input-not-empty)
+.agent-button-container:focus-within:has(.ask-agent-scalar-input-not-empty)
   .ask-agent-scalar-send {
-  /** Show when input is not empty */
+  /** Show while the expanded field holds a question */
   display: flex;
 }
 .ask-agent-scalar-send:hover {
