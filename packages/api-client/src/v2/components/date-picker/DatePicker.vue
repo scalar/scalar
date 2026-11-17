@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
   CalendarDate,
   CalendarDateTime,
@@ -295,7 +296,7 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
             v-slot="{ segments }"
             v-model="timeModel"
             aria-label="Time"
-            class="border-c-3 bg-b-1 text-c-1 flex items-center rounded border px-2 py-1.5 tabular-nums"
+            class="border-c-3 bg-b-1 text-c-1 flex items-center rounded border px-2 py-1.5"
             granularity="second"
             :hourCycle="24"
             :locale="locale">
@@ -305,7 +306,7 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
               :class="
                 item.part === 'literal'
                   ? 'text-c-3'
-                  : 'data-[placeholder]:text-c-3 focus:bg-b-btn focus:text-c-btn rounded px-px focus:outline-none'
+                  : 'data-[placeholder]:text-c-3 focus:bg-b-btn focus:text-c-btn rounded focus:outline-none'
               "
               :part="item.part">
               {{ item.value }}
@@ -329,23 +330,33 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
         </div>
 
         <!-- Faker shortcuts (date-time only) -->
-        <details
+        <Disclosure
           v-if="fakerOptions.length"
-          class="border-c-3 border-t px-2 pt-2">
-          <summary class="text-c-2 hover:text-c-1 cursor-pointer text-xs">
-            Insert a variable
-          </summary>
-          <div class="mt-2 flex flex-col">
+          v-slot="{ open }"
+          as="div"
+          class="-mx-0.75 -mb-2 border-t">
+          <DisclosureButton as="template">
+            <ScalarButton
+              class="w-full justify-start gap-2 px-2.75 text-left"
+              size="sm"
+              variant="ghost">
+              <ScalarIconCaretRight
+                class="text-c-3 size-3.5 shrink-0"
+                :class="open && 'rotate-90'" />
+              <span>Insert a variable</span>
+            </ScalarButton>
+          </DisclosureButton>
+          <DisclosurePanel class="flex flex-col px-2.75 pb-2">
             <button
               v-for="option in fakerOptions"
               :key="option.name"
-              class="text-c-1 hover:bg-b-2 flex items-center rounded px-2 py-1 text-left text-sm"
+              class="text-c-1 hover:bg-b-2 flex items-center rounded py-1 pr-2 pl-5.5 text-left text-sm"
               type="button"
               @click="selectFaker(option.name, close)">
               {{ option.label }}
             </button>
-          </div>
-        </details>
+          </DisclosurePanel>
+        </Disclosure>
       </div>
     </template>
   </ScalarPopover>
