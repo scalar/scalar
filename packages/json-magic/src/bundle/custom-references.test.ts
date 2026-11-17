@@ -13,7 +13,7 @@ const api = {
   paths: {},
 }
 
-const fixture = () => ({
+const fixtureDocument = {
   ...api,
   'x-entry': {
     $ref: './custom.json',
@@ -42,7 +42,9 @@ const fixture = () => ({
       Shared: { type: 'boolean', examples: [literal] },
     },
   },
-})
+}
+
+const fixture = (): typeof fixtureDocument => structuredClone(fixtureDocument)
 
 const documents = {
   'https://source.test/custom.json': { type: 'string' },
