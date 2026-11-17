@@ -1,6 +1,4 @@
 import { getRenderedExample, normalizeRenderedExamples } from '@scalar/blocks/schema/helpers'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { ParameterObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getParameterExamples } from './get-parameter-examples'
@@ -52,9 +50,9 @@ describe('get-parameter-examples', () => {
           name: 'metadata',
           in: 'querystring',
           content: { 'application/json': {} },
-          examples: { default: { dataValue: false }, wire: { serializedValue: '%7B%7D' } },
+          examples: { default: { dataValue: false, serializedValue: 'false' }, wire: { serializedValue: '%7B%7D' } },
         },
-        contentExamples: { default: { dataValue: true } },
+        content: { examples: { default: { dataValue: true }, other: { dataValue: 'media' } } },
       }),
     ).toStrictEqual([getRenderedExample({ value: false }, 'default'), getRenderedExample({ value: '%7B%7D' }, 'wire')])
   })
@@ -73,90 +71,57 @@ describe('get-parameter-examples', () => {
     ).toStrictEqual([getRenderedExample({ value }, 'default')])
   })
 
-  it('ignores undefined example keys and returns no examples', () => {
-    const parameter = coerceValue(ParameterObjectSchema, {
-      in: 'query',
-      name: 'filter[status]',
-      required: false,
-      schema: coerceValue(SchemaObjectSchema, {
-        type: 'string',
-      }),
-      example: undefined,
-      examples: undefined,
-    })
+  it.each([undefined, { first: { value: undefined } }, { first: { $ref: '#/components/examples/Missing' } }])(
+    'ignores unavailable parameter examples: %j',
+    (examples) => {
+      expect(getParameterExamples({ parameter: { in: 'query', name: 'term', examples } })).toStrictEqual([])
+    },
+  )
 
-    const examples = getParameterExamples({
-      parameter,
-      schemaExamples: undefined,
-      contentExamples: undefined,
-    })
-
-    expect(examples).toStrictEqual([])
+  it.each([false, 0, '', null])('preserves a singular parameter example: %j', (example) => {
+    expect(getParameterExamples({ parameter: { in: 'query', name: 'term', example } })).toStrictEqual(
+      normalizeRenderedExamples([example]),
+    )
   })
 
-  it('uses parameter example fallback when defined and no other examples exist', () => {
-    const parameter = coerceValue(ParameterObjectSchema, {
-      in: 'query',
-      name: 'filter[status]',
-      required: false,
-      schema: coerceValue(SchemaObjectSchema, {
-        type: 'string',
-      }),
-      example: 'active',
-    })
-
+  it('preserves names and summaries without appending media type examples', () => {
     const examples = getParameterExamples({
-      parameter,
-      schemaExamples: undefined,
-      contentExamples: undefined,
-    })
-
-    expect(examples).toStrictEqual(normalizeRenderedExamples(['active']))
-  })
-
-  it('prefers schema examples and removes undefined entries', () => {
-    const parameter = coerceValue(ParameterObjectSchema, {
-      in: 'query',
-      name: 'filter[status]',
-      required: false,
-      schema: coerceValue(SchemaObjectSchema, {
-        type: 'string',
-      }),
-      example: 'active',
-      examples: {
-        first: { value: undefined },
+      parameter: {
+        name: 'status',
+        in: 'query',
+        examples: {
+          active: { summary: 'Active records', value: 'active' },
+          archived: { value: 'archived' },
+        },
       },
-    })
-
-    const examples = getParameterExamples({
-      parameter,
-      schemaExamples: [undefined, 'archived'],
-      contentExamples: undefined,
-    })
-
-    expect(examples).toStrictEqual(normalizeRenderedExamples(['archived']))
-  })
-  it('preserves names and summaries from parameter and body content examples', () => {
-    const examples = getParameterExamples({
-      parameter: { name: 'status', in: 'query', examples: { active: { summary: 'Active records', value: 'active' } } },
-      contentExamples: { archived: { summary: 'Archived records', value: 'archived' } },
-      schemaExamples: [{ value: 'raw', summary: 'payload' }],
+      content: { examples: { other: { value: 'media' } } },
     })
     expect(examples.map(({ name, summary, value }) => ({ name, summary, value }))).toStrictEqual([
       { name: 'active', summary: 'Active records', value: 'active' },
-      { name: 'archived', summary: 'Archived records', value: 'archived' },
-      { name: undefined, summary: undefined, value: { value: 'raw', summary: 'payload' } },
+      { name: 'archived', summary: undefined, value: 'archived' },
     ])
   })
 
-  it.each(['query', 'querystring'] as const)('preserves legacy schema maps for %s parameters', (location) => {
-    const examples = getParameterExamples({
-      parameter: { name: 'filter', in: location, content: { 'application/json': {} } },
-      schemaExamples: { legacy: { id: 1, summary: 'Payload text' } },
-    })
+  it.each([false, 0, '', null])(
+    'uses a singular media type example when parameter examples are unavailable: %j',
+    (example) => {
+      expect(
+        getParameterExamples({
+          parameter: { name: 'term', in: 'query', examples: { empty: { value: undefined } } },
+          content: { example },
+        }),
+      ).toStrictEqual(normalizeRenderedExamples([example]))
+    },
+  )
 
-    expect(examples.map(({ name, summary, value }) => ({ name, summary, value }))).toStrictEqual([
-      { name: 'legacy', summary: undefined, value: { id: 1, summary: 'Payload text' } },
+  it('preserves named media type example metadata for responses', () => {
+    expect(
+      getParameterExamples({
+        parameter: { description: 'OK' },
+        content: { examples: { sample: { summary: 'Response sample', value: { value: 'payload', summary: 'data' } } } },
+      }),
+    ).toStrictEqual([
+      getRenderedExample({ summary: 'Response sample', value: { value: 'payload', summary: 'data' } }, 'sample'),
     ])
   })
 })
