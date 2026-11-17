@@ -13,7 +13,14 @@ import {
 } from '../document/reference-context'
 
 /** The authored location survives relocation into external document storage. */
-type SourceLocation = { source: string; pointer: string; context: ReferenceContext; schemaSiblings: boolean }
+type SourceLocation = {
+  source: string
+  pointer: string
+  context: ReferenceContext
+  schemaSiblings: boolean
+  /** Custom branches permit object identities and reference siblings. */
+  customReferences?: true
+}
 
 /** Index traversal context separately from the mutable document and reference registry. */
 export const documentTraversal = (
@@ -22,8 +29,15 @@ export const documentTraversal = (
   schemaSiblings: boolean,
   enabled = true,
   asyncapi = false,
+  includeCustomReferences = false,
 ): {
-  register: (document: unknown, source: string, context?: ReferenceContext, targetPath?: readonly string[]) => void
+  register: (
+    document: unknown,
+    source: string,
+    context?: ReferenceContext,
+    targetPath?: readonly string[],
+    customReferences?: boolean,
+  ) => void
   location: (node: object) => SourceLocation | undefined
 } => {
   const exposures = new WeakMap<object, ReferenceContext>()
@@ -34,6 +48,7 @@ export const documentTraversal = (
     source: string,
     context?: ReferenceContext,
     targetPath: readonly string[] = [],
+    customTarget = false,
   ): void => {
     if (!enabled || document === null || typeof document !== 'object') {
       return
@@ -45,10 +60,14 @@ export const documentTraversal = (
     const targetContext = context ?? (api ? 'object' : 'schema')
     const isSwagger = api ? document.swagger === '2.0' : swagger
     const siblings = api ? document.swagger !== '2.0' && !String(document.openapi).startsWith('3.0.') : schemaSiblings
-    const visit = (value: unknown, path: string[], inherited: ReferenceContext, inheritedSiblings: boolean): void => {
-      if (value === null || typeof value !== 'object' || visited.has(value)) {
-        return
-      }
+    const visit = (
+      value: unknown,
+      path: string[],
+      inherited: ReferenceContext,
+      inheritedSiblings: boolean,
+      customReferences = false,
+    ): void => {
+      if (value === null || typeof value !== 'object' || visited.has(value)) return
       visited.add(value)
       const current = !aware ? 'generic' : (exposures.get(value) ?? inherited)
       const currentSiblings =
@@ -56,12 +75,16 @@ export const documentTraversal = (
           ? inheritedSiblings && !/draft-0[3467]/.test(value.$schema)
           : inheritedSiblings
       // Keep the inherited dialect separate for wrappers containing newer schemas.
-      const schemaSiblings = currentSiblings && (getSchemaVocabulary(current)?.referenceSiblings ?? true)
+      const schemaSiblings =
+        customReferences && !isSchemaContext(current)
+          ? true
+          : currentSiblings && (getSchemaVocabulary(current)?.referenceSiblings ?? true)
       locations.set(value, {
         source,
         pointer: `#${path.map((key) => `/${escapeJsonPointer(key)}`).join('')}`,
         context: current,
         schemaSiblings,
+        ...(customReferences ? { customReferences: true as const } : {}),
       })
       const ignoredSiblings =
         aware &&
@@ -70,7 +93,7 @@ export const documentTraversal = (
         isReferenceContext(current) &&
         isObject(value) &&
         typeof value.$ref === 'string' &&
-        (!isSchemaContext(current) || !schemaSiblings)
+        ((!isSchemaContext(current) && !customReferences) || !schemaSiblings)
       const schemaFormat = isObject(value) && typeof value.schemaFormat === 'string' ? value.schemaFormat : undefined
       // Virtual $ref-value links can reach a message before its authored location and
       // give it the wrong context. Enumerate authored keys but retain proxied reads
@@ -88,13 +111,19 @@ export const documentTraversal = (
                 openapi30: api ? String(document.openapi).startsWith('3.0.') : !schemaSiblings && !asyncapi && !swagger,
                 asyncapi: isAsyncApi,
                 schemaFormat,
+                includeCustomReferences,
               })
-        visit(child, [...path, key], next, currentSiblings)
+        const customChild =
+          customReferences ||
+          (includeCustomReferences &&
+            next !== 'data' &&
+            childReferenceContext(current, key, { swagger: isSwagger, asyncapi: isAsyncApi, schemaFormat }) === 'data')
+        visit(child, [...path, key], next, currentSiblings, customChild)
       }
     }
     // Index a document once; later references only expose their target subtree.
     if (!registered.has(document)) {
-      visit(document, [], api ? 'object' : targetContext, siblings)
+      visit(document, [], api ? 'object' : targetContext, siblings, includeCustomReferences && !api && customTarget)
       registered.add(document)
     }
     if (context === undefined) {
@@ -118,21 +147,21 @@ export const documentTraversal = (
     const targetLocation = locations.get(target)
     // References retain the target's authored vocabulary. Only a fragment initially
     // guessed to be a generic schema needs its referring schema context applied.
-    if (
-      isSchemaContext(targetLocation?.context) &&
-      isSchemaContext(context) &&
-      (api || targetLocation?.context !== 'schema')
-    ) {
+    const authoredContext = targetLocation?.context
+    const retainContext =
+      (customTarget && api && authoredContext !== undefined && !['data', 'data-container'].includes(authoredContext)) ||
+      (isSchemaContext(authoredContext) && isSchemaContext(context) && (api || authoredContext !== 'schema'))
+    const nextContext = retainContext ? (authoredContext ?? context) : context
+    const customReferences = retainContext
+      ? Boolean(targetLocation?.customReferences)
+      : Boolean(targetLocation?.customReferences || customTarget)
+    exposures.set(target, nextContext)
+    if (targetLocation?.context === nextContext && Boolean(targetLocation?.customReferences) === customReferences)
       return
-    }
-    exposures.set(target, context)
-    if (targetLocation?.context === context) {
-      return
-    }
     // The initial walk may already have visited descendants with a different context.
     const targetSiblings = targetLocation?.schemaSiblings ?? siblings
     visited = new WeakSet<object>()
-    visit(target, [...targetPath], context, targetSiblings)
+    visit(target, [...targetPath], nextContext, targetSiblings, customReferences)
   }
   return { register, location: (node: object): SourceLocation | undefined => locations.get(node) }
 }

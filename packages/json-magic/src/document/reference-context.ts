@@ -96,65 +96,30 @@ export const childReferenceContext = (
     asyncapi,
     schemaFormat,
     openapi30,
-  }: { swagger: boolean; asyncapi: boolean; schemaFormat?: string; openapi30?: boolean },
+    includeCustomReferences = false,
+  }: { swagger: boolean; asyncapi: boolean; schemaFormat?: string; openapi30?: boolean; includeCustomReferences?: boolean },
 ): ReferenceContext => {
-  if (context === 'generic') {
-    return 'generic'
-  }
-  if (context === 'data-container') {
-    return 'data'
-  }
-  if (context === 'binding-sets') {
-    return 'bindings'
-  }
-  if (context === 'bindings') {
-    return key.startsWith('x-') ? 'data' : `binding:${key}`
-  }
-  if (context.startsWith('binding:') && bindingSchemaProperties[context]?.includes(key)) {
-    return 'asyncapi-schema-object'
-  }
-  if (context === 'messages') {
-    return 'message'
-  }
-  if (context === 'message' && key === 'traits') {
-    return 'messages'
-  }
-  if (context === 'message' && key === 'oneOf') {
-    return 'messages'
-  }
-  if (['object', 'components'].includes(context) && key === 'messageTraits') {
-    return 'messages'
-  }
-  if (context === 'message' && key === 'examples') {
-    return 'data'
-  }
-  if (context === 'message' && ['payload', 'headers'].includes(key)) {
-    return asyncapi ? 'asyncapi-schema' : 'schema'
-  }
-  if (key === 'message' && context === 'object') {
-    return 'message'
-  }
-  if (key === 'messages' && ['object', 'components'].includes(context)) {
-    return 'messages'
-  }
-  if (context === 'data') {
-    return 'data'
-  }
-  if (context === 'paths') {
-    return key.startsWith('x-') ? 'data' : 'path-item'
-  }
-  if (context === 'named-responses') {
-    return 'response'
-  }
-  if (context === 'path-items') {
-    return 'path-item'
-  }
-  if (context === 'callbacks') {
-    return 'callback'
-  }
-  if (context === 'callback') {
-    return key.startsWith('x-') ? 'data' : 'path-item'
-  }
+  if (context === 'generic') return 'generic'
+  if (context === 'data-container') return 'data'
+  if (context === 'binding-sets') return 'bindings'
+  if (context === 'bindings')
+    return key.startsWith('x-') ? (includeCustomReferences ? 'object' : 'data') : `binding:${key}`
+  if (context.startsWith('binding:') && bindingSchemaProperties[context]?.includes(key)) return 'asyncapi-schema-object'
+  if (context === 'messages') return 'message'
+  if (context === 'message' && key === 'traits') return 'messages'
+  if (context === 'message' && key === 'oneOf') return 'messages'
+  if (['object', 'components'].includes(context) && key === 'messageTraits') return 'messages'
+  if (context === 'message' && key === 'examples') return 'data'
+  if (context === 'message' && ['payload', 'headers'].includes(key)) return asyncapi ? 'asyncapi-schema' : 'schema'
+  if (key === 'message' && context === 'object') return 'message'
+  if (key === 'messages' && ['object', 'components'].includes(context)) return 'messages'
+  if (context === 'data') return 'data'
+  if (includeCustomReferences && key.startsWith('x-') && !isSchemaMapContext(context)) return 'object'
+  if (context === 'paths') return key.startsWith('x-') ? 'data' : 'path-item'
+  if (context === 'named-responses') return 'response'
+  if (context === 'path-items') return 'path-item'
+  if (context === 'callbacks') return 'callback'
+  if (context === 'callback') return key.startsWith('x-') ? 'data' : 'path-item'
   const mappedContext = schemaContextsByMap.get(context)
   if (mappedContext !== undefined) {
     return mappedContext
@@ -213,8 +178,8 @@ export const childReferenceContext = (
       (modernSchema && ['unevaluatedProperties', 'unevaluatedItems', 'contentSchema', 'prefixItems'].includes(key))
     ) {
       return schemaContext
-    }
-    return 'data'
+    if (['example', 'examples', 'default', 'enum', 'const', 'value'].includes(key)) return 'data'
+    return includeCustomReferences ? schemaContext : 'data'
   }
   if (context === 'link' && ['parameters', 'requestBody'].includes(key)) {
     return 'data'
@@ -320,8 +285,15 @@ export const isSchemaContext = (context: ReferenceContext | undefined): context 
   context !== undefined && Object.hasOwn(schemaVocabularies, context)
 
 /** Select the identity and reference rules for a recognized schema position. */
-export const getSchemaVocabulary = (context: ReferenceContext | undefined): SchemaVocabulary | undefined =>
-  isSchemaContext(context) ? schemaVocabularies[context] : undefined
+export const getSchemaVocabulary = (
+  context: ReferenceContext | undefined,
+  customReferences = false,
+): SchemaVocabulary | undefined =>
+  isSchemaContext(context)
+    ? schemaVocabularies[context]
+    : context !== undefined && customReferences && isReferenceContext(context)
+      ? schemaVocabularies.schema
+      : undefined
 
 /** Whether the node contains named schemas rather than schema keywords. */
 export const isSchemaMapContext = (context: ReferenceContext): boolean => schemaContextsByMap.has(context)
