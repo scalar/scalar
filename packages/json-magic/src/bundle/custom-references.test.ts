@@ -134,6 +134,51 @@ describe('custom-references', () => {
     expect(exported['x-schema'].examples).toEqual([literal])
   })
 
+  it('retains imported document context when custom references are disabled', async () => {
+    const origin = 'https://source.test/root.json'
+    const result = await bundleWithDiagnostics(
+      {
+        ...api,
+        openapi: '3.2.0',
+        $self: origin,
+        paths: { '/value': { get: { responses: { '200': { $ref: './response.json' } } } } },
+        components: { schemas: { A: { $anchor: 'same', type: 'string' }, B: { $ref: `${origin}#same` } } },
+      },
+      {
+        origin,
+        traversal: 'document',
+        treeShake: false,
+        preserveReference: (reference) => /^https?:\/\//i.test(reference),
+        hooks: {
+          resolveDocument: (value) =>
+            value !== null && typeof value === 'object' && '$self' in value && typeof value.$self === 'string'
+              ? { baseUri: value.$self }
+              : undefined,
+        },
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: () =>
+              Promise.resolve({
+                ok: true,
+                raw: '',
+                data: {
+                  description: 'Value',
+                  content: { 'application/json': { schema: { $anchor: 'same', type: 'integer' } } },
+                },
+              }),
+          },
+        ],
+      },
+    )
+    expect(result.diagnostics).toEqual([])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    expect(exported.components.schemas.A.$anchor).toBe('same')
+    expect(JSON.stringify(exported).match(/"\$anchor":"same"/g)).toHaveLength(1)
+    expect(exported.components.schemas.B.$ref).toBe(`${origin}#same`)
+  })
+
   it('keeps strict document traversal unchanged when custom references are not enabled', async () => {
     const reads: string[] = []
     const result = await bundleWithDiagnostics(fixture(), {
