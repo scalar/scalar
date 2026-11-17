@@ -274,7 +274,7 @@ describe('get-operation-from-curl', () => {
     })
   })
 
-  it('handles form-encoded data with missing values', () => {
+  it('handles form-encoded data with explicitly empty values', () => {
     const curl = 'curl -X POST http://example.com/api/users -d "name=John&age="'
     const result = getOperationFromCurl(curl)
 
@@ -283,6 +283,7 @@ describe('get-operation-from-curl', () => {
 
     expect(curlExample?.value).toEqual({
       name: 'John',
+      age: '',
     })
   })
 
@@ -751,5 +752,22 @@ describe('get-operation-from-curl', () => {
       curl: { value: { name: 'Ada', city: 'Pune' } },
     })
     expect(requestBody?.['x-scalar-selected-content-type']).toStrictEqual({ curl: 'multipart/form-data' })
+  })
+
+  it.each([
+    [`-F 'name='`, 'name', 'multipart/form-data'],
+    [`--form-string 'name='`, 'name', 'multipart/form-data'],
+    [`-F 'file=@file.txt'`, 'file', 'multipart/form-data'],
+    [`-F 'file=<file.txt'`, 'file', 'multipart/form-data'],
+    [`-d 'name='`, 'name', 'application/x-www-form-urlencoded'],
+  ])('preserves empty body fields for %s', (options, field, contentType) => {
+    const result = getOperationFromCurl(`curl ${options} https://example.com`)
+    const requestBody = getResolvedRef(result.operation.requestBody)
+    expect(result.method).toBe('post')
+    expect(requestBody?.content[contentType]?.examples).toStrictEqual({ curl: { value: { [field]: '' } } })
+    expect(requestBody?.content[contentType]?.schema).toStrictEqual({
+      type: 'object',
+      properties: { [field]: { type: 'string' } },
+    })
   })
 })

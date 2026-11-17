@@ -41,7 +41,7 @@ const parseRequestBodyData = (data: string): ParsedData => {
 
     data.split('&').forEach((pair) => {
       const [key, value] = pair.split('=')
-      if (key && value) {
+      if (key && value !== undefined) {
         result[decodeURIComponent(key)] = decodeURIComponent(value)
       }
     })
