@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
 import { getValueByPath } from '@/helpers/get-value-by-path'
+import { createMagicProxy, getRaw } from '@/magic-proxy/proxy'
 
 import { type LoaderPlugin, bundle } from './bundle'
 import { bundleWithDiagnostics } from './bundle-with-diagnostics'
@@ -371,5 +372,76 @@ describe('relocate-references', () => {
     const a = exported.components.schemas.A
     const b = getValueByPath(a, getSegmentsFromPath(a.properties.b.$ref)).value
     expect(b.properties.missing.$ref).toBe('https://source.test/other/missing.json#/Value')
+  })
+  it.each([true, false])('relocates proxy inputs without copying virtual links (treeShake: %s)', async (treeShake) => {
+    const input = createMagicProxy({
+      openapi: '3.1.0',
+      info: { title: 'Proxy', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          A: {
+            $id: 'https://source.test/A',
+            properties: { b: { $ref: './b.json' } },
+          },
+        },
+      },
+    })
+    const reads: string[] = []
+    const result = await bundle(input, {
+      plugins: [
+        {
+          type: 'loader',
+          validate: () => true,
+          exec: (uri) => {
+            reads.push(uri)
+            return Promise.resolve({
+              ok: true,
+              data: uri.endsWith('/b.json') ? { properties: { c: { $ref: './c.json' } } } : { type: 'string' },
+              raw: '',
+            })
+          },
+        },
+      ],
+      traversal: 'document',
+      treeShake,
+      preserveReference: (ref) => /^https?:\/\//.test(ref),
+    })
+    const exported = JSON.parse(JSON.stringify(getRaw(result)))
+    const a = exported.components.schemas.A
+    const b = getValueByPath(a, getSegmentsFromPath(a.properties.b.$ref)).value
+    expect(getValueByPath(a, getSegmentsFromPath(b.properties.c.$ref)).value).toEqual({ type: 'string' })
+    expect(JSON.stringify(exported)).not.toContain('$ref-value')
+    expect(reads).toEqual(['https://source.test/b.json', 'https://source.test/c.json'])
+  })
+
+  it('keeps file-root cache keys and URL mappings relative to the retrieval path', async () => {
+    const cache = new Map<string, Promise<import('./bundle').ResolveResult>>()
+    const reads: string[] = []
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: (uri) => {
+        reads.push(uri)
+        return Promise.resolve({ ok: true, data: { type: 'string' }, raw: '' })
+      },
+    }
+    for (const round of [1, 2]) {
+      const result = await bundle(
+        { $id: './schema.json', properties: { child: { $ref: './child.json' } } },
+        {
+          origin: '/tmp/source/root.json',
+          plugins: [loader],
+          treeShake: true,
+          urlMap: true,
+          cache,
+          traversal: 'document',
+          preserveReference: (ref) => /^https?:\/\//.test(ref),
+        },
+      )
+      expect(Object.values(result['x-ext-urls']), `round ${round}`).toEqual(['child.json'])
+      expect([...cache.keys()]).toEqual(['child.json'])
+    }
+    expect(reads).toEqual(['/tmp/source/child.json'])
   })
 })
