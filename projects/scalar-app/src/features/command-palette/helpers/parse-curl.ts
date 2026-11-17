@@ -7,21 +7,31 @@ import { isWindowsCommand, parseWindowsCommand } from './parse-windows-command'
 /** Every flag that sends its next argument as request data, --json is handled apart because it also sets headers. */
 const DATA_FLAGS = new Set(['--data', '-d', '--data-raw', '--data-urlencode', '--data-binary', '--data-ascii'])
 
+/** Every flag that sends a multipart form field, --form-string is the same without any special reading of its content. */
+const FORM_FLAGS = new Set(['--form', '-F', '--form-string'])
+
 /** Curl short flags that take a value, so the rest of a bundle like -XPOST or -sdfoo is that value rather than more flags. */
 const SHORT_FLAGS_WITH_VALUE = new Set('AbcCdDeEFHKmoPQrtTuUwxXyYz')
 
 /** The short flags with a value that are read below, an attached value of any other flag is dropped instead of read as an argument. */
-const READ_SHORT_FLAGS_WITH_VALUE = new Set('XHduPb')
+const READ_SHORT_FLAGS_WITH_VALUE = new Set('XHduPbF')
 
 /** One argument of a data flag, flagged when it came from --json because curl joins those without an ampersand. */
 type DataPiece = { value: string; isJson: boolean }
 
 /** The headers --json sets unless the command already sets them. */
-const JSON_HEADERS = ['Content-Type', 'Accept']
+const JSON_HEADERS = { 'Content-Type': 'application/json', Accept: 'application/json' }
+
+/** The header a multipart form sets unless the command already sets it, curl adds the boundary when it sends the request. */
+const FORM_HEADERS = { 'Content-Type': 'multipart/form-data' }
+
+/** The characters a backslash escapes inside a quoted form content. */
+const FORM_CONTENT_ESCAPES = new Set(['"', '\\'])
 
 /** The long flags with a value that are read below, curl also takes their value attached as --flag=value. */
 const READ_LONG_FLAGS_WITH_VALUE = new Set([
   ...DATA_FLAGS,
+  ...FORM_FLAGS,
   '--json',
   '--request',
   '--url',
@@ -92,6 +102,7 @@ export function parseCurlCommand(curlCommand: string) {
   } = { url: '' }
 
   const data: DataPiece[] = []
+  const form: string[] = []
   let isGet = false
 
   const queue = [...args]
@@ -116,6 +127,8 @@ export function parseCurlCommand(curlCommand: string) {
       parseHeader(iterator as Iterator<string>, result)
     } else if (typeof arg === 'string' && DATA_FLAGS.has(arg)) {
       parseData(queue, data, arg)
+    } else if (typeof arg === 'string' && FORM_FLAGS.has(arg)) {
+      parseForm(queue, form, arg)
     } else if (arg === '--json') {
       // Send the data as JSON e.g curl --json '{"a":1}'
       parseData(queue, data, arg)
@@ -143,6 +156,10 @@ export function parseCurlCommand(curlCommand: string) {
 
   if (data.length) {
     applyData(result, data, isGet)
+  }
+
+  if (form.length) {
+    applyForm(result, form)
   }
 
   return result
@@ -277,6 +294,55 @@ function parseData(queue: unknown[], data: DataPiece[], flag: string): void {
   }
 }
 
+/** Curl reads the content of a quoted form field up to the closing quote, where a backslash escapes a quote or a backslash, so a semicolon inside stays part of it. */
+function readQuotedFormContent(content: string): string {
+  let value = ''
+
+  for (let index = 1; index < content.length && content.charAt(index) !== '"'; index++) {
+    if (content.charAt(index) === '\\' && FORM_CONTENT_ESCAPES.has(content.charAt(index + 1))) {
+      index++
+    }
+    value += content.charAt(index)
+  }
+
+  return value
+}
+
+/** Mock reading a form file like data, the content of a field ends at the first semicolon that starts an option such as ;type=, and --form-string takes the content as it is. */
+function readFormContent(content: string, flag: string): string {
+  if (flag === '--form-string') {
+    return content
+  }
+
+  if (content.startsWith('@') || content.startsWith('<')) {
+    return ''
+  }
+
+  return content.startsWith('"') ? readQuotedFormContent(content) : (content.split(';')[0] ?? '')
+}
+
+/** Percent-encode a name=content form field so the body stays one field per ampersand, a field without an equal sign is not a field. */
+function encodeFormField(argument: string, flag: string): string {
+  const separatorIndex = argument.indexOf('=')
+
+  if (separatorIndex === -1) {
+    return ''
+  }
+
+  const name = encodeURIComponent(argument.slice(0, separatorIndex))
+  const content = encodeURIComponent(readFormContent(argument.slice(separatorIndex + 1), flag))
+
+  return `${name}=${content}`
+}
+
+/** Collect the field of a curl form flag, the value of a flag is never another flag. */
+function parseForm(queue: unknown[], form: string[], flag: string): void {
+  const nextArg = queue.shift()
+  if (typeof nextArg === 'string') {
+    form.push(encodeFormField(nextArg, flag))
+  }
+}
+
 /** Curl joins repeated data flags with an ampersand and repeated --json flags without one. */
 function joinData(data: DataPiece[]): string {
   return data
@@ -287,7 +353,7 @@ function joinData(data: DataPiece[]): string {
 /** Curl appends the data to the URL with -G, otherwise sends it as the body and defaults the method to POST */
 function applyData(result: any, data: DataPiece[], isGet: boolean): void {
   if (data.some(({ isJson }): boolean => isJson)) {
-    applyJsonHeaders(result)
+    applyDefaultHeaders(result, JSON_HEADERS)
   }
 
   const joinedData = joinData(data)
@@ -304,14 +370,21 @@ function applyData(result: any, data: DataPiece[], isGet: boolean): void {
   result.method ??= 'post'
 }
 
-/** Curl only adds the JSON headers of --json when the command does not set them, whatever their case. */
-function applyJsonHeaders(result: any): void {
+/** Curl sends a multipart form as a POST with or without -G, which only moves data, and an explicit method or Content-Type of the command wins. */
+function applyForm(result: any, form: string[]): void {
+  applyDefaultHeaders(result, FORM_HEADERS)
+  result.body = form.filter(Boolean).join('&')
+  result.method ??= 'post'
+}
+
+/** Curl only adds these headers when the command does not set them, whatever their case. */
+function applyDefaultHeaders(result: any, defaults: Record<string, string>): void {
   result.headers = result.headers || {}
   const existingNames = new Set(Object.keys(result.headers).map((name): string => name.toLowerCase()))
 
-  for (const name of JSON_HEADERS) {
+  for (const [name, value] of Object.entries(defaults)) {
     if (!existingNames.has(name.toLowerCase())) {
-      result.headers[name] = 'application/json'
+      result.headers[name] = value
     }
   }
 }

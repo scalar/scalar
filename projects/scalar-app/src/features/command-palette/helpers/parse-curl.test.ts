@@ -839,6 +839,134 @@ describe('parseCurlCommand', () => {
     })
   })
 
+  describe('form', () => {
+    it('sends -F fields as a multipart body, defaults to POST and sets the multipart header', () => {
+      const result = parseCurlCommand(`curl -F 'name=Ada' -F 'city=Pune' https://example.com/users`)
+      expect(result).toStrictEqual({
+        url: 'https://example.com/users',
+        servers: ['https://example.com'],
+        path: '/users',
+        queryParameters: [],
+        headers: { 'Content-Type': 'multipart/form-data' },
+        body: 'name=Ada&city=Pune',
+        method: 'post',
+      })
+    })
+
+    it.each([
+      ['-F name=Ada'],
+      ['--form name=Ada'],
+      ['--form-string name=Ada'],
+      ['-Fname=Ada'],
+      ['-sFname=Ada'],
+      ['--form=name=Ada'],
+      ['--form-string=name=Ada'],
+    ])('reads the field of %s', (flag) => {
+      const result = parseCurlCommand(`curl ${flag} https://example.com/users`)
+      expect(result.body).toBe('name=Ada')
+      expect(result.method).toBe('post')
+      expect(result.url).toBe('https://example.com/users')
+    })
+
+    it.each([
+      ['-X PUT', 'put'],
+      ['--request=PATCH', 'patch'],
+      ['-XDELETE', 'delete'],
+      ['-X GET', 'get'],
+    ])('keeps the method of %s with a form', (flag, method) => {
+      const result = parseCurlCommand(`curl ${flag} -F name=Ada https://example.com/users/1`)
+      expect(result.method).toBe(method)
+      expect(result.body).toBe('name=Ada')
+    })
+
+    it.each(['-G', '--get', '-sG'])('keeps a form in the body with %s', (flag) => {
+      const result = parseCurlCommand(`curl ${flag} -F name=Ada https://example.com/users`)
+      expect(result.method).toBe('post')
+      expect(result.body).toBe('name=Ada')
+      expect(result.queryParameters).toStrictEqual([])
+    })
+
+    it('moves the data of -G to the query string while a form stays in the body', () => {
+      const result = parseCurlCommand(`curl -G -d 'page=2' -F name=Ada https://example.com/users`)
+      expect(result.method).toBe('post')
+      expect(result.body).toBe('name=Ada')
+      expect(result.queryParameters).toStrictEqual([{ key: 'page', value: '2' }])
+    })
+
+    it.each([
+      ['name=Ada;type=text/plain', 'name=Ada'],
+      ['name=Ada;filename=ada.txt;type=text/plain', 'name=Ada'],
+      ['name=Ada;', 'name=Ada'],
+      ['name=a=b', 'name=a%3Db'],
+      ['name=a&b', 'name=a%26b'],
+      ['name=', 'name='],
+      ['name="a;b"', 'name=a%3Bb'],
+      ['name="a;type=b"', 'name=a%3Btype%3Db'],
+      [String.raw`name="a\"b\\c"`, 'name=a%22b%5Cc'],
+      ['name="@file.txt"', 'name=%40file.txt'],
+      ['name=@file.txt', 'name='],
+      ['name=<file.txt', 'name='],
+      ['name=@file.txt;type=text/plain', 'name='],
+      ['a&b=c', 'a%26b=c'],
+      ['name=é 日本語 😀 שלום', 'name=%C3%A9%20%E6%97%A5%E6%9C%AC%E8%AA%9E%20%F0%9F%98%80%20%D7%A9%D7%9C%D7%95%D7%9D'],
+      ['日本語=Ada', '%E6%97%A5%E6%9C%AC%E8%AA%9E=Ada'],
+    ])('reads the field %s like curl', (field, body) => {
+      const result = parseCurlCommand(`curl -F '${field}' https://example.com/users`)
+      expect(result.body).toBe(body)
+    })
+
+    it.each([
+      ['name=Ada;type=text/plain', 'name=Ada%3Btype%3Dtext%2Fplain'],
+      ['name="Ada"', 'name=%22Ada%22'],
+      ['name=@file.txt', 'name=%40file.txt'],
+      ['name=<file.txt', 'name=%3Cfile.txt'],
+    ])('reads the field %s of --form-string as it is', (field, body) => {
+      const result = parseCurlCommand(`curl --form-string '${field}' https://example.com/users`)
+      expect(result.body).toBe(body)
+    })
+
+    it('keeps the order and the repeated names of the fields', () => {
+      const result = parseCurlCommand('curl -F tag=a -F other=b -F tag=c -F tag= https://example.com/users')
+      expect(result.body).toBe('tag=a&other=b&tag=c&tag=')
+    })
+
+    it('skips a field without an equal sign', () => {
+      const result = parseCurlCommand('curl -F name -F city=Pune https://example.com/users')
+      expect(result.body).toBe('city=Pune')
+      expect(result.method).toBe('post')
+    })
+
+    it.each([
+      ['-H "Content-Type: multipart/mixed"', 'Content-Type', 'multipart/mixed'],
+      ['-H "content-type: multipart/related"', 'content-type', 'multipart/related'],
+      ['-H "CONTENT-TYPE: text/plain"', 'CONTENT-TYPE', 'text/plain'],
+    ])('keeps the header the command sets with %s', (headerFlag, name, value) => {
+      const result = parseCurlCommand(`curl ${headerFlag} -F name=Ada https://example.com/users`)
+      expect(result.headers).toStrictEqual({ [name]: value })
+    })
+
+    it('keeps the other headers of the command next to the multipart header', () => {
+      const result = parseCurlCommand(`curl -F name=Ada -H 'Accept: */*' https://example.com/users`)
+      expect(result.headers).toStrictEqual({ Accept: '*/*', 'Content-Type': 'multipart/form-data' })
+    })
+
+    it('does not read the value of a form flag as the URL', () => {
+      const result = parseCurlCommand(`curl -F 'www.example.org=1' https://example.com/users`)
+      expect(result.url).toBe('https://example.com/users')
+    })
+
+    it('reads a form before the URL as the body', () => {
+      const result = parseCurlCommand('curl -F name=Ada -X POST https://example.com/users -F city=Pune')
+      expect(result.body).toBe('name=Ada&city=Pune')
+      expect(result.queryParameters).toStrictEqual([])
+    })
+
+    it('does not add the multipart header to a command without a form', () => {
+      const result = parseCurlCommand(`curl -d 'name=Ada' https://example.com/users`)
+      expect(result.headers).toBeUndefined()
+    })
+  })
+
   describe('ANSI-C quoting', () => {
     it.each([
       ['Chrome with an apostrophe', String.raw`$'{"name":"it\'s"}'`, `{"name":"it's"}`],

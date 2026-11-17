@@ -724,4 +724,21 @@ describe('get-operation-from-curl', () => {
       curl: { value: { name: "it's" } },
     })
   })
+
+  it.each([
+    ['', 'post'],
+    ['-G', 'post'],
+    ['-X PUT', 'put'],
+  ])('imports -F fields with %s as a multipart body of a %s', (flag, method) => {
+    const result = getOperationFromCurl(`curl ${flag} -F 'name=Ada' -F 'city=Pune' https://api.example.com/v1/users`)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe(method)
+    expect(Object.keys(requestBody?.content ?? {})).toStrictEqual(['multipart/form-data'])
+    expect(requestBody?.content['multipart/form-data']?.examples).toStrictEqual({
+      curl: { value: { name: 'Ada', city: 'Pune' } },
+    })
+    expect(requestBody?.['x-scalar-selected-content-type']).toStrictEqual({ curl: 'multipart/form-data' })
+  })
 })
