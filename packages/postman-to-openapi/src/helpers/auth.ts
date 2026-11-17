@@ -1,12 +1,14 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { Auth } from '@/types'
+import type { Auth, AuthAttributes } from '@/types'
 
 // Constants for security scheme names and URLs
 const AUTH_SCHEMES = {
   API_KEY: 'apikeyAuth',
   BASIC: 'basicAuth',
   BEARER: 'bearerAuth',
+  DIGEST: 'digestAuth',
   OAUTH2: 'oauth2Auth',
 } as const
 
@@ -15,22 +17,73 @@ const OAUTH2_DEFAULTS = {
   TOKEN_URL: '/oauth/token',
 } as const
 
+const API_KEY_DEFAULTS = {
+  NAME: 'api_key',
+  LOCATION: 'header',
+} as const
+
+const SCHEME_NAME_SAFE_CHAR = /[A-Za-z0-9_-]/
+
 type SecurityConfig = {
   scheme: OpenAPIV3_1.SecuritySchemeObject
   requirement: OpenAPIV3_1.SecurityRequirementObject
+  /** Overrides the default `<type>Auth` key when one Postman type maps to several distinct schemes. */
+  schemeName?: string
 }
+
+/** Reads v2.1 attribute rows and v2.0 attribute objects as entries, because Postman exports both shapes. */
+const toAttributeEntries = (attributes: AuthAttributes | undefined): [string, unknown][] => {
+  if (Array.isArray(attributes)) {
+    return attributes.map((attr): [string, unknown] => [attr.key, attr.value])
+  }
+
+  return isObjectLike(attributes) ? Object.entries(attributes) : []
+}
+
+/** Collects attributes in a map, so names such as `__proto__` stay ordinary keys. */
+const toAttributeMap = (attributes: AuthAttributes | undefined): Map<string, string> => {
+  const attrMap = new Map<string, string>()
+
+  toAttributeEntries(attributes).forEach(([key, value]) => {
+    if (key && value !== undefined && value !== null) {
+      attrMap.set(key, String(value))
+    }
+  })
+
+  return attrMap
+}
+
+/** Escapes each byte a component key cannot hold as a dot plus hex, so different names never share a scheme key. */
+const escapeSchemeNamePart = (value: string): string =>
+  Array.from(new TextEncoder().encode(value), (byte): string => {
+    const char = String.fromCharCode(byte)
+    return SCHEME_NAME_SAFE_CHAR.test(char) ? char : `.${byte.toString(16).toUpperCase().padStart(2, '0')}`
+  }).join('')
 
 /**
  * Creates security configuration for API key authentication
+ * Uses the Postman key name and location, and falls back to a header like Postman does
  */
-function createApiKeyConfig(): SecurityConfig {
+function createApiKeyConfig(auth?: Auth): SecurityConfig {
+  const attrMap = toAttributeMap(auth?.apikey)
+  const name = attrMap.get('key') || API_KEY_DEFAULTS.NAME
+  // Postman only offers header and query, so any other value is sent as a header.
+  const location = attrMap.get('in') === 'query' ? 'query' : API_KEY_DEFAULTS.LOCATION
+
+  // Two API keys with different names or locations must not overwrite each other in components.
+  const isDefault = name === API_KEY_DEFAULTS.NAME && location === API_KEY_DEFAULTS.LOCATION
+  const schemeName = isDefault
+    ? AUTH_SCHEMES.API_KEY
+    : `${AUTH_SCHEMES.API_KEY}_${location}_${escapeSchemeNamePart(name)}`
+
   return {
     scheme: {
       type: 'apiKey',
-      name: 'api_key',
-      in: 'header',
+      name,
+      in: location,
     },
-    requirement: { [AUTH_SCHEMES.API_KEY]: [] },
+    requirement: { [schemeName]: [] },
+    schemeName,
   }
 }
 
@@ -61,6 +114,19 @@ function createBearerConfig(): SecurityConfig {
 }
 
 /**
+ * Creates security configuration for Digest authentication
+ */
+function createDigestConfig(): SecurityConfig {
+  return {
+    scheme: {
+      type: 'http',
+      scheme: 'digest',
+    },
+    requirement: { [AUTH_SCHEMES.DIGEST]: [] },
+  }
+}
+
+/**
  * Creates security configuration for OAuth2 authentication
  * Extracts actual OAuth2 URLs and scopes from the Postman auth object
  */
@@ -72,14 +138,7 @@ function createOAuth2Config(auth?: Auth): SecurityConfig {
     }
   }
 
-  const oauth2Attrs = auth.oauth2 || []
-  const attrMap = new Map<string, string>()
-
-  oauth2Attrs.forEach((attr) => {
-    if (attr.key && attr.value !== undefined) {
-      attrMap.set(attr.key, String(attr.value))
-    }
-  })
+  const attrMap = toAttributeMap(auth.oauth2)
 
   const authUrl = attrMap.get('authUrl') || attrMap.get('authorizationUrl') || OAUTH2_DEFAULTS.AUTHORIZE_URL
   const tokenUrl = attrMap.get('accessTokenUrl') || attrMap.get('tokenUrl') || OAUTH2_DEFAULTS.TOKEN_URL
@@ -121,11 +180,13 @@ function createNoAuthConfig(): SecurityConfig {
 
 /**
  * Maps authentication types to their configuration creators
+ * Types missing here cannot be described in OpenAPI, so they are skipped
  */
 const AUTH_TYPE_HANDLERS: Record<string, (auth?: Auth) => SecurityConfig> = {
   apikey: createApiKeyConfig,
   basic: createBasicConfig,
   bearer: createBearerConfig,
+  digest: createDigestConfig,
   oauth2: createOAuth2Config,
   noauth: createNoAuthConfig,
 }
@@ -133,7 +194,8 @@ const AUTH_TYPE_HANDLERS: Record<string, (auth?: Auth) => SecurityConfig> = {
 /**
  * Processes authentication information from a Postman collection and updates
  * the OpenAPI document with the corresponding security schemes and requirements.
- * Supports API key, basic auth, bearer token, OAuth2, and no authentication types.
+ * Supports API key, basic auth, bearer token, digest, OAuth2, and no authentication types.
+ * Other Postman types, such as AWS Signature or Hawk, produce no scheme and no requirement.
  */
 export function processAuth(auth: Auth): {
   securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject>
@@ -143,17 +205,17 @@ export function processAuth(auth: Auth): {
   const security: OpenAPIV3_1.SecurityRequirementObject[] = []
 
   try {
-    const handler = AUTH_TYPE_HANDLERS[auth.type]
+    // The type comes from the document, so an inherited key such as `constructor` is not a handler.
+    const handler = Object.hasOwn(AUTH_TYPE_HANDLERS, auth.type) ? AUTH_TYPE_HANDLERS[auth.type] : undefined
     if (!handler) {
-      throw new Error(`Unsupported authentication type: ${auth.type}`)
+      return { securitySchemes, security }
     }
 
-    const { scheme, requirement } = handler(auth)
+    const { scheme, requirement, schemeName = `${auth.type}Auth` } = handler(auth)
 
     // Only add security schemes and requirements if they're not empty
     if (Object.keys(scheme).length > 0) {
-      const schemeKey = `${auth.type}Auth`
-      securitySchemes[schemeKey] = scheme
+      securitySchemes[schemeName] = scheme
       security.push(requirement)
     }
   } catch (error) {
