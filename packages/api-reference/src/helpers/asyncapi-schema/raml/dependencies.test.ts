@@ -1,7 +1,8 @@
 // @vitest-environment node
 
+import * as ramlSource from '@scalar/workspace-store/helpers/async-api-schema-resources/raml-source'
 import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { readSchema } from '../read-schema'
 
@@ -158,5 +159,79 @@ describe('dependencies', () => {
       resources({ '/example.yaml': 'uses: ordinary-data\ndescription: literal' }),
     )
     expect(result?.nodes[0]?.details).toStrictEqual(['example: {"uses":"ordinary-data","description":"literal"}'])
+  })
+
+  it.each(['includes', 'libraries'])('parses a large repeated file once through %s', (kind) => {
+    const parse = vi.spyOn(ramlSource, 'parseRamlSource')
+    try {
+      const comment = `# ${'x'.repeat(180_000)}\n`
+      const source =
+        kind === 'includes'
+          ? `type: object\nproperties:\n${Array.from({ length: 20 }, (_, index) => `  field${index}: !include shared.raml`).join('\n')}`
+          : `uses:\n${Array.from({ length: 20 }, (_, index) => `  lib${index}: shared.raml`).join('\n')}\ntype: object\nproperties:\n${Array.from({ length: 20 }, (_, index) => `  field${index}: lib${index}.Value`).join('\n')}`
+      const shared =
+        kind === 'includes' ? `${comment}type: string` : `#%RAML 1.0 Library\n${comment}types:\n  Value: string`
+      const result = readSchema(format, source, resources({ '/shared.raml': shared }))
+      expect(result?.nodes[0]?.children?.map(({ name, type }) => ({ name, type }))).toStrictEqual(
+        Array.from({ length: 20 }, (_, index) => ({ name: `field${index}`, type: 'string' })),
+      )
+      expect(parse).toHaveBeenCalledTimes(2)
+    } finally {
+      parse.mockRestore()
+    }
+  })
+
+  it('bounds dependency levels independently of schema-node depth', () => {
+    const files = Object.fromEntries(
+      Array.from({ length: 21 }, (_, index) => [
+        `/${index}.raml`,
+        index === 19 ? 'type: string' : `!include ${index + 1}.raml`,
+      ]),
+    )
+    expect(readSchema(format, '!include 0.raml', resources(files))?.nodes[0]?.type).toBe('string')
+    files['/19.raml'] = '!include 20.raml'
+    files['/20.raml'] = 'type: string'
+    expect(readSchema(format, '!include 0.raml', resources(files))).toBeUndefined()
+  })
+
+  it('rejects excess unique files and total source size without returning partial fields', () => {
+    const files = Object.fromEntries(Array.from({ length: 65 }, (_, index) => [`/${index}.raml`, 'type: string']))
+    const source = `type: object\nproperties:\n${Object.keys(files)
+      .map((uri, index) => `  field${index}: !include ${uri}`)
+      .join('\n')}`
+    expect(readSchema(format, source, resources(files))).toBeUndefined()
+    const large = Object.fromEntries(
+      Array.from({ length: 6 }, (_, index) => [`/${index}.raml`, `# ${'x'.repeat(180_000)}\ntype: string`]),
+    )
+    const largeSource = `type: object\nproperties:\n${Object.keys(large)
+      .map((uri, index) => `  field${index}: !include ${uri}`)
+      .join('\n')}`
+    expect(readSchema(format, largeSource, resources(large))).toBeUndefined()
+  })
+
+  it('retains source for an untyped include that declares its own uses', () => {
+    expect(
+      readSchema(
+        format,
+        '!include value.raml',
+        resources({
+          '/value.raml': 'uses:\n  lib: lib.raml\ntype: lib.Value',
+          '/lib.raml': '#%RAML 1.0 Library\ntypes:\n  Value: string',
+        }),
+      ),
+    ).toBeUndefined()
+  })
+
+  it('retains source for a cycle through untyped includes', () => {
+    expect(
+      readSchema(
+        format,
+        '!include a.raml',
+        resources({
+          '/a.raml': 'type: !include b.raml',
+          '/b.raml': 'type: !include a.raml',
+        }),
+      ),
+    ).toBeUndefined()
   })
 })

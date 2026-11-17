@@ -8,7 +8,7 @@ import { schemaResourcePath } from './schema-resource-path'
 /** Raw dependencies travel with a schema across server chunks, without changing its authored source. */
 export type AsyncApiSchemaResources = { origin: string; files: Record<string, string>; failed?: true }
 
-/** Share downloads within an ingestion, while bounding each graph independently. */
+/** Bound both individual graphs and their shared downloads within one ingestion. */
 export const createSchemaResourceLoader = (): ((
   format: string,
   source: unknown,
@@ -16,6 +16,8 @@ export const createSchemaResourceLoader = (): ((
   loaders: LoaderPlugin[],
 ) => Promise<AsyncApiSchemaResources | undefined>) => {
   const cache = new Map<string, Promise<string>>()
+  const parsedRamlFiles = new Map<string, unknown>()
+  const ingestion = { size: 0 }
   return async (format, source, origin, loaders): Promise<AsyncApiSchemaResources | undefined> => {
     const normalized = format
       .toLowerCase()
@@ -35,7 +37,7 @@ export const createSchemaResourceLoader = (): ((
       depth: number,
       position: RamlPosition = 'schema',
     ): Promise<void> => {
-      if (depth > 20) throw new Error('Dependency graph is too deep')
+      if (depth >= 20) throw new Error('Dependency graph is too deep')
       const url = schemaResourcePath(base, reference)
       const identity = `${position}:${url}`
       if (active.has(identity)) throw new Error('Cyclic schema dependencies')
@@ -43,6 +45,7 @@ export const createSchemaResourceLoader = (): ((
       if (!Object.hasOwn(files, url) && Object.keys(files).length >= 64) throw new Error('Too many schema dependencies')
       active.add(identity)
       if (!cache.has(url)) {
+        if (cache.size >= 64 || ingestion.size >= 1_000_000) throw new Error('Too many document dependencies')
         const loader = loaders.find((candidate) => candidate.validate(url))
         if (!loader) throw new Error('No resource loader')
         cache.set(
@@ -51,6 +54,8 @@ export const createSchemaResourceLoader = (): ((
             const result = await loader.exec(url, { parseAs: 'text' })
             if (!result.ok || typeof result.raw !== 'string' || result.raw.length > 200_000)
               throw new Error('Unavailable schema dependency')
+            ingestion.size += result.raw.length
+            if (ingestion.size > 1_000_000) throw new Error('Document dependencies are too large')
             return result.raw
           })(),
         )
@@ -76,7 +81,19 @@ export const createSchemaResourceLoader = (): ((
         for (const dependency of protobufImports(value)) await load(dependency.path, base, depth)
         return
       }
-      const parsed = typeof value === 'string' ? parseRamlSource(value) : value
+      // Inline schemas can share an origin but have different source; only external files have stable URI identity.
+      if (typeof value === 'string' && depth > 0 && !parsedRamlFiles.has(base))
+        parsedRamlFiles.set(base, parseRamlSource(value))
+      const parsed =
+        typeof value === 'string' ? (depth > 0 ? parsedRamlFiles.get(base) : parseRamlSource(value)) : value
+      if (
+        depth > 0 &&
+        position === 'schema' &&
+        isObject(parsed) &&
+        'uses' in parsed &&
+        !(typeof value === 'string' && /^#%RAML 1\.0 (?:DataType|Library)[ \t]*(?:\r?\n|$)/.test(value))
+      )
+        throw new Error('Only typed RAML fragments can declare libraries')
       const seen = new Set<unknown>()
       const library = typeof value === 'string' && /^#%RAML 1\.0 Library/.test(value)
       const walk = async (node: unknown, level: number, position: RamlPosition): Promise<void> => {

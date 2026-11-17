@@ -3,6 +3,7 @@ import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 
 import { getResolvedAsyncApiRef } from '../get-resolved-async-api-ref'
+import { resolveTraits } from '../resolve-traits'
 import { createSchemaResourceLoader } from './resources'
 
 /** Prepare inline native schemas before server chunking; external AsyncAPI references stay deferred. */
@@ -12,6 +13,7 @@ export const loadInlineAsyncApiSchemaResources = async (
   loaders: LoaderPlugin[],
 ): Promise<void> => {
   const load = createSchemaResourceLoader()
+  const legacy = /^2\./.test(document.asyncapi)
   const schema = async (value: unknown): Promise<void> => {
     const node = getResolvedAsyncApiRef(value)
     if (!isObject(node) || typeof node.schemaFormat !== 'string') return
@@ -28,6 +30,10 @@ export const loadInlineAsyncApiSchemaResources = async (
     const node = getResolvedAsyncApiRef(value)
     if (!isObject(node) || messages.has(node)) return
     messages.add(node)
+    if (legacy && 'payload' in node) {
+      const format = resolveTraits(node, Array.isArray(node.traits) ? node.traits.filter(isObject) : []).schemaFormat
+      if (typeof format === 'string') node.payload = { schemaFormat: format, schema: node.payload }
+    }
     await schema(node.payload)
     await trait(node)
     if (Array.isArray(node.traits)) for (const child of node.traits) await trait(child)

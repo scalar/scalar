@@ -1,6 +1,7 @@
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
+import * as ramlSource from './raml-source'
 import { createSchemaResourceLoader } from './resources'
 
 const raml = 'application/raml+yaml;version=1.0'
@@ -129,5 +130,94 @@ describe('resources', () => {
         loader(files),
       ]),
     ).toStrictEqual({ origin: '/root.raml', files })
+  })
+
+  it('accepts twenty dependency levels and rejects a twenty-first', async () => {
+    const files = Object.fromEntries(
+      Array.from({ length: 21 }, (_, index) => [
+        `/${index}.raml`,
+        index === 19 ? 'type: string' : `!include ${index + 1}.raml`,
+      ]),
+    )
+    const result = await createSchemaResourceLoader()(raml, '!include 0.raml', '/root.raml', [loader(files)])
+    expect(Object.keys(result?.files ?? {}).length).toBe(20)
+    expect(result?.failed).toBeUndefined()
+    files['/19.raml'] = '!include 20.raml'
+    files['/20.raml'] = 'type: string'
+    expect(await createSchemaResourceLoader()(raml, '!include 0.raml', '/root.raml', [loader(files)])).toStrictEqual({
+      origin: '/root.raml',
+      files: {},
+      failed: true,
+    })
+  })
+
+  it('caps shared downloads across distinct schema graphs and still reuses cached files', async () => {
+    const files = Object.fromEntries(Array.from({ length: 65 }, (_, index) => [`/${index}.proto`, 'message M {}']))
+    const requested: string[] = []
+    const load = createSchemaResourceLoader()
+    for (const index of Array.from({ length: 64 }, (_, index) => index)) {
+      expect(await load(proto, `import "${index}.proto";`, '/root.proto', [loader(files, requested)])).toStrictEqual({
+        origin: '/root.proto',
+        files: { [`/${index}.proto`]: 'message M {}' },
+      })
+    }
+    expect(await load(proto, 'import "64.proto";', '/root.proto', [loader(files, requested)])).toStrictEqual({
+      origin: '/root.proto',
+      files: {},
+      failed: true,
+    })
+    expect(await load(proto, 'import "0.proto";', '/root.proto', [loader(files, requested)])).toStrictEqual({
+      origin: '/root.proto',
+      files: { '/0.proto': 'message M {}' },
+    })
+    expect(requested).toStrictEqual(Object.keys(files).slice(0, 64))
+  })
+
+  it('caps the total downloaded characters across independent schema graphs', async () => {
+    const files = Object.fromEntries(Array.from({ length: 7 }, (_, index) => [`/${index}.proto`, ' '.repeat(180_000)]))
+    const requested: string[] = []
+    const load = createSchemaResourceLoader()
+    for (const index of Array.from({ length: 5 }, (_, index) => index)) {
+      expect(
+        (await load(proto, `import "${index}.proto";`, '/root.proto', [loader(files, requested)]))?.failed,
+      ).toBeUndefined()
+    }
+    for (const index of [5, 6]) {
+      expect(await load(proto, `import "${index}.proto";`, '/root.proto', [loader(files, requested)])).toStrictEqual({
+        origin: '/root.proto',
+        files: {},
+        failed: true,
+      })
+    }
+    expect(requested).toStrictEqual(Object.keys(files).slice(0, 6))
+  })
+
+  it('rejects uses in untyped schema includes before downloading their libraries', async () => {
+    const requested: string[] = []
+    expect(
+      await createSchemaResourceLoader()(raml, '!include value.raml', '/root.raml', [
+        loader(
+          {
+            '/value.raml': 'uses:\n  lib: library.raml\ntype: lib.Value',
+          },
+          requested,
+        ),
+      ]),
+    ).toStrictEqual({ origin: '/root.raml', files: {}, failed: true })
+    expect(requested).toStrictEqual(['/value.raml'])
+  })
+
+  it('shares external YAML parsing across schemas without confusing inline schemas that share an origin', async () => {
+    const parse = vi.spyOn(ramlSource, 'parseRamlSource')
+    try {
+      const files = { '/shared.raml': `# ${'x'.repeat(180_000)}\ntype: string` }
+      const load = createSchemaResourceLoader()
+      for (const source of ['type: !include shared.raml', 'type: object\nproperties:\n  value: !include shared.raml']) {
+        expect(await load(raml, source, '/api.yaml', [loader(files)])).toStrictEqual({ origin: '/api.yaml', files })
+      }
+      expect(parse).toHaveBeenCalledTimes(3)
+    } finally {
+      parse.mockRestore()
+    }
   })
 })

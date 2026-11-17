@@ -295,4 +295,77 @@ describe('async-api-schema-resources', () => {
       },
     })
   })
+
+  it.each([false, true])(
+    'loads AsyncAPI 2.x native payloads before upgrading (inherited format: %s)',
+    async (inherited) => {
+      const authored = {
+        asyncapi: '2.6.0',
+        info: { title: 'Legacy native schemas', version: '1' },
+        channels: { users: { publish: { message: { $ref: '#/components/messages/User' } } } },
+        components: {
+          messages: {
+            User: {
+              payload: value,
+              headers: { type: 'object', properties: { trace: { type: 'string' } } },
+              ...(inherited ? { traits: [{ $ref: '#/components/messageTraits/Native' }] } : { schemaFormat: format }),
+            },
+          },
+          messageTraits: { Native: { schemaFormat: format } },
+        },
+      }
+      const requested: string[] = []
+      const client = createWorkspaceStore({
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.resolve(new Response(user))
+        },
+      })
+      await client.addDocument({ name: 'test', document: authored, documentSource: 'https://example.test/api.yaml' })
+      const loaded = client.workspace.documents.test
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      const message = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.channels?.users)?.messages?.User)
+      expect(resolveAsyncApiSchema(message?.payload)).toStrictEqual({
+        kind: 'source',
+        format,
+        value,
+        resources: {
+          origin: 'https://example.test/api.yaml',
+          files: { 'https://example.test/types/user.proto': user },
+        },
+      })
+      expect(resolveAsyncApiSchema(message?.headers)).toStrictEqual({
+        kind: 'schema',
+        schema: { type: 'object', properties: { trace: { type: 'string' } } },
+      })
+      expect(requested).toStrictEqual(['https://example.test/types/user.proto'])
+      expect(authored.components.messages.User.payload).toBe(value)
+
+      const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-legacy-native-'))
+      const origin = path.join(directory, 'api.json')
+      try {
+        await fs.mkdir(path.join(directory, 'types'))
+        await fs.writeFile(origin, JSON.stringify(authored))
+        await fs.writeFile(path.join(directory, 'types/user.proto'), user)
+        const server = await createServerWorkspaceStore({
+          mode: 'ssr',
+          baseUrl: 'https://docs.example.test',
+          documentLoading: { basePath: directory },
+          documents: [{ name: 'test', path: origin }],
+        })
+        const resolved = server.getResolvedDocument('test')
+        if (!resolved || !isAsyncApiDocument(resolved)) throw new Error('Missing AsyncAPI document')
+        const serverMessage = getResolvedAsyncApiRef(getResolvedAsyncApiRef(resolved.channels?.users)?.messages?.User)
+        expect(resolveAsyncApiSchema(serverMessage?.payload)).toStrictEqual({
+          kind: 'source',
+          format,
+          value,
+          resources: { origin, files: { [path.join(directory, 'types/user.proto')]: user } },
+        })
+        expect(resolved['x-original-aas-version']).toBe('2.6.0')
+      } finally {
+        await fs.rm(directory, { recursive: true, force: true })
+      }
+    },
+  )
 })

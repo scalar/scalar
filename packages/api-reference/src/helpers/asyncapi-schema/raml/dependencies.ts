@@ -14,6 +14,7 @@ export type RamlContext = {
   uri: string
   types: Record<string, unknown>
   libraries: Map<string, RamlContext>
+  dependencyDepth: number
   scope?: RamlContext
 }
 
@@ -31,6 +32,7 @@ export const ramlDependencies = (
   const children = new WeakMap<object, Map<string, RamlContext>>()
   const active = new Set<string>()
   const loaded = new Set<string>()
+  const parsed = new Map<string, unknown>()
   const state = { size: typeof source === 'string' ? source.length : 0, nodes: 0 }
   const budget = (depth: number): void => {
     if (depth > 40 || ++state.nodes > 10_000 || state.size > 1_000_000)
@@ -52,9 +54,11 @@ export const ramlDependencies = (
     uri: string,
     position: RamlPosition,
     depth: number,
+    dependencyDepth: number,
     parent?: RamlContext,
   ): RamlContext => {
     budget(depth)
+    if (dependencyDepth > 20) throw new Error('RAML dependency graph is too deep')
     if (active.has(uri)) throw new Error('Cyclic RAML dependencies')
     active.add(uri)
     const header = typeof source === 'string' && /^#%RAML/m.test(source)
@@ -66,21 +70,22 @@ export const ramlDependencies = (
           : undefined
     if (header && !allowedHeader?.test(String(source))) throw new Error('Unsupported RAML fragment')
     if (position === 'library' && !header) throw new Error('Expected RAML library')
-    const value =
-      typeof source === 'string'
-        ? position === 'text' && !/\.(?:raml|ya?ml)(?:[?]|$)/i.test(uri)
-          ? source
-          : parseRamlSource(source)
-        : source
+    const rawText = position === 'text' && !/\.(?:raml|ya?ml)(?:[?]|$)/i.test(uri)
+    if (typeof source === 'string' && !rawText && !parsed.has(uri)) parsed.set(uri, parseRamlSource(source))
+    // Expansion clones the parsed tree, so repeated files can share parsing without sharing aliases or scopes.
+    const value = typeof source === 'string' && !rawText ? parsed.get(uri) : source
     const inherits = parent && !header && position !== 'library'
     const context: RamlContext = {
       value,
       uri,
+      dependencyDepth,
       types: inherits ? parent.types : {},
       libraries: new Map(inherits ? parent.libraries : []),
       ...(inherits ? { scope: parent.scope ?? parent } : {}),
     }
     const object = isObject(value) && !(value instanceof RamlInclude) ? value : {}
+    if (inherits && position === 'schema' && 'uses' in object)
+      throw new Error('Only typed RAML fragments can declare libraries')
     if (
       position === 'library' &&
       Object.keys(object).some((key) => !['uses', 'types', 'usage', 'description'].includes(key))
@@ -92,12 +97,12 @@ export const ramlDependencies = (
         if (!/^[A-Za-z_][A-Za-z_0-9-]*$/.test(alias) || typeof path !== 'string')
           throw new Error('Invalid RAML library alias')
         const { content, uri } = read(path, context)
-        context.libraries.set(alias, create(content, uri, 'library', depth + 1))
+        context.libraries.set(alias, create(content, uri, 'library', depth + 1, dependencyDepth + 1))
       }
     }
     if (value instanceof RamlInclude) {
       const { content, uri: includedUri } = read(value.path, context)
-      const included = create(content, includedUri, position, depth + 1, context)
+      const included = create(content, includedUri, position, depth + 1, dependencyDepth + 1, context)
       active.delete(uri)
       return included
     }
@@ -115,7 +120,7 @@ export const ramlDependencies = (
     budget(depth)
     if (value instanceof RamlInclude) {
       const { content, uri } = read(value.path, context)
-      return create(content, uri, position, depth + 1, context).value
+      return create(content, uri, position, depth + 1, context.dependencyDepth + 1, context).value
     }
     if (!isObject(value) && !Array.isArray(value)) return value
     if (path.has(value)) throw new Error('Cyclic RAML YAML aliases')
@@ -124,7 +129,7 @@ export const ramlDependencies = (
     const child = (key: string, value: unknown, position: RamlPosition): unknown => {
       if (!(value instanceof RamlInclude)) return expand(value, context, position, depth + 1)
       const { content, uri } = read(value.path, context)
-      const included = create(content, uri, position, depth + 1, context)
+      const included = create(content, uri, position, depth + 1, context.dependencyDepth + 1, context)
       locations.set(key, included)
       return included.value
     }
@@ -138,7 +143,7 @@ export const ramlDependencies = (
     path.delete(value)
     return result
   }
-  const root = create(source, resources?.origin ?? '', 'schema', 0)
+  const root = create(source, resources?.origin ?? '', 'schema', 0, 0)
   return {
     root,
     contextFor: (value, fallback): RamlContext => (isObject(value) ? contexts.get(value) : undefined) ?? fallback,

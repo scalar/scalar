@@ -22,6 +22,7 @@ import YAML from 'yaml'
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
 import type { OperationMeta } from '@/events/definitions/operation'
+import { loadInlineAsyncApiSchemaResources } from '@/helpers/async-api-schema-resources/load-inline'
 import { asyncApiModelChunkReference } from '@/helpers/asyncapi-model-chunk-reference'
 import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { deepClone } from '@/helpers/deep-clone'
@@ -1214,6 +1215,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     if (isAsyncApiDocument(clonedRawInputDocument)) {
       // Capture the original version before the upgrader bumps `asyncapi` to the latest.
       const originalAasVersion = clonedRawInputDocument.asyncapi
+      if (originalAasVersion.startsWith('2.')) {
+        // Preserve the 2.x message-level schema format before upgrading its channel structure.
+        await loadInlineAsyncApiSchemaResources(
+          createMagicProxy(clonedRawInputDocument),
+          input.documentSource ?? '/',
+          loaders,
+        )
+      }
       // The upgrader is typed against the loose `UnknownObject` shape; the result is a valid
       // 3.x AsyncAPI document, so cast it back so the spread below still satisfies `AsyncApiDocument`.
       const upgradedAsyncApiDocument = withMeasurementSync(
