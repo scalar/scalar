@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.5.24
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
 ## 2.5.23
 
 ### Patch Changes

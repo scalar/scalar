@@ -1,5 +1,13 @@
 # @scalar/postman-to-openapi
 
+## 0.7.33
+
+### Patch Changes
+
+- [#11076](https://github.com/scalar/scalar/pull/11076): Skip Postman auth types that OpenAPI cannot describe, such as AWS Signature, OAuth 1.0 and Hawk, instead of failing the whole conversion, convert digest auth to an HTTP digest scheme, and read the API key name and location from apikey auth, naming every key other than the default `api_key` header after its location and name so different keys no longer overwrite each other.
+- [#11072](https://github.com/scalar/scalar/pull/11072): Import Postman form-data and urlencoded request bodies as named form rows, so the API client sends every field, code examples show the real field names and disabled rows stay disabled. Keep repeated keys in order, leave file fields empty until a file is attached, list repeated required fields once and keep fields named like `__proto__` in the schema.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
 ## 0.7.32
 
 ### Patch Changes

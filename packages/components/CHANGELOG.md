@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.35.1
+
+### Patch Changes
+
+- [#11078](https://github.com/scalar/scalar/pull/11078): Center card headers and footers between the card's edge and the surface beside them. They sat on the card's 4px padding on one side only, so their contents were 2px off center toward the surface: the request example's buttons, for example, were 6px under the code but 10px above the card's edge. Cards keep their height, and a card given `p-0` is unchanged.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+
 ## 0.35.0
 
 ### Minor Changes

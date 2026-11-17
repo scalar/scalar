@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.54 (2026-11-17)
+
+### Plugin document types and TypeScript 6 support
+
+This release adds support for custom document types through plugins and upgrades the TypeScript compiler to version 6.
+
+- Plugins can now register custom document types alongside OpenAPI and AsyncAPI, with their own detection, traversal, and rendering logic.
+- Plugin documents are kept separate from OpenAPI and AsyncAPI processing, preventing unsupported operations like Ask AI on plugin-specific formats.
+- Document classification remains consistent when replacing, hydrating, or rebasing plugin documents in the workspace.
+- The TypeScript compiler has been upgraded to version 6, preserving package output paths and application aliases during builds.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01254)
+
 ## 0.12.53 (2026-11-16)
 
 ### Improved Vite compatibility and cleaner dependencies

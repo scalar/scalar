@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 2.0.68
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+
 ## 2.0.67
 
 ### Patch Changes

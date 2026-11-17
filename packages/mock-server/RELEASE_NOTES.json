@@ -1,5 +1,30 @@
 [
   {
+    "version": "0.21.4",
+    "date": "2026-11-17",
+    "title": "Plugin document handling and TypeScript 6 support",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release improves how plugin documents are classified and processed throughout the application, ensuring they are handled consistently and excluded from features that do not support them."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Plugin documents now maintain consistent classification during replacement, hydration, and rebasing operations.",
+          "Plugin documents are excluded from Ask AI features and authentication processing.",
+          "Builds with TypeScript 6 now preserve package output paths and application aliases correctly."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0214",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.21.3",
     "date": "2026-11-16",
     "title": "Polish and bug fixes",

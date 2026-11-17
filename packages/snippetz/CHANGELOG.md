@@ -1,5 +1,25 @@
 # @scalar/snippetz
 
+## 0.10.19
+
+### Patch Changes
+
+- [#11068](https://github.com/scalar/scalar/pull/11068): fix(snippetz): send text-only multipart forms as multipart
+
+  Code examples for a `multipart/form-data` body with only text fields kept a bare `Content-Type: multipart/form-data` header with no boundary, so clients sent either two Content-Type headers or a body the server cannot split. The header is now left to the HTTP client for every structured multipart body, as it already was for file uploads.
+
+  Python `requests` and `httpx` examples now pass text-only fields through `files=` as `(None, value)` tuples, and `aiohttp` uses `FormData(default_to_multipart=True)`, because all three send plain text fields urlencoded otherwise.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+- [#11063](https://github.com/scalar/scalar/pull/11063): fix(snippetz): stop F# examples from adding Content-Type to request headers
+
+  The `fsharp/httpclient` example no longer calls `httpRequestMessage.Headers.Add("Content-Type", ...)` when the request has a body. .NET throws `Misused header name 'Content-Type'` for that call, and the generated `StringContent` or form content already sets the content type.
+- [#11062](https://github.com/scalar/scalar/pull/11062): fix(snippetz): make Guzzle cookie and file upload examples run
+
+  The `php/guzzle` example now passes cookies as a `\GuzzleHttp\Cookie\CookieJar` scoped to the request host, because Guzzle throws when the `cookies` option is a plain array. Multipart file names are now escaped inside `fopen(...)`, so a name containing `'` or `\` no longer produces invalid PHP.
+- [#11066](https://github.com/scalar/scalar/pull/11066): fix(snippetz): send repeated query parameters in R httr2 examples
+
+  The `r/httr2` example now adds `.multi = "explode"` to `req_url_query()` when a query parameter repeats. httr2 rejects vector values there by default, so `status=active&status=inactive` failed with "All vector elements of `...` must be length 1" instead of being sent.
+
 ## 0.10.18
 
 ### Patch Changes

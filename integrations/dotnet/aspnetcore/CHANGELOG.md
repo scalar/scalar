@@ -1,5 +1,13 @@
 # @scalar/aspnetcore
 
+## 3.0.1
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.80.0
+
+No changes in this release.
+
 ## 3.0.0
 
 ### Bundled API Reference

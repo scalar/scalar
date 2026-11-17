@@ -1,5 +1,21 @@
 # @scalar/blocks
 
+## 0.7.3
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+- [#11068](https://github.com/scalar/scalar/pull/11068): fix(snippetz): send text-only multipart forms as multipart
+
+  Code examples for a `multipart/form-data` body with only text fields kept a bare `Content-Type: multipart/form-data` header with no boundary, so clients sent either two Content-Type headers or a body the server cannot split. The header is now left to the HTTP client for every structured multipart body, as it already was for file uploads.
+
+  Python `requests` and `httpx` examples now pass text-only fields through `files=` as `(None, value)` tuples, and `aiohttp` uses `FormData(default_to_multipart=True)`, because all three send plain text fields urlencoded otherwise.
+- [#11081](https://github.com/scalar/scalar/pull/11081): fix(blocks): turn picker carets with their own menus
+
+  In the classic layout, the client picker and the example picker of an expanded operation pointed their carets up while their menus were closed, because the carets followed any open Headless UI ancestor, such as the operation accordion. Each caret now follows its own picker, so it points up only while that menu is open.
+- [#11080](https://github.com/scalar/scalar/pull/11080): Keep the selected request example readable on narrow request example cards. Beside Ask AI Agent and Test Request, the example picker could shrink to an empty button, hiding the example name and leaving keyboard focus on an empty box, for example at 320px wide or with the longer button labels of some languages. The picker now keeps room for its name, up to about eight characters, and the buttons wrap onto a second line when they do not fit beside it. Wider cards keep a single line.
+- [#10816](https://github.com/scalar/scalar/pull/10816): Add `documentTypes` to `createWorkspaceStore`, so the store can ingest document formats it does not support natively. A registered type claims a document before the OpenAPI and AsyncAPI pipelines run, and the store keeps it as an opaque plugin document with `plugin` navigation entries built by the type.
+
 ## 0.7.2
 
 ### Patch Changes

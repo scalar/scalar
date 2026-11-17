@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.7.10
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
 ## 0.7.9
 
 ### Patch Changes

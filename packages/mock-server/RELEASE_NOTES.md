@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.4 (2026-11-17)
+
+### Plugin document handling and TypeScript 6 support
+
+This release improves how plugin documents are classified and processed throughout the application, ensuring they are handled consistently and excluded from features that do not support them.
+
+- Plugin documents now maintain consistent classification during replacement, hydration, and rebasing operations.
+- Plugin documents are excluded from Ask AI features and authentication processing.
+- Builds with TypeScript 6 now preserve package output paths and application aliases correctly.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0214)
+
 ## 0.21.3 (2026-11-16)
 
 ### Polish and bug fixes

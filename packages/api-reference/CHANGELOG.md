@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.80.0
+
+### Minor Changes
+
+- [#10816](https://github.com/scalar/scalar/pull/10816): Add `documentTypes` to the API Reference plugin API, so a plugin can teach API Reference a document format it does not support natively. The plugin detects its documents, builds their sidebar entries and renders them with its own component, while API Reference handles loading, the document selector, routing and the sidebar.
+
+### Patch Changes
+
+- [#11079](https://github.com/scalar/scalar/pull/11079): Collapse the Ask AI Agent field in the request example footer when focus leaves it, even with a question typed. The expanded field is drawn over the whole footer, so moving focus on to the example picker or Test Request used to land on a control hidden underneath it, with no visible focus ring. The typed question is kept and comes back when the field is focused again, and pressing the field or its send button no longer takes focus from the input, so a click still sends in Safari.
+- [#10816](https://github.com/scalar/scalar/pull/10816): Keep plugin document classification consistent through replacement, hydration, and rebasing. Exclude plugin documents from Ask AI and reject unsupported request, authentication, and mock-server processing even when plugin data contains OpenAPI or AsyncAPI fields.
+- [#11078](https://github.com/scalar/scalar/pull/11078): Center card headers and footers between the card's edge and the surface beside them. They sat on the card's 4px padding on one side only, so their contents were 2px off center toward the surface: the request example's buttons, for example, were 6px under the code but 10px above the card's edge. Cards keep their height, and a card given `p-0` is unchanged.
+- [#11084](https://github.com/scalar/scalar/pull/11084): fix: keep the lazy-load placeholder until mount, so a reference mounted again in the same document hydrates without a mismatch
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+- [#11060](https://github.com/scalar/scalar/pull/11060): Apply saved color-mode preferences after hydrating server-rendered controls.
+
 ## 1.79.0
 
 ### Minor Changes

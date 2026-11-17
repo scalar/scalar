@@ -1,5 +1,12 @@
 # scalar-app
 
+## 1.1.51
+
+### Patch Changes
+
+- [#10911](https://github.com/scalar/scalar/pull/10911): Render the active theme as a style element with escaped text content instead of injected HTML.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
 ## 1.1.50
 
 ### Patch Changes
