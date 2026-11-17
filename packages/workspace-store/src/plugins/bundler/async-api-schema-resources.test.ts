@@ -190,4 +190,109 @@ describe('async-api-schema-resources', () => {
       await fs.rm(directory, { recursive: true, force: true })
     }
   })
+
+  it.each(['channel', 'components', 'schema'])(
+    'prepares server-side native schemas through a local %s reference',
+    async (target) => {
+      const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-native-local-reference-'))
+      const native = schema()
+      const message = { payload: native, headers: native }
+      const authored = {
+        asyncapi: '3.1.0',
+        info: { title: 'Local references', version: '1' },
+        ...(target === 'channel'
+          ? {
+              channels: { users: { $ref: '#/components/channels/UserChannel' } },
+              components: { channels: { UserChannel: { messages: { user: message } } } },
+            }
+          : target === 'components'
+            ? {
+                channels: { users: { messages: { user: { $ref: '#/x-components/messages/User' } } } },
+                components: { $ref: '#/x-components' },
+                'x-components': { messages: { User: message } },
+              }
+            : {
+                channels: {
+                  users: {
+                    messages: {
+                      user: {
+                        payload: { $ref: '#/components/schemas/User' },
+                        headers: { $ref: '#/components/schemas/User' },
+                      },
+                    },
+                  },
+                },
+                components: { schemas: { User: { $ref: '#/x-native' } } },
+                'x-native': native,
+              }),
+      }
+      const origin = path.join(directory, 'api.json')
+      try {
+        await fs.mkdir(path.join(directory, 'types'))
+        await fs.writeFile(origin, JSON.stringify(authored))
+        await fs.writeFile(path.join(directory, 'types/user.proto'), user)
+        const server = await createServerWorkspaceStore({
+          mode: 'ssr',
+          baseUrl: 'https://docs.example.test',
+          documentLoading: { basePath: directory },
+          documents: [{ name: 'test', path: origin }],
+        })
+        const loaded = server.getResolvedDocument('test')
+        if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+        const resolvedMessage = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.channels?.users)?.messages?.user)
+        const expected = {
+          kind: 'source',
+          format,
+          value,
+          resources: { origin, files: { [path.join(directory, 'types/user.proto')]: user } },
+        }
+        expect(resolveAsyncApiSchema(resolvedMessage?.payload)).toStrictEqual(expected)
+        expect(resolveAsyncApiSchema(resolvedMessage?.headers)).toStrictEqual(expected)
+        const output = { chunks: server.get('/test/asyncapi'), workspace: server.getWorkspace() }
+        expect(JSON.stringify(output)).toContain(JSON.stringify(user))
+      } finally {
+        await fs.rm(directory, { recursive: true, force: true })
+      }
+    },
+  )
+
+  it('reloads changed imports from editable documents while retaining snapshot resources and literal examples', async () => {
+    const requested: string[] = []
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        requested.push(String(input))
+        return Promise.resolve(new Response(user))
+      },
+    })
+    const authored = document()
+    const literal = { ...schema(), 'x-scalar-schema-resources': { origin: 'authored', files: {} } }
+    Object.assign(authored.channels.users.messages.user, { examples: [{ payload: literal }] })
+    await store.addDocument({ name: 'test', document: authored, documentSource: 'https://example.test/api.yaml' })
+    expect(JSON.stringify(store.exportWorkspace())).toContain('https://example.test/types/user.proto')
+    const editable = await store.getEditableDocument('test')
+    if (!editable || !isAsyncApiDocument(editable)) throw new Error('Missing AsyncAPI document')
+    const message = getResolvedAsyncApiRef(getResolvedAsyncApiRef(editable.channels?.users)?.messages?.user)
+    expect(message?.payload).toStrictEqual(schema())
+    expect(message?.examples).toStrictEqual([{ payload: literal }])
+    if (!message) throw new Error('Missing message')
+    message.payload = { schemaFormat: format, schema: value.replace('types/user.proto', 'types/new.proto') }
+    await store.replaceDocument('test', editable)
+    expect(requested).toStrictEqual([
+      'https://example.test/types/user.proto',
+      'https://example.test/types/new.proto',
+      'https://example.test/types/user.proto',
+    ])
+    const replaced = store.workspace.documents.test
+    if (!replaced || !isAsyncApiDocument(replaced)) throw new Error('Missing AsyncAPI document')
+    const payload = getResolvedAsyncApiRef(getResolvedAsyncApiRef(replaced.channels?.users)?.messages?.user)?.payload
+    expect(resolveAsyncApiSchema(payload)).toStrictEqual({
+      kind: 'source',
+      format,
+      value: value.replace('types/user.proto', 'types/new.proto'),
+      resources: {
+        origin: 'https://example.test/api.yaml',
+        files: { 'https://example.test/types/new.proto': user },
+      },
+    })
+  })
 })

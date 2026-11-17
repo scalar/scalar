@@ -848,7 +848,7 @@ export async function createServerWorkspaceStore(
         })
         await resolveSecurityRequirements(data, { origin, loaders })
       } else if (isAsyncApiDocument(data)) {
-        await loadInlineAsyncApiSchemaResources(data, origin ?? '/', loaders)
+        await loadInlineAsyncApiSchemaResources(resolveLocalReferences(data), origin ?? '/', loaders)
       } else {
         await loadCodeSampleSources(data, origin ?? '/', loaders)
       }

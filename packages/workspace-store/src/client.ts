@@ -1458,6 +1458,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const authoredDocument = deepClone(rawDocument)
     restoreSecurityRequirements(authoredDocument)
     const original = (await bundle(authoredDocument, {
+      traversal: isAsyncApiDocument(authoredDocument) ? 'document' : undefined,
       plugins: [openApiDocument(), restoreOriginalRefs(), removeExtraScalarKeys()],
       treeShake: false,
       urlMap: true,

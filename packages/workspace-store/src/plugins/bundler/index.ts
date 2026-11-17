@@ -397,8 +397,10 @@ const NESTED_INTERNAL_KEYS = ['__scalar_', '$status']
 export const removeExtraScalarKeys = (): LifecyclePlugin => {
   return {
     type: 'lifecycle',
-    onBeforeNodeProcess: (node) => {
+    onBeforeNodeProcess: (node, context) => {
       if (isObject(node)) {
+        // Authored edits must reload native dependencies; workspace snapshots retain their prepared graphs.
+        if (context.referenceContext === 'asyncapi-schema') delete node['x-scalar-schema-resources']
         for (const key of NESTED_INTERNAL_KEYS) {
           if (key in node) {
             delete node[key]
