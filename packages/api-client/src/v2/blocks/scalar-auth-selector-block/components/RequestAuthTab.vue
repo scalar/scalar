@@ -614,7 +614,7 @@ const handleConfigAuthorize = (): void => {
             v-if="
               scheme.in === 'header' && scheme['x-scalar-token-prefix']?.trim()
             "
-            class="text-c-2 ml-1 font-mono">
+            class="text-c-2 font-code ml-1">
             ({{ scheme['x-scalar-token-prefix'].trim() }})
           </span>
         </RequestAuthDataTableInput>

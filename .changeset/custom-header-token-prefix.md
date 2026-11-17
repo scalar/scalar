@@ -1,5 +1,6 @@
 ---
 "@scalar/java-integration": patch
+"@scalar/agent-chat": patch
 "@scalar/helpers": patch
 "@scalar/workspace-store": minor
 "@scalar/types": minor

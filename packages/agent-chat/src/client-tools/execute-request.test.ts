@@ -2,7 +2,7 @@ import { Chat } from '@ai-sdk/vue'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { UIDataTypes, UIMessage } from 'ai'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, assert, describe, expect, it, vi } from 'vitest'
 
 import { createDocumentSettings } from '@/helpers'
 import type { Tools } from '@/state/state'
@@ -54,6 +54,49 @@ const prepareRequest = async (
 
 describe('execute-request', () => {
   afterEach(() => vi.restoreAllMocks())
+
+  it.each([
+    ['abc', 'token abc'],
+    ['', ''],
+  ])('applies header API-key prefixes without changing the credential (%s)', async (token, expected) => {
+    const request = await prepareRequest('/me', [{ url: 'https://api.example.com' }])
+    const settings = request.documentSettings[documentName]
+    assert(settings)
+    settings.securitySchemes = [
+      {
+        type: 'apiKey',
+        in: 'header',
+        name: 'Authorization',
+        'x-scalar-token-prefix': 'token',
+        'x-scalar-secret-token': token,
+      },
+    ]
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ ok: true }))
+
+    const result = await executeRequestTool(request)
+
+    expect(result.success).toBe(true)
+    expect(fetch.mock.calls).toStrictEqual([
+      [
+        'https://api.example.com/me',
+        {
+          redirect: 'error',
+          method: 'GET',
+          body: undefined,
+          headers: { Authorization: expected, Cookie: '' },
+        },
+      ],
+    ])
+    expect(settings.securitySchemes).toStrictEqual([
+      {
+        type: 'apiKey',
+        in: 'header',
+        name: 'Authorization',
+        'x-scalar-token-prefix': 'token',
+        'x-scalar-secret-token': token,
+      },
+    ])
+  })
 
   it('finishes unknown API requests with a tool error without fetching', async () => {
     const request = await prepareRequest('/pets')
