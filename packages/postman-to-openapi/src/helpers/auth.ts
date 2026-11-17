@@ -3,6 +3,10 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Auth, AuthAttributes } from '@/types'
 
+/** Resolves parent authentication when auth is omitted, null, or explicitly inherited. */
+export const resolveAuth = (auth: Auth | null | undefined, parentAuth?: Auth): Auth | undefined =>
+  auth && auth.type !== 'inherit' ? auth : parentAuth
+
 // Constants for security scheme names and URLs
 const AUTH_SCHEMES = {
   API_KEY: 'apikeyAuth',

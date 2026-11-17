@@ -1,8 +1,8 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { Item, ItemGroup } from '@/types'
+import type { Auth, Item, ItemGroup } from '@/types'
 
-import { processAuth } from './auth'
+import { processAuth, resolveAuth } from './auth'
 import { parseMediaType, pickAcceptMediaType, readHeader } from './header-utils'
 import { parseMdTable } from './markdown'
 import { extractParameters } from './parameters'
@@ -67,6 +67,7 @@ export function processItem(
   resolveTagName?: (segments: string[]) => string | undefined,
   collectionVariableLookup: CollectionVariableLookup = new Map(),
   keepHeaders?: readonly string[],
+  parentAuth?: Auth,
 ): {
   paths: OpenAPIV3_1.PathsObject
   components: OpenAPIV3_1.ComponentsObject
@@ -88,6 +89,7 @@ export function processItem(
         resolveTagName,
         collectionVariableLookup,
         keepHeaders,
+        resolveAuth(item.auth, parentAuth),
       )
       // Merge child paths and components
       for (const [pathKey, pathItem] of Object.entries(childResult.paths)) {
@@ -243,12 +245,13 @@ export function processItem(
     operationObject.parameters = Array.from(mergedParameters.values())
   }
 
-  // An `inherit` request uses the collection auth, so it must not override the inherited security.
-  if (typeof request !== 'string' && request.auth && request.auth.type !== 'inherit') {
+  // Only folder and request overrides need operation security; collection auth stays at the document root.
+  const auth = resolveAuth(typeof request === 'string' ? undefined : request.auth, parentAuth)
+  if (auth) {
     if (!operationObject.security) {
       operationObject.security = []
     }
-    const { securitySchemes, security } = processAuth(request.auth)
+    const { securitySchemes, security } = processAuth(auth)
 
     if (!components.securitySchemes) {
       components.securitySchemes = {}

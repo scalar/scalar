@@ -4,8 +4,8 @@ import path from 'node:path'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it, test } from 'vitest'
 
-import { convert } from './convert'
-import type { PostmanCollection } from './types'
+import { type ConvertOptions, convert } from './convert'
+import type { Auth, Item, ItemGroup, PostmanCollection } from './types'
 
 const FIXTURES_DIR = path.join(import.meta.dirname, '../fixtures/input')
 const FIXTURES = fs
@@ -1223,5 +1223,220 @@ describe('convert', () => {
       apikeyAuth_query_api_token: { type: 'apiKey', name: 'api_token', in: 'query' },
     })
     expect(result.paths?.['/orders']?.get?.security).toStrictEqual([{ apikeyAuth_query_api_token: [] }])
+  })
+
+  const apiKey: Auth = {
+    type: 'apikey',
+    apikey: [
+      { key: 'key', value: 'X-API-Key', type: 'string' },
+      { key: 'value', value: '{{apiKey}}', type: 'string' },
+      { key: 'in', value: 'header', type: 'string' },
+    ],
+  }
+  const apiKeySecurity = [{ 'apikeyAuth_header_X-API-Key': [] }]
+  const apiKeyScheme = { type: 'apiKey', name: 'X-API-Key', in: 'header' }
+  const request: Item = {
+    name: 'Delete item',
+    request: {
+      method: 'DELETE',
+      header: [],
+      url: {
+        raw: 'https://api.example.com/items/1',
+        protocol: 'https',
+        host: ['api', 'example', 'com'],
+        path: ['items', '1'],
+      },
+    },
+    response: [],
+  }
+
+  const collectionWith = (
+    item: Item | ItemGroup,
+    auth: Auth | undefined = { type: 'bearer', bearer: [{ key: 'token', value: '{{token}}', type: 'string' }] },
+  ): PostmanCollection => ({
+    info: { name: 'C2', schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json' },
+    auth,
+    item: [item],
+  })
+
+  const authCases = [
+    {
+      type: 'apikey',
+      auth: apiKey,
+      key: 'apikeyAuth_header_X-API-Key',
+      scheme: apiKeyScheme,
+      security: apiKeySecurity,
+    },
+    {
+      type: 'basic',
+      auth: { type: 'basic' },
+      key: 'basicAuth',
+      scheme: { type: 'http', scheme: 'basic' },
+      security: [{ basicAuth: [] }],
+    },
+    {
+      type: 'bearer',
+      auth: { type: 'bearer' },
+      key: 'bearerAuth',
+      scheme: { type: 'http', scheme: 'bearer' },
+      security: [{ bearerAuth: [] }],
+    },
+    { type: 'noauth', auth: { type: 'noauth' }, key: 'noauthAuth', scheme: undefined, security: [] },
+  ] satisfies { type: string; auth: Auth; key: string; scheme: unknown; security: Record<string, string[]>[] }[]
+
+  it('uses folder API key authentication instead of collection bearer authentication', () => {
+    const result = convert(collectionWith({ name: 'Admin', auth: apiKey, item: [request] }))
+    expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(apiKeySecurity)
+    expect(result.components?.securitySchemes?.['apikeyAuth_header_X-API-Key']).toStrictEqual(apiKeyScheme)
+  })
+
+  for (const authCase of authCases) {
+    for (const depth of [1, 2]) {
+      for (const hasCollectionAuth of [false, true]) {
+        it(`inherits ${authCase.type} at folder depth ${depth}, collection auth ${hasCollectionAuth}`, () => {
+          const folder: ItemGroup = { name: 'Admin', auth: authCase.auth, item: [request] }
+          const top = depth === 1 ? folder : { name: 'Outer', item: [folder] }
+          // A distinct collection type makes incorrect fallback observable for bearer folders too.
+          const input = collectionWith(top)
+          input.auth = hasCollectionAuth ? { type: 'digest' } : undefined
+          const result = convert(input)
+          expect({
+            security: result.paths?.['/items/1']?.delete?.security,
+            scheme: result.components?.securitySchemes?.[authCase.key],
+          }).toStrictEqual({ security: authCase.security, scheme: authCase.scheme })
+        })
+      }
+    }
+  }
+
+  it.each([
+    {
+      label: 'null request auth',
+      leaf: { ...request, request: { method: 'DELETE', url: 'https://api.example.com/items/1', auth: null } },
+    },
+    {
+      label: 'inherit request auth',
+      leaf: {
+        ...request,
+        request: { method: 'DELETE', url: 'https://api.example.com/items/1', auth: { type: 'inherit' } },
+      },
+    },
+    { label: 'string request', leaf: { name: 'Delete item', request: 'https://api.example.com/items/1' } },
+  ] satisfies { label: string; leaf: Item }[])('inherits folder auth for $label', ({ leaf }) => {
+    const result = convert(collectionWith({ name: 'Admin', auth: apiKey, item: [leaf] }))
+    const operation =
+      typeof leaf.request === 'string' ? result.paths?.['/items/1']?.get : result.paths?.['/items/1']?.delete
+    expect(operation?.security).toStrictEqual(apiKeySecurity)
+  })
+
+  it.each([null, { type: 'inherit' }] satisfies (Auth | null)[])(
+    'inherits through a child folder with auth %j',
+    (auth) => {
+      const result = convert(
+        collectionWith({ name: 'Admin', auth: apiKey, item: [{ name: 'Inner', auth, item: [request] }] }),
+      )
+      expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(apiKeySecurity)
+    },
+  )
+
+  it.each([
+    { label: 'nearest basic folder', auth: { type: 'basic' }, security: [{ basicAuth: [] }] },
+    { label: 'nearest noauth folder', auth: { type: 'noauth' }, security: [] },
+  ] satisfies { label: string; auth: Auth; security: Record<string, string[]>[] }[])(
+    'uses $label over outer-folder auth',
+    ({ auth, security }) => {
+      const result = convert(
+        collectionWith({ name: 'Admin', auth: apiKey, item: [{ name: 'Inner', auth, item: [request] }] }),
+      )
+      expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(security)
+    },
+  )
+
+  it.each([
+    { label: 'selected request', options: { requestIndexPaths: [[0, 0]] } },
+    { label: 'selected folder', options: { requestIndexPaths: [[0]] } },
+    { label: 'selected nested folder', options: { requestIndexPaths: [[0, 0]] }, nested: true },
+    { label: 'mergeOperation enabled', options: { mergeOperation: true } },
+  ] satisfies { label: string; options: ConvertOptions; nested?: boolean }[])(
+    'inherits folder auth with $label',
+    (testCase) => {
+      const folder: ItemGroup = { name: 'Admin', auth: apiKey, item: [request] }
+      const top =
+        'nested' in testCase && testCase.nested
+          ? { name: 'Outer', auth: apiKey, item: [{ name: 'Inner', item: [request] }] }
+          : folder
+      const result = convert(collectionWith(top), testCase.options)
+      expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(apiKeySecurity)
+    },
+  )
+
+  it('inherits v2.0 object-shaped API key attributes', () => {
+    const input = collectionWith({
+      name: 'Admin',
+      auth: { type: 'apikey', apikey: { key: 'X-API-Key', in: 'header', value: '{{apiKey}}' } },
+      item: [request],
+    })
+    input.info.schema = 'https://schema.getpostman.com/json/collection/v2.0.0/collection.json'
+    const result = convert(input)
+    expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(apiKeySecurity)
+  })
+
+  it.each([
+    { type: 'digest', security: [{ digestAuth: [] }] },
+    { type: 'oauth2', security: [{ oauth2Auth: [] }] },
+  ])('inherits supported $type folder auth', ({ type, security }) => {
+    const result = convert(collectionWith({ name: 'Admin', auth: { type }, item: [request] }))
+    expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(security)
+  })
+
+  it.each(authCases)('preserves explicit request $type auth over folder auth', ({ auth, security, key, scheme }) => {
+    const leaf: Item = { ...request, request: { method: 'DELETE', url: 'https://api.example.com/items/1', auth } }
+    const result = convert(collectionWith({ name: 'Admin', auth: { type: 'digest' }, item: [leaf] }))
+    expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(security)
+    expect(result.components?.securitySchemes?.[key]).toStrictEqual(scheme)
+  })
+
+  it.each([undefined, null, { type: 'inherit' }] satisfies (Auth | null | undefined)[])(
+    'preserves collection inheritance with request auth %j and no folder override',
+    (auth) => {
+      const leaf: Item = { ...request, request: { method: 'DELETE', url: 'https://api.example.com/items/1', auth } }
+      const result = convert(collectionWith({ name: 'Admin', item: [leaf] }))
+      expect(result.paths?.['/items/1']?.delete?.security).toBeUndefined()
+      expect(result.security).toStrictEqual([{ bearerAuth: [] }])
+    },
+  )
+
+  it.each([
+    { auth: undefined, security: apiKeySecurity },
+    { auth: null, security: apiKeySecurity },
+    { auth: { type: 'inherit' }, security: apiKeySecurity },
+    { auth: { type: 'noauth' }, security: [] },
+    { auth: { type: 'basic' }, security: [{ basicAuth: [] }] },
+  ] satisfies { auth: Auth | null | undefined; security: Record<string, string[]>[] }[])(
+    'preserves ancestor authentication when selecting a nested folder or request with folder auth %j',
+    ({ auth, security }) => {
+      const collection = collectionWith({
+        auth: apiKey,
+        item: [{ auth, item: [request] }],
+      })
+      for (const requestIndexPaths of [[[0, 0]], [[0, 0, 0]]]) {
+        const result = convert(collection, { requestIndexPaths })
+        expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(security)
+      }
+    },
+  )
+
+  it('keeps folder authentication isolated from siblings and unselected branches', () => {
+    const collection = collectionWith({ name: 'Admin', auth: apiKey, item: [request] })
+    collection.item.push({ name: 'Sibling', request: 'https://api.example.com/sibling' })
+
+    const result = convert(collection)
+    expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(apiKeySecurity)
+    expect(result.paths?.['/sibling']?.get?.security).toBeUndefined()
+    expect(result.security).toStrictEqual([{ bearerAuth: [] }])
+
+    const selected = convert(collection, { requestIndexPaths: [[1]] })
+    expect(Object.keys(selected.paths ?? {})).toStrictEqual(['/sibling'])
+    expect(selected.components?.securitySchemes).toStrictEqual({ bearerAuth: { type: 'http', scheme: 'bearer' } })
   })
 })
