@@ -7,6 +7,7 @@ Work with OpenAPI and AsyncAPI descriptions.
 | Command | Description |
 | --- | --- |
 | [`scalar document bundle`](#bundle) | Bundle external references into a single API description |
+| [`scalar document transform`](#transform) | Create public or environment-specific API descriptions |
 | [`scalar document split`](#split) | Split an OpenAPI or AsyncAPI description into referenced JSON files |
 | [`scalar document join`](#join) | Join API descriptions of the same format into one description |
 | [`scalar document format`](#format) | Format an OpenAPI or AsyncAPI description |
@@ -17,7 +18,7 @@ Work with OpenAPI and AsyncAPI descriptions.
 | [`scalar document share`](#share) | Publish an OpenAPI or AsyncAPI description to a public sandbox |
 | [`scalar document validate`](#validate) | Validate an OpenAPI or AsyncAPI description |
 | [`scalar document void`](#void) | Mirror HTTP requests with a local server |
-| [`scalar document lint`](#lint) | Lint an OpenAPI or AsyncAPI description with Spectral rules |
+| [`scalar document lint`](#lint) | Lint OpenAPI or AsyncAPI descriptions with Spectral rules |
 | [`scalar document upgrade`](#upgrade) | Upgrade an API description to OpenAPI 3.1 or the latest supported AsyncAPI version |
 
 ## bundle
@@ -45,6 +46,28 @@ scalar document bundle [options] [file|url]
 | `--urlMap` | Generate a map of resolved URLs in the bundled output. |  |
 | `--fetchLimit <limit>` | Maximum number of concurrent URL fetches. | `5` |
 | `--no-input` | Disable prompts and browser launches. |  |
+
+## transform
+
+Create public or environment-specific API descriptions.
+
+```bash
+scalar document transform [options] <file|url>
+```
+
+**Arguments**
+
+| Argument | Description |
+| --- | --- |
+| `file\|url` | **Required.** OpenAPI or AsyncAPI description file path or URL. |
+
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `-c, --config <file>` | **Required.** JSON or YAML transformation configuration. |
+| `-o, --output <file>` | **Required.** JSON or YAML output file, or - for stdout; source files cannot be overwritten. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## split
 
@@ -256,22 +279,23 @@ scalar document void [options]
 
 ## lint
 
-Lint an OpenAPI or AsyncAPI description with Spectral rules.
+Lint OpenAPI or AsyncAPI descriptions with Spectral rules.
 
 ```bash
-scalar document lint [options] [file|url]
+scalar document lint [options] [file|url...]
 ```
 
 **Arguments**
 
 | Argument | Description |
 | --- | --- |
-| `file\|url` | API description file path or URL to lint. |
+| `file\|url...` | API description files or URLs (defaults to APIs in scalar.config). |
 
 **Options**
 
 | Option | Description | Default |
 | --- | --- | --- |
+| `--config <file>` | Scalar configuration file to read when no inputs are provided. |  |
 | `-r, --rule <file\|url>` | Spectral ruleset file path or URL. |  |
 | `--format <format>` | Report format. One of `text`, `codeframe`, `markdown`, `summary`, `json`, `github-actions`, `junit`. | `codeframe` |
 | `--max-problems <number>` | Maximum displayed findings (totals and exit status include all findings). | `100` |
