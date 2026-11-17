@@ -1490,9 +1490,6 @@ importers:
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
-      '@scalar/typebox':
-        specifier: ^0.1.3
-        version: 0.1.3
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
@@ -1505,6 +1502,9 @@ importers:
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
+      '@scalar/validation':
+        specifier: workspace:*
+        version: link:../validation
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store

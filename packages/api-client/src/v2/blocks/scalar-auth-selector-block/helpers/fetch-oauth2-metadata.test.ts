@@ -13,6 +13,16 @@ describe('fetch-oauth2-metadata', () => {
     expect(customFetch.mock.calls).toStrictEqual([['https://auth.example.com/custom?version=2']])
   })
 
+  it('accepts metadata with only a device authorization endpoint', async () => {
+    const metadata = { device_authorization_endpoint: 'https://auth.example.com/device' }
+    const customFetch = vi.fn().mockResolvedValue(Response.json(metadata))
+
+    expect(await fetchOAuth2Metadata('https://auth.example.com/metadata', '', customFetch)).toStrictEqual([
+      null,
+      metadata,
+    ])
+  })
+
   it('routes metadata through the configured proxy', async () => {
     const customFetch = vi.fn().mockResolvedValue(Response.json({ token_endpoint: 'https://auth.example.com/token' }))
     await fetchOAuth2Metadata('https://auth.example.com/metadata', 'https://proxy.example.com', customFetch)
@@ -40,6 +50,9 @@ describe('fetch-oauth2-metadata', () => {
     {},
     null,
     { token_endpoint: 123 },
+    { token_endpoint: false },
+    [],
+    'invalid',
     { token_endpoint: 'http://example.com/token' },
     { token_endpoint: 'ftp://localhost/token' },
     { authorization_endpoint: 'file:///authorize' },
