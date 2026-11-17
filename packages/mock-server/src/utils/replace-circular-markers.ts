@@ -16,7 +16,7 @@ const CIRCULAR_MARKER = '[circular]'
  * `additionalItems` is listed for the same reason: Ajv 2020 ignores the keyword, but an older document
  * carrying one still walks cleanly.
  */
-const SCHEMA_KEYWORDS = new Set([
+export const SCHEMA_KEYWORDS = new Set([
   'additionalItems',
   'additionalProperties',
   'allOf',
@@ -39,7 +39,7 @@ const SCHEMA_KEYWORDS = new Set([
  * Keywords whose value maps names to schemas. Their keys are author-chosen names rather than
  * keywords, so the walker must not read them as keywords of their own.
  */
-const SCHEMA_MAP_KEYWORDS = new Set([
+export const SCHEMA_MAP_KEYWORDS = new Set([
   '$defs',
   'definitions',
   // Ajv 2020 still implements the draft-07 `dependencies`, so a marker under it has to be rewritten

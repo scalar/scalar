@@ -1682,4 +1682,179 @@ describe('validate-request', () => {
       consoleErrorSpy.mockRestore()
     })
   })
+
+  describe('nullable without a type', () => {
+    const NULLABLE_SCHEMAS = {
+      oneOf: { nullable: true, oneOf: [{ type: 'string' }, { type: 'integer' }] },
+      anyOf: { nullable: true, anyOf: [{ type: 'string' }, { type: 'integer' }] },
+      allOf: { nullable: true, allOf: [{ $ref: '#/components/schemas/Name' }] },
+      'a nullable only schema': { nullable: true },
+      'nullable false': { nullable: false, oneOf: [{ type: 'string' }, { type: 'integer' }] },
+    } as const
+
+    const postRecord = async (openapi: string, value: unknown, body: unknown): Promise<Response> => {
+      const document = {
+        ...documentWith('/records', 'post', {
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: { type: 'object', required: ['name'], properties: { name: { type: 'string' }, value } },
+              },
+            },
+          },
+        }),
+        openapi,
+        components: { schemas: { Name: { type: 'string' } } },
+      }
+      const server = await createMockServer({ document, validateRequest: true })
+      return server.request('/records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+    }
+
+    it.each(['3.0.3', '3.1.0'])(
+      'keeps body validation on for a nullable union in an OpenAPI %s document',
+      async (openapi) => {
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+        const response = await postRecord(openapi, NULLABLE_SCHEMAS.oneOf, {})
+
+        expect(consoleErrorSpy).not.toHaveBeenCalled()
+        expect(response.status).toBe(422)
+        expect((await response.json()).violations).toStrictEqual([
+          { location: 'body', path: '/name', message: "must have required property 'name'" },
+        ])
+
+        consoleErrorSpy.mockRestore()
+      },
+    )
+
+    it.each([
+      ['oneOf', 'text', 200],
+      ['oneOf', 3, 200],
+      ['oneOf', null, 200],
+      ['oneOf', true, 422],
+      ['anyOf', 'text', 200],
+      ['anyOf', null, 200],
+      ['anyOf', true, 422],
+      ['allOf', 'text', 200],
+      ['allOf', null, 200],
+      ['allOf', 3, 422],
+      ['a nullable only schema', { any: 'thing' }, 200],
+      ['a nullable only schema', null, 200],
+      ['nullable false', 'text', 200],
+      ['nullable false', null, 422],
+    ] as const)('validates a property with %s next to nullable against %j', async (kind, value, status) => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      const response = await postRecord('3.0.3', NULLABLE_SCHEMAS[kind], { name: 'x', value })
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
+      expect(response.status).toBe(status)
+
+      consoleErrorSpy.mockRestore()
+    })
+
+    it.each([
+      ['null', { type: 'null', nullable: false }],
+      ['a list with null', { type: ['string', 'null'], nullable: false }],
+    ])('keeps body validation on for nullable false beside the type %s', async (_name, value) => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      const response = await postRecord('3.1.0', value, { name: 1 })
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
+      expect(response.status).toBe(422)
+
+      consoleErrorSpy.mockRestore()
+    })
+
+    it('keeps validating every location of the operation', async () => {
+      const document = documentWith('/records', 'get', {
+        parameters: [
+          { name: 'limit', in: 'query', required: true, schema: { type: 'integer' } },
+          { name: 'filter', in: 'query', schema: NULLABLE_SCHEMAS.anyOf },
+        ],
+      })
+      const server = await createMockServer({ document, validateRequest: true })
+
+      expect((await server.request('/records')).status).toBe(422)
+      expect((await server.request('/records?limit=5&filter=text')).status).toBe(200)
+      expect((await server.request('/records?limit=nope&filter=text')).status).toBe(422)
+    })
+
+    it('keeps validating a JSON encoded property of a form querystring', async () => {
+      const document = {
+        ...documentWith('/records', 'get', {
+          parameters: [
+            {
+              name: 'wholeQuery',
+              in: 'querystring',
+              required: true,
+              content: {
+                'application/x-www-form-urlencoded': {
+                  schema: {
+                    type: 'object',
+                    required: ['filter'],
+                    properties: {
+                      filter: {
+                        nullable: true,
+                        oneOf: [
+                          { type: 'object', required: ['id'], properties: { id: { type: 'integer' } } },
+                          { type: 'object', required: ['name'], properties: { name: { type: 'string' } } },
+                        ],
+                      },
+                    },
+                  },
+                  encoding: { filter: { contentType: 'application/json' } },
+                },
+              },
+            },
+          ] as never,
+        }),
+        openapi: '3.2.0',
+      }
+      const server = await createMockServer({ document, validateRequest: true })
+      const get = async (query: string): Promise<Response> => await server.request(`/records?${query}`)
+      const filter = (value: unknown): string => `filter=${encodeURIComponent(JSON.stringify(value))}`
+
+      expect((await get(filter({ id: 1 }))).status).toBe(200)
+      expect((await get(filter(null))).status).toBe(200)
+      expect((await get(filter({ id: 'x' }))).status).toBe(422)
+      expect((await get('other=1')).status).toBe(422)
+    })
+
+    it('still drops a required read-only property from a nullable union body', async () => {
+      const document = documentWith('/records', 'post', {
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['id', 'name'],
+                properties: {
+                  id: { readOnly: true, nullable: true, oneOf: [{ type: 'string' }, { type: 'integer' }] },
+                  name: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      })
+      const server = await createMockServer({ document, validateRequest: true })
+      const post = async (body: unknown): Promise<Response> =>
+        await server.request('/records', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+
+      expect((await post({ name: 'x' })).status).toBe(200)
+      expect((await post({})).status).toBe(422)
+    })
+  })
 })
