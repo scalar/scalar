@@ -51,6 +51,7 @@ const {
   jsonSchemaDialect,
 } = defineProps<{
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
   jsonSchemaDialect?: string
   responses: ResponsesObject
   /**

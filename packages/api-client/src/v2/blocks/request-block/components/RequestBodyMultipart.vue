@@ -32,6 +32,7 @@ const {
 } = defineProps<{
   value: MultipartBodyValue
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
   jsonSchemaDialect?: string
   media: MediaTypeObject
   compositionSelection?: Record<string, number>

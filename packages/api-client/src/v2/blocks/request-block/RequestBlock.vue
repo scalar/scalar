@@ -79,6 +79,7 @@ export type RequestBlockProps = {
   securitySchemes: MergedSecuritySchemes
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
   jsonSchemaDialect?: string
   requestBodyCompositionSelection?: Record<string, number>
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']

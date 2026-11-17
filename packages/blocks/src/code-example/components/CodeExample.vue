@@ -119,6 +119,7 @@ export type CodeExampleProps = {
    */
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
   jsonSchemaDialect?: string
   requestBodyCompositionSelection?: Record<string, number>
 }

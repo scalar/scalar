@@ -30,6 +30,7 @@ const {
   /** Reuse the card's formatted value so generation and copying cannot diverge. */
   content?: string
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
   jsonSchemaDialect?: string
   generationError?: XmlDiagnostic
   pending?: boolean

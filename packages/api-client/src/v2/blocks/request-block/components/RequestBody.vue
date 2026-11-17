@@ -80,6 +80,7 @@ const {
   environment: XScalarEnvironment
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
   jsonSchemaDialect?: string
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>

@@ -14,11 +14,11 @@ export type FormBodyField = {
 
 /** Empty fields must keep text editing unless every non-null alternative requires a file. */
 const requiresFile = (
-  input: MaybeRefSchemaObject | undefined,
+  input: MaybeRefSchemaObject | boolean | undefined,
   contentType?: string,
   ancestors = new Set<MaybeRefSchemaObject>(),
 ): boolean => {
-  if (!input || ancestors.has(input)) {
+  if (typeof input === 'boolean' || !input || ancestors.has(input)) {
     return false
   }
   const schema: SchemaObject | undefined = resolveSchemaWithAnnotations(input)
