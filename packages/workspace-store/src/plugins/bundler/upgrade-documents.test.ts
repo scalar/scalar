@@ -1,5 +1,5 @@
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
-import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
+import { type LoaderPlugin, bundle, bundleWithDiagnostics } from '@scalar/json-magic/bundle'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -491,7 +491,7 @@ describe('upgrade-documents', () => {
     const input = {
       openapi: '3.1.0',
       components: { schemas: { Pet: { $ref: '#/x-ext/old/definitions/Pet' } } },
-      'x-ext': { old: { swagger: '2.0', definitions: { Pet: { type: 'string' } } } },
+      'x-ext': { old: { swagger: '2.0', definitions: { Pet: { type: 'file', 'x-nullable': true } } } },
       'x-ext-urls': { old: './old.yaml' },
     }
     await bundle(input, {
@@ -500,7 +500,10 @@ describe('upgrade-documents', () => {
       treeShake: false,
       plugins: [upgradeDocuments('3.1.0')],
     })
-    expect(read(input, ['components', 'schemas', 'Pet', '$ref-value', 'type'])).toBe('string')
+    expect(read(input, ['components', 'schemas', 'Pet', '$ref-value'])).toStrictEqual({
+      type: 'file',
+      'x-nullable': true,
+    })
     expect(input['x-ext'].old.swagger).toBe('2.0')
   })
 
@@ -634,22 +637,27 @@ describe('upgrade-documents', () => {
     await bundle(input, { traversal: 'document', treeShake: false, plugins: [upgradeDocuments('3.0.3')] })
     expect(read(input, ['components', 'schemas', 'Alias', '$ref-value', 'type'])).toBe('string')
   })
-  it('keeps parameter targets distinct from a generated form request body', async () => {
+  it.each([false, true])('keeps parameter targets distinct from a form body (form first: %s)', async (formFirst) => {
+    const query = { in: 'query', name: 'limit', type: 'integer' }
+    const form = { in: 'formData', name: 'name', type: 'string' }
     const input = {
       swagger: '2.0',
-      parameters: { Shared: { $ref: '#/paths/~1pets/post/parameters/0' } },
+      parameters: { Shared: { $ref: `#/paths/~1pets/post/parameters/${formFirst ? 1 : 0}` } },
       paths: {
         '/pets': {
           post: {
-            parameters: [
-              { in: 'query', name: 'limit', type: 'integer' },
-              { in: 'formData', name: 'name', type: 'string' },
-            ],
+            parameters: formFirst ? [form, query] : [query, form],
           },
         },
       },
     }
-    await bundle(input, { traversal: 'document', treeShake: false, plugins: [upgradeDocuments('2.0')] })
+    const result = await bundleWithDiagnostics(input, {
+      traversal: 'document',
+      treeShake: false,
+      plugins: [upgradeDocuments('2.0')],
+    })
+    expect(result.diagnostics).toStrictEqual([])
+    expect(result.complete).toBe(true)
     expect(read(input, ['components', 'parameters', 'Shared', '$ref-value'])).toStrictEqual({
       in: 'query',
       name: 'limit',

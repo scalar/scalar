@@ -580,13 +580,15 @@ await bundle(input, {
 
 Hooks let you observe and extend the bundling process, which is handy for progress reporting and error tracking.
 
-| Hook                  | Called when                              |
-| --------------------- | ---------------------------------------- |
-| `onResolveStart`      | The bundler starts resolving a `$ref`    |
-| `onResolveSuccess`    | A `$ref` was resolved successfully       |
-| `onResolveError`      | A `$ref` could not be resolved           |
-| `onBeforeNodeProcess` | Before a node is processed, may be async |
-| `onAfterNodeProcess`  | After a node is processed, may be async  |
+| Hook                    | Called when                                                                         |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| `onDocumentLoaded`      | Before a parsed root, external, cached, or stored resource is indexed; may be async |
+| `onBeforeTargetProcess` | After target lookup, before traversing the target; may be async                     |
+| `onResolveStart`        | The bundler starts resolving a `$ref`                                               |
+| `onResolveSuccess`      | A `$ref` was resolved successfully                                                  |
+| `onResolveError`        | A `$ref` could not be resolved                                                      |
+| `onBeforeNodeProcess`   | Before a node is processed, may be async                                            |
+| `onAfterNodeProcess`    | After a node is processed, may be async                                             |
 
 ```ts
 import { bundle } from '@scalar/json-magic/bundle'
@@ -621,6 +623,45 @@ await bundle(document, {
   treeShake: false,
 })
 ```
+
+#### Transforming resources and targets
+
+Both transformation hooks work through `BundleConfig.hooks` and reusable
+`LifecyclePlugin` objects. The configuration hook runs first, then matching
+plugins in order, awaiting each result before the next hook runs.
+
+`onDocumentLoaded(document, { uri, stored, loadDocument })` receives parsed source
+content before indexing. Return replacement content, or `undefined` to retain it.
+`uri` is the retrieval location. `stored: true` identifies a resource already in
+the input bundle's external-document storage; transformations that relocate fields
+can use it to preserve existing bundled pointers. `loadDocument(uri)` shares
+source loading and cache results without recursively invoking transformations.
+
+`onBeforeTargetProcess(target, context)` receives the located value and:
+
+- `document`, `uri`, and `path`: its resource, retrieval location, and path relative
+  to that resource.
+- `referencedFrom`: the referring node's processing context.
+- `referenceSource`: the referring resource, URI, and semantic source path,
+  including the owning location of a partial input or server chunk.
+
+Return `undefined` to keep the target, `{ value }` to replace it at its original
+path, or `{ value, path }` to store a contextual variant at a different
+resource-relative path. Returned values are written into the resource; `path: []`
+replaces the resource's keys. References marked `$global: true` identify
+already-processed server chunks and bypass target transformations.
+
+When a transform relocates fields, `resolveDocument` can return a
+`remapPointer(pointer)` function alongside its `baseUri`. It receives decoded
+JSON Pointer segments and returns the transformed segments for authored pointers.
+Pointers into the bundle's generated external-document storage bypass remapping.
+A resolver can also set `visitReferencedSubtrees: true` so a headerless resource
+is traversed through referenced subtrees with their referring context.
+
+For partial bundling, pass the complete `root` and the partial input's `inputPath`.
+The latter prefixes `context.path` for every node-processing hook. Bundling
+mutates the caller's input, cached resources, and target storage; returning a copy
+from a transformation hook does not make the whole operation immutable.
 
 #### Resolving targets in lifecycle hooks
 

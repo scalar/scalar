@@ -85,6 +85,8 @@ type FragmentTraversalContext = {
   produces: readonly string[]
   semanticPath: string[]
   parameterSources?: string[][]
+  /** Synthetic request bodies have no authored node; their form fields are mapped separately. */
+  generated?: boolean
 }
 
 /** Define authored keys without invoking inherited setters. */
@@ -125,7 +127,9 @@ export const upgradeFragment = async (
   const remember = (source: readonly string[], output: readonly string[]): void => {
     const key = JSON.stringify(source)
     // Reused schemas can have several destinations. Keep the first, including unchanged ones.
-    if (recordedSources.has(key)) return
+    if (recordedSources.has(key)) {
+      return
+    }
     recordedSources.add(key)
     if (source.length !== output.length || source.some((part, index) => part !== output[index])) {
       locations.push({ source, output })
@@ -148,9 +152,11 @@ export const upgradeFragment = async (
   }
   const visit = async (
     value: unknown,
-    { kind, source, output, consumes, produces, semanticPath, parameterSources }: FragmentTraversalContext,
+    { kind, source, output, consumes, produces, semanticPath, parameterSources, generated }: FragmentTraversalContext,
   ): Promise<unknown> => {
-    remember(source, output)
+    if (!generated) {
+      remember(source, output)
+    }
     if (!isObject(value)) {
       return value
     }
@@ -167,6 +173,7 @@ export const upgradeFragment = async (
         consumes,
         produces,
         semanticPath: [...semanticPath, ...to],
+        generated,
       })
     const map = async (
       entries: unknown,
@@ -401,6 +408,7 @@ export const upgradeFragment = async (
           kind: 'request-body',
           source: [...source, 'parameters'],
           output: [...output, 'requestBody'],
+          generated: true,
           consumes: effectiveConsumes,
           produces: effectiveProduces,
           semanticPath: [...semanticPath, 'requestBody'],
@@ -456,6 +464,7 @@ export const upgradeFragment = async (
                   consumes,
                   produces,
                   semanticPath: [...semanticPath, key, String(index)],
+                  generated,
                 }),
               ),
             )
@@ -500,7 +509,9 @@ export const upgradeFragment = async (
     if (v2 && kind === 'response' && !result.$ref) {
       const { headers, ...response } = result
       result = transformResponseObject(response, [...produces])
-      if (headers !== undefined) result.headers = headers
+      if (headers !== undefined) {
+        result.headers = headers
+      }
       for (const media of produces) {
         remember([...source, 'schema'], [...output, 'content', media, 'schema'])
       }
@@ -514,6 +525,7 @@ export const upgradeFragment = async (
         consumes,
         produces,
         semanticPath: [...semanticPath, 'schema'],
+        generated,
       })
     }
     if (isObject(result.headers)) {

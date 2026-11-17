@@ -377,4 +377,22 @@ describe('upgrade-fragment', () => {
     expect(result.locations).toStrictEqual([])
     expect((result.value as typeof schema).properties.field0).toStrictEqual({ type: ['string', 'null'] })
   })
+  it('preserves own __proto__ path and response status keys without changing prototypes', async () => {
+    const input = JSON.parse(
+      '{"swagger":"2.0","paths":{"__proto__":{"post":{"responses":{"__proto__":{"description":"OK","schema":{"type":"string","x-nullable":true}}}}}}}',
+    )
+    const result = await upgradeFragment(input, { from: '2.0', to: '3.1', kind: 'document' })
+    const output = result.value as { paths: Record<string, { post: { responses: Record<string, unknown> } }> }
+    const path = output.paths.__proto__!
+    expect(Object.getPrototypeOf(output.paths)).toBe(Object.prototype)
+    expect(Object.hasOwn(output.paths, '__proto__')).toBe(true)
+    expect(Object.getPrototypeOf(path.post.responses)).toBe(Object.prototype)
+    expect(Object.hasOwn(path.post.responses, '__proto__')).toBe(true)
+    expect(path.post.responses.__proto__).toStrictEqual({
+      description: 'OK',
+      content: { 'application/json': { schema: { type: ['string', 'null'] } } },
+    })
+    expect(Object.hasOwn(Object.prototype, 'post')).toBe(false)
+    expect(Object.hasOwn(Object.prototype, 'description')).toBe(false)
+  })
 })

@@ -102,10 +102,16 @@ export const documentReferences = (
   // Undo only our own mutation when that dialect treats the identifier as literal data.
   const restoreLiteralIdentifier = (value: Record<string, unknown>): void => {
     const previous = canonicalizedIds.get(value)
-    if (!previous) return
+    if (!previous) {
+      return
+    }
     const identity = identifySchema(value)
-    if (shouldVisit(value) && identity?.id !== undefined && (identity.idKeyword ?? '$id') === previous.keyword) return
-    if (value[previous.keyword] === previous.canonical) value[previous.keyword] = previous.authored
+    if (shouldVisit(value) && identity?.id !== undefined && (identity.idKeyword ?? '$id') === previous.keyword) {
+      return
+    }
+    if (value[previous.keyword] === previous.canonical) {
+      value[previous.keyword] = previous.authored
+    }
     canonicalizedIds.delete(value)
   }
 
@@ -165,7 +171,9 @@ export const documentReferences = (
         return
       }
       visited.add(value)
-      if (isObject(value)) restoreLiteralIdentifier(value)
+      if (isObject(value)) {
+        restoreLiteralIdentifier(value)
+      }
       const schemaIdentity = identifySchema(value)
       const id = schemaIdentity?.id
       const identifier = id ?? inheritedIdentifier
@@ -221,7 +229,9 @@ export const documentReferences = (
     let identifier = ''
     let retrievalOrigin = retrievalBase
     for (const key of targetPath) {
-      if (target === null || typeof target !== 'object') return
+      if (target === null || typeof target !== 'object') {
+        return
+      }
       origin = origins.get(target) ?? origin
       retrievalOrigin = retrievalOrigins.get(target) ?? retrievalOrigin
       identifier = identifySchema(target)?.id ?? identifier
@@ -236,12 +246,16 @@ export const documentReferences = (
     register,
     refresh: (document, targetPath) => {
       const registration = registrations.get(document)
-      if (!registration) return
+      if (!registration) {
+        return
+      }
       index(document, registration.base, registration.path, targetPath, registration.retrievalBase)
       // A cached fragment can acquire its actual dialect after its first indexing.
       // Drop identities that became literal while keeping fetchable retrieval aliases.
       for (const [uri, resource] of resources) {
-        if (resource.document !== document || !resource.schema || !isObject(resource.value)) continue
+        if (resource.document !== document || !resource.schema || !isObject(resource.value)) {
+          continue
+        }
         restoreLiteralIdentifier(resource.value)
         const identity = identifySchema(resource.value)
         const origin = origins.get(resource.value)
@@ -249,10 +263,14 @@ export const documentReferences = (
           shouldVisit(resource.value) &&
           ((identity?.id !== undefined && uri === origin) ||
             (identity?.anchor !== undefined && uri === `${origin}#${identity.anchor}`))
-        )
+        ) {
           continue
-        if (uri === registration.base || uri === registration.retrievalUri) resources.set(uri, registration.resource)
-        else resources.delete(uri)
+        }
+        if (uri === registration.base || uri === registration.retrievalUri) {
+          resources.set(uri, registration.resource)
+        } else {
+          resources.delete(uri)
+        }
       }
     },
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,

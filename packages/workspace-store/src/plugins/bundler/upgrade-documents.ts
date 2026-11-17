@@ -50,7 +50,9 @@ const metadata = (document: unknown): UpgradeMetadata | undefined => {
   const pointers = new Map<string, readonly string[]>()
   for (const location of locations ?? []) {
     const key = JSON.stringify(location.source)
-    if (!pointers.has(key)) pointers.set(key, location.output)
+    if (!pointers.has(key)) {
+      pointers.set(key, location.output)
+    }
   }
   const result = from && locations ? { from, locations, pointers } : undefined
   metadataCache.set(entry, result)
@@ -156,8 +158,12 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
         // before moving it out of its resource; example/default payloads remain literal data.
         const rebased = new WeakMap<object, unknown>()
         const rebase = (value: unknown, kind: 'object' | 'schema' | 'map' = 'object'): unknown => {
-          if (value === null || typeof value !== 'object') return value
-          if (rebased.has(value)) return rebased.get(value)
+          if (value === null || typeof value !== 'object') {
+            return value
+          }
+          if (rebased.has(value)) {
+            return rebased.get(value)
+          }
           if (Array.isArray(value)) {
             const result: unknown[] = []
             rebased.set(value, result)
@@ -210,11 +216,15 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
       const prefixes = new Map<string, readonly string[]>()
       const locations = result.locations.filter(({ source, output }) => {
         const key = JSON.stringify(source)
-        if (prefixes.has(key)) return false
+        if (prefixes.has(key)) {
+          return false
+        }
         prefixes.set(key, output)
         for (let length = source.length - 1; length >= 0; length--) {
           const parent = prefixes.get(JSON.stringify(source.slice(0, length)))
-          if (parent) return JSON.stringify([...parent, ...source.slice(length)]) !== JSON.stringify(output)
+          if (parent) {
+            return JSON.stringify([...parent, ...source.slice(length)]) !== JSON.stringify(output)
+          }
         }
         return JSON.stringify(source) !== JSON.stringify(output)
       })
@@ -243,7 +253,9 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
         remapPointer: (pointer) => {
           for (let length = pointer.length; length >= 0; length--) {
             const output = upgrade.pointers.get(JSON.stringify(pointer.slice(0, length)))
-            if (output) return [...output, ...pointer.slice(length)]
+            if (output) {
+              return [...output, ...pointer.slice(length)]
+            }
           }
           return pointer
         },
