@@ -93,39 +93,89 @@ export const childReferenceContext = (
   key: string,
   { swagger, asyncapi, schemaFormat }: { swagger: boolean; asyncapi: boolean; schemaFormat?: string },
 ): ReferenceContext => {
-  if (context === 'generic') return 'generic'
-  if (context === 'data-container') return 'data'
-  if (context === 'binding-sets') return 'bindings'
-  if (context === 'bindings') return key.startsWith('x-') ? 'data' : `binding:${key}`
-  if (context.startsWith('binding:') && bindingSchemaProperties[context]?.includes(key)) return 'asyncapi-schema-object'
-  if (context === 'messages') return 'message'
-  if (context === 'message' && key === 'traits') return 'messages'
-  if (context === 'message' && key === 'oneOf') return 'messages'
-  if (['object', 'components'].includes(context) && key === 'messageTraits') return 'messages'
-  if (context === 'message' && key === 'examples') return 'data'
-  if (context === 'message' && ['payload', 'headers'].includes(key)) return asyncapi ? 'asyncapi-schema' : 'schema'
-  if (key === 'message' && context === 'object') return 'message'
-  if (key === 'messages' && ['object', 'components'].includes(context)) return 'messages'
-  if (context === 'data') return 'data'
-  if (context === 'paths') return key.startsWith('x-') ? 'data' : 'path-item'
-  if (context === 'named-responses') return 'response'
-  if (context === 'path-items') return 'path-item'
-  if (context === 'callbacks') return 'callback'
-  if (context === 'callback') return key.startsWith('x-') ? 'data' : 'path-item'
+  if (context === 'generic') {
+    return 'generic'
+  }
+  if (context === 'data-container') {
+    return 'data'
+  }
+  if (context === 'binding-sets') {
+    return 'bindings'
+  }
+  if (context === 'bindings') {
+    return key.startsWith('x-') ? 'data' : `binding:${key}`
+  }
+  if (context.startsWith('binding:') && bindingSchemaProperties[context]?.includes(key)) {
+    return 'asyncapi-schema-object'
+  }
+  if (context === 'messages') {
+    return 'message'
+  }
+  if (context === 'message' && key === 'traits') {
+    return 'messages'
+  }
+  if (context === 'message' && key === 'oneOf') {
+    return 'messages'
+  }
+  if (['object', 'components'].includes(context) && key === 'messageTraits') {
+    return 'messages'
+  }
+  if (context === 'message' && key === 'examples') {
+    return 'data'
+  }
+  if (context === 'message' && ['payload', 'headers'].includes(key)) {
+    return asyncapi ? 'asyncapi-schema' : 'schema'
+  }
+  if (key === 'message' && context === 'object') {
+    return 'message'
+  }
+  if (key === 'messages' && ['object', 'components'].includes(context)) {
+    return 'messages'
+  }
+  if (context === 'data') {
+    return 'data'
+  }
+  if (context === 'paths') {
+    return key.startsWith('x-') ? 'data' : 'path-item'
+  }
+  if (context === 'named-responses') {
+    return 'response'
+  }
+  if (context === 'path-items') {
+    return 'path-item'
+  }
+  if (context === 'callbacks') {
+    return 'callback'
+  }
+  if (context === 'callback') {
+    return key.startsWith('x-') ? 'data' : 'path-item'
+  }
   const mappedContext = schemaContextsByMap.get(context)
-  if (mappedContext !== undefined) return mappedContext
-  if (context === 'objects') return 'object'
-  if (context === 'responses') return key.startsWith('x-') ? 'data' : 'response'
-  if (context === 'links') return 'link'
+  if (mappedContext !== undefined) {
+    return mappedContext
+  }
+  if (context === 'objects') {
+    return 'object'
+  }
+  if (context === 'responses') {
+    return key.startsWith('x-') ? 'data' : 'response'
+  }
+  if (context === 'links') {
+    return 'link'
+  }
   if (isSchemaContext(context)) {
     // Wrapper formats select a schema vocabulary; subschemas cannot introduce another wrapper.
     if (context === 'asyncapi-schema' && schemaFormat !== undefined && key === 'schema') {
-      if (/^application\/vnd\.aai\.asyncapi(?:\+json|\+yaml)?;version=3\.[01]\.\d+$/.test(schemaFormat))
+      if (/^application\/vnd\.aai\.asyncapi(?:\+json|\+yaml)?;version=3\.[01]\.\d+$/.test(schemaFormat)) {
         return 'asyncapi-schema-object'
+      }
       const draft = /^application\/schema\+(?:json|yaml);version=draft-(04|06|07)$/.exec(schemaFormat)?.[1]
-      if (draft === '04' || draft === '06' || draft === '07') return `draft-${draft}-schema`
-      if (/^application\/vnd\.oai\.openapi(?:\+json|\+yaml)?;version=3\.0\.\d+$/.test(schemaFormat))
+      if (draft === '04' || draft === '06' || draft === '07') {
+        return `draft-${draft}-schema`
+      }
+      if (/^application\/vnd\.oai\.openapi(?:\+json|\+yaml)?;version=3\.0\.\d+$/.test(schemaFormat)) {
         return 'openapi-3.0-schema'
+      }
       return 'schema'
     }
     const nativeSchema =
@@ -137,44 +187,79 @@ export const childReferenceContext = (
       : legacyJsonSchema || context === 'openapi-3.0-schema'
         ? context
         : 'schema'
-    if (nativeSchema && key === 'externalDocs') return 'object'
-    if ((nativeSchema || legacyJsonSchema) && key === 'additionalItems') return schemaContext
+    if (nativeSchema && key === 'externalDocs') {
+      return 'object'
+    }
+    if ((nativeSchema || legacyJsonSchema) && key === 'additionalItems') {
+      return schemaContext
+    }
     if (
       key === 'properties' ||
       (context !== 'openapi-3.0-schema' && ['patternProperties', 'dependencies', 'definitions'].includes(key)) ||
       (modernSchema && ['dependentSchemas', '$defs'].includes(key))
-    )
+    ) {
       return schemaVocabularies[schemaContext].map
+    }
     if (
       ['items', 'additionalProperties', 'not', 'allOf', 'anyOf', 'oneOf'].includes(key) ||
       ((modernSchema || nativeSchema || context === 'draft-06-schema' || context === 'draft-07-schema') &&
         ['contains', 'propertyNames'].includes(key)) ||
       ((modernSchema || nativeSchema || context === 'draft-07-schema') && ['if', 'then', 'else'].includes(key)) ||
       (modernSchema && ['unevaluatedProperties', 'unevaluatedItems', 'contentSchema', 'prefixItems'].includes(key))
-    )
+    ) {
       return schemaContext
+    }
     return 'data'
   }
-  if (context === 'link' && ['parameters', 'requestBody'].includes(key)) return 'data'
-  if (context === 'response' && swagger && key === 'examples') return 'data'
-  if (key === 'components') return 'components'
-  if (key === 'paths') return 'paths'
-  if (['webhooks', 'pathItems'].includes(key)) return 'path-items'
-  if (key === 'callbacks') return 'callbacks'
-  if (key === 'responses') return context === 'components' ? 'named-responses' : 'responses'
-  if (key === 'links') return 'links'
-  if (key.startsWith('x-')) return 'data'
-  if (asyncapi && key === 'bindings') return 'bindings'
+  if (context === 'link' && ['parameters', 'requestBody'].includes(key)) {
+    return 'data'
+  }
+  if (context === 'response' && swagger && key === 'examples') {
+    return 'data'
+  }
+  if (key === 'components') {
+    return 'components'
+  }
+  if (key === 'paths') {
+    return 'paths'
+  }
+  if (['webhooks', 'pathItems'].includes(key)) {
+    return 'path-items'
+  }
+  if (key === 'callbacks') {
+    return 'callbacks'
+  }
+  if (key === 'responses') {
+    return context === 'components' ? 'named-responses' : 'responses'
+  }
+  if (key === 'links') {
+    return 'links'
+  }
+  if (key.startsWith('x-')) {
+    return 'data'
+  }
+  if (asyncapi && key === 'bindings') {
+    return 'bindings'
+  }
   if (
     asyncapi &&
     context === 'components' &&
     ['serverBindings', 'channelBindings', 'operationBindings', 'messageBindings'].includes(key)
-  )
+  ) {
     return 'binding-sets'
-  if (['example', 'default', 'enum', 'const', 'value', 'dataValue', 'serializedValue'].includes(key)) return 'data'
-  if (key === 'examples') return 'objects'
-  if (asyncapi && context === 'components' && key === 'schemas') return 'asyncapi-schemas'
-  if (asyncapi && ['servers', 'variables'].includes(key)) return 'objects'
+  }
+  if (['example', 'default', 'enum', 'const', 'value', 'dataValue', 'serializedValue'].includes(key)) {
+    return 'data'
+  }
+  if (key === 'examples') {
+    return 'objects'
+  }
+  if (asyncapi && context === 'components' && key === 'schemas') {
+    return 'asyncapi-schemas'
+  }
+  if (asyncapi && ['servers', 'variables'].includes(key)) {
+    return 'objects'
+  }
   if (
     asyncapi &&
     context === 'components' &&
@@ -187,11 +272,18 @@ export const childReferenceContext = (
       'tags',
       'operationTraits',
     ].includes(key)
-  )
+  ) {
     return 'objects'
-  if (['schemas', 'definitions', '$defs'].includes(key)) return 'schemas'
-  if (key === 'schema') return asyncapi ? 'asyncapi-schema-object' : 'schema'
-  if (key === 'itemSchema') return 'schema'
+  }
+  if (['schemas', 'definitions', '$defs'].includes(key)) {
+    return 'schemas'
+  }
+  if (key === 'schema') {
+    return asyncapi ? 'asyncapi-schema-object' : 'schema'
+  }
+  if (key === 'itemSchema') {
+    return 'schema'
+  }
   if (
     [
       'content',
@@ -203,8 +295,9 @@ export const childReferenceContext = (
       'messages',
       'operations',
     ].includes(key)
-  )
+  ) {
     return 'objects'
+  }
   return 'object'
 }
 

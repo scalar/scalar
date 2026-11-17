@@ -40,6 +40,7 @@ There is no root export. Every module is imported from its own entry point, so y
 | `@scalar/json-magic/bundle/value-generator` | `getHash`, `generateUniqueValue`, `uniqueValueGeneratorFactory` |
 | `@scalar/json-magic/dereference` | `dereference` |
 | `@scalar/json-magic/join` | `join`, plus the `JoinOptions`, `JoinStrategy`, `JoinContext`, `JoinConflict` and `JoinResult` types |
+| `@scalar/json-magic/document` | `checkDocument`, `createGraph`, `childPath`, `operationMethods` and `DocumentGraph` |
 | `@scalar/json-magic/diff` | `diff`, `merge`, `apply`, the `Difference` type |
 | `@scalar/json-magic/magic-proxy` | `createMagicProxy`, `getRaw` |
 | `@scalar/json-magic/helpers/*` | Small standalone helpers, see [Helpers](#helpers) |
@@ -889,3 +890,23 @@ We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 ## License
 
 The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
+
+## Remove unused API components
+
+`checkDocument` checks an already bundled OpenAPI 2.0/3.x or AsyncAPI 2/3 description without fetching files or URLs. With `prune: true`, it mutates reusable storage only after checking the graph successfully. Keep a copy with `structuredClone` when the original is needed.
+
+```ts
+import { checkDocument } from '@scalar/json-magic/document'
+
+const result = checkDocument(document, {
+  origin: '/api/openapi.json',
+  prune: true,
+  unresolvedReferences: 'retain',
+})
+if (!result.ok) throw new Error(result.error)
+for (const warning of result.data.warnings) console.warn(warning)
+```
+
+Reachability starts outside reusable storage and follows transitive references, named security schemes, discriminator mappings and schema identities/anchors. Reachable cycles remain; disconnected cycles and unused stored external siblings under `x-ext` are removed. Names and pointer layout remain unchanged. Literal examples and extensions do not create dependencies unless an explicit reference targets them. Root components are retained whole; references to their descendants retain their other dependencies too.
+
+The default unresolved-reference policy is `error`. With `retain`, a reachable external reference that cannot resolve inside the bundle leaves all reusable content intact and produces warnings. Missing local targets still fail. Callers with known resolution failures must skip pruning entirely: an incomplete graph cannot establish which components are unused. This API is independent of the bundler's existing `treeShake` option. Dynamic references conservatively retain matching dynamic anchors; `$recursiveRef` is rejected.

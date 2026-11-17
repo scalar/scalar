@@ -10,7 +10,7 @@ import {
   isReferenceContext,
   isSchemaContext,
   isSchemaMapContext,
-} from './reference-context'
+} from '../document/reference-context'
 
 /** The authored location survives relocation into external document storage. */
 type SourceLocation = { source: string; pointer: string; context: ReferenceContext; schemaSiblings: boolean }
@@ -35,7 +35,9 @@ export const documentTraversal = (
     context?: ReferenceContext,
     targetPath: readonly string[] = [],
   ): void => {
-    if (!enabled || document === null || typeof document !== 'object') return
+    if (!enabled || document === null || typeof document !== 'object') {
+      return
+    }
     let visited = new WeakSet<object>()
     const api = isObject(document) && ['openapi', 'swagger', 'asyncapi'].some((key) => key in document)
     // External fragments inherit the root API type; complete documents use their own.
@@ -44,7 +46,9 @@ export const documentTraversal = (
     const isSwagger = api ? document.swagger === '2.0' : swagger
     const siblings = api ? document.swagger !== '2.0' && !String(document.openapi).startsWith('3.0.') : schemaSiblings
     const visit = (value: unknown, path: string[], inherited: ReferenceContext, inheritedSiblings: boolean): void => {
-      if (value === null || typeof value !== 'object' || visited.has(value)) return
+      if (value === null || typeof value !== 'object' || visited.has(value)) {
+        return
+      }
       visited.add(value)
       const current = !aware ? 'generic' : (exposures.get(value) ?? inherited)
       const currentSiblings =
@@ -92,10 +96,14 @@ export const documentTraversal = (
       visit(document, [], api ? 'object' : targetContext, siblings)
       registered.add(document)
     }
-    if (context === undefined) return
+    if (context === undefined) {
+      return
+    }
     let target: unknown = document
     for (const key of targetPath) {
-      if (target === null || typeof target !== 'object') return
+      if (target === null || typeof target !== 'object') {
+        return
+      }
       const location = locations.get(target)
       if (location?.context === 'data') {
         locations.set(target, { ...location, context: 'data-container' })
@@ -103,7 +111,9 @@ export const documentTraversal = (
       }
       target = (target as Record<string, unknown>)[key]
     }
-    if (target === null || typeof target !== 'object') return
+    if (target === null || typeof target !== 'object') {
+      return
+    }
     const targetLocation = locations.get(target)
     // References retain the target's authored vocabulary. Only a fragment initially
     // guessed to be a generic schema needs its referring schema context applied.
@@ -111,10 +121,13 @@ export const documentTraversal = (
       isSchemaContext(targetLocation?.context) &&
       isSchemaContext(context) &&
       (api || targetLocation?.context !== 'schema')
-    )
+    ) {
       return
+    }
     exposures.set(target, context)
-    if (targetLocation?.context === context) return
+    if (targetLocation?.context === context) {
+      return
+    }
     // The initial walk may already have visited descendants with a different context.
     const targetSiblings = targetLocation?.schemaSiblings ?? siblings
     visited = new WeakSet<object>()

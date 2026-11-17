@@ -24,7 +24,7 @@ import {
   documentReferences,
 } from './document-references'
 import { documentTraversal } from './document-traversal'
-import { type ReferenceContext, getSchemaVocabulary, isReferenceContext, isSchemaContext } from './reference-context'
+import { type ReferenceContext, getSchemaVocabulary, isReferenceContext, isSchemaContext } from '../document/reference-context'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
