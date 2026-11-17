@@ -1,4 +1,6 @@
 // @vitest-environment node
+
+import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
 import { describe, expect, it } from 'vitest'
 
 import { readSchema } from '../read-schema'
@@ -7,7 +9,7 @@ const format = 'application/vnd.google.protobuf;version=3'
 const root = 'syntax="proto3"; import "models/a.proto"; message Root { pkg.A a=1; }'
 const a = 'syntax="proto3"; package pkg; import "nested/b.proto"; message A { B b=1; }'
 const b = 'syntax="proto3"; package pkg; message B { string id=1; }'
-const resources = (files: Record<string, string>) => ({ origin: '/root.proto', files })
+const resources = (files: Record<string, string>): AsyncApiSchemaResources => ({ origin: '/root.proto', files })
 
 describe('dependencies', () => {
   it('renders imported fields using nested relative paths and native qualified names', () => {

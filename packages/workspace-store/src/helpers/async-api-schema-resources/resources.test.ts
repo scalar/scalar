@@ -107,4 +107,27 @@ describe('resources', () => {
       ),
     ).toStrictEqual({ origin: '/root.proto', files })
   })
+  it('distinguishes property-map and scalar text includes without following Markdown as YAML', async () => {
+    const files = {
+      '/maps/fields.raml':
+        'description: !include ../types/label.raml\nuses: string\nnested:\n  type: string\n  description: !include ../docs/note.md',
+      '/types/label.raml': 'type: string',
+      '/docs/note.md': 'Example: `foo`\nMore paragraph\n!include ignored.raml',
+    }
+    const requested: string[] = []
+    const source = 'type: object\nproperties: !include maps/fields.raml\ndescription: !include docs/note.md'
+    expect(await createSchemaResourceLoader()(raml, source, '/root.raml', [loader(files, requested)])).toStrictEqual({
+      origin: '/root.raml',
+      files,
+    })
+    expect(requested).toStrictEqual(Object.keys(files))
+  })
+  it('treats included examples as data instead of schema library declarations', async () => {
+    const files = { '/example.yaml': 'uses: ordinary-data\ndescription: literal' }
+    expect(
+      await createSchemaResourceLoader()(raml, 'type: object\nexample: !include example.yaml', '/root.raml', [
+        loader(files),
+      ]),
+    ).toStrictEqual({ origin: '/root.raml', files })
+  })
 })

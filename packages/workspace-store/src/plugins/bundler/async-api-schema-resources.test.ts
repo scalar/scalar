@@ -16,13 +16,14 @@ import { asyncApiSchemaResources } from './async-api-schema-resources'
 const format = 'application/vnd.google.protobuf;version=3'
 const value = 'syntax="proto3"; import "types/user.proto"; message Root { User user=1; }'
 const user = 'syntax="proto3"; message User { string id=1; }'
-const schema = () => ({ schemaFormat: format, schema: value })
-const document = () => ({
+const schema = (): { schemaFormat: string; schema: string } => ({ schemaFormat: format, schema: value })
+const fixture = {
   asyncapi: '3.1.0',
   info: { title: 'Native dependencies', version: '1' },
   channels: { users: { address: 'users', messages: { user: { payload: schema(), headers: schema() } } } },
   components: { schemas: { User: schema() } },
-})
+}
+const document = (): typeof fixture => structuredClone(fixture)
 
 describe('async-api-schema-resources', () => {
   it('loads payloads, headers and reusable schemas with the configured fetch and reuses files', async () => {

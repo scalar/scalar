@@ -3,87 +3,169 @@ import { RamlInclude, parseRamlSource } from '@scalar/workspace-store/helpers/as
 import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
 import { schemaResourcePath } from '@scalar/workspace-store/helpers/async-api-schema-resources/schema-resource-path'
 
-/** Each fragment owns its uses aliases; library aliases cannot be chained across files. */
+/** Typed fragments own their aliases; untyped includes retain the declaring scope and their own location. */
 export type RamlContext = {
   value: unknown
   uri: string
   types: Record<string, unknown>
   libraries: Map<string, RamlContext>
+  scope?: RamlContext
 }
 
-/** Keep fragment and library scopes separate, even when two libraries define the same short name. */
+type Position = 'schema' | 'properties' | 'text' | 'data' | 'library'
+
+/** Substitute includes before interpretation, retaining file provenance separately from authored values. */
 export const ramlDependencies = (
   source: unknown,
   resources?: AsyncApiSchemaResources,
 ): {
   root: RamlContext
-  include: (value: RamlInclude, context: RamlContext) => RamlContext
-  text: (value: RamlInclude, context: RamlContext) => string
+  contextFor: (value: unknown, fallback: RamlContext) => RamlContext
+  contextForChild: (parent: unknown, key: string, fallback: RamlContext) => RamlContext
   named: (name: string, context: RamlContext) => { value: unknown; context: RamlContext; key: string }
 } => {
-  const cache = new Map<string, RamlContext>()
+  const contexts = new WeakMap<object, RamlContext>()
+  const children = new WeakMap<object, Map<string, RamlContext>>()
   const active = new Set<string>()
-  const state = { size: typeof source === 'string' ? source.length : 0 }
-  const text = (value: RamlInclude, context: RamlContext): string => {
-    const uri = schemaResourcePath(context.uri, value.path)
+  const loaded = new Set<string>()
+  const state = { size: typeof source === 'string' ? source.length : 0, nodes: 0 }
+  const budget = (depth: number): void => {
+    if (depth > 40 || ++state.nodes > 10_000 || state.size > 1_000_000)
+      throw new Error('RAML dependencies are too large')
+  }
+  const read = (path: string, context: RamlContext): { content: string; uri: string } => {
+    const uri = schemaResourcePath(context.uri, path)
     const content = resources && Object.hasOwn(resources.files, uri) ? resources.files[uri] : undefined
     if (typeof content !== 'string' || content.length > 200_000) throw new Error('Missing RAML dependency')
-    return content
+    if (!loaded.has(uri)) {
+      loaded.add(uri)
+      state.size += content.length
+      if (loaded.size > 64) throw new Error('Too many RAML dependencies')
+    }
+    return { content, uri }
   }
-  const create = (source: unknown, uri: string, library: boolean, depth: number): RamlContext => {
-    if (depth > 20 || active.has(uri) || cache.size > 64 || state.size > 1_000_000)
-      throw new Error('Invalid RAML dependency graph')
-    const cached = cache.get(uri)
-    if (cached) return cached
+  const create = (
+    source: unknown,
+    uri: string,
+    position: Position,
+    depth: number,
+    parent?: RamlContext,
+  ): RamlContext => {
+    budget(depth)
+    if (active.has(uri)) throw new Error('Cyclic RAML dependencies')
     active.add(uri)
-    if (
-      typeof source === 'string' &&
-      /^#%RAML/m.test(source) &&
-      !(library ? /^#%RAML 1\.0 Library[ \t]*(?:\r?\n|$)/ : /^#%RAML 1\.0 DataType[ \t]*(?:\r?\n|$)/).test(source)
-    )
-      throw new Error('Unsupported RAML fragment')
-    if (library && (typeof source !== 'string' || !/^#%RAML 1\.0 Library[ \t]*(?:\r?\n|$)/.test(source)))
-      throw new Error('Expected RAML library')
-    const value = typeof source === 'string' ? parseRamlSource(source) : source
-    const object = isObject(value) ? value : {}
-    if (library && Object.keys(object).some((key) => !['uses', 'types', 'usage', 'description'].includes(key)))
-      throw new Error('Unsupported RAML library declarations')
-    if ('uses' in object && !isObject(object.uses)) throw new Error('Invalid RAML uses')
-    if (library && object.types !== undefined && !isObject(object.types)) throw new Error('Invalid RAML types')
+    const header = typeof source === 'string' && /^#%RAML/m.test(source)
+    const allowedHeader =
+      position === 'library'
+        ? /^#%RAML 1\.0 Library[ \t]*(?:\r?\n|$)/
+        : position === 'schema'
+          ? /^#%RAML 1\.0 DataType[ \t]*(?:\r?\n|$)/
+          : undefined
+    if (header && !allowedHeader?.test(String(source))) throw new Error('Unsupported RAML fragment')
+    if (position === 'library' && !header) throw new Error('Expected RAML library')
+    const value =
+      typeof source === 'string'
+        ? position === 'text' && !/\.(?:raml|ya?ml)(?:[?]|$)/i.test(uri)
+          ? source
+          : parseRamlSource(source)
+        : source
+    const inherits = parent && !header && position !== 'library'
     const context: RamlContext = {
       value,
       uri,
-      types: library && isObject(object.types) ? object.types : {},
-      libraries: new Map(),
+      types: inherits ? parent.types : {},
+      libraries: new Map(inherits ? parent.libraries : []),
+      ...(inherits ? { scope: parent.scope ?? parent } : {}),
     }
-    cache.set(uri, context)
-    for (const [alias, path] of Object.entries(isObject(object.uses) ? object.uses : {})) {
-      if (!/^[A-Za-z_][A-Za-z_0-9-]*$/.test(alias) || typeof path !== 'string')
-        throw new Error('Invalid RAML library alias')
-      const target = schemaResourcePath(uri, path)
-      const content = text(new RamlInclude(path), context)
-      if (!cache.has(target)) state.size += content.length
-      context.libraries.set(alias, create(content, target, true, depth + 1))
+    const object = isObject(value) && !(value instanceof RamlInclude) ? value : {}
+    if (
+      position === 'library' &&
+      Object.keys(object).some((key) => !['uses', 'types', 'usage', 'description'].includes(key))
+    )
+      throw new Error('Unsupported RAML library declarations')
+    if (position === 'schema' || position === 'library') {
+      if ('uses' in object && !isObject(object.uses)) throw new Error('Invalid RAML uses')
+      for (const [alias, path] of Object.entries(isObject(object.uses) ? object.uses : {})) {
+        if (!/^[A-Za-z_][A-Za-z_0-9-]*$/.test(alias) || typeof path !== 'string')
+          throw new Error('Invalid RAML library alias')
+        const { content, uri } = read(path, context)
+        context.libraries.set(alias, create(content, uri, 'library', depth + 1))
+      }
+    }
+    if (value instanceof RamlInclude) {
+      const { content, uri: includedUri } = read(value.path, context)
+      const included = create(content, includedUri, position, depth + 1, context)
+      active.delete(uri)
+      return included
+    }
+    context.value = expand(value, context, position, depth + 1)
+    if (position === 'library') {
+      const expanded = isObject(context.value) ? context.value : {}
+      if (expanded.types !== undefined && !isObject(expanded.types)) throw new Error('Invalid RAML types')
+      context.types = isObject(expanded.types) ? expanded.types : {}
     }
     active.delete(uri)
     return context
   }
-  const root = create(source, resources?.origin ?? '', false, 0)
+  const path = new Set<object>()
+  const expand = (value: unknown, context: RamlContext, position: Position, depth: number): unknown => {
+    budget(depth)
+    if (value instanceof RamlInclude) {
+      const { content, uri } = read(value.path, context)
+      return create(content, uri, position, depth + 1, context).value
+    }
+    if (!isObject(value) && !Array.isArray(value)) return value
+    if (path.has(value)) throw new Error('Cyclic RAML YAML aliases')
+    path.add(value)
+    const nextPosition = (key: string): Position =>
+      position === 'properties'
+        ? 'schema'
+        : position === 'data' || position === 'text'
+          ? 'data'
+          : key === 'properties' || (position === 'library' && key === 'types')
+            ? 'properties'
+            : ['description', 'displayName', 'usage'].includes(key)
+              ? 'text'
+              : ['example', 'examples', 'default', 'enum'].includes(key)
+                ? 'data'
+                : 'schema'
+    const locations = new Map<string, RamlContext>()
+    const child = (key: string, value: unknown, position: Position): unknown => {
+      if (!(value instanceof RamlInclude)) return expand(value, context, position, depth + 1)
+      const { content, uri } = read(value.path, context)
+      const included = create(content, uri, position, depth + 1, context)
+      locations.set(key, included)
+      return included.value
+    }
+    const result = Array.isArray(value)
+      ? value.map((value, index) => child(String(index), value, position))
+      : Object.fromEntries(Object.entries(value).map(([key, value]) => [key, child(key, value, nextPosition(key))]))
+    contexts.set(result, context)
+    children.set(result, locations)
+    path.delete(value)
+    return result
+  }
+  const root = create(source, resources?.origin ?? '', 'schema', 0)
   return {
     root,
-    text,
-    include: (value, context): RamlContext => {
-      const uri = schemaResourcePath(context.uri, value.path)
-      const content = text(value, context)
-      if (!cache.has(uri)) state.size += content.length
-      return create(content, uri, false, 1)
-    },
+    contextFor: (value, fallback): RamlContext => (isObject(value) ? contexts.get(value) : undefined) ?? fallback,
+    contextForChild: (parent, key, fallback): RamlContext =>
+      (isObject(parent) ? children.get(parent)?.get(key) : undefined) ?? fallback,
     named: (name, context): { value: unknown; context: RamlContext; key: string } => {
       const parts = name.split('.')
-      const scope = parts.length === 1 ? context : parts.length === 2 ? context.libraries.get(parts[0]!) : undefined
+      const scope =
+        parts.length === 1
+          ? (context.scope ?? context)
+          : parts.length === 2
+            ? context.libraries.get(parts[0]!)
+            : undefined
       const key = parts.at(-1)!
       if (!scope || !Object.hasOwn(scope.types, key)) throw new Error('Unresolved RAML type')
-      return { value: scope.types[key], context: scope, key: `${scope.uri}#${key}` }
+      return {
+        value: scope.types[key],
+        context: children.get(scope.types)?.get(key) ?? scope,
+        key: `${scope.uri}#${key}`,
+      }
     },
   }
 }

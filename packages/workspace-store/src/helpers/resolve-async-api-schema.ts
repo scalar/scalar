@@ -32,6 +32,24 @@ type AsyncApiSchema =
   | { kind: 'schema'; schema: SchemaObject }
   | { kind: 'source'; format: string; value: unknown; resources?: AsyncApiSchemaResources }
 
+/** Restore only validated dependency metadata, rather than trusting arbitrary extension fields. */
+const readResources = (value: unknown): AsyncApiSchemaResources | undefined => {
+  if (
+    !isObject(value) ||
+    typeof value.origin !== 'string' ||
+    !isObject(value.files) ||
+    (value.failed !== undefined && value.failed !== true)
+  )
+    return undefined
+  const entries = Object.entries(value.files)
+  if (!entries.every((entry): entry is [string, string] => typeof entry[1] === 'string')) return undefined
+  return {
+    origin: value.origin,
+    files: Object.fromEntries(entries),
+    ...(value.failed === true ? { failed: true } : {}),
+  }
+}
+
 /** Resolve the wrapper and its schema without discarding the declared schema language. */
 export const resolveAsyncApiSchema = (value: unknown): AsyncApiSchema | undefined => {
   const resolved = getResolvedAsyncApiRef(value)
@@ -41,17 +59,12 @@ export const resolveAsyncApiSchema = (value: unknown): AsyncApiSchema | undefine
     return undefined
   }
   if (wrapped && !isAsyncApiJsonSchemaFormat(resolved.schemaFormat)) {
-    const resources = resolved['x-scalar-schema-resources']
+    const resources = readResources(resolved['x-scalar-schema-resources'])
     return {
       kind: 'source',
       format: String(resolved.schemaFormat),
       value: schema,
-      ...(isObject(resources) &&
-      typeof resources.origin === 'string' &&
-      isObject(resources.files) &&
-      Object.values(resources.files).every((value) => typeof value === 'string')
-        ? { resources: resources as AsyncApiSchemaResources }
-        : {}),
+      ...(resources ? { resources } : {}),
     }
   }
   if (typeof schema === 'boolean') {

@@ -1,10 +1,12 @@
 // @vitest-environment node
+
+import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
 import { describe, expect, it } from 'vitest'
 
 import { readSchema } from '../read-schema'
 
 const format = 'application/raml+yaml;version=1.0'
-const resources = (files: Record<string, string>) => ({ origin: '/root.raml', files })
+const resources = (files: Record<string, string>): AsyncApiSchemaResources => ({ origin: '/root.raml', files })
 
 describe('dependencies', () => {
   it('resolves includes with their own library scopes and nested relative paths', () => {
@@ -88,5 +90,73 @@ describe('dependencies', () => {
         resources({ '/obj.raml': 'type: object\nproperties:\n  id: string' }),
       )?.nodes[0]?.children,
     ).toStrictEqual([{ name: 'id', type: 'string', required: true }])
+  })
+  it('expands properties-map includes with containing-file paths and the declaring library scope', () => {
+    const source = 'uses:\n  lib: lib.raml\ntype: object\nproperties: !include props/fields.raml'
+    const result = readSchema(
+      format,
+      source,
+      resources({
+        '/lib.raml': '#%RAML 1.0 Library\ntypes:\n  Id: string',
+        '/props/fields.raml': 'description: lib.Id\nuses: string\nid?: !include ../id.raml',
+        '/id.raml': 'type: string\nrequired: true',
+      }),
+    )
+    expect(result?.nodes[0]?.children).toStrictEqual([
+      { name: 'description', type: 'string', referenceName: 'lib.Id', required: true },
+      { name: 'uses', type: 'string', required: true },
+      { name: 'id?', type: 'string', required: true },
+    ])
+  })
+
+  it('preserves included Markdown and parses YAML scalar descriptions', () => {
+    const text = 'Example: `foo`\nMore paragraph'
+    expect(
+      readSchema(format, 'type: object\ndescription: !include desc.md', resources({ '/desc.md': text }))?.nodes[0]
+        ?.description,
+    ).toBe(text)
+    expect(
+      readSchema(format, 'type: string\ndescription: !include desc.yaml', resources({ '/desc.yaml': '"Identifier"' }))
+        ?.nodes[0]?.description,
+    ).toBe('Identifier')
+    expect(
+      readSchema(
+        format,
+        'type: string\ndescription: !include desc.yaml',
+        resources({ '/desc.yaml': 'description: Invalid map' }),
+      ),
+    ).toBeUndefined()
+  })
+  it('expands included library type registries and scalar facets before reading them', () => {
+    const result = readSchema(
+      format,
+      'uses:\n  lib: lib.raml\ntype: lib.Score',
+      resources({
+        '/lib.raml': '#%RAML 1.0 Library\ntypes: !include definitions/types.raml',
+        '/definitions/types.raml': 'Score:\n  type: integer\n  minimum: !include ../min.yaml',
+        '/min.yaml': '3',
+      }),
+    )
+    expect(result?.nodes).toStrictEqual([
+      { name: 'Schema', type: 'integer', referenceName: 'lib.Score', details: ['minimum: 3'] },
+    ])
+  })
+
+  it('keeps typed fragment aliases independent while untyped includes inherit the declaring scope', () => {
+    const source = 'uses:\n  lib: lib.raml\ntype: !include scalar.raml'
+    const files = { '/lib.raml': '#%RAML 1.0 Library\ntypes:\n  Id: string' }
+    expect(readSchema(format, source, resources({ ...files, '/scalar.raml': 'lib.Id' }))?.nodes[0]?.type).toBe('string')
+    expect(
+      readSchema(format, source, resources({ ...files, '/scalar.raml': '#%RAML 1.0 DataType\nlib.Id' })),
+    ).toBeUndefined()
+  })
+
+  it('resolves an included example as data without interpreting its keys as libraries', () => {
+    const result = readSchema(
+      format,
+      'type: object\nexample: !include example.yaml',
+      resources({ '/example.yaml': 'uses: ordinary-data\ndescription: literal' }),
+    )
+    expect(result?.nodes[0]?.details).toStrictEqual(['example: {"uses":"ordinary-data","description":"literal"}'])
   })
 })
