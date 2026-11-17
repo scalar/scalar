@@ -5,7 +5,15 @@ export const toResourceUri = (value: string): string => {
   if (/^[a-z][a-z0-9+.-]*:/i.test(value) && !/^[a-z]:[\\/]/i.test(value)) {
     return value
   }
-  const normalized = value.replace(/\\/g, '/')
+  const normalized = value.startsWith('/')
+    ? value
+    : value
+        .replace(/\\/g, '/')
+        .replace(/^\/\/\?\/UNC\//i, '//')
+        .replace(/^\/\/\?\//, '')
+  if (value.startsWith('\\\\') && normalized.startsWith('//')) {
+    return new URL(`file://${normalized.slice(2).split('/').map(encodeURIComponent).join('/')}`).href
+  }
   const absolute = normalized.startsWith('/') || /^[a-z]:\//i.test(normalized) ? normalized : path.resolve(normalized)
   return `file://${absolute.startsWith('/') ? '' : '/'}${absolute
     .split('/')
