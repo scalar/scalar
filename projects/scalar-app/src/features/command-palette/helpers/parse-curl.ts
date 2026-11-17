@@ -267,7 +267,7 @@ function readDataValue(argument: string, flag: string): string {
 }
 
 /** Collect the data of a curl data flag, an empty value is still data and the value of a flag is never another flag. */
-function parseData(queue: unknown[], data: DataPiece[], flag: string) {
+function parseData(queue: unknown[], data: DataPiece[], flag: string): void {
   const nextArg = queue.shift()
   if (typeof nextArg === 'string') {
     data.push({ value: readDataValue(nextArg, flag), isJson: flag === '--json' })
@@ -277,13 +277,13 @@ function parseData(queue: unknown[], data: DataPiece[], flag: string) {
 /** Curl joins repeated data flags with an ampersand and repeated --json flags without one. */
 function joinData(data: DataPiece[]): string {
   return data
-    .filter(({ value }) => value)
-    .reduce((joined, { value, isJson }) => (joined ? `${joined}${isJson ? '' : '&'}${value}` : value), '')
+    .filter(({ value }): boolean => Boolean(value))
+    .reduce((joined, { value, isJson }): string => (joined ? `${joined}${isJson ? '' : '&'}${value}` : value), '')
 }
 
 /** Curl appends the data to the URL with -G, otherwise sends it as the body and defaults the method to POST */
-function applyData(result: any, data: DataPiece[], isGet: boolean) {
-  if (data.some(({ isJson }) => isJson)) {
+function applyData(result: any, data: DataPiece[], isGet: boolean): void {
+  if (data.some(({ isJson }): boolean => isJson)) {
     applyJsonHeaders(result)
   }
 
@@ -302,9 +302,9 @@ function applyData(result: any, data: DataPiece[], isGet: boolean) {
 }
 
 /** Curl only adds the JSON headers of --json when the command does not set them, whatever their case. */
-function applyJsonHeaders(result: any) {
+function applyJsonHeaders(result: any): void {
   result.headers = result.headers || {}
-  const existingNames = new Set(Object.keys(result.headers).map((name) => name.toLowerCase()))
+  const existingNames = new Set(Object.keys(result.headers).map((name): string => name.toLowerCase()))
 
   for (const name of JSON_HEADERS) {
     if (!existingNames.has(name.toLowerCase())) {
