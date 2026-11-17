@@ -30,7 +30,7 @@ import {
   documentReferences,
 } from './document-references'
 import { documentTraversal } from './document-traversal'
-import { type RelocationTarget, relocateReferences } from './relocate-references'
+import { type RelocationTarget, type SourceReference, relocateReferences } from './relocate-references'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
@@ -912,6 +912,7 @@ export const bundleDocument = async (
   const hasRootIdentity =
     references.identity(documentRoot) !== undefined || identifySchema(documentRoot)?.id !== undefined
   const relocationTargets = new WeakMap<object, RelocationTarget>()
+  const sourceReferences = new Map<object, SourceReference>()
   const referenceToRoot = (pointer: string, sourceOrigin: string): string => {
     const fragment = pointer
       .split('/')
@@ -1183,6 +1184,8 @@ export const bundleDocument = async (
         await executeHooks('onAfterNodeProcess', root, context)
         return
       }
+      if (config.preserveReference)
+        sourceReferences.set(root, { reference: ref, origin: nodeOrigin, path: currentPath })
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 
       // Try to convert the reference to a local reference if possible
@@ -1517,13 +1520,17 @@ export const bundleDocument = async (
   // Cache indexing reserves keys before we know which edges will be preserved.
   // Do not expose reservations for resources that were never included in the output.
   if (config.preserveReference) {
-    relocateReferences(
-      documentRoot,
-      relocationTargets,
-      references.schemas(),
-      config.externalDocumentsKey,
+    relocateReferences(documentRoot, {
+      targets: relocationTargets,
+      schemas: references.schemas(),
+      externalDocumentsKey: config.externalDocumentsKey,
       createTraversal,
-    )
+      documents: references.documents().map(({ path, value }) => ({
+        path,
+        context: isObject(value) ? (traversal.location(value)?.context ?? 'schema') : 'schema',
+      })),
+      sourceReferences,
+    })
     const documents = documentRoot[config.externalDocumentsKey]
     const mappings = Object.fromEntries(
       Object.entries(documentRoot[config.externalDocumentsMappingsKey]).filter(

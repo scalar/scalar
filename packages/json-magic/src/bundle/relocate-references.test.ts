@@ -274,25 +274,24 @@ describe('relocate-references', () => {
     expect(x.default).toEqual(literal)
   })
 
-  it('keeps preserved anchor references unambiguous when anonymous dependencies use the same anchor', async () => {
-    const result = await bundleWithDiagnostics(
-      {
-        openapi: '3.1.0',
-        info: { title: 'Anchors', version: '1.0.0' },
-        paths: {},
-        components: {
-          schemas: {
-            A: {
-              $id: 'https://source.test/A',
-              $anchor: 'same',
-              properties: {
-                self: { $ref: 'https://source.test/A#same' },
-                child: { $ref: './b.json' },
-              },
-            },
-          },
-        },
+  it.each([true, false])('keeps preserved anchors unambiguous (anonymous root: %s)', async (anonymousRoot) => {
+    const schema = {
+      $id: 'https://source.test/A',
+      $anchor: 'same',
+      properties: {
+        self: { $ref: 'https://source.test/A#same' },
+        child: { $ref: './b.json' },
       },
+    }
+    const result = await bundleWithDiagnostics(
+      anonymousRoot
+        ? {
+            openapi: '3.1.0',
+            info: { title: 'Anchors', version: '1.0.0' },
+            paths: {},
+            components: { schemas: { A: schema } },
+          }
+        : schema,
       {
         plugins: [
           {
@@ -314,10 +313,63 @@ describe('relocate-references', () => {
     )
     expect(result.complete).toBe(true)
     const exported = JSON.parse(JSON.stringify(result.document))
-    const a = exported.components.schemas.A
+    const a = anonymousRoot ? exported.components.schemas.A : exported
     expect(a.properties.self.$ref).toBe('https://source.test/A#same')
     const child = getValueByPath(a, getSegmentsFromPath(decodeURIComponent(a.properties.child.$ref))).value
     expect(child, JSON.stringify(exported)).toEqual({ type: 'string' })
     expect(a.$anchor).toBe('same')
+    expect(JSON.stringify(exported).match(/"\$anchor":"same"/g)).toHaveLength(1)
+  })
+
+  it('retains unresolved reference bases in incomplete resource-local copies', async () => {
+    const result = await bundleWithDiagnostics(
+      {
+        openapi: '3.1.0',
+        info: { title: 'Incomplete', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            A: {
+              $id: 'https://source.test/schemas/A',
+              properties: { b: { $ref: '/other/b.json' } },
+            },
+          },
+        },
+      },
+      {
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: (uri) =>
+              Promise.resolve(
+                uri.endsWith('/b.json')
+                  ? {
+                      ok: true,
+                      data: { properties: { missing: { $ref: './missing.json#/Value' } } },
+                      raw: '',
+                    }
+                  : { ok: false },
+              ),
+          },
+        ],
+        treeShake: true,
+        traversal: 'document',
+        preserveReference: (ref) => /^https?:\/\//.test(ref),
+      },
+    )
+    expect(result.complete).toBe(false)
+    expect(result.diagnostics).toEqual([
+      {
+        kind: 'unresolved-document',
+        source: 'https://source.test/other/b.json',
+        reference: './missing.json#/Value',
+        pointer: '#/properties/missing/$ref',
+      },
+    ])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    const a = exported.components.schemas.A
+    const b = getValueByPath(a, getSegmentsFromPath(a.properties.b.$ref)).value
+    expect(b.properties.missing.$ref).toBe('https://source.test/other/missing.json#/Value')
   })
 })
