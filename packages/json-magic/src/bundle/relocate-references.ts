@@ -4,6 +4,7 @@ import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 import { toResourceUri } from '@/helpers/to-resource-uri'
+import { getRaw } from '@/magic-proxy/proxy'
 import type { UnknownObject } from '@/types'
 
 import type { documentTraversal } from './document-traversal'
@@ -39,7 +40,7 @@ export const relocateReferences = (
       continue
     }
     resources.push({ node, path, uri })
-    identities.set(node, uri)
+    identities.set(getRaw(node), uri)
   }
   resources.sort((a, b) => b.path.length - a.path.length)
 
@@ -67,10 +68,12 @@ export const relocateReferences = (
     const node = getValueByPath(root, document.path).value
     const traversal = createTraversal()
     traversal.register(node, '', document.context)
+    const visited = new WeakSet<object>()
     const stripAnchors = (value: unknown): void => {
-      if (value === null || typeof value !== 'object' || identities.has(value)) {
+      if (value === null || typeof value !== 'object' || identities.has(getRaw(value)) || visited.has(getRaw(value))) {
         return
       }
+      visited.add(getRaw(value))
       const context = traversal.location(value)?.context
       if (context === 'data') {
         return
@@ -78,8 +81,8 @@ export const relocateReferences = (
       if (isObject(value) && (getSchemaVocabulary(context ?? 'schema')?.anchors || context === 'generic')) {
         delete value.$anchor
       }
-      for (const child of Object.values(value)) {
-        stripAnchors(child)
+      for (const key of Object.keys(getRaw(value))) {
+        stripAnchors(Reflect.get(value, key))
       }
     }
     stripAnchors(node)
@@ -143,7 +146,7 @@ export const relocateReferences = (
         }
         const location = traversal.location(node)
         const data = literal || location?.context === 'data'
-        const uri = data ? undefined : identities.get(node)
+        const uri = data ? undefined : identities.get(getRaw(node))
         // Named resources already live in the bundle. Do not duplicate their identities.
         if (uri !== undefined) {
           return { $ref: uri }
@@ -151,12 +154,14 @@ export const relocateReferences = (
         if (Array.isArray(node)) {
           return node.map((child) => clone(child, data))
         }
-        const result = Object.fromEntries(Object.entries(node).map(([key, child]) => [key, clone(child, data)]))
-        const target = data ? undefined : targets.get(node)
+        const result = Object.fromEntries(
+          Object.keys(getRaw(node)).map((key) => [key, clone(Reflect.get(node, key), data)]),
+        )
+        const target = data ? undefined : targets.get(getRaw(node))
         if (target) {
           result.$ref = reference(target)
-        } else if (!data && sourceReferences.has(node)) {
-          result.$ref = absoluteReference(sourceReferences.get(node)!)
+        } else if (!data && sourceReferences.has(getRaw(node))) {
+          result.$ref = absoluteReference(sourceReferences.get(getRaw(node))!)
         }
         // Copied anonymous anchors would otherwise acquire the owner's URI and collide.
         // Resolved edges to these values use pointers; authored external edges stay external.
@@ -168,19 +173,19 @@ export const relocateReferences = (
       return clone(value)
     }
     const visit = (value: unknown): void => {
-      if (value === null || typeof value !== 'object' || visited.has(value)) {
+      if (value === null || typeof value !== 'object' || visited.has(getRaw(value))) {
         return
       }
-      visited.add(value)
-      if (value !== owner.node && identities.has(value)) {
+      visited.add(getRaw(value))
+      if (getRaw(value) !== getRaw(owner.node) && identities.has(getRaw(value))) {
         return
       }
-      const target = targets.get(value)
+      const target = targets.get(getRaw(value))
       if (target && isObject(value)) {
         value.$ref = reference(target)
       }
-      for (const child of Object.values(value)) {
-        visit(child)
+      for (const key of Object.keys(getRaw(value))) {
+        visit(Reflect.get(value, key))
       }
     }
     visit(owner.node)
