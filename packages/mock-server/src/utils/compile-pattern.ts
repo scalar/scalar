@@ -9,7 +9,7 @@ import type { RegExpEngine } from 'ajv/dist/types/index.js'
  * location, fail open. A pattern that parses with `u` keeps it, so `\p{L}` and astral characters still match
  * the way they did, and a pattern that parses in neither mode still throws as before.
  */
-export const compilePattern: RegExpEngine = Object.assign(
+export const compilePattern = Object.assign(
   (pattern: string, flags: string): RegExp => {
     try {
       return new RegExp(pattern, flags)
@@ -19,4 +19,4 @@ export const compilePattern: RegExpEngine = Object.assign(
   },
   // Only read when Ajv generates standalone code, which the mock server never does.
   { code: 'compilePattern' },
-)
+) satisfies RegExpEngine

@@ -21,7 +21,7 @@ describe('compilePattern', () => {
     ['^.$', '😀', 'ab'],
     [String.raw`^[\w\-\.]+$`, 'a-b.c', 'a b'],
   ])('keeps the unicode flag for %s, which parses with it', (pattern, valid, invalid) => {
-    const regExp = compilePattern(pattern, 'u') as RegExp
+    const regExp = compilePattern(pattern, 'u')
 
     expect(regExp.flags).toBe('u')
     expect(regExp.test(valid)).toBe(true)
@@ -29,7 +29,7 @@ describe('compilePattern', () => {
   })
 
   it('keeps the flags it is given when the unicode flag is off', () => {
-    expect((compilePattern(String.raw`^\-$`, '') as RegExp).flags).toBe('')
+    expect(compilePattern(String.raw`^\-$`, '').flags).toBe('')
   })
 
   it('still throws for a pattern that parses in neither mode', () => {
