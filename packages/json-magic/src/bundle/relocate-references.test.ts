@@ -14,6 +14,58 @@ import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { readFiles } from './plugins/read-files'
 
 describe('relocate-references', () => {
+  it('reports malformed local URI encoding without rejecting the bundle', async () => {
+    const result = await bundleWithDiagnostics(
+      { properties: { missing: { $ref: './bad%FF.json' } } },
+      {
+        origin: '/tmp/root.json',
+        plugins: [],
+        traversal: 'document',
+        treeShake: true,
+        preserveReference: (ref) => /^https?:\/\//.test(ref),
+      },
+    )
+    expect(result.complete).toBe(false)
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({ kind: 'unresolved-document', reference: './bad%FF.json' }),
+    ])
+  })
+
+  it('resolves unresolved fragments against the document URI when copying legacy aliases', async () => {
+    const schemaFormat = 'application/schema+json;version=draft-07'
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            A: {
+              schemaFormat,
+              schema: {
+                $id: '#named',
+                properties: {
+                  missing: { $ref: '#missing' },
+                  copy: { $ref: '#/components/schemas/A/schema/properties/missing' },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        origin: 'https://source.test/root.json',
+        plugins: [],
+        traversal: 'document',
+        treeShake: false,
+        preserveReference: (ref) => /^https?:\/\//.test(ref),
+      },
+    )
+    expect(result.complete).toBe(false)
+    expect(result.diagnostics).toEqual([expect.objectContaining({ kind: 'missing-target', reference: '#missing' })])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    const target = exported.components.schemas.A.schema
+    expect(target.definitions['bundle-0'].allOf).toEqual([{ $ref: 'https://source.test/root.json#missing' }])
+  })
+
   it.each(['04', '06', '07'])('keeps draft-%s fragment IDs separate from pointer roots', async (draft) => {
     const schemaFormat = `application/schema+json;version=draft-${draft}`
     const idKeyword = draft === '04' ? 'id' : '$id'

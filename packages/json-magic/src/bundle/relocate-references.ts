@@ -55,11 +55,8 @@ export const relocateReferences = (
     const document = documents.find((document) => contains(document.path, path))
     return document && resource && document.path.length > resource.path.length ? undefined : resource
   }
-  const absoluteReference = ({ reference, origin }: SourceReference): string => {
-    const [prefix, fragment] = reference.split('#', 2)
-    const base = toResourceUri(origin)
-    return `${prefix ? resolveReferencePath(base, prefix) : base}${fragment === undefined ? '' : `#${fragment}`}`
-  }
+  const absoluteReference = ({ reference, origin }: SourceReference): string =>
+    resolveReferencePath(toResourceUri(origin), reference)
 
   // Anonymous imported documents lose their retrieval scope when embedded. Their
   // resolved edges use pointers, so retaining those anchors would bind another URI.
