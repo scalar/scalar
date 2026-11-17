@@ -147,4 +147,47 @@ describe('async-api-schema-resources', () => {
     await client.addDocument({ name: 'test', document: document(), documentSource: '/virtual/api.yaml' })
     expect(requested).toStrictEqual(['/virtual/types/user.proto'])
   })
+
+  it.each([false, true])('prepares server-side headers in message traits (reusable: %s)', async (reusable) => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-native-trait-headers-'))
+    const headers = schema()
+    const trait = { headers }
+    const authored = {
+      asyncapi: '3.1.0',
+      info: { title: 'Trait headers', version: '1' },
+      channels: {
+        users: {
+          address: 'users',
+          messages: { user: { traits: [reusable ? { $ref: '#/components/messageTraits/common' } : trait] } },
+        },
+      },
+      ...(reusable ? { components: { messageTraits: { common: trait } } } : {}),
+    }
+    const origin = path.join(directory, 'api.json')
+    try {
+      await fs.mkdir(path.join(directory, 'types'))
+      await fs.writeFile(origin, JSON.stringify(authored))
+      await fs.writeFile(path.join(directory, 'types/user.proto'), user)
+      const server = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://docs.example.test',
+        documentLoading: { basePath: directory },
+        documents: [{ name: 'test', path: origin }],
+      })
+      const loaded = server.getResolvedDocument('test')
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      const message = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.channels?.users)?.messages?.user)
+      const resolvedTrait = getResolvedAsyncApiRef(message?.traits?.[0])
+      expect(resolveAsyncApiSchema(resolvedTrait?.headers)).toStrictEqual({
+        kind: 'source',
+        format,
+        value,
+        resources: { origin, files: { [path.join(directory, 'types/user.proto')]: user } },
+      })
+      expect(JSON.stringify(server.get('/test/asyncapi'))).toContain(JSON.stringify(user))
+      expect(headers).toStrictEqual(schema())
+    } finally {
+      await fs.rm(directory, { recursive: true, force: true })
+    }
+  })
 })
