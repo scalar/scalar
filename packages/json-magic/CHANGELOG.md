@@ -1,5 +1,13 @@
 # @scalar/json-magic
 
+## 0.20.1
+
+### Patch Changes
+
+- [#10983](https://github.com/scalar/scalar/pull/10983): Preserve literal $ref values in AsyncAPI examples, schema values, and extensions during initial loading and lazy resolution without fetching them. Index authored document keys without following virtual proxy links. Keep wrapper resolution independent of key order and ignore reference siblings in AsyncAPI parameter schemas and wrapped OpenAPI 3.0 and draft-04/06 schemas, including identifiers and anchors in those ignored siblings. Traverse only schema and identity keywords supported by the wrapped format so unknown keyword values stay literal, including draft-04 `id` and draft-06/07 `$id` handling.
+- [#10983](https://github.com/scalar/scalar/pull/10983): Resolve references inside AsyncAPI Multi Format Schema Objects and OpenAPI 3.2 media type `itemSchema` fields while preserving literal schema values. Keep `schemaFormat` and `schema` annotations in ordinary JSON Schema objects as literal data. Resolve native AsyncAPI schema `externalDocs` and tuple `additionalItems` references without processing ordinary JSON Schema annotations. Preserve schema contexts inside AsyncAPI protocol bindings. Resolve named AsyncAPI servers, variables, and reusable components even when their names match literal-data keywords. Ignore reference siblings in native AsyncAPI and draft-07 schemas.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
 ## 0.20.0
 
 ### Minor Changes

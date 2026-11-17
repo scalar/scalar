@@ -1,5 +1,11 @@
 # @scalar/mock-server-docker
 
+## 0.2.81
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
 ## 0.2.80
 
 ### Patch Changes

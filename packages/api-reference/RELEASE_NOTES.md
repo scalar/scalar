@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.80.0 (2026-11-17)
+
+### Plugin document types and accessibility improvements
+
+This release introduces an extension point that lets plugins teach API Reference new document formats, alongside fixes for focus management, hydration, and visual alignment.
+
+- Plugins can now register custom document types with their own detection, sidebar entries, and rendering components, while API Reference handles loading, routing, and navigation
+- The Ask AI Agent field collapses when focus leaves it, so keyboard users can reach the example picker and Test Request button without hidden focus rings
+- Card headers and footers are now centered between the card edge and the content surface, fixing alignment in request examples and operation lists
+- Server-rendered references hydrate cleanly when mounted again in the same document after client-side navigation or manual remount
+- TypeScript 6 builds are now supported while preserving runtime output and public handler types
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1800)
+
 ## 1.79.0 (2026-11-16)
 
 ### Redesigned code cards, SDK installation alongside built-in clients, and hydration fixes

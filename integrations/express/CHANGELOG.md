@@ -1,5 +1,11 @@
 # @scalar/express-api-reference
 
+## 0.10.39
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
 ## 0.10.38
 
 No changes in this release.

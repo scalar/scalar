@@ -1,5 +1,9 @@
 # @scalar/asyncapi-to-markdown
 
+## 0.2.10
+
+No changes in this release.
+
 ## 0.2.9
 
 ### Patch Changes

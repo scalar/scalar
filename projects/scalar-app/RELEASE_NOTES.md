@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.51 (2026-11-17)
+
+### Multi-file uploads, improved schema tooltips, and TypeScript 6 support
+
+This release brings a more powerful file upload experience for array-typed multipart fields, along with visual polish for schema tooltips and internal TypeScript compiler upgrades.
+
+- Select multiple files at once for array-typed multipart fields and manage them with add, remove, and disable controls
+- Schema tooltips now use balanced spacing and prevent clipped text; empty tooltips no longer appear
+- Schema type arrays display as readable alternatives in tooltips
+- Upgraded to TypeScript 6 while preserving all runtime output and public APIs
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1151)
+
 ## 1.1.50 (2026-11-16)
 
 ### Open GET requests in browser and faster import with polish

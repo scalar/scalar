@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 3.27.0
+
+### Minor Changes
+
+- [#9591](https://github.com/scalar/scalar/pull/9591): Select multiple files for array-typed multipart fields and display them in one field with controls to add, remove, and disable individual files. Each enabled file is sent as a separate multipart part under the same field name. Preserve text editing for arrays that also accept text and individual file choices when toggling the field.
+
+### Patch Changes
+
+- [#11086](https://github.com/scalar/scalar/pull/11086): Replace the direct TypeBox dependency with `@scalar/validation` for OpenID Connect discovery and OAuth2 metadata parsing.
+
+  Remove invalid and empty entries from supported grant types in discovery and metadata responses.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+- [#11064](https://github.com/scalar/scalar/pull/11064): Balance schema tooltip spacing, prevent clipped text, hide empty tooltip triggers, and display schema type arrays as readable alternatives.
+
 ## 3.26.0
 
 ### Minor Changes
