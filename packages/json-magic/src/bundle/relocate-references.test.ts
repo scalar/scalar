@@ -18,7 +18,7 @@ describe('relocate-references', () => {
     const schemaFormat = `application/schema+json;version=draft-${draft}`
     const idKeyword = draft === '04' ? 'id' : '$id'
     const reads: string[] = []
-    const preserved = 'https://source.test/root.json#scalar-bundle-0'
+    const preserved = 'https://SOURCE.test:443/%72oot.json#scalar-bundle-%31'
     const result = await bundleWithDiagnostics(
       {
         asyncapi: '3.1.0',
@@ -69,7 +69,7 @@ describe('relocate-references', () => {
     const exported = JSON.parse(JSON.stringify(result.document))
     const target = exported.components.schemas.Target.schema
     const child = target.definitions['bundle-1']
-    expect(child[idKeyword]).toBe('https://source.test/root.json#scalar-bundle-1')
+    expect(child[idKeyword]).toBe('https://source.test/root.json#scalar-bundle-2')
     expect(target.properties.child.$ref).toBe(child[idKeyword])
     expect(target.properties.preserved.$ref).toBe(preserved)
     expect(target.properties.self.$ref).toBe(target[idKeyword])
