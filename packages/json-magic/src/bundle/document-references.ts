@@ -33,7 +33,14 @@ export type SchemaIdentity = {
 }
 
 /** A declared schema identity and its location in the output document. */
-export type SchemaResourceLocation = { path: string[]; uri: string; idKeyword: 'id' | '$id' }
+export type SchemaResourceLocation = {
+  path: string[]
+  /** Canonical identity used to resolve the source document. */
+  uri: string
+  /** Serialization identity when the source is mapped to an output base. */
+  outputUri?: string
+  idKeyword: 'id' | '$id'
+}
 
 /** A loaded resource and its location in the output document. */
 type Resource = {
@@ -105,12 +112,14 @@ export const documentReferences = (
     id: getId(node),
     anchor: isObject(node) && typeof node.$anchor === 'string' ? node.$anchor : undefined,
   }),
+  outputDocumentUri?: (retrievalUri: string) => string,
 ): DocumentReferences => {
   const identities = new Map<unknown, DocumentIdentity>()
   const resources = new Map<string, Resource>()
   const sources = new WeakMap<object, DocumentLocation>()
   const origins = new WeakMap<object, string>()
   const sourceOrigins = new WeakMap<object, string>()
+  const outputOrigins = new WeakMap<object, string>()
   const retrievalOrigins = new WeakMap<object, string>()
   const bundledResources = new Map<string, Resource>()
 
@@ -137,7 +146,15 @@ export const documentReferences = (
 
   const registrations = new Map<
     unknown,
-    { base: string; path: string[]; retrievalBase: string; retrievalUri: string; sourceUri: string; resource: Resource }
+    {
+      base: string
+      path: string[]
+      retrievalBase: string
+      retrievalUri: string
+      sourceUri: string
+      outputBase: string
+      resource: Resource
+    }
   >()
 
   const register = (
@@ -171,7 +188,18 @@ export const documentReferences = (
       bundledResources.set(path[1], resource)
     }
     const retrievalOrigin = identity ? resolveReferencePath(retrievalBase, identity.baseUri) : retrievalBase
-    registrations.set(document, { base, path, retrievalBase: retrievalOrigin, retrievalUri, sourceUri, resource })
+    const outputRetrieval = outputDocumentUri?.(retrievalUri) ?? base
+    const outputBase =
+      outputDocumentUri && identity ? resolveResourcePath(outputRetrieval, identity.baseUri) : outputRetrieval
+    registrations.set(document, {
+      base,
+      path,
+      retrievalBase: retrievalOrigin,
+      retrievalUri,
+      sourceUri,
+      outputBase,
+      resource,
+    })
     index(document, base, path, [], retrievalOrigin)
   }
 
@@ -183,6 +211,7 @@ export const documentReferences = (
     targetPath: string[] = [],
     retrievalBase = base,
   ): void => {
+    const outputBase = registrations.get(document)!.outputBase
     // Shared nodes use the first traversal path and base, including for $id and $anchor
     // registration. This also prevents cycles from being indexed repeatedly.
     const visited = new WeakSet<object>()
@@ -193,6 +222,7 @@ export const documentReferences = (
       location: string[],
       inheritedIdentifier = '',
       retrievalOrigin = retrievalBase,
+      outputOrigin = outputBase,
     ): void => {
       if (value === null || typeof value !== 'object' || visited.has(value) || !shouldVisit(value)) {
         return
@@ -221,6 +251,14 @@ export const documentReferences = (
               ? resolveResourcePath(retrievalOrigin, id)
               : resolveReferencePath(retrievalOrigin, id)
       sources.set(value, { document, path: location.slice(path.length), uri: retrievalBase })
+      const previous = canonicalizedIds.get(value)
+      const authored = previous && previous.canonical === id ? previous.authored : id
+      const currentOutput = !outputDocumentUri
+        ? current
+        : id === undefined
+          ? outputOrigin
+          : resolveResourcePath(outputOrigin, authored).replace(/#$/, '')
+      if (outputDocumentUri) outputOrigins.set(value, currentOutput)
       origins.set(value, current)
       retrievalOrigins.set(value, currentRetrieval)
       // Relative identifiers would acquire a different identity after serialization elsewhere.
@@ -256,7 +294,14 @@ export const documentReferences = (
       }
       for (const key of Object.keys(getRaw(value))) {
         if (key !== externalDocumentsKey) {
-          visit((value as Record<string, unknown>)[key], current, [...location, key], identifier, currentRetrieval)
+          visit(
+            (value as Record<string, unknown>)[key],
+            current,
+            [...location, key],
+            identifier,
+            currentRetrieval,
+            currentOutput,
+          )
         }
       }
     }
@@ -264,16 +309,18 @@ export const documentReferences = (
     let origin = base
     let identifier = ''
     let retrievalOrigin = retrievalBase
+    let outputOrigin = outputBase
     for (const key of targetPath) {
       if (target === null || typeof target !== 'object') {
         return
       }
       origin = origins.get(target) ?? origin
       retrievalOrigin = retrievalOrigins.get(target) ?? retrievalOrigin
+      outputOrigin = outputOrigins.get(target) ?? outputOrigin
       identifier = identifySchema(target)?.id ?? identifier
       target = (target as Record<string, unknown>)[key]
     }
-    visit(target, origin, [...path, ...targetPath], identifier, retrievalOrigin)
+    visit(target, origin, [...path, ...targetPath], identifier, retrievalOrigin, outputOrigin)
   }
 
   return {
@@ -285,7 +332,14 @@ export const documentReferences = (
         isObject(resource.value) &&
         identifySchema(resource.value)?.id !== undefined &&
         uri === origins.get(resource.value)
-          ? [{ uri, path: resource.path, idKeyword: identifySchema(resource.value)?.idKeyword ?? '$id' }]
+          ? [
+              {
+                uri,
+                outputUri: outputDocumentUri ? outputOrigins.get(resource.value) : undefined,
+                path: resource.path,
+                idKeyword: identifySchema(resource.value)?.idKeyword ?? '$id',
+              },
+            ]
           : [],
       ),
     identity: (document) => identities.get(document),

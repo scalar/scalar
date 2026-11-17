@@ -23,6 +23,7 @@ import {
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
 import type { ReferenceDiagnostic } from './bundle-with-diagnostics'
+import { createOutputUri } from './create-output-uri'
 import {
   type DocumentLocation,
   type DocumentResolver,
@@ -474,6 +475,13 @@ export type Config = {
   origin?: string
 
   /**
+   * Absolute serialization base for relative schema identities in the entry document and local imports.
+   * Enables resource relocation without changing loader paths or explicitly absolute identifiers.
+   * Unresolved local references retain their original source location for later retries.
+   */
+  outputBase?: string
+
+  /**
    * Optional cache to store promises of resolved references.
    * Helps avoid duplicate fetches/reads of the same resource by storing
    * the resolution promises for reuse.
@@ -680,6 +688,8 @@ export const bundleDocument = async (
   // Cache for storing promises of resolved external references (URLs and local files)
   // to avoid duplicate fetches/reads of the same resource
   const cache = config.cache ?? new Map<string, Promise<ResolveResult>>()
+
+  const relocate = config.preserveReference !== undefined || config.outputBase !== undefined
 
   const loaderPlugins = config.plugins.filter((it) => it.type === 'loader')
   const lifecyclePlugin = config.plugins.filter((it) => it.type === 'lifecycle')
@@ -904,15 +914,14 @@ export const bundleDocument = async (
       }
       return undefined
     },
-    config.preserveReference !== undefined,
+    relocate,
     (node) => traversal.location(node)?.context !== 'data',
     identifySchema,
+    relocate ? createOutputUri(getDefaultOrigin(), config.outputBase) : undefined,
   )
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
-  const mappingOrigin = config.preserveReference
-    ? (references.retrievalOrigin(documentRoot) ?? getDefaultOrigin())
-    : defaultOrigin
+  const mappingOrigin = relocate ? (references.retrievalOrigin(documentRoot) ?? getDefaultOrigin()) : defaultOrigin
   const hasRootIdentity =
     references.identity(documentRoot) !== undefined || identifySchema(documentRoot)?.id !== undefined
   const relocationTargets = new WeakMap<object, RelocationTarget>()
@@ -1190,8 +1199,7 @@ export const bundleDocument = async (
         await executeHooks('onAfterNodeProcess', root, context)
         return
       }
-      if (config.preserveReference)
-        sourceReferences.set(getRaw(root), { reference: ref, origin: nodeOrigin, path: currentPath })
+      if (relocate) sourceReferences.set(getRaw(root), { reference: ref, origin: nodeOrigin, path: currentPath })
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 
       // Try to convert the reference to a local reference if possible
@@ -1215,7 +1223,7 @@ export const bundleDocument = async (
           await executeHooks('onAfterNodeProcess', root, context)
           return
         }
-        if (config.preserveReference && local.value !== undefined)
+        if (relocate && local.value !== undefined)
           relocationTargets.set(getRaw(root), { path: local.segments, context: location?.context ?? 'schema' })
         // A fragment under an embedded $id resolves within that schema, not the document.
         // Without a declared root identity, retain references to root resources rather
@@ -1310,7 +1318,7 @@ export const bundleDocument = async (
         pendingAnchors.push(async () => {
           const target = references.resolve(ref, nodeOrigin)
           if (target?.value !== undefined) {
-            if (config.preserveReference) {
+            if (relocate) {
               relocationTargets.set(getRaw(root), { path: target.segments, context: location?.context ?? 'schema' })
             }
             if (!target.preserveReference) {
@@ -1328,7 +1336,7 @@ export const bundleDocument = async (
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
       const retrievalOrigin = references.retrievalOrigin(root) ?? nodeOrigin
-      const resolvedPath = config.preserveReference
+      const resolvedPath = relocate
         ? resolveResourcePath(retrievalOrigin, prefix)
         : resolveReferencePath(retrievalOrigin, prefix)
       // A schema identifier changes resolution scope, never filesystem authority.
@@ -1428,7 +1436,7 @@ export const bundleDocument = async (
           const bundledReference = target
             ? `#/${target.path}`
             : prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
-          if (config.preserveReference)
+          if (relocate)
             relocationTargets.set(getRaw(root), {
               path: parsePath(bundledReference.substring(1)),
               context: location?.context ?? 'schema',
@@ -1535,7 +1543,7 @@ export const bundleDocument = async (
 
   // Cache indexing reserves keys before we know which edges will be preserved.
   // Do not expose reservations for resources that were never included in the output.
-  if (config.preserveReference) {
+  if (relocate) {
     relocateReferences(documentRoot, {
       targets: relocationTargets,
       schemas: references.schemas(),
@@ -1546,6 +1554,7 @@ export const bundleDocument = async (
         context: isObject(value) ? (traversal.location(value)?.context ?? 'schema') : 'schema',
       })),
       sourceReferences,
+      outputBase: config.outputBase,
     })
     const documents = documentRoot[config.externalDocumentsKey]
     const mappings = Object.fromEntries(
