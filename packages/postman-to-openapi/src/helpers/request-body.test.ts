@@ -184,6 +184,111 @@ describe('request-body', () => {
     expect(result.content?.['application/x-www-form-urlencoded']?.schema?.required).toEqual(['name'])
   })
 
+  it.each([
+    ['formdata', 'multipart/form-data'],
+    ['urlencoded', 'application/x-www-form-urlencoded'],
+  ] as const)('writes %s rows as named form rows in their original order', (mode, mediaType) => {
+    const rows = [
+      { key: 'tag', value: 'a', type: 'text' as const },
+      { key: 'username', value: 'kunal', type: 'text' as const },
+      { key: 'tag', value: 'b', type: 'text' as const, disabled: true },
+      { key: 'tag', value: '', type: 'text' as const },
+      { key: 'note', type: 'text' as const },
+    ]
+    const body: RequestBody = mode === 'formdata' ? { mode, formdata: rows } : { mode, urlencoded: rows }
+    const original = structuredClone(body)
+
+    const result = extractRequestBody(body, 'default')
+
+    expect(result.content?.[mediaType]?.examples).toStrictEqual({
+      default: {
+        value: [
+          { name: 'tag', value: 'a', isDisabled: false },
+          { name: 'username', value: 'kunal', isDisabled: false },
+          { name: 'tag', value: 'b', isDisabled: true },
+          { name: 'tag', value: '', isDisabled: false },
+          { name: 'note', value: '', isDisabled: false },
+        ],
+      },
+    })
+    expect(body).toStrictEqual(original)
+  })
+
+  it.each([[null], ['/tmp/avatar.png'], [['/tmp/a.png', '/tmp/b.png']], [[]]])(
+    'leaves form-data file rows empty when the source is %j',
+    (src) => {
+      const body: RequestBody = {
+        mode: 'formdata',
+        formdata: [
+          { key: 'title', value: 'hello', type: 'text' },
+          { key: 'avatar', src, type: 'file' },
+        ],
+      }
+
+      const result = extractRequestBody(body, 'default')
+
+      expect(result.content?.['multipart/form-data']?.examples).toStrictEqual({
+        default: {
+          value: [
+            { name: 'title', value: 'hello', isDisabled: false },
+            { name: 'avatar', value: '', isDisabled: false },
+          ],
+        },
+      })
+    },
+  )
+
+  it.each(['__proto__', 'constructor', 'toString', 'properties', 'required'])(
+    'treats %s as an ordinary form field name',
+    (key) => {
+      const formdata = extractRequestBody(
+        { mode: 'formdata', formdata: [{ key, value: 'x', type: 'text', description: '[required]' }] },
+        'default',
+      )
+      const urlencoded = extractRequestBody(
+        { mode: 'urlencoded', urlencoded: [{ key, value: 'x', description: '[required]' }] },
+        'default',
+      )
+
+      for (const [result, mediaType] of [
+        [formdata, 'multipart/form-data'],
+        [urlencoded, 'application/x-www-form-urlencoded'],
+      ] as const) {
+        const media = result.content?.[mediaType]
+        const properties = media?.schema?.properties ?? {}
+        expect(Object.hasOwn(properties, key)).toBe(true)
+        expect(Object.getPrototypeOf(properties)).toBe(Object.prototype)
+        expect(media?.schema?.required).toStrictEqual([key])
+        expect(media?.examples).toStrictEqual({ default: { value: [{ name: key, value: 'x', isDisabled: false }] } })
+      }
+    },
+  )
+
+  it.each([
+    ['formdata', 'multipart/form-data'],
+    ['urlencoded', 'application/x-www-form-urlencoded'],
+  ] as const)('lists a repeated required %s field once', (mode, mediaType) => {
+    const rows = [
+      { key: 'tag', value: 'a', type: 'text' as const, description: 'Tag [required]' },
+      { key: 'tag', value: 'b', type: 'text' as const, description: 'Tag [required]' },
+    ]
+    const body: RequestBody = mode === 'formdata' ? { mode, formdata: rows } : { mode, urlencoded: rows }
+
+    const result = extractRequestBody(body, 'default')
+
+    expect(result.content?.[mediaType]?.schema?.required).toStrictEqual(['tag'])
+  })
+
+  it('uses an empty string example for urlencoded fields without a value', () => {
+    const result = extractRequestBody({ mode: 'urlencoded', urlencoded: [{ key: 'note' }] }, 'default')
+
+    expect(result.content?.['application/x-www-form-urlencoded']?.schema?.properties?.note).toStrictEqual({
+      type: 'string',
+      examples: [''],
+      description: undefined,
+    })
+  })
+
   it('returns empty content for unsupported mode', () => {
     const body: RequestBody = {
       mode: 'file',

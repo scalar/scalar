@@ -19,7 +19,13 @@ const removeUndefinedValues = (value: unknown): unknown => {
     for (const [key, val] of Object.entries(value)) {
       const cleanedValue = removeUndefinedValues(val)
       if (cleanedValue !== undefined) {
-        cleaned[key] = cleanedValue
+        // Define the key, so a name like `__proto__` stays data instead of replacing the prototype.
+        Object.defineProperty(cleaned, key, {
+          value: cleanedValue,
+          enumerable: true,
+          writable: true,
+          configurable: true,
+        })
       }
     }
     return cleaned
