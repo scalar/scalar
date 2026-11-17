@@ -1165,7 +1165,8 @@ const handleArraySchema = (
     itemSchema === undefined ||
     target === true ||
     (target !== undefined && items && Object.keys(items).every((key) => ITEM_ANNOTATIONS.has(key)))
-  // Preserve the legacy sample for unsupported unrestricted schemas.
+  // Preserve best-effort sampling for complex contains schemas in recognized dialects.
+  // This fallback does not grade matches or enforce minContains/maxContains.
   const contains =
     'contains' in schema && schema.contains && typeof schema.contains === 'object' && !Array.isArray(schema.contains)
       ? resolve.schema(schema.contains as SchemaObject)

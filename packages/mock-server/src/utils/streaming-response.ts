@@ -52,6 +52,11 @@ export const getStreamingResponse = (
   const itemSchema =
     typeof mediaType.itemSchema === 'boolean' ? mediaType.itemSchema : getResolvedRefDeep(mediaType.itemSchema)
   const completeSchema = typeof mediaType.schema === 'boolean' ? mediaType.schema : getResolvedRefDeep(mediaType.schema)
+  const generationContext: ExampleGenerationContext = {
+    openapiVersion: options.openapiVersion,
+    jsonSchemaDialect: options.jsonSchemaDialect,
+    originalOpenapiVersion: options.originalOpenapiVersion,
+  }
   const generateBody = (): unknown => {
     if (itemSchema === false || completeSchema === false) {
       return []
@@ -60,7 +65,7 @@ export const getStreamingResponse = (
       return Array.from({ length: 3 }, () =>
         itemSchema === true
           ? null
-          : generateResponseExample(coerceValue(SchemaObjectSchema, itemSchema), options.variables, options),
+          : generateResponseExample(coerceValue(SchemaObjectSchema, itemSchema), options.variables, generationContext),
       )
     }
     if (typeof completeSchema === 'object' && 'type' in completeSchema && completeSchema.type === 'array') {
@@ -70,10 +75,14 @@ export const getStreamingResponse = (
           items: ('items' in completeSchema ? completeSchema.items : undefined) ?? itemSchema,
         }),
         options.variables,
-        options,
+        generationContext,
       )
     }
-    return generateResponseExample(coerceValue(SchemaObjectSchema, completeSchema), options.variables, options)
+    return generateResponseExample(
+      coerceValue(SchemaObjectSchema, completeSchema),
+      options.variables,
+      generationContext,
+    )
   }
   const body = example ? example.value : generateBody()
   const items = Array.isArray(body) ? body : [body]

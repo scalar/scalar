@@ -53,10 +53,32 @@ describe('array-contains', () => {
     { changes: { items: { enum: [1, 2] }, uniqueItems: true }, expected: [2, 1] },
     { changes: { prefixItems: [{ const: 2 }, { const: 2 }] }, expected: [2] },
     { changes: { prefixItems: [{ const: 2 }], items: false }, expected: [2] },
-    { changes: { items: { type: 'integer', example: 1 } }, expected: [] },
-    { changes: { items: { example: 1 } }, expected: [] },
+    { changes: { items: { type: 'integer', example: 1 } }, expected: [1, 1, 1] },
+    { changes: { items: { example: 1 } }, expected: [1, 1, 1] },
   ])('returns a partial example when simple constraints cannot be met: $changes', ({ changes, expected }) => {
     expect(getExampleFromSchema({ ...numbers, ...changes } as SchemaObject)).toStrictEqual(expected)
+  })
+
+  it.each([{ example: 'user' }, { examples: ['user'] }])(
+    'preserves authored item values when contains cannot match: %j',
+    (items) => {
+      expect(
+        getExampleFromSchema({
+          type: 'array',
+          items: { type: 'string', ...items },
+          contains: { const: 'admin' },
+        } as SchemaObject),
+      ).toStrictEqual(['user'])
+    },
+  )
+
+  it('preserves authored matches beyond maxContains while respecting length and uniqueness', () => {
+    expect(getExampleFromSchema({ ...numbers, items: { type: 'integer', example: 2 } } as SchemaObject)).toStrictEqual([
+      2, 2, 2,
+    ])
+    expect(
+      getExampleFromSchema({ ...numbers, items: { type: 'integer', example: 2 }, uniqueItems: true } as SchemaObject),
+    ).toStrictEqual([2])
   })
 
   it.each([{ example: [7] }, { examples: [[7]] }, { default: [7] }])('preserves authored array values: %j', (value) => {

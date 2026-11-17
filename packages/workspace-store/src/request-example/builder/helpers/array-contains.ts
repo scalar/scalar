@@ -192,11 +192,11 @@ export const generateContainsArray = (
       add(`string${index}`)
     }
   }
-  const available = candidates.filter((value) => matches(items, value))
+  const available = authored ? candidates : candidates.filter((value) => matches(items, value))
   let count = 0
   const append = (value: Primitive): boolean => {
     const match = matches(contains, value)
-    if ((match && count >= maximum) || (schema.uniqueItems === true && values.includes(value))) {
+    if ((!authored && match && count >= maximum) || (schema.uniqueItems === true && values.includes(value))) {
       return false
     }
     values.push(value)
@@ -211,11 +211,11 @@ export const generateContainsArray = (
   if (items === false || (sample === undefined && typeof items !== 'boolean')) {
     return values
   }
-  while (values.length < maxItems && (values.length < length || count < minimum)) {
+  while (values.length < maxItems && (values.length < length || (!authored && count < minimum))) {
     const candidate = available.find(
       (value) =>
-        (count >= minimum || matches(contains, value)) &&
-        (!matches(contains, value) || count < maximum) &&
+        (authored || count >= minimum || matches(contains, value)) &&
+        (authored || !matches(contains, value) || count < maximum) &&
         (schema.uniqueItems !== true || !values.includes(value)),
     )
     if (candidate === undefined || !append(candidate)) {
