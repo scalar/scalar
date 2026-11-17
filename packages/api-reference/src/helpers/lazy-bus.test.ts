@@ -355,11 +355,114 @@ describe('lazy-bus', () => {
     expect(bus.intersectionEnabled.value).toBe(true)
   })
 
+  it.each([false, true])('releases a scrollbar movement without pointer input (nested: %s)', async (nested) => {
+    vi.useFakeTimers()
+    const wrapper = document.createElement('main')
+    wrapper.style.overflowY = 'auto'
+    const container = nested ? wrapper : document.documentElement
+    container.scrollTop = 0
+    const element = document.createElement('h2')
+    element.id = `scrollbar-target-${nested}`
+    vi.spyOn(element, 'getBoundingClientRect').mockImplementation(
+      () => new DOMRect(0, 1000 - container.scrollTop, 400, 30),
+    )
+    element.scrollIntoView = vi.fn(() => {
+      container.scrollTop = 1000
+    })
+    wrapper.append(element)
+    document.body.append(wrapper)
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+
+    container.scrollTop = 1200
+    container.dispatchEvent(new Event('scroll'))
+    vi.mocked(element.scrollIntoView).mockClear()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(container.scrollTop).toBe(1200)
+    expect(element.scrollIntoView).not.toHaveBeenCalled()
+  })
+
+  it('ignores scroll events from its own position corrections', async () => {
+    vi.useFakeTimers()
+    const element = document.createElement('h2')
+    element.id = 'own-scroll-target'
+    vi.spyOn(element, 'getBoundingClientRect').mockImplementation(
+      () => new DOMRect(0, 1000 - document.documentElement.scrollTop, 400, 30),
+    )
+    element.scrollIntoView = vi.fn(() => {
+      document.documentElement.scrollTop = 1000
+    })
+    document.body.append(element)
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    document.dispatchEvent(new Event('scroll'))
+    vi.mocked(element.scrollIntoView).mockClear()
+    vi.advanceTimersToNextFrame()
+    expect(element.scrollIntoView).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps holding when native anchoring scrolls during a layout change', async () => {
+    vi.useFakeTimers()
+    const element = document.createElement('h2')
+    element.id = 'anchored-scroll-target'
+    let layoutTop = 1000
+    vi.spyOn(element, 'getBoundingClientRect').mockImplementation(
+      () => new DOMRect(0, layoutTop - document.documentElement.scrollTop, 400, 30),
+    )
+    element.scrollIntoView = vi.fn(() => {
+      document.documentElement.scrollTop = layoutTop
+    })
+    document.body.append(element)
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+
+    layoutTop = 2200
+    document.documentElement.scrollTop = 2200
+    document.dispatchEvent(new Event('scroll'))
+    vi.mocked(element.scrollIntoView).mockClear()
+    vi.advanceTimersToNextFrame()
+    expect(element.scrollIntoView).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not read non-scrolling ancestors on each holding frame', async () => {
+    vi.useFakeTimers()
+    const wrapper = document.createElement('div')
+    wrapper.style.overflowY = 'visible'
+    const readScrollTop = vi.fn(() => 0)
+    Object.defineProperty(wrapper, 'scrollTop', { get: readScrollTop })
+    const element = document.createElement('h2')
+    element.id = 'cached-scroll-target'
+    element.scrollIntoView = vi.fn()
+    wrapper.append(element)
+    document.body.append(wrapper)
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(readScrollTop).not.toHaveBeenCalled()
+  })
+
   afterEach(() => {
     window.dispatchEvent(new Event('wheel'))
     vi.useRealTimers()
     vi.restoreAllMocks()
     document.body.replaceChildren()
+    document.documentElement.scrollTop = 0
   })
 
   it.each([

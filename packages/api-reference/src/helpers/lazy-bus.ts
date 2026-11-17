@@ -415,19 +415,32 @@ export const getStickyHeaderOffset = (element: HTMLElement, scrollportTop = 0): 
   return bottom - scrollportTop
 }
 
+/** Finds potential scrollports before lazy content makes them overflow. */
+const getScrollContainers = (element: HTMLElement): HTMLElement[] => {
+  const containers: HTMLElement[] = []
+  const root = element.ownerDocument.scrollingElement ?? element.ownerDocument.documentElement
+  for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+    if (parent !== root && /(auto|scroll|hidden)/.test(window.getComputedStyle(parent).overflowY)) {
+      containers.push(parent)
+    }
+  }
+  if (root instanceof HTMLElement) {
+    containers.push(root)
+  }
+  return containers
+}
+
 /** Scrolls nested containers natively before compensating for overlapping headers. */
-export const scrollToElement = (element: HTMLElement): void => {
+export const scrollToElement = (element: HTMLElement): void => scrollInContainers(element, getScrollContainers(element))
+
+const scrollInContainers = (element: HTMLElement, containers: HTMLElement[]): void => {
   element.scrollIntoView({ block: 'start', behavior: 'instant' })
 
   // Measure after scrolling, when sticky elements have reached their pinned positions.
-  let scrollportTop = 0
-  for (let parent = element.parentElement; parent; parent = parent.parentElement) {
-    const { overflowY } = window.getComputedStyle(parent)
-    if (/(auto|scroll|hidden)/.test(overflowY) && parent.scrollHeight > parent.clientHeight) {
-      scrollportTop = Math.max(0, parent.getBoundingClientRect().top + parent.clientTop)
-      break
-    }
-  }
+  const container = containers.find(
+    (parent) => parent !== element.ownerDocument.scrollingElement && parent.scrollHeight > parent.clientHeight,
+  )
+  const scrollportTop = container ? Math.max(0, container.getBoundingClientRect().top + container.clientTop) : 0
   const offset = getStickyHeaderOffset(element, scrollportTop)
   const margin = Number.parseFloat(window.getComputedStyle(element).scrollMarginTop) || 0
   if (offset <= margin) {
@@ -460,7 +473,7 @@ const tryScroll = (id: string, stopTime: number, hold: ReturnType<typeof freeze>
   }
   const element = document.getElementById(id)
   if (element) {
-    scrollToElement(element)
+    hold.scroll(element)
     if (element instanceof HTMLElement && scrollTargetId.value === id) {
       element.focus({ preventScroll: true })
     }
@@ -486,12 +499,37 @@ const freeze = (
   renderComplete: () => void
   cancel: () => void
   isActive: () => boolean
+  scroll: (element: HTMLElement) => void
 } => {
   let stopped = false
   let rendered = false
   let lastLayoutChange = Date.now()
   let previousTop: number | undefined
   let frame = 0
+  let heldElement: HTMLElement | undefined
+  let heldParent: HTMLElement | null | undefined
+  let containers = [document.scrollingElement ?? document.documentElement].filter(
+    (element): element is HTMLElement => element instanceof HTMLElement,
+  )
+  let expectedScrollTops = containers.map((element) => element.scrollTop)
+
+  const updateContainers = (element: HTMLElement): void => {
+    if (heldElement !== element || heldParent !== element.parentElement) {
+      heldElement = element
+      heldParent = element.parentElement
+      containers = getScrollContainers(element)
+      expectedScrollTops = containers.map((container) => container.scrollTop)
+    }
+  }
+
+  const getLayoutTop = (element: HTMLElement): number =>
+    containers.reduce((top, container) => top + container.scrollTop, element.getBoundingClientRect().top)
+
+  const scroll = (element: HTMLElement): void => {
+    updateContainers(element)
+    scrollInContainers(element, containers)
+    expectedScrollTops = containers.map((container) => container.scrollTop)
+  }
 
   const renderComplete = (): void => {
     rendered = true
@@ -510,6 +548,7 @@ const freeze = (
       window.removeEventListener(event, cancel, true)
     }
     window.removeEventListener('keydown', onKeydown, true)
+    window.removeEventListener('scroll', onScroll, true)
     if (cancelActiveScroll === cancel) {
       cancelActiveScroll = undefined
     }
@@ -525,6 +564,28 @@ const freeze = (
     }
   }
 
+  const onScroll = (event: Event): void => {
+    if (
+      event.target !== document &&
+      event.target !== window &&
+      !containers.some((container) => container === event.target)
+    ) {
+      return
+    }
+    if (containers.every((container, index) => container.scrollTop === expectedScrollTops[index])) {
+      return
+    }
+    const element = document.getElementById(id)
+    if (element) {
+      // Replacing a lazy placeholder or native anchoring during a layout change
+      // must not be mistaken for a scrollbar drag, which has no pointer event.
+      if (element !== heldElement || previousTop === undefined || Math.abs(getLayoutTop(element) - previousTop) > 0.5) {
+        return
+      }
+    }
+    cancel()
+  }
+
   cancelActiveScroll = cancel
   // A hidden tab or continuously changing content must not hold navigation indefinitely.
   const timeout = setTimeout(cancel, SCROLL_RETRY_MS + SCROLL_SETTLE_MS)
@@ -532,6 +593,7 @@ const freeze = (
     window.addEventListener(event, cancel, { capture: true, passive: true })
   }
   window.addEventListener('keydown', onKeydown, true)
+  window.addEventListener('scroll', onScroll, { capture: true, passive: true })
 
   const runFrame = (): void => {
     if (stopped) {
@@ -539,17 +601,15 @@ const freeze = (
     }
     const element = document.getElementById(id)
     if (element) {
+      updateContainers(element)
       // Include every scrollport so browser anchoring does not hide layout changes,
       // including when Scalar is embedded in a nested scrolling container.
-      let top = element.getBoundingClientRect().top
-      for (let parent = element.parentElement; parent; parent = parent.parentElement) {
-        top += parent.scrollTop
-      }
+      const top = getLayoutTop(element)
       if (previousTop === undefined || Math.abs(top - previousTop) > 0.5) {
         lastLayoutChange = Date.now()
       }
       previousTop = top
-      scrollToElement(element)
+      scroll(element)
     }
     if (
       element &&
@@ -567,5 +627,5 @@ const freeze = (
 
   runFrame()
 
-  return { renderComplete, cancel, isActive: () => !stopped }
+  return { renderComplete, cancel, isActive: () => !stopped, scroll }
 }
