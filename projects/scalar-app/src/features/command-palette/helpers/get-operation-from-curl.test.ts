@@ -563,4 +563,61 @@ describe('get-operation-from-curl', () => {
     // Note: parseCurlCommand may only keep the last value when there are duplicate keys
     expect(tagParams?.length).toBeGreaterThanOrEqual(1)
   })
+
+  it.each([
+    [
+      '--data-raw',
+      `curl 'https://api.example.com/v1/users' -H 'content-type: application/json' --data-raw '{"name":"Ada","age":36}'`,
+    ],
+    [
+      '-d before the URL',
+      `curl -H 'Content-Type: application/json' -d '{"name":"Ada","age":36}' https://api.example.com/v1/users`,
+    ],
+    [
+      '--data-binary',
+      `curl https://api.example.com/v1/users -H 'Content-Type: application/json' --data-binary '{"name":"Ada","age":36}'`,
+    ],
+  ])('imports a request with %s and no method flag as a POST with the body', (_, curl) => {
+    const result = getOperationFromCurl(curl)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe('post')
+    expect(result.path).toBe('/v1/users')
+    expect(requestBody?.content['application/json']?.examples).toStrictEqual({
+      curl: { value: { name: 'Ada', age: 36 } },
+    })
+    expect(result.operation.parameters?.map((parameter) => getResolvedRef(parameter)?.in)).not.toContain('query')
+  })
+
+  it('imports form data before the URL as body fields without query parameters', () => {
+    const result = getOperationFromCurl('curl -X POST -d "user=ada&pass=x" https://api.example.com/login')
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe('post')
+    expect(result.operation.parameters).toStrictEqual([])
+    expect(requestBody?.content['application/x-www-form-urlencoded']?.examples).toStrictEqual({
+      curl: { value: { user: 'ada', pass: 'x' } },
+    })
+  })
+
+  it('imports -G data as query parameters of a GET', () => {
+    const result = getOperationFromCurl('curl -G -d "q=ada" -d "limit=10" https://api.example.com/search')
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe('get')
+    expect(result.operation.parameters?.map((parameter) => getResolvedRef(parameter)?.name)).toStrictEqual([
+      'q',
+      'limit',
+    ])
+    expect(requestBody?.content['']?.examples).toStrictEqual({ curl: { value: {} } })
+  })
+
+  it('keeps an explicit method when data is sent', () => {
+    const result = getOperationFromCurl(`curl -X PUT https://api.example.com/v1/users/1 -d '{"name":"Ada"}'`)
+
+    expect(result.method).toBe('put')
+  })
 })

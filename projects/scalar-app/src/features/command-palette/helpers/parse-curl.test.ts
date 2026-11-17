@@ -92,6 +92,61 @@ describe('parseCurlCommand', () => {
       const result = parseCurlCommand(curlCommand)
       expect(result.method).toBe('get')
     })
+
+    it('leaves the method unset without data or a method flag', () => {
+      const result = parseCurlCommand('curl http://example.com')
+      expect(result.method).toBeUndefined()
+    })
+
+    it.each(['-d', '--data', '--data-raw', '--data-binary', '--data-ascii', '--data-urlencode'])(
+      'infers POST from %s without a method flag',
+      (flag) => {
+        const result = parseCurlCommand(`curl ${flag} 'name=example' http://example.com`)
+        expect(result.method).toBe('post')
+      },
+    )
+
+    it('infers POST from data that is read from a file', () => {
+      const result = parseCurlCommand('curl -d @file.txt http://example.com')
+      expect(result.method).toBe('post')
+    })
+
+    it.each([
+      ['-X PUT', 'put'],
+      ['-X GET', 'get'],
+      ['--request PATCH', 'patch'],
+      ['-X DELETE', 'delete'],
+    ])('keeps the explicit method from %s when data is sent', (methodFlag, method) => {
+      const result = parseCurlCommand(`curl ${methodFlag} -d 'name=example' http://example.com`)
+      expect(result.method).toBe(method)
+    })
+
+    it('keeps the explicit method when the method flag comes after the data', () => {
+      const result = parseCurlCommand("curl -d 'name=example' http://example.com -X PUT")
+      expect(result.method).toBe('put')
+    })
+
+    it.each(['-G', '--get'])('does not infer POST from data sent with %s', (flag) => {
+      const result = parseCurlCommand(`curl ${flag} -d 'name=example' http://example.com`)
+      expect(result.method).toBeUndefined()
+    })
+
+    it('imports the Chrome copy as cURL output of a POST request', () => {
+      const result = parseCurlCommand(`curl 'https://api.example.com/v1/users' \\
+  -H 'accept: application/json' \\
+  -H 'content-type: application/json' \\
+  --data-raw '{"name":"Ada"}'`)
+
+      expect(result).toStrictEqual({
+        url: 'https://api.example.com/v1/users',
+        servers: ['https://api.example.com'],
+        path: '/v1/users',
+        queryParameters: [],
+        headers: { accept: 'application/json', 'content-type': 'application/json' },
+        body: '{"name":"Ada"}',
+        method: 'post',
+      })
+    })
   })
 
   describe('body', () => {
@@ -117,6 +172,61 @@ describe('parseCurlCommand', () => {
       const curlCommand = 'curl --data @file.txt http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.body).toBe('')
+    })
+
+    it.each([
+      [
+        'before the URL',
+        `curl -X POST -H 'Content-Type: application/json' -d '{"name":"Ada"}' https://example.com/users`,
+      ],
+      [
+        'after the URL',
+        `curl https://example.com/users -X POST -H 'Content-Type: application/json' -d '{"name":"Ada"}'`,
+      ],
+      ['after --url', `curl --url https://example.com/users -d '{"name":"Ada"}' -X POST`],
+    ])('keeps JSON body data out of the query when the data comes %s', (_, curlCommand) => {
+      const result = parseCurlCommand(curlCommand)
+      expect(result.body).toBe('{"name":"Ada"}')
+      expect(result.queryParameters).toStrictEqual([])
+    })
+
+    it.each(['-d', '--data', '--data-raw', '--data-binary', '--data-ascii'])(
+      'keeps form body data out of the query for %s before the URL',
+      (flag) => {
+        const result = parseCurlCommand(`curl -X POST ${flag} 'user=ada&pass=x' https://example.com/login`)
+        expect(result.body).toBe('user=ada&pass=x')
+        expect(result.queryParameters).toStrictEqual([])
+      },
+    )
+
+    it('joins repeated data flags with an ampersand like curl', () => {
+      const result = parseCurlCommand(
+        "curl -d 'name=value1' --data-raw 'age=value2' -d 'city=value3' http://example.com",
+      )
+      expect(result.body).toBe('name=value1&age=value2&city=value3')
+    })
+
+    it('skips data read from a file when joining repeated data flags', () => {
+      const result = parseCurlCommand("curl -d 'name=value1' -d @file.txt -d 'age=value2' http://example.com")
+      expect(result.body).toBe('name=value1&age=value2')
+    })
+
+    it.each([
+      ['a header value', `curl -H 'X-Tag: v1-Gold' -d '{"a":1}' https://example.com/x`],
+      ['a header name', `curl -H 'X-API-Gateway: 1' https://example.com/x -d '{"a":1}'`],
+      ['a path segment', `curl -d '{"a":1}' https://example.com/-G/x`],
+      ['the body', `curl -d '{"a":1,"flag":"-G"}' https://example.com/x`],
+      ['a header that is only the flag', `curl -H '-G' -d '{"a":1}' https://example.com/x`],
+      ['a data value that is only the flag', 'curl -d -G https://example.com/x'],
+    ])('ignores -G text inside %s', (_, curlCommand) => {
+      const result = parseCurlCommand(curlCommand)
+      expect(result.method).toBe('post')
+      expect(result.queryParameters).toStrictEqual([])
+    })
+
+    it.each(['-G', '--get'])('keeps data out of the body with %s', (flag) => {
+      const result = parseCurlCommand(`curl ${flag} -d 'name=value1' http://example.com`)
+      expect(result.body).toBeUndefined()
     })
   })
 
@@ -145,19 +255,31 @@ describe('parseCurlCommand', () => {
       ])
     })
 
-    it('parses query parameters from body data correctly', () => {
-      const curlCommand = "curl -d 'name=value1&age=value2' https://example.com"
-      const result = parseCurlCommand(curlCommand)
+    it.each(['-G', '--get'])('parses query parameters from data with %s after the URL', (flag) => {
+      const result = parseCurlCommand(`curl -d 'name=value1&age=value2' https://example.com ${flag}`)
       expect(result.queryParameters).toStrictEqual([
         { key: 'name', value: 'value1' },
         { key: 'age', value: 'value2' },
       ])
     })
 
-    it('parses single query parameter from body data correctly', () => {
-      const curlCommand = "curl --data 'name=value1' https://example.com"
-      const result = parseCurlCommand(curlCommand)
-      expect(result.queryParameters).toStrictEqual([{ key: 'name', value: 'value1' }])
+    it('appends the data of -G after the query parameters of the URL', () => {
+      const result = parseCurlCommand("curl -G -d 'age=value2' 'https://example.com/users?name=value1'")
+      expect(result.queryParameters).toStrictEqual([
+        { key: 'name', value: 'value1' },
+        { key: 'age', value: 'value2' },
+      ])
+    })
+
+    it('does not parse query parameters from the body without -G', () => {
+      const result = parseCurlCommand("curl -d 'name=value1&age=value2' https://example.com")
+      expect(result.queryParameters).toStrictEqual([])
+      expect(result.body).toBe('name=value1&age=value2')
+    })
+
+    it('ignores data read from a file with -G', () => {
+      const result = parseCurlCommand('curl -G -d @file.txt https://example.com')
+      expect(result.queryParameters).toStrictEqual([])
     })
 
     it('parses empty query parameters gracefully', () => {

@@ -2,6 +2,9 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { encode } from 'js-base64'
 import { parse as parseShellCommand } from 'shell-quote'
 
+/** Every flag that sends its next argument as request data. */
+const DATA_FLAGS = new Set(['--data', '-d', '--data-raw', '--data-urlencode', '--data-binary', '--data-ascii'])
+
 /** Parse and normalize a curl command */
 export function parseCurlCommand(curlCommand: string) {
   const args = parseShellCommand(curlCommand)
@@ -22,6 +25,9 @@ export function parseCurlCommand(curlCommand: string) {
     servers?: string[]
   } = { url: '' }
 
+  const data: string[] = []
+  let isGet = false
+
   const iterator = args[Symbol.iterator]()
   let arg = iterator.next().value
 
@@ -35,15 +41,11 @@ export function parseCurlCommand(curlCommand: string) {
     } else if (arg === '-H' || arg === '--header') {
       // Extract headers e.g -H 'Content-Type: application/json'
       parseHeader(iterator as Iterator<string>, result)
-    } else if (
-      arg === '--data' ||
-      arg === '-d' ||
-      arg === '--data-raw' ||
-      arg === '--data-urlencode' ||
-      arg === '--data-binary' ||
-      arg === '--data-ascii'
-    ) {
-      parseData(iterator as Iterator<string>, result, curlCommand)
+    } else if (typeof arg === 'string' && DATA_FLAGS.has(arg)) {
+      parseData(iterator as Iterator<string>, data)
+    } else if (arg === '-G' || arg === '--get') {
+      // Send the data in the query string instead of the body e.g curl -G -d 'a=b'
+      isGet = true
     } else if (typeof arg === 'string' && !result.url && (arg.startsWith('http') || arg.startsWith('www.'))) {
       // Extract URL e.g curl https://example.com
       parseUrl([arg][Symbol.iterator]() as Iterator<string>, result)
@@ -61,6 +63,10 @@ export function parseCurlCommand(curlCommand: string) {
       parseCookie(iterator as Iterator<string>, result)
     }
     arg = iterator.next().value
+  }
+
+  if (data.length) {
+    applyData(result, data, isGet)
   }
 
   return result
@@ -162,20 +168,27 @@ function parseCookie(iterator: Iterator<string>, result: any) {
   }
 }
 
-/** Parse data from a curl command */
-function parseData(iterator: Iterator<string>, result: any, curlCommand: string) {
+/** Collect the data of a curl data flag, curl sends the repeated flags joined with an ampersand */
+function parseData(iterator: Iterator<string>, data: string[]) {
   const nextArg = iterator.next().value
   if (typeof nextArg === 'string') {
-    if (nextArg.startsWith('@')) {
-      // Mock reading data from file
-      result.body = ''
-    } else {
-      result.body = nextArg
-    }
-    // Parse query parameters from body if URL is not present
-    if (!result.url || curlCommand.includes('-G')) {
-      const newQueryParams = parseQueryParameters(`?${result.body}`)
-      result.queryParameters = result.queryParameters ? [...result.queryParameters, ...newQueryParams] : newQueryParams
-    }
+    // Mock reading data from file
+    data.push(nextArg.startsWith('@') ? '' : nextArg)
   }
+}
+
+/** Curl appends the data to the URL with -G, otherwise sends it as the body and defaults the method to POST */
+function applyData(result: any, data: string[], isGet: boolean) {
+  const joinedData = data.filter(Boolean).join('&')
+
+  if (isGet) {
+    const dataQueryParameters = parseQueryParameters(`?${joinedData}`)
+    result.queryParameters = result.queryParameters
+      ? [...result.queryParameters, ...dataQueryParameters]
+      : dataQueryParameters
+    return
+  }
+
+  result.body = joinedData
+  result.method ??= 'post'
 }
