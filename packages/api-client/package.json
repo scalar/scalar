@@ -332,7 +332,7 @@
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
-    "focus-trap": "^8.2.3",
+    "focus-trap": "^8.2.5",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
     "jsonc-parser": "catalog:*",

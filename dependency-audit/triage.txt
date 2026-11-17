@@ -1,0 +1,45 @@
+Baseline triage and security remediation — 17 November 2026
+
+NPM AUDIT: 15 advisories before; 0 after. No advisory suppressions added.
+- Nuxt: 4.6.3 -> 4.6.4, including transitive and optional peer paths.
+- SvelteKit: 3.1.0 -> 3.2.0; declared security floor ^3.1.1.
+- Postman Faker: 5.5.3 -> 10.6.0, scoped override and compatibility patch.
+
+FIXED BASELINE FAILURES
+- Desktop binary timeout: replace expensive element-wise deep equality with
+  Buffer.compare. Converter behavior is unchanged; 103 fetch tests pass.
+- Django collection: share current runtime requirements and use Python 3.12
+  in both CI workflows and setup guidance. All 131 tests pass.
+
+OTHER TRIAGE
+- Fastify: build prerequisite; 75 tests passed after building in phase 1.
+- GitHub SSR: passed isolated baseline retry; no timeout or product changes.
+- Visual snapshots: representative diffs concentrate at text edges with
+  matching layout. This suggests rendering-environment differences but does
+  not prove the cause. Standard pinned CI browser verification is pending.
+  Checked-in snapshots and tolerances are unchanged.
+- Rust/Maven/.NET/Docker/action-lock: baseline host-tooling limitations remain.
+
+VALIDATION
+- Script package: 188 tests, including all 118 dynamic variables, pass.
+- Desktop: 103 fetch tests and node/web type checks pass.
+- Django: 131 tests pass.
+- Nuxt example build and integration type check pass. Integration test command
+  exits successfully with no test files; it is not counted as test coverage.
+- Svelte example diagnostics (0 errors, 1 existing warning) and build pass.
+- Toast tests (5) and types pass.
+- API Client/API Reference/script consumer build: 31 successful Turbo tasks.
+- Changed-file Biome/Prettier, changeset status and frozen installation pass.
+
+LIMITATIONS
+The Postman patch is workspace-scoped. Independently installed published
+packages do not inherit root pnpm patches/overrides. An upstream fix or a
+maintained replacement is needed before promising that downstream remediation.
+Postman sandbox also ships prebuilt legacy vendor bootcode; this task does not
+regenerate it. A clean dependency audit does not prove vendor bundles contain no
+embedded legacy code. Script execution retains its existing sandbox boundary.
+Modern Faker assumes the workspace Node 24 runtime (requires recent Node 22+).
+
+Original inventory/baseline files remain historical snapshots. See
+the locally retained security-remediation.json for commands, logs, advisory
+links and detailed scope. See phase2-report.txt for subsequent dependency updates.

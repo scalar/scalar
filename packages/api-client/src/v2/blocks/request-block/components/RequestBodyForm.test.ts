@@ -2,7 +2,7 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
@@ -550,6 +550,7 @@ describe('RequestBodyForm', () => {
     const lastUpdateEvent = updateEvents?.[updateEvents.length - 1]?.[0]
     expect(lastUpdateEvent).toBeDefined()
     if (Array.isArray(lastUpdateEvent)) {
+      assert(lastUpdateEvent[0], 'Expected the emitted form row')
       expect(lastUpdateEvent[0].name).toBe('updatedField1')
       expect(lastUpdateEvent[0].value).toBe('updatedValue1')
     }
@@ -562,6 +563,7 @@ describe('RequestBodyForm', () => {
     expect(disabledUpdateEvents).toBeTruthy()
     const lastDisabledEvent = disabledUpdateEvents?.[disabledUpdateEvents.length - 1]?.[0]
     if (Array.isArray(lastDisabledEvent)) {
+      assert(lastDisabledEvent[0], 'Expected the emitted form row')
       expect(lastDisabledEvent[0].isDisabled).toBe(true)
     }
 
@@ -615,6 +617,7 @@ describe('RequestBodyForm', () => {
       expect(uploadEvents).toBeTruthy()
       const lastUploadEvent = uploadEvents?.[uploadEvents.length - 1]?.[0]
       if (Array.isArray(lastUploadEvent)) {
+        assert(lastUploadEvent[0], 'Expected the emitted form row')
         expect(lastUploadEvent[0].value).toBeInstanceOf(File)
         expect((lastUploadEvent[0].value as File).name).toBe('uploaded.txt')
         // Should preserve the existing name or use file name
@@ -653,7 +656,7 @@ describe('RequestBodyForm', () => {
       if (Array.isArray(lastNewRowEvent)) {
         // The new row should be the last one in the array
         const newRow = lastNewRowEvent[lastNewRowEvent.length - 1]
-        expect(newRow).toBeDefined()
+        assert(newRow, 'Expected the uploaded form row')
         expect(newRow.value).toBeInstanceOf(File)
         expect((newRow.value as File).name).toBe('newfile.pdf')
         expect(newRow.name).toBe('newfile.pdf')
@@ -716,6 +719,7 @@ describe('RequestBodyForm', () => {
     expect(removeFileEvents).toBeTruthy()
     const lastRemoveFileEvent = removeFileEvents?.[removeFileEvents.length - 1]?.[0]
     if (Array.isArray(lastRemoveFileEvent)) {
+      assert(lastRemoveFileEvent[0], 'Expected the emitted form row')
       expect(lastRemoveFileEvent[0].value).toBeUndefined()
     }
   })
