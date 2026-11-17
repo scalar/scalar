@@ -81,6 +81,7 @@ export const documentTraversal = (
             ? current
             : childReferenceContext(current, key, {
                 swagger: isSwagger,
+                openapi30: api ? String(document.openapi).startsWith('3.0.') : !schemaSiblings && !asyncapi && !swagger,
                 asyncapi: isAsyncApi,
                 schemaFormat,
               })

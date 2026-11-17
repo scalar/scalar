@@ -963,6 +963,8 @@ export const bundleDocument = async (
         retrievalUri,
         [config.externalDocumentsKey, key],
         resolveReferencePath(mappingOrigin, source ?? key),
+        // Authored URL maps cannot turn an embedded remote document into a local source.
+        isHttpUrl(getDefaultOrigin()) ? getDefaultOrigin() : retrievalUri,
       )
     }
   }
@@ -1325,6 +1327,14 @@ export const bundleDocument = async (
       const resolvedPath = config.preserveReference
         ? resolveResourcePath(retrievalOrigin, prefix)
         : resolveReferencePath(retrievalOrigin, prefix)
+      // A schema identifier changes resolution scope, never filesystem authority.
+      // Use the document's retrieval source so a remote $id cannot grant disk access.
+      if (isHttpUrl(references.sourceOrigin(root) ?? getDefaultOrigin()) && !isHttpUrl(resolvedPath)) {
+        report('unresolved-document')
+        await executeHooks('onResolveError', root)
+        await executeHooks('onAfterNodeProcess', root, context)
+        return
+      }
       const relativePath = toRelativePath(resolvedPath, mappingOrigin)
 
       // Generate a unique compressed path for the external document

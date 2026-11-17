@@ -6,9 +6,84 @@ import { pathToFileURL } from 'node:url'
 
 import { assert, describe, expect, it } from 'vitest'
 
+import { bundle } from '@/bundle/bundle'
+import { bundleWithDiagnostics } from '@/bundle/bundle-with-diagnostics'
+
 import { readFile, readFiles } from '.'
 
 describe('readFile', () => {
+  it.each([false, true])('blocks remote documents from loading files (preserve: %s)', async (preserve) => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-remote-files-'))
+    try {
+      const secret = path.join(directory, 'secret.json')
+      await fs.writeFile(secret, '{"secret":true}')
+      const file = pathToFileURL(secret).href
+      for (const input of [
+        { $ref: file },
+        { $id: pathToFileURL(`${directory}/`).href, $ref: './secret.json' },
+        { $ref: 'file://server/share/secret.json' },
+        {
+          $ref: '#/x-ext/forged',
+          'x-ext': { forged: { $ref: file } },
+          'x-ext-urls': { forged: 'file:///forged/root.json' },
+        },
+      ]) {
+        for (const traversal of ['generic', 'document'] as const) {
+          const reads: string[] = []
+          const loader = readFiles()
+          const config = {
+            traversal,
+            treeShake: false,
+            preserveReference: preserve ? () => false : undefined,
+            plugins: [
+              {
+                type: 'loader' as const,
+                validate: (uri: string): boolean => uri.startsWith('https:'),
+                exec: (): Promise<{ ok: true; data: unknown; raw: string }> =>
+                  Promise.resolve({ ok: true, data: structuredClone(input), raw: '' }),
+              },
+              {
+                ...loader,
+                exec: (uri: string): ReturnType<typeof loader.exec> => {
+                  reads.push(uri)
+                  return loader.exec(uri)
+                },
+              },
+            ],
+          }
+          const result = await bundleWithDiagnostics('https://remote.test/root.json', config)
+          expect(result.diagnostics).toStrictEqual([
+            {
+              kind: 'unresolved-document',
+              reference: 'x-ext' in input ? file : input.$ref,
+              source: 'x-ext' in input ? 'file:///forged/root.json' : 'https://remote.test/root.json',
+              pointer: '#/$ref',
+            },
+          ])
+          expect(result.complete).toBe(false)
+          expect(JSON.stringify(result.document).includes('"secret":true')).toBe(false)
+          await bundle('https://remote.test/root.json', config)
+          // A local root does not grant filesystem access to a subsequently fetched document.
+          const local = await bundleWithDiagnostics(
+            { $ref: 'https://remote.test/root.json' },
+            {
+              ...config,
+              origin: path.join(directory, 'root.json'),
+            },
+          )
+          expect(local.complete).toBe('x-ext' in input && traversal === 'generic')
+          await bundle(
+            { $ref: 'https://remote.test/root.json' },
+            { ...config, origin: path.join(directory, 'root.json') },
+          )
+          expect(reads).toStrictEqual([])
+        }
+      }
+    } finally {
+      await fs.rm(directory, { recursive: true, force: true })
+    }
+  })
+
   it('reads escaped file URIs while retaining directory and symlink confinement', async () => {
     const base = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-file-uri-'))
     const outside = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-outside-'))

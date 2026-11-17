@@ -91,7 +91,12 @@ const schemaContextsByMap = new Map<ReferenceContext, SchemaContext>(
 export const childReferenceContext = (
   context: ReferenceContext,
   key: string,
-  { swagger, asyncapi, schemaFormat }: { swagger: boolean; asyncapi: boolean; schemaFormat?: string },
+  {
+    swagger,
+    asyncapi,
+    schemaFormat,
+    openapi30,
+  }: { swagger: boolean; asyncapi: boolean; schemaFormat?: string; openapi30?: boolean },
 ): ReferenceContext => {
   if (context === 'generic') return 'generic'
   if (context === 'data-container') return 'data'
@@ -189,8 +194,9 @@ export const childReferenceContext = (
     ].includes(key)
   )
     return 'objects'
+  if (openapi30 && ['schemas', 'definitions'].includes(key)) return 'openapi-3.0-schemas'
   if (['schemas', 'definitions', '$defs'].includes(key)) return 'schemas'
-  if (key === 'schema') return asyncapi ? 'asyncapi-schema-object' : 'schema'
+  if (key === 'schema') return asyncapi ? 'asyncapi-schema-object' : openapi30 ? 'openapi-3.0-schema' : 'schema'
   if (key === 'itemSchema') return 'schema'
   if (
     [
