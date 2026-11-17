@@ -52,7 +52,7 @@ export type FragmentUpgradeOptions = {
 /** Converted content and the locations of original reference targets. */
 export type FragmentUpgradeResult = {
   value: unknown
-  /** Relocations in parent-before-child order. Unchanged descendants may inherit a parent mapping. */
+  /** Changed locations in traversal order. Unchanged descendants inherit their parent mapping. */
   locations: FragmentLocation[]
   /** Effective operation media types, needed when later loading bare external fragments. */
   contexts: { path: readonly string[]; consumes: readonly string[]; produces: readonly string[] }[]
@@ -121,8 +121,15 @@ export const upgradeFragment = async (
     resolvedParameters.set(parameter.$ref, resolved)
     return resolved
   }
+  const recordedSources = new Set<string>()
   const remember = (source: readonly string[], output: readonly string[]): void => {
-    locations.push({ source, output })
+    const key = JSON.stringify(source)
+    // Reused schemas can have several destinations. Keep the first, including unchanged ones.
+    if (recordedSources.has(key)) return
+    recordedSources.add(key)
+    if (source.length !== output.length || source.some((part, index) => part !== output[index])) {
+      locations.push({ source, output })
+    }
   }
   const rememberFormFields = (
     parameter: UnknownObject,
@@ -429,33 +436,35 @@ export const upgradeFragment = async (
           result.format = 'binary'
         }
       }
+      // Plan nullable allOf destinations before visiting descendants, so unchanged paths
+      // need no temporary records and nested relocations require no full-list rewrites.
+      const unwrapAllOf = result.nullable === true && result.type === undefined && typeof result.$ref !== 'string'
       for (const [key, entry] of Object.entries(result)) {
         if (schemaMaps.has(key)) {
           result[key] = await map(entry, 'schema', [key])
         } else if (schemaChildren.has(key)) {
           if (Array.isArray(entry)) {
-            result[key] = await Promise.all(entry.map((item, index) => child(item, 'schema', [key, String(index)])))
+            result[key] = await Promise.all(
+              entry.map((item, index) =>
+                visit(item, {
+                  kind: 'schema',
+                  source: [...source, key, String(index)],
+                  output:
+                    key === 'allOf' && unwrapAllOf
+                      ? [...output, 'anyOf', '0', ...(entry.length === 1 ? [] : ['allOf', String(index)])]
+                      : [...output, key, String(index)],
+                  consumes,
+                  produces,
+                  semanticPath: [...semanticPath, key, String(index)],
+                }),
+              ),
+            )
           } else if (isObject(entry)) {
             result[key] = await child(entry, 'schema', [key])
           }
         }
       }
-      const nullable = result.nullable === true
       const converted = applyChangesToDocument(result, semanticPath)
-      if (nullable && Array.isArray(result.allOf) && Array.isArray(converted.anyOf) && !converted.allOf) {
-        for (const location of locations) {
-          const prefix = [...output, 'allOf']
-          if (prefix.every((segment, index) => location.output[index] === segment)) {
-            const suffix = location.output.slice(prefix.length)
-            location.output = [
-              ...output,
-              'anyOf',
-              '0',
-              ...(result.allOf.length === 1 ? suffix.slice(1) : ['allOf', ...suffix]),
-            ]
-          }
-        }
-      }
       return converted
     }
     if (v2 && kind === 'parameter' && !result.$ref) {

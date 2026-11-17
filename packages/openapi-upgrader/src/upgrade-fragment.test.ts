@@ -243,10 +243,7 @@ describe('upgrade-fragment', () => {
         },
       },
     })
-    expect(result.locations).toContainEqual({
-      source: ['content', 'multipart/form-data', 'encoding', 'file', 'headers', 'Checksum', 'schema'],
-      output: ['content', 'multipart/form-data', 'encoding', 'file', 'headers', 'Checksum', 'schema'],
-    })
+    expect(result.locations).toStrictEqual([])
   })
   it.each(['2.0', '3.0'] as const)('upgrades inline legacy schemas carrying $schema in %s documents', async (from) => {
     const schema = {
@@ -290,19 +287,17 @@ describe('upgrade-fragment', () => {
     expect(result.value).toStrictEqual({ parameters: [{ $ref: './missing.yaml' }] })
   })
 
-  it('keeps allOf locations when nullable conversion retains allOf', async () => {
-    const result = await upgradeFragment(
-      { nullable: true, $ref: '#/Pet', allOf: [{ type: 'string' }] },
-      {
-        from: '3.0',
-        to: '3.1',
-        kind: 'schema',
-      },
-    )
-    expect(result.locations.find(({ source }) => source.join('/') === 'allOf/0')).toStrictEqual({
-      source: ['allOf', '0'],
-      output: ['allOf', '0'],
+  it.each([
+    { nullable: true, $ref: '#/Pet', allOf: [{ type: 'string' }] },
+    { nullable: true, type: 'string', format: 'binary', allOf: [{ type: 'string' }] },
+  ])('does not relocate allOf when conversion retains it: %j', async (schema) => {
+    const result = await upgradeFragment(schema, {
+      from: '3.0',
+      to: '3.1',
+      kind: 'schema',
     })
+    expect(result.locations).toStrictEqual([])
+    expect((result.value as { allOf: unknown }).allOf).toStrictEqual([{ type: 'string' }])
   })
 
   it('converts 2.0 x-webhooks without dropping their contents', async () => {
@@ -370,5 +365,16 @@ describe('upgrade-fragment', () => {
       style,
       explode,
     })
+  })
+  it('omits location records for unchanged schema paths', async () => {
+    const schema = {
+      type: 'object',
+      properties: Object.fromEntries(
+        Array.from({ length: 200 }, (_, index) => [`field${index}`, { type: 'string', nullable: true }]),
+      ),
+    }
+    const result = await upgradeFragment(schema, { from: '3.0', to: '3.1', kind: 'schema' })
+    expect(result.locations).toStrictEqual([])
+    expect((result.value as typeof schema).properties.field0).toStrictEqual({ type: ['string', 'null'] })
   })
 })

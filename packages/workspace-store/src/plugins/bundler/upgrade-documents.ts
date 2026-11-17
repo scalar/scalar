@@ -64,7 +64,8 @@ const pointerSegments = (fragment: string): string[] => {
   } catch {
     /* Retain legacy literal percent characters. */
   }
-  return decoded.startsWith('/') ? parseJsonPointerSegments(decoded) : []
+  // The shared helper decodes URI escapes too; protect literal percent signs from a second decode.
+  return decoded.startsWith('/') ? parseJsonPointerSegments(decoded.replaceAll('%', '%25')) : []
 }
 
 const atPath = (value: unknown, path: readonly string[]): unknown => getValueByPath(value, [...path]).value

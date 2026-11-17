@@ -505,20 +505,25 @@ describe('upgrade-documents', () => {
   })
 
   it('ignores unsafe mapping keys and malformed saved media types', async () => {
-    const input = { openapi: '3.0.3', components: { responses: { OK: { $ref: './response.yaml' } } } }
+    const input = {
+      openapi: '3.1.1',
+      'x-original-oas-version': '2.0',
+      'x-scalar-upgrade': { from: '2.0', locations: [], contexts: [{ path: [], consumes: [3], produces: [3] }] },
+      components: { responses: { OK: { $ref: './response.yaml' } } },
+    }
     await bundle(input, {
       origin: 'https://example.com/api.yaml',
       traversal: 'document',
       treeShake: false,
       plugins: [
-        upgradeDocuments('3.0.3'),
+        upgradeDocuments('2.0'),
         loader({
           'https://example.com/response.yaml': {
             description: 'OK',
             schema: { type: 'string' },
             'x-scalar-upgrade': {
               mappings: Object.fromEntries([
-                ['__proto__', JSON.stringify([[], '3.0', 'response', undefined, undefined])],
+                ['__proto__', JSON.stringify([[], '2.0', 'response', undefined, undefined])],
               ]),
               contexts: [{ path: [], consumes: [3], produces: [3] }],
             },
@@ -526,7 +531,9 @@ describe('upgrade-documents', () => {
         }),
       ],
     })
-    expect(read(input, ['components', 'responses', 'OK', '$ref-value', 'description'])).toBe('OK')
+    expect(read(input, ['components', 'responses', 'OK', '$ref-value', 'content'])).toStrictEqual({
+      'application/json': { schema: { type: 'string' } },
+    })
   })
 
   it('rebases an aliased parameter with a recursive YAML object without overflowing', async () => {
@@ -548,5 +555,105 @@ describe('upgrade-documents', () => {
     expect(
       read(input, ['paths', '/pets', 'post', 'requestBody', 'content', 'application/json', 'schema', 'type']),
     ).toBe('string')
+  })
+  it.each(['Body%', 'Body%20'])('decodes a parameter name containing a literal percent once: %s', async (name) => {
+    const input = {
+      swagger: '2.0',
+      parameters: { [name]: { in: 'body', name: 'body', schema: { type: 'string' } } },
+      paths: { '/pets': { post: { parameters: [{ $ref: `#/parameters/${encodeURIComponent(name)}` }] } } },
+    }
+    await bundle(input, {
+      origin: '/srv/swagger.yaml',
+      traversal: 'document',
+      treeShake: false,
+      plugins: [upgradeDocuments('2.0')],
+    })
+    expect(read(input, ['paths', '/pets', 'post', 'parameters'])).toBeUndefined()
+    expect(
+      read(input, ['paths', '/pets', 'post', 'requestBody', 'content', 'application/json', 'schema', 'type']),
+    ).toBe('string')
+  })
+
+  it('ignores malformed media types on a saved contextual variant', async () => {
+    const input = {
+      openapi: '3.1.1',
+      'x-original-oas-version': '2.0',
+      paths: { '/pets': { post: { $ref: '#/x-ext/source/x-scalar-upgrade/variants/saved/value' } } },
+      'x-ext-urls': { source: './source.yaml' },
+      'x-ext': {
+        source: {
+          'x-scalar-upgrade': {
+            variants: {
+              saved: {
+                from: '2.0',
+                semanticPath: ['paths', '/pets', 'post'],
+                consumes: [3],
+                produces: [3],
+                value: { responses: { '200': { $ref: './response.yaml' } } },
+              },
+            },
+          },
+        },
+      },
+    }
+    await bundle(input, {
+      origin: 'https://example.com/api.yaml',
+      traversal: 'document',
+      treeShake: false,
+      plugins: [
+        upgradeDocuments('2.0'),
+        loader({ 'https://example.com/response.yaml': { description: 'OK', schema: { type: 'string' } } }),
+      ],
+    })
+    expect(
+      read(input, ['paths', '/pets', 'post', '$ref-value', 'responses', '200', '$ref-value', 'content']),
+    ).toStrictEqual({
+      'application/json': { schema: { type: 'string' } },
+    })
+  })
+
+  it.each([
+    { schema: { nullable: true, allOf: [{ type: 'string' }] }, pointer: 'allOf/0' },
+    { schema: { nullable: true, $ref: '#/components/schemas/Base', allOf: [{ type: 'string' }] }, pointer: 'allOf/0' },
+    { schema: { nullable: true, type: 'string', format: 'binary', allOf: [{ type: 'string' }] }, pointer: 'allOf/0' },
+    {
+      schema: { nullable: true, allOf: [{ nullable: true, allOf: [{ type: 'string' }] }] },
+      pointer: 'allOf/0/allOf/0',
+    },
+  ])('resolves authored allOf pointers after conversion: %j', async ({ schema, pointer }) => {
+    const input = {
+      openapi: '3.0.3',
+      components: {
+        schemas: {
+          Base: { type: 'string' },
+          Pet: schema,
+          Alias: { $ref: `#/components/schemas/Pet/${pointer}` },
+        },
+      },
+    }
+    await bundle(input, { traversal: 'document', treeShake: false, plugins: [upgradeDocuments('3.0.3')] })
+    expect(read(input, ['components', 'schemas', 'Alias', '$ref-value', 'type'])).toBe('string')
+  })
+  it('keeps parameter targets distinct from a generated form request body', async () => {
+    const input = {
+      swagger: '2.0',
+      parameters: { Shared: { $ref: '#/paths/~1pets/post/parameters/0' } },
+      paths: {
+        '/pets': {
+          post: {
+            parameters: [
+              { in: 'query', name: 'limit', type: 'integer' },
+              { in: 'formData', name: 'name', type: 'string' },
+            ],
+          },
+        },
+      },
+    }
+    await bundle(input, { traversal: 'document', treeShake: false, plugins: [upgradeDocuments('2.0')] })
+    expect(read(input, ['components', 'parameters', 'Shared', '$ref-value'])).toStrictEqual({
+      in: 'query',
+      name: 'limit',
+      schema: { type: 'integer' },
+    })
   })
 })

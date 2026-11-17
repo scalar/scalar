@@ -11,3 +11,5 @@ Omit unused upgrade metadata from server payloads and exports, compact retained 
 Preserve unresolved parameter references, local file origins, existing bundled targets, and legacy schema conversions. Keep relocation indexes compact during client loading. Editable exports retain compact `x-scalar-upgrade` bookkeeping when lazy external references still need their original dialect and media types.
 
 Traverse headerless external resources through referenced subtrees, including when reached from OpenAPI 3.1/3.2 descriptions, so unrelated fragments are not interpreted without an owning context.
+
+Record only changed fragment locations, plan nullable `allOf` destinations before traversing their children, and decode referenced parameter names containing literal percent signs only once.
