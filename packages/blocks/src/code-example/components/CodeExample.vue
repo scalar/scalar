@@ -537,6 +537,7 @@ const id = useId()
         <!-- Multiple clients: render a dropdown to switch between them -->
         <ScalarCombobox
           v-if="clientCount > 1"
+          v-slot="{ open }"
           class="max-h-80"
           :filterFn="filterClientsByQuery"
           :inputLabel="clientSearchLabel"
@@ -551,8 +552,13 @@ const id = useId()
             data-testid="client-picker"
             variant="ghost">
             {{ localSelectedClient?.title }}
+            <!--
+              Follow this picker's own state. The `ui-open:` variant also matches any open
+              Headless UI ancestor, such as an expanded operation in the classic layout.
+            -->
             <ScalarIconCaretDown
-              class="ui-open:rotate-180 mt-px size-3 transition-transform duration-100"
+              class="mt-px size-3 transition-transform duration-100"
+              :class="{ 'rotate-180': open }"
               weight="bold" />
           </ScalarButton>
         </ScalarCombobox>

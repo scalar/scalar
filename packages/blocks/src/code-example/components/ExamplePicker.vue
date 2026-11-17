@@ -36,6 +36,7 @@ const selectedExample = computed<ScalarListboxOption | undefined>({
 
 <template>
   <ScalarListbox
+    v-slot="{ open }"
     v-model="selectedExample"
     class="w-fit min-w-32"
     :options="exampleOptions"
@@ -49,8 +50,13 @@ const selectedExample = computed<ScalarListboxOption | undefined>({
       <div class="min-w-0 flex-1 truncate">
         {{ selectedExample?.label ?? 'Select an example' }}
       </div>
+      <!--
+        Follow this listbox's own state. The `ui-open:` variant also matches any open
+        Headless UI ancestor, such as an expanded operation in the classic layout.
+      -->
       <ScalarIconCaretDown
-        class="ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
+        class="mt-0.25 size-3 transition-transform duration-100"
+        :class="{ 'rotate-180': open }"
         weight="bold" />
     </ScalarButton>
   </ScalarListbox>

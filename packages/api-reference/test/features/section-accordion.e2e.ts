@@ -36,3 +36,65 @@ test('opens and closes an operation by clicking its caret', async ({ page }) => 
     await expect(toggle).toHaveAttribute('aria-expanded', expanded)
   }
 })
+
+test('turns each picker caret with its own menu inside an open operation', async ({ page }) => {
+  const example = await serveExample({
+    layout: 'classic',
+    content: {
+      openapi: '3.1.2',
+      info: { title: 'Accordion pickers', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          post: {
+            summary: 'Add a pet',
+            requestBody: {
+              content: {
+                'application/json': {
+                  examples: {
+                    cat: { summary: 'Cat', value: { name: 'Whiskers' } },
+                    dog: { summary: 'Dog', value: { name: 'Rex' } },
+                  },
+                },
+              },
+            },
+            responses: { '200': { description: 'Added' } },
+          },
+        },
+      },
+    },
+  })
+
+  await page.goto(example)
+
+  const accordion = page.locator('.section-accordion').filter({ hasText: 'Add a pet' }).first()
+  const toggle = accordion.locator('.section-accordion-button')
+  await toggle.click()
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+
+  // The open accordion is a Headless UI ancestor of both pickers, so a caret that reads the nearest
+  // open state would point up while its own menu is closed. Each caret has to follow its own menu.
+  for (const testId of ['client-picker', 'example-picker']) {
+    const picker = accordion.getByTestId(testId)
+    const caret = picker.locator('svg').last()
+
+    await expect(picker).toHaveAttribute('aria-expanded', 'false')
+    await expect(caret).toHaveCSS('rotate', 'none')
+
+    // Mouse
+    await picker.click()
+    await expect(picker).toHaveAttribute('aria-expanded', 'true')
+    await expect(caret).toHaveCSS('rotate', '180deg')
+    await picker.click()
+    await expect(picker).toHaveAttribute('aria-expanded', 'false')
+    await expect(caret).toHaveCSS('rotate', 'none')
+
+    // Keyboard
+    await picker.focus()
+    await page.keyboard.press('Enter')
+    await expect(picker).toHaveAttribute('aria-expanded', 'true')
+    await expect(caret).toHaveCSS('rotate', '180deg')
+    await page.keyboard.press('Escape')
+    await expect(picker).toHaveAttribute('aria-expanded', 'false')
+    await expect(caret).toHaveCSS('rotate', 'none')
+  }
+})
