@@ -66,7 +66,7 @@ const { value, locations } = await upgradeFragment(
 console.log(value)
 // Output: { type: ['string', 'null'] }
 console.log(locations)
-// Output: [] — this schema stays at the same location.
+// Output: [] (this schema stays at the same location)
 ```
 
 `from` accepts `2.0` or `3.0`; `to` is `3.1`. Supported kinds are `document`,
@@ -99,13 +99,8 @@ without the callback, referenced body/form parameters remain in `parameters`.
 A body or form parameter cannot be converted as `kind: 'parameter'`: convert its
 owning operation or use `kind: 'request-body'` for an explicit body destination.
 
-The workspace store uses JSON Magic's resource and target lifecycle hooks for
-this integration. It upgrades newly loaded legacy resources and retains compact
-`x-scalar-upgrade` bookkeeping when lazy external references still need the
-original dialect, relocation mappings, or media types. Editable exports keep
-that bookkeeping only while those external references remain. Resources already
-stored in an input bundle's `x-ext` retain their existing layout and legacy
-keywords, including `x-nullable` and `type: file`, so saved pointers remain valid.
+The workspace store automatically upgrades newly loaded referenced OpenAPI 2.0
+and 3.0 resources.
 
 ### Experimental: Upgrade to OpenAPI 3.2
 
