@@ -175,7 +175,7 @@ describe('custom-references', () => {
     expect(result.diagnostics).toEqual([])
     const exported = JSON.parse(JSON.stringify(result.document))
     expect(exported.components.schemas.A.$anchor).toBe('same')
-    expect(JSON.stringify(exported).match(/"\$anchor":"same"/g)).toHaveLength(1)
+    expect(JSON.stringify(exported).match(/"\$anchor":"same"/g)).toStrictEqual(['"$anchor":"same"'])
     expect(exported.components.schemas.B.$ref).toBe(`${origin}#same`)
   })
 
@@ -221,9 +221,9 @@ describe('custom-references', () => {
     const customUri = new URL(a.custom.$ref, a.$id)
     expect(customUri.href.split('#')[0]).toBe(a.$id)
     const custom = local(a, customUri.href)
-    expect(custom).toMatchObject({ type: 'object', properties: { shared: { $ref: expect.any(String) } } })
     if (custom === null || typeof custom !== 'object' || !('properties' in custom))
       throw new Error('Missing custom schema')
+    expect('type' in custom ? custom.type : undefined).toBe('object')
     expect(local(a, (custom.properties as { shared: { $ref: string } }).shared.$ref)).toEqual({
       type: 'boolean',
       examples: [literal],
@@ -235,11 +235,11 @@ describe('custom-references', () => {
     const payloadUri = new URL(resource.$ref, resource.$id)
     expect(payloadUri.href.split('#')[0]).toBe(resource.$id)
     const payload = local(resource, payloadUri.href)
-    expect(payload).toMatchObject({ type: 'object' })
     expect(local(resource, resource.sibling.$ref)).toEqual({ type: 'integer' })
     expect(local(resource, resource.native.$ref)).toEqual({ type: 'boolean', examples: [literal] })
     if (payload === null || typeof payload !== 'object' || !('properties' in payload))
       throw new Error('Missing custom payload')
+    expect('type' in payload ? payload.type : undefined).toBe('object')
     const properties = payload.properties as Record<string, { $ref: string }>
     expect(properties.back?.$ref).toBe(a.$id)
     expect(properties.remote?.$ref).toBe('HTTPS://unreachable.test/schema#same')
@@ -292,7 +292,11 @@ describe('custom-references', () => {
     expect(reads.sort()).toEqual(['https://source.test/response.json', 'https://source.test/sibling.json'])
     const owner = JSON.parse(JSON.stringify(result.document))['x-owner']
     const response = local(owner, owner.responses.R.$ref)
-    expect(response).toMatchObject({ $ref: 'https://unreachable.test/response', default: literal })
+    expect(response).toStrictEqual({
+      $ref: 'https://unreachable.test/response',
+      sibling: { $ref: expect.any(String) },
+      default: literal,
+    })
     if (response === null || typeof response !== 'object' || !('sibling' in response))
       throw new Error('Missing response')
     expect(response).not.toHaveProperty('$anchor')
