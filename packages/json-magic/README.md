@@ -149,9 +149,11 @@ resource. References to another named resource use its canonical identity;
 anonymous dependencies outside the schema are copied into resource-local
 `x-ext` storage (or `externalDocumentsKey`) and addressed with local pointers.
 Cycles reuse that storage, and copied subtrees reference named resources rather
-than duplicating their identities. Anonymous copies omit anchor declarations that
-would acquire the referring resource's identity; their bundled references use
-pointers instead. Literal example and default values remain literal data.
+than duplicating their identities. Anonymous imports and their local copies omit
+anchor declarations whose scope would otherwise change; bundled references
+address their targets with pointers instead. Literal example and default values
+remain literal data. Unresolved references in relocated dependencies retain their
+original source base, while diagnostics retain the authored reference.
 This also works when the outer API description
 has no declared identity: the bundler does not add `$id` to that document.
 Local filesystem schema identities become `file:` URIs, including escaped path

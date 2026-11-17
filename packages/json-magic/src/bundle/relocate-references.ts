@@ -2,6 +2,8 @@ import { isObject } from '@scalar/helpers/object/is-object'
 
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getValueByPath } from '@/helpers/get-value-by-path'
+import { resolveReferencePath } from '@/helpers/resolve-reference-path'
+import { toResourceUri } from '@/helpers/to-resource-uri'
 import type { UnknownObject } from '@/types'
 
 import type { documentTraversal } from './document-traversal'
@@ -12,13 +14,22 @@ type Resource = { node: UnknownObject; path: string[]; uri: string }
 /** A resolved target before its reference is rewritten for output. */
 export type RelocationTarget = { path: string[]; context: ReferenceContext }
 
+/** Authored nonpreserved edges keep their source base when resolution fails. */
+export type SourceReference = { reference: string; origin: string; path: readonly string[] }
+
+type RelocationOptions = {
+  targets: WeakMap<object, RelocationTarget>
+  schemas: { path: string[]; uri: string }[]
+  externalDocumentsKey: string
+  createTraversal: () => ReturnType<typeof documentTraversal>
+  documents: { path: string[]; context: ReferenceContext }[]
+  sourceReferences: Map<object, SourceReference>
+}
+
 /** Keep resolved edges addressable from their schema resource after serialization. */
 export const relocateReferences = (
   root: object,
-  targets: WeakMap<object, RelocationTarget>,
-  schemas: { path: string[]; uri: string }[],
-  externalDocumentsKey: string,
-  createTraversal: () => ReturnType<typeof documentTraversal>,
+  { targets, schemas, externalDocumentsKey, createTraversal, documents, sourceReferences }: RelocationOptions,
 ): void => {
   const resources: Resource[] = []
   const identities = new WeakMap<object, string>()
@@ -36,8 +47,52 @@ export const relocateReferences = (
     parent.length <= child.length && parent.every((segment, index) => segment === child[index])
   const pointer = (path: string[]): string =>
     path.length ? `#/${path.map((key) => encodeURIComponent(escapeJsonPointer(key))).join('/')}` : '#'
-  const resourceAt = (path: string[]): Resource | undefined =>
-    resources.find((resource) => contains(resource.path, path))
+  documents.sort((a, b) => b.path.length - a.path.length)
+  const resourceAt = (path: string[]): Resource | undefined => {
+    const resource = resources.find((resource) => contains(resource.path, path))
+    const document = documents.find((document) => contains(document.path, path))
+    return document && resource && document.path.length > resource.path.length ? undefined : resource
+  }
+  const absoluteReference = ({ reference, origin }: SourceReference): string => {
+    const [prefix, fragment] = reference.split('#', 2)
+    return `${toResourceUri(prefix ? resolveReferencePath(origin, prefix) : origin)}${fragment === undefined ? '' : `#${fragment}`}`
+  }
+
+  // Anonymous imported documents lose their retrieval scope when embedded. Their
+  // resolved edges use pointers, so retaining those anchors would bind another URI.
+  for (const document of documents) {
+    if (!document.path.length) {
+      continue
+    }
+    const node = getValueByPath(root, document.path).value
+    const traversal = createTraversal()
+    traversal.register(node, '', document.context)
+    const stripAnchors = (value: unknown): void => {
+      if (value === null || typeof value !== 'object' || identities.has(value)) {
+        return
+      }
+      const context = traversal.location(value)?.context
+      if (context === 'data') {
+        return
+      }
+      if (isObject(value) && (getSchemaVocabulary(context ?? 'schema')?.anchors || context === 'generic')) {
+        delete value.$anchor
+      }
+      for (const child of Object.values(value)) {
+        stripAnchors(child)
+      }
+    }
+    stripAnchors(node)
+  }
+  for (const [node, reference] of sourceReferences) {
+    if (targets.has(node) || !isObject(node)) {
+      continue
+    }
+    const document = documents.find((document) => contains(document.path, [...reference.path]))
+    if (document?.path.length && !resourceAt([...reference.path])) {
+      node.$ref = absoluteReference(reference)
+    }
+  }
 
   for (const owner of resources) {
     const copies: { source: string[]; destination: string[] }[] = []
@@ -100,6 +155,8 @@ export const relocateReferences = (
         const target = data ? undefined : targets.get(node)
         if (target) {
           result.$ref = reference(target)
+        } else if (!data && sourceReferences.has(node)) {
+          result.$ref = absoluteReference(sourceReferences.get(node)!)
         }
         // Copied anonymous anchors would otherwise acquire the owner's URI and collide.
         // Resolved edges to these values use pointers; authored external edges stay external.

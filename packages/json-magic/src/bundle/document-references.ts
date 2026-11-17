@@ -48,6 +48,8 @@ export type DocumentLocation = { document: unknown; path: readonly string[]; uri
 /** Resolution metadata survives moving documents into the bundle. */
 export type DocumentReferences = {
   source: (node: object) => DocumentLocation | undefined
+  /** Retrieval document boundaries remain distinct even without a declared identity. */
+  documents: () => { path: string[]; value: unknown }[]
   /** Declared schema identities and their output paths, including reconstructed ancestors. */
   schemas: () => { path: string[]; uri: string }[]
   identity: (document: unknown) => DocumentIdentity | undefined
@@ -251,6 +253,7 @@ export const documentReferences = (
 
   return {
     source: (node) => sources.get(node),
+    documents: () => [...registrations].map(([value, { path }]) => ({ value, path })),
     schemas: () =>
       [...resources].flatMap(([uri, resource]) =>
         resource.schema &&
