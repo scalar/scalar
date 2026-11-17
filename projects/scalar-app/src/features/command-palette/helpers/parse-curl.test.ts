@@ -882,6 +882,140 @@ describe('parseCurlCommand', () => {
     })
   })
 
+  describe('Windows cmd quoting', () => {
+    const copyCommand = (dataArgument: string): string =>
+      [
+        'curl --url ^"https://example.com/users^" ^',
+        '  -H ^"Content-Type: application/json^" ^',
+        `  --data-raw ${dataArgument}`,
+      ].join('\n')
+
+    it.each([
+      ['Chrome with an apostrophe', `^"^{^"^"name^"^":^"^"it's^"^"^}^"`, `{"name":"it's"}`],
+      ['older Chrome with an apostrophe', String.raw`^"^{^\^"name^\^":^\^"it's^\^"^}^"`, `{"name":"it's"}`],
+      [
+        'Chrome with backslashes, a percent sign, an ampersand and an exclamation mark',
+        String.raw`^"^{^"^"a^"^":^"^"x^\^\ny^\^\^\^\z^"^",^"^"t^"^":^"^"100^% ^& more^!^"^"^}^"`,
+        String.raw`{"a":"x\ny\\z","t":"100% & more!"}`,
+      ],
+      [
+        'older Chrome with backslashes, a percent sign, an ampersand and an exclamation mark',
+        String.raw`^"^{^\^"a^\^":^\^"x^\^\ny^\^\^\^\z^\^",^\^"t^\^":^\^"100^% ^& more^!^\^"^}^"`,
+        String.raw`{"a":"x\ny\\z","t":"100% & more!"}`,
+      ],
+      ['Chrome with a newline and a tab', '^"line1^\n\nline2 end^"', 'line1\nline2 end'],
+      [
+        'Chrome with escaped quotes',
+        String.raw`^"^{^"^"q^"^":^"^"say ^\^\^"^"hi^\^\^"^"^"^"^}^"`,
+        String.raw`{"q":"say \"hi\""}`,
+      ],
+      [
+        'older Chrome with escaped quotes',
+        String.raw`^"^{^\^"q^\^":^\^"say ^\^\^\^"hi^\^\^\^"^\^"^}^"`,
+        String.raw`{"q":"say \"hi\""}`,
+      ],
+      [
+        'Chrome with special characters',
+        '^"a^^b ^& c ^| d ^< e ^> f ^( g ^) ^`h^` 100^%^PATH^% ^$x^"',
+        'a^b & c | d < e > f ( g ) `h` 100%PATH% $x',
+      ],
+      [
+        'Firefox with special characters',
+        '^"a^^b ^& c ^| d ^< e ^> f ( g ) `h` 100^%^PATH^% ^$x^"',
+        'a^b & c | d < e > f ( g ) `h` 100%PATH% $x',
+      ],
+      [
+        'Firefox with multilingual text',
+        String.raw`^"^{^\^"n^\^":^\^"caf^é ^日^本^語 ^😀 ^ש^ל^ו^ם^\^"^}^"`,
+        `{"n":"café 日本語 😀 שלום"}`,
+      ],
+      [
+        'Chrome with multilingual text, which it writes as spaces',
+        '^"^{^"^"n^"^":^"^"caf^  ^ ^ ^  ^ ^  ^ ^ ^ ^ ^"^"^}^"',
+        `{"n":"caf${' '.repeat(13)}"}`,
+      ],
+    ])('reads the body copied from %s', (_name, argument, body) => {
+      const result = parseCurlCommand(copyCommand(argument))
+      expect(result.body).toBe(body)
+      expect(result.method).toBe('post')
+    })
+
+    it('reads a complete command copied from Chrome', () => {
+      const result = parseCurlCommand(
+        [
+          'curl --url ^"https://example.com/users/1?id=1^&x=2^" ^',
+          '  -X ^"PUT^" ^',
+          '  -H ^"Accept: */*^" ^',
+          '  -b ^"a=b; c=d^" ^',
+          '  --data-raw ^"name=Ada^&city=Pune^"',
+        ].join('\n'),
+      )
+      expect(result).toStrictEqual({
+        url: 'https://example.com/users/1',
+        servers: ['https://example.com'],
+        path: '/users/1',
+        queryParameters: [
+          { key: 'id', value: '1' },
+          { key: 'x', value: '2' },
+        ],
+        headers: { Accept: '*/*', Cookie: 'a=b; c=d' },
+        body: 'name=Ada&city=Pune',
+        method: 'put',
+      })
+    })
+
+    it('reads a complete command copied from Firefox', () => {
+      const result = parseCurlCommand(
+        [
+          'curl.exe ^"https://example.com/users^" ^',
+          '  -X PUT ^',
+          '  -H ^"Content-Type: application/json^" ^',
+          String.raw`  --data-raw ^"^{^\^"name^\^":^\^"Ada^\^"^}^"`,
+        ].join('\n'),
+      )
+      expect(result).toStrictEqual({
+        url: 'https://example.com/users',
+        servers: ['https://example.com'],
+        path: '/users',
+        queryParameters: [],
+        headers: { 'Content-Type': 'application/json' },
+        body: '{"name":"Ada"}',
+        method: 'put',
+      })
+    })
+
+    it('reads a command with carriage returns after the carets', () => {
+      const result = parseCurlCommand(copyCommand('^"^{^"^"name^"^":^"^"Ada^"^"^}^"').replaceAll('\n', '\r\n'))
+      expect(result.body).toBe('{"name":"Ada"}')
+      expect(result.headers).toStrictEqual({ 'Content-Type': 'application/json' })
+    })
+
+    it('keeps a caret inside the double quotes of a command that joins its lines with carets', () => {
+      const result = parseCurlCommand('curl ^\n  -d "a^b" ^\n  https://example.com/users')
+      expect(result.body).toBe('a^b')
+      expect(result.url).toBe('https://example.com/users')
+    })
+
+    it.each([
+      [`'a^b'`, 'a^b'],
+      [`'a^"b'`, 'a^"b'],
+      [`'{"op":"xor^"}'`, '{"op":"xor^"}'],
+      [`'a^\nb'`, 'a^\nb'],
+      [`"a^b"`, 'a^b'],
+      [String.raw`$'it\'s ^"'`, `it's ^"`],
+      [String.raw`'it'\''s ^"'`, `it's ^"`],
+    ])('does not read the caret of the POSIX body %s as cmd syntax', (argument, body) => {
+      const result = parseCurlCommand(`curl https://example.com/users -d ${argument}`)
+      expect(result.body).toBe(body)
+    })
+
+    it('reads a command that escapes its quotes with backslashes', () => {
+      const result = parseCurlCommand(String.raw`curl -X POST "https://example.com/users" -d "{\"name\":\"Ada\"}"`)
+      expect(result.body).toBe('{"name":"Ada"}')
+      expect(result.url).toBe('https://example.com/users')
+    })
+  })
+
   describe('data-urlencode', () => {
     it.each([
       ['q=a&b c', 'q=a%26b%20c'],

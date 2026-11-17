@@ -2,6 +2,8 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { encode } from 'js-base64'
 import { parse as parseShellCommand } from 'shell-quote'
 
+import { isWindowsCommand, parseWindowsCommand } from './parse-windows-command'
+
 /** Every flag that sends its next argument as request data, --json is handled apart because it also sets headers. */
 const DATA_FLAGS = new Set(['--data', '-d', '--data-raw', '--data-urlencode', '--data-binary', '--data-ascii'])
 
@@ -72,7 +74,8 @@ function nextArgument<T>(queue: T[]): T | undefined {
 
 /** Parse and normalize a curl command */
 export function parseCurlCommand(curlCommand: string) {
-  const args = parseShellCommand(curlCommand).map((arg) => {
+  const entries = isWindowsCommand(curlCommand) ? parseWindowsCommand(curlCommand) : parseShellCommand(curlCommand)
+  const args = entries.map((arg) => {
     if (typeof arg === 'object' && 'op' in arg && arg.op === 'glob') {
       return arg.pattern.trim()
     }

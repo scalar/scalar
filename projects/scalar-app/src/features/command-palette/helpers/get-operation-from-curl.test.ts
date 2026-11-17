@@ -695,4 +695,33 @@ describe('get-operation-from-curl', () => {
       curl: { value: { note: 'a&b' } },
     })
   })
+
+  it.each([
+    [
+      'Chrome',
+      [
+        'curl --url ^"https://api.example.com/v1/users^" ^',
+        '  -H ^"Content-Type: application/json^" ^',
+        `  --data-raw ^"^{^"^"name^"^":^"^"it's^"^"^}^"`,
+      ].join('\n'),
+    ],
+    [
+      'Firefox',
+      [
+        'curl.exe ^"https://api.example.com/v1/users^" ^',
+        '  -H ^"Content-Type: application/json^" ^',
+        String.raw`  --data-raw ^"^{^\^"name^\^":^\^"it's^\^"^}^"`,
+      ].join('\n'),
+    ],
+  ])('imports a command copied from %s for cmd as a POST with the body', (_browser, curl) => {
+    const result = getOperationFromCurl(curl)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe('post')
+    expect(result.path).toBe('/v1/users')
+    expect(requestBody?.content['application/json']?.examples).toStrictEqual({
+      curl: { value: { name: "it's" } },
+    })
+  })
 })
