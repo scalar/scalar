@@ -839,6 +839,49 @@ describe('parseCurlCommand', () => {
     })
   })
 
+  describe('ANSI-C quoting', () => {
+    it.each([
+      ['Chrome with an apostrophe', String.raw`$'{"name":"it\'s"}'`, `{"name":"it's"}`],
+      [
+        'Chrome with a newline, a tab and an exclamation mark',
+        String.raw`$'line1\nline2\u0009end\u0021'`,
+        'line1\nline2\tend!',
+      ],
+      [
+        'Chrome with backslashes, a percent sign and an ampersand',
+        String.raw`$'{"a":"x\\ny\\\\z","t":"100% & more\u0021"}'`,
+        String.raw`{"a":"x\ny\\z","t":"100% & more!"}`,
+      ],
+      [
+        'Chrome with an apostrophe and multilingual text',
+        String.raw`$'{"n":"it\'s café 日本語 😀 שלום"}'`,
+        `{"n":"it's café 日本語 😀 שלום"}`,
+      ],
+      ['Chrome with multilingual text', String.raw`'{"n":"café 日本語 😀 שלום"}'`, `{"n":"café 日本語 😀 שלום"}`],
+      ['Firefox with an exclamation mark', String.raw`$'{"t":"more\041"}'`, '{"t":"more!"}'],
+      ['Firefox with a newline and a tab', String.raw`$'line1\nline2\x09end'`, 'line1\nline2\tend'],
+      ['Firefox with multilingual text', String.raw`$'{"n":"caf\xe9 日本語 😀 שלום"}'`, `{"n":"café 日本語 😀 שלום"}`],
+      ['Postman and Insomnia with an apostrophe', String.raw`'{"name":"it'\''s"}'`, `{"name":"it's"}`],
+    ])('reads the body copied from %s', (_name, argument, body) => {
+      const result = parseCurlCommand(`curl https://example.com/users --data-raw ${argument}`)
+      expect(result.body).toBe(body)
+      expect(result.method).toBe('post')
+    })
+
+    it('reads the method, headers and cookies that are ANSI-C quoted', () => {
+      const result = parseCurlCommand(
+        String.raw`curl --url 'https://example.com/users' -X $'PUT' -H $'X-Note: it\'s fine\u0021' -b $'session=it\'s'`,
+      )
+      expect(result.method).toBe('put')
+      expect(result.headers).toStrictEqual({ 'X-Note': "it's fine!", Cookie: "session=it's" })
+    })
+
+    it('keeps a dollar sign and an apostrophe that are not ANSI-C quotes', () => {
+      const result = parseCurlCommand(String.raw`curl https://example.com/users -d "price: $'5"`)
+      expect(result.body).toBe("price: $'5")
+    })
+  })
+
   describe('data-urlencode', () => {
     it.each([
       ['q=a&b c', 'q=a%26b%20c'],
