@@ -66,7 +66,14 @@ describe('convert', () => {
     expect(result.paths?.['/graphql']?.post?.requestBody).toStrictEqual({
       content: {
         [graphqlType]: {
-          schema: { type: 'object' },
+          schema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string' },
+              variables: { type: 'object' },
+            },
+            required: ['query'],
+          },
           examples: { 'Default example': { value: { query, variables: { id: '1' } } } },
         },
       },
@@ -93,7 +100,14 @@ describe('convert', () => {
     expect(result.paths?.['/graphql']?.post?.requestBody).toStrictEqual({
       content: {
         'application/json': {
-          schema: { type: 'object' },
+          schema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string' },
+              variables: { type: 'object' },
+            },
+            required: ['query'],
+          },
           examples: {
             First: { value: { query: 'query Item($id: ID!) { item(id: $id) { id } }', variables: { id: 'First' } } },
             Second: { value: { query: 'query Item($id: ID!) { item(id: $id) { id } }', variables: { id: 'Second' } } },

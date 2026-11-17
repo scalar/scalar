@@ -333,7 +333,14 @@ describe('request-body', () => {
     expect(extractRequestBody({ mode: 'graphql', graphql: { query, variables } }, 'query')).toStrictEqual({
       content: {
         'application/json': {
-          schema: { type: 'object' },
+          schema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string' },
+              variables: { type: 'object' },
+            },
+            required: ['query'],
+          },
           examples: { query: { value: { query, ...(expected !== undefined && { variables: expected }) } } },
         },
       },
@@ -344,7 +351,14 @@ describe('request-body', () => {
     expect(extractRequestBody({ mode: 'graphql', graphql: { query: '' } }, 'query')).toStrictEqual({
       content: {
         'application/json': {
-          schema: { type: 'object' },
+          schema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string' },
+              variables: { type: 'object' },
+            },
+            required: ['query'],
+          },
           examples: { query: { value: { query: '' } } },
         },
       },

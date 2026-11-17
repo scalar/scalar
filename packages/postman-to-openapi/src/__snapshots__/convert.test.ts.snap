@@ -1291,6 +1291,17 @@ exports[`fixtures > GraphqlFileBodies 1`] = `
                 },
               },
               "schema": {
+                "properties": {
+                  "query": {
+                    "type": "string",
+                  },
+                  "variables": {
+                    "type": "object",
+                  },
+                },
+                "required": [
+                  "query",
+                ],
                 "type": "object",
               },
             },

@@ -32,7 +32,14 @@ export function extractRequestBody(
     const variables = parseGraphqlVariables(body.graphql?.variables)
     requestBody.content = {
       [contentType ?? 'application/json']: {
-        schema: { type: 'object' },
+        schema: {
+          type: 'object',
+          properties: {
+            query: { type: 'string' },
+            variables: { type: 'object' },
+          },
+          required: ['query'],
+        },
         examples: {
           [exampleName]: {
             value: {
