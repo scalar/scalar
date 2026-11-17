@@ -2,12 +2,37 @@ import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import { assert, describe, expect, it } from 'vitest'
 
 import { readFile, readFiles } from '.'
 
 describe('readFile', () => {
+  it('reads escaped file URIs while retaining directory and symlink confinement', async () => {
+    const base = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-file-uri-'))
+    const outside = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-outside-'))
+    try {
+      const file = path.join(base, 'schema #%.json')
+      const secret = path.join(outside, 'secret.json')
+      const link = path.join(base, 'link.json')
+      await fs.writeFile(file, '{"type":"string"}')
+      await fs.writeFile(secret, '{"secret":true}')
+      await fs.symlink(secret, link)
+      const loader = readFiles({ basePath: base })
+      expect(await loader.exec(pathToFileURL(file).href)).toEqual({
+        ok: true,
+        data: { type: 'string' },
+        raw: '{"type":"string"}',
+      })
+      expect(await loader.exec(pathToFileURL(secret).href)).toEqual({ ok: false })
+      expect(await loader.exec(pathToFileURL(link).href)).toEqual({ ok: false })
+      expect(await loader.exec('file:///invalid%ZZ.json')).toEqual({ ok: false })
+    } finally {
+      await fs.rm(base, { recursive: true, force: true })
+      await fs.rm(outside, { recursive: true, force: true })
+    }
+  })
   it('reads a confined code file as text without weakening path restrictions', async () => {
     const source = 'const value = {\r\n  text: "hello",\r\n};\r\n'
     const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-text-loader-'))

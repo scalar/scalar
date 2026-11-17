@@ -32,7 +32,7 @@ const isOutsideBasePath = async (fs: FsPromises, filePath: string, basePath: str
 
 /**
  * Reads and normalizes data from a local file
- * @param filePath - The file path to read from
+ * @param filePath - The filesystem path or file URI to read from
  * @param basePath - When set, reads are confined to this directory so a `$ref` cannot escape it
  * @returns A promise that resolves to either the normalized data or an error result
  * @example
@@ -56,9 +56,16 @@ export async function readFile(
     throw 'Can not use readFiles plugin outside of a node environment'
   }
 
+  const targetPath = /^file:/i.test(filePath)
+    ? await import('node:url').then(({ fileURLToPath }) => fileURLToPath(filePath)).catch(() => undefined)
+    : filePath
+  if (targetPath === undefined) {
+    return { ok: false }
+  }
+
   // Confine reads to basePath when provided, so a `$ref` like `../../../../etc/passwd` (or a symlink
   // pointing outside the directory) cannot read files outside the document's directory.
-  if (basePath !== undefined && (await isOutsideBasePath(fs, filePath, basePath))) {
+  if (basePath !== undefined && (await isOutsideBasePath(fs, targetPath, basePath))) {
     console.warn(`[WARN] Refused to read a file outside the allowed directory: ${filePath}`)
     return {
       ok: false,
@@ -66,7 +73,7 @@ export async function readFile(
   }
 
   try {
-    const fileContents = await fs.readFile(filePath, { encoding: 'utf-8' })
+    const fileContents = await fs.readFile(targetPath, { encoding: 'utf-8' })
 
     return {
       ok: true,

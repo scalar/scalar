@@ -157,7 +157,8 @@ original source base, while diagnostics retain the authored reference.
 This also works when the outer API description
 has no declared identity: the bundler does not add `$id` to that document.
 Local filesystem schema identities become `file:` URIs, including escaped path
-characters, while loaders continue to receive filesystem paths.
+characters. The Node file loader accepts these URIs as well as filesystem paths,
+including its existing base-directory and symlink confinement checks.
 
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
 
