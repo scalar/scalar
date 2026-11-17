@@ -97,10 +97,23 @@ export const childReferenceContext = (
     schemaFormat,
     openapi30,
     includeCustomReferences = false,
-  }: { swagger: boolean; asyncapi: boolean; schemaFormat?: string; openapi30?: boolean; includeCustomReferences?: boolean },
+    customReferences = false,
+  }: {
+    swagger: boolean
+    asyncapi: boolean
+    schemaFormat?: string
+    openapi30?: boolean
+    includeCustomReferences?: boolean
+    customReferences?: boolean
+  },
 ): ReferenceContext => {
   if (context === 'generic') return 'generic'
-  if (context === 'data-container') return 'data'
+  if (context === 'data-container' || context === 'data') return 'data'
+  if (customReferences && isReferenceContext(context) && !isSchemaContext(context)) {
+    return ['example', 'examples', 'default', 'enum', 'const', 'value', 'dataValue', 'serializedValue'].includes(key)
+      ? 'data'
+      : 'object'
+  }
   if (context === 'binding-sets') return 'bindings'
   if (context === 'bindings')
     return key.startsWith('x-') ? (includeCustomReferences ? 'object' : 'data') : `binding:${key}`
@@ -113,7 +126,6 @@ export const childReferenceContext = (
   if (context === 'message' && ['payload', 'headers'].includes(key)) return asyncapi ? 'asyncapi-schema' : 'schema'
   if (key === 'message' && context === 'object') return 'message'
   if (key === 'messages' && ['object', 'components'].includes(context)) return 'messages'
-  if (context === 'data') return 'data'
   if (includeCustomReferences && key.startsWith('x-') && !isSchemaMapContext(context)) return 'object'
   if (context === 'paths') return key.startsWith('x-') ? 'data' : 'path-item'
   if (context === 'named-responses') return 'response'

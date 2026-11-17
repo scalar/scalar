@@ -22,6 +22,17 @@ type SourceLocation = {
   customReferences?: true
 }
 
+const schemaTypes = new Set(['null', 'boolean', 'object', 'array', 'number', 'integer', 'string'])
+
+/** Explicit schema declarations distinguish schema maps from arbitrary custom objects. */
+const declaresSchema = (value: unknown): boolean =>
+  isObject(value) &&
+  (typeof value.$id === 'string' ||
+    typeof value.$schema === 'string' ||
+    typeof value.$anchor === 'string' ||
+    (typeof value.type === 'string' && schemaTypes.has(value.type)) ||
+    (Array.isArray(value.type) && value.type.every((type) => typeof type === 'string' && schemaTypes.has(type))))
+
 /** Index traversal context separately from the mutable document and reference registry. */
 export const documentTraversal = (
   aware: boolean,
@@ -67,11 +78,14 @@ export const documentTraversal = (
     ): void => {
       if (value === null || typeof value !== 'object' || visited.has(value)) return
       visited.add(value)
-      const current = !aware ? 'generic' : (exposures.get(value) ?? inherited)
+      const inheritedContext = !aware ? 'generic' : (exposures.get(value) ?? inherited)
+      const customSchema = customReferences && inheritedContext === 'object' && declaresSchema(value)
+      const current = customSchema ? 'schema' : inheritedContext
+      const vocabularySiblings = customSchema ? true : inheritedSiblings
       const currentSiblings =
         isObject(value) && typeof value.$schema === 'string'
-          ? inheritedSiblings && !/draft-0[3467]/.test(value.$schema)
-          : inheritedSiblings
+          ? vocabularySiblings && !/draft-0[3467]/.test(value.$schema)
+          : vocabularySiblings
       // Keep the inherited dialect separate for wrappers containing newer schemas.
       const schemaSiblings =
         customReferences && !isSchemaContext(current)
@@ -110,6 +124,7 @@ export const documentTraversal = (
                 asyncapi: isAsyncApi,
                 schemaFormat,
                 includeCustomReferences,
+                customReferences,
               })
         const customChild =
           customReferences ||
@@ -143,15 +158,15 @@ export const documentTraversal = (
     const retainContext =
       (customTarget && api && authoredContext !== undefined && !['data', 'data-container'].includes(authoredContext)) ||
       (isSchemaContext(authoredContext) && isSchemaContext(context) && (api || authoredContext !== 'schema'))
-    const nextContext = retainContext ? (authoredContext ?? context) : context
-    const customReferences = retainContext
-      ? Boolean(targetLocation?.customReferences)
-      : Boolean(targetLocation?.customReferences || customTarget)
+    if (retainContext) return
+    const customSchema = customTarget && context === 'object' && declaresSchema(target)
+    const nextContext = customSchema ? 'schema' : context
+    const customReferences = customTarget
     exposures.set(target, nextContext)
     if (targetLocation?.context === nextContext && Boolean(targetLocation?.customReferences) === customReferences)
       return
     // The initial walk may already have visited descendants with a different context.
-    const targetSiblings = targetLocation?.schemaSiblings ?? siblings
+    const targetSiblings = customSchema ? true : (targetLocation?.schemaSiblings ?? siblings)
     visited = new WeakSet<object>()
     visit(target, [...targetPath], nextContext, targetSiblings, customReferences)
   }

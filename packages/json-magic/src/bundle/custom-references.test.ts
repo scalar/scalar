@@ -79,6 +79,61 @@ const local = (resource: object, reference: string): unknown =>
   ).value
 
 describe('custom-references', () => {
+  it.each(['schemas', 'paths', 'responses', 'components', 'properties'])(
+    'keeps arbitrary custom %s values reference-bearing',
+    async (key) => {
+      const reads: string[] = []
+      const result = await bundleWithDiagnostics(
+        {
+          ...api,
+          'x-custom': { [key]: { $ref: './custom.json' }, examples: [literal], default: literal },
+        },
+        {
+          origin: 'https://source.test/root.json',
+          traversal: 'document',
+          includeCustomReferences: true,
+          treeShake: false,
+          plugins: [loader(reads)],
+          preserveReference: (reference) => /^https?:\/\//i.test(reference),
+        },
+      )
+      expect(result.diagnostics).toEqual([])
+      expect(reads).toEqual(['https://source.test/custom.json'])
+      const exported = JSON.parse(JSON.stringify(result.document))
+      expect(local(exported, exported['x-custom'][key].$ref)).toEqual({ type: 'string' })
+      expect(exported['x-custom'].examples).toEqual([literal])
+      expect(exported['x-custom'].default).toEqual(literal)
+    },
+  )
+
+  it('uses schema map rules for declared schemas inside extensions', async () => {
+    const reads: string[] = []
+    const result = await bundleWithDiagnostics(
+      {
+        ...api,
+        'x-schema': {
+          type: 'object',
+          properties: { default: { $ref: './custom.json' }, examples: { $ref: './custom.json' } },
+          examples: [literal],
+        },
+      },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake: false,
+        plugins: [loader(reads)],
+        preserveReference: (reference) => /^https?:\/\//i.test(reference),
+      },
+    )
+    expect(result.diagnostics).toEqual([])
+    expect(reads).toEqual(['https://source.test/custom.json'])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    expect(local(exported, exported['x-schema'].properties.default.$ref)).toEqual({ type: 'string' })
+    expect(local(exported, exported['x-schema'].properties.examples.$ref)).toEqual({ type: 'string' })
+    expect(exported['x-schema'].examples).toEqual([literal])
+  })
+
   it('keeps strict document traversal unchanged when custom references are not enabled', async () => {
     const reads: string[] = []
     const result = await bundleWithDiagnostics(fixture(), {
@@ -146,7 +201,7 @@ describe('custom-references', () => {
     expect(exported.$id).toBeUndefined()
   })
 
-  it('retains custom response context when copying anonymous dependencies into a named extension', async () => {
+  it('keeps custom siblings and anchors when copying anonymous dependencies into a named extension', async () => {
     const reads: string[] = []
     const result = await bundleWithDiagnostics(
       {
