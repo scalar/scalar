@@ -32,6 +32,9 @@ export type SchemaIdentity = {
   anchor?: string
 }
 
+/** A declared schema identity and its location in the output document. */
+export type SchemaResourceLocation = { path: string[]; uri: string; idKeyword: 'id' | '$id' }
+
 /** A loaded resource and its location in the output document. */
 type Resource = {
   value: unknown
@@ -52,7 +55,7 @@ export type DocumentReferences = {
   /** Retrieval document boundaries remain distinct even without a declared identity. */
   documents: () => { path: string[]; value: unknown }[]
   /** Declared schema identities and their output paths, including reconstructed ancestors. */
-  schemas: () => { path: string[]; uri: string; idKeyword: 'id' | '$id' }[]
+  schemas: () => SchemaResourceLocation[]
   identity: (document: unknown) => DocumentIdentity | undefined
   register: (document: unknown, retrievalUri: string, path?: string[], retrievalBase?: string) => void
   refresh: (document: unknown, targetPath: string[]) => void

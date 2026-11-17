@@ -14,6 +14,22 @@ import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { readFiles } from './plugins/read-files'
 
 describe('relocate-references', () => {
+  it('retains UNC authorities when resolving relative schema identifiers', async () => {
+    const result = await bundleWithDiagnostics(
+      { $id: './schemas/A.json', type: 'string' },
+      {
+        origin: String.raw`\\server\share\root.json`,
+        treeShake: false,
+        traversal: 'document',
+        plugins: [],
+        preserveReference: (ref) => /^https?:\/\//.test(ref),
+      },
+    )
+    expect(result.complete).toBe(true)
+    const exported = JSON.parse(JSON.stringify(result.document))
+    expect(exported.$id).toBe('file://server/share/schemas/A.json')
+  })
+
   it('reports malformed local URI encoding without rejecting the bundle', async () => {
     const result = await bundleWithDiagnostics(
       { properties: { missing: { $ref: './bad%FF.json' } } },

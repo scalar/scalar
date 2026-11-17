@@ -8,10 +8,11 @@ import { toResourceUri } from '@/helpers/to-resource-uri'
 import { getRaw } from '@/magic-proxy/proxy'
 import type { UnknownObject } from '@/types'
 
+import type { SchemaResourceLocation } from './document-references'
 import type { documentTraversal } from './document-traversal'
 import { type ReferenceContext, getSchemaVocabulary } from './reference-context'
 
-type Resource = { node: UnknownObject; path: string[]; uri: string; idKeyword: 'id' | '$id' }
+type Resource = SchemaResourceLocation & { node: UnknownObject }
 
 /** A resolved target before its reference is rewritten for output. */
 export type RelocationTarget = { path: string[]; context: ReferenceContext }
@@ -21,7 +22,7 @@ export type SourceReference = { reference: string; origin: string; path: readonl
 
 type RelocationOptions = {
   targets: WeakMap<object, RelocationTarget>
-  schemas: { path: string[]; uri: string; idKeyword: 'id' | '$id' }[]
+  schemas: SchemaResourceLocation[]
   externalDocumentsKey: string
   createTraversal: () => ReturnType<typeof documentTraversal>
   documents: { path: string[]; context: ReferenceContext }[]
