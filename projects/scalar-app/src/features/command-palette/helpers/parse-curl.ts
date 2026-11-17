@@ -13,9 +13,6 @@ const FORM_FLAGS = new Set(['--form', '-F', '--form-string'])
 /** Curl short flags that take a value, so the rest of a bundle like -XPOST or -sdfoo is that value rather than more flags. */
 const SHORT_FLAGS_WITH_VALUE = new Set('AbcCdDeEFHKmoPQrtTuUwxXyYz')
 
-/** The short flags with a value that are read below, an attached value of any other flag is dropped instead of read as an argument. */
-const READ_SHORT_FLAGS_WITH_VALUE = new Set('XHduPbF')
-
 /** One argument of a data flag, flagged when it came from --json because curl joins those without an ampersand. */
 type DataPiece = { value: string; isJson: boolean }
 
@@ -28,8 +25,8 @@ const FORM_HEADERS = { 'Content-Type': 'multipart/form-data' }
 /** The characters a backslash escapes inside a quoted form content. */
 const FORM_CONTENT_ESCAPES = new Set(['"', '\\'])
 
-/** The long flags with a value that are read below, curl also takes their value attached as --flag=value. */
-const READ_LONG_FLAGS_WITH_VALUE = new Set([
+/** Value-taking options must consume their argument even when the importer does not use it. See https://curl.se/docs/manpage.html. */
+const LONG_FLAGS_WITH_VALUE = new Set([
   ...DATA_FLAGS,
   ...FORM_FLAGS,
   '--json',
@@ -38,14 +35,160 @@ const READ_LONG_FLAGS_WITH_VALUE = new Set([
   '--header',
   '--user',
   '--cookie',
+  '--abstract-unix-socket',
+  '--alt-svc',
+  '--aws-sigv4',
+  '--cacert',
+  '--capath',
+  '--cert',
+  '--cert-type',
+  '--ciphers',
+  '--config',
+  '--connect-timeout',
+  '--connect-to',
+  '--continue-at',
+  '--cookie-jar',
+  '--create-file-mode',
+  '--crlfile',
+  '--curves',
+  '--delegation',
+  '--dns-interface',
+  '--dns-ipv4-addr',
+  '--dns-ipv6-addr',
+  '--dns-servers',
+  '--doh-url',
+  '--dump-header',
+  '--ech',
+  '--egd-file',
+  '--engine',
+  '--etag-compare',
+  '--etag-save',
+  '--expect100-timeout',
+  '--ftp-account',
+  '--ftp-alternative-to-user',
+  '--ftp-method',
+  '--ftp-port',
+  '--ftp-ssl-ccc-mode',
+  '--happy-eyeballs-timeout-ms',
+  '--haproxy-clientip',
+  '--hostpubmd5',
+  '--hostpubsha256',
+  '--hsts',
+  '--httpsig-algo',
+  '--httpsig-headers',
+  '--httpsig-key',
+  '--httpsig-keyid',
+  '--interface',
+  '--ip-tos',
+  '--ipfs-gateway',
+  '--keepalive-cnt',
+  '--keepalive-time',
+  '--key',
+  '--key-type',
+  '--knownhosts',
+  '--krb',
+  '--libcurl',
+  '--limit-rate',
+  '--local-port',
+  '--login-options',
+  '--mail-auth',
+  '--mail-from',
+  '--mail-rcpt',
+  '--max-filesize',
+  '--max-redirs',
+  '--max-time',
+  '--netrc-file',
+  '--noproxy',
+  '--oauth2-bearer',
+  '--output',
+  '--output-dir',
+  '--parallel-max',
+  '--parallel-max-host',
+  '--pass',
+  '--pinnedpubkey',
+  '--preproxy',
+  '--proto',
+  '--proto-default',
+  '--proto-redir',
+  '--proxy',
+  '--proxy-cacert',
+  '--proxy-capath',
+  '--proxy-cert',
+  '--proxy-cert-type',
+  '--proxy-ciphers',
+  '--proxy-crlfile',
+  '--proxy-header',
+  '--proxy-key',
+  '--proxy-key-type',
+  '--proxy-pass',
+  '--proxy-pinnedpubkey',
+  '--proxy-service-name',
+  '--proxy-tls13-ciphers',
+  '--proxy-tlsauthtype',
+  '--proxy-tlspassword',
+  '--proxy-tlsuser',
+  '--proxy-user',
+  '--proxy1.0',
+  '--pubkey',
+  '--quote',
+  '--random-file',
+  '--range',
+  '--rate',
+  '--referer',
+  '--request-target',
+  '--resolve',
+  '--retry',
+  '--retry-delay',
+  '--retry-max-time',
+  '--sasl-authzid',
+  '--service-name',
+  '--sigalgs',
+  '--socks4',
+  '--socks4a',
+  '--socks5',
+  '--socks5-gssapi-service',
+  '--socks5-hostname',
+  '--speed-limit',
+  '--speed-time',
+  '--ssl-sessions',
+  '--stderr',
+  '--telnet-option',
+  '--tftp-blksize',
+  '--time-cond',
+  '--tls-max',
+  '--tls13-ciphers',
+  '--tlsauthtype',
+  '--tlspassword',
+  '--tlsuser',
+  '--trace',
+  '--trace-ascii',
+  '--trace-config',
+  '--unix-socket',
+  '--upload-file',
+  '--upload-flags',
+  '--url-query',
+  '--user-agent',
+  '--variable',
+  '--vlan-priority',
+  '--write-out',
 ])
+
+/** The request details collected while reading a cURL command. */
+type CurlCommandResult = {
+  url: string
+  method?: HttpMethod
+  headers?: Record<string, string>
+  body?: string
+  queryParameters?: Array<{ key: string; value: string }>
+  servers?: string[]
+}
 
 /** Short flags can be bundled (-sG) and carry their value attached (-XPOST), unlike long flags. */
 const isShortFlagBundle = (arg: string): boolean => arg.startsWith('-') && !arg.startsWith('--') && arg.length > 2
 
-/** Only the flags read here are split, so a flag that is skipped like --proxy=http://host never leaves its value to be read as the URL. */
+/** Split known options so their values follow the same consumption rules in both forms. */
 const isLongFlagWithAttachedValue = (arg: string): boolean =>
-  arg.startsWith('--') && arg.includes('=') && READ_LONG_FLAGS_WITH_VALUE.has(arg.slice(0, arg.indexOf('=')))
+  arg.startsWith('--') && arg.includes('=') && LONG_FLAGS_WITH_VALUE.has(arg.slice(0, arg.indexOf('=')))
 
 /** Split --flag=value into the flag and its value, the value can hold more equal signs. */
 function splitLongFlag(arg: string): string[] {
@@ -63,7 +206,7 @@ function splitShortFlags(bundle: string): string[] {
 
     if (SHORT_FLAGS_WITH_VALUE.has(flag)) {
       const attachedValue = flags.slice(index + 1).join('')
-      if (attachedValue && READ_SHORT_FLAGS_WITH_VALUE.has(flag)) {
+      if (attachedValue) {
         tokens.push(attachedValue)
       }
       break
@@ -92,14 +235,7 @@ export function parseCurlCommand(curlCommand: string) {
     return typeof arg === 'string' ? arg.trim() : arg
   })
 
-  const result: {
-    url: string
-    method?: HttpMethod
-    headers?: Record<string, string>
-    body?: string
-    queryParameters?: Array<{ key: string; value: string }>
-    servers?: string[]
-  } = { url: '' }
+  const result: CurlCommandResult = { url: '' }
 
   const data: DataPiece[] = []
   const form: string[] = []
@@ -150,6 +286,13 @@ export function parseCurlCommand(curlCommand: string) {
     } else if (arg === '-b' || arg === '--cookie') {
       // Extract Cookie header e.g -b 'foo=bar'
       parseCookie(iterator as Iterator<string>, result)
+    } else if (
+      typeof arg === 'string' &&
+      (LONG_FLAGS_WITH_VALUE.has(arg) ||
+        (arg.length === 2 && arg.startsWith('-') && SHORT_FLAGS_WITH_VALUE.has(arg.charAt(1))))
+    ) {
+      // An ignored option still owns its next argument, even if it looks like a flag or is empty.
+      queue.shift()
     }
     arg = iterator.next().value
   }
@@ -345,13 +488,14 @@ function parseForm(queue: unknown[], form: string[], flag: string): void {
 
 /** Curl joins repeated data flags with an ampersand and repeated --json flags without one. */
 function joinData(data: DataPiece[]): string {
-  return data
-    .filter(({ value }): boolean => Boolean(value))
-    .reduce((joined, { value, isJson }): string => (joined ? `${joined}${isJson ? '' : '&'}${value}` : value), '')
+  return data.reduce(
+    (joined, { value, isJson }): string => (joined ? `${joined}${isJson ? '' : '&'}${value}` : value),
+    '',
+  )
 }
 
 /** Curl appends the data to the URL with -G, otherwise sends it as the body and defaults the method to POST */
-function applyData(result: any, data: DataPiece[], isGet: boolean): void {
+function applyData(result: CurlCommandResult, data: DataPiece[], isGet: boolean): void {
   if (data.some(({ isJson }): boolean => isJson)) {
     applyDefaultHeaders(result, JSON_HEADERS)
   }
@@ -371,14 +515,14 @@ function applyData(result: any, data: DataPiece[], isGet: boolean): void {
 }
 
 /** Curl sends a multipart form as a POST with or without -G, which only moves data, and an explicit method or Content-Type of the command wins. */
-function applyForm(result: any, form: string[]): void {
+function applyForm(result: CurlCommandResult, form: string[]): void {
   applyDefaultHeaders(result, FORM_HEADERS)
   result.body = form.filter(Boolean).join('&')
   result.method ??= 'post'
 }
 
 /** Curl only adds these headers when the command does not set them, whatever their case. */
-function applyDefaultHeaders(result: any, defaults: Record<string, string>): void {
+function applyDefaultHeaders(result: CurlCommandResult, defaults: Record<string, string>): void {
   result.headers = result.headers || {}
   const existingNames = new Set(Object.keys(result.headers).map((name): string => name.toLowerCase()))
 

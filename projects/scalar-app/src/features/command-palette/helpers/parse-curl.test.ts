@@ -217,9 +217,9 @@ describe('parseCurlCommand', () => {
       expect(result.body).toBe('name=value1&age=value2&city=value3')
     })
 
-    it('skips data read from a file when joining repeated data flags', () => {
+    it('keeps the separator for mocked empty file data when joining repeated data flags', () => {
       const result = parseCurlCommand("curl -d 'name=value1' -d @file.txt -d 'age=value2' http://example.com")
-      expect(result.body).toBe('name=value1&age=value2')
+      expect(result.body).toBe('name=value1&&age=value2')
     })
 
     it.each([
@@ -576,6 +576,121 @@ describe('parseCurlCommand', () => {
     })
   })
 
+  it.each([
+    '-A',
+    '-sA',
+    '-c',
+    '-sLc',
+    '-C',
+    '-D',
+    '-e',
+    '-E',
+    '-K',
+    '-m',
+    '-o',
+    '-sSo',
+    '-Q',
+    '-r',
+    '-t',
+    '-T',
+    '-U',
+    '-w',
+    '-x',
+    '-y',
+    '-Y',
+    '-z',
+    '--user-agent',
+    '--cookie-jar',
+    '--continue-at',
+    '--dump-header',
+    '--referer',
+    '--cert',
+    '--config',
+    '--max-time',
+    '--output',
+    '--quote',
+    '--range',
+    '--telnet-option',
+    '--upload-file',
+    '--proxy-user',
+    '--write-out',
+    '--proxy',
+    '--speed-time',
+    '--speed-limit',
+    '--time-cond',
+    '--connect-timeout',
+    '--cacert',
+  ])('consumes the ignored option %s before reading the next flag', (option) => {
+    const result = parseCurlCommand(`curl ${option} '-XPOST' https://example.com`)
+    expect(result).toStrictEqual({
+      url: 'https://example.com',
+      servers: ['https://example.com'],
+      path: '',
+      queryParameters: [],
+    })
+  })
+
+  it.each([
+    `-A '-G'`,
+    `-sA '-G'`,
+    '-A-G',
+    '-sA-G',
+    `--user-agent '-G'`,
+    '--user-agent=-G',
+    `-o '--json'`,
+    `-sSo '--json'`,
+    '-o--json',
+    `--output '--json'`,
+    '--output=--json',
+    `-x 'https://proxy.example.com'`,
+    '-sLxhttps://proxy.example.com',
+    `--proxy 'https://proxy.example.com'`,
+    '--proxy=https://proxy.example.com',
+    `--proxy-header 'Content-Type: text/plain'`,
+  ])('keeps ignored values out of request data, headers and URL for %s', (options) => {
+    const result = parseCurlCommand(`curl ${options} -d name=Ada https://example.com/users`)
+    expect(result).toStrictEqual({
+      url: 'https://example.com/users',
+      servers: ['https://example.com'],
+      path: '/users',
+      queryParameters: [],
+      method: 'post',
+      body: 'name=Ada',
+    })
+  })
+
+  it.each([`-A ''`, `-sA ''`, `--user-agent ''`, '--user-agent=', `-o ''`, `-sSo ''`, '--output='])(
+    'consumes exactly one empty ignored value for %s',
+    (options) => {
+      const result = parseCurlCommand(`curl ${options} -X PUT https://example.com`)
+      expect(result.method).toBe('put')
+      expect(result.url).toBe('https://example.com')
+    },
+  )
+
+  it.each(['-AG', '-sSoG', '--user-agent=G', '--output=G'])(
+    'preserves the flag after the attached ignored value %s',
+    (options) => {
+      const result = parseCurlCommand(`curl ${options} -G -d name=Ada https://example.com`)
+      expect(result.queryParameters).toStrictEqual([{ key: 'name', value: 'Ada' }])
+      expect(result.body).toBeUndefined()
+      expect(result.method).toBeUndefined()
+    },
+  )
+
+  it.each([
+    [`-d a -d '' -d b`, 'a&&b'],
+    ['-d a --data=', 'a&'],
+    [`-d a -d '' -d ''`, 'a&&'],
+    [`-d '' -d a`, 'a'],
+    [`--json a -d '' --json b`, 'a&b'],
+    [`-d a --json '' -d b`, 'a&b'],
+  ])('keeps curl data separators for %s', (options, body) => {
+    const result = parseCurlCommand(`curl ${options} https://example.com`)
+    expect(result.body).toBe(body)
+    expect(result.method).toBe('post')
+  })
+
   describe('short flags', () => {
     it.each(['-sG', '-Gs', '-sSG', '-sLG', '-vG', '-sSLG'])('reads -G from the bundle %s', (bundle) => {
       const result = parseCurlCommand(`curl ${bundle} -d 'name=value1' http://example.com`)
@@ -742,7 +857,7 @@ describe('parseCurlCommand', () => {
       expect(result.method).toBe('post')
     })
 
-    it('ignores an empty data argument next to other data', () => {
+    it('keeps later data after an initial empty data argument', () => {
       const result = parseCurlCommand(`curl -d '' -d 'name=value1' https://example.com/users`)
       expect(result.body).toBe('name=value1')
     })
@@ -801,9 +916,9 @@ describe('parseCurlCommand', () => {
       expect(result.headers).toStrictEqual(headers)
     })
 
-    it('keeps the equal signs of the value and ignores an empty value next to other data', () => {
+    it('keeps the equal signs of the value and a trailing empty data argument', () => {
       const result = parseCurlCommand('curl --data=a=b=c --data= https://example.com/users')
-      expect(result.body).toBe('a=b=c')
+      expect(result.body).toBe('a=b=c&')
       expect(result.url).toBe('https://example.com/users')
     })
 

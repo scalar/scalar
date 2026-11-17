@@ -13,6 +13,17 @@ describe('get-operation-from-curl', () => {
     expect(result.operation.parameters).toEqual([])
   })
 
+  it.each([`-A '-XPOST'`, `-sA '-XPOST'`, `--user-agent '-XPOST'`, `--proxy 'https://proxy.example.com'`])(
+    'imports GET after consuming ignored option %s',
+    (options) => {
+      const result = getOperationFromCurl(`curl ${options} https://example.com/users`)
+      expect(result.method).toBe('get')
+      expect(result.path).toBe('/users')
+      expect(result.operation.parameters).toStrictEqual([])
+      expect(result.operation.servers).toStrictEqual([{ url: 'https://example.com' }])
+    },
+  )
+
   it('parses POST request with JSON body', () => {
     const curl = 'curl -X POST http://example.com/api/users -d \'{"name":"John","age":30}\''
     const result = getOperationFromCurl(curl)

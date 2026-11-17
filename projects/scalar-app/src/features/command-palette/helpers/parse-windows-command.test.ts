@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { isWindowsCommand, parseWindowsCommand } from './parse-windows-command'
 
-describe('isWindowsCommand', () => {
+describe('parse-windows-command', () => {
   it.each([
     ['a quoted argument', 'curl --url ^"https://example.com^"'],
     ['joined lines', 'curl https://example.com ^\n  -H "Accept: */*"'],
@@ -27,9 +27,6 @@ describe('isWindowsCommand', () => {
   ])('does not detect %s', (_name, command) => {
     expect(isWindowsCommand(command)).toBe(false)
   })
-})
-
-describe('parseWindowsCommand', () => {
   it.each([
     [
       'carets before special characters',
