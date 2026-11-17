@@ -4,7 +4,7 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 import { isObject } from '@scalar/helpers/object/is-object'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 
 import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
 import { getValueByPath } from '@/helpers/get-value-by-path'
@@ -15,6 +15,168 @@ import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { readFiles } from './plugins/read-files'
 
 describe('relocate-references', () => {
+  it.each([true, false])(
+    'serializes local schemas independently of checkout paths (treeShake: %s)',
+    async (treeShake) => {
+      const directories = await Promise.all([0, 1].map(() => fs.mkdtemp(path.join(os.tmpdir(), 'scalar-output-base-'))))
+      const outputs: string[] = []
+      try {
+        for (const directory of directories) {
+          const root = {
+            openapi: '3.1.0',
+            info: { title: 'Portable', version: '1.0' },
+            paths: {},
+            components: {
+              schemas: {
+                Pet: { $ref: './pet.json' },
+                Local: { $ref: './schemas/Pet.json#/$defs/Local' },
+              },
+            },
+          }
+          await fs.writeFile(path.join(directory, 'root.json'), JSON.stringify(root))
+          const petSource = {
+            $id: './schemas/Pet.json',
+            $defs: {
+              Local: { type: 'integer' },
+              Inner: { $id: './nested/Inner.json', properties: { outer: { $ref: '../Pet.json#/$defs/Local' } } },
+            },
+            properties: {
+              category: { $ref: '../category.json' },
+              named: { $ref: './Category.json#category' },
+              remote: { $ref: 'https://external.test/leave-me' },
+            },
+          }
+          await fs.writeFile(path.join(directory, 'pet.json'), JSON.stringify(petSource))
+          await fs.writeFile(
+            path.join(directory, 'category.json'),
+            JSON.stringify({
+              $id: './schemas/Category.json',
+              $anchor: 'category',
+              type: 'string',
+            }),
+          )
+          const seenOrigins: string[] = []
+          const result = await bundleWithDiagnostics(path.join(directory, 'root.json'), {
+            outputBase: 'https://schemas.example.test/api/root.json',
+            traversal: 'document',
+            treeShake,
+            plugins: [readFiles({ basePath: directory })],
+            preserveReference: (ref, { origin }) => {
+              seenOrigins.push(origin)
+              return ref.startsWith('https://external.test/')
+            },
+          })
+          expect(result.diagnostics).toStrictEqual([])
+          expect(seenOrigins.some((origin) => origin.includes(directory))).toBe(true)
+          const serialized = JSON.stringify(result.document)
+          expect(serialized.includes(directory)).toBe(false)
+          expect(serialized.includes('file:')).toBe(false)
+          const exported = JSON.parse(serialized)
+          const pet = Object.values<typeof petSource>(exported['x-ext']).find(
+            (value) => value.$id === 'https://schemas.example.test/api/schemas/Pet.json',
+          )
+          assert(pet)
+          expect(pet.$defs.Inner.$id).toBe('https://schemas.example.test/api/schemas/nested/Inner.json')
+          expect(pet.$defs.Inner.properties.outer.$ref).toBe(
+            'https://schemas.example.test/api/schemas/Pet.json#/%24defs/Local',
+          )
+          expect(pet.properties.named.$ref).toBe('https://schemas.example.test/api/schemas/Category.json')
+          expect(pet.properties.remote.$ref).toBe('https://external.test/leave-me')
+          expect(exported.components.schemas.Pet.$ref).toBe('https://schemas.example.test/api/schemas/Pet.json')
+          const reloaded = await bundleWithDiagnostics(JSON.parse(serialized), {
+            origin: 'https://download.test/elsewhere/bundle.json',
+            outputBase: 'https://schemas.example.test/api/root.json',
+            traversal: 'document',
+            treeShake,
+            plugins: [],
+            preserveReference: (ref) => ref.startsWith('https://external.test/'),
+          })
+          expect(reloaded.diagnostics).toStrictEqual([])
+          outputs.push(serialized)
+        }
+        expect(outputs[0]).toBe(outputs[1])
+      } finally {
+        await Promise.all(directories.map((directory) => fs.rm(directory, { recursive: true, force: true })))
+      }
+    },
+  )
+
+  it('enables relocation with outputBase alone and retains explicit absolute identities', async () => {
+    const result = await bundleWithDiagnostics(
+      {
+        $id: './schemas/Root.json',
+        $defs: {
+          File: { $id: 'file:///authored/schema.json', type: 'string' },
+          Public: { $id: 'https://authored.test/schema.json', type: 'integer' },
+        },
+        properties: {
+          file: { $ref: 'file:///authored/schema.json' },
+          public: { $ref: 'https://authored.test/schema.json' },
+        },
+      },
+      {
+        origin: '/private/checkout/root.json',
+        outputBase: 'https://published.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [],
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(JSON.parse(JSON.stringify(result.document))).toStrictEqual({
+      $id: 'https://published.test/schemas/Root.json',
+      $defs: {
+        File: { $id: 'file:///authored/schema.json', type: 'string' },
+        Public: { $id: 'https://authored.test/schema.json', type: 'integer' },
+      },
+      properties: {
+        file: { $ref: 'file:///authored/schema.json' },
+        public: { $ref: 'https://authored.test/schema.json' },
+      },
+    })
+  })
+
+  it('rejects output identities that collide with an explicitly authored identity', async () => {
+    await expect(
+      bundleWithDiagnostics(
+        {
+          $defs: {
+            Relative: { $id: './schema.json', type: 'string' },
+            Absolute: { $id: 'https://published.test/schema.json', type: 'integer' },
+          },
+        },
+        {
+          origin: '/private/checkout/root.json',
+          outputBase: 'https://published.test/root.json',
+          traversal: 'document',
+          treeShake: false,
+          plugins: [],
+        },
+      ),
+    ).rejects.toThrow('Schema output identity collision: https://published.test/schema.json')
+  })
+
+  it.each([true, false])('keeps unresolved local references reloadable (declared identity: %s)', async (withId) => {
+    const result = await bundleWithDiagnostics(
+      {
+        ...(withId ? { $id: './schemas/Root.json' } : {}),
+        properties: { missing: { $ref: withId ? '../missing.json' : './missing.json' } },
+      },
+      {
+        origin: '/private/checkout/root.json',
+        outputBase: 'https://published.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [],
+      },
+    )
+    expect(result.complete).toBe(false)
+    expect(JSON.parse(JSON.stringify(result.document))).toStrictEqual({
+      ...(withId ? { $id: 'https://published.test/schemas/Root.json' } : {}),
+      properties: { missing: { $ref: 'file:///private/checkout/missing.json' } },
+    })
+  })
+
   it.each(['$id', '$ref'])('reports malformed %s URI syntax without rejecting', async (keyword) => {
     const schema =
       keyword === '$id'
@@ -152,7 +314,7 @@ describe('relocate-references', () => {
     expect(exported.$defs.value.$dynamicAnchor).toBe('value')
   })
 
-  it('uses a virtual file base for in-memory input without an origin', async () => {
+  it('uses a virtual base for in-memory input without an origin', async () => {
     const result = await bundleWithDiagnostics(
       { $id: './schema.json', type: 'string' },
       {
@@ -163,7 +325,10 @@ describe('relocate-references', () => {
       },
     )
     expect(result.diagnostics).toStrictEqual([])
-    expect(JSON.parse(JSON.stringify(result.document))).toStrictEqual({ $id: 'file:///schema.json', type: 'string' })
+    expect(JSON.parse(JSON.stringify(result.document))).toStrictEqual({
+      $id: 'https://scalar.invalid/schema.json',
+      type: 'string',
+    })
   })
 
   it('strips dynamic anchors from anonymous imports without changing literal data', async () => {

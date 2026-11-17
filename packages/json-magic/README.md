@@ -130,16 +130,17 @@ const result = await bundle('https://example.test/api/root.json', {
 })
 ```
 
-This loads the URL root and bundles local files, internal references, and relative
-references such as `./child.json` inside remote documents. Only authored absolute
-HTTP(S) references are preserved by this predicate; keep the HTTP loader enabled.
+This loads the URL root and bundles internal references and relative references
+such as `./child.json` inside remote documents. Local entry documents can also
+bundle local file dependencies. Only authored absolute HTTP(S) references are
+preserved by this predicate; keep the HTTP loader enabled.
 Preservation emits no resolution start, success, or error hooks. Real failures on
 other edges retain normal error reporting. Node-processing hooks still run.
 
 When this option is present, indexed `$id` values are resolved against their
 original effective bases so serialization at another location retains schema
 identity and anchor scope. Like normal bundling, this can mutate input and cached
-objects. URL maps include only bundled resources. Omit the option to retain the
+objects. URL maps include only bundled resources. Omit both `preserveReference` and `outputBase` to retain the
 existing bundling behavior. Predicates preserving relative references are
 responsible for ensuring those references remain meaningful at the output base;
 use the absolute HTTP(S) predicate above for portable external references.
@@ -168,9 +169,39 @@ an authored `$id` changes the resolution base to a `file:` URI.
 
 Relative native retrieval paths resolve against the current working directory;
 canonical local identities therefore include absolute filesystem paths. In-memory
-input without an origin uses `/` as its virtual retrieval base, so relative schema
-identifiers become `file:///…` identities. Supply a public absolute URI as `origin`
-(or use absolute public schema identifiers) when output must not expose local paths.
+input without an origin uses the virtual output base `https://scalar.invalid/`
+when relocating resources, rather than claiming a filesystem identity. This URI
+is an identifier namespace and is not fetched.
+
+To publish local schemas without embedding checkout paths, set `outputBase` to
+an absolute hierarchical URI without a fragment:
+
+```ts
+const result = await bundle('./openapi.json', {
+  plugins: [readFiles()],
+  treeShake: true,
+  traversal: 'document',
+  outputBase: 'https://schemas.example.com/api/openapi.json',
+})
+```
+
+An imported schema with `$id: './schemas/Pet.json'` beside the input document
+now identifies itself as `https://schemas.example.com/api/schemas/Pet.json`.
+Dependencies still load from the original local files; `origin`, loader paths,
+cache keys, source diagnostics, and the preservation callback retain their source
+meaning. `outputBase` enables resource relocation even without `preserveReference`.
+Explicitly absolute schema identifiers and intentionally preserved references are
+unchanged. Files outside the entry directory use isolated `__bundle__/source-N/`
+namespaces so their parent directories are not exposed. Mapping two different
+resources to the same output identity is rejected.
+
+This remaps relative schema identities intentionally. Incomplete bundles retain
+unresolved local references as absolute source URIs so they can be retried later;
+these references can still expose local paths. An authored absolute `file:`
+identifier or preserved reference can also contain a local path. Check `complete`
+from `bundleWithDiagnostics` before treating the result as a complete portable
+bundle. URL maps, when requested, retain source locations.
+
 Use `traversal: 'document'` for format-aware identity rules, including OpenAPI 3.0,
 which does not define `$id`. The default generic traversal treats objects as schemas
 regardless of a document's declared OpenAPI version.

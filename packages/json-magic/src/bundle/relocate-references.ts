@@ -12,7 +12,7 @@ import type { SchemaResourceLocation } from './document-references'
 import type { documentTraversal } from './document-traversal'
 import { type ReferenceContext, getSchemaVocabulary } from './reference-context'
 
-type Resource = SchemaResourceLocation & { node: UnknownObject }
+type Resource = SchemaResourceLocation & { node: UnknownObject; sourceUri: string }
 
 /** A resolved target before its reference is rewritten for output. */
 export type RelocationTarget = { path: string[]; context: ReferenceContext }
@@ -27,21 +27,57 @@ type RelocationOptions = {
   createTraversal: () => ReturnType<typeof documentTraversal>
   documents: { path: string[]; context: ReferenceContext }[]
   sourceReferences: Map<object, SourceReference>
+  outputBase?: string
 }
 
 /** Keep resolved edges addressable from their schema resource after serialization. */
 export const relocateReferences = (
   root: object,
-  { targets, schemas, externalDocumentsKey, createTraversal, documents, sourceReferences }: RelocationOptions,
+  {
+    targets,
+    schemas,
+    externalDocumentsKey,
+    createTraversal,
+    documents,
+    sourceReferences,
+    outputBase,
+  }: RelocationOptions,
 ): void => {
+  const identityKey = (value: string): string => {
+    const [uri = '', fragment] = value.split('#', 2)
+    let base = uri
+    try {
+      base = new URL(uri).href
+    } catch {
+      // Relative references have no canonical identity without their source base.
+    }
+    base = base.replace(/%([\da-f]{2})/gi, (encoded, hex: string) => {
+      const character = String.fromCharCode(Number.parseInt(hex, 16))
+      return /^[a-z\d._~-]$/i.test(character) ? character : encoded.toUpperCase()
+    })
+    return `${base}${fragment === undefined ? '' : `#${decodeUriFragment(fragment)}`}`
+  }
   const resources: Resource[] = []
   const identities = new WeakMap<object, string>()
-  for (const { path, uri, idKeyword } of schemas) {
+  const outputIdentities = new Map<string, Resource>()
+  for (const { path, uri: sourceUri, outputUri, idKeyword } of schemas) {
     const node = getValueByPath(root, path).value
     if (!isObject(node)) {
       continue
     }
-    resources.push({ node, path, uri, idKeyword })
+    const uri = outputUri ?? sourceUri
+    const resource = { node, path, uri, outputUri, idKeyword, sourceUri }
+    const previous = outputIdentities.get(identityKey(uri))
+    if (
+      previous &&
+      getRaw(previous.node) !== getRaw(node) &&
+      (uri !== sourceUri || previous.uri !== previous.sourceUri)
+    ) {
+      throw new TypeError(`Schema output identity collision: ${uri}`)
+    }
+    outputIdentities.set(identityKey(uri), resource)
+    node[idKeyword] = uri
+    resources.push(resource)
     identities.set(getRaw(node), uri)
   }
   resources.sort((a, b) => b.path.length - a.path.length)
@@ -97,30 +133,26 @@ export const relocateReferences = (
       const destination = resourceAt(target.path)
       if (destination?.uri.includes('#') && target.path.length === destination.path.length) {
         node.$ref = destination.uri
+      } else if (
+        destination?.outputUri &&
+        destination.uri !== destination.sourceUri &&
+        !resourceAt([...reference.path])
+      ) {
+        const fragment = pointer(target.path.slice(destination.path.length))
+        node.$ref = `${destination.uri}${fragment === '#' ? '' : fragment}`
       }
       continue
     }
     const document = documents.find((document) => contains(document.path, [...reference.path]))
-    if (document?.path.length && !resourceAt([...reference.path])) {
+    const owner = resourceAt([...reference.path])
+    if ((!owner && (document?.path.length || outputBase !== undefined)) || (owner && owner.uri !== owner.sourceUri)) {
       node.$ref = absoluteReference(reference)
     }
   }
 
-  const identityKey = (value: string): string => {
-    const [uri = '', fragment] = value.split('#', 2)
-    let base = uri
-    try {
-      base = new URL(uri).href
-    } catch {
-      // Relative references have no canonical identity without their source base.
-    }
-    base = base.replace(/%([\da-f]{2})/gi, (encoded, hex: string) => {
-      const character = String.fromCharCode(Number.parseInt(hex, 16))
-      return /^[a-z\d._~-]$/i.test(character) ? character : encoded.toUpperCase()
-    })
-    return `${base}${fragment === undefined ? '' : `#${decodeUriFragment(fragment)}`}`
-  }
-  const reservedUris = new Set(schemas.map(({ uri }) => identityKey(uri)))
+  const reservedUris = new Set(
+    schemas.flatMap(({ uri, outputUri }) => [identityKey(uri), identityKey(outputUri ?? uri)]),
+  )
   const scanned = new WeakSet<object>()
   const reserveReferences = (value: unknown): void => {
     if (value === null || typeof value !== 'object' || scanned.has(getRaw(value))) {
