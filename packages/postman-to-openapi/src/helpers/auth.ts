@@ -1,7 +1,12 @@
 import { isObjectLike } from '@scalar/helpers/object/is-object'
+import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Auth, AuthAttributes } from '@/types'
+
+/** Resolves parent authentication when auth is omitted, null, or explicitly inherited. */
+export const resolveAuth = (auth: Auth | null | undefined, parentAuth?: Auth): Auth | undefined =>
+  auth && auth.type !== 'inherit' ? auth : parentAuth
 
 // Constants for security scheme names and URLs
 const AUTH_SCHEMES = {
@@ -197,7 +202,10 @@ const AUTH_TYPE_HANDLERS: Record<string, (auth?: Auth) => SecurityConfig> = {
  * Supports API key, basic auth, bearer token, digest, OAuth2, and no authentication types.
  * Other Postman types, such as AWS Signature or Hawk, produce no scheme and no requirement.
  */
-export function processAuth(auth: Auth): {
+export function processAuth(
+  auth: Auth,
+  existingSchemes: OpenAPIV3_1.ComponentsObject['securitySchemes'] = {},
+): {
   securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject>
   security: OpenAPIV3_1.SecurityRequirementObject[]
 } {
@@ -215,8 +223,16 @@ export function processAuth(auth: Auth): {
 
     // Only add security schemes and requirements if they're not empty
     if (Object.keys(scheme).length > 0) {
-      securitySchemes[schemeName] = scheme
-      security.push(requirement)
+      // Distinct OAuth2 endpoints or scopes must not change authentication on other operations.
+      let resolvedName = schemeName
+      for (let suffix = 2; Object.hasOwn(existingSchemes, resolvedName); suffix++) {
+        if (isObjectEqual(existingSchemes[resolvedName], scheme)) {
+          break
+        }
+        resolvedName = `${schemeName}_${suffix}`
+      }
+      securitySchemes[resolvedName] = scheme
+      security.push({ [resolvedName]: requirement[schemeName] ?? [] })
     }
   } catch (error) {
     console.error('Error processing authentication:', error)
