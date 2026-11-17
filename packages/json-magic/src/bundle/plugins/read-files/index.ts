@@ -24,7 +24,7 @@ const resolveConfinedPath = async (fs: FsPromises, filePath: string, basePath: s
 
 /**
  * Reads and normalizes data from a local file
- * @param filePath - The file path to read from
+ * @param filePath - The filesystem path or file URI to read from
  * @param basePath - When set, reads are confined to this directory so a `$ref` cannot escape it
  * @returns A promise that resolves to either the normalized data or an error result
  * @example
@@ -66,6 +66,7 @@ export async function readFile(
     }
 
     const fileContents = await fs.readFile(approvedPath, { encoding: 'utf-8' })
+
 
     return {
       ok: true,

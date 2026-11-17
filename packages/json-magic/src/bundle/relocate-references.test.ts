@@ -1,3 +1,7 @@
+import fs from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
+
 import { isObject } from '@scalar/helpers/object/is-object'
 import { describe, expect, it } from 'vitest'
 
@@ -7,6 +11,7 @@ import { createMagicProxy, getRaw } from '@/magic-proxy/proxy'
 
 import { type LoaderPlugin, bundle } from './bundle'
 import { bundleWithDiagnostics } from './bundle-with-diagnostics'
+import { readFiles } from './plugins/read-files'
 
 describe('relocate-references', () => {
   it.each([true, false])('keeps cross-resource references portable (treeShake: %s)', async (treeShake) => {
@@ -443,5 +448,65 @@ describe('relocate-references', () => {
       expect([...cache.keys()]).toEqual(['child.json'])
     }
     expect(reads).toEqual(['/tmp/source/child.json'])
+  })
+  it('rebundles serialized incomplete local dependencies after their targets become available', async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-rebundle-'))
+    try {
+      await fs.writeFile(
+        path.join(directory, 'b.json'),
+        JSON.stringify({
+          properties: { missing: { $ref: './missing file.json#/$defs/Value' } },
+        }),
+      )
+      const options = {
+        plugins: [readFiles({ basePath: directory })],
+        traversal: 'document' as const,
+        treeShake: true,
+        preserveReference: (ref: string): boolean => /^https?:\/\//.test(ref),
+      }
+      const first = await bundleWithDiagnostics(
+        {
+          openapi: '3.1.0',
+          info: { title: 'Retry', version: '1.0.0' },
+          paths: {},
+          components: {
+            schemas: {
+              A: {
+                $id: './schemas/A.json',
+                properties: { b: { $ref: '../b.json' } },
+              },
+            },
+          },
+        },
+        { ...options, origin: path.join(directory, 'root.json') },
+      )
+      expect(first.complete).toBe(false)
+      expect(first.diagnostics).toHaveLength(1)
+      await fs.writeFile(
+        path.join(directory, 'missing file.json'),
+        JSON.stringify({
+          $defs: { Value: { type: 'string' } },
+        }),
+      )
+      const second = await bundleWithDiagnostics(JSON.parse(JSON.stringify(first.document)), {
+        ...options,
+        origin: path.join(directory, 'download', 'output.json'),
+      })
+      expect(second.diagnostics).toEqual([])
+      expect(second.complete).toBe(true)
+      const exported = JSON.parse(JSON.stringify(second.document))
+      const a = exported.components.schemas.A
+      const b = getValueByPath(
+        a,
+        getSegmentsFromPath(decodeURIComponent(new URL(a.properties.b.$ref, a.$id).hash)),
+      ).value
+      const value = getValueByPath(
+        a,
+        getSegmentsFromPath(decodeURIComponent(new URL(b.properties.missing.$ref, a.$id).hash)),
+      ).value
+      expect(value).toEqual({ type: 'string' })
+    } finally {
+      await fs.rm(directory, { recursive: true, force: true })
+    }
   })
 })
