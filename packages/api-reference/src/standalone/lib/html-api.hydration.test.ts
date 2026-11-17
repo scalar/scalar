@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createSSRApp, h, nextTick } from 'vue'
 
 import ApiReference from '@/components/ApiReference.vue'
+import { firstLazyLoadComplete } from '@/helpers/lazy-bus'
 
 import { createApiReference } from './html-api'
 
@@ -66,6 +67,53 @@ describe('html-api hydration', () => {
       reference.destroy()
     }
   })
+  it('hydrates a second mount in the same document after the first finished loading', async () => {
+    const config = apiReferenceConfigurationWithSourceSchema({
+      _integration: 'html',
+      content: {
+        openapi: '3.1.0',
+        info: { title: 'Remount API', version: '1.0.0' },
+        paths: {
+          '/hello': { get: { summary: 'Say hello', responses: { '200': { description: 'Hello' } } } },
+        },
+      },
+    })
+    // A server process starts with the lazy bus untouched.
+    firstLazyLoadComplete.value = false
+    const ssrApp = createSSRApp({ render: () => h(ApiReference, { configuration: config }) })
+    ssrApp.config.idPrefix = 'scalar-refs'
+    const serverHtml = await renderToString(ssrApp)
+    const element = document.createElement('div')
+    element.innerHTML = serverHtml
+    document.body.append(element)
+
+    // The first instance finishes its lazy load, which sets the shared flag.
+    const first = createApiReference(element, config)
+    await vi.waitFor(() => expect(firstLazyLoadComplete.value).toBe(true))
+    first.destroy()
+
+    // Client-side navigation brings the same server HTML back and mounts again.
+    element.innerHTML = serverHtml
+    const heading = element.querySelector('h1')
+    consoleWarnSpy.mockClear()
+    consoleErrorSpy.mockClear()
+    const second = createApiReference(element, config)
+    try {
+      expect(element.querySelector('h1')).toBe(heading)
+      await flushPromises()
+      await nextTick()
+      const hydrationMessages = [...consoleWarnSpy.mock.calls, ...consoleErrorSpy.mock.calls]
+        .flat()
+        .map(String)
+        .filter((message) => /hydration/i.test(message))
+      expect(hydrationMessages).toStrictEqual([])
+      // Once mounted, the second instance follows the shared flag and drops the placeholder.
+      expect(element.querySelector('.references-container > .h-dvh')).toBeNull()
+    } finally {
+      second.destroy()
+    }
+  })
+
   /** Two tags, so the first one is opened by default and the second one stays closed. */
   const taggedDocument = {
     openapi: '3.1.0',
