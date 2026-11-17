@@ -213,7 +213,6 @@ export const checkDocument = (
 
   for (const entry of graph.entries.values()) {
     const segments = pointerSegments(entry.path)
-    const parent = graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/')))
     if (
       (segments.length === 3 && segments[0] === 'components' && !String(segments[1]).startsWith('x-')) ||
       (segments.length === 2 &&
@@ -221,20 +220,6 @@ export const checkDocument = (
       (async3 && segments.length === 2 && segments[0] === 'channels')
     ) {
       candidates.add(entry.path)
-    }
-    if (
-      isDocument(entry.value) &&
-      typeof entry.value.operationId === 'string' &&
-      ((parent?.context === 'path-item' && operationMethods.includes(segments.at(-1) ?? '')) ||
-        (segments.at(-2) === 'additionalOperations' &&
-          graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/additionalOperations/')))?.context ===
-            'path-item') ||
-        (async && ['publish', 'subscribe'].includes(segments.at(-1) ?? '')) ||
-        (async3 && segments[0] === 'operations' && segments.length === 2))
-    ) {
-      const paths = operationIds.get(entry.value.operationId) ?? new Set<string>()
-      paths.add(entry.path)
-      operationIds.set(entry.value.operationId, paths)
     }
   }
 
@@ -413,6 +398,25 @@ export const checkDocument = (
     }
   }
   visit('')
+  // Referenced fragments acquire their operation context while the graph is visited.
+  for (const entry of graph.entries.values()) {
+    const segments = pointerSegments(entry.path)
+    const parent = graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/')))
+    if (
+      isDocument(entry.value) &&
+      typeof entry.value.operationId === 'string' &&
+      ((parent?.context === 'path-item' && operationMethods.includes(segments.at(-1) ?? '')) ||
+        (segments.at(-2) === 'additionalOperations' &&
+          graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/additionalOperations/')))?.context ===
+            'path-item') ||
+        (async && ['publish', 'subscribe'].includes(segments.at(-1) ?? '')) ||
+        (async3 && segments[0] === 'operations' && segments.length === 2))
+    ) {
+      const paths = operationIds.get(entry.value.operationId) ?? new Set<string>()
+      paths.add(entry.path)
+      operationIds.set(entry.value.operationId, paths)
+    }
+  }
   for (const link of operationLinks) {
     const targets = operationIds.get(link.id)
     if (!targets || (prune && ![...targets].some((target) => live.has(target)))) {

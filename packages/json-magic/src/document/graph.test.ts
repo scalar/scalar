@@ -263,4 +263,16 @@ describe('graph', () => {
     expect(document['x-ext'].chunk.array).toHaveLength(2)
     expect(Object.keys(document.components.schemas)).toEqual(['Dependency'])
   })
+  it('checks operationId links after exposing external Path Item fragments', () => {
+    const document = {
+      ...api({}),
+      paths: {
+        '/a': { $ref: '#/x-ext/item' },
+        '/b': { get: { responses: { '200': { description: 'OK', links: { a: { operationId: 'getA' } } } } } },
+      },
+      'x-ext': { item: { get: { operationId: 'getA', responses: { '200': { description: 'OK' } } } } },
+    }
+    prune(document)
+    expect(document['x-ext'].item.get.operationId).toBe('getA')
+  })
 })

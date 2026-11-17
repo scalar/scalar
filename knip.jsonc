@@ -246,6 +246,7 @@
     },
     "packages/json-magic": {
       "entry": [
+        "src/document/index.ts",
         "src/bundle/index.ts",
         "src/magic-proxy/index.ts",
         "src/join/index.ts",
