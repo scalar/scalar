@@ -283,6 +283,16 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, definition))).toBe(expected)
   })
 
+  it.each([
+    [{}, '@filename'],
+    [{ type: 'object', properties: { value: {} } }, { value: null }],
+    [{ type: 'array', items: {} }, []],
+    [{ allOf: [{ type: 'object', properties: { value: {} } }, {}] }, { value: null }],
+  ])('limits binary media inference to the body value for %j', (definition, expected) => {
+    const schema = coerceValue(SchemaObjectSchema, definition)
+    expect(getExampleFromSchema(schema, undefined, { contentType: 'application/octet-stream' })).toStrictEqual(expected)
+  })
+
   it('refreshes generated dates and times in reused nested schemas', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',

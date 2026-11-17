@@ -2669,4 +2669,42 @@ describe('processBody', () => {
     })
     expect(result).toStrictEqual({ mimeType: contentType, text: 'null' })
   })
+
+  it.each([
+    { example: null },
+    { examples: [null] },
+    { default: null },
+    { const: null },
+    { enum: [null] },
+    { type: 'null' },
+    { allOf: [{ example: null }] },
+    { oneOf: [{ type: 'null' }, {}] },
+  ])('preserves null from a binary body schema %j', (definition) => {
+    const contentType = 'application/octet-stream'
+    const result = processBody({
+      requestBody: { content: { [contentType]: { schema: coerceValue(SchemaObjectSchema, definition) } } },
+      contentType,
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+    })
+    expect(result).toStrictEqual({ mimeType: contentType, text: 'null' })
+  })
+
+  it.each(['schema', 'itemSchema'] as const)('preserves JSON stream framing with an empty %s', (schemaKey) => {
+    for (const contentType of [
+      'application/jsonl',
+      'application/x-ndjson',
+      'application/json-lines',
+      'application/json-seq',
+      'application/vnd.example+json-seq; charset=utf-8',
+    ]) {
+      const result = processBody({
+        requestBody: { content: { [contentType]: { [schemaKey]: coerceValue(SchemaObjectSchema, {}) } } },
+        contentType,
+      })
+      expect(result).toStrictEqual({
+        mimeType: contentType,
+        text: contentType.includes('json-seq') ? '\u001enull\n' : 'null\n',
+      })
+    }
+  })
 })

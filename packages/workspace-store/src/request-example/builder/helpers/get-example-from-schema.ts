@@ -1764,6 +1764,7 @@ const generateExampleFromSchema = (
     dynamicScope = [],
     requiredScope,
     isRequiredProperty = false,
+    contentType,
   }: Partial<{
     level: number
     parentSchema: SchemaObject
@@ -1777,6 +1778,8 @@ const generateExampleFromSchema = (
     requiredScope: ReadonlySet<string>
     /** Use null for an unconstrained required property without confusing explicit values with the depth marker. */
     isRequiredProperty: boolean
+    /** Media type of this value; selected alternatives inherit it, nested values do not. */
+    contentType: string
   }> = {},
 ): unknown => {
   // Cache restrictions only apply to the current traversal, so every top-level call starts clean.
@@ -1812,6 +1815,7 @@ const generateExampleFromSchema = (
         dynamicScope,
         requiredScope,
         isRequiredProperty,
+        contentType,
       })
     }
   }
@@ -1952,6 +1956,7 @@ const generateExampleFromSchema = (
           seen,
           dynamicScope: childScope,
           isRequiredProperty,
+          contentType,
         },
       )
       seen.delete(targetValue)
@@ -2027,6 +2032,7 @@ const generateExampleFromSchema = (
               dynamicScope: childScope,
               requiredScope: memberRequiredScope,
               isRequiredProperty,
+              contentType,
             }),
             options,
             schemaPath,
@@ -2079,8 +2085,8 @@ const generateExampleFromSchema = (
     return cache(_schema, unionPrimitive, cacheKey, skipCache)
   }
 
-  // OAS 3.1 describes raw binary with contentMediaType and no type, which is also what upgraded 3.0 files become.
-  if (isFileSchema(_schema, false)) {
+  // Infer raw binary only after declared examples and typed values have had priority.
+  if (!('type' in _schema) && isFileSchema(_schema, false, contentType)) {
     seen.delete(targetValue)
     return cache(_schema, '@filename', cacheKey, skipCache)
   }

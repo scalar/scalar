@@ -1,7 +1,7 @@
+import { getStreamFormat } from '@scalar/helpers/http/is-streaming-content-type'
 import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { isFileSchema } from '@scalar/workspace-store/helpers/is-file-schema'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -331,13 +331,10 @@ export const processBody = ({
       },
       {
         schemaPath: ['requestBody'],
+        // JSON streams retain their framing instead of being inferred as binary media.
+        contentType: !isFormData && !getStreamFormat(_contentType) ? _contentType : undefined,
       },
     )
-
-    // A binary media type with an untyped schema, such as an upgraded 3.0 binary body, is a file and never `null`.
-    if (extractedExample === null && !isFormData && isFileSchema(contentSchema, false, _contentType)) {
-      return { mimeType: harMimeType, text: '@filename' }
-    }
 
     if (extractedExample !== undefined) {
       if (isFormData && typeof extractedExample === 'object' && extractedExample !== null) {
