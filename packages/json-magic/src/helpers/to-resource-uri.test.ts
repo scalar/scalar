@@ -1,11 +1,32 @@
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { toResourceUri } from './to-resource-uri'
 
 describe('to-resource-uri', () => {
+  it('retains literal backslashes in relative POSIX paths and the working directory', () => {
+    const currentDirectory = vi.spyOn(process, 'cwd').mockReturnValue(String.raw`/tmp/current\dir`)
+    try {
+      const source = String.raw`./source\dir/root.json`
+      expect(toResourceUri(source)).toBe(pathToFileURL(path.posix.resolve(source), { windows: false }).href)
+    } finally {
+      currentDirectory.mockRestore()
+    }
+  })
+  it.each([String.raw`.\source dir\Pet.json`, './schemas/Pet.json', String.raw`\root.json`, '/root.json'])(
+    'resolves %s from a Windows working directory',
+    (source) => {
+      const currentDirectory = vi.spyOn(process, 'cwd').mockReturnValue('C:\\working directory')
+      try {
+        expect(toResourceUri(source)).toBe(pathToFileURL(source, { windows: true }).href)
+      } finally {
+        currentDirectory.mockRestore()
+      }
+    },
+  )
+
   it('retains literal backslashes in absolute POSIX paths', () => {
     const source = String.raw`/tmp/source\dir/root.json`
     expect(toResourceUri(source)).toBe(pathToFileURL(source, { windows: false }).href)

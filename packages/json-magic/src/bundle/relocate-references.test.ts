@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import { isObject } from '@scalar/helpers/object/is-object'
 import { describe, expect, it } from 'vitest'
@@ -14,6 +15,23 @@ import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { readFiles } from './plugins/read-files'
 
 describe('relocate-references', () => {
+  it('retains relative POSIX retrieval paths containing literal backslashes', async () => {
+    const origin = String.raw`./source\dir/root.json`
+    const result = await bundleWithDiagnostics(
+      { $id: './A.json', type: 'string' },
+      {
+        origin,
+        treeShake: false,
+        traversal: 'document',
+        plugins: [],
+        preserveReference: (ref) => /^https?:\/\//.test(ref),
+      },
+    )
+    expect(result.complete).toBe(true)
+    const exported = JSON.parse(JSON.stringify(result.document))
+    expect(exported.$id).toBe(new URL('./A.json', pathToFileURL(path.resolve(origin))).href)
+  })
+
   it('retains UNC authorities when resolving relative schema identifiers', async () => {
     const result = await bundleWithDiagnostics(
       { $id: './schemas/A.json', type: 'string' },
