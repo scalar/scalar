@@ -6,6 +6,37 @@ import { sources } from '../utils/sources'
 const modelNames = sources.find((source) => source.slug === 'model-names')?.content
 
 test.describe('schema rendering', () => {
+  test('uses inline object titles in OpenAPI array type signatures', async ({ page }) => {
+    const example = await serveExample({
+      expandAllModelSections: true,
+      content: {
+        openapi: '3.1.2',
+        info: { title: 'Inline titled arrays', version: '1.0.0' },
+        components: {
+          schemas: {
+            Collection: {
+              type: 'object',
+              properties: {
+                pets: {
+                  type: 'array',
+                  items: { type: 'object', title: 'Pet', properties: { name: { type: 'string' } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    await page.goto(`${example}#models`)
+
+    const collection = page.getByRole('region', { name: 'Collection', exact: true })
+    await expect(collection.getByText('pets', { exact: true })).toBeVisible()
+    await expect(collection.getByText('array of Pet', { exact: true })).toBeVisible()
+    await collection.getByRole('button', { name: 'pets', exact: true }).click()
+    await expect(collection.getByText('name', { exact: true })).toBeVisible()
+  })
+
   for (const layout of ['modern', 'classic'] as const) {
     test(`indents array-of-object query parameters in ${layout} (#10380)`, async ({ page }) => {
       const example = await serveExample({
