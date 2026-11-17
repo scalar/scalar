@@ -21,6 +21,8 @@ type Entry = {
   origin: string
   base: string
   context: ReferenceContext
+  /** Stored fragments have no authored schema vocabulary until a reference supplies it. */
+  inferredContext: boolean
 }
 /** Indexed locations and reference resolution for a bundled API description. */
 export type DocumentGraph = {
@@ -74,6 +76,7 @@ export const createGraph = (document: Record<string, unknown>, origin: string): 
     base: string,
     context: ReferenceContext,
     ancestors: Set<object>,
+    inferredContext = false,
   ): void => {
     const vocabulary = getSchemaVocabulary(context)
     const externalRoot = pointerSegments(path).length === 2 && path.startsWith('/x-ext/')
@@ -85,7 +88,7 @@ export const createGraph = (document: Record<string, unknown>, origin: string): 
           : undefined
       : undefined
     const currentOrigin = typeof identity === 'string' ? resolveReferencePath(base, identity) : base
-    entries.set(path, { value, path, base, origin: currentOrigin, context })
+    entries.set(path, { value, path, base, origin: currentOrigin, context, inferredContext })
     if (value === null || typeof value !== 'object' || context === 'data' || ancestors.has(value)) {
       return
     }
@@ -102,26 +105,24 @@ export const createGraph = (document: Record<string, unknown>, origin: string): 
     }
     for (const [key, child] of Object.entries(value)) {
       const childContext = traversalContext(value, context, key, document)
-      index(child, childPath(path, key), currentOrigin, childContext, next)
+      index(child, childPath(path, key), currentOrigin, childContext, next, inferredContext)
     }
   }
   index(document, '', origin, 'object', new Set())
   if (isDocument(document['x-ext'])) {
     for (const [key, value] of Object.entries(document['x-ext'])) {
       const path = childPath('/x-ext', key)
+      const api = isDocument(value) && ('openapi' in value || 'swagger' in value || 'asyncapi' in value)
       // References into stored fragments supply their semantic context at the use site.
-      index(
-        value,
-        path,
-        origin,
-        isDocument(value) && ('openapi' in value || 'swagger' in value || 'asyncapi' in value) ? 'object' : 'schema',
-        new Set(),
-      )
+      index(value, path, origin, api ? 'object' : 'schema', new Set(), !api)
     }
   }
   const expose = (path: string, context: ReferenceContext): void => {
     const entry = entries.get(path)
-    if (entry?.context === context || (isSchemaContext(entry?.context) && isSchemaContext(context))) {
+    if (
+      entry?.context === context ||
+      (isSchemaContext(entry?.context) && isSchemaContext(context) && !entry.inferredContext)
+    ) {
       return
     }
     const ancestor = [...entries.values()]

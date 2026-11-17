@@ -275,4 +275,31 @@ describe('graph', () => {
     prune(document)
     expect(document['x-ext'].item.get.operationId).toBe('getA')
   })
+  it('inherits the AsyncAPI schema format for stored payload wrappers', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      channels: { pets: { address: 'pets', messages: { pet: { payload: { $ref: '#/x-ext/schema' } } } } },
+      operations: { send: { action: 'send', channel: { $ref: '#/channels/pets' } } },
+      components: { schemas: { Foo: { type: 'string' }, Dead: {} } },
+      'x-ext': {
+        schema: {
+          schemaFormat: 'application/schema+json;version=draft-07',
+          schema: { $ref: '#/components/schemas/Foo' },
+        },
+      },
+    }
+    prune(document)
+    expect(Object.keys(document.components.schemas)).toEqual(['Foo'])
+  })
+
+  it('inherits native AsyncAPI reference sibling semantics for stored payloads', () => {
+    const document = {
+      asyncapi: '2.6.0',
+      channels: { pets: { publish: { message: { payload: { $ref: '#/x-ext/schema' } } } } },
+      components: { schemas: { Foo: { type: 'string' } } },
+      'x-ext': { schema: { $ref: '#/components/schemas/Foo', properties: { ignored: { $ref: '#/missing' } } } },
+    }
+    prune(document)
+    expect(document.components.schemas.Foo).toEqual({ type: 'string' })
+  })
 })
