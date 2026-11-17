@@ -1,5 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
+import { decodeUriFragment } from '@/helpers/decode-uri-fragment'
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
@@ -106,7 +107,21 @@ export const relocateReferences = (
     }
   }
 
-  const reservedUris = new Set(schemas.map(({ uri }) => uri))
+  const identityKey = (value: string): string => {
+    const [uri = '', fragment] = value.split('#', 2)
+    let base = uri
+    try {
+      base = new URL(uri).href
+    } catch {
+      // Relative references have no canonical identity without their source base.
+    }
+    base = base.replace(/%([\da-f]{2})/gi, (encoded, hex: string) => {
+      const character = String.fromCharCode(Number.parseInt(hex, 16))
+      return /^[a-z\d._~-]$/i.test(character) ? character : encoded.toUpperCase()
+    })
+    return `${base}${fragment === undefined ? '' : `#${decodeUriFragment(fragment)}`}`
+  }
+  const reservedUris = new Set(schemas.map(({ uri }) => identityKey(uri)))
   const scanned = new WeakSet<object>()
   const reserveReferences = (value: unknown): void => {
     if (value === null || typeof value !== 'object' || scanned.has(getRaw(value))) {
@@ -114,7 +129,7 @@ export const relocateReferences = (
     }
     scanned.add(getRaw(value))
     if (isObject(value) && typeof value.$ref === 'string') {
-      reservedUris.add(value.$ref)
+      reservedUris.add(identityKey(value.$ref))
     }
     for (const key of Object.keys(getRaw(value))) {
       reserveReferences(Reflect.get(value, key))
@@ -164,8 +179,8 @@ export const relocateReferences = (
         let alias = index
         do {
           uri = `${owner.uri.split('#', 1)[0]}#scalar-bundle-${alias++}`
-        } while (reservedUris.has(uri))
-        reservedUris.add(uri)
+        } while (reservedUris.has(identityKey(uri)))
+        reservedUris.add(identityKey(uri))
       }
       copies.push({ source: target, destination: location, uri })
       const value = copy(getValueByPath(root, target).value, context)
