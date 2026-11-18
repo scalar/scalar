@@ -1,3 +1,4 @@
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
@@ -20,7 +21,6 @@ const ANNOTATION_KEYWORDS = new Set([
 
 // These maps hold author-chosen names, so an `x-` prefix there is not an extension keyword.
 const NAMED_OPENAPI_MAPS = new Set([
-  'paths',
   'webhooks',
   'content',
   'headers',
@@ -72,11 +72,56 @@ const isInsideExtension = (path: string[] | undefined): boolean => {
 }
 
 /** Keep schema keywords separate from author-chosen names. */
-const isSchemaObjectPath = (path: string[] | undefined): boolean => {
-  // Bundled external resources can be standalone schemas without an enclosing `schema` field.
-  const schemaPath = path?.[0] === 'x-ext' && path[1] !== undefined ? ['schema', ...path.slice(2)] : path
+const isSchemaObjectPath = (path: string[] | undefined): boolean =>
+  !!path && isSchemaPath(path) && !isNamedSchemaMap(path) && !isInsideExtension(path)
 
-  return !!schemaPath && isSchemaPath(schemaPath) && !isNamedSchemaMap(schemaPath) && !isInsideExtension(path)
+/** Give a referenced standalone schema the same context as an inline Schema Object. */
+const getSchemaPath = (path: string[] | undefined, schemaPaths: ReadonlySet<string>): string[] | undefined => {
+  if (path?.[0] !== 'x-ext') {
+    return path
+  }
+
+  for (let length = path.length; length >= 2; length--) {
+    if (schemaPaths.has(JSON.stringify(path.slice(0, length)))) {
+      return ['schema', ...path.slice(length)]
+    }
+  }
+
+  return path
+}
+
+/** Bundles can contain whole OpenAPI documents or arbitrary fragments, not just schemas. */
+const getBundledSchemaPaths = (content: UnknownObject): ReadonlySet<string> => {
+  const references: { path: string[]; target: string[] }[] = []
+  traverse(content, (node, path = []) => {
+    if (typeof node.$ref === 'string' && node.$ref.startsWith('#/x-ext/')) {
+      try {
+        references.push({ path, target: parseJsonPointerSegments(node.$ref.slice(1)) })
+      } catch {
+        // Malformed pointers must not make an otherwise unrelated migration fail.
+      }
+    }
+    return node
+  })
+
+  const schemaPaths = new Set<string>()
+  // Follow schema references transitively; a standalone schema may itself be only a $ref.
+  while (references.length > 0) {
+    const pending = references.splice(0)
+    for (const reference of pending) {
+      const path = getSchemaPath(reference.path, schemaPaths)
+      if (isSchemaObjectPath(path) && !isInsideDataValue(path, '3.0')) {
+        schemaPaths.add(JSON.stringify(reference.target))
+      } else {
+        references.push(reference)
+      }
+    }
+    if (references.length === pending.length) {
+      break
+    }
+  }
+
+  return schemaPaths
 }
 
 /** Determine if the node at `path` is one arm of a schema's `oneOf` or `anyOf`. */
@@ -114,7 +159,8 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
   content.openapi = '3.1.1'
 
   // Single traversal that handles all transformations
-  content = traverse(content, applyChangesToDocument)
+  const schemaPaths = getBundledSchemaPaths(content)
+  content = traverse(content, (node, path) => applyChangesToDocument(node, getSchemaPath(path, schemaPaths)))
 
   return content as OpenAPIV3_1.Document
 }

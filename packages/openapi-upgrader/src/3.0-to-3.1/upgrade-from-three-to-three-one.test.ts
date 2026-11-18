@@ -130,6 +130,94 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
   })
 
+  it('preserves nullable-named OpenAPI components in bundled documents', () => {
+    const parameter = { name: 'limit', in: 'query', required: true, schema: { type: 'integer', nullable: true } }
+    const response = {
+      description: 'OK',
+      content: { 'application/json': { schema: { type: 'string', nullable: true } } },
+    }
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Bundled components', version: '1' },
+      paths: {},
+      'x-ext': {
+        external: {
+          openapi: '3.0.4',
+          info: { title: 'Shared', version: '1' },
+          paths: {},
+          components: { parameters: { nullable: parameter }, responses: { nullable: response } },
+        },
+      },
+    })
+
+    expect(result['x-ext']).toStrictEqual({
+      external: {
+        openapi: '3.0.4',
+        info: { title: 'Shared', version: '1' },
+        paths: {},
+        components: {
+          parameters: { nullable: { ...parameter, schema: { type: ['integer', 'null'] } } },
+          responses: {
+            nullable: { description: 'OK', content: { 'application/json': { schema: { type: ['string', 'null'] } } } },
+          },
+        },
+      },
+    })
+  })
+
+  it('follows schema references across standalone resources without rewriting unrelated fragments', () => {
+    const data = { nullable: true, oneOf: [{ type: 'string' }] }
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Bundled schema references', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: '#/x-ext/alias' } } },
+      'x-ext': {
+        value: data,
+        alias: { $ref: '#/x-ext/value' },
+        example: data,
+      },
+    })
+
+    expect(result['x-ext']).toStrictEqual({
+      value: { anyOf: [{ oneOf: [{ type: 'string' }] }, { type: 'null' }] },
+      alias: { $ref: '#/x-ext/value' },
+      example: data,
+    })
+  })
+
+  it('preserves specification extensions directly inside the Paths Object', () => {
+    const metadata = { schema: { nullable: true, oneOf: [{ type: 'string' }] } }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Path extensions', version: '1' },
+      paths: {
+        'x-metadata': metadata,
+        '/records': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: { 'application/json': { schema: { type: 'string', nullable: true } } },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths).toStrictEqual({
+      'x-metadata': metadata,
+      '/records': {
+        get: {
+          responses: {
+            '200': { description: 'OK', content: { 'application/json': { schema: { type: ['string', 'null'] } } } },
+          },
+        },
+      },
+    })
+  })
+
   it.each([
     [{ nullable: true }, {}],
     [{ nullable: false }, {}],

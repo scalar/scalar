@@ -444,9 +444,11 @@ export const upgradeFragment = async (
           result.format = 'binary'
         }
       }
-      // Plan nullable allOf destinations before visiting descendants, so unchanged paths
-      // need no temporary records and nested relocations require no full-list rewrites.
-      const unwrapAllOf = result.nullable === true && result.type === undefined && typeof result.$ref !== 'string'
+      // Record where composition members move before visiting descendants, so references
+      // into nullable unions still resolve after the null alternative is added.
+      const compositions = ['allOf', 'anyOf', 'oneOf'].filter((key) => Array.isArray(result[key]))
+      const wrapCompositions = result.nullable === true && result.type === undefined && typeof result.$ref !== 'string'
+      const unwrapAllOf = compositions.length === 1 && Array.isArray(result.allOf) && result.allOf.length === 1
       for (const [key, entry] of Object.entries(result)) {
         if (schemaMaps.has(key)) {
           result[key] = await map(entry, 'schema', [key])
@@ -458,8 +460,8 @@ export const upgradeFragment = async (
                   kind: 'schema',
                   source: [...source, key, String(index)],
                   output:
-                    key === 'allOf' && unwrapAllOf
-                      ? [...output, 'anyOf', '0', ...(entry.length === 1 ? [] : ['allOf', String(index)])]
+                    wrapCompositions && compositions.includes(key)
+                      ? [...output, 'anyOf', '0', ...(key === 'allOf' && unwrapAllOf ? [] : [key, String(index)])]
                       : [...output, key, String(index)],
                   consumes,
                   produces,

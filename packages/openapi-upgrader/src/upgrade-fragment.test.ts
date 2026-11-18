@@ -174,6 +174,31 @@ describe('upgrade-fragment', () => {
     expect(result.locations).toContainEqual({ source: ['get', 'parameters', '0'], output: ['get', 'parameters', '1'] })
   })
 
+  it.each(['oneOf', 'anyOf'] as const)('records relocated members of a nullable %s', async (keyword) => {
+    const result = await upgradeFragment(
+      { nullable: true, [keyword]: [{ type: 'string' }] },
+      { from: '3.0', to: '3.1', kind: 'schema' },
+    )
+
+    expect(result.value).toStrictEqual({ anyOf: [{ [keyword]: [{ type: 'string' }] }, { type: 'null' }] })
+    expect(result.locations).toStrictEqual([{ source: [keyword, '0'], output: ['anyOf', '0', keyword, '0'] }])
+  })
+
+  it('retains the allOf segment when a nullable schema carries multiple compositions', async () => {
+    const result = await upgradeFragment(
+      { nullable: true, allOf: [{ minLength: 1 }], oneOf: [{ type: 'string' }] },
+      { from: '3.0', to: '3.1', kind: 'schema' },
+    )
+
+    expect(result.value).toStrictEqual({
+      anyOf: [{ allOf: [{ minLength: 1 }], oneOf: [{ type: 'string' }] }, { type: 'null' }],
+    })
+    expect(result.locations).toStrictEqual([
+      { source: ['allOf', '0'], output: ['anyOf', '0', 'allOf', '0'] },
+      { source: ['oneOf', '0'], output: ['anyOf', '0', 'oneOf', '0'] },
+    ])
+  })
+
   it('composes nested nullable schema relocations', async () => {
     const result = await upgradeFragment(
       { nullable: true, allOf: [{ nullable: true, allOf: [{ type: 'string' }] }] },
