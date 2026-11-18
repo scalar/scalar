@@ -14,7 +14,12 @@ export const createNativeSchemaEditTracker = (): ((document: object) => boolean)
       const node = unpackProxyShallow(value)
       if (seen.has(node)) return
       seen.add(node)
-      if (isObject(node) && typeof node.schemaFormat === 'string' && deferSchemaResources(node.schemaFormat, '/')) {
+      if (
+        isObject(node) &&
+        'schema' in node &&
+        typeof node.schemaFormat === 'string' &&
+        deferSchemaResources(node.schemaFormat, '/')
+      ) {
         try {
           sources.set(node, JSON.stringify([node.schemaFormat, node.schema]))
         } catch {

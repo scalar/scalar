@@ -585,4 +585,60 @@ describe('async-api-schema-resources', () => {
       ])
     },
   )
+  it.each([false, true])(
+    'invalidates nonreactive legacy payloads after edits (inherited format: %s)',
+    async (inherited) => {
+      const requested: string[] = []
+      let dependency = user
+      const store = createWorkspaceStore({
+        reactive: false,
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.resolve(new Response(dependency))
+        },
+      })
+      await store.addDocument({
+        name: 'test',
+        documentSource: 'https://example.test/api.yaml',
+        document: {
+          asyncapi: '2.6.0',
+          info: { title: 'Legacy native payload', version: '1' },
+          channels: {
+            users: {
+              publish: {
+                message: {
+                  name: 'User',
+                  payload: value,
+                  ...(inherited ? { traits: [{ schemaFormat: format }] } : { schemaFormat: format }),
+                },
+              },
+            },
+          },
+        },
+      })
+      const loaded = store.workspace.documents.test
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      const message = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.channels?.users)?.messages?.User)
+      const payload = getResolvedAsyncApiRef(message?.payload)
+      if (!isObject(payload) || !('schema' in payload)) throw new Error('Missing native payload')
+      await expand(store, payload)
+      const resolver = store.asyncApiSchemaResources('test')
+      dependency = 'syntax="proto3"; message User { string current_id=1; }'
+      payload.schema = value + '\n// Edited legacy payload'
+      expect(await expand(store, payload)).toStrictEqual({
+        kind: 'source',
+        format,
+        value: value + '\n// Edited legacy payload',
+        resources: {
+          origin: 'https://example.test/api.yaml',
+          files: { 'https://example.test/types/user.proto': dependency },
+        },
+      })
+      expect(store.asyncApiSchemaResources('test')).not.toBe(resolver)
+      expect(requested).toStrictEqual([
+        'https://example.test/types/user.proto',
+        'https://example.test/types/user.proto',
+      ])
+    },
+  )
 })
