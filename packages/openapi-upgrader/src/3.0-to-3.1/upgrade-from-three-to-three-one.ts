@@ -18,23 +18,26 @@ const ANNOTATION_KEYWORDS = new Set([
   'writeOnly',
 ])
 
-/**
- * Determine if the node at `path` is one arm of a `oneOf` or `anyOf`.
- *
- * Extension payloads can contain objects that look like union arms too. Only interpret unions
- * in schema context, keeping extension values opaque and allowing schema names prefixed by `x-`.
- */
-function isUnionArm(path: string[] | undefined): boolean {
-  if (!path || path.length < 2 || !isSchemaPath(path.slice(0, -2))) {
+/** Keep schema keywords separate from author-chosen names and extension payloads. */
+const isSchemaObjectPath = (path: string[] | undefined): boolean => {
+  // Bundled external resources can be standalone schemas without an enclosing `schema` field.
+  const schemaPath = path?.[0] === 'x-ext' && path[1] !== undefined ? ['schema', ...path.slice(2)] : path
+
+  if (!schemaPath || !isSchemaPath(schemaPath) || isNamedSchemaMap(schemaPath)) {
     return false
   }
 
-  const isInsideSchemaExtension = path.some((segment, index) => {
-    const parent = path.slice(0, index)
+  const isInsideSchemaExtension = schemaPath.some((segment, index) => {
+    const parent = schemaPath.slice(0, index)
     return segment.startsWith('x-') && isSchemaPath(parent) && !isNamedSchemaMap(parent)
   })
 
-  if (isInsideSchemaExtension) {
+  return !isInsideSchemaExtension
+}
+
+/** Determine if the node at `path` is one arm of a schema's `oneOf` or `anyOf`. */
+function isUnionArm(path: string[] | undefined): boolean {
+  if (!path || path.length < 2 || !isSchemaObjectPath(path.slice(0, -2))) {
     return false
   }
 
@@ -80,38 +83,38 @@ export const applyChangesToDocument = (schema: UnknownObject, path?: string[]) =
     return schema
   }
 
-  // 1. Handle nullable types
-  if (schema.type !== undefined && schema.nullable === true) {
-    schema.type = [schema.type, 'null']
+  // Only schema keywords migrate: a property named `nullable` or an extension payload is data.
+  if (isSchemaObjectPath(path)) {
+    if (schema.type !== undefined && schema.nullable === true) {
+      schema.type = [schema.type, 'null']
+    } else if (schema.nullable === true) {
+      // Preserve the legacy nullable-reference spelling used by OpenAPI 3.0 exporters.
+      if (typeof schema.$ref === 'string') {
+        const { nullable: _nullable, $ref, ...rest } = schema
+        return { ...rest, anyOf: [{ $ref }, { type: 'null' }] }
+      }
+
+      if (['allOf', 'anyOf', 'oneOf'].some((keyword) => Array.isArray(schema[keyword]))) {
+        const { nullable: _nullable, allOf, anyOf, oneOf, ...rest } = schema
+        const composition = {
+          ...(allOf === undefined ? {} : { allOf }),
+          ...(anyOf === undefined ? {} : { anyOf }),
+          ...(oneOf === undefined ? {} : { oneOf }),
+        }
+        // Keep sibling constraints and annotations outside the union, as for nullable references.
+        const base =
+          Object.keys(composition).length === 1 && Array.isArray(allOf) && allOf.length === 1 ? allOf[0] : composition
+        return { ...rest, anyOf: [base, { type: 'null' }] }
+      }
+
+      // Some exporters use a nullable-only alternative to mean "or null".
+      if (isUnionArm(path) && isNullableOnly(schema)) {
+        schema.type = 'null'
+      }
+    }
+
+    // `nullable: false` and an untyped nullable without a union add no constraints in 3.1.
     delete schema.nullable
-  }
-  // 1b. Handle nullable `$ref` patterns.
-  // OpenAPI 3.0 had no way to mark a `$ref` as nullable, so people wrote `nullable: true` next to
-  // a `$ref`, or next to an `allOf` wrapping one. `nullable` does not exist in 3.1, so leaving these
-  // untouched would silently drop the null option. Rewrite them to the 3.1 null-union form. This only
-  // runs when there is no sibling `type` (that case is handled above).
-  else if (schema.nullable === true && schema.type === undefined) {
-    if (typeof schema.$ref === 'string') {
-      const { nullable: _nullable, $ref, ...rest } = schema
-      return { ...rest, anyOf: [{ $ref }, { type: 'null' }] }
-    }
-
-    if (Array.isArray(schema.allOf)) {
-      const { nullable: _nullable, allOf, ...rest } = schema
-      // A single-member `allOf` unwraps so the union reads `anyOf: [<member>, { type: 'null' }]`.
-      const base = allOf.length === 1 ? allOf[0] : { allOf }
-      return { ...rest, anyOf: [base, { type: 'null' }] }
-    }
-
-    // A union arm that says nothing but `nullable: true` is how some 3.0 exporters spell "or null":
-    // `oneOf: [{ nullable: true }, { $ref: X }]`. Left alone, the arm reads as "any value" in 3.1 and
-    // swallows the real arm, so it becomes the `{ type: 'null' }` arm it was meant to be.
-    if (isUnionArm(path) && isNullableOnly(schema)) {
-      delete schema.nullable
-      schema.type = 'null'
-    }
-
-    // Otherwise there is nothing for `nullable` to attach to, so leave the schema untouched.
   }
 
   // 2. Handle exclusiveMinimum and exclusiveMaximum

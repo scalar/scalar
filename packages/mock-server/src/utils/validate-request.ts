@@ -23,22 +23,20 @@ import {
   resolveSerialization,
 } from './deserialize-parameter'
 import { dropReadOnlyRequired } from './drop-read-only-required'
-import { normalizeNullable } from './normalize-nullable'
 import { findQuerystringParameter, getQuerystringJsonSchema, parseQuerystringParameter } from './querystring-parameter'
 import { replaceCircularMarkers } from './replace-circular-markers'
 
 /**
  * Prepare a resolved schema for Ajv by replacing the `'[circular]'` markers a recursive schema leaves
- * behind and by giving every `nullable` without a `type` something Ajv accepts. Ajv refuses to compile a
- * schema that still carries either one, which makes the body — or the whole parameter location built
- * around it — fail open.
+ * behind. Ajv refuses to compile a schema that still carries one, which makes the body — or the whole
+ * parameter location built around it — fail open.
  *
  * Only Ajv sees this copy. Everything that reads the *shape* of a schema keeps reading the resolved
  * one, because the rewrite may drop a keyword (a `oneOf` the cycle ran through, say) that the shape
  * still depends on.
  */
 const asCompilableSchema = (resolved: unknown): Record<string, unknown> =>
-  normalizeNullable(replaceCircularMarkers(resolved)) as Record<string, unknown>
+  replaceCircularMarkers(resolved) as Record<string, unknown>
 
 /** Where a validation violation was found in the request */
 type ViolationLocation = 'body' | 'query' | 'path' | 'header' | 'cookie'
@@ -257,16 +255,15 @@ const compileValidators = (
   const querystringParameter = findQuerystringParameter(operation, pathItemParameters)
   const [querystringContentType, querystringMedia] = getFirstMediaType(querystringParameter?.content) ?? []
   const querystringSchema = querystringMedia?.schema
-  const querystringJsonSchema = getQuerystringJsonSchema(querystringParameter)
 
   const requestBody = getResolvedRef(operation.requestBody)
   // Build the body schema defensively; resolving a malformed `$ref` should not crash setup.
   let bodySchema: Record<string, unknown> | null = null
   try {
     const jsonSchema = getResolvedRef(requestBody?.content?.['application/json'])?.schema
-    // Read-only requirements are dropped first, while a `readOnly` property still sits where the author put it
-    // and not inside the `anyOf` that `asCompilableSchema` may wrap a nullable union in.
-    bodySchema = jsonSchema ? asCompilableSchema(dropReadOnlyRequired(getResolvedRefDeep(jsonSchema))) : null
+    bodySchema = jsonSchema
+      ? (dropReadOnlyRequired(asCompilableSchema(getResolvedRefDeep(jsonSchema))) as Record<string, unknown>)
+      : null
   } catch (error) {
     console.error('Error resolving request body schema, skipping body validation:', error)
   }
@@ -275,7 +272,7 @@ const compileValidators = (
     querystringParameter,
     querystringJson: compileSchema(
       bodyAjv,
-      querystringJsonSchema && asCompilableSchema(querystringJsonSchema),
+      getQuerystringJsonSchema(querystringParameter),
       'querystring JSON properties',
     ),
     querystring: compileSchema(

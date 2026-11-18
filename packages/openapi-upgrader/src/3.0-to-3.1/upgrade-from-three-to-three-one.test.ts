@@ -4,6 +4,136 @@ import { describe, expect, it } from 'vitest'
 import { upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
 
 describe('upgradeFromThreeToThreeOne', () => {
+  it.each(['oneOf', 'anyOf'])('migrates an untyped nullable %s to an explicit null union', (keyword) => {
+    const branches = [{ type: 'string' }, { type: 'integer' }]
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.3',
+      info: { title: 'Nullable unions', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Value: { nullable: true, [keyword]: branches, readOnly: true, enum: ['a'], description: 'A value' },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.Value).toStrictEqual({
+      readOnly: true,
+      enum: ['a'],
+      description: 'A value',
+      anyOf: [{ [keyword]: branches }, { type: 'null' }],
+    })
+  })
+
+  it('preserves every composition when adding the null alternative', () => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.3',
+      info: { title: 'Nullable compositions', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Value: {
+            nullable: true,
+            allOf: [{ minLength: 1 }],
+            anyOf: [{ type: 'string' }, { type: 'integer' }],
+            oneOf: [{ type: 'string', nullable: true }, { type: 'integer' }],
+          },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.Value).toStrictEqual({
+      anyOf: [
+        {
+          allOf: [{ minLength: 1 }],
+          anyOf: [{ type: 'string' }, { type: 'integer' }],
+          oneOf: [{ type: ['string', 'null'] }, { type: 'integer' }],
+        },
+        { type: 'null' },
+      ],
+    })
+  })
+
+  it('migrates a bundled standalone nullable schema', () => {
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.3',
+      info: { title: 'External schemas', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: '#/x-ext/value' } } },
+      'x-ext': { value: { nullable: true, oneOf: [{ type: 'string' }, { type: 'integer' }] } },
+    })
+
+    expect(result).toStrictEqual({
+      openapi: '3.1.1',
+      info: { title: 'External schemas', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: '#/x-ext/value' } } },
+      'x-ext': { value: { anyOf: [{ oneOf: [{ type: 'string' }, { type: 'integer' }] }, { type: 'null' }] } },
+    })
+  })
+
+  it.each([
+    [{ nullable: true }, {}],
+    [{ nullable: false }, {}],
+    [{ nullable: true, enum: ['a'] }, { enum: ['a'] }],
+    [{ nullable: false, type: 'string' }, { type: 'string' }],
+    [
+      { nullable: false, oneOf: [{ type: 'string' }, { type: 'integer' }] },
+      { oneOf: [{ type: 'string' }, { type: 'integer' }] },
+    ],
+  ])('removes an ineffective nullable from %j', (schema, expected) => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.3',
+      info: { title: 'Nullable cleanup', version: '1' },
+      paths: {},
+      components: { schemas: { Value: schema } },
+    })
+
+    expect(result.components?.schemas?.Value).toStrictEqual(expected)
+  })
+
+  it('preserves nullable property names, examples, defaults, enum values, and extension payloads', () => {
+    const value = { nullable: true, oneOf: [{ type: 'string' }, { type: 'integer' }] }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.3',
+      info: { title: 'Nullable data', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          nullable: {
+            type: 'object',
+            properties: { nullable: value },
+            default: value,
+            enum: [value],
+            example: value,
+            'x-metadata': value,
+          },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.nullable).toStrictEqual({
+      type: 'object',
+      properties: { nullable: { anyOf: [{ oneOf: value.oneOf }, { type: 'null' }] } },
+      default: value,
+      enum: [value],
+      examples: [value],
+      'x-metadata': value,
+    })
+  })
+
+  it.each(['3.1.0', '3.2.0'])('leaves legacy nullable in an OpenAPI %s document unchanged', (openapi) => {
+    const document = {
+      openapi,
+      info: { title: 'Native schemas', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { nullable: true, oneOf: [{ type: 'string' }, { type: 'integer' }] } } },
+    }
+    const before = structuredClone(document)
+
+    expect(upgradeFromThreeToThreeOne(document)).toStrictEqual(before)
+  })
+
   it('preserves example data on a reusable parameter named headers', () => {
     const example = { type: 'string', nullable: true }
     const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
@@ -455,7 +585,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
-    it('migrates nullable types with properties', () => {
+    it('removes an untyped nullable without a composition', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -488,7 +618,6 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
 
       expect(result.paths?.['/test']?.get?.responses?.['200']?.content['application/json'].schema).toEqual({
-        nullable: true,
         properties: {
           name: {
             type: 'string',
@@ -622,18 +751,18 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
-    it('leaves a nullable arm that carries other keywords alone', () => {
+    it('preserves constraints on an untyped nullable arm', () => {
       expect(
         upgradeValue({ oneOf: [{ nullable: true, required: ['id'] }, { $ref: '#/components/schemas/Pet' }] }),
       ).toEqual({
-        oneOf: [{ nullable: true, required: ['id'] }, { $ref: '#/components/schemas/Pet' }],
+        oneOf: [{ required: ['id'] }, { $ref: '#/components/schemas/Pet' }],
       })
     })
 
-    it('leaves a bare `nullable: true` outside a union alone', () => {
-      expect(upgradeValue({ nullable: true })).toEqual({ nullable: true })
+    it('removes an ineffective nullable outside a union', () => {
+      expect(upgradeValue({ nullable: true })).toStrictEqual({})
       expect(upgradeValue({ allOf: [{ nullable: true }, { $ref: '#/components/schemas/Pet' }] })).toEqual({
-        allOf: [{ nullable: true }, { $ref: '#/components/schemas/Pet' }],
+        allOf: [{}, { $ref: '#/components/schemas/Pet' }],
       })
     })
 

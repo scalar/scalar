@@ -1715,7 +1715,7 @@ describe('validate-request', () => {
       })
     }
 
-    it.each(['3.0.3', '3.1.0'])(
+    it.each(['3.0.3', '3.0.4'])(
       'keeps body validation on for a nullable union in an OpenAPI %s document',
       async (openapi) => {
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
@@ -1759,12 +1759,22 @@ describe('validate-request', () => {
     })
 
     it.each([
+      ['a', 200],
+      ['b', 422],
+      [null, 422],
+    ])('preserves an enum beside a nullable union for %j', async (value, status) => {
+      const response = await postRecord('3.0.3', { ...NULLABLE_SCHEMAS.oneOf, enum: ['a'] }, { name: 'x', value })
+
+      expect(response.status).toBe(status)
+    })
+
+    it.each([
       ['3.0.3', 'text', 200],
       ['3.0.3', null, 200],
       ['3.0.3', 3, 422],
-      ['3.1.0', 'text', 200],
-      ['3.1.0', null, 200],
-      ['3.1.0', 3, 422],
+      ['3.0.4', 'text', 200],
+      ['3.0.4', null, 200],
+      ['3.0.4', 3, 422],
     ])(
       'reads a oneOf arm that only says nullable as null in an OpenAPI %s document for %j',
       async (openapi, value, status) => {
@@ -1784,9 +1794,9 @@ describe('validate-request', () => {
     )
 
     it.each([
-      ['null', { type: 'null', nullable: false }],
-      ['a list with null', { type: ['string', 'null'], nullable: false }],
-    ])('keeps body validation on for nullable false beside the type %s', async (_name, value) => {
+      ['null', { type: 'null' }],
+      ['a list with null', { type: ['string', 'null'] }],
+    ])('keeps body validation on for the native OpenAPI 3.1 type %s', async (_name, value) => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       const response = await postRecord('3.1.0', value, { name: 1 })
@@ -1804,6 +1814,7 @@ describe('validate-request', () => {
           { name: 'filter', in: 'query', schema: NULLABLE_SCHEMAS.anyOf },
         ],
       })
+      document.openapi = '3.0.3'
       const server = await createMockServer({ document, validateRequest: true })
 
       expect((await server.request('/records')).status).toBe(422)
@@ -1826,10 +1837,14 @@ describe('validate-request', () => {
                     required: ['filter'],
                     properties: {
                       filter: {
-                        nullable: true,
-                        oneOf: [
-                          { type: 'object', required: ['id'], properties: { id: { type: 'integer' } } },
-                          { type: 'object', required: ['name'], properties: { name: { type: 'string' } } },
+                        anyOf: [
+                          {
+                            oneOf: [
+                              { type: 'object', required: ['id'], properties: { id: { type: 'integer' } } },
+                              { type: 'object', required: ['name'], properties: { name: { type: 'string' } } },
+                            ],
+                          },
+                          { type: 'null' },
                         ],
                       },
                     },
@@ -1870,6 +1885,7 @@ describe('validate-request', () => {
           },
         },
       })
+      document.openapi = '3.0.3'
       const server = await createMockServer({ document, validateRequest: true })
       const post = async (body: unknown): Promise<Response> =>
         await server.request('/records', {
