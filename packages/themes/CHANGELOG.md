@@ -1,5 +1,12 @@
 # @scalar/themes
 
+## 0.20.3
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11110](https://github.com/scalar/scalar/pull/11110): Add a `text-auto-contrast-*` Tailwind utility that picks readable black or white text for any background color, and use it for colored badges and the environment color checkmark.
+
 ## 0.20.2
 
 ### Patch Changes

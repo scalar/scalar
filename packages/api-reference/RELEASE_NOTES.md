@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.81.0 (2026-11-18)
+
+### AsyncAPI schema resolution, credential substitution in SDK instructions, and improved examples
+
+This release resolves external RAML and Protobuf dependencies in AsyncAPI schemas, substitutes credentials in SDK installation commands, and fixes response example language detection and parameter example precedence.
+
+- SDK installation instructions now substitute credential placeholders with real values from your selected authentication, masking secrets on screen while copying unmasked code
+- AsyncAPI schemas with RAML libraries and Protobuf imports now resolve their dependencies and display structured field documentation instead of falling back to source view
+- Response examples now select their syntax highlighting from the media type, so CSV responses display as Plain Text instead of JSON
+- Parameter and media type examples now take precedence over schema examples, avoiding duplicate entries in the example popup
+- Deep-link targets stay aligned while lazy content and collapsing sections finish changing height
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1810)
+
 ## 1.80.0 (2026-11-17)
 
 ### Plugin document types and accessibility improvements

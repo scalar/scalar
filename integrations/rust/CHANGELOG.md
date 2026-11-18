@@ -1,5 +1,13 @@
 # scalar_api_reference
 
+## 0.2.27
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.81.0
+
+No changes in this release.
+
 ## 0.2.26
 
 ### Bundled API Reference

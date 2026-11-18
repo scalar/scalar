@@ -1,5 +1,29 @@
 # @scalar/api-reference
 
+## 1.81.0
+
+### Minor Changes
+
+- [#11089](https://github.com/scalar/scalar/pull/11089): Resolve external RAML and Protobuf dependencies for structured AsyncAPI schema documentation, preserving source fallback when dependencies cannot be fully resolved.
+
+  Show RAML named types in schema headings instead of adding a "RAML type:" line to the description.
+
+  Show inline object item titles in array type signatures across all `@scalar/blocks` consumers, including OpenAPI documentation: an array with `items: { type: 'object', title: 'Pet' }` now displays `array of Pet` instead of `array of object`.
+- [#10895](https://github.com/scalar/scalar/pull/10895): Substitute declared credential placeholders in SDK installation text using the selected document authentication, with masked display and real code copy values.
+
+### Patch Changes
+
+- [#11029](https://github.com/scalar/scalar/pull/11029): fix: respect contains match counts in simple array examples
+
+  Generate matching and nonmatching primitive items for direct contains constraints, counting tuple prefixes and respecting item schemas, length bounds, uniqueness, and the declared dialect. Authored examples remain authoritative. Candidate generation is bounded and may return a partial example for contradictory constraints.
+
+  Complex references and compositions, nested object or array candidate synthesis, and XML branch reconstruction retain existing best-effort behavior and are deferred to a follow-up.
+- [#11098](https://github.com/scalar/scalar/pull/11098): Select response example labels and syntax highlighting from the media type instead of treating non-XML responses as JSON.
+- [#11100](https://github.com/scalar/scalar/pull/11100): Prefer explicit parameter and media type examples over schema examples, avoiding duplicate examples and preserving schema examples as a fallback.
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11094](https://github.com/scalar/scalar/pull/11094): Keep deep-link targets aligned while lazy content and collapsing sections finish changing height.
+- [#11111](https://github.com/scalar/scalar/pull/11111): fix: the theme picked in the developer tools now applies on pages where an integration injects its own default theme CSS
+
 ## 1.80.0
 
 ### Minor Changes

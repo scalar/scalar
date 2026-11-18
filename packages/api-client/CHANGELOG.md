@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 3.27.1
+
+### Patch Changes
+
+- [#11029](https://github.com/scalar/scalar/pull/11029): fix: respect contains match counts in simple array examples
+
+  Generate matching and nonmatching primitive items for direct contains constraints, counting tuple prefixes and respecting item schemas, length bounds, uniqueness, and the declared dialect. Authored examples remain authoritative. Candidate generation is bounded and may return a partial example for contradictory constraints.
+
+  Complex references and compositions, nested object or array candidate synthesis, and XML branch reconstruction retain existing best-effort behavior and are deferred to a follow-up.
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11110](https://github.com/scalar/scalar/pull/11110): Add a `text-auto-contrast-*` Tailwind utility that picks readable black or white text for any background color, and use it for colored badges and the environment color checkmark.
+
 ## 3.27.0
 
 ### Minor Changes

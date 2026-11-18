@@ -1,5 +1,24 @@
 # @scalar/blocks
 
+## 0.7.4
+
+### Patch Changes
+
+- [#11050](https://github.com/scalar/scalar/pull/11050): Include upgraded OpenAPI 3.0 and Swagger 2.0 file uploads, file arrays, and empty binary request bodies in generated code examples.
+- [#11089](https://github.com/scalar/scalar/pull/11089): Resolve external RAML and Protobuf dependencies for structured AsyncAPI schema documentation, preserving source fallback when dependencies cannot be fully resolved.
+
+  Show RAML named types in schema headings instead of adding a "RAML type:" line to the description.
+
+  Show inline object item titles in array type signatures across all `@scalar/blocks` consumers, including OpenAPI documentation: an array with `items: { type: 'object', title: 'Pet' }` now displays `array of Pet` instead of `array of object`.
+- [#11029](https://github.com/scalar/scalar/pull/11029): fix: respect contains match counts in simple array examples
+
+  Generate matching and nonmatching primitive items for direct contains constraints, counting tuple prefixes and respecting item schemas, length bounds, uniqueness, and the declared dialect. Authored examples remain authoritative. Candidate generation is bounded and may return a partial example for contradictory constraints.
+
+  Complex references and compositions, nested object or array candidate synthesis, and XML branch reconstruction retain existing best-effort behavior and are deferred to a follow-up.
+- [#11029](https://github.com/scalar/scalar/pull/11029): fix: handle boolean array item schemas when looking up model names
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11110](https://github.com/scalar/scalar/pull/11110): Add a `text-auto-contrast-*` Tailwind utility that picks readable black or white text for any background color, and use it for colored badges and the environment color checkmark.
+
 ## 0.7.3
 
 ### Patch Changes
