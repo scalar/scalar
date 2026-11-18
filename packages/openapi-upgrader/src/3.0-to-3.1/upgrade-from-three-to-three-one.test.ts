@@ -441,14 +441,14 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
   })
 
-  it('upgrades schemas in legacy webhooks while preserving their extensions', () => {
+  it.each(['x-event', 'default', 'example', 'examples'])('upgrades schemas in a legacy webhook named %s', (name) => {
     const extension = { schema: { nullable: true, oneOf: [{ type: 'number' }] } }
     const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
       openapi: '3.0.4',
       info: { title: 'Webhooks', version: '1' },
       paths: {},
       'x-webhooks': {
-        'x-event': {
+        [name]: {
           post: {
             'x-metadata': extension,
             requestBody: { content: { 'application/json': { schema: { type: 'string', nullable: true } } } },
@@ -459,11 +459,116 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
 
     expect(result.webhooks).toStrictEqual({
-      'x-event': {
+      [name]: {
         post: {
           'x-metadata': extension,
           requestBody: { content: { 'application/json': { schema: { type: ['string', 'null'] } } } },
           responses: { '200': { description: 'OK' } },
+        },
+      },
+    })
+  })
+
+  it('preserves callback expression-map extensions while upgrading named callbacks', () => {
+    const metadata = { schema: { nullable: true, oneOf: [{ type: 'string' }] } }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Callback extensions', version: '1' },
+      paths: {
+        '/subscribe': {
+          post: {
+            responses: { '200': { description: 'OK' } },
+            callbacks: {
+              'x-event': {
+                'x-metadata': metadata,
+                '{$request.body#/url}': {
+                  post: {
+                    requestBody: { content: { 'application/json': { schema: { type: 'string', nullable: true } } } },
+                    responses: { '200': { description: 'OK' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/subscribe']?.post?.callbacks).toStrictEqual({
+      'x-event': {
+        'x-metadata': metadata,
+        '{$request.body#/url}': {
+          post: {
+            requestBody: { content: { 'application/json': { schema: { type: ['string', 'null'] } } } },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+  })
+
+  it.each(['default', 'example', 'examples'])('upgrades a reusable request body named %s', (name) => {
+    const example = { nullable: true }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Named bodies', version: '1' },
+      paths: {},
+      components: {
+        requestBodies: {
+          [name]: {
+            content: { 'application/json': { schema: { nullable: true, oneOf: [{ type: 'string' }], example } } },
+          },
+        },
+      },
+    })
+
+    expect(result.components?.requestBodies).toStrictEqual({
+      [name]: {
+        content: {
+          'application/json': {
+            schema: { anyOf: [{ oneOf: [{ type: 'string' }] }, { type: 'null' }], examples: [example] },
+          },
+        },
+      },
+    })
+  })
+
+  it.each(['default', 'example', 'examples'])('upgrades request schemas in a callback named %s', (name) => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Named callbacks', version: '1' },
+      paths: {
+        '/subscribe': {
+          post: {
+            responses: { '200': { description: 'OK' } },
+            callbacks: {
+              [name]: {
+                '{$request.body#/url}': {
+                  post: {
+                    requestBody: {
+                      content: { 'application/json': { schema: { nullable: true, oneOf: [{ type: 'string' }] } } },
+                    },
+                    responses: { '200': { description: 'OK' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/subscribe']?.post?.callbacks).toStrictEqual({
+      [name]: {
+        '{$request.body#/url}': {
+          post: {
+            requestBody: {
+              content: {
+                'application/json': { schema: { anyOf: [{ oneOf: [{ type: 'string' }] }, { type: 'null' }] } },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
         },
       },
     })

@@ -5,7 +5,12 @@ import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
-import { isInsideDataValue, isNamedSchemaMap } from '@/helpers/is-inside-data-value'
+import {
+  isInsideDataValue,
+  isNamedOpenApiMap,
+  isNamedSchemaMap,
+  isOpenApiObjectName,
+} from '@/helpers/is-inside-data-value'
 import { traverse } from '@/helpers/traverse'
 
 // Keywords that only describe a schema. An arm made of these and `nullable` constrains nothing else.
@@ -21,56 +26,20 @@ const ANNOTATION_KEYWORDS = new Set([
   'writeOnly',
 ])
 
-// These maps hold author-chosen names, so an `x-` prefix there is not an extension keyword.
-const NAMED_OPENAPI_MAPS = new Set([
-  'webhooks',
-  'content',
-  'headers',
-  'examples',
-  'links',
-  'encoding',
-  'variables',
-  'parameters',
-  'requestBodies',
-  'securitySchemes',
-  'pathItems',
-  'scopes',
-])
-
 /** Keep extension payloads opaque, including extensions outside Schema Objects. */
 const isInsideExtension = (path: string[] | undefined): boolean => {
-  // Bundled resources contain schemas or OpenAPI objects rather than extension data.
   const segments = path?.[0] === 'x-ext' && path[1] !== undefined ? path.slice(2) : path
-  if (!segments) {
-    return false
-  }
-
-  let namedSegments = 0
-  for (const [index, segment] of segments.entries()) {
-    if (namedSegments > 0) {
-      namedSegments--
-      continue
-    }
-
-    // This legacy root extension is migrated as a Webhooks Object below.
-    const keyword = index === 0 && path?.[0] === 'x-webhooks' ? 'webhooks' : segment
-    if (keyword.startsWith('x-')) {
-      return true
-    }
-
-    const parent = segments.slice(0, index)
-    if (isNamedSchemaMap([...parent, keyword])) {
-      namedSegments = 1
-    } else if (!isSchemaPath(parent)) {
-      if (keyword === 'callbacks') {
-        namedSegments = 2
-      } else if (NAMED_OPENAPI_MAPS.has(keyword) || (keyword === 'responses' && parent.at(-1) === 'components')) {
-        namedSegments = 1
-      }
-    }
-  }
-
-  return false
+  // This legacy root extension is migrated as a Webhooks Object below.
+  const objectPath = path?.[0] === 'x-webhooks' ? ['webhooks', ...path.slice(1)] : segments
+  return (
+    !!objectPath &&
+    objectPath.some(
+      (segment, index) =>
+        segment.startsWith('x-') &&
+        !isNamedSchemaMap(objectPath.slice(0, index)) &&
+        !isOpenApiObjectName(objectPath, index),
+    )
+  )
 }
 
 /** Keep schema keywords separate from author-chosen names. */
@@ -324,14 +293,14 @@ export const applyChangesToDocument = (schema: UnknownObject, path?: string[]) =
   const isInsideExamplesMap = path?.some((segment, index) => {
     if (segment === 'examples' && index > 0) {
       // If the parent node is a named-schema map, 'examples' is a member name, not an examples map
-      return !isNamedSchemaMap(path.slice(0, index))
+      return !isNamedSchemaMap(path.slice(0, index)) && !isNamedOpenApiMap(path.slice(0, index))
     }
     return false
   })
 
   // If the current node is itself a map of named subschemas, a key called 'example' is a
   // member name (property, $defs entry, components/schemas entry) and not the schema keyword.
-  if (schema.example !== undefined && !isInsideExamplesMap && !isNamedSchemaMap(path)) {
+  if (schema.example !== undefined && !isInsideExamplesMap && !isNamedSchemaMap(path) && !isNamedOpenApiMap(path)) {
     if (isSchemaPath(path)) {
       schema.examples = [schema.example]
     } else {

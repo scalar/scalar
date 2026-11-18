@@ -1758,6 +1758,40 @@ describe('validate-request', () => {
       consoleErrorSpy.mockRestore()
     })
 
+    it.each(['default', 'example', 'examples'])('validates a reusable request body named %s', async (name) => {
+      const document = {
+        ...documentWith('/records', 'post', { requestBody: { $ref: `#/components/requestBodies/${name}` } }),
+        openapi: '3.0.4',
+        components: {
+          requestBodies: {
+            [name]: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['name'],
+                    properties: { name: { type: 'string' }, value: NULLABLE_SCHEMAS.oneOf },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+      const server = await createMockServer({ document, validateRequest: true })
+      const post = async (body: unknown): Promise<Response> =>
+        await server.request('/records', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+
+      expect((await post({})).status).toBe(422)
+      expect((await post({ name: 'x', value: null })).status).toBe(200)
+      expect((await post({ name: 'x', value: true })).status).toBe(422)
+    })
+
     it.each(['oneOf', 'anyOf'] as const)('validates sibling exclusive bounds on a nullable %s', async (keyword) => {
       const schema = {
         nullable: true,
