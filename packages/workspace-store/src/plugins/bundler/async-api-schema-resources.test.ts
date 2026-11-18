@@ -832,4 +832,46 @@ describe('async-api-schema-resources', () => {
       expect(requested).toStrictEqual([])
     },
   )
+  it.each([true, false])(
+    'invalidates prepared chunks with initial effective overrides (reactive: %s)',
+    async (reactive) => {
+      const origin = 'https://example.test/api.yaml'
+      const source = value.replace('types/user.proto', 'types/new.proto')
+      const chunk = {
+        ...schema(),
+        'x-scalar-schema-resources': { origin, files: { 'https://example.test/types/user.proto': user } },
+      }
+      const requested: string[] = []
+      const overrides = { components: { schemas: { User: { description: 'Overridden chunk' } } } }
+      Object.assign(overrides.components.schemas.User, { '$ref-value': { schema: source } })
+      const store = createWorkspaceStore({
+        reactive,
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.resolve(new Response(String(input).endsWith('model.json') ? JSON.stringify(chunk) : user))
+        },
+      })
+      await store.addDocument({
+        name: 'test',
+        documentSource: origin,
+        overrides,
+        document: {
+          asyncapi: '3.1.0',
+          info: { title: 'Overridden chunk', version: '1' },
+          components: { schemas: { User: { $ref: 'https://example.test/model.json' } } },
+          'x-scalar-navigation': { id: 'test', type: 'document', name: 'Overridden chunk', children: [] },
+        },
+      })
+      await store.resolve(['components', 'schemas', 'User'])
+      const loaded = store.workspace.documents.test
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      expect(await expand(store, getResolvedAsyncApiRef(loaded.components)?.schemas?.User)).toStrictEqual({
+        kind: 'source',
+        format,
+        value: source,
+        resources: { origin, files: { 'https://example.test/types/new.proto': user } },
+      })
+      expect(requested).toStrictEqual(['https://example.test/model.json', 'https://example.test/types/new.proto'])
+    },
+  )
 })
