@@ -3408,6 +3408,14 @@ describe('getExampleFromSchema', () => {
 
       const names = (count: number): string[] => Array.from({ length: count }, (_, index) => `member${index}`)
 
+      /** Map every member name except one to the same stand-in value. */
+      const others = (count: number, value: unknown, except?: string): Record<string, unknown> =>
+        Object.fromEntries(
+          names(count)
+            .filter((name) => name !== except)
+            .map((name) => [name, value]),
+        )
+
       it.each([1, 2, 8])('keeps one nested level for %s direct references', (count) => {
         // Every hop used to be a new object, so only the depth cap stopped the walk after count to the power of ten.
         const node = createNode((reference) => Object.fromEntries(names(count).map((name) => [name, reference])))
@@ -3421,7 +3429,8 @@ describe('getExampleFromSchema', () => {
 
         expect(getExampleFromSchema(node, { mode })).toStrictEqual({
           id: '',
-          parent: { id: '' },
+          // An optional reference is left out, while an array item needs a value and stands in empty.
+          parent: { id: '', children: [{}] },
           children: [{ id: '' }],
         })
       })
@@ -3430,7 +3439,9 @@ describe('getExampleFromSchema', () => {
         const node = createNode((reference) =>
           Object.fromEntries(names(count).map((name) => [name, { type: 'array', items: reference }])),
         )
-        const nested = Object.fromEntries(names(count).map((name) => [name, [{ id: '' }]]))
+        const nested = Object.fromEntries(
+          names(count).map((name) => [name, [{ id: '', ...others(count, [{}], name) }]]),
+        )
 
         expect(getExampleFromSchema(node)).toStrictEqual({ id: '', ...nested })
       })
@@ -3439,20 +3450,11 @@ describe('getExampleFromSchema', () => {
         const node = createNode((reference) =>
           Object.fromEntries(names(count).map((name) => [name, { type: 'object', additionalProperties: reference }])),
         )
-        // A map used on the path is skipped inside the nested node, and a map that is reached late stays empty.
+        // A map used on the path is skipped inside the nested node, and the others stand in empty.
         const nested = Object.fromEntries(
           names(count).map((name) => [
             name,
-            {
-              additionalProperty: {
-                id: '',
-                ...Object.fromEntries(
-                  names(count)
-                    .filter((other) => other !== name)
-                    .map((other) => [other, {}]),
-                ),
-              },
-            },
+            { additionalProperty: { id: '', ...others(count, { additionalProperty: {} }, name) } },
           ]),
         )
 
@@ -3470,7 +3472,7 @@ describe('getExampleFromSchema', () => {
         )
 
         // Without the bound this is factorial in the member count, far beyond what a test can wait for.
-        expect(JSON.stringify(getExampleFromSchema(node)).length).toBeLessThan(5_000)
+        expect(JSON.stringify(getExampleFromSchema(node)).length).toBeLessThan(10_000)
       })
 
       it('omits a pattern property whose schema recurses into the node', () => {
@@ -3481,11 +3483,30 @@ describe('getExampleFromSchema', () => {
         expect(getExampleFromSchema(node)).toStrictEqual({ id: '', nested: { '^x-': { id: '' } } })
       })
 
-      it('stops a required reference to the node after one nested level', () => {
+      it('stands in for a required reference to the node after one nested level', () => {
         const node = createNode((reference) => ({ parent: reference }), ['parent'])
 
-        // The cycle guard drops a schema that requires itself, as it does for a cycle that is not a reference.
-        expect(getExampleFromSchema(node)).toStrictEqual({ id: '', parent: { id: '' } })
+        // A schema that requires itself has no finite valid example, so the depth cap stand-in applies.
+        expect(getExampleFromSchema(node)).toStrictEqual({ id: '', parent: { id: '', parent: {} } })
+      })
+
+      it('stands in for a self-referencing array with an empty array', () => {
+        const list: SchemaObject = { type: 'array' }
+        list.items = createReference('#/components/schemas/List', list)
+
+        expect(getExampleFromSchema(createReference('#/components/schemas/List', list))).toStrictEqual([[[]]])
+        expect(
+          getExampleFromSchema({ type: 'object', required: ['list'], properties: { list: list.items } }),
+        ).toStrictEqual({ list: [[[]]] })
+      })
+
+      it('stands in for a reference wrapped in allOf with its empty container', () => {
+        const node: SchemaObject = { type: 'object', properties: {} }
+        const reference = createReference(NODE_REFERENCE, node)
+        node.properties!.first = { allOf: [reference] }
+        node.properties!.second = { allOf: [reference] }
+
+        expect(getExampleFromSchema(node)).toStrictEqual({ first: { second: {} }, second: { first: {} } })
       })
 
       it('enters each of two mutually recursive references twice', () => {

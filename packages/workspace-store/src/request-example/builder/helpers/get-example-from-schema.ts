@@ -763,7 +763,7 @@ const handleObjectSchema = (
       if (!propertySchema) {
         continue
       }
-      const value = getExampleFromSchema(propertySchema, options, {
+      response[pattern] = getExampleFromSchema(propertySchema, options, {
         level: level + 1,
         parentSchema: schema,
         name: pattern,
@@ -771,10 +771,6 @@ const handleObjectSchema = (
         seen,
         dynamicScope: childScope,
       })
-      // A pattern whose schema recurses into itself has no value, which must not leave an undefined key.
-      if (value !== undefined) {
-        response[pattern] = value
-      }
     }
   }
 
@@ -809,14 +805,11 @@ const handleObjectSchema = (
           })
         : 'anything'
 
-    // A value schema that recurses into itself has no value, so the map stays empty instead of holding an undefined key.
-    if (additionalValue !== undefined) {
-      if (propertyNamesEnum && propertyNamesEnum.length > 0) {
-        // Use the first enum value as a realistic example key
-        response[String(propertyNamesEnum[0])] = additionalValue
-      } else {
-        response[additionalName] = additionalValue
-      }
+    if (propertyNamesEnum && propertyNamesEnum.length > 0) {
+      // Use the first enum value as a realistic example key
+      response[String(propertyNamesEnum[0])] = additionalValue
+    } else {
+      response[additionalName] = additionalValue
     }
   }
 
@@ -2147,19 +2140,19 @@ const asBinaryFile = (
   return value
 }
 
-/** A `$ref` may be entered this many times along one path: the schema itself and one nested recursion. */
+/** A `$ref` may be open this many times along one path: the schema itself and one nested recursion. */
 const MAX_REFERENCE_ENTRIES = 2
 
 /** Entries per `$ref` along the path being walked, keyed by the reference because each resolution is a fresh copy. */
 let referenceEntries = new Map<string, number>()
 
 /**
- * Walk a schema, refusing to enter a `$ref` that is already open on this path more than once.
+ * Walk a schema, stopping at a `$ref` that is already open twice on this path.
  *
  * Resolving a reference returns a new object every time, so the identity-based cycle guard never sees a
  * self-referencing `$ref` come back around and only the depth cap stops it, after a branching factor to
- * the power of ten. A `$ref` is the same schema wherever it appears, except under a dynamic scope where
- * it can bind differently per path, so that case is left to the depth cap.
+ * the power of ten. A dynamic scope can bind a reference differently per path, so that case is left to
+ * the depth cap.
  */
 const generateBoundedExampleFromSchema = (
   schema: SchemaObject,
@@ -2171,29 +2164,42 @@ const generateBoundedExampleFromSchema = (
   }
 
   // A boolean schema can reach here at runtime even though the type does not allow it.
-  const reference =
+  const key =
     typeof schema === 'object' && schema !== null && '$ref' in schema && typeof schema.$ref === 'string'
       ? schema.$ref
       : undefined
-  if (reference === undefined || context.dynamicScope?.length) {
+  if (key === undefined || context.dynamicScope?.length) {
     return generateExampleFromSchema(schema, options, context)
   }
 
-  const entries = referenceEntries.get(reference) ?? 0
+  const entries = referenceEntries.get(key) ?? 0
   if (entries >= MAX_REFERENCE_ENTRIES) {
-    // The omitted value holds only on this path, so nothing assembled around it may be cached.
+    // The omission or stand-in holds only on this path, so nothing assembled around it may be cached.
     truncated = true
-    return undefined
+    // An optional property can be left out, which keeps the example valid where an empty stand-in may not be.
+    const { name, parentSchema } = context
+    if (
+      name !== undefined &&
+      parentSchema !== undefined &&
+      'properties' in parentSchema &&
+      parentSchema.properties?.[name] !== undefined &&
+      !getRequiredNames(parentSchema)?.has(name)
+    ) {
+      return undefined
+    }
+    // Array items, composition members and required properties need a value, so they get the depth cap stand-in.
+    const fallback = context.isRequiredProperty || context.requiredScope?.size ? null : MAX_DEPTH_EXCEEDED
+    return getMaxDepthValue(resolve.schema(schema), options, context.schemaPath ?? [], undefined, fallback)
   }
 
-  referenceEntries.set(reference, entries + 1)
+  referenceEntries.set(key, entries + 1)
   try {
     return generateExampleFromSchema(schema, options, context)
   } finally {
     if (entries === 0) {
-      referenceEntries.delete(reference)
+      referenceEntries.delete(key)
     } else {
-      referenceEntries.set(reference, entries)
+      referenceEntries.set(key, entries)
     }
   }
 }
