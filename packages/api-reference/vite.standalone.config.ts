@@ -6,7 +6,9 @@ import webpackStats from 'rollup-plugin-webpack-stats'
 import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
-import { name, version } from './package.json'
+import packageJson from './package.json' with { type: 'json' }
+
+const { name, version } = packageJson
 
 // Opens with `/*!` (a legal comment) rather than `/**` so the oxc minifier keeps it
 // when `output.comments.legal` is enabled. See the `banner`/`comments` output options.

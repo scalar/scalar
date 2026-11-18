@@ -1,5 +1,48 @@
 # @scalar/blocks
 
+## 0.7.3
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+- [#11068](https://github.com/scalar/scalar/pull/11068): fix(snippetz): send text-only multipart forms as multipart
+
+  Code examples for a `multipart/form-data` body with only text fields kept a bare `Content-Type: multipart/form-data` header with no boundary, so clients sent either two Content-Type headers or a body the server cannot split. The header is now left to the HTTP client for every structured multipart body, as it already was for file uploads.
+
+  Python `requests` and `httpx` examples now pass text-only fields through `files=` as `(None, value)` tuples, and `aiohttp` uses `FormData(default_to_multipart=True)`, because all three send plain text fields urlencoded otherwise.
+- [#11081](https://github.com/scalar/scalar/pull/11081): fix(blocks): turn picker carets with their own menus
+
+  In the classic layout, the client picker and the example picker of an expanded operation pointed their carets up while their menus were closed, because the carets followed any open Headless UI ancestor, such as the operation accordion. Each caret now follows its own picker, so it points up only while that menu is open.
+- [#11080](https://github.com/scalar/scalar/pull/11080): Keep the selected request example readable on narrow request example cards. Beside Ask AI Agent and Test Request, the example picker could shrink to an empty button, hiding the example name and leaving keyboard focus on an empty box, for example at 320px wide or with the longer button labels of some languages. The picker now keeps room for its name, up to about eight characters, and the buttons wrap onto a second line when they do not fit beside it. Wider cards keep a single line.
+- [#10816](https://github.com/scalar/scalar/pull/10816): Add `documentTypes` to `createWorkspaceStore`, so the store can ingest document formats it does not support natively. A registered type claims a document before the OpenAPI and AsyncAPI pipelines run, and the store keeps it as an opaque plugin document with `plugin` navigation entries built by the type.
+
+## 0.7.2
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+- [#10980](https://github.com/scalar/scalar/pull/10980): feat: redesign code cards as a padded shell with the code on a lifted surface
+
+  This changes the default look of every `ScalarCard`, not only the cards in the API reference. `ScalarCard` drops its border and dividers for a 12px shell with 4px of padding, and each plain `ScalarCardSection` becomes an 8px surface lifted off it. If you use these components in your own app, check your cards after this bump:
+
+  - A card recolored to match its page (for example `bg-b-1` on a `bg-b-1` page) no longer has an edge. Pass `border` to bring it back, or give the card a fill that differs from the page.
+  - Two plain sections in a row are two surfaces with a 4px gap, where they were one box with a divider.
+  - Content placed straight in `ScalarCard` without a section sits inside the 4px padding. Pass `p-0` to remove it.
+
+  In the API reference, the request example, example responses, operations list and AsyncAPI cards all pick this up. The surface color is derived from `--scalar-background-2`, and its outline from `--scalar-shadow-1` and `--scalar-border-color`. A copy button on a surface sits one step above it, toward the text color. Set `--scalar-card-surface`, `--scalar-card-surface-raised` or `--scalar-card-surface-shadow` on `.scalar-card` to change them. Every class name is unchanged, and the new rules are single-class selectors, so existing theme and `customCss` rules keep winning.
+- [#11037](https://github.com/scalar/scalar/pull/11037): Load object-valued `x-codeSamples.source` and `x-code-samples.source` file references as raw code text, with relative origins and lazy operation loading. Retain failed references and show an unavailable sample instead of silently replacing them with an empty string. Preserve literal `$ref` values in other extensions and example data.
+- [#11041](https://github.com/scalar/scalar/pull/11041): fix: render the first request example on the server
+- [#10961](https://github.com/scalar/scalar/pull/10961): Preserve named example summaries and names in header, parameter, and body example lists as muted labels above the value boxes while copying only their values. Keep schema example objects intact when their payload contains fields named `value` or `summary`.
+
+  Retain raw object examples in legacy schema example maps.
+- [#11002](https://github.com/scalar/scalar/pull/11002): Use shared multi-type schema definitions when formatting array union labels.
+
+## 0.7.1
+
+### Patch Changes
+
+- [#10990](https://github.com/scalar/scalar/pull/10990): Use the canonical `js` target when generating JavaScript code examples.
+
 ## 0.7.0
 
 ### Minor Changes

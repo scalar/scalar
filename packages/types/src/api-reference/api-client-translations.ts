@@ -128,6 +128,10 @@ export type ApiClientTranslations = {
     value: string
     delete: string
     selectFile: string
+    selectFiles: string
+    addFiles: string
+    uploadFor: string
+    removeFile: string
     globalCookieHint: string
     readOnlyHint: string
     include: string
@@ -187,6 +191,10 @@ export type ApiClientTranslations = {
   addressBar: {
     path: string
     copyUrl: string
+    openInBrowser: string
+    openInBrowserHint: string
+    browserUrlRequired: string
+    desktopBrowserUrlRequired: string
     send: string
     sendRequest: string
     duplicateRequest: string

@@ -133,6 +133,10 @@ export const de = {
     'value': 'Wert',
     'delete': 'Löschen',
     'selectFile': 'Datei auswählen',
+    'selectFiles': 'Dateien auswählen',
+    'addFiles': 'Dateien hinzufügen',
+    'uploadFor': '{action} für {name}',
+    'removeFile': '{name} aus {field} entfernen',
     'globalCookieHint':
       'Globale Cookies werden im gesamten Arbeitsbereich gemeinsam genutzt. Klicken Sie, um dorthin zu navigieren.',
     'readOnlyHint':
@@ -192,8 +196,13 @@ export const de = {
     'cancel': 'Abbrechen',
   },
   'addressBar': {
+    desktopBrowserUrlRequired: 'Die Desktop-App kann im Browser nur HTTPS-URLs oder lokale HTTP-Server öffnen.',
     'path': 'Pfad',
     'copyUrl': 'URL kopieren',
+    'openInBrowser': 'Im Browser öffnen',
+    'openInBrowserHint':
+      'In einem neuen Tab mit Browser-Cookies öffnen, ohne benutzerdefinierte Header oder Anfrageinhalt. Zugangsdaten in Abfrageparametern können im Browserverlauf gespeichert werden.',
+    'browserUrlRequired': 'Gib eine gültige HTTP- oder HTTPS-URL ein, um sie im Browser zu öffnen.',
     'send': 'Senden',
     'sendRequest': '{method}-Anfrage an {url} senden',
     'duplicateRequest': 'Eine {method}-Anfrage an {path} existiert bereits in diesem Dokument',

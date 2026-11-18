@@ -106,6 +106,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 
 - `layout` (default `Layout.MODERN`) - Options: [Layout](#layout)
 - `show_sidebar` (default `True`)
+- `show_default_clients_with_sdk_installation` (default `False`) - Show built-in HTTP clients alongside SDK installation tabs in the introduction. When disabled, installation instructions replace the built-in clients.
 - `hide_models` (default `False`)
 - `hide_search` (default `False`) - Whether to show the sidebar search bar
 - `hide_test_request_button` (default `False`) - Whether to show the "Test Request" button
@@ -133,6 +134,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 - `base_server_url` (default `""`) - If you want to prefix all relative servers with a base URL
 - `servers` (default `[]`) - List of OpenAPI Server Objects. Each item must have a required `url` (string) and may have optional `description` (string) and `variables` (map). Example: `[{"url": "https://api.example.com", "description": "Production"}]`
 - `hidden_clients` (default `[]`)
+- `persist_selected_client` (default `True`) - Set to `False` to disable saving and restoring the selected code sample client in local storage. Client selection still works for the current page; `persist_auth` is independent.
 
 ### Authentication
 

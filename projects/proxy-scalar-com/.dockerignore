@@ -27,3 +27,6 @@ tmp
 main
 /out-tsc
 **/dist/**
+
+# Test-only changes do not invalidate the production build.
+**/*_test.go

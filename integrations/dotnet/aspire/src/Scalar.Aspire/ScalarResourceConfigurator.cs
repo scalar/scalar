@@ -12,7 +12,7 @@ internal static class ScalarResourceConfigurator
     public static async Task ConfigureScalarResourceAsync(EnvironmentCallbackContext context)
     {
         var resource = context.Resource;
-        var serviceProvider = context.ExecutionContext.ServiceProvider;
+        var serviceProvider = context.ExecutionContext.Services;
         var cancellationToken = context.CancellationToken;
         var scalarAnnotations = resource.Annotations.OfType<ScalarAnnotation>();
         var scalarConfigurations = CreateConfigurationsAsync(resource.Name, serviceProvider, scalarAnnotations, cancellationToken);

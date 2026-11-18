@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["security:only-security-updates", "helpers:pinGitHubActionDigests"],
+  "extends": ["security:only-security-updates"],
   "dependencyDashboard": false,
   "prConcurrentLimit": 5,
   "prHourlyLimit": 0,
@@ -15,9 +15,9 @@
   "recreateWhen": "never",
   "packageRules": [
     {
-      "description": "Keep this in sync with package.json minimumReleaseAge",
+      "description": "Keep this in sync with pnpm-workspace.yaml minimumReleaseAge",
       "matchDatasources": ["npm"],
-      "minimumReleaseAge": "5 days"
+      "minimumReleaseAge": "1 day"
     },
 
     {

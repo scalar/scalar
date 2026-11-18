@@ -1,5 +1,21 @@
 # @scalar/mermaid-plugin
 
+## 0.1.9
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.1.8
+
+### Patch Changes
+
+- [#11032](https://github.com/scalar/scalar/pull/11032): Update Mermaid to use a patched KaTeX dependency.
+
+## 0.1.7
+
+No changes in this release.
+
 ## 0.1.6
 
 ## 0.1.5

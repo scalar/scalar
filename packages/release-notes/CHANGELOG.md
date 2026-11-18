@@ -1,5 +1,15 @@
 # @scalar/release-notes
 
+## 0.3.2
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.3.1
+
+No changes in this release.
+
 ## 0.3.0
 
 ### Minor Changes

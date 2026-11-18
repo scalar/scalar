@@ -3,6 +3,7 @@
   "include": ["src"],
   "exclude": ["**/*.test.ts", "vite.config.ts"],
   "compilerOptions": {
+    "rootDir": "src",
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,

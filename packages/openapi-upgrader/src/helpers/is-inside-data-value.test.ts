@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { isInsideDataValue, isNamedSchemaMap } from './is-inside-data-value'
 
 describe('isInsideDataValue', () => {
-  it.each(['example', 'default', 'const', 'enum', 'x-example'])(
+  it.each(['example', 'default', 'const', 'enum', 'x-example', 'x-examples'])(
     'distinguishes reusable objects named %s from their data values',
     (name) => {
       for (const prefix of [['responses'], ['parameters'], ['components', 'responses'], ['components', 'parameters']]) {
@@ -68,6 +68,9 @@ describe('isInsideDataValue', () => {
     const responseExample = ['paths', '/items', 'get', 'responses', '200', 'examples', 'application/json']
     expect(isInsideDataValue(extension, '2.0')).toBe(true)
     expect(isInsideDataValue(extension, '3.0')).toBe(false)
+    const namedExamples = ['parameters', 'Filter', 'x-examples', 'application/json', 'pet', 'value']
+    expect(isInsideDataValue(namedExamples, '2.0')).toBe(true)
+    expect(isInsideDataValue(namedExamples, '3.0')).toBe(false)
     expect(isInsideDataValue(responseExample, '2.0')).toBe(true)
     expect(isInsideDataValue(responseExample, '3.0')).toBe(false)
     expect(

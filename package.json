@@ -9,7 +9,7 @@
   "packageManager": "pnpm@12.14.0",
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
-    "@changesets/cli": "^2.31.1",
+    "@changesets/cli": "^3.0.3",
     "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@playwright/test": "catalog:*",
@@ -26,16 +26,13 @@
     "lefthook": "^2.2.2",
     "prettier": "3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
-    "remark-cli": "^12.0.1",
-    "remark-lint-no-dead-urls": "^2.0.1",
-    "remark-validate-links": "^13.1.0",
     "shx": "catalog:*",
     "tailwindcss": "catalog:*",
     "tsc-alias": "^1.9.7",
     "tsconfig-paths": "^4.2.0",
     "tsx": "catalog:*",
     "turbo": "^2.11.8",
-    "typescript": "^5.9.3",
+    "typescript": "6.0.3",
     "typescript-eslint": "8.71.2",
     "typescript-language-server": "^6.0.2",
     "vitest": "catalog:*",
@@ -55,7 +52,6 @@
     "lint:check": "biome ci --formatter-enabled=false && pnpm lint:vue --quiet",
     "lint:check:dist-dts-aliases": "tsx ./tooling/scripts/check-dist-dts-aliases.ts",
     "lint:vue": "pnpm eslint --config eslint.config.mjs \"**/*.vue\"",
-    "lint:markdown": "remark --frail .",
     "lint:knip": "cross-env NODE_ENV=test knip",
     "lint:fix": "biome check --write && pnpm lint:vue --fix",
     "test": "turbo --filter './packages/**' --filter './integrations/**' --filter './projects/**' --filter './tooling/**' test",
@@ -65,19 +61,6 @@
     "renovate:validate": "pnpm dlx --package renovate renovate-config-validator",
     "script": "pnpm --filter @scalar-internal/build-scripts start",
     "release:version": "pnpm --filter @scalar-internal/changelog-generator version:packages && pnpm --filter @scalar/release-notes... build && pnpm --filter @scalar/release-notes start --all && pnpm format"
-  },
-  "remarkConfig": {
-    "plugins": [
-      "remark-validate-links",
-      [
-        "remark-lint-no-dead-urls",
-        {
-          "skipUrlPatterns": [
-            "http://localhost"
-          ]
-        }
-      ]
-    ]
   },
   "exports": {
     "./*.css": {

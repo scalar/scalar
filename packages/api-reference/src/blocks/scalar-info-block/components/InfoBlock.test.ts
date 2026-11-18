@@ -1,15 +1,22 @@
 import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { InfoObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { type VueWrapper, enableAutoUnmount, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, assert, describe, expect, it } from 'vitest'
 
 import { SectionHeader } from '@/components/Section'
 
 import InfoBlock from './InfoBlock.vue'
 
 enableAutoUnmount(afterEach)
+
+const getAsyncApiInfo = (document: WorkspaceDocument | undefined) => {
+  assert(isAsyncApiDocument(document))
+  return document.info
+}
 
 describe('InfoBlock', () => {
   const eventBus = createWorkspaceEventBus()
@@ -87,7 +94,7 @@ describe('InfoBlock', () => {
         },
       })
       const wrapper = mountIntroduction(
-        { documentType: 'asyncapi', info: store.workspace.documents.events?.info },
+        { documentType: 'asyncapi', info: getAsyncApiInfo(store.workspace.documents.events) },
         layout,
       )
       expect(wrapper.get('a').attributes('href')).toBe(externalDocs.url)
@@ -109,7 +116,7 @@ describe('InfoBlock', () => {
         },
       })
       const wrapper = mountIntroduction(
-        { documentType: 'asyncapi', info: store.workspace.documents.events?.info },
+        { documentType: 'asyncapi', info: getAsyncApiInfo(store.workspace.documents.events) },
         layout,
       )
       expect(wrapper.get('a').attributes('href')).toBe(externalDocs.url)
@@ -202,12 +209,13 @@ describe('InfoBlock', () => {
           document: { asyncapi, id: 'urn:example:events', info: mockInfo, channels: {} },
         })
         const document = store.workspace.documents.events
+        assert(isAsyncApiDocument(document))
         const wrapper = mount(InfoBlock, {
           props: {
             id: 'events/introduction',
-            applicationIdentifier: document && 'id' in document ? document.id : undefined,
+            applicationIdentifier: document.id,
             documentType: 'asyncapi',
-            info: document?.info,
+            info: document.info,
             specificationVersion: asyncapi,
             layout,
             documentDownloadType: 'none',

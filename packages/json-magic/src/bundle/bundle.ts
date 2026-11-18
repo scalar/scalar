@@ -10,14 +10,20 @@ import { isHttpUrl } from '@/helpers/is-http-url'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 import { setValueAtPath } from '@/helpers/set-value-at-path'
 import { toRelativePath } from '@/helpers/to-relative-path'
+import { getRaw } from '@/magic-proxy/proxy'
 import type { UnknownObject } from '@/types'
 
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
 import type { ReferenceDiagnostic } from './bundle-with-diagnostics'
-import { type DocumentResolver, bundledDocumentUri, documentReferences } from './document-references'
+import {
+  type DocumentResolver,
+  type SchemaIdentity,
+  bundledDocumentUri,
+  documentReferences,
+} from './document-references'
 import { documentTraversal } from './document-traversal'
-import { isReferenceContext } from './reference-context'
+import { getSchemaVocabulary, isReferenceContext, isSchemaContext } from './reference-context'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
@@ -334,7 +340,10 @@ export type LoaderPlugin = {
   // Returns true if this plugin can handle the given reference value
   validate: (value: string) => boolean
   // Asynchronously fetches and resolves the reference, returning the resolved data
-  exec: (value: string) => Promise<ResolveResult>
+  exec: (
+    value: string,
+    options?: { /** Read source code without parsing it as JSON or YAML. */ parseAs?: 'text' },
+  ) => Promise<ResolveResult>
 }
 
 /**
@@ -695,6 +704,7 @@ export const bundleDocument = async (
     documentRoot['swagger'] === '2.0',
     documentRoot['swagger'] !== '2.0' && !String(documentRoot['openapi']).startsWith('3.0.'),
     config.traversal === 'document' || diagnostics !== undefined,
+    typeof documentRoot['asyncapi'] === 'string',
   )
   traversal.register(
     documentRoot,
@@ -728,6 +738,24 @@ export const bundleDocument = async (
     if (diagnostics) deferredCopies.push(copy)
     else copy()
   }
+  const identifySchema = (node: object): SchemaIdentity | undefined => {
+    if (!isObject(node)) return undefined
+    const location = traversal.location(node)
+    const vocabulary = getSchemaVocabulary(config.traversal === 'document' ? location?.context : 'schema')
+    if (!vocabulary) return undefined
+    if (
+      config.traversal === 'document' &&
+      ((hasRef(node) && location?.schemaSiblings !== true) ||
+        (location?.context === 'asyncapi-schema' && typeof node.schemaFormat === 'string'))
+    )
+      return undefined
+    const id = vocabulary.idKeyword === undefined ? undefined : node[vocabulary.idKeyword]
+    return {
+      id: typeof id === 'string' && id !== '' ? id : undefined,
+      idKeyword: vocabulary.idKeyword,
+      anchor: vocabulary.anchors && typeof node.$anchor === 'string' ? node.$anchor : undefined,
+    }
+  }
   const references = documentReferences(
     config.externalDocumentsKey,
     (document, retrievalUri) => {
@@ -744,11 +772,12 @@ export const bundleDocument = async (
     },
     config.preserveReference !== undefined,
     (node) => traversal.location(node)?.context !== 'data',
-    (node) => config.traversal !== 'document' || traversal.location(node)?.context === 'schema',
+    identifySchema,
   )
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
-  const hasRootIdentity = references.identity(documentRoot) !== undefined || getId(documentRoot) !== undefined
+  const hasRootIdentity =
+    references.identity(documentRoot) !== undefined || identifySchema(documentRoot)?.id !== undefined
   const referenceToRoot = (pointer: string, sourceOrigin: string): string => {
     const fragment = pointer
       .split('/')
@@ -928,7 +957,7 @@ export const bundleDocument = async (
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
 
     const visitChildren = async (): Promise<void> => {
-      for (const key of Object.keys(root)) {
+      for (const key of Object.keys(config.traversal === 'document' ? getRaw(root) : root)) {
         if (key === '$ref' || key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey)
           continue
         await bundler(
@@ -955,7 +984,7 @@ export const bundleDocument = async (
       // Schema and Path Item siblings retain their authored structure; they are not merged.
       if (
         config.traversal === 'document' &&
-        (location?.context === 'path-item' || (location?.context === 'schema' && location.schemaSiblings))
+        (location?.context === 'path-item' || (isSchemaContext(location?.context) && location?.schemaSiblings))
       )
         await visitChildren()
       if (config.preserveReference?.(ref, { origin: nodeOrigin })) {
@@ -1215,7 +1244,10 @@ export const bundleDocument = async (
     // Recursively traverse all child properties of the current object to resolve nested $ref references.
     // This step ensures that any $refs located deeper within the object hierarchy are discovered and processed.
     // We explicitly skip the extension keys (x-ext and x-ext-urls) to avoid reprocessing already bundled or mapped content.
+    // Match the authored keys indexed by document traversal; virtual proxy links
+    // can otherwise revisit the document through nodes that have no data context.
     for (const key in root) {
+      if (config.traversal === 'document' && !Object.hasOwn(getRaw(root), key)) continue
       if (key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey) {
         continue
       }

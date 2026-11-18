@@ -1,5 +1,19 @@
 # @scalar/asyncapi-to-markdown
 
+## 0.2.10
+
+No changes in this release.
+
+## 0.2.9
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
+## 0.2.8
+
+No changes in this release.
+
 ## 0.2.7
 
 ### Patch Changes

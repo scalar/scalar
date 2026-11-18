@@ -58,6 +58,8 @@ internal sealed class ScalarConfiguration
 
     public required string[]? FeaturedClients { get; init; }
 
+    public required bool? ShowDefaultClientsWithSdkInstallation { get; init; }
+
     /// <remarks>
     /// This could be a dictionary of <see cref="ScalarTarget" /> and <see cref="ScalarClient" /> arrays or a boolean if all clients are hidden.
     /// </remarks>
@@ -98,6 +100,8 @@ internal sealed class ScalarConfiguration
     public required string? BaseServerUrl { get; init; }
 
     public required bool? PersistAuth { get; init; }
+
+    public required bool? PersistSelectedClient { get; init; }
 
     public required bool? Telemetry { get; init; }
 

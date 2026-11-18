@@ -64,11 +64,13 @@ internal static partial class ScalarOptionsMapper
             FeaturedClients = options.FeaturedClients?
                 .Select(client => $"{client.Key.ToStringFast(true)}/{client.Value.ToStringFast(true)}")
                 .ToArray(),
+            ShowDefaultClientsWithSdkInstallation = options.ShowDefaultClientsWithSdkInstallation,
             Integration = options.DotNetFlag ? "dotnet" : null,
             HideClientButton = options.HideClientButton,
             Sources = sources,
             BaseServerUrl = options.BaseServerUrl,
             PersistAuth = options.PersistentAuthentication,
+            PersistSelectedClient = options.PersistSelectedClient,
             Telemetry = options.Telemetry,
 #pragma warning disable CS0618 // Type or member is obsolete
             DocumentDownloadType = options.HideDownloadButton ? DocumentDownloadType.None : options.DocumentDownloadType,

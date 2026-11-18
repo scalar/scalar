@@ -72,6 +72,7 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
+import { isPluginDocument } from '@scalar/workspace-store/schemas/plugin-document'
 import {
   isAsyncApiDocument,
   isOpenApiDocument,
@@ -161,6 +162,7 @@ import {
 } from '@/helpers/normalize-configurations'
 import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
+import { toStoreDocumentTypes } from '@/helpers/to-store-document-types'
 import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
@@ -182,7 +184,6 @@ defineSlots<{
   'content-end'?(): { breadcrumb: string }
   'sidebar-start'?(): { breadcrumb: string }
   'sidebar-end'?(): { breadcrumb: string }
-  'editor-placeholder'?(): { breadcrumb: string }
   'footer'?(): { breadcrumb: string }
 }>()
 
@@ -362,9 +363,16 @@ const withLocalizedConfigurationDefaults = (
 /** Any dev toolbar modifications are merged with the active configuration */
 const mergedConfig = computed<ApiReferenceConfiguration>(() => {
   const activeConfig = configList.value[activeSlug.value]?.config
+  const initialConfig = Array.isArray(props.configuration)
+    ? (props.configuration.find((config) => config.default) ??
+      props.configuration[0])
+    : props.configuration
   const merged = {
     // Provides a default set of values when the lookup fails
-    ...coerce(apiReferenceConfigurationSchema, {}),
+    ...coerce(apiReferenceConfigurationSchema, {
+      // Embeddings may supply their source later; honor their storage preference from the first render.
+      persistSelectedClient: initialConfig?.persistSelectedClient,
+    }),
     // The active configuration based on the slug
     ...activeConfig,
     // Any overrides from the localhost toolbar
@@ -528,6 +536,46 @@ function syncSlugAndUrlWithDocument(
 }
 
 // ---------------------------------------------------------------------------
+/** Plugin Initialization */
+
+/**
+ * Plugin injection is not reactive. All plugins must be provided at first render.
+ *
+ * Created before the stores so they can be given the plugins' document types. The auth accessor
+ * reads the client store lazily: the reference-side Authentication panel (Content → Auth.vue)
+ * persists credentials into `clientStore.auth`, so plugins must read the same store to see what the
+ * user entered. Hooks only run from `notifyInit` onwards, once the client store exists.
+ */
+const pluginManager = createPluginManager({
+  plugins: Object.values(configList.value).flatMap(
+    (c) => c.config.plugins ?? [],
+  ),
+  /**
+   * Read-only view of the global authentication state, so plugins can read stored secrets and
+   * the selected security schemes without being able to mutate them. Wraps the client store's
+   * auth methods (rather than passing the store directly) to keep the setters out of the plugin API.
+   *
+   * The getters return a deep copy (`export` already snapshots internally, the others go through
+   * `toJsonCompatible`) so plugins receive plain data rather than the store's live reactive proxies —
+   * mutating what they get back can never leak into the store.
+   */
+  auth: {
+    export: () => clientStore.auth.export(),
+    getAuthSecrets: (documentName, schemeName) =>
+      toJsonCompatible(
+        clientStore.auth.getAuthSecrets(documentName, schemeName),
+      ),
+    getAuthSelectedSchemas: (payload) =>
+      toJsonCompatible(clientStore.auth.getAuthSelectedSchemas(payload)),
+  },
+})
+provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+provide(MARKDOWN_RENDER_HOOKS, pluginManager.getMarkdownRenderHooks())
+
+/** Document formats contributed by plugins, registered with both stores so they agree on every document. */
+const documentTypes = toStoreDocumentTypes(pluginManager.getDocumentTypes())
+
+// ---------------------------------------------------------------------------
 /** Workspace Store Initialization */
 
 /**
@@ -535,6 +583,7 @@ function syncSlugAndUrlWithDocument(
  */
 const workspaceStore = createWorkspaceStore({
   verbose: isDevelopment,
+  documentTypes,
 })
 
 provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
@@ -545,9 +594,12 @@ provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
  */
 const clientStore = createWorkspaceStore({
   verbose: isDevelopment,
+  documentTypes,
   plugins: [
     persistencePlugin({
       persistAuth: () => mergedConfig.value.persistAuth ?? false,
+      persistSelectedClient: () =>
+        mergedConfig.value.persistSelectedClient ?? true,
     }),
   ],
 })
@@ -594,47 +646,14 @@ const runtimeConfig = computed<ApiReferenceConfiguration>(() => {
     : config
 })
 
-/**
- * Plugin injection is not reactive. All plugins must be provided at first render.
- *
- * Created after the client store so the auth accessor below can read from it — plugin `onInit`
- * hooks may call `auth` synchronously during `notifyInit`. The reference-side Authentication panel
- * (Content → Auth.vue) persists credentials into `clientStore.auth`, so plugins must read the same
- * store to see what the user entered.
- */
-const pluginManager = createPluginManager({
-  plugins: Object.values(configList.value).flatMap(
-    (c) => c.config.plugins ?? [],
-  ),
-  /**
-   * Read-only view of the global authentication state, so plugins can read stored secrets and
-   * the selected security schemes without being able to mutate them. Wraps the client store's
-   * auth methods (rather than passing the store directly) to keep the setters out of the plugin API.
-   *
-   * The getters return a deep copy (`export` already snapshots internally, the others go through
-   * `toJsonCompatible`) so plugins receive plain data rather than the store's live reactive proxies —
-   * mutating what they get back can never leak into the store.
-   */
-  auth: {
-    export: () => clientStore.auth.export(),
-    getAuthSecrets: (documentName, schemeName) =>
-      toJsonCompatible(
-        clientStore.auth.getAuthSecrets(documentName, schemeName),
-      ),
-    getAuthSelectedSchemas: (payload) =>
-      toJsonCompatible(clientStore.auth.getAuthSelectedSchemas(payload)),
-  },
-})
-provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
-provide(MARKDOWN_RENDER_HOOKS, pluginManager.getMarkdownRenderHooks())
-
+// Plugin `onInit` hooks may call `auth` synchronously, so they only run once the client store exists.
 pluginManager.notifyInit(mergedConfig.value)
 
 watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 
 // TODO: persistence should be hoisted into standalone
 // Client side integrations will want to handle dark mode externally
-const { toggleColorMode, isDarkMode } = useColorMode({
+const { toggleColorMode, isDarkMode: browserIsDarkMode } = useColorMode({
   initialColorMode: {
     true: 'dark' as const,
     false: 'light' as const,
@@ -643,13 +662,23 @@ const { toggleColorMode, isDarkMode } = useColorMode({
   overrideColorMode: mergedConfig.value.forceDarkModeState,
 })
 
+/** Browser preferences must not overwrite the server's controls before hydration finishes. */
+const hydratedIsDarkMode = hydrationState.value
+  ? workspaceStore.workspace['x-scalar-color-mode'] === 'dark'
+  : browserIsDarkMode.value
+const isDarkMode = computed(() =>
+  hydrationState.value ? hydratedIsDarkMode : browserIsDarkMode.value,
+)
+
 /**
  * The active document passed to the search modal. Both OpenAPI and AsyncAPI
  * documents are surfaced so the search index can include their navigation content.
+ * Documents of a registered document type are not indexed yet.
  */
-const activeSearchableDocument = computed(
-  () => workspaceStore.workspace.activeDocument,
-)
+const activeSearchableDocument = computed(() => {
+  const document = workspaceStore.workspace.activeDocument
+  return isPluginDocument(document) ? undefined : document
+})
 
 /**
  * Sidebar entries contributed by plugin views (content.start / content.end).
@@ -845,11 +874,37 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
   return docItems
 })
 
-/** Find the sidebar entry that represents the introduction section */
+/** The tag that is opened by default when the URL does not point at a specific target */
+const getFirstTag = (): TraversedEntry | undefined =>
+  sidebarItems.value.find((item) => item.type === 'tag')
+
+/**
+ * The server opens the first tag by default, because it cannot see the URL fragment. The first
+ * browser render has to open the same tag, or Vue replaces the server-rendered sidebar and tag
+ * content. A deep link closes it again after hydration, unless it was open for another reason
+ * such as `defaultOpenAllTags`.
+ */
+let hydratedFirstTagId: string | undefined
+if (hydrationState.value && mergedConfig.value.defaultOpenFirstTag) {
+  const firstTag = getFirstTag()
+  if (firstTag && !sidebarState.isExpanded(firstTag.id)) {
+    sidebarState.setExpanded(firstTag.id, true)
+    hydratedFirstTagId = firstTag.id
+  }
+}
+
+/**
+ * Find the sidebar entry that represents the introduction section.
+ *
+ * A plugin document has no introduction, so the top of the page belongs to the document itself.
+ * Falling through to the suffix would put an id in the URL that resolves to nothing.
+ */
 const infoSectionId = computed(
   () =>
     sidebarItems.value.find(isIntroductionEntry)?.id ??
-    `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`,
+    (isPluginDocument(workspaceStore.workspace.activeDocument)
+      ? activeSlug.value
+      : `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`),
 )
 
 /**
@@ -1314,15 +1369,20 @@ const changeSelectedDocument = async (
 
   // When loading to a specified element we need to freeze and scroll
   if (scrollTargetId && scrollTargetId !== slug) {
+    // The target replaces the first tag that was only open to match the server render
+    if (hydratedFirstTagId) {
+      sidebarState.setExpanded(hydratedFirstTagId, false)
+    }
     scrollToLazyElement(scrollTargetId)
   }
   // If there is no child element of the document specified and defaultOpenFirstTag is enabled, we expand the first tag
   else if (config.defaultOpenFirstTag) {
-    const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
+    const firstTag = getFirstTag()
     if (firstTag) {
       sidebarState.setExpanded(firstTag.id, true)
     }
   }
+  hydratedFirstTagId = undefined
 
   // Reflect the freshly selected document in the browser tab title
   updatePageTitle(
@@ -1447,7 +1507,9 @@ onBeforeMount(async () => {
   }
 
   // We read the client from the client store so we need to set it to the client store
-  loadClientFromStorage(clientStore)
+  if (mergedConfig.value.persistSelectedClient !== false) {
+    loadClientFromStorage(clientStore)
+  }
 
   if (
     urlRouting.value &&
@@ -1526,6 +1588,11 @@ const agent = useAgent({
   agentEnabled: computed(() => {
     const currentConfiguration = configList.value[activeSlug.value]
 
+    const document = workspaceStore.workspace.activeDocument
+    if (!isOpenApiDocument(document) && !isAsyncApiDocument(document)) {
+      return false
+    }
+
     if (currentConfiguration?.agent?.disabled) {
       return false
     }
@@ -1536,6 +1603,11 @@ const agent = useAgent({
 
     return Boolean(configList.value[activeSlug.value]?.agent?.key)
   }),
+})
+watch(agent.agentEnabled, (enabled) => {
+  if (!enabled) {
+    agent.closeAgent()
+  }
 })
 provide(AGENT_CONTEXT_SYMBOL, agent)
 
@@ -2461,6 +2533,7 @@ const sidebarCta = computed((): SidebarCta => {
           :contextChain
           :document="workspaceStore.workspace.activeDocument"
           :documentSlug="activeSlug"
+          :documents="workspaceStore.workspace.documents"
           :environment
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"
@@ -2537,14 +2610,6 @@ const sidebarCta = computed((): SidebarCta => {
             </div>
             <slot
               name="content-start"
-              v-bind="slotProps" />
-          </template>
-          <!-- TODO: Remove this; we no longer directly support an inline editor -->
-          <template
-            v-if="mergedConfig.isEditable"
-            #empty-state>
-            <slot
-              name="editor-placeholder"
               v-bind="slotProps" />
           </template>
           <template #end>

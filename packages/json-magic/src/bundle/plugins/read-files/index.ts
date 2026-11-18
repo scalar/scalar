@@ -45,7 +45,11 @@ const isOutsideBasePath = async (fs: FsPromises, filePath: string, basePath: str
  * }
  * ```
  */
-export async function readFile(filePath: string, basePath?: string): Promise<ResolveResult> {
+export async function readFile(
+  filePath: string,
+  basePath?: string,
+  options?: Parameters<LoaderPlugin['exec']>[1],
+): Promise<ResolveResult> {
   const fs = typeof window === 'undefined' ? await import('node:fs/promises') : undefined
 
   if (fs === undefined) {
@@ -66,7 +70,7 @@ export async function readFile(filePath: string, basePath?: string): Promise<Res
 
     return {
       ok: true,
-      data: normalize(fileContents),
+      data: options?.parseAs === 'text' ? fileContents : normalize(fileContents),
       raw: fileContents,
     }
   } catch {
@@ -92,6 +96,6 @@ export function readFiles(config?: { basePath?: string }): LoaderPlugin {
   return {
     type: 'loader',
     validate: isFilePath,
-    exec: (value) => readFile(value, config?.basePath),
+    exec: (value, options) => readFile(value, config?.basePath, options),
   }
 }

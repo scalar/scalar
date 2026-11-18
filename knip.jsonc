@@ -570,7 +570,7 @@
       ]
     },
     "projects/proxy-scalar-com": {
-      "ignoreBinaries": ["go"]
+      "ignoreBinaries": ["go", "gofmt"]
     }
   }
 }

@@ -1,3 +1,4 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { parseDocument } from 'yaml'
 
@@ -18,7 +19,7 @@ export const readRaml = (source: unknown): SchemaDocument => {
           if (document.errors.length || document.warnings.length) {
             throw new Error('Invalid RAML YAML')
           }
-          return document.toJS({ maxAliasCount: 50 })
+          return document.toJS({ maxAliasCount: YAML_MAX_ALIAS_COUNT })
         })()
       : source
   const visit = (value: unknown, name: string, path = new Set<unknown>(), depth = 0, property = false): SchemaNode => {

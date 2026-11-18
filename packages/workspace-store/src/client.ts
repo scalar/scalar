@@ -37,7 +37,7 @@ import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { type RequestBodyBaselines, snapshotRequestBodies } from '@/helpers/snapshot-request-bodies'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
+import { createNavigation, traverseAsyncApiDocument, traversePluginDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import {
   externalValueResolver,
@@ -51,9 +51,16 @@ import {
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
+import { codeSampleSources } from '@/plugins/bundler/code-sample-sources'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { TraversedDocument } from '@/schemas/navigation'
+import {
+  type DocumentTypeDefinition,
+  PLUGIN_DOCUMENT_TYPE_KEY,
+  type PluginDocument,
+  findDocumentType,
+} from '@/schemas/plugin-document'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { generateSchema } from '@/schemas/v3.2/openapi'
 import { recursiveRef } from '@/schemas/v3.2/openapi/reference'
@@ -110,6 +117,8 @@ type WorkspaceDocumentMetaInput = {
 export type UrlDoc = {
   /** URL to fetch the OpenAPI document from */
   url: string
+  /** Already fetched response for this URL. Its body is consumed instead of fetching the initial document. */
+  response?: Response
 } & WorkspaceDocumentMetaInput
 
 /**
@@ -163,7 +172,10 @@ function loadDocument(
   },
 ): ReturnType<LoaderPlugin['exec']> {
   if ('url' in workspaceDocument) {
-    return fetchUrls({ fetch: workspaceDocument.fetch }).exec(workspaceDocument.url)
+    const response = workspaceDocument.response
+    return fetchUrls({
+      fetch: response ? () => Promise.resolve(response) : workspaceDocument.fetch,
+    }).exec(workspaceDocument.url)
   }
 
   if ('path' in workspaceDocument) {
@@ -204,7 +216,11 @@ const getDocumentSource = (input: WorkspaceDocumentInput) => {
   if ('path' in input) {
     return input.path
   }
-  return 'document' in input ? input.documentSource : undefined
+  if ('document' in input) {
+    const originalSource = input.document['x-scalar-original-source-url']
+    return input.documentSource ?? (typeof originalSource === 'string' ? originalSource : undefined)
+  }
+  return undefined
 }
 
 /**
@@ -225,6 +241,11 @@ type WorkspaceProps = {
   plugins?: WorkspacePlugin[]
   /** A file loader plugin for resolving local file references (for non browser environments) */
   fileLoader?: LoaderPlugin
+  /**
+   * Document formats the store does not support natively. Each one is checked, in order, before the
+   * built-in OpenAPI and AsyncAPI pipelines.
+   */
+  documentTypes?: readonly DocumentTypeDefinition[]
   /**
    * Whether writes to the workspace are observable. Defaults to `true`.
    *
@@ -668,7 +689,7 @@ const METADATA_ONLY_DOCUMENT_KEYS = new Set<string>([
  */
 const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T): T => {
   const result = deepClone(input)
-  type BundlerKeys = 'x-ext' | 'x-ext-urls' | 'x-scalar-original-refs'
+  type BundlerKeys = 'x-ext' | 'x-ext-urls' | 'x-scalar-original-refs' | typeof PLUGIN_DOCUMENT_TYPE_KEY
   // Top level keys that need to be excluded from the original document
   // Nested keys are removed during the previous step of the bundler process
   const EXCLUDE_KEYS: string[] = [
@@ -684,6 +705,7 @@ const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T):
     'x-scalar-original-document-hash',
     'x-scalar-original-source-url',
     'x-scalar-registry-meta',
+    PLUGIN_DOCUMENT_TYPE_KEY,
   ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[]
 
   // Remove top-level properties that should only exist temporarily or for internal usage
@@ -1062,6 +1084,17 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return true
   }
 
+  /** The placeholder shown for a document that could not be loaded. */
+  const createLoadFailedDocument = (name: string, meta: WorkspaceDocumentMeta | undefined): OpenApiDocument => ({
+    ...meta,
+    openapi: '3.1.0',
+    info: {
+      title: `Document '${name}' could not be loaded`,
+      version: 'unknown',
+    },
+    'x-scalar-original-document-hash': 'not-a-hash',
+  })
+
   // Add a document to the store synchronously from an in-memory OpenAPI or AsyncAPI document
   async function addInMemoryDocument(
     input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
@@ -1075,6 +1108,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // else reads it, so every step below — including the check for a server-generated navigation —
     // sees the document a non-compact server store would have sent.
     withMeasurementSync('expandChunkIndex', () => expandChunkIndex(clonedRawInputDocument))
+
+    // The marker belongs to the store, never the source. Remove it before capturing the saved
+    // baseline so an export before the first save cannot leak it or misclassify the document.
+    delete clonedRawInputDocument[PLUGIN_DOCUMENT_TYPE_KEY]
 
     withMeasurementSync('initialize', () => {
       if (input.initialize !== false) {
@@ -1111,6 +1148,63 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       loaders.push(workspaceProps.fileLoader)
     }
 
+    // Registered document types come first, so a format they claim never reaches the OpenAPI
+    // upgrade and coercion below (which would turn it into a broken OpenAPI document).
+    const documentType = findDocumentType(workspaceProps?.documentTypes, clonedRawInputDocument)
+    if (documentType) {
+      // Third-party code runs here, so a failure ends up as the usual "could not be loaded" document
+      // instead of leaving the workspace without this document.
+      try {
+        const ingestedDocument = await withMeasurementAsync(
+          'ingest',
+          async () =>
+            (await documentType.ingest?.(deepClone(clonedRawInputDocument), { documentName: name })) ??
+            clonedRawInputDocument,
+        )
+
+        const pluginDocument = createMagicProxy({
+          ...ingestedDocument,
+          info: isObject(ingestedDocument.info) ? ingestedDocument.info : {},
+          ...meta,
+          [PLUGIN_DOCUMENT_TYPE_KEY]: documentType.type,
+          'x-scalar-original-document-hash': input.documentHash,
+          'x-scalar-original-source-url': input.documentSource,
+        }) as PluginDocument
+
+        if (documentType.bundle && pluginDocument[extensions.document.navigation] === undefined) {
+          await withMeasurementAsync(
+            'bundle',
+            async () =>
+              await bundle(getRaw(pluginDocument), {
+                treeShake: false,
+                plugins: loaders,
+                urlMap: true,
+                origin: input.documentSource,
+              }),
+          )
+        }
+
+        if (pluginDocument[extensions.document.navigation] === undefined) {
+          pluginDocument[extensions.document.navigation] = traversePluginDocument(
+            name,
+            pluginDocument,
+            documentType,
+            navigationOptions,
+          )
+        }
+
+        const pluginOverrides = unpackProxyObject(overrides[name])
+        workspace.documents[name] = needsOverridesProxy(pluginOverrides)
+          ? createOverridesProxy(pluginDocument, { overrides: pluginOverrides })
+          : pluginDocument
+        return true
+      } catch (error) {
+        console.error(`Failed to load document '${name}' with document type '${documentType.type}':`, error)
+        workspace.documents[name] = createLoadFailedDocument(name, meta)
+        return false
+      }
+    }
+
     // AsyncAPI ingestion: skip the OpenAPI-specific upgrade and validation pipeline.
     // The OpenAPI `coerce` step would otherwise inject an empty `openapi: ''` field
     // and break the type discriminator. We still run the AsyncAPI-specific upgrader so
@@ -1139,6 +1233,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           'bundle',
           async () =>
             await bundle(getRaw(asyncApiDocument), {
+              traversal: 'document',
               treeShake: false,
               plugins: loaders,
               urlMap: true,
@@ -1160,7 +1255,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       workspace.documents[name] = needsOverridesProxy(asyncApiOverrides)
         ? createOverridesProxy(asyncApiDocument, { overrides: asyncApiOverrides })
         : asyncApiDocument
-      return
+      return true
     }
 
     const inputDocument = withMeasurementSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
@@ -1168,6 +1263,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const strictDocument: UnknownObject = createMagicProxy(
       {
         ...inputDocument,
+        // Partial API descriptions still need document traversal rather than standalone schema traversal.
+        openapi: inputDocument.openapi ?? '',
         ...meta,
         'x-original-oas-version': clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger,
         'x-scalar-original-document-hash': input.documentHash,
@@ -1184,9 +1281,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         'bundle',
         async () =>
           await bundle(getRaw(strictDocument), {
+            // Example values and other literal data may contain authored `$ref` keys.
+            traversal: 'document',
             treeShake: false,
             plugins: [
               ...loaders,
+              codeSampleSources(),
               openApiDocument(),
               normalizeRefs(),
               externalValueResolver({ lazy: true }),
@@ -1244,6 +1344,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     requestBodyBaselines[name] = withMeasurementSync('snapshotRequestBodies', () =>
       snapshotRequestBodies(baselineDocument),
     )
+    return true
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -1267,15 +1368,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       if (!resolve.ok) {
         console.error(`Failed to fetch document '${name}': request was not successful`)
 
-        workspace.documents[name] = {
-          ...meta,
-          openapi: '3.1.0',
-          info: {
-            title: `Document '${name}' could not be loaded`,
-            version: 'unknown',
-          },
-          'x-scalar-original-document-hash': 'not-a-hash',
-        }
+        workspace.documents[name] = createLoadFailedDocument(name, meta)
 
         return false
       }
@@ -1283,20 +1376,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       if (!isObject(resolve.data)) {
         console.error(`Failed to load document '${name}': response data is not a valid object`)
 
-        workspace.documents[name] = {
-          ...meta,
-          openapi: '3.1.0',
-          info: {
-            title: `Document '${name}' could not be loaded`,
-            version: 'unknown',
-          },
-          'x-scalar-original-document-hash': 'not-a-hash',
-        }
+        workspace.documents[name] = createLoadFailedDocument(name, meta)
 
         return false
       }
 
-      await addInMemoryDocument(
+      return await addInMemoryDocument(
         {
           ...input,
           document: resolve.data,
@@ -1305,8 +1390,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         },
         navigationOptions,
       )
-
-      return true
     })
   }
 
@@ -1680,9 +1763,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       return bundle(target, {
         root: activeDocument,
+        traversal: 'document',
         origin: activeDocument?.['x-scalar-original-source-url'],
         treeShake: false,
         plugins: [
+          codeSampleSources(path),
           openApiDocument(),
           fetchUrls({
             fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,
@@ -1900,7 +1985,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         }
       }
 
-      const newDocumentOrigin = resolve.data
+      // Source markers are not classification evidence, including when rebasing a saved baseline.
+      const newDocumentOrigin = deepClone(resolve.data)
+      delete newDocumentOrigin[PLUGIN_DOCUMENT_TYPE_KEY]
 
       // ---- Override the configurations and metadata
       overrides[name] = input.overrides ?? {}
@@ -1949,7 +2036,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             return applyChangesInput.resolvedDocument
           }
 
-          const mergedDocument = getNewActiveDocument()
+          const mergedDocument = deepClone(getNewActiveDocument())
+          delete mergedDocument[PLUGIN_DOCUMENT_TYPE_KEY]
 
           // Detect whether the rebase folded in any local edits. When the
           // merged result matches the upstream snapshot the pull was
@@ -1991,11 +2079,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           const activeServers = activeDocumentRaw.servers
           const mergedHasServers = Array.isArray(mergedServers) && mergedServers.length > 0
           const activeHasServers = Array.isArray(activeServers) && activeServers.length > 0
-          const preservedServers =
-            !isAsyncApiDocument(mergedDocument) && !mergedHasServers && activeHasServers
-              ? deepClone(activeServers)
-              : undefined
-
           // add the new active document to the workspace but don't re-initialize
           await addInMemoryDocument({
             ...input,
@@ -2018,11 +2101,17 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               'x-scalar-selected-server': activeDocumentRaw['x-scalar-selected-server'],
               ...(environments !== undefined ? { 'x-scalar-environments': environments } : {}),
               ...(order !== undefined ? { 'x-scalar-order': order } : {}),
-              ...(preservedServers !== undefined ? { servers: preservedServers } : {}),
               // Flag local edits that need pushing - see note above.
               'x-scalar-is-dirty': hasLocalChangesAgainstUpstream,
             },
           })
+
+          // Re-ingestion determines the resulting format. Raw input can carry OpenAPI-looking fields
+          // while being claimed by a plugin, so only preserve HTTP servers after classification.
+          const rebasedDocument = workspace.documents[name]
+          if (isOpenApi && isOpenApiDocument(rebasedDocument) && !mergedHasServers && activeHasServers) {
+            rebasedDocument.servers = deepClone(activeServers)
+          }
         },
       }
     },

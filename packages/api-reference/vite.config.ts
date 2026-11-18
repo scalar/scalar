@@ -9,8 +9,10 @@ import {
   createLibEntry,
   createPreserveModulesOutput,
   findEntryPoints,
-} from '../../tooling/scripts/vite-lib-config'
-import { version } from './package.json'
+} from '../../tooling/scripts/vite-lib-config.ts'
+import packageJson from './package.json' with { type: 'json' }
+
+const { version } = packageJson
 
 const external = createExternalsFromPackageJson()
 const preserveModulesOutput = createPreserveModulesOutput()

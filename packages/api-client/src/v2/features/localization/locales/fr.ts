@@ -133,6 +133,10 @@ export const fr = {
     'value': 'Valeur',
     'delete': 'Supprimer',
     'selectFile': 'Sélectionner un fichier',
+    'selectFiles': 'Sélectionner des fichiers',
+    'addFiles': 'Ajouter des fichiers',
+    'uploadFor': '{action} pour {name}',
+    'removeFile': 'Retirer {name} de {field}',
     'globalCookieHint': 'Les cookies globaux sont partagés dans tout l’espace de travail. Cliquez pour y accéder.',
     'readOnlyHint':
       'Cette propriété est en lecture seule. Pour la modifier, vous devez la remplacer ou la désactiver à l’aide de la case à cocher.',
@@ -191,8 +195,14 @@ export const fr = {
     'cancel': 'Annuler',
   },
   'addressBar': {
+    desktopBrowserUrlRequired:
+      'L’application de bureau peut uniquement ouvrir des URL HTTPS ou des serveurs HTTP locaux dans le navigateur.',
     'path': 'Chemin',
     'copyUrl': 'Copier l’URL',
+    'openInBrowser': 'Ouvrir dans le navigateur',
+    'openInBrowserHint':
+      'Ouvrir dans un nouvel onglet avec les cookies du navigateur, sans en-têtes personnalisés ni corps de requête. Les identifiants dans les paramètres de requête peuvent être enregistrés dans l’historique du navigateur.',
+    'browserUrlRequired': 'Saisissez une URL HTTP ou HTTPS valide à ouvrir dans le navigateur.',
     'send': 'Envoyer',
     'sendRequest': 'Envoyer une requête {method} à {url}',
     'duplicateRequest': 'Une requête {method} vers {path} existe déjà dans ce document',

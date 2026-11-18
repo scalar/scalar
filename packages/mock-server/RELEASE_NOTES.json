@@ -1,5 +1,67 @@
 [
   {
+    "version": "0.21.4",
+    "date": "2026-11-17",
+    "title": "Plugin document handling and TypeScript 6 support",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release improves how plugin documents are classified and processed throughout the application, ensuring they are handled consistently and excluded from features that do not support them."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Plugin documents now maintain consistent classification during replacement, hydration, and rebasing operations.",
+          "Plugin documents are excluded from Ask AI features and authentication processing.",
+          "Builds with TypeScript 6 now preserve package output paths and application aliases correctly."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0214",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.21.3",
+    "date": "2026-11-16",
+    "title": "Polish and bug fixes",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0213",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.21.2",
+    "date": "2026-11-12",
+    "title": "Mock server now generates valid base64 examples",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The mock server previously returned invalid base64 strings for byte format fields, causing strict decoders to reject responses. It now generates valid base64 examples that decode correctly."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Generated examples for format byte fields are now valid base64 strings instead of the placeholder string.",
+          "Content encoding base64 and base64url schemas receive proper base64 examples.",
+          "Custom examples, defaults, and enums still take precedence over generated values."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0212",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.21.1",
     "date": "2026-11-10",
     "title": "Decimal validation and deep nesting fixes",

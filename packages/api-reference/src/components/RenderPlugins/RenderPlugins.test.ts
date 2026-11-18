@@ -33,6 +33,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -68,6 +70,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -107,6 +111,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -151,6 +157,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -197,6 +205,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -248,6 +258,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -300,6 +312,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -346,6 +360,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -380,6 +396,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -414,6 +432,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -441,6 +461,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -480,6 +502,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -512,6 +536,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -543,6 +569,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
@@ -575,6 +603,8 @@ describe('RenderPlugins', () => {
         notifyDestroy: vi.fn(),
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
+        getDocumentTypes: vi.fn().mockReturnValue([]),
+        getDocumentType: vi.fn().mockReturnValue(undefined),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
         getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })

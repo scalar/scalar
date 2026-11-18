@@ -99,6 +99,7 @@ import { generateClientOptions } from '@scalar/blocks/code-example'
 import { ScalarButton } from '@scalar/components/button'
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
+import { isAllowedOAuthUrl } from '@scalar/helpers/url/is-allowed-oauth-url'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import { isForbiddenHttpMethod } from '@scalar/helpers/http/is-forbidden-http-method'
 import {
@@ -289,10 +290,10 @@ const persistResponseCookies = (sendResult: {
 }
 
 /**
- * Copy the executable URL — same pipeline as Send (`requestFactory` +
+ * Resolve the executable URL using the same pipeline as Send (`requestFactory` +
  * `resolveExecutableRequestUrl`), including security query params.
  */
-const copyAddressBarUrl = async (): Promise<void> => {
+const getAddressBarUrl = (allowMissingRequestServerBase = true): string => {
   const { request } = requestFactory({
     defaultHeaders,
     environment,
@@ -309,9 +310,50 @@ const copyAddressBarUrl = async (): Promise<void> => {
     requestBodyCompositionSelection,
   })
 
-  await copyToClipboard(
-    resolveExecutableRequestUrl(request, getEnvironmentVariables(environment)),
+  return resolveExecutableRequestUrl(
+    request,
+    getEnvironmentVariables(environment),
+    { allowMissingRequestServerBase },
   )
+}
+
+/** Copy remains permissive so incomplete URLs can still be shared or edited. */
+const copyAddressBarUrl = async (): Promise<void> => {
+  await copyToClipboard(getAddressBarUrl())
+}
+
+/** Browser navigation uses the destination URL and the browser's own session. */
+const openInBrowser = async (): Promise<void> => {
+  if (method.toLowerCase() !== 'get' || externalExamplesPending) return
+
+  eventBus.flushDebouncedEmits?.()
+  // Apply pending parameter and address-bar edits before resolving the destination.
+  await nextTick()
+
+  if (!validatePathParameters(operation.parameters ?? [], exampleKey).ok) {
+    toast(translate('apiClient.operationBlock.pathParametersRequired'), 'error')
+    return
+  }
+
+  try {
+    const url = new URL(getAddressBarUrl(layout === 'modal' && !isWebhook))
+    // A request URL is untrusted input; navigation must never execute another scheme.
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      toast(translate('apiClient.addressBar.browserUrlRequired'), 'error')
+      return
+    }
+    // Match Electron's external-navigation policy instead of silently dropping the action.
+    if (isElectron() && !isAllowedOAuthUrl(url)) {
+      toast(
+        translate('apiClient.addressBar.desktopBrowserUrlRequired'),
+        'error',
+      )
+      return
+    }
+    window.open(url.href, '_blank', 'noopener,noreferrer')
+  } catch {
+    toast(translate('apiClient.addressBar.browserUrlRequired'), 'error')
+  }
 }
 
 /** Execute the current operation example */
@@ -757,6 +799,7 @@ onBeforeUnmount(() => {
         :source
         @execute="handleExecute"
         @navigate:settings="handleNavigateSettings"
+        @open:browser="openInBrowser"
         @select:history:item="handleSelectHistoryItem"
         @update:webhookUrl="(value: string) => (webhookUrl = value)" />
     </div>

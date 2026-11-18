@@ -1,5 +1,21 @@
 # @scalar/scripts
 
+## 0.4.66
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.4.65
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
+## 0.4.64
+
+No changes in this release.
+
 ## 0.4.63
 
 ## 0.4.62

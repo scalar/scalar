@@ -1614,6 +1614,39 @@ describe('operationToHar', () => {
       expect(result.headers).toStrictEqual([])
     })
 
+    it('leaves the boundary header to the multipart encoder when there are only text fields', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'Ada' },
+                  age: { type: 'integer', example: 36 },
+                },
+              }),
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/profile',
+      })
+
+      expect(result.postData?.mimeType).toBe('multipart/form-data')
+      expect(result.postData?.params?.map(({ name }) => name)).toStrictEqual(['name', 'age'])
+      expect(result.headers).toStrictEqual([])
+    })
+
     it('should set Content-Type header for text/plain', () => {
       const operation: OperationObject = {
         requestBody: {

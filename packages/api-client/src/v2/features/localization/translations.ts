@@ -132,6 +132,10 @@ export const en = {
     value: 'Value',
     delete: 'Delete',
     selectFile: 'Select File',
+    selectFiles: 'Select files',
+    addFiles: 'Add files',
+    uploadFor: '{action} for {name}',
+    removeFile: 'Remove {name} from {field}',
     globalCookieHint: 'Global cookies are shared across the whole workspace. Click to navigate.',
     readOnlyHint:
       'This is a readonly property and you can not modify it! If you want to change it you have to override it or disable it using the checkbox',
@@ -192,6 +196,11 @@ export const en = {
   addressBar: {
     path: 'Path',
     copyUrl: 'Copy URL',
+    openInBrowser: 'Open in browser',
+    openInBrowserHint:
+      'Open in a new tab using browser cookies, without custom headers or a request body. Query credentials may be saved in browser history.',
+    browserUrlRequired: 'Enter a valid HTTP or HTTPS URL to open in the browser.',
+    desktopBrowserUrlRequired: 'The desktop app can only open HTTPS URLs or local HTTP servers in the browser.',
     send: 'Send',
     sendRequest: 'Send {method} request to {url}',
     duplicateRequest: 'A {method} request to {path} already exists in this document',

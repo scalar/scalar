@@ -1,5 +1,19 @@
 # @scalar/sidebar
 
+## 0.12.11
+
+No changes in this release.
+
+## 0.12.10
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
+## 0.12.9
+
+No changes in this release.
+
 ## 0.12.8
 
 ## 0.12.7

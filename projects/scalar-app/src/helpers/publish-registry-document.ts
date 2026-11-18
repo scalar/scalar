@@ -38,7 +38,12 @@ export const publishRegistryDocument: PublishRegistryDocument = async ({ namespa
 
     return {
       ok: true,
-      data: { namespace, slug, version, commitHash: result?.versionSha },
+      data: {
+        namespace,
+        slug,
+        version,
+        commitHash: 'versionSha' in result && typeof result.versionSha === 'string' ? result.versionSha : undefined,
+      },
     }
   } catch (error) {
     return mapRegistryError(error, { statusCodes: { 409: 'CONFLICT' } })

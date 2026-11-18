@@ -324,6 +324,19 @@ class TestScalarConfig:
 class TestGetScalarApiReference:
     """Test the get_scalar_api_reference function"""
 
+    @pytest.mark.parametrize("enabled", [True, False])
+    def test_show_default_clients_with_sdk_installation(self, enabled):
+        response = get_scalar_api_reference(
+            ScalarConfig(show_default_clients_with_sdk_installation=enabled)
+        )
+        configuration, _ = json.JSONDecoder().raw_decode(
+            response.content.decode().split('Scalar.createApiReference("#app", ', 1)[1]
+        )
+        if enabled:
+            assert configuration["showDefaultClientsWithSdkInstallation"] is True
+        else:
+            assert "showDefaultClientsWithSdkInstallation" not in configuration
+
     def test_basic_functionality(self):
         """Test basic functionality with minimal parameters"""
         config = ScalarConfig(openapi_url="/openapi.json", title="Test API")
@@ -364,6 +377,7 @@ class TestGetScalarApiReference:
         assert "defaultOpenAllTags" not in config_section
         assert "authentication" not in config_section
         assert "hideClientButton" not in config_section
+        assert "showDefaultClientsWithSdkInstallation" not in config_section
         assert "theme" not in config_section
 
     def test_default_openapi_url(self):
@@ -981,3 +995,27 @@ class TestHtmlEscaping:
             assert decoded[js_field][0]["url"] == "/openapi.json"
         else:
             assert decoded[js_field] == value
+
+
+class TestSelectedClientPersistence:
+    @pytest.mark.parametrize("options", [{}, {"persist_selected_client": True}])
+    def test_keeps_frontend_default_when_enabled(self, options):
+        config = ScalarConfig(openapi_url="/openapi.json", **options)
+        assert config.persist_selected_client is True
+        html = get_scalar_api_reference(config).content.decode()
+        assert '"persistSelectedClient"' not in html
+
+    def test_serializes_disabled_selection_with_auth_enabled(self):
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            persist_selected_client=False,
+            persist_auth=True,
+        )
+        html = get_scalar_api_reference(config).content.decode()
+        assert '"persistSelectedClient": false' in html
+        assert '"persistAuth": true' in html
+
+    def test_viewer_kwargs_forward_disabled_selection(self):
+        viewer = ScalarViewer(persist_selected_client=False)
+        html = get_scalar_api_reference(viewer.config).content.decode()
+        assert '"persistSelectedClient": false' in html

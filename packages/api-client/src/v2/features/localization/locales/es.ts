@@ -133,6 +133,10 @@ export const es = {
     'value': 'Valor',
     'delete': 'Eliminar',
     'selectFile': 'Seleccionar archivo',
+    'selectFiles': 'Seleccionar archivos',
+    'addFiles': 'Añadir archivos',
+    'uploadFor': '{action} para {name}',
+    'removeFile': 'Quitar {name} de {field}',
     'globalCookieHint':
       'Las cookies globales se comparten en todo el espacio de trabajo. Haga clic para acceder a ellas.',
     'readOnlyHint':
@@ -192,8 +196,14 @@ export const es = {
     'cancel': 'Cancelar',
   },
   'addressBar': {
+    desktopBrowserUrlRequired:
+      'La aplicación de escritorio solo puede abrir URL HTTPS o servidores HTTP locales en el navegador.',
     'path': 'Ruta',
     'copyUrl': 'Copiar URL',
+    'openInBrowser': 'Abrir en el navegador',
+    'openInBrowserHint':
+      'Abrir en una pestaña nueva con las cookies del navegador, sin encabezados personalizados ni cuerpo de solicitud. Las credenciales en los parámetros de consulta pueden guardarse en el historial del navegador.',
+    'browserUrlRequired': 'Introduce una URL HTTP o HTTPS válida para abrirla en el navegador.',
     'send': 'Enviar',
     'sendRequest': 'Enviar solicitud {method} a {url}',
     'duplicateRequest': 'Ya existe una solicitud {method} a {path} en este documento',

@@ -1,5 +1,21 @@
 # @scalar/openapi-upgrader
 
+## 0.4.11
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.4.10
+
+### Patch Changes
+
+- [#10952](https://github.com/scalar/scalar/pull/10952): Fix shared Swagger 2.0 body and form-data parameters being left in parameter arrays instead of request bodies. Preserve operation media types, combine form fields, and inherit path-level bodies regardless of property order.
+
+## 0.4.9
+
+No changes in this release.
+
 ## 0.4.8
 
 ### Patch Changes

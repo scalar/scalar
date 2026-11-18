@@ -13,6 +13,8 @@ export const getVisibleTabCount = (
   availableWidth: number,
   /** The width of the "More" dropdown trigger */
   moreWidth: number,
+  /** Keep the dropdown visible for clients that are never shown inline. */
+  hasOtherOptions = false,
 ): number => {
   const total = tabWidths.length
 
@@ -37,7 +39,7 @@ export const getVisibleTabCount = (
   }
 
   // Everything fits, so there is no need for a "More" dropdown
-  if (countThatFits(0) >= total) {
+  if (!hasOtherOptions && countThatFits(0) >= total) {
     return total
   }
 

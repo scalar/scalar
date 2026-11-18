@@ -1,5 +1,20 @@
 # @scalar/docusaurus
 
+## 0.8.60
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.8.59
+
+No changes in this release.
+
+## 0.8.58
+
+No changes in this release.
+
 ## 0.8.57
 
 ### Patch Changes

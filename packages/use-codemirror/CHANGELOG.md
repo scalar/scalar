@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.14.19
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
 ## 0.14.18
 
 ### Patch Changes

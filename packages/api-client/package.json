@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "3.25.0",
+  "version": "3.27.0",
   "engines": {
     "node": ">=22"
   },
@@ -324,11 +324,11 @@
     "@scalar/sidebar": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
-    "@scalar/typebox": "^0.1.3",
     "@scalar/types": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
+    "@scalar/validation": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",

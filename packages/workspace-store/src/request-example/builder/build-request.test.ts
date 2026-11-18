@@ -35,6 +35,37 @@ const unwrap = (factory: RequestFactory, options: Parameters<typeof buildRequest
 }
 
 describe('buildRequest', () => {
+  it.each([
+    ['https://example.com/api?token=a?b', '/users', { token: 'a?b' }],
+    [
+      'https://example.com/api',
+      '/users?redirect=https://example.com/callback?code=abc',
+      { redirect: 'https://example.com/callback?code=abc' },
+    ],
+    ['https://example.com/api?token=a?b?c', '/users?next=x?y?z', { token: 'a?b?c', next: 'x?y?z' }],
+  ])('preserves raw client URL query values from %s and %s', (baseUrl, path, expected) => {
+    const { request } = requestFactory({
+      exampleName: 'default',
+      method: 'get',
+      path,
+      environment: { color: '#FFFFFF', variables: [] },
+      globalCookies: [],
+      proxyUrl: '',
+      server: { url: baseUrl },
+      defaultHeaders: {},
+      isElectron: false,
+      selectedSecuritySchemes: [],
+      operation: {},
+    })
+    const result = unwrap(request, { envVariables: {} })
+    try {
+      expect(result.isUsingProxy).toBe(false)
+      expect(Object.fromEntries(new URL(result.requestPayload[0]).searchParams)).toEqual(expected)
+    } finally {
+      result.controller.abort()
+    }
+  })
+
   it('preserves serialized parameter text through the final request URL and headers', () => {
     const { request } = requestFactory({
       exampleName: 'default',

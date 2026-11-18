@@ -137,6 +137,14 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu',
     }),
+    persistSelectedClient: boolean({
+      default: true,
+      typeComment: 'Whether to save and restore the selected code sample client using local storage. @default true',
+    }),
+    showDefaultClientsWithSdkInstallation: optional(boolean(), {
+      typeComment:
+        'Show built-in HTTP clients alongside `x-scalar-sdk-installation` tabs in the introduction. Defaults to false',
+    }),
     defaultHttpClient: optional(
       // The keys stay permissive strings at runtime, so `coerce` leaves an unknown value
       // untouched (a union of literal client names would rewrite it). The cast only tightens

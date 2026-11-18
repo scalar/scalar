@@ -2151,8 +2151,8 @@
       for (const [index, species] of SPECIES.entries()) {
         const holes = species.holes || []
         const [boxLeft, boxTop, boxSize] = species.sign || species.crop || [0, 0, 24]
-        const svg = MARKS[species.slug]
-          .replace(species.without || /^$/, '')
+        const mark = MARKS[species.slug]
+        const svg = (species.without ? mark.replace(species.without, '') : mark)
           .replace(/fill="([^"]*)"/g, (all, value) =>
             value === 'none' ? all : `fill="${species.sign || holes.includes(value) ? '#fff' : '#000'}"`,
           )

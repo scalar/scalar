@@ -492,6 +492,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = None,
+    show_default_clients_with_sdk_installation: Annotated[
+        bool,
+        Doc(
+            """
+            Show built-in HTTP clients alongside SDK installation tabs in the introduction.
+            Default is False, which shows only SDK tabs when installation instructions are available.
+            """
+        ),
+    ] = False,
     hide_client_button: Annotated[
         bool,
         Doc(
@@ -501,6 +510,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = False,
+    persist_selected_client: Annotated[
+        bool,
+        Doc(
+            """
+            Whether to save and restore the selected code sample client in local storage.
+            Default is True. Set to False to keep client selection on the current page only.
+            """
+        ),
+    ] = True,
     persist_auth: Annotated[
         bool,
         Doc(
@@ -691,8 +709,16 @@ def get_scalar_api_reference(
     if authentication:  # Default is {}
         config["authentication"] = authentication
 
+    if show_default_clients_with_sdk_installation:
+        config["showDefaultClientsWithSdkInstallation"] = (
+            show_default_clients_with_sdk_installation
+        )
+
     if hide_client_button:  # Default is False
         config["hideClientButton"] = hide_client_button
+
+    if not persist_selected_client:  # Default is True
+        config["persistSelectedClient"] = persist_selected_client
 
     if persist_auth:  # Default is False
         config["persistAuth"] = persist_auth

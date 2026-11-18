@@ -1,5 +1,22 @@
 # @scalar/mock-server
 
+## 0.21.4
+
+### Patch Changes
+
+- [#10816](https://github.com/scalar/scalar/pull/10816): Keep plugin document classification consistent through replacement, hydration, and rebasing. Exclude plugin documents from Ask AI and reject unsupported request, authentication, and mock-server processing even when plugin data contains OpenAPI or AsyncAPI fields.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.21.3
+
+No changes in this release.
+
+## 0.21.2
+
+### Patch Changes
+
+- [#10937](https://github.com/scalar/scalar/pull/10937): fix: generate valid base64 examples for `format: byte` and `contentEncoding: base64`/`base64url` strings
+
 ## 0.21.1
 
 ### Patch Changes

@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@changesets/get-github-info": "^0.8.0",
-    "@changesets/types": "^6.1.0"
+    "@changesets/types": "^7.0.0"
   },
   "devDependencies": {
     "vite": "catalog:*"

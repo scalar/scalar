@@ -601,6 +601,46 @@ describe('createMockServer', () => {
     })
   })
 
+  it.each([
+    ['3.0.4', { type: 'string', format: 'byte' }],
+    ['3.1.2', { type: 'string', contentEncoding: 'base64' }],
+    ['3.1.2', { type: 'string', contentEncoding: 'base64url' }],
+  ])('serves valid base64 for encoded strings in OpenAPI %s %j', async (openapi, encoded) => {
+    const app = await createMockServer({
+      document: {
+        openapi,
+        info: { title: 'Files', version: '1.0.0' },
+        paths: {
+          '/files/{id}': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          content: encoded,
+                          thumbnail: { ...encoded, example: 'aGVsbG8=' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await app.request('/files/1')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ content: 'c2NhbGFy', thumbnail: 'aGVsbG8=' })
+  })
+
   it('GET /foobar -> example JSON', async () => {
     const document = {
       openapi: '3.1.0',

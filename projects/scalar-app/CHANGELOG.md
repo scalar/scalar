@@ -1,5 +1,28 @@
 # scalar-app
 
+## 1.1.51
+
+### Patch Changes
+
+- [#10911](https://github.com/scalar/scalar/pull/10911): Render the active theme as a style element with escaped text content instead of injected HTML.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 1.1.50
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+- [#10999](https://github.com/scalar/scalar/pull/10999): Upgrade the Scalar SDK to 0.7.0 and adapt registry requests to its updated method parameters.
+- [#11015](https://github.com/scalar/scalar/pull/11015): Update Undici to address CVE-2026-116592 and allow compatible Undici 8 updates without requiring a new Scalar release.
+- [#10998](https://github.com/scalar/scalar/pull/10998): Reuse the discovery response when importing extensionless API description URLs, avoiding a duplicate download while preserving URL metadata and subsequent fetches.
+
+## 1.1.49
+
+### Patch Changes
+
+- [#10988](https://github.com/scalar/scalar/pull/10988): Use the shared theme reset for link text decoration.
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when parsing YAML in the collection editor.
+
 ## 1.1.48
 
 ### Patch Changes

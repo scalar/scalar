@@ -85,6 +85,7 @@ beforeEach(() => {
     takeRecords = vi.fn(() => [])
     root = null
     rootMargin = ''
+    scrollMargin = ''
     thresholds = [] as number[]
   }
 })

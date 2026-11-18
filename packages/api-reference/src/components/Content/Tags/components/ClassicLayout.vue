@@ -93,8 +93,10 @@ const { level: headingLevel } = useDocumentOutline('tag')
   align-self: center;
   background: var(--scalar-border-color);
 }
-.tag-group-name:has(* > *:hover),
-.tag-group-name:has(:focus-visible) {
+/* Make room for the copy link whenever the accordion header reveals it. */
+:is(.group\/heading:hover, .group\/heading:has(:focus-visible))
+  > .section-accordion-title
+  > .tag-group-name {
   gap: 32px;
 }
 .tag-section-group .tag-section {

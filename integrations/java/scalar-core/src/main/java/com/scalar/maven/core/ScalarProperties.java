@@ -203,6 +203,12 @@ public class ScalarProperties {
     private DefaultHttpClient defaultHttpClient;
 
     /**
+     * Shows built-in HTTP clients alongside SDK installation tabs in the introduction.
+     * Defaults to false, which shows only SDK tabs when installation instructions are available.
+     */
+    private boolean showDefaultClientsWithSdkInstallation = false;
+
+    /**
      * Controls the list of servers for the Scalar API Reference.
      * This list will override the servers defined in the OpenAPI document.
      */
@@ -250,6 +256,12 @@ public class ScalarProperties {
      * Defaults to false (not persisted).
      */
     private boolean persistAuth = false;
+
+    /**
+     * Controls whether the selected code sample client is saved and restored in local storage.
+     * Defaults to true. Set to false to keep client selection on the current page only.
+     */
+    private boolean persistSelectedClient = true;
 
     /**
      * Controls whether telemetry is enabled.
@@ -509,6 +521,14 @@ public class ScalarProperties {
         this.authentication = authentication;
     }
 
+    public boolean isShowDefaultClientsWithSdkInstallation() {
+        return showDefaultClientsWithSdkInstallation;
+    }
+
+    public void setShowDefaultClientsWithSdkInstallation(boolean showDefaultClientsWithSdkInstallation) {
+        this.showDefaultClientsWithSdkInstallation = showDefaultClientsWithSdkInstallation;
+    }
+
     public DefaultHttpClient getDefaultHttpClient() {
         return defaultHttpClient;
     }
@@ -571,6 +591,14 @@ public class ScalarProperties {
 
     public void setBaseServerUrl(String baseServerUrl) {
         this.baseServerUrl = baseServerUrl;
+    }
+
+    public boolean isPersistSelectedClient() {
+        return persistSelectedClient;
+    }
+
+    public void setPersistSelectedClient(boolean persistSelectedClient) {
+        this.persistSelectedClient = persistSelectedClient;
     }
 
     public boolean isPersistAuth() {

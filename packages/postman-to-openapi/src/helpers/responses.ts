@@ -63,7 +63,9 @@ export function extractResponses(
             [mediaType]: {
               schema: inferSchemaFromExample(response.body || ''),
               examples: {
-                default: tryParseJson(response.body || ''),
+                default: {
+                  value: tryParseJson(response.body || ''),
+                },
               },
             },
           }
@@ -187,10 +189,10 @@ function extractHeaders(
   return openapiHeaders
 }
 
-function tryParseJson(jsonString: string): Record<string, unknown> {
+function tryParseJson(jsonString: string): unknown {
   try {
-    return JSON.parse(jsonString) as Record<string, unknown>
+    return JSON.parse(jsonString)
   } catch (_e) {
-    return { rawContent: jsonString }
+    return jsonString
   }
 }
