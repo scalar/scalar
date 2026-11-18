@@ -89,7 +89,7 @@ describe('RequestAuthTab', () => {
     })
   }
 
-  it('shows a header API-key prefix while editing only the raw credential', async () => {
+  it('edits only the raw credential for a header API key with a prefix', async () => {
     const wrapper = mountWithProps({
       securitySchemes: {
         key: {
@@ -105,7 +105,7 @@ describe('RequestAuthTab', () => {
     const input = wrapper
       .findAllComponents(RequestAuthDataTableInput)
       .find((field) => field.props('type') === 'password')!
-    expect(input.text()).toContain('(token)')
+    expect(input.text()).not.toContain('(token)')
     expect(input.props('modelValue')).toBe('abc')
     const emitted = vi.fn()
     const unsubscribe = eventBus.on('auth:update:security-scheme-secrets', emitted)

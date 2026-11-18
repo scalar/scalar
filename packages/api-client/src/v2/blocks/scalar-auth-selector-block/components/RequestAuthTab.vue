@@ -610,13 +610,6 @@ const handleConfigAuthorize = (): void => {
               handleApiKeySecretsUpdate({ 'x-scalar-secret-token': v }, name)
           ">
           {{ translate('apiClient.requestAuthTab.value') }}
-          <span
-            v-if="
-              scheme.in === 'header' && scheme['x-scalar-token-prefix']?.trim()
-            "
-            class="text-c-2 font-code ml-1">
-            ({{ scheme['x-scalar-token-prefix'].trim() }})
-          </span>
         </RequestAuthDataTableInput>
       </DataTableRow>
     </template>
