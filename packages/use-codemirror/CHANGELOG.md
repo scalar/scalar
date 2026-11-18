@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.14.20
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
 ## 0.14.19
 
 ### Patch Changes

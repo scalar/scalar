@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.5 (2026-11-18)
+
+### Better array example generation and pattern validation
+
+This release fixes how the mock server generates examples for arrays with contains constraints and resolves an issue where certain regex patterns would prevent request validation from running.
+
+- Array examples now respect contains, minContains, and maxContains constraints when generating primitive items.
+- Generated arrays honor tuple prefixes, length bounds, uniqueness requirements, and the OpenAPI dialect you are using.
+- Request validation no longer fails silently when a schema pattern uses escape sequences like \-, \_, or \ that are only valid without the unicode flag.
+- Patterns that work with the unicode flag keep it, so astral characters and \p{L} continue to behave as expected.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0215)
+
 ## 0.21.4 (2026-11-17)
 
 ### Plugin document handling and TypeScript 6 support

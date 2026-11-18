@@ -1,5 +1,13 @@
 # @scalar/aws-lambda
 
+## 1.0.2
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.81.0
+
+No changes in this release.
+
 ## 1.0.1
 
 ### Bundled API Reference

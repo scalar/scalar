@@ -1,5 +1,13 @@
 # @scalar/java-integration
 
+## 0.8.2
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.81.0
+
+No changes in this release.
+
 ## 0.8.1
 
 ### Bundled API Reference

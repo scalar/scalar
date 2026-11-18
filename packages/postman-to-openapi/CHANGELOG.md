@@ -1,5 +1,13 @@
 # @scalar/postman-to-openapi
 
+## 0.7.34
+
+### Patch Changes
+
+- [#11092](https://github.com/scalar/scalar/pull/11092): Preserve folder authentication inheritance when converting collections and selected requests or folders.
+  Keep distinct authentication schemes separate so folder overrides do not change sibling authentication.
+- [#11093](https://github.com/scalar/scalar/pull/11093): Preserve GraphQL queries and variables with explicit request body properties, and use the declared media type or application/octet-stream for file request bodies.
+
 ## 0.7.33
 
 ### Patch Changes

@@ -1,5 +1,31 @@
 # @scalar/workspace-store
 
+## 0.74.0
+
+### Minor Changes
+
+- [#11089](https://github.com/scalar/scalar/pull/11089): Resolve external RAML and Protobuf dependencies for structured AsyncAPI schema documentation, preserving source fallback when dependencies cannot be fully resolved.
+
+  Show RAML named types in schema headings instead of adding a "RAML type:" line to the description.
+
+  Show inline object item titles in array type signatures across all `@scalar/blocks` consumers, including OpenAPI documentation: an array with `items: { type: 'object', title: 'Pet' }` now displays `array of Pet` instead of `array of object`.
+
+### Patch Changes
+
+- [#11029](https://github.com/scalar/scalar/pull/11029): fix: respect contains match counts in simple array examples
+
+  Generate matching and nonmatching primitive items for direct contains constraints, counting tuple prefixes and respecting item schemas, length bounds, uniqueness, and the declared dialect. Authored examples remain authoritative. Candidate generation is bounded and may return a partial example for contradictory constraints.
+
+  Complex references and compositions, nested object or array candidate synthesis, and XML branch reconstruction retain existing best-effort behavior and are deferred to a follow-up.
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11102](https://github.com/scalar/scalar/pull/11102): Update @scalar/typebox to 0.1.4.
+- [#11029](https://github.com/scalar/scalar/pull/11029): Preserve authored array item examples when contains constraints cannot be satisfied, and pass only dialect context to streaming example generation.
+- [#10997](https://github.com/scalar/scalar/pull/10997): Upgrade referenced OpenAPI 2.0 and 3.0 resources before bundling, including bare fragments interpreted in their owning API description's dialect and media types. Preserve authored reference targets when schemas and parameters move, and retain their context through lazy loading, serialization, and export.
+
+  Add JSON Magic resource and target lifecycle hooks and the typed `upgradeFragment` API. Headerless external resources are traversed through referenced subtrees, including when reached from OpenAPI 3.1/3.2 descriptions. Exports retain compact `x-scalar-upgrade` bookkeeping only when lazy external references still need the original dialect, relocation mappings, or media types.
+
+  Resources already stored in an input bundle's `x-ext` keep their existing layout so saved references remain valid. Legacy keywords in those stored resources, including OpenAPI 2.0 schema `x-nullable` and `type: file`, deliberately remain unconverted; newly loaded legacy resources are upgraded.
+
 ## 0.73.0
 
 ### Minor Changes

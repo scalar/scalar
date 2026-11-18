@@ -1,5 +1,31 @@
 [
   {
+    "version": "1.1.52",
+    "date": "2026-11-18",
+    "title": "Better cURL import and improved contrast for colored badges",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release fixes how the cURL importer handles data flags and improves readability for colored badges and environment indicators."
+      },
+      {
+        "type": "list",
+        "items": [
+          "cURL commands copied from Chrome or Firefox now import correctly with their data as the request body and POST as the default method",
+          "cURL data flags like --json, --data-urlencode, and multipart form fields are now properly recognized",
+          "Colored badges and environment checkmarks now automatically choose readable black or white text based on the background color",
+          "Array examples now respect contains constraints and generate the correct number of matching items"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1152",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.1.51",
     "date": "2026-11-17",
     "title": "Multi-file uploads, improved schema tooltips, and TypeScript 6 support",

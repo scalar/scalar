@@ -1,5 +1,14 @@
 # @scalar/scripts
 
+## 0.4.67
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11099](https://github.com/scalar/scalar/pull/11099): Validate Postman dynamic variables against patched Faker, align Django Ninja test dependencies with its runtime, and compare large desktop request bodies without expensive deep assertions.
+
+  The Postman Faker override and compatibility patch apply only inside this workspace. Published packages keep `postman-collection` external, so separately installed npm consumers still receive its Faker 5 dependency. Prebuilt vendor code is also unaffected. Workspace development uses Node.js 24, which supports loading Faker 10 ES modules from Postman’s CommonJS code.
+
 ## 0.4.66
 
 ### Patch Changes

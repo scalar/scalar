@@ -1,5 +1,19 @@
 # @scalar/mock-server
 
+## 0.21.5
+
+### Patch Changes
+
+- [#11029](https://github.com/scalar/scalar/pull/11029): fix: respect contains match counts in simple array examples
+
+  Generate matching and nonmatching primitive items for direct contains constraints, counting tuple prefixes and respecting item schemas, length bounds, uniqueness, and the declared dialect. Authored examples remain authoritative. Candidate generation is bounded and may return a partial example for contradictory constraints.
+
+  Complex references and compositions, nested object or array candidate synthesis, and XML branch reconstruction retain existing best-effort behavior and are deferred to a follow-up.
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11108](https://github.com/scalar/scalar/pull/11108): Keep validating requests when a schema `pattern` is only valid without the unicode flag.
+  A pattern such as `^\d{5}(\-\d{4})?$` that uses an escape like `\-`, `\_` or `\ ` now compiles as a plain ECMA-262 regular expression, so the body or the parameters of that operation are no longer left unchecked, and a pattern that parses with the unicode flag keeps it.
+- [#11029](https://github.com/scalar/scalar/pull/11029): Preserve authored array item examples when contains constraints cannot be satisfied, and pass only dialect context to streaming example generation.
+
 ## 0.21.4
 
 ### Patch Changes

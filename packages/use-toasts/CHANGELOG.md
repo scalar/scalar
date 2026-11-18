@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.10.9
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
 ## 0.10.8
 
 ### Patch Changes
