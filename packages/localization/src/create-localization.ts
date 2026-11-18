@@ -7,10 +7,19 @@ import {
   type MaybeRefOrGetter,
   computed,
   effectScope,
+  getCurrentInstance,
   inject,
+  onServerPrefetch,
   provide,
+  shallowReactive,
   toValue,
 } from 'vue'
+
+import {
+  isLocaleLoaded as isLocaleLoadedEverywhere,
+  loadLocale as loadLocaleEverywhere,
+  registerLocalization,
+} from './locale-registry'
 
 /** A locale identifier, for example `en` or `zh-CN`. */
 export type Locale = string
@@ -52,10 +61,26 @@ export type LocalizationInput<Translations> = {
   translations?: PartialDeep<Translations>
 }
 
+/**
+ * Loads the built-in translations for one locale on demand.
+ *
+ * Typically wraps a dynamic import, so bundlers emit the dictionary as its own chunk:
+ * `() => import('./locales/de').then((module) => module.de)`.
+ */
+export type LocaleTranslationsLoader<Translations> = () => Promise<Translations>
+
+/** Built-in translations for one locale, either bundled statically or loaded on demand. */
+export type LocaleTranslationsSource<Translations> = Translations | LocaleTranslationsLoader<Translations>
+
 /** Content and defaults a localization instance is built from. */
 export type LocalizationConfig<Translations extends Record<string, unknown>> = {
-  /** Built-in translations keyed by locale identifier. Must include {@link LocalizationConfig.defaultLocale}. */
-  localeTranslations: Record<string, Translations>
+  /**
+   * Built-in translations keyed by locale identifier. Must include {@link LocalizationConfig.defaultLocale}.
+   *
+   * Each entry is either the dictionary itself or a {@link LocaleTranslationsLoader}. Keep the default
+   * locale static: it is the synchronous fallback rendered while any other locale is still loading.
+   */
+  localeTranslations: Record<string, LocaleTranslationsSource<Translations>>
   /** Locale used as the base fallback when a key or locale is missing. */
   defaultLocale: string
   /** Languages (primary subtag, for example `ar`) that render right-to-left. */
@@ -80,6 +105,11 @@ const LOCALIZATION_SYMBOL: InjectionKey<unknown> = Symbol('scalar-localization')
  * The returned `provideLocalization`/`useLocalization` pair shares a single module-level injection
  * key, so a component provided with one instance can be consumed from another package's instance.
  * This is what lets translations flow across package boundaries.
+ *
+ * Built-in locales can be loaded on demand (see {@link LocaleTranslationsLoader}). A lazy locale starts
+ * loading the first time a context resolves to it; until then the default locale renders, and the
+ * context updates reactively once the dictionary arrives. Every instance registers with the shared
+ * registry, so `loadLocale` from `@scalar/localization` can warm all packages before the first render.
  *
  * @param config - Built-in translations plus locale/direction defaults.
  */
@@ -126,14 +156,102 @@ export const createLocalization = <Translations extends Record<string, unknown>,
     return language && rtlLocales.has(language) ? 'rtl' : 'ltr'
   }
 
+  /**
+   * Dictionaries that finished loading, keyed by built-in locale.
+   *
+   * Shallow reactive so every computed that read a missing entry re-evaluates once it arrives. The
+   * dictionaries themselves are immutable content and are never made deeply reactive.
+   */
+  const loadedTranslations = shallowReactive(new Map<string, Translations>())
+
+  /** In-flight loads, so concurrent requests for the same locale share a single loader call. */
+  const pendingLoads = new Map<string, Promise<void>>()
+
+  const isLoader = (
+    source: LocaleTranslationsSource<Translations> | undefined,
+  ): source is LocaleTranslationsLoader<Translations> => typeof source === 'function'
+
+  /** Returns the dictionary for a built-in locale, or `undefined` while it has not loaded yet. */
+  const getBuiltInTranslations = (builtInLocale: string): Translations | undefined => {
+    const source = localeTranslations[builtInLocale]
+
+    return isLoader(source) ? loadedTranslations.get(builtInLocale) : source
+  }
+
+  /**
+   * Loads a built-in locale's dictionary once.
+   *
+   * The promise never rejects: a failure is logged and forgotten, so the next request retries instead
+   * of caching the error, and callers (including renders) keep the default-locale fallback.
+   */
+  const loadBuiltInLocale = (builtInLocale: string): Promise<void> => {
+    const source = localeTranslations[builtInLocale]
+
+    if (!isLoader(source) || loadedTranslations.has(builtInLocale)) {
+      return Promise.resolve()
+    }
+
+    const pending = pendingLoads.get(builtInLocale)
+    if (pending) {
+      return pending
+    }
+
+    // The executor calls the loader synchronously, so the request starts right away and a loader that
+    // throws instead of rejecting is handled the same way.
+    const load = new Promise<Translations>((resolve) => resolve(source()))
+      .then(
+        (translations) => {
+          loadedTranslations.set(builtInLocale, translations)
+        },
+        (error: unknown) => {
+          console.warn(
+            `${logPrefix} Failed to load translations for locale "${builtInLocale}". Falling back to "${defaultLocale}".`,
+            error,
+          )
+        },
+      )
+      .finally(() => {
+        pendingLoads.delete(builtInLocale)
+      })
+
+    pendingLoads.set(builtInLocale, load)
+
+    return load
+  }
+
+  /** Whether the built-in dictionary a locale resolves to is available synchronously. */
+  const isLocaleLoaded = (locale?: Locale): boolean => {
+    const builtInLocale = resolveBuiltInLocale(locale)
+
+    return !isLoader(localeTranslations[builtInLocale]) || loadedTranslations.has(builtInLocale)
+  }
+
+  /**
+   * Loads the built-in dictionary a locale resolves to, using the same matching rules as rendering.
+   * Resolves once the dictionary is available (or the load failed and the default locale is used).
+   */
+  const loadLocale = (locale?: Locale): Promise<void> => loadBuiltInLocale(resolveBuiltInLocale(locale))
+
+  // Lets `loadLocale` from `@scalar/localization` warm this instance together with every other package.
+  registerLocalization({ load: loadLocale, isLoaded: isLocaleLoaded })
+
   const resolveLocalization = (localization?: LocalizationInput<Translations>): ResolvedLocalization<Translations> => {
     const locale = localization?.locale ?? defaultLocale
     const builtInLocale = resolveBuiltInLocale(locale)
 
     // The default locale is the base every other layer merges onto, so a missing key always
     // falls back to it rather than to the raw key.
-    const base = localeTranslations[defaultLocale] ?? ({} as Translations)
-    const translations = mergeObjects(mergeObjects(base, localeTranslations[builtInLocale]), localization?.translations)
+    const base = getBuiltInTranslations(defaultLocale) ?? ({} as Translations)
+    const builtInTranslations = getBuiltInTranslations(builtInLocale)
+
+    // Start loading a lazy locale the first time anything resolves to it. Until it arrives, the
+    // default locale (plus custom translations) renders. The reactive read above makes every computed
+    // built on this function re-evaluate once the dictionary lands.
+    if (!builtInTranslations) {
+      void loadBuiltInLocale(builtInLocale)
+    }
+
+    const translations = mergeObjects(mergeObjects(base, builtInTranslations), localization?.translations)
 
     return {
       locale,
@@ -178,6 +296,26 @@ export const createLocalization = <Translations extends Record<string, unknown>,
     }
   }
 
+  /**
+   * Holds back server rendering of the current component until a lazy locale has loaded.
+   *
+   * Server rendering is a single synchronous pass per component, so without this a non-default locale
+   * would render in the fallback language. Vue awaits `serverPrefetch` hooks before rendering the
+   * component's subtree, and never calls them in the browser. The hook is only registered when there
+   * is something to load, so the default locale renders exactly as before.
+   */
+  const awaitLocaleOnServer = (
+    context: LocalizationContext<Translations, Key>,
+    isLoaded: (locale: Locale) => boolean,
+    load: (locale: Locale) => Promise<void>,
+  ): void => {
+    if (!getCurrentInstance() || isLoaded(context.locale.value)) {
+      return
+    }
+
+    onServerPrefetch(() => load(context.locale.value))
+  }
+
   const ownContexts = new WeakSet<LocalizationContext<Translations, Key>>()
 
   const provideLocalization = (localization: MaybeRefOrGetter<LocalizationInput<Translations> | undefined>) => {
@@ -185,6 +323,9 @@ export const createLocalization = <Translations extends Record<string, unknown>,
 
     ownContexts.add(context)
     provide(LOCALIZATION_SYMBOL, context)
+
+    // Consumers from other packages inherit this locale, so warm every registered dictionary at once.
+    awaitLocaleOnServer(context, isLocaleLoadedEverywhere, loadLocaleEverywhere)
 
     return context
   }
@@ -199,6 +340,15 @@ export const createLocalization = <Translations extends Record<string, unknown>,
   >()
 
   const useLocalization = (): LocalizationContext<Translations, Key> => {
+    const context = getInheritedContext()
+
+    // Covers dictionaries the provider could not warm, for example an instance registered after it.
+    awaitLocaleOnServer(context, isLocaleLoaded, loadLocale)
+
+    return context
+  }
+
+  const getInheritedContext = (): LocalizationContext<Translations, Key> => {
     const inherited = inject(LOCALIZATION_SYMBOL, fallbackContext) as LocalizationContext<Translations, Key>
     if (inherited === fallbackContext || ownContexts.has(inherited)) {
       return inherited
@@ -227,5 +377,6 @@ export const createLocalization = <Translations extends Record<string, unknown>,
     resolveLocalization,
     provideLocalization,
     useLocalization,
+    loadLocale,
   }
 }
