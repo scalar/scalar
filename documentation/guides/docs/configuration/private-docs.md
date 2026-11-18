@@ -65,3 +65,57 @@ The Private Docs toggle, access groups and login portal are also stored in your 
 ```
 
 See [Access Control](site-config.md#access-control) for every property.
+
+## Show pages to specific access groups
+
+On a private site, you can show navigation entries and content only to visitors in certain access groups. When a visitor signs in, Scalar gives them the slug of each of the site's access groups that their email address or domain matches. Use those slugs in `groups`. You do not need a [user-info hook](personalization.md).
+
+To show a page only to the `partners` group, add `groups` to its navigation entry:
+
+```json
+{
+  "siteConfig": {
+    "isPrivate": true,
+    "accessGroups": ["partners", "internal-team"]
+  },
+  "navigation": {
+    "routes": {
+      "/": {
+        "type": "page",
+        "title": "Welcome",
+        "filepath": "welcome.md"
+      },
+      "/partner-guide": {
+        "type": "page",
+        "title": "Partner guide",
+        "filepath": "partner-guide.md",
+        "groups": ["partners"]
+      }
+    }
+  }
+}
+```
+
+You can also set the groups in the page's frontmatter:
+
+```markdown
+---
+groups: [partners]
+---
+
+# Partner guide
+```
+
+An entry is shown when the visitor belongs to at least one of its groups. Entries without `groups` are shown to everyone who can view the site. Hiding a group in the navigation also hides its children. `groups` works on pages, links, OpenAPI entries, nested groups and header links. Top-level route sections do not support it. See [Filter navigation](personalization.md#filter-navigation) for the full rules.
+
+To show part of a page to some groups only, use a `visible` block:
+
+```markdown
+:::visible{groups="partners"}
+Partner pricing is listed in your partner agreement.
+:::
+```
+
+Only the access groups listed in `siteConfig.accessGroups` count. A team member who isn't in one of those groups by email address or domain doesn't get its slug, so they don't see entries limited to that group. To check a group's view, sign in with an address the group allows.
+
+`groups` only changes what appears in the navigation and on the page. A hidden page can still be opened at its URL, and hidden blocks stay in the page source. Search and sitemaps include them too. If some content must be kept from certain visitors, publish it as a separate private site and give that site its own access groups.

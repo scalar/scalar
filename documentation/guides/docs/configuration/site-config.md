@@ -771,6 +771,8 @@ Set `isPrivate` to require visitors to sign in before they can view your documen
 
 Access groups and login portals are created in the [Scalar Dashboard](https://dashboard.scalar.com), and the config refers to them by slug. You can also manage these settings in your documentation project's **Settings → Privacy**, which reads and writes the same properties.
 
+To show some pages only to certain access groups, see [Show pages to specific access groups](private-docs.md#show-pages-to-specific-access-groups).
+
 ## Personalization
 
 Set `userInfoHook` to your HTTPS endpoint to personalize published documentation for signed-in visitors:
