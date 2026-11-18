@@ -1,10 +1,11 @@
-import Ajv2020 from 'ajv/dist/2020.js'
+import Ajv2020, { type ValidateFunction } from 'ajv/dist/2020.js'
 import { describe, expect, it } from 'vitest'
 
 import { normalizeNullable } from './normalize-nullable'
 
 /** Compile with the Ajv options the request validator uses, so a refused schema throws here as well */
-const compile = (schema: unknown) => new Ajv2020({ strict: false, allErrors: true }).compile(schema as object)
+const compile = (schema: unknown): ValidateFunction =>
+  new Ajv2020({ strict: false, allErrors: true }).compile(schema as object)
 
 const NULL_ARM = { type: 'null' }
 
