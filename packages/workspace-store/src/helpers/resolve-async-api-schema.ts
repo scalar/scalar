@@ -38,7 +38,8 @@ const readResources = (value: unknown): AsyncApiSchemaResources | undefined => {
     !isObject(value) ||
     typeof value.origin !== 'string' ||
     !isObject(value.files) ||
-    (value.failed !== undefined && value.failed !== true)
+    (value.failed !== undefined && value.failed !== true) ||
+    (value.deferred !== undefined && value.deferred !== true)
   )
     return undefined
   const entries = Object.entries(value.files)
@@ -47,6 +48,7 @@ const readResources = (value: unknown): AsyncApiSchemaResources | undefined => {
     origin: value.origin,
     files: Object.fromEntries(entries),
     ...(value.failed === true ? { failed: true } : {}),
+    ...(value.deferred === true ? { deferred: true } : {}),
   }
 }
 

@@ -1,6 +1,10 @@
 import { ScalarCopy } from '@scalar/components/copy'
-import { mount } from '@vue/test-utils'
+import { createAsyncApiSchemaResourceResolver } from '@scalar/workspace-store/helpers/async-api-schema-resources/resolver'
+import { ASYNC_API_SCHEMA_RESOURCES } from '@scalar/workspace-store/helpers/use-async-api-schema-resources'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { createSSRApp } from 'vue'
+import { renderToString } from 'vue/server-renderer'
 
 import SchemaLanguage from './SchemaLanguage.vue'
 import SchemaSource from './SchemaSource.vue'
@@ -203,6 +207,57 @@ describe('SchemaLanguage', () => {
       },
     })
     expect(wrapper.getComponent(SchemaSource).props('value')).toBe(value)
+    wrapper.unmount()
+  })
+  it('awaits native dependencies during server rendering', async () => {
+    const requested: string[] = []
+    const resolve = createAsyncApiSchemaResourceResolver({
+      origin: 'https://example.test/api.yaml',
+      fetch: (input) => {
+        requested.push(String(input))
+        return Promise.resolve(new Response('syntax="proto3"; message User { string external_id=1; }'))
+      },
+    })
+    const app = createSSRApp(SchemaLanguage, {
+      format: 'application/vnd.google.protobuf;version=3',
+      value: 'syntax="proto3"; import "user.proto"; message Root { User user=1; }',
+      options: { expandAllSchemaProperties: true },
+    })
+    app.provide(ASYNC_API_SCHEMA_RESOURCES, () => resolve)
+    const html = await renderToString(app)
+    expect(new DOMParser().parseFromString(html, 'text/html').body.textContent).toContain('external_id')
+    expect(requested).toStrictEqual(['https://example.test/user.proto'])
+  })
+
+  it('discards a late dependency response after the schema changes', async () => {
+    const pending = new Map<string, (response: Response) => void>()
+    const resolve = createAsyncApiSchemaResourceResolver({
+      origin: 'https://example.test/api.yaml',
+      fetch: (input) =>
+        new Promise<Response>((complete) => {
+          pending.set(String(input), complete)
+        }),
+    })
+    const wrapper = mount(SchemaLanguage, {
+      props: {
+        format: 'application/vnd.google.protobuf;version=3',
+        value: 'syntax="proto3"; import "old.proto"; message Root { User user=1; }',
+        options: { expandAllSchemaProperties: true },
+      },
+      global: { provide: { [ASYNC_API_SCHEMA_RESOURCES]: () => resolve } },
+    })
+    await wrapper.setProps({ value: 'syntax="proto3"; import "new.proto"; message Root { User user=1; }' })
+    pending.get('https://example.test/new.proto')?.(
+      new Response('syntax="proto3"; message User { string current_id=1; }'),
+    )
+    await flushPromises()
+    expect(wrapper.text()).toContain('current_id')
+    pending.get('https://example.test/old.proto')?.(
+      new Response('syntax="proto3"; message User { string stale_id=1; }'),
+    )
+    await flushPromises()
+    expect(wrapper.text()).toContain('current_id')
+    expect(wrapper.text()).not.toContain('stale_id')
     wrapper.unmount()
   })
 })

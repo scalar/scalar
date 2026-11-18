@@ -4,20 +4,23 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 
 import { getResolvedAsyncApiRef } from '../get-resolved-async-api-ref'
 import { resolveTraits } from '../resolve-traits'
-import { createSchemaResourceLoader } from './resources'
+import { createSchemaResourceLoader, deferSchemaResources } from './resources'
 
 /** Prepare inline native schemas before server chunking; external AsyncAPI references stay deferred. */
 export const loadInlineAsyncApiSchemaResources = async (
   document: AsyncApiDocument,
   origin: string,
   loaders: LoaderPlugin[],
+  options: { lazy?: boolean } = {},
 ): Promise<void> => {
   const load = createSchemaResourceLoader()
   const legacy = /^2\./.test(document.asyncapi)
   const schema = async (value: unknown): Promise<void> => {
     const node = getResolvedAsyncApiRef(value)
     if (!isObject(node) || typeof node.schemaFormat !== 'string') return
-    const resources = await load(node.schemaFormat, node.schema, origin, loaders)
+    const resources = options.lazy
+      ? deferSchemaResources(node.schemaFormat, origin)
+      : await load(node.schemaFormat, node.schema, origin, loaders)
     if (resources) node['x-scalar-schema-resources'] = resources
   }
   const trait = async (value: unknown): Promise<void> => {

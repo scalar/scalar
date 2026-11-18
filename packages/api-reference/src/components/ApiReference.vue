@@ -63,6 +63,7 @@ import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { ASYNC_API_SCHEMA_RESOURCES } from '@scalar/workspace-store/helpers/use-async-api-schema-resources'
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
   getActiveEnvironment,
@@ -621,6 +622,9 @@ const workspaceStore = createWorkspaceStore({
   documentTypes,
 })
 
+provide(ASYNC_API_SCHEMA_RESOURCES, () =>
+  workspaceStore.asyncApiSchemaResources(),
+)
 provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
 
 /**

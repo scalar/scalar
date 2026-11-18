@@ -22,6 +22,10 @@ import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
 import type { OperationMeta } from '@/events/definitions/operation'
 import { loadInlineAsyncApiSchemaResources } from '@/helpers/async-api-schema-resources/load-inline'
+import {
+  type AsyncApiSchemaResourceResolver,
+  createAsyncApiSchemaResourceResolver,
+} from '@/helpers/async-api-schema-resources/resolver'
 import { asyncApiModelChunkReference } from '@/helpers/asyncapi-model-chunk-reference'
 import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { compactUpgradeMetadata } from '@/helpers/compact-upgrade-metadata'
@@ -37,7 +41,7 @@ import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { type RequestBodyBaselines, snapshotRequestBodies } from '@/helpers/snapshot-request-bodies'
-import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { unpackProxyObject, unpackProxyShallow } from '@/helpers/unpack-proxy'
 import { createNavigation, traverseAsyncApiDocument, traversePluginDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import {
@@ -284,6 +288,8 @@ type WorkspaceProps = {
  * @see https://github.com/microsoft/TypeScript/issues/43817#issuecomment-827746462
  */
 export type WorkspaceStore = {
+  /** Resolve native schema dependencies only when a consumer displays them. */
+  asyncApiSchemaResources: (documentName?: string) => AsyncApiSchemaResourceResolver
   /** Resolve external examples without mutating the document or its edit history. */
   externalExamples: (documentName?: string) => ExternalExampleResolver
 
@@ -748,6 +754,24 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * This can include settings that can not be persisted between sessions (not JSON serializable)
    */
   const extraDocumentConfigurations: ExtraDocumentConfigurations = {}
+  const nativeSchemaResolvers = new WeakMap<object, AsyncApiSchemaResourceResolver>()
+  const nativeSchemaEdits = new WeakSet<object>()
+  const invalidateNativeSchemas = (document: object, path: (string | number)[]): void => {
+    // Resolving a lazy chunk is not an authored edit: keep shared downloads and document budgets intact.
+    const key = path.at(-1)
+    if (
+      !path.length ||
+      key === '$ref-value' ||
+      key === '$status' ||
+      key === 'x-scalar-schema-resources' ||
+      String(path[0]).startsWith('x-scalar-')
+    )
+      return
+    const raw = unpackProxyShallow(document)
+    nativeSchemaResolvers.delete(raw)
+    nativeSchemaEdits.add(raw)
+  }
+  const fallbackNativeSchemas = createAsyncApiSchemaResourceResolver()
   const externalExampleResolvers = new WeakMap<object, ExternalExampleResolver>()
   const fallbackExternalExamples = createExternalExampleResolver({
     fetch: workspaceProps?.fetch,
@@ -826,6 +850,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 // Every write through the store passes here, which is what makes the revision a
                 // complete record of the document changing.
                 bumpDocumentRevision(document)
+                invalidateNativeSchemas(document, path.slice(2) as (string | number)[])
                 const event = {
                   type: 'documents',
                   documentName,
@@ -855,6 +880,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                   'x-scalar-original-document-hash': '',
                 }
                 bumpDocumentRevision(document)
+                invalidateNativeSchemas(document, path.slice(1) as (string | number)[])
                 // Active document changed
                 const event = {
                   type: 'documents',
@@ -1224,6 +1250,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           createMagicProxy(clonedRawInputDocument),
           input.documentSource ?? '/',
           loaders,
+          { lazy: true },
         )
       }
       // The upgrader is typed against the loose `UnknownObject` shape; the result is a valid
@@ -1628,6 +1655,22 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   const visitedNodesCaches = new WeakMap<object, Set<unknown>>()
 
   return {
+    asyncApiSchemaResources: (documentName) => {
+      const name = documentName ?? getActiveDocumentName()
+      const document = workspace.documents[name]
+      if (!document) return fallbackNativeSchemas
+      const raw = unpackProxyShallow(document)
+      const cached = nativeSchemaResolvers.get(raw)
+      if (cached) return cached
+      const resolve = createAsyncApiSchemaResourceResolver({
+        origin: document['x-scalar-original-source-url'],
+        usePreparedResources: !nativeSchemaEdits.has(raw),
+        fileLoader: workspaceProps?.fileLoader,
+        fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+      })
+      nativeSchemaResolvers.set(raw, resolve)
+      return resolve
+    },
     externalExamples: (documentName) => {
       const name = documentName ?? getActiveDocumentName()
       const document = workspace.documents[name]

@@ -1,8 +1,11 @@
 import { ScalarCopy } from '@scalar/components/copy'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { ASYNC_API_SCHEMA_RESOURCES } from '@scalar/workspace-store/helpers/use-async-api-schema-resources'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
-import { mount } from '@vue/test-utils'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive } from 'vue'
 
@@ -830,5 +833,89 @@ describe('Message', () => {
     })
     expect(wrapper.get('button.collapsible-section-toggle').attributes('aria-expanded')).toBe('false')
     expect(wrapper.text()).not.toContain('Message details')
+  })
+  it.each([
+    {
+      format: 'application/raml+yaml;version=1.0',
+      schema: 'uses:\n  users: types/library.raml\ntype: users.User',
+      dependency: '#%RAML 1.0 Library\ntypes:\n  User:\n    type: object\n    properties:\n      external_id: string',
+      path: 'types/library.raml',
+    },
+    {
+      format: 'application/vnd.google.protobuf;version=3',
+      schema: 'syntax="proto3"; import "types/user.proto"; message Root { User user=1; }',
+      dependency: 'syntax="proto3"; message User { string external_id=1; }',
+      path: 'types/user.proto',
+    },
+  ])(
+    'loads $format only on expansion and reuses dependencies after reopening',
+    async ({ format, schema, dependency, path }) => {
+      const requested: string[] = []
+      const store = createWorkspaceStore({
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.resolve(new Response(dependency))
+        },
+      })
+      const native = { schemaFormat: format, schema }
+      await store.addDocument({
+        name: 'test',
+        document: createDocument({ payload: native, headers: native }),
+        documentSource: 'https://example.test/api.yaml',
+      })
+      const document = store.workspace.documents.test
+      if (!document || !isAsyncApiDocument(document)) throw new Error('Missing AsyncAPI document')
+      const wrapper = mount(Message, {
+        props: {
+          message: createMessage(),
+          document,
+          eventBus: null,
+          hideExamples: true,
+          options: { expandAllSchemaProperties: true },
+        },
+        global: { provide: { [ASYNC_API_SCHEMA_RESOURCES]: () => store.asyncApiSchemaResources('test') } },
+      })
+      await flushPromises()
+      expect(requested).toStrictEqual([])
+      await wrapper.get('button.collapsible-section-toggle').trigger('click')
+      await vi.waitFor(() => expect(wrapper.text()).toContain('external_id'))
+      expect(requested).toStrictEqual([`https://example.test/${path}`])
+      await wrapper.get('button.collapsible-section-toggle').trigger('click')
+      await wrapper.get('button.collapsible-section-toggle').trigger('click')
+      await vi.waitFor(() => expect(wrapper.text()).toContain('external_id'))
+      expect(requested).toStrictEqual([`https://example.test/${path}`])
+      wrapper.unmount()
+    },
+  )
+
+  it('preserves complete source when a lazy native dependency fails', async () => {
+    const source = 'syntax="proto3"; import "missing.proto"; message Root { Missing user=1; }'
+    const requested: string[] = []
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        requested.push(String(input))
+        return Promise.resolve(new Response('Unavailable', { status: 404 }))
+      },
+    })
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        payload: { schemaFormat: 'application/vnd.google.protobuf;version=3', schema: source },
+      }),
+      documentSource: 'https://example.test/api.yaml',
+    })
+    const document = store.workspace.documents.test
+    if (!document || !isAsyncApiDocument(document)) throw new Error('Missing AsyncAPI document')
+    const wrapper = mount(Message, {
+      props: { message: createMessage(), document, eventBus: null },
+      global: { provide: { [ASYNC_API_SCHEMA_RESOURCES]: () => store.asyncApiSchemaResources('test') } },
+    })
+    expect(requested).toStrictEqual([])
+    await wrapper.get('button.collapsible-section-toggle').trigger('click')
+    await vi.waitFor(() => expect(requested).toStrictEqual(['https://example.test/missing.proto']))
+    await flushPromises()
+    expect(wrapper.getComponent(SchemaSource).props('value')).toBe(source)
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(source)
+    wrapper.unmount()
   })
 })

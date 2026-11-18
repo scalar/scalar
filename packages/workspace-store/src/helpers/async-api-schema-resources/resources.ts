@@ -6,7 +6,22 @@ import { RamlInclude, type RamlPosition, parseRamlSource, ramlChildPosition } fr
 import { schemaResourcePath } from './schema-resource-path'
 
 /** Raw dependencies travel with a schema across server chunks, without changing its authored source. */
-export type AsyncApiSchemaResources = { origin: string; files: Record<string, string>; failed?: true }
+export type AsyncApiSchemaResources = { origin: string; files: Record<string, string>; failed?: true; deferred?: true }
+
+/** Record the containing file without downloading native dependencies during browser ingestion. */
+export const deferSchemaResources = (format: string, origin: string): AsyncApiSchemaResources | undefined =>
+  nativeSchemaLanguage(format) ? { origin, files: {}, deferred: true } : undefined
+
+const nativeSchemaLanguage = (format: string): 'raml' | 'proto' | undefined => {
+  const normalized = format
+    .toLowerCase()
+    .split(';')
+    .map((part) => part.trim())
+    .join(';')
+  if (/^application\/raml\+yaml;version\s*=\s*(?:"1\.0"|1\.0)$/.test(normalized)) return 'raml'
+  if (/^application\/vnd\.google\.protobuf;version\s*=\s*(?:"[23]"|[23])$/.test(normalized)) return 'proto'
+  return undefined
+}
 
 /** Bound both individual graphs and their shared downloads within one ingestion. */
 export const createSchemaResourceLoader = (): ((
@@ -19,14 +34,9 @@ export const createSchemaResourceLoader = (): ((
   const parsedRamlFiles = new Map<string, unknown>()
   const ingestion = { size: 0 }
   return async (format, source, origin, loaders): Promise<AsyncApiSchemaResources | undefined> => {
-    const normalized = format
-      .toLowerCase()
-      .split(';')
-      .map((part) => part.trim())
-      .join(';')
-    const raml = /^application\/raml\+yaml;version\s*=\s*(?:"1\.0"|1\.0)$/.test(normalized)
-    const proto = /^application\/vnd\.google\.protobuf;version\s*=\s*(?:"[23]"|[23])$/.test(normalized)
-    if (!raml && !proto) return undefined
+    const language = nativeSchemaLanguage(format)
+    if (!language) return undefined
+    const proto = language === 'proto'
     const files: Record<string, string> = {}
     const state = { size: typeof source === 'string' ? source.length : 0, nodes: 0 }
     const done = new Set<string>()

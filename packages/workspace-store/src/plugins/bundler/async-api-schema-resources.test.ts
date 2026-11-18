@@ -2,10 +2,11 @@ import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 
+import { isObject } from '@scalar/helpers/object/is-object'
 import { bundle } from '@scalar/json-magic/bundle'
 import { describe, expect, it } from 'vitest'
 
-import { createWorkspaceStore } from '@/client'
+import { type WorkspaceStore, createWorkspaceStore } from '@/client'
 import { getResolvedAsyncApiRef } from '@/helpers/get-resolved-async-api-ref'
 import { resolveAsyncApiSchema } from '@/helpers/resolve-async-api-schema'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
@@ -25,8 +26,19 @@ const fixture = {
 }
 const document = (): typeof fixture => structuredClone(fixture)
 
+/** Exercise the same display boundary as an expanded schema, without changing the document. */
+const expand = async (store: WorkspaceStore, input: unknown): Promise<unknown> => {
+  const schema = resolveAsyncApiSchema(input)
+  return schema?.kind === 'source'
+    ? {
+        ...schema,
+        resources: await store.asyncApiSchemaResources('test')(schema.format, schema.value, schema.resources),
+      }
+    : schema
+}
+
 describe('async-api-schema-resources', () => {
-  it('loads payloads, headers and reusable schemas with the configured fetch and reuses files', async () => {
+  it('defers payloads, headers and reusable schemas and shares concurrent authenticated downloads', async () => {
     const requested: string[] = []
     const store = createWorkspaceStore({
       fetch: (input) => {
@@ -38,6 +50,7 @@ describe('async-api-schema-resources', () => {
     await store.addDocument({ name: 'test', document: authored, documentSource: 'https://example.test/api.yaml' })
     const loaded = store.workspace.documents.test
     if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+    expect(requested).toStrictEqual([])
     const expected = {
       kind: 'source',
       format,
@@ -45,16 +58,24 @@ describe('async-api-schema-resources', () => {
       resources: { origin: 'https://example.test/api.yaml', files: { 'https://example.test/types/user.proto': user } },
     }
     expect(
-      resolveAsyncApiSchema(
+      await expand(
+        store,
         getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.channels?.users)?.messages?.user)?.payload,
       ),
     ).toStrictEqual(expected)
     expect(
-      resolveAsyncApiSchema(
+      await expand(
+        store,
         getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.channels?.users)?.messages?.user)?.headers,
       ),
     ).toStrictEqual(expected)
-    expect(resolveAsyncApiSchema(getResolvedAsyncApiRef(loaded.components)?.schemas?.User)).toStrictEqual(expected)
+    expect(await expand(store, getResolvedAsyncApiRef(loaded.components)?.schemas?.User)).toStrictEqual(expected)
+    expect(
+      await Promise.all([
+        expand(store, getResolvedAsyncApiRef(loaded.components)?.schemas?.User),
+        expand(store, getResolvedAsyncApiRef(loaded.components)?.schemas?.User),
+      ]),
+    ).toStrictEqual([expected, expected])
     expect(requested).toStrictEqual(['https://example.test/types/user.proto'])
     expect(authored).toStrictEqual(document())
   })
@@ -73,10 +94,14 @@ describe('async-api-schema-resources', () => {
     const authored = document()
     Object.assign(authored.channels.users.messages, { user: { $ref: './messages/message.json' } })
     await store.addDocument({ name: 'test', document: authored, documentSource: 'https://example.test/api.yaml' })
+    expect(requested).toStrictEqual(['https://example.test/messages/message.json'])
+    const loaded = store.workspace.documents.test
+    if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+    const message = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.channels?.users)?.messages?.user)
+    await expand(store, message?.payload)
     expect(requested).toStrictEqual([
       'https://example.test/messages/message.json',
       'https://example.test/messages/types/user.proto',
-      'https://example.test/types/user.proto',
     ])
   })
 
@@ -145,6 +170,10 @@ describe('async-api-schema-resources', () => {
       },
     })
     await client.addDocument({ name: 'test', document: document(), documentSource: '/virtual/api.yaml' })
+    expect(requested).toStrictEqual([])
+    const loaded = client.workspace.documents.test
+    if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+    await expand(client, getResolvedAsyncApiRef(loaded.components)?.schemas?.User)
     expect(requested).toStrictEqual(['/virtual/types/user.proto'])
   })
 
@@ -268,7 +297,10 @@ describe('async-api-schema-resources', () => {
     const literal = { ...schema(), 'x-scalar-schema-resources': { origin: 'authored', files: {} } }
     Object.assign(authored.channels.users.messages.user, { examples: [{ payload: literal }] })
     await store.addDocument({ name: 'test', document: authored, documentSource: 'https://example.test/api.yaml' })
-    expect(JSON.stringify(store.exportWorkspace())).toContain('https://example.test/types/user.proto')
+    const initial = store.workspace.documents.test
+    if (!initial || !isAsyncApiDocument(initial)) throw new Error('Missing AsyncAPI document')
+    await expand(store, getResolvedAsyncApiRef(initial.components)?.schemas?.User)
+    expect(requested).toStrictEqual(['https://example.test/types/user.proto'])
     const editable = await store.getEditableDocument('test')
     if (!editable || !isAsyncApiDocument(editable)) throw new Error('Missing AsyncAPI document')
     const message = getResolvedAsyncApiRef(getResolvedAsyncApiRef(editable.channels?.users)?.messages?.user)
@@ -277,15 +309,11 @@ describe('async-api-schema-resources', () => {
     if (!message) throw new Error('Missing message')
     message.payload = { schemaFormat: format, schema: value.replace('types/user.proto', 'types/new.proto') }
     await store.replaceDocument('test', editable)
-    expect(requested).toStrictEqual([
-      'https://example.test/types/user.proto',
-      'https://example.test/types/new.proto',
-      'https://example.test/types/user.proto',
-    ])
+    expect(requested).toStrictEqual(['https://example.test/types/user.proto'])
     const replaced = store.workspace.documents.test
     if (!replaced || !isAsyncApiDocument(replaced)) throw new Error('Missing AsyncAPI document')
     const payload = getResolvedAsyncApiRef(getResolvedAsyncApiRef(replaced.channels?.users)?.messages?.user)?.payload
-    expect(resolveAsyncApiSchema(payload)).toStrictEqual({
+    expect(await expand(store, payload)).toStrictEqual({
       kind: 'source',
       format,
       value: value.replace('types/user.proto', 'types/new.proto'),
@@ -294,10 +322,11 @@ describe('async-api-schema-resources', () => {
         files: { 'https://example.test/types/new.proto': user },
       },
     })
+    expect(requested).toStrictEqual(['https://example.test/types/user.proto', 'https://example.test/types/new.proto'])
   })
 
   it.each([false, true])(
-    'loads AsyncAPI 2.x native payloads before upgrading (inherited format: %s)',
+    'defers AsyncAPI 2.x native payloads before upgrading (inherited format: %s)',
     async (inherited) => {
       const authored = {
         asyncapi: '2.6.0',
@@ -325,7 +354,8 @@ describe('async-api-schema-resources', () => {
       const loaded = client.workspace.documents.test
       if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
       const message = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.channels?.users)?.messages?.User)
-      expect(resolveAsyncApiSchema(message?.payload)).toStrictEqual({
+      expect(requested).toStrictEqual([])
+      expect(await expand(client, message?.payload)).toStrictEqual({
         kind: 'source',
         format,
         value,
@@ -368,4 +398,77 @@ describe('async-api-schema-resources', () => {
       }
     },
   )
+  it('invalidates downloaded files after an in-place schema edit', async () => {
+    const requested: string[] = []
+    let dependency = user
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        requested.push(String(input))
+        return Promise.resolve(new Response(dependency))
+      },
+    })
+    await store.addDocument({ name: 'test', document: document(), documentSource: 'https://example.test/api.yaml' })
+    const loaded = store.workspace.documents.test
+    if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+    const model = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.components)?.schemas?.User)
+    const first = await expand(store, model)
+    expect(first).toStrictEqual({
+      kind: 'source',
+      format,
+      value,
+      resources: { origin: 'https://example.test/api.yaml', files: { 'https://example.test/types/user.proto': user } },
+    })
+    if (!isObject(model) || !('schema' in model)) throw new Error('Missing native schema')
+    dependency = 'syntax="proto3"; message User { string updated=1; }'
+    model.schema = value + '\n// Edited'
+    expect(await expand(store, model)).toStrictEqual({
+      kind: 'source',
+      format,
+      value: value + '\n// Edited',
+      resources: {
+        origin: 'https://example.test/api.yaml',
+        files: { 'https://example.test/types/user.proto': dependency },
+      },
+    })
+    expect(requested).toStrictEqual(['https://example.test/types/user.proto', 'https://example.test/types/user.proto'])
+  })
+  it('retains shared downloads when lazy resolution metadata arrives', async () => {
+    const requested: string[] = []
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        requested.push(String(input))
+        return Promise.resolve(new Response(user))
+      },
+    })
+    await store.addDocument({ name: 'test', document: document(), documentSource: 'https://example.test/api.yaml' })
+    const loaded = store.workspace.documents.test
+    if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+    const model = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.components)?.schemas?.User)
+    const resolver = store.asyncApiSchemaResources('test')
+    await expand(store, model)
+    Object.assign(model ?? {}, { '$ref-value': { type: 'object' }, $status: 'loading' })
+    loaded['x-scalar-is-dirty'] = true
+    expect(store.asyncApiSchemaResources('test')).toBe(resolver)
+    await expand(store, model)
+    expect(requested).toStrictEqual(['https://example.test/types/user.proto'])
+  })
+
+  it('uses the document-specific authenticated transport on expansion', async () => {
+    const requested: string[] = []
+    const store = createWorkspaceStore({ fetch: () => Promise.reject(new Error('Wrong transport')) })
+    await store.addDocument({
+      name: 'test',
+      document: document(),
+      documentSource: 'https://example.test/api.yaml',
+      fetch: (input) => {
+        requested.push(String(input))
+        return Promise.resolve(new Response(user))
+      },
+    })
+    expect(requested).toStrictEqual([])
+    const loaded = store.workspace.documents.test
+    if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+    await expand(store, getResolvedAsyncApiRef(loaded.components)?.schemas?.User)
+    expect(requested).toStrictEqual(['https://example.test/types/user.proto'])
+  })
 })
