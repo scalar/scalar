@@ -46,19 +46,27 @@ const isInsideExtension = (path: string[] | undefined): boolean => {
 const isSchemaObjectPath = (path: string[] | undefined): boolean =>
   !!path && isSchemaPath(path) && !isNamedSchemaMap(path) && !isInsideExtension(path)
 
-/** Give a referenced standalone schema the same context as an inline Schema Object. */
-const getSchemaPath = (path: string[] | undefined, schemaPaths: ReadonlySet<string>): string[] | undefined => {
+type BundleContext = {
+  documents: ReadonlySet<string>
+  preserved: ReadonlySet<string>
+  fragments: ReadonlyMap<string, readonly string[]>
+}
+
+/** Interpret referenced fragments at their consuming location and leave unrecognized extension data opaque. */
+const getResourcePath = (path: string[] | undefined, bundle: BundleContext): string[] | undefined => {
   if (path?.[0] !== 'x-ext') {
     return path
   }
-
-  for (let length = path.length; length >= 2; length--) {
-    if (schemaPaths.has(JSON.stringify(path.slice(0, length)))) {
-      return ['schema', ...path.slice(length)]
+  if (bundle.documents.has(path[1] ?? '')) {
+    return path.slice(2)
+  }
+  for (let length = path.length; length >= 1; length--) {
+    const context = bundle.fragments.get(JSON.stringify(path.slice(0, length)))
+    if (context) {
+      return [...context, ...path.slice(length)]
     }
   }
-
-  return path
+  return undefined
 }
 
 /** Decode the URI fragment before parsing pointer tokens, without decoding literal percent signs twice. */
@@ -75,14 +83,33 @@ const parseLocalReference = (ref: string): string[] | undefined => {
   }
 }
 
-/** Bundles can contain whole OpenAPI documents or arbitrary fragments, not just schemas. */
-const getBundledSchemaPaths = (
-  content: UnknownObject,
-  preservedResources: ReadonlySet<string>,
-): ReadonlySet<string> => {
+/** Establish bundle resources from version headers and real references, never from an extension's field names. */
+const getBundleContext = (content: UnknownObject): BundleContext => {
+  const documents = new Set<string>()
+  const preserved = new Set<string>()
+  const resources = content['x-ext']
+  if (isObject(resources)) {
+    for (const [key, resource] of Object.entries(resources)) {
+      if (!isObject(resource)) {
+        continue
+      }
+      if (typeof resource.openapi === 'string' || typeof resource.swagger === 'string') {
+        documents.add(key)
+      }
+      if (
+        (typeof resource.openapi === 'string' && !resource.openapi.startsWith('3.0')) ||
+        typeof resource.swagger === 'string' ||
+        typeof resource.$schema === 'string'
+      ) {
+        preserved.add(key)
+      }
+    }
+  }
+  const fragments = new Map<string, readonly string[]>()
+  const bundle: BundleContext = { documents, preserved, fragments }
   const references: { path: string[]; target: string[] }[] = []
   traverse(content, (node, path = []) => {
-    if (path[0] === 'x-ext' && preservedResources.has(path[1] ?? '')) {
+    if (path[0] === 'x-ext' && preserved.has(path[1] ?? '')) {
       return node
     }
     const target = typeof node.$ref === 'string' ? parseLocalReference(node.$ref) : undefined
@@ -92,14 +119,16 @@ const getBundledSchemaPaths = (
     return node
   })
 
-  const schemaPaths = new Set<string>()
-  // Follow schema references transitively; a standalone schema may itself be only a $ref.
+  // A referenced fragment can itself contain references to more fragments.
   while (references.length > 0) {
     const pending = references.splice(0)
     for (const reference of pending) {
-      const path = getSchemaPath(reference.path, schemaPaths)
-      if (isSchemaObjectPath(path) && !isInsideDataValue(path, '3.0')) {
-        schemaPaths.add(JSON.stringify(reference.target))
+      const path = getResourcePath(reference.path, bundle)
+      if (path && !isInsideDataValue(path, '3.0') && !isInsideExtension(path)) {
+        const key = JSON.stringify(reference.target)
+        if (!fragments.has(key)) {
+          fragments.set(key, isSchemaObjectPath(path) ? ['schema'] : path)
+        }
       } else {
         references.push(reference)
       }
@@ -108,8 +137,7 @@ const getBundledSchemaPaths = (
       break
     }
   }
-
-  return schemaPaths
+  return bundle
 }
 
 /** Determine if the node at `path` is one arm of a schema's `oneOf` or `anyOf`. */
@@ -193,27 +221,13 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
 
   content.openapi = '3.1.1'
 
-  const resources = content['x-ext']
-  const preservedResources = new Set(
-    isObject(resources)
-      ? Object.keys(resources).filter((key) => {
-          const resource = resources[key]
-          return (
-            isObject(resource) &&
-            ((typeof resource.openapi === 'string' && !resource.openapi.startsWith('3.0')) ||
-              typeof resource.swagger === 'string' ||
-              typeof resource.$schema === 'string')
-          )
-        })
-      : [],
-  )
+  const bundle = getBundleContext(content)
   const isPreservedResource = (path: string[] | undefined): boolean =>
-    path?.[0] === 'x-ext' && preservedResources.has(path[1] ?? '')
-  const schemaPaths = getBundledSchemaPaths(content, preservedResources)
+    path?.[0] === 'x-ext' && bundle.preserved.has(path[1] ?? '')
   const compositions = new Map<string, NullableComposition>()
   // Record moves in the original tree before applying them, including nested compositions.
   traverse(content, (node, path = []) => {
-    const schemaPath = getSchemaPath(path, schemaPaths)
+    const schemaPath = getResourcePath(path, bundle)
     const composition = getNullableComposition(node)
     if (
       !isPreservedResource(path) &&
@@ -226,10 +240,10 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
     return node
   })
   content = traverse(content, (node, path) => {
-    if (isPreservedResource(path)) {
+    const schemaPath = getResourcePath(path, bundle)
+    if (isPreservedResource(path) || !schemaPath) {
       return node
     }
-    const schemaPath = getSchemaPath(path, schemaPaths)
     if (typeof node.$ref === 'string' && !isInsideDataValue(schemaPath, '3.0') && !isInsideExtension(schemaPath)) {
       node.$ref = relocateReference(node.$ref, compositions)
     }
