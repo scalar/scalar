@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { Node } from '@scalar/code-highlight'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import {
   MARKDOWN_RENDER_HOOKS,
   ScalarMarkdown,
 } from '@scalar/components/markdown'
 import type { MarkdownRenderHook } from '@scalar/helpers/markdown/markdown-render-hook'
+import type { Node } from '@scalar/markdown'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { inject, provide, ref, shallowRef, useId, watch } from 'vue'
 

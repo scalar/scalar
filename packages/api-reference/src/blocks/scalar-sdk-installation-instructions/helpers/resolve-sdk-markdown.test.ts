@@ -1,4 +1,4 @@
-import { htmlFromMarkdown } from '@scalar/code-highlight'
+import { htmlFromMarkdown } from '@scalar/markdown'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
 
@@ -102,11 +102,12 @@ describe('resolve-sdk-markdown', () => {
       flows: {},
       'x-scalar-credential-placeholders': { password: { field: 'token' } },
     }
-    const { html, blocks } = render('```sh\nconfigure {{password}}\n```', [...schemes, pendingOAuth])
+    // A `text` fence stays unhighlighted, so the placeholder is not split across spans.
+    const { html, blocks } = render('```text\nconfigure {{password}}\n```', [...schemes, pendingOAuth])
     expect(blocks).toStrictEqual([
       {
         marker: 'test-0',
-        language: 'sh',
+        language: 'text',
         displayContent: 'configure {{password}}',
         copyContent: 'configure {{password}}',
       },
@@ -115,7 +116,7 @@ describe('resolve-sdk-markdown', () => {
   })
 
   it('masks credentials equal to their placeholder while preserving the copy value', () => {
-    const { html, blocks } = render('```sh\nconfigure {{token}}\n```', [
+    const { html, blocks } = render('```text\nconfigure {{token}}\n```', [
       {
         type: 'apiKey',
         in: 'header',
@@ -127,7 +128,7 @@ describe('resolve-sdk-markdown', () => {
     expect(blocks).toStrictEqual([
       {
         marker: 'test-0',
-        language: 'sh',
+        language: 'text',
         displayContent: 'configure ••••••••',
         copyContent: 'configure {{token}}',
       },

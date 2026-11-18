@@ -1,4 +1,5 @@
 import { isObject } from '@scalar/helpers/object/is-object'
+import { createMarkdownSerializer } from '@scalar/markdown'
 import {
   forEachPathItemOperation,
   getResolvedPathItem,
@@ -10,9 +11,6 @@ import type {
   PathItemObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { ListItem, PhrasingContent, Root, RootContent } from 'mdast'
-import remarkGfm from 'remark-gfm'
-import remarkStringify from 'remark-stringify'
-import { unified } from 'unified'
 
 import { anchor, createDocumentAnchors } from './document-anchors'
 import { createDocumentExamples } from './document-examples'
@@ -25,28 +23,25 @@ import { renderSecurity } from './render-security'
 import { getTagSections } from './render-tags'
 import type { OpenApiRenderOptions } from './select-document'
 
-const serializer = unified()
-  .use(remarkGfm)
-  .use(remarkStringify, {
-    bullet: '-',
-    join: [
-      (left, right, parent) => {
-        if (!('spread' in parent)) {
-          return undefined
-        }
-        // Inside a tight list item, content after a nested list would otherwise continue its last item.
-        if (left.type === 'list' && right.type !== 'list') {
-          return 1
-        }
-        // Code blocks in descriptions read better apart from the prose around them.
-        if (left.type === 'code' || right.type === 'code') {
-          return 1
-        }
+const serialize = createMarkdownSerializer({
+  bullet: '-',
+  join: [
+    (left, right, parent) => {
+      if (!('spread' in parent)) {
         return undefined
-      },
-    ],
-  })
-  .freeze()
+      }
+      // Inside a tight list item, content after a nested list would otherwise continue its last item.
+      if (left.type === 'list' && right.type !== 'list') {
+        return 1
+      }
+      // Code blocks in descriptions read better apart from the prose around them.
+      if (left.type === 'code' || right.type === 'code') {
+        return 1
+      }
+      return undefined
+    },
+  ],
+})
 
 /** Authored values must survive even when the model does not generate an object example. */
 const hasAuthoredExamples = (view: SchemaView): boolean =>
@@ -155,7 +150,7 @@ export const createDocumentRenderer = (): ((
       }
       const children = nodes.splice(0)
       await expandDescriptions(children, description)
-      sections.push(serializer.stringify({ type: 'root', children } satisfies Root).trimEnd())
+      sections.push(serialize({ type: 'root', children } satisfies Root).trimEnd())
     }
     if (!single) {
       const { info } = document

@@ -119,6 +119,11 @@
       "additionalBranchPrefix": "json-diff"
     },
     {
+      "description": "Packages - Markdown",
+      "matchFileNames": ["packages/markdown/**"],
+      "additionalBranchPrefix": "markdown"
+    },
+    {
       "description": "Packages - Mock Server",
       "matchFileNames": ["packages/mock-server/**"],
       "additionalBranchPrefix": "mock-server"
