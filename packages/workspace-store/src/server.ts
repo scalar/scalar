@@ -27,6 +27,7 @@ import {
   fillChunkRef,
   navigationHeader,
 } from '@/helpers/chunk-index'
+import { compactUpgradeMetadata } from '@/helpers/compact-upgrade-metadata'
 import { createChunkWriter } from '@/helpers/create-chunk-writer'
 import { deepClone } from '@/helpers/deep-clone'
 import { encodeChunkName } from '@/helpers/encode-chunk-name'
@@ -40,6 +41,7 @@ import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { codeSampleSources, loadCodeSampleSources } from '@/plugins/bundler/code-sample-sources'
 import { openApiDocument, resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
+import { upgradeDocuments } from '@/plugins/bundler/upgrade-documents'
 import { extensions } from '@/schemas/extensions'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -145,6 +147,7 @@ const resolveLocalReferences = <T extends object>(document: T): T =>
 const BUNDLED_EXTERNAL_KEYS = [
   bundleExtensions.externalDocuments,
   bundleExtensions.externalDocumentsMappings,
+  'x-scalar-upgrade',
   'x-scalar-security-uri-aliases',
   'x-scalar-original-security-keys',
 ] as const
@@ -844,13 +847,30 @@ export async function createServerWorkspaceStore(
         fetchUrls({ blockPrivateNetworks: !options?.allowPrivateNetworks }),
         ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),
       ]
+      if (loaded.swagger === '2.0' || (typeof loaded.openapi === 'string' && loaded.openapi.startsWith('3.0.'))) {
+        await bundle(data, {
+          origin,
+          traversal: 'document',
+          // Relocated local pointers must be rewritten before components become server chunks.
+          // External fragments remain lazy and retain their original owning dialect.
+          preserveReference: (ref) => !ref.startsWith('#'),
+          treeShake: false,
+          plugins: [upgradeDocuments(loaded.openapi ?? loaded.swagger), ...loaders],
+        })
+        compactUpgradeMetadata(data)
+      }
       if (isThreeTwo) {
         await bundle(data, {
           traversal: 'document',
           origin,
           treeShake: false,
           urlMap: true,
-          plugins: [codeSampleSources(), openApiDocument(), ...loaders],
+          plugins: [
+            upgradeDocuments(loaded.openapi ?? loaded.swagger),
+            codeSampleSources(),
+            openApiDocument(),
+            ...loaders,
+          ],
         })
         await resolveSecurityRequirements(data, { origin, loaders })
       } else if (isAsyncApiDocument(data)) {
