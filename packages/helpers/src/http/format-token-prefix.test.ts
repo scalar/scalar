@@ -5,6 +5,9 @@ import { formatTokenPrefix } from './format-token-prefix'
 describe('format-token-prefix', () => {
   it.each([
     ['abc', 'token', 'token abc'],
+    [' abc ', 'token', 'token abc'],
+    ['   ', 'token', ''],
+    [' abc ', undefined, ' abc '],
     ['abc', ' token ', 'token abc'],
     ['abc', '', 'abc'],
     ['abc', undefined, 'abc'],

@@ -165,9 +165,7 @@ export const executeRequestTool = n.safeFn(
           if (securityOption.format === 'bearer') {
             return `Bearer ${securityOption.value}`
           }
-          return securityOption.in === 'header'
-            ? formatTokenPrefix(securityOption.value, securityOption.tokenPrefix)
-            : securityOption.value
+          return formatTokenPrefix(securityOption.value, securityOption.tokenPrefix)
         })()
 
         if (securityOption.in === 'header') {

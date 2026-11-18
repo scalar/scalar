@@ -181,6 +181,8 @@ export type RequestFactory = {
    * List of all security requirements for this request (e.g., API key, OAuth2, etc.)
    * Each entry reflects a selected Security Scheme.
    * Values (e.g., tokens, secrets) may still be unsubstituted at this point.
+   * Header API-key prefixes are carried separately in `tokenPrefix`. Consumers using
+   * `disableSecurity` must resolve variables and apply authentication formatting themselves.
    */
   security: BuildRequestSecurityResult[]
 

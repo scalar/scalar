@@ -56,6 +56,7 @@ import { XScalarCredentialsLocation } from '@/schemas/extensions/security/x-scal
 import { XScalarSecurityBody } from '@/schemas/extensions/security/x-scalar-security-body'
 import { XScalarSecurityQuery } from '@/schemas/extensions/security/x-scalar-security-query'
 import { XScalarAuthUrl, XScalarTokenUrl } from '@/schemas/extensions/security/x-scalar-security-secrets'
+import { XScalarTokenPrefix } from '@/schemas/extensions/security/x-scalar-token-prefix'
 import { XTokenName } from '@/schemas/extensions/security/x-tokenName'
 import { XusePkce } from '@/schemas/extensions/security/x-use-pkce'
 import { XScalarSelectedServer } from '@/schemas/extensions/server/x-scalar-selected-server'
@@ -502,6 +503,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
   const apiKeySecurityScheme = object(
     {
       ...securitySchemeBase.properties,
+      ...XScalarTokenPrefix.properties,
       type: literal('apiKey'),
       name: string({ typeComment: 'REQUIRED. The name of the header, query or cookie parameter to be used.' }),
       in: union([literal('query'), literal('header'), literal('cookie')], {

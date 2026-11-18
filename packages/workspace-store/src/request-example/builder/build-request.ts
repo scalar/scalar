@@ -50,7 +50,7 @@ const formatSecurityValue = (
     return `Bearer ${substitutedValue.trim()}`
   }
 
-  return security.in === 'header' ? formatTokenPrefix(substitutedValue, security.tokenPrefix) : substitutedValue
+  return formatTokenPrefix(substitutedValue, security.tokenPrefix)
 }
 
 const createEnvReplaceFn = (envVariables: Record<string, string>): ((value: string) => string | null) => {
@@ -226,7 +226,7 @@ const buildRequestInner = (
       // Format the security value based on its authentication scheme.
       // - For 'basic': prefix with 'Basic' and base64-encode the value (username:password).
       // - For 'bearer': prefix with 'Bearer'.
-      // - Otherwise: use the substituted value as is (for API keys, etc).
+      // - Otherwise: apply any configured API-key prefix to the substituted credential.
       const securityValue = formatSecurityValue(security, replace)
 
       if (security.in === 'header') {
