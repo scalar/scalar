@@ -40,7 +40,8 @@ export const getExampleContent = (
     onLanguage?: (language: ExampleLanguage) => void
   } = {},
 ): string | undefined => {
-  onLanguage?.(getExampleLanguage(contentType))
+  const mediaLanguage = getExampleLanguage(contentType)
+  onLanguage?.(mediaLanguage)
   // Non-JSON media types do not have a general-purpose serializer. When their
   // structured values are displayed as JSON, keep that representation's label.
   const reportStructuredLanguage = (value: unknown): void => {
@@ -80,6 +81,9 @@ export const getExampleContent = (
       return explicitText
     }
     const value = selected?.value
+    if (typeof value === 'string' && mediaLanguage !== 'json') {
+      return value
+    }
     reportStructuredLanguage(value)
     if (selected?.source === 'value') {
       // Keep the formatter's expansion budget for shared, resolved legacy examples.
@@ -104,6 +108,9 @@ export const getExampleContent = (
     const stream = serializeStreamExample(content, contentType, response?.schema === undefined)
     if (stream !== undefined) {
       return stream
+    }
+    if (typeof content === 'string' && mediaLanguage !== 'json') {
+      return content
     }
     reportStructuredLanguage(content)
     // Schema generation returns unknown, but produces JSON values supported by the formatter.

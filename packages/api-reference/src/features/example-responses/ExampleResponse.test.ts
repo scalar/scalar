@@ -45,7 +45,8 @@ describe('ExampleResponse', () => {
     { contentType: 'text/csv', value: 'id,name\n1,Ada\n', label: 'Plain Text' },
     { contentType: 'TEXT/CSV; charset=utf-8', value: 'id,name\n1,Ada\n', label: 'Plain Text' },
     { contentType: 'text/plain', value: 'hello\nworld\n', label: 'Plain Text' },
-    { contentType: 'text/plain', value: '{\n  "id": 1\n}', label: 'Plain Text' },
+    { contentType: 'text/plain', value: '{"id":1}\n', label: 'Plain Text' },
+    { contentType: '*/*', value: '[1,2]\n', label: 'Plain Text' },
     { contentType: 'text/html', value: '<p>hello</p>\n', label: 'HTML' },
     { contentType: 'application/yaml', value: 'id: 1\nname: Ada\n', label: 'YAML' },
     { contentType: 'text/x-yaml', value: 'id: 1\n', label: 'YAML' },
@@ -63,6 +64,20 @@ describe('ExampleResponse', () => {
   ])('labels $contentType examples as $label and preserves clipboard content', ({ contentType, value, label }) => {
     const wrapper = mount(ExampleResponse, { props: { contentType, response: undefined, example: { value } } })
     expect(wrapper.get(`button[aria-label="Copy ${label} code"]`).text()).toContain(label)
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(value)
+    wrapper.unmount()
+  })
+
+  it('preserves JSON-looking text generated from a plain text schema', () => {
+    const value = '{"id":1}\n'
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        contentType: 'text/plain',
+        example: undefined,
+        response: { schema: { type: 'string', const: value } },
+      },
+    })
+    expect(wrapper.get('button[aria-label="Copy Plain Text code"]').text()).toContain('Plain Text')
     expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(value)
     wrapper.unmount()
   })
