@@ -1,8 +1,8 @@
-import type { ClientOptionGroup, CodeExampleProps } from '@scalar/blocks/code-example'
+import { type ClientOptionGroup, type CodeExampleProps, generateClientOptions } from '@scalar/blocks/code-example'
 import type { ApiReferenceLocalization } from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount, shallowMount } from '@vue/test-utils'
+import { flushPromises, mount, shallowMount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref, vShow, withDirectives } from 'vue'
 
@@ -34,6 +34,36 @@ const createProps = (overrides: Partial<Props> = {}): Props => ({
 })
 
 describe('RequestCodeSnippet', () => {
+  it('loads the selected client generator without showing an error, then renders the snippet', async () => {
+    const wrapper = mount(RequestCodeSnippet, {
+      props: createProps({
+        clientOptions: generateClientOptions(['shell/curl', 'node/undici']),
+        selectedClient: 'node/undici',
+        selectedServer: { url: 'https://example.com' },
+      }),
+    })
+    await wrapper.get('button[aria-expanded]').trigger('click')
+
+    // The generator is still loading: no code block and no error text yet
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+    expect(wrapper.text()).not.toMatch(/not loaded|no snippet found|error generating/i)
+
+    await vi.waitFor(() =>
+      expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain(
+        "import { request } from 'undici'",
+      ),
+    )
+
+    await wrapper.setProps({ selectedClient: 'shell/curl' })
+    await flushPromises()
+    await vi.waitFor(() =>
+      expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain(
+        'curl https://example.com/test',
+      ),
+    )
+    wrapper.unmount()
+  })
+
   it('localizes the unavailable status and reacts to locale and translation overrides', async () => {
     const localization = ref<ApiReferenceLocalization>({ locale: 'de' })
     const wrapper = mount(

@@ -1,12 +1,16 @@
 import type { AvailableClient } from '@scalar/snippetz'
+import { AVAILABLE_CLIENTS, preloadClients } from '@scalar/snippetz/lazy'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { consoleErrorSpy } from '@test/vitest.setup'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { generateCodeSnippet } from './generate-code-snippet'
 
 describe('generateCodeSnippet', () => {
+  // Generators load on demand, generateCodeSnippet only uses loaded ones
+  beforeAll(() => preloadClients(AVAILABLE_CLIENTS))
+
   const mockOperation: OperationObject = {
     responses: {
       '200': {

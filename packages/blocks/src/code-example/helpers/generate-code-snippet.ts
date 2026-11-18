@@ -42,7 +42,12 @@ type GenerateCodeSnippetProps = {
   defaultDisabledParameters?: boolean
 }
 
-/** Generate the code snippet for the selected example OR operation, or null when a linked sample is unavailable. */
+/**
+ * Generate the code snippet for the selected example OR operation, or null when a linked sample is unavailable.
+ *
+ * Built-in clients generate with their lazily loaded generator: load it first (with `preloadClients`, or
+ * `useClientPlugin` in a component). Until then this returns "Code snippet generator is not loaded".
+ */
 export const generateCodeSnippet = ({
   clientId,
   customCodeSamples,
