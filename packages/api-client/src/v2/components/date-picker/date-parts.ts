@@ -1,3 +1,5 @@
+import { CalendarDate } from '@internationalized/date'
+
 /**
  * Pure date/time helpers for the {@link DatePicker}.
  *
@@ -38,8 +40,17 @@ const pad2 = (value: number): string => String(Math.abs(value)).padStart(2, '0')
 const pad4 = (value: number): string => String(value).padStart(4, '0')
 
 const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/
-const TIME_RE = /^(\d{2}):(\d{2})(?::(\d{2})(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?$/
-const DATE_TIME_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/
+const TIME_RE = /^(\d{2}):(\d{2})(?::(\d{2})(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?$/i
+const DATE_TIME_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/i
+
+/** Reject values that the calendar would silently clamp to a different day. */
+const isCalendarDate = (match: RegExpExecArray): boolean => {
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  const date = new CalendarDate(year, month, day)
+  return date.year === year && date.month === month && date.day === day
+}
 
 /**
  * Parse a formatted value into editable fields, or return `null` when it does
@@ -52,7 +63,7 @@ export const parseValue = (value: string, type: DatePickerType): DateParts | nul
 
   if (type === 'date') {
     const match = DATE_RE.exec(trimmed)
-    if (!match) {
+    if (!match || !isCalendarDate(match)) {
       return null
     }
     return {
@@ -84,7 +95,7 @@ export const parseValue = (value: string, type: DatePickerType): DateParts | nul
   }
 
   const match = DATE_TIME_RE.exec(trimmed)
-  if (!match) {
+  if (!match || !isCalendarDate(match)) {
     return null
   }
   return {
@@ -147,4 +158,19 @@ export const getLocalTimezoneOffset = (date: Date): string => {
   const offsetMinutes = -date.getTimezoneOffset()
   const sign = offsetMinutes >= 0 ? '+' : '-'
   return `${sign}${pad2(Math.floor(Math.abs(offsetMinutes) / 60))}:${pad2(Math.abs(offsetMinutes) % 60)}`
+}
+
+/**
+ * Resolve an unzoned selection in the host timezone. If the wall time falls in
+ * a daylight-saving gap, move it forward by the gap so the fields and offset
+ * describe the same instant.
+ */
+export const resolveLocalDateTime = (parts: DateParts): DateParts => {
+  const local = new Date(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second)
+  // The numeric Date constructor treats years 0–99 as 1900–1999.
+  if (parts.year < 100) {
+    local.setFullYear(parts.year, parts.month - 1, parts.day)
+    local.setHours(parts.hour, parts.minute, parts.second, 0)
+  }
+  return { ...parts, ...partsFromDate(local) }
 }

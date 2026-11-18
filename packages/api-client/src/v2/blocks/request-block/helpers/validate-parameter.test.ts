@@ -12,6 +12,16 @@ describe('validateParameter', () => {
     expect(validateParameter({ __scalar_: '' }, 'some value')).toEqual({ ok: true })
   })
 
+  it.each([
+    ['date', '{{myDate}}'],
+    ['date-time', '{{$isoTimestamp}}'],
+    ['date-time', '2024-03-20t13:45:30z'],
+    ['time', '{{myTime}}'],
+    ['time', '13:45:30z'],
+  ])('accepts %s value %s', (format, value) => {
+    expect(validateParameter({ type: 'string', format }, value)).toStrictEqual({ ok: true })
+  })
+
   it('correctly validate a number type #1', () => {
     expect(validateParameter({ type: 'number' }, 'some value')).toEqual({
       ok: false,

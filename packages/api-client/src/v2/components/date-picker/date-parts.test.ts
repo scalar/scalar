@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import {
   type DateParts,
@@ -8,6 +8,7 @@ import {
   getLocalTimezoneOffset,
   parseValue,
   partsFromDate,
+  resolveLocalDateTime,
 } from './date-parts'
 
 const parts = (overrides: Partial<DateParts> = {}): DateParts => ({
@@ -22,6 +23,16 @@ const parts = (overrides: Partial<DateParts> = {}): DateParts => ({
 })
 
 describe('date-parts', () => {
+  it('moves a nonexistent spring-forward wall time forward by the gap', () => {
+    vi.stubEnv('TZ', 'America/New_York')
+    try {
+      const input = parts({ month: 3, day: 10, hour: 2, minute: 30, offset: '', fraction: '.123' })
+      expect(formatValue(resolveLocalDateTime(input), 'date-time')).toBe('2024-03-10T03:30:30.123-04:00')
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
   it('parses a date value', () => {
     expect(parseValue('2024-03-20', 'date')).toStrictEqual({
       year: 2024,
@@ -83,23 +94,33 @@ describe('date-parts', () => {
     })
   })
 
-  it.each(['13:45:30Z', '13:45:30+02:00', '13:45:30.123', '13:45:30.123Z'])(
-    'preserves time fields, fraction and offset in %s',
-    (value) => {
-      const parsed = parseValue(value, 'time')
-      expect(parsed).toStrictEqual({
+  it.each([
+    ['13:45:30Z', { offset: 'Z' }],
+    ['13:45:30z', { offset: 'z' }],
+    ['13:45:30+02:00', { offset: '+02:00' }],
+    ['13:45:30.123', { offset: '', fraction: '.123' }],
+    ['13:45:30.123Z', { offset: 'Z', fraction: '.123' }],
+  ])('preserves time fields, fraction and offset in %s', (value, expected) => {
+    const parsed = parseValue(value, 'time')
+    expect(parsed).toStrictEqual(
+      parts({
         year: 0,
         month: 0,
         day: 0,
-        hour: 13,
-        minute: 45,
-        second: 30,
-        offset: value.endsWith('Z') ? 'Z' : value.endsWith('+02:00') ? '+02:00' : '',
-        ...(value.includes('.123') ? { fraction: '.123' } : {}),
-      })
-      expect(formatValue(parsed!, 'time')).toBe(value)
-    },
-  )
+        ...expected,
+      }),
+    )
+    expect(formatValue(parsed!, 'time')).toBe(value)
+  })
+
+  it('parses lowercase RFC 3339 date-time designators', () => {
+    expect(parseValue('2024-03-20t13:45:30z', 'date-time')).toStrictEqual(parts({ offset: 'z' }))
+  })
+
+  it('rejects impossible calendar dates before the picker can clamp them', () => {
+    expect(parseValue('2024-02-31', 'date')).toBeNull()
+    expect(parseValue('2023-02-29T13:45:30Z', 'date-time')).toBeNull()
+  })
 
   it('returns null for free-text or variable values', () => {
     expect(parseValue('not a date', 'date')).toBeNull()

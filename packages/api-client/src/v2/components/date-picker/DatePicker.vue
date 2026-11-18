@@ -6,6 +6,7 @@ import {
   type DateValue,
 } from '@internationalized/date'
 import { ScalarButton } from '@scalar/components/button'
+import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarPopover } from '@scalar/components/popover'
 import {
   ScalarIconCalendarBlank,
@@ -31,18 +32,22 @@ import {
 } from 'radix-vue'
 import { computed, ref, shallowRef, watch } from 'vue'
 
+import { useLocalization } from '@/v2/features/localization'
+
 import {
   formatValue,
-  getLocalTimezoneOffset,
   parseValue,
   partsFromDate,
+  resolveLocalDateTime,
   type DateParts,
   type DatePickerType,
 } from './date-parts'
 
-const { modelValue, type } = defineProps<{
+const { modelValue, fieldName, type } = defineProps<{
   /** The current field value; may be a formatted value, free text, or a variable. */
   modelValue: string
+  /** Field name used to distinguish picker triggers in the request table. */
+  fieldName?: string
   /** Which OpenAPI string format this field carries. */
   type: DatePickerType
 }>()
@@ -51,15 +56,48 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
-/** Locale for the calendar's weekday/month labels; falls back to English. */
-const locale =
-  typeof navigator !== 'undefined' ? navigator.language || 'en' : 'en'
+const { direction, locale, translate } = useLocalization()
+
+const pickerLabel = computed(() => {
+  if (fieldName) {
+    return translate(
+      type === 'time'
+        ? 'apiClient.datePicker.pickTimeFor'
+        : 'apiClient.datePicker.pickDateFor',
+      {
+        name: fieldName,
+      },
+    )
+  }
+  return translate(
+    type === 'time'
+      ? 'apiClient.datePicker.pickTime'
+      : 'apiClient.datePicker.pickDate',
+  )
+})
+
+/** Intl requires a BCP 47 locale, while client configuration also accepts aliases such as pt_BR. */
+const calendarLocale = computed(() => {
+  try {
+    return (
+      Intl.getCanonicalLocales(locale.value.replaceAll('_', '-'))[0] ?? 'en'
+    )
+  } catch {
+    return 'en'
+  }
+})
 
 /** Whether the calendar grid is shown (everything except the time-only picker). */
 const showCalendar = computed(() => type !== 'time')
 
 /** Whether the time controls are shown. */
 const showTime = computed(() => type !== 'date')
+
+const timeSegmentLabels = computed<Record<string, string>>(() => ({
+  hour: translate('apiClient.datePicker.hour'),
+  minute: translate('apiClient.datePicker.minute'),
+  second: translate('apiClient.datePicker.second'),
+}))
 
 /**
  * The currently committed selection parsed from `modelValue`, or `null` when
@@ -139,10 +177,22 @@ const timeModel = computed<DateValue | undefined>({
 const fakerOptions = computed<{ name: string; label: string }[]>(() =>
   type === 'date-time'
     ? [
-        { name: '$isoTimestamp', label: 'Current timestamp' },
-        { name: '$randomDateFuture', label: 'Random future date' },
-        { name: '$randomDatePast', label: 'Random past date' },
-        { name: '$randomDateRecent', label: 'Random recent date' },
+        {
+          name: '$isoTimestamp',
+          label: translate('apiClient.datePicker.currentTimestamp'),
+        },
+        {
+          name: '$randomDateFuture',
+          label: translate('apiClient.datePicker.randomFutureDate'),
+        },
+        {
+          name: '$randomDatePast',
+          label: translate('apiClient.datePicker.randomPastDate'),
+        },
+        {
+          name: '$randomDateRecent',
+          label: translate('apiClient.datePicker.randomRecentDate'),
+        },
       ]
     : [],
 )
@@ -150,21 +200,7 @@ const fakerOptions = computed<{ name: string; label: string }[]>(() =>
 /** Emit a value built from the working fields, filling a local offset for `date-time`. */
 const commit = (next: DateParts): void => {
   const resolved =
-    type === 'date-time' && !next.offset
-      ? {
-          ...next,
-          offset: getLocalTimezoneOffset(
-            new Date(
-              next.year,
-              next.month - 1,
-              next.day,
-              next.hour,
-              next.minute,
-              next.second,
-            ),
-          ),
-        }
-      : next
+    type === 'date-time' && !next.offset ? resolveLocalDateTime(next) : next
   draft.value = resolved
   emit('update:modelValue', formatValue(resolved, type))
 }
@@ -218,39 +254,46 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
 
 <template>
   <ScalarPopover
+    focus
     placement="bottom-end"
     teleport>
-    <button
-      :aria-label="type === 'time' ? 'Pick a time' : 'Pick a date'"
-      class="text-c-2 hover:text-c-1 hover:bg-b-2 focus-visible:outline-c-accent -mr-0.5 rounded p-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-      type="button">
-      <component
-        :is="type === 'time' ? ScalarIconClock : ScalarIconCalendarBlank"
-        class="size-3.5" />
-    </button>
+    <ScalarIconButton
+      :aria-label="pickerLabel"
+      class="-mr-0.5"
+      :icon="type === 'time' ? ScalarIconClock : ScalarIconCalendarBlank"
+      :label="pickerLabel"
+      size="xs"
+      tooltip="top"
+      variant="ghost" />
     <template #popover="{ close }">
-      <div class="flex w-64 flex-col gap-3 py-2">
+      <div
+        :aria-label="pickerLabel"
+        class="flex w-64 flex-col gap-3 py-2"
+        :dir="direction"
+        role="group">
         <!-- Calendar (accessible grid from radix-vue) -->
         <CalendarRoot
           v-if="showCalendar"
           v-slot="{ weekDays, grid }"
+          :calendarLabel="translate('apiClient.datePicker.calendar')"
           class="px-2"
-          :locale="locale"
+          :dir="direction"
+          :locale="calendarLocale"
           :modelValue="calendarValue"
           :placeholder="placeholder"
           @update:modelValue="(v) => handleCalendarSelect(v, close)"
           @update:placeholder="(v) => (placeholder = v)">
           <CalendarHeader class="mb-2 flex items-center justify-between">
             <CalendarPrev
-              aria-label="Previous month"
+              :aria-label="translate('apiClient.datePicker.previousMonth')"
               class="text-c-2 hover:text-c-1 hover:bg-b-2 flex size-7 items-center justify-center rounded">
-              <ScalarIconCaretLeft class="size-4" />
+              <ScalarIconCaretLeft class="size-4 rtl:rotate-180" />
             </CalendarPrev>
             <CalendarHeading class="text-c-1 text-sm font-medium" />
             <CalendarNext
-              aria-label="Next month"
+              :aria-label="translate('apiClient.datePicker.nextMonth')"
               class="text-c-2 hover:text-c-1 hover:bg-b-2 flex size-7 items-center justify-center rounded">
-              <ScalarIconCaretRight class="size-4" />
+              <ScalarIconCaretRight class="size-4 rtl:rotate-180" />
             </CalendarNext>
           </CalendarHeader>
           <CalendarGrid
@@ -260,8 +303,8 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
             <CalendarGridHead>
               <CalendarGridRow class="grid grid-cols-7">
                 <CalendarHeadCell
-                  v-for="day in weekDays"
-                  :key="day"
+                  v-for="(day, index) in weekDays"
+                  :key="index"
                   class="text-c-3 flex h-6 items-center justify-center text-xs font-normal">
                   {{ day }}
                 </CalendarHeadCell>
@@ -291,18 +334,21 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
         <div
           v-if="showTime"
           class="flex items-center justify-between gap-2 px-2 text-sm">
-          <span class="text-c-2">Time</span>
+          <span class="text-c-2">{{
+            translate('apiClient.datePicker.time')
+          }}</span>
           <DateFieldRoot
             v-slot="{ segments }"
             v-model="timeModel"
-            aria-label="Time"
+            :aria-label="translate('apiClient.datePicker.time')"
             class="border-c-3 bg-b-1 text-c-1 flex items-center rounded border px-2 py-1.5"
             granularity="second"
             :hourCycle="24"
-            :locale="locale">
+            :locale="calendarLocale">
             <DateFieldInput
               v-for="(item, index) in timeSegments(segments)"
               :key="index"
+              :aria-label="timeSegmentLabels[item.part]"
               :class="
                 item.part === 'literal'
                   ? 'text-c-3'
@@ -319,13 +365,19 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
             size="sm"
             variant="outlined"
             @click="selectNow(close)">
-            {{ type === 'date' ? 'Today' : 'Now' }}
+            {{
+              translate(
+                type === 'date'
+                  ? 'apiClient.datePicker.today'
+                  : 'apiClient.datePicker.now',
+              )
+            }}
           </ScalarButton>
           <ScalarButton
             v-if="showTime"
             size="sm"
             @click="close">
-            Done
+            {{ translate('apiClient.datePicker.done') }}
           </ScalarButton>
         </div>
 
@@ -337,24 +389,27 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
           class="-mx-0.75 -mb-2 border-t">
           <DisclosureButton as="template">
             <ScalarButton
-              class="w-full justify-start gap-2 px-2.75 text-left"
+              class="w-full justify-start gap-2 px-2.75 text-start"
               size="sm"
               variant="ghost">
               <ScalarIconCaretRight
                 class="text-c-3 size-3.5 shrink-0"
-                :class="open && 'rotate-90'" />
-              <span>Insert a variable</span>
+                :class="open ? 'rotate-90' : 'rtl:rotate-180'" />
+              <span>{{
+                translate('apiClient.datePicker.insertVariable')
+              }}</span>
             </ScalarButton>
           </DisclosureButton>
           <DisclosurePanel class="flex flex-col px-2.75 pb-2">
-            <button
+            <ScalarButton
               v-for="option in fakerOptions"
               :key="option.name"
-              class="text-c-1 hover:bg-b-2 flex items-center rounded py-1 pr-2 pl-5.5 text-left text-sm"
-              type="button"
+              class="justify-start ps-5.5 pe-2 text-start"
+              size="sm"
+              variant="ghost"
               @click="selectFaker(option.name, close)">
               {{ option.label }}
-            </button>
+            </ScalarButton>
           </DisclosurePanel>
         </Disclosure>
       </div>

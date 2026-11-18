@@ -200,12 +200,12 @@ catalogs:
     '@hono/node-server':
       specifier: ^2.1.8
       version: 2.1.8
-    '@microsoft/api-extractor':
-      specifier: 7.60.1
-      version: 7.60.1
     '@internationalized/date':
       specifier: 3.5.4
       version: 3.5.4
+    '@microsoft/api-extractor':
+      specifier: 7.60.1
+      version: 7.60.1
     '@nestjs/cli':
       specifier: ^11.0.24
       version: 11.0.24
