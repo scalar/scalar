@@ -27,9 +27,20 @@ const render = (source: string, securitySchemes = schemes): { html: string; text
       return root
     },
   })
-  // Highlighting wraps tokens such as the `{{` and `}}` of a placeholder in separate
-  // spans, so assertions about code-block content read the rendered text instead
-  return { html, text: html.replace(/<[^>]*>/g, ''), blocks: result.blocks }
+  return { html, text: textFromHtml(html), blocks: result.blocks }
+}
+
+/**
+ * The text a browser would show for the HTML.
+ *
+ * Highlighting wraps tokens such as the `{{` and `}}` of a placeholder in separate
+ * spans, so assertions about code-block content read the rendered text instead. A
+ * template element parses the markup without running or loading anything in it.
+ */
+const textFromHtml = (html: string): string => {
+  const template = document.createElement('template')
+  template.innerHTML = html
+  return template.content.textContent ?? ''
 }
 
 describe('resolve-sdk-markdown', () => {
