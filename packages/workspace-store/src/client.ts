@@ -777,6 +777,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     nativeSchemaResolvers.delete(raw)
     nativeSchemaEdits.add(raw)
   }
+  const checkNativeSchemaEdits = (document: object): void => {
+    if (isReactiveWorkspace) return
+    const raw = unpackProxyShallow(document)
+    if (trackNativeSchemaEdits(raw)) {
+      nativeSchemaResolvers.delete(raw)
+      nativeSchemaEdits.add(raw)
+    }
+  }
   const fallbackNativeSchemas = createAsyncApiSchemaResourceResolver()
   const externalExampleResolvers = new WeakMap<object, ExternalExampleResolver>()
   const fallbackExternalExamples = createExternalExampleResolver({
@@ -1301,6 +1309,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       workspace.documents[name] = needsOverridesProxy(asyncApiOverrides)
         ? createOverridesProxy(asyncApiDocument, { overrides: asyncApiOverrides })
         : asyncApiDocument
+      checkNativeSchemaEdits(asyncApiDocument)
       return true
     }
 
@@ -1666,10 +1675,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const document = workspace.documents[name]
       if (!document) return fallbackNativeSchemas
       const raw = unpackProxyShallow(document)
-      if (!isReactiveWorkspace && trackNativeSchemaEdits(raw)) {
-        nativeSchemaResolvers.delete(raw)
-        nativeSchemaEdits.add(raw)
-      }
+      checkNativeSchemaEdits(raw)
       const cached = nativeSchemaResolvers.get(raw)
       if (cached) return cached
       const resolve = createAsyncApiSchemaResourceResolver({
@@ -1832,7 +1838,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         visitedNodesCaches.set(activeDocument, visitedNodes)
       }
 
-      return bundle(target, {
+      const result = await bundle(target, {
         inputPath: path,
         traversal: 'document',
         root: activeDocument,
@@ -1856,6 +1862,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         urlMap: true,
         visitedNodes,
       })
+      if (activeDocument) checkNativeSchemaEdits(activeDocument)
+      return result
     },
     addDocument,
     /**
@@ -1986,6 +1994,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           }),
         ),
       )
+
+      for (const document of Object.values(workspace.documents)) {
+        if (isAsyncApiDocument(document)) checkNativeSchemaEdits(document)
+      }
 
       safeAssign(originalDocuments, input.originalDocuments)
       safeAssign(intermediateDocuments, input.intermediateDocuments)

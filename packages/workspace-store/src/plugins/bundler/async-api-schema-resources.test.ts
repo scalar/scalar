@@ -529,4 +529,60 @@ describe('async-api-schema-resources', () => {
       await fs.rm(directory, { recursive: true, force: true })
     }
   })
+  it.each(['ingestion', 'hydration', 'chunk'] as const)(
+    'invalidates a nonreactive prepared graph edited before first expansion (%s)',
+    async (mode) => {
+      const dependency = 'syntax="proto3"; message User { string current_id=1; }'
+      const authored = document()
+      const origin = 'https://example.test/api.yaml'
+      Object.assign(authored.components.schemas.User, {
+        'x-scalar-schema-resources': { origin, files: { 'https://example.test/types/user.proto': user } },
+      })
+      const requested: string[] = []
+      const store = createWorkspaceStore({
+        reactive: false,
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.resolve(
+            new Response(
+              String(input) === 'https://example.test/model.json'
+                ? JSON.stringify(authored.components.schemas.User)
+                : dependency,
+            ),
+          )
+        },
+      })
+      if (mode === 'hydration') {
+        const source = createWorkspaceStore({ reactive: false })
+        await source.addDocument({ name: 'test', document: authored, documentSource: origin })
+        store.loadWorkspace(source.exportWorkspace())
+      } else {
+        const input =
+          mode === 'chunk'
+            ? {
+                ...authored,
+                components: { schemas: { User: { $ref: 'https://example.test/model.json' } } },
+                'x-scalar-navigation': { id: 'test', type: 'document', name: 'Native dependencies', children: [] },
+              }
+            : authored
+        await store.addDocument({ name: 'test', document: input, documentSource: origin })
+        if (mode === 'chunk') await store.resolve(['components', 'schemas', 'User'])
+      }
+      const loaded = store.workspace.documents.test
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      const model = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.components)?.schemas?.User)
+      if (!isObject(model) || !('schema' in model)) throw new Error('Missing native schema')
+      model.schema = value + '\n// Edited before expansion'
+      expect(await expand(store, model)).toStrictEqual({
+        kind: 'source',
+        format,
+        value: value + '\n// Edited before expansion',
+        resources: { origin, files: { 'https://example.test/types/user.proto': dependency } },
+      })
+      expect(requested).toStrictEqual([
+        ...(mode === 'chunk' ? ['https://example.test/model.json'] : []),
+        'https://example.test/types/user.proto',
+      ])
+    },
+  )
 })
