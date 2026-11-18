@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ApiReference } from '@scalar/api-reference'
+import { ApiReference, loadLocale } from '@scalar/api-reference'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import {
@@ -141,6 +141,11 @@ const config: Partial<ApiReferenceConfiguration> = {
   // Set the fetched spec to the config content to prevent ApiReferenceLayout from fetching it again on the client side
   content: document.value,
 }
+
+// Built-in locales other than English load on demand. Nuxt suspends this async setup both while
+// server rendering and before hydrating, so waiting here keeps the server markup translated and lets
+// the browser hydrate it without rendering the English fallback first.
+await loadLocale(config.localization?.locale)
 </script>
 
 <template>

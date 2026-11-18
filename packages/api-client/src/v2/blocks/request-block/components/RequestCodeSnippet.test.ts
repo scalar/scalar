@@ -6,7 +6,7 @@ import { flushPromises, mount, shallowMount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref, vShow, withDirectives } from 'vue'
 
-import { provideLocalization } from '@/v2/features/localization'
+import { loadLocale, provideLocalization } from '@/v2/features/localization'
 
 import RequestCodeSnippet from './RequestCodeSnippet.vue'
 
@@ -65,6 +65,7 @@ describe('RequestCodeSnippet', () => {
   })
 
   it('localizes the unavailable status and reacts to locale and translation overrides', async () => {
+    await Promise.all([loadLocale('de'), loadLocale('fr')])
     const localization = ref<ApiReferenceLocalization>({ locale: 'de' })
     const wrapper = mount(
       defineComponent({

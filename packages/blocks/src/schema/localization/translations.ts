@@ -8,5 +8,10 @@ import { ru } from './locales/ru'
 import { zhCn } from './locales/zh-cn'
 import { zhTw } from './locales/zh-tw'
 
-/** Built-in schema translations, also composed into API Reference's public dictionary. */
+/**
+ * Built-in schema translations for every locale, bundled statically.
+ *
+ * @deprecated Importing this pulls every locale into your bundle. Use `schemaLocaleTranslations`, which
+ * keeps English static and loads every other locale on demand.
+ */
 export const schemaTranslations = { en, de, es, fr, pt, ru, ar, 'zh-CN': zhCn, 'zh-TW': zhTw }

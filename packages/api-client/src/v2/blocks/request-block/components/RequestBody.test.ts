@@ -9,7 +9,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, readonly, ref } from 'vue'
 
-import { provideLocalization } from '@/v2/features/localization'
+import { loadLocale, provideLocalization } from '@/v2/features/localization'
 
 import RequestBody from './RequestBody.vue'
 import RequestBodyMultipart from './RequestBodyMultipart.vue'
@@ -118,6 +118,7 @@ describe('RequestBody', () => {
   })
 
   it('translates body actions while preserving the reset event', async () => {
+    await loadLocale('de')
     const wrapper = mount(
       defineComponent({
         setup() {

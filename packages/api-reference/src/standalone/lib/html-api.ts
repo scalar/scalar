@@ -1,3 +1,4 @@
+import { isLocaleLoaded, loadLocale } from '@scalar/localization'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import type {
   AnyApiReferenceConfiguration,
@@ -257,6 +258,17 @@ export const createContainer = (doc: Document, element?: Element | null) => {
   return _container
 }
 
+/** Locales configured on a single configuration or on every entry of a configuration array. */
+const getConfiguredLocales = (configuration: AnyApiReferenceConfiguration): string[] => {
+  const configurations: unknown[] = Array.isArray(configuration) ? configuration : [configuration]
+
+  return configurations.flatMap((config) => {
+    const locale = (config as { localization?: { locale?: unknown } } | undefined)?.localization?.locale
+
+    return typeof locale === 'string' ? [locale] : []
+  })
+}
+
 /**
  * Create (and mount) a new Scalar API Reference
  *
@@ -312,12 +324,29 @@ export const createApiReference: CreateApiReference = (
         retainStandaloneStyles(document)
       }
 
+      const beforeMount: Promise<unknown>[] = []
+
       if (hasPluginUrls(props.configuration)) {
         // Plugins referenced by URL must be resolved before the app mounts — plugin registration
         // happens once at first render and is not reactive, so a plugin that arrives later would
         // never be picked up.
-        void loadPluginsFromUrls(props.configuration).then(() => {
-          // Skip mounting when the instance was destroyed while the plugins were loading.
+        beforeMount.push(loadPluginsFromUrls(props.configuration))
+      }
+
+      // Server-rendered markup is already in the configured locale. Built-in locales other than English
+      // load on demand, so hydrating before that dictionary arrives would render the English fallback
+      // and mismatch. Only wait when something actually needs to load, so English hydrates synchronously.
+      const localesToLoad = shouldHydrate
+        ? getConfiguredLocales(props.configuration).filter((locale) => !isLocaleLoaded(locale))
+        : []
+
+      if (localesToLoad.length) {
+        beforeMount.push(Promise.all(localesToLoad.map((locale) => loadLocale(locale))))
+      }
+
+      if (beforeMount.length) {
+        void Promise.all(beforeMount).then(() => {
+          // Skip mounting when the instance was destroyed while loading.
           if (!abortController.signal.aborted) {
             mount()
           }

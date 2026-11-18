@@ -81,6 +81,34 @@ change.
 ```
 
 
+### Loading locales
+
+English is bundled with the API Reference. Every other built-in locale is downloaded on demand, as a small
+separate file, the first time it is used. Until it arrives the interface renders in English (with your
+custom `translations` applied) and then switches automatically. The text direction follows the
+configured locale from the start.
+
+To render the configured language on the first paint, await `loadLocale` before mounting. One call
+loads the locale for the API Reference, the embedded API Client and the schema labels:
+
+```javascript
+import { createApiReference, loadLocale } from '@scalar/api-reference'
+
+await loadLocale('de')
+
+createApiReference('#app', {
+  url: '/openapi.json',
+  localization: { locale: 'de' },
+})
+```
+
+`loadLocale` never rejects. When a locale fails to load, the interface keeps English and tries again
+the next time the locale is requested.
+
+Server rendering waits for the configured locale automatically. `createApiReference` and the Nuxt
+integration also wait for it before hydrating server-rendered markup. If you hydrate the markup
+yourself, await `loadLocale` with the same locale first.
+
 ## API Client
 
 The embedded API Client accepts overrides under `localization.translations.apiClient`. Pass them to
