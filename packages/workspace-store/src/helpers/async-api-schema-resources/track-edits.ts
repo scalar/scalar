@@ -12,9 +12,9 @@ export const createNativeSchemaEditTracker = (): ((document: object) => boolean)
     const sources = new Map<object, string | undefined>()
     for (const wrapper of getInlineAsyncApiSchemaWrappers(document)) {
       const node = unpackProxyShallow(wrapper)
-      if (typeof node.schemaFormat !== 'string' || !deferSchemaResources(node.schemaFormat, '/')) continue
+      if (typeof wrapper.schemaFormat !== 'string' || !deferSchemaResources(wrapper.schemaFormat, '/')) continue
       try {
-        sources.set(node, JSON.stringify([node.schemaFormat, node.schema]))
+        sources.set(node, JSON.stringify([wrapper.schemaFormat, wrapper.schema]))
       } catch {
         // Cyclic source already stays on the source-only path; removing its cycle changes this snapshot.
         sources.set(node, undefined)

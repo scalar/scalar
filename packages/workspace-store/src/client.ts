@@ -1289,11 +1289,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         asyncApiDocument[extensions.document.navigation] = navigation
       }
 
+      checkNativeSchemaEdits(asyncApiDocument)
       const asyncApiOverrides = unpackProxyObject(overrides[name])
       workspace.documents[name] = needsOverridesProxy(asyncApiOverrides)
         ? createOverridesProxy(asyncApiDocument, { overrides: asyncApiOverrides })
         : asyncApiDocument
-      checkNativeSchemaEdits(asyncApiDocument)
+      checkNativeSchemaEdits(workspace.documents[name])
       return true
     }
 
@@ -1968,6 +1969,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               documentUri: resolveOpenApiDocument(doc, doc['x-scalar-original-source-url'] ?? '/')?.baseUri,
             })
             const documentOverrides = input.overrides[name]
+            if (isAsyncApiDocument(magicDocument)) checkNativeSchemaEdits(magicDocument)
 
             return [
               name,

@@ -734,4 +734,72 @@ describe('async-api-schema-resources', () => {
     expect(store.asyncApiSchemaResources('test')).toBe(resolver)
     expect(requested).toStrictEqual([])
   })
+  it.each([true, false])('invalidates overridden native sources after edits (reactive: %s)', async (reactive) => {
+    let dependency = user
+    const requested: string[] = []
+    const overrides = { components: { schemas: { User: { description: 'Overridden native schema' } } } }
+    Object.assign(overrides.components.schemas.User, { schema: value })
+    const store = createWorkspaceStore({
+      reactive,
+      fetch: (input) => {
+        requested.push(String(input))
+        return Promise.resolve(new Response(dependency))
+      },
+    })
+    await store.addDocument({
+      name: 'test',
+      document: document(),
+      overrides,
+      documentSource: 'https://example.test/api.yaml',
+    })
+    const loaded = store.workspace.documents.test
+    if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+    const model = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.components)?.schemas?.User)
+    if (!isObject(model) || !('schema' in model)) throw new Error('Missing native schema')
+    await expand(store, model)
+    dependency = 'syntax="proto3"; message User { string current_id=1; }'
+    model.schema = value + '\n// Edited override'
+    expect(await expand(store, model)).toStrictEqual({
+      kind: 'source',
+      format,
+      value: value + '\n// Edited override',
+      resources: {
+        origin: 'https://example.test/api.yaml',
+        files: { 'https://example.test/types/user.proto': dependency },
+      },
+    })
+    expect(requested).toStrictEqual(['https://example.test/types/user.proto', 'https://example.test/types/user.proto'])
+  })
+
+  it.each([true, false])(
+    'invalidates prepared graphs for initial source overrides (reactive: %s)',
+    async (reactive) => {
+      const authored = document()
+      const origin = 'https://example.test/api.yaml'
+      Object.assign(authored.components.schemas.User, {
+        'x-scalar-schema-resources': { origin, files: { 'https://example.test/types/user.proto': user } },
+      })
+      const source = value.replace('types/user.proto', 'types/new.proto')
+      const overrides = { components: { schemas: { User: { description: 'Overridden native schema' } } } }
+      Object.assign(overrides.components.schemas.User, { schema: source })
+      const requested: string[] = []
+      const store = createWorkspaceStore({
+        reactive,
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.resolve(new Response(user))
+        },
+      })
+      await store.addDocument({ name: 'test', document: authored, overrides, documentSource: origin })
+      const loaded = store.workspace.documents.test
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      expect(await expand(store, getResolvedAsyncApiRef(loaded.components)?.schemas?.User)).toStrictEqual({
+        kind: 'source',
+        format,
+        value: source,
+        resources: { origin, files: { 'https://example.test/types/new.proto': user } },
+      })
+      expect(requested).toStrictEqual(['https://example.test/types/new.proto'])
+    },
+  )
 })
