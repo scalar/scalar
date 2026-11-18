@@ -3385,6 +3385,148 @@ describe('getExampleFromSchema', () => {
       const example = getExampleFromSchema(schema)
       expect(example).toStrictEqual({})
     })
+
+    describe('self-referencing $ref', () => {
+      const NODE_REFERENCE = '#/components/schemas/Node'
+
+      /** Point at a target the way a resolved document does, with the target attached to the reference. */
+      const createReference = (reference: string, target: SchemaObject): SchemaObject =>
+        ({ $ref: reference, '$ref-value': target }) as unknown as SchemaObject
+
+      /** Build a Node whose extra members are created from a reference back to the Node itself. */
+      const createNode = (
+        createMembers: (reference: SchemaObject) => Record<string, SchemaObject>,
+        required: string[] = [],
+      ): SchemaObject => {
+        const node: SchemaObject = { type: 'object', properties: { id: { type: 'string' } } }
+        if (required.length > 0) {
+          node.required = required
+        }
+        Object.assign(node.properties!, createMembers(createReference(NODE_REFERENCE, node)))
+        return createReference(NODE_REFERENCE, node)
+      }
+
+      const names = (count: number): string[] => Array.from({ length: count }, (_, index) => `member${index}`)
+
+      it.each([1, 2, 8])('keeps one nested level for %s direct references', (count) => {
+        // Every hop used to be a new object, so only the depth cap stopped the walk after count to the power of ten.
+        const node = createNode((reference) => Object.fromEntries(names(count).map((name) => [name, reference])))
+        const nested = Object.fromEntries(names(count).map((name) => [name, { id: '' }]))
+
+        expect(getExampleFromSchema(node)).toStrictEqual({ id: '', ...nested })
+      })
+
+      it.each(['read', 'write'] as const)('keeps one nested level in %s mode', (mode) => {
+        const node = createNode((reference) => ({ parent: reference, children: { type: 'array', items: reference } }))
+
+        expect(getExampleFromSchema(node, { mode })).toStrictEqual({
+          id: '',
+          parent: { id: '' },
+          children: [{ id: '' }],
+        })
+      })
+
+      it.each([1, 2, 8])('keeps one nested level for %s array members', (count) => {
+        const node = createNode((reference) =>
+          Object.fromEntries(names(count).map((name) => [name, { type: 'array', items: reference }])),
+        )
+        const nested = Object.fromEntries(names(count).map((name) => [name, [{ id: '' }]]))
+
+        expect(getExampleFromSchema(node)).toStrictEqual({ id: '', ...nested })
+      })
+
+      it.each([1, 2, 8])('keeps one nested level for %s map members', (count) => {
+        const node = createNode((reference) =>
+          Object.fromEntries(names(count).map((name) => [name, { type: 'object', additionalProperties: reference }])),
+        )
+        // A map used on the path is skipped inside the nested node, and a map that is reached late stays empty.
+        const nested = Object.fromEntries(
+          names(count).map((name) => [
+            name,
+            {
+              additionalProperty: {
+                id: '',
+                ...Object.fromEntries(
+                  names(count)
+                    .filter((other) => other !== name)
+                    .map((other) => [other, {}]),
+                ),
+              },
+            },
+          ]),
+        )
+
+        expect(getExampleFromSchema(node)).toStrictEqual({ id: '', ...nested })
+      })
+
+      it('mixes array and map members without growing with their number', () => {
+        const node = createNode((reference) =>
+          Object.fromEntries(
+            names(8).flatMap((name) => [
+              [`${name}Array`, { type: 'array', items: reference }],
+              [`${name}Map`, { type: 'object', additionalProperties: reference }],
+            ]),
+          ),
+        )
+
+        // Without the bound this is factorial in the member count, far beyond what a test can wait for.
+        expect(JSON.stringify(getExampleFromSchema(node)).length).toBeLessThan(5_000)
+      })
+
+      it('omits a pattern property whose schema recurses into the node', () => {
+        const node = createNode((reference) => ({
+          nested: { type: 'object', patternProperties: { '^x-': reference } },
+        }))
+
+        expect(getExampleFromSchema(node)).toStrictEqual({ id: '', nested: { '^x-': { id: '' } } })
+      })
+
+      it('stops a required reference to the node after one nested level', () => {
+        const node = createNode((reference) => ({ parent: reference }), ['parent'])
+
+        // The cycle guard drops a schema that requires itself, as it does for a cycle that is not a reference.
+        expect(getExampleFromSchema(node)).toStrictEqual({ id: '', parent: { id: '' } })
+      })
+
+      it('enters each of two mutually recursive references twice', () => {
+        const a: SchemaObject = { type: 'object', properties: {} }
+        const b: SchemaObject = { type: 'object', properties: {} }
+        const referenceA = createReference('#/components/schemas/A', a)
+        const referenceB = createReference('#/components/schemas/B', b)
+        a.properties!.b = referenceB
+        b.properties!.a = referenceA
+
+        expect(getExampleFromSchema(referenceA)).toStrictEqual({ b: { a: { b: {} } } })
+      })
+
+      it.each(['__proto__', 'constructor', 'toString', ''])(
+        'treats the reference %j as an ordinary name',
+        (reference) => {
+          const node: SchemaObject = { type: 'object', properties: { id: { type: 'string' } } }
+          node.properties!.parent = createReference(reference, node)
+
+          expect(getExampleFromSchema(createReference(reference, node))).toStrictEqual({
+            id: '',
+            parent: { id: '' },
+          })
+        },
+      )
+
+      it('generates a reference used by several siblings in full each time', () => {
+        const pet: SchemaObject = { type: 'object', properties: { name: { type: 'string', example: 'Rex' } } }
+        const reference = createReference('#/components/schemas/Pet', pet)
+        const owner: SchemaObject = {
+          type: 'object',
+          properties: { first: reference, second: reference, others: { type: 'array', items: reference, minItems: 2 } },
+        }
+
+        expect(getExampleFromSchema(owner)).toStrictEqual({
+          first: { name: 'Rex' },
+          second: { name: 'Rex' },
+          others: [{ name: 'Rex' }, { name: 'Rex' }],
+        })
+      })
+    })
   })
 
   it('keeps deprecated properties', () => {

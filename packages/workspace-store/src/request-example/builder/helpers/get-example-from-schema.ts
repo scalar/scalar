@@ -763,7 +763,7 @@ const handleObjectSchema = (
       if (!propertySchema) {
         continue
       }
-      response[pattern] = getExampleFromSchema(propertySchema, options, {
+      const value = getExampleFromSchema(propertySchema, options, {
         level: level + 1,
         parentSchema: schema,
         name: pattern,
@@ -771,6 +771,10 @@ const handleObjectSchema = (
         seen,
         dynamicScope: childScope,
       })
+      // A pattern whose schema recurses into itself has no value, which must not leave an undefined key.
+      if (value !== undefined) {
+        response[pattern] = value
+      }
     }
   }
 
@@ -805,11 +809,14 @@ const handleObjectSchema = (
           })
         : 'anything'
 
-    if (propertyNamesEnum && propertyNamesEnum.length > 0) {
-      // Use the first enum value as a realistic example key
-      response[String(propertyNamesEnum[0])] = additionalValue
-    } else {
-      response[additionalName] = additionalValue
+    // A value schema that recurses into itself has no value, so the map stays empty instead of holding an undefined key.
+    if (additionalValue !== undefined) {
+      if (propertyNamesEnum && propertyNamesEnum.length > 0) {
+        // Use the first enum value as a realistic example key
+        response[String(propertyNamesEnum[0])] = additionalValue
+      } else {
+        response[additionalName] = additionalValue
+      }
     }
   }
 
@@ -2140,6 +2147,57 @@ const asBinaryFile = (
   return value
 }
 
+/** A `$ref` may be entered this many times along one path: the schema itself and one nested recursion. */
+const MAX_REFERENCE_ENTRIES = 2
+
+/** Entries per `$ref` along the path being walked, keyed by the reference because each resolution is a fresh copy. */
+let referenceEntries = new Map<string, number>()
+
+/**
+ * Walk a schema, refusing to enter a `$ref` that is already open on this path more than once.
+ *
+ * Resolving a reference returns a new object every time, so the identity-based cycle guard never sees a
+ * self-referencing `$ref` come back around and only the depth cap stops it, after a branching factor to
+ * the power of ten. A `$ref` is the same schema wherever it appears, except under a dynamic scope where
+ * it can bind differently per path, so that case is left to the depth cap.
+ */
+const generateBoundedExampleFromSchema = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  context: Parameters<typeof generateExampleFromSchema>[2] = {},
+): unknown => {
+  if (!context.level) {
+    referenceEntries = new Map()
+  }
+
+  // A boolean schema can reach here at runtime even though the type does not allow it.
+  const reference =
+    typeof schema === 'object' && schema !== null && '$ref' in schema && typeof schema.$ref === 'string'
+      ? schema.$ref
+      : undefined
+  if (reference === undefined || context.dynamicScope?.length) {
+    return generateExampleFromSchema(schema, options, context)
+  }
+
+  const entries = referenceEntries.get(reference) ?? 0
+  if (entries >= MAX_REFERENCE_ENTRIES) {
+    // The omitted value holds only on this path, so nothing assembled around it may be cached.
+    truncated = true
+    return undefined
+  }
+
+  referenceEntries.set(reference, entries + 1)
+  try {
+    return generateExampleFromSchema(schema, options, context)
+  } finally {
+    if (entries === 0) {
+      referenceEntries.delete(reference)
+    } else {
+      referenceEntries.set(reference, entries)
+    }
+  }
+}
+
 /**
  * Generate data, optionally retaining the exact schema decisions for another output format.
  * Treat returned values as read-only: cached results and padded items can share object references.
@@ -2154,7 +2212,7 @@ export const getExampleFromSchema = (
   }
   const capture = options?.[EXAMPLE_EVALUATION]
   if (!capture) {
-    const value = generateExampleFromSchema(schema, options, context)
+    const value = generateBoundedExampleFromSchema(schema, options, context)
     return asBinaryFile(schema, value, options, context.schemaPath)
   }
   const node: ExampleEvaluation = {
@@ -2173,7 +2231,12 @@ export const getExampleFromSchema = (
   }
   capture.stack.push(node)
   try {
-    node.value = asBinaryFile(schema, generateExampleFromSchema(schema, options, context), options, context.schemaPath)
+    node.value = asBinaryFile(
+      schema,
+      generateBoundedExampleFromSchema(schema, options, context),
+      options,
+      context.schemaPath,
+    )
     return node.value
   } finally {
     capture.stack.pop()
