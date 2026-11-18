@@ -1789,7 +1789,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           ...(activeDocument && isOpenApiDocument(activeDocument)
             ? [upgradeDocuments(activeDocument['x-original-oas-version'])]
             : []),
-          codeSampleSources(path),
+          codeSampleSources(),
           asyncApiSchemaResources(),
           openApiDocument(),
           fetchUrls({
