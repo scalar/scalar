@@ -23,7 +23,7 @@ import {
   documentReferences,
 } from './document-references'
 import { documentTraversal } from './document-traversal'
-import { getSchemaVocabulary, isReferenceContext, isSchemaContext } from './reference-context'
+import { type ReferenceContext, getSchemaVocabulary, isReferenceContext, isSchemaContext } from './reference-context'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
@@ -362,6 +362,8 @@ export type LoaderPlugin = {
 type NodeProcessContext = {
   path: readonly string[]
   referencedFromPath?: readonly string[]
+  /** Authored vocabulary position, so plugins can distinguish schemas from literal data. */
+  referenceContext?: ReferenceContext
   resolutionCache: Map<string, Promise<Readonly<ResolveResult>>>
   parentNode: UnknownObject | null
   rootNode: UnknownObject
@@ -940,6 +942,7 @@ export const bundleDocument = async (
     const context = {
       path: currentPath,
       referencedFromPath,
+      referenceContext: location?.context,
       resolutionCache: cache,
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,

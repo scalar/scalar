@@ -22,6 +22,7 @@ import YAML from 'yaml'
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
 import type { OperationMeta } from '@/events/definitions/operation'
+import { loadInlineAsyncApiSchemaResources } from '@/helpers/async-api-schema-resources/load-inline'
 import { asyncApiModelChunkReference } from '@/helpers/asyncapi-model-chunk-reference'
 import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { deepClone } from '@/helpers/deep-clone'
@@ -51,6 +52,7 @@ import {
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
+import { asyncApiSchemaResources } from '@/plugins/bundler/async-api-schema-resources'
 import { codeSampleSources } from '@/plugins/bundler/code-sample-sources'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
@@ -1213,6 +1215,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     if (isAsyncApiDocument(clonedRawInputDocument)) {
       // Capture the original version before the upgrader bumps `asyncapi` to the latest.
       const originalAasVersion = clonedRawInputDocument.asyncapi
+      if (originalAasVersion.startsWith('2.')) {
+        // Preserve the 2.x message-level schema format before upgrading its channel structure.
+        await loadInlineAsyncApiSchemaResources(
+          createMagicProxy(clonedRawInputDocument),
+          input.documentSource ?? '/',
+          loaders,
+        )
+      }
       // The upgrader is typed against the loose `UnknownObject` shape; the result is a valid
       // 3.x AsyncAPI document, so cast it back so the spread below still satisfies `AsyncApiDocument`.
       const upgradedAsyncApiDocument = withMeasurementSync(
@@ -1235,7 +1245,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             await bundle(getRaw(asyncApiDocument), {
               traversal: 'document',
               treeShake: false,
-              plugins: loaders,
+              plugins: [asyncApiSchemaResources(), ...loaders],
               urlMap: true,
               origin: input.documentSource,
             }),
@@ -1457,6 +1467,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const authoredDocument = deepClone(rawDocument)
     restoreSecurityRequirements(authoredDocument)
     const original = (await bundle(authoredDocument, {
+      traversal: isAsyncApiDocument(authoredDocument) ? 'document' : undefined,
       plugins: [openApiDocument(), restoreOriginalRefs(), removeExtraScalarKeys()],
       treeShake: false,
       urlMap: true,
@@ -1768,6 +1779,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         treeShake: false,
         plugins: [
           codeSampleSources(path),
+          asyncApiSchemaResources(),
           openApiDocument(),
           fetchUrls({
             fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,
