@@ -47,7 +47,6 @@ const isSchemaObjectPath = (path: string[] | undefined): boolean =>
   !!path && isSchemaPath(path) && !isNamedSchemaMap(path) && !isInsideExtension(path)
 
 type BundleContext = {
-  documents: ReadonlySet<string>
   preserved: ReadonlySet<string>
   fragments: ReadonlyMap<string, readonly string[]>
 }
@@ -56,9 +55,6 @@ type BundleContext = {
 const getResourcePath = (path: string[] | undefined, bundle: BundleContext): string[] | undefined => {
   if (path?.[0] !== 'x-ext') {
     return path
-  }
-  if (bundle.documents.has(path[1] ?? '')) {
-    return path.slice(2)
   }
   for (let length = path.length; length >= 1; length--) {
     const context = bundle.fragments.get(JSON.stringify(path.slice(0, length)))
@@ -83,18 +79,14 @@ const parseLocalReference = (ref: string): string[] | undefined => {
   }
 }
 
-/** Establish bundle resources from version headers and real references, never from an extension's field names. */
+/** Establish fragment contexts from real references, never from an extension's field names. */
 const getBundleContext = (content: UnknownObject): BundleContext => {
-  const documents = new Set<string>()
   const preserved = new Set<string>()
   const resources = content['x-ext']
   if (isObject(resources)) {
     for (const [key, resource] of Object.entries(resources)) {
       if (!isObject(resource)) {
         continue
-      }
-      if (typeof resource.openapi === 'string' || typeof resource.swagger === 'string') {
-        documents.add(key)
       }
       if (
         (typeof resource.openapi === 'string' && !resource.openapi.startsWith('3.0')) ||
@@ -106,7 +98,7 @@ const getBundleContext = (content: UnknownObject): BundleContext => {
     }
   }
   const fragments = new Map<string, readonly string[]>()
-  const bundle: BundleContext = { documents, preserved, fragments }
+  const bundle: BundleContext = { preserved, fragments }
   const references: { path: string[]; target: string[] }[] = []
   traverse(content, (node, path = []) => {
     if (path[0] === 'x-ext' && preserved.has(path[1] ?? '')) {

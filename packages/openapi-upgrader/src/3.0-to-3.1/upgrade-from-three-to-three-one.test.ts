@@ -145,6 +145,26 @@ describe('upgradeFromThreeToThreeOne', () => {
     expect(result['x-ext']).toStrictEqual({ metadata: before })
   })
 
+  it.each([
+    { openapi: '3.0.4', schema: { nullable: true, oneOf: [{ type: 'string' }] } },
+    {
+      openapi: '3.0.4',
+      info: { title: 'Copied description', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { nullable: true, oneOf: [{ type: 'string' }] } } },
+    },
+  ])('preserves unreferenced x-ext data containing version fields: %j', (metadata) => {
+    const before = structuredClone(metadata)
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Extension data', version: '1' },
+      paths: {},
+      'x-ext': { metadata },
+    })
+
+    expect(result['x-ext']).toStrictEqual({ metadata: before })
+  })
+
   it('converts only referenced fragments in an otherwise untyped external resource', () => {
     const schema = { nullable: true, oneOf: [{ type: 'string' }] }
     const metadata = { schema }
@@ -211,6 +231,10 @@ describe('upgradeFromThreeToThreeOne', () => {
         openapi: '3.0.4',
         info: { title: 'Bundled components', version: '1' },
         paths: {},
+        components: {
+          parameters: { Limit: { $ref: `#/x-ext/${resource}/components/parameters/nullable` } },
+          responses: { Success: { $ref: `#/x-ext/${resource}/components/responses/nullable` } },
+        },
         'x-ext': {
           [resource]: {
             openapi: '3.0.4',
