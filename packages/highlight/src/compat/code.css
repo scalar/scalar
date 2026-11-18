@@ -3,6 +3,46 @@
   line-height: var(--scalar-code-line-height, 1.4);
 }
 
+/*
+ * Syntax colors come from the theme's own hues, so a code block follows whatever theme is active.
+ * The theme hues are tuned for UI, where several of them are too light or too close together for
+ * small code, so these only move a hue as far as code needs.
+ */
+:root,
+.dark-mode,
+.light-mode,
+.light-mode .dark-mode {
+  --scalar-code-green: var(--scalar-color-green);
+  --scalar-code-red: var(--scalar-color-red);
+  --scalar-code-blue: var(--scalar-color-blue);
+  --scalar-code-orange: var(--scalar-color-orange);
+  --scalar-code-purple: var(--scalar-color-purple);
+}
+
+@supports (color: oklch(from white l c h)) {
+  /*
+   * The chroma caps keep each color inside sRGB. Without them, wide-gamut theme values drift back
+   * toward each other at these lightness levels. Red also turns cooler so it stays clear of orange.
+   */
+  .light-mode,
+  .dark-mode .light-mode {
+    --scalar-code-green: oklch(from var(--scalar-color-green) min(l, 0.51) min(c, 0.11) h);
+    --scalar-code-red: oklch(from var(--scalar-color-red) min(l, 0.5) min(c, 0.2) calc(h - 14));
+    --scalar-code-blue: oklch(from var(--scalar-color-blue) min(l, 0.55) min(c, 0.14) h);
+    --scalar-code-orange: oklch(from var(--scalar-color-orange) min(l, 0.59) min(c, 0.17) calc(h + 3));
+    --scalar-code-purple: oklch(from var(--scalar-color-purple) min(l, 0.395) min(c, 0.22) h);
+  }
+
+  .dark-mode,
+  .light-mode .dark-mode {
+    --scalar-code-green: oklch(from var(--scalar-color-green) max(l, 0.68) c h);
+    --scalar-code-red: oklch(from var(--scalar-color-red) max(l, 0.68) min(c, 0.19) calc(h - 14));
+    --scalar-code-blue: oklch(from var(--scalar-color-blue) max(l, 0.68) c h);
+    --scalar-code-orange: oklch(from var(--scalar-color-orange) max(l, 0.75) min(c, 0.16) h);
+    --scalar-code-purple: oklch(from var(--scalar-color-purple) max(l, 0.68) c h);
+  }
+}
+
 .scalar-app {
   :where(code.hljs) * {
     font-size: inherit;
@@ -17,13 +57,13 @@
   code.hljs {
     all: unset;
     font-size: inherit;
-    color: var(--scalar-color-2);
+    color: var(--scalar-color-1);
     font-family: var(--scalar-font-code);
     counter-reset: linenumber;
   }
   .hljs {
     background: transparent;
-    color: var(--scalar-color-2);
+    color: var(--scalar-color-1);
   }
 
   .hljs .line::before {
@@ -40,74 +80,77 @@
   /* Data types */
   .hljs-comment,
   .hljs-quote {
-    color: var(--scalar-color-3);
+    color: var(--scalar-color-2);
     font-style: italic;
   }
 
-  .hljs-number {
-    color: var(--scalar-color-orange);
+  /** Brackets, commas and separators stay quieter than the code around them */
+  .hljs-punctuation,
+  .hljs-bullet {
+    color: var(--scalar-color-2);
+  }
+
+  .hljs-number,
+  .hljs-literal,
+  .hljs-symbol {
+    color: var(--scalar-code-orange);
   }
 
   .hljs-regexp,
   .hljs-string {
-    color: var(--scalar-color-blue);
+    color: var(--scalar-code-blue);
   }
 
-  /** Globals such as `var()` and `!important` */
-  .hljs-built_in {
-    color: var(--scalar-color-blue);
-  }
-
-  /** Class initializers such as `Array` or `Date` */
-  /** Type declarations such as `Record` */
-  .hljs-title.class_ {
-    color: var(--scalar-color-1);
+  /** Globals such as `var()` and `!important`, plus decorators */
+  .hljs-built_in,
+  .hljs-meta {
+    color: var(--scalar-code-blue);
   }
 
   /** Language indicators such as `new`, `const`, or `function` in JS  */
-  .hljs-keyword {
-    color: var(--scalar-color-purple);
-  }
-
-  /** Function names when declaring and calling */
-  .hljs-title.function_ {
-    color: var(--scalar-color-orange);
+  .hljs-keyword,
+  .hljs-doctag {
+    color: var(--scalar-code-purple);
   }
 
   /** Template substitution */
   .hljs-subst {
-    color: var(--scalar-color-blue);
+    color: var(--scalar-code-purple);
   }
 
   /** HTML Tag name */
   .hljs-name {
-    color: var(--scalar-color-blue);
+    color: var(--scalar-code-purple);
   }
 
-  /** Attribute name (ex. `class`, `id`) */
-  .hljs-attr,
-  .hljs-attribute {
+  /** Function names when declaring and calling */
+  .hljs-section,
+  .hljs-link,
+  .hljs-title,
+  .hljs-title.function_ {
+    color: var(--scalar-code-orange);
+  }
+
+  /** Class initializers such as `Array` or `Date` */
+  /** Type declarations such as `Record` */
+  .hljs-title.class_,
+  .hljs-type {
     color: var(--scalar-color-1);
   }
 
-  .hljs-addition,
-  .hljs-literal,
-  .hljs-selector-tag,
-  .hljs-type {
-    color: var(--scalar-color-green);
+  /** Function parameters and keyword arguments */
+  .hljs-params {
+    color: var(--scalar-code-red);
   }
 
+  /** Member access, object keys and attribute names (ex. `class`, `id`) */
+  .hljs-property,
+  .hljs-attr,
+  .hljs-attribute,
+  .hljs-selector-tag,
   .hljs-selector-attr,
   .hljs-selector-pseudo {
-    color: var(--scalar-color-orange);
-  }
-  .hljs-doctag {
-    color: var(--scalar-color-blue);
-  }
-
-  .hljs-section,
-  .hljs-title {
-    color: var(--scalar-color-blue);
+    color: var(--scalar-code-green);
   }
 
   .hljs-selector-id,
@@ -116,21 +159,18 @@
     color: var(--scalar-color-1);
   }
 
+  .hljs-addition {
+    color: var(--scalar-code-green);
+  }
+
   .hljs-name,
   .hljs-section,
   .hljs-strong {
     font-weight: var(--scalar-semibold);
   }
 
-  .hljs-bullet,
-  .hljs-link,
-  .hljs-meta,
-  .hljs-symbol {
-    color: var(--scalar-color-blue);
-  }
-
   .hljs-deletion {
-    color: var(--scalar-color-red);
+    color: var(--scalar-code-red);
   }
 
   .hljs-formula {
@@ -165,11 +205,11 @@
 
 /** For HTML make the attr text different than the content */
 .hljs.language-html .hljs-attr {
-  color: var(--scalar-color-2);
+  color: var(--scalar-code-green);
 }
 
 .hljs.language-curl .hljs-string {
-  color: var(--scalar-color-blue);
+  color: var(--scalar-code-blue);
 }
 
 .hljs.language-curl .hljs-literal {
@@ -182,7 +222,7 @@
 }
 
 .hljs.language-php .hljs-variable {
-  color: var(--scalar-color-blue);
+  color: var(--scalar-color-1);
 }
 
 .hljs.language-objectivec .hljs-meta {
@@ -190,5 +230,5 @@
 }
 
 .hljs.language-objectivec .hljs-built_in {
-  color: var(--scalar-color-orange);
+  color: var(--scalar-code-blue);
 }
