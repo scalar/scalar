@@ -446,7 +446,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
 
           <DatePicker
             v-if="dateFormat && data.isReadonly !== true"
-            :fieldName="label || data.name"
+            :fieldName="data.name || label"
             :modelValue="displayValue"
             :type="dateFormat"
             @update:modelValue="(v) => handleUpdateRow({ value: v })" />
