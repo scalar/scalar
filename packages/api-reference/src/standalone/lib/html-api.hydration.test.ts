@@ -174,6 +174,63 @@ describe('html-api hydration', () => {
     }
   })
 
+  it('waits for the grammars of server-rendered code before hydrating', async () => {
+    const config = apiReferenceConfigurationWithSourceSchema({
+      _integration: 'html',
+      content: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Highlighted API',
+          version: '1.0.0',
+          description: '```python\ndef greet(name):\n    return name\n```',
+        },
+        paths: {},
+      },
+    })
+    // The server waits for the grammar on its own (serverPrefetch), so the markup is highlighted.
+    const ssrApp = createSSRApp({ render: () => h(ApiReference, { configuration: config }) })
+    ssrApp.config.idPrefix = 'scalar-refs'
+    const element = document.createElement('div')
+    element.innerHTML = await renderToString(ssrApp)
+    document.body.append(element)
+    const isHighlighted = (): boolean =>
+      element.querySelector('code.language-python')?.querySelector('[class^="hljs-"]') !== null
+    expect(element.querySelector('code.language-python')).not.toBeNull()
+    expect(isHighlighted()).toBe(true)
+
+    // A browser starts without any grammar, like a fresh page load.
+    vi.resetModules()
+    const browser = await import('./html-api')
+
+    let renderedPlain = false
+    const observer = new MutationObserver(() => {
+      renderedPlain ||= !isHighlighted()
+    })
+    observer.observe(element, { subtree: true, childList: true, characterData: true })
+    consoleWarnSpy.mockClear()
+    consoleErrorSpy.mockClear()
+
+    const reference = browser.createApiReference(element, config)
+    try {
+      // Hydration waits for the Python grammar rather than mounting straight away
+      const isMounted = (): boolean => '__vue_app__' in element
+      expect(isMounted()).toBe(false)
+      await vi.waitFor(() => expect(isMounted()).toBe(true))
+      await flushPromises()
+      await nextTick()
+      expect(renderedPlain).toBe(false)
+      expect(isHighlighted()).toBe(true)
+      const hydrationMessages = [...consoleWarnSpy.mock.calls, ...consoleErrorSpy.mock.calls]
+        .flat()
+        .map(String)
+        .filter((message) => /hydration/i.test(message))
+      expect(hydrationMessages).toStrictEqual([])
+    } finally {
+      observer.disconnect()
+      reference.destroy()
+    }
+  })
+
   /** Two tags, so the first one is opened by default and the second one stays closed. */
   const taggedDocument = {
     openapi: '3.1.0',
