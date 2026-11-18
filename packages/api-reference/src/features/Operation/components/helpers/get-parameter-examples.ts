@@ -1,5 +1,5 @@
 import { type RenderedExample, getRenderedExample, normalizeRenderedExamples } from '@scalar/blocks/schema/helpers'
-import { isObjectLike } from '@scalar/helpers/object/is-object'
+import { isObject } from '@scalar/helpers/object/is-object'
 import type {
   HeaderObject,
   MediaTypeObject,
@@ -20,7 +20,7 @@ const getExamples = (
   if (source && 'example' in source && source.example !== undefined) {
     return normalizeRenderedExamples([source.example])
   }
-  if (!source || !('examples' in source) || !isObjectLike(source.examples)) {
+  if (!source || !('examples' in source) || !isObject(source.examples)) {
     return []
   }
   return Object.entries(source.examples).flatMap(([name, entry]) => {

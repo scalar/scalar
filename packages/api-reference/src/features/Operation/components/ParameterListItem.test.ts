@@ -512,6 +512,38 @@ describe('ParameterListItem', () => {
     },
   )
 
+  it.each(['oneOf', 'anyOf'] as const)('preserves response schema examples inside %s variants', async (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      example: 'root schema',
+      [keyword]: [
+        { title: 'Text', type: 'string', example: 'text variant' },
+        { title: 'Number', type: 'number', example: 42 },
+      ],
+    })
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: '200',
+        collapsableItems: true,
+        eventBus: null,
+        options: baseOptions,
+        parameter: {
+          description: 'OK',
+          content: { 'application/json': { schema, example: 'media' } },
+        },
+      },
+    })
+    try {
+      await wrapper.get('button[aria-expanded]').trigger('click')
+      const labels = wrapper
+        .findAll('button[aria-label]')
+        .map((button) => button.attributes('aria-label'))
+        .filter((label) => label?.startsWith('Copy example value:'))
+      expect(labels).toStrictEqual(['Copy example value: text variant', 'Copy example value: media'])
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
   it('overrides a resolved schema reference without changing its examples', () => {
     const schema = coerceValue(SchemaObjectSchema, { type: 'string', example: 'schema' })
     const wrapper = mount(ParameterListItem, {

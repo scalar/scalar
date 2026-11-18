@@ -166,12 +166,19 @@ const value = computed(() => {
     content: content.value?.[selectedContentType.value],
   })
 
-  return {
-    ...(examples.length
-      ? applySchemaExamples(resolvedBase, examples)
-      : resolvedBase),
-    deprecated: deprecated,
-  } as SchemaObject
+  if (!examples.length) {
+    return { ...resolvedBase, deprecated } as SchemaObject
+  }
+
+  // Response media examples describe the payload as a whole. Each variant can have its own examples.
+  return 'in' in parameter
+    ? { ...applySchemaExamples(resolvedBase, examples), deprecated }
+    : ({
+        ...resolvedBase,
+        example: undefined,
+        examples,
+        deprecated,
+      } as SchemaObject)
 })
 
 /** Composition keywords that render their members as nested rows. */

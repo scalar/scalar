@@ -78,6 +78,17 @@ describe('get-parameter-examples', () => {
     },
   )
 
+  it('falls back to media type examples when parameter examples is an array', () => {
+    const parameter = { in: 'query', name: 'term' } as const
+    expect(
+      getParameterExamples({
+        // @ts-expect-error Malformed API descriptions can supply an array instead of a named map.
+        parameter: { ...parameter, examples: ['first', 'second'] },
+        content: { example: 'media' },
+      }),
+    ).toStrictEqual(normalizeRenderedExamples(['media']))
+  })
+
   it.each([false, 0, '', null])('preserves a singular parameter example: %j', (example) => {
     expect(getParameterExamples({ parameter: { in: 'query', name: 'term', example } })).toStrictEqual(
       normalizeRenderedExamples([example]),
