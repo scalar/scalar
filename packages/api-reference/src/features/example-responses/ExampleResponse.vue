@@ -2,7 +2,6 @@
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
-import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XmlDiagnostic } from '@scalar/workspace-store/request-example'
 import type {
@@ -14,12 +13,17 @@ import { computed } from 'vue'
 import { useLocalization } from '@/features/localization'
 
 import { getExampleContent } from './helpers/get-example-content'
+import {
+  type ExampleLanguage,
+  getExampleLanguage,
+} from './helpers/get-example-language'
 
 const {
   example,
   response,
   content,
   contentType = 'application/json',
+  language: contentLanguage,
   openapiVersion,
   jsonSchemaDialect,
   generationError,
@@ -35,6 +39,8 @@ const {
   generationError?: XmlDiagnostic
   pending?: boolean
   contentType?: string
+  /** Grammar selected while formatting the shared content. */
+  language?: ExampleLanguage
 }>()
 const { translate } = useLocalization()
 
@@ -43,6 +49,7 @@ const resolvedExample = computed(() => getResolvedRef(example))
 /** Preformatted content is shared with the response card clipboard action. */
 const generatedExample = computed(() => {
   let error = generationError
+  let language = getExampleLanguage(contentType)
   const value =
     pending || error
       ? undefined
@@ -51,15 +58,21 @@ const generatedExample = computed(() => {
           contentType,
           openapiVersion,
           jsonSchemaDialect,
+          onLanguage: (formattedLanguage) => {
+            language = formattedLanguage
+          },
           onDiagnostic: (diagnostic) => {
             if (diagnostic.severity === 'error' && error === undefined) {
               error = diagnostic
             }
           },
         }))
-  return { value, error }
+  return { value, error, language }
 })
 const prettyPrintedContent = computed(() => generatedExample.value.value)
+const language = computed<ExampleLanguage>(
+  () => contentLanguage ?? generatedExample.value.language,
+)
 const errorMessage = computed(() => {
   const error = generatedExample.value.error
   if (!error) {
@@ -103,14 +116,14 @@ const shouldVirtualize = computed(() => {
     <ScalarCodeBlock
       v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
       class="bg-transparent"
-      :lang="isXmlMediaType(contentType) ? 'xml' : 'json'"
+      :lang="language"
       :prettyPrintedContent="prettyPrintedContent" />
 
     <ScalarVirtualCodeBlock
       v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
       class="bg-transparent"
       :content="prettyPrintedContent"
-      :lang="isXmlMediaType(contentType) ? 'xml' : 'json'" />
+      :lang="language" />
 
     <div
       v-else
