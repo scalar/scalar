@@ -18,7 +18,7 @@ const schemes: SecuritySchemeObjectSecret[] = [
   },
 ]
 
-const render = (source: string, securitySchemes = schemes): { html: string; blocks: SdkCodeBlock[] } => {
+const render = (source: string, securitySchemes = schemes): { html: string; text: string; blocks: SdkCodeBlock[] } => {
   const result: { blocks: SdkCodeBlock[] } = { blocks: [] }
   const html = htmlFromMarkdown(source, {
     transformType: 'root',
@@ -27,7 +27,20 @@ const render = (source: string, securitySchemes = schemes): { html: string; bloc
       return root
     },
   })
-  return { html, blocks: result.blocks }
+  return { html, text: textFromHtml(html), blocks: result.blocks }
+}
+
+/**
+ * The text a browser would show for the HTML.
+ *
+ * Highlighting wraps tokens such as the `{{` and `}}` of a placeholder in separate
+ * spans, so assertions about code-block content read the rendered text instead. A
+ * template element parses the markup without running or loading anything in it.
+ */
+const textFromHtml = (html: string): string => {
+  const template = document.createElement('template')
+  template.innerHTML = html
+  return template.content.textContent ?? ''
 }
 
 describe('resolve-sdk-markdown', () => {
@@ -102,21 +115,20 @@ describe('resolve-sdk-markdown', () => {
       flows: {},
       'x-scalar-credential-placeholders': { password: { field: 'token' } },
     }
-    // A `text` fence stays unhighlighted, so the placeholder is not split across spans.
-    const { html, blocks } = render('```text\nconfigure {{password}}\n```', [...schemes, pendingOAuth])
+    const { text, blocks } = render('```sh\nconfigure {{password}}\n```', [...schemes, pendingOAuth])
     expect(blocks).toStrictEqual([
       {
         marker: 'test-0',
-        language: 'text',
+        language: 'sh',
         displayContent: 'configure {{password}}',
         copyContent: 'configure {{password}}',
       },
     ])
-    expect(html.includes('{{password}}')).toBe(true)
+    expect(text.includes('{{password}}')).toBe(true)
   })
 
   it('masks credentials equal to their placeholder while preserving the copy value', () => {
-    const { html, blocks } = render('```text\nconfigure {{token}}\n```', [
+    const { text, blocks } = render('```sh\nconfigure {{token}}\n```', [
       {
         type: 'apiKey',
         in: 'header',
@@ -128,12 +140,13 @@ describe('resolve-sdk-markdown', () => {
     expect(blocks).toStrictEqual([
       {
         marker: 'test-0',
-        language: 'text',
+        language: 'sh',
         displayContent: 'configure ••••••••',
         copyContent: 'configure {{token}}',
       },
     ])
-    expect(html.includes('{{token}}')).toBe(false)
+    expect(text.includes('{{token}}')).toBe(false)
+    expect(text.includes('configure ••••••••')).toBe(true)
   })
 
   it('preserves ordinary code and unresolved placeholders for display and copy', () => {
