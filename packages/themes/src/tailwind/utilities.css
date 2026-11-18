@@ -21,6 +21,11 @@
  * the midpoint by infinity and letting the channel clamp turns that into 0 or
  * 100, so any color format works without parsing it in JavaScript.
  *
+ * Expects an opaque color. Alpha is ignored, so a translucent dark color that
+ * shows up pale on a light page still gets white text. Colors with a lightness
+ * near 50 have middling contrast with both black and white; that is the cost
+ * of a binary choice.
+ *
  * @example bg-(--badge-color) text-auto-contrast-(--badge-color)
  */
 @utility text-auto-contrast-* {
