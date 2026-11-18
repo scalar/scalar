@@ -1,4 +1,4 @@
-import type { Node } from '@scalar/code-highlight'
+import type { Node } from '@scalar/markdown'
 import { type SecuritySchemeObjectSecret, resolveCredentialPlaceholders } from '@scalar/workspace-store/request-example'
 
 /** An SDK code block with separate display and copy values. */

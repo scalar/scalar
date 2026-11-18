@@ -1,4 +1,4 @@
-import { htmlFromMarkdown } from '@scalar/code-highlight'
+import { htmlFromMarkdown } from '@scalar/markdown'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
 
@@ -18,7 +18,7 @@ const schemes: SecuritySchemeObjectSecret[] = [
   },
 ]
 
-const render = (source: string, securitySchemes = schemes): { html: string; blocks: SdkCodeBlock[] } => {
+const render = (source: string, securitySchemes = schemes): { html: string; text: string; blocks: SdkCodeBlock[] } => {
   const result: { blocks: SdkCodeBlock[] } = { blocks: [] }
   const html = htmlFromMarkdown(source, {
     transformType: 'root',
@@ -27,7 +27,9 @@ const render = (source: string, securitySchemes = schemes): { html: string; bloc
       return root
     },
   })
-  return { html, blocks: result.blocks }
+  // Highlighting wraps tokens such as the `{{` and `}}` of a placeholder in separate
+  // spans, so assertions about code-block content read the rendered text instead
+  return { html, text: html.replace(/<[^>]*>/g, ''), blocks: result.blocks }
 }
 
 describe('resolve-sdk-markdown', () => {
@@ -102,7 +104,7 @@ describe('resolve-sdk-markdown', () => {
       flows: {},
       'x-scalar-credential-placeholders': { password: { field: 'token' } },
     }
-    const { html, blocks } = render('```sh\nconfigure {{password}}\n```', [...schemes, pendingOAuth])
+    const { text, blocks } = render('```sh\nconfigure {{password}}\n```', [...schemes, pendingOAuth])
     expect(blocks).toStrictEqual([
       {
         marker: 'test-0',
@@ -111,11 +113,11 @@ describe('resolve-sdk-markdown', () => {
         copyContent: 'configure {{password}}',
       },
     ])
-    expect(html.includes('{{password}}')).toBe(true)
+    expect(text.includes('{{password}}')).toBe(true)
   })
 
   it('masks credentials equal to their placeholder while preserving the copy value', () => {
-    const { html, blocks } = render('```sh\nconfigure {{token}}\n```', [
+    const { text, blocks } = render('```sh\nconfigure {{token}}\n```', [
       {
         type: 'apiKey',
         in: 'header',
@@ -132,7 +134,8 @@ describe('resolve-sdk-markdown', () => {
         copyContent: 'configure {{token}}',
       },
     ])
-    expect(html.includes('{{token}}')).toBe(false)
+    expect(text.includes('{{token}}')).toBe(false)
+    expect(text.includes('configure ••••••••')).toBe(true)
   })
 
   it('preserves ordinary code and unresolved placeholders for display and copy', () => {
