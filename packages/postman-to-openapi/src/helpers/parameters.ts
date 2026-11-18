@@ -140,10 +140,11 @@ export function createParameterObject(
   paramIn: 'query' | 'path' | 'header',
   exampleName: string,
 ): OpenAPIV3_1.ParameterObject {
+  const description = typeof param.description === 'string' ? param.description : param.description?.content
   const parameter: OpenAPIV3_1.ParameterObject = {
     name: param.key || '',
     in: paramIn,
-    description: param.description,
+    description,
     examples: {
       [exampleName]: {
         value: param.value,
@@ -158,7 +159,7 @@ export function createParameterObject(
   } else if (paramIn === 'query') {
     // Check if the parameter is required based on description or name
     const isRequired =
-      param.description?.toLowerCase().includes('[required]') || (param.key && param.key.toLowerCase() === 'required')
+      description?.toLowerCase().includes('[required]') || (param.key && param.key.toLowerCase() === 'required')
 
     if (isRequired) {
       parameter.required = true
