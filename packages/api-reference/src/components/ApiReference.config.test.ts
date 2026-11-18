@@ -1353,8 +1353,29 @@ describe('ApiReference developer tools theme', () => {
 
     await pickToolbarTheme(wrapper, 'moon')
 
-    const styleContent = getStyleContent(wrapper)
-    expect(styleContent.indexOf(customCss)).toBeGreaterThan(styleContent.indexOf('#ccc9b3'))
+    const styles = wrapper.findAll('style')
+    expect(styles.map((style) => style.element.textContent).slice(1)).toStrictEqual([customCss])
+    expect(styles[0]?.element.textContent).toContain('#ccc9b3')
+  })
+
+  it('keeps custom CSS imports valid after picking a toolbar theme', async () => {
+    const customCss = '@import url("data:text/css,.light-mode%7B--scalar-background-1:%23ff00ff%7D");'
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument(), customCss } },
+    })
+    await flushPromises()
+
+    await pickToolbarTheme(wrapper, 'moon')
+
+    const styles = wrapper.findAll('style')
+    const customStyle = styles[1]?.element as HTMLStyleElement | undefined
+    expect(customStyle?.sheet?.cssRules[0]?.type).toBe(CSSRule.IMPORT_RULE)
+    expect(customStyle?.textContent).toBe(customCss)
+
+    await pickToolbarTheme(wrapper, 'default')
+
+    expect(wrapper.findAll('style').length).toBe(1)
+    expect(getStyleContent(wrapper).startsWith(customCss)).toBe(true)
   })
 
   it('keeps the layered theme when the toolbar picks the configured theme', async () => {

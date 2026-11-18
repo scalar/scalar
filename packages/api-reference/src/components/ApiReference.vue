@@ -466,10 +466,15 @@ const themeStyle = computed(() =>
 )
 
 /**
- * Custom CSS plus the theme styles, injected into a single `<style>` tag.
- *
- * A theme picked in the toolbar is unlayered, so it goes first: `customCss` is unlayered too and
- * comes later, so it still wins over the picked theme.
+ * Keep the unlayered toolbar theme in its own style element before custom CSS.
+ * This preserves custom CSS priority without invalidating its leading `@import` rules.
+ */
+const toolbarStyleContent = computed(() =>
+  toolbarTheme.value ? escapeCssForStyleTag(themeStyle.value) : '',
+)
+
+/**
+ * Custom CSS plus the layered theme when there is no toolbar override.
  *
  * This is rendered with `v-html` so the CSS is emitted verbatim. Interpolating
  * it as text content makes Vue HTML-escape characters like `"` into `&quot;` on
@@ -485,9 +490,7 @@ const styleContent = computed(() => {
   const customCss = mergedConfig.value.customCss ?? ''
 
   return escapeCssForStyleTag(
-    toolbarTheme.value
-      ? `${themeStyle.value}\n${customCss}`
-      : `${customCss}\n${themeStyle.value}`,
+    toolbarTheme.value ? customCss : `${customCss}\n${themeStyle.value}`,
   )
 })
 
@@ -2327,8 +2330,12 @@ const sidebarCta = computed((): SidebarCta => {
       type="application/json"
       v-html="hydrationState" />
     <!-- eslint-enable vue/no-v-text-v-html-on-component -->
-    <!-- Inject any custom CSS directly into a style tag -->
+    <!-- Keep imports at the start of the custom CSS stylesheet. -->
     <!-- eslint-disable vue/no-v-text-v-html-on-component -->
+    <component
+      :is="'style'"
+      v-if="toolbarStyleContent"
+      v-html="toolbarStyleContent" />
     <component
       :is="'style'"
       v-html="styleContent" />
