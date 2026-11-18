@@ -1308,3 +1308,97 @@ describe('host-app hash routing', () => {
     },
   )
 })
+
+describe('ApiReference developer tools theme', () => {
+  /** Picks a theme in the localhost developer tools, the way the toolbar does it */
+  const pickToolbarTheme = async (wrapper: ReturnType<typeof mountComponent>, theme: string): Promise<void> => {
+    const developerTools = wrapper.findComponent({ name: 'DeveloperTools' })
+    expect(developerTools.exists()).toBe(true)
+    await developerTools.vm.$emit('update:overrides', { theme })
+    await flushPromises()
+  }
+
+  const getStyleContent = (wrapper: ReturnType<typeof mountComponent>): string =>
+    wrapper.find('style').element.textContent ?? ''
+
+  it('wraps the theme in the scalar-theme layer without an override', async () => {
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument() } },
+    })
+    await flushPromises()
+
+    expect(getStyleContent(wrapper)).toContain('@layer scalar-theme {')
+  })
+
+  it('emits a toolbar theme without a layer so it beats unlayered integration styles', async () => {
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument() } },
+    })
+    await flushPromises()
+
+    await pickToolbarTheme(wrapper, 'moon')
+
+    const styleContent = getStyleContent(wrapper)
+    expect(styleContent).not.toContain('@layer')
+    // The Moon background color
+    expect(styleContent).toContain('#ccc9b3')
+  })
+
+  it('keeps customCss after the unlayered toolbar theme', async () => {
+    const customCss = '.custom-class { color: red; }'
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument(), customCss } },
+    })
+    await flushPromises()
+
+    await pickToolbarTheme(wrapper, 'moon')
+
+    const styles = wrapper.findAll('style')
+    expect(styles.map((style) => style.element.textContent).slice(1)).toStrictEqual([customCss])
+    expect(styles[0]?.element.textContent).toContain('#ccc9b3')
+  })
+
+  it('keeps custom CSS imports valid after picking a toolbar theme', async () => {
+    const customCss = '@import url("data:text/css,.light-mode%7B--scalar-background-1:%23ff00ff%7D");'
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument(), customCss } },
+    })
+    await flushPromises()
+
+    await pickToolbarTheme(wrapper, 'moon')
+
+    const styles = wrapper.findAll('style')
+    const customStyle = styles[1]?.element as HTMLStyleElement | undefined
+    expect(customStyle?.sheet?.cssRules[0]?.type).toBe(CSSRule.IMPORT_RULE)
+    expect(customStyle?.textContent).toBe(customCss)
+
+    await pickToolbarTheme(wrapper, 'default')
+
+    expect(wrapper.findAll('style').length).toBe(1)
+    expect(getStyleContent(wrapper).startsWith(customCss)).toBe(true)
+  })
+
+  it('keeps the layered theme when the toolbar picks the configured theme', async () => {
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument(), theme: 'moon' } },
+    })
+    await flushPromises()
+
+    await pickToolbarTheme(wrapper, 'moon')
+
+    const styleContent = getStyleContent(wrapper)
+    expect(styleContent).toContain('@layer scalar-theme {')
+    expect(styleContent).toContain('#ccc9b3')
+  })
+
+  it('keeps the layered theme when the toolbar picks default and no theme is configured', async () => {
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument() } },
+    })
+    await flushPromises()
+
+    await pickToolbarTheme(wrapper, 'default')
+
+    expect(getStyleContent(wrapper)).toContain('@layer scalar-theme {')
+  })
+})
