@@ -36,6 +36,7 @@ type GenerateCodeSnippetProps = {
   /** Selected oneOf/anyOf variants for nested request body example generation. */
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  jsonSchemaDialect?: string
   requestBodyCompositionSelection?: Record<string, number>
   /** Whether to disable parameters by default. */
   defaultDisabledParameters?: boolean
@@ -55,6 +56,7 @@ export const generateCodeSnippet = ({
   securitySchemes,
   globalCookies,
   openapiVersion,
+  jsonSchemaDialect,
   requestBodyCompositionSelection,
   defaultDisabledParameters,
 }: GenerateCodeSnippetProps): string | null => {
@@ -92,6 +94,7 @@ export const generateCodeSnippet = ({
       globalCookies,
       includeDefaultHeaders,
       openapiVersion,
+      jsonSchemaDialect,
       requestBodyCompositionSelection,
       defaultDisabledParameters,
     })

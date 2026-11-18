@@ -1,9 +1,27 @@
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { getModelNameFromSchema } from './schema-name'
+import { getModelNameFromSchema, getModelNameWithArray } from './schema-name'
 
 describe('schema-name', () => {
+  it.each([true, false])('returns no model name for boolean array items: %s', (items) => {
+    expect(getModelNameWithArray({ type: 'array', items })).toBe(null)
+  })
+
+  it('returns the model name of an inline array item schema', () => {
+    expect(getModelNameWithArray({ type: 'array', items: { type: 'object', title: 'Planet' } })).toStrictEqual({
+      schemaKey: null,
+      label: 'Planet[]',
+    })
+  })
+
+  it('returns the model name and link of a referenced array item schema', () => {
+    expect(getModelNameWithArray({ type: 'array', items: { $ref: '#/components/schemas/Planet' } })).toStrictEqual({
+      schemaKey: 'Planet',
+      label: 'Planet[]',
+    })
+  })
+
   describe('getModelNameFromSchema', () => {
     it('returns title when present', () => {
       const schema: SchemaObject = { title: 'Galaxy Planet', type: 'object' }

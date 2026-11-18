@@ -14,6 +14,12 @@ describe('group-form-body-files', () => {
     expect(groupFormBodyFiles([row])).toStrictEqual([{ data: { ...row, files: [] }, sourceIndices: [0] }])
   })
 
+  it.each([true, false])('keeps arrays with boolean item schema %j as text fields', (items) => {
+    const row: TableRow = { name: 'values', value: '[]', schema: { type: 'array', items } }
+
+    expect(groupFormBodyFiles([row])).toStrictEqual([{ data: row, sourceIndices: [0] }])
+  })
+
   it('groups already selected files for untyped arrays without hiding neighboring text values', () => {
     const schema: SchemaObject = { type: 'array', items: { __scalar_: '' } }
     const first = new File(['a'], 'a.txt')

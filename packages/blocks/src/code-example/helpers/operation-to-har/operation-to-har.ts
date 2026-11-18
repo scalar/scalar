@@ -55,6 +55,7 @@ export type OperationToHarProps = {
    */
   /** Originating OpenAPI version, used for version-specific serialization. */
   openapiVersion?: string
+  jsonSchemaDialect?: string
   requestBodyCompositionSelection?: Record<string, number>
   /**
    * Whether to disable parameters by default.
@@ -96,6 +97,7 @@ export const operationToHar = ({
   securitySchemes,
   globalCookies,
   openapiVersion,
+  jsonSchemaDialect,
   requestBodyCompositionSelection,
   defaultDisabledParameters = false,
 }: OperationToHarProps): HarRequest => {
@@ -145,6 +147,7 @@ export const operationToHar = ({
       harRequest,
       parameters: operation.parameters,
       openapiVersion,
+      jsonSchemaDialect,
       example,
       defaultDisabled: defaultDisabledParameters,
     })
@@ -172,6 +175,7 @@ export const operationToHar = ({
       contentType,
       example,
       openapiVersion,
+      jsonSchemaDialect,
       requestBodyCompositionSelection,
     })
 
