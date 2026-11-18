@@ -180,6 +180,7 @@
     "ajv": "catalog:*",
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
+    "google-auth-library": "catalog:*",
     "typescript": "7.0.2",
     "vite": "catalog:*",
     "vitest": "catalog:*"
