@@ -268,6 +268,88 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
   })
 
+  it.each(['3.1.0', '3.2.0'])('preserves a bundled description that declares OpenAPI %s', (openapi) => {
+    const resource = {
+      openapi,
+      info: { title: 'Native schemas', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { nullable: true, oneOf: [{ type: 'string' }] } } },
+    }
+    const before = structuredClone(resource)
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Legacy root', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: '#/x-ext/native/components/schemas/Value' } } },
+      'x-ext': { native: resource },
+    })
+
+    expect(result['x-ext']).toStrictEqual({ native: before })
+  })
+
+  it('preserves a bundled standalone schema with its own dialect', () => {
+    const resource = {
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      nullable: true,
+      oneOf: [{ type: 'string' }],
+    }
+    const before = structuredClone(resource)
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Legacy root', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: '#/x-ext/native' } } },
+      'x-ext': { native: resource },
+    })
+
+    expect(result['x-ext']).toStrictEqual({ native: before })
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('preserves local references into relocated nullable %s members', (keyword) => {
+    const ref = `#/components/schemas/Value~1Kind/${keyword}/0`
+    const literal = { $ref: ref }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Union references', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          'Value/Kind': { nullable: true, [keyword]: [{ type: 'string' }, { type: 'integer' }] },
+          Alias: { $ref: ref },
+          Annotated: { type: 'object', example: literal, default: literal, 'x-metadata': literal },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.Alias).toStrictEqual({
+      $ref: `#/components/schemas/Value~1Kind/anyOf/0/${keyword}/0`,
+    })
+    expect(result.components?.schemas?.Annotated).toStrictEqual({
+      type: 'object',
+      examples: [literal],
+      default: literal,
+      'x-metadata': literal,
+    })
+  })
+
+  it('composes reference relocations through nested nullable compositions', () => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Nested union references', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Value: { nullable: true, allOf: [{ nullable: true, oneOf: [{ type: 'string' }] }] },
+          Alias: { $ref: '#/components/schemas/Value/allOf/0/oneOf/0' },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.Alias).toStrictEqual({
+      $ref: '#/components/schemas/Value/anyOf/0/anyOf/0/oneOf/0',
+    })
+  })
+
   it.each(['3.1.0', '3.2.0'])('leaves legacy nullable in an OpenAPI %s document unchanged', (openapi) => {
     const document = {
       openapi,

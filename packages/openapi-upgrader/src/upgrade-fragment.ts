@@ -14,7 +14,7 @@ import {
   transformResponseObject,
   upgradeFromTwoToThree,
 } from './2.0-to-3.0/upgrade-from-two-to-three'
-import { applyChangesToDocument } from './3.0-to-3.1/upgrade-from-three-to-three-one'
+import { applyChangesToDocument, getNullableComposition } from './3.0-to-3.1/upgrade-from-three-to-three-one'
 
 /** The OpenAPI object a reference expects, independent of its storage location. */
 export type FragmentKind =
@@ -446,9 +446,7 @@ export const upgradeFragment = async (
       }
       // Record where composition members move before visiting descendants, so references
       // into nullable unions still resolve after the null alternative is added.
-      const compositions = ['allOf', 'anyOf', 'oneOf'].filter((key) => Array.isArray(result[key]))
-      const wrapCompositions = result.nullable === true && result.type === undefined && typeof result.$ref !== 'string'
-      const unwrapAllOf = compositions.length === 1 && Array.isArray(result.allOf) && result.allOf.length === 1
+      const composition = getNullableComposition(result)
       for (const [key, entry] of Object.entries(result)) {
         if (schemaMaps.has(key)) {
           result[key] = await map(entry, 'schema', [key])
@@ -459,10 +457,14 @@ export const upgradeFragment = async (
                 visit(item, {
                   kind: 'schema',
                   source: [...source, key, String(index)],
-                  output:
-                    wrapCompositions && compositions.includes(key)
-                      ? [...output, 'anyOf', '0', ...(key === 'allOf' && unwrapAllOf ? [] : [key, String(index)])]
-                      : [...output, key, String(index)],
+                  output: composition?.keywords.includes(key)
+                    ? [
+                        ...output,
+                        'anyOf',
+                        '0',
+                        ...(key === 'allOf' && composition.unwrapAllOf ? [] : [key, String(index)]),
+                      ]
+                    : [...output, key, String(index)],
                   consumes,
                   produces,
                   semanticPath: [...semanticPath, key, String(index)],

@@ -1,4 +1,6 @@
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { isObject } from '@scalar/helpers/object/is-object'
 import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
@@ -91,9 +93,15 @@ const getSchemaPath = (path: string[] | undefined, schemaPaths: ReadonlySet<stri
 }
 
 /** Bundles can contain whole OpenAPI documents or arbitrary fragments, not just schemas. */
-const getBundledSchemaPaths = (content: UnknownObject): ReadonlySet<string> => {
+const getBundledSchemaPaths = (
+  content: UnknownObject,
+  preservedResources: ReadonlySet<string>,
+): ReadonlySet<string> => {
   const references: { path: string[]; target: string[] }[] = []
   traverse(content, (node, path = []) => {
+    if (path[0] === 'x-ext' && preservedResources.has(path[1] ?? '')) {
+      return node
+    }
     if (typeof node.$ref === 'string' && node.$ref.startsWith('#/x-ext/')) {
       try {
         references.push({ path, target: parseJsonPointerSegments(node.$ref.slice(1)) })
@@ -143,6 +151,58 @@ function isNullableOnly(schema: UnknownObject): boolean {
   return Object.keys(schema).every((key) => key === 'nullable' || ANNOTATION_KEYWORDS.has(key) || key.startsWith('x-'))
 }
 
+type NullableComposition = { base: unknown; keywords: string[]; unwrapAllOf: boolean }
+
+/** Plan nullable composition wrapping consistently for migrations and reference locations. */
+export const getNullableComposition = (schema: UnknownObject): NullableComposition | undefined => {
+  if (schema.nullable !== true || schema.type !== undefined || typeof schema.$ref === 'string') {
+    return undefined
+  }
+  const keywords = ['allOf', 'anyOf', 'oneOf'].filter((keyword) => Array.isArray(schema[keyword]))
+  if (keywords.length === 0) {
+    return undefined
+  }
+  const { allOf, anyOf, oneOf } = schema
+  const composition = {
+    ...(allOf === undefined ? {} : { allOf }),
+    ...(anyOf === undefined ? {} : { anyOf }),
+    ...(oneOf === undefined ? {} : { oneOf }),
+  }
+  const unwrapAllOf = Object.keys(composition).length === 1 && Array.isArray(allOf) && allOf.length === 1
+  return { base: unwrapAllOf && Array.isArray(allOf) ? allOf[0] : composition, keywords, unwrapAllOf }
+}
+
+/** Keep local references pointing at the same subschema when composition members move. */
+const relocateReference = (ref: string, compositions: ReadonlyMap<string, NullableComposition>): string => {
+  if (!ref.startsWith('#/')) {
+    return ref
+  }
+  let segments: string[]
+  try {
+    segments = parseJsonPointerSegments(ref.slice(1))
+  } catch {
+    return ref
+  }
+  const output: string[] = []
+  for (let index = 0; index < segments.length; index++) {
+    const keyword = segments[index]!
+    const composition = compositions.get(JSON.stringify(segments.slice(0, index)))
+    if (composition?.keywords.includes(keyword)) {
+      output.push('anyOf', '0')
+      if (keyword === 'allOf' && composition.unwrapAllOf && segments[index + 1] === '0') {
+        index++
+      } else {
+        output.push(keyword)
+      }
+    } else {
+      output.push(keyword)
+    }
+  }
+  return output.every((segment, index) => segment === segments[index]) && output.length === segments.length
+    ? ref
+    : `#/${output.map((segment) => encodeURIComponent(escapeJsonPointer(segment))).join('/')}`
+}
+
 /**
  * Upgrade from OpenAPI 3.0.x to 3.1.1
  *
@@ -158,9 +218,48 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
 
   content.openapi = '3.1.1'
 
-  // Single traversal that handles all transformations
-  const schemaPaths = getBundledSchemaPaths(content)
-  content = traverse(content, (node, path) => applyChangesToDocument(node, getSchemaPath(path, schemaPaths)))
+  const resources = content['x-ext']
+  const preservedResources = new Set(
+    isObject(resources)
+      ? Object.keys(resources).filter((key) => {
+          const resource = resources[key]
+          return (
+            isObject(resource) &&
+            ((typeof resource.openapi === 'string' && !resource.openapi.startsWith('3.0')) ||
+              typeof resource.swagger === 'string' ||
+              typeof resource.$schema === 'string')
+          )
+        })
+      : [],
+  )
+  const isPreservedResource = (path: string[] | undefined): boolean =>
+    path?.[0] === 'x-ext' && preservedResources.has(path[1] ?? '')
+  const schemaPaths = getBundledSchemaPaths(content, preservedResources)
+  const compositions = new Map<string, NullableComposition>()
+  // Record moves in the original tree before applying them, including nested compositions.
+  traverse(content, (node, path = []) => {
+    const schemaPath = getSchemaPath(path, schemaPaths)
+    const composition = getNullableComposition(node)
+    if (
+      !isPreservedResource(path) &&
+      composition &&
+      isSchemaObjectPath(schemaPath) &&
+      !isInsideDataValue(schemaPath, '3.0')
+    ) {
+      compositions.set(JSON.stringify(path), composition)
+    }
+    return node
+  })
+  content = traverse(content, (node, path) => {
+    if (isPreservedResource(path)) {
+      return node
+    }
+    const schemaPath = getSchemaPath(path, schemaPaths)
+    if (typeof node.$ref === 'string' && !isInsideDataValue(schemaPath, '3.0') && !isInsideExtension(schemaPath)) {
+      node.$ref = relocateReference(node.$ref, compositions)
+    }
+    return applyChangesToDocument(node, schemaPath)
+  })
 
   return content as OpenAPIV3_1.Document
 }
@@ -174,6 +273,7 @@ export const applyChangesToDocument = (schema: UnknownObject, path?: string[]) =
 
   // Only schema keywords migrate: a property named `nullable` or an extension payload is data.
   if (isSchemaObjectPath(path)) {
+    const composition = getNullableComposition(schema)
     if (schema.type !== undefined && schema.nullable === true) {
       schema.type = [schema.type, 'null']
     } else if (schema.nullable === true) {
@@ -181,17 +281,9 @@ export const applyChangesToDocument = (schema: UnknownObject, path?: string[]) =
       if (typeof schema.$ref === 'string') {
         schema.anyOf = [{ $ref: schema.$ref }, { type: 'null' }]
         delete schema.$ref
-      } else if (['allOf', 'anyOf', 'oneOf'].some((keyword) => Array.isArray(schema[keyword]))) {
-        const { allOf, anyOf, oneOf } = schema
-        const composition = {
-          ...(allOf === undefined ? {} : { allOf }),
-          ...(anyOf === undefined ? {} : { anyOf }),
-          ...(oneOf === undefined ? {} : { oneOf }),
-        }
+      } else if (composition) {
         // Keep sibling constraints and annotations outside the union, as for nullable references.
-        const base =
-          Object.keys(composition).length === 1 && Array.isArray(allOf) && allOf.length === 1 ? allOf[0] : composition
-        schema.anyOf = [base, { type: 'null' }]
+        schema.anyOf = [composition.base, { type: 'null' }]
         delete schema.allOf
         delete schema.oneOf
       } else if (isUnionArm(path) && isNullableOnly(schema)) {
