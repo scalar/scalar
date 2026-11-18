@@ -144,6 +144,7 @@ allowBuilds:
 # pnpm 12 no longer reads the "pnpm" field in package.json; overrides live here now.
 overrides:
   # Postman 5 pins vulnerable Faker 5; the collection patch migrates its generators.
+  # Workspace Node 24 supports requiring Faker 10 ES modules from Postman CommonJS.
   # TODO: Remove this override and patch when Postman supports patched Faker.
   'postman-collection>@faker-js/faker': catalog:*
   # Firestore pins gRPC to 1.9, which still has authentication vulnerabilities.
@@ -177,29 +178,15 @@ overrides:
 minimumReleaseAge: 1440 # 1 day
 
 minimumReleaseAgeExclude:
-  # AI SDK update removes its transitive Undici dependency.
-  - ai@7.0.171
-  - '@ai-sdk/vue@4.0.171'
-  - '@ai-sdk/gateway@4.0.144'
+  # AI SDK security update still present in the lockfile.
   - '@ai-sdk/provider@4.0.38'
-  - '@ai-sdk/provider-utils@5.0.80'
-  # Reviewed Nest security update to replace vulnerable Fastify and Multer pins.
-  - '@nestjs/common@11.2.9'
-  - '@nestjs/core@11.2.9'
-  - '@nestjs/platform-express@11.2.9'
-  - '@nestjs/platform-fastify@11.2.9'
-  - '@nestjs/testing@11.2.9'
   # Trust packages published by Scalar.
   - '@scalar/*'
   # Security patches for the November 2026 Undici advisories.
   - undici@7.30.2
   - undici@8.12.4
-  # Renovate security update: hono@4.13.16
-  - hono@4.13.16
   # Renovate security update: nuxt@4.6.4
   - nuxt@4.6.4
-  # Renovate security update: next@16.4.5
-  - next@16.4.5
 patchedDependencies:
   postman-collection@5.3.1: patches/postman-collection@5.3.1.patch
   proto-parser@0.0.9: patches/proto-parser@0.0.9.patch
