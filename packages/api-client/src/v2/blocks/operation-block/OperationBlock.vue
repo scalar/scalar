@@ -218,6 +218,10 @@ defineEmits<{ (e: 'retry:externalExamples'): void }>()
 
 const { translate } = useLocalization()
 
+const openapiVersion = computed<string>(
+  () => document['x-original-oas-version'] || document.openapi,
+)
+
 /** Hoist up client generation so it doesn't get re-generated on every operation */
 const clientOptions = computed(() => generateClientOptions(httpClients))
 
@@ -306,7 +310,8 @@ const getAddressBarUrl = (allowMissingRequestServerBase = true): string => {
     server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
-    openapiVersion: document.openapi,
+    openapiVersion: openapiVersion.value,
+    jsonSchemaDialect: document.jsonSchemaDialect,
     requestBodyCompositionSelection,
   })
 
@@ -392,7 +397,8 @@ const handleExecute = async () => {
     server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
-    openapiVersion: document.openapi,
+    openapiVersion: openapiVersion.value,
+    jsonSchemaDialect: document.jsonSchemaDialect,
     requestBodyCompositionSelection,
   })
 
@@ -842,9 +848,10 @@ onBeforeUnmount(() => {
           :environment
           :eventBus
           :exampleKey
+          :jsonSchemaDialect="document.jsonSchemaDialect"
           :layout
           :method
-          :openapiVersion="document.openapi"
+          :openapiVersion
           :operation
           :options="toValue(options)"
           :path="requestPath"

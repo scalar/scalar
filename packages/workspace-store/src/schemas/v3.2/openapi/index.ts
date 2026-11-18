@@ -274,11 +274,16 @@ export const generateSchemaObject = (maybeRef: (inner: Schema) => Schema): Schem
   )
 
   const arrayValidationKeywords = object({
+    contains: optional(union([boolean(), maybeRef(lazy((): Schema => schema))])),
+    minContains: optional(number({ typeComment: 'Minimum number of items matching contains.' })),
+    maxContains: optional(number({ typeComment: 'Maximum number of items matching contains.' })),
     maxItems: optional(number({ typeComment: 'Maximum number of items in array.' })),
     minItems: optional(number({ typeComment: 'Minimum number of items in array.' })),
     uniqueItems: optional(boolean({ typeComment: 'Whether array items must be unique.' })),
-    items: optional(maybeRef(lazy((): Schema => schema))),
-    prefixItems: optional(array(maybeRef(lazy((): Schema => schema)), { typeComment: 'Schema for tuple validation.' })),
+    items: optional(union([boolean(), maybeRef(lazy((): Schema => schema))])),
+    prefixItems: optional(
+      array(union([boolean(), maybeRef(lazy((): Schema => schema))]), { typeComment: 'Schema for tuple validation.' }),
+    ),
   })
 
   const arraySchema = intersection(

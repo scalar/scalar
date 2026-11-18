@@ -9,7 +9,6 @@ import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
-import { upgrade } from '@scalar/openapi-upgrader'
 import { asyncApiObjectSchema } from '@scalar/schemas/asyncapi/3.1'
 import type { Record } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
@@ -22,8 +21,10 @@ import YAML from 'yaml'
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
 import type { OperationMeta } from '@/events/definitions/operation'
+import { loadInlineAsyncApiSchemaResources } from '@/helpers/async-api-schema-resources/load-inline'
 import { asyncApiModelChunkReference } from '@/helpers/asyncapi-model-chunk-reference'
 import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
+import { compactUpgradeMetadata } from '@/helpers/compact-upgrade-metadata'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { bumpDocumentRevision } from '@/helpers/document-revision'
@@ -51,6 +52,7 @@ import {
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
+import { asyncApiSchemaResources } from '@/plugins/bundler/async-api-schema-resources'
 import { codeSampleSources } from '@/plugins/bundler/code-sample-sources'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
@@ -80,6 +82,8 @@ import type {
 } from '@/schemas/workspace'
 import type { WorkspaceSpecification } from '@/schemas/workspace-specification'
 import type { WorkspacePlugin, WorkspaceStateChangeEvent } from '@/workspace-plugin'
+
+import { upgradeDocuments } from './plugins/bundler/upgrade-documents'
 
 /**
  * Maximum number of external references and example `externalValue`s fetched at once while bundling
@@ -689,6 +693,7 @@ const METADATA_ONLY_DOCUMENT_KEYS = new Set<string>([
  */
 const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T): T => {
   const result = deepClone(input)
+  compactUpgradeMetadata(result)
   type BundlerKeys = 'x-ext' | 'x-ext-urls' | 'x-scalar-original-refs' | typeof PLUGIN_DOCUMENT_TYPE_KEY
   // Top level keys that need to be excluded from the original document
   // Nested keys are removed during the previous step of the bundler process
@@ -1213,6 +1218,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     if (isAsyncApiDocument(clonedRawInputDocument)) {
       // Capture the original version before the upgrader bumps `asyncapi` to the latest.
       const originalAasVersion = clonedRawInputDocument.asyncapi
+      if (originalAasVersion.startsWith('2.')) {
+        // Preserve the 2.x message-level schema format before upgrading its channel structure.
+        await loadInlineAsyncApiSchemaResources(
+          createMagicProxy(clonedRawInputDocument),
+          input.documentSource ?? '/',
+          loaders,
+        )
+      }
       // The upgrader is typed against the loose `UnknownObject` shape; the result is a valid
       // 3.x AsyncAPI document, so cast it back so the spread below still satisfies `AsyncApiDocument`.
       const upgradedAsyncApiDocument = withMeasurementSync(
@@ -1235,7 +1248,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             await bundle(getRaw(asyncApiDocument), {
               traversal: 'document',
               treeShake: false,
-              plugins: loaders,
+              plugins: [asyncApiSchemaResources(), ...loaders],
               urlMap: true,
               origin: input.documentSource,
             }),
@@ -1258,7 +1271,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return true
     }
 
-    const inputDocument = withMeasurementSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
+    const inputDocument = deepClone(clonedRawInputDocument)
 
     const strictDocument: UnknownObject = createMagicProxy(
       {
@@ -1266,7 +1279,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         // Partial API descriptions still need document traversal rather than standalone schema traversal.
         openapi: inputDocument.openapi ?? '',
         ...meta,
-        'x-original-oas-version': clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger,
+        'x-original-oas-version':
+          clonedRawInputDocument['x-original-oas-version'] ??
+          clonedRawInputDocument.openapi ??
+          clonedRawInputDocument.swagger,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
       },
@@ -1287,6 +1303,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             plugins: [
               ...loaders,
               codeSampleSources(),
+              upgradeDocuments(clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger),
               openApiDocument(),
               normalizeRefs(),
               externalValueResolver({ lazy: true }),
@@ -1457,6 +1474,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const authoredDocument = deepClone(rawDocument)
     restoreSecurityRequirements(authoredDocument)
     const original = (await bundle(authoredDocument, {
+      traversal: isAsyncApiDocument(authoredDocument) ? 'document' : undefined,
       plugins: [openApiDocument(), restoreOriginalRefs(), removeExtraScalarKeys()],
       treeShake: false,
       urlMap: true,
@@ -1762,12 +1780,17 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       return bundle(target, {
-        root: activeDocument,
+        inputPath: path,
         traversal: 'document',
+        root: activeDocument,
         origin: activeDocument?.['x-scalar-original-source-url'],
         treeShake: false,
         plugins: [
-          codeSampleSources(path),
+          ...(activeDocument && isOpenApiDocument(activeDocument)
+            ? [upgradeDocuments(activeDocument['x-original-oas-version'])]
+            : []),
+          codeSampleSources(),
+          asyncApiSchemaResources(),
           openApiDocument(),
           fetchUrls({
             fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,

@@ -12,6 +12,7 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
+import { generateContainsArray, getArrayDialect } from './array-contains'
 import { EXAMPLE_EVALUATION, type ExampleEvaluation, type ExampleEvaluationState } from './example-evaluation'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
@@ -987,6 +988,28 @@ const handleArraySchema = (
       }),
     ) ?? []
 
+  const counted = generateContainsArray(
+    schema,
+    values,
+    (item) =>
+      getExampleFromSchema(item as SchemaObject, options, {
+        level: level + 1,
+        schemaPath: [...schemaPath, 'items'],
+        seen,
+        dynamicScope: childScope,
+      }),
+    getArrayDialect(options?.jsonSchemaDialect, options?.originalOpenapiVersion ?? options?.openapiVersion),
+  )
+  if (counted) {
+    const items = 'items' in schema ? resolve.schema(schema.items) : undefined
+    const tag = items && 'xml' in items ? items.xml?.name : undefined
+    const result =
+      options?.xml && 'xml' in schema && schema.xml?.wrapped && tag
+        ? counted.map((item, index) => (index < (prefixes?.length ?? 0) ? item : { [tag]: item }))
+        : counted
+    return cache(schema, result, cacheKey, skipCache)
+  }
+
   if (prefixes && values.length >= minItems) {
     return cache(schema, values, cacheKey, skipCache)
   }
@@ -1142,12 +1165,18 @@ const handleArraySchema = (
     itemSchema === undefined ||
     target === true ||
     (target !== undefined && items && Object.keys(items).every((key) => ITEM_ANNOTATIONS.has(key)))
-  // The strict model does not yet expose contains, but runtime 3.1+ descriptions can provide it.
+  // Preserve best-effort sampling for complex contains schemas in recognized dialects.
+  // This fallback does not grade matches or enforce minContains/maxContains.
   const contains =
     'contains' in schema && schema.contains && typeof schema.contains === 'object' && !Array.isArray(schema.contains)
       ? resolve.schema(schema.contains as SchemaObject)
       : undefined
-  if (unrestricted && contains) {
+  if (
+    unrestricted &&
+    contains &&
+    getArrayDialect(options?.jsonSchemaDialect, options?.originalOpenapiVersion ?? options?.openapiVersion) !==
+      'unsupported'
+  ) {
     const sample = getExampleFromSchema(contains, options, {
       level: level + 1,
       schemaPath: [...schemaPath, 'contains'],
@@ -1210,6 +1239,12 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
 
 /** Options shared by data generation and schema-aware serializers. */
 export type GetExampleFromSchemaOptions = {
+  /** Declared document version; absent means a standalone modern schema. */
+  openapiVersion?: string
+  /** Original version when a loader upgraded the document. */
+  originalOpenapiVersion?: string
+  /** Default dialect, overridden by a schema resource's $schema. */
+  jsonSchemaDialect?: string
   /** Internal provenance capture, excluded from persistent result caches. */
   [EXAMPLE_EVALUATION]?: ExampleEvaluationState
   /** Preserve binary filename examples as File objects for multipart serializers. */
@@ -1231,6 +1266,9 @@ export type GetExampleFromSchemaOptions = {
 /** Create stable cache key from the options object */
 const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined) =>
   JSON.stringify({
+    openapiVersion: options?.openapiVersion,
+    originalOpenapiVersion: options?.originalOpenapiVersion,
+    jsonSchemaDialect: options?.jsonSchemaDialect,
     binaryAsFile: options?.binaryAsFile,
     emptyString: options?.emptyString,
     xml: options?.xml,
@@ -1792,6 +1830,10 @@ const generateExampleFromSchema = (
     return undefined
   }
 
+  if (typeof _schema.$schema === 'string') {
+    options = { ...options, jsonSchemaDialect: _schema.$schema }
+  }
+
   // Resolve a `$dynamicRef` against the active dynamic scope, then continue with the bound schema.
   // When nothing matches, fall through and render the reference as before (no regression).
   if (isDynamicRef(_schema)) {
@@ -2107,6 +2149,9 @@ export const getExampleFromSchema = (
   options?: GetExampleFromSchemaOptions,
   context: Parameters<typeof generateExampleFromSchema>[2] = {},
 ): unknown => {
+  if (schema && typeof schema === 'object' && '$schema' in schema && typeof schema.$schema === 'string') {
+    options = { ...options, jsonSchemaDialect: schema.$schema }
+  }
   const capture = options?.[EXAMPLE_EVALUATION]
   if (!capture) {
     const value = generateExampleFromSchema(schema, options, context)

@@ -35,18 +35,14 @@ npm install @scalar/pre-post-request-scripts
 ```ts
 import { createApiClientWeb } from '@scalar/api-client/layouts/Web'
 import { postResponseScriptsPlugin } from '@scalar/pre-post-request-scripts'
+
 import '@scalar/api-client/style.css'
 
-createApiClientWeb(
-  document.getElementById('app'),
-  {
-    proxyUrl: 'https://proxy.scalar.com',
-    // Load the plugin
-    plugins: [
-      postResponseScriptsPlugin()
-    ],
-  },
-)
+createApiClientWeb(document.getElementById('app'), {
+  proxyUrl: 'https://proxy.scalar.com',
+  // Load the plugin
+  plugins: [postResponseScriptsPlugin()],
+})
 ```
 
 ## Script Runtime
@@ -54,6 +50,12 @@ createApiClientWeb(
 - Uses the official Postman sandbox package: <https://github.com/postmanlabs/postman-sandbox>
 - Scripts run as Postman `test` scripts, so `pm.response`, `pm.test`, and `pm.expect` are provided by Postman
 - Script results are surfaced in the Tests panel via the plugin
+
+## Workspace dependency patch
+
+This repository overrides Postman Collection's Faker dependency and patches its dynamic-variable generators for Faker 10. Use Node.js 24 for workspace development, as specified in the root `.nvmrc`. Postman's CommonJS code loads Faker's ES modules with `require()`, which needs a compatible Node.js version; see the [Faker 10 migration guide](https://fakerjs.dev/guide/upgrading).
+
+The override and patch apply only to workspace installs. Published packages keep `postman-collection` external, so installing this package separately from npm still uses Postman's Faker 5 dependency. The workspace patch also does not update prebuilt vendor code.
 
 ## Community
 

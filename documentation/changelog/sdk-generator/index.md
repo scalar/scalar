@@ -8,6 +8,23 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.44.0 (2026-11-17)
+
+### Improved typing for wrapped references and AsyncAPI smoke testing
+
+Generated SDKs now name models directly at array elements, map values, and nullable branches instead of declaring per-site wrapper types. AsyncAPI documents with WebSocket channels can be smoke-tested, and gRPC RPCs transcoded to HTTP are also supported.
+
+- Models are now referenced by name at array elements, map values, and nullable branches instead of generating wrapper types like `Holder.List` or `HolderMapItem`.
+- AsyncAPI documents with only WebSocket channels can now be smoke-tested without an augmented OpenAPI document.
+- Smoke testing now supports gRPC RPCs transcoded to HTTP under `grpc.protocol: transcode`.
+- Open enums are now generated from unions of a free string and named constants, with each known value documented.
+- CLI flag names with invalid `customCasings` spellings now fall back to derived names and report the `Config/InvalidCliCasing` diagnostic.
+- Code sample formatters are only started for the targets being generated, reducing overhead when sampling additional languages.
+- Generated CLIs now write underscores in flag names as hyphens to ensure values are passed correctly.
+- Invalid casing spellings for CLI names are now rejected with a diagnostic rather than generating unparseable commands.
+- The `GenerateResult.irForTarget` method now returns a per-target projection with config methods expanded and unrenderable methods omitted.
+- Per-target IR projections now record omitted methods in `SdkIr.omittedMethods` and skipped union variants in `UnionType.targetSkippedVariants`.
+
 ## 0.43.1 (2026-11-14)
 
 ### Faster Kotlin and Java formatting with code sample improvements

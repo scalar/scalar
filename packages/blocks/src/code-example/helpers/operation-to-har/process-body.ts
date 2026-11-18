@@ -31,7 +31,7 @@ import type { OperationToHarProps } from './operation-to-har'
 
 type ProcessBodyProps = Pick<
   OperationToHarProps,
-  'contentType' | 'example' | 'requestBodyCompositionSelection' | 'openapiVersion'
+  'contentType' | 'example' | 'requestBodyCompositionSelection' | 'openapiVersion' | 'jsonSchemaDialect'
 > & {
   requestBody: RequestBodyObject
 }
@@ -229,6 +229,7 @@ export const processBody = ({
   contentType,
   example,
   openapiVersion,
+  jsonSchemaDialect,
   requestBodyCompositionSelection,
 }: ProcessBodyProps): PostData | undefined => {
   const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
@@ -247,6 +248,8 @@ export const processBody = ({
       { ...requestBody, 'x-scalar-selected-content-type': { [exampleName]: _contentType } },
       exampleName,
       requestBodyCompositionSelection,
+      openapiVersion,
+      jsonSchemaDialect,
     )
     if (body?.mode === 'multipart') {
       const encoded = serializeMultipartBody(body.value, body.contentType)
@@ -276,6 +279,7 @@ export const processBody = ({
       example ?? '',
       requestBodyCompositionSelection,
       openapiVersion,
+      jsonSchemaDialect,
     )
     return xmlExample ? { mimeType: harMimeType, text: xmlExample.value as string } : undefined
   }
@@ -364,6 +368,8 @@ export const processBody = ({
       {
         compositionSelection: requestBodyCompositionSelection,
         mode: 'write',
+        openapiVersion,
+        jsonSchemaDialect,
         binaryAsFile: _contentType === 'multipart/form-data',
       },
       {

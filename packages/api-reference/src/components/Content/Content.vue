@@ -14,6 +14,9 @@ import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
+  getSecurityRequirements,
+  getSecuritySchemes,
+  getSelectedSecurity,
   getSelectedServer,
   getServers,
   mergeSecurity,
@@ -274,6 +277,23 @@ const securitySchemes = computed(() => {
   )
 })
 
+/** Use the same document authentication selection as the introduction auth panel. */
+const sdkSecuritySchemes = computed(() => {
+  const documentName =
+    openApiClientDocument.value?.['x-scalar-navigation']?.name ?? ''
+  const selected = getSelectedSecurity(
+    authStore.getAuthSelectedSchemas({ type: 'document', documentName }),
+    undefined,
+    getSecurityRequirements(openApiClientDocument.value?.security),
+    securitySchemes.value,
+    options.authentication?.preferredSecurityScheme,
+  )
+  return getSecuritySchemes(
+    securitySchemes.value,
+    selected.selectedSchemes[selected.selectedIndex] ?? {},
+  )
+})
+
 /**
  * Wait for the active client document so initial auth updates can be persisted.
  *
@@ -401,6 +421,7 @@ provideDocumentOutline('document')
                 "
                 :eventBus
                 :featuredClients="options.featuredClients"
+                :securitySchemes="sdkSecuritySchemes"
                 :selectedClient="xScalarDefaultClient"
                 :xScalarSdkInstallation="sdkInstallation" />
             </IntroductionCardItem>

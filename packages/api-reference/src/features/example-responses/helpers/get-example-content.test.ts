@@ -5,6 +5,23 @@ import { describe, expect, it } from 'vitest'
 import { getExampleContent } from './get-example-content'
 
 describe('get-example-content', () => {
+  it.each([
+    { openapiVersion: '3.0.4', jsonSchemaDialect: undefined, expected: [1, 1, 1] },
+    { openapiVersion: '3.1.2', jsonSchemaDialect: undefined, expected: [2, 1, 1] },
+    { openapiVersion: '3.1.2', jsonSchemaDialect: 'http://json-schema.org/draft-07/schema#', expected: [2, 1, 1] },
+  ])('uses response document dialect: %j', ({ expected, ...options }) => {
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 3,
+      maxItems: 3,
+      contains: { const: 2 },
+      minContains: options.jsonSchemaDialect ? 0 : 1,
+      maxContains: options.jsonSchemaDialect ? 0 : 1,
+    } as SchemaObject
+    expect(JSON.parse(getExampleContent({ schema }, undefined, options)!)).toStrictEqual(expected)
+  })
+
   it.each([false, true])('generates finite recursive array examples with a root reference: %s', (rootReference) => {
     const schema: SchemaObject = {
       type: 'object',

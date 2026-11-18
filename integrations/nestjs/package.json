@@ -75,7 +75,7 @@
     "@types/express": "catalog:*",
     "@types/supertest": "catalog:*",
     "express": "catalog:*",
-    "fastify": "^5.12.7",
+    "fastify": "^5.12.8",
     "supertest": "catalog:*",
     "tsup": "^9.0.0",
     "vitest": "catalog:*"

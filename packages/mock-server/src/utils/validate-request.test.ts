@@ -1620,4 +1620,66 @@ describe('validate-request', () => {
       violations: [{ location: 'body', path: '/1', message: 'must be multiple of 0.01' }],
     })
   })
+  describe('patterns that only parse without the unicode flag', () => {
+    const ZIP_PATTERN = String.raw`^\d{5}(\-\d{4})?$`
+
+    it.each([
+      [{}, 422],
+      [{ name: 'x', zip: '12345-6789' }, 200],
+      [{ name: 'x', zip: '1234' }, 422],
+    ])('keeps body validation on for %j', async (body, status) => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const document = documentWith('/addresses', 'post', {
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name'],
+                properties: { name: { type: 'string' }, zip: { type: 'string', pattern: ZIP_PATTERN } },
+              },
+            },
+          },
+        },
+      })
+      const server = await createMockServer({ document, validateRequest: true })
+
+      const response = await server.request('/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
+      expect(response.status).toBe(status)
+
+      consoleErrorSpy.mockRestore()
+    })
+
+    it.each([
+      ['/addresses', {}, 422],
+      ['/addresses?limit=5', { 'X-Zip': '12345-6789' }, 200],
+      ['/addresses?limit=5&zip=12345-6789', {}, 200],
+      ['/addresses?limit=5&zip=1234', {}, 422],
+      ['/addresses?limit=5', { 'X-Zip': '1234' }, 422],
+    ])('keeps parameter validation on for %s with headers %j', async (url, headers, status) => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const document = documentWith('/addresses', 'get', {
+        parameters: [
+          { name: 'limit', in: 'query', required: true, schema: { type: 'integer' } },
+          { name: 'zip', in: 'query', schema: { type: 'string', pattern: ZIP_PATTERN } },
+          { name: 'X-Zip', in: 'header', schema: { type: 'string', pattern: ZIP_PATTERN } },
+        ],
+      })
+      const server = await createMockServer({ document, validateRequest: true })
+
+      const response = await server.request(url, { headers })
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
+      expect(response.status).toBe(status)
+
+      consoleErrorSpy.mockRestore()
+    })
+  })
 })
