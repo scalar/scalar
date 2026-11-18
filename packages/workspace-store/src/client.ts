@@ -26,6 +26,7 @@ import {
   type AsyncApiSchemaResourceResolver,
   createAsyncApiSchemaResourceResolver,
 } from '@/helpers/async-api-schema-resources/resolver'
+import { createNativeSchemaEditTracker } from '@/helpers/async-api-schema-resources/track-edits'
 import { asyncApiModelChunkReference } from '@/helpers/asyncapi-model-chunk-reference'
 import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { compactUpgradeMetadata } from '@/helpers/compact-upgrade-metadata'
@@ -756,15 +757,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   const extraDocumentConfigurations: ExtraDocumentConfigurations = {}
   const nativeSchemaResolvers = new WeakMap<object, AsyncApiSchemaResourceResolver>()
   const nativeSchemaEdits = new WeakSet<object>()
-  const invalidateNativeSchemas = (document: object, path: (string | number)[]): void => {
+  const trackNativeSchemaEdits = createNativeSchemaEditTracker()
+  const invalidateNativeSchemas = (document: object, path: string[]): void => {
     // Resolving a lazy chunk is not an authored edit: keep shared downloads and document budgets intact.
     const key = path.at(-1)
+    const parent = key === '$ref' ? getValueAtPath(document, path.slice(0, -1)) : undefined
     if (
       !path.length ||
       key === '$ref-value' ||
       key === '$status' ||
       key === 'x-scalar-schema-resources' ||
-      String(path[0]).startsWith('x-scalar-')
+      path[0] === 'x-ext-urls' ||
+      (path[0] === 'x-ext' && path.length <= 2) ||
+      (key === '$ref' && isObject(parent) && parent.$status === 'loading') ||
+      path[0]?.startsWith('x-scalar-')
     )
       return
     const raw = unpackProxyShallow(document)
@@ -850,7 +856,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 // Every write through the store passes here, which is what makes the revision a
                 // complete record of the document changing.
                 bumpDocumentRevision(document)
-                invalidateNativeSchemas(document, path.slice(2) as (string | number)[])
+                invalidateNativeSchemas(document, path.slice(2))
                 const event = {
                   type: 'documents',
                   documentName,
@@ -880,7 +886,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                   'x-scalar-original-document-hash': '',
                 }
                 bumpDocumentRevision(document)
-                invalidateNativeSchemas(document, path.slice(1) as (string | number)[])
+                invalidateNativeSchemas(document, path.slice(1))
                 // Active document changed
                 const event = {
                   type: 'documents',
@@ -1660,6 +1666,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const document = workspace.documents[name]
       if (!document) return fallbackNativeSchemas
       const raw = unpackProxyShallow(document)
+      if (!isReactiveWorkspace && trackNativeSchemaEdits(raw)) {
+        nativeSchemaResolvers.delete(raw)
+        nativeSchemaEdits.add(raw)
+      }
       const cached = nativeSchemaResolvers.get(raw)
       if (cached) return cached
       const resolve = createAsyncApiSchemaResourceResolver({
@@ -1801,7 +1811,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         path[0] === 'components' &&
         path[1] === 'schemas'
       ) {
-        const node = getRaw(target)
+        const node = unpackProxyShallow(target)
         const name = path[2]
         if (name && typeof node.$ref === 'string' && node.$global === true) {
           node.$ref = asyncApiModelChunkReference(node.$ref, name)

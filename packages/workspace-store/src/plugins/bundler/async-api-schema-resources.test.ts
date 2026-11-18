@@ -398,40 +398,50 @@ describe('async-api-schema-resources', () => {
       }
     },
   )
-  it('invalidates downloaded files after an in-place schema edit', async () => {
-    const requested: string[] = []
-    let dependency = user
-    const store = createWorkspaceStore({
-      fetch: (input) => {
-        requested.push(String(input))
-        return Promise.resolve(new Response(dependency))
-      },
-    })
-    await store.addDocument({ name: 'test', document: document(), documentSource: 'https://example.test/api.yaml' })
-    const loaded = store.workspace.documents.test
-    if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
-    const model = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.components)?.schemas?.User)
-    const first = await expand(store, model)
-    expect(first).toStrictEqual({
-      kind: 'source',
-      format,
-      value,
-      resources: { origin: 'https://example.test/api.yaml', files: { 'https://example.test/types/user.proto': user } },
-    })
-    if (!isObject(model) || !('schema' in model)) throw new Error('Missing native schema')
-    dependency = 'syntax="proto3"; message User { string updated=1; }'
-    model.schema = value + '\n// Edited'
-    expect(await expand(store, model)).toStrictEqual({
-      kind: 'source',
-      format,
-      value: value + '\n// Edited',
-      resources: {
-        origin: 'https://example.test/api.yaml',
-        files: { 'https://example.test/types/user.proto': dependency },
-      },
-    })
-    expect(requested).toStrictEqual(['https://example.test/types/user.proto', 'https://example.test/types/user.proto'])
-  })
+  it.each([true, false])(
+    'invalidates downloaded files after an in-place schema edit (reactive: %s)',
+    async (reactive) => {
+      const requested: string[] = []
+      let dependency = user
+      const store = createWorkspaceStore({
+        reactive,
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.resolve(new Response(dependency))
+        },
+      })
+      await store.addDocument({ name: 'test', document: document(), documentSource: 'https://example.test/api.yaml' })
+      const loaded = store.workspace.documents.test
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      const model = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.components)?.schemas?.User)
+      const first = await expand(store, model)
+      expect(first).toStrictEqual({
+        kind: 'source',
+        format,
+        value,
+        resources: {
+          origin: 'https://example.test/api.yaml',
+          files: { 'https://example.test/types/user.proto': user },
+        },
+      })
+      if (!isObject(model) || !('schema' in model)) throw new Error('Missing native schema')
+      dependency = 'syntax="proto3"; message User { string updated=1; }'
+      model.schema = value + '\n// Edited'
+      expect(await expand(store, model)).toStrictEqual({
+        kind: 'source',
+        format,
+        value: value + '\n// Edited',
+        resources: {
+          origin: 'https://example.test/api.yaml',
+          files: { 'https://example.test/types/user.proto': dependency },
+        },
+      })
+      expect(requested).toStrictEqual([
+        'https://example.test/types/user.proto',
+        'https://example.test/types/user.proto',
+      ])
+    },
+  )
   it('retains shared downloads when lazy resolution metadata arrives', async () => {
     const requested: string[] = []
     const store = createWorkspaceStore({
@@ -470,5 +480,53 @@ describe('async-api-schema-resources', () => {
     if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
     await expand(store, getResolvedAsyncApiRef(loaded.components)?.schemas?.User)
     expect(requested).toStrictEqual(['https://example.test/types/user.proto'])
+  })
+  it.each([true, false])('retains portable native graphs across actual SSR chunks (reactive: %s)', async (reactive) => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-lazy-native-chunks-'))
+    const origin = path.join(directory, 'api.json')
+    try {
+      await fs.mkdir(path.join(directory, 'types'))
+      await fs.writeFile(origin, JSON.stringify(document()))
+      await fs.writeFile(path.join(directory, 'types/user.proto'), user)
+      const server = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://docs.example.test',
+        documentLoading: { basePath: directory },
+        documents: [{ name: 'test', path: origin }],
+      })
+      const requested: string[] = []
+      const store = createWorkspaceStore({
+        reactive,
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.resolve(new Response(JSON.stringify(server.get(String(input)))))
+        },
+      })
+      await store.addDocument({ name: 'test', document: server.getWorkspace().documents.test! })
+      store.update('x-scalar-active-document', 'test')
+      const resolver = store.asyncApiSchemaResources('test')
+      await store.resolve(['components', 'schemas', 'User'])
+      const loaded = store.workspace.documents.test
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      expect(store.asyncApiSchemaResources('test')).toBe(resolver)
+      expect(await expand(store, getResolvedAsyncApiRef(loaded.components)?.schemas?.User)).toStrictEqual({
+        kind: 'source',
+        format,
+        value,
+        resources: { origin, files: { [path.join(directory, 'types/user.proto')]: user } },
+      })
+      await store.resolve(['channels', 'users'])
+      expect(store.asyncApiSchemaResources('test')).toBe(resolver)
+      expect(requested).toStrictEqual([
+        'https://docs.example.test/test/asyncapi/models/User',
+        'https://docs.example.test/test/asyncapi/channels/users',
+      ])
+      const model = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.components)?.schemas?.User)
+      if (!isObject(model) || !('schema' in model)) throw new Error('Missing native schema')
+      model.schema += '\n// Edited inside an external chunk'
+      expect(store.asyncApiSchemaResources('test')).not.toBe(resolver)
+    } finally {
+      await fs.rm(directory, { recursive: true, force: true })
+    }
   })
 })
