@@ -18,6 +18,22 @@ import { EXAMPLE_EVALUATION, type ExampleEvaluation, type ExampleEvaluationState
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
 
+/**
+ * How many schemas one example may visit at full depth. An example that fits is rendered exactly as the
+ * depth cap alone would render it.
+ *
+ * The depth cap bounds how deep the walk goes, not how wide. References to schemas that reference each
+ * other branch at every level, so a handful of them per schema is enough for the walk to never finish.
+ * The largest examples in big real-world documents (Stripe, GitHub, Kubernetes) stay just below this.
+ */
+const MAX_EXAMPLE_VISITS = 10_000
+
+/**
+ * How many schemas each shallower attempt may visit once an example does not fit at full depth. An example
+ * this large is already long to read, and up to nine of these attempts can run for a single example.
+ */
+const MAX_REDUCED_EXAMPLE_VISITS = 2_000
+
 /** Default name used for additional properties when no custom name is provided */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
@@ -142,17 +158,32 @@ const guessFromFormat = (
 const resultCache = new WeakMap<object, Map<string, unknown>>()
 
 /**
- * Set once the depth cap has truncated something in the current top-level call.
+ * Set once the depth cap has truncated something in the current attempt, or the attempt ran out of visits.
  *
  * A truncated value only holds at the level it was produced at, but `resultCache` keys carry no level,
  * so a value assembled around one must not be stored. Composition reaches that case: an `allOf` member
  * climbs a level without growing `schemaPath`, so a schema rendered just above the cap in one chain
  * shares its key with the same schema used at the top of a document, and the shallow use is served the
  * truncated result. Widening the key would cost the cache its hits everywhere, so storing simply stops
- * for the rest of the call instead. The walk is synchronous, so resetting at level 0 scopes this to one
- * top-level call.
+ * for the rest of the attempt instead. The walk is synchronous, so resetting at level 0 scopes this to one
+ * attempt.
  */
 let truncated = false
+
+/** The depth cap of the attempt in progress. */
+let levelsDeep = MAX_LEVELS_DEEP
+
+/** Schemas the attempt in progress may still visit. Below zero, the attempt has been abandoned. */
+let visitsLeft = MAX_EXAMPLE_VISITS
+
+/** Whether an attempt is in progress, so that the calls it makes join it instead of starting another. */
+let isGenerating = false
+
+/**
+ * What the attempt in progress has cached. An abandoned attempt removes its entries: they would make the
+ * next call for the same schema cheaper, and so give it a different example than this one.
+ */
+let attemptCacheEntries: [entries: Map<string, unknown>, key: string][] = []
 
 /** Prevent cached containers from retaining generated dates and times across calls. */
 let generatedCurrentTime = false
@@ -207,6 +238,7 @@ const cache = (schema: SchemaObject, result: unknown, cacheKey: string, skip = f
   const cacheMap = resultCache.get(rawSchema) ?? new Map()
   if (cacheMap) {
     cacheMap.set(cacheKey, result)
+    attemptCacheEntries.push([cacheMap, cacheKey])
   }
   resultCache.set(rawSchema, cacheMap)
   return result
@@ -709,7 +741,7 @@ const handleObjectSchema = (
   // Past the cap only the properties the object requires are rendered: optional ones are what the cap
   // exists to stop descending into. Composition members share the names of the object they belong to.
   const required =
-    level > MAX_LEVELS_DEEP
+    level > levelsDeep
       ? (memberRequiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level, seen, dynamicScope))
       : undefined
 
@@ -1311,17 +1343,17 @@ const MAX_DEPTH_EXCEEDED = '[Max Depth Exceeded]'
 const MAX_COMPOSITION_DEPTH = MAX_LEVELS_DEEP * 5
 
 /**
- * How deep the walk keeps going past `MAX_LEVELS_DEEP` to fill the properties a truncated object requires.
+ * How deep the walk goes to fill what a truncated object requires, as a multiple of the depth cap.
  *
  * Past the cap the walk still renders objects, but only their required properties, so a strict decoder
- * reading the example finds every key it insists on. This level bounds that, well below the XML
- * serializer's depth limit of 50 (which discards the whole body when crossed), and past it objects
+ * reading the example finds every key it insists on. At full depth this stops at level 20, well below the
+ * XML serializer's depth limit of 50 (which discards the whole body when crossed), and past it objects
  * stand in empty again.
  */
-const MAX_REQUIRED_LEVELS_DEEP = MAX_LEVELS_DEEP * 2
+const REQUIRED_LEVELS_FACTOR = 2
 
 /**
- * How many schemas the walk may enter past `MAX_LEVELS_DEEP` in one top-level call.
+ * How many schemas the walk may enter past the depth cap in one attempt.
  *
  * Cycle guards stop a schema that requires itself, but not a chain of distinct schemas that each point
  * at the next one twice, through two required properties or an `allOf` that lists the same member
@@ -1329,8 +1361,14 @@ const MAX_REQUIRED_LEVELS_DEEP = MAX_LEVELS_DEEP * 2
  */
 const MAX_REQUIRED_STEPS = 10_000
 
-/** Schemas the walk may still enter past `MAX_LEVELS_DEEP` in the current top-level call. */
+/** Schemas the walk may still enter past the depth cap in the current attempt. */
 let requiredSteps = MAX_REQUIRED_STEPS
+
+/**
+ * How many steps of the search for required properties cost an attempt one visit. Ordinary compositions
+ * take a few steps and cost nothing; one that keeps exhausting the search soon uses up the attempt.
+ */
+const REQUIRED_STEPS_PER_VISIT = 25
 
 /** Cache requirements within one walk; generated discriminator values may select a new branch next time. */
 let compositionRequiredNamesCache = new WeakMap<object, Map<string, ReadonlySet<string>>>()
@@ -1469,7 +1507,7 @@ const getCompositionRequiredNames = (
     const keyword = current.schema.oneOf ? 'oneOf' : current.schema.anyOf ? 'anyOf' : undefined
     if (keyword) {
       const discriminator = current.schema.discriminator
-      const requiredOnly = level + current.depth > MAX_LEVELS_DEEP
+      const requiredOnly = level + current.depth > levelsDeep
       const omittedDiscriminator =
         requiredOnly &&
         discriminator?.defaultMapping !== undefined &&
@@ -1535,6 +1573,9 @@ const getCompositionRequiredNames = (
     }
   }
 
+  // A long search does the work of many visits, so the attempt pays for it.
+  visitsLeft -= Math.floor(Math.min(MAX_REQUIRED_STEPS, MAX_REQUIRED_STEPS - steps) / REQUIRED_STEPS_PER_VISIT)
+
   if (dynamicScope.length === 0) {
     const contexts = compositionRequiredNamesCache.get(root) ?? new Map<string, ReadonlySet<string>>()
     contexts.set(cacheKey, names)
@@ -1544,7 +1585,7 @@ const getCompositionRequiredNames = (
 }
 
 /**
- * Whether the walk keeps rendering a schema past `MAX_LEVELS_DEEP` to fill its required properties.
+ * Whether the walk keeps rendering a schema past the depth cap to fill its required properties.
  *
  * Only an object or composition with a property marked `required` qualifies, either somewhere in its
  * own compositions or, for a composition member, in the object it belongs to (`requiredScope`):
@@ -1815,13 +1856,20 @@ const generateExampleFromSchema = (
     isRequiredProperty: boolean
   }> = {},
 ): unknown => {
-  // Cache restrictions only apply to the current traversal, so every top-level call starts clean.
+  // Cache restrictions only apply to the current traversal, so every attempt starts clean.
   if (level === 0) {
     truncated = false
     generatedCurrentTime = false
     requiredSteps = MAX_REQUIRED_STEPS
     compositionRequiredNamesCache = new WeakMap()
     discriminatorExamples = new WeakMap()
+  }
+
+  // The attempt is over budget and will be discarded. Anything finished from here on is missing children,
+  // so it must not reach the cache either.
+  if (--visitsLeft < 0) {
+    truncated = true
+    return undefined
   }
 
   // Resolve any $ref references to get the actual schema
@@ -1869,7 +1917,10 @@ const generateExampleFromSchema = (
   seen.add(targetValue)
 
   /** Make the cache key unique per options and schema path */
-  const cacheKey = getOptionsCacheKey(options, level) + (schemaPath.length > 0 ? `:path:${schemaPath.join('.')}` : '')
+  const cacheKey =
+    getOptionsCacheKey(options, level) +
+    (levelsDeep === MAX_LEVELS_DEEP ? '' : `:depth:${levelsDeep}`) +
+    (schemaPath.length > 0 ? `:path:${schemaPath.join('.')}` : '')
 
   // Check cache first for performance - avoid recomputing the same schema (skipped under a dynamic scope)
   if (!skipCache) {
@@ -1937,18 +1988,19 @@ const generateExampleFromSchema = (
   // every rule that applies at a shallower level (read/write omission, composition selection, variables,
   // binary files) applies to them too. Required primitive compositions use the same walk so their
   // members retain those rules as well; arrays and anything past the bounds still stand in.
-  if (level > MAX_LEVELS_DEEP) {
+  if (level > levelsDeep) {
     if (
+      level > levelsDeep * REQUIRED_LEVELS_FACTOR ||
+      requiredSteps <= 0 ||
       (!(isRequiredProperty && getEmptyContainer(_schema) === undefined) &&
-        !fillsRequiredProperties(_schema, requiredScope, options, schemaPath, level, seen, dynamicScope)) ||
-      level > MAX_REQUIRED_LEVELS_DEEP ||
-      requiredSteps <= 0
+        !fillsRequiredProperties(_schema, requiredScope, options, schemaPath, level, seen, dynamicScope))
     ) {
       seen.delete(targetValue)
 
       // Deliberately not cached: the value holds only at this level, and the cache key carries none.
       // Constraint-only composition members must not replace a sibling's required fields with the depth marker.
-      const fallback = isRequiredProperty || requiredScope?.size ? null : MAX_DEPTH_EXCEEDED
+      // Neither must a shallower attempt show it where a full walk would have rendered the schema.
+      const fallback = isRequiredProperty || requiredScope?.size || level <= MAX_LEVELS_DEEP ? null : MAX_DEPTH_EXCEEDED
       return getMaxDepthValue(_schema, options, schemaPath, undefined, fallback)
     }
     requiredSteps--
@@ -2140,13 +2192,10 @@ const asBinaryFile = (
   return value
 }
 
-/**
- * Generate data, optionally retaining the exact schema decisions for another output format.
- * Treat returned values as read-only: cached results and padded items can share object references.
- */
-export const getExampleFromSchema = (
+/** Generate data for one schema within the attempt in progress. */
+const generateWithCapture = (
   schema: SchemaObject,
-  options?: GetExampleFromSchemaOptions,
+  options: GetExampleFromSchemaOptions | undefined,
   context: Parameters<typeof generateExampleFromSchema>[2] = {},
 ): unknown => {
   if (schema && typeof schema === 'object' && '$schema' in schema && typeof schema.$schema === 'string') {
@@ -2177,5 +2226,73 @@ export const getExampleFromSchema = (
     return node.value
   } finally {
     capture.stack.pop()
+  }
+}
+
+/** One complete walk at a fixed depth, with the evaluation it recorded for other output formats. */
+type ExampleAttempt = { value: unknown; evaluation: ExampleEvaluation | undefined }
+
+/** Walks at one depth cap, returning nothing when the walk does not fit in the given number of visits. */
+const attemptExample = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  context: Parameters<typeof generateExampleFromSchema>[2],
+  depth: number,
+  visits: number,
+): ExampleAttempt | undefined => {
+  levelsDeep = depth
+  visitsLeft = visits
+  attemptCacheEntries = []
+  const value = generateWithCapture(schema, options, context)
+  if (visitsLeft < 0) {
+    for (const [entries, key] of attemptCacheEntries) {
+      entries.delete(key)
+    }
+    return undefined
+  }
+  return { value, evaluation: options?.[EXAMPLE_EVALUATION]?.root }
+}
+
+/**
+ * Generate data, optionally retaining the exact schema decisions for another output format.
+ * Treat returned values as read-only: cached results and padded items can share object references.
+ *
+ * An example too large to render at full depth is rendered at the deepest depth that fits instead, so
+ * every branch is cut at the same level rather than the first ones using up the budget.
+ */
+export const getExampleFromSchema = (
+  schema: SchemaObject,
+  options?: GetExampleFromSchemaOptions,
+  context: Parameters<typeof generateExampleFromSchema>[2] = {},
+): unknown => {
+  if (isGenerating) {
+    return generateWithCapture(schema, options, context)
+  }
+
+  isGenerating = true
+  try {
+    const full = attemptExample(schema, options, context, MAX_LEVELS_DEEP, MAX_EXAMPLE_VISITS)
+    if (full) {
+      return full.value
+    }
+
+    // At depth zero every child stands in, so this walk is only as long as the root is wide.
+    let kept = attemptExample(schema, options, context, 0, Number.POSITIVE_INFINITY)!
+    for (let depth = 1; depth < MAX_LEVELS_DEEP; depth++) {
+      const attempt = attemptExample(schema, options, context, depth, MAX_REDUCED_EXAMPLE_VISITS)
+      if (!attempt) {
+        break
+      }
+      kept = attempt
+    }
+
+    const capture = options?.[EXAMPLE_EVALUATION]
+    if (capture) {
+      // The last walk may be one that was abandoned.
+      capture.root = kept.evaluation
+    }
+    return kept.value
+  } finally {
+    isGenerating = false
   }
 }

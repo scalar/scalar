@@ -5,6 +5,7 @@ import { assert, describe, expect, it, vi } from 'vitest'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
+import { EXAMPLE_EVALUATION, type ExampleEvaluationState } from './example-evaluation'
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
@@ -3515,6 +3516,206 @@ describe('getExampleFromSchema', () => {
         'foobar': [['foobar']],
       },
     ])
+  })
+
+  describe('example size budget', () => {
+    /** A resolved component reference, the shape `snapshotSchema` hands to the generator. */
+    const reference = (name: string, target: SchemaObject): SchemaObject =>
+      ({ $ref: `#/components/schemas/${name}`, '$ref-value': target }) as unknown as SchemaObject
+
+    /** An object with an `id` and several properties that reference the object itself. */
+    const selfReferencing = (count: number, required: string[] = []): SchemaObject => {
+      const properties: Record<string, SchemaObject> = { id: { type: 'integer', example: 1 } }
+      const schema: SchemaObject = { type: 'object', required, properties }
+      for (let index = 1; index <= count; index++) {
+        properties[`a${index}`] = reference('A', schema)
+      }
+      return schema
+    }
+
+    /** Distinct schemas that all reference each other, so that no path repeats a schema for a long time. */
+    const cluster = (size: number): SchemaObject[] => {
+      const properties = Array.from(
+        { length: size },
+        (_, index): Record<string, SchemaObject> => ({ id: { type: 'integer', example: index } }),
+      )
+      const schemas = properties.map((own): SchemaObject => ({ type: 'object', properties: own }))
+      properties.forEach((own, index) => {
+        schemas.forEach((target, targetIndex) => {
+          if (targetIndex !== index) {
+            own[`m${targetIndex}`] = reference(`M${targetIndex}`, target)
+          }
+        })
+      })
+      return schemas
+    }
+
+    /** Reads a nested value, since these examples are too deep to type usefully. */
+    const at = (value: unknown, ...path: string[]): unknown =>
+      path.reduce<unknown>((current, key) => (current as Record<string, unknown> | undefined)?.[key], value)
+
+    it('renders a schema with several references to itself at the deepest depth that fits', () => {
+      const example = getExampleFromSchema(reference('A', selfReferencing(5)))
+
+      expect(at(example, 'a5', 'a5', 'a5', 'id')).toBe(1)
+      expect(at(example, 'a5', 'a5', 'a5', 'a5')).toStrictEqual({})
+      expect(JSON.stringify(example).length).toBeLessThan(20_000)
+    })
+
+    it('cuts every branch of a dense cluster at the same depth', () => {
+      const example = getExampleFromSchema(reference('M0', cluster(30)[0]!)) as Record<string, object>
+
+      expect(at(example, 'm1', 'id')).toBe(1)
+      expect(at(example, 'm29', 'id')).toBe(29)
+      expect(at(example, 'm29', 'm1')).toStrictEqual({})
+      expect(Object.keys(example.m1!)).toHaveLength(Object.keys(example.m29!).length)
+      expect(JSON.stringify(example).length).toBeLessThan(20_000)
+    })
+
+    it('renders an example that fits without cutting anything', () => {
+      const leaf: SchemaObject = { type: 'object', properties: { value: { type: 'string', example: 'x' } } }
+      const level = (child: SchemaObject, name: string): SchemaObject => ({
+        type: 'object',
+        properties: Object.fromEntries(Array.from({ length: 8 }, (_, index) => [`p${index}`, reference(name, child)])),
+      })
+
+      // Too large for a shallower attempt, so this only renders in full under the full budget.
+      const example = getExampleFromSchema(level(level(level(level(leaf, 'Leaf'), 'Fourth'), 'Third'), 'Second'))
+
+      expect(at(example, 'p7', 'p7', 'p7', 'p7')).toStrictEqual({ value: 'x' })
+    })
+
+    it('keeps every property of a root too wide for a shallower attempt', () => {
+      const child: SchemaObject = {
+        type: 'object',
+        properties: { a: { type: 'string' }, b: { type: 'string' }, c: { type: 'string' }, d: { type: 'string' } },
+      }
+      const properties = Object.fromEntries(Array.from({ length: 2_100 }, (_, index) => [`p${index}`, child]))
+
+      const example = getExampleFromSchema({ type: 'object', properties }) as Record<string, unknown>
+
+      expect(Object.keys(example)).toHaveLength(2_100)
+    })
+
+    it('keeps required properties in an example that does not fit', () => {
+      const required = ['id', 'a1', 'a2', 'a3', 'a4', 'a5']
+
+      const example = getExampleFromSchema(reference('A', selfReferencing(5, required)))
+
+      // The attempt that fits has a depth cap of one, and fills required properties one level past it.
+      expect(Object.keys(example as object)).toStrictEqual(required)
+      expect(Object.keys(at(example, 'a5', 'a5') as object)).toStrictEqual(required)
+      expect(at(example, 'a5', 'a5', 'a5')).toStrictEqual({})
+      expect(JSON.stringify(example).length).toBeLessThan(20_000)
+    })
+
+    it.each([
+      ['directly', { $dynamicRef: '#node' }],
+      ['through array items', { type: 'array', items: { $dynamicRef: '#node' } }],
+    ])('bounds a type that references itself dynamically %s', (_, child) => {
+      const properties = Object.fromEntries(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map((name) => [name, child]))
+      const schema = {
+        $dynamicAnchor: 'node',
+        type: 'object',
+        properties: { value: { type: 'string', example: 'leaf' }, ...properties },
+      } as unknown as SchemaObject
+
+      const example = getExampleFromSchema(schema)
+
+      expect(at(example, 'value')).toBe('leaf')
+      expect(JSON.stringify(example).length).toBeLessThan(20_000)
+    })
+
+    it('stops compositions that keep exhausting the search for required properties', () => {
+      const properties: Record<string, SchemaObject> = {}
+      const a = { allOf: [] as SchemaObject[] } as SchemaObject & { allOf: SchemaObject[] }
+      const b = { allOf: [reference('A', a), reference('A', a)] } as SchemaObject
+      a.allOf.push(reference('B', b), reference('B', b), { type: 'object', required: ['p1'], properties })
+      for (let index = 1; index <= 5; index++) {
+        properties[`p${index}`] = reference('A', a)
+      }
+
+      // Each of these visits used to walk ten thousand composition members.
+      expect(getExampleFromSchema(reference('A', a))).toBeDefined()
+    })
+
+    it('does not mistake a small composition with a long search for a large example', () => {
+      const y = { allOf: [] as SchemaObject[] } as SchemaObject & { allOf: SchemaObject[] }
+      y.allOf.push({ oneOf: [reference('Y', y)] } as SchemaObject, { oneOf: [reference('Y', y)] } as SchemaObject)
+      const schema = {
+        type: 'object',
+        allOf: [reference('Y', y)],
+        properties: {
+          id: { type: 'integer' },
+          child: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              inner: { type: 'object', properties: { deep: { type: 'string', example: 'kept' } } },
+            },
+          },
+        },
+      } as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual({ id: 1, child: { name: '', inner: { deep: 'kept' } } })
+    })
+
+    it('does not show the depth marker at a shallower cut', () => {
+      const schema = selfReferencing(5) as { properties: Record<string, SchemaObject> }
+      schema.properties.meta = { description: 'Anything goes' } as SchemaObject
+
+      expect(JSON.stringify(getExampleFromSchema(schema as SchemaObject))).not.toContain('Max Depth Exceeded')
+    })
+
+    it('gives the same example on repeated calls', () => {
+      const child: SchemaObject = {
+        type: 'object',
+        properties: Object.fromEntries(Array.from({ length: 100 }, (_, index) => [`v${index}`, { type: 'string' }])),
+      }
+      const properties = Object.fromEntries(Array.from({ length: 120 }, (_, index) => [`p${index}`, { ...child }]))
+      const schema: SchemaObject = { type: 'object', properties }
+
+      const first = getExampleFromSchema(schema)
+
+      expect(getExampleFromSchema(schema)).toStrictEqual(first)
+      expect(getExampleFromSchema(schema)).toStrictEqual(first)
+    })
+
+    it('cuts a subtree the full-depth attempt already cached', () => {
+      const deepest: SchemaObject = { type: 'object', properties: { value: { type: 'string', example: 'x' } } }
+      const nested = Array.from({ length: 6 }).reduce<SchemaObject>(
+        (child) => ({ type: 'object', properties: { next: child } }),
+        deepest,
+      )
+      const { properties } = selfReferencing(5) as { properties: Record<string, SchemaObject> }
+
+      const example = getExampleFromSchema({ type: 'object', properties: { inline: nested, ...properties } })
+
+      expect(at(example, 'inline', 'next', 'next', 'next')).toBeDefined()
+      expect(at(example, 'inline', 'next', 'next', 'next', 'next')).toBeUndefined()
+    })
+
+    it('records the evaluation of the attempt it kept', () => {
+      const capture: ExampleEvaluationState = { stack: [] }
+
+      const example = getExampleFromSchema(reference('A', selfReferencing(5)), { [EXAMPLE_EVALUATION]: capture })
+
+      expect(capture.root?.value).toBe(example)
+    })
+
+    it('starts over after a walk throws', () => {
+      const broken = { type: 'object', properties: {} } as SchemaObject
+      Object.defineProperty(broken, 'properties', {
+        enumerable: true,
+        get: () => {
+          throw new Error('unreadable schema')
+        },
+      })
+      expect(() => getExampleFromSchema(broken)).toThrow('unreadable schema')
+
+      // Joining the abandoned call would leave this example without its later branches.
+      expect(at(getExampleFromSchema(reference('A', selfReferencing(5))), 'a5', 'a5', 'a5', 'id')).toBe(1)
+    })
   })
 
   describe('maximum depth', () => {
