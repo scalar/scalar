@@ -32,7 +32,7 @@ import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { compactUpgradeMetadata } from '@/helpers/compact-upgrade-metadata'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
-import { bumpDocumentRevision } from '@/helpers/document-revision'
+import { bumpDocumentRevision, getDocumentRevision } from '@/helpers/document-revision'
 import { type ExternalExampleResolver, createExternalExampleResolver } from '@/helpers/external-examples'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
@@ -758,28 +758,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   const nativeSchemaResolvers = new WeakMap<object, AsyncApiSchemaResourceResolver>()
   const nativeSchemaEdits = new WeakSet<object>()
   const trackNativeSchemaEdits = createNativeSchemaEditTracker()
-  const invalidateNativeSchemas = (document: object, path: string[]): void => {
-    // Resolving a lazy chunk is not an authored edit: keep shared downloads and document budgets intact.
-    const key = path.at(-1)
-    const parent = key === '$ref' ? getValueAtPath(document, path.slice(0, -1)) : undefined
-    if (
-      !path.length ||
-      key === '$ref-value' ||
-      key === '$status' ||
-      key === 'x-scalar-schema-resources' ||
-      path[0] === 'x-ext-urls' ||
-      (path[0] === 'x-ext' && path.length <= 2) ||
-      (key === '$ref' && isObject(parent) && parent.$status === 'loading') ||
-      path[0]?.startsWith('x-scalar-')
-    )
-      return
-    const raw = unpackProxyShallow(document)
-    nativeSchemaResolvers.delete(raw)
-    nativeSchemaEdits.add(raw)
-  }
+  const nativeSchemaRevisions = new WeakMap<object, number>()
   const checkNativeSchemaEdits = (document: object): void => {
-    if (isReactiveWorkspace) return
     const raw = unpackProxyShallow(document)
+    const revision = getDocumentRevision(raw)
+    // Reactive workspaces can skip the source comparison until a write occurs. Plain workspaces
+    // have no write hooks, so they compare on each read instead.
+    if (isReactiveWorkspace && nativeSchemaRevisions.get(raw) === revision) return
+    nativeSchemaRevisions.set(raw, revision)
     if (trackNativeSchemaEdits(raw)) {
       nativeSchemaResolvers.delete(raw)
       nativeSchemaEdits.add(raw)
@@ -864,7 +850,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 // Every write through the store passes here, which is what makes the revision a
                 // complete record of the document changing.
                 bumpDocumentRevision(document)
-                invalidateNativeSchemas(document, path.slice(2))
                 const event = {
                   type: 'documents',
                   documentName,
@@ -894,7 +879,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                   'x-scalar-original-document-hash': '',
                 }
                 bumpDocumentRevision(document)
-                invalidateNativeSchemas(document, path.slice(1))
                 // Active document changed
                 const event = {
                   type: 'documents',

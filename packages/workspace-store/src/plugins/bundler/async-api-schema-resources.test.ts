@@ -641,4 +641,32 @@ describe('async-api-schema-resources', () => {
       ])
     },
   )
+  it.each([true, false])(
+    'preserves portable graphs after unrelated document edits (reactive: %s)',
+    async (reactive) => {
+      const requested: string[] = []
+      const authored = document()
+      const resources = { origin: '/private/api.yaml', files: { '/private/types/user.proto': user } }
+      Object.assign(authored.components.schemas.User, { 'x-scalar-schema-resources': resources })
+      const store = createWorkspaceStore({
+        reactive,
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.reject(new Error('Must retain portable resources'))
+        },
+      })
+      await store.addDocument({ name: 'test', document: authored })
+      const loaded = store.workspace.documents.test
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      const model = getResolvedAsyncApiRef(loaded.components)?.schemas?.User
+      const resolver = store.asyncApiSchemaResources('test')
+      const expected = { kind: 'source', format, value, resources }
+      expect(await expand(store, model)).toStrictEqual(expected)
+      loaded.info.title = 'Edited title'
+      loaded.info.description = 'Edited description'
+      expect(await expand(store, model)).toStrictEqual(expected)
+      expect(store.asyncApiSchemaResources('test')).toBe(resolver)
+      expect(requested).toStrictEqual([])
+    },
+  )
 })
