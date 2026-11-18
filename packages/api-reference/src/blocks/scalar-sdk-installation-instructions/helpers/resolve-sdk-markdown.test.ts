@@ -2,7 +2,7 @@ import { htmlFromMarkdown } from '@scalar/code-highlight'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
 
-import { type SdkCredentialCodeBlock, resolveSdkMarkdown } from './resolve-sdk-markdown'
+import { type SdkCodeBlock, resolveSdkMarkdown } from './resolve-sdk-markdown'
 
 const schemes: SecuritySchemeObjectSecret[] = [
   {
@@ -18,8 +18,8 @@ const schemes: SecuritySchemeObjectSecret[] = [
   },
 ]
 
-const render = (source: string, securitySchemes = schemes): { html: string; blocks: SdkCredentialCodeBlock[] } => {
-  const result: { blocks: SdkCredentialCodeBlock[] } = { blocks: [] }
+const render = (source: string, securitySchemes = schemes): { html: string; blocks: SdkCodeBlock[] } => {
+  const result: { blocks: SdkCodeBlock[] } = { blocks: [] }
   const html = htmlFromMarkdown(source, {
     transformType: 'root',
     transform: (root) => {
@@ -103,7 +103,14 @@ describe('resolve-sdk-markdown', () => {
       'x-scalar-credential-placeholders': { password: { field: 'token' } },
     }
     const { html, blocks } = render('```sh\nconfigure {{password}}\n```', [...schemes, pendingOAuth])
-    expect(blocks).toStrictEqual([])
+    expect(blocks).toStrictEqual([
+      {
+        marker: 'test-0',
+        language: 'sh',
+        displayContent: 'configure {{password}}',
+        copyContent: 'configure {{password}}',
+      },
+    ])
     expect(html.includes('{{password}}')).toBe(true)
   })
 
@@ -128,10 +135,12 @@ describe('resolve-sdk-markdown', () => {
     expect(html.includes('{{token}}')).toBe(false)
   })
 
-  it('leaves missing placeholders and ordinary code blocks unchanged', () => {
-    const source = '```sh\necho {{missing}}\n```'
-    const { html, blocks } = render(source)
-    expect(blocks).toStrictEqual([])
-    expect(html).toBe(htmlFromMarkdown(source))
+  it('preserves ordinary code and unresolved placeholders for display and copy', () => {
+    const { html, blocks } = render('Plain {{account}}\n\n    echo {{missing}}', [])
+    expect(blocks).toStrictEqual([
+      { marker: 'test-0', language: 'plaintext', displayContent: 'echo {{missing}}', copyContent: 'echo {{missing}}' },
+    ])
+    expect(html).toContain('Plain {{account}}')
+    expect(html).toContain('{{missing}}')
   })
 })

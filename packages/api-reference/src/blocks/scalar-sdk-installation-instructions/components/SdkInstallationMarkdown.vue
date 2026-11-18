@@ -11,7 +11,7 @@ import { inject, provide, ref, shallowRef, useId, watch } from 'vue'
 
 import {
   resolveSdkMarkdown,
-  type SdkCredentialCodeBlock,
+  type SdkCodeBlock,
 } from '../helpers/resolve-sdk-markdown'
 
 const { value, securitySchemes } = defineProps<{
@@ -19,12 +19,10 @@ const { value, securitySchemes } = defineProps<{
   securitySchemes: SecuritySchemeObjectSecret[]
 }>()
 
-const markerPrefix = `sdk-credentials-${useId()}`
+const markerPrefix = `sdk-code-${useId()}`
 const revision = ref(0)
-const renderState: { blocks: SdkCredentialCodeBlock[] } = { blocks: [] }
-const targets = shallowRef<
-  { element: HTMLElement; block: SdkCredentialCodeBlock }[]
->([])
+const renderState: { blocks: SdkCodeBlock[] } = { blocks: [] }
+const targets = shallowRef<{ element: HTMLElement; block: SdkCodeBlock }[]>([])
 
 // A changed token can produce identical masked HTML. Remount so the copy value and
 // enhancement targets still follow the latest credentials or authentication selection.
@@ -41,7 +39,7 @@ const transform = (root: Node): Node => {
   return root
 }
 
-const renderCredentialBlocks: MarkdownRenderHook = ({ element }) => {
+const renderCodeBlocks: MarkdownRenderHook = ({ element }) => {
   targets.value = renderState.blocks.flatMap((block) => {
     const target = element.getElementsByClassName(block.marker)[0]
     if (!(target instanceof HTMLElement)) {
@@ -57,7 +55,7 @@ const renderCredentialBlocks: MarkdownRenderHook = ({ element }) => {
 
 provide(MARKDOWN_RENDER_HOOKS, [
   ...inject(MARKDOWN_RENDER_HOOKS, []),
-  renderCredentialBlocks,
+  renderCodeBlocks,
 ])
 </script>
 <template>
@@ -71,9 +69,8 @@ provide(MARKDOWN_RENDER_HOOKS, [
     :key="target.block.marker"
     :to="target.element">
     <ScalarCodeBlock
-      :content="target.block.displayContent"
       :copyContent="target.block.copyContent"
       :lang="target.block.language"
-      :lineNumbers="false" />
+      :prettyPrintedContent="target.block.displayContent" />
   </Teleport>
 </template>

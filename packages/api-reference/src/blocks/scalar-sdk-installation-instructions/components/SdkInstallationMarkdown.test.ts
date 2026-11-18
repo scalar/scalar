@@ -72,7 +72,9 @@ describe('SdkInstallationMarkdown', () => {
       await wrapper.setProps({ securitySchemes: [] })
       await flushPromises()
       expect(wrapper.text()).toContain('configure {{apiKey}}')
-      expect(wrapper.find('button').exists()).toBe(false)
+      await wrapper.get('[aria-label="Copy code"]').trigger('click')
+      await flushPromises()
+      expect(copied).toStrictEqual(['configure first-secret', 'configure second-secret', 'configure {{apiKey}}'])
     } finally {
       wrapper.unmount()
       if (execCommand) {

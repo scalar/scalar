@@ -461,6 +461,9 @@ onBeforeUnmount(() => {
   border-radius: 0;
   box-shadow: none;
 }
+.selected-client :deep(.scalar-code-block > [role='group']) {
+  padding: 0;
+}
 .client-libraries-heading {
   font-size: var(--scalar-small);
   font-weight: var(--scalar-font-medium);

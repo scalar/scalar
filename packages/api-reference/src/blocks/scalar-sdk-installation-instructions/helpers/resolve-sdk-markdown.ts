@@ -1,8 +1,8 @@
 import type { Node } from '@scalar/code-highlight'
 import { type SecuritySchemeObjectSecret, resolveCredentialPlaceholders } from '@scalar/workspace-store/request-example'
 
-/** A credential-bearing code block rendered with a separate display and copy value. */
-export type SdkCredentialCodeBlock = {
+/** An SDK code block with separate display and copy values. */
+export type SdkCodeBlock = {
   marker: string
   language: string
   displayContent: string
@@ -19,26 +19,22 @@ export const resolveSdkMarkdown = (
   root: Node,
   securitySchemes: SecuritySchemeObjectSecret[],
   markerPrefix: string,
-): SdkCredentialCodeBlock[] => {
-  const blocks: SdkCredentialCodeBlock[] = []
-  const visit = (node: MarkdownNode): MarkdownNode => {
-    // Inline HTML is split into sibling opening-tag, text, and closing-tag nodes.
-    // Leave that whole text container alone rather than inserting into raw HTML.
-    if (node.type === 'html' || (node.type !== 'root' && node.children?.some((child) => child.type === 'html'))) {
-      return node
-    }
-    if (['text', 'inlineCode', 'code'].includes(node.type) && typeof node.value === 'string') {
-      const resolved = resolveCredentialPlaceholders(node.value, securitySchemes)
-      if (resolved.content === node.value && resolved.displayContent === node.value) {
-        return node
-      }
-      const { displayContent } = resolved
+): SdkCodeBlock[] => {
+  const blocks: SdkCodeBlock[] = []
+  const hasPlaceholders = securitySchemes.some((scheme) => 'x-scalar-credential-placeholders' in scheme)
+
+  const visit = (node: MarkdownNode, resolvePlaceholders: boolean): MarkdownNode => {
+    if (typeof node.value === 'string' && ['code', 'inlineCode', 'text'].includes(node.type)) {
+      const { content, displayContent } = resolvePlaceholders
+        ? resolveCredentialPlaceholders(node.value, securitySchemes)
+        : { content: node.value, displayContent: node.value }
       node.value = displayContent
+
       if (node.type === 'code') {
         const marker = `${markerPrefix}-${blocks.length}`
-        blocks.push({ marker, language: node.lang ?? 'plaintext', displayContent, copyContent: resolved.content })
-        // Keep masked Markdown code visible during SSR; the browser enhancement
-        // replaces this controlled wrapper's contents with a copyable code block.
+        blocks.push({ marker, language: node.lang ?? 'plaintext', displayContent, copyContent: content })
+        // Keep the code visible during SSR. In the browser, the wrapper receives
+        // the same copyable component whether or not a credential is available.
         return {
           type: 'blockquote',
           children: [node],
@@ -48,10 +44,14 @@ export const resolveSdkMarkdown = (
       return node
     }
     if (node.children) {
-      node.children = node.children.map(visit)
+      // Inline HTML is split into opening-tag, text, and closing-tag siblings.
+      // Keep any text inside such a container from receiving credentials.
+      const resolveChildren =
+        resolvePlaceholders && (node.type === 'root' || !node.children.some((child) => child.type === 'html'))
+      node.children = node.children.map((child) => visit(child, resolveChildren))
     }
     return node
   }
-  visit(root)
+  visit(root, hasPlaceholders)
   return blocks
 }
