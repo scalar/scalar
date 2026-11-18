@@ -12,7 +12,7 @@ for (const { name, props } of [
   { name: 'custom thickness', props: { icon: 'Add', thickness: '3' } },
   { name: 'logo', props: { icon: undefined, logo: 'Nuxt', thickness: '1' } },
 ] satisfies { name: string; props: ScalarIconProps }[]) {
-  test(`hydrates an icon with ${name} without changing its styles`, async ({ page }) => {
+  test(`hydrates an icon with ${name} without changing its styles`, async ({ page }, testInfo) => {
     const iconProps = { ...props, size: 'lg', label: 'Hydrated icon' } satisfies ScalarIconProps
     const html = await renderToString(createSSRApp({ render: () => h(ScalarIcon, iconProps) }))
     const errors: string[] = []
@@ -34,6 +34,7 @@ for (const { name, props } of [
     const icon = page.getByLabel('Hydrated icon')
     const serverIcon = await icon.elementHandle()
     const serverStyle = await icon.getAttribute('style')
+    await testInfo.attach('before-hydration', { body: await icon.screenshot(), contentType: 'image/png' })
 
     await page.evaluate((props) => window.hydrateIcon(props), iconProps)
 
@@ -46,5 +47,6 @@ for (const { name, props } of [
     const expectedWidth = `${props.thickness ?? '2'}px`
     expect(strokeWidths).toStrictEqual([expectedWidth, expectedWidth])
     expect(errors).toStrictEqual([])
+    await testInfo.attach('after-hydration', { body: await icon.screenshot(), contentType: 'image/png' })
   })
 }
