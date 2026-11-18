@@ -911,7 +911,7 @@ paths:
 For OpenAPI 3.0 or 3.1, use a string `value` in the media-level Example Object.
 Schema-level string examples represent data and are escaped as XML text.
 
-### Header API-key token prefixes
+## Header API-key token prefixes
 
 Set `x-scalar-token-prefix` on a header API-key security scheme to add a prefix to generated code samples and outgoing requests:
 
