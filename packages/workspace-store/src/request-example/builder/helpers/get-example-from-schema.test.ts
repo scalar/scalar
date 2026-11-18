@@ -3503,8 +3503,8 @@ describe('getExampleFromSchema', () => {
       it('stands in for a reference wrapped in allOf with its empty container', () => {
         const node: SchemaObject = { type: 'object', properties: {} }
         const reference = createReference(NODE_REFERENCE, node)
-        node.properties!.first = { allOf: [reference] }
-        node.properties!.second = { allOf: [reference] }
+        node.properties!.first = { allOf: [reference] } as SchemaObject
+        node.properties!.second = { allOf: [reference] } as SchemaObject
 
         expect(getExampleFromSchema(node)).toStrictEqual({ first: { second: {} }, second: { first: {} } })
       })
