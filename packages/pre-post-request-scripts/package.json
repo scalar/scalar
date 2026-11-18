@@ -70,7 +70,7 @@
     "@scalar/workspace-store": "workspace:*",
     "@types/postman-collection": "^3.5.11",
     "postman-collection": "^5.3.1",
-    "postman-sandbox": "^6.7.4",
+    "postman-sandbox": "^6.9.0",
     "vue": "catalog:*"
   },
   "devDependencies": {
