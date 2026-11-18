@@ -17,6 +17,8 @@
   --scalar-code-blue: var(--scalar-color-blue);
   --scalar-code-orange: var(--scalar-color-orange);
   --scalar-code-purple: var(--scalar-color-purple);
+  /* Without relative colors a navy cannot be derived, and plain blue would match strings. */
+  --scalar-code-navy: var(--scalar-color-1);
 }
 
 @supports (color: oklch(from white l c h)) {
@@ -31,6 +33,7 @@
     --scalar-code-blue: oklch(from var(--scalar-color-blue) min(l, 0.55) min(c, 0.14) h);
     --scalar-code-orange: oklch(from var(--scalar-color-orange) min(l, 0.59) min(c, 0.17) calc(h + 3));
     --scalar-code-purple: oklch(from var(--scalar-color-purple) min(l, 0.395) min(c, 0.22) h);
+    --scalar-code-navy: oklch(from var(--scalar-color-blue) min(l, 0.33) min(c, 0.1) calc(h + 8));
   }
 
   .dark-mode,
@@ -40,6 +43,7 @@
     --scalar-code-blue: oklch(from var(--scalar-color-blue) max(l, 0.68) c h);
     --scalar-code-orange: oklch(from var(--scalar-color-orange) max(l, 0.75) min(c, 0.16) h);
     --scalar-code-purple: oklch(from var(--scalar-color-purple) max(l, 0.68) c h);
+    --scalar-code-navy: oklch(from var(--scalar-color-blue) max(l, 0.85) min(c, 0.075) h);
   }
 }
 
@@ -135,7 +139,7 @@
   /** Type declarations such as `Record` */
   .hljs-title.class_,
   .hljs-type {
-    color: var(--scalar-color-1);
+    color: var(--scalar-code-navy);
   }
 
   /** Function parameters and keyword arguments */
