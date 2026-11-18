@@ -179,8 +179,9 @@ input without an origin uses the virtual output base `https://scalar.invalid/`
 when relocating resources, rather than claiming a filesystem identity. This URI
 is an identifier namespace and is not fetched.
 
-To publish local schemas without embedding checkout paths, set `outputBase` to
-an absolute hierarchical URI without a fragment:
+Without `outputBase`, `preserveReference` emits local schema identities as absolute
+`file:` URIs. For published bundles, set `outputBase` to an absolute hierarchical
+URI without a fragment to avoid embedding checkout paths:
 
 ```ts
 const result = await bundle('./openapi.json', {
