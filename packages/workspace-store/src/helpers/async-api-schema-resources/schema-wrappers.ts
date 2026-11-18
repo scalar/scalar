@@ -4,44 +4,64 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { getResolvedAsyncApiRef } from '../get-resolved-async-api-ref'
 import { unpackProxyShallow } from '../unpack-proxy'
 
+/** Stable schema positions survive object replacement and retain per-location overrides. */
+export type InlineAsyncApiSchemaWrapper = { node: Record<string, unknown>; path: string[] }
+
 /** Visit schema positions, including resolved aliases, without treating examples or extensions as schemas. */
 export const getInlineAsyncApiSchemaWrappers = (
   document: AsyncApiDocument,
   beforeMessage?: (message: Record<string, unknown>) => void,
-): Record<string, unknown>[] => {
-  const schemas: Record<string, unknown>[] = []
-  const schema = (value: unknown): void => {
+): InlineAsyncApiSchemaWrapper[] => {
+  const schemas: InlineAsyncApiSchemaWrapper[] = []
+  const schema = (value: unknown, path: string[]): void => {
     const node = getResolvedAsyncApiRef(value)
-    if (isObject(node) && typeof node.schemaFormat === 'string') schemas.push(node)
+    if (isObject(node) && typeof node.schemaFormat === 'string') schemas.push({ node, path })
   }
-  const trait = (value: unknown): void => {
+  const trait = (value: unknown, path: string[]): void => {
     const node = getResolvedAsyncApiRef(value)
-    if (isObject(node)) schema(node.headers)
+    if (isObject(node)) schema(node.headers, [...path, 'headers'])
   }
-  const messages = new WeakSet<object>()
-  const message = (value: unknown): void => {
-    const node = getResolvedAsyncApiRef(value)
-    if (!isObject(node) || messages.has(unpackProxyShallow(node))) return
-    messages.add(unpackProxyShallow(node))
-    beforeMessage?.(node)
-    schema(node.payload)
-    trait(node)
-    if (Array.isArray(node.traits)) for (const child of node.traits) trait(child)
-    if (Array.isArray(node.oneOf)) for (const child of node.oneOf) message(child)
-  }
-  const channel = (value: unknown): void => {
+  const normalizedMessages = new WeakSet<object>()
+  const activeMessages = new WeakSet<object>()
+  const message = (value: unknown, path: string[]): void => {
     const node = getResolvedAsyncApiRef(value)
     if (!isObject(node)) return
-    if (isObject(node.messages)) for (const child of Object.values(node.messages)) message(child)
-    for (const operation of [node.publish, node.subscribe]) {
-      if (isObject(operation) && !('$ref' in operation)) message(operation.message)
+    const identity = unpackProxyShallow(node)
+    if (activeMessages.has(identity)) return
+    activeMessages.add(identity)
+    if (!normalizedMessages.has(identity)) {
+      normalizedMessages.add(identity)
+      beforeMessage?.(node)
+    }
+    schema(node.payload, [...path, 'payload'])
+    trait(node, path)
+    if (Array.isArray(node.traits))
+      node.traits.forEach((child, index) => trait(child, [...path, 'traits', String(index)]))
+    if (Array.isArray(node.oneOf))
+      node.oneOf.forEach((child, index) => message(child, [...path, 'oneOf', String(index)]))
+    activeMessages.delete(identity)
+  }
+  const channel = (value: unknown, path: string[]): void => {
+    const node = getResolvedAsyncApiRef(value)
+    if (!isObject(node)) return
+    if (isObject(node.messages))
+      for (const [name, child] of Object.entries(node.messages)) message(child, [...path, 'messages', name])
+    for (const name of ['publish', 'subscribe']) {
+      const operation = node[name]
+      if (isObject(operation) && !('$ref' in operation)) message(operation.message, [...path, name, 'message'])
     }
   }
   const components = getResolvedAsyncApiRef(document.components) ?? {}
-  if (isObject(components.schemas)) for (const node of Object.values(components.schemas)) schema(node)
-  if (isObject(components.messages)) for (const node of Object.values(components.messages)) message(node)
-  if (isObject(components.messageTraits)) for (const node of Object.values(components.messageTraits)) trait(node)
-  if (isObject(components.channels)) for (const node of Object.values(components.channels)) channel(node)
-  if (isObject(document.channels)) for (const node of Object.values(document.channels)) channel(node)
+  if (isObject(components.schemas))
+    for (const [name, node] of Object.entries(components.schemas)) schema(node, ['components', 'schemas', name])
+  if (isObject(components.messages))
+    for (const [name, node] of Object.entries(components.messages)) message(node, ['components', 'messages', name])
+  if (isObject(components.messageTraits))
+    for (const [name, node] of Object.entries(components.messageTraits))
+      trait(node, ['components', 'messageTraits', name])
+  if (isObject(components.channels))
+    for (const [name, node] of Object.entries(components.channels)) channel(node, ['components', 'channels', name])
+  if (isObject(document.channels))
+    for (const [name, node] of Object.entries(document.channels)) channel(node, ['channels', name])
   return schemas
 }

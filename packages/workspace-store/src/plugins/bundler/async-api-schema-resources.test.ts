@@ -802,4 +802,34 @@ describe('async-api-schema-resources', () => {
       expect(requested).toStrictEqual(['https://example.test/types/new.proto'])
     },
   )
+  it.each([true, false])(
+    'preserves portable graphs after metadata-only wrapper replacement (reactive: %s)',
+    async (reactive) => {
+      const authored = document()
+      const resources = { origin: '/private/api.yaml', files: { '/private/types/user.proto': user } }
+      Object.assign(authored.components.schemas.User, { 'x-scalar-schema-resources': resources })
+      const requested: string[] = []
+      const store = createWorkspaceStore({
+        reactive,
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.reject(new Error('Must retain portable resources'))
+        },
+      })
+      await store.addDocument({ name: 'test', document: authored })
+      const loaded = store.workspace.documents.test
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      const schemas = getResolvedAsyncApiRef(loaded.components)?.schemas
+      if (!schemas) throw new Error('Missing schemas')
+      const resolver = store.asyncApiSchemaResources('test')
+      const expected = { kind: 'source', format, value, resources }
+      expect(await expand(store, schemas.User)).toStrictEqual(expected)
+      const original = getResolvedAsyncApiRef(schemas.User)
+      if (!isObject(original)) throw new Error('Missing native schema')
+      schemas.User = { ...original, description: 'Updated metadata' }
+      expect(await expand(store, schemas.User)).toStrictEqual(expected)
+      expect(store.asyncApiSchemaResources('test')).toBe(resolver)
+      expect(requested).toStrictEqual([])
+    },
+  )
 })

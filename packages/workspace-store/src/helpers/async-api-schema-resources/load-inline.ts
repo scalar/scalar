@@ -3,6 +3,7 @@ import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 
 import { resolveTraits } from '../resolve-traits'
+import { unpackProxyShallow } from '../unpack-proxy'
 import { createSchemaResourceLoader, deferSchemaResources } from './resources'
 import { getInlineAsyncApiSchemaWrappers } from './schema-wrappers'
 
@@ -21,7 +22,11 @@ export const loadInlineAsyncApiSchemaResources = async (
       if (typeof format === 'string') node.payload = { schemaFormat: format, schema: node.payload }
     }
   })
-  for (const node of wrappers) {
+  const loaded = new WeakSet<object>()
+  for (const { node } of wrappers) {
+    const identity = unpackProxyShallow(node)
+    if (loaded.has(identity)) continue
+    loaded.add(identity)
     if (typeof node.schemaFormat !== 'string') continue
     const resources = options.lazy
       ? deferSchemaResources(node.schemaFormat, origin)
