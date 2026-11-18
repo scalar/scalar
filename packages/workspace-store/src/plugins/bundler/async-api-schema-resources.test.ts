@@ -669,4 +669,69 @@ describe('async-api-schema-resources', () => {
       expect(requested).toStrictEqual([])
     },
   )
+  it.each([true, false])(
+    'tracks native edits under extension-like component names (reactive: %s)',
+    async (reactive) => {
+      let dependency = user
+      const requested: string[] = []
+      const store = createWorkspaceStore({
+        reactive,
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.resolve(new Response(dependency))
+        },
+      })
+      const authored = document()
+      Object.assign(authored.components.schemas, { 'x-scalar-user': schema() })
+      await store.addDocument({ name: 'test', document: authored, documentSource: 'https://example.test/api.yaml' })
+      const loaded = store.workspace.documents.test
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      const model = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.components)?.schemas?.['x-scalar-user'])
+      if (!isObject(model) || !('schema' in model)) throw new Error('Missing native schema')
+      await expand(store, model)
+      dependency = 'syntax="proto3"; message User { string current_id=1; }'
+      model.schema = value + '\n// Edited named schema'
+      expect(await expand(store, model)).toStrictEqual({
+        kind: 'source',
+        format,
+        value: value + '\n// Edited named schema',
+        resources: {
+          origin: 'https://example.test/api.yaml',
+          files: { 'https://example.test/types/user.proto': dependency },
+        },
+      })
+      expect(requested).toStrictEqual([
+        'https://example.test/types/user.proto',
+        'https://example.test/types/user.proto',
+      ])
+    },
+  )
+
+  it.each([true, false])('ignores schema-shaped literal extension edits (reactive: %s)', async (reactive) => {
+    const authored = { ...document(), 'x-example': { schemaFormat: format, schema: 'sample' } }
+    const resources = { origin: '/private/api.yaml', files: { '/private/types/user.proto': user } }
+    Object.assign(authored.components.schemas.User, { 'x-scalar-schema-resources': resources })
+    const requested: string[] = []
+    const store = createWorkspaceStore({
+      reactive,
+      fetch: (input) => {
+        requested.push(String(input))
+        return Promise.reject(new Error('Must retain portable resources'))
+      },
+    })
+    await store.addDocument({ name: 'test', document: authored })
+    const loaded = store.workspace.documents.test
+    if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+    const model = getResolvedAsyncApiRef(loaded.components)?.schemas?.User
+    const resolver = store.asyncApiSchemaResources('test')
+    const expected = { kind: 'source', format, value, resources }
+    expect(await expand(store, model)).toStrictEqual(expected)
+    if (!('x-example' in loaded)) throw new Error('Missing extension')
+    const extension = loaded['x-example']
+    if (!isObject(extension)) throw new Error('Missing extension')
+    extension.schema = 'edited sample'
+    expect(await expand(store, model)).toStrictEqual(expected)
+    expect(store.asyncApiSchemaResources('test')).toBe(resolver)
+    expect(requested).toStrictEqual([])
+  })
 })

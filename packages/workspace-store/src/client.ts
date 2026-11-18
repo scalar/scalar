@@ -766,7 +766,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // have no write hooks, so they compare on each read instead.
     if (isReactiveWorkspace && nativeSchemaRevisions.get(raw) === revision) return
     nativeSchemaRevisions.set(raw, revision)
-    if (trackNativeSchemaEdits(raw)) {
+    if (trackNativeSchemaEdits(document)) {
       nativeSchemaResolvers.delete(raw)
       nativeSchemaEdits.add(raw)
     }
@@ -1659,7 +1659,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const document = workspace.documents[name]
       if (!document) return fallbackNativeSchemas
       const raw = unpackProxyShallow(document)
-      checkNativeSchemaEdits(raw)
+      checkNativeSchemaEdits(document)
       const cached = nativeSchemaResolvers.get(raw)
       if (cached) return cached
       const resolve = createAsyncApiSchemaResourceResolver({

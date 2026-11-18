@@ -1,40 +1,28 @@
-import { isObject } from '@scalar/helpers/object/is-object'
+import { isAsyncApiDocument } from '@/schemas/type-guards'
 
 import { unpackProxyShallow } from '../unpack-proxy'
 import { deferSchemaResources } from './resources'
+import { getInlineAsyncApiSchemaWrappers } from './schema-wrappers'
 
 /** Nonreactive workspaces have no write hooks, so compare native sources at their next read. */
 export const createNativeSchemaEditTracker = (): ((document: object) => boolean) => {
   const snapshots = new WeakMap<object, Map<object, string | undefined>>()
   return (document) => {
+    if (!isAsyncApiDocument(document)) return false
     const sources = new Map<object, string | undefined>()
-    const seen = new WeakSet<object>()
-    const visit = (value: unknown): void => {
-      if (!isObject(value) && !Array.isArray(value)) return
-      const node = unpackProxyShallow(value)
-      if (seen.has(node)) return
-      seen.add(node)
-      if (
-        isObject(node) &&
-        'schema' in node &&
-        typeof node.schemaFormat === 'string' &&
-        deferSchemaResources(node.schemaFormat, '/')
-      ) {
-        try {
-          sources.set(node, JSON.stringify([node.schemaFormat, node.schema]))
-        } catch {
-          // Cyclic source already stays on the source-only path; removing its cycle changes this snapshot.
-          sources.set(node, undefined)
-        }
-        return
-      }
-      for (const [key, child] of Object.entries(node)) {
-        if (!key.startsWith('x-scalar-') && key !== 'x-ext-urls') visit(child)
+    for (const wrapper of getInlineAsyncApiSchemaWrappers(document)) {
+      const node = unpackProxyShallow(wrapper)
+      if (typeof node.schemaFormat !== 'string' || !deferSchemaResources(node.schemaFormat, '/')) continue
+      try {
+        sources.set(node, JSON.stringify([node.schemaFormat, node.schema]))
+      } catch {
+        // Cyclic source already stays on the source-only path; removing its cycle changes this snapshot.
+        sources.set(node, undefined)
       }
     }
-    visit(document)
-    const previous = snapshots.get(document)
-    snapshots.set(document, sources)
+    const identity = unpackProxyShallow(document)
+    const previous = snapshots.get(identity)
+    snapshots.set(identity, sources)
     // New chunks can introduce more schemas without invalidating existing downloads or their budgets.
     return (
       previous !== undefined &&
