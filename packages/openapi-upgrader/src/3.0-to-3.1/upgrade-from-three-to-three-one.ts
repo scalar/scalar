@@ -18,21 +18,65 @@ const ANNOTATION_KEYWORDS = new Set([
   'writeOnly',
 ])
 
-/** Keep schema keywords separate from author-chosen names and extension payloads. */
+// These maps hold author-chosen names, so an `x-` prefix there is not an extension keyword.
+const NAMED_OPENAPI_MAPS = new Set([
+  'paths',
+  'webhooks',
+  'content',
+  'headers',
+  'examples',
+  'links',
+  'encoding',
+  'variables',
+  'parameters',
+  'requestBodies',
+  'securitySchemes',
+  'pathItems',
+  'scopes',
+])
+
+/** Keep extension payloads opaque, including extensions outside Schema Objects. */
+const isInsideExtension = (path: string[] | undefined): boolean => {
+  // Bundled resources contain schemas or OpenAPI objects rather than extension data.
+  const segments = path?.[0] === 'x-ext' && path[1] !== undefined ? path.slice(2) : path
+  if (!segments) {
+    return false
+  }
+
+  let namedSegments = 0
+  for (const [index, segment] of segments.entries()) {
+    if (namedSegments > 0) {
+      namedSegments--
+      continue
+    }
+
+    // This legacy root extension is migrated as a Webhooks Object below.
+    const keyword = index === 0 && path?.[0] === 'x-webhooks' ? 'webhooks' : segment
+    if (keyword.startsWith('x-')) {
+      return true
+    }
+
+    const parent = segments.slice(0, index)
+    if (isNamedSchemaMap([...parent, keyword])) {
+      namedSegments = 1
+    } else if (!isSchemaPath(parent)) {
+      if (keyword === 'callbacks') {
+        namedSegments = 2
+      } else if (NAMED_OPENAPI_MAPS.has(keyword) || (keyword === 'responses' && parent.at(-1) === 'components')) {
+        namedSegments = 1
+      }
+    }
+  }
+
+  return false
+}
+
+/** Keep schema keywords separate from author-chosen names. */
 const isSchemaObjectPath = (path: string[] | undefined): boolean => {
   // Bundled external resources can be standalone schemas without an enclosing `schema` field.
   const schemaPath = path?.[0] === 'x-ext' && path[1] !== undefined ? ['schema', ...path.slice(2)] : path
 
-  if (!schemaPath || !isSchemaPath(schemaPath) || isNamedSchemaMap(schemaPath)) {
-    return false
-  }
-
-  const isInsideSchemaExtension = schemaPath.some((segment, index) => {
-    const parent = schemaPath.slice(0, index)
-    return segment.startsWith('x-') && isSchemaPath(parent) && !isNamedSchemaMap(parent)
-  })
-
-  return !isInsideSchemaExtension
+  return !!schemaPath && isSchemaPath(schemaPath) && !isNamedSchemaMap(schemaPath) && !isInsideExtension(path)
 }
 
 /** Determine if the node at `path` is one arm of a schema's `oneOf` or `anyOf`. */
@@ -77,9 +121,8 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
 
 /** Apply one migration step to a node at its semantic OpenAPI location. */
 export const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
-  // 0. Bail out inside data values (example, default, const, enum). These hold user data, not a
-  // schema, so none of the schema transforms below apply and running them would corrupt the data.
-  if (isInsideDataValue(path, '3.0')) {
+  // Data values and extension payloads are opaque, even when their keys look like schema keywords.
+  if (isInsideDataValue(path, '3.0') || isInsideExtension(path)) {
     return schema
   }
 
@@ -90,12 +133,10 @@ export const applyChangesToDocument = (schema: UnknownObject, path?: string[]) =
     } else if (schema.nullable === true) {
       // Preserve the legacy nullable-reference spelling used by OpenAPI 3.0 exporters.
       if (typeof schema.$ref === 'string') {
-        const { nullable: _nullable, $ref, ...rest } = schema
-        return { ...rest, anyOf: [{ $ref }, { type: 'null' }] }
-      }
-
-      if (['allOf', 'anyOf', 'oneOf'].some((keyword) => Array.isArray(schema[keyword]))) {
-        const { nullable: _nullable, allOf, anyOf, oneOf, ...rest } = schema
+        schema.anyOf = [{ $ref: schema.$ref }, { type: 'null' }]
+        delete schema.$ref
+      } else if (['allOf', 'anyOf', 'oneOf'].some((keyword) => Array.isArray(schema[keyword]))) {
+        const { allOf, anyOf, oneOf } = schema
         const composition = {
           ...(allOf === undefined ? {} : { allOf }),
           ...(anyOf === undefined ? {} : { anyOf }),
@@ -104,11 +145,11 @@ export const applyChangesToDocument = (schema: UnknownObject, path?: string[]) =
         // Keep sibling constraints and annotations outside the union, as for nullable references.
         const base =
           Object.keys(composition).length === 1 && Array.isArray(allOf) && allOf.length === 1 ? allOf[0] : composition
-        return { ...rest, anyOf: [base, { type: 'null' }] }
-      }
-
-      // Some exporters use a nullable-only alternative to mean "or null".
-      if (isUnionArm(path) && isNullableOnly(schema)) {
+        schema.anyOf = [base, { type: 'null' }]
+        delete schema.allOf
+        delete schema.oneOf
+      } else if (isUnionArm(path) && isNullableOnly(schema)) {
+        // Some exporters use a nullable-only alternative to mean "or null".
         schema.type = 'null'
       }
     }

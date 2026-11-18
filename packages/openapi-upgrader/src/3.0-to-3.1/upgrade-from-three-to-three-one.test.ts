@@ -25,6 +25,64 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
   })
 
+  it.each(['allOf', 'anyOf', 'oneOf', '$ref'] as const)(
+    'migrates sibling bounds and examples on a nullable %s',
+    (keyword) => {
+      const reference = { $ref: '#/components/schemas/Number' }
+      const composition = keyword === '$ref' ? reference : { [keyword]: [reference] }
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.4',
+        info: { title: 'Nullable bounds', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Number: { type: 'number' },
+            Value: {
+              nullable: true,
+              ...composition,
+              minimum: 0,
+              maximum: 10,
+              exclusiveMinimum: true,
+              exclusiveMaximum: true,
+              example: 1,
+            },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.Value).toStrictEqual({
+        exclusiveMinimum: 0,
+        exclusiveMaximum: 10,
+        examples: [1],
+        anyOf: [keyword === '$ref' || keyword === 'allOf' ? reference : composition, { type: 'null' }],
+      })
+    },
+  )
+
+  it('preserves schema-like payloads in extensions outside schemas', () => {
+    const extension = {
+      schema: { nullable: true, oneOf: [{ type: 'number' }], minimum: 0, exclusiveMinimum: true, example: 1 },
+    }
+    const document = {
+      openapi: '3.0.4',
+      info: { title: 'Extension data', version: '1', 'x-metadata': extension },
+      'x-metadata': extension,
+      paths: {
+        '/records': {
+          'x-metadata': extension,
+          get: {
+            'x-metadata': extension,
+            parameters: [{ name: 'filter', in: 'query', schema: { type: 'string' }, 'x-metadata': extension }],
+            responses: { '200': { description: 'OK', 'x-metadata': extension } },
+          },
+        },
+      },
+    }
+    const before = structuredClone(document)
+
+    expect(upgradeFromThreeToThreeOne(document)).toStrictEqual({ ...before, openapi: '3.1.1' })
+  })
+
   it('preserves every composition when adding the null alternative', () => {
     const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
       openapi: '3.0.3',
@@ -167,6 +225,58 @@ describe('upgradeFromThreeToThreeOne', () => {
 
     expect(result.components?.requestBodies?.['x-example']).toStrictEqual({
       content: { 'application/json': { schema: { type: ['string', 'null'] } } },
+    })
+  })
+
+  it('upgrades a reusable response named x-example and preserves its extensions', () => {
+    const extension = { schema: { nullable: true, oneOf: [{ type: 'number' }] } }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Responses', version: '1' },
+      paths: {},
+      components: {
+        responses: {
+          'x-example': {
+            description: 'OK',
+            content: { 'application/json': { schema: { type: 'string', nullable: true } } },
+            'x-metadata': extension,
+          },
+        },
+      },
+    })
+
+    expect(result.components?.responses?.['x-example']).toStrictEqual({
+      description: 'OK',
+      content: { 'application/json': { schema: { type: ['string', 'null'] } } },
+      'x-metadata': extension,
+    })
+  })
+
+  it('upgrades schemas in legacy webhooks while preserving their extensions', () => {
+    const extension = { schema: { nullable: true, oneOf: [{ type: 'number' }] } }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Webhooks', version: '1' },
+      paths: {},
+      'x-webhooks': {
+        'x-event': {
+          post: {
+            'x-metadata': extension,
+            requestBody: { content: { 'application/json': { schema: { type: 'string', nullable: true } } } },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+
+    expect(result.webhooks).toStrictEqual({
+      'x-event': {
+        post: {
+          'x-metadata': extension,
+          requestBody: { content: { 'application/json': { schema: { type: ['string', 'null'] } } } },
+          responses: { '200': { description: 'OK' } },
+        },
+      },
     })
   })
 

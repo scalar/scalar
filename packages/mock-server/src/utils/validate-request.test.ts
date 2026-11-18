@@ -1758,6 +1758,23 @@ describe('validate-request', () => {
       consoleErrorSpy.mockRestore()
     })
 
+    it.each(['oneOf', 'anyOf'] as const)('validates sibling exclusive bounds on a nullable %s', async (keyword) => {
+      const schema = {
+        nullable: true,
+        [keyword]: [{ type: 'number' }],
+        minimum: 0,
+        maximum: 10,
+        exclusiveMinimum: true,
+        exclusiveMaximum: true,
+      }
+
+      expect((await postRecord('3.0.4', schema, {})).status).toBe(422)
+      expect((await postRecord('3.0.4', schema, { name: 'x', value: null })).status).toBe(200)
+      expect((await postRecord('3.0.4', schema, { name: 'x', value: 5 })).status).toBe(200)
+      expect((await postRecord('3.0.4', schema, { name: 'x', value: 0 })).status).toBe(422)
+      expect((await postRecord('3.0.4', schema, { name: 'x', value: 10 })).status).toBe(422)
+    })
+
     it.each([
       ['a', 200],
       ['b', 422],
