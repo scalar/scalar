@@ -112,12 +112,12 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
   })
 
-  it('migrates a bundled standalone nullable schema', () => {
+  it.each(['#/x-ext/value', '#%2Fx-ext%2Fvalue'])('migrates a bundled standalone nullable schema at %s', (ref) => {
     const result = upgradeFromThreeToThreeOne({
       openapi: '3.0.3',
       info: { title: 'External schemas', version: '1' },
       paths: {},
-      components: { schemas: { Value: { $ref: '#/x-ext/value' } } },
+      components: { schemas: { Value: { $ref: ref } } },
       'x-ext': { value: { nullable: true, oneOf: [{ type: 'string' }, { type: 'integer' }] } },
     })
 
@@ -125,7 +125,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       openapi: '3.1.1',
       info: { title: 'External schemas', version: '1' },
       paths: {},
-      components: { schemas: { Value: { $ref: '#/x-ext/value' } } },
+      components: { schemas: { Value: { $ref: ref } } },
       'x-ext': { value: { anyOf: [{ oneOf: [{ type: 'string' }, { type: 'integer' }] }, { type: 'null' }] } },
     })
   })
@@ -329,6 +329,25 @@ describe('upgradeFromThreeToThreeOne', () => {
       examples: [literal],
       default: literal,
       'x-metadata': literal,
+    })
+  })
+
+  it('relocates URI-encoded pointers without decoding literal percent sequences twice', () => {
+    const ref = `#${encodeURIComponent('/components/schemas/Value%2F/oneOf/0')}`
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Encoded union references', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          'Value%2F': { nullable: true, oneOf: [{ type: 'string' }] },
+          Alias: { $ref: ref },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.Alias).toStrictEqual({
+      $ref: '#/components/schemas/Value%252F/anyOf/0/oneOf/0',
     })
   })
 

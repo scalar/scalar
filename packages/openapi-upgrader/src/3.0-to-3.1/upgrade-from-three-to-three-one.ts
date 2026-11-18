@@ -92,6 +92,20 @@ const getSchemaPath = (path: string[] | undefined, schemaPaths: ReadonlySet<stri
   return path
 }
 
+/** Decode the URI fragment before parsing pointer tokens, without decoding literal percent signs twice. */
+const parseLocalReference = (ref: string): string[] | undefined => {
+  if (!ref.startsWith('#')) {
+    return undefined
+  }
+  try {
+    const pointer = decodeURIComponent(ref.slice(1))
+    return pointer.startsWith('/') ? parseJsonPointerSegments(pointer.replaceAll('%', '%25')) : undefined
+  } catch {
+    // Invalid URI escapes must not make an otherwise unrelated migration fail.
+    return undefined
+  }
+}
+
 /** Bundles can contain whole OpenAPI documents or arbitrary fragments, not just schemas. */
 const getBundledSchemaPaths = (
   content: UnknownObject,
@@ -102,12 +116,9 @@ const getBundledSchemaPaths = (
     if (path[0] === 'x-ext' && preservedResources.has(path[1] ?? '')) {
       return node
     }
-    if (typeof node.$ref === 'string' && node.$ref.startsWith('#/x-ext/')) {
-      try {
-        references.push({ path, target: parseJsonPointerSegments(node.$ref.slice(1)) })
-      } catch {
-        // Malformed pointers must not make an otherwise unrelated migration fail.
-      }
+    const target = typeof node.$ref === 'string' ? parseLocalReference(node.$ref) : undefined
+    if (target?.[0] === 'x-ext') {
+      references.push({ path, target })
     }
     return node
   })
@@ -174,13 +185,8 @@ export const getNullableComposition = (schema: UnknownObject): NullableCompositi
 
 /** Keep local references pointing at the same subschema when composition members move. */
 const relocateReference = (ref: string, compositions: ReadonlyMap<string, NullableComposition>): string => {
-  if (!ref.startsWith('#/')) {
-    return ref
-  }
-  let segments: string[]
-  try {
-    segments = parseJsonPointerSegments(ref.slice(1))
-  } catch {
+  const segments = parseLocalReference(ref)
+  if (!segments) {
     return ref
   }
   const output: string[] = []
