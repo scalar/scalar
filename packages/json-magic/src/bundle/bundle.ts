@@ -839,6 +839,10 @@ export const bundleDocument = async (
       config.includeCustomReferences,
     )
   const traversal = createTraversal()
+  /** Native references may reinterpret custom subtrees; caller-supplied visited nodes stay excluded. */
+  const processedContexts = config.includeCustomReferences
+    ? new WeakMap<object, ReturnType<typeof traversal.location>[]>()
+    : undefined
   traversal.register(
     documentRoot,
     getDefaultOrigin(),
@@ -1138,11 +1142,22 @@ export const bundleDocument = async (
 
     // Skip if this node has already been processed to prevent infinite recursion
     // and duplicate processing of the same node
-    if (processedNodes.has(root)) {
+    const contexts = processedContexts?.get(root)
+    if (
+      processedNodes.has(root) &&
+      (!contexts ||
+        contexts.some(
+          (previous) =>
+            previous?.context === location?.context &&
+            previous?.customReferences === location?.customReferences &&
+            previous?.schemaSiblings === location?.schemaSiblings,
+        ))
+    ) {
       return
     }
     // Mark this node as processed before continuing
     processedNodes.add(root)
+    processedContexts?.set(root, [...(contexts ?? []), location])
 
     // A node with its own `$id` establishes a new base for resolving relative references within it.
     // Fall back to the origin inherited from the parent document otherwise.
@@ -1197,12 +1212,25 @@ export const bundleDocument = async (
     if (hasRef(root) && (!location || isReferenceContext(location.context))) {
       const ref = root['$ref']
       const report = (kind: ReferenceDiagnostic['kind']): void => {
-        diagnostics?.push({
+        if (!diagnostics) return
+        const diagnostic = {
           kind,
           reference: authoredReference ?? ref,
           source: location?.source ?? origin,
           pointer: `${location?.pointer ?? '#/' + currentPath.map(escapeJsonPointer).join('/')}/$ref`,
-        })
+        }
+        if (
+          config.includeCustomReferences &&
+          diagnostics.some(
+            (previous) =>
+              previous.kind === diagnostic.kind &&
+              previous.reference === diagnostic.reference &&
+              previous.source === diagnostic.source &&
+              previous.pointer === diagnostic.pointer,
+          )
+        )
+          return
+        diagnostics.push(diagnostic)
       }
       // Schema and Path Item siblings retain their authored structure; they are not merged.
       if (
@@ -1255,12 +1283,14 @@ export const bundleDocument = async (
         if (!local.preserveReference && !preserveRootResourceReference) {
           root.$ref = referenceToRoot(localRef ? `#/${localRef}` : '#', nodeOrigin)
         }
+        const targetLocation = isObject(local.value) ? traversal.location(local.value) : undefined
         if (
           config.traversal === 'document' &&
           location &&
           isObject(local.value) &&
           local.value !== root &&
-          traversal.location(local.value)?.context !== location.context
+          (targetLocation?.context !== location.context ||
+            (targetLocation?.customReferences && !location.customReferences))
         ) {
           const source = isObject(local.document) ? traversal.location(local.document)?.source : undefined
           const targetPath = parsePath(`/${localRef}`).slice(local.documentPath.length)

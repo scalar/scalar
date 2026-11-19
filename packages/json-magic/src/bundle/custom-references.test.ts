@@ -221,6 +221,64 @@ describe('custom-references', () => {
     expect(exported.components.parameters.P).toStrictEqual(parameter)
   })
 
+  it.each(['schema', 'parameter'].flatMap((kind) => [false, true].map((customFirst) => ({ kind, customFirst }))))(
+    'exposes an extension-stored $kind with native rules (custom first: $customFirst)',
+    async ({ kind, customFirst }) => {
+      const reads: string[] = []
+      const schema = { properties: { default: { $ref: './custom.json' }, shared: { $ref: './custom.json' } } }
+      const native = {
+        components: { [kind === 'schema' ? 'schemas' : 'parameters']: { Entry: { $ref: '#/x-target' } } },
+      }
+      const extension = { 'x-target': kind === 'schema' ? schema : { name: 'p', in: 'query', schema } }
+      const result = await bundleWithDiagnostics(
+        { ...api, ...(customFirst ? extension : native), ...(customFirst ? native : extension) },
+        {
+          origin: 'https://source.test/root.json',
+          traversal: 'document',
+          includeCustomReferences: true,
+          treeShake: false,
+          preserveReference: (reference) => /^https?:\/\//i.test(reference),
+          plugins: [loader(reads)],
+        },
+      )
+      expect(result.diagnostics).toStrictEqual([])
+      expect(reads).toStrictEqual(['https://source.test/custom.json'])
+      const exported = JSON.parse(JSON.stringify(result.document))
+      const bundledSchema = kind === 'schema' ? exported['x-target'] : exported['x-target'].schema
+      expect(local(exported, bundledSchema.properties.default.$ref)).toStrictEqual({ type: 'string' })
+      expect(local(exported, bundledSchema.properties.shared.$ref)).toStrictEqual({ type: 'string' })
+    },
+  )
+
+  it('reports each source error once when a native reference reinterprets a custom target', async () => {
+    const reads: string[] = []
+    const result = await bundleWithDiagnostics(
+      {
+        ...api,
+        'x-target': { properties: { shared: { $ref: './missing.json' }, default: { $ref: './custom.json' } } },
+        components: { schemas: { Entry: { $ref: '#/x-target' } } },
+      },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake: false,
+        preserveReference: (reference) => /^https?:\/\//i.test(reference),
+        plugins: [loader(reads)],
+      },
+    )
+    expect(reads).toStrictEqual(['https://source.test/missing.json', 'https://source.test/custom.json'])
+    expect(result.diagnostics).toStrictEqual([
+      {
+        kind: 'unresolved-document',
+        reference: './missing.json',
+        source: 'https://source.test/root.json',
+        pointer: '#/x-target/properties/shared/$ref',
+      },
+    ])
+    expect(result.complete).toBe(false)
+  })
+
   it('retains imported document context when custom references are disabled', async () => {
     const origin = 'https://source.test/root.json'
     const result = await bundleWithDiagnostics(
