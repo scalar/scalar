@@ -38,6 +38,18 @@ describe('get-example-content', () => {
       JSON.stringify({ name: 'Earth', planets: [{ name: 'Earth' }] }, null, 2),
     )
   })
+  it('generates examples for schemas with several references to themselves', () => {
+    const schema: SchemaObject = { type: 'object', properties: { id: { type: 'integer', example: 1 } } }
+    for (const name of ['a1', 'a2', 'a3', 'a4', 'a5']) {
+      schema.properties![name] = { $ref: '#/components/schemas/A', '$ref-value': schema }
+    }
+
+    const content = getExampleContent({ schema: { $ref: '#/components/schemas/A', '$ref-value': schema } }, undefined)
+
+    expect(JSON.parse(content!).a5.a5.id).toBe(1)
+    expect(content!.length).toBeLessThan(100_000)
+  })
+
   it('applies response composition selection to XML serialization', () => {
     const response = {
       schema: coerceValue(SchemaObjectSchema, {
