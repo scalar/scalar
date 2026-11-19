@@ -2161,6 +2161,23 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toBeNull()
   })
 
+  it.each([{ example: null }, { examples: [null] }, { default: null }, { const: null }, { enum: [null] }])(
+    'keeps an authored null beside shared union properties: %j',
+    (declaration) => {
+      for (const keyword of ['oneOf', 'anyOf']) {
+        for (const type of ['object', ['object', 'null']]) {
+          const schema = coerceValue(SchemaObjectSchema, {
+            type,
+            properties: { id: { type: 'integer' } },
+            [keyword]: [{ ...NULLABLE_CAT, ...declaration }],
+          })
+
+          expect(getExampleFromSchema(schema)).toBeNull()
+        }
+      }
+    },
+  )
+
   it.each([
     { name: 'an object example', variant: { example: { lives: 3 } }, expected: { lives: 3 } },
     {

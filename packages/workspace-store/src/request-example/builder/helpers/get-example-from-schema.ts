@@ -2032,7 +2032,8 @@ const generateExampleFromSchema = (
   const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
   if (selectedComposition && selectedVariant) {
     const selectedType = getSelectedType(selectedVariant, _schema)
-    if (selectedType !== undefined && selectedType !== 'object') {
+    // A declared null must be selected directly: merging it into shared object properties loses it.
+    if (selectedType !== undefined && (selectedType !== 'object' || getDeclaredValue(selectedVariant) === null)) {
       if (seen.has(getSchemaCacheTarget(selectedVariant))) {
         seen.delete(targetValue)
         return undefined
