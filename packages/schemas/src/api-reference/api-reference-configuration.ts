@@ -102,6 +102,10 @@ export const apiReferenceConfigurationSchema = intersection([
       default: false,
       typeComment: 'Whether to show the operationId',
     }),
+    showBadgesInSidebar: boolean({
+      default: false,
+      typeComment: 'Whether to show the x-badges of operations, webhooks, tags, tag groups and models in the sidebar',
+    }),
     darkMode: optional(boolean(), {
       typeComment: 'Whether dark mode is on or off initially (light mode)',
     }),

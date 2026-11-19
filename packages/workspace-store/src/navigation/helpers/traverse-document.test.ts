@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
-import type { TraversedTag } from '@/schemas/navigation'
+import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { type OpenApiDocument, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
+import { OpenAPIDocumentSchema, type OpenApiDocument, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
 import { traverseDocument } from './traverse-document'
 
@@ -514,5 +514,99 @@ describe('traverseDocument', () => {
     expect(result.children[0]?.title).toBe('Introduction')
     expect(result.children[1]?.title).toBe('a-tag')
     expect(result.children[2]?.title).toBe('z-tag')
+  })
+
+  describe('x-badges', () => {
+    const findEntry = (entries: TraversedEntry[] | undefined, title: string): TraversedEntry | undefined => {
+      for (const entry of entries ?? []) {
+        if (entry.title === title) {
+          return entry
+        }
+        const child = findEntry('children' in entry ? entry.children : undefined, title)
+        if (child) {
+          return child
+        }
+      }
+      return undefined
+    }
+
+    const getBadges = (entries: TraversedEntry[] | undefined, title: string) => {
+      const entry = findEntry(entries, title)
+      return entry && 'badges' in entry ? entry.badges : undefined
+    }
+
+    it('adds badges to tag groups, tags, operations, webhooks and models', () => {
+      const doc = coerceValue(OpenAPIDocumentSchema, {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        tags: [{ name: 'Users', 'x-badges': [{ name: 'Deprecated', color: 'red' }] }],
+        'x-tagGroups': [{ name: 'Core', tags: ['Users'], 'x-badges': [{ name: 'Stable' }] }],
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+              tags: ['Users'],
+              'x-badges': [
+                { name: 'Beta', color: '#f59e0b' },
+                { name: 'New', position: 'before' },
+              ],
+            },
+            post: { summary: 'Create user', tags: ['Users'] },
+          },
+        },
+        webhooks: {
+          userCreated: { post: { summary: 'User created', 'x-badges': [{ name: 'Experimental' }] } },
+        },
+        components: {
+          schemas: {
+            User: { type: 'object', 'x-badges': [{ name: 'Internal' }] },
+          },
+        },
+      })
+
+      const { children } = traverseDocument('doc-1', doc, mockOptions)
+
+      expect(getBadges(children, 'Core')).toStrictEqual([{ name: 'Stable' }])
+      expect(getBadges(children, 'Users')).toStrictEqual([{ name: 'Deprecated', color: 'red' }])
+      expect(getBadges(children, 'Get users')).toStrictEqual([
+        { name: 'Beta', color: '#f59e0b' },
+        { name: 'New', position: 'before' },
+      ])
+      expect(getBadges(children, 'User created')).toStrictEqual([{ name: 'Experimental' }])
+      expect(getBadges(children, 'User')).toStrictEqual([{ name: 'Internal' }])
+    })
+
+    it('adds badges to nested OpenAPI 3.2 tags', () => {
+      const doc = coerceValue(OpenAPIDocumentSchema, {
+        openapi: '3.2.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        tags: [
+          { name: 'Accounts', 'x-badges': [{ name: 'Beta' }] },
+          { name: 'Billing', parent: 'Accounts', 'x-badges': [{ name: 'New' }] },
+        ],
+        paths: {
+          '/invoices': { get: { summary: 'Get invoices', tags: ['Billing'] } },
+        },
+      })
+
+      const { children } = traverseDocument('doc-1', doc, mockOptions)
+
+      expect(getBadges(children, 'Accounts')).toStrictEqual([{ name: 'Beta' }])
+      expect(getBadges(children, 'Billing')).toStrictEqual([{ name: 'New' }])
+    })
+
+    it('omits the badges key when an entry has no badges', () => {
+      const doc = coerceValue(OpenAPIDocumentSchema, {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        tags: [{ name: 'Users' }],
+        paths: { '/users': { post: { summary: 'Create user', tags: ['Users'] } } },
+      })
+
+      const { children } = traverseDocument('doc-1', doc, mockOptions)
+
+      expect(findEntry(children, 'Users')).not.toHaveProperty('badges')
+      expect(findEntry(children, 'Create user')).not.toHaveProperty('badges')
+    })
   })
 })
