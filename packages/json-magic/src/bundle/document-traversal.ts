@@ -163,7 +163,7 @@ export const documentTraversal = (
     // Native references establish their vocabulary for custom-stored targets.
     // Other targets retain their authored vocabulary.
     const authoredContext = targetLocation?.context
-    const nativeExposure = targetLocation?.customReferences && !customTarget
+    const nativeExposure = targetLocation?.customReferences && (!customTarget || isSchemaContext(context))
     const retainContext =
       !nativeExposure &&
       ((customTarget &&
