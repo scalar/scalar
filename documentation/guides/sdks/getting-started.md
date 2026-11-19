@@ -8,6 +8,8 @@ Make sure you have created a Scalar account and are logged in. If you are new to
 
 Copy this prompt into your coding agent to get your first SDKs working. It helps you choose your targets and package names, then guides you through a first build. GitHub and package publishing are optional next steps.
 
+<scalar-prompt title="Set up your first SDKs">
+
 ```text
 Help me get my first SDKs working with Scalar.
 
@@ -42,6 +44,8 @@ Aim for a working first build. At the end, show me what was
 created, how to use it, and how to rebuild after API changes.
 Then ask whether I want to set up GitHub or package publishing.
 ```
+
+</scalar-prompt>
 
 ## Generate your first target
 
