@@ -48,8 +48,9 @@
     font-style: italic;
   }
 
-  /** Brackets, commas and separators stay quieter than the code around them */
+  /** Brackets, commas, separators and operators stay quieter than the code around them */
   .hljs-punctuation,
+  .hljs-operator,
   .hljs-bullet {
     color: var(--scalar-code-punctuation, var(--scalar-color-2));
   }

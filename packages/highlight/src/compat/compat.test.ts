@@ -370,6 +370,13 @@ describe('compat surface', () => {
     expect(hljsClass('nonsense')).toBe(null)
   })
 
+  it('gives operators a class, so they can be colored like punctuation', () => {
+    expect(syntaxHighlight('let c = Client::new();\n', { lang: 'rust' })).toContain(
+      '<span class="hljs-operator">::</span>',
+    )
+    expect(syntaxHighlight('const a = 1\n', { lang: 'javascript' })).toContain('<span class="hljs-operator">=</span>')
+  })
+
   it('treats prototype-named scopes as unmapped rather than inherited members', () => {
     // A grammar is data a caller supplies, so a scope named `constructor` must
     // not resolve off Object.prototype into a function.
