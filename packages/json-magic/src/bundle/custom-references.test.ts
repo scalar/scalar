@@ -322,24 +322,31 @@ describe('custom-references', () => {
     },
   )
 
-  it.each([false, true])(
-    'exposes schema targets from declared custom schemas (custom first: %s)',
-    async (customFirst) => {
+  it.each(
+    [false, true].flatMap((customFirst) =>
+      [false, true].flatMap((diagnostics) =>
+        [false, true].map((treeShake) => ({ customFirst, diagnostics, treeShake })),
+      ),
+    ),
+  )(
+    'exposes custom schema targets (custom first: $customFirst, diagnostics: $diagnostics, treeShake: $treeShake)',
+    async ({ customFirst, diagnostics, treeShake }) => {
       const reads: string[] = []
       const schema = { 'x-schema': { type: 'object', properties: { p: { $ref: '#/x-target' } } } }
       const target = { 'x-target': { properties: { default: { $ref: './custom.json' } } } }
-      const result = await bundleWithDiagnostics(
-        { ...api, ...(customFirst ? target : schema), ...(customFirst ? schema : target) },
-        {
-          origin: 'https://source.test/root.json',
-          traversal: 'document',
-          includeCustomReferences: true,
-          treeShake: false,
-          preserveReference: (reference) => /^https?:\/\//i.test(reference),
-          plugins: [loader(reads)],
-        },
-      )
-      expect(result.diagnostics).toStrictEqual([])
+      const input = { ...api, ...(customFirst ? target : schema), ...(customFirst ? schema : target) }
+      const config = {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake,
+        preserveReference: (reference) => /^https?:\/\//i.test(reference),
+        plugins: [loader(reads)],
+      } satisfies Config
+      const result = diagnostics
+        ? await bundleWithDiagnostics(input, config)
+        : { document: await bundle(input, config) }
+      if ('diagnostics' in result) expect(result.diagnostics).toStrictEqual([])
       expect(reads).toStrictEqual(['https://source.test/custom.json'])
       const exported = JSON.parse(JSON.stringify(result.document))
       expect(local(exported, exported['x-target'].properties.default.$ref)).toStrictEqual({ type: 'string' })

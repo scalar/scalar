@@ -1345,7 +1345,7 @@ export const bundleDocument = async (
           isPartialBundling ||
           lifecyclePlugin.some((plugin) => plugin.onBeforeTargetProcess) ||
           config.hooks?.onBeforeTargetProcess ||
-          (diagnostics && config.traversal === 'document')
+          ((diagnostics || config.includeCustomReferences) && config.traversal === 'document')
         ) {
           const segments = parsePath(`/${localRef}`)
           const parent = segments.length > 0 ? getValueByPath(documentRoot, segments.slice(0, -1)).value : undefined
