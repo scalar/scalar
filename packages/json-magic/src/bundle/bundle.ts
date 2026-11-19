@@ -928,13 +928,18 @@ export const bundleDocument = async (
     references.identity(documentRoot) !== undefined || identifySchema(documentRoot)?.id !== undefined
   const relocationTargets = new WeakMap<object, RelocationTarget>()
   const sourceReferences = new Map<object, SourceReference>()
+  /** Native targets keep their vocabulary; literal targets inherit the referring custom context. */
+  const getAuthoredTargetLocation = (value: unknown): ReturnType<typeof traversal.location> => {
+    const location = config.includeCustomReferences && isObject(value) ? traversal.location(value) : undefined
+    return location && location.context !== 'data' && location.context !== 'data-container' ? location : undefined
+  }
   const relocationContext = (
     value: unknown,
     fallback: ReferenceContext,
     customReferences?: true,
   ): Pick<RelocationTarget, 'context' | 'customReferences'> => {
-    const location = config.includeCustomReferences && isObject(value) ? traversal.location(value) : undefined
-    if (location && location.context !== 'data' && location.context !== 'data-container') {
+    const location = getAuthoredTargetLocation(value)
+    if (location) {
       return { context: location.context, ...(location.customReferences ? { customReferences: true } : {}) }
     }
     return { context: fallback, ...(customReferences ? { customReferences: true } : {}) }
@@ -1043,6 +1048,7 @@ export const bundleDocument = async (
     location: ReturnType<typeof traversal.location>,
     referenceSource: DocumentLocation,
   ): Promise<NonNullable<ReturnType<typeof references.resolve>>> => {
+    const targetLocation = getAuthoredTargetLocation(target.value) ?? location
     const originalPath = target.segments.slice(target.documentPath.length)
     let path = originalPath
     let value = target.value
@@ -1078,7 +1084,7 @@ export const bundleDocument = async (
     const uri = isObject(target.document)
       ? (references.retrievalOrigin(target.document) ?? context.origin)
       : context.origin
-    traversal.register(target.document, uri, location?.context, path, location?.customReferences)
+    traversal.register(target.document, uri, targetLocation?.context, path, targetLocation?.customReferences)
     references.refresh(target.document, path)
     const segments = [...target.documentPath, ...path]
     return { ...target, value, segments, path: segments.map(escapeJsonPointer).join('/'), preserveReference: false }

@@ -188,6 +188,34 @@ describe('custom-references', () => {
     expect('examples' in target ? target.examples : undefined).toStrictEqual([literal])
   })
 
+  it('retains native target rules when a custom reference transforms it', async () => {
+    const reads: string[] = []
+    const parameter = {
+      $ref: 'https://unreachable.test/parameter',
+      ignored: { $ref: './ignored.json' },
+    }
+    const result = await bundleWithDiagnostics(
+      {
+        ...api,
+        'x-entry': { $ref: '#/components/parameters/P' },
+        components: { parameters: { P: parameter } },
+      },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake: false,
+        preserveReference: (reference) => /^https?:\/\//i.test(reference),
+        hooks: { onBeforeTargetProcess: (target) => ({ value: structuredClone(target) }) },
+        plugins: [loader(reads)],
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(reads).toStrictEqual([])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    expect(exported.components.parameters.P).toStrictEqual(parameter)
+  })
+
   it('retains imported document context when custom references are disabled', async () => {
     const origin = 'https://source.test/root.json'
     const result = await bundleWithDiagnostics(
