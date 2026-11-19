@@ -188,6 +188,8 @@ minimumReleaseAgeExclude:
   - undici@8.12.4
   # Renovate security update: nuxt@4.6.4
   - nuxt@4.6.4
+  # Electron desktop runtime upgrade.
+  - electron@45.4.1
 patchedDependencies:
   postman-collection@5.3.1: patches/postman-collection@5.3.1.patch
   proto-parser@0.0.9: patches/proto-parser@0.0.9.patch
