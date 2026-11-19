@@ -36264,7 +36264,7 @@ snapshots:
       mdast-util-phrasing: 4.1.0
       mdast-util-to-string: 4.0.0
       micromark-util-decode-string: 2.0.0
-      unist-util-visit: 5.2.0
+      unist-util-visit: 5.1.0
       zwitch: 2.0.4
 
   mdast-util-to-markdown@2.1.2:
