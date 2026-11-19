@@ -14,11 +14,13 @@
  * throws instead, and the fix is a deliberate choice: revert the sample, or
  * drop that language from the reference and say why.
  */
+import { generateHash } from '@scalar/helpers/string/generate-hash'
+
 import fixture from './reference.json'
 
 /** One sample as the lowlight pipeline rendered it. */
 type Rendered = {
-  /** FNV-1a of the source, so a changed sample cannot silently drift. */
+  /** Hash of the source, so a changed sample cannot silently drift. */
   hash: string
   /** `syntaxHighlight(code, { lang })`, verbatim. */
   html: string
@@ -26,16 +28,6 @@ type Rendered = {
   lineEnvelope: string
   /** Text of each `<span class="line">` with `lineNumbers: true`. */
   lineTexts: string[]
-}
-
-/** 32-bit FNV-1a, in hex. Not for security, only to notice an edited sample. */
-const hashSource = (code: string): string => {
-  let hash = 0x811c9dc5
-  for (let i = 0; i < code.length; i++) {
-    hash ^= code.charCodeAt(i)
-    hash = Math.imul(hash, 0x01000193)
-  }
-  return (hash >>> 0).toString(16).padStart(8, '0')
 }
 
 /**
@@ -54,7 +46,7 @@ const lookup = (table: Record<string, Rendered>, key: string, code: string): Ren
   if (!entry) {
     throw new Error(`No lowlight reference for ${JSON.stringify(key)}. The reference is frozen, see test/reference.ts.`)
   }
-  if (entry.hash !== hashSource(code)) {
+  if (entry.hash !== generateHash(code)) {
     throw new Error(
       `The source for ${JSON.stringify(key)} changed after its lowlight reference was frozen, see test/reference.ts.`,
     )

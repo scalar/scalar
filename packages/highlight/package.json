@@ -86,6 +86,7 @@
     "@types/hast": "^3.0.5"
   },
   "devDependencies": {
+    "@scalar/helpers": "workspace:*",
     "rolldown": "catalog:*",
     "vitest": "catalog:*"
   }
