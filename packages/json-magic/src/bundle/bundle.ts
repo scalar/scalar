@@ -856,6 +856,18 @@ export const bundleDocument = async (
       ? 'schema'
       : 'object',
   )
+  /** Native fields establish target vocabularies before custom values are traversed. */
+  const traversalKeys = function* (node: object): Generator<string> {
+    if (config.traversal !== 'document' || !config.includeCustomReferences) {
+      for (const key in node) yield key
+      return
+    }
+    const customOrder = (key: string): number => {
+      const child: unknown = Reflect.get(node, key)
+      return child !== null && typeof child === 'object' && traversal.location(child)?.customReferences ? 1 : 0
+    }
+    yield* Object.keys(getRaw(node)).sort((left, right) => customOrder(left) - customOrder(right))
+  }
   const deferredCopies: (() => void)[] = []
   const copyReferences = (...args: Parameters<typeof resolveAndCopyReferences>): void => {
     const copy = (): void =>
@@ -1199,7 +1211,11 @@ export const bundleDocument = async (
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
 
     const visitChildren = async (): Promise<void> => {
-      for (const key of Object.keys(config.traversal === 'document' ? getRaw(root) : root)) {
+      const keys =
+        config.traversal === 'document' && config.includeCustomReferences
+          ? traversalKeys(root)
+          : Object.keys(config.traversal === 'document' ? getRaw(root) : root)
+      for (const key of keys) {
         if (key === '$ref' || key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey) {
           continue
         }
@@ -1583,7 +1599,7 @@ export const bundleDocument = async (
     // We explicitly skip the extension keys (x-ext and x-ext-urls) to avoid reprocessing already bundled or mapped content.
     // Match the authored keys indexed by document traversal; virtual proxy links
     // can otherwise revisit the document through nodes that have no data context.
-    for (const key in root) {
+    for (const key of traversalKeys(root)) {
       if (config.traversal === 'document' && !Object.hasOwn(getRaw(root), key)) {
         continue
       }

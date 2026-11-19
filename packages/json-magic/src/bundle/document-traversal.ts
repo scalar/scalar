@@ -160,12 +160,17 @@ export const documentTraversal = (
       return
     }
     const targetLocation = locations.get(target)
-    // References retain the target's authored vocabulary. Only a fragment initially
-    // guessed to be a generic schema needs its referring schema context applied.
+    // Native references establish their vocabulary for custom-stored targets.
+    // Other targets retain their authored vocabulary.
     const authoredContext = targetLocation?.context
+    const nativeExposure = targetLocation?.customReferences && !customTarget
     const retainContext =
-      (customTarget && api && authoredContext !== undefined && !['data', 'data-container'].includes(authoredContext)) ||
-      (isSchemaContext(authoredContext) && isSchemaContext(context) && (api || authoredContext !== 'schema'))
+      !nativeExposure &&
+      ((customTarget &&
+        api &&
+        authoredContext !== undefined &&
+        !['data', 'data-container'].includes(authoredContext)) ||
+        (isSchemaContext(authoredContext) && isSchemaContext(context) && (api || authoredContext !== 'schema')))
     if (retainContext) return
     const customSchema = customTarget && context === 'object' && declaresSchema(target)
     const nextContext = customSchema ? 'schema' : context
