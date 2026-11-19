@@ -191,7 +191,7 @@ export const childReferenceContext = (
     ) {
       return schemaContext
     if (['example', 'examples', 'default', 'enum', 'const', 'value'].includes(key)) return 'data'
-    return includeCustomReferences ? schemaContext : 'data'
+    return includeCustomReferences ? 'object' : 'data'
   }
   if (context === 'link' && ['parameters', 'requestBody'].includes(key)) {
     return 'data'
