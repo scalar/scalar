@@ -50,6 +50,7 @@ export const documentTraversal = (
     customReferences?: boolean,
     referenceSiblings?: boolean,
   ) => void
+  registerCopy: (document: unknown, location: SourceLocation) => void
   location: (node: object) => SourceLocation | undefined
 } => {
   const exposures = new WeakMap<object, ReferenceContext>()
@@ -154,7 +155,7 @@ export const documentTraversal = (
         return
       }
       const location = locations.get(target)
-      if (location?.context === 'data') {
+      if (location?.context === 'data' && !includeCustomReferences) {
         locations.set(target, { ...location, context: 'data-container' })
         exposures.set(target, 'data-container')
       }
@@ -164,6 +165,8 @@ export const documentTraversal = (
       return
     }
     const targetLocation = locations.get(target)
+    // Literal occurrences are exposed through independent occurrence copies.
+    if (includeCustomReferences && targetLocation && ['data', 'data-container'].includes(targetLocation.context)) return
     // Native references establish their vocabulary for custom-stored targets.
     // Other targets retain their authored vocabulary.
     const authoredContext = targetLocation?.context
@@ -191,5 +194,21 @@ export const documentTraversal = (
     visited = new WeakSet<object>()
     visit(target, [...targetPath], nextContext, targetSiblings, customReferences)
   }
-  return { register, location: (node: object): SourceLocation | undefined => locations.get(node) }
+  return {
+    register,
+    registerCopy: (document, location) => {
+      if (document !== null && typeof document === 'object') registered.delete(document)
+      register(document, location.source, location.context, [], location.customReferences, location.schemaSiblings)
+      const visited = new WeakSet<object>()
+      const label = (value: unknown): void => {
+        if (value === null || typeof value !== 'object' || visited.has(value)) return
+        visited.add(value)
+        const indexed = locations.get(value)
+        if (indexed) locations.set(value, { ...indexed, pointer: `${location.pointer}${indexed.pointer.slice(1)}` })
+        for (const key of Object.keys(getRaw(value))) label(Reflect.get(value, key))
+      }
+      label(document)
+    },
+    location: (node: object): SourceLocation | undefined => locations.get(node),
+  }
 }

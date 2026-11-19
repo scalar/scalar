@@ -148,7 +148,8 @@ use the absolute HTTP(S) predicate above for portable external references.
 
 With `traversal: 'document'`, set `includeCustomReferences: true` to also bundle
 references in `x-*` extension values and unknown schema keywords. Literal example,
-default, enum, const, and value data remains untouched. The option is off by
+default, enum, const, and value data remains untouched. References exposing literal
+data as schemas bundle an independent copy, preserving the original value. The option is off by
 default; strict document traversal and generic traversal retain their behavior.
 Custom objects retain their identifier and anchor scope, while references into
 standard API structures keep the target's format rules. Native references also

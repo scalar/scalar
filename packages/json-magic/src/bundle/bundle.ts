@@ -1061,12 +1061,99 @@ export const bundleDocument = async (
     return targets
   }
 
+  const literalTargets = new WeakMap<object, Map<string, NonNullable<ReturnType<typeof references.resolve>>>>()
+  let literalTargetIndex = 0
+  /** Literal occurrences stay opaque; references expose independent, addressable copies. */
+  const exposeLiteralTarget = (
+    target: NonNullable<ReturnType<typeof references.resolve>>,
+    location: ReturnType<typeof traversal.location>,
+  ): NonNullable<ReturnType<typeof references.resolve>> => {
+    const value = target.value
+    if (!customTraversal || !location || value === null || typeof value !== 'object') return target
+    const authored = traversal.location(value)
+    if (!authored || !['data', 'data-container'].includes(authored.context)) return target
+    const vocabulary = `${location.context}:${Boolean(location.customReferences)}:${location.schemaSiblings}`
+    const copies = literalTargets.get(value) ?? new Map()
+    const existing = copies.get(vocabulary)
+    if (existing) return existing
+    const cloned = new WeakMap<object, unknown>()
+    const copy = (node: unknown): unknown => {
+      if (node === null || typeof node !== 'object') return node
+      const raw = getRaw(node)
+      if (cloned.has(raw)) return cloned.get(raw)
+      const result = Array.isArray(node) ? [] : {}
+      cloned.set(raw, result)
+      for (const key of Object.keys(raw)) {
+        Object.defineProperty(result, key, {
+          value: copy(Reflect.get(node, key)),
+          enumerable: true,
+          writable: true,
+          configurable: true,
+        })
+      }
+      return result
+    }
+    const fragment = copy(value)
+    let parent = target.document
+    let origin = isObject(parent) ? references.origin(parent) : undefined
+    let retrievalBase = isObject(parent) ? references.retrievalOrigin(parent) : undefined
+    for (const key of target.segments.slice(target.documentPath.length, -1)) {
+      if (parent === null || typeof parent !== 'object') break
+      parent = Reflect.get(parent, key)
+      if (parent !== null && typeof parent === 'object') {
+        origin = references.origin(parent) ?? origin
+        retrievalBase = references.retrievalOrigin(parent) ?? retrievalBase
+      }
+    }
+    const sourceUri = isObject(target.document) ? references.sourceOrigin(target.document) : undefined
+    let storage = documentRoot[config.externalDocumentsKey]
+    if (!isObject(storage)) {
+      storage = {}
+      Object.defineProperty(documentRoot, config.externalDocumentsKey, {
+        value: storage,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      })
+    }
+    let key: string
+    do {
+      key = `literal-${literalTargetIndex++}`
+    } while (Object.hasOwn(storage, key) || Object.hasOwn(mappings, key))
+    const segments = [config.externalDocumentsKey, key]
+    traversal.registerCopy(fragment, { ...location, source: authored.source, pointer: authored.pointer })
+    references.registerFragment(fragment, {
+      origin: origin ?? defaultOrigin,
+      retrievalBase: retrievalBase ?? origin ?? defaultOrigin,
+      sourceUri: sourceUri ?? authored.source,
+      path: segments,
+    })
+    Object.defineProperty(storage, key, { value: fragment, enumerable: true, writable: true, configurable: true })
+    mappings[key] = `${authored.source}${authored.pointer}`
+    const exposed = {
+      ...target,
+      value: fragment,
+      document: fragment,
+      documentPath: segments,
+      segments,
+      path: segments.map(escapeJsonPointer).join('/'),
+      preserveReference: false,
+      resourceRelative: false,
+    }
+    copies.set(vocabulary, exposed)
+    literalTargets.set(value, copies)
+    return exposed
+  }
+
   const prepareTarget = async (
     target: NonNullable<ReturnType<typeof references.resolve>>,
     context: NodeProcessContext,
     location: ReturnType<typeof traversal.location>,
     referenceSource: DocumentLocation,
   ): Promise<NonNullable<ReturnType<typeof references.resolve>>> => {
+    const sourceTarget = target
+    const sourcePath = target.segments.slice(target.documentPath.length)
+    target = exposeLiteralTarget(target, location)
     const targetLocation = getAuthoredTargetLocation(target.value) ?? location
     const originalPath = target.segments.slice(target.documentPath.length)
     let path = originalPath
@@ -1076,17 +1163,20 @@ export const bundleDocument = async (
       ...lifecyclePlugin.map((plugin) => plugin.onBeforeTargetProcess),
     ]) {
       const transformed = await hook?.(value, {
-        document: target.document,
-        path: originalPath,
-        uri: isObject(target.document)
-          ? (references.retrievalOrigin(target.document) ?? context.origin)
+        document: sourceTarget.document,
+        path: sourcePath,
+        uri: isObject(sourceTarget.document)
+          ? (references.retrievalOrigin(sourceTarget.document) ?? context.origin)
           : context.origin,
         referencedFrom: context,
         referenceSource,
       })
       if (transformed) {
         value = transformed.value
-        path = transformed.path ? [...transformed.path] : path
+        if (transformed.path) {
+          target = sourceTarget
+          path = [...transformed.path]
+        }
       }
     }
     if (value === target.value && path === originalPath) {
@@ -1099,18 +1189,23 @@ export const bundleDocument = async (
         delete target.document[key]
       }
       Object.assign(target.document, value)
+      if (target !== sourceTarget) value = target.document
     }
     const uri = isObject(target.document)
       ? (references.retrievalOrigin(target.document) ?? context.origin)
       : context.origin
-    traversal.register(
-      target.document,
-      uri,
-      targetLocation?.context,
-      path,
-      targetLocation?.customReferences,
-      customTraversal ? targetLocation?.schemaSiblings : undefined,
-    )
+    if (target !== sourceTarget && targetLocation) {
+      traversal.registerCopy(target.document, targetLocation)
+    } else {
+      traversal.register(
+        target.document,
+        uri,
+        targetLocation?.context,
+        path,
+        targetLocation?.customReferences,
+        customTraversal ? targetLocation?.schemaSiblings : undefined,
+      )
+    }
     references.refresh(target.document, path)
     const segments = [...target.documentPath, ...path]
     return { ...target, value, segments, path: segments.map(escapeJsonPointer).join('/'), preserveReference: false }
@@ -1396,31 +1491,36 @@ export const bundleDocument = async (
             referencedFromPath,
           )
         }
-        if (local.documentPath.length > 0) {
+        const importedTargets =
+          initialTarget && local.document !== initialTarget.document ? [local, initialTarget] : [local]
+        for (const imported of importedTargets) {
+          if (!imported.documentPath.length) continue
           const origin =
-            isObject(local.document) || Array.isArray(local.document) ? references.origin(local.document) : nodeOrigin
-          if (!references.identity(local.document)?.visitReferencedSubtrees) {
-            await bundler(local.document, origin, isChunkParent, depth + 1, local.documentPath)
+            isObject(imported.document) || Array.isArray(imported.document)
+              ? references.origin(imported.document)
+              : nodeOrigin
+          if (!references.identity(imported.document)?.visitReferencedSubtrees) {
+            await bundler(imported.document, origin, isChunkParent, depth + 1, imported.documentPath)
           }
-          if (config.treeShake) {
-            const [key, documentKey] = local.documentPath
+          if (config.treeShake && imported === local) {
+            const [key, documentKey] = imported.documentPath
             copyReferences(
               documentRoot,
-              { [key]: { [documentKey]: local.document } },
+              { [key]: { [documentKey]: imported.document } },
               `/${localRef}`,
               key,
               documentKey,
               false,
               new Set(),
-              references.identity(local.document)?.metadata,
+              references.identity(imported.document)?.metadata,
             )
           }
           if (!config.treeShake || diagnostics) {
-            const metadata = references.identity(local.document)?.metadata
+            const metadata = references.identity(imported.document)?.metadata
             setPath(
               documentRoot,
-              `/${local.documentPath.map(escapeJsonPointer).join('/')}`,
-              isObject(local.document) && metadata ? { ...local.document, ...metadata } : local.document,
+              `/${imported.documentPath.map(escapeJsonPointer).join('/')}`,
+              isObject(imported.document) && metadata ? { ...imported.document, ...metadata } : imported.document,
             )
           }
         }
@@ -1546,7 +1646,11 @@ export const bundleDocument = async (
             initialTarget && !isChunk
               ? await prepareTarget(initialTarget, context, location, referenceSource)
               : initialTarget
-          if (target && !isChunk && references.identity(result.data)?.visitReferencedSubtrees) {
+          if (
+            target &&
+            !isChunk &&
+            (references.identity(result.data)?.visitReferencedSubtrees || target.document !== result.data)
+          ) {
             await bundler(
               target.value,
               resolvedPath,
@@ -1577,19 +1681,21 @@ export const bundleDocument = async (
                 location?.schemaSiblings,
               ),
             })
+          const copiedDocument = target?.document ?? result.data
+          const copiedKey = target?.documentPath[1] ?? compressedPath
           if (config.treeShake === true) {
             // Store only the subtree that is actually used
             // This optimizes the bundle size by only including the parts of the external document
             // that are referenced, rather than the entire document
             copyReferences(
               documentRoot,
-              { [config.externalDocumentsKey]: { [compressedPath]: result.data } },
+              { [config.externalDocumentsKey]: { [copiedKey]: copiedDocument } },
               bundledReference.substring(1),
               config.externalDocumentsKey,
-              compressedPath,
+              copiedKey,
               false,
               new Set(),
-              references.identity(result.data)?.metadata,
+              references.identity(copiedDocument)?.metadata,
             )
           }
           if ((!config.treeShake || diagnostics) && (!seen || customTraversal)) {
