@@ -145,6 +145,18 @@ existing bundling behavior. Predicates preserving relative references are
 responsible for ensuring those references remain meaningful at the output base;
 use the absolute HTTP(S) predicate above for portable external references.
 
+With `traversal: 'document'`, set `includeCustomReferences: true` to also bundle
+references in `x-*` extension values and unknown schema keywords. Literal example,
+default, enum, const, and value data remains untouched. References exposing literal
+data as schemas bundle an independent copy, preserving the original value. The option is off by
+default; strict document traversal and generic traversal retain their behavior.
+Custom objects retain their identifier and anchor scope, while references into
+standard API structures keep the target's format rules. Native references also
+keep their format rules when their targets are stored in extensions. Objects declaring a
+schema identifier, dialect, anchor, or JSON Schema type use schema keyword rules.
+Other custom objects keep ordinary reference-bearing children, including fields
+named `schemas`, `paths`, or `components`; their literal data remains opaque.
+
 References inside a schema with its own `$id` remain relative to that schema
 resource. References to another named resource use its canonical identity;
 anonymous dependencies outside the schema are copied into resource-local

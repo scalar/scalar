@@ -15,7 +15,12 @@ import { type ReferenceContext, getSchemaVocabulary } from './reference-context'
 type Resource = SchemaResourceLocation & { node: UnknownObject; sourceUri: string }
 
 /** A resolved target before its reference is rewritten for output. */
-export type RelocationTarget = { path: string[]; context: ReferenceContext }
+export type RelocationTarget = {
+  path: string[]
+  context: ReferenceContext
+  customReferences?: true
+  schemaSiblings?: boolean
+}
 
 /** Authored nonpreserved edges keep their source base when resolution fails. */
 export type SourceReference = { reference: string; origin: string; path: readonly string[] }
@@ -25,7 +30,7 @@ type RelocationOptions = {
   schemas: SchemaResourceLocation[]
   externalDocumentsKey: string
   createTraversal: () => ReturnType<typeof documentTraversal>
-  documents: { path: string[]; context: ReferenceContext }[]
+  documents: { path: string[]; context: ReferenceContext; customReferences?: true; schemaSiblings?: boolean }[]
   sourceReferences: Map<object, SourceReference>
   outputBase?: string
 }
@@ -103,18 +108,22 @@ export const relocateReferences = (
     }
     const node = getValueByPath(root, document.path).value
     const traversal = createTraversal()
-    traversal.register(node, '', document.context)
+    traversal.register(node, '', document.context, [], document.customReferences, document.schemaSiblings)
     const visited = new WeakSet<object>()
     const stripAnchors = (value: unknown): void => {
       if (value === null || typeof value !== 'object' || identities.has(getRaw(value)) || visited.has(getRaw(value))) {
         return
       }
       visited.add(getRaw(value))
-      const context = traversal.location(value)?.context
+      const location = traversal.location(value)
+      const context = location?.context
       if (context === 'data') {
         return
       }
-      if (isObject(value) && (getSchemaVocabulary(context ?? 'schema')?.anchors || context === 'generic')) {
+      if (
+        isObject(value) &&
+        (getSchemaVocabulary(context ?? 'schema', location?.customReferences)?.anchors || context === 'generic')
+      ) {
         delete value.$anchor
         delete value.$dynamicAnchor
       }
@@ -172,7 +181,7 @@ export const relocateReferences = (
     const fragmentIdentity = owner.uri.includes('#')
     const copies: { source: string[]; destination: string[]; uri?: string }[] = []
     const visited = new WeakSet<object>()
-    const reference = ({ path: target, context }: RelocationTarget): string => {
+    const reference = ({ path: target, context, customReferences, schemaSiblings }: RelocationTarget): string => {
       const destination = resourceAt(target)
       if (destination && (!destination.uri.includes('#') || target.length === destination.path.length)) {
         if (destination.uri.includes('#')) {
@@ -214,7 +223,7 @@ export const relocateReferences = (
         reservedUris.add(identityKey(uri))
       }
       copies.push({ source: target, destination: location, uri })
-      const value = copy(getValueByPath(root, target).value, context)
+      const value = copy(getValueByPath(root, target).value, context, customReferences, schemaSiblings)
       Object.defineProperty(documents, key, {
         // Legacy fragment IDs name subschemas, so pointers cannot use them as document roots.
         value: uri ? { [owner.idKeyword]: uri, allOf: [value] } : value,
@@ -224,10 +233,15 @@ export const relocateReferences = (
       })
       return uri ?? pointer(location)
     }
-    const copy = (value: unknown, context: ReferenceContext): unknown => {
+    const copy = (
+      value: unknown,
+      context: ReferenceContext,
+      customReferences = false,
+      schemaSiblings?: boolean,
+    ): unknown => {
       // A reference exposing literal data as a schema does not change its other occurrences.
       const traversal = createTraversal()
-      traversal.register(value, '', context)
+      traversal.register(value, '', context, [], customReferences, schemaSiblings)
       const clone = (node: unknown, literal = false): unknown => {
         if (node === null || typeof node !== 'object') {
           return node
@@ -253,7 +267,11 @@ export const relocateReferences = (
         }
         // Copied anonymous anchors would otherwise acquire the owner's URI and collide.
         // Resolved edges to these values use pointers; authored external edges stay external.
-        if (!data && (getSchemaVocabulary(location?.context ?? 'schema')?.anchors || location?.context === 'generic')) {
+        if (
+          !data &&
+          (getSchemaVocabulary(location?.context ?? 'schema', location?.customReferences)?.anchors ||
+            location?.context === 'generic')
+        ) {
           delete result.$anchor
           delete result.$dynamicAnchor
         }
