@@ -1045,7 +1045,7 @@ export const bundleDocument = async (
   const prepareTarget = async (
     target: NonNullable<ReturnType<typeof references.resolve>>,
     context: NodeProcessContext,
-    kind: ReferenceContext | undefined,
+    location: ReturnType<typeof traversal.location>,
     referenceSource: DocumentLocation,
   ): Promise<NonNullable<ReturnType<typeof references.resolve>>> => {
     const originalPath = target.segments.slice(target.documentPath.length)
@@ -1083,7 +1083,7 @@ export const bundleDocument = async (
     const uri = isObject(target.document)
       ? (references.retrievalOrigin(target.document) ?? context.origin)
       : context.origin
-    traversal.register(target.document, uri, kind, path)
+    traversal.register(target.document, uri, location?.context, path, location?.customReferences)
     references.refresh(target.document, path)
     const segments = [...target.documentPath, ...path]
     return { ...target, value, segments, path: segments.map(escapeJsonPointer).join('/'), preserveReference: false }
@@ -1232,7 +1232,7 @@ export const bundleDocument = async (
       const initialTarget = resolveReference(ref)
       const local =
         initialTarget && !isChunk
-          ? await prepareTarget(initialTarget, context, location?.context, referenceSource)
+          ? await prepareTarget(initialTarget, context, location, referenceSource)
           : initialTarget
       const localRef = local?.path
 
@@ -1450,7 +1450,7 @@ export const bundleDocument = async (
           const initialTarget = targetReferences.resolve(ref, retrievalOrigin)
           const target =
             initialTarget && !isChunk
-              ? await prepareTarget(initialTarget, context, location?.context, referenceSource)
+              ? await prepareTarget(initialTarget, context, location, referenceSource)
               : initialTarget
           if (target && !isChunk && references.identity(result.data)?.visitReferencedSubtrees) {
             await bundler(
