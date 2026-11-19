@@ -26,20 +26,21 @@ Work with OpenAPI and AsyncAPI descriptions.
 Bundle external references into a single API description.
 
 ```bash
-scalar document bundle [options] [file|url]
+scalar document bundle [options] [file|url...]
 ```
 
 **Arguments**
 
 | Argument | Description |
 | --- | --- |
-| `file\|url` | API description file path or URL to bundle. |
+| `file\|url...` | API description files or URLs (defaults to APIs in scalar.config). |
 
 **Options**
 
 | Option | Description | Default |
 | --- | --- | --- |
-| `-o, --output <file>` | Output file or directory, or - for stdout in the input format (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |  |
+| `--config <file>` | Scalar configuration file to read when no inputs are provided. |  |
+| `-o, --output <file>` | Output file or directory, or - for single-input stdout; batches require a directory (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |  |
 | `--ext <json\|yaml\|yml>` | Output format; overrides and normalizes the output suffix. One of `json`, `yaml`, `yml`. |  |
 | `-f, --force` | Write an incomplete bundle despite unresolved references. |  |
 | `--treeShake` | Remove unused components from the bundled output. |  |
