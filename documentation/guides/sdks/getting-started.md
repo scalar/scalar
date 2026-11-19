@@ -4,6 +4,45 @@ Generate your first type-safe SDK or CLI from an OpenAPI document in minutes, st
 
 Make sure you have created a Scalar account and are logged in. If you are new to Scalar, start with the [create account guide](../registry/getting-started.md#create-your-scalar-account).
 
+## Set up with a coding agent
+
+Copy this prompt into your coding agent to get your first SDKs working. It helps you choose your targets and package names, then guides you through a first build. GitHub and package publishing are optional next steps.
+
+```text
+Help me get my first SDKs working with Scalar.
+
+Look through this repository first, then ask me a few questions.
+Skip anything you already know and suggest defaults where helpful:
+
+1. Which API should we use: an OpenAPI file, a URL, or an API
+   already in Scalar?
+2. Which SDK languages do I need? Would a CLI for my API be useful?
+3. What should the packages be called, and which Scalar team
+   should they belong to?
+
+Use Scalar's MCP at https://mcp.scalar.com/ to set things up
+in the dashboard. Help me connect and sign in if needed.
+For documentation, use its search tools if available, or
+the docs MCP at https://scalar.com/mcp.
+
+Use the Scalar CLI where helpful. Run
+`npx @scalar/cli context` to discover its commands first.
+
+Once we have made those choices:
+- Validate the OpenAPI document and reuse any existing setup.
+- Configure and build the SDKs, asking about anything important
+  you cannot determine, such as authentication or base URLs.
+- Check the build results and help me install and try each SDK
+  with a small example.
+
+Do everything your tools support, and walk me through any
+remaining dashboard steps. Keep credentials out of source files.
+
+Aim for a working first build. At the end, show me what was
+created, how to use it, and how to rebuild after API changes.
+Then ask whether I want to set up GitHub or package publishing.
+```
+
 ## Generate your first target
 
 <scalar-steps>
