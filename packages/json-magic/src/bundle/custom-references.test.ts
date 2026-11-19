@@ -81,43 +81,17 @@ const local = (resource: object, reference: string): unknown =>
   ).value
 
 describe('custom-references', () => {
-  it.each(['schemas', 'paths', 'responses', 'components', 'properties'])(
-    'keeps arbitrary custom %s values reference-bearing',
-    async (key) => {
-      const reads: string[] = []
-      const result = await bundleWithDiagnostics(
-        {
-          ...api,
-          'x-custom': { [key]: { $ref: './custom.json' }, examples: [literal], default: literal },
-        },
-        {
-          origin: 'https://source.test/root.json',
-          traversal: 'document',
-          includeCustomReferences: true,
-          treeShake: false,
-          plugins: [loader(reads)],
-          preserveReference: (reference) => /^https?:\/\//i.test(reference),
-        },
-      )
-      expect(result.diagnostics).toEqual([])
-      expect(reads).toEqual(['https://source.test/custom.json'])
-      const exported = JSON.parse(JSON.stringify(result.document))
-      expect(local(exported, exported['x-custom'][key].$ref)).toEqual({ type: 'string' })
-      expect(exported['x-custom'].examples).toEqual([literal])
-      expect(exported['x-custom'].default).toEqual(literal)
-    },
-  )
-
-  it('uses schema map rules for declared schemas inside extensions', async () => {
+  it.each(
+    ['extension', 'keyword'].flatMap((placement) =>
+      ['schemas', 'paths', 'responses', 'components', 'properties'].map((key) => ({ placement, key })),
+    ),
+  )('keeps arbitrary custom $key values reference-bearing in $placement values', async ({ placement, key }) => {
     const reads: string[] = []
+    const custom = { [key]: { $ref: './custom.json' }, examples: [literal], default: literal }
     const result = await bundleWithDiagnostics(
       {
         ...api,
-        'x-schema': {
-          type: 'object',
-          properties: { default: { $ref: './custom.json' }, examples: { $ref: './custom.json' } },
-          examples: [literal],
-        },
+        ...(placement === 'extension' ? { 'x-custom': custom } : { components: { schemas: { A: { custom } } } }),
       },
       {
         origin: 'https://source.test/root.json',
@@ -128,12 +102,43 @@ describe('custom-references', () => {
         preserveReference: (reference) => /^https?:\/\//i.test(reference),
       },
     )
-    expect(result.diagnostics).toEqual([])
-    expect(reads).toEqual(['https://source.test/custom.json'])
+    expect(result.diagnostics).toStrictEqual([])
+    expect(reads).toStrictEqual(['https://source.test/custom.json'])
     const exported = JSON.parse(JSON.stringify(result.document))
-    expect(local(exported, exported['x-schema'].properties.default.$ref)).toEqual({ type: 'string' })
-    expect(local(exported, exported['x-schema'].properties.examples.$ref)).toEqual({ type: 'string' })
-    expect(exported['x-schema'].examples).toEqual([literal])
+    const bundledCustom = placement === 'extension' ? exported['x-custom'] : exported.components.schemas.A.custom
+    expect(local(exported, bundledCustom[key].$ref)).toStrictEqual({ type: 'string' })
+    expect(bundledCustom.examples).toStrictEqual([literal])
+    expect(bundledCustom.default).toStrictEqual(literal)
+  })
+
+  it.each(['extension', 'keyword'])('uses schema map rules for declared schemas in %s values', async (placement) => {
+    const reads: string[] = []
+    const custom = {
+      type: 'object',
+      properties: { default: { $ref: './custom.json' }, examples: { $ref: './custom.json' } },
+      examples: [literal],
+    }
+    const result = await bundleWithDiagnostics(
+      {
+        ...api,
+        ...(placement === 'extension' ? { 'x-custom': custom } : { components: { schemas: { A: { custom } } } }),
+      },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake: false,
+        plugins: [loader(reads)],
+        preserveReference: (reference) => /^https?:\/\//i.test(reference),
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(reads).toStrictEqual(['https://source.test/custom.json'])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    const bundledCustom = placement === 'extension' ? exported['x-custom'] : exported.components.schemas.A.custom
+    expect(local(exported, bundledCustom.properties.default.$ref)).toStrictEqual({ type: 'string' })
+    expect(local(exported, bundledCustom.properties.examples.$ref)).toStrictEqual({ type: 'string' })
+    expect(bundledCustom.examples).toStrictEqual([literal])
   })
 
   it.each([false, true])('retains custom context when transforming a target (external: %s)', async (external) => {
@@ -254,7 +259,7 @@ describe('custom-references', () => {
         ],
       },
     )
-    expect(result.diagnostics).toEqual([])
+    expect(result.diagnostics).toStrictEqual([])
     const exported = JSON.parse(JSON.stringify(result.document))
     expect(exported.components.schemas.A.$anchor).toBe('same')
     expect(JSON.stringify(exported).match(/"\$anchor":"same"/g)).toStrictEqual(['"$anchor":"same"'])
@@ -271,11 +276,11 @@ describe('custom-references', () => {
       preserveReference: (reference) => /^https?:\/\//i.test(reference),
     })
     expect(result.complete).toBe(true)
-    expect(reads).toEqual([])
+    expect(reads).toStrictEqual([])
     const exported = JSON.parse(JSON.stringify(result.document))
-    expect(exported['x-entry']).toEqual(fixture()['x-entry'])
-    expect(exported.components.schemas.A.custom).toEqual({ $ref: './local.json' })
-    expect(exported.components.schemas.A['x-resource']).toEqual(fixture().components.schemas.A['x-resource'])
+    expect(exported['x-entry']).toStrictEqual(fixture()['x-entry'])
+    expect(exported.components.schemas.A.custom).toStrictEqual({ $ref: './local.json' })
+    expect(exported.components.schemas.A['x-resource']).toStrictEqual(fixture().components.schemas.A['x-resource'])
   })
 
   it.each([false, true])('resolves custom positions and retains literal data (treeShake: %s)', async (treeShake) => {
@@ -288,37 +293,37 @@ describe('custom-references', () => {
       treeShake,
       preserveReference: (reference) => /^https?:\/\//i.test(reference),
     })
-    expect(result.diagnostics).toEqual([])
-    expect(reads.sort()).toEqual(Object.keys(documents).sort())
+    expect(result.diagnostics).toStrictEqual([])
+    expect(reads.sort()).toStrictEqual(Object.keys(documents).sort())
     const exported = JSON.parse(JSON.stringify(result.document))
-    expect(local(exported, exported['x-entry'].$ref)).toEqual({ type: 'string' })
-    expect(local(exported, exported['x-entry'].sibling.$ref)).toEqual({ type: 'integer' })
-    expect(exported['x-entry'].value).toEqual(literal)
+    expect(local(exported, exported['x-entry'].$ref)).toStrictEqual({ type: 'string' })
+    expect(local(exported, exported['x-entry'].sibling.$ref)).toStrictEqual({ type: 'integer' })
+    expect(exported['x-entry'].value).toStrictEqual(literal)
     const a = exported.components.schemas.A
     expect(a.$id).toBe('https://source.test/schemas/A.json')
-    expect(a.default).toEqual(literal)
-    expect(a.examples).toEqual([literal])
-    expect(a.enum).toEqual([literal])
-    expect(a.const).toEqual(literal)
+    expect(a.default).toStrictEqual(literal)
+    expect(a.examples).toStrictEqual([literal])
+    expect(a.enum).toStrictEqual([literal])
+    expect(a.const).toStrictEqual(literal)
     const customUri = new URL(a.custom.$ref, a.$id)
     expect(customUri.href.split('#')[0]).toBe(a.$id)
     const custom = local(a, customUri.href)
     if (custom === null || typeof custom !== 'object' || !('properties' in custom))
       throw new Error('Missing custom schema')
     expect('type' in custom ? custom.type : undefined).toBe('object')
-    expect(local(a, (custom.properties as { shared: { $ref: string } }).shared.$ref)).toEqual({
+    expect(local(a, (custom.properties as { shared: { $ref: string } }).shared.$ref)).toStrictEqual({
       type: 'boolean',
       examples: [literal],
     })
     const resource = a['x-resource']
     expect(resource.$id).toBe('https://source.test/X.json')
     expect(resource.$anchor).toBe('same')
-    expect(resource.default).toEqual(literal)
+    expect(resource.default).toStrictEqual(literal)
     const payloadUri = new URL(resource.$ref, resource.$id)
     expect(payloadUri.href.split('#')[0]).toBe(resource.$id)
     const payload = local(resource, payloadUri.href)
-    expect(local(resource, resource.sibling.$ref)).toEqual({ type: 'integer' })
-    expect(local(resource, resource.native.$ref)).toEqual({ type: 'boolean', examples: [literal] })
+    expect(local(resource, resource.sibling.$ref)).toStrictEqual({ type: 'integer' })
+    expect(local(resource, resource.native.$ref)).toStrictEqual({ type: 'boolean', examples: [literal] })
     if (payload === null || typeof payload !== 'object' || !('properties' in payload))
       throw new Error('Missing custom payload')
     expect('type' in payload ? payload.type : undefined).toBe('object')
@@ -370,8 +375,8 @@ describe('custom-references', () => {
         ],
       },
     )
-    expect(result.diagnostics).toEqual([])
-    expect(reads.sort()).toEqual(['https://source.test/response.json', 'https://source.test/sibling.json'])
+    expect(result.diagnostics).toStrictEqual([])
+    expect(reads.sort()).toStrictEqual(['https://source.test/response.json', 'https://source.test/sibling.json'])
     const owner = JSON.parse(JSON.stringify(result.document))['x-owner']
     const response = local(owner, owner.responses.R.$ref)
     expect(response).toStrictEqual({
@@ -382,7 +387,7 @@ describe('custom-references', () => {
     if (response === null || typeof response !== 'object' || !('sibling' in response))
       throw new Error('Missing response')
     expect(response).not.toHaveProperty('$anchor')
-    expect(local(owner, (response.sibling as { $ref: string }).$ref)).toEqual({ type: 'integer' })
+    expect(local(owner, (response.sibling as { $ref: string }).$ref)).toStrictEqual({ type: 'integer' })
     expect(owner.$anchor).toBe('same')
   })
 
@@ -411,10 +416,10 @@ describe('custom-references', () => {
         },
       )
       expect(result.complete).toBe(true)
-      expect(reads).toEqual(['https://source.test/sibling.json'])
+      expect(reads).toStrictEqual(['https://source.test/sibling.json'])
       const exported = JSON.parse(JSON.stringify(result.document))
       expect(exported['x-custom'].$ref).toBe('https://unreachable.test/schema')
-      expect(local(exported, exported['x-custom'].sibling.$ref)).toEqual({ type: 'integer' })
+      expect(local(exported, exported['x-custom'].sibling.$ref)).toStrictEqual({ type: 'integer' })
       expect(exported.components.parameters.P.ignored.$ref).toBe('./ignored.json')
     },
   )
