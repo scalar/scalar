@@ -48,6 +48,7 @@ export const documentTraversal = (
     context?: ReferenceContext,
     targetPath?: readonly string[],
     customReferences?: boolean,
+    referenceSiblings?: boolean,
   ) => void
   location: (node: object) => SourceLocation | undefined
 } => {
@@ -60,6 +61,7 @@ export const documentTraversal = (
     context?: ReferenceContext,
     targetPath: readonly string[] = [],
     customTarget = false,
+    referenceSiblings?: boolean,
   ): void => {
     if (!enabled || document === null || typeof document !== 'object') return
     let visited = new WeakSet<object>()
@@ -68,7 +70,9 @@ export const documentTraversal = (
     const isAsyncApi = api ? typeof document.asyncapi === 'string' : asyncapi
     const targetContext = context ?? (api ? 'object' : 'schema')
     const isSwagger = api ? document.swagger === '2.0' : swagger
-    const siblings = api ? document.swagger !== '2.0' && !String(document.openapi).startsWith('3.0.') : schemaSiblings
+    const siblings = api
+      ? document.swagger !== '2.0' && !String(document.openapi).startsWith('3.0.')
+      : (referenceSiblings ?? schemaSiblings)
     const visit = (
       value: unknown,
       path: string[],
@@ -168,10 +172,14 @@ export const documentTraversal = (
     const nextContext = customSchema ? 'schema' : context
     const customReferences = customTarget
     exposures.set(target, nextContext)
-    if (targetLocation?.context === nextContext && Boolean(targetLocation?.customReferences) === customReferences)
+    const targetSiblings = customSchema ? true : (referenceSiblings ?? targetLocation?.schemaSiblings ?? siblings)
+    if (
+      targetLocation?.context === nextContext &&
+      Boolean(targetLocation?.customReferences) === customReferences &&
+      targetLocation.schemaSiblings === targetSiblings
+    )
       return
     // The initial walk may already have visited descendants with a different context.
-    const targetSiblings = customSchema ? true : (targetLocation?.schemaSiblings ?? siblings)
     visited = new WeakSet<object>()
     visit(target, [...targetPath], nextContext, targetSiblings, customReferences)
   }

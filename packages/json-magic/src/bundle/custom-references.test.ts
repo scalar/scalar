@@ -442,6 +442,77 @@ describe('custom-references', () => {
     expect(parents[0]).toBe(input.components.schemas.A)
   })
 
+  it.each(['literal', 'loaded', 'cached'])(
+    'inherits modern sibling rules across $id scopes from %s targets',
+    async (storage) => {
+      const reads: string[] = []
+      const target = {
+        $schema: 'https://json-schema.org/draft/2020-12/schema',
+        $anchor: 'target',
+        $ref: 'https://unreachable.test/schema',
+        'x-extra': { $ref: './sibling.json' },
+      }
+      const result = await bundleWithDiagnostics(
+        {
+          ...api,
+          openapi: '3.0.4',
+          ...(storage === 'literal' ? { components: { schemas: { A: { default: target } } } } : {}),
+          'x-schema': {
+            $schema: 'https://json-schema.org/draft/2020-12/schema',
+            $id: 'https://source.test/Owner',
+            type: 'object',
+            properties: {
+              p: { $ref: storage === 'literal' ? './root.json#/components/schemas/A/default' : './target.json#target' },
+            },
+          },
+        },
+        {
+          origin: 'https://source.test/root.json',
+          traversal: 'document',
+          includeCustomReferences: true,
+          treeShake: false,
+          urlMap: true,
+          preserveReference: (reference) => /^https?:\/\//i.test(reference),
+          ...(storage === 'cached'
+            ? {
+                cache: new Map([
+                  ['https://source.test/target.json', Promise.resolve({ ok: true as const, raw: '', data: target })],
+                ]),
+              }
+            : {}),
+          plugins: [
+            {
+              type: 'loader',
+              validate: () => true,
+              exec: (uri) => {
+                reads.push(uri)
+                return Promise.resolve({
+                  ok: true,
+                  raw: '',
+                  data: uri.endsWith('target.json') ? target : { type: 'integer' },
+                })
+              },
+            },
+          ],
+        },
+      )
+      expect(result.diagnostics).toStrictEqual([])
+      expect(reads).toStrictEqual([
+        ...(storage === 'loaded' ? ['https://source.test/target.json'] : []),
+        'https://source.test/sibling.json',
+      ])
+      const exported = JSON.parse(JSON.stringify(result.document))
+      const owner = exported['x-schema']
+      const schema = local(owner, owner.properties.p.$ref)
+      if (schema === null || typeof schema !== 'object' || !('$ref' in schema) || !('x-extra' in schema)) {
+        throw new Error('Missing exposed schema')
+      }
+      expect(schema.$ref).toBe('https://unreachable.test/schema')
+      expect(local(owner, (schema['x-extra'] as { $ref: string }).$ref)).toStrictEqual({ type: 'integer' })
+      expect(Object.values(exported['x-ext-urls'])).not.toContain('https://unreachable.test/schema')
+    },
+  )
+
   it('retains imported document context when custom references are disabled', async () => {
     const origin = 'https://source.test/root.json'
     const result = await bundleWithDiagnostics(
