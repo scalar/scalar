@@ -20,6 +20,7 @@ import {
   getExampleValue,
   getExplicitExampleText,
 } from '@scalar/workspace-store/helpers/get-example-value'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExampleFromBody,
@@ -65,6 +66,7 @@ const {
   requestBody,
   exampleKey,
   environment,
+  multipartNaming,
   requestBodyCompositionSelection,
   openapiVersion,
   jsonSchemaDialect,
@@ -83,6 +85,7 @@ const {
   openapiVersion?: string
   /** Document-level JSON Schema dialect used when generating array `contains` examples. */
   jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
   /**
@@ -281,6 +284,7 @@ const aspNetMultipartNaming = computed<boolean>(() =>
   usesAspNetMultipartNaming(
     selectedContentType.value,
     requestBody?.content?.[selectedContentType.value],
+    multipartNaming,
   ),
 )
 

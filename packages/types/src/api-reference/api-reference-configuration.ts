@@ -216,6 +216,8 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default 'raw'
    */
   defaultRequestBodyView: z.enum(['form', 'raw']).optional(),
+  /** Use indexed dotted names for nested multipart form fields. */
+  multipartNaming: z.literal('indexed-dot').optional(),
   /** Custom CSS to be added to the page */
   customCss: z.string().optional(),
   /** onServerChange is fired on selected server change */

@@ -17,10 +17,10 @@ describe('processBody', () => {
   it('uses indexed names and file uploads in generated ASP.NET Core multipart samples', () => {
     const postData = processBody({
       contentType: 'multipart/form-data',
+      multipartNaming: 'indexed-dot',
       requestBody: {
         content: {
           'multipart/form-data': {
-            'x-scalar-multipart-naming': 'indexed-dot',
             schema: {
               type: 'object',
               required: ['certificates'],
@@ -70,7 +70,6 @@ describe('processBody', () => {
               requestBody: {
                 content: {
                   'multipart/form-data': {
-                    'x-scalar-multipart-naming': 'indexed-dot',
                     schema: {
                       type: 'object',
                       required: ['certificates'],
@@ -98,7 +97,14 @@ describe('processBody', () => {
     const operation = getResolvedRef(getResolvedRef(document.paths?.['/certificates'])?.post)
     const requestBody = getResolvedRef(operation?.requestBody)
     assert(requestBody)
-    expect(processBody({ requestBody, contentType: 'multipart/form-data', openapiVersion: '3.0.4' })).toStrictEqual({
+    expect(
+      processBody({
+        requestBody,
+        contentType: 'multipart/form-data',
+        openapiVersion: '3.0.4',
+        multipartNaming: 'indexed-dot',
+      }),
+    ).toStrictEqual({
       mimeType: 'multipart/form-data',
       params: [{ name: 'certificates[0].file', value: '@filename', fileName: 'filename' }],
     })

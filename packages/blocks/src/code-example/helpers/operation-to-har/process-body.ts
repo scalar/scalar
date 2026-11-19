@@ -32,7 +32,12 @@ import type { OperationToHarProps } from './operation-to-har'
 
 type ProcessBodyProps = Pick<
   OperationToHarProps,
-  'contentType' | 'example' | 'requestBodyCompositionSelection' | 'openapiVersion' | 'jsonSchemaDialect'
+  | 'multipartNaming'
+  | 'contentType'
+  | 'example'
+  | 'requestBodyCompositionSelection'
+  | 'openapiVersion'
+  | 'jsonSchemaDialect'
 > & {
   requestBody: RequestBodyObject
 }
@@ -232,6 +237,7 @@ export const processBody = ({
   openapiVersion,
   jsonSchemaDialect,
   requestBodyCompositionSelection,
+  multipartNaming,
 }: ProcessBodyProps): PostData | undefined => {
   const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
   /** Empty when "Other" is selected so snippets do not inject `Content-Type: other`. */
@@ -243,7 +249,7 @@ export const processBody = ({
   const encoding = requestBody.content[_contentType]?.encoding
 
   const media = requestBody.content[_contentType]
-  const aspNetNaming = usesAspNetMultipartNaming(_contentType, media)
+  const aspNetNaming = usesAspNetMultipartNaming(_contentType, media, multipartNaming)
   if (media && (aspNetNaming || needsMultipartEncoding(_contentType, media))) {
     const exampleName = example ?? Object.keys(media.examples ?? {})[0] ?? 'default'
     const body = buildRequestBody(
@@ -252,7 +258,7 @@ export const processBody = ({
       requestBodyCompositionSelection,
       openapiVersion,
       jsonSchemaDialect,
-      { aspNetFilePlaceholders: aspNetNaming },
+      { multipartNaming, aspNetFilePlaceholders: aspNetNaming },
     )
     if (aspNetNaming && body?.mode === 'formdata') {
       return {

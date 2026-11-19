@@ -26,6 +26,7 @@ internal static partial class ScalarOptionsMapper
             ProxyUrl = options.ProxyUrl,
             Localization = options.Localization,
             ShowExtensions = options.ShowExtensions,
+            MultipartNaming = options.MultipartNaming,
             HideModelNames = options.HideModelNames,
             MaxVisibleRequestBodyProperties = options.MaxVisibleRequestBodyProperties,
             ExpandAllParameters = options.ExpandAllParameters,

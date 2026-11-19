@@ -2,6 +2,7 @@
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.2/strict/request-body'
@@ -148,7 +149,7 @@ export const buildRequestBody = (
   requestBodyCompositionSelection?: Record<string, number>,
   openapiVersion?: string,
   jsonSchemaDialect?: string,
-  options?: { aspNetFilePlaceholders?: boolean },
+  options?: { multipartNaming?: MultipartNaming; aspNetFilePlaceholders?: boolean },
 ): RequestBody | null => {
   if (!requestBody) {
     return null
@@ -200,7 +201,7 @@ export const buildRequestBody = (
     Boolean(bodyProperties && Object.hasOwn(bodyProperties, key) && !requiredBodyProperties.has(key))
 
   const media = requestBody.content[bodyContentType]
-  const aspNetNaming = usesAspNetMultipartNaming(bodyContentType, media)
+  const aspNetNaming = usesAspNetMultipartNaming(bodyContentType, media, options?.multipartNaming)
   if (media && needsMultipartEncoding(bodyContentType, media)) {
     // Raw editors store JSON text, while form editors store named rows.
     const value: unknown = (() => {

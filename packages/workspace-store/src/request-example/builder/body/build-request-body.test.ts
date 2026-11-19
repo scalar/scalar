@@ -27,7 +27,6 @@ describe('buildRequestBody', () => {
     const body = coerceValue(RequestBodyObjectSchema, {
       content: {
         'multipart/form-data': {
-          'x-scalar-multipart-naming': 'indexed-dot',
           schema: {
             type: 'object',
             required: ['certificates', 'profile', 'tags'],
@@ -41,7 +40,9 @@ describe('buildRequestBody', () => {
         },
       },
     })
-    expect(buildRequestBody(body)).toStrictEqual({
+    expect(
+      buildRequestBody(body, undefined, undefined, undefined, undefined, { multipartNaming: 'indexed-dot' }),
+    ).toStrictEqual({
       mode: 'formdata',
       value: [
         { type: 'text', key: 'certificates[0].name', value: 'Ada' },
@@ -72,14 +73,20 @@ describe('buildRequestBody', () => {
     },
   ])('binds populated positions in sparse multipart arrays: $indexField', ({ value, indexField }) => {
     expect(
-      buildRequestBody({
-        content: {
-          'multipart/form-data': {
-            'x-scalar-multipart-naming': 'indexed-dot',
-            examples: { default: { value } },
+      buildRequestBody(
+        {
+          content: {
+            'multipart/form-data': {
+              examples: { default: { value } },
+            },
           },
         },
-      }),
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { multipartNaming: 'indexed-dot' },
+      ),
     ).toStrictEqual({
       mode: 'formdata',
       value: [

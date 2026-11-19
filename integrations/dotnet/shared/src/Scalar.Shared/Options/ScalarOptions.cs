@@ -29,6 +29,11 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public string[]? ShowExtensions { get; set; }
 
     /// <summary>
+    /// Selects the naming convention for nested multipart form fields.
+    /// </summary>
+    public ScalarMultipartNaming? MultipartNaming { get; set; }
+
+    /// <summary>
     /// Shows structural types instead of model names in schema labels and operation headings (default: false).
     /// </summary>
     public bool? HideModelNames { get; set; }

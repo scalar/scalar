@@ -901,6 +901,9 @@ type ExtendedConfiguration = {
    * @default 'raw'
    */
   defaultRequestBodyView?: 'form' | 'raw'
+
+  /** Use indexed dotted names for nested multipart form fields, such as `items[0].file`. */
+  multipartNaming?: MultipartNaming
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onServerChange is fired on selected server change */
@@ -984,6 +987,9 @@ type ExtendedConfiguration = {
   /** Sort the schema properties by required ones first */
   orderRequiredPropertiesFirst: boolean
 }
+
+/** Naming convention for named multipart request fields. */
+export type MultipartNaming = 'indexed-dot'
 
 export type SourceConfiguration = {
   /** Authentication overrides merged with the shared configuration. Arrays replace shared arrays. */

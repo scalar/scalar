@@ -75,6 +75,10 @@ public class ScalarConfiguration {
     @JsonProperty("defaultRequestBodyView")
     private ScalarRequestBodyView defaultRequestBodyView;
 
+    /** Naming convention for nested multipart form fields. */
+    @JsonProperty("multipartNaming")
+    private ScalarMultipartNaming multipartNaming;
+
     /** The maximum initially visible request body properties; zero shows all. */
     @JsonProperty("maxVisibleRequestBodyProperties")
     private Integer maxVisibleRequestBodyProperties;
@@ -670,6 +674,14 @@ public class ScalarConfiguration {
      */
     public void setMaxVisibleRequestBodyProperties(Integer maxVisibleRequestBodyProperties) {
         this.maxVisibleRequestBodyProperties = maxVisibleRequestBodyProperties;
+    }
+
+    public ScalarMultipartNaming getMultipartNaming() {
+        return multipartNaming;
+    }
+
+    public void setMultipartNaming(ScalarMultipartNaming multipartNaming) {
+        this.multipartNaming = multipartNaming;
     }
 
     /**

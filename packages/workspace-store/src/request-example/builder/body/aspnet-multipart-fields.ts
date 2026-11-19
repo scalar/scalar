@@ -1,4 +1,5 @@
 import { isObject } from '@scalar/helpers/object/is-object'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 
 import { isFileSchema } from '@/helpers/is-file-schema'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
@@ -11,9 +12,14 @@ import { needsMultipartEncoding } from './build-multipart'
 import { coerceLeafValueToSchemaType } from './schema-value-coercion'
 
 /** ASP.NET Core binds named form fields. Ordered and nested MIME bodies use their own encodings. */
-export const usesAspNetMultipartNaming = (contentType: string, media: MediaTypeObject | undefined): boolean =>
+export const usesAspNetMultipartNaming = (
+  contentType: string,
+  media: MediaTypeObject | undefined,
+  multipartNaming?: MultipartNaming,
+): boolean =>
+  multipartNaming === 'indexed-dot' &&
   contentType === 'multipart/form-data' &&
-  media?.['x-scalar-multipart-naming'] === 'indexed-dot' &&
+  media !== undefined &&
   !needsMultipartEncoding(contentType, media)
 
 type FormField = {

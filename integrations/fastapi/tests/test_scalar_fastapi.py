@@ -142,6 +142,7 @@ class TestGetScalarApiReference:
         assert 'orderSchemaPropertiesBy' not in config_section
         assert 'authentication' not in config_section
         assert 'hideClientButton' not in config_section
+        assert 'multipartNaming' not in config_section
         assert "showDefaultClientsWithSdkInstallation" not in config_section
         assert '_integration' in config_section
         assert 'theme' not in config_section
@@ -171,6 +172,7 @@ class TestGetScalarApiReference:
             order_schema_properties_by="preserve",
             authentication={"apiKey": "test-key"},
             hide_client_button=True,
+            multipart_naming="indexed-dot",
             integration="custom",
             theme=Theme.MOON
         )
@@ -191,6 +193,7 @@ class TestGetScalarApiReference:
         assert '"defaultOpenAllTags": true' in html_content
         assert '"orderSchemaPropertiesBy": "preserve"' in html_content
         assert '"authentication": {"apiKey": "test-key"}' in html_content
+        assert '"multipartNaming": "indexed-dot"' in html_content
         assert '"hideClientButton": true' in html_content
         assert '"_integration": "custom"' in html_content
         assert '"theme": "moon"' in html_content

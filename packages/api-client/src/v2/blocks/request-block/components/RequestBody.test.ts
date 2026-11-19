@@ -64,10 +64,10 @@ describe('RequestBody', () => {
     const wrapper = mount(RequestBody, {
       props: {
         ...defaultProps,
+        multipartNaming: 'indexed-dot',
         requestBody: {
           content: {
             'multipart/form-data': {
-              'x-scalar-multipart-naming': 'indexed-dot',
               examples: { 'example-1': { value: { certificates: [{ name: 'Ada' }], profile: { name: 'Grace' } } } },
               schema: {
                 type: 'object',
