@@ -30,6 +30,7 @@ describe('downloadDocument', () => {
   let removeSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
     createObjectURLSpy = vi.spyOn(URL, 'createObjectURL')
     revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL')
     createElementSpy = vi.spyOn(document, 'createElement')
@@ -37,8 +38,14 @@ describe('downloadDocument', () => {
     removeSpy = vi.spyOn(Element.prototype, 'remove')
   })
 
-  afterEach(() => {
-    vi.restoreAllMocks()
+  afterEach(async () => {
+    try {
+      await vi.runOnlyPendingTimersAsync()
+      expect(revokeObjectURLSpy.mock.calls).toStrictEqual(createObjectURLSpy.mock.results.map(({ value }) => [value]))
+    } finally {
+      vi.useRealTimers()
+      vi.restoreAllMocks()
+    }
   })
 
   it('downloads JSON when format is explicitly set to json', async () => {
@@ -66,7 +73,7 @@ info:
     assert(createObjectURLSpy.mock.results.length > 0)
     const objectUrl = createObjectURLSpy.mock.results[0].value
     assert(typeof objectUrl === 'string')
-    await new Promise((resolve) => setTimeout(resolve, 150))
+    await vi.runOnlyPendingTimersAsync()
     expect(revokeObjectURLSpy).toHaveBeenCalledWith(objectUrl)
     expect(removeSpy).toHaveBeenCalled()
   })
