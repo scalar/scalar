@@ -8,6 +8,7 @@ import { type RequestFactory, requestFactory } from '@/request-example/builder/r
 import { buildRequestBody } from './body/build-request-body'
 import { buildRequest, resolveExecutableRequestUrl } from './build-request'
 import { INVALID_REQUEST_FACTORY_URL, MISSING_REQUEST_SERVER_BASE } from './resolve-request-factory-url'
+import { buildRequestSecurity } from './security/build-request-security'
 
 const createFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
   options: {},
@@ -35,6 +36,26 @@ const unwrap = (factory: RequestFactory, options: Parameters<typeof buildRequest
 }
 
 describe('buildRequest', () => {
+  it.each([
+    ['abc', 'token abc'],
+    ['', ''],
+    ['token abc', 'token token abc'],
+  ])('formats header API-key prefixes after resolving variables (%s)', (token, expected) => {
+    const scheme = {
+      type: 'apiKey',
+      in: 'header',
+      name: 'Authorization',
+      'x-scalar-token-prefix': 'token',
+      'x-scalar-secret-token': '{{token}}',
+    } as const
+    const security = buildRequestSecurity([scheme])
+    expect(security).toStrictEqual([{ in: 'header', name: 'Authorization', value: '{{token}}', tokenPrefix: 'token' }])
+    const result = unwrap(createFactory({ security }), { envVariables: { token } })
+    expect(new Headers(result.requestPayload[1]?.headers).get('Authorization')).toBe(expected)
+    expect(scheme['x-scalar-secret-token']).toBe('{{token}}')
+    result.controller.abort()
+  })
+
   it.each([
     ['https://example.com/api?token=a?b', '/users', { token: 'a?b' }],
     [

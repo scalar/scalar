@@ -28,6 +28,8 @@ type OasSecurityApiKey = {
   in: SecuritySchemeApiKeyIn
   /** REQUIRED. The API key to be sent in the Authorization header or as a cookie. */
   value: string
+  /** Prefix added to header API keys only, separated from the raw credential by one space. */
+  'x-scalar-token-prefix'?: string
 }
 
 export type SecuritySchemeApiKey = SecuirtySchemeCommon & ExtendedSecurityScheme & OasSecurityApiKey

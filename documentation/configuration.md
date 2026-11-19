@@ -408,6 +408,22 @@ Scalar.createApiReference('#app', {
 
 Keep the preferred scheme consistent with the allowlist. User selections still take precedence over the configured preferred scheme.
 
+For header API keys, set `x-scalar-token-prefix` to add a prefix without storing it in the credential:
+
+```javascript
+{
+  authentication: {
+    securitySchemes: {
+      tokenAuth: {
+        'x-scalar-token-prefix': 'token',
+      },
+    },
+  },
+}
+```
+
+This overrides the same extension in the API description. Set it to an empty string to disable a document's prefix. Readers enter only the credential; both generated samples and actual requests add the prefix. See [header API-key token prefixes](./openapi.md#header-api-key-token-prefixes).
+
 ### baseServerURL
 
 **Type:** `string`

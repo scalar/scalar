@@ -910,3 +910,33 @@ paths:
 
 For OpenAPI 3.0 or 3.1, use a string `value` in the media-level Example Object.
 Schema-level string examples represent data and are escaped as XML text.
+
+## Header API-key token prefixes
+
+Set `x-scalar-token-prefix` on a header API-key security scheme to add a prefix to generated code samples and outgoing requests:
+
+```yaml
+openapi: 3.0.3
+info:
+  title: Token authentication
+  version: 1.0.0
+security:
+  - tokenAuth: []
+paths:
+  /me:
+    get:
+      responses:
+        '200':
+          description: Current user
+components:
+  securitySchemes:
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      x-scalar-token-prefix: token
+```
+
+Readers enter the raw credential, for example `abc`. Scalar sends `Authorization: token abc`. With no credential, generated samples show `token YOUR_SECRET_TOKEN`; actual requests do not send a prefix by itself.
+
+When a prefix is configured, the prefix and outgoing credential are trimmed and separated by one space. Whitespace-only credentials do not send a prefix. Stored credentials remain unchanged: entering `token abc` with the prefix `token` produces `token token abc`. Environment variables in credentials are resolved before the prefix is added. The prefix is ignored for query and cookie API keys and does not affect HTTP Basic, Bearer, or OAuth authentication.
