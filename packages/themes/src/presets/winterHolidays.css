@@ -469,7 +469,6 @@
   }
 }
 
-/* Keep the decorations still when motion is unwelcome: the fireworks freeze mid-burst and the snow hangs in the air */
 /*
  * On short, narrow screens (about 200% zoom) the modal grows to fill the screen, so there is no
  * room around it for the API client decorations and they would cover its header. Keep this query
@@ -482,6 +481,7 @@
   }
 }
 
+/* Keep the decorations still when motion is unwelcome: the fireworks freeze mid-burst and the snow hangs in the air */
 @media (prefers-reduced-motion: reduce) {
   .section-flare-item,
   .section-flare-item::after,
