@@ -1,6 +1,7 @@
-import { type ZodType, z } from 'zod'
+import type { ZodType } from 'zod'
 
 import type { AvailableClient, ClientId, TargetId } from '../snippetz'
+import { z } from '../zod'
 import { apiReferencePluginSchema } from './api-reference-plugin'
 import type { AuthenticationConfiguration } from './authentication-configuration'
 import { NEW_PROXY_URL, OLD_PROXY_URL, baseConfigurationSchema } from './base-configuration'

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../zod'
 
 const sectionViewSchema = z.object({
   title: z.string().optional(),
