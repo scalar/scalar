@@ -567,6 +567,17 @@ app.MapScalarApiReference(options => options
 > [!CAUTION]
 > Persisting authentication information in the browser's local storage may present security risks. Use with caution.
 
+### Nested multipart uploads
+
+For endpoints that bind nested objects or arrays with `[FromForm]`, opt in to indexed multipart field names.
+
+```csharp
+app.MapScalarApiReference(options =>
+    options.WithMultipartNaming(ScalarMultipartNaming.IndexedDot));
+```
+
+Scalar uses names such as `profile.file` and `certificates[0].file` in the request editor, sent requests, and generated code samples. The option applies to named multipart forms across that API Reference. See [multipartNaming](../../configuration.md#multipartnaming) for details.
+
 ### Custom HTTP Client
 
 Set a default HTTP client for code samples:
