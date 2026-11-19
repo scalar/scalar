@@ -8,7 +8,7 @@ import type { StatusCode } from 'hono/utils/http-status'
 
 import { buildHandlerContext } from '@/utils/build-handler-context'
 import { executeHandler } from '@/utils/execute-handler'
-import { generateResponseExample } from '@/utils/generate-response-example'
+import { type ExampleGenerationContext, generateResponseExample } from '@/utils/generate-response-example'
 import { negotiateContentType } from '@/utils/negotiate-content-type'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
@@ -30,7 +30,7 @@ function getExampleFromResponse(
   statusCode: StatusCode,
   responses: OpenAPIV3_1.ResponsesObject | undefined,
   exampleName?: string,
-  openapiVersion?: string,
+  generationContext: ExampleGenerationContext = {},
 ): string | null {
   if (!responses) {
     return null
@@ -66,7 +66,7 @@ function getExampleFromResponse(
   if (isXmlMediaType(acceptedContentType)) {
     c.header('Content-Type', acceptedContentType)
     const result = getXmlBodyExample(acceptedResponse.schema as SchemaObject | undefined, selectedExample, {
-      openapiVersion,
+      ...generationContext,
       emptyString: 'string',
       variables: pathParameters(c),
       mode: 'read',
@@ -88,7 +88,10 @@ function getExampleFromResponse(
   if (selectedExample) {
     value = normalizeResponseBody(selectedExample.value, responseSchema)
   } else if (responseSchema) {
-    value = normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
+    value = normalizeResponseBody(
+      generateResponseExample(responseSchema, pathParameters(c), generationContext),
+      responseSchema,
+    )
   }
   // Legacy examples retain the handler fallback's JSON encoding policy.
   return JSON.stringify(value) ?? null
@@ -160,7 +163,7 @@ export async function mockHandlerResponse(
   c: Context,
   operation: OpenAPIV3_1.OperationObject,
   pathItemParameters?: OpenAPIV3_1.PathItemObject['parameters'],
-  openapiVersion?: string,
+  generationContext: ExampleGenerationContext = {},
 ) {
   // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
   // for requests rejected before reaching this handler.
@@ -175,7 +178,7 @@ export async function mockHandlerResponse(
 
   try {
     // Build handler context with tracking
-    const { context, tracking } = await buildHandlerContext(c, operation, pathItemParameters)
+    const { context, tracking } = await buildHandlerContext(c, operation, pathItemParameters, generationContext)
 
     // Execute handler
     const { result } = await executeHandler(handlerCode, context)
@@ -194,6 +197,7 @@ export async function mockHandlerResponse(
     const response = getResolvedRef(operation.responses?.[String(statusCode)] ?? operation.responses?.default)
     const contentType = negotiateContentType(c, response?.content)
     const streamingResponse = getStreamingResponse(response?.content?.[contentType], contentType, {
+      ...generationContext,
       body: result ?? undefined,
       exampleName: parsePreferHeader(c.req.header('Prefer')).example,
       variables: pathParameters(c),
@@ -215,7 +219,7 @@ export async function mockHandlerResponse(
         statusCode,
         operation.responses as OpenAPIV3_1.ResponsesObject | undefined,
         prefer.example,
-        openapiVersion,
+        generationContext,
       )
       if (exampleResponse !== null) {
         return c.body(exampleResponse)

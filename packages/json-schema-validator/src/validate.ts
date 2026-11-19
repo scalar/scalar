@@ -1,3 +1,4 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import type { AnyObject } from '@scalar/types/utils'
 import Ajv, { type ValidateFunction } from 'ajv'
 import Ajv2020 from 'ajv/dist/2020.js'
@@ -77,7 +78,7 @@ const runValidation = (
     // A malformed JSON/YAML string is a validation failure like any other, so it
     // has to respect `throwOnError` rather than escaping as a parser exception.
     try {
-      value = parseYaml(document)
+      value = parseYaml(document, { maxAliasCount: YAML_MAX_ALIAS_COUNT })
     } catch (error) {
       if (options?.throwOnError) {
         throw error

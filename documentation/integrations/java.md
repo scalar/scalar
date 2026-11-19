@@ -161,6 +161,7 @@ These options work in both WebMVC and WebFlux. Omitted values use the frontend d
 
 | Spring property | Values |
 | --- | --- |
+| `scalar.show-badges-in-sidebar` | Show `x-badges` next to sidebar titles (default: `false`) |
 | `scalar.hide-model-names` | `true` or `false` |
 | `scalar.schema-keyboard-nav` | `true` or `false` |
 | `scalar.expand-all-parameters` | `true` or `false` |
@@ -168,6 +169,7 @@ These options work in both WebMVC and WebFlux. Omitted values use the frontend d
 | `scalar.default-request-body-view` | `form` or `raw` |
 | `scalar.show-extensions` | List of extension keys such as `x-internal` |
 | `scalar.featured-clients` | Ordered list of full client IDs such as `node/fetch` |
+| `scalar.show-default-clients-with-sdk-installation` | Show built-in HTTP clients alongside SDK installation tabs (default: `false`) |
 | `scalar.url-routing` | `false` leaves the browser URL and history unchanged |
 | `scalar.oauth2-redirect-uri` | Default OAuth redirect URI |
 | `scalar.agent.hide-add-api` | Hide the agent's control for adding APIs; also available under each source |
@@ -289,6 +291,16 @@ empty maps such as `paths: {}`, and binding can change JSON/YAML value types or
 special map keys. `content-map` remains available when these limitations are
 acceptable. Programmatic Java callers can use `setContent(String)` or pass a
 `Map<String, Object>` to `setContent(Object)`.
+
+### Selected client persistence
+
+The selected code sample client is saved in local storage by default. Disable saving and restoring it with:
+
+```properties
+scalar.persistSelectedClient=false
+```
+
+For programmatic configuration, call `properties.setPersistSelectedClient(false)`. This applies to both Spring MVC and WebFlux. Client selection still works for the current page, and `persistAuth` is controlled separately.
 
 ### Authentication Alternatives
 

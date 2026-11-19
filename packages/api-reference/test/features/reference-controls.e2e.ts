@@ -95,6 +95,31 @@ const unbrokenTitleContent = {
   },
 }
 
+/** An operation with two request body examples, so its request example footer shows the example picker. */
+const requestExamplesContent = {
+  openapi: '3.1.1',
+  info: { title: 'Request examples', version: '1.0.0' },
+  paths: {
+    '/planets': {
+      post: {
+        summary: 'Create a planet',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: { type: 'object', properties: { name: { type: 'string' } } },
+              examples: {
+                earth: { summary: 'Earth', value: { name: 'Earth' } },
+                mars: { summary: 'Mars', value: { name: 'Mars' } },
+              },
+            },
+          },
+        },
+        responses: { '201': { description: 'Created' } },
+      },
+    },
+  },
+}
+
 const taggedContent = {
   openapi: '3.1.1',
   info: { title: 'Tagged operations', version: '1.0.0' },
@@ -270,6 +295,54 @@ test.describe('reference controls', () => {
       await expect(page.getByRole('region', { name: 'order.purchase.created', exact: true })).toHaveScreenshot(
         `operation-title-wrap-${width}.png`,
       )
+    })
+  }
+
+  for (const width of [320, 390, 1440]) {
+    test(`keeps the request example name visible in the footer at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      const example = await serveExample({ content: requestExamplesContent })
+      await page.goto(example)
+
+      const card = page.locator('.request-card')
+      const picker = card.getByRole('button', { name: 'Earth', exact: true })
+      await picker.scrollIntoViewIfNeeded()
+      await expect(picker).toBeVisible()
+
+      // The whole name shows, and the caret stays inside the button instead of running under the actions
+      const name = picker.getByText('Earth', { exact: true })
+      expect(await name.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
+      const pickerBox = (await picker.boundingBox())!
+      const caretBox = (await picker.locator('svg').boundingBox())!
+      expect(caretBox.x + caretBox.width).toBeLessThanOrEqual(pickerBox.x + pickerBox.width)
+
+      const actions = [
+        card.locator('.agent-button-container'),
+        card.getByRole('button', { name: 'Test Request (post /planets)', exact: true }),
+      ]
+      for (const action of actions) {
+        const box = (await action.boundingBox())!
+        // Nothing overlaps the picker: each action sits after it on the line or on a line below it
+        expect(box.x >= pickerBox.x + pickerBox.width || box.y >= pickerBox.y + pickerBox.height).toBe(true)
+        if (width === 320) {
+          // Too narrow for both, so the actions wrap onto their own line
+          expect(box.y).toBeGreaterThanOrEqual(pickerBox.y + pickerBox.height)
+        }
+        if (width === 1440) {
+          // Wide cards keep the picker and the actions on one line
+          expect(box.y).toBeCloseTo(pickerBox.y, 0)
+        }
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
+
+      // The picker still works from the keyboard
+      await picker.focus()
+      await expect(card.locator('.request-card-footer')).toHaveScreenshot(`request-example-footer-${width}.png`)
+      await page.keyboard.press('ArrowDown')
+      await expect(page.getByRole('option', { name: 'Mars', exact: true })).toBeVisible()
+      await page.keyboard.press('ArrowDown')
+      await page.keyboard.press('Enter')
+      await expect(card.getByRole('button', { name: 'Mars', exact: true })).toBeFocused()
     })
   }
 })

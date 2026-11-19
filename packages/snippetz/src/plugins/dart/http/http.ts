@@ -54,7 +54,7 @@ export const dartHttp: Plugin = {
 
       if (username && password) {
         const credentials = `${username}:${password}`
-        headers['Authorization'] = `'Basic ' + base64Encode(utf8.encode('${credentials}'))`
+        headers['Authorization'] = `'Basic ' + base64Encode(utf8.encode(${dartSingleQuoted(credentials)}))`
       }
     }
 
@@ -124,10 +124,9 @@ export const dartHttp: Plugin = {
       ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'].includes(normalizedRequest.method) &&
       !(body && ['GET', 'HEAD'].includes(normalizedRequest.method))
     ) {
-      code += `  final response = await http.${method}(Uri.parse('${url}')${headersPart}${bodyPart});\n`
+      code += `  final response = await http.${method}(Uri.parse(${dartSingleQuoted(url)})${headersPart}${bodyPart});\n`
     } else {
-      const wireMethod = normalizedRequest.method.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\$/g, '\\$')
-      code += `  final request = http.Request('${wireMethod}', Uri.parse('${url}'));\n`
+      code += `  final request = http.Request(${dartSingleQuoted(normalizedRequest.method)}, Uri.parse(${dartSingleQuoted(url)}));\n`
       if (Object.keys(headers).length > 0) {
         code += '  request.headers.addAll(headers);\n'
       }

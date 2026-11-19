@@ -592,8 +592,10 @@ func TestListenAddress(t *testing.T) {
 	}{
 		{name: "listens on every interface in production", dev: false, host: "", want: ":5051"},
 		{name: "listens on loopback in development mode", dev: true, host: "", want: "127.0.0.1:5051"},
-		{name: "listens on an explicit host in development mode", dev: true, host: "0.0.0.0", want: "0.0.0.0:5051"},
-		{name: "wraps an IPv6 host in brackets", dev: true, host: "::1", want: "[::1]:5051"},
+		{name: "ignores an explicit host in development mode", dev: true, host: "0.0.0.0", want: "127.0.0.1:5051"},
+		{name: "ignores an IPv6 host in development mode", dev: true, host: "::", want: "127.0.0.1:5051"},
+		{name: "listens on an explicit host in production", host: "127.0.0.1", want: "127.0.0.1:5051"},
+		{name: "wraps an IPv6 host in brackets", host: "::1", want: "[::1]:5051"},
 	}
 
 	for _, c := range cases {
@@ -636,10 +638,10 @@ func TestProxyConfigFromEnv(t *testing.T) {
 		}
 	})
 
-	t.Run("relaxes checks in development mode", func(t *testing.T) {
+	t.Run("allows self-signed certificates but blocks private networks in development mode", func(t *testing.T) {
 		config := proxyConfigFromEnv(env(map[string]string{"ENV": "dev"}))
 
-		if !config.BypassCidr || !config.AllowInsecureUpstreamTLS {
+		if config.BypassCidr || !config.AllowInsecureUpstreamTLS {
 			t.Errorf("Expected a development configuration, got %+v", config)
 		}
 	})

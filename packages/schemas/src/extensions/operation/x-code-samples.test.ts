@@ -4,6 +4,10 @@ import { describe, expect, it } from 'vitest'
 import { XCodeSamples } from './x-code-samples'
 
 describe('XCodeSamples', () => {
+  it('preserves code-file references', () => {
+    const value = { 'x-codeSamples': [{ lang: 'python', source: { $ref: './sample.py' } }] }
+    expect(coerce(XCodeSamples, value)).toStrictEqual(value)
+  })
   const sampleCode = {
     lang: 'javascript',
     label: 'JavaScript',

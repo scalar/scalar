@@ -200,6 +200,7 @@ const resolvedEntries = computed(() =>
       :layout="options.layout"
       :name="entry.name"
       :options="options"
+      :resources="schema.resources"
       :value="schema.value" />
   </Lazy>
 </template>

@@ -198,8 +198,8 @@ export const getTypeSignatureTokens = (
  *
  * A `$ref` renders as the raw component key while the heading link and the
  * models section show the target's `title`; the caller's name keeps them in
- * agreement. Only a `$ref` may be renamed: an inline schema's
- * single token is its real type (`integer`), not its `title`.
+ * agreement. Inline object titles can name array items too; inline primitive
+ * tokens keep their real type (`integer`), rather than their `title`.
  */
 export const getDisplayTypeSignatureTokens = (
   valueOrRef: SchemaObject | ReferenceType<SchemaObject> | undefined,
@@ -230,7 +230,7 @@ export const getDisplayTypeSignatureTokens = (
   }
 
   /*
-   * An array of a `$ref` keeps its "array of" word and renames only the item.
+   * An array of a named object keeps its "array of" word and renames only the item.
    * Only a caller name with a trailing `[]` describes the ITEM; the caller also
    * reports the array's OWN name here (a `$ref` to `FilterList`, an inline
    * `title` of `Planets`), and using that would claim each element is one.
@@ -240,7 +240,19 @@ export const getDisplayTypeSignatureTokens = (
   const arrayWord = computedTokens[0]
   const itemToken = computedTokens[1]
 
-  if (isRef(items) && computedTokens.length === 2 && arrayWord?.kind === 'word' && itemToken?.kind === 'ident') {
+  const namedObjectItems =
+    items &&
+    typeof items === 'object' &&
+    'type' in items &&
+    items.type === 'object' &&
+    'title' in items &&
+    typeof items.title === 'string'
+  if (
+    (isRef(items) || namedObjectItems) &&
+    computedTokens.length === 2 &&
+    arrayWord?.kind === 'word' &&
+    itemToken?.kind === 'ident'
+  ) {
     if (modelName.endsWith('[]')) {
       const itemName = modelName.slice(0, -2)
 

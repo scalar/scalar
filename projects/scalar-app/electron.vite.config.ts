@@ -4,9 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 
-import { assertScalarAppEnvPlugin } from './assert-scalar-app-env-plugin'
-import { devLocalhostCspPlugin } from './dev-localhost-csp-plugin'
-import { monacoOptimizeDeps, monacoWorkerAliases } from './monaco-vite-config'
+import { assertScalarAppEnvPlugin } from './assert-scalar-app-env-plugin.ts'
+import { devLocalhostCspPlugin } from './dev-localhost-csp-plugin.ts'
+import { monacoOptimizeDeps, monacoWorkerAliases } from './monaco-vite-config.ts'
 import packageJson from './package.json' with { type: 'json' }
 
 const { version: scalarAppVersion } = packageJson

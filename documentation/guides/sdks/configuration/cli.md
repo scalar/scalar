@@ -89,6 +89,8 @@ CLI publishing configuration: three independent channels, in any combination. `n
 
 Publishes the generated CLI to npm, installed globally with `npm install -g`. `true` publishes with the defaults; an object tunes them. `authMethod` and `releaseEnvironment` decide how the publish authenticates; `access` and `tag` decide what it publishes.
 
+The CLI it publishes registers `upgrade` and `uninstall` and checks for a newer release at most once a day, even with no other channel configured. An npm install is compared against the npm registry (`npm_config_registry` or `NPM_CONFIG_REGISTRY` when set, `https://registry.npmjs.org` otherwise) under the dist-tag it was published on, and a prerelease also against the stable tag, and `upgrade` runs the global install command of whichever client installed it: npm, pnpm, Yarn or Bun. A package whose `access` is not `public` is not checked, since the registry shows it only to a signed-in npm.
+
 Authenticates with [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) (OIDC) by default, registered on the package's **Settings → Trusted Publisher** tab (`https://www.npmjs.com/package/<package>/access`). With `authMethod` set to `access-token` it reads a [granular access token](https://docs.npmjs.com/creating-and-viewing-access-tokens) from the `NPM_TOKEN` repository secret instead, which the first release of a new package needs: npm only registers a trusted publisher on a package that already exists.
 
 #### authMethod
@@ -242,7 +244,7 @@ Code signing for the compiled CLI executables. It is not a publishing channel: i
 
 macOS code signing for the compiled `darwin-*` executables. Omit it to ship them unsigned.
 
-- `sign` re-signs them with your Developer ID certificate. That is what makes them run on Apple Silicon, and it is enough for anything installed without a browser — `brew install` of a formula, a `curl … | tar` download — because Gatekeeper only checks files marked as downloaded. A Homebrew cask is the exception: Homebrew marks what a cask downloads the way a browser does, so `publish.homebrew.cask` requires `sign-and-notarize`. The npm package is unaffected either way: it is a plain Node CLI with no compiled executable in it.
+- `sign` replaces the ad-hoc signature Bun leaves with your Developer ID certificate and the hardened runtime. That is enough for anything installed without a browser — `brew install` of a formula, a `curl … | tar` download — because Gatekeeper only checks files marked as downloaded. A Homebrew cask is the exception: Homebrew marks what a cask downloads the way a browser does, so `publish.homebrew.cask` requires `sign-and-notarize`. The npm package is unaffected either way: it is a plain Node CLI with no compiled executable in it.
 - `sign-and-notarize` also submits them to Apple's notary service, so a release archive downloaded in a browser opens without a Gatekeeper warning. It needs the three `MACOS_NOTARY_*` secrets and adds Apple's review time to every release.
 
 The release workflow reads fixed repository secrets, the names goreleaser's notarize documentation uses, so a repository already set up for a goreleaser release needs nothing new:

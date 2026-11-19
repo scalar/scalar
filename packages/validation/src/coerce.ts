@@ -90,7 +90,7 @@ const isDiscriminatorProperty = (schema: Schema): boolean => {
  *
  * Higher score means a closer match. Literals and matching object shapes
  * are weighted more heavily. Objects are scored by shape/literals;
- * arrays/records by structural type; primitives by validation; unions try all branches.
+ * records by matching values; arrays by structural type; primitives by validation; unions try all branches.
  *
  * The `scoringCache` tracks `(value, schema)` pairs that are currently being
  * scored higher up the call stack. Without it, a recursive lazy schema such as
@@ -107,7 +107,7 @@ const isDiscriminatorProperty = (schema: Schema): boolean => {
  * The marker only stops *nested* re-entry. It does not stop the same pair
  * being scored again through a sibling path, so it cannot bound the work on
  * its own. Two budgets do that, each checked in the branch that uses it:
- * - `valueDepth` counts descents into object properties below the union node.
+ * - `valueDepth` counts descents into object properties and record values below the union node.
  *   Past {@link MAX_VALUE_DEPTH}, non-discriminator properties score a flat `1`
  *   and are not descended into.
  * - `lazyDepth` counts `lazy` nodes on the current path, capped at {@link MAX_LAZY_DEPTH}.
@@ -134,10 +134,6 @@ const scoreUnion = (
   if (schema.type === 'array') {
     return Array.isArray(value) ? 1 : 0
   }
-  if (schema.type === 'record') {
-    // TODO: implement smarter scoring for records
-    return isObject(value) ? 1 : 0
-  }
   if (schema.type === 'optional' && value === undefined) {
     return 1
   }
@@ -157,6 +153,25 @@ const scoreUnion = (
   }
 
   try {
+    if (schema.type === 'record') {
+      if (!trackable) {
+        return 0
+      }
+      if (valueDepth >= MAX_VALUE_DEPTH) {
+        return 1
+      }
+
+      const entries = Object.values(value)
+      const matches = entries.reduce<number>(
+        (score, entry) =>
+          score + Math.min(1, scoreUnion(schema.value, entry, lazyCache, scoringCache, valueDepth + 1, lazyDepth)),
+        0,
+      )
+
+      // Keep a positive container score even when every entry needs coercion.
+      // Normalize to at most 1 so a large record cannot outweigh a specific object shape.
+      return (1 + matches) / (1 + entries.length)
+    }
     if (schema.type === 'object') {
       if (!trackable) {
         return 0

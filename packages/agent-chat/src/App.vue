@@ -3,7 +3,7 @@ import { provide, type Ref } from 'vue'
 
 import Chat from '@/Chat.vue'
 import { createState, STATE_SYMBOL, type RegistryDocument } from '@/state/state'
-import { type ChatMode } from '@/types'
+import { type ChatMode, type SelectedDocument } from '@/types'
 
 const {
   dashboardUrl,
@@ -15,7 +15,7 @@ const {
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
-  getActiveDocumentContext,
+  getActiveDocumentSelection,
   isLoggedIn,
   prefilledMessage,
   hideAddApi,
@@ -29,8 +29,8 @@ const {
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
-  /** Identifies the selected reference source in outgoing questions. */
-  getActiveDocumentContext?: () => string | undefined
+  /** Scopes outgoing requests without adding context to conversation messages. */
+  getActiveDocumentSelection?: () => SelectedDocument | undefined
   isLoggedIn?: Ref<boolean>
   prefilledMessage?: Ref<string>
   hideAddApi?: boolean
@@ -42,7 +42,7 @@ defineEmits<{
 
 const state = createState({
   getActiveDocumentJson,
-  getActiveDocumentContext,
+  getActiveDocumentSelection,
   initialRegistryDocuments: registryDocuments,
   prefilledMessageRef: prefilledMessage,
   platformProxyUrl,

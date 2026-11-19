@@ -2,7 +2,6 @@
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
-import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XmlDiagnostic } from '@scalar/workspace-store/request-example'
 import type {
@@ -14,13 +13,19 @@ import { computed } from 'vue'
 import { useLocalization } from '@/features/localization'
 
 import { getExampleContent } from './helpers/get-example-content'
+import {
+  type ExampleLanguage,
+  getExampleLanguage,
+} from './helpers/get-example-language'
 
 const {
   example,
   response,
   content,
   contentType = 'application/json',
+  language: contentLanguage,
   openapiVersion,
+  jsonSchemaDialect,
   generationError,
   pending = false,
 } = defineProps<{
@@ -29,9 +34,13 @@ const {
   /** Reuse the card's formatted value so generation and copying cannot diverge. */
   content?: string
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
+  jsonSchemaDialect?: string
   generationError?: XmlDiagnostic
   pending?: boolean
   contentType?: string
+  /** Grammar selected while formatting the shared content. */
+  language?: ExampleLanguage
 }>()
 const { translate } = useLocalization()
 
@@ -40,6 +49,7 @@ const resolvedExample = computed(() => getResolvedRef(example))
 /** Preformatted content is shared with the response card clipboard action. */
 const generatedExample = computed(() => {
   let error = generationError
+  let language = getExampleLanguage(contentType)
   const value =
     pending || error
       ? undefined
@@ -47,15 +57,22 @@ const generatedExample = computed(() => {
         getExampleContent(response, example, {
           contentType,
           openapiVersion,
+          jsonSchemaDialect,
+          onLanguage: (formattedLanguage) => {
+            language = formattedLanguage
+          },
           onDiagnostic: (diagnostic) => {
             if (diagnostic.severity === 'error' && error === undefined) {
               error = diagnostic
             }
           },
         }))
-  return { value, error }
+  return { value, error, language }
 })
 const prettyPrintedContent = computed(() => generatedExample.value.value)
+const language = computed<ExampleLanguage>(
+  () => contentLanguage ?? generatedExample.value.language,
+)
 const errorMessage = computed(() => {
   const error = generatedExample.value.error
   if (!error) {
@@ -82,7 +99,7 @@ const shouldVirtualize = computed(() => {
     this wrapper shrink so the code block scrolls itself, rather than stretching to the longest line
     and making the card scroll, which carries the copy button out of view.
   -->
-  <div class="bg-b-2 flex min-h-0 min-w-0 flex-col">
+  <div class="flex min-h-0 min-w-0 flex-col">
     <div
       v-if="resolvedExample?.summary || resolvedExample?.description"
       class="flex flex-col gap-2 px-3 py-3">
@@ -98,15 +115,15 @@ const shouldVirtualize = computed(() => {
     <!-- Example -->
     <ScalarCodeBlock
       v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
-      class="bg-b-2"
-      :lang="isXmlMediaType(contentType) ? 'xml' : 'json'"
+      class="bg-transparent"
+      :lang="language"
       :prettyPrintedContent="prettyPrintedContent" />
 
     <ScalarVirtualCodeBlock
       v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
-      class="bg-b-2"
+      class="bg-transparent"
       :content="prettyPrintedContent"
-      :lang="isXmlMediaType(contentType) ? 'xml' : 'json'" />
+      :lang="language" />
 
     <div
       v-else

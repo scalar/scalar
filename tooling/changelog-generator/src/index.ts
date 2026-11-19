@@ -1,12 +1,13 @@
-import { getInfo } from '@changesets/get-github-info'
+import { getCommitInfo } from '@changesets/get-github-info'
 import type { ChangelogFunctions } from '@changesets/types'
 
 import { formatReleaseLine } from './formatter'
+import type { GitHubInfo } from './types'
 
 type Options = Partial<{ repo?: string }> | null
 
 const changelogFunctions: ChangelogFunctions = {
-  getReleaseLine: async (changeset, _type, options: Options) => {
+  getReleaseLine: async (changeset, _type, options: Options): Promise<string> => {
     const repo = options?.repo
     if (!repo) {
       throw new Error('Please provide a `repo` option. It should be a string like "user/repo".')
@@ -26,17 +27,27 @@ const changelogFunctions: ChangelogFunctions = {
     }
 
     // Get GitHub info for the commit
-    const githubInfo = changeset.commit
-      ? await getInfo({
+    const commitInfo = changeset.commit
+      ? await getCommitInfo({
           repo,
           commit: changeset.commit,
         })
       : null
 
+    const githubInfo: GitHubInfo | null = commitInfo
+      ? {
+          user: commitInfo.author?.login ?? null,
+          pull: commitInfo.pull?.number ?? null,
+          links: {
+            commit: commitInfo.commit.url,
+            pull: commitInfo.pull?.url ?? null,
+            user: commitInfo.author?.url ?? null,
+          },
+        }
+      : null
+
     // Use PR from GitHub info if available, otherwise fall back to summary
-    const prNumber = githubInfo?.links.pull
-      ? Number.parseInt(githubInfo.links.pull.split('/').pop() || '', 10)
-      : prFromSummary
+    const prNumber = githubInfo?.pull ?? prFromSummary
 
     // Create a GitHub info object with PR link
     const summaryInfo = prNumber

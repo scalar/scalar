@@ -48,7 +48,7 @@ export function useRequestApprovals(): {
         }
 
         await executeRequestTool({
-          documentSettings: createDocumentSettings(state.workspaceStore),
+          documentSettings: createDocumentSettings(state.workspaceStore, state.config.value.authentication),
           proxyUrl: state.proxyUrl.value,
           input: toolPart.input,
           toolCallId: toolPart.toolCallId,

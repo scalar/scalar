@@ -246,6 +246,17 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets whether x-badges are shown in the sidebar.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="showBadgesInSidebar">Whether to show badges in the sidebar.</param>
+    public static TOptions WithBadgesInSidebar<TOptions>(this TOptions options, bool showBadgesInSidebar = true) where TOptions : ScalarOptions
+    {
+        options.ShowBadgesInSidebar = showBadgesInSidebar;
+        return options;
+    }
+
+    /// <summary>
     /// Controls whether the sidebar and search use the operation summary or path (default: <see cref="OperationTitleSource.Summary" />).
     /// </summary>
     /// <param name="options">The options to configure.</param>
@@ -770,6 +781,17 @@ public static partial class ScalarOptionsExtensions
     public static TOptions WithFeaturedClients<TOptions>(this TOptions options, params KeyValuePair<ScalarTarget, ScalarClient>[] clients) where TOptions : ScalarOptions
     {
         options.FeaturedClients = clients;
+        return options;
+    }
+
+    /// <summary>
+    /// Controls whether built-in HTTP clients appear alongside SDK installation tabs in the introduction.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="showDefaultClients">Whether to show built-in clients alongside SDK installation tabs.</param>
+    public static TOptions WithDefaultClientsWithSdkInstallation<TOptions>(this TOptions options, bool showDefaultClients = true) where TOptions : ScalarOptions
+    {
+        options.ShowDefaultClientsWithSdkInstallation = showDefaultClients;
         return options;
     }
 

@@ -43,4 +43,8 @@ test.describe('ScalarToggle', () => {
     await page.getByRole('checkbox').nth(2).click()
     await snapshot('3-off')
   })
+
+  test('Sizes', async ({ snapshot }) => {
+    await snapshot('1-all-states')
+  })
 })

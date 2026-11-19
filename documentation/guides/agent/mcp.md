@@ -20,7 +20,7 @@ Most "MCP server generators" hand you a code project. You then own a runtime, se
 
 ## Small context, any size of API
 
-Dumping every operation of a large API into the first turn wastes an agent's context window. A Scalar MCP server exposes a small, fixed set of tools and fetches operation details just in time, when the agent actually needs them. Per endpoint, you decide whether a tool can only **search** the API description or **execute** real, authenticated requests.
+Dumping every operation of a large API into the first turn wastes an agent's context window. For a smaller API, each operation can be its own tool. For a large one, switch to Dynamic mode: the server exposes two tools and fetches operation details just in time, when the agent actually needs them. In Dynamic mode, you decide per endpoint whether the agent can **search** for it in the API document and whether it can **execute** real, authenticated requests. See [tool modes](tools.md#tool-modes).
 
 ## From OpenAPI to agent in one place
 
@@ -38,7 +38,7 @@ Servers you create in **MCP Studio** expose tools for selected APIs. Copy the se
 
 1. Open **MCP** in the [Scalar Dashboard](https://dashboard.scalar.com) and create a server for your API.
 2. Select the API and environment you want to configure.
-3. Open **Configure → MCP Tools** to select the operations to expose.
+3. Open **Configure → Tools** with the production environment selected to choose the operations to expose. Other environments use production's tools.
 4. Open **Configure → Authorization** to decide how callers sign in and which credentials the server sends upstream.
 5. Save your configuration, then copy the environment's connection URL from the dashboard.
 
@@ -67,12 +67,14 @@ A team-member token cannot call tools that require [per-access-group credentials
 
 ## Tools
 
-Open the API and environment in your MCP server, then use **Configure → MCP Tools** to choose which operations clients may discover or execute. Keep operations that should not make requests in search-only mode.
+Open the API in your MCP server with the production environment selected, then use **Configure → Tools** to choose which operations become tools and how clients reach them. Other environments use production's tools.
 
 | Mode | Description |
 | --- | --- |
-| Search | Makes an operation available for lookup without sending an API request. |
-| Execute | Allows an authenticated request to the upstream API. |
+| Individual | Each operation is its own tool, with its own name, description, and [MCP annotations](tools.md#mcp-annotations). This is the default. |
+| Dynamic | Two tools search the exposed operations and execute a request, which scales to large APIs. Turn Search and Execute on per operation in the API's **Settings → MCP tools**. |
+
+You can also set tool names, descriptions, and annotations with `x-scalar-expose` in your API document. See [MCP Tools](tools.md).
 
 ## API Authentication
 
@@ -116,7 +118,7 @@ Any client that supports remote MCP servers over HTTP, including Claude Code, Cl
 
 <scalar-detail title="Can agents change data through my API?">
 
-Only if you allow it. Each operation is set to Search, which only lets the agent look it up, or Execute, which sends real authenticated requests. Keep write operations on Search until you are comfortable.
+Only if you allow it. Only the operations you turn on become tools. In Dynamic mode, Search lets the agent look an operation up and Execute lets it send real authenticated requests, and you turn each on separately. In Individual mode, every operation that is a tool can send requests. Keep write operations off, or without Execute in Dynamic mode, until you are comfortable. [MCP annotations](tools.md#mcp-annotations) also let clients ask before running a tool that changes data. In Dynamic mode, `execute` is always marked destructive.
 
 </scalar-detail>
 

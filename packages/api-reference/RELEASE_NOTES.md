@@ -9,6 +9,60 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.81.0 (2026-11-18)
+
+### AsyncAPI schema resolution, credential substitution in SDK instructions, and improved examples
+
+This release resolves external RAML and Protobuf dependencies in AsyncAPI schemas, substitutes credentials in SDK installation commands, and fixes response example language detection and parameter example precedence.
+
+- SDK installation instructions now substitute credential placeholders with real values from your selected authentication, masking secrets on screen while copying unmasked code
+- AsyncAPI schemas with RAML libraries and Protobuf imports now resolve their dependencies and display structured field documentation instead of falling back to source view
+- Response examples now select their syntax highlighting from the media type, so CSV responses display as Plain Text instead of JSON
+- Parameter and media type examples now take precedence over schema examples, avoiding duplicate entries in the example popup
+- Deep-link targets stay aligned while lazy content and collapsing sections finish changing height
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1810)
+
+## 1.80.0 (2026-11-17)
+
+### Plugin document types and accessibility improvements
+
+This release introduces an extension point that lets plugins teach API Reference new document formats, alongside fixes for focus management, hydration, and visual alignment.
+
+- Plugins can now register custom document types with their own detection, sidebar entries, and rendering components, while API Reference handles loading, routing, and navigation
+- The Ask AI Agent field collapses when focus leaves it, so keyboard users can reach the example picker and Test Request button without hidden focus rings
+- Card headers and footers are now centered between the card edge and the content surface, fixing alignment in request examples and operation lists
+- Server-rendered references hydrate cleanly when mounted again in the same document after client-side navigation or manual remount
+- TypeScript 6 builds are now supported while preserving runtime output and public handler types
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1800)
+
+## 1.79.0 (2026-11-16)
+
+### Redesigned code cards, SDK installation alongside built-in clients, and hydration fixes
+
+Code cards across the API reference now render on a lifted surface with updated styling. SDK installation tabs can appear alongside built-in HTTP clients in the introduction. Server-side rendering now hydrates correctly without replacing markup or breaking the host page.
+
+- Code cards redesigned with a padded shell and lifted surface for better visual hierarchy. Cards now use a 12px radius with 4px padding and surfaces with subtle shadows.
+- Show SDK installation tabs alongside built-in HTTP clients with the new showDefaultClientsWithSdkInstallation option. SDK tabs appear first with additional clients in a grouped More menu.
+- Disable saving selected code sample client to local storage with persistSelectedClient: false. Useful when embedding on third-party pages.
+- Server-rendered references now hydrate without replacing markup or breaking host page elements. Fixes issues with dropdowns, tag accordions, and teleported content.
+- Parameter, body, and header examples now display their summary or name as muted labels above value boxes while keeping copy buttons focused on values only.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1790)
+
+## 1.78.1 (2026-11-12)
+
+### Large API documents with shared components now parse successfully
+
+This release fixes a parsing error that occurred when rendering API documents that reuse shared schemas or responses across many operations, particularly exports from AWS API Gateway.
+
+- Raised the YAML alias limit from 10,000 to 100,000 to support documents that merge shared anchors into hundreds of operations
+- Fixed "Excessive alias count" errors when rendering large API Gateway exports with shared error responses
+- Applied the unified alias limit across RAML and Avro schema rendering
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1781)
+
 ## 1.78.0 (2026-11-10)
 
 ### Schema rendering, SDK customization, and response header examples

@@ -12,6 +12,7 @@ import { getCookie } from 'hono/cookie'
 
 import { pathParameters } from '@/utils/path-parameters'
 
+import { compilePattern } from './compile-pattern'
 import {
   type ParameterLocation,
   deserializeArrayParameter,
@@ -229,12 +230,17 @@ const compileValidators = (
   pathItemParameters: OpenAPIV3_1.PathItemObject['parameters'],
 ): CompiledValidators => {
   // Coerce string parameters to their declared types (integer, boolean, …).
-  const parameterAjv = new Ajv2020({ strict: false, allErrors: true, coerceTypes: true })
+  const parameterAjv = new Ajv2020({
+    strict: false,
+    allErrors: true,
+    coerceTypes: true,
+    code: { regExp: compilePattern },
+  })
   useDecimalMultipleOf(parameterAjv)
   addFormats(parameterAjv)
 
   // Do not coerce the JSON body; a JSON value already carries its type and coercion would mask errors.
-  const bodyAjv = new Ajv2020({ strict: false, allErrors: true })
+  const bodyAjv = new Ajv2020({ strict: false, allErrors: true, code: { regExp: compilePattern } })
   useDecimalMultipleOf(bodyAjv)
   addFormats(bodyAjv)
 

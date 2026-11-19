@@ -1,5 +1,59 @@
 # @scalar/workspace-store
 
+## 0.74.0
+
+### Minor Changes
+
+- [#11089](https://github.com/scalar/scalar/pull/11089): Resolve external RAML and Protobuf dependencies for structured AsyncAPI schema documentation, preserving source fallback when dependencies cannot be fully resolved.
+
+  Show RAML named types in schema headings instead of adding a "RAML type:" line to the description.
+
+  Show inline object item titles in array type signatures across all `@scalar/blocks` consumers, including OpenAPI documentation: an array with `items: { type: 'object', title: 'Pet' }` now displays `array of Pet` instead of `array of object`.
+
+### Patch Changes
+
+- [#11029](https://github.com/scalar/scalar/pull/11029): fix: respect contains match counts in simple array examples
+
+  Generate matching and nonmatching primitive items for direct contains constraints, counting tuple prefixes and respecting item schemas, length bounds, uniqueness, and the declared dialect. Authored examples remain authoritative. Candidate generation is bounded and may return a partial example for contradictory constraints.
+
+  Complex references and compositions, nested object or array candidate synthesis, and XML branch reconstruction retain existing best-effort behavior and are deferred to a follow-up.
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11102](https://github.com/scalar/scalar/pull/11102): Update @scalar/typebox to 0.1.4.
+- [#11029](https://github.com/scalar/scalar/pull/11029): Preserve authored array item examples when contains constraints cannot be satisfied, and pass only dialect context to streaming example generation.
+- [#10997](https://github.com/scalar/scalar/pull/10997): Upgrade referenced OpenAPI 2.0 and 3.0 resources before bundling, including bare fragments interpreted in their owning API description's dialect and media types. Preserve authored reference targets when schemas and parameters move, and retain their context through lazy loading, serialization, and export.
+
+  Add JSON Magic resource and target lifecycle hooks and the typed `upgradeFragment` API. Headerless external resources are traversed through referenced subtrees, including when reached from OpenAPI 3.1/3.2 descriptions. Exports retain compact `x-scalar-upgrade` bookkeeping only when lazy external references still need the original dialect, relocation mappings, or media types.
+
+  Resources already stored in an input bundle's `x-ext` keep their existing layout so saved references remain valid. Legacy keywords in those stored resources, including OpenAPI 2.0 schema `x-nullable` and `type: file`, deliberately remain unconverted; newly loaded legacy resources are upgraded.
+
+## 0.73.0
+
+### Minor Changes
+
+- [#10816](https://github.com/scalar/scalar/pull/10816): Add `documentTypes` to `createWorkspaceStore`, so the store can ingest document formats it does not support natively. A registered type claims a document before the OpenAPI and AsyncAPI pipelines run, and the store keeps it as an opaque plugin document with `plugin` navigation entries built by the type.
+
+### Patch Changes
+
+- [#10816](https://github.com/scalar/scalar/pull/10816): Keep plugin document classification consistent through replacement, hydration, and rebasing. Exclude plugin documents from Ask AI and reject unsupported request, authentication, and mock-server processing even when plugin data contains OpenAPI or AsyncAPI fields.
+- [#10983](https://github.com/scalar/scalar/pull/10983): Preserve literal $ref values in AsyncAPI examples, schema values, and extensions during initial loading and lazy resolution without fetching them. Index authored document keys without following virtual proxy links. Keep wrapper resolution independent of key order and ignore reference siblings in AsyncAPI parameter schemas and wrapped OpenAPI 3.0 and draft-04/06 schemas, including identifiers and anchors in those ignored siblings. Traverse only schema and identity keywords supported by the wrapped format so unknown keyword values stay literal, including draft-04 `id` and draft-06/07 `$id` handling.
+- [#10983](https://github.com/scalar/scalar/pull/10983): Resolve references inside AsyncAPI Multi Format Schema Objects and OpenAPI 3.2 media type `itemSchema` fields while preserving literal schema values. Keep `schemaFormat` and `schema` annotations in ordinary JSON Schema objects as literal data. Resolve native AsyncAPI schema `externalDocs` and tuple `additionalItems` references without processing ordinary JSON Schema annotations. Preserve schema contexts inside AsyncAPI protocol bindings. Resolve named AsyncAPI servers, variables, and reusable components even when their names match literal-data keywords. Ignore reference siblings in native AsyncAPI and draft-07 schemas.
+
+## 0.72.0
+
+### Minor Changes
+
+- [#11037](https://github.com/scalar/scalar/pull/11037): Load object-valued `x-codeSamples.source` and `x-code-samples.source` file references as raw code text, with relative origins and lazy operation loading. Retain failed references and show an unavailable sample instead of silently replacing them with an empty string. Preserve literal `$ref` values in other extensions and example data.
+
+### Patch Changes
+
+- [#10998](https://github.com/scalar/scalar/pull/10998): Reuse the discovery response when importing extensionless API description URLs, avoiding a duplicate download while preserving URL metadata and subsequent fetches.
+
+## 0.71.1
+
+### Patch Changes
+
+- [#10937](https://github.com/scalar/scalar/pull/10937): fix: generate valid base64 examples for `format: byte` and `contentEncoding: base64`/`base64url` strings
+
 ## 0.71.0
 
 ### Minor Changes

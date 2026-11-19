@@ -100,6 +100,57 @@ describe('fetch-openid-connect-discovery', () => {
     expect(data).toBeNull()
   })
 
+  it('preserves the metadata consumed by authentication flows', async () => {
+    const metadata = {
+      authorization_endpoint: 'https://issuer.example.com/authorize',
+      device_authorization_endpoint: 'https://issuer.example.com/device',
+      token_endpoint: 'https://issuer.example.com/token',
+      scopes_supported: ['openid', 'profile'],
+      grant_types_supported: ['authorization_code', 'refresh_token'],
+      code_challenge_methods_supported: ['S256'],
+    }
+    const customFetch = vi.fn().mockResolvedValue(Response.json(metadata))
+
+    expect(await fetchOpenIDConnectDiscovery('https://issuer.example.com', '', customFetch)).toStrictEqual([
+      null,
+      metadata,
+    ])
+  })
+
+  it('normalizes malformed optional metadata fields', async () => {
+    const customFetch = vi.fn().mockResolvedValue(
+      Response.json({
+        authorization_endpoint: 'https://issuer.example.com/authorize',
+        token_endpoint: 123,
+        scopes_supported: 'openid',
+        grant_types_supported: ['authorization_code', 123, '', null, false, {}, 'refresh_token'],
+        code_challenge_methods_supported: null,
+      }),
+    )
+
+    expect(await fetchOpenIDConnectDiscovery('https://issuer.example.com', '', customFetch)).toStrictEqual([
+      null,
+      {
+        authorization_endpoint: 'https://issuer.example.com/authorize',
+        token_endpoint: '',
+        scopes_supported: [],
+        grant_types_supported: ['authorization_code', 'refresh_token'],
+        code_challenge_methods_supported: [],
+      },
+    ])
+  })
+
+  it.each([null, [], 'invalid', {}, { authorization_endpoint: 123, token_endpoint: false }])(
+    'rejects discovery without usable endpoints: %j',
+    async (metadata) => {
+      const customFetch = vi.fn().mockResolvedValue(Response.json(metadata))
+      const [error, data] = await fetchOpenIDConnectDiscovery('https://issuer.example.com', '', customFetch)
+
+      expect(error?.message).toBe('Invalid OpenID Connect discovery document: missing required endpoints')
+      expect(data).toBeNull()
+    },
+  )
+
   it('returns thrown errors from fetch', async () => {
     mockFetch.mockRejectedValue(new Error('Network down'))
 
