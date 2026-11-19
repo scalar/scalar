@@ -136,6 +136,58 @@ describe('custom-references', () => {
     expect(exported['x-schema'].examples).toEqual([literal])
   })
 
+  it.each([false, true])('retains custom context when transforming a target (external: %s)', async (external) => {
+    const reads: string[] = []
+    const result = await bundleWithDiagnostics(
+      {
+        ...api,
+        'x-entry': { $ref: external ? './container.json#/value' : '#/x-data/value' },
+        'x-data': { value: { marker: true } },
+      },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake: false,
+        preserveReference: (reference) => /^https?:\/\//i.test(reference),
+        hooks: {
+          resolveDocument: (_document, uri) =>
+            uri.endsWith('container.json') ? { baseUri: uri, visitReferencedSubtrees: true } : undefined,
+          onBeforeTargetProcess: (_target, { path }) =>
+            path.at(-1) === 'value'
+              ? { value: { schemas: { $ref: './custom.json' }, examples: [literal] } }
+              : undefined,
+        },
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: (uri) => {
+              reads.push(uri)
+              return Promise.resolve({
+                ok: true,
+                raw: '',
+                data: uri.endsWith('container.json') ? { value: { marker: true } } : { type: 'string' },
+              })
+            },
+          },
+        ],
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(reads).toStrictEqual([
+      ...(external ? ['https://source.test/container.json'] : []),
+      'https://source.test/custom.json',
+    ])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    const target = local(exported, exported['x-entry'].$ref)
+    if (target === null || typeof target !== 'object' || !('schemas' in target)) {
+      throw new Error('Missing transformed custom target')
+    }
+    expect(local(exported, (target.schemas as { $ref: string }).$ref)).toStrictEqual({ type: 'string' })
+    expect('examples' in target ? target.examples : undefined).toStrictEqual([literal])
+  })
+
   it('retains imported document context when custom references are disabled', async () => {
     const origin = 'https://source.test/root.json'
     const result = await bundleWithDiagnostics(
