@@ -9,7 +9,9 @@ test.describe('AsyncAPI native dependencies', () => {
           '#%RAML 1.0 Library\ntypes:\n  User:\n    type: object\n    properties:\n      external_id: string',
         'https://native.example.test/proto/user.proto': 'syntax="proto3"; message User { string external_id=1; }',
       }
+      const requested: string[] = []
       await page.route('https://native.example.test/**', (route) => {
+        requested.push(route.request().url())
         const body = files[route.request().url()]
         return route.fulfill({
           status: body ? 200 : 404,
@@ -44,12 +46,29 @@ test.describe('AsyncAPI native dependencies', () => {
         },
       })
       await page.goto(example)
+      const imported = page
+        .getByRole('button')
+        .filter({ hasText: `Imported ${language}` })
+        .last()
+      await expect(imported).toBeVisible()
+      expect(requested).toEqual([])
+      await test.info().attach('native-schemas-collapsed', {
+        body: await page.screenshot({ fullPage: true, path: test.info().outputPath('native_schema_collapsed.png') }),
+        contentType: 'image/png',
+      })
       await page
         .getByRole('button')
         .filter({ hasText: `Imported ${language}` })
         .last()
         .click()
       await expect(page.getByText('external_id', { exact: true }).first()).toBeVisible()
+      expect(requested).toEqual([
+        `https://native.example.test/${language === 'RAML' ? 'raml/library.raml' : 'proto/user.proto'}`,
+      ])
+      await imported.click()
+      await imported.click()
+      await expect(page.getByText('external_id', { exact: true }).first()).toBeVisible()
+      expect(requested.length).toBe(1)
       if (language === 'RAML') await expect(page.getByText('users.User', { exact: true }).first()).toBeVisible()
       await page
         .getByRole('button')
@@ -57,8 +76,9 @@ test.describe('AsyncAPI native dependencies', () => {
         .last()
         .click()
       await expect(page.getByText(missing, { exact: true })).toBeVisible()
+      expect(requested.length).toBe(2)
       await test.info().attach('native-schema-rendering', {
-        body: await page.screenshot({ fullPage: true }),
+        body: await page.screenshot({ fullPage: true, path: test.info().outputPath('native_schema_expanded.png') }),
         contentType: 'image/png',
       })
     })

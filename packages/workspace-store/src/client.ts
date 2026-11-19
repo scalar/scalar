@@ -22,12 +22,17 @@ import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
 import type { OperationMeta } from '@/events/definitions/operation'
 import { loadInlineAsyncApiSchemaResources } from '@/helpers/async-api-schema-resources/load-inline'
+import {
+  type AsyncApiSchemaResourceResolver,
+  createAsyncApiSchemaResourceResolver,
+} from '@/helpers/async-api-schema-resources/resolver'
+import { createNativeSchemaEditTracker } from '@/helpers/async-api-schema-resources/track-edits'
 import { asyncApiModelChunkReference } from '@/helpers/asyncapi-model-chunk-reference'
 import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { compactUpgradeMetadata } from '@/helpers/compact-upgrade-metadata'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
-import { bumpDocumentRevision } from '@/helpers/document-revision'
+import { bumpDocumentRevision, getDocumentRevision } from '@/helpers/document-revision'
 import { type ExternalExampleResolver, createExternalExampleResolver } from '@/helpers/external-examples'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
@@ -37,7 +42,7 @@ import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { type RequestBodyBaselines, snapshotRequestBodies } from '@/helpers/snapshot-request-bodies'
-import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { unpackProxyObject, unpackProxyShallow } from '@/helpers/unpack-proxy'
 import { createNavigation, traverseAsyncApiDocument, traversePluginDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import {
@@ -284,6 +289,8 @@ type WorkspaceProps = {
  * @see https://github.com/microsoft/TypeScript/issues/43817#issuecomment-827746462
  */
 export type WorkspaceStore = {
+  /** Resolve native schema dependencies only when a consumer displays them. */
+  asyncApiSchemaResources: (documentName?: string) => AsyncApiSchemaResourceResolver
   /** Resolve external examples without mutating the document or its edit history. */
   externalExamples: (documentName?: string) => ExternalExampleResolver
 
@@ -748,6 +755,23 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * This can include settings that can not be persisted between sessions (not JSON serializable)
    */
   const extraDocumentConfigurations: ExtraDocumentConfigurations = {}
+  const nativeSchemaResolvers = new WeakMap<object, AsyncApiSchemaResourceResolver>()
+  const nativeSchemaEdits = new WeakSet<object>()
+  const trackNativeSchemaEdits = createNativeSchemaEditTracker()
+  const nativeSchemaRevisions = new WeakMap<object, number>()
+  const checkNativeSchemaEdits = (document: object): void => {
+    const raw = unpackProxyShallow(document)
+    const revision = getDocumentRevision(raw)
+    // Reactive workspaces can skip the source comparison until a write occurs. Plain workspaces
+    // have no write hooks, so they compare on each read instead.
+    if (isReactiveWorkspace && nativeSchemaRevisions.get(raw) === revision) return
+    nativeSchemaRevisions.set(raw, revision)
+    if (trackNativeSchemaEdits(document)) {
+      nativeSchemaResolvers.delete(raw)
+      nativeSchemaEdits.add(raw)
+    }
+  }
+  const fallbackNativeSchemas = createAsyncApiSchemaResourceResolver()
   const externalExampleResolvers = new WeakMap<object, ExternalExampleResolver>()
   const fallbackExternalExamples = createExternalExampleResolver({
     fetch: workspaceProps?.fetch,
@@ -1224,6 +1248,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           createMagicProxy(clonedRawInputDocument),
           input.documentSource ?? '/',
           loaders,
+          { lazy: true },
         )
       }
       // The upgrader is typed against the loose `UnknownObject` shape; the result is a valid
@@ -1264,10 +1289,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         asyncApiDocument[extensions.document.navigation] = navigation
       }
 
+      checkNativeSchemaEdits(asyncApiDocument)
       const asyncApiOverrides = unpackProxyObject(overrides[name])
       workspace.documents[name] = needsOverridesProxy(asyncApiOverrides)
         ? createOverridesProxy(asyncApiDocument, { overrides: asyncApiOverrides })
         : asyncApiDocument
+      checkNativeSchemaEdits(workspace.documents[name])
       return true
     }
 
@@ -1628,6 +1655,23 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   const visitedNodesCaches = new WeakMap<object, Set<unknown>>()
 
   return {
+    asyncApiSchemaResources: (documentName) => {
+      const name = documentName ?? getActiveDocumentName()
+      const document = workspace.documents[name]
+      if (!document) return fallbackNativeSchemas
+      const raw = unpackProxyShallow(document)
+      checkNativeSchemaEdits(document)
+      const cached = nativeSchemaResolvers.get(raw)
+      if (cached) return cached
+      const resolve = createAsyncApiSchemaResourceResolver({
+        origin: document['x-scalar-original-source-url'],
+        usePreparedResources: !nativeSchemaEdits.has(raw),
+        fileLoader: workspaceProps?.fileLoader,
+        fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+      })
+      nativeSchemaResolvers.set(raw, resolve)
+      return resolve
+    },
     externalExamples: (documentName) => {
       const name = documentName ?? getActiveDocumentName()
       const document = workspace.documents[name]
@@ -1758,7 +1802,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         path[0] === 'components' &&
         path[1] === 'schemas'
       ) {
-        const node = getRaw(target)
+        const node = unpackProxyShallow(target)
         const name = path[2]
         if (name && typeof node.$ref === 'string' && node.$global === true) {
           node.$ref = asyncApiModelChunkReference(node.$ref, name)
@@ -1779,7 +1823,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         visitedNodesCaches.set(activeDocument, visitedNodes)
       }
 
-      return bundle(target, {
+      const result = await bundle(target, {
         inputPath: path,
         traversal: 'document',
         root: activeDocument,
@@ -1803,6 +1847,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         urlMap: true,
         visitedNodes,
       })
+      if (activeDocument) checkNativeSchemaEdits(activeDocument)
+      return result
     },
     addDocument,
     /**
@@ -1923,6 +1969,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               documentUri: resolveOpenApiDocument(doc, doc['x-scalar-original-source-url'] ?? '/')?.baseUri,
             })
             const documentOverrides = input.overrides[name]
+            if (isAsyncApiDocument(magicDocument)) checkNativeSchemaEdits(magicDocument)
 
             return [
               name,
@@ -1933,6 +1980,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           }),
         ),
       )
+
+      for (const document of Object.values(workspace.documents)) {
+        if (isAsyncApiDocument(document)) checkNativeSchemaEdits(document)
+      }
 
       safeAssign(originalDocuments, input.originalDocuments)
       safeAssign(intermediateDocuments, input.intermediateDocuments)
