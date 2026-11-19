@@ -1,6 +1,5 @@
 /**
- * The highlight.js classes `code.css` gives a colour to, plus the few it
- * deliberately leaves alone.
+ * The highlight.js classes `code.css` gives a colour to.
  *
  * A sample only exercises the classes its own code needs, so checking emitted
  * classes against one reference render would reject a perfectly good class that
@@ -45,7 +44,6 @@ export const STYLED_CLASSES: ReadonlySet<string> = new Set([
   'hljs-deletion',
   'hljs-formula',
   'hljs-emphasis',
-  // Emitted by highlight.js, unstyled by code.css — harmless either way.
   'hljs-punctuation',
   'hljs-params',
   'hljs-property',

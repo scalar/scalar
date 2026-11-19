@@ -294,8 +294,8 @@ depend on the old package; [`test/reference.ts`](test/reference.ts) explains wha
 a sample changes.
 
 Colour is the part that does *not* match exactly, and `pnpm compat:report --detail`
-quantifies it: across the whole corpus 68.4% of visible characters keep the colour
-`code.css` gives them, and 82% across the thirteen languages the corpus started with. The
+quantifies it: across the whole corpus 68.4% of visible characters keep the colour they
+had under highlight.js and the original `code.css`, and 82% across the thirteen languages the corpus started with. The
 rest is our finer scope vocabulary showing through — f-string interiors scoped as code
 rather than string, docstrings as comments rather than strings, punctuation given its own
 scope — and it is widest where highlight.js scopes least, as on `http`, where it leaves
