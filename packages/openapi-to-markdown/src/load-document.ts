@@ -11,6 +11,7 @@ import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
+import { resolveSecurityRequirements } from '@scalar/workspace-store/helpers/resolve-security-requirements'
 import { resolveOpenApiDocument } from '@scalar/workspace-store/plugins/bundler'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
@@ -239,6 +240,7 @@ export const loadDocument = async (
   const entryIdentity = resolveNodeOpenApiDocument(raw, origin ?? `${resolve(options.basePath ?? '.')}${sep}`)
   // Upgrade before indexing so reference resolution sees one consistent dialect.
   const declaredOpenapiVersion = typeof raw.openapi === 'string' ? raw.openapi : '2.0'
+  const isThreeTwo = /^3\.2\.\d+$/.test(declaredOpenapiVersion)
   const { document: upgraded } = upgrade(raw, '3.2', { onIncompatible: 'collect' })
   const upgradedSchemas = getSchemas(upgraded)
 
@@ -254,6 +256,7 @@ export const loadDocument = async (
       traversal: 'document',
       origin,
       treeShake: false,
+      urlMap: isThreeTwo,
       hooks: {
         resolveDocument: (resource, retrievalUri) =>
           resource === upgraded ? entryIdentity : resolveNodeOpenApiDocument(resource, retrievalUri),
@@ -265,6 +268,17 @@ export const loadDocument = async (
     }
     schemas = getSchemas(document)
     // References from nested schema resources can be rewritten to absolute pointers into the entry document.
+    if (entryIdentity) {
+      schemas.set(entryIdentity.baseUri, '')
+    }
+  }
+
+  // URI requirements are not $ref fields, so they need the same alias pass as the workspace store.
+  // Check the authored version because upgrading older descriptions must not enable URI semantics.
+  if (isThreeTwo) {
+    await resolveSecurityRequirements(document, { origin, loaders: loader.plugins })
+    schemas = getSchemas(document)
+    // The URI pass can add resources, so retain the entry identity in the refreshed index.
     if (entryIdentity) {
       schemas.set(entryIdentity.baseUri, '')
     }

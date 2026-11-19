@@ -8,6 +8,203 @@ import { describe, expect, it, vi } from 'vitest'
 import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
 
 describe('createMarkdownFromOpenApi', () => {
+  it('resolves local URI security requirements in Node exports', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.2.1',
+      info: { title: 'URI auth', version: '1' },
+      paths: {},
+      security: [{ '#/components/securitySchemes/key': [] }],
+      components: {
+        securitySchemes: { key: { type: 'apiKey', in: 'header', name: 'X-Api-Key' } },
+      },
+    })
+    expect(result).toContain('API key in header `X-Api-Key`')
+  })
+
+  it('preserves URI security scopes, alternatives, and named schemes for operations', async () => {
+    const input = {
+      openapi: '3.2.1',
+      info: { title: 'URI auth', version: '1' },
+      security: [{ '#/components/securitySchemes/key': [] }],
+      paths: {
+        '/items': {
+          get: {
+            security: [{ '#/components/securitySchemes/oauth': ['read', 'write'], key: [] }, {}],
+            responses: { '200': { description: 'OK' } },
+          },
+          post: { security: [], responses: { '200': { description: 'OK' } } },
+        },
+      },
+      components: {
+        securitySchemes: {
+          key: { type: 'apiKey', in: 'header', name: 'X-Api-Key' },
+          oauth: {
+            type: 'oauth2',
+            flows: {
+              clientCredentials: { tokenUrl: 'https://example.com/token', scopes: { read: 'Read', write: 'Write' } },
+            },
+          },
+        },
+      },
+    }
+    const original = structuredClone(input)
+    const result = await createMarkdownFromOpenApi(input, { operation: { path: '/items', method: 'get' } })
+    expect(result).toContain(
+      '## Authentication\n\n- **#/components/securitySchemes/oauth**: OAuth 2.0: client credentials, token `https://example.com/token`, scopes: `read, write`\n- **key**: API key in header `X-Api-Key`\n\nOr:\n\nNo authentication required.',
+    )
+    const publicOperation = await createMarkdownFromOpenApi(input, { operation: { path: '/items', method: 'post' } })
+    expect(publicOperation).toContain('## Authentication\n\nNo authentication required.')
+    expect(publicOperation).not.toContain('API key in header')
+    expect(input).toStrictEqual(original)
+  })
+
+  it.each(['3.0.4', '3.1.2', '3.2.1'])(
+    'prefers named security schemes over URI interpretation in OpenAPI %s',
+    async (openapi) => {
+      const result = await createMarkdownFromOpenApi({
+        openapi,
+        info: { title: 'Named auth', version: '1' },
+        paths: {},
+        security: [{ '#/components/securitySchemes/key': [] }],
+        components: {
+          securitySchemes: {
+            key: { type: 'apiKey', in: 'header', name: 'X-Other-Key' },
+            '#/components/securitySchemes/key': { type: 'http', scheme: 'basic' },
+          },
+        },
+      })
+      expect(result).toContain('- **#/components/securitySchemes/key**: HTTP basic')
+      expect(result).not.toContain('API key in header')
+    },
+  )
+
+  it.each(['3.0.4', '3.1.2'])(
+    'does not enable URI security requirements when upgrading OpenAPI %s',
+    async (openapi) => {
+      const result = await createMarkdownFromOpenApi({
+        openapi,
+        info: { title: 'Older auth', version: '1' },
+        paths: {},
+        security: [{ '#/components/securitySchemes/key': [] }, { key: [] }],
+        components: { securitySchemes: { key: { type: 'apiKey', in: 'header', name: 'X-Api-Key' } } },
+      })
+      expect(result).toContain(
+        '- **#/components/securitySchemes/key**\n\nOr:\n\n- **key**: API key in header `X-Api-Key`',
+      )
+    },
+  )
+
+  it('resolves external URI security from the entry file base and its relative $self', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'markdown-security-'))
+    try {
+      await mkdir(join(directory, 'canonical'))
+      const entry = join(directory, 'openapi.json')
+      const requirement = './auth.json#/components/securitySchemes/key'
+      const document = {
+        openapi: '3.2.1',
+        info: { title: 'External auth', version: '1' },
+        paths: { '/items': { get: { responses: { '200': { description: 'OK' } } } } },
+        security: [{ [requirement]: [] }],
+      }
+      await writeFile(
+        join(directory, 'auth.json'),
+        JSON.stringify({
+          openapi: '3.2.1',
+          components: { securitySchemes: { key: { type: 'apiKey', in: 'header', name: 'X-Retrieval-Key' } } },
+        }),
+      )
+      await writeFile(
+        join(directory, 'canonical', 'auth.json'),
+        JSON.stringify({
+          openapi: '3.2.1',
+          components: { securitySchemes: { key: { type: 'apiKey', in: 'header', name: 'X-Canonical-Key' } } },
+        }),
+      )
+      await writeFile(entry, JSON.stringify(document))
+      const options = { documentLoading: { basePath: directory } }
+      const retrieved = await createMarkdownFromOpenApi(entry, options)
+      expect(retrieved).toContain(`- **${requirement}**: API key in header \`X-Retrieval-Key\``)
+      await writeFile(entry, JSON.stringify({ ...document, $self: './canonical/openapi.json' }))
+      const canonical = await createMarkdownFromOpenApi(entry, options)
+      expect(canonical).toContain(`- **${requirement}**: API key in header \`X-Canonical-Key\``)
+      expect(canonical).not.toContain('X-Retrieval-Key')
+      const inherited = await createMarkdownFromOpenApi(entry, {
+        ...options,
+        operation: { path: '/items', method: 'get' },
+      })
+      expect(inherited).toContain(`- **${requirement}**: API key in header \`X-Canonical-Key\``)
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  it('keeps URI security bases separate for referenced operations with their own $self', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'markdown-security-'))
+    try {
+      const entry = join(directory, 'openapi.json')
+      const paths = { '/a': { $ref: './a/api.json#/paths/~1items' }, '/b': { $ref: './b/api.json#/paths/~1items' } }
+      await writeFile(
+        entry,
+        JSON.stringify({ openapi: '3.2.1', info: { title: 'Referenced auth', version: '1' }, paths }),
+      )
+      for (const name of ['a', 'b']) {
+        await mkdir(join(directory, name, 'canonical'), { recursive: true })
+        await writeFile(
+          join(directory, name, 'api.json'),
+          JSON.stringify({
+            openapi: '3.2.1',
+            $self: './canonical/api.json',
+            info: { title: name, version: '1' },
+            paths: {
+              '/items': {
+                get: {
+                  security: [{ './auth.json': ['read'] }],
+                  responses: { '200': { description: 'OK' } },
+                },
+              },
+            },
+          }),
+        )
+        await writeFile(
+          join(directory, name, 'canonical', 'auth.json'),
+          JSON.stringify({
+            type: 'apiKey',
+            in: 'header',
+            name: `X-${name}-Key`,
+          }),
+        )
+      }
+      for (const name of ['a', 'b']) {
+        const result = await createMarkdownFromOpenApi(entry, {
+          documentLoading: { basePath: directory },
+          operation: { path: `/${name}`, method: 'get' },
+        })
+        expect(result).toContain(`API key in header \`X-${name}-Key\`, scopes: \`read\``)
+        expect(result).not.toContain(`X-${name === 'a' ? 'b' : 'a'}-Key`)
+      }
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  it('leaves unresolved URI security details out when local file access is disabled', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'markdown-security-'))
+    try {
+      const uri = join(directory, 'auth.json')
+      await writeFile(uri, JSON.stringify({ type: 'apiKey', in: 'header', name: 'X-Private-Key' }))
+      const result = await createMarkdownFromOpenApi({
+        openapi: '3.2.1',
+        info: { title: 'Restricted auth', version: '1' },
+        paths: {},
+        security: [{ [uri]: [] }],
+      })
+      expect(result).toContain(`- **${uri}**`)
+      expect(result).not.toContain('X-Private-Key')
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
   it('uses migrated XML reference semantics for an older API description', async () => {
     const markdown = await createMarkdownFromOpenApi({
       openapi: '3.1.0',
