@@ -633,6 +633,100 @@ describe('custom-references', () => {
     expect(JSON.parse(JSON.stringify(result.document)).components.schemas.A.default).toStrictEqual(original)
   })
 
+  it.each(
+    [false, true].flatMap((customFirst) =>
+      [false, true].flatMap((treeShake) => [
+        { customFirst, treeShake, diagnostics: false, previousScopeError: false },
+        { customFirst, treeShake, diagnostics: true, previousScopeError: false },
+        { customFirst, treeShake, diagnostics: true, previousScopeError: true },
+      ]),
+    ),
+  )(
+    'resolves late native exposures from authored references (custom first: $customFirst, treeShake: $treeShake, diagnostics: $diagnostics, previous failure: $previousScopeError)',
+    async ({ customFirst, treeShake, diagnostics, previousScopeError }) => {
+      const reads: string[] = []
+      const target = { $id: './scoped/', $ref: './payload.json' }
+      const entry = { nested: { $ref: './external.json' } }
+      const input = {
+        ...api,
+        ...(customFirst ? { 'x-target': target, 'x-entry': entry } : { 'x-entry': entry, 'x-target': target }),
+      }
+      const config = {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake,
+        urlMap: true,
+        preserveReference: (reference) => /^https?:\/\//i.test(reference),
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: (uri) => {
+              reads.push(uri)
+              if (previousScopeError && uri.includes('/scoped/')) return Promise.resolve({ ok: false })
+              return Promise.resolve({
+                ok: true,
+                raw: '',
+                data: uri.endsWith('/external.json')
+                  ? { ...api, openapi: '3.0.4', components: { schemas: { B: { $ref: './root.json#/x-target' } } } }
+                  : { type: uri.includes('/scoped/') ? 'string' : 'integer' },
+              })
+            },
+          },
+        ],
+      } satisfies Config
+      const result = diagnostics
+        ? await bundleWithDiagnostics(input, config)
+        : { document: await bundle(input, config) }
+      if ('diagnostics' in result) expect(result.diagnostics).toStrictEqual([])
+      const exported = JSON.parse(JSON.stringify(result.document))
+      const exposed = exported['x-target']
+      expect(local(exported, exposed.$ref)).toStrictEqual({ type: 'integer' })
+      expect(exposed.$id).toBe('./scoped/')
+      const external = Object.values(
+        exported['x-ext'] as Record<string, { components?: { schemas: { B: { $ref: string } } } }>,
+      ).find((value) => value.components)
+      if (!external?.components) throw new Error('Missing imported API description')
+      expect(local(exported, external.components.schemas.B.$ref)).toBe(exposed)
+      expect(reads).toContain('https://source.test/payload.json')
+      if (treeShake) {
+        expect(JSON.stringify(exported['x-ext'])).not.toContain('string')
+        expect(Object.values(exported['x-ext-urls']).some((uri) => String(uri).includes('scoped/payload'))).toBe(false)
+      }
+    },
+  )
+
+  it('keeps the latest native exposure when it is discovered during an active custom load', async () => {
+    const result = await bundleWithDiagnostics(
+      { ...api, 'x-target': { $id: './scoped/', $ref: './external.json' } },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake: true,
+        preserveReference: (reference) => /^https?:\/\//i.test(reference),
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: (uri) =>
+              Promise.resolve({
+                ok: true,
+                raw: '',
+                data: uri.includes('/scoped/')
+                  ? { ...api, openapi: '3.0.4', components: { schemas: { B: { $ref: '../root.json#/x-target' } } } }
+                  : { type: 'integer' },
+              }),
+          },
+        ],
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    const exported = JSON.parse(JSON.stringify(result.document))
+    expect(local(exported, exported['x-target'].$ref)).toStrictEqual({ type: 'integer' })
+  })
+
   it('retains imported document context when custom references are disabled', async () => {
     const origin = 'https://source.test/root.json'
     const result = await bundleWithDiagnostics(
