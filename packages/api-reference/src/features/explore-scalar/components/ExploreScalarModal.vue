@@ -218,7 +218,9 @@ const titleTag = computed(() =>
   <component
     :is="wrapper.is"
     v-bind="wrapper.props"
-    :aria-labelledby="isEmbedded ? titleId : undefined"
+    :aria-labelledby="
+      isEmbedded && presentation === 'dialog' ? titleId : undefined
+    "
     class="explore-scalar-modal"
     :class="{
       'explore-scalar-modal--vt': usesViewTransition,
