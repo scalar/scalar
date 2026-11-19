@@ -161,6 +161,7 @@ These options work in both WebMVC and WebFlux. Omitted values use the frontend d
 
 | Spring property | Values |
 | --- | --- |
+| `scalar.show-badges-in-sidebar` | Show `x-badges` next to sidebar titles (default: `false`) |
 | `scalar.hide-model-names` | `true` or `false` |
 | `scalar.schema-keyboard-nav` | `true` or `false` |
 | `scalar.expand-all-parameters` | `true` or `false` |

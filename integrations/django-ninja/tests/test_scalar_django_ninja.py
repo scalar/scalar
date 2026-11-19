@@ -324,6 +324,24 @@ class TestScalarConfig:
 class TestGetScalarApiReference:
     """Test the get_scalar_api_reference function"""
 
+    @pytest.mark.parametrize(
+        "options",
+        [{}, {"show_badges_in_sidebar": False}, {"show_badges_in_sidebar": True}],
+    )
+    def test_show_badges_in_sidebar(self, options):
+        response = get_scalar_api_reference(
+            ScalarViewer(show_sidebar=False, **options).config
+        )
+        configuration, _ = json.JSONDecoder().raw_decode(
+            response.content.decode().split('Scalar.createApiReference("#app", ', 1)[1]
+        )
+
+        assert configuration["showSidebar"] is False
+        if options.get("show_badges_in_sidebar", False):
+            assert configuration["showBadgesInSidebar"] is True
+        else:
+            assert "showBadgesInSidebar" not in configuration
+
     @pytest.mark.parametrize("enabled", [True, False])
     def test_show_default_clients_with_sdk_installation(self, enabled):
         response = get_scalar_api_reference(

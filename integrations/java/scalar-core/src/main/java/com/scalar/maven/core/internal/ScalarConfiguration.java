@@ -97,6 +97,9 @@ public class ScalarConfiguration {
     @JsonProperty("proxyUrl")
     private String proxyUrl;
 
+    @JsonProperty("showBadgesInSidebar")
+    private Boolean showBadgesInSidebar;
+
     @JsonProperty("showSidebar")
     private Boolean showSidebar;
 
@@ -241,6 +244,14 @@ public class ScalarConfiguration {
 
     public void setProxyUrl(String proxyUrl) {
         this.proxyUrl = proxyUrl;
+    }
+
+    public Boolean getShowBadgesInSidebar() {
+        return showBadgesInSidebar;
+    }
+
+    public void setShowBadgesInSidebar(Boolean showBadgesInSidebar) {
+        this.showBadgesInSidebar = showBadgesInSidebar;
     }
 
     public Boolean getShowSidebar() {

@@ -106,6 +106,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 
 - `layout` (default `Layout.MODERN`) - Options: [Layout](#layout)
 - `show_sidebar` (default `True`)
+- `show_badges_in_sidebar` (default `False`) - Show `x-badges` next to sidebar titles.
 - `show_default_clients_with_sdk_installation` (default `False`) - Show built-in HTTP clients alongside SDK installation tabs in the introduction. When disabled, installation instructions replace the built-in clients.
 - `hide_models` (default `False`)
 - `hide_search` (default `False`) - Whether to show the sidebar search bar

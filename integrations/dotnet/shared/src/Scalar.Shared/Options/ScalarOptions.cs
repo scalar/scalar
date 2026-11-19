@@ -79,6 +79,11 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public bool? ShowSidebar { get; set; }
 
     /// <summary>
+    /// Controls whether x-badges are shown in the sidebar (default: hidden).
+    /// </summary>
+    public bool? ShowBadgesInSidebar { get; set; }
+
+    /// <summary>
     /// Controls whether the sidebar and search use the operation summary or path (default: <see cref="OperationTitleSource.Summary" />).
     /// </summary>
     public OperationTitleSource? OperationTitleSource { get; set; }
