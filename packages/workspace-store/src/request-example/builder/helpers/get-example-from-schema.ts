@@ -926,20 +926,28 @@ const readArrayLengthBound = (value: unknown, fallback: number): number =>
 const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
   !('properties' in schema) && ('items' in schema || 'prefixItems' in schema) ? 'array' : undefined
 
-/** Treat a type list that names one type beside `null`, such as an upgraded `nullable: true`, as that type. */
-const withoutNullType = (type: string | string[] | undefined): string | string[] | undefined => {
-  if (!Array.isArray(type)) {
-    return type
-  }
-  const named = type.filter((name) => name !== 'null')
-  return named.length === 1 ? named[0] : type
-}
-
 /** Apply the same explicit-type and inference precedence at either union selection site. */
-const getSelectedType = (variant: SchemaObject | undefined, holder: SchemaObject): string | string[] | undefined =>
-  withoutNullType(
-    (variant && 'type' in variant ? variant.type : undefined) ?? ('type' in holder ? holder.type : undefined),
-  ) ?? (hasUnencodedJsonContent(holder) ? 'string' : ((variant && inferArrayType(variant)) ?? inferArrayType(holder)))
+const getSelectedType = (variant: SchemaObject | undefined, holder: SchemaObject): string | string[] | undefined => {
+  const explicitSchema = variant && 'type' in variant && variant.type !== undefined ? variant : holder
+  const type = 'type' in explicitSchema ? explicitSchema.type : undefined
+
+  if (Array.isArray(type)) {
+    const named = type.filter((name) => name !== 'null')
+    // Only normalize containers whose own keywords can generate a value; unconstrained lists keep their fallback.
+    if (
+      named.length === 1 &&
+      ((named[0] === 'object' && 'properties' in explicitSchema) ||
+        (named[0] === 'array' && ('items' in explicitSchema || 'prefixItems' in explicitSchema)))
+    ) {
+      return named[0]
+    }
+  }
+
+  return (
+    type ??
+    (hasUnencodedJsonContent(holder) ? 'string' : ((variant && inferArrayType(variant)) ?? inferArrayType(holder)))
+  )
+}
 
 /** These keywords describe values without restricting which values the schema accepts. */
 const ITEM_ANNOTATIONS = new Set([

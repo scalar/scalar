@@ -2222,6 +2222,23 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, schema))).toStrictEqual(expected)
   })
 
+  it.each(['oneOf', 'anyOf'])('keeps unconstrained nullable variants under %s unchanged', (keyword) => {
+    for (const type of [
+      ['object', 'null'],
+      ['array', 'null'],
+    ]) {
+      for (const holder of [
+        {},
+        { properties: { id: { type: 'integer' } } },
+        { items: { type: 'string', example: 'shared' } },
+      ]) {
+        const schema = coerceValue(SchemaObjectSchema, { ...holder, [keyword]: [{ type }] })
+
+        expect(getExampleFromSchema(schema)).toBeNull()
+      }
+    }
+  })
+
   it('still merges array items when a type list allows objects', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'array',
