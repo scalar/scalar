@@ -151,7 +151,8 @@ references in `x-*` extension values and unknown schema keywords. Literal exampl
 default, enum, const, and value data remains untouched. The option is off by
 default; strict document traversal and generic traversal retain their behavior.
 Custom objects retain their identifier and anchor scope, while references into
-standard API structures keep the target's format rules. Objects declaring a
+standard API structures keep the target's format rules. Native references also
+keep their format rules when their targets are stored in extensions. Objects declaring a
 schema identifier, dialect, anchor, or JSON Schema type use schema keyword rules.
 Other custom objects keep ordinary reference-bearing children, including fields
 named `schemas`, `paths`, or `components`; their literal data remains opaque.
