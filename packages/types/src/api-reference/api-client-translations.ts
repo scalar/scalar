@@ -123,6 +123,27 @@ export type ApiClientTranslations = {
     key: string
     value: string
   }
+  datePicker: {
+    pickDate: string
+    pickTime: string
+    pickDateFor: string
+    pickTimeFor: string
+    calendar: string
+    previousMonth: string
+    nextMonth: string
+    time: string
+    hour: string
+    minute: string
+    second: string
+    today: string
+    now: string
+    done: string
+    insertVariable: string
+    currentTimestamp: string
+    randomFutureDate: string
+    randomPastDate: string
+    randomRecentDate: string
+  }
   requestTableRow: {
     key: string
     value: string
