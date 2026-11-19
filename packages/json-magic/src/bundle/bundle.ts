@@ -851,18 +851,6 @@ export const bundleDocument = async (
       ? 'schema'
       : 'object',
   )
-  /** Native fields establish target vocabularies before custom values are traversed. */
-  const traversalKeys = function* (node: object): Generator<string> {
-    if (config.traversal !== 'document' || !config.includeCustomReferences) {
-      for (const key in node) yield key
-      return
-    }
-    const customOrder = (key: string): number => {
-      const child: unknown = Reflect.get(node, key)
-      return child !== null && typeof child === 'object' && traversal.location(child)?.customReferences ? 1 : 0
-    }
-    yield* Object.keys(getRaw(node)).sort((left, right) => customOrder(left) - customOrder(right))
-  }
   const deferredCopies: (() => void)[] = []
   const copyReferences = (...args: Parameters<typeof resolveAndCopyReferences>): void => {
     const copy = (): void =>
@@ -1106,11 +1094,20 @@ export const bundleDocument = async (
     return { ...target, value, segments, path: segments.map(escapeJsonPointer).join('/'), preserveReference: false }
   }
 
+  /** Custom children wait until native references establish the format of their targets. */
+  const pendingCustomVisits: (() => Promise<void>)[] = []
+  let customVisitIndex = 0
+  const visitCustomValues = async (): Promise<void> => {
+    while (customVisitIndex < pendingCustomVisits.length) {
+      await pendingCustomVisits[customVisitIndex++]!()
+    }
+  }
   const pendingAnchors: (() => Promise<void>)[] = []
   /** Anchors can become visible when a later reference exposes a literal-data subtree. */
   const resolvePendingAnchors = async (): Promise<void> => {
     for (const resolveAnchor of pendingAnchors) {
       await resolveAnchor()
+      await visitCustomValues()
     }
   }
 
@@ -1205,24 +1202,38 @@ export const bundleDocument = async (
     const authoredReference = hasRef(root) ? root.$ref : undefined
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
 
+    const visitChild = (key: string, deferred = false): Promise<void> => {
+      const parentNode: unknown = deferred
+        ? getValueByPath(referenceSource.document, [...referenceSource.path]).value
+        : root
+      const child: unknown = deferred ? getValueByPath(parentNode, [key]).value : root[key]
+      if (
+        !deferred &&
+        config.traversal === 'document' &&
+        config.includeCustomReferences &&
+        child !== null &&
+        typeof child === 'object' &&
+        traversal.location(child)?.customReferences
+      ) {
+        pendingCustomVisits.push(() => visitChild(key, true))
+        return Promise.resolve()
+      }
+      return bundler(
+        child,
+        nodeOrigin,
+        isChunkParent,
+        depth + 1,
+        [...currentPath, key],
+        parentNode as UnknownObject,
+        referencedFromPath,
+      )
+    }
     const visitChildren = async (): Promise<void> => {
-      const keys =
-        config.traversal === 'document' && config.includeCustomReferences
-          ? traversalKeys(root)
-          : Object.keys(config.traversal === 'document' ? getRaw(root) : root)
-      for (const key of keys) {
+      for (const key of Object.keys(config.traversal === 'document' ? getRaw(root) : root)) {
         if (key === '$ref' || key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey) {
           continue
         }
-        await bundler(
-          root[key],
-          nodeOrigin,
-          isChunkParent,
-          depth + 1,
-          [...currentPath, key],
-          root as UnknownObject,
-          referencedFromPath,
-        )
+        await visitChild(key)
       }
     }
     if (hasRef(root) && (!location || isReferenceContext(location.context))) {
@@ -1595,7 +1606,7 @@ export const bundleDocument = async (
     // We explicitly skip the extension keys (x-ext and x-ext-urls) to avoid reprocessing already bundled or mapped content.
     // Match the authored keys indexed by document traversal; virtual proxy links
     // can otherwise revisit the document through nodes that have no data context.
-    for (const key of traversalKeys(root)) {
+    for (const key in root) {
       if (config.traversal === 'document' && !Object.hasOwn(getRaw(root), key)) {
         continue
       }
@@ -1603,15 +1614,7 @@ export const bundleDocument = async (
         continue
       }
 
-      await bundler(
-        root[key],
-        nodeOrigin,
-        isChunkParent,
-        depth + 1,
-        [...currentPath, key],
-        root as UnknownObject,
-        referencedFromPath,
-      )
+      await visitChild(key)
     }
 
     await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
@@ -1623,6 +1626,7 @@ export const bundleDocument = async (
       await bundler(document, defaultOrigin, false, 1, [config.externalDocumentsKey, key], storedDocuments)
     }
   }
+  await visitCustomValues()
   await resolvePendingAnchors()
   applyDeferredCopies()
 
