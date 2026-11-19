@@ -69,7 +69,7 @@
   },
   "devDependencies": {
     "@sveltejs/kit": "^3.4.0",
-    "@sveltejs/package": "^2.5.8",
+    "@sveltejs/package": "^3.0.3",
     "publint": "^0.3.25",
     "svelte": "^5.58.0",
     "svelte-check": "^4.7.8",
