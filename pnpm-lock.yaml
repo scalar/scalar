@@ -1659,9 +1659,6 @@ importers:
       '@scalar/blocks':
         specifier: workspace:*
         version: link:../blocks
-      '@scalar/code-highlight':
-        specifier: workspace:*
-        version: link:../code-highlight
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
@@ -1674,6 +1671,9 @@ importers:
       '@scalar/localization':
         specifier: workspace:*
         version: link:../localization
+      '@scalar/markdown':
+        specifier: workspace:*
+        version: link:../markdown
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -1847,6 +1847,9 @@ importers:
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
+      '@scalar/markdown':
+        specifier: workspace:*
+        version: link:../markdown
       '@scalar/openapi-to-markdown':
         specifier: workspace:*
         version: link:../openapi-to-markdown
@@ -1856,15 +1859,6 @@ importers:
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
-      remark-gfm:
-        specifier: catalog:*
-        version: 4.0.1(supports-color@10.2.2)
-      remark-stringify:
-        specifier: catalog:*
-        version: 11.0.0
-      unified:
-        specifier: catalog:*
-        version: 11.0.5
     devDependencies:
       '@scalar/components':
         specifier: workspace:*
@@ -1899,6 +1893,9 @@ importers:
       tsx:
         specifier: catalog:*
         version: 4.23.15
+      unified:
+        specifier: catalog:*
+        version: 11.0.5
       vite:
         specifier: catalog:*
         version: 8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0)
@@ -2153,9 +2150,6 @@ importers:
       '@headlessui/vue':
         specifier: catalog:*
         version: 1.7.23(vue@3.5.45(typescript@6.0.3))
-      '@scalar/code-highlight':
-        specifier: workspace:*
-        version: link:../code-highlight
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -2165,6 +2159,9 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
+      '@scalar/markdown':
+        specifier: workspace:*
+        version: link:../markdown
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -2316,12 +2313,9 @@ importers:
         specifier: ^3.0.5
         version: 3.0.5
     devDependencies:
-      '@scalar/code-highlight':
+      '@scalar/helpers':
         specifier: workspace:*
-        version: link:../code-highlight
-      highlight.js:
-        specifier: catalog:*
-        version: 11.12.0
+        version: link:../helpers
       rolldown:
         specifier: catalog:*
         version: 1.3.2
@@ -2450,6 +2444,67 @@ importers:
       vitest:
         specifier: catalog:*
         version: 5.1.0(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(jsdom@30.1.3(@noble/hashes@1.8.0))(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0))
+
+  packages/markdown:
+    dependencies:
+      '@scalar/highlight':
+        specifier: workspace:*
+        version: link:../highlight
+      hast-util-to-text:
+        specifier: ^4.0.2
+        version: 4.0.3
+      rehype-external-links:
+        specifier: ^3.0.0
+        version: 3.0.0
+      rehype-format:
+        specifier: ^5.0.1
+        version: 5.0.1
+      rehype-parse:
+        specifier: ^9.0.1
+        version: 9.0.1
+      rehype-raw:
+        specifier: ^7.0.0
+        version: 7.0.0
+      rehype-remark:
+        specifier: ^10.0.1
+        version: 10.0.1
+      rehype-sanitize:
+        specifier: ^6.0.0
+        version: 6.0.0
+      rehype-stringify:
+        specifier: ^10.0.1
+        version: 10.0.1
+      remark-gfm:
+        specifier: catalog:*
+        version: 4.0.1(supports-color@10.2.2)
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0(supports-color@10.2.2)
+      remark-rehype:
+        specifier: ^11.1.2
+        version: 11.1.2
+      remark-stringify:
+        specifier: catalog:*
+        version: 11.0.0
+      unified:
+        specifier: catalog:*
+        version: 11.0.5
+      unist-util-visit:
+        specifier: ^5.1.0
+        version: 5.2.0
+    devDependencies:
+      '@types/hast':
+        specifier: ^3.0.5
+        version: 3.0.5
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
+      vfile:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vite:
+        specifier: catalog:*
+        version: 8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.1)
 
   packages/mermaid-plugin:
     dependencies:
@@ -2684,42 +2739,21 @@ importers:
 
   packages/openapi-to-markdown:
     dependencies:
-      '@scalar/code-highlight':
-        specifier: workspace:*
-        version: link:../code-highlight
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
+      '@scalar/markdown':
+        specifier: workspace:*
+        version: link:../markdown
       '@scalar/openapi-upgrader':
         specifier: workspace:*
         version: link:../openapi-upgrader
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
-      rehype-parse:
-        specifier: ^9.0.1
-        version: 9.0.1
-      rehype-remark:
-        specifier: ^10.0.1
-        version: 10.0.1
-      rehype-sanitize:
-        specifier: ^6.0.0
-        version: 6.0.0
-      remark-gfm:
-        specifier: catalog:*
-        version: 4.0.1(supports-color@10.2.2)
-      remark-parse:
-        specifier: ^11.0.0
-        version: 11.0.0(supports-color@10.2.2)
-      remark-stringify:
-        specifier: catalog:*
-        version: 11.0.0
-      unified:
-        specifier: catalog:*
-        version: 11.0.5
     devDependencies:
       '@scalar/components':
         specifier: workspace:*
@@ -2727,6 +2761,9 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
+      '@scalar/highlight':
+        specifier: workspace:*
+        version: link:../highlight
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -2742,15 +2779,33 @@ importers:
       marked:
         specifier: ^18.2.0
         version: 18.2.0
+      rehype-parse:
+        specifier: ^9.0.1
+        version: 9.0.1
+      rehype-sanitize:
+        specifier: ^6.0.0
+        version: 6.0.0
       rehype-stringify:
         specifier: ^10.0.1
         version: 10.0.1
+      remark-gfm:
+        specifier: catalog:*
+        version: 4.0.1(supports-color@10.2.2)
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0(supports-color@10.2.2)
+      remark-stringify:
+        specifier: catalog:*
+        version: 11.0.0
       tailwindcss:
         specifier: catalog:*
         version: 4.3.5
       tsx:
         specifier: catalog:*
         version: 4.23.15
+      unified:
+        specifier: catalog:*
+        version: 11.0.5
       vite:
         specifier: catalog:*
         version: 8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0)
@@ -14252,9 +14307,6 @@ packages:
   hast-util-to-string@3.0.1:
     resolution: {integrity: sha512-XelQVTDWvqcl3axRfI0xSeoVKzyIFPwsAGSLIsKdJKQMXDYJS4WYrBNF/8J7RdhIcFI2BOHgAifggsvsxp/3+A==}
 
-  hast-util-to-text@4.0.2:
-    resolution: {integrity: sha512-KK6y/BN8lbaq654j7JgBydev7wuNMcID54lkRav1P0CaE1e47P72AWWPiGKXTJU271ooYzcvTAn/Zt0REnvc7A==}
-
   hast-util-to-text@4.0.3:
     resolution: {integrity: sha512-5yrlWOvGFs6CqHriUpSsNrjzT/Tdo+IOQudbznxOn8K5qblp18MJyzOg8IgDOKQ8MYgQcJA7SusuCjSpDr8mSA==}
 
@@ -19678,9 +19730,6 @@ packages:
   unique-string@3.0.0:
     resolution: {integrity: sha512-VGXBUVwxKMBUznyffQweQABPRRW1vHZAbadFZud4pLFAqRGvv/96vafgjWFqzourzr8YonlQiPgH0YCJfawoGQ==}
     engines: {node: '>=12'}
-
-  unist-util-find-after@5.0.0:
-    resolution: {integrity: sha512-amQa0Ep2m6hE2g72AugUItjbuM8X8cGQnFoHk0pGfrFeT9GZhzN5SW8nRsiGKK7Aif4CrACPENkA6P/Lw6fHGQ==}
 
   unist-util-is@6.0.0:
     resolution: {integrity: sha512-2qCTHimwdxLfz+YzdGfkqNlH0tLi9xjTnHddPmJwtIG9MGsdbutfTc4P+haPD7l7Cjxf/WZj+we5qfVPvvxfYw==}
@@ -34463,10 +34512,10 @@ snapshots:
     dependencies:
       '@types/hast': 3.0.5
       '@types/mdast': 4.0.4
-      '@ungap/structured-clone': 1.2.0
+      '@ungap/structured-clone': 1.4.0
       hast-util-phrasing: 3.0.1
-      hast-util-to-html: 9.0.5
-      hast-util-to-text: 4.0.2
+      hast-util-to-html: 9.0.6
+      hast-util-to-text: 4.0.3
       hast-util-whitespace: 3.0.0
       mdast-util-phrasing: 4.1.0
       mdast-util-to-hast: 13.2.1
@@ -34474,7 +34523,7 @@ snapshots:
       rehype-minify-whitespace: 6.0.0
       trim-trailing-lines: 2.1.0
       unist-util-position: 5.0.0
-      unist-util-visit: 5.1.0
+      unist-util-visit: 5.2.0
 
   hast-util-to-parse5@8.0.0:
     dependencies:
@@ -34489,13 +34538,6 @@ snapshots:
   hast-util-to-string@3.0.1:
     dependencies:
       '@types/hast': 3.0.5
-
-  hast-util-to-text@4.0.2:
-    dependencies:
-      '@types/hast': 3.0.5
-      '@types/unist': 3.0.3
-      hast-util-is-element: 3.0.0
-      unist-util-find-after: 5.0.0
 
   hast-util-to-text@4.0.3:
     dependencies:
@@ -41823,11 +41865,6 @@ snapshots:
   unique-string@3.0.0:
     dependencies:
       crypto-random-string: 4.0.0
-
-  unist-util-find-after@5.0.0:
-    dependencies:
-      '@types/unist': 3.0.3
-      unist-util-is: 6.0.0
 
   unist-util-is@6.0.0:
     dependencies:
