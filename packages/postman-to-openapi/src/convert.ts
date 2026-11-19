@@ -6,6 +6,7 @@ import { processExternalDocs } from '@/helpers/external-docs'
 import { processLicense } from '@/helpers/license'
 import { processLogo } from '@/helpers/logo'
 import { DEFAULT_EXAMPLE_NAME, OPERATION_KEYS, mergePathItem } from '@/helpers/merge-path-item'
+import { normalizeDescription } from '@/helpers/normalize-description'
 import {
   POSTMAN_EXAMPLE_NAME_EXTENSION,
   POSTMAN_FOLDER_SEGMENTS_EXTENSION,
@@ -18,21 +19,13 @@ import { pruneDocument } from '@/helpers/prune-document'
 import { analyzeServerDistribution } from '@/helpers/servers'
 import { createCollectionVariableLookup, getPathStructuralSignature, normalizePath } from '@/helpers/urls'
 
-import type { Auth, Description, Item, ItemGroup, PostmanCollection } from './types'
+import type { Auth, Item, ItemGroup, PostmanCollection } from './types'
 
 /**
  * Indices from the collection root into nested `item` arrays.
  * Example: `[0, 2, 1]` → `collection.item[0].item[2].item[1]`.
  */
 export type PostmanRequestIndexPath = readonly number[]
-
-const normalizeDescription = (description?: Description): string | undefined => {
-  if (typeof description === 'string') {
-    return description
-  }
-
-  return description?.content
-}
 
 const parseCollectionInput = (postmanCollection: PostmanCollection | string): unknown => {
   if (typeof postmanCollection !== 'string') {

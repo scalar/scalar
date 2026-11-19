@@ -2,6 +2,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Header, Request } from '@/types'
 
+import { normalizeDescription } from './normalize-description'
 import { inferSchemaType } from './schemas'
 
 /**
@@ -140,7 +141,7 @@ export function createParameterObject(
   paramIn: 'query' | 'path' | 'header',
   exampleName: string,
 ): OpenAPIV3_1.ParameterObject {
-  const description = typeof param.description === 'string' ? param.description : param.description?.content
+  const description = normalizeDescription(param.description)
   const parameter: OpenAPIV3_1.ParameterObject = {
     name: param.key || '',
     in: paramIn,
