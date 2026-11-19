@@ -1,5 +1,11 @@
 # scalar-app
 
+## 1.1.53
+
+### Patch Changes
+
+- [#11153](https://github.com/scalar/scalar/pull/11153): Invite API client users to the API Hosting beta with a one-time popup as the app starts. Sign-ups join the same waitlist as the other Hosting sign-ups and set the contact's `client` property.
+
 ## 1.1.52
 
 ### Patch Changes

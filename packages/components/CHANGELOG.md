@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.35.3
+
+### Patch Changes
+
+- [#11124](https://github.com/scalar/scalar/pull/11124): Render Markdown through `@scalar/markdown` instead of `@scalar/code-highlight`
+
+  None of them pull in lowlight or highlight.js any more: code blocks in descriptions are highlighted by `@scalar/highlight`, the same highlighter `ScalarCodeBlock` uses. A fenced code block without a language is no longer auto-detected and renders as plain text. In `@scalar/openapi-to-markdown` this shows up in descriptions that contain HTML or alerts: an unlabeled fence used to come out labeled with highlight.js's guess (often wrong, such as `properties` for JSON), and now stays unlabeled.
+- [#11112](https://github.com/scalar/scalar/pull/11112): Render legacy ScalarIcon stroke-width styles during server-side rendering to avoid hydration mismatches in Vue and Nuxt applications.
+
 ## 0.35.2
 
 ### Patch Changes

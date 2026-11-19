@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.5.1
+
+### Patch Changes
+
+- [#11105](https://github.com/scalar/scalar/pull/11105): Finish migrating legacy `nullable` schema keywords when upgrading OpenAPI 3.0 descriptions, so downstream request validators can compile the upgraded schemas and enforce the rest of the request contract.
+
 ## 0.5.0
 
 ### Minor Changes

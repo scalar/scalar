@@ -1,5 +1,11 @@
 # scalar-ninja
 
+## 0.4.1
+
+### Patch Changes
+
+- [#11143](https://github.com/scalar/scalar/pull/11143): Expose the `showBadgesInSidebar` option in Java, FastAPI, Django Ninja, and .NET integrations so applications can enable sidebar badges. Badges remain hidden by default.
+
 ## 0.4.0
 
 ### Minor Changes

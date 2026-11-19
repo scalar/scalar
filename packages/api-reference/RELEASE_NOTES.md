@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.82.0 (2026-11-19)
+
+### Sidebar badges, faster rendering for cyclic schemas, and cleaner code highlights
+
+This release adds an optional sidebar badge display, fixes performance issues with complex schemas, and updates the Markdown rendering pipeline to use a unified highlighter.
+
+- New `showBadgesInSidebar` option displays `x-badges` next to operations, webhooks, tags, and models in the sidebar (off by default)
+- Fixed freezing on schemas with multiple recursive or cross-referencing `$ref`s by limiting example generation depth intelligently
+- Native AsyncAPI RAML and Protobuf dependencies now load on expansion rather than upfront, reducing initial load overhead
+- Code blocks in Markdown descriptions now use the same highlighter as `ScalarCodeBlock`, removing highlight.js from the bundle
+- Improved AI chat integration by sending selected API context as structured metadata instead of appending it to user messages
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1820)
+
 ## 1.81.0 (2026-11-18)
 
 ### AsyncAPI schema resolution, credential substitution in SDK instructions, and improved examples

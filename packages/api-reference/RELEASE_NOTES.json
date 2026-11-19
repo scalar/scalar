@@ -1,5 +1,32 @@
 [
   {
+    "version": "1.82.0",
+    "date": "2026-11-19",
+    "title": "Sidebar badges, faster rendering for cyclic schemas, and cleaner code highlights",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release adds an optional sidebar badge display, fixes performance issues with complex schemas, and updates the Markdown rendering pipeline to use a unified highlighter."
+      },
+      {
+        "type": "list",
+        "items": [
+          "New `showBadgesInSidebar` option displays `x-badges` next to operations, webhooks, tags, and models in the sidebar (off by default)",
+          "Fixed freezing on schemas with multiple recursive or cross-referencing `$ref`s by limiting example generation depth intelligently",
+          "Native AsyncAPI RAML and Protobuf dependencies now load on expansion rather than upfront, reducing initial load overhead",
+          "Code blocks in Markdown descriptions now use the same highlighter as `ScalarCodeBlock`, removing highlight.js from the bundle",
+          "Improved AI chat integration by sending selected API context as structured metadata instead of appending it to user messages"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1820",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.81.0",
     "date": "2026-11-18",
     "title": "AsyncAPI schema resolution, credential substitution in SDK instructions, and improved examples",

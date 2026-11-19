@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.6 (2026-11-19)
+
+### Request validation now works with nullable OpenAPI 3.0 schemas
+
+The mock server can now validate requests against OpenAPI 3.0 schemas that use nullable without a type keyword. Previously, these schemas caused validation to be skipped entirely, allowing invalid requests through.
+
+- Fixed request validation being silently disabled when OpenAPI 3.0 schemas combined nullable with oneOf, anyOf, or allOf but no type.
+- Invalid requests now correctly return 422 responses when required fields are missing or constraints are violated.
+- Nullable compositions are upgraded to explicit unions with null during OpenAPI 3.0 to 3.1 migration.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0216)
+
 ## 0.21.5 (2026-11-18)
 
 ### Better array example generation and pattern validation

@@ -9,6 +9,15 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.56 (2026-11-19)
+
+### API key prefixes and cleaner chat context
+
+- Header API keys now support token prefixes via x-scalar-token-prefix, automatically adding prefixes like "Bearer" or "token" to outgoing requests while keeping stored credentials clean.
+- Selected API context is now sent as structured metadata rather than appended to user messages, keeping your questions unchanged while ensuring the backend knows which API and version to use.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01256)
+
 ## 0.12.55 (2026-11-18)
 
 ### Polish and bug fixes shipped

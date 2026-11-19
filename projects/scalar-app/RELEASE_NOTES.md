@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.53 (2026-11-19)
+
+### API Hosting beta invites and improved date input
+
+This release invites API Client users to join the API Hosting beta and makes working with date and time fields easier.
+
+- A one-time popup invites users to join the API Hosting beta waitlist as the app starts
+- Date, date-time, and time fields now offer an accessible calendar and clock picker alongside free-text entry
+- Date-time fields include shortcuts to insert faker variables like {{$isoTimestamp}} and {{$randomDateFuture}}
+- Header-based API keys support token prefixes with x-scalar-token-prefix, keeping stored credentials clean while adding the prefix to outgoing requests
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1153)
+
 ## 1.1.52 (2026-11-18)
 
 ### Better cURL import and improved contrast for colored badges
