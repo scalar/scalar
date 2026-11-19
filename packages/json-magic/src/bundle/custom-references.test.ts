@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 
-import type { LoaderPlugin } from './bundle'
+import { type Config, type LoaderPlugin, bundle } from './bundle'
 import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 
 const literal = { $id: './literal.json', $anchor: 'same', $ref: './literal.json' }
@@ -70,7 +70,7 @@ const loader = (reads: string[]): LoaderPlugin => ({
   exec: (uri) => {
     reads.push(uri)
     const data = documents[uri]
-    return Promise.resolve(data ? { ok: true, data, raw: '' } : { ok: false })
+    return Promise.resolve(data ? { ok: true, data: structuredClone(data), raw: '' } : { ok: false })
   },
 })
 
@@ -346,6 +346,95 @@ describe('custom-references', () => {
     },
   )
 
+  it.each([false, true].flatMap((external) => [false, true].map((customFirst) => ({ external, customFirst }))))(
+    'establishes native rules across components (external: $external, custom first: $customFirst)',
+    async ({ external, customFirst }) => {
+      const reads: string[] = []
+      const custom = {
+        A: {
+          'x-target': {
+            type: 'object',
+            properties: {
+              p: { $ref: 'https://unreachable.test/schema', 'x-extra': { $ref: './sibling.json' } },
+            },
+          },
+        },
+      }
+      const native = { B: { $ref: '#/components/schemas/A/x-target' } }
+      const document = {
+        ...api,
+        openapi: '3.0.4',
+        components: { schemas: { ...(customFirst ? custom : native), ...(customFirst ? native : custom) } },
+      }
+      const result = await bundleWithDiagnostics(
+        external ? { ...api, 'x-entry': { $ref: './external.json' } } : document,
+        {
+          origin: 'https://source.test/root.json',
+          traversal: 'document',
+          includeCustomReferences: true,
+          treeShake: false,
+          preserveReference: (reference) => /^https?:\/\//i.test(reference),
+          plugins: [
+            {
+              type: 'loader',
+              validate: () => true,
+              exec: (uri) => {
+                reads.push(uri)
+                return Promise.resolve({
+                  ok: true,
+                  raw: '',
+                  data: uri.endsWith('external.json') ? document : { type: 'integer' },
+                })
+              },
+            },
+          ],
+        },
+      )
+      expect(result.diagnostics).toStrictEqual([])
+      expect(reads).toStrictEqual(external ? ['https://source.test/external.json'] : [])
+      const exported = JSON.parse(JSON.stringify(result.document))
+      const bundledDocument = external ? local(exported, exported['x-entry'].$ref) : exported
+      if (bundledDocument === null || typeof bundledDocument !== 'object' || !('components' in bundledDocument)) {
+        throw new Error('Missing bundled API description')
+      }
+      const components = bundledDocument.components as { schemas: typeof custom }
+      expect(components.schemas.A['x-target'].properties.p['x-extra']).toStrictEqual({ $ref: './sibling.json' })
+    },
+  )
+
+  it('uses the current parent when a hook replaces an object before its custom child is visited', async () => {
+    const parents: unknown[] = []
+    const reads: string[] = []
+    const input = {
+      ...api,
+      components: {
+        schemas: {
+          A: { type: 'object', 'x-child': { $ref: './custom.json' } },
+          B: { $ref: '#/components/schemas/A' },
+        },
+      },
+    }
+    const result = await bundleWithDiagnostics(input, {
+      origin: 'https://source.test/root.json',
+      traversal: 'document',
+      includeCustomReferences: true,
+      treeShake: false,
+      preserveReference: (reference) => /^https?:\/\//i.test(reference),
+      plugins: [loader(reads)],
+      hooks: {
+        onBeforeTargetProcess: (target, { path }) =>
+          path.join('/') === 'components/schemas/A' ? { value: structuredClone(target) } : undefined,
+        onBeforeNodeProcess: (_node, { parentNode, path }) => {
+          if (path.at(-1) === 'x-child') parents.push(parentNode)
+        },
+      },
+    })
+    expect(result.diagnostics).toStrictEqual([])
+    expect(reads).toStrictEqual(['https://source.test/custom.json'])
+    expect(parents.length).toBe(1)
+    expect(parents[0]).toBe(input.components.schemas.A)
+  })
+
   it('retains imported document context when custom references are disabled', async () => {
     const origin = 'https://source.test/root.json'
     const result = await bundleWithDiagnostics(
@@ -408,55 +497,61 @@ describe('custom-references', () => {
     expect(exported.components.schemas.A['x-resource']).toStrictEqual(fixture().components.schemas.A['x-resource'])
   })
 
-  it.each([false, true])('resolves custom positions and retains literal data (treeShake: %s)', async (treeShake) => {
-    const reads: string[] = []
-    const result = await bundleWithDiagnostics(fixture(), {
-      origin: 'https://source.test/root.json',
-      traversal: 'document',
-      includeCustomReferences: true,
-      plugins: [loader(reads)],
-      treeShake,
-      preserveReference: (reference) => /^https?:\/\//i.test(reference),
-    })
-    expect(result.diagnostics).toStrictEqual([])
-    expect(reads.sort()).toStrictEqual(Object.keys(documents).sort())
-    const exported = JSON.parse(JSON.stringify(result.document))
-    expect(local(exported, exported['x-entry'].$ref)).toStrictEqual({ type: 'string' })
-    expect(local(exported, exported['x-entry'].sibling.$ref)).toStrictEqual({ type: 'integer' })
-    expect(exported['x-entry'].value).toStrictEqual(literal)
-    const a = exported.components.schemas.A
-    expect(a.$id).toBe('https://source.test/schemas/A.json')
-    expect(a.default).toStrictEqual(literal)
-    expect(a.examples).toStrictEqual([literal])
-    expect(a.enum).toStrictEqual([literal])
-    expect(a.const).toStrictEqual(literal)
-    const customUri = new URL(a.custom.$ref, a.$id)
-    expect(customUri.href.split('#')[0]).toBe(a.$id)
-    const custom = local(a, customUri.href)
-    if (custom === null || typeof custom !== 'object' || !('properties' in custom))
-      throw new Error('Missing custom schema')
-    expect('type' in custom ? custom.type : undefined).toBe('object')
-    expect(local(a, (custom.properties as { shared: { $ref: string } }).shared.$ref)).toStrictEqual({
-      type: 'boolean',
-      examples: [literal],
-    })
-    const resource = a['x-resource']
-    expect(resource.$id).toBe('https://source.test/X.json')
-    expect(resource.$anchor).toBe('same')
-    expect(resource.default).toStrictEqual(literal)
-    const payloadUri = new URL(resource.$ref, resource.$id)
-    expect(payloadUri.href.split('#')[0]).toBe(resource.$id)
-    const payload = local(resource, payloadUri.href)
-    expect(local(resource, resource.sibling.$ref)).toStrictEqual({ type: 'integer' })
-    expect(local(resource, resource.native.$ref)).toStrictEqual({ type: 'boolean', examples: [literal] })
-    if (payload === null || typeof payload !== 'object' || !('properties' in payload))
-      throw new Error('Missing custom payload')
-    expect('type' in payload ? payload.type : undefined).toBe('object')
-    const properties = payload.properties as Record<string, { $ref: string }>
-    expect(properties.back?.$ref).toBe(a.$id)
-    expect(properties.remote?.$ref).toBe('HTTPS://unreachable.test/schema#same')
-    expect(exported.$id).toBeUndefined()
-  })
+  it.each([false, true].flatMap((treeShake) => [false, true].map((diagnostics) => ({ treeShake, diagnostics }))))(
+    'resolves custom positions and literals (treeShake: $treeShake, diagnostics: $diagnostics)',
+    async ({ treeShake, diagnostics }) => {
+      const reads: string[] = []
+      const config = {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        plugins: [loader(reads)],
+        treeShake,
+        preserveReference: (reference) => /^https?:\/\//i.test(reference),
+      } satisfies Config
+      const result = diagnostics
+        ? await bundleWithDiagnostics(fixture(), config)
+        : { document: await bundle(fixture(), config) }
+      if ('diagnostics' in result) expect(result.diagnostics).toStrictEqual([])
+      expect(reads.sort()).toStrictEqual(Object.keys(documents).sort())
+      const exported = JSON.parse(JSON.stringify(result.document))
+      expect(local(exported, exported['x-entry'].$ref)).toStrictEqual({ type: 'string' })
+      expect(local(exported, exported['x-entry'].sibling.$ref)).toStrictEqual({ type: 'integer' })
+      expect(exported['x-entry'].value).toStrictEqual(literal)
+      const a = exported.components.schemas.A
+      expect(a.$id).toBe('https://source.test/schemas/A.json')
+      expect(a.default).toStrictEqual(literal)
+      expect(a.examples).toStrictEqual([literal])
+      expect(a.enum).toStrictEqual([literal])
+      expect(a.const).toStrictEqual(literal)
+      const customUri = new URL(a.custom.$ref, a.$id)
+      expect(customUri.href.split('#')[0]).toBe(a.$id)
+      const custom = local(a, customUri.href)
+      if (custom === null || typeof custom !== 'object' || !('properties' in custom))
+        throw new Error('Missing custom schema')
+      expect('type' in custom ? custom.type : undefined).toBe('object')
+      expect(local(a, (custom.properties as { shared: { $ref: string } }).shared.$ref)).toStrictEqual({
+        type: 'boolean',
+        examples: [literal],
+      })
+      const resource = a['x-resource']
+      expect(resource.$id).toBe('https://source.test/X.json')
+      expect(resource.$anchor).toBe('same')
+      expect(resource.default).toStrictEqual(literal)
+      const payloadUri = new URL(resource.$ref, resource.$id)
+      expect(payloadUri.href.split('#')[0]).toBe(resource.$id)
+      const payload = local(resource, payloadUri.href)
+      expect(local(resource, resource.sibling.$ref)).toStrictEqual({ type: 'integer' })
+      expect(local(resource, resource.native.$ref)).toStrictEqual({ type: 'boolean', examples: [literal] })
+      if (payload === null || typeof payload !== 'object' || !('properties' in payload))
+        throw new Error('Missing custom payload')
+      expect('type' in payload ? payload.type : undefined).toBe('object')
+      const properties = payload.properties as Record<string, { $ref: string }>
+      expect(properties.back?.$ref).toBe(a.$id)
+      expect(properties.remote?.$ref).toBe('HTTPS://unreachable.test/schema#same')
+      expect(exported.$id).toBeUndefined()
+    },
+  )
 
   it('keeps custom siblings and anchors when copying anonymous dependencies into a named extension', async () => {
     const reads: string[] = []
