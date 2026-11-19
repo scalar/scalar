@@ -153,6 +153,11 @@ multi-arch manifest, so the runner works on amd64 CI runners as well as arm64 (A
 Silicon) machines. The command creates a reusable `scalar-multiarch` buildx builder on
 first run.
 
+In the runner image, the default headless browser starts with `--disable-webgl`, because
+software-rendered WebGL makes pages that draw continuously too slow to test. Start the
+container with `-e SCALAR_RUNNER_ENABLE_WEBGL=1` to turn WebGL back on; any other value
+keeps it off. See the comment in `DockerfileRunner` for what the flag does not cover.
+
 **Usage:**
 ```bash
 pnpm --filter @scalar-internal/build-scripts start update-playwright-docker

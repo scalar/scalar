@@ -14,6 +14,43 @@ RUN npm install -g @playwright/test@$PLAYWRIGHT_VERSION
 # Only Chromium is needed: every Playwright config in the repo runs the
 # default (Chromium) project, so bundling Firefox and WebKit only bloats the
 # image and slows the per-job container pull in CI.
-RUN playwright install --with-deps chromium
+#
+# The default headless browser starts with `--disable-webgl`. There is no GPU
+# here, so WebGL renders in software, and a page that draws continuously makes
+# every Playwright action take seconds. The flag lives in the image because
+# `playwright run-server` drops launch `args` from connecting clients unless it
+# runs with `--unsafe`, and the headless shell reads no policy file or
+# environment variable that turns WebGL off.
+#
+# To turn WebGL back on, start the container with
+# `-e SCALAR_RUNNER_ENABLE_WEBGL=1`. Any other value, or none, keeps it off.
+#
+# The wrapper replaces the headless shell executable and runs the real one,
+# moved aside to `<name>.real`. It covers only the headless shell: a client that
+# asks for `channel: 'chromium'` or headed mode gets the full browser without
+# the flag. Wrapping in the same layer as the install keeps the browser from
+# being stored twice.
+RUN <<'EOF'
+set -eu
+playwright install --with-deps chromium
+
+# amd64: chrome-headless-shell-linux64/chrome-headless-shell
+# arm64: chrome-linux/headless_shell
+set -- $(find /ms-playwright/chromium_headless_shell-* -type f \( -name chrome-headless-shell -o -name headless_shell \))
+if [ "$#" -ne 1 ]; then
+  echo "Expected one Chromium headless shell under /ms-playwright, found $#: $*" >&2
+  exit 1
+fi
+
+mv "$1" "$1.real"
+cat > "$1" <<'WRAPPER'
+#!/bin/sh
+if [ "${SCALAR_RUNNER_ENABLE_WEBGL:-}" = 1 ]; then
+  exec "$0.real" "$@"
+fi
+exec "$0.real" --disable-webgl "$@"
+WRAPPER
+chmod 755 "$1"
+EOF
 RUN chmod -R 777 /ms-playwright
 
