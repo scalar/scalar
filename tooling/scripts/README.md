@@ -18,6 +18,10 @@ Or use the shorthand script:
 pnpm script <command>
 ```
 
+## Native TypeScript compiler
+
+The workspace `tsgo` command runs stable TypeScript 7 through an isolated dependency. The root `tsc` and compiler API stay on TypeScript 6 for Vue and other tools that require it. Existing package scripts keep their working directory and compiler arguments.
+
 ## Commands
 
 ### `packages format`
