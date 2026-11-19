@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-const compiler = fileURLToPath(new URL('./tsgo.mjs', import.meta.url))
+const compiler = fileURLToPath(new URL('./bin/tsgo.mjs', import.meta.url))
 const directories: string[] = []
 
 afterEach(() => {
@@ -27,12 +27,18 @@ describe('tsgo', () => {
   it('resolves project paths from the caller and emits declarations', () => {
     const directory = mkdtempSync(join(tmpdir(), 'scalar-tsgo-'))
     directories.push(directory)
-    writeFileSync(join(directory, 'tsconfig.json'), JSON.stringify({ compilerOptions: {
-      declaration: true,
-      emitDeclarationOnly: true,
-      outDir: 'dist',
-      types: [],
-    }, files: ['index.ts'] }))
+    writeFileSync(
+      join(directory, 'tsconfig.json'),
+      JSON.stringify({
+        compilerOptions: {
+          declaration: true,
+          emitDeclarationOnly: true,
+          outDir: 'dist',
+          types: [],
+        },
+        files: ['index.ts'],
+      }),
+    )
     writeFileSync(join(directory, 'index.ts'), 'export const answer = 42\n')
 
     const result = spawnSync(process.execPath, [compiler, '--project', 'tsconfig.json'], {
@@ -49,10 +55,16 @@ describe('tsgo', () => {
   it('preserves failing diagnostics and exit status', () => {
     const directory = mkdtempSync(join(tmpdir(), 'scalar-tsgo-'))
     directories.push(directory)
-    writeFileSync(join(directory, 'tsconfig.json'), JSON.stringify({ compilerOptions: {
-      noEmit: true,
-      types: [],
-    }, files: ['index.ts'] }))
+    writeFileSync(
+      join(directory, 'tsconfig.json'),
+      JSON.stringify({
+        compilerOptions: {
+          noEmit: true,
+          types: [],
+        },
+        files: ['index.ts'],
+      }),
+    )
     writeFileSync(join(directory, 'index.ts'), 'export const answer: number = "wrong"\n')
 
     const result = spawnSync(process.execPath, [compiler, '--project', 'tsconfig.json', '--pretty', 'false'], {
