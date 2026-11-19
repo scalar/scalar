@@ -10,11 +10,15 @@ describe('code-css', () => {
     expect(css).toMatch(new RegExp(`\\.${className}\\b[^{]*\\{\\s*color:`))
   })
 
-  it('falls back to plain theme colors without relative color support', () => {
-    const fallback = css.slice(0, css.indexOf('@supports'))
-
-    for (const hue of ['green', 'red', 'blue', 'orange', 'purple']) {
-      expect(fallback).toContain(`--scalar-code-${hue}: var(--scalar-color-${hue});`)
+  it('falls back to plain theme colors where the themes base is not loaded', () => {
+    for (const [role, hue] of [
+      ['keyword', 'purple'],
+      ['string', 'blue'],
+      ['number', 'orange'],
+      ['parameter', 'red'],
+      ['property', 'green'],
+    ]) {
+      expect(css).toContain(`var(--scalar-code-${role}, var(--scalar-color-${hue}))`)
     }
   })
 })

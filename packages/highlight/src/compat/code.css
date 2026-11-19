@@ -4,49 +4,9 @@
 }
 
 /*
- * Syntax colors come from the theme's own hues, so a code block follows whatever theme is active.
- * The theme hues are tuned for UI, where several of them are too light or too close together for
- * small code, so these only move a hue as far as code needs.
+ * Token colors come from the `--scalar-code-*` variables in `@scalar/themes`, so a theme can tune
+ * its own syntax colors. The fallbacks keep code readable where the themes base is not loaded.
  */
-:root,
-.dark-mode,
-.light-mode,
-.light-mode .dark-mode {
-  --scalar-code-green: var(--scalar-color-green);
-  --scalar-code-red: var(--scalar-color-red);
-  --scalar-code-blue: var(--scalar-color-blue);
-  --scalar-code-orange: var(--scalar-color-orange);
-  --scalar-code-purple: var(--scalar-color-purple);
-  /* Without relative colors a navy cannot be derived, and plain blue would match strings. */
-  --scalar-code-navy: var(--scalar-color-1);
-}
-
-@supports (color: oklch(from white l c h)) {
-  /*
-   * The chroma caps keep each color inside sRGB. Without them, wide-gamut theme values drift back
-   * toward each other at these lightness levels. Red also turns cooler so it stays clear of orange.
-   */
-  .light-mode,
-  .dark-mode .light-mode {
-    --scalar-code-green: oklch(from var(--scalar-color-green) min(l, 0.51) min(c, 0.11) h);
-    --scalar-code-red: oklch(from var(--scalar-color-red) min(l, 0.5) min(c, 0.2) calc(h - 14));
-    --scalar-code-blue: oklch(from var(--scalar-color-blue) min(l, 0.55) min(c, 0.14) h);
-    --scalar-code-orange: oklch(from var(--scalar-color-orange) min(l, 0.59) min(c, 0.17) calc(h + 3));
-    --scalar-code-purple: oklch(from var(--scalar-color-purple) min(l, 0.395) min(c, 0.22) h);
-    --scalar-code-navy: oklch(from var(--scalar-color-blue) min(l, 0.33) min(c, 0.1) calc(h + 8));
-  }
-
-  .dark-mode,
-  .light-mode .dark-mode {
-    --scalar-code-green: oklch(from var(--scalar-color-green) max(l, 0.68) c h);
-    --scalar-code-red: oklch(from var(--scalar-color-red) max(l, 0.68) min(c, 0.19) calc(h - 14));
-    --scalar-code-blue: oklch(from var(--scalar-color-blue) max(l, 0.68) c h);
-    --scalar-code-orange: oklch(from var(--scalar-color-orange) max(l, 0.75) min(c, 0.16) h);
-    --scalar-code-purple: oklch(from var(--scalar-color-purple) max(l, 0.68) c h);
-    --scalar-code-navy: oklch(from var(--scalar-color-blue) max(l, 0.85) min(c, 0.075) h);
-  }
-}
-
 .scalar-app {
   :where(code.hljs) * {
     font-size: inherit;
@@ -84,47 +44,47 @@
   /* Data types */
   .hljs-comment,
   .hljs-quote {
-    color: var(--scalar-color-2);
+    color: var(--scalar-code-comment, var(--scalar-color-2));
     font-style: italic;
   }
 
   /** Brackets, commas and separators stay quieter than the code around them */
   .hljs-punctuation,
   .hljs-bullet {
-    color: var(--scalar-color-2);
+    color: var(--scalar-code-punctuation, var(--scalar-color-2));
   }
 
   .hljs-number,
   .hljs-literal,
   .hljs-symbol {
-    color: var(--scalar-code-orange);
+    color: var(--scalar-code-number, var(--scalar-color-orange));
   }
 
   .hljs-regexp,
   .hljs-string {
-    color: var(--scalar-code-blue);
+    color: var(--scalar-code-string, var(--scalar-color-blue));
   }
 
   /** Globals such as `var()` and `!important`, plus decorators */
   .hljs-built_in,
   .hljs-meta {
-    color: var(--scalar-code-blue);
+    color: var(--scalar-code-builtin, var(--scalar-color-blue));
   }
 
   /** Language indicators such as `new`, `const`, or `function` in JS  */
   .hljs-keyword,
   .hljs-doctag {
-    color: var(--scalar-code-purple);
+    color: var(--scalar-code-keyword, var(--scalar-color-purple));
   }
 
   /** Template substitution */
   .hljs-subst {
-    color: var(--scalar-code-purple);
+    color: var(--scalar-code-keyword, var(--scalar-color-purple));
   }
 
   /** HTML Tag name */
   .hljs-name {
-    color: var(--scalar-code-purple);
+    color: var(--scalar-code-keyword, var(--scalar-color-purple));
   }
 
   /** Function names when declaring and calling */
@@ -132,19 +92,19 @@
   .hljs-link,
   .hljs-title,
   .hljs-title.function_ {
-    color: var(--scalar-code-orange);
+    color: var(--scalar-code-function, var(--scalar-color-orange));
   }
 
   /** Class initializers such as `Array` or `Date` */
   /** Type declarations such as `Record` */
   .hljs-title.class_,
   .hljs-type {
-    color: var(--scalar-code-navy);
+    color: var(--scalar-code-type, var(--scalar-color-1));
   }
 
   /** Function parameters and keyword arguments */
   .hljs-params {
-    color: var(--scalar-code-red);
+    color: var(--scalar-code-parameter, var(--scalar-color-red));
   }
 
   /** Member access, object keys and attribute names (ex. `class`, `id`) */
@@ -154,7 +114,7 @@
   .hljs-selector-tag,
   .hljs-selector-attr,
   .hljs-selector-pseudo {
-    color: var(--scalar-code-green);
+    color: var(--scalar-code-property, var(--scalar-color-green));
   }
 
   .hljs-selector-id,
@@ -164,7 +124,7 @@
   }
 
   .hljs-addition {
-    color: var(--scalar-code-green);
+    color: var(--scalar-code-addition, var(--scalar-color-green));
   }
 
   .hljs-name,
@@ -174,7 +134,7 @@
   }
 
   .hljs-deletion {
-    color: var(--scalar-code-red);
+    color: var(--scalar-code-deletion, var(--scalar-color-red));
   }
 
   .hljs-formula {
@@ -209,11 +169,11 @@
 
 /** For HTML make the attr text different than the content */
 .hljs.language-html .hljs-attr {
-  color: var(--scalar-code-green);
+  color: var(--scalar-code-property, var(--scalar-color-green));
 }
 
 .hljs.language-curl .hljs-string {
-  color: var(--scalar-code-blue);
+  color: var(--scalar-code-string, var(--scalar-color-blue));
 }
 
 .hljs.language-curl .hljs-literal {
@@ -234,5 +194,5 @@
 }
 
 .hljs.language-objectivec .hljs-built_in {
-  color: var(--scalar-code-blue);
+  color: var(--scalar-code-builtin, var(--scalar-color-blue));
 }

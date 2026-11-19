@@ -85,3 +85,35 @@
 *::selection {
   background-color: color-mix(in srgb, var(--scalar-color-accent), transparent 80%);
 }
+
+/*
+ * Syntax highlighting: Moon's tinted backgrounds sit far from white and black, so the default
+ * adjustments leave code too faint. Pull every hue further toward the text color instead.
+ */
+@supports (color: oklch(from white l c h)) {
+  .light-mode {
+    --scalar-code-keyword: oklch(from var(--scalar-color-purple) min(l, 0.38) min(c, 0.2) h);
+    --scalar-code-string: oklch(from var(--scalar-color-blue) min(l, 0.38) min(c, 0.14) h);
+    --scalar-code-number: oklch(from var(--scalar-color-orange) min(l, 0.4) min(c, 0.13) calc(h + 3));
+    --scalar-code-function: oklch(from var(--scalar-color-orange) min(l, 0.4) min(c, 0.13) calc(h + 3));
+    --scalar-code-builtin: oklch(from var(--scalar-color-blue) min(l, 0.38) min(c, 0.14) h);
+    --scalar-code-type: oklch(from var(--scalar-color-blue) min(l, 0.3) min(c, 0.09) calc(h + 8));
+    --scalar-code-parameter: oklch(from var(--scalar-color-red) min(l, 0.4) min(c, 0.15) calc(h - 14));
+    --scalar-code-property: oklch(from var(--scalar-color-green) min(l, 0.38) min(c, 0.09) h);
+    --scalar-code-addition: oklch(from var(--scalar-color-green) min(l, 0.38) min(c, 0.09) h);
+    --scalar-code-deletion: oklch(from var(--scalar-color-red) min(l, 0.4) min(c, 0.15) calc(h - 14));
+  }
+
+  .dark-mode {
+    --scalar-code-keyword: oklch(from var(--scalar-color-purple) max(l, 0.78) min(c, 0.14) h);
+    --scalar-code-string: oklch(from var(--scalar-color-blue) max(l, 0.78) min(c, 0.12) h);
+    --scalar-code-number: oklch(from var(--scalar-color-orange) max(l, 0.8) min(c, 0.13) h);
+    --scalar-code-function: oklch(from var(--scalar-color-orange) max(l, 0.8) min(c, 0.13) h);
+    --scalar-code-builtin: oklch(from var(--scalar-color-blue) max(l, 0.78) min(c, 0.12) h);
+    --scalar-code-type: oklch(from var(--scalar-color-blue) max(l, 0.88) min(c, 0.06) h);
+    --scalar-code-parameter: oklch(from var(--scalar-color-red) max(l, 0.76) min(c, 0.14) calc(h - 14));
+    --scalar-code-property: oklch(from var(--scalar-color-green) max(l, 0.78) min(c, 0.15) h);
+    --scalar-code-addition: oklch(from var(--scalar-color-green) max(l, 0.78) min(c, 0.15) h);
+    --scalar-code-deletion: oklch(from var(--scalar-color-red) max(l, 0.76) min(c, 0.14) calc(h - 14));
+  }
+}
