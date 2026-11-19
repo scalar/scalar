@@ -101,4 +101,16 @@ describe('ScalarToasts', () => {
     await vi.waitFor(() => expect(wrapper.text().includes('Ordinary notification')).toBe(true))
     wrapper.unmount()
   })
+
+  it('owns document styles only while the ordinary renderer is mounted', async () => {
+    const wrapper = mount(ScalarToasts)
+    await vi.waitFor(async () => {
+      await flushPromises()
+      expect(document.head.querySelector('[data-scalar-toast-styles]')?.tagName).toBe('STYLE')
+    })
+    expect(wrapper.find('style').exists()).toBe(false)
+
+    wrapper.unmount()
+    expect(document.head.querySelector('[data-scalar-toast-styles]')).toBeNull()
+  })
 })

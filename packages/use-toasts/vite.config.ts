@@ -21,7 +21,8 @@ export default defineConfig({
       treeshake: {
         moduleSideEffects: (id) => id.includes('.css'),
       },
-      external,
+      // Inline the client stylesheet so server rendering does not import CSS through Node.
+      external: (id) => id !== 'vue-sonner/style.css?inline' && external.some((pattern) => pattern.test(id)),
     },
   },
 })
