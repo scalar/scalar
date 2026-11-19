@@ -1,3 +1,4 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import type { LifecyclePlugin } from '@scalar/json-magic/bundle'
 
 import { deferSchemaResources } from '@/helpers/async-api-schema-resources/resources'
@@ -9,10 +10,10 @@ export const asyncApiSchemaResources = (): LifecyclePlugin => {
     onBeforeNodeProcess: (node, context) => {
       if (context.referenceContext !== 'asyncapi-schema' || typeof node.schemaFormat !== 'string' || '$ref' in node)
         return
-      // Serialized workspace/SSR graphs carry their origin through relocation. Authored copies are inert
-      // data: readers validate and bound them, no credentials or loader capabilities are restored here.
-      // Editable-document cleanup removes these graphs before an authored change is ingested again.
-      if (node['x-scalar-schema-resources'] !== undefined) return
+      // Completed server graphs stay portable. Deferred metadata must use the actual containing file,
+      // since its origin controls future downloads and may have been supplied by the document author.
+      const existing = node['x-scalar-schema-resources']
+      if (existing !== undefined && !(isObject(existing) && existing.deferred === true)) return
       const resources = deferSchemaResources(node.schemaFormat, context.origin)
       if (resources) node['x-scalar-schema-resources'] = resources
     },

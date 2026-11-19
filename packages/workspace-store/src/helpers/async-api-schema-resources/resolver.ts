@@ -19,17 +19,22 @@ export const createAsyncApiSchemaResourceResolver = (
   } = {},
 ): AsyncApiSchemaResourceResolver => {
   const load = createSchemaResourceLoader()
-  const loaders = [fetchUrls({ ...options, limit: 10 }), ...(options.fileLoader ? [options.fileLoader] : [])]
+  const urlLoader = fetchUrls({ ...options, limit: 10 })
+  const loaders = [urlLoader, ...(options.fileLoader ? [options.fileLoader] : [])]
   const graphs = new Map<string, Promise<AsyncApiSchemaResources | undefined>>()
   return (format, source, resources) => {
     // Prebuilt server graphs remain portable, including filesystem resources inaccessible to a browser.
     if (resources && !resources.deferred && options.usePreparedResources !== false) return Promise.resolve(resources)
-    const origin = resources?.origin ?? options.origin ?? '/'
+    const resourceOrigin = resources?.origin ?? options.origin ?? '/'
+    // Authored metadata cannot grant local file access to a remotely loaded document.
+    const remoteOrigin = options.origin !== undefined && urlLoader.validate(options.origin) ? options.origin : undefined
+    const origin = remoteOrigin !== undefined && !urlLoader.validate(resourceOrigin) ? remoteOrigin : resourceOrigin
+    const graphLoaders = remoteOrigin !== undefined || urlLoader.validate(origin) ? [urlLoader] : loaders
     try {
       const key = JSON.stringify([format, source, origin])
       const cached = graphs.get(key)
       if (cached) return cached
-      const pending = load(format, source, origin, loaders)
+      const pending = load(format, source, origin, graphLoaders)
       graphs.set(key, pending)
       return pending
     } catch {

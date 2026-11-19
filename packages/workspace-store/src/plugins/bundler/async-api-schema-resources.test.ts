@@ -105,6 +105,48 @@ describe('async-api-schema-resources', () => {
     ])
   })
 
+  it.each(['file:///private/message.json', 'https://other.test/forged/message.json'])(
+    'replaces authored deferred origins with the containing external fragment location (%s)',
+    async (origin) => {
+      const requested: string[] = []
+      const store = createWorkspaceStore({
+        fetch: (input) => {
+          const uri = String(input)
+          requested.push(uri)
+          return Promise.resolve(
+            new Response(
+              uri.endsWith('message.json')
+                ? JSON.stringify({
+                    payload: { ...schema(), 'x-scalar-schema-resources': { origin, files: {}, deferred: true } },
+                  })
+                : user,
+            ),
+          )
+        },
+      })
+      const authored = document()
+      Object.assign(authored.channels.users.messages, { user: { $ref: './messages/message.json' } })
+      await store.addDocument({ name: 'test', document: authored, documentSource: 'https://example.test/api.yaml' })
+      expect(requested).toStrictEqual(['https://example.test/messages/message.json'])
+      const loaded = store.workspace.documents.test
+      if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
+      const message = getResolvedAsyncApiRef(getResolvedAsyncApiRef(loaded.channels?.users)?.messages?.user)
+      expect(await expand(store, message?.payload)).toStrictEqual({
+        kind: 'source',
+        format,
+        value,
+        resources: {
+          origin: 'https://example.test/messages/message.json',
+          files: { 'https://example.test/messages/types/user.proto': user },
+        },
+      })
+      expect(requested).toStrictEqual([
+        'https://example.test/messages/message.json',
+        'https://example.test/messages/types/user.proto',
+      ])
+    },
+  )
+
   it('does not load schema-shaped examples, extensions or OpenAPI fields', async () => {
     const requested: string[] = []
     for (const source of [

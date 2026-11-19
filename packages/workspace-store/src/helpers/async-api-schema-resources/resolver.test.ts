@@ -47,16 +47,116 @@ describe('resolver', () => {
     expect(requested).toStrictEqual(['https://example.test/user.proto'])
   })
 
-  it('uses prebuilt server resources without downloading filesystem paths', async () => {
+  it.each([undefined, origin])(
+    'uses prebuilt server resources without downloading filesystem paths (origin: %s)',
+    async (origin) => {
+      const requested: string[] = []
+      const resolve = createAsyncApiSchemaResourceResolver({
+        origin,
+        fetch: (input) => {
+          requested.push(String(input))
+          return Promise.reject(new Error('Must not fetch'))
+        },
+      })
+      const resources = { origin: '/private/api.yaml', files: { '/private/user.proto': user } }
+      expect(await resolve(format, source, resources)).toBe(resources)
+      expect(requested).toStrictEqual([])
+    },
+  )
+
+  it('uses the remote document location instead of a deferred filesystem origin', async () => {
     const requested: string[] = []
     const resolve = createAsyncApiSchemaResourceResolver({
+      origin,
       fetch: (input) => {
         requested.push(String(input))
-        return Promise.reject(new Error('Must not fetch'))
+        return Promise.resolve(new Response(user))
+      },
+      fileLoader: {
+        type: 'loader',
+        validate: () => true,
+        exec: (uri) => {
+          requested.push(uri)
+          return Promise.resolve({ ok: true, data: user, raw: user })
+        },
       },
     })
-    const resources = { origin: '/private/api.yaml', files: { '/private/user.proto': user } }
-    expect(await resolve(format, source, resources)).toBe(resources)
+    expect(
+      await resolve(format, source, { origin: 'file:///private/root.proto', files: {}, deferred: true }),
+    ).toStrictEqual({
+      origin,
+      files: { 'https://example.test/user.proto': user },
+    })
+    expect(requested).toStrictEqual(['https://example.test/user.proto'])
+  })
+
+  it.each([
+    { format, source: 'import "file:///private/user.proto";' },
+    { format, source: 'import "ftp://example.test/user.proto";' },
+    { format: 'application/raml+yaml;version=1.0', source: '!include file:///private/user.raml' },
+    {
+      format: 'application/raml+yaml;version=1.0',
+      source: '#%RAML 1.0 DataType\nuses:\n  lib: file:///private/types.raml\ntype: lib.User',
+    },
+  ])('refuses non-HTTP dependencies in remote schemas ($source)', async ({ format, source }) => {
+    const requested: string[] = []
+    const resolve = createAsyncApiSchemaResourceResolver({
+      origin,
+      fetch: (input) => {
+        requested.push(String(input))
+        return Promise.resolve(new Response(user))
+      },
+      fileLoader: {
+        type: 'loader',
+        validate: () => true,
+        exec: (uri) => {
+          requested.push(uri)
+          return Promise.resolve({ ok: true, data: user, raw: user })
+        },
+      },
+    })
+    expect(await resolve(format, source)).toStrictEqual({ origin, files: {}, failed: true })
     expect(requested).toStrictEqual([])
+  })
+
+  it('refuses nested filesystem imports in a remotely loaded dependency', async () => {
+    const requested: string[] = []
+    const resolve = createAsyncApiSchemaResourceResolver({
+      origin,
+      fetch: (input) => {
+        requested.push(String(input))
+        return Promise.resolve(new Response('import "file:///private/user.proto";'))
+      },
+      fileLoader: {
+        type: 'loader',
+        validate: () => true,
+        exec: (uri) => {
+          requested.push(uri)
+          return Promise.resolve({ ok: true, data: user, raw: user })
+        },
+      },
+    })
+    expect(await resolve(format, source)).toStrictEqual({ origin, files: {}, failed: true })
+    expect(requested).toStrictEqual(['https://example.test/user.proto'])
+  })
+
+  it('allows local documents to use their configured filesystem loader', async () => {
+    const requested: string[] = []
+    const resolve = createAsyncApiSchemaResourceResolver({
+      origin: '/private/root.proto',
+      fileLoader: {
+        type: 'loader',
+        validate: (uri) => uri === '/private/user.proto',
+        exec: (uri) => {
+          requested.push(uri)
+          return Promise.resolve({ ok: true, data: user, raw: user })
+        },
+      },
+    })
+    expect(await resolve(format, source)).toStrictEqual({
+      origin: '/private/root.proto',
+      files: { '/private/user.proto': user },
+    })
+    expect(requested).toStrictEqual(['/private/user.proto'])
   })
 })
