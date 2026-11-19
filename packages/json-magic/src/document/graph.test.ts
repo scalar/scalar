@@ -59,6 +59,129 @@ describe('graph', () => {
     expect(Object.keys(document.securityDefinitions)).toEqual(['key/~'])
   })
 
+  it('retains OpenAPI 2 discriminator descendants through allOf', () => {
+    const document = {
+      swagger: '2.0',
+      paths: {
+        '/pets': { get: { responses: { '200': { description: 'OK', schema: { $ref: '#/definitions/Pet' } } } } },
+      },
+      definitions: {
+        Pet: { type: 'object', discriminator: 'kind', required: ['kind'], properties: { kind: { type: 'string' } } },
+        Cat: { allOf: [{ $ref: '#/definitions/Pet' }] },
+        Kitten: { allOf: [{ $ref: '#/definitions/Cat' }] },
+        Dead: { discriminator: 'unused' },
+        DeadChild: { allOf: [{ $ref: '#/definitions/Dead' }] },
+      },
+    }
+    prune(document)
+    expect(Object.keys(document.definitions)).toEqual(['Pet', 'Cat', 'Kitten'])
+  })
+
+  it.each(['3.0.4', '3.1.2', '3.2.1'])(
+    'retains implicit subtypes alongside a partial mapping in OpenAPI %s',
+    (openapi) => {
+      const document = {
+        ...api({ $ref: '#/components/schemas/Pet' }),
+        openapi,
+        components: {
+          schemas: {
+            Pet: { discriminator: { propertyName: 'kind', mapping: { feline: 'Cat' } } },
+            Cat: { allOf: [{ $ref: '#/components/schemas/Pet' }] },
+            Lizard: { allOf: [{ $ref: '#/components/schemas/Pet' }] },
+            Dead: {},
+          },
+        },
+      }
+      prune(document)
+      expect(Object.keys(document.components.schemas)).toEqual(['Pet', 'Cat', 'Lizard'])
+    },
+  )
+
+  it('follows 3.2 security scheme URIs with precedence for component names', () => {
+    const document = {
+      ...api({}),
+      openapi: '3.2.1',
+      security: [{ '#/components/securitySchemes/Local': [], 'https://example.com/named': [] }] as Record<
+        string,
+        string[]
+      >[],
+      components: {
+        securitySchemes: {
+          Local: { type: 'http', scheme: 'basic' },
+          'https://example.com/named': { type: 'http', scheme: 'bearer' },
+          Dead: {},
+        },
+      },
+    }
+    prune(document)
+    expect(Object.keys(document.components.securitySchemes)).toEqual(['Local', 'https://example.com/named'])
+    document.security = [{ './remote.json': [] }]
+    const result = checkDocument(document, { origin, prune: true, unresolvedReferences: 'retain' })
+    expect(result.ok && result.data.warnings.at(-1)).toBe('/: Reference target does not exist: ./remote.json')
+  })
+
+  it('keeps AsyncAPI 3 channels and their dependencies without operations', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      channels: { events: { address: 'events', messages: { event: { $ref: '#/components/messages/Event' } } } },
+      components: { messages: { Event: { payload: { type: 'string' } }, Dead: {} }, channels: { Dead: {} } },
+    }
+    prune(document)
+    expect(Object.keys(document.channels)).toEqual(['events'])
+    expect(Object.keys(document.components.messages)).toEqual(['Event'])
+    expect(document.components.channels).toEqual({})
+  })
+
+  it('retains dependencies from callbacks and webhooks and follows both kinds of links', () => {
+    const response = { description: 'OK' }
+    const document = {
+      ...api({}),
+      paths: {
+        '/pets': {
+          get: {
+            responses: { '200': response },
+            callbacks: { event: { $ref: '#/components/callbacks/Event' } },
+          },
+        },
+      },
+      webhooks: { event: { $ref: '#/components/pathItems/Webhook' } },
+      components: {
+        callbacks: {
+          Event: {
+            '{$request.body#/url}': {
+              post: {
+                responses: {
+                  '200': { ...response, links: { target: { operationId: 'first' } } },
+                },
+              },
+            },
+          },
+          Dead: {},
+        },
+        pathItems: {
+          Webhook: {
+            post: {
+              responses: {
+                '200': {
+                  ...response,
+                  links: {
+                    target: { operationRef: '#/components/pathItems/Second/get' },
+                  },
+                },
+              },
+            },
+          },
+          First: { get: { operationId: 'first', responses: { '200': response } } },
+          Second: { get: { operationId: 'second', responses: { '200': response } } },
+          Dead: {},
+        },
+      },
+    }
+    prune(document)
+    expect(Object.keys(document.components.callbacks)).toEqual(['Event'])
+    expect(Object.keys(document.components.pathItems)).toEqual(['Webhook', 'First', 'Second'])
+  })
+
   it('follows discriminator names, escaped pointers and default mappings in 3.2', () => {
     const document = {
       ...api({ $ref: '#/components/schemas/Base' }),
@@ -90,6 +213,7 @@ describe('graph', () => {
       'x-ext': {
         external: {
           openapi: '3.1.0',
+          info: { title: 'Stored API', version: '1' },
           paths: {
             '/pets': {
               get: {
@@ -117,6 +241,8 @@ describe('graph', () => {
     }
     prune(document)
     expect(Object.keys(document['x-ext'])).toEqual(['external'])
+    expect(document['x-ext'].external.openapi).toBe('3.1.0')
+    expect(document['x-ext'].external.info).toEqual({ title: 'Stored API', version: '1' })
     expect(Object.keys(document['x-ext'].external.components.securitySchemes)).toEqual(['local'])
     expect(Object.keys(document['x-ext'].external.components.schemas)).toEqual(['Base', 'Cat'])
   })

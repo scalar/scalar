@@ -13,6 +13,12 @@ import { toRelativePath } from '@/helpers/to-relative-path'
 import { getRaw } from '@/magic-proxy/proxy'
 import type { UnknownObject } from '@/types'
 
+import {
+  type ReferenceContext,
+  getSchemaVocabulary,
+  isReferenceContext,
+  isSchemaContext,
+} from '../document/reference-context'
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
 import type { ReferenceDiagnostic } from './bundle-with-diagnostics'
@@ -24,7 +30,6 @@ import {
   documentReferences,
 } from './document-references'
 import { documentTraversal } from './document-traversal'
-import { type ReferenceContext, getSchemaVocabulary, isReferenceContext, isSchemaContext } from '../document/reference-context'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */

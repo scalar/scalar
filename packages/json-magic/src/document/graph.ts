@@ -25,16 +25,30 @@ type Entry = {
   inferredContext: boolean
 }
 /** Indexed locations and reference resolution for a bundled API description. */
-export type DocumentGraph = {
+type DocumentGraph = {
   entries: Map<string, Entry>
   resolve: (reference: string, from?: string) => string | undefined
-  dereference: (value: unknown, path: string, seen?: Set<string>) => unknown
   expose: (path: string, context: ReferenceContext) => void
 }
 /** HTTP operation fields understood by the OpenAPI graph and use-site filters. */
-export const operationMethods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query']
+const operationMethods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query']
 /** Append a literal key to a document pointer, preserving slash and tilde characters. */
-export const childPath = (parent: string, key: string): string => `${parent}/${escapeJsonPointer(key)}`
+const childPath = (parent: string, key: string): string => `${parent}/${escapeJsonPointer(key)}`
+
+const isApiDocument = (value: unknown): value is Record<string, unknown> =>
+  isDocument(value) &&
+  (typeof value.openapi === 'string' || value.swagger === '2.0' || typeof value.asyncapi === 'string')
+
+const documentAt = (document: Record<string, unknown>, path: string): Record<string, unknown> => {
+  if (path.startsWith('/x-ext/')) {
+    const segments = pointerSegments(path)
+    const stored = pointerValue(document, segments.slice(0, 2))
+    if (isApiDocument(stored)) {
+      return stored
+    }
+  }
+  return document
+}
 
 const modernSchemaDocument = (document: Record<string, unknown>): boolean =>
   document.swagger !== '2.0' && !String(document.openapi).startsWith('3.0.')
@@ -65,11 +79,10 @@ const traversalContext = (
 }
 
 /** Index the bundled graph without fetching anything after transformations. */
-export const createGraph = (document: Record<string, unknown>, origin: string): DocumentGraph => {
+const createGraph = (document: Record<string, unknown>, origin: string): DocumentGraph => {
   const entries = new Map<string, Entry>()
   const resources = new Map<string, string>([[origin, '']])
   const anchors = new Map<string, string>()
-  const modernSchemas = modernSchemaDocument(document)
   const index = (
     value: unknown,
     path: string,
@@ -78,12 +91,14 @@ export const createGraph = (document: Record<string, unknown>, origin: string): 
     ancestors: Set<object>,
     inferredContext = false,
   ): void => {
+    const owner = documentAt(document, path)
+    const modernSchemas = modernSchemaDocument(owner)
     const vocabulary = getSchemaVocabulary(context)
     const externalRoot = pointerSegments(path).length === 2 && path.startsWith('/x-ext/')
     const identity = isDocument(value)
       ? externalRoot
         ? value.$id
-        : vocabulary?.idKeyword && (modernSchemas || typeof document.asyncapi === 'string')
+        : vocabulary?.idKeyword && (modernSchemas || typeof owner.asyncapi === 'string')
           ? value[vocabulary.idKeyword]
           : undefined
       : undefined
@@ -104,7 +119,7 @@ export const createGraph = (document: Record<string, unknown>, origin: string): 
       }
     }
     for (const [key, child] of Object.entries(value)) {
-      const childContext = traversalContext(value, context, key, document)
+      const childContext = traversalContext(value, context, key, owner)
       index(child, childPath(path, key), currentOrigin, childContext, next, inferredContext)
     }
   }
@@ -125,9 +140,11 @@ export const createGraph = (document: Record<string, unknown>, origin: string): 
     ) {
       return
     }
-    const ancestor = [...entries.values()]
-      .filter((candidate) => path.startsWith(`${candidate.path}/`))
-      .sort((a, b) => b.path.length - a.path.length)[0]
+    let ancestor = entry
+    for (let parent = path; !ancestor && parent; ) {
+      parent = parent.slice(0, parent.lastIndexOf('/'))
+      ancestor = entries.get(parent)
+    }
     const value = pointerValue(document, pointerSegments(path))
     if (value !== undefined) {
       index(value, path, entry?.base ?? ancestor?.origin ?? origin, context, new Set())
@@ -162,24 +179,7 @@ export const createGraph = (document: Record<string, unknown>, origin: string): 
     }
   }
 
-  const dereference = (value: unknown, path: string, seen = new Set<string>()): unknown => {
-    if (!isDocument(value) || typeof value.$ref !== 'string') {
-      return value
-    }
-    const target = resolve(value.$ref, path)
-    if (target === undefined || seen.has(target)) {
-      return value
-    }
-    expose(target, entries.get(path)?.context ?? 'object')
-    const resolved = dereference(entries.get(target)?.value, target, new Set(seen).add(target))
-    return isDocument(resolved)
-      ? {
-          ...resolved,
-          ...Object.fromEntries(Object.entries(value).filter(([key]) => key !== '$ref')),
-        }
-      : resolved
-  }
-  return { entries, resolve, dereference, expose }
+  return { entries, resolve, expose }
 }
 
 /**
@@ -203,13 +203,13 @@ export const checkDocument = (
   const graph = createGraph(document, origin)
   const async = typeof document.asyncapi === 'string'
   const async3 = async && String(document.asyncapi).startsWith('3.')
-  const swagger = document.swagger === '2.0'
   const errors = new Set<string>()
   const warnings = new Set<string>()
   const live = new Set<string>()
   const visited = new Set<string>()
   const candidates = new Set<string>()
-  const operationIds = new Map<string, Set<string>>()
+  const schemaChildren = new Map<string, Set<string>>()
+  const expandedDiscriminators = new Set<string>()
   const operationLinks: { id: string; path: string }[] = []
 
   for (const entry of graph.entries.values()) {
@@ -217,14 +217,56 @@ export const checkDocument = (
     if (
       (segments.length === 3 && segments[0] === 'components' && !String(segments[1]).startsWith('x-')) ||
       (segments.length === 2 &&
-        ['definitions', 'parameters', 'responses', 'securityDefinitions', 'x-ext'].includes(segments[0] ?? '')) ||
-      (async3 && segments.length === 2 && segments[0] === 'channels')
+        ['definitions', 'parameters', 'responses', 'securityDefinitions', 'x-ext'].includes(segments[0] ?? ''))
     ) {
       candidates.add(entry.path)
     }
   }
 
+  // Named schemas can inherit the discriminator of a parent reached through allOf.
+  if (prune) {
+    for (const { path, context, value } of graph.entries.values()) {
+      const segments = pointerSegments(path)
+      const location = segments[0] === 'x-ext' ? segments.slice(2) : segments
+      const owner = documentAt(document, path)
+      const namedSchema =
+        (owner.swagger === '2.0' && location.length === 2 && location[0] === 'definitions') ||
+        (typeof owner.openapi === 'string' &&
+          location.length === 3 &&
+          location[0] === 'components' &&
+          location[1] === 'schemas')
+      if (!namedSchema || !isSchemaContext(context) || !isDocument(value) || !Array.isArray(value.allOf)) {
+        continue
+      }
+      for (const [index, parent] of value.allOf.entries()) {
+        if (!isDocument(parent) || typeof parent.$ref !== 'string') {
+          continue
+        }
+        const target = graph.resolve(parent.$ref, `${path}/allOf/${index}`)
+        if (target !== undefined) {
+          const children = schemaChildren.get(target) ?? new Set<string>()
+          children.add(path)
+          schemaChildren.set(target, children)
+        }
+      }
+    }
+  }
+
+  const visitSubtypes = (path: string): void => {
+    if (expandedDiscriminators.has(path)) {
+      return
+    }
+    expandedDiscriminators.add(path)
+    for (const child of schemaChildren.get(path) ?? []) {
+      visit(child, 'schema')
+      visitSubtypes(child)
+    }
+  }
+
   const mark = (path: string): void => {
+    if (live.has(path)) {
+      return
+    }
     live.add(path)
     if (path) {
       mark(path.slice(0, path.lastIndexOf('/')))
@@ -253,9 +295,16 @@ export const checkDocument = (
         }
       }
       // Root components are retained whole, so their other children must remain valid too.
-      for (const candidate of candidates) {
-        if (!candidate.startsWith('/x-ext/') && target.startsWith(`${candidate}/`)) {
-          visit(candidate)
+      if (!target.startsWith('/x-ext/')) {
+        for (
+          let parent = target.slice(0, target.lastIndexOf('/'));
+          parent;
+          parent = parent.slice(0, parent.lastIndexOf('/'))
+        ) {
+          if (candidates.has(parent)) {
+            visit(parent)
+            break
+          }
         }
       }
     }
@@ -269,7 +318,8 @@ export const checkDocument = (
       : `#${container}/${escapeJsonPointer(name)}`
   }
   const security = (value: unknown, path: string): void => {
-    if (async3 || !Array.isArray(value)) {
+    const owner = documentAt(document, path)
+    if (String(owner.asyncapi).startsWith('3.') || !Array.isArray(value)) {
       return
     }
     for (const requirement of value) {
@@ -277,7 +327,15 @@ export const checkDocument = (
         continue
       }
       for (const name of Object.keys(requirement)) {
-        follow(namedReference(name, path, swagger ? '/securityDefinitions' : '/components/securitySchemes'), path)
+        const named = namedReference(
+          name,
+          path,
+          owner.swagger === '2.0' ? '/securityDefinitions' : '/components/securitySchemes',
+        )
+        follow(
+          String(owner.openapi).startsWith('3.2.') && graph.resolve(named, path) === undefined ? name : named,
+          path,
+        )
       }
     }
   }
@@ -298,6 +356,7 @@ export const checkDocument = (
     }
     visited.add(visitKey)
     const value = entry.value
+    const owner = documentAt(document, path)
     if (value === null || typeof value !== 'object' || context === 'data') {
       return
     }
@@ -306,7 +365,7 @@ export const checkDocument = (
         follow(value.$ref, path, context)
         if (
           isSchemaContext(context) &&
-          (!modernSchemaDocument(document) || !getSchemaVocabulary(context)?.referenceSiblings)
+          (!modernSchemaDocument(owner) || !getSchemaVocabulary(context)?.referenceSiblings)
         ) {
           return
         }
@@ -331,10 +390,18 @@ export const checkDocument = (
       if (isSchemaContext(context) && '$recursiveRef' in value) {
         errors.add(`${path}: $recursiveRef is not supported; use a supported $ref or $dynamicRef before transforming.`)
       }
+      if (
+        isSchemaContext(context) &&
+        (owner.swagger === '2.0'
+          ? typeof value.discriminator === 'string'
+          : typeof owner.openapi === 'string' && isDocument(value.discriminator) && !value.oneOf && !value.anyOf)
+      ) {
+        visitSubtypes(path)
+      }
       if (isSchemaContext(context) && isDocument(value.discriminator)) {
         for (const target of [
           ...Object.values(isDocument(value.discriminator.mapping) ? value.discriminator.mapping : {}),
-          ...(String(document.openapi).startsWith('3.2.') && typeof value.discriminator.defaultMapping === 'string'
+          ...(String(owner.openapi).startsWith('3.2.') && typeof value.discriminator.defaultMapping === 'string'
             ? [value.discriminator.defaultMapping]
             : []),
         ]) {
@@ -364,7 +431,7 @@ export const checkDocument = (
       if (context === 'object' || context === 'path-item') {
         security(value.security, path)
       }
-      if (async && Array.isArray(value.servers)) {
+      if (typeof owner.asyncapi === 'string' && Array.isArray(value.servers)) {
         for (const server of value.servers) {
           if (typeof server === 'string') {
             follow(`#/servers/${escapeJsonPointer(server)}`, path)
@@ -381,8 +448,7 @@ export const checkDocument = (
       if (
         prune &&
         path === '' &&
-        (['components', 'x-ext', 'definitions', 'parameters', 'responses', 'securityDefinitions'].includes(key) ||
-          (async3 && key === 'channels'))
+        ['components', 'x-ext', 'definitions', 'parameters', 'responses', 'securityDefinitions'].includes(key)
       ) {
         continue
       }
@@ -392,37 +458,57 @@ export const checkDocument = (
         }
         continue
       }
-      const childContext = traversalContext(value, context, key, document)
+      const childContext = traversalContext(value, context, key, owner)
       if (child !== undefined) {
         visit(nextPath, childContext)
       }
     }
   }
   visit('')
-  // Referenced fragments acquire their operation context while the graph is visited.
-  for (const entry of graph.entries.values()) {
-    const segments = pointerSegments(entry.path)
-    const parent = graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/')))
-    if (
-      isDocument(entry.value) &&
-      typeof entry.value.operationId === 'string' &&
-      ((parent?.context === 'path-item' && operationMethods.includes(segments.at(-1) ?? '')) ||
-        (segments.at(-2) === 'additionalOperations' &&
-          graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/additionalOperations/')))?.context ===
-            'path-item') ||
-        (async && ['publish', 'subscribe'].includes(segments.at(-1) ?? '')) ||
-        (async3 && segments[0] === 'operations' && segments.length === 2))
-    ) {
-      const paths = operationIds.get(entry.value.operationId) ?? new Set<string>()
-      paths.add(entry.path)
-      operationIds.set(entry.value.operationId, paths)
+  // Visiting linked operations can expose new Path Items and add more links.
+  let pendingLinks = operationLinks.splice(0)
+  while (pendingLinks.length) {
+    const operationIds = new Map<string, Set<string>>()
+    for (const entry of graph.entries.values()) {
+      const segments = pointerSegments(entry.path)
+      const parent = graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/')))
+      if (
+        isDocument(entry.value) &&
+        typeof entry.value.operationId === 'string' &&
+        ((parent?.context === 'path-item' && operationMethods.includes(segments.at(-1) ?? '')) ||
+          (segments.at(-2) === 'additionalOperations' &&
+            graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/additionalOperations/')))?.context ===
+              'path-item') ||
+          (async && ['publish', 'subscribe'].includes(segments.at(-1) ?? '')) ||
+          (async3 && segments[0] === 'operations' && segments.length === 2))
+      ) {
+        const paths = operationIds.get(entry.value.operationId) ?? new Set<string>()
+        paths.add(entry.path)
+        operationIds.set(entry.value.operationId, paths)
+      }
     }
-  }
-  for (const link of operationLinks) {
-    const targets = operationIds.get(link.id)
-    if (!targets || (prune && ![...targets].some((target) => live.has(target)))) {
-      errors.add(`${link.path}: Operation does not exist: ${link.id}`)
+    const unresolvedLinks = []
+    const visitedBefore = visited.size
+    for (const link of pendingLinks) {
+      const targets = operationIds.get(link.id)
+      if (!targets) {
+        unresolvedLinks.push(link)
+        continue
+      }
+      if (prune && ![...targets].some((target) => live.has(target))) {
+        for (const target of targets) {
+          const pathItem = target.replace(/\/(?:additionalOperations\/)?[^/]+$/, '')
+          visit(pathItem)
+        }
+      }
     }
+    if (operationLinks.length === 0 && visited.size === visitedBefore) {
+      for (const link of unresolvedLinks) {
+        errors.add(`${link.path}: Operation does not exist: ${link.id}`)
+      }
+      break
+    }
+    pendingLinks = [...unresolvedLinks, ...operationLinks.splice(0)]
   }
   if (errors.size) {
     return err([...errors].join('\n'))
@@ -445,7 +531,13 @@ export const checkDocument = (
       for (const [key, child] of Object.entries(value)) {
         const location = childPath(path, key)
         // An ancestor's schema identity still defines the base of a retained descendant.
-        if (['$id', '$anchor', '$dynamicAnchor', '$schema', '$global'].includes(key)) {
+        if (
+          ['$id', '$anchor', '$dynamicAnchor', '$schema', '$global'].includes(key) ||
+          (path.startsWith('/x-ext/') &&
+            path.lastIndexOf('/') === '/x-ext'.length &&
+            isApiDocument(value) &&
+            ['openapi', 'swagger', 'asyncapi', 'info', 'jsonSchemaDialect'].includes(key))
+        ) {
           continue
         }
         if (!live.has(location)) {

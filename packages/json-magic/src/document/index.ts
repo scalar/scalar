@@ -1,1 +1,1 @@
-export { type DocumentGraph, checkDocument, childPath, createGraph, operationMethods } from './graph'
+export { checkDocument } from './graph'
