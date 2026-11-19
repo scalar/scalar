@@ -21,6 +21,23 @@ describe('createMarkdownFromOpenApi', () => {
     expect(result).toContain('API key in header `X-Api-Key`')
   })
 
+  it('resolves URI security through annotated reference chains', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.2.1',
+      info: { title: 'Referenced auth', version: '1' },
+      paths: {},
+      security: [{ '#/components/securitySchemes/key': [] }],
+      components: {
+        securitySchemes: {
+          key: { $ref: '#/components/securitySchemes/alias', description: 'Use your account key.' },
+          alias: { $ref: '#/components/securitySchemes/base', description: 'Inner description.' },
+          base: { type: 'apiKey', in: 'header', name: 'X-Api-Key' },
+        },
+      },
+    })
+    expect(result).toContain('- **#/components/securitySchemes/key**: API key in header `X-Api-Key`')
+  })
+
   it('preserves URI security scopes, alternatives, and named schemes for operations', async () => {
     const input = {
       openapi: '3.2.1',
