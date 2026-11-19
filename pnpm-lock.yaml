@@ -234,8 +234,8 @@ catalogs:
       specifier: 1.62.1
       version: 1.62.1
     '@scalar/sdk':
-      specifier: 0.7.0
-      version: 0.7.0
+      specifier: 0.8.0
+      version: 0.8.0
     '@scalar/typebox':
       specifier: 0.1.4
       version: 0.1.4
@@ -3476,7 +3476,7 @@ importers:
         version: link:../../packages/pre-post-request-scripts
       '@scalar/sdk':
         specifier: catalog:*
-        version: 0.7.0
+        version: 0.8.0
       '@scalar/sidebar':
         specifier: workspace:*
         version: link:../../packages/sidebar
@@ -9467,8 +9467,8 @@ packages:
     resolution: {integrity: sha512-acP68tGx/DJEIQgTqj/xStBRaghN7axV+uAjNasDjVXgHgHaLQ1f16/bbXtw6mNLjURhTORD4fdfbOZM7kyWcw==}
     engines: {node: '>=20.9.0'}
 
-  '@scalar/sdk@0.7.0':
-    resolution: {integrity: sha512-0DqgPhC5ux51rrXID61fAIGLLvNQKmX+/BUnlbqxr0OaptkAxG3btZ4D/SCH6cPQaJqEbxVUEFuuYvGrlQLK0A==}
+  '@scalar/sdk@0.8.0':
+    resolution: {integrity: sha512-zKMecvUssgeXpFP2H04NPh0dz++z2uEwleFPT7ni5oqyzJHedpWmVGtHHCwpGhnfgj+G7D4YOGBQTpoq2P/JQw==}
 
   '@scalar/typebox@0.1.4':
     resolution: {integrity: sha512-HIneHpbcBnB7aSHQQjb88gh41ZVECjRvS6oDkq24atjjJkO+Gzc6zFrMeuypLyFEq/DHMikBgFnNnT2T3rdbaA==}
@@ -28583,7 +28583,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@scalar/sdk@0.7.0': {}
+  '@scalar/sdk@0.8.0': {}
 
   '@scalar/typebox@0.1.4': {}
 
@@ -36264,7 +36264,7 @@ snapshots:
       mdast-util-phrasing: 4.1.0
       mdast-util-to-string: 4.0.0
       micromark-util-decode-string: 2.0.0
-      unist-util-visit: 5.1.0
+      unist-util-visit: 5.2.0
       zwitch: 2.0.4
 
   mdast-util-to-markdown@2.1.2:
