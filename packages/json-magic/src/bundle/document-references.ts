@@ -140,6 +140,10 @@ export const documentReferences = (
     // Retrieval aliases retain compatibility with callers that supply local copies.
     resources.set(retrievalUri, resource)
     resources.set(base, resource)
+    // Relative URL resolution can normalize the declared base, such as removing a default port.
+    if (identity !== undefined && URL.canParse(base)) {
+      resources.set(new URL(base).href, resource)
+    }
     if (path.length > 1) {
       bundledResources.set(path[1], resource)
     }

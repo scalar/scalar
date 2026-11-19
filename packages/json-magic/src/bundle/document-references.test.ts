@@ -42,6 +42,17 @@ describe('document-references', () => {
     })
   })
 
+  it('matches the authored document identity and its normalized URL', () => {
+    const identity = 'https://example.com:443/api/openapi.json'
+    const value = { type: 'string' }
+    const document = { identity, value }
+    const references = documentReferences('x-ext', resolveDocument)
+    references.register(document, 'https://mirror.example.com/openapi.json')
+
+    expect(references.resolve(`${identity}#/value`, identity)?.value).toBe(value)
+    expect(references.resolve('./openapi.json#/value', identity)?.value).toBe(value)
+  })
+
   it('escapes pointer segments when locating an external document', () => {
     const root = { identity: 'https://example.com/orders', paths: { '/orders': { summary: 'Orders' } } }
     const references = documentReferences('external', resolveDocument)

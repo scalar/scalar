@@ -378,11 +378,15 @@ paths:
     }
   })
 
-  it('links references to the entry document identity from nested schema resources', async () => {
+  it.each([
+    'https://example.com/api/openapi.json',
+    'https://example.com:443/api/openapi.json',
+    'file://localhost/example/api/openapi.json',
+  ])('links relative references to the entry document identity %s from nested schema resources', async (self) => {
     const result = await loadDocument({
       ...loadingDocument,
       openapi: '3.2.1',
-      $self: 'https://example.com/api/openapi.json',
+      $self: self,
       components: {
         schemas: {
           Pet: { type: 'string' },
@@ -391,7 +395,21 @@ paths:
       },
     })
 
-    expect(getReferenceTarget(findReferences(result)[0])).toBe(result.components?.schemas?.Pet)
+    const pet = result.components?.schemas?.Pet
+    const reference = getValueAtPath(result, ['components', 'schemas', 'Model', 'properties', 'pet'])
+    expect(pet).toStrictEqual({ type: 'string' })
+    expect(getReferenceTarget(isObject(reference) ? reference : undefined)).toBe(pet)
+  })
+
+  it('preserves literal references in schema examples when the document declares an identity', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      ...loadingDocument,
+      openapi: '3.2.1',
+      $self: 'urn:example:pets',
+      components: { schemas: { Pet: { type: 'object', examples: [{ $ref: '#literal-example' }] } } },
+    })
+
+    expect(markdown).toContain('"$ref": "#literal-example"')
   })
 
   it('bundles external URL references', async () => {

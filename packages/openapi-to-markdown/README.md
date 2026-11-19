@@ -70,6 +70,10 @@ const operationMarkdownByPointer = await createMarkdownFromOpenApi(content, {
 
 ### Document loading permissions
 
+When an OpenAPI 3.2 description declares `$self`, Node Markdown exports use that URI to resolve relative
+references in the description. A relative `$self` is resolved against the location the description was
+loaded from. The loading options below apply to the resulting URLs and paths.
+
 URL inputs and external references block private, loopback, and link-local addresses by default.
 Protected requests also reject redirects. File access is disabled unless you provide an approved
 `basePath`; paths and symlinks outside that directory are rejected.

@@ -248,6 +248,8 @@ export const loadDocument = async (
     const errors: string[] = []
     document = await bundle(upgraded, {
       plugins: loader.plugins,
+      // Example payloads can contain literal $ref keys.
+      traversal: 'document',
       origin,
       treeShake: false,
       hooks: {
