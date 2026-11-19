@@ -14,7 +14,126 @@ import { type LoaderPlugin, bundle } from './bundle'
 import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { readFiles } from './plugins/read-files'
 
+const openApiWithSchemaId = (openapi: string) => ({
+  openapi,
+  info: { title: 'Schema identity', version: '1.0' },
+  paths: {},
+  components: {
+    schemas: {
+      Box: {
+        $id: 'nested/box.json',
+        type: 'object',
+        properties: { item: { $ref: 'item.json' } },
+      },
+    },
+  },
+})
+
+const sourceUri = 'https://example.test/api/openapi.json'
+const schemaUri = 'https://example.test/api/nested/box.json'
+const outputBase = 'https://cdn.example.test/bundle.json'
+const relocatedSchemaUri = 'https://cdn.example.test/nested/box.json'
+const boxPath = ['components', 'schemas', 'Box']
+const openApi30Traversals = [
+  { traversal: undefined, expectedOrigin: schemaUri, expectedId: schemaUri, relocatedId: relocatedSchemaUri },
+  { traversal: 'generic', expectedOrigin: schemaUri, expectedId: schemaUri, relocatedId: relocatedSchemaUri },
+  { traversal: 'document', expectedOrigin: sourceUri, expectedId: 'nested/box.json', relocatedId: 'nested/box.json' },
+] as const
+
 describe('relocate-references', () => {
+  it.each(openApi30Traversals)(
+    'preserves OpenAPI 3.0 references in traversal $traversal',
+    async ({ traversal, expectedOrigin, expectedId, relocatedId }) => {
+      for (const destination of [undefined, outputBase]) {
+        const origins: string[] = []
+        const loads: string[] = []
+        const result = await bundle(openApiWithSchemaId('3.0.4'), {
+          traversal,
+          origin: sourceUri,
+          treeShake: false,
+          outputBase: destination,
+          plugins: [
+            {
+              type: 'loader',
+              validate: () => true,
+              exec: (uri) => {
+                loads.push(uri)
+                return Promise.resolve({ ok: false })
+              },
+            },
+          ],
+          preserveReference: (ref, { origin }) => {
+            expect(ref).toBe('item.json')
+            origins.push(origin)
+            return true
+          },
+        })
+
+        expect(origins).toStrictEqual([expectedOrigin])
+        expect(loads).toStrictEqual([])
+        expect(getValueByPath(result, [...boxPath, '$id']).value).toBe(destination ? relocatedId : expectedId)
+        expect(getValueByPath(result, [...boxPath, 'properties', 'item', '$ref']).value).toBe('item.json')
+      }
+    },
+  )
+
+  it.each([
+    ...openApi30Traversals.map(({ traversal, expectedOrigin }) => ({
+      format: 'OpenAPI 3.0',
+      traversal,
+      document: () => openApiWithSchemaId('3.0.4'),
+      schemaPath: boxPath,
+      expectedOrigin,
+    })),
+    {
+      format: 'OpenAPI 3.1',
+      traversal: 'document',
+      document: () => openApiWithSchemaId('3.1.0'),
+      schemaPath: boxPath,
+      expectedOrigin: schemaUri,
+    },
+    {
+      format: 'standalone JSON Schema',
+      traversal: 'document',
+      document: () => openApiWithSchemaId('3.1.0').components.schemas.Box,
+      schemaPath: [],
+      expectedOrigin: schemaUri,
+    },
+  ] as const)(
+    'loads the scoped schema in $format with traversal $traversal',
+    async ({ traversal, document, schemaPath, expectedOrigin }) => {
+      const loads: string[] = []
+      const schemas = {
+        'https://example.test/api/item.json': { type: 'number' },
+        'https://example.test/api/nested/item.json': { type: 'string' },
+      }
+      const result = await bundle(document(), {
+        traversal,
+        origin: sourceUri,
+        treeShake: false,
+        plugins: [
+          {
+            type: 'loader',
+            validate: (uri) => Object.hasOwn(schemas, uri),
+            exec: (uri) => {
+              loads.push(uri)
+              const data = schemas[uri as keyof typeof schemas]
+              return Promise.resolve({ ok: true, data, raw: JSON.stringify(data) })
+            },
+          },
+        ],
+      })
+
+      const expectedUri = new URL('item.json', expectedOrigin).href
+      expect(loads).toStrictEqual([expectedUri])
+      const ref = getValueByPath(result, [...schemaPath, 'properties', 'item', '$ref']).value
+      assert(typeof ref === 'string')
+      expect(getValueByPath(result, getSegmentsFromPath(ref)).value).toStrictEqual(
+        schemas[expectedUri as keyof typeof schemas],
+      )
+    },
+  )
+
   it.each([true, false])(
     'serializes local schemas independently of checkout paths (treeShake: %s)',
     async (treeShake) => {
