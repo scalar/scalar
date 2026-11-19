@@ -343,7 +343,6 @@
   }
 }
 
-/* Keep everything still when motion is unwelcome: the digits hang in the air and the modal simply opens */
 /*
  * On short, narrow screens (about 200% zoom) the modal grows to fill the screen, so there is no
  * room around it for the API client decorations and they would cover its header. Keep this query
@@ -356,6 +355,7 @@
   }
 }
 
+/* Keep everything still when motion is unwelcome: the digits hang in the air and the modal simply opens */
 @media (prefers-reduced-motion: reduce) {
   .section-flare-item,
   .references-rendered::after,
