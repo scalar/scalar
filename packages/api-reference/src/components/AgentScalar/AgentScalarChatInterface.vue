@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Chat } from '@scalar/agent-chat'
+import { Chat, type SelectedDocument } from '@scalar/agent-chat'
 import type {
   ApiReferenceConfigurationWithSource,
   ExternalUrls,
@@ -37,13 +37,19 @@ const documentJson = computed(() =>
     : '',
 )
 /** Include the selected source even when an agent key grants access to several APIs. */
-const documentContext = computed(() => {
+const selectedDocument = computed<SelectedDocument | undefined>(() => {
   const document = supportedDocument.value
-  if (!document) {
+  const source = workspaceStore.workspace['x-scalar-active-document']
+  if (!document || !source) {
     return undefined
   }
   const format = isAsyncApiDocument(document) ? 'AsyncAPI' : 'OpenAPI'
-  return `${document.info.title} (${format}, version ${document.info.version}, source ${workspaceStore.workspace['x-scalar-active-document']})`
+  return {
+    source,
+    title: document.info.title,
+    format,
+    version: document.info.version,
+  }
 })
 const sessionKey = computed(() =>
   JSON.stringify([
@@ -74,8 +80,8 @@ watch(
     :key="sessionKey"
     :baseUrl="externalUrls.apiBaseUrl"
     :dashboardUrl="externalUrls.dashboardUrl"
-    :getActiveDocumentContext="() => documentContext"
     :getActiveDocumentJson="() => documentJson"
+    :getActiveDocumentSelection="() => selectedDocument"
     :getAgentKey="
       agentScalarConfiguration?.key
         ? () => agentScalarConfiguration?.key ?? ''

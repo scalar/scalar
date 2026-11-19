@@ -39,7 +39,7 @@ import { type UploadTmpDocumentState, removeTmpDocFromLocalStorage } from '@/hoo
 import { persistencePlugin } from '@/plugins/persistance'
 import { loadDocument } from '@/registry/add-documents-to-store'
 import { createDocumentName } from '@/registry/create-document-name'
-import type { ChatMode } from '@/types'
+import type { ChatMode, SelectedDocument } from '@/types'
 
 export type RegistryDocument = {
   namespace: string
@@ -99,7 +99,6 @@ type State = {
   uploadedTmpDocumentUrl: Ref<string | undefined>
   curatedDocuments: Ref<ApiMetadata[]>
   getActiveDocumentJson?: () => string
-  getActiveDocumentContext?: () => string | undefined
   hideAddApi?: boolean
 }
 
@@ -109,12 +108,14 @@ function createChat({
   baseUrl,
   getAccessToken,
   getAgentKey,
+  getActiveDocumentSelection,
 }: {
   registryDocuments: Ref<ApiMetadata[]>
   workspaceStore: WorkspaceStore
   baseUrl: string
   getAccessToken?: () => string
   getAgentKey?: () => string
+  getActiveDocumentSelection?: () => SelectedDocument | undefined
 }) {
   const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
@@ -123,6 +124,7 @@ function createChat({
       headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
       body: () => ({
         registryDocuments: registryDocuments.value,
+        selectedDocument: getActiveDocumentSelection?.(),
       }),
     }),
     onToolCall({ toolCall }): void {
@@ -163,7 +165,7 @@ export function createState({
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
-  getActiveDocumentContext,
+  getActiveDocumentSelection,
   prefilledMessageRef,
   hideAddApi,
 }: {
@@ -177,7 +179,7 @@ export function createState({
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
-  getActiveDocumentContext?: () => string | undefined
+  getActiveDocumentSelection?: () => SelectedDocument | undefined
   prefilledMessageRef?: Ref<string>
   hideAddApi?: boolean
 }): State {
@@ -212,6 +214,7 @@ export function createState({
     baseUrl,
     getAccessToken,
     getAgentKey,
+    getActiveDocumentSelection,
   })
 
   const api = createApi({
@@ -392,7 +395,6 @@ export function createState({
     uploadedTmpDocumentUrl,
     curatedDocuments,
     getActiveDocumentJson,
-    getActiveDocumentContext,
     hideAddApi,
   }
 }
