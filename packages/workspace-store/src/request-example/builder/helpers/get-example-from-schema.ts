@@ -927,10 +927,27 @@ const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
   !('properties' in schema) && ('items' in schema || 'prefixItems' in schema) ? 'array' : undefined
 
 /** Apply the same explicit-type and inference precedence at either union selection site. */
-const getSelectedType = (variant: SchemaObject | undefined, holder: SchemaObject): string | string[] | undefined =>
-  (variant && 'type' in variant ? variant.type : undefined) ??
-  ('type' in holder ? holder.type : undefined) ??
-  (hasUnencodedJsonContent(holder) ? 'string' : ((variant && inferArrayType(variant)) ?? inferArrayType(holder)))
+const getSelectedType = (variant: SchemaObject | undefined, holder: SchemaObject): string | string[] | undefined => {
+  const explicitSchema = variant && 'type' in variant && variant.type !== undefined ? variant : holder
+  const type = 'type' in explicitSchema ? explicitSchema.type : undefined
+
+  if (Array.isArray(type)) {
+    const named = type.filter((name) => name !== 'null')
+    // Only normalize containers whose own keywords can generate a value; unconstrained lists keep their fallback.
+    if (
+      named.length === 1 &&
+      ((named[0] === 'object' && 'properties' in explicitSchema) ||
+        (named[0] === 'array' && ('items' in explicitSchema || 'prefixItems' in explicitSchema)))
+    ) {
+      return named[0]
+    }
+  }
+
+  return (
+    type ??
+    (hasUnencodedJsonContent(holder) ? 'string' : ((variant && inferArrayType(variant)) ?? inferArrayType(holder)))
+  )
+}
 
 /** These keywords describe values without restricting which values the schema accepts. */
 const ITEM_ANNOTATIONS = new Set([
@@ -2023,7 +2040,8 @@ const generateExampleFromSchema = (
   const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
   if (selectedComposition && selectedVariant) {
     const selectedType = getSelectedType(selectedVariant, _schema)
-    if (selectedType !== undefined && selectedType !== 'object') {
+    // A declared null must be selected directly: merging it into shared object properties loses it.
+    if (selectedType !== undefined && (selectedType !== 'object' || getDeclaredValue(selectedVariant) === null)) {
       if (seen.has(getSchemaCacheTarget(selectedVariant))) {
         seen.delete(targetValue)
         return undefined

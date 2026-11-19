@@ -6,7 +6,19 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
 import { EXAMPLE_EVALUATION, type ExampleEvaluationState } from './example-evaluation'
-import { getExampleFromSchema } from './get-example-from-schema'
+import { type GetExampleFromSchemaOptions, getExampleFromSchema } from './get-example-from-schema'
+
+type NullableVariantRow = {
+  name: string
+  schema: unknown
+  options?: GetExampleFromSchemaOptions
+  expected: unknown
+}
+
+const NULLABLE_CAT = { type: ['object', 'null'], properties: { lives: { type: 'integer', example: 9 } } }
+const NULLABLE_DOG = { type: ['object', 'null'], properties: { bark: { type: 'boolean' } } }
+const NULLABLE_TAGS = { type: ['array', 'null'], items: { type: 'string', example: 'x' } }
+const DOG = { type: 'object', properties: { bark: { type: 'boolean' } } }
 
 describe('getExampleFromSchema', () => {
   it.each([
@@ -2018,6 +2030,213 @@ describe('getExampleFromSchema', () => {
     } as unknown as SchemaObject
 
     expect(getExampleFromSchema(schema, { variables: { value: 'hello' } })).toStrictEqual(['hello'])
+  })
+
+  it.each<NullableVariantRow>([
+    { name: 'oneOf', schema: { oneOf: [NULLABLE_CAT, DOG] }, expected: { lives: 9 } },
+    { name: 'anyOf', schema: { anyOf: [NULLABLE_CAT, DOG] }, expected: { lives: 9 } },
+    {
+      name: 'null listed first',
+      schema: { oneOf: [{ ...NULLABLE_CAT, type: ['null', 'object'] }, DOG] },
+      expected: { lives: 9 },
+    },
+    { name: 'a single variant', schema: { oneOf: [NULLABLE_CAT] }, expected: { lives: 9 } },
+    {
+      name: 'a type list without null',
+      schema: { oneOf: [{ ...NULLABLE_CAT, type: ['object'] }, DOG] },
+      expected: { lives: 9 },
+    },
+    {
+      name: 'a referenced variant',
+      schema: { oneOf: [{ $ref: '#/$defs/Cat', '$ref-value': NULLABLE_CAT }, DOG] },
+      expected: { lives: 9 },
+    },
+    {
+      name: 'the first of several nullable variants',
+      schema: { oneOf: [NULLABLE_CAT, NULLABLE_DOG] },
+      expected: { lives: 9 },
+    },
+    {
+      name: 'the selected second variant',
+      schema: { oneOf: [NULLABLE_CAT, NULLABLE_DOG] },
+      options: { compositionSelection: { oneOf: 1 } },
+      expected: { bark: true },
+    },
+    {
+      name: 'a selected anyOf variant',
+      schema: { anyOf: [NULLABLE_CAT, NULLABLE_DOG] },
+      options: { compositionSelection: { anyOf: 1 } },
+      expected: { bark: true },
+    },
+    {
+      name: 'a property',
+      schema: { type: 'object', properties: { pet: { oneOf: [NULLABLE_CAT, DOG] } } },
+      expected: { pet: { lives: 9 } },
+    },
+    {
+      name: 'a selected property variant',
+      schema: { type: 'object', properties: { pet: { oneOf: [NULLABLE_CAT, NULLABLE_DOG] } } },
+      options: { compositionSelection: { 'pet.oneOf': 1 } },
+      expected: { pet: { bark: true } },
+    },
+    {
+      name: 'array items',
+      schema: { type: 'array', items: { oneOf: [NULLABLE_CAT, DOG] } },
+      expected: [{ lives: 9 }],
+    },
+    {
+      name: 'a nested union',
+      schema: { oneOf: [{ type: ['object', 'null'], properties: { pet: { oneOf: [NULLABLE_CAT, DOG] } } }, DOG] },
+      expected: { pet: { lives: 9 } },
+    },
+    {
+      name: 'properties shared by the union',
+      schema: { type: 'object', properties: { id: { type: 'integer' } }, oneOf: [NULLABLE_CAT] },
+      expected: { id: 1, lives: 9 },
+    },
+    { name: 'a root allOf member', schema: { allOf: [{ oneOf: [NULLABLE_CAT, DOG] }] }, expected: { lives: 9 } },
+    {
+      name: 'a read-only property omitted in write mode',
+      schema: {
+        oneOf: [
+          {
+            type: ['object', 'null'],
+            properties: { id: { type: 'integer', readOnly: true }, name: { type: 'string', example: 'Rex' } },
+          },
+        ],
+      },
+      options: { mode: 'write' },
+      expected: { name: 'Rex' },
+    },
+    {
+      name: 'a read-only property kept in read mode',
+      schema: {
+        oneOf: [
+          {
+            type: ['object', 'null'],
+            properties: { id: { type: 'integer', readOnly: true }, name: { type: 'string', example: 'Rex' } },
+          },
+        ],
+      },
+      options: { mode: 'read' },
+      expected: { id: 1, name: 'Rex' },
+    },
+    { name: 'an array variant', schema: { oneOf: [NULLABLE_TAGS, DOG] }, expected: ['x'] },
+    {
+      name: 'an array variant with null listed first',
+      schema: { oneOf: [{ ...NULLABLE_TAGS, type: ['null', 'array'] }, DOG] },
+      expected: ['x'],
+    },
+    { name: 'an array variant under anyOf', schema: { anyOf: [NULLABLE_TAGS] }, expected: ['x'] },
+    {
+      name: 'an array variant bounded by the union',
+      schema: { minItems: 2, oneOf: [NULLABLE_TAGS] },
+      expected: ['x', 'x'],
+    },
+    {
+      name: 'array items that are arrays',
+      schema: { type: 'array', items: { oneOf: [NULLABLE_TAGS, DOG] } },
+      expected: [['x']],
+    },
+  ])('generates a nullable variant like its non-nullable type: $name', ({ schema, options, expected }) => {
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, schema), options)).toStrictEqual(expected)
+  })
+
+  it.each([
+    { name: 'an object example of null', variant: { example: null } },
+    { name: 'an object default of null', variant: { default: null } },
+    { name: 'an object const of null', variant: { const: null } },
+    { name: 'an object enum of only null', variant: { enum: [null] } },
+    {
+      name: 'an array example of null',
+      variant: { type: ['array', 'null'], items: { type: 'string' }, example: null },
+    },
+    {
+      name: 'an array enum of only null',
+      variant: { type: ['array', 'null'], items: { type: 'string' }, enum: [null] },
+    },
+  ])('keeps an authored null for a nullable variant: $name', ({ variant }) => {
+    const schema = coerceValue(SchemaObjectSchema, { oneOf: [{ ...NULLABLE_CAT, ...variant }, DOG] })
+
+    expect(getExampleFromSchema(schema)).toBeNull()
+  })
+
+  it.each([{ example: null }, { examples: [null] }, { default: null }, { const: null }, { enum: [null] }])(
+    'keeps an authored null beside shared union properties: %j',
+    (declaration) => {
+      for (const keyword of ['oneOf', 'anyOf']) {
+        for (const type of ['object', ['object', 'null']]) {
+          const schema = coerceValue(SchemaObjectSchema, {
+            type,
+            properties: { id: { type: 'integer' } },
+            [keyword]: [{ ...NULLABLE_CAT, ...declaration }],
+          })
+
+          expect(getExampleFromSchema(schema)).toBeNull()
+        }
+      }
+    },
+  )
+
+  it.each([
+    { name: 'an object example', variant: { example: { lives: 3 } }, expected: { lives: 3 } },
+    {
+      name: 'an array example',
+      variant: { type: ['array', 'null'], items: { type: 'string' }, example: ['y'] },
+      expected: ['y'],
+    },
+  ])('keeps an authored value for a nullable variant: $name', ({ variant, expected }) => {
+    const schema = coerceValue(SchemaObjectSchema, { oneOf: [{ ...NULLABLE_CAT, ...variant }, DOG] })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(expected)
+  })
+
+  it.each([
+    {
+      name: 'a nullable integer',
+      schema: { oneOf: [{ type: ['integer', 'null'] }, { type: 'string' }] },
+      expected: null,
+    },
+    {
+      name: 'a nullable string',
+      schema: { oneOf: [{ type: ['string', 'null'] }, { type: 'integer' }] },
+      expected: null,
+    },
+    { name: 'a null type', schema: { oneOf: [{ type: ['null'] }, DOG] }, expected: null },
+    {
+      name: 'a type list that also allows arrays',
+      schema: { oneOf: [{ ...NULLABLE_CAT, type: ['object', 'array', 'null'] }, DOG] },
+      expected: null,
+    },
+    {
+      name: 'a plain object variant',
+      schema: { oneOf: [{ ...NULLABLE_CAT, type: 'object' }, DOG] },
+      expected: { lives: 9 },
+    },
+    {
+      name: 'a plain string variant',
+      schema: { oneOf: [{ type: 'string', example: 'a' }, NULLABLE_CAT] },
+      expected: 'a',
+    },
+  ])('leaves $name alone', ({ schema, expected }) => {
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, schema))).toStrictEqual(expected)
+  })
+
+  it.each(['oneOf', 'anyOf'])('keeps unconstrained nullable variants under %s unchanged', (keyword) => {
+    for (const type of [
+      ['object', 'null'],
+      ['array', 'null'],
+    ]) {
+      for (const holder of [
+        {},
+        { properties: { id: { type: 'integer' } } },
+        { items: { type: 'string', example: 'shared' } },
+      ]) {
+        const schema = coerceValue(SchemaObjectSchema, { ...holder, [keyword]: [{ type }] })
+
+        expect(getExampleFromSchema(schema)).toBeNull()
+      }
+    }
   })
 
   it('still merges array items when a type list allows objects', () => {
