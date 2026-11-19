@@ -11,6 +11,28 @@ import { describe, expect, it } from 'vitest'
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it.each([
+    { openapiVersion: '3.0.4', jsonSchemaDialect: undefined, expected: [1, 1, 1] },
+    { openapiVersion: '3.1.2', jsonSchemaDialect: undefined, expected: [2, 1, 1] },
+    { openapiVersion: '3.1.2', jsonSchemaDialect: 'http://json-schema.org/draft-07/schema#', expected: [2, 1, 1] },
+  ])('uses request document dialect: %j', ({ expected, ...options }) => {
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 3,
+      maxItems: 3,
+      contains: { const: 2 },
+      minContains: options.jsonSchemaDialect ? 0 : 1,
+      maxContains: options.jsonSchemaDialect ? 0 : 1,
+    } as SchemaObject
+    const result = processBody({
+      ...options,
+      contentType: 'application/json',
+      requestBody: { content: { 'application/json': { schema } } },
+    })
+    expect(JSON.parse(result!.text!)).toStrictEqual(expected)
+  })
+
   it.each([false, true])('generates finite recursive array examples with a root reference: %s', (rootReference) => {
     const schema: SchemaObject = {
       type: 'object',
@@ -2627,4 +2649,71 @@ describe('processBody', () => {
       })
     },
   )
+  it.each([false, true])('includes upgraded multipart uploads with array=%s (issue #11049)', (array) => {
+    const file = { contentMediaType: 'application/octet-stream' }
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { file: array ? { type: 'array', items: file } : file, title: { type: 'string' } },
+    })
+    const original = structuredClone(schema)
+    const result = processBody({
+      requestBody: { content: { 'multipart/form-data': { schema } } },
+      contentType: 'multipart/form-data',
+    })
+    expect(result).toStrictEqual({
+      mimeType: 'multipart/form-data',
+      params: [
+        { name: 'file', value: '@filename', fileName: 'filename' },
+        { name: 'title', value: '' },
+      ],
+    })
+    expect(schema).toStrictEqual(original)
+    const curl = snippetz().print('shell', 'curl', {
+      url: 'https://example.com/avatar',
+      method: 'POST',
+      postData: result,
+    })
+    expect(curl).toContain("--form 'file=@filename'")
+    const python = snippetz().print('python', 'requests', {
+      url: 'https://example.com/avatar',
+      method: 'POST',
+      postData: result,
+    })
+    expect(python).toContain('open("filename", "rb")')
+  })
+
+  it.each(['application/octet-stream', 'image/png', 'application/pdf'])(
+    'uses a file placeholder for an empty upgraded %s body',
+    (contentType) => {
+      const result = processBody({
+        requestBody: { content: { [contentType]: { schema: coerceValue(SchemaObjectSchema, {}) } } },
+        contentType,
+      })
+      expect(result).toStrictEqual({ mimeType: contentType, text: '@filename' })
+      expect(
+        snippetz().print('shell', 'curl', {
+          url: 'https://example.com/blob',
+          method: 'PUT',
+          postData: result,
+        }),
+      ).toContain(contentType === 'application/octet-stream' ? "--data-binary '@filename'" : "--data '@filename'")
+    },
+  )
+
+  it.each([
+    ['application/json', {}, 'null'],
+    ['text/plain', {}, 'null'],
+    ['application/octet-stream', { example: null }, 'null'],
+    ['application/octet-stream', { const: null }, 'null'],
+    ['application/octet-stream', { allOf: [{ const: null }, { contentMediaType: 'image/png' }] }, 'null'],
+    ['application/octet-stream', { type: 'string', contentEncoding: 'base64' }, 'c2NhbGFy'],
+    ['application/jsonl', {}, 'null\n'],
+  ])('preserves existing body generation for %s and %j', (contentType, definition, text) => {
+    expect(
+      processBody({
+        requestBody: { content: { [contentType]: { schema: coerceValue(SchemaObjectSchema, definition) } } },
+        contentType,
+      }),
+    ).toStrictEqual({ mimeType: contentType, text })
+  })
 })

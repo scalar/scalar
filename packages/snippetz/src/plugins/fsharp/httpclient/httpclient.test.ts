@@ -113,6 +113,52 @@ describe('fsharpHttpclient.generate - headers', () => {
 })
 
 describe('fsharpHttpclient.generate - postData', () => {
+  it('sets the JSON Content-Type on the content instead of the request headers', () => {
+    const request = {
+      url: 'https://api.com/',
+      method: 'POST',
+      headers: [
+        { name: 'Content-Type', value: 'application/json' },
+        { name: 'Authorization', value: 'Bearer token' },
+      ],
+      postData: {
+        mimeType: 'application/json',
+        text: '{"key":"value"}',
+      },
+    }
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).not.toContain('httpRequestMessage.Headers.Add("Content-Type"')
+    expect(result).toContain('httpRequestMessage.Headers.Add("Authorization", "Bearer token")')
+    expect(result).toContain('Encoding.UTF8, "application/json")')
+  })
+
+  it('does not add Content-Type to the request headers for other body types', () => {
+    for (const postData of [
+      { mimeType: 'application/xml', text: '<a/>' },
+      { mimeType: 'application/x-www-form-urlencoded', params: [{ name: 'a', value: '1' }] },
+    ]) {
+      const request = {
+        url: 'https://api.com/',
+        method: 'POST',
+        headers: [{ name: 'content-type', value: postData.mimeType }],
+        postData,
+      }
+      const result = fsharpHttpclient.generate(request, {})
+      expect(result).not.toContain('httpRequestMessage.Headers.Add("content-type"')
+      expect(result).toContain('httpRequestMessage.Content <- content')
+    }
+  })
+
+  it('keeps Content-Type in the request headers when there is no body', () => {
+    const request = {
+      url: 'https://api.com/',
+      method: 'GET',
+      headers: [{ name: 'Content-Type', value: 'application/json' }],
+    }
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('httpRequestMessage.Headers.Add("Content-Type", "application/json")')
+  })
+
   it('adds JSON postData to HttpRequestMessage', () => {
     const request = {
       url: 'https://api.com/',

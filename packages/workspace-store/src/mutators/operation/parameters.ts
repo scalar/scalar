@@ -63,7 +63,15 @@ export const upsertOperationParameter = (
 ) => {
   // We are editing an existing parameter
   if (originalParameter) {
-    const querystring = getQuerystringParameter(originalParameter, meta.exampleKey, { includeDisabled: true })
+    const querystring = getQuerystringParameter(originalParameter, meta.exampleKey, {
+      includeDisabled: true,
+      ...(isOpenApiDocument(document)
+        ? {
+            openapiVersion: document['x-original-oas-version'] || document.openapi,
+            jsonSchemaDialect: document.jsonSchemaDialect,
+          }
+        : {}),
+    })
     const preserveQuerystringValue = querystring && payload.value === serializeQuerystringParameter(querystring)
     const param = originalParameter
     const selected = getParameterExample(param, meta.exampleKey)

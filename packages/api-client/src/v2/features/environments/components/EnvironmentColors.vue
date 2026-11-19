@@ -54,7 +54,7 @@ const isActiveColor = (color: string): boolean => activeColor === color
 const customButtonStyle = computed(() => {
   const displayColor = customColor.value || activeColor
   return isCustomColor.value || customColor.value
-    ? `background-color: ${displayColor};`
+    ? `background-color: ${displayColor}; --env-color: ${displayColor};`
     : `background: ${DEFAULT_GRADIENT};`
 })
 
@@ -111,12 +111,12 @@ const handleCustomColorInput = (): void => {
     <!-- Collapsed view: single color dot -->
     <div
       v-if="!showCustomInput && !showSelector"
-      class="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full"
-      :style="{ backgroundColor: activeColor }"
+      class="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full bg-(--env-color)"
+      :style="{ '--env-color': activeColor }"
       @click="toggleSelector">
       <ScalarIcon
         v-if="activeColor"
-        class="text-c-btn p-0.5"
+        class="text-auto-contrast-(--env-color) p-0.5"
         icon="Checkmark"
         size="xs" />
     </div>
@@ -129,12 +129,12 @@ const handleCustomColorInput = (): void => {
       <div
         v-for="option in colorOptions"
         :key="option"
-        class="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full"
-        :style="{ backgroundColor: option }"
+        class="flex h-4 w-4 cursor-pointer items-center justify-center rounded-full bg-(--env-color)"
+        :style="{ '--env-color': option }"
         @click="selectColor(option)">
         <ScalarIcon
           v-if="isActiveColor(option)"
-          class="text-c-btn p-0.5"
+          class="text-auto-contrast-(--env-color) p-0.5"
           icon="Checkmark"
           size="xs" />
       </div>
@@ -150,7 +150,7 @@ const handleCustomColorInput = (): void => {
         @click="toggleCustomInput">
         <ScalarIcon
           v-if="isCustomColor"
-          class="text-c-btn"
+          class="text-auto-contrast-(--env-color)"
           icon="Checkmark"
           size="xs" />
       </button>

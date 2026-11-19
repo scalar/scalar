@@ -68,7 +68,7 @@ export const getModelNameWithArray = (
   }
 
   const schema = resolve.schema(schemaOrRef)
-  if (isArraySchema(schema) && schema.items) {
+  if (isArraySchema(schema) && schema.items && typeof schema.items === 'object') {
     const itemName = getModelNameFromSchema(schema.items)
     if (itemName) {
       return { schemaKey: itemName.schemaKey, label: `${itemName.label}[]` }

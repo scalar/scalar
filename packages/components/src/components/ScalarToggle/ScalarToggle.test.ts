@@ -35,4 +35,31 @@ describe('ScalarToggle', () => {
     expect(wrapper.classes()).toContain('cursor-not-allowed')
     expect(wrapper.classes()).toContain('opacity-40')
   })
+
+  it('renders the small size by default', () => {
+    const wrapper = mount(ScalarToggle, {
+      props: { modelValue: true },
+    })
+    expect(wrapper.classes()).toContain('h-3.5')
+    expect(wrapper.classes()).toContain('w-6')
+    expect(wrapper.find('div').classes()).toContain('size-3')
+    expect(wrapper.find('div').classes()).toContain('translate-x-2.5')
+  })
+
+  it('renders the medium size with a matching thumb travel', () => {
+    const off = mount(ScalarToggle, {
+      props: { modelValue: false, size: 'md' },
+    })
+    expect(off.classes()).toContain('h-5')
+    expect(off.classes()).toContain('w-8')
+    expect(off.classes()).not.toContain('h-3.5')
+    expect(off.find('div').classes()).toContain('size-4')
+    expect(off.find('div').classes()).not.toContain('translate-x-3')
+
+    const on = mount(ScalarToggle, {
+      props: { modelValue: true, size: 'md' },
+    })
+    expect(on.find('div').classes()).toContain('translate-x-3')
+    expect(on.find('div').classes()).not.toContain('translate-x-2.5')
+  })
 })

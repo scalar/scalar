@@ -28,8 +28,29 @@ describe('honoRouteFromPath', () => {
     expect(honoRouteFromPath('/v1/products/{productId}')).toBe('/v1/products/:productId')
   })
 
-  it.skip('handles invalid parameter syntax gracefully', () => {
-    expect(() => honoRouteFromPath('/{invalid{}param}')).toThrow()
+  it.each(['/{invalid{}param}', '/{}', '/{unclosed', '/unopened}'])(
+    'matches malformed braces literally in %s',
+    async (path) => {
+      const app = new Hono()
+      app.get(honoRouteFromPath(path), (c) => c.text('matched'))
+      app.get('/healthz', (c) => c.text('healthy'))
+
+      const response = await app.request(path)
+      expect(response.status).toBe(200)
+      expect(await response.text()).toBe('matched')
+      expect((await app.request('/anything')).status).toBe(404)
+      expect(await (await app.request('/healthz')).text()).toBe('healthy')
+    },
+  )
+
+  it('matches a valid template surrounded by literal braces', async () => {
+    const app = new Hono()
+    app.get(honoRouteFromPath('/{{id}}'), (c) => c.text('matched'))
+
+    const response = await app.request('/{123}')
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('matched')
+    expect((await app.request('/123')).status).toBe(404)
   })
 
   it('handles multiple consecutive parameters', () => {

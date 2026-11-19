@@ -120,7 +120,7 @@ scalar schema publish [options] [file]
 | `--bundle` | Bundle all external references before uploading. |  |
 | `--treeShake` | Remove unused components from the bundled document. |  |
 | `--urlMap` | Generate a map of resolved URLs when bundling the document. |  |
-| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. |  |
+| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. | `5` |
 | `--no-input` | Disable prompts and browser launches. |  |
 
 ## diff

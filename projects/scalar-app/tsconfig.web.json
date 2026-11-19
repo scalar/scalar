@@ -4,12 +4,11 @@
   "compilerOptions": {
     "types": ["vite/client"],
     "composite": true,
-    "baseUrl": ".",
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["src/*"],
-      "@electron/*": ["entrypoints/electron/*"],
-      "@web/*": ["entrypoints/web/src/*"]
+      "@/*": ["./src/*"],
+      "@electron/*": ["./entrypoints/electron/*"],
+      "@web/*": ["./entrypoints/web/src/*"]
     },
     // Below Copied from electron-vite tsconfig
     "jsx": "preserve",

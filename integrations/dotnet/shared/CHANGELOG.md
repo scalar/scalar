@@ -1,5 +1,22 @@
 # @scalar/dotnet-shared
 
+## 1.0.0
+
+### Major Changes
+
+- [#10975](https://github.com/scalar/scalar/pull/10975): feat!: drop .NET 8 and .NET 9 support (both reached end of support on November 10, 2026); packages now target .NET 10 and later
+
+### Minor Changes
+
+- [#11036](https://github.com/scalar/scalar/pull/11036): Expose `showDefaultClientsWithSdkInstallation` through the Python, Java, and .NET integrations to show built-in HTTP clients alongside SDK installation tabs.
+- [#11033](https://github.com/scalar/scalar/pull/11033): Expose the selected code sample client persistence option in .NET, Java, FastAPI, and Django Ninja. Disable it to avoid reading or writing the selected-client local storage key while keeping page-local selection available.
+
+## 0.6.0
+
+### Minor Changes
+
+- [#10974](https://github.com/scalar/scalar/pull/10974): feat: add .NET 11 support (`net11.0` target framework)
+
 ## 0.5.0
 
 ### Minor Changes

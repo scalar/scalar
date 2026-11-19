@@ -1,6 +1,10 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import { parse } from 'yaml'
 
-export function isYaml(value: string) {
+/**
+ * Check whether a multi-line string parses as YAML.
+ */
+export function isYaml(value: string): boolean {
   // Line breaks
   if (!value.includes('\n')) {
     return false
@@ -8,7 +12,7 @@ export function isYaml(value: string) {
 
   try {
     parse(value, {
-      maxAliasCount: 10000,
+      maxAliasCount: YAML_MAX_ALIAS_COUNT,
     })
 
     return true

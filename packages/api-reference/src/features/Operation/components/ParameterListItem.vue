@@ -33,6 +33,7 @@ import { isOnScrollTargetPath, scrollTargetId } from '@/helpers/lazy-bus'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
+import { applySchemaExamples } from './helpers/apply-schema-examples'
 import { getParameterExamples } from './helpers/get-parameter-examples'
 
 const {
@@ -159,18 +160,25 @@ const value = computed(() => {
   const deprecated =
     'deprecated' in parameter ? parameter.deprecated : schema.value?.deprecated
 
-  /** Combine param/content/schema examples while ignoring undefined values. */
+  /** Explicit parameter/media examples override examples of the same schema value. */
   const examples = getParameterExamples({
     parameter,
-    schemaExamples: schema.value?.examples,
-    contentExamples: content.value?.[selectedContentType.value]?.examples,
+    content: content.value?.[selectedContentType.value],
   })
 
-  return {
-    ...resolvedBase,
-    deprecated: deprecated,
-    examples,
-  } as SchemaObject
+  if (!examples.length) {
+    return { ...resolvedBase, deprecated } as SchemaObject
+  }
+
+  // Response media examples describe the payload as a whole. Each variant can have its own examples.
+  return 'in' in parameter
+    ? { ...applySchemaExamples(resolvedBase, examples), deprecated }
+    : ({
+        ...resolvedBase,
+        example: undefined,
+        examples,
+        deprecated,
+      } as SchemaObject)
 })
 
 /** Composition keywords that render their members as nested rows. */

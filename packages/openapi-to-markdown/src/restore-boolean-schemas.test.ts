@@ -15,6 +15,40 @@ describe('restore-boolean-schemas', () => {
     expect(Object.hasOwn(target.components.schemas, '__proto__')).toBe(true)
   })
 
+  it.each(['default', 'example', 'examples', 'const', 'enum', 'schema', 'schemas', 'itemSchema'])(
+    'restores schemas inside OpenAPI objects named %s',
+    (name) => {
+      const response = (): object => ({ content: { 'application/json': { schema: false } } })
+      const source = {
+        paths: { '/pets': { get: { responses: { [name]: response() } } } },
+        components: { responses: { [name]: response() } },
+      }
+      const target = {
+        paths: { '/pets': { get: { responses: { [name]: { content: { 'application/json': { schema: {} } } } } } } },
+        components: { responses: { [name]: { content: { 'application/json': { schema: {} } } } } },
+      }
+
+      restoreBooleanSchemas(source, target)
+
+      expect(target).toStrictEqual(source)
+    },
+  )
+
+  it('restores schemas inside arrays of OpenAPI objects while keeping their examples as data', () => {
+    const source = {
+      get: { parameters: [{ name: 'default', in: 'query', schema: true, example: { schema: false } }] },
+    }
+    const target = {
+      get: { parameters: [{ name: 'default', in: 'query', schema: {}, example: { schema: {} } }] },
+    }
+
+    restoreBooleanSchemas(source, target, 'document', 'pathItem')
+
+    expect(target).toStrictEqual({
+      get: { parameters: [{ name: 'default', in: 'query', schema: true, example: { schema: {} } }] },
+    })
+  })
+
   it('does not restore inherited schema entries', () => {
     const source = {
       components: { schemas: JSON.parse('{"__proto__":false,"constructor":true,"toString":false,"own":true}') },

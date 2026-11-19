@@ -1,11 +1,7 @@
+import { parseMarkdown } from '@scalar/markdown'
 import type { Nodes, Parent, Root, RootContent } from 'mdast'
-import remarkGfm from 'remark-gfm'
-import remarkParse from 'remark-parse'
-import { unified } from 'unified'
 
 import { safeUrl } from './markdown-nodes'
-
-const parser = unified().use(remarkParse).use(remarkGfm).freeze()
 
 const containsHtml = (node: Nodes): boolean =>
   node.type === 'html' || ('children' in node && node.children.some(containsHtml))
@@ -111,7 +107,7 @@ export const createDescriptionParser = (): (() => DescriptionParser) => {
     if (isPlainText(value)) {
       return [{ type: 'paragraph', children: [{ type: 'text', value: value.trim() }] }]
     }
-    const parsed = parser.parse(value)
+    const parsed = parseMarkdown(value)
     // Raw HTML and GitHub alerts retain Scalar's existing conversion behavior.
     const tree =
       containsHtml(parsed) || /^\s*>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|SUCCESS)\]/im.test(value)

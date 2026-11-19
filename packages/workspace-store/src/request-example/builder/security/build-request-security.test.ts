@@ -42,6 +42,14 @@ describe('buildRequestSecurity', () => {
     expect(result).toEqual([])
   })
 
+  it.each(['query', 'cookie'] as const)('ignores token prefixes for %s API keys', (location) => {
+    expect(
+      buildRequestSecurity([
+        { type: 'apiKey', in: location, name: 'key', 'x-scalar-secret-token': 'abc', 'x-scalar-token-prefix': 'token' },
+      ]),
+    ).toStrictEqual([{ in: location, name: 'key', value: 'abc' }])
+  })
+
   describe('apiKey security', () => {
     it('handles apiKey in header', () => {
       const result = buildRequestSecurity([apiKey])

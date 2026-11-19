@@ -142,13 +142,13 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
       </div>
       <ScalarVirtualCodeBlock
         v-if="block.content.length > 20_000"
-        class="bg-b-2"
+        class="bg-transparent"
         :content="block.content"
         label="Payload"
         :lang="block.lang" />
       <ScalarCodeBlock
         v-else
-        class="bg-b-2"
+        class="bg-transparent"
         copyLabel="Copy payload"
         label="Payload"
         :lang="block.lang"

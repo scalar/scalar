@@ -1,5 +1,6 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 
+import { apply } from '@/diff/apply'
 import { type Difference, diff } from '@/diff/diff'
 import { merge } from '@/diff/merge'
 
@@ -1288,30 +1289,43 @@ describe('mergeDiff', () => {
     })
   })
 
-  // TODO: a delete that is subsumed by a delete on the other side is discarded before we know
-  // whether the covering delete ends up in `conflicts`. When it does, the subsumed delete
-  // survives in neither `diffs` nor `conflicts`, so resolving the conflict toward the side that
-  // owns it brings the deleted value back. The gap is symmetric: the mirrored input loses the
-  // entry through the first list instead. Pinned here so a future fix is a deliberate change.
-  //
-  // The flaw predates the index fix above, which only changed how consistently it shows up.
-  // Before the fix this exact ordering happened to keep the subsumed delete, because skipping
-  // the wrong index left it in place, while the reversed ordering already lost it.
-  test('a delete subsumed by a delete that also conflicts is currently dropped', () => {
-    const diff1: Difference<unknown>[] = [{ path: ['a'], changes: { b: 1, a: 2 }, type: 'delete' }]
-    const diff2: Difference<unknown>[] = [
+  it.each([
+    { reverseInputs: false, deleteFirst: false },
+    { reverseInputs: false, deleteFirst: true },
+    { reverseInputs: true, deleteFirst: false },
+    { reverseInputs: true, deleteFirst: true },
+  ])('preserves covered deletions in conflicts: %j', ({ reverseInputs, deleteFirst }) => {
+    const base = { a: { b: 1, a: 2 } }
+    const parent: Difference<unknown>[] = [{ path: ['a'], changes: base.a, type: 'delete' }]
+    const children: Difference<unknown>[] = [
       { path: ['a', 'b'], changes: 14, type: 'update' },
       { path: ['a', 'a'], changes: 2, type: 'delete' },
     ]
+    const orderedChildren = deleteFirst ? [...children].reverse() : children
+    const result = reverseInputs ? merge(orderedChildren, parent) : merge(parent, orderedChildren)
 
-    expect(merge(diff1, diff2)).toEqual({
+    expect(result).toStrictEqual({
       diffs: [],
-      conflicts: [
-        [
-          [{ path: ['a'], changes: { b: 1, a: 2 }, type: 'delete' }],
-          [{ path: ['a', 'b'], changes: 14, type: 'update' }],
-        ],
-      ],
+      conflicts: [reverseInputs ? [orderedChildren, parent] : [parent, orderedChildren]],
     })
+    expect(apply(structuredClone(base), result.conflicts[0]![reverseInputs ? 0 : 1])).toStrictEqual({
+      a: { b: 14 },
+    })
+    expect(apply(structuredClone(base), result.conflicts[0]![reverseInputs ? 1 : 0])).toStrictEqual({})
+  })
+
+  it.each([false, true])('preserves array deletion order with reversed inputs: %s', (reverseInputs) => {
+    const base = { values: [1, 2, 3, 4] }
+    const updated = { values: [9, 2] }
+    const parent = diff(base, {})
+    const children = diff(base, updated)
+    const result = reverseInputs ? merge(children, parent) : merge(parent, children)
+
+    expect(result).toStrictEqual({
+      diffs: [],
+      conflicts: [reverseInputs ? [children, parent] : [parent, children]],
+    })
+    expect(apply(structuredClone(base), result.conflicts[0]![reverseInputs ? 0 : 1])).toStrictEqual(updated)
+    expect(apply(structuredClone(base), result.conflicts[0]![reverseInputs ? 1 : 0])).toStrictEqual({})
   })
 })

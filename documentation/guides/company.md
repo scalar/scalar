@@ -16,7 +16,7 @@
 
 Building on a great API is one of the best feelings in software: every desired interface is right there and it all just works. Building on a bad one is the opposite: out-of-date docs, no SDK in your favourite language and no MCP server. We started Scalar to solve this.
 
-As a small team (10) of engineers and designers, we wear a lot of hats and obsess over our craft. We think every company deserves Stripe-level docs, SDKs, and MCP servers from day zero, not just the ones with a platform team to build them.
+As a small team of engineers and designers, we wear a lot of hats and obsess over our craft. We think every company deserves Stripe-level docs, SDKs, and MCP servers from day zero, not just the ones with a platform team to build them.
 
 ## Our Story
 

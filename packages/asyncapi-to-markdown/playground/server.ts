@@ -1,12 +1,9 @@
-import { resolve } from 'node:path'
+import { dirname, relative, resolve } from 'node:path'
 import { Worker } from 'node:worker_threads'
 
 import type { Plugin } from 'vite'
 
-import type { ExportResult, Manifest } from './types'
-
-// Include worker dependencies in Vite's config graph so renderer edits restart it.
-import './service'
+import type { ExportResult, Manifest } from './types.ts'
 
 type Result = ExportResult | Manifest | string
 type Pending = { resolve: (value: Result) => void; reject: (cause: Error) => void }
@@ -15,6 +12,22 @@ type Pending = { resolve: (value: Result) => void; reject: (cause: Error) => voi
 export const playgroundApi = (): Plugin => ({
   name: 'markdown-playground-api',
   configureServer(server) {
+    // The renderer runs in a TSX worker, so watch its sources without importing them into the config.
+    const sourceDirectories = [resolve(import.meta.dirname, '../src'), resolve(import.meta.dirname, '../benchmarks')]
+    server.watcher.add(sourceDirectories)
+    const restartWorker = (file: string): void => {
+      if (
+        (sourceDirectories.some((directory) => !relative(directory, file).startsWith('..')) ||
+          dirname(file) === import.meta.dirname) &&
+        /\.(?:ts|mjs|json)$/.test(file)
+      ) {
+        void server.restart()
+      }
+    }
+    for (const event of ['add', 'change', 'unlink'] as const) {
+      server.watcher.on(event, restartWorker)
+      server.httpServer?.once('close', () => server.watcher.off(event, restartWorker))
+    }
     const worker = new Worker(resolve(import.meta.dirname, 'worker.mjs'), { execArgv: [] })
     const pending = new Map<number, Pending>()
     let nextId = 0

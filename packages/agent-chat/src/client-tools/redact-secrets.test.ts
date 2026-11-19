@@ -51,6 +51,17 @@ describe('redact-secrets', () => {
     })
   })
 
+  it('redacts stored and trimmed credentials for prefixed API keys', () => {
+    const redact = createSecretRedactor([
+      { in: 'header', name: 'Authorization', value: ' secret-key ', tokenPrefix: 'token' },
+    ])
+    expect(redact([' secret-key ', 'token secret-key', 'secret-key'])).toStrictEqual([
+      '[REDACTED]',
+      'token [REDACTED]',
+      '[REDACTED]',
+    ])
+  })
+
   it('ignores empty credentials and preserves JSON scalar types', () => {
     const redact = createSecretRedactor([{ in: 'header', name: 'key', value: '' }])
     expect(redact({ status: 200, ok: true, body: null, text: 'unchanged' })).toStrictEqual({

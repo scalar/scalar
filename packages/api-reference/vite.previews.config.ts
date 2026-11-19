@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 
-import apiReferenceConfig from './vite.config'
+import apiReferenceConfig from './vite.config.ts'
 
 export default {
   ...apiReferenceConfig,

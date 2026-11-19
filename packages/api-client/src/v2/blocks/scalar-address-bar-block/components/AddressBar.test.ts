@@ -95,6 +95,27 @@ describe('AddressBar', () => {
     document.body.appendChild(el)
   })
 
+  it.each(['web', 'desktop', 'modal'] as const)('opens GET requests from the %s address bar', async (layout) => {
+    const { wrapper } = mountWithProps({ layout })
+    await wrapper.get('button[aria-label="Open in browser"]').trigger('click')
+    expect(wrapper.emitted('open:browser')).toStrictEqual([[]])
+    wrapper.unmount()
+  })
+
+  it.each(['post', 'put', 'delete', 'head', 'query'])('does not offer browser navigation for %s', (method) => {
+    const { wrapper } = mountWithProps({ method })
+    expect(wrapper.find('button[aria-label="Open in browser"]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('disables browser navigation while external examples are pending', async () => {
+    const { wrapper } = mountWithProps()
+    await wrapper.setProps({ executionDisabled: true })
+    await wrapper.get('button[aria-label="Open in browser"]').trigger('click')
+    expect(wrapper.emitted('open:browser')).toBeUndefined()
+    wrapper.unmount()
+  })
+
   it('offers QUERY and updates the operation when selected', async () => {
     const { wrapper, eventBus } = mountWithProps()
     const listener = vi.fn()
