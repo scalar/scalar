@@ -23,11 +23,6 @@ body {
   @apply bg-b-1 text-c-1 overflow-hidden;
 }
 
-/* TODO: Remove this once we update the reset */
-:where(a) {
-  text-decoration: inherit;
-}
-
 /* Search for Tailwind classes in the source files */
 @source "./";
 @source "../entrypoints/";

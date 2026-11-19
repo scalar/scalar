@@ -13,10 +13,13 @@ public class ScalarApiKeySecuritySchemeExtensionsTests
         // Act
         scheme
             .WithName(name)
-            .WithValue(value);
+            .WithValue(value)
+            .WithTokenPrefix("token");
 
         // Assert
         scheme.Name.Should().Be(name);
         scheme.Value.Should().Be(value);
+        scheme.TokenPrefix.Should().Be("token");
+        System.Text.Json.JsonSerializer.Serialize(scheme).Should().Contain("\"x-scalar-token-prefix\":\"token\"");
     }
 }

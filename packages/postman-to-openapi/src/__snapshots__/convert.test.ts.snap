@@ -684,7 +684,7 @@ exports[`fixtures > Folders 1`] = `
       "post": {
         "requestBody": {
           "content": {
-            "text/plain": {},
+            "application/octet-stream": {},
           },
         },
         "summary": "Create a post",
@@ -967,28 +967,24 @@ exports[`fixtures > FormData 1`] = `
                 "Default example": {
                   "value": [
                     {
-                      "description": "full name of the user (accepts spaces) [required]",
-                      "key": "name",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "name",
                       "value": "New User",
                     },
                     {
-                      "description": "email of the user (for notifications and login) [required]",
-                      "key": "email",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "email",
                       "value": "newuser@example.com",
                     },
                     {
-                      "key": "password",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "password",
                       "value": "super-secret-password",
                     },
                     {
-                      "contentType": "application/octet-stream",
-                      "description": "User avatar",
-                      "key": "profileImage",
-                      "src": [],
-                      "type": "file",
+                      "isDisabled": false,
+                      "name": "profileImage",
+                      "value": "",
                     },
                   ],
                 },
@@ -1053,21 +1049,18 @@ exports[`fixtures > FormUrlencoded 1`] = `
                 "Default example": {
                   "value": [
                     {
-                      "description": "full name of the user (accepts spaces) [required]",
-                      "key": "name",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "name",
                       "value": "New User",
                     },
                     {
-                      "description": "email of the user (for notifications and login) [required]",
-                      "key": "email",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "email",
                       "value": "newuser@example.com",
                     },
                     {
-                      "description": "password (to be used for logging in) [required]",
-                      "key": "password",
-                      "type": "text",
+                      "isDisabled": false,
+                      "name": "password",
                       "value": "super-secret-password",
                     },
                   ],
@@ -1263,6 +1256,68 @@ exports[`fixtures > GetMethods 1`] = `
           },
         ],
         "summary": "Get list of users",
+      },
+    },
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+    },
+  ],
+}
+`;
+
+exports[`fixtures > GraphqlFileBodies 1`] = `
+{
+  "info": {
+    "title": "C3",
+    "version": "1.0.0",
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/graphql": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "Default example": {
+                  "value": {
+                    "query": "query Item($id: ID!) { item(id: $id) { id } }",
+                    "variables": {
+                      "id": "1",
+                    },
+                  },
+                },
+              },
+              "schema": {
+                "properties": {
+                  "query": {
+                    "type": "string",
+                  },
+                  "variables": {
+                    "type": "object",
+                  },
+                },
+                "required": [
+                  "query",
+                ],
+                "type": "object",
+              },
+            },
+          },
+        },
+        "summary": "Query",
+      },
+    },
+    "/uploads": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {},
+          },
+        },
+        "summary": "Upload",
       },
     },
   },
@@ -1565,7 +1620,7 @@ exports[`fixtures > MultipleServers 1`] = `
       "post": {
         "requestBody": {
           "content": {
-            "text/plain": {},
+            "application/octet-stream": {},
           },
         },
         "servers": [
@@ -1951,7 +2006,7 @@ exports[`fixtures > OperationIds 1`] = `
         "operationId": "createPost",
         "requestBody": {
           "content": {
-            "text/plain": {},
+            "application/octet-stream": {},
           },
         },
         "summary": "Create a post",
@@ -2324,10 +2379,12 @@ exports[`fixtures > Responses 1`] = `
               "application/json": {
                 "examples": {
                   "default": {
-                    "avatar": "https://assets.example.com/avatars/nelsonjoyce_128.jpg",
-                    "createdAt": "2021-06-04T15:50:38.568Z",
-                    "id": "54",
-                    "name": "Carol",
+                    "value": {
+                      "avatar": "https://assets.example.com/avatars/nelsonjoyce_128.jpg",
+                      "createdAt": "2021-06-04T15:50:38.568Z",
+                      "id": "54",
+                      "name": "Carol",
+                    },
                   },
                 },
                 "schema": {
@@ -2448,7 +2505,7 @@ exports[`fixtures > Responses 1`] = `
         ],
         "requestBody": {
           "content": {
-            "text/plain": {},
+            "application/octet-stream": {},
           },
         },
         "responses": {
@@ -2457,10 +2514,12 @@ exports[`fixtures > Responses 1`] = `
               "application/json": {
                 "examples": {
                   "default": {
-                    "avatar": "https://assets.example.com/avatars/bartjo_128.jpg",
-                    "createdAt": "2021-06-04T23:41:02.287Z",
-                    "id": "50",
-                    "name": "Leanne",
+                    "value": {
+                      "avatar": "https://assets.example.com/avatars/bartjo_128.jpg",
+                      "createdAt": "2021-06-04T23:41:02.287Z",
+                      "id": "50",
+                      "name": "Leanne",
+                    },
                   },
                 },
                 "schema": {
@@ -2572,7 +2631,9 @@ exports[`fixtures > Responses 1`] = `
             "content": {
               "application/json": {
                 "examples": {
-                  "default": "Not found",
+                  "default": {
+                    "value": "Not found",
+                  },
                 },
                 "schema": {
                   "type": "string",
@@ -2729,7 +2790,7 @@ exports[`fixtures > ResponsesEmpty 1`] = `
               "application/json": {
                 "examples": {
                   "default": {
-                    "rawContent": "",
+                    "value": "",
                   },
                 },
                 "schema": {
@@ -2850,7 +2911,7 @@ exports[`fixtures > ResponsesEmpty 1`] = `
         ],
         "requestBody": {
           "content": {
-            "text/plain": {},
+            "application/octet-stream": {},
           },
         },
         "responses": {
@@ -2859,10 +2920,12 @@ exports[`fixtures > ResponsesEmpty 1`] = `
               "application/json": {
                 "examples": {
                   "default": {
-                    "avatar": "https://assets.example.com/avatars/bartjo_128.jpg",
-                    "createdAt": "2021-06-04T23:41:02.287Z",
-                    "id": "50",
-                    "name": "Leanne",
+                    "value": {
+                      "avatar": "https://assets.example.com/avatars/bartjo_128.jpg",
+                      "createdAt": "2021-06-04T23:41:02.287Z",
+                      "id": "50",
+                      "name": "Leanne",
+                    },
                   },
                 },
                 "schema": {
@@ -2974,7 +3037,9 @@ exports[`fixtures > ResponsesEmpty 1`] = `
             "content": {
               "application/json": {
                 "examples": {
-                  "default": "Not found",
+                  "default": {
+                    "value": "Not found",
+                  },
                 },
                 "schema": {
                   "type": "string",

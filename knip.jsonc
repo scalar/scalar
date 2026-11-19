@@ -52,6 +52,8 @@
   ],
   "ignoreBinaries": ["netlify"],
   "ignoreIssues": {
+    // SvelteKit generates $app/tsconfig during sync; it is not an npm dependency.
+    "examples/sveltekit/tsconfig.json": ["unlisted"],
     "integrations/docusaurus/src/ScalarDocusaurus.tsx": ["duplicates"],
     // TrieNode is exported for potential external use
     "packages/json-magic/src/diff/trie.ts": ["exports"],
@@ -570,7 +572,7 @@
       ]
     },
     "projects/proxy-scalar-com": {
-      "ignoreBinaries": ["go"]
+      "ignoreBinaries": ["go", "gofmt"]
     }
   }
 }

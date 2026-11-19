@@ -114,7 +114,7 @@ What feeds that method:
 
 ### Target support
 
-WebSocket runtimes ship in **TypeScript**, **Python**, **Rust**, **PHP**, and the generated **CLI**. Go, Ruby, C#, Kotlin, Java, and Dart generate the event types but nothing that opens a connection, and Swift and C++ leave the connect method out with no event types, which is why generated starter configs limit every connect method to those five targets with `only`.
+WebSocket runtimes ship in **TypeScript**, **Python**, **Rust**, **PHP**, and the generated **CLI**. Go, Ruby, C#, Kotlin, Java, and Dart generate the event types but nothing that opens a connection (the Go, Ruby, C#, Kotlin and Java READMEs list each such method under "Known gaps"; Kotlin and Java name an inline payload's class `<Method>ClientEvent` / `<Method>ServerEvent`, as they do an unclaimed component's), and Swift and C++ leave the connect method out with no event types, which is why generated starter configs limit every connect method to those five targets with `only`.
 
 If you generate a target outside that list from an all-WebSocket document, you get `AsyncApi/NoMethodsGenerated` for the target: models, auth, and a client, but nothing to call. A connect method you do not limit with `only` or `skip` also reports `Unsupported/WebSocketMethod` for that target.
 

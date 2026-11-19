@@ -32,6 +32,7 @@ import DocumentBreadcrumb from '@/features/app/components/DocumentBreadcrumb.vue
 import PublishDocumentModal from '@/features/app/components/PublishDocumentModal.vue'
 import SplashScreen from '@/features/app/components/SplashScreen.vue'
 import SyncConflictResolutionEditor from '@/features/app/components/SyncConflictResolutionEditor.vue'
+import ThemeStyle from '@/features/app/components/ThemeStyle.vue'
 import type { RouteProps } from '@/features/app/helpers/routes'
 import { useDocumentSync } from '@/features/app/hooks/use-document-sync'
 import { useDocumentWatcher } from '@/features/app/hooks/use-document-watcher'
@@ -179,7 +180,7 @@ useDocumentWatcher({
 useColorMode({ workspaceStore: app.store })
 
 /** Theme — resolved from custom themes, user/team preference, and workspace store */
-const { customThemes, themeStyles, themeStyleTag } = useThemes({
+const { customThemes, themeStyles } = useThemes({
   store: app.store,
 })
 
@@ -288,7 +289,9 @@ const routerViewProps = computed<RouteProps>(() => {
 <template>
   <ScalarTeleportRoot>
     <!-- Theme style tag -->
-    <div v-html="themeStyleTag" />
+    <ThemeStyle
+      :css="themeStyles.themeStyles"
+      :slug="themeStyles.themeSlug" />
 
     <!-- Toasts -->
     <ScalarToasts />

@@ -1,0 +1,83 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
+import { getExampleValue } from '@scalar/workspace-store/helpers/get-example-value'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+
+/** Only renderer-created wrappers carry this marker; JSON payload fields remain ordinary data. */
+const renderedExample = Symbol('rendered-example')
+
+/** Display metadata stays separate from the selected payload, including payloads with a `value` field. */
+export type RenderedExample = {
+  [renderedExample]: true
+  name?: string
+  summary?: string
+  value: unknown
+}
+
+/** Find the nearest summary annotation, including overrides on a chain of references. */
+export const getExampleSummary = (entry: unknown): string | undefined => {
+  const seen = new Set<unknown>()
+  let current = entry
+  while (isObjectLike(current) && !seen.has(current)) {
+    if (typeof current.summary === 'string') {
+      return current.summary
+    }
+    seen.add(current)
+    current = getResolvedRef(current)
+  }
+  return undefined
+}
+
+/** Resolve a named Example Object once, preserving its label and the existing value preference. */
+export const getRenderedExample = (entry: unknown, name?: string, preferData = false): RenderedExample | undefined => {
+  const example = getResolvedRef(entry)
+  if (!isObjectLike(example)) {
+    return example === undefined ? undefined : { [renderedExample]: true, name, value: example }
+  }
+  const selected =
+    preferData && example.dataValue !== undefined ? { value: example.dataValue } : getExampleValue(example)
+  // Display the URL until the bundler has loaded an external example's payload.
+  const value = selected ? selected.value : example.externalValue
+  return value === undefined
+    ? undefined
+    : {
+        [renderedExample]: true,
+        name,
+        summary: getExampleSummary(entry),
+        value,
+      }
+}
+
+/** Schema arrays contain raw payloads; legacy schema maps may also contain raw objects beside Example Objects. */
+export const normalizeRenderedExamples = (
+  examples: unknown,
+  { allowRawObjects = false }: { allowRawObjects?: boolean } = {},
+): RenderedExample[] => {
+  if (Array.isArray(examples)) {
+    return examples
+      .filter((value) => value !== undefined)
+      .map((value: unknown) => {
+        if (isObjectLike(value) && renderedExample in value && value[renderedExample] === true) {
+          return value as RenderedExample
+        }
+        return { [renderedExample]: true, value }
+      })
+  }
+  if (isObjectLike(examples)) {
+    return Object.entries(examples).flatMap(([name, entry]) => {
+      const example = getRenderedExample(entry, name)
+      if (example) {
+        return [example]
+      }
+      // Keep legacy schema maps readable without turning unresolved references or empty value fields into payloads.
+      if (
+        allowRawObjects &&
+        isObjectLike(entry) &&
+        !['$ref', 'value', 'externalValue', 'dataValue', 'serializedValue'].some((key) => key in entry)
+      ) {
+        return [{ [renderedExample]: true, name, value: entry }]
+      }
+      return []
+    })
+  }
+  return []
+}

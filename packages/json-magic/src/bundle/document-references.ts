@@ -6,6 +6,7 @@ import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getId } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
+import { getRaw } from '@/magic-proxy/proxy'
 
 /** Format-specific document identity, supplied by the caller. */
 export type DocumentIdentity = {
@@ -13,10 +14,21 @@ export type DocumentIdentity = {
   baseUri: string
   /** Root properties retained on copies embedded in the bundle; never applied to the source document. */
   metadata?: Record<string, unknown>
+  /** Headerless resources are traversed only through targets whose context is established by a reference. */
+  visitReferencedSubtrees?: boolean
+  /** Translate an authored pointer into this resource's transformed layout. */
+  remapPointer?: (pointer: readonly string[]) => readonly string[]
 }
 
 /** Reads document identity without imposing a document format on the bundler. */
 export type DocumentResolver = (document: unknown, retrievalUri: string) => DocumentIdentity | undefined
+
+/** Schema identity fields recognized by the caller's active vocabulary. */
+export type SchemaIdentity = {
+  id?: string
+  idKeyword?: 'id' | '$id'
+  anchor?: string
+}
 
 /** A loaded resource and its location in the output document. */
 type Resource = {
@@ -29,8 +41,12 @@ type Resource = {
   documentPath: string[]
 }
 
+/** A node's location within its own resource, independent of bundle storage. */
+export type DocumentLocation = { document: unknown; path: readonly string[]; uri: string }
+
 /** Resolution metadata survives moving documents into the bundle. */
 export type DocumentReferences = {
+  source: (node: object) => DocumentLocation | undefined
   identity: (document: unknown) => DocumentIdentity | undefined
   register: (document: unknown, retrievalUri: string, path?: string[], retrievalBase?: string) => void
   refresh: (document: unknown, targetPath: string[]) => void
@@ -68,17 +84,43 @@ export const documentReferences = (
   resolveDocument?: DocumentResolver,
   canonicalizeIds = false,
   shouldVisit: (node: object) => boolean = () => true,
-  hasSchemaIdentity: (node: object) => boolean = () => true,
+  identifySchema: (node: object) => SchemaIdentity | undefined = (node) => ({
+    id: getId(node),
+    anchor: isObject(node) && typeof node.$anchor === 'string' ? node.$anchor : undefined,
+  }),
 ): DocumentReferences => {
   const identities = new Map<unknown, DocumentIdentity>()
   const resources = new Map<string, Resource>()
+  const sources = new WeakMap<object, DocumentLocation>()
   const origins = new WeakMap<object, string>()
   const retrievalOrigins = new WeakMap<object, string>()
   const bundledResources = new Map<string, Resource>()
 
+  const canonicalizedIds = new WeakMap<object, { keyword: 'id' | '$id'; authored: string; canonical: string }>()
+
+  // Cached schemas are first indexed before their referencing wrapper supplies a dialect.
+  // Undo only our own mutation when that dialect treats the identifier as literal data.
+  const restoreLiteralIdentifier = (value: Record<string, unknown>): void => {
+    const previous = canonicalizedIds.get(value)
+    if (!previous) {
+      return
+    }
+    const identity = identifySchema(value)
+    if (shouldVisit(value) && identity?.id !== undefined && (identity.idKeyword ?? '$id') === previous.keyword) {
+      return
+    }
+    if (value[previous.keyword] === previous.canonical) {
+      value[previous.keyword] = previous.authored
+    }
+    canonicalizedIds.delete(value)
+  }
+
   let rootUri: string | undefined
 
-  const registrations = new Map<unknown, { base: string; path: string[]; retrievalBase: string }>()
+  const registrations = new Map<
+    unknown,
+    { base: string; path: string[]; retrievalBase: string; retrievalUri: string; resource: Resource }
+  >()
 
   const register = (
     document: unknown,
@@ -102,7 +144,7 @@ export const documentReferences = (
       bundledResources.set(path[1], resource)
     }
     const retrievalOrigin = identity ? resolveReferencePath(retrievalBase, identity.baseUri) : retrievalBase
-    registrations.set(document, { base, path, retrievalBase: retrievalOrigin })
+    registrations.set(document, { base, path, retrievalBase: retrievalOrigin, retrievalUri, resource })
     index(document, base, path, [], retrievalOrigin)
   }
 
@@ -129,7 +171,11 @@ export const documentReferences = (
         return
       }
       visited.add(value)
-      const id = hasSchemaIdentity(value) ? getId(value) : undefined
+      if (isObject(value)) {
+        restoreLiteralIdentifier(value)
+      }
+      const schemaIdentity = identifySchema(value)
+      const id = schemaIdentity?.id
       const identifier = id ?? inheritedIdentifier
       const current = id === undefined ? origin : resolveReferencePath(origin, id)
       // A refresh can encounter an identifier that this index already canonicalized.
@@ -139,15 +185,22 @@ export const documentReferences = (
           : id === undefined
             ? retrievalOrigin
             : resolveReferencePath(retrievalOrigin, id)
+      sources.set(value, { document, path: location.slice(path.length), uri: retrievalBase })
       origins.set(value, current)
       retrievalOrigins.set(value, currentRetrieval)
       // Relative identifiers would acquire a different identity after serialization elsewhere.
       // Use the indexed base before mutation so nested identifiers are resolved exactly once.
       if (canonicalizeIds && id !== undefined && isObject(value)) {
-        value.$id = current
+        const keyword = schemaIdentity?.idKeyword ?? '$id'
+        const previous = canonicalizedIds.get(value)
+        canonicalizedIds.set(value, {
+          keyword,
+          authored: previous?.keyword === keyword && previous.canonical === id ? previous.authored : id,
+          canonical: current,
+        })
+        value[keyword] = current
       }
-      const anchor =
-        hasSchemaIdentity(value) && isObject(value) && typeof value.$anchor === 'string' ? value.$anchor : undefined
+      const anchor = schemaIdentity?.anchor
       if (id !== undefined || anchor !== undefined) {
         const schemaResource = {
           value,
@@ -165,9 +218,9 @@ export const documentReferences = (
           resources.set(`${current}#${anchor}`, schemaResource)
         }
       }
-      for (const [key, child] of Object.entries(value)) {
+      for (const key of Object.keys(getRaw(value))) {
         if (key !== externalDocumentsKey) {
-          visit(child, current, [...location, key], identifier, currentRetrieval)
+          visit((value as Record<string, unknown>)[key], current, [...location, key], identifier, currentRetrieval)
         }
       }
     }
@@ -176,21 +229,49 @@ export const documentReferences = (
     let identifier = ''
     let retrievalOrigin = retrievalBase
     for (const key of targetPath) {
-      if (target === null || typeof target !== 'object') return
+      if (target === null || typeof target !== 'object') {
+        return
+      }
       origin = origins.get(target) ?? origin
       retrievalOrigin = retrievalOrigins.get(target) ?? retrievalOrigin
-      identifier = (hasSchemaIdentity(target) ? getId(target) : undefined) ?? identifier
+      identifier = identifySchema(target)?.id ?? identifier
       target = (target as Record<string, unknown>)[key]
     }
     visit(target, origin, [...path, ...targetPath], identifier, retrievalOrigin)
   }
 
   return {
+    source: (node) => sources.get(node),
     identity: (document) => identities.get(document),
     register,
     refresh: (document, targetPath) => {
       const registration = registrations.get(document)
-      if (registration) index(document, registration.base, registration.path, targetPath, registration.retrievalBase)
+      if (!registration) {
+        return
+      }
+      index(document, registration.base, registration.path, targetPath, registration.retrievalBase)
+      // A cached fragment can acquire its actual dialect after its first indexing.
+      // Drop identities that became literal while keeping fetchable retrieval aliases.
+      for (const [uri, resource] of resources) {
+        if (resource.document !== document || !resource.schema || !isObject(resource.value)) {
+          continue
+        }
+        restoreLiteralIdentifier(resource.value)
+        const identity = identifySchema(resource.value)
+        const origin = origins.get(resource.value)
+        if (
+          shouldVisit(resource.value) &&
+          ((identity?.id !== undefined && uri === origin) ||
+            (identity?.anchor !== undefined && uri === `${origin}#${identity.anchor}`))
+        ) {
+          continue
+        }
+        if (uri === registration.base || uri === registration.retrievalUri) {
+          resources.set(uri, registration.resource)
+        } else {
+          resources.delete(uri)
+        }
+      }
     },
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,
     origin: (node) => origins.get(node),
@@ -221,7 +302,11 @@ export const documentReferences = (
       if (!resource) {
         return undefined
       }
-      const segments = bundled ? pointer.slice(2) : pointer
+      const segments = bundled
+        ? pointer.slice(2)
+        : [...(!resource.schema ? (identities.get(resource.document)?.remapPointer?.(pointer) ?? pointer) : pointer)]
+      const remapped =
+        segments.length !== pointer.length || segments.some((segment, index) => segment !== pointer[index])
       // Relocated documents can retain explicit pointers to their enclosing bundle.
       const rootResource = rootUri === undefined ? undefined : resources.get(rootUri)
       if (
@@ -246,7 +331,7 @@ export const documentReferences = (
       const isDeclaredRootSchemaReference =
         !resource.embedded && resource.schema && Boolean(prefix) && prefix === resource.identifier
       // Fragment-only document references already address the root without relocation.
-      const isLocalRootDocumentReference = !resource.embedded && !resource.schema && !prefix
+      const isLocalRootDocumentReference = !resource.embedded && !resource.schema && !prefix && !remapped
 
       return {
         path: location.map(escapeJsonPointer).join('/'),

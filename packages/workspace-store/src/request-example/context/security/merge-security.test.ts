@@ -17,6 +17,20 @@ import { buildRequestSecurity } from '@/request-example/builder/security/build-r
 import { mergeSecurity } from './merge-security'
 
 describe('mergeSecurity', () => {
+  it('overrides document prefixes through configuration without changing credentials', () => {
+    const auth = createWorkspaceStore().auth
+    const document = {
+      key: { type: 'apiKey', in: 'header', name: 'Authorization', 'x-scalar-token-prefix': 'original' },
+    } as const
+    const merged = mergeSecurity(document, { key: { value: 'abc', 'x-scalar-token-prefix': 'token' } }, auth, 'test')
+    assert(merged.key?.type === 'apiKey' && merged.key.in === 'header')
+    expect(merged.key['x-scalar-secret-token']).toBe('abc')
+    expect(merged.key['x-scalar-token-prefix']).toBe('token')
+    const cleared = mergeSecurity(document, { key: { 'x-scalar-token-prefix': '' } }, auth, 'test')
+    assert(cleared.key?.type === 'apiKey' && cleared.key.in === 'header')
+    expect(cleared.key['x-scalar-token-prefix']).toBe('')
+  })
+
   it('keeps OIDC defaults separate until discovery and prefers the sole configured flow', () => {
     const auth = createWorkspaceStore().auth
     const schemes = { oidc: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery' } } as const

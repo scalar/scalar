@@ -369,6 +369,41 @@ Test description`
     expect(result).toContain('id')
   })
 
+  it('expands a default response schema like any other status', async () => {
+    const content = { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } }
+    const markdown = await createMarkdownFromOpenApi(
+      {
+        openapi: '3.0.3',
+        info: { title: 'Pets', version: '1' },
+        paths: {
+          '/pets': {
+            get: {
+              operationId: 'listPets',
+              responses: {
+                '400': { description: 'Bad request', content },
+                default: { description: 'Unexpected error', content },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Error: {
+              type: 'object',
+              required: ['code', 'message'],
+              properties: { code: { type: 'integer' }, message: { type: 'string' } },
+            },
+          },
+        },
+      },
+      { operation: { operationId: 'listPets' } },
+    )
+
+    expect(markdown).toContain('### 400, default')
+    expect(markdown).toContain('- **`code` (required)**: `integer`')
+    expect(markdown).toContain('"message": ""')
+  })
+
   it('renders only one operation by path and method', async () => {
     const content = {
       openapi: '3.1.1',

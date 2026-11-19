@@ -15,6 +15,7 @@ const meta = {
   argTypes: {
     label: { control: 'text' },
     disabled: { control: 'boolean' },
+    size: { control: 'select', options: ['sm', 'md'] },
   },
   render: (args) => ({
     components: { ScalarToggle },
@@ -86,5 +87,25 @@ export const TristateGrouped: Story = {
       return { args, options, model }
     },
     template: `<ScalarTristateToggleGroup v-bind="args" :options v-model="model" />`,
+  }),
+}
+
+export const Sizes: Story = {
+  render: (args) => ({
+    components: { ScalarToggle, ScalarTristateToggle },
+    setup() {
+      const sizes = ['sm', 'md'] as const
+      return { args, sizes }
+    },
+    template: `
+<div class="flex flex-col gap-3 p-2">
+  <div v-for="size in sizes" :key="size" class="flex items-center gap-3">
+    <ScalarToggle v-bind="args" :size :label="'Off ' + size" :modelValue="false" />
+    <ScalarToggle v-bind="args" :size :label="'On ' + size" :modelValue="true" />
+    <ScalarTristateToggle v-bind="args" :size :label="'Unset ' + size" :modelValue="undefined" />
+    <ScalarTristateToggle v-bind="args" :size :label="'Tristate on ' + size" :modelValue="true" />
+    <ScalarTristateToggle v-bind="args" :size :label="'Tristate off ' + size" :modelValue="false" />
+  </div>
+</div>`,
   }),
 }

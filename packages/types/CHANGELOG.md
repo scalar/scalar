@@ -1,5 +1,32 @@
 # @scalar/types
 
+## 0.30.0
+
+### Minor Changes
+
+- [#10816](https://github.com/scalar/scalar/pull/10816): Add `documentTypes` to the API Reference plugin API, so a plugin can teach API Reference a document format it does not support natively. The plugin detects its documents, builds their sidebar entries and renders them with its own component, while API Reference handles loading, the document selector, routing and the sidebar.
+
+### Patch Changes
+
+- [#9591](https://github.com/scalar/scalar/pull/9591): Select multiple files for array-typed multipart fields and display them in one field with controls to add, remove, and disable individual files. Each enabled file is sent as a separate multipart part under the same field name. Preserve text editing for arrays that also accept text and individual file choices when toggling the field.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.29.0
+
+### Minor Changes
+
+- [#11037](https://github.com/scalar/scalar/pull/11037): Load object-valued `x-codeSamples.source` and `x-code-samples.source` file references as raw code text, with relative origins and lazy operation loading. Retain failed references and show an unavailable sample instead of silently replacing them with an empty string. Preserve literal `$ref` values in other extensions and example data.
+- [#11036](https://github.com/scalar/scalar/pull/11036): Add `showDefaultClientsWithSdkInstallation` to show SDK installation tabs alongside built-in HTTP clients in the introduction.
+- [#11033](https://github.com/scalar/scalar/pull/11033): Add `persistSelectedClient` to disable saving and restoring the selected code sample client in local storage.
+
+### Patch Changes
+
+- [#10986](https://github.com/scalar/scalar/pull/10986): Add an Open in browser action for GET requests using the configured URL and parameters.
+
+## 0.28.1
+
+No changes in this release.
+
 ## 0.28.0
 
 ### Minor Changes

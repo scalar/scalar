@@ -76,15 +76,17 @@ const fetchConfiguration = async (): Promise<void> => {
   <DataTableRow
     v-if="scheme.oauth2MetadataUrl"
     class="min-w-full">
-    <div class="flex h-8 w-full items-center justify-end border-t">
-      <ScalarButton
-        class="mr-0.75 p-0 px-2 py-0.5"
-        :loader
-        size="sm"
-        variant="outlined"
-        @click="fetchConfiguration">
-        Fetch Configuration
-      </ScalarButton>
-    </div>
+    <td class="contents">
+      <div class="flex h-8 w-full items-center justify-end border-t">
+        <ScalarButton
+          class="mr-0.75 p-0 px-2 py-0.5"
+          :loader
+          size="sm"
+          variant="outlined"
+          @click="fetchConfiguration">
+          Fetch Configuration
+        </ScalarButton>
+      </div>
+    </td>
   </DataTableRow>
 </template>

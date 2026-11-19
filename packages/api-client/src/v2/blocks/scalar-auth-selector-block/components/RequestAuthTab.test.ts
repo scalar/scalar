@@ -89,6 +89,36 @@ describe('RequestAuthTab', () => {
     })
   }
 
+  it('edits only the raw credential for a header API key with a prefix', async () => {
+    const wrapper = mountWithProps({
+      securitySchemes: {
+        key: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'Authorization',
+          'x-scalar-token-prefix': 'token',
+          'x-scalar-secret-token': 'abc',
+        },
+      },
+      selectedSecuritySchemas: { key: [] },
+    })
+    const input = wrapper
+      .findAllComponents(RequestAuthDataTableInput)
+      .find((field) => field.props('type') === 'password')!
+    expect(input.text()).not.toContain('(token)')
+    expect(input.props('modelValue')).toBe('abc')
+    const emitted = vi.fn()
+    const unsubscribe = eventBus.on('auth:update:security-scheme-secrets', emitted)
+    input.vm.$emit('update:modelValue', 'new-key')
+    await nextTick()
+    expect(emitted).toHaveBeenCalledExactlyOnceWith({
+      name: 'key',
+      payload: { type: 'apiKey', 'x-scalar-secret-token': 'new-key' },
+    })
+    unsubscribe()
+    wrapper.unmount()
+  })
+
   describe('HTTP Bearer Authentication', () => {
     it('renders Bearer token input when scheme type is http and scheme is bearer', async () => {
       const wrapper = mountWithProps({

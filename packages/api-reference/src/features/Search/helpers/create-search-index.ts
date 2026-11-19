@@ -129,6 +129,11 @@ export function createSearchIndex(
   const extractFields = createSearchFieldExtractor(isOpenApiDocument(document) && /^3\.[12]\./.test(document.openapi))
   const modelsSectionTitle = options?.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
   const labels = options?.labels ?? DEFAULT_SEARCH_INDEX_LABELS
+  const tagTitles = new Map(
+    isOpenApiDocument(document)
+      ? document.tags?.map((tag) => [tag.name, tag['x-displayName'] ?? tag.summary ?? tag.name])
+      : [],
+  )
 
   const asyncApiEntries = new Set<string>()
 
@@ -154,7 +159,7 @@ export function createSearchIndex(
           }
         }
       } else {
-        addEntryToIndex(entry, index, document, modelsSectionTitle, labels, extractFields)
+        addEntryToIndex(entry, index, document, modelsSectionTitle, labels, extractFields, tagTitles)
       }
 
       // Recursively process children if they exist
@@ -181,6 +186,7 @@ function addEntryToIndex(
   modelsSectionTitle: string,
   labels: SearchIndexLabels,
   extractFields: ReturnType<typeof createSearchFieldExtractor>,
+  tagTitles: ReadonlyMap<string, string>,
 ): void {
   // OpenAPI-only branches read fields that do not exist on AsyncAPI documents (paths, webhooks,
   // components.schemas). Narrow once here so each branch can dereference safely.
@@ -214,6 +220,10 @@ function addEntryToIndex(
       parameterDescriptions,
       responseExamples,
       operationId: operationWithPathParams.operationId,
+      tags: operation.tags?.flatMap((name) => {
+        const title = tagTitles.get(name)
+        return title && title !== name ? [name, title] : [name]
+      }),
       entry,
     })
 

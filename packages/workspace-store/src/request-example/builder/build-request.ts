@@ -1,3 +1,4 @@
+import { formatTokenPrefix } from '@scalar/helpers/http/format-token-prefix'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { X_SCALAR_DATE, X_SCALAR_DNT, X_SCALAR_REFERER, X_SCALAR_USER_AGENT } from '@scalar/helpers/http/scalar-headers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
@@ -49,7 +50,7 @@ const formatSecurityValue = (
     return `Bearer ${substitutedValue.trim()}`
   }
 
-  return substitutedValue
+  return formatTokenPrefix(substitutedValue, security.tokenPrefix)
 }
 
 const createEnvReplaceFn = (envVariables: Record<string, string>): ((value: string) => string | null) => {
@@ -225,7 +226,7 @@ const buildRequestInner = (
       // Format the security value based on its authentication scheme.
       // - For 'basic': prefix with 'Basic' and base64-encode the value (username:password).
       // - For 'bearer': prefix with 'Bearer'.
-      // - Otherwise: use the substituted value as is (for API keys, etc).
+      // - Otherwise: apply any configured API-key prefix to the substituted credential.
       const securityValue = formatSecurityValue(security, replace)
 
       if (security.in === 'header') {

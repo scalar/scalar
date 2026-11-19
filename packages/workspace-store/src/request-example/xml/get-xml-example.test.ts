@@ -9,6 +9,23 @@ const compact = { format: false, xmlDeclaration: false }
 const schema = (value: unknown): SchemaObject => value as SchemaObject
 
 describe('get-xml-example', () => {
+  it('serializes simple contains matches with the item XML name', () => {
+    const input = schema({
+      type: 'array',
+      items: { type: 'integer', xml: { name: 'number' } },
+      xml: { name: 'numbers', wrapped: true },
+      minItems: 3,
+      maxItems: 3,
+      uniqueItems: true,
+      contains: { const: 2 },
+      maxContains: 1,
+    })
+    expect(getXmlExampleFromSchema(input, compact)).toStrictEqual({
+      xml: '<numbers><number>2</number><number>1</number><number>3</number></numbers>',
+      diagnostics: [],
+    })
+  })
+
   it('pads array items through XML serialization', () => {
     const input: SchemaObject = {
       type: 'array',

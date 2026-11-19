@@ -27,9 +27,9 @@ import type { SecuritySchemeObjectSecret } from '@/request-example/builder/secur
  *   - `'bearer'`: HTTP Bearer token.
  *   - Not present for schemes without a special format (e.g., generic API keys).
  *
- * - `value`: The fully resolved secret value to use in the request.
- *   - This may already include necessary prefixes (e.g., "Bearer x", "Basic y"),
- *     or be a direct value depending on the scheme and usage.
+ * - `value`: The raw credential, before environment substitution or authentication formatting.
+ *   - HTTP Basic credentials use `username:password`; HTTP Bearer and API keys carry the token.
+ *   - Apply `format` or `tokenPrefix` after resolving credential variables.
  *
  * NOTE: This type does not capture UI display info, secret labels, or environment binding.
  * It is intended purely for producing the final request input object. Multiple
@@ -43,8 +43,10 @@ export type BuildRequestSecurityResult = {
   name: string
   /** Format code for HTTP schemes (e.g., 'basic' | 'bearer'), if relevant */
   format?: 'basic' | 'bearer'
+  /** Explicit header API-key prefix, applied after resolving credential variables. */
+  tokenPrefix?: string
   /**
-   * The fully resolved authentication value to use (may include tokens, encoded credentials, etc.)
+   * The raw credential. Resolve environment variables, then apply `format` or `tokenPrefix` before sending.
    */
   value: string
 }
@@ -71,6 +73,7 @@ export const buildRequestSecurity = (
           in: scheme.in,
           name: scheme.name,
           value,
+          ...(scheme['x-scalar-token-prefix'] ? { tokenPrefix: scheme['x-scalar-token-prefix'] } : {}),
         })
       }
       if (scheme.in === 'query') {

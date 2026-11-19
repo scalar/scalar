@@ -47,11 +47,13 @@ const svg = computed(() => {
     v-bind="{
       ...cx('scalar-icon', variants({ size })),
       ...accessibilityAttrs,
-    }" />
+    }"
+    :style="{ '--scalar-icon-stroke-width': stroke }" />
 </template>
 <style scoped>
 .scalar-icon,
 .scalar-icon * {
-  stroke-width: v-bind(stroke);
+  /* Inline the variable on the SVG so library builds also include it during SSR. */
+  stroke-width: var(--scalar-icon-stroke-width);
 }
 </style>

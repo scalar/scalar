@@ -41,7 +41,16 @@ export const resetOperationRequestBody = async (
   const restored: ExampleObject =
     getExampleValue(originalExample) || originalExample?.externalValue
       ? snapshotSchema(originalExample!)
-      : { value: getSchemaExampleFromBody(body, contentType, requestBodyCompositionSelection, openapiVersion) ?? '' }
+      : {
+          value:
+            getSchemaExampleFromBody(
+              body,
+              contentType,
+              requestBodyCompositionSelection,
+              openapiVersion ?? (document['x-original-oas-version'] || document.openapi),
+              document.jsonSchemaDialect,
+            ) ?? '',
+        }
 
   // Loading a baseline can resolve remote references. Do not discard typing that happened while
   // it loaded, or write into a document that has since been replaced or removed.

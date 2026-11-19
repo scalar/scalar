@@ -2,9 +2,10 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
+import { useFileDialog } from '@/hooks/use-file-dialog'
 import { CodeInputLite } from '@/v2/components/code-input'
 import { DataTableCheckbox } from '@/v2/components/data-table'
 
@@ -108,7 +109,7 @@ describe('RequestBodyForm', () => {
       },
     })
     const row = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'avatar')!
-    expect(row.findAll('button').some((button) => button.text() === 'Select File')).toBe(canUpload)
+    expect(row.findAll('button').some((button) => /^Select [Ff]iles?$/.test(button.text()))).toBe(canUpload)
     wrapper.unmount()
   })
 
@@ -125,7 +126,7 @@ describe('RequestBodyForm', () => {
       },
     })
     const fileRow = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'file')!
-    expect(fileRow.findAll('button').some((button) => button.text() === 'Select File')).toBe(true)
+    expect(fileRow.findAll('button').some((button) => /^Select [Ff]iles?$/.test(button.text()))).toBe(true)
     wrapper.unmount()
   })
 
@@ -147,7 +148,7 @@ describe('RequestBodyForm', () => {
     expect(
       wrapper.findAllComponents(RequestTableRow).map((row) => ({
         name: row.props('data').name,
-        canUpload: row.findAll('button').some((button) => button.text() === 'Select File'),
+        canUpload: row.findAll('button').some((button) => /^Select [Ff]iles?$/.test(button.text())),
       })),
     ).toStrictEqual([
       { name: 'title', canUpload: false },
@@ -167,7 +168,7 @@ describe('RequestBodyForm', () => {
           environment: defaultEnvironment,
         },
       })
-      expect(wrapper.findAll('button').some((button) => button.text() === 'Select File')).toBe(false)
+      expect(wrapper.findAll('button').some((button) => /^Select [Ff]iles?$/.test(button.text()))).toBe(false)
       wrapper.unmount()
     }
   })
@@ -187,7 +188,7 @@ describe('RequestBodyForm', () => {
     const rows = wrapper.findAllComponents(RequestTableRow)
     expect(
       rows
-        .filter((row) => row.findAll('button').some((button) => button.text() === 'Select File'))
+        .filter((row) => row.findAll('button').some((button) => /^Select [Ff]iles?$/.test(button.text())))
         .map((row) => row.props('data').name),
     ).toStrictEqual(expected)
     wrapper.unmount()
@@ -231,21 +232,21 @@ describe('RequestBodyForm', () => {
       wrapper
         .findAllComponents(RequestTableRow)[0]!
         .findAll('button')
-        .filter((button) => button.text() === 'Select File').length,
+        .filter((button) => /^Select [Ff]iles?$/.test(button.text())).length,
     ).toBe(0)
     await wrapper.setProps({ compositionSelection: { [selectionKey]: 1 } })
     expect(
       wrapper
         .findAllComponents(RequestTableRow)[0]!
         .findAll('button')
-        .filter((button) => button.text() === 'Select File').length,
+        .filter((button) => /^Select [Ff]iles?$/.test(button.text())).length,
     ).toBe(1)
     await wrapper.setProps({ compositionSelection: { [selectionKey]: 0 } })
     expect(
       wrapper
         .findAllComponents(RequestTableRow)[0]!
         .findAll('button')
-        .filter((button) => button.text() === 'Select File').length,
+        .filter((button) => /^Select [Ff]iles?$/.test(button.text())).length,
     ).toBe(0)
     wrapper.unmount()
   })
@@ -263,7 +264,7 @@ describe('RequestBodyForm', () => {
         environment: defaultEnvironment,
       },
     })
-    const upload = wrapper.findAll('button').find((button) => button.text() === 'Select File')!
+    const upload = wrapper.findAll('button').find((button) => /^Select [Ff]iles?$/.test(button.text()))!
     await upload.trigger('click')
     const file = new File(['test content'], 'test.txt', { type: 'text/plain' })
     expect(wrapper.emitted('update:formValue')).toStrictEqual([
@@ -286,7 +287,7 @@ describe('RequestBodyForm', () => {
       wrapper
         .findAllComponents(RequestTableRow)[1]!
         .findAll('button')
-        .filter((button) => button.text() === 'Select File').length,
+        .filter((button) => /^Select [Ff]iles?$/.test(button.text())).length,
     ).toBe(1)
     wrapper.unmount()
   })
@@ -306,7 +307,7 @@ describe('RequestBodyForm', () => {
       wrapper
         .findAllComponents(RequestTableRow)[0]!
         .findAll('button')
-        .filter((button) => button.text() === 'Select File').length,
+        .filter((button) => /^Select [Ff]iles?$/.test(button.text())).length,
     ).toBe(0)
     wrapper.unmount()
   })
@@ -549,6 +550,7 @@ describe('RequestBodyForm', () => {
     const lastUpdateEvent = updateEvents?.[updateEvents.length - 1]?.[0]
     expect(lastUpdateEvent).toBeDefined()
     if (Array.isArray(lastUpdateEvent)) {
+      assert(lastUpdateEvent[0], 'Expected the emitted form row')
       expect(lastUpdateEvent[0].name).toBe('updatedField1')
       expect(lastUpdateEvent[0].value).toBe('updatedValue1')
     }
@@ -561,6 +563,7 @@ describe('RequestBodyForm', () => {
     expect(disabledUpdateEvents).toBeTruthy()
     const lastDisabledEvent = disabledUpdateEvents?.[disabledUpdateEvents.length - 1]?.[0]
     if (Array.isArray(lastDisabledEvent)) {
+      assert(lastDisabledEvent[0], 'Expected the emitted form row')
       expect(lastDisabledEvent[0].isDisabled).toBe(true)
     }
 
@@ -614,6 +617,7 @@ describe('RequestBodyForm', () => {
       expect(uploadEvents).toBeTruthy()
       const lastUploadEvent = uploadEvents?.[uploadEvents.length - 1]?.[0]
       if (Array.isArray(lastUploadEvent)) {
+        assert(lastUploadEvent[0], 'Expected the emitted form row')
         expect(lastUploadEvent[0].value).toBeInstanceOf(File)
         expect((lastUploadEvent[0].value as File).name).toBe('uploaded.txt')
         // Should preserve the existing name or use file name
@@ -652,7 +656,7 @@ describe('RequestBodyForm', () => {
       if (Array.isArray(lastNewRowEvent)) {
         // The new row should be the last one in the array
         const newRow = lastNewRowEvent[lastNewRowEvent.length - 1]
-        expect(newRow).toBeDefined()
+        assert(newRow, 'Expected the uploaded form row')
         expect(newRow.value).toBeInstanceOf(File)
         expect((newRow.value as File).name).toBe('newfile.pdf')
         expect(newRow.name).toBe('newfile.pdf')
@@ -715,6 +719,7 @@ describe('RequestBodyForm', () => {
     expect(removeFileEvents).toBeTruthy()
     const lastRemoveFileEvent = removeFileEvents?.[removeFileEvents.length - 1]?.[0]
     if (Array.isArray(lastRemoveFileEvent)) {
+      assert(lastRemoveFileEvent[0], 'Expected the emitted form row')
       expect(lastRemoveFileEvent[0].value).toBeUndefined()
     }
   })
@@ -890,6 +895,430 @@ describe('RequestBodyForm', () => {
       }
     },
   )
+
+  /** Build a FileList-like object from plain File instances for the file dialog mock. */
+  const toFileList = (files: File[]): FileList =>
+    ({
+      ...files,
+      length: files.length,
+      item: (index: number) => files[index] ?? null,
+      [Symbol.iterator]: function* () {
+        yield* files
+      },
+    }) as unknown as FileList
+
+  const arrayFieldSchema: SchemaObject = {
+    type: 'object',
+    properties: {
+      files: { type: 'array', items: { type: 'string', format: 'binary' } },
+    },
+  }
+
+  it('groups selected files under one field while emitting one multipart part per file', async () => {
+    vi.mocked(useFileDialog).mockImplementationOnce((options) => {
+      fileDialogOnChange = options?.onChange
+      return { files: readonly(mockFiles), open: mockOpen }
+    })
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: {
+          value: [
+            { name: 'files', value: '', isDisabled: false },
+            { name: 'note', value: 'Keep me', isDisabled: false },
+          ],
+        },
+        bodySchema: arrayFieldSchema,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    await nextTick()
+
+    const uploadButton = wrapper.findAll('button').find((button) => button.text() === 'Select files')!
+    await uploadButton.trigger('click')
+    await nextTick()
+
+    // The array field opts into a multi-select picker.
+    expect(vi.mocked(useFileDialog).mock.calls.at(-1)?.[0]?.multiple).toBe(true)
+
+    const files = [
+      new File(['a'], 'a.txt', { type: 'text/plain' }),
+      new File(['b'], 'b.txt', { type: 'text/plain' }),
+      new File(['c'], 'c.txt', { type: 'text/plain' }),
+    ]
+    fileDialogOnChange?.(toFileList(files))
+    await nextTick()
+
+    expect(wrapper.findAllComponents(RequestTableRow).map((row) => row.props('data').name)).toStrictEqual([
+      'files',
+      'note',
+      '',
+    ])
+    expect(
+      wrapper
+        .get('ul[aria-label="files"]')
+        .findAll('li')
+        .map((item) => item.get('span[title]').text()),
+    ).toStrictEqual(['a.txt', 'b.txt', 'c.txt'])
+    expect(wrapper.get('button[aria-label="Add files for files"]').text()).toBe('Add files')
+
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [
+        [
+          ...files.map((file) => ({ name: 'files', value: file, isDisabled: false })),
+          { name: 'note', value: 'Keep me', isDisabled: false },
+        ],
+      ],
+    ])
+  })
+
+  it('appends another batch without losing existing files, disabled choices, or neighboring fields', async () => {
+    vi.mocked(useFileDialog).mockImplementationOnce((options) => {
+      fileDialogOnChange = options?.onChange
+      return { files: readonly(mockFiles), open: mockOpen }
+    })
+    const first = new File(['first'], 'first.txt')
+    const second = new File(['second'], 'second.txt')
+    const third = new File(['third'], 'third.txt')
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: {
+          value: [
+            { name: 'files', value: first, isDisabled: false },
+            { name: 'note', value: 'Keep me', isDisabled: false },
+            { name: 'files', value: second, isDisabled: true },
+          ],
+        },
+        bodySchema: arrayFieldSchema,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+
+    await wrapper.get('[data-upload-files]').trigger('click')
+    fileDialogOnChange?.(toFileList([third]))
+    await nextTick()
+
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [
+        [
+          { name: 'files', value: first, isDisabled: false },
+          { name: 'files', value: second, isDisabled: true },
+          { name: 'files', value: third, isDisabled: false },
+          { name: 'note', value: 'Keep me', isDisabled: false },
+        ],
+      ],
+    ])
+    const payload = wrapper.emitted('update:formValue')?.[0]?.[0]
+    await wrapper.setProps({ example: { value: payload } })
+    expect(
+      wrapper
+        .get('ul[aria-label="files"]')
+        .findAll('li')
+        .map((item) => item.get('span[title]').text()),
+    ).toStrictEqual(['first.txt', 'second.txt', 'third.txt'])
+    wrapper.unmount()
+  })
+
+  it('removes individual files and keeps one empty field after removing the last file', async () => {
+    const first = new File(['first'], 'first.txt')
+    const second = new File(['second'], 'second.txt')
+    const wrapper = mount(RequestBodyForm, {
+      attachTo: document.body,
+      props: {
+        example: {
+          value: [
+            { name: 'files', value: first, isDisabled: false },
+            { name: 'files', value: second, isDisabled: false },
+            { name: 'note', value: 'Keep me', isDisabled: false },
+          ],
+        },
+        bodySchema: { ...arrayFieldSchema, required: ['files'] },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    try {
+      const removeFirst = wrapper.get<HTMLButtonElement>('button[data-remove-file]')
+      expect(removeFirst.text()).toBe('Remove first.txt from files')
+      removeFirst.element.focus()
+      await removeFirst.trigger('click')
+      await nextTick()
+      const removeSecond = wrapper.get('button[data-remove-file]')
+      expect(removeSecond.text()).toBe('Remove second.txt from files')
+      expect(document.activeElement).toBe(removeSecond.element)
+      await removeSecond.trigger('click')
+      await nextTick()
+
+      expect(wrapper.emitted('update:formValue')).toStrictEqual([
+        [
+          [
+            { name: 'files', value: second, isDisabled: false },
+            { name: 'note', value: 'Keep me', isDisabled: false },
+          ],
+        ],
+        [
+          [
+            { name: 'files', value: [], isDisabled: false, isArray: true },
+            { name: 'note', value: 'Keep me', isDisabled: false },
+          ],
+        ],
+      ])
+      expect(wrapper.findAllComponents(RequestTableRow).map((row) => row.props('data').name)).toStrictEqual([
+        'files',
+        'note',
+        '',
+      ])
+      expect(wrapper.find('ul[aria-label="files"]').exists()).toBe(false)
+      expect(wrapper.get('[data-upload-files]').text()).toBe('Select files')
+      expect(document.activeElement).toBe(wrapper.get('[data-upload-files]').element)
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
+  it('disables individual files or the whole field without clearing their contents', async () => {
+    const first = new File(['first'], 'first.txt')
+    const second = new File(['second'], 'second.txt')
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: {
+          value: [
+            { name: 'files', value: first, isDisabled: false },
+            { name: 'files', value: second, isDisabled: false },
+          ],
+        },
+        bodySchema: arrayFieldSchema,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    await wrapper.get('input[aria-label="Include files: first.txt in request"]').setValue(false)
+    expect(wrapper.get<HTMLInputElement>('input[aria-label="Include files in request"]').element.indeterminate).toBe(
+      true,
+    )
+    expect(wrapper.get('input[aria-label="Include files in request"]').attributes('aria-checked')).toBe('mixed')
+    await wrapper.get('input[aria-label="Include files in request"]').setValue(false)
+    await wrapper.get('input[aria-label="Include files in request"]').setValue(true)
+
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [
+        [
+          { name: 'files', value: first, isDisabled: true },
+          { name: 'files', value: second, isDisabled: false },
+        ],
+      ],
+      [
+        [
+          { name: 'files', value: first, isDisabled: true },
+          { name: 'files', value: second, isDisabled: true },
+        ],
+      ],
+      [
+        [
+          { name: 'files', value: first, isDisabled: true },
+          { name: 'files', value: second, isDisabled: false },
+        ],
+      ],
+    ])
+    expect(wrapper.get<HTMLInputElement>('input[aria-label="Include files in request"]').element.indeterminate).toBe(
+      true,
+    )
+    wrapper.unmount()
+  })
+
+  it('toggles an empty file array before any files are selected', async () => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: [{ name: 'files', value: [], isDisabled: false }] },
+        bodySchema: arrayFieldSchema,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    await wrapper.get('input[aria-label="Include files in request"]').setValue(false)
+    await wrapper.get('input[aria-label="Include files in request"]').setValue(true)
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [[{ name: 'files', value: [], isDisabled: true, isArray: true }]],
+      [[{ name: 'files', value: [], isDisabled: false, isArray: true }]],
+    ])
+    wrapper.unmount()
+  })
+
+  it('updates a neighboring field using its original row index after files are grouped', async () => {
+    const first = new File(['first'], 'first.txt')
+    const second = new File(['second'], 'second.txt')
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: {
+          value: [
+            { name: 'files', value: first, isDisabled: false },
+            { name: 'files', value: second, isDisabled: false },
+            { name: 'note', value: 'Original', isDisabled: false },
+          ],
+        },
+        bodySchema: arrayFieldSchema,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    const note = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'note')!
+    note.findAllComponents(CodeInputLite)[1]!.vm.$emit('update:modelValue', 'Edited')
+    await nextTick()
+
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [
+        [
+          { name: 'files', value: first, isDisabled: false },
+          { name: 'files', value: second, isDisabled: false },
+          { name: 'note', value: 'Edited', isDisabled: false },
+        ],
+      ],
+    ])
+    wrapper.unmount()
+  })
+
+  it('adds text and file fields through the placeholder without overwriting grouped files', async () => {
+    const first = new File(['first'], 'first.txt')
+    const second = new File(['second'], 'second.txt')
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: {
+          value: [
+            { name: 'files', value: first, isDisabled: false },
+            { name: 'files', value: second, isDisabled: false },
+            { name: 'note', value: 'Keep me', isDisabled: false },
+          ],
+        },
+        bodySchema: arrayFieldSchema,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    const blank = wrapper.findAllComponents(RequestTableRow).at(-1)!
+    const key = blank.findAllComponents(CodeInputLite)[0]!
+    key.vm.$emit('update:modelValue', 'extra')
+    key.vm.$emit('blur', 'extra')
+    await nextTick()
+    const extra = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'extra')!
+    extra.findAllComponents(CodeInputLite)[1]!.vm.$emit('update:modelValue', 'Added')
+    await nextTick()
+    const placeholder = wrapper.findAllComponents(RequestTableRow).at(-1)!
+    const upload = placeholder.findAll('button').find((button) => button.text() === 'Select File')!
+    await upload.trigger('click')
+
+    const uploaded = wrapper.emitted('update:formValue')?.at(-1)?.[0]
+    expect(uploaded).toStrictEqual([
+      { name: 'files', value: first, isDisabled: false },
+      { name: 'files', value: second, isDisabled: false },
+      { name: 'note', value: 'Keep me', isDisabled: false },
+      { name: 'extra', value: 'Added', isDisabled: false },
+      { name: 'test.txt', value: new File(['test content'], 'test.txt', { type: 'text/plain' }), isDisabled: false },
+    ])
+    wrapper.unmount()
+  })
+
+  it('renames all parts of a grouped field while preserving individual disabled choices', async () => {
+    const first = new File(['first'], 'first.txt')
+    const second = new File(['second'], 'second.txt')
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: {
+          value: [
+            { name: 'files', value: first, isDisabled: false },
+            { name: 'files', value: second, isDisabled: true },
+          ],
+        },
+        bodySchema: arrayFieldSchema,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    const key = wrapper.findComponent(RequestTableRow).findComponent(CodeInputLite)
+    key.vm.$emit('update:modelValue', 'attachments')
+    key.vm.$emit('blur', 'attachments')
+    await nextTick()
+
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [
+        [
+          { name: 'attachments', value: first, isDisabled: false },
+          { name: 'attachments', value: second, isDisabled: true },
+        ],
+      ],
+    ])
+    wrapper.unmount()
+  })
+
+  it('gives upload buttons distinct accessible names for each array field', () => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { images: [], attachments: [] } },
+        bodySchema: {
+          type: 'object',
+          properties: {
+            images: { type: 'array', items: { type: 'string', format: 'binary' } },
+            attachments: { type: 'array', items: { type: 'string', format: 'binary' } },
+          },
+        },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    expect(wrapper.findAll('[data-upload-files]').map((button) => button.attributes('aria-label'))).toStrictEqual([
+      'Select files for images',
+      'Select files for attachments',
+    ])
+    wrapper.unmount()
+  })
+
+  it.each([
+    { __scalar_: '' },
+    { __scalar_: '', oneOf: [{ type: 'string', format: 'binary' }, { type: 'string' }] },
+    { __scalar_: '', anyOf: [{ type: 'string', format: 'binary' }, { type: 'string' }] },
+  ] satisfies SchemaObject[])(
+    'keeps text input and file selection available for mixed array items %j',
+    async (items) => {
+      const wrapper = mount(RequestBodyForm, {
+        props: {
+          example: { value: { files: [] } },
+          bodySchema: { type: 'object', properties: { files: { type: 'array', items } } },
+          selectedContentType: 'multipart/form-data',
+          environment: defaultEnvironment,
+        },
+      })
+      const row = wrapper.findComponent(RequestTableRow)
+      expect(row.findAllComponents(CodeInputLite).length).toBe(2)
+      expect(row.get('button[aria-label="Select files for files"]').text()).toBe('Select files')
+      row.findAllComponents(CodeInputLite)[1]!.vm.$emit('update:modelValue', '["text"]')
+      await nextTick()
+      expect(wrapper.emitted('update:formValue')?.at(-1)).toStrictEqual([
+        [{ name: 'files', value: ['text'], isDisabled: false, isArray: true }],
+      ])
+      wrapper.unmount()
+    },
+  )
+
+  it('keeps the file picker single-select for non-array fields', async () => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: [{ name: 'avatar', value: '', isDisabled: false }] },
+        bodySchema: {
+          type: 'object',
+          properties: { avatar: { type: 'string', format: 'binary' } },
+        },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    await nextTick()
+
+    const uploadButton = wrapper.findAll('button').find((button) => button.text() === 'Select File')!
+    await uploadButton.trigger('click')
+    await nextTick()
+
+    expect(vi.mocked(useFileDialog).mock.calls.at(-1)?.[0]?.multiple).toBe(false)
+  })
   it('saves a deliberately cleared body key', async () => {
     const wrapper = mount(RequestBodyForm, {
       props: {

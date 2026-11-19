@@ -282,6 +282,8 @@ groups: [enterprise, admin]
 
 Filtering a parent group hides its children in navigation too. These filters do not protect the pages' URLs. Hook groups do not need to be created as dashboard access groups, and returning an access-group name from the hook does not grant access to a private site.
 
+On a private site, `groups` also matches the slugs of the site's access groups that the visitor belongs to, with or without a hook. See [Show pages to specific access groups](private-docs.md#show-pages-to-specific-access-groups).
+
 ## Prefill the API playground
 
 Return `apiPlaygroundInputs` to supply defaults for declared API security schemes and server variables:

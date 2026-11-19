@@ -1,5 +1,49 @@
 # @scalar/api-client
 
+## 3.27.1
+
+### Patch Changes
+
+- [#11029](https://github.com/scalar/scalar/pull/11029): fix: respect contains match counts in simple array examples
+
+  Generate matching and nonmatching primitive items for direct contains constraints, counting tuple prefixes and respecting item schemas, length bounds, uniqueness, and the declared dialect. Authored examples remain authoritative. Candidate generation is bounded and may return a partial example for contradictory constraints.
+
+  Complex references and compositions, nested object or array candidate synthesis, and XML branch reconstruction retain existing best-effort behavior and are deferred to a follow-up.
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11110](https://github.com/scalar/scalar/pull/11110): Add a `text-auto-contrast-*` Tailwind utility that picks readable black or white text for any background color, and use it for colored badges and the environment color checkmark.
+
+## 3.27.0
+
+### Minor Changes
+
+- [#9591](https://github.com/scalar/scalar/pull/9591): Select multiple files for array-typed multipart fields and display them in one field with controls to add, remove, and disable individual files. Each enabled file is sent as a separate multipart part under the same field name. Preserve text editing for arrays that also accept text and individual file choices when toggling the field.
+
+### Patch Changes
+
+- [#11086](https://github.com/scalar/scalar/pull/11086): Replace the direct TypeBox dependency with `@scalar/validation` for OpenID Connect discovery and OAuth2 metadata parsing.
+
+  Remove invalid and empty entries from supported grant types in discovery and metadata responses.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+- [#11064](https://github.com/scalar/scalar/pull/11064): Balance schema tooltip spacing, prevent clipped text, hide empty tooltip triggers, and display schema type arrays as readable alternatives.
+
+## 3.26.0
+
+### Minor Changes
+
+- [#10986](https://github.com/scalar/scalar/pull/10986): Add an Open in browser action for GET requests using the configured URL and parameters.
+
+### Patch Changes
+
+- [#11041](https://github.com/scalar/scalar/pull/11041): fix: keep the auth form's rows inside their table in server-rendered markup
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+- [#11041](https://github.com/scalar/scalar/pull/11041): fix: render the OAuth 2.0 redirect URL field the same way on the server and in the browser
+
+## 3.25.1
+
+### Patch Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when editing structured YAML request bodies.
+
 ## 3.25.0
 
 ### Minor Changes

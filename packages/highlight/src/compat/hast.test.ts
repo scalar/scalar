@@ -16,11 +16,9 @@ import { describe, expect, it } from 'vitest'
 
 import '../all'
 
-import { syntaxHighlight as referenceHighlight } from '@scalar/code-highlight/code'
-
 import { colorAgreement } from '../../test/colors'
 import { textFromHtml } from '../../test/html'
-import { referenceLanguages } from '../../test/languages'
+import { REFERENCE_LANGUAGES, referenceSample } from '../../test/reference'
 import { samples } from '../../test/samples'
 import { STYLED_CLASSES } from '../../test/styled'
 import { escapeHtml } from '../index'
@@ -85,7 +83,7 @@ const inner = (html: string): string => html.replace(/^<pre><code[^>]*>/, '').re
 const corpus: [string, string][] = Object.entries(samples)
 
 /** Languages with no reference grammar, and so nothing to differ against. */
-const hasReference = (lang: string): boolean => lang in referenceLanguages
+const hasReference = (lang: string): boolean => REFERENCE_LANGUAGES.has(lang)
 
 describe('toHast agrees with the string renderer', () => {
   for (const [lang, code] of corpus) {
@@ -101,7 +99,7 @@ describe('toHast agrees with the string renderer', () => {
 describe('toHast parity with the lowlight pipeline', () => {
   for (const [lang, code] of corpus) {
     describe(lang, () => {
-      const before = referenceHighlight(code, { lang, languages: referenceLanguages })
+      const before = referenceSample(lang, code).html
       const nodes = toHast(code, lang) as ElementContent[]
 
       it.skipIf(!hasReference(lang))('renders the same text', () => {
@@ -143,7 +141,7 @@ describe('toHast colour agreement', () => {
         continue
       }
 
-      const before = referenceHighlight(code, { lang, languages: referenceLanguages })
+      const before = referenceSample(lang, code).html
       const after = `<pre><code class="hljs language-${lang}">${toHtml(toHast(code, lang) as ElementContent[])}</code></pre>`
       const result = colorAgreement(before, after)
 

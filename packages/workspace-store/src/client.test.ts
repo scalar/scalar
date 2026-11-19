@@ -2,17 +2,21 @@ import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { getActiveOpenApiDocument, getOpenApiDocument } from '@test/helpers'
+import { literalReferencesDocument } from '@test/literal-references'
 import fastify, { type FastifyInstance } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import YAML from 'yaml'
 
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas'
+import { isAsyncApiDocument, isOpenApiDocument, isPluginDocument } from '@/schemas'
+import type { DocumentTypeDefinition } from '@/schemas/plugin-document'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
@@ -107,6 +111,89 @@ const REGISTRY_META = {
 } as const
 
 describe('create-workspace-store', () => {
+  it.each(['3.1.0', '3.2.0'])('preserves literal references when importing OpenAPI %s', async (openapi) => {
+    const fetchDocument = vi.fn(() => Promise.resolve(new Response('{"type":"object"}')))
+    const store = createWorkspaceStore({ fetch: fetchDocument })
+    const document = { ...structuredClone(literalReferencesDocument), openapi }
+    await store.addDocument({ name: 'literal', document, documentSource: 'https://example.test/openapi.json' })
+    const raw = getRaw(store.workspace.documents.literal)
+
+    const literalPaths = [
+      ['info', 'x-data'],
+      ['paths', '/x', 'post', 'x-ms-examples'],
+      ['paths', '/x', 'post', 'requestBody', 'content', 'application/json', 'examples'],
+      ['paths', '/x', 'post', 'responses', '200', 'links'],
+      ['components', 'parameters', 'query', 'example'],
+      ...['default', 'enum', 'const', 'examples'].map((key) => ['components', 'schemas', 'Pet', key]),
+    ]
+    for (const path of literalPaths) {
+      expect(getValueAtPath(raw, path), path.join('/')).toStrictEqual(getValueAtPath(document, path))
+    }
+    expect(fetchDocument).toHaveBeenCalledTimes(0)
+  })
+
+  it.each([false, true])('preserves literal references during lazy resolution (chunked: %s)', async (chunked) => {
+    const server = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.test',
+      documents: [{ name: 'literal', document: structuredClone(literalReferencesDocument) }],
+    })
+    const fetched: string[] = []
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        fetched.push(String(input))
+        return Promise.resolve(new Response(JSON.stringify(server.get(String(input)) ?? {})))
+      },
+    })
+    const document = chunked ? server.getWorkspace().documents.literal : server.getResolvedDocument('literal')
+    assert(document)
+    await store.addDocument({ name: 'literal', document: getRaw(document) })
+    expect(fetched).toStrictEqual([])
+
+    await store.resolve(['paths', '/x', 'post'])
+    const pathItem = getResolvedRef(getOpenApiDocument(store, 'literal')?.paths?.['/x'])
+    const operation = getRaw(getResolvedRef(pathItem?.post))
+    const expected = literalReferencesDocument.paths['/x'].post
+    expect(operation?.requestBody).toStrictEqual(expected.requestBody)
+    expect(operation?.responses).toStrictEqual(expected.responses)
+    expect(getValueAtPath(operation, ['x-ms-examples'])).toStrictEqual(expected['x-ms-examples'])
+    expect(fetched).toStrictEqual(chunked ? ['https://example.test/literal/operations/~1x/post'] : [])
+  })
+
+  it('loads real references while preserving literal values in referenced examples', async () => {
+    const resources: Record<string, unknown> = {
+      'https://example.test/info.json': { title: 'Referenced info', version: '1' },
+      'https://example.test/schema.json': { type: 'object' },
+      'https://example.test/example.json': { value: { $ref: './literal.json', id: 7 } },
+    }
+    const fetched: string[] = []
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        fetched.push(String(input))
+        return Promise.resolve(new Response(JSON.stringify(resources[String(input)] ?? {})))
+      },
+    })
+    await store.addDocument({
+      name: 'references',
+      document: {
+        openapi: '3.1.0',
+        info: { $ref: 'https://example.test/info.json' },
+        paths: {},
+        components: {
+          schemas: { Pet: { $ref: 'https://example.test/schema.json', description: 'Schema sibling' } },
+          examples: { sample: { $ref: 'https://example.test/example.json' } },
+        },
+      },
+    })
+    const document = getOpenApiDocument(store, 'references')
+    expect(getRaw(document?.info)).toStrictEqual(resources['https://example.test/info.json'])
+    expect(document?.components?.schemas?.Pet?.description).toBe('Schema sibling')
+    expect(getRaw(getResolvedRef(document?.components?.examples?.sample))).toStrictEqual(
+      resources['https://example.test/example.json'],
+    )
+    expect(fetched).toStrictEqual(Object.keys(resources))
+  })
+
   it.each(['3.0.4', '3.1.2', '3.2.1'])('preserves arbitrary Paths extensions when importing %s', async (openapi) => {
     const store = createWorkspaceStore()
     const extensions = {
@@ -750,9 +837,7 @@ describe('create-workspace-store', () => {
     expect(getOpenApiDocument(store, 'new')?.info?.title).toEqual(getDocument().info.title)
   })
 
-  // TODO: handle server side preprocessed documents (nested refs)
-  // Detailed explanation (1*)
-  it.skip('handle circular references when we try to resolve all remote chunks recursively', async () => {
+  it('resolves circular references across remote chunks without fetching them again', async () => {
     const getDocument = () => ({
       openapi: '3.0.0',
       info: { title: 'My API', version: '1.0.0' },
@@ -804,7 +889,9 @@ describe('create-workspace-store', () => {
       },
     })
 
+    const requests: string[] = []
     server.get('/*', (req, res) => {
+      requests.push(req.url)
       const path = req.url
       const contents = serverStore.get(path)
 
@@ -839,7 +926,29 @@ describe('create-workspace-store', () => {
     // We resolve the ref
     await store.resolve(['paths', '/users', 'get'])
 
-    expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)?.['$ref-value'].type).toBe('object')
+    const user = getResolvedRef<unknown>(getActiveOpenApiDocument(store)?.components?.schemas?.['User'])
+    assert(isObject(user) && isObject(user.properties))
+    expect(user.type).toBe('object')
+
+    const rec = getResolvedRef<unknown>(user.properties.name)
+    assert(isObject(rec) && isObject(rec.properties))
+    expect(rec.type).toBe('object')
+
+    // Follow the return edge too: loading User alone does not prove the cycle resolves.
+    const backToUser = getResolvedRef<unknown>(rec.properties.id)
+    assert(isObject(backToUser) && isObject(backToUser.properties))
+    expect(backToUser.type).toBe('object')
+    const id = getResolvedRef<unknown>(backToUser.properties.id)
+    assert(isObject(id))
+    expect(id.description).toBe('The user ID')
+    expect(requests).toStrictEqual([
+      '/default/operations/~1users/get',
+      '/default/components/schemas/User',
+      '/default/components/schemas/Rec',
+    ])
+
+    await store.resolve(['paths', '/users', 'get'])
+    expect(requests.length).toBe(3)
   })
 
   it('build the sidebar client side', async () => {
@@ -3288,6 +3397,42 @@ describe('create-workspace-store', () => {
     })
   })
 
+  it('loads a prefetched URL response and uses the configured transport for relative references', async () => {
+    const url = 'https://example.com/api/document'
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Prefetched API', version: '1.0.0' },
+      components: { schemas: { Pet: { $ref: './pet.json' } } },
+    }
+    const fetch = vi.fn<typeof globalThis.fetch>(async () =>
+      Response.json({ type: 'object', properties: { name: { type: 'string' } } }),
+    )
+    const store = createWorkspaceStore({ fetch })
+
+    expect(await store.addDocument({ name: 'api', url, response: Response.json(document) })).toBe(true)
+    expect(store.workspace.documents.api?.info.title).toBe('Prefetched API')
+    expect(store.workspace.documents.api?.['x-scalar-original-source-url']).toBe(url)
+    expect(fetch.mock.calls.map(([input]) => input)).toStrictEqual(['https://example.com/api/pet.json'])
+    expect(getResolvedRef(getOpenApiDocument(store, 'api')?.components?.schemas?.Pet)).toStrictEqual({
+      type: 'object',
+      properties: { name: { type: 'string' } },
+    })
+  })
+
+  it('rejects a failed prefetched response without downloading it again', async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>()
+    const store = createWorkspaceStore({ fetch })
+
+    expect(
+      await store.addDocument({
+        name: 'api',
+        url: 'https://example.com/document',
+        response: new Response(null, { status: 503 }),
+      }),
+    ).toBe(false)
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
   describe('addDocument error handling', () => {
     beforeEach(() => {
       resetConsoleSpies()
@@ -4736,6 +4881,221 @@ describe('create-workspace-store', () => {
     })
   })
 
+  describe('registered document types', () => {
+    const arazzoDocument = () => ({
+      arazzo: '1.0.1',
+      info: { title: 'Pet adoption', version: '1.0.0' },
+      sourceDescriptions: [{ name: 'petstore', url: './petstore.json', type: 'openapi' }],
+      workflows: [{ workflowId: 'adopt', steps: [{ stepId: 'find', operationId: 'findPets' }] }],
+    })
+
+    const arazzo = (overrides: Partial<DocumentTypeDefinition> = {}): DocumentTypeDefinition => ({
+      type: 'arazzo',
+      detect: (document) => typeof document.arazzo === 'string',
+      traverse: ({ documentId, document }) =>
+        (document.workflows as { workflowId: string }[]).map((workflow) => ({
+          id: `${documentId}/workflow/${workflow.workflowId}`,
+          title: workflow.workflowId,
+          type: 'plugin',
+          documentType: 'arazzo',
+          kind: 'workflow',
+        })),
+      ...overrides,
+    })
+
+    it('stores a claimed document as-is, tagged with its document type', async () => {
+      const store = createWorkspaceStore({ documentTypes: [arazzo()] })
+
+      await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      const document = store.workspace.documents['adoption']
+      assert(isPluginDocument(document))
+      expect(document).toMatchObject({
+        ...arazzoDocument(),
+        'x-scalar-document-type': 'arazzo',
+        'x-scalar-original-document-hash': expect.any(String),
+      })
+      // The OpenAPI pipeline must not have touched it.
+      expect(document).not.toHaveProperty('openapi')
+      expect(isOpenApiDocument(document)).toBe(false)
+      expect(isAsyncApiDocument(document)).toBe(false)
+    })
+
+    it('builds the navigation from the document type', async () => {
+      const store = createWorkspaceStore({ documentTypes: [arazzo()] })
+
+      await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      expect(store.workspace.documents['adoption']?.['x-scalar-navigation']).toStrictEqual({
+        id: 'adoption',
+        type: 'document',
+        title: 'Pet adoption',
+        name: 'adoption',
+        icon: undefined,
+        children: [
+          {
+            id: 'adoption/workflow/adopt',
+            title: 'adopt',
+            type: 'plugin',
+            documentType: 'arazzo',
+            kind: 'workflow',
+          },
+        ],
+      })
+    })
+
+    it('stores the result of ingest', async () => {
+      const ingest = vi.fn((document: Record<string, unknown>) => ({ ...document, normalized: true }))
+      const store = createWorkspaceStore({ documentTypes: [arazzo({ ingest })] })
+
+      await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      expect(ingest).toHaveBeenCalledWith(arazzoDocument(), { documentName: 'adoption' })
+      expect(store.workspace.documents['adoption']).toMatchObject({ normalized: true })
+    })
+
+    it('adds an empty info object when the format has none', async () => {
+      const store = createWorkspaceStore({
+        documentTypes: [arazzo({ detect: (document) => 'overlay' in document, traverse: () => [] })],
+      })
+
+      await store.addDocument({ name: 'overlay', document: { overlay: '1.0.0', actions: [] } })
+
+      const document = store.workspace.documents['overlay']
+      expect(document?.info).toStrictEqual({})
+      expect(document?.['x-scalar-navigation']?.title).toBe('Untitled Document')
+    })
+
+    it('lets the first matching document type claim the document', async () => {
+      const store = createWorkspaceStore({
+        documentTypes: [arazzo({ type: 'first' }), arazzo({ type: 'second' })],
+      })
+
+      await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      const document = store.workspace.documents['adoption']
+      assert(isPluginDocument(document))
+      expect(document['x-scalar-document-type']).toBe('first')
+    })
+
+    it('leaves documents no type claims on the built-in pipelines', async () => {
+      const store = createWorkspaceStore({ documentTypes: [arazzo()] })
+
+      await store.addDocument({
+        name: 'petstore',
+        document: { openapi: '3.1.0', info: { title: 'Petstore', version: '1.0.0' }, paths: {} },
+      })
+
+      const document = store.workspace.documents['petstore']
+      expect(isOpenApiDocument(document)).toBe(true)
+      expect(isPluginDocument(document)).toBe(false)
+    })
+
+    it('ignores the document type marker on a document no type claims', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'petstore',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Petstore', version: '1.0.0' },
+          paths: {},
+          'x-scalar-document-type': 'arazzo',
+        },
+      })
+
+      const document = store.workspace.documents['petstore']
+      expect(isOpenApiDocument(document)).toBe(true)
+      expect(isPluginDocument(document)).toBe(false)
+    })
+
+    it.each(['json', 'yaml'] as const)('omits source type markers from immediate %s exports', async (format) => {
+      const store = createWorkspaceStore({ documentTypes: [arazzo()] })
+      const documents = {
+        petstore: { openapi: '3.1.0', info: { title: 'Petstore', version: '1.0.0' }, paths: {} },
+        adoption: arazzoDocument(),
+      }
+
+      for (const [name, document] of Object.entries(documents)) {
+        const input = { ...document, 'x-scalar-document-type': 'untrusted' }
+        await store.addDocument({ name, document: input })
+
+        const exported = store.exportDocument(name, format)
+        assert(exported !== undefined)
+        expect(YAML.parse(exported)).toStrictEqual(document)
+        expect(input['x-scalar-document-type']).toBe('untrusted')
+      }
+
+      expect(isOpenApiDocument(store.workspace.documents.petstore)).toBe(true)
+      const adoption = store.workspace.documents.adoption
+      assert(isPluginDocument(adoption))
+      expect(adoption['x-scalar-document-type']).toBe('arazzo')
+    })
+
+    it('keeps loading built-in documents when a detect hook throws', async () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const store = createWorkspaceStore({
+        documentTypes: [
+          arazzo({
+            detect: () => {
+              throw new Error('broken plugin')
+            },
+          }),
+        ],
+      })
+
+      const result = await store.addDocument({
+        name: 'petstore',
+        document: { openapi: '3.1.0', info: { title: 'Petstore', version: '1.0.0' }, paths: {} },
+      })
+
+      expect(result).toBe(true)
+      expect(isOpenApiDocument(store.workspace.documents['petstore'])).toBe(true)
+      expect(consoleError).toHaveBeenCalled()
+      consoleError.mockRestore()
+    })
+
+    it.each([
+      [
+        'ingest',
+        {
+          ingest: () => {
+            throw new Error('broken plugin')
+          },
+        },
+      ],
+      [
+        'traverse',
+        {
+          traverse: () => {
+            throw new Error('broken plugin')
+          },
+        },
+      ],
+    ])('adds the could-not-be-loaded document when %s throws', async (_hook, overrides) => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const store = createWorkspaceStore({ documentTypes: [arazzo(overrides)] })
+
+      const result = await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      expect(result).toBe(false)
+      expect(store.workspace.documents['adoption']?.info?.title).toBe("Document 'adoption' could not be loaded")
+      consoleError.mockRestore()
+    })
+
+    it('keeps the document type marker out of saved documents', async () => {
+      const store = createWorkspaceStore({ documentTypes: [arazzo()] })
+      await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      await store.saveDocument('adoption')
+
+      expect(JSON.parse(store.exportDocument('adoption', 'json') ?? '{}')).toStrictEqual(arazzoDocument())
+
+      await store.revertDocumentChanges('adoption')
+      expect(isPluginDocument(store.workspace.documents['adoption'])).toBe(true)
+    })
+  })
+
   describe('openapi security schemes', () => {
     it('preserves a mutualTLS security scheme during ingestion', async () => {
       const store = createWorkspaceStore()
@@ -4767,7 +5127,3 @@ describe('create-workspace-store', () => {
     })
   })
 })
-
-// Notes:
-// (1*) Currently when we do server side bundle, we can end up with refs that will be pointing to other refs
-//      so for now we don't support server side preprocessed documents

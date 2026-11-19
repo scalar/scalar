@@ -1,6 +1,6 @@
 import { type Plugin, loadEnv } from 'vite'
 
-import { assertScalarAppEnv } from './assert-scalar-app-env'
+import { assertScalarAppEnv } from './assert-scalar-app-env.ts'
 
 /** Fail Vite dev and build when required `VITE_*` variables are not set. */
 export const assertScalarAppEnvPlugin = (envDir: string): Plugin => ({
