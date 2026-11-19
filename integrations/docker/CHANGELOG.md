@@ -1,5 +1,13 @@
 # @scalarapi/docker-api-reference
 
+## 0.6.28
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.82.0
+
+No changes in this release.
+
 ## 0.6.27
 
 ### Bundled API Reference

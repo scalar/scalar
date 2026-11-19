@@ -1,5 +1,11 @@
 # @scalar/postman-to-openapi
 
+## 0.7.35
+
+### Patch Changes
+
+- [#11125](https://github.com/scalar/scalar/pull/11125): Fix Postman imports that use structured descriptions on query parameters.
+
 ## 0.7.34
 
 ### Patch Changes

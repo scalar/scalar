@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.19.0
+
+### Minor Changes
+
+- [#11103](https://github.com/scalar/scalar/pull/11103): Support `x-scalar-token-prefix` on header API keys. Generated code examples and outgoing requests add the configured prefix while stored credentials remain unchanged.
+
 ## 0.18.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/agent-chat
 
+## 0.12.56
+
+### Patch Changes
+
+- [#11103](https://github.com/scalar/scalar/pull/11103): Support `x-scalar-token-prefix` on header API keys. Generated code examples and outgoing requests add the configured prefix while stored credentials remain unchanged.
+- [#10854](https://github.com/scalar/scalar/pull/10854): Send the selected API source and version as structured chat request metadata, keeping user messages unchanged.
+
 ## 0.12.55
 
 ### Patch Changes

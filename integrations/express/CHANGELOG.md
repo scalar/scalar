@@ -1,5 +1,9 @@
 # @scalar/express-api-reference
 
+## 0.10.40
+
+No changes in this release.
+
 ## 0.10.39
 
 ### Patch Changes

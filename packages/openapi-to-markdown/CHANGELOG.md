@@ -1,5 +1,16 @@
 # @scalar/openapi-to-markdown
 
+## 1.7.10
+
+### Patch Changes
+
+- [#11124](https://github.com/scalar/scalar/pull/11124): Render Markdown through `@scalar/markdown` instead of `@scalar/code-highlight`
+
+  None of them pull in lowlight or highlight.js any more: code blocks in descriptions are highlighted by `@scalar/highlight`, the same highlighter `ScalarCodeBlock` uses. A fenced code block without a language is no longer auto-detected and renders as plain text. In `@scalar/openapi-to-markdown` this shows up in descriptions that contain HTML or alerts: an unlabeled fence used to come out labeled with highlight.js's guess (often wrong, such as `properties` for JSON), and now stays unlabeled.
+- [#11124](https://github.com/scalar/scalar/pull/11124): Share one copy of the Markdown parser stack
+
+  `@scalar/markdown` adds `parseMarkdown`, `mdastFromHtml` and `createMarkdownSerializer`. `@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown` use them instead of importing `unified`, `remark-*` and `rehype-*` themselves. `@scalar/markdown` bundles that stack, so a bundle that included both used to carry two copies of parse5, micromark and the mdast/hast utilities; the API Reference standalone build is about 330 KB smaller, 99 KB gzipped. Sharing the stack does not change the Markdown either package produces.
+
 ## 1.7.9
 
 ### Patch Changes

@@ -1,5 +1,22 @@
 # @scalar/workspace-store
 
+## 0.75.0
+
+### Minor Changes
+
+- [#11103](https://github.com/scalar/scalar/pull/11103): Support `x-scalar-token-prefix` on header API keys. Generated code examples and outgoing requests add the configured prefix while stored credentials remain unchanged.
+- [#11020](https://github.com/scalar/scalar/pull/11020): feat: show `x-badges` in the sidebar with the new `showBadgesInSidebar` option
+
+  The option is off by default, so the sidebar looks the same as before. When it is on, the sidebar shows the `x-badges` of operations, webhooks, tags (including nested OpenAPI 3.2 tags), `x-tagGroups` entries and models next to their titles. Navigation entries of these types get an optional `badges` field.
+
+### Patch Changes
+
+- [#11123](https://github.com/scalar/scalar/pull/11123): Fix the API reference freezing on schemas with several recursive or cross-referencing `$ref`s. Generated examples that are too large to render at full depth are now rendered at the deepest depth that fits.
+- [#11115](https://github.com/scalar/scalar/pull/11115): Fix examples for a `oneOf` or `anyOf` variant that is a nullable object or array, which came out as `null` instead of the object or array.
+- [#11113](https://github.com/scalar/scalar/pull/11113): Load native AsyncAPI RAML and Protobuf dependencies when their message or model is expanded, sharing authenticated downloads until the document changes and preserving source fallback and prebuilt server resources.
+
+  Use the containing document location for deferred dependencies and prevent remote schemas from invoking a filesystem loader.
+
 ## 0.74.0
 
 ### Minor Changes

@@ -1,5 +1,9 @@
 # @scalar/localization
 
+## 0.2.15
+
+No changes in this release.
+
 ## 0.2.14
 
 ### Patch Changes
