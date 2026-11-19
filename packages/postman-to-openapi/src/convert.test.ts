@@ -23,6 +23,37 @@ describe('fixtures', () => {
 })
 
 describe('convert', () => {
+  it('imports query parameters with structured Postman descriptions', () => {
+    const result = convert({
+      info: {
+        name: 'Catalog',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'List items',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.example.com/items?region=west',
+              query: [
+                {
+                  key: 'region',
+                  value: 'west',
+                  description: { content: '[required] Sales region', type: 'text/markdown' },
+                },
+              ],
+            },
+          },
+        },
+      ],
+    })
+
+    expect(result.paths?.['/items']?.get?.parameters).toEqual([
+      expect.objectContaining({ name: 'region', in: 'query', description: 'Sales region', required: true }),
+    ])
+  })
+
   it.each([
     { header: [], graphqlType: 'application/json', fileType: 'application/octet-stream' },
     { header: [{ key: 'Content-Type', value: 'image/png' }], graphqlType: 'image/png', fileType: 'image/png' },
