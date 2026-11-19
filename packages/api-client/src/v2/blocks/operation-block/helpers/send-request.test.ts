@@ -1205,6 +1205,56 @@ describe('sendRequest', () => {
       expect(result.response.cookieHeaderKeys).toStrictEqual(['a=1; Path=/', 'b=2; Path=/api; Secure'])
     })
 
+    it('preserves combined cookie headers with Expires commas, encoded values, and security attributes', async () => {
+      const mockResponse = addUrlToResponse(
+        new Response('ok', {
+          status: 200,
+          headers: {
+            'content-type': 'text/plain',
+            'x-scalar-set-cookie':
+              'token=a%2Fb; Expires=Tue, 19 Jan 2038 03:14:07 GMT; Path=/; Secure; HttpOnly; SameSite=None, locale=en%2DUS; Path=/',
+          },
+        }),
+        MOCK_URL,
+      )
+      globalFetchSpy.mockResolvedValueOnce(mockResponse)
+
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, {}],
+      })
+
+      expect(error).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      expect(result.response.cookieHeaderKeys).toStrictEqual([
+        'token=a/b; Path=/; Expires=Tue, 19 Jan 2038 03:14:07 GMT; HttpOnly; Secure; SameSite=None',
+        'locale=en-US; Path=/',
+      ])
+    })
+
+    it('ignores an empty cookie without discarding other response cookies', async () => {
+      const mockResponse = addUrlToResponse(
+        new Response('ok', {
+          headers: { 'x-scalar-set-cookie': '=, session=abc; Path=/' },
+        }),
+        MOCK_URL,
+      )
+      globalFetchSpy.mockResolvedValueOnce(mockResponse)
+
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, {}],
+      })
+
+      expect(error).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      expect(result.response.cookieHeaderKeys).toStrictEqual(['session=abc; Path=/'])
+    })
+
     it('preserves cookie attributes like Domain, Max-Age, and SameSite', async () => {
       const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
