@@ -116,6 +116,6 @@ Partner pricing is listed in your partner agreement.
 :::
 ```
 
-Only the access groups listed in `siteConfig.accessGroups` count. A team member who isn't in one of those groups by email address or domain doesn't get its slug, so they don't see entries limited to that group. To check a group's view, sign in with an address the group allows.
+Only the access groups listed in `siteConfig.accessGroups` count. A team member who is not in one of those groups by email address or domain does not get its slug, so they do not see entries limited to that group. To check a group's view, sign in with an address the group allows.
 
 `groups` only changes what appears in the navigation and on the page. A hidden page can still be opened at its URL, and hidden blocks stay in the page source. Search and sitemaps include them too. If some content must be kept from certain visitors, publish it as a separate private site and give that site its own access groups.
