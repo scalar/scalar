@@ -1,4 +1,4 @@
-import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { type MockInstance, afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { downloadDocument } from './download'
 
@@ -23,7 +23,7 @@ const readBlobBody = async (blob: Blob) => {
 }
 
 describe('downloadDocument', () => {
-  let createObjectURLSpy: ReturnType<typeof vi.spyOn>
+  let createObjectURLSpy: MockInstance<typeof URL.createObjectURL>
   let revokeObjectURLSpy: ReturnType<typeof vi.spyOn>
   let createElementSpy: ReturnType<typeof vi.spyOn>
   let dispatchEventSpy: ReturnType<typeof vi.spyOn>
@@ -71,7 +71,9 @@ info:
     )
 
     assert(createObjectURLSpy.mock.results.length > 0)
-    const objectUrl = createObjectURLSpy.mock.results[0].value
+    const result = createObjectURLSpy.mock.results[0]
+    assert(result)
+    const objectUrl = result.value
     assert(typeof objectUrl === 'string')
     await vi.runOnlyPendingTimersAsync()
     expect(revokeObjectURLSpy).toHaveBeenCalledWith(objectUrl)
