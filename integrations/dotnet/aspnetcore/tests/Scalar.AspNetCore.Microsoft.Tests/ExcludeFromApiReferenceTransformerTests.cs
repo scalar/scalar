@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -96,17 +97,15 @@ public class ExcludeFromApiReferenceTransformerTests(WebApplicationFactory<Progr
                                       }
                                     }
                                   },*
-                                  "tags": [
-                                    {
-                                      "name": "foo"
-                                    },
-                                    {
-                                      "name": "exclude",
-                                      "x-scalar-ignore": true
-                                    }
-                                  ]
+                                  "tags": [*]
                                 }
                                 """;
         content.Should().Match(expected);
+
+        // Tag order differs between Microsoft.OpenApi versions (net11.0 sorts them), so assert tags independently of order.
+        var tags = JsonNode.Parse(content)!["tags"]!.AsArray();
+        tags.Should().HaveCount(2);
+        tags.Should().ContainSingle(tag => tag!["name"]!.GetValue<string>() == "exclude" && tag["x-scalar-ignore"]!.GetValue<bool>());
+        tags.Should().ContainSingle(tag => tag!["name"]!.GetValue<string>() == "foo" && tag["x-scalar-ignore"] == null);
     }
 }

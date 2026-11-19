@@ -15,12 +15,12 @@
     "src/helpers/auth/schema.ts"
   ],
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "moduleResolution": "bundler",
     "composite": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@electron/*": ["entrypoints/electron/*"]
+      "@/*": ["./src/*"],
+      "@electron/*": ["./entrypoints/electron/*"]
     },
     "types": ["electron-vite/node", "node"]
   }

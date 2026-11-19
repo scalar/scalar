@@ -11,6 +11,35 @@
 }
 
 /*
+ * Readable text on an arbitrary background color
+ *
+ * Picks black or white text for whatever color is passed in, so a background
+ * set by an API author stays legible. Only sets the text color; pair it with a
+ * matching background utility.
+ *
+ * `l` is the color's lightness in LCH (0-100). Multiplying its distance from
+ * the midpoint by infinity and letting the channel clamp turns that into 0 or
+ * 100, so any color format works without parsing it in JavaScript.
+ *
+ * Expects an opaque color. Alpha is ignored, so a translucent dark color that
+ * shows up pale on a light page still gets white text. Colors with a lightness
+ * near 50 have middling contrast with both black and white; that is the cost
+ * of a binary choice.
+ *
+ * @example bg-(--badge-color) text-auto-contrast-(--badge-color)
+ */
+@utility text-auto-contrast-* {
+  /* Fallback for browsers without relative color syntax: a darker shade of the
+     color, which is readable on pale colors but muddy on mid-tones. */
+  color: color-mix(in srgb, --value([*]), black 40%);
+
+  @supports (color: lch(from red calc((50 - l) * infinity) 0 0)) {
+    /* Keep text opaque even when the background color is transparent. */
+    color: lch(from --value([*]) calc((50 - l) * infinity) 0 0 / 1);
+  }
+}
+
+/*
  * Padded width utilities
  * 
  * @example max-w-full-padded-4 - Sets the max-width to 100% - 8px

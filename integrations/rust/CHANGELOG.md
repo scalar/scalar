@@ -1,5 +1,41 @@
 # scalar_api_reference
 
+## 0.2.27
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.81.0
+
+No changes in this release.
+
+## 0.2.26
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.80.0
+
+No changes in this release.
+
+## 0.2.25
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.79.0
+
+### Patch Changes
+
+- [#11058](https://github.com/scalar/scalar/pull/11058): Prevent HTML injection in embedded Rust configuration and bundle URLs, and preserve literal template placeholders in user data.
+
+  Make the raw `render_scalar` helper internal so callers cannot bypass JSON validation. Use `scalar_html` with a `serde_json::Value` or `scalar_html_from_json` with a JSON string instead.
+
+## 0.2.24
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.78.1
+
+No changes in this release.
+
 ## 0.2.23
 
 ### Bundled API Reference

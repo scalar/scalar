@@ -6,6 +6,26 @@ import { normalRef, recursiveRef } from './reference'
 
 describe('index', () => {
   const schema = generateSchema(normalRef)
+  it('preserves header API-key token prefixes during coercion', () => {
+    const input = {
+      openapi: '3.2.0',
+      info: { title: 'API key', version: '1.0.0' },
+      paths: {},
+      components: {
+        securitySchemes: {
+          key: {
+            type: 'apiKey',
+            in: 'header',
+            name: 'Authorization',
+            'x-scalar-token-prefix': 'token',
+          },
+        },
+      },
+    }
+    expect(coerce(schema, input)).toStrictEqual({ ...input, 'x-scalar-original-document-hash': '' })
+    expect(generateTypes(schema, { maxDepth: Number.POSITIVE_INFINITY })).toContain('"x-scalar-token-prefix"?: string')
+  })
+
   const mediaType = {
     description: 'A stream of users',
     itemSchema: { type: 'string' },

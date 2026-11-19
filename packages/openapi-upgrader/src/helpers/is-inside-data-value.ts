@@ -1,15 +1,67 @@
+import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
+
 // Segments whose value is a map of *named* subschemas. Keys inside these maps are
 // arbitrary names (property names, definition names), never schema keywords.
 const NAMED_SCHEMA_MAP_SEGMENTS = new Set(['properties', 'patternProperties', '$defs', 'definitions'])
 
-/** Identify response, parameter, and header names so their spelling cannot turn them into schema keywords. */
-const isOpenApiObjectName = (path: readonly string[], index: number): boolean =>
-  (index === 1 && (path[0] === 'responses' || path[0] === 'parameters')) ||
-  (index === 2 && path[0] === 'components' && (path[1] === 'responses' || path[1] === 'parameters')) ||
-  // A reusable object or header named `headers` is not itself a header map.
-  (path[index - 1] === 'headers' &&
-    !isOpenApiObjectName(path, index - 1) &&
-    !isNamedSchemaMap(path.slice(0, index - 1)))
+const OPENAPI_NAME_MAPS = new Set([
+  'paths',
+  'webhooks',
+  'responses',
+  'content',
+  'headers',
+  'examples',
+  'links',
+  'encoding',
+  'variables',
+  'parameters',
+  'requestBodies',
+  'securitySchemes',
+  'pathItems',
+  'scopes',
+  'schemas',
+])
+
+/** Count author-chosen key levels before entering a Schema Object. */
+const openApiNameLevels = (path: readonly string[]): number => {
+  const segments = path[0] === 'x-ext' && path[1] !== undefined ? path.slice(2) : path
+  let levels = 0
+  for (const [index, segment] of segments.entries()) {
+    if (levels > 0) {
+      levels--
+    } else if (isSchemaPath(segments.slice(0, index))) {
+      return 0
+    } else if (segment === 'callbacks') {
+      // A callback map has a callback name, followed by a runtime-expression map.
+      levels = 2
+    } else if (OPENAPI_NAME_MAPS.has(segment) || (index === 0 && segment === 'x-webhooks')) {
+      levels = 1
+    }
+  }
+  return levels
+}
+
+/** Identify maps whose keys name OpenAPI objects rather than schema/data keywords. */
+export const isNamedOpenApiMap = (path: string[] | undefined): boolean => !!path && openApiNameLevels(path) > 0
+
+/** Distinguish author-chosen OpenAPI names from keywords and Specification Extensions. */
+export const isOpenApiObjectName = (path: readonly string[], index: number): boolean => {
+  const parent = path.slice(0, index)
+  const levels = openApiNameLevels(parent)
+  if (levels === 0) {
+    return false
+  }
+  if (!path[index]?.startsWith('x-')) {
+    return true
+  }
+  const resourceParent = parent[0] === 'x-ext' && parent[1] !== undefined ? parent.slice(2) : parent
+  const isPaths = resourceParent.length === 1 && resourceParent[0] === 'paths'
+  const isResponses =
+    resourceParent.at(-1) === 'responses' &&
+    !(resourceParent.length === 1 || (resourceParent.length === 2 && resourceParent[0] === 'components'))
+  const isCallbackExpression = levels === 1 && openApiNameLevels(parent.slice(0, -1)) === 2
+  return !isPaths && !isResponses && !isCallbackExpression
+}
 
 /**
  * Determine if the node at `path` is a map of named subschemas rather than a schema object.
@@ -71,7 +123,8 @@ export function isInsideDataValue(path: string[] | undefined, sourceVersion: '2.
     // Only treat it as data when the keyword is a real keyword. Inside a named-schema map the
     // same word (e.g. a property literally called `default`) is just a member name.
     // Swagger extensions must not classify OpenAPI 3.0 component or callback names as data.
-    const isDataKeyword = DATA_KEYWORDS.has(segment) || (sourceVersion === '2.0' && segment === 'x-example')
+    const isDataKeyword =
+      DATA_KEYWORDS.has(segment) || (sourceVersion === '2.0' && (segment === 'x-example' || segment === 'x-examples'))
     if (isDataKeyword && !isNamedSchemaMap(path.slice(0, index)) && !isDefaultResponse(path, index)) {
       return true
     }

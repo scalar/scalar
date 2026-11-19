@@ -28,6 +28,41 @@ const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => 
 }
 
 describe('upsertOperationParameter', () => {
+  it.each([
+    { document: createDocument({ openapi: '3.0.0' }), expected: [1] },
+    {
+      document: { ...createDocument(), 'x-scalar-document-type': 'custom', openapi: '3.0.0' },
+      expected: [2],
+    },
+    {
+      document: { ...createDocument(), 'x-scalar-document-type': 'custom', openapi: { version: 'custom' } },
+      expected: [2],
+    },
+  ])('uses dialect metadata only from OpenAPI documents: $document.openapi', ({ document, expected }) => {
+    const parameter: ParameterObject = {
+      name: 'numbers',
+      in: 'querystring',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'array',
+            items: { type: 'integer' },
+            minItems: 1,
+            maxItems: 1,
+            contains: { type: 'integer', const: 2 },
+          },
+        },
+      },
+    }
+    upsertOperationParameter(document, {
+      type: 'query',
+      originalParameter: parameter,
+      meta: { method: 'get', path: '/', exampleKey: 'default' },
+      payload: { name: 'numbers', value: encodeURIComponent(JSON.stringify(expected)), isDisabled: false },
+    })
+    expect(getResolvedRef(parameter.examples?.default)?.dataValue).toStrictEqual(expected)
+  })
+
   it.each(['deepObject', 'form'] as const)(
     'keeps %s property toggles independent and preserves their values',
     (style) => {

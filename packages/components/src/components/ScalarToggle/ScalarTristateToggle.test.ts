@@ -83,4 +83,25 @@ describe('ScalarTristateToggle', () => {
     expect(wrapper.classes()).toContain('cursor-not-allowed')
     expect(wrapper.classes()).toContain('opacity-40')
   })
+
+  it('moves the thumb to the medium positions when the size is medium', () => {
+    const unset = mount(ScalarTristateToggle, {
+      props: { modelValue: undefined, size: 'md' },
+    })
+    expect(unset.classes()).toContain('h-5')
+    expect(unset.find('div').classes()).toContain('size-4')
+    expect(unset.find('div').classes()).toContain('translate-x-1.5')
+    expect(unset.find('div').classes()).not.toContain('translate-x-1.25')
+
+    const on = mount(ScalarTristateToggle, {
+      props: { modelValue: true, size: 'md' },
+    })
+    expect(on.find('div').classes()).toContain('translate-x-3')
+
+    const off = mount(ScalarTristateToggle, {
+      props: { modelValue: false, size: 'md' },
+    })
+    expect(off.find('div').classes()).not.toContain('translate-x-1.5')
+    expect(off.find('div').classes()).not.toContain('translate-x-3')
+  })
 })

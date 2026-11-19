@@ -1,5 +1,27 @@
 # @scalar/openapi-to-markdown
 
+## 1.7.9
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 1.7.8
+
+### Patch Changes
+
+- [#11074](https://github.com/scalar/scalar/pull/11074): Link references and keep boolean schemas inside OpenAPI objects named like keywords, such as a `default` response, a header named `schema` or a callback named `example`, so their schemas render with fields and examples instead of `any` and `null`.
+
+## 1.7.7
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
+## 1.7.6
+
+No changes in this release.
+
 ## 1.7.5
 
 ### Patch Changes

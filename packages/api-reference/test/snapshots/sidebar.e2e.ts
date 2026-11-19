@@ -41,6 +41,17 @@ toTest.forEach((source) => {
 
     // Wait for the sidebar to load (group labels render as links for SEO)
     await expect(nav.getByRole('link', { name: 'Models' })).toBeVisible()
+
+    if (slug === 'long-strings') {
+      // Select the long link explicitly so the screenshot does not depend on scroll tracking.
+      const authentication = nav.getByRole('link', {
+        name: 'Authentication And Authorization Management System With Long Name',
+        exact: true,
+      })
+      await authentication.click()
+      await expect(authentication).toHaveAttribute('aria-current', 'page')
+    }
+
     await expect(page).toHaveScreenshot(`${slug}-sidebar.png`, opts)
 
     // Open all the sections. Group labels are links, so the caret next to

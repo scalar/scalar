@@ -6,6 +6,8 @@ Since .NET 9, the ASP.NET Core Web API template no longer includes Swashbuckle. 
 
 ## Set up Scalar in ASP.NET Core
 
+These steps require .NET 10 or later and `Scalar.AspNetCore` 3.x. If your app still targets .NET 8 or .NET 9, keep using `Scalar.AspNetCore` 2.x until you can upgrade the app's target framework.
+
 <scalar-steps>
   <scalar-step id="install" title="Install Scalar.AspNetCore">
 
@@ -120,7 +122,7 @@ if (app.Environment.IsDevelopment())
 
 Your XML comments, filters and attributes keep working because the generator has not changed. The same pattern applies to NSwag (`app.UseOpenApi(options => options.Path = "/openapi/{documentName}.json")`) and FastEndpoints. If your document lives somewhere else, call `options.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json")` instead of moving it.
 
-**Moving to Microsoft.AspNetCore.OpenApi.** If you are upgrading to .NET 9 or 10 anyway, replace `AddSwaggerGen()` with `AddOpenApi()` and `UseSwagger()` with `MapOpenApi()`, then follow the three steps above.
+**Moving to Microsoft.AspNetCore.OpenApi.** If you are upgrading to .NET 10 or later, replace `AddSwaggerGen()` with `AddOpenApi()` and `UseSwagger()` with `MapOpenApi()`, then follow the three steps above.
 
 **Coming from Redoc?** Redoc renders a read-only reference. Scalar adds the request client in the same page, so readers can try an endpoint without switching tools. The [Swagger UI migration guide](/resources/migration/swagger-ui) has a feature-by-feature comparison.
 
@@ -134,13 +136,13 @@ It replaces the UI half of Swashbuckle, which is Swagger UI. Swashbuckle also ge
 
 <scalar-detail title="What is the .NET 9 OpenAPI UI?">
 
-.NET 9 generates OpenAPI documents with `Microsoft.AspNetCore.OpenApi` but ships no UI to view them. Microsoft Learn describes adding Swagger UI or Scalar yourself. With Scalar, that is `dotnet add package Scalar.AspNetCore` and `app.MapScalarApiReference()`.
+.NET 9 generates OpenAPI documents with `Microsoft.AspNetCore.OpenApi` but ships no UI to view them. Microsoft Learn describes adding Swagger UI or Scalar yourself. For an app that still targets .NET 9, install `Scalar.AspNetCore` 2.x with `dotnet add package Scalar.AspNetCore --version "2.*"` and call `app.MapScalarApiReference()`. Upgrade the app to .NET 10 or later before moving to Scalar 3.x.
 
 </scalar-detail>
 
-<scalar-detail title="Does Scalar.AspNetCore work with .NET 8 and .NET 10?">
+<scalar-detail title="Which .NET versions does Scalar.AspNetCore support?">
 
-Yes. The package targets .NET 8, 9 and 10. On .NET 8, generate the document with Swashbuckle or NSwag and map it to `/openapi/{documentName}.json`. On .NET 9 and 10, use `AddOpenApi()` and `MapOpenApi()` as shown above.
+`Scalar.AspNetCore` 3.x requires .NET 10 or later. Apps targeting .NET 8 or .NET 9 must stay on `Scalar.AspNetCore` 2.x, which is the last major release line compatible with those frameworks. Use `dotnet add package Scalar.AspNetCore --version "2.*"` to stay on that line. On .NET 8, generate the document with Swashbuckle or NSwag; on .NET 9, use `AddOpenApi()` and `MapOpenApi()`. .NET 8 and .NET 9 have reached end of support, so plan to upgrade the app's target framework.
 
 </scalar-detail>
 

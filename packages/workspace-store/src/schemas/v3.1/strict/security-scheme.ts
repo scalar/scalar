@@ -7,6 +7,7 @@ import {
   type XScalarCredentialPlaceholders,
   XScalarCredentialPlaceholdersSchema,
 } from '@/schemas/extensions/security/x-scalar-credential-placeholders'
+import { type XScalarTokenPrefix, XScalarTokenPrefixSchema } from '@/schemas/extensions/security/x-scalar-token-prefix'
 import type { OAuthFlowsObject } from '@/schemas/v3.1/strict/oauthflows'
 import { OAuthFlowsObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
@@ -29,6 +30,7 @@ type Description = {
 
 const ApiKeySchema = compose(
   DescriptionSchema,
+  XScalarTokenPrefixSchema,
   Type.Object({
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
     type: Type.Literal('apiKey'),
@@ -39,14 +41,15 @@ const ApiKeySchema = compose(
   }),
 )
 
-export type ApiKeyObject = Description & {
-  /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
-  type: 'apiKey'
-  /** REQUIRED. The name of the header, query or cookie parameter to be used. */
-  name: string
-  /** REQUIRED. The location of the API key. Valid values are "query", "header", or "cookie". */
-  in: 'query' | 'header' | 'cookie'
-}
+export type ApiKeyObject = Description &
+  XScalarTokenPrefix & {
+    /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
+    type: 'apiKey'
+    /** REQUIRED. The name of the header, query or cookie parameter to be used. */
+    name: string
+    /** REQUIRED. The location of the API key. Valid values are "query", "header", or "cookie". */
+    in: 'query' | 'header' | 'cookie'
+  }
 
 const HttpSchema = compose(
   DescriptionSchema,

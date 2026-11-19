@@ -50,7 +50,8 @@ const emit = defineEmits<{
    * when the file is selected.
    */
   (e: 'uploadFile', index: number): void
-  (e: 'removeFile', index: number): void
+  (e: 'removeFile', index: number, fileIndex?: number): void
+  (e: 'updateFile', fileIndex: number, isDisabled: boolean): void
   (e: 'navigate', route: NonNullable<TableRow['globalRoute']>): void
   /** Select a value for a grouped global cookie preset at the given row index. */
   (e: 'selectPreset', index: number, value: string): void
@@ -221,8 +222,11 @@ defineExpose({
       :showUploadButton="showUploadButton"
       @deleteRow="emit('deleteRow', index)"
       @navigate="(route) => emit('navigate', route)"
-      @removeFile="emit('removeFile', index)"
+      @removeFile="(...args) => emit('removeFile', index, ...args)"
       @selectPreset="(value) => emit('selectPreset', index, value)"
+      @updateFile="
+        (fileIndex, disabled) => emit('updateFile', fileIndex, disabled)
+      "
       @uploadFile="emit('uploadFile', index)"
       @upsertRow="(payload) => handleUpsertRow(row, index, payload)" />
   </DataTable>

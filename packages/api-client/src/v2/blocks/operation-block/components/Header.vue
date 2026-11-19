@@ -74,6 +74,8 @@ const {
 } = defineProps<HeaderProps>()
 
 const emit = defineEmits<{
+  /** Open the GET destination using browser navigation. */
+  (e: 'open:browser'): void
   /** Execute the current operation example */
   (e: 'execute'): void
   /** Select a request history item by index */
@@ -127,6 +129,7 @@ const handleAddEnvironment = () => {
       :servers
       @add:environment="emit('add:environment')"
       @execute="emit('execute')"
+      @open:browser="emit('open:browser')"
       @select:history:item="(payload) => emit('select:history:item', payload)"
       @update:webhookUrl="
         (value: string) => emit('update:webhook-url', value)

@@ -4,6 +4,42 @@ import { describe, expect, it } from 'vitest'
 import { processSecuritySchemes } from './process-security-schemes'
 
 describe('process-security-schemes', () => {
+  it.each(['header', 'query', 'cookie'] as const)('applies token prefixes only to header API keys (%s)', (location) => {
+    const result = processSecuritySchemes([
+      {
+        type: 'apiKey',
+        name: 'Authorization',
+        in: location,
+        'x-scalar-token-prefix': 'token',
+        'x-scalar-secret-token': 'abc',
+      },
+    ])
+    const parameter = { name: 'Authorization', value: location === 'header' ? 'token abc' : 'abc' }
+    expect(result).toStrictEqual({
+      headers: location === 'header' ? [parameter] : [],
+      queryString: location === 'query' ? [parameter] : [],
+      cookies: location === 'cookie' ? [parameter] : [],
+    })
+  })
+
+  it('includes the prefix on the default snippet placeholder', () => {
+    expect(
+      processSecuritySchemes([
+        {
+          type: 'apiKey',
+          name: 'Authorization',
+          in: 'header',
+          'x-scalar-token-prefix': 'token',
+          'x-scalar-secret-token': '',
+        },
+      ]),
+    ).toStrictEqual({
+      headers: [{ name: 'Authorization', value: 'token YOUR_SECRET_TOKEN' }],
+      queryString: [],
+      cookies: [],
+    })
+  })
+
   describe('apiKey security scheme', () => {
     it('processes apiKey in header', () => {
       const securitySchemes: SecuritySchemeObjectSecret[] = [

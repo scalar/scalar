@@ -102,6 +102,10 @@ export const apiReferenceConfigurationSchema = intersection([
       default: false,
       typeComment: 'Whether to show the operationId',
     }),
+    showBadgesInSidebar: boolean({
+      default: false,
+      typeComment: 'Whether to show the x-badges of operations, webhooks, tags, tag groups and models in the sidebar',
+    }),
     darkMode: optional(boolean(), {
       typeComment: 'Whether dark mode is on or off initially (light mode)',
     }),
@@ -136,6 +140,14 @@ export const apiReferenceConfigurationSchema = intersection([
     featuredClients: optional(array(string() as unknown as LiteralSchema<AvailableClient>), {
       typeComment:
         'Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu',
+    }),
+    persistSelectedClient: boolean({
+      default: true,
+      typeComment: 'Whether to save and restore the selected code sample client using local storage. @default true',
+    }),
+    showDefaultClientsWithSdkInstallation: optional(boolean(), {
+      typeComment:
+        'Show built-in HTTP clients alongside `x-scalar-sdk-installation` tabs in the introduction. Defaults to false',
     }),
     defaultHttpClient: optional(
       // The keys stay permissive strings at runtime, so `coerce` leaves an unknown value

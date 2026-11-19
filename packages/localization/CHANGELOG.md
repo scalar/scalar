@@ -1,5 +1,21 @@
 # @scalar/localization
 
+## 0.2.14
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.2.13
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.2.12
+
+No changes in this release.
+
 ## 0.2.11
 
 ## 0.2.10

@@ -194,6 +194,28 @@ describe('pythonAiohttp', () => {
     )`)
   })
 
+  it('requests multipart encoding when there are only text fields', () => {
+    const result = pythonAiohttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'name', value: 'Ada' },
+          { name: 'age', value: '36' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`async with aiohttp.ClientSession() as session:
+    data = aiohttp.FormData(default_to_multipart=True)
+    data.add_field("name", "Ada")
+    data.add_field("age", "36")
+    await session.post("https://example.com",
+        data=data
+    )`)
+  })
+
   it('handles url-encoded form data', () => {
     const result = pythonAiohttp.generate({
       url: 'https://example.com',

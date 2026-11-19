@@ -1,4 +1,5 @@
 import type { Chat } from '@ai-sdk/vue'
+import { formatTokenPrefix } from '@scalar/helpers/http/format-token-prefix'
 import { restoreOriginalHeaders } from '@scalar/helpers/http/restore-original-headers'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
@@ -164,7 +165,7 @@ export const executeRequestTool = n.safeFn(
           if (securityOption.format === 'bearer') {
             return `Bearer ${securityOption.value}`
           }
-          return securityOption.value
+          return formatTokenPrefix(securityOption.value, securityOption.tokenPrefix)
         })()
 
         if (securityOption.in === 'header') {

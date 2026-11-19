@@ -2,7 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { coerce } from '@/coerce'
 import {
+  type LazySchema,
+  type LiteralSchema,
+  type ObjectSchema,
+  type OptionalSchema,
   type Schema,
+  type StringSchema,
   any,
   array,
   boolean,
@@ -1391,10 +1396,28 @@ describe('cyclic structures', () => {
   type NamedNode<Name extends string | number = string | number> = { name: Name; child?: NamedNode<Name> | null }
   type KindA = { kind: 'a'; next?: KindB }
   type KindB = { kind: 'b'; next?: KindA | null }
+  type NamedNodeSchema = LazySchema<
+    () => ObjectSchema<{
+      name: StringSchema
+      child: OptionalSchema<LazySchema<() => NamedNodeSchema>>
+    }>
+  >
+  type KindASchema = LazySchema<
+    () => ObjectSchema<{
+      kind: LiteralSchema<'a'>
+      next: OptionalSchema<LazySchema<() => KindBSchema>>
+    }>
+  >
+  type KindBSchema = LazySchema<
+    () => ObjectSchema<{
+      kind: LiteralSchema<'b'>
+      next: OptionalSchema<LazySchema<() => KindASchema>>
+    }>
+  >
 
   it('terminates on a self-referential value paired with a recursive lazy schema', () => {
     // Cyclic reference to the same schema
-    const T = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
+    const T: NamedNodeSchema = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
 
     const node: NamedNode = { name: 'root' }
     node.child = node
@@ -1411,7 +1434,7 @@ describe('cyclic structures', () => {
   })
 
   it('coerces properties before returning the original reference on a cycle', () => {
-    const T = lazy(() => object({ name: string({ default: 'Marc' }), child: optional(lazy(() => T)) }))
+    const T: NamedNodeSchema = lazy(() => object({ name: string({ default: 'Marc' }), child: optional(lazy(() => T)) }))
 
     const node: NamedNode = { name: 42 }
     node.child = node
@@ -1426,8 +1449,8 @@ describe('cyclic structures', () => {
   })
 
   it('terminates on mutually-recursive lazy schemas with cyclic data', () => {
-    const SchemaA = lazy(() => object({ kind: literal('a'), next: optional(lazy(() => SchemaB)) }))
-    const SchemaB = lazy(() => object({ kind: literal('b'), next: optional(lazy(() => SchemaA)) }))
+    const SchemaA: KindASchema = lazy(() => object({ kind: literal('a'), next: optional(lazy(() => SchemaB)) }))
+    const SchemaB: KindBSchema = lazy(() => object({ kind: literal('b'), next: optional(lazy(() => SchemaA)) }))
 
     const a: KindA = { kind: 'a' }
     const b: KindB = { kind: 'b' }
@@ -1497,7 +1520,7 @@ describe('cyclic structures', () => {
   })
 
   it('coerces a recursive schema', () => {
-    const T = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
+    const T: NamedNodeSchema = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
     const input: NamedNode & { child: NamedNode & { child: NamedNode } } = {
       name: 1,
       child: { name: 'child', child: { name: 'grandchild' } },
@@ -1592,6 +1615,76 @@ describe('coerce', () => {
     expect(coerce(schema, Object.assign(Object.create(null), { entry: 'invalid' }))).toStrictEqual({ entry: 42 })
     expect(coerce(schema, new Date(0))).toBe('fallback')
     expect(coerce(schema, [])).toBe('fallback')
+  })
+
+  it.each([false, true])('preserves matching record values with reversed branches: %s', (reverse) => {
+    const branches = [record(string(), number()), record(string(), string())]
+    const schema = union(reverse ? [...branches].reverse() : branches)
+
+    expect(coerce(schema, { greeting: 'hello' })).toStrictEqual({ greeting: 'hello' })
+    expect(coerce(schema, { count: 42 })).toStrictEqual({ count: 42 })
+    expect(coerce(schema, Object.assign(Object.create(null), { greeting: 'hello' }))).toStrictEqual({
+      greeting: 'hello',
+    })
+  })
+
+  it('chooses the record branch matching more values', () => {
+    const schema = union([record(string(), number()), record(string(), string())])
+
+    expect(coerce(schema, { first: 'hello', second: 'world', count: 42 })).toStrictEqual({
+      first: 'hello',
+      second: 'world',
+      count: '',
+    })
+  })
+
+  it('keeps record scores below matching object shapes', () => {
+    const schema = union([object({ name: string() }), record(string(), string())])
+
+    expect(coerce(schema, { name: 'Ada', extra: 'ignored' })).toStrictEqual({ name: 'Ada' })
+  })
+
+  it('scores nested record values', () => {
+    const schema = union([record(string(), record(string(), number())), record(string(), record(string(), string()))])
+
+    expect(coerce(schema, { messages: { greeting: 'hello' } })).toStrictEqual({
+      messages: { greeting: 'hello' },
+    })
+  })
+
+  it('keeps the first record branch when entry scores tie', () => {
+    const schema = union([record(string(), number({ default: 42 })), record(string(), boolean({ default: true }))])
+
+    expect(coerce(schema, {})).toStrictEqual({})
+    expect(coerce(schema, { entry: null })).toStrictEqual({ entry: 42 })
+  })
+
+  it('terminates when scoring recursive record branches against cyclic values', () => {
+    const schema: Schema = lazy(() => union([record(string(), schema), string()]))
+    const value: Record<string, unknown> = {}
+    value.self = value
+
+    const result = coerce(schema, value)
+
+    expect(result).toStrictEqual(value)
+    expect((result as Record<string, unknown>).self).toBe(result)
+  })
+
+  it('bounds scoring work for deeply nested recursive record unions', () => {
+    let calls = 0
+    const count = (value: unknown): unknown => {
+      if (++calls > 1_000) {
+        throw new Error('Runaway record scoring')
+      }
+      return value
+    }
+    const schema: Schema = lazy(() =>
+      union([record(string(), evaluate(count, schema)), record(string(), evaluate(count, schema)), string()]),
+    )
+    const value = Array.from({ length: 12 }).reduce<unknown>((child) => ({ child }), 'leaf')
+
+    expect(coerce(schema, value)).toStrictEqual(value)
+    expect(calls).toBeLessThan(1_000)
   })
 
   it('scores literal matches strictly without coercing the discriminator', () => {

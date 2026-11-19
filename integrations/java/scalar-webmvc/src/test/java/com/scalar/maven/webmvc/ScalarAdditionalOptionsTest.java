@@ -24,6 +24,26 @@ class ScalarAdditionalOptionsTest {
     }
 
     @Test
+    void bindsAndRendersSidebarBadges() throws Exception {
+        assertThat(bindAndRender(Map.of()).get("showBadgesInSidebar").booleanValue()).isFalse();
+        for (boolean enabled : new boolean[]{true, false}) {
+            JsonNode config = bindAndRender(Map.of(
+                    "scalar.show-badges-in-sidebar", Boolean.toString(enabled)));
+            assertThat(config.get("showBadgesInSidebar").booleanValue()).isEqualTo(enabled);
+        }
+    }
+
+    @Test
+    void bindsAndRendersDefaultClientsWithSdkInstallation() throws Exception {
+        assertThat(bindAndRender(Map.of()).get("showDefaultClientsWithSdkInstallation").booleanValue()).isFalse();
+        for (boolean enabled : new boolean[]{true, false}) {
+            JsonNode config = bindAndRender(Map.of(
+                    "scalar.show-default-clients-with-sdk-installation", Boolean.toString(enabled)));
+            assertThat(config.get("showDefaultClientsWithSdkInstallation").booleanValue()).isEqualTo(enabled);
+        }
+    }
+
+    @Test
     void passesUiOptionsIncludingFalseAndZero() throws Exception {
         JsonNode config = bindAndRender(Map.ofEntries(
                 Map.entry("scalar.hide-model-names", "true"),

@@ -2516,6 +2516,12 @@
                       ]
                     }
                   },
+                  "tools": {
+                    "title": "MCP Tools",
+                    "type": "page",
+                    "description": "Choose which operations become MCP tools, name them, and set MCP tool annotations with x-scalar-expose.",
+                    "filepath": "documentation/guides/agent/tools.md"
+                  },
                   "configuration": {
                     "title": "MCP Configuration",
                     "type": "page",
@@ -4356,6 +4362,12 @@
                     "filepath": "documentation/guides/cli/autocompletion.md",
                     "type": "page",
                     "title": "Autocompletion"
+                  },
+                  "transform": {
+                    "description": "Generate public production and private staging API descriptions from one source with ordered filtering, metadata edits, and component pruning.",
+                    "filepath": "documentation/guides/cli/transform.md",
+                    "type": "page",
+                    "title": "Transform API Descriptions"
                   },
                   "ci-and-scripting": {
                     "description": "Run the Scalar CLI in CI: authenticate with tokens, publish lint reports, adopt lint baselines, and read JSON output.",

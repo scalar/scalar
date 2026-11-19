@@ -47,11 +47,11 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
         with:
           persist-credentials: false
       - name: Build
-        uses: ./.github/actions/build
+        uses: $/.github/actions/build
         with:
           packages: './{packages,integrations}/**'
           archive-output: 'true'
@@ -60,13 +60,13 @@ jobs:
           mkdir -p temp-artifacts
           cp packages/api-reference/dist/browser/standalone.js temp-artifacts/scalar.js
       - name: Upload scalar.js artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
       - name: Upload mock server docker entrypoint artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: mock-server-docker-entrypoint
           path: packages/mock-server/docker/dist/docker-entrypoint.js
@@ -75,7 +75,7 @@ jobs:
       # restore-build composite so downstream JS jobs can fan out without
       # rerunning the build.
       - name: Upload build-output artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: build-output
           path: build-output.tar.gz
@@ -86,7 +86,7 @@ jobs:
       # Dependabot runs cannot read Actions secrets, including the RelativeCI key.
       - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]')
         name: Upload webpack stats to RelativeCI
-        uses: relative-ci/agent-action@fcf45416581928e8dd62eded78ce98c78e5149f8 # v3.2.3
+        uses: relative-ci/agent-action@v3.2.3
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -110,21 +110,21 @@ jobs:
       api_client_changed: ${{ steps.changes.outputs.api_client_changed }}
       api_reference_changed: ${{ steps.changes.outputs.api_reference_changed }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
         with:
           persist-credentials: false
       - id: changes
-        uses: ./.github/actions/check-changes
+        uses: $/.github/actions/check-changes
 
   format:
     if: github.event_name == 'pull_request'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - uses: actions/checkout@v6.0.3
+      - uses: pnpm/action-setup@v5.0.0
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        uses: actions/setup-node@v6.4.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -146,10 +146,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - uses: actions/checkout@v6.0.3
+      - uses: pnpm/action-setup@v5.0.0
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        uses: actions/setup-node@v6.4.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -170,10 +170,10 @@ jobs:
       # Required so the lint results can be posted back to the PR.
       pull-requests: write
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - uses: actions/checkout@v6.0.3
+      - uses: pnpm/action-setup@v5.0.0
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        uses: actions/setup-node@v6.4.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -218,7 +218,7 @@ jobs:
           } > lint-comment.md
       - name: Post lint results to the PR
         if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        uses: thollander/actions-comment-pull-request@v3.0.1
         with:
           file-path: lint-comment.md
           # Reuse (update) the same comment on every new commit instead of
@@ -234,9 +234,9 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       # `--only` skips the `build` dependencies of types:check: restore-build
       # already put every package dist/ in place, and turbo used to rebuild
       # whatever missed its cache before it could start checking types.
@@ -259,9 +259,9 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Build examples, projects and tooling
         run: >-
           pnpm turbo --only --cache=local:
@@ -277,9 +277,9 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       # restore-build only restores dist/, while Nuxt configs extend generated .nuxt files.
       - name: Prepare Nuxt configs for Knip
         run: |
@@ -310,9 +310,9 @@ jobs:
       HOME: '/root'
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Run tests
         run: pnpm turbo --filter './integrations/**' --only test
         # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
@@ -324,9 +324,9 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Setup Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        uses: actions/setup-go@v6.5.0
         with:
           go-version-file: projects/proxy-scalar-com/go.mod
           cache: false
@@ -340,9 +340,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Start SSR playground and verify it responds
         run: |
           pnpm --filter @scalar/server-side-rendering dev &
@@ -370,9 +370,9 @@ jobs:
       pull-requests: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build Storybook (@scalar/blocks)
@@ -392,7 +392,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
+        uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar Blocks Snapshot Test Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
@@ -418,9 +418,9 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build storybook (@scalar/api-reference)
@@ -442,7 +442,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
+        uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar References End to End Test Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
@@ -471,9 +471,9 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run e2e tests (scalar-app)
@@ -489,7 +489,7 @@ jobs:
             --alias=${{env.DEPLOY_ID}}
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
+        uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar App End to End Test Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
@@ -515,9 +515,9 @@ jobs:
       pull-requests: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run e2e tests (@scalar/components)
@@ -535,7 +535,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
+        uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar Components Snapshot Test Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
@@ -561,9 +561,9 @@ jobs:
       pull-requests: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run snapshot tests (@scalar/api-reference)
@@ -581,7 +581,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
+        uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar CDN Snapshot Diff Results'
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
@@ -670,7 +670,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Add combined preview URLs to the PR
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        uses: thollander/actions-comment-pull-request@v3.0.1
         with:
           message: ${{ steps.build-message.outputs.message }}
           comment-tag: 'deployment-preview'

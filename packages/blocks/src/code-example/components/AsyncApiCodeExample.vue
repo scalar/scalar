@@ -151,7 +151,7 @@ const content = computed(() =>
         </p>
         <ScalarCodeBlock
           v-if="content"
-          class="bg-b-2 h-full"
+          class="h-full bg-transparent"
           :content="content.content"
           :lang="content.lang"
           lineNumbers />
@@ -165,7 +165,7 @@ const content = computed(() =>
     </ScalarCardSection>
     <ScalarCardFooter
       v-if="Object.keys(messages).length || examples.length"
-      class="bg-b-3 relative flex shrink-0 flex-wrap items-center justify-end gap-2 p-1.5">
+      class="relative flex shrink-0 flex-wrap items-center justify-end gap-2 p-1.5">
       <div class="flex min-w-0 flex-1 flex-wrap items-center gap-2">
         <ExamplePicker
           v-if="examples.length > 1"

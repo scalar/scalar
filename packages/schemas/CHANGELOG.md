@@ -1,5 +1,23 @@
 # @scalar/schemas
 
+## 0.18.1
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+
+## 0.18.0
+
+### Minor Changes
+
+- [#11037](https://github.com/scalar/scalar/pull/11037): Load object-valued `x-codeSamples.source` and `x-code-samples.source` file references as raw code text, with relative origins and lazy operation loading. Retain failed references and show an unavailable sample instead of silently replacing them with an empty string. Preserve literal `$ref` values in other extensions and example data.
+- [#11036](https://github.com/scalar/scalar/pull/11036): Add `showDefaultClientsWithSdkInstallation` to show SDK installation tabs alongside built-in HTTP clients in the introduction.
+- [#11033](https://github.com/scalar/scalar/pull/11033): Add `persistSelectedClient` to disable saving and restoring the selected code sample client in local storage.
+
+## 0.17.1
+
+No changes in this release.
+
 ## 0.17.0
 
 ### Minor Changes

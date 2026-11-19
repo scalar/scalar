@@ -1,5 +1,44 @@
 # @scalar/components
 
+## 0.35.2
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.35.1
+
+### Patch Changes
+
+- [#11078](https://github.com/scalar/scalar/pull/11078): Center card headers and footers between the card's edge and the surface beside them. They sat on the card's 4px padding on one side only, so their contents were 2px off center toward the surface: the request example's buttons, for example, were 6px under the code but 10px above the card's edge. Cards keep their height, and a card given `p-0` is unchanged.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+
+## 0.35.0
+
+### Minor Changes
+
+- [#10980](https://github.com/scalar/scalar/pull/10980): feat: redesign code cards as a padded shell with the code on a lifted surface
+
+  This changes the default look of every `ScalarCard`, not only the cards in the API reference. `ScalarCard` drops its border and dividers for a 12px shell with 4px of padding, and each plain `ScalarCardSection` becomes an 8px surface lifted off it. If you use these components in your own app, check your cards after this bump:
+
+  - A card recolored to match its page (for example `bg-b-1` on a `bg-b-1` page) no longer has an edge. Pass `border` to bring it back, or give the card a fill that differs from the page.
+  - Two plain sections in a row are two surfaces with a 4px gap, where they were one box with a divider.
+  - Content placed straight in `ScalarCard` without a section sits inside the 4px padding. Pass `p-0` to remove it.
+
+  In the API reference, the request example, example responses, operations list and AsyncAPI cards all pick this up. The surface color is derived from `--scalar-background-2`, and its outline from `--scalar-shadow-1` and `--scalar-border-color`. A copy button on a surface sits one step above it, toward the text color. Set `--scalar-card-surface`, `--scalar-card-surface-raised` or `--scalar-card-surface-shadow` on `.scalar-card` to change them. Every class name is unchanged, and the new rules are single-class selectors, so existing theme and `customCss` rules keep winning.
+- [#11040](https://github.com/scalar/scalar/pull/11040): feat: add a medium size to ScalarToggle and ScalarTristateToggle
+
+  Pass `size="md"` for a larger toggle with a 20×32px track and a 16px thumb, sized to sit next to full-height form controls in settings rows. The tristate toggle's center position scales with it. The default stays `sm`, so existing toggles are unchanged. The input and group wrappers keep the `sm` toggle, since their form-row layout is built around it.
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+- [#11027](https://github.com/scalar/scalar/pull/11027): fix: render server-rendered teleports in place until they are mounted, so hydrating the API reference no longer replaces elements of the host page or breaks its dropdowns
+
+## 0.34.1
+
+No changes in this release.
+
 ## 0.34.0
 
 ### Minor Changes

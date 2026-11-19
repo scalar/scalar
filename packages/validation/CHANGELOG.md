@@ -1,5 +1,18 @@
 # @scalar/validation
 
+## 0.6.9
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.6.8
+
+### Patch Changes
+
+- [#11003](https://github.com/scalar/scalar/pull/11003): Choose record union branches by matching values to avoid coercing valid entries through an incompatible branch.
+
 ## 0.6.7
 
 ### Patch Changes
