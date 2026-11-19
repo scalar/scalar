@@ -599,6 +599,16 @@ app.MapScalarApiReference(options => options.WithDefaultClientsWithSdkInstallati
 
 This sets `ShowDefaultClientsWithSdkInstallation` to `true`. The default is `false`, which shows only SDK tabs when installation instructions are available. The same option and fluent method are available in Aspire, Azure Functions, and AWS Lambda.
 
+### Sidebar badges
+
+To show `x-badges` next to sidebar titles, enable:
+
+```csharp
+app.MapScalarApiReference(options => options.WithBadgesInSidebar());
+```
+
+You can also set `options.ShowBadgesInSidebar = true`. Badges are hidden by default; use `WithBadgesInSidebar(false)` to disable them explicitly. The same option and fluent method are available in Aspire, Azure Functions, and AWS Lambda.
+
 ### Selected client persistence
 
 The selected code sample client is saved and restored using local storage by default. To keep the selection on the current page only:

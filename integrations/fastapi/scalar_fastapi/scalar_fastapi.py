@@ -311,6 +311,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = True,
+    show_badges_in_sidebar: Annotated[
+        bool,
+        Doc(
+            """
+            Whether to show x-badges in the sidebar.
+            Default is False.
+            """
+        ),
+    ] = False,
     hide_download_button: Annotated[
         bool,
         Doc(
@@ -649,6 +658,9 @@ def get_scalar_api_reference(
 
     if not show_sidebar:  # Default is True
         config["showSidebar"] = show_sidebar
+
+    if show_badges_in_sidebar:  # Default is False
+        config["showBadgesInSidebar"] = show_badges_in_sidebar
 
     # Handle download button configuration
     if (

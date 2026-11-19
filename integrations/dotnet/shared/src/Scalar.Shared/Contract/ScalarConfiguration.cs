@@ -32,6 +32,8 @@ internal sealed class ScalarConfiguration
 
     public required bool? ShowSidebar { get; init; }
 
+    public required bool? ShowBadgesInSidebar { get; init; }
+
     public required OperationTitleSource? OperationTitleSource { get; init; }
 
     public required bool? HideModels { get; init; }

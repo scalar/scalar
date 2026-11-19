@@ -246,6 +246,17 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets whether x-badges are shown in the sidebar.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="showBadgesInSidebar">Whether to show badges in the sidebar.</param>
+    public static TOptions WithBadgesInSidebar<TOptions>(this TOptions options, bool showBadgesInSidebar = true) where TOptions : ScalarOptions
+    {
+        options.ShowBadgesInSidebar = showBadgesInSidebar;
+        return options;
+    }
+
+    /// <summary>
     /// Controls whether the sidebar and search use the operation summary or path (default: <see cref="OperationTitleSource.Summary" />).
     /// </summary>
     /// <param name="options">The options to configure.</param>

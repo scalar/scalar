@@ -43,6 +43,7 @@ internal static partial class ScalarOptionsMapper
             HideSearch = options.HideSearch,
             ForceDarkModeState = options.ForceThemeMode,
             ShowSidebar = options.ShowSidebar,
+            ShowBadgesInSidebar = options.ShowBadgesInSidebar,
             OperationTitleSource = options.OperationTitleSource,
             WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,

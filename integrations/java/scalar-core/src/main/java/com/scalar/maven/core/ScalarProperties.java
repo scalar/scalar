@@ -125,6 +125,12 @@ public class ScalarProperties {
     private boolean showSidebar = true;
 
     /**
+     * Whether to show x-badges in the sidebar.
+     * Defaults to false.
+     */
+    private boolean showBadgesInSidebar = false;
+
+    /**
      * Whether models (components.schemas or definitions) should be hidden from the
      * sidebar, search, and content.
      * Defaults to false.
@@ -415,6 +421,14 @@ public class ScalarProperties {
 
     public void setPageTitle(String pageTitle) {
         this.pageTitle = pageTitle;
+    }
+
+    public boolean isShowBadgesInSidebar() {
+        return showBadgesInSidebar;
+    }
+
+    public void setShowBadgesInSidebar(boolean showBadgesInSidebar) {
+        this.showBadgesInSidebar = showBadgesInSidebar;
     }
 
     public boolean isShowSidebar() {

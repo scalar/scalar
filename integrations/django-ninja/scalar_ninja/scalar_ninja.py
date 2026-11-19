@@ -168,6 +168,11 @@ class ScalarConfig(BaseModel):
         description="A boolean to show the sidebar. Default is True which means the sidebar is shown.",
     )
 
+    show_badges_in_sidebar: bool = Field(
+        default=False,
+        description="Whether to show x-badges in the sidebar. Default is False.",
+    )
+
     hide_download_button: bool = Field(
         default=False,
         description="A boolean to hide the download button. @deprecated Use document_download_type instead.",
@@ -436,6 +441,9 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
 
     if not config.show_sidebar:  # Default is True
         js_config["showSidebar"] = config.show_sidebar
+
+    if config.show_badges_in_sidebar:  # Default is False
+        js_config["showBadgesInSidebar"] = config.show_badges_in_sidebar
 
     # Handle download button configuration
     if (
