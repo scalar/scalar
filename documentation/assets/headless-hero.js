@@ -24,6 +24,9 @@
  *
  * Pages on scalar.com render on the client and hydrate over the first copy of the hero, so binding goes through a
  * MutationObserver with a dataset flag on the element: a node replaced by hydration comes back unbound and heals itself.
+ *
+ * A page can bring compositions of its own in a plugin of this file that only it loads (see the plugins, at the end),
+ * as the use cases pages do.
  */
 ;(() => {
   // The docs run a route's scripts again on every visit. The first run watches the page for good, so a later one has
@@ -1113,6 +1116,22 @@
                butterflies, so that the fish come in and go out through the glass at the sides as the butterflies do,
                and a school always has the lens. A school with no fish is none. A composition with a school cannot also
                talk: both say what they are in their strokes' phase, and the face's codes run on past 400.
+     ripple    null, or { at, flat, period, rings, life, reach, ease, width, soft, fade, bend }: rings of ripples spread
+               out over the composition from the point `at({ w, h, words })` gives in CSS pixels of the canvas, flattened
+               to `flat` of their width as water seen at a slant is (see rippleVertex and rippleNow). Each ring of
+               `rings`, [born, pace, strength] (pace and strength 1 if not given), is born `born` seconds into every
+               `period` and lives `life` seconds (no longer than the period: a longer life is cut to it), spreading out
+               to `pace` of `reach` (CSS pixels across, or a hook (w) => that of the canvas's width), quickly at first
+               and slowing as it goes (the power `ease`, 1.5 if not given), from `width[0]` to `width[1]` times as wide
+               as a hairline ring and from `soft[0]` to `soft[1]` times as soft (both [1, 1] if not given), coming in
+               over the first `fade[0]` of its life and fading as what is left of it to the power `fade[1]` ([0.05, 1]
+               if not given), at its strongest `strength`. Its strokes are laid with rippleDab, as many to a ring as the
+               composition likes, and may be drawn in any order among the others; they stand on the water whatever the
+               wind, the pointer or anything passing does, and a still picture has the rings where the still clock puts
+               them. With `bend` ([pixels, width]), strokes the composition marks (phase 600, standing still) are bent
+               by the rings crossing them, as water bends what it mirrors (see rippleVertex). A ripple has at most
+               RIPPLE_MOST rings (any past them are left out); one with none is none. A composition that talks has no
+               ripple: both say what they are in their strokes' phase, and the face's codes run on past 500.
      lightFoot whether the light it plants in the haze kind, marked even, goes into the canvas's foot whole rather than
                thinning into specks there, as a figure the picture's foot cuts off does (see LIGHT_FOOT).
      perch     null, or how a flock that lands does it (see the butterflies that perch): its butterflies sit on the places
@@ -8324,6 +8343,8 @@
      whether there is a flock, and so a lens. A composition with no flock that has its lens all the same
      (`lens.always`), or that has a school, has its picture fade out over its foot into the page as every hero with
      butterflies does. */
+  // the most rings a ripple has: their strokes' codes, from 500, stop short of the bent strokes' 600 (see rippleDab)
+  const RIPPLE_MOST = 99
   const prepare = (mode) => {
     mode.flowers = mode.flowers || { ...FLOWERS, drifts: [], strays: 0, gorse: 0 }
     mode.grass = mode.grass || { ...GRASS, tufts: 0, lane: 0, singles: 0 }
@@ -8332,6 +8353,17 @@
     mode.lens = mode.lens || LENS
     if (mode.school && !mode.school.fish?.length) {
       mode.school = null
+    }
+    // (a ripple keeps to what `ripple` says it can be: so many rings at most, none outliving its period, and none at all
+    // in a composition that talks)
+    if (mode.ripple && (!mode.ripple.rings?.length || mode.talk)) {
+      mode.ripple = null
+    } else if (mode.ripple) {
+      mode.ripple = {
+        ...mode.ripple,
+        rings: mode.ripple.rings.slice(0, RIPPLE_MOST),
+        life: Math.min(mode.ripple.life, mode.ripple.period),
+      }
     }
     mode.lensed = mode.flock.length > 0 || !!mode.lens.always || !!mode.school
     return mode
@@ -8351,7 +8383,20 @@
     compare: prepare(COMPARE),
     sky: prepare(SKY),
   }
-  const modeOf = (root) => MODES[root.dataset.hlMode] || MODES.hero
+  /* Whether there is a composition by this name: its own, so a name such as "toString" is none. (Not Object.hasOwn:
+     Safari 15.0 to 15.3 draw WebGL 2 but have no Object.hasOwn, and this runs for every root, the footer's too.) */
+  // biome-ignore lint/suspicious/noPrototypeBuiltins: Object.hasOwn is too new for this file (see above)
+  const hasMode = (name) => Object.prototype.hasOwnProperty.call(MODES, name)
+  /* A root's composition, by the name it gives (data-hl-mode), and the hero's for a root that gives none. A name that
+     is not here may be one a plugin brings (see the plugins), which can run after this file does, so for that there is
+     none yet: the root waits for it rather than drawing the hero in its place. */
+  const modeOf = (root) => {
+    const name = root.dataset.hlMode
+    if (!name) {
+      return MODES.hero
+    }
+    return hasMode(name) ? MODES[name] : null
+  }
 
   /* --- shaders ------------------------------------------------------------------------------------- */
 
@@ -8775,6 +8820,87 @@
     float alpha = cover * vInk.z * keep;
     outColor = vec4(color * alpha, alpha);
   }`
+
+  /* With `ripple`, rings of ripples spread out over a composition from one point (see `ripple` and rippleNow). A stroke
+     of one of the rings stands still (no give) and carries in its phase 500, its ring's index and, in what is over that,
+     how far outside the ring's line it lies (see rippleDab). Where it was painted does not matter: the way round the
+     ring it is, which is the same at any size, is read off the way it lies, since a ring's strokes lie along it, and it
+     is placed on its ring as the ring is just now; nothing that stirs the meadow turns it off the ring. uRings holds a
+     vec4 a ring: how far out it has spread (CSS pixels across; ripple.flat flattens it as the water lies away from us),
+     how many times wider it is than a hairline ring, how strong it is (0 for a ring not there just now, whose strokes
+     are drawn nowhere) and how many times softer. A stroke grows along its ring as the ring does, so that the ring stays
+     whole, and wider and softer with it, and how far it lies outside the ring's line grows with the ring's width; a
+     light riding a ring (a stroke of the lights' kinds, see `twinkle`) keeps its own size. uRipple is the middle, in CSS
+     pixels of the canvas. With ripple.bend, a stroke that stands still and carries 600 in its phase stays where it was
+     painted but is bent by the rings as they cross it, as water bends what it mirrors: pushed out or in along the way
+     from the middle by the slope of each ring there, a crest's two slopes pushing it opposite ways, by up to bend[0]
+     pixels for a ring at its strongest, over bend[1] pixels either side of the ring's line for a hairline ring (wider as
+     the ring widens). Without it the shader is as it was. */
+  const RIPPLE_UNIT = 100
+  const RIPPLE_SPAN = 16
+  const RIPPLE_SIZE = 'float dice = aDab.w;'
+  const RIPPLE_STIR = 'float stirred = stirLean(root);'
+  const rippleVertex = (mode, vertex) => {
+    if (
+      !mode.ripple ||
+      ![RIPPLE_SIZE, RIPPLE_STIR, TALK_PLACE, 'uniform float uPixels;'].every((part) => vertex.includes(part))
+    ) {
+      return vertex
+    }
+    const load = vertex.match(/vLoad = aPaint\.w[^;]*;/)
+    if (!load) {
+      return vertex
+    }
+    const n = mode.ripple.rings.length
+    const flat = mode.ripple.flat.toFixed(4)
+    const bend = mode.ripple.bend
+      ? `\n    if (aBlade.z >= 0.999 && aBlade.y >= 599.5 && aBlade.y < 600.5) {\n      vec2 away = (root + vec2(tip.x, -tip.y) - uRipple) / vec2(1.0, ${flat});\n      float far = max(length(away), 0.001);\n      float push = 0.0;\n      for (int k = 0; k < ${n}; k += 1) {\n        vec4 crossing = uRings[k];\n        float d = (far - crossing.x) / max(${mode.ripple.bend[1].toFixed(3)} * crossing.y, 0.001);\n        push += crossing.z * d * exp(0.5 - d * d) * 1.41421;\n      }\n      pixel += away / far * vec2(1.0, ${flat}) * push * ${mode.ripple.bend[0].toFixed(3)};\n    }`
+      : ''
+    return vertex
+      .replace(
+        'uniform float uPixels;',
+        `uniform float uPixels;\n  uniform vec4 uRings[${n}];\n  uniform vec2 uRipple;`,
+      )
+      .replace(
+        RIPPLE_STIR,
+        `float stirred = aBlade.z >= 0.999 && aBlade.y >= 499.5 && aBlade.y < ${500 + n}.0 ? 0.0 : stirLean(root);`,
+      )
+      .replace(
+        RIPPLE_SIZE,
+        `${RIPPLE_SIZE}\n    float rippleCode = aBlade.z >= 0.999 ? aBlade.y - 500.0 : -1.0;\n    bool rippled = rippleCode >= 0.0 && rippleCode < ${n}.0;\n    vec4 ring = vec4(0.0);\n    float rippleOut = 0.0;\n    if (rippled) {\n      ring = uRings[int(rippleCode)];\n      rippleOut = max(ring.x + (fract(rippleCode) - 0.5) * ${RIPPLE_SPAN}.0 * ring.y, 0.0);\n      if (aPaint.z < 2.5) {\n        reach *= rippleOut / ${RIPPLE_UNIT}.0;\n        breadth *= ring.y;\n        blur *= ring.w;\n      }\n    }`,
+      )
+      .replace(load[0], `${load[0]}\n    if (rippled) {\n      vLoad *= ring.z;\n    }`)
+      .replace(
+        TALK_PLACE,
+        `${TALK_PLACE}\n    if (rippled) {\n      float way = atan(-cos(aDab.y), sin(aDab.y) / ${flat});\n      pixel = ring.z > 0.001 ? uRipple + vec2(cos(way), sin(way) * ${flat}) * rippleOut + along * local.x + across * local.y : vec2(-1.0e4);\n    }${bend}`,
+      )
+  }
+  /* A stroke of a ring of a composition's ripple (see rippleVertex), planted as garden.dab plants one: ring `ring` of
+     ripple.rings, `way` the way round it (radians from the right, growing down the page), `arc` how much of the way
+     round it reaches (radians), `out` how far outside the ring's line it lies and `thick` how wide it is (its half-width),
+     both in CSS pixels for a hairline ring (width 1), with `out` within RIPPLE_SPAN / 2 either way; the rest (paints,
+     load, blur, kind, order) as garden.dab's. A light (a stroke of the lights' kinds) gives its own `long` instead of
+     `arc`, which it keeps. It is planted under the canvas, out of sight, so that a shader without the ripple would draw
+     it nowhere; a ring past RIPPLE_MOST is left out, as the ripple leaves it out. */
+  const rippleDab = (garden, ripple, { ring, way, arc = 0, out = 0, thick, long, ...rest }) => {
+    if (ring >= RIPPLE_MOST) {
+      return
+    }
+    const { flat } = ripple
+    const reach = long ?? 0.5 * arc * RIPPLE_UNIT * Math.hypot(Math.sin(way), flat * Math.cos(way))
+    garden.dab({
+      ...rest,
+      x: garden.w / 2 + Math.cos(way) * RIPPLE_UNIT,
+      y: garden.h + 40 + 4 * RIPPLE_UNIT,
+      stem: 0,
+      long: reach,
+      wide: thick / Math.max(reach, 1e-3),
+      turn: Math.atan2(flat * Math.cos(way), -Math.sin(way)),
+      lean: 0,
+      stiff: 1,
+      phase: 500 + ring + clamp(out / RIPPLE_SPAN + 0.5, 0, 0.999),
+    })
+  }
 
   /* A stroke of paint, or a flower painted petal by petal, at the tip of its stem: it leans with the wind and with
      whatever goes by exactly as the grass does, and turns as it leans. When something goes through, a head also bows
@@ -10353,8 +10479,13 @@ ${LINE_FILL}`,
     if (!canvas) {
       return
     }
-    root.dataset.hlHeroBound = 'true'
     const mode = modeOf(root)
+    if (!mode) {
+      waitForMode(root)
+      return
+    }
+    stopWaiting(root)
+    root.dataset.hlHeroBound = 'true'
     if (!mode.wake) {
       start(root, canvas, mode)
       return
@@ -10489,7 +10620,11 @@ ${LINE_FILL}`,
     const wanted = [
       ['land', sheets.length > 0, () => send(landVertex(mode), lineFragment(mode))],
       ['blades', true, () => send(BLADE_VERTEX, bladeFragment(mode))],
-      ['blooms', true, () => send(schoolVertex(mode, talkVertex(mode, bloomVertexOf(mode))), bloomFragment(mode))],
+      [
+        'blooms',
+        true,
+        () => send(rippleVertex(mode, schoolVertex(mode, talkVertex(mode, bloomVertexOf(mode)))), bloomFragment(mode)),
+      ],
       ['clouds', mode.clouds.length > 0, () => send(CLOUD_VERTEX, CLOUD_FRAGMENT)],
       ['copy', true, () => send(FULL_VERTEX, COPY_FRAGMENT)],
       ['fly', mode.lensed && mode.flock.length > 0, () => send(FLY_VERTEX, FLY_FRAGMENT)],
@@ -13593,6 +13728,55 @@ ${LINE_FILL}`,
         gl.uniform4fv(u.uFish, schoolNow())
         gl.uniform2f(u.uSchool, grownFor.w / 2, grownFor.h / 2)
       }
+      if (mode.ripple && u.uRings) {
+        gl.uniform4fv(u.uRings, rippleNow())
+        gl.uniform2fv(u.uRipple, rippleMiddle())
+      }
+    }
+    /* The ripple (see `ripple`): for each of its rings, how far out it has spread just now, how many times wider and
+       softer it is than a hairline ring and how strong it is, for the strokes' shader. A ring is born at its time in
+       each of the ripple's periods, spreads out over its life, quickly at first and slowing as it goes, widening and
+       softening as it spreads, comes in over the first moments of its life and fades away as it goes, and is then gone
+       until its time comes round again. Worked out once a frame, from the clock alone, into the same array each time;
+       in a still picture the rings are where the still clock puts them. */
+    const rippleData = mode.ripple ? new Float32Array(mode.ripple.rings.length * 4) : null
+    const ripplePlan = mode.ripple && { ease: 1.5, width: [1, 1], soft: [1, 1], fade: [0.05, 1], ...mode.ripple }
+    const rippleNow = () => {
+      const { rings, period, life, reach, ease, width, soft, fade } = ripplePlan
+      const most = typeof reach === 'function' ? reach(cssW) : reach
+      for (let k = 0; k < rings.length; k += 1) {
+        const [born, pace = 1, strength = 1] = rings[k]
+        const o = k * 4
+        const u = ((((clock - born) % period) + period) % period) / life
+        if (u >= 1) {
+          rippleData.fill(0, o, o + 4)
+          continue
+        }
+        const grown = 1 - (1 - u) ** ease
+        rippleData[o] = most * pace * grown
+        rippleData[o + 1] = width[0] + (width[1] - width[0]) * grown
+        rippleData[o + 2] = strength * (fade[0] > 0 ? smooth(0, fade[0], u) : 1) * (1 - u) ** fade[1]
+        rippleData[o + 3] = soft[0] + (soft[1] - soft[0]) * grown
+      }
+      return rippleData
+    }
+    // and its middle, asked of the composition again only when the stage or the words have moved
+    const rippleCentre = new Float32Array(2)
+    const rippleFor = new Float64Array(6).fill(Number.NaN)
+    const rippleMiddle = () => {
+      const was = rippleFor
+      if (
+        was[0] !== cssW ||
+        was[1] !== cssH ||
+        was[2] !== words.x ||
+        was[3] !== words.y ||
+        was[4] !== words.a ||
+        was[5] !== words.b
+      ) {
+        was.set([cssW, cssH, words.x, words.y, words.a, words.b])
+        rippleCentre.set(mode.ripple.at({ w: cssW, h: cssH, words }))
+      }
+      return rippleCentre
     }
     /* The school (see `school`): for each fish, where it is just now, its heading and the beat of its tail, then its
        length, how far its tail swings and how far its wings swing, two vec4 a fish for the strokes' shader. All of them
@@ -15017,6 +15201,118 @@ ${LINE_FILL}`,
     footer = { root, band, fit }
   }
 
+  /* --- the plugins --------------------------------------------------------------------------------- */
+
+  /* Every page loads this file, for the footer's meadow at least, so a composition only a few pages draw can come in a
+     plugin of its own that only they load, as the use cases pages' do (use-cases-hero.js). A plugin hands over a
+     function, in a queue that may be there before this file is:
+
+       ;(window.__scalarHeroModes = window.__scalarHeroModes || []).push((kit) => ({ 'my-mode': MY_MODE }))
+
+     Once this file has run, the queue is a stand-in whose push takes a plugin at once, so one that runs later, as when
+     the site moves on to its page after this file ran on another, still comes in. The function is called with the kit
+     (the parts of this file its compositions are made of, below) and returns them by name. Each is made ready as the
+     built-in ones are, and the roots waiting for one of them are bound.
+
+     A name that is taken already keeps the composition it has (with a warning), so what a page draws never hangs on
+     which pages came before it. A plugin adds compositions; changing one of this file's own still means changing it
+     here. */
+
+  /* The kit: what the plugins' compositions use of this file, worked out from their code when it is built, so it holds
+     no more than they need, and this file and its plugins ship together. */
+  const pluginKit = () => ({
+    clamp,
+    FLOWERS,
+    FOOTER,
+    hashed,
+    HERO,
+    LAND_FOOT,
+    LAND_INK,
+    LENS,
+    LINES,
+    PAINTS,
+    PALETTES,
+    rippleDab,
+    SK_INKS,
+    SK_SCALE,
+    SKY,
+    smooth,
+    STIR,
+  })
+
+  /* A plugin's compositions, made ready and added to the modes. It says whether any was new.
+
+     A plugin's composition can be made of one of this file's, ready by then (as { ...SKY, ... } is), and so share the
+     flowers and grass prepare() gave that one rather than have equal ones of its own. That is harmless because
+     prepare() works out the rest afresh from each composition's own parts, and nothing writes into a composition once
+     it is ready; keep it so. */
+  const adoptPlugin = (plugin) => {
+    if (typeof plugin !== 'function') {
+      return false
+    }
+    let given = null
+    try {
+      given = plugin(pluginKit())
+    } catch (error) {
+      console.warn('[headless-hero]', error)
+      return false
+    }
+    let adopted = false
+    for (const [name, mode] of Object.entries(given || {})) {
+      if (!mode) {
+        continue
+      }
+      if (hasMode(name)) {
+        console.warn('[headless-hero]', `a composition named "${name}" is here already and keeps the one it has`)
+        continue
+      }
+      try {
+        MODES[name] = prepare(mode)
+        adopted = true
+      } catch (error) {
+        console.warn('[headless-hero]', name, error)
+      }
+    }
+    return adopted
+  }
+
+  /* A root that names a composition no plugin has brought yet stays unbound, its stage empty, until one does. If none
+     has after this long, and the page has loaded (by when any plugin in its head has run), it is marked as having no
+     picture (data-hl-fallback), as a root without WebGL is, so that the page's style closes up the empty stage; it still
+     binds if the composition comes after all. */
+  const MODE_WAIT = 8000
+  // each waiting root's timer, or 0 once it has given up
+  const modeWaits = new WeakMap()
+  const waitForMode = (root) => {
+    if (modeWaits.has(root)) {
+      return
+    }
+    const giveUp = () => {
+      if (document.readyState !== 'complete') {
+        window.addEventListener('load', giveUp, { once: true })
+        return
+      }
+      if (!root.isConnected || root.dataset.hlHeroBound === 'true' || modeOf(root)) {
+        return
+      }
+      modeWaits.set(root, 0)
+      root.dataset.hlFallback = 'true'
+      console.warn('[headless-hero]', `no composition named "${root.dataset.hlMode}" has been brought in`)
+    }
+    modeWaits.set(root, setTimeout(giveUp, MODE_WAIT))
+  }
+  const stopWaiting = (root) => {
+    const wait = modeWaits.get(root)
+    if (wait === undefined) {
+      return
+    }
+    modeWaits.delete(root)
+    clearTimeout(wait)
+    if (wait === 0) {
+      delete root.dataset.hlFallback
+    }
+  }
+
   const run = () => {
     heroes.forEach((release) => release())
     footerMeadow()
@@ -15031,6 +15327,19 @@ ${LINE_FILL}`,
     }
     new MutationObserver(run).observe(target, { childList: true, subtree: true })
     run()
+  }
+
+  // The plugins that came first, and from now on any that come, at once.
+  const queued = window.__scalarHeroModes
+  window.__scalarHeroModes = {
+    push: (...plugins) => {
+      if (plugins.map((plugin) => adoptPlugin(plugin)).includes(true)) {
+        run()
+      }
+    },
+  }
+  for (const plugin of Array.isArray(queued) ? queued : []) {
+    adoptPlugin(plugin)
   }
 
   observe()

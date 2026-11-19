@@ -22,6 +22,7 @@
     "documentation/assets/api-hosting-hero.js",
     "documentation/assets/api-hosting-waitlist.js",
     "documentation/assets/headless-hero.js",
+    "documentation/assets/use-cases-hero.js",
     "documentation/assets/headless-window.js",
     "documentation/assets/structured-data.js",
     // Free tool widgets: the page scripts are referenced in scalar.config.json and
