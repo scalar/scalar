@@ -11,6 +11,49 @@ import { describe, expect, it } from 'vitest'
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it('uses indexed names and file uploads in generated ASP.NET Core multipart samples', () => {
+    const postData = processBody({
+      contentType: 'multipart/form-data',
+      requestBody: {
+        content: {
+          'multipart/form-data': {
+            'x-scalar-multipart-naming': 'aspnet-core',
+            schema: {
+              type: 'object',
+              required: ['certificates'],
+              properties: {
+                certificates: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      file: { type: 'string', format: 'binary', example: '@certificate.txt' },
+                      name: { type: 'string', example: 'Ada' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(postData).toStrictEqual({
+      mimeType: 'multipart/form-data',
+      params: [
+        { name: 'certificates[0].file', value: '@certificate.txt', fileName: 'certificate.txt' },
+        { name: 'certificates[0].name', value: 'Ada' },
+      ],
+    })
+    const curl = snippetz().print('shell', 'curl', {
+      url: 'https://example.com/certificates',
+      method: 'POST',
+      postData,
+    })
+    expect(curl).toContain("--form 'certificates[0].file=@certificate.txt'")
+    expect(curl).toContain("--form 'certificates[0].name=Ada'")
+  })
+
   it.each([
     { openapiVersion: '3.0.4', jsonSchemaDialect: undefined, expected: [1, 1, 1] },
     { openapiVersion: '3.1.2', jsonSchemaDialect: undefined, expected: [2, 1, 1] },

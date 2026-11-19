@@ -4,7 +4,7 @@ Scalar provides extension methods and attributes to enhance your OpenAPI documen
 
 ## Prerequisites
 
-You must install and configure one of the companion packages to enable extensions:
+To generate Scalar extensions from ASP.NET Core endpoint metadata, install and configure a companion package:
 
 **For `Microsoft.AspNetCore.OpenApi`:**
 ```shell
@@ -112,3 +112,32 @@ public IActionResult GetExperimentalFeature() => Ok();
 - `name`: The text displayed in the badge (required)
 - `position`: Where the badge appears relative to the operation header
 - `color`: Badge color in any CSS format (hex, rgb, keywords, etc.)
+
+### Multipart field names for ASP.NET Core
+
+Set `x-scalar-multipart-naming: aspnet-core` on the `multipart/form-data` media type in an operation's request body to use ASP.NET Core `[FromForm]` field names. The extension is read from the API description and works with any Scalar integration.
+
+```yaml
+requestBody:
+  content:
+    multipart/form-data:
+      x-scalar-multipart-naming: aspnet-core
+      schema:
+        type: object
+        required: [Certificates]
+        properties:
+          Certificates:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+```
+
+The form editor, requests, and code snippets use names like `Certificates[0].name` and `Certificates[0].file`. Single nested objects use names like `Profile.file`. Arrays of scalar values or files use repeated parts with the same name. If you enter array items manually, use consecutive indices starting at zero.
+
+Omit the extension to use normal OpenAPI multipart encoding. The extension applies to named form fields. Ordered multipart and nested MIME parts use their declared encoding.

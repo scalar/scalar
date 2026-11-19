@@ -24,6 +24,7 @@ const {
   example,
   bodySchema,
   encoding,
+  aspNetMultipartNaming,
   selectedContentType,
   environment,
   compositionSelection,
@@ -33,6 +34,7 @@ const {
   bodySchema?: SchemaObject
   /** Encoding overrides for individual multipart fields. */
   encoding?: MediaTypeObject['encoding']
+  aspNetMultipartNaming?: boolean
   /** Selected request-body variants, shared with example generation and serialization. */
   compositionSelection?: Record<string, number>
   selectedContentType: string
@@ -70,14 +72,23 @@ watch(
       selectedContentType,
       compositionSelection,
       encoding,
+      aspNetMultipartNaming,
     ] as const,
-  ([newExample, schema, contentType, selection, fieldEncoding]) => {
+  ([
+    newExample,
+    schema,
+    contentType,
+    selection,
+    fieldEncoding,
+    aspNetNaming,
+  ]) => {
     localFormBodyRows.value = getFormBodyRows(
       newExample,
       contentType,
       schema,
       selection,
       fieldEncoding,
+      aspNetNaming,
     )
   },
   { immediate: true },

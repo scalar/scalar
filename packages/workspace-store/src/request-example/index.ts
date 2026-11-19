@@ -62,6 +62,11 @@ export {
   serializeSimpleStyle,
   serializeSpaceDelimitedStyle,
 } from './builder'
+export {
+  getAspNetMultipartFields,
+  resolveAspNetMultipartFieldSchema,
+  usesAspNetMultipartNaming,
+} from './builder/body/aspnet-multipart-fields'
 export { getMultipartItemSchema, needsMultipartEncoding } from './builder/body/build-multipart'
 export { buildRequestBody } from './builder/body/build-request-body'
 export { serializeMultipartBody } from './builder/body/encode-multipart-body'

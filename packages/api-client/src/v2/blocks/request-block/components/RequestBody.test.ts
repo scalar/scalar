@@ -6,7 +6,7 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { RequestBodyObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, readonly, ref } from 'vue'
 
 import { provideLocalization } from '@/v2/features/localization'
@@ -15,6 +15,7 @@ import RequestBody from './RequestBody.vue'
 import RequestBodyMultipart from './RequestBodyMultipart.vue'
 import RequestBodyStructured from './RequestBodyStructured.vue'
 import RequestTable from './RequestTable.vue'
+import RequestTableRow from './RequestTableRow.vue'
 
 // Mock the useFileDialog hook
 const mockFiles = ref<FileList | null>(null)
@@ -59,6 +60,65 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it('uploads a file using the indexed form name declared by the multipart mode', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              'x-scalar-multipart-naming': 'aspnet-core',
+              examples: { 'example-1': { value: { certificates: [{ name: 'Ada' }], profile: { name: 'Grace' } } } },
+              schema: {
+                type: 'object',
+                required: ['certificates', 'profile'],
+                properties: {
+                  certificates: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      required: ['file'],
+                      properties: { name: { type: 'string' }, file: { type: 'string', format: 'binary' } },
+                    },
+                  },
+                  profile: { type: 'object', properties: { name: { type: 'string' } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const rows = wrapper.findAllComponents(RequestTableRow)
+    expect(rows.map((row) => row.props('data').name)).toStrictEqual([
+      'certificates[0].name',
+      'certificates[0].file',
+      'profile.name',
+      '',
+    ])
+    const upload = rows[1]!.findAll('button').find((button) => button.text() === 'Select File')
+    assert(upload)
+    await upload.trigger('click')
+
+    const event = wrapper.emitted('update:formValue')?.[0]?.[0] as {
+      contentType: string
+      payload: { name: string; value: unknown; isDisabled: boolean }[]
+    }
+    expect(event.contentType).toBe('multipart/form-data')
+    expect(
+      event.payload.map(({ name, value, isDisabled }) => [
+        name,
+        value instanceof File ? value.name : value,
+        isDisabled,
+      ]),
+    ).toStrictEqual([
+      ['certificates[0].name', 'Ada', false],
+      ['certificates[0].file', 'test.txt', false],
+      ['profile.name', 'Grace', false],
+    ])
+    wrapper.unmount()
+  })
+
   it.each(['multipart/mixed', 'multipart/related; type="application/json"'])(
     'edits schema-aware parts for %s and forwards files intact',
     async (contentType) => {

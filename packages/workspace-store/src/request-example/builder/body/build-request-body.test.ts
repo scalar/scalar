@@ -7,6 +7,53 @@ import type { ExampleObject, RequestBodyObject } from '@/schemas/v3.2/strict/ope
 import { buildRequestBody } from './build-request-body'
 
 describe('buildRequestBody', () => {
+  it.each(['structured', 'edited'] as const)('sends ASP.NET Core multipart fields from a %s example', (format) => {
+    const file = new File(['certificate'], 'certificate.txt')
+    const value =
+      format === 'structured'
+        ? { certificates: [{ name: 'Ada', file }], profile: { name: 'Grace', file }, tags: ['one', 'two'] }
+        : [
+            { name: 'certificates[0].name', value: 'Ada' },
+            { name: 'certificates[0].file', value: file },
+            { name: 'profile.name', value: 'Grace' },
+            { name: 'profile.file', value: file },
+            { name: 'tags', value: ['one', 'two'] },
+            { name: 'disabled', value: 'skip me', isDisabled: true },
+          ]
+    const item = {
+      type: 'object',
+      properties: { name: { type: 'string' }, file: { type: 'string', format: 'binary' } },
+    }
+    const body = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          'x-scalar-multipart-naming': 'aspnet-core',
+          schema: {
+            type: 'object',
+            required: ['certificates', 'profile', 'tags'],
+            properties: {
+              certificates: { type: 'array', items: item },
+              profile: item,
+              tags: { type: 'array', items: { type: 'string' } },
+            },
+          },
+          examples: { default: { value } },
+        },
+      },
+    })
+    expect(buildRequestBody(body)).toStrictEqual({
+      mode: 'formdata',
+      value: [
+        { type: 'text', key: 'certificates[0].name', value: 'Ada' },
+        { type: 'file', key: 'certificates[0].file', value: file, contentType: undefined },
+        { type: 'text', key: 'profile.name', value: 'Grace' },
+        { type: 'file', key: 'profile.file', value: file, contentType: undefined },
+        { type: 'text', key: 'tags', value: 'one' },
+        { type: 'text', key: 'tags', value: 'two' },
+      ],
+    })
+  })
+
   it('regroups structural allOf fields into a typed JSON part', () => {
     const body = coerceValue(RequestBodyObjectSchema, {
       content: {

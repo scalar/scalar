@@ -2,7 +2,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
 import { resolveSchemaWithAnnotations } from '@scalar/workspace-store/helpers/resolve-schema-with-annotations'
-import { coerceLeafValueToSchemaType } from '@scalar/workspace-store/request-example'
+import { coerceLeafValueToSchemaType, getAspNetMultipartFields } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
   MediaTypeObject,
@@ -138,6 +138,7 @@ export const getFormBodyRows = (
   formBodySchema?: SchemaObject,
   compositionSelection?: Record<string, number>,
   encoding?: MediaTypeObject['encoding'],
+  aspNetMultipartNaming = false,
 ): TableRow[] => {
   // Forms use structured data even when the raw example also supplies wire text.
   const value = example?.dataValue !== undefined ? example.dataValue : example?.value
@@ -247,6 +248,18 @@ export const getFormBodyRows = (
       row.isArray = true
     }
     return [row]
+  }
+
+  if (contentType === 'multipart/form-data' && aspNetMultipartNaming) {
+    return getAspNetMultipartFields(value, schemaWithProperties, compositionSelection, true).flatMap((field) =>
+      mapValue(field.name, field.value, field.isDisabled, field.isArray).map((row) => ({
+        ...row,
+        schema: field.schema ?? row.schema,
+        description: field.schema?.description ?? row.description,
+        isRequired: field.isRequired || row.isRequired,
+        ...(field.isDisabledByDefault ? { isDisabledByDefault: true } : {}),
+      })),
+    )
   }
 
   // We have form data stored as an array

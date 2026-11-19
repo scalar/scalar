@@ -3,6 +3,7 @@ import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { isFileSchema } from '@scalar/workspace-store/helpers/is-file-schema'
+import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -13,10 +14,12 @@ import {
   getExampleFromBody,
   getExampleFromSchema,
   needsMultipartEncoding,
+  resolveAspNetMultipartFieldSchema,
   resolveLeafSchema,
   serializeFormPropertyWithEncoding,
   serializeMultipartArray,
   serializeMultipartBody,
+  usesAspNetMultipartNaming,
 } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
@@ -242,7 +245,8 @@ export const processBody = ({
   const encoding = requestBody.content[_contentType]?.encoding
 
   const media = requestBody.content[_contentType]
-  if (media && needsMultipartEncoding(_contentType, media)) {
+  const aspNetNaming = usesAspNetMultipartNaming(_contentType, media)
+  if (media && (aspNetNaming || needsMultipartEncoding(_contentType, media))) {
     const exampleName = example ?? Object.keys(media.examples ?? {})[0] ?? 'default'
     const body = buildRequestBody(
       { ...requestBody, 'x-scalar-selected-content-type': { [exampleName]: _contentType } },
@@ -251,6 +255,26 @@ export const processBody = ({
       openapiVersion,
       jsonSchemaDialect,
     )
+    if (aspNetNaming && body?.mode === 'formdata') {
+      const schema = resolveFormSchema(media.schema, requestBodyCompositionSelection)
+      return {
+        mimeType: harMimeType,
+        params: body.value.flatMap((part): Param[] => {
+          if (part.type === 'file') {
+            return [buildFileParam(part.key, part.value.name, part.contentType ?? part.value.type)]
+          }
+          if (part.type !== 'text') {
+            return []
+          }
+          const fieldSchema = resolveAspNetMultipartFieldSchema(schema, part.key, requestBodyCompositionSelection)
+          const fileSchema = fieldSchema && isArraySchema(fieldSchema) ? resolve.schema(fieldSchema.items) : fieldSchema
+          if (part.value.startsWith('@') && fileSchema && isFileSchema(fileSchema, false, part.contentType)) {
+            return [buildFileParam(part.key, part.value.slice(1), part.contentType)]
+          }
+          return [{ name: part.key, value: part.value, ...(part.contentType ? { contentType: part.contentType } : {}) }]
+        }),
+      }
+    }
     if (body?.mode === 'multipart') {
       const encoded = serializeMultipartBody(body.value, body.contentType)
       return {

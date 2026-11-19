@@ -10,6 +10,7 @@ import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type
 import { getExampleValue, getExplicitExampleText } from '@/helpers/get-example-value'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
 
+import { getAspNetMultipartFields, usesAspNetMultipartNaming } from './aspnet-multipart-fields'
 import {
   type MultipartPart,
   buildMultipart,
@@ -192,6 +193,7 @@ export const buildRequestBody = (
     Boolean(bodyProperties && Object.hasOwn(bodyProperties, key) && !requiredBodyProperties.has(key))
 
   const media = requestBody.content[bodyContentType]
+  const aspNetNaming = usesAspNetMultipartNaming(bodyContentType, media)
   if (media && needsMultipartEncoding(bodyContentType, media)) {
     // Raw editors store JSON text, while form editors store named rows.
     const value: unknown = (() => {
@@ -253,13 +255,17 @@ export const buildRequestBody = (
     }
   }
 
-  // Form data - array format (from UI editor)
+  const formRows =
+    aspNetNaming && (isObject(example.value) || Array.isArray(example.value))
+      ? getAspNetMultipartFields(example.value, resolvedBodySchema, requestBodyCompositionSelection)
+      : example.value
+
+  // Form data - array format (from UI editor or flattened for ASP.NET Core)
   if (
     (bodyContentType === 'multipart/form-data' || bodyContentType === 'application/x-www-form-urlencoded') &&
-    Array.isArray(example.value)
+    Array.isArray(formRows)
   ) {
-    const value = Array.isArray(example.value) ? example.value : []
-    const exampleValue = value.filter((item) => !item.isDisabled) as { name: string; value: unknown }[]
+    const exampleValue = formRows.filter((item) => !item.isDisabled) as { name: string; value: unknown }[]
 
     const result: FormData | UrlEncoded =
       bodyContentType === 'multipart/form-data'
@@ -284,7 +290,8 @@ export const buildRequestBody = (
     // `entries` at the position of the *first* matching row, then keep folding leaves
     // into the same live object reference so interleaved flat rows keep their order.
     const multipartSchema = result.mode === 'formdata' ? resolvedBodySchema : undefined
-    const entries = result.mode === 'formdata' ? regroupMultipartRows(exampleValue, multipartSchema) : exampleValue
+    const entries =
+      result.mode === 'formdata' && !aspNetNaming ? regroupMultipartRows(exampleValue, multipartSchema) : exampleValue
 
     // Loop over all entries and add them to the form
     entries.forEach(({ name, value }) => {
