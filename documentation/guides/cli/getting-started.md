@@ -45,6 +45,16 @@ npx @scalar/cli document bundle openapi.yaml --output openapi.bundled.yaml --tre
 
 The input can also be a URL. See the [bundle options](commands/document.md#bundle) for controlling concurrent fetches and generating a map of resolved URLs.
 
+### Generate public and environment-specific variants
+
+Keep one source API description and generate public production or private staging outputs. Filter internal operations, edit metadata and servers, and remove unused components with an ordered transformation configuration.
+
+```bash
+npx @scalar/cli document transform api.yaml --config public-production.yaml --output public-api.yaml
+```
+
+See [Transform API Descriptions](transform.md) for the complete source, configurations, and generated outputs.
+
 ### Validate and lint
 
 Validate your API description against the OpenAPI Specification:
