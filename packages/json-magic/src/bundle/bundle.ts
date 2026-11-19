@@ -1208,19 +1208,20 @@ export const bundleDocument = async (
         if (!local.preserveReference && !preserveRootResourceReference) {
           root.$ref = referenceToRoot(localRef ? `#/${localRef}` : '#', nodeOrigin)
         }
-        if (
+        const exposesTarget =
           config.traversal === 'document' &&
-          location &&
+          location !== undefined &&
           isObject(local.value) &&
           local.value !== root &&
           traversal.location(local.value)?.context !== location.context
-        ) {
+        if (exposesTarget) {
           const source = isObject(local.document) ? traversal.location(local.document)?.source : undefined
           const targetPath = parsePath(`/${localRef}`).slice(local.documentPath.length)
           traversal.register(local.document, source ?? location.source, location.context, targetPath)
           references.refresh(local.document, targetPath)
         }
         if (
+          exposesTarget ||
           isPartialBundling ||
           lifecyclePlugin.some((plugin) => plugin.onBeforeTargetProcess) ||
           config.hooks?.onBeforeTargetProcess ||
@@ -1234,10 +1235,8 @@ export const bundleDocument = async (
             context: isObject(local.value) ? references.origin(local.value) : nodeOrigin,
           }
 
-          // When doing partial bundling, we need to recursively bundle all dependencies
-          // referenced by this local reference to ensure the partial bundle is complete.
-          // This includes not just the direct reference but also all its dependencies,
-          // creating a complete and self-contained partial bundle.
+          // A newly exposed target can have dependencies that the main traversal skipped.
+          // Partial bundles also need to include dependencies outside the selected subtree.
           //
           // The pointer addresses the root document, so the target's base is the nearest `$id` on
           // the way to it, else the document origin. `getValueByPath` reports no `$id` as an empty

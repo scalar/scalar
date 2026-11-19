@@ -412,6 +412,47 @@ paths:
     expect(markdown).toContain('"$ref": "#literal-example"')
   })
 
+  it('follows nested references in multiple fragments of the same external file', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'markdown-external-fragments-'))
+    const documentPath = join(directory, 'openapi.json')
+    try {
+      await writeFile(
+        documentPath,
+        JSON.stringify({
+          ...loadingDocument,
+          openapi: '3.2.1',
+          components: {
+            schemas: {
+              First: { $ref: './defs.json#/First' },
+              Second: { $ref: './defs.json#/Second' },
+            },
+          },
+        }),
+      )
+      await writeFile(
+        join(directory, 'defs.json'),
+        JSON.stringify({
+          First: { type: 'object', properties: { first: { $ref: './types.json#/First' } } },
+          Second: { type: 'object', properties: { second: { $ref: './types.json#/Second' } } },
+        }),
+      )
+      await writeFile(
+        join(directory, 'types.json'),
+        JSON.stringify({
+          First: { type: 'string', description: 'First fragment value.' },
+          Second: { type: 'string', description: 'Second fragment value.' },
+        }),
+      )
+
+      const markdown = await createMarkdownFromOpenApi(documentPath, { documentLoading: { basePath: directory } })
+
+      expect(markdown).toContain('First fragment value.')
+      expect(markdown).toContain('Second fragment value.')
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
   it('bundles external URL references', async () => {
     const source = `openapi: 3.1.1
 info:
