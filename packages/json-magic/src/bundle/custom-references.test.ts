@@ -279,6 +279,49 @@ describe('custom-references', () => {
     expect(result.complete).toBe(false)
   })
 
+  it.each(
+    [
+      { format: 'OpenAPI 3.0', header: { openapi: '3.0.4', paths: {} }, siblings: false },
+      { format: 'OpenAPI 3.1', header: { openapi: '3.1.0', paths: {} }, siblings: true },
+      { format: 'AsyncAPI 3.1', header: { asyncapi: '3.1.0', channels: {} }, siblings: false },
+    ].flatMap((variant) => [false, true].map((customFirst) => ({ ...variant, customFirst }))),
+  )(
+    'applies $format rules to declared extension targets (custom first: $customFirst)',
+    async ({ header, siblings, customFirst }) => {
+      const reads: string[] = []
+      const native = { components: { schemas: { Entry: { $ref: '#/x-target' } } } }
+      const extension = {
+        'x-target': {
+          type: 'object',
+          properties: {
+            p: { $ref: 'https://unreachable.test/schema', 'x-extra': { $ref: './sibling.json' } },
+          },
+        },
+      }
+      const result = await bundleWithDiagnostics(
+        { ...header, info: api.info, ...(customFirst ? extension : native), ...(customFirst ? native : extension) },
+        {
+          origin: 'https://source.test/root.json',
+          traversal: 'document',
+          includeCustomReferences: true,
+          treeShake: false,
+          preserveReference: (reference) => /^https?:\/\//i.test(reference),
+          plugins: [loader(reads)],
+        },
+      )
+      expect(result.diagnostics).toStrictEqual([])
+      expect(reads).toStrictEqual(siblings ? ['https://source.test/sibling.json'] : [])
+      const exported = JSON.parse(JSON.stringify(result.document))
+      const property = exported['x-target'].properties.p
+      expect(property.$ref).toBe('https://unreachable.test/schema')
+      if (siblings) {
+        expect(local(exported, property['x-extra'].$ref)).toStrictEqual({ type: 'integer' })
+      } else {
+        expect(property['x-extra']).toStrictEqual({ $ref: './sibling.json' })
+      }
+    },
+  )
+
   it('retains imported document context when custom references are disabled', async () => {
     const origin = 'https://source.test/root.json'
     const result = await bundleWithDiagnostics(
