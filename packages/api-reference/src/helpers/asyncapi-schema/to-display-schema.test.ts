@@ -22,6 +22,20 @@ describe('to-display-schema', () => {
     ).toStrictEqual({ type: 'object', properties: { value: { type: 'string', description: 'Required' } } })
   })
 
+  it('uses model titles for RAML names and array item names while preserving descriptions', () => {
+    const user: SchemaNode = { name: 'user', type: 'object', referenceName: 'lib.User', description: 'Author text.' }
+    expect(toDisplaySchema(user)).toStrictEqual({
+      type: 'object',
+      title: 'lib.User',
+      description: 'Author text.',
+      properties: {},
+    })
+    expect(toDisplaySchema({ name: 'users', type: 'array', children: [user] })).toStrictEqual({
+      type: 'array',
+      items: { type: 'object', title: 'lib.User', description: 'Author text.', properties: {} },
+    })
+  })
+
   it('uses typed enum symbols independently of annotation wording', () => {
     expect(
       toDisplaySchema({ name: 'State', type: 'enum State', symbols: ['READY'], details: ['Symbols: OTHER'] }),

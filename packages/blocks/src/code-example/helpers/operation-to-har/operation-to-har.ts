@@ -55,6 +55,7 @@ export type OperationToHarProps = {
    */
   /** Originating OpenAPI version, used for version-specific serialization. */
   openapiVersion?: string
+  jsonSchemaDialect?: string
   requestBodyCompositionSelection?: Record<string, number>
   /**
    * Whether to disable parameters by default.
@@ -96,6 +97,7 @@ export const operationToHar = ({
   securitySchemes,
   globalCookies,
   openapiVersion,
+  jsonSchemaDialect,
   requestBodyCompositionSelection,
   defaultDisabledParameters = false,
 }: OperationToHarProps): HarRequest => {
@@ -145,6 +147,7 @@ export const operationToHar = ({
       harRequest,
       parameters: operation.parameters,
       openapiVersion,
+      jsonSchemaDialect,
       example,
       defaultDisabled: defaultDisabledParameters,
     })
@@ -172,6 +175,7 @@ export const operationToHar = ({
       contentType,
       example,
       openapiVersion,
+      jsonSchemaDialect,
       requestBodyCompositionSelection,
     })
 
@@ -240,12 +244,9 @@ export const operationToHar = ({
     harRequest.queryString = []
   }
 
-  // Multipart file parts are encoded by the HTTP client, which owns the boundary.
+  // Structured multipart parts (with or without files) are encoded by the HTTP client, which owns the boundary.
   // Raw multipart text already has its boundary and must retain its Content-Type.
-  if (
-    harRequest.postData?.mimeType === 'multipart/form-data' &&
-    harRequest.postData.params?.some((param) => param.fileName !== undefined)
-  ) {
+  if (harRequest.postData?.mimeType === 'multipart/form-data' && harRequest.postData.params?.length) {
     harRequest.headers = harRequest.headers.filter((header) => header.name.toLowerCase() !== 'content-type')
   }
 

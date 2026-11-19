@@ -1,3 +1,4 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AnyObject } from '@scalar/types/utils'
 import { parse as parseYaml } from 'yaml'
@@ -85,7 +86,7 @@ export function createSpecificationValidator<
       // A malformed JSON/YAML string is a validation failure like any other, so
       // it respects `throwOnError` rather than escaping as a parser exception.
       try {
-        specification = parseYaml(document)
+        specification = parseYaml(document, { maxAliasCount: YAML_MAX_ALIAS_COUNT })
       } catch (error) {
         if (options?.throwOnError) {
           throw error

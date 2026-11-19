@@ -19,5 +19,6 @@ export {
   XScalarSecretToken,
   XScalarTokenUrl,
 } from './x-scalar-security-secrets'
+export { XScalarTokenPrefix } from './x-scalar-token-prefix'
 export { XTokenName } from './x-tokenName'
 export { XusePkce } from './x-use-pkce'

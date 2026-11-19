@@ -93,6 +93,10 @@ export const getChildKind = (position: KindPosition, key: string): KindPosition 
   return children?.[key] ?? children?.['*']
 }
 
+/** Whether the keys under this position are author-chosen names, such as status codes and callback expressions, rather than fixed fields. */
+export const hasNamedChildren = (position: KindPosition): boolean =>
+  typeof position !== 'string' || childKinds[position]?.['*'] !== undefined
+
 /** Strict schemas for the objects that a Reference Object can stand in for. */
 export const referenceTargetSchemas: Partial<Record<ObjectKind, TargetSchema>> = {
   pathItem: PathItemObjectSchema,

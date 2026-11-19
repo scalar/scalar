@@ -1,11 +1,12 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import { processAuth } from '@/helpers/auth'
+import { processAuth, resolveAuth } from '@/helpers/auth'
 import { processContact } from '@/helpers/contact'
 import { processExternalDocs } from '@/helpers/external-docs'
 import { processLicense } from '@/helpers/license'
 import { processLogo } from '@/helpers/logo'
 import { DEFAULT_EXAMPLE_NAME, OPERATION_KEYS, mergePathItem } from '@/helpers/merge-path-item'
+import { normalizeDescription } from '@/helpers/normalize-description'
 import {
   POSTMAN_EXAMPLE_NAME_EXTENSION,
   POSTMAN_FOLDER_SEGMENTS_EXTENSION,
@@ -18,21 +19,13 @@ import { pruneDocument } from '@/helpers/prune-document'
 import { analyzeServerDistribution } from '@/helpers/servers'
 import { createCollectionVariableLookup, getPathStructuralSignature, normalizePath } from '@/helpers/urls'
 
-import type { Description, Item, ItemGroup, PostmanCollection } from './types'
+import type { Auth, Item, ItemGroup, PostmanCollection } from './types'
 
 /**
  * Indices from the collection root into nested `item` arrays.
  * Example: `[0, 2, 1]` → `collection.item[0].item[2].item[1]`.
  */
 export type PostmanRequestIndexPath = readonly number[]
-
-const normalizeDescription = (description?: Description): string | undefined => {
-  if (typeof description === 'string') {
-    return description
-  }
-
-  return description?.content
-}
 
 const parseCollectionInput = (postmanCollection: PostmanCollection | string): unknown => {
   if (typeof postmanCollection !== 'string') {
@@ -391,32 +384,36 @@ const getNodeAtPath = (
   return node
 }
 
-const collectParentTagSegments = (items: PostmanCollection['item'], path: PostmanRequestIndexPath): string[] => {
-  const segments: string[] = []
+const collectParentContext = (
+  items: PostmanCollection['item'],
+  path: PostmanRequestIndexPath,
+): { tags: string[]; auth?: Auth } => {
+  const context: { tags: string[]; auth?: Auth } = { tags: [] }
   if (path.length <= 1) {
-    return segments
+    return context
   }
 
   let list = items
   for (let i = 0; i < path.length - 1; i++) {
     const idx = path[i]
     if (idx === undefined || idx < 0 || idx >= list.length) {
-      return []
+      return { tags: [] }
     }
 
     const node = list[idx]
     if (node === undefined || !isItemGroup(node)) {
-      return []
+      return { tags: [] }
     }
 
     if (node.name) {
-      segments.push(node.name)
+      context.tags.push(node.name)
     }
 
+    context.auth = resolveAuth(node.auth, context.auth)
     list = node.item
   }
 
-  return segments
+  return context
 }
 
 const dedupeIndexPaths = (paths: readonly PostmanRequestIndexPath[]): PostmanRequestIndexPath[] => {
@@ -895,6 +892,7 @@ export function convert(
 
   // Process each item in the collection and merge into OpenAPI spec
   const allServerUsage: ServerUsage[] = []
+  const securitySchemes = { ...openapi.components?.securitySchemes }
 
   const collectionVariableLookup = createCollectionVariableLookup(collection.variable)
 
@@ -912,7 +910,7 @@ export function convert(
           continue
         }
 
-        const parentTags = collectParentTagSegments(collection.item, path)
+        const parentContext = collectParentContext(collection.item, path)
         const {
           paths: itemPaths,
           components: itemComponents,
@@ -920,12 +918,13 @@ export function convert(
         } = processItem(
           node,
           DEFAULT_EXAMPLE_NAME,
-          parentTags,
+          parentContext.tags,
           '',
           mergeOperation,
           resolveTagName,
           collectionVariableLookup,
           keepHeaders,
+          { inheritedAuth: parentContext.auth, securitySchemes },
         )
 
         allServerUsage.push(...serverUsage)
@@ -962,6 +961,7 @@ export function convert(
           resolveTagName,
           collectionVariableLookup,
           keepHeaders,
+          { securitySchemes },
         )
 
         allServerUsage.push(...serverUsage)

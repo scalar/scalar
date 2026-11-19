@@ -1,5 +1,40 @@
 # @scalar/java-integration
 
+## 0.8.2
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.81.0
+
+No changes in this release.
+
+## 0.8.1
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.80.0
+
+No changes in this release.
+
+## 0.8.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.79.0
+
+### Minor Changes
+
+- [#11036](https://github.com/scalar/scalar/pull/11036): Expose `showDefaultClientsWithSdkInstallation` through the Python, Java, and .NET integrations to show built-in HTTP clients alongside SDK installation tabs.
+- [#11033](https://github.com/scalar/scalar/pull/11033): Expose the selected code sample client persistence option in .NET, Java, FastAPI, and Django Ninja. Disable it to avoid reading or writing the selected-client local storage key while keeping page-local selection available.
+
+## 0.7.2
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.78.1
+
+No changes in this release.
+
 ## 0.7.1
 
 ### Bundled API Reference

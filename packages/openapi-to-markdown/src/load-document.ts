@@ -70,8 +70,8 @@ const attachRefValues = (
     let kind: KindPosition | undefined = 'document'
     let parent = document
     for (const key of segments) {
+      position = Array.isArray(parent) ? position : position && getChildPosition(position, key, kind)
       kind = kind && getChildKind(kind, key)
-      position = Array.isArray(parent) ? position : position && getChildPosition(position, key)
       // Arbitrary extension and example data has not passed an OpenAPI object schema.
       if (position === 'document' && kind === undefined) {
         position = undefined
@@ -105,6 +105,7 @@ const attachRefValues = (
     value: unknown,
     schema: Parameters<typeof coerceValue>[0],
     position: SchemaPosition,
+    kind: KindPosition | undefined,
   ): unknown => {
     // OpenAPI 3.1 keeps boolean schemas, and a nested reference is linked once it is walked.
     if (value === undefined || (fallback?.booleanSchemas && position === 'schema' && typeof value === 'boolean')) {
@@ -133,7 +134,7 @@ const attachRefValues = (
         }
       }
       if (fallback?.booleanSchemas) {
-        restoreBooleanSchemas(value, cast, position)
+        restoreBooleanSchemas(value, cast, position, kind)
       }
       casts.set(schema, cast)
     }
@@ -178,7 +179,7 @@ const attachRefValues = (
         const expectedSchema = getTargetSchema(position, kind)
         const schema = resolved?.schema === expectedSchema ? undefined : expectedSchema
         // Point to the target instead of copying it into every reference.
-        const target = schema ? castFallback(resolved?.value, schema, position ?? 'document') : resolved?.value
+        const target = schema ? castFallback(resolved?.value, schema, position ?? 'document', kind) : resolved?.value
 
         if (target !== undefined) {
           Object.defineProperty(node, '$ref-value', {
@@ -198,7 +199,7 @@ const attachRefValues = (
     // Preserve the nearest resource base while walking into child schemas.
     for (const [key, child] of Object.entries(node)) {
       const childKind = kind && getChildKind(kind, key)
-      const childPosition = Array.isArray(node) ? position : position && getChildPosition(position, key)
+      const childPosition = Array.isArray(node) ? position : position && getChildPosition(position, key, kind)
       visit(child, base, childPosition === 'document' && childKind === undefined ? undefined : childPosition, childKind)
     }
   }

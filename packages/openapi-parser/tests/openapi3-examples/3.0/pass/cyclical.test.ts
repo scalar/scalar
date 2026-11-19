@@ -49,7 +49,7 @@ describe('cyclical', () => {
     expect(category.subcategories.items.properties.subcategories.type).toEqual('array')
   })
 
-  it.todo('resolves circular dependencies in referenced files', async () => {
+  it('resolves circular dependencies in referenced files', async () => {
     const baseFile = {
       openapi: '3.0.0',
       info: {
@@ -105,7 +105,7 @@ describe('cyclical', () => {
         specification: referencedFile,
         filename: '../partial/cycledef.yaml',
         dir: './',
-        references: getListOfReferences(baseFile),
+        references: getListOfReferences(referencedFile),
       },
     ])
     const schema = result.schema as AnyObject
@@ -113,6 +113,13 @@ describe('cyclical', () => {
     expect(result.valid).toBe(true)
     expect(result.version).toBe('3.0')
     expect(schema.components.schemas.top.type).toEqual('object')
-    expect(schema.components.schemas.top.properties.cat.type).toEqual('object')
+    expect(schema.components.schemas.top.properties.cat.type).toBe('object')
+    expect(result.errors).toStrictEqual([])
+
+    const category = schema.components.schemas.top.properties.cat
+    const items = category.properties.subcategories.items
+    expect(items.type).toBe('object')
+    expect(items.properties).toBe(category.properties)
+    expect(items.$ref).toBeUndefined()
   })
 })

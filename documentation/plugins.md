@@ -129,6 +129,99 @@ export const XCustomExtensionPlugin = (): ApiReferencePlugin => {
 }
 ```
 
+### Custom Document Types
+
+Use `documentTypes` to render a format other than OpenAPI or AsyncAPI. A registered type claims the document before the built-in pipelines run. Scalar handles loading, the document selector, sidebar, and deep links; your plugin supplies the navigation entries and document content.
+
+This example renders an external workflow format with a Vue component:
+
+```typescript
+import type { ApiReferencePlugin } from '@scalar/types/api-reference'
+import WorkflowDocument from './WorkflowDocument.vue'
+
+export const WorkflowPlugin: ApiReferencePlugin = () => ({
+  name: 'workflows',
+  extensions: [],
+  documentTypes: [{
+    type: 'workflows',
+    detect: (document) => document.format === 'workflows',
+    traverse: ({ documentId, document }) =>
+      (document.workflows as { id: string; title: string }[]).map((workflow) => ({
+        id: `${documentId}/workflow/${workflow.id}`,
+        title: workflow.title,
+        kind: 'workflow',
+      })),
+    content: { component: WorkflowDocument },
+  }],
+})
+```
+
+Register the plugin alongside a document of that format:
+
+```typescript
+const configuration = {
+  slug: 'adoption',
+  plugins: [WorkflowPlugin],
+  content: {
+    format: 'workflows',
+    info: { title: 'Pet adoption', version: '1.0.0' },
+    workflows: [
+      { id: 'find', title: 'Find a pet' },
+      { id: 'adopt', title: 'Adopt a pet' },
+    ],
+  },
+}
+```
+
+The content component replaces the built-in introduction and content tree. Give each section the exact ID returned by `traverse` so sidebar clicks and deep links can scroll to it:
+
+```vue
+<!-- WorkflowDocument.vue -->
+<script setup lang="ts">
+import type { PluginNavigationEntry } from '@scalar/types/api-reference'
+
+const { navigation } = defineProps<{
+  navigation: PluginNavigationEntry[]
+}>()
+</script>
+
+<template>
+  <article>
+    <section v-for="entry in navigation" :id="entry.id" :key="entry.id">
+      <h2>{{ entry.title }}</h2>
+    </section>
+  </article>
+</template>
+```
+
+#### Document Type Options
+
+| Property | Description |
+|---|---|
+| `type` | Stable identifier for this format. Use a unique identifier across registered types. |
+| `detect(document)` | Synchronously checks the parsed document. Types run in registration order; the first match wins. Keep detection free of side effects. A thrown error counts as no match. |
+| `ingest(document, { documentName })` | Optional synchronous or asynchronous normalization hook. Receives a clone and returns the document to store. API Reference maintains two stores, so this may run twice per document; keep it free of external side effects. |
+| `bundle` | Defaults to `false`. Set to `true` to resolve `$ref`s using Scalar's loaders and configured fetch. Only opt in when these reference semantics fit your format. |
+| `traverse({ documentName, documentId, document })` | Returns entries with `id`, `title`, optional `kind`, and optional recursive `children`. Prefix IDs with `documentId` to keep them unique across documents. |
+| `content` | A `component`, optional custom `renderer`, and optional additional `props`. Custom renderers work as they do for view components, including plugins loaded through `pluginUrls`. |
+
+An `ingest` or `traverse` error produces the existing “could not be loaded” document. Documents no type claims continue through the built-in pipelines. Claimed documents retain their content and expose an `info` object; Scalar adds an empty object if the format has none. The internal `x-scalar-document-type` marker is managed by Scalar and excluded from saved and exported documents. Do not add this marker to your input: the store strips incoming markers and assigns its own after a registered detector claims the document. Workspace snapshots retain the marker for hydration; use `addDocument` or `replaceDocument` for raw input, and `loadWorkspace` only for snapshots produced by a workspace store.
+
+#### Content Props and Scroll Tracking
+
+| Prop | Description |
+|---|---|
+| `document` | Read-only document claimed by the type. |
+| `documentName` | Workspace document name, corresponding to the configured slug. |
+| `documents` | Read-only map of all currently loaded workspace documents, for references to sibling documents. |
+| `navigation` | Sidebar entries for the active document. |
+| `eventBus` | Workspace event bus. |
+| `options` | API Reference configuration options. |
+
+Scalar cannot infer which sections your component displays. To update the selected sidebar entry and URL while scrolling, observe your sections and emit `eventBus.emit('intersecting:nav-item', { id: entry.id })` when a section becomes active. Disconnect observers when the component unmounts. The minimal component above supports sidebar clicks and deep links but does not implement scroll tracking.
+
+Search, the API client, agent chat, and mock server do not support plugin documents yet. Ask AI is hidden for plugin documents, and request/authentication tools and the mock server reject processed plugin documents rather than interpreting their fields as OpenAPI. Registering a type adds document rendering to API Reference; it does not add request execution or format-specific validation to those surfaces.
+
 ### Lifecycle Hooks
 
 Plugins can hook into the API Reference lifecycle to run code at specific points.

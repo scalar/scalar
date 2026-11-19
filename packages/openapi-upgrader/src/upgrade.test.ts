@@ -12,6 +12,83 @@ const upgradeTargets = [
 ] as const
 
 describe('upgrade', () => {
+  it.each(upgradeTargets)(
+    'preserves literal references in shared body x-examples when upgrading to %s',
+    (_target, upgradeDocument) => {
+      const payload = { $ref: '#/parameters/50%', nested: { $ref: '#/parameters/Body' }, type: 'file' }
+      const result = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        consumes: ['application/json'],
+        parameters: {
+          Body: {
+            name: 'body',
+            in: 'body',
+            schema: { type: 'object' },
+            'x-examples': { 'application/json': { pet: { value: payload } } },
+          },
+        },
+        paths: {
+          '/pets': {
+            post: {
+              parameters: [{ $ref: '#/parameters/Body' }],
+              responses: { '200': { description: 'ok' } },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.requestBodies?.Body).toStrictEqual({
+        content: {
+          'application/json': { schema: { type: 'object' }, examples: { pet: { value: payload } } },
+        },
+      })
+      expect(result.paths?.['/pets']?.post).toStrictEqual({
+        requestBody: { $ref: '#/components/requestBodies/Body' },
+        responses: { '200': { description: 'ok' } },
+      })
+    },
+  )
+
+  it.each(upgradeTargets)(
+    'moves shared body references into requestBody when upgrading to %s',
+    (_target, upgradeDocument) => {
+      const result = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        consumes: ['application/json'],
+        parameters: {
+          PetBody: { name: 'body', in: 'body', required: true, schema: { $ref: '#/definitions/Pet' } },
+          Limit: { name: 'limit', in: 'query', type: 'integer' },
+        },
+        definitions: { Pet: { type: 'object', properties: { name: { type: 'string' } } } },
+        paths: {
+          '/pets': {
+            post: {
+              parameters: [{ $ref: '#/parameters/PetBody' }, { $ref: '#/parameters/Limit' }],
+              responses: { '200': { description: 'ok' } },
+            },
+          },
+        },
+      })
+
+      expect(result.paths?.['/pets']?.post).toStrictEqual({
+        parameters: [{ $ref: '#/components/parameters/Limit' }],
+        requestBody: { $ref: '#/components/requestBodies/PetBody' },
+        responses: { '200': { description: 'ok' } },
+      })
+      expect(result.components?.requestBodies?.PetBody).toStrictEqual({
+        required: true,
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } },
+      })
+      expect(result.components?.parameters?.Limit).toStrictEqual({
+        name: 'limit',
+        in: 'query',
+        schema: { type: 'integer' },
+      })
+    },
+  )
+
   it.each(upgradeTargets)('maps vendor discriminator values when upgrading to %s', (_target, upgradeDocument) => {
     const input = {
       swagger: '2.0',

@@ -4,6 +4,7 @@
     "module": "ESNext" /* Specify what module code is generated. */,
     "moduleResolution": "Bundler",
     "moduleDetection": "force",
+    "types": ["node"],
     // Required for isolated module compilation (ESBuild)
     "isolatedModules": true,
     // Support proper ESM builds
@@ -29,7 +30,6 @@
     "noFallthroughCasesInSwitch": true
     // "noPropertyAccessFromIndexSignature": true,
   },
-  "types": ["vite/client"],
   "exclude": ["dist", "node_modules", "**/dist", "**/node_modules"],
   // Required for path rewrites
   "ts-node": {

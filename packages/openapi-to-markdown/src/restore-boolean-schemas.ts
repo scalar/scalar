@@ -1,5 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
+import { type KindPosition, getChildKind, hasNamedChildren } from './object-kinds'
+
 /** Where a value sits in an OpenAPI description: a schema, a map of schemas, or anything else. */
 export type SchemaPosition = 'document' | 'schema' | 'map'
 
@@ -23,8 +25,13 @@ const schemaFields = new Set([
 /**
  * Returns the position of the value stored under `key`, or `undefined` when that value
  * is not part of the schema tree, such as example payloads and schema metadata.
+ * `kind` is the OpenAPI object that holds `key`, if known.
  */
-export const getChildPosition = (position: SchemaPosition, key: string): SchemaPosition | undefined => {
+export const getChildPosition = (
+  position: SchemaPosition,
+  key: string,
+  kind?: KindPosition,
+): SchemaPosition | undefined => {
   if (position === 'map') {
     return 'schema'
   }
@@ -36,6 +43,10 @@ export const getChildPosition = (position: SchemaPosition, key: string): SchemaP
       return 'schema'
     }
     return undefined
+  }
+  // A `default` response or a header named `schema` is an OpenAPI object, not a keyword.
+  if (kind !== undefined && hasNamedChildren(kind)) {
+    return 'document'
   }
   if (key === 'schema' || key === 'itemSchema') {
     return 'schema'
@@ -58,9 +69,15 @@ export const restoreBooleanSchemas = (
   source: unknown,
   target: unknown,
   position: SchemaPosition = 'document',
+  kind: KindPosition | undefined = 'document',
 ): void => {
   const seen = new WeakSet<object>()
-  const visit = (original: unknown, coerced: unknown, context: SchemaPosition): unknown => {
+  const visit = (
+    original: unknown,
+    coerced: unknown,
+    context: SchemaPosition,
+    contextKind: KindPosition | undefined,
+  ): unknown => {
     if (context === 'schema' && typeof original === 'boolean') {
       return original
     }
@@ -74,7 +91,10 @@ export const restoreBooleanSchemas = (
         if (!property || !('value' in property)) {
           continue
         }
-        Object.defineProperty(coerced, index, { ...property, value: visit(value, property.value, context) })
+        Object.defineProperty(coerced, index, {
+          ...property,
+          value: visit(value, property.value, context, contextKind && getChildKind(contextKind, String(index))),
+        })
       }
     } else if (isObject(original) && isObject(coerced)) {
       for (const [key, value] of Object.entries(original)) {
@@ -84,14 +104,17 @@ export const restoreBooleanSchemas = (
         if (!property || !('value' in property)) {
           continue
         }
-        const childContext = getChildPosition(context, key)
+        const childContext = getChildPosition(context, key, contextKind)
         if (childContext === undefined) {
           continue
         }
-        Object.defineProperty(coerced, key, { ...property, value: visit(value, property.value, childContext) })
+        Object.defineProperty(coerced, key, {
+          ...property,
+          value: visit(value, property.value, childContext, contextKind && getChildKind(contextKind, key)),
+        })
       }
     }
     return coerced
   }
-  visit(source, target, position)
+  visit(source, target, position, kind)
 }

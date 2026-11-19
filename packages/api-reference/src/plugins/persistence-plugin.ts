@@ -10,6 +10,7 @@ export const persistencePlugin = ({
   debounceDelay = 500,
   maxWait = 10000,
   persistAuth = false,
+  persistSelectedClient = true,
 }: {
   debounceDelay?: number
   /** Maximum time in milliseconds to wait before forcing execution, even with continuous calls. */
@@ -20,6 +21,8 @@ export const persistencePlugin = ({
    * Allows for conditional persistence logic, e.g., based on environment or user settings.
    */
   persistAuth?: boolean | (() => boolean)
+  /** Whether to persist the selected code sample client. Accepts a getter for reactive configuration. */
+  persistSelectedClient?: boolean | (() => boolean)
 }): WorkspacePlugin => {
   // Debounced execute function for batching similar state changes
   const { execute } = debounce({ delay: debounceDelay, maxWait })
@@ -34,6 +37,9 @@ export const persistencePlugin = ({
     return persistAuth
   }
 
+  const getPersistSelectedClient = (): boolean =>
+    typeof persistSelectedClient === 'function' ? persistSelectedClient() : persistSelectedClient
+
   return {
     hooks: {
       /**
@@ -45,8 +51,13 @@ export const persistencePlugin = ({
         if (event.type === 'meta') {
           // Persist the meta fields
           const defaultClient = event.value['x-scalar-default-client']
-          if (defaultClient !== undefined) {
-            execute('x-scalar-default-client', () => clientPersistence.set(defaultClient))
+          if (getPersistSelectedClient() && defaultClient !== undefined) {
+            execute('x-scalar-default-client', () => {
+              // Configuration may change while this write is waiting for the debounce timer.
+              if (getPersistSelectedClient()) {
+                clientPersistence.set(defaultClient)
+              }
+            })
           }
           return
         }

@@ -5,6 +5,27 @@ import { describe, expect, it } from 'vitest'
 import { mockHandlerResponse } from './mock-handler-response'
 
 describe('mock-handler-response', () => {
+  it.each(['return res[200];', 'return undefined;'])(
+    'generates simple contains counts through handler examples: %s',
+    async (handler) => {
+      const schema = {
+        type: 'array',
+        items: { type: 'integer' },
+        minItems: 2,
+        maxItems: 2,
+        contains: { const: 2 },
+        maxContains: 1,
+      }
+      const operation = {
+        'x-handler': handler,
+        responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } },
+      } as unknown as OpenAPIV3_1.OperationObject
+      const app = new Hono().get('/', (c) => mockHandlerResponse(c, operation, undefined, { openapiVersion: '3.1.0' }))
+      const response = await app.request('/')
+      expect(await response.json()).toStrictEqual([2, 1])
+    },
+  )
+
   it('exposes an XML generation error when the handler falls back to an example', async () => {
     const operation: OpenAPIV3_1.OperationObject = {
       'x-handler': 'return undefined;',

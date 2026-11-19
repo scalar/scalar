@@ -43,3 +43,6 @@ rollup.config-*.mjs
 
 # Vitest reports and artifacts
 .vitest/
+
+# Local dependency audit reports
+/dependency-audit/

@@ -365,7 +365,7 @@ Alongside the page type, a target generates a params type carrying the scheme's 
 | PHP | `foreach ($page as $item)`, `$page->pagingEachItem()` | `$page->hasNextPage()`, `$page->getNextPage()` |
 | Rust | `let mut pager = ...paginate();` then `pager.next().await` | `Pager::next_page` |
 | Dart | `await for (final item in client.x.list().autoPaging())` | `page.hasNextPage`, `page.nextPage()`, `page.pages()` |
-| C++ | `for (const auto& item : page.auto_paging())` | `page.items()`, `page.has_next_page()`, `page.next_page()` |
+| C++ | `for (const auto& item : page.auto_paging())` | `page.items()`, `page.has_next_page()`, `page.get_next_page()` |
 | Swift | `for try await item in client.x.list(...)` | `.pages`, `firstPage()`, `page.hasNextPage`, `page.nextPage()` |
 
 Your generated README also picks up a `## Pagination` section walking a real paginated operation, on every target. Choose which one with `readme.exampleRequests.pagination`.

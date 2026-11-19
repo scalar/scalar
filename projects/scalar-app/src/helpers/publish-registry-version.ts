@@ -29,16 +29,24 @@ export const publishRegistryVersion: PublishRegistryVersion = async ({
   commitHash,
 }) => {
   try {
-    const result = await scalarClient.registry.createAPIDocumentVersion(namespace, slug, {
+    // The registry accepts the concurrency hash, although the SDK omits it from its generated types.
+    const params = {
+      namespace,
       version,
       document: JSON.stringify(document),
       force: true,
       lastKnownVersionSha: commitHash,
-    })
+    }
+    const result = await scalarClient.registry.createAPIDocumentVersion(slug, params)
 
     return {
       ok: true,
-      data: { namespace, slug, version, commitHash: result.versionSha ?? '' },
+      data: {
+        namespace,
+        slug,
+        version,
+        commitHash: 'versionSha' in result && typeof result.versionSha === 'string' ? result.versionSha : '',
+      },
     }
   } catch (error) {
     return mapRegistryError(error, {

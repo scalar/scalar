@@ -723,6 +723,142 @@ paths:
     expect(getValueAtPath(document, ['components', 'schemas', 'Anything', 'contentSchema'])).toBe(true)
   })
 
+  it.each(['default', 'example', 'examples', 'const', 'enum', 'schema', 'schemas', 'itemSchema'])(
+    'links references inside OpenAPI objects named %s',
+    async (name) => {
+      const header = (): object => ({ schema: { $ref: '#/components/schemas/Error' } })
+      const content = (): object => ({ 'application/json': header() })
+      const document = await loadDocument({
+        openapi: '3.1.1',
+        info: { title: 'Names', version: '1' },
+        paths: {
+          '/pets': {
+            get: {
+              requestBody: {
+                content: {
+                  'multipart/form-data': {
+                    schema: { type: 'object' },
+                    encoding: { [name]: { headers: { [name]: header() } } },
+                  },
+                },
+              },
+              responses: { [name]: { description: 'Error', content: content(), headers: { [name]: header() } } },
+              callbacks: { [name]: { [name]: { post: { requestBody: { content: content() } } } } },
+            },
+          },
+        },
+        webhooks: { [name]: { post: { requestBody: { content: content() } } } },
+        components: {
+          schemas: { Error: { type: 'object', properties: { code: { type: 'integer' } } } },
+          responses: { [name]: { description: 'Error', content: content() } },
+          requestBodies: { [name]: { content: content() } },
+          headers: { [name]: header() },
+          callbacks: { [name]: { [name]: { post: { requestBody: { content: content() } } } } },
+          pathItems: { [name]: { post: { requestBody: { content: content() } } } },
+        },
+      })
+
+      const references = findReferences(document)
+      expect(references).toHaveLength(10)
+      for (const reference of references) {
+        expect(getReferenceTarget(reference)).toBe(document.components?.schemas?.Error)
+      }
+    },
+  )
+
+  it('resolves pointers into a default response as schemas', async () => {
+    const document = await loadDocument({
+      openapi: '3.1.1',
+      info: { title: 'Pointers', version: '1' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              default: {
+                description: 'Error',
+                content: { 'application/json': { schema: { type: 'object', required: true } } },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Error: { $ref: '#/paths/~1pets/get/responses/default/content/application~1json/schema' },
+        },
+      },
+    })
+
+    expect(getReferenceTarget(document.components?.schemas?.Error)).toStrictEqual({ type: 'object', required: [] })
+  })
+
+  it('restores boolean schemas inside a default response', async () => {
+    const input = {
+      openapi: '3.1.1',
+      info: { title: 'Boolean default response', version: '1' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              default: {
+                description: 'Error',
+                content: { 'application/json': { schema: { type: 'object', properties: { detail: false } } } },
+                headers: { 'X-Trace': { schema: true } },
+              },
+            },
+          },
+        },
+      },
+    }
+    const original = structuredClone(input)
+
+    const document = await loadDocument(input)
+
+    const response = getValueAtPath(document, ['paths', '/pets', 'get', 'responses', 'default'])
+    expect(getValueAtPath(response, ['content', 'application/json', 'schema', 'properties', 'detail'])).toBe(false)
+    expect(getValueAtPath(response, ['headers', 'X-Trace', 'schema'])).toBe(true)
+    expect(input).toStrictEqual(original)
+  })
+
+  it('keeps default and example keyword values as data', async () => {
+    const data = { $ref: '#/components/schemas/Error', flag: false }
+    const document = await loadDocument({
+      openapi: '3.1.1',
+      info: { title: 'Keyword data', version: '1' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              default: {
+                description: 'Error',
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', default: data },
+                    examples: { default: { value: data } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: { schemas: { Error: { type: 'object' } } },
+    })
+
+    const media = getValueAtPath(document, [
+      'paths',
+      '/pets',
+      'get',
+      'responses',
+      'default',
+      'content',
+      'application/json',
+    ])
+    expect(hasReferenceLinks(media)).toBe(false)
+    expect(getValueAtPath(media, ['schema', 'default'])).toStrictEqual(data)
+    expect(getValueAtPath(media, ['examples', 'default', 'value'])).toStrictEqual(data)
+  })
+
   it('loads densely linked descriptions without copying the reference graph', async () => {
     const models = 60
     const input = createDenselyLinkedDocument(models, 8)

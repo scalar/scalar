@@ -12,10 +12,17 @@ export default {}
 </script>
 <script setup lang="ts">
 import ScalarToggleSlider from './ScalarToggleSlider.vue'
+import type { ScalarToggleSize } from './types'
 
 const props = defineProps<{
   disabled?: boolean
   label?: string
+  /**
+   * Size of the toggle
+   *
+   * @default 'sm'
+   */
+  size?: ScalarToggleSize
 }>()
 
 const model = defineModel<boolean>({ default: false })
@@ -34,6 +41,7 @@ function toggle() {
     :disabled
     :label
     role="switch"
+    :size
     :thumb="model ? 'end' : 'start'"
     @click="toggle" />
 </template>

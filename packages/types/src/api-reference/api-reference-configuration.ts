@@ -135,6 +135,12 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default false
    */
   showOperationId: z.boolean().optional().default(false).catch(false),
+  /**
+   * Whether to show the `x-badges` of operations, webhooks, tags, tag groups and models in the sidebar
+   *
+   * @default false
+   */
+  showBadgesInSidebar: z.boolean().optional().default(false).catch(false),
   /** Extension keys to display on operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions: z.array(z.string().regex(/^x-/)).optional(),
   /** Whether dark mode is on or off initially (light mode) */
@@ -168,6 +174,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
       z.literal(true),
     ])
     .optional(),
+  /**
+   * Whether to save and restore the selected code sample client using local storage.
+   * @default true
+   */
+  persistSelectedClient: z.boolean().optional().default(true).catch(true),
   /** Determine the HTTP client that's selected by default */
   // The custom branch widens the inferred type only; the permissive first branch
   // already accepts custom keys at runtime.
@@ -190,6 +201,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * Unknown or hidden clients are skipped.
    */
   featuredClients: z.array(z.custom<AvailableClient>()).optional(),
+  /**
+   * Show built-in HTTP clients alongside `x-scalar-sdk-installation` tabs in the introduction.
+   * @default false
+   */
+  showDefaultClientsWithSdkInstallation: z.boolean().optional(),
   /**
    * Initial view for the request body editor with structured (JSON/YAML) bodies.
    *

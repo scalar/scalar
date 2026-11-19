@@ -16,6 +16,7 @@ import { asyncApiObjectSchema } from '@scalar/schemas/asyncapi/3.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { type Schema, coerce } from '@scalar/validation'
 
+import { loadInlineAsyncApiSchemaResources } from '@/helpers/async-api-schema-resources/load-inline'
 import { asyncApiChunkGroups } from '@/helpers/asyncapi-chunk-groups'
 import {
   CHUNK_INDEX_KEY,
@@ -26,6 +27,7 @@ import {
   fillChunkRef,
   navigationHeader,
 } from '@/helpers/chunk-index'
+import { compactUpgradeMetadata } from '@/helpers/compact-upgrade-metadata'
 import { createChunkWriter } from '@/helpers/create-chunk-writer'
 import { deepClone } from '@/helpers/deep-clone'
 import { encodeChunkName } from '@/helpers/encode-chunk-name'
@@ -37,7 +39,9 @@ import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { resolveSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
+import { codeSampleSources, loadCodeSampleSources } from '@/plugins/bundler/code-sample-sources'
 import { openApiDocument, resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
+import { upgradeDocuments } from '@/plugins/bundler/upgrade-documents'
 import { extensions } from '@/schemas/extensions'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -143,6 +147,7 @@ const resolveLocalReferences = <T extends object>(document: T): T =>
 const BUNDLED_EXTERNAL_KEYS = [
   bundleExtensions.externalDocuments,
   bundleExtensions.externalDocumentsMappings,
+  'x-scalar-upgrade',
   'x-scalar-security-uri-aliases',
   'x-scalar-original-security-keys',
 ] as const
@@ -706,10 +711,16 @@ export async function createServerWorkspaceStore(
       return
     }
 
+    const originalOpenapiVersion = document['x-original-oas-version'] ?? document.openapi ?? document.swagger
     const upgradedDocument = upgrade(document, '3.1')
     // Copy only containers changed by normalization; unchanged x-ext graphs remain shared.
     const normalizedDocument = normalizeBooleanSchemas(upgradedDocument)
-    const documentV3 = coerceValue(OpenAPIDocumentSchema, normalizedDocument)
+    const documentV3 = coerceValue(OpenAPIDocumentSchema, {
+      ...normalizedDocument,
+      ...(originalOpenapiVersion !== upgradedDocument.openapi
+        ? { 'x-original-oas-version': originalOpenapiVersion }
+        : {}),
+    })
     preserveBundledExternals(normalizedDocument, documentV3)
 
     // Everything that inspects the document reads through this; everything that stores a piece of it
@@ -828,7 +839,7 @@ export async function createServerWorkspaceStore(
       const loaded = document.data as Record<string, unknown>
       const isThreeTwo = typeof loaded.openapi === 'string' && /^3\.2\.\d+$/.test(loaded.openapi)
       // URI resolution adds working aliases; keep the caller's authored object unchanged.
-      const data: Record<string, unknown> = isThreeTwo ? JSON.parse(document.raw) : loaded
+      const data: Record<string, unknown> = JSON.parse(JSON.stringify(loaded))
       const fileOrigin = 'path' in input ? input.path : undefined
       const origin = 'url' in input ? input.url : fileOrigin
       const options = workspaceProps.documentLoading
@@ -836,11 +847,42 @@ export async function createServerWorkspaceStore(
         fetchUrls({ blockPrivateNetworks: !options?.allowPrivateNetworks }),
         ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),
       ]
-      if (isThreeTwo) {
-        await bundle(data, { origin, treeShake: false, urlMap: true, plugins: [openApiDocument(), ...loaders] })
-        await resolveSecurityRequirements(data, { origin, loaders })
+      if (loaded.swagger === '2.0' || (typeof loaded.openapi === 'string' && loaded.openapi.startsWith('3.0.'))) {
+        await bundle(data, {
+          origin,
+          traversal: 'document',
+          // Relocated local pointers must be rewritten before components become server chunks.
+          // External fragments remain lazy and retain their original owning dialect.
+          preserveReference: (ref) => !ref.startsWith('#'),
+          treeShake: false,
+          plugins: [upgradeDocuments(loaded.openapi ?? loaded.swagger), ...loaders],
+        })
+        compactUpgradeMetadata(data)
       }
-      addDocumentSync(data, { name: input.name, ...input.meta }, navigationOptions)
+      if (isThreeTwo) {
+        await bundle(data, {
+          traversal: 'document',
+          origin,
+          treeShake: false,
+          urlMap: true,
+          plugins: [
+            upgradeDocuments(loaded.openapi ?? loaded.swagger),
+            codeSampleSources(),
+            openApiDocument(),
+            ...loaders,
+          ],
+        })
+        await resolveSecurityRequirements(data, { origin, loaders })
+      } else if (isAsyncApiDocument(data)) {
+        await loadInlineAsyncApiSchemaResources(resolveLocalReferences(data), origin ?? '/', loaders)
+      } else {
+        await loadCodeSampleSources(data, origin ?? '/', loaders)
+      }
+      addDocumentSync(
+        data,
+        { name: input.name, ...(origin ? { 'x-scalar-original-source-url': origin } : {}), ...input.meta },
+        navigationOptions,
+      )
     } catch (error) {
       // Honours the contract above: a document that cannot be processed is skipped rather than
       // taking the workspace with it, since the initial documents are ingested together and one

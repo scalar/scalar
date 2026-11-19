@@ -12,11 +12,7 @@ internal sealed class ExcludeFromApiReferenceOpenApiOperationTransformer : IOpen
         }
 
         operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
-#if NET10_0_OR_GREATER
         operation.Extensions.TryAdd(ScalarIgnore, new JsonNodeExtension(TrueNode));
-#elif NET9_0
-        operation.Extensions.TryAdd(ScalarIgnore, new OpenApiBoolean(true));
-#endif
 
         return Task.CompletedTask;
     }

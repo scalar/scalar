@@ -97,6 +97,9 @@ public class ScalarConfiguration {
     @JsonProperty("proxyUrl")
     private String proxyUrl;
 
+    @JsonProperty("showBadgesInSidebar")
+    private Boolean showBadgesInSidebar;
+
     @JsonProperty("showSidebar")
     private Boolean showSidebar;
 
@@ -135,6 +138,9 @@ public class ScalarConfiguration {
 
     @JsonProperty("defaultHttpClient")
     private DefaultHttpClient defaultHttpClient;
+
+    @JsonProperty("showDefaultClientsWithSdkInstallation")
+    private Boolean showDefaultClientsWithSdkInstallation;
 
     @JsonProperty("authentication")
     private ScalarAuthenticationOptions authentication;
@@ -177,6 +183,9 @@ public class ScalarConfiguration {
 
     @JsonProperty("baseServerURL")
     private String baseServerUrl;
+
+    @JsonProperty("persistSelectedClient")
+    private Boolean persistSelectedClient;
 
     @JsonProperty("persistAuth")
     private Boolean persistAuth;
@@ -235,6 +244,14 @@ public class ScalarConfiguration {
 
     public void setProxyUrl(String proxyUrl) {
         this.proxyUrl = proxyUrl;
+    }
+
+    public Boolean getShowBadgesInSidebar() {
+        return showBadgesInSidebar;
+    }
+
+    public void setShowBadgesInSidebar(Boolean showBadgesInSidebar) {
+        this.showBadgesInSidebar = showBadgesInSidebar;
     }
 
     public Boolean getShowSidebar() {
@@ -331,6 +348,14 @@ public class ScalarConfiguration {
 
     public void setMetaData(Map<String, String> metaData) {
         this.metaData = metaData;
+    }
+
+    public Boolean getShowDefaultClientsWithSdkInstallation() {
+        return showDefaultClientsWithSdkInstallation;
+    }
+
+    public void setShowDefaultClientsWithSdkInstallation(Boolean showDefaultClientsWithSdkInstallation) {
+        this.showDefaultClientsWithSdkInstallation = showDefaultClientsWithSdkInstallation;
     }
 
     public DefaultHttpClient getDefaultHttpClient() {
@@ -451,6 +476,14 @@ public class ScalarConfiguration {
 
     public void setBaseServerUrl(String baseServerUrl) {
         this.baseServerUrl = baseServerUrl;
+    }
+
+    public Boolean getPersistSelectedClient() {
+        return persistSelectedClient;
+    }
+
+    public void setPersistSelectedClient(Boolean persistSelectedClient) {
+        this.persistSelectedClient = persistSelectedClient;
     }
 
     public Boolean getPersistAuth() {

@@ -1,7 +1,25 @@
 import { describe, expectTypeOf, it } from 'vitest'
 
 import { coerce } from '@/coerce'
-import { type Schema, array, intersection, lazy, literal, number, object, optional, string, union } from '@/schema'
+import {
+  type ArraySchema,
+  type LazySchema,
+  type LiteralSchema,
+  type NumberSchema,
+  type ObjectSchema,
+  type OptionalSchema,
+  type Schema,
+  type StringSchema,
+  array,
+  intersection,
+  lazy,
+  literal,
+  number,
+  object,
+  optional,
+  string,
+  union,
+} from '@/schema'
 
 describe('coerce.types', () => {
   it('infers primitive static types', () => {
@@ -83,7 +101,13 @@ describe('coerce.types', () => {
   })
 
   it('infers lazy self-referential object static types', () => {
-    const TNode = lazy(() =>
+    type NodeSchema = LazySchema<
+      () => ObjectSchema<{
+        name: StringSchema
+        child: OptionalSchema<LazySchema<() => NodeSchema>>
+      }>
+    >
+    const TNode: NodeSchema = lazy(() =>
       object({
         name: string(),
         child: optional(lazy(() => TNode)),
@@ -104,13 +128,25 @@ describe('coerce.types', () => {
   })
 
   it('infers mutually-recursive lazy schema static types', () => {
-    const SchemaA = lazy(() =>
+    type ASchema = LazySchema<
+      () => ObjectSchema<{
+        kind: LiteralSchema<'a'>
+        next: OptionalSchema<LazySchema<() => BSchema>>
+      }>
+    >
+    type BSchema = LazySchema<
+      () => ObjectSchema<{
+        kind: LiteralSchema<'b'>
+        next: OptionalSchema<LazySchema<() => ASchema>>
+      }>
+    >
+    const SchemaA: ASchema = lazy(() =>
       object({
         kind: literal('a'),
         next: optional(lazy(() => SchemaB)),
       }),
     )
-    const SchemaB = lazy(() =>
+    const SchemaB: BSchema = lazy(() =>
       object({
         kind: literal('b'),
         next: optional(lazy(() => SchemaA)),
@@ -137,7 +173,11 @@ describe('coerce.types', () => {
   })
 
   it('infers lazy schema static types nested in object properties', () => {
-    const TreeNode = object({
+    type TreeSchema = ObjectSchema<{
+      id: NumberSchema
+      children: OptionalSchema<ArraySchema<LazySchema<() => TreeSchema>>>
+    }>
+    const TreeNode: TreeSchema = object({
       id: number(),
       children: optional(array(lazy(() => TreeNode))),
     })

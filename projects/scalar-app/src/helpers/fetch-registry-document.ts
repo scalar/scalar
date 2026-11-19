@@ -19,7 +19,7 @@ type ImportDocumentFromRegistry = RegistryAdapter['fetchDocument']
  */
 export const fetchRegistryDocument: ImportDocumentFromRegistry = async ({ namespace, slug, version = 'latest' }) => {
   try {
-    const response = await scalarClient.registry.retrieveAPIDocumentVersion(namespace, slug, version).withResponse()
+    const response = await scalarClient.registry.retrieveAPIDocumentVersion(version, { namespace, slug }).withResponse()
 
     const documentString = response.data
     if (typeof documentString !== 'string') {

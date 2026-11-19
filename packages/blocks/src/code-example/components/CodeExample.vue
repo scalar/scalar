@@ -119,6 +119,8 @@ export type CodeExampleProps = {
    */
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
+  jsonSchemaDialect?: string
   requestBodyCompositionSelection?: Record<string, number>
 }
 
@@ -171,7 +173,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   computed,
-  onBeforeMount,
   ref,
   useId,
   watch,
@@ -214,6 +215,7 @@ const {
   generateLabel,
   globalCookies,
   openapiVersion,
+  jsonSchemaDialect,
   requestBodyCompositionSelection,
 } = defineProps<CodeExampleProps>()
 
@@ -268,10 +270,9 @@ const resolveExampleKey = (preferred: string | undefined): string => {
   return keys[0] ?? ''
 }
 
-// Set the initial example from the document-wide selection, falling back to the first example
-onBeforeMount(() => {
-  localExampleKey.value = resolveExampleKey(selectedExample)
-})
+// Set the initial example from the document-wide selection, falling back to the first example.
+// This runs during setup so the server renders the same example as the browser.
+localExampleKey.value = resolveExampleKey(selectedExample)
 
 // Follow the document-wide selection when it changes and this operation has that example
 watch(
@@ -399,6 +400,7 @@ const webhookHar = computed(() => {
       path,
       example: localExampleKey.value,
       openapiVersion,
+      jsonSchemaDialect,
       requestBodyCompositionSelection,
       // Only required parameters are shown in code examples; optional parameters
       // are omitted unless explicitly enabled via `x-disabled: false`.
@@ -432,6 +434,7 @@ const generatedTemplate = computed<string | null>(() => {
     example: localExampleKey.value,
     globalCookies,
     openapiVersion,
+    jsonSchemaDialect,
     requestBodyCompositionSelection,
   })
 })
@@ -539,6 +542,7 @@ const id = useId()
         <!-- Multiple clients: render a dropdown to switch between them -->
         <ScalarCombobox
           v-if="clientCount > 1"
+          v-slot="{ open }"
           class="max-h-80"
           :filterFn="filterClientsByQuery"
           :inputLabel="clientSearchLabel"
@@ -553,8 +557,13 @@ const id = useId()
             data-testid="client-picker"
             variant="ghost">
             {{ localSelectedClient?.title }}
+            <!--
+              Follow this picker's own state. The `ui-open:` variant also matches any open
+              Headless UI ancestor, such as an expanded operation in the classic layout.
+            -->
             <ScalarIconCaretDown
-              class="ui-open:rotate-180 mt-px size-3 transition-transform duration-100"
+              class="mt-px size-3 transition-transform duration-100"
+              :class="{ 'rotate-180': open }"
               weight="bold" />
           </ScalarButton>
         </ScalarCombobox>
@@ -597,7 +606,7 @@ const id = useId()
         class="code-snippet group/code-block relative">
         <ScalarCodeBlock
           v-if="!shouldVirtualize"
-          class="bg-b-2 h-full"
+          class="h-full bg-transparent"
           :content="displayCode ?? ''"
           :copyContent="resolvedCredentials ? (generatedCode ?? '') : undefined"
           :hideCredentials="secretCredentials"
@@ -613,7 +622,7 @@ const id = useId()
           <ScalarVirtualText
             :id="`${id}-virtual-code`"
             aria-label="Request code sample"
-            containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
+            containerClass="custom-scroll scalar-code-block flex flex-1 max-h-screen"
             contentClass="language-plaintext whitespace-pre font-code text-base p-2"
             :lineHeight="20"
             role="region"
@@ -625,10 +634,10 @@ const id = useId()
     <!-- Footer -->
     <ScalarCardFooter
       v-if="showExamplePicker || $slots.footer || $slots['footer-start']"
-      class="request-card-footer bg-b-3"
+      class="request-card-footer"
       :class="{
         'request-card-footer--wraps':
-          !showExamplePicker && $slots['footer-start'],
+          showExamplePicker || $slots['footer-start'],
       }">
       <!-- Example picker -->
       <div
@@ -659,7 +668,8 @@ const id = useId()
   <ScalarCard
     v-else-if="fallback"
     class="request-card dark-mode">
-    <ScalarCardSection class="request-card-simple">
+    <!-- A single row of method, path and actions reads as a header, so it stays on the card -->
+    <ScalarCardSection class="request-card-simple bg-transparent shadow-none">
       <div class="request-header">
         <HttpMethod
           as="span"
@@ -694,8 +704,8 @@ const id = useId()
   position: relative;
 }
 /*
- * Footer-start content keeps its full width; when the footer is too narrow for everything,
- * the end controls wrap onto a second line instead of squeezing or covering it.
+ * The example picker or footer-start content keeps room for itself; when the footer is too narrow
+ * for everything, the end controls wrap onto a second line instead of squeezing or covering it.
  */
 .request-card-footer--wraps {
   flex-wrap: wrap;
@@ -706,16 +716,31 @@ const id = useId()
   align-items: center;
   flex: 1 0 auto;
 }
+/*
+ * The picker asks for its example name's width, capped at 7em (about eight characters), so on a
+ * narrow card the end controls wrap rather than squeeze the name out of view. The cap keeps a long
+ * name truncating beside them on wider cards, as before. The picker never grows past its name, and
+ * the end margin holds it at the start of the line.
+ */
 .request-card-footer-addon {
   display: flex;
   align-items: center;
 
-  flex: 1;
+  flex: 1 1 7em;
   min-width: 0;
+  max-width: max-content;
+  margin-inline-end: auto;
 }
 .request-editor-section {
   display: flex;
   flex: 1;
+}
+/*
+ * A long sample is drawn as virtual text with its own copy button rather than a code block, so
+ * that button gets the same raised fill a code block gives its button on a card's surface.
+ */
+.code-snippet > .scalar-code-copy {
+  background: var(--scalar-card-surface-raised, var(--scalar-background-2));
 }
 .request-card-simple {
   display: flex;
