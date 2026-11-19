@@ -2981,6 +2981,11 @@
                       }
                     }
                   },
+                  "cli-output": {
+                    "filepath": "documentation/guides/sdks/cli-output.md",
+                    "type": "page",
+                    "title": "CLI Output Formats"
+                  },
                   "pagination": {
                     "filepath": "documentation/guides/sdks/pagination.md",
                     "type": "page",
