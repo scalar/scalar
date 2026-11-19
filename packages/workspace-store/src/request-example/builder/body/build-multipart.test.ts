@@ -1,5 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { EncodingObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { EncodingObject, HeaderObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 import { reactive } from 'vue'
@@ -18,6 +18,83 @@ const wireParts = async (body: Blob): Promise<string[]> => {
 }
 
 describe('build-multipart', () => {
+  it.each([
+    { example: { dataValue: 'part-123' }, expected: 'part-123' },
+    { example: { serializedValue: 'part-123' }, expected: 'part-123' },
+    { example: { value: 'part-123' }, expected: 'part-123' },
+    { example: { value: false }, expected: 'false' },
+    { example: { value: 0 }, expected: '0' },
+    { example: { value: '' }, expected: '' },
+    { example: { dataValue: false }, expected: 'false' },
+    { example: { dataValue: 0 }, expected: '0' },
+    { example: { dataValue: '' }, expected: '' },
+    { example: { dataValue: null }, expected: 'null' },
+    { example: { value: null }, expected: 'null' },
+    { example: { serializedValue: '' }, expected: '' },
+    { example: { serializedValue: 'one%2Ctwo,three', dataValue: ['one,two', 'three'] }, expected: 'one%2Ctwo,three' },
+    { example: { $ref: '#/components/examples/id', '$ref-value': { dataValue: 'part-123' } }, expected: 'part-123' },
+  ])('includes the part header example $example in the encoded request', async ({ example, expected }) => {
+    const parts = buildMultipart(['hello'], 'multipart/mixed', {
+      itemEncoding: {
+        contentType: 'text/plain',
+        headers: {
+          'X-Part-Id': {
+            schema: { type: 'string', const: 'schema-const', default: 'schema-default' },
+            examples: { sample: example },
+          },
+        },
+      },
+    })
+    expect(await wireParts(encodeMultipartBody(parts, 'multipart/mixed'))).toStrictEqual([
+      `Content-Type: text/plain\r\nX-Part-Id: ${expected}\r\n\r\nhello`,
+    ])
+  })
+
+  it.each<{ header: HeaderObject; expected: string | undefined }>([
+    {
+      header: { schema: { type: 'string' }, example: false, examples: { sample: { dataValue: 'sample' } } },
+      expected: 'false',
+    },
+    { header: { schema: { type: 'string' }, example: 0 }, expected: '0' },
+    { header: { schema: { type: 'string' }, example: '' }, expected: '' },
+    { header: { schema: { type: 'string', const: 'fallback' }, example: null }, expected: 'null' },
+    { header: { schema: { type: 'string', const: 'constant', default: 'default' } }, expected: 'constant' },
+    {
+      header: { schema: { type: 'string', default: 'default' }, examples: { sample: { summary: 'No inline value' } } },
+      expected: 'default',
+    },
+    { header: { schema: { type: 'boolean', const: false } }, expected: 'false' },
+    { header: { schema: { type: 'integer', default: 0 } }, expected: '0' },
+    { header: { schema: { type: 'string' } }, expected: undefined },
+  ])('preserves header example precedence and fallbacks for $header', async ({ header, expected }) => {
+    const parts = buildMultipart(['hello'], 'multipart/mixed', {
+      itemEncoding: { headers: { 'X-Part-Id': header } },
+    })
+    expect(await wireParts(encodeMultipartBody(parts, 'multipart/mixed'))).toStrictEqual([
+      `Content-Type: text/plain\r\n${expected === undefined ? '' : `X-Part-Id: ${expected}\r\n`}\r\nhello`,
+    ])
+  })
+
+  it('uses part header examples from a named multipart request body', async () => {
+    const body = buildRequestBody({
+      content: {
+        'multipart/form-data': {
+          examples: { default: { dataValue: [{ message: 'hello' }] } },
+          itemEncoding: {
+            contentType: 'text/plain',
+            headers: { 'X-Part-Id': { schema: { type: 'string' }, examples: { sample: { dataValue: 'part-123' } } } },
+          },
+        },
+      },
+    })
+    if (body?.mode !== 'multipart') {
+      throw new Error('Expected a multipart request body')
+    }
+    expect(await wireParts(encodeMultipartBody(body.value, body.contentType))).toStrictEqual([
+      'Content-Disposition: form-data; name="message"\r\nContent-Type: text/plain\r\nX-Part-Id: part-123\r\n\r\nhello',
+    ])
+  })
+
   it.each([1, 2, 3])('maps a prefix of length %i without changing item order', async (length) => {
     const parts = buildMultipart(
       ['first', 'second'],

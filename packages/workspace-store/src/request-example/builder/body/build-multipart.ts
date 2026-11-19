@@ -9,6 +9,8 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
+import { getExampleValue } from '@/helpers/get-example-value'
+
 import { serializeXmlPart } from '../../xml/serialize-xml-part'
 import { MAX_MULTIPART_NESTING } from './multipart-limits'
 import { resolveLeafSchema } from './schema-value-coercion'
@@ -179,11 +181,11 @@ export const buildMultipart = (
         }
         const headerSchema = getResolvedRef(header.schema)
         const example =
-          header?.example ??
-          getResolvedRef(Object.values(header?.examples ?? {})[0])?.value ??
-          headerSchema?.const ??
-          headerSchema?.default
-        return example === undefined ? [] : [[name, String(example)]]
+          header.example !== undefined
+            ? { value: header.example }
+            : getExampleValue(Object.values(header.examples ?? {})[0])
+        const value = example === undefined ? (headerSchema?.const ?? headerSchema?.default) : example.value
+        return value === undefined ? [] : [[name, String(value)]]
       }),
     )
     if (
