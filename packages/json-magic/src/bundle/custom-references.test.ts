@@ -185,6 +185,12 @@ describe('custom-references', () => {
       'https://source.test/custom.json',
     ])
     const exported = JSON.parse(JSON.stringify(result.document))
+    if (external) {
+      const source = Object.values(exported['x-ext'] as Record<string, { value?: unknown }>).find(
+        (value) => value.value !== undefined,
+      )
+      expect(source?.value).toStrictEqual({ marker: true })
+    } else expect(exported['x-data'].value).toStrictEqual({ marker: true })
     const target = local(exported, exported['x-entry'].$ref)
     if (target === null || typeof target !== 'object' || !('schemas' in target)) {
       throw new Error('Missing transformed custom target')
@@ -452,6 +458,7 @@ describe('custom-references', () => {
         $ref: 'https://unreachable.test/schema',
         'x-extra': { $ref: './sibling.json' },
       }
+      const original = structuredClone(target)
       const result = await bundleWithDiagnostics(
         {
           ...api,
@@ -502,6 +509,7 @@ describe('custom-references', () => {
         'https://source.test/sibling.json',
       ])
       const exported = JSON.parse(JSON.stringify(result.document))
+      if (storage === 'literal') expect(exported.components.schemas.A.default).toStrictEqual(original)
       const owner = exported['x-schema']
       const schema = local(owner, owner.properties.p.$ref)
       if (schema === null || typeof schema !== 'object' || !('$ref' in schema) || !('x-extra' in schema)) {
@@ -512,6 +520,118 @@ describe('custom-references', () => {
       expect(Object.values(exported['x-ext-urls'])).not.toContain('https://unreachable.test/schema')
     },
   )
+
+  it.each(
+    [
+      { treeShake: false, diagnostics: false, preserve: false },
+      { treeShake: true, diagnostics: false, preserve: false },
+      { treeShake: false, diagnostics: true, preserve: false },
+      { treeShake: true, diagnostics: true, preserve: false },
+      { treeShake: false, diagnostics: false, preserve: true },
+      { treeShake: true, diagnostics: false, preserve: true },
+      { treeShake: false, diagnostics: true, preserve: true },
+      { treeShake: true, diagnostics: true, preserve: true },
+    ].flatMap((options) => ['local', 'loaded', 'cached'].map((storage) => ({ ...options, storage }))),
+  )(
+    'copies literal targets (treeShake: $treeShake, diagnostics: $diagnostics, preserve: $preserve, storage: $storage)',
+    async ({ treeShake, diagnostics, preserve, storage }) => {
+      const reads: string[] = []
+      const target = {
+        type: 'object',
+        properties: {
+          value: { $ref: './custom.json' },
+          self: { $ref: `${storage === 'local' ? '' : './source.json'}#/components/schemas/A/default` },
+        },
+      }
+      const original = structuredClone(target)
+      const source = { ...api, components: { schemas: { A: { default: target } } } }
+      const input = {
+        ...api,
+        components: {
+          schemas: {
+            ...(storage === 'local' ? { A: { default: target } } : {}),
+            B: { $ref: `${storage === 'local' ? '' : './source.json'}#/components/schemas/A/default` },
+          },
+        },
+      }
+      const config = {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake,
+        ...(storage === 'cached'
+          ? {
+              cache: new Map([
+                ['https://source.test/source.json', Promise.resolve({ ok: true as const, raw: '', data: source })],
+              ]),
+            }
+          : {}),
+        plugins: [
+          {
+            type: 'loader',
+            validate: () => true,
+            exec: (uri) => {
+              reads.push(uri)
+              return Promise.resolve({
+                ok: true,
+                raw: '',
+                data: uri.endsWith('/source.json') ? source : { type: 'string' },
+              })
+            },
+          },
+        ],
+        ...(preserve ? { preserveReference: (reference: string) => /^https?:\/\//i.test(reference) } : {}),
+      } satisfies Config
+      const result = diagnostics
+        ? await bundleWithDiagnostics(input, config)
+        : { document: await bundle(input, config) }
+      if ('diagnostics' in result) expect(result.diagnostics).toStrictEqual([])
+      const exported = JSON.parse(JSON.stringify(result.document))
+      expect(target).toStrictEqual(original)
+      if (storage === 'local') expect(exported.components.schemas.A.default).toStrictEqual(original)
+      else if (!treeShake) {
+        const imported = Object.values(
+          exported['x-ext'] as Record<string, { components?: { schemas: { A: { default: unknown } } } }>,
+        ).find((value) => value.components)
+        expect(imported?.components?.schemas.A.default).toStrictEqual(original)
+      }
+      const exposed = local(exported, exported.components.schemas.B.$ref)
+      if (exposed === null || typeof exposed !== 'object' || !('properties' in exposed))
+        throw new Error('Missing exposed schema')
+      const properties = exposed.properties as Record<string, { $ref: string }>
+      expect(local(exported, properties.value.$ref)).toStrictEqual({ type: 'string' })
+      expect(local(exported, properties.self.$ref)).toBe(exposed)
+      expect(reads).toStrictEqual([
+        ...(storage === 'loaded' ? ['https://source.test/source.json'] : []),
+        'https://source.test/custom.json',
+      ])
+    },
+  )
+
+  it('retains authored diagnostics for references in copied literal targets', async () => {
+    const target = { type: 'object', properties: { value: { $ref: './missing.json' } } }
+    const original = structuredClone(target)
+    const result = await bundleWithDiagnostics(
+      { ...api, components: { schemas: { A: { default: target }, B: { $ref: '#/components/schemas/A/default' } } } },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake: true,
+        plugins: [{ type: 'loader', validate: () => true, exec: () => Promise.resolve({ ok: false }) }],
+        preserveReference: (reference) => /^https?:\/\//i.test(reference),
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([
+      {
+        kind: 'unresolved-document',
+        reference: './missing.json',
+        source: 'https://source.test/root.json',
+        pointer: '#/components/schemas/A/default/properties/value/$ref',
+      },
+    ])
+    expect(JSON.parse(JSON.stringify(result.document)).components.schemas.A.default).toStrictEqual(original)
+  })
 
   it('retains imported document context when custom references are disabled', async () => {
     const origin = 'https://source.test/root.json'
