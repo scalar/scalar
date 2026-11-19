@@ -12,6 +12,7 @@ Manage Scalar SDKs (Enterprise only).
 | [`scalar sdk update`](#update) | Update SDK metadata |
 | [`scalar sdk delete`](#delete) | Delete an SDK |
 | [`scalar sdk build`](#build) | Start an SDK build |
+| [`scalar sdk download`](#download) | Download a generated SDK or CLI build as a ZIP |
 
 ## list
 
@@ -121,4 +122,24 @@ scalar sdk build [options]
 | `-l, --language <language...>` | Languages to build (defaults to every language the config declares). One of `typescript`, `python`, `cli`, `csharp`, `java`, `ruby`, `php`, `go`, `rust`, `kotlin`, `swift`, `cpp`, `dart`. |
 | `-c, --config <path>` | Scalar, Stainless, Speakeasy, or Fern SDK config file (JSON or YAML) to build instead of the saved config. |
 | `--save` | Save the --config file as the SDK config before building (otherwise it is used for this build only). |
+| `--no-input` | Disable prompts and browser launches. |
+
+## download
+
+Download a generated SDK or CLI build as a ZIP.
+
+```bash
+scalar sdk download [options]
+```
+
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `-s, --slug <slug>` | **Required.** SDK slug. |
+| `-n, --namespace <namespace>` | Team namespace. |
+| `-l, --language <language>` | **Required.** Target language. One of `typescript`, `python`, `cli`, `csharp`, `java`, `ruby`, `php`, `go`, `rust`, `kotlin`, `swift`, `cpp`, `dart`. |
+| `--build <id>` | **Required.** Exact build UID from scalar sdk get --json. |
+| `-o, --output <path>` | **Required.** ZIP file to create (parent directory must exist; never overwrites). |
+| `--json` | Output download provenance as JSON. |
 | `--no-input` | Disable prompts and browser launches. |
