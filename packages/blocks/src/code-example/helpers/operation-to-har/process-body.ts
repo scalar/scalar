@@ -3,7 +3,6 @@ import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { isFileSchema } from '@scalar/workspace-store/helpers/is-file-schema'
-import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -14,7 +13,6 @@ import {
   getExampleFromBody,
   getExampleFromSchema,
   needsMultipartEncoding,
-  resolveAspNetMultipartFieldSchema,
   resolveLeafSchema,
   serializeFormPropertyWithEncoding,
   serializeMultipartArray,
@@ -254,9 +252,9 @@ export const processBody = ({
       requestBodyCompositionSelection,
       openapiVersion,
       jsonSchemaDialect,
+      { aspNetFilePlaceholders: aspNetNaming },
     )
     if (aspNetNaming && body?.mode === 'formdata') {
-      const schema = resolveFormSchema(media.schema, requestBodyCompositionSelection)
       return {
         mimeType: harMimeType,
         params: body.value.flatMap((part): Param[] => {
@@ -265,11 +263,6 @@ export const processBody = ({
           }
           if (part.type !== 'text') {
             return []
-          }
-          const fieldSchema = resolveAspNetMultipartFieldSchema(schema, part.key, requestBodyCompositionSelection)
-          const fileSchema = fieldSchema && isArraySchema(fieldSchema) ? resolve.schema(fieldSchema.items) : fieldSchema
-          if (part.value.startsWith('@') && fileSchema && isFileSchema(fileSchema, false, part.contentType)) {
-            return [buildFileParam(part.key, part.value.slice(1), part.contentType)]
           }
           return [{ name: part.key, value: part.value, ...(part.contentType ? { contentType: part.contentType } : {}) }]
         }),

@@ -27,7 +27,7 @@ describe('buildRequestBody', () => {
     const body = coerceValue(RequestBodyObjectSchema, {
       content: {
         'multipart/form-data': {
-          'x-scalar-multipart-naming': 'aspnet-core',
+          'x-scalar-multipart-naming': 'indexed-dot',
           schema: {
             type: 'object',
             required: ['certificates', 'profile', 'tags'],
@@ -50,6 +50,41 @@ describe('buildRequestBody', () => {
         { type: 'file', key: 'profile.file', value: file, contentType: undefined },
         { type: 'text', key: 'tags', value: 'one' },
         { type: 'text', key: 'tags', value: 'two' },
+      ],
+    })
+  })
+
+  it.each([
+    { value: { certificates: [{}, { name: 'Ada' }] }, indexField: 'certificates.index' },
+    {
+      value: [
+        { name: 'certificates[0].name', value: 'Grace', isDisabled: true },
+        { name: 'certificates[1].name', value: 'Ada' },
+      ],
+      indexField: 'certificates.index',
+    },
+    {
+      value: [
+        { name: 'certificates[1].name', value: 'Ada' },
+        { name: 'certificates.Index', value: '1' },
+      ],
+      indexField: 'certificates.Index',
+    },
+  ])('binds populated positions in sparse multipart arrays: $indexField', ({ value, indexField }) => {
+    expect(
+      buildRequestBody({
+        content: {
+          'multipart/form-data': {
+            'x-scalar-multipart-naming': 'indexed-dot',
+            examples: { default: { value } },
+          },
+        },
+      }),
+    ).toStrictEqual({
+      mode: 'formdata',
+      value: [
+        { type: 'text', key: 'certificates[1].name', value: 'Ada' },
+        { type: 'text', key: indexField, value: '1' },
       ],
     })
   })

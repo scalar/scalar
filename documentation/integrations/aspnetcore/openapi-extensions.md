@@ -115,13 +115,13 @@ public IActionResult GetExperimentalFeature() => Ok();
 
 ### Multipart field names for ASP.NET Core
 
-Set `x-scalar-multipart-naming: aspnet-core` on the `multipart/form-data` media type in an operation's request body to use ASP.NET Core `[FromForm]` field names. The extension is read from the API description and works with any Scalar integration.
+Set `x-scalar-multipart-naming: indexed-dot` on the `multipart/form-data` media type in an operation's request body to use ASP.NET Core `[FromForm]` field names. The extension is read from the API description and works with any Scalar integration.
 
 ```yaml
 requestBody:
   content:
     multipart/form-data:
-      x-scalar-multipart-naming: aspnet-core
+      x-scalar-multipart-naming: indexed-dot
       schema:
         type: object
         required: [Certificates]
@@ -138,6 +138,6 @@ requestBody:
                   format: binary
 ```
 
-The form editor, requests, and code snippets use names like `Certificates[0].name` and `Certificates[0].file`. Single nested objects use names like `Profile.file`. Arrays of scalar values or files use repeated parts with the same name. If you enter array items manually, use consecutive indices starting at zero.
+The form editor, requests, and code snippets use names like `Certificates[0].name` and `Certificates[0].file`. Single nested objects use names like `Profile.file`. Arrays of scalar values or files use repeated parts with the same name. If some indices are skipped, Scalar adds the collection’s `.index` fields so ASP.NET Core can bind the remaining items.
 
 Omit the extension to use normal OpenAPI multipart encoding. The extension applies to named form fields. Ordered multipart and nested MIME parts use their declared encoding.

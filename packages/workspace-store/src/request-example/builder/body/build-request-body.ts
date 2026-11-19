@@ -10,7 +10,13 @@ import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type
 import { getExampleValue, getExplicitExampleText } from '@/helpers/get-example-value'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
 
-import { getAspNetMultipartFields, usesAspNetMultipartNaming } from './aspnet-multipart-fields'
+import { getExample } from '../helpers/get-example'
+import {
+  getAspNetMultipartFields,
+  getAspNetMultipartIndexFields,
+  usesAspNetMultipartNaming,
+  withAspNetMultipartFilePlaceholder,
+} from './aspnet-multipart-fields'
 import {
   type MultipartPart,
   buildMultipart,
@@ -142,6 +148,7 @@ export const buildRequestBody = (
   requestBodyCompositionSelection?: Record<string, number>,
   openapiVersion?: string,
   jsonSchemaDialect?: string,
+  options?: { aspNetFilePlaceholders?: boolean },
 ): RequestBody | null => {
   if (!requestBody) {
     return null
@@ -255,10 +262,25 @@ export const buildRequestBody = (
     }
   }
 
-  const formRows =
-    aspNetNaming && (isObject(example.value) || Array.isArray(example.value))
-      ? getAspNetMultipartFields(example.value, resolvedBodySchema, requestBodyCompositionSelection)
-      : example.value
+  const formRows = (() => {
+    if (!aspNetNaming || (!isObject(example.value) && !Array.isArray(example.value))) {
+      return example.value
+    }
+    const includeMissing =
+      options?.aspNetFilePlaceholders === true &&
+      !getExampleValue(getExample(requestBody, exampleName, bodyContentType))
+    const fields = getAspNetMultipartFields(
+      example.value,
+      resolvedBodySchema,
+      requestBodyCompositionSelection,
+      includeMissing,
+    )
+    return options?.aspNetFilePlaceholders
+      ? fields.map((field) =>
+          withAspNetMultipartFilePlaceholder(field, includeMissing, media?.encoding?.[field.name]?.contentType),
+        )
+      : fields
+  })()
 
   // Form data - array format (from UI editor or flattened for ASP.NET Core)
   if (
@@ -371,6 +393,10 @@ export const buildRequestBody = (
       return
     })
 
+    if (aspNetNaming && result.mode === 'formdata') {
+      const indices = getAspNetMultipartIndexFields(result.value.map(({ key }) => key))
+      result.value.push(...indices.map(({ key, value }) => ({ type: 'text' as const, key, value })))
+    }
     return result
   }
 

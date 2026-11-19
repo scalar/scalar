@@ -1,6 +1,7 @@
 import { Schema } from '@scalar/blocks/schema'
 import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
 import { ScalarListbox } from '@scalar/components/listbox'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -15,7 +16,6 @@ import RequestBody from './RequestBody.vue'
 import RequestBodyMultipart from './RequestBodyMultipart.vue'
 import RequestBodyStructured from './RequestBodyStructured.vue'
 import RequestTable from './RequestTable.vue'
-import RequestTableRow from './RequestTableRow.vue'
 
 // Mock the useFileDialog hook
 const mockFiles = ref<FileList | null>(null)
@@ -67,7 +67,7 @@ describe('RequestBody', () => {
         requestBody: {
           content: {
             'multipart/form-data': {
-              'x-scalar-multipart-naming': 'aspnet-core',
+              'x-scalar-multipart-naming': 'indexed-dot',
               examples: { 'example-1': { value: { certificates: [{ name: 'Ada' }], profile: { name: 'Grace' } } } },
               schema: {
                 type: 'object',
@@ -89,21 +89,11 @@ describe('RequestBody', () => {
         },
       },
     })
-    const rows = wrapper.findAllComponents(RequestTableRow)
-    expect(rows.map((row) => row.props('data').name)).toStrictEqual([
-      'certificates[0].name',
-      'certificates[0].file',
-      'profile.name',
-      '',
-    ])
-    const upload = rows[1]!.findAll('button').find((button) => button.text() === 'Select File')
-    assert(upload)
-    await upload.trigger('click')
+    await wrapper.get('button[aria-label="Select File for certificates[0].file"]').trigger('click')
 
-    const event = wrapper.emitted('update:formValue')?.[0]?.[0] as {
-      contentType: string
-      payload: { name: string; value: unknown; isDisabled: boolean }[]
-    }
+    type FormValue = ApiReferenceEvents['operation:update:requestBody:formValue']['payload']
+    const event = wrapper.emitted<[{ contentType: string; payload: FormValue }]>('update:formValue')?.[0]?.[0]
+    assert(event)
     expect(event.contentType).toBe('multipart/form-data')
     expect(
       event.payload.map(({ name, value, isDisabled }) => [

@@ -1,5 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
+import { isFileSchema } from '@/helpers/is-file-schema'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
 import { unpackProxyShallow } from '@/helpers/unpack-proxy'
 import type { MediaTypeObject, SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
@@ -12,7 +13,7 @@ import { coerceLeafValueToSchemaType } from './schema-value-coercion'
 /** ASP.NET Core binds named form fields. Ordered and nested MIME bodies use their own encodings. */
 export const usesAspNetMultipartNaming = (contentType: string, media: MediaTypeObject | undefined): boolean =>
   contentType === 'multipart/form-data' &&
-  media?.['x-scalar-multipart-naming'] === 'aspnet-core' &&
+  media?.['x-scalar-multipart-naming'] === 'indexed-dot' &&
   !needsMultipartEncoding(contentType, media)
 
 type FormField = {
@@ -30,11 +31,11 @@ const getProperty = (schema: SchemaObject | undefined, name: string): MaybeRefSc
     ? schema.properties[name]
     : undefined
 
-const getItem = (schema: SchemaObject | undefined, index?: number): MaybeRefSchemaObject | undefined => {
+const getItem = (schema: SchemaObject | undefined, index: number): MaybeRefSchemaObject | undefined => {
   if (!schema || !isArraySchema(schema)) {
     return undefined
   }
-  const item = (index === undefined ? undefined : schema.prefixItems?.[index]) ?? schema.items
+  const item = schema.prefixItems?.[index] ?? schema.items
   return typeof item === 'object' ? item : undefined
 }
 
@@ -63,13 +64,6 @@ const resolveField = (
   return { schema: current, isRequired }
 }
 
-/** Find the schema for an indexed field or a property whose name contains literal dots. */
-export const resolveAspNetMultipartFieldSchema = (
-  schema: SchemaObject | undefined,
-  name: string,
-  compositionSelection?: Record<string, number>,
-): SchemaObject | undefined => resolveField(schema, name, compositionSelection).schema
-
 /** Map a structured example or saved editor rows to the field names understood by ASP.NET Core. */
 export const getAspNetMultipartFields = (
   value: unknown,
@@ -83,12 +77,9 @@ export const getAspNetMultipartFields = (
   const visit = (field: FormField, inputSchema: MaybeRefSchemaObject | undefined, schemaPath: string[]): void => {
     const { name, value, schema } = field
     // Schema placeholders can reach recursive references even when the example is finite.
-    const identity =
-      isObject(value) || Array.isArray(value)
-        ? unpackProxyShallow(value)
-        : value === undefined && inputSchema && typeof inputSchema === 'object'
-          ? unpackProxyShallow(inputSchema)
-          : undefined
+    const missingValueSchema = value === undefined ? inputSchema : undefined
+    const source = isObject(value) || Array.isArray(value) ? value : missingValueSchema
+    const identity = source && unpackProxyShallow(source)
     if (identity && ancestors.has(identity)) {
       return
     }
@@ -190,4 +181,51 @@ export const getAspNetMultipartFields = (
     visit({ name: '', value, schema, isRequired: true, isDisabled: false }, schema, ['requestBody'])
   }
   return fields
+}
+
+/** Add explicit indices for sparse collections so MVC binds items beyond the first gap. */
+export const getAspNetMultipartIndexFields = (names: string[]): { key: string; value: string }[] => {
+  const explicitNames = new Set(names.map((name) => name.toLowerCase()))
+  const collections = new Map<string, { key: string; indices: Set<string> }>()
+  for (const name of names) {
+    for (const match of name.matchAll(/\[(\d+)\](?=\.|\[|$)/g)) {
+      const index = match[1]
+      if (index === undefined || match.index === 0) {
+        continue
+      }
+      const key = `${name.slice(0, match.index)}.index`
+      const normalized = key.toLowerCase()
+      if (explicitNames.has(normalized)) {
+        continue
+      }
+      const collection = collections.get(normalized) ?? { key, indices: new Set<string>() }
+      collection.indices.add(index)
+      collections.set(normalized, collection)
+    }
+  }
+  return [...collections.values()].flatMap(({ key, indices }) => {
+    const values = [...indices]
+    return values.every((_, index) => indices.has(String(index))) ? [] : values.map((value) => ({ key, value }))
+  })
+}
+
+/** Include file upload examples when generating snippets for schema-backed multipart fields. */
+export const withAspNetMultipartFilePlaceholder = (
+  field: FormField,
+  includeMissing: boolean,
+  contentType?: string,
+): FormField => {
+  if (!field.schema || !isFileSchema(field.schema, false, contentType)) {
+    return field
+  }
+  const toFile = (value: unknown): unknown => {
+    if (typeof value === 'string' && value.startsWith('@') && value.length > 1) {
+      return new File([], value.slice(1), { lastModified: 0 })
+    }
+    if (includeMissing && (value === undefined || value === null || value === '')) {
+      return new File([], 'filename', { lastModified: 0 })
+    }
+    return value
+  }
+  return { ...field, value: Array.isArray(field.value) ? field.value.map(toFile) : toFile(field.value) }
 }

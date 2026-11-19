@@ -1,12 +1,15 @@
 import { snippetz } from '@scalar/snippetz'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getExampleFromBody } from '@scalar/workspace-store/request-example'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   EncodingObjectSchema,
   type SchemaObject,
   SchemaObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 
 import { processBody } from './process-body'
 
@@ -17,7 +20,7 @@ describe('processBody', () => {
       requestBody: {
         content: {
           'multipart/form-data': {
-            'x-scalar-multipart-naming': 'aspnet-core',
+            'x-scalar-multipart-naming': 'indexed-dot',
             schema: {
               type: 'object',
               required: ['certificates'],
@@ -52,6 +55,53 @@ describe('processBody', () => {
     })
     expect(curl).toContain("--form 'certificates[0].file=@certificate.txt'")
     expect(curl).toContain("--form 'certificates[0].name=Ada'")
+  })
+
+  it('includes the nested upload in snippets from an imported schema without a file example', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'upload',
+      document: {
+        openapi: '3.0.4',
+        info: { title: 'Certificate upload', version: '1.0.0' },
+        paths: {
+          '/certificates': {
+            post: {
+              requestBody: {
+                content: {
+                  'multipart/form-data': {
+                    'x-scalar-multipart-naming': 'indexed-dot',
+                    schema: {
+                      type: 'object',
+                      required: ['certificates'],
+                      properties: {
+                        certificates: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: { file: { type: 'string', format: 'binary' } },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              responses: { '200': { description: 'Certificates uploaded' } },
+            },
+          },
+        },
+      },
+    })
+    const document = store.workspace.documents.upload
+    assert(isOpenApiDocument(document))
+    const operation = getResolvedRef(getResolvedRef(document.paths?.['/certificates'])?.post)
+    const requestBody = getResolvedRef(operation?.requestBody)
+    assert(requestBody)
+    expect(processBody({ requestBody, contentType: 'multipart/form-data', openapiVersion: '3.0.4' })).toStrictEqual({
+      mimeType: 'multipart/form-data',
+      params: [{ name: 'certificates[0].file', value: '@filename', fileName: 'filename' }],
+    })
   })
 
   it.each([

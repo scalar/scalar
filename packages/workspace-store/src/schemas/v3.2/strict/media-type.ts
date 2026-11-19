@@ -25,7 +25,7 @@ export const MediaTypeObjectSchemaDefinition = Type.Object({
   /** A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. The encoding field SHALL only apply to Request Body Objects, and only when the media type is multipart or application/x-www-form-urlencoded. If no Encoding Object is provided for a property, the behavior is determined by the default values documented for the Encoding Object. */
   encoding: Type.Optional(Type.Record(Type.String(), EncodingObjectRef)),
   /** Use dotted properties and indexed object arrays for ASP.NET Core form binding. */
-  'x-scalar-multipart-naming': Type.Optional(Type.Literal('aspnet-core')),
+  'x-scalar-multipart-naming': Type.Optional(Type.Literal('indexed-dot')),
   /** An array of positional encoding information, as defined under Encoding By Position. The prefixEncoding field SHALL only apply when the media type is multipart. This field MUST NOT be present if encoding is present. Added in OpenAPI 3.2. */
   prefixEncoding: Type.Optional(Type.Array(EncodingObjectRef)),
   /** A single Encoding Object that provides encoding information for multiple array items, as defined under Encoding By Position. The itemEncoding field SHALL only apply when the media type is multipart. This field MUST NOT be present if encoding is present. Added in OpenAPI 3.2. */
@@ -51,7 +51,7 @@ export type MediaTypeObject = {
   /** A map between a property name and its encoding information. The key, being the property name, MUST exist in the schema as a property. The encoding field SHALL only apply to Request Body Objects, and only when the media type is multipart or application/x-www-form-urlencoded. If no Encoding Object is provided for a property, the behavior is determined by the default values documented for the Encoding Object. */
   encoding?: Record<string, EncodingObject>
   /** Use dotted properties and indexed object arrays for ASP.NET Core form binding. */
-  'x-scalar-multipart-naming'?: 'aspnet-core'
+  'x-scalar-multipart-naming'?: 'indexed-dot'
   /** An array of positional encoding information, as defined under Encoding By Position. The prefixEncoding field SHALL only apply when the media type is multipart. This field MUST NOT be present if encoding is present. Added in OpenAPI 3.2. */
   prefixEncoding?: EncodingObject[]
   /** A single Encoding Object that provides encoding information for multiple array items, as defined under Encoding By Position. The itemEncoding field SHALL only apply when the media type is multipart. This field MUST NOT be present if encoding is present. Added in OpenAPI 3.2. */

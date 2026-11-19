@@ -64,7 +64,6 @@ export {
 } from './builder'
 export {
   getAspNetMultipartFields,
-  resolveAspNetMultipartFieldSchema,
   usesAspNetMultipartNaming,
 } from './builder/body/aspnet-multipart-fields'
 export { getMultipartItemSchema, needsMultipartEncoding } from './builder/body/build-multipart'

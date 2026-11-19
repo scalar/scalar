@@ -839,7 +839,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
   const mediaType: Schema = object(
     {
       description: optional(string()),
-      'x-scalar-multipart-naming': optional(literal('aspnet-core')),
+      'x-scalar-multipart-naming': optional(literal('indexed-dot')),
       prefixEncoding: optional(array(encoding)),
       itemEncoding: optional(encoding),
       schema: optional(maybeRef(lazy((): Schema => schema))),
