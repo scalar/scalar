@@ -840,6 +840,17 @@ export const bundleDocument = async (
     )
   const traversal = createTraversal()
   const customTraversal = config.traversal === 'document' && config.includeCustomReferences === true
+  /** Vocabulary changes must resolve authored references rather than bundled storage pointers. */
+  const authoredReferences = customTraversal ? new WeakMap<object, string>() : undefined
+  const diagnosticOwners = new Map<ReferenceDiagnostic, Set<object>>()
+  const clearDiagnostics = (node: object): void => {
+    for (const [diagnostic, owners] of diagnosticOwners) {
+      if (!owners.delete(node) || owners.size) continue
+      diagnosticOwners.delete(diagnostic)
+      const index = diagnostics?.indexOf(diagnostic) ?? -1
+      if (index >= 0) diagnostics?.splice(index, 1)
+    }
+  }
   /** Native references may reinterpret custom subtrees; caller-supplied visited nodes stay excluded. */
   const processedContexts = config.includeCustomReferences
     ? new WeakMap<object, ReturnType<typeof traversal.location>[]>()
@@ -853,7 +864,8 @@ export const bundleDocument = async (
       : 'object',
   )
   const deferredCopies: (() => void)[] = []
-  const copyReferences = (...args: Parameters<typeof resolveAndCopyReferences>): void => {
+  const copyReferences = (owner: object, ...args: Parameters<typeof resolveAndCopyReferences>): void => {
+    const exposure = processedContexts?.get(owner)?.at(-1)
     const copy = (): void =>
       resolveAndCopyReferences(
         args[0],
@@ -875,8 +887,15 @@ export const bundleDocument = async (
         },
         parsePath,
       )
-    if (diagnostics) {
-      deferredCopies.push(copy)
+    if (diagnostics || customTraversal) {
+      deferredCopies.push(() => {
+        if (
+          customTraversal &&
+          (processedContexts?.get(owner)?.at(-1) !== exposure || traversal.location(owner)?.context === 'data')
+        )
+          return
+        copy()
+      })
     } else {
       copy()
     }
@@ -1225,7 +1244,7 @@ export const bundleDocument = async (
 
   /** Retain complete source documents until every reference has been checked. */
   const applyDeferredCopies = (): void => {
-    if (!diagnostics || !config.treeShake || diagnostics.length > 0) {
+    if ((!diagnostics && !customTraversal) || !config.treeShake || (diagnostics?.length ?? 0) > 0) {
       return
     }
     if (storedDocuments === undefined) {
@@ -1258,6 +1277,7 @@ export const bundleDocument = async (
 
     const location = traversal.location(root)
     if (location?.context === 'data') {
+      if (customTraversal) clearDiagnostics(root)
       return
     }
 
@@ -1279,6 +1299,15 @@ export const bundleDocument = async (
     // Mark this node as processed before continuing
     processedNodes.add(root)
     processedContexts?.set(root, [...(contexts ?? []), location])
+    if (customTraversal && contexts?.length) clearDiagnostics(root)
+    if (authoredReferences && hasRef(root)) {
+      const reference = authoredReferences.get(root)
+      if (reference !== undefined && contexts?.length) {
+        root.$ref = reference
+        relocationTargets.delete(getRaw(root))
+        sourceReferences.delete(getRaw(root))
+      } else authoredReferences.set(root, root.$ref)
+    }
 
     // A node with its own `$id` establishes a new base for resolving relative references within it.
     // Fall back to the origin inherited from the parent document otherwise.
@@ -1287,6 +1316,7 @@ export const bundleDocument = async (
 
     const resolveReference = (reference: string): ReturnType<typeof references.resolve> =>
       references.resolve(reference, nodeOrigin, Boolean(diagnostics))
+    const isCurrentExposure = (): boolean => !customTraversal || processedContexts?.get(root)?.at(-1) === location
 
     const context = {
       path: currentPath,
@@ -1358,18 +1388,22 @@ export const bundleDocument = async (
           source: location?.source ?? origin,
           pointer: `${location?.pointer ?? '#/' + currentPath.map(escapeJsonPointer).join('/')}/$ref`,
         }
-        if (
-          config.includeCustomReferences &&
-          diagnostics.some(
-            (previous) =>
-              previous.kind === diagnostic.kind &&
-              previous.reference === diagnostic.reference &&
-              previous.source === diagnostic.source &&
-              previous.pointer === diagnostic.pointer,
-          )
-        )
-          return
-        diagnostics.push(diagnostic)
+        const previous = config.includeCustomReferences
+          ? diagnostics.find(
+              (previous) =>
+                previous.kind === diagnostic.kind &&
+                previous.reference === diagnostic.reference &&
+                previous.source === diagnostic.source &&
+                previous.pointer === diagnostic.pointer,
+            )
+          : undefined
+        const entry = previous ?? diagnostic
+        if (!previous) diagnostics.push(entry)
+        if (customTraversal) {
+          const owners = diagnosticOwners.get(entry) ?? new Set<object>()
+          owners.add(root)
+          diagnosticOwners.set(entry, owners)
+        }
       }
       // Schema and Path Item siblings retain their authored structure; they are not merged.
       if (
@@ -1501,6 +1535,7 @@ export const bundleDocument = async (
           if (config.treeShake && imported === local) {
             const [key, documentKey] = imported.documentPath
             copyReferences(
+              root,
               documentRoot,
               { [key]: { [documentKey]: imported.document } },
               `/${localRef}`,
@@ -1528,6 +1563,7 @@ export const bundleDocument = async (
       if (diagnostics && !prefix) {
         // A later fragment may expose an anchor in a document already loaded in memory.
         pendingAnchors.push(async () => {
+          if (!isCurrentExposure()) return
           const target = references.resolve(ref, nodeOrigin)
           if (target?.value !== undefined) {
             if (relocate)
@@ -1637,6 +1673,7 @@ export const bundleDocument = async (
 
         const targetReferences = getTargetReferences(isChunk, result.data, resolvedPath, compressedPath)
         const finishResolution = async (): Promise<void> => {
+          if (!isCurrentExposure()) return
           const initialTarget = targetReferences.resolve(ref, retrievalOrigin)
           const target =
             initialTarget && !isChunk
@@ -1657,6 +1694,7 @@ export const bundleDocument = async (
               referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
             )
           }
+          if (!isCurrentExposure()) return
           if (diagnostics && target?.value === undefined) {
             setPath(documentRoot, `/${config.externalDocumentsKey}/${escapeJsonPointer(compressedPath)}`, result.data)
             report('missing-target')
@@ -1684,6 +1722,7 @@ export const bundleDocument = async (
             // This optimizes the bundle size by only including the parts of the external document
             // that are referenced, rather than the entire document
             copyReferences(
+              root,
               documentRoot,
               { [config.externalDocumentsKey]: { [copiedKey]: copiedDocument } },
               bundledReference.substring(1),
@@ -1770,6 +1809,12 @@ export const bundleDocument = async (
   }
   await visitCustomValues()
   await resolvePendingAnchors()
+  for (const owners of diagnosticOwners.values()) {
+    for (const node of owners) {
+      const context = traversal.location(node)?.context
+      if (context && !isReferenceContext(context)) clearDiagnostics(node)
+    }
+  }
   applyDeferredCopies()
 
   // Cache indexing reserves keys before we know which edges will be preserved.
@@ -1792,6 +1837,8 @@ export const bundleDocument = async (
       sourceReferences,
       outputBase: config.outputBase,
     })
+  }
+  if (relocate || customTraversal) {
     const documents = documentRoot[config.externalDocumentsKey]
     const mappings = Object.fromEntries(
       Object.entries(documentRoot[config.externalDocumentsMappingsKey]).filter(
