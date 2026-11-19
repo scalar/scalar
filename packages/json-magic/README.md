@@ -210,9 +210,20 @@ identifier or preserved reference can also contain a local path. Check `complete
 from `bundleWithDiagnostics` before treating the result as a complete portable
 bundle. URL maps, when requested, retain source locations.
 
-Use `traversal: 'document'` for format-aware identity rules, including OpenAPI 3.0,
-which does not define `$id`. The default generic traversal treats objects as schemas
-regardless of a document's declared OpenAPI version.
+In an OpenAPI 3.0 Schema Object, the default `generic` traversal honors
+`$id` as a schema identifier for compatibility. For example, given a document
+at `https://example.com/api/openapi.json` and a schema with
+`$id: 'nested/box.json'`, a child `$ref: 'item.json'` resolves to
+`https://example.com/api/nested/item.json`. The `preserveReference` callback
+receives the schema's effective source URI as its `origin`. Preservation can
+make the schema ID absolute, and `outputBase` can relocate a relative schema ID
+to the published location.
+
+OpenAPI 3.0 does not support `$id`. With `traversal: 'document'`, the same
+reference resolves to `https://example.com/api/item.json`, the preservation
+callback receives the document URI, and the schema's authored `$id` is left
+as-is during relocation. Document traversal still honors `$id` in OpenAPI 3.1
+Schema Objects and standalone JSON Schema.
 
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
 
