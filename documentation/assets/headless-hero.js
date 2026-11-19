@@ -23,7 +23,9 @@
  * frame (see the conductor).
  *
  * Pages on scalar.com render on the client and hydrate over the first copy of the hero, so binding goes through a
- * MutationObserver with a dataset flag on the element: a node replaced by hydration comes back unbound and heals itself.
+ * MutationObserver with a dataset flag on the element: a node that comes back unbound is bound then. A root that
+ * hydration puts in the place of one already drawn is not built again: the meadow moves into it, picture and all (see
+ * `rehome`).
  */
 ;(() => {
   // The docs run a route's scripts again on every visit. The first run watches the page for good, so a later one has
@@ -10783,7 +10785,7 @@ ${LINE_FILL}`,
     // the composition's lens, which the stage and the last pass both read
     const optics = mode.lens
     // The words the land keeps clear of: an element in the root, a box on the canvas, or none, which is far away.
-    const copyBox = typeof mode.words === 'string' ? root.querySelector(mode.words) : null
+    let copyBox = typeof mode.words === 'string' ? root.querySelector(mode.words) : null
     let cssW = 0
     let cssH = 0
     let w = 0
@@ -14075,8 +14077,7 @@ ${LINE_FILL}`,
       // The first picture of a root painted ahead of being seen is what lets it fade in.
       if (!eager && !announced) {
         announced = true
-        root.dataset.hlReady = 'true'
-        root.dataset.hlShown = 'true'
+        markReady()
       }
       if (!mode.lensed) {
         return
@@ -14233,6 +14234,37 @@ ${LINE_FILL}`,
     let alive = true
     let slowFrames = 0
     let announced = false
+    /* The page fades the picture in when its root is marked ready, with transitions of its own. They are kept track of,
+       so that a meadow that moves to a new root (see `home`) is as far into its fade there as it was: each fade the mark
+       set off and when it began, or none if the picture came up at once, as it does when the root is marked before the
+       page has first worked out its style; and nothing until the frame after the mark, when the fades begin. */
+    let fades = null
+    const fading = (el) =>
+      (el.getAnimations?.({ subtree: true }) || []).filter(
+        (fade) => typeof CSSTransition === 'function' && fade instanceof CSSTransition,
+      )
+    const follow = (fade) => {
+      const began = { at: null }
+      fade.ready.then(
+        () => {
+          began.at = fade.startTime
+        },
+        () => {},
+      )
+      return began
+    }
+    const markReady = () => {
+      const marked = root
+      root.dataset.hlReady = 'true'
+      root.dataset.hlShown = 'true'
+      requestAnimationFrame(() => {
+        if (alive && root === marked) {
+          fades = fading(root)
+            .filter((fade) => fade.pending)
+            .map(follow)
+        }
+      })
+    }
     // Whether frames went to other meadows since this one's last, which says nothing about the GPU.
     let rested = false
     // A frame held up by the page's own work, a resize or the meadow being laid out, says nothing about the GPU, so no
@@ -14427,7 +14459,9 @@ ${LINE_FILL}`,
       settled = !eager && !dirty && isStill()
       sync()
     })
+    let watching = false
     const watchSize = () => {
+      watching = true
       try {
         resized.observe(canvas, { box: 'device-pixel-content-box' })
       } catch {
@@ -14533,6 +14567,7 @@ ${LINE_FILL}`,
       contexts.delete(gl)
       gl.getExtension('WEBGL_lose_context')?.loseContext()
       heroes.delete(release)
+      homes.delete(home)
       canvas.replaceWith(canvas.cloneNode(false))
       delete root.dataset.hlHeroBound
       delete root.dataset.hlReady
@@ -14543,6 +14578,66 @@ ${LINE_FILL}`,
       }
     }
     heroes.add(release)
+
+    /* A page that hydrates throws its first copy of the root away and puts another in its place, in one go. Starting
+       again in the new root would take the picture off the screen and fade it in a second time, so the meadow moves
+       instead (see `rehome`): its canvas takes the place of the new root's, with the picture on it and everything
+       behind it, and the new root is the root from then on. */
+    const home = {
+      mode,
+      path: window.location.pathname,
+      vacant: () => alive && !canvas.isConnected,
+      move: (next, spare) => {
+        const from = root
+        root = next
+        spare.replaceWith(canvas)
+        next.dataset.hlHeroBound = 'true'
+        for (const hook of ['hlLead', 'hlSeek', 'hlRun', 'hlOrbit']) {
+          if (from[hook]) {
+            next[hook] = from[hook]
+          }
+        }
+        if (losses.has(from)) {
+          losses.set(next, losses.get(from))
+        }
+        if (from.dataset.hlShown === 'true') {
+          next.dataset.hlShown = 'true'
+        }
+        if (from.dataset.hlReady === 'true') {
+          // The new root's picture is to be as strong as the old one's was. By now the page may have worked out the new
+          // root's style without the mark, in which case marking it sets its fades off from the start. So its style is
+          // worked out first in any case, the fades the mark then sets off are found, and they are put where the old
+          // root's had got to: at their end if its picture came up at once, at their start if it had been marked but
+          // not yet seen, and otherwise given the moment the old root's began as their own, which keeps them in step
+          // with it however long the page takes to draw its next frame.
+          const shownAtOnce = !!fades && !fades.length
+          const began = (fades || []).map((fade) => fade.at).filter((at) => at !== null)
+          const before = new Set(fading(next))
+          next.dataset.hlReady = 'true'
+          const moved = fading(next).filter((fade) => !before.has(fade))
+          for (const fade of moved) {
+            if (shownAtOnce) {
+              fade.finish()
+            } else if (began.length) {
+              fade.startTime = Math.min(...began)
+            }
+          }
+          fades = shownAtOnce ? [] : moved.map(follow)
+          // and the picture is on the canvas before the new root is first seen
+          if (ready) {
+            advance(0)
+            draw()
+          }
+        }
+        // The words and whatever stands in front of the canvas are the new root's own, and are measured again.
+        copyBox = typeof mode.words === 'string' ? next.querySelector(mode.words) : null
+        if (watching) {
+          resized.disconnect()
+          watchSize()
+        }
+      },
+    }
+    homes.add(home)
 
     // A hook for captures and tests: run the meadow forward to a moment, with the opening finished and the meadow laid
     // out for the stage as it is, and optionally send the unseen passer through at a place across, from -1 to 1. It says
@@ -14687,8 +14782,7 @@ ${LINE_FILL}`,
         // A root painted ahead of being seen draws its first picture when the conductor next gives it a frame.
         if (eager) {
           draw()
-          root.dataset.hlReady = 'true'
-          root.dataset.hlShown = 'true'
+          markReady()
         }
         sync()
       })
@@ -14738,6 +14832,8 @@ ${LINE_FILL}`,
 
   /** Each bound root's release(), which lets the root go once it has left the page. */
   const heroes = new Set()
+  /** Each started root's home: what moves its meadow into the root that takes its place (see `rehome`). */
+  const homes = new Set()
   /** When the browser took each root's context, over the last minute: a root gives up only if it keeps happening. */
   const losses = new WeakMap()
   /** The roots binding again after a lost context, which start from the finished picture. */
@@ -15017,7 +15113,30 @@ ${LINE_FILL}`,
     footer = { root, band, fit }
   }
 
+  /* Pages on scalar.com hydrate over their first copy, and hydration throws that copy away: the root a meadow was
+     started in leaves the page, and a new one with the same markup stands in its place before anything is drawn. A
+     meadow whose canvas has left the page while a root of the same composition waits unbound on the same page moves
+     into that root rather than being let go of and built again from nothing, the first with the first where there are
+     several. A page change brings other roots, which start their own. */
+  const rehome = () => {
+    let unbound = null
+    for (const home of homes) {
+      if (!home.vacant() || home.path !== window.location.pathname) {
+        continue
+      }
+      unbound =
+        unbound ||
+        [...document.querySelectorAll('[data-hl-hero]')].filter((root) => root.dataset.hlHeroBound !== 'true')
+      const at = unbound.findIndex((root) => modeOf(root) === home.mode && root.querySelector('[data-hl-canvas]'))
+      if (at >= 0) {
+        const [root] = unbound.splice(at, 1)
+        home.move(root, root.querySelector('[data-hl-canvas]'))
+      }
+    }
+  }
+
   const run = () => {
+    rehome()
     heroes.forEach((release) => release())
     footerMeadow()
     document.querySelectorAll('[data-hl-hero]').forEach(init)
