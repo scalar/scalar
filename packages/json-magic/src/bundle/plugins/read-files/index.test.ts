@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import { assert, describe, expect, it } from 'vitest'
 
@@ -22,6 +23,32 @@ describe('readFile', () => {
       expect(
         await readFiles({ basePath: path.join(directory, 'nested') }).exec(file, { parseAs: 'text' }),
       ).toStrictEqual({ ok: false })
+    } finally {
+      await fs.rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  it('reads file URLs inside the base path and rejects URLs that resolve outside it', async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar file URL-'))
+    const basePath = path.join(directory, 'approved')
+    const inside = path.join(basePath, 'sample.json')
+    const outside = path.join(directory, 'outside.json')
+    const link = path.join(basePath, 'link.json')
+    const contents = '{"message":"ok"}'
+    try {
+      await fs.mkdir(basePath)
+      await fs.writeFile(inside, contents)
+      await fs.writeFile(outside, contents)
+      await fs.symlink(outside, link)
+      const loader = readFiles({ basePath })
+
+      expect(await loader.exec(pathToFileURL(inside).href)).toStrictEqual({
+        ok: true,
+        data: { message: 'ok' },
+        raw: contents,
+      })
+      expect(await loader.exec(pathToFileURL(outside).href)).toStrictEqual({ ok: false })
+      expect(await loader.exec(pathToFileURL(link).href)).toStrictEqual({ ok: false })
     } finally {
       await fs.rm(directory, { recursive: true, force: true })
     }

@@ -56,17 +56,17 @@ export async function readFile(
     throw 'Can not use readFiles plugin outside of a node environment'
   }
 
-  // Confine reads to basePath when provided, so a `$ref` like `../../../../etc/passwd` (or a symlink
-  // pointing outside the directory) cannot read files outside the document's directory.
-  if (basePath !== undefined && (await isOutsideBasePath(fs, filePath, basePath))) {
-    console.warn(`[WARN] Refused to read a file outside the allowed directory: ${filePath}`)
-    return {
-      ok: false,
-    }
-  }
-
   try {
-    const fileContents = await fs.readFile(filePath, { encoding: 'utf-8' })
+    // Check the same decoded path that will be passed to the filesystem.
+    const localPath = /^file:/i.test(filePath) ? (await import('node:url')).fileURLToPath(filePath) : filePath
+
+    // Follow symlinks when checking that the file is inside the approved directory.
+    if (basePath !== undefined && (await isOutsideBasePath(fs, localPath, basePath))) {
+      console.warn(`[WARN] Refused to read a file outside the allowed directory: ${filePath}`)
+      return { ok: false }
+    }
+
+    const fileContents = await fs.readFile(localPath, { encoding: 'utf-8' })
 
     return {
       ok: true,
