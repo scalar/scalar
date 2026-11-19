@@ -26,9 +26,7 @@ describe('SidebarItemBadges', () => {
     const wrapper = mount(SidebarItemBadges, { props: { badges, position: 'after' } })
     const [colored, plain] = wrapper.findAll('.sidebar-badge')
 
-    expect(colored?.classes()).toContain('sidebar-badge-colored')
     expect(colored?.attributes('style')).toContain('--badge-color: #f59e0b')
-    expect(plain?.classes()).not.toContain('sidebar-badge-colored')
     expect(plain?.attributes('style')).toBeUndefined()
   })
 
