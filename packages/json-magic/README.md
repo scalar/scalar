@@ -395,6 +395,7 @@ console.log(result)
 #### readFiles
 
 Reads local file paths and `file:` URLs in Node.js. Pass `basePath` to confine reads to an approved directory.
+Hosted file URLs are rejected. Confined reads on Windows also reject UNC and device paths.
 
 ```ts
 import { bundle } from '@scalar/json-magic/bundle'
