@@ -11,13 +11,15 @@
  * - Text inputs and contenteditable elements regain focus so typing resumes
  *   where the user intended.
  * - Anything else is ignored silently.
+ *
+ * @param root - Where the selector was captured, so it resolves inside a shadow root too
  */
-export const refocusBlurTarget = (selector: string | null): void => {
+export const refocusBlurTarget = (selector: string | null, root: Document | ShadowRoot = document): void => {
   if (!selector) {
     return
   }
 
-  const element = document.querySelector(selector)
+  const element = root.querySelector(selector)
 
   if (element instanceof HTMLButtonElement) {
     element.click()
