@@ -382,6 +382,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
+        continue-on-error: true
         run: |
           pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/blocks/playwright-report-storybook" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
@@ -392,6 +393,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
+        continue-on-error: true
         uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar Blocks Snapshot Test Results'
@@ -432,6 +434,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
+        continue-on-error: true
         run: |
           pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/api-reference/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
@@ -442,6 +445,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
+        continue-on-error: true
         uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar References End to End Test Results'
@@ -525,6 +529,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
+        continue-on-error: true
         run: |
           pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/components/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
@@ -535,6 +540,7 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
+        continue-on-error: true
         uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar Components Snapshot Test Results'
