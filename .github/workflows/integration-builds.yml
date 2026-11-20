@@ -160,11 +160,18 @@ jobs:
         working-directory: integrations/dotnet
         run: dotnet build -c Release --no-restore
 
+      - name: Install Aspire CLI for the playground
+        run: |
+          dotnet tool install Aspire.Cli --version 17.0.0 --tool-path "$RUNNER_TEMP/aspire-cli"
+          echo "$RUNNER_TEMP/aspire-cli" >> "$GITHUB_PATH"
+
       # The playground is outside Scalar.slnx, so build it separately with its own restore.
       # Compilation catches API drift without starting the AppHost or its services.
       - name: Build Aspire playground
         working-directory: integrations/dotnet
-        run: dotnet build aspire/playground/Scalar.Aspire.AppHost/Scalar.Aspire.AppHost.csproj -c Release
+        run: |
+          dotnet build aspire/playground/Scalar.Aspire.AppHost/Scalar.Aspire.AppHost.csproj -c Release
+          dotnet build aspire/playground/Scalar.Aspire.BookService/Scalar.Aspire.BookService.csproj -c Release
 
       - name: Test solution
         working-directory: integrations/dotnet
@@ -325,6 +332,10 @@ jobs:
 
   java-build-test:
     if: inputs.java_changed == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        spring-boot: ['3.5.7', '4.2.0']
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
       contents: read
@@ -347,7 +358,7 @@ jobs:
           cache-dependency-path: 'integrations/java/**/pom.xml'
       - name: Run Maven tests
         working-directory: integrations/java
-        run: mvn clean test
+        run: mvn clean test -Dspring-boot.version=${{ matrix.spring-boot }}
 
       - name: Mark build-test passed
         id: passed
