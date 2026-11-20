@@ -45,6 +45,7 @@ export const STYLED_CLASSES: ReadonlySet<string> = new Set([
   'hljs-formula',
   'hljs-emphasis',
   'hljs-punctuation',
+  'hljs-operator',
   'hljs-params',
   'hljs-property',
 ])
