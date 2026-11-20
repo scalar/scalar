@@ -27,7 +27,6 @@ export const LANGUAGE_LABELS = {
   julia: 'Julia',
   kotlin: 'Kotlin',
   less: 'Less',
-  log: 'Log',
   lua: 'Lua',
   makefile: 'Makefile',
   markdown: 'Markdown',
