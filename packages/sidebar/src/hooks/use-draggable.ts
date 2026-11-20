@@ -1,4 +1,5 @@
 import { cva } from '@scalar/use-hooks/useBindCx'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import { type MaybeRef, type Ref, computed, ref, toValue } from 'vue'
 
 /**
@@ -121,6 +122,8 @@ export function useDraggable(options: UseDraggableOptions) {
     onDragEnd,
   } = options
 
+  const documentRoot = useDocumentRoot()
+
   // The latest parentId in the arr should be the current parent
   const parentId = computed(() => parentIds.at(-1) ?? null)
 
@@ -199,7 +202,7 @@ export function useDraggable(options: UseDraggableOptions) {
     // Remove hover and dragging
     draggingItem.value = null
     hoveredItem.value = null
-    document.querySelectorAll('[data-dragging]').forEach((el) => el.removeAttribute('data-dragging'))
+    documentRoot?.querySelectorAll('[data-dragging]').forEach((el) => el.removeAttribute('data-dragging'))
 
     if (_draggingItem.id === _hoveredItem.id) {
       return
