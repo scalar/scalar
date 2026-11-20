@@ -7,6 +7,7 @@ import defaultTheme from './presets/default.css?inline'
 import elysiajsTheme from './presets/elysiajs.css?inline'
 import fastifyTheme from './presets/fastify.css?inline'
 import halloweenTheme from './presets/halloween.css?inline'
+import hotDogDayTheme from './presets/hotDogDay.css?inline'
 import keplerTheme from './presets/kepler.css?inline'
 import laserwaveTheme from './presets/laserwave.css?inline'
 import marsTheme from './presets/mars.css?inline'
@@ -29,6 +30,7 @@ export {
   elysiajsTheme,
   fastifyTheme,
   halloweenTheme,
+  hotDogDayTheme,
   keplerTheme,
   laserwaveTheme,
   marsTheme,
@@ -73,6 +75,7 @@ export const themeIds = [
   'mars',
   'laserwave',
   'halloween',
+  'hotDogDay',
   'none',
 ] as const
 
@@ -96,6 +99,7 @@ export const themeLabels = {
   deepSpace: 'Deep Space',
   laserwave: 'Laserwave',
   halloween: 'Halloween',
+  hotDogDay: 'Hot Dog Day',
   none: 'None',
 } as const satisfies Record<ThemeId, string>
 
@@ -191,6 +195,13 @@ export const presets = {
     description: 'Spooky season Scalar theme with a moonlit sky, bats, and pumpkin accents',
     theme: halloweenTheme,
     slug: 'halloween',
+  },
+  hotDogDay: {
+    uid: 'x_q6GlU5y5mEUONFOQ6Mw',
+    name: 'Hot Dog Day',
+    description: 'Summer cookout Scalar theme with a ketchup and mustard squiggle and bobbing hot dogs',
+    theme: hotDogDayTheme,
+    slug: 'hot-dog-day',
   },
   elysiajs: {
     uid: 'nEVZkRmCylPkT0o9YJa7y',
