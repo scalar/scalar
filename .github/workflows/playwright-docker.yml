@@ -45,12 +45,17 @@ jobs:
 
           playwright_version() {
             git show "$1:pnpm-workspace.yaml" |
-              sed -nE "s|^[[:space:]]*['\"]?@playwright/test['\"]?:[[:space:]]*['\"]?([0-9]+\.[0-9]+\.[0-9]+)['\"]?[[:space:]]*\$|\1|p"
+              sed -nE "
+                /^catalogs:[[:space:]]*(#.*)?\$/,/^[^[:space:]#]/ {
+                  /^  ['\"]\*['\"]:[[:space:]]*(#.*)?\$/,/^  [^[:space:]#]/ {
+                    s|^    ['\"]?@playwright/test['\"]?:[[:space:]]*['\"]?([0-9]+\.[0-9]+\.[0-9]+)['\"]?[[:space:]]*(#.*)?\$|\1|p
+                  }
+                }"
           }
 
           version=$(playwright_version HEAD)
           if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo 'Expected one exact @playwright/test version in pnpm-workspace.yaml' >&2
+            echo 'Expected one exact @playwright/test version in the wildcard pnpm workspace catalog' >&2
             exit 1
           fi
 

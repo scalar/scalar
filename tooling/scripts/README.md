@@ -158,11 +158,11 @@ the workflow summary. Each release uses a new tag in the form
 tags in `.github/workflows/pr.yml` and `.github/workflows/main.yml`, and the
 image tag in `packages/helpers/src/playwright/docker.ts`, to that full tag.
 
-#### `update-playwright-docker`
+#### `update-playwright-docker` manual fallback
 
-Update the Playwright Docker images to the latest version.
-
-This command builds and pushes Docker images for Playwright testing. It creates two images:
+This command builds and pushes both Playwright Docker images using the version
+pinned in `push-container.ts`. It replaces the existing version-only tags and
+skips the workflow's smoke tests:
 - `scalarapi/playwright:${version}` - Base Playwright image
 - `scalarapi/playwright-runner:${version}` - Runner image
 
