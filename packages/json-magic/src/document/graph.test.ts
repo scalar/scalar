@@ -17,6 +17,102 @@ const prune = (document: Record<string, unknown>): Record<string, unknown> => {
 }
 
 describe('graph', () => {
+  it.each([false, true])(
+    'returns an error for a relative reference against an opaque schema base (prune: %s)',
+    (prune) => {
+      const document = api({ $id: 'urn:example:pet', $ref: 'child.json' })
+      const before = structuredClone(document)
+
+      expect(checkDocument(document, { origin, prune })).toStrictEqual({
+        ok: false,
+        error:
+          '/paths/~1pets/get/responses/200/content/application~1json/schema: Reference target does not exist: child.json',
+        message: undefined,
+      })
+      expect(document).toStrictEqual(before)
+    },
+  )
+
+  it('retains reusable content when an opaque base prevents resolving an external reference', () => {
+    const document = {
+      ...api({ $id: 'urn:example:pet', $ref: 'child.json' }),
+      components: { schemas: { Unused: { type: 'string' } } },
+    }
+    const before = structuredClone(document)
+
+    expect(checkDocument(document, { origin, prune: true, unresolvedReferences: 'retain' })).toStrictEqual({
+      ok: true,
+      data: {
+        document,
+        warnings: [
+          'Skipping unused-component removal because preserved external references make reachability uncertain.',
+          '/paths/~1pets/get/responses/200/content/application~1json/schema: Reference target does not exist: child.json',
+        ],
+      },
+    })
+    expect(document).toStrictEqual(before)
+  })
+
+  it.each(['error', 'retain'] as const)(
+    'returns an error for a relative schema identity against an opaque base (%s)',
+    (unresolvedReferences) => {
+      const document = api({
+        $id: 'urn:example:pet',
+        properties: { child: { $id: 'child.json', type: 'string' } },
+      })
+      const before = structuredClone(document)
+
+      expect(checkDocument(document, { origin, prune: true, unresolvedReferences })).toStrictEqual({
+        ok: false,
+        error:
+          '/paths/~1pets/get/responses/200/content/application~1json/schema/properties/child: Cannot resolve schema identity child.json against urn:example:pet',
+        message: undefined,
+      })
+      expect(document).toStrictEqual(before)
+    },
+  )
+
+  it('resolves absolute identities and fragment references under opaque schema bases', () => {
+    const document = {
+      ...api({ $ref: 'urn:example:pet' }),
+      components: {
+        schemas: {
+          Pet: { $id: 'urn:example:pet', properties: { self: { $ref: '#' }, child: { $ref: 'urn:example:child' } } },
+          Child: { $id: 'urn:example:child', type: 'string' },
+          Unused: { type: 'number' },
+        },
+      },
+    }
+
+    prune(document)
+
+    expect(Object.keys(document.components.schemas)).toStrictEqual(['Pet', 'Child'])
+  })
+
+  it('indexes shared schema objects under each parent while terminating object cycles', () => {
+    const shared = { $id: 'pet.json', $anchor: 'pet', type: 'string' }
+    const cycle: Record<string, unknown> = {}
+    cycle.properties = { self: cycle }
+    const document = {
+      ...api({
+        oneOf: [{ $ref: 'https://example.com/a/pet.json#pet' }, { $ref: 'https://example.com/b/pet.json#pet' }],
+      }),
+      components: {
+        schemas: {
+          A: { $id: 'https://example.com/a/', properties: { pet: shared } },
+          B: { $id: 'https://example.com/b/', properties: { pet: shared } },
+          Unused: cycle,
+        },
+      },
+    }
+
+    prune(document)
+
+    expect(Object.keys(document.components.schemas)).toStrictEqual(['A', 'B'])
+    expect(document.components.schemas.A.properties.pet).toBe(shared)
+    expect(document.components.schemas.B.properties.pet).toBe(shared)
+  })
+
   it.each(['3.0.3', '3.1.0', '3.2.0'])(
     'follows transitive reusable objects and keeps only reachable cycles in %s',
     (openapi) => {

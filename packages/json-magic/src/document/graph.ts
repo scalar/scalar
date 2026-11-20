@@ -27,6 +27,7 @@ type Entry = {
 /** Indexed locations and reference resolution for a bundled API description. */
 type DocumentGraph = {
   entries: Map<string, Entry>
+  errors: Set<string>
   resolve: (reference: string, from?: string) => string | undefined
   expose: (path: string, context: ReferenceContext) => void
 }
@@ -83,6 +84,15 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
   const entries = new Map<string, Entry>()
   const resources = new Map<string, string>([[origin, '']])
   const anchors = new Map<string, string>()
+  const errors = new Set<string>()
+  const resolveIdentity = (base: string, identity: string, path: string): string | undefined => {
+    try {
+      return resolveReferencePath(base, identity)
+    } catch {
+      errors.add(`${path || '/'}: Cannot resolve schema identity ${identity} against ${base}`)
+      return undefined
+    }
+  }
   const index = (
     value: unknown,
     path: string,
@@ -102,12 +112,15 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
           ? value[vocabulary.idKeyword]
           : undefined
       : undefined
-    const currentOrigin = typeof identity === 'string' ? resolveReferencePath(base, identity) : base
+    const currentOrigin = typeof identity === 'string' ? resolveIdentity(base, identity, path) : base
+    if (currentOrigin === undefined) {
+      return
+    }
     entries.set(path, { value, path, base, origin: currentOrigin, context, inferredContext })
     if (value === null || typeof value !== 'object' || context === 'data' || ancestors.has(value)) {
       return
     }
-    const next = new Set(ancestors).add(value)
+    ancestors.add(value)
     if (typeof identity === 'string') {
       resources.set(currentOrigin, path)
     }
@@ -120,8 +133,9 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
     }
     for (const [key, child] of Object.entries(value)) {
       const childContext = traversalContext(value, context, key, owner)
-      index(child, childPath(path, key), currentOrigin, childContext, next, inferredContext)
+      index(child, childPath(path, key), currentOrigin, childContext, ancestors, inferredContext)
     }
+    ancestors.delete(value)
   }
   index(document, '', origin, 'object', new Set())
   if (isDocument(document['x-ext'])) {
@@ -152,18 +166,18 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
   }
 
   const resolve = (reference: string, from = ''): string | undefined => {
-    const base = entries.get(from)?.origin ?? origin
-    const [prefix, authoredFragment = ''] = reference.split('#', 2)
-    const fragment = decodeUriFragment(authoredFragment)
-    const source = prefix ? resolveReferencePath(base, prefix) : base
-    if (fragment && !fragment.startsWith('/')) {
-      return anchors.get(`${source}#${fragment}`)
-    }
-    const resource = resources.get(source)
-    if (resource === undefined) {
-      return undefined
-    }
     try {
+      const base = entries.get(from)?.origin ?? origin
+      const [prefix, authoredFragment = ''] = reference.split('#', 2)
+      const fragment = decodeUriFragment(authoredFragment)
+      const source = prefix ? resolveReferencePath(base, prefix) : base
+      if (fragment && !fragment.startsWith('/')) {
+        return anchors.get(`${source}#${fragment}`)
+      }
+      const resource = resources.get(source)
+      if (resource === undefined) {
+        return undefined
+      }
       const pointer = fragment
       const target = resource + pointer
       if (pointerValue(document, pointerSegments(target)) !== undefined) {
@@ -179,7 +193,7 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
     }
   }
 
-  return { entries, resolve, expose }
+  return { entries, errors, resolve, expose }
 }
 
 /**
@@ -203,7 +217,7 @@ export const checkDocument = (
   const graph = createGraph(document, origin)
   const async = typeof document.asyncapi === 'string'
   const async3 = async && String(document.asyncapi).startsWith('3.')
-  const errors = new Set<string>()
+  const errors = graph.errors
   const warnings = new Set<string>()
   const live = new Set<string>()
   const visited = new Set<string>()
