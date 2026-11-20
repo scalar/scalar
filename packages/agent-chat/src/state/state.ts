@@ -1,4 +1,3 @@
-import { Chat } from '@ai-sdk/vue'
 import { type ModalState, useModal } from '@scalar/components/modal'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
@@ -8,7 +7,7 @@ import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-sto
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { isAsyncApiDocument, isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import { DefaultChatTransport, type UIDataTypes, type UIMessage, lastAssistantMessageIsCompleteWithToolCalls } from 'ai'
+import type { UIDataTypes, UIMessage } from 'ai'
 import { n } from 'neverpanic'
 import { type ComputedRef, type InjectionKey, type Ref, computed, inject, reactive, ref, watch } from 'vue'
 
@@ -40,6 +39,8 @@ import { persistencePlugin } from '@/plugins/persistance'
 import { loadDocument } from '@/registry/add-documents-to-store'
 import { createDocumentName } from '@/registry/create-document-name'
 import type { ChatMode, SelectedDocument } from '@/types'
+
+import { Chat, DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from './ai-sdk'
 
 export type RegistryDocument = {
   namespace: string

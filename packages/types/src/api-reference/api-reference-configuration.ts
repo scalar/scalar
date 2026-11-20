@@ -1,6 +1,5 @@
-import { type ZodType, z } from 'zod'
-
 import type { AvailableClient, ClientId, TargetId } from '../snippetz'
+import { z } from '../zod'
 import { apiReferencePluginSchema } from './api-reference-plugin'
 import type { AuthenticationConfiguration } from './authentication-configuration'
 import { NEW_PROXY_URL, OLD_PROXY_URL, baseConfigurationSchema } from './base-configuration'
@@ -17,7 +16,7 @@ const apiReferenceLocalizationSchema = z
     direction: z.enum(['ltr', 'rtl', 'auto']).optional().catch('auto'),
     translations: z.record(z.string(), z.unknown()).optional(),
   })
-  .optional() as ZodType<ApiReferenceLocalization | undefined>
+  .optional() as z.ZodType<ApiReferenceLocalization | undefined>
 
 /**
  * Standard configuration for the Api Reference.
@@ -641,7 +640,7 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
 // const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfigurationSchema>>
 
 /** Configuration for the Api Reference */
-export const apiReferenceConfigurationWithSourceSchema: ZodType<
+export const apiReferenceConfigurationWithSourceSchema: z.ZodType<
   Omit<ApiReferenceConfiguration, 'url' | 'content'> & SourceConfiguration
 > = apiReferenceConfigurationSchema.extend(sourceConfigurationSchema.shape).transform((parsed) => {
   // Migration removes the deprecated field from this same configuration object.
