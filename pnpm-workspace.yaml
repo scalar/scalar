@@ -180,6 +180,8 @@ overrides:
 minimumReleaseAge: 1440 # 1 day
 
 minimumReleaseAgeExclude:
+  # Exact preview CLI release used by the on-demand CI installation.
+  - netlify@27.20.1
   # Required exact transitive releases of the consolidated refresh targets.
   - '@storybook/builder-vite@10.6.8'
   - '@storybook/react-dom-shim@10.6.8'
