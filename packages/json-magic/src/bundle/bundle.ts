@@ -8,6 +8,7 @@ import { getValueByPath } from '@/helpers/get-value-by-path'
 import { isFilePath } from '@/helpers/is-file-path'
 import { isHttpUrl } from '@/helpers/is-http-url'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
+import { resolveResourcePath } from '@/helpers/resolve-resource-path'
 import { setValueAtPath } from '@/helpers/set-value-at-path'
 import { toRelativePath } from '@/helpers/to-relative-path'
 import { getRaw } from '@/magic-proxy/proxy'
@@ -22,6 +23,7 @@ import {
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
 import type { ReferenceDiagnostic } from './bundle-with-diagnostics'
+import { createOutputUri } from './create-output-uri'
 import {
   type DocumentLocation,
   type DocumentResolver,
@@ -30,6 +32,7 @@ import {
   documentReferences,
 } from './document-references'
 import { documentTraversal } from './document-traversal'
+import { type RelocationTarget, type SourceReference, relocateReferences } from './relocate-references'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
@@ -472,6 +475,13 @@ export type Config = {
   origin?: string
 
   /**
+   * Absolute serialization base for relative schema identities in the entry document and local imports.
+   * Enables resource relocation without changing loader paths or explicitly absolute identifiers.
+   * Unresolved local references retain their original source location for later retries.
+   */
+  outputBase?: string
+
+  /**
    * Optional cache to store promises of resolved references.
    * Helps avoid duplicate fetches/reads of the same resource by storing
    * the resolution promises for reuse.
@@ -679,6 +689,8 @@ export const bundleDocument = async (
   // to avoid duplicate fetches/reads of the same resource
   const cache = config.cache ?? new Map<string, Promise<ResolveResult>>()
 
+  const relocate = config.preserveReference !== undefined || config.outputBase !== undefined
+
   const loaderPlugins = config.plugins.filter((it) => it.type === 'loader')
   const lifecyclePlugin = config.plugins.filter((it) => it.type === 'lifecycle')
 
@@ -819,13 +831,15 @@ export const bundleDocument = async (
   // Registry paths are JSON pointers; only authored URI fragments need percent decoding.
   const parsePath = (pointer: string): string[] => pointer.split('/').slice(1).map(unescapeJsonPointerSegment)
   const setPath = (target: object, path: string, value: unknown): void => setValueAtPath(target, path, value, parsePath)
-  const traversal = documentTraversal(
-    config.traversal === 'document',
-    documentRoot['swagger'] === '2.0',
-    documentRoot['swagger'] !== '2.0' && !String(documentRoot['openapi']).startsWith('3.0.'),
-    config.traversal === 'document' || diagnostics !== undefined,
-    typeof documentRoot['asyncapi'] === 'string',
-  )
+  const createTraversal = (): ReturnType<typeof documentTraversal> =>
+    documentTraversal(
+      config.traversal === 'document',
+      documentRoot['swagger'] === '2.0',
+      documentRoot['swagger'] !== '2.0' && !String(documentRoot['openapi']).startsWith('3.0.'),
+      config.traversal === 'document' || diagnostics !== undefined,
+      typeof documentRoot['asyncapi'] === 'string',
+    )
+  const traversal = createTraversal()
   traversal.register(
     documentRoot,
     getDefaultOrigin(),
@@ -900,14 +914,18 @@ export const bundleDocument = async (
       }
       return undefined
     },
-    config.preserveReference !== undefined,
+    relocate,
     (node) => traversal.location(node)?.context !== 'data',
     identifySchema,
+    relocate ? createOutputUri(getDefaultOrigin(), config.outputBase) : undefined,
   )
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
+  const mappingOrigin = relocate ? (references.retrievalOrigin(documentRoot) ?? getDefaultOrigin()) : defaultOrigin
   const hasRootIdentity =
     references.identity(documentRoot) !== undefined || identifySchema(documentRoot)?.id !== undefined
+  const relocationTargets = new WeakMap<object, RelocationTarget>()
+  const sourceReferences = new Map<object, SourceReference>()
   const referenceToRoot = (pointer: string, sourceOrigin: string): string => {
     const fragment = pointer
       .split('/')
@@ -940,7 +958,7 @@ export const bundleDocument = async (
   if (isObject(storedDocuments)) {
     for (const [key, document] of Object.entries(storedDocuments)) {
       const source = Object.hasOwn(mappings, key) ? mappings[key] : undefined
-      const retrievalUri = bundledDocumentUri(defaultOrigin, key, source)
+      const retrievalUri = bundledDocumentUri(mappingOrigin, key, source)
       const prepared = await prepareDocument(document, retrievalUri, true)
       if (prepared !== document) {
         Object.defineProperty(storedDocuments, key, {
@@ -958,15 +976,17 @@ export const bundleDocument = async (
         prepared,
         retrievalUri,
         [config.externalDocumentsKey, key],
-        resolveReferencePath(defaultOrigin, source ?? key),
+        resolveReferencePath(mappingOrigin, source ?? key),
+        // Authored URL maps cannot turn an embedded remote document into a local source.
+        isHttpUrl(getDefaultOrigin()) ? getDefaultOrigin() : retrievalUri,
       )
     }
   }
   for (const [uri, pending] of [...cache]) {
     const result = await pending
     if (result.ok) {
-      const retrievalUri = resolveReferencePath(defaultOrigin, uri)
-      const relativeUri = toRelativePath(retrievalUri, defaultOrigin)
+      const retrievalUri = resolveReferencePath(mappingOrigin, uri)
+      const relativeUri = toRelativePath(retrievalUri, mappingOrigin)
       if (diagnostics) {
         cache.set(relativeUri, pending)
       }
@@ -1179,6 +1199,7 @@ export const bundleDocument = async (
         await executeHooks('onAfterNodeProcess', root, context)
         return
       }
+      if (relocate) sourceReferences.set(getRaw(root), { reference: ref, origin: nodeOrigin, path: currentPath })
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 
       // Try to convert the reference to a local reference if possible
@@ -1202,6 +1223,8 @@ export const bundleDocument = async (
           await executeHooks('onAfterNodeProcess', root, context)
           return
         }
+        if (relocate && local.value !== undefined)
+          relocationTargets.set(getRaw(root), { path: local.segments, context: location?.context ?? 'schema' })
         // A fragment under an embedded $id resolves within that schema, not the document.
         // Without a declared root identity, retain references to root resources rather
         // than baking a retrieval location into an otherwise portable bundle.
@@ -1295,6 +1318,9 @@ export const bundleDocument = async (
         pendingAnchors.push(async () => {
           const target = references.resolve(ref, nodeOrigin)
           if (target?.value !== undefined) {
+            if (relocate) {
+              relocationTargets.set(getRaw(root), { path: target.segments, context: location?.context ?? 'schema' })
+            }
             if (!target.preserveReference) {
               root.$ref = referenceToRoot(`#/${target.path}`, nodeOrigin)
             }
@@ -1310,8 +1336,18 @@ export const bundleDocument = async (
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
       const retrievalOrigin = references.retrievalOrigin(root) ?? nodeOrigin
-      const resolvedPath = resolveReferencePath(retrievalOrigin, prefix)
-      const relativePath = toRelativePath(resolvedPath, defaultOrigin)
+      const resolvedPath = relocate
+        ? resolveResourcePath(retrievalOrigin, prefix)
+        : resolveReferencePath(retrievalOrigin, prefix)
+      // A schema identifier changes resolution scope, never filesystem authority.
+      // Use the document's retrieval source so a remote $id cannot grant disk access.
+      if (isHttpUrl(references.sourceOrigin(root) ?? getDefaultOrigin()) && !isHttpUrl(resolvedPath)) {
+        report('unresolved-document')
+        await executeHooks('onResolveError', root)
+        await executeHooks('onAfterNodeProcess', root, context)
+        return
+      }
+      const relativePath = toRelativePath(resolvedPath, mappingOrigin)
 
       // Generate a unique compressed path for the external document
       // This is used as a key to store and reference the bundled external document
@@ -1400,6 +1436,11 @@ export const bundleDocument = async (
           const bundledReference = target
             ? `#/${target.path}`
             : prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
+          if (relocate)
+            relocationTargets.set(getRaw(root), {
+              path: parsePath(bundledReference.substring(1)),
+              context: location?.context ?? 'schema',
+            })
           if (config.treeShake === true) {
             // Store only the subtree that is actually used
             // This optimizes the bundle size by only including the parts of the external document
@@ -1502,7 +1543,19 @@ export const bundleDocument = async (
 
   // Cache indexing reserves keys before we know which edges will be preserved.
   // Do not expose reservations for resources that were never included in the output.
-  if (config.preserveReference) {
+  if (relocate) {
+    relocateReferences(documentRoot, {
+      targets: relocationTargets,
+      schemas: references.schemas(),
+      externalDocumentsKey: config.externalDocumentsKey,
+      createTraversal,
+      documents: references.documents().map(({ path, value }) => ({
+        path,
+        context: isObject(value) ? (traversal.location(value)?.context ?? 'schema') : 'schema',
+      })),
+      sourceReferences,
+      outputBase: config.outputBase,
+    })
     const documents = documentRoot[config.externalDocumentsKey]
     const mappings = Object.fromEntries(
       Object.entries(documentRoot[config.externalDocumentsMappingsKey]).filter(

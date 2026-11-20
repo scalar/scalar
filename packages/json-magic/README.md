@@ -131,27 +131,99 @@ const result = await bundle('https://example.test/api/root.json', {
 })
 ```
 
-This loads the URL root and bundles local files, internal references, and relative
-references such as `./child.json` inside remote documents. Only authored absolute
-HTTP(S) references are preserved by this predicate; keep the HTTP loader enabled.
+This loads the URL root and bundles internal references and relative references
+such as `./child.json` inside remote documents. Local entry documents can also
+bundle local file dependencies. Only authored absolute HTTP(S) references are
+preserved by this predicate; keep the HTTP loader enabled.
 Preservation emits no resolution start, success, or error hooks. Real failures on
 other edges retain normal error reporting. Node-processing hooks still run.
 
 When this option is present, indexed `$id` values are resolved against their
 original effective bases so serialization at another location retains schema
 identity and anchor scope. Like normal bundling, this can mutate input and cached
-objects. URL maps include only bundled resources. Omit the option to retain the
+objects. URL maps include only bundled resources. Omit both `preserveReference` and `outputBase` to retain the
 existing bundling behavior. Predicates preserving relative references are
 responsible for ensuring those references remain meaningful at the output base;
 use the absolute HTTP(S) predicate above for portable external references.
 
-Known limitation: an embedded schema with its own `$id` cannot reliably reference
-another bundled resource through the outer document when that outer document has
-no declared identity. For example, a fragment-only `#/x-ext/...` reference inside
-that schema resolves against the schema, not the outer bundle. Supplying a
-format-appropriate root identity through `resolveDocument` avoids this case.
-Preserving selected references does not currently fix anonymous-root cross-scope
-bundling; `$id` normalization alone does not make that output portable.
+References inside a schema with its own `$id` remain relative to that schema
+resource. References to another named resource use its canonical identity;
+anonymous dependencies outside the schema are copied into resource-local
+`x-ext` storage (or `externalDocumentsKey`) and addressed with local pointers.
+Legacy fragment-bearing `id` / `$id` values use named aliases in schema
+`definitions`, since a fragment identifier cannot serve as a JSON Pointer root.
+These aliases use the active dialect's identifier keyword and avoid existing
+identities and preserved references.
+Cycles reuse that storage, and copied subtrees reference named resources rather
+than duplicating their identities. Anonymous imports and their local copies omit
+anchor declarations whose scope would otherwise change; bundled references
+address their targets with pointers instead. Literal example and default values
+remain literal data. Unresolved references in relocated dependencies retain their
+original source base, while diagnostics retain the authored reference.
+This also works when the outer API description
+has no declared identity: the bundler does not add `$id` to that document.
+Local filesystem schema identities become `file:` URIs, including escaped path
+characters. The Node file loader accepts these URIs as well as filesystem paths,
+including its existing base-directory and symlink confinement checks. References
+from documents retrieved over HTTP(S) cannot load non-HTTP(S) targets, even when
+an authored `$id` changes the resolution base to a `file:` URI.
+
+When passing an in-memory object that your application fetched over HTTP(S), set
+`origin` to its retrieval URL so the filesystem guard retains that source boundary.
+For untrusted local input, configure `readFiles({ basePath: allowedDirectory })` to
+confine reads to an allowed directory. `outputBase` controls output identities;
+it does not establish the input's source or grant filesystem access.
+
+Relative native retrieval paths resolve against the current working directory;
+canonical local identities therefore include absolute filesystem paths. In-memory
+input without an origin uses the virtual output base `https://scalar.invalid/`
+when relocating resources, rather than claiming a filesystem identity. This URI
+is an identifier namespace and is not fetched.
+
+Without `outputBase`, `preserveReference` emits local schema identities as absolute
+`file:` URIs. For published bundles, set `outputBase` to an absolute hierarchical
+URI without a fragment to avoid embedding checkout paths:
+
+```ts
+const result = await bundle('./openapi.json', {
+  plugins: [readFiles()],
+  treeShake: true,
+  traversal: 'document',
+  outputBase: 'https://schemas.example.com/api/openapi.json',
+})
+```
+
+An imported schema with `$id: './schemas/Pet.json'` beside the input document
+now identifies itself as `https://schemas.example.com/api/schemas/Pet.json`.
+Dependencies still load from the original local files; `origin`, loader paths,
+cache keys, source diagnostics, and the preservation callback retain their source
+meaning. `outputBase` enables resource relocation even without `preserveReference`.
+Explicitly absolute schema identifiers and intentionally preserved references are
+unchanged. Files outside the entry directory use isolated `__bundle__/source-N/`
+namespaces so their parent directories are not exposed. Mapping two different
+resources to the same output identity is rejected.
+
+This remaps relative schema identities intentionally. Incomplete bundles retain
+unresolved local references as absolute source URIs so they can be retried later;
+these references can still expose local paths. An authored absolute `file:`
+identifier or preserved reference can also contain a local path. Check `complete`
+from `bundleWithDiagnostics` before treating the result as a complete portable
+bundle. URL maps, when requested, retain source locations.
+
+In an OpenAPI 3.0 Schema Object, the default `generic` traversal honors
+`$id` as a schema identifier for compatibility. For example, given a document
+at `https://example.com/api/openapi.json` and a schema with
+`$id: 'nested/box.json'`, a child `$ref: 'item.json'` resolves to
+`https://example.com/api/nested/item.json`. The `preserveReference` callback
+receives the schema's effective source URI as its `origin`. Preservation can
+make the schema ID absolute, and `outputBase` can relocate a relative schema ID
+to the published location.
+
+OpenAPI 3.0 does not support `$id`. With `traversal: 'document'`, the same
+reference resolves to `https://example.com/api/item.json`, the preservation
+callback receives the document URI, and the schema's authored `$id` is left
+as-is during relocation. Document traversal still honors `$id` in OpenAPI 3.1
+Schema Objects and standalone JSON Schema.
 
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
 
