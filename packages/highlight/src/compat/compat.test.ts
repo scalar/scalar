@@ -350,7 +350,7 @@ describe('compat surface', () => {
     // Compared against the key set the old package exported, so a name
     // dropped from `standardLanguages` here would narrow `StandardLanguageKey`
     // and fail this test rather than break a consumer's types.
-    expect(Object.keys(standardLanguages).sort()).toEqual([...REFERENCE_STANDARD_LANGUAGES, 'log'].sort())
+    expect(Object.keys(standardLanguages).sort()).toStrictEqual([...REFERENCE_STANDARD_LANGUAGES, 'log'].sort())
   })
 
   it('reports exactly which standard languages have no grammar', () => {
