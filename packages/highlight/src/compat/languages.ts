@@ -77,6 +77,7 @@ const GRAMMAR_FOR: Record<string, string> = {
   kotlin: 'kotlin',
   kt: 'kotlin',
   less: 'css',
+  log: 'log',
   lua: 'lua',
   make: 'makefile',
   makefile: 'makefile',
@@ -139,11 +140,11 @@ const GRAMMAR_FOR: Record<string, string> = {
 }
 
 /**
- * Every key of `standardLanguages` in `@scalar/code-highlight`.
+ * Every key of `standardLanguages` in `@scalar/code-highlight`, plus log.
  *
  * Kept so `keyof typeof standardLanguages` — which is how `ScalarCodeBlock`
- * derives its `StandardLanguageKey` prop type — resolves to the same union
- * after a swap. The names we have no grammar for stay in the list: they
+ * derives its `StandardLanguageKey` prop type — retains the previous names
+ * and also accepts log. The names we have no grammar for stay in the list: they
  * render as plain escaped text, which is what an unregistered language does
  * in the lowlight pipeline today.
  */
@@ -173,6 +174,7 @@ export const STANDARD_LANGUAGE_NAMES = [
   'julia',
   'kotlin',
   'less',
+  'log',
   'lua',
   'makefile',
   'markdown',

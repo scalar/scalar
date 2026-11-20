@@ -346,11 +346,11 @@ describe('colour agreement with code.css', () => {
 // --- the contract the compat layer adds on its own -------------------------
 
 describe('compat surface', () => {
-  it('keeps the standardLanguages key set, so StandardLanguageKey is unchanged', () => {
+  it('keeps the previous standardLanguages key set and adds log', () => {
     // Compared against the key set the old package exported, so a name
     // dropped from `standardLanguages` here would narrow `StandardLanguageKey`
     // and fail this test rather than break a consumer's types.
-    expect(Object.keys(standardLanguages).sort()).toEqual([...REFERENCE_STANDARD_LANGUAGES].sort())
+    expect(Object.keys(standardLanguages).sort()).toEqual([...REFERENCE_STANDARD_LANGUAGES, 'log'].sort())
   })
 
   it('reports exactly which standard languages have no grammar', () => {

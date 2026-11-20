@@ -78,6 +78,7 @@ describe('every bundled language', () => {
       'json',
       'julia',
       'kotlin',
+      'log',
       'lua',
       'makefile',
       'markdown',

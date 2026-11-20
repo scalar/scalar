@@ -1,0 +1,111 @@
+import type { Grammar } from '../core/types'
+
+/** Familiar labels, without one-letter abbreviations that often mean something else. */
+const LEVEL = 'TRACE|DEBUG|VERBOSE|INFO|INFORMATION|NOTICE|WARN|WARNING|ERROR|FATAL|CRITICAL|ALERT|EMERG|EMERGENCY'
+const CASE_INSENSITIVE_LEVEL = LEVEL.replace(/[A-Z]/g, (letter) => `[${letter}${letter.toLowerCase()}]`)
+
+const TIME = '\\d{2}:\\d{2}:\\d{2}(?:[.,]\\d+)?(?:[ \\t]?(?:Z|UTC|GMT|[+-]\\d{2}(?::?\\d{2})?))?'
+const MONTH = '(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)'
+const DATE = `(?:\\d{4}[-/.]\\d{2}[-/.]\\d{2}|\\d{2}[-/.]\\d{2}[-/.]\\d{4}|\\d{2}[ -]${MONTH}[ -]\\d{4})`
+
+const TIMESTAMP = `(?:${DATE})(?:[T \\t]${TIME})?|${MONTH}[ \\t]+\\d{1,2}[ \\t]+${TIME}|\\d{8}T\\d{6}(?:[.,]\\d+)?(?:Z|[+-]\\d{2}(?::?\\d{2})?)?|${TIME}`
+
+/**
+ * Human-readable logs, rather than a parser for a particular layout.
+ *
+ * Header fields may appear in any order. The first unrecognized text (or a
+ * message separator) ends the header, so severity words inside a message do
+ * not become keywords. Only uppercase bare levels are accepted; brackets or
+ * a colon make other casing sufficiently unambiguous. Each line starts fresh.
+ */
+const log: Grammar = {
+  name: 'log',
+  states: {
+    root: {
+      rules: [
+        { match: `\\[[ \\t]*(?:${CASE_INSENSITIVE_LEVEL})[ \\t]*\\]`, scope: 'keyword' },
+        {
+          match: `\\b(?:${CASE_INSENSITIVE_LEVEL}):(?=[ \\t]|$)`,
+          scope: 'keyword',
+          set: 'message',
+        },
+        { match: `\\b(?:${LEVEL})(?=[ \\t:]|$)`, scope: 'keyword' },
+        { include: 'exceptions' },
+        { match: /[ \t]+|\r\n|[\r\n\u2028\u2029]/ },
+        { match: `(\\[)((?:${TIMESTAMP}))(\\])`, scope: [null, 'number', null] },
+        { match: `\\b(?:${TIMESTAMP})\\b`, scope: 'number' },
+        // Bracketed context is deliberately bounded: malformed prefixes must
+        // not rescan a long line for a closing bracket at every opening one.
+        { match: /\[[^\s[\]]{1,128}\]/, scope: 'namespace' },
+        { match: /\b\d+\b/, scope: 'number' },
+        // A process/component tag, or a logger directly before a separator or
+        // level. Ordinary words followed by other ordinary words end the header.
+        {
+          match: /([A-Za-z_$][\w.$/-]*)(\[)(\d+)(\])(:)/,
+          scope: ['namespace', 'punctuation.bracket', 'number', 'punctuation.bracket', 'punctuation.delimiter'],
+        },
+        { match: /[A-Za-z_$][\w.$/-]*:(?=[ \t]|$)/, scope: 'namespace' },
+        {
+          match: '[A-Za-z_$][\\w$]*(?:\\.[A-Za-z_$][\\w$]*)+(?=[ \\t]+(?:\\[|\\d))',
+          scope: 'namespace',
+        },
+        {
+          match: `[A-Za-z_$][\\w.$/-]*(?=[ \\t]+(?:[-|]|(?:${CASE_INSENSITIVE_LEVEL})(?=[ \\t:]|$)))`,
+          scope: 'namespace',
+        },
+        { match: /[-|](?=[ \t]|$)/, set: 'message' },
+        // Zero width keeps the first character available to strings, URLs and
+        // exception rules in the message state.
+        { match: /(?=\S)/, set: 'message' },
+      ],
+    },
+    exceptions: {
+      rules: [
+        {
+          match:
+            /^([ \t]+at[ \t]+)([^\s()]+)([ \t]*\()([^()\r\n]*:\d+(?::\d+)?|Native Method|Unknown Source|<anonymous>)(\))/,
+          scope: ['keyword.control', 'function.call', null, 'link', null],
+          set: 'message',
+        },
+        {
+          match: /^([ \t]+at[ \t]+)([^\s()]+:\d+(?::\d+)?)(?=[ \t]|$)/,
+          scope: ['keyword.control', 'link'],
+          set: 'message',
+        },
+        { match: /^[ \t]*(?:Caused by:|Suppressed:)/, scope: 'keyword.control', set: 'message' },
+        {
+          match: /(?<![\w.$])(?:[A-Za-z_$][\w$]*\.)*(?:[A-Za-z_$][\w$]*(?:Exception|Error)|Exception|Error(?=:))\b/,
+          scope: 'type',
+          set: 'message',
+        },
+      ],
+    },
+    message: {
+      rules: [
+        { include: 'exceptions' },
+        { match: /\r\n|[\r\n\u2028\u2029]/, set: 'root' },
+        { match: /\b(?:https?|ftp|file):\/\/[^\s<>"']+/, scope: 'link' },
+        { match: /"/, scope: 'string', push: 'double-quoted' },
+        { match: /(?<!\w)'/, scope: 'string', push: 'single-quoted' },
+      ],
+    },
+    'double-quoted': {
+      default: 'string',
+      rules: [
+        { match: /\\[^\r\n\u2028\u2029]/, scope: 'string.escape' },
+        { match: /"/, scope: 'string', pop: true },
+        { match: /(?=[\r\n\u2028\u2029])/, pop: true, set: 'root' },
+      ],
+    },
+    'single-quoted': {
+      default: 'string',
+      rules: [
+        { match: /\\[^\r\n\u2028\u2029]/, scope: 'string.escape' },
+        { match: /'/, scope: 'string', pop: true },
+        { match: /(?=[\r\n\u2028\u2029])/, pop: true, set: 'root' },
+      ],
+    },
+  },
+}
+
+export default log
