@@ -96,6 +96,13 @@ describe('curl', () => {
     },
   )
 
+  it('leaves grouped numeric and punctuation switches before a header option unscoped', () => {
+    expect(scoped('curl -4#H "X-Test: 1" https://example.com')).toStrictEqual([
+      ['curl', 'keyword'],
+      ['"X-Test: 1"', 'string'],
+    ])
+  })
+
   it.each(['-sd ', '-sS4d'])('highlights JSON after a grouped -d option (%j)', (options) => {
     assertHas(`curl ${options}'{"id":1}'`, '"id"', 'property')
   })
@@ -140,6 +147,34 @@ describe('curl', () => {
   it('scopes a line-ending backslash as punctuation', () => {
     assertHas(REQUEST, '\\', 'punctuation')
     assertHas('curl -X POST \\\r\n  https://example.com', '\\', 'punctuation')
+  })
+
+  it.each(['\n', '\r\n'])('scopes a continuation inside a double-quoted header (%j)', (newline) => {
+    expect(scoped(`curl -H "X-Example: first\\${newline}second" https://example.com`)).toStrictEqual([
+      ['curl', 'keyword'],
+      ['"X-Example: first', 'string'],
+      ['\\', 'punctuation'],
+      [`${newline}second"`, 'string'],
+    ])
+  })
+
+  it.each(['\\ ', '\\\n', '\\\r\n'])('keeps a data-like suffix in the same header word (%j)', (join) => {
+    const value = `'{"id":1}'`
+    assertHas(`curl --header X-Debug:${join}-d${value} https://example.com`, value, 'string')
+  })
+
+  it('finds a data option after a continued argument separator', () => {
+    assertHas("curl \\\n-d '[true]' https://example.com", 'true', 'boolean')
+  })
+
+  it('keeps JSON after a bare newline separate from the data option', () => {
+    assertHas("curl -d\n'[true]'", "'[true]'", 'string')
+  })
+
+  it('highlights JSON when a line continuation joins the long option and equals sign', () => {
+    const code = "curl --data\\\n='[true]' https://example.com"
+    assertHas(code, '\\', 'punctuation')
+    assertHas(code, 'true', 'boolean')
   })
 
   it('treats an escaped single quote as content, so the value after it stays a string', () => {

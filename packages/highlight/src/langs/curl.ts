@@ -1,5 +1,5 @@
 import type { Grammar } from '../core/types'
-import { shellContinuation, shellEscape } from './shared/shell'
+import { SHELL_LINE_SPLICE, shellContinuation, shellEscape } from './shared/shell'
 
 /**
  * cURL command lines.
@@ -29,9 +29,11 @@ const SHORT_SWITCHES = '012346#:aBfGgIijkJlLMnNOpqRsSvVZ'
 /** The shell can insert a literal apostrophe by closing and reopening the quote. */
 const SHELL_APOSTROPHES = String.raw`'\\''|'"'"'`
 const APOSTROPHE_ESCAPE = new RegExp(SHELL_APOSTROPHES, 'g')
-const SHELL_CONTINUATION = String.raw`\\\r?\n`
-// A line splice can still join another segment to the current shell argument.
-const SHELL_WORD_END = String.raw`(?=(?:${SHELL_CONTINUATION})*(?:[ \t\n;&|<>()]|\r\n|(?![\s\S])))`
+// A splice disappears from the word. Whitespace is a separator when it follows
+// an even number of backslashes, including zero.
+const UNESCAPED_WHITESPACE = String.raw`(?<!\\)(?:\\\\)*(?:[ \t]|\r\n|(?<!\r)\n)`
+const OPTION_START = String.raw`(?=-)(?<=(?:(?<![\s\S])|${UNESCAPED_WHITESPACE})(?:${SHELL_LINE_SPLICE})*)`
+const SHELL_WORD_END = String.raw`(?=(?:${SHELL_LINE_SPLICE})*(?:[ \t\n;&|<>()]|\r\n|(?![\s\S])))`
 
 // The closing quote must end the shell argument. A segment like '[1]'='[2]'
 // is one argument, so its first segment alone is not a JSON body.
@@ -65,21 +67,25 @@ const curl: Grammar = {
         // the grammar this replaces, so the command and the method are matched
         // in any case.
         { match: '\\b[cC][uU][rR][lL]\\b', scope: 'keyword' },
-        { match: '(^|\\s)(--request|-X)(?=\\s)', push: 'method' },
+        { match: String.raw`${OPTION_START}(?:--request|-X)(?=\s)`, push: 'method' },
 
-        { match: String.raw`(^|\s)-[${SHORT_SWITCHES}]*d(?![\w-])`, push: 'data' },
+        { match: String.raw`${OPTION_START}-[${SHORT_SWITCHES}]*d(?![\w-])`, push: 'data' },
         {
           // curl allows = before an attached value on long options only.
-          match: String.raw`(^|\s)(?:${LONG_DATA_FLAGS})(?:=(?=(?:${SHELL_CONTINUATION})*')|${SHELL_WORD_END})`,
+          match: String.raw`${OPTION_START}(?:${LONG_DATA_FLAGS})(?=(?:${SHELL_LINE_SPLICE})*=(?:${SHELL_LINE_SPLICE})*')`,
+          push: 'data-equals',
+        },
+        {
+          match: String.raw`${OPTION_START}(?:${LONG_DATA_FLAGS})${SHELL_WORD_END}`,
           push: 'data',
         },
 
         // Anchored to a boundary so the hyphens inside a URL or a header name
         // are not mistaken for flags. Consume dotted names and numeric
         // switches whole so `--http1.1` and `-4` stay unscoped.
-        { match: '(^|\\s)--[A-Za-z][\\w.-]*' },
-        { match: String.raw`(^|\s)-[${SHORT_SWITCHES}]+${SHELL_WORD_END}` },
-        { match: '(^|\\s)-[A-Za-z](?![\\w-])' },
+        { match: String.raw`${OPTION_START}--[A-Za-z][\w.-]*` },
+        { match: String.raw`${OPTION_START}-[${SHORT_SWITCHES}]+${SHELL_WORD_END}` },
+        { match: String.raw`${OPTION_START}-[${SHORT_SWITCHES}]*(?![${SHORT_SWITCHES}])[A-Za-z]` },
 
         shellEscape,
         { match: '"', scope: 'string', push: 'string-double' },
@@ -99,11 +105,14 @@ const curl: Grammar = {
       ],
     },
 
+    'data-equals': {
+      rules: [shellContinuation, { match: '=', set: 'data' }],
+    },
     // Only a single-quoted object or array candidate can use the JSON grammar.
     data: {
       rules: [
         shellContinuation,
-        { match: '\\s+' },
+        { match: '[ \\t]+' },
         {
           match: String.raw`'(?=\s*${QUOTED_BODY})`,
           scope: 'string',
@@ -131,6 +140,7 @@ const curl: Grammar = {
     'string-double': {
       default: 'string',
       rules: [
+        shellContinuation,
         { match: '\\\\.', scope: 'string.escape' },
         // `$(...)` runs a command, so it reads as a value rather than text.
         { match: '\\$\\(', scope: 'variable', push: 'subshell' },

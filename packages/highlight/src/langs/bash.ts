@@ -142,7 +142,8 @@ const bash: Grammar = {
     'string-double': {
       default: 'string',
       rules: [
-        { match: '\\\\(?:[\\\\$`"\\n]|\\r\\n)', scope: 'string.escape' },
+        shellContinuation,
+        { match: '\\\\[\\\\$`"]', scope: 'string.escape' },
         { include: 'expansion' },
         { match: '`', scope: 'string', push: 'backtick' },
         { match: '"', scope: 'string', pop: true },
