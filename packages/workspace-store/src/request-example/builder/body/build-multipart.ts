@@ -9,9 +9,10 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
-import { getExampleValue } from '@/helpers/get-example-value'
+import { type ExampleValue, getExampleValue } from '@/helpers/get-example-value'
 
 import { serializeXmlPart } from '../../xml/serialize-xml-part'
+import { serializeSimpleStyle } from '../header/serialize-parameter'
 import { MAX_MULTIPART_NESTING } from './multipart-limits'
 import { resolveLeafSchema } from './schema-value-coercion'
 import { hasEncodingStyle, serializeFormPropertyWithEncoding } from './serialize-form-property'
@@ -179,13 +180,16 @@ export const buildMultipart = (
         if (!header || !('schema' in header)) {
           return []
         }
-        const headerSchema = getResolvedRef(header.schema)
-        const example =
+        const example: ExampleValue | undefined =
           header.example !== undefined
-            ? { value: header.example }
+            ? { source: 'value', value: header.example }
             : getExampleValue(Object.values(header.examples ?? {})[0])
+        if (example?.source === 'serialized') {
+          return [[name, example.value]]
+        }
+        const headerSchema = getResolvedRef(header.schema)
         const value = example === undefined ? (headerSchema?.const ?? headerSchema?.default) : example.value
-        return value === undefined ? [] : [[name, String(value)]]
+        return value === undefined ? [] : [[name, String(serializeSimpleStyle(value, header.explode ?? false))]]
       }),
     )
     if (

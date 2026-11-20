@@ -52,6 +52,30 @@ describe('build-multipart', () => {
 
   it.each<{ header: HeaderObject; expected: string | undefined }>([
     {
+      header: { schema: { type: 'object' }, examples: { sample: { dataValue: { id: 123, active: true } } } },
+      expected: 'id,123,active,true',
+    },
+    {
+      header: {
+        schema: { type: 'object' },
+        explode: true,
+        examples: { sample: { dataValue: { id: 123, active: true } } },
+      },
+      expected: 'id=123,active=true',
+    },
+    {
+      header: { schema: { type: 'array', items: { type: 'string' } }, example: ['first', 'second'] },
+      expected: 'first,second',
+    },
+    {
+      header: {
+        schema: { type: 'object' },
+        explode: true,
+        examples: { sample: { serializedValue: 'id="part 123"', dataValue: { id: 'part 123' } } },
+      },
+      expected: 'id="part 123"',
+    },
+    {
       header: { schema: { type: 'string' }, example: false, examples: { sample: { dataValue: 'sample' } } },
       expected: 'false',
     },
@@ -66,7 +90,7 @@ describe('build-multipart', () => {
     { header: { schema: { type: 'boolean', const: false } }, expected: 'false' },
     { header: { schema: { type: 'integer', default: 0 } }, expected: '0' },
     { header: { schema: { type: 'string' } }, expected: undefined },
-  ])('preserves header example precedence and fallbacks for $header', async ({ header, expected }) => {
+  ])('encodes the part header $header', async ({ header, expected }) => {
     const parts = buildMultipart(['hello'], 'multipart/mixed', {
       itemEncoding: { headers: { 'X-Part-Id': header } },
     })
