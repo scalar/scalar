@@ -24,6 +24,7 @@ const {
   example,
   bodySchema,
   encoding,
+  aspNetFormNaming,
   selectedContentType,
   environment,
   compositionSelection,
@@ -33,6 +34,7 @@ const {
   bodySchema?: SchemaObject
   /** Encoding overrides for individual multipart fields. */
   encoding?: MediaTypeObject['encoding']
+  aspNetFormNaming?: boolean
   /** Selected request-body variants, shared with example generation and serialization. */
   compositionSelection?: Record<string, number>
   selectedContentType: string
@@ -70,14 +72,23 @@ watch(
       selectedContentType,
       compositionSelection,
       encoding,
+      aspNetFormNaming,
     ] as const,
-  ([newExample, schema, contentType, selection, fieldEncoding]) => {
+  ([
+    newExample,
+    schema,
+    contentType,
+    selection,
+    fieldEncoding,
+    aspNetNaming,
+  ]) => {
     localFormBodyRows.value = getFormBodyRows(
       newExample,
       contentType,
       schema,
       selection,
       fieldEncoding,
+      aspNetNaming,
     )
   },
   { immediate: true },
@@ -101,12 +112,13 @@ const handleUpdateFormValue = (rows: TableRow[]): void => {
     rows.map((row) => ({
       name: row.name,
       value:
-        selectedContentType === 'multipart/form-data'
+        selectedContentType === 'multipart/form-data' || aspNetFormNaming
           ? getFormBodyValue(row)
           : (row.value as string | File),
       isDisabled: row.isDisabled ?? false,
       ...(row.isDisabledByDefault ? { isDisabledByDefault: true } : {}),
-      ...(selectedContentType === 'multipart/form-data' && row.isArray
+      ...((selectedContentType === 'multipart/form-data' || aspNetFormNaming) &&
+      row.isArray
         ? { isArray: true }
         : {}),
     })),

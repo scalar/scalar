@@ -38,6 +38,17 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Selects the naming convention for nested multipart form fields.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="multipartNaming">The naming convention to use.</param>
+    public static TOptions WithMultipartNaming<TOptions>(this TOptions options, ScalarMultipartNaming multipartNaming) where TOptions : ScalarOptions
+    {
+        options.MultipartNaming = multipartNaming;
+        return options;
+    }
+
+    /// <summary>
     /// Shows structural types instead of model names in schema labels and operation headings (default: false).
     /// </summary>
     /// <param name="options">The options to configure.</param>

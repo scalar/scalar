@@ -1,6 +1,7 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -228,6 +229,7 @@ export const requestFactory = ({
   openapiVersion,
   jsonSchemaDialect,
   requestBodyCompositionSelection,
+  multipartNaming,
 }: RequestExampleMeta & {
   /** The operation object */
   operation: OperationObject
@@ -251,6 +253,7 @@ export const requestFactory = ({
   /** Document default for schema resources without $schema. */
   jsonSchemaDialect?: string
   requestBodyCompositionSelection?: Record<string, number>
+  multipartNaming?: MultipartNaming
 }): {
   request: RequestFactory
 } => {
@@ -273,7 +276,9 @@ export const requestFactory = ({
 
   // If the method can have a body, build the request body, otherwise set it to null
   const body = canMethodHaveBody(method)
-    ? buildRequestBody(requestBody, exampleName, requestBodyCompositionSelection, openapiVersion, jsonSchemaDialect)
+    ? buildRequestBody(requestBody, exampleName, requestBodyCompositionSelection, openapiVersion, jsonSchemaDialect, {
+        multipartNaming,
+      })
     : null
 
   // Delete the Content-Type header so the browser will set it automatically based on the request body

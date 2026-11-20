@@ -584,6 +584,29 @@ Whether to always start with all tags open, regardless of the URL.
 }
 ```
 
+### multipartNaming
+
+**Type:** `'indexed-dot'`
+
+Set `multipartNaming: 'indexed-dot'` to use names such as `profile.name` and `certificates[0].name` in the form editor, sent requests, and code samples for `multipart/form-data` and `application/x-www-form-urlencoded` bodies. This supports ASP.NET Core `[FromForm]` model binding for nested objects and arrays. Arrays of files or scalar values use repeated field names. If an indexed collection skips positions, Scalar includes `.index` fields so ASP.NET Core can bind the remaining items.
+
+```js
+Scalar.createApiReference('#app', {
+  url: '/openapi.json',
+  multipartNaming: 'indexed-dot',
+})
+```
+
+Configure the ASP.NET Core integration with its fluent option.
+
+```csharp
+app.MapScalarApiReference(options => options.WithMultipartNaming(ScalarMultipartNaming.IndexedDot));
+```
+
+Spring Boot uses `scalar.multipart-naming=indexed-dot`. FastAPI and Django Ninja expose the option as `multipart_naming="indexed-dot"`. Docker and Rust accept `"multipartNaming": "indexed-dot"` in their JSON configuration.
+
+Omit the option to use OpenAPI multipart encoding. Ordered parts and nested multipart media types follow their declared encoding.
+
 ### defaultRequestBodyView
 
 **Type:** `'form' | 'raw'`

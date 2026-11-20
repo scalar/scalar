@@ -615,6 +615,10 @@ def get_scalar_api_reference(
             """
         ),
     ] = None,
+    multipart_naming: Annotated[
+        Literal["indexed-dot"] | None,
+        Doc("Use indexed dotted names for nested multipart form fields."),
+    ] = None,
 ) -> HTMLResponse:
     # Accept either the enum members or their plain string values, so callers
     # can pass, for example, theme="moon" instead of theme=Theme.MOON.
@@ -725,6 +729,9 @@ def get_scalar_api_reference(
         config["showDefaultClientsWithSdkInstallation"] = (
             show_default_clients_with_sdk_installation
         )
+
+    if multipart_naming is not None:
+        config["multipartNaming"] = multipart_naming
 
     if hide_client_button:  # Default is False
         config["hideClientButton"] = hide_client_button
