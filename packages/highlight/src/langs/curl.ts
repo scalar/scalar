@@ -23,12 +23,17 @@ const LONG_DATA_FLAGS = '--data(?:-raw|-binary|-ascii)?|--json'
 
 /** The shell can insert a literal apostrophe by closing and reopening the quote. */
 const SHELL_APOSTROPHES = String.raw`'\\''|'"'"'`
+const SHELL_CONTINUATION = String.raw`\\\r?\n`
+// A line splice can still join another segment to the current shell argument.
+const SHELL_WORD_END = String.raw`(?=(?:${SHELL_CONTINUATION})*(?:[ \t\n;&|<>()]|\r\n|(?![\s\S])))`
 
 const SINGLE_QUOTED_CHARACTER = `(?:[^']|${SHELL_APOSTROPHES})`
 const JSON_STRING = String.raw`"(?:[^'"\\]|\\[^']|${SHELL_APOSTROPHES})*"`
-// An equals sign outside a JSON string can separate a form field from its value.
-const JSON_BODY_CHARACTER = `(?:[^'"=]|${SHELL_APOSTROPHES}|${JSON_STRING})`
-const QUOTED_JSON = String.raw`(?:\{${JSON_BODY_CHARACTER}*\}|\[${JSON_BODY_CHARACTER}*\])\s*'`
+const JSON_NUMBER = String.raw`-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?`
+// A delimiter keeps the regex from splitting bare text or digits into separate values.
+const JSON_ATOM = String.raw`(?:true|false|null|${JSON_NUMBER})(?=[\s,\]}])`
+const JSON_BODY_TOKEN = String.raw`(?:[\s{}\[\],:]|${JSON_STRING}|${JSON_ATOM})`
+const QUOTED_JSON = String.raw`(?:\{${JSON_BODY_TOKEN}*\}|\[${JSON_BODY_TOKEN}*\])\s*'${SHELL_WORD_END}`
 const UNTERMINATED_JSON = String.raw`[\[{]${SINGLE_QUOTED_CHARACTER}*(?![\s\S])`
 
 /**
@@ -55,7 +60,7 @@ const curl: Grammar = {
         { match: '(^|\\s)-d(?![\\w-])', push: 'data' },
         {
           // curl allows = before an attached value on long options only.
-          match: String.raw`(^|\s)(?:${LONG_DATA_FLAGS})(?:=(?=')|(?=\s|\\$|$))`,
+          match: String.raw`(^|\s)(?:${LONG_DATA_FLAGS})(?:=(?=(?:${SHELL_CONTINUATION})*')|${SHELL_WORD_END})`,
           push: 'data',
         },
 
@@ -87,9 +92,9 @@ const curl: Grammar = {
       ],
     },
 
-    // An opening bracket alone could be a form field or a plain text body.
-    // Look for the matching end delimiter, or allow an unfinished shell quote
-    // so the body can still highlight while it is being typed.
+    // Look for JSON tokens through the end of the shell argument so form
+    // fields and bracketed text keep their string scope. An unfinished shell
+    // quote can still highlight while the body is being typed.
     data: {
       rules: [
         LINE_CONTINUATION,

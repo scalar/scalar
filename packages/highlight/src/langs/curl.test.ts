@@ -140,6 +140,15 @@ describe('curl', () => {
       assertHas(REQUEST, '{', 'punctuation.bracket')
     })
 
+    it('highlights nested arrays with JSON literals and numbers', () => {
+      const code = `curl -d '[[true,false,null,-1.25e+2,0]]'`
+      assertHas(code, 'true', 'boolean')
+      assertHas(code, 'false', 'boolean')
+      assertHas(code, 'null', 'constant.builtin')
+      assertHas(code, '-1.25e+2', 'number')
+      assertHas(code, '0', 'number')
+    })
+
     it('highlights a JSON array body after any data flag', () => {
       for (const flag of ['-d', '--data', '--data-raw', '--data-binary', '--json']) {
         assertHas(`curl ${flag} '[{"id":1}]' https://example.com`, '"id"', 'property')
@@ -161,6 +170,13 @@ describe('curl', () => {
 
     it('does not pick up a separate argument after an empty attached value', () => {
       assertHas(`curl --json= '{"id":1}'`, `'{"id":1}'`, 'string')
+      assertHas(`curl --json=\\\n '{"id":1}'`, `'{"id":1}'`, 'string')
+    })
+
+    it.each(['\n', '\r\n'])('highlights an attached JSON body after a line continuation (%j)', (newline) => {
+      const code = `curl --json=\\${newline}'{"id":1}' https://example.com`
+      assertHas(code, '\\', 'punctuation')
+      assertHas(code, '"id"', 'property')
     })
 
     it('keeps a JSON string whole across an escaped apostrophe', () => {
@@ -194,13 +210,27 @@ describe('curl', () => {
       assertHas(`curl --form 'meta={"a":1}' https://example.com`, `'meta={"a":1}'`, 'string')
     })
 
-    it.each(['[item]=Mars', '[1]=[2]', '["item"]=[2]', '[INFO] ready'])(
+    it.each(['[item]=Mars', '[1]=[2]', '["item"]=[2]', '[item]', '[INFO] ready'])(
       'leaves bracket-leading text %s as a string',
       (body) => {
         const quotedBody = `'${body}'`
         assertHas(`curl -d ${quotedBody} https://example.com`, quotedBody, 'string')
       },
     )
+
+    it('leaves bracketed plain text passed to --data-binary as a string', () => {
+      assertHas("curl --data-binary '[INFO]' https://example.com", "'[INFO]'", 'string')
+    })
+
+    it.each(['', '\\\n'])('keeps adjacent form argument segments as strings (%j)', (separator) => {
+      const code = `curl -d '[1]'${separator}='[2]' https://example.com`
+      assertHas(code, "'[1]'", 'string')
+      assertHas(code, "'[2]'", 'string')
+    })
+
+    it('highlights a complete JSON argument before a shell operator', () => {
+      assertHas("curl -d '[true]'&& echo done", 'true', 'boolean')
+    })
 
     it('does not read lowercase -f or uppercase -D as data flags', () => {
       assertHas(`curl -f '{"a":1}' https://example.com`, `'{"a":1}'`, 'string')

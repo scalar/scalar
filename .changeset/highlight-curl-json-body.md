@@ -4,4 +4,4 @@
 
 Highlight a curl request body as JSON, keep curl values intact across `'\''`, and mark a line-ending backslash as punctuation in curl and Bash. Curl flags are now plain text with no class of their own, so `true`, `false` and `null` in a body keep their colour.
 
-Support JSON bodies attached to long options with `=`, preserve bracket-leading form fields as strings, and keep escaped apostrophes in the surrounding JSON key or value scope.
+Support JSON bodies attached to long options with `=`, including across shell line continuations. Keep bracketed plain text and form fields as strings, and preserve escaped apostrophes in the surrounding JSON key or value scope.

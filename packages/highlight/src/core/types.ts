@@ -172,7 +172,7 @@ export type CompiledState = {
     own: (string | null)[]
     cache: Map<string, { re: RegExp; own: (RegExp | null)[] }>
   } | null
-  embed: { language: string; boundary: RegExp; holes: RegExp | null; preserveHoleScope: boolean } | null
+  embed: { language: string; boundary: RegExp; holes: RegExp | null; preserveHoleScope?: boolean } | null
 }
 
 export type CompiledGrammar = {
