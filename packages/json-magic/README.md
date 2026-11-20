@@ -277,7 +277,7 @@ A loader plugin teaches the bundler how to read one kind of reference. Import lo
 | Loader      | Handles                               | Available in  |
 | ----------- | ------------------------------------- | ------------- |
 | `fetchUrls` | `http://` and `https://` references   | browser, node |
-| `readFiles` | Local file paths                      | node          |
+| `readFiles` | Local file paths and `file:` URLs      | node          |
 | `parseJson` | A raw JSON string passed as the input | browser, node |
 | `parseYaml` | A raw YAML string passed as the input | browser, node |
 
@@ -394,7 +394,8 @@ console.log(result)
 
 #### readFiles
 
-Resolves local files. This loader only works in a Node.js environment.
+Reads local file paths and `file:` URLs in Node.js. Pass `basePath` to confine reads to an approved directory.
+Hosted file URLs are rejected. Confined reads on Windows also reject UNC and device paths.
 
 ```ts
 import { bundle } from '@scalar/json-magic/bundle'
