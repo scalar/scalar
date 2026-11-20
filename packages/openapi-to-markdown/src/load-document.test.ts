@@ -347,6 +347,39 @@ paths:
     },
   )
 
+  it.each(['object', 'json', 'yaml'])('resolves a relative identity against basePath for %s input', async (format) => {
+    const directory = await mkdtemp(join(tmpdir(), 'markdown-object-self-'))
+    try {
+      await mkdir(join(directory, 'canonical directory'))
+      await writeFile(join(directory, 'pet.json'), JSON.stringify({ type: 'integer' }))
+      await writeFile(join(directory, 'canonical directory', 'pet.json'), JSON.stringify({ type: 'string' }))
+      const input = {
+        ...loadingDocument,
+        openapi: '3.2.1',
+        $self: './canonical%20directory/openapi.json',
+        components: { schemas: { Pet: { $ref: './pet.json' } } },
+      }
+      const serialized =
+        format === 'yaml'
+          ? `openapi: 3.2.1
+$self: ./canonical%20directory/openapi.json
+info: { title: Trusted API, version: '1' }
+paths: {}
+components:
+  schemas:
+    Pet:
+      $ref: ./pet.json
+`
+          : JSON.stringify(input)
+      const document = await loadDocument(format === 'object' ? input : serialized, { basePath: directory })
+
+      expect(getReferenceTarget(document.components?.schemas?.Pet)).toStrictEqual({ type: 'string' })
+      await expect(loadDocument(format === 'object' ? input : serialized)).rejects.toThrow('Failed to resolve')
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
   it('resolves references from the identity declared by a fetched OpenAPI document', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'markdown-external-self-'))
     const documentPath = join(directory, 'openapi.json')

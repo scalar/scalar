@@ -1,4 +1,4 @@
-import { isAbsolute } from 'node:path'
+import { isAbsolute, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
@@ -234,7 +234,9 @@ export const loadDocument = async (
   }
 
   // Check identity before upgrading so older descriptions cannot acquire $self semantics.
-  const entryIdentity = resolveNodeOpenApiDocument(raw, origin ?? '/')
+  // In-memory input has no retrieval URI. Keep the fallback directory's trailing separator
+  // so relative identities resolve inside it rather than alongside it.
+  const entryIdentity = resolveNodeOpenApiDocument(raw, origin ?? `${resolve(options.basePath ?? '.')}${sep}`)
   // Upgrade before indexing so reference resolution sees one consistent dialect.
   const declaredOpenapiVersion = typeof raw.openapi === 'string' ? raw.openapi : '2.0'
   const { document: upgraded } = upgrade(raw, '3.2', { onIncompatible: 'collect' })

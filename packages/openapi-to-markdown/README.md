@@ -72,7 +72,8 @@ const operationMarkdownByPointer = await createMarkdownFromOpenApi(content, {
 
 When an OpenAPI 3.2 description declares `$self`, Node Markdown exports use that URI to resolve relative
 references in the description. A relative `$self` is resolved against the location the description was
-loaded from. The loading options below apply to the resulting URLs and paths.
+loaded from. For object and inline JSON/YAML input, relative `$self` values use `basePath`, or the current
+directory when `basePath` is omitted. The loading options below apply to the resulting URLs and paths.
 
 URL inputs and external references block private, loopback, and link-local addresses by default.
 Protected requests also reject redirects. File access is disabled unless you provide an approved
