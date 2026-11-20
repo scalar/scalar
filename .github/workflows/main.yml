@@ -454,6 +454,25 @@ jobs:
       java_build_passed: ${{ needs.integration-builds.outputs.java_build_passed }}
     secrets: inherit
 
+  # Publish a selected Playwright image tag after a regular package release.
+  publish-playwright-docker:
+    if: |
+      !cancelled() &&
+      github.ref == 'refs/heads/main' &&
+      github.repository == 'scalar/scalar' &&
+      needs.release.outputs.npm_publish_status == 'success' &&
+      needs.release.outputs.published == 'true'
+    needs: [release]
+    concurrency:
+      group: publish-playwright-docker
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/playwright-docker.yml
+    with:
+      publish: true
+
   # PyPI trusted publishing runs here because the publishing action does not
   # support OIDC inside reusable workflows. Build packages without OIDC access.
   fastapi-pack:
