@@ -1,5 +1,11 @@
 import type { Grammar, State, StateRule } from '../core/types'
-import { SHELL_LINE_SPLICE, shellContinuation, shellEscape } from './shared/shell'
+import {
+  SHELL_LINE_SPLICE,
+  SHELL_SPLICES as SPLICES,
+  SHELL_WORD_START as WORD_START,
+  shellContinuation,
+  shellEscape,
+} from './shared/shell'
 
 /** A curl command highlights its method and JSON payload alongside shell strings. */
 const METHODS = 'get|post|put|patch|delete|head|options|trace|connect'
@@ -32,12 +38,8 @@ const LONG_VALUE_OPTIONS = `
   .trim()
   .split(/\s+/)
 
-const SPLICES = `(?:${SHELL_LINE_SPLICE})*`
 const SHELL_SEPARATOR = String.raw`[ \t\n;&|()]|[<>](?!${SPLICES}\()|\r\n`
 const SHELL_WORD_END = String.raw`(?=${SPLICES}(?:${SHELL_SEPARATOR}|(?![\s\S])))`
-// Whitespace is a separator when it follows an even number of backslashes.
-const UNESCAPED_WHITESPACE = String.raw`(?<!\\)(?:\\\\)*(?:[ \t]|\r\n|(?<!\r)\n)`
-const WORD_START = String.raw`(?<=(?:(?<![\s\S])|${UNESCAPED_WHITESPACE})${SPLICES})`
 const OPTION_START = `(?=-)${WORD_START}-`
 const COMMENT_START = `(?=#)${WORD_START}`
 

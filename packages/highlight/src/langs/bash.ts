@@ -1,5 +1,5 @@
 import type { Grammar, StateRule } from '../core/types'
-import { shellContinuation, shellEscape } from './shared/shell'
+import { SHELL_SPLICES, SHELL_WORD_START, shellContinuation, shellEscape } from './shared/shell'
 
 /**
  * Bash, sh and zsh.
@@ -27,8 +27,11 @@ const bash: Grammar = {
   states: {
     root: {
       rules: [
-        { match: '^#!.*', scope: 'comment' },
-        { match: '(?:^|[ \\t])#[^\\n]*', scope: 'comment' },
+        { match: String.raw`(?<![\s\S])#!.*`, scope: 'comment' },
+        { match: String.raw`[ \t]?${SHELL_WORD_START}#[^\n]*`, scope: 'comment' },
+        // Operators can end a word without whitespace before the comment.
+        { match: String.raw`(?:&&|\|\||[|&;]|[<>]{1,2})(?=${SHELL_SPLICES}#)`, scope: 'operator', push: 'comment' },
+        { match: `[()](?=${SHELL_SPLICES}#)`, scope: 'punctuation.bracket', push: 'comment' },
 
         { include: 'expansion' },
         shellContinuation,
@@ -102,6 +105,9 @@ const bash: Grammar = {
         { match: '&&|\\|\\||[|&;]|[<>]{1,2}|[-+*%!=]=?|=~', scope: 'operator' },
         { match: '[()\\[\\]{}]', scope: 'punctuation.bracket' },
       ],
+    },
+    comment: {
+      rules: [shellContinuation, { match: '#[^\\n]*', scope: 'comment', pop: true }],
     },
 
     /** After `export`, `local` and the like: flags, then the one name it sets. */

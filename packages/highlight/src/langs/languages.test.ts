@@ -792,6 +792,33 @@ describe('regressions from the TextMate comparison', () => {
     ])
   })
 
+  it.each([';', '&&', '|'])('bash: keeps a trailing backslash in a comment after %s', (operator) => {
+    const comment = '# comment \\'
+    const code = `echo line${operator}${comment}\necho next`
+    assertHas(code, 'bash', operator, 'operator')
+    assertHas(code, 'bash', comment, 'comment')
+  })
+
+  it('bash: keeps an escaped semicolon with its shell word', () => {
+    const code = 'echo line\\;# text\\\necho next'
+    assertHas(code, 'bash', '\\;', 'string.escape')
+    assertHas(code, 'bash', '\\', 'punctuation')
+  })
+
+  it('bash: distinguishes a spliced comment from a hash in a continued shell word', () => {
+    const continuation = '\\\n'
+    const comment = '# comment \\'
+    const afterOperator = `echo line;${continuation}${comment}\necho next`
+    assertHas(afterOperator, 'bash', '\\', 'punctuation')
+    assertHas(afterOperator, 'bash', comment, 'comment')
+
+    const joinedWord = `echo first${continuation}#literal${continuation}second`
+    expect(runs(joinedWord, 'bash').filter(([text]) => text.includes('\\'))).toStrictEqual([
+      ['\\', 'punctuation'],
+      ['\\', 'punctuation'],
+    ])
+  })
+
   it.each(['\n', '\r\n'])('bash: scopes continuations in parameter and arithmetic expansions (%j)', (newline) => {
     const continuation = '\\' + newline
     const code = 'echo "${HEL' + continuation + 'LO}" $((1 +' + continuation + '2))'
