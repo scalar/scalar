@@ -51,7 +51,7 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - name: Build
@@ -69,23 +69,23 @@ jobs:
       # so PR builds aren't signed with provenance.
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         name: Attest scalar.js build provenance
-        uses: actions/attest-build-provenance@v4.1.1
+        uses: actions/attest-build-provenance@v4.2.2
         with:
           subject-path: temp-artifacts/scalar.js
       - name: Upload scalar.js artifact
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
       - name: Upload mock server docker entrypoint artifact
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: mock-server-docker-entrypoint
           path: packages/mock-server/docker/dist/docker-entrypoint.js
           retention-days: 3
       - name: Upload build-output artifact
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: build-output
           path: build-output.tar.gz
@@ -93,7 +93,7 @@ jobs:
           compression-level: 0
       - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
         name: Upload webpack stats to RelativeCI
-        uses: relative-ci/agent-action@v3.2.3
+        uses: relative-ci/agent-action@v3.2.4
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -122,7 +122,7 @@ jobs:
       rust_changed: ${{ steps.changes.outputs.rust_changed }}
       docker_changed: ${{ steps.changes.outputs.docker_changed }}
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - id: changes
@@ -136,10 +136,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
-      - uses: pnpm/action-setup@v5.0.0
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.1
       - name: Setup Node.js
-        uses: actions/setup-node@v6.4.0
+        uses: actions/setup-node@v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -155,7 +155,7 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       # `--only` skips the `build` dependencies of types:check: restore-build
@@ -180,7 +180,7 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Build examples, projects and tooling
@@ -214,7 +214,7 @@ jobs:
       HOME: '/root'
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Run tests
@@ -227,9 +227,9 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Setup Go
-        uses: actions/setup-go@v6.5.0
+        uses: actions/setup-go@v7.1.0
         with:
           go-version-file: projects/proxy-scalar-com/go.mod
           cache: false
@@ -243,7 +243,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Start SSR playground and verify it responds
@@ -270,7 +270,7 @@ jobs:
       contents: read
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Build storybook (@scalar/blocks)
@@ -294,7 +294,7 @@ jobs:
       contents: read
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Run e2e tests (@scalar/components)
@@ -316,7 +316,7 @@ jobs:
       contents: read
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Build storybook (@scalar/api-reference)
@@ -342,7 +342,7 @@ jobs:
       contents: read
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Run e2e tests (scalar-app)
@@ -489,12 +489,12 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@v6.3.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.11'
 
@@ -509,7 +509,7 @@ jobs:
         run: python -m build
 
       - name: Upload FastAPI distributions
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: fastapi-pypi
           path: integrations/fastapi/dist/
@@ -529,7 +529,7 @@ jobs:
       id-token: write
     steps:
       - name: Download FastAPI distributions
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: fastapi-pypi
           path: dist/
@@ -553,12 +553,12 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@v6.3.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
 
@@ -573,7 +573,7 @@ jobs:
         run: python -m build
 
       - name: Upload Django Ninja distributions
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: django-ninja-pypi
           path: integrations/django-ninja/dist/
@@ -593,7 +593,7 @@ jobs:
       id-token: write
     steps:
       - name: Download Django Ninja distributions
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: django-ninja-pypi
           path: dist/
@@ -630,7 +630,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Generate DEPLOY_ID
