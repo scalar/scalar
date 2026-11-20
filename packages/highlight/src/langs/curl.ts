@@ -33,7 +33,7 @@ const LONG_VALUE_OPTIONS = `
   .split(/\s+/)
 
 const SPLICES = `(?:${SHELL_LINE_SPLICE})*`
-const SHELL_SEPARATOR = String.raw`[ \t\n;&|()]|[<>](?!\()|\r\n`
+const SHELL_SEPARATOR = String.raw`[ \t\n;&|()]|[<>](?!${SPLICES}\()|\r\n`
 const SHELL_WORD_END = String.raw`(?=${SPLICES}(?:${SHELL_SEPARATOR}|(?![\s\S])))`
 // Whitespace is a separator when it follows an even number of backslashes.
 const UNESCAPED_WHITESPACE = String.raw`(?<!\\)(?:\\\\)*(?:[ \t]|\r\n|(?<!\r)\n)`
@@ -52,18 +52,28 @@ const longOption = (names: readonly string[], prefix = ''): string => {
 const SHORT_PREFIX = `(?:${SPLICES}[${SHORT_SWITCHES}])*${SPLICES}`
 const shortOption = (valueOption: string): string => `${OPTION_START}(?=${SHORT_PREFIX}${valueOption})`
 
-const SHELL_APOSTROPHES = String.raw`'\\''|'"'"'`
+const SHELL_APOSTROPHES = String.raw`'${SPLICES}(?:\\'|"${SPLICES}'${SPLICES}")${SPLICES}'`
 // The closing quote must end the shell argument so adjacent segments do not
 // count as separate JSON bodies.
 const QUOTED_BODY = String.raw`[\[{](?:[^']|${SHELL_APOSTROPHES})*(?:'${SHELL_WORD_END}|(?![\s\S]))`
 
+// The lookahead keeps an I/O descriptor with its redirection across splices.
+const REDIRECTION_SYMBOL = String.raw`[<>](?!${SPLICES}\()`
 const redirection: StateRule = {
-  match: String.raw`(${WORD_START}\d+(?=[<>]))?(?:&>>?|<<-?|[<>](?!\()(?:[<>|&])?)`,
-  scope: ['number'],
-  push: 'redirection-target',
+  match: String.raw`(?=[\d<>&])(?:${WORD_START}(?=\d(?:${SPLICES}\d)*${SPLICES}${REDIRECTION_SYMBOL})|(?=${REDIRECTION_SYMBOL}|&${SPLICES}>))`,
+  push: 'redirection-operator',
 }
-const substitution: StateRule = { match: '\\$\\(', scope: 'variable', push: 'subshell' }
-const processSubstitution: StateRule = { match: '[<>]\\(', scope: 'variable', push: 'subshell' }
+const redirectionTarget: StateRule = { match: '(?=[\\s\\S])', set: 'redirection-target' }
+const substitution: StateRule = {
+  match: String.raw`\$(?=${SPLICES}\()`,
+  scope: 'variable',
+  push: 'substitution-open',
+}
+const processSubstitution: StateRule = {
+  match: String.raw`[<>](?=${SPLICES}\()`,
+  scope: 'variable',
+  push: 'substitution-open',
+}
 const argumentSpace: StateRule[] = [shellContinuation, { match: '[ \\t]+' }]
 const stepIntoWord: StateRule[] = [
   { match: COMMENT_START, pop: true },
@@ -104,10 +114,14 @@ const curl: Grammar = {
     },
     'command-content': {
       rules: [
+        { match: `[;&|()](?=${SPLICES}#)`, push: 'comment-after-operator' },
         { match: String.raw`${COMMENT_START}#[^\n]*`, scope: 'comment' },
         { match: '\\b[cC][uU][rR][lL]\\b', scope: 'keyword' },
         { include: 'word-content' },
       ],
+    },
+    'comment-after-operator': {
+      rules: [shellContinuation, { match: '#[^\\n]*', scope: 'comment', pop: true }],
     },
     'end-of-options': {
       rules: [shellContinuation, { match: '-', set: 'positional' }],
@@ -117,7 +131,7 @@ const curl: Grammar = {
         shellContinuation,
         redirection,
         // A new shell command gets its own curl option parsing.
-        { match: '[\\n;&|()]', pop: true },
+        { match: '(?=[\\n;&|()])', pop: true },
         { include: 'command-content' },
       ],
     },
@@ -165,6 +179,32 @@ const curl: Grammar = {
     argument: {
       rules: [...argumentSpace, redirection, ...stepIntoWord],
     },
+    'redirection-operator': {
+      rules: [
+        shellContinuation,
+        { match: '\\d+', scope: 'number' },
+        { match: '<', set: 'input-redirection' },
+        { match: '>', set: 'output-redirection' },
+        { match: '&', set: 'combined-redirection' },
+      ],
+    },
+    'input-redirection': {
+      rules: [
+        shellContinuation,
+        { match: '<', set: 'heredoc-redirection' },
+        { match: '[>&]', set: 'redirection-target' },
+        redirectionTarget,
+      ],
+    },
+    'heredoc-redirection': {
+      rules: [shellContinuation, { match: '[-<]', set: 'redirection-target' }, redirectionTarget],
+    },
+    'output-redirection': {
+      rules: [shellContinuation, { match: '[>&|]', set: 'redirection-target' }, redirectionTarget],
+    },
+    'combined-redirection': {
+      rules: [shellContinuation, { match: '>', set: 'output-redirection' }],
+    },
     'redirection-target': {
       rules: [...argumentSpace, ...stepIntoWord],
     },
@@ -208,6 +248,7 @@ const curl: Grammar = {
         until: "'",
         holes: SHELL_APOSTROPHES,
         preserveHoleScope: true,
+        holePunctuation: String.raw`\\(?=\r?\n)`,
         validate: { format: 'json', holeReplacement: "'" },
       },
       rules: [],
@@ -233,6 +274,10 @@ const curl: Grammar = {
         { match: '`', scope: 'variable', push: 'backtick' },
         { match: '"', scope: 'string', pop: true },
       ],
+    },
+    'substitution-open': {
+      default: 'variable',
+      rules: [shellContinuation, { match: '\\(', set: 'subshell' }],
     },
     subshell: {
       default: 'variable',

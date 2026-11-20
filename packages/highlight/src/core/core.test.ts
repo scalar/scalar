@@ -787,6 +787,31 @@ describe('embed', () => {
     },
   )
 
+  it('keeps compiled validation independent of the source grammar', () => {
+    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+    const validate = { format: 'json' as const, holeReplacement: '1' }
+    const grammar = compile({
+      ...host,
+      states: {
+        ...host.states,
+        body: {
+          default: 'comment',
+          embed: { language: 'tiny-embedded', until: '</x>', holes: '_', validate },
+          rules: [],
+        },
+      },
+    })
+
+    validate.holeReplacement = 'X'
+
+    expect(tokenizeToArray('<x>_2</x>', grammar).map(({ text, scope }) => [text, scope])).toStrictEqual([
+      ['<x>', 'tag'],
+      ['_', null],
+      ['2', 'number'],
+      ['</x>', 'tag'],
+    ])
+  })
+
   it('stops nesting embeds at a fixed depth and falls back to the default scope', () => {
     const nested: Grammar = {
       name: 'nested',

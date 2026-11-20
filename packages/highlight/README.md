@@ -239,7 +239,9 @@ as if each were a name, so its state carries over, and the host grammar tokenize
 A PHP template's `<script>` uses it for `<?= $x ?>`, which keeps `"<?= $name ?>"` one string.
 Hole patterns may contain capture groups. An end marker inside a hole does not close the embedded body.
 Use `preserveHoleScope: true` when a masked escape should keep the scope of the surrounding
-embedded token, such as a shell-escaped apostrophe in a JSON key.
+embedded token, such as a shell-escaped apostrophe in a JSON key. This masks line breaks inside
+the hole so the embedded grammar sees one continuous token, and `holePunctuation` can still
+assign punctuation scope to parts of the escape.
 Set `validate: { format: 'json' }` to use the default host scope for closed bodies that fail
 JSON parsing. Set `validate.holeReplacement` to the text each hole represents during validation.
 Unterminated bodies can still use the embedded grammar while the user types.

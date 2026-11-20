@@ -337,8 +337,22 @@ describe('curl', () => {
     assertHas("curl -d 2>/dev/null '[true]'", 'true', 'boolean')
   })
 
+  it.each(['\n', '\r\n'])('preserves curl argument handling across redirection splices (%j)', (newline) => {
+    const continuation = '\\' + newline
+    const body = `curl --data 2${continuation}>/dev/null '[true]'`
+    assertHas(body, '\\', 'punctuation')
+    assertHas(body, 'true', 'boolean')
+    const positional = `curl -- 2>${continuation}&1 -d '[true]'`
+    assertHas(positional, '\\', 'punctuation')
+    assertHas(positional, "'[true]'", 'string')
+  })
+
   it.each(['https://example.com', '-o'])('ignores data flags in a shell comment after %s', (value) => {
     assertHas(`curl ${value} # -d '[true]'`, "# -d '[true]'", 'comment')
+  })
+
+  it.each([';', '&&', ';\\\n'])('ignores a shell comment directly after %j', (operator) => {
+    assertHas(`curl -- example.test${operator}# try -d '[true]'`, "# try -d '[true]'", 'comment')
   })
 
   it.each(['\n', '\r\n'])('recognizes short and long data options split by a continuation (%j)', (newline) => {
@@ -370,5 +384,24 @@ describe('curl', () => {
     const cloned = structuredClone(curl)
     expect(tokenize(code, cloned)).toStrictEqual(tokenize(code, 'curl'))
     assertHas(code, "'[1 2]'", 'string')
+  })
+
+  it.each(['\n', '\r\n'])('keeps JSON keys scoped across spliced apostrophe escapes (%j)', (newline) => {
+    const continuation = '\\' + newline
+    for (const apostrophe of [`'${continuation}\\'${continuation}'`, `'"${continuation}'${continuation}"'`]) {
+      const key = `"it${apostrophe}s"`
+      const code = `curl --json '{${key}:true}'`
+      expect(
+        runs(code)
+          .filter(([, scope]) => scope === 'property')
+          .map(([text]) => text)
+          .join(''),
+      ).toBe(key.replaceAll(continuation, newline))
+      expect(runs(code).filter(([text, scope]) => text === '\\' && scope === 'punctuation')).toStrictEqual([
+        ['\\', 'punctuation'],
+        ['\\', 'punctuation'],
+      ])
+      assertHas(code, 'true', 'boolean')
+    }
   })
 })

@@ -102,9 +102,10 @@ export type State = {
    * `<script>`. The embedded language reads the body with each hole masked,
    * so its state carries across (a hole inside a JavaScript string leaves the
    * rest of the string a string), and each hole is tokenized with this
-   * grammar from its root. Set `preserveHoleScope` when a hole is an escape
-   * that should keep the embedded token's scope, such as a shell-escaped
-   * apostrophe in a JSON key.
+   * grammar from its root. Set `preserveHoleScope` when a hole should read as
+   * one run of placeholder characters, including across line breaks, and
+   * keep the embedded token's scope. `holePunctuation` optionally scopes
+   * matching text within those holes as punctuation.
    *
    * With `validate: { format: 'json' }`, a closed body must parse as JSON to be embedded.
    * The validation input substitutes `holeReplacement` for each hole, or
@@ -115,6 +116,7 @@ export type State = {
     until: string
     holes?: string
     preserveHoleScope?: boolean
+    holePunctuation?: string
     validate?: { format: 'json'; holeReplacement?: string }
   }
   rules: StateRule[]
@@ -187,6 +189,7 @@ export type CompiledState = {
         language: string
         boundary: RegExp
         holes: RegExp | null
+        holePunctuation: RegExp | null
       } & Pick<NonNullable<State['embed']>, 'preserveHoleScope' | 'validate'>)
     | null
 }
