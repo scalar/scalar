@@ -18,6 +18,7 @@ export const getThemeColors = (themeId: Themes | 'none'): { light: string; dark:
     'deep-space': { light: '#f4f4f5', dark: '#09090b', accent: '#8ab4f8' },
     laserwave: { light: '#f4f2f7', dark: '#27212e', accent: '#ed78c2' },
     halloween: { light: '#f7efe3', dark: '#1f1829', accent: '#ff8a3d' },
+    'pi-day': { light: '#f4eedd', dark: '#1b2621', accent: '#f2a54e' },
   }
   return colors[themeId as Themes] || { light: '#ffffff', dark: '#000000', accent: '#3b82f6' }
 }
