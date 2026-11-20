@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.12.57",
+    "date": "2026-11-20",
+    "title": "Polish and bug fixes",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01257",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.12.56",
     "date": "2026-11-19",
     "title": "API key prefixes and cleaner chat context",

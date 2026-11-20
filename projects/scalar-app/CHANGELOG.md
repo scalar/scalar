@@ -1,5 +1,9 @@
 # scalar-app
 
+## 1.1.54
+
+No changes in this release.
+
 ## 1.1.53
 
 ### Patch Changes

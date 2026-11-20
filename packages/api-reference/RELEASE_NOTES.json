@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.82.1",
+    "date": "2026-11-20",
+    "title": "Polish and bug fixes",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1821",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.82.0",
     "date": "2026-11-19",
     "title": "Sidebar badges, faster rendering for cyclic schemas, and cleaner code highlights",

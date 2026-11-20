@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.82.1 (2026-11-20)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1821)
+
 ## 1.82.0 (2026-11-19)
 
 ### Sidebar badges, faster rendering for cyclic schemas, and cleaner code highlights

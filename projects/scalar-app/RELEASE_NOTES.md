@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.54 (2026-11-20)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1154)
+
 ## 1.1.53 (2026-11-19)
 
 ### API Hosting beta invites and improved date input
