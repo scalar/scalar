@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "Node16",
+    "module": "Node20",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -11,7 +11,6 @@
     "outDir": "dist",
     "incremental": true,
     "skipLibCheck": true,
-    "moduleResolution": "Node16",
     "types": ["node", "jest"],
     "strict": true,
     "isolatedModules": true,
