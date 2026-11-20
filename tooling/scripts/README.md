@@ -162,15 +162,17 @@ The workflow summary lists the published tags. After publishing, update the
 runner tags in `.github/workflows/pr.yml` and `.github/workflows/main.yml`,
 and the image tag in `packages/helpers/src/playwright/docker.ts`, to the full tag.
 Update the workspace `@playwright/test` pin and lockfile in the same change
-if the Playwright version changed.
+if the Playwright version changed. PR validation checks these pins together when
+any runner image pin changes. The pins can stay on the previous release while
+the selected tag is pending.
 
 #### `update-playwright-docker` manual fallback
 
-This command builds and pushes both Playwright Docker images using the version
-pinned in `push-container.ts`. It replaces the existing version-only tags and
-skips the workflow's smoke tests:
-- `scalarapi/playwright:${version}` - Base Playwright image
-- `scalarapi/playwright-runner:${version}` - Runner image
+This command reads the same `release-tag` as CI and skips images that already
+have that tag. Use a new tag for another image revision. The manual command
+builds and publishes missing images without running the workflow's smoke tests:
+- `scalarapi/playwright:<tag>` - Base Playwright image
+- `scalarapi/playwright-runner:<tag>` - Runner image
 
 Both images are built for `linux/amd64` and `linux/arm64` with buildx and pushed as a
 multi-arch manifest, so the runner works on amd64 CI runners as well as arm64 (Apple

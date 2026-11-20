@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - '.github/workflows/playwright-docker.yml'
+      - '.github/workflows/pr.yml'
+      - '.github/workflows/main.yml'
+      - 'packages/helpers/src/playwright/docker.ts'
       - 'tooling/scripts/src/commands/playwright-docker/**'
       - 'pnpm-workspace.yaml'
   workflow_call:
@@ -35,12 +38,7 @@ jobs:
         id: tag
         shell: bash
         run: |
-          tag=$(cat "$PLAYWRIGHT_DOCKER_DIR/release-tag")
-          # Reserve space for the architecture suffix on the build tags.
-          if [[ ! "$tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9][A-Za-z0-9_.-]*)?$ ]] || (( ${#tag} > 122 )); then
-            echo 'Expected a Playwright version with an optional suffix in release-tag' >&2
-            exit 1
-          fi
+          tag=$(bash "$PLAYWRIGHT_DOCKER_DIR/read-release-tag.sh")
           echo "value=$tag" >> "$GITHUB_OUTPUT"
       - name: Check image inputs and Playwright version
         id: changes
@@ -67,6 +65,8 @@ jobs:
             echo 'Expected one exact @playwright/test version in the wildcard pnpm workspace catalog' >&2
             exit 1
           fi
+
+          sh "$PLAYWRIGHT_DOCKER_DIR/check-runner-pins.sh" "$BASE_SHA" "$TAG" "$version"
 
           # Workspace catalog edits for other packages do not affect either image.
           if [[ "$version" == "$(playwright_version "$BASE_SHA")" ]] &&
