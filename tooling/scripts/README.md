@@ -151,16 +151,18 @@ and `scalarapi/playwright-runner` on amd64 and arm64 when their build files or
 the workspace `@playwright/test` pin change. It validates browser startup through
 `playwright run-server` and checks the runner's WebGL default and opt-in.
 
-Set `src/commands/playwright-docker/release-tag` to the desired Playwright
-version with an optional suffix (for example, `1.62.1-r1`) when you want to ship
-a new image revision. The version portion determines which Playwright version
-the images install. After a successful package release on `main`, CI checks
-Docker Hub and builds and smoke-tests the selected tag if either image is missing.
-It publishes only the missing images using the `production-dockerhub` environment.
+Set `src/commands/playwright-docker/release-tag` to the Playwright version the
+images should install (for example, `1.65.1`). Add a suffix to release another
+image with the same Playwright version. After a successful package release on
+`main`, CI checks Docker Hub and builds and smoke-tests the selected tag if
+either image is missing. It publishes only the missing images using the
+`production-dockerhub` environment.
 
 The workflow summary lists the published tags. After publishing, update the
 runner tags in `.github/workflows/pr.yml` and `.github/workflows/main.yml`,
 and the image tag in `packages/helpers/src/playwright/docker.ts`, to the full tag.
+Update the workspace `@playwright/test` pin and lockfile in the same change
+if the Playwright version changed.
 
 #### `update-playwright-docker` manual fallback
 
