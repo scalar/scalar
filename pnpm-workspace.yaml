@@ -87,7 +87,7 @@ catalogs:
     microdiff: 1.6.0
     monaco-editor: 0.57.0
     monaco-yaml: 5.5.1
-    nanoid: ^5.1.16
+    nanoid: ^6.0.2
     next: ^16.4.6
     neverpanic: 0.0.8
     picomatch: ^4.0.7
