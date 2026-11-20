@@ -1115,6 +1115,11 @@
                butterflies, so that the fish come in and go out through the glass at the sides as the butterflies do,
                and a school always has the lens. A school with no fish is none. A composition with a school cannot also
                talk: both say what they are in their strokes' phase, and the face's codes run on past 400.
+     conduct   null, or { bones, pose, lead, still }: the composition's figure moves as a rig of that many bones (see
+               conductVertex and rigNow). Its planting says where the figure stands and how tall it is (garden.rig) and
+               marks each stroke of it with the bone that moves it; `pose(seconds, out)` writes where every bone has
+               taken its part at a moment, in the figure's own terms; `lead` is how far into its motion the page opens
+               on it, and `still` the moment the still picture shows.
      lightFoot whether the light it plants in the haze kind, marked even, goes into the canvas's foot whole rather than
                thinning into specks there, as a figure the picture's foot cuts off does (see LIGHT_FOOT).
      perch     null, or how a flock that lands does it (see the butterflies that perch): its butterflies sit on the places
@@ -4921,7 +4926,8 @@
      are the footer's, fields of one colour each, gold and marigold where the light lies, cornflowers in the shade. In
      the valley, under the words, stands a figure of light: a silhouette so bright that it has no detail, only its shape
      and the light it gives off, which blooms out round it, lies on the flowers at its feet and drifts near it in a few
-     motes. In a dark theme it is the same valley at dusk, where the figure shines the more. */
+     motes. In a dark theme it is the same valley at dusk, where the figure shines the more. And the figure conducts:
+     a baton in its hand, it beats time to the valley as to an orchestra (see the conductor, below its outline). */
   const DOCS_EVEN = 0.005
   /* The hills, as lines in the land's room from its top line (0) down: the far hill closing the valley, the left hill
      coming down into it from the left edge, the right hill from the right, and the field in front, rising into both
@@ -4967,10 +4973,11 @@
     [1.6, 0.78],
   ]
   /* The figure, traced from the photograph Cameron sent (its brightest pixels, through potrace, smoothed a little; see
-     scratchpad docs/trace): its outline, and the light between its right arm and its waist, as points in its own terms,
-     x across from the middle of its head and y down from the top of its head, both as shares of its height in the
-     photograph, where the picture's foot cuts it off at the thighs. It is cut off the same way here: it stands so tall
-     that the canvas's foot crosses it there, and its feet are never seen. */
+     scratchpad docs/trace): its outline, as points in its own terms, x across from the middle of its head and y down
+     from the top of its head, both as shares of its height in the photograph, where the picture's foot cuts it off at
+     the thighs. It is cut off the same way here: it stands so tall that the canvas's foot crosses it there, and its
+     feet are never seen. The outline is as it was traced, arms hanging at its sides; the figure is painted without
+     them, and its arms hang from the conductor's bones instead (see docsShapes). */
   const DOCS_SILHOUETTE = {
     outer: [
       [-0.0566, 0.2035],
@@ -5151,31 +5158,1020 @@
       [-0.0634, 0.1883],
       [-0.0608, 0.1901],
     ],
-    holes: [
-      [
-        [0.1286, 0.543],
-        [0.1421, 0.569],
-        [0.1442, 0.6101],
-        [0.1363, 0.6439],
-        [0.1364, 0.6728],
-        [0.1313, 0.7094],
-        [0.1286, 0.714],
-        [0.1212, 0.7179],
-        [0.1158, 0.7136],
-        [0.1115, 0.7042],
-        [0.1006, 0.6857],
-        [0.0975, 0.6745],
-        [0.0974, 0.6515],
-        [0.1053, 0.638],
-        [0.0973, 0.6339],
-        [0.0959, 0.6308],
-        [0.0953, 0.5957],
-        [0.102, 0.5734],
-        [0.1068, 0.5636],
-        [0.1223, 0.5422],
-      ],
+  }
+  /* --- the conductor ------------------------------------------------------------------------------ */
+
+  /* The figure conducts. It faces us, so the baton in its right hand is on our left, and it beats time as a conductor
+     does: every beat falls onto one level line in front of the chest (the ictus) and bounces off it, one straight
+     down, two in towards the body, three out, four up, and only the last bounce climbs to the top, which is the
+     upbeat to the next bar. The hand is fastest at the ictus and slowest at the top, as a ball is, since that change
+     of speed is what an orchestra reads the beat from; louder music is a larger pattern on a lower line, from the
+     shoulder, and soft music a small one, higher up, from the wrist. The free hand does not beat time unless the
+     music is at its fullest: it asks for more with the palm up, holds the band down, points a hit out, and keeps by
+     the waist when it has nothing to say. Everything is shown a beat early, and the stillest moments come just
+     before the largest ones.
+
+     To move, the figure is painted in parts, each hanging at rest where a bone holds it: the body from the hips, the
+     chest and the head, the two arms as an upper arm, a forearm and a hand each, the baton, and the light its tip
+     leaves behind. The strokes of a part say which bone moves them (see `conduct`), and the pose, worked out here for
+     any moment, says where each bone has taken its part. Everything is in the figure's own terms, as its outline is:
+     x across from the middle of its head and y down from the top of it, in shares of its height in the picture. */
+  const DOCS_REST = {
+    // the body's middle line; where the spine leans from; where the head turns
+    centre: 0.008,
+    hips: [-0.004, 0.9],
+    neck: [-0.006, 0.262],
+    // the baton arm's shoulder (on our left) and the free arm's
+    shoulders: [
+      [-0.128, 0.345],
+      [0.15, 0.34],
+    ],
+    upper: 0.235,
+    fore: 0.195,
+    // the middle of the fist, down from the wrist, and the baton from there to its tip
+    grip: 0.034,
+    baton: 0.235,
+    // how long a piece of the ribbon of light behind the baton's tip is, at rest
+    ribbon: 0.02,
+  }
+  /* The bones, in the order the strokes' shader holds them. A stroke of the chest can give some of itself to the
+     hips, and one of the head to the chest (the bone before its own), which is how the waist and the neck bend; the
+     arms' bones run upper arm, forearm, hand, the baton arm's first and the free arm's four on, with the baton
+     between them; and the last are the pieces of the ribbon of light behind the baton's tip. */
+  const DOCS_BONE = { hips: 0, chest: 1, head: 2, upper: 3, fore: 4, hand: 5, baton: 6, trail: 10 }
+  const DOCS_TRAIL = 12
+  const DOCS_BONES = DOCS_BONE.trail + DOCS_TRAIL
+  /* How much of which bone a place on the body follows, by its height: the head down to the foot of the neck, where
+     it gives way to the chest, and the chest down to the hips, where it gives way to them. */
+  const docsSkin = (y) =>
+    y < 0.275 ? [DOCS_BONE.head, 1 - smooth(0.185, 0.275, y)] : [DOCS_BONE.chest, 1 - smooth(0.5, 0.9, y)]
+  /* The body without its arms: the traced outline, with the arms it was traced with left out. Its sides from the
+     shoulders down to the hips, which the arms hid, follow the one stretch of them the photograph shows (the light
+     between its right arm and its waist), mirrored for the other side. */
+  const DOCS_SIDES = {
+    left: [
+      [-0.156, 0.345],
+      [-0.15, 0.385],
+      [-0.134, 0.43],
+      [-0.12, 0.49],
+      [-0.11, 0.55],
+      [-0.106, 0.6],
+      [-0.105, 0.65],
+      [-0.11, 0.7],
+      [-0.124, 0.75],
+      [-0.143, 0.795],
+      [-0.156, 0.83],
+    ],
+    right: [
+      [0.14, 0.775],
+      [0.124, 0.74],
+      [0.11, 0.705],
+      [0.101, 0.686],
+      [0.097, 0.651],
+      [0.096, 0.631],
+      [0.095, 0.596],
+      [0.102, 0.573],
+      [0.112, 0.535],
+      [0.126, 0.48],
+      [0.142, 0.43],
+      [0.16, 0.385],
+      [0.17, 0.35],
     ],
   }
+  // a limb hanging down from a place: circles down its length, [how far down, radius], joined by straight sides
+  const docsLimb = ([x, y], circles, steps = 6) => {
+    const side = []
+    const [d0, r0] = circles[0]
+    for (let i = 0; i <= steps; i += 1) {
+      const a = (Math.PI / 2) * (i / steps)
+      side.push([Math.sin(a) * r0, d0 - Math.cos(a) * r0])
+    }
+    for (let k = 1; k < circles.length - 1; k += 1) {
+      side.push([circles[k][1], circles[k][0]])
+    }
+    const [d1, r1] = circles[circles.length - 1]
+    for (let i = 0; i <= steps; i += 1) {
+      const a = (Math.PI / 2) * (i / steps)
+      side.push([Math.cos(a) * r1, d1 + Math.sin(a) * r1])
+    }
+    const ring = side.map(([across, down]) => [x + across, y + down])
+    for (let i = side.length - 1; i >= 0; i -= 1) {
+      ring.push([x - side[i][0], y + side[i][1]])
+    }
+    return ring
+  }
+  /* The parts at rest, as outlines: the body, and for each arm (the baton arm first) its upper arm, its forearm and
+     its hand, all hanging straight down from the shoulder, as slender as the traced arms were. The baton hand is a
+     fist; the free hand is open. The arms' parts can be had a little larger all round (`grown`), which is the shape
+     of the shade an arm lays on the body it crosses. */
+  const docsShapes = (grown = 0) => {
+    const outline = DOCS_SILHOUETTE.outer
+    const body = [
+      ...outline.slice(0, 7),
+      ...DOCS_SIDES.left,
+      ...outline.slice(31, 61),
+      ...DOCS_SIDES.right,
+      ...outline.slice(79),
+    ]
+    const arms = DOCS_REST.shoulders.map(([x, y], arm) => {
+      const elbow = y + DOCS_REST.upper
+      const wrist = elbow + DOCS_REST.fore
+      return {
+        upper: docsLimb(
+          [x, y],
+          [
+            [0, 0.039 + grown],
+            [DOCS_REST.upper, 0.031 + grown],
+          ],
+        ),
+        fore: docsLimb(
+          [x, elbow],
+          [
+            [0, 0.031 + grown],
+            [DOCS_REST.fore, 0.024 + grown],
+          ],
+        ),
+        hand:
+          arm === 0
+            ? docsLimb(
+                [x, wrist],
+                [
+                  [0.01, 0.025 + grown],
+                  [0.036, 0.031 + grown],
+                  [0.054, 0.027 + grown],
+                ],
+              )
+            : docsLimb(
+                [x, wrist],
+                [
+                  [0.008, 0.024 + grown],
+                  [0.04, 0.029 + grown],
+                  [0.074, 0.022 + grown],
+                  [0.094, 0.013 + grown],
+                ],
+              ),
+      }
+    })
+    return { body, arms }
+  }
+
+  /* The shade an arm lays on the body it crosses: how far it reaches round the arm (a share of the figure's height),
+     how soft it is, and how much of its paint it carries. It is meant to be barely there: a few hundredths darker than
+     the white at its strongest. */
+  const DOCS_SHADE = { reach: 0.018, soft: 0.024, load: 0.46 }
+
+  /* The conductor's motion: the score it conducts, and the pose it is in at any moment of it. */
+  const docsConductor = (() => {
+    const BPM = 132
+    const BEATS = BPM / 60
+    const blend = (a, b, share) => a + (b - a) * share
+
+    /* How a hand goes from one key of the score to the next. A beat falls into its ictus and bounces off it: across,
+       it travels between the two places over the middle of the beat; down, it follows a bounce over the line between
+       them, as high as the key's `lift`, shaped by its `art`: 0 is legato (round at the foot, never still), 1 marcato
+       (a ball's bounce, fastest at the ictus and slowest at the top), 2 staccato (up at once, held, and down at the
+       last moment). The others simply go: `glide` rests at both ends, `out` leaves fast and arrives softly, `in`
+       gathers and arrives fast, `line` is even. */
+    const travel = {
+      glide: (u) => u * u * u * (u * (u * 6 - 15) + 10),
+      out: (u) => 1 - (1 - u) ** 3,
+      in: (u) => u ** 3,
+      line: (u) => u,
+    }
+    const bounce = (u, art) => {
+      const ball = 4 * u * (1 - u)
+      if (art <= 1) {
+        return blend(0.5 - 0.5 * Math.cos(2 * Math.PI * u), ball, art)
+      }
+      const up = 1 - (1 - Math.min(1, u / 0.26)) ** 2
+      const down = 1 - (1 - Math.min(1, (1 - u) / 0.2)) ** 2
+      return blend(ball, Math.min(up, down), art - 1)
+    }
+    // what the body feels of a beat: down at once after the ictus, and slowly back
+    const pulse = (u) => (u < 0.16 ? smooth(0, 0.16, u) : 1 - smooth(0.16, 0.85, u))
+    const span = (track, t) => {
+      let low = 0
+      let high = track.length - 1
+      while (high - low > 1) {
+        const middle = (low + high) >> 1
+        if (track[middle].t <= t) {
+          low = middle
+        } else {
+          high = middle
+        }
+      }
+      return low
+    }
+    /* Where a hand is at a beat of the score, added into `sum` with a weight: across, down, how upright the baton
+       stands, how far the hand is over the line it beats on, and how heavy the beat just struck was. */
+    const handInto = (sum, weight, track, t) => {
+      const a = track[span(track, t)]
+      const b = track[span(track, t) + 1]
+      const u = clamp((t - a.t) / (b.t - a.t), 0, 1)
+      let x = 0
+      let y = 0
+      let upright = 0
+      let over = 0
+      let struck = 0
+      if (a.ease === 'beat') {
+        const across = blend(u, smooth(a.from, a.land, u), 0.35 + 0.65 * Math.min(a.art, 1))
+        x = blend(a.x, b.x, across)
+        y = blend(a.y, b.y, u) - a.lift * bounce(u, a.art)
+        over = blend(a.plane, b.plane, u) - y
+        upright = over / a.size + blend(a.tilt, b.tilt, u)
+        struck = a.size * pulse(u) * Math.min(1, a.art + 0.35)
+      } else {
+        const gone = travel[a.ease](u)
+        x = blend(a.x, b.x, gone)
+        y = blend(a.y, b.y, gone)
+        upright = blend(a.tilt, b.tilt, gone)
+      }
+      if (a.bow) {
+        // an arc: bowed out to one side of the straight way
+        const bend = Math.sin(Math.PI * u) * a.bow
+        const dx = b.x - a.x
+        const dy = b.y - a.y
+        const d = Math.hypot(dx, dy) || 1
+        x += (-dy / d) * bend
+        y += (dx / d) * bend
+      }
+      sum[0] += x * weight
+      sum[1] += y * weight
+      sum[2] += upright * weight
+      sum[3] += over * weight
+      sum[4] += struck * weight
+    }
+    /* A hand cannot turn on the spot: where it is at a moment is its way over the few hundredths of a second round
+       that moment, which rounds the corner at an ictus as a wrist does. */
+    const TAPS = [
+      [-0.036, 1 / 9],
+      [-0.018, 2 / 9],
+      [0, 3 / 9],
+      [0.018, 2 / 9],
+      [0.036, 1 / 9],
+    ]
+    const handAt = (track, t, loop) => {
+      const sum = [0, 0, 0, 0, 0]
+      for (const [dt, weight] of TAPS) {
+        handInto(sum, weight, track, (((t + dt * BEATS) % loop) + loop) % loop)
+      }
+      return sum
+    }
+    const valueAt = (track, t, loop) => {
+      const at = ((t % loop) + loop) % loop
+      const i = span(track, at)
+      const a = track[i]
+      const b = track[i + 1]
+      return blend(a.v, b.v, travel[a.ease || 'glide'](clamp((at - a.t) / (b.t - a.t), 0, 1)))
+    }
+
+    /* The pattern in four, as we see it (in towards the body is to our right): for each beat, how far across its
+       ictus is (shares of the pattern's width, inward positive), how far under the line (shares of its size), how high
+       the hand bounces after it (shares of its size), and by when in the beat it has got across. Two stays clear of
+       the body, so that both hands are still seen when the free hand beats with the baton. */
+    const FOUR = [
+      [0, 0.08, 0.36, 0.8],
+      [0.3, 0, 0.3, 0.86],
+      [-0.62, 0, 0.38, 0.86],
+      [-0.16, -0.1, 1, 0.5],
+    ]
+    // how loud: the pattern's size and width, the line it beats on (which sinks as the music grows), and its touch
+    const SOFT = { size: 0.085, wide: 0.085, y: 0.415, art: 2, x: -0.28, tilt: 0.3 }
+    const HALF = { size: 0.15, wide: 0.14, y: 0.44, art: 1.5 }
+    const LOUD = { size: 0.215, wide: 0.195, y: 0.475, art: 1 }
+    const FULL = { size: 0.25, wide: 0.235, y: 0.52, art: 1 }
+    // where the baton hand beats, where the hands wait at the ready, and where a cut-off leaves the baton
+    const HOME = -0.262
+    const READY = [-0.22, 0.38]
+    const READY_FREE = [0.24, 0.39]
+    const END = [-0.345, 0.385]
+
+    /* The score: seventeen bars in four, which then start over. Each hand's way is a list of keys (when, in beats,
+       where, and how it goes on from there), and so is everything the body does. It is written a passage at a time,
+       each from the beat it starts on: it opens at full strength, has its fun, sings, drops to a hush, and grows from
+       there into the great downbeat and the silence after it. */
+    const write = () => {
+      const baton = []
+      const free = []
+      const tracks = {
+        // how much the free hand is the baton hand's twin, and how much of itself the body puts in
+        mirror: [],
+        energy: [],
+        // the pulse in the knees and the shoulders
+        groove: [],
+        // leaning, clockwise as we see it (to our right is positive), and standing taller (positive) or sinking
+        lean: [],
+        rise: [],
+        // the head: tipped (clockwise positive), turned to a side (to our right positive), and bowed (down positive)
+        look: [],
+        gaze: [],
+        nod: [],
+        // the free hand's wrist: how far its fingers turn from the forearm's line (clockwise positive)
+        turn: [],
+        // trembling, in a held note
+        shake: [],
+      }
+      const key = (track, t, o) =>
+        track.push({
+          t,
+          ease: 'glide',
+          bow: 0,
+          plane: o.y,
+          size: 0.1,
+          lift: 0,
+          art: 1,
+          from: 0.06,
+          land: 0.86,
+          tilt: 0,
+          ...o,
+        })
+      const at = (track, t, [x, y], o = {}) => key(track, t, { x, y, ...o })
+      const set = (name, t0, keys) => {
+        for (const [t, v, ease] of keys) {
+          tracks[name].push({ t: t0 + t, v, ease })
+        }
+      }
+      // a bar in four from beat t; its last bounce is the upbeat to what follows, so as large as that is
+      const four = (
+        track,
+        t,
+        { size, wide, y, art, x = HOME, tilt = 0 },
+        { next = size, hill = 1, beats = 4 } = {},
+      ) => {
+        FOUR.slice(0, beats).forEach(([across, under, lift, land], i) => {
+          key(track, t + i, {
+            x: x + across * wide,
+            y: y + under * size,
+            lift: i === 3 ? lift * next : lift * size * hill,
+            art,
+            land,
+            ease: 'beat',
+            plane: y,
+            size,
+            tilt,
+          })
+        })
+      }
+      // a hit: wound up a little the other way, struck so that it arrives at its fastest, and sprung back to rest
+      const stab = (track, t, from, to, { back = 0.14, wind = 0.42, recoil = 0.34, rest = 0.8, tilt = 0.3 } = {}) => {
+        const dx = to[0] - from[0]
+        const dy = to[1] - from[1]
+        at(track, t - wind, from, { tilt })
+        at(track, t - wind * 0.4, [from[0] - dx * back, from[1] - dy * back], { ease: 'in', tilt: tilt + 0.3 })
+        at(track, t, to, { ease: 'out', tilt: tilt - 0.2 })
+        at(track, t + recoil, [from[0] + dx * rest, from[1] + dy * rest], { tilt })
+      }
+      const mirrored = ([x, y]) => [2 * DOCS_REST.centre - x, y]
+      // a quarter of a circle of radius r between two keys, as an arc's bow
+      const quarter = (r) => 0.293 * r * 1.42
+
+      /* One bar. Stillness, the hands coming to the ready; then the upbeat, as large as what it brings in, with a
+         breath. */
+      const ready = (t) => {
+        at(baton, t, END, { tilt: 0.45 })
+        at(baton, t + 0.7, END, { tilt: 0.45 })
+        at(baton, t + 2.2, READY, { tilt: 0.95 })
+        key(baton, t + 3, {
+          x: READY[0],
+          y: READY[1],
+          ease: 'beat',
+          lift: 0.19,
+          art: 1,
+          plane: READY[1],
+          size: FULL.size,
+          tilt: 0.95,
+          land: 0.7,
+        })
+        at(free, t, mirrored(END))
+        at(free, t + 0.7, mirrored(END))
+        at(free, t + 2.3, READY_FREE)
+        at(free, t + 3.1, READY_FREE)
+        set('mirror', t, [
+          [0, 1],
+          [0.7, 1],
+          [2, 0],
+          [3.05, 0],
+          [3.7, 1],
+        ])
+        set('energy', t, [
+          [0, 0.3],
+          [2.8, 0.4],
+          [3.6, 1],
+        ])
+        set('groove', t, [[0, 0]])
+        set('rise', t, [
+          [0, 0],
+          [2.6, 0],
+          [3.5, 0.012],
+        ])
+        set('turn', t, [
+          [0, 0.2],
+          [3, 0.2],
+        ])
+      }
+      /* Two bars. Full: marcato from the shoulder, both hands as one; and the last beat stops short. */
+      const full = (t) => {
+        four(baton, t, FULL)
+        four(baton, t + 4, FULL, { beats: 3 })
+        key(baton, t + 7, {
+          x: HOME - 0.16 * FULL.wide,
+          y: FULL.y - 0.1 * FULL.size,
+          ease: 'beat',
+          lift: 0.27,
+          art: 1,
+          plane: FULL.y,
+          size: FULL.size,
+          land: 0.5,
+        })
+        set('rise', t, [[0.3, 0.004]])
+        set('turn', t, [[0, 0.1]])
+        set('groove', t, [[7, 0]])
+      }
+      /* Two bars. Hits. A dry downbeat with no bounce, and then stabs off the beat (on the swung half of it), to one
+         side and the other, with the pulse kept in the body; the last of them with both hands, up and out. */
+      const hits = (t) => {
+        const DRY = [HOME + 0.01, 0.56]
+        const HELD = [HOME - 0.005, 0.51]
+        at(baton, t, DRY, { ease: 'out' })
+        at(baton, t + 0.32, HELD, { tilt: 0.2 })
+        at(free, t + 0.4, mirrored(HELD))
+        const RIGHT = [0.25, 0.47]
+        at(free, t + 0.9, RIGHT)
+        stab(free, t + 1 + 2 / 3, RIGHT, [0.43, 0.34])
+        const LEFT = [-0.27, 0.46]
+        at(baton, t + 2.2, LEFT, { tilt: 0.3 })
+        stab(baton, t + 3, LEFT, [-0.44, 0.33], { tilt: 0.45 })
+        const HIGH = [0.27, 0.41]
+        at(free, t + 3.6, HIGH)
+        stab(free, t + 4 + 2 / 3, HIGH, [0.4, 0.25])
+        const LOW = [-0.29, 0.4]
+        at(baton, t + 4.6, LOW, { tilt: 0.4 })
+        stab(baton, t + 5 + 2 / 3, LOW, [-0.4, 0.53], { tilt: 0.2 })
+        const UP = [-0.27, 0.45]
+        at(baton, t + 6.15, UP, { tilt: 0.3 })
+        stab(baton, t + 6 + 2 / 3, UP, [-0.41, 0.27], { tilt: 0.6, wind: 0.36 })
+        at(free, t + 6.1, mirrored(UP))
+        stab(free, t + 6 + 2 / 3, mirrored(UP), mirrored([-0.41, 0.27]), { wind: 0.36 })
+        set('mirror', t, [
+          [0.3, 1],
+          [0.6, 0],
+        ])
+        set('energy', t, [[7, 0.9]])
+        set('groove', t, [
+          [0.5, 0.75],
+          [7.5, 1],
+        ])
+        // into each hit
+        set('lean', t, [
+          [0.9, 0],
+          [1.67, 0.05, 'out'],
+          [2.3, 0.02],
+          [2.6, 0.02],
+          [3, -0.055, 'out'],
+          [3.8, -0.01],
+          [4.2, 0],
+          [4.67, 0.045, 'out'],
+          [5.2, 0.01],
+          [5.67, -0.045, 'out'],
+          [6.2, 0],
+        ])
+        set('rise', t, [
+          [-0.5, 0.004],
+          [0.12, -0.016, 'out'],
+          [1, 0],
+        ])
+        set('gaze', t, [
+          [0.6, 0],
+          [1.4, 0.012],
+          [2.2, 0.012],
+          [2.8, -0.014],
+          [3.8, -0.01],
+          [4.5, 0.012],
+          [5.2, 0.008],
+          [5.6, -0.012],
+          [6.4, 0],
+        ])
+        set('turn', t, [
+          [0.4, 0.1],
+          [1.67, 0.5],
+        ])
+      }
+      /* Two bars. It swings by itself: the arms low and easy, a flick of the wrist on two and four, the beat in the
+         knees and the shoulders; and the free hand turns the band on, twice round. Then up, into the singing. */
+      const swing = (t, next) => {
+        const EASY = 0.505
+        at(baton, t - 0.5, [-0.3, 0.48], { tilt: 0.2 })
+        for (let i = 0; i < 7; i += 1) {
+          const snap = i % 2 === 1
+          key(baton, t + i, {
+            x: -0.3 + (i % 4 < 2 ? -0.012 : 0.012),
+            y: EASY + (snap ? 0.012 : 0),
+            ease: 'beat',
+            lift: snap ? 0.03 : 0.085,
+            art: snap ? 1.2 : 1.7,
+            plane: EASY,
+            size: 0.085,
+            land: 0.6,
+            tilt: 0.25,
+          })
+        }
+        key(baton, t + 7, {
+          x: -0.3,
+          y: EASY,
+          ease: 'beat',
+          lift: next.size,
+          art: 0.6,
+          plane: next.y,
+          size: next.size,
+          land: 0.6,
+        })
+        at(free, t - 0.4, [0.255, 0.52])
+        for (let i = 0; i < 4; i += 1) {
+          const snap = i % 2 === 1
+          key(free, t + i, {
+            x: 0.25 + (i < 2 ? 0.012 : -0.012),
+            y: 0.55 + (snap ? 0.012 : 0),
+            ease: 'beat',
+            lift: snap ? 0.03 : 0.075,
+            art: snap ? 1.2 : 1.7,
+            plane: 0.55,
+            size: 0.085,
+            land: 0.6,
+          })
+        }
+        const ROLL = [0.275, 0.47]
+        const TURN = 0.045
+        for (let k = 0; k <= 8; k += 1) {
+          const a = (Math.PI / 2) * k
+          at(free, t + 4 + k * 0.5, [ROLL[0] + Math.sin(a) * TURN, ROLL[1] + Math.cos(a) * TURN], {
+            ease: 'line',
+            bow: quarter(TURN),
+          })
+        }
+        set('energy', t, [[1, 0.5]])
+        set('groove', t, [[6.5, 1]])
+        set('turn', t, [[0, 0.2]])
+      }
+      /* Four bars. Legato, and growing: the beat broad, low and round, the free hand drawing the phrases out, across
+         the body and away again, the whole body going with it. And then, at once, next to nothing. */
+      const SUNG = { size: 0.15, wide: 0.24, y: 0.48, art: 0 }
+      const sung = (t) => {
+        const FULLER = { size: 0.18, wide: 0.27, y: 0.485, art: 0.1 }
+        const FULLEST = { size: 0.21, wide: 0.28, y: 0.49, art: 0.3 }
+        four(baton, t, SUNG, { hill: 0.7 })
+        four(baton, t + 4, FULLER, { hill: 0.7 })
+        four(baton, t + 8, FULLEST, { hill: 0.75 })
+        four(baton, t + 12, FULLEST, { hill: 0.8, next: SOFT.size })
+        at(free, t + 0.4, [0.24, 0.53], { bow: -0.05 })
+        at(free, t + 2.4, [0.42, 0.33], { bow: -0.03 })
+        at(free, t + 4.6, [0.1, 0.44], { bow: 0.05 })
+        at(free, t + 6.6, [0.41, 0.27], { bow: 0.02 })
+        at(free, t + 8.2, [0.29, 0.52], { ease: 'line' })
+        at(free, t + 12.4, [0.33, 0.27])
+        at(free, t + 15.3, [0.34, 0.27])
+        set('energy', t, [
+          [0, 0.6],
+          [12, 0.85],
+        ])
+        set('groove', t, [
+          [0, 0.15],
+          [12, 0],
+        ])
+        // with the phrases
+        set('lean', t, [
+          [0, 0],
+          [2.4, 0.04],
+          [4.6, -0.035],
+          [6.6, 0.04],
+          [9, -0.02],
+          [13, 0.01],
+          [16, 0],
+        ])
+        set('rise', t, [
+          [0, 0],
+          [12, 0.006],
+          [15.5, 0.006],
+        ])
+        set('look', t, [
+          [0, 0],
+          [2.4, -0.05],
+          [4.6, 0.04],
+          [6.6, -0.05],
+          [9, 0.02],
+          [14, 0],
+        ])
+        set('gaze', t, [
+          [0, 0],
+          [2.4, 0.012],
+          [4.6, 0],
+          [6.6, 0.012],
+          [9, 0.006],
+          [13, 0],
+        ])
+        set('turn', t, [
+          [0, 0.3],
+          [2.4, 0.8],
+          [4.6, -0.5],
+          [6.6, 0.8],
+          [8.4, 0.9],
+          [12.4, 0.5],
+          [15.6, 0.3],
+        ])
+        set('shake', t, [
+          [9, 0],
+          [12.4, 0.6],
+          [14, 0],
+        ])
+      }
+      /* Two bars. A hush: quick, staccato from the wrist, high and small, the body drawn in a little and the free hand
+         held out flat in front of it, palm down, which keeps the band under. */
+      const hush = (t) => {
+        four(baton, t, SOFT)
+        four(baton, t + 4, SOFT, { next: HALF.size })
+        at(free, t + 0.7, [0.075, 0.485])
+        at(free, t + 3.4, [0.07, 0.5])
+        at(free, t + 6.6, [0.085, 0.52])
+        set('energy', t, [[0.3, 0.35]])
+        set('lean', t, [
+          [0.5, -0.012],
+          [7, -0.012],
+        ])
+        set('rise', t, [
+          [0.3, -0.008],
+          [7, -0.008],
+        ])
+        set('look', t, [
+          [0.5, -0.03],
+          [7, -0.03],
+        ])
+        set('nod', t, [
+          [0.5, 0.008],
+          [7, 0.008],
+        ])
+        set('turn', t, [
+          [0.6, -1],
+          [7, -1],
+        ])
+      }
+      /* Two bars. It grows: the pattern larger and lower each bar, the free hand rising palm up from the waist, the
+         body straightening. Then three, and both arms open, out and up, for what is coming. */
+      const grow = (t) => {
+        four(baton, t, HALF, { next: LOUD.size })
+        four(baton, t + 4, LOUD, { beats: 2 })
+        key(baton, t + 6, {
+          x: HOME - 0.62 * LOUD.wide,
+          y: LOUD.y,
+          ease: 'beat',
+          lift: 0.1,
+          art: 0.8,
+          plane: LOUD.y,
+          size: LOUD.size,
+        })
+        key(baton, t + 7, {
+          x: -0.36,
+          y: 0.44,
+          ease: 'beat',
+          lift: 0.25,
+          art: 1,
+          plane: 0.52,
+          size: 0.3,
+          from: 0.5,
+          land: 0.97,
+        })
+        at(free, t, [0.22, 0.6], { ease: 'line' })
+        at(free, t + 5.6, [0.3, 0.34])
+        at(free, t + 6.1, [0.3, 0.34])
+        at(free, t + 6.8, mirrored([-0.36, 0.44]))
+        set('mirror', t, [
+          [6.2, 0],
+          [6.9, 1],
+        ])
+        set('energy', t, [
+          [0, 0.4],
+          [7, 1],
+        ])
+        set('lean', t, [[4, 0]])
+        set('rise', t, [
+          [6.5, 0.01],
+          [7.5, 0.02],
+        ])
+        set('look', t, [[3, 0]])
+        set('nod', t, [[5, 0]])
+        set('turn', t, [
+          [0.5, 0.9],
+          [5.6, 0.6],
+          [7, 0.1],
+        ])
+      }
+      /* Two bars. The great downbeat; its bounce carries both arms up and out into a pause, held, trembling; then the
+         cut-off, each hand turning once round to where it began (inward over the top), and stillness. */
+      const climax = (t) => {
+        at(baton, t, [-0.225, 0.56], { ease: 'out' })
+        at(baton, t + 1.35, [-0.41, 0.245], { ease: 'line', tilt: 0.8 })
+        at(baton, t + 5.1, [-0.428, 0.23], { tilt: 0.85 })
+        const CUT = [-0.37, 0.335]
+        const ROUND = 0.05
+        at(baton, t + 5.85, [CUT[0], CUT[1] + ROUND], { ease: 'line', bow: -quarter(ROUND), tilt: 0.6 })
+        at(baton, t + 6.2, [CUT[0] - ROUND, CUT[1]], { ease: 'line', bow: -quarter(ROUND), tilt: 0.65 })
+        at(baton, t + 6.48, [CUT[0], CUT[1] - ROUND], { ease: 'line', bow: -quarter(ROUND), tilt: 0.7 })
+        at(baton, t + 6.74, [CUT[0] + ROUND, CUT[1]], { ease: 'in', bow: -quarter(ROUND), tilt: 0.6 })
+        at(baton, t + 7, [CUT[0], CUT[1] + ROUND], { ease: 'out', tilt: 0.35 })
+        at(baton, t + 7.16, END, { tilt: 0.45 })
+        set('energy', t, [
+          [6, 0.8],
+          [7.5, 0.3],
+        ])
+        set('lean', t, [[0, 0]])
+        set('rise', t, [
+          [0.14, -0.024, 'out'],
+          [1.5, 0.016],
+          [5.5, 0.02],
+          [7.1, 0.002, 'out'],
+        ])
+        set('look', t, [
+          [-2, 0],
+          [1.5, 0.035],
+          [5.5, 0.035],
+          [7.3, 0],
+        ])
+        set('nod', t, [
+          [-0.4, -0.006],
+          [0.15, 0.014, 'out'],
+          [1.5, -0.012],
+          [5.5, -0.014],
+          [7.12, 0.008, 'out'],
+          [7.8, 0],
+        ])
+        set('turn', t, [[7.5, 0.1]])
+        set('shake', t, [
+          [1.2, 0],
+          [2, 1],
+          [5.2, 1],
+          [5.8, 0],
+        ])
+      }
+      ready(0)
+      full(4)
+      hits(12)
+      swing(20, SUNG)
+      sung(28)
+      hush(44)
+      grow(52)
+      climax(60)
+
+      const loop = 68
+      // every track comes round to where it began
+      for (const track of [baton, free, ...Object.values(tracks)]) {
+        track.sort((a, b) => a.t - b.t)
+        const first = track[0]
+        const last = track[track.length - 1]
+        if (first.t > 0) {
+          track.unshift({ ...last, t: last.t - loop })
+          track.push({ ...first, t: first.t + loop })
+        } else {
+          track.push({ ...first, t: loop })
+        }
+      }
+      return { baton, free, tracks, loop }
+    }
+    let written = null
+    const score = () => {
+      if (!written) {
+        written = write()
+      }
+      return written
+    }
+
+    /* A bone is where its part has gone: [a, c, tx, b, d, ty], which takes a place (x, y) of the part at rest to
+       (a x + c y + tx, b x + d y + ty). */
+    const moved = (m, [x, y]) => [m[0] * x + m[1] * y + m[2], m[3] * x + m[4] * y + m[5]]
+    const after = (m, n) => [
+      m[0] * n[0] + m[1] * n[3],
+      m[0] * n[1] + m[1] * n[4],
+      m[0] * n[2] + m[1] * n[5] + m[2],
+      m[3] * n[0] + m[4] * n[3],
+      m[3] * n[1] + m[4] * n[4],
+      m[3] * n[2] + m[4] * n[5] + m[5],
+    ]
+    // turned by an angle (clockwise as we see it) about a place, then carried
+    const about = ([px, py], angle, dx = 0, dy = 0) => {
+      const c = Math.cos(angle)
+      const s = Math.sin(angle)
+      return [c, -s, px - c * px + s * py + dx, s, c, py - s * px - c * py + dy]
+    }
+    // what hangs down from `rest` now runs from `to` along `way`, drawn out `along` its length and `across` it
+    const hung = (rest, to, way, along = 1, across = 1) => {
+      const a = way[1] * across
+      const b = -way[0] * across
+      const c = way[0] * along
+      const d = way[1] * along
+      return [a, c, to[0] - a * rest[0] - c * rest[1], b, d, to[1] - b * rest[0] - d * rest[1]]
+    }
+    const unit = (dx, dy, otherwise) => {
+      const d = Math.hypot(dx, dy)
+      return d > 1e-4 ? [dx / d, dy / d, d] : [otherwise[0], otherwise[1], 0]
+    }
+
+    /* An arm, from its shoulder to where its hand is to be: the hand a little in front of the body, more so the closer
+       in it is, and the elbow where a conductor's is, away from the body, lower than the hand and a little behind it,
+       rising and going out as the hand rises (`raise`). The arm is worked out in the round and seen from the front, so
+       a part of it that comes towards us is drawn shorter. */
+    const ARM = DOCS_REST.upper + DOCS_REST.fore
+    const reach = (shoulder, hand, side, raise) => {
+      let dx = hand[0] - shoulder[0]
+      let dy = hand[1] - shoulder[1]
+      let flat = Math.hypot(dx, dy)
+      const most = ARM * 0.985
+      if (flat > most) {
+        dx *= most / flat
+        dy *= most / flat
+        flat = most
+      }
+      const forward = 0.07 * (1 - smooth(0.55 * ARM, 0.98 * ARM, flat)) + 0.12 * (1 - smooth(0.04, 0.2, flat))
+      const dz = Math.min(forward, Math.sqrt(Math.max(0, most * most - flat * flat)))
+      const far = Math.hypot(flat, dz)
+      const way = [dx / far, dy / far, dz / far]
+      const along = (DOCS_REST.upper * DOCS_REST.upper - DOCS_REST.fore * DOCS_REST.fore + far * far) / (2 * far)
+      const out = Math.sqrt(Math.max(0, DOCS_REST.upper * DOCS_REST.upper - along * along))
+      const pole = [side * (0.5 + 0.4 * raise), 0.85 - 0.4 * raise, -0.4 + 0.15 * raise]
+      const dot = pole[0] * way[0] + pole[1] * way[1] + pole[2] * way[2]
+      const off = [pole[0] - dot * way[0], pole[1] - dot * way[1], pole[2] - dot * way[2]]
+      const length = Math.hypot(off[0], off[1], off[2]) || 1
+      return {
+        elbow: [
+          shoulder[0] + way[0] * along + (off[0] / length) * out,
+          shoulder[1] + way[1] * along + (off[1] / length) * out,
+        ],
+        wrist: [shoulder[0] + dx, shoulder[1] + dy],
+        near: dz,
+      }
+    }
+
+    /* How the figure stands at a moment: where the hips, the chest and the head have gone, and each arm from shoulder
+       to fingers. */
+    const stance = (clock) => {
+      const { baton, free, tracks, loop } = score()
+      const t = clock * BEATS
+      const value = (name) => valueAt(tracks[name], t, loop)
+      const energy = value('energy')
+      const groove = value('groove')
+      // the hands, in the chest's own terms; they tremble in a held note
+      const shake = value('shake')
+      const mirror = value('mirror')
+      const lead = handAt(baton, t, loop)
+      const twin = handAt(baton, t - 0.02 * BEATS, loop)
+      const own = handAt(free, t, loop)
+      const other = [blend(own[0], 2 * DOCS_REST.centre - twin[0], mirror), blend(own[1], twin[1], mirror)]
+      lead[0] += shake * 0.0035 * Math.sin(clock * 46)
+      lead[1] += shake * 0.003 * Math.sin(clock * 39 + 1)
+      other[0] += shake * 0.004 * Math.sin(clock * 43 + 2)
+      other[1] += shake * 0.0035 * Math.sin(clock * 37 + 4)
+      /* The body takes the beat a moment after the hand: up with the upbeat, as with a breath, and down into the
+         ictus. When the music swings, the beat is in the knees, deeper on two and four, and the shoulders rock. */
+      const late = handAt(baton, t - 0.07 * BEATS, loop)
+      const later = handAt(baton, t - 0.13 * BEATS, loop)
+      const bar = (((t - 0.05 * BEATS) % 4) + 4) % 4
+      const backbeat = Math.floor(bar) % 2 === 1 ? 1 : 0.4
+      const rock = groove * Math.cos((Math.PI * (bar - 1)) / 2)
+      const lift =
+        0.075 * energy * late[3] -
+        0.05 * energy * late[4] +
+        value('rise') -
+        groove * 0.021 * backbeat * pulse(bar % 1) +
+        0.0025 * Math.sin((clock * Math.PI * 2) / 3.7)
+      const lean = value('lean') + 0.1 * energy * (later[0] - HOME) * smooth(0, 0.1, later[3] + 0.05) + 0.028 * rock
+      const sway = 0.011 * rock
+      const hips = [1, 0, sway * 0.35, 0, 1, -lift * 0.55]
+      const chest = after([1, 0, sway, 0, 1, -lift], about(DOCS_REST.hips, lean))
+      // the head a moment after the chest again: it nods into the beat, keeps itself upright, and tips with the swing
+      const bob = 0.04 * energy * later[4] + groove * 0.008 * backbeat * pulse((((bar - 0.12) % 1) + 1) % 1)
+      const head = after(
+        chest,
+        about(
+          DOCS_REST.neck,
+          value('look') - 0.45 * lean - 0.05 * groove * Math.cos((Math.PI * (bar - 1.25)) / 2),
+          value('gaze'),
+          value('nod') + bob,
+        ),
+      )
+      const arms = [lead, other].map((target, arm) => {
+        const hand = moved(chest, target)
+        // nothing goes up behind the words: a hand keeps under the top of the head
+        hand[1] = Math.max(hand[1], 0.05)
+        const shoulder = moved(chest, DOCS_REST.shoulders[arm])
+        const raise = smooth(-0.14, 0.2, shoulder[1] - hand[1]) * (0.6 + 0.4 * energy)
+        // the shoulder lifts a little with the arm
+        shoulder[1] -= 0.014 * raise
+        const { elbow, wrist, near } = reach(shoulder, hand, arm === 0 ? -1 : 1, raise)
+        const upper = unit(elbow[0] - shoulder[0], elbow[1] - shoulder[1], [0, 1])
+        const fore = unit(wrist[0] - elbow[0], wrist[1] - elbow[1], upper)
+        return { shoulder, elbow, wrist, upper, fore, fingers: fore, near }
+      })
+      // The free hand's fingers: turned from the forearm's line at the wrist, and trailing a little behind its way.
+      const before = handAt(free, t - 0.05 * BEATS, loop)
+      const twinBefore = handAt(baton, t - 0.07 * BEATS, loop)
+      const vx = (other[0] - blend(before[0], 2 * DOCS_REST.centre - twinBefore[0], mirror)) / 0.05
+      const vy = (other[1] - blend(before[1], twinBefore[1], mirror)) / 0.05
+      const turn = value('turn')
+      const { fore } = arms[1]
+      arms[1].fingers = unit(
+        fore[0] * Math.cos(turn) - fore[1] * Math.sin(turn) - 0.07 * vx,
+        fore[0] * Math.sin(turn) + fore[1] * Math.cos(turn) - 0.07 * vy,
+        fore,
+      )
+      return { hips, chest, head, arms }
+    }
+
+    /* The pose at a moment: how the figure stands, and the baton in its hand. The baton is held, so it carries on from
+       the forearm as a stick does from the hand that grips it, cocked up at the wrist and a touch in towards the
+       middle: where the forearm lies across the picture the baton follows its line, and where it comes towards us
+       (and is drawn short) the baton simply stands up out of the fist. It follows the forearm a moment late, so that
+       it is still coming down as the hand bounces off the ictus and then flicks up after it, as a wrist's click does;
+       and at the ictus the wrist tips it towards the players, which from the front makes it a little shorter. The
+       fist turns with what it holds. Nothing goes up behind the words: there the baton tips further towards us. */
+    const poseAt = (clock) => {
+      const now = stance(clock)
+      const { baton, loop } = score()
+      const hand = now.arms[0]
+      const was = stance(clock - 0.045).arms[0].fore
+      const lagging = handAt(baton, (clock - 0.045) * BEATS, loop)
+      const upright = smooth(-0.12, 1, clamp(lagging[2], -0.3, 1.1))
+      const cock = blend(0.5, 0.95, upright)
+      const across = was[2] / DOCS_REST.fore
+      const stick = unit(was[0] * across + 0.15 * cock, was[1] * across - 0.85 * cock, [0, -1])
+      hand.fingers = unit(
+        (hand.fore[0] * hand.fore[2]) / DOCS_REST.fore + stick[0],
+        (hand.fore[1] * hand.fore[2]) / DOCS_REST.fore + stick[1],
+        stick,
+      )
+      const grip = [hand.wrist[0] + hand.fingers[0] * DOCS_REST.grip, hand.wrist[1] + hand.fingers[1] * DOCS_REST.grip]
+      // how much of its length is seen
+      let seen = blend(0.84, 1, upright)
+      const rise = -stick[1] * DOCS_REST.baton * seen
+      const room = grip[1] + 0.01
+      if (rise > room) {
+        seen *= Math.max(0.3, room / rise)
+      }
+      const reach = DOCS_REST.baton * seen
+      return { ...now, grip, stick, seen, tip: [grip[0] + stick[0] * reach, grip[1] + stick[1] * reach] }
+    }
+
+    /* The bones at a moment, six numbers each, into `out` (see `conduct`). The light behind the baton's tip is a ribbon
+       along the way the tip has just come, finer the older it is: the tip's place is worked out at a few moments back,
+       and the ribbon's pieces, each a short stroke at rest, are laid end to end along the way between them, drawn out
+       to the length of their stretch of it. With the tip at rest they close up into a point of light on it. */
+    const TRAIL = { long: 0.13, knots: 5 }
+    const knots = []
+    const wayBack = (k) => {
+      const back = (k / DOCS_TRAIL) * (TRAIL.knots - 1)
+      const i = Math.min(TRAIL.knots - 2, Math.floor(back))
+      return [blend(knots[i][0], knots[i + 1][0], back - i), blend(knots[i][1], knots[i + 1][1], back - i)]
+    }
+    const pose = (clock, out) => {
+      const now = poseAt(clock)
+      out.set(now.hips, DOCS_BONE.hips * 6)
+      out.set(now.chest, DOCS_BONE.chest * 6)
+      out.set(now.head, DOCS_BONE.head * 6)
+      now.arms.forEach((arm, index) => {
+        const o = (index * 4 + DOCS_BONE.upper) * 6
+        const [x, y] = DOCS_REST.shoulders[index]
+        // what is nearer to us is a little larger
+        const size = 1 + 0.4 * arm.near
+        out.set(hung([x, y], arm.shoulder, arm.upper, Math.max(0.3, arm.upper[2] / DOCS_REST.upper)), o)
+        out.set(
+          hung(
+            [x, y + DOCS_REST.upper],
+            arm.elbow,
+            arm.fore,
+            Math.max(0.3, arm.fore[2] / DOCS_REST.fore),
+            blend(1, size, 0.5),
+          ),
+          o + 6,
+        )
+        out.set(hung([x, y + ARM], arm.wrist, arm.fingers, size, size), o + 12)
+      })
+      const [x, y] = DOCS_REST.shoulders[0]
+      out.set(hung([x, y + ARM + DOCS_REST.grip], now.grip, now.stick, now.seen), DOCS_BONE.baton * 6)
+      knots[0] = now.tip
+      for (let k = 1; k < TRAIL.knots; k += 1) {
+        knots[k] = poseAt(clock - (TRAIL.long * k) / (TRAIL.knots - 1)).tip
+      }
+      let from = wayBack(0)
+      for (let k = 0; k < DOCS_TRAIL; k += 1) {
+        const to = wayBack(k + 1)
+        const along = unit(to[0] - from[0], to[1] - from[1], now.stick)
+        const fine = (1 - (k + 0.5) / DOCS_TRAIL) ** 1.3
+        out.set(
+          hung([0, -DOCS_REST.ribbon / 2], from, along, Math.max(along[2] / DOCS_REST.ribbon, 0.3), fine),
+          (DOCS_BONE.trail + k) * 6,
+        )
+        from = to
+      }
+      return out
+    }
+    return { pose, poseAt, score, bpm: BPM }
+  })()
+
   /* How much of the ground the flowers cover where a drift is thickest, by how near. */
   const DOCS_COVER = [
     [0, 2.2],
@@ -5315,6 +6311,10 @@
     // and that light goes into the canvas's foot whole, as the photograph's frame cuts the figure off: white into a light
     // page, fading smoothly into a dark one, never breaking into specks there (see LIGHT_FOOT in the strokes' shader)
     lightFoot: true,
+    // the figure conducts (see the conductor): the page opens on it coming to the ready, and the still picture is the
+    // pause it holds after the great downbeat, both arms up and wide and the baton high, clear of where the still
+    // picture's butterflies rest
+    conduct: { bones: DOCS_BONES, pose: docsConductor.pose, lead: 0.5, still: 28.64 },
     land: {
       ...HERO.land,
       profile: DOCS_FAR,
@@ -5478,6 +6478,8 @@
       light: ['#ffffff', '#ffffff'],
       lightWarm: ['#fffaf0', '#fff6e6'],
       lightGlow: ['#fff0cf', '#ffe6b0'],
+      // the breath of shade an arm lays on the body it crosses, so that white over white can still be read
+      lightShade: ['#e9e1d2', '#e4dccd'],
     },
     clouds: [],
     plant: (garden) => {
@@ -5489,10 +6491,13 @@
       const top = words.y + words.b + Math.max(24, 28 * s)
       const tall = (h - top) * 1.07
       const at = ([x, y]) => [fx + x * tall, top + y * tall]
-      const rings = [DOCS_SILHOUETTE.outer.map(at), ...DOCS_SILHOUETTE.holes.map((r) => r.map(at))]
+      // The conductor's bones move what is painted here, so they are told where the figure stands and how tall it is.
+      garden.rig({ x: fx, y: top, tall })
+      const shapes = docsShapes()
+      const body = [shapes.body.map(at)]
       let left = Number.POSITIVE_INFINITY
       let right = Number.NEGATIVE_INFINITY
-      for (const [x] of rings[0]) {
+      for (const [x] of body[0]) {
         left = Math.min(left, x)
         right = Math.max(right, x)
       }
@@ -5535,9 +6540,12 @@
           order: o.order + laid * 1e-7,
         })
       }
-      // Where a column down the canvas crosses the figure: its runs of figure, top to bottom (even-odd, so the light at
-      // its waist is left out).
-      const runsAt = (x) => {
+      // A stroke says in its phase which bone moves it (see `conduct`): 600 and the bone, and then how much of itself
+      // it gives to the bone before, in nine tenths. A place on the body takes its bones from how high it is.
+      const held = (bone, share = 1) => 600 + bone + 0.9 * (1 - share)
+      const bodyBone = (y) => held(...docsSkin((y - top) / tall))
+      // Where a column down the canvas crosses a shape: its runs of the shape, top to bottom.
+      const runsAt = (rings, x) => {
         const ys = []
         for (const r of rings) {
           for (let i = 0; i < r.length; i += 1) {
@@ -5555,14 +6563,21 @@
         }
         return runs
       }
-      const inFigure = (x, y) => runsAt(x).some(([a, b]) => y > a && y < b)
+      const inFigure = (x, y) => runsAt(body, x).some(([a, b]) => y > a && y < b)
       const HAZE = 0.4 + DOCS_EVEN
-      // Its body filled in columns, each run in short lengths so no stroke tapers far from its ends; and down to a little
-      // past the canvas's foot, which cuts it off there (its light goes into the foot whole: see `lightFoot`).
-      const fill = (n, { col, blur, load, paints, order }) => {
+      // A shape filled in columns, each run in short lengths so no stroke tapers far from its ends; and down to a little
+      // past the canvas's foot, which cuts the figure off there (its light goes into the foot whole: see `lightFoot`).
+      // Its strokes are moved by `bone`, and carry `load`, each of which can go by how far down the canvas a stroke is.
+      const fill = (n, rings, { col, blur, load, paints, order, bone }) => {
+        let from = Number.POSITIVE_INFINITY
+        let to = Number.NEGATIVE_INFINITY
+        for (const [x] of rings[0]) {
+          from = Math.min(from, x)
+          to = Math.max(to, x)
+        }
         let k = n
-        for (let x = left + col / 2; x < right; x += col) {
-          for (const [a, b0] of runsAt(x)) {
+        for (let x = from + col / 2; x < to; x += col) {
+          for (const [a, b0] of runsAt(rings, x)) {
             const b = Math.min(b0, h + 24)
             if (b - a < 0.6) {
               continue
@@ -5571,19 +6586,24 @@
             const seg = (b - a) / segs
             for (let q = 0; q < segs; q += 1) {
               const long = seg / 2 + col * 0.55
-              put(k, {
-                x,
-                y: a + (q + 0.5) * seg,
-                long,
-                wide: clamp((col * 0.78) / long, 0.02, 1.4),
-                turn: Math.PI / 2,
-                paints,
-                load,
-                blur,
-                kind: HAZE,
-                order,
-                light: true,
-              })
+              const y = a + (q + 0.5) * seg
+              const carried = typeof load === 'function' ? load(y) : load
+              if (carried > 0.004) {
+                put(k, {
+                  x,
+                  y,
+                  long,
+                  wide: clamp((col * 0.78) / long, 0.02, 1.4),
+                  turn: Math.PI / 2,
+                  paints,
+                  load: carried,
+                  blur,
+                  kind: HAZE,
+                  order,
+                  light: true,
+                  phase: typeof bone === 'function' ? bone(y) : bone,
+                })
+              }
               k += 1
             }
           }
@@ -5622,37 +6642,123 @@
         order: ord - 0.09,
         light: true,
       })
-      fill(50000, {
-        col: Math.max(5, tall * 0.026),
-        blur: tall * 0.13,
-        load: 0.38,
-        paints: ['lightGlow', 'lightWarm'],
-        order: ord - 0.085,
-      })
-      fill(100000, {
-        col: Math.max(3.5, tall * 0.018),
-        blur: tall * 0.065,
-        load: 0.72,
-        paints: ['lightWarm', 'light'],
-        order: ord - 0.08,
-      })
-      fill(200000, {
-        col: Math.max(2.4, tall * 0.01),
-        blur: tall * 0.022,
-        load: 0.9,
-        paints: ['light', 'lightWarm'],
-        order: ord - 0.07,
-      })
+      // The light's layers, each as [how wide its columns are, how soft, how much paint, its paints], and what paints
+      // a shape in them: the two glows under everything, then (for the body) its white, close and then closest.
+      const WIDE = { col: Math.max(5, tall * 0.026), blur: tall * 0.13, load: 0.38, paints: ['lightGlow', 'lightWarm'] }
+      const CLOSE = { col: Math.max(3.5, tall * 0.018), blur: tall * 0.065, load: 0.72, paints: ['lightWarm', 'light'] }
+      const WHITE = { col: Math.max(2.4, tall * 0.01), blur: tall * 0.022, load: 0.9, paints: ['light', 'lightWarm'] }
       // (its edge no softer than this, or the shape goes vague)
-      fill(300000, {
+      const EDGE = {
         col: Math.max(1.6, tall * 0.0065),
         blur: Math.max(1.6, tall * 0.007),
         load: 1,
         paints: ['light', 'light'],
-        order: ord - 0.06,
+      }
+      fill(50000, body, { ...WIDE, order: ord - 0.085, bone: bodyBone })
+      fill(100000, body, { ...CLOSE, order: ord - 0.08, bone: bodyBone })
+      fill(200000, body, { ...WHITE, order: ord - 0.07, bone: bodyBone })
+      fill(300000, body, { ...EDGE, order: ord - 0.06, bone: bodyBone })
+      /* The arms, each part hanging at rest from its bone (see the conductor), in the same light: their glows go under
+         the body's white with its own, so that an arm beside the body shares its aura; their white goes over the body,
+         the free arm's first and the baton arm's over that. And so that an arm crossing the body can still be read,
+         white over white, it lays the faintest breath of shade round itself first, a rim just wider than the arm (see
+         DOCS_SHADE): none of it at the shoulder, where the arm simply joins the body, and none of an arm's on its own
+         other parts, which would draw its joints. */
+      const rims = docsShapes(DOCS_SHADE.reach).arms
+      shapes.arms.forEach((arm, index) => {
+        const front = index === 0 ? 0.024 : 0
+        const shoulder = top + DOCS_REST.shoulders[index][1] * tall
+        const shade = (y) => DOCS_SHADE.load * smooth(shoulder + tall * 0.05, shoulder + tall * 0.16, y)
+        const rim = rims[index]
+        ;[arm.upper, arm.fore, arm.hand].forEach((ring, part) => {
+          const rings = [ring.map(at)]
+          const bone = held(DOCS_BONE.upper + index * 4 + part)
+          const n = 400000 + index * 100000 + part * 25000
+          fill(n, rings, { ...WIDE, order: ord - 0.0845, bone })
+          fill(n + 5000, rings, { ...CLOSE, order: ord - 0.0795, bone })
+          fill(n + 10000, [[rim.upper, rim.fore, rim.hand][part].map(at)], {
+            col: WHITE.col,
+            blur: tall * DOCS_SHADE.soft,
+            load: shade,
+            paints: ['lightShade', 'lightShade'],
+            order: ord - 0.05 + front,
+            bone,
+          })
+          fill(n + 15000, rings, { ...WHITE, order: ord - 0.046 + front, bone })
+          fill(n + 20000, rings, { ...EDGE, order: ord - 0.042 + front, bone })
+        })
       })
+      /* The baton, hanging at rest from the fist: a white rod, finer towards its tip, a little light round it, and
+         under it the same breath of shade, so that it too can be read where it crosses the body. It is painted over
+         its own arm's shade and under that arm's white, so that it comes out of the fist whole, with no rim of shade
+         across its foot to part it from the hand. And the light its
+         tip leaves behind: the pieces of a ribbon, each a short stroke painted at the figure's own origin, which its
+         bone lays along the way the tip has just come (see the conductor). */
+      const [bx, by] = at([
+        DOCS_REST.shoulders[0][0],
+        DOCS_REST.shoulders[0][1] + DOCS_REST.upper + DOCS_REST.fore + DOCS_REST.grip,
+      ])
+      const stick = DOCS_REST.baton * tall
+      const rod = (n, count, { thick, blur, load, paints, order }) => {
+        for (let i = 0; i < count; i += 1) {
+          const along = (i + 0.5) / count
+          const long = (stick / count) * 0.8
+          put(n + i, {
+            x: bx,
+            y: by + along * stick,
+            long,
+            wide: (thick[0] + (thick[1] - thick[0]) * along) / long,
+            turn: Math.PI / 2,
+            paints,
+            load,
+            blur,
+            kind: HAZE,
+            order,
+            light: true,
+            phase: held(DOCS_BONE.baton),
+          })
+        }
+      }
+      rod(700000, 4, {
+        thick: [tall * 0.008, tall * 0.006],
+        blur: tall * 0.014,
+        load: 0.3,
+        paints: ['lightShade', 'lightShade'],
+        order: ord - 0.0248,
+      })
+      rod(700100, 4, {
+        thick: [tall * 0.007, tall * 0.005],
+        blur: tall * 0.02,
+        load: 0.5,
+        paints: ['lightWarm', 'lightGlow'],
+        order: ord - 0.0244,
+      })
+      rod(700200, 8, {
+        thick: [Math.max(1.1, tall * 0.006), Math.max(0.6, tall * 0.0026)],
+        blur: 0.7,
+        load: 1,
+        paints: ['light', 'light'],
+        order: ord - 0.024,
+      })
+      const piece = DOCS_REST.ribbon * tall
+      for (let k = 0; k < DOCS_TRAIL; k += 1) {
+        put(800000 + k, {
+          x: fx,
+          y: top,
+          long: piece * 0.85,
+          wide: Math.max(1.2, tall * 0.0055) / (piece * 0.85),
+          turn: Math.PI / 2,
+          paints: ['light', 'lightWarm'],
+          load: 0.34,
+          blur: tall * 0.012,
+          kind: HAZE,
+          order: ord - 0.036,
+          light: true,
+          phase: held(DOCS_BONE.trail + k),
+        })
+      }
       // The motes: small round lights near it, each twinkling at its own pace, a few large and soft; none over the words,
-      // and none on the figure, where one reads as a blinking eye on a blank face.
+      // and none on the figure, where one reads as a blinking eye on a blank face. An arm passes in front of them.
       for (let i = 0; i < 20; i += 1) {
         const n = 5000 + i * 3
         const a = hashed(n * 1.3) * Math.PI * 2
@@ -5674,7 +6780,7 @@
           load: big ? 0.55 : 0.42,
           kind: 3.25,
           blur: core * (big ? 1.6 : 3.2),
-          order: ord + 0.2,
+          order: ord - 0.056,
         })
         put(n + 1, {
           x,
@@ -5686,7 +6792,7 @@
           load: big ? 0.75 : 0.95,
           kind: 3.4,
           blur: big ? core * 0.5 : 0.4,
-          order: ord + 0.21,
+          order: ord - 0.0555,
         })
       }
     },
@@ -8874,6 +9980,25 @@
         `${TALK_PLACE}\n    if (aBlade.z >= 0.999 && aBlade.y >= 399.5 && aBlade.y < ${400 + n}.0) {\n      int fish = int(aBlade.y - 400.0 + 0.5) * 2;\n      float part = aBlade.y - 400.0 - float(fish / 2);\n      vec4 now = uFish[fish];\n      vec4 body = uFish[fish + 1];\n      vec2 rel = pixel - uSchool;\n      if (part > 0.1) {\n        float swing = body.z * sin(now.w) * (part > 0.3 ? -1.0 : 1.0);\n        vec2 shoulder = vec2(0.0, -0.01) * body.x;\n        vec2 arm = rel - shoulder;\n        rel = shoulder + vec2(cos(swing) * arm.x - sin(swing) * arm.y, sin(swing) * arm.x + cos(swing) * arm.y);\n      }\n      float behind = 1.0 - smoothstep(-0.5 * body.x, 0.0, rel.x);\n      rel.y += body.y * behind * sin(now.w + rel.x / max(body.x, 1.0) * 5.0);\n      float c = cos(now.z);\n      float s = sin(now.z);\n      pixel = now.xy + vec2(c * rel.x - s * rel.y, s * rel.x + c * rel.y);\n    }`,
       )
   }
+  /* With `conduct`, a composition's figure moves (see the docs' conductor). A stroke of it stands still (no give) and
+     carries in its phase 600 and the bone that moves it; uRig holds two rows a bone, which take a place of the picture
+     as it was painted to where the bone has carried it: across by the first row, down by the second. A stroke can give
+     some of itself to the bone before its own (how much, in nine tenths, after the bone's number), so that a body
+     bends between two bones rather than breaking. From the fourth bone on (the arms and what they hold) a stroke is
+     put where it was painted before it is moved, whatever stirs the grass there, since the bone has taken it
+     elsewhere. Without it the shader is as it was. */
+  const conductVertex = (mode, vertex) => {
+    if (!mode.conduct || !vertex.includes(TALK_PLACE) || !vertex.includes('uniform float uPixels;')) {
+      return vertex
+    }
+    const n = mode.conduct.bones
+    return vertex
+      .replace('uniform float uPixels;', `uniform float uPixels;\n  uniform vec3 uRig[${n * 2}];`)
+      .replace(
+        TALK_PLACE,
+        `${TALK_PLACE}\n    if (aBlade.z >= 0.999 && aBlade.y >= 599.5 && aBlade.y < ${600 + n}.0) {\n      float marked = aBlade.y - 600.0;\n      int bone = int(marked + 0.02);\n      float held = 1.0 - clamp((marked - float(bone)) / 0.9, 0.0, 1.0);\n      if (bone > 2) {\n        vec2 lie = vec2(cos(aDab.y), sin(aDab.y));\n        pixel = root + lie * local.x + vec2(-lie.y, lie.x) * local.y;\n      }\n      vec3 place = vec3(pixel, 1.0);\n      vec2 carried = vec2(dot(uRig[bone * 2], place), dot(uRig[bone * 2 + 1], place));\n      if (held < 0.999 && bone > 0) {\n        carried = mix(vec2(dot(uRig[bone * 2 - 2], place), dot(uRig[bone * 2 - 1], place)), carried, held);\n      }\n      pixel = carried;\n    }`,
+      )
+  }
   const bloomVertex = (mode) => `#version 300 es
   precision highp float;
   layout(location = 0) in vec2 aCorner;
@@ -10491,7 +11616,11 @@ ${LINE_FILL}`,
     const wanted = [
       ['land', sheets.length > 0, () => send(landVertex(mode), lineFragment(mode))],
       ['blades', true, () => send(BLADE_VERTEX, bladeFragment(mode))],
-      ['blooms', true, () => send(schoolVertex(mode, talkVertex(mode, bloomVertexOf(mode))), bloomFragment(mode))],
+      [
+        'blooms',
+        true,
+        () => send(conductVertex(mode, schoolVertex(mode, talkVertex(mode, bloomVertexOf(mode)))), bloomFragment(mode)),
+      ],
       ['clouds', mode.clouds.length > 0, () => send(CLOUD_VERTEX, CLOUD_FRAGMENT)],
       ['copy', true, () => send(FULL_VERTEX, COPY_FRAGMENT)],
       ['fly', mode.lensed && mode.flock.length > 0, () => send(FLY_VERTEX, FLY_FRAGMENT)],
@@ -10713,6 +11842,8 @@ ${LINE_FILL}`,
     const bladeVao = instanced([4, 4, 4])
     // the first of the strokes that are a school's fish, all the rest after it (see `school`); none until they are laid
     let schoolFrom = Number.POSITIVE_INFINITY
+    // where a figure that moves stands on the canvas and how tall it is, as its planting gave it (see `conduct`)
+    let rigLaid = null
     // A stroke of paint: its root, stem and half-length; its half-width, turn, blur and dice; how it sways and when it
     // grows, as a blade's; and its two colours, what it is, and how much paint it carries or how many petals it has.
     const bloomVao = instanced([4, 4, 4, 4])
@@ -12151,6 +13282,10 @@ ${LINE_FILL}`,
           // the band, in CSS pixels down the canvas, across which strokes marked as mist thin away upward (see `mist`)
           mist: (from, to) => {
             mistBand = [from, to]
+          },
+          // where the figure that the composition's bones move stands, and how tall it is (see `conduct`)
+          rig: (stood) => {
+            rigLaid = stood
           },
         })
         if (perching) {
@@ -13595,6 +14730,56 @@ ${LINE_FILL}`,
         gl.uniform4fv(u.uFish, schoolNow())
         gl.uniform2f(u.uSchool, grownFor.w / 2, grownFor.h / 2)
       }
+      if (mode.conduct && u.uRig) {
+        gl.uniform3fv(u.uRig, rigNow())
+      }
+    }
+    /* The rig (see `conduct`): where each bone has carried its part just now, two rows of three numbers a bone for the
+       strokes' shader, in the canvas's own pixels. The composition's pose is in its figure's terms, so each bone is
+       put on the canvas where the figure was painted (garden.rig gave the place); and while the meadow is being moved
+       with the land rather than laid out again (see moveMeadow), the bones are moved as the strokes were. Worked out
+       once a frame; a still picture shows the composition's still moment. */
+    const rigData = mode.conduct ? new Float32Array(mode.conduct.bones * 6) : null
+    const rigPose = mode.conduct ? new Float32Array(mode.conduct.bones * 6) : null
+    const rigFor = { at: Number.NaN, sx: 0, sy: 0, ty: 0, stood: null }
+    const rigNow = () => {
+      const { bones, pose, lead = 0, still = 0 } = mode.conduct
+      const at = isStill() ? still : clock + lead
+      const sx = cssW / grownFor.w
+      const sy = landRoom / grownFor.room
+      const ty = landBase - grownFor.base * sy
+      if (rigFor.at === at && rigFor.sx === sx && rigFor.sy === sy && rigFor.ty === ty && rigFor.stood === rigLaid) {
+        return rigData
+      }
+      rigFor.at = at
+      rigFor.sx = sx
+      rigFor.sy = sy
+      rigFor.ty = ty
+      rigFor.stood = rigLaid
+      if (!rigLaid) {
+        // nothing is painted yet: every bone leaves its part where it is
+        for (let bone = 0; bone < bones; bone += 1) {
+          rigData.set([1, 0, 0, 0, 1, 0], bone * 6)
+        }
+        return rigData
+      }
+      pose(at, rigPose)
+      const { x, y, tall } = rigLaid
+      for (let o = 0; o < bones * 6; o += 6) {
+        const a = rigPose[o]
+        const c = rigPose[o + 1]
+        const b = rigPose[o + 3]
+        const d = rigPose[o + 4]
+        const across = x - a * x - c * y + tall * rigPose[o + 2]
+        const down = y - b * x - d * y + tall * rigPose[o + 5]
+        rigData[o] = a
+        rigData[o + 1] = (c * sx) / sy
+        rigData[o + 2] = sx * (across - (c * ty) / sy)
+        rigData[o + 3] = (b * sy) / sx
+        rigData[o + 4] = d
+        rigData[o + 5] = sy * down - d * ty + ty
+      }
+      return rigData
     }
     /* The school (see `school`): for each fish, where it is just now, its heading and the beat of its tail, then its
        length, how far its tail swings and how far its wings swing, two vec4 a fish for the strokes' shader. All of them
