@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.21.7",
+    "date": "2026-11-20",
+    "title": "Polish and bug fixes shipped",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0217",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.21.6",
     "date": "2026-11-20",
     "title": "Request validation now works for nullable schemas without explicit types",

@@ -1,5 +1,22 @@
 # @scalar/workspace-store
 
+## 0.76.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+- [#11147](https://github.com/scalar/scalar/pull/11147): Honor OpenAPI 3.2 `dataValue` and `serializedValue` examples for multipart part headers. Serialize structured header values using simple style and preserve explicit falsy examples and serialized text.
+  Use schema fallbacks for null examples and omit the header when no value is available.
+- [#11148](https://github.com/scalar/scalar/pull/11148): Resolve URI security requirements in Node Markdown exports for OpenAPI 3.2 descriptions.
+
+  Follow annotated security scheme references when resolving URI requirements.
+
+  Preserve security scheme reference descriptions in OpenAPI 3.1 and 3.2 Markdown exports.
+
 ## 0.75.0
 
 ### Minor Changes

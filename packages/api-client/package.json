@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "3.28.1",
+  "version": "3.29.0",
   "engines": {
     "node": ">=22"
   },

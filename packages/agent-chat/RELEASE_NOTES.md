@@ -9,6 +9,15 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.58 (2026-11-20)
+
+### Prevent CSP eval violations and dependency updates
+
+- Fixed Content Security Policy eval violation reports when loading OAuth authentication and AI Chat under strict CSP.
+- Updated dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01258)
+
 ## 0.12.57 (2026-11-20)
 
 ### Polish and bug fixes
