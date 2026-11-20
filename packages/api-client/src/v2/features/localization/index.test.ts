@@ -1,11 +1,11 @@
 import type { ApiReferenceLocalization } from '@scalar/types/api-reference'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
 import ResponseEmpty from '@/v2/blocks/response-block/components/ResponseEmpty.vue'
 
-import { provideLocalization, resolveLocalization, useLocalization } from './index'
+import { loadLocale, provideLocalization, resolveLocalization, useLocalization } from './index'
 import { ar } from './locales/ar'
 import { de } from './locales/de'
 import { es } from './locales/es'
@@ -24,6 +24,31 @@ const Consumer = defineComponent({
 })
 
 describe('index', () => {
+  it('renders English until a lazy locale loads, then switches without host code', async () => {
+    // A fresh module graph, so no other test in this file has loaded French yet.
+    vi.resetModules()
+    const fresh = await import('./index')
+    const FreshConsumer = defineComponent({
+      setup() {
+        const { translate, locale } = fresh.useLocalization()
+        return () => h('button', { lang: locale.value }, translate('apiClient.addressBar.send'))
+      },
+    })
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          fresh.provideLocalization({ locale: 'fr-CA' })
+          return () => h(FreshConsumer)
+        },
+      }),
+    )
+
+    expect(wrapper.text()).toBe('Send')
+    expect(wrapper.attributes('lang')).toBe('fr-CA')
+    await vi.waitFor(() => expect(wrapper.text()).toBe('Envoyer'))
+    wrapper.unmount()
+  })
+
   it.each(Object.entries({ en, ru, es, fr, de, 'zh-CN': zhCn, 'zh-TW': zhTw, ar, pt }))(
     'includes every client key and preserves interpolation placeholders in %s',
     (_locale, dictionary) => {
@@ -54,11 +79,13 @@ describe('index', () => {
     ['zh-MO', '发送'],
     ['ar-EG', 'إرسال'],
     ['pt-BR', 'Enviar'],
-  ])('selects built-in client translations for %s without overrides', (locale, send) => {
+  ])('selects built-in client translations for %s without overrides', async (locale, send) => {
+    await loadLocale(locale)
     expect(resolveLocalization({ locale }).translations.apiClient.addressBar.send).toBe(send)
   })
 
-  it('merges custom strings over the selected built-in language', () => {
+  it('merges custom strings over the selected built-in language', async () => {
+    await loadLocale('de')
     const { translations } = resolveLocalization({
       locale: 'de',
       translations: { apiClient: { addressBar: { send: 'Abschicken' } } },
@@ -78,6 +105,7 @@ describe('index', () => {
   })
 
   it('reacts to replacement of configuration and restores defaults when overrides are removed', async () => {
+    await Promise.all(['de', 'zh-TW', 'ar'].map((locale) => loadLocale(locale)))
     const localization = ref<ApiReferenceLocalization>({
       locale: 'de',
       translations: { apiClient: { addressBar: { send: 'Abschicken' } } },

@@ -1,5 +1,4 @@
-import { schemaTranslations } from '@scalar/blocks/schema'
-import type { ApiReferenceTranslations } from '@scalar/types/api-reference'
+import type { ReferenceTranslations } from '../translations'
 
 export const zhCn = {
   common: {
@@ -92,7 +91,6 @@ export const zhCn = {
     showSchema: '显示 Schema',
     status: '状态',
   },
-  schema: schemaTranslations['zh-CN'].schema,
   download: {
     openapi: '下载 OpenAPI 文档',
     asyncapi: '下载 AsyncAPI 文档',
@@ -262,4 +260,4 @@ export const zhCn = {
     requires: '需要',
     scopes: 'OAuth 作用域',
   },
-} satisfies ApiReferenceTranslations
+} satisfies ReferenceTranslations

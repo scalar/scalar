@@ -187,6 +187,7 @@ import { getClients } from '../helpers/get-clients'
 import { getCustomCodeSamples } from '../helpers/get-custom-code-samples'
 import { getSecrets } from '../helpers/get-secrets'
 import { operationToHar } from '../helpers/operation-to-har/operation-to-har'
+import { useClientPlugin } from '../helpers/use-client-plugin'
 import type {
   ClientOption,
   ClientOptionGroup,
@@ -194,6 +195,7 @@ import type {
 } from '../types'
 import ExamplePicker from './ExamplePicker.vue'
 import HttpMethod from './HttpMethod.vue'
+import SnippetIdScope from './SnippetIdScope.vue'
 
 const {
   integration,
@@ -412,10 +414,29 @@ const webhookHar = computed(() => {
   }
 })
 
+/**
+ * Load the selected client's code generator on demand (and wait for it during server rendering).
+ * Webhooks show the payload only, so they never need a generator.
+ *
+ * While it loads, the template renders an empty placeholder: no text, just the space of a short code
+ * block. The placeholder is the same element as the snippet wrapper and has no children on purpose:
+ * when the browser hydrates server markup before the generator arrives, Vue keeps the server-rendered
+ * snippet inside it instead of reporting a mismatch, then swaps in the live snippet.
+ * (Template comments stay out of that v-if chain, in development they would turn a branch into a fragment.)
+ */
+const { isLoading: isGeneratorLoading } = useClientPlugin(() =>
+  isWebhook ? undefined : localSelectedClient.value?.id,
+)
+
 /** Generate the code snippet for the selected example */
 const generatedTemplate = computed<string | null>(() => {
   if (isWebhook) {
     return webhookHar.value?.postData?.text ?? ''
+  }
+
+  // Render the placeholder until the generator arrives, instead of a "not loaded" error
+  if (isGeneratorLoading.value) {
+    return ''
   }
 
   return generateCodeSnippet({
@@ -520,7 +541,10 @@ const id = useId()
 <template>
   <ScalarCard
     v-if="
-      generatedCode === null || generatedCode || externalExamples.pending.value
+      generatedCode === null ||
+      generatedCode ||
+      externalExamples.pending.value ||
+      isGeneratorLoading
     "
     ref="elem"
     class="request-card dark-mode">
@@ -579,56 +603,64 @@ const id = useId()
 
     <!-- Code snippet -->
     <ScalarCardSection class="request-editor-section custom-scroll p-0">
-      <div
-        v-if="externalExamples.pending.value"
-        class="text-c-2 p-4"
-        role="status">
-        <template v-if="externalExamples.failed.value">
-          Could not load this example.
-          <ScalarButton
-            size="sm"
-            variant="ghost"
-            @click="externalExamples.retry">
-            Retry
-          </ScalarButton>
-        </template>
-        <template v-else>Loading example…</template>
-      </div>
-      <div
-        v-else-if="generatedCode === null"
-        class="text-c-2 p-4"
-        role="status">
-        {{ codeSampleUnavailable }}
-      </div>
-      <div
-        v-else
-        :id="`${id}-example`"
-        class="code-snippet group/code-block relative">
-        <ScalarCodeBlock
-          v-if="!shouldVirtualize"
-          class="h-full bg-transparent"
-          :content="displayCode ?? ''"
-          :copyContent="resolvedCredentials ? (generatedCode ?? '') : undefined"
-          :hideCredentials="secretCredentials"
-          :label="codeSampleAriaLabel"
-          :lang="codeBlockLanguage"
-          lineNumbers />
-        <template v-else>
-          <ScalarCodeBlockCopy
-            :aria-controls="`${id}-virtual-code`"
-            class="scalar-code-copy absolute top-2.5 right-2.5 z-1"
-            :content="generatedCode"
-            :lang="codeBlockLanguage" />
-          <ScalarVirtualText
-            :id="`${id}-virtual-code`"
-            aria-label="Request code sample"
-            containerClass="custom-scroll scalar-code-block flex flex-1 max-h-screen"
-            contentClass="language-plaintext whitespace-pre font-code text-base p-2"
-            :lineHeight="20"
-            role="region"
-            :text="displayCode ?? ''" />
-        </template>
-      </div>
+      <SnippetIdScope>
+        <div
+          v-if="externalExamples.pending.value"
+          class="text-c-2 p-4"
+          role="status">
+          <template v-if="externalExamples.failed.value">
+            Could not load this example.
+            <ScalarButton
+              size="sm"
+              variant="ghost"
+              @click="externalExamples.retry">
+              Retry
+            </ScalarButton>
+          </template>
+          <template v-else>Loading example…</template>
+        </div>
+        <div
+          v-else-if="isGeneratorLoading"
+          :id="`${id}-example`"
+          class="code-snippet group/code-block relative" />
+        <div
+          v-else-if="generatedCode === null"
+          class="text-c-2 p-4"
+          role="status">
+          {{ codeSampleUnavailable }}
+        </div>
+        <div
+          v-else
+          :id="`${id}-example`"
+          class="code-snippet group/code-block relative">
+          <ScalarCodeBlock
+            v-if="!shouldVirtualize"
+            class="h-full bg-transparent"
+            :content="displayCode ?? ''"
+            :copyContent="
+              resolvedCredentials ? (generatedCode ?? '') : undefined
+            "
+            :hideCredentials="secretCredentials"
+            :label="codeSampleAriaLabel"
+            :lang="codeBlockLanguage"
+            lineNumbers />
+          <template v-else>
+            <ScalarCodeBlockCopy
+              :aria-controls="`${id}-virtual-code`"
+              class="scalar-code-copy absolute top-2.5 right-2.5 z-1"
+              :content="generatedCode"
+              :lang="codeBlockLanguage" />
+            <ScalarVirtualText
+              :id="`${id}-virtual-code`"
+              aria-label="Request code sample"
+              containerClass="custom-scroll scalar-code-block flex flex-1 max-h-screen"
+              contentClass="language-plaintext whitespace-pre font-code text-base p-2"
+              :lineHeight="20"
+              role="region"
+              :text="displayCode ?? ''" />
+          </template>
+        </div>
+      </SnippetIdScope>
     </ScalarCardSection>
 
     <!-- Footer -->
@@ -766,5 +798,11 @@ const id = useId()
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+/* An empty snippet is the loading placeholder: roughly three lines of code plus the code block padding */
+.code-snippet:empty {
+  min-height: calc(
+    3 * var(--scalar-code-line-height, 1.4) * var(--scalar-font-size-3) + 1rem
+  );
 }
 </style>

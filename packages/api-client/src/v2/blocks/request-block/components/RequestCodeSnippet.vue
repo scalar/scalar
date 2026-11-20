@@ -5,6 +5,7 @@ import {
   getClients,
   getCustomCodeSamples,
   getSecrets,
+  useClientPlugin,
   type ClientOption,
   type CodeExampleProps,
   type CustomClientOption,
@@ -87,25 +88,33 @@ const handleClientChange = (option: ClientOption | undefined) => {
   }
 }
 
+/** Code generators load on demand, so wait for the selected client's generator */
+const { isLoading: isGeneratorLoading } = useClientPlugin(
+  () => localSelectedClient.value?.id,
+)
+
 /** Generate the code snippet for the selected example */
 const generatedCode = computed<string | null>(() =>
-  generateCodeSnippet({
-    defaultDisabledParameters: true,
-    clientId: localSelectedClient.value?.id,
-    customCodeSamples: customCodeSamples.value.samples,
-    operation,
-    method,
-    path,
-    contentType: selectedContentType,
-    server: selectedServer,
-    securitySchemes,
-    example: selectedExample,
-    globalCookies,
-    openapiVersion,
-    jsonSchemaDialect,
-    requestBodyCompositionSelection,
-    includeDefaultHeaders: integration === 'client',
-  }),
+  // Render an empty placeholder until the generator arrives, instead of a "not loaded" error
+  isGeneratorLoading.value
+    ? ''
+    : generateCodeSnippet({
+        defaultDisabledParameters: true,
+        clientId: localSelectedClient.value?.id,
+        customCodeSamples: customCodeSamples.value.samples,
+        operation,
+        method,
+        path,
+        contentType: selectedContentType,
+        server: selectedServer,
+        securitySchemes,
+        example: selectedExample,
+        globalCookies,
+        openapiVersion,
+        jsonSchemaDialect,
+        requestBodyCompositionSelection,
+        includeDefaultHeaders: integration === 'client',
+      }),
 )
 
 /** Check if there are any clients available (built-in or custom code samples) */
@@ -156,8 +165,12 @@ const hasClients = computed(() =>
         presentational>
         <DataTableRow>
           <div class="overflow-hidden">
+            <!-- Keep the space of a short code block while the generator loads -->
             <div
-              v-if="generatedCode === null"
+              v-if="isGeneratorLoading"
+              class="min-h-20" />
+            <div
+              v-else-if="generatedCode === null"
               class="text-c-2 p-4"
               role="status">
               {{ translate('apiClient.requestCodeSnippet.unavailable') }}

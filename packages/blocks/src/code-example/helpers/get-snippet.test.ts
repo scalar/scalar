@@ -1,6 +1,7 @@
 import { AVAILABLE_CLIENTS, type ClientId, type TargetId } from '@scalar/snippetz'
+import { preloadClients } from '@scalar/snippetz/lazy'
 import type { Request as HarRequest } from 'har-format'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { getSnippet } from './get-snippet'
 
@@ -19,6 +20,9 @@ const makeHarRequest = (overrides: Partial<HarRequest> = {}): HarRequest => ({
 })
 
 describe('getSnippet', () => {
+  // Generators load on demand, getSnippet only uses loaded ones
+  beforeAll(() => preloadClients(AVAILABLE_CLIENTS))
+
   it('generates a basic shell/curl example (@scalar/snippetz)', () => {
     const [error, result] = getSnippet('shell', 'curl', makeHarRequest())
 

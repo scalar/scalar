@@ -10,7 +10,7 @@ export {
   ScalarCheckboxInput,
   ScalarCheckboxRadioGroup,
 } from './components/ScalarCheckboxInput'
-export { ScalarCodeBlock, ScalarCodeBlockCopy } from './components/ScalarCodeBlock'
+export { ScalarCodeBlock, ScalarCodeBlockCopy, preloadGrammars } from './components/ScalarCodeBlock'
 export {
   ScalarColorModeToggle,
   ScalarColorModeToggleButton,

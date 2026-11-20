@@ -5,10 +5,11 @@ import { ScalarIconPlus } from '@scalar/icons'
 import { POPULAR_CONTEXT_FUNCTION_KEYS } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { onClickOutside } from '@vueuse/core'
-import Fuse from 'fuse.js'
 import { computed, onMounted, ref, watch, type CSSProperties } from 'vue'
 
 import { useLocalization } from '@/v2/features/localization'
+
+import { loadFuse, useFuse } from './load-fuse'
 
 const {
   query,
@@ -101,20 +102,25 @@ const contextFuseSource = computed((): FuseRow[] =>
   })),
 )
 
-const fuseEnv = computed(
-  () =>
-    new Fuse(envFuseSource.value, {
-      keys: ['fuseText'],
-      threshold: 0.35,
-    }),
+/** fuse.js loads the first time a dropdown opens, so these are `null` until it arrives */
+const Fuse = useFuse()
+
+const fuseEnv = computed(() =>
+  Fuse.value
+    ? new Fuse.value(envFuseSource.value, {
+        keys: ['fuseText'],
+        threshold: 0.35,
+      })
+    : null,
 )
 
-const fuseContext = computed(
-  () =>
-    new Fuse(contextFuseSource.value, {
-      keys: ['fuseText'],
-      threshold: 0.35,
-    }),
+const fuseContext = computed(() =>
+  Fuse.value
+    ? new Fuse.value(contextFuseSource.value, {
+        keys: ['fuseText'],
+        threshold: 0.35,
+      })
+    : null,
 )
 
 const popularContextRows = computed((): DropdownRow[] => {
@@ -139,6 +145,11 @@ const filteredVariables = computed((): DropdownRow[] => {
   if (!query.trim()) {
     const envSlice = envRows.value.slice(-4)
     return [...envSlice, ...popularContextRows.value]
+  }
+
+  // Until fuse.js has loaded, show the rows unfiltered rather than an empty list
+  if (!fuseEnv.value || !fuseContext.value) {
+    return [...envRows.value, ...contextRows.value].slice(0, DROPDOWN_LIMIT)
   }
 
   const q = query.trim()
@@ -220,6 +231,8 @@ defineExpose({
 onMounted(() => {
   // Reset selected index to the first item when dropdown opens
   selectedVariableIndex.value = 0
+  // The dropdown mounts when it opens, so this is the first moment fuzzy matching can be needed
+  void loadFuse()
 })
 
 const dropdownStyle = computed<CSSProperties>(() => {

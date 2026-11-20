@@ -33,6 +33,21 @@ describe('ssr', () => {
   })
 
   describe('renderApiReferenceToString', () => {
+    it('renders a lazily loaded locale without any preloading', async () => {
+      const content = {
+        openapi: '3.1.0',
+        info: { title: 'Localized API', version: '1.0.0' },
+        paths: { '/hello': { get: { summary: 'Say hello', responses: { '200': { description: 'Hello' } } } } },
+      }
+
+      const german = await renderApiReferenceToString({ content, localization: { locale: 'de' } })
+      const english = await renderApiReferenceToString({ content })
+
+      expect(german).toContain('OpenAPI-Dokument herunterladen')
+      expect(german).not.toContain('Download OpenAPI Document')
+      expect(english).toContain('Download OpenAPI Document')
+    })
+
     it('returns a non-empty html string', async () => {
       const html = await renderApiReferenceToString({})
 

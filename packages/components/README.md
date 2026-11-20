@@ -120,6 +120,21 @@ The floating element also paints its own surface: `rounded-xl bg-b-1 dark:bg-b-1
 <ScalarPopover class="bg-b-2 dark:bg-b-2">...</ScalarPopover>
 ```
 
+## Code Highlighting
+
+`ScalarCodeBlock` and `ScalarMarkdown` highlight code with [`@scalar/highlight`](https://github.com/scalar/scalar/tree/main/packages/highlight) and load each language's grammar on demand, so a page only downloads the grammars it shows. A block whose grammar has not loaded yet renders as plain text and highlights once it arrives.
+
+Server rendering waits for the grammars, so server-rendered markup is already highlighted. To hydrate it without a mismatch, load the same grammars on the client before mounting:
+
+```ts
+import { preloadGrammars } from '@scalar/components/code-block'
+
+await preloadGrammars(['json', 'shell', 'python'])
+app.mount('#app')
+```
+
+`preloadGrammars` takes the same names as the `lang` prop, aliases included (`js`, `ts`, `sh`). Unknown names are skipped.
+
 ## CSS Layers
 
 The components package uses the same [CSS Layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer) as the themes package to apply the theme styles. For more information see the [themes README](https://github.com/scalar/scalar/tree/main/packages/themes).

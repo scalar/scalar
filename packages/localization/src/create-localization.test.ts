@@ -1,8 +1,10 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { flushPromises, mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
+import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
+import { renderToString } from 'vue/server-renderer'
 
 import { createLocalization } from './create-localization'
+import { isLocaleLoaded, loadLocale } from './locale-registry'
 
 // A tiny, content-agnostic dictionary so these tests exercise the engine, not real copy.
 const en = {
@@ -230,5 +232,281 @@ describe('create-localization', () => {
       'Abschicken / Cancel',
     ])
     wrapper.unmount()
+  })
+
+  describe('lazy locales', () => {
+    /** A loader that resolves only when the test says so, to observe the state in between. */
+    const createDeferredLoader = <T>(value: T) => {
+      let release: () => void = () => undefined
+      const loader = vi.fn(
+        () =>
+          new Promise<T>((resolve) => {
+            release = () => resolve(value)
+          }),
+      )
+
+      return { loader, release: () => release() }
+    }
+
+    it('renders the default locale first and switches once the loader resolves', async () => {
+      const { loader, release } = createDeferredLoader(de)
+      const lazy = createLocalization<Translations, Key>({
+        localeTranslations: { en, de: loader },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            const { translate, locale } = lazy.provideLocalization({
+              locale: 'de-AT',
+              translations: { schema: { save: 'Custom {name}' } },
+            })
+            return () =>
+              h('div', { lang: locale.value }, `${translate('common.greeting')} / ${translate('schema.save')}`)
+          },
+        }),
+      )
+
+      // English plus the custom translations, while the requested locale is already reported.
+      expect(wrapper.text()).toBe('Hello / Custom {name}')
+      expect(wrapper.attributes('lang')).toBe('de-AT')
+      expect(loader).toHaveBeenCalledTimes(1)
+
+      release()
+      await flushPromises()
+
+      expect(wrapper.text()).toBe('Hallo / Custom {name}')
+      wrapper.unmount()
+    })
+
+    it('keeps the requested direction while a right-to-left locale loads', async () => {
+      const { loader, release } = createDeferredLoader(ar)
+      const lazy = createLocalization<Translations, Key>({
+        localeTranslations: { en, ar: loader },
+        defaultLocale: 'en',
+        rtlLocales: new Set(['ar']),
+      })
+
+      const before = lazy.resolveLocalization({ locale: 'ar-EG' })
+      expect(before.direction).toBe('rtl')
+      expect(before.translations.common.greeting).toBe('Hello')
+
+      release()
+      await flushPromises()
+
+      const after = lazy.resolveLocalization({ locale: 'ar-EG' })
+      expect(after.direction).toBe('rtl')
+      expect(after.translations.common.greeting).toBe('مرحبا')
+      expect(lazy.resolveLocalization({ locale: 'ar', direction: 'ltr' }).direction).toBe('ltr')
+    })
+
+    it('keeps the resolution rules for lazy dictionaries', async () => {
+      const lazy = createLocalization<Translations, Key>({
+        localeTranslations: {
+          en,
+          de: async () => de,
+          'zh-CN': async () => ({ common: { greeting: '你好' }, schema: { save: '保存 {name}' } }),
+          'zh-TW': async () => ({ common: { greeting: '您好' }, schema: { save: '儲存 {name}' } }),
+        },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+
+      await Promise.all(['de-DE', 'zh_tw', 'zh-Hant', 'unknown'].map((locale) => lazy.loadLocale(locale)))
+
+      expect(lazy.resolveLocalization({ locale: 'de-DE' }).translations.common.greeting).toBe('Hallo')
+      expect(lazy.resolveLocalization({ locale: 'ZH-tW' }).translations.common.greeting).toBe('您好')
+      expect(lazy.resolveLocalization({ locale: 'zh-Hant' }).translations.common.greeting).toBe('你好')
+      expect(lazy.resolveLocalization({ locale: 'unknown' }).translations.common.greeting).toBe('Hello')
+    })
+
+    it('calls the loader once for concurrent requests of the same locale', async () => {
+      const { loader, release } = createDeferredLoader(de)
+      const lazy = createLocalization<Translations, Key>({
+        localeTranslations: { en, de: loader },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+
+      const first = lazy.loadLocale('de')
+      const second = lazy.loadLocale('de-CH')
+      lazy.resolveLocalization({ locale: 'de' })
+
+      expect(loader).toHaveBeenCalledTimes(1)
+
+      release()
+      await Promise.all([first, second])
+      await lazy.loadLocale('de')
+
+      expect(loader).toHaveBeenCalledTimes(1)
+      expect(lazy.resolveLocalization({ locale: 'de' }).translations.common.greeting).toBe('Hallo')
+    })
+
+    it('retries a failed load on the next request instead of caching the failure', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const loader = vi
+        .fn<() => Promise<Translations>>()
+        .mockRejectedValueOnce(new Error('Network error'))
+        .mockResolvedValueOnce(de)
+      const lazy = createLocalization<Translations, Key>({
+        localeTranslations: { en, de: loader },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+        logPrefix: '[test]',
+      })
+
+      // The failure resolves (never rejects) and keeps the fallback.
+      await expect(lazy.loadLocale('de')).resolves.toBeUndefined()
+      expect(lazy.resolveLocalization({ locale: 'de' }).translations.common.greeting).toBe('Hello')
+      expect(warn).toHaveBeenCalledWith(
+        '[test] Failed to load translations for locale "de". Falling back to "en".',
+        expect.any(Error),
+      )
+
+      // The resolve above already started the retry.
+      await lazy.loadLocale('de')
+
+      expect(loader).toHaveBeenCalledTimes(2)
+      expect(lazy.resolveLocalization({ locale: 'de' }).translations.common.greeting).toBe('Hallo')
+      warn.mockRestore()
+    })
+
+    it('does not throw into a render when a loader throws synchronously', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const lazy = createLocalization<Translations, Key>({
+        localeTranslations: {
+          en,
+          de: () => {
+            throw new Error('Broken loader')
+          },
+        },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            const { translate } = lazy.provideLocalization({ locale: 'de' })
+            return () => h('div', translate('common.greeting'))
+          },
+        }),
+      )
+      await flushPromises()
+
+      expect(wrapper.text()).toBe('Hello')
+      expect(warn).toHaveBeenCalledOnce()
+      wrapper.unmount()
+      warn.mockRestore()
+    })
+
+    it('renders the final translations on the first read after loadLocale resolves', async () => {
+      const reference = createLocalization<Translations, Key>({
+        localeTranslations: {
+          en,
+          nl: vi.fn(async () => ({ common: { greeting: 'Hallo!' }, schema: { save: 'Opslaan {name}' } })),
+        },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+      const clientLoader = vi.fn(async () => ({ client: { send: 'Verzenden' } }))
+      const client = createLocalization<{ client: { send: string } }, 'client.send'>({
+        localeTranslations: { en: { client: { send: 'Send' } }, nl: clientLoader },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+
+      expect(isLocaleLoaded('nl-BE')).toBe(false)
+
+      // One call warms every registered instance, across packages.
+      await loadLocale('nl-BE')
+
+      expect(isLocaleLoaded('nl-BE')).toBe(true)
+      expect(clientLoader).toHaveBeenCalledOnce()
+
+      const Child = defineComponent({
+        setup() {
+          const { translate } = client.useLocalization()
+          return () => h('span', translate('client.send'))
+        },
+      })
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            const { translate } = reference.provideLocalization({ locale: 'nl-BE' })
+            return () => h('div', [translate('common.greeting'), ' / ', h(Child)])
+          },
+        }),
+      )
+
+      expect(wrapper.text()).toBe('Hallo! / Verzenden')
+      wrapper.unmount()
+    })
+
+    it('loads lazy locales before rendering on the server, for providers and cross-package consumers', async () => {
+      const reference = createLocalization<Translations, Key>({
+        localeTranslations: { en, 'x-ssr': async () => de },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+      const client = createLocalization<{ client: { send: string } }, 'client.send'>({
+        localeTranslations: { en: { client: { send: 'Send' } }, 'x-ssr': async () => ({ client: { send: 'Senden' } }) },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+      const Child = defineComponent({
+        setup() {
+          const { translate } = client.useLocalization()
+          return () => h('span', translate('client.send'))
+        },
+      })
+      const app = createSSRApp(
+        defineComponent({
+          setup() {
+            const { translate } = reference.provideLocalization({ locale: 'x-ssr' })
+            return () => h('div', [h('p', translate('common.greeting')), h(Child)])
+          },
+        }),
+      )
+
+      expect(await renderToString(app)).toBe('<div><p>Hallo</p><span>Senden</span></div>')
+    })
+
+    it('loads a consumer dictionary on the server when it registers after the provider loaded', async () => {
+      const reference = createLocalization<Translations, Key>({
+        localeTranslations: { en, 'x-late': async () => de },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+      type LateLocalization = ReturnType<typeof createLocalization<{ client: { send: string } }, 'client.send'>>
+      let late: LateLocalization | undefined
+      const Child = defineComponent({
+        setup() {
+          const { translate } = late!.useLocalization()
+          return () => h('span', translate('client.send'))
+        },
+      })
+      const app = createSSRApp(
+        defineComponent({
+          setup() {
+            const { translate } = reference.provideLocalization({ locale: 'x-late' })
+            return () => {
+              // Simulates a lazily imported package whose module evaluates after the provider loaded.
+              late ??= createLocalization<{ client: { send: string } }, 'client.send'>({
+                localeTranslations: {
+                  en: { client: { send: 'Send' } },
+                  'x-late': async () => ({ client: { send: 'Spät' } }),
+                },
+                defaultLocale: 'en',
+                rtlLocales: new Set(),
+              })
+              return h('div', [h('p', translate('common.greeting')), h(Child)])
+            }
+          },
+        }),
+      )
+
+      expect(await renderToString(app)).toBe('<div><p>Hallo</p><span>Spät</span></div>')
+    })
   })
 })
