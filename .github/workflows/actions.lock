@@ -66,6 +66,11 @@ workflows:
         - 'actions/checkout@v6.0.3'
         - 'actions/setup-node@v6.4.0'
         - 'pnpm/action-setup@v5.0.0'
+    '.github/workflows/playwright-docker.yml':
+        - 'actions/checkout@v6.0.3'
+        - 'actions/download-artifact@v8.0.1'
+        - 'actions/upload-artifact@v7.0.1'
+        - 'docker/login-action@v4.5.0'
     '.github/workflows/pr.yml':
         - 'actions/cache@v5.1.0'
         - 'actions/checkout@v6.0.3'

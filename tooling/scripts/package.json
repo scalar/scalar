@@ -22,6 +22,7 @@
     "typescript-native": "npm:typescript@7.0.2"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:*",
     "@types/picomatch": "catalog:*",
     "@types/semver": "catalog:*",
     "vite": "catalog:*",

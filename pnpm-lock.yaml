@@ -3639,6 +3639,9 @@ importers:
         specifier: catalog:*
         version: 4.6.7
     devDependencies:
+      '@playwright/test':
+        specifier: catalog:*
+        version: 1.62.1
       '@types/picomatch':
         specifier: catalog:*
         version: 4.0.3

@@ -99,6 +99,10 @@
         "@scalar/api-reference"
       ]
     },
+    "tooling/scripts": {
+      // The Docker workflow streams the smoke test into the candidate image.
+      "entry": ["src/commands/playwright-docker/smoke-test.ts"]
+    },
     "tooling/changelog-generator": {
       "entry": ["src/index.ts", "src/version.ts"]
     },
