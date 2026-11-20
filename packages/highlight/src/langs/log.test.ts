@@ -55,7 +55,7 @@ describe('log', () => {
     expect(resolveLanguageName('LOG')).toBe('log')
     expect((await loadLanguage('LOG')).name).toBe('log')
     const { languages, highlight: eagerHighlight } = await import('../all')
-    expect(languages.filter((grammar) => grammar.name === 'log').map((grammar) => grammar.name)).toEqual(['log'])
+    expect(languages.filter((grammar) => grammar.name === 'log').map((grammar) => grammar.name)).toStrictEqual(['log'])
     expect(eagerHighlight('INFO ready', 'log')).toBe('<span class="shl-k">INFO</span> ready')
     expect(standardLanguages.log).toBe('log')
     expect(syntaxHighlight('INFO ready', { lang: 'log' })).toBe(
@@ -66,7 +66,7 @@ describe('log', () => {
   })
 
   it('recognizes the documented Log4j severity-first layout', () => {
-    expect(scoped(LOG4J)).toEqual([
+    expect(scoped(LOG4J)).toStrictEqual([
       ['DEBUG', 'keyword'],
       ['[main]', 'namespace'],
       ['WARN', 'keyword'],
@@ -75,7 +75,7 @@ describe('log', () => {
   })
 
   it('recognizes the documented log4net date-first layout', () => {
-    expect(scoped(LOG4NET)).toEqual([
+    expect(scoped(LOG4NET)).toStrictEqual([
       ['2024-12-21 14:07:41,517', 'number'],
       ['[main]', 'namespace'],
       ['DEBUG', 'keyword'],
@@ -84,7 +84,7 @@ describe('log', () => {
   })
 
   it('recognizes log4net SimpleLayout without requiring a timestamp', () => {
-    expect(runs('[warn] - Queue busy')).toEqual([
+    expect(runs('[warn] - Queue busy')).toStrictEqual([
       ['[warn]', 'keyword'],
       [' - Queue busy', null],
     ])
@@ -105,14 +105,14 @@ describe('log', () => {
     '02/11/2012',
     '2012.11.02',
   ])('recognizes timestamp %s independently of severity', (timestamp) => {
-    expect(scoped(`${timestamp} [INFO] ready`)).toEqual([
+    expect(scoped(`${timestamp} [INFO] ready`)).toStrictEqual([
       [timestamp, 'number'],
       ['[INFO]', 'keyword'],
     ])
   })
 
   it('accepts bracketed timestamps and reordered context, process, and component prefixes', () => {
-    expect(scoped('worker[42]: [warn] [2012-11-02T14:34:02.123+01:00] ready')).toEqual([
+    expect(scoped('worker[42]: [warn] [2012-11-02T14:34:02.123+01:00] ready')).toStrictEqual([
       ['worker', 'namespace'],
       ['[', 'punctuation.bracket'],
       ['42', 'number'],
@@ -121,18 +121,18 @@ describe('log', () => {
       ['[warn]', 'keyword'],
       ['2012-11-02T14:34:02.123+01:00', 'number'],
     ])
-    expect(scoped('[worker-2] 42 INFO 14:34:02 Cache.Store - ready')).toEqual([
+    expect(scoped('[worker-2] 42 INFO 14:34:02 Cache.Store - ready')).toStrictEqual([
       ['[worker-2]', 'namespace'],
       ['42', 'number'],
       ['INFO', 'keyword'],
       ['14:34:02', 'number'],
       ['Cache.Store', 'namespace'],
     ])
-    expect(scoped('cache: info: ready')).toEqual([
+    expect(scoped('cache: info: ready')).toStrictEqual([
       ['cache:', 'namespace'],
       ['info:', 'keyword'],
     ])
-    expect(scoped('App.Worker 2012-11-02 [main] INFO ready')).toEqual([
+    expect(scoped('App.Worker 2012-11-02 [main] INFO ready')).toStrictEqual([
       ['App.Worker', 'namespace'],
       ['2012-11-02', 'number'],
       ['[main]', 'namespace'],
@@ -157,10 +157,10 @@ describe('log', () => {
     'EMERGENCY',
   ])('recognizes common casing for delimited %s severity', (level) => {
     for (const label of [level, level.toLowerCase(), level[0] + level.slice(1).toLowerCase()]) {
-      expect(scoped(`[ ${label} ] ready`)).toEqual([[`[ ${label} ]`, 'keyword']])
-      expect(scoped(`${label}: ready`)).toEqual([[`${label}:`, 'keyword']])
+      expect(scoped(`[ ${label} ] ready`)).toStrictEqual([[`[ ${label} ]`, 'keyword']])
+      expect(scoped(`${label}: ready`)).toStrictEqual([[`${label}:`, 'keyword']])
     }
-    expect(scoped(`${level} ready`)).toEqual([[level, 'keyword']])
+    expect(scoped(`${level} ready`)).toStrictEqual([[level, 'keyword']])
   })
 
   it.each([
@@ -184,21 +184,21 @@ describe('log', () => {
   ])('keeps message prose conservative: %s', (code) => {
     const levels = scoped(code).filter(([, scope]) => scope === 'keyword')
     const header = code.match(/^INFO:?/)?.[0]
-    expect(levels).toEqual(header ? [[header, 'keyword']] : [])
+    expect(levels).toStrictEqual(header ? [[header, 'keyword']] : [])
   })
 
   it('distinguishes qualified logger prefixes from ordinary words before severity', () => {
-    expect(scoped('App.Worker ERROR failed')).toEqual([
+    expect(scoped('App.Worker ERROR failed')).toStrictEqual([
       ['App.Worker', 'namespace'],
       ['ERROR', 'keyword'],
     ])
-    expect(scoped('No ERROR occurred')).toEqual([])
-    expect(scoped('INFO no ERROR found')).toEqual([['INFO', 'keyword']])
-    expect(scoped('INFO [ERROR] is message text')).toEqual([['INFO', 'keyword']])
+    expect(scoped('No ERROR occurred')).toStrictEqual([])
+    expect(scoped('INFO no ERROR found')).toStrictEqual([['INFO', 'keyword']])
+    expect(scoped('INFO [ERROR] is message text')).toStrictEqual([['INFO', 'keyword']])
   })
 
   it('highlights strings and URLs without inspecting their severity words', () => {
-    expect(scoped('INFO read "ERROR \\"quoted\\"" and \'WARN\' from https://example.com/a?b=1&c=2')).toEqual([
+    expect(scoped('INFO read "ERROR \\"quoted\\"" and \'WARN\' from https://example.com/a?b=1&c=2')).toStrictEqual([
       ['INFO', 'keyword'],
       ['"ERROR ', 'string'],
       ['\\"', 'string.escape'],
@@ -208,7 +208,7 @@ describe('log', () => {
       ["'WARN'", 'string'],
       ['https://example.com/a?b=1&c=2', 'link'],
     ])
-    expect(scoped("INFO user's request failed")).toEqual([['INFO', 'keyword']])
+    expect(scoped("INFO user's request failed")).toStrictEqual([['INFO', 'keyword']])
   })
 
   it('recognizes exception types and structured Java and JavaScript stack frames', () => {
@@ -216,7 +216,7 @@ describe('log', () => {
       scoped(
         'java.lang.IllegalStateException: failed\n\tat example.Service.run(Service.java:42)\nCaused by: TypeError: invalid\n    at read (/srv/worker.js:12:4)',
       ),
-    ).toEqual([
+    ).toStrictEqual([
       ['java.lang.IllegalStateException', 'type'],
       ['\tat ', 'keyword.control'],
       ['example.Service.run', 'function.call'],
@@ -227,7 +227,7 @@ describe('log', () => {
       ['read', 'function.call'],
       ['/srv/worker.js:12:4', 'link'],
     ])
-    expect(scoped('    at /srv/worker.js:12:4\n\tat example.Service.run(Native Method)')).toEqual([
+    expect(scoped('    at /srv/worker.js:12:4\n\tat example.Service.run(Native Method)')).toStrictEqual([
       ['    at ', 'keyword.control'],
       ['/srv/worker.js:12:4', 'link'],
       ['\tat ', 'keyword.control'],
@@ -238,7 +238,7 @@ describe('log', () => {
 
   it('resets truncated strings and message state at every kind of line ending', () => {
     for (const newline of ['\n', '\r\n', '\r', '\u2028', '\u2029']) {
-      expect(scoped(`INFO message "unfinished${newline}[warn] ready${newline}ERROR recovered`)).toEqual([
+      expect(scoped(`INFO message "unfinished${newline}[warn] ready${newline}ERROR recovered`)).toStrictEqual([
         ['INFO', 'keyword'],
         ['"unfinished', 'string'],
         ['[warn]', 'keyword'],
@@ -250,7 +250,7 @@ describe('log', () => {
   it('preserves every source range, multiline text, whitespace, and Unicode', () => {
     const tokens = tokenize(MULTILINE, log)
     expect(tokens.map((token) => token.text).join('')).toBe(MULTILINE)
-    expect(tokens.map((token) => token.start)).toEqual([0, ...tokens.slice(0, -1).map((token) => token.end)])
+    expect(tokens.map((token) => token.start)).toStrictEqual([0, ...tokens.slice(0, -1).map((token) => token.end)])
     expect(tokens.at(-1)?.end).toBe(MULTILINE.length)
     for (const token of tokens) {
       expect(MULTILINE.slice(token.start, token.end)).toBe(token.text)
@@ -288,7 +288,7 @@ describe('log', () => {
   })
 
   it('does not parse JSON fields or interpret ANSI controls', () => {
-    expect(scoped('{"level":"ERROR","count":42}').filter(([, scope]) => scope !== 'string')).toEqual([])
+    expect(scoped('{"level":"ERROR","count":42}').filter(([, scope]) => scope !== 'string')).toStrictEqual([])
     expect(
       tokenize('\u001b[31mERROR\u001b[0m', log)
         .map((token) => token.text)
