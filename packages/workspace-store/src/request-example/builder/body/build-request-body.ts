@@ -278,7 +278,7 @@ export const buildRequestBody = (
     )
     return options?.aspNetFilePlaceholders
       ? fields.map((field) =>
-          withAspNetMultipartFilePlaceholder(field, includeMissing, media?.encoding?.[field.name]?.contentType),
+          withAspNetMultipartFilePlaceholder(field, includeMissing, media?.encoding?.[field.rootName]?.contentType),
         )
       : fields
   })()
@@ -288,7 +288,11 @@ export const buildRequestBody = (
     (bodyContentType === 'multipart/form-data' || bodyContentType === 'application/x-www-form-urlencoded') &&
     Array.isArray(formRows)
   ) {
-    const exampleValue = formRows.filter((item) => !item.isDisabled) as { name: string; value: unknown }[]
+    const exampleValue = formRows.filter((item) => !item.isDisabled) as {
+      name: string
+      rootName?: string
+      value: unknown
+    }[]
 
     const result: FormData | UrlEncoded =
       bodyContentType === 'multipart/form-data'
@@ -313,15 +317,15 @@ export const buildRequestBody = (
     // `entries` at the position of the *first* matching row, then keep folding leaves
     // into the same live object reference so interleaved flat rows keep their order.
     const multipartSchema = result.mode === 'formdata' ? resolvedBodySchema : undefined
-    const entries =
+    const entries: typeof exampleValue =
       result.mode === 'formdata' && !aspNetNaming ? regroupMultipartRows(exampleValue, multipartSchema) : exampleValue
 
     // Loop over all entries and add them to the form
-    entries.forEach(({ name, value }) => {
+    entries.forEach(({ name, value, rootName }) => {
       if (!name) {
         return
       }
-      const partEncoding = requestBody.content[bodyContentType]?.encoding?.[name]
+      const partEncoding = media?.encoding?.[aspNetNaming ? (rootName ?? name) : name]
 
       if (result.mode === 'formdata') {
         // Older saved form rows store JSON text. Only restore arrays declared by the schema.

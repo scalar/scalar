@@ -24,6 +24,8 @@ export const usesAspNetMultipartNaming = (
 
 type FormField = {
   name: string
+  /** Encoding entries use the original property name, before indexed-dot flattening. */
+  rootName: string
   value: unknown
   schema: SchemaObject | undefined
   isRequired: boolean
@@ -52,7 +54,7 @@ const resolveField = (
   schema: SchemaObject | undefined,
   name: string,
   compositionSelection?: Record<string, number>,
-): { schema: SchemaObject | undefined; isRequired: boolean } => {
+): { schema: SchemaObject | undefined; isRequired: boolean; rootName: string } => {
   const segments = getProperty(schema, name) === undefined ? name.split(/\.|\[(\d+)\]/).filter(Boolean) : [name]
   let current = schema
   let isRequired = segments.length > 0
@@ -67,7 +69,7 @@ const resolveField = (
       current = resolveFormSchema(getProperty(current, segment), compositionSelection, path)
     }
   }
-  return { schema: current, isRequired }
+  return { schema: current, isRequired, rootName: segments[0] ?? name }
 }
 
 /** Map a structured example or saved editor rows to the field names understood by ASP.NET Core. */
@@ -139,6 +141,7 @@ export const getAspNetMultipartFields = (
           visit(
             {
               name: name ? `${name}.${key}` : key,
+              rootName: name ? field.rootName : key,
               value: childValue,
               schema: childSchema,
               isRequired: field.isRequired && isRequired,
@@ -184,7 +187,7 @@ export const getAspNetMultipartFields = (
       )
     }
   } else {
-    visit({ name: '', value, schema, isRequired: true, isDisabled: false }, schema, ['requestBody'])
+    visit({ name: '', rootName: '', value, schema, isRequired: true, isDisabled: false }, schema, ['requestBody'])
   }
   return fields
 }

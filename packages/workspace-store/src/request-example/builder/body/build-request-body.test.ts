@@ -7,6 +7,125 @@ import type { ExampleObject, RequestBodyObject } from '@/schemas/v3.2/strict/ope
 import { buildRequestBody } from './build-request-body'
 
 describe('buildRequestBody', () => {
+  it.each(['structured', 'edited'] as const)(
+    'preserves root encoding content types for indexed-dot files from a %s example',
+    async (format) => {
+      const file = new File(['certificate'], 'certificate.txt', { type: 'text/plain', lastModified: 123 })
+      const value =
+        format === 'structured'
+          ? { certificates: [{ file }], profile: { file }, 'literal.file': file }
+          : [
+              { name: 'certificates[0].file', value: file },
+              { name: 'profile.file', value: file },
+              { name: 'literal.file', value: file },
+            ]
+      const body = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              required: ['certificates', 'profile', 'literal.file'],
+              properties: {
+                certificates: {
+                  type: 'array',
+                  items: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } },
+                },
+                profile: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } },
+                'literal.file': { type: 'string', format: 'binary' },
+              },
+            },
+            encoding: {
+              certificates: { contentType: 'application/pkix-cert' },
+              profile: { contentType: 'application/octet-stream' },
+              'literal.file': { contentType: 'application/pdf' },
+            },
+            examples: { default: { value } },
+          },
+        },
+      })
+      const result = buildRequestBody(body, undefined, undefined, undefined, undefined, {
+        multipartNaming: 'indexed-dot',
+      })
+      assert(result?.mode === 'formdata')
+      expect(
+        await Promise.all(
+          result.value.map(async (part) => {
+            assert(part.type === 'file')
+            return {
+              key: part.key,
+              contentType: part.contentType,
+              fileType: part.value.type,
+              filename: part.value.name,
+              lastModified: part.value.lastModified,
+              text: await part.value.text(),
+            }
+          }),
+        ),
+      ).toStrictEqual(
+        [
+          { key: 'certificates[0].file', contentType: 'application/pkix-cert' },
+          { key: 'profile.file', contentType: 'application/octet-stream' },
+          { key: 'literal.file', contentType: 'application/pdf' },
+        ].map((part) => ({
+          ...part,
+          fileType: part.contentType,
+          filename: 'certificate.txt',
+          lastModified: 123,
+          text: 'certificate',
+        })),
+      )
+    },
+  )
+
+  it.each(['structured', 'edited'] as const)(
+    'recognizes nested snippet file placeholders using root encoding from a %s example',
+    (format) => {
+      const body = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              required: ['certificates'],
+              properties: {
+                certificates: {
+                  type: 'array',
+                  items: { type: 'object', properties: { file: { type: 'string' } } },
+                },
+              },
+            },
+            encoding: { certificates: { contentType: 'application/pkix-cert' } },
+            examples: {
+              default: {
+                value:
+                  format === 'structured'
+                    ? { certificates: [{ file: '@certificate.cer' }] }
+                    : [{ name: 'certificates[0].file', value: '@certificate.cer' }],
+              },
+            },
+          },
+        },
+      })
+      const result = buildRequestBody(body, undefined, undefined, undefined, undefined, {
+        multipartNaming: 'indexed-dot',
+        aspNetFilePlaceholders: true,
+      })
+      assert(result?.mode === 'formdata')
+      expect(
+        result.value.map((part) => {
+          assert(part.type === 'file')
+          return { key: part.key, contentType: part.contentType, filename: part.value.name, fileType: part.value.type }
+        }),
+      ).toStrictEqual([
+        {
+          key: 'certificates[0].file',
+          contentType: 'application/pkix-cert',
+          filename: 'certificate.cer',
+          fileType: 'application/pkix-cert',
+        },
+      ])
+    },
+  )
+
   it.each(['structured', 'edited'] as const)('sends ASP.NET Core multipart fields from a %s example', (format) => {
     const file = new File(['certificate'], 'certificate.txt')
     const value =
