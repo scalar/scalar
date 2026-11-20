@@ -1,4 +1,4 @@
-import type { Grammar, StateRule } from '../core/types'
+import type { Grammar, State, StateRule } from '../core/types'
 import { SHELL_LINE_SPLICE, shellContinuation, shellEscape } from './shared/shell'
 
 /** A curl command highlights its method and JSON payload alongside shell strings. */
@@ -84,6 +84,20 @@ const shortSwitch: StateRule = { match: `[${SHORT_SWITCHES}]+` }
 const longName: StateRule = { match: '[\\w.-]+' }
 const commandEnd: StateRule = { match: '(?=[\\n;&|()])', pop: true }
 
+/** Consume wrapper operands before looking for the executable that follows. */
+const wrapperWithValues = (short: string, long?: string): State => ({
+  rules: [
+    { match: `-[${short}]`, push: 'argument' },
+    ...(long
+      ? [
+          { match: `--(?:${long})=`, push: 'argument-word' },
+          { match: `--(?:${long})${SHELL_WORD_END}`, push: 'argument' },
+        ]
+      : []),
+    { include: 'wrapper-options' },
+  ],
+})
+
 const curl: Grammar = {
   name: 'curl',
   states: {
@@ -94,15 +108,20 @@ const curl: Grammar = {
         { match: '[ \\t\\n]+|\\r\\n|[;&|()]' },
         { match: '#[^\\n]*', scope: 'comment' },
         { match: '\\$(?=[ \\t])' },
-        { match: `(?:command|env|exec|nohup|sudo|time)${SHELL_WORD_END}` },
+        // These reserved words leave the lexer at the start of a command.
+        { match: `(?:if|then|elif|else|while|until|do|[!{])${SHELL_WORD_END}` },
+        { match: `(?:command|nohup|time)${SHELL_WORD_END}`, push: 'wrapper-options' },
+        { match: `env${SHELL_WORD_END}`, push: 'env-options' },
+        { match: `exec${SHELL_WORD_END}`, push: 'exec-options' },
+        { match: `sudo${SHELL_WORD_END}`, push: 'sudo-options' },
         { match: '[A-Za-z_]\\w*=', push: 'argument-word' },
         {
-          match: String.raw`([\w./~+-]*/)?([cC])(?=${SPLICES}[uU]${SPLICES}[rR]${SPLICES}[lL]${SHELL_WORD_END})`,
+          match: String.raw`([\w./~+-]*/)?([cC])(?=${SPLICES}[uU]${SPLICES}[rR]${SPLICES}[lL](?:\.[eE][xX][eE])?${SHELL_WORD_END})`,
           scope: [null, 'keyword'],
           push: 'curl-name',
         },
         {
-          match: String.raw`(?:'(?:[\w./~+-]*/)?[cC][uU][rR][lL]'|"(?:[\w./~+-]*/)?[cC][uU][rR][lL]")${SHELL_WORD_END}`,
+          match: String.raw`(?:'(?:[\w./~+-]*/)?[cC][uU][rR][lL](?:\.[eE][xX][eE])?'|"(?:[\w./~+-]*/)?[cC][uU][rR][lL](?:\.[eE][xX][eE])?")${SHELL_WORD_END}`,
           scope: 'string',
           push: 'curl-command',
         },
@@ -112,9 +131,27 @@ const curl: Grammar = {
       ],
     },
     'curl-name': {
-      default: 'keyword',
-      rules: [shellContinuation, { match: '[uUrR]+' }, { match: '[lL]', set: 'curl-command' }],
+      rules: [
+        shellContinuation,
+        { match: '[uUrR]+', scope: 'keyword' },
+        { match: String.raw`([lL])(?:\.[eE][xX][eE])?`, scope: ['keyword'], set: 'curl-command' },
+      ],
     },
+    'wrapper-options': {
+      rules: [
+        ...argumentSpace,
+        redirection,
+        { match: `--${SHELL_WORD_END}`, pop: true },
+        { match: '-(?=[^ \\t\\r\\n])', push: 'argument-word' },
+        { match: '(?=[\\s\\S])', pop: true },
+      ],
+    },
+    'env-options': wrapperWithValues('CuS', 'chdir|split-string|unset'),
+    'exec-options': wrapperWithValues('a'),
+    'sudo-options': wrapperWithValues(
+      'CDghpRrTtuU',
+      'chdir|chroot|close-from|command-timeout|group|host|other-user|prompt|role|type|user',
+    ),
     'curl-command': {
       rules: [
         shellContinuation,

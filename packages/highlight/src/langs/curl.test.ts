@@ -332,6 +332,19 @@ describe('curl', () => {
     },
   )
 
+  it.each(['env -i curl', 'sudo -n curl', 'sudo -u root curl', 'time -p curl', 'if curl', 'curl.exe'])(
+    'preserves method and JSON highlighting for %s',
+    (command) => {
+      const code = `${command} -X POST -d '[true]'`
+      assertHas(code, 'POST', 'symbol')
+      assertHas(code, 'true', 'boolean')
+    },
+  )
+
+  it('keeps wrapper option values named curl out of command position', () => {
+    assertHas("env -u curl tr -d '[false]'", "'[false]'", 'string')
+  })
+
   it.each(['2>&1', '&>output.log', '$(printf example.test)', '<(echo example.test)', '`echo example.test`'])(
     'keeps options disabled through %s',
     (syntax) => {
