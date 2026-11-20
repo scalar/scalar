@@ -177,10 +177,6 @@
   color: var(--scalar-code-string, var(--scalar-color-blue));
 }
 
-.hljs.language-curl .hljs-literal {
-  color: var(--scalar-color-1);
-}
-
 /** Compromise here */
 .hljs.language-cpp .hljs-built_in {
   /* color: var(--scalar-color-1); */

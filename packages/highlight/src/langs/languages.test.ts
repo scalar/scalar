@@ -782,6 +782,13 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'bash', `'s ok"}'`, 'string')
   })
 
+  it('bash: scopes a line-ending backslash as punctuation, but not one inside a string', () => {
+    const code = 'curl -X POST \\\n  -d "a \\\nb" # c \\\n'
+    assertHas(code, 'bash', '\\', 'punctuation')
+    assertHas(code, 'bash', '\\\n', 'string.escape')
+    expect(scopeOf(code, 'bash', ' # c \\')).toBe('comment')
+  })
+
   it('bash: closes a heredoc only on its terminator, and does not expand a quoted one', () => {
     assertHas('cat <<EOF\nEND\n$HOME\nEOF\necho done\n', 'bash', 'echo', 'function.builtin')
     // The body merges with the closing quote of the marker into one run.

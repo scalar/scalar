@@ -28,6 +28,9 @@ const bash: Grammar = {
         { match: '(?:^|[ \\t])#[^\\n]*', scope: 'comment' },
 
         { include: 'expansion' },
+        // A backslash that ends the line continues the command on the next
+        // one. It is layout, not an escape, so it reads as punctuation.
+        { match: '\\\\$', scope: 'punctuation' },
         // An escaped character outside quotes is literal. It has to come
         // before the quote rules: `'it'\\''s'` is how a single quote is written
         // inside a single-quoted string — close, escaped quote, reopen — and

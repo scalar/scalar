@@ -3,10 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { SCOPES } from '../core/scopes'
 import { registerLanguage, tokenize } from '../index'
 import curl from './curl'
+import json from './json'
 
 // Registered here so this suite stands on its own rather than depending on
-// `src/all.ts` import order.
+// `src/all.ts` import order. JSON is what a request body embeds.
 registerLanguage(curl)
+registerLanguage(json)
 
 const known = new Set(Object.keys(SCOPES))
 
@@ -22,6 +24,17 @@ const runs = (code: string): [string, string | null][] => {
     }
   }
   return out
+}
+
+/**
+ * The scope of the first run containing this text, `undefined` when that run is
+ * unscoped. Unscoped text merges with the spaces around it, so an exact match
+ * would never find a bare flag and every check against it would pass.
+ */
+const scopeOf = (code: string, text: string): string | undefined => {
+  const run = runs(code).find(([t]) => t.includes(text))
+  expect(run, `${JSON.stringify(text)} is not in the code`).toBeDefined()
+  return run?.[1] ?? undefined
 }
 
 /** All (text, scope) pairs for runs that carry a scope. */
@@ -60,8 +73,8 @@ describe('curl', () => {
   })
 
   it('scopes the request method apart from the flag that carries it', () => {
-    assertHas(REQUEST, '--request', 'constant.builtin')
     assertHas(REQUEST, 'POST', 'symbol')
+    expect(scopeOf(REQUEST, '--request')).toBeUndefined()
   })
 
   it('scopes a method whatever its case', () => {
@@ -69,14 +82,15 @@ describe('curl', () => {
     assertHas('curl -X Delete https://example.com', 'Delete', 'symbol')
   })
 
-  it('scopes long and short flags', () => {
-    assertHas(REQUEST, '--header', 'constant.builtin')
-    assertHas('curl -s -o out.json https://example.com', '-s', 'constant.builtin')
+  it('leaves long and short flags unscoped', () => {
+    // A flag's class would be shared with values that should be coloured, such
+    // as `true` in a JSON body.
+    expect(scopeOf(REQUEST, '--header')).toBeUndefined()
+    expect(scopeOf('curl -s -o out.json https://example.com', '-s')).toBeUndefined()
   })
 
-  it('leaves the hyphens inside a header name alone', () => {
-    // `Content-Type` sits inside a string; nothing in it is a flag.
-    expect(scoped(REQUEST).some(([t, s]) => t === '-Type' && s === 'constant.builtin')).toBe(false)
+  it('does not read a digit inside a flag as a number', () => {
+    expect(scopeOf('curl --http2 https://example.com', '2')).toBeUndefined()
   })
 
   it('scopes quoted values as strings', () => {
@@ -100,5 +114,67 @@ describe('curl', () => {
   it('does not scope a bare word as a method', () => {
     // `post` only reads as a method after `--request` or `-X`.
     expect(scoped('curl https://example.com/post').some(([, s]) => s === 'symbol')).toBe(false)
+  })
+
+  it('scopes the command whatever its case', () => {
+    assertHas('CURL https://example.com', 'CURL', 'keyword')
+  })
+
+  it('scopes a line-ending backslash as punctuation', () => {
+    assertHas(REQUEST, '\\', 'punctuation')
+    assertHas('curl -X POST \\\r\n  https://example.com', '\\', 'punctuation')
+  })
+
+  it('treats an escaped single quote as content, so the value after it stays a string', () => {
+    const code = "curl -H 'X-Note: it'\\''s' -s https://example.com"
+    assertHas(code, "\\'", 'string.escape')
+    assertHas(code, "'s'", 'string')
+    expect(scopeOf(code, '-s')).toBeUndefined()
+  })
+
+  describe('request body', () => {
+    it('highlights a single-quoted JSON body as JSON', () => {
+      assertHas(`curl -d '{"ok":true,"n":null}'`, 'true', 'boolean')
+      assertHas(REQUEST, '"name"', 'property')
+      assertHas(REQUEST, '"Mars"', 'string')
+      assertHas(REQUEST, '{', 'punctuation.bracket')
+    })
+
+    it('highlights a JSON array body after any data flag', () => {
+      for (const flag of ['-d', '--data', '--data-raw', '--data-binary', '--json']) {
+        assertHas(`curl ${flag} '[{"id":1}]' https://example.com`, '"id"', 'property')
+      }
+    })
+
+    it('keeps a JSON string whole across an escaped apostrophe', () => {
+      const code = `curl -d '{"note":"it'\\''s a gift","n":1}' -H 'Accept: */*' https://example.com`
+      assertHas(code, `"it'\\''s a gift"`, 'string')
+      assertHas(code, '"n"', 'property')
+      assertHas(code, "'Accept: */*'", 'string')
+    })
+
+    it('finds the body on the line after a line continuation', () => {
+      assertHas(`curl -d \\\n  '{"a":1}'`, '"a"', 'property')
+    })
+
+    it('leaves a body that is not JSON as a string', () => {
+      assertHas("curl -d 'name=Mars' https://example.com", "'name=Mars'", 'string')
+      assertHas(`curl --form 'meta={"a":1}' https://example.com`, `'meta={"a":1}'`, 'string')
+    })
+
+    it('does not read lowercase -f or uppercase -D as data flags', () => {
+      assertHas(`curl -f '{"a":1}' https://example.com`, `'{"a":1}'`, 'string')
+      assertHas(`curl -D '{"a":1}' https://example.com`, `'{"a":1}'`, 'string')
+    })
+
+    it('round-trips an empty and an unterminated body', () => {
+      for (const code of ["curl -d '' https://example.com", `curl -d '{"a":`]) {
+        expect(
+          runs(code)
+            .map(([text]) => text)
+            .join(''),
+        ).toBe(code)
+      }
+    })
   })
 })
