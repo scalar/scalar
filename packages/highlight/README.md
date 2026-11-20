@@ -180,7 +180,7 @@ code they punctuate.
 
 ## Adding a language
 
-A grammar is plain data with no imports beyond its type:
+A grammar is plain data. It can reuse shared rule data and refer to other languages by name:
 
 ```ts
 import type { Grammar } from '@scalar/highlight/core';
@@ -238,6 +238,13 @@ the body that belong to the host grammar instead: the embedded language reads ac
 as if each were a name, so its state carries over, and the host grammar tokenizes each hole.
 A PHP template's `<script>` uses it for `<?= $x ?>`, which keeps `"<?= $name ?>"` one string.
 Hole patterns may contain capture groups. An end marker inside a hole does not close the embedded body.
+Use `preserveHoleScope: true` when a masked escape should keep the scope of the surrounding
+embedded token, such as a shell-escaped apostrophe in a JSON key. This masks line breaks inside
+the hole so the embedded grammar sees one continuous token, and `holePunctuation` can still
+assign punctuation scope to parts of the escape.
+Set `validate: { format: 'json' }` to use the default host scope for closed bodies that fail
+JSON parsing. Set `validate.holeReplacement` to the text each hole represents during validation.
+Unterminated bodies can still use the embedded grammar while the user types.
 
 Lines end at `\n` (or `\r\n`) and nowhere else: the compiler rewrites `$` and `.` so a lone
 `\r` or a U+2028 inside a string literal cannot end it early, as JavaScript's `m` flag would.
@@ -260,9 +267,9 @@ It is two packages wearing one name, and each half has a replacement:
 | `rehypeHighlight`, `rehypeAlert` | [`@scalar/markdown`](https://github.com/scalar/scalar/tree/main/packages/markdown) |
 | `basicLanguages`, `jsonYamlLanguages` | **no replacement** — grammars are registered, not passed in |
 
-`@scalar/highlight/compat` is a drop-in `syntaxHighlight`. Same signature, same
-`<pre><code class="hljs language-x">` envelope, same `hljs-*` token classes — so
-[`code.css`](src/compat/code.css) styles it unchanged:
+`@scalar/highlight/compat` preserves the `syntaxHighlight` signature and the
+`<pre><code class="hljs language-x">` envelope. It uses the `hljs-*` class names
+that [`code.css`](src/compat/code.css) styles. Token scopes vary by grammar:
 
 ```diff
 -import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight';
@@ -280,8 +287,9 @@ and ignored, since the registry already knows every grammar.
 
 The one `standardLanguages` name with no grammar — `plaintext` — renders as escaped,
 unhighlighted code, which is exactly what the lowlight pipeline did for a language it could
-not resolve. `curl` has a grammar of its own that mirrors the bespoke one the old package
-shipped.
+not resolve. `curl` gives the command and request method their own scopes. Curl flags
+are plain text and no longer emit `hljs-literal`. Single-quoted JSON bodies use the JSON
+grammar when it is registered.
 
 ### Verifying it
 
@@ -334,6 +342,9 @@ to another grammar, when that one is registered:
 - A Markdown fence goes to the language it names, front matter to YAML, and HTML at the start
   of a line to HTML.
 - An HTTP body that starts with `<` goes to HTML.
+- A single-quoted JSON object or array passed to a curl data option goes to JSON.
+  If loading grammars on demand, call `loadLanguages('curl', 'json')` from
+  `@scalar/highlight/lazy` before highlighting the snippet.
 
 When the grammar is not registered, the body is a plain string or unscoped text. A fence of four
 or more backticks stays a plain string either way, so a block that shows ` ``` ` inside it
