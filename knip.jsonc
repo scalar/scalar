@@ -84,6 +84,8 @@
       "entry": [
         // Loaded dynamically from the composite action's github-script step.
         ".github/actions/update-contributors/update-contributors.ts",
+        // Run inside the candidate Playwright images by the GitHub Actions workflow.
+        ".github/scripts/playwright-docker-smoke.cjs",
         // Run by hand to re-bake the docs hero's cards; it pulls in the
         // other two files in that folder.
         "tooling/docs-hero/portals.mjs"

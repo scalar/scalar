@@ -144,7 +144,21 @@ The command runs:
 
 Both servers run with `CI=1` environment variable set. The proxy uses `test:server`, a separate Go test harness bound to `127.0.0.1` that allows private targets for local fixtures. This harness is excluded from normal proxy builds and Docker images; the normal executable always blocks private targets. While the harness runs, local callers, including browser requests, can use it to reach private targets. An existing server on port 5051 is reused only if its health response identifies it as the fixture harness; otherwise the command fails without stopping that server.
 
-### `update-playwright-docker`
+### Playwright Docker images
+
+The Playwright Docker Images workflow builds and smoke-tests `scalarapi/playwright`
+and `scalarapi/playwright-runner` on amd64 and arm64 when their build files or
+the workspace `@playwright/test` pin change. It validates browser startup through
+`playwright run-server` and checks the runner's WebGL default and opt-in.
+
+On pushes to `main`, the workflow publishes the tested images to Docker Hub using
+the `production-dockerhub` environment. It prints the multi-architecture tags in
+the workflow summary. Each release uses a new tag in the form
+`<playwright-version>-r<run-id>.<attempt>`. After publishing, update the runner
+tags in `.github/workflows/pr.yml` and `.github/workflows/main.yml`, and the
+image tag in `packages/helpers/src/playwright/docker.ts`, to that full tag.
+
+#### `update-playwright-docker`
 
 Update the Playwright Docker images to the latest version.
 
