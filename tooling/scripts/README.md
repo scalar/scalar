@@ -156,7 +156,8 @@ first run.
 In the runner image, the default headless browser starts with `--disable-webgl`, because
 software-rendered WebGL makes pages that draw continuously too slow to test. Start the
 container with `-e SCALAR_RUNNER_ENABLE_WEBGL=1` to turn WebGL back on; any other value
-keeps it off. See the comment in `DockerfileRunner` for what the flag does not cover.
+keeps it off. The flag applies to HTML canvas in the default headless browser.
+Full Chromium (including headed mode) and `OffscreenCanvas` are unaffected.
 
 **Usage:**
 ```bash
