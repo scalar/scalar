@@ -49,8 +49,8 @@ const longOption = (names: readonly string[], prefix = ''): string => {
   return `${OPTION_START}(?=${SPLICES}-${SPLICES}${prefix}(?:${spelling})(?:${SPLICES}=|${SHELL_WORD_END}))`
 }
 
-const SHORT_PREFIX = `(?:${SPLICES}[${SHORT_SWITCHES}])*${SPLICES}`
-const shortOption = (valueOption: string): string => `${OPTION_START}(?=${SHORT_PREFIX}${valueOption})`
+const shortOption = (valueOption: string, switches = `[${SHORT_SWITCHES}]`): string =>
+  `${OPTION_START}(?=(?:${SPLICES}${switches})*${SPLICES}${valueOption})`
 
 const SHELL_APOSTROPHES = String.raw`'${SPLICES}(?:\\'|"${SPLICES}'${SPLICES}")${SPLICES}'`
 // The closing quote must end the shell argument so adjacent segments do not
@@ -84,19 +84,26 @@ const shortSwitch: StateRule = { match: `[${SHORT_SWITCHES}]+` }
 const longName: StateRule = { match: '[\\w.-]+' }
 const commandEnd: StateRule = { match: '(?=[\\n;&|()])', pop: true }
 
-/** Consume wrapper operands before looking for the executable that follows. */
-const wrapperWithValues = (short: string, long?: string): State => ({
-  rules: [
-    { match: `-[${short}]`, push: 'argument' },
-    ...(long
-      ? [
-          { match: `--(?:${long})=`, push: 'argument-word' },
-          { match: `--(?:${long})${SHELL_WORD_END}`, push: 'argument' },
-        ]
-      : []),
-    { include: 'wrapper-options' },
-  ],
+const shortOptionValue = (flag: string, target: string, switches = `[${SHORT_SWITCHES}]`): State => ({
+  rules: [shellContinuation, { match: `(?:${switches})+` }, { match: flag, set: target }],
 })
+
+/** Consume wrapper operands before looking for the executable that follows. */
+const wrapperWithValues = (name: string, short: string, long?: string): Record<string, State> => {
+  const flag = `[${short}]`
+  const switches = `(?!${flag})[A-Za-z0-9]`
+  const grouped = `${name}-short-option`
+  return {
+    [`${name}-options`]: {
+      rules: [
+        { match: shortOption(flag, switches), push: grouped },
+        ...(long ? [{ match: longOption(long.split('|')), push: 'long-value-option' }] : []),
+        { include: 'wrapper-options' },
+      ],
+    },
+    [grouped]: shortOptionValue(flag, 'argument', switches),
+  }
+}
 
 const curl: Grammar = {
   name: 'curl',
@@ -146,9 +153,10 @@ const curl: Grammar = {
         { match: '(?=[\\s\\S])', pop: true },
       ],
     },
-    'env-options': wrapperWithValues('CuS', 'chdir|split-string|unset'),
-    'exec-options': wrapperWithValues('a'),
-    'sudo-options': wrapperWithValues(
+    ...wrapperWithValues('env', 'CuS', 'chdir|split-string|unset'),
+    ...wrapperWithValues('exec', 'a'),
+    ...wrapperWithValues(
+      'sudo',
       'CDghpRrTtuU',
       'chdir|chroot|close-from|command-timeout|group|host|other-user|prompt|role|type|user',
     ),
@@ -202,15 +210,9 @@ const curl: Grammar = {
       ],
     },
 
-    'short-data-option': {
-      rules: [shellContinuation, shortSwitch, { match: 'd', set: 'data' }],
-    },
-    'short-method-option': {
-      rules: [shellContinuation, shortSwitch, { match: 'X', set: 'method' }],
-    },
-    'short-value-option': {
-      rules: [shellContinuation, shortSwitch, { match: `[${SHORT_VALUE_OPTIONS}]`, set: 'argument' }],
-    },
+    'short-data-option': shortOptionValue('d', 'data'),
+    'short-method-option': shortOptionValue('X', 'method'),
+    'short-value-option': shortOptionValue(`[${SHORT_VALUE_OPTIONS}]`, 'argument'),
     'short-switches': {
       rules: [shellContinuation, shortSwitch, { match: '(?=[\\s\\S])', pop: true }],
     },

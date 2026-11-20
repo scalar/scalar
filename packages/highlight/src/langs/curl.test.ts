@@ -345,6 +345,16 @@ describe('curl', () => {
     assertHas("env -u curl tr -d '[false]'", "'[false]'", 'string')
   })
 
+  it.each(['env -iu', 'env -i\\\nu', 'sudo -nu'])(
+    'consumes the operand of a grouped wrapper option after %j',
+    (wrapper) => {
+      const code = `${wrapper} value curl -X POST -d '[true]'`
+      assertHas(code, 'POST', 'symbol')
+      assertHas(code, 'true', 'boolean')
+      assertHas(`${wrapper} curl tr -d '[false]'`, "'[false]'", 'string')
+    },
+  )
+
   it.each(['2>&1', '&>output.log', '$(printf example.test)', '<(echo example.test)', '`echo example.test`'])(
     'keeps options disabled through %s',
     (syntax) => {
