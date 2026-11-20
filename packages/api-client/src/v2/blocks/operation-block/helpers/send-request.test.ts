@@ -1289,6 +1289,37 @@ describe('sendRequest', () => {
       expect(cookieStr).toContain('SameSite=Strict')
     })
 
+    it.each([
+      ['strict', 'Strict'],
+      ['Strict', 'Strict'],
+      ['sTrIcT', 'Strict'],
+      ['lax', 'Lax'],
+      ['Lax', 'Lax'],
+      ['lAx', 'Lax'],
+      ['none', 'None'],
+      ['None', 'None'],
+      ['nOnE', 'None'],
+    ])('normalizes SameSite=%s to SameSite=%s', async (sameSite, expected) => {
+      const mockResponse = addUrlToResponse(
+        new Response('ok', {
+          headers: { 'x-scalar-set-cookie': `session=abc; Path=/; SameSite=${sameSite}` },
+        }),
+        MOCK_URL,
+      )
+      globalFetchSpy.mockResolvedValueOnce(mockResponse)
+
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, {}],
+      })
+
+      expect(error).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      expect(result.response.cookieHeaderKeys).toStrictEqual([`session=abc; Path=/; SameSite=${expected}`])
+    })
+
     it('uses custom cookies instead of getSetCookie when the header is present', async () => {
       const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
