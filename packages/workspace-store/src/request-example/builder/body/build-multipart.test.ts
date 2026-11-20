@@ -28,9 +28,10 @@ describe('build-multipart', () => {
     { example: { dataValue: false }, expected: 'false' },
     { example: { dataValue: 0 }, expected: '0' },
     { example: { dataValue: '' }, expected: '' },
-    { example: { dataValue: null }, expected: 'null' },
-    { example: { value: null }, expected: 'null' },
+    { example: { dataValue: null }, expected: 'schema-const' },
+    { example: { value: null }, expected: 'schema-const' },
     { example: { serializedValue: '' }, expected: '' },
+    { example: { serializedValue: 'null', dataValue: null }, expected: 'null' },
     { example: { serializedValue: 'one%2Ctwo,three', dataValue: ['one,two', 'three'] }, expected: 'one%2Ctwo,three' },
     { example: { $ref: '#/components/examples/id', '$ref-value': { dataValue: 'part-123' } }, expected: 'part-123' },
   ])('includes the part header example $example in the encoded request', async ({ example, expected }) => {
@@ -81,7 +82,14 @@ describe('build-multipart', () => {
     },
     { header: { schema: { type: 'string' }, example: 0 }, expected: '0' },
     { header: { schema: { type: 'string' }, example: '' }, expected: '' },
-    { header: { schema: { type: 'string', const: 'fallback' }, example: null }, expected: 'null' },
+    { header: { schema: { type: 'string', const: 'fallback' }, example: null }, expected: 'fallback' },
+    {
+      header: { schema: { type: 'string', default: 'fallback' }, examples: { sample: { dataValue: null } } },
+      expected: 'fallback',
+    },
+    { header: { schema: { type: 'string' }, example: null }, expected: undefined },
+    { header: { schema: { type: 'null' }, examples: { sample: { dataValue: null } } }, expected: undefined },
+    { header: { schema: { type: 'null', default: null } }, expected: undefined },
     { header: { schema: { type: 'string', const: 'constant', default: 'default' } }, expected: 'constant' },
     {
       header: { schema: { type: 'string', default: 'default' }, examples: { sample: { summary: 'No inline value' } } },

@@ -1,3 +1,4 @@
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -9,7 +10,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
-import { type ExampleValue, getExampleValue } from '@/helpers/get-example-value'
+import { getExampleValue } from '@/helpers/get-example-value'
 
 import { serializeXmlPart } from '../../xml/serialize-xml-part'
 import { serializeSimpleStyle } from '../header/serialize-parameter'
@@ -180,16 +181,15 @@ export const buildMultipart = (
         if (!header || !('schema' in header)) {
           return []
         }
-        const example: ExampleValue | undefined =
-          header.example !== undefined
-            ? { source: 'value', value: header.example }
-            : getExampleValue(Object.values(header.examples ?? {})[0])
+        const example = getExampleValue(
+          isDefined(header.example) ? { value: header.example } : Object.values(header.examples ?? {})[0],
+        )
         if (example?.source === 'serialized') {
           return [[name, example.value]]
         }
         const headerSchema = getResolvedRef(header.schema)
-        const value = example === undefined ? (headerSchema?.const ?? headerSchema?.default) : example.value
-        return value === undefined ? [] : [[name, String(serializeSimpleStyle(value, header.explode ?? false))]]
+        const value = example?.value ?? headerSchema?.const ?? headerSchema?.default
+        return isDefined(value) ? [[name, String(serializeSimpleStyle(value, header.explode ?? false))]] : []
       }),
     )
     if (
