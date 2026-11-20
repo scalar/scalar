@@ -47,7 +47,7 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - name: Build
@@ -60,13 +60,13 @@ jobs:
           mkdir -p temp-artifacts
           cp packages/api-reference/dist/browser/standalone.js temp-artifacts/scalar.js
       - name: Upload scalar.js artifact
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
       - name: Upload mock server docker entrypoint artifact
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: mock-server-docker-entrypoint
           path: packages/mock-server/docker/dist/docker-entrypoint.js
@@ -75,7 +75,7 @@ jobs:
       # restore-build composite so downstream JS jobs can fan out without
       # rerunning the build.
       - name: Upload build-output artifact
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: build-output
           path: build-output.tar.gz
@@ -86,7 +86,7 @@ jobs:
       # Dependabot runs cannot read Actions secrets, including the RelativeCI key.
       - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]')
         name: Upload webpack stats to RelativeCI
-        uses: relative-ci/agent-action@v3.2.3
+        uses: relative-ci/agent-action@v3.2.4
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -110,7 +110,7 @@ jobs:
       api_client_changed: ${{ steps.changes.outputs.api_client_changed }}
       api_reference_changed: ${{ steps.changes.outputs.api_reference_changed }}
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - id: changes
@@ -121,10 +121,10 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
-      - uses: pnpm/action-setup@v5.0.0
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.1
       - name: Setup Node.js
-        uses: actions/setup-node@v6.4.0
+        uses: actions/setup-node@v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -146,10 +146,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
-      - uses: pnpm/action-setup@v5.0.0
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.1
       - name: Setup Node.js
-        uses: actions/setup-node@v6.4.0
+        uses: actions/setup-node@v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -170,10 +170,10 @@ jobs:
       # Required so the lint results can be posted back to the PR.
       pull-requests: write
     steps:
-      - uses: actions/checkout@v6.0.3
-      - uses: pnpm/action-setup@v5.0.0
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.1
       - name: Setup Node.js
-        uses: actions/setup-node@v6.4.0
+        uses: actions/setup-node@v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -234,7 +234,7 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       # `--only` skips the `build` dependencies of types:check: restore-build
@@ -259,7 +259,7 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Build examples, projects and tooling
@@ -277,7 +277,7 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       # restore-build only restores dist/, while Nuxt configs extend generated .nuxt files.
@@ -310,7 +310,7 @@ jobs:
       HOME: '/root'
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Run tests
@@ -324,9 +324,9 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Setup Go
-        uses: actions/setup-go@v6.5.0
+        uses: actions/setup-go@v7.1.0
         with:
           go-version-file: projects/proxy-scalar-com/go.mod
           cache: false
@@ -340,7 +340,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Start SSR playground and verify it responds
@@ -370,7 +370,7 @@ jobs:
       pull-requests: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
@@ -420,7 +420,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
@@ -475,7 +475,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
@@ -519,7 +519,7 @@ jobs:
       pull-requests: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
@@ -567,7 +567,7 @@ jobs:
       pull-requests: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
