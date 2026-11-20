@@ -8,8 +8,8 @@ import { resolve } from 'node:path'
 export const hasModuleSideEffects = (id: string): boolean =>
   id.includes('.css') ||
   id === '@scalar/types/zod' ||
-  /[/\\]types[/\\](?:src|dist)[/\\]zod\.[jt]s$/.test(id) ||
-  /[/\\]state[/\\]ai-sdk[/\\]index\.[jt]s$/.test(id)
+  /[/\\](?:packages|@scalar)[/\\]types[/\\](?:src|dist)[/\\]zod\.[jt]s$/.test(id) ||
+  /[/\\](?:packages|@scalar)[/\\]agent-chat[/\\](?:src|dist)[/\\]state[/\\]ai-sdk[/\\]index\.[jt]s$/.test(id)
 
 /**
  * Sanitizes a chunk name for use in output filenames.
