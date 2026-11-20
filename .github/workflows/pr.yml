@@ -397,6 +397,7 @@ jobs:
         uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar Blocks Snapshot Test Results'
+          icon-style: emoji
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/blocks/playwright-results-storybook.json
           report-tag: test-blocks-snapshots
@@ -449,6 +450,7 @@ jobs:
         uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar References End to End Test Results'
+          icon-style: emoji
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/api-reference/playwright-results.json
           report-tag: test-references-e2e
@@ -496,6 +498,7 @@ jobs:
         uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar App End to End Test Results'
+          icon-style: emoji
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: projects/scalar-app/playwright-results.json
           report-tag: test-scalar-app-e2e
@@ -544,6 +547,7 @@ jobs:
         uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar Components Snapshot Test Results'
+          icon-style: emoji
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/components/playwright-results.json
           report-tag: test-components-snapshots
