@@ -57,7 +57,7 @@ describe('log', () => {
     const { languages, highlight: eagerHighlight } = await import('../all')
     expect(languages.filter((grammar) => grammar.name === 'log').map((grammar) => grammar.name)).toStrictEqual(['log'])
     expect(eagerHighlight('INFO ready', 'log')).toBe('<span class="shl-k">INFO</span> ready')
-    expect(standardLanguages.log).toBe('log')
+    expect(Object.hasOwn(standardLanguages, 'log')).toBe(false)
     expect(syntaxHighlight('INFO ready', { lang: 'log' })).toBe(
       '<pre><code class="hljs language-log"><span class="hljs-keyword">INFO</span> ready</code></pre>',
     )

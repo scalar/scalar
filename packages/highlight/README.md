@@ -274,8 +274,8 @@ It is two packages wearing one name, and each half has a replacement:
 +registerLanguage(...languages);
 ```
 
-`standardLanguages` retains its existing keys and also includes `log`, so
-`StandardLanguageKey` accepts log blocks alongside the existing languages. The `languages` option is accepted
+`standardLanguages` is re-exported with the same key set, so `StandardLanguageKey` is
+unchanged and the component's props keep their types. The `languages` option is accepted
 and ignored, since the registry already knows every grammar.
 
 The one `standardLanguages` name with no grammar — `plaintext` — renders as escaped,
@@ -314,7 +314,10 @@ For the same three languages `ScalarCodeBlock` shows most often, measured before
 
 Use `log` for plain-text logs. It is available through
 `@scalar/highlight/langs/log`, `@scalar/highlight/all`, `loadLanguage('log')`,
-and the compatibility renderers. There are no additional aliases; `console`
+and the compatibility renderers once it is registered. The legacy
+`standardLanguages` list and `StandardLanguageKey` stay unchanged; compatibility
+rendering finds `log` through the existing grammar registry. There are no
+additional aliases; `console`
 continues to mean Bash.
 
 ```ts
