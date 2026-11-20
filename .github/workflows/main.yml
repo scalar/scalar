@@ -278,6 +278,28 @@ jobs:
       - name: Run storybook snapshot tests (@scalar/blocks)
         run: pnpm --filter blocks test:e2e:storybook:ci
 
+  test-component-snapshots:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.62.1
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - name: Restore pre-built workspace
+        uses: $/.github/actions/restore-build
+      - name: Run e2e tests (@scalar/components)
+        run: pnpm --filter components test:e2e:ci
+
   test-e2e-api-reference:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
@@ -353,6 +375,9 @@ jobs:
         test-js,
         test-integrations,
         test-proxy-server,
+        test-block-snapshots,
+        test-component-snapshots,
+        test-e2e-api-reference,
         test-e2e-scalar-app,
         types,
       ]
