@@ -153,6 +153,13 @@ describe('curl', () => {
       assertHas(code, "'Accept: */*'", 'string')
     })
 
+    it(`keeps a JSON string whole across the '"'"' apostrophe idiom`, () => {
+      const code = `curl -d '{"note":"it'"'"'s a gift","n":1}' -H 'Accept: */*'`
+      assertHas(code, `"it'"'"'s a gift"`, 'string')
+      assertHas(code, '"n"', 'property')
+      assertHas(code, "'Accept: */*'", 'string')
+    })
+
     it('finds the body on the line after a line continuation', () => {
       assertHas(`curl -d \\\n  '{"a":1}'`, '"a"', 'property')
     })

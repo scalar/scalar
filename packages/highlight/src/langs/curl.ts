@@ -93,10 +93,11 @@ const curl: Grammar = {
     'json-body': {
       // Without the JSON grammar registered, the body is one string, as before.
       default: 'string',
-      // `'\''` is the shell writing an apostrophe, not the end of the body, so
-      // it is a hole: JSON reads straight across it and a string value such as
-      // `"it'\''s"` stays one string.
-      embed: { language: 'json', until: "'", holes: "'\\\\''" },
+      // `'\''` and `'"'"'` are the shell writing an apostrophe, not the end of
+      // the body, so they are holes: JSON reads straight across them and a
+      // string value such as `"it'\''s"` stays one string. snippetz writes the
+      // first; the second is common in hand-written examples.
+      embed: { language: 'json', until: "'", holes: `'\\\\''|'"'"'` },
       rules: [],
     },
 

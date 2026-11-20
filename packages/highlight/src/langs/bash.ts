@@ -36,7 +36,6 @@ const bash: Grammar = {
         // inside a single-quoted string — close, escaped quote, reopen — and
         // reading that `\\'` as the start of a string inverts the rest of the
         // line. snippetz writes it for every curl body with an apostrophe.
-        // A backslash before a newline is a line continuation, left unscoped.
         { match: '\\\\[^\\r\\n]', scope: 'string.escape' },
         { match: '"', scope: 'string', push: 'string-double' },
         { match: "'", scope: 'string', push: 'string-single' },
