@@ -11,6 +11,8 @@ type ExchangeTokenResult = Awaited<ReturnType<typeof exchangeToken>>
 
 const CALLBACK_HOST = '127.0.0.1'
 const CALLBACK_TIMEOUT_MS = 3 * 60 * 1000
+// New accounts may need email verification before returning to the desktop.
+const REGISTER_CALLBACK_TIMEOUT_MS = 15 * 60 * 1000
 
 /**
  * Lets the OS reserve an available port on the callback interface.
@@ -71,11 +73,13 @@ const waitForExchangeTokenCallback = ({
   server,
   state,
   codeVerifier,
+  timeoutMs,
 }: {
   port: number
   server: http.Server
   state: string
   codeVerifier: string
+  timeoutMs: number
 }): Promise<ExchangeTokenResult> =>
   new Promise<ExchangeTokenResult>((resolve) => {
     const controller = new AbortController()
@@ -96,7 +100,7 @@ const waitForExchangeTokenCallback = ({
 
     const timeout = setTimeout(() => {
       void finish([new Error('Exchange token callback timed out'), null])
-    }, CALLBACK_TIMEOUT_MS)
+    }, timeoutMs)
 
     const rejectRequest = (response: http.ServerResponse, statusCode: number): void => {
       response.writeHead(statusCode, { Connection: 'close', 'Cache-Control': 'no-store' })
@@ -173,7 +177,13 @@ export const getExchangeToken = async (flow: 'login' | 'register'): Promise<Toke
       throw new Error('Could not determine the login callback port')
     }
     const port = address.port
-    const tokenResult = waitForExchangeTokenCallback({ port, server, state, codeVerifier })
+    const tokenResult = waitForExchangeTokenCallback({
+      port,
+      server,
+      state,
+      codeVerifier,
+      timeoutMs: flow === 'register' ? REGISTER_CALLBACK_TIMEOUT_MS : CALLBACK_TIMEOUT_MS,
+    })
     const loginUrl = new URL(`/${flow}`, env.VITE_DASHBOARD_URL)
     loginUrl.search = new URLSearchParams({
       externalRedirect: 'local',

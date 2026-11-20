@@ -184,14 +184,24 @@ describe('get-exchange-token', () => {
     await second.result
   })
 
-  it('times out and releases the listener when the browser never returns', async () => {
+  it('completes registration after the login callback window has elapsed', async () => {
     vi.useFakeTimers()
-    const pending = getExchangeToken('login')
-    await vi.waitFor(() => expect(openExternalMock).toHaveBeenCalled())
-    const timeoutPort = Number(new URL(openExternalMock.mock.lastCall![0]).searchParams.get('port'))
-    await vi.advanceTimersByTimeAsync(3 * 60 * 1000)
-    expect(await pending).toBeNull()
+    const { result, port, path } = await startLogin('register')
+    await vi.advanceTimersByTimeAsync(4 * 60 * 1000)
+    expect((await sendRequest(port, path)).status).toBe(303)
+    expect(await result).toStrictEqual(TOKENS)
+  })
+
+  it.each([
+    { flow: 'login', minutes: 3 },
+    { flow: 'register', minutes: 15 },
+  ] as const)('times out $flow after $minutes minutes and releases the listener', async ({ flow, minutes }) => {
+    vi.useFakeTimers()
+    const { result, port } = await startLogin(flow)
+    await vi.advanceTimersByTimeAsync(minutes * 60 * 1000)
+    expect(await result).toBeNull()
+    expect(console.error).toHaveBeenCalledWith(new Error('Exchange token callback timed out'))
     vi.useRealTimers()
-    await expect(sendRequest(timeoutPort, '/callback')).rejects.toThrow()
+    await expect(sendRequest(port, '/callback')).rejects.toThrow()
   })
 })
