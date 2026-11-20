@@ -149,6 +149,9 @@ describe('createMarkdownFromOpenApi', () => {
       const canonical = await createMarkdownFromOpenApi(entry, options)
       expect(canonical).toContain(`- **${requirement}**: API key in header \`X-Canonical-Key\``)
       expect(canonical).not.toContain('X-Retrieval-Key')
+      const inMemory = await createMarkdownFromOpenApi({ ...document, $self: './canonical/openapi.json' }, options)
+      expect(inMemory).toContain(`- **${requirement}**: API key in header \`X-Canonical-Key\``)
+      expect(inMemory).not.toContain('X-Retrieval-Key')
       const inherited = await createMarkdownFromOpenApi(entry, {
         ...options,
         operation: { path: '/items', method: 'get' },
@@ -206,7 +209,9 @@ describe('createMarkdownFromOpenApi', () => {
         'x-scalar-original-security-keys',
       ]
       const loaded = await loadDocument(entry, { basePath: directory })
-      for (const key of metadataKeys) {
+      // The identity hook does not emit the lifecycle plugin's original-reference metadata.
+      expect(JSON.stringify(loaded)).not.toContain('x-scalar-original-refs')
+      for (const key of metadataKeys.filter((key) => key !== 'x-scalar-original-refs')) {
         expect(JSON.stringify(loaded)).toContain(key)
       }
       const full = await createMarkdownFromOpenApi(entry, { documentLoading: { basePath: directory } })

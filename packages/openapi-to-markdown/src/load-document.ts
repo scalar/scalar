@@ -237,7 +237,8 @@ export const loadDocument = async (
   // Check identity before upgrading so older descriptions cannot acquire $self semantics.
   // In-memory input has no retrieval URI. Keep the fallback directory's trailing separator
   // so relative identities resolve inside it rather than alongside it.
-  const entryIdentity = resolveNodeOpenApiDocument(raw, origin ?? `${resolve(options.basePath ?? '.')}${sep}`)
+  const retrievalUri = origin ?? `${resolve(options.basePath ?? '.')}${sep}`
+  const entryIdentity = resolveNodeOpenApiDocument(raw, retrievalUri)
   // Upgrade before indexing so reference resolution sees one consistent dialect.
   const declaredOpenapiVersion = typeof raw.openapi === 'string' ? raw.openapi : '2.0'
   const isThreeTwo = /^3\.2\.\d+$/.test(declaredOpenapiVersion)
@@ -276,7 +277,7 @@ export const loadDocument = async (
   // URI requirements are not $ref fields, so they need the same alias pass as the workspace store.
   // Check the authored version because upgrading older descriptions must not enable URI semantics.
   if (isThreeTwo) {
-    await resolveSecurityRequirements(document, { origin, loaders: loader.plugins })
+    await resolveSecurityRequirements(document, { origin: retrievalUri, loaders: loader.plugins })
     schemas = getSchemas(document)
     // The URI pass can add resources, so retain the entry identity in the refreshed index.
     if (entryIdentity) {
