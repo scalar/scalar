@@ -170,7 +170,7 @@ export const apiReferenceConfigurationSchema = intersection([
       },
     ),
     multipartNaming: optional(literal('indexed-dot'), {
-      typeComment: 'Use indexed dotted names for nested multipart form fields.',
+      typeComment: 'Use indexed dotted names for nested multipart and URL-encoded form fields.',
     }),
     defaultRequestBodyView: optional(union([literal('form'), literal('raw')]), {
       typeComment: 'Initial view for the request body editor with structured (JSON/YAML) bodies',

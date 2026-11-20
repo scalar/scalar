@@ -7,6 +7,103 @@ import type { ExampleObject, RequestBodyObject } from '@/schemas/v3.2/strict/ope
 import { buildRequestBody } from './build-request-body'
 
 describe('buildRequestBody', () => {
+  it.each(['structured', 'edited', 'legacy'] as const)(
+    'sends indexed-dot URL-encoded fields from a %s example',
+    (format) => {
+      const value = {
+        structured: {
+          contacts: [{ name: 'Ada & Grace', active: false }],
+          profile: { city: 'New York' },
+          tags: ['a+b', 'x&y'],
+          ignored: 'skip',
+        },
+        legacy: [
+          { name: 'contacts', value: '[{"name":"Ada & Grace","active":false}]' },
+          { name: 'profile', value: '{"city":"New York"}' },
+          { name: 'tags', value: '["a+b","x&y"]' },
+          { name: 'ignored', value: 'skip', isDisabled: true },
+        ],
+        edited: [
+          { name: 'contacts[0].name', value: 'Ada & Grace' },
+          { name: 'contacts[0].active', value: 'false' },
+          { name: 'profile.city', value: 'New York' },
+          { name: 'tags', value: '["a+b","x&y"]', isArray: true },
+          { name: 'ignored', value: 'skip', isDisabled: true },
+        ],
+      }[format]
+      const body = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          'application/x-www-form-urlencoded': {
+            schema: {
+              type: 'object',
+              required: ['contacts', 'profile', 'tags'],
+              properties: {
+                contacts: {
+                  type: 'array',
+                  items: { type: 'object', properties: { name: { type: 'string' }, active: { type: 'boolean' } } },
+                },
+                profile: { type: 'object', properties: { city: { type: 'string' } } },
+                tags: { type: 'array', items: { type: 'string' } },
+                ignored: { type: 'string' },
+              },
+            },
+            examples: { default: { value } },
+          },
+        },
+      })
+      const result = buildRequestBody(body, undefined, undefined, undefined, undefined, {
+        multipartNaming: 'indexed-dot',
+      })
+      expect(result).toStrictEqual({
+        mode: 'urlencoded',
+        value: [
+          { key: 'contacts[0].name', value: 'Ada & Grace' },
+          { key: 'contacts[0].active', value: 'false' },
+          { key: 'profile.city', value: 'New York' },
+          { key: 'tags', value: 'a+b' },
+          { key: 'tags', value: 'x&y' },
+        ],
+      })
+      assert(result?.mode === 'urlencoded')
+      expect(new URLSearchParams(result.value.map(({ key, value }) => [key, value])).toString()).toBe(
+        'contacts%5B0%5D.name=Ada+%26+Grace&contacts%5B0%5D.active=false&profile.city=New+York&tags=a%2Bb&tags=x%26y',
+      )
+    },
+  )
+
+  it('includes sparse collection indices in URL-encoded bodies', () => {
+    expect(
+      buildRequestBody(
+        {
+          content: {
+            'application/x-www-form-urlencoded': {
+              examples: {
+                default: {
+                  value: [
+                    { name: 'groups[0].members[0].name', value: 'skip', isDisabled: true },
+                    { name: 'groups[1].members[2].name', value: 'Ada' },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { multipartNaming: 'indexed-dot' },
+      ),
+    ).toStrictEqual({
+      mode: 'urlencoded',
+      value: [
+        { key: 'groups[1].members[2].name', value: 'Ada' },
+        { key: 'groups.index', value: '1' },
+        { key: 'groups[1].members.index', value: '2' },
+      ],
+    })
+  })
+
   it.each(['structured', 'edited'] as const)(
     'preserves root encoding content types for indexed-dot files from a %s example',
     async (format) => {

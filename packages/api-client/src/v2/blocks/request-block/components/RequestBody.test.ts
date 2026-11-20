@@ -60,6 +60,45 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it('edits indexed-dot URL-encoded fields without losing repeated values', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        multipartNaming: 'indexed-dot',
+        requestBody: {
+          content: {
+            'application/x-www-form-urlencoded': {
+              schema: {
+                type: 'object',
+                required: ['contacts', 'tags'],
+                properties: {
+                  contacts: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' } } } },
+                  tags: { type: 'array', items: { type: 'string' } },
+                },
+              },
+              examples: { 'example-1': { value: { contacts: [{ name: 'Ada' }], tags: ['one', 'two'] } } },
+            },
+          },
+        },
+      },
+    })
+    const table = wrapper.getComponent(RequestTable)
+    expect(table.props('data').map(({ name }) => name)).toStrictEqual(['contacts[0].name', 'tags'])
+    await table.vm.$emit('upsertRow', 0, { value: 'Grace' })
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [
+        {
+          contentType: 'application/x-www-form-urlencoded',
+          payload: [
+            { name: 'contacts[0].name', value: 'Grace', isDisabled: false },
+            { name: 'tags', value: ['one', 'two'], isDisabled: false, isArray: true },
+          ],
+        },
+      ],
+    ])
+    wrapper.unmount()
+  })
+
   it('uploads a file using the indexed form name declared by the multipart mode', async () => {
     const wrapper = mount(RequestBody, {
       props: {

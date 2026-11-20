@@ -17,7 +17,7 @@ import {
   serializeFormPropertyWithEncoding,
   serializeMultipartArray,
   serializeMultipartBody,
-  usesAspNetMultipartNaming,
+  usesAspNetFormNaming,
 } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
@@ -249,7 +249,7 @@ export const processBody = ({
   const encoding = requestBody.content[_contentType]?.encoding
 
   const media = requestBody.content[_contentType]
-  const aspNetNaming = usesAspNetMultipartNaming(_contentType, media, multipartNaming)
+  const aspNetNaming = usesAspNetFormNaming(_contentType, media, multipartNaming)
   if (media && (aspNetNaming || needsMultipartEncoding(_contentType, media))) {
     const exampleName = example ?? Object.keys(media.examples ?? {})[0] ?? 'default'
     const body = buildRequestBody(
@@ -258,8 +258,11 @@ export const processBody = ({
       requestBodyCompositionSelection,
       openapiVersion,
       jsonSchemaDialect,
-      { multipartNaming, aspNetFilePlaceholders: aspNetNaming },
+      { multipartNaming, aspNetFilePlaceholders: aspNetNaming && _contentType === 'multipart/form-data' },
     )
+    if (aspNetNaming && body?.mode === 'urlencoded') {
+      return { mimeType: harMimeType, params: body.value.map(({ key, value }) => ({ name: key, value })) }
+    }
     if (aspNetNaming && body?.mode === 'formdata') {
       return {
         mimeType: harMimeType,

@@ -902,7 +902,7 @@ type ExtendedConfiguration = {
    */
   defaultRequestBodyView?: 'form' | 'raw'
 
-  /** Use indexed dotted names for nested multipart form fields, such as `items[0].file`. */
+  /** Use indexed dotted names for nested multipart and URL-encoded form fields, such as `items[0].name`. */
   multipartNaming?: MultipartNaming
   /** Custom CSS to be added to the page */
   customCss?: string
@@ -988,7 +988,7 @@ type ExtendedConfiguration = {
   orderRequiredPropertiesFirst: boolean
 }
 
-/** Naming convention for named multipart request fields. */
+/** Naming convention for multipart and URL-encoded request fields. */
 export type MultipartNaming = 'indexed-dot'
 
 export type SourceConfiguration = {

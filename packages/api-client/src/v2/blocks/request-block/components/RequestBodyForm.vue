@@ -24,7 +24,7 @@ const {
   example,
   bodySchema,
   encoding,
-  aspNetMultipartNaming,
+  aspNetFormNaming,
   selectedContentType,
   environment,
   compositionSelection,
@@ -34,7 +34,7 @@ const {
   bodySchema?: SchemaObject
   /** Encoding overrides for individual multipart fields. */
   encoding?: MediaTypeObject['encoding']
-  aspNetMultipartNaming?: boolean
+  aspNetFormNaming?: boolean
   /** Selected request-body variants, shared with example generation and serialization. */
   compositionSelection?: Record<string, number>
   selectedContentType: string
@@ -72,7 +72,7 @@ watch(
       selectedContentType,
       compositionSelection,
       encoding,
-      aspNetMultipartNaming,
+      aspNetFormNaming,
     ] as const,
   ([
     newExample,
@@ -112,12 +112,13 @@ const handleUpdateFormValue = (rows: TableRow[]): void => {
     rows.map((row) => ({
       name: row.name,
       value:
-        selectedContentType === 'multipart/form-data'
+        selectedContentType === 'multipart/form-data' || aspNetFormNaming
           ? getFormBodyValue(row)
           : (row.value as string | File),
       isDisabled: row.isDisabled ?? false,
       ...(row.isDisabledByDefault ? { isDisabledByDefault: true } : {}),
-      ...(selectedContentType === 'multipart/form-data' && row.isArray
+      ...((selectedContentType === 'multipart/form-data' || aspNetFormNaming) &&
+      row.isArray
         ? { isArray: true }
         : {}),
     })),

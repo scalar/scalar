@@ -13,11 +13,11 @@ import { resolveFormSchema } from '@/helpers/resolve-form-schema'
 
 import { getExample } from '../helpers/get-example'
 import {
-  getAspNetMultipartFields,
-  getAspNetMultipartIndexFields,
-  usesAspNetMultipartNaming,
+  getAspNetFormFields,
+  getAspNetFormIndexFields,
+  usesAspNetFormNaming,
   withAspNetMultipartFilePlaceholder,
-} from './aspnet-multipart-fields'
+} from './aspnet-form-fields'
 import {
   type MultipartPart,
   buildMultipart,
@@ -201,7 +201,7 @@ export const buildRequestBody = (
     Boolean(bodyProperties && Object.hasOwn(bodyProperties, key) && !requiredBodyProperties.has(key))
 
   const media = requestBody.content[bodyContentType]
-  const aspNetNaming = usesAspNetMultipartNaming(bodyContentType, media, options?.multipartNaming)
+  const aspNetNaming = usesAspNetFormNaming(bodyContentType, media, options?.multipartNaming)
   if (media && needsMultipartEncoding(bodyContentType, media)) {
     // Raw editors store JSON text, while form editors store named rows.
     const value: unknown = (() => {
@@ -270,7 +270,7 @@ export const buildRequestBody = (
     const includeMissing =
       options?.aspNetFilePlaceholders === true &&
       !getExampleValue(getExample(requestBody, exampleName, bodyContentType))
-    const fields = getAspNetMultipartFields(
+    const fields = getAspNetFormFields(
       example.value,
       resolvedBodySchema,
       requestBodyCompositionSelection,
@@ -282,6 +282,22 @@ export const buildRequestBody = (
         )
       : fields
   })()
+
+  if (aspNetNaming && bodyContentType === 'application/x-www-form-urlencoded' && Array.isArray(formRows)) {
+    const value = formRows
+      .filter((field) => !field.isDisabled && field.name)
+      .flatMap((field): UrlEncoded['value'] => {
+        const encoded = serializeFormPropertyWithEncoding(field.name, field.value, media?.encoding?.[field.rootName])
+        const values: unknown[] = Array.isArray(field.value) ? field.value : [field.value]
+        return (
+          encoded ??
+          values
+            .filter((value) => value !== undefined && value !== null)
+            .map((value) => ({ key: field.name, value: String(value) }))
+        )
+      })
+    return { mode: 'urlencoded', value: [...value, ...getAspNetFormIndexFields(value.map(({ key }) => key))] }
+  }
 
   // Form data - array format (from UI editor or flattened for ASP.NET Core)
   if (
@@ -399,7 +415,7 @@ export const buildRequestBody = (
     })
 
     if (aspNetNaming && result.mode === 'formdata') {
-      const indices = getAspNetMultipartIndexFields(result.value.map(({ key }) => key))
+      const indices = getAspNetFormIndexFields(result.value.map(({ key }) => key))
       result.value.push(...indices.map(({ key, value }) => ({ type: 'text' as const, key, value })))
     }
     return result

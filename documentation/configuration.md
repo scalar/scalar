@@ -588,9 +588,7 @@ Whether to always start with all tags open, regardless of the URL.
 
 **Type:** `'indexed-dot'`
 
-Set `multipartNaming: 'indexed-dot'` to use names such as `profile.file` and `certificates[0].file` in the multipart form editor, sent requests, and code samples. This supports ASP.NET Core `[FromForm]` model binding for nested objects and arrays. Arrays of files or scalar values use repeated field names. If an indexed collection skips positions, Scalar includes `.index` fields so ASP.NET Core can bind the remaining items.
-
-This option applies only to `multipart/form-data`. It does not change field naming for `application/x-www-form-urlencoded` request bodies.
+Set `multipartNaming: 'indexed-dot'` to use names such as `profile.name` and `certificates[0].name` in the form editor, sent requests, and code samples for `multipart/form-data` and `application/x-www-form-urlencoded` bodies. This supports ASP.NET Core `[FromForm]` model binding for nested objects and arrays. Arrays of files or scalar values use repeated field names. If an indexed collection skips positions, Scalar includes `.index` fields so ASP.NET Core can bind the remaining items.
 
 ```js
 Scalar.createApiReference('#app', {

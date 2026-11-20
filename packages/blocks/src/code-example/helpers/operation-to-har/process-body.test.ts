@@ -14,6 +14,43 @@ import { assert, describe, expect, it } from 'vitest'
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it.each(['structured', 'edited'] as const)('uses indexed-dot URL-encoded names in %s code samples', (format) => {
+    const postData = processBody({
+      contentType: 'application/x-www-form-urlencoded',
+      multipartNaming: 'indexed-dot',
+      requestBody: {
+        content: {
+          'application/x-www-form-urlencoded': {
+            examples: {
+              default: {
+                value:
+                  format === 'structured'
+                    ? { contacts: [{ name: 'Ada & Grace' }], tags: ['one', 'two'] }
+                    : [
+                        { name: 'contacts[0].name', value: 'Ada & Grace' },
+                        { name: 'tags', value: ['one', 'two'] },
+                      ],
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(postData).toStrictEqual({
+      mimeType: 'application/x-www-form-urlencoded',
+      params: [
+        { name: 'contacts[0].name', value: 'Ada & Grace' },
+        { name: 'tags', value: 'one' },
+        { name: 'tags', value: 'two' },
+      ],
+    })
+    const curl = snippetz().print('shell', 'curl', { url: 'https://example.com/contacts', method: 'POST', postData })
+    expect(curl).toContain('--data-urlencode')
+    expect(curl).toContain('contacts%5B0%5D.name=Ada & Grace')
+    expect(curl).toContain('tags=one')
+    expect(curl).toContain('tags=two')
+  })
+
   it('uses indexed names and file uploads in generated ASP.NET Core multipart samples', () => {
     const postData = processBody({
       contentType: 'multipart/form-data',

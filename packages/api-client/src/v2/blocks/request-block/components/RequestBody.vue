@@ -26,7 +26,7 @@ import {
   getExampleFromBody,
   getSchemaExampleFromBody,
   getSelectedBodyContentType,
-  usesAspNetMultipartNaming,
+  usesAspNetFormNaming,
 } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -280,8 +280,8 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
   )
 })
 
-const aspNetMultipartNaming = computed<boolean>(() =>
-  usesAspNetMultipartNaming(
+const aspNetFormNaming = computed<boolean>(() =>
+  usesAspNetFormNaming(
     selectedContentType.value,
     requestBody?.content?.[selectedContentType.value],
     multipartNaming,
@@ -407,7 +407,7 @@ watch(
         bodySchema.value,
         requestBodyCompositionSelection,
         requestBody.content?.[selectedContentType.value]?.encoding,
-        aspNetMultipartNaming.value,
+        aspNetFormNaming.value,
       )
       emits('update:formValue', {
         contentType: selectedContentType.value,
@@ -656,7 +656,7 @@ const canGenerateExample = computed(() =>
             selectedContentType === 'application/x-www-form-urlencoded'
           ">
           <RequestBodyForm
-            :aspNetMultipartNaming
+            :aspNetFormNaming
             :bodySchema
             :compositionSelection="requestBodyCompositionSelection"
             :encoding="requestBody?.content?.[selectedContentType]?.encoding"

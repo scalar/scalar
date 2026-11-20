@@ -12,13 +12,13 @@ import { needsMultipartEncoding } from './build-multipart'
 import { coerceLeafValueToSchemaType } from './schema-value-coercion'
 
 /** ASP.NET Core binds named form fields. Ordered and nested MIME bodies use their own encodings. */
-export const usesAspNetMultipartNaming = (
+export const usesAspNetFormNaming = (
   contentType: string,
   media: MediaTypeObject | undefined,
   multipartNaming?: MultipartNaming,
 ): boolean =>
   multipartNaming === 'indexed-dot' &&
-  contentType === 'multipart/form-data' &&
+  (contentType === 'multipart/form-data' || contentType === 'application/x-www-form-urlencoded') &&
   media !== undefined &&
   !needsMultipartEncoding(contentType, media)
 
@@ -73,7 +73,7 @@ const resolveField = (
 }
 
 /** Map a structured example or saved editor rows to the field names understood by ASP.NET Core. */
-export const getAspNetMultipartFields = (
+export const getAspNetFormFields = (
   value: unknown,
   schema: SchemaObject | undefined,
   compositionSelection?: Record<string, number>,
@@ -193,7 +193,7 @@ export const getAspNetMultipartFields = (
 }
 
 /** Add explicit indices for sparse collections so MVC binds items beyond the first gap. */
-export const getAspNetMultipartIndexFields = (names: string[]): { key: string; value: string }[] => {
+export const getAspNetFormIndexFields = (names: string[]): { key: string; value: string }[] => {
   const explicitNames = new Set(names.map((name) => name.toLowerCase()))
   const collections = new Map<string, { key: string; indices: Set<string> }>()
   for (const name of names) {
