@@ -801,6 +801,13 @@ describe('regressions from the TextMate comparison', () => {
     ])
   })
 
+  it.each(['\n', '\r\n'])('bash: respects the quoting context in a parameter expansion (%j)', (newline) => {
+    const continuation = '\\' + newline
+    const value = "'first" + continuation + "second'"
+    assertHas('echo ${missing:-' + value + '}', 'bash', value, 'string')
+    assertHas('echo "${missing:-' + value + '}"', 'bash', '\\', 'punctuation')
+  })
+
   it('bash: closes a heredoc only on its terminator, and does not expand a quoted one', () => {
     assertHas('cat <<EOF\nEND\n$HOME\nEOF\necho done\n', 'bash', 'echo', 'function.builtin')
     // The body merges with the closing quote of the marker into one run.

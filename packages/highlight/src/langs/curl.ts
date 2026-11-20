@@ -82,6 +82,7 @@ const stepIntoWord: StateRule[] = [
 ]
 const shortSwitch: StateRule = { match: `[${SHORT_SWITCHES}]+` }
 const longName: StateRule = { match: '[\\w.-]+' }
+const commandEnd: StateRule = { match: '(?=[\\n;&|()])', pop: true }
 
 const curl: Grammar = {
   name: 'curl',
@@ -89,6 +90,36 @@ const curl: Grammar = {
     root: {
       rules: [
         shellContinuation,
+        redirection,
+        { match: '[ \\t\\n]+|\\r\\n|[;&|()]' },
+        { match: '#[^\\n]*', scope: 'comment' },
+        { match: '\\$(?=[ \\t])' },
+        { match: `(?:command|env|exec|nohup|sudo|time)${SHELL_WORD_END}` },
+        { match: '[A-Za-z_]\\w*=', push: 'argument-word' },
+        {
+          match: String.raw`([\w./~+-]*/)?([cC])(?=${SPLICES}[uU]${SPLICES}[rR]${SPLICES}[lL]${SHELL_WORD_END})`,
+          scope: [null, 'keyword'],
+          push: 'curl-name',
+        },
+        {
+          match: String.raw`(?:'(?:[\w./~+-]*/)?[cC][uU][rR][lL]'|"(?:[\w./~+-]*/)?[cC][uU][rR][lL]")${SHELL_WORD_END}`,
+          scope: 'string',
+          push: 'curl-command',
+        },
+        // A curl block can show just an option fragment.
+        { match: String.raw`(?<=(?<![\s\S])(?:[ \t]|${SHELL_LINE_SPLICE})*)(?=-)`, push: 'curl-command' },
+        { match: '(?=[\\s\\S])', push: 'other-command' },
+      ],
+    },
+    'curl-name': {
+      default: 'keyword',
+      rules: [shellContinuation, { match: '[uUrR]+' }, { match: '[lL]', set: 'curl-command' }],
+    },
+    'curl-command': {
+      rules: [
+        shellContinuation,
+        redirection,
+        commandEnd,
         // Splices can appear even between the dashes in the end-of-options marker.
         { match: `${OPTION_START}(?=${SPLICES}-${SHELL_WORD_END})`, push: 'end-of-options' },
         { match: shortOption('d'), push: 'short-data-option' },
@@ -108,20 +139,18 @@ const curl: Grammar = {
         { match: `${OPTION_START}(?=${SPLICES}-${SPLICES}[A-Za-z])`, push: 'long-switches' },
         { match: shortOption(`[${SHORT_SWITCHES}]${SHELL_WORD_END}`), push: 'short-switches' },
         { match: `${OPTION_START}[A-Za-z]` },
-        redirection,
         { include: 'command-content' },
       ],
     },
+    'other-command': {
+      rules: [shellContinuation, redirection, commandEnd, { include: 'command-content' }],
+    },
     'command-content': {
       rules: [
-        { match: `[;&|()](?=${SPLICES}#)`, push: 'comment-after-operator' },
         { match: String.raw`${COMMENT_START}#[^\n]*`, scope: 'comment' },
         { match: '\\b[cC][uU][rR][lL]\\b', scope: 'keyword' },
         { include: 'word-content' },
       ],
-    },
-    'comment-after-operator': {
-      rules: [shellContinuation, { match: '#[^\\n]*', scope: 'comment', pop: true }],
     },
     'end-of-options': {
       rules: [shellContinuation, { match: '-', set: 'positional' }],
@@ -130,8 +159,8 @@ const curl: Grammar = {
       rules: [
         shellContinuation,
         redirection,
-        // A new shell command gets its own curl option parsing.
-        { match: '(?=[\\n;&|()])', pop: true },
+        // Leave both the positional state and the curl command at a separator.
+        { ...commandEnd, pop: 2 },
         { include: 'command-content' },
       ],
     },

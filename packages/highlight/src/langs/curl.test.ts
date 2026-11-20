@@ -318,6 +318,20 @@ describe('curl', () => {
     assertHas(code, 'true', 'boolean')
   })
 
+  it('highlights curl payloads in a pipeline without treating another command as curl', () => {
+    const code = "curl --json '[true]' | tr -d '[false]'; /usr/bin/curl -d '[null]'"
+    assertHas(code, 'true', 'boolean')
+    assertHas(code, "'[false]'", 'string')
+    assertHas(code, 'null', 'constant.builtin')
+  })
+
+  it.each(['', '$ curl ', '"curl" ', 'env MODE=test curl ', 'cu\\\nrl '])(
+    'recognizes curl operands in a fragment or invocation starting with %j',
+    (command) => {
+      assertHas(`${command}-d '[true]'`, 'true', 'boolean')
+    },
+  )
+
   it.each(['2>&1', '&>output.log', '$(printf example.test)', '<(echo example.test)', '`echo example.test`'])(
     'keeps options disabled through %s',
     (syntax) => {

@@ -19,7 +19,7 @@ const VAR = '\\$(?:[A-Za-z_]\\w*|[0-9!@#?*$-])'
 const BEFORE_COMMAND =
   '(?:^(?<!\\\\\\r?\\n)(?:[ \\t]*\\$(?=[ \\t]))?|[|&;(`{]|\\$\\(|\\b(?:then|do|else|elif|sudo|time|exec|xargs|nohup|env)\\b|!)'
 
-const heredocExpansions: StateRule[] = [shellContinuation, { match: '\\\\[\\\\$`]' }, { include: 'expansion' }]
+const heredocExpansions: StateRule[] = [shellContinuation, { match: '\\\\[\\\\$`]' }, { include: 'quoted-expansion' }]
 
 const bash: Grammar = {
   name: 'bash',
@@ -114,8 +114,13 @@ const bash: Grammar = {
     },
 
     expansion: {
+      rules: [{ match: '\\$\\{', scope: 'variable', push: 'brace-expansion' }, { include: 'simple-expansion' }],
+    },
+    'quoted-expansion': {
+      rules: [{ match: '\\$\\{', scope: 'variable', push: 'quoted-brace-expansion' }, { include: 'simple-expansion' }],
+    },
+    'simple-expansion': {
       rules: [
-        { match: '\\$\\{', scope: 'variable', push: 'brace-expansion' },
         { match: '\\$\\(\\(', scope: 'operator', push: 'arithmetic' },
         { match: '\\$\\(', scope: 'operator', push: 'subshell' },
         { match: VAR, scope: 'variable' },
@@ -123,6 +128,14 @@ const bash: Grammar = {
     },
 
     'brace-expansion': {
+      default: 'variable',
+      rules: [
+        { match: "'", scope: 'string', push: 'string-single' },
+        { match: '"', scope: 'string', push: 'string-double' },
+        { include: 'quoted-brace-expansion' },
+      ],
+    },
+    'quoted-brace-expansion': {
       default: 'variable',
       rules: [
         shellContinuation,
@@ -149,7 +162,7 @@ const bash: Grammar = {
       rules: [
         shellContinuation,
         { match: '\\\\[\\\\$`"]', scope: 'string.escape' },
-        { include: 'expansion' },
+        { include: 'quoted-expansion' },
         { match: '`', scope: 'string', push: 'backtick' },
         { match: '"', scope: 'string', pop: true },
       ],
