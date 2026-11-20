@@ -168,6 +168,12 @@ describe('log', () => {
     'Error handling is normal prose',
     'error handling is normal prose',
     'debug logging is enabled',
+    'No ERROR occurred',
+    'No [ERROR] occurred',
+    'INFO no ERROR found',
+    'INFO ERROR is message text',
+    'INFO [ERROR] is message text',
+    'INFO error: details',
     'INFO Message contains WARN and [ERROR] with error: details',
     'INFO - ERROR is quoted documentation here',
     'INFO: ERROR is part of the message',
@@ -179,6 +185,16 @@ describe('log', () => {
     const levels = scoped(code).filter(([, scope]) => scope === 'keyword')
     const header = code.match(/^INFO:?/)?.[0]
     expect(levels).toEqual(header ? [[header, 'keyword']] : [])
+  })
+
+  it('distinguishes qualified logger prefixes from ordinary words before severity', () => {
+    expect(scoped('App.Worker ERROR failed')).toEqual([
+      ['App.Worker', 'namespace'],
+      ['ERROR', 'keyword'],
+    ])
+    expect(scoped('No ERROR occurred')).toEqual([])
+    expect(scoped('INFO no ERROR found')).toEqual([['INFO', 'keyword']])
+    expect(scoped('INFO [ERROR] is message text')).toEqual([['INFO', 'keyword']])
   })
 
   it('highlights strings and URLs without inspecting their severity words', () => {

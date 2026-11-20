@@ -341,7 +341,10 @@ themes without adding log-specific colors or coloring entire message lines.
 This is a conservative heuristic, not a logging-framework parser. Bare severity
 labels must be uppercase; other casing needs brackets or a colon. A colon after
 a severity or a standalone `-`/`|` ends the header; otherwise the first
-unrecognized text starts the message. Severity words in that message stay plain.
+unrecognized text starts the message. Each entry recognizes at most one severity
+label; later severity words start message text and stay plain. A logger name
+directly before a severity label must be qualified, such as `App.Worker`, so
+ordinary prose such as `No ERROR occurred` remains plain.
 A message that itself starts with an uppercase severity word is inherently
 ambiguous and may look like a header. Context brackets are limited to 128
 non-whitespace characters. Arbitrary logger names without delimiters, custom

@@ -23,34 +23,50 @@ const log: Grammar = {
   states: {
     root: {
       rules: [
-        { match: `\\[[ \\t]*(?:${CASE_INSENSITIVE_LEVEL})[ \\t]*\\]`, scope: 'keyword' },
+        { match: `\\[[ \\t]*(?:${CASE_INSENSITIVE_LEVEL})[ \\t]*\\]`, scope: 'keyword', set: 'after-level' },
         {
           match: `\\b(?:${CASE_INSENSITIVE_LEVEL}):(?=[ \\t]|$)`,
           scope: 'keyword',
           set: 'message',
         },
-        { match: `\\b(?:${LEVEL})(?=[ \\t:]|$)`, scope: 'keyword' },
+        { match: `\\b(?:${LEVEL})(?=[ \\t:]|$)`, scope: 'keyword', set: 'after-level' },
+        { include: 'header' },
+      ],
+    },
+    'after-level': {
+      rules: [
+        // A second level is message text, even if it is bracketed like context.
+        {
+          match: `(?=\\[[ \\t]*(?:${CASE_INSENSITIVE_LEVEL})[ \\t]*\\]|\\b(?:${CASE_INSENSITIVE_LEVEL})(?=[ \\t:]|$))`,
+          set: 'message',
+        },
+        { include: 'header' },
+      ],
+    },
+    header: {
+      rules: [
         { include: 'exceptions' },
-        { match: /[ \t]+|\r\n|[\r\n\u2028\u2029]/ },
+        { match: /[ \t]+/ },
+        { match: /\r\n|[\r\n\u2028\u2029]/, set: 'root' },
         { match: `(\\[)((?:${TIMESTAMP}))(\\])`, scope: [null, 'number', null] },
         { match: `\\b(?:${TIMESTAMP})\\b`, scope: 'number' },
         // Bracketed context is deliberately bounded: malformed prefixes must
         // not rescan a long line for a closing bracket at every opening one.
         { match: /\[[^\s[\]]{1,128}\]/, scope: 'namespace' },
         { match: /\b\d+\b/, scope: 'number' },
-        // A process/component tag, or a logger directly before a separator or
-        // level. Ordinary words followed by other ordinary words end the header.
+        // Only qualified logger names can precede a level without a delimiter:
+        // accepting any word here would turn "No ERROR occurred" into a header.
         {
           match: /([A-Za-z_$][\w.$/-]*)(\[)(\d+)(\])(:)/,
           scope: ['namespace', 'punctuation.bracket', 'number', 'punctuation.bracket', 'punctuation.delimiter'],
         },
         { match: /[A-Za-z_$][\w.$/-]*:(?=[ \t]|$)/, scope: 'namespace' },
         {
-          match: '[A-Za-z_$][\\w$]*(?:\\.[A-Za-z_$][\\w$]*)+(?=[ \\t]+(?:\\[|\\d))',
+          match: `[A-Za-z_$][\\w$]*(?:\\.[A-Za-z_$][\\w$]*)+(?=[ \\t]+(?:\\[|\\d|(?:${CASE_INSENSITIVE_LEVEL})(?=[ \\t:]|$)))`,
           scope: 'namespace',
         },
         {
-          match: `[A-Za-z_$][\\w.$/-]*(?=[ \\t]+(?:[-|]|(?:${CASE_INSENSITIVE_LEVEL})(?=[ \\t:]|$)))`,
+          match: /[A-Za-z_$][\w.$/-]*(?=[ \t]+[-|](?=[ \t]|$))/,
           scope: 'namespace',
         },
         { match: /[-|](?=[ \t]|$)/, set: 'message' },

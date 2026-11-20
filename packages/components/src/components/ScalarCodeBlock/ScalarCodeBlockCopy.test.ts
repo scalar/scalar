@@ -4,12 +4,15 @@ import { describe, expect, it } from 'vitest'
 import ScalarCodeBlockCopy from './ScalarCodeBlockCopy.vue'
 
 describe('ScalarCodeBlockCopy', () => {
-  it('names the button with the visible language while the label is hidden', () => {
+  it.each([
+    { lang: 'shell', label: 'Shell' },
+    { lang: 'log', label: 'Log' },
+  ])('names the button with the visible $label language while the label is hidden', ({ lang, label }) => {
     const wrapper = mount(ScalarCodeBlockCopy, {
-      props: { content: 'x', lang: 'shell', showLang: true },
+      props: { content: 'x', lang, showLang: true },
     })
 
-    expect(wrapper.get('button').attributes('aria-label')).toBe('Copy Shell code')
+    expect(wrapper.get('button').attributes('aria-label')).toBe(`Copy ${label} code`)
     // The visible word stays part of the name (WCAG 2.5.3)
     expect(wrapper.text()).toContain('Copy')
   })
