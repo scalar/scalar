@@ -20,7 +20,7 @@ Scalar's code highlighter.
 - **No theme system.** Colors come from the `--scalar-*` variables `@scalar/themes` already defines, so a code block follows the app's theme and switches with `.light-mode` / `.dark-mode` — without being re-highlighted.
 - **Zero runtime dependencies.**
 
-Forty-one languages ship today: Python, JavaScript/TypeScript/JSX/TSX, Rust, Go, C, C++, C#, F#, Java, Kotlin, Scala, Swift, Objective-C, OCaml, Haskell, Elixir, Clojure, Dart, Julia, Mojo, PHP, Perl, Ruby, Lua, R, MATLAB, Bash, PowerShell, SQL, GraphQL, HTTP, YAML, JSON, TOML/INI, CSS, HTML, Markdown, Dockerfiles, Makefiles, nginx configs, and diffs.
+Bundled languages include Python, JavaScript/TypeScript/JSX/TSX, Rust, Go, C, C++, C#, F#, Java, Kotlin, Scala, Swift, Objective-C, OCaml, Haskell, Elixir, Clojure, Dart, Julia, Mojo, PHP, Perl, Ruby, Lua, R, MATLAB, Bash, PowerShell, SQL, GraphQL, HTTP, YAML, JSON, TOML/INI, CSS, HTML, Markdown, Dockerfiles, Makefiles, nginx configs, diffs, and logs.
 
 ```bash
 npm install @scalar/highlight
@@ -309,6 +309,58 @@ For the same three languages `ScalarCodeBlock` shows most often, measured before
 | --- | ---: |
 | `@scalar/code-highlight` | 127.58 KB |
 | `@scalar/highlight/compat` | 7.67 KB |
+
+## Human-readable logs
+
+Use `log` for plain-text logs. It is available through
+`@scalar/highlight/langs/log`, `@scalar/highlight/all`, `loadLanguage('log')`,
+and the compatibility renderers once it is registered. The legacy
+`standardLanguages` list and `StandardLanguageKey` stay unchanged; compatibility
+rendering finds `log` through the existing grammar registry. There are no
+additional aliases; `console`
+continues to mean Bash.
+
+```ts
+import { highlight } from '@scalar/highlight'
+import log from '@scalar/highlight/langs/log'
+
+highlight('2024-12-21 14:07:41,517 [main] WARN App.Worker - Queue busy', log)
+```
+
+The grammar recognizes common numeric and English month dates, colon-separated
+and basic ISO timestamps, fractional seconds with `.` or `,`, and `Z`, UTC/GMT,
+or numeric timezone offsets. Header fields can be reordered or omitted:
+timestamps, bracketed context, numeric process IDs, and delimited component or
+logger names do not require one prescribed layout. Quoted strings, URLs,
+exception type names, and Java/JavaScript `at method(location)` stack frames
+also receive highlighting. All text, including multiline continuations and
+unrecognized lines, is preserved.
+
+Severity labels use the existing `keyword` scope, timestamps use `number`,
+context uses `namespace`, and the other constructs use the shared string, link,
+type, and function scopes. Native and compatibility output use their existing
+themes without adding log-specific colors or coloring entire message lines.
+
+This is a conservative heuristic, not a logging-framework parser. Bare severity
+labels must be uppercase; other casing needs brackets or a colon. A colon after
+a severity or a standalone `-`/`|` ends the header; otherwise the first
+unrecognized text starts the message. Each entry recognizes at most one severity
+label; later severity words start message text and stay plain. A logger name
+directly before a severity label must be qualified, such as `App.Worker`, so
+ordinary prose such as `No ERROR occurred` remains plain.
+A message that itself starts with an uppercase severity word is inherently
+ambiguous and may look like a header. Context brackets are limited to 128
+non-whitespace characters. Arbitrary logger names without delimiters, custom
+levels, localized dates, and every possible stack-trace dialect are not inferred.
+Dates are recognized lexically rather than validated as calendar dates. A quote
+ends at the line boundary if it is unterminated, so it cannot swallow later
+entries. JSON/NDJSON parsing and ANSI escape rendering are outside this grammar;
+use the JSON grammar or a separate ANSI renderer for those inputs.
+
+The heuristics and tests draw on the
+[Shiki/TextMate log grammar](https://github.com/shikijs/textmate-grammars-themes/blob/main/packages/tm-grammars/grammars/log.json),
+[Log4j PatternLayout](https://logging.apache.org/log4j/2.x/manual/pattern-layout.html),
+and [log4net layouts](https://logging.apache.org/log4net/manual/configuration/layouts.html).
 
 ## Trade-offs
 
