@@ -190,6 +190,8 @@ To give code its own palette without touching the rest of the theme, set the var
 
 Set them on `.light-mode` and `.dark-mode` separately, since a color that reads well on white rarely works on a dark background. Any variable you leave out keeps its default.
 
+Make sure your styles load after Scalar's, for example with the `customCss` option or a `<style>` tag placed after the API Reference. If part of your page switches modes (a `.dark-mode` area inside `.light-mode`, or the reverse), also target `.light-mode .dark-mode` and `.dark-mode .light-mode`, since the theme sets the defaults there too.
+
 ```html
 <style>
   .light-mode {
