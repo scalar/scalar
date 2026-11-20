@@ -240,6 +240,8 @@ A PHP template's `<script>` uses it for `<?= $x ?>`, which keeps `"<?= $name ?>"
 Hole patterns may contain capture groups. An end marker inside a hole does not close the embedded body.
 Use `preserveHoleScope: true` when a masked escape should keep the scope of the surrounding
 embedded token, such as a shell-escaped apostrophe in a JSON key.
+Use `accept(body, closed)` to inspect the original body and whether its end marker was
+found. Returning false keeps the body's default host scope.
 
 Lines end at `\n` (or `\r\n`) and nowhere else: the compiler rewrites `$` and `.` so a lone
 `\r` or a U+2028 inside a string literal cannot end it early, as JavaScript's `m` flag would.

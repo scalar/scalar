@@ -1,4 +1,5 @@
 import type { Grammar } from '../core/types'
+import { shellContinuation, shellEscape } from './shared/shell'
 
 /**
  * cURL command lines.
@@ -21,26 +22,35 @@ const METHODS = 'get|post|put|patch|delete|head|options|trace|connect'
 /** The long flags whose value can be a JSON request body. */
 const LONG_DATA_FLAGS = '--data(?:-raw|-binary|-ascii)?|--json'
 
+// Only switches that take no value can precede d in a short-option group.
+// Keep this in sync with curl's ARG_BOOL and ARG_NONE short options.
+const SHORT_SWITCHES = '012346#:aBfGgIijkJlLMnNOpqRsSvVZ'
+
 /** The shell can insert a literal apostrophe by closing and reopening the quote. */
 const SHELL_APOSTROPHES = String.raw`'\\''|'"'"'`
+const APOSTROPHE_ESCAPE = new RegExp(SHELL_APOSTROPHES, 'g')
 const SHELL_CONTINUATION = String.raw`\\\r?\n`
 // A line splice can still join another segment to the current shell argument.
 const SHELL_WORD_END = String.raw`(?=(?:${SHELL_CONTINUATION})*(?:[ \t\n;&|<>()]|\r\n|(?![\s\S])))`
 
-const SINGLE_QUOTED_CHARACTER = `(?:[^']|${SHELL_APOSTROPHES})`
-const JSON_STRING = String.raw`"(?:[^'"\\]|\\[^']|${SHELL_APOSTROPHES})*"`
-const JSON_NUMBER = String.raw`-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?`
-// A delimiter keeps the regex from splitting bare text or digits into separate values.
-const JSON_ATOM = String.raw`(?:true|false|null|${JSON_NUMBER})(?=[\s,\]}])`
-const JSON_BODY_TOKEN = String.raw`(?:[\s{}\[\],:]|${JSON_STRING}|${JSON_ATOM})`
-const QUOTED_JSON = String.raw`(?:\{${JSON_BODY_TOKEN}*\}|\[${JSON_BODY_TOKEN}*\])\s*'${SHELL_WORD_END}`
-const UNTERMINATED_JSON = String.raw`[\[{]${SINGLE_QUOTED_CHARACTER}*(?![\s\S])`
+// The closing quote must end the shell argument. A segment like '[1]'='[2]'
+// is one argument, so its first segment alone is not a JSON body.
+const QUOTED_BODY = String.raw`[\[{](?:[^']|${SHELL_APOSTROPHES})*(?:'${SHELL_WORD_END}|(?![\s\S]))`
 
-/**
- * A backslash that ends the line continues the command on the next one. It is
- * layout, not part of any value, so it reads as punctuation.
- */
-const LINE_CONTINUATION = { match: '\\\\$', scope: 'punctuation' }
+const isJsonBody = (body: string, closed: boolean): boolean => {
+  // Highlight a JSON-shaped argument as it is being typed. Once the quote
+  // closes, require one JSON value so bracketed text keeps its string scope.
+  if (!closed) {
+    return true
+  }
+
+  try {
+    JSON.parse(body.replace(APOSTROPHE_ESCAPE, "'"))
+    return true
+  } catch {
+    return false
+  }
+}
 
 const curl: Grammar = {
   name: 'curl',
@@ -49,7 +59,7 @@ const curl: Grammar = {
       // Flags are case-sensitive: `-d` sends a body and `-D` names a file to
       // dump headers into, `-F` sends a form and `-f` fails on HTTP errors.
       rules: [
-        LINE_CONTINUATION,
+        shellContinuation,
 
         // curl itself does not care about the case of a method, and neither did
         // the grammar this replaces, so the command and the method are matched
@@ -57,7 +67,7 @@ const curl: Grammar = {
         { match: '\\b[cC][uU][rR][lL]\\b', scope: 'keyword' },
         { match: '(^|\\s)(--request|-X)(?=\\s)', push: 'method' },
 
-        { match: '(^|\\s)-d(?![\\w-])', push: 'data' },
+        { match: String.raw`(^|\s)-[${SHORT_SWITCHES}]*d(?![\w-])`, push: 'data' },
         {
           // curl allows = before an attached value on long options only.
           match: String.raw`(^|\s)(?:${LONG_DATA_FLAGS})(?:=(?=(?:${SHELL_CONTINUATION})*')|${SHELL_WORD_END})`,
@@ -65,16 +75,13 @@ const curl: Grammar = {
         },
 
         // Anchored to a boundary so the hyphens inside a URL or a header name
-        // are not mistaken for flags, and consumed whole so a digit inside one
-        // (`--http2`) is not read as a number.
-        { match: '(^|\\s)--[A-Za-z][\\w-]*' },
+        // are not mistaken for flags. Consume dotted names and numeric
+        // switches whole so `--http1.1` and `-4` stay unscoped.
+        { match: '(^|\\s)--[A-Za-z][\\w.-]*' },
+        { match: String.raw`(^|\s)-[${SHORT_SWITCHES}]+${SHELL_WORD_END}` },
         { match: '(^|\\s)-[A-Za-z](?![\\w-])' },
 
-        // An escaped character outside quotes is literal. It has to come before
-        // the quote rules: `'it'\''s'` is how a single quote is written inside
-        // a single-quoted value (close, escaped quote, reopen), and reading that
-        // `\'` as the start of a string inverts the rest of the line.
-        { match: '\\\\[^\\r\\n]', scope: 'string.escape' },
+        shellEscape,
         { match: '"', scope: 'string', push: 'string-double' },
         { match: "'", scope: 'string', push: 'string-single' },
 
@@ -92,15 +99,13 @@ const curl: Grammar = {
       ],
     },
 
-    // Look for JSON tokens through the end of the shell argument so form
-    // fields and bracketed text keep their string scope. An unfinished shell
-    // quote can still highlight while the body is being typed.
+    // Only a single-quoted object or array candidate can use the JSON grammar.
     data: {
       rules: [
-        LINE_CONTINUATION,
+        shellContinuation,
         { match: '\\s+' },
         {
-          match: String.raw`'(?=\s*(?:${QUOTED_JSON}|${UNTERMINATED_JSON}))`,
+          match: String.raw`'(?=\s*${QUOTED_BODY})`,
           scope: 'string',
           set: 'json-quoted',
         },
@@ -119,7 +124,7 @@ const curl: Grammar = {
       // `'\''` and `'"'"'` are the shell writing an apostrophe, not the end of
       // the body. Mask them so JSON can apply one scope to the whole key or
       // string. snippetz writes the first form and shell examples use both.
-      embed: { language: 'json', until: "'", holes: SHELL_APOSTROPHES, preserveHoleScope: true },
+      embed: { language: 'json', until: "'", holes: SHELL_APOSTROPHES, preserveHoleScope: true, accept: isJsonBody },
       rules: [],
     },
 

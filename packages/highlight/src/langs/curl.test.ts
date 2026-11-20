@@ -89,8 +89,25 @@ describe('curl', () => {
     expect(scopeOf('curl -s -o out.json https://example.com', '-s')).toBeUndefined()
   })
 
-  it('does not read a digit inside a flag as a number', () => {
-    expect(scopeOf('curl --http2 https://example.com', '2')).toBeUndefined()
+  it.each(['--http2', '--http1.1', '--tlsv1.2', '-4', '-6', '-0', '-4s'])(
+    'leaves every character in %s unscoped',
+    (flag) => {
+      expect(scoped(`curl ${flag} https://example.com`)).toStrictEqual([['curl', 'keyword']])
+    },
+  )
+
+  it.each(['-sd ', '-sS4d'])('highlights JSON after a grouped -d option (%j)', (options) => {
+    assertHas(`curl ${options}'{"id":1}'`, '"id"', 'property')
+  })
+
+  it('leaves the next argument as a string when d is the value of an option', () => {
+    assertHas(`curl -od '{"id":1}'`, `'{"id":1}'`, 'string')
+  })
+
+  it.each(['[1][2]', '[1 2]', '{"id":}'])('leaves a closed malformed JSON body %s as a string', (body) => {
+    const code = `curl --data-binary '${body}' -H "Accept: */*"`
+    assertHas(code, `'${body}'`, 'string')
+    assertHas(code, '"Accept: */*"', 'string')
   })
 
   it('scopes quoted values as strings', () => {

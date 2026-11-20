@@ -105,8 +105,17 @@ export type State = {
    * grammar from its root. Set `preserveHoleScope` when a hole is an escape
    * that should keep the embedded token's scope, such as a shell-escaped
    * apostrophe in a JSON key.
+   *
+   * `accept` can opt out of embedding based on the original body text and
+   * whether the end marker was found. A rejected body uses the default scope.
    */
-  embed?: { language: string; until: string; holes?: string; preserveHoleScope?: boolean }
+  embed?: {
+    language: string
+    until: string
+    holes?: string
+    preserveHoleScope?: boolean
+    accept?: (body: string, closed: boolean) => boolean
+  }
   rules: StateRule[]
 }
 
@@ -172,7 +181,13 @@ export type CompiledState = {
     own: (string | null)[]
     cache: Map<string, { re: RegExp; own: (RegExp | null)[] }>
   } | null
-  embed: { language: string; boundary: RegExp; holes: RegExp | null; preserveHoleScope?: boolean } | null
+  embed:
+    | ({
+        language: string
+        boundary: RegExp
+        holes: RegExp | null
+      } & Pick<NonNullable<State['embed']>, 'preserveHoleScope' | 'accept'>)
+    | null
 }
 
 export type CompiledGrammar = {

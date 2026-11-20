@@ -1,4 +1,5 @@
 import type { Grammar } from '../core/types'
+import { shellContinuation, shellEscape } from './shared/shell'
 
 /**
  * Bash, sh and zsh.
@@ -28,15 +29,8 @@ const bash: Grammar = {
         { match: '(?:^|[ \\t])#[^\\n]*', scope: 'comment' },
 
         { include: 'expansion' },
-        // A backslash that ends the line continues the command on the next
-        // one. It is layout, not an escape, so it reads as punctuation.
-        { match: '\\\\$', scope: 'punctuation' },
-        // An escaped character outside quotes is literal. It has to come
-        // before the quote rules: `'it'\\''s'` is how a single quote is written
-        // inside a single-quoted string — close, escaped quote, reopen — and
-        // reading that `\\'` as the start of a string inverts the rest of the
-        // line. snippetz writes it for every curl body with an apostrophe.
-        { match: '\\\\[^\\r\\n]', scope: 'string.escape' },
+        shellContinuation,
+        shellEscape,
         { match: '"', scope: 'string', push: 'string-double' },
         { match: "'", scope: 'string', push: 'string-single' },
         { match: "\\$'", scope: 'string', push: 'string-ansi' },

@@ -154,7 +154,7 @@ const embedded = (
   emit: Emit,
 ): number => {
   const embedding = state.embed!
-  const { boundary, holes, language } = embedding
+  const { boundary, holes, language, accept } = embedding
   boundary.lastIndex = pos
   let found = boundary.exec(code)
   while (holes !== null && found?.[1] !== undefined) {
@@ -173,13 +173,20 @@ const embedded = (
   const grammar = getLanguage(language === REMEMBERED ? remembered : language)
   if (grammar === undefined || depth >= MAX_EMBED_DEPTH) {
     emit(state.default, pos, stop)
-  } else {
-    depth += 1
-    try {
-      withHoles(code.slice(pos, stop), pos, grammar, embedding, host, emit)
-    } finally {
-      depth -= 1
-    }
+    return stop
+  }
+
+  const body = code.slice(pos, stop)
+  if (accept?.(body, found !== null) === false) {
+    emit(state.default, pos, stop)
+    return stop
+  }
+
+  depth += 1
+  try {
+    withHoles(body, pos, grammar, embedding, host, emit)
+  } finally {
+    depth -= 1
   }
   return stop
 }
