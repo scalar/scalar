@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.83.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+- [#11145](https://github.com/scalar/scalar/pull/11145): Prevent CSP eval violation reports when loading OAuth authentication and AI Chat by configuring Zod before schemas are constructed.
+
+  This disables JIT compilation for the shared Zod instance, so applications using that same instance may also see slower object parsing.
+- [#11130](https://github.com/scalar/scalar/pull/11130): Update nanoid to version 6 for faster identifier generation while preserving existing identifier formats.
+
 ## 1.82.1
 
 No changes in this release.

@@ -1,5 +1,14 @@
 # @scalar/agent-chat
 
+## 0.12.58
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+- [#11145](https://github.com/scalar/scalar/pull/11145): Prevent CSP eval violation reports when loading OAuth authentication and AI Chat by configuring Zod before schemas are constructed.
+
+  This disables JIT compilation for the shared Zod instance, so applications using that same instance may also see slower object parsing.
+
 ## 0.12.57
 
 No changes in this release.

@@ -1,5 +1,20 @@
 # @scalar/openapi-to-markdown
 
+## 1.7.12
+
+### Patch Changes
+
+- [#11149](https://github.com/scalar/scalar/pull/11149): Resolve references in Node Markdown exports against the OpenAPI 3.2 document's `$self` URI when present.
+
+  For object and inline JSON/YAML input, resolve relative `$self` values against the configured `basePath`, or the current directory when omitted. File access still requires an explicit `basePath`.
+
+  Preserve literal `$ref` keys in examples when bundling descriptions, including descriptions without `$self`.
+- [#11148](https://github.com/scalar/scalar/pull/11148): Resolve URI security requirements in Node Markdown exports for OpenAPI 3.2 descriptions.
+
+  Follow annotated security scheme references when resolving URI requirements.
+
+  Preserve security scheme reference descriptions in OpenAPI 3.1 and 3.2 Markdown exports.
+
 ## 1.7.11
 
 No changes in this release.

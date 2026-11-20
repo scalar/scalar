@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.55 (2026-11-20)
+
+### Desktop login now works in Safari, plus Electron 45
+
+Desktop login and registration now complete through a secure browser redirect that works in Safari. We also updated the desktop runtime to Electron 45 and upgraded several internal dependencies.
+
+- Desktop login and registration now work in Safari through a secure browser redirect with PKCE authentication
+- New users have 15 minutes to verify their email during registration before returning to the app
+- Desktop runtime updated to Electron 45 with improved Chromium engine and upstream fixes
+- API client now supports ASP.NET Core indexed form naming for nested multipart uploads
+- Stricter Content Security Policy support prevents eval violation reports when using OAuth or AI Chat
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1155)
+
 ## 1.1.54 (2026-11-20)
 
 ### Polish and bug fixes

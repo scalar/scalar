@@ -1,5 +1,31 @@
 [
   {
+    "version": "1.83.0",
+    "date": "2026-11-20",
+    "title": "ASP.NET Core form naming and CSP improvements",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release adds opt-in support for ASP.NET Core indexed form field naming and fixes Content Security Policy violations when loading OAuth authentication or AI Chat."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Add `multipartNaming: \"indexed-dot\"` configuration option for ASP.NET Core compatibility with nested multipart and URL-encoded forms",
+          "Use indexed names like `Certificates[0].name` in the body editor, sent requests, and code samples when the option is enabled",
+          "Prevent CSP eval violation reports when loading OAuth authentication and AI Chat components",
+          "Update nanoid to version 6 for faster identifier generation"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1830",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.82.1",
     "date": "2026-11-20",
     "title": "Polish and bug fixes",

@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.7 (2026-11-20)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0217)
+
 ## 0.21.6 (2026-11-20)
 
 ### Request validation now works for nullable schemas without explicit types
