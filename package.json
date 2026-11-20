@@ -6,7 +6,7 @@
   "engines": {
     "pnpm": "^12.0.0"
   },
-  "packageManager": "pnpm@12.14.0",
+  "packageManager": "pnpm@12.21.0",
   "devDependencies": {
     "@biomejs/biome": "2.6.8",
     "@changesets/cli": "^3.0.3",
