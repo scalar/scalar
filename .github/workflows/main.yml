@@ -634,7 +634,7 @@ jobs:
         run: pnpm --filter components build:storybook
       - name: Deploy Storybook to Netlify (Production)
         run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/components/storybook-static" \
+          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/components/storybook-static" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
