@@ -1,10 +1,14 @@
-const assert = require('node:assert/strict')
-const { spawn } = require('node:child_process')
-const { once } = require('node:events')
-const { setTimeout: delay } = require('node:timers/promises')
-const { chromium } = require('@playwright/test')
+import assert from 'node:assert/strict'
+import { spawn } from 'node:child_process'
+import { once } from 'node:events'
+import { createRequire } from 'node:module'
+import { setTimeout as delay } from 'node:timers/promises'
 
-const testBrowser = async () => {
+// Playwright is installed globally in the image. CommonJS resolution reads NODE_PATH.
+const require = createRequire(import.meta.url)
+const { chromium }: typeof import('@playwright/test') = require('@playwright/test')
+
+const testBrowser = async (): Promise<void> => {
   const expected = process.argv[2]
   assert.ok(expected === 'enabled' || expected === 'disabled', 'Expected enabled or disabled WebGL')
 
@@ -23,7 +27,7 @@ const testBrowser = async () => {
     const browser = await chromium.connect(`ws://127.0.0.1:${port}/`, { timeout: 10_000 })
     try {
       const page = await browser.newPage()
-      for (const context of ['2d', 'webgl', 'webgl2']) {
+      for (const context of ['2d', 'webgl', 'webgl2'] as const) {
         const available = await page.evaluate(
           (type) => document.createElement('canvas').getContext(type) !== null,
           context,
@@ -45,7 +49,7 @@ const testBrowser = async () => {
   console.log(`Browser smoke test passed with WebGL ${expected}`)
 }
 
-testBrowser().catch((error) => {
+testBrowser().catch((error: unknown) => {
   console.error(error)
   process.exitCode = 1
 })

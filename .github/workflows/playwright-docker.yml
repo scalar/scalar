@@ -4,7 +4,6 @@ on:
   pull_request:
     paths:
       - '.github/workflows/playwright-docker.yml'
-      - '.github/scripts/playwright-docker-smoke.cjs'
       - 'tooling/scripts/src/commands/playwright-docker/**'
       - 'pnpm-workspace.yaml'
   push:
@@ -12,7 +11,6 @@ on:
       - main
     paths:
       - '.github/workflows/playwright-docker.yml'
-      - '.github/scripts/playwright-docker-smoke.cjs'
       - 'tooling/scripts/src/commands/playwright-docker/**'
       - 'pnpm-workspace.yaml'
 
@@ -21,7 +19,6 @@ permissions:
 
 env:
   PLAYWRIGHT_DOCKER_DIR: tooling/scripts/src/commands/playwright-docker
-  PLAYWRIGHT_DOCKER_SMOKE_TEST: .github/scripts/playwright-docker-smoke.cjs
 
 jobs:
   check-changes:
@@ -62,7 +59,7 @@ jobs:
           # Workspace catalog edits for other packages do not affect either image.
           if [[ "$version" == "$(playwright_version "$BASE_SHA")" ]] &&
              git diff --quiet "$BASE_SHA" HEAD -- \
-               .github/workflows/playwright-docker.yml "$PLAYWRIGHT_DOCKER_SMOKE_TEST" "$PLAYWRIGHT_DOCKER_DIR"; then
+               .github/workflows/playwright-docker.yml "$PLAYWRIGHT_DOCKER_DIR"; then
             echo 'relevant=false' >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -110,8 +107,8 @@ jobs:
           smoke_test() {
             local expected="$1"
             shift
-            docker run --rm -i "$@" sh -c 'NODE_PATH="$(npm root -g)" node - "$1"' sh "$expected" \
-              < "$PLAYWRIGHT_DOCKER_SMOKE_TEST"
+            docker run --rm -i "$@" sh -c 'NODE_PATH="$(npm root -g)" node --input-type=module-typescript - "$1"' sh "$expected" \
+              < "$PLAYWRIGHT_DOCKER_DIR/smoke-test.ts"
           }
 
           smoke_test enabled "scalarapi/playwright:$IMAGE_TAG-$ARCH"
