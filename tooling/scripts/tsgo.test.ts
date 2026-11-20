@@ -1,12 +1,15 @@
 import { spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-const compiler = fileURLToPath(new URL('./bin/tsgo.mjs', import.meta.url))
+import packageJson from './package.json' with { type: 'json' }
+
+const compiler = fileURLToPath(new URL(packageJson.bin.tsgo, import.meta.url))
 const directories: string[] = []
 
 afterEach(() => {
@@ -16,11 +19,13 @@ afterEach(() => {
 })
 
 describe('tsgo', () => {
-  it('runs the stable native compiler', () => {
+  it('runs the installed native compiler', () => {
+    const compilerPackage = createRequire(import.meta.url).resolve('typescript-native/package.json')
+    const { version }: { version: string } = JSON.parse(readFileSync(compilerPackage, 'utf8'))
     const result = spawnSync(process.execPath, [compiler, '--version'], { encoding: 'utf8' })
 
     expect(result.status).toBe(0)
-    expect(result.stdout.trim()).toBe('Version 7.0.2')
+    expect(result.stdout.trim()).toBe(`Version ${version}`)
     expect(result.stderr).toBe('')
   })
 

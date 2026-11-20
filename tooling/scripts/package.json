@@ -28,6 +28,6 @@
     "vitest": "catalog:*"
   },
   "bin": {
-    "tsgo": "./bin/tsgo.mjs"
+    "tsgo": "./tsgo.mjs"
   }
 }
