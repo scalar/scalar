@@ -6,7 +6,9 @@
  * under the hood, so the dialog is promoted to the browser top layer (escaping
  * ancestor stacking, overflow, and transform contexts), traps and restores focus,
  * makes the rest of the page inert, and closes on Escape — all natively, with no
- * teleport and no extra wrapper elements.
+ * teleport. It also locks page scrolling while open, and gives popovers inside it a
+ * teleport target within the dialog so they render above it rather than under the
+ * top layer.
  *
  * Control it with `v-model:open` and compose the contents with the default slot.
  * Restyle or resize it by passing your own `class`; the defaults are intentionally
@@ -25,8 +27,10 @@ export default {}
 import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
 import { ref, watchPostEffect } from 'vue'
 
+import { ScalarTeleportRoot } from '../ScalarTeleport'
 import type { ScalarDialogProps } from './types'
 import { useBackdropClick } from './useBackdropClick'
+import { useScrollLock } from './useScrollLock'
 
 const { persist = false } = defineProps<ScalarDialogProps>()
 
@@ -61,6 +65,8 @@ const { cx } = useBindCx()
 
 const dialogRef = ref<HTMLDialogElement | null>(null)
 
+const { lock, unlock } = useScrollLock()
+
 /**
  * Puppet the native dialog from the reactive `open` model.
  *
@@ -75,17 +81,60 @@ watchPostEffect(() => {
     return
   }
 
-  if (open.value && !element.open) {
-    element.showModal()
-  } else if (!open.value && element.open) {
-    element.close()
+  if (open.value) {
+    if (!element.open) {
+      element.showModal()
+    }
+    lock(element)
+  } else {
+    if (element.open) {
+      element.close()
+    }
+    unlock()
   }
 })
 
-/** Mirror native closes (Escape, form submit, programmatic) back into the model. */
-const handleClose = () => {
+/**
+ * Mirror native closes (a form submit, or the browser force-closing the dialog) back into the model.
+ *
+ * The `close` event is queued rather than fired synchronously, so when the dialog is closed and
+ * reopened in quick succession the event lands after it is open again. Ignoring it while the
+ * dialog is open keeps that stale event from closing it.
+ */
+const handleClose = (): void => {
+  if (dialogRef.value?.open) {
+    return
+  }
   open.value = false
   emit('close')
+}
+
+/**
+ * Close on Escape, unless something inside the dialog already handled it.
+ *
+ * Child widgets such as listboxes and comboboxes use Escape to close themselves and mark the event
+ * as handled, so the dialog leaves those alone. Stopping propagation means only the innermost of
+ * several nested dialogs closes. Preventing the default also stops a search input from clearing
+ * its value on the same keypress that dismisses the dialog.
+ */
+const handleEscape = (event: KeyboardEvent): void => {
+  if (event.defaultPrevented) {
+    return
+  }
+  event.preventDefault()
+  event.stopPropagation()
+  open.value = false
+}
+
+/**
+ * Route other close requests, such as the Android back gesture, through the model.
+ *
+ * The browser would otherwise close the dialog itself. Going through `open` keeps every close on
+ * the same path, so the scroll lock is released and the contents unmount in step.
+ */
+const handleCancel = (event: Event): void => {
+  event.preventDefault()
+  open.value = false
 }
 
 /**
@@ -102,11 +151,13 @@ const { handlePointerDown, handleClick } = useBackdropClick(dialogRef, () => {
   <dialog
     ref="dialogRef"
     v-bind="cx(dialog())"
+    @cancel="handleCancel"
+    @click="handleClick"
     @close="handleClose"
-    @pointerdown="handlePointerDown"
-    @click="handleClick">
-    <template v-if="persist || open">
+    @keydown.esc="handleEscape"
+    @pointerdown="handlePointerDown">
+    <ScalarTeleportRoot v-if="persist || open">
       <slot />
-    </template>
+    </ScalarTeleportRoot>
   </dialog>
 </template>
