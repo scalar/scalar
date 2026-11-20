@@ -15,7 +15,7 @@ catalogs:
   '*':
     '@ai-sdk/vue': 4.0.177
     mermaid: 12.3.0
-    '@astrojs/starlight': 0.42.11
+    '@astrojs/starlight': 0.43.1
     '@fastify/basic-auth': ^6.3.1
     '@fastify/http-proxy': ^11.6.9
     '@fastify/swagger': ^9.9.5
