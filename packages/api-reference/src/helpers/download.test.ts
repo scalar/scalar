@@ -24,7 +24,7 @@ const readBlobBody = async (blob: Blob) => {
 
 describe('downloadDocument', () => {
   let createObjectURLSpy: MockInstance<typeof URL.createObjectURL>
-  let revokeObjectURLSpy: ReturnType<typeof vi.spyOn>
+  let revokeObjectURLSpy: MockInstance<typeof URL.revokeObjectURL>
   let createElementSpy: ReturnType<typeof vi.spyOn>
   let dispatchEventSpy: ReturnType<typeof vi.spyOn>
   let removeSpy: ReturnType<typeof vi.spyOn>
