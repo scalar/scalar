@@ -8,9 +8,9 @@ import { toResourceUri } from '@/helpers/to-resource-uri'
 import { getRaw } from '@/magic-proxy/proxy'
 import type { UnknownObject } from '@/types'
 
+import { type ReferenceContext, getSchemaVocabulary } from '../document/reference-context'
 import type { SchemaResourceLocation } from './document-references'
 import type { documentTraversal } from './document-traversal'
-import { type ReferenceContext, getSchemaVocabulary } from './reference-context'
 
 type Resource = SchemaResourceLocation & { node: UnknownObject; sourceUri: string }
 

@@ -67,7 +67,6 @@ export async function readFile(
 
     const fileContents = await fs.readFile(approvedPath, { encoding: 'utf-8' })
 
-
     return {
       ok: true,
       data: options?.parseAs === 'text' ? fileContents : normalize(fileContents),
