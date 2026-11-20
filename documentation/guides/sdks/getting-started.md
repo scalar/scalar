@@ -28,7 +28,7 @@ For documentation, use its search tools if available, or
 the docs MCP at https://scalar.com/mcp.
 
 Use the Scalar CLI where helpful. Run
-`npx @scalar/cli context` to discover its commands first.
+`npx -y @scalar/cli@latest context --no-input` to discover its commands first.
 
 Once we have made those choices:
 - Validate the OpenAPI document and reuse any existing setup.
