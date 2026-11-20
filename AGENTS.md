@@ -17,7 +17,7 @@ Scalar is a Vue 3 + TypeScript monorepo for API documentation and testing.
 
 ## Prerequisites
 
-- **Node.js**: v24 (see `.nvmrc`)
+- **Node.js**: v24.15.0 or later in the Node 24 release line (see `.nvmrc`)
 - **Package manager**: pnpm (use the version pinned in `package.json`, currently 12.14.0)
 
 ## First-Time Setup
