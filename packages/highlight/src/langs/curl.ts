@@ -18,8 +18,18 @@ import type { Grammar } from '../core/types'
 /** The methods `--request` and `-X` accept. Matched case-insensitively. */
 const METHODS = 'get|post|put|patch|delete|head|options|trace|connect'
 
-/** The flags whose value can be a JSON request body. */
-const DATA_FLAGS = '-d|--data|--data-raw|--data-binary|--data-ascii|--json'
+/** The long flags whose value can be a JSON request body. */
+const LONG_DATA_FLAGS = '--data(?:-raw|-binary|-ascii)?|--json'
+
+/** The shell can insert a literal apostrophe by closing and reopening the quote. */
+const SHELL_APOSTROPHES = String.raw`'\\''|'"'"'`
+
+const SINGLE_QUOTED_CHARACTER = `(?:[^']|${SHELL_APOSTROPHES})`
+const JSON_STRING = String.raw`"(?:[^'"\\]|\\[^']|${SHELL_APOSTROPHES})*"`
+// An equals sign outside a JSON string can separate a form field from its value.
+const JSON_BODY_CHARACTER = `(?:[^'"=]|${SHELL_APOSTROPHES}|${JSON_STRING})`
+const QUOTED_JSON = String.raw`(?:\{${JSON_BODY_CHARACTER}*\}|\[${JSON_BODY_CHARACTER}*\])\s*'`
+const UNTERMINATED_JSON = String.raw`[\[{]${SINGLE_QUOTED_CHARACTER}*(?![\s\S])`
 
 /**
  * A backslash that ends the line continues the command on the next one. It is
@@ -42,7 +52,12 @@ const curl: Grammar = {
         { match: '\\b[cC][uU][rR][lL]\\b', scope: 'keyword' },
         { match: '(^|\\s)(--request|-X)(?=\\s)', push: 'method' },
 
-        { match: `(^|\\s)(${DATA_FLAGS})(?![\\w-])`, push: 'data' },
+        { match: '(^|\\s)-d(?![\\w-])', push: 'data' },
+        {
+          // curl allows = before an attached value on long options only.
+          match: String.raw`(^|\s)(?:${LONG_DATA_FLAGS})(?:=(?=')|(?=\s|\\$|$))`,
+          push: 'data',
+        },
 
         // Anchored to a boundary so the hyphens inside a URL or a header name
         // are not mistaken for flags, and consumed whole so a digit inside one
@@ -72,15 +87,18 @@ const curl: Grammar = {
       ],
     },
 
-    // The value after a data flag. A single-quoted value that opens an object
-    // or an array is highlighted as JSON, so the request body stands apart from
-    // the header and credential strings around it. Anything else (form fields,
-    // `@file`, a double-quoted body full of `\"`) goes back to the root rules.
+    // An opening bracket alone could be a form field or a plain text body.
+    // Look for the matching end delimiter, or allow an unfinished shell quote
+    // so the body can still highlight while it is being typed.
     data: {
       rules: [
         LINE_CONTINUATION,
         { match: '\\s+' },
-        { match: "'(?=\\s*[\\[{])", scope: 'string', set: 'json-quoted' },
+        {
+          match: String.raw`'(?=\s*(?:${QUOTED_JSON}|${UNTERMINATED_JSON}))`,
+          scope: 'string',
+          set: 'json-quoted',
+        },
         { match: '(?=[\\s\\S])', pop: true },
       ],
     },
@@ -94,10 +112,9 @@ const curl: Grammar = {
       // Without the JSON grammar registered, the body is one string, as before.
       default: 'string',
       // `'\''` and `'"'"'` are the shell writing an apostrophe, not the end of
-      // the body, so they are holes: JSON reads straight across them and a
-      // string value such as `"it'\''s"` stays one string. snippetz writes the
-      // first; the second is common in hand-written examples.
-      embed: { language: 'json', until: "'", holes: `'\\\\''|'"'"'` },
+      // the body. Mask them so JSON can apply one scope to the whole key or
+      // string. snippetz writes the first form and shell examples use both.
+      embed: { language: 'json', until: "'", holes: SHELL_APOSTROPHES, preserveHoleScope: true },
       rules: [],
     },
 

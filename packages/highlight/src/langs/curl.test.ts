@@ -146,6 +146,23 @@ describe('curl', () => {
       }
     })
 
+    it.each(['--data', '--data-raw', '--data-binary', '--data-ascii', '--json'])(
+      'highlights JSON attached to %s with an equals sign',
+      (flag) => {
+        const code = `curl ${flag}='{"id":1}' https://example.com`
+        assertHas(code, '"id"', 'property')
+        expect(scopeOf(code, `${flag}=`)).toBeUndefined()
+      },
+    )
+
+    it('keeps an equals sign in the short data option value', () => {
+      assertHas(`curl -d='{"id":1}'`, `'{"id":1}'`, 'string')
+    })
+
+    it('does not pick up a separate argument after an empty attached value', () => {
+      assertHas(`curl --json= '{"id":1}'`, `'{"id":1}'`, 'string')
+    })
+
     it('keeps a JSON string whole across an escaped apostrophe', () => {
       const code = `curl -d '{"note":"it'\\''s a gift","n":1}' -H 'Accept: */*' https://example.com`
       assertHas(code, `"it'\\''s a gift"`, 'string')
@@ -160,6 +177,14 @@ describe('curl', () => {
       assertHas(code, "'Accept: */*'", 'string')
     })
 
+    it.each([String.raw`'\''`, `'"'"'`])('keeps JSON keys in one scope across %s', (apostrophe) => {
+      const key = `"it${apostrophe}s=ok"`
+      const code = `curl --json '{${key}:true}' -H 'Accept: */*'`
+      assertHas(code, key, 'property')
+      assertHas(code, 'true', 'boolean')
+      assertHas(code, "'Accept: */*'", 'string')
+    })
+
     it('finds the body on the line after a line continuation', () => {
       assertHas(`curl -d \\\n  '{"a":1}'`, '"a"', 'property')
     })
@@ -168,6 +193,14 @@ describe('curl', () => {
       assertHas("curl -d 'name=Mars' https://example.com", "'name=Mars'", 'string')
       assertHas(`curl --form 'meta={"a":1}' https://example.com`, `'meta={"a":1}'`, 'string')
     })
+
+    it.each(['[item]=Mars', '[1]=[2]', '["item"]=[2]', '[INFO] ready'])(
+      'leaves bracket-leading text %s as a string',
+      (body) => {
+        const quotedBody = `'${body}'`
+        assertHas(`curl -d ${quotedBody} https://example.com`, quotedBody, 'string')
+      },
+    )
 
     it('does not read lowercase -f or uppercase -D as data flags', () => {
       assertHas(`curl -f '{"a":1}' https://example.com`, `'{"a":1}'`, 'string')
@@ -182,6 +215,10 @@ describe('curl', () => {
             .join(''),
         ).toBe(code)
       }
+    })
+
+    it('highlights an unterminated JSON body up to the end of the snippet', () => {
+      assertHas(`curl -d '{"a":`, '"a"', 'property')
     })
   })
 })

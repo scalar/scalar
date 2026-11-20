@@ -102,9 +102,11 @@ export type State = {
    * `<script>`. The embedded language reads the body with each hole masked,
    * so its state carries across (a hole inside a JavaScript string leaves the
    * rest of the string a string), and each hole is tokenized with this
-   * grammar from its root.
+   * grammar from its root. Set `preserveHoleScope` when a hole is an escape
+   * that should keep the embedded token's scope, such as a shell-escaped
+   * apostrophe in a JSON key.
    */
-  embed?: { language: string; until: string; holes?: string }
+  embed?: { language: string; until: string; holes?: string; preserveHoleScope?: boolean }
   rules: StateRule[]
 }
 
@@ -170,7 +172,7 @@ export type CompiledState = {
     own: (string | null)[]
     cache: Map<string, { re: RegExp; own: (RegExp | null)[] }>
   } | null
-  embed: { language: string; boundary: RegExp; holes: RegExp | null } | null
+  embed: { language: string; boundary: RegExp; holes: RegExp | null; preserveHoleScope: boolean } | null
 }
 
 export type CompiledGrammar = {
