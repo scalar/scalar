@@ -3,5 +3,6 @@ export {
   type ToastFunction,
   type ToastOptions,
   initializeToasts,
+  provideToasts,
   useToasts,
 } from './hooks/useToasts'

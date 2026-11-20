@@ -1,4 +1,5 @@
 import { autoUpdate, flip, shift, useFloating } from '@floating-ui/vue'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import { computed, onScopeDispose, ref, unref, watch } from 'vue'
 
 import { DEFAULT_DELAY, DEFAULT_OFFSET, ELEMENT_CLASS, ELEMENT_ID } from './constants'
@@ -14,6 +15,10 @@ import type { Timer, TooltipConfiguration } from './types'
  * If there's not a timer running it should be undefined
  */
 const timer = ref<Timer>()
+let pendingTooltip: TooltipConfiguration | undefined
+let tooltipRoot: Document | ShadowRoot | undefined
+let keydownRoot: Document | ShadowRoot | undefined
+const rootUsers = new WeakMap<Document | ShadowRoot, number>()
 
 /**
  * A reference to the tooltip element
@@ -111,7 +116,7 @@ watch(
       el.value.style.removeProperty('--scalar-tooltip-offset')
       el.value.style.setProperty('display', 'none')
 
-      // Park the element back on the body. Left inside a dialog it would be removed from
+      // Park the element back in its owning tree. Left inside a dialog it would be removed from
       // the document when that dialog unmounts, taking the shared tooltip with it.
       moveTooltipToHost(undefined)
     }
@@ -128,7 +133,7 @@ watch(
  *
  * If the tooltip is already initialized it will be ignored
  */
-function initializeTooltipElement(): void {
+function initializeTooltipElement(root?: Document | ShadowRoot): void {
   if (typeof document === 'undefined' || typeof window === 'undefined') {
     // Skip tooltip initialization during SSR
     return
@@ -139,9 +144,11 @@ function initializeTooltipElement(): void {
     return
   }
 
+  tooltipRoot = root ?? document
+
   // See if the tooltip element already exists
   // (Sometimes this happens with HMR)
-  const existingTooltipElement = document.getElementById(ELEMENT_ID)
+  const existingTooltipElement = tooltipRoot.getElementById(ELEMENT_ID)
 
   if (existingTooltipElement) {
     el.value = existingTooltipElement
@@ -154,16 +161,25 @@ function initializeTooltipElement(): void {
     el.value.classList.add('scalar-app')
     el.value.style.setProperty('display', 'none')
     el.value.addEventListener('mouseleave', hideTooltip)
-    document.body.appendChild(el.value)
+    const host = tooltipRoot instanceof ShadowRoot ? tooltipRoot : tooltipRoot.body
+    host.appendChild(el.value)
   }
 }
 
-/**
- * Cleanup and reset the tooltip element
- */
-export function cleanupTooltipElement() {
-  document.getElementById(ELEMENT_ID)?.remove()
+/** Remove the current portal without canceling another target's pending tooltip. */
+const removeTooltipElement = (): void => {
+  keydownRoot?.removeEventListener('keydown', handleEscape, true)
+  keydownRoot = undefined
+  config.value = undefined
+  el.value?.remove()
   el.value = undefined
+  tooltipRoot = undefined
+}
+
+/** Cleanup the shared tooltip, including any pending hover. */
+export function cleanupTooltipElement(): void {
+  clearTimer()
+  removeTooltipElement()
 }
 
 // ---------------------------------------------------------------------------
@@ -186,6 +202,8 @@ function hideTooltip(_e: Event) {
 
   // Hide the tooltip
   config.value = undefined
+  keydownRoot?.removeEventListener('keydown', handleEscape, true)
+  keydownRoot = undefined
 }
 
 /**
@@ -195,8 +213,11 @@ function hideTooltip(_e: Event) {
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/tooltip_role#keyboard_interactions
  */
-function handleEscape(e: KeyboardEvent) {
-  if (e.key === 'Escape') {
+function handleEscape(e: Event) {
+  if (keydownRoot instanceof Document && e.composedPath().some((node) => node instanceof ShadowRoot)) {
+    return
+  }
+  if (e instanceof KeyboardEvent && e.key === 'Escape') {
     e.stopPropagation()
     hideTooltip(e)
   }
@@ -232,7 +253,7 @@ function getModalDialog(target: Element | undefined | null): HTMLDialogElement |
  *
  * Top layer content paints above the rest of the document whatever `z-index` anything
  * else carries, so the only way to sit above a modal dialog is to live inside it.
- * Everywhere else the tooltip belongs on the body.
+ * Everywhere else the tooltip stays under its owning theme.
  *
  * This doubles as a repair step: appending an element that is no longer in the document
  * puts it back, which covers a dialog being unmounted while the tooltip sat inside it.
@@ -244,9 +265,17 @@ function moveTooltipToHost(target: Element | undefined | null): boolean {
     return false
   }
 
-  const host = getModalDialog(target) ?? document.body
+  const root = target?.getRootNode()
+  if (root instanceof Document || root instanceof ShadowRoot) {
+    tooltipRoot = root
+  }
+  const host =
+    getModalDialog(target) ??
+    (tooltipRoot instanceof ShadowRoot
+      ? (target?.closest<HTMLElement>('.dark-mode, .light-mode') ?? tooltipRoot)
+      : document.body)
 
-  if (el.value.parentElement === host) {
+  if (el.value.parentNode === host) {
     return false
   }
 
@@ -257,6 +286,7 @@ function moveTooltipToHost(target: Element | undefined | null): boolean {
 
 /** Clears the current timer */
 function clearTimer() {
+  pendingTooltip = undefined
   if (timer.value) {
     clearTimeout(timer.value)
     timer.value = undefined
@@ -303,7 +333,12 @@ function isMovingOffElements(e: Event): boolean {
  * If there isn't a tooltip element it will be created
  */
 export function useTooltip(opts: TooltipConfiguration) {
-  initializeTooltipElement()
+  const root = useDocumentRoot()
+  if (!root) {
+    return
+  }
+  rootUsers.set(root, (rootUsers.get(root) ?? 0) + 1)
+  initializeTooltipElement(root)
 
   /**
    * Show the tooltip after the delay if configured
@@ -314,6 +349,7 @@ export function useTooltip(opts: TooltipConfiguration) {
 
     // Show the tooltip after the delay
     if (delay > 0) {
+      pendingTooltip = opts
       timer.value = setTimeout(() => showTooltip(_e), delay)
     } else {
       showTooltip(_e)
@@ -326,14 +362,16 @@ export function useTooltip(opts: TooltipConfiguration) {
   function showTooltip(_e: Event) {
     clearTimer()
 
-    // Handle the escape key
-    document.addEventListener('keydown', handleEscape, { once: true, capture: true })
+    initializeTooltipElement(root)
+    keydownRoot?.removeEventListener('keydown', handleEscape, true)
 
     // Move the element before the config is assigned, not after. Floating UI watches the
     // target with `flush: 'sync'`, so it measures the position the instant the config
     // lands, and that measurement has to happen with the tooltip already in its final
     // parent or the first frame is positioned against the wrong offset parent.
     moveTooltipToHost(unref(opts.targetRef))
+    keydownRoot = tooltipRoot
+    keydownRoot?.addEventListener('keydown', handleEscape, { capture: true })
 
     // Show the tooltip
     config.value = opts
@@ -364,7 +402,9 @@ export function useTooltip(opts: TooltipConfiguration) {
 
   // Cleanup the tooltip when the component is unmounted
   onScopeDispose(() => {
-    clearTimer()
+    if (pendingTooltip === opts) {
+      clearTimer()
+    }
 
     const target = unref(opts.targetRef)
     if (target) {
@@ -378,6 +418,17 @@ export function useTooltip(opts: TooltipConfiguration) {
     // If the tooltip is showing on this target hide it
     if (unref(config.value?.targetRef) === unref(opts.targetRef)) {
       config.value = undefined
+      keydownRoot?.removeEventListener('keydown', handleEscape, true)
+      keydownRoot = undefined
+    }
+    const remaining = (rootUsers.get(root) ?? 1) - 1
+    if (remaining === 0) {
+      rootUsers.delete(root)
+      if (root instanceof ShadowRoot && tooltipRoot === root) {
+        removeTooltipElement()
+      }
+    } else {
+      rootUsers.set(root, remaining)
     }
   })
 }

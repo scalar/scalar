@@ -37,6 +37,7 @@ import {
   ScalarSidebarFooter,
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
+import { useProvideTeleport } from '@scalar/components/teleport'
 import { escapeCssForStyleTag } from '@scalar/helpers/dom/escape-css-for-style-tag'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
@@ -58,6 +59,7 @@ import {
 } from '@scalar/types/api-reference'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
@@ -190,6 +192,14 @@ defineSlots<{
 
 const { copyToClipboard } = useClipboard()
 
+/** Resolve overlay targets within this reference, including when it lives in a shadow root. */
+const embeddingRoot = useDocumentRoot()
+const isShadowRoot =
+  typeof ShadowRoot !== 'undefined' && embeddingRoot instanceof ShadowRoot
+const overlayRoot = useTemplateRef<HTMLElement>('overlayRoot')
+if (isShadowRoot) {
+  useProvideTeleport(undefined, overlayRoot)
+}
 /**
  * Used to inject the environment into built packages
  *
@@ -698,7 +708,7 @@ const { toggleColorMode, isDarkMode: browserIsDarkMode } = useColorMode({
     false: 'light' as const,
     undefined: 'system' as const,
   }[String(mergedConfig.value.darkMode)],
-  overrideColorMode: mergedConfig.value.forceDarkModeState,
+  overrideColorMode: () => mergedConfig.value.forceDarkModeState,
 })
 
 /** Browser preferences must not overwrite the server's controls before hydration finishes. */
@@ -1958,7 +1968,9 @@ onBeforeMount(() => {
     window.history.scrollRestoration = 'manual'
   }
   // Ensure we add our scalar wrapper class to the headless ui root, mounted is too late
-  addScalarClassesToHeadless()
+  if (!isShadowRoot) {
+    addScalarClassesToHeadless()
+  }
 
   // When we detect a back button press we scroll to the new id
   window.addEventListener('popstate', handlePopState)
@@ -2324,7 +2336,11 @@ const sidebarCta = computed((): SidebarCta => {
 </script>
 
 <template>
-  <div v-bind="shellAttrs">
+  <div
+    v-bind="shellAttrs"
+    :class="
+      isShadowRoot ? (isDarkMode ? 'dark-mode' : 'light-mode') : undefined
+    ">
     <!-- Keep a single root with no leading comment: hydration detection reads vnode.el. -->
     <!-- eslint-disable vue/no-v-text-v-html-on-component -->
     <component
@@ -2684,12 +2700,17 @@ const sidebarCta = computed((): SidebarCta => {
       </div>
     </div>
     <ScalarToasts />
+    <div
+      v-if="isShadowRoot"
+      ref="overlayRoot"
+      class="contents" />
   </div>
 </template>
 
 <style>
 /** Used to check if css is loaded */
-:root {
+:root,
+:host {
   --scalar-loaded-api-reference: true;
 }
 

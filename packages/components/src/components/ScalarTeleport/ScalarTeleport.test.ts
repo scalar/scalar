@@ -1,5 +1,7 @@
+import { DOCUMENT_ROOT_SYMBOL } from '@scalar/use-hooks/useDocumentRoot'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 
 import ScalarTeleport from './ScalarTeleport.vue'
 import ScalarTeleportRoot from './ScalarTeleportRoot.vue'
@@ -7,6 +9,35 @@ import ScalarTeleportRoot from './ScalarTeleportRoot.vue'
 enableAutoUnmount(afterEach)
 
 describe('ScalarTeleport', () => {
+  it('keeps nested teleport roots in their shadow tree when document IDs overlap', async () => {
+    const outside = document.createElement('div')
+    outside.id = 'shared-target'
+    const host = document.createElement('div')
+    const root = host.attachShadow({ mode: 'open' })
+    const container = document.createElement('div')
+    root.append(container)
+    document.body.append(outside, host)
+    const wrapper = mount(
+      {
+        components: { ScalarTeleport, ScalarTeleportRoot },
+        template:
+          '<ScalarTeleportRoot id="shared-target"><ScalarTeleport><button>Local overlay</button></ScalarTeleport></ScalarTeleportRoot>',
+      },
+      { attachTo: container, global: { provide: { [DOCUMENT_ROOT_SYMBOL]: root } } },
+    )
+
+    try {
+      await nextTick()
+      expect(root.querySelector('#shared-target button')?.textContent).toBe('Local overlay')
+      expect(outside.textContent).toBe('')
+      wrapper.unmount()
+      expect(root.querySelector('button')).toBe(null)
+    } finally {
+      host.remove()
+      outside.remove()
+    }
+  })
+
   beforeEach(() => {
     document.body.innerHTML = `<div id="app"></div>`
   })

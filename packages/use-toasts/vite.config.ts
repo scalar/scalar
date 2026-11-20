@@ -1,6 +1,5 @@
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
 import { createExternalsFromPackageJson, createLibEntry } from '../../tooling/scripts/vite-lib-config.ts'
 
@@ -8,7 +7,7 @@ const external = createExternalsFromPackageJson()
 const entry = createLibEntry(['./src/index.ts'], import.meta.dirname)
 
 export default defineConfig({
-  plugins: [vue(), cssInjectedByJsPlugin()],
+  plugins: [vue()],
   build: {
     outDir: './dist',
     minify: false,
@@ -22,7 +21,8 @@ export default defineConfig({
       treeshake: {
         moduleSideEffects: (id) => id.includes('.css'),
       },
-      external,
+      // Inline the client stylesheet so server rendering does not import CSS through Node.
+      external: (id) => id !== 'vue-sonner/style.css?inline' && external.some((pattern) => pattern.test(id)),
     },
   },
 })

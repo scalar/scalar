@@ -6,6 +6,11 @@ import type { ClientLayout } from '@/v2/types/layout'
 
 import { useGlobalHotKeys } from './use-global-hot-keys'
 
+const injectedRoot = vi.hoisted(() => ({ value: undefined as Document | ShadowRoot | undefined }))
+vi.mock('@scalar/use-hooks/useDocumentRoot', () => ({
+  useDocumentRoot: () => injectedRoot.value ?? document,
+}))
+
 // Mock Vue lifecycle hooks
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -36,6 +41,7 @@ describe('use-hot-keys', () => {
     removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
 
     vi.clearAllMocks()
+    injectedRoot.value = document
   })
 
   it('adds keydown event listener on mount', () => {
@@ -115,5 +121,40 @@ describe('use-hot-keys', () => {
 
     // The same handler reference should be used for both add and remove
     expect(addedHandler).toBe(removedHandler)
+  })
+  it('ignores keyboard events from another embedding root', () => {
+    const ownRoot = document.createElement('div').attachShadow({ mode: 'open' })
+    const otherRoot = document.createElement('div').attachShadow({ mode: 'open' })
+    injectedRoot.value = ownRoot
+    useGlobalHotKeys(mockEventBus, 'modal')
+    const callback = addEventListenerSpy.mock.calls[0]?.[1] as EventListener
+    const event = new KeyboardEvent('keydown', { key: 'Enter', metaKey: true })
+    vi.spyOn(event, 'composedPath').mockReturnValue([otherRoot])
+    callback(event)
+    expect(handleHotkeys).not.toHaveBeenCalled()
+
+    vi.mocked(event.composedPath).mockReturnValue([ownRoot])
+    callback(event)
+    expect(handleHotkeys).toHaveBeenCalledWith(event, mockEventBus, 'modal')
+  })
+
+  it('leaves embedded Escape dismissal to the native dialog', () => {
+    const root = document.createElement('div').attachShadow({ mode: 'open' })
+    injectedRoot.value = root
+    useGlobalHotKeys(mockEventBus, 'modal')
+    const callback = addEventListenerSpy.mock.calls[0]?.[1] as EventListener
+    const event = new KeyboardEvent('keydown', { key: 'Escape' })
+    vi.spyOn(event, 'composedPath').mockReturnValue([root])
+    callback(event)
+    expect(handleHotkeys).not.toHaveBeenCalled()
+  })
+
+  it('keeps document shortcuts from handling embedded events', () => {
+    useGlobalHotKeys(mockEventBus, 'web')
+    const callback = addEventListenerSpy.mock.calls[0]?.[1] as EventListener
+    const event = new KeyboardEvent('keydown', { key: 'Enter', metaKey: true })
+    vi.spyOn(event, 'composedPath').mockReturnValue([document.createElement('div').attachShadow({ mode: 'open' })])
+    callback(event)
+    expect(handleHotkeys).not.toHaveBeenCalled()
   })
 })
