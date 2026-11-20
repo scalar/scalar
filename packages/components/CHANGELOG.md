@@ -1,5 +1,18 @@
 # @scalar/components
 
+## 0.35.4
+
+### Patch Changes
+
+- [#11154](https://github.com/scalar/scalar/pull/11154): Color operators like punctuation in syntax highlighting
+
+  Operators such as `=`, `->` and `::` now get an `hljs-operator` class and use the same quieter color as brackets and commas, so `client.planets()` and `Client::new()` read consistently. If you pair `@scalar/highlight/compat` with your own highlight.js theme, its `.hljs-operator` rules now apply too.
+- [#11126](https://github.com/scalar/scalar/pull/11126): Give syntax highlighting a fuller palette
+
+  Parameters, object members, type names and punctuation now have their own colors, plain code is easier to read, and the colors are adjusted so they stay readable and distinct in light and dark mode. They still come from the active theme's hues.
+
+  The colors live in `@scalar/themes` as `--scalar-code-*` variables named by role (`--scalar-code-keyword`, `--scalar-code-string`, `--scalar-code-parameter` and so on), so a theme or custom stylesheet can set its own syntax colors. The Moon theme sets darker and lighter values to stay readable on its tinted backgrounds.
+
 ## 0.35.3
 
 ### Patch Changes

@@ -1,5 +1,9 @@
 # @scalar/oas-utils
 
+## 0.20.26
+
+No changes in this release.
+
 ## 0.20.25
 
 No changes in this release.
