@@ -302,17 +302,39 @@ describe('curl', () => {
     assertHas(`curl -d '{"a":`, '"a"', 'property')
   })
 
-  it.each(['--', '-o', '--output', '-d', '--json', '-X'])('keeps the word after %s -d out of JSON', (prefix) => {
-    expect(scoped(`curl ${prefix} -d '[true]'`)).toStrictEqual([
-      ['curl', 'keyword'],
-      ["'[true]'", 'string'],
-    ])
-  })
+  it.each(['--', '-o', '--output', '--expand-header', '-d', '--json', '-X'])(
+    'keeps the word after %s -d out of JSON',
+    (prefix) => {
+      expect(scoped(`curl ${prefix} -d '[true]'`)).toStrictEqual([
+        ['curl', 'keyword'],
+        ["'[true]'", 'string'],
+      ])
+    },
+  )
 
   it('resumes option parsing in the next shell command', () => {
     const code = "curl -- -d '[false]'; curl -d '[true]'"
     assertHas(code, "'[false]'", 'string')
     assertHas(code, 'true', 'boolean')
+  })
+
+  it.each(['2>&1', '&>output.log', '$(printf example.test)', '<(echo example.test)', '`echo example.test`'])(
+    'keeps options disabled through %s',
+    (syntax) => {
+      assertHas(`curl -- ${syntax} -d '[true]'`, "'[true]'", 'string')
+    },
+  )
+
+  it('ignores data-like strings inside an option value provided by command substitution', () => {
+    assertHas(`curl -o $(printf '%s' -d '[true]') https://example.test`, "'[true]'", 'string')
+  })
+
+  it('keeps a data-like suffix in a word that starts with command substitution', () => {
+    assertHas("curl $(printf example.test)-d'[true]'", "'[true]'", 'string')
+  })
+
+  it('finds the body after a shell redirection between the data option and its operand', () => {
+    assertHas("curl -d 2>/dev/null '[true]'", 'true', 'boolean')
   })
 
   it.each(['https://example.com', '-o'])('ignores data flags in a shell comment after %s', (value) => {
@@ -325,6 +347,16 @@ describe('curl', () => {
       const code = `curl ${flag} '[true]'`
       assertHas(code, '\\', 'punctuation')
       assertHas(code, 'true', 'boolean')
+    }
+  })
+
+  it.each(['\n', '\r\n'])('leaves spliced numeric and dotted switches plain (%j)', (newline) => {
+    const continuation = '\\' + newline
+    for (const flag of [`-4${continuation}s`, `--http${continuation}1.1`]) {
+      expect(scoped(`curl ${flag} https://example.test`)).toStrictEqual([
+        ['curl', 'keyword'],
+        ['\\', 'punctuation'],
+      ])
     }
   })
 

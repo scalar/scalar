@@ -33,18 +33,20 @@ const LONG_VALUE_OPTIONS = `
   .split(/\s+/)
 
 const SPLICES = `(?:${SHELL_LINE_SPLICE})*`
-const SHELL_SEPARATOR = String.raw`[ \t\n;&|<>()]|\r\n`
+const SHELL_SEPARATOR = String.raw`[ \t\n;&|()]|[<>](?!\()|\r\n`
 const SHELL_WORD_END = String.raw`(?=${SPLICES}(?:${SHELL_SEPARATOR}|(?![\s\S])))`
 // Whitespace is a separator when it follows an even number of backslashes.
 const UNESCAPED_WHITESPACE = String.raw`(?<!\\)(?:\\\\)*(?:[ \t]|\r\n|(?<!\r)\n)`
-const WORD_START = String.raw`(?<=(?:(?<![\s\S])|${UNESCAPED_WHITESPACE}|(?<!\\)[;&|()])${SPLICES})`
+const WORD_START = String.raw`(?<=(?:(?<![\s\S])|${UNESCAPED_WHITESPACE})${SPLICES})`
 const OPTION_START = `(?=-)${WORD_START}-`
 const COMMENT_START = `(?=#)${WORD_START}`
 
 /** Recognize an option's spelling without consuming its splices as plain text. */
-const longOption = (names: readonly string[]): string => {
-  const spelling = names.map((name) => [...name].map((char) => (char === '.' ? '\\.' : char)).join(SPLICES)).join('|')
-  return `${OPTION_START}(?=${SPLICES}-${SPLICES}(?:${spelling})(?:${SPLICES}=|${SHELL_WORD_END}))`
+const splicedName = (name: string): string => [...name].map((char) => (char === '.' ? '\\.' : char)).join(SPLICES)
+
+const longOption = (names: readonly string[], prefix = ''): string => {
+  const spelling = names.map(splicedName).join('|')
+  return `${OPTION_START}(?=${SPLICES}-${SPLICES}${prefix}(?:${spelling})(?:${SPLICES}=|${SHELL_WORD_END}))`
 }
 
 const SHORT_PREFIX = `(?:${SPLICES}[${SHORT_SWITCHES}])*${SPLICES}`
@@ -55,6 +57,13 @@ const SHELL_APOSTROPHES = String.raw`'\\''|'"'"'`
 // count as separate JSON bodies.
 const QUOTED_BODY = String.raw`[\[{](?:[^']|${SHELL_APOSTROPHES})*(?:'${SHELL_WORD_END}|(?![\s\S]))`
 
+const redirection: StateRule = {
+  match: String.raw`(${WORD_START}\d+(?=[<>]))?(?:&>>?|<<-?|[<>](?!\()(?:[<>|&])?)`,
+  scope: ['number'],
+  push: 'redirection-target',
+}
+const substitution: StateRule = { match: '\\$\\(', scope: 'variable', push: 'subshell' }
+const processSubstitution: StateRule = { match: '[<>]\\(', scope: 'variable', push: 'subshell' }
 const argumentSpace: StateRule[] = [shellContinuation, { match: '[ \\t]+' }]
 const stepIntoWord: StateRule[] = [
   { match: COMMENT_START, pop: true },
@@ -77,12 +86,19 @@ const curl: Grammar = {
         { match: shortOption(`[${SHORT_VALUE_OPTIONS}]`), push: 'short-value-option' },
         { match: longOption(DATA_OPTIONS), push: 'long-data-option' },
         { match: longOption(['request']), push: 'long-method-option' },
-        { match: longOption(LONG_VALUE_OPTIONS), push: 'long-value-option' },
+        {
+          match: longOption(
+            [...LONG_VALUE_OPTIONS, ...DATA_OPTIONS, 'request'],
+            `(?:${splicedName('expand-')}${SPLICES})?`,
+          ),
+          push: 'long-value-option',
+        },
 
         // Keep dots and numbers in switch names out of the number scope.
-        { match: `${OPTION_START}-[A-Za-z][\\w.-]*` },
-        { match: `${OPTION_START}[${SHORT_SWITCHES}]+${SHELL_WORD_END}` },
+        { match: `${OPTION_START}(?=${SPLICES}-${SPLICES}[A-Za-z])`, push: 'long-switches' },
+        { match: shortOption(`[${SHORT_SWITCHES}]${SHELL_WORD_END}`), push: 'short-switches' },
         { match: `${OPTION_START}[A-Za-z]` },
+        redirection,
         { include: 'command-content' },
       ],
     },
@@ -99,6 +115,7 @@ const curl: Grammar = {
     positional: {
       rules: [
         shellContinuation,
+        redirection,
         // A new shell command gets its own curl option parsing.
         { match: '[\\n;&|()]', pop: true },
         { include: 'command-content' },
@@ -113,6 +130,9 @@ const curl: Grammar = {
     },
     'short-value-option': {
       rules: [shellContinuation, shortSwitch, { match: `[${SHORT_VALUE_OPTIONS}]`, set: 'argument' }],
+    },
+    'short-switches': {
+      rules: [shellContinuation, shortSwitch, { match: '(?=[\\s\\S])', pop: true }],
     },
     'long-data-option': {
       rules: [
@@ -138,8 +158,14 @@ const curl: Grammar = {
         { match: '(?=[\\s\\S])', set: 'argument' },
       ],
     },
+    'long-switches': {
+      rules: [shellContinuation, longName, { match: '(?=[\\s\\S])', pop: true }],
+    },
 
     argument: {
+      rules: [...argumentSpace, redirection, ...stepIntoWord],
+    },
+    'redirection-target': {
       rules: [...argumentSpace, ...stepIntoWord],
     },
     'argument-word': {
@@ -147,7 +173,7 @@ const curl: Grammar = {
     },
     method: {
       ignoreCase: true,
-      rules: [...argumentSpace, { include: 'method-attached' }],
+      rules: [...argumentSpace, redirection, { include: 'method-attached' }],
     },
     'method-attached': {
       ignoreCase: true,
@@ -158,7 +184,7 @@ const curl: Grammar = {
       ],
     },
     data: {
-      rules: [...argumentSpace, { include: 'data-attached' }],
+      rules: [...argumentSpace, redirection, { include: 'data-attached' }],
     },
     'data-attached': {
       rules: [
@@ -190,6 +216,9 @@ const curl: Grammar = {
     'word-content': {
       rules: [
         shellEscape,
+        substitution,
+        processSubstitution,
+        { match: '`', scope: 'variable', push: 'backtick' },
         { match: '"', scope: 'string', push: 'string-double' },
         { match: "'", scope: 'string', push: 'string-single' },
         { match: '\\b\\d+(?:\\.\\d+)?\\b', scope: 'number' },
@@ -200,13 +229,26 @@ const curl: Grammar = {
       rules: [
         shellContinuation,
         { match: '\\\\.', scope: 'string.escape' },
-        { match: '\\$\\(', scope: 'variable', push: 'subshell' },
+        substitution,
+        { match: '`', scope: 'variable', push: 'backtick' },
         { match: '"', scope: 'string', pop: true },
       ],
     },
     subshell: {
       default: 'variable',
-      rules: [shellContinuation, { ...shellEscape, scope: 'variable' }, { match: '\\)', scope: 'variable', pop: true }],
+      rules: [
+        shellContinuation,
+        { ...shellEscape, scope: 'variable' },
+        substitution,
+        { match: '\\(', push: 'subshell' },
+        { match: '"', scope: 'string', push: 'string-double' },
+        { match: "'", scope: 'string', push: 'string-single' },
+        { match: '\\)', scope: 'variable', pop: true },
+      ],
+    },
+    backtick: {
+      default: 'variable',
+      rules: [shellContinuation, { ...shellEscape, scope: 'variable' }, { match: '`', pop: true }],
     },
     'string-single': {
       default: 'string',

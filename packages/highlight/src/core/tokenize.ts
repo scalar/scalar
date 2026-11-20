@@ -180,7 +180,11 @@ const embedded = (
   if (validate?.format === 'json' && found !== null) {
     const { holeReplacement } = validate
     try {
-      JSON.parse(holes !== null && holeReplacement !== undefined ? body.replace(holes, () => holeReplacement) : body)
+      JSON.parse(
+        holes !== null && holeReplacement !== undefined
+          ? body.replace(holes, (match) => (match.length === 0 ? match : holeReplacement))
+          : body,
+      )
     } catch {
       emit(state.default, pos, stop)
       return stop

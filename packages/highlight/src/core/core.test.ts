@@ -763,22 +763,29 @@ describe('embed', () => {
     ])
   })
 
-  it('ignores empty holes without losing source text', () => {
-    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
-    const grammar: Grammar = {
-      ...host,
-      states: {
-        ...host.states,
-        body: { embed: { language: 'tiny-embedded', until: '</x>', holes: '(?=1)' }, rules: [] },
-      },
-    }
-    const code = '<x>1</x>'
-    expect(tokenizeToArray(code, compile(grammar)).map(({ text, scope }) => [text, scope])).toEqual([
-      ['<x>', 'tag'],
-      ['1', 'number'],
-      ['</x>', 'tag'],
-    ])
-  })
+  it.each([undefined, { format: 'json', holeReplacement: 'X' }] as const)(
+    'ignores empty holes with validation %j',
+    (validate) => {
+      registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+      const grammar: Grammar = {
+        ...host,
+        states: {
+          ...host.states,
+          body: {
+            default: 'comment',
+            embed: { language: 'tiny-embedded', until: '</x>', holes: '(?=1)', validate },
+            rules: [],
+          },
+        },
+      }
+      const code = '<x>1</x>'
+      expect(tokenizeToArray(code, compile(grammar)).map(({ text, scope }) => [text, scope])).toEqual([
+        ['<x>', 'tag'],
+        ['1', 'number'],
+        ['</x>', 'tag'],
+      ])
+    },
+  )
 
   it('stops nesting embeds at a fixed depth and falls back to the default scope', () => {
     const nested: Grammar = {

@@ -807,6 +807,18 @@ describe('regressions from the TextMate comparison', () => {
     assertHas("cat <<'EOF'\n$HOME\nEOF\n", 'bash', "'\n$HOME\n", 'string')
   })
 
+  it.each(['\n', '\r\n'])('bash: recognizes a continuation only in an unquoted heredoc (%j)', (newline) => {
+    const continuation = '\\' + newline
+    const body = 'first' + continuation + 'EOF' + newline
+    const unquoted = ['cat <<EOF', body + 'second', 'EOF', 'echo done'].join(newline)
+    const quoted = ["cat <<'EOF'", 'first' + continuation + 'second', 'EOF'].join(newline)
+
+    expect(runs(unquoted, 'bash').filter(([text]) => text.includes('\\'))).toStrictEqual([['\\', 'punctuation']])
+    assertHas(unquoted, 'bash', newline + 'EOF' + newline + 'second' + newline, 'string')
+    assertHas(unquoted, 'bash', 'echo', 'function.builtin')
+    assertHas(quoted, 'bash', "'" + newline + 'first' + continuation + 'second' + newline, 'string')
+  })
+
   it('yaml: keeps prose with a colon inside a block scalar', () => {
     const code = 'description: |\n  Returns users.\n  Note: results are paginated.\nsummary: List\n'
     assertHas(code, 'yaml', '\n  Returns users.\n  Note: results are paginated.\n', 'string')

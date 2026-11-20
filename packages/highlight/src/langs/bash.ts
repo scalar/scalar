@@ -1,4 +1,4 @@
-import type { Grammar } from '../core/types'
+import type { Grammar, StateRule } from '../core/types'
 import { shellContinuation, shellEscape } from './shared/shell'
 
 /**
@@ -18,6 +18,8 @@ const VAR = '\\$(?:[A-Za-z_]\\w*|[0-9!@#?*$-])'
  */
 const BEFORE_COMMAND =
   '(?:^(?<!\\\\\\r?\\n)(?:[ \\t]*\\$(?=[ \\t]))?|[|&;(`{]|\\$\\(|\\b(?:then|do|else|elif|sudo|time|exec|xargs|nohup|env)\\b|!)'
+
+const heredocExpansions: StateRule[] = [shellContinuation, { match: '\\\\[\\\\$`]' }, { include: 'expansion' }]
 
 const bash: Grammar = {
   name: 'bash',
@@ -171,7 +173,21 @@ const bash: Grammar = {
     },
     heredoc: {
       default: 'string',
-      rules: [{ include: 'heredoc-end' }, { include: 'expansion' }],
+      rules: [
+        { include: 'heredoc-end' },
+        // A delimiter on the next physical line is part of the body when
+        // a continuation has already joined text to the start of that line.
+        {
+          match: String.raw`(?<!^[ \t]*)(\\)\r?\n`,
+          scope: ['punctuation'],
+          push: 'heredoc-continued-line',
+        },
+        ...heredocExpansions,
+      ],
+    },
+    'heredoc-continued-line': {
+      default: 'string',
+      rules: [...heredocExpansions, { match: '\\r?\\n', pop: true }],
     },
     'heredoc-literal': {
       default: 'string',
