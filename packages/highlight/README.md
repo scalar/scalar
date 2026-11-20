@@ -180,7 +180,7 @@ code they punctuate.
 
 ## Adding a language
 
-A grammar is plain data with no imports beyond its type:
+A grammar is plain data. It can reuse shared rule data and refer to other languages by name:
 
 ```ts
 import type { Grammar } from '@scalar/highlight/core';
@@ -240,8 +240,9 @@ A PHP template's `<script>` uses it for `<?= $x ?>`, which keeps `"<?= $name ?>"
 Hole patterns may contain capture groups. An end marker inside a hole does not close the embedded body.
 Use `preserveHoleScope: true` when a masked escape should keep the scope of the surrounding
 embedded token, such as a shell-escaped apostrophe in a JSON key.
-Use `accept(body, closed)` to inspect the original body and whether its end marker was
-found. Returning false keeps the body's default host scope.
+Set `validate: { format: 'json' }` to use the default host scope for closed bodies that fail
+JSON parsing. Set `validate.holeReplacement` to the text each hole represents during validation.
+Unterminated bodies can still use the embedded grammar while the user types.
 
 Lines end at `\n` (or `\r\n`) and nowhere else: the compiler rewrites `$` and `.` so a lone
 `\r` or a U+2028 inside a string literal cannot end it early, as JavaScript's `m` flag would.

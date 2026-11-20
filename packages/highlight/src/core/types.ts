@@ -106,15 +106,16 @@ export type State = {
    * that should keep the embedded token's scope, such as a shell-escaped
    * apostrophe in a JSON key.
    *
-   * `accept` can opt out of embedding based on the original body text and
-   * whether the end marker was found. A rejected body uses the default scope.
+   * With `validate: { format: 'json' }`, a closed body must parse as JSON to be embedded.
+   * The validation input substitutes `holeReplacement` for each hole, or
+   * uses the original text if no replacement is set.
    */
   embed?: {
     language: string
     until: string
     holes?: string
     preserveHoleScope?: boolean
-    accept?: (body: string, closed: boolean) => boolean
+    validate?: { format: 'json'; holeReplacement?: string }
   }
   rules: StateRule[]
 }
@@ -186,7 +187,7 @@ export type CompiledState = {
         language: string
         boundary: RegExp
         holes: RegExp | null
-      } & Pick<NonNullable<State['embed']>, 'preserveHoleScope' | 'accept'>)
+      } & Pick<NonNullable<State['embed']>, 'preserveHoleScope' | 'validate'>)
     | null
 }
 

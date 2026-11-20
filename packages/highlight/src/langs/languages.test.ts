@@ -792,6 +792,15 @@ describe('regressions from the TextMate comparison', () => {
     ])
   })
 
+  it.each(['\n', '\r\n'])('bash: scopes continuations in parameter and arithmetic expansions (%j)', (newline) => {
+    const continuation = '\\' + newline
+    const code = 'echo "${HEL' + continuation + 'LO}" $((1 +' + continuation + '2))'
+    expect(runs(code, 'bash').filter(([text]) => text.includes('\\'))).toStrictEqual([
+      ['\\', 'punctuation'],
+      ['\\', 'punctuation'],
+    ])
+  })
+
   it('bash: closes a heredoc only on its terminator, and does not expand a quoted one', () => {
     assertHas('cat <<EOF\nEND\n$HOME\nEOF\necho done\n', 'bash', 'echo', 'function.builtin')
     // The body merges with the closing quote of the marker into one run.

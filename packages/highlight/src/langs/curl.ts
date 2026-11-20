@@ -1,124 +1,170 @@
-import type { Grammar } from '../core/types'
+import type { Grammar, StateRule } from '../core/types'
 import { SHELL_LINE_SPLICE, shellContinuation, shellEscape } from './shared/shell'
 
-/**
- * cURL command lines.
- *
- * A curl invocation is a shell command, but reading one is nothing like
- * reading a shell script: what matters is the request method and which flag
- * carries which value, not control flow. `@scalar/code-highlight` shipped a
- * bespoke curl grammar for that reason and `code.css` styles
- * `.hljs.language-curl` to match it, so this mirrors that scoping rather than
- * deferring to bash — which leaves `curl` and the method word unscoped.
- *
- * Flags are matched but left unscoped. They read as plain text, and any class
- * they carried would be shared with values that should be coloured: `-d` and
- * the JSON `true` in its body would both be `hljs-literal`.
- */
-
-/** The methods `--request` and `-X` accept. Matched case-insensitively. */
+/** A curl command highlights its method and JSON payload alongside shell strings. */
 const METHODS = 'get|post|put|patch|delete|head|options|trace|connect'
+const DATA_OPTIONS = ['data', 'data-ascii', 'data-binary', 'data-raw', 'json']
 
-/** The long flags whose value can be a JSON request body. */
-const LONG_DATA_FLAGS = '--data(?:-raw|-binary|-ascii)?|--json'
-
-// Only switches that take no value can precede d in a short-option group.
-// Keep this in sync with curl's ARG_BOOL and ARG_NONE short options.
+// The curl option table defines which flags consume a value.
+// https://github.com/curl/curl/blob/curl-8_16_0/src/tool_getparam.c
+// The value can look like another flag, so those options take the whole shell word.
 const SHORT_SWITCHES = '012346#:aBfGgIijkJlLMnNOpqRsSvVZ'
+const SHORT_VALUE_OPTIONS = 'ACDEFHKPQTUXYbcehmortuwxyz'
+const LONG_VALUE_OPTIONS = `
+  abstract-unix-socket alt-svc aws-sigv4 cacert capath cert cert-type ciphers config connect-timeout
+  connect-to continue-at cookie cookie-jar create-file-mode crlfile curves data-urlencode delegation
+  dns-interface dns-ipv4-addr dns-ipv6-addr dns-servers doh-url dump-header ech egd-file engine
+  etag-compare etag-save expect100-timeout form form-string ftp-account ftp-alternative-to-user
+  ftp-method ftp-port ftp-ssl-ccc-mode happy-eyeballs-timeout-ms haproxy-clientip header help
+  hostpubmd5 hostpubsha256 hsts interface ip-tos ipfs-gateway keepalive-cnt keepalive-time key
+  key-type knownhosts krb krb4 libcurl limit-rate local-port login-options mail-auth mail-from
+  mail-rcpt max-filesize max-redirs max-time netrc-file noproxy oauth2-bearer output output-dir
+  parallel-max parallel-max-host pass pinnedpubkey preproxy proto proto-default proto-redir proxy
+  proxy-cacert proxy-capath proxy-cert proxy-cert-type proxy-ciphers proxy-crlfile proxy-header
+  proxy-key proxy-key-type proxy-pass proxy-pinnedpubkey proxy-service-name proxy-tls13-ciphers
+  proxy-tlsauthtype proxy-tlspassword proxy-tlsuser proxy-user proxy1.0 pubkey quote random-file
+  range rate referer request-target resolve retry retry-delay retry-max-time sasl-authzid
+  service-name sigalgs socks4 socks4a socks5 socks5-gssapi-service socks5-hostname speed-limit
+  speed-time ssl-sessions stderr telnet-option tftp-blksize time-cond tls-max tls13-ciphers
+  tlsauthtype tlspassword tlsuser trace trace-ascii trace-config unix-socket upload-file
+  upload-flags url url-query user user-agent variable vlan-priority write-out
+`
+  .trim()
+  .split(/\s+/)
 
-/** The shell can insert a literal apostrophe by closing and reopening the quote. */
-const SHELL_APOSTROPHES = String.raw`'\\''|'"'"'`
-const APOSTROPHE_ESCAPE = new RegExp(SHELL_APOSTROPHES, 'g')
-// A splice disappears from the word. Whitespace is a separator when it follows
-// an even number of backslashes, including zero.
+const SPLICES = `(?:${SHELL_LINE_SPLICE})*`
+const SHELL_SEPARATOR = String.raw`[ \t\n;&|<>()]|\r\n`
+const SHELL_WORD_END = String.raw`(?=${SPLICES}(?:${SHELL_SEPARATOR}|(?![\s\S])))`
+// Whitespace is a separator when it follows an even number of backslashes.
 const UNESCAPED_WHITESPACE = String.raw`(?<!\\)(?:\\\\)*(?:[ \t]|\r\n|(?<!\r)\n)`
-const OPTION_START = String.raw`(?=-)(?<=(?:(?<![\s\S])|${UNESCAPED_WHITESPACE})(?:${SHELL_LINE_SPLICE})*)`
-const SHELL_WORD_END = String.raw`(?=(?:${SHELL_LINE_SPLICE})*(?:[ \t\n;&|<>()]|\r\n|(?![\s\S])))`
+const WORD_START = String.raw`(?<=(?:(?<![\s\S])|${UNESCAPED_WHITESPACE}|(?<!\\)[;&|()])${SPLICES})`
+const OPTION_START = `(?=-)${WORD_START}-`
+const COMMENT_START = `(?=#)${WORD_START}`
 
-// The closing quote must end the shell argument. A segment like '[1]'='[2]'
-// is one argument, so its first segment alone is not a JSON body.
+/** Recognize an option's spelling without consuming its splices as plain text. */
+const longOption = (names: readonly string[]): string => {
+  const spelling = names.map((name) => [...name].map((char) => (char === '.' ? '\\.' : char)).join(SPLICES)).join('|')
+  return `${OPTION_START}(?=${SPLICES}-${SPLICES}(?:${spelling})(?:${SPLICES}=|${SHELL_WORD_END}))`
+}
+
+const SHORT_PREFIX = `(?:${SPLICES}[${SHORT_SWITCHES}])*${SPLICES}`
+const shortOption = (valueOption: string): string => `${OPTION_START}(?=${SHORT_PREFIX}${valueOption})`
+
+const SHELL_APOSTROPHES = String.raw`'\\''|'"'"'`
+// The closing quote must end the shell argument so adjacent segments do not
+// count as separate JSON bodies.
 const QUOTED_BODY = String.raw`[\[{](?:[^']|${SHELL_APOSTROPHES})*(?:'${SHELL_WORD_END}|(?![\s\S]))`
 
-const isJsonBody = (body: string, closed: boolean): boolean => {
-  // Highlight a JSON-shaped argument as it is being typed. Once the quote
-  // closes, require one JSON value so bracketed text keeps its string scope.
-  if (!closed) {
-    return true
-  }
-
-  try {
-    JSON.parse(body.replace(APOSTROPHE_ESCAPE, "'"))
-    return true
-  } catch {
-    return false
-  }
-}
+const argumentSpace: StateRule[] = [shellContinuation, { match: '[ \\t]+' }]
+const stepIntoWord: StateRule[] = [
+  { match: COMMENT_START, pop: true },
+  { match: `(?!(?:${SHELL_SEPARATOR}))(?=[\\s\\S])`, set: 'argument-word' },
+  { match: '(?=[\\s\\S])', pop: true },
+]
+const shortSwitch: StateRule = { match: `[${SHORT_SWITCHES}]+` }
+const longName: StateRule = { match: '[\\w.-]+' }
 
 const curl: Grammar = {
   name: 'curl',
   states: {
     root: {
-      // Flags are case-sensitive: `-d` sends a body and `-D` names a file to
-      // dump headers into, `-F` sends a form and `-f` fails on HTTP errors.
       rules: [
         shellContinuation,
+        // Splices can appear even between the dashes in the end-of-options marker.
+        { match: `${OPTION_START}(?=${SPLICES}-${SHELL_WORD_END})`, push: 'end-of-options' },
+        { match: shortOption('d'), push: 'short-data-option' },
+        { match: shortOption('X'), push: 'short-method-option' },
+        { match: shortOption(`[${SHORT_VALUE_OPTIONS}]`), push: 'short-value-option' },
+        { match: longOption(DATA_OPTIONS), push: 'long-data-option' },
+        { match: longOption(['request']), push: 'long-method-option' },
+        { match: longOption(LONG_VALUE_OPTIONS), push: 'long-value-option' },
 
-        // curl itself does not care about the case of a method, and neither did
-        // the grammar this replaces, so the command and the method are matched
-        // in any case.
+        // Keep dots and numbers in switch names out of the number scope.
+        { match: `${OPTION_START}-[A-Za-z][\\w.-]*` },
+        { match: `${OPTION_START}[${SHORT_SWITCHES}]+${SHELL_WORD_END}` },
+        { match: `${OPTION_START}[A-Za-z]` },
+        { include: 'command-content' },
+      ],
+    },
+    'command-content': {
+      rules: [
+        { match: String.raw`${COMMENT_START}#[^\n]*`, scope: 'comment' },
         { match: '\\b[cC][uU][rR][lL]\\b', scope: 'keyword' },
-        { match: String.raw`${OPTION_START}(?:--request|-X)(?=\s)`, push: 'method' },
-
-        { match: String.raw`${OPTION_START}-[${SHORT_SWITCHES}]*d(?![\w-])`, push: 'data' },
-        {
-          // curl allows = before an attached value on long options only.
-          match: String.raw`${OPTION_START}(?:${LONG_DATA_FLAGS})(?=(?:${SHELL_LINE_SPLICE})*=(?:${SHELL_LINE_SPLICE})*')`,
-          push: 'data-equals',
-        },
-        {
-          match: String.raw`${OPTION_START}(?:${LONG_DATA_FLAGS})${SHELL_WORD_END}`,
-          push: 'data',
-        },
-
-        // Anchored to a boundary so the hyphens inside a URL or a header name
-        // are not mistaken for flags. Consume dotted names and numeric
-        // switches whole so `--http1.1` and `-4` stay unscoped.
-        { match: String.raw`${OPTION_START}--[A-Za-z][\w.-]*` },
-        { match: String.raw`${OPTION_START}-[${SHORT_SWITCHES}]+${SHELL_WORD_END}` },
-        { match: String.raw`${OPTION_START}-[${SHORT_SWITCHES}]*(?![${SHORT_SWITCHES}])[A-Za-z]` },
-
-        shellEscape,
-        { match: '"', scope: 'string', push: 'string-double' },
-        { match: "'", scope: 'string', push: 'string-single' },
-
-        { match: '\\b\\d+(?:\\.\\d+)?\\b', scope: 'number' },
+        { include: 'word-content' },
+      ],
+    },
+    'end-of-options': {
+      rules: [shellContinuation, { match: '-', set: 'positional' }],
+    },
+    positional: {
+      rules: [
+        shellContinuation,
+        // A new shell command gets its own curl option parsing.
+        { match: '[\\n;&|()]', pop: true },
+        { include: 'command-content' },
       ],
     },
 
+    'short-data-option': {
+      rules: [shellContinuation, shortSwitch, { match: 'd', set: 'data' }],
+    },
+    'short-method-option': {
+      rules: [shellContinuation, shortSwitch, { match: 'X', set: 'method' }],
+    },
+    'short-value-option': {
+      rules: [shellContinuation, shortSwitch, { match: `[${SHORT_VALUE_OPTIONS}]`, set: 'argument' }],
+    },
+    'long-data-option': {
+      rules: [
+        shellContinuation,
+        longName,
+        { match: '=', set: 'data-attached' },
+        { match: '(?=[\\s\\S])', set: 'data' },
+      ],
+    },
+    'long-method-option': {
+      rules: [
+        shellContinuation,
+        longName,
+        { match: '=', set: 'method-attached' },
+        { match: '(?=[\\s\\S])', set: 'method' },
+      ],
+    },
+    'long-value-option': {
+      rules: [
+        shellContinuation,
+        longName,
+        { match: '=', set: 'argument-word' },
+        { match: '(?=[\\s\\S])', set: 'argument' },
+      ],
+    },
+
+    argument: {
+      rules: [...argumentSpace, ...stepIntoWord],
+    },
+    'argument-word': {
+      rules: [shellContinuation, { match: SHELL_WORD_END, pop: true }, { include: 'word-content' }],
+    },
     method: {
       ignoreCase: true,
-      rules: [
-        // The method is the most useful token on the line, so it carries its
-        // own scope instead of blending into the flag that introduces it.
-        { match: `(\\s+)(${METHODS})\\b`, scope: [null, 'symbol'], pop: true },
-        { match: '(?=[\\s\\S])', pop: true },
-      ],
+      rules: [...argumentSpace, { include: 'method-attached' }],
     },
-
-    'data-equals': {
-      rules: [shellContinuation, { match: '=', set: 'data' }],
-    },
-    // Only a single-quoted object or array candidate can use the JSON grammar.
-    data: {
+    'method-attached': {
+      ignoreCase: true,
       rules: [
         shellContinuation,
-        { match: '[ \\t]+' },
-        {
-          match: String.raw`'(?=\s*${QUOTED_BODY})`,
-          scope: 'string',
-          set: 'json-quoted',
-        },
-        { match: '(?=[\\s\\S])', pop: true },
+        { match: `(?:${METHODS})${SHELL_WORD_END}`, scope: 'symbol', pop: true },
+        ...stepIntoWord,
+      ],
+    },
+    data: {
+      rules: [...argumentSpace, { include: 'data-attached' }],
+    },
+    'data-attached': {
+      rules: [
+        shellContinuation,
+        { match: String.raw`'(?=\s*${QUOTED_BODY})`, scope: 'string', set: 'json-quoted' },
+        ...stepIntoWord,
       ],
     },
     'json-quoted': {
@@ -128,31 +174,40 @@ const curl: Grammar = {
       ],
     },
     'json-body': {
-      // Without the JSON grammar registered, the body is one string, as before.
       default: 'string',
-      // `'\''` and `'"'"'` are the shell writing an apostrophe, not the end of
-      // the body. Mask them so JSON can apply one scope to the whole key or
-      // string. snippetz writes the first form and shell examples use both.
-      embed: { language: 'json', until: "'", holes: SHELL_APOSTROPHES, preserveHoleScope: true, accept: isJsonBody },
+      // Mask escaped apostrophes so the embedded grammar can scope the whole
+      // JSON key or string. Validate the text the shell passes to curl.
+      embed: {
+        language: 'json',
+        until: "'",
+        holes: SHELL_APOSTROPHES,
+        preserveHoleScope: true,
+        validate: { format: 'json', holeReplacement: "'" },
+      },
       rules: [],
     },
 
+    'word-content': {
+      rules: [
+        shellEscape,
+        { match: '"', scope: 'string', push: 'string-double' },
+        { match: "'", scope: 'string', push: 'string-single' },
+        { match: '\\b\\d+(?:\\.\\d+)?\\b', scope: 'number' },
+      ],
+    },
     'string-double': {
       default: 'string',
       rules: [
         shellContinuation,
         { match: '\\\\.', scope: 'string.escape' },
-        // `$(...)` runs a command, so it reads as a value rather than text.
         { match: '\\$\\(', scope: 'variable', push: 'subshell' },
         { match: '"', scope: 'string', pop: true },
       ],
     },
     subshell: {
       default: 'variable',
-      rules: [{ match: '\\)', scope: 'variable', pop: true }],
+      rules: [shellContinuation, { ...shellEscape, scope: 'variable' }, { match: '\\)', scope: 'variable', pop: true }],
     },
-
-    // Single quotes are literal in the shell, so nothing expands inside them.
     'string-single': {
       default: 'string',
       rules: [{ match: "'", scope: 'string', pop: true }],

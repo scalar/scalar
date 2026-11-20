@@ -154,7 +154,7 @@ const embedded = (
   emit: Emit,
 ): number => {
   const embedding = state.embed!
-  const { boundary, holes, language, accept } = embedding
+  const { boundary, holes, language, validate } = embedding
   boundary.lastIndex = pos
   let found = boundary.exec(code)
   while (holes !== null && found?.[1] !== undefined) {
@@ -177,9 +177,14 @@ const embedded = (
   }
 
   const body = code.slice(pos, stop)
-  if (accept?.(body, found !== null) === false) {
-    emit(state.default, pos, stop)
-    return stop
+  if (validate?.format === 'json' && found !== null) {
+    const { holeReplacement } = validate
+    try {
+      JSON.parse(holes !== null && holeReplacement !== undefined ? body.replace(holes, () => holeReplacement) : body)
+    } catch {
+      emit(state.default, pos, stop)
+      return stop
+    }
   }
 
   depth += 1

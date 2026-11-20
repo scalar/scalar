@@ -123,12 +123,15 @@ const bash: Grammar = {
     'brace-expansion': {
       default: 'variable',
       rules: [
+        shellContinuation,
+        { ...shellEscape, scope: 'variable' },
         { match: '\\}', scope: 'variable', pop: true },
         { match: '[:#%/^,!*@-]+', scope: 'operator' },
       ],
     },
     arithmetic: {
       rules: [
+        shellContinuation,
         { match: '\\)\\)', scope: 'operator', pop: true },
         { include: 'expansion' },
         { match: '\\b\\d+\\b', scope: 'number' },
