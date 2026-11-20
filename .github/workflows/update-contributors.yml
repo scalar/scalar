@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Generate GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@v3.2.0
+        uses: actions/create-github-app-token@v3.4.0
         with:
           app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
@@ -33,7 +33,7 @@ jobs:
           permission-pull-requests: write
 
       - name: Checkout
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.1
         with:
           token: ${{ steps.app-token.outputs.token }}
 
@@ -43,7 +43,7 @@ jobs:
           github-token: ${{ steps.app-token.outputs.token }}
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v8.1.0
+        uses: peter-evans/create-pull-request@v8.1.3
         with:
           token: ${{ steps.app-token.outputs.token }}
           branch: contributors-readme-action-update

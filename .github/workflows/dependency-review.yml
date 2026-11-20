@@ -11,11 +11,11 @@ jobs:
   dependency-review:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - name: Dependency Review
-        uses: actions/dependency-review-action@v4.8.2
+        uses: actions/dependency-review-action@v5.0.1
         with:
           # Defines the threshold for the level of severity.
           fail-on-severity: high
