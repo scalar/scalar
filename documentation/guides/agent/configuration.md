@@ -63,6 +63,7 @@ These limits apply to the stored Config and environment records, not the size of
 
 ## Related
 
+- [MCP OpenAPI Extensions](openapi-extensions.md)
 - [MCP Servers](mcp.md)
 - [Authentication](authentication/index.md)
 - [Custom domains](custom-domains.md)
