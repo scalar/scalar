@@ -38,7 +38,7 @@ catalogs:
     '@playwright/test': 1.62.1
     '@scalar/typebox': 0.1.4
     '@tailwindcss/cli': ^4.3.5
-    '@scalar/sdk': 0.7.0
+    '@scalar/sdk': 0.8.0
     '@tailwindcss/vite': ^4.3.5
     '@tanstack/vue-query': 5.107.1
     '@types/express': 5.0.6
