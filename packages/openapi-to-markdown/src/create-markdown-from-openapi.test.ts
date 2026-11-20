@@ -6,6 +6,7 @@ import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
+import { loadDocument } from './load-document'
 
 describe('createMarkdownFromOpenApi', () => {
   it('resolves local URI security requirements in Node exports', async () => {
@@ -35,7 +36,10 @@ describe('createMarkdownFromOpenApi', () => {
         },
       },
     })
-    expect(result).toContain('- **#/components/securitySchemes/key**: API key in header `X-Api-Key`')
+    expect(result).toContain(
+      '- **#/components/securitySchemes/key**: API key in header `X-Api-Key`\n\n  Use your account key.',
+    )
+    expect(result).not.toContain('Inner description.')
   })
 
   it('preserves URI security scopes, alternatives, and named schemes for operations', async () => {
@@ -155,14 +159,19 @@ describe('createMarkdownFromOpenApi', () => {
     }
   })
 
-  it('keeps URI security bases separate for referenced operations with their own $self', async () => {
+  it('keeps URI security bases separate and resolver metadata out of Markdown', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'markdown-security-'))
     try {
       const entry = join(directory, 'openapi.json')
       const paths = { '/a': { $ref: './a/api.json#/paths/~1items' }, '/b': { $ref: './b/api.json#/paths/~1items' } }
       await writeFile(
         entry,
-        JSON.stringify({ openapi: '3.2.1', info: { title: 'Referenced auth', version: '1' }, paths }),
+        JSON.stringify({
+          openapi: '3.2.1',
+          $self: './openapi.json',
+          info: { title: 'Referenced auth', version: '1' },
+          paths,
+        }),
       )
       for (const name of ['a', 'b']) {
         await mkdir(join(directory, name, 'canonical'), { recursive: true })
@@ -191,6 +200,19 @@ describe('createMarkdownFromOpenApi', () => {
           }),
         )
       }
+      const metadataKeys = [
+        'x-scalar-original-refs',
+        'x-scalar-security-uri-aliases',
+        'x-scalar-original-security-keys',
+      ]
+      const loaded = await loadDocument(entry, { basePath: directory })
+      for (const key of metadataKeys) {
+        expect(JSON.stringify(loaded)).toContain(key)
+      }
+      const full = await createMarkdownFromOpenApi(entry, { documentLoading: { basePath: directory } })
+      for (const key of metadataKeys) {
+        expect(full).not.toContain(key)
+      }
       for (const name of ['a', 'b']) {
         const result = await createMarkdownFromOpenApi(entry, {
           documentLoading: { basePath: directory },
@@ -198,6 +220,9 @@ describe('createMarkdownFromOpenApi', () => {
         })
         expect(result).toContain(`API key in header \`X-${name}-Key\`, scopes: \`read\``)
         expect(result).not.toContain(`X-${name === 'a' ? 'b' : 'a'}-Key`)
+        for (const key of metadataKeys) {
+          expect(result).not.toContain(key)
+        }
       }
     } finally {
       await rm(directory, { recursive: true, force: true })

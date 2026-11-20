@@ -6,23 +6,41 @@ import { getResolvedSecurityScheme } from './get-resolved-security-scheme'
 const apiKey = { type: 'apiKey', in: 'header', name: 'X-Api-Key', description: 'Base description.' }
 
 describe('get-resolved-security-scheme', () => {
-  it('follows annotated references without changing the scheme or reference wrappers', () => {
+  it('uses the nearest description without changing the scheme or reference wrappers', () => {
     const document = createMagicProxy({
       target: apiKey,
       alias: { $ref: '#/target', description: 'Inner description.' },
       reference: { $ref: '#/alias', description: 'Outer description.' },
     })
-    expect(getResolvedSecurityScheme(document.reference)).toStrictEqual(apiKey)
+    expect(getResolvedSecurityScheme(document.reference)).toStrictEqual({
+      ...apiKey,
+      description: 'Outer description.',
+    })
     expect(document.target).toStrictEqual(apiKey)
     expect(document.alias.description).toBe('Inner description.')
   })
 
-  it('resolves to the scheme without merging reference siblings', () => {
+  it('keeps an empty description override and ignores unsupported siblings', () => {
     const document = createMagicProxy({
       target: apiKey,
       reference: { $ref: '#/target', description: '', name: 'Ignored' },
     })
-    expect(getResolvedSecurityScheme(document.reference)).toStrictEqual(apiKey)
+    expect(getResolvedSecurityScheme(document.reference)).toStrictEqual({ ...apiKey, description: '' })
+    expect(getResolvedSecurityScheme(document.reference, { overrideDescription: false })).toStrictEqual(apiKey)
+  })
+
+  it('inherits the first description found in the reference chain', () => {
+    const document = createMagicProxy({
+      target: apiKey,
+      alias: { $ref: '#/target', description: 'Inner description.' },
+      reference: { $ref: '#/alias' },
+      unannotated: { $ref: '#/target' },
+    })
+    expect(getResolvedSecurityScheme(document.reference)).toStrictEqual({
+      ...apiKey,
+      description: 'Inner description.',
+    })
+    expect(getResolvedSecurityScheme(document.unannotated)).toStrictEqual(apiKey)
   })
 
   it('leaves missing targets and circular aliases unresolved', () => {

@@ -71,6 +71,7 @@ export const renderSecurity = async (
   schemes: NonNullable<OpenApiDocument['components']>['securitySchemes'],
   description: DescriptionParser,
   level: Heading['depth'] = 4,
+  openapiVersion = '3.2.0',
 ): Promise<RootContent[]> => {
   if (!requirements) {
     return []
@@ -90,7 +91,9 @@ export const renderSecurity = async (
     }
     const entriesNodes: ListItem[] = []
     for (const [name, scopes] of entries) {
-      const scheme = getResolvedSecurityScheme(schemes?.[name])
+      const scheme = getResolvedSecurityScheme(schemes?.[name], {
+        overrideDescription: /^3\.[12]\./.test(openapiVersion),
+      })
       const line: PhrasingContent[] = [strong(text(name))]
       if (scheme) {
         line.push(text(': '), ...summarizeScheme(scheme))
