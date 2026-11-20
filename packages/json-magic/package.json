@@ -120,6 +120,11 @@
       "import": "./dist/magic-proxy/index.js",
       "types": "./dist/magic-proxy/index.d.ts",
       "default": "./dist/magic-proxy/index.js"
+    },
+    "./document": {
+      "import": "./dist/document/index.js",
+      "types": "./dist/document/index.d.ts",
+      "default": "./dist/document/index.js"
     }
   },
   "files": [
