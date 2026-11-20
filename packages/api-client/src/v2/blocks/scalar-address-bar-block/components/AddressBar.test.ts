@@ -651,7 +651,7 @@ describe('AddressBar', () => {
 
       await nextTick()
 
-      expect(refocusBlurTarget).toHaveBeenCalledWith('[data-addressbar-action="send"]')
+      expect(refocusBlurTarget).toHaveBeenCalledWith('[data-addressbar-action="send"]', document)
       expect(replayServerUrl).toBe('https://cdn.jsdelivr.net')
     })
 
