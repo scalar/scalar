@@ -2981,6 +2981,11 @@
                       }
                     }
                   },
+                  "cli-output": {
+                    "filepath": "documentation/guides/sdks/cli-output.md",
+                    "type": "page",
+                    "title": "CLI Output Formats"
+                  },
                   "pagination": {
                     "filepath": "documentation/guides/sdks/pagination.md",
                     "type": "page",
@@ -3078,10 +3083,21 @@
                     }
                   },
                   "custom-code": {
-                    "filepath": "documentation/guides/sdks/custom-code.md",
-                    "type": "page",
                     "title": "Custom Code",
-                    "description": "Customize generated SDKs and keep your changes across regenerations with a three-way merge."
+                    "type": "group",
+                    "mode": "nested",
+                    "children": {
+                      "overview": {
+                        "filepath": "documentation/guides/sdks/custom-code/overview.md",
+                        "type": "page",
+                        "title": "Overview"
+                      },
+                      "cli": {
+                        "filepath": "documentation/guides/sdks/custom-code/cli.md",
+                        "type": "page",
+                        "title": "CLI Commands (Experimental)"
+                      }
+                    }
                   },
                   "diagnostics": {
                     "filepath": "documentation/guides/sdks/diagnostics.md",

@@ -2,7 +2,9 @@
 
 Generated SDKs rarely cover every need. You might add a convenience method, tweak a type, write a helper, or adjust the README. Scalar lets you edit generated code directly and **carries your changes forward** on every regeneration, so you customize the SDK without forking it or losing future updates.
 
-This works on any target [linked to a GitHub repository](publishing/github.md).
+This works on any target [linked to a GitHub repository](../publishing/github.md).
+
+A generated CLI can also take commands of its own, written in TypeScript beside the generated ones and checked by the CLI's own build. That is experimental, and for now is built with the generator's own command line rather than by Scalar; see [CLI Commands](cli.md).
 
 ## How it works
 
@@ -56,8 +58,8 @@ Once resolved, the merge lands on `scalar-next` and the release pull request ref
         targets: [typescript, cli] # optional; every target when omitted
   ````
 
-  The body is markdown and renders as written. Use `###` or deeper headings, close every code fence on a line of its own and every HTML element, keep each HTML comment and tag on one line, close an element such as `<span>` or `<kbd>` on the line it opens, keep tags and code spans on separate lines when the line starts with a tag, and use fenced rather than indented code blocks. A section that breaks one of these rules is reported as [`Readme/InvalidSection`](diagnostics.md), which fails generation by default and lists every case. Code in a body is treated like the README's own samples: the Python README formats Python fences with ruff, the Go README checks `go` fences against the generated types, and the Rust README keeps every fence out of `cargo test`.
-- **Custom CI workflows count as custom code.** A workflow you add under `.github/workflows/` is carried forward like any other file, which is how you publish to an internal registry. See [Private Registries](publishing/private-registries.md).
-- **Review the release pull request.** It is the single place where generated changes and your customizations come together, so it is the natural review point before anything releases or [publishes](publishing/overview.md).
+  The body is markdown and renders as written. Use `###` or deeper headings, close every code fence on a line of its own and every HTML element, keep each HTML comment and tag on one line, close an element such as `<span>` or `<kbd>` on the line it opens, keep tags and code spans on separate lines when the line starts with a tag, and use fenced rather than indented code blocks. A section that breaks one of these rules is reported as [`Readme/InvalidSection`](../diagnostics.md), which fails generation by default and lists every case. Code in a body is treated like the README's own samples: the Python README formats Python fences with ruff, the Go README checks `go` fences against the generated types, and the Rust README keeps every fence out of `cargo test`.
+- **Custom CI workflows count as custom code.** A workflow you add under `.github/workflows/` is carried forward like any other file, which is how you publish to an internal registry. See [Private Registries](../publishing/private-registries.md).
+- **Review the release pull request.** It is the single place where generated changes and your customizations come together, so it is the natural review point before anything releases or [publishes](../publishing/overview.md).
 - **Custom code is per repository.** Each target keeps its own customizations in its own repository.
 - **Allow merge commits on the integration branch.** Each regeneration and each resolved conflict lands on `scalar-next` (or your `integrationBranch`) as a merge commit, so do not enable *Require linear history* on it.
