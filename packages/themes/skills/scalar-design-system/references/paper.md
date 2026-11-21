@@ -48,7 +48,7 @@ Default theme, light mode. Map the nearest Scalar token; if a Paper value has no
 | subtle drop shadow | `shadow` |
 | lifted drop shadow | `shadow-lg` |
 
-**Typography** (`Inter`, px)
+**Typography** (system UI font, px)
 
 | Paper size | Tailwind | Token |
 |---|---|---|
@@ -60,8 +60,8 @@ Default theme, light mode. Map the nearest Scalar token; if a Paper value has no
 | 21px | `text-xl` | `--scalar-font-size-1` |
 | 24px heading | — | `--scalar-heading-1` |
 | weight 400 / 500 / 600 | `font-normal` / `font-medium` / `font-bold` | `--scalar-regular/semibold/bold` |
-| `Inter` | `font-sans` | `--scalar-font` |
-| `JetBrains Mono` | `font-code` | `--scalar-font-code` |
+| System UI font (SF Pro, Segoe UI) | `font-sans` | `--scalar-font` |
+| System monospace (SF Mono, Consolas) | `font-code` | `--scalar-font-code` |
 
 **Spacing** — Scalar is on a 4px grid. Round Paper gaps/padding to the nearest multiple and use the Tailwind step (`4→p-1`, `8→p-2`, `12→p-3`, `16→p-4`, `24→p-6`).
 
@@ -97,7 +97,7 @@ When building a Scalar design in Paper, use these concrete defaults (light mode)
 
 - Ground `#fff`; text `#1b1b1b` (secondary `#707070`, muted `#8e8e8e`); accent `#0099ff`.
 - Hairline borders `0.5px` `#dfdfdf`; radii 3 / 6 / 8 px; subtle shadows only.
-- `Inter` 16px body / 14px small / 13px labels; headings 20–24px; `JetBrains Mono` for code.
+- System UI font: 16px body / 14px small / 13px labels; headings 20–24px; system monospace for code.
 - 4px spacing grid; surfaces over boxes; one accent moment, lots of neutral.
 - Wrap the design's conceptual root as `.scalar-app` (light mode) when it matters for export.
 

@@ -28,8 +28,8 @@ Mode-agnostic (`:root`):
 | `--scalar-radius-3xl` | `16px` (derived, capped) |
 | `--scalar-radius-full` | pill (derived, uncapped) |
 | `--scalar-radius-max` | `20px` — ceiling so a big radius cannot swallow a container's content |
-| `--scalar-font` | Inter stack (`"Inter", -apple-system, …, sans-serif`) |
-| `--scalar-font-code` | JetBrains Mono stack (`"JetBrains Mono", ui-monospace, …, monospace`) |
+| `--scalar-font` | System UI stack (`-apple-system-body, ui-sans-serif, -apple-system, system-ui, …, sans-serif`) |
+| `--scalar-font-code` | System monospace stack (`ui-monospace, "SFMono-Regular", "SF Mono", …, monospace`) |
 | `--scalar-heading-1…6` | `24, 20, 16, 16, 16, 16` px |
 | `--scalar-page-description` | `16px` |
 | `--scalar-paragraph` | `16px` |
@@ -95,7 +95,7 @@ In component code, prefer these classes over raw variables.
 **Utility colors:** `border` (= `--scalar-border-color`), `backdrop`, `backdrop-dark`, `border-tooltip`, `brand`.
 **Radius:** `rounded` & `rounded-md` = 3px, `rounded-lg` = 6px, `rounded-xl` = 8px, `rounded-2xl` = 12px, `rounded-3xl` = 16px, `rounded-px` = 1px, `rounded-full` (pill). Every step except `rounded-px` derives from `--scalar-radius`, so a theme that sets it to `0` squares off the whole interface. There is no `rounded-sm` or `rounded-4xl`; those emit no CSS.
 **Shadows:** `shadow`/`shadow-md` (shadow-1), `shadow-lg` (shadow-2), `shadow-sm`, `shadow-border` (inset hairline), `inset-shadow-border` (the same hairline, stackable with `shadow-*`).
-**Fonts:** `font-sans` (Inter), `font-code` (JetBrains Mono).
+**Fonts:** `font-sans` (system UI font), `font-code` (system monospace). No web fonts are loaded.
 **Text sizes:** `text-3xs` 10, `text-xxs` 12, `text-xs` 12, `text-sm` 13, `text-base` 14, `text-lg` 16, `text-xl` 21.
 **Font weights:** `font-normal` 400, `font-medium` 500, `font-bold` 600 (plus `font-weight-sidebar` / `-active`).
 **Brightness:** `brightness-backdrop`. (`brightness-lifted` is deprecated; lift floating surfaces with `bg-b-1 dark:bg-b-1.5`.)
@@ -133,9 +133,10 @@ In component code, prefer these classes over raw variables.
 ```ts
 import { getThemeStyles } from '@scalar/themes'
 
-// CSS string for a theme (+ base variables + optional fonts + optional layer)
-const css = getThemeStyles('alternate', { layer: 'scalar-theme', variables: true, fonts: true })
+// CSS string for one theme preset, in a cascade layer. The base variables, including the font stacks,
+// come from @scalar/themes/style.css.
+const css = getThemeStyles('alternate', { layer: 'scalar-theme' })
 document.head.insertAdjacentHTML('beforeend', `<style>${css}</style>`)
 ```
 
-Or import the stylesheets directly: `@scalar/themes/style.css` (reset + base + default), `@scalar/themes/tailwind.css` (Tailwind integration), `@scalar/themes/fonts.css` (fonts only). A `ThemeId` is the type-safe union of all slugs; `presets[id].theme` is the raw CSS for one theme.
+Or import the stylesheets directly: `@scalar/themes/style.css` (reset + base + default), `@scalar/themes/tailwind.css` (Tailwind integration). A `ThemeId` is the type-safe union of all slugs; `presets[id].theme` is the raw CSS for one theme.

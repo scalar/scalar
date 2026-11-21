@@ -960,7 +960,7 @@ type ExtendedConfiguration = {
   setPageTitle?: (input: { title: string; document: { title: string; slug: string } }) => string
   /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
   redirect?: (input: string) => string | null | undefined
-  /** Whether to include default fonts */
+  /** @deprecated Scalar uses the system font stack and no longer loads web fonts, so this option has no effect. */
   withDefaultFonts: boolean
   /** Whether to expand the first tag in the sidebar when no specific URL target is present */
   defaultOpenFirstTag: boolean

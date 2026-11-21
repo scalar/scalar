@@ -697,7 +697,7 @@ app.MapScalarApiReference(options =>
 ```
 
 > [!NOTE]
-> Fonts are loaded from a CDN by default. To disable this, use `DisableDefaultFonts()`.
+> Scalar uses the system font stack and does not load any fonts, so `DisableDefaultFonts()` has no effect.
 
 ### Custom JavaScript Configuration
 

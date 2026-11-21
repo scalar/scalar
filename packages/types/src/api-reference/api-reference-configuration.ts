@@ -445,7 +445,8 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional(),
   /**
-   * Whether to include default fonts
+   * Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.
+   * @deprecated There are no default fonts to load any more.
    * @default true
    */
   withDefaultFonts: z.boolean().optional().default(true).catch(true),
