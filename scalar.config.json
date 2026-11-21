@@ -16,6 +16,10 @@
           "defer": true
         },
         {
+          "path": "documentation/assets/community-plugins.js",
+          "defer": true
+        },
+        {
           "path": "documentation/assets/powered-by.js",
           "defer": true
         },
@@ -3030,9 +3034,22 @@
                   },
                   "plugins": {
                     "title": "Plugins",
-                    "description": "Extend Scalar API References with plugins to customize rendering and behavior.",
-                    "filepath": "documentation/plugins.md",
-                    "type": "page"
+                    "type": "group",
+                    "mode": "nested",
+                    "children": {
+                      "/": {
+                        "title": "Plugins",
+                        "description": "Extend Scalar API References with plugins to customize rendering and behavior.",
+                        "filepath": "documentation/plugins.md",
+                        "type": "page"
+                      },
+                      "community": {
+                        "title": "Community Plugins",
+                        "description": "Find plugins built by the community for Scalar API References, and list your own.",
+                        "filepath": "documentation/plugins/community.md",
+                        "type": "page"
+                      }
+                    }
                   },
                   "blocks": {
                     "title": "Blocks",

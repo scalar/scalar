@@ -15,6 +15,10 @@ const configuration = {
 }
 ```
 
+## Community Plugins
+
+Looking for a plugin someone else has built, or want to share your own? See [Community Plugins](plugins/community.md). Community plugins are maintained by third parties, and Scalar is not responsible for them.
+
 ## Mermaid diagrams
 
 The optional `@scalar/mermaid-plugin` package renders Mermaid fences with pan and zoom controls. Enable it explicitly through `plugins: [mermaidPlugin()]`; without it, fences remain code blocks and Mermaid is not loaded. See the [Mermaid plugin README](../packages/mermaid-plugin/README.md) for setup and styling.
