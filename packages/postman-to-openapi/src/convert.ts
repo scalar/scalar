@@ -1038,7 +1038,7 @@ export function convert(
       for (const [method, servers] of methods.entries()) {
         if (method in pathItem) {
           const operation = pathItem[method]
-          if (operation && typeof operation === 'object' && 'responses' in operation) {
+          if (operation && typeof operation === 'object') {
             operation.servers = isMergingIntoBase ? mergeServerLists(operation.servers, servers) : servers
           }
         }
