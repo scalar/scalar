@@ -5162,7 +5162,8 @@
   /* --- the conductor ------------------------------------------------------------------------------ */
 
   /* The figure conducts. It faces us, so the baton in its right hand is on our left, and it beats time as a conductor
-     does: every beat falls onto one level line in front of the chest (the ictus) and bounces off it, one straight
+     does: every beat falls onto one level line in front of the body, between the ribs and the waist (the ictus), and
+     bounces off it, one straight
      down, two in towards the body, three out, four up, and only the last bounce climbs to the top, which is the
      upbeat to the next bar. The hand is fastest at the ictus and slowest at the top, as a ball is, since that change
      of speed is what an orchestra reads the beat from; louder music is a larger pattern on a lower line, from the
@@ -5170,6 +5171,14 @@
      music is at its fullest: it asks for more with the palm up, holds the band down, points a hit out, and keeps by
      the waist when it has nothing to say. Everything is shown a beat early, and the stillest moments come just
      before the largest ones.
+
+     How it moves was measured against conductors filmed from the front (a pose tracker run over a few minutes of
+     concert footage, every frame). Their elbows hang low and near the body and move about half as far as their wrists,
+     which follow them by a few hundredths of a second; the free hand is never still for long, and even held up it
+     keeps the beat in small loops, its wrist bending back and forth by thirty degrees or so; and the head, the
+     shoulders and the whole body go with the music far more than a figure posed by hand does. The figure does all of
+     that, but holds its hands a little further from its sides than they did, since a white figure shows nothing of a
+     forearm that points at us.
 
      To move, the figure is painted in parts, each hanging at rest where a bone holds it: the body from the hips, the
      chest and the head, the two arms as an upper arm, a forearm and a hand each, the baton, and the light its tip
@@ -5238,6 +5247,112 @@
       [0.17, 0.35],
     ],
   }
+  /* The free hand, open and easy, as the conductors filmed hold theirs when they are not asking for anything: the
+     palm to the players, the fingers together but for a little give at their tips, gently curled, and the thumb a
+     little apart. It is the outline of a palm, four fingers of two joints each and a thumb of two, all round, and it
+     hangs from the wrist as the hand does at rest: x across (the thumb on the outer side), y down, from the wrist. */
+  const DOCS_OPEN_HAND = [
+    [0.0, -0.0275],
+    [-0.0075, -0.0263],
+    [-0.014, -0.0228],
+    [-0.0191, -0.0175],
+    [-0.0224, -0.0105],
+    [-0.0232, -0.0055],
+    [-0.0252, 0.042],
+    [-0.0265, 0.045],
+    [-0.027, 0.048],
+    [-0.0259, 0.054],
+    [-0.0308, 0.0695],
+    [-0.0317, 0.087],
+    [-0.0305, 0.09],
+    [-0.028, 0.0916],
+    [-0.025, 0.0914],
+    [-0.0226, 0.0895],
+    [-0.0219, 0.0875],
+    [-0.0196, 0.0715],
+    [-0.015, 0.0612],
+    [-0.014, 0.0611],
+    [-0.0155, 0.0765],
+    [-0.0134, 0.0985],
+    [-0.012, 0.1009],
+    [-0.01, 0.1022],
+    [-0.0075, 0.1025],
+    [-0.0051, 0.1015],
+    [-0.0035, 0.0996],
+    [-0.003, 0.0975],
+    [-0.0031, 0.0765],
+    [-0.0012, 0.0645],
+    [0.0005, 0.0645],
+    [0.0019, 0.079],
+    [0.0016, 0.1015],
+    [0.0035, 0.1046],
+    [0.007, 0.1058],
+    [0.0105, 0.1045],
+    [0.0117, 0.103],
+    [0.0123, 0.101],
+    [0.0144, 0.079],
+    [0.0135, 0.0611],
+    [0.0143, 0.0615],
+    [0.0189, 0.076],
+    [0.0205, 0.0965],
+    [0.0228, 0.099],
+    [0.026, 0.0995],
+    [0.029, 0.098],
+    [0.0303, 0.0955],
+    [0.0309, 0.074],
+    [0.0258, 0.0545],
+    [0.027, 0.0485],
+    [0.0266, 0.0455],
+    [0.0252, 0.042],
+    [0.0252, 0.033],
+    [0.0255, 0.0327],
+    [0.0265, 0.0342],
+    [0.039, 0.0535],
+    [0.0411, 0.0555],
+    [0.045, 0.0566],
+    [0.0485, 0.0556],
+    [0.051, 0.053],
+    [0.052, 0.049],
+    [0.0515, 0.0468],
+    [0.042, 0.0245],
+    [0.0296, 0.0005],
+    [0.027, -0.0024],
+    [0.0233, -0.0045],
+    [0.0221, -0.0115],
+    [0.0191, -0.0175],
+    [0.0155, -0.0216],
+    [0.011, -0.0248],
+    [0.0055, -0.0269],
+  ]
+  // a shape a little larger all round, smoothed over its hollows (its hull, pushed out), for the shade it lays
+  const docsGrown = (ring, grown) => {
+    const pts = [...ring].sort((a, b) => a[0] - b[0] || a[1] - b[1])
+    const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+    const half = (list) => {
+      const out = []
+      for (const p of list) {
+        while (out.length >= 2 && cross(out[out.length - 2], out[out.length - 1], p) <= 0) {
+          out.pop()
+        }
+        out.push(p)
+      }
+      return out.slice(0, -1)
+    }
+    const hull = [...half(pts), ...half([...pts].reverse())]
+    return hull.map((p, i) => {
+      const a = hull[(i + hull.length - 1) % hull.length]
+      const b = hull[(i + 1) % hull.length]
+      // out along the corner's own normal, as far as `grown` from both its sides
+      const n1 = [p[1] - a[1], a[0] - p[0]]
+      const n2 = [b[1] - p[1], p[0] - b[0]]
+      const l1 = Math.hypot(n1[0], n1[1]) || 1
+      const l2 = Math.hypot(n2[0], n2[1]) || 1
+      const n = [n1[0] / l1 + n2[0] / l2, n1[1] / l1 + n2[1] / l2]
+      const ln = Math.hypot(n[0], n[1]) || 1
+      const reach = grown / Math.max(0.35, (n[0] / ln) * (n1[0] / l1) + (n[1] / ln) * (n1[1] / l1))
+      return [p[0] + (n[0] / ln) * reach, p[1] + (n[1] / ln) * reach]
+    })
+  }
   // a limb hanging down from a place: circles down its length, [how far down, radius], joined by straight sides
   const docsLimb = ([x, y], circles, steps = 6) => {
     const side = []
@@ -5301,15 +5416,7 @@
                   [0.054, 0.027 + grown],
                 ],
               )
-            : docsLimb(
-                [x, wrist],
-                [
-                  [0.008, 0.024 + grown],
-                  [0.04, 0.029 + grown],
-                  [0.074, 0.022 + grown],
-                  [0.094, 0.013 + grown],
-                ],
-              ),
+            : (grown > 0 ? docsGrown(DOCS_OPEN_HAND, grown) : DOCS_OPEN_HAND).map(([hx, hy]) => [x + hx, wrist + hy]),
       }
     })
     return { body, arms }
@@ -5331,7 +5438,8 @@
        them, as high as the key's `lift`, shaped by its `art`: 0 is legato (round at the foot, never still), 1 marcato
        (a ball's bounce, fastest at the ictus and slowest at the top), 2 staccato (up at once, held, and down at the
        last moment). The others simply go: `glide` rests at both ends, `out` leaves fast and arrives softly, `in`
-       gathers and arrives fast, `line` is even. */
+       gathers and arrives fast, `line` is even, and `flow` runs on through its keys without stopping at them, as a
+       hand that links one move into the next (its way through each key is set by the keys either side). */
     const travel = {
       glide: (u) => u * u * u * (u * (u * 6 - 15) + 10),
       out: (u) => 1 - (1 - u) ** 3,
@@ -5365,8 +5473,9 @@
     /* Where a hand is at a beat of the score, added into `sum` with a weight: across, down, how upright the baton
        stands, how far the hand is over the line it beats on, and how heavy the beat just struck was. */
     const handInto = (sum, weight, track, t) => {
-      const a = track[span(track, t)]
-      const b = track[span(track, t) + 1]
+      const i = span(track, t)
+      const a = track[i]
+      const b = track[i + 1]
       const u = clamp((t - a.t) / (b.t - a.t), 0, 1)
       let x = 0
       let y = 0
@@ -5380,6 +5489,21 @@
         over = blend(a.plane, b.plane, u) - y
         upright = over / a.size + blend(a.tilt, b.tilt, u)
         struck = a.size * pulse(u) * Math.min(1, a.art + 0.35)
+      } else if (a.ease === 'flow') {
+        const before = track[Math.max(0, i - 1)]
+        const next = track[Math.min(track.length - 1, i + 2)]
+        const span1 = b.t - a.t
+        const slope = (p, q, axis) => ((q[axis] - p[axis]) / Math.max(1e-6, q.t - p.t)) * span1
+        const u2 = u * u
+        const u3 = u2 * u
+        const hermite = (axis) =>
+          (2 * u3 - 3 * u2 + 1) * a[axis] +
+          (u3 - 2 * u2 + u) * slope(before, b, axis) +
+          (3 * u2 - 2 * u3) * b[axis] +
+          (u3 - u2) * slope(a, next, axis)
+        x = hermite('x')
+        y = hermite('y')
+        upright = blend(a.tilt, b.tilt, u)
       } else {
         const gone = travel[a.ease](u)
         x = blend(a.x, b.x, gone)
@@ -5433,18 +5557,18 @@
       [0, 0.08, 0.36, 0.8],
       [0.3, 0, 0.3, 0.86],
       [-0.62, 0, 0.38, 0.86],
-      [-0.16, -0.1, 1, 0.5],
+      [-0.16, -0.1, 0.85, 0.5],
     ]
     // how loud: the pattern's size and width, the line it beats on (which sinks as the music grows), and its touch
-    const SOFT = { size: 0.085, wide: 0.085, y: 0.415, art: 2, x: -0.28, tilt: 0.3 }
-    const HALF = { size: 0.15, wide: 0.14, y: 0.44, art: 1.5 }
-    const LOUD = { size: 0.215, wide: 0.195, y: 0.475, art: 1 }
-    const FULL = { size: 0.25, wide: 0.235, y: 0.52, art: 1 }
+    const SOFT = { size: 0.085, wide: 0.085, y: 0.47, art: 2, x: -0.27, tilt: 0.3 }
+    const HALF = { size: 0.15, wide: 0.14, y: 0.505, art: 1.5 }
+    const LOUD = { size: 0.215, wide: 0.195, y: 0.545, art: 1 }
+    const FULL = { size: 0.25, wide: 0.235, y: 0.58, art: 1 }
     // where the baton hand beats, where the hands wait at the ready, and where a cut-off leaves the baton
-    const HOME = -0.262
-    const READY = [-0.22, 0.38]
-    const READY_FREE = [0.24, 0.39]
-    const END = [-0.345, 0.385]
+    const HOME = -0.248
+    const READY = [-0.215, 0.43]
+    const READY_FREE = [0.235, 0.445]
+    const END = [-0.315, 0.47]
 
     /* The score: seventeen bars in four, which then start over. Each hand's way is a list of keys (when, in beats,
        where, and how it goes on from there), and so is everything the body does. It is written a passage at a time,
@@ -5470,6 +5594,18 @@
         turn: [],
         // trembling, in a held note
         shake: [],
+        // how far the free hand keeps to the middle of the pattern when it is the baton hand's twin (1 is all the way)
+        twin: [],
+        // how much of the baton hand's rise and fall the free hand shares when it goes its own way, and how loosely it
+        // wanders
+        echo: [],
+        loose: [],
+        // the free hand's palm, as wide as it is seen (1 at rest, less turned edge on, more spread), and its fingers,
+        // as long (less curled)
+        palm: [],
+        curl: [],
+        // the shoulders' own tilt, clockwise as we see it
+        tilt: [],
       }
       const key = (track, t, o) =>
         track.push({
@@ -5513,15 +5649,29 @@
         })
       }
       // a hit: wound up a little the other way, struck so that it arrives at its fastest, and sprung back to rest
-      const stab = (track, t, from, to, { back = 0.14, wind = 0.42, recoil = 0.34, rest = 0.8, tilt = 0.3 } = {}) => {
+      // (a hand goes round: the strike bows to one side, `curve` of its length, and the spring back to the other)
+      const stab = (
+        track,
+        t,
+        from,
+        to,
+        { back = 0.14, wind = 0.42, recoil = 0.34, rest = 0.8, tilt = 0.3, curve = 0 } = {},
+      ) => {
         const dx = to[0] - from[0]
         const dy = to[1] - from[1]
+        const far = Math.hypot(dx, dy)
         at(track, t - wind, from, { tilt })
-        at(track, t - wind * 0.4, [from[0] - dx * back, from[1] - dy * back], { ease: 'in', tilt: tilt + 0.3 })
-        at(track, t, to, { ease: 'out', tilt: tilt - 0.2 })
+        at(track, t - wind * 0.4, [from[0] - dx * back, from[1] - dy * back], {
+          ease: 'in',
+          tilt: tilt + 0.3,
+          bow: curve * far,
+        })
+        at(track, t, to, { ease: 'out', tilt: tilt - 0.2, bow: -0.5 * curve * far })
         at(track, t + recoil, [from[0] + dx * rest, from[1] + dy * rest], { tilt })
       }
       const mirrored = ([x, y]) => [2 * DOCS_REST.centre - x, y]
+      // where the free hand hangs when it has nothing to say: low, by the waist, the elbow easy
+      const REST = [0.235, 0.63]
       // a quarter of a circle of radius r between two keys, as an arc's bow
       const quarter = (r) => 0.293 * r * 1.42
 
@@ -5542,16 +5692,31 @@
           tilt: 0.95,
           land: 0.7,
         })
-        at(free, t, mirrored(END))
-        at(free, t + 0.7, mirrored(END))
+        // the free hand hangs easy by the waist, as it was left after the last cut-off, and comes up with the baton
+        // hand, opening, to give the upbeat with it
+        at(free, t, REST, { ease: 'line' })
+        at(free, t + 1, [REST[0] + 0.004, REST[1] - 0.012])
         at(free, t + 2.3, READY_FREE)
         at(free, t + 3.1, READY_FREE)
         set('mirror', t, [
-          [0, 1],
-          [0.7, 1],
-          [2, 0],
+          [0, 0],
           [3.05, 0],
           [3.7, 1],
+        ])
+        set('loose', t, [
+          [0, 0.8],
+          [2, 0.8],
+          [2.8, 0.3],
+        ])
+        set('palm', t, [
+          [0, 0.916],
+          [1.7, 0.916],
+          [2.7, 1.08],
+        ])
+        set('curl', t, [
+          [0, 0.936],
+          [1.7, 0.936],
+          [2.7, 1],
         ])
         set('energy', t, [
           [0, 0.3],
@@ -5586,32 +5751,83 @@
         set('rise', t, [[0.3, 0.004]])
         set('turn', t, [[0, 0.1]])
         set('groove', t, [[7, 0]])
+        set('twin', t, [
+          [0, 1],
+          [0.6, 0.78],
+          [4, 0.78],
+          [5, 1],
+        ])
+        // the second bar the free hand goes its own way: one wide sweep, out and over and down, as the conductors
+        // filmed sweep a tutti out, and back in for the hits
+        at(free, t + 4.3, [0.28, 0.585], { ease: 'flow' })
+        at(free, t + 5.4, [0.42, 0.43], { ease: 'flow' })
+        at(free, t + 6.5, [0.37, 0.62], { ease: 'flow' })
+        at(free, t + 7.6, [0.28, 0.53])
+        set('mirror', t, [
+          [4.05, 1],
+          [4.6, 0],
+          [7.9, 0],
+        ])
+        set('echo', t, [[4.4, 0.35]])
+        set('palm', t, [
+          [0.6, 1.04],
+          [5.4, 1.12],
+          [7.6, 0.97],
+        ])
+        set('curl', t, [[0.6, 1]])
       }
       /* Two bars. Hits. A dry downbeat with no bounce, and then stabs off the beat (on the swung half of it), to one
          side and the other, with the pulse kept in the body; the last of them with both hands, up and out. */
       const hits = (t) => {
-        const DRY = [HOME + 0.01, 0.56]
-        const HELD = [HOME - 0.005, 0.51]
+        const DRY = [HOME + 0.01, 0.6]
+        const HELD = [HOME - 0.005, 0.555]
         at(baton, t, DRY, { ease: 'out' })
         at(baton, t + 0.32, HELD, { tilt: 0.2 })
         at(free, t + 0.4, mirrored(HELD))
-        const RIGHT = [0.25, 0.47]
+        const RIGHT = [0.25, 0.52]
         at(free, t + 0.9, RIGHT)
-        stab(free, t + 1 + 2 / 3, RIGHT, [0.43, 0.34])
-        const LEFT = [-0.27, 0.46]
+        stab(free, t + 1 + 2 / 3, RIGHT, [0.42, 0.4], { curve: 0.3 })
+        // and between its stabs the free hand lets go, down towards the waist
+        at(free, t + 2.7, [0.3, 0.56])
+        const LEFT = [-0.27, 0.5]
         at(baton, t + 2.2, LEFT, { tilt: 0.3 })
-        stab(baton, t + 3, LEFT, [-0.44, 0.33], { tilt: 0.45 })
-        const HIGH = [0.27, 0.41]
+        stab(baton, t + 3, LEFT, [-0.43, 0.38], { tilt: 0.45, curve: -0.25 })
+        const HIGH = [0.27, 0.46]
         at(free, t + 3.6, HIGH)
-        stab(free, t + 4 + 2 / 3, HIGH, [0.4, 0.25])
-        const LOW = [-0.29, 0.4]
+        stab(free, t + 4 + 2 / 3, HIGH, [0.4, 0.31], { curve: 0.3 })
+        at(free, t + 5.5, [0.305, 0.545])
+        const LOW = [-0.29, 0.46]
         at(baton, t + 4.6, LOW, { tilt: 0.4 })
-        stab(baton, t + 5 + 2 / 3, LOW, [-0.4, 0.53], { tilt: 0.2 })
-        const UP = [-0.27, 0.45]
+        stab(baton, t + 5 + 2 / 3, LOW, [-0.4, 0.58], { tilt: 0.2, curve: 0.25 })
+        const UP = [-0.27, 0.49]
         at(baton, t + 6.15, UP, { tilt: 0.3 })
-        stab(baton, t + 6 + 2 / 3, UP, [-0.41, 0.27], { tilt: 0.6, wind: 0.36 })
+        stab(baton, t + 6 + 2 / 3, UP, [-0.41, 0.31], { tilt: 0.6, wind: 0.36, curve: -0.25 })
         at(free, t + 6.1, mirrored(UP))
-        stab(free, t + 6 + 2 / 3, mirrored(UP), mirrored([-0.41, 0.27]), { wind: 0.36 })
+        stab(free, t + 6 + 2 / 3, mirrored(UP), mirrored([-0.41, 0.31]), { wind: 0.36, curve: 0.25 })
+        // the hand opens for each stab and eases between them
+        set('palm', t, [
+          [0.6, 0.97],
+          [1.4, 0.97],
+          [1.67, 1.16],
+          [2.7, 0.928],
+          [4.4, 0.97],
+          [4.67, 1.16],
+          [5.5, 0.928],
+          [6.4, 0.97],
+          [6.67, 1.16],
+          [7.6, 1],
+        ])
+        set('curl', t, [
+          [0.6, 0.968],
+          [1.67, 1.04],
+          [2.7, 0.94],
+          [4.67, 1.04],
+          [5.5, 0.94],
+          [6.67, 1.04],
+          [7.6, 1],
+        ])
+        set('echo', t, [[0.6, 0.35]])
+        set('loose', t, [[0.6, 0.45]])
         set('mirror', t, [
           [0.3, 1],
           [0.6, 0],
@@ -5659,8 +5875,8 @@
       /* Two bars. It swings by itself: the arms low and easy, a flick of the wrist on two and four, the beat in the
          knees and the shoulders; and the free hand turns the band on, twice round. Then up, into the singing. */
       const swing = (t, next) => {
-        const EASY = 0.505
-        at(baton, t - 0.5, [-0.3, 0.48], { tilt: 0.2 })
+        const EASY = 0.56
+        at(baton, t - 0.5, [-0.3, 0.535], { tilt: 0.2 })
         for (let i = 0; i < 7; i += 1) {
           const snap = i % 2 === 1
           key(baton, t + i, {
@@ -5685,22 +5901,22 @@
           size: next.size,
           land: 0.6,
         })
-        at(free, t - 0.4, [0.255, 0.52])
+        at(free, t - 0.4, [0.29, 0.57])
         for (let i = 0; i < 4; i += 1) {
           const snap = i % 2 === 1
           key(free, t + i, {
-            x: 0.25 + (i < 2 ? 0.012 : -0.012),
-            y: 0.55 + (snap ? 0.012 : 0),
+            x: 0.3 + (i < 2 ? 0.012 : -0.012),
+            y: 0.59 + (snap ? 0.012 : 0),
             ease: 'beat',
             lift: snap ? 0.03 : 0.075,
             art: snap ? 1.2 : 1.7,
-            plane: 0.55,
+            plane: 0.59,
             size: 0.085,
             land: 0.6,
           })
         }
-        const ROLL = [0.275, 0.47]
-        const TURN = 0.045
+        const ROLL = [0.3, 0.52]
+        const TURN = 0.042
         for (let k = 0; k <= 8; k += 1) {
           const a = (Math.PI / 2) * k
           at(free, t + 4 + k * 0.5, [ROLL[0] + Math.sin(a) * TURN, ROLL[1] + Math.cos(a) * TURN], {
@@ -5711,24 +5927,38 @@
         set('energy', t, [[1, 0.5]])
         set('groove', t, [[6.5, 1]])
         set('turn', t, [[0, 0.2]])
+        set('palm', t, [
+          [0, 0.94],
+          [3.6, 0.94],
+          [4.2, 1.06],
+        ])
+        set('curl', t, [
+          [0, 0.952],
+          [3.6, 0.952],
+          [4.2, 1],
+        ])
+        set('loose', t, [[0, 0.5]])
       }
       /* Four bars. Legato, and growing: the beat broad, low and round, the free hand drawing the phrases out, across
          the body and away again, the whole body going with it. And then, at once, next to nothing. */
-      const SUNG = { size: 0.15, wide: 0.24, y: 0.48, art: 0 }
+      const SUNG = { size: 0.15, wide: 0.24, y: 0.535, art: 0 }
       const sung = (t) => {
-        const FULLER = { size: 0.18, wide: 0.27, y: 0.485, art: 0.1 }
-        const FULLEST = { size: 0.21, wide: 0.28, y: 0.49, art: 0.3 }
+        const FULLER = { size: 0.18, wide: 0.27, y: 0.54, art: 0.1 }
+        const FULLEST = { size: 0.21, wide: 0.28, y: 0.545, art: 0.3 }
         four(baton, t, SUNG, { hill: 0.7 })
         four(baton, t + 4, FULLER, { hill: 0.7 })
         four(baton, t + 8, FULLEST, { hill: 0.75 })
         four(baton, t + 12, FULLEST, { hill: 0.8, next: SOFT.size })
-        at(free, t + 0.4, [0.24, 0.53], { bow: -0.05 })
-        at(free, t + 2.4, [0.42, 0.33], { bow: -0.03 })
-        at(free, t + 4.6, [0.1, 0.44], { bow: 0.05 })
-        at(free, t + 6.6, [0.41, 0.27], { bow: 0.02 })
-        at(free, t + 8.2, [0.29, 0.52], { ease: 'line' })
-        at(free, t + 12.4, [0.33, 0.27])
-        at(free, t + 15.3, [0.34, 0.27])
+        at(free, t + 0.4, [0.3, 0.575], { ease: 'flow' })
+        at(free, t + 2.4, [0.385, 0.44], { ease: 'flow' })
+        at(free, t + 3.3, [0.37, 0.465], { ease: 'flow' })
+        at(free, t + 4.6, [0.16, 0.51], { ease: 'flow' })
+        at(free, t + 6.6, [0.39, 0.385], { ease: 'flow' })
+        at(free, t + 7.5, [0.375, 0.415], { ease: 'flow' })
+        at(free, t + 9.6, [0.31, 0.565], { ease: 'line' })
+        at(free, t + 10.4, [0.305, 0.55])
+        at(free, t + 12.4, [0.325, 0.37])
+        at(free, t + 15.3, [0.335, 0.38])
         set('energy', t, [
           [0, 0.6],
           [12, 0.85],
@@ -5782,15 +6012,48 @@
           [12.4, 0.6],
           [14, 0],
         ])
+        // the palm opens as it rises and turns away, edge on, coming back in
+        set('palm', t, [
+          [0, 0.97],
+          [2.4, 1.1],
+          [4.6, 0.892],
+          [6.6, 1.12],
+          [9.6, 0.94],
+          [12.4, 1.1],
+        ])
+        set('curl', t, [
+          [0, 0.968],
+          [2.4, 1.02],
+          [4.6, 0.952],
+          [6.6, 1.03],
+          [9.6, 0.952],
+          [12.4, 1],
+        ])
+        set('echo', t, [
+          [0, 0.2],
+          [11, 0.2],
+          [12.4, 0.4],
+        ])
+        set('loose', t, [[0, 0.5]])
+        // the shoulders go with the phrases
+        set('tilt', t, [
+          [0, 0],
+          [2.4, -0.03],
+          [4.6, 0.025],
+          [6.6, -0.03],
+          [9.6, 0.01],
+          [13, -0.015],
+          [16, 0],
+        ])
       }
       /* Two bars. A hush: quick, staccato from the wrist, high and small, the body drawn in a little and the free hand
-         held out flat in front of it, palm down, which keeps the band under. */
+         held up by the chest, near the body, its fingers curled, which keeps the band under. */
       const hush = (t) => {
         four(baton, t, SOFT)
         four(baton, t + 4, SOFT, { next: HALF.size })
-        at(free, t + 0.7, [0.075, 0.485])
-        at(free, t + 3.4, [0.07, 0.5])
-        at(free, t + 6.6, [0.085, 0.52])
+        at(free, t + 0.7, [0.205, 0.445])
+        at(free, t + 3.4, [0.198, 0.458])
+        at(free, t + 6.6, [0.205, 0.47])
         set('energy', t, [[0.3, 0.35]])
         set('lean', t, [
           [0.5, -0.012],
@@ -5809,9 +6072,20 @@
           [7, 0.008],
         ])
         set('turn', t, [
-          [0.6, -1],
-          [7, -1],
+          [0.6, -0.25],
+          [7, -0.25],
         ])
+        set('palm', t, [
+          [0.6, 0.88],
+          [7, 0.88],
+        ])
+        set('curl', t, [
+          [0.6, 0.92],
+          [7, 0.928],
+        ])
+        set('echo', t, [[0.5, 0.45]])
+        set('loose', t, [[0.5, 0.3]])
+        set('tilt', t, [[0.5, 0.01]])
       }
       /* Two bars. It grows: the pattern larger and lower each bar, the free hand rising palm up from the waist, the
          body straightening. Then three, and both arms open, out and up, for what is coming. */
@@ -5829,19 +6103,22 @@
         })
         key(baton, t + 7, {
           x: -0.36,
-          y: 0.44,
+          y: 0.49,
           ease: 'beat',
           lift: 0.25,
           art: 1,
-          plane: 0.52,
+          plane: 0.57,
           size: 0.3,
           from: 0.5,
           land: 0.97,
         })
-        at(free, t, [0.22, 0.6], { ease: 'line' })
-        at(free, t + 5.6, [0.3, 0.34])
-        at(free, t + 6.1, [0.3, 0.34])
-        at(free, t + 6.8, mirrored([-0.36, 0.44]))
+        // the free hand rises from the waist, palm up, beckoning, slowly and then faster
+        at(free, t, [0.29, 0.6], { ease: 'flow' })
+        at(free, t + 2.6, [0.31, 0.52], { ease: 'flow' })
+        at(free, t + 4.6, [0.32, 0.43], { ease: 'flow' })
+        at(free, t + 5.6, [0.335, 0.37])
+        at(free, t + 6.1, [0.335, 0.36])
+        at(free, t + 6.8, mirrored([-0.36, 0.49]))
         set('mirror', t, [
           [6.2, 0],
           [6.9, 1],
@@ -5862,11 +6139,28 @@
           [5.6, 0.6],
           [7, 0.1],
         ])
+        set('palm', t, [
+          [0, 1],
+          [5.6, 1.1],
+          [6.8, 1.05],
+        ])
+        set('curl', t, [
+          [0, 0.98],
+          [1, 0.928],
+          [2, 1],
+          [3, 0.928],
+          [4, 1],
+          [5, 0.94],
+          [6, 1.05],
+        ])
+        set('echo', t, [[0, 0.3]])
+        set('loose', t, [[0, 0.35]])
       }
       /* Two bars. The great downbeat; its bounce carries both arms up and out into a pause, held, trembling; then the
-         cut-off, each hand turning once round to where it began (inward over the top), and stillness. */
+         cut-off, each hand turning once round to where it began (inward over the top), stillness, and the free hand
+         let go. */
       const climax = (t) => {
-        at(baton, t, [-0.225, 0.56], { ease: 'out' })
+        at(baton, t, [-0.225, 0.6], { ease: 'out' })
         at(baton, t + 1.35, [-0.41, 0.245], { ease: 'line', tilt: 0.8 })
         at(baton, t + 5.1, [-0.428, 0.23], { tilt: 0.85 })
         const CUT = [-0.37, 0.335]
@@ -5877,6 +6171,25 @@
         at(baton, t + 6.74, [CUT[0] + ROUND, CUT[1]], { ease: 'in', bow: -quarter(ROUND), tilt: 0.6 })
         at(baton, t + 7, [CUT[0], CUT[1] + ROUND], { ease: 'out', tilt: 0.35 })
         at(baton, t + 7.16, END, { tilt: 0.45 })
+        // and after the stillness the free hand lets go, down to the waist, as at the start
+        at(free, t + 7.2, mirrored(END))
+        at(free, t + 7.95, REST)
+        set('mirror', t, [
+          [7.35, 1],
+          [7.95, 0],
+        ])
+        set('palm', t, [
+          [7.2, 1],
+          [7.9, 0.916],
+        ])
+        set('curl', t, [
+          [7.2, 1],
+          [7.9, 0.936],
+        ])
+        set('loose', t, [
+          [7.3, 0.3],
+          [7.9, 0.8],
+        ])
         set('energy', t, [
           [6, 0.8],
           [7.5, 0.3],
@@ -5910,6 +6223,10 @@
           [5.8, 0],
         ])
       }
+      // what the body and the free hand do unless a passage says otherwise
+      set('twin', 0, [[0, 1]])
+      set('echo', 0, [[0, 0.3]])
+      set('tilt', 0, [[0, 0]])
       ready(0)
       full(4)
       hits(12)
@@ -5972,14 +6289,24 @@
       return d > 1e-4 ? [dx / d, dy / d, d] : [otherwise[0], otherwise[1], 0]
     }
 
-    /* An arm, from its shoulder to where its hand is to be: the hand a little in front of the body, more so the closer
-       in it is, and the elbow where a conductor's is, away from the body, lower than the hand and a little behind it,
-       rising and going out as the hand rises (`raise`). The arm is worked out in the round and seen from the front, so
-       a part of it that comes towards us is drawn shorter. */
+    /* An arm, from its shoulder to where its hand is to be. A conductor's elbow hangs low and near the body and goes
+       out and up only as the hand rises (`raise`); the hand is held a little in front of the body, more so the lower and
+       nearer it is (`deep` says how far, for each arm). The arm is worked out in the round and seen from the front, so a
+       part of it that comes towards us is drawn shorter.
+
+       The elbow is quieter than the hand. It is placed for where the hand is about to be, on the average of a moment
+       round then (`settle`), and the forearm swings from it, towards us or away, to put the hand where it is to be: so
+       the beat is in the forearm and the wrist, the upper arm moves with the phrase, and the elbow leads the hand into
+       each move, as a conductor's does (in footage of conductors the wrist follows the elbow by a few hundredths of a
+       second, and moves about twice as far). Only where the forearm cannot reach the hand from the quiet elbow does the
+       elbow give way to it. */
     const ARM = DOCS_REST.upper + DOCS_REST.fore
-    const reach = (shoulder, hand, side, raise) => {
-      let dx = hand[0] - shoulder[0]
-      let dy = hand[1] - shoulder[1]
+    const UPPER = DOCS_REST.upper
+    const FORE = DOCS_REST.fore
+    // the elbow for a hand, in the round, from the shoulder
+    const elbowFor = (dx0, dy0, side, raise, deep) => {
+      let dx = dx0
+      let dy = dy0
       let flat = Math.hypot(dx, dy)
       const most = ARM * 0.985
       if (flat > most) {
@@ -5987,47 +6314,125 @@
         dy *= most / flat
         flat = most
       }
-      const forward = 0.07 * (1 - smooth(0.55 * ARM, 0.98 * ARM, flat)) + 0.12 * (1 - smooth(0.04, 0.2, flat))
+      // how far in front: less when the hand is raised, where a conductor's arm opens out to the side
+      const forward =
+        (deep * (1 - smooth(0.55 * ARM, 0.98 * ARM, flat)) + 0.12 * (1 - smooth(0.04, 0.2, flat))) *
+        (1 - 0.45 * smooth(0.02, -0.16, dy))
       const dz = Math.min(forward, Math.sqrt(Math.max(0, most * most - flat * flat)))
       const far = Math.hypot(flat, dz)
       const way = [dx / far, dy / far, dz / far]
-      const along = (DOCS_REST.upper * DOCS_REST.upper - DOCS_REST.fore * DOCS_REST.fore + far * far) / (2 * far)
-      const out = Math.sqrt(Math.max(0, DOCS_REST.upper * DOCS_REST.upper - along * along))
-      const pole = [side * (0.5 + 0.4 * raise), 0.85 - 0.4 * raise, -0.4 + 0.15 * raise]
+      const along = (UPPER * UPPER - FORE * FORE + far * far) / (2 * far)
+      const out = Math.sqrt(Math.max(0, UPPER * UPPER - along * along))
+      const pole = [side * (0.36 + 0.42 * raise), 0.93 - 0.45 * raise, -0.35 + 0.15 * raise]
       const dot = pole[0] * way[0] + pole[1] * way[1] + pole[2] * way[2]
       const off = [pole[0] - dot * way[0], pole[1] - dot * way[1], pole[2] - dot * way[2]]
       const length = Math.hypot(off[0], off[1], off[2]) || 1
-      return {
-        elbow: [
-          shoulder[0] + way[0] * along + (off[0] / length) * out,
-          shoulder[1] + way[1] * along + (off[1] / length) * out,
-        ],
-        wrist: [shoulder[0] + dx, shoulder[1] + dy],
-        near: dz,
+      return [
+        way[0] * along + (off[0] / length) * out,
+        way[1] * along + (off[1] / length) * out,
+        way[2] * along + (off[2] / length) * out,
+      ]
+    }
+    const reach = (shoulder, hand, side, raise, settle, deep) => {
+      const dx = hand[0] - shoulder[0]
+      const dy = hand[1] - shoulder[1]
+      const gap = (e) => Math.hypot(dx - e[0], dy - e[1])
+      const exact = elbowFor(dx, dy, side, raise, deep)
+      const quiet = elbowFor(settle[0] - shoulder[0], settle[1] - shoulder[1], side, raise, deep)
+      const give = smooth(0.8 * FORE, 0.97 * FORE, gap(quiet))
+      const mixed = [0, 1, 2].map((k) => blend(quiet[k], exact[k], give))
+      const r = Math.hypot(mixed[0], mixed[1], mixed[2]) || 1
+      const elbow = mixed.map((v) => (v * UPPER) / r)
+      const d = gap(elbow)
+      let wrist = [dx, dy]
+      let near = elbow[2]
+      if (d < FORE) {
+        near += Math.sqrt(FORE * FORE - d * d)
+      } else {
+        wrist = [elbow[0] + ((dx - elbow[0]) * FORE) / d, elbow[1] + ((dy - elbow[1]) * FORE) / d]
       }
+      return {
+        elbow: [shoulder[0] + elbow[0], shoulder[1] + elbow[1]],
+        wrist: [shoulder[0] + wrist[0], shoulder[1] + wrist[1]],
+        near: Math.max(0, near),
+      }
+    }
+    // how far in front of the body each arm holds its hand: the baton hand further, towards the players
+    const DEEP = [0.09, 0.065]
+    // how far ahead of the hand each elbow is placed, and over how long a moment either side it is evened out, in seconds
+    const SETTLE = [
+      [0.07, 0.11],
+      [0.09, 0.09],
+    ]
+
+    /* Where the free hand is to be at a beat of the score, in the chest's own terms. It goes its own way, or is the
+       baton hand's twin (`mirror`): a moment later than it, and where `twin` says, keeping nearer the middle of the
+       pattern than the baton does. Where it goes its own way it still keeps the beat a little, as the conductors filmed
+       do even with the hand held up: it shares some of the baton hand's rise and fall over its line, a moment late
+       (`echo`), and a little across with it a moment later still, so that it goes round in a small loop. And it is
+       never quite still: it wanders, more the more it rests (`loose`). */
+    const freeAt = (t) => {
+      const { baton, free, tracks, loop } = score()
+      const value = (name) => valueAt(tracks[name], t, loop)
+      const own = handAt(free, t, loop)
+      const twin = handAt(baton, t - 0.03 * BEATS, loop)
+      const late = handAt(baton, t - 0.05 * BEATS, loop)
+      const later = handAt(baton, t - 0.16 * BEATS, loop)
+      const mirror = value('mirror')
+      const narrow = value('twin')
+      const echo = value('echo') * (1 - mirror)
+      const loose = value('loose')
+      const s = t / BEATS
+      return [
+        blend(own[0], 2 * DOCS_REST.centre - (HOME + (twin[0] - HOME) * narrow), mirror) +
+          echo * 0.55 * (later[3] - late[3]) +
+          loose * (0.006 * Math.sin(s * 1.46 + 1) + 0.004 * Math.sin(s * 2.33 + 4)),
+        blend(own[1], twin[1], mirror) -
+          1.25 * echo * late[3] +
+          loose * (0.005 * Math.sin(s * 1.75 + 2) + 0.003 * Math.sin(s * 2.99 + 0.5)),
+      ]
+    }
+    // the baton hand at a beat, in the chest's own terms
+    const batonAt = (t) => {
+      const { baton, loop } = score()
+      return handAt(baton, t, loop)
+    }
+    // a hand's way evened out over a moment round a time ahead of now
+    const settled = (at, t, [ahead, half]) => {
+      const a = at(t + (ahead - half) * BEATS)
+      const b = at(t + ahead * BEATS)
+      const c = at(t + (ahead + half) * BEATS)
+      return [0.25 * a[0] + 0.5 * b[0] + 0.25 * c[0], 0.25 * a[1] + 0.5 * b[1] + 0.25 * c[1]]
     }
 
     /* How the figure stands at a moment: where the hips, the chest and the head have gone, and each arm from shoulder
-       to fingers. */
-    const stance = (clock) => {
-      const { baton, free, tracks, loop } = score()
+       to fingers. Where only the baton arm is wanted (`batonOnly`, for the baton's moments gone by), the free arm is
+       left as it would be with a hand that never moved. */
+    const stance = (clock, batonOnly = false) => {
+      const { baton, tracks, loop } = score()
       const t = clock * BEATS
       const value = (name) => valueAt(tracks[name], t, loop)
       const energy = value('energy')
       const groove = value('groove')
       // the hands, in the chest's own terms; they tremble in a held note
       const shake = value('shake')
-      const mirror = value('mirror')
-      const lead = handAt(baton, t, loop)
-      const twin = handAt(baton, t - 0.02 * BEATS, loop)
-      const own = handAt(free, t, loop)
-      const other = [blend(own[0], 2 * DOCS_REST.centre - twin[0], mirror), blend(own[1], twin[1], mirror)]
-      lead[0] += shake * 0.0035 * Math.sin(clock * 46)
-      lead[1] += shake * 0.003 * Math.sin(clock * 39 + 1)
-      other[0] += shake * 0.004 * Math.sin(clock * 43 + 2)
-      other[1] += shake * 0.0035 * Math.sin(clock * 37 + 4)
+      const lead = batonAt(t)
+      const own = freeAt(t)
+      const other = [own[0], own[1]]
+      const tremble = [
+        shake * 0.0035 * Math.sin(clock * 46),
+        shake * 0.003 * Math.sin(clock * 39 + 1),
+        shake * 0.004 * Math.sin(clock * 43 + 2),
+        shake * 0.0035 * Math.sin(clock * 37 + 4),
+      ]
+      lead[0] += tremble[0]
+      lead[1] += tremble[1]
+      other[0] += tremble[2]
+      other[1] += tremble[3]
       /* The body takes the beat a moment after the hand: up with the upbeat, as with a breath, and down into the
-         ictus. When the music swings, the beat is in the knees, deeper on two and four, and the shoulders rock. */
+         ictus. When the music swings, the beat is in the knees, deeper on two and four, and the shoulders rock. It
+         sways a little after the beat's way across, and the shoulders tilt towards a hand going up, as a shoulder rises
+         with its arm. */
       const late = handAt(baton, t - 0.07 * BEATS, loop)
       const later = handAt(baton, t - 0.13 * BEATS, loop)
       const bar = (((t - 0.05 * BEATS) % 4) + 4) % 4
@@ -6039,48 +6444,102 @@
         value('rise') -
         groove * 0.021 * backbeat * pulse(bar % 1) +
         0.0025 * Math.sin((clock * Math.PI * 2) / 3.7)
-      const lean = value('lean') + 0.1 * energy * (later[0] - HOME) * smooth(0, 0.1, later[3] + 0.05) + 0.028 * rock
-      const sway = 0.011 * rock
+      const lean =
+        value('lean') +
+        0.4 * energy * (later[0] - HOME) * smooth(0, 0.1, later[3] + 0.05) +
+        0.028 * rock +
+        0.016 * Math.sin(clock * 0.71 + 1)
+      const sway =
+        0.011 * rock + 0.08 * energy * (late[0] - HOME) * smooth(0, 0.1, late[3] + 0.05) + 0.006 * Math.sin(clock * 0.9)
+      const raised = (target, arm) => smooth(-0.12, 0.16, DOCS_REST.shoulders[arm][1] - target[1])
+      // a shoulder rises with its arm, going up or reaching out
+      const tilt =
+        value('tilt') -
+        0.12 * (raised(other, 1) - raised(lead, 0)) +
+        0.45 * energy * (HOME - late[0]) * smooth(0, 0.1, late[3] + 0.05) -
+        0.35 * energy * late[4]
+      /* And the body turns a little towards whom it is speaking to: the free hand's side when it reaches out, after
+         the beat's way across, and now and then by itself; seen from the front, the shoulders draw in as it turns. */
+      const turned =
+        0.32 * smooth(0.24, 0.42, other[0]) * (1 - value('mirror')) +
+        1.4 * energy * Math.abs(late[0] - HOME) * smooth(0, 0.1, late[3] + 0.05) +
+        0.12 * (0.5 + 0.5 * Math.sin(clock * 0.53 + 2))
+      const narrow = Math.cos(Math.min(0.42, turned))
       const hips = [1, 0, sway * 0.35, 0, 1, -lift * 0.55]
-      const chest = after([1, 0, sway, 0, 1, -lift], about(DOCS_REST.hips, lean))
-      // the head a moment after the chest again: it nods into the beat, keeps itself upright, and tips with the swing
-      const bob = 0.04 * energy * later[4] + groove * 0.008 * backbeat * pulse((((bar - 0.12) % 1) + 1) % 1)
+      const chest = after(
+        [1, 0, sway, 0, 1, -lift],
+        after(
+          about(DOCS_REST.hips, lean),
+          after(about([DOCS_REST.centre, 0.47], tilt), [narrow, 0, DOCS_REST.centre * (1 - narrow), 0, 1, 0]),
+        ),
+      )
+      /* The head a moment after the chest again: it nods into the beat, keeps itself upright, tips with the swing, and
+         looks where the music is: out after the free hand when it reaches to a side, a little after the beat, and now
+         and then about. */
+      const bob = 0.085 * energy * later[4] + groove * 0.008 * backbeat * pulse((((bar - 0.12) % 1) + 1) % 1)
+      const attend =
+        0.03 * smooth(0.24, 0.4, other[0]) * (1 - value('mirror')) +
+        0.08 * energy * (later[0] - HOME) +
+        0.009 * Math.sin(clock * 1.13 + 2) +
+        0.006 * Math.sin(clock * 2.71)
       const head = after(
         chest,
         about(
           DOCS_REST.neck,
-          value('look') - 0.45 * lean - 0.05 * groove * Math.cos((Math.PI * (bar - 1.25)) / 2),
-          value('gaze'),
+          value('look') -
+            0.45 * lean -
+            0.5 * tilt -
+            0.05 * groove * Math.cos((Math.PI * (bar - 1.25)) / 2) +
+            1.6 * attend,
+          value('gaze') + attend,
           value('nod') + bob,
         ),
       )
-      const arms = [lead, other].map((target, arm) => {
+      const targets = [lead, other]
+      const ways = [batonAt, freeAt]
+      const arms = targets.map((target, arm) => {
         const hand = moved(chest, target)
         // nothing goes up behind the words: a hand keeps under the top of the head
         hand[1] = Math.max(hand[1], 0.05)
+        const settle = arm === 1 && batonOnly ? [...hand] : moved(chest, settled(ways[arm], t, SETTLE[arm]))
+        settle[1] = Math.max(settle[1], 0.05)
         const shoulder = moved(chest, DOCS_REST.shoulders[arm])
         const raise = smooth(-0.14, 0.2, shoulder[1] - hand[1]) * (0.6 + 0.4 * energy)
-        // the shoulder lifts a little with the arm
-        shoulder[1] -= 0.014 * raise
-        const { elbow, wrist, near } = reach(shoulder, hand, arm === 0 ? -1 : 1, raise)
+        // the shoulder lifts with the arm
+        shoulder[1] -= 0.022 * raise
+        const { elbow, wrist, near } = reach(shoulder, hand, arm === 0 ? -1 : 1, raise, settle, DEEP[arm])
         const upper = unit(elbow[0] - shoulder[0], elbow[1] - shoulder[1], [0, 1])
         const fore = unit(wrist[0] - elbow[0], wrist[1] - elbow[1], upper)
-        return { shoulder, elbow, wrist, upper, fore, fingers: fore, near }
+        return { shoulder, elbow, wrist, upper, fore, fingers: fore, near, palm: 1, curl: 1 }
       })
-      // The free hand's fingers: turned from the forearm's line at the wrist, and trailing a little behind its way.
-      const before = handAt(free, t - 0.05 * BEATS, loop)
-      const twinBefore = handAt(baton, t - 0.07 * BEATS, loop)
-      const vx = (other[0] - blend(before[0], 2 * DOCS_REST.centre - twinBefore[0], mirror)) / 0.05
-      const vy = (other[1] - blend(before[1], twinBefore[1], mirror)) / 0.05
-      const turn = value('turn')
+      /* The free hand's fingers: turned from the forearm's line at the wrist (`turn`), and loose there, so they trail
+         behind the way the hand is going and swing on through when it stops (in the footage the wrist bends back and
+         forth by about thirty degrees as the hand moves). Its palm turns to us and away (`palm`, how wide it is seen) and
+         its fingers open and close (`curl`, how long). */
+      if (batonOnly) {
+        return { hips, chest, head, arms }
+      }
+      const was = freeAt(t - 0.04 * BEATS)
+      const before = freeAt(t - 0.1 * BEATS)
+      const earlier = freeAt(t - 0.14 * BEATS)
+      const v = [(own[0] - was[0]) / 0.04, (own[1] - was[1]) / 0.04]
+      const vOld = [(before[0] - earlier[0]) / 0.04, (before[1] - earlier[1]) / 0.04]
+      // (the wrist is never set: it flexes a little of itself, more the looser the hand)
+      const turn =
+        value('turn') + (0.06 + 0.16 * value('loose')) * Math.sin(clock * 1.7 + 1) + 0.07 * Math.sin(clock * 2.9)
       const { fore } = arms[1]
       arms[1].fingers = unit(
-        fore[0] * Math.cos(turn) - fore[1] * Math.sin(turn) - 0.07 * vx,
-        fore[0] * Math.sin(turn) + fore[1] * Math.cos(turn) - 0.07 * vy,
+        fore[0] * Math.cos(turn) - fore[1] * Math.sin(turn) - DRAG * v[0] + THROUGH * (vOld[0] - v[0]),
+        fore[0] * Math.sin(turn) + fore[1] * Math.cos(turn) - DRAG * v[1] + THROUGH * (vOld[1] - v[1]),
         fore,
       )
+      arms[1].palm = value('palm')
+      arms[1].curl = value('curl')
       return { hips, chest, head, arms }
     }
+    // how far the free hand's fingers trail its way, and swing on when it slows (seconds)
+    const DRAG = 0.4
+    const THROUGH = 0.3
 
     /* The pose at a moment: how the figure stands, and the baton in its hand. The baton is held, so it carries on from
        the forearm as a stick does from the hand that grips it, cocked up at the wrist and a touch in towards the
@@ -6089,11 +6548,11 @@
        it is still coming down as the hand bounces off the ictus and then flicks up after it, as a wrist's click does;
        and at the ictus the wrist tips it towards the players, which from the front makes it a little shorter. The
        fist turns with what it holds. Nothing goes up behind the words: there the baton tips further towards us. */
-    const poseAt = (clock) => {
-      const now = stance(clock)
+    const poseAt = (clock, batonOnly = false) => {
+      const now = stance(clock, batonOnly)
       const { baton, loop } = score()
       const hand = now.arms[0]
-      const was = stance(clock - 0.045).arms[0].fore
+      const was = stance(clock - 0.045, true).arms[0].fore
       const lagging = handAt(baton, (clock - 0.045) * BEATS, loop)
       const upright = smooth(-0.12, 1, clamp(lagging[2], -0.3, 1.1))
       const cock = blend(0.5, 0.95, upright)
@@ -6148,13 +6607,13 @@
           ),
           o + 6,
         )
-        out.set(hung([x, y + ARM], arm.wrist, arm.fingers, size, size), o + 12)
+        out.set(hung([x, y + ARM], arm.wrist, arm.fingers, size * arm.curl, size * arm.palm), o + 12)
       })
       const [x, y] = DOCS_REST.shoulders[0]
       out.set(hung([x, y + ARM + DOCS_REST.grip], now.grip, now.stick, now.seen), DOCS_BONE.baton * 6)
       knots[0] = now.tip
       for (let k = 1; k < TRAIL.knots; k += 1) {
-        knots[k] = poseAt(clock - (TRAIL.long * k) / (TRAIL.knots - 1)).tip
+        knots[k] = poseAt(clock - (TRAIL.long * k) / (TRAIL.knots - 1), true).tip
       }
       let from = wayBack(0)
       for (let k = 0; k < DOCS_TRAIL; k += 1) {
