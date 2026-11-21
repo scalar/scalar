@@ -226,6 +226,11 @@ it('unions responses from both merged operations', () => {
   })
 })
 
+it('omits responses when neither merged operation has any', () => {
+  const result = mergeOperations({ responses: {} }, { responses: {} })
+  expect(result).not.toHaveProperty('responses')
+})
+
 it('keeps existing requestBody schema while collecting examples', () => {
   const op1: OpenAPIV3_1.OperationObject = {
     requestBody: {
