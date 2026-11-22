@@ -54,8 +54,8 @@ const readSeenStorage = (): boolean | undefined => {
  * Local storage belongs to one origin, and on localhost every port is its own origin, so a developer
  * with a few projects on different ports would see the prompt once in each. Cookies ignore the port,
  * so the cookie carries what local storage cannot. Either one saying yes is enough. Nothing in the
- * browser is shared between host names, though, so `localhost`, `127.0.0.1` and each `.test` host
- * remember it separately.
+ * browser is shared between host names, though, so `localhost`, `127.0.0.1` and each `*.localhost`
+ * name remember it separately.
  *
  * When neither can be read, that counts as yes: the prompt could not be remembered either, so it
  * would come back on every load.

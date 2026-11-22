@@ -1,3 +1,5 @@
+import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarIconButterfly } from '@scalar/icons'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -55,6 +57,37 @@ describe('DeployWaitlist', () => {
     expect(init.headers['Content-Type']).toBe('application/x-www-form-urlencoded')
     expect(init.body).toBe('userGroup=Hosting&mailingLists=&email=dev%40acme.io&oss=true')
     expect(wrapper.get('[role="status"]').text()).toContain("Thanks! We'll be in touch!")
+  })
+
+  it('keeps focus in the card when the thanks replace the form', async () => {
+    fetchMock.mockResolvedValue(new Response('{"success":true}', { status: 200 }))
+    const wrapper = mount(DeployWaitlist, { attachTo: document.body })
+    const input = wrapper.get('input[type="email"]')
+    ;(input.element as HTMLInputElement).focus()
+
+    await submitEmail(wrapper, 'dev@acme.io')
+
+    expect(document.activeElement?.textContent?.trim()).toBe('Back')
+    expect(
+      document.getElementById(document.activeElement?.getAttribute('aria-describedby') ?? '')?.textContent?.trim(),
+    ).toBe("Thanks! We'll be in touch!")
+  })
+
+  it('leaves focus where it is when someone has moved on before the thanks arrive', async () => {
+    fetchMock.mockResolvedValue(new Response('{"success":true}', { status: 200 }))
+    const elsewhere = document.createElement('button')
+    document.body.append(elsewhere)
+    const wrapper = mount(DeployWaitlist, { attachTo: document.body })
+    await wrapper.get('input[type="email"]').setValue('dev@acme.io')
+    await wrapper.get('form').trigger('submit')
+
+    // Back to reading the reference while the sign-up is away
+    elsewhere.focus()
+    await settle()
+
+    expect(wrapper.get('[role="status"]').text()).toContain("Thanks! We'll be in touch!")
+    expect(document.activeElement).toBe(elsewhere)
+    elsewhere.remove()
   })
 
   it('goes back to an empty form from the confirmation', async () => {
@@ -161,6 +194,19 @@ describe('DeployWaitlist', () => {
       const wrapper = mount(DeployWaitlist, { props: { integration: 'docusaurus' } })
 
       expect(wrapper.get('h2').text()).toBe('Deploy your API on Scalar')
+    })
+
+    it('shows the framework logo in the panel and the beta butterfly in the popup', () => {
+      const logoNames = (wrapper: ReturnType<typeof mount>): unknown[] =>
+        wrapper.findAllComponents(ScalarIcon).map((icon) => icon.props('logo'))
+
+      const panel = mount(DeployWaitlist, { props: { integration: 'fastapi' } })
+      expect(logoNames(panel)).toContain('Fastapi')
+      expect(panel.findComponent(ScalarIconButterfly).exists()).toBe(false)
+
+      const popup = mount(DeployWaitlist, { props: { integration: 'fastapi', popup: true } })
+      expect(popup.findComponent(ScalarIconButterfly).exists()).toBe(true)
+      expect(logoNames(popup)).not.toContain('Fastapi')
     })
 
     it('lists what hosting includes without a framework too', () => {

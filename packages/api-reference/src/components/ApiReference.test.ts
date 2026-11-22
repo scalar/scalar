@@ -1448,7 +1448,7 @@ describe('localhost shell', () => {
     /** Longer than the popup waits for the reference to settle */
     const SETTLED_MS = 1700
 
-    const queryPopup = () => window.document.querySelector('[role="dialog"][aria-label="API Hosting beta"]')
+    const queryPopup = () => window.document.querySelector('[role="dialog"] .developer-tools-card')
 
     /** jsdom names itself in its user agent, which the popup takes as automated */
     const JSDOM_USER_AGENT = navigator.userAgent
@@ -1475,7 +1475,10 @@ describe('localhost shell', () => {
       expect(wrapper.findComponent(ApiHostingBetaPrompt).exists()).toBe(true)
 
       await vi.waitFor(() => expect(queryPopup()).not.toBeNull(), { timeout: SETTLED_MS * 2 })
-      expect(window.document.querySelector<HTMLSelectElement>('select[name="framework"]')?.value).toBe('FastAPI')
+      // The Deploy panel's own card, naming the framework serving the reference
+      expect(window.document.querySelector('[role="dialog"] h2')?.textContent?.trim()).toBe(
+        'Deploy your FastAPI app on Scalar',
+      )
       expect(localStorage.getItem(SEEN_KEY)).toBe('true')
     })
 

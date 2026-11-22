@@ -353,51 +353,19 @@ describe('use-api-hosting-beta-prompt', () => {
     expect(hasSeenCookie()).toBe(false)
   })
 
+  // The full list of addresses lives in is-local-development-page.test.ts; these confirm the hook asks it
   it.each([
-    'http://localhost:3000/',
-    'https://localhost:8443/docs',
-    'http://127.0.0.1:8000/docs',
-    'http://127.0.1.1:8000/',
-    'http://[::1]:5173/',
-    'http://0.0.0.0:8080/',
-    'http://my-api.localhost:3000/',
-  ])('opens on this machine (%s)', async (url) => {
-    jsdom.reconfigure({ url })
-    const prompt = (await loadPage())()
-
-    vi.advanceTimersByTime(SETTLED_MS)
-
-    expect(prompt.isOpen.value).toBe(true)
-  })
-
-  it.each([
-    // Public sites, including ones that only mention or look like localhost
-    'https://docs.acme.io/',
-    'https://docs.acme.io/reference?server=http://localhost:3000',
-    'http://localhost.acme.io/',
-    'http://127.0.0.1.nip.io/',
-    // Reserved names the localhost shell counts as local, which can be internal sites
-    'http://my-api.test/',
-    'http://docs.example/',
-    'http://docs.invalid/',
-    // Other machines on the network
-    'http://192.168.1.20:3000/',
-    'http://10.0.0.5:8080/',
-    // Files, and apps shipped in a web view, which serve themselves without a port
-    'file:///Users/dev/docs/index.html',
-    'https://localhost/',
-    'http://wails.localhost/',
-    'https://0.0.0.0/',
-    'tauri://localhost/',
-    'http://tauri.localhost/',
-    'capacitor://localhost/',
-  ])('never opens anywhere else (%s)', async (url) => {
+    ['opens', 'http://127.0.0.1:8000/docs', true],
+    ['stays shut on a public site', 'https://docs.acme.io/', false],
+    ['stays shut on a reserved name the shell counts as local', 'http://my-api.test/', false],
+    ['stays shut in an app shipped in a web view', 'https://localhost/', false],
+  ])('%s (%s)', async (_, url, opens) => {
     jsdom.reconfigure({ url })
     const prompt = (await loadPage())()
 
     vi.advanceTimersByTime(SETTLED_MS * 5)
 
-    expect(prompt.isOpen.value).toBe(false)
+    expect(prompt.isOpen.value).toBe(opens)
   })
 
   it('leaves nothing behind off this machine, even when the Deploy panel asks to remember it', async () => {

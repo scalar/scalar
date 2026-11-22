@@ -1,8 +1,8 @@
 <script lang="ts">
 /**
  * Invites developers to the API Hosting beta the way the API client does, once on each local host
- * name. Only the localhost shell mounts it, so a hosted reference never shows it;
- * `useApiHostingBetaPrompt` decides when it opens.
+ * name, with the Deploy panel's waitlist card. Only the localhost shell mounts it, and only for a
+ * development server on this machine; `useApiHostingBetaPrompt` decides when it opens.
  *
  * The dialog is mounted only while it is up. Headless UI's `Dialog` leaves a hidden node in place even
  * when it is closed, and the shell's grid should hold exactly what it held before the popup, and
@@ -13,9 +13,6 @@ export default {}
 
 <script setup lang="ts">
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import { computed } from 'vue'
-
-import { getServerFramework } from '@/features/developer-tools/server-frameworks'
 
 import { useApiHostingBetaPrompt } from '../hooks/use-api-hosting-beta-prompt'
 import ApiHostingBetaDialog from './ApiHostingBetaDialog.vue'
@@ -26,17 +23,11 @@ const { integration } = defineProps<{
 }>()
 
 const { isOpen, close } = useApiHostingBetaPrompt()
-
-/** What the reference runs on, so joining sends it without anyone having to pick it. */
-const framework = computed<string | undefined>(
-  () => getServerFramework(integration)?.name,
-)
 </script>
 
 <template>
   <ApiHostingBetaDialog
     v-if="isOpen"
-    :framework
-    open
+    :integration
     @close="close" />
 </template>
