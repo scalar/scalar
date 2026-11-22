@@ -222,21 +222,23 @@ const reset = async (): Promise<void> => {
 </script>
 <template>
   <DeveloperToolsCard
+    :compactHero="popup"
     :description="translate('developerTools.deployApiDescription')"
     :divided="false"
     :title
     @close="emit('close')">
     <template #hero>
-      <!-- The framework's logo on a sticker-like tile, or Scalar's own mark without one. The popup
-           shows the beta's butterfly instead. -->
+      <!-- The popup shows the beta's small butterfly, as the API client's popup does -->
+      <ScalarIconButterfly
+        v-if="popup"
+        class="text-green size-8" />
+      <!-- The framework's logo on a sticker-like tile, or Scalar's own mark without one -->
       <span
+        v-else
         aria-hidden="true"
         class="deploy-waitlist-sticker bg-b-1 flex size-26 items-center justify-center rounded-3xl border shadow-lg">
-        <ScalarIconButterfly
-          v-if="popup"
-          class="text-green size-14" />
         <ScalarIcon
-          v-else-if="framework"
+          v-if="framework"
           class="size-14"
           :logo="framework.logo" />
         <ScalarIcon

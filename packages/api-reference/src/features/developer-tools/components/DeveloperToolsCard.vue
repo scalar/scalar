@@ -5,7 +5,7 @@
  * close circle in the corner (last in the Tab order).
  */
 import { ScalarIconX } from '@scalar/icons'
-import { useId } from 'vue'
+import { computed, useId } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 
@@ -13,11 +13,17 @@ const {
   title,
   description,
   divided = true,
+  compactHero = false,
 } = defineProps<{
   title: string
   description?: string
   /** A divider between the heading and the content; Deploy goes straight into its sign-up */
   divided?: boolean
+  /**
+   * A band only as tall as small artwork needs, as the API client popup sets its butterfly, instead
+   * of the 200px the tilted stickers stand in
+   */
+  compactHero?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -33,11 +39,17 @@ defineSlots<{
 
 const { translate } = useLocalization()
 const titleId = useId()
+
+/** 32px above small artwork and 24px between it and the title, like the API client popup */
+const heroBandClasses = computed<string>(() =>
+  compactHero ? 'pt-8 pb-4' : 'h-[200px] pb-6',
+)
 </script>
 <template>
   <div class="developer-tools-card bg-b-1 text-c-1 relative flex flex-col">
     <div
-      class="relative flex h-[200px] shrink-0 items-end justify-center overflow-hidden pb-6">
+      class="relative flex shrink-0 items-end justify-center overflow-hidden"
+      :class="heroBandClasses">
       <span
         aria-hidden="true"
         class="developer-tools-card-wash pointer-events-none absolute inset-x-0 top-0" />
