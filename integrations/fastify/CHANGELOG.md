@@ -1,5 +1,29 @@
 # @scalar/fastify-api-reference
 
+## 1.82.1
+
+No changes in this release.
+
+## 1.82.0
+
+No changes in this release.
+
+## 1.81.0
+
+No changes in this release.
+
+## 1.80.0
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+
+## 1.79.0
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
 ## 1.78.1
 
 ### Patch Changes

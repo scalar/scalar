@@ -50,6 +50,58 @@ console.log(document.openapi)
 // Output: 3.1.1
 ```
 
+### Upgrade a referenced fragment
+
+Use `upgradeFragment` when the source dialect and the kind of object are known. It
+is asynchronous, returns a copy, and does not require a wrapper API description:
+
+```typescript
+import { upgradeFragment } from '@scalar/openapi-upgrader'
+
+const { value, locations } = await upgradeFragment(
+  { type: 'string', nullable: true },
+  { from: '3.0', to: '3.1', kind: 'schema' },
+)
+
+console.log(value)
+// Output: { type: ['string', 'null'] }
+console.log(locations)
+// Output: [] (this schema stays at the same location)
+```
+
+`from` accepts `2.0` or `3.0`; `to` is `3.1`. Supported kinds are `document`,
+`schema`, `parameter`, `header`, `response`, `path-item`, `operation`,
+`request-body`, and `callback`. For OpenAPI 2.0 fragments, pass the effective
+`consumes` and `produces` media types. Both default to `application/json`; form
+parameters use form-compatible types and fall back to `multipart/form-data`.
+
+The result contains:
+
+- `value`: the converted API description or fragment. Literal examples, defaults,
+  and extension payloads remain data. A standalone schema resource with `$schema`
+  retains its declared dialect; `$schema` inside a legacy API description does
+  not disable that description's conversion.
+- `locations`: changed source/output JSON Pointer segment arrays. Resolve an
+  authored pointer using its longest matching source prefix, followed by any
+  remaining segments. Unchanged locations need no mapping. When a schema is
+  copied into several media types, its first destination is canonical. Authored
+  references retain their original pointers, while generated discriminator
+  mappings already use converted locations. Do not remap generated bundle pointers.
+- `contexts`: effective operation media types needed to interpret external
+  fragments loaded later.
+
+For OpenAPI 2.0 parameter aliases, supply an asynchronous `resolveSource(ref)`
+callback that returns the original parameter, following aliases and rebasing its
+nested schema references to the consuming resource. Keep references within that
+resource local. This lets operation body parameters become `requestBody` and form
+parameters combine into one body. Failed lookups retain the authored reference;
+without the callback, referenced body/form parameters remain in `parameters`.
+A body or form parameter cannot be converted as `kind: 'parameter'`: convert its
+owning operation or use `kind: 'request-body'` for an explicit body destination.
+
+The workspace store automatically upgrades newly loaded referenced OpenAPI 2.0
+and 3.0 resources.
+
 ### Experimental: Upgrade to OpenAPI 3.2
 
 ```typescript

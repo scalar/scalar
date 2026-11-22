@@ -1,4 +1,4 @@
-import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { type MockInstance, afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { downloadDocument } from './download'
 
@@ -23,13 +23,14 @@ const readBlobBody = async (blob: Blob) => {
 }
 
 describe('downloadDocument', () => {
-  let createObjectURLSpy: ReturnType<typeof vi.spyOn>
-  let revokeObjectURLSpy: ReturnType<typeof vi.spyOn>
+  let createObjectURLSpy: MockInstance<typeof URL.createObjectURL>
+  let revokeObjectURLSpy: MockInstance<typeof URL.revokeObjectURL>
   let createElementSpy: ReturnType<typeof vi.spyOn>
   let dispatchEventSpy: ReturnType<typeof vi.spyOn>
   let removeSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
     createObjectURLSpy = vi.spyOn(URL, 'createObjectURL')
     revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL')
     createElementSpy = vi.spyOn(document, 'createElement')
@@ -37,8 +38,14 @@ describe('downloadDocument', () => {
     removeSpy = vi.spyOn(Element.prototype, 'remove')
   })
 
-  afterEach(() => {
-    vi.restoreAllMocks()
+  afterEach(async () => {
+    try {
+      await vi.runOnlyPendingTimersAsync()
+      expect(revokeObjectURLSpy.mock.calls).toStrictEqual(createObjectURLSpy.mock.results.map(({ value }) => [value]))
+    } finally {
+      vi.useRealTimers()
+      vi.restoreAllMocks()
+    }
   })
 
   it('downloads JSON when format is explicitly set to json', async () => {
@@ -64,9 +71,11 @@ info:
     )
 
     assert(createObjectURLSpy.mock.results.length > 0)
-    const objectUrl = createObjectURLSpy.mock.results[0].value
+    const result = createObjectURLSpy.mock.results[0]
+    assert(result)
+    const objectUrl = result.value
     assert(typeof objectUrl === 'string')
-    await new Promise((resolve) => setTimeout(resolve, 150))
+    await vi.runOnlyPendingTimersAsync()
     expect(revokeObjectURLSpy).toHaveBeenCalledWith(objectUrl)
     expect(removeSpy).toHaveBeenCalled()
   })

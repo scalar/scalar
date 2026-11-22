@@ -53,6 +53,8 @@
   ],
   "ignoreBinaries": ["netlify"],
   "ignoreIssues": {
+    // SvelteKit generates $app/tsconfig during sync; it is not an npm dependency.
+    "examples/sveltekit/tsconfig.json": ["unlisted"],
     "integrations/docusaurus/src/ScalarDocusaurus.tsx": ["duplicates"],
     // TrieNode is exported for potential external use
     "packages/json-magic/src/diff/trie.ts": ["exports"],
@@ -97,6 +99,10 @@
         // The build copies the standalone bundle; Changesets tracks its version for Rust releases.
         "@scalar/api-reference"
       ]
+    },
+    "tooling/scripts": {
+      // The Docker workflow streams the smoke test into the candidate image.
+      "entry": ["src/commands/playwright-docker/smoke-test.ts"]
     },
     "tooling/changelog-generator": {
       "entry": ["src/index.ts", "src/version.ts"]
@@ -245,6 +251,7 @@
     },
     "packages/json-magic": {
       "entry": [
+        "src/document/index.ts",
         "src/bundle/index.ts",
         "src/magic-proxy/index.ts",
         "src/join/index.ts",
@@ -571,7 +578,7 @@
       ]
     },
     "projects/proxy-scalar-com": {
-      "ignoreBinaries": ["go"]
+      "ignoreBinaries": ["go", "gofmt"]
     }
   }
 }

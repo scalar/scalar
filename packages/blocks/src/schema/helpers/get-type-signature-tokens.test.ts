@@ -171,6 +171,28 @@ describe('getDisplayTypeSignatureTokens', () => {
     expect(text(tokens)).toBe('array of planet')
   })
 
+  it('uses an inline object item title in its array signature', () => {
+    const value = { type: 'array', items: { type: 'object', title: 'users.User' } } as const
+    expect(getDisplayTypeSignatureTokens(value, { modelName: 'users.User[]' })).toStrictEqual([
+      { kind: 'word', text: 'array of' },
+      { kind: 'ident', text: 'users.User' },
+    ])
+    expect(text(getDisplayTypeSignatureTokens(value, { modelName: 'users.User[]', hideModelNames: true }))).toBe(
+      'array of object',
+    )
+  })
+
+  it('preserves primitive item types despite their titles', () => {
+    expect(
+      text(
+        getDisplayTypeSignatureTokens(
+          { type: 'array', items: { type: 'integer', title: 'Count' } },
+          { modelName: 'Count[]' },
+        ),
+      ),
+    ).toBe('array of integer')
+  })
+
   it('keeps the item of an array of $ref when the names already agree', () => {
     const tokens = getDisplayTypeSignatureTokens({ type: 'array', items: planetRef } as never, {
       modelName: 'planet[]',

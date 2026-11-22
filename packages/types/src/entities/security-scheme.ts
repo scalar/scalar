@@ -1,6 +1,5 @@
-import { z } from 'zod'
-
 import { type ENTITY_BRANDS, nanoidSchema } from '../utils/nanoid'
+import { z } from '../zod'
 
 // ---------------------------------------------------------------------------
 // COMMON PROPS FOR ALL SECURITY SCHEMES
@@ -33,6 +32,8 @@ const oasSecuritySchemeApiKey = commonProps.extend({
 })
 
 const apiKeyValueSchema = z.object({
+  /** Prefix added to header API keys only; enter credentials without this prefix. */
+  'x-scalar-token-prefix': z.string().optional(),
   value: z.string().default(''),
 })
 

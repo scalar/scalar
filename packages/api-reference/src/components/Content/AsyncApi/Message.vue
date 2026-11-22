@@ -364,6 +364,7 @@ const { level: headingLevel } = useDocumentOutline(
                 :format="headersSchema.format"
                 headers
                 :options="schemaOptions"
+                :resources="headersSchema.resources"
                 :value="headersSchema.value" />
             </div>
 
@@ -400,6 +401,7 @@ const { level: headingLevel } = useDocumentOutline(
                 v-else-if="payloadSchema"
                 :format="payloadSchema.format"
                 :options="schemaOptions"
+                :resources="payloadSchema.resources"
                 :value="payloadSchema.value" />
             </div>
           </div>

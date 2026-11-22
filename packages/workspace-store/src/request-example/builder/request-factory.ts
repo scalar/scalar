@@ -1,6 +1,7 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -181,6 +182,8 @@ export type RequestFactory = {
    * List of all security requirements for this request (e.g., API key, OAuth2, etc.)
    * Each entry reflects a selected Security Scheme.
    * Values (e.g., tokens, secrets) may still be unsubstituted at this point.
+   * Header API-key prefixes are carried separately in `tokenPrefix`. Consumers using
+   * `disableSecurity` must resolve variables and apply authentication formatting themselves.
    */
   security: BuildRequestSecurityResult[]
 
@@ -224,7 +227,9 @@ export const requestFactory = ({
   isElectron,
   selectedSecuritySchemes,
   openapiVersion,
+  jsonSchemaDialect,
   requestBodyCompositionSelection,
+  multipartNaming,
 }: RequestExampleMeta & {
   /** The operation object */
   operation: OperationObject
@@ -245,7 +250,10 @@ export const requestFactory = ({
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   /** Originating OpenAPI version, used for version-specific serialization. */
   openapiVersion?: string
+  /** Document default for schema resources without $schema. */
+  jsonSchemaDialect?: string
   requestBodyCompositionSelection?: Record<string, number>
+  multipartNaming?: MultipartNaming
 }): {
   request: RequestFactory
 } => {
@@ -256,7 +264,9 @@ export const requestFactory = ({
   const querystringParameter = operation.parameters
     ?.map((parameter) => getResolvedRef(parameter))
     .find((parameter) => parameter?.in === 'querystring')
-  const querystring = querystringParameter ? getQuerystringParameter(querystringParameter, exampleName) : undefined
+  const querystring = querystringParameter
+    ? getQuerystringParameter(querystringParameter, exampleName, { openapiVersion, jsonSchemaDialect })
+    : undefined
   const security = buildRequestSecurity(selectedSecuritySchemes)
 
   const headers = new Headers({
@@ -266,7 +276,9 @@ export const requestFactory = ({
 
   // If the method can have a body, build the request body, otherwise set it to null
   const body = canMethodHaveBody(method)
-    ? buildRequestBody(requestBody, exampleName, requestBodyCompositionSelection, openapiVersion)
+    ? buildRequestBody(requestBody, exampleName, requestBodyCompositionSelection, openapiVersion, jsonSchemaDialect, {
+        multipartNaming,
+      })
     : null
 
   // Delete the Content-Type header so the browser will set it automatically based on the request body

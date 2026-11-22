@@ -40,7 +40,7 @@ scalar registry publish [options] [file]
 | `--bundle` | Bundle all external references before uploading. |  |
 | `--treeShake` | Remove unused components from the bundled document. |  |
 | `--urlMap` | Generate a map of resolved URLs when bundling the document. |  |
-| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. |  |
+| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. | `5` |
 | `--no-input` | Disable prompts and browser launches. |  |
 
 ## update
@@ -64,7 +64,7 @@ scalar registry update [options] [namespace] [slug]
 | --- | --- |
 | `--json` | Output the mutation result as JSON without prompting. |
 | `--title <title>` | API description title. |
-| `--description <description>` | API description summary. |
+| `--description <description>` | API description summary (pass "" to clear it). |
 | `--public` | Make the whole entry public, including existing versions. |
 | `--private` | Make the whole entry private, including existing versions. |
 | `--no-input` | Disable prompts and browser launches. |

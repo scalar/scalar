@@ -1,6 +1,7 @@
 import { forEachPathItemOperation, getPathItemOperationKey } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
+import { getXBadges } from '@/navigation/helpers/get-x-badges'
 import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { ParentTag, TraversedWebhook } from '@/schemas/navigation'
@@ -50,6 +51,7 @@ const createWebhookEntry = ({
     parentTag,
     parentId: parentId,
   })
+  const badges = getXBadges(webhook)
 
   const entry = {
     id,
@@ -59,6 +61,7 @@ const createWebhookEntry = ({
     method: method,
     type: 'webhook',
     isDeprecated,
+    ...(badges ? { badges } : {}),
   } satisfies TraversedWebhook
 
   return entry

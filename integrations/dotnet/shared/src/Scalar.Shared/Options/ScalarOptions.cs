@@ -29,6 +29,11 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public string[]? ShowExtensions { get; set; }
 
     /// <summary>
+    /// Selects the naming convention for nested multipart form fields.
+    /// </summary>
+    public ScalarMultipartNaming? MultipartNaming { get; set; }
+
+    /// <summary>
     /// Shows structural types instead of model names in schema labels and operation headings (default: false).
     /// </summary>
     public bool? HideModelNames { get; set; }
@@ -77,6 +82,11 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     /// Controls whether the sidebar is shown (default: shown).
     /// </summary>
     public bool? ShowSidebar { get; set; }
+
+    /// <summary>
+    /// Controls whether x-badges are shown in the sidebar (default: hidden).
+    /// </summary>
+    public bool? ShowBadgesInSidebar { get; set; }
 
     /// <summary>
     /// Controls whether the sidebar and search use the operation summary or path (default: <see cref="OperationTitleSource.Summary" />).
@@ -213,6 +223,12 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public KeyValuePair<ScalarTarget, ScalarClient>[]? FeaturedClients { get; set; }
 
     /// <summary>
+    /// Controls whether built-in HTTP clients appear alongside SDK installation tabs in the introduction.
+    /// </summary>
+    /// <remarks>Defaults to <c>false</c>, which shows only SDK tabs when installation instructions are available.</remarks>
+    public bool? ShowDefaultClientsWithSdkInstallation { get; set; }
+
+    /// <summary>
     /// Controls the list of servers for the Scalar API Reference.
     /// </summary>
     /// <remarks>This list will override the servers defined in the OpenAPI document.</remarks>
@@ -259,6 +275,14 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     /// When set to <c>true</c>, the authentication state will be stored in the browser's local storage and restored when the user returns to the page.
     /// </remarks>
     public bool? PersistentAuthentication { get; set; }
+
+    /// <summary>
+    /// Controls whether the selected code sample client is saved and restored in local storage (default: enabled).
+    /// </summary>
+    /// <remarks>
+    /// Set to <c>false</c> to keep client selection on the current page only. Authentication persistence is configured separately.
+    /// </remarks>
+    public bool? PersistSelectedClient { get; set; }
 
     /// <summary>
     /// Controls whether telemetry is enabled (default: enabled).

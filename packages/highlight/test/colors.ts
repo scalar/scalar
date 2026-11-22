@@ -7,9 +7,11 @@
  * answer the real question: for what share of the characters in a code block
  * does the rendered colour change?
  *
- * Transcribed from `packages/code-highlight/src/css/code.css`. Every rule
- * there is a single class except the two `.hljs-title` compounds, and no class
- * is styled twice, so a flat map plus a compound check reproduces the cascade.
+ * Transcribed from the `code.css` that shipped with highlight.js, and kept that
+ * way on purpose. These numbers measure how far our scopes sit from highlight.js,
+ * so a palette change must not move them. Every rule there is a single class
+ * except the two `.hljs-title` compounds, and no class is styled twice, so a flat
+ * map plus a compound check reproduces the cascade.
  */
 const COLORS: Record<string, string> = {
   'hljs-comment': 'color-3',

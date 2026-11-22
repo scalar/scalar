@@ -1,5 +1,29 @@
 # @scalar/oas-utils
 
+## 0.20.26
+
+No changes in this release.
+
+## 0.20.25
+
+No changes in this release.
+
+## 0.20.24
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.20.23
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.20.22
+
+No changes in this release.
+
 ## 0.20.21
 
 ### Patch Changes

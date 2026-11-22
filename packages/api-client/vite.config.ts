@@ -10,7 +10,8 @@ import {
   createLibEntry,
   createPreserveModulesOutput,
   findEntryPoints,
-} from '../../tooling/scripts/vite-lib-config'
+  hasModuleSideEffects,
+} from '../../tooling/scripts/vite-lib-config.ts'
 
 const external = createExternalsFromPackageJson()
 const entryPaths = await findEntryPoints()
@@ -55,7 +56,7 @@ export default defineConfig({
     },
     rolldownOptions: {
       treeshake: {
-        moduleSideEffects: (id) => id.includes('.css'),
+        moduleSideEffects: hasModuleSideEffects,
       },
       external,
       output: createPreserveModulesOutput(),

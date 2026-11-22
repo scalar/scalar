@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { onBeforeUnmount, ref, watch } from 'vue'
 
 import MobileHeader from '../components/MobileHeader.vue'
-import { scrollToElement } from './lazy-bus'
+import { firstLazyLoadComplete, requestLazyRender, scrollToElement, scrollToLazy } from './lazy-bus'
 
 const meta: Meta = { title: 'Schema/LazyBus' }
 export default meta
@@ -55,3 +56,48 @@ export const UnregisteredOverlay = story(
 export const RegisteredMobileHeader = story(
   '<MobileHeader breadcrumb="Pets" :isSidebarOpen="false" :showSidebar="false" />',
 )
+
+/** A late height change models lazy content settling after its queue finishes. */
+const lazyNavigationStory = (nested = false): StoryObj => ({
+  render: () => ({
+    setup: () => {
+      const shifted = ref(false)
+      let timer: ReturnType<typeof setTimeout> | undefined
+      const shift = (): void => {
+        timer = setTimeout(() => {
+          shifted.value = true
+        }, 80)
+      }
+      watch(firstLazyLoadComplete, shift, { once: true })
+      onBeforeUnmount(() => clearTimeout(timer))
+      return {
+        shifted,
+        scroll: (): void => {
+          if (firstLazyLoadComplete.value) {
+            shift()
+          }
+          scrollToLazy(
+            'scroll-target',
+            () => undefined,
+            () => undefined,
+          )
+          requestLazyRender('scroll-target', true)
+        },
+      }
+    },
+    template: `
+      <div :data-layout-shifted="shifted">
+        <header data-scalar-scroll-header style="position:fixed;top:0;left:0;right:0;height:60px;background:var(--scalar-background-2);z-index:10">Navigation</header>
+        <button style="position:fixed;right:20px;bottom:20px;z-index:20" @click="scroll">Scroll to target</button>
+        <main style="${nested ? 'position:fixed;top:60px;bottom:0;left:0;right:0;overflow:auto;' : ''}">
+          <div :style="{ height: shifted ? '3200px' : '2000px' }"></div>
+          <h2 id="scroll-target" tabindex="-1" style="margin:0;scroll-margin-top:${nested ? 0 : 60}px">Scroll target</h2>
+          <div style="height:3000px"></div>
+        </main>
+      </div>
+    `,
+  }),
+})
+
+export const LateLayout = lazyNavigationStory()
+export const NestedLazyLayout = lazyNavigationStory(true)

@@ -102,6 +102,10 @@ export const apiReferenceConfigurationSchema = intersection([
       default: false,
       typeComment: 'Whether to show the operationId',
     }),
+    showBadgesInSidebar: boolean({
+      default: false,
+      typeComment: 'Whether to show the x-badges of operations, webhooks, tags, tag groups and models in the sidebar',
+    }),
     darkMode: optional(boolean(), {
       typeComment: 'Whether dark mode is on or off initially (light mode)',
     }),
@@ -137,6 +141,14 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu',
     }),
+    persistSelectedClient: boolean({
+      default: true,
+      typeComment: 'Whether to save and restore the selected code sample client using local storage. @default true',
+    }),
+    showDefaultClientsWithSdkInstallation: optional(boolean(), {
+      typeComment:
+        'Show built-in HTTP clients alongside `x-scalar-sdk-installation` tabs in the introduction. Defaults to false',
+    }),
     defaultHttpClient: optional(
       // The keys stay permissive strings at runtime, so `coerce` leaves an unknown value
       // untouched (a union of literal client names would rewrite it). The cast only tightens
@@ -157,6 +169,9 @@ export const apiReferenceConfigurationSchema = intersection([
         typeComment: 'Determine the HTTP client that is selected by default',
       },
     ),
+    multipartNaming: optional(literal('indexed-dot'), {
+      typeComment: 'Use indexed dotted names for nested multipart and URL-encoded form fields.',
+    }),
     defaultRequestBodyView: optional(union([literal('form'), literal('raw')]), {
       typeComment: 'Initial view for the request body editor with structured (JSON/YAML) bodies',
     }),

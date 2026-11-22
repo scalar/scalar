@@ -9,6 +9,49 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.6 (2026-11-20)
+
+### Request validation now works for nullable schemas without explicit types
+
+Previously, OpenAPI 3.0 schemas with nullable but no type keyword could bypass validation entirely after upgrade, allowing invalid requests through. The mock server now properly enforces the full request contract for these schemas.
+
+- Fixed request validation being skipped when OpenAPI 3.0 schemas use nullable without an explicit type.
+- Nullable compositions are now converted to explicit unions with null during OpenAPI upgrade.
+- Invalid requests that previously returned 200 now correctly return 422 when required fields are missing.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0216)
+
+## 0.21.5 (2026-11-18)
+
+### Better array example generation and pattern validation
+
+This release fixes how the mock server generates examples for arrays with contains constraints and resolves an issue where certain regex patterns would prevent request validation from running.
+
+- Array examples now respect contains, minContains, and maxContains constraints when generating primitive items.
+- Generated arrays honor tuple prefixes, length bounds, uniqueness requirements, and the OpenAPI dialect you are using.
+- Request validation no longer fails silently when a schema pattern uses escape sequences like \-, \_, or \ that are only valid without the unicode flag.
+- Patterns that work with the unicode flag keep it, so astral characters and \p{L} continue to behave as expected.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0215)
+
+## 0.21.4 (2026-11-17)
+
+### Plugin document handling and TypeScript 6 support
+
+This release improves how plugin documents are classified and processed throughout the application, ensuring they are handled consistently and excluded from features that do not support them.
+
+- Plugin documents now maintain consistent classification during replacement, hydration, and rebasing operations.
+- Plugin documents are excluded from Ask AI features and authentication processing.
+- Builds with TypeScript 6 now preserve package output paths and application aliases correctly.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0214)
+
+## 0.21.3 (2026-11-16)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0213)
+
 ## 0.21.2 (2026-11-12)
 
 ### Mock server now generates valid base64 examples

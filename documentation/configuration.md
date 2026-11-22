@@ -408,6 +408,22 @@ Scalar.createApiReference('#app', {
 
 Keep the preferred scheme consistent with the allowlist. User selections still take precedence over the configured preferred scheme.
 
+For header API keys, set `x-scalar-token-prefix` to add a prefix without storing it in the credential:
+
+```javascript
+{
+  authentication: {
+    securitySchemes: {
+      tokenAuth: {
+        'x-scalar-token-prefix': 'token',
+      },
+    },
+  },
+}
+```
+
+This overrides the same extension in the API description. Set it to an empty string to disable a document's prefix. Readers enter only the credential; both generated samples and actual requests add the prefix. See [header API-key token prefixes](./openapi.md#header-api-key-token-prefixes).
+
 ### baseServerURL
 
 **Type:** `string`
@@ -514,6 +530,18 @@ To select a custom code sample, use `custom` as the target and the sample ID wit
 
 This selects `custom/python`, matching a Python entry in `x-codeSamples`. The language is lowercased in the ID. Repeated languages use suffixes such as `python/1`. An operation without that sample falls back to its first custom sample, then an available built-in client. An explicit default takes precedence over a previously saved selection.
 
+### showDefaultClientsWithSdkInstallation
+
+Show built-in HTTP clients alongside the SDK tabs from `info.x-scalar-sdk-installation` in the introduction's Client Libraries card. Defaults to `false`, which shows only SDK tabs when installation instructions are available.
+
+SDK tabs appear first, followed by the built-in `featuredClients`. Additional clients remain available in **More**, and `hiddenClients` still applies. Selecting an SDK tab selects its matching custom operation example; selecting a built-in client selects its generated examples. You do not need to provide custom examples for the built-in clients.
+
+```js
+const configuration = {
+  showDefaultClientsWithSdkInstallation: true,
+}
+```
+
 ### featuredClients
 
 **Type:** `AvailableClient[]`
@@ -555,6 +583,29 @@ Whether to always start with all tags open, regardless of the URL.
   defaultOpenAllTags: true
 }
 ```
+
+### multipartNaming
+
+**Type:** `'indexed-dot'`
+
+Set `multipartNaming: 'indexed-dot'` to use names such as `profile.name` and `certificates[0].name` in the form editor, sent requests, and code samples for `multipart/form-data` and `application/x-www-form-urlencoded` bodies. This supports ASP.NET Core `[FromForm]` model binding for nested objects and arrays. Arrays of files or scalar values use repeated field names. If an indexed collection skips positions, Scalar includes `.index` fields so ASP.NET Core can bind the remaining items.
+
+```js
+Scalar.createApiReference('#app', {
+  url: '/openapi.json',
+  multipartNaming: 'indexed-dot',
+})
+```
+
+Configure the ASP.NET Core integration with its fluent option.
+
+```csharp
+app.MapScalarApiReference(options => options.WithMultipartNaming(ScalarMultipartNaming.IndexedDot));
+```
+
+Spring Boot uses `scalar.multipart-naming=indexed-dot`. FastAPI and Django Ninja expose the option as `multipart_naming="indexed-dot"`. Docker and Rust accept `"multipartNaming": "indexed-dot"` in their JSON configuration.
+
+Omit the option to use OpenAPI multipart encoding. Ordered parts and nested multipart media types follow their declared encoding.
 
 ### defaultRequestBodyView
 
@@ -759,6 +810,22 @@ By default we don't render it in the UI. If it's helpful to show it to your user
 ```javascript
 {
   showOperationId: true
+}
+```
+
+### showBadgesInSidebar
+
+**Type:** `boolean`
+
+Whether to show [`x-badges`](openapi.md#x-badges) in the sidebar, next to the titles of operations, webhooks, tags, tag groups (`x-tagGroups`) and models. Badges with `position: before` show before the title, all other badges after it.
+
+By default, badges only show in the content and the sidebar looks the same as before.
+
+**Default:** `false`
+
+```javascript
+{
+  showBadgesInSidebar: true
 }
 ```
 
@@ -1100,6 +1167,31 @@ Configuration for path-based routing instead of hash-based routing. Your server 
   }
 }
 ```
+
+### persistSelectedClient
+
+**Type:** `boolean`
+
+**Default:** `true`
+
+Save and restore the selected code sample client using local storage. Set this to `false` to prevent reads and writes to `scalar-reference-selected-client-v2`, including when `defaultHttpClient` is configured. Client selection still works for the current page, and existing stored values are left untouched. Authentication persistence is controlled separately by `persistAuth`.
+
+```javascript
+{
+  persistSelectedClient: false
+}
+```
+
+The same option is available through the integrations:
+
+| Integration                                              | Disable selected client persistence                                                     |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| JavaScript and TypeScript integrations, including React  | `persistSelectedClient: false` in the API Reference configuration                       |
+| .NET (ASP.NET Core, Aspire, AWS Lambda, Azure Functions) | `options.DisableSelectedClientPersistence()` or `options.PersistSelectedClient = false` |
+| Java (Spring MVC and WebFlux)                            | `scalar.persistSelectedClient=false`                                                    |
+| FastAPI and Django Ninja                                 | `persist_selected_client=False`                                                         |
+| Rust                                                     | `"persistSelectedClient": false` in the JSON configuration                              |
+| Docker                                                   | `"persistSelectedClient": false` inside `API_REFERENCE_CONFIG`                          |
 
 ### persistAuth
 

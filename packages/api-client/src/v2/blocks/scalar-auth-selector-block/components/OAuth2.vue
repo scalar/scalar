@@ -41,7 +41,7 @@ import type {
   OAuthFlow,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import {
@@ -217,6 +217,16 @@ const handleResetSecret = (field: AuthSecretField): void => {
 }
 
 /**
+ * Without a configured redirect URI the default comes from the address bar, which the server
+ * cannot see. That default only counts once the server markup is hydrated, so the first browser
+ * render matches the server.
+ */
+const isMounted = ref(false)
+onMounted(() => {
+  isMounted.value = true
+})
+
+/**
  * Reset needs a default to restore, otherwise it would only clear the field like the clear
  * action does.
  */
@@ -227,7 +237,9 @@ const canReset = (
   // Without a stored default, resetting the redirect URI re-runs the browser prefill below,
   // unless the desktop loopback capture computes it at authorize time instead.
   const fallback =
-    field === 'x-scalar-secret-redirect-uri' && !options.captureOAuth2Callback
+    field === 'x-scalar-secret-redirect-uri' &&
+    !options.captureOAuth2Callback &&
+    (options.oauth2RedirectUri || isMounted.value)
       ? resolveDefaultOAuth2RedirectUri(options)
       : ''
   return canResetSecretField(flow.value, field, value, fallback)
@@ -484,25 +496,27 @@ const handleSecretLocationUpdate = (value: string): void => {
     <DataTableRow
       v-if="!hideActions"
       class="min-w-full">
-      <div class="flex h-8 items-center justify-end gap-2 border-t">
-        <ScalarButton
-          v-if="canRefreshToken"
-          class="p-0 px-2 py-0.5"
-          :loader
-          size="sm"
-          variant="outlined"
-          @click="handleRefresh">
-          {{ translate('apiClient.oauth2.refresh') }}
-        </ScalarButton>
-        <ScalarButton
-          class="mr-1 p-0 px-2 py-0.5"
-          :disabled="loader.isLoading"
-          size="sm"
-          variant="outlined"
-          @click="handleClearAccessTokens">
-          {{ translate('apiClient.oauth2.clearTokens') }}
-        </ScalarButton>
-      </div>
+      <td class="contents">
+        <div class="flex h-8 items-center justify-end gap-2 border-t">
+          <ScalarButton
+            v-if="canRefreshToken"
+            class="p-0 px-2 py-0.5"
+            :loader
+            size="sm"
+            variant="outlined"
+            @click="handleRefresh">
+            {{ translate('apiClient.oauth2.refresh') }}
+          </ScalarButton>
+          <ScalarButton
+            class="mr-1 p-0 px-2 py-0.5"
+            :disabled="loader.isLoading"
+            size="sm"
+            variant="outlined"
+            @click="handleClearAccessTokens">
+            {{ translate('apiClient.oauth2.clearTokens') }}
+          </ScalarButton>
+        </div>
+      </td>
     </DataTableRow>
   </template>
 
@@ -519,40 +533,42 @@ const handleSecretLocationUpdate = (value: string): void => {
       </RequestAuthDataTableInput>
     </DataTableRow>
     <DataTableRow v-if="devicePrompt">
-      <div class="w-full p-2">
-        <div
-          class="bg-b-2 flex flex-col gap-3 rounded-lg border p-3 text-sm"
-          role="status">
-          <p class="text-c-2 text-xs leading-normal">
-            {{ translate('apiClient.oauth2.deviceVerificationPrompt') }}
-          </p>
-          <strong
-            class="bg-b-1 font-code w-fit max-w-full rounded border px-3 py-2 text-base font-medium tracking-widest break-all select-all">
-            {{ devicePrompt.userCode }}
-          </strong>
-          <a
-            class="text-c-accent w-fit max-w-full text-xs break-all underline underline-offset-2"
-            :href="
-              devicePrompt.verificationUriComplete ||
-              devicePrompt.verificationUri
-            "
-            rel="noopener noreferrer"
-            target="_blank">
-            {{ devicePrompt.verificationUri }}
-          </a>
-          <div class="flex items-center justify-between gap-3">
-            <p class="text-c-2 text-xs">
-              {{ translate('apiClient.oauth2.waitingForAuthorization') }}
+      <td class="contents">
+        <div class="w-full p-2">
+          <div
+            class="bg-b-2 flex flex-col gap-3 rounded-lg border p-3 text-sm"
+            role="status">
+            <p class="text-c-2 text-xs leading-normal">
+              {{ translate('apiClient.oauth2.deviceVerificationPrompt') }}
             </p>
-            <ScalarButton
-              size="xs"
-              variant="outlined"
-              @click="cancelDeviceAuthorization">
-              {{ translate('apiClient.oauth2.cancelDeviceAuthorization') }}
-            </ScalarButton>
+            <strong
+              class="bg-b-1 font-code w-fit max-w-full rounded border px-3 py-2 text-base font-medium tracking-widest break-all select-all">
+              {{ devicePrompt.userCode }}
+            </strong>
+            <a
+              class="text-c-accent w-fit max-w-full text-xs break-all underline underline-offset-2"
+              :href="
+                devicePrompt.verificationUriComplete ||
+                devicePrompt.verificationUri
+              "
+              rel="noopener noreferrer"
+              target="_blank">
+              {{ devicePrompt.verificationUri }}
+            </a>
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-c-2 text-xs">
+                {{ translate('apiClient.oauth2.waitingForAuthorization') }}
+              </p>
+              <ScalarButton
+                size="xs"
+                variant="outlined"
+                @click="cancelDeviceAuthorization">
+                {{ translate('apiClient.oauth2.cancelDeviceAuthorization') }}
+              </ScalarButton>
+            </div>
           </div>
         </div>
-      </div>
+      </td>
     </DataTableRow>
     <DataTableRow>
       <RequestAuthDataTableInput
@@ -745,27 +761,29 @@ const handleSecretLocationUpdate = (value: string): void => {
     <DataTableRow
       v-if="!hideActions"
       class="min-w-full">
-      <div class="flex h-8 w-full items-center justify-end border-t">
-        <!-- Allow clearing the oauth section and going back to discovery -->
-        <ScalarButton
-          v-if="scheme.type === 'openIdConnect'"
-          class="mr-1 p-0 px-2 py-0.5"
-          :disabled="loader.isLoading"
-          size="sm"
-          variant="outlined"
-          @click="clearOauth2Secrets">
-          {{ translate('apiClient.oauth2.resetDiscovery') }}
-        </ScalarButton>
+      <td class="contents">
+        <div class="flex h-8 w-full items-center justify-end border-t">
+          <!-- Allow clearing the oauth section and going back to discovery -->
+          <ScalarButton
+            v-if="scheme.type === 'openIdConnect'"
+            class="mr-1 p-0 px-2 py-0.5"
+            :disabled="loader.isLoading"
+            size="sm"
+            variant="outlined"
+            @click="clearOauth2Secrets">
+            {{ translate('apiClient.oauth2.resetDiscovery') }}
+          </ScalarButton>
 
-        <ScalarButton
-          class="mr-0.75 p-0 px-2 py-0.5"
-          :loader
-          size="sm"
-          variant="outlined"
-          @click="handleAuthorize">
-          {{ translate('apiClient.oauth2.authorize') }}
-        </ScalarButton>
-      </div>
+          <ScalarButton
+            class="mr-0.75 p-0 px-2 py-0.5"
+            :loader
+            size="sm"
+            variant="outlined"
+            @click="handleAuthorize">
+            {{ translate('apiClient.oauth2.authorize') }}
+          </ScalarButton>
+        </div>
+      </td>
     </DataTableRow>
   </template>
 </template>

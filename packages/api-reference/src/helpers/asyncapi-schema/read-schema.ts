@@ -1,11 +1,17 @@
+import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
+
 import { readAvro } from './avro/avro'
 import { readProtobuf } from './protobuf/protobuf'
 import { readRaml } from './raml/raml'
 import type { SchemaDocument } from './types'
 
 /** Dispatch by declared language and version, keeping failures on the existing source path. */
-export const readSchema = (format: string, value: unknown): SchemaDocument | undefined => {
-  if (typeof value === 'string' && value.length > 200_000) {
+export const readSchema = (
+  format: string,
+  value: unknown,
+  resources?: AsyncApiSchemaResources,
+): SchemaDocument | undefined => {
+  if (resources?.failed || (typeof value === 'string' && value.length > 200_000)) {
     return undefined
   }
   const [mediaType, ...parameters] = format
@@ -27,10 +33,10 @@ export const readSchema = (format: string, value: unknown): SchemaDocument | und
       return readAvro(value, version, mediaType?.endsWith('+yaml') ? 'yaml' : 'json')
     }
     if (mediaType === 'application/raml+yaml' && version === '1.0') {
-      return readRaml(value)
+      return readRaml(value, resources)
     }
     if (mediaType === 'application/vnd.google.protobuf' && ['2', '3'].includes(version)) {
-      return readProtobuf(value, version)
+      return readProtobuf(value, version, resources)
     }
   } catch {
     // Partial or misleading documentation is worse than the original readable schema.

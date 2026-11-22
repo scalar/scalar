@@ -1,3 +1,4 @@
+import { getRenderedExample, normalizeRenderedExamples } from '@scalar/blocks/schema/helpers'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
@@ -15,7 +16,9 @@ describe('get-header-schema', () => {
         },
       },
     })
-    expect(result?.examples).toStrictEqual([{ value: 'https://example.com/cookie.txt' }])
+    expect(result?.examples).toStrictEqual([
+      getRenderedExample({ value: 'https://example.com/cookie.txt' }, 'external'),
+    ])
   })
 
   it('overrides recursive compositions without changing the original schema', () => {
@@ -24,7 +27,7 @@ describe('get-header-schema', () => {
 
     const result = getHeaderSchema({ schema, example: 'header sample' })
 
-    expect(result?.examples).toStrictEqual([{ value: 'header sample' }])
+    expect(result?.examples).toStrictEqual(normalizeRenderedExamples(['header sample']))
     expect(result?.anyOf?.[0]).toBe(result)
     expect(schema.examples).toStrictEqual(['schema sample'])
     expect(schema.anyOf[0]).toBe(schema)

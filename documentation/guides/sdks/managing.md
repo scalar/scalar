@@ -4,8 +4,7 @@ After you [create an SDK](getting-started.md), the dashboard is where you build 
 
 <scalar-image
   src="/sdks/sdk-overview.png"
-  src-dark="/sdks/sdk-overview-dark.png"
-  alt="The SDK studio showing a generated TypeScript SDK, its configuration, and the build drawer with the GitHub release pipeline"
+  alt="The SDK overview page showing the active version, targets, and version history"
   size="full">
 </scalar-image>
 
@@ -30,7 +29,11 @@ A build generates every configured target from the current OpenAPI document and 
 <scalar-steps>
   <scalar-step id="build-trigger" title="Start a build">
 
-Click **Build**, or **Save and Build** after editing the configuration. Scalar generates each target.
+After editing the configuration, click **Save**. Scalar builds every saved configuration and opens the Build drawer so you can follow it.
+
+When there is nothing to save, the toolbar offers **Build** instead, or **Rebuild** once the latest build has generated. Use it to rebuild after something outside the configuration editor has changed, such as a newer version of the SDK generator. A rebuild regenerates the targets whose inputs changed and reuses the existing output for the rest. It builds the linked API document's latest version in every language the configuration declares.
+
+Build is disabled, with a tooltip giving the reason, when the SDK has no linked API or a build is already in progress.
 
   </scalar-step>
 
@@ -71,11 +74,4 @@ You do not need a GitHub repository to use a generated SDK. From a version's det
 
 ## Settings
 
-<scalar-image
-  src="/sdks/sdk-settings.png"
-  src-dark="/sdks/sdk-settings-dark.png"
-  alt="The SDK settings tab with the SDK name, the linked API document, and the option to remove the SDK"
-  size="full">
-</scalar-image>
-
-From the SDK settings — the **General** card on the studio's **Settings** tab — you can rename the SDK, edit its description and namespace, set its registry visibility to public or private, manage which groups can access a private SDK, and delete the SDK. Renaming changes the display name only; the package names, registry URLs, and slug stay the same. Deleting an SDK removes its versions and registry entries; code already pushed to GitHub or published to a registry is not affected.
+From the SDK settings — the **General** card on the studio's **Advanced** tab — you can rename the SDK, edit its description and namespace, set its registry visibility to public or private, manage which groups can access a private SDK, and delete the SDK. Renaming changes the display name only; the package names, registry URLs, and slug stay the same. Deleting an SDK removes its versions and registry entries; code already pushed to GitHub or published to a registry is not affected.

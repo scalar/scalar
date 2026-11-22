@@ -3,7 +3,7 @@ import type { PartialDeep } from 'type-fest'
 
 import type { AvailableClient, ClientId, TargetId } from '../snippetz'
 import type { ApiClientTranslations } from './api-client-translations'
-import type { PluginAuthState } from './api-reference-plugin'
+import type { PluginAuthState, PluginNavigationEntry } from './api-reference-plugin'
 
 /** Some common properties used in all security schemes */
 type SecuirtySchemeCommon = {
@@ -28,6 +28,8 @@ type OasSecurityApiKey = {
   in: SecuritySchemeApiKeyIn
   /** REQUIRED. The API key to be sent in the Authorization header or as a cookie. */
   value: string
+  /** Prefix added to header API keys only, separated from the raw credential by one space. */
+  'x-scalar-token-prefix'?: string
 }
 
 export type SecuritySchemeApiKey = SecuirtySchemeCommon & ExtendedSecurityScheme & OasSecurityApiKey
@@ -234,6 +236,50 @@ export type ViewComponent = {
   }
 }
 
+/**
+ * A document format that API Reference does not support natively (it supports OpenAPI and AsyncAPI).
+ *
+ * The plugin detects documents of its format, optionally normalizes them, builds their sidebar entries,
+ * and renders the whole document. Loading, the document selector, routing and the sidebar are handled
+ * by API Reference.
+ */
+export type PluginDocumentType = {
+  /** Stable identifier, stored on every claimed document as `x-scalar-document-type`. */
+  type: string
+  /** Whether this type handles the raw (parsed) document. Checked before OpenAPI and AsyncAPI. */
+  detect: (document: Record<string, unknown>) => boolean
+  /**
+   * Optional hook to upgrade, validate or normalize the document before it is stored. API Reference
+   * keeps two stores, so this can run more than once per document: keep it free of side effects.
+   */
+  ingest?: (
+    document: Record<string, unknown>,
+    context: { documentName: string },
+  ) => Record<string, unknown> | Promise<Record<string, unknown>>
+  /** Resolve `$ref`s with the configured fetch before storing the document. Defaults to `false`. */
+  bundle?: boolean
+  /** Build the sidebar entries for the document. */
+  traverse: (context: {
+    documentName: string
+    documentId: string
+    document: Record<string, unknown>
+  }) => PluginNavigationEntry[]
+  /**
+   * Renders the document in place of the built-in content.
+   *
+   * The component receives `document`, `documentName`, `documents` (every document in the workspace,
+   * read-only), `navigation` (its sidebar entries), `eventBus` and `options`. Each rendered entry should
+   * use the entry `id` as its element id, so sidebar navigation and deep links can scroll to it. To keep
+   * the sidebar and the URL in sync while scrolling, emit `intersecting:nav-item` with the entry `id` on
+   * the `eventBus` when an entry scrolls into view.
+   */
+  content: {
+    component: unknown
+    renderer?: unknown
+    props?: Record<string, any>
+  }
+}
+
 export type LifecycleHooks = {
   onInit?: ({ config, auth }: { config: Partial<BaseConfiguration>; auth: PluginAuthState }) => void
   onConfigChange?: ({ config, auth }: { config: Partial<BaseConfiguration>; auth: PluginAuthState }) => void
@@ -247,6 +293,8 @@ export type ApiReferencePlugin = () => {
     'content.start'?: ViewComponent[]
     'content.end'?: ViewComponent[]
   }
+  /** Document formats this plugin teaches API Reference to load and render. */
+  documentTypes?: PluginDocumentType[]
   hooks?: LifecycleHooks
   apiClientPlugins?: any[]
   /** Enhance sanitized Markdown after it renders in the browser. */
@@ -795,6 +843,8 @@ type ExtendedConfiguration = {
   hideSearch: boolean
   /** Whether to show the operationId */
   showOperationId: boolean
+  /** Whether to show the x-badges of operations, webhooks, tags, tag groups and models in the sidebar */
+  showBadgesInSidebar: boolean
   /** Extension keys to display on Paths Objects, Path Items, operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions?: string[]
   /** Whether dark mode is on or off initially (light mode) */
@@ -817,6 +867,11 @@ type ExtendedConfiguration = {
     | Partial<Record<TargetId, boolean | ClientId<TargetId>[]>>
     | Array<TargetId | ClientId<TargetId> | AvailableClient>
     | true
+  /**
+   * Whether to save and restore the selected code sample client using local storage.
+   * @default true
+   */
+  persistSelectedClient?: boolean
   /** Determine the HTTP client that is selected by default */
   defaultHttpClient?:
     | {
@@ -832,6 +887,11 @@ type ExtendedConfiguration = {
    */
   featuredClients?: Array<AvailableClient>
   /**
+   * Show built-in HTTP clients alongside `x-scalar-sdk-installation` tabs in the introduction.
+   * @default false
+   */
+  showDefaultClientsWithSdkInstallation?: boolean
+  /**
    * Initial view for the request body editor with structured (JSON/YAML) bodies.
    *
    * Use `form` to open the schema-driven form view by default, or `raw` for the code editor.
@@ -841,6 +901,9 @@ type ExtendedConfiguration = {
    * @default 'raw'
    */
   defaultRequestBodyView?: 'form' | 'raw'
+
+  /** Use indexed dotted names for nested multipart and URL-encoded form fields, such as `items[0].name`. */
+  multipartNaming?: MultipartNaming
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onServerChange is fired on selected server change */
@@ -924,6 +987,9 @@ type ExtendedConfiguration = {
   /** Sort the schema properties by required ones first */
   orderRequiredPropertiesFirst: boolean
 }
+
+/** Naming convention for multipart and URL-encoded request fields. */
+export type MultipartNaming = 'indexed-dot'
 
 export type SourceConfiguration = {
   /** Authentication overrides merged with the shared configuration. Arrays replace shared arrays. */

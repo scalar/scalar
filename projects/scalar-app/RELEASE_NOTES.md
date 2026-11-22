@@ -9,6 +9,64 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.54 (2026-11-20)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1154)
+
+## 1.1.53 (2026-11-19)
+
+### API Hosting beta invites and improved date input
+
+This release invites API Client users to join the API Hosting beta and makes working with date and time fields easier.
+
+- A one-time popup invites users to join the API Hosting beta waitlist as the app starts
+- Date, date-time, and time fields now offer an accessible calendar and clock picker alongside free-text entry
+- Date-time fields include shortcuts to insert faker variables like {{$isoTimestamp}} and {{$randomDateFuture}}
+- Header-based API keys support token prefixes with x-scalar-token-prefix, keeping stored credentials clean while adding the prefix to outgoing requests
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1153)
+
+## 1.1.52 (2026-11-18)
+
+### Better cURL import and improved contrast for colored badges
+
+This release fixes how the cURL importer handles data flags and improves readability for colored badges and environment indicators.
+
+- cURL commands copied from Chrome or Firefox now import correctly with their data as the request body and POST as the default method
+- cURL data flags like --json, --data-urlencode, and multipart form fields are now properly recognized
+- Colored badges and environment checkmarks now automatically choose readable black or white text based on the background color
+- Array examples now respect contains constraints and generate the correct number of matching items
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1152)
+
+## 1.1.51 (2026-11-17)
+
+### Multi-file uploads, improved schema tooltips, and TypeScript 6 support
+
+This release brings a more powerful file upload experience for array-typed multipart fields, along with visual polish for schema tooltips and internal TypeScript compiler upgrades.
+
+- Select multiple files at once for array-typed multipart fields and manage them with add, remove, and disable controls
+- Schema tooltips now use balanced spacing and prevent clipped text; empty tooltips no longer appear
+- Schema type arrays display as readable alternatives in tooltips
+- Upgraded to TypeScript 6 while preserving all runtime output and public APIs
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1151)
+
+## 1.1.50 (2026-11-16)
+
+### Open GET requests in browser and faster import with polish
+
+This release adds a one-click browser navigation option for GET requests, speeds up API description imports from extensionless URLs, and fixes server-side rendering hydration issues.
+
+- Open GET requests directly in a browser tab with configured URL and query parameters
+- Import API descriptions from extensionless URLs without duplicate downloads
+- Fix server-rendered references hydrating without replacing markup or logging mismatches
+- Update Undici dependency to address CVE-2026-116592
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1150)
+
 ## 1.1.49 (2026-11-12)
 
 ### Improved handling for large API specifications with merge keys

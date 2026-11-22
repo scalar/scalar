@@ -1,5 +1,27 @@
 # @scalar/void-server
 
+## 2.5.26
+
+No changes in this release.
+
+## 2.5.25
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 2.5.24
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 2.5.23
+
+### Patch Changes
+
+- [#11032](https://github.com/scalar/scalar/pull/11032): Update the Hono Node adapter to fix request path handling and WebSocket upgrade vulnerabilities.
+
 ## 2.5.22
 
 No changes in this release.

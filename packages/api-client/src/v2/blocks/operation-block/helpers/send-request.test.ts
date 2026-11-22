@@ -1205,6 +1205,56 @@ describe('sendRequest', () => {
       expect(result.response.cookieHeaderKeys).toStrictEqual(['a=1; Path=/', 'b=2; Path=/api; Secure'])
     })
 
+    it('preserves combined cookie headers with Expires commas, encoded values, and security attributes', async () => {
+      const mockResponse = addUrlToResponse(
+        new Response('ok', {
+          status: 200,
+          headers: {
+            'content-type': 'text/plain',
+            'x-scalar-set-cookie':
+              'token=a%2Fb; Expires=Tue, 19 Jan 2038 03:14:07 GMT; Path=/; Secure; HttpOnly; SameSite=None, locale=en%2DUS; Path=/',
+          },
+        }),
+        MOCK_URL,
+      )
+      globalFetchSpy.mockResolvedValueOnce(mockResponse)
+
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, {}],
+      })
+
+      expect(error).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      expect(result.response.cookieHeaderKeys).toStrictEqual([
+        'token=a/b; Path=/; Expires=Tue, 19 Jan 2038 03:14:07 GMT; HttpOnly; Secure; SameSite=None',
+        'locale=en-US; Path=/',
+      ])
+    })
+
+    it('ignores an empty cookie without discarding other response cookies', async () => {
+      const mockResponse = addUrlToResponse(
+        new Response('ok', {
+          headers: { 'x-scalar-set-cookie': '=, session=abc; Path=/' },
+        }),
+        MOCK_URL,
+      )
+      globalFetchSpy.mockResolvedValueOnce(mockResponse)
+
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, {}],
+      })
+
+      expect(error).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      expect(result.response.cookieHeaderKeys).toStrictEqual(['session=abc; Path=/'])
+    })
+
     it('preserves cookie attributes like Domain, Max-Age, and SameSite', async () => {
       const requestInit: RequestInit = {}
       const mockResponse = addUrlToResponse(
@@ -1237,6 +1287,37 @@ describe('sendRequest', () => {
       expect(cookieStr).toContain('Secure')
       expect(cookieStr).toContain('HttpOnly')
       expect(cookieStr).toContain('SameSite=Strict')
+    })
+
+    it.each([
+      ['strict', 'Strict'],
+      ['Strict', 'Strict'],
+      ['sTrIcT', 'Strict'],
+      ['lax', 'Lax'],
+      ['Lax', 'Lax'],
+      ['lAx', 'Lax'],
+      ['none', 'None'],
+      ['None', 'None'],
+      ['nOnE', 'None'],
+    ])('normalizes SameSite=%s to SameSite=%s', async (sameSite, expected) => {
+      const mockResponse = addUrlToResponse(
+        new Response('ok', {
+          headers: { 'x-scalar-set-cookie': `session=abc; Path=/; SameSite=${sameSite}` },
+        }),
+        MOCK_URL,
+      )
+      globalFetchSpy.mockResolvedValueOnce(mockResponse)
+
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, {}],
+      })
+
+      expect(error).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      expect(result.response.cookieHeaderKeys).toStrictEqual([`session=abc; Path=/; SameSite=${expected}`])
     })
 
     it('uses custom cookies instead of getSetCookie when the header is present', async () => {

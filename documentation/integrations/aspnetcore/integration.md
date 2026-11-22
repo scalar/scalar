@@ -567,6 +567,17 @@ app.MapScalarApiReference(options => options
 > [!CAUTION]
 > Persisting authentication information in the browser's local storage may present security risks. Use with caution.
 
+### Nested multipart uploads
+
+For endpoints that bind nested objects or arrays with `[FromForm]`, opt in to indexed multipart field names.
+
+```csharp
+app.MapScalarApiReference(options =>
+    options.WithMultipartNaming(ScalarMultipartNaming.IndexedDot));
+```
+
+Scalar uses names such as `profile.file` and `certificates[0].file` in the request editor, sent requests, and generated code samples. The option applies to named multipart forms across that API Reference. See [multipartNaming](../../configuration.md#multipartnaming) for details.
+
 ### Custom HTTP Client
 
 Set a default HTTP client for code samples:
@@ -590,6 +601,34 @@ app.MapScalarApiReference(options =>
 ```
 
 Leave `FeaturedClients` unset to keep the default tabs. Call `WithFeaturedClients()` with no arguments to put all clients under **More**. Clients excluded by `EnabledClients` or `EnabledTargets` are skipped. This controls the tab row; use `WithDefaultHttpClient` separately to choose the initial selection.
+
+To show built-in HTTP clients alongside SDK installation tabs from `info.x-scalar-sdk-installation`, enable:
+
+```csharp
+app.MapScalarApiReference(options => options.WithDefaultClientsWithSdkInstallation());
+```
+
+This sets `ShowDefaultClientsWithSdkInstallation` to `true`. The default is `false`, which shows only SDK tabs when installation instructions are available. The same option and fluent method are available in Aspire, Azure Functions, and AWS Lambda.
+
+### Sidebar badges
+
+To show `x-badges` next to sidebar titles, enable:
+
+```csharp
+app.MapScalarApiReference(options => options.WithBadgesInSidebar());
+```
+
+You can also set `options.ShowBadgesInSidebar = true`. Badges are hidden by default; use `WithBadgesInSidebar(false)` to disable them explicitly. The same option and fluent method are available in Aspire, Azure Functions, and AWS Lambda.
+
+### Selected client persistence
+
+The selected code sample client is saved and restored using local storage by default. To keep the selection on the current page only:
+
+```csharp
+app.MapScalarApiReference(options => options.DisableSelectedClientPersistence());
+```
+
+You can also set `options.PersistSelectedClient = false`. The same option and fluent method are available in Aspire, AWS Lambda, and Azure Functions. Authentication persistence is configured separately.
 
 ### Localization
 

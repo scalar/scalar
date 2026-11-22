@@ -551,6 +551,86 @@ describe('SidebarItem', () => {
     })
   })
 
+  describe('x-badges rendering', () => {
+    const operation: Item = {
+      id: 'op-1',
+      title: 'Get users',
+      type: 'operation',
+      ref: 'ref-1',
+      method: 'get',
+      path: '/users',
+      badges: [
+        { name: 'Beta', color: '#f59e0b' },
+        { name: 'Alpha', position: 'before' },
+      ],
+    }
+
+    const tag: Item = {
+      id: 'tag-1',
+      title: 'Users',
+      name: 'Users',
+      type: 'tag',
+      isGroup: false,
+      badges: [{ name: 'Experimental' }],
+      children: [operation],
+    }
+
+    const tagGroup: Item = {
+      id: 'group-1',
+      title: 'Core',
+      name: 'Core',
+      type: 'tag',
+      isGroup: true,
+      isTagGroup: true,
+      badges: [{ name: 'Stable' }],
+      children: [tag],
+    }
+
+    const getBadgeNames = (wrapper: ReturnType<typeof mount>) =>
+      wrapper.findAll('.sidebar-badge').map((badge) => badge.text())
+
+    it('hides badges by default', () => {
+      const wrapper = mount(SidebarItem, { props: { ...baseProps, item: operation } })
+
+      expect(wrapper.find('.sidebar-badge').exists()).toBe(false)
+    })
+
+    it('renders operation badges before and after the title when showBadgesInSidebar is on', () => {
+      const wrapper = mount(SidebarItem, {
+        props: { ...baseProps, item: operation, options: { showBadgesInSidebar: true } },
+      })
+
+      expect(getBadgeNames(wrapper)).toStrictEqual(['Alpha', 'Beta'])
+      expect(wrapper.text()).toMatch(/Alpha.*Get users.*Beta/)
+    })
+
+    it('renders badges on tag groups, tags and their operations at every level', () => {
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          isExpanded: vi.fn(() => true),
+          item: tagGroup,
+          options: { showBadgesInSidebar: true },
+        },
+      })
+
+      expect(getBadgeNames(wrapper)).toStrictEqual(['Stable', 'Experimental', 'Alpha', 'Beta'])
+    })
+
+    it('keeps badges out of the strikethrough of a deprecated item', () => {
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          item: { ...operation, isDeprecated: true },
+          options: { showBadgesInSidebar: true },
+        },
+      })
+
+      expect(wrapper.find('.line-through').text()).toBe('Get users')
+      expect(getBadgeNames(wrapper)).toStrictEqual(['Alpha', 'Beta'])
+    })
+  })
+
   describe('rendering with children', () => {
     it('keeps client group items as sections', () => {
       const item: Item = {

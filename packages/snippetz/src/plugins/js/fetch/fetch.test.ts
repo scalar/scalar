@@ -317,4 +317,19 @@ fetch('https://example.com', {
   body: formData
 })`)
   })
+
+  it.each([
+    ["https://example.com/Customers('ALFKI')/$count", "fetch('https://example.com/Customers(\\'ALFKI\\')/$count')"],
+    ['https://example.com/files/a\\b', "fetch('https://example.com/files/a\\\\b')"],
+  ])('escapes the request URL %s', (url, expected) => {
+    expect(jsFetch.generate({ url })).toBe(expected)
+  })
+
+  it('escapes apostrophes that the query string keeps', () => {
+    const result = jsFetch.generate({
+      url: 'https://example.com/Products',
+      queryString: [{ name: '$filter', value: "Name eq 'John'" }],
+    })
+    expect(result).toBe("fetch('https://example.com/Products?%24filter=Name%20eq%20\\'John\\'')")
+  })
 })

@@ -6,7 +6,10 @@ import webpackStats from 'rollup-plugin-webpack-stats'
 import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
-import { name, version } from './package.json'
+import { hasModuleSideEffects } from '../../tooling/scripts/vite-lib-config.ts'
+import packageJson from './package.json' with { type: 'json' }
+
+const { name, version } = packageJson
 
 // Opens with `/*!` (a legal comment) rather than `/**` so the oxc minifier keeps it
 // when `output.comments.legal` is enabled. See the `banner`/`comments` output options.
@@ -81,10 +84,10 @@ export default defineConfig({
       // is ever rendered in the standalone API reference. They leak in through the
       // @scalar/components barrel via @scalar/api-client but are never mounted.
       external: [/^radix-vue/, /^@scalar\/openapi-parser/],
-      // Treat every non-CSS module as side-effect-free so Rolldown can drop
-      // unreachable code paths from the bundle (matches the default lib config).
+      // Keep Zod configuration before schema construction while dropping
+      // unreachable code paths (matches the default library build).
       treeshake: {
-        moduleSideEffects: (id) => id.includes('.css'),
+        moduleSideEffects: hasModuleSideEffects,
       },
       output: {
         entryFileNames: '[name].js',

@@ -15,9 +15,9 @@
   "recreateWhen": "never",
   "packageRules": [
     {
-      "description": "Keep this in sync with package.json minimumReleaseAge",
+      "description": "Keep this in sync with pnpm-workspace.yaml minimumReleaseAge",
       "matchDatasources": ["npm"],
-      "minimumReleaseAge": "5 days"
+      "minimumReleaseAge": "1 day"
     },
 
     {
@@ -117,6 +117,11 @@
       "description": "Packages - JSON Diff",
       "matchFileNames": ["packages/json-diff/**"],
       "additionalBranchPrefix": "json-diff"
+    },
+    {
+      "description": "Packages - Markdown",
+      "matchFileNames": ["packages/markdown/**"],
+      "additionalBranchPrefix": "markdown"
     },
     {
       "description": "Packages - Mock Server",

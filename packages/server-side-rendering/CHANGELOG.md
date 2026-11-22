@@ -1,5 +1,27 @@
 # @scalar/server-side-rendering
 
+## 0.1.74
+
+No changes in this release.
+
+## 0.1.73
+
+No changes in this release.
+
+## 0.1.72
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.1.71
+
+No changes in this release.
+
+## 0.1.70
+
+No changes in this release.
+
 ## 0.1.69
 
 No changes in this release.

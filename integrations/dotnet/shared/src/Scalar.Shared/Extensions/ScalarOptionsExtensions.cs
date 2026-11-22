@@ -38,6 +38,17 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Selects the naming convention for nested multipart form fields.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="multipartNaming">The naming convention to use.</param>
+    public static TOptions WithMultipartNaming<TOptions>(this TOptions options, ScalarMultipartNaming multipartNaming) where TOptions : ScalarOptions
+    {
+        options.MultipartNaming = multipartNaming;
+        return options;
+    }
+
+    /// <summary>
     /// Shows structural types instead of model names in schema labels and operation headings (default: false).
     /// </summary>
     /// <param name="options">The options to configure.</param>
@@ -242,6 +253,17 @@ public static partial class ScalarOptionsExtensions
     public static TOptions WithSidebar<TOptions>(this TOptions options, bool showSidebar = true) where TOptions : ScalarOptions
     {
         options.ShowSidebar = showSidebar;
+        return options;
+    }
+
+    /// <summary>
+    /// Sets whether x-badges are shown in the sidebar.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="showBadgesInSidebar">Whether to show badges in the sidebar.</param>
+    public static TOptions WithBadgesInSidebar<TOptions>(this TOptions options, bool showBadgesInSidebar = true) where TOptions : ScalarOptions
+    {
+        options.ShowBadgesInSidebar = showBadgesInSidebar;
         return options;
     }
 
@@ -770,6 +792,17 @@ public static partial class ScalarOptionsExtensions
     public static TOptions WithFeaturedClients<TOptions>(this TOptions options, params KeyValuePair<ScalarTarget, ScalarClient>[] clients) where TOptions : ScalarOptions
     {
         options.FeaturedClients = clients;
+        return options;
+    }
+
+    /// <summary>
+    /// Controls whether built-in HTTP clients appear alongside SDK installation tabs in the introduction.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="showDefaultClients">Whether to show built-in clients alongside SDK installation tabs.</param>
+    public static TOptions WithDefaultClientsWithSdkInstallation<TOptions>(this TOptions options, bool showDefaultClients = true) where TOptions : ScalarOptions
+    {
+        options.ShowDefaultClientsWithSdkInstallation = showDefaultClients;
         return options;
     }
 

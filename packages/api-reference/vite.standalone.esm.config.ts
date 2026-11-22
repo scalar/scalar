@@ -7,8 +7,11 @@ import webpackStats from 'rollup-plugin-webpack-stats'
 import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
-import { name, version } from './package.json'
-import { createEsmEntry } from './src/standalone/lib/create-esm-entry'
+import { hasModuleSideEffects } from '../../tooling/scripts/vite-lib-config.ts'
+import packageJson from './package.json' with { type: 'json' }
+import { createEsmEntry } from './src/standalone/lib/create-esm-entry.ts'
+
+const { name, version } = packageJson
 
 // Opens with `/*!` (a legal comment) rather than `/**` so the oxc minifier keeps it
 // when `output.comments.legal` is enabled. See the `banner`/`comments` output options.
@@ -89,7 +92,7 @@ export default defineConfig({
       // module specifier". So the ESM build must be fully self-contained: bundle
       // everything and let tree-shaking drop whatever is genuinely unreachable.
       treeshake: {
-        moduleSideEffects: (id) => id.includes('.css'),
+        moduleSideEffects: hasModuleSideEffects,
       },
       output: {
         entryFileNames: '[name].js',
@@ -101,7 +104,7 @@ export default defineConfig({
         // `legalComments: 'none'`, which would otherwise strip it.
         comments: { legal: true },
         // Rolldown names a shared chunk after an arbitrary member module. The large
-        // eager chunk that holds the rendering core (highlight.js, zod, typebox, yaml,
+        // eager chunk that holds the rendering core (the highlighter, zod, typebox, yaml,
         // parse5, plus the shared workspace-store/components code) would otherwise be
         // named after `map-hidden-clients-config` — a tiny helper that merely happens
         // to anchor that chunk boundary — which is misleading in bundle stats. Give it

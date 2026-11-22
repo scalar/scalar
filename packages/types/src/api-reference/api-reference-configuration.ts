@@ -1,6 +1,5 @@
-import { type ZodType, z } from 'zod'
-
 import type { AvailableClient, ClientId, TargetId } from '../snippetz'
+import { z } from '../zod'
 import { apiReferencePluginSchema } from './api-reference-plugin'
 import type { AuthenticationConfiguration } from './authentication-configuration'
 import { NEW_PROXY_URL, OLD_PROXY_URL, baseConfigurationSchema } from './base-configuration'
@@ -17,7 +16,7 @@ const apiReferenceLocalizationSchema = z
     direction: z.enum(['ltr', 'rtl', 'auto']).optional().catch('auto'),
     translations: z.record(z.string(), z.unknown()).optional(),
   })
-  .optional() as ZodType<ApiReferenceLocalization | undefined>
+  .optional() as z.ZodType<ApiReferenceLocalization | undefined>
 
 /**
  * Standard configuration for the Api Reference.
@@ -135,6 +134,12 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default false
    */
   showOperationId: z.boolean().optional().default(false).catch(false),
+  /**
+   * Whether to show the `x-badges` of operations, webhooks, tags, tag groups and models in the sidebar
+   *
+   * @default false
+   */
+  showBadgesInSidebar: z.boolean().optional().default(false).catch(false),
   /** Extension keys to display on operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions: z.array(z.string().regex(/^x-/)).optional(),
   /** Whether dark mode is on or off initially (light mode) */
@@ -168,6 +173,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
       z.literal(true),
     ])
     .optional(),
+  /**
+   * Whether to save and restore the selected code sample client using local storage.
+   * @default true
+   */
+  persistSelectedClient: z.boolean().optional().default(true).catch(true),
   /** Determine the HTTP client that's selected by default */
   // The custom branch widens the inferred type only; the permissive first branch
   // already accepts custom keys at runtime.
@@ -191,6 +201,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   featuredClients: z.array(z.custom<AvailableClient>()).optional(),
   /**
+   * Show built-in HTTP clients alongside `x-scalar-sdk-installation` tabs in the introduction.
+   * @default false
+   */
+  showDefaultClientsWithSdkInstallation: z.boolean().optional(),
+  /**
    * Initial view for the request body editor with structured (JSON/YAML) bodies.
    *
    * Use `form` to open the schema-driven form view by default, or `raw` for the code editor.
@@ -200,6 +215,8 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default 'raw'
    */
   defaultRequestBodyView: z.enum(['form', 'raw']).optional(),
+  /** Use indexed dotted names for nested multipart form fields. */
+  multipartNaming: z.literal('indexed-dot').optional(),
   /** Custom CSS to be added to the page */
   customCss: z.string().optional(),
   /** onServerChange is fired on selected server change */
@@ -625,7 +642,7 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
 // const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfigurationSchema>>
 
 /** Configuration for the Api Reference */
-export const apiReferenceConfigurationWithSourceSchema: ZodType<
+export const apiReferenceConfigurationWithSourceSchema: z.ZodType<
   Omit<ApiReferenceConfiguration, 'url' | 'content'> & SourceConfiguration
 > = apiReferenceConfigurationSchema.extend(sourceConfigurationSchema.shape).transform((parsed) => {
   // Migration removes the deprecated field from this same configuration object.

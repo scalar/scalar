@@ -278,6 +278,28 @@ jobs:
       - name: Run storybook snapshot tests (@scalar/blocks)
         run: pnpm --filter blocks test:e2e:storybook:ci
 
+  test-component-snapshots:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.62.1
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - name: Restore pre-built workspace
+        uses: $/.github/actions/restore-build
+      - name: Run e2e tests (@scalar/components)
+        run: pnpm --filter components test:e2e:ci
+
   test-e2e-api-reference:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
@@ -353,6 +375,9 @@ jobs:
         test-js,
         test-integrations,
         test-proxy-server,
+        test-block-snapshots,
+        test-component-snapshots,
+        test-e2e-api-reference,
         test-e2e-scalar-app,
         types,
       ]
@@ -428,6 +453,25 @@ jobs:
       rust_build_passed: ${{ needs.integration-builds.outputs.rust_build_passed }}
       java_build_passed: ${{ needs.integration-builds.outputs.java_build_passed }}
     secrets: inherit
+
+  # Publish a selected Playwright image tag after a regular package release.
+  publish-playwright-docker:
+    if: |
+      !cancelled() &&
+      github.ref == 'refs/heads/main' &&
+      github.repository == 'scalar/scalar' &&
+      needs.release.outputs.npm_publish_status == 'success' &&
+      needs.release.outputs.published == 'true'
+    needs: [release]
+    concurrency:
+      group: publish-playwright-docker
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/playwright-docker.yml
+    with:
+      publish: true
 
   # PyPI trusted publishing runs here because the publishing action does not
   # support OIDC inside reusable workflows. Build packages without OIDC access.
@@ -516,7 +560,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6.3.0
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install build dependencies
         working-directory: integrations/django-ninja

@@ -1,5 +1,36 @@
 # @scalar/agent-chat
 
+## 0.12.57
+
+No changes in this release.
+
+## 0.12.56
+
+### Patch Changes
+
+- [#11103](https://github.com/scalar/scalar/pull/11103): Support `x-scalar-token-prefix` on header API keys. Generated code examples and outgoing requests add the configured prefix while stored credentials remain unchanged.
+- [#10854](https://github.com/scalar/scalar/pull/10854): Send the selected API source and version as structured chat request metadata, keeping user messages unchanged.
+
+## 0.12.55
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.12.54
+
+### Patch Changes
+
+- [#10816](https://github.com/scalar/scalar/pull/10816): Keep plugin document classification consistent through replacement, hydration, and rebasing. Exclude plugin documents from Ask AI and reject unsupported request, authentication, and mock-server processing even when plugin data contains OpenAPI or AsyncAPI fields.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.12.53
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+- [#11035](https://github.com/scalar/scalar/pull/11035): Update the AI SDK dependencies to remove their transitive Undici dependency.
+
 ## 0.12.52
 
 No changes in this release.

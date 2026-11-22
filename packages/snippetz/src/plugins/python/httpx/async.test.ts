@@ -636,4 +636,11 @@ describe('pythonHttpxAsync', () => {
       `async with httpx.AsyncClient() as client:\n    await client.request("${method}", "https://example.com", json="hello")`,
     )
   })
+
+  it.each([
+    ['https://example.com/a"b', 'await client.get("https://example.com/a\\"b")'],
+    ['https://example.com/files/a\\b', 'await client.get("https://example.com/files/a\\\\b")'],
+  ])('escapes the request URL %s', (url, expected) => {
+    expect(pythonHttpxAsync.generate({ url })).toBe(`async with httpx.AsyncClient() as client:\n    ${expected}`)
+  })
 })
