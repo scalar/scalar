@@ -33,12 +33,19 @@ const emit = defineEmits<{
 defineSlots<{
   /** Artwork above the title, sitting on the wash */
   hero?(): unknown
-  /** The card's content; `titleId` names a form after the card */
-  default?(props: { titleId: string }): unknown
+  /**
+   * The card's content; `titleId` names a form after the card, and `descriptionId` points at the
+   * description, when the card has one
+   */
+  default?(props: {
+    titleId: string
+    descriptionId: string | undefined
+  }): unknown
 }>()
 
 const { translate } = useLocalization()
 const titleId = useId()
+const descriptionId = useId()
 
 /** 32px above small artwork and 24px between it and the title, like the API client popup */
 const heroBandClasses = computed<string>(() =>
@@ -67,6 +74,7 @@ const heroBandClasses = computed<string>(() =>
       </h2>
       <p
         v-if="description"
+        :id="descriptionId"
         class="text-c-2 m-0 text-sm leading-relaxed text-balance">
         {{ description }}
       </p>
@@ -77,7 +85,9 @@ const heroBandClasses = computed<string>(() =>
       class="border-border mx-8 mt-5 border-0 border-t" />
 
     <div class="px-8 pt-5 pb-6">
-      <slot :titleId />
+      <slot
+        :descriptionId="description ? descriptionId : undefined"
+        :titleId />
     </div>
 
     <button

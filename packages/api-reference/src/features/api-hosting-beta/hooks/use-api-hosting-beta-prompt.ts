@@ -1,4 +1,4 @@
-import { type Ref, onScopeDispose, readonly, ref } from 'vue'
+import { type MaybeRefOrGetter, type Ref, onScopeDispose, readonly, ref, toValue, watch } from 'vue'
 
 import { isLocalDevelopmentPage } from '../helpers/is-local-development-page'
 
@@ -131,21 +131,29 @@ export type ApiHostingBetaPrompt = {
  * wait until it is looked at. It never opens in an automated browser, nor on any page but a development
  * server on this machine (`isLocalDevelopmentPage`). Where it cannot open, it adds no listeners at all.
  *
+ * The reference holds the wait back with `ready` while it still has heavy work queued, such as other
+ * documents to parse in the background, which would leave the popup unresponsive for a moment if it
+ * opened first. The prompt listens from the start all the same, so anything done in the meantime
+ * still counts as someone starting.
+ *
  * It is remembered as seen the moment it opens rather than when it is closed, so a reload with the
  * prompt still up (a dev server restarting, say) does not bring it back.
  */
-export const useApiHostingBetaPrompt = (): ApiHostingBetaPrompt => {
+export const useApiHostingBetaPrompt = (ready: MaybeRefOrGetter<boolean> = true): ApiHostingBetaPrompt => {
   const isOpen = ref(false)
 
   let openTimer: ReturnType<typeof setTimeout> | undefined
+  /** Whether the prompt is still waiting for its moment, rather than given up or open */
+  let isWaiting = false
 
-  /** Starts the wait over while the reference is in view, and pauses it while it is not. */
+  /** Starts the wait over while the reference is in view and ready, and pauses it while it is not. */
   const restartWait = (): void => {
     clearTimeout(openTimer)
-    openTimer = document.visibilityState === 'hidden' ? undefined : setTimeout(open, OPEN_DELAY_MS)
+    openTimer = document.visibilityState === 'hidden' || !toValue(ready) ? undefined : setTimeout(open, OPEN_DELAY_MS)
   }
 
   const stopWaiting = (): void => {
+    isWaiting = false
     clearTimeout(openTimer)
     window.removeEventListener('keydown', handleKeydown, true)
     window.removeEventListener('pointerdown', giveUp, true)
@@ -202,7 +210,17 @@ export const useApiHostingBetaPrompt = (): ApiHostingBetaPrompt => {
     window.addEventListener('dragenter', giveUp, true)
     window.addEventListener('popstate', handlePopState)
     document.addEventListener('visibilitychange', restartWait)
+    isWaiting = true
     restartWait()
+    // The wait starts once the reference is ready, if nobody has started by then
+    watch(
+      () => toValue(ready),
+      (isReady) => {
+        if (isReady && isWaiting) {
+          restartWait()
+        }
+      },
+    )
   }
 
   onScopeDispose(() => {

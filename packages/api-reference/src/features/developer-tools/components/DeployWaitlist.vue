@@ -110,6 +110,20 @@ const email = ref('')
 const status = ref<'idle' | 'success' | 'error'>('idle')
 const errorMessage = ref('')
 
+/**
+ * What describes the email field: the error when there is one and, in the popup, where focus starts
+ * in the field, the card's description too, which a screen reader would otherwise pass over.
+ */
+const emailDescription = (
+  descriptionId: string | undefined,
+): string | undefined =>
+  [
+    popup ? descriptionId : undefined,
+    status.value === 'error' ? errorId : undefined,
+  ]
+    .filter(Boolean)
+    .join(' ') || undefined
+
 const emailInput = useTemplateRef<HTMLInputElement>('emailInput')
 
 /** Private windows can refuse storage, which only means the local rate limit does not apply */
@@ -247,7 +261,7 @@ const reset = async (): Promise<void> => {
           icon="Logo" />
       </span>
     </template>
-    <template #default="{ titleId }">
+    <template #default="{ titleId, descriptionId }">
       <div
         v-if="status === 'success'"
         class="flex flex-col items-center gap-3 text-center"
@@ -279,9 +293,10 @@ const reset = async (): Promise<void> => {
         </ScalarButton>
       </div>
 
+      <!-- Named after the card in the panel; in the popup the dialog already carries that name -->
       <form
         v-else
-        :aria-labelledby="titleId"
+        :aria-labelledby="popup ? undefined : titleId"
         class="flex flex-col gap-2"
         @submit.prevent="submit">
         <label
@@ -293,7 +308,7 @@ const reset = async (): Promise<void> => {
           :id="emailId"
           ref="emailInput"
           v-model="email"
-          :aria-describedby="status === 'error' ? errorId : undefined"
+          :aria-describedby="emailDescription(descriptionId)"
           :aria-invalid="status === 'error' || undefined"
           autocomplete="email"
           class="bg-b-2 text-c-1 placeholder:text-c-3 h-10 w-full rounded-full border-0 px-5 text-base outline-offset-[-1px] focus-visible:outline"

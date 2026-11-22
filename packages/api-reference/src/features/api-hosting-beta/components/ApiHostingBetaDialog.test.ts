@@ -1,6 +1,6 @@
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { provideLocalization } from '@/features/localization'
 
@@ -68,12 +68,12 @@ describe('ApiHostingBetaDialog', () => {
     document.cookie = 'scalar-api-hosting-beta-prompt-seen=; Max-Age=0; Path=/'
   })
 
-  it('shows the Deploy card, named after its heading, with focus on that heading', async () => {
+  it('shows the Deploy card, named after its heading, with focus in its email field', async () => {
     await openDialog()
 
     expect(queryDialog()?.getAttribute('aria-label')).toBe('Deploy your API on Scalar')
     expect(queryHeading()?.textContent?.trim()).toBe('Deploy your API on Scalar')
-    expect(document.activeElement).toBe(queryHeading())
+    expect(document.activeElement).toBe(queryEmailInput())
   })
 
   it('names the framework serving the reference, as the Deploy card does', async () => {
@@ -153,6 +153,45 @@ describe('ApiHostingBetaDialog', () => {
     document.querySelector<HTMLButtonElement>('[role="dialog"] button[aria-label="Close"]')?.click()
 
     expect(wrapper.emitted('close')).toHaveLength(1)
+  })
+
+  it('closes with Escape from the email field and gives focus back to where it was', async () => {
+    const before = document.createElement('button')
+    document.body.append(before)
+    before.focus()
+    // Taken away on close, as the prompt does
+    const isOpen = ref(true)
+    mount(
+      defineComponent({
+        setup() {
+          provideLocalization({})
+          return () => (isOpen.value ? h(ApiHostingBetaDialog, { onClose: () => (isOpen.value = false) }) : null)
+        },
+      }),
+      { attachTo: document.body },
+    )
+    await flushPromises()
+    await nextTick()
+    expect(document.activeElement).toBe(queryEmailInput())
+
+    queryEmailInput().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await flushPromises()
+    await nextTick()
+
+    expect(queryDialog()).toBeNull()
+    expect(document.activeElement).toBe(before)
+    before.remove()
+  })
+
+  it('describes the email field with the card text, since focus starts there', async () => {
+    await openDialog()
+
+    const ids = queryEmailInput().getAttribute('aria-describedby')?.split(' ') ?? []
+    expect(ids.map((id) => document.getElementById(id)?.textContent?.trim())).toEqual([
+      'Run it on Scalar. $5 of free credits, no card.',
+    ])
+    // The dialog already carries the card name, so the form inside it does not repeat it
+    expect(document.querySelector('[role="dialog"] form')?.hasAttribute('aria-labelledby')).toBe(false)
   })
 
   it('speaks the reference language and mirrors for right-to-left ones, though it renders outside it', async () => {

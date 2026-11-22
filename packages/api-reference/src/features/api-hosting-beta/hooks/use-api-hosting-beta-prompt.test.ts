@@ -1,6 +1,6 @@
 /// <reference types="vitest/jsdom" />
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { type EffectScope, effectScope } from 'vue'
+import { type EffectScope, type MaybeRefOrGetter, effectScope, nextTick, ref } from 'vue'
 
 import type { ApiHostingBetaPrompt, rememberApiHostingBetaPromptSeen } from './use-api-hosting-beta-prompt'
 
@@ -19,17 +19,19 @@ const START_URL = location.href
  * into the next. Each call of the returned function mounts the prompt once more in that page load.
  */
 const loadPage = async (): Promise<
-  (() => ApiHostingBetaPrompt) & { remember: typeof rememberApiHostingBetaPromptSeen }
+  ((ready?: MaybeRefOrGetter<boolean>) => ApiHostingBetaPrompt) & {
+    remember: typeof rememberApiHostingBetaPromptSeen
+  }
 > => {
   vi.resetModules()
   const { rememberApiHostingBetaPromptSeen: remember, useApiHostingBetaPrompt } = await import(
     './use-api-hosting-beta-prompt'
   )
 
-  const mountPrompt = () => {
+  const mountPrompt = (ready?: MaybeRefOrGetter<boolean>) => {
     const scope = effectScope()
     scopes.push(scope)
-    const prompt = scope.run(() => useApiHostingBetaPrompt())
+    const prompt = scope.run(() => useApiHostingBetaPrompt(ready))
     if (!prompt) {
       throw new Error('The prompt did not start')
     }
@@ -107,6 +109,34 @@ describe('use-api-hosting-beta-prompt', () => {
 
     vi.advanceTimersByTime(200)
     expect(prompt.isOpen.value).toBe(true)
+  })
+
+  it('holds its wait while the reference is still loading, and starts it once the reference is ready', async () => {
+    const ready = ref(false)
+    const prompt = (await loadPage())(ready)
+
+    vi.advanceTimersByTime(SETTLED_MS * 5)
+    expect(prompt.isOpen.value).toBe(false)
+
+    ready.value = true
+    await nextTick()
+    vi.advanceTimersByTime(SETTLED_MS - 200)
+    expect(prompt.isOpen.value).toBe(false)
+
+    vi.advanceTimersByTime(200)
+    expect(prompt.isOpen.value).toBe(true)
+  })
+
+  it('counts someone starting to read while the reference is still loading', async () => {
+    const ready = ref(false)
+    const prompt = (await loadPage())(ready)
+
+    document.body.dispatchEvent(new WheelEvent('wheel', { bubbles: true, deltaY: 120 }))
+    ready.value = true
+    await nextTick()
+    vi.advanceTimersByTime(SETTLED_MS * 5)
+
+    expect(prompt.isOpen.value).toBe(false)
   })
 
   it('remembers the prompt as seen in a cookie and in local storage as soon as it opens', async () => {

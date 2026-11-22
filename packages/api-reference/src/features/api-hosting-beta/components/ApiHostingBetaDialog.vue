@@ -10,7 +10,7 @@ export default {}
 <script setup lang="ts">
 import { Dialog, DialogPanel } from '@headlessui/vue'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import { computed } from 'vue'
+import { computed, onUnmounted } from 'vue'
 
 import DeployWaitlist from '@/features/developer-tools/components/DeployWaitlist.vue'
 import { getServerFramework } from '@/features/developer-tools/server-frameworks'
@@ -58,21 +58,32 @@ const keepHotkeysInside = (event: KeyboardEvent): void => {
 }
 
 /**
- * The card's heading takes focus as the popup opens, so it is read first and a key pressed as the
- * popup appears lands nowhere: the popup opened by itself. Headless UI keeps focus it finds already
- * inside the panel, so this stands in for its initial focus, which would otherwise land on the email
- * field.
+ * The email field takes focus as the popup opens, since signing up is all the popup is for: it only
+ * opens once nobody has touched the page for a moment, so a key that lands there was meant for it.
+ * Headless UI would focus it too, as the first control in the panel, but without scrolling, and at
+ * high zoom the field can start below the window. Headless UI keeps focus it finds already inside.
  */
-const vFocusHeading = {
+const vFocusEmail = {
   mounted: (element: HTMLElement): void => {
-    const heading = element.querySelector('h2')
-    if (heading) {
-      heading.tabIndex = -1
-      heading.style.outline = 'none'
-      heading.focus({ preventScroll: true })
-    }
+    element.querySelector<HTMLInputElement>('input[type="email"]')?.focus()
   },
 }
+
+/**
+ * Focus goes back where it was before the popup opened. Headless UI only does that when a dialog it
+ * keeps mounted closes, and the prompt takes this one away entirely.
+ */
+const focusBeforeOpening = document.activeElement
+onUnmounted(() => {
+  if (
+    focusBeforeOpening instanceof HTMLElement &&
+    focusBeforeOpening.isConnected &&
+    (document.activeElement === null ||
+      document.activeElement === document.body)
+  ) {
+    focusBeforeOpening.focus({ preventScroll: true })
+  }
+})
 </script>
 
 <template>
@@ -94,7 +105,7 @@ const vFocusHeading = {
     <div
       class="custom-scroll relative flex h-full justify-center overflow-y-auto px-4 pt-[10vh] pb-16">
       <DialogPanel
-        v-focus-heading
+        v-focus-email
         class="h-fit w-full max-w-[480px] overflow-hidden rounded-[16px] border shadow-lg">
         <DeployWaitlist
           :integration

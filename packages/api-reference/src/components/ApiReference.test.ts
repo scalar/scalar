@@ -1445,8 +1445,11 @@ describe('localhost shell', () => {
   describe('API Hosting beta popup', () => {
     const SEEN_KEY = 'scalar-api-hosting-beta-prompt-seen'
 
-    /** Longer than the popup waits for the reference to settle */
-    const SETTLED_MS = 1700
+    /**
+     * Longer than the popup waits for the reference to settle: jsdom has no `requestIdleCallback`,
+     * so the preloader takes a 200ms timer to find nothing left to load, then the popup waits 1.5s
+     */
+    const SETTLED_MS = 1900
 
     const queryPopup = () => window.document.querySelector('[role="dialog"] .developer-tools-card')
 
@@ -1482,7 +1485,37 @@ describe('localhost shell', () => {
       expect(localStorage.getItem(SEEN_KEY)).toBe('true')
     })
 
-    // Checked by whether the prompt mounts at all, not by waiting for it: the earlier test has already
+    it('holds the popup back while other documents load in the background, which can hold the page', async () => {
+      const loads = new Map<string, (response: Response) => void>()
+      vi.stubGlobal(
+        'fetch',
+        vi.fn((url: string) => new Promise<Response>((resolve) => loads.set(url, resolve))),
+      )
+      const wrapper = mount(ApiReference, {
+        attachTo: window.document.body,
+        props: {
+          configuration: {
+            sources: [
+              { slug: 'first', content: document, default: true },
+              { slug: 'second', url: 'https://example.com/second.json' },
+            ],
+          },
+        },
+      })
+      await flushPromises()
+
+      // The first document is on screen, so the prompt is already noticing anyone who starts reading
+      await vi.waitFor(() => expect(loads.has('https://example.com/second.json')).toBe(true))
+      expect(wrapper.text()).toContain('Shell API')
+      const prompt = wrapper.findComponent(ApiHostingBetaPrompt)
+      expect(prompt.exists()).toBe(true)
+      expect(prompt.props('ready')).toBe(false)
+
+      loads.get('https://example.com/second.json')?.(new Response(JSON.stringify(document)))
+      await vi.waitFor(() => expect(wrapper.findComponent(ApiHostingBetaPrompt).props('ready')).toBe(true))
+    })
+
+    // Checked by whether the prompt mounts at all, not by waiting for it: the first test has already
     // spent this file's one try per page load, so a mounted prompt would stay shut here anyway
     it('never mounts on a public host, not even one that always shows the developer tools', async () => {
       stubLocation('https://docs.acme.io/')

@@ -17,12 +17,17 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useApiHostingBetaPrompt } from '../hooks/use-api-hosting-beta-prompt'
 import ApiHostingBetaDialog from './ApiHostingBetaDialog.vue'
 
-const { integration } = defineProps<{
+const { integration, ready = true } = defineProps<{
   /** The framework serving the reference, set by the Scalar integrations */
   integration?: ApiReferenceConfiguration['_integration']
+  /**
+   * Whether the reference has finished its heavy loading work. Until then the popup does not open,
+   * though it already notices someone starting to read.
+   */
+  ready?: boolean
 }>()
 
-const { isOpen, close } = useApiHostingBetaPrompt()
+const { isOpen, close } = useApiHostingBetaPrompt(() => ready)
 </script>
 
 <template>

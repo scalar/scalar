@@ -1266,6 +1266,13 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
 let isPreloadStopped = false
 /** Cancels the currently scheduled idle preload callback, if one is pending */
 let cancelScheduledPreload: (() => void) | undefined
+/**
+ * Whether idle preloading has run out of documents to load. Until then a large document can still
+ * hold the page for a moment while it is parsed, so the localhost API Hosting beta popup waits for
+ * it rather than open in the middle of that and leave its email field unresponsive. A document that
+ * never finishes loading keeps the popup away for that page load.
+ */
+const hasPreloadedDocuments = ref(false)
 
 /**
  * Stop any in-progress idle preloading. Without this, an orphaned instance (an Astro view
@@ -1310,6 +1317,7 @@ const preloadDocumentsWhenIdle = () => {
     const slug = pendingSlugs.shift()
 
     if (!slug) {
+      hasPreloadedDocuments.value = true
       return
     }
 
@@ -2393,13 +2401,15 @@ const sidebarCta = computed((): SidebarCta => {
         class="references-shell-frame" />
       <!-- One-time invitation to the API Hosting beta, once the document is on screen, and only when
            this machine serves the page to itself: the shell also covers `.test` and other reserved
-           names, which can be shared sites. The popup renders in a portal, so where it sits here
-           does not matter. -->
+           names, which can be shared sites. It opens only after the other documents have loaded in
+           the background, but it notices someone starting to read from the moment it mounts. The
+           popup renders in a portal, so where it sits here does not matter. -->
       <ApiHostingBetaPrompt
         v-if="
           workspaceStore.workspace.activeDocument && isLocalDevelopmentPage()
         "
-        :integration="mergedConfig._integration" />
+        :integration="mergedConfig._integration"
+        :ready="hasPreloadedDocuments" />
     </template>
     <div
       ref="documentEl"
