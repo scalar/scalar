@@ -1,5 +1,16 @@
 # scalar-app
 
+## 1.1.55
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+- [#11136](https://github.com/scalar/scalar/pull/11136): Update the Scalar SDK to version 0.8 while preserving authenticated registry requests.
+- [#11142](https://github.com/scalar/scalar/pull/11142): Update the desktop runtime to Electron 45.
+- [#10829](https://github.com/scalar/scalar/pull/10829): Complete desktop login and registration through a state-checked browser redirect with PKCE, avoiding Safari's mixed-content block on the local callback. Requires the companion dashboard and auth-service update.
+
+  Allow 15 minutes to finish desktop registration so new users have time to verify their email before returning to the app.
+
 ## 1.1.54
 
 No changes in this release.
