@@ -191,6 +191,7 @@ export const pt = {
     waitlistError: 'Ops! Algo deu errado, tente novamente',
     waitlistRateLimit: 'Muitas inscrições, tente novamente daqui a pouco',
     waitlistBack: 'Voltar',
+    waitlistDone: 'Pronto',
     deployApiButton: 'Publicar API',
     deployFrameworkButton: 'Publicar {framework}',
     deployApiTitle: 'Publique sua API na Scalar',

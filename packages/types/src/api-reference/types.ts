@@ -684,6 +684,7 @@ export type ApiReferenceTranslations = {
     waitlistError: string
     waitlistRateLimit: string
     waitlistBack: string
+    waitlistDone: string
     deployApiButton: string
     deployFrameworkButton: string
     deployApiTitle: string

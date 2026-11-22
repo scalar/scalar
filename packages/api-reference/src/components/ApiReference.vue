@@ -107,6 +107,15 @@ import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
+/*
+ * The one-time invitation to the API Hosting beta, mounted only by the localhost shell on this
+ * machine's own addresses. It is imported directly rather than as a lazy chunk on purpose: a lazy
+ * chunk shares modules with the main bundle, and the ESM build splits every shared module into a
+ * chunk of its own that every page then fetches, hosted ones included. In the main bundle it is
+ * inert code that hosted pages never run.
+ */
+import ApiHostingBetaPrompt from '@/features/api-hosting-beta/components/ApiHostingBetaPrompt.vue'
+import { isLocalDevelopmentPage } from '@/features/api-hosting-beta/helpers/is-local-development-page'
 import { DeveloperTools } from '@/features/developer-tools'
 import {
   useShellPanel,
@@ -119,6 +128,7 @@ import {
 import {
   provideLocalization,
   resolveLocalization,
+  toLanguageTag,
 } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
@@ -401,12 +411,9 @@ const poweredByUrl = computed(() =>
   makePoweredByUrl(mergedConfig.value._integration),
 )
 
-/**
- * Locale string for the `lang` attribute. We normalize underscores to hyphens so values like
- * `es_MX` become valid BCP-47 language tags (`es-MX`).
- */
+/** Locale string for the `lang` attribute, as a valid BCP-47 language tag (`es_MX` becomes `es-MX`). */
 const documentLang = computed(() =>
-  apiReferenceLocalization.locale.value.replace('_', '-'),
+  toLanguageTag(apiReferenceLocalization.locale.value),
 )
 
 /** Embeds can keep navigation local without taking over the host page URL. */
@@ -1259,6 +1266,13 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
 let isPreloadStopped = false
 /** Cancels the currently scheduled idle preload callback, if one is pending */
 let cancelScheduledPreload: (() => void) | undefined
+/**
+ * Whether idle preloading has run out of documents to load. Until then a large document can still
+ * hold the page for a moment while it is parsed, so the localhost API Hosting beta popup waits for
+ * it rather than open in the middle of that and leave its email field unresponsive. A document that
+ * never finishes loading keeps the popup away for that page load.
+ */
+const hasPreloadedDocuments = ref(false)
 
 /**
  * Stop any in-progress idle preloading. Without this, an orphaned instance (an Astro view
@@ -1303,6 +1317,7 @@ const preloadDocumentsWhenIdle = () => {
     const slug = pendingSlugs.shift()
 
     if (!slug) {
+      hasPreloadedDocuments.value = true
       return
     }
 
@@ -2384,6 +2399,17 @@ const sidebarCta = computed((): SidebarCta => {
       <div
         aria-hidden="true"
         class="references-shell-frame" />
+      <!-- One-time invitation to the API Hosting beta, once the document is on screen, and only when
+           this machine serves the page to itself: the shell also covers `.test` and other reserved
+           names, which can be shared sites. It opens only after the other documents have loaded in
+           the background, but it notices someone starting to read from the moment it mounts. The
+           popup renders in a portal, so where it sits here does not matter. -->
+      <ApiHostingBetaPrompt
+        v-if="
+          workspaceStore.workspace.activeDocument && isLocalDevelopmentPage()
+        "
+        :integration="mergedConfig._integration"
+        :ready="hasPreloadedDocuments" />
     </template>
     <div
       ref="documentEl"
