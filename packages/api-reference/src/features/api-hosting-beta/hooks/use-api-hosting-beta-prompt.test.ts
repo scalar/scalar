@@ -38,9 +38,21 @@ const loadPage = async (): Promise<
   return Object.assign(mountPrompt, { remember })
 }
 
-/** Sets what `navigator.webdriver` reports. The test setup reports true, as the `afterEach` restores. */
+/** jsdom names itself in its user agent, which the prompt takes as automated too */
+const JSDOM_USER_AGENT = navigator.userAgent
+const BROWSER_USER_AGENT =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+
+/**
+ * Makes the page look driven by a person in a real browser, or automated. The test setup reports
+ * `navigator.webdriver` as true and jsdom keeps its own user agent, as the `afterEach` restores.
+ */
 const setAutomated = (automated: boolean): void => {
   Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => automated })
+  Object.defineProperty(navigator, 'userAgent', {
+    configurable: true,
+    get: () => (automated ? JSDOM_USER_AGENT : BROWSER_USER_AGENT),
+  })
 }
 
 /** Whether the seen cookie is set, as another port on the same host would read it. */
@@ -313,6 +325,15 @@ describe('use-api-hosting-beta-prompt', () => {
     expect(remounted.isOpen.value).toBe(false)
   })
 
+  it('never opens in jsdom, which does not report itself as automated', async () => {
+    Object.defineProperty(navigator, 'userAgent', { configurable: true, get: () => JSDOM_USER_AGENT })
+    const prompt = (await loadPage())()
+
+    vi.advanceTimersByTime(SETTLED_MS * 5)
+
+    expect(prompt.isOpen.value).toBe(false)
+  })
+
   it('never opens in a browser that reports itself as automated', async () => {
     setAutomated(true)
     const prompt = (await loadPage())()
@@ -332,17 +353,62 @@ describe('use-api-hosting-beta-prompt', () => {
     expect(hasSeenCookie()).toBe(false)
   })
 
-  it.each(['tauri://localhost/', 'http://tauri.localhost/', 'capacitor://localhost/'])(
-    'never opens in an app shipped in a web view (%s)',
-    async (url) => {
-      jsdom.reconfigure({ url })
-      const prompt = (await loadPage())()
+  it.each([
+    'http://localhost:3000/',
+    'https://localhost:8443/docs',
+    'http://127.0.0.1:8000/docs',
+    'http://127.0.1.1:8000/',
+    'http://[::1]:5173/',
+    'http://0.0.0.0:8080/',
+    'http://my-api.localhost:3000/',
+  ])('opens on this machine (%s)', async (url) => {
+    jsdom.reconfigure({ url })
+    const prompt = (await loadPage())()
 
-      vi.advanceTimersByTime(SETTLED_MS * 5)
+    vi.advanceTimersByTime(SETTLED_MS)
 
-      expect(prompt.isOpen.value).toBe(false)
-    },
-  )
+    expect(prompt.isOpen.value).toBe(true)
+  })
+
+  it.each([
+    // Public sites, including ones that only mention or look like localhost
+    'https://docs.acme.io/',
+    'https://docs.acme.io/reference?server=http://localhost:3000',
+    'http://localhost.acme.io/',
+    'http://127.0.0.1.nip.io/',
+    // Reserved names the localhost shell counts as local, which can be internal sites
+    'http://my-api.test/',
+    'http://docs.example/',
+    'http://docs.invalid/',
+    // Other machines on the network
+    'http://192.168.1.20:3000/',
+    'http://10.0.0.5:8080/',
+    // Files, and apps shipped in a web view, which serve themselves without a port
+    'file:///Users/dev/docs/index.html',
+    'https://localhost/',
+    'http://wails.localhost/',
+    'https://0.0.0.0/',
+    'tauri://localhost/',
+    'http://tauri.localhost/',
+    'capacitor://localhost/',
+  ])('never opens anywhere else (%s)', async (url) => {
+    jsdom.reconfigure({ url })
+    const prompt = (await loadPage())()
+
+    vi.advanceTimersByTime(SETTLED_MS * 5)
+
+    expect(prompt.isOpen.value).toBe(false)
+  })
+
+  it('leaves nothing behind off this machine, even when the Deploy panel asks to remember it', async () => {
+    jsdom.reconfigure({ url: 'https://docs.acme.io/' })
+    const mountPrompt = await loadPage()
+
+    mountPrompt.remember()
+
+    expect(hasSeenCookie()).toBe(false)
+    expect(localStorage.getItem(SEEN_KEY)).toBeNull()
+  })
 
   it('remembers the prompt in local storage when the browser has cookies turned off', async () => {
     vi.spyOn(navigator, 'cookieEnabled', 'get').mockReturnValue(false)

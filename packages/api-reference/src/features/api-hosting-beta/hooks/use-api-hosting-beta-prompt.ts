@@ -1,5 +1,7 @@
 import { type Ref, onScopeDispose, readonly, ref } from 'vue'
 
+import { isLocalDevelopmentPage } from '../helpers/is-local-development-page'
+
 /**
  * How long the reference has to sit untouched after it loads before the prompt opens, the same wait
  * the API client gives it.
@@ -71,9 +73,13 @@ const hasSeenPrompt = (): boolean => {
 
 /**
  * Remembers in this browser that the prompt has been shown, or that the person has met the same
- * invitation elsewhere (the Deploy panel), so it does not open after all.
+ * invitation elsewhere (the Deploy panel), so it does not open after all. Only on pages where the
+ * prompt could open: anywhere else there is nothing to remember, and no cookie is left behind.
  */
 export const rememberApiHostingBetaPromptSeen = (): void => {
+  if (!isLocalDevelopmentPage()) {
+    return
+  }
   try {
     document.cookie = `${SEEN_KEY}=true; Max-Age=${SEEN_COOKIE_MAX_AGE_S}; Path=/; SameSite=Lax`
   } catch {
@@ -93,13 +99,12 @@ export const rememberApiHostingBetaPromptSeen = (): void => {
 const MODIFIER_KEYS = new Set(['Alt', 'AltGraph', 'CapsLock', 'Control', 'Fn', 'Meta', 'Shift'])
 
 /**
- * A page served the way a development server serves it. Apps shipped in a web view, such as Tauri
- * (`tauri://localhost`, or `http://tauri.localhost` on Windows) and Capacitor on iOS
- * (`capacitor://localhost`), also count as localhost, but the people using them are that app's
- * customers, not developers who could join.
+ * A browser that something is driving rather than a person: one that reports itself as automated
+ * (`navigator.webdriver`), such as the end-to-end and screenshot suites, or jsdom, which does not set
+ * that flag. Projects that use the reference run their unit tests in jsdom at `http://localhost:3000`,
+ * and a dialog appearing partway through would break them.
  */
-const isDevelopmentPage = (): boolean =>
-  (location.protocol === 'http:' || location.protocol === 'https:') && location.hostname !== 'tauri.localhost'
+const isAutomated = (): boolean => navigator.webdriver === true || /\bjsdom\//.test(navigator.userAgent)
 
 /** Another popup is on screen, such as search or the API client. */
 const hasOpenDialog = (): boolean =>
@@ -123,9 +128,8 @@ export type ApiHostingBetaPrompt = {
  * opens as the reference loads: once it has sat for a moment with nobody pressing a key, clicking,
  * scrolling, dragging or going back, and with no other popup up. If someone has already started by
  * then, the prompt leaves them to it until the next load. A window or tab in the background holds the
- * wait until it is looked at. It never opens in a browser that reports itself as automated
- * (`navigator.webdriver`), such as the end-to-end and screenshot suites, nor in an app shipped in a
- * web view.
+ * wait until it is looked at. It never opens in an automated browser, nor on any page but a development
+ * server on this machine (`isLocalDevelopmentPage`). Where it cannot open, it adds no listeners at all.
  *
  * It is remembered as seen the moment it opens rather than when it is closed, so a reload with the
  * prompt still up (a dev server restarting, say) does not bring it back.
@@ -173,18 +177,6 @@ export const useApiHostingBetaPrompt = (): ApiHostingBetaPrompt => {
     isOpen.value = true
   }
 
-  if (navigator.webdriver !== true && isDevelopmentPage() && !hasTriedThisPageLoad && !hasSeenPrompt()) {
-    // Captured, so a control that stops its own events still counts as someone starting. Scrolling
-    // is how a reference gets read, and neither a wheel nor a file dragged in from elsewhere brings
-    // key or pointer events of its own.
-    window.addEventListener('keydown', handleKeydown, true)
-    window.addEventListener('pointerdown', giveUp, true)
-    window.addEventListener('wheel', giveUp, { capture: true, passive: true })
-    window.addEventListener('dragenter', giveUp, true)
-    document.addEventListener('visibilitychange', restartWait)
-    restartWait()
-  }
-
   const close = (): void => {
     isOpen.value = false
   }
@@ -199,7 +191,19 @@ export const useApiHostingBetaPrompt = (): ApiHostingBetaPrompt => {
     close()
   }
 
-  window.addEventListener('popstate', handlePopState)
+  // Development server checked first, so nothing else (not even storage) is read anywhere else
+  if (isLocalDevelopmentPage() && !isAutomated() && !hasTriedThisPageLoad && !hasSeenPrompt()) {
+    // Captured, so a control that stops its own events still counts as someone starting. Scrolling
+    // is how a reference gets read, and neither a wheel nor a file dragged in from elsewhere brings
+    // key or pointer events of its own.
+    window.addEventListener('keydown', handleKeydown, true)
+    window.addEventListener('pointerdown', giveUp, true)
+    window.addEventListener('wheel', giveUp, { capture: true, passive: true })
+    window.addEventListener('dragenter', giveUp, true)
+    window.addEventListener('popstate', handlePopState)
+    document.addEventListener('visibilitychange', restartWait)
+    restartWait()
+  }
 
   onScopeDispose(() => {
     stopWaiting()

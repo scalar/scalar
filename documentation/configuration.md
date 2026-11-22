@@ -1373,7 +1373,7 @@ Whether and when to show the developer tools. By default only shows on `localhos
 
 **Default:** `'localhost'`
 
-On `localhost`, the reference also invites you to the API Hosting beta once, in a popup that opens shortly after the first load. It does not come back after that, in any project on the same host.
+When a development server on your own machine serves the reference (`localhost`, `*.localhost`, `127.0.0.1` or `[::1]`, on a port such as `:3000`), it also invites you to the API Hosting beta once, in a popup that opens shortly after the first load. It does not come back after that, in any project on the same host. It never appears anywhere else, including `.test` domains, other machines on your network and apps that ship the reference in a web view.
 
 To hide the toolbar, SDK generation buttons, local sidebar promotion, and the API Hosting beta invitation, set:
 

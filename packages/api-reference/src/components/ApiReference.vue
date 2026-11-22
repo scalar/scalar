@@ -107,6 +107,15 @@ import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
+/*
+ * The one-time invitation to the API Hosting beta, mounted only by the localhost shell on this
+ * machine's own addresses. It is imported directly rather than as a lazy chunk on purpose: a lazy
+ * chunk shares modules with the main bundle, and the ESM build splits every shared module into a
+ * chunk of its own that every page then fetches, hosted ones included. In the main bundle it is
+ * inert code that hosted pages never run.
+ */
+import ApiHostingBetaPrompt from '@/features/api-hosting-beta/components/ApiHostingBetaPrompt.vue'
+import { isLocalDevelopmentPage } from '@/features/api-hosting-beta/helpers/is-local-development-page'
 import { DeveloperTools } from '@/features/developer-tools'
 import {
   useShellPanel,
@@ -1674,15 +1683,6 @@ const AgentScalarDrawer = defineAsyncComponent(
   () => import('@/components/AgentScalar/AgentScalarDrawer.vue'),
 )
 
-/**
- * The one-time invitation to the API Hosting beta. Only the localhost shell mounts it, so public
- * hosts never fetch its chunk.
- */
-const ApiHostingBetaPrompt = defineAsyncComponent(
-  () =>
-    import('@/features/api-hosting-beta/components/ApiHostingBetaPrompt.vue'),
-)
-
 const hasOpenedAgent = ref(false)
 
 // Keep the conversation mounted so closing and reopening preserves its state.
@@ -2391,10 +2391,14 @@ const sidebarCta = computed((): SidebarCta => {
       <div
         aria-hidden="true"
         class="references-shell-frame" />
-      <!-- One-time invitation to the API Hosting beta, once the document is on screen. The popup
-           renders in a portal, so where it sits here does not matter. -->
+      <!-- One-time invitation to the API Hosting beta, once the document is on screen, and only when
+           this machine serves the page to itself: the shell also covers `.test` and other reserved
+           names, which can be shared sites. The popup renders in a portal, so where it sits here
+           does not matter. -->
       <ApiHostingBetaPrompt
-        v-if="workspaceStore.workspace.activeDocument"
+        v-if="
+          workspaceStore.workspace.activeDocument && isLocalDevelopmentPage()
+        "
         :integration="mergedConfig._integration" />
     </template>
     <div

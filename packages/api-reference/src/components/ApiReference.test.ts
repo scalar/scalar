@@ -1450,15 +1450,23 @@ describe('localhost shell', () => {
 
     const queryPopup = () => window.document.querySelector('[role="dialog"][aria-label="API Hosting beta"]')
 
+    /** jsdom names itself in its user agent, which the popup takes as automated */
+    const JSDOM_USER_AGENT = navigator.userAgent
+
     beforeEach(() => {
       window.document.cookie = `${SEEN_KEY}=; Max-Age=0; Path=/`
       localStorage.clear()
-      // The test setup reports every test as automated, which keeps the popup shut
+      // The test setup reports every test as automated, and jsdom names itself, which keeps the popup shut
       Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => false })
+      Object.defineProperty(navigator, 'userAgent', {
+        configurable: true,
+        get: () => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36',
+      })
     })
 
     afterEach(() => {
       Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => true })
+      Object.defineProperty(navigator, 'userAgent', { configurable: true, get: () => JSDOM_USER_AGENT })
       window.document.cookie = `${SEEN_KEY}=; Max-Age=0; Path=/`
     })
 
@@ -1484,6 +1492,14 @@ describe('localhost shell', () => {
       expect(queryPopup()).toBeNull()
       expect(window.document.cookie).not.toContain(SEEN_KEY)
       expect(localStorage.getItem(SEEN_KEY)).toBeNull()
+    })
+
+    it('never mounts on a reserved local name that the shell covers, such as .test', async () => {
+      stubLocation('http://my-api.test/')
+      const wrapper = await mountReference({ urlRouting: false })
+
+      expect(wrapper.find('.references-shell-toolbar').exists()).toBe(true)
+      expect(wrapper.findComponent(ApiHostingBetaPrompt).exists()).toBe(false)
     })
 
     it('never mounts on localhost when the developer tools are turned off', async () => {
