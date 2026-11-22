@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.21.1
+
+### Patch Changes
+
+- [#11130](https://github.com/scalar/scalar/pull/11130): Update nanoid to version 6 for faster identifier generation while preserving existing identifier formats.
+
 ## 0.21.0
 
 ### Minor Changes

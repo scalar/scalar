@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.58 (2026-11-22)
+
+### Content Security Policy compatibility and dependency updates
+
+This release fixes a Content Security Policy issue that caused eval violation reports when loading OAuth authentication and AI Chat, even though the page rendered correctly. The fix disables Zod's JIT compilation to prevent these reports without requiring unsafe-eval in your CSP.
+
+- Fixed CSP eval violation reports when loading OAuth authentication and AI Chat under strict Content Security Policy
+- Zod JIT compilation is now disabled to maintain CSP compatibility without requiring unsafe-eval
+- Updated dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01258)
+
 ## 0.12.57 (2026-11-20)
 
 ### Polish and bug fixes

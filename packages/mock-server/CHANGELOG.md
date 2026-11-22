@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.21.7
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
 ## 0.21.6
 
 ### Patch Changes
