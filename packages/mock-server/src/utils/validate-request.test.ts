@@ -658,6 +658,23 @@ describe('validate-request', () => {
     expect((await objectServer.request('/points/;point=x,nope')).status).toBe(422)
   })
 
+  it('validates label- and matrix-style primitive path params', async () => {
+    const documentFor = (style: string) =>
+      documentWith('/users/{id}', 'get', {
+        parameters: [{ name: 'id', in: 'path', required: true, style, schema: { type: 'integer' } }],
+      })
+
+    // A `label` primitive is dot-prefixed: `.5`.
+    const labelServer = await createMockServer({ document: documentFor('label'), validateRequest: true })
+    expect((await labelServer.request('/users/.5')).status).toBe(200)
+    expect((await labelServer.request('/users/.nope')).status).toBe(422)
+
+    // A `matrix` primitive is `;name=value`: `;id=5`.
+    const matrixServer = await createMockServer({ document: documentFor('matrix'), validateRequest: true })
+    expect((await matrixServer.request('/users/;id=5')).status).toBe(200)
+    expect((await matrixServer.request('/users/;id=nope')).status).toBe(422)
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {

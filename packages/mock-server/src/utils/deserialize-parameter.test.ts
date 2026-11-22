@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   deserializeArrayParameter,
   deserializeObjectParameter,
+  deserializePrimitiveParameter,
   getObjectPropertyNames,
   isArraySchema,
   isObjectSchema,
@@ -367,6 +368,31 @@ describe('deserialize-parameter', () => {
       expect(
         deserializeObjectParameter({ style: 'matrix', explode: false, single: ';color=R,100,G,200', name: 'color' }),
       ).toEqual({ R: '100', G: '200' })
+    })
+  })
+
+  describe('deserializePrimitiveParameter', () => {
+    it('returns undefined when the parameter is absent', () => {
+      expect(deserializePrimitiveParameter({ style: 'label', single: undefined })).toBeUndefined()
+      expect(deserializePrimitiveParameter({ style: 'matrix', single: undefined })).toBeUndefined()
+    })
+
+    it('strips the leading dot from label values', () => {
+      expect(deserializePrimitiveParameter({ style: 'label', single: '.5' })).toBe('5')
+      expect(deserializePrimitiveParameter({ style: 'label', single: '.' })).toBe('')
+    })
+
+    it('reads the value of a matrix segment', () => {
+      expect(deserializePrimitiveParameter({ style: 'matrix', single: ';id=5' })).toBe('5')
+      // `=` may appear in the value itself.
+      expect(deserializePrimitiveParameter({ style: 'matrix', single: ';token=a=b' })).toBe('a=b')
+      // `;id` is the spec's serialization of an empty value.
+      expect(deserializePrimitiveParameter({ style: 'matrix', single: ';id' })).toBe('')
+    })
+
+    it('leaves other styles untouched', () => {
+      expect(deserializePrimitiveParameter({ style: 'simple', single: '.5' })).toBe('.5')
+      expect(deserializePrimitiveParameter({ style: 'form', single: ';id=5' })).toBe(';id=5')
     })
   })
 })
