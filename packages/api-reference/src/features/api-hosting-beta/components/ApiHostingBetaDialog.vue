@@ -89,13 +89,13 @@ const vFocusHeading = {
     <div
       aria-hidden="true"
       class="bg-backdrop dark:bg-backdrop-dark absolute inset-0" />
-    <!-- The overlay scrolls, so a card taller than the window is never cut off. The card is as wide
-         as it is in the side panel. -->
+    <!-- The overlay scrolls, so a card taller than the window is never cut off. The card is 480px
+         wide where the window has room, a size up from the side panel, and narrows on small screens. -->
     <div
       class="custom-scroll relative flex h-full justify-center overflow-y-auto px-4 pt-[10vh] pb-16">
       <DialogPanel
         v-focus-heading
-        class="h-fit w-full max-w-[400px] overflow-hidden rounded-lg border shadow-lg">
+        class="h-fit w-full max-w-[480px] overflow-hidden rounded-[16px] border shadow-lg">
         <DeployWaitlist
           :integration
           popup
