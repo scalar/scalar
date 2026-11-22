@@ -697,6 +697,22 @@ export type ApiReferenceTranslations = {
     hostingDeploysDescription: string
     hostingPlans: string
     hostingSeePlans: string
+    hostingBetaLabel: string
+    hostingBetaTitle: string
+    hostingBetaDescription: string
+    hostingBetaJoinedTitle: string
+    /** Says where the waitlist will write; `{email}` stands for the address. */
+    hostingBetaJoined: string
+    hostingBetaEmailInvalid: string
+    hostingBetaFramework: string
+    hostingBetaOptional: string
+    hostingBetaFrameworkPlaceholder: string
+    hostingBetaFrameworkOther: string
+    hostingBetaJoin: string
+    hostingBetaDone: string
+    hostingBetaClose: string
+    hostingBetaUnreachable: string
+    hostingBetaRejected: string
   }
   exploreScalar: {
     /** The sidebar call to action that opens the dialog */

@@ -1373,7 +1373,9 @@ Whether and when to show the developer tools. By default only shows on `localhos
 
 **Default:** `'localhost'`
 
-To hide the toolbar, SDK generation buttons, and local sidebar promotion, set:
+On `localhost`, the reference also invites you to the API Hosting beta once, in a popup that opens shortly after the first load. It does not come back after that, in any project on the same host.
+
+To hide the toolbar, SDK generation buttons, local sidebar promotion, and the API Hosting beta invitation, set:
 
 ```javascript
 {

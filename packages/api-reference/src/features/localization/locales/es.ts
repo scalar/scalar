@@ -204,6 +204,23 @@ export const es = {
       'Previsualizaciones para pull requests, logs y métricas, y red privada hacia tus otros servicios.',
     hostingPlans: 'Después 1 $/mes en Free · Hobby 5 $/mes con 5 $ de uso incluido · Pro 20 $/mes',
     hostingSeePlans: 'Ver planes',
+    hostingBetaLabel: 'Beta de API Hosting',
+    hostingBetaTitle: 'API Hosting llega a Scalar',
+    hostingBetaDescription:
+      'Despliega tu API desde el framework de servidor que ya usas: NestJS, Hono, Elysia, .NET y más. Únete a la beta para probarlo antes del lanzamiento.',
+    hostingBetaJoinedTitle: 'Ya estás en la lista',
+    hostingBetaJoined: 'Gracias por apuntarte. Te escribiremos a {email}.',
+    hostingBetaEmailInvalid: 'Introduce un correo electrónico válido.',
+    hostingBetaFramework: 'Framework',
+    hostingBetaOptional: 'Opcional',
+    hostingBetaFrameworkPlaceholder: 'Selecciona un framework',
+    hostingBetaFrameworkOther: 'Otro',
+    hostingBetaJoin: 'Unirse a la beta',
+    hostingBetaDone: 'Listo',
+    hostingBetaClose: 'Cerrar',
+    hostingBetaUnreachable:
+      'No se pudo contactar con la lista de espera. Comprueba tu conexión e inténtalo de nuevo en un momento.',
+    hostingBetaRejected: 'La lista de espera no aceptó este registro. Inténtalo de nuevo en un momento.',
   },
   exploreScalar: {
     cta: 'Genera SDKs y MCP',

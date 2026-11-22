@@ -27,8 +27,9 @@ import type {
   ApiReferenceConfiguration,
   ApiReferenceTranslationKey,
 } from '@scalar/types/api-reference'
-import { computed, nextTick, ref, useId, useTemplateRef } from 'vue'
+import { computed, nextTick, onMounted, ref, useId, useTemplateRef } from 'vue'
 
+import { rememberApiHostingBetaPromptSeen } from '@/features/api-hosting-beta/hooks/use-api-hosting-beta-prompt'
 import { useLocalization } from '@/features/localization'
 
 import { getServerFramework } from '../server-frameworks'
@@ -44,6 +45,10 @@ const emit = defineEmits<{
 }>()
 
 const framework = computed(() => getServerFramework(integration))
+
+// This is the same invitation as the API Hosting beta popup, so someone who has opened it here is
+// not shown the popup on a later load
+onMounted(rememberApiHostingBetaPromptSeen)
 
 /** What running an app on Scalar includes, laid out like the Generate SDK card's feature rows */
 const HOSTING_FEATURES = [

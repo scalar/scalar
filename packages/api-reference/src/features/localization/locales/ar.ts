@@ -200,6 +200,22 @@ export const ar = {
     hostingPlans:
       'ثم 1 دولار شهريًا على Free · Hobby بـ 5 دولارات شهريًا مع 5 دولارات من الاستخدام · Pro بـ 20 دولارًا شهريًا',
     hostingSeePlans: 'عرض الخطط',
+    hostingBetaLabel: 'النسخة التجريبية من API Hosting',
+    hostingBetaTitle: 'API Hosting قادم إلى Scalar',
+    hostingBetaDescription:
+      'انشر واجهة API الخاصة بك من إطار الخادم الذي تستخدمه بالفعل: NestJS وHono وElysia و‎.NET وغيرها. انضم إلى النسخة التجريبية لتجربتها قبل إطلاقها.',
+    hostingBetaJoinedTitle: 'أنت الآن في القائمة',
+    hostingBetaJoined: 'شكرًا لتسجيلك. سنتواصل معك على {email}.',
+    hostingBetaEmailInvalid: 'أدخل عنوان بريد إلكتروني صالحًا.',
+    hostingBetaFramework: 'إطار العمل',
+    hostingBetaOptional: 'اختياري',
+    hostingBetaFrameworkPlaceholder: 'اختر إطار عمل',
+    hostingBetaFrameworkOther: 'آخر',
+    hostingBetaJoin: 'انضم إلى النسخة التجريبية',
+    hostingBetaDone: 'تم',
+    hostingBetaClose: 'إغلاق',
+    hostingBetaUnreachable: 'تعذّر الوصول إلى قائمة الانتظار. تحقق من اتصالك وحاول مرة أخرى بعد قليل.',
+    hostingBetaRejected: 'لم تقبل قائمة الانتظار هذا التسجيل. حاول مرة أخرى بعد قليل.',
   },
   exploreScalar: {
     cta: 'أنشئ SDK وMCP',

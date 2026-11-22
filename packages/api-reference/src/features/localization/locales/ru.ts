@@ -204,6 +204,23 @@ export const ru = {
     hostingDeploysDescription: 'Превью для pull request, логи и метрики и приватная сеть к другим вашим сервисам.',
     hostingPlans: 'Далее 1 $/мес. на Free · Hobby 5 $/мес. с 5 $ использования · Pro 20 $/мес.',
     hostingSeePlans: 'Тарифы',
+    hostingBetaLabel: 'Бета API Hosting',
+    hostingBetaTitle: 'API Hosting скоро в Scalar',
+    hostingBetaDescription:
+      'Разворачивайте API прямо из серверного фреймворка, которым уже пользуетесь: NestJS, Hono, Elysia, .NET и другие. Присоединяйтесь к бете, чтобы попробовать до запуска.',
+    hostingBetaJoinedTitle: 'Вы в списке',
+    hostingBetaJoined: 'Спасибо за регистрацию. Мы напишем вам на {email}.',
+    hostingBetaEmailInvalid: 'Введите корректный адрес электронной почты.',
+    hostingBetaFramework: 'Фреймворк',
+    hostingBetaOptional: 'Необязательно',
+    hostingBetaFrameworkPlaceholder: 'Выберите фреймворк',
+    hostingBetaFrameworkOther: 'Другой',
+    hostingBetaJoin: 'Присоединиться к бете',
+    hostingBetaDone: 'Готово',
+    hostingBetaClose: 'Закрыть',
+    hostingBetaUnreachable:
+      'Не удалось связаться с листом ожидания. Проверьте подключение и попробуйте ещё раз чуть позже.',
+    hostingBetaRejected: 'Лист ожидания не принял эту заявку. Попробуйте ещё раз чуть позже.',
   },
   exploreScalar: {
     cta: 'Создать SDK и MCP',

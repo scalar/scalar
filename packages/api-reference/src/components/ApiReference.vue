@@ -119,6 +119,7 @@ import {
 import {
   provideLocalization,
   resolveLocalization,
+  toLanguageTag,
 } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
@@ -401,12 +402,9 @@ const poweredByUrl = computed(() =>
   makePoweredByUrl(mergedConfig.value._integration),
 )
 
-/**
- * Locale string for the `lang` attribute. We normalize underscores to hyphens so values like
- * `es_MX` become valid BCP-47 language tags (`es-MX`).
- */
+/** Locale string for the `lang` attribute, as a valid BCP-47 language tag (`es_MX` becomes `es-MX`). */
 const documentLang = computed(() =>
-  apiReferenceLocalization.locale.value.replace('_', '-'),
+  toLanguageTag(apiReferenceLocalization.locale.value),
 )
 
 /** Embeds can keep navigation local without taking over the host page URL. */
@@ -1676,6 +1674,15 @@ const AgentScalarDrawer = defineAsyncComponent(
   () => import('@/components/AgentScalar/AgentScalarDrawer.vue'),
 )
 
+/**
+ * The one-time invitation to the API Hosting beta. Only the localhost shell mounts it, so public
+ * hosts never fetch its chunk.
+ */
+const ApiHostingBetaPrompt = defineAsyncComponent(
+  () =>
+    import('@/features/api-hosting-beta/components/ApiHostingBetaPrompt.vue'),
+)
+
 const hasOpenedAgent = ref(false)
 
 // Keep the conversation mounted so closing and reopening preserves its state.
@@ -2384,6 +2391,11 @@ const sidebarCta = computed((): SidebarCta => {
       <div
         aria-hidden="true"
         class="references-shell-frame" />
+      <!-- One-time invitation to the API Hosting beta, once the document is on screen. The popup
+           renders in a portal, so where it sits here does not matter. -->
+      <ApiHostingBetaPrompt
+        v-if="workspaceStore.workspace.activeDocument"
+        :integration="mergedConfig._integration" />
     </template>
     <div
       ref="documentEl"

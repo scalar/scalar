@@ -111,6 +111,16 @@ describe('DeployWaitlist', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
+  it('keeps the API Hosting beta popup from repeating the invitation on a later load', () => {
+    const seenKey = 'scalar-api-hosting-beta-prompt-seen'
+    document.cookie = `${seenKey}=; Max-Age=0; Path=/`
+
+    mount(DeployWaitlist)
+
+    expect(document.cookie.split(';').map((cookie) => cookie.trim())).toContain(`${seenKey}=true`)
+    expect(localStorage.getItem(seenKey)).toBe('true')
+  })
+
   describe('framework', () => {
     it('sends the server framework along as a contact property', async () => {
       fetchMock.mockResolvedValue(new Response('{"success":true}', { status: 200 }))

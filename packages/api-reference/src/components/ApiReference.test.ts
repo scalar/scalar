@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
 import ApiReference from '@/components/ApiReference.vue'
+import ApiHostingBetaPrompt from '@/features/api-hosting-beta/components/ApiHostingBetaPrompt.vue'
 import { DeveloperTools } from '@/features/developer-tools'
 import { authStorage } from '@/helpers/storage'
 
@@ -1438,6 +1439,58 @@ describe('localhost shell', () => {
 
       expect(wrapper.find('.references-shell-panel').exists()).toBe(false)
       expect(window.document.querySelector('[role="dialog"]')).not.toBeNull()
+    })
+  })
+
+  describe('API Hosting beta popup', () => {
+    const SEEN_KEY = 'scalar-api-hosting-beta-prompt-seen'
+
+    /** Longer than the popup waits for the reference to settle */
+    const SETTLED_MS = 1700
+
+    const queryPopup = () => window.document.querySelector('[role="dialog"][aria-label="API Hosting beta"]')
+
+    beforeEach(() => {
+      window.document.cookie = `${SEEN_KEY}=; Max-Age=0; Path=/`
+      localStorage.clear()
+      // The test setup reports every test as automated, which keeps the popup shut
+      Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => false })
+    })
+
+    afterEach(() => {
+      Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => true })
+      window.document.cookie = `${SEEN_KEY}=; Max-Age=0; Path=/`
+    })
+
+    it('invites the developer once the reference has settled on localhost', async () => {
+      const wrapper = await mountReference({ _integration: 'fastapi' })
+      expect(wrapper.findComponent(ApiHostingBetaPrompt).exists()).toBe(true)
+
+      await vi.waitFor(() => expect(queryPopup()).not.toBeNull(), { timeout: SETTLED_MS * 2 })
+      expect(window.document.querySelector<HTMLSelectElement>('select[name="framework"]')?.value).toBe('FastAPI')
+      expect(localStorage.getItem(SEEN_KEY)).toBe('true')
+    })
+
+    // Checked by whether the prompt mounts at all, not by waiting for it: the earlier test has already
+    // spent this file's one try per page load, so a mounted prompt would stay shut here anyway
+    it('never mounts on a public host, not even one that always shows the developer tools', async () => {
+      stubLocation('https://docs.acme.io/')
+      // jsdom refuses history writes for a cross-origin URL, which would abort the document load
+      const wrapper = await mountReference({ showDeveloperTools: 'always', urlRouting: false })
+
+      // The document loaded, so the prompt would have mounted by now if it were going to
+      expect(wrapper.findComponent(DeveloperTools).exists()).toBe(true)
+      expect(wrapper.findComponent(ApiHostingBetaPrompt).exists()).toBe(false)
+      expect(queryPopup()).toBeNull()
+      expect(window.document.cookie).not.toContain(SEEN_KEY)
+      expect(localStorage.getItem(SEEN_KEY)).toBeNull()
+    })
+
+    it('never mounts on localhost when the developer tools are turned off', async () => {
+      const wrapper = await mountReference({ showDeveloperTools: 'never' })
+
+      expect(wrapper.find('.references-layout').exists()).toBe(true)
+      expect(wrapper.findComponent(ApiHostingBetaPrompt).exists()).toBe(false)
     })
   })
 
