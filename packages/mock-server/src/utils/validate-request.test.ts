@@ -717,6 +717,48 @@ describe('validate-request', () => {
     expect((await stringServer.request('/users/;a%3Db=')).status).toBe(200)
   })
 
+  it('validates parameters described by a JSON content media type', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        {
+          name: 'filter',
+          in: 'query',
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object', required: ['price'], properties: { price: { type: 'integer' } } },
+            },
+          },
+        },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+    const request = (value: string) => server.request(`/items?filter=${encodeURIComponent(value)}`)
+
+    expect((await request('{"price":5}')).status).toBe(200)
+
+    const wrongType = await request('{"price":"cheap"}')
+    expect(wrongType.status).toBe(422)
+    expect((await wrongType.json()).violations[0]).toMatchObject({ location: 'query', path: '/filter/price' })
+
+    // A value that is not JSON cannot satisfy an object schema.
+    expect((await request('price=5')).status).toBe(422)
+    expect((await server.request('/items')).status).toBe(422)
+  })
+
+  it('validates parameters described by a non-JSON content media type', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        { name: 'X-Note', in: 'header', content: { 'text/plain': { schema: { type: 'string', maxLength: 5 } } } },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+    expect((await server.request('/items', { headers: { 'X-Note': 'short' } })).status).toBe(200)
+    expect((await server.request('/items', { headers: { 'X-Note': 'far too long' } })).status).toBe(422)
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {

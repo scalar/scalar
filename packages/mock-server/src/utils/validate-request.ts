@@ -1,4 +1,5 @@
 import { getFirstMediaType } from '@scalar/helpers/http/get-first-media-type'
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { useDecimalMultipleOf } from '@scalar/json-schema-validator/decimal-multiple-of'
 import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
@@ -55,6 +56,8 @@ type ParameterDescriptor = {
   isObject: boolean
   /** Declared object property names, used to gather exploded `form` objects from the query map */
   propertyNames: string[]
+  /** Whether the parameter is described by a JSON `content` media type, so its value is parsed as JSON */
+  isJson: boolean
 }
 
 /** A single request validation violation, mapped from an Ajv error */
@@ -133,23 +136,30 @@ const buildParameterSchema = (
       continue
     }
 
-    const resolvedSchema = parameter.schema
-      ? (getResolvedRefDeep(parameter.schema) as Record<string, unknown>)
-      : undefined
+    // A parameter is described either by a `schema` (serialized with `style`/`explode`) or by a `content`
+    // map with a single media type, whose value is the whole serialized string (for example JSON).
+    const firstMediaType = parameter.schema ? undefined : getFirstMediaType(parameter.content)
+    const contentType = firstMediaType?.[0]
+    const media = getResolvedRef(firstMediaType?.[1] as OpenAPIV3_1.MediaTypeObject | undefined)
+    const schema = parameter.schema ?? media?.schema
+    const resolvedSchema = schema ? (getResolvedRefDeep(schema) as Record<string, unknown>) : undefined
+    const hasContent = media !== undefined
     const { style, explode } = resolveSerialization(location, parameter.style, parameter.explode)
 
     // Property names let exploded `form` objects be gathered from matching top-level query keys. They
     // are collected through any `anyOf`/`oneOf`/`allOf` composition so a composed object schema does not
     // fall back to free-form gathering and claim unrelated keys.
-    const propertyNames = getObjectPropertyNames(resolvedSchema)
+    const propertyNames = hasContent ? [] : getObjectPropertyNames(resolvedSchema)
 
     descriptors.push({
       name: parameter.name,
       style,
       explode,
-      isArray: isArraySchema(resolvedSchema),
-      isObject: isObjectSchema(resolvedSchema),
+      // `style` and `explode` do not apply to `content` parameters, so they are never split into parts.
+      isArray: !hasContent && isArraySchema(resolvedSchema),
+      isObject: !hasContent && isObjectSchema(resolvedSchema),
       propertyNames,
+      isJson: hasContent && isJsonMediaType(contentType),
     })
 
     if (resolvedSchema) {
@@ -167,6 +177,22 @@ const buildParameterSchema = (
 
   // Allow undeclared parameters to pass through; we only enforce what the operation declares.
   return { schema: { type: 'object', properties, required, additionalProperties: true }, parameters: descriptors }
+}
+
+/**
+ * Parse the value of a JSON `content` parameter. A value that is not valid JSON is kept as the raw
+ * string, so it is still checked against the schema (and fails a non-string schema) instead of being
+ * silently accepted.
+ */
+const parseJsonValue = (value: string | undefined): unknown => {
+  if (value === undefined) {
+    return undefined
+  }
+  try {
+    return JSON.parse(value)
+  } catch {
+    return value
+  }
 }
 
 /**
@@ -394,7 +420,9 @@ export const validateRequest = (
       const data: Record<string, unknown> = {}
       for (const descriptor of descriptors) {
         let value: unknown
-        if (descriptor.isArray && descriptor.isObject) {
+        if (descriptor.isJson) {
+          value = parseJsonValue(getValue(descriptor.name))
+        } else if (descriptor.isArray && descriptor.isObject) {
           // A schema composed with `anyOf`/`oneOf`/`allOf` can look like both an array and an object, and
           // form encoding cannot say which the client meant. Prefer a non-empty array — that only happens
           // when the request carries the parameter's own (possibly repeated) key — and fall back to the
