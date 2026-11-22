@@ -637,6 +637,8 @@ describe('validate-request', () => {
     const arrayServer = await createMockServer({ document: arrayDoc, validateRequest: true })
     expect((await arrayServer.request('/items/;ids=1;ids=2;ids=3')).status).toBe(200)
     expect((await arrayServer.request('/items/;ids=1;ids=nope')).status).toBe(422)
+    // An empty array (`;ids`) has no elements, so it is valid without `minItems` instead of failing as `['ids']`.
+    expect((await arrayServer.request('/items/;ids')).status).toBe(200)
 
     const objectDoc = documentWith('/points/{point}', 'get', {
       parameters: [

@@ -120,6 +120,15 @@ describe('deserialize-parameter', () => {
       expect(deserializeArrayParameter({ style: 'label', explode: false, single: '.' })).toEqual([])
     })
 
+    it('deserializes an empty matrix value as an empty array', () => {
+      // The spec serializes an empty matrix value as the bare name (`;ids`), in both explode modes.
+      expect(deserializeArrayParameter({ style: 'matrix', explode: false, single: ';ids' })).toEqual([])
+      expect(deserializeArrayParameter({ style: 'matrix', explode: true, single: ';ids' })).toEqual([])
+      expect(deserializeArrayParameter({ style: 'matrix', explode: false, single: ';ids=' })).toEqual([])
+      expect(deserializeArrayParameter({ style: 'matrix', explode: true, single: ';ids=' })).toEqual([])
+      expect(deserializeArrayParameter({ style: 'matrix', explode: false, single: '' })).toEqual([])
+    })
+
     it('deserializes an empty exploded value as an empty array, not a phantom element', () => {
       // Exploded `form` is the query default, so `?ids=` must also be zero elements (matching the
       // non-exploded styles) rather than the `['']` that a naive repeated-value read would produce.
