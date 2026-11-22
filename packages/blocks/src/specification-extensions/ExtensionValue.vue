@@ -10,6 +10,7 @@ const {
   compact = false,
   arrayItem = false,
   ancestors = [],
+  defaultOpen = false,
 } = defineProps<{
   name: string
   value: unknown
@@ -20,11 +21,13 @@ const {
   arrayItem?: boolean
   /** Only ancestors count as cycles; shared sibling values remain independently expandable. */
   ancestors?: readonly unknown[]
+  /** Start expanded below the top level too, like a top-level value; nested children still start closed. */
+  defaultOpen?: boolean
 }>()
 
 const nameId = useId()
 const panelId = useId()
-const open = ref(depth === 0)
+const open = ref(depth === 0 || defaultOpen)
 const circular = computed<boolean>(() => ancestors.includes(value))
 const children = computed<[string, unknown][]>(() => {
   if (value === null || typeof value !== 'object' || circular.value) {

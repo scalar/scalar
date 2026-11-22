@@ -553,6 +553,7 @@ export type ApiReferenceTranslations = {
     unknownType: string
     propertyCount: string
     headerCount: string
+    extensionCount: string
     recursiveReference: string
     recursive: string
     additionalProperties: string
