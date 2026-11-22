@@ -334,3 +334,67 @@ describe('create-async-api-search-entry', () => {
     ).toBeUndefined()
   })
 })
+
+describe('create-async-api-search-entry components', () => {
+  it('indexes reusable messages, message traits, and operation traits', () => {
+    const document: AsyncApiDocument = {
+      asyncapi: '3.1.0',
+      info: { title: 'Components', version: '1' },
+      'x-scalar-original-document-hash': '',
+      components: {
+        messages: {
+          PlanetUpdated: {
+            title: 'Planet updated',
+            name: 'planet.updated',
+            description: 'A planet changed',
+            payload: { type: 'object', properties: { planetId: { type: 'string', description: 'The planet' } } },
+          },
+        },
+        messageTraits: {
+          Tracing: {
+            summary: 'Tracing headers',
+            headers: { type: 'object', properties: { traceId: { type: 'string' } } },
+          },
+        },
+        operationTraits: { Kafka: { title: 'Kafka defaults', description: 'Applies the consumer group' } },
+      },
+    }
+
+    const index = createSearchIndex(
+      Object.assign(document, { 'x-scalar-navigation': traverseAsyncApiDocument('components', document) }),
+    )
+    const components = index.filter((entry) => entry.type === 'asyncapi-component')
+
+    expect(
+      components.map(({ id, title, description, identifiers, body }) => ({
+        id,
+        title,
+        description,
+        identifiers,
+        body,
+      })),
+    ).toStrictEqual([
+      {
+        id: 'components/messages/PlanetUpdated',
+        title: 'Planet updated',
+        description: 'A planet changed',
+        identifiers: ['PlanetUpdated', 'planet.updated'],
+        body: ['planetId'],
+      },
+      {
+        id: 'components/message-traits/Tracing',
+        title: 'Tracing headers',
+        description: 'Tracing headers',
+        identifiers: ['Tracing'],
+        body: ['traceId'],
+      },
+      {
+        id: 'components/operation-traits/Kafka',
+        title: 'Kafka defaults',
+        description: 'Applies the consumer group',
+        identifiers: ['Kafka'],
+        body: undefined,
+      },
+    ])
+  })
+})

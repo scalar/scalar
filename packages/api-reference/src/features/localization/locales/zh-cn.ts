@@ -30,6 +30,7 @@ export const zhCn = {
     entryTagGroup: '标签组',
     entryChannel: '通道',
     entryMessage: '消息',
+    entryComponent: '组件',
     entryWebhook: 'Webhook',
   },
   navigation: {
@@ -46,6 +47,9 @@ export const zhCn = {
     collapsed: '已折叠',
     webhooks: 'Webhooks',
     channels: '频道',
+    messages: '消息',
+    messageTraits: '消息特征',
+    operationTraits: '操作特征',
   },
   server: {
     label: '服务器',

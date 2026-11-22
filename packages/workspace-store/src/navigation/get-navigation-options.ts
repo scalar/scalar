@@ -3,7 +3,14 @@ import { slugify } from '@scalar/helpers/string/slugify'
 import { type ApiReferenceConfigurationRaw, DEFAULT_MODELS_SECTION_LABEL } from '@scalar/types/api-reference'
 
 import type { TraverseSpecOptions } from '@/navigation/types'
-import type { IdGenerator } from '@/schemas/navigation'
+import type { AsyncApiComponentType, IdGenerator } from '@/schemas/navigation'
+
+/** URL segment for each AsyncAPI component section, e.g. `my-api/message-traits/Common`. */
+const ASYNC_API_COMPONENT_SECTION_SLUGS: Record<AsyncApiComponentType, string> = {
+  messages: 'messages',
+  messageTraits: 'message-traits',
+  operationTraits: 'operation-traits',
+}
 
 /**
  * Fixed fields retain their existing links; authored variants need a distinct namespace.
@@ -96,6 +103,12 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
     // -------- Default AsyncAPI operation id generation logic --------
     if (props.type === 'asyncapi-operation') {
       return `${props.parentId}/operation/${slugify(props.operationName)}`
+    }
+
+    // -------- Default AsyncAPI component id generation logic --------
+    if (props.type === 'asyncapi-component') {
+      const sectionId = `${documentId}/${ASYNC_API_COMPONENT_SECTION_SLUGS[props.componentType]}`
+      return props.name === undefined ? sectionId : `${sectionId}/${slugify(props.name, { preserveCase: true })}`
     }
 
     // -------- Default operation id generation logic --------

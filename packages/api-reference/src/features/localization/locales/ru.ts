@@ -31,6 +31,7 @@ export const ru = {
     entryTagGroup: 'Группа тегов',
     entryChannel: 'Канал',
     entryMessage: 'Сообщение',
+    entryComponent: 'Компонент',
     entryWebhook: 'Вебхук',
   },
   navigation: {
@@ -47,6 +48,9 @@ export const ru = {
     collapsed: 'Свернуто',
     webhooks: 'Вебхуки',
     channels: 'Каналы',
+    messages: 'Сообщения',
+    messageTraits: 'Трейты сообщений',
+    operationTraits: 'Трейты операций',
   },
   server: {
     label: 'Сервер',

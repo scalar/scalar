@@ -465,6 +465,7 @@ export type ApiReferenceTranslations = {
     entryTagGroup: string
     entryChannel: string
     entryMessage: string
+    entryComponent: string
     entryWebhook: string
   }
   navigation: {
@@ -476,6 +477,9 @@ export type ApiReferenceTranslations = {
     operations: string
     webhooks: string
     channels: string
+    messages: string
+    messageTraits: string
+    operationTraits: string
     endpoints: string
     showAllEndpoints: string
     sidebarFor: string

@@ -765,6 +765,15 @@ const localizeNavigationEntries = (
   )
   const modelsSectionLabel =
     mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
+  const componentSectionTitles = {
+    messages: apiReferenceLocalization.translate('navigation.messages'),
+    messageTraits: apiReferenceLocalization.translate(
+      'navigation.messageTraits',
+    ),
+    operationTraits: apiReferenceLocalization.translate(
+      'navigation.operationTraits',
+    ),
+  }
 
   const localize = (list: TraversedEntry[]): TraversedEntry[] => {
     let changed = false
@@ -794,6 +803,12 @@ const localizeNavigationEntries = (
           title: modelsSectionLabel,
           name: modelsSectionLabel,
         } as TraversedEntry
+      } else if (
+        entry.type === 'asyncapi-components' &&
+        entry.title !== componentSectionTitles[entry.componentType]
+      ) {
+        const title = componentSectionTitles[entry.componentType]
+        localized = { ...entry, title, name: title }
       }
 
       if ('children' in entry && entry.children) {
@@ -862,7 +877,11 @@ const sidebarState = createSidebarState<TraversedEntry>(itemsFromWorkspace, {
 /** Recursively set all children of the given items to open */
 const setChildrenOpen = (items: TraversedEntry[]): void => {
   items.forEach((item) => {
-    if (item.type === 'tag' || item.type === 'models') {
+    if (
+      item.type === 'tag' ||
+      item.type === 'models' ||
+      item.type === 'asyncapi-components'
+    ) {
       sidebarState.setExpanded(item.id, true)
     }
     if ('children' in item && item.children) {
@@ -1831,6 +1850,7 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
   if (
     (item?.type === 'tag' ||
       item?.type === 'models' ||
+      item?.type === 'asyncapi-components' ||
       item?.type === 'text') &&
     sidebarState.isExpanded(id) && // Only close if the item is expanded
     sidebarState.selectedItem.value === id // Only close if the item is not the currently selected item

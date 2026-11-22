@@ -751,6 +751,120 @@ describe('traverseAsyncApiDocument', () => {
     expect(result.children?.some((entry) => entry.type === 'models')).toBe(false)
   })
 
+  it('lists reusable messages and traits in their own sections before Models', () => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Components', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      components: {
+        schemas: { Planet: { type: 'object' } },
+        messages: {
+          PlanetUpdated: { title: 'Planet Updated', payload: { type: 'object' } },
+          PlanetDeleted: { name: 'planetDeleted' },
+          Alias: { $ref: '#/components/messages/PlanetUpdated', '$ref-value': { summary: 'Aliased' } },
+          Internal: { title: 'Internal', 'x-internal': true },
+        },
+        messageTraits: { CommonHeaders: { summary: 'Common headers' } },
+        operationTraits: { Kafka: { title: 'Kafka defaults' }, Ignored: { 'x-scalar-ignore': true } },
+      },
+    } as unknown as AsyncApiDocument
+
+    const result = traverseAsyncApiDocument('components', document, mockOptions)
+
+    expect(result.children?.map((entry) => entry.type)).toStrictEqual([
+      'text',
+      'asyncapi-components',
+      'asyncapi-components',
+      'asyncapi-components',
+      'models',
+    ])
+    expect(result.children?.filter((entry) => entry.type === 'asyncapi-components')).toStrictEqual([
+      {
+        type: 'asyncapi-components',
+        id: 'components/messages',
+        title: 'Messages',
+        name: 'Messages',
+        componentType: 'messages',
+        children: [
+          {
+            type: 'asyncapi-component',
+            id: 'components/messages/PlanetUpdated',
+            title: 'Planet Updated',
+            name: 'PlanetUpdated',
+            componentType: 'messages',
+          },
+          {
+            type: 'asyncapi-component',
+            id: 'components/messages/PlanetDeleted',
+            title: 'planetDeleted',
+            name: 'PlanetDeleted',
+            componentType: 'messages',
+          },
+          {
+            type: 'asyncapi-component',
+            id: 'components/messages/Alias',
+            title: 'Aliased',
+            name: 'Alias',
+            componentType: 'messages',
+          },
+        ],
+      },
+      {
+        type: 'asyncapi-components',
+        id: 'components/message-traits',
+        title: 'Message Traits',
+        name: 'Message Traits',
+        componentType: 'messageTraits',
+        children: [
+          {
+            type: 'asyncapi-component',
+            id: 'components/message-traits/CommonHeaders',
+            title: 'Common headers',
+            name: 'CommonHeaders',
+            componentType: 'messageTraits',
+          },
+        ],
+      },
+      {
+        type: 'asyncapi-components',
+        id: 'components/operation-traits',
+        title: 'Operation Traits',
+        name: 'Operation Traits',
+        componentType: 'operationTraits',
+        children: [
+          {
+            type: 'asyncapi-component',
+            id: 'components/operation-traits/Kafka',
+            title: 'Kafka defaults',
+            name: 'Kafka',
+            componentType: 'operationTraits',
+          },
+        ],
+      },
+    ])
+  })
+
+  it('omits empty component sections and hides them with hideModels', () => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Components', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      components: {
+        messages: { Only: { title: 'Only' } },
+        messageTraits: {},
+        operationTraits: { Hidden: { 'x-internal': true } },
+      },
+    } as unknown as AsyncApiDocument
+
+    const visible = traverseAsyncApiDocument('components', document, mockOptions)
+    expect(
+      visible.children?.flatMap((entry) => (entry.type === 'asyncapi-components' ? [entry.componentType] : [])),
+    ).toStrictEqual(['messages'])
+
+    const hidden = traverseAsyncApiDocument('components', document, { ...mockOptions, hideModels: true })
+    expect(hidden.children?.some((entry) => entry.type === 'asyncapi-components')).toBe(false)
+  })
+
   it('lists models when components is a resolved `$ref` wrapper', () => {
     const document = {
       asyncapi: '3.0.0',

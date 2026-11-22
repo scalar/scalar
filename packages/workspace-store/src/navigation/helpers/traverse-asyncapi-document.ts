@@ -1,6 +1,11 @@
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
-import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
+import type {
+  AsyncApiChannelObject,
+  AsyncApiComponentsObject,
+  AsyncApiDocument,
+  AsyncApiOperationObject,
+} from '@scalar/types/asyncapi/3.1'
 
 import { resolveOperationWithTraits } from '@/channel-example/resolve-operation-with-traits'
 import { getNameFromRef } from '@/helpers/get-name-from-ref'
@@ -15,14 +20,18 @@ import { traverseSchemas } from '@/navigation/helpers/traverse-schemas'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { XInternal } from '@/schemas/extensions/document/x-internal'
 import type { XScalarIgnore } from '@/schemas/extensions/document/x-scalar-ignore'
-import type {
-  ParentTag,
-  TraversedAsyncApiChannel,
-  TraversedAsyncApiMessage,
-  TraversedAsyncApiOperation,
-  TraversedDocument,
-  TraversedEntry,
-  TraversedTag,
+import {
+  ASYNC_API_COMPONENT_TYPES,
+  type AsyncApiComponentType,
+  type ParentTag,
+  type TraversedAsyncApiChannel,
+  type TraversedAsyncApiComponent,
+  type TraversedAsyncApiComponents,
+  type TraversedAsyncApiMessage,
+  type TraversedAsyncApiOperation,
+  type TraversedDocument,
+  type TraversedEntry,
+  type TraversedTag,
 } from '@/schemas/navigation'
 import type { OpenApiDocument, TagObject } from '@/schemas/v3.2/strict/openapi-document'
 
@@ -106,6 +115,64 @@ const getOperationTitle = (operation: AsyncApiOperationObject, operationName: st
  */
 const getMessageTitle = (message: AsyncApiMessageLike, messageName: string): string =>
   pickNonEmpty(message.title, message.summary, message.name) ?? messageName
+
+/** Default section titles for the reusable component maps; the reference localizes them. */
+const COMPONENT_SECTION_TITLES: Record<AsyncApiComponentType, string> = {
+  messages: 'Messages',
+  messageTraits: 'Message Traits',
+  operationTraits: 'Operation Traits',
+}
+
+/**
+ * Builds one section per non-empty reusable component map (messages, message traits, operation traits).
+ *
+ * Components keep their document order, mirroring how the Models section lists `components.schemas`.
+ * Hidden components (`x-internal` or `x-scalar-ignore`) are skipped, and sections left empty are omitted.
+ */
+const traverseComponents = ({
+  components,
+  documentId,
+  generateId,
+}: {
+  components: AsyncApiComponentsObject
+  documentId: string
+  generateId: TraverseSpecOptions['generateId']
+}): TraversedAsyncApiComponents[] =>
+  ASYNC_API_COMPONENT_TYPES.flatMap((componentType): TraversedAsyncApiComponents[] => {
+    // Messages and both trait kinds share the display fields read here; only messages carry `name`.
+    const nodes: Record<
+      string,
+      AsyncApiMessageLike | { $ref: string; '$ref-value'?: AsyncApiMessageLike } | undefined
+    > = components[componentType] ?? {}
+    const sectionId = generateId({ type: 'asyncapi-component', componentType, parentId: documentId })
+
+    const children = Object.entries(nodes).flatMap(([name, node]): TraversedAsyncApiComponent[] => {
+      const component = node ? getResolvedAsyncApiRef(node) : undefined
+      if (!component || isHidden(component as Hideable)) {
+        return []
+      }
+
+      return [
+        {
+          type: 'asyncapi-component',
+          id: generateId({ type: 'asyncapi-component', componentType, name, parentId: sectionId }),
+          title:
+            componentType === 'operationTraits'
+              ? (pickNonEmpty(component.title, component.summary) ?? name)
+              : getMessageTitle(component, name),
+          name,
+          componentType,
+        },
+      ]
+    })
+
+    if (children.length === 0) {
+      return []
+    }
+
+    const title = COMPONENT_SECTION_TITLES[componentType]
+    return [{ type: 'asyncapi-components', id: sectionId, title, name: title, componentType, children }]
+  })
 
 /**
  * Parses a channel JSON pointer (`#/channels/<name>`) into the key used in `document.channels`.
@@ -705,6 +772,9 @@ export const traverseAsyncApiDocument = (
         })
       : []
 
+  // Reusable messages and traits get their own sections, sharing the Models visibility switch.
+  const componentSections = !hideModels && components ? traverseComponents({ components, documentId, generateId }) : []
+
   // Surface the Introduction entry plus any headings extracted from `info.description`
   // before the channel/tag entries, mirroring how OpenAPI documents are traversed.
   const entries: TraversedEntry[] = traverseDescription({
@@ -729,7 +799,7 @@ export const traverseAsyncApiDocument = (
     untaggedChannels.sort((a, b) => a.title.localeCompare(b.title))
   }
 
-  entries.push(...untaggedChannels)
+  entries.push(...untaggedChannels, ...componentSections)
 
   // Mirror OpenAPI: untagged schemas are grouped under a single top-level "Models" section.
   if (untaggedModels.length) {

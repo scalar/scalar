@@ -31,6 +31,7 @@ export const fr = {
     entryTagGroup: 'Groupe de balises',
     entryChannel: 'Canal',
     entryMessage: 'Message',
+    entryComponent: 'Composant',
     entryWebhook: 'Webhook',
   },
   navigation: {
@@ -47,6 +48,9 @@ export const fr = {
     collapsed: 'Réduit',
     webhooks: 'Webhooks',
     channels: 'Canaux',
+    messages: 'Messages',
+    messageTraits: 'Traits de message',
+    operationTraits: 'Traits d’opération',
   },
   server: {
     label: 'Serveur',

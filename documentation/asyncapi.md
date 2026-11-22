@@ -125,6 +125,14 @@ Request/reply operations show a **Replies** section with the reply channel, its 
 
 Reusable schemas defined under `components.schemas` are rendered in the **Models** section, just like OpenAPI.
 
+Reusable messages and traits get sections of their own, listed in the sidebar just above **Models**:
+
+- **Messages** lists `components.messages`. Each message expands like a channel message, with its headers, payload, correlation ID, bindings, and examples, and its message traits applied.
+- **Message Traits** lists `components.messageTraits`, showing the headers, correlation ID, bindings, and examples that each trait adds to a message.
+- **Operation Traits** lists `components.operationTraits`, showing each trait's description, security requirements, bindings, and external documentation.
+
+Components keep their document order and are searchable. Referenced components are resolved, components marked `x-internal` or `x-scalar-ignore` are left out, and an empty map adds no section. `hideModels` hides these sections along with **Models**.
+
 Multi Format Schema Objects use `schemaFormat` to choose how to display their schema. JSON Schema, AsyncAPI Schema, and OpenAPI Schema formats use the structured schema renderer. Self-contained Avro, RAML, and Protobuf schemas show expandable native fields and types in message payloads, application headers, and reusable models. Successfully parsed schemas use only the structured view. Unsupported or unparseable schemas display the original source with its declared format and a copy button.
 
 Supported schema formats:

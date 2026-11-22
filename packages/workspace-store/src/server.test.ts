@@ -1390,6 +1390,7 @@ describe('create-server-store', () => {
       expect(ordered['x-scalar-order']).toEqual([
         'events/description/introduction',
         'events/channel/planetevents',
+        'events/messages',
         'events/models',
       ])
     })

@@ -188,6 +188,62 @@ export type TraversedAsyncApiMessage = BaseSchema & {
   channelName: string
 }
 
+/**
+ * Reusable AsyncAPI component maps that render as their own reference sections.
+ * Each value is the key under `document.components`.
+ */
+export const ASYNC_API_COMPONENT_TYPES = ['messages', 'messageTraits', 'operationTraits'] as const
+
+/** One of the AsyncAPI component maps rendered as a reference section. */
+export type AsyncApiComponentType = (typeof ASYNC_API_COMPONENT_TYPES)[number]
+
+const AsyncApiComponentTypeSchema = Type.Union([
+  Type.Literal('messages'),
+  Type.Literal('messageTraits'),
+  Type.Literal('operationTraits'),
+])
+
+export const TraversedAsyncApiComponentsSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-components'),
+    name: Type.String(),
+    componentType: AsyncApiComponentTypeSchema,
+    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
+  }),
+)
+
+/**
+ * A top-level section listing one AsyncAPI component map, such as `components.messages`.
+ */
+export type TraversedAsyncApiComponents = BaseSchema & {
+  type: 'asyncapi-components'
+  name: string
+  /** Key of the component map in `document.components` */
+  componentType: AsyncApiComponentType
+  children?: TraversedEntry[]
+}
+
+export const TraversedAsyncApiComponentSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-component'),
+    name: Type.String(),
+    componentType: AsyncApiComponentTypeSchema,
+  }),
+)
+
+/**
+ * A single reusable AsyncAPI component, such as one entry of `components.messageTraits`.
+ */
+export type TraversedAsyncApiComponent = BaseSchema & {
+  type: 'asyncapi-component'
+  /** Key in `document.components[componentType]` */
+  name: string
+  /** Key of the component map in `document.components` */
+  componentType: AsyncApiComponentType
+}
+
 export const TraversedSchemaSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
@@ -322,6 +378,8 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedAsyncApiOperationSchemaDefinition,
   TraversedAsyncApiChannelSchemaDefinition,
   TraversedAsyncApiMessageSchemaDefinition,
+  TraversedAsyncApiComponentsSchemaDefinition,
+  TraversedAsyncApiComponentSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
@@ -337,6 +395,8 @@ export type TraversedEntry =
   | TraversedAsyncApiOperation
   | TraversedAsyncApiChannel
   | TraversedAsyncApiMessage
+  | TraversedAsyncApiComponents
+  | TraversedAsyncApiComponent
   | TraversedSchema
   | TraversedTag
   | TraversedWebhook
@@ -444,6 +504,14 @@ type AsyncApiMessageProps = {
   type: 'asyncapi-message'
 }
 
+type AsyncApiComponentProps = {
+  parentId: string
+  componentType: AsyncApiComponentType
+  /** Omitted for the section that lists the whole component map */
+  name?: string
+  type: 'asyncapi-component'
+}
+
 export type IdGeneratorProps =
   | DocumentIdProps
   | DescriptionIdProps
@@ -452,6 +520,7 @@ export type IdGeneratorProps =
   | AsyncApiOperationProps
   | AsyncApiChannelProps
   | AsyncApiMessageProps
+  | AsyncApiComponentProps
   | WebhookProps
   | ModelProps
   | ExampleProps

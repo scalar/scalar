@@ -31,6 +31,7 @@ export const de = {
     entryTagGroup: 'Tag-Gruppe',
     entryChannel: 'Kanal',
     entryMessage: 'Nachricht',
+    entryComponent: 'Komponente',
     entryWebhook: 'Webhook',
   },
   navigation: {
@@ -47,6 +48,9 @@ export const de = {
     collapsed: 'Eingeklappt',
     webhooks: 'Webhooks',
     channels: 'Kanäle',
+    messages: 'Nachrichten',
+    messageTraits: 'Nachrichten-Traits',
+    operationTraits: 'Operations-Traits',
   },
   server: {
     label: 'Server',
