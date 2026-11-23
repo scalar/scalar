@@ -31,7 +31,7 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     # Setting environment here (not at the workflow level) is what grants access
     # to the environment-scoped vars.* and secrets.* for staging or production.
     environment: ${{ inputs.environment }}

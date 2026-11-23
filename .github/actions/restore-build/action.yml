@@ -11,7 +11,12 @@ description: |
 runs:
   using: 'composite'
   steps:
+    # Consumers run turbo with the cache off (`--cache=local:` or tasks with
+    # `cache: false`), so mounting or downloading ./.turbo would only cost
+    # time, and on GitHub-hosted runners it would save a cache entry per job.
     - uses: $/.github/actions/setup-node
+      with:
+        turbo-cache: 'false'
 
     - name: Install dependencies
       shell: bash

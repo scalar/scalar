@@ -1,9 +1,9 @@
 name: Cache Refresh
 
-# Weekly cold rebuild of the main-branch turbo and pnpm-store caches.
-# Wipe the disks, run a full install + build, and let the stickydisk
-# mechanism snapshot the resulting fresh state. Bounds how long a stale
-# or poisoned cache entry can survive on the main stickydisks.
+# Weekly cold rebuild of the main-branch turbo cache. Wipe the disk, run a
+# full install + build, and let the stickydisk mechanism snapshot the
+# resulting fresh state. Bounds how long a stale or poisoned cache entry can
+# survive on the main stickydisk.
 
 on:
   schedule:
@@ -64,13 +64,9 @@ jobs:
           set -euo pipefail
           echo "Cache state before clear:"
           du -sh ./.turbo 2>/dev/null || echo "  ./.turbo: missing"
-          du -sh ~/.local/share/pnpm/store 2>/dev/null || echo "  pnpm store: missing"
 
           if [ -d ./.turbo ]; then
             find ./.turbo -mindepth 1 -delete
-          fi
-          if [ -d ~/.local/share/pnpm/store ]; then
-            find ~/.local/share/pnpm/store -mindepth 1 -delete
           fi
 
       - name: Install dependencies (cold)
@@ -91,7 +87,7 @@ jobs:
             echo ''
             echo '| Path | Size |'
             echo '|---|---|'
-            for p in ./.turbo ~/.local/share/pnpm/store; do
+            for p in ./.turbo; do
               if [ -d "$p" ]; then
                 echo "| $p | $(du -sh "$p" | cut -f1) |"
               fi
