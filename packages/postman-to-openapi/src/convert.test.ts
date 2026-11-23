@@ -1084,6 +1084,22 @@ describe('convert', () => {
     expect(operation).not.toHaveProperty('responses')
   })
 
+  it('skips operation-level server assignment for methods outside OpenAPI 3.1', () => {
+    const result = convert({
+      info: {
+        name: 'Extension methods',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        { name: 'Read file properties', request: { method: 'PROPFIND', url: 'https://files.example.com/files' } },
+        { name: 'List users', request: { method: 'GET', url: 'https://api.example.com/users' } },
+      ],
+    })
+
+    expect(result.paths?.['/files']?.propfind?.servers).toBeUndefined()
+    expect(result.paths?.['/users']?.get?.servers).toStrictEqual([{ url: 'https://api.example.com' }])
+  })
+
   it('keeps server placement correct after path unification', () => {
     const collection: PostmanCollection = {
       info: {
