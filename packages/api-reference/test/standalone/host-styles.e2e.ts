@@ -35,7 +35,7 @@ test('component styles preserve a layered host body across route changes', async
   await expect(body).toHaveCSS('margin', '13px')
 })
 
-test('component styles keep the color scheme on scalar elements', async ({ page }) => {
+test('component styles keep the color scheme on Scalar elements', async ({ page }) => {
   await page.setContent(`
     <body class="dark-mode">
       <main>Host content</main>

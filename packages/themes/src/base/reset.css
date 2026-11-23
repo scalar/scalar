@@ -12,14 +12,14 @@
   }
 }
 
-/* Keep the color scheme of the body class on Scalar elements so it does not leak into host pages. */
+/* Apply the color scheme of the body mode class to Scalar elements only, so it does not leak into the host page. Not in a layer, so theme presets cannot set it on the body again. */
 body:not(.scalar-app):is(.dark-mode, .light-mode) {
   color-scheme: inherit;
 }
-.dark-mode .scalar-app:not(.light-mode) {
+body.dark-mode .scalar-app:not(.dark-mode, .light-mode, body :is(.dark-mode, .light-mode) *) {
   color-scheme: dark;
 }
-.light-mode .scalar-app:not(.dark-mode) {
+body.light-mode .scalar-app:not(.dark-mode, .light-mode, body :is(.dark-mode, .light-mode) *) {
   color-scheme: light;
 }
 
