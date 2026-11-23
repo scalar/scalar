@@ -43,7 +43,7 @@ on:
       rust_build_passed:
         value: ${{ jobs.rust-build-test.outputs.passed }}
       java_build_passed:
-        value: ${{ jobs.java-build-test.outputs.passed }}
+        value: ${{ jobs.java-build-result.outputs.passed }}
 
 permissions:
   contents: read
@@ -337,13 +337,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        spring-boot: ['3.5.7', '4.2.0']
+        # Exercise the POM default without duplicating its current version here.
+        spring-boot: ['3.5.7', 'default']
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
       contents: read
     timeout-minutes: 10
-    outputs:
-      passed: ${{ steps.passed.outputs.passed }}
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Download scalar.js artifact
@@ -360,8 +359,26 @@ jobs:
           cache-dependency-path: 'integrations/java/**/pom.xml'
       - name: Run Maven tests
         working-directory: integrations/java
-        run: mvn clean test -Dspring-boot.version=${{ matrix.spring-boot }}
+        env:
+          SPRING_BOOT_VERSION: ${{ matrix.spring-boot }}
+        run: |
+          if [ "$SPRING_BOOT_VERSION" = 'default' ]; then
+            mvn clean test
+          else
+            mvn clean test "-Dspring-boot.version=$SPRING_BOOT_VERSION"
+          fi
 
+  # Matrix outputs can come from a passing leg even when another leg fails.
+  # Publish only after the complete compatibility matrix succeeds.
+  java-build-result:
+    needs: java-build-test
+    if: always()
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 1
+    outputs:
+      passed: ${{ steps.passed.outputs.passed }}
+    steps:
       - name: Mark build-test passed
+        if: needs.java-build-test.result == 'success'
         id: passed
         run: echo "passed=true" >> "$GITHUB_OUTPUT"
