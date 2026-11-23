@@ -1084,7 +1084,7 @@ describe('convert', () => {
     expect(operation).not.toHaveProperty('responses')
   })
 
-  it('skips operation-level server assignment for methods outside OpenAPI 3.1', () => {
+  it('preserves operation-level servers for custom Postman methods', () => {
     const result = convert({
       info: {
         name: 'Extension methods',
@@ -1096,9 +1096,7 @@ describe('convert', () => {
       ],
     })
 
-    const extensionOperation = result.paths?.['/files']?.propfind
-    expect(extensionOperation?.summary).toBe('Read file properties')
-    expect(extensionOperation?.servers).toBeUndefined()
+    expect(result.paths?.['/files']?.propfind?.servers).toStrictEqual([{ url: 'https://files.example.com' }])
     expect(result.paths?.['/users']?.get?.servers).toStrictEqual([{ url: 'https://api.example.com' }])
   })
 
