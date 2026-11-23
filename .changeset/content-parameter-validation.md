@@ -2,4 +2,4 @@
 "@scalar/mock-server": patch
 ---
 
-Validate request parameters that use `content` instead of `schema`. JSON media types are parsed before validation, so `?filter={"price":"cheap"}` is rejected when `price` is an integer.
+Validate JSON and plain-text request parameters declared with `content`. Malformed JSON is rejected, and JSON values keep their original types during validation, so `?filter={"price":"5"}` is rejected when `price` is an integer.
