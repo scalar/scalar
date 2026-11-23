@@ -1,4 +1,4 @@
-import { isObjectLike } from '@scalar/helpers/object/is-object'
+import { isObject, isObjectLike } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { Type } from '@scalar/typebox'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
@@ -169,6 +169,18 @@ export const mergeSecurity = (
     }
     // We coerce in case the scheme is missing any key fields like type.
     const coerced = coerceValue(SecuritySchemeObjectSchema, scheme)
+    if (coerced.type === 'oauth2' && isObjectLike(scheme) && isObjectLike(scheme.flows)) {
+      // Casting fills missing fields but can drop flow configuration such as the client ID.
+      // Restore those fields per flow so normalized nested values still replace invalid inputs.
+      const flows: Record<string, unknown> = coerced.flows
+      for (const [flowName, flow] of objectEntries(flows)) {
+        const originalFlow = scheme.flows[flowName]
+        if (isObject(flow) && isObject(originalFlow)) {
+          // Spread treats JSON keys as data, including __proto__.
+          flows[flowName] = { ...originalFlow, ...flow }
+        }
+      }
+    }
     const merged = { ...(isObjectLike(scheme) ? scheme : {}), ...coerced }
     const extracted = extractSecuritySchemeSecrets(merged, authStore, name, documentName, oauth2RedirectUri)
     const configured = Object.hasOwn(configSecuritySchemes, name) ? configSecuritySchemes[name] : undefined
