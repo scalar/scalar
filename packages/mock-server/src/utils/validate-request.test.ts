@@ -694,6 +694,29 @@ describe('validate-request', () => {
     expect((await server.request('/users/;id=a%3Bignored')).status).toBe(422)
   })
 
+  it.each([false, true])('validates encoded matrix parameter names with explode=%s', async (explode) => {
+    const documentFor = (schema: OpenAPIV3_1.SchemaObject): ReturnType<typeof documentWith> =>
+      documentWith('/users/{a=b}', 'get', {
+        parameters: [{ name: 'a=b', in: 'path', required: true, style: 'matrix', explode, schema }],
+      })
+    const integerServer = await createMockServer({
+      document: documentFor({ type: 'integer' }),
+      validateRequest: true,
+    })
+    expect((await integerServer.request('/users/;a%3Db=5')).status).toBe(200)
+    expect((await integerServer.request('/users/;a%3Db=nope')).status).toBe(422)
+
+    const stringServer = await createMockServer({
+      document: documentFor({ type: 'string', enum: ['', 'b=5', 'x;y=z'] }),
+      validateRequest: true,
+    })
+    expect((await stringServer.request('/users/;a%3Db=5')).status).toBe(422)
+    expect((await stringServer.request('/users/;a%3Db=b%3D5')).status).toBe(200)
+    expect((await stringServer.request('/users/;a%3Db=x%3By%3Dz')).status).toBe(200)
+    expect((await stringServer.request('/users/;a%3Db')).status).toBe(200)
+    expect((await stringServer.request('/users/;a%3Db=')).status).toBe(200)
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {

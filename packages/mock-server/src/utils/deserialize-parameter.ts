@@ -276,10 +276,13 @@ export const deserializeArrayParameter = ({
 export const deserializePrimitiveParameter = ({
   style,
   single,
+  name,
 }: {
   style: string
   /** The raw value as read from path, query, header, or cookie */
   single: string | undefined
+  /** Declared parameter name, used to identify the complete matrix prefix */
+  name: string
 }): string | undefined => {
   if (single === undefined) {
     return undefined
@@ -290,11 +293,11 @@ export const deserializePrimitiveParameter = ({
   }
 
   if (style === 'matrix') {
-    // Path values are already percent-decoded, so a semicolon can be value data from `%3B`.
-    // A primitive has only one value; splitting it into matrix segments would truncate that data.
-    const equals = single.indexOf('=')
+    // Names and values are already percent-decoded. Match the declared name so an encoded `=` in
+    // the name and an encoded `;` in the value are not mistaken for serialization delimiters.
+    const prefix = `;${name}=`
     // A segment without `=` (`;id`) is the parameter name with an empty value.
-    return equals === -1 ? '' : single.slice(equals + 1)
+    return single.startsWith(prefix) ? single.slice(prefix.length) : ''
   }
 
   return single
