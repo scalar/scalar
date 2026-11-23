@@ -167,6 +167,48 @@ Or get more advanced by styling our sidebar!
 </style>
 ```
 
+### Syntax highlighting
+
+Code blocks take their colors from a set of `--scalar-code-*` variables, one for each kind of token. By default they're derived from the theme's hues (`--scalar-color-purple`, `--scalar-color-blue` and so on), darkened on light backgrounds and lightened on dark ones so small code stays readable. Change a hue and the code colors built on it follow.
+
+To give code its own palette without touching the rest of the theme, set the variables directly:
+
+| Variable                    | Colors                                                | Default                       |
+| --------------------------- | ----------------------------------------------------- | ----------------------------- |
+| `--scalar-code-keyword`     | Keywords such as `const` and `return`, HTML tag names | Purple                        |
+| `--scalar-code-string`      | Strings and regular expressions                       | Blue                          |
+| `--scalar-code-number`      | Numbers and literals such as `true` and `null`        | Orange                        |
+| `--scalar-code-function`    | Function names, where they're declared and called     | Orange                        |
+| `--scalar-code-builtin`     | Built-ins and decorators                              | Blue                          |
+| `--scalar-code-type`        | Class and type names                                  | Navy, close to the text color |
+| `--scalar-code-parameter`   | Function parameters                                   | Red                           |
+| `--scalar-code-property`    | Object keys, member access and attribute names        | Green                         |
+| `--scalar-code-comment`     | Comments                                              | `--scalar-color-2`            |
+| `--scalar-code-punctuation` | Brackets, commas and operators                        | `--scalar-color-2`            |
+| `--scalar-code-addition`    | Added lines in diffs                                  | Green                         |
+| `--scalar-code-deletion`    | Removed lines in diffs                                | Red                           |
+
+Set them on `.light-mode` and `.dark-mode` separately, since a color that reads well on white rarely works on a dark background. Any variable you leave out keeps its default.
+
+Make sure your styles load after Scalar's, for example with the `customCss` option or a `<style>` tag placed after the API Reference. If part of your page switches modes (a `.dark-mode` area inside `.light-mode`, or the reverse), also target `.light-mode .dark-mode` and `.dark-mode .light-mode`, since the theme sets the defaults there too.
+
+```html
+<style>
+  .light-mode {
+    --scalar-code-keyword: #8b3fd9;
+    --scalar-code-string: #0b6e99;
+    --scalar-code-comment: #6b7280;
+  }
+  .dark-mode {
+    --scalar-code-keyword: #c792ea;
+    --scalar-code-string: #89ddff;
+    --scalar-code-comment: #8b949e;
+  }
+</style>
+```
+
+Themes can set these too. The `moon` theme sets its own values so code stays readable on its tinted backgrounds.
+
 ## Embedding with CSS Frameworks
 
 When you embed the Scalar API Reference in an existing application that already has its own CSS (for example, a project using Tailwind), Scalar's styles may interact with your application's styles. This section explains how Scalar's CSS is structured and how to make sure everything works together.
