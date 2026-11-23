@@ -111,6 +111,21 @@ const REGISTRY_META = {
 } as const
 
 describe('create-workspace-store', () => {
+  it.each([true, false])('uses missing-document resolvers for inherited names with reactive=%s', async (reactive) => {
+    const store = createWorkspaceStore({ reactive })
+    const schemas = store.asyncApiSchemaResources('missing')
+    const examples = store.externalExamples('missing')
+
+    for (const name of ['__proto__', 'constructor', 'prototype', 'toString']) {
+      expect(store.asyncApiSchemaResources(name)).toBe(schemas)
+      expect(store.externalExamples(name)).toBe(examples)
+    }
+
+    await store.addDocument({ name: 'toString', document: getDocument() })
+    expect(store.asyncApiSchemaResources('toString')).not.toBe(schemas)
+    expect(store.externalExamples('toString')).not.toBe(examples)
+  })
+
   it('publishes document fallbacks after deleting an own inherited name', async () => {
     const values: unknown[] = []
     const store = createWorkspaceStore({

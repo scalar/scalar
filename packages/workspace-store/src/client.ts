@@ -1677,7 +1677,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   return {
     asyncApiSchemaResources: (documentName) => {
       const name = documentName ?? getActiveDocumentName()
-      const document = workspace.documents[name]
+      const document = Object.hasOwn(workspace.documents, name) ? workspace.documents[name] : undefined
       if (!document) return fallbackNativeSchemas
       const raw = unpackProxyShallow(document)
       checkNativeSchemaEdits(document)
@@ -1694,7 +1694,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     externalExamples: (documentName) => {
       const name = documentName ?? getActiveDocumentName()
-      const document = workspace.documents[name]
+      const document = Object.hasOwn(workspace.documents, name) ? workspace.documents[name] : undefined
       if (!document) {
         return fallbackExternalExamples
       }
