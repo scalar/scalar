@@ -87,7 +87,6 @@ describe('SpecificationExtensions', () => {
     expect(toggle.attributes('aria-expanded')).toBe('false')
     expect(toggle.attributes('aria-controls')).toBeUndefined()
     expect(wrapper.get(`#${toggle.attributes('aria-labelledby')}`).text()).toBe('Extensions (2)')
-    expect(wrapper.find('dl').exists()).toBe(false)
 
     await toggle.trigger('click')
 
@@ -114,9 +113,14 @@ describe('SpecificationExtensions', () => {
     const wrapper = mount(SpecificationExtensions, {
       props: { extensions: { 'x-owner': 'checkout' }, collapsible: true },
     })
-    await wrapper.get('button').trigger('click')
-    await wrapper.get('button').trigger('click')
-    expect(wrapper.find('dl').exists()).toBe(false)
+    const toggle = wrapper.get('button')
+    await toggle.trigger('click')
+    expect(wrapper.text()).toContain('"checkout"')
+
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    expect(toggle.attributes('aria-controls')).toBeUndefined()
+    expect(wrapper.text()).toBe('Extensions (1)')
   })
 
   it('renders nothing when collapsible and there are no extensions', () => {
