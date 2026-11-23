@@ -9,12 +9,11 @@ import {
   parseStatusCodeFromRequestName,
 } from '@/helpers/path-items'
 
-it('returns an object based on operation2 with operation2 fields preserved', () => {
+it('preserves operation fields and omits empty responses', () => {
   const op1: OpenAPIV3_1.OperationObject = { summary: 'First', responses: {} }
   const op2: OpenAPIV3_1.OperationObject = { summary: 'Second', description: 'Op2', responses: {} }
   const result = mergeOperations(op1, op2)
-  expect(result.summary).toBe('First')
-  expect(result.description).toBe('Op2')
+  expect(result).toStrictEqual({ summary: 'First', description: 'Op2' })
 })
 
 it('merges parameter examples when both operations have a parameter with the same name', () => {
