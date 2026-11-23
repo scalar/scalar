@@ -22,7 +22,7 @@
     "eslint-plugin-vue": "^10.12.1",
     "globals": "^17.14.0",
     "jsdom": "catalog:*",
-    "knip": "6.46.1",
+    "knip": "6.47.0",
     "lefthook": "^2.2.2",
     "prettier": "3.10.1",
     "prettier-plugin-tailwindcss": "^0.8.1",
@@ -38,7 +38,7 @@
     "vitest": "catalog:*",
     "vue-eslint-parser": "^10.4.2",
     "vue-tsc": "catalog:*",
-    "wrangler": "^4.165.0"
+    "wrangler": "^4.166.0"
   },
   "scripts": {
     "build": "turbo build",
