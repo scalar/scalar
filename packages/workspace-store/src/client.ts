@@ -98,6 +98,19 @@ import { upgradeDocuments } from './plugins/bundler/upgrade-documents'
  */
 const EXTERNAL_FETCH_CONCURRENCY_LIMIT = 10
 
+/** Removes the reserved key before assignment can change a workspace map's prototype. */
+const omitReservedWorkspaceKey = <T extends object | null | undefined>(source: T): T => {
+  if (!source || !Object.hasOwn(source, '__proto__')) {
+    return source
+  }
+
+  console.warn('Ignoring reserved workspace key "__proto__".')
+  // Copy before filtering so the caller retains its original snapshot.
+  const copy = { ...source }
+  Reflect.deleteProperty(copy, '__proto__')
+  return copy
+}
+
 type ExtraDocumentConfigurations = Record<
   string,
   {
@@ -1478,9 +1491,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * @returns The editable document object, or null if not found.
    */
   const getEditableDocument = async (documentName: string) => {
-    if (documentName === '__proto__') {
-      return null
-    }
     const rawDocument = unpackProxyObject(getOwnEntry(workspace.documents, documentName), { depth: 1 })
 
     if (!rawDocument) {
@@ -1741,7 +1751,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Used to preserve the original metadata of the document (we need to unpack so we don't store a proxy object)
       const currentDocument = unpackProxyObject(getOwnEntry(workspace.documents, documentName), { depth: 1 })
 
-      if (documentName === '__proto__' || !currentDocument) {
+      if (!currentDocument) {
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
       }
 
@@ -1942,36 +1952,25 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       } satisfies InMemoryWorkspace
     },
     loadWorkspace(input: InMemoryWorkspace) {
-      // Reject unsafe names before hydration can mutate any of the document maps.
-      for (const documents of [
-        input.documents,
-        input.originalDocuments,
-        input.intermediateDocuments,
-        input.overrides,
-        input.requestBodyBaselines,
-        input.history,
-        input.auth,
-      ]) {
-        if (documents && Object.hasOwn(documents, '__proto__')) {
-          preventPollution('__proto__', 'workspace document name')
-        }
-      }
+      const documents = omitReservedWorkspaceKey(input.documents)
+      const loadedOverrides = omitReservedWorkspaceKey(input.overrides)
+
       // A workspace from a compact server store carries an index rather than per-node chunk
       // references; expanded here for the same reason `addInMemoryDocument` expands.
-      for (const document of Object.values(input.documents)) {
+      for (const document of Object.values(documents)) {
         expandChunkIndex(document)
       }
 
       safeAssign(
         workspace.documents,
         Object.fromEntries(
-          Object.entries(input.documents).map(([name, doc]) => {
+          Object.entries(documents).map(([name, doc]) => {
             // Hydration only rewraps: an exported document has already been upgraded, bundled, coerced
             // and given its navigation, so nothing here re-processes it.
             const magicDocument = createMagicProxy(doc, {
               documentUri: resolveOpenApiDocument(doc, doc['x-scalar-original-source-url'] ?? '/')?.baseUri,
             })
-            const documentOverrides = getOwnEntry(input.overrides, name)
+            const documentOverrides = getOwnEntry(loadedOverrides, name)
             if (isAsyncApiDocument(magicDocument)) checkNativeSchemaEdits(magicDocument)
 
             return [
@@ -1988,13 +1987,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         if (isAsyncApiDocument(document)) checkNativeSchemaEdits(document)
       }
 
-      safeAssign(originalDocuments, input.originalDocuments)
-      safeAssign(intermediateDocuments, input.intermediateDocuments)
-      safeAssign(overrides, input.overrides)
-      safeAssign(requestBodyBaselines, deepClone(input.requestBodyBaselines ?? {}))
-      safeAssign(workspace, input.meta)
-      history.load(input.history)
-      auth.load(input.auth)
+      safeAssign(originalDocuments, omitReservedWorkspaceKey(input.originalDocuments))
+      safeAssign(intermediateDocuments, omitReservedWorkspaceKey(input.intermediateDocuments))
+      safeAssign(overrides, loadedOverrides)
+      safeAssign(requestBodyBaselines, deepClone(omitReservedWorkspaceKey(input.requestBodyBaselines) ?? {}))
+      safeAssign(workspace, omitReservedWorkspaceKey(input.meta))
+      history.load(omitReservedWorkspaceKey(input.history))
+      auth.load(omitReservedWorkspaceKey(input.auth))
     },
     importWorkspaceFromSpecification: async (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
@@ -2006,7 +2005,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // Assign workspace metadata
-      safeAssign(workspace, meta)
+      safeAssign(workspace, omitReservedWorkspaceKey(meta))
 
       // Add workspace documents
       return await Promise.all(

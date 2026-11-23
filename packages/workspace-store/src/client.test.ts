@@ -4,7 +4,7 @@ import { cwd } from 'node:process'
 
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
-import { consoleErrorSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
+import { consoleErrorSpy, consoleWarnSpy, resetConsoleSpies } from '@scalar/helpers/testing/console-spies'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { getActiveOpenApiDocument, getOpenApiDocument } from '@test/helpers'
 import { literalReferencesDocument } from '@test/literal-references'
@@ -213,9 +213,11 @@ describe('create-workspace-store', () => {
     expect(store.exportWorkspace().intermediateDocuments).toStrictEqual({})
   })
 
-  it.each([true, false])('rejects reserved snapshot names before hydration with reactive=%s', async (reactive) => {
+  it.each([true, false])('skips reserved snapshot keys with reactive=%s', async (reactive) => {
     const source = createWorkspaceStore({ reactive })
     await source.addDocument({ name: 'api', document: getDocument() })
+    source.update('x-scalar-active-document', 'api')
+    const snapshot = source.exportWorkspace()
 
     for (const field of [
       'documents',
@@ -225,17 +227,18 @@ describe('create-workspace-store', () => {
       'requestBodyBaselines',
       'history',
       'auth',
+      'meta',
     ] as const) {
       const store = createWorkspaceStore({ reactive })
-      const before = store.exportWorkspace()
-      const input = { ...source.exportWorkspace(), requestBodyBaselines: {} }
-      Object.defineProperty(input, field, { value: { ...input[field] }, enumerable: true })
-      Object.defineProperty(input[field], '__proto__', { value: {}, enumerable: true })
+      const input = { ...snapshot, [field]: { ...snapshot[field], ['__proto__']: false } }
+      consoleWarnSpy.mockClear()
 
-      expect(() => store.loadWorkspace(input)).toThrow(
-        'Prototype pollution key detected: "__proto__" in workspace document name',
-      )
-      expect(store.exportWorkspace()).toStrictEqual(before)
+      store.loadWorkspace(input)
+
+      expect(consoleWarnSpy).toHaveBeenCalledExactlyOnceWith('Ignoring reserved workspace key "__proto__".')
+      expect(store.workspace.activeDocument?.info.title).toBe('My API')
+      expect(Object.keys(store.exportWorkspace()[field] ?? {})).toStrictEqual(Object.keys(snapshot[field] ?? {}))
+      expect(Object.hasOwn(input[field] ?? {}, '__proto__')).toBe(true)
     }
   })
 
@@ -268,16 +271,34 @@ describe('create-workspace-store', () => {
     },
   )
 
-  it('updates reactive active document reads when a selected name is added or deleted', async () => {
-    const name = 'constructor'
-    const store = createWorkspaceStore({ meta: { 'x-scalar-active-document': name } })
-    const activeTitle = computed(() => store.workspace.activeDocument?.info.title)
+  it.each(['api', 'constructor'])(
+    'updates reactive active document reads when %s is added or deleted',
+    async (name) => {
+      const store = createWorkspaceStore({ meta: { 'x-scalar-active-document': name } })
+      const activeTitle = computed(() => store.workspace.activeDocument?.info.title)
 
-    expect(activeTitle.value).toBeUndefined()
-    await expect(store.addDocument({ name, document: getDocument() })).resolves.toBe(true)
-    expect(activeTitle.value).toBe('My API')
-    store.deleteDocument(name)
-    expect(activeTitle.value).toBeUndefined()
+      expect(activeTitle.value).toBeUndefined()
+      await expect(store.addDocument({ name, document: getDocument() })).resolves.toBe(true)
+      expect(activeTitle.value).toBe('My API')
+      store.deleteDocument(name)
+      expect(activeTitle.value).toBeUndefined()
+    },
+  )
+
+  it('imports supported workspace metadata while skipping reserved keys', async () => {
+    const store = createWorkspaceStore()
+    const specification = {
+      workspace: 'draft' as const,
+      info: { title: 'Imported' },
+      'x-scalar-active-document': 'api',
+      ['__proto__']: false,
+    }
+    consoleWarnSpy.mockClear()
+
+    await expect(store.importWorkspaceFromSpecification(specification)).resolves.toStrictEqual([])
+
+    expect(consoleWarnSpy).toHaveBeenCalledExactlyOnceWith('Ignoring reserved workspace key "__proto__".')
+    expect(store.workspace['x-scalar-active-document']).toBe('api')
   })
 
   it('stores and clears auth state for a document named toString', () => {
