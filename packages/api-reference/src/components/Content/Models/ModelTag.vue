@@ -49,11 +49,13 @@ const { level: headingLevel } = useDocumentOutline('modelGroup')
   <!-- Classic Layout Model Container -->
   <SectionContainerAccordion
     v-else
+    :id="id"
     :aria-label="modelsSectionLabel"
-    class="pb-12"
+    class="scroll-mt-(--refs-viewport-offset) pb-12"
     :modelValue="!isCollapsed"
+    tabindex="-1"
     @update:modelValue="
-      () => eventBus?.emit('toggle:nav-item', { id, open: isCollapsed })
+      (open) => eventBus?.emit('toggle:nav-item', { id, open })
     ">
     <template #title>
       <SectionHeader>

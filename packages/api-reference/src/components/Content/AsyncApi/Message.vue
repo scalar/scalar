@@ -275,13 +275,12 @@ const generatedPayload = computed<unknown>(() =>
     : undefined,
 )
 
-const { level: headingLevel } = useDocumentOutline(
-  parent === 'components'
-    ? 'model'
-    : parent === 'channel'
-      ? 'channelMessage'
-      : 'message',
-)
+const outlineRoles = {
+  components: 'model',
+  channel: 'channelMessage',
+  operation: 'message',
+} as const
+const { level: headingLevel } = useDocumentOutline(outlineRoles[parent])
 </script>
 
 <template>
@@ -426,7 +425,8 @@ const { level: headingLevel } = useDocumentOutline(
             class="message-examples"
             :contentType="contentType"
             :examples="resolvedMessage?.examples"
-            :generatedPayload="isExpanded ? generatedPayload : undefined" />
+            :generatedPayload="isExpanded ? generatedPayload : undefined"
+            :showHeaders="message.type === 'asyncapi-component'" />
         </div>
       </div>
     </CompactSection>

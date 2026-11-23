@@ -333,9 +333,33 @@ describe('create-async-api-search-entry', () => {
       createAsyncApiSearchEntry(createDocument(), { type: 'text', id: 'intro', title: 'Introduction' }),
     ).toBeUndefined()
   })
-})
 
-describe('create-async-api-search-entry components', () => {
+  it('indexes distinct reusable messages whose keys previously shared a slug', () => {
+    const document: AsyncApiDocument = {
+      ...createDocument(),
+      components: {
+        messages: {
+          'Order.Created': { description: 'Dotted event' },
+          OrderCreated: { description: 'Undotted event' },
+          Order_Created: { description: 'Underscore event' },
+          'Order-Created': { description: 'Hyphenated event' },
+        },
+      },
+    }
+    const index = createSearchIndex({
+      ...document,
+      'x-scalar-navigation': traverseAsyncApiDocument('catalog', document),
+    })
+    expect(
+      index.filter((entry) => entry.type === 'asyncapi-component').map(({ id, description }) => [id, description]),
+    ).toStrictEqual([
+      ['catalog/~components/messages/Order~002eCreated', 'Dotted event'],
+      ['catalog/~components/messages/OrderCreated', 'Undotted event'],
+      ['catalog/~components/messages/Order_Created', 'Underscore event'],
+      ['catalog/~components/messages/Order-Created', 'Hyphenated event'],
+    ])
+  })
+
   it('indexes reusable messages, message traits, and operation traits', () => {
     const document: AsyncApiDocument = {
       asyncapi: '3.1.0',
@@ -375,21 +399,21 @@ describe('create-async-api-search-entry components', () => {
       })),
     ).toStrictEqual([
       {
-        id: 'components/messages/PlanetUpdated',
+        id: 'components/~components/messages/PlanetUpdated',
         title: 'Planet updated',
         description: 'A planet changed',
         identifiers: ['PlanetUpdated', 'planet.updated'],
         body: ['planetId'],
       },
       {
-        id: 'components/message-traits/Tracing',
+        id: 'components/~components/message-traits/Tracing',
         title: 'Tracing headers',
         description: 'Tracing headers',
         identifiers: ['Tracing'],
         body: ['traceId'],
       },
       {
-        id: 'components/operation-traits/Kafka',
+        id: 'components/~components/operation-traits/Kafka',
         title: 'Kafka defaults',
         description: 'Applies the consumer group',
         identifiers: ['Kafka'],

@@ -7,7 +7,6 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { pickHeading } from '@/components/Content/AsyncApi/helpers/pick-heading'
 import {
   resolveAsyncApiChannel,
-  resolveAsyncApiMessage,
   resolveAsyncApiMessageEntry,
   resolveAsyncApiOperation,
   resolveAsyncApiOperationTrait,
@@ -89,42 +88,30 @@ export const createAsyncApiSearchEntry = (document: AsyncApiDocument, entry: Tra
       description: [operation?.summary, operation?.description].filter(Boolean).join('\n'),
     }
   }
-  if (entry.type === 'asyncapi-message') {
-    const message = resolveAsyncApiMessage(document, entry.channelName, entry.messageName)
-    const fields = extractSchemaFields([message?.payload, message?.headers])
+  if (entry.type === 'asyncapi-component' && entry.componentType === 'operationTraits') {
+    const trait = resolveAsyncApiOperationTrait(document, entry.name)
     return {
       type: entry.type,
       id: entry.id,
-      title: pickHeading(message?.title, entry.title, entry.messageName),
+      title: pickHeading(trait?.title, entry.title, entry.name),
       entry,
-      identifiers: message?.name ? [entry.messageName, message.name] : [entry.messageName],
-      path: resolveAsyncApiChannel(document, entry.channelName)?.address ?? undefined,
-      description: message?.description ?? message?.summary ?? '',
-      body: fields.names,
-      bodyDescriptions: [...new Set([...(message?.summary ? [message.summary] : []), ...fields.descriptions])],
+      identifiers: [entry.name],
+      description: [trait?.summary, trait?.description].filter(Boolean).join('\n'),
     }
   }
-  if (entry.type === 'asyncapi-component') {
-    if (entry.componentType === 'operationTraits') {
-      const trait = resolveAsyncApiOperationTrait(document, entry.name)
-      return {
-        type: entry.type,
-        id: entry.id,
-        title: pickHeading(trait?.title, entry.title, entry.name),
-        entry,
-        identifiers: [entry.name],
-        description: [trait?.summary, trait?.description].filter(Boolean).join('\n'),
-      }
-    }
-    // Reusable messages and message traits index the same fields as channel messages.
+  if (entry.type === 'asyncapi-message' || entry.type === 'asyncapi-component') {
     const message = resolveAsyncApiMessageEntry(document, entry)
+    const name = entry.type === 'asyncapi-message' ? entry.messageName : entry.name
     const fields = extractSchemaFields([message?.payload, message?.headers])
     return {
       type: entry.type,
       id: entry.id,
-      title: pickHeading(message?.title, entry.title, entry.name),
+      title: pickHeading(message?.title, entry.title, name),
       entry,
-      identifiers: message?.name ? [entry.name, message.name] : [entry.name],
+      identifiers: message?.name ? [name, message.name] : [name],
+      ...(entry.type === 'asyncapi-message' && {
+        path: resolveAsyncApiChannel(document, entry.channelName)?.address ?? undefined,
+      }),
       description: message?.description ?? message?.summary ?? '',
       body: fields.names,
       bodyDescriptions: [...new Set([...(message?.summary ? [message.summary] : []), ...fields.descriptions])],

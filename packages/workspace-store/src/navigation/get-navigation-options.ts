@@ -5,7 +5,7 @@ import { type ApiReferenceConfigurationRaw, DEFAULT_MODELS_SECTION_LABEL } from 
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { AsyncApiComponentType, IdGenerator } from '@/schemas/navigation'
 
-/** URL segment for each AsyncAPI component section, e.g. `my-api/message-traits/Common`. */
+/** URL segment for each reusable AsyncAPI component section. */
 const ASYNC_API_COMPONENT_SECTION_SLUGS: Record<AsyncApiComponentType, string> = {
   messages: 'messages',
   messageTraits: 'message-traits',
@@ -107,8 +107,18 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
 
     // -------- Default AsyncAPI component id generation logic --------
     if (props.type === 'asyncapi-component') {
-      const sectionId = `${documentId}/${ASYNC_API_COMPONENT_SECTION_SLUGS[props.componentType]}`
-      return props.name === undefined ? sectionId : `${sectionId}/${slugify(props.name, { preserveCase: true })}`
+      // The reserved prefix keeps sections separate from any slug derived from a Models label.
+      const sectionId = `${documentId}/~components/${ASYNC_API_COMPONENT_SECTION_SLUGS[props.componentType]}`
+      if (props.name === undefined) {
+        return sectionId
+      }
+      // Escape dots so URL dot segments and schema path markers cannot consume component keys.
+      // Fixed-width escapes preserve distinct keys without relying on URL decoding.
+      const name = props.name.replace(
+        /[^a-zA-Z0-9_-]/g,
+        (char) => `~${char.charCodeAt(0).toString(16).padStart(4, '0')}`,
+      )
+      return `${sectionId}/${name || '~'}`
     }
 
     // -------- Default operation id generation logic --------

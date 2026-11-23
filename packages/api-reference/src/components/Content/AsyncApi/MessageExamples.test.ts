@@ -63,6 +63,30 @@ describe('MessageExamples', () => {
     expect(wrapper.text()).toBe('')
   })
 
+  it('selects and copies header-only examples when documenting reusable components', async () => {
+    const wrapper = mount(MessageExamples, {
+      props: {
+        showHeaders: true,
+        contentType: 'application/xml',
+        examples: [
+          { name: 'Tracing', headers: { trace: 'abc' } },
+          { name: 'Event', headers: { trace: 'def' }, payload: '<event />' },
+        ],
+      },
+    })
+    const headerContent = '{\n  "trace": "abc"\n}'
+    expect(wrapper.getComponent(ScalarCodeBlock).props('lang')).toBe('json')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(headerContent)
+    expect(wrapper.get('button[aria-label="Copy headers"]').attributes('aria-label')).toBe('Copy headers')
+
+    wrapper.getComponent(ExamplePicker).vm.$emit('update:modelValue', '1')
+    await nextTick()
+    expect(wrapper.findAllComponents(ScalarCopy).map((copy) => copy.props('content'))).toStrictEqual([
+      '{\n  "trace": "def"\n}',
+      '<event />',
+    ])
+  })
+
   it.each([null, false, 0, ''])('renders a generated %j payload', (generatedPayload) => {
     const wrapper = mount(MessageExamples, { props: { generatedPayload } })
     expect(wrapper.get('pre').text()).toBe(String(generatedPayload))

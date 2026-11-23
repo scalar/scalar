@@ -170,7 +170,11 @@ describe('AsyncApiTraversedEntry', () => {
           },
         },
         messageTraits: {
-          Tracing: { title: 'Tracing', headers: { type: 'object', properties: { traceId: { type: 'string' } } } },
+          Tracing: {
+            title: 'Tracing',
+            headers: { type: 'object', properties: { traceId: { type: 'string' } } },
+            examples: [{ headers: { traceId: 'example-trace' } }],
+          },
         },
         operationTraits: {
           Kafka: {
@@ -221,16 +225,24 @@ describe('AsyncApiTraversedEntry', () => {
     for (const heading of ['Messages', 'Message Traits', 'Operation Traits']) {
       expect(text).toContain(heading)
     }
+    const messagesSection = wrapper.get('[id="components/~components/messages"]')
+    expect(messagesSection.attributes('aria-label')).toBe('Messages')
+    if (layout === 'classic') {
+      const toggle = messagesSection.get('button[aria-labelledby]')
+      expect(toggle.attributes('aria-expanded')).toBe('true')
+    }
+
     // The reusable message applies its trait, so both payload and trait headers render.
     const messages = wrapper.findAllComponents(Message)
     const findMessage = (id: string) => messages.find((component) => component.props('message').id === id)
-    const message = findMessage('components/messages/PlanetUpdated')
+    const message = findMessage('components/~components/messages/PlanetUpdated')
     expect(message?.text()).toContain('planetId')
     expect(message?.text()).toContain('traceId')
     // The trait renders on its own, without a payload.
-    const trait = findMessage('components/message-traits/Tracing')
+    const trait = findMessage('components/~components/message-traits/Tracing')
     expect(trait?.text()).toContain('traceId')
     expect(trait?.text()).not.toContain('Payload')
+    expect(trait?.get('pre').text()).toBe('{\n  "traceId": "example-trace"\n}')
     // Operation traits show their prose, security, and documentation.
     const operationTrait = wrapper.getComponent(OperationTrait)
     expect(operationTrait.text()).toContain('Kafka defaults')

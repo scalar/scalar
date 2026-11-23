@@ -134,7 +134,7 @@ public class ScalarProperties {
     private boolean showBadgesInSidebar = false;
 
     /**
-     * Whether models (components.schemas or definitions) should be hidden from the
+     * Hide schema models and reusable AsyncAPI messages and traits from the
      * sidebar, search, and content.
      * Defaults to false.
      */

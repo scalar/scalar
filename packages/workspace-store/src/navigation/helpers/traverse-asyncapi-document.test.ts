@@ -781,28 +781,28 @@ describe('traverseAsyncApiDocument', () => {
     expect(result.children?.filter((entry) => entry.type === 'asyncapi-components')).toStrictEqual([
       {
         type: 'asyncapi-components',
-        id: 'components/messages',
+        id: 'components/~components/messages',
         title: 'Messages',
         name: 'Messages',
         componentType: 'messages',
         children: [
           {
             type: 'asyncapi-component',
-            id: 'components/messages/PlanetUpdated',
+            id: 'components/~components/messages/PlanetUpdated',
             title: 'Planet Updated',
             name: 'PlanetUpdated',
             componentType: 'messages',
           },
           {
             type: 'asyncapi-component',
-            id: 'components/messages/PlanetDeleted',
+            id: 'components/~components/messages/PlanetDeleted',
             title: 'planetDeleted',
             name: 'PlanetDeleted',
             componentType: 'messages',
           },
           {
             type: 'asyncapi-component',
-            id: 'components/messages/Alias',
+            id: 'components/~components/messages/Alias',
             title: 'Aliased',
             name: 'Alias',
             componentType: 'messages',
@@ -811,14 +811,14 @@ describe('traverseAsyncApiDocument', () => {
       },
       {
         type: 'asyncapi-components',
-        id: 'components/message-traits',
+        id: 'components/~components/message-traits',
         title: 'Message Traits',
         name: 'Message Traits',
         componentType: 'messageTraits',
         children: [
           {
             type: 'asyncapi-component',
-            id: 'components/message-traits/CommonHeaders',
+            id: 'components/~components/message-traits/CommonHeaders',
             title: 'Common headers',
             name: 'CommonHeaders',
             componentType: 'messageTraits',
@@ -827,14 +827,14 @@ describe('traverseAsyncApiDocument', () => {
       },
       {
         type: 'asyncapi-components',
-        id: 'components/operation-traits',
+        id: 'components/~components/operation-traits',
         title: 'Operation Traits',
         name: 'Operation Traits',
         componentType: 'operationTraits',
         children: [
           {
             type: 'asyncapi-component',
-            id: 'components/operation-traits/Kafka',
+            id: 'components/~components/operation-traits/Kafka',
             title: 'Kafka defaults',
             name: 'Kafka',
             componentType: 'operationTraits',
@@ -842,6 +842,29 @@ describe('traverseAsyncApiDocument', () => {
         ],
       },
     ])
+  })
+
+  it('keeps a renamed Models section and its entries separate from reusable messages', () => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Components', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      components: {
+        schemas: { Event: { type: 'object' } },
+        messages: { Event: {}, '.': {}, '..': {} },
+      },
+    } satisfies AsyncApiDocument
+
+    const navigation = traverseAsyncApiDocument('catalog', document, { modelsSectionLabel: 'Messages' })
+    const messages = navigation.children?.find((entry) => entry.type === 'asyncapi-components')
+    const models = navigation.children?.find((entry) => entry.type === 'models')
+    expect([messages?.id, models?.id]).toStrictEqual(['catalog/~components/messages', 'catalog/messages'])
+    expect(messages?.children?.map((entry) => entry.id)).toStrictEqual([
+      'catalog/~components/messages/Event',
+      'catalog/~components/messages/~002e',
+      'catalog/~components/messages/~002e~002e',
+    ])
+    expect(models?.children?.map((entry) => entry.id)).toStrictEqual(['catalog/messages/Event'])
   })
 
   it('omits empty component sections and hides them with hideModels', () => {

@@ -279,10 +279,10 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
-    /// Sets whether models should be shown in the sidebar, search, and content.
+    /// Sets whether to show schema models and reusable AsyncAPI messages and traits in the sidebar, search, and content.
     /// </summary>
     /// <param name="options">The options to configure.</param>
-    /// <param name="showModels">Whether to show models.</param>
+    /// <param name="showModels">Whether to show schema models and reusable AsyncAPI messages and traits.</param>
     [Obsolete("This method is obsolete and will be removed in a future release. Please use HideModels() instead. Note: WithModels(true) is the default behavior and can be removed entirely.")]
     public static TOptions WithModels<TOptions>(this TOptions options, bool showModels = true) where TOptions : ScalarOptions
     {

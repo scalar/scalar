@@ -33,6 +33,31 @@ describe('SectionContainerAccordion', () => {
     expect(wrapper.get(`[id="${labelledBy}"]`).text()).toBe('Planets')
   })
 
+  it('keeps the named button and its panel in sync when navigation changes expansion', async () => {
+    const wrapper = mount(SectionContainerAccordion, {
+      props: { modelValue: false },
+      slots: { title: 'Messages', default: 'Planet updated' },
+    })
+    const button = wrapper.get('button')
+    const labelId = button.attributes('aria-labelledby')
+    expect(wrapper.get(`[id="${labelId}"]`).text()).toBe('Messages')
+    expect(button.attributes('aria-expanded')).toBe('false')
+    expect(wrapper.text()).toBe('Messages')
+
+    await wrapper.setProps({ modelValue: true })
+
+    expect(button.attributes('aria-expanded')).toBe('true')
+    const panelId = button.attributes('aria-controls')
+    expect(wrapper.get(`[id="${panelId}"]`).text()).toBe('Planet updated')
+    await button.trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toStrictEqual([[false]])
+
+    await wrapper.setProps({ modelValue: false })
+
+    expect(button.attributes('aria-expanded')).toBe('false')
+    expect(wrapper.find(`[id="${panelId}"]`).exists()).toBe(false)
+  })
+
   it('leaves clicks on a control in the title to that control', async () => {
     const { wrapper, onUpdate } = mountAccordion('<button class="copy-link" type="button">Copy link</button>')
 
