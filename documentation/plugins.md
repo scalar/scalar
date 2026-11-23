@@ -15,6 +15,19 @@ const configuration = {
 }
 ```
 
+## Community Plugins
+
+These plugins are built and maintained by third parties. Scalar does not review, endorse, or support them.
+
+| Plugin | Description |
+| --- | --- |
+| [Arazzo](https://www.npmjs.com/package/@bielu/scalar-arazzo) | Renders Arazzo workflows and steps alongside your API references. |
+| [SignalR](https://www.npmjs.com/package/@bielu/scalar-signalr) | Connects to SignalR hubs, invokes methods, and watches server events. |
+| [gRPC](https://www.npmjs.com/package/@bielu/scalar-grpc) | Invokes unary and server-streaming methods over gRPC-Web. |
+| [Message broker](https://www.npmjs.com/package/@bielu/scalar-broker) | Publishes and tails messages through a server-side bridge, with a Kafka driver available. |
+
+See the [plugin documentation](https://github.com/bielu/Bielu.AspNetCore.ApiDescriptions) for setup and the corresponding NuGet packages.
+
 ## Mermaid diagrams
 
 The optional `@scalar/mermaid-plugin` package renders Mermaid fences with pan and zoom controls. Enable it explicitly through `plugins: [mermaidPlugin()]`; without it, fences remain code blocks and Mermaid is not loaded. See the [Mermaid guide](mermaid.md) for setup and styling.
