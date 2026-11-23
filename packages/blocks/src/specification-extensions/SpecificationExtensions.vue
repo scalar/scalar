@@ -35,8 +35,6 @@ const open = ref(false)
 </script>
 
 <template>
-  <!-- The folded rows sit one level down, like a nested value's children, but
-       open the way top-level values do, so an opened fold matches the list. -->
   <div
     v-if="count && collapsible"
     class="relative min-w-0 py-0.5 ps-8 text-base"
@@ -65,9 +63,10 @@ const open = ref(false)
         <ExtensionValue
           v-for="(value, name) in extensions"
           :key="name"
-          defaultOpen
+          :compact="compact"
           :depth="1"
           :name="name"
+          topLevel
           :value="value" />
       </dl>
     </SchemaRailPanel>
