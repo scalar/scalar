@@ -92,9 +92,19 @@ type DocumentLoading =
        * own policy (timeouts, size limits, redirects, logging) to every external load.
        *
        * The store then fetches and reads nothing itself: URL and file documents, external
-       * references, code sample sources and AsyncAPI schema resources all go through the first
-       * loader whose `validate` accepts the location. A location no loader accepts fails as an
-       * unreachable one does. An empty array disables external loading.
+       * references, URI security requirements, code sample sources and AsyncAPI schema resources
+       * all go through the first loader whose `validate` accepts the location. Only plugins with
+       * `type: 'loader'` are used. An empty array disables external loading.
+       *
+       * The built-in private-network block and `basePath` confinement do not apply: these loaders
+       * are responsible for any network and file rules.
+       *
+       * `exec` resolves `{ ok: true, data, raw }` with the parsed content in `data` and the source
+       * text in `raw`, or `{ ok: false }` when the location cannot be loaded. Code sample sources
+       * and AsyncAPI schema resources call it with `{ parseAs: 'text' }` and read the text from
+       * `raw`. A rejected `exec` or a throwing `validate` counts as a failed load, the same as a
+       * location no loader accepts: the document is skipped, the reference stays unresolved, or
+       * the schema resources are marked as failed.
        */
       loaders: LoaderPlugin[]
     }
@@ -368,6 +378,57 @@ export function externalizePathReferences(
 
 type ServerWorkspace = Omit<Workspace, 'activeDocument'>
 
+/** The loaders one document is loaded with: every external load the store performs uses only these. */
+type DocumentLoaders = {
+  /** Loader plugins for external references, code sample sources and AsyncAPI schema resources. */
+  plugins: LoaderPlugin[]
+  /** Loads a `url` or `path` document input. */
+  load: (input: Pick<UrlDoc, 'url'> | Pick<FileDoc, 'path'>) => ReturnType<LoaderPlugin['exec']>
+}
+
+/**
+ * Makes a caller's loader fail the way the built-in loaders do: they never throw, they resolve
+ * `{ ok: false }`. The bundler does not guard `exec`, so without this a rejection (a timeout, say)
+ * would drop the whole document at some load sites and only mark a failure at others.
+ */
+const failSafeLoader = (loader: LoaderPlugin): LoaderPlugin => ({
+  type: 'loader',
+  validate: (value) => {
+    try {
+      return loader.validate(value)
+    } catch {
+      return false
+    }
+  },
+  exec: async (value, options) => {
+    try {
+      return await loader.exec(value, options)
+    } catch {
+      return { ok: false }
+    }
+  },
+})
+
+/** The one place that decides between the caller's loaders and the built-in ones. */
+const createDocumentLoaders = (options: DocumentLoading = {}): DocumentLoaders => {
+  if (options.loaders) {
+    // The bundler only uses loader plugins, so every other load site skips anything else as well.
+    const plugins = options.loaders.filter((plugin) => plugin.type === 'loader').map(failSafeLoader)
+    const loadLocation = (location: string): ReturnType<LoaderPlugin['exec']> =>
+      plugins.find((plugin) => plugin.validate(location))?.exec(location) ?? Promise.resolve({ ok: false })
+    return { plugins, load: (input) => loadLocation('url' in input ? input.url : input.path) }
+  }
+
+  const urlLoader = fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks })
+  const fileLoader = options.basePath === undefined ? undefined : readFiles({ basePath: options.basePath })
+  return {
+    plugins: [urlLoader, ...(fileLoader ? [fileLoader] : [])],
+    // A `url` input is only ever fetched and a `path` input only ever read, never the other way round.
+    load: (input) =>
+      'url' in input ? urlLoader.exec(input.url) : (fileLoader?.exec(input.path) ?? Promise.resolve({ ok: false })),
+  }
+}
+
 /**
  * Resolves a workspace document from various input sources (URL, local file, or direct document object).
  *
@@ -375,39 +436,28 @@ type ServerWorkspace = Omit<Workspace, 'activeDocument'>
  *   - A URL to fetch the document from
  *   - A local file path to read the document from
  *   - A direct document object
+ *   An input with more than one source loads from `url`, else from `path`; `document` is used only
+ *   when neither is present.
+ * @param loaders - The loaders from `createDocumentLoaders`, which load `url` and `path` inputs
  * @returns A promise that resolves to an object containing:
  *   - ok: boolean indicating if the resolution was successful
  *   - data: The resolved document data
  *
  * @example
+ * const loaders = createDocumentLoaders()
+ *
  * // Resolve from URL
- * const urlDoc = await loadDocument({ name: 'api', url: 'https://api.example.com/openapi.json' })
+ * const urlDoc = await loadDocument({ name: 'api', url: 'https://api.example.com/openapi.json' }, loaders)
  *
  * // Resolve direct document
- * const directDoc = await loadDocument({
- *   name: 'inline',
- *   document: { openapi: '3.0.0', paths: {} }
- * })
+ * const directDoc = await loadDocument({ name: 'inline', document: { openapi: '3.0.0', paths: {} } }, loaders)
  */
 function loadDocument(
   workspaceDocument: WorkspaceDocumentInput,
-  options: DocumentLoading = {},
+  loaders: DocumentLoaders,
 ): ReturnType<LoaderPlugin['exec']> {
-  if (options.loaders && !('document' in workspaceDocument)) {
-    const source = 'url' in workspaceDocument ? workspaceDocument.url : workspaceDocument.path
-    const loader = options.loaders.find((candidate) => candidate.validate(source))
-    return loader ? loader.exec(source) : Promise.resolve({ ok: false })
-  }
-
-  if ('url' in workspaceDocument) {
-    return fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks }).exec(workspaceDocument.url)
-  }
-
-  if ('path' in workspaceDocument) {
-    if (options.basePath === undefined) {
-      return Promise.resolve({ ok: false })
-    }
-    return readFiles({ basePath: options.basePath }).exec(workspaceDocument.path)
+  if ('url' in workspaceDocument || 'path' in workspaceDocument) {
+    return loaders.load(workspaceDocument)
   }
 
   return Promise.resolve({
@@ -428,6 +478,8 @@ export type ServerWorkspaceStore = {
    * - `url`: fetch and parse an OpenAPI or AsyncAPI document from a remote URL
    * - `path`: read and parse an OpenAPI or AsyncAPI document from the filesystem
    * - `document`: use an in-memory OpenAPI or AsyncAPI object directly
+   *
+   * An input with more than one of these loads from `url`, else from `path`, and ignores `document`.
    *
    * If loading fails, the document is not added.
    *
@@ -861,7 +913,8 @@ export async function createServerWorkspaceStore(
     const assetsBeforeAdd = getOwnEntry(assets, input.name)
 
     try {
-      const document = await loadDocument(input, workspaceProps.documentLoading)
+      const documentLoaders = createDocumentLoaders(workspaceProps.documentLoading)
+      const document = await loadDocument(input, documentLoaders)
 
       if (!document.ok) {
         console.warn(`Failed to load document "${input.name}"`)
@@ -874,11 +927,7 @@ export async function createServerWorkspaceStore(
       const data: Record<string, unknown> = JSON.parse(JSON.stringify(loaded))
       const fileOrigin = 'path' in input ? input.path : undefined
       const origin = 'url' in input ? input.url : fileOrigin
-      const options = workspaceProps.documentLoading
-      const loaders = options?.loaders ?? [
-        fetchUrls({ blockPrivateNetworks: !options?.allowPrivateNetworks }),
-        ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),
-      ]
+      const loaders = documentLoaders.plugins
       if (loaded.swagger === '2.0' || (typeof loaded.openapi === 'string' && loaded.openapi.startsWith('3.0.'))) {
         await bundle(data, {
           origin,

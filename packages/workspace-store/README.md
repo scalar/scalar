@@ -45,13 +45,24 @@ To apply your own policy to every external load (timeouts, size limits, redirect
 or a record of what was requested), pass `documentLoading.loaders`. These are `@scalar/json-magic`
 loader plugins, the same kind `fetchUrls` and `readFiles` return. They replace the built-in loaders,
 so the store performs no fetch or file read of its own: URL and file documents, external references,
-code sample sources, and AsyncAPI schema resources (Protobuf imports, RAML includes and libraries)
-all go through the first loader whose `validate` accepts the location.
+URI security requirements, code sample sources, and AsyncAPI schema resources (Protobuf imports, RAML
+includes and libraries) all go through the first loader whose `validate` accepts the location. Only
+plugins with `type: 'loader'` are used. OpenAPI 2.0 and 3.0 documents keep their external references
+for the client to resolve on demand, as they do with the built-in loaders.
 
-A location that no loader accepts fails like an unreachable one: the document is skipped, a
-reference stays unresolved, or the schema resources are marked as failed. An empty array disables
-external loading. `allowPrivateNetworks` and `basePath` only configure the built-in loaders, so they
-cannot be combined with `loaders`, and the network and file rules become the loaders' responsibility.
+`exec` resolves `{ ok: true, data, raw }`, with the parsed content in `data` and the source text in
+`raw`, or `{ ok: false }` when the location cannot be loaded. Code sample sources and AsyncAPI schema
+resources call it with `{ parseAs: 'text' }` and read the text from `raw`. A rejected `exec` (a
+timeout, for example) or a throwing `validate` counts as a failed load, and so does a location that
+no loader accepts: the document is skipped, a reference stays unresolved, or the schema resources are
+marked as failed. An empty array disables external loading.
+
+`allowPrivateNetworks` and `basePath` only configure the built-in loaders, so they cannot be combined
+with `loaders`. The built-in private-network block and base-path confinement do not apply to your
+loaders, which are responsible for any network and file rules.
+
+A document input with more than one source loads from `url`, else from `path`, and ignores `document`,
+with or without custom loaders.
 
 ```ts
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/node'
