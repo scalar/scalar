@@ -2,7 +2,7 @@ import { watchDebounced } from '@vueuse/core'
 import { nanoid } from 'nanoid'
 import { type ShallowRef, computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 
-import { getReferenceScrollPane } from '../hooks/use-reference-scroll-pane'
+import { getReferenceScrollPane, getScrollportTop } from '../hooks/use-reference-scroll-pane'
 import { type ResponsePropertyLink, getSchemaParamsFromId } from './id-routing'
 
 /**
@@ -475,10 +475,10 @@ export const getStickyHeaderOffset = (element: HTMLElement, scrollportTop = 0): 
 }
 
 /** Finds potential scrollports before lazy content makes them overflow. */
-const getScrollContainers = (element: HTMLElement): HTMLElement[] => {
+const getScrollContainers = (element: HTMLElement, pane: HTMLElement | null): HTMLElement[] => {
   const containers: HTMLElement[] = []
-  const root = element.ownerDocument.scrollingElement ?? element.ownerDocument.documentElement
-  for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+  const root = pane ?? element.ownerDocument.scrollingElement ?? element.ownerDocument.documentElement
+  for (let parent = element.parentElement; parent && parent !== pane; parent = parent.parentElement) {
     if (parent !== root && /(auto|scroll|hidden)/.test(window.getComputedStyle(parent).overflowY)) {
       containers.push(parent)
     }
@@ -489,17 +489,47 @@ const getScrollContainers = (element: HTMLElement): HTMLElement[] => {
   return containers
 }
 
-/** Scrolls nested containers natively before compensating for overlapping headers. */
-export const scrollToElement = (element: HTMLElement): void => scrollInContainers(element, getScrollContainers(element))
+/** Scroll to an anchor and compensate for any overlapping headers. */
+export const scrollToElement = (element: HTMLElement): void => {
+  const pane = getReferenceScrollPane(element)
+  scrollInContainers(element, getScrollContainers(element, pane), pane)
+}
 
-const scrollInContainers = (element: HTMLElement, containers: HTMLElement[]): void => {
+/** Scroll only up to the opted-in pane so a host header above it stays clear of the anchor. */
+const scrollWithinPane = (element: HTMLElement, containers: HTMLElement[], pane: HTMLElement): void => {
+  const margin = Number.parseFloat(window.getComputedStyle(element).scrollMarginTop) || 0
+  for (const container of containers) {
+    const padding = window.getComputedStyle(container).scrollPaddingTop
+    const paddingValue = Number.parseFloat(padding) || 0
+    const paddingTop = padding.endsWith('%') ? (paddingValue / 100) * container.clientHeight : paddingValue
+    container.scrollBy({
+      top: element.getBoundingClientRect().top - getScrollportTop(container) - margin - paddingTop,
+      behavior: 'instant',
+    })
+  }
+
+  // Check the headers after the scroll, when sticky elements have reached their pinned positions.
+  const top = Math.max(0, getScrollportTop(pane))
+  const headerBottom = top + getStickyHeaderOffset(element, top)
+  const targetTop = element.getBoundingClientRect().top
+  if (targetTop < headerBottom) {
+    pane.scrollBy({ top: targetTop - headerBottom, behavior: 'instant' })
+  }
+}
+
+const scrollInContainers = (element: HTMLElement, containers: HTMLElement[], pane: HTMLElement | null): void => {
+  if (pane) {
+    scrollWithinPane(element, containers, pane)
+    return
+  }
+
   element.scrollIntoView({ block: 'start', behavior: 'instant' })
 
   // Measure after scrolling, when sticky elements have reached their pinned positions.
   const container = containers.find(
     (parent) => parent !== element.ownerDocument.scrollingElement && parent.scrollHeight > parent.clientHeight,
   )
-  const scrollportTop = container ? Math.max(0, container.getBoundingClientRect().top + container.clientTop) : 0
+  const scrollportTop = container ? Math.max(0, getScrollportTop(container)) : 0
   const offset = getStickyHeaderOffset(element, scrollportTop)
   const margin = Number.parseFloat(window.getComputedStyle(element).scrollMarginTop) || 0
   if (offset <= margin) {
@@ -576,6 +606,7 @@ const freeze = (
   let frame = 0
   let heldElement: HTMLElement | undefined
   let heldParent: HTMLElement | null | undefined
+  let pane: HTMLElement | null = null
   let containers = [document.scrollingElement ?? document.documentElement].filter(
     (element): element is HTMLElement => element instanceof HTMLElement,
   )
@@ -585,7 +616,8 @@ const freeze = (
     if (heldElement !== element || heldParent !== element.parentElement) {
       heldElement = element
       heldParent = element.parentElement
-      containers = getScrollContainers(element)
+      pane = getReferenceScrollPane(element)
+      containers = getScrollContainers(element, pane)
       expectedScrollTops = containers.map((container) => container.scrollTop)
     }
   }
@@ -595,7 +627,7 @@ const freeze = (
 
   const scroll = (element: HTMLElement): void => {
     updateContainers(element)
-    scrollInContainers(element, containers)
+    scrollInContainers(element, containers, pane)
     expectedScrollTops = containers.map((container) => container.scrollTop)
   }
 
@@ -625,7 +657,6 @@ const freeze = (
   }
 
   const onUserInput = (event: Event): void => {
-    const pane = heldElement && getReferenceScrollPane(heldElement)
     // A reader can cross the pane's center band in a single wheel or keyboard scroll.
     // Resume intersection before that movement so the observer's new entry reaches the sidebar.
     cancel(!!pane && event.target instanceof Node && pane.contains(event.target))

@@ -185,7 +185,10 @@ import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
 import { NAVIGATION_HREF } from '@/hooks/use-navigation-href'
-import { provideReferenceScrollPane } from '@/hooks/use-reference-scroll-pane'
+import {
+  getScrollportTop,
+  provideReferenceScrollPane,
+} from '@/hooks/use-reference-scroll-pane'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistence-plugin'
 
@@ -1940,12 +1943,13 @@ eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectSidebarEntry(id))
 
 /** The reference card, which the reading position and the focus fallback look into. */
 const referenceLayout = useTemplateRef<HTMLElement>('documentEl')
+const referenceContent = useTemplateRef<HTMLElement>('referenceContent')
 const scrollPane = provideReferenceScrollPane(referenceLayout)
 const { element: scrollPaneElement, height: scrollPaneHeight } = scrollPane
 
-const getScrollportTop = (): number => {
+const getReferenceScrollportTop = (): number => {
   const pane = scrollPaneElement.value
-  return pane ? pane.getBoundingClientRect().top + pane.clientTop : 0
+  return pane ? getScrollportTop(pane) : 0
 }
 
 /**
@@ -1969,7 +1973,7 @@ eventBus.on('intersecting:nav-item', ({ id: intersectingId }) => {
     documentStartTop:
       documentStartTop === undefined
         ? undefined
-        : documentStartTop - getScrollportTop(),
+        : documentStartTop - getReferenceScrollportTop(),
   })
 
   // Reveal a newly active operation without undoing a manual collapse when the
@@ -2084,15 +2088,13 @@ useIntersection(
     onExit: () => {
       const pane = scrollPaneElement.value
       const contentBounds = pane
-        ? referenceLayout.value
-            ?.querySelector('.references-rendered')
-            ?.getBoundingClientRect()
+        ? referenceContent.value?.getBoundingClientRect()
         : undefined
       const centerX = contentBounds
         ? contentBounds.left + contentBounds.width / 2
         : window.innerWidth / 2
       const centerY = pane
-        ? getScrollportTop() + scrollPaneHeight.value / 2
+        ? getScrollportTop(pane) + scrollPaneHeight.value / 2
         : window.innerHeight / 2
       const section = document
         .elementsFromPoint(centerX, centerY)
@@ -2686,6 +2688,7 @@ const sidebarCta = computed((): SidebarCta => {
 
       <!-- Primary Content -->
       <main
+        ref="referenceContent"
         :aria-label="
           apiReferenceLocalization.translate('navigation.mainContent', {
             name: workspaceStore.workspace.activeDocument?.info?.title ?? '',

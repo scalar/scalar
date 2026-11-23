@@ -23,6 +23,10 @@ const SCROLL_PANE: InjectionKey<ReferenceScrollPane> = Symbol('scalar-reference-
 export const getReferenceScrollPane = (element: HTMLElement): HTMLElement | null =>
   element.parentElement?.closest<HTMLElement>('[data-scalar-scroll-container]') ?? null
 
+/** The visible top edge starts inside the scroll container's border. */
+export const getScrollportTop = (element: HTMLElement): number =>
+  element.getBoundingClientRect().top + element.clientTop
+
 /** Measure the host pane once for the layout and all of its section observers. */
 export const provideReferenceScrollPane = (layout: TemplateRef<HTMLElement>): ReferenceScrollPane => {
   const element = computed(() => layout.value && getReferenceScrollPane(layout.value))
