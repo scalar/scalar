@@ -48,6 +48,8 @@ type BaseProps = {
   lineNumbers?: boolean
   hideCredentials?: string | string[]
   copy?: 'always' | 'hover' | false
+  /** Show the language in the copy button for multiline code. */
+  showCopyLanguage?: boolean
   /** Original content to copy when the displayed content has been masked. */
   copyContent?: string
   /**
@@ -72,6 +74,7 @@ const {
   lang = 'plaintext',
   lineNumbers = false,
   copy = 'hover',
+  showCopyLanguage = true,
   label = 'Code sample',
   copyLabel,
   copyContent,
@@ -176,7 +179,7 @@ const { cx } = useBindCx()
       :content="copyContent ?? prettyContent"
       :copyLabel="copyLabel"
       :lang="lang"
-      :showLang="!isOneLine">
+      :showLang="showCopyLanguage && !isOneLine">
       <template #backdrop>
         <ScalarCopyBackdrop
           class="scalar-code-copy-backdrop"

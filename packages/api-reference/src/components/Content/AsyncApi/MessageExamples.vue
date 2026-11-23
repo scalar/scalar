@@ -191,7 +191,8 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         :copyLabel="block.copyLabel"
         :label="block.label"
         :lang="block.lang"
-        :prettyPrintedContent="block.content" />
+        :prettyPrintedContent="block.content"
+        :showCopyLanguage="!showHeaders" />
     </ScalarCardSection>
     <ScalarCardSection
       v-if="!exampleBlocks.length"

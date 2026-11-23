@@ -77,7 +77,8 @@ describe('MessageExamples', () => {
     const headerContent = '{\n  "trace": "abc"\n}'
     expect(wrapper.getComponent(ScalarCodeBlock).props('lang')).toBe('json')
     expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(headerContent)
-    expect(wrapper.get('button[aria-label="Copy headers"]').attributes('aria-label')).toBe('Copy headers')
+    const copyHeaders = wrapper.get('button[aria-label="Copy headers"]')
+    expect(copyHeaders.get('div[aria-hidden="true"]').text()).toBe('Copy')
     expect(wrapper.text()).toContain('Headers')
     expect(wrapper.text()).not.toContain('Payload')
 
