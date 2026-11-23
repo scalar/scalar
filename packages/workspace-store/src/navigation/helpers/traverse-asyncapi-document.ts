@@ -139,7 +139,6 @@ const traverseComponents = ({
   generateId: TraverseSpecOptions['generateId']
 }): TraversedAsyncApiComponents[] =>
   ASYNC_API_COMPONENT_TYPES.flatMap((componentType): TraversedAsyncApiComponents[] => {
-    // Messages and both trait kinds share the display fields read here; only messages carry `name`.
     const nodes: Record<
       string,
       AsyncApiMessageLike | { $ref: string; '$ref-value'?: AsyncApiMessageLike } | undefined

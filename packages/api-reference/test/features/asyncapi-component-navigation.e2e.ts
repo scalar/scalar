@@ -1,0 +1,65 @@
+import { expect, test } from '@playwright/test'
+import { serveExample } from '@test/utils/serve-example'
+
+const content = {
+  asyncapi: '3.1.0',
+  info: { title: 'Component catalog', version: '1.0.0' },
+  channels: {},
+  components: {
+    messages: {
+      'Order.Created': { title: 'Order created', payload: { type: 'string' } },
+    },
+  },
+}
+
+test('keeps a single modern section anchor and moves focus into the opened group', async ({ page }) => {
+  const example = await serveExample({ content, defaultOpenFirstTag: false })
+  await page.goto(example)
+
+  const section = page.getByRole('region', { name: 'Messages', exact: true })
+  const expand = section.getByRole('button', { name: 'Show More Messages', exact: true })
+  await expect(expand).toBeVisible()
+  const id = await section.getAttribute('id')
+  expect(id).toMatch(/\/~components\/messages$/)
+  await expect(page.locator(`[id="${id}"]`)).toHaveCount(1)
+
+  await expand.focus()
+  await page.keyboard.press('Enter')
+  await expect(section).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(section.getByRole('button', { name: 'Order created' })).toBeFocused()
+})
+
+test('opens a classic component section from a deep link with an accurate expanded state', async ({ page }) => {
+  const example = await serveExample({ content, defaultOpenFirstTag: false, layout: 'classic' })
+  await page.goto(`${example}#~components/messages`)
+
+  const section = page.getByRole('region', { name: 'Messages', exact: true })
+  await expect(section.getByRole('heading', { name: 'Messages', exact: true })).toBeInViewport()
+  const expand = section.getByRole('button', { name: 'Messages', exact: true })
+  await expect(expand).toHaveAttribute('aria-expanded', 'true')
+
+  await expand.focus()
+  await page.keyboard.press('Space')
+  await expect(expand).toHaveAttribute('aria-expanded', 'false')
+  await expect(section.getByRole('heading', { name: 'Order created' })).toHaveCount(0)
+})
+
+test('keeps the mobile sidebar open when selecting a component group', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 })
+  const example = await serveExample({ content, defaultOpenFirstTag: false })
+  await page.goto(example)
+
+  await page.getByRole('button', { name: 'Open Menu' }).click()
+  const sidebar = page.getByRole('complementary', { name: 'Sidebar for' })
+  const group = sidebar.getByRole('link', { name: 'Messages', exact: true })
+  await group.focus()
+  await page.keyboard.press('Enter')
+  await expect(group).toBeFocused()
+  const message = sidebar.getByRole('link', { name: 'Order created', exact: true })
+  await expect(message).toBeVisible()
+  await message.click()
+
+  await expect(page.getByRole('button', { name: 'Open Menu' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Order created' })).toBeInViewport()
+})

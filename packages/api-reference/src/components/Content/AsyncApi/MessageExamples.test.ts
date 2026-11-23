@@ -185,6 +185,23 @@ describe('MessageExamples', () => {
     expect(wrapper.findComponent(ScalarCopy).exists()).toBe(false)
   })
 
+  it('names virtual copy buttons for the headers and payload they copy', () => {
+    const value = 'x'.repeat(20_001)
+    const wrapper = mount(MessageExamples, {
+      props: {
+        showHeaders: true,
+        examples: [{ headers: { trace: value }, payload: { id: value } }],
+      },
+    })
+    expect(
+      wrapper.findAllComponents(ScalarVirtualCodeBlock).map((block) => block.get('button').attributes('aria-label')),
+    ).toStrictEqual(['Copy headers', 'Copy payload'])
+    expect(wrapper.findAllComponents(ScalarCopy).map((copy) => copy.props('content'))).toStrictEqual([
+      JSON.stringify({ trace: value }, null, 2),
+      JSON.stringify({ id: value }, null, 2),
+    ])
+  })
+
   it('virtualizes large examples without changing the copied content', () => {
     const payload = 'x'.repeat(20_001)
     const wrapper = mount(MessageExamples, { props: { examples: [{ payload }] } })

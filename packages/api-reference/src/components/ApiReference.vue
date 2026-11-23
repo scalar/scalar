@@ -1844,14 +1844,15 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
     }
   }
   const item = sidebarState.getEntryById(id)
+  const isSection =
+    item?.type === 'tag' ||
+    item?.type === 'models' ||
+    item?.type === 'asyncapi-components'
 
   updatePageTitle(id)
 
   if (
-    (item?.type === 'tag' ||
-      item?.type === 'models' ||
-      item?.type === 'asyncapi-components' ||
-      item?.type === 'text') &&
+    (isSection || item?.type === 'text') &&
     sidebarState.isExpanded(id) && // Only close if the item is expanded
     sidebarState.selectedItem.value === id // Only close if the item is not the currently selected item
   ) {
@@ -1865,12 +1866,17 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
     return
   }
 
-  // Close the mobile menu upon selecting any item that's not a tag or model
-  if (item?.type !== 'tag' && item?.type !== 'models') {
-    isSidebarOpen.value = false
+  if (isSection && caller === 'sidebar' && isSidebarOpen.value) {
+    // Keep focus in the open mobile menu so readers can choose a child.
+    setBreadcrumb(id)
+    sidebarState.setSelected(id)
+    sidebarState.setExpanded(id, true)
+  } else {
+    if (!isSection) {
+      isSidebarOpen.value = false
+    }
+    scrollToLazyElement(id)
   }
-
-  scrollToLazyElement(id)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {

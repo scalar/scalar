@@ -1,5 +1,6 @@
 ---
 '@scalar/api-reference': minor
+'@scalar/components': patch
 '@scalar/workspace-store': minor
 '@scalar/types': patch
 '@scalar/schemas': patch

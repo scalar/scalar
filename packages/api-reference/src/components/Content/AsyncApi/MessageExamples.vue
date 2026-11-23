@@ -163,6 +163,7 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         v-if="block.content.length > 20_000"
         class="bg-transparent"
         :content="block.content"
+        :copyLabel="showHeaders ? block.copyLabel : undefined"
         :label="block.label"
         :lang="block.lang" />
       <ScalarCodeBlock
