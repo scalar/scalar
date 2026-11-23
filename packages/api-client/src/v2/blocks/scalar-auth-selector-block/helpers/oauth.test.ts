@@ -38,6 +38,46 @@ const state = '4fzyo82m'
 const randomVal = 0.123456
 
 describe('oauth', () => {
+  it('authorizes a configured public PKCE client without a client secret', async () => {
+    const scheme = mergeSecurity(
+      {},
+      {
+        oauth: {
+          type: 'oauth2',
+          flows: {
+            authorizationCode: {
+              authorizationUrl,
+              tokenUrl,
+              scopes: {},
+              'x-scalar-client-id': 'public-client',
+              'x-usePkce': 'SHA-256',
+            },
+          },
+        },
+      },
+      createWorkspaceStore().auth,
+      'test',
+    ).oauth
+    if (scheme?.type !== 'oauth2') {
+      throw new Error('Expected OAuth2 scheme')
+    }
+    const capturedUrls: string[] = []
+    const captureComplete = new Error('Capture complete')
+    const capture: CaptureOAuth2Callback = ({ authorizationUrl: url }) => {
+      capturedUrls.push(url)
+      return Promise.resolve([captureComplete, null])
+    }
+    const [error] = await authorizeOauth2(scheme.flows, 'authorizationCode', [], null, '', {}, undefined, capture)
+
+    expect(error).toBe(captureComplete)
+    expect(capturedUrls.length).toBe(1)
+    const url = new URL(capturedUrls[0] ?? '')
+    expect(url.searchParams.get('client_id')).toBe('public-client')
+    expect(url.searchParams.get('code_challenge_method')).toBe('S256')
+    expect(url.searchParams.get('code_challenge')?.length).toBe(43)
+    expect(scheme.flows.authorizationCode?.['x-scalar-secret-client-secret']).toBe('')
+  })
+
   // Mock window.open
   let mockWindow: any
 

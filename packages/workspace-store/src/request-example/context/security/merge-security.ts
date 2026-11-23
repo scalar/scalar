@@ -169,6 +169,13 @@ export const mergeSecurity = (
     }
     // We coerce in case the scheme is missing any key fields like type.
     const coerced = coerceValue(SecuritySchemeObjectSchema, scheme)
+    if (coerced.type === 'oauth2' && isObjectLike(scheme) && isObjectLike(scheme.flows)) {
+      // Casting fills missing fields but can drop flow configuration such as the client ID.
+      // Preserve those fields while keeping the normalized values authoritative.
+      const flows = deepClone(scheme.flows)
+      mergeObjects(flows, coerced.flows)
+      Object.assign(coerced.flows, flows)
+    }
     const merged = { ...(isObjectLike(scheme) ? scheme : {}), ...coerced }
     const extracted = extractSecuritySchemeSecrets(merged, authStore, name, documentName, oauth2RedirectUri)
     const configured = Object.hasOwn(configSecuritySchemes, name) ? configSecuritySchemes[name] : undefined
