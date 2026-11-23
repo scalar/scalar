@@ -1,4 +1,5 @@
 import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
@@ -805,7 +806,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      */
     get activeDocument(): NonNullable<Workspace['activeDocument']> | undefined {
       const name = getActiveDocumentName()
-      return Object.hasOwn(workspace.documents, name) ? workspace.documents[name] : undefined
+      return getOwnEntry(workspace.documents, name)
     },
   }
 
@@ -843,9 +844,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 }
 
                 const documentName = path[1] as string
-                const document = (Object.hasOwn(workspace.documents, documentName)
-                  ? workspace.documents[documentName]
-                  : undefined) ?? {
+                const document = getOwnEntry(workspace.documents, documentName) ?? {
                   openapi: '3.1.0',
                   info: { title: '', version: '' },
                   'x-scalar-original-document-hash': '',
@@ -876,9 +875,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               /** Active document changes */
               if (type === 'activeDocument') {
                 const documentName = getActiveDocumentName()
-                const document = (Object.hasOwn(workspace.documents, documentName)
-                  ? workspace.documents[documentName]
-                  : undefined) ?? {
+                const document = getOwnEntry(workspace.documents, documentName) ?? {
                   openapi: '3.1.0',
                   info: { title: '', version: '' },
                   'x-scalar-original-document-hash': '',
@@ -985,9 +982,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               const event = {
                 type,
                 documentName: documentName,
-                value: unpackProxyObject(
-                  Object.hasOwn(originalDocuments, documentName) ? (originalDocuments[documentName] ?? {}) : {},
-                ),
+                value: unpackProxyObject(getOwnEntry(originalDocuments, documentName) ?? {}),
                 path: path.splice(2),
               } satisfies WorkspaceStateChangeEvent
               fireWorkspaceChange(event)
@@ -997,9 +992,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               const event = {
                 type,
                 documentName: documentName,
-                value: unpackProxyObject(
-                  Object.hasOwn(intermediateDocuments, documentName) ? (intermediateDocuments[documentName] ?? {}) : {},
-                ),
+                value: unpackProxyObject(getOwnEntry(intermediateDocuments, documentName) ?? {}),
                 path: path.splice(2),
               } satisfies WorkspaceStateChangeEvent
               fireWorkspaceChange(event)
@@ -1009,7 +1002,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               const event = {
                 type,
                 documentName: documentName,
-                value: unpackProxyObject(Object.hasOwn(overrides, documentName) ? (overrides[documentName] ?? {}) : {}),
+                value: unpackProxyObject(getOwnEntry(overrides, documentName) ?? {}),
               } satisfies WorkspaceStateChangeEvent
               fireWorkspaceChange(event)
             }
@@ -1026,7 +1019,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         fireWorkspaceChange({
           type: 'history',
           documentName,
-          value: history.export()[documentName] ?? {},
+          value: getOwnEntry(history.export(), documentName) ?? {},
         } satisfies WorkspaceStateChangeEvent)
       },
     },
@@ -1041,7 +1034,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         fireWorkspaceChange({
           type: 'auth',
           documentName,
-          value: auth.export()[documentName] ?? {
+          value: getOwnEntry(auth.export(), documentName) ?? {
             secrets: {},
             selected: { document: { selectedIndex: 0, selectedSchemes: [] }, path: {} },
           },
@@ -1075,14 +1068,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   function exportDocument(documentName: string, format: 'json' | 'yaml', minify?: boolean) {
-    if (!Object.hasOwn(originalDocuments, documentName)) {
-      return
-    }
     // The original document map now holds the most recently saved state of
     // the document - `saveDocument` writes directly into it and
     // `revertDocumentChanges` reads from it. Exporting therefore mirrors
     // exactly what the user would get if they reverted to the last save.
-    const savedDocument = originalDocuments[documentName]
+    const savedDocument = getOwnEntry(originalDocuments, documentName)
 
     if (!savedDocument) {
       return
@@ -1104,7 +1094,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // reading from `getIntermediateDocument` observes fresh content while
   // the layer is being phased out.
   const saveDocument: WorkspaceStore['saveDocument'] = async (documentName) => {
-    const activeDocument = workspace.documents[documentName]
+    const activeDocument = getOwnEntry(workspace.documents, documentName)
     const newDocument = await getEditableDocument(documentName)
 
     if (!activeDocument || !newDocument) {
@@ -1142,7 +1132,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     navigationOptions?: NavigationOptions,
   ) {
     const { name } = input
-    preventPollution(name, 'workspace document name')
     const meta = deepClone(input.meta)
     const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
 
@@ -1177,7 +1166,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     const loaders = [
       fetchUrls({
-        fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+        fetch: getOwnEntry(extraDocumentConfigurations, name)?.fetch ?? workspaceProps?.fetch,
         // Cap concurrent fetches so a document with many external references or example
         // `externalValue`s (potentially thousands) does not flood the network on load.
         limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
@@ -1408,7 +1397,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // If loading fails, a placeholder error document is added instead.
   async function addDocument(input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions) {
     const { name, meta } = input
-    preventPollution(name, 'workspace document name')
+    // Assignment to this key on a plain document map changes its prototype.
+    if (name === '__proto__') {
+      console.error(`Invalid workspace document name: "${name}"`)
+      return false
+    }
 
     /** Ensure we use the active proxy to fetch documents unless we have a custom fetch override */
     const fetch = getFetch({
@@ -1452,29 +1445,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   const getOriginalDocument = (documentName: string) => {
-    if (!Object.hasOwn(originalDocuments, documentName)) {
-      return null
-    }
-    const rawDocument = unpackProxyObject(originalDocuments[documentName], { depth: 1 })
-
-    if (!rawDocument) {
-      return null
-    }
-
-    return rawDocument
+    return unpackProxyObject(getOwnEntry(originalDocuments, documentName), { depth: 1 }) ?? null
   }
 
   const getIntermediateDocument = (documentName: string) => {
-    if (!Object.hasOwn(intermediateDocuments, documentName)) {
-      return null
-    }
-    const rawDocument = unpackProxyObject(intermediateDocuments[documentName], { depth: 1 })
-
-    if (!rawDocument) {
-      return null
-    }
-
-    return rawDocument
+    return unpackProxyObject(getOwnEntry(intermediateDocuments, documentName), { depth: 1 }) ?? null
   }
 
   /**
@@ -1489,7 +1464,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * reports `false` when the document does not exist at all.
    */
   const promoteIntermediateToOriginal: WorkspaceStore['promoteIntermediateToOriginal'] = (documentName) => {
-    return Object.hasOwn(intermediateDocuments, documentName) && Boolean(intermediateDocuments[documentName])
+    return Boolean(getOwnEntry(intermediateDocuments, documentName))
   }
 
   /**
@@ -1503,12 +1478,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * @returns The editable document object, or null if not found.
    */
   const getEditableDocument = async (documentName: string) => {
-    if (!Object.hasOwn(workspace.documents, documentName)) {
+    if (documentName === '__proto__') {
       return null
     }
-    preventPollution(documentName, 'workspace document name')
-
-    const rawDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
+    const rawDocument = unpackProxyObject(getOwnEntry(workspace.documents, documentName), { depth: 1 })
 
     if (!rawDocument) {
       // If the document does not exist, return null
@@ -1544,7 +1517,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * @returns {boolean} True if the sidebar was built successfully, false if the document does not exist.
    */
   const buildSidebar = (documentName: string): boolean => {
-    const document = workspace.documents[documentName]
+    const document = getOwnEntry(workspace.documents, documentName)
 
     if (!document) {
       // Log and exit if the document does not exist in the workspace
@@ -1595,7 +1568,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     await bundle(getRaw(holder), {
       plugins: [
         fetchUrls({
-          fetch: extraDocumentConfigurations[documentName]?.fetch ?? workspaceProps?.fetch,
+          fetch: getOwnEntry(extraDocumentConfigurations, documentName)?.fetch ?? workspaceProps?.fetch,
           limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
         }),
         ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
@@ -1622,12 +1595,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * key in place, so asking again retries.
    */
   const loadNavigationChildren = async (documentName: string): Promise<void> => {
-    // An inherited entry can point at a prototype, which must never receive chunk writes.
-    if (!Object.hasOwn(workspace.documents, documentName)) {
-      return
-    }
-
-    const document = workspace.documents[documentName]
+    const document = getOwnEntry(workspace.documents, documentName)
 
     if (!isOpenApiDocument(document) && !isAsyncApiDocument(document)) {
       return
@@ -1651,7 +1619,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const chunk = await fetchNavigationChunk(documentName, ref, document['x-scalar-original-source-url'])
 
       // A replaced or deleted document must not publish changes from a stale request.
-      if (chunk === undefined || workspace.documents[documentName] !== document) {
+      if (chunk === undefined || getOwnEntry(workspace.documents, documentName) !== document) {
         return
       }
 
@@ -1677,7 +1645,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   return {
     asyncApiSchemaResources: (documentName) => {
       const name = documentName ?? getActiveDocumentName()
-      const document = Object.hasOwn(workspace.documents, name) ? workspace.documents[name] : undefined
+      const document = getOwnEntry(workspace.documents, name)
       if (!document) return fallbackNativeSchemas
       const raw = unpackProxyShallow(document)
       checkNativeSchemaEdits(document)
@@ -1687,14 +1655,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         origin: document['x-scalar-original-source-url'],
         usePreparedResources: !nativeSchemaEdits.has(raw),
         fileLoader: workspaceProps?.fileLoader,
-        fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+        fetch: getOwnEntry(extraDocumentConfigurations, name)?.fetch ?? workspaceProps?.fetch,
       })
       nativeSchemaResolvers.set(raw, resolve)
       return resolve
     },
     externalExamples: (documentName) => {
       const name = documentName ?? getActiveDocumentName()
-      const document = Object.hasOwn(workspace.documents, name) ? workspace.documents[name] : undefined
+      const document = getOwnEntry(workspace.documents, name)
       if (!document) {
         return fallbackExternalExamples
       }
@@ -1705,7 +1673,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const resolver = createExternalExampleResolver({
         origin: document['x-scalar-original-source-url'],
         fileLoader: workspaceProps?.fileLoader,
-        fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+        fetch: getOwnEntry(extraDocumentConfigurations, name)?.fetch ?? workspaceProps?.fetch,
       })
       externalExampleResolvers.set(document, resolver)
       return resolver
@@ -1740,8 +1708,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         const loaded = await baselineStore.addDocument({
           name: documentName,
           document: original,
-          documentSource: workspace.documents[documentName]?.['x-scalar-original-source-url'],
-          fetch: extraDocumentConfigurations[documentName]?.fetch,
+          documentSource: getOwnEntry(workspace.documents, documentName)?.['x-scalar-original-source-url'],
+          fetch: getOwnEntry(extraDocumentConfigurations, documentName)?.fetch,
         })
         if (!loaded) {
           return undefined
@@ -1759,12 +1727,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       value: DocumentMetaExtensions[K],
     ) {
       const documentName = name === 'active' ? getActiveDocumentName() : name
-      // Missing documents must not resolve to inherited objects such as Object.prototype.
-      if (!Object.hasOwn(workspace.documents, documentName)) {
-        return false
-      }
-      preventPollution(documentName, 'workspace document name')
-      const currentDocument = workspace.documents[documentName]
+      const currentDocument = getOwnEntry(workspace.documents, documentName)
 
       if (!currentDocument) {
         return false
@@ -1775,13 +1738,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return true
     },
     async replaceDocument(documentName: string, input: Record<string, unknown>) {
-      if (!Object.hasOwn(workspace.documents, documentName)) {
-        return console.error(`Document '${documentName}' does not exist in the workspace.`)
-      }
       // Used to preserve the original metadata of the document (we need to unpack so we don't store a proxy object)
-      const currentDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
+      const currentDocument = unpackProxyObject(getOwnEntry(workspace.documents, documentName), { depth: 1 })
 
-      if (!currentDocument) {
+      if (documentName === '__proto__' || !currentDocument) {
         return console.error(`Document '${documentName}' does not exist in the workspace.`)
       }
 
@@ -1866,7 +1826,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           asyncApiSchemaResources(),
           openApiDocument(),
           fetchUrls({
-            fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,
+            fetch: getOwnEntry(extraDocumentConfigurations, getActiveDocumentName())?.fetch ?? workspaceProps?.fetch,
             limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
           }),
           ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
@@ -1888,7 +1848,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      */
     deleteDocument: (documentName: string): void => {
       // Check if the document exists before attempting deletion
-      if (!Object.hasOwn(workspace.documents, documentName) || !workspace.documents[documentName]) {
+      if (!getOwnEntry(workspace.documents, documentName)) {
         return
       }
 
@@ -1925,11 +1885,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     saveDocument,
     promoteIntermediateToOriginal,
     async revertDocumentChanges(documentName: string) {
-      if (!Object.hasOwn(workspace.documents, documentName)) {
-        return
-      }
       // Used to preserve the original metadata of the document (we need to unpack so we don't store a proxy object)
-      const workspaceDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
+      const workspaceDocument = unpackProxyObject(getOwnEntry(workspace.documents, documentName), { depth: 1 })
       // Restore from the original (last saved) snapshot. `saveDocument`
       // writes here, so this reliably rolls back to whatever the user
       // last persisted - matching the soft-deprecation path away from the
@@ -1991,10 +1948,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         input.originalDocuments,
         input.intermediateDocuments,
         input.overrides,
-        input.requestBodyBaselines ?? {},
+        input.requestBodyBaselines,
+        input.history,
+        input.auth,
       ]) {
-        for (const name of Object.keys(documents)) {
-          preventPollution(name, 'workspace document name')
+        if (documents && Object.hasOwn(documents, '__proto__')) {
+          preventPollution('__proto__', 'workspace document name')
         }
       }
       // A workspace from a compact server store carries an index rather than per-node chunk
@@ -2012,7 +1971,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             const magicDocument = createMagicProxy(doc, {
               documentUri: resolveOpenApiDocument(doc, doc['x-scalar-original-source-url'] ?? '/')?.baseUri,
             })
-            const documentOverrides = Object.hasOwn(input.overrides, name) ? input.overrides[name] : undefined
+            const documentOverrides = getOwnEntry(input.overrides, name)
             if (isAsyncApiDocument(magicDocument)) checkNativeSchemaEdits(magicDocument)
 
             return [
@@ -2040,8 +1999,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     importWorkspaceFromSpecification: async (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
 
-      for (const name of [...Object.keys(documents ?? {}), ...Object.keys(overrides ?? {})]) {
-        preventPollution(name, 'workspace document name')
+      for (const entries of [documents, overrides]) {
+        if (entries && Object.hasOwn(entries, '__proto__')) {
+          preventPollution('__proto__', 'workspace document name')
+        }
       }
 
       // Assign workspace metadata
@@ -2053,7 +2014,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           addDocument({
             url: doc.$ref,
             name,
-            overrides: overrides && Object.hasOwn(overrides, name) ? overrides[name] : undefined,
+            overrides: getOwnEntry(overrides, name),
           }),
         ),
       )
@@ -2068,9 +2029,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // document (with any unsaved edits on top).
       const originalDocument = getOriginalDocument(name)
       // raw version without any proxies
-      const activeDocumentRaw = Object.hasOwn(workspace.documents, name)
-        ? unpackProxyObject(workspace.documents[name], { depth: 1 })
-        : undefined
+      const activeDocumentRaw = unpackProxyObject(getOwnEntry(workspace.documents, name), { depth: 1 })
       // editable version of the document (reversing bundling and also remove internal metadata)
       const activeDocument = await getEditableDocument(name)
 

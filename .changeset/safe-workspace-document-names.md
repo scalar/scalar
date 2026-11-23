@@ -1,5 +1,6 @@
 ---
-'@scalar/workspace-store': patch
+"@scalar/helpers": patch
+"@scalar/workspace-store": patch
 ---
 
-Reject unsafe document names during ingestion and prevent inherited properties from being read or updated as workspace documents.
+Guard document, history, and authentication lookups against inherited properties while preserving valid workspace document names such as `constructor` and `prototype`.

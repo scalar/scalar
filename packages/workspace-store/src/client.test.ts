@@ -10,6 +10,7 @@ import { getActiveOpenApiDocument, getOpenApiDocument } from '@test/helpers'
 import { literalReferencesDocument } from '@test/literal-references'
 import fastify, { type FastifyInstance } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { computed } from 'vue'
 import YAML from 'yaml'
 
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
@@ -201,13 +202,12 @@ describe('create-workspace-store', () => {
     }
   })
 
-  it.each([true, false])('rejects reserved names before adding documents with reactive=%s', async (reactive) => {
-    const store = createWorkspaceStore({ reactive })
-    for (const name of ['__proto__', 'constructor', 'prototype']) {
-      await expect(store.addDocument({ name, document: getDocument() })).rejects.toThrow(
-        `Prototype pollution key detected: "${name}" in workspace document name`,
-      )
-    }
+  it('returns false before loading a document with a reserved name', async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>()
+    const store = createWorkspaceStore({ fetch })
+
+    await expect(store.addDocument({ name: '__proto__', url: 'https://example.com/openapi.json' })).resolves.toBe(false)
+    expect(fetch).not.toHaveBeenCalled()
     expect(store.exportWorkspace().documents).toStrictEqual({})
     expect(store.exportWorkspace().originalDocuments).toStrictEqual({})
     expect(store.exportWorkspace().intermediateDocuments).toStrictEqual({})
@@ -223,19 +223,19 @@ describe('create-workspace-store', () => {
       'intermediateDocuments',
       'overrides',
       'requestBodyBaselines',
+      'history',
+      'auth',
     ] as const) {
-      for (const name of ['__proto__', 'constructor', 'prototype']) {
-        const store = createWorkspaceStore({ reactive })
-        const before = store.exportWorkspace()
-        const input = { ...source.exportWorkspace(), requestBodyBaselines: {} }
-        Object.defineProperty(input, field, { value: { ...input[field] }, enumerable: true })
-        Object.defineProperty(input[field], name, { value: {}, enumerable: true })
+      const store = createWorkspaceStore({ reactive })
+      const before = store.exportWorkspace()
+      const input = { ...source.exportWorkspace(), requestBodyBaselines: {} }
+      Object.defineProperty(input, field, { value: { ...input[field] }, enumerable: true })
+      Object.defineProperty(input[field], '__proto__', { value: {}, enumerable: true })
 
-        expect(() => store.loadWorkspace(input)).toThrow(
-          `Prototype pollution key detected: "${name}" in workspace document name`,
-        )
-        expect(store.exportWorkspace()).toStrictEqual(before)
-      }
+      expect(() => store.loadWorkspace(input)).toThrow(
+        'Prototype pollution key detected: "__proto__" in workspace document name',
+      )
+      expect(store.exportWorkspace()).toStrictEqual(before)
     }
   })
 
@@ -246,29 +246,64 @@ describe('create-workspace-store', () => {
       const url = `data:application/json,${encodeURIComponent(JSON.stringify(document))}`
 
       for (const field of ['documents', 'overrides'] as const) {
-        for (const name of ['__proto__', 'constructor', 'prototype']) {
-          const store = createWorkspaceStore({ reactive })
-          const before = store.exportWorkspace()
-          const input = {
-            workspace: 'draft' as const,
-            info: { title: 'Imported' },
-            'x-scalar-active-document': name,
-            documents: { api: { $ref: url } },
-            overrides: {},
-          }
-          Object.defineProperty(input[field], name, {
-            value: field === 'documents' ? { $ref: url } : {},
-            enumerable: true,
-          })
-
-          await expect(store.importWorkspaceFromSpecification(input)).rejects.toThrow(
-            `Prototype pollution key detected: "${name}" in workspace document name`,
-          )
-          expect(store.exportWorkspace()).toStrictEqual(before)
+        const store = createWorkspaceStore({ reactive })
+        const before = store.exportWorkspace()
+        const input = {
+          workspace: 'draft' as const,
+          info: { title: 'Imported' },
+          'x-scalar-active-document': '__proto__',
+          documents: { api: { $ref: url } },
+          overrides: {},
         }
+        Object.defineProperty(input[field], '__proto__', {
+          value: field === 'documents' ? { $ref: url } : {},
+          enumerable: true,
+        })
+
+        await expect(store.importWorkspaceFromSpecification(input)).rejects.toThrow(
+          'Prototype pollution key detected: "__proto__" in workspace document name',
+        )
+        expect(store.exportWorkspace()).toStrictEqual(before)
       }
     },
   )
+
+  it('updates reactive active document reads when a selected name is added or deleted', async () => {
+    const name = 'constructor'
+    const store = createWorkspaceStore({ meta: { 'x-scalar-active-document': name } })
+    const activeTitle = computed(() => store.workspace.activeDocument?.info.title)
+
+    expect(activeTitle.value).toBeUndefined()
+    await expect(store.addDocument({ name, document: getDocument() })).resolves.toBe(true)
+    expect(activeTitle.value).toBe('My API')
+    store.deleteDocument(name)
+    expect(activeTitle.value).toBeUndefined()
+  })
+
+  it('stores and clears auth state for a document named toString', () => {
+    const store = createWorkspaceStore()
+    const name = 'toString'
+    const auth = {
+      type: 'http',
+      'x-scalar-secret-token': 'token',
+      'x-scalar-secret-username': '',
+      'x-scalar-secret-password': '',
+    } as const
+    const selection = { selectedIndex: 0, selectedSchemes: ['bearer'] }
+    const scope = { type: 'operation', documentName: name, path: '/users', method: 'get' } as const
+
+    store.auth.setAuthSecrets(name, 'bearer', auth)
+    store.auth.setAuthSelectedSchemas(scope, selection)
+
+    expect(store.auth.getAuthSecrets(name, 'bearer')).toStrictEqual(auth)
+    expect(store.auth.getAuthSelectedSchemas(scope)).toStrictEqual(selection)
+    expect(Object.keys(store.auth.export())).toStrictEqual([name])
+
+    store.auth.clearDocumentAuth(name)
+    expect(store.auth.getAuthSecrets(name, 'bearer')).toBeUndefined()
+    expect(store.auth.getAuthSelectedSchemas(scope)).toBeUndefined()
+    expect(Object.keys(store.auth.export())).toStrictEqual([])
+  })
 
   it.each([true, false])(
     'imports an own inherited name from a workspace description with reactive=%s',
@@ -293,7 +328,7 @@ describe('create-workspace-store', () => {
   )
 
   it.each([true, false])('preserves own document names and their snapshots with reactive=%s', async (reactive) => {
-    for (const name of ['api', 'toString']) {
+    for (const name of ['api', 'constructor', 'prototype', 'toString']) {
       const store = createWorkspaceStore({ reactive })
       const document = { openapi: '3.1.2', info: { title: 'Original', version: '1.0.0' }, paths: {} }
       await store.addDocument({ name, document })
