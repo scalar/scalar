@@ -185,6 +185,7 @@ import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
 import { NAVIGATION_HREF } from '@/hooks/use-navigation-href'
+import { provideReferenceScrollPane } from '@/hooks/use-reference-scroll-pane'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistence-plugin'
 
@@ -1937,6 +1938,16 @@ eventBus.on('select:nav-item', ({ id }) => handleSelectSidebarEntry(id))
 /** Handle a scroll to navigation item event */
 eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectSidebarEntry(id))
 
+/** The reference card, which the reading position and the focus fallback look into. */
+const referenceLayout = useTemplateRef<HTMLElement>('documentEl')
+const scrollPane = provideReferenceScrollPane(referenceLayout)
+const { element: scrollPaneElement, height: scrollPaneHeight } = scrollPane
+
+const getScrollportTop = (): number => {
+  const pane = scrollPaneElement.value
+  return pane ? pane.getBoundingClientRect().top + pane.clientTop : 0
+}
+
 /**
  * Sentinel rendered at the very start of the document. Its position resolves which entry an
  * intersecting section selects while the top of the document is still in view, and it drives the
@@ -1951,10 +1962,14 @@ eventBus.on('intersecting:nav-item', ({ id: intersectingId }) => {
   }
 
   // Resolved from the sentinel's position, not from the order the observers report in
+  const documentStartTop = documentStartRef.value?.getBoundingClientRect().top
   const id = resolveIntersectingEntry({
     id: intersectingId,
     documentStartId: infoSectionId.value,
-    documentStartTop: documentStartRef.value?.getBoundingClientRect().top,
+    documentStartTop:
+      documentStartTop === undefined
+        ? undefined
+        : documentStartTop - getScrollportTop(),
   })
 
   // Reveal a newly active operation without undoing a manual collapse when the
@@ -2067,9 +2082,20 @@ useIntersection(
   },
   {
     onExit: () => {
-      const centerY = window.innerHeight / 2
+      const pane = scrollPaneElement.value
+      const contentBounds = pane
+        ? referenceLayout.value
+            ?.querySelector('.references-rendered')
+            ?.getBoundingClientRect()
+        : undefined
+      const centerX = contentBounds
+        ? contentBounds.left + contentBounds.width / 2
+        : window.innerWidth / 2
+      const centerY = pane
+        ? getScrollportTop() + scrollPaneHeight.value / 2
+        : window.innerHeight / 2
       const section = document
-        .elementsFromPoint(window.innerWidth / 2, centerY)
+        .elementsFromPoint(centerX, centerY)
         .find((el) => el.tagName === 'SECTION' && el.id)
 
       if (section?.id) {
@@ -2077,6 +2103,7 @@ useIntersection(
       }
     },
     immediate: true,
+    pane: scrollPane,
   },
 )
 
@@ -2106,7 +2133,10 @@ watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
  * layout and the shell appears before the first paint of a client-only mount.
  */
 const isShell = computed(
-  () => isLocalhost.value && mergedConfig.value.showDeveloperTools !== 'never',
+  () =>
+    isLocalhost.value &&
+    !scrollPaneElement.value &&
+    mergedConfig.value.showDeveloperTools !== 'never',
 )
 
 /**
@@ -2247,9 +2277,6 @@ const shellAttrs = computed(() =>
       }
     : {},
 )
-
-/** The reference card, which the reading position and the focus fallback look into */
-const referenceLayout = useTemplateRef<HTMLElement>('documentEl')
 
 /**
  * The element the reader is looking at: the first piece of content that starts at or just below the
@@ -2486,12 +2513,18 @@ const sidebarCta = computed((): SidebarCta => {
           'references-sidebar': mergedConfig.showSidebar,
           'references-sidebar-mobile-open': isSidebarOpen,
           'references-classic': mergedConfig.layout === 'classic',
+          'references-pane': !!scrollPaneElement,
           'references-shell-card': isShell,
         },
         $attrs.class,
       ]"
       :dir="apiReferenceLocalization.direction.value"
-      :lang="documentLang">
+      :lang="documentLang"
+      :style="{
+        '--refs-pane-height': scrollPaneElement
+          ? `${scrollPaneHeight}px`
+          : undefined,
+      }">
       <!-- The Explore Scalar dialog Generate SDK opens where the side panel has no room -->
       <GenerateSdkDialog
         v-if="generateSdk.enabled.value"
@@ -2833,10 +2866,6 @@ const sidebarCta = computed((): SidebarCta => {
   max-width: 100%;
   flex: 1;
 
-  /*
-  Calculated by a resize observer and set in the style attribute
-  Falls back to the viewport height
-  */
   --full-height: 100dvh;
 
   /* Grid layout */
@@ -2849,6 +2878,13 @@ const sidebarCta = computed((): SidebarCta => {
     'footer footer';
 
   background: var(--scalar-background-1);
+}
+
+.references-layout.references-pane {
+  --full-height: var(--refs-pane-height, 100dvh);
+  /* The host lays out the pane below its own header. */
+  --scalar-custom-header-height: 0px;
+  min-height: var(--full-height);
 }
 
 .references-editor {

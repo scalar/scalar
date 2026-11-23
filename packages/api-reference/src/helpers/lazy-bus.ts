@@ -2,6 +2,7 @@ import { watchDebounced } from '@vueuse/core'
 import { nanoid } from 'nanoid'
 import { type ShallowRef, computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 
+import { getReferenceScrollPane } from '../hooks/use-reference-scroll-pane'
 import { type ResponsePropertyLink, getSchemaParamsFromId } from './id-routing'
 
 /**
@@ -100,7 +101,7 @@ const addLazyCompleteCallback = (callback: (() => void) | undefined) => {
   }
 }
 
-type UnblockFn = () => void
+type UnblockFn = (immediate?: boolean) => void
 
 /**
  * Blocks intersection until the returned unblock callback is run.
@@ -110,8 +111,17 @@ export const blockIntersection = (): UnblockFn => {
   const blockId = nanoid()
   intersectionBlockers.add(blockId)
 
-  /** Unblock uses a small delay to ensure the scroll is complete before enabling intersection */
-  return () => setTimeout(() => intersectionBlockers.delete(blockId), 100)
+  const unblock = (): void => {
+    intersectionBlockers.delete(blockId)
+  }
+  return (immediate) => {
+    if (immediate) {
+      unblock()
+    } else {
+      // Let navigation finish scrolling before enabling intersection again.
+      setTimeout(unblock, 100)
+    }
+  }
 }
 
 /** If there are any pending blocking operations we disable intersection */
@@ -594,7 +604,7 @@ const freeze = (
     lastLayoutChange = Date.now()
   }
 
-  const cancel = (): void => {
+  const cancel = (resumeIntersection = false): void => {
     if (stopped) {
       return
     }
@@ -603,7 +613,7 @@ const freeze = (
     clearTimeout(timeout)
     onRenderComplete.delete(renderComplete)
     for (const event of ['wheel', 'touchstart', 'pointerdown']) {
-      window.removeEventListener(event, cancel, true)
+      window.removeEventListener(event, onUserInput, true)
     }
     window.removeEventListener('keydown', onKeydown, true)
     window.removeEventListener('scroll', onScroll, true)
@@ -611,14 +621,21 @@ const freeze = (
       cancelActiveScroll = undefined
     }
     clearTarget()
-    unblock()
+    unblock(resumeIntersection)
+  }
+
+  const onUserInput = (event: Event): void => {
+    const pane = heldElement && getReferenceScrollPane(heldElement)
+    // A reader can cross the pane's center band in a single wheel or keyboard scroll.
+    // Resume intersection before that movement so the observer's new entry reaches the sidebar.
+    cancel(!!pane && event.target instanceof Node && pane.contains(event.target))
   }
 
   const onKeydown = (event: KeyboardEvent): void => {
     if (
       ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)
     ) {
-      cancel()
+      onUserInput(event)
     }
   }
 
@@ -641,14 +658,14 @@ const freeze = (
         return
       }
     }
-    cancel()
+    onUserInput(event)
   }
 
   cancelActiveScroll = cancel
   // A hidden tab or continuously changing content must not hold navigation indefinitely.
   const timeout = setTimeout(cancel, SCROLL_RETRY_MS + SCROLL_SETTLE_MS)
   for (const event of ['wheel', 'touchstart', 'pointerdown']) {
-    window.addEventListener(event, cancel, { capture: true, passive: true })
+    window.addEventListener(event, onUserInput, { capture: true, passive: true })
   }
   window.addEventListener('keydown', onKeydown, true)
   window.addEventListener('scroll', onScroll, { capture: true, passive: true })

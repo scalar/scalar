@@ -25,6 +25,7 @@ import {
   setLazyPlaceholderHeight,
   useLazyBus,
 } from '@/helpers/lazy-bus'
+import { useReferenceScrollPane } from '@/hooks/use-reference-scroll-pane'
 
 const { id, expanded = false } = defineProps<{
   /** Identifier for this lazy section; used for scroll-to and bus registration. */
@@ -41,6 +42,7 @@ const VIEWPORT_OVERSCAN_PX = 1200
 const VIEWPORT_ROOT_MARGIN = `${VIEWPORT_OVERSCAN_PX}px 0px`
 
 const { isReady } = useLazyBus(id)
+const scrollPane = useReferenceScrollPane()
 
 // SSR already rendered this section; do not replace it with a placeholder during hydration.
 const hydrationElement = getCurrentInstance()?.vnode.el
@@ -79,7 +81,7 @@ onMounted(() => {
         requestLazyRender(id, true)
       }
     },
-    { rootMargin: VIEWPORT_ROOT_MARGIN },
+    { root: scrollPane?.element, rootMargin: VIEWPORT_ROOT_MARGIN },
   )
 })
 

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <title>Embedded Scalar API Reference</title>
+    <style>
+      body {
+        margin: 0;
+      }
+
+      .preview {
+        background: var(--scalar-background-1);
+        color: var(--scalar-color-1);
+        font-family: var(--scalar-font);
+      }
+
+      .preview[data-scroll-mode='pane'],
+      .preview[data-scroll-mode='short'] {
+        display: grid;
+        height: 100dvh;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+
+      #reference[data-scalar-scroll-container] {
+        overflow: auto;
+        overscroll-behavior-y: contain;
+      }
+
+      .preview[data-scroll-mode='short'] #reference {
+        height: min(280px, 100%);
+        border-bottom: 1px solid var(--scalar-border-color);
+      }
+
+      .preview-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px 24px;
+        padding: 8px 16px;
+        background: var(--scalar-background-1);
+        border-bottom: 1px solid var(--scalar-border-color);
+      }
+
+      .preview-header strong {
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .preview-controls,
+      .preview-field {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .preview-controls select,
+      .preview-controls button {
+        min-height: 32px;
+        padding: 3px 8px;
+        color: var(--scalar-color-1);
+        background: var(--scalar-background-2);
+        border: 1px solid var(--scalar-border-color);
+        border-radius: var(--scalar-radius);
+      }
+
+      .preview-controls :is(select, button):focus-visible,
+      #reference:focus-visible {
+        outline: 2px solid var(--scalar-color-accent);
+        outline-offset: 2px;
+      }
+
+      #reference:focus-visible {
+        outline-offset: -2px;
+      }
+    </style>
+  </head>
+  <body class="scalar-app preview">
+    <header class="preview-header">
+      <strong>Developer portal</strong>
+      <form class="preview-controls">
+        <label class="preview-field">
+          Scrolling
+          <select name="scroll">
+            <option value="pane">Full pane</option>
+            <option value="short">Short pane</option>
+            <option value="page">Whole page</option>
+          </select>
+        </label>
+        <label class="preview-field">
+          Layout
+          <select name="layout">
+            <option value="modern">Modern</option>
+            <option value="classic">Classic</option>
+          </select>
+        </label>
+        <button type="submit">Apply</button>
+      </form>
+    </header>
+    <div id="reference"></div>
+    <script type="module">
+      import './src/style.css'
+
+      import { createApp, h } from 'vue'
+
+      import { ApiReference } from './src'
+
+      const params = new URLSearchParams(location.search)
+      const scroll = document.querySelector('select[name="scroll"]')
+      const layout = document.querySelector('select[name="layout"]')
+      scroll.value = params.get('scroll')
+      layout.value = params.get('layout')
+      scroll.value ||= 'pane'
+      layout.value ||= 'modern'
+      document.body.dataset.scrollMode = scroll.value
+
+      const mount = document.getElementById('reference')
+      if (scroll.value === 'page') {
+        const header = document.querySelector('.preview-header')
+        new ResizeObserver(() => {
+          mount.style.setProperty(
+            '--scalar-custom-header-height',
+            header.offsetHeight + 'px',
+          )
+        }).observe(header)
+      } else {
+        mount.setAttribute('data-scalar-scroll-container', '')
+        mount.setAttribute('role', 'group')
+        mount.setAttribute('aria-label', 'API Reference scroll pane')
+        mount.tabIndex = 0
+      }
+
+      const paths = Object.fromEntries(
+        ['Projects', 'Tasks', 'Members'].flatMap((tag) =>
+          Array.from({ length: 6 }, (_, index) => {
+            const item = tag.slice(0, -1).toLowerCase()
+            const number = index + 1
+            return [
+              '/' + tag.toLowerCase() + '/' + number,
+              {
+                get: {
+                  tags: [tag],
+                  summary: 'Read ' + item + ' ' + number,
+                  description: 'Returns the record and its current status.',
+                  responses: { 200: { description: 'The record was found.' } },
+                },
+              },
+            ]
+          }),
+        ),
+      )
+
+      createApp({
+        render: () =>
+          h(ApiReference, {
+            configuration: {
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'Projects API',
+                  version: '1.0.0',
+                  description:
+                    'Manage projects, tasks, and members in the developer portal.',
+                },
+                paths: params.get('document') === 'short' ? {} : paths,
+              },
+              defaultOpenAllTags: true,
+              layout: layout.value,
+              showDeveloperTools: 'never',
+              setPageTitle: ({ title }) => title + ' · Developer portal',
+            },
+          }),
+      }).mount(mount)
+    </script>
+  </body>
+</html>

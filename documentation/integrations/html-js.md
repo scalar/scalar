@@ -32,6 +32,19 @@ To get started, load the ESM build from our CDN in a simple HTML file. No packag
 
 This renders our `@scalar/galaxy` OpenAPI example, using the latest version of `@scalar/api-reference`.
 
+## Scroll inside an embedded pane
+
+To try the experimental pane layout, give a host element a constrained height and `overflow: auto`, then add `data-scalar-scroll-container`. Mount the reference inside that element. For a page with its own header, place the scroll container below the header.
+
+```html
+<header>Developer portal</header>
+<div data-scalar-scroll-container style="height: 280px; overflow: auto">
+  <div id="app"></div>
+</div>
+```
+
+The reference uses the pane's height for its navigation and tracks the visible section within the pane as you scroll. Initialize `#app` as in the example above.
+
 ## Configuration
 
 Check out the [Configuration](../configuration.md) page to learn more about customizing your API reference.
