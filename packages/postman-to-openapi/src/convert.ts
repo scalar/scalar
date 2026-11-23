@@ -1,3 +1,4 @@
+// CI benchmark probe for #11197; this PR is closed unmerged.
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { processAuth, resolveAuth } from '@/helpers/auth'
