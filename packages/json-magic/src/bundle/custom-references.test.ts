@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 
+import { checkDocument } from '../document'
 import { type Config, type LoaderPlugin, bundle } from './bundle'
 import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 
@@ -81,6 +82,93 @@ const local = (resource: object, reference: string): unknown =>
   ).value
 
 describe('custom-references', () => {
+  it.each(['callbacks', 'pathItems', 'webhooks'])(
+    'visits Path Item reference siblings under x-prefixed names in %s',
+    async (placement) => {
+      const pathItem = {
+        $ref: 'https://unreachable.test/path',
+        get: {
+          responses: {
+            200: { description: 'OK', content: { 'application/json': { schema: { $ref: './custom.json' } } } },
+          },
+        },
+      }
+      const names =
+        placement === 'callbacks' ? { 'x-event': { '{\$request.body#/url}': pathItem } } : { 'x-event': pathItem }
+      const reads: string[] = []
+      const result = await bundleWithDiagnostics(
+        { ...api, ...(placement === 'webhooks' ? { webhooks: names } : { components: { [placement]: names } }) },
+        {
+          origin: 'https://source.test/root.json',
+          traversal: 'document',
+          includeCustomReferences: true,
+          treeShake: true,
+          plugins: [loader(reads)],
+          preserveReference: (reference) => reference === 'https://unreachable.test/path',
+        },
+      )
+      expect(result.diagnostics).toStrictEqual([])
+      expect(reads).toStrictEqual(['https://source.test/custom.json'])
+      expect(pathItem.$ref).toBe('https://unreachable.test/path')
+      expect(local(result.document, pathItem.get.responses[200].content['application/json'].schema.$ref)).toStrictEqual(
+        { type: 'string' },
+      )
+    },
+  )
+
+  it('preserves literal values in x-prefixed named Links and Responses', async () => {
+    const link = {
+      operationId: 'getValue',
+      parameters: { value: { $ref: './parameter.json' } },
+      requestBody: { $ref: './body.json' },
+    }
+    const response = { description: 'OK', links: { 'x-next': structuredClone(link) } }
+    const reads: string[] = []
+    const result = await bundleWithDiagnostics(
+      { ...api, components: { links: { 'x-next': link }, responses: { 'x-result': response } } },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake: false,
+        plugins: [loader(reads)],
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(reads).toStrictEqual([])
+    expect(link).toStrictEqual({
+      operationId: 'getValue',
+      parameters: { value: { $ref: './parameter.json' } },
+      requestBody: { $ref: './body.json' },
+    })
+    expect(response.links['x-next']).toStrictEqual(link)
+  })
+
+  it('resolves escaped custom keys without mapping synthetic literal copies to source URLs', async () => {
+    const entry = { $ref: '#/x-target/a~1b~0c%20%25/value' }
+    const target = { $ref: './custom.json' }
+    const reads: string[] = []
+    const result = await bundleWithDiagnostics(
+      { ...api, 'x-entry': entry, 'x-target': { 'a/b~c %': { value: target } } },
+      {
+        origin: 'https://source.test/root.json',
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake: true,
+        urlMap: true,
+        compress: (value) => (value === 'custom.json' ? 'literal-0' : 'custom'),
+        plugins: [loader(reads)],
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(reads).toStrictEqual(['https://source.test/custom.json'])
+    expect(target).toStrictEqual({ $ref: './custom.json' })
+    expect(entry.$ref).toBe('#/x-ext/literal-0')
+    expect(local(result.document, entry.$ref)).toStrictEqual({ $ref: '#/x-ext/custom' })
+    expect(local(result.document, '#/x-ext/custom')).toStrictEqual({ type: 'string' })
+    expect(result.document).toHaveProperty('x-ext-urls', { custom: 'custom.json' })
+  })
+
   it.each(
     ['extension', 'keyword'].flatMap((placement) =>
       ['schemas', 'paths', 'responses', 'components', 'properties'].map((key) => ({ placement, key })),
@@ -787,6 +875,76 @@ describe('custom-references', () => {
     expect(exported['x-entry']).toStrictEqual(fixture()['x-entry'])
     expect(exported.components.schemas.A.custom).toStrictEqual({ $ref: './local.json' })
     expect(exported.components.schemas.A['x-resource']).toStrictEqual(fixture().components.schemas.A['x-resource'])
+  })
+
+  it('ignores the custom-reference option during generic traversal', async () => {
+    const run = async (
+      includeCustomReferences: boolean,
+    ): Promise<{
+      reads: string[]
+      result: Awaited<ReturnType<typeof bundleWithDiagnostics>>
+    }> => {
+      const reads: string[] = []
+      const result = await bundleWithDiagnostics(
+        { ...api, 'x-extra': { example: { $ref: './custom.json' }, missing: { $ref: './missing.json' } } },
+        {
+          origin: 'https://source.test/root.json',
+          traversal: 'generic',
+          includeCustomReferences,
+          treeShake: true,
+          urlMap: true,
+          plugins: [loader(reads)],
+        },
+      )
+      return { reads, result }
+    }
+    const baseline = await run(false)
+    expect(baseline.reads).toStrictEqual(['https://source.test/custom.json', 'https://source.test/missing.json'])
+    expect(baseline.result.diagnostics).toStrictEqual([
+      {
+        kind: 'unresolved-document',
+        reference: './missing.json',
+        source: 'https://source.test/root.json',
+        pointer: '#/x-extra/missing/$ref',
+      },
+    ])
+    expect(await run(true)).toStrictEqual(baseline)
+  })
+
+  it('shows which custom-only targets standalone pruning misses after bundling', async () => {
+    const origin = 'https://source.test/root.json'
+    const extension = { $ref: './custom.json' }
+    const literalReference = { $ref: '#/x-example/value' }
+    const schema = { type: 'string', customKeyword: { $ref: './sibling.json' } }
+    const document = {
+      ...api,
+      'x-entry': extension,
+      'x-copy': literalReference,
+      'x-example': { value: { type: 'boolean' } },
+      paths: {
+        '/value': {
+          get: { responses: { 200: { description: 'OK', content: { 'application/json': { schema } } } } },
+        },
+      },
+    }
+    const result = await bundleWithDiagnostics(document, {
+      origin,
+      traversal: 'document',
+      includeCustomReferences: true,
+      treeShake: true,
+      plugins: [loader([])],
+    })
+    expect(result.diagnostics).toStrictEqual([])
+    expect(result.pruning).toBe('applied')
+    expect(local(document, extension.$ref)).toStrictEqual({ type: 'string' })
+    expect(local(document, literalReference.$ref)).toStrictEqual({ type: 'boolean' })
+    expect(local(document, schema.customKeyword.$ref)).toStrictEqual({ type: 'integer' })
+
+    const copy = structuredClone(document)
+    expect(checkDocument(copy, { origin, prune: true }).ok).toBe(true)
+    expect(local(copy, extension.$ref)).toBeUndefined()
+    expect(local(copy, literalReference.$ref)).toBeUndefined()
+    expect(local(copy, schema.customKeyword.$ref)).toBeUndefined()
   })
 
   it.each([false, true].flatMap((treeShake) => [false, true].map((diagnostics) => ({ treeShake, diagnostics }))))(

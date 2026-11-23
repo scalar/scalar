@@ -126,21 +126,22 @@ export const childReferenceContext = (
   if (context === 'message' && ['payload', 'headers'].includes(key)) return asyncapi ? 'asyncapi-schema' : 'schema'
   if (key === 'message' && context === 'object') return 'message'
   if (key === 'messages' && ['object', 'components'].includes(context)) return 'messages'
-  if (includeCustomReferences && key.startsWith('x-') && !isSchemaMapContext(context)) return 'object'
-  if (context === 'paths') return key.startsWith('x-') ? 'data' : 'path-item'
-  if (context === 'named-responses') return 'response'
-  if (context === 'path-items') return 'path-item'
+  if (key.startsWith('x-') && ['paths', 'callback', 'responses'].includes(context)) {
+    return includeCustomReferences ? 'object' : 'data'
+  }
+  if (context === 'paths' || context === 'path-items' || context === 'callback') {
+    return 'path-item'
+  }
+  if (context === 'responses' || context === 'named-responses') {
+    return 'response'
+  }
   if (context === 'callbacks') return 'callback'
-  if (context === 'callback') return key.startsWith('x-') ? 'data' : 'path-item'
   const mappedContext = schemaContextsByMap.get(context)
   if (mappedContext !== undefined) {
     return mappedContext
   }
   if (context === 'objects') {
     return 'object'
-  }
-  if (context === 'responses') {
-    return key.startsWith('x-') ? 'data' : 'response'
   }
   if (context === 'links') {
     return 'link'
@@ -219,7 +220,7 @@ export const childReferenceContext = (
     return 'links'
   }
   if (key.startsWith('x-')) {
-    return 'data'
+    return includeCustomReferences ? 'object' : 'data'
   }
   if (asyncapi && key === 'bindings') {
     return 'bindings'

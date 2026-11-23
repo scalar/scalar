@@ -603,12 +603,14 @@ await bundle(document, {
 | ------------------------------ | ---------------------------------------------- | -------------- | --------------------------------------------------------------------------------------- |
 | `plugins`                      | `Plugin[]`                                     | —              | Loader and lifecycle plugins used during bundling. Required.                            |
 | `treeShake`                    | `boolean`                                      | —              | Only keep the parts of external documents that are actually referenced. Required.       |
+| `traversal`                    | `'generic' \| 'document'`                      | `'generic'`    | Use document-aware reference rules for OpenAPI, AsyncAPI, and JSON Schema.               |
+| `includeCustomReferences`      | `boolean`                                      | `false`        | Follow references in extensions and unknown schema keywords in document mode.           |
 | `depth`                        | `number`                                       | unlimited      | How deeply nested `$ref` pointers are followed. See the note below.                     |
 | `root`                         | `UnknownObject`                                | the input      | Base document to write external documents into, used for partial bundling.              |
 | `origin`                       | `string`                                       | the input      | Base path used to resolve relative references.                                          |
 | `cache`                        | `Map<string, Promise<ResolveResult>>`          | new map        | Cache of in-flight resolutions, reused across `bundle` calls to avoid refetching.       |
 | `visitedNodes`                 | `Set<unknown>`                                 | new set        | Nodes that have already been bundled, used to avoid re-bundling during partial bundles. |
-| `urlMap`                       | `boolean`                                      | `false`        | Keep the mapping of generated keys to their original URLs in the output.                |
+| `urlMap`                       | `boolean`                                      | `false`        | Map bundled external documents to their original URLs. Synthetic literal copies have no entry. |
 | `externalDocumentsKey`         | `string`                                       | `'x-ext'`      | Key that holds the bundled external documents.                                          |
 | `externalDocumentsMappingsKey` | `string`                                       | `'x-ext-urls'` | Key that holds the mapping between generated keys and original URLs.                    |
 | `compress`                     | `(value: string) => string \| Promise<string>` | hash           | Function used to shorten URLs and file paths into document keys.                        |
@@ -986,6 +988,8 @@ for (const warning of result.data.warnings) console.warn(warning)
 Reachability starts outside reusable storage and follows transitive references, named security schemes, explicit and implicit discriminator mappings, top-level AsyncAPI channels and schema identities/anchors. Reachable cycles remain; disconnected cycles and unused stored external siblings under `x-ext` are removed. Names and pointer layout remain unchanged. Literal examples and extensions do not create dependencies unless an explicit reference targets them. Root components are retained whole; references to their descendants retain their other dependencies too.
 
 Pruning also removes security schemes that no security requirement references. Integrations that offer every declared scheme as a selectable authentication option must explicitly choose whether to enable pruning, since it can remove those options. Empty reusable maps such as `components.schemas: {}` are preserved.
+
+When bundling with `includeCustomReferences: true`, use the bundler's `treeShake` option to trim external documents. Skip the `checkDocument` pruning pass for these bundles. It ignores references in extensions and unknown schema keywords, so it can remove their targets and leave dangling references.
 
 The default unresolved-reference policy is `error`. With `retain`, a reachable external reference that cannot resolve inside the bundle leaves all reusable content intact and produces warnings. Missing local targets still fail. Callers with known resolution failures must skip pruning entirely: an incomplete graph cannot establish which components are unused. This API is independent of the bundler's existing `treeShake` option. Dynamic references conservatively retain matching dynamic anchors; `$recursiveRef` is rejected.
 
