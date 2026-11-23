@@ -203,6 +203,17 @@ describe('create-server-store', () => {
       },
     })
 
+    /** Ways a caller's `exec` can fail, each of which must count as a failed load. */
+    const failures: Record<string, () => ReturnType<LoaderPlugin['exec']>> = {
+      rejects: () => Promise.reject(new Error('Timed out')),
+      throws: () => {
+        throw new Error('Broken loader')
+      },
+      'resolves undefined': () => Promise.resolve(undefined as never),
+      'resolves null': () => Promise.resolve(null as never),
+      'resolves a string': () => Promise.resolve('not a result' as never),
+    }
+
     beforeEach(() => {
       vi.mocked(fetchUrls).mockClear()
       vi.mocked(readFiles).mockClear()
@@ -403,7 +414,7 @@ describe('create-server-store', () => {
     )
 
     it.each([
-      ['path item reference', 'rejects'],
+      ...Object.keys(failures).map((failure) => ['path item reference', failure]),
       ['path item reference', 'throws while validating'],
       ['security requirement', 'rejects'],
     ])('keeps a document whose %s loader %s, leaving the reference unresolved', async (reference, failure) => {
@@ -433,7 +444,7 @@ describe('create-server-store', () => {
               exec: (value) => {
                 requested.push(value)
                 return value === target
-                  ? Promise.reject(new Error('Timed out'))
+                  ? (failures[failure] ?? failures.rejects!)()
                   : Promise.resolve({ ok: true, data: document, raw: JSON.stringify(document) })
               },
             },
@@ -443,7 +454,7 @@ describe('create-server-store', () => {
 
       expect(Object.keys(store.getWorkspace().documents)).toStrictEqual(['api'])
       expect(JSON.stringify(getRaw(store.getResolvedDocument('api')))).toContain(authored)
-      expect(requested.includes(target)).toBe(failure === 'rejects')
+      expect(requested.includes(target)).toBe(failure !== 'throws while validating')
       expect(fetchUrls).not.toHaveBeenCalled()
     })
 
@@ -473,6 +484,78 @@ describe('create-server-store', () => {
       expect(exec).not.toHaveBeenCalled()
       expect(fetchUrls).not.toHaveBeenCalled()
     })
+
+    it.each(Object.keys(failures))('skips an entry document whose loader %s', async (failure) => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'api', url: 'https://example.com/openapi.json' }],
+        documentLoading: { loaders: [{ type: 'loader', validate: () => true, exec: failures[failure]! }] },
+      })
+      expect(store.getWorkspace().documents).toStrictEqual({})
+    })
+
+    it('tries the next loader when a loader throws while validating', async () => {
+      const requested: string[] = []
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'api', url: 'https://example.com/openapi.json' }],
+        documentLoading: {
+          loaders: [
+            {
+              type: 'loader',
+              validate: () => {
+                throw new Error('Unsupported location')
+              },
+              exec: failures.rejects!,
+            },
+            fixedLoader('https://example.com/', { 'https://example.com/openapi.json': loadingDocument }, requested),
+          ],
+        },
+      })
+      expect(Object.keys(store.getWorkspace().documents)).toStrictEqual(['api'])
+      expect(requested).toStrictEqual(['https://example.com/openapi.json'])
+    })
+
+    it.each(['rejects', 'throws while validating'])(
+      'keeps a code sample reference whose loader %s',
+      async (failure) => {
+        const sample = 'https://example.com/sample.py'
+        const document = {
+          openapi: '3.1.0',
+          info: { title: 'Samples', version: '1' },
+          paths: { '/sample': { get: { 'x-codeSamples': [{ lang: 'python', source: { $ref: './sample.py' } }] } } },
+        }
+        const store = await createServerWorkspaceStore({
+          mode: 'ssr',
+          baseUrl: '/docs',
+          documents: [{ name: 'api', url: 'https://example.com/openapi.json' }],
+          documentLoading: {
+            loaders: [
+              {
+                type: 'loader',
+                validate: (value) => {
+                  if (failure === 'throws while validating' && value === sample) {
+                    throw new Error('Unsupported location')
+                  }
+                  return value.startsWith('https://example.com/')
+                },
+                exec: (value) =>
+                  value === sample
+                    ? failures.rejects!()
+                    : Promise.resolve({ ok: true, data: document, raw: JSON.stringify(document) }),
+              },
+            ],
+          },
+        })
+
+        const resolved = getRaw(store.getResolvedDocument('api'))
+        assert(resolved && isOpenApiDocument(resolved))
+        const operation = getResolvedRef(getResolvedRef(resolved.paths?.['/sample'])?.get)
+        expect(operation?.['x-codeSamples']?.[0]?.source).toStrictEqual({ $ref: sample })
+      },
+    )
 
     it('builds the built-in loaders from the permissions when no loaders are supplied', async () => {
       await createServerWorkspaceStore({
@@ -505,6 +588,29 @@ describe('create-server-store', () => {
         documents: [{ name: 'private', url: 'http://127.0.0.1:9/openapi.json', document: loadingDocument }],
       })
       expect(store.getWorkspace().documents).toStrictEqual({})
+      expect(vi.mocked(fetchUrls).mock.calls).toStrictEqual([[{ blockPrivateNetworks: true }]])
+    })
+
+    it('loads an input that also carries a document from its path when no loaders are supplied', async () => {
+      // The path wins over the inline document, and file access is disabled without a basePath.
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'file', path: '/virtual/openapi.json', document: loadingDocument }],
+      })
+      expect(store.getWorkspace().documents).toStrictEqual({})
+      expect(readFiles).not.toHaveBeenCalled()
+    })
+
+    it('treats null document loading options as the defaults', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'inline', document: loadingDocument }],
+        // A JavaScript caller can pass null, which the types do not allow.
+        documentLoading: null as never,
+      })
+      expect(Object.keys(store.getWorkspace().documents)).toStrictEqual(['inline'])
       expect(vi.mocked(fetchUrls).mock.calls).toStrictEqual([[{ blockPrivateNetworks: true }]])
     })
   })

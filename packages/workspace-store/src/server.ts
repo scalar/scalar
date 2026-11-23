@@ -6,7 +6,12 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
-import { type LoaderPlugin, bundle, extensions as bundleExtensions } from '@scalar/json-magic/bundle'
+import {
+  type LoaderPlugin,
+  type ResolveResult,
+  bundle,
+  extensions as bundleExtensions,
+} from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/json-magic/helpers/unescape-json-pointer'
@@ -94,7 +99,11 @@ type DocumentLoading =
        * The store then fetches and reads nothing itself: URL and file documents, external
        * references, URI security requirements, code sample sources and AsyncAPI schema resources
        * all go through the first loader whose `validate` accepts the location. Only plugins with
-       * `type: 'loader'` are used. An empty array disables external loading.
+       * `type: 'loader'` are used. An empty array disables external loading. External references
+       * to other documents are loaded only where the store bundles them: OpenAPI 3.2 documents.
+       * OpenAPI 2.0 and 3.0 documents keep them for the client to resolve, and the server store does
+       * not load the external `$ref`s of OpenAPI 3.1 or AsyncAPI documents at all; code sample
+       * sources and AsyncAPI schema resources are still loaded.
        *
        * The built-in private-network block and `basePath` confinement do not apply: these loaders
        * are responsible for any network and file rules.
@@ -102,11 +111,14 @@ type DocumentLoading =
        * `exec` resolves `{ ok: true, data, raw }` with the parsed content in `data` and the source
        * text in `raw`, or `{ ok: false }` when the location cannot be loaded. Code sample sources
        * and AsyncAPI schema resources call it with `{ parseAs: 'text' }` and read the text from
-       * `raw`. A rejected `exec` or a throwing `validate` counts as a failed load, the same as a
-       * location no loader accepts: the document is skipped, the reference stays unresolved, or
-       * the schema resources are marked as failed.
+       * `raw`. A `validate` that throws counts as that loader not accepting the location, so the
+       * next loader is tried. A load fails when no loader accepts the location, or when the
+       * accepting loader resolves `{ ok: false }` or anything that is not a result, or throws or
+       * rejects: the document is skipped, the reference stays unresolved, or the schema resources
+       * are marked as failed, and a thrown error or invalid result is logged. To make a refusal
+       * final, supply a single loader or make each `validate` total.
        */
-      loaders: LoaderPlugin[]
+      loaders: readonly LoaderPlugin[]
     }
 
 type CreateServerWorkspaceStoreBase = {
@@ -388,39 +400,48 @@ type DocumentLoaders = {
 
 /**
  * Makes a caller's loader fail the way the built-in loaders do: they never throw, they resolve
- * `{ ok: false }`. The bundler does not guard `exec`, so without this a rejection (a timeout, say)
- * would drop the whole document at some load sites and only mark a failure at others.
+ * `{ ok: false }`. The bundler does not guard `exec` or check its result, so without this a
+ * rejection (a timeout, say) would drop the whole document at some load sites and only mark a
+ * failure at others.
  */
 const failSafeLoader = (loader: LoaderPlugin): LoaderPlugin => ({
   type: 'loader',
   validate: (value) => {
     try {
       return loader.validate(value)
-    } catch {
+    } catch (error) {
+      console.warn(`Loader failed to validate "${value}"`, error)
       return false
     }
   },
   exec: async (value, options) => {
     try {
-      return await loader.exec(value, options)
-    } catch {
-      return { ok: false }
+      const result: unknown = await loader.exec(value, options)
+      if (isObjectLike(result) && typeof result.ok === 'boolean') {
+        return result as ResolveResult
+      }
+      console.warn(`Loader returned an invalid result for "${value}"`, result)
+    } catch (error) {
+      console.warn(`Failed to load "${value}"`, error)
     }
+    return { ok: false }
   },
 })
 
 /** The one place that decides between the caller's loaders and the built-in ones. */
-const createDocumentLoaders = (options: DocumentLoading = {}): DocumentLoaders => {
-  if (options.loaders) {
+const createDocumentLoaders = (options: DocumentLoading | null = {}): DocumentLoaders => {
+  // JavaScript callers can pass `null`, which has always meant the defaults.
+  const { loaders, allowPrivateNetworks, basePath } = options ?? {}
+  if (loaders) {
     // The bundler only uses loader plugins, so every other load site skips anything else as well.
-    const plugins = options.loaders.filter((plugin) => plugin.type === 'loader').map(failSafeLoader)
+    const plugins = loaders.filter((plugin) => plugin.type === 'loader').map(failSafeLoader)
     const loadLocation = (location: string): ReturnType<LoaderPlugin['exec']> =>
       plugins.find((plugin) => plugin.validate(location))?.exec(location) ?? Promise.resolve({ ok: false })
     return { plugins, load: (input) => loadLocation('url' in input ? input.url : input.path) }
   }
 
-  const urlLoader = fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks })
-  const fileLoader = options.basePath === undefined ? undefined : readFiles({ basePath: options.basePath })
+  const urlLoader = fetchUrls({ blockPrivateNetworks: !allowPrivateNetworks })
+  const fileLoader = basePath === undefined ? undefined : readFiles({ basePath })
   return {
     plugins: [urlLoader, ...(fileLoader ? [fileLoader] : [])],
     // A `url` input is only ever fetched and a `path` input only ever read, never the other way round.

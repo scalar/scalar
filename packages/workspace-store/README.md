@@ -47,15 +47,23 @@ loader plugins, the same kind `fetchUrls` and `readFiles` return. They replace t
 so the store performs no fetch or file read of its own: URL and file documents, external references,
 URI security requirements, code sample sources, and AsyncAPI schema resources (Protobuf imports, RAML
 includes and libraries) all go through the first loader whose `validate` accepts the location. Only
-plugins with `type: 'loader'` are used. OpenAPI 2.0 and 3.0 documents keep their external references
-for the client to resolve on demand, as they do with the built-in loaders.
+plugins with `type: 'loader'` are used. An empty array disables external loading.
+
+External references to other documents are loaded only where the server store bundles them today,
+which is OpenAPI 3.2 documents (including their URI security requirements). OpenAPI 2.0 and 3.0
+documents keep their external references for the client to resolve on demand, and the server store
+does not load the external `$ref`s of OpenAPI 3.1 or AsyncAPI documents at all. Code sample sources
+(every OpenAPI version) and AsyncAPI schema resources are loaded on the server. Your loaders see the
+same requests the built-in loaders would.
 
 `exec` resolves `{ ok: true, data, raw }`, with the parsed content in `data` and the source text in
 `raw`, or `{ ok: false }` when the location cannot be loaded. Code sample sources and AsyncAPI schema
-resources call it with `{ parseAs: 'text' }` and read the text from `raw`. A rejected `exec` (a
-timeout, for example) or a throwing `validate` counts as a failed load, and so does a location that
-no loader accepts: the document is skipped, a reference stays unresolved, or the schema resources are
-marked as failed. An empty array disables external loading.
+resources call it with `{ parseAs: 'text' }` and read the text from `raw`. A `validate` that throws
+counts as that loader not accepting the location, so the next loader is tried. A load fails when no
+loader accepts the location, or when the accepting loader resolves `{ ok: false }` or anything that is
+not a result, or throws or rejects (a timeout, for example). The document is then skipped, a reference
+stays unresolved, or the schema resources are marked as failed, and the cause is logged. To make a
+refusal final, supply a single loader or make each `validate` total.
 
 `allowPrivateNetworks` and `basePath` only configure the built-in loaders, so they cannot be combined
 with `loaders`. The built-in private-network block and base-path confinement do not apply to your
