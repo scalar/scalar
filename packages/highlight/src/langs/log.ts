@@ -10,6 +10,9 @@ const DATE = `(?:\\d{4}[-/.]\\d{2}[-/.]\\d{2}|\\d{2}[-/.]\\d{2}[-/.]\\d{4}|\\d{2
 
 const TIMESTAMP = `(?:${DATE})(?:[T \\t]${TIME})?|${MONTH}[ \\t]+\\d{1,2}[ \\t]+${TIME}|\\d{8}T\\d{6}(?:[.,]\\d+)?(?:Z|[+-]\\d{2}(?::?\\d{2})?)?|${TIME}`
 
+// A leading number or timestamp can also be part of an IP address or version.
+const NUMBER_END = '\\b(?!\\.\\d|:[\\da-fA-F:])'
+
 /**
  * Human-readable logs, rather than a parser for a particular layout.
  *
@@ -49,11 +52,11 @@ const log: Grammar = {
         { match: /[ \t]+/ },
         { match: /\r\n|[\r\n\u2028\u2029]/, set: 'root' },
         { match: `(\\[)((?:${TIMESTAMP}))(\\])`, scope: [null, 'number', null] },
-        { match: `\\b(?:${TIMESTAMP})\\b`, scope: 'number' },
+        { match: `\\b(?:${TIMESTAMP})${NUMBER_END}`, scope: 'number' },
         // Bracketed context is deliberately bounded: malformed prefixes must
         // not rescan a long line for a closing bracket at every opening one.
         { match: /\[[^\s[\]]{1,128}\]/, scope: 'namespace' },
-        { match: /\b\d+\b(?![.:]\d)/, scope: 'number' },
+        { match: `\\b\\d+${NUMBER_END}`, scope: 'number' },
         // Only qualified logger names can precede a level without a delimiter:
         // accepting any word here would turn "No ERROR occurred" into a header.
         {
@@ -79,7 +82,7 @@ const log: Grammar = {
       rules: [
         {
           match:
-            /^([ \t]+at[ \t]+)([^\s()]+)([ \t]*\()([^()\r\n]*:\d+(?::\d+)?|Native Method|Unknown Source|<anonymous>)(\))/,
+            /^([ \t]+at[ \t]+)([^\s()]+)([ \t]*\()([^()\r\n\u2028\u2029]*:\d+(?::\d+)?|Native Method|Unknown Source|<anonymous>)(\))/,
           scope: ['keyword.control', 'function.call', null, 'link', null],
           set: 'message',
         },
@@ -90,7 +93,8 @@ const log: Grammar = {
         },
         { match: /^[ \t]*(?:Caused by:|Suppressed:)/, scope: 'keyword.control', set: 'message' },
         {
-          match: /(?<![\w.$])(?:[A-Za-z_$][\w$]*\.)*(?:[A-Z][\w$]*(?:Exception|Error)|Exception|Error(?=:))\b/,
+          match:
+            /(?<![\w.$])(?:[A-Za-z_$][\w$]*\.)*(?:[A-Z][\w$]*(?:Exception|Error)|Exception|Error(?=:))\b(?!\$|\.[A-Za-z_$])/,
           scope: 'type',
           set: 'message',
         },

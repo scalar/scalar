@@ -144,12 +144,21 @@ describe('log', () => {
     expect(scoped('192.168.0.1 - - [21/Dec/2024:14:07:41 +0000] "GET / HTTP/1.1" 200')).toStrictEqual([
       ['"GET / HTTP/1.1"', 'string'],
     ])
-    expect(scoped('1.2.3 released')).toStrictEqual([])
-    expect(scoped('12:34 messages processed')).toStrictEqual([])
     expect(scoped('42 INFO ready')).toStrictEqual([
       ['42', 'number'],
       ['INFO', 'keyword'],
     ])
+  })
+
+  it.each([
+    '1.2.3 released',
+    '2024.12.21.123 released',
+    '12:34 messages processed',
+    '12:34:56:78 messages processed',
+    '12:34:56::1 connected',
+    '12:34:56:abcd::1 connected',
+  ])('leaves numeric token continuations plain in %s', (code) => {
+    expect(scoped(code)).toStrictEqual([])
   })
 
   it.each([
@@ -261,6 +270,22 @@ describe('log', () => {
         ['java.io.IOException', 'type'],
       ],
     )
+  })
+
+  it('highlights only complete qualified exception names', () => {
+    expect(scoped('INFO: ExpectedError$Factory at TypeError.com. Retry after java.io.IOException.')).toStrictEqual([
+      ['INFO:', 'keyword'],
+      ['java.io.IOException', 'type'],
+    ])
+  })
+
+  it.each(['\u2028', '\u2029'])('starts a new entry after a truncated stack frame separated by %j', (separator) => {
+    expect(
+      scoped(`    at example.Service.run(${separator}INFO listening on Server.java:42)${separator}WARN recovered`),
+    ).toStrictEqual([
+      ['INFO', 'keyword'],
+      ['WARN', 'keyword'],
+    ])
   })
 
   it('resets truncated strings and message state at every kind of line ending', () => {
