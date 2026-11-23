@@ -58,6 +58,27 @@ describe('SectionContainerAccordion', () => {
     expect(wrapper.find(`[id="${panelId}"]`).exists()).toBe(false)
   })
 
+  it('scopes classic group disclosure IDs to their reference anchors', () => {
+    const mountGroup = (id: string): VueWrapper =>
+      mount(SectionContainerAccordion, {
+        props: { id, modelValue: true },
+        global: { config: { idPrefix: 'scalar-refs' } },
+        slots: { title: 'Messages', default: 'Planet updated' },
+      })
+
+    const first = mountGroup('first/~components/messages')
+    const second = mountGroup('second/~components/messages')
+    try {
+      expect(first.get('button').attributes('aria-controls')).not.toBe(second.get('button').attributes('aria-controls'))
+      expect(first.get('button').attributes('aria-labelledby')).not.toBe(
+        second.get('button').attributes('aria-labelledby'),
+      )
+    } finally {
+      first.unmount()
+      second.unmount()
+    }
+  })
+
   it('leaves clicks on a control in the title to that control', async () => {
     const { wrapper, onUpdate } = mountAccordion('<button class="copy-link" type="button">Copy link</button>')
 

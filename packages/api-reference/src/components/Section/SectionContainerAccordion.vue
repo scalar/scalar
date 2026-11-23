@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconCaretRight } from '@scalar/icons'
-import { useId } from 'vue'
+import { computed, useId } from 'vue'
 
-defineProps<{
+const { id } = defineProps<{
+  id?: string
   modelValue: boolean
 }>()
 
@@ -17,12 +18,18 @@ defineSlots<{
   actions?: () => unknown
 }>()
 
+const instanceId = useId()
+const disclosureId = computed(
+  () => `~accordion/${encodeURIComponent(id ?? '')}/${instanceId}`,
+)
 /** Names the toggle after the title, which renders over the button rather than inside it. */
-const titleId = useId()
-const panelId = useId()
+const titleId = computed(() => `${disclosureId.value}/title`)
+const panelId = computed(() => `${disclosureId.value}/panel`)
 </script>
 <template>
-  <section class="section-accordion-wrapper">
+  <section
+    :id="id"
+    class="section-accordion-wrapper">
     <div class="section-accordion">
       <!-- Preserve the original header formatting context when no actions are supplied. -->
       <div
