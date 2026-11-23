@@ -360,9 +360,10 @@ A message that itself starts with an uppercase severity word is inherently
 ambiguous and may look like a header. Context brackets are limited to 128
 non-whitespace characters. Arbitrary logger names without delimiters, custom
 levels, localized dates, and every possible stack-trace dialect are not inferred.
-Dates are recognized lexically rather than validated as calendar dates. A quote
-ends at the line boundary if it is unterminated, so it cannot swallow later
-entries. JSON/NDJSON parsing and ANSI escape rendering are outside this grammar;
+Dates are recognized lexically rather than validated as calendar dates.
+Numeric prefixes that continue as an IP address or version stay plain.
+Apostrophes inside words stay plain, and an unterminated quote ends at the line
+boundary. JSON/NDJSON parsing and ANSI escape rendering are outside this grammar;
 use the JSON grammar or a separate ANSI renderer for those inputs.
 
 The heuristics and tests draw on the

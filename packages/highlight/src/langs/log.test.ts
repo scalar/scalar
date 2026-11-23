@@ -153,6 +153,8 @@ describe('log', () => {
   it.each([
     '1.2.3 released',
     '2024.12.21.123 released',
+    '2024.12.21-rc.1 released',
+    '2024.12.21+build.7 released',
     '12:34 messages processed',
     '12:34:56:78 messages processed',
     '12:34:56::1 connected',
@@ -229,7 +231,10 @@ describe('log', () => {
       ["'WARN'", 'string'],
       ['https://example.com/a?b=1&c=2', 'link'],
     ])
-    expect(scoped("INFO user's request failed")).toStrictEqual([['INFO', 'keyword']])
+  })
+
+  it.each(["user's", "café's", "cafe\u0301's"])('keeps the apostrophe in %s as message prose', (word) => {
+    expect(scoped(`INFO ${word} request failed`)).toStrictEqual([['INFO', 'keyword']])
   })
 
   it('recognizes exception types and structured Java and JavaScript stack frames', () => {
@@ -273,7 +278,11 @@ describe('log', () => {
   })
 
   it('highlights only complete qualified exception names', () => {
-    expect(scoped('INFO: ExpectedError$Factory at TypeError.com. Retry after java.io.IOException.')).toStrictEqual([
+    expect(
+      scoped(
+        'INFO: ExpectedError$Factory, TypeError.com, caféCustomError, caféException and TypeErroré are names. Retry after java.io.IOException.',
+      ),
+    ).toStrictEqual([
       ['INFO:', 'keyword'],
       ['java.io.IOException', 'type'],
     ])
