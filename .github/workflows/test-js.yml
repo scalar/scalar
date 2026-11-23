@@ -24,11 +24,10 @@ permissions:
 
 jobs:
   test-packages:
-    # The greedy split below always hands shard 1 the heaviest package, and
-    # shard 1 also runs the extra checks, so it sets the PR's critical path
-    # and stays on Blacksmith. The other shards finish well before it and run
-    # on free GitHub-hosted runners.
-    runs-on: ${{ matrix.shard-index == 1 && 'blacksmith-4vcpu-ubuntu-2404' || 'ubuntu-latest' }}
+    # Stays on Blacksmith: on GitHub-hosted runners the shards run their
+    # packages about twice as slowly, and CPU-budget tests (workspace-store's
+    # example size budget, the request-scripts plugin) hit their timeouts.
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 10
     permissions:
       contents: read
