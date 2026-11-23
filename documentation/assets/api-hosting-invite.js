@@ -114,10 +114,12 @@
       isVisible,
     )
 
+  const desktop = matchMedia('(min-width: 768px) and (hover: hover) and (pointer: fine)')
+
   if (
     isPageWithoutPopup() ||
     navigator.webdriver === true ||
-    !matchMedia('(min-width: 768px) and (hover: hover) and (pointer: fine)').matches ||
+    !desktop.matches ||
     typeof HTMLDialogElement !== 'function' ||
     hasSeen()
   ) {
@@ -280,10 +282,18 @@
     return dialog
   }
 
-  function open() {
+  function open(deadline) {
     idleHandle = undefined
     giveUp()
-    if (isPageWithoutPopup() || document.visibilityState === 'hidden' || hasSeen() || hasOtherPopup()) {
+    // A timed-out callback can run while startup work is still keeping the browser busy.
+    if (
+      deadline?.didTimeout ||
+      !desktop.matches ||
+      isPageWithoutPopup() ||
+      document.visibilityState === 'hidden' ||
+      hasSeen() ||
+      hasOtherPopup()
+    ) {
       return
     }
     remember()
