@@ -35,6 +35,20 @@ test('component styles preserve a layered host body across route changes', async
   await expect(body).toHaveCSS('margin', '13px')
 })
 
+test('component styles keep the color scheme on scalar elements', async ({ page }) => {
+  await page.setContent(`
+    <body class="dark-mode">
+      <main>Host content</main>
+      <div class="scalar-app">Reference</div>
+    </body>
+  `)
+  for (const path of ['../api-client/dist/style.css', 'dist/style.css']) {
+    await page.addStyleTag({ path: join(packageRoot, path) })
+  }
+  await expect(page.locator('main')).toHaveCSS('color-scheme', 'normal')
+  await expect(page.locator('.scalar-app')).toHaveCSS('color-scheme', 'dark')
+})
+
 test('standalone pages retain their background and margin reset', async ({ page }) => {
   await page.setContent('<body class="dark-mode"></body>')
   await page.addScriptTag({ path: join(packageRoot, 'dist/browser/standalone.js') })

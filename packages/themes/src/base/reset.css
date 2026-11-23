@@ -12,6 +12,17 @@
   }
 }
 
+/* Keep the color scheme of the body class on Scalar elements so it does not leak into host pages. */
+body:not(.scalar-app):is(.dark-mode, .light-mode) {
+  color-scheme: inherit;
+}
+.dark-mode .scalar-app:not(.light-mode) {
+  color-scheme: dark;
+}
+.light-mode .scalar-app:not(.dark-mode) {
+  color-scheme: light;
+}
+
 /* Use :where to lower specificity */
 :where(.scalar-app) {
   /* Apply styles that are normally applied to `html`. */
