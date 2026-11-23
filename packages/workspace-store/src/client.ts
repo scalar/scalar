@@ -2037,16 +2037,24 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       history.load(input.history)
       auth.load(input.auth)
     },
-    importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
+    importWorkspaceFromSpecification: async (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
+
+      for (const name of [...Object.keys(documents ?? {}), ...Object.keys(overrides ?? {})]) {
+        preventPollution(name, 'workspace document name')
+      }
 
       // Assign workspace metadata
       safeAssign(workspace, meta)
 
       // Add workspace documents
-      return Promise.all(
+      return await Promise.all(
         Object.entries(documents ?? {}).map(([name, doc]) =>
-          addDocument({ url: doc.$ref, name, overrides: overrides?.[name] }),
+          addDocument({
+            url: doc.$ref,
+            name,
+            overrides: overrides && Object.hasOwn(overrides, name) ? overrides[name] : undefined,
+          }),
         ),
       )
     },

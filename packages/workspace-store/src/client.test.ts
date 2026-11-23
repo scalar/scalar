@@ -224,6 +224,59 @@ describe('create-workspace-store', () => {
     }
   })
 
+  it.each([true, false])(
+    'rejects reserved import names before applying metadata with reactive=%s',
+    async (reactive) => {
+      const document = { openapi: '3.1.2', info: { title: 'Imported', version: '1.0.0' }, paths: {} }
+      const url = `data:application/json,${encodeURIComponent(JSON.stringify(document))}`
+
+      for (const field of ['documents', 'overrides'] as const) {
+        for (const name of ['__proto__', 'constructor', 'prototype']) {
+          const store = createWorkspaceStore({ reactive })
+          const before = store.exportWorkspace()
+          const input = {
+            workspace: 'draft' as const,
+            info: { title: 'Imported' },
+            'x-scalar-active-document': name,
+            documents: { api: { $ref: url } },
+            overrides: {},
+          }
+          Object.defineProperty(input[field], name, {
+            value: field === 'documents' ? { $ref: url } : {},
+            enumerable: true,
+          })
+
+          await expect(store.importWorkspaceFromSpecification(input)).rejects.toThrow(
+            `Prototype pollution key detected: "${name}" in workspace document name`,
+          )
+          expect(store.exportWorkspace()).toStrictEqual(before)
+        }
+      }
+    },
+  )
+
+  it.each([true, false])(
+    'imports an own inherited name from a workspace description with reactive=%s',
+    async (reactive) => {
+      const store = createWorkspaceStore({ reactive })
+      const document = { openapi: '3.1.2', info: { title: 'Imported', version: '1.0.0' }, paths: {} }
+      const url = `data:application/json,${encodeURIComponent(JSON.stringify(document))}`
+
+      await expect(
+        store.importWorkspaceFromSpecification({
+          workspace: 'draft',
+          info: { title: 'Imported' },
+          'x-scalar-active-document': 'toString',
+          documents: { toString: { $ref: url } },
+          overrides: {},
+        }),
+      ).resolves.toStrictEqual([true])
+      expect(store.workspace.activeDocument?.info.title).toBe('Imported')
+      expect(store.updateDocument('active', 'x-scalar-selected-server', 'dummy-server')).toBe(true)
+      expect(store.workspace.activeDocument?.['x-scalar-selected-server']).toBe('dummy-server')
+    },
+  )
+
   it.each([true, false])('preserves own document names and their snapshots with reactive=%s', async (reactive) => {
     for (const name of ['api', 'toString']) {
       const store = createWorkspaceStore({ reactive })
