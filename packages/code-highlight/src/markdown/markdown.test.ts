@@ -324,7 +324,10 @@ curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
     })
   })
 
-  /** The plain-text serializer escapes text. Markdown syntax and raw HTML still need the full pipeline. */
+  /**
+   * These cases pin the plain-paragraph check for characters with special meaning.
+   * HTML text escaping leaves Markdown punctuation alone, so it still needs the full pipeline.
+   */
   describe('fast path escaping', () => {
     const dangerous = {
       /** Markup: the serializer escapes it, the sanitizer drops the handler */

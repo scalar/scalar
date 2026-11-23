@@ -232,15 +232,9 @@ export function htmlFromMarkdown(markdown: string, options?: HtmlFromMarkdownOpt
   // caller that removes `p` expects the paragraph to be stripped, so both keep
   // the full pipeline.
   if (!options?.transform && !removeTags.includes('p') && PLAIN_PARAGRAPH.test(markdown)) {
-    // Serialize the paragraph text so escaping does not depend on the fast-path check.
-    return htmlFragmentStringifier.stringify({
-      type: 'root',
-      children: [
-        { type: 'text', value: '\n' },
-        { type: 'element', tagName: 'p', properties: {}, children: [{ type: 'text', value: markdown }] },
-        { type: 'text', value: '\n' },
-      ],
-    })
+    // Escape HTML text independently of which strings qualify for the shortcut.
+    const escaped = markdown.replace(/[&<]/g, (character) => (character === '&' ? '&amp;' : '&lt;'))
+    return `\n<p>${escaped}</p>\n`
   }
 
   const allowTags = options?.allowTags ?? []

@@ -3,4 +3,4 @@
 '@scalar/code-highlight': patch
 ---
 
-Serialize plain Markdown paragraphs as HTML text so escaping is handled by the same serializer as other Markdown output.
+Escape HTML text in plain Markdown paragraphs independently of the checks that select the shortcut.
