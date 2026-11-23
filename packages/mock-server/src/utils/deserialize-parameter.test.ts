@@ -371,6 +371,10 @@ describe('deserialize-parameter', () => {
     })
   })
 
+  it('preserves decoded delimiters in matrix primitive values', () => {
+    expect(deserializePrimitiveParameter({ style: 'matrix', single: ';token=a;b=c' })).toBe('a;b=c')
+  })
+
   describe('deserializePrimitiveParameter', () => {
     it('returns undefined when the parameter is absent', () => {
       expect(deserializePrimitiveParameter({ style: 'label', single: undefined })).toBeUndefined()

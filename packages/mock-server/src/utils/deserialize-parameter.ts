@@ -290,13 +290,11 @@ export const deserializePrimitiveParameter = ({
   }
 
   if (style === 'matrix') {
-    const [first] = matrixSegments(single)
-    if (first === undefined) {
-      return ''
-    }
-    const equals = first.indexOf('=')
+    // Path values are already percent-decoded, so a semicolon can be value data from `%3B`.
+    // A primitive has only one value; splitting it into matrix segments would truncate that data.
+    const equals = single.indexOf('=')
     // A segment without `=` (`;id`) is the parameter name with an empty value.
-    return equals === -1 ? '' : first.slice(equals + 1)
+    return equals === -1 ? '' : single.slice(equals + 1)
   }
 
   return single

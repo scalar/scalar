@@ -675,6 +675,25 @@ describe('validate-request', () => {
     expect((await matrixServer.request('/users/;id=nope')).status).toBe(422)
   })
 
+  it.each([false, true])('preserves encoded delimiters in matrix primitives with explode=%s', async (explode) => {
+    const document = documentWith('/users/{id}', 'get', {
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          style: 'matrix',
+          explode,
+          schema: { type: 'string', enum: ['a', 'a;b=c'] },
+        },
+      ],
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    expect((await server.request('/users/;id=a%3Bb%3Dc')).status).toBe(200)
+    expect((await server.request('/users/;id=a%3Bignored')).status).toBe(422)
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {
