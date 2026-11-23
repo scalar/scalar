@@ -16,7 +16,7 @@ export function replaceVariables(
     if (typeof variablesOrCallback === 'function') {
       return variablesOrCallback(match)
     }
-    return variablesOrCallback[match]?.toString() || `{${match}}`
+    return variablesOrCallback[match]?.toString() ?? `{${match}}`
   }
 
   // Loop through all matches and replace the match with the variable value

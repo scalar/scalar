@@ -1,6 +1,56 @@
 import { describe, expect, it } from 'vitest'
 
-import { replaceEnvVariables, replacePathVariables } from './replace-variables'
+import { replaceEnvVariables, replacePathVariables, replaceVariables } from './replace-variables'
+
+describe('replaceVariables', () => {
+  it.each<{ name: string; template: string; variables: Record<string, string | number>; expected: string }>([
+    {
+      name: 'a single brace variable',
+      template: 'https://api.example.com/{path}',
+      variables: { path: 'v1' },
+      expected: 'https://api.example.com/v1',
+    },
+    { name: 'a double brace variable', template: '{{path}}/users', variables: { path: 'v1' }, expected: 'v1/users' },
+    {
+      name: 'an empty string at the end',
+      template: 'https://api.example.com{basePath}',
+      variables: { basePath: '' },
+      expected: 'https://api.example.com',
+    },
+    {
+      name: 'an empty string in the middle',
+      template: 'https://api.example.com/{path}/v1',
+      variables: { path: '' },
+      expected: 'https://api.example.com//v1',
+    },
+    {
+      name: 'an empty string in double braces',
+      template: 'https://api.example.com{{basePath}}',
+      variables: { basePath: '' },
+      expected: 'https://api.example.com',
+    },
+    { name: 'a zero', template: '/{page}', variables: { page: 0 }, expected: '/0' },
+    {
+      name: 'an empty string next to a missing variable',
+      template: '{protocol}://{host}',
+      variables: { protocol: '' },
+      expected: '://{host}',
+    },
+  ])('substitutes $name', ({ template, variables, expected }) => {
+    expect(replaceVariables(template, variables)).toBe(expected)
+  })
+
+  it.each<{ name: string; template: string; variables: Record<string, string> }>([
+    { name: 'a missing variable', template: '{path}', variables: {} },
+    { name: 'a variable with a different name', template: '{path}', variables: { other: '' } },
+  ])('keeps the placeholder for $name', ({ template, variables }) => {
+    expect(replaceVariables(template, variables)).toBe(template)
+  })
+
+  it('keeps an empty string returned by the callback', () => {
+    expect(replaceVariables('a{b}c', () => '')).toBe('ac')
+  })
+})
 
 describe('replacePathVariables', () => {
   it('replaces single curly brace variables {id}', () => {
