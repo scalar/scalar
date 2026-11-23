@@ -111,6 +111,150 @@ const REGISTRY_META = {
 } as const
 
 describe('create-workspace-store', () => {
+  it('publishes document fallbacks after deleting an own inherited name', async () => {
+    const values: unknown[] = []
+    const store = createWorkspaceStore({
+      plugins: [
+        {
+          hooks: {
+            onWorkspaceStateChanges: (event) => {
+              if (
+                event.type === 'documents' ||
+                event.type === 'originalDocuments' ||
+                event.type === 'intermediateDocuments' ||
+                event.type === 'overrides'
+              ) {
+                values.push(event.value)
+              }
+            },
+          },
+        },
+      ],
+    })
+    await store.addDocument({ name: 'toString', document: getDocument() })
+    values.length = 0
+
+    store.deleteDocument('toString')
+
+    expect(values).toStrictEqual([
+      { openapi: '3.1.0', info: { title: '', version: '' }, 'x-scalar-original-document-hash': '' },
+      {},
+      {},
+      {},
+    ])
+    expect(store.workspace.activeDocument).toBeUndefined()
+  })
+
+  it.each([true, false])('ignores inherited document names with reactive=%s', async (reactive) => {
+    const store = createWorkspaceStore({ reactive })
+    const key = 'x-scalar-selected-server'
+    const targets = [Object.prototype, Object, Object.prototype.toString, Object.prototype.valueOf]
+    const descriptors = targets.map((target) => Object.getOwnPropertyDescriptor(target, key))
+
+    try {
+      for (const name of ['__proto__', 'constructor', 'prototype', 'toString', 'valueOf', 'missing']) {
+        expect(store.updateDocument(name, key, 'dummy-server')).toBe(false)
+        store.update('x-scalar-active-document', name)
+        expect(store.workspace.activeDocument).toBeUndefined()
+        expect(store.updateDocument('active', key, 'dummy-server')).toBe(false)
+        expect(store.getOriginalDocument(name)).toBe(null)
+        expect(store.getIntermediateDocument(name)).toBe(null)
+        expect(store.promoteIntermediateToOriginal(name)).toBe(false)
+        expect(store.exportDocument(name, 'json')).toBeUndefined()
+        await expect(store.revertDocumentChanges(name)).resolves.toBeUndefined()
+        await expect(store.replaceDocument(name, {})).resolves.toBeUndefined()
+        await expect(store.rebaseDocument({ name, document: {} })).resolves.toStrictEqual({
+          ok: false,
+          type: 'CORRUPTED_STATE',
+          message: `Cannot rebase document '${name}': missing original or active document state`,
+        })
+        store.deleteDocument(name)
+      }
+      expect(Object.keys(store.workspace.documents)).toStrictEqual([])
+      targets.forEach((target, index) => {
+        expect(Object.getOwnPropertyDescriptor(target, key)).toStrictEqual(descriptors[index])
+      })
+    } finally {
+      targets.forEach((target, index) => {
+        const descriptor = descriptors[index]
+        if (descriptor) {
+          Object.defineProperty(target, key, descriptor)
+        } else {
+          Reflect.deleteProperty(target, key)
+        }
+      })
+    }
+  })
+
+  it.each([true, false])('rejects reserved names before adding documents with reactive=%s', async (reactive) => {
+    const store = createWorkspaceStore({ reactive })
+    for (const name of ['__proto__', 'constructor', 'prototype']) {
+      await expect(store.addDocument({ name, document: getDocument() })).rejects.toThrow(
+        `Prototype pollution key detected: "${name}" in workspace document name`,
+      )
+    }
+    expect(store.exportWorkspace().documents).toStrictEqual({})
+    expect(store.exportWorkspace().originalDocuments).toStrictEqual({})
+    expect(store.exportWorkspace().intermediateDocuments).toStrictEqual({})
+  })
+
+  it.each([true, false])('rejects reserved snapshot names before hydration with reactive=%s', async (reactive) => {
+    const source = createWorkspaceStore({ reactive })
+    await source.addDocument({ name: 'api', document: getDocument() })
+
+    for (const field of [
+      'documents',
+      'originalDocuments',
+      'intermediateDocuments',
+      'overrides',
+      'requestBodyBaselines',
+    ] as const) {
+      for (const name of ['__proto__', 'constructor', 'prototype']) {
+        const store = createWorkspaceStore({ reactive })
+        const before = store.exportWorkspace()
+        const input = { ...source.exportWorkspace(), requestBodyBaselines: {} }
+        Object.defineProperty(input, field, { value: { ...input[field] }, enumerable: true })
+        Object.defineProperty(input[field], name, { value: {}, enumerable: true })
+
+        expect(() => store.loadWorkspace(input)).toThrow(
+          `Prototype pollution key detected: "${name}" in workspace document name`,
+        )
+        expect(store.exportWorkspace()).toStrictEqual(before)
+      }
+    }
+  })
+
+  it.each([true, false])('preserves own document names and their snapshots with reactive=%s', async (reactive) => {
+    for (const name of ['api', 'toString']) {
+      const store = createWorkspaceStore({ reactive })
+      const document = { openapi: '3.1.2', info: { title: 'Original', version: '1.0.0' }, paths: {} }
+      await store.addDocument({ name, document })
+      expect(store.getOriginalDocument(name)).toStrictEqual(document)
+      expect(store.getIntermediateDocument(name)).toStrictEqual(document)
+      expect(store.promoteIntermediateToOriginal(name)).toBe(true)
+      expect(store.updateDocument(name, 'x-scalar-selected-server', 'dummy-server')).toBe(true)
+      store.update('x-scalar-active-document', name)
+      expect(store.updateDocument('active', 'x-scalar-selected-server', 'active-server')).toBe(true)
+
+      const hydrated = createWorkspaceStore({ reactive })
+      hydrated.loadWorkspace(store.exportWorkspace())
+      expect(hydrated.workspace.activeDocument?.info.title).toBe('Original')
+      expect(hydrated.workspace.activeDocument?.['x-scalar-selected-server']).toBe('active-server')
+      await hydrated.replaceDocument(name, { ...document, info: { ...document.info, title: 'Replaced' } })
+      expect(hydrated.workspace.activeDocument?.info.title).toBe('Replaced')
+      await hydrated.revertDocumentChanges(name)
+      expect(hydrated.workspace.activeDocument?.info.title).toBe('Original')
+      const upstream = { ...document, info: { ...document.info, title: 'Upstream' } }
+      const result = await hydrated.rebaseDocument({ name, document: upstream })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        await result.applyChanges({ resolvedDocument: upstream })
+      }
+      expect(hydrated.workspace.activeDocument?.info.title).toBe('Upstream')
+      expect(await hydrated.saveDocument(name)).toBe(true)
+    }
+  })
+
   it.each(['3.1.0', '3.2.0'])('preserves literal references when importing OpenAPI %s', async (openapi) => {
     const fetchDocument = vi.fn(() => Promise.resolve(new Response('{"type":"object"}')))
     const store = createWorkspaceStore({ fetch: fetchDocument })

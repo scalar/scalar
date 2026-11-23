@@ -804,7 +804,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      * @returns The active document or undefined if no document is found
      */
     get activeDocument(): NonNullable<Workspace['activeDocument']> | undefined {
-      return workspace.documents[getActiveDocumentName()]
+      const name = getActiveDocumentName()
+      return Object.hasOwn(workspace.documents, name) ? workspace.documents[name] : undefined
     },
   }
 
@@ -842,7 +843,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 }
 
                 const documentName = path[1] as string
-                const document = workspace.documents[documentName] ?? {
+                const document = (Object.hasOwn(workspace.documents, documentName)
+                  ? workspace.documents[documentName]
+                  : undefined) ?? {
                   openapi: '3.1.0',
                   info: { title: '', version: '' },
                   'x-scalar-original-document-hash': '',
@@ -873,7 +876,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               /** Active document changes */
               if (type === 'activeDocument') {
                 const documentName = getActiveDocumentName()
-                const document = workspace.documents[documentName] ?? {
+                const document = (Object.hasOwn(workspace.documents, documentName)
+                  ? workspace.documents[documentName]
+                  : undefined) ?? {
                   openapi: '3.1.0',
                   info: { title: '', version: '' },
                   'x-scalar-original-document-hash': '',
@@ -980,7 +985,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               const event = {
                 type,
                 documentName: documentName,
-                value: unpackProxyObject(originalDocuments[documentName] ?? {}),
+                value: unpackProxyObject(
+                  Object.hasOwn(originalDocuments, documentName) ? (originalDocuments[documentName] ?? {}) : {},
+                ),
                 path: path.splice(2),
               } satisfies WorkspaceStateChangeEvent
               fireWorkspaceChange(event)
@@ -990,7 +997,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               const event = {
                 type,
                 documentName: documentName,
-                value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
+                value: unpackProxyObject(
+                  Object.hasOwn(intermediateDocuments, documentName) ? (intermediateDocuments[documentName] ?? {}) : {},
+                ),
                 path: path.splice(2),
               } satisfies WorkspaceStateChangeEvent
               fireWorkspaceChange(event)
@@ -1000,7 +1009,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               const event = {
                 type,
                 documentName: documentName,
-                value: unpackProxyObject(overrides[documentName] ?? {}),
+                value: unpackProxyObject(Object.hasOwn(overrides, documentName) ? (overrides[documentName] ?? {}) : {}),
               } satisfies WorkspaceStateChangeEvent
               fireWorkspaceChange(event)
             }
@@ -1066,6 +1075,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   function exportDocument(documentName: string, format: 'json' | 'yaml', minify?: boolean) {
+    if (!Object.hasOwn(originalDocuments, documentName)) {
+      return
+    }
     // The original document map now holds the most recently saved state of
     // the document - `saveDocument` writes directly into it and
     // `revertDocumentChanges` reads from it. Exporting therefore mirrors
@@ -1130,6 +1142,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     navigationOptions?: NavigationOptions,
   ) {
     const { name } = input
+    preventPollution(name, 'workspace document name')
     const meta = deepClone(input.meta)
     const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
 
@@ -1395,6 +1408,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // If loading fails, a placeholder error document is added instead.
   async function addDocument(input: WorkspaceDocumentInput, navigationOptions?: NavigationOptions) {
     const { name, meta } = input
+    preventPollution(name, 'workspace document name')
 
     /** Ensure we use the active proxy to fetch documents unless we have a custom fetch override */
     const fetch = getFetch({
@@ -1438,6 +1452,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   const getOriginalDocument = (documentName: string) => {
+    if (!Object.hasOwn(originalDocuments, documentName)) {
+      return null
+    }
     const rawDocument = unpackProxyObject(originalDocuments[documentName], { depth: 1 })
 
     if (!rawDocument) {
@@ -1448,6 +1465,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   const getIntermediateDocument = (documentName: string) => {
+    if (!Object.hasOwn(intermediateDocuments, documentName)) {
+      return null
+    }
     const rawDocument = unpackProxyObject(intermediateDocuments[documentName], { depth: 1 })
 
     if (!rawDocument) {
@@ -1469,7 +1489,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * reports `false` when the document does not exist at all.
    */
   const promoteIntermediateToOriginal: WorkspaceStore['promoteIntermediateToOriginal'] = (documentName) => {
-    return Boolean(intermediateDocuments[documentName])
+    return Object.hasOwn(intermediateDocuments, documentName) && Boolean(intermediateDocuments[documentName])
   }
 
   /**
@@ -1738,7 +1758,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       key: K,
       value: DocumentMetaExtensions[K],
     ) {
-      const currentDocument = workspace.documents[name === 'active' ? getActiveDocumentName() : name]
+      const documentName = name === 'active' ? getActiveDocumentName() : name
+      // Missing documents must not resolve to inherited objects such as Object.prototype.
+      if (!Object.hasOwn(workspace.documents, documentName)) {
+        return false
+      }
+      preventPollution(documentName, 'workspace document name')
+      const currentDocument = workspace.documents[documentName]
 
       if (!currentDocument) {
         return false
@@ -1749,6 +1775,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return true
     },
     async replaceDocument(documentName: string, input: Record<string, unknown>) {
+      if (!Object.hasOwn(workspace.documents, documentName)) {
+        return console.error(`Document '${documentName}' does not exist in the workspace.`)
+      }
       // Used to preserve the original metadata of the document (we need to unpack so we don't store a proxy object)
       const currentDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
 
@@ -1859,7 +1888,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
      */
     deleteDocument: (documentName: string): void => {
       // Check if the document exists before attempting deletion
-      if (!workspace.documents[documentName]) {
+      if (!Object.hasOwn(workspace.documents, documentName) || !workspace.documents[documentName]) {
         return
       }
 
@@ -1896,13 +1925,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     saveDocument,
     promoteIntermediateToOriginal,
     async revertDocumentChanges(documentName: string) {
+      if (!Object.hasOwn(workspace.documents, documentName)) {
+        return
+      }
       // Used to preserve the original metadata of the document (we need to unpack so we don't store a proxy object)
       const workspaceDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
       // Restore from the original (last saved) snapshot. `saveDocument`
       // writes here, so this reliably rolls back to whatever the user
       // last persisted - matching the soft-deprecation path away from the
       // intermediate document layer.
-      const baseline = unpackProxyObject(originalDocuments[documentName], { depth: 1 })
+      const baseline = getOriginalDocument(documentName)
 
       if (!workspaceDocument || !baseline) {
         return
@@ -1953,6 +1985,18 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       } satisfies InMemoryWorkspace
     },
     loadWorkspace(input: InMemoryWorkspace) {
+      // Reject unsafe names before hydration can mutate any of the document maps.
+      for (const documents of [
+        input.documents,
+        input.originalDocuments,
+        input.intermediateDocuments,
+        input.overrides,
+        input.requestBodyBaselines ?? {},
+      ]) {
+        for (const name of Object.keys(documents)) {
+          preventPollution(name, 'workspace document name')
+        }
+      }
       // A workspace from a compact server store carries an index rather than per-node chunk
       // references; expanded here for the same reason `addInMemoryDocument` expands.
       for (const document of Object.values(input.documents)) {
@@ -1968,7 +2012,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             const magicDocument = createMagicProxy(doc, {
               documentUri: resolveOpenApiDocument(doc, doc['x-scalar-original-source-url'] ?? '/')?.baseUri,
             })
-            const documentOverrides = input.overrides[name]
+            const documentOverrides = Object.hasOwn(input.overrides, name) ? input.overrides[name] : undefined
             if (isAsyncApiDocument(magicDocument)) checkNativeSchemaEdits(magicDocument)
 
             return [
@@ -2014,9 +2058,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // about exactly two local snapshots: the original (last saved
       // baseline, written by `saveDocument`) and the active in-memory
       // document (with any unsaved edits on top).
-      const originalDocument = unpackProxyObject(originalDocuments[name], { depth: 1 })
+      const originalDocument = getOriginalDocument(name)
       // raw version without any proxies
-      const activeDocumentRaw = unpackProxyObject(workspace.documents[name], { depth: 1 })
+      const activeDocumentRaw = Object.hasOwn(workspace.documents, name)
+        ? unpackProxyObject(workspace.documents[name], { depth: 1 })
+        : undefined
       // editable version of the document (reversing bundling and also remove internal metadata)
       const activeDocument = await getEditableDocument(name)
 
