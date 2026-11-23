@@ -7,6 +7,8 @@ import { tmpdir } from 'node:os'
 import path, { join, relative } from 'node:path'
 import { cwd } from 'node:process'
 
+import type { LoaderPlugin } from '@scalar/json-magic/bundle'
+import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { literalReferencesDocument } from '@test/literal-references'
 import { type FastifyInstance, fastify } from 'fastify'
@@ -30,6 +32,12 @@ import {
   externalizePathReferences,
   filterHttpMethodsOnly,
 } from './server'
+
+// Pass-through spies, so tests can check that supplied loaders replace the built-in ones entirely.
+vi.mock('@scalar/json-magic/bundle/plugins/node', async (importOriginal) => {
+  const plugins = await importOriginal<typeof import('@scalar/json-magic/bundle/plugins/node')>()
+  return { ...plugins, fetchUrls: vi.fn(plugins.fetchUrls), readFiles: vi.fn(plugins.readFiles) }
+})
 
 describe('create-server-store', () => {
   it.each(['3.1.0', '3.2.0'])('preserves literal references when loading OpenAPI %s', async (openapi) => {
@@ -178,6 +186,113 @@ describe('create-server-store', () => {
     } finally {
       await fs.rm(directory, { recursive: true, force: true })
     }
+  })
+
+  describe('caller-supplied loaders', () => {
+    /** Serves fixed responses for locations under `prefix` and records every request. */
+    const fixedLoader = (prefix: string, files: Record<string, unknown>, requested: string[]): LoaderPlugin => ({
+      type: 'loader',
+      validate: (value) => value.startsWith(prefix),
+      exec: (value) => {
+        requested.push(value)
+        return Promise.resolve(
+          Object.hasOwn(files, value)
+            ? { ok: true, data: files[value], raw: JSON.stringify(files[value]) }
+            : { ok: false, status: 404 },
+        )
+      },
+    })
+
+    beforeEach(() => {
+      vi.mocked(fetchUrls).mockClear()
+      vi.mocked(readFiles).mockClear()
+    })
+
+    it('loads URL and file documents and their external references only through the supplied loaders', async () => {
+      const requested: string[] = []
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [
+          { name: 'remote', url: 'https://example.com/openapi.json' },
+          { name: 'file', path: '/virtual/openapi.json' },
+        ],
+        documentLoading: {
+          loaders: [
+            fixedLoader(
+              'https://example.com/',
+              {
+                'https://example.com/openapi.json': { ...loadingDocument, paths: { '/pets': { $ref: './pets.json' } } },
+                'https://example.com/pets.json': { get: { summary: 'List pets' } },
+              },
+              requested,
+            ),
+            fixedLoader('/virtual/', { '/virtual/openapi.json': loadingDocument }, requested),
+          ],
+        },
+      })
+
+      expect(Object.keys(store.getWorkspace().documents).sort()).toStrictEqual(['file', 'remote'])
+      expect(JSON.stringify(getRaw(store.getResolvedDocument('remote')))).toContain('List pets')
+      expect(requested.sort()).toStrictEqual([
+        '/virtual/openapi.json',
+        'https://example.com/openapi.json',
+        'https://example.com/pets.json',
+      ])
+      expect(fetchUrls).not.toHaveBeenCalled()
+      expect(readFiles).not.toHaveBeenCalled()
+    })
+
+    it('skips documents that no supplied loader accepts or loads, without falling back to the built-in loaders', async () => {
+      const directory = await fs.mkdtemp(join(tmpdir(), 'workspace-loaders-'))
+      const file = join(directory, 'openapi.json')
+      const requested: string[] = []
+      try {
+        await fs.writeFile(file, JSON.stringify(loadingDocument))
+        const loaders = [fixedLoader('https://example.com/', {}, requested)]
+        const store = await createServerWorkspaceStore({
+          mode: 'ssr',
+          baseUrl: '/docs',
+          documents: [
+            { name: 'missing', url: 'https://example.com/missing.json' },
+            { name: 'unaccepted', url: 'https://example.org/openapi.json' },
+            { name: 'file', path: file },
+          ],
+          // @ts-expect-error basePath configures the built-in file loader, which supplied loaders replace
+          documentLoading: { loaders, basePath: directory },
+        })
+        await store.addDocument({ name: 'added', url: 'https://example.org/openapi.json' })
+
+        expect(store.getWorkspace().documents).toStrictEqual({})
+        expect(requested).toStrictEqual(['https://example.com/missing.json'])
+        expect(fetchUrls).not.toHaveBeenCalled()
+        expect(readFiles).not.toHaveBeenCalled()
+      } finally {
+        await fs.rm(directory, { recursive: true, force: true })
+      }
+    })
+
+    it('builds the built-in loaders from the permissions when no loaders are supplied', async () => {
+      await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [
+          { name: 'default', document: loadingDocument },
+          { name: 'unreadable', path: '/virtual/openapi.json' },
+        ],
+      })
+      expect(vi.mocked(fetchUrls).mock.calls).toStrictEqual([[{ blockPrivateNetworks: true }]])
+      expect(readFiles).not.toHaveBeenCalled()
+
+      await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'default', document: loadingDocument }],
+        documentLoading: { allowPrivateNetworks: true, basePath: '/approved' },
+      })
+      expect(vi.mocked(fetchUrls).mock.calls.at(-1)).toStrictEqual([{ blockPrivateNetworks: false }])
+      expect(vi.mocked(readFiles).mock.calls).toStrictEqual([[{ basePath: '/approved' }]])
+    })
   })
 
   it('loads unnamed inline XML bodies without upgrading the document to 3.2', async () => {

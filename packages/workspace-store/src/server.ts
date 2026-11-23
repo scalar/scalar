@@ -69,17 +69,42 @@ type ObjectDoc = { document: Record<string, unknown> } & WorkspaceDocumentMetaIn
 
 type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
 
+/**
+ * How the store loads URL and file documents and everything they reference externally.
+ *
+ * Either configure the built-in loaders with `allowPrivateNetworks` and `basePath`, or supply your
+ * own `loaders`. The two settings only configure the built-in loaders, so they cannot be combined
+ * with `loaders`.
+ */
+type DocumentLoading =
+  | {
+      /** Allow private-network requests only for trusted input. Defaults to false. */
+      allowPrivateNetworks?: boolean
+      /** Approved directory for local files. File access is disabled when omitted. */
+      basePath?: string
+      loaders?: undefined
+    }
+  | {
+      allowPrivateNetworks?: never
+      basePath?: never
+      /**
+       * Loader plugins that replace the built-in URL and file loaders, for callers that apply their
+       * own policy (timeouts, size limits, redirects, logging) to every external load.
+       *
+       * The store then fetches and reads nothing itself: URL and file documents, external
+       * references, code sample sources and AsyncAPI schema resources all go through the first
+       * loader whose `validate` accepts the location. A location no loader accepts fails as an
+       * unreachable one does. An empty array disables external loading.
+       */
+      loaders: LoaderPlugin[]
+    }
+
 type CreateServerWorkspaceStoreBase = {
   documents: WorkspaceDocumentInput[]
   meta?: WorkspaceMeta
   navigationOptions?: NavigationOptions
   /** Permissions applied to initial documents, later additions, and external references. */
-  documentLoading?: {
-    /** Allow private-network requests only for trusted input. Defaults to false. */
-    allowPrivateNetworks?: boolean
-    /** Approved directory for local files. File access is disabled when omitted. */
-    basePath?: string
-  }
+  documentLoading?: DocumentLoading
   /**
    * Sends the sparse document in its compact form, for documents large enough that the sparse
    * document is itself a cost.
@@ -366,8 +391,14 @@ type ServerWorkspace = Omit<Workspace, 'activeDocument'>
  */
 function loadDocument(
   workspaceDocument: WorkspaceDocumentInput,
-  options: CreateServerWorkspaceStoreBase['documentLoading'] = {},
+  options: DocumentLoading = {},
 ): ReturnType<LoaderPlugin['exec']> {
+  if (options.loaders && !('document' in workspaceDocument)) {
+    const source = 'url' in workspaceDocument ? workspaceDocument.url : workspaceDocument.path
+    const loader = options.loaders.find((candidate) => candidate.validate(source))
+    return loader ? loader.exec(source) : Promise.resolve({ ok: false })
+  }
+
   if ('url' in workspaceDocument) {
     return fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks }).exec(workspaceDocument.url)
   }
@@ -844,7 +875,7 @@ export async function createServerWorkspaceStore(
       const fileOrigin = 'path' in input ? input.path : undefined
       const origin = 'url' in input ? input.url : fileOrigin
       const options = workspaceProps.documentLoading
-      const loaders = [
+      const loaders = options?.loaders ?? [
         fetchUrls({ blockPrivateNetworks: !options?.allowPrivateNetworks }),
         ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),
       ]

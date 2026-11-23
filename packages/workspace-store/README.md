@@ -39,6 +39,34 @@ For trusted local development inputs, `documentLoading.allowPrivateNetworks: tru
 network URLs and redirects. Configure these permissions in the application, never from untrusted
 request parameters. The approved directory also applies to references in remote documents.
 
+#### Custom loaders
+
+To apply your own policy to every external load (timeouts, size limits, redirect and network rules,
+or a record of what was requested), pass `documentLoading.loaders`. These are `@scalar/json-magic`
+loader plugins, the same kind `fetchUrls` and `readFiles` return. They replace the built-in loaders,
+so the store performs no fetch or file read of its own: URL and file documents, external references,
+code sample sources, and AsyncAPI schema resources (Protobuf imports, RAML includes and libraries)
+all go through the first loader whose `validate` accepts the location.
+
+A location that no loader accepts fails like an unreachable one: the document is skipped, a
+reference stays unresolved, or the schema resources are marked as failed. An empty array disables
+external loading. `allowPrivateNetworks` and `basePath` only configure the built-in loaders, so they
+cannot be combined with `loaders`, and the network and file rules become the loaders' responsibility.
+
+```ts
+import { fetchUrls } from '@scalar/json-magic/bundle/plugins/node'
+
+const store = await createServerWorkspaceStore({
+  mode: 'ssr',
+  baseUrl: '/docs',
+  documents: [{ name: 'api', url: 'https://example.com/openapi.json' }],
+  documentLoading: {
+    // `fetchWithPolicy` is your own transport, which enforces your network rules.
+    loaders: [fetchUrls({ fetch: fetchWithPolicy })],
+  },
+})
+```
+
 #### Usage
 
 Create a new store in SSR mode
