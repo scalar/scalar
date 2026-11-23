@@ -171,10 +171,13 @@ export const mergeSecurity = (
     const coerced = coerceValue(SecuritySchemeObjectSchema, scheme)
     if (coerced.type === 'oauth2' && isObjectLike(scheme) && isObjectLike(scheme.flows)) {
       // Casting fills missing fields but can drop flow configuration such as the client ID.
-      // Preserve those fields while keeping the normalized values authoritative.
-      const flows = deepClone(scheme.flows)
-      mergeObjects(flows, coerced.flows)
-      Object.assign(coerced.flows, flows)
+      // Restore those fields per flow so normalized nested values still replace invalid inputs.
+      for (const [flowName, flow] of objectEntries(coerced.flows)) {
+        const originalFlow = scheme.flows[flowName]
+        if (isObjectLike(flow) && isObjectLike(originalFlow)) {
+          Object.assign(flow, { ...originalFlow, ...flow })
+        }
+      }
     }
     const merged = { ...(isObjectLike(scheme) ? scheme : {}), ...coerced }
     const extracted = extractSecuritySchemeSecrets(merged, authStore, name, documentName, oauth2RedirectUri)

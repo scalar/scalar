@@ -116,6 +116,31 @@ describe('mergeSecurity', () => {
     expect(result.flows.authorizationCode?.['x-scalar-secret-client-id']).toBe('configured-client')
   })
 
+  it.each(['scopes', 'x-scalar-security-query', 'x-scalar-security-body'] as const)(
+    'normalizes malformed %s while preserving configured credentials',
+    (field) => {
+      // Malformed API descriptions can supply arrays where OAuth expects a map.
+      const schemes = {
+        oauth: {
+          type: 'oauth2',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://example.com/authorize',
+              tokenUrl: 'https://example.com/token',
+              scopes: {},
+              [field]: ['read'],
+              'x-scalar-client-id': 'configured-client',
+            },
+          },
+        },
+      } as unknown as ComponentsObject['securitySchemes']
+      const result = mergeSecurity(schemes, {}, createWorkspaceStore().auth, 'test').oauth
+      assert(result?.type === 'oauth2')
+      expect(result.flows.authorizationCode?.[field]).toStrictEqual({})
+      expect(result.flows.authorizationCode?.['x-scalar-secret-client-id']).toBe('configured-client')
+    },
+  )
+
   it('overrides document prefixes through configuration without changing credentials', () => {
     const auth = createWorkspaceStore().auth
     const document = {
