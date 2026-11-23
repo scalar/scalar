@@ -196,6 +196,13 @@ const x = 42;
     expect(html.trim()).toContain('hljs')
   })
 
+  it('automatically highlights unlabelled code fences', () => {
+    const html = htmlFromMarkdown('```\ndef example():\n    return True\n```')
+
+    expect(html).toContain('custom-scroll')
+    expect(html).toContain('<span class="hljs-')
+  })
+
   it('adds custom scroll class to highlighted code blocks', () => {
     const html = htmlFromMarkdown(`
 \`\`\`sh

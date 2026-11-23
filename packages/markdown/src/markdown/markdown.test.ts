@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { htmlFromMarkdown } from './markdown'
+import { htmlFromMarkdown } from './index'
 
 describe('htmlFromMarkdown', () => {
   it('returns HTML', () => {
@@ -194,6 +194,13 @@ const x = 42;
 
     expect(html.trim()).toContain('<code')
     expect(html.trim()).toContain('hljs')
+  })
+
+  it('leaves unlabelled code fences as plain text', () => {
+    const html = htmlFromMarkdown('```\ndef example():\n    return True\n```')
+
+    expect(html).toContain('custom-scroll')
+    expect(html).not.toContain('<span')
   })
 
   it('adds custom scroll class to highlighted code blocks', () => {
