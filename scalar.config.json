@@ -43,6 +43,14 @@
           "defer": true
         },
         {
+          "path": "documentation/assets/api-hosting-waitlist.js",
+          "defer": true
+        },
+        {
+          "path": "documentation/assets/api-hosting-invite.js",
+          "defer": true
+        },
+        {
           "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js",
           "async": true
         }
@@ -50,6 +58,9 @@
       "styles": [
         {
           "path": "documentation/assets/styles.css"
+        },
+        {
+          "path": "documentation/assets/api-hosting-invite.css"
         }
       ],
       "meta": [
@@ -1458,10 +1469,6 @@
                   "scripts": [
                     {
                       "path": "documentation/assets/api-hosting-hero.js",
-                      "defer": true
-                    },
-                    {
-                      "path": "documentation/assets/api-hosting-waitlist.js",
                       "defer": true
                     }
                   ],

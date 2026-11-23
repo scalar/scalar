@@ -1,0 +1,346 @@
+/* The site's API Hosting invitation (api-hosting-invite.js): the API reference's Deploy card in a popup, 480px wide
+   with 16px corners, holding the waitlist form from /products/api-hosting. Loaded on every page; it only styles the
+   popup and, while the popup is up, the root. */
+
+/* The page underneath stays put while the popup is up, and keeps the scrollbar's room so nothing shifts */
+html.hosting-invite-open {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
+.hosting-invite {
+  box-sizing: border-box;
+  width: min(480px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 10vh - 16px);
+  margin: 10vh auto auto;
+  padding: 0;
+  overflow-y: auto;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: 16px;
+  background: var(--scalar-background-1);
+  box-shadow: var(--scalar-shadow-2);
+  color: var(--scalar-color-1);
+  font-family: var(--scalar-font);
+  overscroll-behavior: contain;
+}
+.hosting-invite[open] {
+  animation: hosting-invite-in 200ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+.hosting-invite::backdrop {
+  background: rgba(0, 0, 0, 0.22);
+}
+.dark-mode .hosting-invite::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+@keyframes hosting-invite-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hosting-invite[open] {
+    animation: none;
+  }
+}
+
+.hosting-invite-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 32px 24px;
+  text-align: center;
+}
+
+/* The same brand wash across the top as the Deploy card */
+.hosting-invite-wash {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 48px;
+  background-image: linear-gradient(
+    90deg,
+    var(--scalar-color-blue),
+    var(--scalar-color-green) 16.6%,
+    var(--scalar-color-accent) 24.9%,
+    var(--scalar-color-orange) 41.5%,
+    var(--scalar-color-yellow) 58.1%,
+    var(--scalar-color-orange) 74.7%,
+    var(--scalar-color-purple) 91.3%,
+    var(--scalar-color-red)
+  );
+  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 0%, black, transparent 80%);
+  mask-image: radial-gradient(ellipse 60% 60% at 50% 0%, black, transparent 80%);
+  pointer-events: none;
+}
+
+.hosting-invite-butterfly {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  margin: 0 auto 24px;
+  color: var(--scalar-color-green);
+}
+
+.hosting-invite-title {
+  margin: 0;
+  color: var(--scalar-color-1);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.375;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.hosting-invite-description {
+  margin: 8px 0 0;
+  color: var(--scalar-color-2);
+  font-size: 14px;
+  line-height: 1.625;
+  text-wrap: balance;
+}
+
+.hosting-invite-form {
+  margin-top: 20px;
+}
+.hosting-invite-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hosting-invite-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* One pill that takes the email, with the framework it would run on picked inside it on the right */
+.hosting-invite-combo {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 5px 0 20px;
+  /* Transparent edges here and on the buttons are painted in high contrast mode, which drops backgrounds */
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--scalar-background-2);
+}
+.hosting-invite-combo:focus-within {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: -1px;
+}
+.hosting-invite-email {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--scalar-color-1);
+  font: inherit;
+  font-size: 16px;
+}
+/* The placeholder is the field's only visible label, so it keeps readable contrast */
+.hosting-invite-email::placeholder {
+  color: var(--scalar-color-2);
+}
+.hosting-invite-select {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+.hosting-invite-select select {
+  appearance: none;
+  field-sizing: content;
+  box-sizing: border-box;
+  height: 30px;
+  margin: 0;
+  padding: 0 28px 0 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--scalar-background-1);
+  color: var(--scalar-color-1);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.hosting-invite-select select:hover {
+  background: var(--scalar-background-3);
+}
+.hosting-invite-select select:focus-visible {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: 1px;
+}
+/* No framework picked yet: the placeholder's grey, darkened on the hover background so it stays readable */
+.hosting-invite-select select:has(option[value=""]:checked) {
+  color: var(--scalar-color-2);
+}
+.hosting-invite-select select:hover:has(option[value=""]:checked) {
+  color: var(--scalar-color-1);
+}
+.hosting-invite-select option {
+  color: var(--scalar-color-1);
+}
+.hosting-invite-caret {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  translate: 0 -50%;
+  color: var(--scalar-color-3);
+  pointer-events: none;
+}
+
+.hosting-invite-join,
+.hosting-invite-done {
+  box-sizing: border-box;
+  width: 100%;
+  height: 40px;
+  margin: 0;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--scalar-button-1);
+  color: var(--scalar-button-1-color);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.hosting-invite-join:hover,
+.hosting-invite-done:hover {
+  background: var(--scalar-button-1-hover);
+}
+.hosting-invite-join:focus-visible,
+.hosting-invite-done:focus-visible {
+  outline: 2px solid var(--scalar-color-accent);
+  outline-offset: 2px;
+}
+.hosting-invite-join[aria-busy="true"] {
+  opacity: 0.6;
+  cursor: progress;
+}
+.hosting-invite-done[hidden] {
+  display: none;
+}
+.hosting-invite-done {
+  margin-top: 12px;
+}
+
+/* How a sign-up went, which api-hosting-waitlist.js writes under the form */
+.hosting-invite .bf-waitlist-status {
+  max-width: none;
+  margin: 8px 0 0;
+  color: var(--scalar-color-2);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+/* Rendered even while empty, so screen readers already know it as a live region when something is written in it */
+.hosting-invite .bf-waitlist-status:empty {
+  margin: 0;
+}
+/* The theme's red, deepened towards the text colour so that it reads at 4.5:1 or more in both themes */
+.hosting-invite .bf-waitlist-status.is-error {
+  color: color-mix(in srgb, var(--scalar-color-red), var(--scalar-color-1) 35%);
+}
+/* Once signed up, the thanks takes the form's place */
+.hosting-invite .is-done .hosting-invite-row {
+  display: none;
+}
+.hosting-invite .is-done .bf-waitlist-status {
+  margin: 0;
+  color: var(--scalar-color-1);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* What hosting includes, below the sign-up */
+.hosting-invite-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 24px 0 0;
+  padding: 24px 0 0;
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  list-style: none;
+  text-align: start;
+}
+.hosting-invite-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+}
+.hosting-invite-feature-icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  color: var(--scalar-color-1);
+}
+.hosting-invite-features li > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hosting-invite-features strong {
+  color: var(--scalar-color-1);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+}
+.hosting-invite-features strong + span {
+  color: var(--scalar-color-2);
+  font-size: 14px;
+  line-height: 1.625;
+}
+.hosting-invite-plans {
+  margin: 20px 0 0;
+  color: var(--scalar-color-2);
+  font-size: 12px;
+  line-height: 1.625;
+  text-wrap: balance;
+}
+.hosting-invite-plans a {
+  color: var(--scalar-color-1);
+  text-decoration: underline;
+}
+
+/* The close circle in the corner, last in the Tab order */
+.hosting-invite-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--scalar-background-1) 70%, transparent);
+  box-shadow:
+    0 0 0 1px var(--scalar-border-color),
+    0 1px 2px rgba(0, 0, 0, 0.05);
+  color: var(--scalar-color-2);
+  cursor: pointer;
+}
+.hosting-invite-close:hover {
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+}
+.hosting-invite-close-icon {
+  width: 16px;
+  height: 16px;
+}
