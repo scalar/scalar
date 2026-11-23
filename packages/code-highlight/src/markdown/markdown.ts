@@ -238,7 +238,15 @@ export function htmlFromMarkdown(markdown: string, options?: HtmlFromMarkdownOpt
   // caller that removes `p` expects the paragraph to be stripped, so both keep
   // the full pipeline.
   if (!options?.transform && !removeTags.includes('p') && PLAIN_PARAGRAPH.test(markdown)) {
-    return `\n<p>${markdown}</p>\n`
+    // Serialize the paragraph text so escaping does not depend on the fast-path check.
+    return htmlFragmentStringifier.stringify({
+      type: 'root',
+      children: [
+        { type: 'text', value: '\n' },
+        { type: 'element', tagName: 'p', properties: {}, children: [{ type: 'text', value: markdown }] },
+        { type: 'text', value: '\n' },
+      ],
+    })
   }
 
   const allowTags = options?.allowTags ?? []

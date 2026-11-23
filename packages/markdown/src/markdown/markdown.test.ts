@@ -324,15 +324,7 @@ curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
     })
   })
 
-  /**
-   * The fast path interpolates the caller's string straight into `<p>...</p>`,
-   * with no escaping and no sanitizer. That is safe only because every
-   * character that carries meaning to the serializer or the parser keeps the
-   * string on the pipeline. These pin that boundary one character at a time, so
-   * relaxing the excluded class fails a test rather than opening a hole: each
-   * value differs between the two paths, so a fast path that swallowed it would
-   * hand back markup the pipeline escapes, drops or rewrites.
-   */
+  /** The plain-text serializer escapes text. Markdown syntax and raw HTML still need the full pipeline. */
   describe('fast path escaping', () => {
     const dangerous = {
       /** Markup: the serializer escapes it, the sanitizer drops the handler */
