@@ -6,6 +6,7 @@ import { accepts } from 'hono/accepts'
 
 import { store } from '../libs/store'
 import { type ExampleGenerationContext, generateResponseExample } from './generate-response-example'
+import { isJsonContentType } from './is-json-content-type'
 import { normalizeResponseBody } from './normalize-response-body'
 import { parsePreferHeader } from './parse-prefer-header'
 import { pathParameters } from './path-parameters'
@@ -117,9 +118,9 @@ export async function buildHandlerContext(
     // matches them the same way. Otherwise a body like `Application/JSON` could pass validation yet
     // never reach the handler as `req.body`.
     const contentType = (c.req.header('content-type') ?? '').toLowerCase()
-    // An empty/absent Content-Type is treated as JSON to match request validation, so a headerless
-    // JSON body that passes validation is still delivered to the handler as `req.body`.
-    if (contentType === '' || contentType.includes('application/json')) {
+    // Shared with request validation (including an empty Content-Type and `+json` types), so a JSON
+    // body that passes validation is always delivered to the handler as `req.body`.
+    if (isJsonContentType(contentType)) {
       body = await c.req.json().catch(() => undefined)
     } else if (contentType.includes('application/x-www-form-urlencoded')) {
       body = await c.req.parseBody().catch(() => undefined)

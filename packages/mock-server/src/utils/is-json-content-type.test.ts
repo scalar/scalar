@@ -1,0 +1,24 @@
+import { describe, expect, it } from 'vitest'
+
+import { isJsonContentType } from './is-json-content-type'
+
+describe('isJsonContentType', () => {
+  it.each([
+    undefined,
+    '',
+    'application/json',
+    'Application/JSON',
+    'application/json; charset=utf-8',
+    'application/vnd.api+json',
+    'application/merge-patch+json',
+  ])('treats %s as JSON', (contentType) => {
+    expect(isJsonContentType(contentType)).toBe(true)
+  })
+
+  it.each(['text/plain', 'application/x-www-form-urlencoded', 'application/json-seq', 'multipart/form-data'])(
+    'does not treat %s as JSON',
+    (contentType) => {
+      expect(isJsonContentType(contentType)).toBe(false)
+    },
+  )
+})

@@ -26,6 +26,7 @@ import {
   resolveSerialization,
 } from './deserialize-parameter'
 import { dropReadOnlyRequired } from './drop-read-only-required'
+import { isJsonContentType } from './is-json-content-type'
 import { findQuerystringParameter, getQuerystringJsonSchema, parseQuerystringParameter } from './querystring-parameter'
 import { replaceCircularMarkers } from './replace-circular-markers'
 
@@ -249,6 +250,15 @@ const createRequestAjv = (options: Options = {}): Ajv2020 => {
   return ajv
 }
 
+/**
+ * Pick the request body media type to validate JSON bodies against: `application/json` when it is
+ * declared, otherwise the first structured `+json` type (for example `application/vnd.api+json`).
+ */
+const getJsonMediaTypeKey = (content: Record<string, unknown> | undefined): string | undefined => {
+  const keys = Object.keys(content ?? {})
+  return keys.find((key) => parseMimeType(key).essence === 'application/json') ?? keys.find(isJsonMediaType)
+}
+
 /** Compile the validators for a single operation once, so they can be reused on every request. */
 const compileValidators = (
   operation: OpenAPIV3_1.OperationObject,
@@ -280,7 +290,8 @@ const compileValidators = (
   // Build the body schema defensively; resolving a malformed `$ref` should not crash setup.
   let bodySchema: Record<string, unknown> | null = null
   try {
-    const jsonSchema = getResolvedRef(requestBody?.content?.['application/json'])?.schema
+    const jsonMediaType = getJsonMediaTypeKey(requestBody?.content)
+    const jsonSchema = jsonMediaType ? getResolvedRef(requestBody?.content?.[jsonMediaType])?.schema : undefined
     bodySchema = jsonSchema
       ? (dropReadOnlyRequired(asCompilableSchema(getResolvedRefDeep(jsonSchema))) as Record<string, unknown>)
       : null
@@ -345,10 +356,7 @@ const mapErrors = (errors: ErrorObject[] | null | undefined, location: Violation
  * mirrors how `build-handler-context` parses the body, so we never validate a body the handler then
  * fails to deliver as `req.body`.
  */
-const isJsonRequest = (c: Context): boolean => {
-  const contentType = c.req.header('Content-Type')?.toLowerCase() ?? ''
-  return contentType === '' || contentType.includes('application/json')
-}
+const isJsonRequest = (c: Context): boolean => isJsonContentType(c.req.header('Content-Type'))
 
 /**
  * Create a Hono middleware bound to a single resolved operation that enforces its request contract.
@@ -523,7 +531,7 @@ export const validateRequest = (
       }
     }
 
-    // Request body — only `application/json` in this slice
+    // Request body — only JSON (`application/json` and `+json`) in this slice
     if (validators.body || validators.bodyRequired) {
       // Read from a clone so the original request stream stays intact for the mock or `x-handler`
       // downstream. Consuming `c.req.text()` directly would leave `c.req.parseBody()` (used for

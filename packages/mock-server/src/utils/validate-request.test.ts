@@ -1344,6 +1344,35 @@ describe('validate-request', () => {
     expect((await response.json()).received).toEqual({ name: 'Alice' })
   })
 
+  it('validates and delivers bodies sent with a structured +json media type', async () => {
+    const document = documentWith('/items', 'post', {
+      'x-handler': 'return { received: req.body };',
+      requestBody: {
+        required: true,
+        content: {
+          'application/vnd.api+json': {
+            schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
+          },
+        },
+      },
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+    const post = (body: unknown) =>
+      server.request('/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/vnd.api+json' },
+        body: JSON.stringify(body),
+      })
+
+    const invalid = await post({})
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'body' })
+
+    // A valid body passes validation and reaches the handler as `req.body`.
+    expect((await (await post({ name: 'Alice' })).json()).received).toEqual({ name: 'Alice' })
+  })
+
   it('calls onRequest even when the request is rejected by validation', async () => {
     const document = documentWith('/items', 'get', {
       parameters: [{ name: 'limit', in: 'query', required: true, schema: { type: 'integer' } }],
