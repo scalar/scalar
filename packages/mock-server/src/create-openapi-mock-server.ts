@@ -23,6 +23,7 @@ import { comparePathSpecificity, getPathSpecificity } from '@/utils/path-specifi
 import type { ProcessedDocument } from '@/utils/process-document'
 import { requestMatchesPinnedQuery } from '@/utils/request-matches-pinned-query'
 import { resolveLogger } from '@/utils/resolve-logger'
+import { resolveServerBasePaths } from '@/utils/resolve-server-base-paths'
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
 import { splitPathKey } from '@/utils/split-path-key'
 import { validateRequest } from '@/utils/validate-request'
@@ -254,6 +255,9 @@ export const createOpenApiMockServer = async (
       b.query.length - a.query.length,
   )
 
+  /** Route handler of each operation, with the base paths its servers serve it under */
+  const operationRoutes: { method: string; path: string; basePaths: string[]; handler: MiddlewareHandler }[] = []
+
   orderedPathKeys.forEach(({ path, query }) => {
     // A path item may itself be a `$ref`, so resolve it before reading its operations.
     const pathItem = getResolvedRef(paths[path])
@@ -261,8 +265,6 @@ export const createOpenApiMockServer = async (
 
     /** Keys for all operations of a specified path */
     Object.entries(operations).forEach(([method, operation]) => {
-      const route = honoRouteFromPath(path)
-
       // Remember which operation this route mocks, so the error handler can name it when something
       // fails downstream. Recorded on the context rather than mapped back from the request path,
       // which would not survive the app being mounted under a base path. Registered before the rest
@@ -327,29 +329,55 @@ export const createOpenApiMockServer = async (
       // key without the query string.
       const operationChain = every(...handlers)
 
-      // Hono uppercases methods during registration. Match the original method ourselves so
-      // additional operations such as COPY and copy remain distinct.
-      const register = (handler: MiddlewareHandler): void => {
-        if (method === method.toUpperCase()) {
-          app.on(method, route, handler)
-        } else {
-          app.all(route, handler)
-        }
-      }
-      register(async (c, next) => {
-        if (
-          (c.req.method !== method && !(method === 'GET' && c.req.method === 'HEAD')) ||
-          !requestMatchesPinnedQuery(c, query)
-        ) {
-          await next()
+      // Operation servers override path item servers, which override the servers of the document.
+      const servers = [operation.servers, pathItem?.servers, schema?.servers].find((list) => list?.length)
 
-          return
-        }
+      operationRoutes.push({
+        method,
+        path,
+        basePaths: resolveServerBasePaths(servers),
+        handler: async (c, next) => {
+          if (
+            (c.req.method !== method && !(method === 'GET' && c.req.method === 'HEAD')) ||
+            !requestMatchesPinnedQuery(c, query)
+          ) {
+            await next()
 
-        await operationChain(c, next)
+            return
+          }
+
+          await operationChain(c, next)
+        },
       })
     })
   })
+
+  // Hono uppercases methods during registration. Match the original method ourselves so
+  // additional operations such as COPY and copy remain distinct.
+  const register = (method: string, route: string, handler: MiddlewareHandler): void => {
+    if (method === method.toUpperCase()) {
+      app.on(method, route, handler)
+    } else {
+      app.all(route, handler)
+    }
+  }
+
+  // Each operation answers at its path key and again under the base path of each of its servers. All
+  // of these routes are ordered together, so the most concrete one answers a request no matter where
+  // it comes from. The path keys go first, so on a tie the path the document declares keeps a request
+  // over a copy under a base path, and the stable sort keeps the order set above for the rest.
+  const routes = [
+    ...operationRoutes,
+    ...operationRoutes.flatMap((route) =>
+      route.basePaths.map((basePath) => ({ ...route, path: `${basePath}${route.path}` })),
+    ),
+  ]
+    .map((route) => ({ ...route, specificity: getPathSpecificity(route.path) }))
+    .sort((a, b) => comparePathSpecificity(a.specificity, b.specificity))
+
+  for (const { method, path, handler } of routes) {
+    register(method, honoRouteFromPath(path), handler)
+  }
 
   // OpenAPI JSON file
   app.get('/openapi.json', (c) => respondWithOpenApiDocument(c, exportDocument, 'json'))

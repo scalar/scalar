@@ -230,6 +230,19 @@ Everything else in a path key is matched literally, so a path such as `/users:ba
 
 A segment that mixes a path parameter with literal text of that kind (`/v1/jobs/{jobId}:cancel`) routes to the right operation, but `jobId` is not bound by name — a single path segment can only carry one parameter. Request validation reads it as missing, so a document that describes such a path has to run the mock server with `validateRequest: false`, which turns validation off for every operation in it.
 
+### Server base paths
+
+Every operation is served under the path of each of its servers as well as at its bare path key:
+
+```yaml
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /pets/{petId}: … # answers /v1/pets/42 and /pets/42
+```
+
+Swagger 2.0 `basePath` and relative server URLs work the same way. Every enum value of a variable in the server path is served, including combinations of multiple variables, and the default is used when there is no enum. Host variables do not create extra routes. Operation and path item `servers` take precedence over the servers of the document. Routes under a base path are ranked together with the bare path keys, so the most concrete one answers a request, and on a tie the path key the document declares wins.
+
 ### Selecting responses
 
 By default the mock server picks a response (and its status code) for you and returns the first example it can find. You can override both with the standard [`Prefer` header](https://www.rfc-editor.org/rfc/rfc7240), just like [Stoplight Prism](https://github.com/stoplightio/prism).
