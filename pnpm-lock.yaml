@@ -2086,6 +2086,9 @@ importers:
 
   packages/code-highlight:
     dependencies:
+      '@scalar/markdown':
+        specifier: workspace:*
+        version: link:../markdown
       hast-util-to-text:
         specifier: ^4.0.3
         version: 4.0.3
@@ -2095,36 +2098,12 @@ importers:
       lowlight:
         specifier: ^3.3.0
         version: 3.3.0
-      rehype-external-links:
-        specifier: ^3.0.0
-        version: 3.0.0
-      rehype-format:
-        specifier: ^5.0.1
-        version: 5.0.1
       rehype-parse:
         specifier: ^9.0.1
         version: 9.0.1
-      rehype-raw:
-        specifier: ^7.0.0
-        version: 7.0.0
-      rehype-sanitize:
-        specifier: ^6.0.0
-        version: 6.0.0
       rehype-stringify:
         specifier: ^10.0.1
         version: 10.0.1
-      remark-gfm:
-        specifier: ^4.0.1
-        version: 4.0.1(supports-color@10.2.2)
-      remark-parse:
-        specifier: ^11.0.0
-        version: 11.0.0(supports-color@10.2.2)
-      remark-rehype:
-        specifier: ^11.1.2
-        version: 11.1.2
-      remark-stringify:
-        specifier: ^11.0.0
-        version: 11.0.0
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -2141,6 +2120,12 @@ importers:
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0(supports-color@10.2.2)
+      remark-rehype:
+        specifier: ^11.1.2
+        version: 11.1.2
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
@@ -2462,6 +2447,12 @@ importers:
       '@scalar/highlight':
         specifier: workspace:*
         version: link:../highlight
+      '@types/hast':
+        specifier: ^3.0.5
+        version: 3.0.5
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       hast-util-to-text:
         specifier: ^4.0.2
         version: 4.0.3
@@ -2505,12 +2496,6 @@ importers:
         specifier: ^5.1.0
         version: 5.2.0
     devDependencies:
-      '@types/hast':
-        specifier: ^3.0.5
-        version: 3.0.5
-      '@types/mdast':
-        specifier: ^4.0.4
-        version: 4.0.4
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
