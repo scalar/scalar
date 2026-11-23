@@ -658,6 +658,65 @@ describe('validate-request', () => {
     expect((await objectServer.request('/points/;point=x,nope')).status).toBe(422)
   })
 
+  it('validates label- and matrix-style primitive path params', async () => {
+    const documentFor = (style: string) =>
+      documentWith('/users/{id}', 'get', {
+        parameters: [{ name: 'id', in: 'path', required: true, style, schema: { type: 'integer' } }],
+      })
+
+    // A `label` primitive is dot-prefixed: `.5`.
+    const labelServer = await createMockServer({ document: documentFor('label'), validateRequest: true })
+    expect((await labelServer.request('/users/.5')).status).toBe(200)
+    expect((await labelServer.request('/users/.nope')).status).toBe(422)
+
+    // A `matrix` primitive is `;name=value`: `;id=5`.
+    const matrixServer = await createMockServer({ document: documentFor('matrix'), validateRequest: true })
+    expect((await matrixServer.request('/users/;id=5')).status).toBe(200)
+    expect((await matrixServer.request('/users/;id=nope')).status).toBe(422)
+  })
+
+  it.each([false, true])('preserves encoded delimiters in matrix primitives with explode=%s', async (explode) => {
+    const document = documentWith('/users/{id}', 'get', {
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          style: 'matrix',
+          explode,
+          schema: { type: 'string', enum: ['a', 'a;b=c'] },
+        },
+      ],
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    expect((await server.request('/users/;id=a%3Bb%3Dc')).status).toBe(200)
+    expect((await server.request('/users/;id=a%3Bignored')).status).toBe(422)
+  })
+
+  it.each([false, true])('validates encoded matrix parameter names with explode=%s', async (explode) => {
+    const documentFor = (schema: OpenAPIV3_1.SchemaObject): ReturnType<typeof documentWith> =>
+      documentWith('/users/{a=b}', 'get', {
+        parameters: [{ name: 'a=b', in: 'path', required: true, style: 'matrix', explode, schema }],
+      })
+    const integerServer = await createMockServer({
+      document: documentFor({ type: 'integer' }),
+      validateRequest: true,
+    })
+    expect((await integerServer.request('/users/;a%3Db=5')).status).toBe(200)
+    expect((await integerServer.request('/users/;a%3Db=nope')).status).toBe(422)
+
+    const stringServer = await createMockServer({
+      document: documentFor({ type: 'string', enum: ['', 'b=5', 'x;y=z'] }),
+      validateRequest: true,
+    })
+    expect((await stringServer.request('/users/;a%3Db=5')).status).toBe(422)
+    expect((await stringServer.request('/users/;a%3Db=b%3D5')).status).toBe(200)
+    expect((await stringServer.request('/users/;a%3Db=x%3By%3Dz')).status).toBe(200)
+    expect((await stringServer.request('/users/;a%3Db')).status).toBe(200)
+    expect((await stringServer.request('/users/;a%3Db=')).status).toBe(200)
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {

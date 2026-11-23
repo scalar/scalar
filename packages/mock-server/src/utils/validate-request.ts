@@ -17,6 +17,7 @@ import {
   type ParameterLocation,
   deserializeArrayParameter,
   deserializeObjectParameter,
+  deserializePrimitiveParameter,
   getObjectPropertyNames,
   isArraySchema,
   isObjectSchema,
@@ -408,7 +409,11 @@ export const validateRequest = (
         } else if (descriptor.isArray) {
           value = readAsArray(descriptor)
         } else {
-          value = getValue(descriptor.name)
+          value = deserializePrimitiveParameter({
+            style: descriptor.style,
+            single: getValue(descriptor.name),
+            name: descriptor.name,
+          })
         }
         if (value !== undefined) {
           data[descriptor.name] = value

@@ -265,6 +265,44 @@ export const deserializeArrayParameter = ({
   }
 }
 
+/**
+ * Deserialize a string-encoded primitive parameter, removing the `label` or `matrix` prefix.
+ *
+ * Per the spec Style Examples a `label` primitive is dot-prefixed (`.5`) and a `matrix` primitive is
+ * `;name=value` (`;id=5`), with `;id` for an empty value. Other styles send the value as-is.
+ *
+ * Returns `undefined` when the parameter is absent so the caller can enforce `required` separately.
+ */
+export const deserializePrimitiveParameter = ({
+  style,
+  single,
+  name,
+}: {
+  style: string
+  /** The raw value as read from path, query, header, or cookie */
+  single: string | undefined
+  /** Declared parameter name, used to identify the complete matrix prefix */
+  name: string
+}): string | undefined => {
+  if (single === undefined) {
+    return undefined
+  }
+
+  if (style === 'label') {
+    return stripPrefix(single, '.')
+  }
+
+  if (style === 'matrix') {
+    // Names and values are already percent-decoded. Match the declared name so an encoded `=` in
+    // the name and an encoded `;` in the value are not mistaken for serialization delimiters.
+    const prefix = `;${name}=`
+    // A segment without `=` (`;id`) is the parameter name with an empty value.
+    return single.startsWith(prefix) ? single.slice(prefix.length) : ''
+  }
+
+  return single
+}
+
 /** Parse `R,100,G,200` (a flat list alternating key, value) into an object. */
 const parseAlternating = (value: string | undefined, delimiter: string): Record<string, string> | undefined =>
   value === undefined ? undefined : alternatingFromList(value.split(delimiter))
