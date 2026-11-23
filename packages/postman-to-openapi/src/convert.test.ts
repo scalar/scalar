@@ -1062,6 +1062,28 @@ describe('convert', () => {
     ])
   })
 
+  it('omits responses and retains operation-level servers when merging duplicate requests', () => {
+    const postRequest = { method: 'POST', url: 'https://api.example.com/items' }
+    const result = convert(
+      {
+        info: {
+          name: 'Merged requests',
+          schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        },
+        item: [
+          { name: 'Create item', request: postRequest, response: [] },
+          { name: 'Create another item', request: postRequest, response: [] },
+          { name: 'List users', request: { method: 'GET', url: 'https://api.other.com/users' } },
+        ],
+      },
+      { mergeOperation: true },
+    )
+
+    const operation = result.paths?.['/items']?.post
+    expect(operation?.servers).toStrictEqual([{ url: 'https://api.example.com' }])
+    expect(operation).not.toHaveProperty('responses')
+  })
+
   it('keeps server placement correct after path unification', () => {
     const collection: PostmanCollection = {
       info: {
