@@ -3,6 +3,8 @@ import type { Grammar } from '../core/types'
 /** Familiar labels, without one-letter abbreviations that often mean something else. */
 const LEVEL = 'TRACE|DEBUG|VERBOSE|INFO|INFORMATION|NOTICE|WARN|WARNING|ERROR|FATAL|CRITICAL|ALERT|EMERG|EMERGENCY'
 const CASE_INSENSITIVE_LEVEL = LEVEL.replace(/[A-Z]/g, (letter) => `[${letter}${letter.toLowerCase()}]`)
+const FIELD_END = '[ \\t\\r\\n\\u2028\\u2029]|$'
+const LEVEL_END = `(?=:|${FIELD_END})`
 
 const TIME = '\\d{2}:\\d{2}:\\d{2}(?:[.,]\\d+)?(?:[ \\t]?(?:Z|UTC|GMT|[+-]\\d{2}(?::?\\d{2})?))?'
 const MONTH = '(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)'
@@ -10,12 +12,11 @@ const DATE = `(?:\\d{4}[-/.]\\d{2}[-/.]\\d{2}|\\d{2}[-/.]\\d{2}[-/.]\\d{4}|\\d{2
 
 const TIMESTAMP = `(?:${DATE})(?:[T \\t]${TIME})?|${MONTH}[ \\t]+\\d{1,2}[ \\t]+${TIME}|\\d{8}T\\d{6}(?:[.,]\\d+)?(?:Z|[+-]\\d{2}(?::?\\d{2})?)?|${TIME}`
 
-// A leading number or timestamp can also be part of an IP address or version.
-const NUMBER_END = '\\b(?!\\.\\d|:[\\da-fA-F:]|[+-][\\w-])'
-
 // Treat non-ASCII, non-whitespace characters as part of a word so the
 // ASCII patterns cannot start halfway through one.
 const WORD_CHARACTER = '\\w|[^\\x00-\\x7F\\s]'
+// A leading number or timestamp can also be part of an IP address or version.
+const NUMBER_END = `(?!${WORD_CHARACTER}|\\.\\d|:[\\da-fA-F:]|[+-][\\w-])`
 const EXCEPTION_NAME = '(?:[A-Za-z_$][\\w$]*\\.)*(?:[A-Z][\\w$]*(?:Exception|Error)|Exception|Error(?=:))'
 
 /**
@@ -33,11 +34,11 @@ const log: Grammar = {
       rules: [
         { match: `\\[[ \\t]*(?:${CASE_INSENSITIVE_LEVEL})[ \\t]*\\]`, scope: 'keyword', set: 'after-level' },
         {
-          match: `\\b(?:${CASE_INSENSITIVE_LEVEL}):(?=[ \\t]|$)`,
+          match: `\\b(?:${CASE_INSENSITIVE_LEVEL}):(?=${FIELD_END})`,
           scope: 'keyword',
           set: 'message',
         },
-        { match: `\\b(?:${LEVEL})(?=[ \\t:]|$)`, scope: 'keyword', set: 'after-level' },
+        { match: `\\b(?:${LEVEL})${LEVEL_END}`, scope: 'keyword', set: 'after-level' },
         { include: 'header' },
       ],
     },
@@ -45,7 +46,7 @@ const log: Grammar = {
       rules: [
         // A second level is message text, even if it is bracketed like context.
         {
-          match: `(?=\\[[ \\t]*(?:${CASE_INSENSITIVE_LEVEL})[ \\t]*\\]|\\b(?:${CASE_INSENSITIVE_LEVEL})(?=[ \\t:]|$))`,
+          match: `(?=\\[[ \\t]*(?:${CASE_INSENSITIVE_LEVEL})[ \\t]*\\]|\\b(?:${CASE_INSENSITIVE_LEVEL})${LEVEL_END})`,
           set: 'message',
         },
         { include: 'header' },
@@ -68,16 +69,16 @@ const log: Grammar = {
           match: /([A-Za-z_$][\w.$/-]*)(\[)(\d+)(\])(:)/,
           scope: ['namespace', 'punctuation.bracket', 'number', 'punctuation.bracket', 'punctuation.delimiter'],
         },
-        { match: /[A-Za-z_$][\w.$/-]*:(?=[ \t]|$)/, scope: 'namespace' },
+        { match: `[A-Za-z_$][\\w.$/-]*:(?=${FIELD_END})`, scope: 'namespace' },
         {
-          match: `[A-Za-z_$][\\w$]*(?:\\.[A-Za-z_$][\\w$]*)+(?=[ \\t]+(?:\\[|\\d|(?:${CASE_INSENSITIVE_LEVEL})(?=[ \\t:]|$)))`,
+          match: `[A-Za-z_$][\\w$]*(?:\\.[A-Za-z_$][\\w$]*)+(?=[ \\t]+(?:\\[|\\d|(?:${CASE_INSENSITIVE_LEVEL})${LEVEL_END}))`,
           scope: 'namespace',
         },
         {
-          match: /[A-Za-z_$][\w.$/-]*(?=[ \t]+[-|](?=[ \t]|$))/,
+          match: `[A-Za-z_$][\\w.$/-]*(?=[ \\t]+[-|](?=${FIELD_END}))`,
           scope: 'namespace',
         },
-        { match: /[-|](?=[ \t]|$)/, set: 'message' },
+        { match: `[-|](?=${FIELD_END})`, set: 'message' },
         // Zero width keeps the first character available to strings, URLs and
         // exception rules in the message state.
         { match: /(?=\S)/, set: 'message' },
@@ -92,7 +93,7 @@ const log: Grammar = {
           set: 'message',
         },
         {
-          match: /^([ \t]+at[ \t]+)([^\s()]+:\d+(?::\d+)?)(?=[ \t]|$)/,
+          match: `^([ \\t]+at[ \\t]+)([^\\s()]+:\\d+(?::\\d+)?)(?=${FIELD_END})`,
           scope: ['keyword.control', 'link'],
           set: 'message',
         },

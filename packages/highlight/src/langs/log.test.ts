@@ -159,6 +159,8 @@ describe('log', () => {
     '12:34:56:78 messages processed',
     '12:34:56::1 connected',
     '12:34:56:abcd::1 connected',
+    '42ème appel',
+    '12:34:56é reported',
   ])('leaves numeric token continuations plain in %s', (code) => {
     expect(scoped(code)).toStrictEqual([])
   })
@@ -296,6 +298,35 @@ describe('log', () => {
       ['WARN', 'keyword'],
     ])
   })
+
+  it.each(['\n', '\r\n', '\r', '\u2028', '\u2029'])(
+    'recognizes fields immediately before the line ending %j',
+    (newline) => {
+      expect(
+        scoped(
+          [
+            'INFO',
+            'warning:',
+            'service:',
+            'service -',
+            'App.Worker WARN',
+            '    at /srv/worker.js:12:4',
+            'WARN ready',
+          ].join(newline),
+        ),
+      ).toStrictEqual([
+        ['INFO', 'keyword'],
+        ['warning:', 'keyword'],
+        ['service:', 'namespace'],
+        ['service', 'namespace'],
+        ['App.Worker', 'namespace'],
+        ['WARN', 'keyword'],
+        ['    at ', 'keyword.control'],
+        ['/srv/worker.js:12:4', 'link'],
+        ['WARN', 'keyword'],
+      ])
+    },
+  )
 
   it('resets truncated strings and message state at every kind of line ending', () => {
     for (const newline of ['\n', '\r\n', '\r', '\u2028', '\u2029']) {
