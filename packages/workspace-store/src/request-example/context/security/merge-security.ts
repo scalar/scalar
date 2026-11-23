@@ -175,7 +175,8 @@ export const mergeSecurity = (
       for (const [flowName, flow] of objectEntries(coerced.flows)) {
         const originalFlow = scheme.flows[flowName]
         if (isObjectLike(flow) && isObjectLike(originalFlow)) {
-          Object.assign(flow, { ...originalFlow, ...flow })
+          // Treat JSON keys as data, including __proto__.
+          Object.defineProperties(flow, Object.getOwnPropertyDescriptors({ ...originalFlow, ...flow }))
         }
       }
     }

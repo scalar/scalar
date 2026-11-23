@@ -141,6 +141,24 @@ describe('mergeSecurity', () => {
     },
   )
 
+  it('preserves configured OAuth flows with an own __proto__ property', () => {
+    const config: AuthenticationConfiguration['securitySchemes'] = JSON.parse(`{
+      "oauth": { "type": "oauth2", "flows": { "authorizationCode": {
+        "authorizationUrl": "https://example.com/authorize",
+        "tokenUrl": "https://example.com/token",
+        "scopes": {},
+        "x-scalar-client-id": "configured-client",
+        "__proto__": { "untrusted": true }
+      } } }
+    }`)
+    const original = structuredClone(config)
+    const result = mergeSecurity({}, config, createWorkspaceStore().auth, 'test').oauth
+    assert(result?.type === 'oauth2')
+    expect(result.flows.authorizationCode?.['x-scalar-secret-client-id']).toBe('configured-client')
+    expect(result.flows.authorizationCode?.refreshUrl).toBe('')
+    expect(config).toStrictEqual(original)
+  })
+
   it('overrides document prefixes through configuration without changing credentials', () => {
     const auth = createWorkspaceStore().auth
     const document = {
