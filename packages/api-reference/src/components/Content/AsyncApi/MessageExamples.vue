@@ -146,12 +146,12 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         class="min-w-0 grow">
         <div
           v-if="selected.example.name"
-          class="text-c-1 font-medium">
+          class="text-c-1 font-medium [overflow-wrap:anywhere]">
           {{ selected.label }}
         </div>
         <ScalarMarkdown
           v-if="selected.example.summary"
-          class="mt-1 text-base [&_*]:m-0"
+          class="mt-1 text-base [overflow-wrap:anywhere] [&_*]:m-0"
           :value="selected.example.summary" />
       </div>
       <template
@@ -160,7 +160,7 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         <ExamplePicker
           v-model="selectedKey"
           :aria-label="`${translate('schema.examples')}: ${selected?.label ?? ''}`"
-          class="-m-1 shrink-0 px-0"
+          class="-m-1 max-w-full shrink-0 px-0"
           :examples="pickerExamples" />
       </template>
     </ScalarCardHeader>

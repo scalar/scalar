@@ -92,15 +92,27 @@ test('scrolls and focuses desktop groups after the open mobile sidebar is resize
 })
 
 for (const layout of ['modern', 'classic'] as const) {
-  test(`wraps long reusable component headings at 320 CSS pixels in ${layout}`, async ({ page }) => {
+  test(`wraps long headings and example names at 320 CSS pixels in ${layout}`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 740 })
     const name = 'PlanetCreatedAfterSeveralEnvironmentalActionsAndChecks'.repeat(4)
-    const component = { [name]: { description: 'Records a planet update.' } }
+    const exampleName = 'TraceHeaderExampleWithIdentifyingInformation'.repeat(6)
+    const message = {
+      description: 'Records a planet update.',
+      headers: { type: 'object', properties: { traceId: { type: 'string' } } },
+      examples: [
+        { name: exampleName, headers: { traceId: 'first' } },
+        { name: 'Alternate trace', headers: { traceId: 'second' } },
+      ],
+    }
     const example = await serveExample({
       layout,
       content: {
         ...content,
-        components: { messages: component, messageTraits: component, operationTraits: component },
+        components: {
+          messages: { [name]: message },
+          messageTraits: { [name]: message },
+          operationTraits: { [name]: { description: message.description } },
+        },
       },
     })
 
@@ -109,6 +121,14 @@ for (const layout of ['modern', 'classic'] as const) {
       const heading = page.getByRole('button', { name, exact: true })
       await expect(heading).toHaveAttribute('aria-expanded', 'true')
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
+
+      if (slug !== 'operation-traits') {
+        const examples = page.getByRole('group', { name: 'Examples', exact: true })
+        const picker = examples.getByRole('button', { name: `Examples: ${exampleName}`, exact: true })
+        await expect(picker).toBeVisible()
+        const header = examples.locator('.scalar-card-header')
+        expect(await header.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
+      }
     }
   })
 }
