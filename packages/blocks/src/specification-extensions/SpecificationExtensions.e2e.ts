@@ -49,3 +49,13 @@ test.describe('SpecificationExtensions', () => {
     expect(await labelOffset(folded)).toBe(plainOffset)
   })
 })
+
+test.describe('SpecificationExtensions label', () => {
+  test.use({ component: 'SpecificationExtensions', story: 'Long Label', viewport: { width: 320, height: 480 } })
+
+  test('wraps a long localized label in a narrow viewport', async ({ page }) => {
+    const toggle = page.getByRole('button', { name: /^Vertragserweiterungsinformationen.*\(1\)$/ })
+    await expect(toggle).toBeVisible()
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
+  })
+})

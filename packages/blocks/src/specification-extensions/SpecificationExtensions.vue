@@ -50,7 +50,7 @@ const open = ref(false)
         @toggle="open = !open" />
       <span
         :id="headingId"
-        class="text-c-2 min-w-0 font-medium"
+        class="text-c-2 min-w-0 font-medium break-words"
         >{{ heading }}</span
       >
     </div>
