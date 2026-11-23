@@ -90,3 +90,25 @@ test('scrolls and focuses desktop groups after the open mobile sidebar is resize
   await expect(section).toBeFocused()
   await expect(section.getByRole('heading', { name: 'Message Traits', exact: true })).toBeInViewport()
 })
+
+for (const layout of ['modern', 'classic'] as const) {
+  test(`wraps long reusable component headings at 320 CSS pixels in ${layout}`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 740 })
+    const name = 'PlanetCreatedAfterSeveralEnvironmentalActionsAndChecks'.repeat(4)
+    const component = { [name]: { description: 'Records a planet update.' } }
+    const example = await serveExample({
+      layout,
+      content: {
+        ...content,
+        components: { messages: component, messageTraits: component, operationTraits: component },
+      },
+    })
+
+    for (const slug of ['messages', 'message-traits', 'operation-traits']) {
+      await page.goto(`${example}?section=${slug}#~components/${slug}/${name}`)
+      const heading = page.getByRole('button', { name, exact: true })
+      await expect(heading).toHaveAttribute('aria-expanded', 'true')
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
+    }
+  })
+}

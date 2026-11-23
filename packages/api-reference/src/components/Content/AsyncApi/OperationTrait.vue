@@ -142,7 +142,7 @@ const { level: headingLevel } = useDocumentOutline('model')
       @update:modelValue="onToggle">
       <template #heading>
         <SectionHeaderTag
-          class="operation-trait-title break-words"
+          class="operation-trait-title [overflow-wrap:anywhere]"
           :level="headingLevel">
           {{ headingText }}
         </SectionHeaderTag>
