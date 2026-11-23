@@ -1036,7 +1036,7 @@ export function convert(
         continue
       }
       for (const [method, servers] of methods.entries()) {
-        if (Object.hasOwn(pathItem, method)) {
+        if (OPERATION_KEYS.includes(method) && Object.hasOwn(pathItem, method)) {
           const operation = pathItem[method]
           if (operation && typeof operation === 'object') {
             operation.servers = isMergingIntoBase ? mergeServerLists(operation.servers, servers) : servers
