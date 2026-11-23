@@ -609,10 +609,10 @@ jobs:
           cache: 'maven'
           cache-dependency-path: '**/java/pom.xml'
           server-id: 'central'
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
+          server-username-env-var: MAVEN_USERNAME
+          server-password-env-var: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: GPG_PASSPHRASE
+          gpg-passphrase-env-var: GPG_PASSPHRASE
 
       - name: Get version from package.json
         id: package-version
