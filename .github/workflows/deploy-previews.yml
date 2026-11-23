@@ -71,7 +71,7 @@ jobs:
         id: deploy
         uses: cloudflare/wrangler-action@v4.1.3
         with:
-          wranglerVersion: 4.165.0
+          wranglerVersion: 4.166.0
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy ./packages/api-reference/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_REFERENCE }} --branch=pr-${{ inputs.pr-number }} --commit-hash=${{ inputs.pr-head-sha }}
