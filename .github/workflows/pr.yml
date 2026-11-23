@@ -24,8 +24,6 @@ env:
   TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
   # Pin the preview CLI so CI installs the reviewed version.
   NETLIFY_CLI_VERSION: '27.20.1'
-  # Approve the CLI completion setup and required native dependency builds.
-  NETLIFY_ALLOW_BUILDS: '--allow-build=esbuild --allow-build=sharp --allow-build=unix-dgram --allow-build=netlify'
 
 jobs:
   # Initial build.
@@ -379,7 +377,7 @@ jobs:
         name: Deploy Playwright Report to Netlify
         continue-on-error: true
         run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/blocks/playwright-report-storybook" \
+          pnpm dlx --ignore-scripts netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/blocks/playwright-report-storybook" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -432,7 +430,7 @@ jobs:
         name: Deploy Playwright Report to Netlify
         continue-on-error: true
         run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/api-reference/playwright-report" \
+          pnpm dlx --ignore-scripts netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/api-reference/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -482,7 +480,7 @@ jobs:
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./projects/scalar-app/playwright-report" \
+          pnpm dlx --ignore-scripts netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./projects/scalar-app/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -529,7 +527,7 @@ jobs:
         name: Deploy Playwright Report to Netlify
         continue-on-error: true
         run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/components/playwright-report" \
+          pnpm dlx --ignore-scripts netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/components/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
