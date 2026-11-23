@@ -1096,7 +1096,9 @@ describe('convert', () => {
       ],
     })
 
-    expect(result.paths?.['/files']?.propfind?.servers).toBeUndefined()
+    const extensionOperation = result.paths?.['/files']?.propfind
+    expect(extensionOperation?.summary).toBe('Read file properties')
+    expect(extensionOperation?.servers).toBeUndefined()
     expect(result.paths?.['/users']?.get?.servers).toStrictEqual([{ url: 'https://api.example.com' }])
   })
 
