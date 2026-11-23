@@ -1,4 +1,4 @@
-import { isObjectLike } from '@scalar/helpers/object/is-object'
+import { isObject, isObjectLike } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { Type } from '@scalar/typebox'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
@@ -172,11 +172,12 @@ export const mergeSecurity = (
     if (coerced.type === 'oauth2' && isObjectLike(scheme) && isObjectLike(scheme.flows)) {
       // Casting fills missing fields but can drop flow configuration such as the client ID.
       // Restore those fields per flow so normalized nested values still replace invalid inputs.
-      for (const [flowName, flow] of objectEntries(coerced.flows)) {
+      const flows: Record<string, unknown> = coerced.flows
+      for (const [flowName, flow] of objectEntries(flows)) {
         const originalFlow = scheme.flows[flowName]
-        if (isObjectLike(flow) && isObjectLike(originalFlow)) {
-          // Treat JSON keys as data, including __proto__.
-          Object.defineProperties(flow, Object.getOwnPropertyDescriptors({ ...originalFlow, ...flow }))
+        if (isObject(flow) && isObject(originalFlow)) {
+          // Spread treats JSON keys as data, including __proto__.
+          flows[flowName] = { ...originalFlow, ...flow }
         }
       }
     }

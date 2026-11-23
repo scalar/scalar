@@ -38,6 +38,33 @@ const state = '4fzyo82m'
 const randomVal = 0.123456
 
 describe('oauth', () => {
+  // Mock window.open
+  let mockWindow: any
+
+  beforeEach(() => {
+    mockWindow = {
+      close: vi.fn(),
+      closed: false,
+      location: {
+        href: '',
+      },
+    }
+    vi.spyOn(window, 'open').mockImplementation(() => mockWindow)
+    // To skip timers
+    vi.useFakeTimers()
+    // For predictable state
+    vi.spyOn(Math, 'random').mockReturnValue(randomVal)
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+    vi.restoreAllMocks()
+  })
+
+  const mockServer = {
+    url: 'https://api.example.com',
+  } as ServerObject
+
   it('authorizes a configured public PKCE client without a client secret', async () => {
     const scheme = mergeSecurity(
       {},
@@ -77,33 +104,6 @@ describe('oauth', () => {
     expect(url.searchParams.get('code_challenge')?.length).toBe(43)
     expect(scheme.flows.authorizationCode?.['x-scalar-secret-client-secret']).toBe('')
   })
-
-  // Mock window.open
-  let mockWindow: any
-
-  beforeEach(() => {
-    mockWindow = {
-      close: vi.fn(),
-      closed: false,
-      location: {
-        href: '',
-      },
-    }
-    vi.spyOn(window, 'open').mockImplementation(() => mockWindow)
-    // To skip timers
-    vi.useFakeTimers()
-    // For predictable state
-    vi.spyOn(Math, 'random').mockReturnValue(randomVal)
-  })
-
-  afterEach(() => {
-    vi.clearAllMocks()
-    vi.restoreAllMocks()
-  })
-
-  const mockServer = {
-    url: 'https://api.example.com',
-  } as ServerObject
 
   it.each(
     (['authorizationCode', 'implicit'] as const).flatMap((type) =>

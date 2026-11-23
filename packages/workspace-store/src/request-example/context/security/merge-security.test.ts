@@ -51,6 +51,32 @@ describe('mergeSecurity', () => {
     },
   )
 
+  it('preserves distinct client IDs when coercing two flows on the same scheme', () => {
+    const config = {
+      oauth: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/authorize',
+            tokenUrl: 'https://example.com/token',
+            scopes: {},
+            'x-scalar-client-id': 'authorization-code-client',
+          },
+          clientCredentials: {
+            tokenUrl: 'https://example.com/token',
+            scopes: {},
+            'x-scalar-client-id': 'client-credentials-client',
+          },
+        },
+      },
+    } satisfies AuthenticationConfiguration['securitySchemes']
+
+    const result = mergeSecurity({}, config, createWorkspaceStore().auth, 'test').oauth
+    assert(result?.type === 'oauth2')
+    expect(result.flows.authorizationCode?.['x-scalar-secret-client-id']).toBe('authorization-code-client')
+    expect(result.flows.clientCredentials?.['x-scalar-secret-client-id']).toBe('client-credentials-client')
+  })
+
   it.each(['document', 'configuration'] as const)('preserves authorization code defaults from the %s', (source) => {
     const flow = {
       authorizationUrl: 'https://example.com/authorize',
@@ -141,6 +167,22 @@ describe('mergeSecurity', () => {
     },
   )
 
+  it('normalizes an array supplied as an OAuth flow without retaining its entries', () => {
+    const schemes = {
+      oauth: {
+        type: 'oauth2',
+        flows: { authorizationCode: ['read'] },
+      },
+    } as unknown as ComponentsObject['securitySchemes']
+
+    const result = mergeSecurity(schemes, {}, createWorkspaceStore().auth, 'test').oauth
+    assert(result?.type === 'oauth2')
+    const flow = result.flows.authorizationCode
+    assert(flow)
+    expect(flow.scopes).toStrictEqual({})
+    expect(flow).not.toHaveProperty('0')
+  })
+
   it('preserves configured OAuth flows with an own __proto__ property', () => {
     const config: AuthenticationConfiguration['securitySchemes'] = JSON.parse(`{
       "oauth": { "type": "oauth2", "flows": { "authorizationCode": {
@@ -154,8 +196,11 @@ describe('mergeSecurity', () => {
     const original = structuredClone(config)
     const result = mergeSecurity({}, config, createWorkspaceStore().auth, 'test').oauth
     assert(result?.type === 'oauth2')
-    expect(result.flows.authorizationCode?.['x-scalar-secret-client-id']).toBe('configured-client')
-    expect(result.flows.authorizationCode?.refreshUrl).toBe('')
+    const flow = result.flows.authorizationCode
+    assert(flow)
+    expect(flow['x-scalar-secret-client-id']).toBe('configured-client')
+    expect(flow.refreshUrl).toBe('')
+    expect(Object.getOwnPropertyDescriptor(flow, '__proto__')?.value).toStrictEqual({ untrusted: true })
     expect(config).toStrictEqual(original)
   })
 
