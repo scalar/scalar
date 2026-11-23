@@ -7,7 +7,7 @@ For how publishing works end to end, see [Publishing](overview.md).
 ## Quick reference
 
 > [!NOTE]
-> The Swift, Rust, and C++ targets are experimental.
+> The Swift and Rust targets are experimental.
 
 | Target | `publish` key | Registry | Default auth | Secrets to add |
 | ------ | ------------- | -------- | ------------ | -------------- |
@@ -22,7 +22,7 @@ For how publishing works end to end, see [Publishing](overview.md).
 | [Swift](swift.md) (experimental) | `swiftpm` | Swift Package Manager | Git tag | none |
 | [Dart](dart.md) | `pub` | pub.dev | OIDC, published from `sdk-release.yml` dispatched at the release tag | none (OIDC) or `PUB_TOKEN` |
 | [CLI](cli.md) | `npm`, `binaries`, `homebrew` | npm / GitHub Release / Homebrew | OIDC or token | none (npm OIDC) or `NPM_TOKEN`, plus `HOMEBREW_TAP_TOKEN` (or `HOMEBREW_TAP_GITHUB_TOKEN`) for Homebrew |
-| C++ (experimental) | — | — | — | none (built in CI, no registry) |
+| C++ | — | — | — | none (built in CI, no registry) |
 
 > [!NOTE]
 > Publishing to an internal registry instead — Artifactory, AWS CodeArtifact, Nexus, GitLab, Azure Artifacts — is not in this table, because it does not need a `publish` key. Add a workflow your repository owns; see [Private Registries](private-registries.md) for copy-paste examples.
@@ -51,8 +51,5 @@ Registries that support OIDC (`npm`, `pypi`, `cargo`, `nuget`, `rubygems`, `pub`
 > Swift Package Manager is tag-served: it has no upload step and no secrets, and the `vX.Y.Z` Git tag and GitHub Release cut when a release pull request merges are the published version. Go and Packagist versions are tags too, but both still get a release workflow, which uploads nothing: Go's warms the public module proxy, and PHP's validates `composer.json` and notifies Packagist of the tag.
 
 ## C++
-
-> [!NOTE]
-> The C++ target is experimental.
 
 C++ has no universal package registry. The C++ target generates a CI workflow that builds with CMake but no release workflow. Distribute the build artifacts from the GitHub Release however suits your users.

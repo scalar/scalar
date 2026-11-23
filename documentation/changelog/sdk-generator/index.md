@@ -8,6 +8,20 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.46.2 (2026-11-23)
+
+### C++ target is stable and signed-URL fetches send SDK headers
+
+The C++ target is now stable with source compatibility guarantees, and signed-URL fetches now send the SDK's own headers when requesting resources from the API's host.
+
+- The C++ target is now stable, with source compatibility promised across minor releases.
+- Generated C++ SDKs now support client options sent in request bodies via `sendAsBodyParam`.
+- Signed-URL fetches to the API's own host now include SDK headers like `User-Agent` and `X-Scalar-*` headers.
+- Signed-URL fetches now write the same request and response logs as other SDK calls.
+- The generated CLI now excludes SDK headers from its own signed-URL fetches, since the TypeScript SDK sends them by default.
+- Generated C++ READMEs now present known gaps as current SDK limitations rather than experimental features.
+- The C++ README compatibility promise now documents when API additions remove methods.
+
 ## 0.46.1 (2026-11-21)
 
 ### Generated CLIs wrap output and reject missing required inputs
