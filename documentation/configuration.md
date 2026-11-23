@@ -1888,3 +1888,5 @@ Callback function that is triggered when a user clicks on any item in the sideba
   }
 }
 ```
+
+<!-- CI benchmark probe for #11197; this PR is closed unmerged. -->
