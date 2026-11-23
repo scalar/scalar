@@ -717,6 +717,82 @@ describe('validate-request', () => {
     expect((await stringServer.request('/users/;a%3Db=')).status).toBe(200)
   })
 
+  it.each(['application/json', 'application/vnd.scalar+json; charset=utf-8'])(
+    'validates content typed as %s',
+    async (mediaType) => {
+      const document = documentWith('/items', 'get', {
+        parameters: [
+          { name: 'limit', in: 'query', required: true, schema: { type: 'integer' } },
+          {
+            name: 'filter',
+            in: 'query',
+            required: true,
+            content: {
+              [mediaType]: {
+                schema: { type: 'object', required: ['price'], properties: { price: { type: 'integer' } } },
+              },
+            },
+          },
+        ],
+      })
+
+      const server = await createMockServer({ document, validateRequest: true })
+      const request = (value: string) => server.request(`/items?limit=10&filter=${encodeURIComponent(value)}`)
+
+      expect((await request('{"price":5}')).status).toBe(200)
+
+      const wrongType = await request('{"price":"5"}')
+      expect(wrongType.status).toBe(422)
+      expect((await wrongType.json()).violations).toStrictEqual([
+        { location: 'query', path: '/filter/price', message: 'filter/price must be integer' },
+      ])
+
+      // A value that is not JSON cannot satisfy an object schema.
+      expect((await request('price=5')).status).toBe(422)
+      expect((await server.request('/items?limit=10')).status).toBe(422)
+    },
+  )
+
+  it.each([
+    {
+      mediaType: 'text/plain',
+      valid: 'short',
+      invalid: 'far too long',
+      message: 'X-Note must NOT have more than 5 characters',
+    },
+    { mediaType: 'application/json', valid: '"short"', invalid: 'short', message: 'X-Note must be valid JSON' },
+  ])('validates a string header declared as $mediaType', async ({ mediaType, valid, invalid, message }) => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        { name: 'X-Note', in: 'header', content: { [mediaType]: { schema: { type: 'string', maxLength: 5 } } } },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+    expect((await server.request('/items', { headers: { 'X-Note': valid } })).status).toBe(200)
+    const rejected = await server.request('/items', { headers: { 'X-Note': invalid } })
+    expect(rejected.status).toBe(422)
+    expect((await rejected.json()).violations).toStrictEqual([{ location: 'header', path: '/X-Note', message }])
+  })
+
+  it('checks presence and false schemas for unsupported parameter media types', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        { name: 'filter', in: 'query', required: true, content: { 'application/xml': { schema: { type: 'object' } } } },
+        { name: 'forbidden', in: 'query', content: { 'application/xml': { schema: false } } },
+      ],
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    expect((await server.request('/items?filter=%3Citem%2F%3E')).status).toBe(200)
+    const invalid = await server.request('/items?forbidden=%3Citem%2F%3E')
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations).toStrictEqual([
+      { location: 'query', path: '/filter', message: 'filter is required' },
+      { location: 'query', path: '/forbidden', message: 'forbidden boolean schema is false' },
+    ])
+  })
+
   it('returns 422 with body violations for an invalid JSON body', async () => {
     const document = documentWith('/items', 'post', {
       requestBody: {
