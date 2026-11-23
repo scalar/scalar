@@ -190,6 +190,7 @@ export const childReferenceContext = (
       (modernSchema && ['unevaluatedProperties', 'unevaluatedItems', 'contentSchema', 'prefixItems'].includes(key))
     ) {
       return schemaContext
+    }
     if (['example', 'examples', 'default', 'enum', 'const', 'value'].includes(key)) return 'data'
     return includeCustomReferences ? 'object' : 'data'
   }
