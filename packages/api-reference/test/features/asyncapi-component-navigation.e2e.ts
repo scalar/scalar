@@ -8,7 +8,9 @@ const content = {
   components: {
     messages: {
       'Order.Created': { title: 'Order created', payload: { type: 'string' } },
+      'Order.Created-content': { title: 'Legacy order event' },
     },
+    messageTraits: { Tracing: { title: 'Tracing' } },
   },
 }
 
@@ -27,7 +29,15 @@ test('keeps a single modern section anchor and moves focus into the opened group
   await page.keyboard.press('Enter')
   await expect(section).toBeFocused()
   await page.keyboard.press('Tab')
-  await expect(section.getByRole('button', { name: 'Order created' })).toBeFocused()
+  const message = section.getByRole('button', { name: 'Order created' })
+  await expect(message).toBeFocused()
+  await page.keyboard.press('Enter')
+
+  const panelId = await message.getAttribute('aria-controls')
+  await expect(section.locator(`[id="${panelId}"]`)).toBeVisible()
+  const siblingId = `${id}/Order~002eCreated-content`
+  await expect(section.getByRole('button', { name: 'Legacy order event' })).toHaveAttribute('id', siblingId)
+  await expect(page.locator(`[id="${siblingId}"]`)).toHaveCount(1)
 })
 
 test('opens a classic component section from a deep link with an accurate expanded state', async ({ page }) => {
@@ -62,4 +72,21 @@ test('keeps the mobile sidebar open when selecting a component group', async ({ 
 
   await expect(page.getByRole('button', { name: 'Open Menu' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Order created' })).toBeInViewport()
+})
+
+test('scrolls and focuses desktop groups after the open mobile sidebar is resized', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 })
+  const example = await serveExample({ content, defaultOpenFirstTag: false })
+  await page.goto(example)
+
+  await page.getByRole('button', { name: 'Open Menu' }).click()
+  await expect(page.getByRole('button', { name: 'Close Menu' })).toBeVisible()
+  await page.setViewportSize({ width: 1280, height: 740 })
+
+  const sidebar = page.getByRole('complementary', { name: 'Sidebar for' })
+  await sidebar.getByRole('link', { name: 'Message Traits', exact: true }).click()
+
+  const section = page.getByRole('region', { name: 'Message Traits', exact: true })
+  await expect(section).toBeFocused()
+  await expect(section.getByRole('heading', { name: 'Message Traits', exact: true })).toBeInViewport()
 })

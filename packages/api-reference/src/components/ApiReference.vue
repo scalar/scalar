@@ -1038,10 +1038,12 @@ const contextChain = computed(() => {
   return crumbs
 })
 
-const scrollToLazyElement = (id: string) => {
+const scrollToLazyElement = (id: string, focusTarget = true): void => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
-  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
+  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById, {
+    focusTarget,
+  })
 }
 
 /**
@@ -1866,17 +1868,16 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
     return
   }
 
-  if (isSection && caller === 'sidebar' && isSidebarOpen.value) {
-    // Keep focus in the open mobile menu so readers can choose a child.
-    setBreadcrumb(id)
-    sidebarState.setSelected(id)
-    sidebarState.setExpanded(id, true)
-  } else {
-    if (!isSection) {
-      isSidebarOpen.value = false
-    }
-    scrollToLazyElement(id)
+  // Keep focus in the open mobile menu while scrolling to the group beneath it.
+  const keepSidebarFocus =
+    isSection &&
+    caller === 'sidebar' &&
+    isSidebarOpen.value &&
+    !isWideViewport.value
+  if (!isSection) {
+    isSidebarOpen.value = false
   }
+  scrollToLazyElement(id, !keepSidebarFocus)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {

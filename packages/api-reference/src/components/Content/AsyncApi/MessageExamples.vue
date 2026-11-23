@@ -99,10 +99,24 @@ const exampleBlocks = computed(() => {
   const payload = getMessageExampleContent(example?.payload, contentType)
   return [
     ...(headers
-      ? [{ ...headers, label: 'Headers', copyLabel: 'Copy headers' }]
+      ? [
+          {
+            ...headers,
+            label: 'Headers',
+            copyLabel: 'Copy headers',
+            showLabel: true,
+          },
+        ]
       : []),
     ...(payload
-      ? [{ ...payload, label: 'Payload', copyLabel: 'Copy payload' }]
+      ? [
+          {
+            ...payload,
+            label: 'Payload',
+            copyLabel: 'Copy payload',
+            showLabel: Boolean(headers),
+          },
+        ]
       : []),
   ]
 })
@@ -154,6 +168,11 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
       v-for="block in exampleBlocks"
       :key="block.label"
       class="flex-col">
+      <div
+        v-if="block.showLabel"
+        class="text-c-2 px-3 pt-2 text-sm font-medium">
+        {{ block.label }}
+      </div>
       <div
         v-if="block.structural"
         class="text-c-2 px-3 py-2 text-sm">

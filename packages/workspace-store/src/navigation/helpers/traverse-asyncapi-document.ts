@@ -801,17 +801,25 @@ export const traverseAsyncApiDocument = (
   entries.push(...untaggedChannels, ...componentSections)
 
   // Mirror OpenAPI: untagged schemas are grouped under a single top-level "Models" section.
-  if (untaggedModels.length) {
+  const modelsId = untaggedModels.length ? generateId({ type: 'model', parentId: documentId }) : undefined
+  if (modelsId !== undefined) {
     entries.push({
       type: 'models',
-      id: generateId({ type: 'model', parentId: documentId }),
+      id: modelsId,
       title: modelsSectionLabel,
       name: modelsSectionLabel,
       children: untaggedModels,
     })
   }
 
-  const sortOrder = document['x-scalar-order']
+  const savedOrder = document['x-scalar-order']
+  const modelsIndex = modelsId === undefined ? -1 : (savedOrder?.indexOf(modelsId) ?? -1)
+  const missingSections = componentSections.map(({ id }) => id).filter((id) => !savedOrder?.includes(id))
+  // Older snapshots listed Models before the component catalog existed.
+  const sortOrder =
+    savedOrder && modelsIndex !== -1 && missingSections.length
+      ? [...savedOrder.slice(0, modelsIndex), ...missingSections, ...savedOrder.slice(modelsIndex)]
+      : savedOrder
   const orderedEntries = sortOrder ? sortByOrder(entries, sortOrder, (entry) => entry.id) : entries
 
   document['x-scalar-order'] = unpackProxyObject(orderedEntries.map((entry) => entry.id))

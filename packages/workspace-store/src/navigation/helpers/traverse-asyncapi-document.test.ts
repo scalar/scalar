@@ -867,6 +867,31 @@ describe('traverseAsyncApiDocument', () => {
     expect(models?.children?.map((entry) => entry.id)).toStrictEqual(['catalog/messages/Event'])
   })
 
+  it('inserts new catalog sections before Models in a saved navigation order', () => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Components', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      'x-scalar-order': ['catalog/description/introduction', 'catalog/models', 'catalog/channel/events'],
+      channels: { events: { address: 'events' } },
+      components: {
+        schemas: { Event: { type: 'object' } },
+        messages: { Event: {} },
+        messageTraits: { Tracing: {} },
+      },
+    } satisfies AsyncApiDocument & { 'x-scalar-order': string[] }
+
+    const expected = [
+      'catalog/description/introduction',
+      'catalog/~components/messages',
+      'catalog/~components/message-traits',
+      'catalog/models',
+      'catalog/channel/events',
+    ]
+    expect(traverseAsyncApiDocument('catalog', document).children?.map(({ id }) => id)).toStrictEqual(expected)
+    expect(document['x-scalar-order']).toStrictEqual(expected)
+  })
+
   it('omits empty component sections and hides them with hideModels', () => {
     const document = {
       asyncapi: '3.1.0',

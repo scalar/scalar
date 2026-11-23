@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconCaretRight } from '@scalar/icons'
-import { computed, useId } from 'vue'
+import { useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 
@@ -17,8 +17,8 @@ const emit = defineEmits<{
   (e: 'copyAnchorUrl'): void
 }>()
 
-/** The trigger owns `id` as its deep link target, so the region it controls needs one of its own */
-const contentId = computed<string>(() => `${id}-content`)
+// A separate ID keeps the panel from colliding with a sibling's deep link.
+const contentId = useId()
 
 /**
  * Name the trigger after the heading it renders by pointing `aria-labelledby` at it,

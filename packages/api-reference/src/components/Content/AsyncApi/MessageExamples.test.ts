@@ -78,9 +78,13 @@ describe('MessageExamples', () => {
     expect(wrapper.getComponent(ScalarCodeBlock).props('lang')).toBe('json')
     expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(headerContent)
     expect(wrapper.get('button[aria-label="Copy headers"]').attributes('aria-label')).toBe('Copy headers')
+    expect(wrapper.text()).toContain('Headers')
+    expect(wrapper.text()).not.toContain('Payload')
 
     wrapper.getComponent(ExamplePicker).vm.$emit('update:modelValue', '1')
     await nextTick()
+    expect(wrapper.text()).toContain('Headers')
+    expect(wrapper.text()).toContain('Payload')
     expect(wrapper.findAllComponents(ScalarCopy).map((copy) => copy.props('content'))).toStrictEqual([
       '{\n  "trace": "def"\n}',
       '<event />',
