@@ -13,7 +13,7 @@ const addScrollableHost = async (page: Page): Promise<void> => {
 }
 
 test.describe('embedded-scroll-pane', () => {
-  test('fits the desktop sidebar to the pane as the browser resizes', async ({ page }): Promise<void> => {
+  test('fits the desktop sidebar inside a padded pane as the browser resizes', async ({ page }): Promise<void> => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/scroll-pane.html?document=short')
 
@@ -21,15 +21,24 @@ test.describe('embedded-scroll-pane', () => {
     const sidebar = pane.getByRole('complementary', { name: /sidebar/i })
     await expect(sidebar).toBeVisible()
 
-    for (const height of [800, 560]) {
+    for (const { height, padding } of [
+      { height: 800, padding: 16 },
+      { height: 560, padding: 16 },
+      { height: 560, padding: 0 },
+    ]) {
       await page.setViewportSize({ width: 1280, height })
+      await pane.evaluate((element, size) => {
+        element.style.paddingBlock = `${size}px`
+      }, padding)
       await expect
         .poll(async () => {
           const paneBox = await pane.boundingBox()
           const sidebarBox = await sidebar.boundingBox()
-          return paneBox && sidebarBox && Math.round(sidebarBox.height - paneBox.height)
+          return paneBox && sidebarBox
+            ? Math.abs(sidebarBox.height - (paneBox.height - padding * 2))
+            : Number.POSITIVE_INFINITY
         })
-        .toBe(0)
+        .toBeLessThan(1)
       await expect.poll(() => pane.evaluate((element) => element.scrollHeight - element.clientHeight)).toBe(0)
     }
   })

@@ -36,7 +36,7 @@ export const useIntersection = (
       }
 
       // IntersectionObserver resolves percentage margins against the root's width.
-      const paneHeight = pane?.height.value
+      const paneHeight = pane?.scrollportHeight.value
       return paneHeight ? `-${paneHeight * 0.49}px 0px` : VIEWPORT_VERTICAL_CENTER_ROOT_MARGIN
     }
 

@@ -11,10 +11,13 @@ import {
   watch,
 } from 'vue'
 
-/** The host-defined scroll area and its available height in CSS pixels. */
+/** The host-defined scroll area and its measured heights in CSS pixels. */
 export type ReferenceScrollPane = {
   element: ComputedRef<HTMLElement | null>
-  height: Readonly<Ref<number>>
+  /** The scrollport includes padding and reports whole pixels, keeping observer margins stable. */
+  scrollportHeight: Readonly<Ref<number>>
+  /** The reference itself fits inside the host pane's content box. */
+  contentHeight: Readonly<Ref<number>>
 }
 
 const SCROLL_PANE: InjectionKey<ReferenceScrollPane> = Symbol('scalar-reference-scroll-pane')
@@ -30,15 +33,33 @@ export const getScrollportTop = (element: HTMLElement): number =>
 /** Measure the host pane once for the layout and all of its section observers. */
 export const provideReferenceScrollPane = (layout: TemplateRef<HTMLElement>): ReferenceScrollPane => {
   const element = computed(() => layout.value && getReferenceScrollPane(layout.value))
-  const height = ref(0)
-  const measure = (): void => {
-    height.value = element.value?.clientHeight ?? 0
-  }
+  const scrollportHeight = ref(0)
+  const contentHeight = ref(0)
 
-  watch(element, measure, { flush: 'post' })
-  useResizeObserver(element, measure)
+  watch(
+    element,
+    (pane) => {
+      scrollportHeight.value = pane?.clientHeight ?? 0
+      if (pane) {
+        const { paddingTop, paddingBottom } = getComputedStyle(pane)
+        contentHeight.value = Math.max(
+          0,
+          pane.clientHeight - Number.parseFloat(paddingTop || '0') - Number.parseFloat(paddingBottom || '0'),
+        )
+      } else {
+        contentHeight.value = 0
+      }
+    },
+    { flush: 'post' },
+  )
+  useResizeObserver(element, ([entry]) => {
+    if (entry) {
+      scrollportHeight.value = entry.target.clientHeight
+      contentHeight.value = entry.contentRect.height
+    }
+  })
 
-  const pane = { element, height }
+  const pane = { element, scrollportHeight, contentHeight }
   provide(SCROLL_PANE, pane)
   return pane
 }

@@ -279,6 +279,7 @@ export function useLazyBus(id: string) {
 /** Options for navigating to an element and restoring its view state. */
 type ScrollToLazyOptions = {
   focusTarget?: boolean
+  pane?: HTMLElement | null
   response?: {
     link: ResponsePropertyLink
     target: ShallowRef<ResponsePropertyLink | undefined>
@@ -312,7 +313,7 @@ export const scrollToLazy = (
   id: string,
   setExpanded: (id: string, value: boolean) => void,
   getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
-  { focusTarget = true, response }: ScrollToLazyOptions = {},
+  { focusTarget = true, pane = null, response }: ScrollToLazyOptions = {},
 ): void => {
   // Even a rendered destination can move while sections above it finish rendering.
   cancelActiveScroll?.()
@@ -339,7 +340,7 @@ export const scrollToLazy = (
     }
   }
   const stopTime = Date.now() + SCROLL_RETRY_MS
-  const hold = freeze(getTarget, clearTarget, blockIntersection())
+  const hold = freeze(getTarget, clearTarget, blockIntersection(), pane)
   addLazyCompleteCallback(hold.renderComplete)
 
   // Publish the target so collapsible schema disclosures on the path can open
@@ -591,6 +592,7 @@ const freeze = (
   getTarget: () => HTMLElement | null,
   clearTarget: () => void,
   unblock: UnblockFn,
+  initialPane: HTMLElement | null,
 ): {
   getTarget: () => HTMLElement | null
   clearTarget: () => void
@@ -606,8 +608,8 @@ const freeze = (
   let frame = 0
   let heldElement: HTMLElement | undefined
   let heldParent: HTMLElement | null | undefined
-  let pane: HTMLElement | null = null
-  let containers = [document.scrollingElement ?? document.documentElement].filter(
+  let pane = initialPane
+  let containers = [pane ?? document.scrollingElement ?? document.documentElement].filter(
     (element): element is HTMLElement => element instanceof HTMLElement,
   )
   let expectedScrollTops = containers.map((element) => element.scrollTop)
@@ -623,7 +625,8 @@ const freeze = (
   }
 
   const getLayoutTop = (element: HTMLElement): number =>
-    containers.reduce((top, container) => top + container.scrollTop, element.getBoundingClientRect().top)
+    containers.reduce((top, container) => top + container.scrollTop, element.getBoundingClientRect().top) -
+    (pane ? getScrollportTop(pane) : 0)
 
   const scroll = (element: HTMLElement): void => {
     updateContainers(element)
@@ -657,9 +660,13 @@ const freeze = (
   }
 
   const onUserInput = (event: Event): void => {
+    if (pane && !(event.target instanceof Node && pane.contains(event.target))) {
+      // The host page can move independently while the reference is still settling.
+      return
+    }
     // A reader can cross the pane's center band in a single wheel or keyboard scroll.
     // Resume intersection before that movement so the observer's new entry reaches the sidebar.
-    cancel(!!pane && event.target instanceof Node && pane.contains(event.target))
+    cancel(!!pane)
   }
 
   const onKeydown = (event: KeyboardEvent): void => {

@@ -34,16 +34,38 @@ This renders our `@scalar/galaxy` OpenAPI example, using the latest version of `
 
 ## Scroll inside an embedded pane
 
-To try the experimental pane layout, give a host element a constrained height and `overflow: auto`, then add `data-scalar-scroll-container`. Mount the reference inside that element. For a page with its own header, place the scroll container below the header.
+To try the experimental pane layout, give a host element a constrained height and `overflow: auto`, then add `data-scalar-scroll-container` before mounting the reference. Initialize `#app` as in the example above.
 
 ```html
+<style>
+  .reference-pane {
+    height: 280px;
+    overflow: auto;
+  }
+
+  .reference-pane:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+</style>
+
 <header>Developer portal</header>
-<div data-scalar-scroll-container style="height: 280px; overflow: auto">
+
+<div
+  class="reference-pane"
+  data-scalar-scroll-container
+  role="group"
+  aria-label="API Reference scroll pane"
+  tabindex="0">
   <div id="app"></div>
 </div>
 ```
 
-The reference uses the pane's height for its navigation and tracks the visible section within the pane as you scroll. Initialize `#app` as in the example above.
+The reference sizes its navigation to the pane and tracks the visible section as you scroll. The named, focusable pane also lets keyboard users scroll it directly.
+
+- Place any host navigation bar above the pane. Pane mode sets `--scalar-custom-header-height` to `0px` on the reference, overriding inherited values.
+- If you mount the reference inside a shadow root, put the marked pane inside that shadow root too.
+- Desktop and mobile breakpoints follow the browser viewport width. A narrow pane in a wide browser window uses the desktop layout.
 
 ## Configuration
 

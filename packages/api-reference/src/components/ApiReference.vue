@@ -1063,6 +1063,16 @@ const contextChain = computed(() => {
   return crumbs
 })
 
+/** The reference card, which the reading position and the focus fallback look into. */
+const referenceLayout = useTemplateRef<HTMLElement>('documentEl')
+const referenceContent = useTemplateRef<HTMLElement>('referenceContent')
+const scrollPane = provideReferenceScrollPane(referenceLayout)
+const {
+  element: scrollPaneElement,
+  scrollportHeight,
+  contentHeight: scrollPaneContentHeight,
+} = scrollPane
+
 const scrollToLazyElement = (
   id: string,
   {
@@ -1074,6 +1084,7 @@ const scrollToLazyElement = (
   sidebarState.setSelected(id)
   _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById, {
     focusTarget,
+    pane: scrollPaneElement.value,
     response: responseProperty && {
       link: responseProperty,
       target: responsePropertyTarget,
@@ -1941,12 +1952,6 @@ eventBus.on('select:nav-item', ({ id }) => handleSelectSidebarEntry(id))
 /** Handle a scroll to navigation item event */
 eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectSidebarEntry(id))
 
-/** The reference card, which the reading position and the focus fallback look into. */
-const referenceLayout = useTemplateRef<HTMLElement>('documentEl')
-const referenceContent = useTemplateRef<HTMLElement>('referenceContent')
-const scrollPane = provideReferenceScrollPane(referenceLayout)
-const { element: scrollPaneElement, height: scrollPaneHeight } = scrollPane
-
 const getReferenceScrollportTop = (): number => {
   const pane = scrollPaneElement.value
   return pane ? getScrollportTop(pane) : 0
@@ -2094,7 +2099,7 @@ useIntersection(
         ? contentBounds.left + contentBounds.width / 2
         : window.innerWidth / 2
       const centerY = pane
-        ? getScrollportTop(pane) + scrollPaneHeight.value / 2
+        ? getScrollportTop(pane) + scrollportHeight.value / 2
         : window.innerHeight / 2
       const section = document
         .elementsFromPoint(centerX, centerY)
@@ -2524,7 +2529,7 @@ const sidebarCta = computed((): SidebarCta => {
       :lang="documentLang"
       :style="{
         '--refs-pane-height': scrollPaneElement
-          ? `${scrollPaneHeight}px`
+          ? `${scrollPaneContentHeight}px`
           : undefined,
       }">
       <!-- The Explore Scalar dialog Generate SDK opens where the side panel has no room -->
