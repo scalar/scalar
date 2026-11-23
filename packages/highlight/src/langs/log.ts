@@ -53,7 +53,7 @@ const log: Grammar = {
         // Bracketed context is deliberately bounded: malformed prefixes must
         // not rescan a long line for a closing bracket at every opening one.
         { match: /\[[^\s[\]]{1,128}\]/, scope: 'namespace' },
-        { match: /\b\d+\b/, scope: 'number' },
+        { match: /\b\d+\b(?![.:]\d)/, scope: 'number' },
         // Only qualified logger names can precede a level without a delimiter:
         // accepting any word here would turn "No ERROR occurred" into a header.
         {
@@ -90,7 +90,7 @@ const log: Grammar = {
         },
         { match: /^[ \t]*(?:Caused by:|Suppressed:)/, scope: 'keyword.control', set: 'message' },
         {
-          match: /(?<![\w.$])(?:[A-Za-z_$][\w$]*\.)*(?:[A-Za-z_$][\w$]*(?:Exception|Error)|Exception|Error(?=:))\b/,
+          match: /(?<![\w.$])(?:[A-Za-z_$][\w$]*\.)*(?:[A-Z][\w$]*(?:Exception|Error)|Exception|Error(?=:))\b/,
           scope: 'type',
           set: 'message',
         },

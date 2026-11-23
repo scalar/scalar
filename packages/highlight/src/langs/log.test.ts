@@ -140,6 +140,18 @@ describe('log', () => {
     ])
   })
 
+  it('keeps IP addresses, dotted versions, and colon-separated numbers out of numeric headers', () => {
+    expect(scoped('192.168.0.1 - - [21/Dec/2024:14:07:41 +0000] "GET / HTTP/1.1" 200')).toStrictEqual([
+      ['"GET / HTTP/1.1"', 'string'],
+    ])
+    expect(scoped('1.2.3 released')).toStrictEqual([])
+    expect(scoped('12:34 messages processed')).toStrictEqual([])
+    expect(scoped('42 INFO ready')).toStrictEqual([
+      ['42', 'number'],
+      ['INFO', 'keyword'],
+    ])
+  })
+
   it.each([
     'TRACE',
     'DEBUG',
@@ -234,6 +246,21 @@ describe('log', () => {
       ['example.Service.run', 'function.call'],
       ['Native Method', 'link'],
     ])
+  })
+
+  it('distinguishes exception class names from lowercase identifiers in messages', () => {
+    expect(scoped('INFO calling onError, handleError, lastError, isError and hooks.onError')).toStrictEqual([
+      ['INFO', 'keyword'],
+    ])
+    expect(scoped('INFO Error: failed\nException: failed\nCaused by: java.io.IOException: missing file')).toStrictEqual(
+      [
+        ['INFO', 'keyword'],
+        ['Error', 'type'],
+        ['Exception', 'type'],
+        ['Caused by:', 'keyword.control'],
+        ['java.io.IOException', 'type'],
+      ],
+    )
   })
 
   it('resets truncated strings and message state at every kind of line ending', () => {
