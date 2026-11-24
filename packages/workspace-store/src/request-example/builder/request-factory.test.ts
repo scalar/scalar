@@ -308,6 +308,16 @@ describe('requestFactory', () => {
     expect(String(built.data.requestPayload[0])).toBe(url)
   })
 
+  it('appends the operation path when it matches the resolved relative server URL', () => {
+    const server: ServerObject = { url: '{prefix}/v1', variables: { prefix: { default: '' } } }
+    const { request } = requestFactory(createBaseArgs({ server, path: '/v1', proxyUrl: '' }))
+    const built = buildRequest(request, { envVariables: {}, allowMissingRequestServerBase: true })
+    assert(built.ok)
+
+    expect(request.baseUrl).toBe('/v1')
+    expect(String(built.data.requestPayload[0])).toBe('http://localhost:3000/v1/v1')
+  })
+
   it('keeps the placeholder of a server variable that is missing from the variables map', () => {
     const server: ServerObject = {
       url: 'https://api.example.com/{basePath}',

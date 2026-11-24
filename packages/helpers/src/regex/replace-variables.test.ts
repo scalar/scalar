@@ -29,6 +29,12 @@ describe('replace-variables', () => {
     expect(replacePathVariables(path, variables)).toBe('/api/v1/users/42/comments/{commentId}')
   })
 
+  it('replacePathVariables reads only own values for names shared with Object.prototype', () => {
+    const variables = { ['__proto__']: '', toString: 'v1' }
+
+    expect(replacePathVariables('/{constructor}/{toString}{__proto__}', variables)).toBe('/{constructor}/v1')
+  })
+
   it('replaceEnvVariables replaces double curly brace environment variables', () => {
     const path = '{{baseUrl}}/api/users'
     const variables = { baseUrl: 'https://api.example.com' }

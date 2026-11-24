@@ -19,6 +19,11 @@ describe('get-server-variables', () => {
       expected: { a: '' },
     },
     {
+      name: 'an empty string default with a name shared with Object.prototype',
+      server: { url: '{__proto__}', variables: { ['__proto__']: { default: '' } } },
+      expected: { ['__proto__']: '' },
+    },
+    {
       name: 'an empty string default that is part of the enum',
       server: { url: '{a}', variables: { a: { default: '', enum: ['', 'v1'] } } },
       expected: { a: '' },

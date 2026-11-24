@@ -135,6 +135,17 @@ describe('mergeUrls', () => {
     )
   })
 
+  it('appends a matching relative path when requested', () => {
+    expect(mergeUrls('/v1', '/v1', undefined, { appendPath: true, disableOriginPrefix: true })).toBe('/v1/v1')
+    expect(mergeUrls('/v1', '/v1', undefined, true)).toBe('/v1')
+  })
+
+  it('returns a matching absolute URL even when appending operation paths', () => {
+    const url = 'https://api.example.com/v1'
+
+    expect(mergeUrls(url, url, undefined, { appendPath: true })).toBe(url)
+  })
+
   it('preserves the scheme delimiter when the path supplies the host', () => {
     expect(mergeUrls('https://', 'example.com')).toBe('https://example.com')
   })

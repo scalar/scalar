@@ -27,5 +27,5 @@ export const getResolvedUrl = ({
   allowReservedQueryParameters?: Set<string>
 }): string => {
   const serverVariables = getServerVariables(server)
-  return mergeUrls(replacePathVariables(server?.url ?? '', serverVariables), path, urlParams)
+  return mergeUrls(replacePathVariables(server?.url ?? '', serverVariables), path, urlParams, { appendPath: true })
 }

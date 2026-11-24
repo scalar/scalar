@@ -39,8 +39,8 @@ export const mergeSearchParams = (...params: URLSearchParams[]): URLSearchParams
   return result
 }
 
-const joinUrlAndPath = (url: string, path: string, preservePathSegments: boolean): string => {
-  if (!path || url === path) {
+const joinUrlAndPath = (url: string, path: string, preservePathSegments: boolean, appendPath = false): string => {
+  if (!path || (!appendPath && url === path)) {
     return url.trim()
   }
 
@@ -61,19 +61,27 @@ const joinUrlAndPath = (url: string, path: string, preservePathSegments: boolean
 /** Combines a base URL and path and collapses consecutive slashes after the scheme. */
 export const combineUrlAndPath = (url: string, path: string): string => joinUrlAndPath(url, path, false)
 
+type MergeUrlOptions = {
+  /** Append an operation path starting with / even when it matches the resolved server URL. */
+  appendPath?: boolean
+  /** Keep relative URLs relative and leave a missing scheme untouched. */
+  disableOriginPrefix?: boolean
+}
+
 /**
  * Creates a URL from the path and server, preserving empty path segments on either side of the join.
  *
- * also optionally merges query params if you include urlSearchParams
- * This was re-written without using URL to support variables in the scheme
+ * Query parameters are merged when provided. The join accepts unresolved variables in the scheme.
+ * A boolean fourth argument controls whether to skip adding an origin or scheme.
  */
 export const mergeUrls = (
   url: string,
   path: string,
   urlParams: URLSearchParams = new URLSearchParams(),
-  /** To disable prefixing the url with the origin or a scheme*/
-  disableOriginPrefix = false,
-) => {
+  options: MergeUrlOptions | boolean = false,
+): string => {
+  const appendPath = typeof options !== 'boolean' && options.appendPath === true && path.startsWith('/')
+  const disableOriginPrefix = typeof options === 'boolean' ? options : options.disableOriginPrefix
   const preservePathSegments = true
 
   // Extract and merge all query params
@@ -99,7 +107,10 @@ export const mergeUrls = (
     const pathParams = new URLSearchParams(pathQuery || '')
 
     // Merge the baseUrl and path
-    const mergedUrl = url === path ? baseUrl : joinUrlAndPath(baseUrl, pathWithoutQuery, preservePathSegments)
+    const mergedUrl =
+      !appendPath && url === path
+        ? baseUrl
+        : joinUrlAndPath(baseUrl, pathWithoutQuery, preservePathSegments, appendPath)
 
     // Merge all search params
     const mergedSearchParams = mergeSearchParams(baseParams, pathParams, urlParams)
@@ -109,7 +120,7 @@ export const mergeUrls = (
     return search ? `${mergedUrl}?${search}` : mergedUrl
   }
   if (path) {
-    return joinUrlAndPath(url, path, preservePathSegments)
+    return joinUrlAndPath(url, path, preservePathSegments, appendPath)
   }
   return ''
 }

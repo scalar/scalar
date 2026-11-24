@@ -580,6 +580,22 @@ describe('operationToHar', () => {
       expect(snippetz().findPlugin('shell', 'curl')?.generate(request)).toBe(`curl ${expected}`)
     })
 
+    it('appends a matching relative path in the HAR URL and cURL snippet', () => {
+      const server: ServerObject = { url: '{prefix}/v1', variables: { prefix: { default: '' } } }
+      const request = operationToHar({ operation: { responses: {} }, method: 'get', path: '/v1', server })
+      const expected = `${window.location.origin}/v1/v1`
+
+      expect(request.url).toBe(expected)
+      expect(snippetz().findPlugin('shell', 'curl')?.generate(request)).toBe(`curl ${expected}`)
+    })
+
+    it('keeps an undeclared server placeholder named constructor in the HAR URL', () => {
+      const server: ServerObject = { url: 'https://api.example.com/{constructor}' }
+      const request = operationToHar({ operation: { responses: {} }, method: 'get', path: '/p', server })
+
+      expect(request.url).toBe('https://api.example.com/{constructor}/p')
+    })
+
     it('should handle server with multiple variables', () => {
       const operation: OperationObject = {
         responses: {

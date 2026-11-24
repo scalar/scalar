@@ -9,14 +9,9 @@ import type { ServerObject } from '@/schemas/v3.2/strict/server'
  * @param server The OpenAPI ServerObject (may be null).
  * @returns Record of variableName -> defaultValue.
  */
-export const getServerVariables = (server: ServerObject | null) => {
-  if (!server) {
-    return {}
-  }
-  return objectEntries(server?.variables ?? {}).reduce<Record<string, string>>((acc, [name, variable]) => {
-    if (variable.default !== undefined) {
-      acc[name] = variable.default
-    }
-    return acc
-  }, {})
-}
+export const getServerVariables = (server: ServerObject | null): Record<string, string> =>
+  Object.fromEntries(
+    objectEntries(server?.variables ?? {}).flatMap(([name, variable]) =>
+      variable.default === undefined ? [] : [[name, variable.default] as const],
+    ),
+  )

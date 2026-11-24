@@ -16,6 +16,7 @@ import YAML from 'yaml'
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedUrl } from '@/request-example/builder/helpers/get-resolved-url'
 import { isAsyncApiDocument, isOpenApiDocument, isPluginDocument } from '@/schemas'
 import type { DocumentTypeDefinition } from '@/schemas/plugin-document'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
@@ -377,6 +378,27 @@ describe('create-workspace-store', () => {
       expect(hydrated.workspace.activeDocument?.info.title).toBe('Upstream')
       expect(await hydrated.saveDocument(name)).toBe(true)
     }
+  })
+
+  it('preserves an empty server default named __proto__ when importing OpenAPI', async () => {
+    const store = createWorkspaceStore()
+    const document = {
+      ...getDocument('3.2.1'),
+      servers: [
+        {
+          url: 'https://api.example.com{__proto__}',
+          variables: { ['__proto__']: { default: '' } },
+        },
+      ],
+    }
+
+    expect(await store.addDocument({ name: 'api', document })).toBe(true)
+    const activeDocument = store.workspace.documents.api
+    assert(isOpenApiDocument(activeDocument))
+
+    expect(getResolvedUrl({ server: activeDocument.servers?.[0] ?? null, path: '/users' })).toBe(
+      'https://api.example.com/users',
+    )
   })
 
   it.each(['3.1.0', '3.2.0'])('preserves literal references when importing OpenAPI %s', async (openapi) => {

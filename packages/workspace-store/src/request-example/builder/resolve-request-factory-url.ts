@@ -82,7 +82,7 @@ export const resolveRequestFactoryUrl = (
   const baseUrl = replaceEnvVariables(request.baseUrl, variables)
   const rawPath = replaceEnvVariables(request.path.raw, variables)
   const path = replacePathVariables(rawPath, pathVariables)
-  const mergedUrl = mergeUrls(baseUrl, path)
+  const mergedUrl = mergeUrls(baseUrl, path, undefined, { appendPath: true })
 
   if (!options.allowMissingRequestServerBase && isRelativePath(mergedUrl)) {
     return err(MISSING_REQUEST_SERVER_BASE, INCOMPLETE_MERGED_URL_MESSAGE)

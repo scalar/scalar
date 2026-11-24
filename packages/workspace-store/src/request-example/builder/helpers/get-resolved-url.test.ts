@@ -51,6 +51,12 @@ describe('get-resolved-url', () => {
     expect(getResolvedUrl({ server, path: '/p' })).toBe(expected)
   })
 
+  it('appends an operation path that matches the resolved relative server URL', () => {
+    const server: ServerObject = { url: '{prefix}/v1', variables: { prefix: { default: '' } } }
+
+    expect(getResolvedUrl({ server, path: '/v1' })).toBe('/v1/v1')
+  })
+
   it.each<{ name: string; server: ServerObject }>([
     {
       name: 'a variable that is missing from the variables map',
