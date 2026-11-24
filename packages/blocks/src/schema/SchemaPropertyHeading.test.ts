@@ -6,7 +6,6 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { type ProtobufSchema, protobufFieldNumber, protobufPresence } from './protobuf-metadata'
 import { type RecursiveSchema, schemaRecursiveTarget } from './recursive-metadata'
-import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 describe('SchemaPropertyHeading', () => {
@@ -678,10 +677,7 @@ describe('SchemaPropertyHeading', () => {
         props: { value: coerceValue(SchemaObjectSchema, { type: 'array', items: { type: 'integer' }, ...bounds }) },
       })
 
-      const ranges = wrapper
-        .findAllComponents(SchemaPropertyDetail)
-        .map((detail) => detail.text())
-        .filter((text) => text.includes('…'))
+      const ranges = wrapper.text().match(/\d*…\d*/g) ?? []
       expect(ranges).toStrictEqual(expected)
     })
 
@@ -717,10 +713,8 @@ describe('SchemaPropertyHeading', () => {
         props: { value: coerceValue(SchemaObjectSchema, { type: 'string', ...bounds }) },
       })
 
-      const lengths = wrapper
-        .findAllComponents(SchemaPropertyDetail)
-        .map((detail) => detail.text().replace(/\s+/g, ' '))
-        .filter((text) => /^(min|max) length:/.test(text))
+      const text = wrapper.text().replace(/\s+/g, ' ')
+      const lengths = text.match(/(?:min|max) length: ?\d*/g)?.map((length) => length.trim()) ?? []
       expect(lengths).toStrictEqual(expected)
     })
 
