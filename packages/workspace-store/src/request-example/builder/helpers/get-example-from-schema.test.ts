@@ -1117,12 +1117,21 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema({ type: 'array', items: schema }, { emptyString: 'string' })).toStrictEqual(['stri'])
   })
 
-  it('uses the enclosing string format for an array item variant that supplies only a bound', () => {
-    const schema = coerceValue(SchemaObjectSchema, {
-      type: 'array',
-      items: { type: 'string', format: 'email', oneOf: [{ maxLength: 10 }] },
-    })
-    expect(getExampleFromSchema(schema)).toStrictEqual(['a@b.co'])
+  it.each([
+    ['email format', { format: 'email', oneOf: [{ maxLength: 10 }] }, 'a@b.co'],
+    ['Base64 encoding', { contentEncoding: 'base64', oneOf: [{ minLength: 5, maxLength: 8 }] }, 'c2NhbGFy'],
+  ] as const)(
+    'inherits the enclosing %s for an array item variant that supplies only bounds',
+    (_name, item, expected) => {
+      const schema = coerceValue(SchemaObjectSchema, { type: 'array', items: { type: 'string', ...item } })
+      expect(getExampleFromSchema(schema)).toStrictEqual([expected])
+    },
+  )
+
+  it('uses a valid object ID when the minimum length requires a nonempty example', () => {
+    expect(getExampleFromSchema({ type: 'string', format: 'object-id', minLength: 1, maxLength: 24 })).toEqual(
+      expect.stringMatching(/^[a-f0-9]{24}$/),
+    )
   })
 
   it('returns emails as an example value', () => {
@@ -1249,7 +1258,7 @@ describe('getExampleFromSchema', () => {
   it.each([
     [{ format: 'byte' }, 4, 'AAAA'],
     [{ contentEncoding: 'base64' }, 4, 'AAAA'],
-    [{ contentEncoding: 'base64url' }, 3, 'AAA'],
+    [{ contentEncoding: 'base64url' }, 7, 'AAAA'],
   ] as const)('fits an encoded string %j to %i characters', (encoding, maxLength, expected) => {
     const schema = coerceValue(SchemaObjectSchema, { type: 'string', ...encoding, maxLength })
     expect(getExampleFromSchema(schema)).toBe(expected)

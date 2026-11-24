@@ -156,16 +156,15 @@ const fitEmailExample = (value: string, minLength: number, maxLength: number): s
 }
 
 /** Choose an RFC 4648 quantum that fits, retaining the existing encoding when no quantum fits. */
-const fitBase64Example = (minLength: number, maxLength: number, urlSafe: boolean): string => {
+const fitBase64Example = (minLength: number, maxLength: number): string => {
   if (BASE64_EXAMPLE.length >= minLength && BASE64_EXAMPLE.length <= maxLength) {
     return BASE64_EXAMPLE
   }
 
-  // Base64url also permits unpadded output with two or three characters in the final quantum.
-  const shortestLength = urlSafe ? minLength + Number(minLength % 4 === 1) : Math.ceil(minLength / 4) * 4
-  const preferredLength = Math.min(maxLength, BASE64_EXAMPLE.length)
-  const remainder = preferredLength % 4
-  const length = Math.max(shortestLength, preferredLength - (urlSafe ? Number(remainder === 1) : remainder))
+  // Complete quanta work with strict decoders for both alphabets.
+  const shortestLength = Math.ceil(minLength / 4) * 4
+  const preferredLength = Math.floor(Math.min(maxLength, BASE64_EXAMPLE.length) / 4) * 4
+  const length = Math.max(shortestLength, preferredLength)
   return length <= maxLength && length <= MAX_STRING_PADDING ? 'A'.repeat(length) : BASE64_EXAMPLE
 }
 
@@ -280,11 +279,8 @@ const getStringExample = (schema: SchemaObject, makeUpRandomData: boolean = fals
   const encoding = typeof schema.contentEncoding === 'string' ? schema.contentEncoding.toLowerCase() : undefined
 
   // Encoding takes precedence over overlapping format hints and the legacy OpenAPI 3.0 byte format.
-  if (encoding && BASE64_CONTENT_ENCODINGS.has(encoding)) {
-    return fitBase64Example(minLength, maxLength, encoding === 'base64url')
-  }
-  if (format === 'byte') {
-    return fitBase64Example(minLength, maxLength, false)
+  if ((encoding && BASE64_CONTENT_ENCODINGS.has(encoding)) || format === 'byte') {
+    return fitBase64Example(minLength, maxLength)
   }
 
   if (format === 'date' || format === 'date-time' || format === 'time') {
@@ -305,7 +301,7 @@ const getStringExample = (schema: SchemaObject, makeUpRandomData: boolean = fals
     if (format === 'password') {
       return fitPlainStringExample(makeUpRandomData ? value : fallback, minLength, maxLength)
     }
-    if (format !== 'object-id' || makeUpRandomData) {
+    if (format !== 'object-id' || makeUpRandomData || minLength > 0) {
       return fitFormattedStringExample(format, value, minLength, maxLength)
     }
   }
