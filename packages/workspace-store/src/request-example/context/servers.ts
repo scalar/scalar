@@ -41,6 +41,12 @@ export function getServers(servers: ServerObject[] | undefined, options: ServerP
   return validServers
 }
 
+/** Prepares a server for URL resolution without mutating the supplied server object. */
+export const prepareServer = (
+  server: ServerObject | null,
+  options: ServerProcessingOptions = {},
+): ServerObject | null => (server ? processServerObject({ ...server }, options) : null)
+
 /**
  * Extracts the base URL (protocol + hostname) from a document URL.
  * Returns undefined if the URL is invalid.
@@ -162,6 +168,11 @@ export const getSelectedServer = (
   const selectedServerUrl =
     configServers != null ? documentSelectedServer : (operation?.['x-scalar-selected-server'] ?? documentSelectedServer)
 
+  return findSelectedServer(servers, selectedServerUrl)
+}
+
+/** Finds an exact selection first, then falls back to a single matching legacy URL. */
+export const findSelectedServer = (servers: PreparedServer[], selectedServerUrl?: string): ServerObject | null => {
   if (selectedServerUrl == null) {
     return servers[0] ?? null
   }

@@ -65,7 +65,7 @@ import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   combineParams,
-  getServers,
+  prepareServer,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
 import type {
@@ -135,11 +135,10 @@ const selectedServer = computed<ServerObject | null>(() => {
     return getFirstServer(server)
   }
 
-  const [prepared] = getServers([{ ...override }], {
+  return prepareServer(override, {
     baseServerUrl: options.baseServerURL,
     documentUrl: document['x-scalar-original-source-url'],
   })
-  return prepared ?? null
 })
 
 const requiredSecurity = computed<RequiredSecurity>(() =>

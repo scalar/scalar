@@ -446,12 +446,12 @@ const requestCopyUrl = (): void => {
 // ───────────────────────────────────────────────────────────────────
 
 const navigateToServersPage = (): void => {
-  if (serverMeta.type === 'operation') {
+  if (serverMeta.type !== 'document') {
     eventBus.emit('ui:navigate', {
       page: 'operation',
       path: 'servers',
       operationPath: serverMeta.path,
-      method: serverMeta.method,
+      method: serverMeta.type === 'operation' ? serverMeta.method : method,
     })
     return
   }

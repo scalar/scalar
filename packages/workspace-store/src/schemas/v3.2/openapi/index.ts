@@ -1143,6 +1143,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
         record(string(), maybeRef(lazy((): Schema => operation)), { typeName: 'AdditionalOperations' }),
       ),
       servers: optional(array(servers, { typeName: 'PathItemServers' })),
+      ...XScalarSelectedServer.properties,
       parameters: optional(array(maybeRef(lazy((): Schema => parameter)), { typeName: 'PathItemParameters' })),
     },
     { typeName: 'PathItemObject' },

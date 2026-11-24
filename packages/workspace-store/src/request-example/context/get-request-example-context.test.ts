@@ -1,6 +1,11 @@
 import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
+import { getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
+import { generateClientMutators } from '@/mutators'
+import { buildRequest } from '@/request-example/builder/build-request'
+import { requestFactory } from '@/request-example/builder/request-factory'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getRequestExampleContext } from './get-request-example-context'
@@ -30,6 +35,95 @@ const createMinimalDocument = (overrides: Partial<OpenApiDocument> = {}): OpenAp
 })
 
 describe('getRequestExampleContext', () => {
+  it.each(['document', 'operation'] as const)(
+    'persists a restored %s server selection through reload',
+    async (scope) => {
+      const workspaceStore = createWorkspaceStore()
+      const previousUrl = 'https://api.example.com/tenant/v1{suffix}'
+      const currentUrl = 'https://api.example.com/tenant//v1{suffix}'
+      const selection = {
+        servers: [
+          { url: 'https://other.example.com' },
+          { url: '/tenant//v1{suffix}', variables: { suffix: { default: '' } } },
+        ],
+        'x-scalar-selected-server': previousUrl,
+      }
+      await workspaceStore.addDocument({
+        name: 'test',
+        documentSource: 'https://api.example.com/openapi.json',
+        document: createMinimalDocument({
+          ...(scope === 'document' ? selection : {}),
+          paths: { '/pets': { get: { responses: {}, ...(scope === 'operation' ? selection : {}) } } },
+        }),
+      })
+
+      const meta = { path: '/pets', method: 'get', exampleName: 'default' }
+      const before = getRequestExampleContext(workspaceStore, 'test', meta)
+      assert(before.ok)
+      expect(before.data.servers.selected?.url).toBe(currentUrl)
+
+      const restored = createWorkspaceStore()
+      restored.loadWorkspace(JSON.parse(JSON.stringify(workspaceStore.exportWorkspace())))
+      const after = getRequestExampleContext(restored, 'test', meta)
+      assert(after.ok)
+      expect(after.data.servers.selected?.url).toBe(currentUrl)
+    },
+  )
+
+  it.each([false, true])('uses and edits inherited path servers (referenced path: %s)', async (referenced) => {
+    const workspaceStore = createWorkspaceStore()
+    const pathItem = {
+      servers: [{ url: '{prefix}/v1', variables: { prefix: { default: '' } } }, { url: 'https://backup.example.com' }],
+      get: { responses: {} },
+      post: { responses: {} },
+    }
+    await workspaceStore.addDocument({
+      name: 'test',
+      documentSource: 'https://api.example.com/openapi.json',
+      document: createMinimalDocument({
+        servers: [{ url: 'https://production.example.com' }],
+        'x-scalar-selected-server': 'https://production.example.com',
+        paths: { '/pets': referenced ? { $ref: '#/components/pathItems/Pets' } : pathItem },
+        components: referenced ? { pathItems: { Pets: pathItem } } : undefined,
+      }),
+    })
+
+    const meta = { path: '/pets', method: 'get', exampleName: 'default' }
+    const result = getRequestExampleContext(workspaceStore, 'test', meta)
+    assert(result.ok)
+    const context = result.data
+    expect(context.servers.meta).toStrictEqual({ type: 'path', path: '/pets' })
+    const { request } = requestFactory({
+      ...meta,
+      operation: context.operation,
+      environment: context.environment.environment,
+      server: context.servers.selected,
+      globalCookies: [],
+      proxyUrl: '',
+      defaultHeaders: {},
+      isElectron: false,
+      selectedSecuritySchemes: [],
+    })
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(String(built.data.requestPayload[0])).toBe('https://api.example.com/v1/pets')
+
+    const mutators = generateClientMutators(workspaceStore).doc('test').server
+    mutators.updateServerVariables({ index: 0, key: 'prefix', value: '/internal', meta: context.servers.meta })
+    mutators.updateSelectedServer({ url: 'https://backup.example.com', meta: context.servers.meta })
+
+    const restored = createWorkspaceStore()
+    restored.loadWorkspace(JSON.parse(JSON.stringify(workspaceStore.exportWorkspace())))
+    const secondOperation = getRequestExampleContext(restored, 'test', { ...meta, method: 'post' })
+    assert(secondOperation.ok)
+    expect(secondOperation.data.servers.selected?.url).toBe('https://backup.example.com')
+    expect(secondOperation.data.servers.list[0]?.variables?.prefix?.default).toBe('/internal')
+    const document = restored.workspace.documents.test
+    assert(isOpenApiDocument(document))
+    expect(document['x-scalar-selected-server']).toBe('https://production.example.com')
+    expect(getResolvedPathItem(document.paths?.['/pets'])?.get).toStrictEqual({ responses: {} })
+  })
+
   it('targets document variables when configured servers override operation servers', async () => {
     const workspaceStore = createWorkspaceStore()
     const configuredServers = [{ url: 'https://{env}.example.com', variables: { env: { default: 'prod' } } }]
@@ -37,7 +131,12 @@ describe('getRequestExampleContext', () => {
       name: 'test',
       document: createMinimalDocument({
         servers: configuredServers,
-        paths: { '/pets': { get: { servers: [{ url: 'https://operation.example.com' }], responses: {} } } },
+        paths: {
+          '/pets': {
+            servers: [{ url: 'https://path.example.com' }],
+            get: { servers: [{ url: 'https://operation.example.com' }], responses: {} },
+          },
+        },
       }),
     })
     const result = getRequestExampleContext(
@@ -58,6 +157,7 @@ describe('getRequestExampleContext', () => {
     )
     assert(withoutOverride.ok)
     expect(withoutOverride.data.servers.meta).toStrictEqual({ type: 'operation', path: '/pets', method: 'get' })
+    expect(withoutOverride.data.servers.selected?.url).toBe('https://operation.example.com')
   })
 
   it('merges options.authentication securitySchemes into security.schemes', async () => {

@@ -3,7 +3,11 @@ import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@/client'
 import type { SelectedSecurity } from '@/entities/auth'
 import type { AuthMeta, ServerMeta } from '@/events'
-import { getPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
+import {
+  getPathItemOperation,
+  getPathItemServerTarget,
+  getResolvedPathItem,
+} from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 import { getActiveEnvironment } from '@/request-example/context/environment'
@@ -14,7 +18,7 @@ import { getSecurityRequirements } from '@/request-example/context/security/get-
 import { getSecuritySchemes } from '@/request-example/context/security/get-security-schemes'
 import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
 import { type MergedSecuritySchemes, mergeSecurity } from '@/request-example/context/security/merge-security'
-import { getSelectedServer, getServers } from '@/request-example/context/servers'
+import { findSelectedServer, getServers } from '@/request-example/context/servers'
 import type { RequestExampleMeta, Result } from '@/request-example/types'
 import type { XScalarEnvironment } from '@/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
@@ -89,7 +93,8 @@ export const getRequestExampleContext = (
     }
   }
 
-  const pathItem = getResolvedPathItem(isWebhook ? document.webhooks?.[path] : document.paths?.[path])
+  const pathItemNode = isWebhook ? document.webhooks?.[path] : document.paths?.[path]
+  const pathItem = getResolvedPathItem(pathItemNode)
   if (!pathItem) {
     return {
       ok: false,
@@ -120,15 +125,38 @@ export const getRequestExampleContext = (
   //------------------------------------------------------------------------------------------------
   //                                 SERVER CONTEXT
   //------------------------------------------------------------------------------------------------
-  // Get server context for the request example
-  const configuredServers = isWebhook
-    ? (options.servers ?? operation.servers)
-    : (options.servers ?? operation.servers ?? document.servers)
+  const operationServerTarget = options.servers == null && resolvedOperation.servers != null ? resolvedOperation : null
+  const pathServerTarget =
+    !isWebhook && options.servers == null && !operationServerTarget ? getPathItemServerTarget(pathItemNode) : undefined
+  const configuredServers =
+    options.servers ??
+    operationServerTarget?.servers ??
+    pathServerTarget?.servers ??
+    (!isWebhook ? document.servers : undefined)
   const serverList = getServers(configuredServers, {
     baseServerUrl: options.baseServerUrl,
     documentUrl: document['x-scalar-original-source-url'],
   })
-  const selectedServer = getSelectedServer(document, operation, options.servers ?? null, serverList)
+  const documentSelection = document['x-scalar-selected-server']
+  const operationSelection = options.servers == null ? resolvedOperation['x-scalar-selected-server'] : undefined
+  const selectedServerUrl = pathServerTarget
+    ? pathServerTarget['x-scalar-selected-server']
+    : (operationSelection ?? documentSelection)
+  const selectedServer = findSelectedServer(serverList, selectedServerUrl)
+  if (selectedServer && selectedServerUrl != null && selectedServer.url !== selectedServerUrl) {
+    // The old key is only available while the server is being prepared. Persist the new key in the
+    // same scope as the server so a workspace export can restore the selection.
+    const serverTarget =
+      pathServerTarget ?? (operationSelection != null ? resolvedOperation : operationServerTarget) ?? document
+    serverTarget['x-scalar-selected-server'] = selectedServer.url
+  }
+
+  let serverMeta: ServerMeta = { type: 'document' }
+  if (!isWebhook && operationServerTarget) {
+    serverMeta = { type: 'operation', path, method }
+  } else if (pathServerTarget) {
+    serverMeta = { type: 'path', path }
+  }
 
   //------------------------------------------------------------------------------------------------
   //                                 SECURITY CONTEXT
@@ -166,11 +194,6 @@ export const getRequestExampleContext = (
     securitySchemes,
     selectedSecurity.selectedSchemes[selectedSecurity.selectedIndex] ?? {},
   )
-
-  const serverMeta: ServerMeta =
-    !isWebhook && options.servers == null && operation.servers != null
-      ? { type: 'operation', path: path ?? '', method: method ?? 'get' }
-      : { type: 'document' }
 
   const authMeta: AuthMeta =
     operationSelectedSecurity !== undefined
