@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { WorkspaceDocument } from '@/schemas'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 
-import { getSelectedServer, getServers } from './servers'
+import { getSelectedServer, getServers, resolveServerUrl } from './servers'
 
 describe('servers', () => {
   beforeEach(() => {
@@ -95,6 +95,35 @@ describe('servers', () => {
 
       expect(result).toHaveLength(1)
       expect(result[0]?.url).toBe('https://example.com/api/v1')
+    })
+
+    it('resolves a template against the document URL when its current default makes it relative', () => {
+      const prefix = { default: 'https://another.example.com' }
+      const [server] = getServers([{ url: '{prefix}/v1', variables: { prefix } }], {
+        documentUrl: 'https://api.example.com/docs/openapi.json',
+      })
+
+      expect(resolveServerUrl(server ?? null)).toBe('https://another.example.com/v1')
+      prefix.default = ''
+      expect(resolveServerUrl(server ?? null)).toBe('https://api.example.com/v1')
+      expect(server?.url).toBe('{prefix}/v1')
+    })
+
+    it('preserves environment placeholders in the resolved relative server path', () => {
+      const [server] = getServers([{ url: '{prefix}/{{version}}', variables: { prefix: { default: '' } } }], {
+        documentUrl: 'https://api.example.com/docs/openapi.json',
+      })
+
+      expect(resolveServerUrl(server ?? null)).toBe('https://api.example.com/{{version}}')
+    })
+
+    it('uses the configured base for a template that resolves to a relative URL', () => {
+      const [server] = getServers([{ url: '{prefix}/v1', variables: { prefix: { default: '' } } }], {
+        baseServerUrl: 'https://base.example.com/api/',
+        documentUrl: 'https://api.example.com/openapi.json',
+      })
+
+      expect(resolveServerUrl(server ?? null)).toBe('https://base.example.com/api/v1')
     })
 
     it('leaves absolute URLs unchanged', () => {

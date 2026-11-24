@@ -1,5 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { type OAuthFlowsObjectSecret, mergeSecurity } from '@scalar/workspace-store/request-example'
+import { type OAuthFlowsObjectSecret, getServers, mergeSecurity } from '@scalar/workspace-store/request-example'
 import type { ComponentsObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
@@ -368,6 +368,14 @@ describe('oauth', () => {
   })
 
   describe('Server URL helpers', () => {
+    it('keeps the document origin when an empty default makes the server relative', () => {
+      const [server] = getServers([{ url: '{prefix}/v1', variables: { prefix: { default: '' } } }], {
+        documentUrl: 'https://api.example.com/openapi.json',
+      })
+
+      expect(getServerUrl(server ?? null)).toBe('https://api.example.com/v1')
+    })
+
     it('resolves server URLs with OpenAPI server variables and environment variables', () => {
       const server: ServerObject = {
         url: '{protocol}://{{hostname}}/{basePath}',

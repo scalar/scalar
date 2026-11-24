@@ -52,14 +52,20 @@ const joinUrlAndPath = (url: string, path: string, preservePathSegments: boolean
     return `${url.trim()}/${path.trim()}`.replace(REGEX.MULTIPLE_SLASHES, '/')
   }
 
-  // Keep the first slash after a scheme so the separator can complete its delimiter.
-  const baseUrl = url.trim().replace(/(^|:\/|[^/:])\/+$/, '$1')
+  const base = url.trim()
+  const baseUrl = base.replace(/(^|[^/])\/+$/, '$1')
+  // Only a standalone scheme needs an extra slash to complete its delimiter.
+  const separator = /^(?:[a-z][a-z\d+.-]*|\{[^{}]+\}|\{\{[^{}]+\}\}):\/+$/i.test(base) ? '//' : '/'
   const relativePath = path.trim().replace(/^\/+/, '')
-  return `${baseUrl}/${relativePath}`
+  return `${baseUrl}${separator}${relativePath}`
 }
 
-/** Combines a base URL and path and collapses consecutive slashes after the scheme. */
-export const combineUrlAndPath = (url: string, path: string): string => joinUrlAndPath(url, path, false)
+/** Combines a base URL and path, optionally retaining consecutive slashes inside either part. */
+export const combineUrlAndPath = (
+  url: string,
+  path: string,
+  { preservePathSegments = false }: { preservePathSegments?: boolean } = {},
+): string => joinUrlAndPath(url, path, preservePathSegments)
 
 type MergeUrlOptions = {
   /** Append an operation path starting with / even when it matches the resolved server URL. */

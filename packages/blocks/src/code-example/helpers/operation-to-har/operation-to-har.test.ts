@@ -1,6 +1,11 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { snippetz } from '@scalar/snippetz'
-import { type SecuritySchemeObjectSecret, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
+import {
+  type SecuritySchemeObjectSecret,
+  buildRequest,
+  getServers,
+  requestFactory,
+} from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -578,6 +583,46 @@ describe('operationToHar', () => {
 
       expect(request.url).toBe(expected)
       expect(snippetz().findPlugin('shell', 'curl')?.generate(request)).toBe(`curl ${expected}`)
+    })
+
+    it.each<{ name: string; server: ServerObject; expected: string }>([
+      {
+        name: 'a template that becomes relative after substituting an empty default',
+        server: { url: '{prefix}/v1', variables: { prefix: { default: '' } } },
+        expected: 'https://api.example.com/v1/p',
+      },
+      {
+        name: 'an authored empty segment in a relative server',
+        server: { url: '/tenant//v1{suffix}', variables: { suffix: { default: '' } } },
+        expected: 'https://api.example.com/tenant//v1/p',
+      },
+      {
+        name: 'a colon at the end of the server path',
+        server: { url: 'https://api.example.com/v1:/{prefix}', variables: { prefix: { default: '' } } },
+        expected: 'https://api.example.com/v1:/p',
+      },
+    ])('builds the same URL in Try It and the cURL snippet for $name', ({ server, expected }) => {
+      const [preparedServer] = getServers([server], { documentUrl: 'https://api.example.com/openapi.json' })
+      const operation: OperationObject = { responses: {} }
+      const har = operationToHar({ operation, method: 'get', path: '/p', server: preparedServer })
+      const { request } = requestFactory({
+        operation,
+        exampleName: 'default',
+        method: 'get',
+        path: '/p',
+        environment: { color: '#FFFFFF', variables: [] },
+        globalCookies: [],
+        proxyUrl: '',
+        server: preparedServer ?? null,
+        defaultHeaders: {},
+        isElectron: false,
+        selectedSecuritySchemes: [],
+      })
+      const built = buildRequest(request, { envVariables: {} })
+
+      expect(built.ok && String(built.data.requestPayload[0])).toBe(expected)
+      expect(har.url).toBe(expected)
+      expect(snippetz().findPlugin('shell', 'curl')?.generate(har)).toBe(`curl ${expected}`)
     })
 
     it('appends a matching relative path in the HAR URL and cURL snippet', () => {

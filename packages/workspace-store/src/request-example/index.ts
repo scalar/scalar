@@ -86,6 +86,7 @@ export {
   getServers,
   isAuthOptional,
   mergeSecurity,
+  resolveServerUrl,
   restoreConventionalDefaultHeaderNames,
   restoreConventionalHeaderName,
 } from './context'

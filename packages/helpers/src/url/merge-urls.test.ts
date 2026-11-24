@@ -146,6 +146,10 @@ describe('mergeUrls', () => {
     expect(mergeUrls(url, url, undefined, { appendPath: true })).toBe(url)
   })
 
+  it('joins a pathname ending in a colon with a single separator', () => {
+    expect(mergeUrls('https://api.example.com/v1:/', '/p')).toBe('https://api.example.com/v1:/p')
+  })
+
   it('preserves the scheme delimiter when the path supplies the host', () => {
     expect(mergeUrls('https://', 'example.com')).toBe('https://example.com')
   })

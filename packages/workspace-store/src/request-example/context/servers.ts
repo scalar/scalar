@@ -1,6 +1,10 @@
+import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
+import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
+import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { getServerVariables } from '@/request-example/builder/helpers/get-server-variables'
 import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
@@ -13,17 +17,14 @@ type ServerProcessingOptions = {
   documentUrl?: string
 }
 
+// Keep the context on the prepared server. Its URL remains the template used for selection and editing.
+const serverUrlContext = Symbol('serverUrlContext')
+type PreparedServer = ServerObject & { [serverUrlContext]?: ServerProcessingOptions }
+
 /**
- * Retrieves and processes servers from an OpenAPI document.
- *
- * This function handles several scenarios:
- * 1. No servers provided - creates a default server from document URL or fallback
- * 2. Invalid server configurations - filters them out with warnings
- * 3. Relative URLs - resolves them to absolute URLs using available base URLs
- *
- * @param servers - Array of OpenAPI server objects from the document
- * @param options - Configuration options for server processing
- * @returns Array of validated Server entities
+ * Prepares OpenAPI servers for URL resolution.
+ * Root-relative URLs receive their base immediately so their selection keys stay stable.
+ * Other relative templates retain the base context until their variables are expanded.
  */
 export function getServers(servers: ServerObject[] | undefined, options: ServerProcessingOptions = {}): ServerObject[] {
   // Handle invalid server array
@@ -65,41 +66,52 @@ function getFallbackUrl(): string | undefined {
  * Uses a priority system: baseServerURL > documentUrl > fallbackUrl.
  */
 function resolveRelativeServerUrl(serverUrl: string, options: ServerProcessingOptions): string {
-  const { baseServerUrl: baseServerURL, documentUrl } = options
-
-  // Priority 1: Use provided base server URL
-  if (baseServerURL) {
-    return combineUrlAndPath(baseServerURL, serverUrl)
-  }
-
-  // Priority 2: Extract base URL from document URL
-  if (documentUrl) {
-    const baseUrl = extractBaseUrlFromDocumentUrl(documentUrl)
-    if (baseUrl) {
-      return combineUrlAndPath(baseUrl, serverUrl)
-    }
-  }
-
-  // Priority 3: Use fallback URL (window.location.origin)
-  const fallbackUrl = getFallbackUrl()
-  if (fallbackUrl) {
-    return combineUrlAndPath(fallbackUrl, serverUrl)
-  }
-
-  // If no base URL is available, return the original URL
-  return serverUrl
+  const { baseServerUrl, documentUrl } = options
+  const baseUrl = baseServerUrl || (documentUrl && extractBaseUrlFromDocumentUrl(documentUrl)) || getFallbackUrl()
+  return baseUrl ? combineUrlAndPath(baseUrl, serverUrl, { preservePathSegments: true }) : serverUrl
 }
 
 /**
  * Processes a single server object, handling validation and URL resolution.
  */
-function processServerObject(server: ServerObject, options: ServerProcessingOptions): ServerObject {
-  // Resolve relative URLs to absolute URLs
+function processServerObject(server: ServerObject, options: ServerProcessingOptions): PreparedServer {
   if (server.url?.startsWith('/')) {
     server.url = resolveRelativeServerUrl(server.url, options)
+  } else if (server.url && isRelativePath(server.url) && (options.baseServerUrl || options.documentUrl)) {
+    return { ...server, [serverUrlContext]: options }
   }
 
   return server
+}
+
+/** Expands server variables before deciding whether the server needs a document base URL. */
+export const resolveServerUrl = (
+  server: PreparedServer | null,
+  environmentVariables?: Record<string, string>,
+): string => {
+  const serverUrl = replacePathVariables(server?.url ?? '', getServerVariables(server))
+  const url = environmentVariables ? replaceEnvVariables(serverUrl, environmentVariables) : serverUrl
+  const context = server?.[serverUrlContext]
+
+  if (!context || !isRelativePath(url)) {
+    return url
+  }
+
+  // Keep remaining placeholders in a root-relative path available for later substitution.
+  if (url.startsWith('/') && !url.startsWith('//')) {
+    return resolveRelativeServerUrl(url, context)
+  }
+
+  // An unexpanded template may still supply its own origin.
+  if (url.includes('{')) {
+    return url
+  }
+
+  if (context.baseServerUrl) {
+    return combineUrlAndPath(context.baseServerUrl, url, { preservePathSegments: true })
+  }
+
+  return makeUrlAbsolute(url, { baseUrl: context.documentUrl })
 }
 
 export const getSelectedServer = (
