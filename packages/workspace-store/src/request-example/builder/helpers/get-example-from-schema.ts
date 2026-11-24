@@ -37,6 +37,13 @@ const MAX_REDUCED_EXAMPLE_VISITS = 2_000
 /** Default name used for additional properties when no custom name is provided */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
+/** Limit new padding when an API description asks for an unusually large example. */
+const MAX_STRING_PADDING = 4_096
+
+/** Ignore malformed bounds from unvalidated descriptions. */
+const readLengthBound = (value: unknown, fallback: number): number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : fallback
+
 /**
  * Base64 of the bytes "scalar". Six bytes encode without `=` padding and the output avoids `+`, `/`,
  * `-` and `_`, so strict decoders accept it under both the standard and URL-safe alphabets (RFC 4648).
@@ -87,6 +94,48 @@ const genericExampleValues: Record<string, string> = {
   'object-id': '6592008029c8c3e4dc76256c',
 }
 
+/** Fit a free-form placeholder using JSON Schema character counts. */
+const fitPlainStringExample = (value: string, minLength: number, maxLength: number): string => {
+  if (minLength === 0 && maxLength === Number.POSITIVE_INFINITY) {
+    return value
+  }
+
+  const characters = Array.from(value)
+  if (characters.length > maxLength) {
+    return characters.slice(0, maxLength).join('')
+  }
+
+  const padding = Math.min(minLength, maxLength) - characters.length
+  return padding > 0 ? value + 'a'.repeat(Math.min(padding, MAX_STRING_PADDING)) : value
+}
+
+/** Generate a length-compatible address without cutting through the local part or domain. */
+const fitEmailExample = (value: string, minLength: number, maxLength: number): string => {
+  if (value.length >= minLength && value.length <= maxLength) {
+    return value
+  }
+
+  const length = Math.max(minLength, Math.min(maxLength, 'a@b.co'.length))
+  // SMTP allows up to 254 characters for a mailbox and up to 64 in its local part.
+  if (length < 3 || length > 254 || length > maxLength) {
+    return value
+  }
+  if (length < 6) {
+    return `${'a'.repeat(length - 2)}@b`
+  }
+
+  const suffix = length >= 8 ? '.test' : '.co'
+  const localLength = Math.min(64, length - suffix.length - 2)
+  const domainLength = length - localLength - suffix.length - 1
+  // Divide the domain among labels so each fits DNS's 63-character limit.
+  const labelCount = Math.ceil((domainLength + 1) / 64)
+  const letters = domainLength - labelCount + 1
+  const labels = Array.from({ length: labelCount }, (_, index) =>
+    'b'.repeat(Math.floor(letters / labelCount) + Number(index < letters % labelCount)),
+  )
+  return `${'a'.repeat(localLength)}@${labels.join('.')}${suffix}`
+}
+
 /**
  * Extract enum values from the propertyNames keyword of an object schema.
  * JSON Schema's propertyNames constrains which keys are valid in a map/dict.
@@ -105,14 +154,10 @@ const getPropertyNamesEnumValues = (schema: SchemaObject): unknown[] | undefined
 }
 
 /**
- * Generate example values for string types based on their format.
+ * Generate a string placeholder, honoring length bounds where the format allows it.
  * Binary examples use filename placeholders unless the caller requests File objects.
  */
-const guessFromFormat = (
-  schema: SchemaObject,
-  makeUpRandomData: boolean = false,
-  fallback: string = '',
-): string | File => {
+const getStringExample = (schema: SchemaObject, makeUpRandomData: boolean = false, fallback: string = ''): string => {
   // Binary filename placeholders are converted to File objects only for multipart callers.
   if (isFileSchema(schema, false)) {
     return '@filename'
@@ -139,16 +184,23 @@ const guessFromFormat = (
     return iso
   }
 
-  if ('format' in schema && schema.format && Object.hasOwn(genericExampleValues, schema.format)) {
-    // Password and object-id retain their opt-in placeholders; other known formats need valid syntax.
-    if (schema.format === 'password' || schema.format === 'object-id') {
-      return makeUpRandomData ? genericExampleValues[schema.format]! : fallback
-    }
+  const minLength = readLengthBound('minLength' in schema ? schema.minLength : undefined, 0)
+  const maxLength = readLengthBound('maxLength' in schema ? schema.maxLength : undefined, Number.POSITIVE_INFINITY)
 
-    return genericExampleValues[schema.format]!
+  if ('format' in schema && schema.format && Object.hasOwn(genericExampleValues, schema.format)) {
+    const value = genericExampleValues[schema.format]!
+    if (schema.format === 'email' || schema.format === 'idn-email') {
+      return fitEmailExample(value, minLength, maxLength)
+    }
+    if (schema.format === 'password') {
+      return fitPlainStringExample(makeUpRandomData ? value : fallback, minLength, maxLength)
+    }
+    if (schema.format !== 'object-id' || makeUpRandomData) {
+      return value
+    }
   }
 
-  return fallback
+  return fitPlainStringExample(fallback, minLength, maxLength)
 }
 
 /**
@@ -918,10 +970,6 @@ const countExampleNodes = (value: unknown, limit: number): number => {
   return count
 }
 
-/** Ignore malformed bounds from unvalidated descriptions. */
-const readArrayLengthBound = (value: unknown, fallback: number): number =>
-  typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : fallback
-
 /** Recognize an array described by its item keywords when no type was declared. */
 const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
   !('properties' in schema) && ('items' in schema || 'prefixItems' in schema) ? 'array' : undefined
@@ -982,16 +1030,16 @@ const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArra
     if ('minItems' in schema) {
       Object.assign(merged, {
         minItems: Math.max(
-          readArrayLengthBound(schema.minItems, 0),
-          readArrayLengthBound('minItems' in variant ? variant.minItems : undefined, 0),
+          readLengthBound(schema.minItems, 0),
+          readLengthBound('minItems' in variant ? variant.minItems : undefined, 0),
         ),
       })
     }
     if ('maxItems' in schema) {
       Object.assign(merged, {
         maxItems: Math.min(
-          readArrayLengthBound(schema.maxItems, Number.POSITIVE_INFINITY),
-          readArrayLengthBound('maxItems' in variant ? variant.maxItems : undefined, Number.POSITIVE_INFINITY),
+          readLengthBound(schema.maxItems, Number.POSITIVE_INFINITY),
+          readLengthBound('maxItems' in variant ? variant.maxItems : undefined, Number.POSITIVE_INFINITY),
         ),
       })
     }
@@ -1015,9 +1063,9 @@ const handleArraySchema = (
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
-  const maxItems = readArrayLengthBound('maxItems' in schema ? schema.maxItems : undefined, Number.POSITIVE_INFINITY)
+  const maxItems = readLengthBound('maxItems' in schema ? schema.maxItems : undefined, Number.POSITIVE_INFINITY)
   const minItems = Math.min(
-    readArrayLengthBound('minItems' in schema ? schema.minItems : undefined, 0),
+    readLengthBound('minItems' in schema ? schema.minItems : undefined, 0),
     maxItems,
     MAX_ARRAY_PADDING_NODES,
   )
@@ -1245,7 +1293,7 @@ const getPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, empt
   if ('type' in schema && schema.type && !Array.isArray(schema.type)) {
     switch (schema.type) {
       case 'string':
-        return guessFromFormat(schema, makeUpRandomData, emptyString ?? '')
+        return getStringExample(schema, makeUpRandomData, emptyString ?? '')
       case 'boolean':
         return true
       case 'integer':
@@ -1272,7 +1320,7 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
     if (first) {
       switch (first) {
         case 'string':
-          return guessFromFormat(schema, makeUpRandomData, emptyString ?? '')
+          return getStringExample(schema, makeUpRandomData, emptyString ?? '')
         case 'boolean':
           return true
         case 'integer':

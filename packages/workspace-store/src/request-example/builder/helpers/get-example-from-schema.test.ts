@@ -1022,6 +1022,50 @@ describe('getExampleFromSchema', () => {
     ).toBe('…')
   })
 
+  it('applies string length bounds to nested and union examples', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        plain: { type: 'string', minLength: 1 },
+        union: { type: ['string', 'number'], minLength: 2 },
+      },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual({ plain: 'a', union: 'aa' })
+  })
+
+  it.each([
+    { minLength: 1, maxLength: 1, emptyString: '😀z', expected: '😀' },
+    { minLength: 2, maxLength: 2, emptyString: '😀', expected: '😀a' },
+    { minLength: 0, maxLength: 0, emptyString: 'string', expected: '' },
+    { minLength: 1, maxLength: 8, emptyString: 'string', expected: 'string' },
+  ])(
+    'fits a plain string fallback to $minLength–$maxLength characters',
+    ({ minLength, maxLength, emptyString, expected }) => {
+      expect(getExampleFromSchema({ type: 'string', minLength, maxLength }, { emptyString })).toBe(expected)
+    },
+  )
+
+  it('bounds generated padding for excessively large minimum lengths', () => {
+    const result = getExampleFromSchema({ type: 'string', minLength: 1_000_000_000 })
+    assert(typeof result === 'string')
+    expect(result.length).toBeGreaterThan(0)
+    expect(result.length).toBeLessThan(1_000_000)
+  })
+
+  it.each(['email', 'idn-email'])('generates a usable short %s example', (format) => {
+    const result = getExampleFromSchema({ type: 'string', format, maxLength: 10 })
+    assert(typeof result === 'string')
+    expect(result).toMatch(/^[a-z]+@[a-z]+\.[a-z]+$/)
+    expect(result.length).toBeLessThanOrEqual(10)
+  })
+
+  it('generates a longer email within the address and DNS label limits', () => {
+    const result = getExampleFromSchema({ type: 'string', format: 'email', minLength: 200, maxLength: 200 })
+    assert(typeof result === 'string')
+    expect(result.length).toBe(200)
+    expect(result).toMatch(/^[a-z]{1,64}@[a-z]{1,63}(?:\.[a-z]{1,63})+$/)
+  })
+
   it('returns emails as an example value', () => {
     const result = getExampleFromSchema(
       coerceValue(SchemaObjectSchema, {
@@ -1255,6 +1299,7 @@ describe('getExampleFromSchema', () => {
           coerceValue(SchemaObjectSchema, {
             type: 'string',
             format: 'email',
+            maxLength: 10,
             [keyword]: keyword === 'examples' || keyword === 'enum' ? [value] : value,
           }),
         ),
