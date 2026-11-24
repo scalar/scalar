@@ -2,6 +2,14 @@
 
 Registry URLs let you open an API reference, fetch an API description, or download other Registry resources. Use the namespace and slug shown in the Scalar Dashboard to build a URL.
 
+## Browse a namespace
+
+Sign in to browse the resources you can access in a namespace. This applies to listings of public resources too.
+
+- `https://registry.scalar.com/@your-namespace` opens the namespace overview.
+- `https://registry.scalar.com/@your-namespace/apis` lists API descriptions. Use `/schemas`, `/rules`, `/sdks`, or `/workspaces` to browse the other resource types.
+- `https://registry.scalar.com/@your-namespace/search?q=planets` returns matching resources as JSON.
+
 ## API descriptions
 
 Use this base URL for an API description.
