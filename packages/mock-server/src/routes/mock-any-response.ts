@@ -2,7 +2,7 @@ import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import { getExampleFromSchema, getXmlBodyExample } from '@scalar/workspace-store/request-example'
+import { getXmlBodyExample } from '@scalar/workspace-store/request-example'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Context } from 'hono'
 import { streamSSE } from 'hono/streaming'
@@ -11,6 +11,7 @@ import type { StatusCode } from 'hono/utils/http-status'
 import { collectSseEvents, isEventStreamContentType } from '@/utils/collect-sse-events'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 import { type ExampleGenerationContext, generateResponseExample } from '@/utils/generate-response-example'
+import { getResponseHeaderExample } from '@/utils/get-response-header-example'
 import { isSettableResponseHeader } from '@/utils/is-settable-response-header'
 import { negotiateContentType } from '@/utils/negotiate-content-type'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
@@ -79,11 +80,7 @@ export function mockAnyResponse(
       return
     }
 
-    const headerObject = getResolvedRef(headers[header])
-    // Headers use the generator defaults to preserve their declared values.
-    const value = headerObject?.schema
-      ? getExampleFromSchema(getResolvedRefDeep(headerObject.schema), generationContext)
-      : null
+    const value = getResponseHeaderExample(headers[header], generationContext)
     // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
     // thing to set the declared headers, so in practice a delete removes a header set earlier by
     // middleware — `cors()` sets `Access-Control-Allow-Origin` before the handler runs.
