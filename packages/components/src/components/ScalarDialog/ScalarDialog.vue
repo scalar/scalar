@@ -54,6 +54,8 @@ const dialog = cva({
   base: [
     // Reset the native dialog chrome and center it within the top layer
     'scalar-dialog m-auto rounded-lg border-0 p-3 shadow-lg',
+    // Keep a closed dialog hidden even when a consumer class sets its display, such as `flex`
+    'not-open:hidden',
     // Surface colors
     'bg-b-1 text-c-1',
     // Theme the native ::backdrop via Tailwind's backdrop variant
