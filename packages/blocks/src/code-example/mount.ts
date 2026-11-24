@@ -8,7 +8,7 @@ import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
-import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
+import { type SecuritySchemeObjectSecret, getServers } from '@scalar/workspace-store/request-example'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type App, createApp, h, reactive } from 'vue'
@@ -133,8 +133,14 @@ export const createCodeExample = (
     if (!operation) {
       return undefined
     }
-    const server = getFirstServer(operation.servers ?? null, pathItem?.servers ?? null, activeDocument.servers ?? null)
-    return { operation, server }
+    const selected =
+      options.selectedServer === undefined
+        ? getFirstServer(operation.servers ?? null, pathItem?.servers ?? null, activeDocument.servers ?? null)
+        : options.selectedServer
+    const [server] = getServers(selected ? [{ ...selected }] : [], {
+      documentUrl: activeDocument['x-scalar-original-source-url'],
+    })
+    return { operation, server: server ?? null }
   }
 
   // Fail loudly if the path and method do not point at an operation in the store,
@@ -194,9 +200,7 @@ export const createCodeExample = (
       return options.store.workspace['x-scalar-default-example'] ?? options.selectedExample
     },
     get selectedServer() {
-      // An explicit option wins (including an explicit `null` for "no server");
-      // otherwise derive it from the same document the operation resolved from.
-      return options.selectedServer !== undefined ? options.selectedServer : currentContext().server
+      return currentContext().server
     },
   })
 

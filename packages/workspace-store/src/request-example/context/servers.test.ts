@@ -126,6 +126,17 @@ describe('servers', () => {
       expect(resolveServerUrl(server ?? null)).toBe('https://base.example.com/api/v1')
     })
 
+    it.each(['//gateway.example.com/v1{suffix}', '{suffix}//gateway.example.com/v1'])(
+      'keeps the authority of a network-path server %s',
+      (url) => {
+        const [server] = getServers([{ url, variables: { suffix: { default: '' } } }], {
+          documentUrl: 'https://api.example.com/openapi.json',
+        })
+
+        expect(resolveServerUrl(server ?? null)).toBe('https://gateway.example.com/v1')
+      },
+    )
+
     it('leaves absolute URLs unchanged', () => {
       const servers: ServerObject[] = [{ url: 'https://api.example.com/v1' }, { url: 'http://localhost:3000' }]
 
@@ -324,6 +335,35 @@ describe('servers', () => {
       const result = getSelectedServer(document, operation as OperationObject, [{} as ServerObject], servers)
 
       expect(result).toEqual({ url: 'https://api.example.com' })
+    })
+
+    it('retains an unambiguous legacy selection after preserving authored slashes', () => {
+      const document = minimalOasDocument({ 'x-scalar-selected-server': 'https://api.example.com/tenant/v1' })
+      const servers: ServerObject[] = [{ url: 'https://production.example.com' }, { url: '/tenant//v1' }]
+      const options = { documentUrl: 'https://api.example.com/openapi.json' }
+      getServers(servers, options)
+      const prepared = getServers(servers, options)
+
+      expect(getSelectedServer(document, null, null, prepared)?.url).toBe('https://api.example.com/tenant//v1')
+    })
+
+    it('prefers exact selection keys over legacy matches', () => {
+      const url = 'https://api.example.com/tenant/v1'
+      const document = minimalOasDocument({ 'x-scalar-selected-server': url })
+      const prepared = getServers([{ url: '/tenant//v1' }, { url }], {
+        documentUrl: 'https://api.example.com/openapi.json',
+      })
+
+      expect(getSelectedServer(document, null, null, prepared)).toBe(prepared[1])
+    })
+
+    it('keeps ambiguous legacy selection keys unresolved', () => {
+      const document = minimalOasDocument({ 'x-scalar-selected-server': 'https://api.example.com/tenant/v1' })
+      const prepared = getServers([{ url: '/tenant//v1' }, { url: '/tenant///v1' }], {
+        documentUrl: 'https://api.example.com/openapi.json',
+      })
+
+      expect(getSelectedServer(document, null, null, prepared)).toBeNull()
     })
 
     it('returns null when selected URL does not match any server URL', () => {

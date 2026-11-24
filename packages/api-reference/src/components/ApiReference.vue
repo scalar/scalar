@@ -69,6 +69,7 @@ import { ASYNC_API_SCHEMA_RESOURCES } from '@scalar/workspace-store/helpers/use-
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
   getActiveEnvironment,
+  getSelectedServer,
   getServers,
 } from '@scalar/workspace-store/request-example'
 import type {
@@ -1173,15 +1174,17 @@ const addDocument = async (
 
     // An empty string is intentional deselection. A removed server is not: select the first
     // available server so live document edits do not leave the reference and requests blank.
+    const resolvedSelection =
+      getSelectedServer(document, null, null, servers)?.url ?? servers[0]?.url
     if (
       servers.length > 0 &&
       selectedServerUrl !== '' &&
-      !servers.some((server) => server.url === selectedServerUrl)
+      selectedServerUrl !== resolvedSelection
     ) {
       clientStore.updateDocument(
         input.name,
         'x-scalar-selected-server',
-        servers[0]?.url,
+        resolvedSelection,
       )
     }
   }

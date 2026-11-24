@@ -11,6 +11,7 @@ import {
 } from '@/helpers/encode-path-parameter'
 import { serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
+import { resolveServerUrlWithContext } from '@/request-example/context/servers'
 
 /**
  * Discriminated error code when the merged request URL is not a complete absolute target
@@ -79,7 +80,11 @@ export const resolveRequestFactoryUrl = (
   }
   const pathVariables = pathVariablesEncoded.data
 
-  const baseUrl = replaceEnvVariables(request.baseUrl, variables)
+  const context = request.serverUrlContext
+  const baseUrl = resolveServerUrlWithContext(
+    replaceEnvVariables(request.baseUrl, variables),
+    context?.template === request.baseUrl ? context.options : undefined,
+  )
   const rawPath = replaceEnvVariables(request.path.raw, variables)
   const path = replacePathVariables(rawPath, pathVariables)
   const mergedUrl = mergeUrls(baseUrl, path, undefined, { appendPath: true })

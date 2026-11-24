@@ -7,6 +7,7 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/s
 import { assert, describe, expect, it } from 'vitest'
 
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
+import { getServers } from '@/request-example/context/servers'
 
 import { buildRequest } from './build-request'
 import { requestFactory } from './request-factory'
@@ -306,6 +307,24 @@ describe('requestFactory', () => {
 
     expect(request.baseUrl).toBe(baseUrl)
     expect(String(built.data.requestPayload[0])).toBe(url)
+  })
+
+  it('resolves a relative server against the description after environment substitution', () => {
+    const [server] = getServers(
+      [{ url: '{prefix}v1/{region}', variables: { prefix: { default: '' }, region: { default: '{{region}}' } } }],
+      { documentUrl: 'https://api.example.com/specs/openapi.json' },
+    )
+    const { request } = requestFactory(createBaseArgs({ server: server ?? null, path: '/users', proxyUrl: '' }))
+    const built = buildRequest({ ...request }, { envVariables: { region: 'eu' } })
+    assert(built.ok)
+
+    expect(request.baseUrl).toBe('v1/{{region}}')
+    expect(String(built.data.requestPayload[0])).toBe('https://api.example.com/specs/v1/eu/users')
+
+    request.baseUrl = '/manual'
+    const overridden = buildRequest(request, { envVariables: {}, allowMissingRequestServerBase: true })
+    assert(overridden.ok)
+    expect(String(overridden.data.requestPayload[0])).toBe('http://localhost:3000/manual/users')
   })
 
   it('appends the operation path when it matches the resolved relative server URL', () => {

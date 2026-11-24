@@ -14,7 +14,7 @@ import {
   buildRequestSecurity,
 } from '@/request-example/builder/security/build-request-security'
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
-import { resolveServerUrl } from '@/request-example/context/servers'
+import { type ServerProcessingOptions, getServerUrlContext, resolveServerUrl } from '@/request-example/context/servers'
 import type { RequestExampleMeta } from '@/request-example/types'
 
 import { filterDisabledDefaultHeaders } from '../context/headers'
@@ -91,12 +91,14 @@ export type RequestFactory = {
   /** Invalid active cookie declarations, retained for previews and reported before sending. */
   cookieErrors?: string[]
   /**
-   * The base API server URL prior to environment or server variable substitution.
+   * The base API server URL before environment variable substitution.
    * May still contain placeholders such as `{version}` or `{region}`.
    *
    * @example "https://api.example.com/{version}"
    */
   baseUrl: string
+  /** Base context for the generated server URL while it remains the request's base URL. */
+  serverUrlContext?: { template: string; options: ServerProcessingOptions }
 
   /**
    * Path-related properties for the request.
@@ -287,6 +289,7 @@ export const requestFactory = ({
 
   /** Combine the server url, path and url params into a single url */
   const baseUrl = resolveServerUrl(server)
+  const serverUrlContext = getServerUrlContext(server)
 
   const globalCookieFilter = operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {}
 
@@ -310,6 +313,7 @@ export const requestFactory = ({
   const request: RequestFactory = {
     ...(params.cookieErrors ? { cookieErrors: params.cookieErrors } : {}),
     baseUrl,
+    ...(serverUrlContext ? { serverUrlContext: { template: baseUrl, options: serverUrlContext } } : {}),
     proxyUrl,
     path: {
       variables: params.pathVariables,

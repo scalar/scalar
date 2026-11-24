@@ -253,6 +253,37 @@ describe('mount', () => {
     expect(element.textContent).toContain('api.example.com')
   })
 
+  it.each(['document', 'path', 'operation'] as const)(
+    'uses the API description origin for a relative %s server',
+    async (scope) => {
+      const store = createWorkspaceStore()
+      const servers = [{ url: '{prefix}/v1', variables: { prefix: { default: '' } } }]
+      await store.addDocument({
+        name: 'default',
+        documentSource: 'https://api.example.com/openapi.json',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Petstore', version: '1.0.0' },
+          servers: scope === 'document' ? servers : undefined,
+          paths: {
+            '/hello': {
+              servers: scope === 'path' ? servers : undefined,
+              get: {
+                servers: scope === 'operation' ? servers : undefined,
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+          },
+        },
+      })
+
+      const element = document.createElement('div')
+      mounted.push(createCodeExample(element, { store, path: '/hello', method: 'get', selectedClient: 'shell/curl' }))
+
+      expect(element.textContent).toContain('https://api.example.com/v1/hello')
+    },
+  )
+
   it('keeps the operation and its server from the same document when the operation disappears', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({

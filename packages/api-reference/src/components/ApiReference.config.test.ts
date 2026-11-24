@@ -1,5 +1,5 @@
 import * as apiClientModalModule from '@scalar/api-client/modal'
-import type { ClientOptionGroup } from '@scalar/blocks/code-example'
+import { type ClientOptionGroup, CodeExample } from '@scalar/blocks/code-example'
 import type { TraversedEntry, TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -462,6 +462,63 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
 
     expect(wrapper.findComponent(ServerSelector).props('selectedServer')?.url).toBe(`${baseServerURL}${url}`)
   })
+
+  it('keeps the previously selected server when a document reload starts preserving double slashes', async () => {
+    const baseServerURL = 'https://api.example.com'
+    const content = {
+      ...createBasicDocument(),
+      servers: [{ url: 'https://production.example.com' }, { url: '/tenant/v1' }],
+    }
+    const wrapper = mountComponent({ props: { configuration: { content, baseServerURL } } })
+    await flushPromises()
+    wrapper.vm.eventBus.emit('server:update:selected', {
+      url: 'https://api.example.com/tenant/v1',
+      meta: { type: 'document' },
+    })
+    await flushPromises()
+
+    await wrapper.setProps({
+      configuration: {
+        baseServerURL,
+        content: { ...content, servers: [content.servers[0], { url: '/tenant//v1' }] },
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.getComponent(ServerSelector).props('selectedServer')?.url).toBe('https://api.example.com/tenant//v1')
+  })
+
+  it.each(['path', 'operation'] as const)(
+    'uses the description origin for a %s server override in cURL',
+    async (scope) => {
+      const content = createBasicDocument()
+      const servers = [{ url: '{prefix}/v1', variables: { prefix: { default: '' } } }]
+      const users = content.paths['/users']
+      const description = {
+        ...content,
+        paths: {
+          '/users': {
+            ...users,
+            servers: scope === 'path' ? servers : undefined,
+            get: { ...users.get, servers: scope === 'operation' ? servers : undefined },
+          },
+        },
+      }
+      const customFetch = vi.fn(() => Promise.resolve(Response.json(description)))
+      const wrapper = mountComponent({
+        props: {
+          configuration: {
+            url: 'https://api.example.com/openapi.json',
+            customFetch,
+            defaultHttpClient: { targetKey: 'shell', clientKey: 'curl' },
+          },
+        },
+      })
+      await flushPromises()
+
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://api.example.com/v1/users')
+    },
+  )
 
   it('default configuration values', async () => {
     const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
