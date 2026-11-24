@@ -1,3 +1,4 @@
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
@@ -114,13 +115,9 @@ export async function buildHandlerContext(
   let body: any = undefined
 
   try {
-    // Compare case-insensitively, since media types are case-insensitive and request validation
-    // matches them the same way. Otherwise a body like `Application/JSON` could pass validation yet
-    // never reach the handler as `req.body`.
     const contentType = (c.req.header('content-type') ?? '').toLowerCase()
-    // Shared with request validation (including an empty Content-Type and `+json` types), so a JSON
-    // body that passes validation is always delivered to the handler as `req.body`.
-    if (isJsonContentType(contentType)) {
+    // Treat an omitted header as JSON to match request validation.
+    if (!contentType.trim() || isJsonContentType(parseMimeType(contentType))) {
       body = await c.req.json().catch(() => undefined)
     } else if (contentType.includes('application/x-www-form-urlencoded')) {
       body = await c.req.parseBody().catch(() => undefined)

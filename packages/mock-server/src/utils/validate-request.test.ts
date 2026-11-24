@@ -1287,12 +1287,13 @@ describe('validate-request', () => {
     expect(response.status).toBe(200)
   })
 
-  it('validates and delivers a JSON body sent without a Content-Type header', async () => {
+  it('validates and delivers a headerless JSON body using the bare media type', async () => {
     const document = documentWith('/items', 'post', {
       'x-handler': 'return { received: req.body };',
       requestBody: {
         required: true,
         content: {
+          'application/json; charset=utf-8': { schema: { type: 'object', required: ['localized'] } },
           'application/json': {
             schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
           },
@@ -1312,7 +1313,9 @@ describe('validate-request', () => {
     // No Content-Type header: validation must reject an invalid body...
     const invalid = await server.request(withoutContentType(JSON.stringify({})))
     expect(invalid.status).toBe(422)
-    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'body' })
+    expect((await invalid.json()).violations).toStrictEqual([
+      { location: 'body', path: '/name', message: "must have required property 'name'" },
+    ])
 
     // ...and a valid body must still reach the handler as `req.body`.
     const valid = await server.request(withoutContentType(JSON.stringify({ name: 'Alice' })))
@@ -1409,6 +1412,8 @@ describe('validate-request', () => {
     ['application/vnd.api+json', {}, 200],
     ['application/vnd.api+json; profile="https://example.com/Profile"', {}, 422],
     ['application/vnd.api+json; profile="https://example.com/profile"', {}, 200],
+    ['application/vnd.api+json; profile="https://example.com/profile;v2"', { versionTwo: true }, 200],
+    ['application/vnd.api+json; profile="https://example.com/profile;v2"', { versionOne: true }, 422],
   ])('matches the most specific body media type for %s and %j', async (contentType, body, status) => {
     const document = documentWith('/items', 'post', {
       requestBody: {
@@ -1418,6 +1423,12 @@ describe('validate-request', () => {
           'application/vnd.api+json': {},
           'application/vnd.api+json; profile="https://example.com/Profile"': {
             schema: { type: 'object', required: ['data'] },
+          },
+          'application/vnd.api+json; profile="https://example.com/profile;v1"': {
+            schema: { type: 'object', required: ['versionOne'] },
+          },
+          'application/vnd.api+json; profile="https://example.com/profile;v2"': {
+            schema: { type: 'object', required: ['versionTwo'] },
           },
         },
       },

@@ -266,7 +266,7 @@ const compileBodyValidators = (content: OpenAPIV3_1.RequestBodyObject['content']
   const mediaTypes: BodyValidators['mediaTypes'] = []
   for (const [key, media] of Object.entries(content)) {
     const mediaType = parseMimeType(key)
-    if (mediaType.subtype !== '*' && !isJsonContentType(key)) {
+    if (mediaType.subtype !== '*' && !isJsonContentType(mediaType)) {
       continue
     }
 
@@ -289,8 +289,9 @@ const compileBodyValidators = (content: OpenAPIV3_1.RequestBodyObject['content']
     mediaTypes.push({ mediaType, specificity, validate })
   }
 
-  // Keep the JSON default for clients that omit the header.
+  // Prefer the original bare JSON declaration for clients that omit the header.
   const headerless =
+    mediaTypes.find(({ mediaType }) => mediaType.essence === 'application/json' && mediaType.parameters.size === 0) ??
     mediaTypes.find(({ mediaType }) => mediaType.essence === 'application/json') ??
     mediaTypes.find(({ mediaType }) => mediaType.subtype.endsWith('+json'))
 
@@ -307,11 +308,11 @@ const selectBodyValidator = (validators: BodyValidators, contentType: string | u
   if (!contentType?.trim()) {
     return validators.headerless
   }
-  if (!isJsonContentType(contentType)) {
+  const request = parseMimeType(contentType)
+  if (!isJsonContentType(request)) {
     return null
   }
 
-  const request = parseMimeType(contentType)
   const match = validators.mediaTypes.find(({ mediaType }) => {
     if (mediaType.type !== '*' && mediaType.type !== request.type) {
       return false
