@@ -50,7 +50,8 @@ for (const layout of ['modern', 'classic'] as const) {
       await page.goto(example)
 
       if (layout === 'classic') {
-        await page.getByRole('button', { name: /^GET \/items/ }).click()
+        // The Classic header actions can cover the disclosure's center at this width.
+        await page.getByRole('button', { name: /^GET \/items/ }).click({ position: { x: 8, y: 8 } })
         await page.mouse.move(0, 0)
       }
 
