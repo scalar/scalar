@@ -8,6 +8,111 @@ import AgentScalarChatInterface from './AgentScalarChatInterface.vue'
 afterEach(() => vi.restoreAllMocks())
 
 describe('AgentScalarChatInterface', () => {
+  it.each([
+    { path: 'galaxy', processedVersion: '0.7.4', includesExample: true },
+    { path: 'galaxy@0.7.4', processedVersion: '0.7.4', includesExample: true },
+    { path: 'galaxy', processedVersion: '0.7.5', includesExample: false },
+    { path: 'galaxy', processedVersion: undefined, includesExample: false },
+  ])(
+    'uses the processed Galaxy GET /me sample when it matches the active version ($path, $processedVersion)',
+    async ({ path, processedVersion, includesExample }) => {
+      const registryUrl = 'https://registry.example.com'
+      const sourceUrl = `${registryUrl}/@scalar/apis/${path}?format=json`
+      const processedUrl = `${sourceUrl}&variant=processed`
+      const operation = { operationId: 'getMe', responses: { 200: { description: 'Authenticated user' } } }
+      const raw = {
+        openapi: '3.1.1',
+        info: { title: 'Scalar Galaxy', version: '0.7.4' },
+        paths: { '/me': { get: operation } },
+      }
+      const sdkSource = [
+        "import Galaxy from '@scalar/galaxy-node';",
+        '',
+        'const client = new Galaxy({',
+        "  bearerAuth: process.env['BEARER_AUTH'], // defaults to the BEARER_AUTH env var",
+        "  environment: 'production',",
+        '});',
+        '',
+        'const user = await client.authentication.listMe();',
+        '',
+        'console.log(user);',
+      ].join('\n')
+      const installation = '```sh\nnpm install @scalar/galaxy-node\n```'
+      const processed = {
+        ...raw,
+        info: {
+          ...raw.info,
+          version: processedVersion,
+          'x-scalar-sdk-installation': [{ lang: 'TypeScript', description: installation }],
+        },
+        paths: {
+          '/me': {
+            get: {
+              ...operation,
+              'x-codeSamples': [{ label: 'TypeScript', lang: 'TypeScript', source: sdkSource }],
+            },
+          },
+        },
+      }
+      const requests: { messages: { parts: { type: string; text: string }[] }[] }[] = []
+      const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation((url, options) => {
+        switch (String(url)) {
+          case sourceUrl:
+            return Promise.resolve(Response.json(raw))
+          case processedUrl:
+            return Promise.resolve(processedVersion ? Response.json(processed) : new Response(null, { status: 404 }))
+          case 'https://api.example.com/vector/openapi/chat':
+            requests.push(JSON.parse(String(options?.body)))
+            return Promise.resolve(
+              new Response('data: [DONE]\n\n', {
+                headers: { 'content-type': 'text/event-stream', 'x-vercel-ai-ui-message-stream': 'v1' },
+              }),
+            )
+          default:
+            return Promise.resolve(Response.json({ documents: [], results: [] }))
+        }
+      })
+      const workspaceStore = createWorkspaceStore()
+      await workspaceStore.addDocument({ name: 'galaxy', url: sourceUrl })
+      workspaceStore.update('x-scalar-active-document', 'galaxy')
+      const wrapper = mount(AgentScalarChatInterface, {
+        props: {
+          workspaceStore,
+          agentScalarConfiguration: { key: 'galaxy-agent-key' },
+          externalUrls: {
+            apiBaseUrl: 'https://api.example.com',
+            registryUrl,
+            dashboardUrl: 'https://dashboard.example.com',
+            proxyUrl: '',
+          },
+        },
+      })
+      try {
+        const question = 'Show the generated TypeScript SDK example for GET /me'
+        await flushPromises()
+        await wrapper.get('textarea').setValue(question)
+        await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+        await flushPromises()
+
+        expect(fetchMock.mock.calls.filter(([url]) => String(url) === processedUrl).length).toBe(1)
+        const parts = requests.flatMap(({ messages }) => messages.flatMap((message) => message.parts))
+        expect(parts[0]).toStrictEqual({ type: 'text', text: question })
+        if (includesExample) {
+          expect(parts.length).toBe(2)
+          expect(JSON.parse(parts[1]!.text.split('\n')[1]!)).toStrictEqual([
+            { path: '/me', method: 'GET', operationId: 'getMe', lang: 'TypeScript', source: sdkSource },
+            { installation: { lang: 'TypeScript', text: installation } },
+          ])
+          expect(wrapper.text()).not.toContain('client.authentication.listMe()')
+        } else {
+          expect(parts).toStrictEqual([{ type: 'text', text: question }])
+        }
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
+
   it('does not mount chat for a plugin document with misleading built-in fields', async () => {
     const workspaceStore = createWorkspaceStore({
       documentTypes: [{ type: 'custom', detect: (document) => document.format === 'custom', traverse: () => [] }],

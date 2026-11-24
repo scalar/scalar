@@ -16,6 +16,7 @@ const {
   getAgentKey,
   getActiveDocumentJson,
   getActiveDocumentSelection,
+  getActiveDocumentUrl,
   isLoggedIn,
   prefilledMessage,
   hideAddApi,
@@ -31,6 +32,8 @@ const {
   getActiveDocumentJson?: () => string
   /** Scopes outgoing requests without adding context to conversation messages. */
   getActiveDocumentSelection?: () => SelectedDocument | undefined
+  /** The source URL of the API description selected in the reference. */
+  getActiveDocumentUrl?: () => string | undefined
   isLoggedIn?: Ref<boolean>
   prefilledMessage?: Ref<string>
   hideAddApi?: boolean
@@ -43,6 +46,7 @@ defineEmits<{
 const state = createState({
   getActiveDocumentJson,
   getActiveDocumentSelection,
+  getActiveDocumentUrl,
   initialRegistryDocuments: registryDocuments,
   prefilledMessageRef: prefilledMessage,
   platformProxyUrl,

@@ -82,6 +82,9 @@ watch(
     :dashboardUrl="externalUrls.dashboardUrl"
     :getActiveDocumentJson="() => documentJson"
     :getActiveDocumentSelection="() => selectedDocument"
+    :getActiveDocumentUrl="
+      () => supportedDocument?.['x-scalar-original-source-url']
+    "
     :getAgentKey="
       agentScalarConfiguration?.key
         ? () => agentScalarConfiguration?.key ?? ''

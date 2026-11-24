@@ -38,6 +38,7 @@ import { type UploadTmpDocumentState, removeTmpDocFromLocalStorage } from '@/hoo
 import { persistencePlugin } from '@/plugins/persistance'
 import { loadDocument } from '@/registry/add-documents-to-store'
 import { createDocumentName } from '@/registry/create-document-name'
+import { getSdkContext, loadSdkExamples } from '@/registry/sdk-examples'
 import type { ChatMode, SelectedDocument } from '@/types'
 
 import { Chat, DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from './ai-sdk'
@@ -107,26 +108,55 @@ function createChat({
   registryDocuments,
   workspaceStore,
   baseUrl,
+  registryUrl,
   getAccessToken,
   getAgentKey,
   getActiveDocumentSelection,
+  getActiveDocumentUrl,
 }: {
   registryDocuments: Ref<ApiMetadata[]>
   workspaceStore: WorkspaceStore
   baseUrl: string
+  registryUrl: string
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentSelection?: () => SelectedDocument | undefined
+  getActiveDocumentUrl?: () => string | undefined
 }) {
   const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     transport: new DefaultChatTransport({
       api: `${baseUrl}/vector/openapi/chat`,
       headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
-      body: () => ({
-        registryDocuments: registryDocuments.value,
-        selectedDocument: getActiveDocumentSelection?.(),
-      }),
+      async prepareSendMessagesRequest({ body, id, messages, trigger, messageId }) {
+        const selectedDocument = getActiveDocumentSelection?.()
+        const requestBody = {
+          registryDocuments: registryDocuments.value,
+          selectedDocument,
+          ...body,
+          id,
+          messages,
+          trigger,
+          messageId,
+        }
+        const sourceUrl = getActiveDocumentUrl?.()
+        const userMessage = [...messages].reverse().find(({ role }) => role === 'user')
+        if (selectedDocument?.format === 'OpenAPI' && sourceUrl && userMessage) {
+          const examples = await loadSdkExamples({ sourceUrl, registryUrl, version: selectedDocument.version })
+          const question = userMessage.parts.flatMap((part) => (part.type === 'text' ? [part.text] : [])).join('\n')
+          const context = examples && getSdkContext(examples, question)
+          if (context) {
+            // The hosted chat already accepts text parts. Keep the source material in the request
+            // so it is available to the model without changing the visible conversation.
+            const messageWithContext: typeof userMessage = {
+              ...userMessage,
+              parts: [...userMessage.parts, { type: 'text', text: context }],
+            }
+            requestBody.messages = messages.map((message) => (message === userMessage ? messageWithContext : message))
+          }
+        }
+        return { body: requestBody }
+      },
     }),
     onToolCall({ toolCall }): void {
       if (toolCall.dynamic) {
@@ -167,6 +197,7 @@ export function createState({
   getAgentKey,
   getActiveDocumentJson,
   getActiveDocumentSelection,
+  getActiveDocumentUrl,
   prefilledMessageRef,
   hideAddApi,
 }: {
@@ -181,6 +212,7 @@ export function createState({
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
   getActiveDocumentSelection?: () => SelectedDocument | undefined
+  getActiveDocumentUrl?: () => string | undefined
   prefilledMessageRef?: Ref<string>
   hideAddApi?: boolean
 }): State {
@@ -213,9 +245,11 @@ export function createState({
     registryDocuments,
     workspaceStore,
     baseUrl,
+    registryUrl,
     getAccessToken,
     getAgentKey,
     getActiveDocumentSelection,
+    getActiveDocumentUrl,
   })
 
   const api = createApi({
