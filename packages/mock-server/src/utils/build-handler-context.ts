@@ -115,13 +115,15 @@ export async function buildHandlerContext(
   let body: any = undefined
 
   try {
-    const contentType = (c.req.header('content-type') ?? '').toLowerCase()
+    const contentType = c.req.header('content-type')?.trim() ?? ''
+    const mediaType = contentType ? parseMimeType(contentType) : undefined
     // Treat an omitted header as JSON to match request validation.
-    if (!contentType.trim() || isJsonContentType(parseMimeType(contentType))) {
+    if (!mediaType || isJsonContentType(mediaType)) {
       body = await c.req.json().catch(() => undefined)
-    } else if (contentType.includes('application/x-www-form-urlencoded')) {
+    } else if (mediaType.essence === 'application/x-www-form-urlencoded') {
       body = await c.req.parseBody().catch(() => undefined)
-    } else if (contentType.includes('text/')) {
+    } else if (mediaType.type === 'text' && /^text\//i.test(contentType)) {
+      // The MIME parser also returns text/plain for malformed headers.
       body = await c.req.text().catch(() => undefined)
     }
   } catch {

@@ -1484,6 +1484,26 @@ describe('validate-request', () => {
     expect(await response.json()).toStrictEqual({ received: body })
   })
 
+  it.each([
+    'application/json-seq',
+    'application/json-seq; profile="https://example.com/text/md"',
+    'application/json-seq; profile="https://example.com/application/x-www-form-urlencoded"',
+    'invalid',
+  ])('leaves the handler body unset for %s', async (contentType) => {
+    const document = documentWith('/items', 'post', {
+      'x-handler': 'return { hasBody: req.body !== undefined };',
+    })
+    const server = await createMockServer({ document })
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': contentType },
+      body: '\x1E{"name":"Ada"}\n',
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ hasBody: false })
+  })
+
   it('calls onRequest even when the request is rejected by validation', async () => {
     const document = documentWith('/items', 'get', {
       parameters: [{ name: 'limit', in: 'query', required: true, schema: { type: 'integer' } }],
