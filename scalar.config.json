@@ -2939,7 +2939,7 @@
                       },
                       "php": {
                         "title": "PHP",
-                        "description": "Configuration reference for the experimental PHP SDK target: package metadata, naming, and generation options.",
+                        "description": "Configuration reference for the PHP SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/php.md",
                         "type": "page"
                       },
