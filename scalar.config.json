@@ -2933,7 +2933,7 @@
                       },
                       "csharp": {
                         "title": "C#",
-                        "description": "Configuration reference for the experimental C# SDK target: package metadata, naming, and generation options.",
+                        "description": "Configuration reference for the C# SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/csharp.md",
                         "type": "page"
                       },
