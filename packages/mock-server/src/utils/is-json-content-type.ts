@@ -1,4 +1,4 @@
-import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 
 /**
  * Whether a request `Content-Type` header carries a JSON body.
@@ -10,5 +10,11 @@ import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
  * Request validation and handler body parsing share this check, so a body that passes validation is
  * always delivered to the handler as `req.body`.
  */
-export const isJsonContentType = (contentType: string | undefined): boolean =>
-  !contentType?.trim() || isJsonMediaType(contentType)
+export const isJsonContentType = (contentType: string | undefined): boolean => {
+  if (!contentType?.trim()) {
+    return true
+  }
+
+  const { essence, subtype } = parseMimeType(contentType)
+  return essence === 'application/json' || subtype.endsWith('+json')
+}

@@ -1,6 +1,6 @@
 import { getFirstMediaType } from '@scalar/helpers/http/get-first-media-type'
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
-import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { type ParsedMimeType, parseMimeType } from '@scalar/helpers/http/mime-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { useDecimalMultipleOf } from '@scalar/json-schema-validator/decimal-multiple-of'
 import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
@@ -9,7 +9,7 @@ import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved
 import type { ErrorObject, Options, ValidateFunction } from 'ajv'
 import Ajv2020 from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
-import type { Context, MiddlewareHandler } from 'hono'
+import type { MiddlewareHandler } from 'hono'
 import { getCookie } from 'hono/cookie'
 
 import { pathParameters } from '@/utils/path-parameters'
@@ -77,13 +77,18 @@ type Violation = {
   message: string
 }
 
+type BodyValidators = {
+  headerless: ValidateFunction | null
+  mediaTypes: { mediaType: ParsedMimeType; specificity: number; validate: ValidateFunction | null }[]
+}
+
 /** The validators compiled once per operation and reused across every request */
 type CompiledValidators = {
   parameters: Record<ParameterLocation, ParameterValidators>
   querystringJson: ValidateFunction | null
   querystring: ValidateFunction | null
   querystringParameter: OpenAPIV3_2.ParameterObject | undefined
-  body: ValidateFunction | null
+  body: BodyValidators
   /** Whether the request body is required by the operation */
   bodyRequired: boolean
 }
@@ -250,13 +255,77 @@ const createRequestAjv = (options: Options = {}): Ajv2020 => {
   return ajv
 }
 
-/**
- * Pick the request body media type to validate JSON bodies against: `application/json` when it is
- * declared, otherwise the first structured `+json` type (for example `application/vnd.api+json`).
- */
-const getJsonMediaTypeKey = (content: Record<string, unknown> | undefined): string | undefined => {
-  const keys = Object.keys(content ?? {})
-  return keys.find((key) => parseMimeType(key).essence === 'application/json') ?? keys.find(isJsonMediaType)
+/** Compile each JSON media type and each range that may describe a JSON request. */
+const compileBodyValidators = (content: OpenAPIV3_1.RequestBodyObject['content']): BodyValidators => {
+  if (!content) {
+    return { headerless: null, mediaTypes: [] }
+  }
+
+  // Independently resolved schemas can share an ID across media types.
+  const ajv = createRequestAjv({ addUsedSchema: false })
+  const mediaTypes: BodyValidators['mediaTypes'] = []
+  for (const [key, media] of Object.entries(content)) {
+    const mediaType = parseMimeType(key)
+    if (mediaType.subtype !== '*' && !isJsonContentType(key)) {
+      continue
+    }
+
+    let validate: ValidateFunction | null = null
+    try {
+      const schema = getResolvedRef(media)?.schema
+      if (schema !== undefined) {
+        validate = compileSchema(
+          ajv,
+          dropReadOnlyRequired(asCompilableSchema(getResolvedRefDeep(schema))) as Record<string, unknown> | boolean,
+          `request body for ${key}`,
+        )
+      }
+    } catch (error) {
+      console.error(`Error resolving request body schema for ${key}, skipping its validation:`, error)
+    }
+
+    // Keep entries without a validator so a more general range cannot override them.
+    const specificity = Number(mediaType.type !== '*') + Number(mediaType.subtype !== '*')
+    mediaTypes.push({ mediaType, specificity, validate })
+  }
+
+  // Keep the JSON default for clients that omit the header.
+  const headerless =
+    mediaTypes.find(({ mediaType }) => mediaType.essence === 'application/json') ??
+    mediaTypes.find(({ mediaType }) => mediaType.subtype.endsWith('+json'))
+
+  return {
+    headerless: headerless?.validate ?? null,
+    mediaTypes: mediaTypes.sort(
+      (a, b) => b.specificity - a.specificity || b.mediaType.parameters.size - a.mediaType.parameters.size,
+    ),
+  }
+}
+
+/** An exact media type takes precedence over matching ranges, even when it has no schema. */
+const selectBodyValidator = (validators: BodyValidators, contentType: string | undefined): ValidateFunction | null => {
+  if (!contentType?.trim()) {
+    return validators.headerless
+  }
+  if (!isJsonContentType(contentType)) {
+    return null
+  }
+
+  const request = parseMimeType(contentType)
+  const match = validators.mediaTypes.find(({ mediaType }) => {
+    if (mediaType.type !== '*' && mediaType.type !== request.type) {
+      return false
+    }
+    if (mediaType.subtype !== '*' && mediaType.subtype !== request.subtype) {
+      return false
+    }
+
+    return Array.from(mediaType.parameters).every(([name, value]) => {
+      const actual = request.parameters.get(name)
+      return name === 'charset' ? actual?.toLowerCase() === value.toLowerCase() : actual === value
+    })
+  })
+  return match?.validate ?? null
 }
 
 /** Compile the validators for a single operation once, so they can be reused on every request. */
@@ -266,7 +335,7 @@ const compileValidators = (
 ): CompiledValidators => {
   // Coerce string parameters to their declared types (integer, boolean, …).
   const parameterAjv = createRequestAjv({ coerceTypes: true })
-  const bodyAjv = createRequestAjv()
+  const querystringAjv = createRequestAjv()
   const contentAjv = new Map<boolean, Ajv2020>()
   const getContentAjv = (coerceTypes: boolean): Ajv2020 => {
     const existing = contentAjv.get(coerceTypes)
@@ -287,27 +356,18 @@ const compileValidators = (
   const querystringSchema = querystringMedia?.schema
 
   const requestBody = getResolvedRef(operation.requestBody)
-  // Build the body schema defensively; resolving a malformed `$ref` should not crash setup.
-  let bodySchema: Record<string, unknown> | null = null
-  try {
-    const jsonMediaType = getJsonMediaTypeKey(requestBody?.content)
-    const jsonSchema = jsonMediaType ? getResolvedRef(requestBody?.content?.[jsonMediaType])?.schema : undefined
-    bodySchema = jsonSchema
-      ? (dropReadOnlyRequired(asCompilableSchema(getResolvedRefDeep(jsonSchema))) as Record<string, unknown>)
-      : null
-  } catch (error) {
-    console.error('Error resolving request body schema, skipping body validation:', error)
-  }
 
   return {
     querystringParameter,
     querystringJson: compileSchema(
-      bodyAjv,
+      querystringAjv,
       getQuerystringJsonSchema(querystringParameter),
       'querystring JSON properties',
     ),
     querystring: compileSchema(
-      parseMimeType(querystringContentType).essence === 'application/x-www-form-urlencoded' ? parameterAjv : bodyAjv,
+      parseMimeType(querystringContentType).essence === 'application/x-www-form-urlencoded'
+        ? parameterAjv
+        : querystringAjv,
       querystringSchema === undefined ? null : asCompilableSchema(getResolvedRefDeep(querystringSchema)),
       'querystring parameter',
     ),
@@ -317,7 +377,7 @@ const compileValidators = (
       header: compileParameters(parameters, 'header', parameterAjv, getContentAjv),
       cookie: compileParameters(parameters, 'cookie', parameterAjv, getContentAjv),
     },
-    body: compileSchema(bodyAjv, bodySchema, 'request body'),
+    body: compileBodyValidators(requestBody?.content),
     // Required-body enforcement is independent of whether the body schema compiles.
     bodyRequired: requestBody?.required === true,
   }
@@ -349,14 +409,6 @@ const mapErrors = (errors: ErrorObject[] | null | undefined, location: Violation
 
     return { location, path, message }
   })
-
-/**
- * Detect whether the request body should be treated as JSON. We only validate JSON bodies in this
- * slice; an empty/absent Content-Type is treated as JSON to stay forgiving. This intentionally
- * mirrors how `build-handler-context` parses the body, so we never validate a body the handler then
- * fails to deliver as `req.body`.
- */
-const isJsonRequest = (c: Context): boolean => isJsonContentType(c.req.header('Content-Type'))
 
 /**
  * Create a Hono middleware bound to a single resolved operation that enforces its request contract.
@@ -531,8 +583,8 @@ export const validateRequest = (
       }
     }
 
-    // Request body — only JSON (`application/json` and `+json`) in this slice
-    if (validators.body || validators.bodyRequired) {
+    const validateBody = selectBodyValidator(validators.body, c.req.header('Content-Type'))
+    if (validateBody || validators.bodyRequired) {
       // Read from a clone so the original request stream stays intact for the mock or `x-handler`
       // downstream. Consuming `c.req.text()` directly would leave `c.req.parseBody()` (used for
       // form bodies) unable to reconstruct the body, so handlers would see it as undefined.
@@ -542,11 +594,11 @@ export const validateRequest = (
         if (validators.bodyRequired) {
           violations.push({ location: 'body', path: '', message: 'Request body is required' })
         }
-      } else if (validators.body && isJsonRequest(c)) {
+      } else if (validateBody) {
         try {
           const parsed: unknown = JSON.parse(raw)
-          if (!validators.body(parsed)) {
-            violations.push(...mapErrors(validators.body.errors, 'body'))
+          if (!validateBody(parsed)) {
+            violations.push(...mapErrors(validateBody.errors, 'body'))
           }
         } catch {
           // The client sent a non-empty JSON body that cannot be parsed, so it cannot satisfy the

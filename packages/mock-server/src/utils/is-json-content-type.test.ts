@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { isJsonContentType } from './is-json-content-type'
 
-describe('isJsonContentType', () => {
+describe('is-json-content-type', () => {
   it.each([
     undefined,
     '',
@@ -15,10 +15,13 @@ describe('isJsonContentType', () => {
     expect(isJsonContentType(contentType)).toBe(true)
   })
 
-  it.each(['text/plain', 'application/x-www-form-urlencoded', 'application/json-seq', 'multipart/form-data'])(
-    'does not treat %s as JSON',
-    (contentType) => {
-      expect(isJsonContentType(contentType)).toBe(false)
-    },
-  )
+  it.each([
+    'text/plain',
+    'text/json',
+    'application/x-www-form-urlencoded',
+    'application/json-seq',
+    'multipart/form-data',
+  ])('does not treat %s as JSON', (contentType) => {
+    expect(isJsonContentType(contentType)).toBe(false)
+  })
 })
