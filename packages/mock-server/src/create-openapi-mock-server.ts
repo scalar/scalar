@@ -24,7 +24,7 @@ import { comparePathSpecificity, getPathSpecificity } from '@/utils/path-specifi
 import type { ProcessedDocument } from '@/utils/process-document'
 import { requestMatchesPinnedQuery } from '@/utils/request-matches-pinned-query'
 import { resolveLogger } from '@/utils/resolve-logger'
-import { resolveServerBasePaths } from '@/utils/resolve-server-base-paths'
+import { MAX_SERVER_URL_EXPANSIONS, resolveServerBasePaths } from '@/utils/resolve-server-base-paths'
 import { setUpAuthenticationRoutes } from '@/utils/set-up-authentication-routes'
 import { splitPathKey } from '@/utils/split-path-key'
 import { validateRequest } from '@/utils/validate-request'
@@ -102,6 +102,9 @@ const runResponseHook =
 const carriesResponse = (error: Error): error is Error & { getResponse: () => Response } =>
   'getResponse' in error && typeof error.getResponse === 'function'
 
+/** Limit the extra work a single OpenAPI description can add through server URL aliases. */
+const defaultAliasLimits = { serverUrls: MAX_SERVER_URL_EXPANSIONS, generatedRoutes: 10_000 }
+
 /**
  * Create a mock server instance
  */
@@ -113,6 +116,7 @@ export const createOpenApiMockServer = async (
     retrievalUri,
     serverRetrievalUris,
   }: Extract<ProcessedDocument, { type: 'openapi' }>,
+  aliasLimits = defaultAliasLimits,
 ): Promise<Hono> => {
   const app = new Hono()
   const generationContext = {
@@ -214,9 +218,10 @@ export const createOpenApiMockServer = async (
   // Built-in authentication routes take precedence over operation routes at the same URL and method.
   setUpAuthenticationRoutes(app, schema)
 
-  // Only the instructions honor `logger` (on by default); the util still prints warnings and errors
+  // The instructions honor `logger` (on by default). The util still prints warnings and errors
   // about security schemes the mock server cannot handle, which a silenced startup should surface.
-  logAuthenticationInstructions(schema?.components?.securitySchemes || {}, resolveLogger(configuration.logger, true))
+  const logger = resolveLogger(configuration.logger, true)
+  logAuthenticationInstructions(schema?.components?.securitySchemes || {}, logger)
 
   /** Paths specified in the OpenAPI document */
   const paths = schema?.paths ?? {}
@@ -263,6 +268,9 @@ export const createOpenApiMockServer = async (
   /** Route handler of each operation, with the base paths its servers serve it under */
   const operationRoutes: { method: string; path: string; basePaths: string[]; handler: MiddlewareHandler }[] = []
   const basePathsByServers = new WeakMap<OpenAPIV3_1.ServerObject[], string[]>()
+  const serverUrlBudget = { remaining: aliasLimits.serverUrls }
+  let remainingRoutes = aliasLimits.generatedRoutes
+  let exceededAliasLimit: string | undefined
 
   orderedPathKeys.forEach(({ path, query }) => {
     // A path item may itself be a `$ref`, so resolve it before reading its operations.
@@ -340,9 +348,19 @@ export const createOpenApiMockServer = async (
       const servers = [operation.servers, referringPathItem?.servers, pathItem?.servers, schema.servers].find(
         Array.isArray,
       )
-      if (servers && !basePathsByServers.has(servers)) {
-        const serverRetrievalUri = serverRetrievalUris.get(getRaw(servers)) ?? retrievalUri
-        basePathsByServers.set(servers, resolveServerBasePaths(servers, serverRetrievalUri))
+      if (servers && !exceededAliasLimit) {
+        const basePaths =
+          basePathsByServers.get(servers) ??
+          resolveServerBasePaths(servers, serverRetrievalUris.get(getRaw(servers)) ?? retrievalUri, serverUrlBudget)
+
+        if (basePaths === undefined) {
+          exceededAliasLimit = `${aliasLimits.serverUrls} server URL combinations`
+        } else if (basePaths.length > remainingRoutes) {
+          exceededAliasLimit = `${aliasLimits.generatedRoutes} generated routes`
+        } else {
+          basePathsByServers.set(servers, basePaths)
+          remainingRoutes -= basePaths.length
+        }
       }
 
       operationRoutes.push({
@@ -379,12 +397,15 @@ export const createOpenApiMockServer = async (
   // of these routes are ordered together, so the most concrete one answers a request no matter where
   // it comes from. The path keys go first, so on a tie the path the document declares keeps a request
   // over a copy under a base path, and the stable sort keeps the order set above for the rest.
-  const routes = [
-    ...operationRoutes,
-    ...operationRoutes.flatMap((route) =>
-      route.basePaths.map((basePath) => ({ ...route, path: `${basePath}${route.path}` })),
-    ),
-  ]
+  if (exceededAliasLimit) {
+    logger(`Skipped OpenAPI server base-path aliases. The document exceeded the limit of ${exceededAliasLimit}.`)
+  }
+  const aliases = exceededAliasLimit
+    ? []
+    : operationRoutes.flatMap((route) =>
+        route.basePaths.map((basePath) => ({ ...route, path: `${basePath}${route.path}` })),
+      )
+  const routes = [...operationRoutes, ...aliases]
     .map((route) => ({ ...route, specificity: getPathSpecificity(route.path) }))
     .sort((a, b) => comparePathSpecificity(a.specificity, b.specificity))
 

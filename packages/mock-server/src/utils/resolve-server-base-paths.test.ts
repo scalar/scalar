@@ -4,6 +4,22 @@ import { describe, expect, it } from 'vitest'
 import { resolveServerBasePaths } from './resolve-server-base-paths'
 
 describe('resolve-server-base-paths', () => {
+  it('counts hostname variants against the budget before deduplicating paths', () => {
+    const server = {
+      url: 'https://{region}.{environment}.example.com/v1',
+      variables: {
+        region: { default: 'east', enum: ['east', 'west'] },
+        environment: { default: 'dev', enum: ['dev', 'prod'] },
+      },
+    } satisfies OpenAPIV3_1.ServerObject
+    const budget = { remaining: 4 }
+
+    expect(resolveServerBasePaths([server], '', { remaining: 3 })).toBeUndefined()
+    expect(resolveServerBasePaths([server], '', budget)).toStrictEqual(['/v1'])
+    expect(budget.remaining).toBe(0)
+    expect(resolveServerBasePaths([{ url: '/v2' }], '', budget)).toBeUndefined()
+  })
+
   it.each([
     ['https://api.example.com/v1', ['/v1']],
     ['https://api.example.com/v1/', ['/v1']],

@@ -10,17 +10,27 @@ import { getPath } from 'hono/utils/url'
 import { expandServerVariables } from './expand-server-variables'
 
 /** Collect usable values from an OpenAPI server variable, which may come from an unvalidated document. */
-const getVariableValues = (variable: unknown): string[] => {
+const getVariableValues = function* (variable: unknown): Generator<string, void> {
   if (!isObject(variable)) {
-    return []
+    return
   }
 
   if (Array.isArray(variable.enum) && variable.enum.length > 0) {
-    return variable.enum.filter((value): value is string => typeof value === 'string')
+    for (const value of variable.enum) {
+      if (typeof value === 'string') {
+        yield value
+      }
+    }
+    return
   }
 
-  return typeof variable.default === 'string' ? [variable.default] : []
+  if (typeof variable.default === 'string') {
+    yield variable.default
+  }
 }
+
+/** Maximum server URL combinations processed per OpenAPI description. */
+export const MAX_SERVER_URL_EXPANSIONS = 4_096
 
 /** Resolve a server URL to the URL it names, reading a domain without a scheme as a host like the API client does. */
 const toAbsoluteUrl = (url: string, baseUrl: string): URL => {
@@ -52,9 +62,14 @@ const normalizePathSlashes = (url: string): string =>
  * a variable has no enum. A server whose URL keeps a variable without an enum or default adds no
  * base path, because its path cannot be known, and neither does a URL that does not parse. Relative
  * URLs use the document's HTTP retrieval URL when known and the mock root otherwise. The root path
- * is left out, since every operation is already served there.
+ * is left out, since every operation is already served there. Returns undefined when the shared
+ * document budget is exhausted.
  */
-export const resolveServerBasePaths = (servers: OpenAPIV3_1.ServerObject[] = [], retrievalUri = ''): string[] => {
+export const resolveServerBasePaths = (
+  servers: OpenAPIV3_1.ServerObject[] = [],
+  retrievalUri = '',
+  budget = { remaining: MAX_SERVER_URL_EXPANSIONS },
+): string[] | undefined => {
   const baseUrl = isHttpUrl(retrievalUri) ? retrievalUri : 'http://localhost'
   const pathnames = new Set<string>()
 
@@ -65,7 +80,17 @@ export const resolveServerBasePaths = (servers: OpenAPIV3_1.ServerObject[] = [],
 
     const variables = isObject(server.variables) ? server.variables : undefined
     const isAbsolutePath = server.url.startsWith('/') && !server.url.startsWith('//')
-    for (const url of expandServerVariables(server.url, (name) => getVariableValues(getOwnEntry(variables, name)))) {
+    const expansion = expandServerVariables(
+      server.url,
+      (name) => getVariableValues(getOwnEntry(variables, name)),
+      budget.remaining,
+    )
+    if (!expansion) {
+      return undefined
+    }
+    budget.remaining -= expansion.combinationCount
+
+    for (const url of expansion.urls) {
       try {
         // A leading slash added by a variable must not turn an absolute-path reference into a host.
         const serverUrl = isAbsolutePath ? url.replace(/^\/+/, '/') : url

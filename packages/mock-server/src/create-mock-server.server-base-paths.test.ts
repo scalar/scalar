@@ -2,6 +2,8 @@ import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
 
 import { createMockServer } from './create-mock-server'
+import { createOpenApiMockServer } from './create-openapi-mock-server'
+import { processDocument } from './utils/process-document'
 
 const okResponse = (message: string): Record<string, unknown> => ({
   '200': {
@@ -17,6 +19,72 @@ const petOperation = {
 }
 
 describe('create-mock-server.server-base-paths', () => {
+  it.each([
+    {
+      limit: 'server URL combinations',
+      aliasLimits: { serverUrls: 1, generatedRoutes: 2 },
+      operationServers: [{ url: '/v2' }],
+    },
+    {
+      limit: 'generated routes',
+      aliasLimits: { serverUrls: 1, generatedRoutes: 1 },
+      operationServers: undefined,
+    },
+  ])(
+    'keeps bare routes when the document exceeds its $limit limit',
+    async ({ limit, aliasLimits, operationServers }) => {
+      const document = {
+        openapi: '3.1.1',
+        info: { title: 'Pets', version: '1.0.0' },
+        servers: [{ url: '/v1' }],
+        paths: {
+          '/pets': { get: { responses: okResponse('pets') } },
+          '/reports': { get: { responses: okResponse('reports'), servers: operationServers } },
+        },
+      }
+      const processed = await processDocument(document)
+      if (processed.type !== 'openapi') {
+        throw new Error('Expected an OpenAPI description')
+      }
+      const messages: string[] = []
+      const app = await createOpenApiMockServer(
+        { document, logger: (message) => messages.push(message) },
+        processed,
+        aliasLimits,
+      )
+
+      for (const path of ['/pets', '/reports']) {
+        expect((await app.request(path)).status).toBe(200)
+      }
+      for (const path of ['/v1/pets', '/v1/reports', '/v2/reports']) {
+        expect((await app.request(path)).status).toBe(404)
+      }
+      expect(messages).toStrictEqual([
+        `Skipped OpenAPI server base-path aliases. The document exceeded the limit of 1 ${limit}.`,
+      ])
+    },
+  )
+
+  it('serves aliases when a shared server list fits both budgets exactly', async () => {
+    const document = {
+      openapi: '3.1.1',
+      info: { title: 'Pets', version: '1.0.0' },
+      servers: [{ url: '/v1' }],
+      paths: {
+        '/pets': { get: { responses: okResponse('pets') } },
+        '/reports': { get: { responses: okResponse('reports') } },
+      },
+    }
+    const processed = await processDocument(document)
+    if (processed.type !== 'openapi') {
+      throw new Error('Expected an OpenAPI description')
+    }
+    const app = await createOpenApiMockServer({ document }, processed, { serverUrls: 1, generatedRoutes: 2 })
+
+    expect((await app.request('/v1/pets')).status).toBe(200)
+    expect((await app.request('/v1/reports')).status).toBe(200)
+  })
+
   it.each(['https://api.example.com/v1', '//api.example.com/v1', 'HTTPS://api.example.com/v1'])(
     'serves operations under the base path of %s',
     async (url) => {

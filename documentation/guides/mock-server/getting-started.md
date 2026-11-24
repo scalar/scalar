@@ -247,6 +247,8 @@ When an operation and a built-in OAuth route share an HTTP method and URL, the b
 
 Dotted hostnames such as `api.example.com:8443/v1` can omit the scheme. Use a scheme for single-label hosts such as `http://localhost:8443/v1`.
 
+An OpenAPI description can use up to 4,096 server URL combinations and 10,000 generated operation routes. If either limit is exceeded, the mock logs a startup diagnostic and serves the bare operation routes.
+
 ### Selecting responses
 
 By default the mock server picks a response (and its status code) for you and returns the first example it can find. You can override both with the standard [`Prefer` header](https://www.rfc-editor.org/rfc/rfc7240), just like [Stoplight Prism](https://github.com/stoplightio/prism).

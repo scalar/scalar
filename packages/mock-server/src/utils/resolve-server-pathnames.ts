@@ -13,4 +13,4 @@ export const resolveServerPathnames = (server: AsyncApiServerObject): string[] =
 
     // Unconstrained variables remain dynamic route parameters.
     return variable?.default !== undefined ? [variable.default] : undefined
-  })
+  })?.urls ?? []
