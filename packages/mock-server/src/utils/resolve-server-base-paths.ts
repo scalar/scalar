@@ -28,13 +28,22 @@ const toAbsoluteUrl = (url: string, baseUrl: string): URL => {
     return new URL(url)
   }
 
-  if (isRelativePath(url)) {
+  const hasBareHostWithPort = /^[a-z\d-]+\.[a-z\d.-]+:\d+(?:[/?#]|$)/i.test(url)
+  if (!hasBareHostWithPort && isRelativePath(url)) {
     // Preserve the path interpretation for scheme-less inputs the client treats as relative.
     return new URL(url.startsWith('/') || url === '' ? url : `./${url}`, baseUrl)
   }
 
   return new URL(ensureProtocol(url))
 }
+
+/** Collapse path slashes before URL parsing resolves dot segments, while preserving the authority. */
+const normalizePathSlashes = (url: string): string =>
+  url.replace(
+    /^([a-z][a-z\d+.-]*:\/\/[^/?#]*|\/\/[^/?#]+)?([^?#]*)/i,
+    (_, authority: string | undefined, pathname: string) =>
+      (authority ?? '') + pathname.replace(REGEX.MULTIPLE_SLASHES, '/'),
+  )
 
 /**
  * Resolve the base paths the servers of an operation put in front of its path keys.
@@ -59,7 +68,8 @@ export const resolveServerBasePaths = (servers: OpenAPIV3_1.ServerObject[] = [],
     for (const url of expandServerVariables(server.url, (name) => getVariableValues(getOwnEntry(variables, name)))) {
       try {
         // A leading slash added by a variable must not turn an absolute-path reference into a host.
-        const resolved = toAbsoluteUrl(isAbsolutePath ? url.replace(/^\/+/, '/') : url, baseUrl)
+        const serverUrl = isAbsolutePath ? url.replace(/^\/+/, '/') : url
+        const resolved = toAbsoluteUrl(normalizePathSlashes(serverUrl), baseUrl)
         const pathname = resolved.pathname.replace(REGEX.MULTIPLE_SLASHES, '/').replace(/\/$/, '')
 
         if (pathname.startsWith('/')) {

@@ -23,7 +23,10 @@ describe('resolve-server-base-paths', () => {
     ['https://api.example.com/%E0%A4%A', ['/%E0%A4%A']],
     ['https://api.example.com/a%25b', ['/a%25b']],
     ['https://api.example.com//v1//beta', ['/v1/beta']],
+    ['https://api.example.com/v1//../v2', ['/v2']],
+    ['//api.example.com/v1//../v2', ['/v2']],
     ['api.example.com/v1', ['/v1']],
+    ['api.example.com:8443/v1', ['/v1']],
     ['https://api.example.com/a%7Bb%7D', []],
     ['https://[invalid/v1', []],
   ])('resolves %s', (url, basePaths) => {

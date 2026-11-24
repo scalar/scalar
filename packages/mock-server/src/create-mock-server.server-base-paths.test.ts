@@ -53,6 +53,71 @@ describe('create-mock-server.server-base-paths', () => {
     expect((await app.request('/identifiers/v1/pets')).status).toBe(404)
   })
 
+  it('uses the external document retrieval URL for relative server declarations', async () => {
+    const info = { title: 'Pets', version: '1.0.0' }
+    const app = await createMockServer({
+      origin: 'https://api.example.com/catalog/openapi.yaml',
+      document: {
+        openapi: '3.2.1',
+        info,
+        paths: {
+          '/pets': { $ref: '#/x-ext/operations/components/pathItems/Pets' },
+          '/reports': { $ref: '#/x-ext/operations/components/pathItems/Reports' },
+        },
+        'x-ext': {
+          operations: {
+            openapi: '3.2.1',
+            $self: 'https://api.example.com/identifiers/operations.yaml',
+            info,
+            components: {
+              pathItems: {
+                Pets: { servers: [{ url: './v1' }], get: { responses: okResponse('pets') } },
+                Reports: { get: { servers: [{ url: './v2' }], responses: okResponse('reports') } },
+              },
+            },
+          },
+        },
+        'x-ext-urls': { operations: '../operations/openapi.yaml' },
+      },
+    })
+
+    for (const path of ['/pets', '/operations/v1/pets', '/operations/v2/reports']) {
+      expect((await app.request(path)).status).toBe(200)
+    }
+    for (const path of ['/catalog/v1/pets', '/catalog/v2/reports', '/identifiers/v1/pets']) {
+      expect((await app.request(path)).status).toBe(404)
+    }
+  })
+
+  it('gives the built-in OAuth route precedence over a generated operation path', async () => {
+    const app = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.1.1',
+        info: { title: 'Tokens', version: '1.0.0' },
+        servers: [{ url: '/oauth' }],
+        paths: { '/token': { post: { responses: okResponse('operation') } } },
+        components: {
+          securitySchemes: {
+            oauth: { type: 'oauth2', flows: { clientCredentials: { tokenUrl: '/oauth/token', scopes: {} } } },
+          },
+        },
+      },
+    })
+
+    const oauth = await app.request('/oauth/token', { method: 'POST' })
+    expect(oauth.status).toBe(200)
+    expect(await oauth.json()).toStrictEqual({
+      access_token: 'super-secret-access-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      refresh_token: 'example-refresh-token',
+    })
+    const operation = await app.request('/token', { method: 'POST' })
+    expect(operation.status).toBe(200)
+    expect(await operation.json()).toStrictEqual({ message: 'operation' })
+  })
+
   it('keeps serving operations at their bare path keys', async () => {
     const app = await createMockServer({
       document: {

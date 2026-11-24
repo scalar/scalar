@@ -1,8 +1,9 @@
 import path from 'node:path'
 import { cwd } from 'node:process'
 
-import { isObjectLike } from '@scalar/helpers/object/is-object'
-import { bundle } from '@scalar/json-magic/bundle'
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
+import { isObject, isObjectLike } from '@scalar/helpers/object/is-object'
+import { bundle, resolveReferencePath } from '@scalar/json-magic/bundle'
 import { fetchUrls, parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { isFilePath } from '@scalar/json-magic/helpers/is-file-path'
 import { isHttpUrl } from '@scalar/json-magic/helpers/is-http-url'
@@ -23,8 +24,43 @@ export type ProcessedDocument =
       document: OpenAPIV3_1.Document | OpenAPIV3_2.Document
       originalOpenapiVersion?: string
       retrievalUri?: string
+      serverRetrievalUris: WeakMap<object, string>
     }
   | { type: 'asyncapi'; document: AsyncApiDocument }
+
+/** Track external server lists by identity so their source URL stays with the resolved object. */
+const indexServerRetrievalUris = (documents: unknown, mappings: unknown, baseUri: string): WeakMap<object, string> => {
+  const origins = new WeakMap<object, string>()
+  if (!isObject(documents) || !isObject(mappings)) {
+    return origins
+  }
+
+  for (const [key, document] of Object.entries(documents)) {
+    const source = getOwnEntry(mappings, key)
+    if (typeof source !== 'string') {
+      continue
+    }
+    const retrievalUri = resolveReferencePath(baseUri, source)
+    const stack = [document]
+    const visited = new WeakSet<object>()
+
+    while (stack.length > 0) {
+      const node = stack.pop()
+      if (!isObjectLike(node) || visited.has(node)) {
+        continue
+      }
+      visited.add(node)
+      if (Array.isArray(node.servers)) {
+        origins.set(node.servers, retrievalUri)
+      }
+      for (const child of Object.values(node)) {
+        stack.push(child)
+      }
+    }
+  }
+
+  return origins
+}
 
 /**
  * Bundle API descriptions once, retaining AsyncAPI and upgrading compatible OpenAPI input.
@@ -44,6 +80,7 @@ export const processDocument = async (
     // Return a minimal valid OpenAPI 3.2 document
     return {
       type: 'openapi',
+      serverRetrievalUris: new WeakMap(),
       document: {
         openapi: '3.2.0',
         info: {
@@ -66,8 +103,7 @@ export const processDocument = async (
   try {
     // Bundle external references with Node.js plugins
     // Include parseJson and parseYaml to handle string inputs
-    // `bundle` edits the object it is handed — it records external documents under `x-ext` and drops
-    // `x-ext-urls` — so an object input is copied first and the caller's document is left as passed.
+    // Bundling writes external documents and their URL mappings, so copy object inputs first.
     bundled = await bundle(typeof document === 'string' ? document : cloneDocument(document), {
       origin,
       plugins: [
@@ -78,6 +114,7 @@ export const processDocument = async (
         fetchUrls({ blockPrivateNetworks: true }),
       ],
       treeShake: false,
+      urlMap: true,
     })
   } catch (error) {
     throw new Error(`Failed to bundle API document: ${error instanceof Error ? error.message : String(error)}`)
@@ -90,6 +127,10 @@ export const processDocument = async (
   if (isPluginDocument(bundled)) {
     throw new Error('Plugin documents are not supported by the mock server')
   }
+
+  // Keep retrieval metadata out of the exported API description.
+  const externalDocumentUrls = bundled['x-ext-urls']
+  delete bundled['x-ext-urls']
 
   if (isAsyncApiDocument(bundled)) {
     return { type: 'asyncapi', document: createMagicProxy(bundled) as AsyncApiDocument }
@@ -123,5 +164,6 @@ export const processDocument = async (
     document: createMagicProxy(upgraded, { documentUri }),
     originalOpenapiVersion,
     retrievalUri,
+    serverRetrievalUris: indexServerRetrievalUris(upgraded['x-ext'], externalDocumentUrls, documentUri ?? retrievalUri),
   }
 }

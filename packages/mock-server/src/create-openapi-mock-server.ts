@@ -107,9 +107,12 @@ const carriesResponse = (error: Error): error is Error & { getResponse: () => Re
  */
 export const createOpenApiMockServer = async (
   configuration: MockServerOptions,
-  schema: Extract<ProcessedDocument, { type: 'openapi' }>['document'],
-  originalOpenapiVersion?: string,
-  retrievalUri?: string,
+  {
+    document: schema,
+    originalOpenapiVersion,
+    retrievalUri,
+    serverRetrievalUris,
+  }: Extract<ProcessedDocument, { type: 'openapi' }>,
 ): Promise<Hono> => {
   const app = new Hono()
   const generationContext = {
@@ -208,7 +211,7 @@ export const createOpenApiMockServer = async (
     app.use(runResponseHook(configuration.onResponse))
   }
 
-  /** Authentication methods defined in the OpenAPI document */
+  // Built-in authentication routes take precedence over operation routes at the same URL and method.
   setUpAuthenticationRoutes(app, schema)
 
   // Only the instructions honor `logger` (on by default); the util still prints warnings and errors
@@ -338,7 +341,8 @@ export const createOpenApiMockServer = async (
         Array.isArray,
       )
       if (servers && !basePathsByServers.has(servers)) {
-        basePathsByServers.set(servers, resolveServerBasePaths(servers, retrievalUri))
+        const serverRetrievalUri = serverRetrievalUris.get(getRaw(servers)) ?? retrievalUri
+        basePathsByServers.set(servers, resolveServerBasePaths(servers, serverRetrievalUri))
       }
 
       operationRoutes.push({
