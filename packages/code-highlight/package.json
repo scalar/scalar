@@ -78,7 +78,7 @@
   "sideEffects": false,
   "dependencies": {
     "@scalar/markdown": "workspace:*",
-    "hast-util-to-text": "^4.0.3",
+    "hast-util-to-text": "catalog:*",
     "highlight.js": "catalog:*",
     "lowlight": "^3.3.0",
     "rehype-parse": "^9.0.1",
