@@ -230,6 +230,25 @@ Everything else in a path key is matched literally, so a path such as `/users:ba
 
 A segment that mixes a path parameter with literal text of that kind (`/v1/jobs/{jobId}:cancel`) routes to the right operation, but `jobId` is not bound by name — a single path segment can only carry one parameter. Request validation reads it as missing, so a document that describes such a path has to run the mock server with `validateRequest: false`, which turns validation off for every operation in it.
 
+### Server base paths
+
+Every operation is served under the path of each of its servers as well as at its bare path key:
+
+```yaml
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /pets/{petId}: … # answers /v1/pets/42 and /pets/42
+```
+
+OpenAPI 2.0 `basePath` and relative server URLs work the same way. A relative server URL uses the HTTP retrieval URL of the document that declares it when available and the mock server root otherwise. Every enum value of a variable in the server path is served, including combinations of multiple variables, and the default is used when there is no enum. Host variables do not create extra routes. Operation and path item `servers` take precedence over the servers of the document. An explicit empty `servers` array at either level leaves the affected operations available only at their bare path keys. Routes under a base path are ranked together with the bare path keys, so the most concrete one answers a request, and on a tie the path key the document declares wins.
+
+When an operation and a built-in OAuth route share an HTTP method and URL, the built-in OAuth route answers the request. The operation still answers at its bare path key when that path is distinct.
+
+Dotted hostnames such as `api.example.com:8443/v1` can omit the scheme. Use a scheme for single-label hosts such as `http://localhost:8443/v1`.
+
+An OpenAPI description can use up to 4,096 server URL combinations and 10,000 generated operation routes. If either limit is exceeded, the mock logs a startup diagnostic and serves the bare operation routes.
+
 ### Selecting responses
 
 By default the mock server picks a response (and its status code) for you and returns the first example it can find. You can override both with the standard [`Prefer` header](https://www.rfc-editor.org/rfc/rfc7240), just like [Stoplight Prism](https://github.com/stoplightio/prism).
