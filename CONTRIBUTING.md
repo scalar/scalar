@@ -53,10 +53,6 @@ Some tests require an instance of `@scalar/proxy-server` and `@scalar/void-serve
 pnpm script run test-servers
 ```
 
-## Dependency updates
-
-Renovate groups routine dependency updates weekly. See the [dependency update policy](.github/renovate.md) for the schedule, separate breaking upgrades, compatibility holds, and security exceptions.
-
 ## GitHub Actions dependencies
 
 Workflow dependencies are pinned in `.github/workflows/actions.lock`, including dependencies of shared composite actions. Use `$/` references for actions in this repository so their dependencies can be locked. Local reusable workflow calls keep their `./.github/workflows/` references.
