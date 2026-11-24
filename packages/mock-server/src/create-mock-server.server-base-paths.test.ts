@@ -17,7 +17,7 @@ const petOperation = {
 }
 
 describe('create-mock-server.server-base-paths', () => {
-  it.each(['https://api.example.com/v1', '//api.example.com/v1'])(
+  it.each(['https://api.example.com/v1', '//api.example.com/v1', 'HTTPS://api.example.com/v1'])(
     'serves operations under the base path of %s',
     async (url) => {
       const app = await createMockServer({
@@ -35,6 +35,23 @@ describe('create-mock-server.server-base-paths', () => {
       expect(await response.json()).toStrictEqual({ petId: '1' })
     },
   )
+
+  it('resolves a relative server URL against the document retrieval URL', async () => {
+    const app = await createMockServer({
+      origin: 'https://api.example.com/docs/openapi.yaml',
+      document: {
+        openapi: '3.2.1',
+        $self: 'https://api.example.com/identifiers/openapi.yaml',
+        info: { title: 'Pets', version: '1.0.0' },
+        servers: [{ url: './v1' }],
+        paths: { '/pets': { get: { responses: okResponse('pets') } } },
+      },
+    })
+
+    expect((await app.request('/docs/v1/pets')).status).toBe(200)
+    expect((await app.request('/v1/pets')).status).toBe(404)
+    expect((await app.request('/identifiers/v1/pets')).status).toBe(404)
+  })
 
   it('keeps serving operations at their bare path keys', async () => {
     const app = await createMockServer({
@@ -156,6 +173,23 @@ describe('create-mock-server.server-base-paths', () => {
     for (const path of ['/v1/pets', '/v1/reports', '/internal/reports']) {
       expect((await app.request(path)).status).toBe(404)
     }
+  })
+
+  it('uses servers alongside a path item reference', async () => {
+    const app = await createMockServer({
+      document: {
+        openapi: '3.1.1',
+        info: { title: 'Pets', version: '1.0.0' },
+        servers: [{ url: '/v1' }],
+        components: { pathItems: { pets: { get: { responses: okResponse('pets') } } } },
+        paths: {
+          '/pets': { $ref: '#/components/pathItems/pets', servers: [{ url: '/override' }] },
+        },
+      },
+    })
+
+    expect((await app.request('/override/pets')).status).toBe(200)
+    expect((await app.request('/v1/pets')).status).toBe(404)
   })
 
   it.each([

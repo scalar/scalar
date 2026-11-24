@@ -18,7 +18,12 @@ import { cloneDocument } from '@/utils/clone-document'
 
 /** A processed API description, tagged so each mock engine receives its own document type. */
 export type ProcessedDocument =
-  | { type: 'openapi'; document: OpenAPIV3_1.Document | OpenAPIV3_2.Document; originalOpenapiVersion?: string }
+  | {
+      type: 'openapi'
+      document: OpenAPIV3_1.Document | OpenAPIV3_2.Document
+      originalOpenapiVersion?: string
+      retrievalUri?: string
+    }
   | { type: 'asyncapi'; document: AsyncApiDocument }
 
 /**
@@ -95,12 +100,8 @@ export const processDocument = async (
     origin ?? (typeof document === 'string' && (isFilePath(document) || isHttpUrl(document)) ? document : '/')
   const documentUri = resolveOpenApiDocument(bundled, retrievalUri)?.baseUri
 
-  const originalOpenapiVersion =
-    typeof bundled.openapi === 'string'
-      ? bundled.openapi
-      : typeof bundled.swagger === 'string'
-        ? bundled.swagger
-        : undefined
+  const swaggerVersion = typeof bundled.swagger === 'string' ? bundled.swagger : undefined
+  const originalOpenapiVersion = typeof bundled.openapi === 'string' ? bundled.openapi : swaggerVersion
   let upgraded: OpenAPIV3_1.Document | OpenAPIV3_2.Document
 
   try {
@@ -121,5 +122,6 @@ export const processDocument = async (
     type: 'openapi',
     document: createMagicProxy(upgraded, { documentUri }),
     originalOpenapiVersion,
+    retrievalUri,
   }
 }

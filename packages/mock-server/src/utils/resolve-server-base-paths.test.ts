@@ -48,6 +48,12 @@ describe('resolve-server-base-paths', () => {
     ['a value that starts with a slash', '/{basePath}', { basePath: { default: '/v1' } }, ['/v1']],
     ['a host in a protocol-relative URL', '//{host}/v1', { host: { default: 'api.example.com' } }, ['/v1']],
     ['a value with braces', '/{basePath}', { basePath: { default: '{other}' } }, []],
+    [
+      'a value naming another variable',
+      '/{first}/{second}',
+      { first: { default: '{second}' }, second: { default: 'v1' } },
+      [],
+    ],
   ] satisfies [string, string, OpenAPIV3_1.ServerObject['variables'], string[]][])(
     'resolves %s',
     (_, url, variables, basePaths) => {
@@ -72,6 +78,12 @@ describe('resolve-server-base-paths', () => {
         },
       ]),
     ).toStrictEqual(['/eu/v1', '/eu/v2', '/us/v1', '/us/v2'])
+  })
+
+  it('uses the same value at each occurrence of a repeated variable', () => {
+    expect(
+      resolveServerBasePaths([{ url: '/{region}/{region}', variables: { region: { enum: ['eu', 'us'] } } }]),
+    ).toStrictEqual(['/eu/eu', '/us/us'])
   })
 
   it.each([

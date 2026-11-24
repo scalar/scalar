@@ -1,5 +1,6 @@
 import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { type Context, Hono, type MiddlewareHandler } from 'hono'
 import { every } from 'hono/combine'
@@ -108,6 +109,7 @@ export const createOpenApiMockServer = async (
   configuration: MockServerOptions,
   schema: Extract<ProcessedDocument, { type: 'openapi' }>['document'],
   originalOpenapiVersion?: string,
+  retrievalUri?: string,
 ): Promise<Hono> => {
   const app = new Hono()
   const generationContext = {
@@ -257,10 +259,12 @@ export const createOpenApiMockServer = async (
 
   /** Route handler of each operation, with the base paths its servers serve it under */
   const operationRoutes: { method: string; path: string; basePaths: string[]; handler: MiddlewareHandler }[] = []
+  const basePathsByServers = new WeakMap<OpenAPIV3_1.ServerObject[], string[]>()
 
   orderedPathKeys.forEach(({ path, query }) => {
     // A path item may itself be a `$ref`, so resolve it before reading its operations.
-    const pathItem = getResolvedRef(paths[path])
+    const referringPathItem = paths[path]
+    const pathItem = getResolvedRef(referringPathItem)
     const operations = getOperations(pathItem)
 
     /** Keys for all operations of a specified path */
@@ -330,12 +334,17 @@ export const createOpenApiMockServer = async (
       const operationChain = every(...handlers)
 
       // An empty server list overrides the enclosing servers without adding a base path.
-      const servers = [operation.servers, pathItem?.servers, schema.servers].find(Array.isArray)
+      const servers = [operation.servers, referringPathItem?.servers, pathItem?.servers, schema.servers].find(
+        Array.isArray,
+      )
+      if (servers && !basePathsByServers.has(servers)) {
+        basePathsByServers.set(servers, resolveServerBasePaths(servers, retrievalUri))
+      }
 
       operationRoutes.push({
         method,
         path,
-        basePaths: resolveServerBasePaths(servers),
+        basePaths: (servers && basePathsByServers.get(servers)) ?? [],
         handler: async (c, next) => {
           if (
             (c.req.method !== method && !(method === 'GET' && c.req.method === 'HEAD')) ||

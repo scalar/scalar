@@ -3,21 +3,26 @@ export const expandServerVariables = (
   template: string,
   getValues: (name: string) => readonly string[] | undefined,
 ): string[] => {
-  const names = new Set([...template.matchAll(/\{([^{}]+)\}/g)].map(([, name]) => name!))
+  const placeholder = /\{([^{}]+)\}/g
+  const names = new Set([...template.matchAll(placeholder)].map(([, name]) => name!))
 
-  return [...names].reduce<string[]>(
+  const combinations = [...names].reduce<Map<string, string>[]>(
     (expanded, name) => {
       const values = getValues(name)
       if (values === undefined) {
         return expanded
       }
 
-      return [
-        ...new Set(
-          expanded.flatMap((value) => values.map((replacement) => value.replaceAll(`{${name}}`, () => replacement))),
-        ),
-      ]
+      const uniqueValues = [...new Set(values)]
+      return expanded.flatMap((combination) => uniqueValues.map((value) => new Map([...combination, [name, value]])))
     },
-    [template],
+    [new Map()],
   )
+
+  // Render from the original template so a value containing braces cannot introduce another substitution.
+  return [
+    ...new Set(
+      combinations.map((values) => template.replace(placeholder, (match, name: string) => values.get(name) ?? match)),
+    ),
+  ]
 }

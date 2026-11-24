@@ -241,7 +241,7 @@ paths:
   /pets/{petId}: … # answers /v1/pets/42 and /pets/42
 ```
 
-OpenAPI 2.0 `basePath` and relative server URLs work the same way. Every enum value of a variable in the server path is served, including combinations of multiple variables, and the default is used when there is no enum. Host variables do not create extra routes. Operation and path item `servers` take precedence over the servers of the document. An explicit empty `servers` array at either level leaves the affected operations available only at their bare path keys. Routes under a base path are ranked together with the bare path keys, so the most concrete one answers a request, and on a tie the path key the document declares wins.
+OpenAPI 2.0 `basePath` and relative server URLs work the same way. Relative server URLs use the document’s HTTP retrieval URL when available and the mock server root otherwise. Every enum value of a variable in the server path is served, including combinations of multiple variables, and the default is used when there is no enum. Host variables do not create extra routes. Operation and path item `servers` take precedence over the servers of the document. An explicit empty `servers` array at either level leaves the affected operations available only at their bare path keys. Routes under a base path are ranked together with the bare path keys, so the most concrete one answers a request, and on a tie the path key the document declares wins.
 
 ### Selecting responses
 
