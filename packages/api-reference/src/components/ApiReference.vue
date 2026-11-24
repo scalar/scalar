@@ -90,8 +90,8 @@ import {
   onServerPrefetch,
   provide,
   ref,
-  useId,
   shallowRef,
+  useId,
   useTemplateRef,
   watch,
   type Component,
@@ -1019,10 +1019,23 @@ const contextChain = computed(() => {
   return crumbs
 })
 
+/** The reference card, which the reading position and the focus fallback look into */
+const referenceLayout = useTemplateRef<HTMLElement>('documentEl')
+/** Navigation targets live inside the custom element's shadow root when embedded. */
+const getDocumentRoot = (): Document | ShadowRoot => {
+  const root = referenceLayout.value?.getRootNode()
+  return root instanceof ShadowRoot ? root : document
+}
+
 const scrollToLazyElement = (id: string) => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
-  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
+  _scrollToLazy(
+    id,
+    sidebarState.setExpanded,
+    sidebarState.getEntryById,
+    getDocumentRoot(),
+  )
 }
 
 /**
@@ -2005,7 +2018,7 @@ useIntersection(
   {
     onExit: () => {
       const centerY = window.innerHeight / 2
-      const section = document
+      const section = getDocumentRoot()
         .elementsFromPoint(window.innerWidth / 2, centerY)
         .find((el) => el.tagName === 'SECTION' && el.id)
 
@@ -2183,9 +2196,6 @@ const shellAttrs = computed(() =>
       }
     : {},
 )
-
-/** The reference card, which the reading position and the focus fallback look into */
-const referenceLayout = useTemplateRef<HTMLElement>('documentEl')
 
 /**
  * The element the reader is looking at: the first piece of content that starts at or just below the
