@@ -78,6 +78,7 @@ export {
   getActiveEnvironment,
   getActiveProxyUrl,
   getDefaultHeaders,
+  getOperationServerScope,
   getRequestExampleContext,
   getSecurityRequirements,
   getSecuritySchemes,

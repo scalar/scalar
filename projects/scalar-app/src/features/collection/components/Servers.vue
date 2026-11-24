@@ -134,7 +134,7 @@ const handleServerUpdate = (
   index: number,
   key: string,
   value: string | number,
-) => {
+): void => {
   const meta = serverMeta.value
   execute(`${index}-${key}-${meta.type}`, () =>
     eventBus.emit('server:update:server', {
@@ -146,7 +146,11 @@ const handleServerUpdate = (
 }
 
 /** Handles server variable updates with debouncing */
-const handleVariableUpdate = (index: number, key: string, value: string) => {
+const handleVariableUpdate = (
+  index: number,
+  key: string,
+  value: string,
+): void => {
   const meta = serverMeta.value
   execute(`${index}-${key}-${meta.type}`, () =>
     eventBus.emit('server:update:variables', {

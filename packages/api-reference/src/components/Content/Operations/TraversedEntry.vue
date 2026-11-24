@@ -18,6 +18,7 @@ import type {
 } from '@scalar/workspace-store/schemas/navigation'
 import type {
   OpenApiDocument,
+  PathItemObject,
   SchemaObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -173,7 +174,7 @@ const modelSchemas = computed<Record<string, SchemaObject | undefined>>(() =>
 function getPathValue(
   entry: TraversedOperation | TraversedWebhook,
   sourceDocument: OpenApiDocument | undefined,
-) {
+): PathItemObject | undefined {
   return isWebhook(entry)
     ? getResolvedPathItem(sourceDocument?.webhooks?.[entry.name])
     : getResolvedPathItem(sourceDocument?.paths?.[entry.path])

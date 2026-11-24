@@ -18,7 +18,7 @@ import { getSecurityRequirements } from '@/request-example/context/security/get-
 import { getSecuritySchemes } from '@/request-example/context/security/get-security-schemes'
 import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
 import { type MergedSecuritySchemes, mergeSecurity } from '@/request-example/context/security/merge-security'
-import { getServers, restoreServerSelection } from '@/request-example/context/servers'
+import { getOperationServerScope, getServers, restoreServerSelection } from '@/request-example/context/servers'
 import type { RequestExampleMeta, Result } from '@/request-example/types'
 import type { XScalarEnvironment } from '@/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
@@ -125,32 +125,26 @@ export const getRequestExampleContext = (
   //------------------------------------------------------------------------------------------------
   //                                 SERVER CONTEXT
   //------------------------------------------------------------------------------------------------
-  const operationServerTarget = options.servers == null && resolvedOperation.servers != null ? resolvedOperation : null
-  const pathServerTarget =
-    !isWebhook && options.servers == null && !operationServerTarget ? getPathItemServerTarget(pathItemNode) : undefined
-  const configuredServers =
-    options.servers ??
-    operationServerTarget?.servers ??
-    pathServerTarget?.servers ??
-    (!isWebhook ? document.servers : undefined)
-  const serverList = getServers(configuredServers, {
+  const scope = getOperationServerScope({
+    configuredServers: options.servers,
+    operation: resolvedOperation,
+    pathItem: isWebhook ? undefined : getPathItemServerTarget(pathItemNode),
+    document: !isWebhook || options.servers != null ? document : undefined,
+  })
+  const serverList = getServers(scope.servers, {
     allowSchemelessHost: options.servers != null,
     baseServerUrl: options.baseServerUrl,
     documentUrl: document['x-scalar-original-source-url'],
   })
-  const documentSelection = document['x-scalar-selected-server']
-  const operationSelection = options.servers == null ? resolvedOperation['x-scalar-selected-server'] : undefined
-  const selectedServerUrl = pathServerTarget
-    ? pathServerTarget['x-scalar-selected-server']
-    : (operationSelection ?? documentSelection)
-  const serverTarget =
-    pathServerTarget ?? (operationSelection != null ? resolvedOperation : operationServerTarget) ?? document
-  const selectedServer = restoreServerSelection(serverList, selectedServerUrl, serverTarget)
+  const scopeSelection = scope.target?.['x-scalar-selected-server']
+  // Webhook server edits still use document-level events.
+  const selectedServerUrl = scopeSelection ?? (isWebhook ? document['x-scalar-selected-server'] : undefined)
+  const selectedServer = restoreServerSelection(serverList, selectedServerUrl, scope.target ?? null)
 
   let serverMeta: ServerMeta = { type: 'document' }
-  if (!isWebhook && operationServerTarget) {
+  if (!isWebhook && scope.type === 'operation') {
     serverMeta = { type: 'operation', path, method }
-  } else if (pathServerTarget) {
+  } else if (scope.type === 'path') {
     serverMeta = { type: 'path', path }
   }
 

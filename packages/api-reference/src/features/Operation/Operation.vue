@@ -67,6 +67,7 @@ import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-p
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   combineParams,
+  getOperationServerScope,
   prepareServerSelection,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
@@ -130,20 +131,18 @@ const operation = computed(() => {
  * Determine the effective server for the code examples.
  */
 const selectedServer = computed<ServerObject | null>(() => {
-  if (options.servers !== undefined) {
+  const scope = getOperationServerScope({
+    configuredServers: options.servers,
+    pathItem: serverPathValue ?? pathValue,
+    operation: serverPathValue
+      ? getResolvedRef(getPathItemOperation(serverPathValue, method))
+      : operation.value,
+  })
+  if (scope.type === 'document') {
     return server
   }
 
-  const serverPath = serverPathValue ?? pathValue
-  const serverOperation = serverPathValue
-    ? getResolvedRef(getPathItemOperation(serverPathValue, method))
-    : operation.value
-  const scope = serverOperation?.servers != null ? serverOperation : serverPath
-  if (scope?.servers == null) {
-    return server
-  }
-
-  return prepareServerSelection(scope, {
+  return prepareServerSelection(scope.target, {
     baseServerUrl: options.baseServerURL,
     documentUrl: document['x-scalar-original-source-url'],
   })

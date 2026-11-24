@@ -534,6 +534,51 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     },
   )
 
+  it.each(['path', 'operation'] as const)(
+    'preserves a %s server selection through description updates',
+    async (scope) => {
+      const description = createBasicDocument()
+      const users = description.paths['/users']
+      const first = { url: 'https://primary.example.com' }
+      const backup = { url: 'https://sandbox.example.com' }
+      const withServers = (servers: { url: string }[], detail: string) => ({
+        ...description,
+        info: { ...description.info, description: detail },
+        paths: {
+          '/users': {
+            ...users,
+            ...(scope === 'path' ? { servers } : {}),
+            get: { ...users.get, ...(scope === 'operation' ? { servers } : {}) },
+          },
+        },
+      })
+      const defaultHttpClient = { targetKey: 'shell', clientKey: 'curl' } as const
+      const wrapper = mountComponent({
+        props: { configuration: { content: withServers([first, backup], 'First description'), defaultHttpClient } },
+      })
+      await flushPromises()
+      wrapper.vm.eventBus.emit('server:update:selected', {
+        url: backup.url,
+        meta:
+          scope === 'path' ? { type: 'path', path: '/users' } : { type: 'operation', path: '/users', method: 'get' },
+      })
+      await flushPromises()
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://sandbox.example.com/users')
+
+      await wrapper.setProps({
+        configuration: { content: withServers([first, backup], 'Updated description'), defaultHttpClient },
+      })
+      await flushPromises()
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://sandbox.example.com/users')
+
+      await wrapper.setProps({
+        configuration: { content: withServers([first], 'Updated description'), defaultHttpClient },
+      })
+      await flushPromises()
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://primary.example.com/users')
+    },
+  )
+
   it('default configuration values', async () => {
     const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
     await flushPromises()

@@ -26,7 +26,37 @@ const serverUrlContext = Symbol('serverUrlContext')
 const legacyServerSelection = Symbol('legacyServerSelection')
 type PreparedServer = ServerObject & {
   [serverUrlContext]?: ServerProcessingOptions
-  [legacyServerSelection]?: { previousUrl: string; currentUrl: string }
+  [legacyServerSelection]?: { authoredUrl: string; previousUrl: string; currentUrl: string }
+}
+
+type ServerSelectionTarget = XScalarSelectedServer & { servers?: ServerObject[] }
+
+type OperationServerScope =
+  | { type: 'document'; target?: ServerSelectionTarget; servers?: ServerObject[] }
+  | { type: 'path' | 'operation'; target: ServerSelectionTarget; servers: ServerObject[] }
+
+/** Picks the owner of the effective server list. The selection key belongs to that same owner. */
+export const getOperationServerScope = ({
+  configuredServers,
+  document,
+  pathItem,
+  operation,
+}: {
+  configuredServers?: ServerObject[]
+  document?: ServerSelectionTarget
+  pathItem?: ServerSelectionTarget
+  operation?: ServerSelectionTarget | null
+}): OperationServerScope => {
+  if (configuredServers != null) {
+    return { type: 'document', target: document, servers: configuredServers }
+  }
+  if (operation?.servers != null) {
+    return { type: 'operation', target: operation, servers: operation.servers }
+  }
+  if (pathItem?.servers != null) {
+    return { type: 'path', target: pathItem, servers: pathItem.servers }
+  }
+  return { type: 'document', target: document, servers: document?.servers }
 }
 
 const hasUrlScheme = (url: string): boolean => /^[a-z][a-z\d+.-]*:/i.test(url)
@@ -52,9 +82,19 @@ export function getServers(servers: ServerObject[] | undefined, options: ServerP
 
 /** Prepares a server for URL resolution without mutating the supplied server object. */
 export const prepareServer = (
-  server: ServerObject | null,
+  server: PreparedServer | null,
   options: ServerProcessingOptions = {},
-): ServerObject | null => (server ? processServerObject({ ...server }, options) : null)
+): ServerObject | null => {
+  if (!server) {
+    return null
+  }
+  const copy = { ...server }
+  const selectionAliases = server[legacyServerSelection]
+  if (selectionAliases) {
+    Object.defineProperty(copy, legacyServerSelection, { value: selectionAliases, configurable: true })
+  }
+  return processServerObject(copy, options)
+}
 
 /**
  * Extracts the base URL (protocol + hostname) from a document URL.
@@ -107,12 +147,13 @@ function processServerObject(server: ServerObject, options: ServerProcessingOpti
       return server
     }
 
-    const previousUrl = combineUrlAndPath(baseUrl, server.url)
-    const currentUrl = resolveRelativeServerUrl(server.url, baseUrl)
-    if (previousUrl !== currentUrl) {
-      // Keep the legacy selection available through repeated preparation of this server.
+    const authoredUrl = server.url
+    const previousUrl = combineUrlAndPath(baseUrl, authoredUrl)
+    const currentUrl = resolveRelativeServerUrl(authoredUrl, baseUrl)
+    if (authoredUrl !== currentUrl) {
+      // A server edit saves its authored URL. Older workspaces can also hold the previous absolute URL.
       Object.defineProperty(server, legacyServerSelection, {
-        value: { previousUrl, currentUrl },
+        value: { authoredUrl, previousUrl, currentUrl },
         configurable: true,
       })
     }
@@ -184,7 +225,7 @@ export const getSelectedServer = (
 
 /** Prepares a scoped server selection for display without mutating the API description. */
 export const prepareServerSelection = (
-  scope: XScalarSelectedServer & { servers?: ServerObject[] },
+  scope: ServerSelectionTarget,
   options: ServerProcessingOptions,
 ): ServerObject | null => {
   const servers = (scope.servers ?? []).flatMap((server) => {
@@ -194,7 +235,7 @@ export const prepareServerSelection = (
   return findSelectedServer(servers, scope['x-scalar-selected-server'])
 }
 
-/** Saves an unambiguous replacement for a legacy URL before its temporary alias is lost. */
+/** Saves an unambiguous replacement for an authored or legacy URL before its temporary alias is lost. */
 export const restoreServerSelection = (
   servers: PreparedServer[],
   selectedServerUrl: string | undefined,
@@ -207,7 +248,7 @@ export const restoreServerSelection = (
   return server
 }
 
-/** Finds an exact selection first, then falls back to a single matching legacy URL. */
+/** Finds an exact selection first, then falls back to a single matching URL alias. */
 const findSelectedServer = (servers: PreparedServer[], selectedServerUrl?: string): ServerObject | null => {
   if (selectedServerUrl == null) {
     return servers[0] ?? null
@@ -218,9 +259,12 @@ const findSelectedServer = (servers: PreparedServer[], selectedServerUrl?: strin
     return exact
   }
 
-  const legacyMatches = servers.filter((server) => {
-    const legacy = server[legacyServerSelection]
-    return legacy?.currentUrl === server.url && legacy?.previousUrl === selectedServerUrl
+  const aliasMatches = servers.filter((server) => {
+    const aliases = server[legacyServerSelection]
+    return (
+      aliases?.currentUrl === server.url &&
+      (aliases.authoredUrl === selectedServerUrl || aliases.previousUrl === selectedServerUrl)
+    )
   })
-  return legacyMatches.length === 1 ? (legacyMatches[0] ?? null) : null
+  return aliasMatches.length === 1 ? (aliasMatches[0] ?? null) : null
 }

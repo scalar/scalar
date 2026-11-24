@@ -9,6 +9,7 @@ import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import {
   type SecuritySchemeObjectSecret,
+  getOperationServerScope,
   prepareServer,
   prepareServerSelection,
 } from '@scalar/workspace-store/request-example'
@@ -136,14 +137,11 @@ export const createCodeExample = (
     if (!operation) {
       return undefined
     }
-    let scope = operation.servers != null ? operation : activeDocument
-    if (operation.servers == null && pathItem?.servers != null) {
-      scope = pathItem
-    }
+    const scope = getOperationServerScope({ operation, pathItem, document: activeDocument })
     const documentUrl = activeDocument['x-scalar-original-source-url']
     const server =
       options.selectedServer === undefined
-        ? prepareServerSelection(scope, { documentUrl })
+        ? prepareServerSelection(scope.target ?? activeDocument, { documentUrl })
         : prepareServer(options.selectedServer, { documentUrl, allowSchemelessHost: true })
     return { operation, server }
   }

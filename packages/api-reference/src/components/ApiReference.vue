@@ -170,6 +170,7 @@ import {
 } from '@/helpers/load-from-perssistance'
 import { mapConfigPlugins } from '@/helpers/map-config-plugins'
 import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
+import { restoreScopedServerSelections } from '@/helpers/restore-scoped-server-selections'
 import {
   normalizeConfigurations,
   type NormalizedConfiguration,
@@ -1163,6 +1164,14 @@ const addDocument = async (
 
   const document = clientStore.workspace.documents[input.name]
   if (result === true && isOpenApiDocument(document)) {
+    if (isOpenApiDocument(previousDocument)) {
+      restoreScopedServerSelections(
+        previousDocument,
+        document,
+        config.baseServerURL,
+      )
+    }
+
     // Configured servers have been applied synchronously by useConfiguredServers. Resolve
     // relative URLs before comparing them with the selection retained from the previous load.
     // Use this document's own URL because background preloads may target an inactive document.

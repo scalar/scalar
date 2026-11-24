@@ -9,7 +9,7 @@ import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getRequestExampleContext } from './get-request-example-context'
-import { getSelectedServer, getServers } from './servers'
+import { getSelectedServer, getServers, prepareServerSelection } from './servers'
 
 const createMinimalDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDocument => ({
   openapi: '3.1.1',
@@ -139,6 +139,7 @@ describe('getRequestExampleContext', () => {
       name: 'test',
       document: createMinimalDocument({
         servers: configuredServers,
+        'x-scalar-selected-server': 'https://{env}.example.com',
         paths: {
           '/pets': {
             servers: [{ url: 'https://path.example.com' }],
@@ -166,6 +167,51 @@ describe('getRequestExampleContext', () => {
     assert(withoutOverride.ok)
     expect(withoutOverride.data.servers.meta).toStrictEqual({ type: 'operation', path: '/pets', method: 'get' })
     expect(withoutOverride.data.servers.selected?.url).toBe('https://operation.example.com')
+  })
+
+  it('retains the selected path server when its URL is edited to a root-relative path', async () => {
+    const store = createWorkspaceStore()
+    const documentUrl = 'https://api.example.com/openapi.json'
+    await store.addDocument({
+      name: 'test',
+      documentSource: documentUrl,
+      document: createMinimalDocument({
+        paths: {
+          '/pets': {
+            get: { responses: {} },
+            servers: [{ url: 'https://first.example.com' }, { url: 'https://selected.example.com' }],
+            'x-scalar-selected-server': 'https://selected.example.com',
+          },
+        },
+      }),
+    })
+
+    generateClientMutators(store)
+      .doc('test')
+      .server.updateServer({
+        index: 1,
+        server: { url: '/new' },
+        meta: { type: 'path', path: '/pets' },
+      })
+
+    const document = store.workspace.documents.test
+    assert(isOpenApiDocument(document))
+    const pathItem = getResolvedPathItem(document.paths?.['/pets'])
+    assert(pathItem)
+    expect(prepareServerSelection(pathItem, { documentUrl })?.url).toBe('https://api.example.com/new')
+    expect(pathItem['x-scalar-selected-server']).toBe('/new')
+
+    const meta = { path: '/pets', method: 'get', exampleName: 'default' }
+    const result = getRequestExampleContext(store, 'test', meta)
+    assert(result.ok)
+    expect(result.data.servers.selected?.url).toBe('https://api.example.com/new')
+    expect(pathItem['x-scalar-selected-server']).toBe('https://api.example.com/new')
+
+    const restored = createWorkspaceStore()
+    restored.loadWorkspace(JSON.parse(JSON.stringify(store.exportWorkspace())))
+    const reloaded = getRequestExampleContext(restored, 'test', meta)
+    assert(reloaded.ok)
+    expect(reloaded.data.servers.selected?.url).toBe('https://api.example.com/new')
   })
 
   it('merges options.authentication securitySchemes into security.schemes', async () => {
