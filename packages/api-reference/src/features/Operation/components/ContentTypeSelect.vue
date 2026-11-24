@@ -67,9 +67,9 @@ const contentTypeSelect = cva({
       <ScreenReader>
         {{ translate('operation.selectedContentType') }}:
       </ScreenReader>
-      <span>{{ selectedContentType }}</span>
+      <span class="truncate">{{ selectedContentType }}</span>
       <ScalarIconCaretDown
-        class="size-2.75 transition-transform duration-100"
+        class="size-2.75 shrink-0 transition-transform duration-100"
         :class="{ 'rotate-180': open }"
         weight="bold" />
     </ScalarButton>

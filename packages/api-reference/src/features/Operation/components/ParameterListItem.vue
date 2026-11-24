@@ -109,6 +109,10 @@ const content = computed(() => {
   return parameter.content
 })
 
+const hasResponseContentPicker = computed<boolean>(
+  () => !('in' in parameter) && Object.keys(content.value ?? {}).length > 1,
+)
+
 const selectedContentType = ref<string>(
   Object.keys(content.value || {})[0] ?? '',
 )
@@ -348,7 +352,10 @@ const triggerAnchorId = computed<string | undefined>(() =>
   <li
     :id="isCompactParameter ? triggerAnchorId : undefined"
     class="parameter-item group/parameter-item parameter-item--tree border-t-0!"
-    :class="{ 'scroll-mt-24': isCompactParameter }">
+    :class="{
+      'scroll-mt-24': isCompactParameter,
+      'parameter-item--with-content-picker': hasResponseContentPicker,
+    }">
     <!-- No separators between rows (the row zeroes its own top border); the
          section heading carries the one rule instead (see ParameterList /
          OperationResponses). -->
@@ -399,6 +406,27 @@ const triggerAnchorId = computed<string | undefined>(() =>
           v-else
           class="flex-1" />
       </component>
+      <div
+        v-if="shouldCollapse && content"
+        class="flex items-center text-base"
+        :class="[
+          hasResponseContentPicker
+            ? 'parameter-item-content-picker min-w-0 self-center justify-self-end'
+            : 'absolute top-[calc(10px+0.5lh)] right-0 z-0 -translate-y-1/2',
+          {
+            'mb-1': hasResponseContentPicker && !collapsableItems,
+            'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
+              !hasResponseContentPicker && !open,
+          },
+        ]">
+        <div
+          v-if="!hasResponseContentPicker"
+          class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
+        <ContentTypeSelect
+          v-model="selectedContentType"
+          :class="{ 'max-w-full min-w-0': hasResponseContentPicker }"
+          :content="content" />
+      </div>
       <!-- Railed when collapsible: clicking the rail closes the row. The rail
            props only exist on SchemaRailPanel, so they bind only when it
            renders. The panel indents one gutter (restated here because the
@@ -536,19 +564,6 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :showExtensions="options.showExtensions"
           :specificationExtension="specificationExtension" />
       </component>
-      <div
-        v-if="shouldCollapse && content"
-        class="absolute top-[calc(10px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center text-base"
-        :class="{
-          'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
-            !open,
-        }">
-        <div
-          class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
-        <ContentTypeSelect
-          v-model="selectedContentType"
-          :content="content" />
-      </div>
     </Disclosure>
   </li>
 </template>
@@ -563,6 +578,27 @@ const triggerAnchorId = computed<string | undefined>(() =>
 
 .parameter-item-container {
   padding: 0;
+}
+
+/* Keep the two buttons in separate columns so the summary can shrink. */
+.parameter-item--with-content-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) fit-content(50%);
+  column-gap: 6px;
+}
+
+.parameter-item--with-content-picker > .parameter-item-trigger {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.parameter-item-content-picker {
+  grid-area: 1 / 2;
+}
+
+.parameter-item--with-content-picker > .parameter-item-container {
+  grid-area: 2 / 1 / auto / -1;
+  min-width: 0;
 }
 
 .parameter-item-name {
