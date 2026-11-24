@@ -34,7 +34,12 @@ const indexServerRetrievalUris = (documents: unknown, mappings: unknown, baseUri
   const origins = new WeakMap<object, string>()
   const visited = new WeakSet<object>()
 
-  const indexBundle = (documents: unknown, mappings: unknown, baseUri: string, parentUri?: string): void => {
+  const indexBundle = (
+    documents: unknown,
+    mappings: unknown,
+    baseUri: string | undefined,
+    parentUri?: string,
+  ): void => {
     if (!isObject(documents)) {
       return
     }
@@ -42,11 +47,16 @@ const indexServerRetrievalUris = (documents: unknown, mappings: unknown, baseUri
 
     for (const [key, document] of Object.entries(documents)) {
       const source = getOwnEntry(sources, key)
-      const resolved = safeRun(() => (typeof source === 'string' ? resolveReferencePath(baseUri, source) : parentUri))
+      const resolved = safeRun(() => {
+        if (typeof source !== 'string') {
+          return parentUri
+        }
+        if (baseUri) {
+          return resolveReferencePath(baseUri, source)
+        }
+        return URL.canParse(source) ? source : parentUri
+      })
       const retrievalUri = resolved.ok ? resolved.data : parentUri
-      if (!retrievalUri) {
-        continue
-      }
 
       const stack = [document]
       while (stack.length > 0) {
@@ -55,16 +65,19 @@ const indexServerRetrievalUris = (documents: unknown, mappings: unknown, baseUri
           continue
         }
         visited.add(node)
-        if (Array.isArray(node.servers)) {
+        if (retrievalUri && Array.isArray(node.servers)) {
           origins.set(node.servers, retrievalUri)
         }
         for (const [key, child] of Object.entries(node)) {
           if (node === document && key === 'x-ext' && isObject(child)) {
             // Imported bundles record their URL mappings relative to their own base URI.
-            const identity = safeRun(() => resolveOpenApiDocument(node, retrievalUri))
-            const nestedBase = (identity.ok ? identity.data?.baseUri : undefined) ?? retrievalUri
+            // An absolute document identity can resolve relative mappings even without a retrieval URI.
+            const self = node.$self
+            const identityBase = retrievalUri ?? (typeof self === 'string' && URL.canParse(self) ? self : undefined)
+            const identity = identityBase ? safeRun(() => resolveOpenApiDocument(node, identityBase)) : undefined
+            const nestedBase = (identity?.ok ? identity.data?.baseUri : undefined) ?? retrievalUri
             indexBundle(child, node['x-ext-urls'], nestedBase, retrievalUri)
-          } else {
+          } else if (retrievalUri) {
             stack.push(child)
           }
         }

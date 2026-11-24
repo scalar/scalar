@@ -89,38 +89,72 @@ describe('create-mock-server.server-base-paths', () => {
     }
   })
 
-  it('preserves the retrieval URL of a server declared inside an imported bundle', async () => {
-    const info = { title: 'Pets', version: '1.0.0' }
-    const app = await createMockServer({
-      origin: 'https://api.example.com/catalog/openapi.yaml',
-      document: {
-        openapi: '3.2.1',
-        info,
-        paths: { '/pets': { $ref: '#/x-ext/parent/x-ext/child/components/pathItems/Pets' } },
-        'x-ext': {
-          parent: {
-            openapi: '3.2.1',
-            info,
-            'x-ext': {
-              child: {
-                openapi: '3.2.1',
-                info,
-                components: {
-                  pathItems: { Pets: { servers: [{ url: './v1' }], get: { responses: okResponse('pets') } } },
+  it.each([
+    {
+      description: 'relative child mappings with a parent URL',
+      parentMapping: { parent: '../parent/openapi.yaml' },
+      childUrl: 'child/openapi.yaml',
+      servedPath: '/parent/child/v1/pets',
+      unservedPath: '/parent/v1/pets',
+    },
+    {
+      description: 'absolute child mappings without a parent URL',
+      parentMapping: undefined,
+      childUrl: 'https://cdn.example.com/child/openapi.yaml',
+      servedPath: '/child/v1/pets',
+      unservedPath: '/catalog/v1/pets',
+    },
+    {
+      description: 'relative child mappings without a known base',
+      parentMapping: undefined,
+      childUrl: 'child/openapi.yaml',
+      servedPath: '/catalog/v1/pets',
+      unservedPath: '/catalog/child/v1/pets',
+    },
+    {
+      description: 'relative child mappings with an absolute parent identity',
+      parentMapping: undefined,
+      parentIdentity: 'https://api.example.com/identifiers/parent.yaml',
+      childUrl: 'child/openapi.yaml',
+      servedPath: '/identifiers/child/v1/pets',
+      unservedPath: '/catalog/v1/pets',
+    },
+  ])(
+    'resolves server paths for $description',
+    async ({ parentMapping, parentIdentity, childUrl, servedPath, unservedPath }) => {
+      const info = { title: 'Pets', version: '1.0.0' }
+      const app = await createMockServer({
+        origin: 'https://api.example.com/catalog/openapi.yaml',
+        document: {
+          openapi: '3.2.1',
+          info,
+          paths: { '/pets': { $ref: '#/x-ext/parent/x-ext/child/components/pathItems/Pets' } },
+          'x-ext': {
+            parent: {
+              openapi: '3.2.1',
+              ...(parentIdentity && { $self: parentIdentity }),
+              info,
+              'x-ext': {
+                child: {
+                  openapi: '3.2.1',
+                  info,
+                  components: {
+                    pathItems: { Pets: { servers: [{ url: './v1' }], get: { responses: okResponse('pets') } } },
+                  },
                 },
               },
+              'x-ext-urls': { child: childUrl },
             },
-            'x-ext-urls': { child: 'child/openapi.yaml' },
           },
+          ...(parentMapping && { 'x-ext-urls': parentMapping }),
         },
-        'x-ext-urls': { parent: '../parent/openapi.yaml' },
-      },
-    })
+      })
 
-    expect((await app.request('/pets')).status).toBe(200)
-    expect((await app.request('/parent/child/v1/pets')).status).toBe(200)
-    expect((await app.request('/parent/v1/pets')).status).toBe(404)
-  })
+      expect((await app.request('/pets')).status).toBe(200)
+      expect((await app.request(servedPath)).status).toBe(200)
+      expect((await app.request(unservedPath)).status).toBe(404)
+    },
+  )
 
   it('gives the built-in OAuth route precedence over a generated operation path', async () => {
     const app = await createMockServer({
