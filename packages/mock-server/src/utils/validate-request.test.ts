@@ -1287,12 +1287,13 @@ describe('validate-request', () => {
     expect(response.status).toBe(200)
   })
 
-  it('validates and delivers a JSON body sent without a Content-Type header', async () => {
+  it('validates and delivers a headerless JSON body using the bare media type', async () => {
     const document = documentWith('/items', 'post', {
       'x-handler': 'return { received: req.body };',
       requestBody: {
         required: true,
         content: {
+          'application/json; charset=utf-8': { schema: { type: 'object', required: ['localized'] } },
           'application/json': {
             schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
           },
@@ -1312,7 +1313,9 @@ describe('validate-request', () => {
     // No Content-Type header: validation must reject an invalid body...
     const invalid = await server.request(withoutContentType(JSON.stringify({})))
     expect(invalid.status).toBe(422)
-    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'body' })
+    expect((await invalid.json()).violations).toStrictEqual([
+      { location: 'body', path: '/name', message: "must have required property 'name'" },
+    ])
 
     // ...and a valid body must still reach the handler as `req.body`.
     const valid = await server.request(withoutContentType(JSON.stringify({ name: 'Alice' })))
@@ -1342,6 +1345,163 @@ describe('validate-request', () => {
     })
 
     expect((await response.json()).received).toEqual({ name: 'Alice' })
+  })
+
+  it('validates and delivers bodies sent with a structured +json media type', async () => {
+    const document = documentWith('/items', 'post', {
+      'x-handler': 'return { received: req.body };',
+      requestBody: {
+        required: true,
+        content: {
+          'application/vnd.api+json': {
+            schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
+          },
+        },
+      },
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+    const post = async (body: unknown): Promise<Response> =>
+      server.request('/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/vnd.api+json' },
+        body: JSON.stringify(body),
+      })
+
+    const invalid = await post({})
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'body' })
+
+    // A valid body passes validation and reaches the handler as `req.body`.
+    expect((await (await post({ name: 'Alice' })).json()).received).toEqual({ name: 'Alice' })
+  })
+
+  it.each([
+    ['application/json', { name: 'Ada' }, 200],
+    ['application/json', { active: true }, 422],
+    ['Application/Merge-Patch+JSON; charset=utf-8', { active: true }, 200],
+    ['application/merge-patch+json', { name: 'Ada' }, 422],
+    ['application/vnd.api+json', { data: {} }, 200],
+    ['application/vnd.api+json', { active: true }, 422],
+    ['application/other+json', { active: true }, 200],
+  ])('selects the request schema for %s and %j', async (contentType, body, status) => {
+    const document = documentWith('/items', 'patch', {
+      requestBody: {
+        content: {
+          'application/json': { schema: { type: 'object', required: ['name'] } },
+          'application/merge-patch+json': { schema: { type: 'object', required: ['active'] } },
+          'application/vnd.api+json': { schema: { type: 'object', required: ['data'] } },
+        },
+      },
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request('/items', {
+      method: 'PATCH',
+      headers: { 'Content-Type': contentType },
+      body: JSON.stringify(body),
+    })
+
+    expect(response.status).toBe(status)
+  })
+
+  it.each([
+    ['application/unknown+json', { id: 42 }, 200],
+    ['application/unknown+json', {}, 422],
+    ['text/unknown+json', { id: 42 }, 422],
+    ['application/vnd.api+json', {}, 200],
+    ['application/vnd.api+json; profile="https://example.com/Profile"', {}, 422],
+    ['application/vnd.api+json; profile="https://example.com/profile"', {}, 200],
+    ['application/vnd.api+json; profile="https://example.com/profile;v2"', { versionTwo: true }, 200],
+    ['application/vnd.api+json; profile="https://example.com/profile;v2"', { versionOne: true }, 422],
+  ])('matches the most specific body media type for %s and %j', async (contentType, body, status) => {
+    const document = documentWith('/items', 'post', {
+      requestBody: {
+        content: {
+          '*/*': { schema: false },
+          'application/*': { schema: { type: 'object', required: ['id'] } },
+          'application/vnd.api+json': {},
+          'application/vnd.api+json; profile="https://example.com/Profile"': {
+            schema: { type: 'object', required: ['data'] },
+          },
+          'application/vnd.api+json; profile="https://example.com/profile;v1"': {
+            schema: { type: 'object', required: ['versionOne'] },
+          },
+          'application/vnd.api+json; profile="https://example.com/profile;v2"': {
+            schema: { type: 'object', required: ['versionTwo'] },
+          },
+        },
+      },
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': contentType },
+      body: JSON.stringify(body),
+    })
+
+    expect(response.status).toBe(status)
+  })
+
+  it('rejects a structured JSON body when its schema is false', async () => {
+    const document = documentWith('/items', 'post', {
+      requestBody: {
+        content: { 'application/merge-patch+json': { schema: false } },
+      },
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/merge-patch+json' },
+      body: '{}',
+    })
+
+    expect(response.status).toBe(422)
+  })
+
+  it('passes text/json to the handler as a raw string', async () => {
+    const document = documentWith('/items', 'post', {
+      'x-handler': 'return { received: req.body };',
+      requestBody: {
+        content: {
+          'application/json': { schema: { type: 'object', required: ['name'] } },
+          'text/json': { schema: { type: 'string' } },
+        },
+      },
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+    const body = '{"example":true}'
+
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/json' },
+      body,
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ received: body })
+  })
+
+  it.each([
+    'application/json-seq',
+    'application/json-seq; profile="https://example.com/text/md"',
+    'application/json-seq; profile="https://example.com/application/x-www-form-urlencoded"',
+    'invalid',
+  ])('leaves the handler body unset for %s', async (contentType) => {
+    const document = documentWith('/items', 'post', {
+      'x-handler': 'return { hasBody: req.body !== undefined };',
+    })
+    const server = await createMockServer({ document })
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': contentType },
+      body: '\x1E{"name":"Ada"}\n',
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ hasBody: false })
   })
 
   it('calls onRequest even when the request is rejected by validation', async () => {
