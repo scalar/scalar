@@ -2969,7 +2969,7 @@
                       },
                       "dart": {
                         "title": "Dart",
-                        "description": "Configuration reference for the experimental Dart SDK target: package metadata, naming, and generation options.",
+                        "description": "Configuration reference for the Dart SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/dart.md",
                         "type": "page"
                       },
