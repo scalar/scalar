@@ -254,22 +254,28 @@ describe('mount', () => {
   })
 
   it.each(['document', 'path', 'operation'] as const)(
-    'uses the API description origin for a relative %s server',
+    'uses the saved %s server and its description base',
     async (scope) => {
       const store = createWorkspaceStore()
-      const servers = [{ url: '{prefix}/v1', variables: { prefix: { default: '' } } }]
+      const selected = {
+        servers: [
+          { url: 'https://production.example.com' },
+          { url: '{prefix}release.next/base', variables: { prefix: { default: '' } } },
+        ],
+        'x-scalar-selected-server': '{prefix}release.next/base',
+      }
       await store.addDocument({
         name: 'default',
-        documentSource: 'https://api.example.com/openapi.json',
+        documentSource: 'https://api.example.com/docs/openapi.json',
         document: {
           openapi: '3.1.0',
           info: { title: 'Petstore', version: '1.0.0' },
-          servers: scope === 'document' ? servers : undefined,
+          ...(scope === 'document' ? selected : {}),
           paths: {
             '/hello': {
-              servers: scope === 'path' ? servers : undefined,
+              ...(scope === 'path' ? selected : {}),
               get: {
-                servers: scope === 'operation' ? servers : undefined,
+                ...(scope === 'operation' ? selected : {}),
                 responses: { '200': { description: 'OK' } },
               },
             },
@@ -280,7 +286,7 @@ describe('mount', () => {
       const element = document.createElement('div')
       mounted.push(createCodeExample(element, { store, path: '/hello', method: 'get', selectedClient: 'shell/curl' }))
 
-      expect(element.textContent).toContain('https://api.example.com/v1/hello')
+      expect(element.textContent).toContain('https://api.example.com/docs/release.next/base/hello')
     },
   )
 

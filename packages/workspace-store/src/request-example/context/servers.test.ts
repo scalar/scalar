@@ -117,6 +117,26 @@ describe('servers', () => {
       expect(resolveServerUrl(server ?? null)).toBe('https://api.example.com/{{version}}')
     })
 
+    it.each(['{prefix}release.next/base', 'release.next/base'])(
+      'resolves the authored path %s against the description URL',
+      (url) => {
+        const [server] = getServers([{ url, variables: { prefix: { default: '' } } }], {
+          documentUrl: 'https://api.example.com/docs/openapi.json',
+        })
+
+        expect(resolveServerUrl(server ?? null)).toBe('https://api.example.com/docs/release.next/base')
+      },
+    )
+
+    it('keeps schemeless hosts in configured server overrides', () => {
+      const [server] = getServers([{ url: '{prefix}api.example.com/base', variables: { prefix: { default: '' } } }], {
+        documentUrl: 'https://docs.example.com/openapi.json',
+        allowSchemelessHost: true,
+      })
+
+      expect(resolveServerUrl(server ?? null)).toBe('api.example.com/base')
+    })
+
     it('uses the configured base for a template that resolves to a relative URL', () => {
       const [server] = getServers([{ url: '{prefix}/v1', variables: { prefix: { default: '' } } }], {
         baseServerUrl: 'https://base.example.com/api/',

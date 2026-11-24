@@ -4,8 +4,10 @@ import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getServerVariables } from '@/request-example/builder/helpers/get-server-variables'
 import type { WorkspaceDocument } from '@/schemas'
+import type { XScalarSelectedServer } from '@/schemas/extensions/server/x-scalar-selected-server'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 
@@ -15,6 +17,8 @@ import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 export type ServerProcessingOptions = {
   baseServerUrl?: string
   documentUrl?: string
+  /** Allow configured hosts such as example.com/api without an explicit scheme. */
+  allowSchemelessHost?: boolean
 }
 
 // Keep the context on the prepared server. Its URL remains the template used for selection and editing.
@@ -24,6 +28,11 @@ type PreparedServer = ServerObject & {
   [serverUrlContext]?: ServerProcessingOptions
   [legacyServerSelection]?: { previousUrl: string; currentUrl: string }
 }
+
+const hasUrlScheme = (url: string): boolean => /^[a-z][a-z\d+.-]*:/i.test(url)
+
+const isRelativeServerUrl = (url: string, options: ServerProcessingOptions): boolean =>
+  options.documentUrl && !options.allowSchemelessHost ? !hasUrlScheme(url) : isRelativePath(url)
 
 /**
  * Prepares OpenAPI servers for URL resolution.
@@ -108,7 +117,7 @@ function processServerObject(server: ServerObject, options: ServerProcessingOpti
       })
     }
     server.url = currentUrl
-  } else if (server.url && isRelativePath(server.url) && (options.baseServerUrl || options.documentUrl)) {
+  } else if (server.url && (options.baseServerUrl || options.documentUrl) && isRelativeServerUrl(server.url, options)) {
     return { ...server, [serverUrlContext]: options }
   }
 
@@ -126,7 +135,7 @@ export const resolveServerUrlWithContext = (url: string, context?: ServerProcess
     return baseUrl ? resolveRelativeServerUrl(url, baseUrl) : url
   }
 
-  if (!context || !isRelativePath(url)) {
+  if (!context || !isRelativeServerUrl(url, context)) {
     return url
   }
 
@@ -158,21 +167,48 @@ export const resolveServerUrl = (
   return resolveServerUrlWithContext(url, getServerUrlContext(server))
 }
 
+/** Finds the selected server and updates its stored URL when a legacy match is unambiguous. */
 export const getSelectedServer = (
   document: WorkspaceDocument | null,
   operation: OperationObject | null,
   configServers: ServerObject[] | null,
   servers: PreparedServer[],
 ): ServerObject | null => {
-  const documentSelectedServer = isOpenApiDocument(document) ? document['x-scalar-selected-server'] : undefined
-  const selectedServerUrl =
-    configServers != null ? documentSelectedServer : (operation?.['x-scalar-selected-server'] ?? documentSelectedServer)
+  if (configServers == null && operation?.['x-scalar-selected-server'] != null) {
+    return restoreServerSelection(servers, operation['x-scalar-selected-server'], operation)
+  }
 
-  return findSelectedServer(servers, selectedServerUrl)
+  const selectionTarget = isOpenApiDocument(document) ? document : null
+  return restoreServerSelection(servers, selectionTarget?.['x-scalar-selected-server'], selectionTarget)
+}
+
+/** Prepares a scoped server selection for display without mutating the API description. */
+export const prepareServerSelection = (
+  scope: XScalarSelectedServer & { servers?: ServerObject[] },
+  options: ServerProcessingOptions,
+): ServerObject | null => {
+  const servers = (scope.servers ?? []).flatMap((server) => {
+    const prepared = prepareServer(getResolvedRef(server) ?? null, options)
+    return prepared?.url ? [prepared] : []
+  })
+  return findSelectedServer(servers, scope['x-scalar-selected-server'])
+}
+
+/** Saves an unambiguous replacement for a legacy URL before its temporary alias is lost. */
+export const restoreServerSelection = (
+  servers: PreparedServer[],
+  selectedServerUrl: string | undefined,
+  selectionTarget: XScalarSelectedServer | null,
+): ServerObject | null => {
+  const server = findSelectedServer(servers, selectedServerUrl)
+  if (selectionTarget && server && selectedServerUrl != null && selectedServerUrl !== server.url) {
+    selectionTarget['x-scalar-selected-server'] = server.url
+  }
+  return server
 }
 
 /** Finds an exact selection first, then falls back to a single matching legacy URL. */
-export const findSelectedServer = (servers: PreparedServer[], selectedServerUrl?: string): ServerObject | null => {
+const findSelectedServer = (servers: PreparedServer[], selectedServerUrl?: string): ServerObject | null => {
   if (selectedServerUrl == null) {
     return servers[0] ?? null
   }

@@ -50,7 +50,7 @@ describe('AddressBar', () => {
         exampleKey: custom.exampleKey ?? 'default',
         eventBus,
         environment: baseEnvironment,
-        serverMeta: {
+        serverMeta: custom.serverMeta ?? {
           type: 'document',
         },
       },
@@ -93,6 +93,26 @@ describe('AddressBar', () => {
     const el = document.createElement('div')
     el.id = 'address-bar-test-id'
     document.body.appendChild(el)
+  })
+
+  it('opens the operation servers editor from an inherited path server', async () => {
+    const { wrapper, eventBus } = mountWithProps({
+      path: '/pets',
+      serverMeta: { type: 'path', path: '/pets' },
+    })
+    const navigate = vi.fn()
+    eventBus.on('ui:navigate', navigate)
+
+    wrapper.getComponent({ name: 'ServerDropdown' }).vm.$emit('update:servers')
+    await nextTick()
+
+    expect(navigate).toHaveBeenCalledWith({
+      page: 'operation',
+      path: 'servers',
+      operationPath: '/pets',
+      method: 'get',
+    })
+    wrapper.unmount()
   })
 
   it.each(['web', 'desktop', 'modal'] as const)('opens GET requests from the %s address bar', async (layout) => {

@@ -9,6 +9,7 @@ import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getRequestExampleContext } from './get-request-example-context'
+import { getSelectedServer, getServers } from './servers'
 
 const createMinimalDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDocument => ({
   openapi: '3.1.1',
@@ -35,7 +36,7 @@ const createMinimalDocument = (overrides: Partial<OpenApiDocument> = {}): OpenAp
 })
 
 describe('getRequestExampleContext', () => {
-  it.each(['document', 'operation'] as const)(
+  it.each(['document', 'operation', 'agent'] as const)(
     'persists a restored %s server selection through reload',
     async (scope) => {
       const workspaceStore = createWorkspaceStore()
@@ -52,15 +53,22 @@ describe('getRequestExampleContext', () => {
         name: 'test',
         documentSource: 'https://api.example.com/openapi.json',
         document: createMinimalDocument({
-          ...(scope === 'document' ? selection : {}),
+          ...(scope !== 'operation' ? selection : {}),
           paths: { '/pets': { get: { responses: {}, ...(scope === 'operation' ? selection : {}) } } },
         }),
       })
 
       const meta = { path: '/pets', method: 'get', exampleName: 'default' }
-      const before = getRequestExampleContext(workspaceStore, 'test', meta)
-      assert(before.ok)
-      expect(before.data.servers.selected?.url).toBe(currentUrl)
+      if (scope === 'agent') {
+        const document = workspaceStore.workspace.documents.test
+        assert(isOpenApiDocument(document))
+        const servers = getServers(document.servers, { documentUrl: document['x-scalar-original-source-url'] })
+        expect(getSelectedServer(document, null, null, servers)?.url).toBe(currentUrl)
+      } else {
+        const before = getRequestExampleContext(workspaceStore, 'test', meta)
+        assert(before.ok)
+        expect(before.data.servers.selected?.url).toBe(currentUrl)
+      }
 
       const restored = createWorkspaceStore()
       restored.loadWorkspace(JSON.parse(JSON.stringify(workspaceStore.exportWorkspace())))

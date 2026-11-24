@@ -24,6 +24,7 @@ export type OperationProps = {
     | 'schemaKeyboardNav'
     | 'showOperationId'
     | 'multipartNaming'
+    | 'servers'
     | 'showExtensions'
   >
   /** Document object */
@@ -34,6 +35,8 @@ export type OperationProps = {
   pathValue: PathItemObject | undefined
   /** Currently selected server for the document */
   server: ServerObject | null
+  /** Current client state for the path item's server selections and variable values. */
+  serverPathValue?: PathItemObject
   /** The merged security schemes for the document and the authentication configuration */
   securitySchemes: MergedSecuritySchemes
   /** The http client options for the dropdown */
@@ -61,11 +64,10 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
-import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   combineParams,
-  prepareServer,
+  prepareServerSelection,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
 import type {
@@ -99,6 +101,7 @@ const {
   pathValue,
   securitySchemes,
   server,
+  serverPathValue,
 } = defineProps<OperationProps & SchemaRenderingProps>()
 
 defineSlots<{
@@ -127,15 +130,20 @@ const operation = computed(() => {
  * Determine the effective server for the code examples.
  */
 const selectedServer = computed<ServerObject | null>(() => {
-  const override = getFirstServer(
-    operation.value?.servers ?? null,
-    pathValue?.servers ?? null,
-  )
-  if (!override) {
-    return getFirstServer(server)
+  if (options.servers !== undefined) {
+    return server
   }
 
-  return prepareServer(override, {
+  const serverPath = serverPathValue ?? pathValue
+  const serverOperation = serverPathValue
+    ? getResolvedRef(getPathItemOperation(serverPathValue, method))
+    : operation.value
+  const scope = serverOperation?.servers != null ? serverOperation : serverPath
+  if (scope?.servers == null) {
+    return server
+  }
+
+  return prepareServerSelection(scope, {
     baseServerUrl: options.baseServerURL,
     documentUrl: document['x-scalar-original-source-url'],
   })

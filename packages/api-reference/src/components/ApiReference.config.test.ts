@@ -489,18 +489,24 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
   })
 
   it.each(['path', 'operation'] as const)(
-    'uses the description origin for a %s server override in cURL',
+    'uses the saved %s server override and its description base in cURL',
     async (scope) => {
       const content = createBasicDocument()
-      const servers = [{ url: '{prefix}/v1', variables: { prefix: { default: '' } } }]
+      const selected = {
+        servers: [
+          { url: 'https://production.example.com' },
+          { url: '{prefix}release.next/base', variables: { prefix: { default: '' } } },
+        ],
+        'x-scalar-selected-server': '{prefix}release.next/base',
+      }
       const users = content.paths['/users']
       const description = {
         ...content,
         paths: {
           '/users': {
             ...users,
-            servers: scope === 'path' ? servers : undefined,
-            get: { ...users.get, servers: scope === 'operation' ? servers : undefined },
+            ...(scope === 'path' ? selected : {}),
+            get: { ...users.get, ...(scope === 'operation' ? selected : {}) },
           },
         },
       }
@@ -508,7 +514,7 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
       const wrapper = mountComponent({
         props: {
           configuration: {
-            url: 'https://api.example.com/openapi.json',
+            url: 'https://api.example.com/docs/openapi.json',
             customFetch,
             defaultHttpClient: { targetKey: 'shell', clientKey: 'curl' },
           },
@@ -516,7 +522,15 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
       })
       await flushPromises()
 
-      expect(wrapper.getComponent(CodeExample).text()).toContain('https://api.example.com/v1/users')
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://api.example.com/docs/release.next/base/users')
+
+      wrapper.vm.eventBus.emit('server:update:selected', {
+        url: 'https://production.example.com',
+        meta:
+          scope === 'path' ? { type: 'path', path: '/users' } : { type: 'operation', path: '/users', method: 'get' },
+      })
+      await flushPromises()
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://production.example.com/users')
     },
   )
 

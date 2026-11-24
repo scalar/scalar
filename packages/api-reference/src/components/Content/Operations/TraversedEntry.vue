@@ -34,6 +34,7 @@ import { SpecificationExtension } from '@/features/specification-extension'
 const {
   specificationExtension = SpecificationExtension,
   level = 0,
+  clientDocument,
   clientOptions,
   document,
   authStore,
@@ -58,11 +59,14 @@ const {
     entries: TraversedEntry[]
     /** The document object */
     document: OpenApiDocument
+    /** Client workspace document holding user-selected servers and variable values. */
+    clientDocument?: OpenApiDocument
     /** The http client options for the dropdown */
     clientOptions: ClientOptionGroup[]
     /** The subset of the configuration object required for the operation component */
     options: Pick<
       ApiReferenceConfigurationRaw,
+      | 'baseServerURL'
       | 'expandAllParameters'
       | 'expandAllResponses'
       | 'hideTestRequestButton'
@@ -78,6 +82,7 @@ const {
       | 'multipartNaming'
       | 'hideModels'
       | 'modelsSectionLabel'
+      | 'servers'
     >
     /** Currently selected server for the document */
     selectedServer: ServerObject | null
@@ -165,10 +170,13 @@ const modelSchemas = computed<Record<string, SchemaObject | undefined>>(() =>
   ),
 )
 
-function getPathValue(entry: TraversedOperation | TraversedWebhook) {
+function getPathValue(
+  entry: TraversedOperation | TraversedWebhook,
+  sourceDocument: OpenApiDocument | undefined,
+) {
   return isWebhook(entry)
-    ? getResolvedPathItem(document.webhooks?.[entry.name])
-    : getResolvedPathItem(document.paths?.[entry.path])
+    ? getResolvedPathItem(sourceDocument?.webhooks?.[entry.name])
+    : getResolvedPathItem(sourceDocument?.paths?.[entry.path])
 }
 </script>
 
@@ -198,12 +206,13 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :method="entry.method"
         :options="options"
         :path="isWebhook(entry) ? entry.name : entry.path"
-        :pathValue="getPathValue(entry)"
+        :pathValue="getPathValue(entry, document)"
         :scrollTargetId="scrollTargetId"
         :securitySchemes="securitySchemes"
         :selectedClient="selectedClient"
         :selectedExample="selectedExample"
         :server="selectedServer"
+        :serverPathValue="getPathValue(entry, clientDocument)"
         :specificationExtension="specificationExtension" />
     </SectionContainer>
 
@@ -221,6 +230,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       <template v-if="'children' in entry && entry.children?.length">
         <TraversedEntry
           :authStore
+          :clientDocument
           :clientOptions
           :document
           :entries="entry.children"
@@ -252,6 +262,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :id="entry.id">
       <TraversedEntry
         :authStore
+        :clientDocument
         :clientOptions
         :document
         :entries="entry.children || []"
@@ -280,6 +291,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :modelsSectionLabel="options.modelsSectionLabel">
       <TraversedEntry
         :authStore
+        :clientDocument
         :clientOptions
         :document
         :entries="entry.children || []"

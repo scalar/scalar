@@ -18,7 +18,7 @@ import { getSecurityRequirements } from '@/request-example/context/security/get-
 import { getSecuritySchemes } from '@/request-example/context/security/get-security-schemes'
 import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
 import { type MergedSecuritySchemes, mergeSecurity } from '@/request-example/context/security/merge-security'
-import { findSelectedServer, getServers } from '@/request-example/context/servers'
+import { getServers, restoreServerSelection } from '@/request-example/context/servers'
 import type { RequestExampleMeta, Result } from '@/request-example/types'
 import type { XScalarEnvironment } from '@/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
@@ -134,6 +134,7 @@ export const getRequestExampleContext = (
     pathServerTarget?.servers ??
     (!isWebhook ? document.servers : undefined)
   const serverList = getServers(configuredServers, {
+    allowSchemelessHost: options.servers != null,
     baseServerUrl: options.baseServerUrl,
     documentUrl: document['x-scalar-original-source-url'],
   })
@@ -142,14 +143,9 @@ export const getRequestExampleContext = (
   const selectedServerUrl = pathServerTarget
     ? pathServerTarget['x-scalar-selected-server']
     : (operationSelection ?? documentSelection)
-  const selectedServer = findSelectedServer(serverList, selectedServerUrl)
-  if (selectedServer && selectedServerUrl != null && selectedServer.url !== selectedServerUrl) {
-    // The old key is only available while the server is being prepared. Persist the new key in the
-    // same scope as the server so a workspace export can restore the selection.
-    const serverTarget =
-      pathServerTarget ?? (operationSelection != null ? resolvedOperation : operationServerTarget) ?? document
-    serverTarget['x-scalar-selected-server'] = selectedServer.url
-  }
+  const serverTarget =
+    pathServerTarget ?? (operationSelection != null ? resolvedOperation : operationServerTarget) ?? document
+  const selectedServer = restoreServerSelection(serverList, selectedServerUrl, serverTarget)
 
   let serverMeta: ServerMeta = { type: 'document' }
   if (!isWebhook && operationServerTarget) {

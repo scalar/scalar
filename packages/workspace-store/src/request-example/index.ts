@@ -87,6 +87,7 @@ export {
   isAuthOptional,
   mergeSecurity,
   prepareServer,
+  prepareServerSelection,
   resolveServerUrl,
   restoreConventionalDefaultHeaderNames,
   restoreConventionalHeaderName,

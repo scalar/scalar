@@ -1167,6 +1167,7 @@ const addDocument = async (
     // relative URLs before comparing them with the selection retained from the previous load.
     // Use this document's own URL because background preloads may target an inactive document.
     const servers = getServers(document.servers, {
+      allowSchemelessHost: config.servers !== undefined,
       baseServerUrl: config.baseServerURL,
       documentUrl: document['x-scalar-original-source-url'],
     })
