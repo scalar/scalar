@@ -1353,9 +1353,10 @@ const handleArraySchema = (
       } else if (
         variant &&
         ('minLength' in items || 'maxLength' in items || 'minLength' in variant || 'maxLength' in variant) &&
-        (selectedType === 'string' || (Array.isArray(selectedType) && selectedType[0] === 'string'))
+        (selectedType === 'string' || (Array.isArray(selectedType) && selectedType[0] === 'string')) &&
+        getDeclaredValue(variant) === undefined
       ) {
-        // Keep the selected member's authored-value precedence and inherit its string context.
+        // Type inheritance can change default validation, so use it only for generated examples.
         selectedSchema = { ...variant }
         if (!('type' in variant) || variant.type === undefined) {
           Object.assign(selectedSchema, { type: selectedType })

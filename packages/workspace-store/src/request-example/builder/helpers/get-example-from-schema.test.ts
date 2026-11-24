@@ -1134,6 +1134,14 @@ describe('getExampleFromSchema', () => {
     )
   })
 
+  it('keeps the authored default of an untyped array item variant', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: { type: 'string', minLength: 3, oneOf: [{ default: 42 }] },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual([42])
+  })
+
   it('returns emails as an example value', () => {
     const result = getExampleFromSchema(
       coerceValue(SchemaObjectSchema, {
