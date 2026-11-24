@@ -1299,7 +1299,8 @@ const onBeforeMatch = (): void => {
   margin-bottom: 9px;
 }
 
-:deep(.property-description) * {
+/* Mute the description text, but leave fenced code blocks alone so they keep their syntax highlighting. */
+:deep(.property-description) :not(pre, pre *) {
   color: var(--scalar-color-2) !important;
 }
 

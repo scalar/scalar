@@ -402,7 +402,8 @@ const shouldRenderRequestBody = computed(
   /** Add a bit of space between the heading border and the schema description or properties */
   padding-top: 8px;
 }
-.request-body-description :deep(.markdown) * {
+/* Mute the description text, but leave fenced code blocks alone so they keep their syntax highlighting. */
+.request-body-description :deep(.markdown) :not(pre, pre *) {
   color: var(--scalar-color-2) !important;
 }
 </style>
