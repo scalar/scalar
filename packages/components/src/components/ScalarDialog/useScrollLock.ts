@@ -12,8 +12,8 @@ type SavedStyles = {
 /**
  * Active locks, keyed by the root element they lock.
  *
- * Keyed per root rather than global because a dialog in a shadow root or an iframe locks its own
- * document. The count lets nested and stacked dialogs share one lock, so closing the inner dialog
+ * Keyed per root rather than global because a dialog inside an iframe locks that iframe's own
+ * document. A dialog in a shadow root shares its host's document, so it locks the page. The count lets nested and stacked dialogs share one lock, so closing the inner dialog
  * does not unlock the page while the outer one is still open.
  */
 const locks = new WeakMap<HTMLElement, SavedStyles>()

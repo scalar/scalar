@@ -14,6 +14,9 @@
  * Restyle or resize it by passing your own `class`; the defaults are intentionally
  * minimal so consumers compose rather than configure.
  *
+ * Give the dialog an accessible name, ideally by pointing `aria-labelledby` at its
+ * visible heading so screen readers announce the same title sighted users see.
+ *
  * @example
  * <ScalarDialog v-model:open="open">
  *   <h2>Title</h2>
@@ -67,6 +70,9 @@ const dialogRef = ref<HTMLDialogElement | null>(null)
 
 const { lock, unlock } = useScrollLock()
 
+/** Whether the dialog was open on the last run of the bridge, so `close` fires once per close. */
+let wasOpen = false
+
 /**
  * Puppet the native dialog from the reactive `open` model.
  *
@@ -86,11 +92,18 @@ watchPostEffect(() => {
       element.showModal()
     }
     lock(element)
+    wasOpen = true
   } else {
     if (element.open) {
       element.close()
     }
     unlock()
+    // Emit here rather than from the native `close` event, which is queued and never
+    // arrives if the dialog is reopened before it fires
+    if (wasOpen) {
+      emit('close')
+    }
+    wasOpen = false
   }
 })
 
@@ -106,19 +119,19 @@ const handleClose = (): void => {
     return
   }
   open.value = false
-  emit('close')
 }
 
 /**
  * Close on Escape, unless something inside the dialog already handled it.
  *
  * Child widgets such as listboxes and comboboxes use Escape to close themselves and mark the event
- * as handled, so the dialog leaves those alone. Stopping propagation means only the innermost of
+ * as handled, so the dialog leaves those alone. The same goes for Escape cancelling an IME
+ * composition, which should not also close the dialog. Stopping propagation means only the innermost of
  * several nested dialogs closes. Preventing the default also stops a search input from clearing
  * its value on the same keypress that dismisses the dialog.
  */
 const handleEscape = (event: KeyboardEvent): void => {
-  if (event.defaultPrevented) {
+  if (event.defaultPrevented || event.isComposing) {
     return
   }
   event.preventDefault()

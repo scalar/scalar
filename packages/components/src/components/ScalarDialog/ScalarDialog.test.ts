@@ -165,6 +165,56 @@ describe('ScalarDialog', () => {
     expect(wrapper.emitted('close')).toBeUndefined()
   })
 
+  it('emits close even when the dialog reopens before the native close event fires', async () => {
+    // Real browsers queue the close event, so swap in a close that never dispatches it
+    Object.defineProperty(prototype, 'close', {
+      configurable: true,
+      value(this: HTMLDialogElement) {
+        this.open = false
+      },
+    })
+    const wrapper = mount(ScalarDialog, { props: { open: true } })
+    await nextTick()
+    await wrapper.setProps({ open: false })
+    await wrapper.setProps({ open: true })
+
+    expect(wrapper.emitted('close')).toEqual([[]])
+    expect(wrapper.get('dialog').element.open).toBe(true)
+  })
+
+  it('leaves the dialog open when Escape cancels an IME composition', async () => {
+    const wrapper = mount(ScalarDialog, {
+      props: { open: true },
+      slots: { default: '<input aria-label="Name" />' },
+    })
+    await nextTick()
+    wrapper
+      .get('input')
+      .element.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true, isComposing: true }),
+      )
+
+    expect(wrapper.emitted('update:open')).toBeUndefined()
+  })
+
+  it('closes only the inner dialog when its backdrop is clicked', async () => {
+    const closed: string[] = []
+    const wrapper = mount(ScalarDialog, {
+      props: { open: true, 'onUpdate:open': () => closed.push('outer') },
+      slots: {
+        default: () => h(ScalarDialog, { open: true, 'onUpdate:open': () => closed.push('inner') }),
+      },
+    })
+    await nextTick()
+    // jsdom lays everything out as an empty box at the origin, so this point is outside both dialogs
+    const inner = wrapper.findAll('dialog')[1]!.element
+    const position = { bubbles: true, button: 0, clientX: 10, clientY: 10 }
+    inner.dispatchEvent(new MouseEvent('pointerdown', position))
+    inner.dispatchEvent(new MouseEvent('click', { ...position, detail: 1 }))
+
+    expect(closed).toEqual(['inner'])
+  })
+
   it('teleports popovers inside the dialog so they render above it', async () => {
     const wrapper = mount(ScalarDialog, {
       props: { open: true },

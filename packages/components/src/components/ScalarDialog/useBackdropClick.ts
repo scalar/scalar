@@ -22,6 +22,10 @@ export const isPointerOutsideBox = (
   { top, right, bottom, left }: Box,
 ): boolean => clientX < left || clientX > right || clientY < top || clientY > bottom
 
+/** Whether an event landed on this dialog's own backdrop, rather than bubbling up from inside it. */
+const isOnBackdrop = (event: MouseEvent, element: HTMLDialogElement): boolean =>
+  event.target === event.currentTarget && isPointerOutsideBox(event, element.getBoundingClientRect())
+
 /**
  * Dismiss a native `<dialog>` when the backdrop is clicked.
  *
@@ -36,6 +40,11 @@ export const isPointerOutsideBox = (
  *   dispatches a synthetic `click` with `detail === 0` and coordinates of `(0, 0)`, which
  *   sit outside the centered dialog. Ignoring `detail === 0` clicks keeps the dialog open
  *   when a control inside it is used from the keyboard.
+ *
+ * Both events must also target the dialog itself. A backdrop click always does, while a
+ * click that bubbles up from a descendant does not, even when its position falls outside
+ * the box: a nested dialog's backdrop, a wider nested dialog, or a popover that overflows
+ * the dialog edge. Without that check those clicks would close the outer dialog too.
  *
  * @param dialogRef - Template ref to the native `<dialog>` element.
  * @param onDismiss - Called when a genuine backdrop click is detected.
@@ -53,7 +62,7 @@ export const useBackdropClick = (
   const handlePointerDown = (event: PointerEvent): void => {
     const element = dialogRef.value
     // Only the primary (left) button can lead to a `click`, so ignore the rest.
-    pressedOnBackdrop = event.button === 0 && !!element && isPointerOutsideBox(event, element.getBoundingClientRect())
+    pressedOnBackdrop = event.button === 0 && !!element && isOnBackdrop(event, element)
   }
 
   const handleClick = (event: MouseEvent): void => {
@@ -67,7 +76,7 @@ export const useBackdropClick = (
       return
     }
 
-    if (pressed && isPointerOutsideBox(event, element.getBoundingClientRect())) {
+    if (pressed && isOnBackdrop(event, element)) {
       onDismiss()
     }
   }

@@ -51,6 +51,18 @@ describe('useBackdropClick', () => {
     expect(onDismiss).toHaveBeenCalledOnce()
   })
 
+  it('does not dismiss for a click that bubbles up from a descendant outside the box', () => {
+    const onDismiss = vi.fn()
+    const { handlePointerDown, handleClick } = useBackdropClick(dialogWith(), onDismiss)
+    // A nested dialog's backdrop or an overflowing popover: outside the box, but not the dialog itself
+    const fromDescendant = { target: {}, currentTarget: {} } as Partial<MouseEvent>
+
+    handlePointerDown(pointer({ clientX: 10, clientY: 10, ...fromDescendant }))
+    handleClick(click({ clientX: 10, clientY: 10, ...fromDescendant }))
+
+    expect(onDismiss).not.toHaveBeenCalled()
+  })
+
   it('does not dismiss for a click inside the dialog', () => {
     const onDismiss = vi.fn()
     const { handlePointerDown, handleClick } = useBackdropClick(dialogWith(), onDismiss)

@@ -31,10 +31,14 @@ export const Base: Story = {
       </div>
       <ScalarDialog
         v-model:open="open"
-        aria-label="Example dialog"
+        aria-labelledby="example-dialog-title"
         v-bind="args">
         <div class="flex flex-col gap-4">
-          <h2 class="text-sm font-medium">Example dialog</h2>
+          <h2
+            id="example-dialog-title"
+            class="text-sm font-medium">
+            Example dialog
+          </h2>
           <p class="text-c-2">
             Compose whatever you want in here — there are no size or variant props,
             just the slot and class overrides.
@@ -68,9 +72,13 @@ export const Nested: Story = {
       </div>
       <ScalarDialog
         v-model:open="open"
-        aria-label="First dialog">
+        aria-labelledby="first-dialog-title">
         <div class="flex flex-col gap-4">
-          <h2 class="text-sm font-medium">First dialog</h2>
+          <h2
+            id="first-dialog-title"
+            class="text-sm font-medium">
+            First dialog
+          </h2>
           <p class="text-c-2">Open another dialog on top — the browser stacks and inerts this one.</p>
           <div class="flex gap-2 *:flex-1">
             <ScalarButton variant="outlined" @click="open = false">Close</ScalarButton>
@@ -80,10 +88,14 @@ export const Nested: Story = {
       </ScalarDialog>
       <ScalarDialog
         v-model:open="nested"
-        aria-label="Nested dialog"
+        aria-labelledby="nested-dialog-title"
         class="max-w-sm">
         <div class="flex flex-col gap-4">
-          <h2 class="text-sm font-medium">Nested dialog</h2>
+          <h2
+            id="nested-dialog-title"
+            class="text-sm font-medium">
+            Nested dialog
+          </h2>
           <p class="text-c-2">Escape closes me first, then the dialog underneath.</p>
           <ScalarButton @click="nested = false">Close</ScalarButton>
         </div>
@@ -107,9 +119,13 @@ export const Scrolling: Story = {
       </div>
       <ScalarDialog
         v-model:open="open"
-        aria-label="Scrolling dialog">
+        aria-labelledby="scrolling-dialog-title">
         <div class="flex flex-col gap-3">
-          <h2 class="text-sm font-medium">Lots of content</h2>
+          <h2
+            id="scrolling-dialog-title"
+            class="text-sm font-medium">
+            Lots of content
+          </h2>
           <p
             v-for="n in paragraphs"
             :key="n"
