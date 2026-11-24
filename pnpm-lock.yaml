@@ -359,6 +359,9 @@ catalogs:
     google-auth-library:
       specifier: 11.3.4
       version: 11.3.4
+    hast-util-to-text:
+      specifier: ^4.0.5
+      version: 4.0.5
     highlight.js:
       specifier: ^11.12.0
       version: 11.12.0
@@ -443,6 +446,9 @@ catalogs:
     supertest:
       specifier: 7.3.2
       version: 7.3.2
+    svelte:
+      specifier: ^5.59.1
+      version: 5.59.1
     tailwindcss:
       specifier: ^4.3.5
       version: 4.3.5
@@ -482,6 +488,9 @@ catalogs:
     vue-tsc:
       specifier: 3.3.11
       version: 3.3.11
+    wrangler:
+      specifier: ^4.166.0
+      version: 4.166.0
     ws:
       specifier: 8.23.0
       version: 8.23.0
@@ -609,7 +618,7 @@ importers:
         specifier: catalog:*
         version: 3.3.11(typescript@6.0.3)
       wrangler:
-        specifier: ^4.166.0
+        specifier: catalog:*
         version: 4.166.0(@types/node@24.19.2)(encoding@0.1.13)(vitest@5.1.1(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(jsdom@31.0.1(@noble/hashes@1.8.0))(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0)))
 
   examples/nestjs/nestjs-api-reference-express:
@@ -907,7 +916,7 @@ importers:
         specifier: ^7.3.1
         version: 7.3.1(svelte@5.59.1(@typescript-eslint/types@8.73.0))(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0))
       svelte:
-        specifier: ^5.59.1
+        specifier: catalog:*
         version: 5.59.1(@typescript-eslint/types@8.73.0)
       svelte-check:
         specifier: ^4.7.8
@@ -1363,7 +1372,7 @@ importers:
         specifier: ^0.3.25
         version: 0.3.25
       svelte:
-        specifier: ^5.59.1
+        specifier: catalog:*
         version: 5.59.1(@typescript-eslint/types@8.73.0)
       svelte-check:
         specifier: ^4.7.8
@@ -2087,7 +2096,7 @@ importers:
         specifier: workspace:*
         version: link:../markdown
       hast-util-to-text:
-        specifier: ^4.0.5
+        specifier: catalog:*
         version: 4.0.5
       highlight.js:
         specifier: catalog:*
@@ -2451,7 +2460,7 @@ importers:
         specifier: ^4.0.4
         version: 4.0.4
       hast-util-to-text:
-        specifier: ^4.0.5
+        specifier: catalog:*
         version: 4.0.5
       rehype-external-links:
         specifier: ^3.0.0
@@ -3422,7 +3431,7 @@ importers:
         specifier: catalog:*
         version: 4.13.20
       wrangler:
-        specifier: ^4.166.0
+        specifier: catalog:*
         version: 4.166.0(@types/node@24.19.2)(encoding@0.1.13)(vitest@5.1.1(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(jsdom@31.0.1(@noble/hashes@1.8.0))(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0)))
 
   projects/proxy-scalar-com: {}
@@ -13864,10 +13873,6 @@ packages:
   find-cache-dir@4.0.0:
     resolution: {integrity: sha512-9ZonPT4ZAK4a+1pUPVPZJapbi7O5qbbJPdYw/NOQWZZbVLdDTYM3A4R9z/DpAM08IDaFGsvPgiGZ82WEwUDWjg==}
     engines: {node: '>=14.16'}
-
-  find-my-way@9.10.0:
-    resolution: {integrity: sha512-eru+uCPQ2g+nLBkf84MHP/KyNNMar0BDy0j+i8Fb72GF9/YHBZ58q7FODUtfVV7XU9nfRUHXSmaM8NmZcIbZ4Q==}
-    engines: {node: '>=20'}
 
   find-my-way@9.10.2:
     resolution: {integrity: sha512-gbLMuTm2FV5QiRh/eM0uhL4nyOvbSqqa2K3mASAtkIqxvY8ZmoLOCLMd2syLWT/SyhrvOR7GPxOKj/kcV6o8bg==}
@@ -33928,7 +33933,7 @@ snapshots:
       abstract-logging: 2.0.1
       avvio: 9.1.0
       fast-json-stringify: 7.0.1
-      find-my-way: 9.10.0
+      find-my-way: 9.10.2
       light-my-request: 6.6.0
       pino: 10.1.0
       process-warning: 5.1.0
@@ -34059,12 +34064,6 @@ snapshots:
     dependencies:
       common-path-prefix: 3.0.0
       pkg-dir: 7.0.0
-
-  find-my-way@9.10.0:
-    dependencies:
-      fast-deep-equal: 3.1.3
-      fast-querystring: 1.1.2
-      safe-regex2: 5.0.0
 
   find-my-way@9.10.2:
     dependencies:

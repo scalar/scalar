@@ -37,6 +37,6 @@
     "@scalar/mock-server": "workspace:*",
     "@types/node": "catalog:*",
     "hono": "catalog:*",
-    "wrangler": "^4.166.0"
+    "wrangler": "catalog:*"
   }
 }
