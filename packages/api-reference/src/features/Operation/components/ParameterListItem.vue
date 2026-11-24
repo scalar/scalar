@@ -352,10 +352,12 @@ const triggerAnchorId = computed<string | undefined>(() =>
   <li
     :id="isCompactParameter ? triggerAnchorId : undefined"
     class="parameter-item group/parameter-item parameter-item--tree border-t-0!"
-    :class="{
-      'scroll-mt-24': isCompactParameter,
-      'parameter-item--with-content-picker': hasResponseContentPicker,
-    }">
+    :class="[
+      hasResponseContentPicker
+        ? 'grid grid-cols-[minmax(0,1fr)_fit-content(50%)] gap-x-1.5'
+        : 'flex flex-col',
+      { 'scroll-mt-24': isCompactParameter },
+    ]">
     <!-- No separators between rows (the row zeroes its own top border); the
          section heading carries the one rule instead (see ParameterList /
          OperationResponses). -->
@@ -363,16 +365,18 @@ const triggerAnchorId = computed<string | undefined>(() =>
       :key="groupNavigationKey"
       v-slot="{ open, close }"
       :defaultOpen="isOnTargetPath">
-      <!-- The trigger spans the full row, so its focus ring must too: drawing
-           it on the 12px caret leaves the actual control with no visible
-           focus state. -->
+      <!-- Ring the disclosure itself so keyboard focus stays visible.
+           Give the picker a separate column so the summary can shrink. -->
       <component
         :is="shouldCollapse ? DisclosureButton : 'div'"
         v-if="collapsableItems && !isStaticTreeItem"
         :id="isCompactParameter ? undefined : triggerAnchorId"
         :ref="() => trackGroupOpen(open)"
         class="parameter-item-trigger group/trigger group/tree-control scroll-mt-24 focus-visible:rounded-(--scalar-radius) focus-visible:outline-(length:--scalar-border-width) focus-visible:outline-offset-2 focus-visible:outline-(--scalar-focus-color)"
-        :class="{ 'parameter-item-trigger-open': open }">
+        :class="{
+          'parameter-item-trigger-open': open,
+          'col-start-1 row-start-1 min-w-0': hasResponseContentPicker,
+        }">
         <div class="parameter-item-name min-w-0">
           <!-- The puck is the depth-0 gutter glyph, so a response row reads as
                part of the schema tree below it. Anchored to the first line so
@@ -411,7 +415,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
         class="flex items-center text-base"
         :class="[
           hasResponseContentPicker
-            ? 'parameter-item-content-picker min-w-0 self-center justify-self-end'
+            ? 'col-start-2 row-start-1 min-w-0 self-center justify-self-end'
             : 'absolute top-[calc(10px+0.5lh)] right-0 z-0 -translate-y-1/2',
           {
             'mb-1': hasResponseContentPicker && !collapsableItems,
@@ -425,7 +429,8 @@ const triggerAnchorId = computed<string | undefined>(() =>
         <ContentTypeSelect
           v-model="selectedContentType"
           :class="{ 'max-w-full min-w-0': hasResponseContentPicker }"
-          :content="content" />
+          :content="content"
+          :truncateLabel="hasResponseContentPicker" />
       </div>
       <!-- Railed when collapsible: clicking the rail closes the row. The rail
            props only exist on SchemaRailPanel, so they bind only when it
@@ -454,6 +459,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
           'parameter-item-container--tree mt-1.5 mb-0.5 ps-[var(--schema-gutter,16px)]!':
             isRailedPanel,
           'parameter-item-container--static-tree': isStaticTreeItem,
+          'col-span-full row-start-2 min-w-0': hasResponseContentPicker,
         }"
         :static="!collapsableItems || isStaticTreeItem">
         <!-- The railed panel's own top margin already supplies the 6px gap to
@@ -570,35 +576,12 @@ const triggerAnchorId = computed<string | undefined>(() =>
 
 <style scoped>
 .parameter-item {
-  display: flex;
-  flex-direction: column;
   position: relative;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .parameter-item-container {
   padding: 0;
-}
-
-/* Keep the two buttons in separate columns so the summary can shrink. */
-.parameter-item--with-content-picker {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) fit-content(50%);
-  column-gap: 6px;
-}
-
-.parameter-item--with-content-picker > .parameter-item-trigger {
-  grid-area: 1 / 1;
-  min-width: 0;
-}
-
-.parameter-item-content-picker {
-  grid-area: 1 / 2;
-}
-
-.parameter-item--with-content-picker > .parameter-item-container {
-  grid-area: 2 / 1 / auto / -1;
-  min-width: 0;
 }
 
 .parameter-item-name {

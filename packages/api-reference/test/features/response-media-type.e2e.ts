@@ -44,7 +44,8 @@ const getOpacity = (picker: Locator): Promise<number> =>
 for (const layout of ['modern', 'classic'] as const) {
   test.describe(layout, () => {
     test('shows the picker on a narrow collapsed response and supports keyboard selection', async ({ page }) => {
-      await page.setViewportSize({ width: 390, height: 844 })
+      const viewportWidth = 320
+      await page.setViewportSize({ width: viewportWidth, height: 844 })
       const example = await serveExample({ content, layout })
       await page.goto(example)
 
@@ -71,6 +72,8 @@ for (const layout of ['modern', 'classic'] as const) {
         Math.min(disclosureBox.y + disclosureBox.height, pickerBox.y + pickerBox.height) >
           Math.max(disclosureBox.y, pickerBox.y)
       expect(overlap).toBe(false)
+      expect(pickerBox.x).toBeGreaterThanOrEqual(0)
+      expect(pickerBox.x + pickerBox.width).toBeLessThanOrEqual(viewportWidth)
 
       await disclosure.focus()
       await page.keyboard.press('Tab')
