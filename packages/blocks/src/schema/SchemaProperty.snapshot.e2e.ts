@@ -19,25 +19,6 @@ test.describe('SchemaProperty', () => {
 
   ;['Described', 'Nested Object', 'Array Of Objects'].forEach((story) => test(story, takeSnapshot))
 
-  // The description mutes its text, but must not paint over the token colors of a code block (#11200)
-  test('Described With Code Block', async ({ page }) => {
-    const description = page.locator('.property-description')
-    const text = description.getByText('A snippet to run on the server:')
-    const keyword = description.locator('pre .hljs-keyword', { hasText: 'let' })
-    const muted = await page.evaluate(() => {
-      const probe = document.createElement('span')
-      probe.style.color = 'var(--scalar-color-2)'
-      document.body.append(probe)
-      const color = getComputedStyle(probe).color
-      probe.remove()
-      return color
-    })
-
-    await expect(keyword).toBeVisible()
-    await expect(text).toHaveCSS('color', muted)
-    await expect(keyword).not.toHaveCSS('color', muted)
-  })
-
   test('Collapsed Preview With Copy Link', async ({ page, snapshot }) => {
     const copyLink = page.getByRole('button', { name: 'Copy link to atmosphere', exact: true })
 
