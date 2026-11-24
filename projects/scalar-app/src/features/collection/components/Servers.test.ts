@@ -1,10 +1,12 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import Servers from './Servers.vue'
+
+enableAutoUnmount(afterEach)
 
 describe('Servers', () => {
   beforeEach(() => {
@@ -58,6 +60,8 @@ describe('Servers', () => {
 
     return {
       wrapper: mount(Servers, {
+        // The delete confirmation submits a form, which jsdom only does for connected elements
+        attachTo: globalThis.document.body,
         props: {
           document,
           environment,

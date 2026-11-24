@@ -1353,7 +1353,7 @@ describe('localhost shell', () => {
       expect(configure.attributes('aria-expanded')).toBe('true')
       expect(configure.attributes('aria-controls')).toBe(panel.attributes('id'))
       // The panel replaces the dropdown, so nothing else opens
-      expect(window.document.querySelector('[role="dialog"]')).toBeNull()
+      expect(window.document.querySelector('dialog[open], [role="dialog"]')).toBeNull()
 
       await click(toolbarButton(wrapper, 'Share'))
       expect(wrapper.get('.references-shell-panel').attributes('aria-label')).toBe('Share')
@@ -1420,7 +1420,7 @@ describe('localhost shell', () => {
       expect(panel.attributes('aria-label')).toBe('Generate SDK')
       expect(panel.get('h2').text()).toBe('Everything your API needs, from one OpenAPI document')
       expect(generate.attributes('aria-expanded')).toBe('true')
-      expect(window.document.querySelector('[role="dialog"]')).toBeNull()
+      expect(window.document.querySelector('dialog[open], [role="dialog"]')).toBeNull()
 
       // Its own close button closes the panel
       await panel.get('button[aria-label="Close"]').trigger('click')
@@ -1438,7 +1438,7 @@ describe('localhost shell', () => {
       await click(generate)
 
       expect(wrapper.find('.references-shell-panel').exists()).toBe(false)
-      expect(window.document.querySelector('[role="dialog"]')).not.toBeNull()
+      expect(window.document.querySelector('dialog[open]')).not.toBeNull()
     })
   })
 

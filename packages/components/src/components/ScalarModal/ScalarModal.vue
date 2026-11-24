@@ -2,7 +2,7 @@
 import { ScalarIconX } from '@scalar/icons'
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
-import { reactive, useId } from 'vue'
+import { computed, reactive, useId } from 'vue'
 
 import { ScalarDialog } from '../ScalarDialog'
 import { ScalarIconButton } from '../ScalarIconButton'
@@ -24,6 +24,13 @@ const emit = defineEmits<{
 }>()
 
 const titleId = useId()
+
+/** Whether the modal is the full-height side panel rather than a centered panel */
+const isFull = computed(() => size === 'full')
+
+/** The full size dialog is an invisible full-viewport layer the side panel sits in */
+const FULL_LAYOUT =
+  'scalar-modal-layout-full m-0 h-dvh max-h-dvh w-dvw max-w-none overflow-visible rounded-none bg-transparent p-0 shadow-none backdrop:bg-transparent dark:backdrop:bg-transparent'
 
 /**
  * Sync user dismissals from the dialog back into the modal state.
@@ -111,48 +118,34 @@ export function useModal() {
 </script>
 <template>
   <ScalarDialog
-    v-if="size === 'full'"
     :aria-labelledby="title ? titleId : undefined"
-    class="scalar-modal-layout-full m-0 h-dvh max-h-dvh w-dvw max-w-none overflow-visible rounded-none bg-transparent p-0 shadow-none backdrop:bg-transparent dark:backdrop:bg-transparent"
+    :class="isFull ? FULL_LAYOUT : modal({ size, variant })"
     :open="state.open"
+    :style="isFull ? undefined : { maxWidth }"
     @update:open="handleOpenChange">
-    <!-- The full size is a side panel, so the dialog fills the viewport and the panel sits inside it -->
+    <!-- The full size is a side panel, so the dialog fills the viewport and the panel sits inside
+         it. Every other size is the panel itself, and the wrapper steps out of the layout. -->
     <div
-      :class="modal({ size, variant })"
-      :style="{ maxWidth }">
+      :class="isFull ? modal({ size, variant }) : 'contents'"
+      :style="isFull ? { maxWidth } : undefined">
       <h2
         v-if="title"
         :id="titleId"
         class="scalar-modal-header text-c-1 m-0 -mb-1 rounded-lg px-3 pt-3 text-left text-sm font-medium">
         {{ title }}
       </h2>
-      <div :class="bodyClass">
+      <div :class="isFull ? bodyClass : cx(body({ size, variant }), bodyClass)">
         <slot />
       </div>
     </div>
-    <div class="close-button fixed top-2 right-2 z-10">
+    <div
+      v-if="isFull"
+      class="close-button fixed top-2 right-2 z-10">
       <ScalarIconButton
         class="hover:bg-b-3 focus:outline-none"
         :icon="ScalarIconX"
         label="Close modal"
         @click="state.hide()" />
-    </div>
-  </ScalarDialog>
-  <ScalarDialog
-    v-else
-    :aria-labelledby="title ? titleId : undefined"
-    :class="modal({ size, variant })"
-    :open="state.open"
-    :style="{ maxWidth }"
-    @update:open="handleOpenChange">
-    <h2
-      v-if="title"
-      :id="titleId"
-      class="scalar-modal-header text-c-1 m-0 -mb-1 rounded-lg px-3 pt-3 text-left text-sm font-medium">
-      {{ title }}
-    </h2>
-    <div :class="cx(body({ size, variant }), bodyClass)">
-      <slot />
     </div>
   </ScalarDialog>
 </template>

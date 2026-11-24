@@ -1,12 +1,40 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import { toast, Toaster } from 'vue-sonner'
 
 import { useToasts, type ToastOptions } from '../hooks/useToasts'
 
 // The toaster is only required on the client
 const isClientMounted = ref(false)
-onMounted(() => (isClientMounted.value = true))
+
+/** The popover the toaster renders in, so toasts can sit in the browser's top layer */
+const layer = ref<HTMLElement | null>(null)
+
+/**
+ * Move the toasts to the top of the top layer.
+ *
+ * A modal opened with `showModal()` paints above everything outside the top layer, whatever its
+ * `z-index`, so a toast raised from a modal form would be hidden behind it. A manual popover lives
+ * in the top layer too, and showing it again puts it above anything that entered the top layer
+ * since, such as a modal opened after the last toast. Browsers without the Popover API keep the
+ * toaster in the normal flow, as before.
+ */
+const raise = (): void => {
+  const element = layer.value
+  if (!element || typeof element.showPopover !== 'function') {
+    return
+  }
+  if (element.matches(':popover-open')) {
+    element.hidePopover()
+  }
+  element.showPopover()
+}
+
+onMounted(async () => {
+  isClientMounted.value = true
+  await nextTick()
+  raise()
+})
 
 const toastMethods = {
   success: toast.success,
@@ -19,6 +47,8 @@ const { initializeToasts } = useToasts()
 initializeToasts((message, level = 'info', options: ToastOptions = {}) => {
   const toastAction = toastMethods[level] || toastMethods.info
 
+  raise()
+
   toastAction(message, {
     duration: options.timeout || 3000,
     description: options.description,
@@ -27,14 +57,35 @@ initializeToasts((message, level = 'info', options: ToastOptions = {}) => {
 </script>
 
 <template>
-  <Toaster
-    v-if="isClientMounted"
-    class="scalar-toaster">
-  </Toaster>
+  <div
+    ref="layer"
+    class="scalar-toaster-layer"
+    popover="manual">
+    <Toaster
+      v-if="isClientMounted"
+      class="scalar-toaster">
+    </Toaster>
+  </div>
 </template>
 
 <style>
 @import 'vue-sonner/style.css';
+
+/*
+ * Strip the popover's default box, so only the toaster (which positions itself against the
+ * viewport) shows. The layer is empty space, so it takes no room and no clicks of its own.
+ */
+.scalar-toaster-layer {
+  inset: 0 auto auto 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  background: transparent;
+  color: inherit;
+}
 
 /**
 * We need to be explicit to avoid !important. :)

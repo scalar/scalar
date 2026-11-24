@@ -49,7 +49,7 @@ type MountOptions = {
 }
 
 /**
- * The dialog is teleported to <body>, so everything inside it is queried through the document.
+ * The dialog is mounted into <body>, so everything inside it is queried through the document.
  * An explicit `url: undefined` stands for an inline document, so it must not fall back to the default.
  */
 const mountModal = async (options: MountOptions = {}) => {
@@ -67,7 +67,7 @@ const mountModal = async (options: MountOptions = {}) => {
 }
 
 const getDialog = () => {
-  const dialog = document.querySelector<HTMLElement>('[role="dialog"]')
+  const dialog = document.querySelector<HTMLElement>('dialog[open]')
   if (!dialog) {
     throw new Error('Expected the dialog to be open')
   }
@@ -92,8 +92,43 @@ const click = async (element: HTMLElement | undefined) => {
   await flushPromises()
 }
 
+const dialogPrototype = HTMLDialogElement.prototype
+const originalShowModal = Object.getOwnPropertyDescriptor(dialogPrototype, 'showModal')
+const originalClose = Object.getOwnPropertyDescriptor(dialogPrototype, 'close')
+
+/** Put a dialog method back the way jsdom had it, deleting the stub when jsdom had none */
+const restoreDialogMethod = (name: 'showModal' | 'close', descriptor: PropertyDescriptor | undefined) => {
+  if (descriptor) {
+    Object.defineProperty(dialogPrototype, name, descriptor)
+  } else {
+    Reflect.deleteProperty(dialogPrototype, name)
+  }
+}
+
 beforeEach(() => {
-  /** Headless UI's Dialog observes the panel size, and jsdom has no ResizeObserver */
+  /**
+   * jsdom does not implement the dialog API. This stands in for the part these tests rely on: like a
+   * browser, `showModal()` focuses the first focusable element, which is the sign-up call to action.
+   */
+  Object.defineProperties(dialogPrototype, {
+    showModal: {
+      configurable: true,
+      value(this: HTMLDialogElement) {
+        this.setAttribute('open', '')
+        this.querySelector<HTMLElement>(
+          '[autofocus], a[href], button:not([disabled]), input, select, textarea',
+        )?.focus()
+      },
+    },
+    close: {
+      configurable: true,
+      value(this: HTMLDialogElement) {
+        this.removeAttribute('open')
+        this.dispatchEvent(new Event('close'))
+      },
+    },
+  })
+  /** jsdom has no ResizeObserver */
   globalThis.ResizeObserver = class {
     disconnect = vi.fn()
     observe = vi.fn()
@@ -108,6 +143,8 @@ afterEach(() => {
   vi.clearAllMocks()
   // jsdom has no Web Animations API; the morph test stubs it on the prototype
   Reflect.deleteProperty(HTMLElement.prototype, 'animate')
+  restoreDialogMethod('showModal', originalShowModal)
+  restoreDialogMethod('close', originalClose)
 })
 
 describe('ExploreScalarModal', () => {
@@ -147,7 +184,7 @@ describe('ExploreScalarModal', () => {
     window.addEventListener('error', onError)
 
     const state = await mountModal({ startOpen: false })
-    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(document.querySelector('dialog[open]')).toBeNull()
 
     state.show()
     await flushPromises()
@@ -417,7 +454,7 @@ describe('ExploreScalarModal', () => {
     expect(toastMock).toHaveBeenCalledWith('Unable to export active document', 'error')
     expect(uploadMock).not.toHaveBeenCalled()
     expect(state.open).toBe(true)
-    expect(document.querySelector('[role="dialog"]')).not.toBeNull()
+    expect(document.querySelector('dialog[open]')).not.toBeNull()
   })
 
   it('focuses the sign-up call to action when opened', async () => {
@@ -432,7 +469,7 @@ describe('ExploreScalarModal', () => {
     await click(getClose())
 
     expect(state.open).toBe(false)
-    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(document.querySelector('dialog[open]')).toBeNull()
   })
 
   it('keeps the close button last in the Tab order', async () => {
@@ -482,7 +519,7 @@ describe('ExploreScalarModal', () => {
     it('renders inline instead of opening a dialog', async () => {
       const { wrapper } = await mountPanel()
 
-      expect(document.querySelector('[role="dialog"]')).toBeNull()
+      expect(document.querySelector('dialog[open]')).toBeNull()
       expect(wrapper.classes()).toContain('explore-scalar-modal--panel')
       expect(wrapper.get('h2').text()).toBe('Everything your API needs, from one OpenAPI document')
       expect(wrapper.text()).toContain('Try it out for free')
