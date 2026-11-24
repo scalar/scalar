@@ -17,21 +17,24 @@ const petOperation = {
 }
 
 describe('create-mock-server.server-base-paths', () => {
-  it('serves operations under the base path of the servers', async () => {
-    const app = await createMockServer({
-      document: {
-        openapi: '3.1.1',
-        info: { title: 'Pets', version: '1.0.0' },
-        servers: [{ url: 'https://api.example.com/v1' }],
-        paths: { '/pets/{petId}': { get: petOperation } },
-      },
-    })
+  it.each(['https://api.example.com/v1', '//api.example.com/v1'])(
+    'serves operations under the base path of %s',
+    async (url) => {
+      const app = await createMockServer({
+        document: {
+          openapi: '3.1.1',
+          info: { title: 'Pets', version: '1.0.0' },
+          servers: [{ url }],
+          paths: { '/pets/{petId}': { get: petOperation } },
+        },
+      })
 
-    const response = await app.request('/v1/pets/1')
+      const response = await app.request('/v1/pets/1')
 
-    expect(response.status).toBe(200)
-    expect(await response.json()).toStrictEqual({ petId: '1' })
-  })
+      expect(response.status).toBe(200)
+      expect(await response.json()).toStrictEqual({ petId: '1' })
+    },
+  )
 
   it('keeps serving operations at their bare path keys', async () => {
     const app = await createMockServer({
@@ -62,7 +65,7 @@ describe('create-mock-server.server-base-paths', () => {
     expect((await app.request('/v1/pets/abc')).status).toBe(422)
   })
 
-  it('serves a Swagger 2.0 basePath', async () => {
+  it('serves an OpenAPI 2.0 basePath', async () => {
     const app = await createMockServer({
       document: {
         swagger: '2.0',
@@ -129,6 +132,48 @@ describe('create-mock-server.server-base-paths', () => {
     expect((await app.request('/v1/uploads', { method: 'POST' })).status).toBe(404)
     expect((await app.request('/beta/reports')).status).toBe(200)
     expect((await app.request('/v1/reports')).status).toBe(404)
+  })
+
+  it('honors explicit empty operation and path item server overrides', async () => {
+    const app = await createMockServer({
+      document: {
+        openapi: '3.1.1',
+        info: { title: 'Pets', version: '1.0.0' },
+        servers: [{ url: '/v1' }],
+        paths: {
+          '/pets': { servers: [], get: { responses: okResponse('pets') } },
+          '/reports': {
+            servers: [{ url: '/internal' }],
+            get: { servers: [], responses: okResponse('reports') },
+          },
+        },
+      },
+    })
+
+    for (const path of ['/pets', '/reports']) {
+      expect((await app.request(path)).status).toBe(200)
+    }
+    for (const path of ['/v1/pets', '/v1/reports', '/internal/reports']) {
+      expect((await app.request(path)).status).toBe(404)
+    }
+  })
+
+  it.each([
+    ['a null variables map', { url: 'https://{host}/v1', variables: null }],
+    ['a non-array enum', { url: '/{version}', variables: { version: { enum: 'v1' } } }],
+  ])('skips a server with %s', async (_, server) => {
+    const app = await createMockServer({
+      document: {
+        openapi: '3.1.1',
+        info: { title: 'Pets', version: '1.0.0' },
+        servers: [server, { url: '/internal' }],
+        paths: { '/pets': { get: { responses: okResponse('pets') } } },
+      },
+    })
+
+    expect((await app.request('/pets')).status).toBe(200)
+    expect((await app.request('/internal/pets')).status).toBe(200)
+    expect((await app.request('/v1/pets')).status).toBe(404)
   })
 
   it('keeps a declared path key ahead of a base path copy that ranks the same', async () => {

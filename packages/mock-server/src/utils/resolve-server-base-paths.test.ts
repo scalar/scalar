@@ -11,6 +11,7 @@ describe('resolve-server-base-paths', () => {
     ['https://api.stripe.com/', []],
     ['https://galaxy.scalar.com', []],
     ['http://localhost:8080/v1', ['/v1']],
+    ['//api.example.com/v1//beta', ['/v1/beta']],
     ['/v1', ['/v1']],
     ['v1', ['/v1']],
     ['./v1', ['/v1']],
@@ -45,6 +46,7 @@ describe('resolve-server-base-paths', () => {
     ],
     ['a value that is a slash', 'https://api.example.com/{basePath}', { basePath: { default: '/' } }, []],
     ['a value that starts with a slash', '/{basePath}', { basePath: { default: '/v1' } }, ['/v1']],
+    ['a host in a protocol-relative URL', '//{host}/v1', { host: { default: 'api.example.com' } }, ['/v1']],
     ['a value with braces', '/{basePath}', { basePath: { default: '{other}' } }, []],
   ] satisfies [string, string, OpenAPIV3_1.ServerObject['variables'], string[]][])(
     'resolves %s',

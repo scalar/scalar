@@ -1,30 +1,30 @@
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
+import { isObject } from '@scalar/helpers/object/is-object'
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import { ensureProtocol } from '@scalar/helpers/url/ensure-protocol'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getPath } from 'hono/utils/url'
 
-/** Matches a server variable in a URL template. */
-const SERVER_VARIABLE = /\{([^{}]+)\}/g
+import { expandServerVariables } from './expand-server-variables'
 
-/** Every URL a server template can expand to, one per combination of its variable values. */
-const expandServerUrl = (template: string, variables: OpenAPIV3_1.ServerObject['variables'] = {}): string[] => {
-  let urls = [template]
-
-  for (const name of new Set([...template.matchAll(SERVER_VARIABLE)].map((match) => match[1]!))) {
-    const variable = Object.hasOwn(variables, name) ? variables[name] : undefined
-    const values = variable?.enum?.length ? variable.enum : variable?.default !== undefined ? [variable.default] : []
-
-    urls = [...new Set(urls.flatMap((url) => values.map((value) => url.replaceAll(`{${name}}`, () => String(value)))))]
+/** Collect usable values from an OpenAPI server variable, which may come from an unvalidated document. */
+const getVariableValues = (variable: unknown): string[] => {
+  if (!isObject(variable)) {
+    return []
   }
 
-  return urls
+  if (Array.isArray(variable.enum) && variable.enum.length > 0) {
+    return variable.enum.filter((value): value is string => typeof value === 'string')
+  }
+
+  return typeof variable.default === 'string' ? [variable.default] : []
 }
 
 /** Resolve a server URL to the URL it names, reading a domain without a scheme as a host like the API client does. */
 const toAbsoluteUrl = (url: string): URL => {
   if (isRelativePath(url)) {
-    return new URL(`/${url}`.replace(/^\/+/, '/'), 'http://localhost')
+    return new URL(url.startsWith('/') ? url : `/${url}`, 'http://localhost')
   }
 
   return new URL(ensureProtocol(url))
@@ -61,9 +61,12 @@ export const resolveServerBasePaths = (servers: OpenAPIV3_1.ServerObject[] = [])
       continue
     }
 
-    for (const url of expandServerUrl(server.url, server.variables)) {
+    const variables = isObject(server.variables) ? server.variables : undefined
+    const isAbsolutePath = server.url.startsWith('/') && !server.url.startsWith('//')
+    for (const url of expandServerVariables(server.url, (name) => getVariableValues(getOwnEntry(variables, name)))) {
       try {
-        const basePath = getBasePath(url)
+        // A leading slash added by a variable must not turn an absolute-path reference into a host.
+        const basePath = getBasePath(isAbsolutePath ? url.replace(/^\/+/, '/') : url)
 
         if (basePath !== undefined) {
           basePaths.add(basePath)

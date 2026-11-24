@@ -329,8 +329,8 @@ export const createOpenApiMockServer = async (
       // key without the query string.
       const operationChain = every(...handlers)
 
-      // Operation servers override path item servers, which override the servers of the document.
-      const servers = [operation.servers, pathItem?.servers, schema?.servers].find((list) => list?.length)
+      // An empty server list overrides the enclosing servers without adding a base path.
+      const servers = [operation.servers, pathItem?.servers, schema.servers].find(Array.isArray)
 
       operationRoutes.push({
         method,
