@@ -108,14 +108,30 @@ const fitPlainStringExample = (value: string, minLength: number, maxLength: numb
 }
 
 /** Distribute characters and separators evenly so no label exceeds its format's limit. */
-const buildLabels = (length: number, maxLabelLength: number, separator: string, character: string): string => {
-  const labelCount = Math.ceil((length + 1) / (maxLabelLength + 1))
+const buildLabels = (
+  length: number,
+  maxLabelLength: number,
+  separator: string,
+  character: string,
+  labelCount = Math.ceil((length + 1) / (maxLabelLength + 1)),
+): string => {
   const labelCharacterCount = length - labelCount + 1
   const size = Math.floor(labelCharacterCount / labelCount)
   const remainder = labelCharacterCount % labelCount
   return Array.from({ length: labelCount }, (_, index) => character.repeat(size + Number(index < remainder))).join(
     separator,
   )
+}
+
+/** The four octets and three separators take at least seven characters. */
+const buildIpv4Example = (length: number): string => {
+  const extraCharacters = length - 7
+  const octets = ['0', '10', '192']
+  const extraPerOctet = octets.length - 1
+  return Array.from({ length: 4 }, (_, index) => {
+    const padding = Math.max(0, Math.min(extraPerOctet, extraCharacters - index * extraPerOctet))
+    return octets[padding]
+  }).join('.')
 }
 
 /** Generate a length-compatible address without cutting through the local part or domain. */
@@ -187,23 +203,21 @@ const fitFormattedStringExample = (format: string, value: string, minLength: num
     case 'hostname':
     case 'idn-hostname':
       return length >= 1 && length <= 253 ? buildLabels(length, 63, '.', 'b') : value
-    case 'ipv4': {
-      if (length < 7 || length > 15) {
+    case 'ipv4':
+      return length >= 7 && length <= 15 ? buildIpv4Example(length) : value
+    case 'ipv6': {
+      if (length < 2 || length > 45) {
         return value
       }
-      const octets = ['0', '10', '192']
-      return Array.from({ length: 4 }, (_, index) => octets[Math.max(0, Math.min(2, length - 7 - index * 2))]).join('.')
-    }
-    case 'ipv6': {
-      if (length < 2 || length > 39) {
-        return value
+      if (length > 39) {
+        // RFC 4291 permits an IPv4 tail after six hextets, which can take up to 45 characters.
+        const prefix = '1111:1111:1111:1111:1111:1111:'
+        return prefix + buildIpv4Example(length - prefix.length)
       }
       if (length < 15) {
         return length === 2 ? '::' : `::${buildLabels(length - 2, 4, ':', '1')}`
       }
-      return Array.from({ length: 8 }, (_, index) =>
-        '1'.repeat(1 + Math.max(0, Math.min(3, length - 15 - index * 3))),
-      ).join(':')
+      return buildLabels(length, 4, ':', '1', 8)
     }
     case 'uri':
     case 'iri': {
@@ -1114,6 +1128,27 @@ const ITEM_ANNOTATIONS = new Set([
   'externalDocs',
 ])
 
+/** Intersect the parent's length bounds with those of a newly copied selected schema. */
+const applyParentStringBounds = (parent: SchemaObject, selected: SchemaObject): void => {
+  if ('minLength' in parent) {
+    Object.assign(selected, {
+      minLength: Math.max(
+        readLengthBound(parent.minLength, 0),
+        readLengthBound('minLength' in selected && selected.minLength, 0),
+      ),
+    })
+  }
+  if ('maxLength' in parent) {
+    const unbounded = Number.POSITIVE_INFINITY
+    Object.assign(selected, {
+      maxLength: Math.min(
+        readLengthBound(parent.maxLength, unbounded),
+        readLengthBound('maxLength' in selected && selected.maxLength, unbounded),
+      ),
+    })
+  }
+}
+
 /** Keep surrounding length constraints when selecting a composition branch. */
 const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArray: boolean): SchemaObject => {
   const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
@@ -1122,17 +1157,7 @@ const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArra
   if ('properties' in merged) {
     delete merged.properties
   }
-  if ('minLength' in schema && 'minLength' in variant) {
-    Object.assign(merged, {
-      minLength: Math.max(readLengthBound(schema.minLength, 0), readLengthBound(variant.minLength, 0)),
-    })
-  }
-  if ('maxLength' in schema && 'maxLength' in variant) {
-    const unbounded = Number.POSITIVE_INFINITY
-    Object.assign(merged, {
-      maxLength: Math.min(readLengthBound(schema.maxLength, unbounded), readLengthBound(variant.maxLength, unbounded)),
-    })
-  }
+  applyParentStringBounds(schema, merged)
   if (isArray) {
     if ('minItems' in schema) {
       Object.assign(merged, {
@@ -1326,8 +1351,29 @@ const handleArraySchema = (
         return values.length > 0 || level === 0 ? cache(schema, values, cacheKey, skipCache) : undefined
       }
       const selectedType = getSelectedType(variant, items)
+      let selectedSchema = variant
+      if (variant && selectedType === 'array') {
+        selectedSchema = mergeSelectedSchema(items, variant, true)
+      } else if (
+        variant &&
+        ('minLength' in items || 'maxLength' in items || 'minLength' in variant || 'maxLength' in variant) &&
+        (selectedType === 'string' || (Array.isArray(selectedType) && selectedType[0] === 'string'))
+      ) {
+        // Keep the selected member's authored-value precedence and inherit its string context.
+        selectedSchema = { ...variant }
+        if (!('type' in variant) || variant.type === undefined) {
+          Object.assign(selectedSchema, { type: selectedType })
+        }
+        if (!('format' in variant) && 'format' in items) {
+          Object.assign(selectedSchema, { format: items.format })
+        }
+        if (variant.contentEncoding === undefined && items.contentEncoding !== undefined) {
+          Object.assign(selectedSchema, { contentEncoding: items.contentEncoding })
+        }
+        applyParentStringBounds(items, selectedSchema)
+      }
       const ex = getExampleFromSchema(
-        variant && selectedType === 'array' ? mergeSelectedSchema(items, variant, true) : variant,
+        selectedSchema,
         consumeCompositionSelection(options, itemsSchemaPath, compositionKeyword),
         {
           level: level + 1,

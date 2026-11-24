@@ -1086,10 +1086,17 @@ describe('getExampleFromSchema', () => {
     )
   })
 
+  it('adds fractional-second precision when a timestamp needs a longer example', () => {
+    expect(getExampleFromSchema({ type: 'string', format: 'date-time', minLength: 27, maxLength: 27 })).toEqual(
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}000Z$/),
+    )
+  })
+
   it.each([
     ['ipv4', 7, 4],
     ['ipv6', 4, 6],
     ['ipv6', 20, 6],
+    ['ipv6', 45, 6],
   ] as const)('generates a valid %s address of %i characters', (format, length, version) => {
     const result = getExampleFromSchema({ type: 'string', format, minLength: length, maxLength: length })
     assert(typeof result === 'string')
@@ -1106,6 +1113,16 @@ describe('getExampleFromSchema', () => {
     })
     expect(getExampleFromSchema(schema)).toBe('aaaa')
     expect(getExampleFromSchema(schema, { emptyString: 'string' })).toBe('stri')
+    expect(getExampleFromSchema({ type: 'array', items: schema })).toStrictEqual(['aaaa'])
+    expect(getExampleFromSchema({ type: 'array', items: schema }, { emptyString: 'string' })).toStrictEqual(['stri'])
+  })
+
+  it('uses the enclosing string format for an array item variant that supplies only a bound', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: { type: 'string', format: 'email', oneOf: [{ maxLength: 10 }] },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual(['a@b.co'])
   })
 
   it('returns emails as an example value', () => {
@@ -1236,6 +1253,13 @@ describe('getExampleFromSchema', () => {
   ] as const)('fits an encoded string %j to %i characters', (encoding, maxLength, expected) => {
     const schema = coerceValue(SchemaObjectSchema, { type: 'string', ...encoding, maxLength })
     expect(getExampleFromSchema(schema)).toBe(expected)
+  })
+
+  it.each([
+    [9, 12, 'AAAAAAAAAAAA'],
+    [5, 5, 'c2NhbGFy'],
+  ])('preserves base64 encoding with bounds %i–%i', (minLength, maxLength, expected) => {
+    expect(getExampleFromSchema({ type: 'string', contentEncoding: 'base64', minLength, maxLength })).toBe(expected)
   })
 
   describe('base64 strings', () => {
