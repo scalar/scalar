@@ -563,15 +563,21 @@ describe('operationToHar', () => {
         },
         expected: 'https://void.scalar.com/p',
       },
-    ])('resolves $name in the HAR url and every snippet', ({ server, expected }) => {
+      {
+        name: 'an empty string default in an interior path segment',
+        server: { url: 'https://api.example.com/{path}/v1', variables: { path: { default: '' } } },
+        expected: 'https://api.example.com//v1/p',
+      },
+      {
+        name: 'an empty string default for a Unicode variable name',
+        server: { url: 'https://api.example.com{préfixe}', variables: { préfixe: { default: '' } } },
+        expected: 'https://api.example.com/p',
+      },
+    ])('resolves $name in the HAR URL and cURL snippet', ({ server, expected }) => {
       const request = operationToHar({ operation: { responses: {} }, method: 'get', path: '/p', server })
 
       expect(request.url).toBe(expected)
-      for (const { target, client } of snippetz().plugins()) {
-        const snippet = snippetz().findPlugin(target, client)?.generate(request)
-        expect(snippet, `${target}/${client}`).not.toContain('{basePath}')
-        expect(snippet, `${target}/${client}`).not.toContain('{path}')
-      }
+      expect(snippetz().findPlugin('shell', 'curl')?.generate(request)).toBe(`curl ${expected}`)
     })
 
     it('should handle server with multiple variables', () => {

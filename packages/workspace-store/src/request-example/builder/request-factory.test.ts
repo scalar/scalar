@@ -276,6 +276,12 @@ describe('requestFactory', () => {
       url: 'https://api.example.com/p',
     },
     {
+      name: 'an empty string default in an interior path segment',
+      server: { url: 'https://api.example.com/{path}/v1', variables: { path: { default: '' } } },
+      baseUrl: 'https://api.example.com//v1',
+      url: 'https://api.example.com//v1/p',
+    },
+    {
       name: 'an empty string default for the Galaxy server',
       server: {
         url: '{protocol}://void.scalar.com/{path}',

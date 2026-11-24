@@ -39,8 +39,7 @@ export const mergeSearchParams = (...params: URLSearchParams[]): URLSearchParams
   return result
 }
 
-/** Combines a base URL and a path ensuring there's only one slash between them */
-export const combineUrlAndPath = (url: string, path: string) => {
+const joinUrlAndPath = (url: string, path: string, preservePathSegments: boolean): string => {
   if (!path || url === path) {
     return url.trim()
   }
@@ -49,11 +48,22 @@ export const combineUrlAndPath = (url: string, path: string) => {
     return path.trim()
   }
 
-  return `${url.trim()}/${path.trim()}`.replace(REGEX.MULTIPLE_SLASHES, '/')
+  if (!preservePathSegments) {
+    return `${url.trim()}/${path.trim()}`.replace(REGEX.MULTIPLE_SLASHES, '/')
+  }
+
+  // Keep the first slash after a scheme so the separator can complete its delimiter.
+  const baseUrl = url.trim().replace(/(^|:\/|[^/:])\/+$/, '$1')
+  const relativePath = path.trim().replace(/^\/+/, '')
+  return `${baseUrl}/${relativePath}`
 }
 
+/** Combines a base URL and path and collapses consecutive slashes after the scheme. */
+export const combineUrlAndPath = (url: string, path: string): string => joinUrlAndPath(url, path, false)
+
 /**
- * Creates a URL from the path and server
+ * Creates a URL from the path and server, preserving empty path segments on either side of the join.
+ *
  * also optionally merges query params if you include urlSearchParams
  * This was re-written without using URL to support variables in the scheme
  */
@@ -64,12 +74,16 @@ export const mergeUrls = (
   /** To disable prefixing the url with the origin or a scheme*/
   disableOriginPrefix = false,
 ) => {
+  const preservePathSegments = true
+
   // Extract and merge all query params
   if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
     /** Prefix the url with the origin if it is relative and we wish to */
     let base = url
     if (!disableOriginPrefix) {
-      base = isRelativePath(url) ? combineUrlAndPath(window.location.origin, url) : ensureProtocol(url)
+      base = isRelativePath(url)
+        ? joinUrlAndPath(window.location.origin, url, preservePathSegments)
+        : ensureProtocol(url)
     }
 
     // Extract search params from base URL if any
@@ -85,7 +99,7 @@ export const mergeUrls = (
     const pathParams = new URLSearchParams(pathQuery || '')
 
     // Merge the baseUrl and path
-    const mergedUrl = url === path ? baseUrl : combineUrlAndPath(baseUrl, pathWithoutQuery)
+    const mergedUrl = url === path ? baseUrl : joinUrlAndPath(baseUrl, pathWithoutQuery, preservePathSegments)
 
     // Merge all search params
     const mergedSearchParams = mergeSearchParams(baseParams, pathParams, urlParams)
@@ -95,7 +109,7 @@ export const mergeUrls = (
     return search ? `${mergedUrl}?${search}` : mergedUrl
   }
   if (path) {
-    return combineUrlAndPath(url, path)
+    return joinUrlAndPath(url, path, preservePathSegments)
   }
   return ''
 }

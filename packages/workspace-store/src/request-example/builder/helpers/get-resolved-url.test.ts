@@ -17,6 +17,16 @@ describe('get-resolved-url', () => {
       expected: 'https://api.example.com/p',
     },
     {
+      name: 'an empty string default in an interior path segment',
+      server: { url: 'https://api.example.com/{path}/v1', variables: { path: { default: '' } } },
+      expected: 'https://api.example.com//v1/p',
+    },
+    {
+      name: 'an empty string default for a Unicode variable name',
+      server: { url: 'https://api.example.com{préfixe}', variables: { préfixe: { default: '' } } },
+      expected: 'https://api.example.com/p',
+    },
+    {
       name: 'an empty string default next to a filled default',
       server: {
         url: '{protocol}://void.scalar.com/{path}',

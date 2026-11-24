@@ -1,6 +1,7 @@
 ---
-"@scalar/workspace-store": patch
-"@scalar/helpers": patch
+'@scalar/blocks': patch
+'@scalar/helpers': patch
+'@scalar/workspace-store': patch
 ---
 
-Substitute server variables with an empty string default into the request URL and the code snippets instead of leaving the `{name}` placeholder in the URL.
+Resolve empty OpenAPI server variable defaults in request URLs and code snippets, including variables with Unicode names. Preserve empty path segments inside the resolved server URL when appending the operation path.

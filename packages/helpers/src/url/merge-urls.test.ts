@@ -129,6 +129,16 @@ describe('mergeSearchParams', () => {
 })
 
 describe('mergeUrls', () => {
+  it('preserves interior slashes on either side of the join', () => {
+    expect(mergeUrls('https://api.example.com//v1/', '/accounts//active')).toBe(
+      'https://api.example.com//v1/accounts//active',
+    )
+  })
+
+  it('preserves the scheme delimiter when the path supplies the host', () => {
+    expect(mergeUrls('https://', 'example.com')).toBe('https://example.com')
+  })
+
   it.each([
     ['https://api.example.com?token=a?b', '/users', 'token=a%3Fb'],
     [
