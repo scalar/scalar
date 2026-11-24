@@ -58,8 +58,6 @@ const BASE64_CONTENT_ENCODINGS = new Set(['base64', 'base64url'])
  * Used to generate realistic examples for different string formats.
  */
 const genericExampleValues: Record<string, string> = {
-  // OpenAPI 3.0 base64 encoded characters. A plain placeholder like "string" is not valid base64.
-  'byte': BASE64_EXAMPLE,
   'duration': 'P1D',
   'email': 'hello@example.com',
   'hostname': 'example.com',
@@ -109,6 +107,17 @@ const fitPlainStringExample = (value: string, minLength: number, maxLength: numb
   return padding > 0 ? value + 'a'.repeat(Math.min(padding, MAX_STRING_PADDING)) : value
 }
 
+/** Distribute characters and separators evenly so no label exceeds its format's limit. */
+const buildLabels = (length: number, maxLabelLength: number, separator: string, character: string): string => {
+  const labelCount = Math.ceil((length + 1) / (maxLabelLength + 1))
+  const labelCharacterCount = length - labelCount + 1
+  const size = Math.floor(labelCharacterCount / labelCount)
+  const remainder = labelCharacterCount % labelCount
+  return Array.from({ length: labelCount }, (_, index) => character.repeat(size + Number(index < remainder))).join(
+    separator,
+  )
+}
+
 /** Generate a length-compatible address without cutting through the local part or domain. */
 const fitEmailExample = (value: string, minLength: number, maxLength: number): string => {
   if (value.length >= minLength && value.length <= maxLength) {
@@ -120,20 +129,108 @@ const fitEmailExample = (value: string, minLength: number, maxLength: number): s
   if (length < 3 || length > 254 || length > maxLength) {
     return value
   }
-  if (length < 6) {
+  if (length < 5) {
     return `${'a'.repeat(length - 2)}@b`
   }
 
-  const suffix = length >= 8 ? '.test' : '.co'
+  const suffix = length >= 8 ? '.test' : '.co'.slice(0, length - 3)
   const localLength = Math.min(64, length - suffix.length - 2)
-  const domainLength = length - localLength - suffix.length - 1
-  // Divide the domain among labels so each fits DNS's 63-character limit.
-  const labelCount = Math.ceil((domainLength + 1) / 64)
-  const letters = domainLength - labelCount + 1
-  const labels = Array.from({ length: labelCount }, (_, index) =>
-    'b'.repeat(Math.floor(letters / labelCount) + Number(index < letters % labelCount)),
-  )
-  return `${'a'.repeat(localLength)}@${labels.join('.')}${suffix}`
+  const domainPrefixLength = length - localLength - suffix.length - 1
+  return `${'a'.repeat(localLength)}@${buildLabels(domainPrefixLength, 63, '.', 'b')}${suffix}`
+}
+
+/** Choose an RFC 4648 quantum that fits, retaining the existing encoding when no quantum fits. */
+const fitBase64Example = (minLength: number, maxLength: number, urlSafe: boolean): string => {
+  if (BASE64_EXAMPLE.length >= minLength && BASE64_EXAMPLE.length <= maxLength) {
+    return BASE64_EXAMPLE
+  }
+
+  // Base64url also permits unpadded output with two or three characters in the final quantum.
+  const shortestLength = urlSafe ? minLength + Number(minLength % 4 === 1) : Math.ceil(minLength / 4) * 4
+  const preferredLength = Math.min(maxLength, BASE64_EXAMPLE.length)
+  const remainder = preferredLength % 4
+  const length = Math.max(shortestLength, preferredLength - (urlSafe ? Number(remainder === 1) : remainder))
+  return length <= maxLength && length <= MAX_STRING_PADDING ? 'A'.repeat(length) : BASE64_EXAMPLE
+}
+
+/** Vary the optional fractional seconds of an ISO timestamp without changing its timezone. */
+const fitTimeExample = (value: string, minLength: number, maxLength: number): string => {
+  if (value.length >= minLength && value.length <= maxLength) {
+    return value
+  }
+  const seconds = value.slice(0, -'.000Z'.length)
+  const milliseconds = value.slice(-4, -1)
+  const wholeLength = seconds.length + 1
+  if (wholeLength >= minLength && maxLength < wholeLength + 2 && wholeLength <= maxLength) {
+    return `${seconds}Z`
+  }
+  const length = Math.max(minLength, Math.min(maxLength, value.length), wholeLength + 2)
+  if (length > maxLength || length > MAX_STRING_PADDING) {
+    return value
+  }
+  const precision = length - wholeLength - 1
+  return `${seconds}.${milliseconds.slice(0, precision).padEnd(precision, '0')}Z`
+}
+
+/** Build a compatible placeholder for formats with variable-width syntax. */
+const fitFormattedStringExample = (format: string, value: string, minLength: number, maxLength: number): string => {
+  if (value.length >= minLength && value.length <= maxLength) {
+    return value
+  }
+
+  const length = Math.max(minLength, Math.min(maxLength, value.length))
+  if (length > maxLength || length > MAX_STRING_PADDING) {
+    return value
+  }
+
+  switch (format) {
+    case 'hostname':
+    case 'idn-hostname':
+      return length >= 1 && length <= 253 ? buildLabels(length, 63, '.', 'b') : value
+    case 'ipv4': {
+      if (length < 7 || length > 15) {
+        return value
+      }
+      const octets = ['0', '10', '192']
+      return Array.from({ length: 4 }, (_, index) => octets[Math.max(0, Math.min(2, length - 7 - index * 2))]).join('.')
+    }
+    case 'ipv6': {
+      if (length < 2 || length > 39) {
+        return value
+      }
+      if (length < 15) {
+        return length === 2 ? '::' : `::${buildLabels(length - 2, 4, ':', '1')}`
+      }
+      return Array.from({ length: 8 }, (_, index) =>
+        '1'.repeat(1 + Math.max(0, Math.min(3, length - 15 - index * 3))),
+      ).join(':')
+    }
+    case 'uri':
+    case 'iri': {
+      const prefix = 'https://example.com/'
+      if (length >= prefix.length) {
+        return fitPlainStringExample(prefix, length, length)
+      }
+      return length >= 2 ? `x:${'a'.repeat(length - 2)}` : value
+    }
+    case 'uri-reference':
+    case 'iri-reference':
+    case 'uri-template':
+    case 'regex':
+      return 'a'.repeat(length)
+    case 'json-pointer':
+      return length === 0 ? '' : `/${'a'.repeat(length - 1)}`
+    case 'relative-json-pointer':
+      if (length < 2) {
+        return length === 1 ? '0' : value
+      }
+      return `0/${'a'.repeat(length - 2)}`
+    case 'duration':
+      return length >= 3 ? `P${'0'.repeat(length - 3)}1D` : value
+    default:
+      // Fixed-width formats such as UUID cannot fit a range that excludes their width.
+      return value
+  }
 }
 
 /**
@@ -163,40 +260,39 @@ const getStringExample = (schema: SchemaObject, makeUpRandomData: boolean = fals
     return '@filename'
   }
 
-  // Encoded strings need a valid encoding even when a format also supplies a placeholder, such as password.
-  if (
-    typeof schema.contentEncoding === 'string' &&
-    BASE64_CONTENT_ENCODINGS.has(schema.contentEncoding.toLowerCase())
-  ) {
-    return BASE64_EXAMPLE
+  const minLength = readLengthBound('minLength' in schema ? schema.minLength : undefined, 0)
+  const maxLength = readLengthBound('maxLength' in schema ? schema.maxLength : undefined, Number.POSITIVE_INFINITY)
+  const format = 'format' in schema ? schema.format : undefined
+  const encoding = typeof schema.contentEncoding === 'string' ? schema.contentEncoding.toLowerCase() : undefined
+
+  // Encoding takes precedence over overlapping format hints and the legacy OpenAPI 3.0 byte format.
+  if (encoding && BASE64_CONTENT_ENCODINGS.has(encoding)) {
+    return fitBase64Example(minLength, maxLength, encoding === 'base64url')
+  }
+  if (format === 'byte') {
+    return fitBase64Example(minLength, maxLength, false)
   }
 
-  if ('format' in schema && ['date', 'date-time', 'time'].includes(schema.format ?? '')) {
+  if (format === 'date' || format === 'date-time' || format === 'time') {
     // Do not persist enclosing objects or arrays with generated clock-dependent values.
     generatedCurrentTime = true
     const iso = new Date().toISOString()
-    if (schema.format === 'date') {
+    if (format === 'date') {
       return iso.split('T')[0]!
     }
-    if (schema.format === 'time') {
-      return iso.split('T')[1]!
-    }
-    return iso
+    return fitTimeExample(format === 'time' ? iso.split('T')[1]! : iso, minLength, maxLength)
   }
 
-  const minLength = readLengthBound('minLength' in schema ? schema.minLength : undefined, 0)
-  const maxLength = readLengthBound('maxLength' in schema ? schema.maxLength : undefined, Number.POSITIVE_INFINITY)
-
-  if ('format' in schema && schema.format && Object.hasOwn(genericExampleValues, schema.format)) {
-    const value = genericExampleValues[schema.format]!
-    if (schema.format === 'email' || schema.format === 'idn-email') {
+  if (format && Object.hasOwn(genericExampleValues, format)) {
+    const value = genericExampleValues[format]!
+    if (format === 'email' || format === 'idn-email') {
       return fitEmailExample(value, minLength, maxLength)
     }
-    if (schema.format === 'password') {
+    if (format === 'password') {
       return fitPlainStringExample(makeUpRandomData ? value : fallback, minLength, maxLength)
     }
-    if (schema.format !== 'object-id' || makeUpRandomData) {
-      return value
+    if (format !== 'object-id' || makeUpRandomData) {
+      return fitFormattedStringExample(format, value, minLength, maxLength)
     }
   }
 
@@ -1018,13 +1114,24 @@ const ITEM_ANNOTATIONS = new Set([
   'externalDocs',
 ])
 
-/** Keep constraints from the surrounding array when selecting a composition branch. */
+/** Keep surrounding length constraints when selecting a composition branch. */
 const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArray: boolean): SchemaObject => {
   const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
   const merged = { ...base, ...variant } as SchemaObject
   // Object properties would otherwise take precedence in non-object schema dispatch.
   if ('properties' in merged) {
     delete merged.properties
+  }
+  if ('minLength' in schema && 'minLength' in variant) {
+    Object.assign(merged, {
+      minLength: Math.max(readLengthBound(schema.minLength, 0), readLengthBound(variant.minLength, 0)),
+    })
+  }
+  if ('maxLength' in schema && 'maxLength' in variant) {
+    const unbounded = Number.POSITIVE_INFINITY
+    Object.assign(merged, {
+      maxLength: Math.min(readLengthBound(schema.maxLength, unbounded), readLengthBound(variant.maxLength, unbounded)),
+    })
   }
   if (isArray) {
     if ('minItems' in schema) {
