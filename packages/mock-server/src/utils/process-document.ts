@@ -3,6 +3,7 @@ import { cwd } from 'node:process'
 
 import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { isObject, isObjectLike } from '@scalar/helpers/object/is-object'
+import { safeRun } from '@scalar/helpers/types/safe-run'
 import { bundle, resolveReferencePath } from '@scalar/json-magic/bundle'
 import { fetchUrls, parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { isFilePath } from '@scalar/json-magic/helpers/is-file-path'
@@ -31,34 +32,47 @@ export type ProcessedDocument =
 /** Track external server lists by identity so their source URL stays with the resolved object. */
 const indexServerRetrievalUris = (documents: unknown, mappings: unknown, baseUri: string): WeakMap<object, string> => {
   const origins = new WeakMap<object, string>()
-  if (!isObject(documents) || !isObject(mappings)) {
-    return origins
-  }
+  const visited = new WeakSet<object>()
 
-  for (const [key, document] of Object.entries(documents)) {
-    const source = getOwnEntry(mappings, key)
-    if (typeof source !== 'string') {
-      continue
+  const indexBundle = (documents: unknown, mappings: unknown, baseUri: string, parentUri?: string): void => {
+    if (!isObject(documents)) {
+      return
     }
-    const retrievalUri = resolveReferencePath(baseUri, source)
-    const stack = [document]
-    const visited = new WeakSet<object>()
+    const sources = isObject(mappings) ? mappings : undefined
 
-    while (stack.length > 0) {
-      const node = stack.pop()
-      if (!isObjectLike(node) || visited.has(node)) {
+    for (const [key, document] of Object.entries(documents)) {
+      const source = getOwnEntry(sources, key)
+      const resolved = safeRun(() => (typeof source === 'string' ? resolveReferencePath(baseUri, source) : parentUri))
+      const retrievalUri = resolved.ok ? resolved.data : parentUri
+      if (!retrievalUri) {
         continue
       }
-      visited.add(node)
-      if (Array.isArray(node.servers)) {
-        origins.set(node.servers, retrievalUri)
-      }
-      for (const child of Object.values(node)) {
-        stack.push(child)
+
+      const stack = [document]
+      while (stack.length > 0) {
+        const node = stack.pop()
+        if (!isObjectLike(node) || visited.has(node)) {
+          continue
+        }
+        visited.add(node)
+        if (Array.isArray(node.servers)) {
+          origins.set(node.servers, retrievalUri)
+        }
+        for (const [key, child] of Object.entries(node)) {
+          if (node === document && key === 'x-ext' && isObject(child)) {
+            // Imported bundles record their URL mappings relative to their own base URI.
+            const identity = safeRun(() => resolveOpenApiDocument(node, retrievalUri))
+            const nestedBase = (identity.ok ? identity.data?.baseUri : undefined) ?? retrievalUri
+            indexBundle(child, node['x-ext-urls'], nestedBase, retrievalUri)
+          } else {
+            stack.push(child)
+          }
+        }
       }
     }
   }
 
+  indexBundle(documents, mappings, baseUri)
   return origins
 }
 

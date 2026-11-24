@@ -89,6 +89,39 @@ describe('create-mock-server.server-base-paths', () => {
     }
   })
 
+  it('preserves the retrieval URL of a server declared inside an imported bundle', async () => {
+    const info = { title: 'Pets', version: '1.0.0' }
+    const app = await createMockServer({
+      origin: 'https://api.example.com/catalog/openapi.yaml',
+      document: {
+        openapi: '3.2.1',
+        info,
+        paths: { '/pets': { $ref: '#/x-ext/parent/x-ext/child/components/pathItems/Pets' } },
+        'x-ext': {
+          parent: {
+            openapi: '3.2.1',
+            info,
+            'x-ext': {
+              child: {
+                openapi: '3.2.1',
+                info,
+                components: {
+                  pathItems: { Pets: { servers: [{ url: './v1' }], get: { responses: okResponse('pets') } } },
+                },
+              },
+            },
+            'x-ext-urls': { child: 'child/openapi.yaml' },
+          },
+        },
+        'x-ext-urls': { parent: '../parent/openapi.yaml' },
+      },
+    })
+
+    expect((await app.request('/pets')).status).toBe(200)
+    expect((await app.request('/parent/child/v1/pets')).status).toBe(200)
+    expect((await app.request('/parent/v1/pets')).status).toBe(404)
+  })
+
   it('gives the built-in OAuth route precedence over a generated operation path', async () => {
     const app = await createMockServer({
       logger: false,

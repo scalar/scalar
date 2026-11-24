@@ -245,6 +245,8 @@ OpenAPI 2.0 `basePath` and relative server URLs work the same way. A relative se
 
 When an operation and a built-in OAuth route share an HTTP method and URL, the built-in OAuth route answers the request. The operation still answers at its bare path key when that path is distinct.
 
+Dotted hostnames such as `api.example.com:8443/v1` can omit the scheme. Use a scheme for single-label hosts such as `http://localhost:8443/v1`.
+
 ### Selecting responses
 
 By default the mock server picks a response (and its status code) for you and returns the first example it can find. You can override both with the standard [`Prefer` header](https://www.rfc-editor.org/rfc/rfc7240), just like [Stoplight Prism](https://github.com/stoplightio/prism).
