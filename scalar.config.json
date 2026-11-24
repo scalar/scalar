@@ -2975,7 +2975,7 @@
                       },
                       "cpp": {
                         "title": "C++",
-                        "description": "Configuration reference for the experimental C++ SDK target: naming and generation options.",
+                        "description": "Configuration reference for the C++ SDK target: naming and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/cpp.md",
                         "type": "page"
                       }
