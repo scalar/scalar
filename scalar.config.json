@@ -3230,6 +3230,12 @@
                     "filepath": "documentation/guides/registry/upload.md",
                     "type": "page"
                   },
+                  "urls": {
+                    "title": "URLs",
+                    "description": "Choose a Scalar Registry URL for a preview, a document format, a version, or generated SDK examples.",
+                    "filepath": "documentation/guides/registry/urls.md",
+                    "type": "page"
+                  },
                   "schemas": {
                     "title": "Schemas",
                     "description": "Work with schemas in the Scalar Registry: store, version, and share your API data models.",
