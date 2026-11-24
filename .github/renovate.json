@@ -1,6 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "dependencyDashboard": { "enabled": false },
+  "dependencyDashboard": {
+    "enabled": false
+  },
   "timezone": "Europe/Berlin",
   "schedule": ["* 6-9 * * 1"],
   "automerge": false,
@@ -225,83 +227,87 @@
       "enabled": false
     },
     {
-      "description": "Only adopt a Playwright client version after its matching runner image is published; retain npm lockfile ownership",
-      "matchManagers": ["npm"],
-      "matchPackageNames": ["@playwright/test"],
-      "overrideDatasource": "docker",
-      "overridePackageName": "scalarapi/playwright-runner",
-      "versioning": "semver"
-    },
-    {
-      "description": "Use one native npm update to synchronize every Playwright companion pin",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["scalarapi/playwright-runner"],
-      "groupName": "Playwright client and runner",
-      "versioning": "semver",
-      "semanticCommitScope": "playwright",
-      "matchManagers": ["npm"],
-      "minimumReleaseAge": "1 day",
-      "bumpVersions": [
-        {
-          "name": "Playwright helper default",
-          "filePatterns": ["packages/helpers/src/playwright/docker.ts"],
-          "matchStrings": ["DEFAULT_PLAYWRIGHT_VERSION = '(?<version>[^']+)'"],
-          "bumpType": "sync"
-        },
-        {
-          "name": "Playwright selected image tag",
-          "filePatterns": ["tooling/scripts/src/commands/playwright-docker/release-tag"],
-          "matchStrings": ["^(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)\\s*$"],
-          "bumpType": "sync"
-        },
-        {
-          "name": "Playwright test-integrations runner",
-          "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
-          "matchStrings": [
-            "(?:^|\\n)  test-integrations:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
-          ],
-          "bumpType": "sync"
-        },
-        {
-          "name": "Playwright test-block-snapshots runner",
-          "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
-          "matchStrings": [
-            "(?:^|\\n)  test-block-snapshots:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
-          ],
-          "bumpType": "sync"
-        },
-        {
-          "name": "Playwright test-component-snapshots runner",
-          "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
-          "matchStrings": [
-            "(?:^|\\n)  test-component-snapshots:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
-          ],
-          "bumpType": "sync"
-        },
-        {
-          "name": "Playwright test-e2e-api-reference runner",
-          "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
-          "matchStrings": [
-            "(?:^|\\n)  test-e2e-api-reference:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
-          ],
-          "bumpType": "sync"
-        },
-        {
-          "name": "Playwright test-e2e-scalar-app runner",
-          "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
-          "matchStrings": [
-            "(?:^|\\n)  test-e2e-scalar-app:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
-          ],
-          "bumpType": "sync"
-        }
-      ]
-    },
-    {
       "description": "Runner pins are synchronized by the image-gated npm update, never independently",
       "matchManagers": ["github-actions"],
       "matchDatasources": ["docker"],
       "matchPackageNames": ["scalarapi/playwright-runner"],
       "enabled": false
     }
-  ]
+  ],
+  "npm": {
+    "packageRules": [
+      {
+        "description": "Run after generated npm advisory rules, then gate Playwright lookup on published runner tags",
+        "matchManagers": ["npm"],
+        "matchPackageNames": ["@playwright/test"],
+        "overrideDatasource": "docker",
+        "overridePackageName": "scalarapi/playwright-runner",
+        "versioning": "semver"
+      },
+      {
+        "description": "Use one native npm update to synchronize every Playwright companion pin",
+        "matchDatasources": ["docker"],
+        "matchPackageNames": ["scalarapi/playwright-runner"],
+        "groupName": "Playwright client and runner",
+        "versioning": "semver",
+        "semanticCommitScope": "playwright",
+        "matchManagers": ["npm"],
+        "minimumReleaseAge": "1 day",
+        "bumpVersions": [
+          {
+            "name": "Playwright helper default",
+            "filePatterns": ["packages/helpers/src/playwright/docker.ts"],
+            "matchStrings": ["DEFAULT_PLAYWRIGHT_VERSION = '(?<version>[^']+)'"],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright selected image tag",
+            "filePatterns": ["tooling/scripts/src/commands/playwright-docker/release-tag"],
+            "matchStrings": ["^(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)\\s*$"],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright test-integrations runner",
+            "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
+            "matchStrings": [
+              "(?:^|\\n)  test-integrations:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
+            ],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright test-block-snapshots runner",
+            "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
+            "matchStrings": [
+              "(?:^|\\n)  test-block-snapshots:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
+            ],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright test-component-snapshots runner",
+            "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
+            "matchStrings": [
+              "(?:^|\\n)  test-component-snapshots:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
+            ],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright test-e2e-api-reference runner",
+            "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
+            "matchStrings": [
+              "(?:^|\\n)  test-e2e-api-reference:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
+            ],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright test-e2e-scalar-app runner",
+            "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
+            "matchStrings": [
+              "(?:^|\\n)  test-e2e-scalar-app:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
+            ],
+            "bumpType": "sync"
+          }
+        ]
+      }
+    ]
+  }
 }
