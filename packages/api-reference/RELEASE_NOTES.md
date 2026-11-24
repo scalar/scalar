@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.83.0 (2026-11-22)
+
+### ASP.NET Core form naming and localhost beta invitation
+
+This release adds support for ASP.NET Core's indexed form field naming convention and introduces a one-time invitation to the API Hosting beta for developers running the reference locally.
+
+- Configure indexed form field names with multipartNaming: 'indexed-dot' for ASP.NET Core compatibility
+- Nested multipart and URL-encoded request bodies now use indexed dotted names like Certificates[0].name
+- Show API Hosting beta invitation popup once on localhost development servers
+- Prevent Content Security Policy eval violation reports when loading OAuth and AI Chat
+- Update dependencies for improved identifier generation performance
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1830)
+
 ## 1.82.1 (2026-11-20)
 
 ### Polish and bug fixes

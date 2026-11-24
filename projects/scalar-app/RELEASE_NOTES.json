@@ -1,5 +1,32 @@
 [
   {
+    "version": "1.1.55",
+    "date": "2026-11-22",
+    "title": "Desktop login now works in Safari, plus Electron 45 and dependency updates",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Desktop authentication now completes through a secure browser redirect that works in Safari and other browsers that block mixed-content requests. The desktop runtime has been updated to Electron 45 for improved performance and security."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Desktop login and registration now work in Safari through a secure browser redirect with PKCE authentication",
+          "New users have 15 minutes to verify their email during desktop registration before the flow times out",
+          "The desktop app now runs on Electron 45 with the latest Chromium runtime and upstream fixes",
+          "ASP.NET Core users can enable indexed dot notation for multipart form fields through the new multipartNaming configuration option",
+          "Response cookies now parse correctly following browser UTC expiration rules, and empty cookies are ignored"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1155",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.1.54",
     "date": "2026-11-20",
     "title": "Polish and bug fixes",

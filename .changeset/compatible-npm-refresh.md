@@ -1,16 +1,12 @@
 ---
 "@scalar/agent-chat": patch
 "@scalar/api-client": patch
-"@scalar/api-reference": patch
-"@scalar/blocks": patch
-"@scalar/snippetz": patch
-"@scalar/workspace-store": patch
-"@scalar/void-server": patch
+"@scalar/code-highlight": patch
+"@scalar/json-magic": patch
+"@scalar/markdown": patch
 "@scalar/mock-server": patch
-"@scalar/mock-server-docker": patch
-"@scalar/server-side-rendering": patch
-"@scalar/hono-api-reference": patch
+"@scalar/void-server": patch
 "scalar-app": patch
 ---
 
-Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.

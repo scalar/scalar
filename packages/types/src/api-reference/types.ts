@@ -553,6 +553,8 @@ export type ApiReferenceTranslations = {
     unknownType: string
     propertyCount: string
     headerCount: string
+    /** The blocks package supplies a localized default for the extensions disclosure. */
+    extensionCount?: string
     recursiveReference: string
     recursive: string
     additionalProperties: string
@@ -684,6 +686,7 @@ export type ApiReferenceTranslations = {
     waitlistError: string
     waitlistRateLimit: string
     waitlistBack: string
+    waitlistDone: string
     deployApiButton: string
     deployFrameworkButton: string
     deployApiTitle: string
@@ -768,7 +771,7 @@ export type ApiReferenceTranslations = {
  * For example, `{ search: { label: string } }` becomes `'search.label'`.
  */
 type TranslationDotPaths<T, Prefix extends string = ''> = {
-  [Key in keyof T & string]: T[Key] extends string
+  [Key in keyof T & string]: T[Key] extends string | undefined
     ? `${Prefix}${Key}`
     : T[Key] extends Record<string, unknown>
       ? TranslationDotPaths<T[Key], `${Prefix}${Key}.`>

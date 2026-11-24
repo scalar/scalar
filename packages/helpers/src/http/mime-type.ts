@@ -13,6 +13,30 @@ const quoteParameterValue = (value: string): string => {
   return `"${escapedValue}"`
 }
 
+/** Split at semicolons outside quoted parameter values. */
+const splitMimeType = (value: string): string[] => {
+  const parts: string[] = []
+  let start = 0
+  let quoted = false
+
+  for (let index = 0; index < value.length; index++) {
+    const character = value[index]
+    if (quoted && character === '\\') {
+      index++
+      continue
+    }
+    if (character === '"') {
+      quoted = !quoted
+    } else if (character === ';' && !quoted) {
+      parts.push(value.slice(start, index))
+      start = index + 1
+    }
+  }
+
+  parts.push(value.slice(start))
+  return parts
+}
+
 const parseParameter = (entry: string): [string, string] | null => {
   const separator = entry.indexOf('=')
   if (separator === -1) {
@@ -30,7 +54,7 @@ const parseParameter = (entry: string): [string, string] | null => {
   }
 
   if (rawValue.startsWith('"') && rawValue.endsWith('"') && rawValue.length >= 2) {
-    const unescaped = rawValue.slice(1, -1).replaceAll(/\\(["\\])/g, '$1')
+    const unescaped = rawValue.slice(1, -1).replaceAll(/\\(.)/g, '$1')
     return [rawName, unescaped]
   }
 
@@ -60,7 +84,7 @@ const parseEssence = (value: string): { essence: string; type: string; subtype: 
  * essence, parameters, and stable stringification.
  */
 export const parseMimeType = (value: string = 'text/plain'): ParsedMimeType => {
-  const [essencePart = '', ...parameterParts] = value.split(';')
+  const [essencePart = '', ...parameterParts] = splitMimeType(value)
   let parsedEssence: { essence: string; type: string; subtype: string }
 
   try {

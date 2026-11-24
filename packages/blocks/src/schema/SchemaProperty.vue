@@ -1299,7 +1299,8 @@ const onBeforeMatch = (): void => {
   margin-bottom: 9px;
 }
 
-:deep(.property-description) * {
+/* Keep fenced code highlighted and preserve specificity for custom description styles. */
+:deep(.property-description) :not(:where(pre, pre *)) {
   color: var(--scalar-color-2) !important;
 }
 

@@ -1,5 +1,11 @@
 # @scalar/server-side-rendering
 
+## 0.1.75
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
 ## 0.1.74
 
 No changes in this release.

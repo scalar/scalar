@@ -1,5 +1,15 @@
 # @scalar/aws-lambda
 
+## 1.2.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.83.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
 ## 1.1.1
 
 ### Bundled API Reference

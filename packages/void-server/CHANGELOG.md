@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.5.27
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
 ## 2.5.26
 
 No changes in this release.
