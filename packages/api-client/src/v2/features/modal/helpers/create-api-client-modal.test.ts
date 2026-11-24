@@ -90,6 +90,24 @@ describe('createApiClientModal', () => {
     document.body.innerHTML = ''
   })
 
+  it('stops syncing proxy options after the modal is unmounted', async () => {
+    const workspaceStore = createWorkspaceStore()
+    const update = vi.spyOn(workspaceStore, 'update')
+    const options = ref<ApiClientOptions>({ proxyUrl: 'https://proxy.example.test/initial' })
+    const modal = createApiClientModal({
+      el: mountElement,
+      workspaceStore,
+      eventBus: createTestEventBus(),
+      options,
+    })
+    expect(update).toHaveBeenCalledWith('x-scalar-active-proxy', 'https://proxy.example.test/initial')
+    modal.app.unmount()
+    update.mockClear()
+    options.value = { proxyUrl: 'https://proxy.example.test/after-unmount' }
+    await nextTick()
+    expect(update).not.toHaveBeenCalled()
+  })
+
   it('updates localized labels and direction in the separately mounted modal app', async () => {
     const options = ref<ApiClientOptions>({
       localization: {

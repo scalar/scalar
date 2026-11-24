@@ -15,13 +15,16 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import {
   type TeleportProps,
+  computed,
   getCurrentInstance,
   inject,
   onMounted,
   ref,
   ssrContextKey,
+  unref,
 } from 'vue'
 
 import { useTeleport } from './useTeleport'
@@ -51,6 +54,25 @@ defineSlots<{
 defineOptions({ inheritAttrs: false })
 
 const root = useTeleport()
+const documentRoot = useDocumentRoot()
+const mounted = ref(false)
+
+/** Vue resolves selectors against document; shadow-root targets must be actual nodes. */
+const target = computed(() => {
+  const value = to || unref<string | HTMLElement | null>(root)
+  if (
+    typeof ShadowRoot !== 'undefined' &&
+    documentRoot instanceof ShadowRoot &&
+    typeof value === 'string'
+  ) {
+    return value === 'body'
+      ? documentRoot
+      : mounted.value
+        ? documentRoot.querySelector(value)
+        : null
+  }
+  return value
+})
 
 /**
  * Server-rendered teleports stay in place until the component is mounted.
@@ -81,9 +103,10 @@ const isTargetOnPage = (target: TeleportProps['to']): boolean =>
   typeof target === 'string'
     ? document.querySelector(target) !== null
     : !!target
-const canTeleport = !isHydrating || isTargetOnPage(to || root)
+const canTeleport = !isHydrating || isTargetOnPage(target.value)
 
 onMounted(() => {
+  mounted.value = true
   if (canTeleport) {
     renderInPlace.value = false
   }
@@ -91,9 +114,10 @@ onMounted(() => {
 </script>
 <template>
   <Teleport
+    v-if="disabled || renderInPlace || target"
     :defer="!immediate"
     :disabled="disabled || renderInPlace"
-    :to="to || root">
+    :to="target">
     <div
       class="scalar-app"
       style="display: contents"
