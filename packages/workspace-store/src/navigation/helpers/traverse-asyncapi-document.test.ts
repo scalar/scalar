@@ -751,7 +751,7 @@ describe('traverseAsyncApiDocument', () => {
     expect(result.children?.some((entry) => entry.type === 'models')).toBe(false)
   })
 
-  it('lists reusable messages and traits in their own sections before Models', () => {
+  it('lists visible reusable messages before Models and leaves traits in their usage context', () => {
     const document = {
       asyncapi: '3.1.0',
       info: { title: 'Components', version: '1.0.0' },
@@ -763,81 +763,40 @@ describe('traverseAsyncApiDocument', () => {
           PlanetDeleted: { name: 'planetDeleted' },
           Alias: { $ref: '#/components/messages/PlanetUpdated', '$ref-value': { summary: 'Aliased' } },
           Internal: { title: 'Internal', 'x-internal': true },
+          Ignored: { title: 'Ignored', 'x-scalar-ignore': true },
         },
         messageTraits: { CommonHeaders: { summary: 'Common headers' } },
-        operationTraits: { Kafka: { title: 'Kafka defaults' }, Ignored: { 'x-scalar-ignore': true } },
+        operationTraits: { Kafka: { title: 'Kafka defaults' } },
       },
     } as unknown as AsyncApiDocument
 
     const result = traverseAsyncApiDocument('components', document, mockOptions)
 
-    expect(result.children?.map((entry) => entry.type)).toStrictEqual([
-      'text',
-      'asyncapi-components',
-      'asyncapi-components',
-      'asyncapi-components',
-      'models',
-    ])
-    expect(result.children?.filter((entry) => entry.type === 'asyncapi-components')).toStrictEqual([
+    expect(result.children?.map((entry) => entry.type)).toStrictEqual(['text', 'asyncapi-messages', 'models'])
+    expect(result.children?.filter((entry) => entry.type === 'asyncapi-messages')).toStrictEqual([
       {
-        type: 'asyncapi-components',
+        type: 'asyncapi-messages',
         id: 'components/~components/messages',
         title: 'Messages',
         name: 'Messages',
-        componentType: 'messages',
         children: [
           {
-            type: 'asyncapi-component',
+            type: 'asyncapi-reusable-message',
             id: 'components/~components/messages/PlanetUpdated',
             title: 'Planet Updated',
             name: 'PlanetUpdated',
-            componentType: 'messages',
           },
           {
-            type: 'asyncapi-component',
+            type: 'asyncapi-reusable-message',
             id: 'components/~components/messages/PlanetDeleted',
             title: 'planetDeleted',
             name: 'PlanetDeleted',
-            componentType: 'messages',
           },
           {
-            type: 'asyncapi-component',
+            type: 'asyncapi-reusable-message',
             id: 'components/~components/messages/Alias',
             title: 'Aliased',
             name: 'Alias',
-            componentType: 'messages',
-          },
-        ],
-      },
-      {
-        type: 'asyncapi-components',
-        id: 'components/~components/message-traits',
-        title: 'Message Traits',
-        name: 'Message Traits',
-        componentType: 'messageTraits',
-        children: [
-          {
-            type: 'asyncapi-component',
-            id: 'components/~components/message-traits/CommonHeaders',
-            title: 'Common headers',
-            name: 'CommonHeaders',
-            componentType: 'messageTraits',
-          },
-        ],
-      },
-      {
-        type: 'asyncapi-components',
-        id: 'components/~components/operation-traits',
-        title: 'Operation Traits',
-        name: 'Operation Traits',
-        componentType: 'operationTraits',
-        children: [
-          {
-            type: 'asyncapi-component',
-            id: 'components/~components/operation-traits/Kafka',
-            title: 'Kafka defaults',
-            name: 'Kafka',
-            componentType: 'operationTraits',
           },
         ],
       },
@@ -856,7 +815,7 @@ describe('traverseAsyncApiDocument', () => {
     } satisfies AsyncApiDocument
 
     const navigation = traverseAsyncApiDocument('catalog', document, { modelsSectionLabel: 'Messages' })
-    const messages = navigation.children?.find((entry) => entry.type === 'asyncapi-components')
+    const messages = navigation.children?.find((entry) => entry.type === 'asyncapi-messages')
     const models = navigation.children?.find((entry) => entry.type === 'models')
     expect([messages?.id, models?.id]).toStrictEqual(['catalog/~components/messages', 'catalog/messages'])
     expect(messages?.children?.map((entry) => entry.id)).toStrictEqual([
@@ -867,7 +826,7 @@ describe('traverseAsyncApiDocument', () => {
     expect(models?.children?.map((entry) => entry.id)).toStrictEqual(['catalog/messages/Event'])
   })
 
-  it('inserts new catalog sections before Models in a saved navigation order', () => {
+  it('inserts the Messages section before Models in a saved navigation order', () => {
     const document = {
       asyncapi: '3.1.0',
       info: { title: 'Components', version: '1.0.0' },
@@ -877,14 +836,12 @@ describe('traverseAsyncApiDocument', () => {
       components: {
         schemas: { Event: { type: 'object' } },
         messages: { Event: {} },
-        messageTraits: { Tracing: {} },
       },
     } satisfies AsyncApiDocument & { 'x-scalar-order': string[] }
 
     const expected = [
       'catalog/description/introduction',
       'catalog/~components/messages',
-      'catalog/~components/message-traits',
       'catalog/models',
       'catalog/channel/events',
     ]
@@ -892,25 +849,35 @@ describe('traverseAsyncApiDocument', () => {
     expect(document['x-scalar-order']).toStrictEqual(expected)
   })
 
-  it('omits empty component sections and hides them with hideModels', () => {
+  it('omits Messages when there are no visible reusable messages or hideModels is set', () => {
     const document = {
       asyncapi: '3.1.0',
       info: { title: 'Components', version: '1.0.0' },
       'x-scalar-original-document-hash': '',
       components: {
         messages: { Only: { title: 'Only' } },
-        messageTraits: {},
-        operationTraits: { Hidden: { 'x-internal': true } },
       },
-    } as unknown as AsyncApiDocument
+    } satisfies AsyncApiDocument
 
     const visible = traverseAsyncApiDocument('components', document, mockOptions)
-    expect(
-      visible.children?.flatMap((entry) => (entry.type === 'asyncapi-components' ? [entry.componentType] : [])),
-    ).toStrictEqual(['messages'])
+    expect(visible.children?.map(({ type }) => type)).toStrictEqual(['text', 'asyncapi-messages'])
 
     const hidden = traverseAsyncApiDocument('components', document, { ...mockOptions, hideModels: true })
-    expect(hidden.children?.some((entry) => entry.type === 'asyncapi-components')).toBe(false)
+    expect(hidden.children?.map(({ type }) => type)).toStrictEqual(['text'])
+
+    const empty = traverseAsyncApiDocument(
+      'components',
+      {
+        ...document,
+        components: {
+          messages: { Hidden: { title: 'Hidden', ...{ 'x-internal': true } } },
+          messageTraits: { Tracing: { title: 'Tracing' } },
+          operationTraits: { Kafka: { title: 'Kafka defaults' } },
+        },
+      },
+      mockOptions,
+    )
+    expect(empty.children?.map(({ type }) => type)).toStrictEqual(['text'])
   })
 
   it('lists models when components is a resolved `$ref` wrapper', () => {

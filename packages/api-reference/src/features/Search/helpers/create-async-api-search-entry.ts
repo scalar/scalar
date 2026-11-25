@@ -9,7 +9,6 @@ import {
   resolveAsyncApiChannel,
   resolveAsyncApiMessageEntry,
   resolveAsyncApiOperation,
-  resolveAsyncApiOperationTrait,
 } from '@/components/Content/AsyncApi/helpers/resolve-async-api-nodes'
 import type { FuseData } from '@/features/Search/types'
 
@@ -88,23 +87,12 @@ export const createAsyncApiSearchEntry = (document: AsyncApiDocument, entry: Tra
       description: [operation?.summary, operation?.description].filter(Boolean).join('\n'),
     }
   }
-  if (entry.type === 'asyncapi-component' && entry.componentType === 'operationTraits') {
-    const trait = resolveAsyncApiOperationTrait(document, entry.name)
-    return {
-      type: entry.type,
-      id: entry.id,
-      title: pickHeading(trait?.title, entry.title, entry.name),
-      entry,
-      identifiers: [entry.name],
-      description: [trait?.summary, trait?.description].filter(Boolean).join('\n'),
-    }
-  }
-  if (entry.type === 'asyncapi-message' || entry.type === 'asyncapi-component') {
+  if (entry.type === 'asyncapi-message' || entry.type === 'asyncapi-reusable-message') {
     const message = resolveAsyncApiMessageEntry(document, entry)
     const name = entry.type === 'asyncapi-message' ? entry.messageName : entry.name
     const fields = extractSchemaFields([message?.payload, message?.headers])
     return {
-      type: entry.type,
+      type: 'asyncapi-message',
       id: entry.id,
       title: pickHeading(message?.title, entry.title, name),
       entry,

@@ -9,7 +9,6 @@ export type EntryType =
   | 'asyncapi-channel'
   | 'asyncapi-operation'
   | 'asyncapi-message'
-  | 'asyncapi-component'
 
 export type FuseData = {
   type: EntryType

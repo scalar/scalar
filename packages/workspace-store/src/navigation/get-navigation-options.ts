@@ -3,14 +3,7 @@ import { slugify } from '@scalar/helpers/string/slugify'
 import { type ApiReferenceConfigurationRaw, DEFAULT_MODELS_SECTION_LABEL } from '@scalar/types/api-reference'
 
 import type { TraverseSpecOptions } from '@/navigation/types'
-import type { AsyncApiComponentType, IdGenerator } from '@/schemas/navigation'
-
-/** URL segment for each reusable AsyncAPI component section. */
-const ASYNC_API_COMPONENT_SECTION_SLUGS: Record<AsyncApiComponentType, string> = {
-  messages: 'messages',
-  messageTraits: 'message-traits',
-  operationTraits: 'operation-traits',
-}
+import type { IdGenerator } from '@/schemas/navigation'
 
 /**
  * Fixed fields retain their existing links; authored variants need a distinct namespace.
@@ -105,20 +98,18 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
       return `${props.parentId}/operation/${slugify(props.operationName)}`
     }
 
-    // -------- Default AsyncAPI component id generation logic --------
-    if (props.type === 'asyncapi-component') {
-      // The reserved prefix keeps sections separate from any slug derived from a Models label.
-      const sectionId = `${documentId}/~components/${ASYNC_API_COMPONENT_SECTION_SLUGS[props.componentType]}`
+    if (props.type === 'asyncapi-reusable-message') {
       if (props.name === undefined) {
-        return sectionId
+        // The reserved prefix keeps the Messages section separate from a Models label of the same name.
+        return `${props.parentId}/~components/messages`
       }
-      // Escape dots so URL dot segments and schema path markers cannot consume component keys.
+      // Escape dots so URL dot segments and schema path markers cannot consume message keys.
       // Fixed-width escapes preserve distinct keys without relying on URL decoding.
       const name = props.name.replace(
         /[^a-zA-Z0-9_-]/g,
         (char) => `~${char.charCodeAt(0).toString(16).padStart(4, '0')}`,
       )
-      return `${sectionId}/${name || '~'}`
+      return `${props.parentId}/${name || '~'}`
     }
 
     // -------- Default operation id generation logic --------

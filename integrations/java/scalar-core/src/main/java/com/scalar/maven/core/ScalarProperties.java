@@ -134,7 +134,7 @@ public class ScalarProperties {
     private boolean showBadgesInSidebar = false;
 
     /**
-     * Hide schema models and reusable AsyncAPI messages and traits from the
+     * Hide schema models and reusable AsyncAPI messages from the
      * sidebar, search, and content.
      * Defaults to false.
      */

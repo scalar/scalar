@@ -30,7 +30,6 @@ export const es = {
     entryTagGroup: 'Grupo de etiquetas',
     entryChannel: 'Canal',
     entryMessage: 'Mensaje',
-    entryComponent: 'Componente',
     entryWebhook: 'Webhook',
   },
   navigation: {
@@ -48,8 +47,6 @@ export const es = {
     webhooks: 'Webhooks',
     channels: 'Canales',
     messages: 'Mensajes',
-    messageTraits: 'Rasgos de mensaje',
-    operationTraits: 'Rasgos de operación',
   },
   server: {
     label: 'Servidor',

@@ -94,7 +94,7 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public OperationTitleSource? OperationTitleSource { get; set; }
 
     /// <summary>
-    /// Hides schema models and reusable AsyncAPI messages and traits from the sidebar, search, and content.
+    /// Hides schema models and reusable AsyncAPI messages from the sidebar, search, and content.
     /// </summary>
     public bool? HideModels { get; set; }
 

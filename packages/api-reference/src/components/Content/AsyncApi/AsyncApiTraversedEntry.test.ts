@@ -9,7 +9,6 @@ import { describe, expect, it, vi } from 'vitest'
 
 import AsyncApiTraversedEntry from './AsyncApiTraversedEntry.vue'
 import Message from './Message.vue'
-import OperationTrait from './OperationTrait.vue'
 import SchemaSource from './SchemaSource.vue'
 
 const document = {
@@ -154,102 +153,84 @@ describe('AsyncApiTraversedEntry', () => {
     },
   )
 
-  it.each(['modern', 'classic'] as const)('renders reusable messages and traits in %s layout', async (layout) => {
-    const document = {
-      asyncapi: '3.1.0',
-      info: { title: 'Components', version: '1' },
-      'x-scalar-original-document-hash': '',
-      channels: {},
-      components: {
-        securitySchemes: { token: { type: 'httpApiKey', name: 'token', in: 'header' } },
-        messages: {
-          PlanetUpdated: {
-            title: 'Planet updated',
-            traits: [{ $ref: '#/components/messageTraits/Tracing' }],
-            payload: { type: 'object', properties: { planetId: { type: 'string' } } },
+  it.each(['modern', 'classic'] as const)(
+    'renders reusable messages with inherited traits in %s layout',
+    async (layout) => {
+      const document = {
+        asyncapi: '3.1.0',
+        info: { title: 'Components', version: '1' },
+        'x-scalar-original-document-hash': '',
+        channels: {},
+        components: {
+          messages: {
+            PlanetUpdated: {
+              title: 'Planet updated',
+              traits: [{ $ref: '#/components/messageTraits/Tracing' }],
+              payload: { type: 'object', properties: { planetId: { type: 'string' } } },
+            },
+          },
+          messageTraits: {
+            Tracing: {
+              title: 'Tracing',
+              headers: { type: 'object', properties: { traceId: { type: 'string' } } },
+              examples: [{ headers: { traceId: 'example-trace' } }],
+            },
+          },
+          operationTraits: {
+            Kafka: { title: 'Kafka defaults' },
           },
         },
-        messageTraits: {
-          Tracing: {
-            title: 'Tracing',
-            headers: { type: 'object', properties: { traceId: { type: 'string' } } },
-            examples: [{ headers: { traceId: 'example-trace' } }],
-          },
-        },
-        operationTraits: {
-          Kafka: {
-            title: 'Kafka defaults',
-            description: 'Applies the **consumer group**',
-            security: [{ $ref: '#/components/securitySchemes/token' }],
-            externalDocs: { url: 'https://example.com/kafka' },
-          },
-        },
-      },
-    } as unknown as AsyncApiDocument
-    const store = createWorkspaceStore()
-    await store.addDocument({ name: 'components', document: document as unknown as Record<string, unknown> })
-    const resolved = store.workspace.documents.components
-    if (!isAsyncApiDocument(resolved)) {
-      throw new Error('Expected an AsyncAPI document')
-    }
-    const navigation = traverseAsyncApiDocument('components', resolved)
-    const expandedItems: Record<string, boolean> = {}
-    const expand = (entries: TraversedEntry[]): void => {
-      for (const entry of entries) {
-        expandedItems[entry.id] = true
-        if ('children' in entry && entry.children) {
-          expand(entry.children)
+      } as unknown as AsyncApiDocument
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: 'components', document: document as unknown as Record<string, unknown> })
+      const resolved = store.workspace.documents.components
+      if (!isAsyncApiDocument(resolved)) {
+        throw new Error('Expected an AsyncAPI document')
+      }
+      const navigation = traverseAsyncApiDocument('components', resolved)
+      const expandedItems: Record<string, boolean> = {}
+      const expand = (entries: TraversedEntry[]): void => {
+        for (const entry of entries) {
+          expandedItems[entry.id] = true
+          if ('children' in entry && entry.children) {
+            expand(entry.children)
+          }
         }
       }
-    }
-    expand(navigation.children ?? [])
+      expand(navigation.children ?? [])
 
-    const wrapper = mount(AsyncApiTraversedEntry, {
-      props: {
-        document: resolved,
-        entries: navigation.children ?? [],
-        expandedItems,
-        eventBus: createWorkspaceEventBus(),
-        options: {
-          layout,
-          hideModels: false,
-          expandAllSchemaProperties: true,
-          schemaKeyboardNav: false,
-          orderSchemaPropertiesBy: 'preserve',
-          orderRequiredPropertiesFirst: true,
+      const wrapper = mount(AsyncApiTraversedEntry, {
+        props: {
+          document: resolved,
+          entries: navigation.children ?? [],
+          expandedItems,
+          eventBus: createWorkspaceEventBus(),
+          options: {
+            layout,
+            hideModels: false,
+            expandAllSchemaProperties: true,
+            schemaKeyboardNav: false,
+            orderSchemaPropertiesBy: 'preserve',
+            orderRequiredPropertiesFirst: true,
+          },
         },
-      },
-    })
+      })
 
-    const text = wrapper.text()
-    for (const heading of ['Messages', 'Message Traits', 'Operation Traits']) {
-      expect(text).toContain(heading)
-    }
-    const messagesSection = wrapper.get('[id="components/~components/messages"]')
-    expect(messagesSection.attributes('aria-label')).toBe('Messages')
-    if (layout === 'classic') {
-      const toggle = messagesSection.get('button[aria-labelledby]')
-      expect(toggle.attributes('aria-expanded')).toBe('true')
-    }
+      expect(wrapper.find('[aria-label="Message Traits"]').exists()).toBe(false)
+      expect(wrapper.find('[aria-label="Operation Traits"]').exists()).toBe(false)
+      const messagesSection = wrapper.get('[id="components/~components/messages"]')
+      expect(messagesSection.attributes('aria-label')).toBe('Messages')
+      if (layout === 'classic') {
+        const toggle = messagesSection.get('button[aria-labelledby]')
+        expect(toggle.attributes('aria-expanded')).toBe('true')
+      }
 
-    // The reusable message applies its trait, so both payload and trait headers render.
-    const messages = wrapper.findAllComponents(Message)
-    const findMessage = (id: string) => messages.find((component) => component.props('message').id === id)
-    const message = findMessage('components/~components/messages/PlanetUpdated')
-    expect(message?.text()).toContain('planetId')
-    expect(message?.text()).toContain('traceId')
-    // The trait renders on its own, without a payload.
-    const trait = findMessage('components/~components/message-traits/Tracing')
-    expect(trait?.text()).toContain('traceId')
-    expect(trait?.text()).not.toContain('Payload')
-    expect(trait?.get('pre').text()).toBe('{\n  "traceId": "example-trace"\n}')
-    // Operation traits show their prose, security, and documentation.
-    const operationTrait = wrapper.getComponent(OperationTrait)
-    expect(operationTrait.text()).toContain('Kafka defaults')
-    expect(operationTrait.find('strong').text()).toBe('consumer group')
-    expect(operationTrait.find('a[href="https://example.com/kafka"]').exists()).toBe(true)
-    expect(operationTrait.findComponent({ name: 'SecurityRequirementBadge' }).exists()).toBe(true)
-  })
+      const message = messagesSection.getComponent(Message)
+      expect(message.text()).toContain('planetId')
+      expect(message.text()).toContain('traceId')
+      expect(message.get('pre').text()).toBe('{\n  "traceId": "example-trace"\n}')
+    },
+  )
 
   /**
    * Tag groups are rendered through the flatten branch in modern layout, so they

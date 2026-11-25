@@ -31,7 +31,6 @@ export const zhTw = {
     entryTagGroup: '標籤群組',
     entryChannel: '通道',
     entryMessage: '訊息',
-    entryComponent: '元件',
     entryWebhook: 'Webhook',
   },
   navigation: {
@@ -49,8 +48,6 @@ export const zhTw = {
     webhooks: 'Webhooks',
     channels: '通道',
     messages: '訊息',
-    messageTraits: '訊息特徵',
-    operationTraits: '操作特徵',
   },
   server: {
     label: '伺服器',

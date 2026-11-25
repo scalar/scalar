@@ -53,8 +53,7 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     hideModels: boolean({
       default: false,
-      typeComment:
-        'Hide schema models and reusable AsyncAPI messages and traits from the sidebar, search, and content.',
+      typeComment: 'Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content.',
     }),
     hideModelNames: boolean({
       default: false,

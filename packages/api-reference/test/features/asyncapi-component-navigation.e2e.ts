@@ -10,7 +10,6 @@ const content = {
       'Order.Created': { title: 'Order created', payload: { type: 'string' } },
       'Order.Created-content': { title: 'Legacy order event' },
     },
-    messageTraits: { Tracing: { title: 'Tracing' } },
   },
 }
 
@@ -55,7 +54,7 @@ test('opens a classic component section from a deep link with an accurate expand
   await expect(section.getByRole('heading', { name: 'Order created' })).toHaveCount(0)
 })
 
-test('keeps the mobile sidebar open when selecting a component group', async ({ page }) => {
+test('keeps the mobile sidebar open when selecting a Messages section', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 })
   const example = await serveExample({ content, defaultOpenFirstTag: false })
   await page.goto(example)
@@ -74,7 +73,7 @@ test('keeps the mobile sidebar open when selecting a component group', async ({ 
   await expect(page.getByRole('heading', { name: 'Order created' })).toBeInViewport()
 })
 
-test('scrolls and focuses desktop groups after the open mobile sidebar is resized', async ({ page }) => {
+test('scrolls and focuses the desktop Messages section after the open mobile sidebar is resized', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 })
   const example = await serveExample({ content, defaultOpenFirstTag: false })
   await page.goto(example)
@@ -84,11 +83,11 @@ test('scrolls and focuses desktop groups after the open mobile sidebar is resize
   await page.setViewportSize({ width: 1280, height: 740 })
 
   const sidebar = page.getByRole('complementary', { name: 'Sidebar for' })
-  await sidebar.getByRole('link', { name: 'Message Traits', exact: true }).click()
+  await sidebar.getByRole('link', { name: 'Messages', exact: true }).click()
 
-  const section = page.getByRole('region', { name: 'Message Traits', exact: true })
+  const section = page.getByRole('region', { name: 'Messages', exact: true })
   await expect(section).toBeFocused()
-  await expect(section.getByRole('heading', { name: 'Message Traits', exact: true })).toBeInViewport()
+  await expect(section.getByRole('heading', { name: 'Messages', exact: true })).toBeInViewport()
 })
 
 for (const layout of ['modern', 'classic'] as const) {
@@ -110,25 +109,19 @@ for (const layout of ['modern', 'classic'] as const) {
         ...content,
         components: {
           messages: { [name]: message },
-          messageTraits: { [name]: message },
-          operationTraits: { [name]: { description: message.description } },
         },
       },
     })
 
-    for (const slug of ['messages', 'message-traits', 'operation-traits']) {
-      await page.goto(`${example}?section=${slug}#~components/${slug}/${name}`)
-      const heading = page.getByRole('button', { name, exact: true })
-      await expect(heading).toHaveAttribute('aria-expanded', 'true')
-      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
+    await page.goto(`${example}#~components/messages/${name}`)
+    const heading = page.getByRole('button', { name, exact: true })
+    await expect(heading).toHaveAttribute('aria-expanded', 'true')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
 
-      if (slug !== 'operation-traits') {
-        const examples = page.getByRole('group', { name: 'Examples', exact: true })
-        const picker = examples.getByRole('button', { name: `Examples: ${exampleName}`, exact: true })
-        await expect(picker).toBeVisible()
-        const header = examples.locator('.scalar-card-header')
-        expect(await header.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
-      }
-    }
+    const examples = page.getByRole('group', { name: 'Examples', exact: true })
+    const picker = examples.getByRole('button', { name: `Examples: ${exampleName}`, exact: true })
+    await expect(picker).toBeVisible()
+    const header = examples.locator('.scalar-card-header')
+    expect(await header.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
   })
 }

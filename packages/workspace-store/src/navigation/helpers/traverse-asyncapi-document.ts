@@ -20,18 +20,16 @@ import { traverseSchemas } from '@/navigation/helpers/traverse-schemas'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { XInternal } from '@/schemas/extensions/document/x-internal'
 import type { XScalarIgnore } from '@/schemas/extensions/document/x-scalar-ignore'
-import {
-  ASYNC_API_COMPONENT_TYPES,
-  type AsyncApiComponentType,
-  type ParentTag,
-  type TraversedAsyncApiChannel,
-  type TraversedAsyncApiComponent,
-  type TraversedAsyncApiComponents,
-  type TraversedAsyncApiMessage,
-  type TraversedAsyncApiOperation,
-  type TraversedDocument,
-  type TraversedEntry,
-  type TraversedTag,
+import type {
+  ParentTag,
+  TraversedAsyncApiChannel,
+  TraversedAsyncApiMessage,
+  TraversedAsyncApiMessages,
+  TraversedAsyncApiOperation,
+  TraversedAsyncApiReusableMessage,
+  TraversedDocument,
+  TraversedEntry,
+  TraversedTag,
 } from '@/schemas/navigation'
 import type { OpenApiDocument, TagObject } from '@/schemas/v3.2/strict/openapi-document'
 
@@ -116,62 +114,35 @@ const getOperationTitle = (operation: AsyncApiOperationObject, operationName: st
 const getMessageTitle = (message: AsyncApiMessageLike, messageName: string): string =>
   pickNonEmpty(message.title, message.summary, message.name) ?? messageName
 
-/** Default section titles for the reusable component maps; the reference localizes them. */
-const COMPONENT_SECTION_TITLES: Record<AsyncApiComponentType, string> = {
-  messages: 'Messages',
-  messageTraits: 'Message Traits',
-  operationTraits: 'Operation Traits',
-}
-
-/**
- * Builds one section per non-empty reusable component map (messages, message traits, operation traits).
- *
- * Components keep their document order, mirroring how the Models section lists `components.schemas`.
- * Hidden components (`x-internal` or `x-scalar-ignore`) are skipped, and sections left empty are omitted.
- */
-const traverseComponents = ({
-  components,
-  documentId,
-  generateId,
-}: {
-  components: AsyncApiComponentsObject
-  documentId: string
-  generateId: TraverseSpecOptions['generateId']
-}): TraversedAsyncApiComponents[] =>
-  ASYNC_API_COMPONENT_TYPES.flatMap((componentType): TraversedAsyncApiComponents[] => {
-    const nodes: Record<
-      string,
-      AsyncApiMessageLike | { $ref: string; '$ref-value'?: AsyncApiMessageLike } | undefined
-    > = components[componentType] ?? {}
-    const sectionId = generateId({ type: 'asyncapi-component', componentType, parentId: documentId })
-
-    const children = Object.entries(nodes).flatMap(([name, node]): TraversedAsyncApiComponent[] => {
-      const component = node ? getResolvedAsyncApiRef(node) : undefined
-      if (!component || isHidden(component as Hideable)) {
-        return []
-      }
-
-      return [
-        {
-          type: 'asyncapi-component',
-          id: generateId({ type: 'asyncapi-component', componentType, name, parentId: sectionId }),
-          title:
-            componentType === 'operationTraits'
-              ? (pickNonEmpty(component.title, component.summary) ?? name)
-              : getMessageTitle(component, name),
-          name,
-          componentType,
-        },
-      ]
-    })
-
-    if (children.length === 0) {
+/** Build the Messages section from visible reusable messages in document order. */
+const traverseReusableMessages = (
+  messages: NonNullable<AsyncApiComponentsObject['messages']>,
+  documentId: string,
+  generateId: TraverseSpecOptions['generateId'],
+): TraversedAsyncApiMessages | undefined => {
+  const sectionId = generateId({ type: 'asyncapi-reusable-message', parentId: documentId })
+  const children = Object.entries(messages).flatMap(([name, node]): TraversedAsyncApiReusableMessage[] => {
+    const message = getResolvedAsyncApiRef(node)
+    if (!message || isHidden(message as Hideable)) {
       return []
     }
 
-    const title = COMPONENT_SECTION_TITLES[componentType]
-    return [{ type: 'asyncapi-components', id: sectionId, title, name: title, componentType, children }]
+    return [
+      {
+        type: 'asyncapi-reusable-message',
+        id: generateId({ type: 'asyncapi-reusable-message', name, parentId: sectionId }),
+        title: getMessageTitle(message, name),
+        name,
+      },
+    ]
   })
+
+  if (children.length === 0) {
+    return undefined
+  }
+
+  return { type: 'asyncapi-messages', id: sectionId, title: 'Messages', name: 'Messages', children }
+}
 
 /**
  * Parses a channel JSON pointer (`#/channels/<name>`) into the key used in `document.channels`.
@@ -771,8 +742,10 @@ export const traverseAsyncApiDocument = (
         })
       : []
 
-  // Reusable messages and traits get their own sections, sharing the Models visibility switch.
-  const componentSections = !hideModels && components ? traverseComponents({ components, documentId, generateId }) : []
+  const messagesSection =
+    !hideModels && components?.messages
+      ? traverseReusableMessages(components.messages, documentId, generateId)
+      : undefined
 
   // Surface the Introduction entry plus any headings extracted from `info.description`
   // before the channel/tag entries, mirroring how OpenAPI documents are traversed.
@@ -798,7 +771,10 @@ export const traverseAsyncApiDocument = (
     untaggedChannels.sort((a, b) => a.title.localeCompare(b.title))
   }
 
-  entries.push(...untaggedChannels, ...componentSections)
+  entries.push(...untaggedChannels)
+  if (messagesSection) {
+    entries.push(messagesSection)
+  }
 
   // Mirror OpenAPI: untagged schemas are grouped under a single top-level "Models" section.
   const modelsId = untaggedModels.length ? generateId({ type: 'model', parentId: documentId }) : undefined
@@ -814,11 +790,10 @@ export const traverseAsyncApiDocument = (
 
   const savedOrder = document['x-scalar-order']
   const modelsIndex = modelsId === undefined ? -1 : (savedOrder?.indexOf(modelsId) ?? -1)
-  const missingSections = componentSections.map(({ id }) => id).filter((id) => !savedOrder?.includes(id))
-  // Older snapshots listed Models before the component catalog existed.
+  // Older snapshots listed Models before the Messages section existed.
   const sortOrder =
-    savedOrder && modelsIndex !== -1 && missingSections.length
-      ? [...savedOrder.slice(0, modelsIndex), ...missingSections, ...savedOrder.slice(modelsIndex)]
+    savedOrder && modelsIndex !== -1 && messagesSection && !savedOrder.includes(messagesSection.id)
+      ? [...savedOrder.slice(0, modelsIndex), messagesSection.id, ...savedOrder.slice(modelsIndex)]
       : savedOrder
   const orderedEntries = sortOrder ? sortByOrder(entries, sortOrder, (entry) => entry.id) : entries
 

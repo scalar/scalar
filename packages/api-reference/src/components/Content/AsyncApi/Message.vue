@@ -17,7 +17,7 @@ import {
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import type {
-  TraversedAsyncApiComponent,
+  TraversedAsyncApiReusableMessage,
   TraversedAsyncApiMessage,
 } from '@scalar/workspace-store/schemas/navigation'
 import {
@@ -66,16 +66,16 @@ const {
 } = defineProps<
   {
     /**
-     * Direct channel messages sit beneath the channel catalog heading; reusable components sit
-     * directly beneath their component section, like models.
+     * Direct channel messages sit beneath the channel catalog heading; reusable messages sit
+     * beneath the Messages section.
      */
-    parent?: 'channel' | 'operation' | 'components'
+    parent?: 'channel' | 'operation' | 'messages'
     /** Render another occurrence without duplicating navigation anchors or sidebar state. */
     inline?: boolean
     /** Operation examples are displayed together in the right column. */
     hideExamples?: boolean
-    /** A channel message, or a reusable message or message trait from `components`. */
-    message: TraversedAsyncApiMessage | TraversedAsyncApiComponent
+    /** A channel message or a reusable message from `components.messages`. */
+    message: TraversedAsyncApiMessage | TraversedAsyncApiReusableMessage
     document: AsyncApiDocument
     eventBus: WorkspaceEventBus | null
     options?: Partial<SchemaRenderOptions>
@@ -115,7 +115,7 @@ useIntersection(
 
 /**
  * Resolve the message from where it lives. The navigation entry only carries the identifying keys:
- * a channel message walks `document.channels[channelName].messages`, a component walks `components`.
+ * a channel message walks `document.channels[channelName].messages`, a reusable message walks `document.components.messages`.
  */
 const resolvedMessage = computed(() =>
   resolveAsyncApiMessageEntry(document, message),
@@ -276,7 +276,7 @@ const generatedPayload = computed<unknown>(() =>
 )
 
 const outlineRoles = {
-  components: 'model',
+  messages: 'model',
   channel: 'channelMessage',
   operation: 'message',
 } as const
@@ -426,7 +426,7 @@ const { level: headingLevel } = useDocumentOutline(outlineRoles[parent])
             :contentType="contentType"
             :examples="resolvedMessage?.examples"
             :generatedPayload="isExpanded ? generatedPayload : undefined"
-            :showHeaders="message.type === 'asyncapi-component'" />
+            :showHeaders="message.type === 'asyncapi-reusable-message'" />
         </div>
       </div>
     </CompactSection>

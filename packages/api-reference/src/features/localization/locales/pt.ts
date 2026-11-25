@@ -31,7 +31,6 @@ export const pt = {
     entryTagGroup: 'Grupo de Tags',
     entryChannel: 'Canal',
     entryMessage: 'Mensagem',
-    entryComponent: 'Componente',
     entryWebhook: 'Webhook',
   },
   navigation: {
@@ -49,8 +48,6 @@ export const pt = {
     webhooks: 'Webhooks',
     channels: 'Canais',
     messages: 'Mensagens',
-    messageTraits: 'Traits de mensagem',
-    operationTraits: 'Traits de operação',
   },
   server: {
     label: 'Servidor',

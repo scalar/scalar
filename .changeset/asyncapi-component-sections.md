@@ -6,4 +6,4 @@
 '@scalar/schemas': patch
 ---
 
-Render reusable AsyncAPI components in their own reference sections. `components.messages` appear under **Messages** with their headers, payload, examples, and applied traits; `components.messageTraits` appear under **Message Traits**; and `components.operationTraits` appear under **Operation Traits** with their description, security, bindings, and external documentation. The sections sit above **Models**, are searchable, skip hidden components, and follow `hideModels`.
+Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.

@@ -465,7 +465,6 @@ export type ApiReferenceTranslations = {
     entryTagGroup: string
     entryChannel: string
     entryMessage: string
-    entryComponent: string
     entryWebhook: string
   }
   navigation: {
@@ -478,8 +477,6 @@ export type ApiReferenceTranslations = {
     webhooks: string
     channels: string
     messages: string
-    messageTraits: string
-    operationTraits: string
     endpoints: string
     showAllEndpoints: string
     sidebarFor: string
@@ -832,7 +829,7 @@ type ExtendedConfiguration = {
   pluginUrls?: string[]
   /** Allows the user to inject an editor for the spec */
   isEditable: boolean
-  /** Hide schema models and reusable AsyncAPI messages and traits from the sidebar, search, and content. */
+  /** Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content. */
   hideModels: boolean
   /** Show structural types instead of model names in schema type labels and operation headings. */
   hideModelNames?: boolean

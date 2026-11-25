@@ -367,7 +367,7 @@ scalar.layout=modern
 # Show/hide sidebar (default: true)
 scalar.showSidebar=true
 
-# Hide schema models and reusable AsyncAPI messages and traits (default: false)
+# Hide schema models and reusable AsyncAPI messages (default: false)
 scalar.hideModels=false
 
 # Hide test request button (default: false)

@@ -17,7 +17,7 @@ namespace Scalar.AspNetCore;
 public static partial class ScalarOptionsExtensions
 {
     /// <summary>
-    /// Hides schema models and reusable AsyncAPI messages and traits from the sidebar, search, and content.
+    /// Hides schema models and reusable AsyncAPI messages from the sidebar, search, and content.
     /// </summary>
     /// <param name="options">The options to configure.</param>
     public static TOptions HideModels<TOptions>(this TOptions options) where TOptions : ScalarOptions

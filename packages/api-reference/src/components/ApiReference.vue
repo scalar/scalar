@@ -765,15 +765,9 @@ const localizeNavigationEntries = (
   )
   const modelsSectionLabel =
     mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
-  const componentSectionTitles = {
-    messages: apiReferenceLocalization.translate('navigation.messages'),
-    messageTraits: apiReferenceLocalization.translate(
-      'navigation.messageTraits',
-    ),
-    operationTraits: apiReferenceLocalization.translate(
-      'navigation.operationTraits',
-    ),
-  }
+  const messagesSectionLabel = apiReferenceLocalization.translate(
+    'navigation.messages',
+  )
 
   const localize = (list: TraversedEntry[]): TraversedEntry[] => {
     let changed = false
@@ -804,11 +798,14 @@ const localizeNavigationEntries = (
           name: modelsSectionLabel,
         } as TraversedEntry
       } else if (
-        entry.type === 'asyncapi-components' &&
-        entry.title !== componentSectionTitles[entry.componentType]
+        entry.type === 'asyncapi-messages' &&
+        entry.title !== messagesSectionLabel
       ) {
-        const title = componentSectionTitles[entry.componentType]
-        localized = { ...entry, title, name: title }
+        localized = {
+          ...entry,
+          title: messagesSectionLabel,
+          name: messagesSectionLabel,
+        }
       }
 
       if ('children' in entry && entry.children) {
@@ -880,7 +877,7 @@ const setChildrenOpen = (items: TraversedEntry[]): void => {
     if (
       item.type === 'tag' ||
       item.type === 'models' ||
-      item.type === 'asyncapi-components'
+      item.type === 'asyncapi-messages'
     ) {
       sidebarState.setExpanded(item.id, true)
     }
@@ -1849,7 +1846,7 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
   const isSection =
     item?.type === 'tag' ||
     item?.type === 'models' ||
-    item?.type === 'asyncapi-components'
+    item?.type === 'asyncapi-messages'
 
   updatePageTitle(id)
 

@@ -188,60 +188,34 @@ export type TraversedAsyncApiMessage = BaseSchema & {
   channelName: string
 }
 
-/**
- * Reusable AsyncAPI component maps that render as their own reference sections.
- * Each value is the key under `document.components`.
- */
-export const ASYNC_API_COMPONENT_TYPES = ['messages', 'messageTraits', 'operationTraits'] as const
-
-/** One of the AsyncAPI component maps rendered as a reference section. */
-export type AsyncApiComponentType = (typeof ASYNC_API_COMPONENT_TYPES)[number]
-
-const AsyncApiComponentTypeSchema = Type.Union([
-  Type.Literal('messages'),
-  Type.Literal('messageTraits'),
-  Type.Literal('operationTraits'),
-])
-
-export const TraversedAsyncApiComponentsSchemaDefinition = compose(
+export const TraversedAsyncApiReusableMessageSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
-    type: Type.Literal('asyncapi-components'),
+    type: Type.Literal('asyncapi-reusable-message'),
     name: Type.String(),
-    componentType: AsyncApiComponentTypeSchema,
-    children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
   }),
 )
 
-/**
- * A top-level section listing one AsyncAPI component map, such as `components.messages`.
- */
-export type TraversedAsyncApiComponents = BaseSchema & {
-  type: 'asyncapi-components'
+/** A reusable message keyed by its name in `document.components.messages`. */
+export type TraversedAsyncApiReusableMessage = BaseSchema & {
+  type: 'asyncapi-reusable-message'
   name: string
-  /** Key of the component map in `document.components` */
-  componentType: AsyncApiComponentType
-  children?: TraversedEntry[]
 }
 
-export const TraversedAsyncApiComponentSchemaDefinition = compose(
+export const TraversedAsyncApiMessagesSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
-    type: Type.Literal('asyncapi-component'),
+    type: Type.Literal('asyncapi-messages'),
     name: Type.String(),
-    componentType: AsyncApiComponentTypeSchema,
+    children: Type.Array(TraversedEntryObjectRef),
   }),
 )
 
-/**
- * A single reusable AsyncAPI component, such as one entry of `components.messageTraits`.
- */
-export type TraversedAsyncApiComponent = BaseSchema & {
-  type: 'asyncapi-component'
-  /** Key in `document.components[componentType]` */
+/** The top-level Messages section for reusable AsyncAPI messages. */
+export type TraversedAsyncApiMessages = BaseSchema & {
+  type: 'asyncapi-messages'
   name: string
-  /** Key of the component map in `document.components` */
-  componentType: AsyncApiComponentType
+  children: TraversedEntry[]
 }
 
 export const TraversedSchemaSchemaDefinition = compose(
@@ -378,8 +352,8 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedAsyncApiOperationSchemaDefinition,
   TraversedAsyncApiChannelSchemaDefinition,
   TraversedAsyncApiMessageSchemaDefinition,
-  TraversedAsyncApiComponentsSchemaDefinition,
-  TraversedAsyncApiComponentSchemaDefinition,
+  TraversedAsyncApiMessagesSchemaDefinition,
+  TraversedAsyncApiReusableMessageSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
@@ -395,8 +369,8 @@ export type TraversedEntry =
   | TraversedAsyncApiOperation
   | TraversedAsyncApiChannel
   | TraversedAsyncApiMessage
-  | TraversedAsyncApiComponents
-  | TraversedAsyncApiComponent
+  | TraversedAsyncApiMessages
+  | TraversedAsyncApiReusableMessage
   | TraversedSchema
   | TraversedTag
   | TraversedWebhook
@@ -504,12 +478,11 @@ type AsyncApiMessageProps = {
   type: 'asyncapi-message'
 }
 
-type AsyncApiComponentProps = {
+type AsyncApiReusableMessageProps = {
   parentId: string
-  componentType: AsyncApiComponentType
-  /** Omitted for the section that lists the whole component map */
+  /** Omitted when generating the Messages section ID. */
   name?: string
-  type: 'asyncapi-component'
+  type: 'asyncapi-reusable-message'
 }
 
 export type IdGeneratorProps =
@@ -520,7 +493,7 @@ export type IdGeneratorProps =
   | AsyncApiOperationProps
   | AsyncApiChannelProps
   | AsyncApiMessageProps
-  | AsyncApiComponentProps
+  | AsyncApiReusableMessageProps
   | WebhookProps
   | ModelProps
   | ExampleProps

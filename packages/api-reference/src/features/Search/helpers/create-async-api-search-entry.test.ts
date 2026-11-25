@@ -351,7 +351,9 @@ describe('create-async-api-search-entry', () => {
       'x-scalar-navigation': traverseAsyncApiDocument('catalog', document),
     })
     expect(
-      index.filter((entry) => entry.type === 'asyncapi-component').map(({ id, description }) => [id, description]),
+      index
+        .filter(({ entry }) => entry.type === 'asyncapi-reusable-message')
+        .map(({ id, description }) => [id, description]),
     ).toStrictEqual([
       ['catalog/~components/messages/Order~002eCreated', 'Dotted event'],
       ['catalog/~components/messages/OrderCreated', 'Undotted event'],
@@ -360,7 +362,8 @@ describe('create-async-api-search-entry', () => {
     ])
   })
 
-  it('indexes reusable messages, message traits, and operation traits', () => {
+  it('indexes reusable messages and their inherited header fields', () => {
+    const tracing = { headers: { type: 'object' as const, properties: { traceId: { type: 'string' as const } } } }
     const document: AsyncApiDocument = {
       asyncapi: '3.1.0',
       info: { title: 'Components', version: '1' },
@@ -371,14 +374,12 @@ describe('create-async-api-search-entry', () => {
             title: 'Planet updated',
             name: 'planet.updated',
             description: 'A planet changed',
+            traits: [{ $ref: '#/components/messageTraits/Tracing', '$ref-value': tracing }],
             payload: { type: 'object', properties: { planetId: { type: 'string', description: 'The planet' } } },
           },
         },
         messageTraits: {
-          Tracing: {
-            summary: 'Tracing headers',
-            headers: { type: 'object', properties: { traceId: { type: 'string' } } },
-          },
+          Tracing: tracing,
         },
         operationTraits: { Kafka: { title: 'Kafka defaults', description: 'Applies the consumer group' } },
       },
@@ -387,37 +388,17 @@ describe('create-async-api-search-entry', () => {
     const index = createSearchIndex(
       Object.assign(document, { 'x-scalar-navigation': traverseAsyncApiDocument('components', document) }),
     )
-    const components = index.filter((entry) => entry.type === 'asyncapi-component')
-
     expect(
-      components.map(({ id, title, description, identifiers, body }) => ({
-        id,
-        title,
-        description,
-        identifiers,
-        body,
-      })),
+      index
+        .filter(({ type }) => type === 'asyncapi-message')
+        .map(({ id, title, description, identifiers, body }) => ({ id, title, description, identifiers, body })),
     ).toStrictEqual([
       {
         id: 'components/~components/messages/PlanetUpdated',
         title: 'Planet updated',
         description: 'A planet changed',
         identifiers: ['PlanetUpdated', 'planet.updated'],
-        body: ['planetId'],
-      },
-      {
-        id: 'components/~components/message-traits/Tracing',
-        title: 'Tracing headers',
-        description: 'Tracing headers',
-        identifiers: ['Tracing'],
-        body: ['traceId'],
-      },
-      {
-        id: 'components/~components/operation-traits/Kafka',
-        title: 'Kafka defaults',
-        description: 'Applies the consumer group',
-        identifiers: ['Kafka'],
-        body: undefined,
+        body: ['planetId', 'traceId'],
       },
     ])
   })

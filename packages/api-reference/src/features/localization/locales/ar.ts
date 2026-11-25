@@ -30,7 +30,6 @@ export const ar = {
     entryTagGroup: 'مجموعة وسوم',
     entryChannel: 'قناة',
     entryMessage: 'رسالة',
-    entryComponent: 'مكوّن',
     entryWebhook: 'خطاف ويب',
   },
   navigation: {
@@ -48,8 +47,6 @@ export const ar = {
     webhooks: 'خطافات الويب',
     channels: 'القنوات',
     messages: 'الرسائل',
-    messageTraits: 'سمات الرسائل',
-    operationTraits: 'سمات العمليات',
   },
   server: {
     label: 'الخادم',

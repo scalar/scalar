@@ -353,7 +353,7 @@ def get_scalar_api_reference(
         bool,
         Doc(
             """
-            Hide schema models and reusable AsyncAPI messages and traits.
+            Hide schema models and reusable AsyncAPI messages.
             Defaults to False.
             """
         ),

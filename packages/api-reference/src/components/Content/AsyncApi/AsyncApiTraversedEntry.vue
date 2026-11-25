@@ -7,8 +7,6 @@ import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-reso
 import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import type {
   TraversedAsyncApiChannel,
-  TraversedAsyncApiComponent,
-  TraversedAsyncApiComponents,
   TraversedEntry,
   TraversedModels,
   TraversedSchema,
@@ -25,7 +23,6 @@ import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-a
 
 import Channel from './Channel.vue'
 import Message from './Message.vue'
-import OperationTrait from './OperationTrait.vue'
 import SourceModel from './SourceModel.vue'
 
 const {
@@ -81,24 +78,6 @@ const isModelsTag = (entry: TraversedEntry): entry is TraversedModels =>
 /** A single schema rendered as a model. */
 const isModel = (entry: TraversedEntry): entry is TraversedSchema =>
   entry.type === 'model'
-
-/** A section listing reusable messages or traits from `components`. */
-const isComponentsSection = (
-  entry: TraversedEntry,
-): entry is TraversedAsyncApiComponents => entry.type === 'asyncapi-components'
-
-/** Reusable messages and message traits share the message accordion. */
-const isMessageComponent = (
-  entry: TraversedEntry,
-): entry is TraversedAsyncApiComponent =>
-  entry.type === 'asyncapi-component' &&
-  entry.componentType !== 'operationTraits'
-
-const isOperationTrait = (
-  entry: TraversedEntry,
-): entry is TraversedAsyncApiComponent =>
-  entry.type === 'asyncapi-component' &&
-  entry.componentType === 'operationTraits'
 
 /**
  * Reusable schemas live under `components.schemas`, the same place OpenAPI keeps them.
@@ -200,17 +179,18 @@ const resolvedEntries = computed(() =>
         :specificationExtension="specificationExtension" />
     </ModelTag>
 
-    <!-- Reusable messages, message traits, and operation traits -->
+    <!-- Reusable messages -->
     <ModelTag
-      v-else-if="isComponentsSection(entry)"
+      v-else-if="entry.type === 'asyncapi-messages'"
       :id="entry.id"
+      :class="{ 'mb-12': options.layout === 'classic' }"
       :eventBus="eventBus"
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout"
       :modelsSectionLabel="entry.title">
       <AsyncApiTraversedEntry
         :document="document"
-        :entries="entry.children ?? []"
+        :entries="entry.children"
         :eventBus="eventBus"
         :expandedItems="expandedItems"
         :expansion="expansion"
@@ -221,24 +201,16 @@ const resolvedEntries = computed(() =>
     </ModelTag>
 
     <Message
-      v-else-if="isMessageComponent(entry)"
+      v-else-if="entry.type === 'asyncapi-reusable-message'"
       :document="document"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
       :expansion="expansion"
       :message="entry"
       :options="options"
-      parent="components"
+      parent="messages"
       :scrollTargetId="scrollTargetId"
       :specificationExtension="specificationExtension" />
-
-    <OperationTrait
-      v-else-if="isOperationTrait(entry)"
-      :document="document"
-      :eventBus="eventBus"
-      :expandedItems="expandedItems"
-      :options="options"
-      :trait="entry" />
 
     <Model
       v-else-if="isModel(entry) && schema?.kind === 'schema'"
