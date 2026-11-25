@@ -1,5 +1,11 @@
 # scalar-ninja
 
+## 0.5.1
+
+### Patch Changes
+
+- [#11163](https://github.com/scalar/scalar/pull/11163): Refresh the Rust dependency lockfile and Python integration and playground dependencies while preserving existing public dependency ranges and runtime support.
+
 ## 0.5.0
 
 ### Minor Changes

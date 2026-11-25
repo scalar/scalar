@@ -1,5 +1,11 @@
 # @scalar/express-api-reference
 
+## 0.10.42
+
+### Patch Changes
+
+- [#11217](https://github.com/scalar/scalar/pull/11217): Add `Scalar` as the recommended Express middleware export and deprecate `apiReference` as an alias.
+
 ## 0.10.41
 
 No changes in this release.

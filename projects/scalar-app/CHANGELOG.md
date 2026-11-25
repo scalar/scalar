@@ -1,5 +1,16 @@
 # scalar-app
 
+## 1.1.56
+
+### Patch Changes
+
+- [#11164](https://github.com/scalar/scalar/pull/11164): Align the desktop builder with the workspace pnpm 12 release while retaining Node.js 24.
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11191](https://github.com/scalar/scalar/pull/11191): Keep equal signs, plus signs and bare percent signs in form values when importing a cURL command.
+
 ## 1.1.55
 
 ### Patch Changes

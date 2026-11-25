@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 3.29.1
+
+### Patch Changes
+
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11169](https://github.com/scalar/scalar/pull/11169): Look up elements and focus through the provided document root instead of `document`. Nothing provides one yet, so behavior is unchanged until shadow-root mounts wire it up
+- [#11206](https://github.com/scalar/scalar/pull/11206): Use empty OpenAPI server variable defaults in request URLs, OAuth server URLs, and code snippets.
+
 ## 3.29.0
 
 ### Minor Changes

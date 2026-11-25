@@ -1,5 +1,11 @@
 # @scalar/schemas
 
+## 0.20.1
+
+### Patch Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+
 ## 0.20.0
 
 ### Minor Changes
