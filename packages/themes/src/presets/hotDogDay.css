@@ -319,7 +319,11 @@
   position: absolute;
   z-index: 2;
   pointer-events: none;
-  /* Line up with the modal, which is at most 1390px wide, centred, and starts 60px from the top */
+  /*
+   * Line up with the modal, which is centred, at most 1390px wide and starts 60px from the top
+   * (`max-width` on `.scalar-app-layout` in packages/api-client/src/v2/components/modals/ModalClientContainer.vue),
+   * so 695px is half of it. The 1390px widths below copy the same value. Update them together.
+   */
   left: max(0px, calc(50% - 695px));
 }
 /* The mustard squiggle, drawn in the gap above the modal and then cleared away */
