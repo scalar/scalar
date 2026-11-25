@@ -93,6 +93,8 @@ public class ScalarConfigurationMapper {
 
         config.setDefaultRequestBodyView(properties.getDefaultRequestBodyView());
 
+        config.setMultipartNaming(properties.getMultipartNaming());
+
         config.setShowExtensions(properties.getShowExtensions());
 
         config.setFeaturedClients(properties.getFeaturedClients());

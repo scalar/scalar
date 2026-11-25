@@ -42,6 +42,13 @@ const ensureCssEscape = (): void => {
 
 ensureCssEscape()
 
+/**
+ * Tests run unattended, so they report themselves as automated, as the Playwright suites do. The
+ * API Hosting beta popup never opens then; otherwise it would open partway through any test that
+ * mounts the app shell. jsdom does not define the flag itself.
+ */
+Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => true })
+
 const createMatchMediaList = (query: string): MediaQueryList =>
   ({
     matches: false,

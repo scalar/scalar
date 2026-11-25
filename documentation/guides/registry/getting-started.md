@@ -25,6 +25,7 @@ From the [dashboard](https://dashboard.scalar.com), create a new API and upload 
 
 ## Next steps
 
+- [Choose a Registry URL](urls.md) for a preview, document download, or SDK examples
 - Publish and version documents with the [CLI](cli.md)
 - Automate updates with [GitHub Actions](github-actions.md)
 - Create [API docs](../docs/getting-started.md) and [SDKs](../sdks/getting-started.md) from your registry documents

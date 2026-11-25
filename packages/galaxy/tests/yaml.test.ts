@@ -18,6 +18,7 @@ type PathItemObject = Partial<Record<HttpMethod, OperationObject>>
 type CallbackObject = Record<string, PathItemObject>
 
 type OpenApiDocument = {
+  security: SecurityRequirement[]
   paths: Record<string, PathItemObject>
   webhooks: Record<string, PathItemObject>
 }
@@ -35,6 +36,7 @@ type ThreeTwoMediaType = {
 }
 
 type ThreeTwoOperation = {
+  security?: SecurityRequirement[]
   parameters?: Array<{ in?: string }>
   requestBody?: { content?: Record<string, ThreeTwoMediaType> }
   responses?: Record<string, { content?: Record<string, ThreeTwoMediaType> }>
@@ -52,6 +54,7 @@ type ThreeTwoSecurityScheme = {
 }
 
 type ThreeTwoDocument = {
+  security: SecurityRequirement[]
   servers: Array<{ url: string; name?: string }>
   tags: Array<{ name: string; summary?: string; parent?: string; kind?: string }>
   paths: Record<string, ThreeTwoPathItem>
@@ -62,6 +65,14 @@ type ThreeTwoDocument = {
 }
 
 const getThreeTwoDocument = (): ThreeTwoDocument => YAML.parse(galaxyThreeTwo) as ThreeTwoDocument
+
+const meSecurity: SecurityRequirement[] = [
+  { basicAuth: [] },
+  { oAuth2: ['read:account'] },
+  { bearerAuth: [] },
+  { apiKeyHeader: [] },
+  { apiKeyQuery: [] },
+]
 
 describe('yaml', () => {
   it('has OpenAPI version', () => {
@@ -129,6 +140,22 @@ describe('yaml', () => {
     expect(schemas.GalaxyMessage.properties?.value.xml?.nodeType).toBe('text')
   })
 
+  it.each([
+    { version: '3.1', document: getDocument() },
+    { version: '3.2', document: getThreeTwoDocument() },
+  ])('offers separate API key alternatives in Galaxy $version', ({ document }) => {
+    expect(document.security).toStrictEqual([
+      { bearerAuth: [] },
+      { basicAuth: [] },
+      { apiKeyQuery: [] },
+      { apiKeyHeader: [] },
+      { apiKeyCookie: [] },
+      { oAuth2: [] },
+      { openIdConnect: [] },
+    ])
+    expect(document.paths['/me']?.get?.security).toStrictEqual(meSecurity)
+  })
+
   it('uses the expected security requirements for all operations', () => {
     const document = getDocument()
     const expectedSecurityByOperation: Record<string, SecurityRequirement[] | null> = {
@@ -141,14 +168,7 @@ describe('yaml', () => {
       'post /celestial-bodies': null,
       'post /user/signup': [],
       'post /auth/token': [],
-      'get /me': [
-        { basicAuth: [] },
-        { oAuth2: ['read:account'] },
-        { bearerAuth: [] },
-        { apiKeyHeader: [] },
-        { apiKeyQuery: [] },
-        { apiKeyHeader: [], apiKeyQuery: [] },
-      ],
+      'get /me': meSecurity,
     }
 
     const discoveredOperations: string[] = []

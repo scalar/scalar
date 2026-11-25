@@ -28,6 +28,7 @@ export type {
   ExternalUrls,
   LifecycleHooks,
   ModelsSectionLabel,
+  MultipartNaming,
   PluginDocumentType,
   SecurityScheme,
   SecuritySchemeApiKey,

@@ -1,3 +1,5 @@
+import { getActiveElement } from '@scalar/helpers/dom/get-active-element'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import { type Ref, readonly, ref } from 'vue'
 
 /** The developer tools the localhost shell shows in its side panel, one at a time */
@@ -37,6 +39,7 @@ type ShellPanelState = {
  * @param id - The panel element's id, from `useId()` in the component that renders it
  */
 export const useShellPanel = (id: string): ShellPanelState => {
+  const documentRoot = useDocumentRoot()
   const active = ref<ShellPanel>()
   const focusRequest = ref<number>()
 
@@ -44,13 +47,13 @@ export const useShellPanel = (id: string): ShellPanelState => {
   let returnFocus: HTMLElement | undefined
 
   const open = (panel: ShellPanel, { focus = false }: OpenOptions = {}): void => {
-    const current = typeof document === 'undefined' ? null : document.activeElement
+    const current = getActiveElement(documentRoot)
 
     // Switching panels from inside the panel keeps the original trigger as the way back
     if (
       current instanceof HTMLElement &&
       current !== document.body &&
-      !document.getElementById(id)?.contains(current)
+      !documentRoot?.getElementById(id)?.contains(current)
     ) {
       returnFocus = current
     }

@@ -9,6 +9,51 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.56 (2026-11-25)
+
+### Improved cURL imports and server variable handling
+
+This release fixes how form data is handled when importing cURL commands and resolves issues with empty OpenAPI server variable defaults in request URLs.
+
+- Form values with equal signs, plus signs, and percent signs now import correctly from cURL commands
+- Empty OpenAPI server variable defaults are properly substituted in request URLs and code snippets
+- Shadow root support added for future web component integrations
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1156)
+
+## 1.1.55 (2026-11-22)
+
+### Desktop login now works in Safari, plus Electron 45 and dependency updates
+
+Desktop authentication now completes through a secure browser redirect that works in Safari and other browsers that block mixed-content requests. The desktop runtime has been updated to Electron 45 for improved performance and security.
+
+- Desktop login and registration now work in Safari through a secure browser redirect with PKCE authentication
+- New users have 15 minutes to verify their email during desktop registration before the flow times out
+- The desktop app now runs on Electron 45 with the latest Chromium runtime and upstream fixes
+- ASP.NET Core users can enable indexed dot notation for multipart form fields through the new multipartNaming configuration option
+- Response cookies now parse correctly following browser UTC expiration rules, and empty cookies are ignored
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1155)
+
+## 1.1.54 (2026-11-20)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1154)
+
+## 1.1.53 (2026-11-19)
+
+### API Hosting beta invites and improved date input
+
+This release invites API Client users to join the API Hosting beta and makes working with date and time fields easier.
+
+- A one-time popup invites users to join the API Hosting beta waitlist as the app starts
+- Date, date-time, and time fields now offer an accessible calendar and clock picker alongside free-text entry
+- Date-time fields include shortcuts to insert faker variables like {{$isoTimestamp}} and {{$randomDateFuture}}
+- Header-based API keys support token prefixes with x-scalar-token-prefix, keeping stored credentials clean while adding the prefix to outgoing requests
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1153)
+
 ## 1.1.52 (2026-11-18)
 
 ### Better cURL import and improved contrast for colored badges

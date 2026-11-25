@@ -1036,11 +1036,18 @@ export function convert(
         continue
       }
       for (const [method, servers] of methods.entries()) {
-        if (method in pathItem) {
-          const operation = pathItem[method]
-          if (operation && typeof operation === 'object' && 'responses' in operation) {
-            operation.servers = isMergingIntoBase ? mergeServerLists(operation.servers, servers) : servers
-          }
+        if (!Object.hasOwn(pathItem, method)) {
+          continue
+        }
+
+        const operation = pathItem[method]
+        // Generated custom Postman operations still carry their own responses property before pruning.
+        if (
+          operation &&
+          typeof operation === 'object' &&
+          (OPERATION_KEYS.includes(method) || Object.hasOwn(operation, 'responses'))
+        ) {
+          operation.servers = isMergingIntoBase ? mergeServerLists(operation.servers, servers) : servers
         }
       }
     }

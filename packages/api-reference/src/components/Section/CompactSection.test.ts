@@ -7,6 +7,7 @@ describe('CompactSection', () => {
   const mountSection = (props: { id: string; label?: string; modelValue: boolean }) =>
     mount(CompactSection, {
       props,
+      global: { config: { idPrefix: 'scalar-refs' } },
       slots: {
         heading: '<span>User</span>',
         default: '<p>Schema body</p>',
@@ -35,6 +36,24 @@ describe('CompactSection', () => {
     expect(controls).toBeDefined()
     expect(controls).not.toBe(trigger.attributes('id'))
     expect(wrapper.get('.collapsible-section-content').attributes('id')).toBe(controls)
+  })
+
+  it('separates panel and heading IDs across embeds that share a Vue ID prefix', () => {
+    const first = mountSection({ id: 'first/~components/messages/Event', modelValue: true })
+    const second = mountSection({ id: 'second/~components/messages/Event', modelValue: true })
+    try {
+      const firstTrigger = first.get('button')
+      const secondTrigger = second.get('button')
+      const firstPanelId = firstTrigger.attributes('aria-controls')
+      const secondPanelId = secondTrigger.attributes('aria-controls')
+      expect(firstPanelId).not.toBe(secondPanelId)
+      expect(firstTrigger.attributes('aria-labelledby')).not.toBe(secondTrigger.attributes('aria-labelledby'))
+      expect(first.get(`[id="${firstPanelId}"]`).text()).toBe('Schema body')
+      expect(second.get(`[id="${secondPanelId}"]`).text()).toBe('Schema body')
+    } finally {
+      first.unmount()
+      second.unmount()
+    }
   })
 
   it('drops aria-controls while collapsed so it never dangles', () => {

@@ -1,5 +1,4 @@
 // Theming
-import '@scalar/themes/fonts.css'
 import '@scalar/themes/style.css'
 
 import type { Preview } from '@storybook/vue3-vite'

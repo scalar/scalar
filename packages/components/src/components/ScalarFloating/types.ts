@@ -28,9 +28,10 @@ export type FloatingOptions = {
    * Override the target, useful if we are not passing a button
    * into the slot but is controlled from an external button
    *
-   * Can be a string id or a reference to an element
+   * Can be a string id or a reference to an element.
+   * Keep string explicit so Vue includes it in production prop validation.
    */
-  target?: MaybeRefOrGetter<HTMLElement | string>
+  target?: string | MaybeRefOrGetter<HTMLElement | string>
   /**
    * Floating UI Middleware to be passed to Floating UI
    *

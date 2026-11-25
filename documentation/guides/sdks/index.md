@@ -297,7 +297,7 @@
   .sh-flow[data-sh-placed] .sh-car {
     display: block;
   }
-  .sh-car{position:absolute;left:var(--sh-car-x);top:var(--sh-car-y);width:calc(var(--sh-car-s) * 1292px);height:calc(var(--sh-car-sy) * 672px);z-index:1;pointer-events:none}.sh-car-art{display:block;width:100%;height:100%;overflow:visible}.sh-car text{font:700 100px Inter,system-ui,sans-serif}.sh-car .sha{stroke:#6d7284;stroke-opacity:0.7}.sh-car .shb,.sh-car .shw{stroke:none;fill:#d6d9e4;fill-opacity:0.82}.sh-car .shw{fill:#ffc49a;fill-opacity:0.85}.sh-car .shk0{stop-color:#ff5f0a}.sh-car .shk1{stop-color:#000}.sh-car .shk2{stop-color:#e5200a}.sh-car .shk3{stop-color:#ff8f0a}.sh-car .shk4{stop-color:#ddd3d0}
+  .sh-car{position:absolute;left:var(--sh-car-x);top:var(--sh-car-y);width:calc(var(--sh-car-s) * 1292px);height:calc(var(--sh-car-sy) * 672px);z-index:1;pointer-events:none}.sh-car-art{display:block;width:100%;height:100%;overflow:visible}.sh-car text{font:700 100px system-ui,sans-serif}.sh-car .sha{stroke:#6d7284;stroke-opacity:0.7}.sh-car .shb,.sh-car .shw{stroke:none;fill:#d6d9e4;fill-opacity:0.82}.sh-car .shw{fill:#ffc49a;fill-opacity:0.85}.sh-car .shk0{stop-color:#ff5f0a}.sh-car .shk1{stop-color:#000}.sh-car .shk2{stop-color:#e5200a}.sh-car .shk3{stop-color:#ff8f0a}.sh-car .shk4{stop-color:#ddd3d0}
   /* end of the car */
 
   /* The Warp story, under the pattern and on the middle of where the home page has its logos. The box is

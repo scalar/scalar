@@ -160,9 +160,15 @@ export const mergeOperations = (
     }
   }
 
-  operation.responses = {
+  const responses = {
     ...(operation1.responses ?? {}),
     ...(operation.responses ?? {}),
+  }
+
+  if (Object.keys(responses).length > 0) {
+    operation.responses = responses
+  } else {
+    delete operation.responses
   }
 
   operation.summary = mergeSummary(operation1.summary, operation.summary)

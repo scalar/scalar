@@ -46,6 +46,7 @@ export const zhCn = {
     collapsed: '已折叠',
     webhooks: 'Webhooks',
     channels: '频道',
+    messages: '消息',
   },
   server: {
     label: '服务器',
@@ -186,6 +187,7 @@ export const zhCn = {
     waitlistError: '糟糕！出了点问题，请重试',
     waitlistRateLimit: '注册次数过多，请稍后再试',
     waitlistBack: '返回',
+    waitlistDone: '完成',
     deployApiButton: '部署 API',
     deployFrameworkButton: '部署 {framework}',
     deployApiTitle: '将你的 API 部署到 Scalar',

@@ -353,8 +353,8 @@ def get_scalar_api_reference(
         bool,
         Doc(
             """
-            A boolean to hide all models.
-            Default is False which means all models are shown.
+            Hide schema models and reusable AsyncAPI messages.
+            Defaults to False.
             """
         ),
     ] = False,
@@ -541,8 +541,8 @@ def get_scalar_api_reference(
         bool,
         Doc(
             """
-            Whether to use default fonts (Inter and JetBrains Mono).
-            Default is True which means default fonts are used.
+            Deprecated: Scalar uses the system font stack and no longer loads web fonts,
+            so this option has no effect.
             """
         ),
     ] = True,
@@ -614,6 +614,10 @@ def get_scalar_api_reference(
             Default is {} which means no overrides are provided.
             """
         ),
+    ] = None,
+    multipart_naming: Annotated[
+        Literal["indexed-dot"] | None,
+        Doc("Use indexed dotted names for nested multipart form fields."),
     ] = None,
 ) -> HTMLResponse:
     # Accept either the enum members or their plain string values, so callers
@@ -725,6 +729,9 @@ def get_scalar_api_reference(
         config["showDefaultClientsWithSdkInstallation"] = (
             show_default_clients_with_sdk_installation
         )
+
+    if multipart_naming is not None:
+        config["multipartNaming"] = multipart_naming
 
     if hide_client_button:  # Default is False
         config["hideClientButton"] = hide_client_button

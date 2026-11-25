@@ -16,7 +16,7 @@
     "vue",
     "vue3"
   ],
-  "version": "0.14.20",
+  "version": "0.14.21",
   "engines": {
     "node": ">=22"
   },
@@ -58,7 +58,7 @@
     "@codemirror/lint": "^6.9.8",
     "@codemirror/state": "^6.7.6",
     "@codemirror/view": "^6.43.15",
-    "@lezer/common": "^1.5.5",
+    "@lezer/common": "^1.5.6",
     "@lezer/highlight": "^1.2.5",
     "vue": "catalog:*"
   },

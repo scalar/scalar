@@ -2,6 +2,7 @@
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.2/strict/request-body'
@@ -10,6 +11,13 @@ import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type
 import { getExampleValue, getExplicitExampleText } from '@/helpers/get-example-value'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
 
+import { getExample } from '../helpers/get-example'
+import {
+  getAspNetFormFields,
+  getAspNetFormIndexFields,
+  usesAspNetFormNaming,
+  withAspNetMultipartFilePlaceholder,
+} from './aspnet-form-fields'
 import {
   type MultipartPart,
   buildMultipart,
@@ -141,6 +149,7 @@ export const buildRequestBody = (
   requestBodyCompositionSelection?: Record<string, number>,
   openapiVersion?: string,
   jsonSchemaDialect?: string,
+  options?: { multipartNaming?: MultipartNaming; aspNetFilePlaceholders?: boolean },
 ): RequestBody | null => {
   if (!requestBody) {
     return null
@@ -192,6 +201,7 @@ export const buildRequestBody = (
     Boolean(bodyProperties && Object.hasOwn(bodyProperties, key) && !requiredBodyProperties.has(key))
 
   const media = requestBody.content[bodyContentType]
+  const aspNetNaming = usesAspNetFormNaming(bodyContentType, media, options?.multipartNaming)
   if (media && needsMultipartEncoding(bodyContentType, media)) {
     // Raw editors store JSON text, while form editors store named rows.
     const value: unknown = (() => {
@@ -253,13 +263,52 @@ export const buildRequestBody = (
     }
   }
 
-  // Form data - array format (from UI editor)
+  const formRows = (() => {
+    if (!aspNetNaming || (!isObject(example.value) && !Array.isArray(example.value))) {
+      return example.value
+    }
+    const includeMissing =
+      options?.aspNetFilePlaceholders === true &&
+      !getExampleValue(getExample(requestBody, exampleName, bodyContentType))
+    const fields = getAspNetFormFields(
+      example.value,
+      resolvedBodySchema,
+      requestBodyCompositionSelection,
+      includeMissing,
+    )
+    return options?.aspNetFilePlaceholders
+      ? fields.map((field) =>
+          withAspNetMultipartFilePlaceholder(field, includeMissing, media?.encoding?.[field.rootName]?.contentType),
+        )
+      : fields
+  })()
+
+  if (aspNetNaming && bodyContentType === 'application/x-www-form-urlencoded' && Array.isArray(formRows)) {
+    const value = formRows
+      .filter((field) => !field.isDisabled && field.name)
+      .flatMap((field): UrlEncoded['value'] => {
+        const encoded = serializeFormPropertyWithEncoding(field.name, field.value, media?.encoding?.[field.rootName])
+        const values: unknown[] = Array.isArray(field.value) ? field.value : [field.value]
+        return (
+          encoded ??
+          values
+            .filter((value) => value !== undefined && value !== null)
+            .map((value) => ({ key: field.name, value: String(value) }))
+        )
+      })
+    return { mode: 'urlencoded', value: [...value, ...getAspNetFormIndexFields(value.map(({ key }) => key))] }
+  }
+
+  // Form data - array format (from UI editor or flattened for ASP.NET Core)
   if (
     (bodyContentType === 'multipart/form-data' || bodyContentType === 'application/x-www-form-urlencoded') &&
-    Array.isArray(example.value)
+    Array.isArray(formRows)
   ) {
-    const value = Array.isArray(example.value) ? example.value : []
-    const exampleValue = value.filter((item) => !item.isDisabled) as { name: string; value: unknown }[]
+    const exampleValue = formRows.filter((item) => !item.isDisabled) as {
+      name: string
+      rootName?: string
+      value: unknown
+    }[]
 
     const result: FormData | UrlEncoded =
       bodyContentType === 'multipart/form-data'
@@ -284,14 +333,15 @@ export const buildRequestBody = (
     // `entries` at the position of the *first* matching row, then keep folding leaves
     // into the same live object reference so interleaved flat rows keep their order.
     const multipartSchema = result.mode === 'formdata' ? resolvedBodySchema : undefined
-    const entries = result.mode === 'formdata' ? regroupMultipartRows(exampleValue, multipartSchema) : exampleValue
+    const entries: typeof exampleValue =
+      result.mode === 'formdata' && !aspNetNaming ? regroupMultipartRows(exampleValue, multipartSchema) : exampleValue
 
     // Loop over all entries and add them to the form
-    entries.forEach(({ name, value }) => {
+    entries.forEach(({ name, value, rootName }) => {
       if (!name) {
         return
       }
-      const partEncoding = requestBody.content[bodyContentType]?.encoding?.[name]
+      const partEncoding = media?.encoding?.[aspNetNaming ? (rootName ?? name) : name]
 
       if (result.mode === 'formdata') {
         // Older saved form rows store JSON text. Only restore arrays declared by the schema.
@@ -364,6 +414,10 @@ export const buildRequestBody = (
       return
     })
 
+    if (aspNetNaming && result.mode === 'formdata') {
+      const indices = getAspNetFormIndexFields(result.value.map(({ key }) => key))
+      result.value.push(...indices.map(({ key, value }) => ({ type: 'text' as const, key, value })))
+    }
     return result
   }
 

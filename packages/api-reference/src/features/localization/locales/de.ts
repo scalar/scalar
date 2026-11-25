@@ -47,6 +47,7 @@ export const de = {
     collapsed: 'Eingeklappt',
     webhooks: 'Webhooks',
     channels: 'Kanäle',
+    messages: 'Nachrichten',
   },
   server: {
     label: 'Server',
@@ -191,6 +192,7 @@ export const de = {
     waitlistError: 'Hoppla! Etwas ist schiefgelaufen, bitte versuche es erneut',
     waitlistRateLimit: 'Zu viele Anmeldungen, bitte versuche es gleich noch einmal',
     waitlistBack: 'Zurück',
+    waitlistDone: 'Fertig',
     deployApiButton: 'API deployen',
     deployFrameworkButton: '{framework} deployen',
     deployApiTitle: 'Deploye deine API auf Scalar',

@@ -1,6 +1,3 @@
-// Theming
-import '@scalar/themes/fonts.css'
-
 import type { Preview } from '@storybook/vue3-vite'
 
 // The api reference global styles pull in `@scalar/themes/style.css` and the Tailwind theme, so the
