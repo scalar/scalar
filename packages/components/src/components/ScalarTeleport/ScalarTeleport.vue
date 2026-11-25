@@ -3,7 +3,8 @@
  * Scalar teleport component
  *
  * Teleports the contents to the nearest <ScalarTeleportRoot>
- * Falls back to the default teleport target (body) if no root is found
+ * Falls back to the default teleport target (body) if no root is found,
+ * or to the shadow root when it renders inside one
  *
  * Is a wrapper around the Vue <Teleport> component and takes the same props
  *
@@ -15,13 +16,18 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { isShadowRoot } from '@scalar/helpers/dom/is-shadow-root'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import {
   type TeleportProps,
+  computed,
   getCurrentInstance,
   inject,
   onMounted,
   ref,
+  shallowRef,
   ssrContextKey,
+  watch,
 } from 'vue'
 
 import { useTeleport } from './useTeleport'
@@ -51,6 +57,43 @@ defineSlots<{
 defineOptions({ inheritAttrs: false })
 
 const root = useTeleport()
+const documentRoot = useDocumentRoot()
+const isServerRendering = inject<unknown>(ssrContextKey, null) !== null
+
+/**
+ * We look the target up ourselves and hand Vue the element
+ *
+ * Vue looks up selectors with `document.querySelector`, which cannot see into a shadow root,
+ * so we run the same query on the document root instead. In a shadow root, `body` becomes the
+ * shadow root itself. Whoever renders into a shadow root is expected to wrap it in a
+ * <ScalarTeleportRoot> inside an element that carries the theme classes.
+ *
+ * `null` means the target is not there yet. On the server there is no document, so the
+ * selector is passed on as it is.
+ */
+const findTarget = (): TeleportProps['to'] | null => {
+  const selector = to || root
+  if (typeof selector !== 'string' || !documentRoot || isServerRendering) {
+    return selector
+  }
+  return selector === 'body' && isShadowRoot(documentRoot)
+    ? documentRoot
+    : documentRoot.querySelector(selector)
+}
+
+const target = shallowRef<TeleportProps['to'] | null>(findTarget())
+watch(
+  () => [to, root],
+  () => (target.value = findTarget()),
+)
+
+/**
+ * Content waiting for its target stays in place and moves once the target is there.
+ *
+ * Vue moves the content when `disabled` and `to` change in the same update, so it is not
+ * mounted again. A Teleport that is enabled without a target would not render it at all.
+ */
+const isWaitingForTarget = computed(() => target.value === null)
 
 /**
  * Server-rendered teleports stay in place until the component is mounted.
@@ -68,7 +111,6 @@ const root = useTeleport()
  *
  * @see https://vuejs.org/guide/scaling-up/ssr.html#teleports
  */
-const isServerRendering = inject<unknown>(ssrContextKey, null) !== null
 const isHydrating = getCurrentInstance()?.vnode.el != null
 const renderInPlace = ref<boolean>(isServerRendering || isHydrating)
 
@@ -77,13 +119,13 @@ const renderInPlace = ref<boolean>(isServerRendering || isHydrating)
  * what it found. If the target is not on the page at that moment there is
  * nowhere to move the content to later, so it stays where it was rendered.
  */
-const isTargetOnPage = (target: TeleportProps['to']): boolean =>
-  typeof target === 'string'
-    ? document.querySelector(target) !== null
-    : !!target
-const canTeleport = !isHydrating || isTargetOnPage(to || root)
+const canTeleport = !isHydrating || !isWaitingForTarget.value
 
 onMounted(() => {
+  // A <ScalarTeleportRoot> renders its target after its slot, so look again now that it is there
+  if (isWaitingForTarget.value) {
+    target.value = findTarget()
+  }
   if (canTeleport) {
     renderInPlace.value = false
   }
@@ -92,8 +134,8 @@ onMounted(() => {
 <template>
   <Teleport
     :defer="!immediate"
-    :disabled="disabled || renderInPlace"
-    :to="to || root">
+    :disabled="disabled || renderInPlace || isWaitingForTarget"
+    :to="target">
     <div
       class="scalar-app"
       style="display: contents"
