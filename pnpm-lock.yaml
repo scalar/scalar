@@ -248,9 +248,6 @@ catalogs:
     '@scalar/typebox':
       specifier: 0.1.4
       version: 0.1.4
-    '@swaggerexpert/jsonpath':
-      specifier: 4.0.5
-      version: 4.0.5
     '@tailwindcss/cli':
       specifier: ^4.3.5
       version: 4.3.5
@@ -377,6 +374,9 @@ catalogs:
     jsdom:
       specifier: 31.0.1
       version: 31.0.1
+    json-p3:
+      specifier: 3.0.3
+      version: 3.0.3
     jsonc-parser:
       specifier: 3.3.1
       version: 3.3.1
@@ -3378,12 +3378,12 @@ importers:
       '@scalar/validation':
         specifier: workspace:*
         version: link:../validation
-      '@swaggerexpert/jsonpath':
-        specifier: catalog:*
-        version: 4.0.5
       js-base64:
         specifier: catalog:*
         version: 3.9.7
+      json-p3:
+        specifier: catalog:*
+        version: 3.0.3
       type-fest:
         specifier: catalog:*
         version: 5.10.0
@@ -9916,10 +9916,6 @@ packages:
     resolution: {integrity: sha512-LnhVjMWyMQV9ZmeEy26maJk+8HTIbd59cH4F2MJ439k9DqejRisfFNGAPvRYlKETuh9LrImlS8aKsBgKjMA8WA==}
     engines: {node: '>=14'}
 
-  '@swaggerexpert/jsonpath@4.0.5':
-    resolution: {integrity: sha512-+jisp/veM7v8oGJToIG6YJBvPBYxgjubfRriXx/xoE0MYGrjU4QW/coi3he/YRFwxegkZOJUFoa9S9Bn6YFMZw==}
-    engines: {node: '>=16.14.0'}
-
   '@swc/cli@0.8.2':
     resolution: {integrity: sha512-4RAfbHx1oz/9zFutxIjm7famgfQeQ6s3Tc5rIWxXfB+QlA5y5rHKFi8NDCZ5iqZuZkMZTzMAHoWRRlioLO5i7Q==}
     engines: {node: '>= 20.19.0'}
@@ -11583,9 +11579,6 @@ packages:
 
   anynum@1.0.1:
     resolution: {integrity: sha512-N6//FLET/tXYNM/F6ABca1oH6fWB+KlTt909Le28WMDBk8oaT4vY17DCrwg2MvmuqUKt3Ni4N5dGJ/EoBgcO6A==}
-
-  apg-lite@1.0.7:
-    resolution: {integrity: sha512-wehJttEme63zE8FsrFThE8Ozmx2u8brywefDNb9oVPUQJupDNBFOOyhbpQSI2P+k/yqKhdgx2DErLfy4Pswycg==}
 
   append-field@1.0.0:
     resolution: {integrity: sha512-klpgFSWLW1ZEs8svjfb7g4qWY0YS5imI82dTg+QahUvJ8YqAY0P10Uk8tTyh9ZGuYEZEMaeJYCF5BFuX552hsw==}
@@ -14751,6 +14744,9 @@ packages:
     resolution: {integrity: sha512-aq+t5NAc+cS6rZQQVWC2x98CPqGtKKTMDd4Gaodv0wShnItdKg/51djkGJ1hqH+Oy0ivDftCbSLCQob8zso01w==}
     engines: {node: '>= 10'}
 
+  iregexp-check@0.1.2:
+    resolution: {integrity: sha512-RCcV2SFO5JKh+DdmWiY7yVyiZzzk6XZiHEJvTKbzVs8Z0u404gnoSqDtFqg6C5qJBEG4QseWBQz9zhI68zskEQ==}
+
   iron-webcrypto@1.2.1:
     resolution: {integrity: sha512-feOM6FaSr6rEABp/eDfVseKyTMDt+KGpeB35SkVn9Tyn0CqvVsY3EwI0v5i8nMHyJnzCIQf7nsy3p41TPkJZhg==}
 
@@ -15236,6 +15232,9 @@ packages:
 
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
+
+  json-p3@3.0.3:
+    resolution: {integrity: sha512-MjAFMrS+tMHfpvd2AaMHXwM9ssYlaFoFQW1fu/OCCpqIM0BHIXPzRD9Ey5GRftlohDkrK+Y4X8dDjjCyErGIOQ==}
 
   json-parse-even-better-errors@2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
@@ -29227,10 +29226,6 @@ snapshots:
       - supports-color
       - typescript
 
-  '@swaggerexpert/jsonpath@4.0.5':
-    dependencies:
-      apg-lite: 1.0.7
-
   '@swc/cli@0.8.2(@swc/core@1.16.22(@swc/helpers@0.5.23))(chokidar@5.0.0)(supports-color@10.2.2)':
     dependencies:
       '@swc/core': 1.16.22(@swc/helpers@0.5.23)
@@ -31337,8 +31332,6 @@ snapshots:
       picomatch: 2.3.2
 
   anynum@1.0.1: {}
-
-  apg-lite@1.0.7: {}
 
   append-field@1.0.0: {}
 
@@ -35301,6 +35294,8 @@ snapshots:
 
   ipaddr.js@2.5.0: {}
 
+  iregexp-check@0.1.2: {}
+
   iron-webcrypto@1.2.1: {}
 
   iron-webcrypto@2.0.0:
@@ -35946,6 +35941,10 @@ snapshots:
       bignumber.js: 9.3.0
 
   json-buffer@3.0.1: {}
+
+  json-p3@3.0.3:
+    dependencies:
+      iregexp-check: 0.1.2
 
   json-parse-even-better-errors@2.3.1: {}
 
