@@ -4,9 +4,9 @@
 
 ## Scan cost
 
-Reference indexing (`documentReferences`) already walks the document when the root proxy is created. Dynamic scoping adds no second document-wide walk. Instead, when traversal reaches a candidate resource (a schema with `$id`, `$defs`, or `$dynamicAnchor`), the proxy collects that resource's `$dynamicAnchor` declarations. The collection is cached per resource object, so each candidate is scanned at most once.
+Reference indexing (`documentReferences`) already walks the document when the root proxy is created. Dynamic scoping adds no second document-wide walk. Instead, when traversal reaches the root or a candidate resource (a schema with `$id`, `$defs`, or `$dynamicAnchor`), the proxy collects that resource's `$dynamicAnchor` declarations. The collection is cached per resource object, so each candidate is scanned at most once.
 
-A document without those keywords never scans anything extra. A document with `$id` or `$defs` but no dynamic anchors pays for one scan per candidate resource and keeps the ordinary cache. The benchmark covers both cases; absence of dynamic references does not mean zero overhead.
+A root without subschema keywords needs only a single-node check. A document with `$id` or `$defs` but no dynamic anchors pays for one scan per candidate resource and keeps the ordinary cache. The benchmark covers both cases; absence of dynamic references does not mean zero overhead.
 
 The scope starts only when a candidate resource actually contains a dynamic anchor, so anchor-free resources keep their shared proxy identity. After that, resource boundaries remain in the scope even without a matching anchor, so resolution respects bookending. Whether a schema is inside an explicit `$id` resource is decided by where it is written, not by the path that reached it: a schema reached through a `$ref` contributes its own anchors and `$defs` to the scope.
 
@@ -41,8 +41,8 @@ Edits through the magic proxy's `set` and `deleteProperty` traps invalidate anch
 
 ## Supported references
 
-Dynamic binding currently supports plain-name fragments such as `#item`. URI-qualified references such as `urn:page#item` and JSON-pointer fragments do not bind through `$dynamicRef-value`.
+The proxy resolves fragment-only, relative, and absolute `$dynamicRef` values against the lexical resource URI established by the nearest enclosing `$id` or the document base. This includes resources already registered as part of the bundle. A JSON Pointer can enter a subschema directly, and the subschema keeps its lexical resource.
 
-The holding resource is inferred from the traversal scope: the nearest entry with a string `$id`, or the collected document-resource entries when none has an identifier. This also supports templates reached through document pointers without explicit resource identifiers; it is more permissive than deriving the holding resource exclusively from the reference's lexical location.
+When the initial URI names a `$dynamicAnchor`, the outermost matching anchor on the active traversal path wins. Without an override, resolution uses the initial target. Ordinary anchors, JSON Pointers, and URIs without fragments resolve directly. A JSON Pointer to a schema that also declares a dynamic anchor still resolves directly to that schema.
 
-When that resource has no matching `$dynamicAnchor`, the accessor returns `undefined`. It does not fall back to a static `$ref` lookup (for example an ordinary `$anchor` with the same name), although JSON Schema 2020-12 specifies that fallback. Consumers leave those dynamic references unresolved.
+The proxy refreshes the lexical index on the next dynamic reference read after an edit. JSON and XML example generation read the same virtual accessor, with an equivalent lexical lookup for detached schemas whose resource is available to the generator.

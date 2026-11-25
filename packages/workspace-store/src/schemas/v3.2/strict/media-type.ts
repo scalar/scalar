@@ -2,9 +2,13 @@ import { Type } from '@scalar/typebox'
 
 import type { EncodingObject } from './encoding'
 import type { ExampleObject } from './example'
-import { EncodingObjectRef, ExampleObjectRef, SchemaObjectRef } from './ref-definitions'
+import { EncodingObjectRef, ExampleObjectRef } from './ref-definitions'
 import { type ReferenceType, reference } from './reference'
-import type { SchemaObject } from './schema'
+import { type SchemaObject, schemaOrReference } from './schema'
+
+// The stored link can be another schema reference. Share the schema-position validator
+// while retaining the media type's public TypeScript shape.
+const mediaSchema = Type.Unsafe<ReferenceType<SchemaObject>>(schemaOrReference)
 
 /**
  * Each Media Type Object provides schema and examples for the media type identified by its key.
@@ -15,9 +19,9 @@ export const MediaTypeObjectSchemaDefinition = Type.Object({
   /** A description of the media type, intended to explain the usage of the content. CommonMark syntax MAY be used for rich text representation. Added in OpenAPI 3.2. */
   description: Type.Optional(Type.String()),
   /** The schema defining the content of the request, response, parameter, or header. */
-  schema: Type.Optional(Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])),
+  schema: Type.Optional(mediaSchema),
   /** A schema describing each item within a sequential media type. Added in OpenAPI 3.2. */
-  itemSchema: Type.Optional(Type.Union([SchemaObjectRef, reference(SchemaObjectRef)])),
+  itemSchema: Type.Optional(mediaSchema),
   /** Example of the media type */
   example: Type.Optional(Type.Any()),
   /** Examples of the media type */

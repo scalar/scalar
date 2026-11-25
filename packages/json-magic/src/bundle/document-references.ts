@@ -8,6 +8,7 @@ import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 import { resolveResourcePath } from '@/helpers/resolve-resource-path'
 import { toResourceUri } from '@/helpers/to-resource-uri'
+import { type ScopeRole, getChildScopeRole } from '@/magic-proxy/dynamic-ref'
 import { getRaw } from '@/magic-proxy/symbols'
 
 /** Format-specific document identity, supplied by the caller. */
@@ -30,6 +31,7 @@ export type SchemaIdentity = {
   id?: string
   idKeyword?: 'id' | '$id'
   anchor?: string
+  dynamicAnchor?: string
 }
 
 /** A declared schema identity and its location in the output document. */
@@ -48,6 +50,7 @@ type Resource = {
   path: string[]
   schema: boolean
   identifier?: string
+  dynamicAnchor?: string
   embedded: boolean
   document: unknown
   documentPath: string[]
@@ -78,6 +81,7 @@ export type DocumentReferences = {
   ) => void
   refresh: (document: unknown, targetPath: string[]) => void
   isSchemaResource: (uri: string) => boolean
+  schemaResource: (uri: string) => unknown
   origin: (node: object) => string | undefined
   /** Retrieval source before authored identifiers change the reference base. */
   sourceOrigin: (node: object) => string | undefined
@@ -96,6 +100,8 @@ export type DocumentReferences = {
         preserveReference: boolean
         document: unknown
         documentPath: string[]
+        /** Plain-name fragment created by a dynamic anchor, when that fragment was used. */
+        dynamicAnchor?: string
       }
     | undefined
 }
@@ -113,10 +119,14 @@ export const documentReferences = (
   resolveDocument?: DocumentResolver,
   canonicalizeIds = false,
   shouldVisit: (node: object) => boolean = () => true,
-  identifySchema: (node: object) => SchemaIdentity | undefined = (node) => ({
-    id: getId(node),
-    anchor: isObject(node) && typeof node.$anchor === 'string' ? node.$anchor : undefined,
-  }),
+  identifySchema: (node: object, role?: ScopeRole) => SchemaIdentity | undefined = (node, role) =>
+    !role && isObject(node)
+      ? {
+          id: getId(node),
+          anchor: typeof node.$anchor === 'string' ? node.$anchor : undefined,
+          dynamicAnchor: typeof node.$dynamicAnchor === 'string' ? node.$dynamicAnchor : undefined,
+        }
+      : undefined,
   outputDocumentUri?: (retrievalUri: string) => string,
 ): DocumentReferences => {
   const identities = new Map<unknown, DocumentIdentity>()
@@ -231,6 +241,7 @@ export const documentReferences = (
       inheritedIdentifier = '',
       retrievalOrigin = retrievalBase,
       outputOrigin = outputBase,
+      role?: ScopeRole,
     ): void => {
       if (value === null || typeof value !== 'object' || visited.has(value) || !shouldVisit(value)) {
         return
@@ -240,15 +251,14 @@ export const documentReferences = (
       if (isObject(value)) {
         restoreLiteralIdentifier(value)
       }
-      const schemaIdentity = identifySchema(value)
+      const schemaIdentity = identifySchema(value, role)
       const id = schemaIdentity?.id
       const identifier = id ?? inheritedIdentifier
       const resolved =
         id === undefined ? origin : canonicalizeIds ? resolveResourcePath(origin, id) : resolveReferencePath(origin, id)
-      const current =
-        canonicalizeIds && id !== undefined
-          ? resolveResourcePath(toResourceUri(origin), id).replace(/#$/, '')
-          : resolved
+      const current = (
+        canonicalizeIds && id !== undefined ? resolveResourcePath(toResourceUri(origin), id) : resolved
+      ).replace(/#$/, '')
       // A refresh can encounter an identifier that this index already canonicalized.
       const currentRetrieval =
         canonicalizeIds && id === origins.get(value) && retrievalOrigins.has(value)
@@ -282,7 +292,8 @@ export const documentReferences = (
         value[keyword] = current
       }
       const anchor = schemaIdentity?.anchor
-      if (id !== undefined || anchor !== undefined) {
+      const dynamicAnchor = schemaIdentity?.dynamicAnchor
+      if (id !== undefined || anchor !== undefined || dynamicAnchor !== undefined) {
         const schemaResource = {
           value,
           path: location,
@@ -299,9 +310,13 @@ export const documentReferences = (
         if (anchor !== undefined) {
           resources.set(`${current}#${anchor}`, schemaResource)
         }
+        if (dynamicAnchor !== undefined) {
+          resources.set(`${current}#${dynamicAnchor}`, { ...schemaResource, dynamicAnchor })
+        }
       }
       for (const key of Object.keys(getRaw(value))) {
-        if (key !== externalDocumentsKey) {
+        // Pre-resolved links on in-memory schemas are traversal edges, not lexical children.
+        if (key !== externalDocumentsKey && (key !== '$ref-value' || role === 'map')) {
           visit(
             (value as Record<string, unknown>)[key],
             current,
@@ -309,6 +324,7 @@ export const documentReferences = (
             identifier,
             currentRetrieval,
             currentOutput,
+            getChildScopeRole(role, key),
           )
         }
       }
@@ -318,6 +334,7 @@ export const documentReferences = (
     let identifier = ''
     let retrievalOrigin = retrievalBase
     let outputOrigin = outputBase
+    let role: ScopeRole
     for (const key of targetPath) {
       if (target === null || typeof target !== 'object') {
         return
@@ -325,10 +342,11 @@ export const documentReferences = (
       origin = origins.get(target) ?? origin
       retrievalOrigin = retrievalOrigins.get(target) ?? retrievalOrigin
       outputOrigin = outputOrigins.get(target) ?? outputOrigin
-      identifier = identifySchema(target)?.id ?? identifier
+      identifier = identifySchema(target, role)?.id ?? identifier
+      role = getChildScopeRole(role, key)
       target = (target as Record<string, unknown>)[key]
     }
-    visit(target, origin, [...path, ...targetPath], identifier, retrievalOrigin, outputOrigin)
+    visit(target, origin, [...path, ...targetPath], identifier, retrievalOrigin, outputOrigin, role)
   }
 
   return {
@@ -373,7 +391,8 @@ export const documentReferences = (
           shouldVisit(resource.value) &&
           ((identity?.id !== undefined &&
             (uri === origin || (canonicalizeIds && uri === retrievalOrigins.get(resource.value)))) ||
-            (identity?.anchor !== undefined && uri === `${origin}#${identity.anchor}`))
+            (identity?.anchor !== undefined && uri === `${origin}#${identity.anchor}`) ||
+            (identity?.dynamicAnchor !== undefined && uri === `${origin}#${identity.dynamicAnchor}`))
         ) {
           continue
         }
@@ -385,6 +404,10 @@ export const documentReferences = (
       }
     },
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,
+    schemaResource: (uri) => {
+      const resource = resources.get(uri)
+      return resource?.schema ? resource.value : undefined
+    },
     origin: (node) => origins.get(node),
     retrievalOrigin: (node) => retrievalOrigins.get(node),
     sourceOrigin: (node) => sourceOrigins.get(node),
@@ -395,9 +418,7 @@ export const documentReferences = (
         ? canonicalizeIds
           ? resolveResourcePath(base, prefix)
           : resolveReferencePath(base, prefix)
-        : canonicalizeIds
-          ? base.split('#', 1)[0]!
-          : base
+        : base.split('#', 1)[0]!
       const pointer = fragment.startsWith('/') ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
       const documentResource = resources.get(uri)
       const localStorage = isObject(documentResource?.value) ? documentResource.value[externalDocumentsKey] : undefined
@@ -458,6 +479,7 @@ export const documentReferences = (
         value,
         document: resource.document,
         documentPath: resource.documentPath,
+        ...(resource.dynamicAnchor === undefined ? {} : { dynamicAnchor: resource.dynamicAnchor }),
         preserveReference:
           isUnresolved || isLocalSchemaReference || isDeclaredRootSchemaReference || isLocalRootDocumentReference,
       }

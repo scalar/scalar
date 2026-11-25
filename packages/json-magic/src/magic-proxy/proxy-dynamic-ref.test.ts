@@ -316,6 +316,106 @@ describe('proxy-dynamic-ref', () => {
     expect(groupItems['$dynamicRef-value']).toMatchObject({ title: 'Group' })
   })
 
+  it('uses the lexical resource across pointer hops and URI-qualified dynamic references', () => {
+    const proxy = createMagicProxy({
+      template: {
+        $id: 'https://example.com/schemas/template.json',
+        $defs: {
+          nested: {
+            $id: 'nested/schema.json',
+            $defs: { item: { $dynamicAnchor: 'item', title: 'Nested' } },
+            properties: {
+              fragment: { $dynamicRef: '#%69tem' },
+              relative: { $dynamicRef: '../default.json#item' },
+              absolute: { $dynamicRef: 'https://example.com/schemas/default.json#item' },
+            },
+          },
+          fallback: { $id: 'default.json', $dynamicAnchor: 'item', title: 'Default' },
+        },
+      },
+      direct: { $ref: '#/template/$defs/nested/properties/fragment' },
+      first: {
+        $id: 'https://example.com/bindings/first.json',
+        $defs: { item: { $dynamicAnchor: 'item', title: 'First' } },
+        $ref: 'https://example.com/schemas/nested/schema.json',
+      },
+      second: {
+        $id: 'https://example.com/bindings/second.json',
+        $defs: { item: { $dynamicAnchor: 'item', title: 'Second' } },
+        $ref: 'https://example.com/schemas/nested/schema.json',
+      },
+    }) as unknown as ProxyNode
+
+    expect(proxy.direct['$ref-value']['$dynamicRef-value'].title).toBe('Nested')
+
+    const first = proxy.first['$ref-value'].properties
+    const firstItem = first.fragment['$dynamicRef-value']
+    expect(firstItem.title).toBe('First')
+    expect(first.relative['$dynamicRef-value']).toBe(firstItem)
+    expect(first.absolute['$dynamicRef-value']).toBe(firstItem)
+    expect(proxy.first['$ref-value'].properties.relative['$dynamicRef-value']).toBe(firstItem)
+
+    const second = proxy.second['$ref-value'].properties
+    expect(second.relative['$dynamicRef-value'].title).toBe('Second')
+    expect(second.relative['$dynamicRef-value']).not.toBe(firstItem)
+  })
+
+  it('resolves references to bundled resources by their retrieval URIs', () => {
+    const proxy = createMagicProxy(
+      {
+        schema: {
+          $id: 'https://example.com/schema.json',
+          $defs: { outer: { $dynamicAnchor: 'item', title: 'Override' } },
+          properties: {
+            dynamic: { $dynamicRef: './models/other.json#item' },
+            root: { $dynamicRef: './models/other.json' },
+          },
+        },
+        'x-ext': { other: { $id: 'urn:other', $dynamicAnchor: 'item', title: 'Bundled' } },
+        'x-ext-urls': { other: 'https://example.com/models/other.json' },
+      },
+      { documentUri: 'https://example.com/document.json' },
+    ) as unknown as ProxyNode
+
+    const properties = proxy.schema.properties
+    expect(properties.dynamic['$dynamicRef-value'].title).toBe('Override')
+    expect(properties.root['$dynamicRef-value'].title).toBe('Bundled')
+  })
+
+  it('resolves static targets without substituting a matching dynamic anchor', () => {
+    const proxy = createMagicProxy({
+      $id: 'https://example.com/root.json',
+      $defs: {
+        item: { $dynamicAnchor: 'item', title: 'Outer' },
+        nested: {
+          $id: 'nested/schema.json',
+          $defs: {
+            anchor: { $anchor: 'item', title: 'Static' },
+            'a/b': { $dynamicAnchor: 'pointer', title: 'Pointer' },
+            boolean: false,
+          },
+          properties: {
+            anchor: { $dynamicRef: '#item' },
+            qualified: { $dynamicRef: 'schema.json#item' },
+            pointer: { $dynamicRef: '#/$defs/a~1b' },
+            bool: { $dynamicRef: '#/$defs/boolean' },
+            missing: { $dynamicRef: 'missing.json#item' },
+            outside: { $dynamicRef: '#/$defs/pointer' },
+          },
+        },
+        pointer: { $dynamicAnchor: 'pointer', title: 'Outer pointer' },
+      },
+    }) as unknown as ProxyNode
+
+    const properties = proxy.$defs.nested.properties
+    expect(properties.anchor['$dynamicRef-value'].title).toBe('Static')
+    expect(properties.qualified['$dynamicRef-value']).toBe(properties.anchor['$dynamicRef-value'])
+    expect(properties.pointer['$dynamicRef-value'].title).toBe('Pointer')
+    expect(properties.bool['$dynamicRef-value']).toBe(false)
+    expect(properties.missing['$dynamicRef-value']).toBeUndefined()
+    expect(properties.outside['$dynamicRef-value']).toBeUndefined()
+  })
+
   it('returns undefined for an unresolvable $dynamicRef and leaves plain schemas untouched', () => {
     const document = {
       Widget: {
