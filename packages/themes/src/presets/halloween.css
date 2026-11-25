@@ -1,6 +1,5 @@
 /* basic theme */
 .light-mode {
-  color-scheme: light;
   /* Candlelit parchment by day */
   --scalar-color-1: #2b2034;
   --scalar-color-2: #5e5068;
@@ -15,7 +14,6 @@
   --scalar-border-color: #e9dcc8;
 }
 .dark-mode {
-  color-scheme: dark;
   /* Midnight aubergine with a pumpkin glow */
   --scalar-color-1: #f6f0ff;
   --scalar-color-2: #bcb1cc;
