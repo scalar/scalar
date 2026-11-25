@@ -4,7 +4,7 @@ Registry URLs let you open an API reference, fetch an API description, or downlo
 
 ## Browse a namespace
 
-Sign in to browse the resources you can access in a namespace. This applies to listings of public resources too.
+Listing or searching a namespace requires sign-in, and anyone with a direct URL can fetch a public resource.
 
 - `https://registry.scalar.com/@your-namespace` opens the namespace overview.
 - `https://registry.scalar.com/@your-namespace/apis` lists API descriptions. Use `/schemas`, `/rules`, `/sdks`, or `/workspaces` to browse the other resource types.
@@ -26,7 +26,7 @@ OpenAPI and AsyncAPI use the same URL structure.
 | Fetch JSON                             | [Galaxy JSON](https://registry.scalar.com/@scalar/apis/galaxy?format=json)                             | API description as JSON                                                         |
 | Fetch YAML                             | [Galaxy YAML](https://registry.scalar.com/@scalar/apis/galaxy?format=yaml)                             | API description as YAML                                                         |
 | Fetch JSON with generated SDK examples | [Processed Galaxy JSON](https://registry.scalar.com/@scalar/apis/galaxy?format=json&variant=processed) | API description with SDK examples and installation instructions, when available |
-| Fetch an AsyncAPI description          | [Galaxy Events JSON](https://registry.scalar.com/@scalar/apis/asyncapi/latest?format=json)             | AsyncAPI description as JSON                                                    |
+| Fetch an AsyncAPI description          | [Galaxy Events JSON](https://registry.scalar.com/@scalar/apis/asyncapi?format=json)                    | AsyncAPI description as JSON                                                    |
 
 ### Choose a format
 
@@ -79,7 +79,7 @@ Scalar.createApiReference('#app', {
 | SDK                          | `https://registry.scalar.com/@your-namespace/sdks/your-sdk`             | Open the SDK download page in a browser or retrieve a JSON list of available builds from a tool. |
 | Workspace                    | `https://registry.scalar.com/@your-namespace/workspaces/your-workspace` | Preview the workspace's API sources or request its JSON or YAML document.                        |
 
-To download a generated SDK ZIP, add `?lang=typescript` or select another language from the SDK's download page. [Galaxy SDK download page](https://registry.scalar.com/@scalar/sdks/galaxy)
+To download a generated SDK ZIP, choose a language on the [Galaxy SDK download page](https://registry.scalar.com/@scalar/sdks/galaxy) or add `?lang=typescript` to the page URL.
 
 | SDK download               | Example path                                              |
 | -------------------------- | --------------------------------------------------------- |
@@ -96,4 +96,4 @@ A temporary share link uses `https://registry.scalar.com/share/apis/<id>` for an
 
 ## Access
 
-Public resources can be fetched without signing in. For a private resource, sign in to the Registry preview with an account that has access. For scripts, use the authenticated [Scalar CLI](cli.md) or send a Scalar access token in the `X-Scalar-Auth` request header.
+For a private resource, sign in to the Registry preview with an account that has access. For scripts, use the authenticated [Scalar CLI](cli.md) or send a Scalar access token in the `X-Scalar-Auth` request header.
