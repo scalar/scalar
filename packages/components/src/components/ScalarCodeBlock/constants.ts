@@ -1,6 +1,6 @@
 import type { StandardLanguageKey } from './types'
 
-/** Labels for the standard languages */
+/** Display labels for code block languages */
 export const LANGUAGE_LABELS = {
   bash: 'Bash',
   c: 'C',
@@ -27,6 +27,7 @@ export const LANGUAGE_LABELS = {
   julia: 'Julia',
   kotlin: 'Kotlin',
   less: 'Less',
+  log: 'Log',
   lua: 'Lua',
   makefile: 'Makefile',
   markdown: 'Markdown',
@@ -53,4 +54,4 @@ export const LANGUAGE_LABELS = {
   typescript: 'TypeScript',
   xml: 'XML',
   yaml: 'YAML',
-} as const satisfies Record<StandardLanguageKey, string>
+} as const satisfies Record<StandardLanguageKey | 'log', string>

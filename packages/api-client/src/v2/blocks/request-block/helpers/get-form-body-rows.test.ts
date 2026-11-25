@@ -9,6 +9,38 @@ import { assert, describe, expect, it } from 'vitest'
 import { getFormBodyRows, getFormBodyValue } from './get-form-body-rows'
 
 describe('getFormBodyRows', () => {
+  it('round trips indexed-dot URL-encoded rows with nested fields and repeated values', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      required: ['contacts', 'tags'],
+      properties: {
+        contacts: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' } } } },
+        tags: { type: 'array', items: { type: 'string' } },
+      },
+    })
+    const rows = getFormBodyRows(
+      { value: { contacts: [{ name: 'Ada' }], tags: ['one', 'two'] } },
+      'application/x-www-form-urlencoded',
+      schema,
+      undefined,
+      undefined,
+      true,
+    )
+    const savedRows = rows.map((row) => ({
+      name: row.name,
+      value: getFormBodyValue(row),
+      isDisabled: row.isDisabled,
+      ...(row.isArray ? { isArray: true } : {}),
+    }))
+    expect(savedRows).toStrictEqual([
+      { name: 'contacts[0].name', value: 'Ada', isDisabled: false },
+      { name: 'tags', value: ['one', 'two'], isDisabled: false, isArray: true },
+    ])
+    expect(
+      getFormBodyRows({ value: savedRows }, 'application/x-www-form-urlencoded', schema, undefined, undefined, true),
+    ).toStrictEqual(rows)
+  })
+
   it.each(['multipart/form-data'])('renders structural allOf reference fields for %s', (contentType) => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',

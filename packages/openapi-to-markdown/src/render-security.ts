@@ -1,4 +1,4 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedSecurityScheme } from '@scalar/workspace-store/helpers/get-resolved-security-scheme'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Heading, ListItem, PhrasingContent, RootContent } from 'mdast'
 
@@ -6,7 +6,9 @@ import { heading, inlineCode, item, list, paragraph, strong, text } from './mark
 import type { DescriptionParser } from './parse-description'
 
 type SecurityScheme = NonNullable<
-  ReturnType<typeof getResolvedRef<NonNullable<NonNullable<OpenApiDocument['components']>['securitySchemes']>[string]>>
+  ReturnType<
+    typeof getResolvedSecurityScheme<NonNullable<NonNullable<OpenApiDocument['components']>['securitySchemes']>[string]>
+  >
 >
 
 const flowNames: Record<string, string> = {
@@ -69,6 +71,7 @@ export const renderSecurity = async (
   schemes: NonNullable<OpenApiDocument['components']>['securitySchemes'],
   description: DescriptionParser,
   level: Heading['depth'] = 4,
+  openapiVersion = '3.2.0',
 ): Promise<RootContent[]> => {
   if (!requirements) {
     return []
@@ -88,7 +91,9 @@ export const renderSecurity = async (
     }
     const entriesNodes: ListItem[] = []
     for (const [name, scopes] of entries) {
-      const scheme = getResolvedRef(schemes?.[name])
+      const scheme = getResolvedSecurityScheme(schemes?.[name], {
+        overrideDescription: /^3\.[12]\./.test(openapiVersion),
+      })
       const line: PhrasingContent[] = [strong(text(name))]
       if (scheme) {
         line.push(text(': '), ...summarizeScheme(scheme))

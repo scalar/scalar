@@ -1,5 +1,37 @@
 # scalar-app
 
+## 1.1.56
+
+### Patch Changes
+
+- [#11164](https://github.com/scalar/scalar/pull/11164): Align the desktop builder with the workspace pnpm 12 release while retaining Node.js 24.
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11191](https://github.com/scalar/scalar/pull/11191): Keep equal signs, plus signs and bare percent signs in form values when importing a cURL command.
+
+## 1.1.55
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+- [#11136](https://github.com/scalar/scalar/pull/11136): Update the Scalar SDK to version 0.8 while preserving authenticated registry requests.
+- [#11142](https://github.com/scalar/scalar/pull/11142): Update the desktop runtime to Electron 45.
+- [#10829](https://github.com/scalar/scalar/pull/10829): Complete desktop login and registration through a state-checked browser redirect with PKCE, avoiding Safari's mixed-content block on the local callback. Requires the companion dashboard and auth-service update.
+
+  Allow 15 minutes to finish desktop registration so new users have time to verify their email before returning to the app.
+
+## 1.1.54
+
+No changes in this release.
+
+## 1.1.53
+
+### Patch Changes
+
+- [#11153](https://github.com/scalar/scalar/pull/11153): Invite API client users to the API Hosting beta with a one-time popup as the app starts. Sign-ups join the same waitlist as the other Hosting sign-ups and set the contact's `client` property.
+
 ## 1.1.52
 
 ### Patch Changes

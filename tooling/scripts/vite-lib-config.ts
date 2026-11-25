@@ -2,6 +2,16 @@ import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 /**
+ * Preserve CSS and Zod setup before schema imports. Keep the AI SDK facade too,
+ * so following its re-exports cannot bypass the setup dependency.
+ */
+export const hasModuleSideEffects = (id: string): boolean =>
+  id.includes('.css') ||
+  id === '@scalar/types/zod' ||
+  /[/\\](?:packages|@scalar)[/\\]types[/\\](?:src|dist)[/\\]zod\.[jt]s$/.test(id) ||
+  /[/\\](?:packages|@scalar)[/\\]agent-chat[/\\](?:src|dist)[/\\]state[/\\]ai-sdk[/\\]index\.[jt]s$/.test(id)
+
+/**
  * Sanitizes a chunk name for use in output filenames.
  *
  * With preserveModules, Vue SFC files produce chunk names containing `.vue`

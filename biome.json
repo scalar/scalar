@@ -48,7 +48,8 @@
       "!**/target/**",
       "!**/*.svg",
       "!integrations/docker/assets/index.html"
-    ]
+    ],
+    "maxSize": 2097152
   },
   "assist": {
     "actions": {
@@ -269,6 +270,38 @@
                   {
                     "group": ["@scalar/components"],
                     "message": "Import from a component subpath (e.g. `@scalar/components/button`) instead of the package barrel."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/types/src/**", "!packages/types/src/zod.ts", "!packages/types/src/**/*.{test,e2e}.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@test/*", "**/test/**"],
+                    "message": "Do not import test helpers inside source files"
+                  },
+                  {
+                    "group": ["@scalar/types"],
+                    "message": "Import from specific entry points (`/api-reference`, ...)"
+                  },
+                  {
+                    "group": ["@scalar/components"],
+                    "message": "Import from a component subpath (e.g. `@scalar/components/button`) instead of the package barrel."
+                  },
+                  {
+                    "group": ["zod", "zod/**"],
+                    "message": "Import Zod from the local zod wrapper so its CSP configuration runs before schemas are created."
                   }
                 ]
               }

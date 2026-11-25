@@ -4,7 +4,7 @@ from enum import Enum
 from django.http import HttpResponse
 from ninja.openapi.docs import DocsBase
 from pydantic import BaseModel, ConfigDict, Field
-from typing import List, Dict, Any, Union, Optional
+from typing import List, Dict, Any, Union, Optional, Literal
 
 
 def _inline_script_json(value: object) -> str:
@@ -190,7 +190,7 @@ class ScalarConfig(BaseModel):
 
     hide_models: bool = Field(
         default=False,
-        description="A boolean to hide all models. Default is False which means all models are shown.",
+        description="Hide schema models and reusable AsyncAPI messages. Defaults to False.",
     )
 
     hide_search: bool = Field(
@@ -268,6 +268,11 @@ class ScalarConfig(BaseModel):
         description="Show built-in HTTP clients alongside SDK installation tabs in the introduction. Default is False, which shows only SDK tabs when installation instructions are available.",
     )
 
+    multipart_naming: Optional[Literal["indexed-dot"]] = Field(
+        default=None,
+        description="Use indexed dotted names for nested multipart form fields.",
+    )
+
     hide_client_button: bool = Field(
         default=False,
         description="Whether to show the client button from the reference sidebar and modal. Default is False which means the client button is shown.",
@@ -285,7 +290,7 @@ class ScalarConfig(BaseModel):
 
     with_default_fonts: bool = Field(
         default=True,
-        description="Whether to use default fonts (Inter and JetBrains Mono). Default is True which means default fonts are used.",
+        description="Deprecated: Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.",
     )
 
     custom_css: str = Field(
@@ -507,6 +512,9 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
         js_config["showDefaultClientsWithSdkInstallation"] = (
             config.show_default_clients_with_sdk_installation
         )
+
+    if config.multipart_naming is not None:
+        js_config["multipartNaming"] = config.multipart_naming
 
     if config.hide_client_button:  # Default is False
         js_config["hideClientButton"] = config.hide_client_button

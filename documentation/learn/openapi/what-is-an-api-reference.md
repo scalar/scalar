@@ -207,11 +207,11 @@ Most API reference tools read OpenAPI and differ in design, interactivity, hosti
 The [Scalar API reference](/products/api-references) is our open-source (MIT) renderer. It reads Swagger 2.0 and OpenAPI 3.0, 3.1, and 3.2 documents, includes a built-in API client for test requests, and runs as a hosted site, a single HTML file, or middleware inside more than 35 frameworks. In an Express app, for example:
 
 ```typescript
-import { apiReference } from '@scalar/express-api-reference'
+import { Scalar } from '@scalar/express-api-reference'
 
 app.use(
   '/reference',
-  apiReference({
+  Scalar({
     url: '/openapi.json',
   }),
 )

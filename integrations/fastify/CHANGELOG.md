@@ -1,5 +1,21 @@
 # @scalar/fastify-api-reference
 
+## 1.84.0
+
+No changes in this release.
+
+## 1.83.0
+
+No changes in this release.
+
+## 1.82.1
+
+No changes in this release.
+
+## 1.82.0
+
+No changes in this release.
+
 ## 1.81.0
 
 No changes in this release.

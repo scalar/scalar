@@ -1,5 +1,21 @@
 # @scalar/themes
 
+## 0.21.1
+
+### Patch Changes
+
+- [#11130](https://github.com/scalar/scalar/pull/11130): Update nanoid to version 6 for faster identifier generation while preserving existing identifier formats.
+
+## 0.21.0
+
+### Minor Changes
+
+- [#11126](https://github.com/scalar/scalar/pull/11126): Give syntax highlighting a fuller palette
+
+  Parameters, object members, type names and punctuation now have their own colors, plain code is easier to read, and the colors are adjusted so they stay readable and distinct in light and dark mode. They still come from the active theme's hues.
+
+  The colors live in `@scalar/themes` as `--scalar-code-*` variables named by role (`--scalar-code-keyword`, `--scalar-code-string`, `--scalar-code-parameter` and so on), so a theme or custom stylesheet can set its own syntax colors. The Moon theme sets darker and lighter values to stay readable on its tinted backgrounds.
+
 ## 0.20.3
 
 ### Patch Changes

@@ -262,6 +262,57 @@ describe('requestFactory', () => {
     expect(request.baseUrl).toBe('https://eu.example.com')
   })
 
+  it.each<{ name: string; server: ServerObject; baseUrl: string; url: string }>([
+    {
+      name: 'an empty string default at the end of the host',
+      server: { url: 'https://api.example.com{basePath}', variables: { basePath: { default: '' } } },
+      baseUrl: 'https://api.example.com',
+      url: 'https://api.example.com/p',
+    },
+    {
+      name: 'an empty string default in the path',
+      server: { url: 'https://api.example.com/{path}', variables: { path: { default: '' } } },
+      baseUrl: 'https://api.example.com/',
+      url: 'https://api.example.com/p',
+    },
+    {
+      name: 'an empty string default for the Galaxy server',
+      server: {
+        url: '{protocol}://void.scalar.com/{path}',
+        variables: { protocol: { default: 'https' }, path: { default: '' } },
+      },
+      baseUrl: 'https://void.scalar.com/',
+      url: 'https://void.scalar.com/p',
+    },
+    {
+      name: 'an empty string default that is part of the enum',
+      server: {
+        url: 'https://api.example.com{basePath}',
+        variables: { basePath: { default: '', enum: ['', '/v2'] } },
+      },
+      baseUrl: 'https://api.example.com',
+      url: 'https://api.example.com/p',
+    },
+  ])('builds the request URL for $name', ({ server, baseUrl, url }) => {
+    const { request } = requestFactory(createBaseArgs({ server, path: '/p', proxyUrl: '' }))
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+
+    expect(request.baseUrl).toBe(baseUrl)
+    expect(String(built.data.requestPayload[0])).toBe(url)
+  })
+
+  it('keeps the placeholder of a server variable that is missing from the variables map', () => {
+    const server: ServerObject = {
+      url: 'https://api.example.com/{basePath}',
+      variables: { other: { default: '' } },
+    }
+
+    const { request } = requestFactory(createBaseArgs({ server }))
+
+    expect(request.baseUrl).toBe('https://api.example.com/{basePath}')
+  })
+
   it('uses a static server URL when there are no variables', () => {
     const server: ServerObject = {
       url: 'https://api.example.com/v1',

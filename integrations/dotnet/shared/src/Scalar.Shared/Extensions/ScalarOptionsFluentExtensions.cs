@@ -17,7 +17,7 @@ namespace Scalar.AspNetCore;
 public static partial class ScalarOptionsExtensions
 {
     /// <summary>
-    /// Hides the models section from the sidebar, search, and content.
+    /// Hides schema models and reusable AsyncAPI messages from the sidebar, search, and content.
     /// </summary>
     /// <param name="options">The options to configure.</param>
     public static TOptions HideModels<TOptions>(this TOptions options) where TOptions : ScalarOptions
@@ -177,7 +177,8 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
-    /// Disables the default fonts (Inter and JetBrains Mono from CDN).
+    /// Disables the default fonts.
+    /// Scalar uses the system font stack and no longer loads web fonts, so this setting has no effect.
     /// </summary>
     /// <param name="options">The options to configure.</param>
     public static TOptions DisableDefaultFonts<TOptions>(this TOptions options) where TOptions : ScalarOptions

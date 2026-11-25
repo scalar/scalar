@@ -22,6 +22,8 @@ internal sealed class ScalarConfiguration
 
     public required string[]? ShowExtensions { get; init; }
 
+    public required ScalarMultipartNaming? MultipartNaming { get; init; }
+
     public required bool? HideModelNames { get; init; }
 
     public required int? MaxVisibleRequestBodyProperties { get; init; }

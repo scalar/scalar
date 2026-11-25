@@ -153,7 +153,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
   const properties: ValidationProperty[] = []
 
   if (isStringSchema(schema)) {
-    if (schema.minLength) {
+    if (isDefined(schema.minLength)) {
       properties.push({
         key: 'min-length',
         prefix: `${translate('schema.minLength')}: `,
@@ -161,7 +161,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
       })
     }
 
-    if (schema.maxLength) {
+    if (isDefined(schema.maxLength)) {
       properties.push({
         key: 'max-length',
         prefix: `${translate('schema.maxLength')}: `,
@@ -235,10 +235,10 @@ const validationProperties = computed(() => {
 
   // Array validation properties
   if (isArraySchema(schema)) {
-    if (schema.minItems || schema.maxItems) {
+    if (isDefined(schema.minItems) || isDefined(schema.maxItems)) {
       properties.push({
         key: 'array-range',
-        value: `${schema.minItems || ''}…${schema.maxItems || ''}`,
+        value: `${schema.minItems ?? ''}…${schema.maxItems ?? ''}`,
       })
     }
 

@@ -53,7 +53,7 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     hideModels: boolean({
       default: false,
-      typeComment: 'Whether to show models in the sidebar, search, and content.',
+      typeComment: 'Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content.',
     }),
     hideModelNames: boolean({
       default: false,
@@ -169,6 +169,9 @@ export const apiReferenceConfigurationSchema = intersection([
         typeComment: 'Determine the HTTP client that is selected by default',
       },
     ),
+    multipartNaming: optional(literal('indexed-dot'), {
+      typeComment: 'Use indexed dotted names for nested multipart and URL-encoded form fields.',
+    }),
     defaultRequestBodyView: optional(union([literal('form'), literal('raw')]), {
       typeComment: 'Initial view for the request body editor with structured (JSON/YAML) bodies',
     }),
@@ -278,7 +281,8 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     withDefaultFonts: boolean({
       default: true,
-      typeComment: 'Whether to include default fonts',
+      typeComment:
+        '@deprecated Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.',
     }),
     defaultOpenFirstTag: boolean({
       default: true,

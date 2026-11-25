@@ -76,6 +76,9 @@ public class ScalarProperties {
     /** The initial request body view: form or raw. */
     private ScalarRequestBodyView defaultRequestBodyView;
 
+    /** Naming convention for nested multipart form fields. */
+    private ScalarMultipartNaming multipartNaming;
+
     /** The maximum initially visible request body properties; zero shows all. */
     private Integer maxVisibleRequestBodyProperties;
 
@@ -131,7 +134,7 @@ public class ScalarProperties {
     private boolean showBadgesInSidebar = false;
 
     /**
-     * Whether models (components.schemas or definitions) should be hidden from the
+     * Hide schema models and reusable AsyncAPI messages from the
      * sidebar, search, and content.
      * Defaults to false.
      */
@@ -227,8 +230,8 @@ public class ScalarProperties {
     private Map<String, String> metadata;
 
     /**
-     * Controls whether to use the default fonts (Inter and JetBrains Mono from
-     * CDN).
+     * Controls whether to use the default fonts. Scalar uses the system font
+     * stack and no longer loads web fonts, so this setting has no effect.
      * Defaults to true.
      */
     private boolean withDefaultFonts = true;
@@ -855,6 +858,14 @@ public class ScalarProperties {
      */
     public void setMaxVisibleRequestBodyProperties(Integer maxVisibleRequestBodyProperties) {
         this.maxVisibleRequestBodyProperties = maxVisibleRequestBodyProperties;
+    }
+
+    public ScalarMultipartNaming getMultipartNaming() {
+        return multipartNaming;
+    }
+
+    public void setMultipartNaming(ScalarMultipartNaming multipartNaming) {
+        this.multipartNaming = multipartNaming;
     }
 
     /**
