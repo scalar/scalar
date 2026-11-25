@@ -35,6 +35,14 @@ describe('compose-openapi-overlays', () => {
     expect(result.document['x-object']).toStrictEqual({ one: { items: [1, 1] }, two: { items: [2, 1] } })
   })
 
+  it('updates a location with escaped object keys and numeric array indices', () => {
+    const key = "it's\\quoted"
+    const base = { ...overlayBase, 'x-items': [{ [key]: 'Before' }] }
+    const document = overlay([{ target: "$['x-items'][0]['it\\'s\\\\quoted']", update: 'After' }])
+
+    expect(composeOpenApiOverlays(base, [{ document }]).document['x-items']).toStrictEqual([{ [key]: 'After' }])
+  })
+
   it('applies reference fields over the reusable action fields', () => {
     const document = {
       ...overlay([{ $ref: '#/components/actions/set%20title', target: '$.info.title', update: 'Partner' }]),
@@ -77,7 +85,8 @@ describe('compose-openapi-overlays', () => {
     [{ target: '$', update: { tags: { invalid: true } } }, 'incompatible'],
     [{ target: '$.info.title', copy: '$.info.*' }, 'exactly one node'],
     [{ target: '$.info.title', copy: '$.missing' }, 'exactly one node'],
-    [{ target: '$.info[', remove: true }, 'Invalid JSONPath'],
+    [{ target: '$.info[', remove: true }, 'Invalid JSONPath in "target"'],
+    [{ target: '$.missing', copy: '$.info[' }, 'Invalid JSONPath in "copy"'],
     [{ target: '$.info', $ref: 'https://example.com/other.yaml#/components/actions/test' }, 'this Overlay'],
     [{ target: '$.info', $ref: '#/components/actions/missing' }, 'does not exist'],
     [{ target: '$', remove: true }, 'cannot remove the root'],

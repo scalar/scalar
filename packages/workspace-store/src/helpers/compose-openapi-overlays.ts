@@ -3,7 +3,7 @@ import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
-import { NormalizedPath, evaluate, test } from '@swaggerexpert/jsonpath'
+import { type JSONPathNode, type JSONPathQuery, type JSONValue, compile } from 'json-p3'
 
 import { PLUGIN_DOCUMENT_TYPE_KEY } from '@/schemas/plugin-document'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
@@ -15,7 +15,7 @@ export type LoadedOverlay = { document: unknown; sourceUri?: string }
 export type OverlayDiagnostic = { overlayIndex: number; actionIndex: number; target: string }
 
 type Location = (string | number)[]
-type Match = { location: Location; value: unknown }
+type JsonObject = Record<string, JSONValue>
 type Action = Record<string, unknown> & { target: string }
 
 const isAuthoredOpenApi = (document: Record<string, unknown>): boolean =>
@@ -93,13 +93,26 @@ const serializeUpdate = (value: unknown): string =>
     throw new Error('"update" must contain only JSON values')
   })
 
+const compileSelector = (expression: string, field: 'target' | 'copy'): JSONPathQuery => {
+  try {
+    return compile(expression)
+  } catch (error) {
+    throw new Error(`Invalid JSONPath in "${field}": ${error instanceof Error ? error.message : String(error)}`, {
+      cause: error,
+    })
+  }
+}
+
 const validateFields = (action: Record<string, unknown>): void => {
   optionalString(action, 'description')
   if (Object.hasOwn(action, 'remove') && typeof action.remove !== 'boolean') {
     throw new Error('"remove" must be a boolean')
   }
-  if (Object.hasOwn(action, 'copy') && (typeof action.copy !== 'string' || !test(action.copy))) {
-    throw new Error('"copy" must be a valid JSONPath expression')
+  if (Object.hasOwn(action, 'copy')) {
+    if (typeof action.copy !== 'string') {
+      throw new Error('"copy" must be a valid JSONPath expression')
+    }
+    compileSelector(action.copy, 'copy')
   }
   if (Object.hasOwn(action, 'update')) {
     serializeUpdate(action.update)
@@ -197,12 +210,12 @@ const lastIndex = (location: Location): number => {
   return typeof key === 'number' ? key : -1
 }
 
-const applyAction = (document: Record<string, unknown>, action: Action): boolean => {
+const applyAction = (document: JsonObject, action: Action): boolean => {
   // JSONPath can select the same location more than once. Apply a mutation once per location.
-  const matches = new Map<string, Match>()
-  evaluate(document, action.target, {
-    callback: (value, path) => matches.set(path, { location: NormalizedPath.to(path), value }),
-  })
+  const matches = new Map<string, JSONPathNode>()
+  for (const node of compileSelector(action.target, 'target').findIter(document)) {
+    matches.set(node.normalizedPath(), node)
+  }
   if (matches.size === 0) {
     return false
   }
@@ -245,7 +258,7 @@ const applyAction = (document: Record<string, unknown>, action: Action): boolean
 
   let update = action.update
   if (typeof action.copy === 'string') {
-    const copied = evaluate(document, action.copy)
+    const copied = compile(action.copy).findAll(document)
     if (copied.length !== 1) {
       throw new Error('"copy" must select exactly one node')
     }
@@ -272,7 +285,7 @@ export const composeOpenApiOverlays = (
   baseSourceUri?: string,
 ): { document: Record<string, unknown>; diagnostics: OverlayDiagnostic[] } => {
   // JSON has independent nodes at each location, even when the source used YAML aliases.
-  const document: Record<string, unknown> = JSON.parse(JSON.stringify(base))
+  const document: JsonObject = JSON.parse(JSON.stringify(base))
   delete document[PLUGIN_DOCUMENT_TYPE_KEY]
   if (!isAuthoredOpenApi(document)) {
     throw new Error('Overlays require an OpenAPI description')

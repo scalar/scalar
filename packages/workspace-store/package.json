@@ -170,8 +170,8 @@
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
     "@scalar/validation": "workspace:*",
-    "@swaggerexpert/jsonpath": "catalog:*",
     "js-base64": "catalog:*",
+    "json-p3": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"
