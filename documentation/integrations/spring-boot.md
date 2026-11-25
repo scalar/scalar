@@ -257,7 +257,8 @@ spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
 | `scalar.documentDownloadType`  | `both`                                                        | Sets the file type of the document to download. Can be "json", "yaml", "both", or "none"                                                                         |
 | `scalar.searchHotKey`          | `null`                                                        | Hotkey for search functionality (e.g., "ctrl+k")                                                                                                                 |
 | `scalar.servers`               | `null`                                                        | List of server configurations                                                                                                                                    |
-| `scalar.defaultHttpClient`     | `null`                                                        | Default HTTP client configuration                                                                                                                                |
+| `scalar.http-clients`          | `null`                                                        | Built-in client IDs and target wildcards such as `node/fetch` and `shell/*`. Set to `[]` to hide all built-in clients.                                           |
+| `scalar.default-http-client`   | `null`                                                        | Default built-in HTTP client ID such as `node/fetch`. The nested `target-key` and `client-key` properties are also supported.                                    |
 
 ## Authentication Configuration
 

@@ -63,10 +63,11 @@ public class ScalarConfiguration {
     @JsonProperty("hiddenClients")
     private ScalarHiddenClients hiddenClients;
 
-    /** The full client identifiers shown as tabs, in order. */
+    /** The built-in client IDs and target wildcards allowed in code sample pickers. */
     @JsonProperty("httpClients")
     private List<String> httpClients;
 
+    /** The full client identifiers shown as tabs, in order. */
     @JsonProperty("featuredClients")
     private List<String> featuredClients;
 

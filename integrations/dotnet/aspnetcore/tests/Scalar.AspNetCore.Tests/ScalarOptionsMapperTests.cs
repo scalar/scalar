@@ -142,8 +142,9 @@ public class ScalarOptionsMapperTests
         configuration.Servers.Should().ContainSingle().Which.Url.Should().Be("https://example.com");
         configuration.PluginUrls.Should().ContainSingle().Which.Should().Be("https://example.com/plugin.js");
         configuration.MetaData.Should().ContainKey("key").WhoseValue.Should().Be("value");
-        configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.CSharp);
-        configuration.DefaultHttpClient!.ClientKey.Should().Be(ScalarClient.HttpClient);
+        var defaultClient = configuration.DefaultHttpClient.Should().BeOfType<DefaultHttpClient>().Which;
+        defaultClient.TargetKey.Should().Be(ScalarTarget.CSharp);
+        defaultClient.ClientKey.Should().Be(ScalarClient.HttpClient);
         ((bool) configuration.HiddenClients!).Should().BeTrue();
         configuration.Authentication.Should().NotBeNull();
 #pragma warning disable CS0618 // Type or member is obsolete

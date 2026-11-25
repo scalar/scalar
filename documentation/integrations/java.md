@@ -168,6 +168,8 @@ These options work in both WebMVC and WebFlux. Omitted values use the frontend d
 | `scalar.max-visible-request-body-properties` | Nonnegative integer; `0` shows all |
 | `scalar.default-request-body-view` | `form` or `raw` |
 | `scalar.show-extensions` | List of extension keys such as `x-internal` |
+| `scalar.http-clients` | Built-in client IDs and target wildcards such as `node/fetch` and `shell/*`. An empty list hides all built-in clients. |
+| `scalar.default-http-client` | Built-in default client ID such as `node/fetch` |
 | `scalar.featured-clients` | Ordered list of full client IDs such as `node/fetch` |
 | `scalar.show-default-clients-with-sdk-installation` | Show built-in HTTP clients alongside SDK installation tabs (default: `false`) |
 | `scalar.url-routing` | `false` leaves the browser URL and history unchanged |
@@ -621,8 +623,9 @@ scalar:
 
 ```properties
 # Default HTTP client for code samples (default: shell/curl)
-scalar.defaultHttpClient.target=shell
-scalar.defaultHttpClient.client=curl
+scalar.http-clients[0]=node/fetch
+scalar.http-clients[1]=shell/*
+scalar.default-http-client=node/fetch
 
 # Expand all tags by default (default: false)
 scalar.defaultOpenAllTags=true
