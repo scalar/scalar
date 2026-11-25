@@ -80,7 +80,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   isEditable: z.boolean().optional().default(false).catch(false),
   /**
-   * Whether to show models in the sidebar, search, and content.
+   * Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content.
    * @default false
    */
   hideModels: z.boolean().optional().default(false).catch(false),

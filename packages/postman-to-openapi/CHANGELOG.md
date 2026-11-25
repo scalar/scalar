@@ -1,5 +1,11 @@
 # @scalar/postman-to-openapi
 
+## 0.7.36
+
+### Patch Changes
+
+- [#11172](https://github.com/scalar/scalar/pull/11172): Fix invalid empty `responses` on merged Postman operations that have no saved responses.
+
 ## 0.7.35
 
 ### Patch Changes

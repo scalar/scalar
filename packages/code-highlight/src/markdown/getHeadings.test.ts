@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getHeadings } from './markdown'
+import { getHeadings } from './index'
 
 describe('getHeadings', () => {
   it('gets a heading', () => {

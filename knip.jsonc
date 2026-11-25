@@ -364,7 +364,8 @@
         "src/useBindCx/index.ts",
         "src/useBreakpoints/index.ts",
         "src/useClipboard/index.ts",
-        "src/useColorMode/index.ts"
+        "src/useColorMode/index.ts",
+        "src/useDocumentRoot/index.ts"
       ]
     },
     "packages/workspace-store": {
@@ -391,7 +392,7 @@
         "./src/schemas/v3.2/strict/openapi-document.ts",
         "./src/schemas/v3.2/strict/type-guards.ts",
         "./src/server.ts",
-        "./src/resolve.ts"
+        "./src/resolve/index.ts"
       ]
     },
     "packages/pre-post-request-scripts": {

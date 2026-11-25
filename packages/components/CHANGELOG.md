@@ -1,5 +1,25 @@
 # @scalar/components
 
+## 0.36.0
+
+### Minor Changes
+
+- [#11170](https://github.com/scalar/scalar/pull/11170): Add `ScalarDialog`, a modal dialog built on the native `<dialog>` element and `showModal()`. Control it with `v-model:open` and compose its contents with the default slot. Focus trapping, focus restore, background inert, and top-layer stacking come from the platform. On top of that it locks page scrolling while open, gives popovers inside it a teleport target so they render above the dialog, lets child widgets handle Escape before the dialog closes, and closes on a backdrop click (ignoring text-selection drags and keyboard-activated controls).
+
+### Patch Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11162](https://github.com/scalar/scalar/pull/11162): Add a generic `log` grammar for human-readable logs, including common timestamps, severity headers, context prefixes, strings, URLs, and exception stack frames.
+
+  Show the Log language label in ScalarCodeBlock and include it in the copy button’s accessible name.
+
+## 0.35.5
+
+No changes in this release.
+
 ## 0.35.4
 
 ### Patch Changes

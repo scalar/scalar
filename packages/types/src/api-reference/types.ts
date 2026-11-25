@@ -476,6 +476,7 @@ export type ApiReferenceTranslations = {
     operations: string
     webhooks: string
     channels: string
+    messages: string
     endpoints: string
     showAllEndpoints: string
     sidebarFor: string
@@ -553,6 +554,8 @@ export type ApiReferenceTranslations = {
     unknownType: string
     propertyCount: string
     headerCount: string
+    /** The blocks package supplies a localized default for the extensions disclosure. */
+    extensionCount?: string
     recursiveReference: string
     recursive: string
     additionalProperties: string
@@ -684,6 +687,7 @@ export type ApiReferenceTranslations = {
     waitlistError: string
     waitlistRateLimit: string
     waitlistBack: string
+    waitlistDone: string
     deployApiButton: string
     deployFrameworkButton: string
     deployApiTitle: string
@@ -768,7 +772,7 @@ export type ApiReferenceTranslations = {
  * For example, `{ search: { label: string } }` becomes `'search.label'`.
  */
 type TranslationDotPaths<T, Prefix extends string = ''> = {
-  [Key in keyof T & string]: T[Key] extends string
+  [Key in keyof T & string]: T[Key] extends string | undefined
     ? `${Prefix}${Key}`
     : T[Key] extends Record<string, unknown>
       ? TranslationDotPaths<T[Key], `${Prefix}${Key}.`>
@@ -825,7 +829,7 @@ type ExtendedConfiguration = {
   pluginUrls?: string[]
   /** Allows the user to inject an editor for the spec */
   isEditable: boolean
-  /** Whether to show models in the sidebar, search, and content. */
+  /** Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content. */
   hideModels: boolean
   /** Show structural types instead of model names in schema type labels and operation headings. */
   hideModelNames?: boolean

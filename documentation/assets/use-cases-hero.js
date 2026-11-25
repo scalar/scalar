@@ -3,7 +3,8 @@
  * industry's page. Only those pages load it, so the engine, which every page loads for the footer's meadow, does not
  * carry them. It hands the engine a function in its queue of plugins (see the engine's plugins), and the engine calls
  * it with the kit, the parts of the engine these compositions are made of, whether this runs before or after it. The
- * kit is worked out for this file as the two are built, so they ship together.
+ * kit holds what this file needs of the engine, so the two ship together. The sky some of these pictures are painted on
+ * is kept here as it was (see the sky as it was), since the engine's own has changed.
  */
 ;(() => {
   // The docs run a route's scripts again on every visit; the compositions only need handing over once.
@@ -28,9 +29,6 @@
       'PAINTS',
       'PALETTES',
       'rippleDab',
-      'SK_INKS',
-      'SK_SCALE',
-      'SKY',
       'smooth',
       'STIR',
     ].filter((name) => !(name in kit))
@@ -50,12 +48,590 @@
       PAINTS,
       PALETTES,
       rippleDab,
-      SK_INKS,
-      SK_SCALE,
-      SKY,
       smooth,
       STIR,
     } = kit
+
+    /* --- the sky as it was ---------------------------------------------------------------------------------- */
+
+    /* The forest, Fintech, Travel and AI platforms are painted on the sky of /products as it was when they were made:
+       its lines, its land's sheets, its inks and its scale (SKY, SK_INKS, SK_SCALE). The site's heroes have since taken
+       a photographic look, and the engine's sky with them, so this file keeps its own copy of that sky, word for word as
+       the engine had it, and these pictures stay as they were approved. It needs only parts of the engine that the kit
+       still hands over (FOOTER, whose `film` is unchanged, HERO, LAND_INK, LENS, LINES, PAINTS, clamp, hashed, smooth). It
+       is the composition before prepare() has seen it, which is harmless: each composition made of it is prepared on
+       its own, and prepare() fills in what is missing the same way for either. */
+
+    /* --- the sky composition ----------------------------------------------------------------------------- */
+
+    /* The hero of the docs overview (/products), after Cameron's pictures: a clear sky under the calls to action, in the
+       land's own fine lines, easing in pale under the buttons, deepening to cobalt and paling again to lilac at the
+       horizon; a veil of light across it, as of high cloud lit from beyond (an aurora at night); cumulus framing it from
+       either side, soft and irregular, lit white on their tops and blue in their shade, a lower, bluer bank behind; a few
+       stars; and a flock of white birds crossing it, doves far off, their wings beating and then held as they glide,
+       coming in and going out through the glass at the sides as the butterflies do (a gentler glass than theirs, even
+       and level, since a bright bird drawn through the butterflies' would streak across the sky like a comet). */
+    const SK_EVEN = 0.005
+
+    const SK_HAZE = 0.4 + SK_EVEN
+
+    const SK_TWINKLE = 3.25 + SK_EVEN
+
+    const SK_GLIMMER = 3.4 + SK_EVEN
+
+    // (the engine's own hashed and clamp come later in the file than this, which is worked out as it loads)
+    const skHash = (value) => {
+      const x = Math.sin(value * 127.1 + 311.7) * 43758.5453
+      return x - Math.floor(x)
+    }
+
+    // The sky's inks, light and dark: pale where it comes in under the buttons, cobalt above, lilac at the horizon.
+    const SK_INKS = {
+      ...LAND_INK,
+      skTop: ['#78a5e6', '#1c3c86'],
+      skHigh: ['#1450bf', '#0a1b56'],
+      skMid: ['#246bce', '#0f276c'],
+      skLow: ['#5f95e2', '#1b3482'],
+      skHorizon: ['#c0c2ee', '#383f8e'],
+    }
+
+    // how large the sky's strokes are drawn on a canvas this wide
+    const SK_SCALE = (w) => Math.min(1.15, Math.max(0.5, w / 1232))
+
+    /* The flock: three groups, a third of their round apart, each flying at one pace so that it keeps together, its birds
+       spread through the upper part of the band and along it, each in a lane of its own and spaced along the round as the
+       golden ratio spaces them, so that no two of a group fly into each other, each rising and falling and surging a
+       little at its own rate; and two nearer, larger and faster, in the lanes under the groups, low over the clouds, so
+       that they overtake the groups below them rather than through them, only on a canvas wider than a phone's (on a
+       phone's, the groups have the whole band, see `band`). For
+       each: its wingspan (CSS pixels at a canvas 1232 wide), pace (pixels a second, likewise), lane (0 at the band's top,
+       1 at its foot), where it is in the round, how far it rises and falls and how often, how far it surges and how
+       often, how fast its wings beat (a second), how far they swing, how often it glides, and a seed of its own. Written
+       once, as the script loads. */
+    const SK_GROUPS = [8, 8, 7]
+
+    // how much of the band, from its top, the groups fly in, and how wide a canvas the near birds fly on
+    const SK_UPPER = 0.8
+
+    const SK_NEAR_FROM = 700
+
+    const skBird = (h, lane, phase) => ({
+      size: 30 + 16 * h(1),
+      speed: 46,
+      lane,
+      phase,
+      drift: 3 + 2.5 * h(5),
+      period: 4 + 3 * h(6),
+      surge: 3 + 4 * h(11),
+      surgePeriod: 3 + 2 * h(12),
+      beat: 2.2 + 0.8 * h(7),
+      wag: 0,
+      flap: 0.36 * (0.85 + 0.3 * h(8)),
+      glide: 3.5 + 3 * h(9),
+      seed: h(10),
+    })
+
+    const SK_BIRDS = [
+      ...SK_GROUPS.flatMap((count, g) =>
+        Array.from({ length: count }, (_, j) => {
+          const i = SK_GROUPS.slice(0, g).reduce((a, b) => a + b, 0) + j
+          const h = (k) => skHash(i * 11.3 + k * 2.7 + 0.3)
+          const lane = Math.min(1, Math.max(0, ((j + 0.5) / count) * SK_UPPER + (h(3) - 0.5) * 0.08))
+          const along = (((j * 0.618034 + g * 0.31) % 1) - 0.5) * 0.2 + (h(4) - 0.5) * 0.03
+          return skBird(h, lane, g / SK_GROUPS.length + 0.04 + (lane - 0.5) * 0.05 + along)
+        }),
+      ),
+      ...[0, 1].map((j) => {
+        const h = (k) => skHash(j * 23.9 + k * 4.3 + 7.7)
+        const bird = skBird(h, 0.92 + 0.12 * h(3), (j + 0.3 + 0.4 * h(4)) / 2)
+        return { ...bird, size: bird.size * 1.5, speed: bird.speed * 1.6, from: SK_NEAR_FROM }
+      }),
+    ]
+
+    /* The clouds' towers: where each stands across the canvas (a share of its width), how tall it is (a share of the
+       picture under the buttons) and half how wide (CSS pixels at 1232). Tall at either side, framing the sky, and low in
+       the middle, under the words. */
+    const SK_TOWERS = [
+      [0, 0.36, 200],
+      [0.15, 0.15, 120],
+      [0.36, 0.08, 140],
+      [0.6, 0.1, 120],
+      [0.82, 0.3, 170],
+      [1.02, 0.24, 150],
+    ]
+
+    const SKY = {
+      ...HERO,
+      intro: false,
+      words: '.dc-copy, .hl-copy',
+      // a few beads, the oval of page kept round the words shallow, and every line carried to the canvas's edges
+      lines: { ...LINES, lift: 0.08, veil: [80, 18], beadChance: 0.08, whole: true },
+      film: FOOTER.film,
+      // drawn at a little less than the screen's density on a canvas wider than any laptop's, as the company's sea is
+      dprCap: (w) => Math.min(2, 2 * Math.sqrt(1800 / w)),
+      inks: SK_INKS,
+      // the stars twinkle, and the strokes are even (neither bowing nor tapering) and soft-edged
+      twinkle: true,
+      marks: true,
+      glyphs: true,
+      land: {
+        ...HERO.land,
+        profile: [
+          [-1.6, 0],
+          [1.6, 0],
+        ],
+        crest: 0,
+        relief: [1, 1],
+        sheets: [
+          // the sky, from just under the buttons' foot down (not named 'sky', which the land is laid out from before its
+          // room is known, and this one's top is worked out from it)
+          {
+            name: 'air',
+            top: (stage) => {
+              const under = Math.min((stage.words.y + stage.words.b + 3 - stage.base) / stage.room, 0.12)
+              return [
+                [-1.6, under],
+                [1.6, under],
+              ]
+            },
+            foot: [
+              [-1.6, 1.3],
+              [1.6, 1.3],
+            ],
+            paint: [
+              [0, 'skTop', 0],
+              [0.12, 'skTop', 0.78],
+              [0.32, 'skHigh', 1],
+              [0.58, 'skMid', 1],
+              [0.82, 'skLow', 1],
+              [1, 'skHorizon', 1],
+            ],
+            fill: 0.9,
+            under: 0.85,
+            patch: 0.1,
+            flow: 1.1,
+            breath: 2,
+          },
+          // the land's foot, as the other heroes' meadows are, under the clouds: it lays the land out and draws nothing
+          {
+            name: 'meadow',
+            top: [
+              [-1.6, 1.24],
+              [1.6, 1.24],
+            ],
+            foot: [
+              [-1.6, 1.3],
+              [1.6, 1.3],
+            ],
+            paint: [
+              [0, 'skHorizon', 0],
+              [1, 'skHorizon', 0],
+            ],
+            fill: 0,
+            under: 0,
+          },
+        ],
+        least: 110,
+      },
+      grass: null,
+      flowers: null,
+      passer: null,
+      pointer: false,
+      clouds: [],
+      // No butterflies: the birds are this sky's flock, drawn through the lens's glass, which here is gentle and even (see
+      // `lens`): it bends less than the butterflies', only across, never shows a part of the flock twice, neither splits
+      // its colours nor draws them out along the way, blurs them only a little towards the edge and glows only a little
+      // round them, so that a bird comes in drawn out and level and goes out the same, with no comet's tail.
+      flock: [],
+      lens: {
+        ...LENS,
+        foot: 'ease',
+        always: true,
+        even: true,
+        bend: 1,
+        bandMost: [110, 62],
+        split: 0,
+        along: 0,
+        soften: 1,
+        halo: [2.6, 0.2],
+      },
+      school: {
+        fish: SK_BIRDS,
+        // never smaller than this, or on a phone they would be ticks
+        size: (w) => Math.max(0.7, SK_SCALE(w)),
+        // a bird banks and climbs only a little, never tipping as a fish does
+        turn: 0.35,
+        /* From a little under the buttons, so that none flies close under them, down over the clouds' heads, rising a
+           little across the canvas to the right. Its top is that much lower again as the lanes rise to the right, and a
+           little more than a bird rises and falls, so that none flies up into the top of the sky, where it fades into the
+           page. Where the near birds are left out, its foot is lowered so that the groups' part of it reaches the foot,
+           and they have the whole of it. */
+        band: ({ w, h, words }) => {
+          const rise = h * 0.08 * Math.min(1, w / 1232)
+          const top = Math.max(words.y + words.b + 48 + rise / 2 + 8 * Math.max(0.7, SK_SCALE(w)), h * 0.36)
+          const foot = Math.max(top + 90, h * 0.78)
+          return [top, w < SK_NEAR_FROM ? top + (foot - top) / SK_UPPER : foot, -rise]
+        },
+        scatter: { radius: 120, push: 340, back: 1.3 },
+      },
+      paints: {
+        ...PAINTS,
+        // the birds, white, with a little light round them
+        skBird: ['#ffffff', '#ffffff'],
+        skBirdSoft: ['#eef4ff', '#e6eeff'],
+        skBirdGlow: ['#ffffff', '#eaf2ff'],
+        // the veil, and its threads, which are hardly to be told from it by day and are the aurora's faint strands at night
+        skVeil: ['#8cc4f4', '#48acd8'],
+        skThread: ['#a8d2f6', '#74c4dc'],
+        // the clouds, from their lit tops to their shade, the far bank, and the haze at the horizon
+        skCloudLit: ['#fffdf8', '#a2b3e2'],
+        skCloud: ['#f2f6fd', '#8396cf'],
+        skCloudMid: ['#dce5f8', '#687bb8'],
+        skCloudShade: ['#c3d2f1', '#5063a0'],
+        skCloudDeep: ['#a9bdea', '#3d4f8a'],
+        skCloudFar: ['#dbe4fa', '#5a6db0'],
+        skCloudFarShade: ['#c4d2f2', '#43569a'],
+        skDusk: ['#e8def7', '#4a4c9a'],
+        // the stars, faint against the day's blue and bright at night
+        skStar: ['#dce9fb', '#ffffff'],
+        skStarGlow: ['#e8f1fd', '#fff6d6'],
+      },
+      plant: (garden) => {
+        const { w, h, rand, ground } = garden
+        const half = w / 2
+        const sc = SK_SCALE(w)
+        // a stroke standing still where it is painted (rooted under the canvas, its stem up to it); the same seed gives
+        // the same dice, so the two rays and the heart of a star twinkle together
+        const put = (n, { x, y, ...o }) => {
+          rand.reseed(66001 + n * 7919)
+          const root = h + 40
+          garden.dab({
+            kind: SK_HAZE,
+            blur: 0.6,
+            load: 0.9,
+            turn: 0,
+            ...o,
+            x,
+            y: root,
+            stem: root - y,
+            lean: 0,
+            stiff: 1,
+          })
+        }
+        // value noise and a few octaves of it, from the engine's hash
+        const noise = (x, y) => {
+          const xi = Math.floor(x)
+          const yi = Math.floor(y)
+          const u = (x - xi) * (x - xi) * (3 - 2 * (x - xi))
+          const v = (y - yi) * (y - yi) * (3 - 2 * (y - yi))
+          const r = (i, j) => hashed(i * 157.31 + j * 311.73 + 0.17)
+          const a = r(xi, yi) + (r(xi + 1, yi) - r(xi, yi)) * u
+          const b = r(xi, yi + 1) + (r(xi + 1, yi + 1) - r(xi, yi + 1)) * u
+          return a + (b - a) * v
+        }
+        const fbm = (x, y) =>
+          (noise(x, y) * 0.5 +
+            noise(x * 2.03 + 5.2, y * 2.03 + 1.3) * 0.25 +
+            noise(x * 4.07 + 9.7, y * 4.07 + 7.1) * 0.125 +
+            noise(x * 8.11 + 3.3, y * 8.11 + 4.9) * 0.0625) /
+          0.9375
+        const top = ground('air', half)
+        const pic = h - top
+        let n = 0
+
+        // A veil of light across the sky, as of high cloud lit from beyond (at night an aurora): soft broad strokes along
+        // a long curve from high on the left to low on the right, and fine threads along it, sized by the picture as well
+        // as by the width, so that on a phone it is still a broad soft veil and not a ribbon (and thinner, as its strokes
+        // lie closer together there).
+        const vw = Math.max(w, 2.5 * pic)
+        const thin = (w / vw) ** 0.75
+        const veilAt = (f) => [
+          (-0.08 + 1.16 * f) * w,
+          top + (0.1 + 0.36 * f + 0.06 * Math.sin(f * Math.PI * 1.7)) * pic,
+        ]
+        const veilTurn = (f) => {
+          const [x0, y0] = veilAt(f - 0.01)
+          const [x1, y1] = veilAt(f + 0.01)
+          return Math.atan2(y1 - y0, x1 - x0)
+        }
+        for (let k = 0; k < 26; k += 1) {
+          const f = k / 25
+          const [x, y] = veilAt(f)
+          put((n += 1), {
+            x,
+            y,
+            long: 0.065 * vw,
+            wide: 0.45,
+            turn: veilTurn(f),
+            blur: 0.045 * vw,
+            paints: ['skVeil', 'skVeil'],
+            load: (0.27 + 0.15 * hashed(k * 3.1)) * thin,
+            order: 560,
+          })
+        }
+        for (let k = 0; k < 8; k += 1) {
+          const f = hashed(k * 2.3 + 0.7)
+          const [x, y] = veilAt(f)
+          const turn = veilTurn(f)
+          const off = (hashed(k * 5.9 + 0.2) - 0.5) * 0.11 * pic
+          const long = (0.03 + 0.06 * hashed(k * 4.1)) * vw
+          put((n += 1), {
+            x: x - Math.sin(turn) * off,
+            y: y + Math.cos(turn) * off,
+            long,
+            wide: Math.max(0.006, (0.55 * sc) / long),
+            turn,
+            blur: 0.7,
+            paints: ['skThread', 'skThread'],
+            load: 0.24 + 0.24 * hashed(k * 7.7),
+            order: 561,
+          })
+        }
+
+        // A few stars.
+        for (let k = 0; k < 30; k += 1) {
+          const x = hashed(k * 5.1 + 0.4) * w
+          const y = top + 8 + hashed(k * 3.7 + 0.9) ** 1.5 * pic * 0.55
+          const r = (1.1 + 2.2 * hashed(k * 7.3) ** 2) * sc
+          const id = 40000 + k
+          put(id, {
+            x,
+            y,
+            long: r,
+            wide: 0.12,
+            blur: 0.4,
+            paints: ['skStar', 'skStarGlow'],
+            load: 0.6,
+            kind: SK_TWINKLE,
+            order: 565,
+          })
+          put(id, {
+            x,
+            y,
+            long: r * 0.7,
+            wide: 0.14,
+            turn: Math.PI / 2,
+            blur: 0.4,
+            paints: ['skStar', 'skStarGlow'],
+            load: 0.6,
+            kind: SK_TWINKLE,
+            order: 565.001,
+          })
+          put(id, {
+            x,
+            y,
+            long: r * 0.32,
+            wide: 1,
+            blur: r * 0.3,
+            paints: ['skStarGlow', 'skStar'],
+            load: 0.6,
+            kind: SK_GLIMMER,
+            order: 565.002,
+          })
+        }
+
+        // The clouds: cumulus rising from the foot, a low bank all along and the towers, their edges billowing (the noise
+        // round the skyline). A tower is never much taller than it is wide, but on a narrow canvas it keeps more of its
+        // height than of its width, so that the clouds still frame a phone's sky.
+        const low = 0.085 * pic
+        const skyline = (x) => {
+          let most = low
+          for (const [at, tall, wide] of SK_TOWERS) {
+            const d = (x - at * w) / (wide * sc)
+            if (Math.abs(d) < 1) {
+              most = Math.max(most, Math.min(tall * pic, wide * Math.max(sc, 0.75) * 1.15) * (1 - d * d) ** 0.55)
+            }
+          }
+          return most * (0.88 + 0.24 * fbm(x / (70 * sc), 3.7))
+        }
+        const edge = (x, y) =>
+          20 * sc * (fbm(x / (26 * sc), y / (26 * sc)) - 0.5) + 9 * sc * (noise(x / (9 * sc) + 40, y / (9 * sc)) - 0.5)
+        let highest = 0
+        for (let x = 0; x <= w; x += 4) {
+          highest = Math.max(highest, skyline(x))
+        }
+        // A soft lilac haze low in the sky behind the clouds, as the air near the horizon catches the light.
+        for (let k = 0; k < 14; k += 1) {
+          const x = ((k + 0.5) / 14) * w
+          put((n += 1), {
+            x,
+            y: h - low - 0.12 * pic,
+            long: 0.11 * w,
+            wide: 0.42,
+            blur: 0.06 * w,
+            paints: ['skDusk', 'skDusk'],
+            load: 0.24 + 0.08 * hashed(k * 2.7),
+            order: 562,
+          })
+        }
+        // A far bank behind, lower and flatter and bluer, laid first, in larger dabs than the near clouds', being far.
+        const farStep = 9 * sc
+        const farLine = (x) => low * 1.4 + 0.16 * pic * fbm(x / (110 * sc) + 20, 1.3)
+        const deepest = 110 * Math.max(sc, 0.8)
+        for (let gy = h - 0.45 * pic; gy < h + farStep; gy += farStep) {
+          for (let gx = -farStep; gx < w + farStep; gx += farStep) {
+            const q = Math.round(gx / farStep) * 6113 + Math.round(gy / farStep) * 92821 + 17
+            const x = gx + (hashed(q * 0.013 + 0.3) - 0.5) * farStep * 0.8
+            const y = gy + (hashed(q * 0.017 + 0.2) - 0.5) * farStep * 0.8
+            const depth = farLine(x) + 0.7 * edge(x + 300, y) - (h - y)
+            if (depth < 0) {
+              continue
+            }
+            const f = clamp(depth / deepest, 0, 0.999)
+            const r = farStep * (0.9 + 0.3 * hashed(q * 0.023))
+            put((n += 1), {
+              x,
+              y,
+              long: r,
+              wide: 0.95,
+              turn: 1.2,
+              blur: r * 0.45,
+              paints: f < 0.3 ? ['skCloudFar', 'skCloudFarShade'] : ['skCloudFarShade', 'skCloudFarShade'],
+              load: 0.92,
+              order: 566 - f,
+            })
+          }
+        }
+        /* The near clouds, laid as round soft dabs close together, each shaded from its upper left, white, to its lower
+           right, blue, and the deepest first, so that every billow lies over the one under it with its lit top and casts
+           its shade on it, as cumulus is piled up: the nearer the top, the lighter, and the nearer the canvas's foot, the
+           deeper, so that their feet go into the page in colour, as the other heroes' land does, rather than white. */
+        const PAIRS = [
+          ['skCloudLit', 'skCloud'],
+          ['skCloudLit', 'skCloudMid'],
+          ['skCloud', 'skCloudShade'],
+          ['skCloudMid', 'skCloudShade'],
+          ['skCloudMid', 'skCloudDeep'],
+        ]
+        const step = 6 * sc
+        for (let gy = h - highest - 30 * sc; gy < h + step; gy += step) {
+          for (let gx = -step; gx < w + step; gx += step) {
+            const q = Math.round(gx / step) * 7919 + Math.round(gy / step) * 104729
+            const x = gx + (hashed(q * 0.013 + 0.1) - 0.5) * step * 0.7
+            const y = gy + (hashed(q * 0.017 + 0.6) - 0.5) * step * 0.7
+            const depth = skyline(x) + edge(x, y) - (h - y)
+            if (depth < 0) {
+              continue
+            }
+            const footward = 0.7 * smooth(h - 0.24 * pic, h - 0.02 * pic, y)
+            const f = clamp(Math.max(depth / deepest, footward) + (hashed(q * 0.031) - 0.5) * 0.1, 0, 0.999)
+            const [lit, shaded] = PAIRS[Math.floor(f * PAIRS.length)]
+            const r = step * (1 + 0.6 * hashed(q * 0.023 + 0.4))
+            put((n += 1), {
+              x,
+              y,
+              long: r,
+              wide: 0.95,
+              turn: 1.2,
+              blur: r * 0.35,
+              paints: [lit, shaded],
+              load: 0.95,
+              order: 571 - f,
+            })
+          }
+        }
+
+        // The birds. Each painted round the canvas's middle (the shader carries it where it is, see schoolVertex), as a
+        // white bird far off is drawn: a soft light round it, its wings in a shallow V from its middle, each up and out to
+        // the wrist and then out to a fine tip, a small body, head and tail.
+        const hx = half
+        const hy = h / 2
+        const birdScale = Math.max(0.7, sc)
+        SK_BIRDS.forEach((b, i) => {
+          const len = b.size * birdScale
+          const phase = 400 + i
+          const base = 2000 + i * 0.1
+          const at = (lx, ly) => ({ x: hx + lx * len, y: hy + ly * len })
+          // a stroke from one place to another: its middle, half its length and its turn
+          const span = (a, z) => ({
+            ...at((a[0] + z[0]) / 2, (a[1] + z[1]) / 2),
+            long: (Math.hypot(z[0] - a[0], z[1] - a[1]) / 2) * len,
+            turn: Math.atan2(z[1] - a[1], z[0] - a[0]),
+          })
+          const id = 80000 + i * 20
+          put(id, {
+            ...at(0, -0.04),
+            long: len * 0.4,
+            wide: 0.5,
+            blur: len * 0.28,
+            paints: ['skBirdGlow', 'skBirdGlow'],
+            load: 0.18,
+            order: base,
+            phase,
+          })
+          // the left wing, the far one, a little shorter, and the right
+          put(id + 1, {
+            ...span([0, -0.01], [-0.19, -0.13]),
+            wide: 0.26,
+            blur: len * 0.012,
+            paints: ['skBird', 'skBird'],
+            load: 0.96,
+            order: base + 0.001,
+            phase: phase + 0.2,
+          })
+          put(id + 2, {
+            ...span([-0.18, -0.125], [-0.43, -0.075]),
+            wide: 0.17,
+            blur: len * 0.01,
+            paints: ['skBird', 'skBirdSoft'],
+            load: 0.94,
+            kind: 0,
+            order: base + 0.002,
+            phase: phase + 0.2,
+          })
+          put(id + 3, {
+            ...span([0, -0.01], [0.21, -0.15]),
+            wide: 0.26,
+            blur: len * 0.012,
+            paints: ['skBird', 'skBird'],
+            load: 0.96,
+            order: base + 0.001,
+            phase: phase + 0.4,
+          })
+          put(id + 4, {
+            ...span([0.2, -0.145], [0.49, -0.09]),
+            wide: 0.17,
+            blur: len * 0.01,
+            paints: ['skBird', 'skBirdSoft'],
+            load: 0.94,
+            kind: 0,
+            order: base + 0.002,
+            phase: phase + 0.4,
+          })
+          // its body, head and tail
+          put(id + 5, {
+            ...at(0.005, 0),
+            long: len * 0.075,
+            wide: 0.48,
+            turn: 0.08,
+            blur: len * 0.01,
+            paints: ['skBird', 'skBird'],
+            load: 0.97,
+            order: base + 0.003,
+            phase,
+          })
+          put(id + 6, {
+            ...at(0.075, -0.012),
+            long: len * 0.03,
+            wide: 0.95,
+            blur: len * 0.008,
+            paints: ['skBird', 'skBird'],
+            load: 0.97,
+            order: base + 0.004,
+            phase,
+          })
+          put(id + 7, {
+            ...span([-0.06, 0.006], [-0.14, 0.024]),
+            wide: 0.42,
+            blur: len * 0.01,
+            paints: ['skBird', 'skBirdSoft'],
+            load: 0.95,
+            order: base + 0.005,
+            phase,
+          })
+        })
+      },
+    }
 
     /* --- the forest composition ----------------------------------------------------------------------------- */
 

@@ -1,5 +1,17 @@
 # @scalar/schemas
 
+## 0.20.1
+
+### Patch Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+
+## 0.20.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
 ## 0.19.0
 
 ### Minor Changes

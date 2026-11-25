@@ -1,4 +1,4 @@
-import { takeSnapshot, test } from '@test/helpers'
+import { expect, takeSnapshot, test } from '@test/helpers'
 
 const stories = ['Base', 'JSON String', 'Bordered']
 
@@ -42,5 +42,28 @@ test.describe('ScalarCodeBlock', () => {
       .evaluate((element) => element.scrollTo({ left: element.scrollWidth }))
 
     await snapshot('scrolled')
+  })
+
+  test.describe('Log copy', () => {
+    const content = 'INFO ready\nWARN Queue busy'
+
+    test.use({
+      component: 'ScalarCodeBlock',
+      story: 'Bordered',
+      args: { content, lang: 'log' },
+      permissions: ['clipboard-read', 'clipboard-write'],
+    })
+
+    test('copies the log by keyboard and announces completion', async ({ mountedStory, page }) => {
+      const copy = mountedStory.getByRole('button', { name: 'Copy Log code', exact: true })
+      await expect(copy).toHaveCount(1)
+      await page.keyboard.press('Tab')
+      await expect(mountedStory.getByRole('group', { name: 'Code sample' })).toBeFocused()
+      await page.keyboard.press('Tab')
+      await expect(copy).toBeFocused()
+      await page.keyboard.press('Enter')
+      await expect(mountedStory.getByRole('alert')).toHaveText('Copied')
+      await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(content)
+    })
   })
 })

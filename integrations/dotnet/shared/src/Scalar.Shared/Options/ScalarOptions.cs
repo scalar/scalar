@@ -94,7 +94,7 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public OperationTitleSource? OperationTitleSource { get; set; }
 
     /// <summary>
-    /// Controls whether models are hidden from the sidebar, search, and content (default: shown).
+    /// Hides schema models and reusable AsyncAPI messages from the sidebar, search, and content.
     /// </summary>
     public bool? HideModels { get; set; }
 

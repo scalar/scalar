@@ -1,5 +1,23 @@
 # @scalar/helpers
 
+## 0.20.0
+
+### Minor Changes
+
+- [#11169](https://github.com/scalar/scalar/pull/11169): Add `useDocumentRoot` (`@scalar/use-hooks/useDocumentRoot`) and the `isShadowRoot` and `getActiveElement` DOM helpers, so components can find the DOM root they render into, including shadow roots
+
+### Patch Changes
+
+- [#11206](https://github.com/scalar/scalar/pull/11206): Use empty OpenAPI server variable defaults in request URLs, OAuth server URLs, and code snippets.
+- [#11194](https://github.com/scalar/scalar/pull/11194): Update the default Playwright runner image to 1.65.1 so it matches the workspace browser-testing client.
+- [#11207](https://github.com/scalar/scalar/pull/11207): Preserve semicolons and escaped characters inside quoted MIME type parameters.
+- [#11224](https://github.com/scalar/scalar/pull/11224): Send authored response header examples (`example`, `examples`, or a `content` media type) instead of values generated from the header schema.
+
+  Emit each cookie in its own field and escape Unicode in JSON and XML header examples. Use the referenced schema’s component name as the default XML root element.
+
+  Share HTTP quoted-string escaping and support character references for line breaks and Unicode in XML header data.
+- [#11193](https://github.com/scalar/scalar/pull/11193): Guard document, history, and authentication lookups against inherited properties while preserving valid workspace document names such as `constructor` and `prototype`. Ignore reserved keys when loading workspace snapshots and copying workspace metadata.
+
 ## 0.19.0
 
 ### Minor Changes

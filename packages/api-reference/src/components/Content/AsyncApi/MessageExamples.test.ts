@@ -63,6 +63,35 @@ describe('MessageExamples', () => {
     expect(wrapper.text()).toBe('')
   })
 
+  it('selects and copies header-only examples when documenting reusable components', async () => {
+    const wrapper = mount(MessageExamples, {
+      props: {
+        showHeaders: true,
+        contentType: 'application/xml',
+        examples: [
+          { name: 'Tracing', headers: { trace: 'abc' } },
+          { name: 'Event', headers: { trace: 'def' }, payload: '<event />' },
+        ],
+      },
+    })
+    const headerContent = '{\n  "trace": "abc"\n}'
+    expect(wrapper.getComponent(ScalarCodeBlock).props('lang')).toBe('json')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(headerContent)
+    const copyHeaders = wrapper.get('button[aria-label="Copy headers"]')
+    expect(copyHeaders.get('div[aria-hidden="true"]').text()).toBe('Copy')
+    expect(wrapper.text()).toContain('Headers')
+    expect(wrapper.text()).not.toContain('Payload')
+
+    wrapper.getComponent(ExamplePicker).vm.$emit('update:modelValue', '1')
+    await nextTick()
+    expect(wrapper.text()).toContain('Headers')
+    expect(wrapper.text()).toContain('Payload')
+    expect(wrapper.findAllComponents(ScalarCopy).map((copy) => copy.props('content'))).toStrictEqual([
+      '{\n  "trace": "def"\n}',
+      '<event />',
+    ])
+  })
+
   it.each([null, false, 0, ''])('renders a generated %j payload', (generatedPayload) => {
     const wrapper = mount(MessageExamples, { props: { generatedPayload } })
     expect(wrapper.get('pre').text()).toBe(String(generatedPayload))
@@ -159,6 +188,23 @@ describe('MessageExamples', () => {
     const wrapper = mount(MessageExamples, { props: { examples: [{ name: 'No content' }] } })
     expect(wrapper.text()).toBe('')
     expect(wrapper.findComponent(ScalarCopy).exists()).toBe(false)
+  })
+
+  it('names virtual copy buttons for the headers and payload they copy', () => {
+    const value = 'x'.repeat(20_001)
+    const wrapper = mount(MessageExamples, {
+      props: {
+        showHeaders: true,
+        examples: [{ headers: { trace: value }, payload: { id: value } }],
+      },
+    })
+    expect(
+      wrapper.findAllComponents(ScalarVirtualCodeBlock).map((block) => block.get('button').attributes('aria-label')),
+    ).toStrictEqual(['Copy headers', 'Copy payload'])
+    expect(wrapper.findAllComponents(ScalarCopy).map((copy) => copy.props('content'))).toStrictEqual([
+      JSON.stringify({ trace: value }, null, 2),
+      JSON.stringify({ id: value }, null, 2),
+    ])
   })
 
   it('virtualizes large examples without changing the copied content', () => {

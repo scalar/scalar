@@ -20,6 +20,7 @@ export const ru = {
     unknownType: 'неизвестный тип',
     propertyCount: 'Свойства: {count}',
     headerCount: 'Заголовки: {count}',
+    extensionCount: 'Расширения ({count})',
     recursiveReference: 'Рекурсивная ссылка на {name}',
     recursive: 'рекурсивно',
     additionalProperties: 'дополнительные свойства',

@@ -8,7 +8,7 @@ import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 import { resolveResourcePath } from '@/helpers/resolve-resource-path'
 import { toResourceUri } from '@/helpers/to-resource-uri'
-import { getRaw } from '@/magic-proxy/proxy'
+import { getRaw } from '@/magic-proxy/symbols'
 
 /** Format-specific document identity, supplied by the caller. */
 export type DocumentIdentity = {
@@ -70,6 +70,11 @@ export type DocumentReferences = {
     path?: string[],
     retrievalBase?: string,
     sourceUri?: string,
+  ) => void
+  /** Index an occurrence copy without replacing the source document's URI aliases. */
+  registerFragment: (
+    document: unknown,
+    location: { origin: string; retrievalBase: string; sourceUri: string; path: string[] },
   ) => void
   refresh: (document: unknown, targetPath: string[]) => void
   isSchemaResource: (uri: string) => boolean
@@ -163,26 +168,29 @@ export const documentReferences = (
     path: string[] = [],
     retrievalBase = retrievalUri,
     sourceUri = retrievalUri,
+    fragment = false,
   ): void => {
     if (path.length === 0) {
       rootUri = retrievalUri
     }
-    const identity = resolveDocument?.(document, retrievalUri)
+    const identity = fragment ? undefined : resolveDocument?.(document, retrievalUri)
     const base = identity === undefined ? retrievalUri : resolveReferencePath(retrievalUri, identity.baseUri)
     if (identity !== undefined) {
       identities.set(document, { ...identity, baseUri: base })
     }
     const resource = { value: document, path, schema: false, embedded: path.length > 0, document, documentPath: path }
     // Retrieval aliases retain compatibility with callers that supply local copies.
-    resources.set(retrievalUri, resource)
-    resources.set(base, resource)
-    // Relative URL resolution can normalize the declared base, such as removing a default port.
-    if (identity !== undefined && URL.canParse(base)) {
-      resources.set(new URL(base).href, resource)
-    }
-    if (canonicalizeIds) {
-      resources.set(toResourceUri(retrievalUri), resource)
-      resources.set(toResourceUri(base), resource)
+    if (!fragment) {
+      resources.set(retrievalUri, resource)
+      resources.set(base, resource)
+      // Relative URL resolution can normalize the declared base, such as removing a default port.
+      if (identity !== undefined && URL.canParse(base)) {
+        resources.set(new URL(base).href, resource)
+      }
+      if (canonicalizeIds) {
+        resources.set(toResourceUri(retrievalUri), resource)
+        resources.set(toResourceUri(base), resource)
+      }
     }
     if (path.length > 1) {
       bundledResources.set(path[1], resource)
@@ -325,6 +333,8 @@ export const documentReferences = (
 
   return {
     source: (node) => sources.get(node),
+    registerFragment: (document, { origin, retrievalBase, sourceUri, path }) =>
+      register(document, origin, path, retrievalBase, sourceUri, true),
     documents: () => [...registrations].map(([value, { path }]) => ({ value, path })),
     schemas: () =>
       [...resources].flatMap(([uri, resource]) =>

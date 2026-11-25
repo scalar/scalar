@@ -58,7 +58,7 @@ const variants = cva({
 
       <span
         v-if="showSidebar"
-        class="flex-1 text-sm font-medium whitespace-nowrap">
+        class="min-w-0 flex-1 truncate text-sm font-medium">
         {{ breadcrumb }}
       </span>
       <slot

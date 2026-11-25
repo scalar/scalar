@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "3.28.1",
+  "version": "3.29.1",
   "engines": {
     "node": ">=22"
   },
@@ -333,7 +333,7 @@
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
-    "focus-trap": "^8.2.5",
+    "focus-trap": "^8.2.6",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
     "jsonc-parser": "catalog:*",

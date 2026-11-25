@@ -1,3 +1,4 @@
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import type { PartialDeep } from 'type-fest'
 import { reactive } from 'vue'
@@ -125,32 +126,40 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
   const auth = reactive<DocumentAuth>({})
 
   const getAuthSecrets: AuthStore['getAuthSecrets'] = (documentName, schemeName) => {
-    return auth[documentName]?.secrets?.[schemeName]
+    return getOwnEntry(getOwnEntry(auth, documentName)?.secrets, schemeName)
   }
 
   const setAuthSecrets: AuthStore['setAuthSecrets'] = (documentName, schemeName, data) => {
-    auth[documentName] ||= { secrets: {}, selected: { document: undefined, path: undefined } }
-    auth[documentName].secrets[schemeName] = coerceValue(SecretsAuthUnionSchema, data)
+    if (documentName === '__proto__' || schemeName === '__proto__') {
+      return
+    }
+    if (!getOwnEntry(auth, documentName)) {
+      auth[documentName] = { secrets: {}, selected: { document: undefined, path: undefined } }
+    }
+    auth[documentName]!.secrets[schemeName] = coerceValue(SecretsAuthUnionSchema, data)
 
     hooks?.onAuthChange?.(documentName)
   }
 
   const clearAuthSecrets: AuthStore['clearAuthSecrets'] = (documentName, schemeName) => {
-    delete auth[documentName]?.secrets?.[schemeName]
+    delete getOwnEntry(auth, documentName)?.secrets?.[schemeName]
     hooks?.onAuthChange?.(documentName)
   }
 
   const getAuthSelectedSchemas: AuthStore['getAuthSelectedSchemas'] = (payload) => {
+    const selected = getOwnEntry(auth, payload.documentName)?.selected
     if (payload.type === 'document') {
-      return auth[payload.documentName]?.selected?.document
+      return selected?.document
     }
-    return auth[payload.documentName]?.selected?.path?.[payload.path]?.[payload.method]
+    return getOwnEntry(getOwnEntry(selected?.path, payload.path), payload.method)
   }
 
   const setAuthSelectedSchemas: AuthStore['setAuthSelectedSchemas'] = (payload, selectedSchemes) => {
-    auth[payload.documentName] ||= {
-      secrets: {},
-      selected: { document: undefined, path: undefined },
+    if (payload.documentName === '__proto__') {
+      return
+    }
+    if (!getOwnEntry(auth, payload.documentName)) {
+      auth[payload.documentName] = { secrets: {}, selected: { document: undefined, path: undefined } }
     }
 
     // TypeScript needs a non-null assertion here since we just ensured it exists
@@ -164,7 +173,9 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
       preventPollution(payload.method)
 
       documentAuth.selected.path ||= {}
-      documentAuth.selected.path[payload.path] ||= {}
+      if (!getOwnEntry(documentAuth.selected.path, payload.path)) {
+        documentAuth.selected.path[payload.path] = {}
+      }
       const pathAuth = documentAuth.selected.path[payload.path]!
       pathAuth[payload.method] = selectedSchemes
     }
@@ -173,7 +184,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
   }
 
   const clearAuthSelectedSchemas: AuthStore['clearAuthSelectedSchemas'] = (payload) => {
-    const documentAuth = auth[payload.documentName]
+    const documentAuth = getOwnEntry(auth, payload.documentName)
     if (!documentAuth) {
       return
     }
@@ -188,7 +199,7 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
     preventPollution(payload.method)
     preventPollution(payload.path)
 
-    const pathAuth = documentAuth.selected.path?.[payload.path]
+    const pathAuth = getOwnEntry(documentAuth.selected.path, payload.path)
     if (!pathAuth) {
       return
     }
@@ -203,10 +214,11 @@ export const createAuthStore = ({ hooks }: CreateAuthStoreOptions = {}): AuthSto
   }
 
   const load: AuthStore['load'] = (data) => {
-    safeAssign(auth, coerceValue(DocumentAuthSchema, data))
+    const { __proto__: _reserved, ...documents } = data
+    safeAssign(auth, coerceValue(DocumentAuthSchema, documents))
 
     // Trigger change events for all loaded documents
-    Object.keys(data).forEach((documentName) => {
+    Object.keys(documents).forEach((documentName) => {
       hooks?.onAuthChange?.(documentName)
     })
   }

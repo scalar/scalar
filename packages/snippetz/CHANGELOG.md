@@ -1,5 +1,15 @@
 # @scalar/snippetz
 
+## 0.10.23
+
+No changes in this release.
+
+## 0.10.22
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
 ## 0.10.21
 
 No changes in this release.

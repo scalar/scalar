@@ -1,5 +1,13 @@
 # @scalar/astro
 
+## 0.4.42
+
+No changes in this release.
+
+## 0.4.41
+
+No changes in this release.
+
 ## 0.4.40
 
 No changes in this release.

@@ -29,11 +29,7 @@ A build generates every configured target from the current OpenAPI document and 
 <scalar-steps>
   <scalar-step id="build-trigger" title="Start a build">
 
-After editing the configuration, click **Save**. Scalar builds every saved configuration and opens the Build drawer so you can follow it.
-
-When there is nothing to save, the toolbar offers **Build** instead, or **Rebuild** once the latest build has generated. Use it to rebuild after something outside the configuration editor has changed, such as a newer version of the SDK generator. A rebuild regenerates the targets whose inputs changed and reuses the existing output for the rest. It builds the linked API document's latest version in every language the configuration declares.
-
-Build is disabled, with a tooltip giving the reason, when the SDK has no linked API or a build is already in progress.
+Click **Build**, or **Save and Build** after editing the configuration. Scalar generates each target.
 
   </scalar-step>
 

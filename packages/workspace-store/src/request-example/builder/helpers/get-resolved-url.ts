@@ -1,8 +1,8 @@
-import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
 import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 
-import { getServerVariables } from '@/request-example/builder/helpers/get-server-variables'
 import type { ServerObject } from '@/schemas/v3.2/strict/server'
+
+import { resolveServerUrl } from './resolve-server-url'
 
 /**
  * Resolves the full request URL by:
@@ -25,7 +25,6 @@ export const getResolvedUrl = ({
   path: string
   urlParams?: URLSearchParams
   allowReservedQueryParameters?: Set<string>
-}) => {
-  const serverVariables = getServerVariables(server)
-  return mergeUrls(replaceVariables(server?.url ?? '', serverVariables), path, urlParams)
+}): string => {
+  return mergeUrls(resolveServerUrl(server), path, urlParams)
 }
