@@ -230,8 +230,8 @@ public class ScalarProperties {
     private Map<String, String> metadata;
 
     /**
-     * Controls whether to use the default fonts (Inter and JetBrains Mono from
-     * CDN).
+     * Controls whether to use the default fonts. Scalar uses the system font
+     * stack and no longer loads web fonts, so this setting has no effect.
      * Defaults to true.
      */
     private boolean withDefaultFonts = true;

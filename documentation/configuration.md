@@ -1415,15 +1415,11 @@ Pass the URL of an API document (JSON or YAML).
 
 **Type:** `boolean`
 
-By default we're using Inter and JetBrains Mono, served from our fonts CDN at `https://fonts.scalar.com`. If you use a different font or just don't want to load web fonts, pass `withDefaultFonts: false` to the configuration.
+**Deprecated.** Scalar uses the system font stack and no longer loads web fonts, so this option has no effect. It is still accepted, so existing configurations keep working.
+
+To use a different font, load it yourself and overwrite the `--scalar-font` and `--scalar-font-code` CSS variables, as described in [Themes](themes.md).
 
 **Default:** `true`
-
-```javascript
-{
-  withDefaultFonts: false
-}
-```
 
 ## Methods
 Custom functions to control specific behaviors and URL generation.

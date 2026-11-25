@@ -409,12 +409,11 @@ public static partial class ScalarOptionsExtensions
 
     /// <summary>
     /// Sets whether to use the default fonts.
-    /// By default, Inter and JetBrains Mono are used, served by our CDN.
+    /// Scalar uses the system font stack and no longer loads web fonts, so this setting has no effect.
     /// </summary>
     /// <param name="options">The options to configure.</param>
     /// <param name="useDefaultFonts">Whether to use the default fonts.</param>
-    /// <remarks>If you use a different font or just don't want to use our CDN, set this to <c>false</c>.</remarks>
-    [Obsolete("This method is obsolete and will be removed in a future release. Please use DisableDefaultFonts() instead. Note: WithDefaultFonts(true) is the default behavior and can be removed entirely.")]
+    [Obsolete("This method has no effect because Scalar no longer loads web fonts, and it will be removed in a future release. You can remove the call.")]
     public static TOptions WithDefaultFonts<TOptions>(this TOptions options, bool useDefaultFonts = true) where TOptions : ScalarOptions
     {
         options.DefaultFonts = useDefaultFonts;

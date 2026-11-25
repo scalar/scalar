@@ -119,7 +119,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 - `dark_mode` (default `True`)
 - `force_dark_mode_state` (default `None`) - Force dark mode state to always be this state. Can be 'dark' or 'light'
 - `hide_dark_mode_toggle` (default `False`) - Whether to show the dark mode toggle
-- `with_default_fonts` (default `True`) - Whether to use default fonts (Inter and JetBrains Mono)
+- `with_default_fonts` (default `True`) - Deprecated and has no effect, because Scalar uses the system font stack and no longer loads web fonts
 - `custom_css` (default `""`) - Custom CSS string to apply to the API reference
 
 ### Search and Navigation

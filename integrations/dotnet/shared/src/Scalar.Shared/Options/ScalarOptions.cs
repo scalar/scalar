@@ -147,7 +147,8 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public ScalarLayout? Layout { get; set; }
 
     /// <summary>
-    /// Controls whether to use the default fonts (Inter and JetBrains Mono from CDN) (default: enabled).
+    /// Controls whether to use the default fonts (default: enabled).
+    /// Scalar uses the system font stack and no longer loads web fonts, so this setting has no effect.
     /// </summary>
     public bool? DefaultFonts { get; set; }
 

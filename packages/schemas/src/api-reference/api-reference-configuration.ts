@@ -281,7 +281,8 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     withDefaultFonts: boolean({
       default: true,
-      typeComment: 'Whether to include default fonts',
+      typeComment:
+        '@deprecated Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.',
     }),
     defaultOpenFirstTag: boolean({
       default: true,

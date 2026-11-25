@@ -541,8 +541,8 @@ def get_scalar_api_reference(
         bool,
         Doc(
             """
-            Whether to use default fonts (Inter and JetBrains Mono).
-            Default is True which means default fonts are used.
+            Deprecated: Scalar uses the system font stack and no longer loads web fonts,
+            so this option has no effect.
             """
         ),
     ] = True,

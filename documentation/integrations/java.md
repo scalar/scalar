@@ -654,7 +654,7 @@ scalar.hideClientButton=false
 # Favicon path
 scalar.favicon=favicon.svg
 
-# Use default fonts (Inter and JetBrains Mono from CDN) (default: true)
+# Deprecated and has no effect, because Scalar uses the system font stack (default: true)
 scalar.withDefaultFonts=true
 ```
 
