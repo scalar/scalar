@@ -1,7 +1,6 @@
 import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import { SERVER_URL_BASE, type ServerWithUrlBase } from '@/request-example/builder/helpers/resolve-server-url'
 import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
@@ -94,24 +93,10 @@ function resolveRelativeServerUrl(serverUrl: string, options: ServerProcessingOp
 /**
  * Processes a single server object, handling validation and URL resolution.
  */
-function processServerObject(server: ServerObject, options: ServerProcessingOptions): ServerWithUrlBase {
+function processServerObject(server: ServerObject, options: ServerProcessingOptions): ServerObject {
   // Resolve relative URLs to absolute URLs
   if (server.url?.startsWith('/')) {
     server.url = resolveRelativeServerUrl(server.url, options)
-  }
-
-  // A URL made entirely of variables can become absolute, relative, or empty as values change.
-  // Keep the template as the selection key and resolve it only after substitution.
-  if (server.variables && /^(?:\{[^{}]+\})+$/.test(server.url)) {
-    const { baseServerUrl, documentUrl } = options
-    if (baseServerUrl) {
-      return { ...server, [SERVER_URL_BASE]: { url: baseServerUrl, prefix: true } }
-    }
-    // Retrieval parameters belong to the API description request.
-    const baseUrl = documentUrl && URL.canParse(documentUrl) ? documentUrl.split(/[?#]/, 1)[0] : getFallbackUrl()
-    if (baseUrl) {
-      return { ...server, [SERVER_URL_BASE]: { url: baseUrl } }
-    }
   }
 
   return server

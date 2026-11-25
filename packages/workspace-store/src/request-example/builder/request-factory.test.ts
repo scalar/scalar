@@ -8,7 +8,6 @@ import { assert, describe, expect, it } from 'vitest'
 
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 
-import { getServers } from '../context/servers'
 import { buildRequest } from './build-request'
 import { requestFactory } from './request-factory'
 
@@ -301,29 +300,6 @@ describe('requestFactory', () => {
 
     expect(request.baseUrl).toBe(baseUrl)
     expect(String(built.data.requestPayload[0])).toBe(url)
-  })
-
-  it('uses the API description URL when a configured server expands to an empty relative reference', () => {
-    const basePath = { default: '', enum: ['', '/v2', 'https://alternate.example.com'] }
-    const [server] = getServers([{ url: '{basePath}', variables: { basePath } }], {
-      documentUrl: 'https://api.example.com/',
-    })
-    assert(server)
-
-    const buildUrl = () => {
-      const { request } = requestFactory(createBaseArgs({ server, path: '/planets', proxyUrl: '' }))
-      const result = buildRequest(request, { envVariables: {} })
-      assert(result.ok)
-      return String(result.data.requestPayload[0])
-    }
-
-    expect(buildUrl()).toBe('https://api.example.com/planets')
-
-    basePath.default = '/v2'
-    expect(buildUrl()).toBe('https://api.example.com/v2/planets')
-
-    basePath.default = 'https://alternate.example.com'
-    expect(buildUrl()).toBe('https://alternate.example.com/planets')
   })
 
   it('keeps the placeholder of a server variable that is missing from the variables map', () => {

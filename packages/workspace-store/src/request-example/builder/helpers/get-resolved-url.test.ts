@@ -1,6 +1,5 @@
-import { assert, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { getServers } from '@/request-example/context/servers'
 import type { ServerObject } from '@/schemas/v3.2/strict/server'
 
 import { getResolvedUrl } from './get-resolved-url'
@@ -44,25 +43,6 @@ describe('get-resolved-url', () => {
       expected: 'https://api.example.com/v1/p',
     },
   ])('resolves $name', ({ server, expected }) => {
-    expect(getResolvedUrl({ server, path: '/p' })).toBe(expected)
-  })
-
-  it.each([
-    {
-      name: 'the API description URL without its query or fragment',
-      options: { documentUrl: 'https://api.example.com/openapi?format=json#servers' },
-      expected: 'https://api.example.com/openapi/p',
-    },
-    {
-      name: 'the configured base URL ahead of the API description URL',
-      options: { baseServerUrl: 'https://api.example.com/gateway', documentUrl: 'https://docs.example.com/' },
-      expected: 'https://api.example.com/gateway/p',
-    },
-  ])('uses $name when the template expands to an empty URL', ({ options, expected }) => {
-    const [server] = getServers([{ url: '{basePath}', variables: { basePath: { default: '' } } }], options)
-    assert(server)
-
-    expect(server.url).toBe('{basePath}')
     expect(getResolvedUrl({ server, path: '/p' })).toBe(expected)
   })
 
