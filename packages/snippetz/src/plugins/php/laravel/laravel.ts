@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { accumulateRepeatedValue, joinUrlAndQuery, normalizeMethod } from '@/libs/http'
+import { accumulateRepeatedValue, hasRepeatedName, joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { getCookieDomain, objectToString, quotePhpString } from '@/libs/php'
 
 /**
@@ -28,10 +28,22 @@ export const phpLaravel: Plugin = {
       )
     }
 
-    if (normalizedRequest.headers?.length) {
+    const postData = normalizedRequest.postData
+    const isContentType = (name: string): boolean => name.toLowerCase() === 'content-type'
+    // Laravel encodes form arrays with indexed names, so repeated fields are sent with withBody(), which sets the
+    // Content-Type itself and would duplicate a header whose name is spelled differently.
+    const repeatedFormContentType =
+      postData?.mimeType === 'application/x-www-form-urlencoded' && hasRepeatedName(postData.params)
+        ? normalizedRequest.headers?.find(({ name }) => isContentType(name))?.value || postData.mimeType
+        : undefined
+    const requestHeaders =
+      normalizedRequest.headers?.filter(({ name }) => repeatedFormContentType === undefined || !isContentType(name)) ??
+      []
+
+    if (requestHeaders.length) {
       const headers: Record<string, string | string[]> = {}
 
-      normalizedRequest.headers.forEach((header) => {
+      requestHeaders.forEach((header) => {
         accumulateRepeatedValue(headers, header.name, header.value)
       })
 
@@ -65,42 +77,35 @@ export const phpLaravel: Plugin = {
         normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
         normalizedRequest.postData.params
       ) {
-        const formData: Record<string, string | string[]> = {}
+        const fields = normalizedRequest.postData.params.map(({ name, value }) => [name, value ?? ''])
 
-        normalizedRequest.postData.params.forEach((param) => {
-          accumulateRepeatedValue(formData, param.name, param.value ?? '')
-        })
-
-        chain.push('asForm()')
-        payload = formData
-      } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
-        const multipartData: Record<string, string | string[]> = {}
-
-        normalizedRequest.postData.params.forEach((param) => {
-          if (param.fileName !== undefined) {
-            const args = [
-              quotePhpString(param.name),
-              `file_get_contents(${quotePhpString(param.fileName)})`,
-              quotePhpString(param.fileName),
-            ]
-
-            if (param.contentType) {
-              args.push(objectToString({ 'Content-Type': param.contentType }))
-            }
-
-            chain.push(`attach(${args.join(', ')})`)
-          } else if (param.contentType) {
-            chain.push(
-              `attach(${quotePhpString(param.name)}, ${quotePhpString(param.value ?? '')}, null, ${objectToString({ 'Content-Type': param.contentType })})`,
-            )
-          } else {
-            accumulateRepeatedValue(multipartData, param.name, param.value ?? '')
-          }
-        })
-
-        if (Object.keys(multipartData).length > 0) {
-          payload = multipartData
+        if (repeatedFormContentType !== undefined) {
+          chain.push(
+            `withBody(${quotePhpString(new URLSearchParams(fields).toString())}, ${quotePhpString(repeatedFormContentType)})`,
+          )
+        } else {
+          chain.push('asForm()')
+          payload = Object.fromEntries(fields)
         }
+      } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
+        // A payload is sent as JSON without a file, encodes repeated names as `name[0]` and moves ahead of the files,
+        // so every part is its own attach() call in request order.
+        normalizedRequest.postData.params.forEach((param) => {
+          const args =
+            param.fileName !== undefined
+              ? [
+                  quotePhpString(param.name),
+                  `file_get_contents(${quotePhpString(param.fileName)})`,
+                  quotePhpString(param.fileName),
+                ]
+              : [quotePhpString(param.name), quotePhpString(param.value ?? ''), ...(param.contentType ? ['null'] : [])]
+
+          if (param.contentType) {
+            args.push(objectToString({ 'Content-Type': param.contentType }))
+          }
+
+          chain.push(`attach(${args.join(', ')})`)
+        })
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
         chain.push(`withBody(${quotePhpString(normalizedRequest.postData.text ?? '')}, 'application/octet-stream')`)
       } else if (normalizedRequest.postData.text) {

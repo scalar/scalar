@@ -279,7 +279,7 @@ document.cookie = "escaped=%2F; path=/";`)
     )
   })
 
-  it('preserves repeated query params as arrays', () => {
+  it('keeps repeated query params in the URL instead of bracketed params', () => {
     const result = jsAxios.generate({
       url: 'https://example.com',
       queryString: [
@@ -291,10 +291,63 @@ document.cookie = "escaped=%2F; path=/";`)
     expect(result).toBe(
       createSnippet(`{
   method: 'GET',
-  url: 'https://example.com',
-  params: {
-    status: ['active', 'inactive']
-  }
+  url: 'https://example.com?status=active&status=inactive'
+}`),
+    )
+  })
+
+  it.each([
+    {
+      name: 'interleaved names',
+      url: 'https://example.com',
+      queryString: [
+        { name: 'ids', value: '1' },
+        { name: 'one', value: 'x' },
+        { name: 'ids', value: '2' },
+      ],
+      expected: "'https://example.com?ids=1&one=x&ids=2'",
+    },
+    {
+      name: 'a bracketed name',
+      url: 'https://example.com',
+      queryString: [
+        { name: 'expand[]', value: 'a' },
+        { name: 'expand[]', value: 'b' },
+      ],
+      expected: "'https://example.com?expand%5B%5D=a&expand%5B%5D=b'",
+    },
+    {
+      name: 'empty and special values',
+      url: 'https://example.com',
+      queryString: [
+        { name: 'q', value: '' },
+        { name: 'q', value: "it's a&b" },
+      ],
+      expected: "'https://example.com?q=&q=it\\'s%20a%26b'",
+    },
+    {
+      name: 'a query already in the URL',
+      url: 'https://example.com/search?pre=1',
+      queryString: [
+        { name: 'ids', value: '1' },
+        { name: 'ids', value: '2' },
+      ],
+      expected: "'https://example.com/search?pre=1&ids=1&ids=2'",
+    },
+    {
+      name: 'a prototype name',
+      url: 'https://example.com',
+      queryString: [
+        { name: '__proto__', value: 'a' },
+        { name: '__proto__', value: 'b' },
+      ],
+      expected: "'https://example.com?__proto__=a&__proto__=b'",
+    },
+  ])('keeps every repeated query value with $name', ({ url, queryString, expected }) => {
+    expect(jsAxios.generate({ url, queryString })).toBe(
+      createSnippet(`{
+  method: 'GET',
+  url: ${expected}
 }`),
     )
   })

@@ -258,9 +258,90 @@ $response = Http::get('https://example.com');`)
     expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
 
 $response = Http::attach('file', file_get_contents('test.txt'), 'test.txt')
-  ->post('https://example.com', [
-    'field' => 'value'
-  ]);`)
+  ->attach('field', 'value')
+  ->post('https://example.com');`)
+  })
+
+  it('sends multipart text fields as parts when there is no file', () => {
+    const result = phpLaravel.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'field', value: 'value' }],
+      },
+    })
+
+    expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
+
+$response = Http::attach('field', 'value')
+  ->post('https://example.com');`)
+  })
+
+  it('keeps repeated, empty and interleaved multipart parts in order', () => {
+    const result = phpLaravel.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'file', fileName: 'test.txt' },
+          { name: 'tag', value: 'b' },
+          { name: 'note' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
+
+$response = Http::attach('tag', 'a')
+  ->attach('file', file_get_contents('test.txt'), 'test.txt')
+  ->attach('tag', 'b')
+  ->attach('note', '')
+  ->post('https://example.com');`)
+  })
+
+  it('keeps every value of a repeated url-encoded form field', () => {
+    const result = phpLaravel.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [{ name: 'tag', value: 'a b' }, { name: 'other', value: "it's&more" }, { name: 'tag' }],
+      },
+    })
+
+    expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
+
+$response = Http::withBody('tag=a+b&other=it%27s%26more&tag=', 'application/x-www-form-urlencoded')
+  ->post('https://example.com');`)
+  })
+
+  it('passes an existing content type of a repeated url-encoded form field to withBody only', () => {
+    const result = phpLaravel.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [
+        { name: 'content-type', value: 'application/x-www-form-urlencoded; charset=utf-8' },
+        { name: 'X-Trace', value: '1' },
+      ],
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'tag', value: 'b' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
+
+$response = Http::withHeaders([
+  'X-Trace' => '1'
+])
+  ->withBody('tag=a&tag=b', 'application/x-www-form-urlencoded; charset=utf-8')
+  ->post('https://example.com');`)
   })
 
   it('handles multipart form data content types on string parts', () => {
@@ -332,10 +413,9 @@ $response = Http::attach('file', file_get_contents('test.txt'), 'test.txt', [
 
     expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
 
-$response = Http::attach('file\\'name', file_get_contents('test.txt'), 'test.txt')
-  ->post('https://example.com', [
-    'field\\'name' => 'value'
-  ]);`)
+$response = Http::attach('field\\'name', 'value')
+  ->attach('file\\'name', file_get_contents('test.txt'), 'test.txt')
+  ->post('https://example.com');`)
   })
 
   it('handles multipart form data with JSON payload', () => {

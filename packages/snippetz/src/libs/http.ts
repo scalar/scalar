@@ -124,6 +124,10 @@ export const accumulateRepeatedValue = (data: Record<string, string | string[]>,
   }
 }
 
+/** A repeated name needs every value sent as its own pair, which keyed client options rewrite as `name[]` or `name[0]`. */
+export const hasRepeatedName = (pairs: { name: string }[] = []): boolean =>
+  new Set(pairs.map(({ name }) => name)).size < pairs.length
+
 /**
  * Reduces query parameters into an object while preserving repeated keys as arrays.
  */
