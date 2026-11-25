@@ -10,6 +10,7 @@ export type OperationProps = {
   /** The subset of the configuration object required for the operation component */
   options: Pick<
     ApiReferenceConfigurationRaw,
+    | 'baseServerURL'
     | 'expandAllParameters'
     | 'expandAllResponses'
     | 'hideModels'
@@ -64,6 +65,7 @@ import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   combineParams,
+  getServers,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
 import type {
@@ -124,16 +126,22 @@ const operation = computed(() => {
 /**
  * Determine the effective server for the code examples.
  */
-const selectedServer = computed<ServerObject | null>(() =>
-  getFirstServer(
-    // 1) Operation
+const selectedServer = computed<ServerObject | null>(() => {
+  const operationServer = getFirstServer(
     operation.value?.servers ?? null,
-    // 2) Path Item
     pathValue?.servers ?? null,
-    // 3) Document
-    server,
-  ),
-)
+  )
+  if (!operationServer) {
+    return server
+  }
+
+  return (
+    getServers([operationServer], {
+      baseServerUrl: options.baseServerURL,
+      documentUrl: document['x-scalar-original-source-url'],
+    })[0] ?? null
+  )
+})
 
 const requiredSecurity = computed<RequiredSecurity>(() =>
   getRequiredSecurity(operation.value, document),

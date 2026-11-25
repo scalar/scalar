@@ -1,6 +1,7 @@
 import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { withServerUrlBase } from '@/request-example/builder/helpers/resolve-server-url'
 import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
@@ -13,41 +14,30 @@ type ServerProcessingOptions = {
   documentUrl?: string
 }
 
-/**
- * Retrieves and processes servers from an OpenAPI document.
- *
- * This function handles several scenarios:
- * 1. No servers provided - creates a default server from document URL or fallback
- * 2. Invalid server configurations - filters them out with warnings
- * 3. Relative URLs - resolves them to absolute URLs using available base URLs
- *
- * @param servers - Array of OpenAPI server objects from the document
- * @param options - Configuration options for server processing
- * @returns Array of validated Server entities
- */
-export function getServers(servers: ServerObject[] | undefined, options: ServerProcessingOptions = {}): ServerObject[] {
-  // Handle invalid server array
+/** Retrieves server choices and associates relative URLs with their configured or document base. */
+export const getServers = (
+  servers: ServerObject[] | undefined,
+  { baseServerUrl, documentUrl }: ServerProcessingOptions = {},
+): ServerObject[] => {
   if (!Array.isArray(servers)) {
     return []
   }
 
-  // Process each server and filter out invalid ones
-  const validServers = servers.map((server) => processServerObject(server, options))
-  return validServers
-}
-
-/**
- * Extracts the base URL (protocol + hostname) from a document URL.
- * Returns undefined if the URL is invalid.
- */
-function extractBaseUrlFromDocumentUrl(documentUrl: string): string | undefined {
-  try {
-    const url = new URL(documentUrl)
-    const port = url.port ? `:${url.port}` : ''
-    return `${url.protocol}//${url.hostname}${port}`
-  } catch {
-    return undefined
+  const documentBase = documentUrl && URL.canParse('.', documentUrl) ? new URL(documentUrl) : undefined
+  const baseUrl = baseServerUrl || documentBase?.href || getFallbackUrl()
+  if (!baseUrl) {
+    return servers
   }
+
+  const base = { url: baseUrl, isConfigured: Boolean(baseServerUrl) }
+  return servers.map((server) => {
+    if (server.url?.startsWith('/')) {
+      const origin = baseServerUrl || (documentBase ? new URL('/', documentBase).href : baseUrl)
+      return { ...server, url: combineUrlAndPath(origin, server.url) }
+    }
+
+    return withServerUrlBase(server, base)
+  })
 }
 
 /**
@@ -58,48 +48,6 @@ function getFallbackUrl(): string | undefined {
     return undefined
   }
   return window.location.origin
-}
-
-/**
- * Resolves a relative server URL to an absolute URL using available base URLs.
- * Uses a priority system: baseServerURL > documentUrl > fallbackUrl.
- */
-function resolveRelativeServerUrl(serverUrl: string, options: ServerProcessingOptions): string {
-  const { baseServerUrl: baseServerURL, documentUrl } = options
-
-  // Priority 1: Use provided base server URL
-  if (baseServerURL) {
-    return combineUrlAndPath(baseServerURL, serverUrl)
-  }
-
-  // Priority 2: Extract base URL from document URL
-  if (documentUrl) {
-    const baseUrl = extractBaseUrlFromDocumentUrl(documentUrl)
-    if (baseUrl) {
-      return combineUrlAndPath(baseUrl, serverUrl)
-    }
-  }
-
-  // Priority 3: Use fallback URL (window.location.origin)
-  const fallbackUrl = getFallbackUrl()
-  if (fallbackUrl) {
-    return combineUrlAndPath(fallbackUrl, serverUrl)
-  }
-
-  // If no base URL is available, return the original URL
-  return serverUrl
-}
-
-/**
- * Processes a single server object, handling validation and URL resolution.
- */
-function processServerObject(server: ServerObject, options: ServerProcessingOptions): ServerObject {
-  // Resolve relative URLs to absolute URLs
-  if (server.url?.startsWith('/')) {
-    server.url = resolveRelativeServerUrl(server.url, options)
-  }
-
-  return server
 }
 
 export const getSelectedServer = (

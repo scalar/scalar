@@ -1,6 +1,8 @@
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { resolveExecutableRequestUrl } from '@/request-example/builder/build-request'
+import { requestFactory } from '@/request-example/builder/request-factory'
 import type { WorkspaceDocument } from '@/schemas'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 
@@ -14,6 +16,55 @@ describe('servers', () => {
         origin: 'https://example.com',
       },
     })
+  })
+
+  it.each<{
+    url: string
+    prefix: string
+    baseServerUrl?: string
+    expected: string
+  }>([
+    { url: '{prefix}/v2', prefix: '', expected: 'https://api.example.com/v2/planets' },
+    { url: '{prefix}', prefix: '', expected: 'https://api.example.com/docs/planets' },
+    { url: '{prefix}', prefix: 'release.v1', expected: 'https://api.example.com/docs/release.v1/planets' },
+    {
+      url: '{prefix}/v2',
+      prefix: '',
+      baseServerUrl: 'https://proxy.example.com/api',
+      expected: 'https://proxy.example.com/api/v2/planets',
+    },
+    {
+      url: '{prefix}',
+      prefix: '',
+      baseServerUrl: 'https://proxy.example.com/api',
+      expected: 'https://proxy.example.com/api/planets',
+    },
+    {
+      url: '{prefix}',
+      prefix: 'https://absolute.example.com/v1',
+      baseServerUrl: 'https://proxy.example.com/api',
+      expected: 'https://absolute.example.com/v1/planets',
+    },
+  ])('builds the request to $expected for $url with prefix $prefix', ({ url, prefix, baseServerUrl, expected }) => {
+    const servers = getServers([{ url, variables: { prefix: { default: prefix } } }], {
+      baseServerUrl,
+      documentUrl: 'https://api.example.com/docs/openapi.json',
+    })
+    const { request } = requestFactory({
+      defaultHeaders: {},
+      environment: { color: '#FFFFFF', variables: [] },
+      exampleName: 'default',
+      globalCookies: [],
+      isElectron: false,
+      method: 'get',
+      operation: { responses: {} },
+      path: '/planets',
+      proxyUrl: '',
+      selectedSecuritySchemes: [],
+      server: getSelectedServer(null, null, null, servers),
+    })
+
+    expect(resolveExecutableRequestUrl(request, {}, { allowMissingRequestServerBase: false })).toBe(expected)
   })
 
   describe('getServers', () => {

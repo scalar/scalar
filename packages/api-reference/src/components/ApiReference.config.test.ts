@@ -463,6 +463,50 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     expect(wrapper.findComponent(ServerSelector).props('selectedServer')?.url).toBe(`${baseServerURL}${url}`)
   })
 
+  it('updates code samples when editing a selected relative server template', async () => {
+    const baseServerURL = 'https://api.example.com/base'
+    const content = {
+      ...createBasicDocument(),
+      servers: [
+        { url: 'https://absolute.example.com' },
+        { url: '{prefix}', variables: { prefix: { default: '/v2' } } },
+      ],
+    }
+    const wrapper = mountComponent({ props: { configuration: { content, baseServerURL } } })
+    await flushPromises()
+
+    wrapper.vm.eventBus.emit('server:update:selected', { url: '{prefix}', meta: { type: 'document' } })
+    await flushPromises()
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v2/users'))
+
+    const selector = wrapper.findComponent(ServerSelector)
+    await selector.get('input').setValue('release.v1')
+    await flushPromises()
+
+    expect(selector.props('selectedServer')?.url).toBe('{prefix}')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/release.v1/users'))
+  })
+
+  it('resolves an operation server template in the generated sample', async () => {
+    const content = {
+      ...createBasicDocument(),
+      paths: {
+        '/planets': {
+          get: {
+            servers: [{ url: '{prefix}/v2', variables: { prefix: { default: '' } } }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const wrapper = mountComponent({
+      props: { configuration: { content, baseServerURL: 'https://api.example.com/base' } },
+    })
+    await flushPromises()
+
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v2/planets'))
+  })
+
   it('default configuration values', async () => {
     const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
     await flushPromises()

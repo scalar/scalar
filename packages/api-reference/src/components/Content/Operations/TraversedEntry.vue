@@ -63,6 +63,7 @@ const {
     /** The subset of the configuration object required for the operation component */
     options: Pick<
       ApiReferenceConfigurationRaw,
+      | 'baseServerURL'
       | 'expandAllParameters'
       | 'expandAllResponses'
       | 'hideTestRequestButton'
