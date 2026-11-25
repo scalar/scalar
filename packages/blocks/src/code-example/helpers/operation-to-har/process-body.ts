@@ -17,6 +17,7 @@ import {
   serializeFormPropertyWithEncoding,
   serializeMultipartArray,
   serializeMultipartBody,
+  usesAspNetFormNaming,
 } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
@@ -31,7 +32,12 @@ import type { OperationToHarProps } from './operation-to-har'
 
 type ProcessBodyProps = Pick<
   OperationToHarProps,
-  'contentType' | 'example' | 'requestBodyCompositionSelection' | 'openapiVersion' | 'jsonSchemaDialect'
+  | 'multipartNaming'
+  | 'contentType'
+  | 'example'
+  | 'requestBodyCompositionSelection'
+  | 'openapiVersion'
+  | 'jsonSchemaDialect'
 > & {
   requestBody: RequestBodyObject
 }
@@ -231,6 +237,7 @@ export const processBody = ({
   openapiVersion,
   jsonSchemaDialect,
   requestBodyCompositionSelection,
+  multipartNaming,
 }: ProcessBodyProps): PostData | undefined => {
   const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
   /** Empty when "Other" is selected so snippets do not inject `Content-Type: other`. */
@@ -242,7 +249,8 @@ export const processBody = ({
   const encoding = requestBody.content[_contentType]?.encoding
 
   const media = requestBody.content[_contentType]
-  if (media && needsMultipartEncoding(_contentType, media)) {
+  const aspNetNaming = usesAspNetFormNaming(_contentType, media, multipartNaming)
+  if (media && (aspNetNaming || needsMultipartEncoding(_contentType, media))) {
     const exampleName = example ?? Object.keys(media.examples ?? {})[0] ?? 'default'
     const body = buildRequestBody(
       { ...requestBody, 'x-scalar-selected-content-type': { [exampleName]: _contentType } },
@@ -250,7 +258,25 @@ export const processBody = ({
       requestBodyCompositionSelection,
       openapiVersion,
       jsonSchemaDialect,
+      { multipartNaming, aspNetFilePlaceholders: aspNetNaming && _contentType === 'multipart/form-data' },
     )
+    if (aspNetNaming && body?.mode === 'urlencoded') {
+      return { mimeType: harMimeType, params: body.value.map(({ key, value }) => ({ name: key, value })) }
+    }
+    if (aspNetNaming && body?.mode === 'formdata') {
+      return {
+        mimeType: harMimeType,
+        params: body.value.flatMap((part): Param[] => {
+          if (part.type === 'file') {
+            return [buildFileParam(part.key, part.value.name, part.contentType ?? part.value.type)]
+          }
+          if (part.type !== 'text') {
+            return []
+          }
+          return [{ name: part.key, value: part.value, ...(part.contentType ? { contentType: part.contentType } : {}) }]
+        }),
+      }
+    }
     if (body?.mode === 'multipart') {
       const encoded = serializeMultipartBody(body.value, body.contentType)
       return {

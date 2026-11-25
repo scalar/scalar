@@ -47,6 +47,7 @@ export const ru = {
     collapsed: 'Свернуто',
     webhooks: 'Вебхуки',
     channels: 'Каналы',
+    messages: 'Сообщения',
   },
   server: {
     label: 'Сервер',
@@ -191,6 +192,7 @@ export const ru = {
     waitlistError: 'Ой! Что-то пошло не так, попробуйте ещё раз',
     waitlistRateLimit: 'Слишком много регистраций, попробуйте ещё раз чуть позже',
     waitlistBack: 'Назад',
+    waitlistDone: 'Готово',
     deployApiButton: 'Развернуть API',
     deployFrameworkButton: 'Развернуть {framework}',
     deployApiTitle: 'Разверните свой API в Scalar',

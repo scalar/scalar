@@ -41,7 +41,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -58,12 +58,17 @@ jobs:
           VITE_SERVICES_URL: ${{ vars.SERVICES_URL }}
           VITE_ENV: ${{ vars.ENVIRONMENT }}
 
+      - name: Read installed Wrangler version
+        id: wrangler-version
+        run: node -p '"version=" + require("./node_modules/wrangler/package.json").version' >> "$GITHUB_OUTPUT"
+
       # PR preview deploy — branch name creates a unique Cloudflare Pages alias URL per PR
       - name: Deploy PR preview to Cloudflare Pages
         if: inputs.pr-number != ''
         id: deploy-preview
-        uses: cloudflare/wrangler-action@v3.15.0
+        uses: cloudflare/wrangler-action@v4.1.3
         with:
+          wranglerVersion: ${{ steps.wrangler-version.outputs.version }}
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy ./projects/scalar-app/dist/web --project-name=${{ vars.CLOUDFLARE_PROJECT_API_CLIENT_PREVIEW }} --branch=pr-${{ inputs.pr-number }} --commit-hash=${{ inputs.sha }}
@@ -73,8 +78,9 @@ jobs:
       - name: Deploy to Cloudflare Pages
         if: inputs.pr-number == ''
         id: deploy-main
-        uses: cloudflare/wrangler-action@v3.15.0
+        uses: cloudflare/wrangler-action@v4.1.3
         with:
+          wranglerVersion: ${{ steps.wrangler-version.outputs.version }}
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy ./projects/scalar-app/dist/web --project-name=${{ vars.CLOUDFLARE_PROJECT_API_CLIENT }} --branch=main --commit-hash=${{ inputs.sha }}

@@ -1,7 +1,7 @@
 import Express from 'express'
 import swaggerJsdoc from 'swagger-jsdoc'
 
-import { apiReference } from '../src/index'
+import { Scalar } from '../src/index'
 
 // Initialize Express
 const app = Express()
@@ -131,7 +131,7 @@ app.get('/openapi.json', (_, res) => {
 // Serve the Scalar API Reference
 app.use(
   '/',
-  apiReference({
+  Scalar({
     url: '/openapi.json',
   }),
 )

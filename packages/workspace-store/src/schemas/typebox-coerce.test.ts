@@ -1,13 +1,19 @@
 import { Storage } from '@google-cloud/storage'
 import { Type } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
+import { PassThroughClient } from 'google-auth-library'
 import { describe, expect, it } from 'vitest'
 
 import { compose } from '@/schemas/compose'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { ComponentsObjectSchema, OpenAPIDocumentSchema } from '@/schemas/v3.2/strict/openapi-document'
 
-const storage = new Storage()
+// These fixtures are public. v9 requires a project ID even for bucket reads,
+// so avoid project discovery and ambient credentials.
+const storage = new Storage({
+  projectId: 'public-fixtures',
+  authClient: new PassThroughClient(),
+})
 const bucket = storage.bucket('scalar-test-fixtures')
 
 async function listFiles(folder: string, limit: number) {

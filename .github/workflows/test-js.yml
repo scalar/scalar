@@ -25,7 +25,7 @@ jobs:
         shard-index: [1, 2, 3]
         shard-total: [3]
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Check built declaration alias imports
@@ -41,6 +41,9 @@ jobs:
         run: |
           pnpm exec tsc --project documentation/assets/tsconfig.test.json
           pnpm vitest documentation/assets --run
+      - name: Run NestJS example end-to-end tests
+        if: matrix.shard-index == 1
+        run: pnpm --filter '@scalar-examples/nestjs-api-reference-*' test:e2e --runInBand
       # Packages are spread across shards by their rough test duration, so the
       # few slow suites never pile up on one shard. Every shard runs the same
       # deterministic greedy assignment (heaviest package to the lightest
@@ -118,7 +121,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Run project tests

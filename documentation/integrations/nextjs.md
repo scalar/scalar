@@ -207,14 +207,13 @@ export function Reference() {
     <ApiReferenceReact
       configuration={{
         url: '/openapi.json',
-        withDefaultFonts: false,
       }}
     />
   )
 }
 ```
 
-This page inherits your layout, navigation, and providers. Disable Scalar's default fonts when using your application's fonts. See [themes](../themes.md) for font variables and matching your application's dark mode. Props passed from a Server Component to a Client Component must be serializable; define callbacks inside the Client Component.
+This page inherits your layout, navigation, and providers. See [themes](../themes.md) for the font variables that let you use your application's fonts, and for matching your application's dark mode. Props passed from a Server Component to a Client Component must be serializable; define callbacks inside the Client Component.
 
 ### Tailwind CSS
 

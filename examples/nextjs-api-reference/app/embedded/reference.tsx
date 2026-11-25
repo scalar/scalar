@@ -32,7 +32,6 @@ export const Reference = (): JSX.Element => {
       <ApiReferenceReact
         configuration={{
           url: '/openapi.json',
-          withDefaultFonts: false,
           hideDarkModeToggle: true,
           forceDarkModeState: dark ? 'dark' : 'light',
         }}

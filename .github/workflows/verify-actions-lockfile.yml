@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - name: Install lockfile verifier
-        run: gh extension install github/gh-actions-lock --pin v0.4.1
+        run: gh extension install github/gh-actions-lock --pin v0.5.1
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Verify action dependencies

@@ -1,5 +1,4 @@
-import z from 'zod'
-
+import { z } from '../zod'
 import { apiClientPluginSchema } from './api-client-plugin'
 
 const externalUrlsSchema = z.object({

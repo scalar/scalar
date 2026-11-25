@@ -139,10 +139,10 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiDocument))
 <scalar-tab title="Scalar">
 
 ```ts
-import { apiReference } from '@scalar/express-api-reference'
+import { Scalar } from '@scalar/express-api-reference'
 import openapiDocument from './openapi.json'
 
-app.use('/docs', apiReference({ content: openapiDocument }))
+app.use('/docs', Scalar({ content: openapiDocument }))
 ```
 
 </scalar-tab>

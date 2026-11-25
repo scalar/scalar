@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { splitContent } from './markdown'
+import { splitContent } from './index'
 
 describe('splitContent', () => {
   it("returns a single document if there's no heading", () => {

@@ -135,11 +135,11 @@ app.Run();
 In Express:
 
 ```ts
-import { apiReference } from '@scalar/express-api-reference'
+import { Scalar } from '@scalar/express-api-reference'
 
 app.use(
   '/reference',
-  apiReference({
+  Scalar({
     url: '/openapi.json',
   }),
 )

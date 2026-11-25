@@ -584,6 +584,29 @@ Whether to always start with all tags open, regardless of the URL.
 }
 ```
 
+### multipartNaming
+
+**Type:** `'indexed-dot'`
+
+Set `multipartNaming: 'indexed-dot'` to use names such as `profile.name` and `certificates[0].name` in the form editor, sent requests, and code samples for `multipart/form-data` and `application/x-www-form-urlencoded` bodies. This supports ASP.NET Core `[FromForm]` model binding for nested objects and arrays. Arrays of files or scalar values use repeated field names. If an indexed collection skips positions, Scalar includes `.index` fields so ASP.NET Core can bind the remaining items.
+
+```js
+Scalar.createApiReference('#app', {
+  url: '/openapi.json',
+  multipartNaming: 'indexed-dot',
+})
+```
+
+Configure the ASP.NET Core integration with its fluent option.
+
+```csharp
+app.MapScalarApiReference(options => options.WithMultipartNaming(ScalarMultipartNaming.IndexedDot));
+```
+
+Spring Boot uses `scalar.multipart-naming=indexed-dot`. FastAPI and Django Ninja expose the option as `multipart_naming="indexed-dot"`. Docker and Rust accept `"multipartNaming": "indexed-dot"` in their JSON configuration.
+
+Omit the option to use OpenAPI multipart encoding. Ordered parts and nested multipart media types follow their declared encoding.
+
 ### defaultRequestBodyView
 
 **Type:** `'form' | 'raw'`
@@ -810,7 +833,7 @@ By default, badges only show in the content and the sidebar looks the same as be
 
 **Type:** `boolean`
 
-Whether models (`components.schemas` or `definitions`) should be shown in the sidebar, search and content.
+Hide schema models (`components.schemas` or `definitions`) from the sidebar, search, and content. For AsyncAPI, this also hides the **Messages** section.
 
 **Default:** `false`
 
@@ -1350,7 +1373,9 @@ Whether and when to show the developer tools. By default only shows on `localhos
 
 **Default:** `'localhost'`
 
-To hide the toolbar, SDK generation buttons, and local sidebar promotion, set:
+When a development server on your own machine serves the reference (`localhost`, `*.localhost` or a loopback address such as `127.0.0.1`, `[::1]` or `0.0.0.0`, on a port such as `:3000`), it also invites you to the API Hosting beta once, in a popup that opens shortly after a load in which you have not started reading yet (with several API descriptions, once all of them have loaded). It does not come back after that, in any project on the same host. It never appears anywhere else, including `.test` domains, other machines on your network and apps that ship the reference in a web view.
+
+To hide the toolbar, SDK generation buttons, local sidebar promotion, and the API Hosting beta invitation, set:
 
 ```javascript
 {
@@ -1390,15 +1415,11 @@ Pass the URL of an API document (JSON or YAML).
 
 **Type:** `boolean`
 
-By default we're using Inter and JetBrains Mono, served from our fonts CDN at `https://fonts.scalar.com`. If you use a different font or just don't want to load web fonts, pass `withDefaultFonts: false` to the configuration.
+**Deprecated.** Scalar uses the system font stack and no longer loads web fonts, so this option has no effect. It is still accepted, so existing configurations keep working.
+
+To use a different font, load it yourself and overwrite the `--scalar-font` and `--scalar-font-code` CSS variables, as described in [Themes](themes.md).
 
 **Default:** `true`
-
-```javascript
-{
-  withDefaultFonts: false
-}
-```
 
 ## Methods
 Custom functions to control specific behaviors and URL generation.

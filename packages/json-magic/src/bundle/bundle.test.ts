@@ -12,6 +12,8 @@ import YAML from 'yaml'
 import { parseJson } from '@/bundle/plugins/parse-json'
 import { parseYaml } from '@/bundle/plugins/parse-yaml'
 import { getHash } from '@/bundle/value-generator'
+import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
+import { getValueByPath } from '@/helpers/get-value-by-path'
 
 import {
   type LoaderPlugin,
@@ -151,7 +153,9 @@ describe('bundle', () => {
       expect(child.$id).toBe('https://example.test/api/schemas/child.json')
       expect(index.resolve(child.self.$ref, child.$id)?.value).toBe(child)
       expect(index.resolve(child.value.$ref, child.$id)?.value).toBe(child.$defs.value)
-      expect(index.resolve(child.next.$ref, child.$id)?.value).toBe(exported['x-ext']['schemas%2Fnested.json'])
+      const next = getValueByPath(child, getSegmentsFromPath(new URL(child.next.$ref, child.$id).hash)).value
+      expect(index.resolve(child.next.$ref, child.$id)?.value).toBe(next)
+      expect(next).toEqual(exported['x-ext']['schemas%2Fnested.json'])
       const nested = child.$defs.nested
       expect(index.resolve(nested.self.$ref, nested.$id)?.value).toBe(nested)
       expect(nested.$id).toBe('https://example.test/api/schemas/nested-resource.json')

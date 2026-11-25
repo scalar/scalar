@@ -2981,6 +2981,11 @@
                       }
                     }
                   },
+                  "cli-output": {
+                    "filepath": "documentation/guides/sdks/cli-output.md",
+                    "type": "page",
+                    "title": "CLI Output Formats"
+                  },
                   "pagination": {
                     "filepath": "documentation/guides/sdks/pagination.md",
                     "type": "page",
@@ -3078,10 +3083,21 @@
                     }
                   },
                   "custom-code": {
-                    "filepath": "documentation/guides/sdks/custom-code.md",
-                    "type": "page",
                     "title": "Custom Code",
-                    "description": "Customize generated SDKs and keep your changes across regenerations with a three-way merge."
+                    "type": "group",
+                    "mode": "nested",
+                    "children": {
+                      "overview": {
+                        "filepath": "documentation/guides/sdks/custom-code/overview.md",
+                        "type": "page",
+                        "title": "Overview"
+                      },
+                      "cli": {
+                        "filepath": "documentation/guides/sdks/custom-code/cli.md",
+                        "type": "page",
+                        "title": "CLI Commands (Experimental)"
+                      }
+                    }
                   },
                   "diagnostics": {
                     "filepath": "documentation/guides/sdks/diagnostics.md",
@@ -3212,6 +3228,12 @@
                     "title": "Upload",
                     "description": "Upload OpenAPI documents to the Scalar Registry from the dashboard, CLI, or CI.",
                     "filepath": "documentation/guides/registry/upload.md",
+                    "type": "page"
+                  },
+                  "urls": {
+                    "title": "URLs",
+                    "description": "Choose a Scalar Registry URL for a preview, a document format, a version, or generated SDK examples.",
+                    "filepath": "documentation/guides/registry/urls.md",
                     "type": "page"
                   },
                   "schemas": {
@@ -3857,6 +3879,12 @@
                         "title": "Symfony",
                         "filepath": "documentation/integrations/symfony.md",
                         "description": "Add a Scalar API reference to your Symfony application with the official bundle or NelmioApiDocBundle.",
+                        "type": "page"
+                      },
+                      "trpc": {
+                        "title": "tRPC",
+                        "filepath": "documentation/integrations/trpc.md",
+                        "description": "Expose tRPC procedures as REST endpoints with trpc-to-openapi and document them with Scalar API Reference.",
                         "type": "page"
                       },
                       "tsed": {

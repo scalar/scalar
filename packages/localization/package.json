@@ -16,7 +16,7 @@
     "i18n",
     "translations"
   ],
-  "version": "0.2.14",
+  "version": "0.2.16",
   "engines": {
     "node": ">=22"
   },

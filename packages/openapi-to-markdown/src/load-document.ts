@@ -1,6 +1,9 @@
+import { isAbsolute, resolve, sep } from 'node:path'
+import { pathToFileURL } from 'node:url'
+
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { isObject } from '@scalar/helpers/object/is-object'
-import { bundle } from '@scalar/json-magic/bundle'
+import { type DocumentResolver, bundle } from '@scalar/json-magic/bundle'
 import type { DocumentLoadOptions } from '@scalar/json-magic/bundle/plugins/node'
 import { convertToLocalRef } from '@scalar/json-magic/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@scalar/json-magic/helpers/get-schemas'
@@ -8,6 +11,8 @@ import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
+import { resolveSecurityRequirements } from '@scalar/workspace-store/helpers/resolve-security-requirements'
+import { resolveOpenApiDocument } from '@scalar/workspace-store/plugins/bundler'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema,
@@ -209,6 +214,10 @@ const attachRefValues = (
 
 export type { DocumentLoadOptions } from '@scalar/json-magic/bundle/plugins/node'
 
+// A relative $self is a URI reference even when the document was retrieved from a local path.
+const resolveNodeOpenApiDocument: DocumentResolver = (document, retrievalUri) =>
+  resolveOpenApiDocument(document, isAbsolute(retrievalUri) ? pathToFileURL(retrievalUri).href : retrievalUri)
+
 /** Coerce one plain document and keep references linked to shared targets. */
 export const loadDocument = async (
   input: OpenApiDocument | Record<string, unknown> | string,
@@ -225,28 +234,55 @@ export const loadDocument = async (
     throw new Error('Failed to load OpenAPI document')
   }
 
+  // Check identity before upgrading so older descriptions cannot acquire $self semantics.
+  // In-memory input has no retrieval URI. Keep the fallback directory's trailing separator
+  // so relative identities resolve inside it rather than alongside it.
+  const retrievalUri = origin ?? `${resolve(options.basePath ?? '.')}${sep}`
+  const entryIdentity = resolveNodeOpenApiDocument(raw, retrievalUri)
   // Upgrade before indexing so reference resolution sees one consistent dialect.
   const declaredOpenapiVersion = typeof raw.openapi === 'string' ? raw.openapi : '2.0'
+  const isThreeTwo = /^3\.2\.\d+$/.test(declaredOpenapiVersion)
   const { document: upgraded } = upgrade(raw, '3.2', { onIncompatible: 'collect' })
   const upgradedSchemas = getSchemas(upgraded)
-  const hasExternalReferences = attachRefValues(upgraded, upgradedSchemas, { detectOnly: true })
 
   let document = upgraded
   let schemas = upgradedSchemas
 
-  // Resolve external targets only when the initial local-reference pass finds them.
-  if (hasExternalReferences) {
+  // The local fast path only indexes schema IDs. Let the bundler handle document identities.
+  if (entryIdentity || attachRefValues(upgraded, upgradedSchemas, { detectOnly: true })) {
     const errors: string[] = []
     document = await bundle(upgraded, {
       plugins: loader.plugins,
+      // Example payloads can contain literal $ref keys.
+      traversal: 'document',
       origin,
       treeShake: false,
-      hooks: { onResolveError: (node) => errors.push(`Failed to resolve ${node.$ref}`) },
+      urlMap: isThreeTwo,
+      hooks: {
+        resolveDocument: (resource, retrievalUri) =>
+          resource === upgraded ? entryIdentity : resolveNodeOpenApiDocument(resource, retrievalUri),
+        onResolveError: (node) => errors.push(`Failed to resolve ${node.$ref}`),
+      },
     })
     if (errors.length) {
       throw new Error(errors.join('\n'))
     }
     schemas = getSchemas(document)
+    // References from nested schema resources can be rewritten to absolute pointers into the entry document.
+    if (entryIdentity) {
+      schemas.set(entryIdentity.baseUri, '')
+    }
+  }
+
+  // URI requirements are not $ref fields, so they need the same alias pass as the workspace store.
+  // Check the authored version because upgrading older descriptions must not enable URI semantics.
+  if (isThreeTwo) {
+    await resolveSecurityRequirements(document, { origin: retrievalUri, loaders: loader.plugins })
+    schemas = getSchemas(document)
+    // The URI pass can add resources, so retain the entry identity in the refreshed index.
+    if (entryIdentity) {
+      schemas.set(entryIdentity.baseUri, '')
+    }
   }
 
   // Cast the document before linking references. TypeBox clones every value that already
