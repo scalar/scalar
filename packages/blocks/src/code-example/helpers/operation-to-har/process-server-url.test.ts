@@ -9,6 +9,7 @@ describe('processServerUrl', () => {
     { url: '{prefix}/v2', prefix: '', expected: 'https://api.example.com/v2/planets' },
     { url: '{prefix}', prefix: '', expected: 'https://api.example.com/docs/planets' },
     { url: '{prefix}', prefix: 'release.v1', expected: 'https://api.example.com/docs/release.v1/planets' },
+    { url: '{prefix}/v2/{{tenant}}', prefix: '', expected: 'https://api.example.com/v2/{{tenant}}/planets' },
   ])('uses $expected in snippets for $url with prefix $prefix', ({ url, prefix, expected }) => {
     const [server] = getServers([{ url, variables: { prefix: { default: prefix } } }], {
       documentUrl: 'https://api.example.com/docs/openapi.json',

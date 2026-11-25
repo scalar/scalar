@@ -25,8 +25,7 @@ export const resolveServerUrl = (server: ServerWithUrlBase | null): string => {
   const url = replacePathVariables(server?.url ?? '', getServerVariables(server))
   const base = server?.[serverUrlBase]
 
-  // Leave any remaining placeholders available for the later environment substitution.
-  if (!base || hasScheme.test(url) || url.includes('{')) {
+  if (!base || hasScheme.test(url)) {
     return url
   }
 
@@ -35,12 +34,25 @@ export const resolveServerUrl = (server: ServerWithUrlBase | null): string => {
     return url
   }
 
-  if (base.source === 'configuration' && !url.startsWith('//')) {
+  const placeholderIndex = url.indexOf('{')
+  const hasOwnHost = url.startsWith('//')
+  const firstPathSlash = url.indexOf('/', hasOwnHost ? 2 : 0)
+  // A remaining placeholder can still supply the origin if it precedes the path.
+  if (placeholderIndex !== -1 && (firstPathSlash === -1 || placeholderIndex < firstPathSlash)) {
+    return url
+  }
+
+  if (base.source === 'configuration' && !hasOwnHost) {
     return combineUrlAndPath(base.url, url)
   }
 
-  // An empty template points at the containing directory, so appending an operation does not include the API description filename.
-  const relativeUrl = url || '.'
-  const absoluteUrl = makeUrlAbsolute(relativeUrl, { baseUrl: base.url })
-  return absoluteUrl === relativeUrl ? url : absoluteUrl
+  // Resolve only the known prefix when a path placeholder still needs substitution.
+  // An empty expansion uses the directory that contains the API description.
+  const prefix = placeholderIndex === -1 ? url || '.' : url.slice(0, firstPathSlash + 1)
+  const resolvedPrefix = makeUrlAbsolute(prefix, { baseUrl: base.url })
+  if (resolvedPrefix === prefix) {
+    return url
+  }
+
+  return placeholderIndex === -1 ? resolvedPrefix : resolvedPrefix + url.slice(firstPathSlash + 1)
 }

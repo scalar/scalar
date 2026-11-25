@@ -25,6 +25,7 @@ describe('servers', () => {
     url: string
     prefix: string
     baseServerUrl?: string
+    envVariables?: Record<string, string>
     expected: string
   }>([
     { url: '{prefix}/v2', prefix: '', expected: 'https://api.example.com/v2/planets' },
@@ -48,27 +49,64 @@ describe('servers', () => {
       baseServerUrl: 'https://proxy.example.com/api',
       expected: 'https://absolute.example.com/v1/planets',
     },
-  ])('builds the request to $expected for $url with prefix $prefix', ({ url, prefix, baseServerUrl, expected }) => {
-    const servers = getServers([{ url, variables: { prefix: { default: prefix } } }], {
-      baseServerUrl,
-      documentUrl: 'https://api.example.com/docs/openapi.json',
-    })
-    const { request } = requestFactory({
-      defaultHeaders: {},
-      environment: { color: '#FFFFFF', variables: [] },
-      exampleName: 'default',
-      globalCookies: [],
-      isElectron: false,
-      method: 'get',
-      operation: { responses: {} },
-      path: '/planets',
-      proxyUrl: '',
-      selectedSecuritySchemes: [],
-      server: getSelectedServer(null, null, null, servers),
-    })
+    {
+      url: '{prefix}/v2/{{tenant}}',
+      prefix: '',
+      envVariables: { tenant: 'tenant01' },
+      expected: 'https://api.example.com/v2/tenant01/planets',
+    },
+    {
+      url: '{prefix}/v2/{{tenant}}',
+      prefix: '',
+      baseServerUrl: 'https://proxy.example.com/api',
+      envVariables: { tenant: 'tenant01' },
+      expected: 'https://proxy.example.com/api/v2/tenant01/planets',
+    },
+    {
+      url: '{prefix}/{{tenant}}',
+      prefix: 'release.v1',
+      envVariables: { tenant: 'tenant01' },
+      expected: 'https://api.example.com/docs/release.v1/tenant01/planets',
+    },
+    {
+      url: '{prefix}/{{tenant}}',
+      prefix: '//cdn.example.com',
+      baseServerUrl: 'https://proxy.example.com/api',
+      envVariables: { tenant: 'tenant01' },
+      expected: 'https://cdn.example.com/tenant01/planets',
+    },
+    {
+      url: '{prefix}{{origin}}/v2',
+      prefix: '',
+      envVariables: { origin: 'https://absolute.example.com' },
+      expected: 'https://absolute.example.com/v2/planets',
+    },
+  ])(
+    'builds the request to $expected for $url with prefix $prefix',
+    ({ url, prefix, baseServerUrl, envVariables, expected }) => {
+      const servers = getServers([{ url, variables: { prefix: { default: prefix } } }], {
+        baseServerUrl,
+        documentUrl: 'https://api.example.com/docs/openapi.json',
+      })
+      const { request } = requestFactory({
+        defaultHeaders: {},
+        environment: { color: '#FFFFFF', variables: [] },
+        exampleName: 'default',
+        globalCookies: [],
+        isElectron: false,
+        method: 'get',
+        operation: { responses: {} },
+        path: '/planets',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: getSelectedServer(null, null, null, servers),
+      })
 
-    expect(resolveExecutableRequestUrl(request, {}, { allowMissingRequestServerBase: false })).toBe(expected)
-  })
+      expect(resolveExecutableRequestUrl(request, envVariables ?? {}, { allowMissingRequestServerBase: false })).toBe(
+        expected,
+      )
+    },
+  )
 
   it('preserves schemeless hosts when only the browser origin is available', () => {
     const [server] = getServers([{ url: '{host}', variables: { host: { default: 'api.example.com' } } }])

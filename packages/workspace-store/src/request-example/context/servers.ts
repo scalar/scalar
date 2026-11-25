@@ -14,7 +14,10 @@ type ServerProcessingOptions = {
   documentUrl?: string
 }
 
-/** Retrieves server choices and associates relative URLs with their configured or document base. */
+/**
+ * Retrieves server choices and associates relative templates with their configured or document base.
+ * Root-relative inputs are resolved in place so selections and edits share the same URL key.
+ */
 export const getServers = (
   servers: ServerObject[] | undefined,
   { baseServerUrl, documentUrl }: ServerProcessingOptions = {},
