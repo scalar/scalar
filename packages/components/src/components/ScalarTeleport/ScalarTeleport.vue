@@ -83,9 +83,11 @@ const findTarget = (): TeleportProps['to'] | null => {
 }
 
 const target = shallowRef<TeleportProps['to'] | null>(findTarget())
+// After the DOM update, so a new target rendered in the same update is there to find
 watch(
-  () => [to, root],
+  () => to,
   () => (target.value = findTarget()),
+  { flush: 'post' },
 )
 
 /**

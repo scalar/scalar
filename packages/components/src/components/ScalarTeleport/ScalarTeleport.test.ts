@@ -321,12 +321,39 @@ describe('ScalarTeleport', () => {
 
     await nextTick()
 
-    expect(root.querySelector('.container #teleported')).toBeNull()
-    // Directly under the shadow root, next to the container
+    // Moved out of the container into a direct child of the shadow root
     const teleported = root.querySelector('#teleported')
-    expect(teleported?.parentElement?.classList.contains('scalar-app')).toBe(true)
-    expect(teleported?.parentElement?.parentNode).toBe(root)
+    const topLevel = [...root.children].find((child) => child.contains(teleported))
+    expect(teleported).not.toBeNull()
+    expect(container.contains(teleported)).toBe(false)
+    expect(topLevel).toBeDefined()
+    expect(topLevel).not.toBe(container)
     expect(document.querySelector('#teleported')).toBeNull()
+  })
+
+  it('teleports to a target that renders in the same update as a new `to` in a shadow root', async () => {
+    const { root, container } = createShadowRoot()
+
+    const wrapper = mountInShadowRoot(
+      {
+        components: { ScalarTeleport, ScalarTeleportRoot },
+        setup: () => ({ target: ref<string | undefined>(undefined) }),
+        template: `
+          <ScalarTeleportRoot>
+            <ScalarTeleport :to="target"><div id="teleported">Teleported</div></ScalarTeleport>
+            <div v-if="target" id="late" />
+          </ScalarTeleportRoot>
+        `,
+      },
+      container,
+      root,
+    )
+
+    await nextTick()
+    ;(wrapper.vm as unknown as { target: string }).target = '#late'
+    await nextTick()
+
+    expect(root.querySelector('#late #teleported')).not.toBeNull()
   })
 
   it('keeps focus on content that teleports immediately in a shadow root', async () => {
