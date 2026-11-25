@@ -13,7 +13,7 @@ describe('ScalarTeleport', () => {
     document.body.innerHTML = `<div id="app"></div>`
   })
 
-  it('teleports content to the nearest ScalarTeleportRoot', async () => {
+  it('teleports content to the nearest ScalarTeleportRoot', () => {
     const wrapper = mount(
       {
         components: { ScalarTeleport, ScalarTeleportRoot },
@@ -29,9 +29,6 @@ describe('ScalarTeleport', () => {
       },
       { attachTo: '#app' },
     )
-
-    // The root renders its target after its slot, so the content moves once both are mounted
-    await nextTick()
 
     // Check that the teleported content exists
     expect(wrapper.find('#teleported').exists()).toBeTruthy()
@@ -96,7 +93,7 @@ describe('ScalarTeleport', () => {
     expect(root.find('#teleported').exists()).toBe(true)
   })
 
-  it('allows custom teleport root id', async () => {
+  it('allows custom teleport root id', () => {
     const wrapper = mount(
       {
         components: { ScalarTeleport, ScalarTeleportRoot },
@@ -112,8 +109,6 @@ describe('ScalarTeleport', () => {
       },
       { attachTo: '#app' },
     )
-
-    await nextTick()
 
     // Should render the teleport root
     expect(wrapper.find('#custom-root').exists()).toBeTruthy()
@@ -145,212 +140,241 @@ describe('ScalarTeleport', () => {
     expect(customTargetEl?.querySelector('#teleported')).toBeDefined()
   })
 
-  describe('inside a shadow root', () => {
-    /** A host element with an open shadow root, and a container in it to mount into */
-    const createShadowRoot = (): { root: ShadowRoot; container: HTMLElement } => {
-      const host = document.createElement('div')
-      document.body.append(host)
-      const root = host.attachShadow({ mode: 'open' })
-      const container = document.createElement('div')
-      root.append(container)
+  /** A host element with an open shadow root, and a container in it to mount into */
+  const createShadowRoot = (): { root: ShadowRoot; container: HTMLElement } => {
+    const host = document.createElement('div')
+    document.body.append(host)
+    const root = host.attachShadow({ mode: 'open' })
+    const container = document.createElement('div')
+    root.append(container)
 
-      return { root, container }
+    return { root, container }
+  }
+
+  const mountInShadowRoot = (component: object, container: HTMLElement, root: ShadowRoot) =>
+    mount(component, { attachTo: container, global: { provide: { [DOCUMENT_ROOT_SYMBOL]: root } } })
+
+  it('teleports content to the nearest ScalarTeleportRoot in a shadow root', async () => {
+    const { root, container } = createShadowRoot()
+
+    mountInShadowRoot(
+      {
+        components: { ScalarTeleport, ScalarTeleportRoot },
+        template: `
+          <ScalarTeleportRoot>
+            <div class="container">
+              <ScalarTeleport>
+                <div id="teleported">Teleported</div>
+              </ScalarTeleport>
+            </div>
+          </ScalarTeleportRoot>
+        `,
+      },
+      container,
+      root,
+    )
+
+    await nextTick()
+
+    expect(root.querySelector('.container #teleported')).toBeNull()
+    expect(root.querySelector('.scalar-teleport-root #teleported')?.textContent).toBe('Teleported')
+    expect(document.querySelector('#teleported')).toBeNull()
+  })
+
+  it('stays in its own shadow tree when the page has an element with the same id', async () => {
+    const outside = document.createElement('div')
+    outside.id = 'shared-target'
+    document.body.append(outside)
+    const { root, container } = createShadowRoot()
+
+    mountInShadowRoot(
+      {
+        components: { ScalarTeleport, ScalarTeleportRoot },
+        template: `
+          <ScalarTeleportRoot id="shared-target">
+            <ScalarTeleport><button>Local overlay</button></ScalarTeleport>
+          </ScalarTeleportRoot>
+        `,
+      },
+      container,
+      root,
+    )
+
+    await nextTick()
+
+    expect(root.querySelector('#shared-target button')?.textContent).toBe('Local overlay')
+    expect(outside.textContent).toBe('')
+  })
+
+  it('moves the content instead of mounting it again in a shadow root', async () => {
+    const { root, container } = createShadowRoot()
+    let mountCount = 0
+    const Content = {
+      setup: () => onMounted(() => mountCount++),
+      template: '<div id="teleported">Teleported</div>',
     }
 
-    const mountInShadowRoot = (component: object, container: HTMLElement, root: ShadowRoot) =>
-      mount(component, { attachTo: container, global: { provide: { [DOCUMENT_ROOT_SYMBOL]: root } } })
+    mountInShadowRoot(
+      {
+        components: { Content, ScalarTeleport, ScalarTeleportRoot },
+        template: '<ScalarTeleportRoot><ScalarTeleport><Content /></ScalarTeleport></ScalarTeleportRoot>',
+      },
+      container,
+      root,
+    )
 
-    it('teleports content to the nearest ScalarTeleportRoot', async () => {
-      const { root, container } = createShadowRoot()
+    await nextTick()
 
-      mountInShadowRoot(
-        {
-          components: { ScalarTeleport, ScalarTeleportRoot },
-          template: `
-            <ScalarTeleportRoot>
-              <div class="container">
-                <ScalarTeleport>
-                  <div id="teleported">Teleported</div>
-                </ScalarTeleport>
-              </div>
-            </ScalarTeleportRoot>
-          `,
-        },
-        container,
-        root,
-      )
+    expect(root.querySelector('.scalar-teleport-root #teleported')).not.toBeNull()
+    expect(mountCount).toBe(1)
+  })
 
-      await nextTick()
+  it('teleports immediately when it mounts with the root in a shadow root', async () => {
+    const { root, container } = createShadowRoot()
 
-      expect(root.querySelector('.container #teleported')).toBeNull()
-      expect(root.querySelector('.scalar-teleport-root #teleported')?.textContent).toBe('Teleported')
-      expect(document.querySelector('#teleported')).toBeNull()
-    })
+    mountInShadowRoot(
+      {
+        components: { ScalarTeleport, ScalarTeleportRoot },
+        template: `
+          <ScalarTeleportRoot>
+            <ScalarTeleport immediate><div id="teleported">Teleported</div></ScalarTeleport>
+          </ScalarTeleportRoot>
+        `,
+      },
+      container,
+      root,
+    )
 
-    it('stays in its own shadow tree when the page has an element with the same id', async () => {
-      const outside = document.createElement('div')
-      outside.id = 'shared-target'
-      document.body.append(outside)
-      const { root, container } = createShadowRoot()
+    await nextTick()
 
-      mountInShadowRoot(
-        {
-          components: { ScalarTeleport, ScalarTeleportRoot },
-          template: `
-            <ScalarTeleportRoot id="shared-target">
-              <ScalarTeleport><button>Local overlay</button></ScalarTeleport>
-            </ScalarTeleportRoot>
-          `,
-        },
-        container,
-        root,
-      )
+    expect(root.querySelector('.scalar-teleport-root #teleported')).not.toBeNull()
+  })
 
-      await nextTick()
+  it('teleports content that mounts after the root in a shadow root', async () => {
+    const { root, container } = createShadowRoot()
 
-      expect(root.querySelector('#shared-target button')?.textContent).toBe('Local overlay')
-      expect(outside.textContent).toBe('')
-    })
+    const wrapper = mountInShadowRoot(
+      {
+        components: { ScalarTeleport, ScalarTeleportRoot },
+        setup: () => ({ open: ref(false) }),
+        template: `
+          <ScalarTeleportRoot>
+            <ScalarTeleport v-if="open" immediate><div id="teleported">Teleported</div></ScalarTeleport>
+          </ScalarTeleportRoot>
+        `,
+      },
+      container,
+      root,
+    )
 
-    it('moves the content instead of mounting it again', async () => {
-      const { root, container } = createShadowRoot()
-      let mountCount = 0
-      const Content = {
-        setup: () => onMounted(() => mountCount++),
-        template: '<div id="teleported">Teleported</div>',
-      }
+    await nextTick()
+    ;(wrapper.vm as unknown as { open: boolean }).open = true
+    await nextTick()
 
-      mountInShadowRoot(
-        {
-          components: { Content, ScalarTeleport, ScalarTeleportRoot },
-          template: '<ScalarTeleportRoot><ScalarTeleport><Content /></ScalarTeleport></ScalarTeleportRoot>',
-        },
-        container,
-        root,
-      )
+    expect(root.querySelector('.scalar-teleport-root #teleported')).not.toBeNull()
+  })
 
-      await nextTick()
+  it('keeps disabled content in place until it is enabled in a shadow root', async () => {
+    const { root, container } = createShadowRoot()
 
-      expect(root.querySelector('.scalar-teleport-root #teleported')).not.toBeNull()
-      expect(mountCount).toBe(1)
-    })
-
-    it('teleports when it is mounted with the root and set to teleport immediately', async () => {
-      const { root, container } = createShadowRoot()
-
-      mountInShadowRoot(
-        {
-          components: { ScalarTeleport, ScalarTeleportRoot },
-          template: `
-            <ScalarTeleportRoot>
-              <ScalarTeleport immediate><div id="teleported">Teleported</div></ScalarTeleport>
-            </ScalarTeleportRoot>
-          `,
-        },
-        container,
-        root,
-      )
-
-      await nextTick()
-
-      expect(root.querySelector('.scalar-teleport-root #teleported')).not.toBeNull()
-    })
-
-    it('teleports content that mounts after the root', async () => {
-      const { root, container } = createShadowRoot()
-
-      const wrapper = mountInShadowRoot(
-        {
-          components: { ScalarTeleport, ScalarTeleportRoot },
-          setup: () => ({ open: ref(false) }),
-          template: `
-            <ScalarTeleportRoot>
-              <ScalarTeleport v-if="open" immediate><div id="teleported">Teleported</div></ScalarTeleport>
-            </ScalarTeleportRoot>
-          `,
-        },
-        container,
-        root,
-      )
-
-      await nextTick()
-      ;(wrapper.vm as unknown as { open: boolean }).open = true
-      await nextTick()
-
-      expect(root.querySelector('.scalar-teleport-root #teleported')).not.toBeNull()
-    })
-
-    it('keeps disabled content in place until it is enabled', async () => {
-      const { root, container } = createShadowRoot()
-
-      const wrapper = mountInShadowRoot(
-        {
-          components: { ScalarTeleport, ScalarTeleportRoot },
-          setup: () => ({ disabled: ref(true) }),
-          template: `
-            <ScalarTeleportRoot>
-              <div class="container">
-                <ScalarTeleport :disabled="disabled"><div id="teleported">Teleported</div></ScalarTeleport>
-              </div>
-            </ScalarTeleportRoot>
-          `,
-        },
-        container,
-        root,
-      )
-      await nextTick()
-
-      expect(root.querySelector('.container #teleported')).not.toBeNull()
-
-      ;(wrapper.vm as unknown as { disabled: boolean }).disabled = false
-      await nextTick()
-
-      expect(root.querySelector('.container #teleported')).toBeNull()
-      expect(root.querySelector('.scalar-teleport-root #teleported')).not.toBeNull()
-    })
-
-    it('falls back to the shadow root without a ScalarTeleportRoot', async () => {
-      const { root, container } = createShadowRoot()
-
-      mountInShadowRoot(
-        {
-          components: { ScalarTeleport },
-          template: `
+    const wrapper = mountInShadowRoot(
+      {
+        components: { ScalarTeleport, ScalarTeleportRoot },
+        setup: () => ({ disabled: ref(true) }),
+        template: `
+          <ScalarTeleportRoot>
             <div class="container">
-              <ScalarTeleport><div id="teleported">Teleported</div></ScalarTeleport>
+              <ScalarTeleport :disabled="disabled"><div id="teleported">Teleported</div></ScalarTeleport>
             </div>
-          `,
-        },
-        container,
-        root,
-      )
+          </ScalarTeleportRoot>
+        `,
+      },
+      container,
+      root,
+    )
+    await nextTick()
 
-      await nextTick()
+    expect(root.querySelector('.container #teleported')).not.toBeNull()
 
-      expect(root.querySelector('.container #teleported')).toBeNull()
-      // Directly under the shadow root, next to the container
-      const teleported = root.querySelector('#teleported')
-      expect(teleported?.parentElement?.classList.contains('scalar-app')).toBe(true)
-      expect(teleported?.parentElement?.parentNode).toBe(root)
-      expect(document.querySelector('#teleported')).toBeNull()
-    })
+    ;(wrapper.vm as unknown as { disabled: boolean }).disabled = false
+    await nextTick()
 
-    it('removes the content when it is unmounted', async () => {
-      const { root, container } = createShadowRoot()
+    expect(root.querySelector('.container #teleported')).toBeNull()
+    expect(root.querySelector('.scalar-teleport-root #teleported')).not.toBeNull()
+  })
 
-      const wrapper = mountInShadowRoot(
-        {
-          components: { ScalarTeleport, ScalarTeleportRoot },
-          template: '<ScalarTeleportRoot><ScalarTeleport><div id="teleported" /></ScalarTeleport></ScalarTeleportRoot>',
-        },
-        container,
-        root,
-      )
+  it('falls back to the shadow root without a ScalarTeleportRoot', async () => {
+    const { root, container } = createShadowRoot()
 
-      await nextTick()
-      wrapper.unmount()
+    mountInShadowRoot(
+      {
+        components: { ScalarTeleport },
+        template: `
+          <div class="container">
+            <ScalarTeleport><div id="teleported">Teleported</div></ScalarTeleport>
+          </div>
+        `,
+      },
+      container,
+      root,
+    )
 
-      expect(root.querySelector('#teleported')).toBeNull()
-    })
+    await nextTick()
+
+    expect(root.querySelector('.container #teleported')).toBeNull()
+    // Directly under the shadow root, next to the container
+    const teleported = root.querySelector('#teleported')
+    expect(teleported?.parentElement?.classList.contains('scalar-app')).toBe(true)
+    expect(teleported?.parentElement?.parentNode).toBe(root)
+    expect(document.querySelector('#teleported')).toBeNull()
+  })
+
+  it('keeps focus on content that teleports immediately in a shadow root', async () => {
+    const { root, container } = createShadowRoot()
+    const FocusedInput = {
+      setup() {
+        const input = ref<HTMLInputElement | null>(null)
+        onMounted(() => input.value?.focus())
+        return { input }
+      },
+      template: '<input ref="input" />',
+    }
+
+    mountInShadowRoot(
+      {
+        components: { FocusedInput, ScalarTeleport, ScalarTeleportRoot },
+        template: `
+          <ScalarTeleportRoot>
+            <ScalarTeleport immediate><FocusedInput /></ScalarTeleport>
+          </ScalarTeleportRoot>
+        `,
+      },
+      container,
+      root,
+    )
+
+    await nextTick()
+
+    const input = root.querySelector('.scalar-teleport-root input')
+    expect(input).not.toBeNull()
+    expect(root.activeElement).toBe(input)
+  })
+
+  it('removes the content from the shadow root when it is unmounted', async () => {
+    const { root, container } = createShadowRoot()
+
+    const wrapper = mountInShadowRoot(
+      {
+        components: { ScalarTeleport, ScalarTeleportRoot },
+        template: '<ScalarTeleportRoot><ScalarTeleport><div id="teleported" /></ScalarTeleport></ScalarTeleportRoot>',
+      },
+      container,
+      root,
+    )
+
+    await nextTick()
+    wrapper.unmount()
+
+    expect(root.querySelector('#teleported')).toBeNull()
   })
 })

@@ -16,6 +16,7 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { getActiveElement } from '@scalar/helpers/dom/get-active-element'
 import { isShadowRoot } from '@scalar/helpers/dom/is-shadow-root'
 import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import {
@@ -23,10 +24,12 @@ import {
   computed,
   getCurrentInstance,
   inject,
+  nextTick,
   onMounted,
   ref,
   shallowRef,
   ssrContextKey,
+  useTemplateRef,
   watch,
 } from 'vue'
 
@@ -58,25 +61,23 @@ defineOptions({ inheritAttrs: false })
 
 const root = useTeleport()
 const documentRoot = useDocumentRoot()
-const isServerRendering = inject<unknown>(ssrContextKey, null) !== null
 
 /**
- * We look the target up ourselves and hand Vue the element
+ * Inside a shadow root we look the target up ourselves and hand Vue the element
  *
  * Vue looks up selectors with `document.querySelector`, which cannot see into a shadow root,
- * so we run the same query on the document root instead. In a shadow root, `body` becomes the
- * shadow root itself. Whoever renders into a shadow root is expected to wrap it in a
- * <ScalarTeleportRoot> inside an element that carries the theme classes.
+ * so we run the same query on the shadow root instead, and `body` becomes the shadow root
+ * itself. Whoever renders into a shadow root is expected to wrap it in a <ScalarTeleportRoot>
+ * inside an element that carries the theme classes. Normal pages keep handing Vue the selector.
  *
- * `null` means the target is not there yet. On the server there is no document, so the
- * selector is passed on as it is.
+ * `null` means the target is not there yet.
  */
 const findTarget = (): TeleportProps['to'] | null => {
   const selector = to || root
-  if (typeof selector !== 'string' || !documentRoot || isServerRendering) {
+  if (typeof selector !== 'string' || !isShadowRoot(documentRoot)) {
     return selector
   }
-  return selector === 'body' && isShadowRoot(documentRoot)
+  return selector === 'body'
     ? documentRoot
     : documentRoot.querySelector(selector)
 }
@@ -111,6 +112,7 @@ const isWaitingForTarget = computed(() => target.value === null)
  *
  * @see https://vuejs.org/guide/scaling-up/ssr.html#teleports
  */
+const isServerRendering = inject<unknown>(ssrContextKey, null) !== null
 const isHydrating = getCurrentInstance()?.vnode.el != null
 const renderInPlace = ref<boolean>(isServerRendering || isHydrating)
 
@@ -119,12 +121,32 @@ const renderInPlace = ref<boolean>(isServerRendering || isHydrating)
  * what it found. If the target is not on the page at that moment there is
  * nowhere to move the content to later, so it stays where it was rendered.
  */
-const canTeleport = !isHydrating || !isWaitingForTarget.value
+const isTargetOnPage = (target: TeleportProps['to'] | null): boolean =>
+  typeof target === 'string'
+    ? document.querySelector(target) !== null
+    : !!target
+const canTeleport = !isHydrating || isTargetOnPage(target.value)
+
+const content = useTemplateRef<HTMLElement>('content')
+
+/**
+ * A <ScalarTeleportRoot> renders its target after its slot, so we look again once mounted.
+ *
+ * Browsers drop focus from an element that moves, so content that focused itself while it
+ * waited in place gets its focus back once it has moved.
+ */
+const findTargetAgain = (): void => {
+  const focused = getActiveElement(documentRoot)
+  target.value = findTarget()
+
+  if (focused instanceof HTMLElement && content.value?.contains(focused)) {
+    void nextTick(() => focused.focus())
+  }
+}
 
 onMounted(() => {
-  // A <ScalarTeleportRoot> renders its target after its slot, so look again now that it is there
   if (isWaitingForTarget.value) {
-    target.value = findTarget()
+    findTargetAgain()
   }
   if (canTeleport) {
     renderInPlace.value = false
@@ -137,6 +159,7 @@ onMounted(() => {
     :disabled="disabled || renderInPlace || isWaitingForTarget"
     :to="target">
     <div
+      ref="content"
       class="scalar-app"
       style="display: contents"
       v-bind="$attrs">
