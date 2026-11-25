@@ -79,6 +79,29 @@ describe('mock-any-response', () => {
     expect(await (await app.request('/')).json()).toStrictEqual(expected)
   })
 
+  it('sends authored response header examples instead of generated values', async () => {
+    const app = new Hono().get('/', (c) =>
+      mockAnyResponse(c, {
+        responses: {
+          '200': {
+            description: 'OK',
+            headers: {
+              'X-Rate-Limit': { schema: { type: 'integer' }, example: 100 },
+              'X-Request-Id': { schema: { type: 'string' }, examples: { first: { value: 'req-1' } } },
+              'X-Note': { content: { 'text/plain': { example: 'hello' } } },
+            },
+            content: { 'application/json': { example: {} } },
+          },
+        },
+      }),
+    )
+
+    const response = await app.request('/')
+    expect(response.headers.get('x-rate-limit')).toBe('100')
+    expect(response.headers.get('x-request-id')).toBe('req-1')
+    expect(response.headers.get('x-note')).toBe('hello')
+  })
+
   it('preserves transport headers set by middleware when the document declares different values', async () => {
     const app = new Hono()
       .use((c, next) => {

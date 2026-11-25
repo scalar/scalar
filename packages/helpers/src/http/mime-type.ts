@@ -1,3 +1,5 @@
+import { quoteHttpString } from './quote-http-string'
+
 export type ParsedMimeType = {
   essence: string
   type: string
@@ -7,11 +9,6 @@ export type ParsedMimeType = {
 }
 
 const HTTP_TOKEN_CODE_POINT = /^[!#$%&'*+\-.^_`|~A-Za-z0-9]+$/
-
-const quoteParameterValue = (value: string): string => {
-  const escapedValue = value.replaceAll(/(["\\])/g, '\\$1')
-  return `"${escapedValue}"`
-}
 
 /** Split at semicolons outside quoted parameter values. */
 const splitMimeType = (value: string): string[] => {
@@ -107,9 +104,7 @@ export const parseMimeType = (value: string = 'text/plain'): ParsedMimeType => {
 
   const serialize = (): string => {
     const serializedParameters = Array.from(parameters.entries()).map(([name, parameterValue]) => {
-      const safeValue = HTTP_TOKEN_CODE_POINT.test(parameterValue)
-        ? parameterValue
-        : quoteParameterValue(parameterValue)
+      const safeValue = HTTP_TOKEN_CODE_POINT.test(parameterValue) ? parameterValue : quoteHttpString(parameterValue)
       return `${name}=${safeValue}`
     })
 
