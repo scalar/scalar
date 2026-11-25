@@ -91,9 +91,9 @@
       "default": "./dist/request-example/index.js"
     },
     "./resolve": {
-      "import": "./dist/resolve.js",
-      "types": "./dist/resolve.d.ts",
-      "default": "./dist/resolve.js"
+      "import": "./dist/resolve/index.js",
+      "types": "./dist/resolve/index.d.ts",
+      "default": "./dist/resolve/index.js"
     },
     "./schemas": {
       "import": "./dist/schemas.js",

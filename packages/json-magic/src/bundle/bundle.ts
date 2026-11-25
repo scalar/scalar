@@ -11,7 +11,7 @@ import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 import { resolveResourcePath } from '@/helpers/resolve-resource-path'
 import { setValueAtPath } from '@/helpers/set-value-at-path'
 import { toRelativePath } from '@/helpers/to-relative-path'
-import { getRaw } from '@/magic-proxy/proxy'
+import { getRaw } from '@/magic-proxy/symbols'
 import type { UnknownObject } from '@/types'
 
 import {
