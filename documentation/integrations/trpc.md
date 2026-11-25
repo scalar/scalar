@@ -7,7 +7,7 @@ Use [`trpc-to-openapi`](https://github.com/mcampa/trpc-to-openapi) to expose sel
 This example uses Node.js 24, tRPC 11, and Zod 4.
 
 ```bash
-npm install @scalar/express-api-reference @trpc/server@11 express@4 trpc-to-openapi zod@4
+npm install @scalar/express-api-reference @trpc/server@11 express@4 trpc-to-openapi@3 zod@4 zod-openapi@5
 ```
 
 ## Serve the API reference
@@ -15,7 +15,7 @@ npm install @scalar/express-api-reference @trpc/server@11 express@4 trpc-to-open
 Save the following as `server.mts`. The REST adapter mounts at `/api`, so the OpenAPI server URL includes that prefix.
 
 ```typescript
-import { Scalar } from '@scalar/express-api-reference'
+import { apiReference } from '@scalar/express-api-reference'
 import { initTRPC } from '@trpc/server'
 import express from 'express'
 import { createOpenApiExpressMiddleware, generateOpenApiDocument, type OpenApiMeta } from 'trpc-to-openapi'
@@ -39,7 +39,7 @@ const document = generateOpenApiDocument(router, {
 const app = express()
 
 app.use('/api', createOpenApiExpressMiddleware({ router }))
-app.use('/reference', Scalar({ content: document }))
+app.use('/reference', apiReference({ content: document }))
 app.listen(3000, 'localhost')
 ```
 
