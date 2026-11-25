@@ -37,6 +37,7 @@ catalogs:
     '@nestjs/testing': '^12.6.0'
     '@playwright/test': 1.65.1
     '@scalar/typebox': 0.1.4
+    '@swaggerexpert/jsonpath': 4.0.5
     '@tailwindcss/cli': ^4.3.5
     '@scalar/sdk': 0.8.0
     '@tailwindcss/vite': ^4.3.5

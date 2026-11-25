@@ -1,0 +1,315 @@
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
+import { isObject } from '@scalar/helpers/object/is-object'
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
+import { NormalizedPath, evaluate, test } from '@swaggerexpert/jsonpath'
+
+import { PLUGIN_DOCUMENT_TYPE_KEY } from '@/schemas/plugin-document'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
+
+/** A parsed Overlay and its retrieval URI, if known. */
+export type LoadedOverlay = { document: unknown; sourceUri?: string }
+
+/** An action that succeeded without changing the description because no node matched. */
+export type OverlayDiagnostic = { overlayIndex: number; actionIndex: number; target: string }
+
+type Location = (string | number)[]
+type Match = { location: Location; value: unknown }
+type Action = Record<string, unknown> & { target: string }
+
+const isAuthoredOpenApi = (document: Record<string, unknown>): boolean =>
+  !isAsyncApiDocument(document) &&
+  (isOpenApiDocument(document) ? /^3\.\d+\.\d+$/.test(document.openapi) : document.swagger === '2.0')
+
+const optionalString = (object: Record<string, unknown>, key: string): string | undefined => {
+  const value = getOwnEntry(object, key)
+  if (value !== undefined && typeof value !== 'string') {
+    throw new Error(`"${key}" must be a string`)
+  }
+  return value
+}
+
+const uriReference = (object: Record<string, unknown>, key: string): string | undefined => {
+  const value = optionalString(object, key)
+  if (value !== undefined && (/[^A-Za-z0-9\-._~:/?[\]@!$&'()*+,;=%]/.test(value) || /%(?![\da-f]{2})/i.test(value))) {
+    throw new Error(`"${key}" must be a URI reference without a fragment`)
+  }
+  return value
+}
+
+const resolveUri = (reference: string, base?: string): string => new URL(reference, base).href
+
+const checkOverlayIdentity = (
+  overlay: Record<string, unknown>,
+  sourceUri: string | undefined,
+  base: Record<string, unknown>,
+  baseSourceUri: string | undefined,
+): void => {
+  const self = uriReference(overlay, '$self')
+  const extendsUri = uriReference(overlay, 'extends')
+  const overlayIdentity =
+    self !== undefined && (sourceUri || /^[a-z][a-z\d+.-]*:/i.test(self)) ? resolveUri(self, sourceUri) : sourceUri
+  if (extendsUri === undefined) {
+    return
+  }
+
+  // $self was introduced in OpenAPI 3.2. The retrieval URI identifies older descriptions.
+  const baseSelf =
+    typeof base.openapi === 'string' && /^3\.2\.\d+$/.test(base.openapi) && typeof base.$self === 'string'
+      ? base.$self
+      : undefined
+  const baseIdentity = baseSelf === undefined ? baseSourceUri : resolveUri(baseSelf, baseSourceUri)
+  const targetIdentity = resolveUri(extendsUri, overlayIdentity)
+  if (!baseIdentity || resolveUri(baseIdentity) !== targetIdentity) {
+    throw new Error(`"extends" resolves to "${targetIdentity}", which does not identify the base description`)
+  }
+}
+
+const serializeUpdate = (value: unknown): string =>
+  JSON.stringify(value, (key, item: unknown) => {
+    // The result will also pass through the workspace's object and proxy helpers.
+    if (key === '__proto__') {
+      preventPollution(key, 'Overlay update')
+    }
+    if (
+      item === null ||
+      typeof item === 'string' ||
+      typeof item === 'boolean' ||
+      (typeof item === 'number' && Number.isFinite(item)) ||
+      Array.isArray(item) ||
+      isObject(item)
+    ) {
+      return item
+    }
+    throw new Error('"update" must contain only JSON values')
+  })
+
+const validateFields = (action: Record<string, unknown>): void => {
+  optionalString(action, 'description')
+  if (Object.hasOwn(action, 'remove') && typeof action.remove !== 'boolean') {
+    throw new Error('"remove" must be a boolean')
+  }
+  if (Object.hasOwn(action, 'copy') && (typeof action.copy !== 'string' || !test(action.copy))) {
+    throw new Error('"copy" must be a valid JSONPath expression')
+  }
+  if (Object.hasOwn(action, 'update')) {
+    serializeUpdate(action.update)
+  }
+}
+
+const getReusableActions = (overlay: Record<string, unknown>): Map<string, Record<string, unknown>> => {
+  const actions = new Map<string, Record<string, unknown>>()
+  const { components } = overlay
+  if (components === undefined) {
+    return actions
+  }
+  if (!isObject(components) || (components.actions !== undefined && !isObject(components.actions))) {
+    throw new Error('"components.actions" must be an object')
+  }
+
+  for (const [key, action] of Object.entries(components.actions ?? {})) {
+    if (!isObject(action)) {
+      throw new Error(`Invalid reusable action "${key}"`)
+    }
+    optionalString(action, 'description')
+    const fields = Object.hasOwn(action, 'fields') ? action.fields : {}
+    if (!isObject(fields) || Object.hasOwn(fields, 'target') || Object.hasOwn(fields, '$ref')) {
+      throw new Error(`Invalid fields for reusable action "${key}"`)
+    }
+    validateFields(fields)
+    actions.set(key, fields)
+  }
+  return actions
+}
+
+const getAction = (action: unknown, reusableActions: Map<string, Record<string, unknown>>): Action => {
+  if (!isObject(action) || typeof action.target !== 'string') {
+    throw new Error('An action must specify a JSONPath "target"')
+  }
+  validateFields(action)
+
+  if (!Object.hasOwn(action, '$ref')) {
+    return { ...action, target: action.target }
+  }
+  if (typeof action.$ref !== 'string' || !action.$ref.startsWith('#')) {
+    throw new Error('A reusable action reference must point to this Overlay')
+  }
+
+  const pointer = decodeURIComponent(action.$ref.slice(1))
+  const [components, actions, key, ...rest] = parseJsonPointerSegments(pointer)
+  if (
+    !pointer.startsWith('/') ||
+    /~(?![01])/.test(pointer) ||
+    components !== 'components' ||
+    actions !== 'actions' ||
+    key === undefined ||
+    rest.length > 0
+  ) {
+    throw new Error('A reusable action reference must point to a key under "#/components/actions/"')
+  }
+  const fields = reusableActions.get(key)
+  if (!fields) {
+    throw new Error(`Reusable action "${key}" does not exist`)
+  }
+  return { ...fields, ...action, target: action.target }
+}
+
+const kindOf = (value: unknown): 'object' | 'array' | 'primitive' =>
+  Array.isArray(value) ? 'array' : isObject(value) ? 'object' : 'primitive'
+
+const mergeValue = (target: unknown, update: unknown, appendToArray = false): unknown => {
+  if (Array.isArray(target) && (appendToArray || Array.isArray(update))) {
+    for (const item of Array.isArray(update) ? update : [update]) {
+      target.push(item)
+    }
+    return target
+  }
+  if (isObject(target) && isObject(update)) {
+    for (const [key, value] of Object.entries(update)) {
+      target[key] = Object.hasOwn(target, key) ? mergeValue(target[key], value) : value
+    }
+    return target
+  }
+  if (kindOf(target) === 'primitive' && kindOf(update) === 'primitive') {
+    return update
+  }
+  throw new Error('The action value is incompatible with the selected node')
+}
+
+const getParent = (document: Record<string, unknown>, location: Location): object => {
+  let parent: object = document
+  for (const key of location.slice(0, -1)) {
+    parent = Reflect.get(parent, key)
+  }
+  return parent
+}
+
+const lastIndex = (location: Location): number => {
+  const key = location.at(-1)
+  return typeof key === 'number' ? key : -1
+}
+
+const applyAction = (document: Record<string, unknown>, action: Action): boolean => {
+  // JSONPath can select the same location more than once. Apply a mutation once per location.
+  const matches = new Map<string, Match>()
+  evaluate(document, action.target, {
+    callback: (value, path) => matches.set(path, { location: NormalizedPath.to(path), value }),
+  })
+  if (matches.size === 0) {
+    return false
+  }
+
+  // Visit nested locations before their parents and remove array indices in descending order
+  // so every location still points to its original element.
+  const ordered = [...matches.values()].sort(
+    (a, b) =>
+      b.location.length - a.location.length ||
+      (action.remove === true ? lastIndex(b.location) - lastIndex(a.location) : 0),
+  )
+
+  if (action.remove === true) {
+    for (const { location } of ordered) {
+      const key = location.at(-1)
+      if (key === undefined) {
+        throw new Error('An Overlay cannot remove the root of an OpenAPI description')
+      }
+      const parent = getParent(document, location)
+      if (Array.isArray(parent) && typeof key === 'number') {
+        parent.splice(key, 1)
+      } else {
+        Reflect.deleteProperty(parent, key)
+      }
+    }
+    return true
+  }
+
+  // Overlay 1.2 defines update and copy as having no effect when both are present.
+  const hasUpdate = Object.hasOwn(action, 'update')
+  const hasCopy = typeof action.copy === 'string'
+  if (hasUpdate === hasCopy) {
+    return true
+  }
+
+  const kinds = new Set(ordered.map(({ value }) => kindOf(value)))
+  if (kinds.size > 1) {
+    throw new Error('Update and copy require all selected nodes to have the same kind')
+  }
+
+  let update = action.update
+  if (typeof action.copy === 'string') {
+    const copied = evaluate(document, action.copy)
+    if (copied.length !== 1) {
+      throw new Error('"copy" must select exactly one node')
+    }
+    update = copied[0]
+  }
+
+  // Snapshot the value before mutating any target, including when it contains the copy source.
+  const serializedUpdate = serializeUpdate(update)
+  for (const { location, value } of ordered) {
+    const updated = mergeValue(value, JSON.parse(serializedUpdate), true)
+    const key = location.at(-1)
+    if (key !== undefined && updated !== value) {
+      Reflect.set(getParent(document, location), key, updated)
+    }
+  }
+
+  return true
+}
+
+/** Applies already-loaded Overlay 1.2 documents to a fresh copy of an authored OpenAPI description. */
+export const composeOpenApiOverlays = (
+  base: Record<string, unknown>,
+  overlays: readonly LoadedOverlay[],
+  baseSourceUri?: string,
+): { document: Record<string, unknown>; diagnostics: OverlayDiagnostic[] } => {
+  // JSON has independent nodes at each location, even when the source used YAML aliases.
+  const document: Record<string, unknown> = JSON.parse(JSON.stringify(base))
+  delete document[PLUGIN_DOCUMENT_TYPE_KEY]
+  if (!isAuthoredOpenApi(document)) {
+    throw new Error('Overlays require an OpenAPI description')
+  }
+
+  const diagnostics: OverlayDiagnostic[] = []
+  for (const [overlayIndex, { document: overlay, sourceUri }] of overlays.entries()) {
+    const context = `Overlay ${overlayIndex + 1}${sourceUri ? ` (${sourceUri})` : ''}`
+    try {
+      if (!isObject(overlay) || typeof overlay.overlay !== 'string' || !/^1\.2\.(0|[1-9]\d*)$/.test(overlay.overlay)) {
+        throw new Error('Expected an Overlay with version 1.2.x')
+      }
+      if (
+        !isObject(overlay.info) ||
+        typeof overlay.info.title !== 'string' ||
+        typeof overlay.info.version !== 'string'
+      ) {
+        throw new Error('Overlay "info" must include string "title" and "version" fields')
+      }
+      optionalString(overlay.info, 'description')
+      if (!Array.isArray(overlay.actions) || overlay.actions.length === 0) {
+        throw new Error('An Overlay must contain at least one action')
+      }
+      checkOverlayIdentity(overlay, sourceUri, base, baseSourceUri)
+      const reusableActions = getReusableActions(overlay)
+      for (const [actionIndex, entry] of overlay.actions.entries()) {
+        try {
+          const action = getAction(entry, reusableActions)
+          if (!applyAction(document, action)) {
+            diagnostics.push({ overlayIndex, actionIndex, target: action.target })
+          }
+        } catch (error) {
+          throw new Error(`Action ${actionIndex + 1}: ${error instanceof Error ? error.message : String(error)}`, {
+            cause: error,
+          })
+        }
+      }
+    } catch (error) {
+      throw new Error(`${context}: ${error instanceof Error ? error.message : String(error)}`, { cause: error })
+    }
+  }
+
+  delete document[PLUGIN_DOCUMENT_TYPE_KEY]
+  if (!isAuthoredOpenApi(document)) {
+    throw new Error('Overlay composition must produce an OpenAPI description')
+  }
+  return { document, diagnostics }
+}
