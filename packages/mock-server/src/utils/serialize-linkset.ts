@@ -1,7 +1,6 @@
 import { HTTP_TOKEN } from '@scalar/helpers/http/http-token'
+import { quoteHttpString } from '@scalar/helpers/http/quote-http-string'
 import { isObject } from '@scalar/helpers/object/is-object'
-
-const quote = (value: string): string => `"${value.replace(/["\\]/g, '\\$&')}"`
 
 /** Extended attributes use RFC 8187 syntax, including for UTF-8 titles. */
 const encodeExtendedAttribute = (attribute: unknown): string | undefined => {
@@ -28,16 +27,18 @@ const serializeTarget = (target: unknown, relation: string, anchor: string | und
     return undefined
   }
 
-  const parameters = [`rel=${quote(relation)}`]
+  const parameters = [`rel=${quoteHttpString(relation)}`]
   if (anchor !== undefined) {
-    parameters.push(`anchor=${quote(anchor)}`)
+    parameters.push(`anchor=${quoteHttpString(anchor)}`)
   }
   for (const [name, attribute] of Object.entries(attributes)) {
     if (HTTP_TOKEN.exec(name)?.[0] !== name || ['rel', 'anchor'].includes(name.toLowerCase())) {
       return undefined
     }
     for (const item of Array.isArray(attribute) ? attribute : [attribute]) {
-      const text = name.endsWith('*') ? encodeExtendedAttribute(item) : typeof item === 'string' && quote(item)
+      const text = name.endsWith('*')
+        ? encodeExtendedAttribute(item)
+        : typeof item === 'string' && quoteHttpString(item)
       if (typeof text !== 'string') {
         return undefined
       }

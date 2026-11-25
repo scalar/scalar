@@ -82,16 +82,17 @@ export function mockAnyResponse(
     }
 
     try {
-      const text = getResponseHeaderExample(headers[header], generationContext)
+      const example = getResponseHeaderExample(headers[header], generationContext, name)
       // Passing undefined to Hono would delete a header already set by middleware such as cors().
-      if (text === undefined) {
+      if (example === undefined) {
         return
       }
       // OpenAPI 3.2 models separate Set-Cookie fields as one cookie per line.
       const append = name === 'set-cookie' && usesOpenApi32HeaderExamples(generationContext)
-      const values = append ? text.split(/\r?\n/).filter(Boolean) : [text]
-      if (values.length && values.every((value) => isSettableResponseHeader(header, value))) {
-        for (const value of values) {
+      const values = Array.isArray(example) ? example : [example]
+      const fields = append && typeof example === 'string' ? example.split(/\r?\n/).filter(Boolean) : values
+      if (fields.length && fields.every((value) => isSettableResponseHeader(header, value))) {
+        for (const value of fields) {
           c.header(header, value, { append })
         }
         return

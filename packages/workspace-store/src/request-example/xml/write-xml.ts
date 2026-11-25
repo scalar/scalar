@@ -10,7 +10,12 @@ const namePattern = new RegExp(`^[${NAME_START}][${NAME_START}\\-.0-9\\u00B7\\u0
 const invalidCharacter = /[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/u
 
 /** Formatting is restricted to element-only content, where it cannot change text values. */
-export type WriteXmlOptions = { format?: boolean; xmlDeclaration?: boolean }
+export type WriteXmlOptions = {
+  format?: boolean
+  xmlDeclaration?: boolean
+  /** Write line feeds in text and CDATA as character references for single-line transports. */
+  escapeTextNewlines?: boolean
+}
 
 /** Serialize an XML document, validating names, characters, and namespace bindings. */
 export const writeXml = (nodes: XmlNode[], options: WriteXmlOptions = {}): XmlExampleResult => {
@@ -24,7 +29,8 @@ export const writeXml = (nodes: XmlNode[], options: WriteXmlOptions = {}): XmlEx
     }
     const escaped = value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\r/g, '&#13;')
     // XML parsers normalize literal whitespace in attributes, so encode it explicitly.
-    return attribute ? escaped.replace(/"/g, '&quot;').replace(/\n/g, '&#10;').replace(/\t/g, '&#9;') : escaped
+    const text = attribute || options.escapeTextNewlines ? escaped.replace(/\n/g, '&#10;') : escaped
+    return attribute ? text.replace(/"/g, '&quot;').replace(/\t/g, '&#9;') : text
   }
   let generatedPrefix = 0
   let count = 0
@@ -47,7 +53,8 @@ export const writeXml = (nodes: XmlNode[], options: WriteXmlOptions = {}): XmlEx
         fail('invalid-character', 'The CDATA contains a character XML 1.0 cannot represent.', path)
       }
       // Carriage returns must be outside CDATA to survive XML line-ending normalization.
-      return `<![CDATA[${node.value.replace(/]]>/g, ']]]]><![CDATA[>').replace(/\r/g, ']]>&#13;<![CDATA[')}]]>`
+      const cdata = node.value.replace(/]]>/g, ']]]]><![CDATA[>').replace(/\r/g, ']]>&#13;<![CDATA[')
+      return `<![CDATA[${options.escapeTextNewlines ? cdata.replace(/\n/g, ']]>&#10;<![CDATA[') : cdata}]]>`
     }
     const bindings = new Map(inherited)
     const declarations = new Map<string, string>()

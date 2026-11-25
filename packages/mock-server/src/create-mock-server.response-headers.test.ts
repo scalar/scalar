@@ -107,7 +107,7 @@ describe('create-mock-server.response-headers', () => {
                       examples: { authored: { dataValue: 42 } },
                     },
                     'X-Metadata': {
-                      content: { 'application/json': { example: { id: 7 } } },
+                      content: { 'application/json': { example: { id: 7, label: '東京🗼' } } },
                     },
                     'X-Text': {
                       content: { 'application/json': { $ref: '#/components/mediaTypes/text' } },
@@ -116,7 +116,7 @@ describe('create-mock-server.response-headers', () => {
                       content: {
                         'application/xml': {
                           schema: { type: 'string', xml: { name: 'message' } },
-                          examples: { authored: { dataValue: '<hello/>' } },
+                          examples: { authored: { dataValue: '<hello/>\nworld' } },
                         },
                       },
                     },
@@ -144,18 +144,57 @@ describe('create-mock-server.response-headers', () => {
 
     expect(response.headers.get('x-label')).toBe('"re\\u0061dy"')
     expect(response.headers.get('x-count')).toBe('42')
-    expect(response.headers.get('x-metadata')).toBe('{"id":7}')
+    expect(response.headers.get('x-metadata')).toBe('{"id":7,"label":"\\u6771\\u4eac\\ud83d\\uddfc"}')
     expect(response.headers.get('x-text')).toBe('"[1,2]"')
-    expect(response.headers.get('x-message')).toBe('<message>&lt;hello/&gt;</message>')
+    expect(response.headers.get('x-message')).toBe('<message>&lt;hello/&gt;&#10;world</message>')
     expect(response.headers.get('link')).toBe('</items?page=2>; rel="next"; anchor="/items"')
   })
 
   it.each([
-    { openapi: '3.2.0', text: 'lang=en-US\r\nfoo=bar\n', expected: ['lang=en-US', 'foo=bar'] },
-    { openapi: '3.2.0', text: 'lang=en-US\nfoo=bad\rvalue', expected: [] },
-    { openapi: '3.1.2', text: 'lang=en-US\nfoo=bar', expected: [] },
-  ])('validates cookie lines for OpenAPI $openapi with $text', async ({ openapi, text, expected }) => {
-    const example = openapi === '3.2.0' ? { examples: { authored: { serializedValue: text } } } : { example: text }
+    {
+      name: 'serialized cookie lines',
+      openapi: '3.2.0',
+      header: { content: { 'text/plain': { examples: { authored: { serializedValue: 'lang=en-US\r\nfoo=bar\n' } } } } },
+      expected: ['lang=en-US', 'foo=bar'],
+    },
+    {
+      name: 'structured cookies with an Expires attribute',
+      openapi: '3.2.0',
+      header: {
+        schema: { type: 'object' },
+        style: 'simple',
+        explode: true,
+        examples: {
+          authored: { dataValue: { lang: 'en-US; Expires=Wed, 09 Jun 2021 10:18:14 GMT', foo: 'bar' } },
+        },
+      },
+      expected: ['lang=en-US; Expires=Wed, 09 Jun 2021 10:18:14 GMT', 'foo=bar'],
+    },
+    {
+      name: 'invalid serialized cookie fields',
+      openapi: '3.2.0',
+      header: {
+        content: { 'text/plain': { examples: { authored: { serializedValue: 'lang=en-US\nfoo=bad\rvalue' } } } },
+      },
+      expected: [],
+    },
+    {
+      name: 'a line feed inside structured cookie data',
+      openapi: '3.2.0',
+      header: {
+        schema: { type: 'object' },
+        explode: true,
+        examples: { authored: { dataValue: { lang: 'en-US', foo: 'bar\nbaz' } } },
+      },
+      expected: [],
+    },
+    {
+      name: 'a multiline example in OpenAPI 3.1',
+      openapi: '3.1.2',
+      header: { content: { 'text/plain': { example: 'lang=en-US\nfoo=bar' } } },
+      expected: [],
+    },
+  ])('validates and serializes $name', async ({ openapi, header, expected }) => {
     const app = await createMockServer({
       document: {
         openapi,
@@ -166,7 +205,7 @@ describe('create-mock-server.response-headers', () => {
               responses: {
                 '200': {
                   description: 'OK',
-                  headers: { 'Set-Cookie': { content: { 'text/plain': example } } },
+                  headers: { 'Set-Cookie': header },
                 },
               },
             },

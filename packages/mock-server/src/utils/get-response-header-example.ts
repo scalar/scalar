@@ -51,11 +51,13 @@ const serializeFormHeader = (value: unknown, encoding: OpenAPIV3_2.MediaTypeObje
  *
  * Header Object examples take precedence over media type examples. Both take precedence over
  * schema generation, and `serializedValue` already contains the text to send.
+ * An exploded OpenAPI 3.2 cookie map returns one value per field.
  */
 export const getResponseHeaderExample = (
   header: OpenAPIV3_2.HeaderObject | OpenAPIV3_2.ReferenceObject | undefined,
   generationContext: ExampleGenerationContext = {},
-): string | undefined => {
+  normalizedName?: string,
+): string | string[] | undefined => {
   const headerObject = getResolvedRef<OpenAPIV3_2.HeaderObject | undefined>(header)
   if (!isObjectLike(headerObject)) {
     return undefined
@@ -78,6 +80,7 @@ export const getResponseHeaderExample = (
       mode: 'read',
       format: false,
       xmlDeclaration: false,
+      escapeTextNewlines: true,
     }).xml
   }
 
@@ -93,13 +96,25 @@ export const getResponseHeaderExample = (
     if (mediaType === 'application/linkset') {
       return serializeLinkset(value)
     }
+    const json = isJsonMediaType(contentType)
     const provenance =
-      !example || (isJsonMediaType(contentType) && usesOpenApi32HeaderExamples(generationContext))
-        ? 'data'
-        : example.provenance
-    return serializeResponseBody(value, contentType, schema, provenance)
+      !example || (json && usesOpenApi32HeaderExamples(generationContext)) ? 'data' : example.provenance
+    const text = serializeResponseBody(value, contentType, schema, provenance)
+    // JSON escapes keep generated data ASCII on the wire, including surrogate pairs for astral characters.
+    return json && text !== value
+      ? text?.replace(/[\u007f-\uffff]/g, (unit) => `\\u${unit.charCodeAt(0).toString(16).padStart(4, '0')}`)
+      : text
   }
 
+  if (
+    normalizedName === 'set-cookie' &&
+    usesOpenApi32HeaderExamples(generationContext) &&
+    headerObject.explode === true &&
+    isObject(value)
+  ) {
+    // Commas inside a cookie (for example, in Expires) belong to that cookie's field value.
+    return Object.entries(value).map(([cookie, attributes]) => `${cookie}=${String(attributes)}`)
+  }
   if (value === null) {
     return undefined
   }

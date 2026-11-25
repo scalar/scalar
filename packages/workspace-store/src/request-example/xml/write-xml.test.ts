@@ -86,6 +86,16 @@ describe('write-xml', () => {
     )
   })
 
+  it('uses character references for line feeds in text and CDATA when requested', () => {
+    expect(
+      writeXml([element('root', [text('a\nb'), { type: 'cdata', value: '<c>\nd' }])], {
+        ...options,
+        format: false,
+        escapeTextNewlines: true,
+      }).xml,
+    ).toBe('<root>a&#10;b<![CDATA[<c>]]>&#10;<![CDATA[d]]></root>')
+  })
+
   it('splits CDATA terminators and encodes carriage returns outside CDATA', () => {
     expect(writeXml([element('root', [{ type: 'cdata', value: '<b>]]>\r' }])], options).xml).toBe(
       '<root><![CDATA[<b>]]]]><![CDATA[>]]>&#13;<![CDATA[]]></root>',
