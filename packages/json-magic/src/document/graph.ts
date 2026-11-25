@@ -31,12 +31,18 @@ type Entry = {
   /** Stored fragments have no authored schema vocabulary until a reference supplies it. */
   inferredContext: boolean
 }
+type IndexContext = {
+  context: ReferenceContext
+  inferredContext?: boolean
+  customReferences?: boolean
+  schemaSiblings?: boolean
+}
 /** Indexed locations and reference resolution for a bundled API description. */
 type DocumentGraph = {
   entries: Map<string, Entry>
-  errors: Set<string>
+  errors: Map<string, string>
   resolve: (reference: string, from?: string) => string | undefined
-  expose: (path: string, context: ReferenceContext, source?: ReferencePosition) => void
+  expose: (path: string, context: ReferenceContext, source?: ReferencePosition) => boolean
 }
 /** HTTP operation fields understood by the OpenAPI graph and use-site filters. */
 const operationMethods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query']
@@ -95,12 +101,14 @@ const createGraph = (
   const entries = new Map<string, Entry>()
   const resources = new Map<string, string>([[origin, '']])
   const anchors = new Map<string, string>()
-  const errors = new Set<string>()
+  const errors = new Map<string, string>()
+  const externalUrls = document['x-ext-urls']
+  const nativeContexts = new Map<string, IndexContext>()
   const resolveIdentity = (base: string, identity: string, path: string): string | undefined => {
     try {
       return resolveReferencePath(base, identity)
     } catch {
-      errors.add(`${path || '/'}: Cannot resolve schema identity ${identity} against ${base}`)
+      errors.set(path, `${path || '/'}: Cannot resolve schema identity ${identity} against ${base}`)
       return undefined
     }
   }
@@ -108,12 +116,15 @@ const createGraph = (
     value: unknown,
     path: string,
     base: string,
-    inherited: ReferenceContext,
+    interpretation: IndexContext,
     ancestors: Set<object>,
-    inferredContext = false,
-    customReferences = false,
-    schemaSiblings?: boolean,
   ): void => {
+    const {
+      context: inherited,
+      inferredContext = false,
+      customReferences = false,
+      schemaSiblings,
+    } = (interpretation.context !== 'data' && nativeContexts.get(path)) || interpretation
     const owner = documentAt(document, path)
     const modernSchemas = modernSchemaDocument(owner)
     const position = includeCustomReferences
@@ -122,15 +133,19 @@ const createGraph = (
     const context = position?.context ?? inherited
     const ignoresSiblings = position !== undefined && ignoresReferenceSiblings(value, position)
     const vocabulary = getSchemaVocabulary(context, position?.customReferences)
-    const externalRoot = pointerSegments(path).length === 2 && path.startsWith('/x-ext/')
+    const externalRoot = path.startsWith('/x-ext/') && path.indexOf('/', '/x-ext/'.length) === -1
+    const externalKey = path.slice('/x-ext/'.length)
+    const literalCopy =
+      includeCustomReferences &&
+      externalRoot &&
+      /^literal-\d+$/.test(externalKey) &&
+      !(isDocument(externalUrls) && Object.hasOwn(externalUrls, externalKey))
+    // Literal copies inherit the use site's schema vocabulary.
+    const hasSchemaIdentity = modernSchemas || typeof owner.asyncapi === 'string' || customReferences
+    const schemaIdKeyword = hasSchemaIdentity ? vocabulary?.idKeyword : undefined
+    const idKeyword = externalRoot && !literalCopy ? '$id' : schemaIdKeyword
     const identity =
-      isDocument(value) && !(ignoresSiblings && isSchemaContext(context))
-        ? externalRoot
-          ? value.$id
-          : vocabulary?.idKeyword && (modernSchemas || typeof owner.asyncapi === 'string' || customReferences)
-            ? value[vocabulary.idKeyword]
-            : undefined
-        : undefined
+      isDocument(value) && idKeyword && !(ignoresSiblings && isSchemaContext(context)) ? value[idKeyword] : undefined
     const currentOrigin = typeof identity === 'string' ? resolveIdentity(base, identity, path) : base
     if (currentOrigin === undefined) {
       return
@@ -174,28 +189,29 @@ const createGraph = (
         child,
         childPath(path, key),
         currentOrigin,
-        next.context,
+        { ...next, inferredContext, schemaSiblings: position?.childSchemaSiblings },
         ancestors,
-        inferredContext,
-        next.customReferences,
-        position?.childSchemaSiblings,
       )
     }
     ancestors.delete(value)
   }
-  index(document, '', origin, 'object', new Set())
+  index(document, '', origin, { context: 'object' }, new Set())
   if (isDocument(document['x-ext'])) {
     for (const [key, value] of Object.entries(document['x-ext'])) {
       const path = childPath('/x-ext', key)
       const api = isDocument(value) && ('openapi' in value || 'swagger' in value || 'asyncapi' in value)
       // References into stored fragments supply their semantic context at the use site.
-      index(value, path, origin, api ? 'object' : 'schema', new Set(), !api)
+      index(value, path, origin, { context: api ? 'object' : 'schema', inferredContext: !api }, new Set())
     }
   }
-  const expose = (path: string, context: ReferenceContext, source?: ReferencePosition): void => {
+  const expose = (path: string, context: ReferenceContext, source?: ReferencePosition): boolean => {
     const entry = entries.get(path)
     const custom = source?.customReferences ?? false
     if (includeCustomReferences) {
+      const targetContext =
+        custom && context === 'object' && entry
+          ? referencePosition(entry.value, context, source.schemaSiblings, custom).context
+          : context
       // A custom edge can give an external fragment its context. Standard API positions carry their own.
       if (
         entry &&
@@ -203,15 +219,15 @@ const createGraph = (
         (entry.context === 'data' ||
           (custom && !entry.position?.customReferences) ||
           (custom === entry.position?.customReferences &&
-            (entry.context === context || (isSchemaContext(entry.context) && isSchemaContext(context)))))
+            (entry.context === targetContext || (isSchemaContext(entry.context) && isSchemaContext(targetContext)))))
       ) {
-        return
+        return false
       }
     } else if (
       entry?.context === context ||
       (isSchemaContext(entry?.context) && isSchemaContext(context) && !entry.inferredContext)
     ) {
-      return
+      return false
     }
     let ancestor = entry
     for (let parent = path; !ancestor && parent; ) {
@@ -220,18 +236,34 @@ const createGraph = (
     }
     const value = pointerValue(document, pointerSegments(path))
     // Bundled references to literal data use an independent copy. Its original stays opaque.
-    if (value !== undefined && !(includeCustomReferences && ancestor?.context === 'data')) {
-      index(
-        value,
-        path,
-        entry?.base ?? ancestor?.origin ?? origin,
-        context,
-        new Set(),
-        false,
-        custom,
-        source?.schemaSiblings,
-      )
+    if (value === undefined || (includeCustomReferences && ancestor?.context === 'data')) {
+      return false
     }
+    const base = entry?.base ?? ancestor?.origin ?? origin
+    const interpretation = { context, customReferences: custom, schemaSiblings: source?.schemaSiblings }
+    const nativeExposure = Boolean(entry?.position?.customReferences && !custom && !nativeContexts.has(path))
+    if (nativeExposure) {
+      // Later exposure of an ancestor must preserve an established native context.
+      nativeContexts.set(path, interpretation)
+      // Reinterpreting a custom subtree can make its children and schema identities opaque.
+      const includesPath = (location: string): boolean => location === path || location.startsWith(`${path}/`)
+      for (const locations of [entries, errors]) {
+        for (const location of locations.keys()) {
+          if (includesPath(location)) {
+            locations.delete(location)
+          }
+        }
+      }
+      for (const identities of [resources, anchors]) {
+        for (const [identity, location] of identities) {
+          if (includesPath(location)) {
+            identities.delete(identity)
+          }
+        }
+      }
+    }
+    index(value, path, base, interpretation, new Set())
+    return nativeExposure
   }
 
   const resolve = (reference: string, from = ''): string | undefined => {
@@ -289,7 +321,7 @@ export const checkDocument = (
   const graph = createGraph(document, origin, includeCustomReferences)
   const async = typeof document.asyncapi === 'string'
   const async3 = async && String(document.asyncapi).startsWith('3.')
-  const errors = graph.errors
+  const errors = new Set<string>()
   const warnings = new Set<string>()
   const live = new Set<string>()
   const visited = new Set<string>()
@@ -297,6 +329,7 @@ export const checkDocument = (
   const schemaChildren = new Map<string, Set<string>>()
   const expandedDiscriminators = new Set<string>()
   const operationLinks: { id: string; path: string }[] = []
+  let nativeExposure = false
 
   for (const entry of graph.entries.values()) {
     const segments = pointerSegments(entry.path)
@@ -423,8 +456,8 @@ export const checkDocument = (
     }
   }
   const visit = (path: string, override?: ReferenceContext, source?: ReferencePosition): void => {
-    if (override) {
-      graph.expose(path, override, source)
+    if (override && graph.expose(path, override, source)) {
+      nativeExposure = true
     }
     const entry = graph.entries.get(path)
     if (!entry) {
@@ -554,54 +587,70 @@ export const checkDocument = (
       }
     }
   }
-  visit('')
-  // Visiting linked operations can expose new Path Items and add more links.
-  let pendingLinks = operationLinks.splice(0)
-  while (pendingLinks.length) {
-    const operationIds = new Map<string, Set<string>>()
-    for (const entry of graph.entries.values()) {
-      const segments = pointerSegments(entry.path)
-      const parent = graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/')))
-      if (
-        isDocument(entry.value) &&
-        typeof entry.value.operationId === 'string' &&
-        ((parent?.context === 'path-item' && operationMethods.includes(segments.at(-1) ?? '')) ||
-          (segments.at(-2) === 'additionalOperations' &&
-            graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/additionalOperations/')))?.context ===
-              'path-item') ||
-          (async && ['publish', 'subscribe'].includes(segments.at(-1) ?? '')) ||
-          (async3 && segments[0] === 'operations' && segments.length === 2))
-      ) {
-        const paths = operationIds.get(entry.value.operationId) ?? new Set<string>()
-        paths.add(entry.path)
-        operationIds.set(entry.value.operationId, paths)
-      }
-    }
-    const unresolvedLinks = []
-    const visitedBefore = visited.size
-    for (const link of pendingLinks) {
-      const targets = operationIds.get(link.id)
-      if (!targets) {
-        unresolvedLinks.push(link)
-        continue
-      }
-      if (prune && ![...targets].some((target) => live.has(target))) {
-        for (const target of targets) {
-          const pathItem = target.replace(/\/(?:additionalOperations\/)?[^/]+$/, '')
-          visit(pathItem)
+  const visitOperationLinks = (): void => {
+    // Visiting linked operations can expose new Path Items and add more links.
+    let pendingLinks = operationLinks.splice(0)
+    while (pendingLinks.length) {
+      const operationIds = new Map<string, Set<string>>()
+      for (const entry of graph.entries.values()) {
+        const segments = pointerSegments(entry.path)
+        const parent = graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/')))
+        if (
+          isDocument(entry.value) &&
+          typeof entry.value.operationId === 'string' &&
+          ((parent?.context === 'path-item' && operationMethods.includes(segments.at(-1) ?? '')) ||
+            (segments.at(-2) === 'additionalOperations' &&
+              graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/additionalOperations/')))?.context ===
+                'path-item') ||
+            (async && ['publish', 'subscribe'].includes(segments.at(-1) ?? '')) ||
+            (async3 && segments[0] === 'operations' && segments.length === 2))
+        ) {
+          const paths = operationIds.get(entry.value.operationId) ?? new Set<string>()
+          paths.add(entry.path)
+          operationIds.set(entry.value.operationId, paths)
         }
       }
-    }
-    if (operationLinks.length === 0 && visited.size === visitedBefore) {
-      for (const link of unresolvedLinks) {
-        errors.add(`${link.path}: Operation does not exist: ${link.id}`)
+      const unresolvedLinks = []
+      const visitedBefore = visited.size
+      for (const link of pendingLinks) {
+        const targets = operationIds.get(link.id)
+        if (!targets) {
+          unresolvedLinks.push(link)
+          continue
+        }
+        if (prune && ![...targets].some((target) => live.has(target))) {
+          for (const target of targets) {
+            const pathItem = target.replace(/\/(?:additionalOperations\/)?[^/]+$/, '')
+            visit(pathItem)
+          }
+        }
       }
-      break
+      if (operationLinks.length === 0 && visited.size === visitedBefore) {
+        for (const link of unresolvedLinks) {
+          errors.add(`${link.path}: Operation does not exist: ${link.id}`)
+        }
+        break
+      }
+      pendingLinks = [...unresolvedLinks, ...operationLinks.splice(0)]
     }
-    pendingLinks = [...unresolvedLinks, ...operationLinks.splice(0)]
   }
-  if (errors.size) {
-    return err([...errors].join('\n'))
+
+  visit('')
+  visitOperationLinks()
+  // A native use site can reinterpret a custom subtree after it has been visited.
+  while (nativeExposure) {
+    nativeExposure = false
+    live.clear()
+    visited.clear()
+    errors.clear()
+    warnings.clear()
+    expandedDiscriminators.clear()
+    operationLinks.length = 0
+    visit('')
+    visitOperationLinks()
+  }
+  if (graph.errors.size || errors.size) {
+    return err([...graph.errors.values(), ...errors].join('\n'))
   }
   if (prune && warnings.size === 0) {
     for (const path of [...candidates].sort((a, b) => b.length - a.length)) {

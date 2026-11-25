@@ -924,6 +924,114 @@ describe('custom-references', () => {
     expect(await run(true)).toStrictEqual(baseline)
   })
 
+  it.each([false, true])(
+    'uses the native schema context for extension targets (extension first: %s)',
+    async (extensionFirst) => {
+      const origin = 'https://source.test/root.json'
+      const schema = { $ref: '#/x-target' }
+      const extension = {
+        'x-target': {
+          $ref: '#/components/schemas/Used',
+          'x-sibling': { $ref: './missing.json' },
+        },
+      }
+      const paths = {
+        paths: {
+          '/value': { get: { responses: { 200: { description: 'OK', content: { 'application/json': { schema } } } } } },
+        },
+      }
+      const document = {
+        openapi: '3.0.4',
+        info: api.info,
+        ...(extensionFirst ? { ...extension, ...paths } : { ...paths, ...extension }),
+        components: { schemas: { Used: { type: 'number' }, Unused: { type: 'string' } } },
+      }
+      const result = await bundleWithDiagnostics(document, {
+        origin,
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake: false,
+        plugins: [],
+      })
+
+      expect(result.diagnostics).toStrictEqual([])
+      expect(checkDocument(document, { origin, prune: true, includeCustomReferences: true })).toStrictEqual({
+        ok: true,
+        data: { document, warnings: [] },
+      })
+      expect(document.components.schemas).toStrictEqual({ Used: { type: 'number' } })
+      expect(document['x-target']['x-sibling']).toStrictEqual({ $ref: './missing.json' })
+    },
+  )
+
+  it('preserves a native exposure when a custom reference also reaches its containing schema', () => {
+    const origin = 'https://source.test/root.json'
+    const schema = { $ref: '#/x-parent/properties/child' }
+    const document = {
+      openapi: api.openapi,
+      info: api.info,
+      'x-link': { $ref: '#/x-parent' },
+      'x-parent': {
+        type: 'object',
+        properties: { child: { $ref: '#/components/schemas/Used' } },
+      },
+      components: { schemas: { Used: { type: 'string' }, Unused: { type: 'number' } } },
+      paths: {
+        '/value': { get: { responses: { 200: { description: 'OK', content: { 'application/json': { schema } } } } } },
+      },
+    }
+
+    expect(checkDocument(document, { origin, prune: true, includeCustomReferences: true })).toStrictEqual({
+      ok: true,
+      data: { document, warnings: [] },
+    })
+    expect(document.components.schemas).toStrictEqual({ Used: { type: 'string' } })
+  })
+
+  it('uses the native schema dialect for the identity of a synthetic literal copy', async () => {
+    const origin = 'https://source.test/root.json'
+    const schema = { $ref: '#/components/schemas/Source/default' }
+    const document = {
+      ...api,
+      openapi: '3.0.4',
+      paths: {
+        '/value': { get: { responses: { 200: { description: 'OK', content: { 'application/json': { schema } } } } } },
+      },
+      components: {
+        schemas: {
+          Source: {
+            default: {
+              $id: 'http://[',
+              type: 'object',
+              'x-dep': { $id: './nested.json', $ref: '#/components/schemas/Used' },
+            },
+          },
+          Used: { type: 'number' },
+        },
+      },
+    }
+    const result = await bundleWithDiagnostics(document, {
+      origin,
+      traversal: 'document',
+      includeCustomReferences: true,
+      treeShake: false,
+      plugins: [],
+    })
+
+    expect(result.diagnostics).toStrictEqual([])
+    expect(schema.$ref).toBe('#/x-ext/literal-0')
+    expect(checkDocument(document, { origin, prune: true, includeCustomReferences: true })).toStrictEqual({
+      ok: true,
+      data: { document, warnings: [] },
+    })
+    expect(document.components.schemas).toStrictEqual({ Used: { type: 'number' } })
+    expect(local(document, schema.$ref)).toStrictEqual({
+      $id: 'http://[',
+      type: 'object',
+      'x-dep': { $id: './nested.json', $ref: '#/components/schemas/Used' },
+    })
+  })
+
   it('keeps custom-only targets during opt-in standalone pruning', async () => {
     const origin = 'https://source.test/root.json'
     const extension = { $ref: './custom.json' }
