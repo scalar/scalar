@@ -72,19 +72,19 @@ export const getResponseHeaderExample = (
     return mediaType === 'application/linkset' ? serializeLinkset(example.serializedValue) : example.serializedValue
   }
 
-  const schema =
-    contentType !== undefined || !example ? getResolvedRefDeep(headerObject.schema ?? media?.schema) : undefined
+  const authoredSchema = headerObject.schema ?? media?.schema
   if (isXmlMediaType(contentType)) {
-    return getXmlBodyExample(schema as ExampleSchema | undefined, example, {
+    // The XML serializer uses the referenced component name as the default root element.
+    return getXmlBodyExample(authoredSchema as ExampleSchema | undefined, example, {
       ...generationContext,
       mode: 'read',
       format: false,
       xmlDeclaration: false,
-      escapeTextNewlines: true,
+      escapeForHttpHeader: true,
     }).xml
   }
 
-  // Pass the authored schema through directly so generation retains its original keywords.
+  const schema = contentType !== undefined || !example ? getResolvedRefDeep(authoredSchema) : undefined
   const value = !example && schema ? getExampleFromSchema(schema as ExampleSchema, generationContext) : example?.value
   if (value === undefined) {
     return undefined

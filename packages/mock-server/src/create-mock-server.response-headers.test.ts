@@ -87,6 +87,7 @@ describe('create-mock-server.response-headers', () => {
         openapi: '3.2.0',
         info: { title: 'Response headers', version: '1' },
         components: {
+          schemas: { Message: { type: 'string' } },
           examples: { label: { serializedValue: '"re\\u0061dy"', dataValue: 'ready' } },
           mediaTypes: { text: { examples: { authored: { dataValue: '[1,2]' } } } },
         },
@@ -115,8 +116,8 @@ describe('create-mock-server.response-headers', () => {
                     'X-Message': {
                       content: {
                         'application/xml': {
-                          schema: { type: 'string', xml: { name: 'message' } },
-                          examples: { authored: { dataValue: '<hello/>\nworld' } },
+                          schema: { $ref: '#/components/schemas/Message' },
+                          examples: { authored: { dataValue: '<hello/>\n東京🗼' } },
                         },
                       },
                     },
@@ -146,7 +147,7 @@ describe('create-mock-server.response-headers', () => {
     expect(response.headers.get('x-count')).toBe('42')
     expect(response.headers.get('x-metadata')).toBe('{"id":7,"label":"\\u6771\\u4eac\\ud83d\\uddfc"}')
     expect(response.headers.get('x-text')).toBe('"[1,2]"')
-    expect(response.headers.get('x-message')).toBe('<message>&lt;hello/&gt;&#10;world</message>')
+    expect(response.headers.get('x-message')).toBe('<Message>&lt;hello/&gt;&#10;&#26481;&#20140;&#128508;</Message>')
     expect(response.headers.get('link')).toBe('</items?page=2>; rel="next"; anchor="/items"')
   })
 

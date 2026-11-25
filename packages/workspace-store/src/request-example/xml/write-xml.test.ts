@@ -86,14 +86,21 @@ describe('write-xml', () => {
     )
   })
 
-  it('uses character references for line feeds in text and CDATA when requested', () => {
-    expect(
-      writeXml([element('root', [text('a\nb'), { type: 'cdata', value: '<c>\nd' }])], {
-        ...options,
-        format: false,
-        escapeTextNewlines: true,
-      }).xml,
-    ).toBe('<root>a&#10;b<![CDATA[<c>]]>&#10;<![CDATA[d]]></root>')
+  it('encodes Unicode and line breaks in XML header data', () => {
+    const nodes: XmlNode[] = [
+      {
+        type: 'element',
+        name: 'root',
+        attributes: [{ name: 'city', value: '東京' }],
+        children: [text('a\nb🗼'), { type: 'cdata', value: '<c>\nd🗼' }],
+      },
+    ]
+    expect(writeXml(nodes, { ...options, format: false, escapeForHttpHeader: true }).xml).toBe(
+      '<root city="&#26481;&#20140;">a&#10;b&#128508;<![CDATA[<c>]]>&#10;<![CDATA[d]]>&#128508;<![CDATA[]]></root>',
+    )
+    expect(writeXml(nodes, { ...options, format: false }).xml).toBe(
+      '<root city="東京">a\nb🗼<![CDATA[<c>\nd🗼]]></root>',
+    )
   })
 
   it('splits CDATA terminators and encodes carriage returns outside CDATA', () => {

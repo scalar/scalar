@@ -13,8 +13,8 @@ const invalidCharacter = /[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD\u{10000
 export type WriteXmlOptions = {
   format?: boolean
   xmlDeclaration?: boolean
-  /** Write line feeds in text and CDATA as character references for single-line transports. */
-  escapeTextNewlines?: boolean
+  /** Use character references for line breaks and non-ASCII data in HTTP header examples. */
+  escapeForHttpHeader?: boolean
 }
 
 /** Serialize an XML document, validating names, characters, and namespace bindings. */
@@ -23,14 +23,20 @@ export const writeXml = (nodes: XmlNode[], options: WriteXmlOptions = {}): XmlEx
   const fail = (code: string, message: string, path: string[]): void => {
     diagnostics.push({ severity: 'error', code, message, path })
   }
+  // XML parsers normalize carriage returns even in CDATA. Header examples also need single-line, ASCII data.
+  const referenceCharacters = options.escapeForHttpHeader ? /[\r\n\u007f-\u{10ffff}]/gu : /\r/g
+  const characterReference = (character: string): string => `&#${character.codePointAt(0)};`
   const escapeXml = (value: string, attribute: boolean, path: string[]): string => {
     if (invalidCharacter.test(value)) {
       fail('invalid-character', 'The value contains a character XML 1.0 cannot represent.', path)
     }
-    const escaped = value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\r/g, '&#13;')
+    const escaped = value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(referenceCharacters, characterReference)
     // XML parsers normalize literal whitespace in attributes, so encode it explicitly.
-    const text = attribute || options.escapeTextNewlines ? escaped.replace(/\n/g, '&#10;') : escaped
-    return attribute ? text.replace(/"/g, '&quot;').replace(/\t/g, '&#9;') : text
+    return attribute ? escaped.replace(/\n/g, '&#10;').replace(/"/g, '&quot;').replace(/\t/g, '&#9;') : escaped
   }
   let generatedPrefix = 0
   let count = 0
@@ -52,9 +58,11 @@ export const writeXml = (nodes: XmlNode[], options: WriteXmlOptions = {}): XmlEx
       if (invalidCharacter.test(node.value)) {
         fail('invalid-character', 'The CDATA contains a character XML 1.0 cannot represent.', path)
       }
-      // Carriage returns must be outside CDATA to survive XML line-ending normalization.
-      const cdata = node.value.replace(/]]>/g, ']]]]><![CDATA[>').replace(/\r/g, ']]>&#13;<![CDATA[')
-      return `<![CDATA[${options.escapeTextNewlines ? cdata.replace(/\n/g, ']]>&#10;<![CDATA[') : cdata}]]>`
+      // References are interpreted only outside CDATA.
+      const cdata = node.value
+        .replace(/]]>/g, ']]]]><![CDATA[>')
+        .replace(referenceCharacters, (character) => `]]>${characterReference(character)}<![CDATA[`)
+      return `<![CDATA[${cdata}]]>`
     }
     const bindings = new Map(inherited)
     const declarations = new Map<string, string>()
