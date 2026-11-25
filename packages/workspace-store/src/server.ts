@@ -38,6 +38,7 @@ import {
   type DocumentLoadResult,
   type OverlaySource,
   getOverlayFileUri,
+  loadInlineDocument,
   loadOpenApiOverlays,
   loadUrlWithRetrievalUri,
 } from '@/helpers/load-openapi-overlays'
@@ -370,11 +371,11 @@ type ServerWorkspace = Omit<Workspace, 'activeDocument'>
 function loadDocument(
   workspaceDocument: OverlaySource,
   options: CreateServerWorkspaceStoreBase['documentLoading'] = {},
-  captureRetrievalUri = false,
+  compose = false,
 ): Promise<DocumentLoadResult> {
   if ('url' in workspaceDocument) {
     // The protected loader does not follow redirects and must use its guarded transport.
-    if (captureRetrievalUri && options.allowPrivateNetworks) {
+    if (compose && options.allowPrivateNetworks) {
       return loadUrlWithRetrievalUri(workspaceDocument.url, (fetch) => fetchUrls({ fetch }), globalThis.fetch)
     }
     return fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks }).exec(workspaceDocument.url)
@@ -387,11 +388,14 @@ function loadDocument(
     return readFiles({ basePath: options.basePath }).exec(workspaceDocument.path)
   }
 
-  return Promise.resolve({
-    ok: true,
-    data: workspaceDocument.document,
-    raw: JSON.stringify(workspaceDocument.document),
-  })
+  return loadInlineDocument(workspaceDocument.document, compose)
+}
+
+const getDocumentSource = (source: OverlaySource): string | undefined => {
+  if ('url' in source) {
+    return source.url
+  }
+  return 'path' in source ? source.path : source.documentSource
 }
 
 /** Resolves a retrieval URI for comparing Overlay and OpenAPI document identities. */
@@ -399,7 +403,7 @@ const getOverlaySourceUri = (source: OverlaySource): string | undefined => {
   if ('path' in source) {
     return getOverlayFileUri(source.path)
   }
-  return ('url' in source ? source.url : source.documentSource)?.split('#', 1)[0]
+  return getDocumentSource(source)?.split('#', 1)[0]
 }
 
 /**
@@ -859,7 +863,7 @@ export async function createServerWorkspaceStore(
       const isThreeTwo = typeof loaded.openapi === 'string' && /^3\.2\.\d+$/.test(loaded.openapi)
       // URI resolution adds working aliases; keep the caller's authored object unchanged.
       const data: Record<string, unknown> = JSON.parse(JSON.stringify(loaded))
-      const origin = 'url' in input ? input.url : 'path' in input ? input.path : input.documentSource
+      const origin = document.retrievalUri ?? getDocumentSource(input)
       const loaders = [
         fetchUrls({ blockPrivateNetworks: !options?.allowPrivateNetworks }),
         ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),

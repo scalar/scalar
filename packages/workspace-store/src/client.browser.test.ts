@@ -117,7 +117,7 @@ describe('client.browser', () => {
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'partner', document: overlayBase })
     const snapshot = store.exportWorkspace()
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const error = vi.spyOn(console, 'error').mockReturnValue(undefined)
     try {
       expect(
         await store.addDocument({
@@ -135,7 +135,7 @@ describe('client.browser', () => {
           documentSource: 'https://example.com/docs/openapi.yaml',
         }),
       ).toBe(false)
-      expect(error.mock.calls[0]?.[1]).toBeInstanceOf(Error)
+      expect(error.mock.calls[0]?.[2]).toBeInstanceOf(Error)
       expect(store.exportWorkspace()).toStrictEqual(snapshot)
     } finally {
       error.mockRestore()
@@ -147,7 +147,7 @@ describe('client.browser', () => {
       documentTypes: [{ type: 'other', detect: (document) => document['x-format'] === 'other', traverse: () => [] }],
     })
     const fetchDocument = vi.fn<typeof fetch>()
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const error = vi.spyOn(console, 'error').mockReturnValue(undefined)
     try {
       expect(
         await store.addDocument({
@@ -199,7 +199,7 @@ describe('client.browser', () => {
     expect(unchanged.type).toBe('NO_CHANGES_DETECTED')
   })
 
-  it('records changes to Overlay inputs that leave the description unchanged', async () => {
+  it('refreshes Overlay inputs and active overrides while preserving unsaved edits', async () => {
     const store = createWorkspaceStore()
     const input = {
       name: 'partner',
@@ -207,17 +207,32 @@ describe('client.browser', () => {
       documentSource: 'https://example.com/openapi.yaml',
     }
     const overlaySource = { document: partnerOverlay, documentSource: 'https://example.com/overlays/partner.yaml' }
-    expect(await store.addDocument({ ...input, overlays: [overlaySource] })).toBe(true)
+    expect(
+      await store.addDocument({ ...input, overlays: [overlaySource], overrides: { info: { title: 'First' } } }),
+    ).toBe(true)
+    const active = getOpenApiDocument(store, 'partner')!
+    active.info.description = 'Unsaved local edit'
+    expect(active.info.title).toBe('First')
 
     const revised = {
       ...overlaySource,
       document: { ...partnerOverlay, info: { ...partnerOverlay.info, version: '2' } },
     }
-    const result = await store.rebaseDocument({ ...input, overlays: [revised] })
+    const result = await store.rebaseDocument({
+      ...input,
+      overlays: [revised],
+      overrides: { info: { title: 'Second' } },
+    })
     assert(result.ok)
     expect(result.changes).toStrictEqual([])
     expect(result.conflicts).toStrictEqual([])
     await result.applyChanges({ resolvedConflicts: [] })
+    expect(getOpenApiDocument(store, 'partner')?.info.title).toBe('Second')
+    expect(getOpenApiDocument(store, 'partner')?.info.description).toBe('Unsaved local edit')
+    expect(JSON.parse(store.exportDocument('partner', 'json')!).info).toStrictEqual(overlayBase.info)
+    const hydrated = createWorkspaceStore()
+    hydrated.loadWorkspace(JSON.parse(JSON.stringify(store.exportWorkspace())))
+    expect(getOpenApiDocument(hydrated, 'partner')?.info.title).toBe('Second')
 
     const unchanged = await store.rebaseDocument({ ...input, overlays: [revised] })
     assert(!unchanged.ok)
@@ -251,5 +266,97 @@ describe('client.browser', () => {
     const upgraded = getOpenApiDocument(store, 'legacy')
     expect(getResolvedRef(upgraded?.components?.schemas?.Item)?.description).toBe('Partner description')
     expect(JSON.parse(store.exportDocument('legacy', 'json')!).definitions.Item.description).toBe('Partner description')
+  })
+
+  it('keeps the hashes and content of inline inputs aligned during asynchronous loading', async () => {
+    const store = createWorkspaceStore()
+    const document = structuredClone(overlayBase)
+    const first = {
+      overlay: '1.2.0',
+      info: { title: 'First', version: '1' },
+      actions: [{ target: '$.info.version', update: '2' }],
+    }
+    const input = { name: 'partner', document, documentSource: 'https://example.com/openapi.yaml' }
+    const url = 'https://example.com/overlays/partner.yaml'
+    const loaded = await store.addDocument({
+      ...input,
+      overlays: [{ document: first }, { url }],
+      fetch: () => {
+        document.info.title = 'Changed while loading'
+        first.actions[0]!.update = '3'
+        return Promise.resolve(Response.json(partnerOverlay))
+      },
+    })
+    expect(loaded).toBe(true)
+    expect(getOpenApiDocument(store, 'partner')?.info.title).toBe('Partner API')
+    expect(getOpenApiDocument(store, 'partner')?.info.version).toBe('2')
+    const rebase = await store.rebaseDocument({
+      ...input,
+      document: overlayBase,
+      overlays: [{ document: { ...first, actions: [{ target: '$.info.version', update: '2' }] } }, { url }],
+      fetch: () => Promise.resolve(Response.json(partnerOverlay)),
+    })
+    assert(!rebase.ok)
+    expect(rebase.type).toBe('NO_CHANGES_DETECTED')
+  })
+
+  it('uses a redirected retrieval URI for both Overlay identity and OpenAPI references', async () => {
+    const store = createWorkspaceStore()
+    const url = 'https://example.com/alias/openapi.yaml'
+    const retrieved = 'https://example.com/final/openapi.yaml'
+    const schemaUrl = 'https://example.com/final/pet.json'
+    const redirected = Response.json({
+      ...overlayBase,
+      components: { schemas: { Pet: { $ref: './pet.json' } } },
+    })
+    Object.defineProperties(redirected, { url: { value: retrieved }, redirected: { value: true } })
+    const schema = { type: 'object', properties: { name: { type: 'string' } } }
+    const fetchDocument = vi.fn<typeof fetch>((input) => {
+      if (input === url) {
+        return Promise.resolve(redirected)
+      }
+      return Promise.resolve(input === schemaUrl ? Response.json(schema) : new Response(null, { status: 404 }))
+    })
+
+    expect(
+      await store.addDocument({
+        name: 'partner',
+        url,
+        fetch: fetchDocument,
+        overlays: [
+          {
+            document: { ...partnerOverlay, extends: './openapi.yaml' },
+            documentSource: 'https://example.com/final/partner.yaml',
+          },
+        ],
+      }),
+    ).toBe(true)
+    expect(fetchDocument.mock.calls.map(([input]) => input)).toStrictEqual([url, schemaUrl])
+    expect(getResolvedRef(getOpenApiDocument(store, 'partner')?.components?.schemas?.Pet)).toStrictEqual(schema)
+  })
+
+  it('applies Overlay rebase server removals to both the active document and the export', async () => {
+    const store = createWorkspaceStore()
+    const document = { ...overlayBase, servers: [{ url: 'https://old.example.com' }] }
+    const input = { name: 'partner', document, documentSource: 'https://example.com/openapi.yaml' }
+    const source = { document: partnerOverlay, documentSource: 'https://example.com/overlays/partner.yaml' }
+    expect(await store.addDocument({ ...input, overlays: [source] })).toBe(true)
+    expect(getOpenApiDocument(store, 'partner')?.servers?.map(({ url }) => url)).toStrictEqual([
+      'https://old.example.com',
+    ])
+
+    const rebase = await store.rebaseDocument({
+      ...input,
+      overlays: [
+        {
+          ...source,
+          document: { ...partnerOverlay, actions: [...partnerOverlay.actions, { target: '$.servers', remove: true }] },
+        },
+      ],
+    })
+    assert(rebase.ok)
+    await rebase.applyChanges({ resolvedConflicts: [] })
+    expect(getOpenApiDocument(store, 'partner')?.servers).toBeUndefined()
+    expect(JSON.parse(store.exportDocument('partner', 'json')!).servers).toBeUndefined()
   })
 })

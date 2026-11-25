@@ -36,14 +36,15 @@ import {
 describe('create-server-store', () => {
   it('composes a file Overlay before generating operation chunks and navigation', async () => {
     const directory = await fs.mkdtemp(join(tmpdir(), 'scalar-overlay-'))
-    const basePath = join(directory, 'openapi.yaml')
+    const basePath = join(directory, 'openapi@partner.yaml')
     const overlayDirectory = join(directory, 'overlays')
     const overlayPath = join(overlayDirectory, 'partner.yaml')
-    const error = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const overlay = { ...partnerOverlay, extends: '../openapi@partner.yaml' }
+    const error = vi.spyOn(console, 'warn').mockReturnValue(undefined)
     try {
       await fs.mkdir(overlayDirectory)
       await fs.writeFile(basePath, YAML.stringify(overlayBase))
-      await fs.writeFile(overlayPath, YAML.stringify(partnerOverlay))
+      await fs.writeFile(overlayPath, YAML.stringify(overlay))
       const store = await createServerWorkspaceStore({
         mode: 'ssr',
         baseUrl: '/docs',
@@ -78,8 +79,8 @@ describe('create-server-store', () => {
       await fs.writeFile(
         overlayPath,
         YAML.stringify({
-          ...partnerOverlay,
-          actions: [...partnerOverlay.actions, { target: '$.info.title', update: [] }],
+          ...overlay,
+          actions: [...overlay.actions, { target: '$.info.title', update: [] }],
         }),
       )
       await store.addDocument({ name: 'partner', path: basePath, overlays: [{ path: overlayPath }] })
@@ -98,7 +99,7 @@ describe('create-server-store', () => {
       baseUrl: '/docs',
       documents: [{ name: 'partner', document: overlayBase }],
     })
-    const error = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const error = vi.spyOn(console, 'warn').mockReturnValue(undefined)
     try {
       await store.addDocument({
         name: 'partner',
