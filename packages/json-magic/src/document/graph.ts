@@ -14,6 +14,12 @@ import {
   isSchemaContext,
   isSchemaMapContext,
 } from './reference-context'
+import {
+  type ReferencePosition,
+  childReferencePosition,
+  ignoresReferenceSiblings,
+  referencePosition,
+} from './reference-position'
 
 type Entry = {
   value: unknown
@@ -21,6 +27,7 @@ type Entry = {
   origin: string
   base: string
   context: ReferenceContext
+  position?: ReferencePosition
   /** Stored fragments have no authored schema vocabulary until a reference supplies it. */
   inferredContext: boolean
 }
@@ -29,7 +36,7 @@ type DocumentGraph = {
   entries: Map<string, Entry>
   errors: Set<string>
   resolve: (reference: string, from?: string) => string | undefined
-  expose: (path: string, context: ReferenceContext) => void
+  expose: (path: string, context: ReferenceContext, source?: ReferencePosition) => void
 }
 /** HTTP operation fields understood by the OpenAPI graph and use-site filters. */
 const operationMethods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query']
@@ -80,7 +87,11 @@ const traversalContext = (
 }
 
 /** Index the bundled graph without fetching anything after transformations. */
-const createGraph = (document: Record<string, unknown>, origin: string): DocumentGraph => {
+const createGraph = (
+  document: Record<string, unknown>,
+  origin: string,
+  includeCustomReferences: boolean,
+): DocumentGraph => {
   const entries = new Map<string, Entry>()
   const resources = new Map<string, string>([[origin, '']])
   const anchors = new Map<string, string>()
@@ -97,26 +108,34 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
     value: unknown,
     path: string,
     base: string,
-    context: ReferenceContext,
+    inherited: ReferenceContext,
     ancestors: Set<object>,
     inferredContext = false,
+    customReferences = false,
+    schemaSiblings?: boolean,
   ): void => {
     const owner = documentAt(document, path)
     const modernSchemas = modernSchemaDocument(owner)
-    const vocabulary = getSchemaVocabulary(context)
-    const externalRoot = pointerSegments(path).length === 2 && path.startsWith('/x-ext/')
-    const identity = isDocument(value)
-      ? externalRoot
-        ? value.$id
-        : vocabulary?.idKeyword && (modernSchemas || typeof owner.asyncapi === 'string')
-          ? value[vocabulary.idKeyword]
-          : undefined
+    const position = includeCustomReferences
+      ? referencePosition(value, inherited, schemaSiblings ?? modernSchemas, customReferences)
       : undefined
+    const context = position?.context ?? inherited
+    const ignoresSiblings = position !== undefined && ignoresReferenceSiblings(value, position)
+    const vocabulary = getSchemaVocabulary(context, position?.customReferences)
+    const externalRoot = pointerSegments(path).length === 2 && path.startsWith('/x-ext/')
+    const identity =
+      isDocument(value) && !(ignoresSiblings && isSchemaContext(context))
+        ? externalRoot
+          ? value.$id
+          : vocabulary?.idKeyword && (modernSchemas || typeof owner.asyncapi === 'string' || customReferences)
+            ? value[vocabulary.idKeyword]
+            : undefined
+        : undefined
     const currentOrigin = typeof identity === 'string' ? resolveIdentity(base, identity, path) : base
     if (currentOrigin === undefined) {
       return
     }
-    entries.set(path, { value, path, base, origin: currentOrigin, context, inferredContext })
+    entries.set(path, { value, path, base, origin: currentOrigin, context, position, inferredContext })
     if (value === null || typeof value !== 'object' || context === 'data' || ancestors.has(value)) {
       return
     }
@@ -124,16 +143,43 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
     if (typeof identity === 'string') {
       resources.set(currentOrigin, path)
     }
-    if (isDocument(value) && vocabulary) {
-      for (const anchor of modernSchemas && vocabulary.anchors ? [value.$anchor, value.$dynamicAnchor] : []) {
+    if (isDocument(value) && vocabulary && !ignoresSiblings) {
+      for (const anchor of (modernSchemas || customReferences) && vocabulary.anchors
+        ? [value.$anchor, value.$dynamicAnchor]
+        : []) {
         if (typeof anchor === 'string') {
           anchors.set(`${currentOrigin}#${anchor}`, path)
         }
       }
     }
     for (const [key, child] of Object.entries(value)) {
-      const childContext = traversalContext(value, context, key, owner)
-      index(child, childPath(path, key), currentOrigin, childContext, ancestors, inferredContext)
+      const next =
+        position && !ignoresSiblings && !(path === '' && key === 'x-ext')
+          ? childReferencePosition(
+              value,
+              key,
+              position,
+              {
+                swagger: owner.swagger === '2.0',
+                asyncapi: typeof owner.asyncapi === 'string',
+                openapi30: String(owner.openapi).startsWith('3.0.'),
+              },
+              includeCustomReferences,
+            )
+          : {
+              context: ignoresSiblings ? ('data' as const) : traversalContext(value, context, key, owner),
+              customReferences,
+            }
+      index(
+        child,
+        childPath(path, key),
+        currentOrigin,
+        next.context,
+        ancestors,
+        inferredContext,
+        next.customReferences,
+        position?.childSchemaSiblings,
+      )
     }
     ancestors.delete(value)
   }
@@ -146,9 +192,22 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
       index(value, path, origin, api ? 'object' : 'schema', new Set(), !api)
     }
   }
-  const expose = (path: string, context: ReferenceContext): void => {
+  const expose = (path: string, context: ReferenceContext, source?: ReferencePosition): void => {
     const entry = entries.get(path)
-    if (
+    const custom = source?.customReferences ?? false
+    if (includeCustomReferences) {
+      // A custom edge can give an external fragment its context. Standard API positions carry their own.
+      if (
+        entry &&
+        !entry.inferredContext &&
+        (entry.context === 'data' ||
+          (custom && !entry.position?.customReferences) ||
+          (custom === entry.position?.customReferences &&
+            (entry.context === context || (isSchemaContext(entry.context) && isSchemaContext(context)))))
+      ) {
+        return
+      }
+    } else if (
       entry?.context === context ||
       (isSchemaContext(entry?.context) && isSchemaContext(context) && !entry.inferredContext)
     ) {
@@ -160,8 +219,18 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
       ancestor = entries.get(parent)
     }
     const value = pointerValue(document, pointerSegments(path))
-    if (value !== undefined) {
-      index(value, path, entry?.base ?? ancestor?.origin ?? origin, context, new Set())
+    // Bundled references to literal data use an independent copy. Its original stays opaque.
+    if (value !== undefined && !(includeCustomReferences && ancestor?.context === 'data')) {
+      index(
+        value,
+        path,
+        entry?.base ?? ancestor?.origin ?? origin,
+        context,
+        new Set(),
+        false,
+        custom,
+        source?.schemaSiblings,
+      )
     }
   }
 
@@ -206,15 +275,18 @@ export const checkDocument = (
   {
     origin,
     prune = false,
+    includeCustomReferences = false,
     unresolvedReferences = 'error',
   }: {
     origin: string
     prune?: boolean
+    /** Follow references in extensions and unknown schema keywords. */
+    includeCustomReferences?: boolean
     /** Retain all reusable content when an unresolved external edge makes reachability uncertain. */
     unresolvedReferences?: 'error' | 'retain'
   },
 ): Result<{ document: Record<string, unknown>; warnings: string[] }> => {
-  const graph = createGraph(document, origin)
+  const graph = createGraph(document, origin, includeCustomReferences)
   const async = typeof document.asyncapi === 'string'
   const async3 = async && String(document.asyncapi).startsWith('3.')
   const errors = graph.errors
@@ -286,7 +358,7 @@ export const checkDocument = (
       mark(path.slice(0, path.lastIndexOf('/')))
     }
   }
-  const follow = (reference: string, from: string, context?: ReferenceContext): void => {
+  const follow = (reference: string, from: string, context?: ReferenceContext, source?: ReferencePosition): void => {
     const target = graph.resolve(reference, from)
     if (target === undefined) {
       const message = `${from || '/'}: Reference target does not exist: ${reference}`
@@ -296,16 +368,13 @@ export const checkDocument = (
         errors.add(message)
       }
     } else {
-      if (context) {
-        graph.expose(target, context)
-      }
-      visit(target, context)
+      visit(target, context, source)
       // Arrays retain their indices, so all retained elements need their dependencies.
       const segments = pointerSegments(target)
       for (const index of segments.keys()) {
         const parentPath = segments.slice(0, index).reduce(childPath, '')
         if (Array.isArray(pointerValue(document, segments.slice(0, index)))) {
-          visit(parentPath, context)
+          visit(parentPath, includeCustomReferences ? undefined : context)
         }
       }
       // Root components are retained whole, so their other children must remain valid too.
@@ -353,18 +422,24 @@ export const checkDocument = (
       }
     }
   }
-  const visit = (path: string, override?: ReferenceContext): void => {
+  const visit = (path: string, override?: ReferenceContext, source?: ReferencePosition): void => {
     if (override) {
-      graph.expose(path, override)
+      graph.expose(path, override, source)
     }
     const entry = graph.entries.get(path)
     if (!entry) {
+      if (includeCustomReferences && override) {
+        mark(path)
+      }
       return
     }
+    const { position } = entry
     const context =
-      isSchemaContext(entry.context) && isSchemaContext(override) ? entry.context : (override ?? entry.context)
+      position || (isSchemaContext(entry.context) && isSchemaContext(override))
+        ? entry.context
+        : (override ?? entry.context)
     mark(path)
-    const visitKey = `${context}:${path}`
+    const visitKey = `${context}:${position?.customReferences ?? false}:${position?.schemaSiblings ?? false}:${path}`
     if (visited.has(visitKey)) {
       return
     }
@@ -374,18 +449,19 @@ export const checkDocument = (
     if (value === null || typeof value !== 'object' || context === 'data') {
       return
     }
-    if (isDocument(value) && isReferenceContext(context)) {
-      if (typeof value.$ref === 'string') {
-        follow(value.$ref, path, context)
-        if (
-          isSchemaContext(context) &&
-          (!modernSchemaDocument(owner) || !getSchemaVocabulary(context)?.referenceSiblings)
-        ) {
-          return
-        }
+    if (isDocument(value) && isReferenceContext(context) && typeof value.$ref === 'string') {
+      follow(value.$ref, path, context, position)
+      if (
+        !position &&
+        isSchemaContext(context) &&
+        (!modernSchemaDocument(owner) || !getSchemaVocabulary(context)?.referenceSiblings)
+      ) {
+        return
       }
+    }
+    if (isDocument(value) && isReferenceContext(context) && !(position && ignoresReferenceSiblings(value, position))) {
       if (isSchemaContext(context) && typeof value.$dynamicRef === 'string') {
-        follow(value.$dynamicRef, path, 'schema')
+        follow(value.$dynamicRef, path, 'schema', position)
         const target = graph.resolve(value.$dynamicRef, path)
         const targetValue = target === undefined ? undefined : graph.entries.get(target)?.value
         if (isDocument(targetValue) && typeof targetValue.$dynamicAnchor === 'string') {
@@ -442,10 +518,10 @@ export const checkDocument = (
           operationLinks.push({ id: value.operationId, path })
         }
       }
-      if (context === 'object' || context === 'path-item') {
+      if (!position?.customReferences && (context === 'object' || context === 'path-item')) {
         security(value.security, path)
       }
-      if (typeof owner.asyncapi === 'string' && Array.isArray(value.servers)) {
+      if (!position?.customReferences && typeof owner.asyncapi === 'string' && Array.isArray(value.servers)) {
         for (const server of value.servers) {
           if (typeof server === 'string') {
             follow(`#/servers/${escapeJsonPointer(server)}`, path)
@@ -462,7 +538,8 @@ export const checkDocument = (
       if (
         prune &&
         path === '' &&
-        ['components', 'x-ext', 'definitions', 'parameters', 'responses', 'securityDefinitions'].includes(key)
+        (['x-ext', 'definitions', 'parameters', 'responses', 'securityDefinitions'].includes(key) ||
+          (key === 'components' && !includeCustomReferences))
       ) {
         continue
       }
@@ -472,9 +549,8 @@ export const checkDocument = (
         }
         continue
       }
-      const childContext = traversalContext(value, context, key, owner)
       if (child !== undefined) {
-        visit(nextPath, childContext)
+        visit(nextPath, position ? undefined : traversalContext(value, context, key, owner))
       }
     }
   }

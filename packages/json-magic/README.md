@@ -985,11 +985,11 @@ if (!result.ok) throw new Error(result.error)
 for (const warning of result.data.warnings) console.warn(warning)
 ```
 
-Reachability starts outside reusable storage and follows transitive references, named security schemes, explicit and implicit discriminator mappings, top-level AsyncAPI channels and schema identities/anchors. Reachable cycles remain; disconnected cycles and unused stored external siblings under `x-ext` are removed. Names and pointer layout remain unchanged. Literal examples and extensions do not create dependencies unless an explicit reference targets them. Root components are retained whole; references to their descendants retain their other dependencies too.
+Reachability starts outside reusable storage and follows transitive references, named security schemes, explicit and implicit discriminator mappings, top-level AsyncAPI channels and schema identities/anchors. Reachable cycles remain; disconnected cycles and unused stored external siblings under `x-ext` are removed. Names and pointer layout remain unchanged. Root components are retained whole; references to their descendants retain their other dependencies too.
 
 Pruning also removes security schemes that no security requirement references. Integrations that offer every declared scheme as a selectable authentication option must explicitly choose whether to enable pruning, since it can remove those options. Empty reusable maps such as `components.schemas: {}` are preserved.
 
-When bundling with `includeCustomReferences: true`, use the bundler's `treeShake` option to trim external documents. Skip the `checkDocument` pruning pass for these bundles. It ignores references in extensions and unknown schema keywords, so it can remove their targets and leave dangling references.
+When pruning a bundle built with `includeCustomReferences: true`, pass the same option to `checkDocument(document, { origin, prune: true, includeCustomReferences: true })`. This keeps targets reached through extensions and unknown schema keywords, including the bundler's synthetic `literal-N` copies and their dependencies. Literal examples and defaults remain opaque. Custom reference traversal is off by default.
 
 The default unresolved-reference policy is `error`. With `retain`, a reachable external reference that cannot resolve inside the bundle leaves all reusable content intact and produces warnings. Missing local targets still fail. Callers with known resolution failures must skip pruning entirely: an incomplete graph cannot establish which components are unused. This API is independent of the bundler's existing `treeShake` option. Dynamic references conservatively retain matching dynamic anchors; `$recursiveRef` is rejected.
 

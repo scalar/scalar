@@ -288,6 +288,7 @@ describe('custom-references', () => {
   })
 
   it('retains native target rules when a custom reference transforms it', async () => {
+    const origin = 'https://source.test/root.json'
     const reads: string[] = []
     const parameter = {
       $ref: 'https://unreachable.test/parameter',
@@ -300,7 +301,7 @@ describe('custom-references', () => {
         components: { parameters: { P: parameter } },
       },
       {
-        origin: 'https://source.test/root.json',
+        origin,
         traversal: 'document',
         includeCustomReferences: true,
         treeShake: false,
@@ -313,6 +314,18 @@ describe('custom-references', () => {
     expect(reads).toStrictEqual([])
     const exported = JSON.parse(JSON.stringify(result.document))
     expect(exported.components.parameters.P).toStrictEqual(parameter)
+    expect(
+      checkDocument(exported, { origin, prune: true, includeCustomReferences: true, unresolvedReferences: 'retain' }),
+    ).toStrictEqual({
+      ok: true,
+      data: {
+        document: exported,
+        warnings: [
+          'Skipping unused-component removal because preserved external references make reachability uncertain.',
+          '/components/parameters/P: Reference target does not exist: https://unreachable.test/parameter',
+        ],
+      },
+    })
   })
 
   it.each(['schema', 'parameter'].flatMap((kind) => [false, true].map((customFirst) => ({ kind, customFirst }))))(
@@ -911,16 +924,27 @@ describe('custom-references', () => {
     expect(await run(true)).toStrictEqual(baseline)
   })
 
-  it('shows which custom-only targets standalone pruning misses after bundling', async () => {
+  it('keeps custom-only targets during opt-in standalone pruning', async () => {
     const origin = 'https://source.test/root.json'
     const extension = { $ref: './custom.json' }
     const literalReference = { $ref: '#/x-example/value' }
-    const schema = { type: 'string', customKeyword: { $ref: './sibling.json' } }
+    const literalValue = { schemas: { $ref: './sibling.json' } }
+    const literalDefault = { $ref: '#/components/schemas/Unused' }
+    const literalExample = { $ref: '#/components/schemas/Missing' }
+    const schema = {
+      type: 'string',
+      customKeyword: { $ref: '#/components/schemas/KeywordDependency' },
+      default: literalDefault,
+      examples: [literalExample],
+    }
     const document = {
       ...api,
-      'x-entry': extension,
       'x-copy': literalReference,
-      'x-example': { value: { type: 'boolean' } },
+      'x-example': { value: literalValue },
+      components: {
+        'x-entry': extension,
+        schemas: { KeywordDependency: { type: 'boolean' }, Unused: { type: 'null' } },
+      },
       paths: {
         '/value': {
           get: { responses: { 200: { description: 'OK', content: { 'application/json': { schema } } } } },
@@ -932,19 +956,37 @@ describe('custom-references', () => {
       traversal: 'document',
       includeCustomReferences: true,
       treeShake: true,
+      compress: (name) => name,
       plugins: [loader([])],
     })
     expect(result.diagnostics).toStrictEqual([])
     expect(result.pruning).toBe('applied')
-    expect(local(document, extension.$ref)).toStrictEqual({ type: 'string' })
-    expect(local(document, literalReference.$ref)).toStrictEqual({ type: 'boolean' })
-    expect(local(document, schema.customKeyword.$ref)).toStrictEqual({ type: 'integer' })
+    expect(literalReference.$ref).toBe('#/x-ext/literal-0')
 
     const copy = structuredClone(document)
-    expect(checkDocument(copy, { origin, prune: true }).ok).toBe(true)
-    expect(local(copy, extension.$ref)).toBeUndefined()
-    expect(local(copy, literalReference.$ref)).toBeUndefined()
-    expect(local(copy, schema.customKeyword.$ref)).toBeUndefined()
+    expect(checkDocument(copy, { origin, prune: true, includeCustomReferences: true })).toStrictEqual({
+      ok: true,
+      data: { document: copy, warnings: [] },
+    })
+    expect(local(copy, extension.$ref)).toStrictEqual({ type: 'string' })
+    expect(local(copy, schema.customKeyword.$ref)).toStrictEqual({ type: 'boolean' })
+    const copyDependency = '#/x-ext/sibling.json'
+    expect(local(copy, literalReference.$ref)).toStrictEqual({ schemas: { $ref: copyDependency } })
+    expect(local(copy, copyDependency)).toStrictEqual({ type: 'integer' })
+    expect(copy['x-example'].value).toStrictEqual({ schemas: { $ref: './sibling.json' } })
+    const prunedSchema = copy.paths['/value'].get.responses[200].content['application/json'].schema
+    expect(prunedSchema.default).toStrictEqual(literalDefault)
+    expect(prunedSchema.examples).toStrictEqual([literalExample])
+    expect(copy.components.schemas).toStrictEqual({ KeywordDependency: { type: 'boolean' } })
+
+    for (const options of [{}, { includeCustomReferences: false }]) {
+      const copy = structuredClone(document)
+      expect(checkDocument(copy, { origin, prune: true, ...options }).ok).toBe(true)
+      expect(local(copy, extension.$ref)).toBeUndefined()
+      expect(local(copy, literalReference.$ref)).toBeUndefined()
+      expect(local(copy, copyDependency)).toBeUndefined()
+      expect(local(copy, schema.customKeyword.$ref)).toBeUndefined()
+    }
   })
 
   it.each([false, true].flatMap((treeShake) => [false, true].map((diagnostics) => ({ treeShake, diagnostics }))))(
