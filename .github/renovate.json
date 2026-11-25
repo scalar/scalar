@@ -5,8 +5,6 @@
   },
   "timezone": "Europe/Berlin",
   "schedule": ["* 6-9 * * 1"],
-  "automerge": false,
-  "separateMajorMinor": true,
   "prConcurrentLimit": 5,
   "prHourlyLimit": 0,
   "labels": ["dependencies"],
@@ -14,18 +12,13 @@
   "semanticCommitType": "chore",
   "semanticCommitScope": "deps",
   "rangeStrategy": "bump",
+  "constraints": {
+    "ghActionsLock": "v0.5.1"
+  },
   "vulnerabilityAlerts": {
-    "enabled": true,
-    "groupName": null,
-    "schedule": [],
-    "dependencyDashboardApproval": false,
-    "minimumReleaseAge": null,
-    "prCreation": "immediate",
-    "prConcurrentLimit": 0,
     "rangeStrategy": "bump",
     "assignees": ["@hanspagel"],
-    "labels": ["dependencies", "security"],
-    "automerge": false
+    "labels": ["dependencies", "security"]
   },
   "recreateWhen": "never",
   "enabledManagers": [
@@ -33,6 +26,7 @@
     "github-actions",
     "dockerfile",
     "docker-compose",
+    "devcontainer",
     "cargo",
     "gomod",
     "maven",
@@ -42,9 +36,6 @@
     "nvm",
     "custom.regex"
   ],
-  "dockerfile": {
-    "managerFilePatterns": ["/(^|/)Dockerfile[^/]*$/"]
-  },
   "customManagers": [
     {
       "customType": "regex",
@@ -90,10 +81,10 @@
       "semanticCommitScope": "deps"
     },
     {
-      "description": "Give breaking upgrades, including major and 0.x breaking minor versions, separate PRs",
+      "description": "Keep updates Renovate flags as breaking out of the weekly groups",
+      "matchIsBreaking": true,
       "groupName": null,
-      "semanticCommitScope": "deps",
-      "matchJsonata": ["updateType = 'major' or isBreaking = true"]
+      "semanticCommitScope": "deps"
     },
     {
       "description": "Retain review warnings for secret-consuming actions in the weekly GitHub Actions group",
@@ -113,9 +104,9 @@
         "docker/login-action"
       ],
       "automerge": false,
-      "labels": ["dependencies", "security-sensitive"],
+      "addLabels": ["security-sensitive"],
       "prBodyNotes": [
-        ":lock: **Security-sensitive update.** This action receives secrets at runtime. Review the diff between the current and target commit SHAs before merging. Check the action's changelog and any third-party dependencies it pulls in."
+        ":lock: **Security-sensitive update.** This PR includes one or more actions that receive secrets at runtime. Review each affected action's diff between the current and target commit SHAs, its changelog, and any third-party dependencies it pulls in before merging."
       ]
     },
     {
