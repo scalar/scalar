@@ -382,6 +382,29 @@ describe('oauth', () => {
       expect(result).toBe('https://api.example.com/v1')
     })
 
+    it.each<{ name: string; server: ServerObject; expected: string }>([
+      {
+        name: 'an empty string default at the end of the host',
+        server: { url: 'https://api.example.com{basePath}', variables: { basePath: { default: '' } } },
+        expected: 'https://api.example.com',
+      },
+      {
+        name: 'an empty string default in the path',
+        server: { url: 'https://api.example.com/{basePath}', variables: { basePath: { default: '' } } },
+        expected: 'https://api.example.com/',
+      },
+      {
+        name: 'an empty string default that is part of the enum',
+        server: {
+          url: 'https://api.example.com{basePath}',
+          variables: { basePath: { default: '', enum: ['', '/v2'] } },
+        },
+        expected: 'https://api.example.com',
+      },
+    ])('resolves $name', ({ server, expected }) => {
+      expect(getServerUrl(server)).toBe(expected)
+    })
+
     it('returns an empty server URL when no active server is selected', () => {
       const result = getServerUrl(null)
 
