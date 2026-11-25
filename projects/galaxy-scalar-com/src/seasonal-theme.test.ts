@@ -28,10 +28,20 @@ describe('seasonal-theme', () => {
     })
 
     it.each([
-      ["the day before Programmer's Day", '2026-09-11T23:59:59Z'],
-      ["the day after Programmer's Day", '2026-09-14T00:00:00Z'],
-    ])('falls back to the default theme on %s', (_, isoDate) => {
+      ['September 12 in a common year, the 255th day', '2026-09-12T23:59:59Z'],
+      ['September 14 in a common year', '2026-09-14T00:00:00Z'],
+      ['September 11 in a leap year, the 255th day', '2028-09-11T23:59:59Z'],
+      ['September 13 in a leap year, the 257th day', '2028-09-13T00:00:00Z'],
+    ])("does not use the Programmer's Day theme on %s", (_, isoDate) => {
       expect(getSeasonalTheme(new Date(isoDate))).toBe('default')
+    })
+
+    it("reads Programmer's Day in the given time zone", () => {
+      // 22:00 UTC on September 12, 2026 is already 08:00 on September 13 in Sydney.
+      const sydneyMorning = new Date('2026-09-12T22:00:00Z')
+
+      expect(getSeasonalTheme(sydneyMorning)).toBe('default')
+      expect(getSeasonalTheme(sydneyMorning, { timeZone: 'Australia/Sydney' })).toBe('programmersDay')
     })
 
     it('recurs every year', () => {

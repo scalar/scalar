@@ -283,7 +283,12 @@
   pointer-events: none;
   opacity: 0;
 }
-/* The beam: the modal is at most 1390px wide and centred, so the line spans exactly its width */
+/*
+ * The beam and the glow both cover the modal exactly. The modal is centred, at most 1390px wide
+ * and 120px shorter than the viewport (`max-width` and `height` on `.scalar-app-layout` in
+ * packages/api-client/src/v2/components/modals/ModalClientContainer.vue), so 695px is half its
+ * width and it starts 60px from the top. Update these values together with that file.
+ */
 .scalar-client--open::before {
   top: calc(50% - 1px);
   left: max(0px, calc(50% - 695px));
