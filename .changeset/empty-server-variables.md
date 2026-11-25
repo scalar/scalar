@@ -1,4 +1,5 @@
 ---
+'@scalar/api-client': patch
 '@scalar/blocks': patch
 '@scalar/helpers': patch
 '@scalar/workspace-store': patch

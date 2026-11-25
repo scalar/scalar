@@ -2,13 +2,11 @@ import { describe, expect, it } from 'vitest'
 
 import { replaceEnvVariables, replacePathVariables, replaceVariables } from './replace-variables'
 
-describe('replaceVariables', () => {
-  it('keeps the placeholder for an empty value', () => {
+describe('replace-variables', () => {
+  it('keeps the placeholder for an empty value in replaceVariables', () => {
     expect(replaceVariables('a{part}b', { part: '' })).toBe('a{part}b')
   })
-})
 
-describe('replacePathVariables', () => {
   it('keeps placeholders for names inherited from Object.prototype', () => {
     expect(replacePathVariables('/{constructor}')).toBe('/{constructor}')
   })
@@ -26,9 +24,7 @@ describe('replacePathVariables', () => {
 
     expect(replacePathVariables(path, variables)).toBe('/api/v1/users/42/comments/{commentId}')
   })
-})
 
-describe('replaceEnvVariables', () => {
   it('replaces double curly brace environment variables', () => {
     const path = '{{baseUrl}}/api/users'
     const variables = { baseUrl: 'https://api.example.com' }
