@@ -13,7 +13,7 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
 /**
  * The route handler to render the Scalar API Reference.
  */
-export function apiReference(givenConfiguration: Partial<ApiReferenceConfiguration>): RequestHandler<never, string> {
+export function Scalar(givenConfiguration: Partial<ApiReferenceConfiguration>): RequestHandler<never, string> {
   // Merge the defaults
   const configuration = {
     ...DEFAULT_CONFIGURATION,

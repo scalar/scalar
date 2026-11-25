@@ -25,3 +25,4 @@ npm add @scalar/use-hooks
 
 - [useClipboard](./src/useClipboard/README.md)
 - [useColorMode](./src/useColorMode/README.md)
+- [useDocumentRoot](./src/useDocumentRoot/README.md)

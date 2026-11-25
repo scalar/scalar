@@ -10,6 +10,7 @@ import {
   ScalarIconX,
 } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed, nextTick, ref, watch } from 'vue'
 
@@ -154,10 +155,11 @@ const changeStep = async (next: 'overview' | 'demo'): Promise<void> => {
   await resize.finished.catch(() => undefined)
 }
 
+const documentRoot = useDocumentRoot()
+
 /** The booking calendar follows the color mode of the surrounding reference */
 const isDarkMode = (): boolean =>
-  typeof document !== 'undefined' &&
-  document.querySelector('.dark-mode') !== null
+  documentRoot?.querySelector('.dark-mode') != null
 
 const showDemo = async (): Promise<void> => {
   calFailed.value = false

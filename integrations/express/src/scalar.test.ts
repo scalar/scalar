@@ -2,15 +2,19 @@ import express from 'express'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
 
-import { apiReference } from './apiReference'
+import { Scalar, apiReference } from './index'
 
-describe('apiReference', () => {
-  it('should handle missing spec content gracefully', async () => {
+describe('Scalar', () => {
+  it('exports apiReference as an alias for Scalar', () => {
+    expect(apiReference).toBe(Scalar)
+  })
+
+  it('handles missing spec content gracefully', async () => {
     const app = express()
     const options = {
       cdn: 'https://cdn.example.com',
     }
-    app.use(apiReference(options))
+    app.use(Scalar(options))
 
     const response = await request(app).get('/')
     expect(response.status).toBe(200)
@@ -21,12 +25,12 @@ describe('apiReference', () => {
     expect(response.text).not.toContain('undefined')
   })
 
-  it('should use default CDN when no CDN is provided', async () => {
+  it('uses the default CDN when no CDN is provided', async () => {
     const app = express()
     const options = {
       content: { info: { title: 'Test API' } },
     }
-    app.use(apiReference(options))
+    app.use(Scalar(options))
 
     const response = await request(app).get('/')
     expect(response.status).toBe(200)
@@ -37,7 +41,7 @@ describe('apiReference', () => {
 
   it('does not have the content twice', async () => {
     const app = express()
-    app.use(apiReference({ content: { info: { title: 'Test API' } } }))
+    app.use(Scalar({ content: { info: { title: 'Test API' } } }))
 
     const response = await request(app).get('/')
     expect(response.status).toBe(200)
@@ -55,7 +59,7 @@ describe('apiReference', () => {
     const app = express()
 
     app.use(
-      apiReference({
+      Scalar({
         url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
       }),
     )
@@ -68,7 +72,7 @@ describe('apiReference', () => {
 
   it('includes _integration: "express" in configuration', async () => {
     const app = express()
-    app.use(apiReference({}))
+    app.use(Scalar({}))
 
     const response = await request(app).get('/')
     expect(response.text).toContain('"_integration": "express"')
@@ -77,7 +81,7 @@ describe('apiReference', () => {
   it('handles content as function', async () => {
     const app = express()
     const contentFn = () => ({ info: { title: 'Function API' } })
-    app.use(apiReference({ content: contentFn }))
+    app.use(Scalar({ content: contentFn }))
 
     const response = await request(app).get('/')
     expect(response.text).toContain('Function API')
@@ -86,7 +90,7 @@ describe('apiReference', () => {
   it('removes spec.content when spec.url is provided', async () => {
     const app = express()
     app.use(
-      apiReference({
+      Scalar({
         url: 'https://example.com/api.json',
         content: { info: { title: 'Test API' } },
       }),
@@ -99,7 +103,7 @@ describe('apiReference', () => {
 
   it('sets correct content type and status', async () => {
     const app = express()
-    app.use(apiReference({}))
+    app.use(Scalar({}))
 
     const response = await request(app).get('/')
     expect(response.status).toBe(200)

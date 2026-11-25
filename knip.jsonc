@@ -363,7 +363,8 @@
         "src/useBindCx/index.ts",
         "src/useBreakpoints/index.ts",
         "src/useClipboard/index.ts",
-        "src/useColorMode/index.ts"
+        "src/useColorMode/index.ts",
+        "src/useDocumentRoot/index.ts"
       ]
     },
     "packages/workspace-store": {

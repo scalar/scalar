@@ -9,8 +9,9 @@ import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 
-const { content } = defineProps<{
+const { content, truncateLabel = false } = defineProps<{
   content: Record<string, MediaTypeObject> | undefined
+  truncateLabel?: boolean
 }>()
 const { translate } = useLocalization()
 
@@ -67,10 +68,12 @@ const contentTypeSelect = cva({
       <ScreenReader>
         {{ translate('operation.selectedContentType') }}:
       </ScreenReader>
-      <span>{{ selectedContentType }}</span>
+      <span :class="{ truncate: truncateLabel }">{{
+        selectedContentType
+      }}</span>
       <ScalarIconCaretDown
         class="size-2.75 transition-transform duration-100"
-        :class="{ 'rotate-180': open }"
+        :class="{ 'rotate-180': open, 'shrink-0': truncateLabel }"
         weight="bold" />
     </ScalarButton>
   </ScalarListbox>
