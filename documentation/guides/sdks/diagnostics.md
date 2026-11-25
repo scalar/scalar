@@ -200,6 +200,7 @@ For what a webhook helper declares and the companion methods it generates, see [
 | `Schema/ObjectHasNoProperties` | `info` | An object schema declares no `properties` and no other source of shape, so it becomes an untyped value everywhere. | The schema pointer |
 | `Schema/EnumHasOneMember` | `info` | An enum declares exactly one member — usually a constant, or a member list that lost entries somewhere upstream. | The schema pointer |
 | `Schema/UnknownType` | `info` | A schema states a `type` the generator does not recognize, and the value falls back to a string. An absent `type` is exempt. | The schema name |
+| `Schema/NonFiniteValue` | `warn` | A schema lists `Infinity`, `-Infinity` or `NaN` (YAML's `.inf`, `-.inf`, `.nan`) in its `enum` or as its `const`. No SDK can spell them, so they are dropped; an enum left empty, or such a `const`, becomes the schema's declared type, or `number` when it declares none. | The schema name |
 | `Schema/DeprecatedWithoutMessage` | `info` | A schema is marked `deprecated` with no description, so SDK users see a deprecation with no hint about the replacement. | The schema pointer |
 | `Model/Recommended` | `info` | A component schema is referenced from three or more places but is not declared as a model, so the type is re-expanded inline at every use. | The component name |
 | `Model/Detached` | `warn` | A configured model does not resolve to any compiled schema, so it detaches from the resource that declared it. | The configured model name |
@@ -234,6 +235,7 @@ The generated README is code that has to compile, so its configured examples are
 
 | Rule | Default | Fires when | Suppression key |
 | ---- | ------- | ---------- | --------------- |
+| `Unsupported/SignedUploadClientTransport` | `warn` | `signedUploads.transport` is `client` for a target that cannot send signed uploads through a caller's HTTP client yet: C++, C#, Dart, PHP, Ruby and Rust send them on a client of the SDK's own, as `isolated` does. Only a target whose SDK has a signed-upload method is reported; the CLI, which takes no caller client, is not. | The target, such as `ruby` |
 | `Unsupported/SignedUploadMethod` | `warn` | A signed-upload method is configured for a target that does not generate signed uploads yet, so that target generates without it. Every target generates them today, so this is not reported. | The method's accessor path, such as `files.upload` |
 | `Unsupported/SignedUrlMethod` | `warn` | A signed-URL method is configured for a target that does not generate its flow yet (today only `request → return`, which no target generates), so that target generates without it. Every target generates `sign → return`, `sign → fetch` and `request → fetch`; a `request → upload` method is reported as `Unsupported/SignedUploadMethod`. | The method's accessor path, such as `cards.getEmbedUrl` |
 | `Unsupported/WebSocketMethod` | `warn` | A WebSocket method is configured for a target with no WebSocket runtime, so that target's SDK carries the method's event types but nothing that opens a connection. Swift and C++ leave the method out entirely. | The endpoint |

@@ -499,6 +499,37 @@ const stored = await client.files.upload(new File(['a,b\n'], 'report.csv'), {
 
 The method takes the first operation's path parameters, then the file, then its other parameters: here, the body `POST /files` requires.
 
+### Which HTTP client sends an upload
+
+`signedUploads.transport` (experimental) decides which HTTP client carries the file. It is an SDK-level setting, so every target reads the same value:
+
+```json
+{
+  "signedUploads": { "transport": "client" }
+}
+```
+
+- **`isolated`, the default.** The upload goes through a client the SDK builds for it. That client reuses only the proxy and TLS settings configured on the SDK client; the Python SDK instead borrows the connections of a transport that is exactly httpx's own. A client object the caller configured carries the upload only when it carries the SDK's signed-upload marker.
+- **`client`, an opt-in.** The upload goes through the HTTP client object the caller configured on the SDK client, so a proxy that is the caller's only route out, a private CA, observability and a test's mock transport all apply to uploads too.
+
+An object the SDK built or generates never carries the upload in either mode: the default client, the generated OkHttp client, a `URLSessionTransport` and the SDK's own middleware layers at most hand over their proxy and TLS settings. Each generated README names exactly which objects carry an upload.
+
+Either way the SDK builds the upload as a bare request: the file, its `Content-Type` and the headers the response names. It never carries the SDK's auth, default headers, default query, cookies, telemetry headers, middleware or hooks. The `https:` rule, the redirect refusal and the upload's own timeout and retries apply in both modes. Whether an upload URL that carries a user name or password is refused depends on the target and mode: the Python SDK in `isolated` mode, for one, sends those credentials as Basic auth.
+
+**Choose `client` knowing what it hands over.** The caller's client object is code the SDK hands the request to: a wrapping `fetch`, a Go `RoundTripper`, an httpx transport, a JVM `HttpClient` or a Swift `HTTPTransport`. The SDK cannot see or remove what that code adds after the hand-off. A credential it attaches to every request, such as an OAuth middleware's `Authorization`, reaches the upload host, which is usually a third-party object store. So a `client`-mode SDK gives every client an opt-out that keeps its uploads on an SDK-built client, and its README tells callers whose client adds credentials to set it:
+
+| SDK | Caller's object that carries the upload in `client` mode | Opt-out in `client` mode | Marker in `isolated` mode |
+| --- | --- | --- | --- |
+| TypeScript | The client's `fetch` (or a compatibility profile's `httpClient`) | `isolateSignedUploads: true` | `signedUploadTransport(fetch)` |
+| Python | The transport a custom `http_client` routes the upload URL to, except an aiohttp one | `isolate_signed_uploads=True` | A transport that inherits `SignedUploadTransport` |
+| Go | A wrapping `RoundTripper` on, or a custom `HTTPClient` given to, `option.WithHTTPClient`; a plain `*http.Transport` is cloned for its settings | `option.WithIsolatedSignedUploads()` | One that implements `option.SignedUploadTransport` |
+| Java, Kotlin | An `HttpClient` of your own given to `ClientOptions.Builder.httpClient` | `isolateSignedUploads(true)` on `ClientOptions.Builder` | One that implements `SignedUploadTransport` |
+| Swift | An `HTTPTransport` of your own set as `Configuration.transport` | `Configuration.isolateSignedUploads` | One that returns `true` from `isSignedUploadTransport` |
+
+Switching a published SDK from `isolated` to `client` changes what its existing callers' code sees, with no change on their side: every custom client object they already pass starts carrying uploads. Announce it in the SDK's release notes together with the opt-out, or choose `client` when the SDK is first published.
+
+The C++, C#, Dart, PHP, Ruby and Rust SDKs and the CLI do not send uploads through a caller's client yet, so they send them the `isolated` way under either value. Under `client`, generation reports each of those SDKs that has a signed upload as [`Unsupported/SignedUploadClientTransport`](diagnostics.md); the CLI takes no caller client, so it is not reported.
+
 ## Security
 
 - **The key never appears in the URL.** It is left out of the path, the query and the payload. A `{ "param": … }` field or a path placeholder that reads a `param` key is refused.
@@ -512,9 +543,9 @@ The request carries only:
 - the URL exactly as built or received;
 - `Accept`, when `accept` is set;
 - for a `request` source, the headers named by `headersField`;
-- for a `sign` source, which points at your API, the `headers` of the call's own request options (a caller's `Accept` wins over `accept`, and a `null` removes a header), and, when the API description secures its operation, the client's auth headers and auth cookies.
+- for a `sign` source, which points at your API, the `headers` of the call's own request options (a caller's `Accept` wins over `accept`, and a `null` removes a header), the client's default headers, in the Go, Java, Kotlin, Python, Ruby and TypeScript SDKs the SDK's own `User-Agent` and `X-Scalar-*` headers, and, when the API description secures its operation, the client's auth headers and auth cookies.
 
-It never carries the client's default headers, `fetchOptions.headers`, or the SDK's own `User-Agent` and `X-Scalar-*` headers. A requested URL never carries the client's credentials or the call's headers. A signed URL's operation is secured when it declares security of its own, or inherits the document's default security; one that declares `security: []` is open, so its URL is its only credential. Only header and cookie credentials go: an API key sent in the query would change the URL that was signed. A secured fetch with no credential to send goes out without one, and the API answers as it would an unauthenticated call. A header the call sets is checked like a header a response names, stricter than on other calls: one the HTTP transport controls, such as `Accept-Encoding`, `Cookie` or `Transfer-Encoding`, or a value outside visible ASCII, is refused before any request. The platform still adds what it adds to every request, such as its own `User-Agent` and `Accept-Encoding`. The call's `body` is never sent, and neither is its `query` (a TypeScript fetch of a URL it signed aside, below), since the URL goes exactly as it was signed or received; its `signal`, `timeout`, `maxRetries` and `fetchOptions` apply.
+It never carries `fetchOptions.headers`. A fetch for a `sign` source also carries the client's default headers, as every request to your API does, and, in the Python and TypeScript SDKs, its default query after the signed query (see below); a fetch for a `request` source carries neither. In the C#, C++, CLI, Dart, PHP, Rust and Swift SDKs it never carries the SDK's own `User-Agent` and `X-Scalar-*` headers either. In the Go, Java, Kotlin, Python, Ruby and TypeScript SDKs, a fetch for a `sign` source, which goes to your API, carries the SDK's `User-Agent` and its `X-Scalar-*` headers, and numbers each attempt with `X-Scalar-Retry-Count`; where the SDK writes a request log (every one of them but Ruby, which writes none), it writes the same request log lines, with the URL shown as its origin and path. A fetch for a `request` source carries none of them. A requested URL never carries the client's credentials or the call's headers. A signed URL's operation is secured when it declares security of its own, or inherits the document's default security; one that declares `security: []` is open, so its URL is its only credential. Only header and cookie credentials go: an API key sent in the query would change the URL that was signed. A secured fetch with no credential to send goes out without one, and the API answers as it would an unauthenticated call. A header the call sets is checked like a header a response names, stricter than on other calls: one the HTTP transport controls, such as `Accept-Encoding`, `Cookie` or `Transfer-Encoding`, or a value outside visible ASCII, is refused before any request. The platform still adds what it adds to every request, such as `Accept-Encoding`, and, in the SDKs that leave out their own `User-Agent`, its own. The call's `body` is never sent, and neither is its `query` (a TypeScript fetch of a URL it signed aside, below), since the URL goes exactly as it was signed or received; its `signal`, `timeout`, `maxRetries` and `fetchOptions` apply.
 
 In TypeScript, a fetch method returns an `APIPromise`, like every other method: `await` it for the body, or call `.withResponse()` or `.asResponse()` for the host's `Response`.
 
@@ -1026,7 +1057,7 @@ What the method does with the URL: `"return"` returns it as a string with no req
 
 **Type:** `object`
 
-Downloads the URL: sends a `GET` to it and returns the body, read as `returns` says. The URL is its own credential, so the request carries none of the client's credentials, cookies, default headers or default query (a fetch of a URL the SDK signed is the exception in Python and TypeScript, which append the client's default query after the signed query, never over a signed field and not at all when the signature covers the query; a TypeScript fetch adds the call's own `query` the same way): only `accept` and, for a `request` source, the headers `headersField` names. A redirect is refused rather than followed, since following it could hand the URL to another host, and the URL's query is kept out of logs and error messages. A signed URL is built on the client's base URL, so it is sent through the client's own HTTP function; a requested URL points at another host, such as an object store, so it is sent through the platform's HTTP function rather than a custom one set on the client, which might add the API's credentials. Both use the client's timeout and retries. Example: `{ "fetch": { "accept": "text/html" } }`.
+Downloads the URL: sends a `GET` to it and returns the body, read as `returns` says. The URL is its own credential. For a `request` source the request carries none of the client's credentials, cookies, default headers or default query: only `accept` and the headers `headersField` names. For a `sign` source, which points at your API, it also carries the call's own headers, the client's default headers and, when the API secures the operation, its credentials; the Go, Java, Kotlin, Python, Ruby and TypeScript SDKs also send their own `User-Agent` and `X-Scalar-*` headers on it, as on any request. The Python and TypeScript SDKs also append the client's default query after the signed query, never over a signed field and not at all when the signature covers the query; a TypeScript fetch adds the call's own `query` the same way. A redirect is refused rather than followed, since following it could hand the URL to another host, and the URL's query is kept out of logs and error messages. A signed URL is built on the client's base URL, so it is sent through the client's own HTTP function; a requested URL points at another host, such as an object store, so it is sent through the platform's HTTP function rather than a custom one set on the client, which might add the API's credentials. Both use the client's timeout and retries. Example: `{ "fetch": { "accept": "text/html" } }`.
 
 ##### accept
 

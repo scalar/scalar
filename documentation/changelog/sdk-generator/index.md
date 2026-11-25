@@ -8,6 +8,37 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.46.3 (2026-11-25)
+
+### Idempotency keys, signed upload routing, and authentication fixes
+
+Generated SDKs now send idempotency keys only on write operations, route signed upload confirmations to their declared servers, and handle authentication headers more precisely. Several targets also gained configurable timeouts and retry counts.
+
+- Idempotency keys are no longer sent on `GET` requests in C#, Go, Java, Kotlin, PHP, Ruby, and TypeScript SDKs. Other methods still receive a generated key that is reused across retries.
+- Signed upload confirm requests now route to the operation's own `servers` declaration in Go, PHP, Python, Ruby, Swift, and TypeScript SDKs, instead of always using the client's base URL.
+- Go and Python SDKs now honor `clientSettings.defaultTimeout` and `clientSettings.defaultRetries.maxRetries` from the configuration, applying them as client defaults that can be overridden per request.
+- TypeScript SDKs now respect `defaultHeaders: { Authorization: null }` to explicitly omit credential headers, and `prepareRequest` runs before authentication validation.
+- Python SDKs configured with `signedUploads.transport: "client"` can send uploads through a custom `http_client` transport, with `isolate_signed_uploads=True` available to restore isolated behavior.
+- Go, Java, Kotlin, Swift, and TypeScript SDKs configured with `signedUploads.transport: "client"` can send uploads through the SDK client's HTTP transport, with isolation options available when needed.
+- C++ webhook helpers now provide a `verify_signature` method that checks delivery signatures without parsing, alongside the existing parse method.
+- Rust SDKs with OAuth client-credentials flows now automatically refresh tokens when the API returns a 401, fetching a new token and retrying the request.
+- Swift and Rust SDKs now correctly paginate through `Link` header responses, following `rel="next"` links across all pages instead of stopping after the first.
+- TypeScript promise rejection handlers now type their error parameter as `any` instead of `unknown`, matching the standard `Promise` interface and fixing compatibility with existing error handling code.
+
+## 0.46.2 (2026-11-23)
+
+### C++ target is stable and signed-URL fetches send SDK headers
+
+The C++ target is now stable with source compatibility guarantees, and signed-URL fetches now send the SDK's own headers when requesting resources from the API's host.
+
+- The C++ target is now stable, with source compatibility promised across minor releases.
+- Generated C++ SDKs now support client options sent in request bodies via `sendAsBodyParam`.
+- Signed-URL fetches to the API's own host now include SDK headers like `User-Agent` and `X-Scalar-*` headers.
+- Signed-URL fetches now write the same request and response logs as other SDK calls.
+- The generated CLI now excludes SDK headers from its own signed-URL fetches, since the TypeScript SDK sends them by default.
+- Generated C++ READMEs now present known gaps as current SDK limitations rather than experimental features.
+- The C++ README compatibility promise now documents when API additions remove methods.
+
 ## 0.46.1 (2026-11-21)
 
 ### Generated CLIs wrap output and reject missing required inputs
