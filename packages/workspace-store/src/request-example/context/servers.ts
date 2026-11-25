@@ -23,21 +23,37 @@ export const getServers = (
     return []
   }
 
-  const documentBase = documentUrl && URL.canParse('.', documentUrl) ? new URL(documentUrl) : undefined
+  const documentBase = getDocumentBase(documentUrl)
   const baseUrl = baseServerUrl || documentBase?.href || getFallbackUrl()
   if (!baseUrl) {
     return servers
   }
 
-  const base = { url: baseUrl, isConfigured: Boolean(baseServerUrl) }
+  const fallbackSource = documentBase ? 'document' : 'browser'
+  const source = baseServerUrl ? 'configuration' : fallbackSource
+  const base = { url: baseUrl, source } as const
   return servers.map((server) => {
     if (server.url?.startsWith('/')) {
       const origin = baseServerUrl || (documentBase ? new URL('/', documentBase).href : baseUrl)
-      return { ...server, url: combineUrlAndPath(origin, server.url) }
+      // Existing selections and server mutations use the same resolved URL as their key.
+      server.url = combineUrlAndPath(origin, server.url)
+      return server
     }
 
     return withServerUrlBase(server, base)
   })
+}
+
+/** Keeps credentials used to fetch an API description out of the server URLs derived from it. */
+const getDocumentBase = (documentUrl: string | undefined): URL | undefined => {
+  if (!documentUrl || !URL.canParse('.', documentUrl)) {
+    return undefined
+  }
+
+  const base = new URL(documentUrl)
+  base.username = ''
+  base.password = ''
+  return base
 }
 
 /**

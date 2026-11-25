@@ -1,4 +1,5 @@
 import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
+import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 
@@ -6,7 +7,7 @@ import type { ServerObject } from '@/schemas/v3.2/strict/server'
 
 import { getServerVariables } from './get-server-variables'
 
-type ServerUrlBase = { url: string; isConfigured: boolean }
+type ServerUrlBase = { url: string; source: 'configuration' | 'document' | 'browser' }
 
 const serverUrlBase = Symbol('serverUrlBase')
 const hasScheme = /^[a-z][a-z\d+.-]*:/i
@@ -14,8 +15,8 @@ const hasScheme = /^[a-z][a-z\d+.-]*:/i
 type ServerWithUrlBase = ServerObject & { [serverUrlBase]?: ServerUrlBase }
 
 /** Carries the base on the server view while keeping the authored template available for selection and editing. */
-export const withServerUrlBase = (server: ServerObject, base: ServerUrlBase | undefined): ServerWithUrlBase =>
-  base && server.variables && server.url?.includes('{') && !hasScheme.test(server.url)
+export const withServerUrlBase = (server: ServerObject, base: ServerUrlBase): ServerWithUrlBase =>
+  server.variables && server.url?.includes('{') && !hasScheme.test(server.url)
     ? { ...server, [serverUrlBase]: base }
     : server
 
@@ -29,7 +30,12 @@ export const resolveServerUrl = (server: ServerWithUrlBase | null): string => {
     return url
   }
 
-  if (base.isConfigured && !url.startsWith('//')) {
+  // Without an OpenAPI or configured base, preserve support for schemeless hosts entered in the client.
+  if (base.source === 'browser' && !isRelativePath(url)) {
+    return url
+  }
+
+  if (base.source === 'configuration' && !url.startsWith('//')) {
     return combineUrlAndPath(base.url, url)
   }
 

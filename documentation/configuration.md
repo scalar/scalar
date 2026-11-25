@@ -428,7 +428,7 @@ This overrides the same extension in the API description. Set it to an empty str
 
 **Type:** `string`
 
-If you want to prefix all relative servers with a base URL, you can do so here.
+Sets the base URL for relative OpenAPI server URLs after Scalar substitutes server variables. A configured base includes its path prefix. When this setting is omitted, Scalar resolves a relative server template against the API description's URL. An empty expansion uses the configured base or the directory containing the API description.
 
 ```javascript
 {

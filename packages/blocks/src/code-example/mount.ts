@@ -134,7 +134,7 @@ export const createCodeExample = (
       return undefined
     }
     const server = getFirstServer(operation.servers ?? null, pathItem?.servers ?? null, activeDocument.servers ?? null)
-    const [preparedServer] = getServers(server ? [server] : [], {
+    const [preparedServer] = getServers(server ? [{ ...server }] : [], {
       documentUrl: activeDocument['x-scalar-original-source-url'],
     })
     return { operation, server: preparedServer ?? null }

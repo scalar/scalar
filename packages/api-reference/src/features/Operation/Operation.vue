@@ -136,7 +136,7 @@ const selectedServer = computed<ServerObject | null>(() => {
   }
 
   return (
-    getServers([operationServer], {
+    getServers([{ ...operationServer }], {
       baseServerUrl: options.baseServerURL,
       documentUrl: document['x-scalar-original-source-url'],
     })[0] ?? null

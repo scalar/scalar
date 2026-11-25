@@ -1,9 +1,12 @@
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { deleteServer, updateSelectedServer } from '@/mutators/server'
 import { resolveExecutableRequestUrl } from '@/request-example/builder/build-request'
+import { resolveServerUrl } from '@/request-example/builder/helpers/resolve-server-url'
 import { requestFactory } from '@/request-example/builder/request-factory'
 import type { WorkspaceDocument } from '@/schemas'
+import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 
 import { getSelectedServer, getServers } from './servers'
@@ -65,6 +68,50 @@ describe('servers', () => {
     })
 
     expect(resolveExecutableRequestUrl(request, {}, { allowMissingRequestServerBase: false })).toBe(expected)
+  })
+
+  it('preserves schemeless hosts when only the browser origin is available', () => {
+    const [server] = getServers([{ url: '{host}', variables: { host: { default: 'api.example.com' } } }])
+
+    expect(resolveServerUrl(server ?? null)).toBe('api.example.com')
+  })
+
+  it('uses only the configured base for dotted paths in inline descriptions', () => {
+    const [server] = getServers([{ url: '{prefix}', variables: { prefix: { default: 'release.v1' } } }], {
+      baseServerUrl: 'https://api.example.com/base',
+    })
+
+    expect(resolveServerUrl(server ?? null)).toBe('https://api.example.com/base/release.v1')
+  })
+
+  it('excludes document credentials from rooted and templated server URLs', () => {
+    const servers = getServers(
+      [{ url: '/v2' }, { url: '{prefix}', variables: { prefix: { default: 'release.v1' } } }],
+      { documentUrl: 'https://test-user:test-password@api.example.com/docs/openapi.json' },
+    )
+
+    expect(servers.map(resolveServerUrl)).toStrictEqual([
+      'https://api.example.com/v2',
+      'https://api.example.com/docs/release.v1',
+    ])
+  })
+
+  it('selects the remaining server after deleting a selected root-relative server', () => {
+    const document: OpenApiDocument = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1' },
+      'x-scalar-original-document-hash': '',
+      servers: [{ url: 'https://other.example.com' }, { url: '/v2' }],
+    }
+    const options = { documentUrl: 'https://api.example.com/docs/openapi.json' }
+    const selected = getServers(document.servers, options)[1]
+    assert(selected)
+    updateSelectedServer(document, { url: selected.url, meta: { type: 'document' } })
+    deleteServer(document, { index: 1, meta: { type: 'document' } })
+
+    expect(getSelectedServer(document, null, null, getServers(document.servers, options))?.url).toBe(
+      'https://other.example.com',
+    )
   })
 
   describe('getServers', () => {
