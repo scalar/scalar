@@ -502,6 +502,25 @@ describe('get-xml-example', () => {
     })
   })
 
+  it('resolves detached references from the pre-resolved target resource', () => {
+    const input = schema({
+      '$ref': 'https://example.com/nested/target.json',
+      '$ref-value': {
+        $id: 'https://example.com/nested/target.json',
+        type: 'object',
+        xml: { name: 'target' },
+        $defs: { other: { $id: '../other.json', $anchor: 'label', type: 'string', const: 'ok' } },
+        properties: { value: { $dynamicRef: '../other.json#label' } },
+      },
+    })
+
+    expect(getExampleFromSchema(input)).toStrictEqual({ value: 'ok' })
+    expect(getXmlExampleFromSchema(input, { ...compact, openapiVersion: '3.2.0' })).toStrictEqual({
+      xml: '<target><value>ok</value></target>',
+      diagnostics: [],
+    })
+  })
+
   it('keeps dynamic XML item bindings isolated between calls', () => {
     const template = {
       $id: 'urn:template',

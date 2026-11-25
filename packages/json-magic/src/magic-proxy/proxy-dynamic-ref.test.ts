@@ -360,6 +360,56 @@ describe('proxy-dynamic-ref', () => {
     expect(second.relative['$dynamicRef-value']).not.toBe(firstItem)
   })
 
+  it('indexes schema anchors inside named OpenAPI components and skips extension payloads', () => {
+    const proxy = createMagicProxy({
+      openapi: '3.2.0',
+      info: { title: 'Scopes', version: '1' },
+      components: {
+        parameters: {
+          default: {
+            name: 'query',
+            in: 'query',
+            schema: {
+              $id: 'https://example.com/query',
+              $defs: { item: { $dynamicAnchor: 'item', const: 'query' } },
+              properties: { term: { $dynamicRef: '#item' } },
+            },
+          },
+        },
+        schemas: {
+          Use: { $ref: 'https://example.com/query' },
+          Literal: { $dynamicRef: '#item' },
+        },
+      },
+      'x-custom': { payload: { $dynamicAnchor: 'item', const: 'literal' } },
+    }) as unknown as ProxyNode
+    const query = proxy.components.parameters.default.schema
+    expect(proxy.components.schemas.Use['$ref-value']).toBe(query)
+    expect(query.properties.term['$dynamicRef-value'].const).toBe('query')
+    expect(proxy.components.schemas.Literal['$dynamicRef-value']).toBeUndefined()
+  })
+
+  it('reuses a bundled implicit resource scope when entered through a pointer', () => {
+    const proxy = createMagicProxy({
+      template: { $id: 'https://example.com/default.json', $dynamicAnchor: 'item', const: 'default' },
+      whole: { $ref: 'https://example.com/external.json' },
+      part: { $ref: 'https://example.com/external.json#/properties/entry' },
+      'x-ext': {
+        external: {
+          properties: {
+            override: { $dynamicAnchor: 'item', const: 'override' },
+            entry: { $dynamicRef: 'https://example.com/default.json#item' },
+          },
+        },
+      },
+      'x-ext-urls': { external: 'https://example.com/external.json' },
+    }) as unknown as ProxyNode
+    const entry = proxy.whole['$ref-value'].properties.entry
+    expect(entry['$dynamicRef-value'].const).toBe('override')
+    expect(proxy.part['$ref-value']).toBe(entry)
+    expect(proxy.part['$ref-value']['$dynamicRef-value']).toBe(entry['$dynamicRef-value'])
+  })
+
   it('resolves references to bundled resources by their retrieval URIs', () => {
     const proxy = createMagicProxy(
       {

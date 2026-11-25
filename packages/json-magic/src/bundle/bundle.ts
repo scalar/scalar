@@ -938,6 +938,7 @@ export const bundleDocument = async (
       id: typeof id === 'string' && id !== '' ? id : undefined,
       idKeyword: vocabulary.idKeyword,
       anchor: vocabulary.anchors && typeof node.$anchor === 'string' ? node.$anchor : undefined,
+      dynamicAnchor: vocabulary.anchors && typeof node.$dynamicAnchor === 'string' ? node.$dynamicAnchor : undefined,
     }
   }
   const references = documentReferences(
@@ -1275,6 +1276,13 @@ export const bundleDocument = async (
     }
   }
 
+  const dynamicDocuments = new Map<string, { document: unknown; retrievalUri: string }>()
+  const retainDynamicDocument = (key: string, document: unknown, retrievalUri: string): void => {
+    dynamicDocuments.set(key, { document, retrievalUri })
+    setPath(documentRoot, `/${config.externalDocumentsKey}/${escapeJsonPointer(key)}`, document)
+    setPath(documentRoot, `/${config.externalDocumentsMappingsKey}/${escapeJsonPointer(key)}`, retrievalUri)
+  }
+
   const bundler = async (
     root: unknown,
     origin: string = defaultOrigin,
@@ -1361,6 +1369,41 @@ export const bundleDocument = async (
 
     const authoredReference = hasRef(root) ? root.$ref : undefined
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
+
+    // Dynamic references keep their URI and the complete initial resource. Rewriting to a
+    // storage pointer or pruning anchor declarations would change which schema can bind.
+    if (
+      isObject(root) &&
+      typeof root.$dynamicRef === 'string' &&
+      (location?.context === 'schema' || config.traversal !== 'document') &&
+      !config.preserveReference?.(root.$dynamicRef, { origin: nodeOrigin })
+    ) {
+      const prefix = root.$dynamicRef.split('#', 1)[0]
+      if (prefix) {
+        const retrievalOrigin = references.retrievalOrigin(root) ?? nodeOrigin
+        const retrievalUri = resolveResourcePath(retrievalOrigin, prefix)
+        const known = references.resolve(prefix, nodeOrigin)
+        if (known?.documentPath.length) {
+          const source = isObject(known.document) ? references.source(known.document)?.uri : undefined
+          retainDynamicDocument(known.documentPath[1]!, known.document, source ?? retrievalUri)
+          await bundler(known.document, source ?? retrievalUri, false, depth + 1, known.documentPath)
+        } else if (
+          !known &&
+          (!isHttpUrl(references.sourceOrigin(root) ?? getDefaultOrigin()) || isHttpUrl(retrievalUri))
+        ) {
+          const result = await loadDocument(retrievalUri)
+          if (result.ok && result.data !== undefined) {
+            const document = await prepareDocument(result.data, retrievalUri)
+            const key = await generate(toRelativePath(retrievalUri, mappingOrigin))
+            const path = [config.externalDocumentsKey, key]
+            traversal.register(document, retrievalUri, 'schema')
+            references.register(document, retrievalUri, path)
+            retainDynamicDocument(key, document, retrievalUri)
+            await bundler(document, retrievalUri, false, depth + 1, path)
+          }
+        }
+      }
+    }
 
     const visitChild = (key: string, deferred = false): Promise<void> => {
       const parentNode: unknown = deferred
@@ -1834,6 +1877,9 @@ export const bundleDocument = async (
     }
   }
   applyDeferredCopies()
+  for (const [key, { document, retrievalUri }] of dynamicDocuments) {
+    retainDynamicDocument(key, document, retrievalUri)
+  }
 
   // Cache indexing reserves keys before we know which edges will be preserved.
   // Do not expose reservations for resources that were never included in the output.
@@ -1875,7 +1921,16 @@ export const bundleDocument = async (
   // For full bundling without urlMap config, remove the mappings to clean up the output
   if (!config.urlMap && !isPartialBundling) {
     // Remove the external document mappings from the output when doing a full bundle without urlMap config
-    delete documentRoot[config.externalDocumentsMappingsKey]
+    if (dynamicDocuments.size === 0) {
+      delete documentRoot[config.externalDocumentsMappingsKey]
+    } else {
+      const mappings = documentRoot[config.externalDocumentsMappingsKey]
+      for (const key of Object.keys(mappings)) {
+        if (!dynamicDocuments.has(key)) {
+          delete mappings[key]
+        }
+      }
+    }
   }
 
   return rawSpecification

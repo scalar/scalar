@@ -1,8 +1,11 @@
-import { isObject } from '@scalar/helpers/object/is-object'
-import { isDynamicRef } from '@scalar/workspace-store/helpers/dynamic-ref'
-import { getBooleanSchema } from '@scalar/workspace-store/helpers/get-boolean-schema'
-import { DYNAMIC_REF_VALUE } from '@scalar/workspace-store/resolve'
-import type { SchemaObject, SchemaReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isDynamicRef, normalizeDynamicRefTarget } from '@scalar/workspace-store/helpers/dynamic-ref'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { DYNAMIC_REF_VALUE, resolve } from '@scalar/workspace-store/resolve'
+import type {
+  ReferenceType,
+  SchemaObject,
+  SchemaReferenceType,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /**
  * Resolving JSON Schema 2020-12 `$dynamicRef` while rendering a schema.
@@ -34,14 +37,23 @@ export const resolveDynamicSchema = <T extends SchemaReferenceType<SchemaObject>
   let current: unknown = schema
   while (isDynamicRef(current) && !seen.has(current)) {
     seen.add(current)
-    const target: unknown = Reflect.get(current, DYNAMIC_REF_VALUE)
-    if (typeof target === 'boolean') {
-      return getBooleanSchema(target) as T
-    }
-    if (!isObject(target)) {
+    const target = normalizeDynamicRefTarget(Reflect.get(current, DYNAMIC_REF_VALUE))
+    if (!target) {
       break
     }
     current = target
   }
   return current as T
+}
+
+/** Read a media or parameter schema while preserving the scopes of its referenced properties. */
+export const resolveDisplaySchema = (
+  source: ReferenceType<SchemaObject> | null | undefined,
+): SchemaObject | undefined => {
+  if (!source) {
+    return undefined
+  }
+  const target = getResolvedRef<SchemaObject>(source)
+  const schema = target && typeof target === 'object' && '$ref' in target ? resolve.schema(source) : target
+  return resolveDynamicSchema(schema)
 }

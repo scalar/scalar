@@ -65,6 +65,28 @@ export const pushDynamicScope = (scope: DynamicScope, schema: SchemaObject): Dyn
 export const resolveDynamicRef = (dynamicRef: string, scope: DynamicScope): SchemaObject | undefined =>
   resolveDynamicRefGeneric(dynamicRef, scope as Record<string, unknown>[], unwrap) as SchemaObject | undefined
 
+/** Retrieve the indexed target, including the link saved in a detached schema snapshot. */
+const readDynamicRefTarget = (schema: object): unknown => Reflect.get(schema, DYNAMIC_REF_VALUE)
+
+/** Preserve the synthetic link when schema coercion produces a new view of an indexed reference. */
+export const retainDynamicRefTarget = (source: unknown, view: object): void => {
+  if (
+    isDynamicRef(source) &&
+    source !== view &&
+    (getRaw(source) !== source || Object.hasOwn(source, DYNAMIC_REF_VALUE))
+  ) {
+    Object.defineProperty(view, DYNAMIC_REF_VALUE, { value: readDynamicRefTarget(source), configurable: true })
+  }
+}
+
+/** Normalize boolean targets for the object-based display and example consumers. */
+export const normalizeDynamicRefTarget = (target: unknown): SchemaObject | undefined => {
+  if (typeof target === 'boolean') {
+    return getBooleanSchema(target)
+  }
+  return isObject(target) ? (target as SchemaObject) : undefined
+}
+
 /** Resolve against the active proxy scope, even when schema coercion created a shallow view. */
 export const createSchemaDynamicRefResolver = (
   root: SchemaObject,
@@ -81,12 +103,8 @@ export const createSchemaDynamicRefResolver = (
     // can instead use their own root or the scope of a pre-resolved reference passed by the caller.
     const target =
       getRaw(schema) !== schema || Object.hasOwn(schema, DYNAMIC_REF_VALUE)
-        ? Reflect.get(schema, DYNAMIC_REF_VALUE)
+        ? readDynamicRefTarget(schema)
         : resolveDetached(schema, scope as Record<string, unknown>[])
-    return typeof target === 'boolean'
-      ? getBooleanSchema(target)
-      : isObject(target)
-        ? (target as SchemaObject)
-        : undefined
+    return normalizeDynamicRefTarget(target)
   }
 }

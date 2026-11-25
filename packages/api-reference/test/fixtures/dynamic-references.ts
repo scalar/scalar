@@ -51,6 +51,7 @@ export const dynamicReferencesDocument = {
               ordinary: { $dynamicRef: '../static.json#item' },
               pointer: { $dynamicRef: '#/$defs/pointer' },
               alias: { $dynamicRef: '#/$defs/alias' },
+              indirect: { $ref: '#/$defs/alias' },
             },
           },
           defaults: { $id: 'defaults.json', $dynamicAnchor: 'item', type: 'number' },

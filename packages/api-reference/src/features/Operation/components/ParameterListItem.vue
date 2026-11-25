@@ -11,7 +11,7 @@ import {
   getSchemaType,
   hasComplexArrayItems,
   optimizeValueForDisplay,
-  resolveDynamicSchema,
+  resolveDisplaySchema,
 } from '@scalar/blocks/schema/helpers'
 import {
   ScalarMarkdown,
@@ -22,15 +22,12 @@ import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { resolve } from '@scalar/workspace-store/resolve'
 import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
 import type {
   OpenApiDocument,
   ParameterObject,
   ResponseObject,
   SchemaObject,
-  ReferenceType,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, inject, ref, watch } from 'vue'
 
@@ -99,25 +96,10 @@ const isCompactParameter = computed<boolean>(
 /** Whether the markdown summary is being truncated */
 const truncated = ref(false)
 
-/** Keep the schema's scoped children when the media type points through a binding. */
-const getDisplaySchema = (
-  source: ReferenceType<SchemaObject> | null | undefined,
-): SchemaObject | undefined => {
-  if (!source) {
-    return undefined
-  }
-  const target = getResolvedRef<SchemaObject>(source)
-  const schema =
-    target && typeof target === 'object' && '$ref' in target
-      ? resolve.schema(source)
-      : target
-  return resolveDynamicSchema(schema)
-}
-
 /** Responses and params may both have a schema */
 const schema = computed<SchemaObject | null>(() =>
   'schema' in parameter && parameter.schema
-    ? (getDisplaySchema(parameter.schema) ?? null)
+    ? (resolveDisplaySchema(parameter.schema) ?? null)
     : null,
 )
 
@@ -183,7 +165,7 @@ const schemaModelName = computed(() => {
 /** Computed value from the combined schema param and content param */
 const value = computed(() => {
   const base = baseSchema.value
-  const resolvedBase = content.value ? getDisplaySchema(base) : schema.value
+  const resolvedBase = content.value ? resolveDisplaySchema(base) : schema.value
 
   const deprecated =
     'deprecated' in parameter ? parameter.deprecated : schema.value?.deprecated
@@ -626,7 +608,9 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :name="translate('common.streamItem')"
           :noncollapsible="true"
           :options="{ ...options, hideWriteOnly: true, document }"
-          :schema="getDisplaySchema(content[selectedContentType]?.itemSchema)"
+          :schema="
+            resolveDisplaySchema(content[selectedContentType]?.itemSchema)
+          "
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension" />
 

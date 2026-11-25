@@ -14,6 +14,8 @@ import { parseYaml } from '@/bundle/plugins/parse-yaml'
 import { getHash } from '@/bundle/value-generator'
 import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
 import { getValueByPath } from '@/helpers/get-value-by-path'
+import { createMagicProxy } from '@/magic-proxy/proxy'
+import { DYNAMIC_REF_VALUE } from '@/magic-proxy/symbols'
 
 import {
   type LoaderPlugin,
@@ -30,6 +32,35 @@ import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 
 describe('bundle', () => {
+  it.each(['$anchor', '$dynamicAnchor'])(
+    'retains external resources named by a $dynamicRef with %s',
+    async (anchor) => {
+      const input = {
+        $id: 'https://example.com/api/root.json',
+        items: { $dynamicRef: '../schemas/target.json#item' },
+      }
+      const loads: string[] = []
+      await bundle(input, {
+        traversal: 'document',
+        treeShake: true,
+        plugins: [
+          {
+            type: 'loader',
+            validate: (uri) => uri === 'https://example.com/schemas/target.json',
+            exec: (uri) => {
+              loads.push(uri)
+              return Promise.resolve({ ok: true, data: { [anchor]: 'item', type: 'string', const: 'loaded' } })
+            },
+          },
+        ],
+      })
+
+      expect(loads).toStrictEqual(['https://example.com/schemas/target.json'])
+      expect(input.items.$dynamicRef).toBe('../schemas/target.json#item')
+      expect(Reflect.get(createMagicProxy(input).items, DYNAMIC_REF_VALUE)?.const).toBe('loaded')
+    },
+  )
+
   it.each([
     [undefined, false],
     ['nested/Pet.yaml', false],

@@ -670,6 +670,7 @@ describe('TraversedEntry', () => {
       ordinary: 'ordinary anchor',
       pointer: 'pointer value',
       alias: 'pointer value',
+      indirect: 'pointer value',
     })
     expect(
       getExampleContent(response?.content?.['application/xml'], undefined, {
@@ -685,6 +686,7 @@ describe('TraversedEntry', () => {
         '  <ordinary>ordinary anchor</ordinary>\n' +
         '  <pointer>pointer value</pointer>\n' +
         '  <alias>pointer value</alias>\n' +
+        '  <indirect>pointer value</indirect>\n' +
         '</result>',
     )
   })
