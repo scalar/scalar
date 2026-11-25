@@ -108,7 +108,7 @@ const valueRef = toRef(props, 'value')
 
 const badges = computed<{ before: XBadge[]; after: XBadge[] } | undefined>(
   () => {
-    const entries = getXBadges(props.value)
+    const entries = getXBadges(valueRef.value)
     if (!entries) {
       return undefined
     }

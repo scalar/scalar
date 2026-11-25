@@ -7,10 +7,12 @@ import { type DOMWrapper, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import { defineComponent, h, isReactive, nextTick, ref } from 'vue'
 
+import Badge from '../shared/Badge.vue'
 import { type SchemaExpansionStore, createSchemaExpansionStore } from './helpers/schema-expansion'
 import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from './request-body-composition-index'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
+import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 const scrollTargetId = ref('')
 
@@ -75,7 +77,7 @@ describe('Schema', () => {
     expect(wrapper.text()).toContain('Type: string')
   })
 
-  it('renders badges on nested and referenced properties from the workspace store', async () => {
+  it('renders badges on nested, referenced, and composed properties from the workspace store', async () => {
     const store = createWorkspaceStore()
     const documentName = 'users'
     await store.addDocument({
@@ -91,6 +93,10 @@ describe('Schema', () => {
                 manager: {
                   $ref: '#/components/schemas/Manager',
                   'x-badges': [{ name: 'Expandable', color: '#34d399' }],
+                },
+                status: {
+                  oneOf: [{ type: 'string' }, { type: 'integer' }],
+                  'x-badges': [{ name: 'Legacy format' }],
                 },
               },
             },
@@ -120,11 +126,14 @@ describe('Schema', () => {
       },
     })
 
-    expect(wrapper.findAll('.badge').map((badge) => badge.text())).toStrictEqual([
+    const status = wrapper.findAllComponents(SchemaProperty).find((property) => property.props('name') === 'status')
+    expect(status?.getComponent(SchemaPropertyHeading).getComponent(Badge).text()).toBe('Legacy format')
+    expect(wrapper.findAllComponents(Badge).map((badge) => badge.text())).toStrictEqual([
       'Expandable',
       'Legacy',
       'deprecated',
       'Use email instead',
+      'Legacy format',
     ])
     const text = wrapper.text()
     expect(text.indexOf('Expandable')).toBeGreaterThan(text.indexOf('manager'))
