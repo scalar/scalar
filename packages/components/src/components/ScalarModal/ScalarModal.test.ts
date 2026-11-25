@@ -1,17 +1,17 @@
-import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { stubDialogApi } from '@scalar/helpers/testing/stub-dialog'
+import { type VueWrapper, enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
+import type { ModalState } from './index'
 import ScalarModal, { useModal } from './ScalarModal.vue'
 
 enableAutoUnmount(afterEach)
 
-const prototype = HTMLDialogElement.prototype
-const originalShowModal = Object.getOwnPropertyDescriptor(prototype, 'showModal')
-const originalClose = Object.getOwnPropertyDescriptor(prototype, 'close')
+let restoreDialogApi: () => void
 
 /** Mount an open modal and wait for the dialog bridge to call `showModal()`. */
-const mountOpen = async (props: Record<string, unknown> = {}) => {
+const mountOpen = async (props: Record<string, unknown> = {}): Promise<{ state: ModalState; wrapper: VueWrapper }> => {
   const state = useModal()
   state.show()
   const wrapper = mount(ScalarModal, {
@@ -24,35 +24,11 @@ const mountOpen = async (props: Record<string, unknown> = {}) => {
 
 describe('ScalarModal', () => {
   beforeEach(() => {
-    // jsdom does not implement the native dialog API, so stand in for the parts the dialog uses
-    Object.defineProperties(prototype, {
-      showModal: {
-        configurable: true,
-        value(this: HTMLDialogElement) {
-          this.open = true
-        },
-      },
-      close: {
-        configurable: true,
-        value(this: HTMLDialogElement) {
-          this.open = false
-          this.dispatchEvent(new Event('close'))
-        },
-      },
-    })
+    restoreDialogApi = stubDialogApi()
   })
 
   afterEach(() => {
-    if (originalShowModal) {
-      Object.defineProperty(prototype, 'showModal', originalShowModal)
-    } else {
-      Reflect.deleteProperty(prototype, 'showModal')
-    }
-    if (originalClose) {
-      Object.defineProperty(prototype, 'close', originalClose)
-    } else {
-      Reflect.deleteProperty(prototype, 'close')
-    }
+    restoreDialogApi()
   })
 
   it('opens a native modal dialog from the modal state', async () => {

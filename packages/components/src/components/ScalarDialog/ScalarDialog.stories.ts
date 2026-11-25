@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { ref } from 'vue'
 
 import { ScalarButton } from '../ScalarButton'
+import { ScalarTooltip } from '../ScalarTooltip'
 import ScalarDialog from './ScalarDialog.vue'
 
 /**
@@ -132,6 +133,42 @@ export const Scrolling: Story = {
             class="text-c-2">
             Paragraph {{ n }} — the dialog caps its height and scrolls the overflow.
           </p>
+        </div>
+      </ScalarDialog>
+    `,
+  }),
+}
+
+/**
+ * Escape is shared between the dialog and anything inside it that also closes on Escape. With the
+ * tooltip showing, the first press hides only the tooltip and the second closes the dialog.
+ */
+export const WithTooltip: Story = {
+  render: () => ({
+    components: { ScalarButton, ScalarDialog, ScalarTooltip },
+    setup() {
+      const open = ref(true)
+      return { open }
+    },
+    template: `
+      <div class="flex h-dvh items-center justify-center">
+        <ScalarButton @click="open = true">Open dialog</ScalarButton>
+      </div>
+      <ScalarDialog
+        v-model:open="open"
+        aria-labelledby="tooltip-dialog-title">
+        <div class="flex flex-col gap-4">
+          <h2
+            id="tooltip-dialog-title"
+            class="text-sm font-medium">
+            Dialog with a tooltip
+          </h2>
+          <p class="text-c-2">Hover the button, then press Escape twice.</p>
+          <ScalarTooltip
+            content="Hides before the dialog does"
+            :delay="0">
+            <ScalarButton>Hover Me</ScalarButton>
+          </ScalarTooltip>
         </div>
       </ScalarDialog>
     `,

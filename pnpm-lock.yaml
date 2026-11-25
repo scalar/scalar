@@ -2193,6 +2193,9 @@ importers:
       '@playwright/test':
         specifier: catalog:*
         version: 1.65.1
+      '@scalar/use-toasts':
+        specifier: workspace:*
+        version: link:../use-toasts
       '@storybook/addon-docs':
         specifier: 10.6.8
         version: 10.6.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(storybook@10.6.8(@types/react@19.3.0)(prettier@3.10.1)(react@19.3.1))

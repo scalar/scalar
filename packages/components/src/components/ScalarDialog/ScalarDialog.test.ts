@@ -1,3 +1,4 @@
+import { stubDialogApi } from '@scalar/helpers/testing/stub-dialog'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { h, nextTick } from 'vue'
@@ -7,9 +8,7 @@ import ScalarDialog from './ScalarDialog.vue'
 
 enableAutoUnmount(afterEach)
 
-const prototype = HTMLDialogElement.prototype
-const originalShowModal = Object.getOwnPropertyDescriptor(prototype, 'showModal')
-const originalClose = Object.getOwnPropertyDescriptor(prototype, 'close')
+let restoreDialogApi: () => void
 
 /** Dispatch an Escape keydown from an element, the way a real keypress bubbles. */
 const pressEscape = (element: Element): KeyboardEvent => {
@@ -23,35 +22,11 @@ describe('ScalarDialog', () => {
     document.body.innerHTML = '<div id="app"></div>'
     document.documentElement.removeAttribute('style')
 
-    // jsdom does not implement the native dialog API, so stand in for the parts the component uses
-    Object.defineProperties(prototype, {
-      showModal: {
-        configurable: true,
-        value(this: HTMLDialogElement) {
-          this.open = true
-        },
-      },
-      close: {
-        configurable: true,
-        value(this: HTMLDialogElement) {
-          this.open = false
-          this.dispatchEvent(new Event('close'))
-        },
-      },
-    })
+    restoreDialogApi = stubDialogApi()
   })
 
   afterEach(() => {
-    if (originalShowModal) {
-      Object.defineProperty(prototype, 'showModal', originalShowModal)
-    } else {
-      Reflect.deleteProperty(prototype, 'showModal')
-    }
-    if (originalClose) {
-      Object.defineProperty(prototype, 'close', originalClose)
-    } else {
-      Reflect.deleteProperty(prototype, 'close')
-    }
+    restoreDialogApi()
   })
 
   it('opens and closes the native dialog from the model', async () => {
@@ -167,10 +142,10 @@ describe('ScalarDialog', () => {
 
   it('emits close even when the dialog reopens before the native close event fires', async () => {
     // Real browsers queue the close event, so swap in a close that never dispatches it
-    Object.defineProperty(prototype, 'close', {
+    Object.defineProperty(HTMLDialogElement.prototype, 'close', {
       configurable: true,
       value(this: HTMLDialogElement) {
-        this.open = false
+        this.removeAttribute('open')
       },
     })
     const wrapper = mount(ScalarDialog, { props: { open: true } })

@@ -1,4 +1,5 @@
-import { useModal } from '@scalar/components/modal'
+import { type ModalState, useModal } from '@scalar/components/modal'
+import { stubDialogApi } from '@scalar/helpers/testing/stub-dialog'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
@@ -52,7 +53,7 @@ type MountOptions = {
  * The dialog is mounted into <body>, so everything inside it is queried through the document.
  * An explicit `url: undefined` stands for an inline document, so it must not fall back to the default.
  */
-const mountModal = async (options: MountOptions = {}) => {
+const mountModal = async (options: MountOptions = {}): Promise<ModalState> => {
   const url = 'url' in options ? options.url : 'https://api.acme.io/openapi.json'
   const { usesViewTransition = false, workspace = createWorkspace(), startOpen = true } = options
   const state = useModal()
@@ -66,7 +67,7 @@ const mountModal = async (options: MountOptions = {}) => {
   return state
 }
 
-const getDialog = () => {
+const getDialog = (): HTMLElement => {
   const dialog = document.querySelector<HTMLElement>('dialog[open]')
   if (!dialog) {
     throw new Error('Expected the dialog to be open')
@@ -83,7 +84,7 @@ const getIconButton = (label: string) =>
   Array.from(getDialog().querySelectorAll<HTMLElement>('button')).find((el) => el.getAttribute('aria-label') === label)
 const getClose = () => getIconButton('Close')
 
-const click = async (element: HTMLElement | undefined) => {
+const click = async (element: HTMLElement | undefined): Promise<void> => {
   if (!element) {
     throw new Error('Expected the element to click')
   }
@@ -92,42 +93,11 @@ const click = async (element: HTMLElement | undefined) => {
   await flushPromises()
 }
 
-const dialogPrototype = HTMLDialogElement.prototype
-const originalShowModal = Object.getOwnPropertyDescriptor(dialogPrototype, 'showModal')
-const originalClose = Object.getOwnPropertyDescriptor(dialogPrototype, 'close')
-
-/** Put a dialog method back the way jsdom had it, deleting the stub when jsdom had none */
-const restoreDialogMethod = (name: 'showModal' | 'close', descriptor: PropertyDescriptor | undefined) => {
-  if (descriptor) {
-    Object.defineProperty(dialogPrototype, name, descriptor)
-  } else {
-    Reflect.deleteProperty(dialogPrototype, name)
-  }
-}
+let restoreDialogApi: () => void
 
 beforeEach(() => {
-  /**
-   * jsdom does not implement the dialog API. This stands in for the part these tests rely on: like a
-   * browser, `showModal()` focuses the first focusable element, which is the sign-up call to action.
-   */
-  Object.defineProperties(dialogPrototype, {
-    showModal: {
-      configurable: true,
-      value(this: HTMLDialogElement) {
-        this.setAttribute('open', '')
-        this.querySelector<HTMLElement>(
-          '[autofocus], a[href], button:not([disabled]), input, select, textarea',
-        )?.focus()
-      },
-    },
-    close: {
-      configurable: true,
-      value(this: HTMLDialogElement) {
-        this.removeAttribute('open')
-        this.dispatchEvent(new Event('close'))
-      },
-    },
-  })
+  // Like a browser, opening the dialog focuses its first focusable element: the sign-up call to action
+  restoreDialogApi = stubDialogApi({ focusFirst: true })
   /** jsdom has no ResizeObserver */
   globalThis.ResizeObserver = class {
     disconnect = vi.fn()
@@ -143,8 +113,7 @@ afterEach(() => {
   vi.clearAllMocks()
   // jsdom has no Web Animations API; the morph test stubs it on the prototype
   Reflect.deleteProperty(HTMLElement.prototype, 'animate')
-  restoreDialogMethod('showModal', originalShowModal)
-  restoreDialogMethod('close', originalClose)
+  restoreDialogApi()
 })
 
 describe('ExploreScalarModal', () => {

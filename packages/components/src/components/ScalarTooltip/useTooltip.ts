@@ -191,12 +191,17 @@ function hideTooltip(_e: Event) {
 /**
  * Handle the escape key
  *
- * If the escape key is pressed we need to hide the tooltip
+ * If the escape key is pressed while the tooltip is showing we need to hide it, and only it.
+ * Preventing the default stops the browser from also turning the key into a `cancel` request
+ * for a surrounding modal `<dialog>`, which stopping propagation alone does not do. The listener
+ * outlives a tooltip hidden by blur or mouseleave, so an Escape with no tooltip showing is left
+ * alone for whatever else wants it.
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/tooltip_role#keyboard_interactions
  */
 function handleEscape(e: KeyboardEvent) {
-  if (e.key === 'Escape') {
+  if (e.key === 'Escape' && config.value) {
+    e.preventDefault()
     e.stopPropagation()
     hideTooltip(e)
   }

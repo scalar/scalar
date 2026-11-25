@@ -253,6 +253,7 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",
+    "@scalar/use-toasts": "workspace:*",
     "@storybook/addon-docs": "10.6.8",
     "@storybook/addon-links": "10.6.8",
     "@storybook/vue3-vite": "10.6.8",
