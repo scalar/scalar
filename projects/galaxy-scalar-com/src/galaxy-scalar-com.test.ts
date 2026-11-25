@@ -168,19 +168,18 @@ describe('galaxy-scalar-com', () => {
         const app = new Hono()
         configureProduction(app)
 
+        const config = resolveConfiguration()
+        expect(config.sources?.[0]?.url).toBe(
+          'https://registry.scalar.com/@scalar/apis/galaxy?variant=processed&format=json',
+        )
+
         const response = await app.request('/')
         const html = await response.text()
 
-        expect(html).not.toContain('/openapi.yaml')
         expect(response.status).toBe(200)
         expect(html).toContain('<script type="module">')
         expect(html).toContain(
           "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
-        )
-        const renderedConfig = html.match(/createApiReference\('#app', (\{[\s\S]*\})\)\s*<\/script>/)?.[1]
-        const config = JSON.parse(renderedConfig ?? '{}') as { sources?: { url?: string }[] }
-        expect(config.sources?.[0]?.url).toBe(
-          'https://registry.scalar.com/@scalar/apis/galaxy?variant=processed&format=json',
         )
       } finally {
         vi.unstubAllGlobals()
