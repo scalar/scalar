@@ -38,6 +38,7 @@ import {
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
 import { escapeCssForStyleTag } from '@scalar/helpers/dom/escape-css-for-style-tag'
+import { getActiveElement } from '@scalar/helpers/dom/get-active-element'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
@@ -58,6 +59,7 @@ import {
 } from '@scalar/types/api-reference'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
@@ -199,6 +201,9 @@ defineSlots<{
 }>()
 
 const { copyToClipboard } = useClipboard()
+
+/** Where to look things up by id or selector, the shadow root when the reference is embedded in one */
+const documentRoot = useDocumentRoot()
 
 /**
  * Used to inject the environment into built packages
@@ -1917,7 +1922,7 @@ eventBus.on('intersecting:nav-item', ({ id: intersectingId }) => {
   updatePageTitle(id)
 
   // Scroll the sidebar to keep the selected element near the top
-  scrollSidebarToTop(id)
+  scrollSidebarToTop(id, undefined, documentRoot)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (urlRouting.value && url && workspaceStore.workspace.activeDocument) {
@@ -2073,8 +2078,9 @@ const onShellPanelFocusOut = (event: FocusEvent): void => {
 
 /** Whether focus is in the panel, which then hands it back to the trigger when the panel goes away */
 const isFocusInShellPanel = (): boolean =>
-  document.getElementById(shellPanel.id)?.contains(document.activeElement) ??
-  false
+  documentRoot
+    ?.getElementById(shellPanel.id)
+    ?.contains(getActiveElement(documentRoot)) ?? false
 
 /**
  * Closes the panel from outside it (the window narrowed, its tool stopped applying). Focus inside it
@@ -2090,7 +2096,7 @@ const closeShellPanelFromOutside = (): void => {
   shellPanelHadFocus.value = false
   shellPanel.close({ restoreFocus: hadFocus })
 
-  const active = document.activeElement
+  const active = getActiveElement(documentRoot)
   const backOnTrigger =
     active instanceof HTMLElement &&
     active !== document.body &&
@@ -2196,7 +2202,7 @@ const referenceLayout = useTemplateRef<HTMLElement>('documentEl')
  */
 const findReadingAnchor = (): Element | null => {
   const content = referenceLayout.value?.querySelector('.references-rendered')
-  const toolbar = document.querySelector('.references-shell-toolbar')
+  const toolbar = documentRoot?.querySelector('.references-shell-toolbar')
   if (!content || !toolbar) {
     return null
   }
@@ -2220,7 +2226,7 @@ const findReadingAnchor = (): Element | null => {
 
   for (let y = line + 4; y < line + 240; y += 12) {
     for (const fraction of [0.05, 0.15, 0.3]) {
-      const hit = document.elementFromPoint(
+      const hit = documentRoot?.elementFromPoint(
         area.left + area.width * fraction,
         y,
       )
@@ -2235,7 +2241,7 @@ const findReadingAnchor = (): Element | null => {
   }
 
   const selectedId = sidebarState.selectedItem.value
-  const section = selectedId ? document.getElementById(selectedId) : null
+  const section = selectedId ? documentRoot?.getElementById(selectedId) : null
   return section && content.contains(section) ? section : null
 }
 
@@ -2287,7 +2293,7 @@ const openGenerateSdk = (): void => {
   }
 
   const fromToolbar =
-    document.activeElement?.closest('.references-shell-toolbar') != null
+    getActiveElement(documentRoot)?.closest('.references-shell-toolbar') != null
   void loadShellPanel()
   shellPanel.toggle('sdk', { focus: !fromToolbar })
 }
