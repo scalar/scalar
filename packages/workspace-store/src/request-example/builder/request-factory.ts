@@ -1,6 +1,5 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
-import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import type { MultipartNaming } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -10,7 +9,7 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/stric
 
 import type { ReservedPathParameter } from '@/helpers/encode-path-parameter'
 import { type QuerystringParameter, getQuerystringParameter } from '@/helpers/querystring-parameter'
-import { getServerVariables } from '@/request-example/builder/helpers/get-server-variables'
+import { resolveServerUrl } from '@/request-example/builder/helpers/resolve-server-url'
 import {
   type BuildRequestSecurityResult,
   buildRequestSecurity,
@@ -286,9 +285,7 @@ export const requestFactory = ({
     headers.delete('Content-Type')
   }
 
-  /** Combine the server url, path and url params into a single url */
-  const serverVariables = getServerVariables(server)
-  const baseUrl = replacePathVariables(server?.url ?? '', serverVariables)
+  const baseUrl = resolveServerUrl(server)
 
   const globalCookieFilter = operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {}
 
