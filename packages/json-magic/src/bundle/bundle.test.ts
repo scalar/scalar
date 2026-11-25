@@ -49,7 +49,8 @@ describe('bundle', () => {
             validate: (uri) => uri === 'https://example.com/schemas/target.json',
             exec: (uri) => {
               loads.push(uri)
-              return Promise.resolve({ ok: true, data: { [anchor]: 'item', type: 'string', const: 'loaded' } })
+              const data = { [anchor]: 'item', type: 'string', const: 'loaded' }
+              return Promise.resolve({ ok: true, data, raw: JSON.stringify(data) })
             },
           },
         ],
