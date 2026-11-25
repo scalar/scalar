@@ -76,6 +76,12 @@ describe('servers', () => {
       expected: 'https://cdn.example.com/tenant01/planets',
     },
     {
+      url: '{prefix}{{host}}/v2',
+      prefix: '//',
+      envVariables: { host: 'cdn.example.com' },
+      expected: 'https://cdn.example.com/v2/planets',
+    },
+    {
       url: '{prefix}{{origin}}/v2',
       prefix: '',
       envVariables: { origin: 'https://absolute.example.com' },
@@ -120,6 +126,14 @@ describe('servers', () => {
     })
 
     expect(resolveServerUrl(server ?? null)).toBe('https://api.example.com/base/release.v1')
+  })
+
+  it('falls back to the browser origin when the description URL cannot resolve relative paths', () => {
+    const [server] = getServers([{ url: '{prefix}/v2', variables: { prefix: { default: '' } } }], {
+      documentUrl: 'about:blank',
+    })
+
+    expect(resolveServerUrl(server ?? null)).toBe('https://example.com/v2')
   })
 
   it('excludes document credentials from rooted and templated server URLs', () => {

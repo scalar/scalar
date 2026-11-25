@@ -10,13 +10,13 @@ import { getServerVariables } from './get-server-variables'
 type ServerUrlBase = { url: string; source: 'configuration' | 'document' | 'browser' }
 
 const serverUrlBase = Symbol('serverUrlBase')
-const hasScheme = /^[a-z][a-z\d+.-]*:/i
+const urlScheme = /^[a-z][a-z\d+.-]*:/i
 
 type ServerWithUrlBase = ServerObject & { [serverUrlBase]?: ServerUrlBase }
 
 /** Carries the base on the server view while keeping the authored template available for selection and editing. */
 export const withServerUrlBase = (server: ServerObject, base: ServerUrlBase): ServerWithUrlBase =>
-  server.variables && server.url?.includes('{') && !hasScheme.test(server.url)
+  server.variables && server.url?.includes('{') && !urlScheme.test(server.url)
     ? { ...server, [serverUrlBase]: base }
     : server
 
@@ -25,7 +25,7 @@ export const resolveServerUrl = (server: ServerWithUrlBase | null): string => {
   const url = replacePathVariables(server?.url ?? '', getServerVariables(server))
   const base = server?.[serverUrlBase]
 
-  if (!base || hasScheme.test(url)) {
+  if (!base || urlScheme.test(url)) {
     return url
   }
 
@@ -34,15 +34,20 @@ export const resolveServerUrl = (server: ServerWithUrlBase | null): string => {
     return url
   }
 
+  // A network-path reference provides its own host, including when the host is a variable.
+  if (url.startsWith('//')) {
+    const scheme = urlScheme.exec(base.url)?.[0]
+    return scheme ? scheme.toLowerCase() + url : url
+  }
+
   const placeholderIndex = url.indexOf('{')
-  const hasOwnHost = url.startsWith('//')
-  const firstPathSlash = url.indexOf('/', hasOwnHost ? 2 : 0)
+  const firstPathSlash = url.indexOf('/')
   // A remaining placeholder can still supply the origin if it precedes the path.
   if (placeholderIndex !== -1 && (firstPathSlash === -1 || placeholderIndex < firstPathSlash)) {
     return url
   }
 
-  if (base.source === 'configuration' && !hasOwnHost) {
+  if (base.source === 'configuration') {
     return combineUrlAndPath(base.url, url)
   }
 

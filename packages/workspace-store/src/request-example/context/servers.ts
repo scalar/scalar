@@ -49,14 +49,20 @@ export const getServers = (
 
 /** Keeps credentials used to fetch an API description out of the server URLs derived from it. */
 const getDocumentBase = (documentUrl: string | undefined): URL | undefined => {
-  if (!documentUrl || !URL.canParse('.', documentUrl)) {
+  if (!documentUrl) {
     return undefined
   }
 
-  const base = new URL(documentUrl)
-  base.username = ''
-  base.password = ''
-  return base
+  try {
+    const base = new URL(documentUrl)
+    // Opaque URLs cannot resolve relative server paths.
+    new URL('.', base)
+    base.username = ''
+    base.password = ''
+    return base
+  } catch {
+    return undefined
+  }
 }
 
 /**
