@@ -47,6 +47,7 @@ export const ru = {
     collapsed: 'Свернуто',
     webhooks: 'Вебхуки',
     channels: 'Каналы',
+    messages: 'Сообщения',
   },
   server: {
     label: 'Сервер',

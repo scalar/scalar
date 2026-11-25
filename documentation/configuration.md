@@ -833,7 +833,7 @@ By default, badges only show in the content and the sidebar looks the same as be
 
 **Type:** `boolean`
 
-Whether models (`components.schemas` or `definitions`) should be shown in the sidebar, search and content.
+Hide schema models (`components.schemas` or `definitions`) from the sidebar, search, and content. For AsyncAPI, this also hides the **Messages** section.
 
 **Default:** `false`
 

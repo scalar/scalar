@@ -188,6 +188,36 @@ export type TraversedAsyncApiMessage = BaseSchema & {
   channelName: string
 }
 
+export const TraversedAsyncApiReusableMessageSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-reusable-message'),
+    name: Type.String(),
+  }),
+)
+
+/** A reusable message keyed by its name in `document.components.messages`. */
+export type TraversedAsyncApiReusableMessage = BaseSchema & {
+  type: 'asyncapi-reusable-message'
+  name: string
+}
+
+export const TraversedAsyncApiMessagesSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-messages'),
+    name: Type.String(),
+    children: Type.Array(TraversedEntryObjectRef),
+  }),
+)
+
+/** The top-level Messages section for reusable AsyncAPI messages. */
+export type TraversedAsyncApiMessages = BaseSchema & {
+  type: 'asyncapi-messages'
+  name: string
+  children: TraversedEntry[]
+}
+
 export const TraversedSchemaSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
@@ -322,6 +352,8 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedAsyncApiOperationSchemaDefinition,
   TraversedAsyncApiChannelSchemaDefinition,
   TraversedAsyncApiMessageSchemaDefinition,
+  TraversedAsyncApiMessagesSchemaDefinition,
+  TraversedAsyncApiReusableMessageSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
@@ -337,6 +369,8 @@ export type TraversedEntry =
   | TraversedAsyncApiOperation
   | TraversedAsyncApiChannel
   | TraversedAsyncApiMessage
+  | TraversedAsyncApiMessages
+  | TraversedAsyncApiReusableMessage
   | TraversedSchema
   | TraversedTag
   | TraversedWebhook
@@ -444,6 +478,13 @@ type AsyncApiMessageProps = {
   type: 'asyncapi-message'
 }
 
+type AsyncApiReusableMessageProps = {
+  parentId: string
+  /** Omitted when generating the Messages section ID. */
+  name?: string
+  type: 'asyncapi-reusable-message'
+}
+
 export type IdGeneratorProps =
   | DocumentIdProps
   | DescriptionIdProps
@@ -452,6 +493,7 @@ export type IdGeneratorProps =
   | AsyncApiOperationProps
   | AsyncApiChannelProps
   | AsyncApiMessageProps
+  | AsyncApiReusableMessageProps
   | WebhookProps
   | ModelProps
   | ExampleProps

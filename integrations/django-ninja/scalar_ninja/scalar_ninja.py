@@ -190,7 +190,7 @@ class ScalarConfig(BaseModel):
 
     hide_models: bool = Field(
         default=False,
-        description="A boolean to hide all models. Default is False which means all models are shown.",
+        description="Hide schema models and reusable AsyncAPI messages. Defaults to False.",
     )
 
     hide_search: bool = Field(

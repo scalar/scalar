@@ -770,6 +770,9 @@ const localizeNavigationEntries = (
   )
   const modelsSectionLabel =
     mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
+  const messagesSectionLabel = apiReferenceLocalization.translate(
+    'navigation.messages',
+  )
 
   const localize = (list: TraversedEntry[]): TraversedEntry[] => {
     let changed = false
@@ -799,6 +802,15 @@ const localizeNavigationEntries = (
           title: modelsSectionLabel,
           name: modelsSectionLabel,
         } as TraversedEntry
+      } else if (
+        entry.type === 'asyncapi-messages' &&
+        entry.title !== messagesSectionLabel
+      ) {
+        localized = {
+          ...entry,
+          title: messagesSectionLabel,
+          name: messagesSectionLabel,
+        }
       }
 
       if ('children' in entry && entry.children) {
@@ -867,7 +879,11 @@ const sidebarState = createSidebarState<TraversedEntry>(itemsFromWorkspace, {
 /** Recursively set all children of the given items to open */
 const setChildrenOpen = (items: TraversedEntry[]): void => {
   items.forEach((item) => {
-    if (item.type === 'tag' || item.type === 'models') {
+    if (
+      item.type === 'tag' ||
+      item.type === 'models' ||
+      item.type === 'asyncapi-messages'
+    ) {
       sidebarState.setExpanded(item.id, true)
     }
     if ('children' in item && item.children) {
@@ -1024,10 +1040,12 @@ const contextChain = computed(() => {
   return crumbs
 })
 
-const scrollToLazyElement = (id: string) => {
+const scrollToLazyElement = (id: string, focusTarget = true): void => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
-  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
+  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById, {
+    focusTarget,
+  })
 }
 
 /**
@@ -1830,13 +1848,15 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
     }
   }
   const item = sidebarState.getEntryById(id)
+  const isSection =
+    item?.type === 'tag' ||
+    item?.type === 'models' ||
+    item?.type === 'asyncapi-messages'
 
   updatePageTitle(id)
 
   if (
-    (item?.type === 'tag' ||
-      item?.type === 'models' ||
-      item?.type === 'text') &&
+    (isSection || item?.type === 'text') &&
     sidebarState.isExpanded(id) && // Only close if the item is expanded
     sidebarState.selectedItem.value === id // Only close if the item is not the currently selected item
   ) {
@@ -1850,12 +1870,16 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
     return
   }
 
-  // Close the mobile menu upon selecting any item that's not a tag or model
-  if (item?.type !== 'tag' && item?.type !== 'models') {
+  // Keep focus in the open mobile menu while scrolling to the group beneath it.
+  const keepSidebarFocus =
+    isSection &&
+    caller === 'sidebar' &&
+    isSidebarOpen.value &&
+    !isWideViewport.value
+  if (!isSection) {
     isSidebarOpen.value = false
   }
-
-  scrollToLazyElement(id)
+  scrollToLazyElement(id, !keepSidebarFocus)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {

@@ -353,8 +353,8 @@ def get_scalar_api_reference(
         bool,
         Doc(
             """
-            A boolean to hide all models.
-            Default is False which means all models are shown.
+            Hide schema models and reusable AsyncAPI messages.
+            Defaults to False.
             """
         ),
     ] = False,

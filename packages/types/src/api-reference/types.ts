@@ -476,6 +476,7 @@ export type ApiReferenceTranslations = {
     operations: string
     webhooks: string
     channels: string
+    messages: string
     endpoints: string
     showAllEndpoints: string
     sidebarFor: string
@@ -828,7 +829,7 @@ type ExtendedConfiguration = {
   pluginUrls?: string[]
   /** Allows the user to inject an editor for the spec */
   isEditable: boolean
-  /** Whether to show models in the sidebar, search, and content. */
+  /** Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content. */
   hideModels: boolean
   /** Show structural types instead of model names in schema type labels and operation headings. */
   hideModelNames?: boolean

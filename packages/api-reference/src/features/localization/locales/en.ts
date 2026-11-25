@@ -46,6 +46,7 @@ export const en = {
     collapsed: 'Collapsed',
     webhooks: 'Webhooks',
     channels: 'Channels',
+    messages: 'Messages',
   },
   server: {
     label: 'Server',

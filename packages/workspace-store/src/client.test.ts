@@ -5140,6 +5140,26 @@ describe('create-workspace-store', () => {
             'title': '/chat',
             'type': 'asyncapi-channel',
           },
+          {
+            'children': [
+              {
+                'id': 'chatapp/~components/messages/SendMessage',
+                'name': 'SendMessage',
+                'title': 'Send a chat message',
+                'type': 'asyncapi-reusable-message',
+              },
+              {
+                'id': 'chatapp/~components/messages/ReceiveMessage',
+                'name': 'ReceiveMessage',
+                'title': 'Receive a chat message',
+                'type': 'asyncapi-reusable-message',
+              },
+            ],
+            'id': 'chatapp/~components/messages',
+            'name': 'Messages',
+            'title': 'Messages',
+            'type': 'asyncapi-messages',
+          },
         ],
         'id': 'chatapp',
         'name': 'chatapp',

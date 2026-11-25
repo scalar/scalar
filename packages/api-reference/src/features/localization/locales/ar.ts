@@ -46,6 +46,7 @@ export const ar = {
     collapsed: 'مطوي',
     webhooks: 'خطافات الويب',
     channels: 'القنوات',
+    messages: 'الرسائل',
   },
   server: {
     label: 'الخادم',
