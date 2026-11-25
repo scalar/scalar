@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.84.0 (2026-11-25)
+
+### AsyncAPI messages and trait rendering, plus polish and fixes
+
+AsyncAPI documents now render reusable messages, message traits, and operation traits in searchable sections above Models. This release also fixes syntax highlighting in code blocks, improves response media-type picker visibility, and displays explicit zero bounds in schema details.
+
+- Reusable AsyncAPI messages from components.messages now render in a searchable Messages section with headers, payloads, examples, and applied traits
+- Message traits and operation traits from AsyncAPI components are listed in their own sections with full details and security badges
+- Response media-type pickers stay visible when multiple types are available and fit beside summaries on narrow screens
+- Syntax highlighting now works in fenced code blocks inside request body and property descriptions
+- Explicit zero bounds for string lengths and array item counts are displayed in schema details
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1840)
+
 ## 1.83.0 (2026-11-22)
 
 ### ASP.NET Core form naming and localhost beta invitation

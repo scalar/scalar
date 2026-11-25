@@ -1,5 +1,11 @@
 # galaxy-scalar-com
 
+## 0.2.32
+
+### Patch Changes
+
+- [#11218](https://github.com/scalar/scalar/pull/11218): Load the processed Scalar Galaxy OpenAPI document from the Scalar Registry so the production API reference shows SDK installation instructions and examples.
+
 ## 0.2.31
 
 ### Patch Changes

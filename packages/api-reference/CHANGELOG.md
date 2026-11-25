@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.84.0
+
+### Minor Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+
+### Patch Changes
+
+- [#11222](https://github.com/scalar/scalar/pull/11222): Keep response media-type pickers visible when multiple media types are available and reserve room for them beside response summaries on narrow screens.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11208](https://github.com/scalar/scalar/pull/11208): Keep syntax highlighting in fenced code blocks inside request body and property descriptions.
+- [#11169](https://github.com/scalar/scalar/pull/11169): Look up elements and focus through the provided document root instead of `document`. Nothing provides one yet, so behavior is unchanged until shadow-root mounts wire it up
+- [#11160](https://github.com/scalar/scalar/pull/11160): Simplify API Reference browser test configuration.
+- [#11221](https://github.com/scalar/scalar/pull/11221): Display explicit zero bounds for string lengths and array item counts in schema details.
+
 ## 1.83.0
 
 ### Minor Changes

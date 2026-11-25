@@ -1,5 +1,23 @@
 # @scalar/blocks
 
+## 0.10.0
+
+### Minor Changes
+
+- [#11179](https://github.com/scalar/scalar/pull/11179): Add a `collapsible` option to `SpecificationExtensions`: the values fold under a localized "Extensions (n)" row, closed until opened with the same disclosure control as nested values.
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11208](https://github.com/scalar/scalar/pull/11208): Keep syntax highlighting in fenced code blocks inside request body and property descriptions.
+- [#9625](https://github.com/scalar/scalar/pull/9625): Resolve JSON Schema 2020-12 `$dynamicRef` in the magic proxy and expose the bound schema through `@scalar/workspace-store/resolve`. Generic and recursive schemas now show their concrete types in rendered properties and JSON/XML request examples, including anchors nested inside a schema resource.
+
+  Keep repeated reads stable within each dynamic scope while allowing shared templates to bind independently. Edits through the proxy refresh bindings and resolved references while preserving ordinary proxy identities and unrelated documents’ anchor caches.
+- [#11206](https://github.com/scalar/scalar/pull/11206): Use empty OpenAPI server variable defaults in request URLs, OAuth server URLs, and code snippets.
+- [#11221](https://github.com/scalar/scalar/pull/11221): Display explicit zero bounds for string lengths and array item counts in schema details.
+
 ## 0.9.0
 
 ### Minor Changes

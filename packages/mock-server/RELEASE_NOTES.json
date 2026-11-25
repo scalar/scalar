@@ -1,5 +1,32 @@
 [
   {
+    "version": "0.21.8",
+    "date": "2026-11-25",
+    "title": "Better request validation and response header handling",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release improves how the mock server validates incoming requests and generates response headers. Path parameters with label and matrix styles are now properly validated, JSON content parameters maintain their types during validation, and response headers respect authored examples instead of only generating values from schemas."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Operations are now served under the base path of their servers, so a mock server for an API at `/v1` will answer requests to `/v1/pets` instead of returning 404.",
+          "Request bodies with structured JSON media types like `application/vnd.api+json` and `application/merge-patch+json` are validated against their schemas and made available to custom handlers.",
+          "Response headers now send authored examples from `example` or `examples` fields instead of only generating values from the header schema.",
+          "Path parameters using label (`.5`) and matrix (`;id=5`) styles are properly validated against their schemas when request validation is enabled.",
+          "Query parameters declared with JSON content are validated with correct types, so `?filter={\"price\":\"5\"}` is rejected when price must be an integer."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0218",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.21.7",
     "date": "2026-11-22",
     "title": "Polish and bug fixes",

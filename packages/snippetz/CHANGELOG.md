@@ -1,5 +1,9 @@
 # @scalar/snippetz
 
+## 0.10.23
+
+No changes in this release.
+
 ## 0.10.22
 
 ### Patch Changes
