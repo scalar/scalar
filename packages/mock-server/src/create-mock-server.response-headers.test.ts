@@ -81,6 +81,54 @@ const cases: ResponseCase[] = [
 ]
 
 describe('create-mock-server.response-headers', () => {
+  it('sends OpenAPI 3.2 examples in the header wire format', async () => {
+    const app = await createMockServer({
+      document: {
+        openapi: '3.2.0',
+        info: { title: 'Response headers', version: '1' },
+        components: {
+          examples: { label: { serializedValue: '"re\\u0061dy"', dataValue: 'ready' } },
+          mediaTypes: { text: { examples: { authored: { dataValue: '[1,2]' } } } },
+        },
+        paths: {
+          '/': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  headers: {
+                    'X-Label': {
+                      content: {
+                        'application/json': { examples: { authored: { $ref: '#/components/examples/label' } } },
+                      },
+                    },
+                    'X-Count': {
+                      schema: { type: 'integer', example: 1 },
+                      examples: { authored: { dataValue: 42 } },
+                    },
+                    'X-Metadata': {
+                      content: { 'application/json': { example: { id: 7 } } },
+                    },
+                    'X-Text': {
+                      content: { 'application/json': { $ref: '#/components/mediaTypes/text' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await app.request('/')
+
+    expect(response.headers.get('x-label')).toBe('"re\\u0061dy"')
+    expect(response.headers.get('x-count')).toBe('42')
+    expect(response.headers.get('x-metadata')).toBe('{"id":7}')
+    expect(response.headers.get('x-text')).toBe('"[1,2]"')
+  })
+
   it.each(cases)('sends a readable HTTP response for $name', async (testCase) => {
     const app = await createMockServer({
       logger: false,

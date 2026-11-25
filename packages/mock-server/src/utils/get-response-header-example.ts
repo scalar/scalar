@@ -1,63 +1,54 @@
+import { getFirstMediaType } from '@scalar/helpers/http/get-first-media-type'
+import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
+import { getExampleFromSchema, serializeSimpleStyle } from '@scalar/workspace-store/request-example'
 
-import type { ExampleGenerationContext } from './generate-response-example'
+import type { ExampleGenerationContext, ExampleSchema } from './generate-response-example'
+import { selectResponseExample } from './select-response-example'
+import { serializeResponseBody } from './serialize-response-body'
 
-type ExampleSource = {
-  example?: unknown
-  examples?: Record<string, unknown>
-  schema?: unknown
-}
-
-/** The value of the first entry in an `examples` map, resolving `$ref` Example Objects. */
-const getFirstExampleValue = (examples: ExampleSource['examples']): unknown => {
-  for (const example of Object.values(examples ?? {})) {
-    const resolved = getResolvedRef(example) as { value?: unknown } | undefined
-    if (resolved?.value !== undefined) {
-      return resolved.value
-    }
-  }
-  return undefined
-}
-
-/** Prefer an authored `example`, then the first `examples` entry, then a value generated from `schema`. */
-const getExample = (source: ExampleSource, generationContext: ExampleGenerationContext): unknown => {
-  if (source.example !== undefined) {
-    return source.example
-  }
-  const fromExamples = getFirstExampleValue(source.examples)
-  if (fromExamples !== undefined) {
-    return fromExamples
-  }
-  return source.schema
-    ? // Headers use the generator defaults to preserve their declared values.
-      getExampleFromSchema(getResolvedRefDeep(source.schema as object) as never, generationContext)
-    : undefined
-}
+/** A reference chain can still end at an unresolved Media Type Object reference. */
+const isResolvedMediaType = (
+  value: OpenAPIV3_2.MediaTypeObject | OpenAPIV3_2.ReferenceObject | undefined,
+): value is OpenAPIV3_2.MediaTypeObject => typeof value === 'object' && value !== null && !('$ref' in value)
 
 /**
- * Pick the value to send for a declared response header.
+ * Select and serialize a response header example before HTTP header validation.
  *
- * A Header Object describes its value either with a `schema` or with a `content` map holding a single
- * media type. Either way an authored `example` or `examples` entry wins over a generated value, as it
- * does for bodies, so `X-Rate-Limit: { schema: { type: integer }, example: 100 }` sends `100` instead of
- * a generated `1`.
+ * Header Object examples take precedence over media type examples. Both take precedence over
+ * schema generation, and `serializedValue` already contains the text to send.
  */
 export const getResponseHeaderExample = (
-  header: unknown,
+  header: OpenAPIV3_2.HeaderObject | OpenAPIV3_2.ReferenceObject | undefined,
   generationContext: ExampleGenerationContext = {},
-): unknown => {
-  const headerObject = getResolvedRef(header) as (ExampleSource & { content?: Record<string, unknown> }) | undefined
+): string | undefined => {
+  const headerObject = getResolvedRef<OpenAPIV3_2.HeaderObject | undefined>(header)
   if (!headerObject || typeof headerObject !== 'object') {
     return undefined
   }
 
-  if (headerObject.schema || headerObject.example !== undefined || headerObject.examples) {
-    return getExample(headerObject, generationContext)
+  const [contentType, mediaReference] = getFirstMediaType(headerObject.content) ?? []
+  const resolvedMedia = getResolvedRef(mediaReference)
+  const media = isResolvedMediaType(resolvedMedia) ? resolvedMedia : undefined
+  const example = selectResponseExample(headerObject) ?? selectResponseExample(media)
+  if (example?.serializedValue !== undefined) {
+    return example.serializedValue
   }
 
-  const [media] = Object.values(headerObject.content ?? {})
-  const mediaObject = getResolvedRef(media) as ExampleSource | undefined
-  return mediaObject ? getExample(mediaObject, generationContext) : undefined
+  const schema =
+    contentType !== undefined || !example ? getResolvedRefDeep(headerObject.schema ?? media?.schema) : undefined
+  // Pass the authored schema through directly so generation retains its original keywords.
+  const value = !example && schema ? getExampleFromSchema(schema as ExampleSchema, generationContext) : example?.value
+  if (value === undefined) {
+    return undefined
+  }
+  if (contentType !== undefined) {
+    return serializeResponseBody(value, contentType, schema, example?.provenance)
+  }
+
+  if (value === null) {
+    return undefined
+  }
+  return String(example?.provenance === 'data' ? serializeSimpleStyle(value, headerObject.explode ?? false) : value)
 }

@@ -80,22 +80,20 @@ export function mockAnyResponse(
       return
     }
 
-    const value = getResponseHeaderExample(headers[header], generationContext)
-    // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
-    // thing to set the declared headers, so in practice a delete removes a header set earlier by
-    // middleware — `cors()` sets `Access-Control-Allow-Origin` before the handler runs.
-    if (value != null) {
-      try {
-        const text = String(value)
-        if (isSettableResponseHeader(header, text)) {
-          c.header(header, text)
-          return
-        }
-      } catch {
-        // An authored object can also shadow toString and prevent string conversion.
+    try {
+      const text = getResponseHeaderExample(headers[header], generationContext)
+      // Passing undefined to Hono would delete a header already set by middleware such as cors().
+      if (text === undefined) {
+        return
       }
-      console.warn(`Skipping invalid response header ${JSON.stringify(header)} from the API description.`)
+      if (isSettableResponseHeader(header, text)) {
+        c.header(header, text)
+        return
+      }
+    } catch {
+      // An authored value may fail serialization, for example if it shadows its own toString.
     }
+    console.warn(`Skipping invalid response header ${JSON.stringify(header)} from the API description.`)
   })
 
   // For 204 No Content responses, we should not set Content-Type and should return null body
