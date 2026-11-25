@@ -51,6 +51,7 @@ class ScalarAdditionalOptionsTest {
                 Map.entry("scalar.expand-all-parameters", "false"),
                 Map.entry("scalar.max-visible-request-body-properties", "0"),
                 Map.entry("scalar.default-request-body-view", "form"),
+                Map.entry("scalar.multipart-naming", "indexed-dot"),
                 Map.entry("scalar.show-extensions[0]", "x-internal"),
                 Map.entry("scalar.featured-clients[0]", "node/fetch"),
                 Map.entry("scalar.url-routing", "false"),
@@ -65,6 +66,7 @@ class ScalarAdditionalOptionsTest {
         assertThat(config.get("expandAllParameters").booleanValue()).isFalse();
         assertThat(config.get("maxVisibleRequestBodyProperties").intValue()).isZero();
         assertThat(config.get("defaultRequestBodyView").textValue()).isEqualTo("form");
+        assertThat(config.get("multipartNaming").textValue()).isEqualTo("indexed-dot");
         assertThat(config.at("/showExtensions/0").textValue()).isEqualTo("x-internal");
         assertThat(config.at("/featuredClients/0").textValue()).isEqualTo("node/fetch");
         assertThat(config.get("urlRouting").booleanValue()).isFalse();
@@ -116,7 +118,7 @@ class ScalarAdditionalOptionsTest {
     void leavesNewOptionsUnsetByDefault() throws Exception {
         JsonNode config = bindAndRender(Map.of());
         for (String name : new String[] {"hideModelNames", "schemaKeyboardNav", "expandAllParameters",
-                "maxVisibleRequestBodyProperties", "defaultRequestBodyView", "showExtensions",
+                "maxVisibleRequestBodyProperties", "defaultRequestBodyView", "multipartNaming", "showExtensions",
                 "featuredClients", "hiddenClients", "urlRouting", "oauth2RedirectUri", "externalUrls"}) {
             assertThat(config.has(name)).as(name).isFalse();
         }

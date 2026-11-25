@@ -302,6 +302,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
               :isWebhook
               :jsonSchemaDialect="document?.jsonSchemaDialect"
               :method
+              :multipartNaming="options.multipartNaming"
               :openapiVersion
               :operation
               :path

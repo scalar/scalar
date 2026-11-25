@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import type { ClientOptionGroup } from '@scalar/blocks/code-example'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
@@ -81,6 +82,7 @@ export type RequestBlockProps = {
   openapiVersion?: string
   /** Document-level JSON Schema dialect used when generating array `contains` examples. */
   jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   requestBodyCompositionSelection?: Record<string, number>
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   selectedSecurity: SelectedSecurity
@@ -110,6 +112,7 @@ const {
   path,
   plugins,
   proxyUrl,
+  multipartNaming,
   requestBodyCompositionSelection,
   openapiVersion,
   jsonSchemaDialect,
@@ -814,6 +817,7 @@ const filterLabels = computed(() => ({
         :environment
         :exampleKey
         :jsonSchemaDialect
+        :multipartNaming
         :openapiVersion
         :requestBody="getResolvedRef(operation.requestBody)"
         :requestBodyCompositionSelection
@@ -848,6 +852,7 @@ const filterLabels = computed(() => ({
         integration="client"
         :jsonSchemaDialect
         :method
+        :multipartNaming
         :openapiVersion
         :operation
         :path

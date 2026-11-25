@@ -11,8 +11,13 @@ import SectionContainerAccordion from '@/components/Section/SectionContainerAcco
 import SectionHeaderTag from '@/components/Section/SectionHeaderTag.vue'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
 import { useDocumentOutline } from '@/features/document-outline'
+import { useLocalization } from '@/features/localization'
 
-const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
+const {
+  id,
+  eventBus,
+  modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL,
+} = defineProps<{
   id: string
   isCollapsed: boolean
   eventBus: WorkspaceEventBus
@@ -21,6 +26,16 @@ const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
 }>()
 
 const { level: headingLevel } = useDocumentOutline('modelGroup')
+const { translate } = useLocalization()
+
+const openSection = (event: MouseEvent): void => {
+  const button = event.currentTarget
+  if (button instanceof HTMLElement && button.matches(':focus')) {
+    // Keep keyboard focus in the section when its Show More button disappears.
+    button.closest('section')?.focus({ preventScroll: true })
+  }
+  eventBus.emit('toggle:nav-item', { id, open: true })
+}
 </script>
 <template>
   <!-- Modern Layout Model Container -->
@@ -28,6 +43,7 @@ const { level: headingLevel } = useDocumentOutline('modelGroup')
     <Section
       :id="id"
       :aria-label="modelsSectionLabel"
+      tabindex="-1"
       @intersecting="() => eventBus?.emit('intersecting:nav-item', { id })">
       <SectionHeader>
         <SectionHeaderTag :level="headingLevel">
@@ -39,21 +55,22 @@ const { level: headingLevel } = useDocumentOutline('modelGroup')
       </template>
       <template v-else>
         <ShowMoreButton
-          :id
+          :aria-label="`${translate('actions.showMore')} ${modelsSectionLabel}`"
           class="top-0"
-          @click="() => eventBus.emit('toggle:nav-item', { id, open: true })">
-        </ShowMoreButton>
+          @click="openSection" />
       </template>
     </Section>
   </SectionContainer>
   <!-- Classic Layout Model Container -->
   <SectionContainerAccordion
     v-else
+    :id="id"
     :aria-label="modelsSectionLabel"
-    class="pb-12"
+    class="scroll-mt-(--refs-viewport-offset) pb-12"
     :modelValue="!isCollapsed"
+    tabindex="-1"
     @update:modelValue="
-      () => eventBus?.emit('toggle:nav-item', { id, open: isCollapsed })
+      (open) => eventBus?.emit('toggle:nav-item', { id, open })
     ">
     <template #title>
       <SectionHeader>

@@ -477,6 +477,7 @@ export type ApiReferenceTranslations = {
     operations: string
     webhooks: string
     channels: string
+    messages: string
     endpoints: string
     showAllEndpoints: string
     sidebarFor: string
@@ -554,6 +555,8 @@ export type ApiReferenceTranslations = {
     unknownType: string
     propertyCount: string
     headerCount: string
+    /** The blocks package supplies a localized default for the extensions disclosure. */
+    extensionCount?: string
     recursiveReference: string
     recursive: string
     additionalProperties: string
@@ -685,6 +688,7 @@ export type ApiReferenceTranslations = {
     waitlistError: string
     waitlistRateLimit: string
     waitlistBack: string
+    waitlistDone: string
     deployApiButton: string
     deployFrameworkButton: string
     deployApiTitle: string
@@ -769,7 +773,7 @@ export type ApiReferenceTranslations = {
  * For example, `{ search: { label: string } }` becomes `'search.label'`.
  */
 type TranslationDotPaths<T, Prefix extends string = ''> = {
-  [Key in keyof T & string]: T[Key] extends string
+  [Key in keyof T & string]: T[Key] extends string | undefined
     ? `${Prefix}${Key}`
     : T[Key] extends Record<string, unknown>
       ? TranslationDotPaths<T[Key], `${Prefix}${Key}.`>
@@ -826,7 +830,7 @@ type ExtendedConfiguration = {
   pluginUrls?: string[]
   /** Allows the user to inject an editor for the spec */
   isEditable: boolean
-  /** Whether to show models in the sidebar, search, and content. */
+  /** Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content. */
   hideModels: boolean
   /** Show structural types instead of model names in schema type labels and operation headings. */
   hideModelNames?: boolean
@@ -902,6 +906,9 @@ type ExtendedConfiguration = {
    * @default 'raw'
    */
   defaultRequestBodyView?: 'form' | 'raw'
+
+  /** Use indexed dotted names for nested multipart and URL-encoded form fields, such as `items[0].name`. */
+  multipartNaming?: MultipartNaming
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onServerChange is fired on selected server change */
@@ -958,7 +965,7 @@ type ExtendedConfiguration = {
   setPageTitle?: (input: { title: string; document: { title: string; slug: string } }) => string
   /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
   redirect?: (input: string) => string | null | undefined
-  /** Whether to include default fonts */
+  /** @deprecated Scalar uses the system font stack and no longer loads web fonts, so this option has no effect. */
   withDefaultFonts: boolean
   /** Whether to expand the first tag in the sidebar when no specific URL target is present */
   defaultOpenFirstTag: boolean
@@ -985,6 +992,9 @@ type ExtendedConfiguration = {
   /** Sort the schema properties by required ones first */
   orderRequiredPropertiesFirst: boolean
 }
+
+/** Naming convention for multipart and URL-encoded request fields. */
+export type MultipartNaming = 'indexed-dot'
 
 export type SourceConfiguration = {
   /** Authentication overrides merged with the shared configuration. Arrays replace shared arrays. */

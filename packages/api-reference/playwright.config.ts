@@ -1,17 +1,14 @@
 import { type PlaywrightTestConfig, defineConfig } from '@playwright/test'
 import { getDockerServer } from '@scalar/helpers/playwright/docker'
 
-const IS_CDN = process.env.TEST_MODE === 'CDN'
 const CI = Boolean(process.env.CI)
 const isLinux = process.platform === 'linux' && !CI
 
 // Mermaid tests load playground modules, which need Vite rather than the standalone example server.
-const playgroundServer: PlaywrightTestConfig['webServer'] = IS_CDN
-  ? undefined
-  : {
-      command: 'pnpm dev --host 0.0.0.0 --port 5173 --strictPort',
-      url: 'http://localhost:5173/playground/mermaid/summary.html',
-    }
+const playgroundServer: PlaywrightTestConfig['webServer'] = {
+  command: 'pnpm dev --host 0.0.0.0 --port 5173 --strictPort',
+  url: 'http://localhost:5173/playground/mermaid/summary.html',
+}
 
 /**
  * A list of reporters to use for the tests
@@ -21,20 +18,10 @@ const reporter: PlaywrightTestConfig['reporter'] = [['list']]
 
 if (CI) {
   // In CI we need to generate JSON and HTML reports for the GitHub Actions helpers
-  if (IS_CDN) {
-    reporter.push(
-      // We suffix cdn the report and results when testing the CDN
-      ['html', { open: 'never', outputFolder: 'playwright-report-cdn' }],
-      ['json', { outputFile: 'playwright-results-cdn.json' }],
-      // Makes sure the CDN tests always pass in CI
-      ['./test/utils/ci-reporter.ts'],
-    )
-  } else {
-    reporter.push(
-      ['html', { open: 'never', outputFolder: 'playwright-report' }],
-      ['json', { outputFile: 'playwright-results.json' }],
-    )
-  }
+  reporter.push(
+    ['html', { open: 'never', outputFolder: 'playwright-report' }],
+    ['json', { outputFile: 'playwright-results.json' }],
+  )
 } else {
   // Locally we just generate the HTML report in case there's a failure
   reporter.push(['html', { open: 'on-failure' }])
@@ -42,15 +29,13 @@ if (CI) {
 
 // https://playwright.dev/docs/test-configuration
 export default defineConfig({
-  testMatch: IS_CDN
-    ? 'test/snapshots-cdn/**/*.e2e.ts'
-    : [
-        'test/features/*.e2e.ts',
-        'playwright/test/mermaid.e2e.ts',
-        'test/snapshots/**/*.e2e.ts',
-        'test/configuration/**/*.e2e.ts',
-        'test/standalone/**/*.e2e.ts',
-      ],
+  testMatch: [
+    'test/features/*.e2e.ts',
+    'playwright/test/mermaid.e2e.ts',
+    'test/snapshots/**/*.e2e.ts',
+    'test/configuration/**/*.e2e.ts',
+    'test/standalone/**/*.e2e.ts',
+  ],
   workers: '100%',
   fullyParallel: true,
   reporter,
@@ -58,7 +43,7 @@ export default defineConfig({
    * Outside of CI we run the playwright test server in a docker container for
    * consistent cross-platform results.
    */
-  webServer: CI ? playgroundServer : [getDockerServer(), ...(playgroundServer ? [playgroundServer] : [])],
+  webServer: CI ? playgroundServer : [getDockerServer(), playgroundServer],
   snapshotPathTemplate: '{testFileDir}/{testFileName}.snapshots/{arg}{ext}',
   expect: {
     toHaveScreenshot: {

@@ -1,6 +1,11 @@
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
-import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
+import type {
+  AsyncApiChannelObject,
+  AsyncApiComponentsObject,
+  AsyncApiDocument,
+  AsyncApiOperationObject,
+} from '@scalar/types/asyncapi/3.1'
 
 import { resolveOperationWithTraits } from '@/channel-example/resolve-operation-with-traits'
 import { getNameFromRef } from '@/helpers/get-name-from-ref'
@@ -19,7 +24,9 @@ import type {
   ParentTag,
   TraversedAsyncApiChannel,
   TraversedAsyncApiMessage,
+  TraversedAsyncApiMessages,
   TraversedAsyncApiOperation,
+  TraversedAsyncApiReusableMessage,
   TraversedDocument,
   TraversedEntry,
   TraversedTag,
@@ -106,6 +113,36 @@ const getOperationTitle = (operation: AsyncApiOperationObject, operationName: st
  */
 const getMessageTitle = (message: AsyncApiMessageLike, messageName: string): string =>
   pickNonEmpty(message.title, message.summary, message.name) ?? messageName
+
+/** Build the Messages section from visible reusable messages in document order. */
+const traverseReusableMessages = (
+  messages: NonNullable<AsyncApiComponentsObject['messages']>,
+  documentId: string,
+  generateId: TraverseSpecOptions['generateId'],
+): TraversedAsyncApiMessages | undefined => {
+  const sectionId = generateId({ type: 'asyncapi-reusable-message', parentId: documentId })
+  const children = Object.entries(messages).flatMap(([name, node]): TraversedAsyncApiReusableMessage[] => {
+    const message = getResolvedAsyncApiRef(node)
+    if (!message || isHidden(message as Hideable)) {
+      return []
+    }
+
+    return [
+      {
+        type: 'asyncapi-reusable-message',
+        id: generateId({ type: 'asyncapi-reusable-message', name, parentId: sectionId }),
+        title: getMessageTitle(message, name),
+        name,
+      },
+    ]
+  })
+
+  if (children.length === 0) {
+    return undefined
+  }
+
+  return { type: 'asyncapi-messages', id: sectionId, title: 'Messages', name: 'Messages', children }
+}
 
 /**
  * Parses a channel JSON pointer (`#/channels/<name>`) into the key used in `document.channels`.
@@ -705,6 +742,11 @@ export const traverseAsyncApiDocument = (
         })
       : []
 
+  const messagesSection =
+    !hideModels && components?.messages
+      ? traverseReusableMessages(components.messages, documentId, generateId)
+      : undefined
+
   // Surface the Introduction entry plus any headings extracted from `info.description`
   // before the channel/tag entries, mirroring how OpenAPI documents are traversed.
   const entries: TraversedEntry[] = traverseDescription({
@@ -730,19 +772,29 @@ export const traverseAsyncApiDocument = (
   }
 
   entries.push(...untaggedChannels)
+  if (messagesSection) {
+    entries.push(messagesSection)
+  }
 
   // Mirror OpenAPI: untagged schemas are grouped under a single top-level "Models" section.
-  if (untaggedModels.length) {
+  const modelsId = untaggedModels.length ? generateId({ type: 'model', parentId: documentId }) : undefined
+  if (modelsId !== undefined) {
     entries.push({
       type: 'models',
-      id: generateId({ type: 'model', parentId: documentId }),
+      id: modelsId,
       title: modelsSectionLabel,
       name: modelsSectionLabel,
       children: untaggedModels,
     })
   }
 
-  const sortOrder = document['x-scalar-order']
+  const savedOrder = document['x-scalar-order']
+  const modelsIndex = modelsId === undefined ? -1 : (savedOrder?.indexOf(modelsId) ?? -1)
+  // Older snapshots listed Models before the Messages section existed.
+  const sortOrder =
+    savedOrder && modelsIndex !== -1 && messagesSection && !savedOrder.includes(messagesSection.id)
+      ? [...savedOrder.slice(0, modelsIndex), messagesSection.id, ...savedOrder.slice(modelsIndex)]
+      : savedOrder
   const orderedEntries = sortOrder ? sortByOrder(entries, sortOrder, (entry) => entry.id) : entries
 
   document['x-scalar-order'] = unpackProxyObject(orderedEntries.map((entry) => entry.id))

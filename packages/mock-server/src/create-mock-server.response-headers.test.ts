@@ -81,6 +81,145 @@ const cases: ResponseCase[] = [
 ]
 
 describe('create-mock-server.response-headers', () => {
+  it('sends OpenAPI 3.2 examples in the header wire format', async () => {
+    const app = await createMockServer({
+      document: {
+        openapi: '3.2.0',
+        info: { title: 'Response headers', version: '1' },
+        components: {
+          schemas: { Message: { type: 'string' } },
+          examples: { label: { serializedValue: '"re\\u0061dy"', dataValue: 'ready' } },
+          mediaTypes: { text: { examples: { authored: { dataValue: '[1,2]' } } } },
+        },
+        paths: {
+          '/': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  headers: {
+                    'X-Label': {
+                      content: {
+                        'application/json': { examples: { authored: { $ref: '#/components/examples/label' } } },
+                      },
+                    },
+                    'X-Count': {
+                      schema: { type: 'integer', example: 1 },
+                      examples: { authored: { dataValue: 42 } },
+                    },
+                    'X-Metadata': {
+                      content: { 'application/json': { example: { id: 7, label: '東京🗼' } } },
+                    },
+                    'X-Text': {
+                      content: { 'application/json': { $ref: '#/components/mediaTypes/text' } },
+                    },
+                    'X-Message': {
+                      content: {
+                        'application/xml': {
+                          schema: { $ref: '#/components/schemas/Message' },
+                          examples: { authored: { dataValue: '<hello/>\n東京🗼' } },
+                        },
+                      },
+                    },
+                    Link: {
+                      content: {
+                        'application/linkset': {
+                          examples: {
+                            authored: {
+                              dataValue: { linkset: [{ anchor: '/items', next: [{ href: '/items?page=2' }] }] },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await app.request('/')
+
+    expect(response.headers.get('x-label')).toBe('"re\\u0061dy"')
+    expect(response.headers.get('x-count')).toBe('42')
+    expect(response.headers.get('x-metadata')).toBe('{"id":7,"label":"\\u6771\\u4eac\\ud83d\\uddfc"}')
+    expect(response.headers.get('x-text')).toBe('"[1,2]"')
+    expect(response.headers.get('x-message')).toBe('<Message>&lt;hello/&gt;&#10;&#26481;&#20140;&#128508;</Message>')
+    expect(response.headers.get('link')).toBe('</items?page=2>; rel="next"; anchor="/items"')
+  })
+
+  it.each([
+    {
+      name: 'serialized cookie lines',
+      openapi: '3.2.0',
+      header: { content: { 'text/plain': { examples: { authored: { serializedValue: 'lang=en-US\r\nfoo=bar\n' } } } } },
+      expected: ['lang=en-US', 'foo=bar'],
+    },
+    {
+      name: 'structured cookies with an Expires attribute',
+      openapi: '3.2.0',
+      header: {
+        schema: { type: 'object' },
+        style: 'simple',
+        explode: true,
+        examples: {
+          authored: { dataValue: { lang: 'en-US; Expires=Wed, 09 Jun 2021 10:18:14 GMT', foo: 'bar' } },
+        },
+      },
+      expected: ['lang=en-US; Expires=Wed, 09 Jun 2021 10:18:14 GMT', 'foo=bar'],
+    },
+    {
+      name: 'invalid serialized cookie fields',
+      openapi: '3.2.0',
+      header: {
+        content: { 'text/plain': { examples: { authored: { serializedValue: 'lang=en-US\nfoo=bad\rvalue' } } } },
+      },
+      expected: [],
+    },
+    {
+      name: 'a line feed inside structured cookie data',
+      openapi: '3.2.0',
+      header: {
+        schema: { type: 'object' },
+        explode: true,
+        examples: { authored: { dataValue: { lang: 'en-US', foo: 'bar\nbaz' } } },
+      },
+      expected: [],
+    },
+    {
+      name: 'a multiline example in OpenAPI 3.1',
+      openapi: '3.1.2',
+      header: { content: { 'text/plain': { example: 'lang=en-US\nfoo=bar' } } },
+      expected: [],
+    },
+  ])('validates and serializes $name', async ({ openapi, header, expected }) => {
+    const app = await createMockServer({
+      document: {
+        openapi,
+        info: { title: 'Response cookies', version: '1' },
+        paths: {
+          '/': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  headers: { 'Set-Cookie': header },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await app.request('/')
+
+    expect(response.headers.getSetCookie()).toStrictEqual(expected)
+  })
+
   it.each(cases)('sends a readable HTTP response for $name', async (testCase) => {
     const app = await createMockServer({
       logger: false,

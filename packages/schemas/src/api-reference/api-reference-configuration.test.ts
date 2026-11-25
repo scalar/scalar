@@ -214,6 +214,13 @@ describe('api-reference-configuration', () => {
       })
     })
 
+    it('keeps the indexed multipart naming mode in runtime configuration', () => {
+      expect(coerce(apiReferenceConfigurationSchema, { multipartNaming: 'indexed-dot' }).multipartNaming).toBe(
+        'indexed-dot',
+      )
+      expect(coerce(apiReferenceConfigurationSchema, {}).multipartNaming).toBeUndefined()
+    })
+
     it('keeps defaultRequestBodyView enum values', () => {
       const validViews = ['form', 'raw']
       validViews.forEach((defaultRequestBodyView) => {

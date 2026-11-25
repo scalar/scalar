@@ -1,13 +1,15 @@
 import { getFirstMediaType } from '@scalar/helpers/http/get-first-media-type'
-import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
+import { type ParsedMimeType, parseMimeType } from '@scalar/helpers/http/mime-type'
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { useDecimalMultipleOf } from '@scalar/json-schema-validator/decimal-multiple-of'
 import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import type { ErrorObject, ValidateFunction } from 'ajv'
+import type { ErrorObject, Options, ValidateFunction } from 'ajv'
 import Ajv2020 from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
-import type { Context, MiddlewareHandler } from 'hono'
+import type { MiddlewareHandler } from 'hono'
 import { getCookie } from 'hono/cookie'
 
 import { pathParameters } from '@/utils/path-parameters'
@@ -17,12 +19,14 @@ import {
   type ParameterLocation,
   deserializeArrayParameter,
   deserializeObjectParameter,
+  deserializePrimitiveParameter,
   getObjectPropertyNames,
   isArraySchema,
   isObjectSchema,
   resolveSerialization,
 } from './deserialize-parameter'
 import { dropReadOnlyRequired } from './drop-read-only-required'
+import { isJsonContentType } from './is-json-content-type'
 import { findQuerystringParameter, getQuerystringJsonSchema, parseQuerystringParameter } from './querystring-parameter'
 import { replaceCircularMarkers } from './replace-circular-markers'
 
@@ -35,8 +39,8 @@ import { replaceCircularMarkers } from './replace-circular-markers'
  * one, because the rewrite may drop a keyword (a `oneOf` the cycle ran through, say) that the shape
  * still depends on.
  */
-const asCompilableSchema = (resolved: unknown): Record<string, unknown> =>
-  replaceCircularMarkers(resolved) as Record<string, unknown>
+const asCompilableSchema = (resolved: unknown): Record<string, unknown> | boolean =>
+  replaceCircularMarkers(resolved) as Record<string, unknown> | boolean
 
 /** Where a validation violation was found in the request */
 type ViolationLocation = 'body' | 'query' | 'path' | 'header' | 'cookie'
@@ -56,6 +60,15 @@ type ParameterDescriptor = {
   propertyNames: string[]
 }
 
+/** A parameter whose entire wire value is represented by one media type. */
+type ContentParameter = { name: string; required: boolean; isJson: boolean; validate: ValidateFunction | null }
+
+type ParameterValidators = {
+  styled: ParameterDescriptor[]
+  validateStyled: ValidateFunction | null
+  content: ContentParameter[]
+}
+
 /** A single request validation violation, mapped from an Ajv error */
 type Violation = {
   location: ViolationLocation
@@ -64,21 +77,18 @@ type Violation = {
   message: string
 }
 
+type BodyValidators = {
+  headerless: ValidateFunction | null
+  mediaTypes: { mediaType: ParsedMimeType; specificity: number; validate: ValidateFunction | null }[]
+}
+
 /** The validators compiled once per operation and reused across every request */
 type CompiledValidators = {
-  path: ValidateFunction | null
-  query: ValidateFunction | null
-  header: ValidateFunction | null
-  cookie: ValidateFunction | null
-  /** Declared parameters per location, used to gather and deserialize their values from the request */
-  pathParameters: ParameterDescriptor[]
-  queryParameters: ParameterDescriptor[]
-  headerParameters: ParameterDescriptor[]
-  cookieParameters: ParameterDescriptor[]
+  parameters: Record<ParameterLocation, ParameterValidators>
   querystringJson: ValidateFunction | null
   querystring: ValidateFunction | null
   querystringParameter: OpenAPIV3_2.ParameterObject | undefined
-  body: ValidateFunction | null
+  body: BodyValidators
   /** Whether the request body is required by the operation */
   bodyRequired: boolean
 }
@@ -104,21 +114,19 @@ const mapRepeatedValues = (values: Record<string, string[]>): Record<string, str
 }
 
 /**
- * Build a JSON Schema object for the parameters declared `in` the given location, alongside a
- * descriptor for each declared parameter.
- *
- * Parameters arrive as strings, so the caller compiles these with `coerceTypes: true` to let
- * `type: integer`/`boolean` validate correctly. The descriptors let the middleware gather only
- * declared values and deserialize array parameters by their `style`/`explode`. Returns `null` when
- * there is nothing to validate.
+ * Compile styled parameters together for string coercion, and content parameters separately
+ * so their media type determines how to read and validate the value.
  */
-const buildParameterSchema = (
+const compileParameters = (
   parameters: OpenAPIV3_1.OperationObject['parameters'],
   location: ParameterLocation,
-): { schema: Record<string, unknown>; parameters: ParameterDescriptor[] } | null => {
+  parameterAjv: Ajv2020,
+  getContentAjv: (coerceTypes: boolean) => Ajv2020,
+): ParameterValidators => {
   const properties: Record<string, unknown> = {}
   const required: string[] = []
-  const descriptors: ParameterDescriptor[] = []
+  const styled: ParameterDescriptor[] = []
+  const content: ContentParameter[] = []
 
   for (const parameterOrRef of parameters ?? []) {
     const parameter = getResolvedRef(parameterOrRef)
@@ -132,6 +140,25 @@ const buildParameterSchema = (
       continue
     }
 
+    const entry = parameter.schema === undefined && getFirstMediaType<OpenAPIV3_1.MediaTypeObject>(parameter.content)
+    if (entry) {
+      const [contentType, media] = entry
+      const mediaType = parseMimeType(contentType).essence
+      const isJson = isJsonMediaType(mediaType)
+      const schema: unknown = getResolvedRefDeep(getResolvedRef(media)?.schema)
+      // Other media types have no decoder here. Presence and a false schema still apply.
+      const validate =
+        schema !== undefined && (isJson || mediaType === 'text/plain' || schema === false)
+          ? compileSchema(
+              getContentAjv(mediaType === 'text/plain'),
+              dropReadOnlyRequired(asCompilableSchema(schema)) as Record<string, unknown> | boolean,
+              `${location} parameter ${parameter.name}`,
+            )
+          : null
+      content.push({ name: parameter.name, required: parameter.required === true, isJson, validate })
+      continue
+    }
+
     const resolvedSchema = parameter.schema
       ? (getResolvedRefDeep(parameter.schema) as Record<string, unknown>)
       : undefined
@@ -140,15 +167,13 @@ const buildParameterSchema = (
     // Property names let exploded `form` objects be gathered from matching top-level query keys. They
     // are collected through any `anyOf`/`oneOf`/`allOf` composition so a composed object schema does not
     // fall back to free-form gathering and claim unrelated keys.
-    const propertyNames = getObjectPropertyNames(resolvedSchema)
-
-    descriptors.push({
+    styled.push({
       name: parameter.name,
       style,
       explode,
       isArray: isArraySchema(resolvedSchema),
       isObject: isObjectSchema(resolvedSchema),
-      propertyNames,
+      propertyNames: getObjectPropertyNames(resolvedSchema),
     })
 
     if (resolvedSchema) {
@@ -160,12 +185,12 @@ const buildParameterSchema = (
     }
   }
 
-  if (Object.keys(properties).length === 0 && required.length === 0) {
-    return null
-  }
-
   // Allow undeclared parameters to pass through; we only enforce what the operation declares.
-  return { schema: { type: 'object', properties, required, additionalProperties: true }, parameters: descriptors }
+  const schema =
+    Object.keys(properties).length > 0 || required.length > 0
+      ? { type: 'object', properties, required, additionalProperties: true }
+      : null
+  return { styled, content, validateStyled: compileSchema(parameterAjv, schema, `${location} parameter`) }
 }
 
 /**
@@ -222,73 +247,138 @@ const compileSchema = (
   }
 }
 
-/**
- * Compile the validators for a single operation once, so they can be reused on every request.
- */
+/** Apply the same formats and pattern handling to every request validator. */
+const createRequestAjv = (options: Options = {}): Ajv2020 => {
+  const ajv = new Ajv2020({ strict: false, allErrors: true, code: { regExp: compilePattern }, ...options })
+  useDecimalMultipleOf(ajv)
+  addFormats(ajv)
+  return ajv
+}
+
+/** Compile each JSON media type and each range that may describe a JSON request. */
+const compileBodyValidators = (content: OpenAPIV3_1.RequestBodyObject['content']): BodyValidators => {
+  if (!content) {
+    return { headerless: null, mediaTypes: [] }
+  }
+
+  // Independently resolved schemas can share an ID across media types.
+  const ajv = createRequestAjv({ addUsedSchema: false })
+  const mediaTypes: BodyValidators['mediaTypes'] = []
+  for (const [key, media] of Object.entries(content)) {
+    const mediaType = parseMimeType(key)
+    if (mediaType.subtype !== '*' && !isJsonContentType(mediaType)) {
+      continue
+    }
+
+    let validate: ValidateFunction | null = null
+    try {
+      const schema = getResolvedRef(media)?.schema
+      if (schema !== undefined) {
+        validate = compileSchema(
+          ajv,
+          dropReadOnlyRequired(asCompilableSchema(getResolvedRefDeep(schema))) as Record<string, unknown> | boolean,
+          `request body for ${key}`,
+        )
+      }
+    } catch (error) {
+      console.error(`Error resolving request body schema for ${key}, skipping its validation:`, error)
+    }
+
+    // Keep entries without a validator so a more general range cannot override them.
+    const specificity = Number(mediaType.type !== '*') + Number(mediaType.subtype !== '*')
+    mediaTypes.push({ mediaType, specificity, validate })
+  }
+
+  // Prefer the original bare JSON declaration for clients that omit the header.
+  const headerless =
+    mediaTypes.find(({ mediaType }) => mediaType.essence === 'application/json' && mediaType.parameters.size === 0) ??
+    mediaTypes.find(({ mediaType }) => mediaType.essence === 'application/json') ??
+    mediaTypes.find(({ mediaType }) => mediaType.subtype.endsWith('+json'))
+
+  return {
+    headerless: headerless?.validate ?? null,
+    mediaTypes: mediaTypes.sort(
+      (a, b) => b.specificity - a.specificity || b.mediaType.parameters.size - a.mediaType.parameters.size,
+    ),
+  }
+}
+
+/** An exact media type takes precedence over matching ranges, even when it has no schema. */
+const selectBodyValidator = (validators: BodyValidators, contentType: string | undefined): ValidateFunction | null => {
+  if (!contentType?.trim()) {
+    return validators.headerless
+  }
+  const request = parseMimeType(contentType)
+  if (!isJsonContentType(request)) {
+    return null
+  }
+
+  const match = validators.mediaTypes.find(({ mediaType }) => {
+    if (mediaType.type !== '*' && mediaType.type !== request.type) {
+      return false
+    }
+    if (mediaType.subtype !== '*' && mediaType.subtype !== request.subtype) {
+      return false
+    }
+
+    return Array.from(mediaType.parameters).every(([name, value]) => {
+      const actual = request.parameters.get(name)
+      return name === 'charset' ? actual?.toLowerCase() === value.toLowerCase() : actual === value
+    })
+  })
+  return match?.validate ?? null
+}
+
+/** Compile the validators for a single operation once, so they can be reused on every request. */
 const compileValidators = (
   operation: OpenAPIV3_1.OperationObject,
   pathItemParameters: OpenAPIV3_1.PathItemObject['parameters'],
 ): CompiledValidators => {
   // Coerce string parameters to their declared types (integer, boolean, …).
-  const parameterAjv = new Ajv2020({
-    strict: false,
-    allErrors: true,
-    coerceTypes: true,
-    code: { regExp: compilePattern },
-  })
-  useDecimalMultipleOf(parameterAjv)
-  addFormats(parameterAjv)
-
-  // Do not coerce the JSON body; a JSON value already carries its type and coercion would mask errors.
-  const bodyAjv = new Ajv2020({ strict: false, allErrors: true, code: { regExp: compilePattern } })
-  useDecimalMultipleOf(bodyAjv)
-  addFormats(bodyAjv)
+  const parameterAjv = createRequestAjv({ coerceTypes: true })
+  const querystringAjv = createRequestAjv()
+  const contentAjv = new Map<boolean, Ajv2020>()
+  const getContentAjv = (coerceTypes: boolean): Ajv2020 => {
+    const existing = contentAjv.get(coerceTypes)
+    if (existing) {
+      return existing
+    }
+    // Standalone content validators can reference the same component without registering its ID twice.
+    const ajv = createRequestAjv({ coerceTypes, addUsedSchema: false, ownProperties: true })
+    contentAjv.set(coerceTypes, ajv)
+    return ajv
+  }
 
   // Path-item parameters apply to every operation, so fold them in before building the schemas.
   const parameters = mergeParameters(pathItemParameters, operation.parameters)
-
-  const pathParameters = buildParameterSchema(parameters, 'path')
-  const queryParameters = buildParameterSchema(parameters, 'query')
-  const headerParameters = buildParameterSchema(parameters, 'header')
-  const cookieParameters = buildParameterSchema(parameters, 'cookie')
 
   const querystringParameter = findQuerystringParameter(operation, pathItemParameters)
   const [querystringContentType, querystringMedia] = getFirstMediaType(querystringParameter?.content) ?? []
   const querystringSchema = querystringMedia?.schema
 
   const requestBody = getResolvedRef(operation.requestBody)
-  // Build the body schema defensively; resolving a malformed `$ref` should not crash setup.
-  let bodySchema: Record<string, unknown> | null = null
-  try {
-    const jsonSchema = getResolvedRef(requestBody?.content?.['application/json'])?.schema
-    bodySchema = jsonSchema
-      ? (dropReadOnlyRequired(asCompilableSchema(getResolvedRefDeep(jsonSchema))) as Record<string, unknown>)
-      : null
-  } catch (error) {
-    console.error('Error resolving request body schema, skipping body validation:', error)
-  }
 
   return {
     querystringParameter,
     querystringJson: compileSchema(
-      bodyAjv,
+      querystringAjv,
       getQuerystringJsonSchema(querystringParameter),
       'querystring JSON properties',
     ),
     querystring: compileSchema(
-      parseMimeType(querystringContentType).essence === 'application/x-www-form-urlencoded' ? parameterAjv : bodyAjv,
+      parseMimeType(querystringContentType).essence === 'application/x-www-form-urlencoded'
+        ? parameterAjv
+        : querystringAjv,
       querystringSchema === undefined ? null : asCompilableSchema(getResolvedRefDeep(querystringSchema)),
       'querystring parameter',
     ),
-    path: compileSchema(parameterAjv, pathParameters?.schema ?? null, 'path parameter'),
-    query: compileSchema(parameterAjv, queryParameters?.schema ?? null, 'query parameter'),
-    header: compileSchema(parameterAjv, headerParameters?.schema ?? null, 'header parameter'),
-    cookie: compileSchema(parameterAjv, cookieParameters?.schema ?? null, 'cookie parameter'),
-    pathParameters: pathParameters?.parameters ?? [],
-    queryParameters: queryParameters?.parameters ?? [],
-    headerParameters: headerParameters?.parameters ?? [],
-    cookieParameters: cookieParameters?.parameters ?? [],
-    body: compileSchema(bodyAjv, bodySchema, 'request body'),
+    parameters: {
+      path: compileParameters(parameters, 'path', parameterAjv, getContentAjv),
+      query: compileParameters(parameters, 'query', parameterAjv, getContentAjv),
+      header: compileParameters(parameters, 'header', parameterAjv, getContentAjv),
+      cookie: compileParameters(parameters, 'cookie', parameterAjv, getContentAjv),
+    },
+    body: compileBodyValidators(requestBody?.content),
     // Required-body enforcement is independent of whether the body schema compiles.
     bodyRequired: requestBody?.required === true,
   }
@@ -299,37 +389,27 @@ const compileValidators = (
  * offending parameter name is prepended to the message so the response is readable without
  * cross-referencing the pointer.
  */
-const mapErrors = (errors: ErrorObject[] | null | undefined, location: ViolationLocation): Violation[] =>
+const mapErrors = (errors: ErrorObject[] | null | undefined, location: ViolationLocation, prefix = ''): Violation[] =>
   (errors ?? []).map((error) => {
     const missingProperty =
       typeof error.params === 'object' && error.params && 'missingProperty' in error.params
         ? String((error.params as { missingProperty?: string }).missingProperty)
         : ''
-    const path = error.instancePath || (missingProperty ? `/${missingProperty}` : '')
+    const instancePath = prefix + error.instancePath
+    const path = instancePath || (missingProperty ? `/${missingProperty}` : '')
 
     // A missing parameter surfaces as a top-level `required` error whose `missingProperty` is the
     // parameter name. Phrase it as "<name> is required" instead of the confusing, self-referential
     // "<name> must have required property '<name>'" that Ajv produces against the synthetic wrapper.
-    if (location !== 'body' && missingProperty && !error.instancePath) {
+    if (location !== 'body' && missingProperty && !instancePath) {
       return { location, path, message: `${missingProperty} is required` }
     }
 
-    const name = error.instancePath.replace(/^\//, '') || missingProperty
+    const name = instancePath.replace(/^\//, '') || missingProperty
     const message = location !== 'body' && name ? `${name} ${error.message ?? ''}`.trim() : (error.message ?? '')
 
     return { location, path, message }
   })
-
-/**
- * Detect whether the request body should be treated as JSON. We only validate JSON bodies in this
- * slice; an empty/absent Content-Type is treated as JSON to stay forgiving. This intentionally
- * mirrors how `build-handler-context` parses the body, so we never validate a body the handler then
- * fails to deliver as `req.body`.
- */
-const isJsonRequest = (c: Context): boolean => {
-  const contentType = c.req.header('Content-Type')?.toLowerCase() ?? ''
-  return contentType === '' || contentType.includes('application/json')
-}
 
 /**
  * Create a Hono middleware bound to a single resolved operation that enforces its request contract.
@@ -363,14 +443,11 @@ export const validateRequest = (
      */
     const gather = (
       descriptors: ParameterDescriptor[],
+      declaredNames: Set<string>,
       getValue: (name: string) => string | undefined,
       getValues?: (name: string) => string[] | undefined,
       getMap?: () => Record<string, string | string[]>,
     ): Record<string, unknown> => {
-      // Names of every declared parameter in this location, so a free-form exploded object does not
-      // swallow a sibling parameter's key (e.g. a required free-form object satisfied by `?limit=5`).
-      const declaredNames = new Set(descriptors.map((descriptor) => descriptor.name))
-
       const readAsObject = (descriptor: ParameterDescriptor): unknown =>
         deserializeObjectParameter({
           style: descriptor.style,
@@ -408,7 +485,11 @@ export const validateRequest = (
         } else if (descriptor.isArray) {
           value = readAsArray(descriptor)
         } else {
-          value = getValue(descriptor.name)
+          value = deserializePrimitiveParameter({
+            style: descriptor.style,
+            single: getValue(descriptor.name),
+            name: descriptor.name,
+          })
         }
         if (value !== undefined) {
           data[descriptor.name] = value
@@ -426,49 +507,63 @@ export const validateRequest = (
     //  - header names are matched case-insensitively by Hono's `c.req.header`.
     const requestPathParameters = pathParameters(c)
     const parameterLocations: Array<{
-      validator: ValidateFunction | null
-      descriptors: ParameterDescriptor[]
-      location: Extract<ViolationLocation, ParameterLocation>
+      location: ParameterLocation
       getValue: (name: string) => string | undefined
       getValues?: (name: string) => string[] | undefined
       getMap?: () => Record<string, string | string[]>
     }> = [
       {
-        validator: validators.path,
-        descriptors: validators.pathParameters,
         location: 'path',
         getValue: (name) => requestPathParameters[name],
       },
       {
-        validator: validators.query,
-        descriptors: validators.queryParameters,
         location: 'query',
         getValue: (name) => c.req.query(name),
         getValues: (name) => c.req.queries(name),
         getMap: () => mapRepeatedValues(c.req.queries()),
       },
       {
-        validator: validators.header,
-        descriptors: validators.headerParameters,
         location: 'header',
         getValue: (name) => c.req.header(name),
       },
       {
-        validator: validators.cookie,
-        descriptors: validators.cookieParameters,
         location: 'cookie',
         getValue: (name) => getCookie(c, name),
         getMap: () => getCookie(c),
       },
     ]
 
-    for (const { validator, descriptors, location, getValue, getValues, getMap } of parameterLocations) {
-      if (!validator) {
-        continue
+    for (const { location, getValue, getValues, getMap } of parameterLocations) {
+      const { styled, validateStyled, content } = validators.parameters[location]
+      if (validateStyled) {
+        // Reserve named content values so an exploded object cannot consume a sibling parameter.
+        const declaredNames = new Set([...styled, ...content].map(({ name }) => name))
+        if (!validateStyled(gather(styled, declaredNames, getValue, getValues, getMap))) {
+          violations.push(...mapErrors(validateStyled.errors, location))
+        }
       }
-      const data = gather(descriptors, getValue, getValues, getMap)
-      if (!validator(data)) {
-        violations.push(...mapErrors(validator.errors, location))
+      for (const { name, required, isJson, validate } of content) {
+        const raw = getValue(name)
+        const path = `/${escapeJsonPointer(name)}`
+        if (typeof raw !== 'string') {
+          if (required) {
+            violations.push({ location, path, message: `${name} is required` })
+          }
+          continue
+        }
+
+        let value: unknown = raw
+        if (isJson) {
+          try {
+            value = JSON.parse(raw)
+          } catch {
+            violations.push({ location, path, message: `${name} must be valid JSON` })
+            continue
+          }
+        }
+        if (validate && !validate(value)) {
+          violations.push(...mapErrors(validate.errors, location, path))
+        }
       }
     }
 
@@ -489,8 +584,8 @@ export const validateRequest = (
       }
     }
 
-    // Request body — only `application/json` in this slice
-    if (validators.body || validators.bodyRequired) {
+    const validateBody = selectBodyValidator(validators.body, c.req.header('Content-Type'))
+    if (validateBody || validators.bodyRequired) {
       // Read from a clone so the original request stream stays intact for the mock or `x-handler`
       // downstream. Consuming `c.req.text()` directly would leave `c.req.parseBody()` (used for
       // form bodies) unable to reconstruct the body, so handlers would see it as undefined.
@@ -500,11 +595,11 @@ export const validateRequest = (
         if (validators.bodyRequired) {
           violations.push({ location: 'body', path: '', message: 'Request body is required' })
         }
-      } else if (validators.body && isJsonRequest(c)) {
+      } else if (validateBody) {
         try {
           const parsed: unknown = JSON.parse(raw)
-          if (!validators.body(parsed)) {
-            violations.push(...mapErrors(validators.body.errors, 'body'))
+          if (!validateBody(parsed)) {
+            violations.push(...mapErrors(validateBody.errors, 'body'))
           }
         } catch {
           // The client sent a non-empty JSON body that cannot be parsed, so it cannot satisfy the

@@ -61,6 +61,21 @@ export default () => ({
 Note: When you render the `ApiReference` component yourself (for example in a Vue app), import the plugin
 and pass it via `plugins` instead.
 
+## Community Plugins
+
+These plugins are built and maintained by third parties. Scalar does not review, endorse, or support them.
+
+| Plugin | Description |
+| --- | --- |
+| [Arazzo](https://www.npmjs.com/package/@bielu/scalar-arazzo) | Renders Arazzo workflows and steps alongside your API reference. |
+| [SignalR](https://www.npmjs.com/package/@bielu/scalar-signalr) | Reads SignalR bindings from an AsyncAPI document to connect to hubs, invoke methods, and watch server events. |
+| [gRPC](https://www.npmjs.com/package/@bielu/scalar-grpc) | Reads gRPC bindings from an AsyncAPI document to invoke unary and server-streaming methods over gRPC-Web. |
+| [Message broker](https://www.npmjs.com/package/@bielu/scalar-broker) | Reads broker bindings from an AsyncAPI document to publish and tail messages through a server-side bridge, with a Kafka driver available. |
+
+See the [plugin documentation](https://github.com/bielu/Bielu.AspNetCore.ApiDescriptions) for setup and the corresponding NuGet packages.
+
+To list your plugin here, [edit this page on GitHub](https://github.com/scalar/scalar/edit/main/documentation/plugins.md) and open a pull request.
+
 ## Creating a Plugin
 
 ### Specification Extensions

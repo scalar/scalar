@@ -6,8 +6,29 @@ import type {
 } from '@scalar/types/asyncapi/3.1'
 import { resolveOperationWithTraits } from '@scalar/workspace-store/channel-example'
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
+import type {
+  TraversedAsyncApiMessage,
+  TraversedAsyncApiReusableMessage,
+} from '@scalar/workspace-store/schemas/navigation'
 
 import { resolveMessageTraits } from './resolve-message-traits'
+
+/**
+ * Resolve a channel message or a reusable message with its traits applied.
+ */
+export const resolveAsyncApiMessageEntry = (
+  document: AsyncApiDocument,
+  entry: TraversedAsyncApiMessage | TraversedAsyncApiReusableMessage,
+): AsyncApiMessageObject | undefined => {
+  if (entry.type === 'asyncapi-message') {
+    return resolveAsyncApiMessage(document, entry.channelName, entry.messageName)
+  }
+
+  const components = document.components ? getResolvedAsyncApiRef(document.components) : undefined
+  const node = components?.messages?.[entry.name]
+  const message = node ? getResolvedAsyncApiRef(node) : undefined
+  return message ? resolveMessageTraits(message) : undefined
+}
 
 /**
  * Resolve a channel from the document by its `document.channels` key.

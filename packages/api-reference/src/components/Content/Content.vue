@@ -112,6 +112,7 @@ const {
       | 'proxyUrl'
       | 'servers'
       | 'showOperationId'
+      | 'multipartNaming'
       | 'hideModels'
       | 'modelsSectionLabel'
     >

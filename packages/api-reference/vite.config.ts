@@ -9,6 +9,7 @@ import {
   createLibEntry,
   createPreserveModulesOutput,
   findEntryPoints,
+  hasModuleSideEffects,
 } from '../../tooling/scripts/vite-lib-config.ts'
 import packageJson from './package.json' with { type: 'json' }
 
@@ -71,7 +72,7 @@ export default defineConfig({
     },
     rolldownOptions: {
       treeshake: {
-        moduleSideEffects: (id) => id.includes('.css'),
+        moduleSideEffects: hasModuleSideEffects,
       },
       // The workspace patch is not installed by npm consumers. Ship the corrected parser.
       external: (id) => !/^proto-parser(?:\/|$)/.test(id) && external.some((pattern) => pattern.test(id)),

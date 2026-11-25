@@ -1,5 +1,5 @@
 # Build image
-FROM golang:1.26.2-alpine AS build
+FROM golang:1.27.4-alpine AS build
 WORKDIR /app
 
 ARG COMMIT_SHA=dev

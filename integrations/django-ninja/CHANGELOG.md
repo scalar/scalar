@@ -1,5 +1,23 @@
 # scalar-ninja
 
+## 0.5.1
+
+### Patch Changes
+
+- [#11163](https://github.com/scalar/scalar/pull/11163): Refresh the Rust dependency lockfile and Python integration and playground dependencies while preserving existing public dependency ranges and runtime support.
+
+## 0.5.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+## 0.4.1
+
+### Patch Changes
+
+- [#11143](https://github.com/scalar/scalar/pull/11143): Expose the `showBadgesInSidebar` option in Java, FastAPI, Django Ninja, and .NET integrations so applications can enable sidebar badges. Badges remain hidden by default.
+
 ## 0.4.0
 
 ### Minor Changes

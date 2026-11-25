@@ -1,5 +1,6 @@
-/* Inter (--scalar-font) */
-@import "./inter.css";
-
-/* JetBrains Mono (--scalar-font-code) */
-@import "./mono.css";
+/*
+ * Scalar no longer loads web fonts: --scalar-font and --scalar-font-code use the system font stack.
+ *
+ * This stylesheet is intentionally empty. It is kept so existing imports of @scalar/themes/fonts.css keep
+ * resolving, and it will be removed in a future version.
+ */
