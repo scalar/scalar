@@ -1,5 +1,5 @@
 import * as apiClientModalModule from '@scalar/api-client/modal'
-import type { ClientOptionGroup } from '@scalar/blocks/code-example'
+import { type ClientOptionGroup, CodeExample } from '@scalar/blocks/code-example'
 import type { TraversedEntry, TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -460,7 +460,7 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     })
     await flushPromises()
 
-    expect(wrapper.findComponent(ServerSelector).props('selectedServer')?.url).toBe(`${baseServerURL}${url}`)
+    expect(wrapper.findComponent(ServerSelector).props('selectedServer')?.url).toBe(url)
   })
 
   it('updates code samples when editing a selected relative server template', async () => {
@@ -530,6 +530,198 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     wrapper.vm.eventBus.emit('server:update:variables', { index: 1, key: 'version', value: 'v3', meta })
     await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v3/planets'))
   })
+
+  it('keeps the previously selected server when a document reload starts preserving double slashes', async () => {
+    const baseServerURL = 'https://api.example.com'
+    const content = {
+      ...createBasicDocument(),
+      servers: [{ url: 'https://production.example.com' }, { url: '/tenant/v1' }],
+    }
+    const wrapper = mountComponent({ props: { configuration: { content, baseServerURL } } })
+    await flushPromises()
+    wrapper.vm.eventBus.emit('server:update:selected', {
+      url: 'https://api.example.com/tenant/v1',
+      meta: { type: 'document' },
+    })
+    await flushPromises()
+
+    await wrapper.setProps({
+      configuration: {
+        baseServerURL,
+        content: { ...content, servers: [content.servers[0], { url: '/tenant//v1' }] },
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.getComponent(ServerSelector).props('selectedServer')?.url).toBe('/tenant//v1')
+  })
+
+  it.each(['path', 'operation'] as const)(
+    'uses the saved %s server override and its description base in cURL',
+    async (scope) => {
+      const content = createBasicDocument()
+      const selected = {
+        servers: [
+          { url: 'https://production.example.com' },
+          { url: '{prefix}release.next/base', variables: { prefix: { default: '' } } },
+        ],
+        'x-scalar-selected-server': '{prefix}release.next/base',
+      }
+      const users = content.paths['/users']
+      const description = {
+        ...content,
+        paths: {
+          '/users': {
+            ...users,
+            ...(scope === 'path' ? selected : {}),
+            get: { ...users.get, ...(scope === 'operation' ? selected : {}) },
+          },
+        },
+      }
+      const customFetch = vi.fn(() => Promise.resolve(Response.json(description)))
+      const wrapper = mountComponent({
+        props: {
+          configuration: {
+            url: 'https://api.example.com/docs/openapi.json',
+            customFetch,
+            defaultHttpClient: { targetKey: 'shell', clientKey: 'curl' },
+          },
+        },
+      })
+      await flushPromises()
+
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://api.example.com/docs/release.next/base/users')
+
+      wrapper.vm.eventBus.emit('server:update:selected', {
+        url: 'https://production.example.com',
+        meta:
+          scope === 'path' ? { type: 'path', path: '/users' } : { type: 'operation', path: '/users', method: 'get' },
+      })
+      await flushPromises()
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://production.example.com/users')
+    },
+  )
+
+  it.each(['path', 'operation'] as const)(
+    'preserves a %s server selection through description updates',
+    async (scope) => {
+      const description = createBasicDocument()
+      const users = description.paths['/users']
+      const first = { url: 'https://primary.example.com' }
+      const backup = { url: 'https://sandbox.example.com' }
+      const withServers = (servers: { url: string }[], detail: string): ReturnType<typeof createBasicDocument> => ({
+        ...description,
+        info: { ...description.info, description: detail },
+        paths: {
+          '/users': {
+            ...users,
+            ...(scope === 'path' ? { servers } : {}),
+            get: { ...users.get, ...(scope === 'operation' ? { servers } : {}) },
+          },
+        },
+      })
+      const defaultHttpClient = { targetKey: 'shell', clientKey: 'curl' } as const
+      const wrapper = mountComponent({
+        props: { configuration: { content: withServers([first, backup], 'First description'), defaultHttpClient } },
+      })
+      await flushPromises()
+      wrapper.vm.eventBus.emit('server:update:selected', {
+        url: backup.url,
+        meta:
+          scope === 'path' ? { type: 'path', path: '/users' } : { type: 'operation', path: '/users', method: 'get' },
+      })
+      await flushPromises()
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://sandbox.example.com/users')
+
+      await wrapper.setProps({
+        configuration: { content: withServers([first, backup], 'Updated description'), defaultHttpClient },
+      })
+      await flushPromises()
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://sandbox.example.com/users')
+
+      await wrapper.setProps({
+        configuration: { content: withServers([first], 'Updated description'), defaultHttpClient },
+      })
+      await flushPromises()
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://primary.example.com/users')
+    },
+  )
+
+  it('preserves a relative path server selection when the description changes origin', async () => {
+    const description = createBasicDocument()
+    const content = {
+      ...description,
+      paths: { '/users': { ...description.paths['/users'], servers: [{ url: '/production' }, { url: '/sandbox' }] } },
+    }
+    const customFetch = vi.fn(() => Promise.resolve(Response.json(content)))
+    const configuration = {
+      url: 'https://old.example.com/openapi.json',
+      customFetch,
+      defaultHttpClient: { targetKey: 'shell', clientKey: 'curl' },
+    } as const
+    const wrapper = mountComponent({ props: { configuration } })
+    await flushPromises()
+
+    wrapper.vm.eventBus.emit('server:update:selected', {
+      url: 'https://old.example.com/sandbox',
+      meta: { type: 'path', path: '/users' },
+    })
+    await flushPromises()
+    expect(wrapper.getComponent(CodeExample).text()).toContain('https://old.example.com/sandbox/users')
+
+    await wrapper.setProps({ configuration: { ...configuration, url: 'https://next.example.com/openapi.json' } })
+    await flushPromises()
+    expect(wrapper.getComponent(CodeExample).text()).toContain('https://next.example.com/sandbox/users')
+  })
+
+  it.each(['document', 'path', 'operation'] as const)(
+    'falls back when a removed %s server matches a relative alias',
+    async (scope) => {
+      const description = createBasicDocument()
+      const first = { url: 'https://primary.example.com' }
+      const absolute = { url: 'https://old.example.com/{version}', variables: { version: { default: 'v1' } } }
+      const relative = { url: '/{version}', variables: { version: { default: 'v2' } } }
+      const withServers = (servers: (typeof first | typeof absolute)[]): ReturnType<typeof createBasicDocument> => ({
+        ...description,
+        ...(scope === 'document'
+          ? { servers }
+          : {
+              paths: {
+                '/users': {
+                  ...description.paths['/users'],
+                  ...(scope === 'path' ? { servers } : {}),
+                  get: { ...description.paths['/users'].get, ...(scope === 'operation' ? { servers } : {}) },
+                },
+              },
+            }),
+      })
+      const customFetch = vi
+        .fn()
+        .mockResolvedValueOnce(Response.json(withServers([first, absolute, relative])))
+        .mockResolvedValueOnce(Response.json(withServers([first, relative])))
+      const configuration = {
+        url: 'https://old.example.com/openapi.json',
+        customFetch,
+        defaultHttpClient: { targetKey: 'shell', clientKey: 'curl' },
+      } as const
+      const wrapper = mountComponent({ props: { configuration } })
+      await flushPromises()
+      const meta = {
+        document: { type: 'document' },
+        path: { type: 'path', path: '/users' },
+        operation: { type: 'operation', path: '/users', method: 'get' },
+      } as const
+      wrapper.vm.eventBus.emit('server:update:selected', { url: absolute.url, meta: meta[scope] })
+      await flushPromises()
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://old.example.com/v1/users')
+
+      const url =
+        scope === 'document' ? 'https://old.example.com/reloaded.json' : 'https://next.example.com/openapi.json'
+      await wrapper.setProps({ configuration: { ...configuration, url } })
+      await flushPromises()
+      expect(wrapper.getComponent(CodeExample).text()).toContain('https://primary.example.com/users')
+    },
+  )
 
   it('default configuration values', async () => {
     const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
@@ -887,7 +1079,9 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     // onServerChange: function
     const ServerSelector = wrapper.findComponent({ name: 'Selector' })
     await ServerSelector.vm.$emit('update:modelValue', 'https://api-staging.example.com')
-    expect(onServerChange).toHaveBeenCalled()
+    expect(onServerChange).toHaveBeenLastCalledWith('https://api-staging.example.com')
+    wrapper.vm.eventBus.emit('server:update:selected', { url: '', meta: { type: 'document' } })
+    expect(onServerChange).toHaveBeenLastCalledWith('')
 
     // generateHeadingSlug: function
     const infoDescription = wrapper.findComponent({ name: 'InfoDescription' })

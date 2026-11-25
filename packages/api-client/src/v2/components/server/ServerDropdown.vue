@@ -28,6 +28,7 @@ import type {
   ApiReferenceEvents,
   ServerMeta,
 } from '@scalar/workspace-store/events'
+import { resolveServerUrlTemplate } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -65,12 +66,9 @@ const requestServerOptions = computed(() =>
   })),
 )
 
-const serverUrlWithoutTrailingSlash = computed(() => {
-  if (server?.url?.endsWith('/')) {
-    return server.url.slice(0, -1)
-  }
-  return server?.url || ''
-})
+const serverUrlWithoutTrailingSlash = computed(() =>
+  server ? resolveServerUrlTemplate(server).replace(/\/$/, '') : '',
+)
 </script>
 <template>
   <ScalarPopover

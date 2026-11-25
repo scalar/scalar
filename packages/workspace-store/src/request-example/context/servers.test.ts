@@ -24,12 +24,25 @@ describe('servers', () => {
   it.each<{
     url: string
     prefix: string
+    documentUrl?: string
     baseServerUrl?: string
     envVariables?: Record<string, string>
     expected: string
   }>([
     { url: '{prefix}/v2', prefix: '', expected: 'https://api.example.com/v2/planets' },
     { url: '{prefix}', prefix: '', expected: 'https://api.example.com/docs/planets' },
+    {
+      url: '{prefix}',
+      prefix: 'v1',
+      documentUrl: 'https://test-user:test-password@api.example.com/docs/openapi.json',
+      expected: 'https://api.example.com/docs/v1/planets',
+    },
+    {
+      url: '{{base}}',
+      prefix: '',
+      envVariables: { base: 'release.v1' },
+      expected: 'https://api.example.com/docs/release.v1/planets',
+    },
     { url: '{prefix}', prefix: 'release.v1', expected: 'https://api.example.com/docs/release.v1/planets' },
     {
       url: '{prefix}/v2',
@@ -89,10 +102,10 @@ describe('servers', () => {
     },
   ])(
     'builds the request to $expected for $url with prefix $prefix',
-    ({ url, prefix, baseServerUrl, envVariables, expected }) => {
+    ({ url, prefix, documentUrl, baseServerUrl, envVariables, expected }) => {
       const servers = getServers([{ url, variables: { prefix: { default: prefix } } }], {
         baseServerUrl,
-        documentUrl: 'https://api.example.com/docs/openapi.json',
+        documentUrl: documentUrl ?? 'https://api.example.com/docs/openapi.json',
       })
       const { request } = requestFactory({
         defaultHeaders: {},
@@ -293,8 +306,8 @@ describe('servers', () => {
       })
 
       expect(result).toHaveLength(2)
-      expect(result[0]?.url).toBe('https://api.example.com/api/v1')
-      expect(result[1]?.url).toBe('https://api.example.com/api/v2')
+      expect(resolveServerUrl(result[0] ?? null)).toBe('https://api.example.com/api/v1')
+      expect(resolveServerUrl(result[1] ?? null)).toBe('https://api.example.com/api/v2')
     })
 
     it('resolves relative URLs using document URL when baseServerURL not provided', () => {
@@ -305,7 +318,7 @@ describe('servers', () => {
       })
 
       expect(result).toHaveLength(1)
-      expect(result[0]?.url).toBe('https://docs.example.com/api/v1')
+      expect(resolveServerUrl(result[0] ?? null)).toBe('https://docs.example.com/api/v1')
     })
 
     it('resolves relative URLs using window.location.origin when no other base URL available', () => {
@@ -314,8 +327,68 @@ describe('servers', () => {
       const result = getServers(servers)
 
       expect(result).toHaveLength(1)
-      expect(result[0]?.url).toBe('https://example.com/api/v1')
+      expect(resolveServerUrl(result[0] ?? null)).toBe('https://example.com/api/v1')
     })
+
+    it('resolves a template against the document URL when its current default makes it relative', () => {
+      const prefix = { default: 'https://another.example.com' }
+      const [server] = getServers([{ url: '{prefix}/v1', variables: { prefix } }], {
+        documentUrl: 'https://api.example.com/docs/openapi.json',
+      })
+
+      expect(resolveServerUrl(server ?? null)).toBe('https://another.example.com/v1')
+      prefix.default = ''
+      expect(resolveServerUrl(server ?? null)).toBe('https://api.example.com/v1')
+      expect(server?.url).toBe('{prefix}/v1')
+    })
+
+    it('preserves environment placeholders in the resolved relative server path', () => {
+      const [server] = getServers([{ url: '{prefix}/{{version}}', variables: { prefix: { default: '' } } }], {
+        documentUrl: 'https://api.example.com/docs/openapi.json',
+      })
+
+      expect(resolveServerUrl(server ?? null)).toBe('https://api.example.com/{{version}}')
+    })
+
+    it.each(['{prefix}release.next/base', 'release.next/base'])(
+      'resolves the authored path %s against the description URL',
+      (url) => {
+        const [server] = getServers([{ url, variables: { prefix: { default: '' } } }], {
+          documentUrl: 'https://api.example.com/docs/openapi.json',
+        })
+
+        expect(resolveServerUrl(server ?? null)).toBe('https://api.example.com/docs/release.next/base')
+      },
+    )
+
+    it('keeps schemeless hosts in configured server overrides', () => {
+      const [server] = getServers([{ url: '{prefix}api.example.com/base', variables: { prefix: { default: '' } } }], {
+        documentUrl: 'https://docs.example.com/openapi.json',
+        allowSchemelessHost: true,
+      })
+
+      expect(resolveServerUrl(server ?? null)).toBe('api.example.com/base')
+    })
+
+    it('uses the configured base for a template that resolves to a relative URL', () => {
+      const [server] = getServers([{ url: '{prefix}/v1', variables: { prefix: { default: '' } } }], {
+        baseServerUrl: 'https://base.example.com/api/',
+        documentUrl: 'https://api.example.com/openapi.json',
+      })
+
+      expect(resolveServerUrl(server ?? null)).toBe('https://base.example.com/api/v1')
+    })
+
+    it.each(['//gateway.example.com/v1{suffix}', '{suffix}//gateway.example.com/v1'])(
+      'keeps the authority of a network-path server %s',
+      (url) => {
+        const [server] = getServers([{ url, variables: { suffix: { default: '' } } }], {
+          documentUrl: 'https://api.example.com/openapi.json',
+        })
+
+        expect(resolveServerUrl(server ?? null)).toBe('https://gateway.example.com/v1')
+      },
+    )
 
     it('leaves absolute URLs unchanged', () => {
       const servers: ServerObject[] = [{ url: 'https://api.example.com/v1' }, { url: 'http://localhost:3000' }]
@@ -388,8 +461,8 @@ describe('servers', () => {
 
       // Should use baseServerURL (highest priority)
       expect(result).toHaveLength(2)
-      expect(result[0]?.url).toBe('https://base.example.com/api/v1')
-      expect(result[1]?.url).toBe('https://base.example.com/api/v2')
+      expect(resolveServerUrl(result[0] ?? null)).toBe('https://base.example.com/api/v1')
+      expect(resolveServerUrl(result[1] ?? null)).toBe('https://base.example.com/api/v2')
     })
 
     it('handles servers with complex URL patterns', () => {
@@ -406,7 +479,7 @@ describe('servers', () => {
       expect(result).toHaveLength(3)
       expect(result[0]?.url).toBe('https://api.example.com/v1/users')
       expect(result[1]?.url).toBe('https://api.example.com/v1/posts')
-      expect(result[2]?.url).toBe('https://api.example.com/v1/comments')
+      expect(resolveServerUrl(result[2] ?? null)).toBe('https://api.example.com/v1/comments')
     })
 
     it('preserves server descriptions and metadata', () => {
@@ -455,7 +528,7 @@ describe('servers', () => {
       })
 
       expect(result).toHaveLength(1)
-      expect(result[0]?.url).toBe('https://api.example.com/api/v2')
+      expect(resolveServerUrl(result[0] ?? null)).toBe('https://api.example.com/api/v2')
     })
   })
 
@@ -515,6 +588,37 @@ describe('servers', () => {
       const result = getSelectedServer(document, operation as OperationObject, [{} as ServerObject], servers)
 
       expect(result).toEqual({ url: 'https://api.example.com' })
+    })
+
+    it('retains an unambiguous legacy selection after preserving authored slashes', () => {
+      const document = minimalOasDocument({ 'x-scalar-selected-server': 'https://api.example.com/tenant/v1' })
+      const servers: ServerObject[] = [{ url: 'https://production.example.com' }, { url: '/tenant//v1' }]
+      const options = { documentUrl: 'https://api.example.com/openapi.json' }
+      const prepared = getServers(servers, options)
+
+      const selected = getSelectedServer(document, null, null, prepared)
+      expect(resolveServerUrl(selected)).toBe('https://api.example.com/tenant//v1')
+      expect(structuredClone(selected)?.url).toBe('/tenant//v1')
+      expect(servers[1]?.url).toBe('/tenant//v1')
+    })
+
+    it('prefers exact selection keys over legacy matches', () => {
+      const url = 'https://api.example.com/tenant/v1'
+      const document = minimalOasDocument({ 'x-scalar-selected-server': url })
+      const prepared = getServers([{ url: '/tenant//v1' }, { url }], {
+        documentUrl: 'https://api.example.com/openapi.json',
+      })
+
+      expect(getSelectedServer(document, null, null, prepared)).toBe(prepared[1])
+    })
+
+    it('keeps ambiguous legacy selection keys unresolved', () => {
+      const document = minimalOasDocument({ 'x-scalar-selected-server': 'https://api.example.com/tenant/v1' })
+      const prepared = getServers([{ url: '/tenant//v1' }, { url: '/tenant///v1' }], {
+        documentUrl: 'https://api.example.com/openapi.json',
+      })
+
+      expect(getSelectedServer(document, null, null, prepared)).toBeNull()
     })
 
     it('returns null when selected URL does not match any server URL', () => {

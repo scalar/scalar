@@ -1,4 +1,4 @@
-import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
+import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
@@ -7,7 +7,12 @@ import type { ServerObject } from '@/schemas/v3.2/strict/server'
 
 import { getServerVariables } from './get-server-variables'
 
-type ServerUrlBase = { url: string; source: 'configuration' | 'document' | 'browser' }
+/** A safe base URL and the resolution rules for its source. */
+export type ServerUrlBase = {
+  url: string
+  source: 'configuration' | 'document' | 'browser'
+  allowSchemelessHost?: boolean
+}
 
 // The base belongs to the in-memory server choice. Object spread keeps this symbol, while JSON
 // and structured cloning drop it. Prepare the server again after restoring a serialized document.
@@ -23,10 +28,11 @@ type ServerWithUrlBase = ServerObject & { [serverUrlBase]?: ServerUrlBase }
 export const withServerUrlBase = (server: ServerObject, base: ServerUrlBase): ServerWithUrlBase =>
   !urlScheme.test(server.url) || schemelessHostWithPort.test(server.url) ? { ...server, [serverUrlBase]: base } : server
 
-/** Substitutes OpenAPI server variable defaults, then resolves a relative URL against its base. */
-export const resolveServerUrl = (server: ServerWithUrlBase | null): string => {
-  const url = replacePathVariables(server?.url ?? '', getServerVariables(server))
-  const base = server?.[serverUrlBase]
+/** Retrieves the safe base of an in-memory server choice. */
+export const getServerUrlBase = (server: ServerWithUrlBase | null): ServerUrlBase | undefined => server?.[serverUrlBase]
+
+/** Resolves a server URL after substitutions available to the caller have been applied. */
+export const resolveServerUrlWithBase = (url: string, base?: ServerUrlBase): string => {
   const hostWithPort = schemelessHostWithPort.test(url)
 
   if (!base || (urlScheme.test(url) && !hostWithPort)) {
@@ -34,7 +40,7 @@ export const resolveServerUrl = (server: ServerWithUrlBase | null): string => {
   }
 
   // Without an OpenAPI or configured base, preserve support for schemeless hosts entered in the client.
-  if (base.source === 'browser' && (hostWithPort || !isRelativePath(url))) {
+  if ((base.source === 'browser' || base.allowSchemelessHost) && (hostWithPort || !isRelativePath(url))) {
     return url
   }
 
@@ -52,7 +58,7 @@ export const resolveServerUrl = (server: ServerWithUrlBase | null): string => {
   }
 
   if (base.source === 'configuration') {
-    return combineUrlAndPath(base.url, url)
+    return combineUrlAndPath(base.url, url, { preservePathSegments: true })
   }
 
   // An empty expansion uses the description's directory so the request path is never appended to the description file.
@@ -66,3 +72,24 @@ export const resolveServerUrl = (server: ServerWithUrlBase | null): string => {
 
   return placeholderIndex === -1 ? resolvedPrefix : resolvedPrefix + url.slice(firstPathSlash + 1)
 }
+
+/** Resolves the base of an authored template for display, keeping its variable placeholders. */
+export const resolveServerUrlTemplate = (server: ServerWithUrlBase): string =>
+  server.url ? resolveServerUrlWithBase(server.url, getServerUrlBase(server)) : server.url
+
+const getExpandedServerUrl = (server: ServerObject | null): string =>
+  replacePathVariables(server?.url ?? '', getServerVariables(server))
+
+/** Applies server defaults before resolving a relative URL. */
+export const resolveServerUrl = (server: ServerWithUrlBase | null): string =>
+  resolveServerUrlWithBase(getExpandedServerUrl(server), getServerUrlBase(server))
+
+/** Applies server defaults and environment values before resolving a relative URL. */
+export const resolveServerUrlWithEnvironment = (
+  server: ServerWithUrlBase | null,
+  environmentVariables: Record<string, string>,
+): string =>
+  resolveServerUrlWithBase(
+    replaceEnvVariables(getExpandedServerUrl(server), environmentVariables),
+    getServerUrlBase(server),
+  )

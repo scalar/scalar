@@ -69,7 +69,10 @@ import { ASYNC_API_SCHEMA_RESOURCES } from '@scalar/workspace-store/helpers/use-
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
   getActiveEnvironment,
+  getSelectedServer,
   getServers,
+  prepareServer,
+  resolveServerUrlTemplate,
 } from '@scalar/workspace-store/request-example'
 import type {
   TraversedEntry,
@@ -172,6 +175,10 @@ import {
 } from '@/helpers/load-from-perssistance'
 import { mapConfigPlugins } from '@/helpers/map-config-plugins'
 import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
+import {
+  getRestoredServerSelection,
+  restoreScopedServerSelections,
+} from '@/helpers/restore-scoped-server-selections'
 import {
   normalizeConfigurations,
   type NormalizedConfiguration,
@@ -1210,10 +1217,19 @@ const addDocument = async (
 
   const document = clientStore.workspace.documents[input.name]
   if (result === true && isOpenApiDocument(document)) {
+    if (isOpenApiDocument(previousDocument)) {
+      restoreScopedServerSelections(
+        previousDocument,
+        document,
+        config.baseServerURL,
+      )
+    }
+
     // Configured servers have been applied synchronously by useConfiguredServers. Resolve
     // relative URLs before comparing them with the selection retained from the previous load.
     // Use this document's own URL because background preloads may target an inactive document.
     const servers = getServers(document.servers, {
+      allowSchemelessHost: config.servers !== undefined,
       baseServerUrl: config.baseServerURL,
       documentUrl: document['x-scalar-original-source-url'],
     })
@@ -1221,15 +1237,28 @@ const addDocument = async (
 
     // An empty string is intentional deselection. A removed server is not: select the first
     // available server so live document edits do not leave the reference and requests blank.
+    const previousSelection =
+      isOpenApiDocument(previousDocument) && typeof selectedServer === 'string'
+        ? getRestoredServerSelection(previousDocument, servers, {
+            baseServerUrl: config.baseServerURL,
+            documentUrl: previousDocument['x-scalar-original-source-url'],
+          })
+        : undefined
+    const sourceSelection =
+      typeof selectedServer === 'string'
+        ? undefined
+        : getSelectedServer(document, null, null, servers)
+    const fallback = sourceSelection ?? servers[0]
+    const resolvedSelection = previousSelection ?? fallback?.url
     if (
       servers.length > 0 &&
       selectedServerUrl !== '' &&
-      !servers.some((server) => server.url === selectedServerUrl)
+      selectedServerUrl !== resolvedSelection
     ) {
       clientStore.updateDocument(
         input.name,
         'x-scalar-selected-server',
-        servers[0]?.url,
+        resolvedSelection,
       )
     }
   }
@@ -1809,9 +1838,23 @@ onBeforeUnmount(() => {
 // Top level event handlers and user specified callbacks
 
 /** Ensure we call the onServerChange callback */
-eventBus.on('server:update:selected', ({ url }) =>
-  mergedConfig.value.onServerChange?.(url),
-)
+eventBus.on('server:update:selected', ({ url }) => {
+  const { onServerChange, baseServerURL, servers } = mergedConfig.value
+  if (onServerChange) {
+    const server = prepareServer(
+      { url },
+      {
+        allowSchemelessHost: servers !== undefined,
+        baseServerUrl: baseServerURL,
+        documentUrl:
+          clientStore.workspace.activeDocument?.[
+            'x-scalar-original-source-url'
+          ],
+      },
+    )
+    onServerChange(server ? resolveServerUrlTemplate(server) : url)
+  }
+})
 
 /**
  * AsyncAPI servers are keyed by name, so resolve the selected name to its

@@ -9,7 +9,11 @@ import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/stric
 
 import type { PathParameterSerialization, ReservedPathParameter } from '@/helpers/encode-path-parameter'
 import { type QuerystringParameter, getQuerystringParameter } from '@/helpers/querystring-parameter'
-import { resolveServerUrl } from '@/request-example/builder/helpers/resolve-server-url'
+import {
+  type ServerUrlBase,
+  getServerUrlBase,
+  resolveServerUrl,
+} from '@/request-example/builder/helpers/resolve-server-url'
 import {
   type BuildRequestSecurityResult,
   buildRequestSecurity,
@@ -91,12 +95,14 @@ export type RequestFactory = {
   /** Invalid active cookie declarations, retained for previews and reported before sending. */
   cookieErrors?: string[]
   /**
-   * The base API server URL prior to environment or server variable substitution.
+   * The base API server URL before environment variable substitution.
    * May still contain placeholders such as `{version}` or `{region}`.
    *
    * @example "https://api.example.com/{version}"
    */
   baseUrl: string
+  /** Base context for the generated server URL while it remains the request's base URL. */
+  serverUrlContext?: { template: string; base: ServerUrlBase }
 
   /**
    * Path-related properties for the request.
@@ -287,7 +293,9 @@ export const requestFactory = ({
     headers.delete('Content-Type')
   }
 
+  /** Combine the server url, path and url params into a single url */
   const baseUrl = resolveServerUrl(server)
+  const serverUrlBase = getServerUrlBase(server)
 
   const globalCookieFilter = operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {}
 
@@ -311,6 +319,7 @@ export const requestFactory = ({
   const request: RequestFactory = {
     ...(params.cookieErrors ? { cookieErrors: params.cookieErrors } : {}),
     baseUrl,
+    ...(serverUrlBase ? { serverUrlContext: { template: baseUrl, base: serverUrlBase } } : {}),
     proxyUrl,
     path: {
       variables: params.pathVariables,

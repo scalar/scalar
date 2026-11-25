@@ -1,6 +1,7 @@
 import { getSelector } from '@scalar/helpers/dom/get-selector'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getServers } from '@scalar/workspace-store/request-example'
 import { enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -50,7 +51,7 @@ describe('AddressBar', () => {
         exampleKey: custom.exampleKey ?? 'default',
         eventBus,
         environment: baseEnvironment,
-        serverMeta: {
+        serverMeta: custom.serverMeta ?? {
           type: 'document',
         },
       },
@@ -93,6 +94,26 @@ describe('AddressBar', () => {
     const el = document.createElement('div')
     el.id = 'address-bar-test-id'
     document.body.appendChild(el)
+  })
+
+  it('opens the operation servers editor from an inherited path server', async () => {
+    const { wrapper, eventBus } = mountWithProps({
+      path: '/pets',
+      serverMeta: { type: 'path', path: '/pets' },
+    })
+    const navigate = vi.fn()
+    eventBus.on('ui:navigate', navigate)
+
+    wrapper.getComponent({ name: 'ServerDropdown' }).vm.$emit('update:servers')
+    await nextTick()
+
+    expect(navigate).toHaveBeenCalledWith({
+      page: 'operation',
+      path: 'servers',
+      operationPath: '/pets',
+      method: 'get',
+    })
+    wrapper.unmount()
   })
 
   it.each(['web', 'desktop', 'modal'] as const)('opens GET requests from the %s address bar', async (layout) => {
@@ -653,6 +674,20 @@ describe('AddressBar', () => {
 
       expect(refocusBlurTarget).toHaveBeenCalledWith('[data-addressbar-action="send"]', document)
       expect(replayServerUrl).toBe('https://cdn.jsdelivr.net')
+    })
+
+    it('selects the authored absolute server when a pasted URL also matches the resolved server', async () => {
+      const absolute = 'https://{region}.example.com'
+      const servers = getServers([{ url: '//{region}.example.com' }, { url: absolute }], {
+        documentUrl: 'https://docs.example.com/openapi.json',
+      })
+      const { wrapper, eventBus } = mountWithProps({ server: servers[0], servers })
+      const emit = vi.spyOn(eventBus, 'emit')
+      const codeInput = wrapper.getComponent({ name: 'CodeInput' })
+
+      await codeInput.vm.$emit('submit', `${absolute}/items`, new KeyboardEvent('keydown', { key: 'Enter' }))
+
+      expect(emit).toHaveBeenCalledWith('server:update:selected', { url: absolute, meta: { type: 'document' } })
     })
 
     it('keeps a pasted URL when the deferred placeholder mask runs before Enter', async () => {

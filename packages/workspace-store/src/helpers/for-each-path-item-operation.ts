@@ -139,9 +139,22 @@ const pathItemRefChain = (pathItem: NodeInput<PathItemObject> | undefined): Reco
   return chain
 }
 
-/** Finds the writable node that supplies a path item's effective server list. */
-export const getPathItemServerTarget = (pathItem: NodeInput<PathItemObject> | undefined): PathItemObject | undefined =>
-  pathItemRefChain(pathItem).find((node) => Object.hasOwn(node, 'servers')) as PathItemObject | undefined
+/**
+ * Finds the writable node that owns the effective server list. Paths that
+ * inherit the same referenced list also share the selection stored on its owner.
+ */
+export const getPathItemServerTarget = (
+  pathItem: NodeInput<PathItemObject> | undefined,
+): PathItemObject | undefined => {
+  if (!pathItem || typeof pathItem !== 'object') {
+    return undefined
+  }
+
+  // Match the sibling precedence used by getResolvedPathItem and write back to the original node.
+  return pathItemRefChain(pathItem).find((node) => Object.hasOwn(node, 'servers') && Array.isArray(node.servers)) as
+    | PathItemObject
+    | undefined
+}
 
 /**
  * Deletes an operation from a path item, including when the path item is a $ref wrapper.

@@ -2,6 +2,7 @@
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { ScalarIconCaretDown } from '@scalar/icons'
+import { resolveServerUrlTemplate } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -26,8 +27,10 @@ const serverOptions = computed(() =>
   })),
 )
 
-const serverUrlWithoutTrailingSlash = computed(
-  () => selectedServer?.url?.replace(/\/$/, '') || '',
+const serverUrlWithoutTrailingSlash = computed(() =>
+  selectedServer
+    ? resolveServerUrlTemplate(selectedServer).replace(/\/$/, '')
+    : '',
 )
 
 const selectedServerOption = computed(() =>

@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import type { ClientOptionGroup } from '@scalar/blocks/code-example'
 import type { SchemaRenderingProps } from '@scalar/blocks/schema'
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  getPathItemServerTarget,
-  getResolvedPathItem,
-} from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import { getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   TraversedEntry,
@@ -21,6 +19,7 @@ import type {
 } from '@scalar/workspace-store/schemas/navigation'
 import type {
   OpenApiDocument,
+  PathItemObject,
   SchemaObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -173,10 +172,14 @@ const modelSchemas = computed<Record<string, SchemaObject | undefined>>(() =>
   ),
 )
 
-function getPathValue(entry: TraversedOperation | TraversedWebhook) {
-  return isWebhook(entry)
-    ? getResolvedPathItem(document.webhooks?.[entry.name])
-    : getResolvedPathItem(document.paths?.[entry.path])
+function getPathValue(
+  entry: TraversedOperation | TraversedWebhook,
+): PathItemObject | undefined {
+  return getResolvedPathItem(
+    isWebhook(entry)
+      ? getOwnEntry(document.webhooks, entry.name)
+      : getOwnEntry(document.paths, entry.path),
+  )
 }
 </script>
 
@@ -206,17 +209,17 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :method="entry.method"
         :options="options"
         :path="isWebhook(entry) ? entry.name : entry.path"
-        :pathItemServerTarget="
-          isOperation(entry)
-            ? getPathItemServerTarget(clientDocument?.paths?.[entry.path])
-            : undefined
-        "
         :pathValue="getPathValue(entry)"
         :scrollTargetId="scrollTargetId"
         :securitySchemes="securitySchemes"
         :selectedClient="selectedClient"
         :selectedExample="selectedExample"
         :server="selectedServer"
+        :serverPathValue="
+          isOperation(entry)
+            ? getOwnEntry(clientDocument?.paths, entry.path)
+            : undefined
+        "
         :specificationExtension="specificationExtension" />
     </SectionContainer>
 

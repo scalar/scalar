@@ -226,6 +226,7 @@ const infoExtensions = computed(() => getXKeysFromObject(document?.info))
 /** Compute the servers for the document */
 const servers = computed(() =>
   getServers(options?.servers ?? openApiClientDocument.value?.servers, {
+    allowSchemelessHost: options?.servers !== undefined,
     baseServerUrl: options?.baseServerURL,
     documentUrl: clientDocument?.['x-scalar-original-source-url'],
   }),

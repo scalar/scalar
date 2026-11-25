@@ -14,4 +14,10 @@ export { getSelectedSecurity } from './security/get-selected-security'
 export { isAuthOptional } from './security/is-auth-optional'
 export type { MergedSecuritySchemes } from './security/merge-security'
 export { mergeSecurity } from './security/merge-security'
-export { getSelectedServer, getServers } from './servers'
+export {
+  getOperationServerScope,
+  getSelectedServer,
+  getServers,
+  prepareServer,
+  prepareServerSelection,
+} from './servers'

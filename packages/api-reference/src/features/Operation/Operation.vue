@@ -33,10 +33,10 @@ export type OperationProps = {
   path: string
   /** OpenAPI path object that will include the operation */
   pathValue: PathItemObject | undefined
-  /** The writable path-item server scope shared with Try It. */
-  pathItemServerTarget?: PathItemObject
   /** Currently selected server for the document */
   server: ServerObject | null
+  /** Current client state for the path item's server selections and variable values. */
+  serverPathValue?: NodeInput<PathItemObject>
   /** The merged security schemes for the document and the authentication configuration */
   securitySchemes: MergedSecuritySchemes
   /** The http client options for the dropdown */
@@ -63,13 +63,18 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
-import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import {
+  getPathItemOperation,
+  getPathItemServerTarget,
+} from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import {
+  getResolvedRef,
+  type NodeInput,
+} from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   combineParams,
-  getSelectedServer,
-  getServers,
+  getOperationServerScope,
+  prepareServerSelection,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
 import type {
@@ -100,10 +105,10 @@ const {
   method,
   options,
   path,
-  pathItemServerTarget,
   pathValue,
   securitySchemes,
   server,
+  serverPathValue,
 } = defineProps<OperationProps & SchemaRenderingProps>()
 
 defineSlots<{
@@ -132,29 +137,25 @@ const operation = computed(() => {
  * Determine the effective server for the code examples.
  */
 const selectedServer = computed<ServerObject | null>(() => {
-  if (options.servers != null) {
+  if (isWebhook) {
+    return null
+  }
+
+  const scope = getOperationServerScope({
+    configuredServers: options.servers,
+    pathItem: getPathItemServerTarget(serverPathValue ?? pathValue),
+    operation: serverPathValue
+      ? getResolvedRef(getPathItemOperation(serverPathValue, method))
+      : operation.value,
+  })
+  if (scope.type === 'document') {
     return server
   }
 
-  const bases = {
+  return prepareServerSelection(scope.target, {
     baseServerUrl: options.baseServerURL,
     documentUrl: document['x-scalar-original-source-url'],
-  }
-  const operationServer = getFirstServer(operation.value?.servers ?? null)
-  if (operationServer) {
-    return getServers([{ ...operationServer }], bases)[0] ?? null
-  }
-
-  const pathScope = pathItemServerTarget ?? pathValue
-  if (pathScope?.servers == null) {
-    return server
-  }
-
-  const servers = getServers(
-    pathScope.servers.map((entry) => ({ ...entry })),
-    bases,
-  )
-  return getSelectedServer(null, pathScope, null, servers)
+  })
 })
 
 const requiredSecurity = computed<RequiredSecurity>(() =>
