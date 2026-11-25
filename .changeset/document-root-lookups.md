@@ -4,4 +4,4 @@
 "@scalar/sidebar": patch
 ---
 
-Look up elements and focus within the document root, so focus handling, the sidebar scroll position and drag and drop work when the reference is embedded in a shadow root
+Look up elements and focus through the provided document root instead of `document`. Nothing provides one yet, so behavior is unchanged until shadow-root mounts wire it up

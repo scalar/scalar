@@ -214,4 +214,11 @@ describe('scroll-to-sidebar-top', () => {
 
     expect(scrollToSpy).toHaveBeenCalledWith({ top: 200 })
   })
+
+  it('returns early without a window even when no root is passed', () => {
+    vi.stubGlobal('window', undefined)
+    vi.stubGlobal('document', undefined)
+
+    expect(() => scrollSidebarToTop('operation-1', undefined, undefined)).not.toThrow()
+  })
 })

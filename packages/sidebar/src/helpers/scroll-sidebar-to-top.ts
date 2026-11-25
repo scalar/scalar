@@ -50,18 +50,18 @@ const getTopRelativeToScroller = (element: HTMLElement, scroller: HTMLElement): 
 /**
  * Scrolls the sidebar container so the requested item appears near the top.
  *
- * @param root - Where the sidebar lives, so it is found inside a shadow root too
+ * @param root - Where the sidebar lives, so it is found inside a shadow root too. Defaults to the document.
  */
 export const scrollSidebarToTop = (
   id: string,
   offsetTop: number = DEFAULT_SCROLL_OFFSET_TOP,
-  root: Document | ShadowRoot = document,
+  root?: Document | ShadowRoot,
 ): void => {
   if (typeof window === 'undefined') {
     return
   }
 
-  const element = root.querySelector<HTMLElement>(`[data-sidebar-id="${id}"]`)
+  const element = (root ?? document).querySelector<HTMLElement>(`[data-sidebar-id="${id}"]`)
   const scroller = element?.closest<HTMLElement>('.custom-scroll, .custom-scrollbar') ?? null
   if (!element || !scroller) {
     return
