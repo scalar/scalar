@@ -15,7 +15,7 @@ npm install @scalar/express-api-reference @trpc/server@11 express@4 trpc-to-open
 Save the following as `server.mts`. The REST adapter mounts at `/api`, so the OpenAPI server URL includes that prefix.
 
 ```typescript
-import { apiReference } from '@scalar/express-api-reference'
+import { Scalar } from '@scalar/express-api-reference'
 import { initTRPC } from '@trpc/server'
 import express from 'express'
 import { createOpenApiExpressMiddleware, generateOpenApiDocument, type OpenApiMeta } from 'trpc-to-openapi'
@@ -39,7 +39,7 @@ const document = generateOpenApiDocument(router, {
 const app = express()
 
 app.use('/api', createOpenApiExpressMiddleware({ router }))
-app.use('/reference', apiReference({ content: document }))
+app.use('/reference', Scalar({ content: document }))
 app.listen(3000, 'localhost')
 ```
 
