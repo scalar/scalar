@@ -11,7 +11,7 @@ import type { StatusCode } from 'hono/utils/http-status'
 import { collectSseEvents, isEventStreamContentType } from '@/utils/collect-sse-events'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 import { type ExampleGenerationContext, generateResponseExample } from '@/utils/generate-response-example'
-import { getResponseHeaderExample } from '@/utils/get-response-header-example'
+import { getResponseHeaderExample, usesOpenApi32HeaderExamples } from '@/utils/get-response-header-example'
 import { isSettableResponseHeader } from '@/utils/is-settable-response-header'
 import { negotiateContentType } from '@/utils/negotiate-content-type'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
@@ -74,9 +74,10 @@ export function mockAnyResponse(
   // Headers
   const headers = selectedResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
+    const name = header.toLowerCase()
     // The body and transport determine these headers. Generated values can truncate a response or
     // make clients decode uncompressed data; OpenAPI also requires ignoring declared Content-Type.
-    if (IGNORED_RESPONSE_HEADERS.has(header.toLowerCase())) {
+    if (IGNORED_RESPONSE_HEADERS.has(name)) {
       return
     }
 
@@ -86,8 +87,13 @@ export function mockAnyResponse(
       if (text === undefined) {
         return
       }
-      if (isSettableResponseHeader(header, text)) {
-        c.header(header, text)
+      // OpenAPI 3.2 models separate Set-Cookie fields as one cookie per line.
+      const append = name === 'set-cookie' && usesOpenApi32HeaderExamples(generationContext)
+      const values = append ? text.split(/\r?\n/).filter(Boolean) : [text]
+      if (values.length && values.every((value) => isSettableResponseHeader(header, value))) {
+        for (const value of values) {
+          c.header(header, value, { append })
+        }
         return
       }
     } catch {

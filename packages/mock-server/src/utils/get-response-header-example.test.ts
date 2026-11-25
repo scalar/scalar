@@ -67,6 +67,53 @@ describe('get-response-header-example', () => {
     ).toBe('[1,2]')
   })
 
+  it('keeps a generated JSON string as a string even when it resembles an array', () => {
+    expect(getResponseHeaderExample({ content: { 'application/json': { schema: { const: '[1,2]' } } } })).toBe(
+      '"[1,2]"',
+    )
+  })
+
+  it.each([
+    ['3.1.2', '[1,2]'],
+    ['3.2.0', '"[1,2]"'],
+  ])('uses the authored OpenAPI %s rules for JSON shorthand examples', (originalOpenapiVersion, expected) => {
+    const context = { openapiVersion: '3.2.0', originalOpenapiVersion }
+    const contentType = 'application/json; charset=utf-8'
+
+    expect(getResponseHeaderExample({ content: { [contentType]: { example: '[1,2]' } } }, context)).toBe(expected)
+    expect(
+      getResponseHeaderExample({ content: { [contentType]: { examples: { authored: { value: '[1,2]' } } } } }, context),
+    ).toBe(expected)
+  })
+
+  it('serializes generated XML strings and preserves authored wire text', () => {
+    const schema = { type: 'string', xml: { name: 'message' }, example: '<hello/>' } as const
+
+    expect(getResponseHeaderExample({ content: { 'application/xml': { schema } } })).toBe(
+      '<message>&lt;hello/&gt;</message>',
+    )
+    expect(
+      getResponseHeaderExample({
+        content: {
+          'application/xml': { schema, examples: { authored: { serializedValue: '<message>hello</message>' } } },
+        },
+      }),
+    ).toBe('<message>hello</message>')
+  })
+
+  it('serializes named form fields using their encoding objects', () => {
+    expect(
+      getResponseHeaderExample({
+        content: {
+          'application/x-www-form-urlencoded': {
+            examples: { authored: { dataValue: { query: 'a + b', id: [3, 4] } } },
+            encoding: { id: { style: 'form', explode: true } },
+          },
+        },
+      }),
+    ).toBe('query=a+%2B+b&id=3&id=4')
+  })
+
   it('returns undefined when nothing describes the value', () => {
     expect(getResponseHeaderExample({ description: 'No value' })).toBeUndefined()
     expect(getResponseHeaderExample(undefined)).toBeUndefined()

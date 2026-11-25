@@ -112,6 +112,25 @@ describe('create-mock-server.response-headers', () => {
                     'X-Text': {
                       content: { 'application/json': { $ref: '#/components/mediaTypes/text' } },
                     },
+                    'X-Message': {
+                      content: {
+                        'application/xml': {
+                          schema: { type: 'string', xml: { name: 'message' } },
+                          examples: { authored: { dataValue: '<hello/>' } },
+                        },
+                      },
+                    },
+                    Link: {
+                      content: {
+                        'application/linkset': {
+                          examples: {
+                            authored: {
+                              dataValue: { linkset: [{ anchor: '/items', next: [{ href: '/items?page=2' }] }] },
+                            },
+                          },
+                        },
+                      },
+                    },
                   },
                 },
               },
@@ -127,6 +146,38 @@ describe('create-mock-server.response-headers', () => {
     expect(response.headers.get('x-count')).toBe('42')
     expect(response.headers.get('x-metadata')).toBe('{"id":7}')
     expect(response.headers.get('x-text')).toBe('"[1,2]"')
+    expect(response.headers.get('x-message')).toBe('<message>&lt;hello/&gt;</message>')
+    expect(response.headers.get('link')).toBe('</items?page=2>; rel="next"; anchor="/items"')
+  })
+
+  it.each([
+    { openapi: '3.2.0', text: 'lang=en-US\r\nfoo=bar\n', expected: ['lang=en-US', 'foo=bar'] },
+    { openapi: '3.2.0', text: 'lang=en-US\nfoo=bad\rvalue', expected: [] },
+    { openapi: '3.1.2', text: 'lang=en-US\nfoo=bar', expected: [] },
+  ])('validates cookie lines for OpenAPI $openapi with $text', async ({ openapi, text, expected }) => {
+    const example = openapi === '3.2.0' ? { examples: { authored: { serializedValue: text } } } : { example: text }
+    const app = await createMockServer({
+      document: {
+        openapi,
+        info: { title: 'Response cookies', version: '1' },
+        paths: {
+          '/': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  headers: { 'Set-Cookie': { content: { 'text/plain': example } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await app.request('/')
+
+    expect(response.headers.getSetCookie()).toStrictEqual(expected)
   })
 
   it.each(cases)('sends a readable HTTP response for $name', async (testCase) => {

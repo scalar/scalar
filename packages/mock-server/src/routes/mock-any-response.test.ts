@@ -93,7 +93,7 @@ describe('mock-any-response', () => {
             content: { 'application/json': { example: {} } },
           },
         },
-      } as OpenAPIV3_1.OperationObject),
+      }),
     )
 
     const response = await app.request('/')
