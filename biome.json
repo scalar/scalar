@@ -48,7 +48,8 @@
       "!**/target/**",
       "!**/*.svg",
       "!integrations/docker/assets/index.html"
-    ]
+    ],
+    "maxSize": 2097152
   },
   "assist": {
     "actions": {
