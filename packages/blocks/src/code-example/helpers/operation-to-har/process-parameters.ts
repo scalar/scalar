@@ -136,7 +136,7 @@ const getParameterValue = (
   const options = {
     openapiVersion,
     jsonSchemaDialect,
-    ...(param.in === 'path' ? { emptyString: `{${param.name}}` } : {}),
+    ...(param.in === 'path' ? { emptyString: `{${param.name}}`, preserveStringFallback: true } : {}),
   }
   const schema = getResolvedRef(param.schema)
   return schema ? getExampleFromSchema(schema, options) : undefined

@@ -267,7 +267,8 @@ const getPropertyNamesEnumValues = (schema: SchemaObject): unknown[] | undefined
  * Generate a string placeholder, honoring length bounds where the format allows it.
  * Binary examples use filename placeholders unless the caller requests File objects.
  */
-const getStringExample = (schema: SchemaObject, makeUpRandomData: boolean = false, fallback: string = ''): string => {
+const getStringExample = (schema: SchemaObject, options: GetExampleFromSchemaOptions | undefined): string => {
+  const fallback = options?.emptyString ?? ''
   // Binary filename placeholders are converted to File objects only for multipart callers.
   if (isFileSchema(schema, false)) {
     return '@filename'
@@ -299,14 +300,14 @@ const getStringExample = (schema: SchemaObject, makeUpRandomData: boolean = fals
       return fitEmailExample(value, minLength, maxLength)
     }
     if (format === 'password') {
-      return fitPlainStringExample(makeUpRandomData ? value : fallback, minLength, maxLength)
+      return fitPlainStringExample(fallback ? value : '', minLength, maxLength)
     }
-    if (format !== 'object-id' || makeUpRandomData || minLength > 0) {
+    if (format !== 'object-id' || fallback || minLength > 0) {
       return fitFormattedStringExample(format, value, minLength, maxLength)
     }
   }
 
-  return fitPlainStringExample(fallback, minLength, maxLength)
+  return options?.preserveStringFallback ? fallback : fitPlainStringExample(fallback, minLength, maxLength)
 }
 
 /**
@@ -1145,16 +1146,28 @@ const applyParentStringBounds = (parent: SchemaObject, selected: SchemaObject): 
   }
 }
 
-/** Keep surrounding length constraints when selecting a composition branch. */
-const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArray: boolean): SchemaObject => {
+/** Keep surrounding constraints when selecting a composition branch. */
+const mergeSelectedSchema = (
+  schema: SchemaObject,
+  variant: SchemaObject,
+  selectedType: string | string[],
+  inherit: 'all' | 'string-keywords' = 'all',
+): SchemaObject => {
   const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
-  const merged = { ...base, ...variant } as SchemaObject
-  // Object properties would otherwise take precedence in non-object schema dispatch.
-  if ('properties' in merged) {
+  // A generated string item inherits just the keywords needed to produce its value.
+  const format = 'format' in schema && !('format' in variant) ? { format: schema.format } : {}
+  const merged = { ...(inherit === 'all' ? base : format), ...variant } as SchemaObject
+  if (inherit === 'string-keywords') {
+    Object.assign(merged, { type: selectedType })
+    if (variant.contentEncoding === undefined && schema.contentEncoding !== undefined) {
+      merged.contentEncoding = schema.contentEncoding
+    }
+  } else if ('properties' in merged) {
+    // Object properties would otherwise take precedence in non-object schema dispatch.
     delete merged.properties
   }
   applyParentStringBounds(schema, merged)
-  if (isArray) {
+  if (selectedType === 'array') {
     if ('minItems' in schema) {
       Object.assign(merged, {
         minItems: Math.max(
@@ -1349,7 +1362,7 @@ const handleArraySchema = (
       const selectedType = getSelectedType(variant, items)
       let selectedSchema = variant
       if (variant && selectedType === 'array') {
-        selectedSchema = mergeSelectedSchema(items, variant, true)
+        selectedSchema = mergeSelectedSchema(items, variant, selectedType)
       } else if (
         variant &&
         ('minLength' in items || 'maxLength' in items || 'minLength' in variant || 'maxLength' in variant) &&
@@ -1357,17 +1370,7 @@ const handleArraySchema = (
         getDeclaredValue(variant) === undefined
       ) {
         // Type inheritance can change default validation, so use it only for generated examples.
-        selectedSchema = { ...variant }
-        if (!('type' in variant) || variant.type === undefined) {
-          Object.assign(selectedSchema, { type: selectedType })
-        }
-        if (!('format' in variant) && 'format' in items) {
-          Object.assign(selectedSchema, { format: items.format })
-        }
-        if (variant.contentEncoding === undefined && items.contentEncoding !== undefined) {
-          Object.assign(selectedSchema, { contentEncoding: items.contentEncoding })
-        }
-        applyParentStringBounds(items, selectedSchema)
+        selectedSchema = mergeSelectedSchema(items, variant, selectedType, 'string-keywords')
       }
       const ex = getExampleFromSchema(
         selectedSchema,
@@ -1439,11 +1442,14 @@ const handleArraySchema = (
 }
 
 /** Return primitive example value for single-type schemas, or undefined if not primitive */
-const getPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, emptyString: string | undefined) => {
+const getPrimitiveValue = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+): string | number | boolean | [] | undefined => {
   if ('type' in schema && schema.type && !Array.isArray(schema.type)) {
     switch (schema.type) {
       case 'string':
-        return getStringExample(schema, makeUpRandomData, emptyString ?? '')
+        return getStringExample(schema, options)
       case 'boolean':
         return true
       case 'integer':
@@ -1460,7 +1466,10 @@ const getPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, empt
 }
 
 /** Return primitive example value for union-type schemas (type: string[]) */
-const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, emptyString: string | undefined) => {
+const getUnionPrimitiveValue = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+): string | number | boolean | null | undefined => {
   if ('type' in schema && Array.isArray(schema.type)) {
     if (schema.type.includes('null')) {
       return null
@@ -1470,7 +1479,7 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
     if (first) {
       switch (first) {
         case 'string':
-          return getStringExample(schema, makeUpRandomData, emptyString ?? '')
+          return getStringExample(schema, options)
         case 'boolean':
           return true
         case 'integer':
@@ -1501,6 +1510,8 @@ export type GetExampleFromSchemaOptions = {
   binaryAsFile?: boolean
   /** Fallback string for empty string values. */
   emptyString?: string
+  /** Keep the fallback unchanged when it represents a placeholder such as a path parameter. */
+  preserveStringFallback?: boolean
   /** @deprecated Use getXmlExampleFromSchema for schema-aware XML serialization. */
   xml?: boolean
   /** Whether to show read-only/write-only properties. */
@@ -1521,6 +1532,7 @@ const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined)
     jsonSchemaDialect: options?.jsonSchemaDialect,
     binaryAsFile: options?.binaryAsFile,
     emptyString: options?.emptyString,
+    preserveStringFallback: options?.preserveStringFallback,
     xml: options?.xml,
     mode: options?.mode,
     variables: options?.variables,
@@ -1980,8 +1992,7 @@ const getMaxDepthValue = (
 
   // A schema with no children renders the same at every level, so nothing is lost and the cache stays
   // usable for the rest of the call.
-  const makeUpRandomData = !!options?.emptyString
-  const primitive = getPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  const primitive = getPrimitiveValue(schema, options)
   if (primitive !== undefined) {
     return primitive
   }
@@ -2007,7 +2018,7 @@ const getMaxDepthValue = (
     truncated = true
   }
 
-  const unionPrimitive = getUnionPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  const unionPrimitive = getUnionPrimitiveValue(schema, options)
   if (unionPrimitive !== undefined) {
     return unionPrimitive
   }
@@ -2152,9 +2163,6 @@ const generateExampleFromSchema = (
     }
   }
 
-  // Determine if we should generate realistic example data
-  const makeUpRandomData = !!options?.emptyString
-
   // Early exits for schemas that should not be included (readOnly, writeOnly, omitEmptyAndOptionalProperties)
   if (shouldOmitProperty(_schema, parentSchema, name, options, isRequiredProperty)) {
     seen.delete(targetValue)
@@ -2250,7 +2258,7 @@ const generateExampleFromSchema = (
         seen.delete(targetValue)
         return undefined
       }
-      const selectedSchema = mergeSelectedSchema(_schema, selectedVariant, selectedType === 'array')
+      const selectedSchema = mergeSelectedSchema(_schema, selectedVariant, selectedType)
       // These keywords only constrain their own types, but also drive our type inference.
       if (selectedType !== 'array' && 'items' in selectedSchema) {
         delete selectedSchema.items
@@ -2313,7 +2321,7 @@ const generateExampleFromSchema = (
   }
 
   // Handle primitive types without allocating temporary objects
-  const primitive = getPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
+  const primitive = getPrimitiveValue(_schema, options)
   if (primitive !== undefined) {
     seen.delete(targetValue)
     return cache(_schema, primitive, cacheKey, skipCache)
@@ -2387,7 +2395,7 @@ const generateExampleFromSchema = (
   }
 
   // Handle union types (array of types)
-  const unionPrimitive = getUnionPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
+  const unionPrimitive = getUnionPrimitiveValue(_schema, options)
   if (unionPrimitive !== undefined) {
     seen.delete(targetValue)
     return cache(_schema, unionPrimitive, cacheKey, skipCache)

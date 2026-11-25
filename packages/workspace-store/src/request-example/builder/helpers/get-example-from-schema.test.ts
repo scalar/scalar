@@ -1104,6 +1104,14 @@ describe('getExampleFromSchema', () => {
     expect(isIP(result)).toBe(version)
   })
 
+  it('keeps preserved placeholders distinct from fitted fallbacks in the example cache', () => {
+    const schema: SchemaObject = { type: 'string', maxLength: 2 }
+    const options = { emptyString: '{id}' }
+
+    expect(getExampleFromSchema(schema, options)).toBe('{i')
+    expect(getExampleFromSchema(schema, { ...options, preserveStringFallback: true })).toBe('{id}')
+  })
+
   it.each(['oneOf', 'anyOf'] as const)('intersects the parent and selected %s length bounds', (keyword) => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'string',
