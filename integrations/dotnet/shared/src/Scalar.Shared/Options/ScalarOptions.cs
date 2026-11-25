@@ -215,6 +215,18 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public KeyValuePair<ScalarTarget, ScalarClient>? DefaultHttpClient { get; set; }
 
     /// <summary>
+    /// Controls the default code sample client by ID, such as <c>node/fetch</c>.
+    /// </summary>
+    /// <remarks>When set, takes precedence over <see cref="DefaultHttpClient" />.</remarks>
+    public string? DefaultHttpClientId { get; set; }
+
+    /// <summary>
+    /// Allows the specified built-in HTTP client IDs or target wildcards, such as <c>node/undici</c> or <c>shell/*</c>.
+    /// </summary>
+    /// <remarks>An empty array hides all built-in clients. Other client exclusions still apply.</remarks>
+    public string[]? HttpClients { get; set; }
+
+    /// <summary>
     /// Controls which HTTP clients appear as tabs in the Client Libraries block, in order.
     /// </summary>
     /// <remarks>

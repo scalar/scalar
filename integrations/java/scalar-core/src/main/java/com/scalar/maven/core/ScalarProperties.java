@@ -68,6 +68,8 @@ public class ScalarProperties {
     private ScalarHiddenClients hiddenClients;
 
     /** The full client identifiers shown as tabs, in order. */
+    private List<String> httpClients;
+
     private List<String> featuredClients;
 
     /** The extension keys to display, each beginning with x-. */
@@ -920,6 +922,22 @@ public class ScalarProperties {
      */
     public void setFeaturedClients(List<String> featuredClients) {
         this.featuredClients = featuredClients;
+    }
+
+    /**
+     * Gets the built-in HTTP clients allowed in the code sample pickers.
+     * @return the configured client IDs and target wildcards, or null to use the default list
+     */
+    public List<String> getHttpClients() {
+        return httpClients;
+    }
+
+    /**
+     * Sets the HTTP client allowlist. An empty list hides all built-in clients.
+     * @param httpClients client IDs such as node/undici or target wildcards such as shell/*
+     */
+    public void setHttpClients(List<String> httpClients) {
+        this.httpClients = httpClients;
     }
 
     /**

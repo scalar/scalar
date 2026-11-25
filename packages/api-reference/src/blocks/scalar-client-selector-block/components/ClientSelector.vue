@@ -3,6 +3,7 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import {
   DEFAULT_CLIENT,
   type ClientOptionGroup,
+  findClient,
 } from '@scalar/blocks/code-example'
 import { ScalarIcon } from '@scalar/components/icon'
 import type { AvailableClient, TargetId } from '@scalar/types/snippetz'
@@ -50,7 +51,7 @@ const isCustomSelection = (client: string | undefined) =>
  * clients", so when one is selected globally we keep showing the last generic
  * client here instead of switching to (and failing to render) a custom sample.
  */
-const activeClient = ref(
+const lastBuiltInClient = ref(
   isCustomSelection(selectedClient) ? DEFAULT_CLIENT : selectedClient,
 )
 
@@ -58,21 +59,16 @@ watch(
   () => selectedClient,
   (newClient) => {
     if (!isCustomSelection(newClient)) {
-      activeClient.value = newClient
+      lastBuiltInClient.value = newClient
     }
   },
 )
 
 /** Grab the option for the currently selected Http Client */
-const selectedClientOption = computed(
-  () =>
-    clientOptions.flatMap(
-      (optionGroup) =>
-        optionGroup.options.find(
-          (option) => option.id === activeClient.value,
-        ) ?? [],
-    )[0],
+const selectedClientOption = computed(() =>
+  findClient(clientOptions, lastBuiltInClient.value),
 )
+const activeClient = computed(() => selectedClientOption.value?.id)
 
 /** List of featured clients */
 const featuredClients = computed(() =>
@@ -131,6 +127,7 @@ defineExpose({
       -->
       <div class="client-libraries-list">
         <TabList
+          v-if="featuredClients.length"
           :aria-labelledby="headingId"
           class="client-libraries-tabs"
           :style="{ flexGrow: featuredClients.length }">
@@ -174,10 +171,10 @@ defineExpose({
           <div
             v-else
             :id="morePanel"
-            :aria-labelledby="headingId"
+            :aria-labelledby="featuredClients.length ? headingId : undefined"
             class="selected-client -outline-offset-2"
-            role="tabpanel"
-            tabindex="0">
+            :role="featuredClients.length ? 'tabpanel' : undefined"
+            :tabindex="featuredClients.length ? 0 : undefined">
             {{ selectedClientOption?.title }}
           </div>
         </TabPanels>

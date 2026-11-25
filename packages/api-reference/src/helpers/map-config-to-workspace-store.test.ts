@@ -40,6 +40,14 @@ describe('map-config-to-workspace-store', () => {
     expect(findClient(options, store.workspace['x-scalar-default-client'])?.id).toBe('custom/python')
   })
 
+  it.each([
+    ['node/fetch', 'node/fetch'],
+    ['custom/Python/1', 'custom/python/1'],
+  ] as const)('selects the string default client %s', (defaultHttpClient, expected) => {
+    const { store } = setup({ defaultHttpClient })
+    expect(store.workspace['x-scalar-default-client']).toBe(expected)
+  })
+
   it.each(['Python', 'PYTHON'])('selects a mixed-case custom sample id: %s', (clientKey) => {
     const { store } = setup({ defaultHttpClient: { targetKey: 'custom', clientKey } })
     const options = getClients(

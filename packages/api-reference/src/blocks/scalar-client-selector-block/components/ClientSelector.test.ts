@@ -375,8 +375,9 @@ describe('ClientLibraries', () => {
       })
       await flushPromises()
 
-      expect(tabLabels(wrapper)).toEqual([])
-      expect(wrapper.get('[role="tabpanel"]').text()).toBe('Shell curl')
+      expect(wrapper.find('[role="tablist"]').exists()).toBe(false)
+      expect(wrapper.find('[role="tabpanel"]').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Shell curl')
     })
 
     it('updates the tabs and panel when the configured list changes', async () => {

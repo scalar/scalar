@@ -1,7 +1,7 @@
 import type { MarkdownRenderHook } from '@scalar/helpers/markdown/markdown-render-hook'
 import type { PartialDeep } from 'type-fest'
 
-import type { AvailableClient, ClientId, TargetId } from '../snippetz'
+import type { AvailableClient, ClientId, DefaultHttpClientId, HttpClientPattern, TargetId } from '../snippetz'
 import type { ApiClientTranslations } from './api-client-translations'
 import type { PluginAuthState, PluginNavigationEntry } from './api-reference-plugin'
 
@@ -862,6 +862,13 @@ type ExtendedConfiguration = {
   /** Path to a favicon image */
   favicon?: string
   /**
+   * Built-in HTTP clients available in code sample pickers.
+   * Use a client ID such as `node/undici` or a target wildcard such as `shell/*`.
+   * Omit to use the existing client list, or pass `[]` to hide all built-in clients.
+   * `hiddenClients` still applies.
+   */
+  httpClients?: HttpClientPattern[]
+  /**
    * List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients
    *
    * An entry can be a target (`'node'`), a client name (`'fetch'`), or a full id (`'node/fetch'`). The record form is
@@ -876,8 +883,9 @@ type ExtendedConfiguration = {
    * @default true
    */
   persistSelectedClient?: boolean
-  /** Determine the HTTP client that is selected by default */
+  /** The default code sample client, as a client ID or a target/client object. */
   defaultHttpClient?:
+    | DefaultHttpClientId
     | {
         targetKey: TargetId
         clientKey: ClientId<TargetId>

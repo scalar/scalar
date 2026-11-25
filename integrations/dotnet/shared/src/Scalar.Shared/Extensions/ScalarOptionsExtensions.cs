@@ -778,7 +778,26 @@ public static partial class ScalarOptionsExtensions
     /// <param name="client">The client to set.</param>
     public static TOptions WithDefaultHttpClient<TOptions>(this TOptions options, ScalarTarget target, ScalarClient client) where TOptions : ScalarOptions
     {
+        options.DefaultHttpClientId = null;
         options.DefaultHttpClient = new KeyValuePair<ScalarTarget, ScalarClient>(target, client);
+        return options;
+    }
+
+    /// <summary>
+    /// Sets the default code sample client by ID, such as <c>node/fetch</c>.
+    /// </summary>
+    public static TOptions WithDefaultHttpClient<TOptions>(this TOptions options, string clientId) where TOptions : ScalarOptions
+    {
+        options.DefaultHttpClientId = clientId;
+        return options;
+    }
+
+    /// <summary>
+    /// Allows the specified built-in HTTP clients. An empty list hides all built-in clients.
+    /// </summary>
+    public static TOptions WithHttpClients<TOptions>(this TOptions options, params string[] clients) where TOptions : ScalarOptions
+    {
+        options.HttpClients = clients;
         return options;
     }
 

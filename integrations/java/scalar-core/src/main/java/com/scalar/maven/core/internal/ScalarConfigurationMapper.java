@@ -97,6 +97,8 @@ public class ScalarConfigurationMapper {
 
         config.setShowExtensions(properties.getShowExtensions());
 
+        config.setHttpClients(properties.getHttpClients());
+
         config.setFeaturedClients(properties.getFeaturedClients());
 
         config.setHiddenClients(properties.getHiddenClients());

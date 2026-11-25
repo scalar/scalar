@@ -218,6 +218,16 @@ class ScalarConfig(BaseModel):
         description="The hotkey to use for search. Default is 'k' (e.g. CMD+k).",
     )
 
+    http_clients: Optional[List[str]] = Field(
+        default=None,
+        description='Built-in HTTP client IDs such as "node/undici" or target wildcards such as "shell/*". An empty list hides all built-in clients.',
+    )
+
+    default_http_client: Optional[str] = Field(
+        default=None,
+        description='The default code sample client ID, such as "node/fetch".',
+    )
+
     hidden_clients: Union[bool, Dict[str, Union[bool, List[str]]], List[str]] = Field(
         default_factory=list,
         description="A dictionary with the keys being the target names and the values being a boolean to hide all clients of the target or a list clients. Default is [] which means no clients are hidden.",
@@ -479,6 +489,10 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
     if config.search_hot_key != SearchHotKey.K:  # Default is K
         js_config["searchHotKey"] = config.search_hot_key.value
 
+    if config.http_clients is not None:
+        js_config["httpClients"] = config.http_clients
+    if config.default_http_client is not None:
+        js_config["defaultHttpClient"] = config.default_http_client
     if config.hidden_clients:  # Default is []
         js_config["hiddenClients"] = config.hidden_clients
 

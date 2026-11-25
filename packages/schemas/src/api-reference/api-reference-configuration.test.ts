@@ -29,6 +29,19 @@ describe('api-reference-configuration', () => {
     ).toBe(value)
   })
 
+  it.each([undefined, [], ['node/undici', 'shell/*']].map((httpClients) => ({ httpClients })))(
+    'preserves the HTTP client allowlist $httpClients',
+    ({ httpClients }) => {
+      const config = apiReferenceConfigurationWithSourceSchema({ httpClients, url: '/openapi.json' })
+      expect(config.httpClients).toStrictEqual(httpClients)
+    },
+  )
+
+  it.each(['node/fetch', 'custom/python/1'])('preserves the string default client %s', (defaultHttpClient) => {
+    const config = apiReferenceConfigurationWithSourceSchema({ defaultHttpClient, url: '/openapi.json' })
+    expect(config.defaultHttpClient).toBe(defaultHttpClient)
+  })
+
   it('preserves a custom default client through normalization', () => {
     const defaultHttpClient = { targetKey: 'custom', clientKey: 'python/1' }
     expect(coerce(apiReferenceConfigurationSchema, { defaultHttpClient }).defaultHttpClient).toStrictEqual(

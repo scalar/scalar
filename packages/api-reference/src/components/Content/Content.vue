@@ -98,6 +98,7 @@ const {
       | 'featuredClients'
       | 'showDefaultClientsWithSdkInstallation'
       | 'hiddenClients'
+      | 'httpClients'
       | 'hideTestRequestButton'
       | 'layout'
       | 'oauth2RedirectUri'
@@ -133,9 +134,20 @@ const {
 >()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
-const clientOptions = computed(() =>
-  generateClientOptions(mapHiddenClientsConfig(options.hiddenClients)),
-)
+const clientOptions = computed(() => {
+  const visibleClients = mapHiddenClientsConfig(options.hiddenClients)
+  if (options.httpClients === undefined) {
+    return generateClientOptions(visibleClients)
+  }
+
+  const allowedClients = new Set<string>(options.httpClients)
+  return generateClientOptions(
+    visibleClients.filter(
+      (id) =>
+        allowedClients.has(id) || allowedClients.has(`${id.split('/')[0]}/*`),
+    ),
+  )
+})
 
 /** Reserve the context-bar slot before scrolling reaches a nested tag. */
 const showContextBar = computed(() =>

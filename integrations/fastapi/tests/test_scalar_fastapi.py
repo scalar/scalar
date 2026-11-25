@@ -314,6 +314,18 @@ class TestGetScalarApiReference:
         assert 'Scalar.createApiReference("#app"' in html_content
         assert '"theme": "solarized"' in html_content
 
+    @pytest.mark.parametrize("http_clients", [None, [], ["node/fetch", "shell/*"]])
+    def test_http_client_configuration(self, http_clients):
+        response = get_scalar_api_reference(
+            http_clients=http_clients, default_http_client="node/fetch"
+        )
+        html = response.body.decode()
+        if http_clients is None:
+            assert '"httpClients"' not in html
+        else:
+            assert f'"httpClients": {json.dumps(http_clients)}' in html
+        assert '"defaultHttpClient": "node/fetch"' in html
+
     def test_hidden_clients_dict_format(self):
         """Test hidden_clients parameter with dictionary format"""
         hidden_clients = {

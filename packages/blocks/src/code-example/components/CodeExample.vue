@@ -341,10 +341,7 @@ const localSelectedClient = ref<ClientOption | CustomClientOption | undefined>(
  * differs per operation, so without this the snippet could go stale.
  */
 watch([() => selectedClient, clients], ([newClient]) => {
-  const client = findClient(clients.value, newClient)
-  if (client) {
-    localSelectedClient.value = client
-  }
+  localSelectedClient.value = findClient(clients.value, newClient)
 })
 
 /**
