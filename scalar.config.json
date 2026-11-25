@@ -3881,6 +3881,12 @@
                         "description": "Add a Scalar API reference to your Symfony application with the official bundle or NelmioApiDocBundle.",
                         "type": "page"
                       },
+                      "trpc": {
+                        "title": "tRPC",
+                        "filepath": "documentation/integrations/trpc.md",
+                        "description": "Expose tRPC procedures as REST endpoints with trpc-to-openapi and document them with Scalar API Reference.",
+                        "type": "page"
+                      },
                       "tsed": {
                         "title": "Ts.ED",
                         "filepath": "documentation/integrations/tsed.md",

@@ -191,6 +191,7 @@ And there's an ever-growing list of plugins and integrations:
 - [Spring Boot](https://scalar.com/products/api-references/integrations/spring-boot)
 - [SvelteKit](https://scalar.com/products/api-references/integrations/sveltekit)
 - [Symfony](https://scalar.com/products/api-references/integrations/symfony)
+- [tRPC](https://scalar.com/products/api-references/integrations/trpc)
 - [Ts.ED](https://scalar.com/products/api-references/integrations/tsed)
 - [Vue.js](https://scalar.com/products/api-references/integrations/vue)
 
