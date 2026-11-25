@@ -86,10 +86,15 @@ const { cx } = useBindCx()
     var(--scalar-shadow-1),
     0 0 0 var(--scalar-border-width) var(--scalar-border-color);
 }
-@supports (color: oklch(from white l c h)) {
+@supports (color: oklab(from white l a b)) {
   .scalar-card {
-    --scalar-card-surface: oklch(
-      from var(--scalar-background-2) calc(l + 0.055) c h
+    /*
+     * The lightness step is taken in oklab, not oklch. Chrome treats the hue of a near-grey color
+     * as missing in oklch(from …) but keeps its small chroma, which turned the surfaces of themes
+     * with tinted greys pink. Oklab has the same lightness and no hue to lose.
+     */
+    --scalar-card-surface: oklab(
+      from var(--scalar-background-2) calc(l + 0.055) a b
     );
     --scalar-card-surface-raised: color-mix(
       in oklab,
