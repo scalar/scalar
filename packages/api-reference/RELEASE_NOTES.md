@@ -9,6 +9,54 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.84.0 (2026-11-25)
+
+### AsyncAPI messages and trait rendering, plus polish and fixes
+
+AsyncAPI documents now render reusable messages, message traits, and operation traits in searchable sections above Models. This release also fixes syntax highlighting in code blocks, improves response media-type picker visibility, and displays explicit zero bounds in schema details.
+
+- Reusable AsyncAPI messages from components.messages now render in a searchable Messages section with headers, payloads, examples, and applied traits
+- Message traits and operation traits from AsyncAPI components are listed in their own sections with full details and security badges
+- Response media-type pickers stay visible when multiple types are available and fit beside summaries on narrow screens
+- Syntax highlighting now works in fenced code blocks inside request body and property descriptions
+- Explicit zero bounds for string lengths and array item counts are displayed in schema details
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1840)
+
+## 1.83.0 (2026-11-22)
+
+### ASP.NET Core form naming and localhost beta invitation
+
+This release adds support for ASP.NET Core's indexed form field naming convention and introduces a one-time invitation to the API Hosting beta for developers running the reference locally.
+
+- Configure indexed form field names with multipartNaming: 'indexed-dot' for ASP.NET Core compatibility
+- Nested multipart and URL-encoded request bodies now use indexed dotted names like Certificates[0].name
+- Show API Hosting beta invitation popup once on localhost development servers
+- Prevent Content Security Policy eval violation reports when loading OAuth and AI Chat
+- Update dependencies for improved identifier generation performance
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1830)
+
+## 1.82.1 (2026-11-20)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1821)
+
+## 1.82.0 (2026-11-19)
+
+### Sidebar badges, faster rendering for cyclic schemas, and cleaner code highlights
+
+This release adds an optional sidebar badge display, fixes performance issues with complex schemas, and updates the Markdown rendering pipeline to use a unified highlighter.
+
+- New `showBadgesInSidebar` option displays `x-badges` next to operations, webhooks, tags, and models in the sidebar (off by default)
+- Fixed freezing on schemas with multiple recursive or cross-referencing `$ref`s by limiting example generation depth intelligently
+- Native AsyncAPI RAML and Protobuf dependencies now load on expansion rather than upfront, reducing initial load overhead
+- Code blocks in Markdown descriptions now use the same highlighter as `ScalarCodeBlock`, removing highlight.js from the bundle
+- Improved AI chat integration by sending selected API context as structured metadata instead of appending it to user messages
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1820)
+
 ## 1.81.0 (2026-11-18)
 
 ### AsyncAPI schema resolution, credential substitution in SDK instructions, and improved examples

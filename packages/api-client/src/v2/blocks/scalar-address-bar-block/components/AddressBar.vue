@@ -49,6 +49,7 @@ import {
   ScalarIconWarningCircle,
 } from '@scalar/icons'
 import { EditorView } from '@scalar/use-codemirror'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import type {
   ApiReferenceEvents,
   ServerMeta,
@@ -107,6 +108,9 @@ const emit = defineEmits<{
 }>()
 
 const { translate } = useLocalization()
+
+/** Where the blur target is looked up again, the shadow root when the client is embedded in one */
+const documentRoot = useDocumentRoot()
 
 // ───────────────────────────────────────────────────────────────────
 // Template refs & reactive state
@@ -298,7 +302,7 @@ const emitPathMethodUpdate = (
     emit('update:webhook-url', webhookUrl)
     methodConflict.value = null
     pathConflict.value = null
-    nextTick(() => refocusBlurTarget(blurTargetSelector))
+    nextTick(() => refocusBlurTarget(blurTargetSelector, documentRoot))
     return
   }
 
@@ -339,7 +343,7 @@ const emitPathMethodUpdate = (
         addressBarRef.value?.setCodeMirrorContent(extractedPath)
       }
 
-      nextTick(() => refocusBlurTarget(returnedSelector))
+      nextTick(() => refocusBlurTarget(returnedSelector, documentRoot))
     },
   })
 }

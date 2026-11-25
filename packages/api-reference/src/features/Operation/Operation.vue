@@ -22,6 +22,7 @@ export type OperationProps = {
     | 'maxVisibleRequestBodyProperties'
     | 'schemaKeyboardNav'
     | 'showOperationId'
+    | 'multipartNaming'
     | 'showExtensions'
   >
   /** Document object */

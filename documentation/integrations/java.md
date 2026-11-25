@@ -367,7 +367,7 @@ scalar.layout=modern
 # Show/hide sidebar (default: true)
 scalar.showSidebar=true
 
-# Hide models from sidebar and search (default: false)
+# Hide schema models and reusable AsyncAPI messages (default: false)
 scalar.hideModels=false
 
 # Hide test request button (default: false)
@@ -654,7 +654,7 @@ scalar.hideClientButton=false
 # Favicon path
 scalar.favicon=favicon.svg
 
-# Use default fonts (Inter and JetBrains Mono from CDN) (default: true)
+# Deprecated and has no effect, because Scalar uses the system font stack (default: true)
 scalar.withDefaultFonts=true
 ```
 

@@ -1,4 +1,6 @@
+import { DOCUMENT_ROOT_SYMBOL } from '@scalar/use-hooks/useDocumentRoot'
 import { afterEach, describe, expect, it } from 'vitest'
+import { createApp, defineComponent } from 'vue'
 
 import { useShellPanel } from './use-shell-panel'
 
@@ -115,5 +117,40 @@ describe('use-shell-panel', () => {
 
     expect(() => close({ restoreFocus: true })).not.toThrow()
     expect(document.activeElement).toBe(document.body)
+  })
+
+  it('keeps the original opener when switching panels from inside a shadow root', () => {
+    const host = document.createElement('div')
+    document.body.append(host)
+    const shadowRoot = host.attachShadow({ mode: 'open' })
+
+    let shellPanel: ReturnType<typeof useShellPanel> | undefined
+    const app = createApp(
+      defineComponent({
+        setup() {
+          shellPanel = useShellPanel('panel')
+          return () => null
+        },
+      }),
+    )
+    app.provide(DOCUMENT_ROOT_SYMBOL, shadowRoot)
+    app.mount(document.createElement('div'))
+
+    const trigger = document.createElement('button')
+    shadowRoot.append(trigger)
+    trigger.focus()
+    shellPanel!.open('share')
+
+    const panel = document.createElement('aside')
+    panel.id = 'panel'
+    panel.append(document.createElement('button'))
+    shadowRoot.append(panel)
+    panel.querySelector('button')!.focus()
+    shellPanel!.open('deploy')
+
+    shellPanel!.close({ restoreFocus: true })
+
+    expect(shadowRoot.activeElement).toBe(trigger)
+    app.unmount()
   })
 })

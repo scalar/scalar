@@ -1,0 +1,217 @@
+name: Playwright Docker Images
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/playwright-docker.yml'
+      - '.github/workflows/pr.yml'
+      - '.github/workflows/main.yml'
+      - 'packages/helpers/src/playwright/docker.ts'
+      - 'tooling/scripts/src/commands/playwright-docker/**'
+      - 'pnpm-workspace.yaml'
+  workflow_call:
+    inputs:
+      publish:
+        description: Publish images for the selected tag after a package release.
+        type: boolean
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  PLAYWRIGHT_DOCKER_DIR: tooling/scripts/src/commands/playwright-docker
+
+jobs:
+  prepare:
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    outputs:
+      relevant: ${{ steps.changes.outputs.relevant || steps.release.outputs.relevant }}
+      version: ${{ steps.changes.outputs.version || steps.release.outputs.version }}
+      tag: ${{ steps.tag.outputs.value }}
+    steps:
+      - uses: actions/checkout@v6.0.3
+        with:
+          persist-credentials: false
+      - name: Read selected image tag
+        id: tag
+        shell: bash
+        run: |
+          tag=$(bash "$PLAYWRIGHT_DOCKER_DIR/read-release-tag.sh")
+          echo "value=$tag" >> "$GITHUB_OUTPUT"
+      - name: Check image inputs and Playwright version
+        id: changes
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          TAG: ${{ steps.tag.outputs.value }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_SHA"
+
+          playwright_version() {
+            git show "$1:pnpm-workspace.yaml" |
+              sed -nE "
+                /^catalogs:[[:space:]]*(#.*)?\$/,/^[^[:space:]#]/ {
+                  /^  ['\"]\*['\"]:[[:space:]]*(#.*)?\$/,/^  [^[:space:]#]/ {
+                    s|^    ['\"]?@playwright/test['\"]?:[[:space:]]*['\"]?([0-9]+\.[0-9]+\.[0-9]+)['\"]?[[:space:]]*(#.*)?\$|\1|p
+                  }
+                }"
+          }
+
+          version=$(playwright_version HEAD)
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo 'Expected one exact @playwright/test version in the wildcard pnpm workspace catalog' >&2
+            exit 1
+          fi
+
+          sh "$PLAYWRIGHT_DOCKER_DIR/check-runner-pins.sh" "$BASE_SHA" "$TAG" "$version"
+
+          # Workspace catalog edits for other packages do not affect either image.
+          if [[ "$version" == "$(playwright_version "$BASE_SHA")" ]] &&
+             git diff --quiet "$BASE_SHA" HEAD -- \
+               .github/workflows/playwright-docker.yml "$PLAYWRIGHT_DOCKER_DIR"; then
+            echo 'relevant=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Test the selected release when a maintainer changes the tag.
+          if ! git diff --quiet "$BASE_SHA" HEAD -- "$PLAYWRIGHT_DOCKER_DIR/release-tag"; then
+            version=${TAG%%-*}
+          fi
+
+          {
+            echo 'relevant=true'
+            echo "version=$version"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Check whether the selected tag is already published
+        id: release
+        if: inputs.publish
+        shell: bash
+        env:
+          TAG: ${{ steps.tag.outputs.value }}
+        run: |
+          missing=$(sh "$PLAYWRIGHT_DOCKER_DIR/missing-release-images.sh" "$TAG")
+          if [[ -z "$missing" ]]; then
+            echo "Both images already have tag $TAG."
+            echo 'relevant=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          {
+            echo 'relevant=true'
+            echo "version=${TAG%%-*}"
+          } >> "$GITHUB_OUTPUT"
+
+  build-and-test:
+    needs: prepare
+    if: needs.prepare.outputs.relevant == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    env:
+      ARCH: ${{ matrix.arch }}
+      PLAYWRIGHT_VERSION: ${{ needs.prepare.outputs.version }}
+      IMAGE_TAG: ${{ inputs.publish && needs.prepare.outputs.tag || needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6.0.3
+        with:
+          persist-credentials: false
+      - name: Build both images
+        shell: bash
+        run: |
+          docker buildx build --load --platform "linux/$ARCH" \
+            --build-arg "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" \
+            --tag "scalarapi/playwright:$IMAGE_TAG-$ARCH" "$PLAYWRIGHT_DOCKER_DIR"
+          docker buildx build --load --platform "linux/$ARCH" \
+            --build-arg "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" \
+            --file "$PLAYWRIGHT_DOCKER_DIR/DockerfileRunner" \
+            --tag "scalarapi/playwright-runner:$IMAGE_TAG-$ARCH" "$PLAYWRIGHT_DOCKER_DIR"
+      - name: Smoke-test both images
+        shell: bash
+        run: |
+          smoke_test() {
+            local expected="$1"
+            shift
+            docker run --rm -i "$@" sh -c 'NODE_PATH="$(npm root -g)" node --input-type=module-typescript - "$1"' sh "$expected" \
+              < "$PLAYWRIGHT_DOCKER_DIR/smoke-test.ts"
+          }
+
+          smoke_test enabled "scalarapi/playwright:$IMAGE_TAG-$ARCH"
+          smoke_test disabled "scalarapi/playwright-runner:$IMAGE_TAG-$ARCH"
+          smoke_test enabled -e SCALAR_RUNNER_ENABLE_WEBGL=1 "scalarapi/playwright-runner:$IMAGE_TAG-$ARCH"
+          smoke_test disabled -e SCALAR_RUNNER_ENABLE_WEBGL=true "scalarapi/playwright-runner:$IMAGE_TAG-$ARCH"
+      - name: Archive tested images
+        if: inputs.publish
+        shell: bash
+        run: |
+          docker save "scalarapi/playwright:$IMAGE_TAG-$ARCH" "scalarapi/playwright-runner:$IMAGE_TAG-$ARCH" |
+            zstd -T0 -o "$RUNNER_TEMP/playwright-images-$ARCH.tar.zst"
+      - name: Upload tested images
+        if: inputs.publish
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: playwright-images-${{ matrix.arch }}
+          path: ${{ runner.temp }}/playwright-images-${{ matrix.arch }}.tar.zst
+          compression-level: 0
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 3
+
+  publish:
+    needs: [prepare, build-and-test]
+    if: inputs.publish && github.ref == 'refs/heads/main' && github.repository == 'scalar/scalar'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: production-dockerhub
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      IMAGE_TAG: ${{ needs.prepare.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v6.0.3
+        with:
+          persist-credentials: false
+      - name: Download tested images
+        uses: actions/download-artifact@v8.0.1
+        with:
+          pattern: playwright-images-*
+          path: ${{ runner.temp }}/playwright-images
+          merge-multiple: true
+      - name: Log in to Docker Hub with OIDC
+        uses: docker/login-action@v4.5.0
+        env:
+          DOCKERHUB_OIDC_CONNECTIONID: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
+        with:
+          username: scalarapi
+      - name: Push tested images and create multi-architecture tags
+        shell: bash
+        run: |
+          # A failed run may already have published one image.
+          missing=$(sh "$PLAYWRIGHT_DOCKER_DIR/missing-release-images.sh" "$IMAGE_TAG")
+          if [[ -z "$missing" ]]; then
+            echo "Both images already have tag $IMAGE_TAG."
+            exit 0
+          fi
+
+          for arch in amd64 arm64; do
+            zstd -dc "$RUNNER_TEMP/playwright-images/playwright-images-$arch.tar.zst" | docker load
+          done
+
+          while IFS= read -r repository; do
+            image="scalarapi/$repository"
+            docker push "$image:$IMAGE_TAG-amd64"
+            docker push "$image:$IMAGE_TAG-arm64"
+            docker buildx imagetools create --tag "$image:$IMAGE_TAG" "$image:$IMAGE_TAG-amd64" "$image:$IMAGE_TAG-arm64"
+            echo "Published \`$image:$IMAGE_TAG\` for amd64 and arm64." >> "$GITHUB_STEP_SUMMARY"
+          done <<< "$missing"

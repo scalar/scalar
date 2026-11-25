@@ -35,11 +35,11 @@
   --scalar-radius-full: calc(var(--scalar-radius) * 9999); /* pill, deliberately uncapped */
 
   /* TYPOGRAPHY ------------------------------------ */
+  /* System fonts only, so text matches the platform and no font files are downloaded */
   --scalar-font:
-    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-    "Noto Color Emoji";
-  --scalar-font-code:
-    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Helvetica", "Apple Color Emoji", "Arial",
+    sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  --scalar-font-code: ui-monospace, "SFMono-Regular", "SF Mono", menlo, consolas, "Liberation Mono", monospace;
 
   /** Font sizes for rendered text content (editor styles or static content) */
   --scalar-heading-1: 24px; /* Editor Page heading */

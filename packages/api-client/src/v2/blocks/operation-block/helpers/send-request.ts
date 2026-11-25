@@ -170,11 +170,8 @@ export const sendRequest = async ({
  * Returns an array of serialized cookie strings, or null if no cookies were found.
  */
 const getCustomCookie = (response: Response): string[] | null => {
-  const result = parseSetCookie(response.headers.get(X_SCALAR_SET_COOKIE) ?? '').map((c) =>
-    serializeCookie(c.name, c.value, {
-      ...c,
-      sameSite: c.sameSite as boolean | 'lax' | 'strict' | 'none' | undefined,
-    }),
+  const result = parseSetCookie(response.headers.get(X_SCALAR_SET_COOKIE) ?? '').map((cookie) =>
+    serializeCookie(cookie.name, cookie.value, cookie),
   )
 
   if (result.length) {

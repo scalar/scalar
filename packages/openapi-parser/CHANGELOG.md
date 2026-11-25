@@ -1,5 +1,17 @@
 # @scalar/openapi-parser
 
+## 0.29.28
+
+No changes in this release.
+
+## 0.29.27
+
+No changes in this release.
+
+## 0.29.26
+
+No changes in this release.
+
 ## 0.29.25
 
 No changes in this release.

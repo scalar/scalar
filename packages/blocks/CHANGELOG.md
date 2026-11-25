@@ -1,5 +1,47 @@
 # @scalar/blocks
 
+## 0.10.0
+
+### Minor Changes
+
+- [#11179](https://github.com/scalar/scalar/pull/11179): Add a `collapsible` option to `SpecificationExtensions`: the values fold under a localized "Extensions (n)" row, closed until opened with the same disclosure control as nested values.
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11208](https://github.com/scalar/scalar/pull/11208): Keep syntax highlighting in fenced code blocks inside request body and property descriptions.
+- [#9625](https://github.com/scalar/scalar/pull/9625): Resolve JSON Schema 2020-12 `$dynamicRef` in the magic proxy and expose the bound schema through `@scalar/workspace-store/resolve`. Generic and recursive schemas now show their concrete types in rendered properties and JSON/XML request examples, including anchors nested inside a schema resource.
+
+  Keep repeated reads stable within each dynamic scope while allowing shared templates to bind independently. Edits through the proxy refresh bindings and resolved references while preserving ordinary proxy identities and unrelated documents’ anchor caches.
+- [#11206](https://github.com/scalar/scalar/pull/11206): Use empty OpenAPI server variable defaults in request URLs, OAuth server URLs, and code snippets.
+- [#11221](https://github.com/scalar/scalar/pull/11221): Display explicit zero bounds for string lengths and array item counts in schema details.
+
+## 0.9.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
+## 0.8.1
+
+No changes in this release.
+
+## 0.8.0
+
+### Minor Changes
+
+- [#11103](https://github.com/scalar/scalar/pull/11103): Support `x-scalar-token-prefix` on header API keys. Generated code examples and outgoing requests add the configured prefix while stored credentials remain unchanged.
+
+### Patch Changes
+
+- [#11123](https://github.com/scalar/scalar/pull/11123): Fix the API reference freezing on schemas with several recursive or cross-referencing `$ref`s. Generated examples that are too large to render at full depth are now rendered at the deepest depth that fits.
+
 ## 0.7.4
 
 ### Patch Changes

@@ -46,6 +46,7 @@ export const ar = {
     collapsed: 'مطوي',
     webhooks: 'خطافات الويب',
     channels: 'القنوات',
+    messages: 'الرسائل',
   },
   server: {
     label: 'الخادم',
@@ -186,6 +187,7 @@ export const ar = {
     waitlistError: 'عذرًا! حدث خطأ ما، يرجى المحاولة مرة أخرى',
     waitlistRateLimit: 'عدد كبير من التسجيلات، يرجى المحاولة مرة أخرى بعد قليل',
     waitlistBack: 'رجوع',
+    waitlistDone: 'تم',
     deployApiButton: 'نشر API',
     deployFrameworkButton: 'نشر {framework}',
     deployApiTitle: 'انشر واجهة API الخاصة بك على Scalar',

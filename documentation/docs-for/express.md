@@ -17,14 +17,14 @@ If you do not have an OpenAPI document yet, add `swagger-jsdoc` too: `npm instal
 
   </scalar-step>
 
-  <scalar-step id="configure" title="Serve the document and mount apiReference">
+  <scalar-step id="configure" title="Serve the document and mount Scalar">
 
 This is the pattern from the Express playground in the Scalar repository. JSDoc `@openapi` comments on your routes become the document, which is served as JSON and rendered by Scalar:
 
 ```typescript
 import Express from 'express'
 import swaggerJsdoc from 'swagger-jsdoc'
-import { apiReference } from '@scalar/express-api-reference'
+import { Scalar } from '@scalar/express-api-reference'
 
 const app = Express()
 
@@ -58,7 +58,7 @@ app.get('/openapi.json', (_req, res) => {
 // Serve the Scalar API reference
 app.use(
   '/reference',
-  apiReference({
+  Scalar({
     url: '/openapi.json',
   }),
 )
@@ -91,7 +91,7 @@ If you build your API with `express-zod-api`, the document comes from your Zod s
 
 ```typescript
 import { createConfig } from 'express-zod-api'
-import { apiReference } from '@scalar/express-api-reference'
+import { Scalar } from '@scalar/express-api-reference'
 
 const config = createConfig({
   beforeRouting: ({ app, getLogger }) => {
@@ -100,7 +100,7 @@ const config = createConfig({
 
     app.use(
       '/docs',
-      apiReference({
+      Scalar({
         // Pass your generated OpenAPI document
         content: documentation.getSpecAsJson(),
       }),
@@ -138,8 +138,8 @@ import swaggerUi from 'swagger-ui-express'
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 // After
-import { apiReference } from '@scalar/express-api-reference'
-app.use('/api-docs', apiReference({ content: swaggerDocument }))
+import { Scalar } from '@scalar/express-api-reference'
+app.use('/api-docs', Scalar({ content: swaggerDocument }))
 ```
 
 Keep the `/api-docs` path so existing links still work, then remove `swagger-ui-express` from your dependencies. Your `swagger-jsdoc` comments, or the YAML file you load, stay the same. If you had customised Swagger UI with `customCss`, move those rules to Scalar's `customCss` option or pick a built-in theme.
@@ -150,19 +150,19 @@ Swagger 2.0 documents render too; Scalar upgrades them on load, so an older `swa
 
 <scalar-detail title="How do I add Swagger documentation to an Express API?">
 
-Describe your routes in an OpenAPI document, usually with `swagger-jsdoc` comments, serve it as JSON, and mount a UI. With Scalar that UI is `app.use('/reference', apiReference({ url: '/openapi.json' }))` from `@scalar/express-api-reference`.
+Describe your routes in an OpenAPI document, usually with `swagger-jsdoc` comments, serve it as JSON, and mount a UI. With Scalar that UI is `app.use('/reference', Scalar({ url: '/openapi.json' }))` from `@scalar/express-api-reference`.
 
 </scalar-detail>
 
 <scalar-detail title="Is Scalar a drop-in replacement for swagger-ui-express?">
 
-For the rendering part, yes. Both take an OpenAPI document; replace `swaggerUi.serve, swaggerUi.setup(doc)` with `apiReference({ content: doc })` on the same path. Nothing about how you generate the document changes.
+For the rendering part, yes. Both take an OpenAPI document; replace `swaggerUi.serve, swaggerUi.setup(doc)` with `Scalar({ content: doc })` on the same path. Nothing about how you generate the document changes.
 
 </scalar-detail>
 
 <scalar-detail title="Does it work with Express 5?">
 
-Yes. The integration is developed and tested against Express 5. `apiReference` is a plain request handler that returns an HTML page, so Express 4 apps mount it the same way.
+Yes. The integration is developed and tested against Express 5. `Scalar` is a plain request handler that returns an HTML page, so Express 4 apps mount it the same way.
 
 </scalar-detail>
 

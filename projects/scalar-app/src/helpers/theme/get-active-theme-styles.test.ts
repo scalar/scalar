@@ -65,4 +65,16 @@ describe('getActiveThemeStyles', () => {
     expect(result.themeSlug).toBe('my-custom-theme')
     expect(result.themeStyles).toContain('--custom-color: red')
   })
+
+  it('keeps a custom workspace theme whose stylesheet is empty', () => {
+    const emptyTheme: Theme = { ...customTheme, slug: 'empty-theme', theme: '' }
+    const result = getActiveThemeStyles('empty-theme', 'purple', [emptyTheme])
+    expect(result).toEqual({ themeSlug: 'empty-theme', themeStyles: '' })
+  })
+
+  it('keeps a custom fallback theme whose stylesheet is empty', () => {
+    const emptyTheme: Theme = { ...customTheme, slug: 'empty-theme', theme: '' }
+    const result = getActiveThemeStyles('none', 'empty-theme', [emptyTheme])
+    expect(result).toEqual({ themeSlug: 'empty-theme', themeStyles: '' })
+  })
 })

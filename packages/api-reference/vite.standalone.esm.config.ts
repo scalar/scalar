@@ -7,6 +7,7 @@ import webpackStats from 'rollup-plugin-webpack-stats'
 import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
+import { hasModuleSideEffects } from '../../tooling/scripts/vite-lib-config.ts'
 import packageJson from './package.json' with { type: 'json' }
 import { createEsmEntry } from './src/standalone/lib/create-esm-entry.ts'
 
@@ -91,7 +92,7 @@ export default defineConfig({
       // module specifier". So the ESM build must be fully self-contained: bundle
       // everything and let tree-shaking drop whatever is genuinely unreachable.
       treeshake: {
-        moduleSideEffects: (id) => id.includes('.css'),
+        moduleSideEffects: hasModuleSideEffects,
       },
       output: {
         entryFileNames: '[name].js',

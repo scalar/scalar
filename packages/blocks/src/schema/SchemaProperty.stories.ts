@@ -42,6 +42,17 @@ export const Described: Story = {
   },
 }
 
+/** A description with a fenced code block, which keeps its syntax highlighting inside the muted text. */
+export const DescribedWithCodeBlock: Story = {
+  args: {
+    name: 'script',
+    schema: coerceValue(SchemaObjectSchema, {
+      type: 'string',
+      description: 'A snippet to run on the server:\n\n```js\nlet a = 5;\n```',
+    }),
+  },
+}
+
 export const NestedObject: Story = {
   args: {
     name: 'address',

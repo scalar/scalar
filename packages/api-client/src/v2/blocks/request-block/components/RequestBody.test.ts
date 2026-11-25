@@ -1,12 +1,13 @@
 import { Schema } from '@scalar/blocks/schema'
 import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
 import { ScalarListbox } from '@scalar/components/listbox'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { RequestBodyObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, readonly, ref } from 'vue'
 
 import { provideLocalization } from '@/v2/features/localization'
@@ -59,6 +60,94 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it('edits indexed-dot URL-encoded fields without losing repeated values', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        multipartNaming: 'indexed-dot',
+        requestBody: {
+          content: {
+            'application/x-www-form-urlencoded': {
+              schema: {
+                type: 'object',
+                required: ['contacts', 'tags'],
+                properties: {
+                  contacts: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' } } } },
+                  tags: { type: 'array', items: { type: 'string' } },
+                },
+              },
+              examples: { 'example-1': { value: { contacts: [{ name: 'Ada' }], tags: ['one', 'two'] } } },
+            },
+          },
+        },
+      },
+    })
+    const table = wrapper.getComponent(RequestTable)
+    expect(table.props('data').map(({ name }) => name)).toStrictEqual(['contacts[0].name', 'tags'])
+    await table.vm.$emit('upsertRow', 0, { value: 'Grace' })
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [
+        {
+          contentType: 'application/x-www-form-urlencoded',
+          payload: [
+            { name: 'contacts[0].name', value: 'Grace', isDisabled: false },
+            { name: 'tags', value: ['one', 'two'], isDisabled: false, isArray: true },
+          ],
+        },
+      ],
+    ])
+    wrapper.unmount()
+  })
+
+  it('uploads a file using the indexed form name declared by the multipart mode', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        multipartNaming: 'indexed-dot',
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              examples: { 'example-1': { value: { certificates: [{ name: 'Ada' }], profile: { name: 'Grace' } } } },
+              schema: {
+                type: 'object',
+                required: ['certificates', 'profile'],
+                properties: {
+                  certificates: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      required: ['file'],
+                      properties: { name: { type: 'string' }, file: { type: 'string', format: 'binary' } },
+                    },
+                  },
+                  profile: { type: 'object', properties: { name: { type: 'string' } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    await wrapper.get('button[aria-label="Select File for certificates[0].file"]').trigger('click')
+
+    type FormValue = ApiReferenceEvents['operation:update:requestBody:formValue']['payload']
+    const event = wrapper.emitted<[{ contentType: string; payload: FormValue }]>('update:formValue')?.[0]?.[0]
+    assert(event)
+    expect(event.contentType).toBe('multipart/form-data')
+    expect(
+      event.payload.map(({ name, value, isDisabled }) => [
+        name,
+        value instanceof File ? value.name : value,
+        isDisabled,
+      ]),
+    ).toStrictEqual([
+      ['certificates[0].name', 'Ada', false],
+      ['certificates[0].file', 'test.txt', false],
+      ['profile.name', 'Grace', false],
+    ])
+    wrapper.unmount()
+  })
+
   it.each(['multipart/mixed', 'multipart/related; type="application/json"'])(
     'edits schema-aware parts for %s and forwards files intact',
     async (contentType) => {

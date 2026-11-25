@@ -34,18 +34,21 @@ export const getActiveThemeStyles = (
   // No theme slug set — try fallback, then default
   if (!themeSlug) {
     const fallbackStyles = resolveThemeStyles(fallbackThemeSlug, customThemes)
-    return fallbackStyles ? { themeStyles: fallbackStyles, themeSlug: fallbackThemeSlug } : defaultThemeStyles
+    return fallbackStyles !== undefined
+      ? { themeStyles: fallbackStyles, themeSlug: fallbackThemeSlug }
+      : defaultThemeStyles
   }
 
-  // Try resolving the active theme
+  // Try resolving the active theme. A custom theme can exist with an empty stylesheet, so only
+  // `undefined` means the theme was not found.
   const resolved = resolveThemeStyles(themeSlug, customThemes)
-  if (resolved) {
+  if (resolved !== undefined) {
     return { themeStyles: resolved, themeSlug }
   }
 
   // Theme not found — try fallback
   const fallbackStyles = resolveThemeStyles(fallbackThemeSlug, customThemes)
-  if (fallbackStyles) {
+  if (fallbackStyles !== undefined) {
     return { themeStyles: fallbackStyles, themeSlug: fallbackThemeSlug }
   }
 

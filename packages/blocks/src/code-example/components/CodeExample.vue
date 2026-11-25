@@ -1,4 +1,6 @@
 <script lang="ts">
+import type { MultipartNaming } from '@scalar/types/api-reference'
+
 export type CodeExampleProps = {
   /** Localized status text shown when the selected example has no linked code sample. */
   codeSampleUnavailable?: string
@@ -121,6 +123,7 @@ export type CodeExampleProps = {
   openapiVersion?: string
   /** Document-level JSON Schema dialect used when generating array `contains` examples. */
   jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   requestBodyCompositionSelection?: Record<string, number>
 }
 
@@ -216,6 +219,7 @@ const {
   globalCookies,
   openapiVersion,
   jsonSchemaDialect,
+  multipartNaming,
   requestBodyCompositionSelection,
 } = defineProps<CodeExampleProps>()
 
@@ -401,6 +405,7 @@ const webhookHar = computed(() => {
       example: localExampleKey.value,
       openapiVersion,
       jsonSchemaDialect,
+      multipartNaming,
       requestBodyCompositionSelection,
       // Only required parameters are shown in code examples; optional parameters
       // are omitted unless explicitly enabled via `x-disabled: false`.
@@ -435,6 +440,7 @@ const generatedTemplate = computed<string | null>(() => {
     globalCookies,
     openapiVersion,
     jsonSchemaDialect,
+    multipartNaming,
     requestBodyCompositionSelection,
   })
 })

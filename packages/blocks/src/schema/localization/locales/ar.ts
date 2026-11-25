@@ -20,6 +20,7 @@ export const ar = {
     unknownType: 'نوع غير معروف',
     propertyCount: 'الخصائص: {count}',
     headerCount: 'الترويسات: {count}',
+    extensionCount: 'الامتدادات ({count})',
     recursiveReference: 'مرجع تكراري إلى {name}',
     recursive: 'تكراري',
     additionalProperties: 'خصائص إضافية',

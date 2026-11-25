@@ -2,7 +2,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
 import { resolveSchemaWithAnnotations } from '@scalar/workspace-store/helpers/resolve-schema-with-annotations'
-import { coerceLeafValueToSchemaType } from '@scalar/workspace-store/request-example'
+import { coerceLeafValueToSchemaType, getAspNetFormFields } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
   MediaTypeObject,
@@ -138,6 +138,7 @@ export const getFormBodyRows = (
   formBodySchema?: SchemaObject,
   compositionSelection?: Record<string, number>,
   encoding?: MediaTypeObject['encoding'],
+  aspNetFormNaming = false,
 ): TableRow[] => {
   // Forms use structured data even when the raw example also supplies wire text.
   const value = example?.dataValue !== undefined ? example.dataValue : example?.value
@@ -242,11 +243,23 @@ export const getFormBodyRows = (
       value: value instanceof File || value == null ? (value ?? '') : stringifyValue(value),
       isDisabled,
     })
-    if (contentType === 'multipart/form-data' && (Array.isArray(value) || isArray)) {
+    if ((contentType === 'multipart/form-data' || aspNetFormNaming) && (Array.isArray(value) || isArray)) {
       // Example-only arrays also need their type to survive a form-table round trip.
       row.isArray = true
     }
     return [row]
+  }
+
+  if (aspNetFormNaming) {
+    return getAspNetFormFields(value, schemaWithProperties, compositionSelection, true).flatMap((field) =>
+      mapValue(field.name, field.value, field.isDisabled, field.isArray).map((row) => ({
+        ...row,
+        schema: field.schema ?? row.schema,
+        description: field.schema?.description ?? row.description,
+        isRequired: field.isRequired || row.isRequired,
+        ...(field.isDisabledByDefault ? { isDisabledByDefault: true } : {}),
+      })),
+    )
   }
 
   // We have form data stored as an array

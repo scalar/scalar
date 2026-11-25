@@ -11,6 +11,8 @@ import {
   watch,
 } from 'vue'
 
+import { MONACO_FONT_FAMILY } from '@/features/editor/helpers/monaco-font-family'
+
 const { document } = defineProps<{
   document: OpenApiDocument | null
 }>()
@@ -89,7 +91,7 @@ const createEditor = () => {
     showFoldingControls: 'always',
     fontSize: 13,
     lineHeight: 20,
-    fontFamily: "'JetBrains Mono', monospace",
+    fontFamily: MONACO_FONT_FAMILY,
     scrollbar: {
       useShadows: false,
       verticalScrollbarSize: 8,
