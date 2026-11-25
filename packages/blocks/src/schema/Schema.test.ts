@@ -75,6 +75,62 @@ describe('Schema', () => {
     expect(wrapper.text()).toContain('Type: string')
   })
 
+  it('renders badges on nested and referenced properties from the workspace store', async () => {
+    const store = createWorkspaceStore()
+    const documentName = 'users'
+    await store.addDocument({
+      name: documentName,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Users', version: '1' },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                manager: {
+                  $ref: '#/components/schemas/Manager',
+                  'x-badges': [{ name: 'Expandable', color: '#34d399' }],
+                },
+              },
+            },
+            Manager: {
+              type: 'object',
+              properties: {
+                login: {
+                  type: 'string',
+                  deprecated: true,
+                  'x-badges': [{ name: 'Legacy', position: 'before' }, { name: 'Use email instead' }],
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const document = store.workspace.documents[documentName]
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Expected an OpenAPI document')
+    }
+    const wrapper = mount(Schema, {
+      props: {
+        eventBus: null,
+        options: { expandAllSchemaProperties: true },
+        schema: getResolvedRef(document.components?.schemas?.User),
+      },
+    })
+
+    expect(wrapper.findAll('.badge').map((badge) => badge.text())).toStrictEqual([
+      'Expandable',
+      'Legacy',
+      'deprecated',
+      'Use email instead',
+    ])
+    const text = wrapper.text()
+    expect(text.indexOf('Expandable')).toBeGreaterThan(text.indexOf('manager'))
+    expect(text.indexOf('Legacy')).toBeLessThan(text.indexOf('login'))
+  })
+
   it('does not render internal markers from ingested boolean schemas', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({

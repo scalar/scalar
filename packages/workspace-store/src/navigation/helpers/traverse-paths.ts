@@ -4,10 +4,10 @@ import { forEachPathItemOperation, getPathItemOperationKey } from '@/helpers/for
 import { getPathEntries } from '@/helpers/get-path-entries'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
-import { getXBadges } from '@/navigation/helpers/get-x-badges'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
 import type { OperationTitleSource, TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation'
+import { getXBadges } from '@/schemas/extensions/operation/get-x-badges'
 import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject } from '@/schemas/v3.2/strict/openapi-document'
 

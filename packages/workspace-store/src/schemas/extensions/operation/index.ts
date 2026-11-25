@@ -1,3 +1,4 @@
+export { getXBadges } from './get-x-badges'
 export {
   type XBadge,
   XBadgeSchema,

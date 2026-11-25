@@ -1,9 +1,9 @@
 import { forEachPathItemOperation, getPathItemOperationKey } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
-import { getXBadges } from '@/navigation/helpers/get-x-badges'
 import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import { getXBadges } from '@/schemas/extensions/operation/get-x-badges'
 import type { ParentTag, TraversedWebhook } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.2/strict/openapi-document'
 

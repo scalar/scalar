@@ -3,6 +3,10 @@ import { ScalarTooltip } from '@scalar/components/tooltip'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
+import {
+  getXBadges,
+  type XBadge,
+} from '@scalar/workspace-store/schemas/extensions/operation'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   isArraySchema,
@@ -101,6 +105,20 @@ const presenceDescription = computed(() =>
 )
 
 const valueRef = toRef(props, 'value')
+
+const badges = computed<{ before: XBadge[]; after: XBadge[] } | undefined>(
+  () => {
+    const entries = getXBadges(props.value)
+    if (!entries) {
+      return undefined
+    }
+
+    return {
+      before: entries.filter((badge) => badge.position === 'before'),
+      after: entries.filter((badge) => badge.position !== 'before'),
+    }
+  },
+)
 
 const constValue = computed(() => {
   if (!valueRef.value) {
@@ -426,6 +444,13 @@ const patternValue = computed(() => {
          collapsed preview and the trailing copy-link are spans as well, so it
          would strip the margin from the final detail and glue "Addressrequired"
          together on a collapsed row. -->
+    <Badge
+      v-for="(badge, index) in badges?.before"
+      :key="index"
+      class="min-w-0 wrap-anywhere whitespace-normal"
+      :color="badge.color">
+      {{ badge.name }}
+    </Badge>
     <div
       v-if="$slots.name"
       class="property-name"
@@ -587,6 +612,13 @@ const patternValue = computed(() => {
       class="property-deprecated">
       <Badge>{{ translate('schema.deprecated') }}</Badge>
     </div>
+    <Badge
+      v-for="(badge, index) in badges?.after"
+      :key="index"
+      class="min-w-0 wrap-anywhere whitespace-normal"
+      :color="badge.color">
+      {{ badge.name }}
+    </Badge>
     <span
       v-if="discriminatorValue !== undefined"
       class="text-c-2">
