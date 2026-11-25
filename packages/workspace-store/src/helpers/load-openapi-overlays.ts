@@ -1,6 +1,8 @@
 import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { type LoaderPlugin, resolveReferencePath } from '@scalar/json-magic/bundle'
 
+import { deepClone } from '@/helpers/deep-clone'
+
 /** An explicitly supplied Overlay source. Paths use the workspace's configured file loader. */
 export type OverlaySource =
   | { url: string }
@@ -9,6 +11,15 @@ export type OverlaySource =
 
 /** A loader result with the final retrieval URI where the transport exposes it. */
 export type DocumentLoadResult = Awaited<ReturnType<LoaderPlugin['exec']>> & { retrievalUri?: string }
+
+/** Snapshots inline composition inputs before the next source has a chance to await. */
+export const loadInlineDocument = (
+  document: Record<string, unknown>,
+  snapshot: boolean,
+): Promise<DocumentLoadResult> => {
+  const data = snapshot ? deepClone(document) : document
+  return Promise.resolve({ ok: true, data, raw: JSON.stringify(data) })
+}
 
 /** Retains redirect metadata while delegating JSON/YAML parsing to the existing URL loader. */
 export const loadUrlWithRetrievalUri = async (
@@ -67,7 +78,7 @@ export const loadOpenApiOverlays = async (
   const { composeOpenApiOverlays } = await import('./compose-openapi-overlays')
   const { document, diagnostics } = composeOpenApiOverlays(base.data, loadedOverlays, base.sourceUri)
   for (const { overlayIndex, actionIndex, target } of diagnostics) {
-    console.warn(`Overlay ${overlayIndex + 1}, action ${actionIndex + 1}: JSONPath "${target}" matched no nodes`)
+    console.warn('Overlay %d, action %d: JSONPath "%s" matched no nodes', overlayIndex + 1, actionIndex + 1, target)
   }
 
   const inputs = [[base.sourceUri, base.raw], ...loadedOverlays.map(({ sourceUri, raw }) => [sourceUri, raw])]

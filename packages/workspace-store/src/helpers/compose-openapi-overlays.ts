@@ -1,5 +1,6 @@
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { NormalizedPath, evaluate, test } from '@swaggerexpert/jsonpath'
@@ -37,7 +38,15 @@ const uriReference = (object: Record<string, unknown>, key: string): string | un
   return value
 }
 
-const resolveUri = (reference: string, base?: string): string => new URL(reference, base).href
+const getIdentity = (uri: URL): string => {
+  if (uri.protocol === 'file:') {
+    // Local loaders decode escaped path segments. Compare equivalent spellings while
+    // keeping encoded separators within their original segment.
+    const segments = uri.pathname.split('/').map((segment) => encodeURIComponent(decodeURIComponent(segment)))
+    uri.pathname = segments.join('/').replace(/^\/([a-z])%3A(?=\/|$)/i, '/$1:')
+  }
+  return uri.href
+}
 
 const checkOverlayIdentity = (
   overlay: Record<string, unknown>,
@@ -48,7 +57,7 @@ const checkOverlayIdentity = (
   const self = uriReference(overlay, '$self')
   const extendsUri = uriReference(overlay, 'extends')
   const overlayIdentity =
-    self !== undefined && (sourceUri || /^[a-z][a-z\d+.-]*:/i.test(self)) ? resolveUri(self, sourceUri) : sourceUri
+    self !== undefined && (sourceUri || /^[a-z][a-z\d+.-]*:/i.test(self)) ? new URL(self, sourceUri).href : sourceUri
   if (extendsUri === undefined) {
     return
   }
@@ -58,9 +67,9 @@ const checkOverlayIdentity = (
     typeof base.openapi === 'string' && /^3\.2\.\d+$/.test(base.openapi) && typeof base.$self === 'string'
       ? base.$self
       : undefined
-  const baseIdentity = baseSelf === undefined ? baseSourceUri : resolveUri(baseSelf, baseSourceUri)
-  const targetIdentity = resolveUri(extendsUri, overlayIdentity)
-  if (!baseIdentity || resolveUri(baseIdentity) !== targetIdentity) {
+  const baseUri = baseSelf === undefined ? baseSourceUri : new URL(baseSelf, baseSourceUri).href
+  const targetIdentity = getIdentity(new URL(extendsUri, overlayIdentity))
+  if (!baseUri || getIdentity(new URL(baseUri)) !== targetIdentity) {
     throw new Error(`"extends" resolves to "${targetIdentity}", which does not identify the base description`)
   }
 }
@@ -154,8 +163,12 @@ const getAction = (action: unknown, reusableActions: Map<string, Record<string, 
   return { ...fields, ...action, target: action.target }
 }
 
-const kindOf = (value: unknown): 'object' | 'array' | 'primitive' =>
-  Array.isArray(value) ? 'array' : isObject(value) ? 'object' : 'primitive'
+const kindOf = (value: unknown): 'object' | 'array' | 'primitive' => {
+  if (Array.isArray(value)) {
+    return 'array'
+  }
+  return isObject(value) ? 'object' : 'primitive'
+}
 
 const mergeValue = (target: unknown, update: unknown, appendToArray = false): unknown => {
   if (Array.isArray(target) && (appendToArray || Array.isArray(update))) {
@@ -176,13 +189,8 @@ const mergeValue = (target: unknown, update: unknown, appendToArray = false): un
   throw new Error('The action value is incompatible with the selected node')
 }
 
-const getParent = (document: Record<string, unknown>, location: Location): object => {
-  let parent: object = document
-  for (const key of location.slice(0, -1)) {
-    parent = Reflect.get(parent, key)
-  }
-  return parent
-}
+const getParent = (document: Record<string, unknown>, location: Location): object =>
+  getValueAtPath<object>(document, location.slice(0, -1).map(String))
 
 const lastIndex = (location: Location): number => {
   const key = location.at(-1)
