@@ -5,7 +5,7 @@ import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveResourcePath } from '@/helpers/resolve-resource-path'
 import { toResourceUri } from '@/helpers/to-resource-uri'
-import { getRaw } from '@/magic-proxy/proxy'
+import { getRaw } from '@/magic-proxy/symbols'
 import type { UnknownObject } from '@/types'
 
 import { type ReferenceContext, getSchemaVocabulary } from '../document/reference-context'

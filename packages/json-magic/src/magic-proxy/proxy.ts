@@ -34,7 +34,12 @@ const getChildScopeRole = (role: 'map' | 'data' | undefined, prop: string | symb
   if (['example', 'examples', 'default', 'const', 'enum'].includes(String(prop))) {
     return 'data'
   }
-  if (['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas'].includes(String(prop))) {
+  // Map entries can be named after instance-data keywords, including OpenAPI's default response.
+  if (
+    ['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas', 'schemas', 'responses'].includes(
+      String(prop),
+    )
+  ) {
     return 'map'
   }
   return undefined
@@ -128,7 +133,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * The JSON Schema 2020-12 dynamic scope on the current traversal path, outermost-first.
      *
      * Grown as we descend past schema resources that can hold a `$dynamicAnchor`, and used to resolve
-     * the virtual `$dynamicRef-value` property. Stays empty for documents without `$dynamicRef`.
+     * the virtual `$dynamicRef-value` property. Stays empty until a resource with a dynamic anchor is entered.
      */
     dynamicScope: DynamicScope
     /** Keyword maps and instance data do not introduce schema resources. */
@@ -285,7 +290,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       // is get-only (see the `has` trap). Unresolvable references return undefined; the schema is unchanged.
       if (prop === DYNAMIC_REF_VALUE) {
         const dynamicRef = Reflect.get(target, DYNAMIC_REF_KEY, receiver)
-        if (typeof dynamicRef !== 'string') {
+        if (args.scopeRole || typeof dynamicRef !== 'string') {
           return undefined
         }
 

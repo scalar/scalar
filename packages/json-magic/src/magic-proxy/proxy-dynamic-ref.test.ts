@@ -19,12 +19,68 @@ describe('proxy-dynamic-ref', () => {
         $defs: { type: 'string' },
         list: { items: { $dynamicRef: '#item' } },
       },
-      example: { $id: 'urn:payload', $defs: { item: { $dynamicAnchor: 'item', title: 'Payload' } } },
+      example: {
+        $id: 'urn:payload',
+        $defs: { item: { $dynamicAnchor: 'item', title: 'Payload' } },
+        $dynamicRef: '#item',
+      },
     }) as unknown as ProxyNode
 
     expect(proxy.properties.list.items['$dynamicRef-value'].title).toBe('User')
+    expect(proxy.example['$dynamicRef-value']).toBeUndefined()
     expect(proxy.example.$defs.item).toBe(proxy.example.$defs.item)
     expect(collectDynamicAnchors(proxy.example).get('item')?.title).toBe('Payload')
+  })
+
+  it.each(['default', 'example', 'examples', 'enum', 'const'])(
+    'binds dynamic references inside the component schema named %s',
+    (name) => {
+      const proxy = createMagicProxy({
+        openapi: '3.1.0',
+        info: { title: 'Example API', version: '1.0.0' },
+        components: {
+          schemas: {
+            [name]: {
+              $id: 'urn:page',
+              $defs: { item: { $dynamicAnchor: 'item', title: 'Item' } },
+              items: { $dynamicRef: '#item' },
+            },
+          },
+        },
+      }) as unknown as ProxyNode
+
+      expect(proxy.components.schemas[name].items['$dynamicRef-value']?.title).toBe('Item')
+    },
+  )
+
+  it('binds dynamic references inside the default OpenAPI response', () => {
+    const proxy = createMagicProxy({
+      openapi: '3.1.0',
+      info: { title: 'Example API', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: {
+            responses: {
+              default: {
+                description: 'Items',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $id: 'urn:page',
+                      $defs: { item: { $dynamicAnchor: 'item', title: 'Item' } },
+                      items: { $dynamicRef: '#item' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }) as unknown as ProxyNode
+
+    const schema = proxy.paths['/items'].get.responses.default.content['application/json'].schema
+    expect(schema.items['$dynamicRef-value']?.title).toBe('Item')
   })
 
   it('keeps a property named $id inside its schema resource', () => {

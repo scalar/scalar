@@ -8,7 +8,7 @@ import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 import { resolveResourcePath } from '@/helpers/resolve-resource-path'
 import { toResourceUri } from '@/helpers/to-resource-uri'
-import { getRaw } from '@/magic-proxy/proxy'
+import { getRaw } from '@/magic-proxy/symbols'
 
 /** Format-specific document identity, supplied by the caller. */
 export type DocumentIdentity = {

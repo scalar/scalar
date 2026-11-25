@@ -1075,11 +1075,14 @@ const handleArraySchema = (
   // (e.g. a category whose children reference the same anchor) render their nested levels instead of
   // tripping the shared guard. Depth stays bounded by `MAX_LEVELS_DEEP`.
   let itemsSeen = seen
+  let itemsScope = childScope
   if (items && isDynamicRef(items)) {
-    const resolvedDynamic = resolveDynamicRef(items.$dynamicRef, childScope)
+    const referenceScope = pushDynamicScope(childScope, items)
+    const resolvedDynamic = resolveDynamicRef(items.$dynamicRef, referenceScope)
     if (resolvedDynamic) {
       items = resolvedDynamic
       itemsSeen = new WeakSet()
+      itemsScope = referenceScope
     }
   }
   const itemsSchemaPath = [...schemaPath, 'items']
@@ -1125,7 +1128,7 @@ const handleArraySchema = (
           parentSchema: schema,
           schemaPath: itemsSchemaPath,
           seen: itemsSeen,
-          dynamicScope: childScope,
+          dynamicScope: itemsScope,
         })
         return completeArrayExample(isDefined(merged) ? [merged] : [])
       }
@@ -1137,7 +1140,7 @@ const handleArraySchema = (
             parentSchema: schema,
             schemaPath: itemsSchemaPath,
             seen: itemsSeen,
-            dynamicScope: childScope,
+            dynamicScope: itemsScope,
           }),
         )
         .filter(isDefined)
@@ -1176,7 +1179,7 @@ const handleArraySchema = (
           parentSchema: schema,
           schemaPath: itemsSchemaPath,
           seen: itemsSeen,
-          dynamicScope: childScope,
+          dynamicScope: itemsScope,
         },
       )
       if (ex === undefined) {
@@ -1200,7 +1203,7 @@ const handleArraySchema = (
       level: level + 1,
       schemaPath: itemsSchemaPath,
       seen: itemsSeen,
-      dynamicScope: childScope,
+      dynamicScope: itemsScope,
     })
     // Propagate an omitted recursive item so optional arrays do not serialize it as null.
     if (ex === undefined) {
@@ -1502,10 +1505,11 @@ const getCompositionRequiredNames = (
 
     // Requirements behind a dynamic reference constrain the same instance as its composition siblings.
     // Follow the same binding as the example walk, within this collector's existing depth and step bounds.
+    const childScope = pushDynamicScope(current.dynamicScope, current.schema)
     if (isDynamicRef(current.schema)) {
-      const resolved = resolveDynamicRef(current.schema.$dynamicRef, current.dynamicScope)
+      const resolved = resolveDynamicRef(current.schema.$dynamicRef, childScope)
       if (resolved) {
-        pending.push({ ...current, schema: resolved, depth: current.depth + 1 })
+        pending.push({ ...current, schema: resolved, dynamicScope: childScope, depth: current.depth + 1 })
         continue
       }
     }
@@ -1567,7 +1571,7 @@ const getCompositionRequiredNames = (
           schema: resolved,
           options: consumeCompositionSelection(current.options, current.schemaPath, keyword),
           schemaPath: current.schemaPath,
-          dynamicScope: pushDynamicScope(current.dynamicScope, current.schema),
+          dynamicScope: childScope,
           depth: current.depth + 1,
         })
       }
@@ -1583,7 +1587,7 @@ const getCompositionRequiredNames = (
           schema: resolved,
           options: current.options,
           schemaPath: isChoiceMember ? [...current.schemaPath, String(choiceIndex++)] : current.schemaPath,
-          dynamicScope: pushDynamicScope(current.dynamicScope, current.schema),
+          dynamicScope: childScope,
           depth: current.depth + 1,
         })
       }

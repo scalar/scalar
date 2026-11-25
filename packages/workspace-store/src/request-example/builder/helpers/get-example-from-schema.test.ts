@@ -4567,6 +4567,24 @@ describe('getExampleFromSchema', () => {
       },
     )
 
+    it('collects requirements against the resource that declares a dynamic allOf reference', () => {
+      const leaf = {
+        type: 'object',
+        allOf: [
+          { properties: { id: { const: 'kept' }, optional: { const: 'omitted' } } },
+          {
+            $id: 'urn:inner',
+            $defs: { Base: { $dynamicAnchor: 'Base', required: ['id'] } },
+            $dynamicRef: '#Base',
+          },
+        ],
+      }
+
+      expect(
+        deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject))),
+      ).toStrictEqual({ id: 'kept' })
+    })
+
     it('bounds recursive dynamic composition while collecting required names', () => {
       const leaf = {
         type: 'object',
@@ -5091,6 +5109,19 @@ describe('getExampleFromSchema', () => {
       )
 
       expect(example).toEqual({ value: null })
+    })
+
+    it('does not borrow an outer anchor for an array item declared in its own resource', () => {
+      const example = getExampleFromSchema(
+        dyn({
+          $id: 'urn:outer',
+          type: 'array',
+          $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'string', const: 'outer' } },
+          items: { $id: 'urn:inner', $dynamicRef: '#itemType' },
+        }),
+      )
+
+      expect(example).toStrictEqual([])
     })
 
     it('binds a recursive anchor on a schema reached through a $ref from an explicit resource', () => {

@@ -1,7 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
-import { getRaw } from '@/magic-proxy/proxy'
+import { getRaw } from '@/magic-proxy/symbols'
 
 import {
   type ReferenceContext,

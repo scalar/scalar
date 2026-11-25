@@ -8,7 +8,8 @@ import { assert, describe, expect, it } from 'vitest'
 
 import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
 import { getValueByPath } from '@/helpers/get-value-by-path'
-import { createMagicProxy, getRaw } from '@/magic-proxy/proxy'
+import { createMagicProxy } from '@/magic-proxy/proxy'
+import { getRaw } from '@/magic-proxy/symbols'
 
 import { type LoaderPlugin, bundle } from './bundle'
 import { bundleWithDiagnostics } from './bundle-with-diagnostics'
