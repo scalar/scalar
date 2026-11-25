@@ -5,7 +5,7 @@ import {
 } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getPathEntries } from '@scalar/workspace-store/helpers/get-path-entries'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { prepareServerSelection } from '@scalar/workspace-store/request-example'
+import { getServerSelectionKey, prepareServerSelection } from '@scalar/workspace-store/request-example'
 import type {
   OpenApiDocument,
   OperationObject,
@@ -19,6 +19,7 @@ export const restoreScopedServerSelections = (
   baseServerUrl?: string,
 ): void => {
   const options = { baseServerUrl, documentUrl: current['x-scalar-original-source-url'] }
+  const previousOptions = { baseServerUrl, documentUrl: previous['x-scalar-original-source-url'] }
   const restore = (
     before: PathItemObject | OperationObject | undefined,
     after: PathItemObject | OperationObject | undefined,
@@ -27,12 +28,21 @@ export const restoreScopedServerSelections = (
     if (before?.servers == null || after?.servers == null || selected == null) {
       return
     }
-    const url =
-      selected === ''
-        ? ''
-        : prepareServerSelection({ servers: after.servers, 'x-scalar-selected-server': selected }, options)?.url
-    if (url != null) {
-      after['x-scalar-selected-server'] = url
+    if (selected === '') {
+      after['x-scalar-selected-server'] = ''
+      return
+    }
+
+    const previousServer = prepareServerSelection(before, previousOptions)
+    const desiredSelection = {
+      servers: after.servers,
+      'x-scalar-selected-server': previousServer ? getServerSelectionKey(previousServer) : selected,
+    }
+    // A stored document may already have replaced the authored template with its old absolute URL.
+    const server =
+      prepareServerSelection(desiredSelection, options) ?? prepareServerSelection(desiredSelection, previousOptions)
+    if (server) {
+      after['x-scalar-selected-server'] = getServerSelectionKey(server)
     }
   }
 

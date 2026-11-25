@@ -1,3 +1,4 @@
+import { getServers } from '@scalar/workspace-store/request-example'
 import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -72,6 +73,23 @@ describe('ServerDropdown', () => {
     const text = wrapper.text()
     expect(text).toContain('https://api-2.example.com')
     expect(text).not.toContain('https://api-2.example.com/')
+  })
+
+  it('emits distinct authored selections for servers with the same resolved URL', async () => {
+    const servers = getServers([{ url: 'https://api.example.com/{version}' }, { url: '/{version}' }], {
+      documentUrl: 'https://api.example.com/openapi.json',
+    })
+    const wrapper = makeWrapper({ servers })
+    const items = wrapper.findAllComponents({ name: 'ServerDropdownItem' })
+    expect(items.map((item) => item.props('serverOption').id)).toStrictEqual([
+      'https://api.example.com/{version}',
+      '/{version}',
+    ])
+
+    await items[1]!.vm.$emit('update:selectedServer')
+    expect(wrapper.emitted('update:selectedServer')).toStrictEqual([
+      [{ url: '/{version}', meta: { type: 'document' } }],
+    ])
   })
 
   it('renders Add Server affordance when no server is selected', () => {

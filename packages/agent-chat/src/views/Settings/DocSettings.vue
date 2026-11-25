@@ -22,13 +22,14 @@ const environment = computed(
   () => getActiveEnvironment(workspaceStore, document).environment,
 )
 
-const selectedServer = computed(() => {
-  const servers = getServers(document.servers, {
+const servers = computed(() =>
+  getServers(document.servers, {
     documentUrl: document['x-scalar-original-source-url'],
-  })
-
-  return getSelectedServer(document, null, null, servers)
-})
+  }),
+)
+const selectedServer = computed(() =>
+  getSelectedServer(document, null, null, servers.value),
+)
 
 const securitySchemes = computed(
   () => document.components?.securitySchemes ?? {},
@@ -52,7 +53,7 @@ const securitySchemes = computed(
       <ServerSelector
         :eventBus
         :selectedServer
-        :servers="document.servers ?? []" />
+        :servers />
     </div>
   </div>
 </template>

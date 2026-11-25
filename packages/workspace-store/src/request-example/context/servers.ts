@@ -21,12 +21,12 @@ export type ServerProcessingOptions = {
   allowSchemelessHost?: boolean
 }
 
-// Keep the context on the prepared server. Its URL remains the template used for selection and editing.
+// Keep URL resolution and selection metadata on the prepared copy.
 const serverUrlContext = Symbol('serverUrlContext')
-const legacyServerSelection = Symbol('legacyServerSelection')
+const serverSelectionAliases = Symbol('serverSelectionAliases')
 type PreparedServer = ServerObject & {
   [serverUrlContext]?: ServerProcessingOptions
-  [legacyServerSelection]?: { authoredUrl: string; previousUrl: string; currentUrl: string }
+  [serverSelectionAliases]?: { authoredUrl: string; previousUrl: string; previousPath?: string; resolvedUrl: string }
 }
 
 type ServerSelectionTarget = XScalarSelectedServer & { servers?: ServerObject[] }
@@ -66,7 +66,7 @@ const isRelativeServerUrl = (url: string, options: ServerProcessingOptions): boo
 
 /**
  * Prepares OpenAPI servers for URL resolution.
- * Root-relative URLs receive their base immediately so their selection keys stay stable.
+ * Root-relative URLs carry their resolved template on a copy, leaving the authored URL in the store.
  * Other relative templates retain the base context until their variables are expanded.
  */
 export function getServers(servers: ServerObject[] | undefined, options: ServerProcessingOptions = {}): ServerObject[] {
@@ -75,25 +75,19 @@ export function getServers(servers: ServerObject[] | undefined, options: ServerP
     return []
   }
 
-  // Process each server and filter out invalid ones
-  const validServers = servers.map((server) => processServerObject(server, options))
-  return validServers
+  return servers.map((server) => processServerObject(server, options))
 }
 
-/** Prepares a server for URL resolution without mutating the supplied server object. */
+/** Prepares a copy of a server for URL resolution. */
 export const prepareServer = (
   server: PreparedServer | null,
   options: ServerProcessingOptions = {},
-): ServerObject | null => {
-  if (!server) {
-    return null
-  }
-  const copy = { ...server }
-  const selectionAliases = server[legacyServerSelection]
-  if (selectionAliases) {
-    Object.defineProperty(copy, legacyServerSelection, { value: selectionAliases, configurable: true })
-  }
-  return processServerObject(copy, options)
+): ServerObject | null => (server ? processServerObject({ ...server }, options) : null)
+
+/** Returns the authored template used to select and edit a server. */
+export const getServerSelectionKey = (server: PreparedServer): string => {
+  const aliases = server[serverSelectionAliases]
+  return aliases && aliases.resolvedUrl === server.url ? aliases.authoredUrl : server.url
 }
 
 /**
@@ -140,25 +134,28 @@ function resolveRelativeServerUrl(serverUrl: string, baseUrl: string): string {
 /**
  * Processes a single server object, handling validation and URL resolution.
  */
-function processServerObject(server: ServerObject, options: ServerProcessingOptions): PreparedServer {
-  if (server.url?.startsWith('/')) {
+function processServerObject(server: PreparedServer, options: ServerProcessingOptions): PreparedServer {
+  const authoredUrl = getServerSelectionKey(server)
+  if (authoredUrl?.startsWith('/')) {
     const baseUrl = getRelativeServerBase(options)
     if (!baseUrl) {
       return server
     }
 
-    const authoredUrl = server.url
-    const previousUrl = combineUrlAndPath(baseUrl, authoredUrl)
-    const currentUrl = resolveRelativeServerUrl(authoredUrl, baseUrl)
-    if (authoredUrl !== currentUrl) {
-      // A server edit saves its authored URL. Older workspaces can also hold the previous absolute URL.
-      Object.defineProperty(server, legacyServerSelection, {
-        value: { authoredUrl, previousUrl, currentUrl },
-        configurable: true,
-      })
+    const url = resolveRelativeServerUrl(authoredUrl, baseUrl)
+    return {
+      ...server,
+      url,
+      // Existing workspaces can still hold the absolute key used before authored keys were persisted.
+      [serverSelectionAliases]: {
+        authoredUrl,
+        previousUrl: combineUrlAndPath(baseUrl, authoredUrl),
+        previousPath: authoredUrl.startsWith('//') ? undefined : combineUrlAndPath('/', authoredUrl),
+        resolvedUrl: url,
+      },
     }
-    server.url = currentUrl
-  } else if (server.url && (options.baseServerUrl || options.documentUrl) && isRelativeServerUrl(server.url, options)) {
+  }
+  if (server.url && (options.baseServerUrl || options.documentUrl) && isRelativeServerUrl(server.url, options)) {
     return { ...server, [serverUrlContext]: options }
   }
 
@@ -235,15 +232,18 @@ export const prepareServerSelection = (
   return findSelectedServer(servers, scope['x-scalar-selected-server'])
 }
 
-/** Saves an unambiguous replacement for an authored or legacy URL before its temporary alias is lost. */
+/** Migrates an unambiguous legacy key to the authored URL. */
 export const restoreServerSelection = (
   servers: PreparedServer[],
   selectedServerUrl: string | undefined,
   selectionTarget: XScalarSelectedServer | null,
 ): ServerObject | null => {
   const server = findSelectedServer(servers, selectedServerUrl)
-  if (selectionTarget && server && selectedServerUrl != null && selectedServerUrl !== server.url) {
-    selectionTarget['x-scalar-selected-server'] = server.url
+  if (selectionTarget && server && selectedServerUrl != null) {
+    const key = getServerSelectionKey(server)
+    if (key !== selectedServerUrl) {
+      selectionTarget['x-scalar-selected-server'] = key
+    }
   }
   return server
 }
@@ -254,16 +254,19 @@ const findSelectedServer = (servers: PreparedServer[], selectedServerUrl?: strin
     return servers[0] ?? null
   }
 
-  const exact = servers.find(({ url }) => url === selectedServerUrl)
+  const exact = servers.find((server) => getServerSelectionKey(server) === selectedServerUrl)
   if (exact) {
     return exact
   }
 
   const aliasMatches = servers.filter((server) => {
-    const aliases = server[legacyServerSelection]
+    const aliases = server[serverSelectionAliases]
     return (
-      aliases?.currentUrl === server.url &&
-      (aliases.authoredUrl === selectedServerUrl || aliases.previousUrl === selectedServerUrl)
+      aliases != null &&
+      aliases.resolvedUrl === server.url &&
+      (server.url === selectedServerUrl ||
+        aliases.previousUrl === selectedServerUrl ||
+        aliases.previousPath === selectedServerUrl)
     )
   })
   return aliasMatches.length === 1 ? (aliasMatches[0] ?? null) : null

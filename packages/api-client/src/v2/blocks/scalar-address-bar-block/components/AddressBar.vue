@@ -55,6 +55,7 @@ import type {
   ServerMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
+import { getServerSelectionKey } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
@@ -265,9 +266,14 @@ const extractAndSelectServer = (targetPath: string): string => {
     return remainingPath
   }
 
-  const matchingServer = servers.find((s) => s.url === url)
+  const matchingServer =
+    servers.find((s) => getServerSelectionKey(s) === url) ??
+    servers.find((s) => s.url === url)
   if (matchingServer) {
-    eventBus.emit('server:update:selected', { url, meta: serverMeta })
+    eventBus.emit('server:update:selected', {
+      url: getServerSelectionKey(matchingServer),
+      meta: serverMeta,
+    })
   } else {
     eventBus.emit('server:add:server', {
       url,

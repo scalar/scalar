@@ -17,6 +17,7 @@ export { mergeSecurity } from './security/merge-security'
 export {
   getOperationServerScope,
   getSelectedServer,
+  getServerSelectionKey,
   getServers,
   prepareServer,
   prepareServerSelection,

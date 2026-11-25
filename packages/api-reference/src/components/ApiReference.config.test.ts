@@ -541,7 +541,7 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
       const users = description.paths['/users']
       const first = { url: 'https://primary.example.com' }
       const backup = { url: 'https://sandbox.example.com' }
-      const withServers = (servers: { url: string }[], detail: string) => ({
+      const withServers = (servers: { url: string }[], detail: string): ReturnType<typeof createBasicDocument> => ({
         ...description,
         info: { ...description.info, description: detail },
         paths: {
@@ -578,6 +578,33 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
       expect(wrapper.getComponent(CodeExample).text()).toContain('https://primary.example.com/users')
     },
   )
+
+  it('preserves a relative path server selection when the description changes origin', async () => {
+    const description = createBasicDocument()
+    const content = {
+      ...description,
+      paths: { '/users': { ...description.paths['/users'], servers: [{ url: '/production' }, { url: '/sandbox' }] } },
+    }
+    const customFetch = vi.fn(() => Promise.resolve(Response.json(content)))
+    const configuration = {
+      url: 'https://old.example.com/openapi.json',
+      customFetch,
+      defaultHttpClient: { targetKey: 'shell', clientKey: 'curl' },
+    } as const
+    const wrapper = mountComponent({ props: { configuration } })
+    await flushPromises()
+
+    wrapper.vm.eventBus.emit('server:update:selected', {
+      url: 'https://old.example.com/sandbox',
+      meta: { type: 'path', path: '/users' },
+    })
+    await flushPromises()
+    expect(wrapper.getComponent(CodeExample).text()).toContain('https://old.example.com/sandbox/users')
+
+    await wrapper.setProps({ configuration: { ...configuration, url: 'https://next.example.com/openapi.json' } })
+    await flushPromises()
+    expect(wrapper.getComponent(CodeExample).text()).toContain('https://next.example.com/sandbox/users')
+  })
 
   it('default configuration values', async () => {
     const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })

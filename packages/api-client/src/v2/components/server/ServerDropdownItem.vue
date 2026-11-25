@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarListboxCheckbox } from '@scalar/components/listbox'
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import { getServerSelectionKey } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
@@ -27,7 +28,9 @@ const hasVariables = () => {
   return Object.keys(server?.variables ?? {}).length > 0
 }
 
-const isSelectedServer = computed(() => serverOption.id === server?.url)
+const isSelectedServer = computed(
+  () => server != null && serverOption.id === getServerSelectionKey(server),
+)
 const isExpanded = computed(() => isSelectedServer.value && hasVariables())
 </script>
 <template>

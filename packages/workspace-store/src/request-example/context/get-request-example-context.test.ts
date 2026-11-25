@@ -9,7 +9,13 @@ import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getRequestExampleContext } from './get-request-example-context'
-import { getSelectedServer, getServers, prepareServerSelection } from './servers'
+import {
+  getSelectedServer,
+  getServerSelectionKey,
+  getServers,
+  prepareServerSelection,
+  resolveServerUrl,
+} from './servers'
 
 const createMinimalDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDocument => ({
   openapi: '3.1.1',
@@ -205,13 +211,65 @@ describe('getRequestExampleContext', () => {
     const result = getRequestExampleContext(store, 'test', meta)
     assert(result.ok)
     expect(result.data.servers.selected?.url).toBe('https://api.example.com/new')
-    expect(pathItem['x-scalar-selected-server']).toBe('https://api.example.com/new')
+    expect(pathItem['x-scalar-selected-server']).toBe('/new')
+    expect(pathItem.servers?.[1]?.url).toBe('/new')
 
     const restored = createWorkspaceStore()
     restored.loadWorkspace(JSON.parse(JSON.stringify(store.exportWorkspace())))
     const reloaded = getRequestExampleContext(restored, 'test', meta)
     assert(reloaded.ok)
     expect(reloaded.data.servers.selected?.url).toBe('https://api.example.com/new')
+  })
+
+  it('keeps distinct authored selections when an edit resolves to another server template', async () => {
+    const store = createWorkspaceStore()
+    const path = '/pets'
+    const documentUrl = 'https://api.example.com/openapi.json'
+    const selected = 'https://another.example.com/{version}'
+    await store.addDocument({
+      name: 'test',
+      documentSource: documentUrl,
+      document: createMinimalDocument({
+        paths: {
+          [path]: {
+            get: { responses: {} },
+            'x-scalar-selected-server': selected,
+            servers: [
+              { url: 'https://api.example.com/{version}', variables: { version: { default: 'v1' } } },
+              { url: selected, variables: { version: { default: 'v2' } } },
+            ],
+          },
+        },
+      }),
+    })
+    generateClientMutators(store)
+      .doc('test')
+      .server.updateServer({
+        index: 1,
+        server: { url: '/{version}' },
+        meta: { type: 'path', path },
+      })
+
+    const meta = { path, method: 'get', exampleName: 'default' }
+    const request = getRequestExampleContext(store, 'test', meta)
+    assert(request.ok)
+    expect(request.data.servers.list.map(getServerSelectionKey)).toStrictEqual([
+      'https://api.example.com/{version}',
+      '/{version}',
+    ])
+    expect(resolveServerUrl(request.data.servers.selected)).toBe('https://api.example.com/v2')
+
+    const document = store.workspace.documents.test
+    assert(isOpenApiDocument(document))
+    const pathItem = getResolvedPathItem(document.paths?.[path])
+    assert(pathItem)
+    expect(resolveServerUrl(prepareServerSelection(pathItem, { documentUrl }))).toBe('https://api.example.com/v2')
+
+    const restored = createWorkspaceStore()
+    restored.loadWorkspace(JSON.parse(JSON.stringify(store.exportWorkspace())))
+    const reloaded = getRequestExampleContext(restored, 'test', meta, { baseServerUrl: 'https://new.example.com' })
+    assert(reloaded.ok)
+    expect(resolveServerUrl(reloaded.data.servers.selected)).toBe('https://new.example.com/v2')
   })
 
   it('merges options.authentication securitySchemes into security.schemes', async () => {

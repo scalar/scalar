@@ -84,6 +84,7 @@ export {
   getSecuritySchemes,
   getSelectedSecurity,
   getSelectedServer,
+  getServerSelectionKey,
   getServers,
   isAuthOptional,
   mergeSecurity,

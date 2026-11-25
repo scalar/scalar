@@ -70,7 +70,9 @@ import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-
 import {
   getActiveEnvironment,
   getSelectedServer,
+  getServerSelectionKey,
   getServers,
+  prepareServer,
 } from '@scalar/workspace-store/request-example'
 import type {
   TraversedEntry,
@@ -1184,8 +1186,11 @@ const addDocument = async (
 
     // An empty string is intentional deselection. A removed server is not: select the first
     // available server so live document edits do not leave the reference and requests blank.
-    const resolvedSelection =
-      getSelectedServer(document, null, null, servers)?.url ?? servers[0]?.url
+    const selected =
+      getSelectedServer(document, null, null, servers) ?? servers[0]
+    const resolvedSelection = selected
+      ? getServerSelectionKey(selected)
+      : undefined
     if (
       servers.length > 0 &&
       selectedServerUrl !== '' &&
@@ -1771,9 +1776,22 @@ onBeforeUnmount(() => {
 // Top level event handlers and user specified callbacks
 
 /** Ensure we call the onServerChange callback */
-eventBus.on('server:update:selected', ({ url }) =>
-  mergedConfig.value.onServerChange?.(url),
-)
+eventBus.on('server:update:selected', ({ url }) => {
+  const { onServerChange, baseServerURL } = mergedConfig.value
+  if (onServerChange) {
+    const server = prepareServer(
+      { url },
+      {
+        baseServerUrl: baseServerURL,
+        documentUrl:
+          clientStore.workspace.activeDocument?.[
+            'x-scalar-original-source-url'
+          ],
+      },
+    )
+    onServerChange(server?.url ?? url)
+  }
+})
 
 /**
  * AsyncAPI servers are keyed by name, so resolve the selected name to its

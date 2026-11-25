@@ -28,6 +28,7 @@ import type {
   ApiReferenceEvents,
   ServerMeta,
 } from '@scalar/workspace-store/events'
+import { getServerSelectionKey } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -58,10 +59,12 @@ const { translate } = useLocalization()
 
 const requestServerOptions = computed(() =>
   servers.map((s) => ({
-    id: s.url,
+    id: getServerSelectionKey(s),
     // Prefer the server name (OpenAPI 3.2) as a friendly label, falling back to the URL
     label:
-      s.name || s.url || translate('apiClient.serverDropdown.unknownServer'),
+      s.name ||
+      getServerSelectionKey(s) ||
+      translate('apiClient.serverDropdown.unknownServer'),
   })),
 )
 

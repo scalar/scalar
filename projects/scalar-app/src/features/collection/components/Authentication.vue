@@ -11,6 +11,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getActiveProxyUrl,
+  getSelectedServer,
   getSelectedSecurity,
   getServers,
   mergeSecurity,
@@ -138,11 +139,13 @@ const servers = computed(() => {
 
 /** Grab the currently selected server for relative auth URIs */
 const server = computed(() => {
-  const documentServer = document?.['x-scalar-selected-server']
-  const operationServer = operation.value?.['x-scalar-selected-server']
-  const selectedServerUrl = operationServer ?? documentServer
   return (
-    servers.value.find(({ url }) => url === selectedServerUrl) ??
+    getSelectedServer(
+      document ?? null,
+      operation.value ?? null,
+      null,
+      servers.value,
+    ) ??
     servers.value[0] ??
     null
   )

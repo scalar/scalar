@@ -1,4 +1,5 @@
 ---
+'@scalar/agent-chat': patch
 '@scalar/api-client': patch
 '@scalar/api-reference': patch
 '@scalar/blocks': patch
@@ -7,4 +8,4 @@
 'scalar-app': patch
 ---
 
-Resolve empty OpenAPI server variable defaults in request URLs and code snippets, including variables with Unicode names. Preserve empty path segments and append the operation path even when it matches the resolved server path. Preserve placeholders for undeclared server variables. Resolve relative server templates, including dotted path segments, against the API description. Retain the description base through environment substitution and when generating snippets for server overrides. Preserve the host in network-path server references and keep restored server selections when a workspace is reloaded. Apply the same server precedence to requests and snippets. Let operations that inherit path servers edit them in the Servers screen, and keep valid selections through relative URL edits and description updates.
+Resolve empty OpenAPI server variable defaults in request URLs and code snippets, including variables with Unicode names. Preserve empty path segments and append the operation path even when it matches the resolved server path. Preserve placeholders for undeclared server variables. Resolve relative server templates, including dotted path segments, against the API description. Retain the description base through environment substitution and when generating snippets for server overrides. Preserve the host in network-path server references. Apply the same server precedence to requests and snippets. Let operations that inherit path servers edit them in the Servers screen. Keep selections by authored URL through workspace reloads, overlapping resolved URLs, and API description origin changes.

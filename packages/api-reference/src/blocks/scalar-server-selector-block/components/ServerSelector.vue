@@ -24,6 +24,7 @@ export default {}
 import { ServerVariablesForm } from '@scalar/api-client/components/Server'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getServerSelectionKey } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { useId } from 'vue'
 
@@ -39,7 +40,10 @@ const { translate } = useLocalization()
 /** Update the selected server */
 const updateServer = (newServer: string) => {
   eventBus.emit('server:update:selected', {
-    url: selectedServer?.url === newServer ? '' : newServer,
+    url:
+      selectedServer && getServerSelectionKey(selectedServer) === newServer
+        ? ''
+        : newServer,
     meta: {
       type: 'document',
     },
@@ -49,7 +53,12 @@ const updateServer = (newServer: string) => {
 /** Update the server variable */
 const updateServerVariable = (key: string, value: string) => {
   /** Find the index of the selected server */
-  const index = servers.findIndex((s) => s.url === selectedServer?.url)
+  const index = selectedServer
+    ? servers.findIndex(
+        (s) =>
+          getServerSelectionKey(s) === getServerSelectionKey(selectedServer),
+      )
+    : -1
   if (index === -1) {
     return
   }

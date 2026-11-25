@@ -2,6 +2,7 @@
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { ScalarIconCaretDown } from '@scalar/icons'
+import { getServerSelectionKey } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
@@ -25,9 +26,9 @@ const { translate } = useLocalization()
 
 const serverOptions = computed(() =>
   servers.map((server) => ({
-    id: server.url,
+    id: getServerSelectionKey(server),
     // Prefer the server name (OpenAPI 3.2) as a friendly label, falling back to the URL
-    label: server.name || server.url,
+    label: server.name || getServerSelectionKey(server),
   })),
 )
 
@@ -36,7 +37,11 @@ const serverUrlWithoutTrailingSlash = computed(
 )
 
 const selectedServerOption = computed(() =>
-  serverOptions.value.find((opt) => opt.id === selectedServer?.url),
+  selectedServer
+    ? serverOptions.value.find(
+        (opt) => opt.id === getServerSelectionKey(selectedServer),
+      )
+    : undefined,
 )
 
 // For testing
