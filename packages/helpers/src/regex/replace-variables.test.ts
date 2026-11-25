@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest'
 
-import { replaceEnvVariables, replacePathVariables } from './replace-variables'
+import { replaceEnvVariables, replacePathVariables, replaceVariables } from './replace-variables'
+
+describe('replaceVariables', () => {
+  it('keeps the placeholder for an empty value', () => {
+    expect(replaceVariables('a{part}b', { part: '' })).toBe('a{part}b')
+  })
+})
 
 describe('replacePathVariables', () => {
+  it('keeps placeholders for names inherited from Object.prototype', () => {
+    expect(replacePathVariables('/{constructor}')).toBe('/{constructor}')
+  })
+
   it('replaces single curly brace variables {id}', () => {
     const path = '/users/{userId}/posts/{postId}'
     const variables = { userId: '123', postId: '456' }
