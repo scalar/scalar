@@ -1,5 +1,30 @@
 [
   {
+    "version": "1.1.56",
+    "date": "2026-11-25",
+    "title": "Improved cURL imports and server variable handling",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release fixes how form data is handled when importing cURL commands and resolves issues with empty OpenAPI server variable defaults in request URLs."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Form values with equal signs, plus signs, and percent signs now import correctly from cURL commands",
+          "Empty OpenAPI server variable defaults are properly substituted in request URLs and code snippets",
+          "Shadow root support added for future web component integrations"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1156",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.1.55",
     "date": "2026-11-22",
     "title": "Desktop login now works in Safari, plus Electron 45 and dependency updates",

@@ -53,7 +53,7 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     hideModels: boolean({
       default: false,
-      typeComment: 'Whether to show models in the sidebar, search, and content.',
+      typeComment: 'Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content.',
     }),
     hideModelNames: boolean({
       default: false,
@@ -281,7 +281,8 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     withDefaultFonts: boolean({
       default: true,
-      typeComment: 'Whether to include default fonts',
+      typeComment:
+        '@deprecated Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.',
     }),
     defaultOpenFirstTag: boolean({
       default: true,

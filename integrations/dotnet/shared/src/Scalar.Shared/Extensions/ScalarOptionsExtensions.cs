@@ -279,10 +279,10 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
-    /// Sets whether models should be shown in the sidebar, search, and content.
+    /// Sets whether to show schema models and reusable AsyncAPI messages in the sidebar, search, and content.
     /// </summary>
     /// <param name="options">The options to configure.</param>
-    /// <param name="showModels">Whether to show models.</param>
+    /// <param name="showModels">Whether to show schema models and reusable AsyncAPI messages.</param>
     [Obsolete("This method is obsolete and will be removed in a future release. Please use HideModels() instead. Note: WithModels(true) is the default behavior and can be removed entirely.")]
     public static TOptions WithModels<TOptions>(this TOptions options, bool showModels = true) where TOptions : ScalarOptions
     {
@@ -409,12 +409,11 @@ public static partial class ScalarOptionsExtensions
 
     /// <summary>
     /// Sets whether to use the default fonts.
-    /// By default, Inter and JetBrains Mono are used, served by our CDN.
+    /// Scalar uses the system font stack and no longer loads web fonts, so this setting has no effect.
     /// </summary>
     /// <param name="options">The options to configure.</param>
     /// <param name="useDefaultFonts">Whether to use the default fonts.</param>
-    /// <remarks>If you use a different font or just don't want to use our CDN, set this to <c>false</c>.</remarks>
-    [Obsolete("This method is obsolete and will be removed in a future release. Please use DisableDefaultFonts() instead. Note: WithDefaultFonts(true) is the default behavior and can be removed entirely.")]
+    [Obsolete("This method has no effect because Scalar no longer loads web fonts, and it will be removed in a future release. You can remove the call.")]
     public static TOptions WithDefaultFonts<TOptions>(this TOptions options, bool useDefaultFonts = true) where TOptions : ScalarOptions
     {
         options.DefaultFonts = useDefaultFonts;

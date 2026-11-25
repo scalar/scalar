@@ -46,6 +46,7 @@ export const es = {
     collapsed: 'Contraído',
     webhooks: 'Webhooks',
     channels: 'Canales',
+    messages: 'Mensajes',
   },
   server: {
     label: 'Servidor',

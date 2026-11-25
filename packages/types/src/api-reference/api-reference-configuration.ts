@@ -80,7 +80,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   isEditable: z.boolean().optional().default(false).catch(false),
   /**
-   * Whether to show models in the sidebar, search, and content.
+   * Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content.
    * @default false
    */
   hideModels: z.boolean().optional().default(false).catch(false),
@@ -445,7 +445,8 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional(),
   /**
-   * Whether to include default fonts
+   * Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.
+   * @deprecated There are no default fonts to load any more.
    * @default true
    */
   withDefaultFonts: z.boolean().optional().default(true).catch(true),

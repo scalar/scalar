@@ -1,4 +1,3 @@
-import defaultFonts from './fonts/fonts.css?inline'
 import alternateTheme from './presets/alternate.css?inline'
 import bluePlanetTheme from './presets/bluePlanet.css?inline'
 import customThemeStarter from './presets/custom-theme-starter.css?inline'
@@ -18,6 +17,14 @@ import solarizedTheme from './presets/solarized.css?inline'
 export { hasObtrusiveScrollbars } from './utilities/has-obtrusive-scrollbars'
 
 import { nanoid } from 'nanoid'
+
+/**
+ * The font definitions Scalar used to load (Inter and JetBrains Mono). Scalar now uses the system font stack, so
+ * there is nothing left to load.
+ *
+ * @deprecated This is an empty string, kept so existing imports keep working. It will be removed in a future version.
+ */
+const defaultFonts = ''
 
 // Export all presets for easier access
 export {
@@ -238,9 +245,9 @@ export const getThemeStyles = (
      */
     variables?: boolean
     /**
-     * Whether or not to include the definitions for the default scalar fonts (e.g. Inter)
+     * Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.
      *
-     * @default true
+     * @deprecated There are no default fonts to include any more. This option will be removed in a future version.
      */
     fonts?: boolean
     /**
@@ -251,13 +258,9 @@ export const getThemeStyles = (
     layer?: string | false
   },
 ) => {
-  const { fonts = true, layer = 'scalar-theme' } = opts ?? {}
+  const { layer = 'scalar-theme' } = opts ?? {}
 
-  // Combined theme, base variables and default fonts if configured
-  const styles = [
-    presets[(themeId as Exclude<ThemeId, 'none'>) || 'default']?.theme ?? defaultTheme,
-    fonts ? defaultFonts : '',
-  ].join('')
+  const styles = presets[(themeId as Exclude<ThemeId, 'none'>) || 'default']?.theme ?? defaultTheme
 
   // Wrap the styles in a layer if configured
   if (layer) {

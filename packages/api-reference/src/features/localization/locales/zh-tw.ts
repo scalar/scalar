@@ -47,6 +47,7 @@ export const zhTw = {
     collapsed: '已摺疊',
     webhooks: 'Webhooks',
     channels: '通道',
+    messages: '訊息',
   },
   server: {
     label: '伺服器',

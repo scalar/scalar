@@ -156,7 +156,7 @@ describe('galaxy-scalar-com', () => {
       expect(html).toContain("import { createApiReference } from '/scalar/standalone.esm.js'")
     })
 
-    it('renders the registry document and published ESM build in production', async () => {
+    it('renders the processed registry document and published ESM build in production', async () => {
       vi.stubGlobal('GALAXY_IS_PRODUCTION', true)
       vi.resetModules()
 
@@ -168,11 +168,14 @@ describe('galaxy-scalar-com', () => {
         const app = new Hono()
         configureProduction(app)
 
+        const config = resolveConfiguration()
+        expect(config.sources?.[0]?.url).toBe(
+          'https://registry.scalar.com/@scalar/apis/galaxy?variant=processed&format=json',
+        )
+
         const response = await app.request('/')
         const html = await response.text()
 
-        expect(html).toContain('https://registry.scalar.com/@scalar/apis/galaxy?format=json')
-        expect(html).not.toContain('/openapi.yaml')
         expect(response.status).toBe(200)
         expect(html).toContain('<script type="module">')
         expect(html).toContain(

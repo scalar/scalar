@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.32.1
+
+### Patch Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+- [#11179](https://github.com/scalar/scalar/pull/11179): Add a `collapsible` option to `SpecificationExtensions`: the values fold under a localized "Extensions (n)" row, closed until opened with the same disclosure control as nested values.
+
 ## 0.32.0
 
 ### Minor Changes

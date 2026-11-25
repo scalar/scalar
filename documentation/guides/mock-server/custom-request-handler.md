@@ -72,9 +72,10 @@ req.headers   // Request headers
 
 | Content-Type | `req.body` value |
 |---|---|
-| `application/json` | Parsed JavaScript object. Malformed JSON yields `undefined`. |
+| `application/json`, media types with a `+json` suffix, or an omitted header | Parsed JSON value. Malformed JSON yields `undefined`. |
 | `application/x-www-form-urlencoded` | Parsed key-value object (e.g., `{ name: 'Ada', role: 'dev' }`). |
-| `text/*` (e.g., `text/plain`, `text/csv`) | Raw string. |
+| Other `text/*` types, such as `text/plain` or `text/csv` | Raw string. |
+| Other media types, including `application/json-seq` | `undefined`. |
 
 ### `res` - Response Examples
 

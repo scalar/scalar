@@ -51,6 +51,7 @@ export {
   resolveExecutableRequestUrl,
   resolveLeafSchema,
   resolveRequestFactoryUrl,
+  resolveServerUrl,
   serializeContentValue,
   serializeCookieStyle,
   serializeDeepObjectStyle,

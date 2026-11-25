@@ -7,7 +7,7 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { pickHeading } from '@/components/Content/AsyncApi/helpers/pick-heading'
 import {
   resolveAsyncApiChannel,
-  resolveAsyncApiMessage,
+  resolveAsyncApiMessageEntry,
   resolveAsyncApiOperation,
 } from '@/components/Content/AsyncApi/helpers/resolve-async-api-nodes'
 import type { FuseData } from '@/features/Search/types'
@@ -87,16 +87,19 @@ export const createAsyncApiSearchEntry = (document: AsyncApiDocument, entry: Tra
       description: [operation?.summary, operation?.description].filter(Boolean).join('\n'),
     }
   }
-  if (entry.type === 'asyncapi-message') {
-    const message = resolveAsyncApiMessage(document, entry.channelName, entry.messageName)
+  if (entry.type === 'asyncapi-message' || entry.type === 'asyncapi-reusable-message') {
+    const message = resolveAsyncApiMessageEntry(document, entry)
+    const name = entry.type === 'asyncapi-message' ? entry.messageName : entry.name
     const fields = extractSchemaFields([message?.payload, message?.headers])
     return {
-      type: entry.type,
+      type: 'asyncapi-message',
       id: entry.id,
-      title: pickHeading(message?.title, entry.title, entry.messageName),
+      title: pickHeading(message?.title, entry.title, name),
       entry,
-      identifiers: message?.name ? [entry.messageName, message.name] : [entry.messageName],
-      path: resolveAsyncApiChannel(document, entry.channelName)?.address ?? undefined,
+      identifiers: message?.name ? [name, message.name] : [name],
+      ...(entry.type === 'asyncapi-message' && {
+        path: resolveAsyncApiChannel(document, entry.channelName)?.address ?? undefined,
+      }),
       description: message?.description ?? message?.summary ?? '',
       body: fields.names,
       bodyDescriptions: [...new Set([...(message?.summary ? [message.summary] : []), ...fields.descriptions])],

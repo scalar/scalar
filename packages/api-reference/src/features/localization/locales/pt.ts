@@ -47,6 +47,7 @@ export const pt = {
     collapsed: 'Recolhido',
     webhooks: 'Webhooks',
     channels: 'Canais',
+    messages: 'Mensagens',
   },
   server: {
     label: 'Servidor',

@@ -18,7 +18,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.3.41",
+  "version": "0.3.42",
   "engines": {
     "node": ">=22"
   },
@@ -71,7 +71,7 @@
     "@sveltejs/kit": "^3.4.0",
     "@sveltejs/package": "^3.0.3",
     "publint": "^0.3.25",
-    "svelte": "^5.58.0",
+    "svelte": "catalog:*",
     "svelte-check": "^4.7.8",
     "vitest": "catalog:*"
   },
