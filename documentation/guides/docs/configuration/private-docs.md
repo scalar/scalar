@@ -66,9 +66,11 @@ The Private Docs toggle, access groups and login portal are also stored in your 
 
 See [Access Control](site-config.md#access-control) for every property.
 
+<a id="show-pages-to-specific-access-groups"></a>
+
 ## Restrict some pages to certain groups
 
-Access groups apply to the whole site. Everyone who can sign in can open every page on it, including pages you leave out of their navigation with `groups`. Those pages still appear in the site's search, sitemap, RSS, `llms.txt`, Markdown copies and Ask AI, and API documents hidden the same way can still be downloaded. You cannot limit individual pages of a site to some access groups.
+Access groups apply to the whole site, so you cannot limit individual pages of a site to some access groups. Everyone who can sign in can open every page on it, including pages you leave out of their navigation with `groups`. Those pages also still appear in features such as search and Ask AI (see [Personalization limitations](personalization.md#current-limitations)).
 
 To keep pages from some visitors, publish them as a separate private project with its own access groups. With subpath hosting, available on the Business plan, that project can share your domain. For example, a `partners` project at `docs.example.com/partners` next to your main docs at `docs.example.com`:
 

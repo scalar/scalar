@@ -24,15 +24,21 @@ This complete configuration serves a welcome page and an enterprise page. Create
     "header": [{ "type": "spacer" }],
     "routes": {
       "/": {
-        "type": "page",
-        "title": "Welcome",
-        "filepath": "welcome.md"
-      },
-      "/enterprise": {
-        "type": "page",
-        "title": "Enterprise",
-        "filepath": "enterprise.md",
-        "groups": ["enterprise"]
+        "type": "group",
+        "title": "Docs",
+        "children": {
+          "": {
+            "type": "page",
+            "title": "Welcome",
+            "filepath": "welcome.md"
+          },
+          "/enterprise": {
+            "type": "page",
+            "title": "Enterprise",
+            "filepath": "enterprise.md",
+            "groups": ["enterprise"]
+          }
+        }
       }
     }
   }
@@ -242,7 +248,7 @@ Hello, <UserValue name="firstName" fallback="visitor" />.
 
 ## Filter navigation
 
-Add `groups` to a page, link, or OpenAPI navigation entry at the top level or inside a group, to a nested group inside `children`, or to a header link. Top-level route sections (`type: "group"` directly under `navigation.routes`) do not support `groups`; put a filtered group inside their `children` instead. An entry is visible if the visitor has at least one matching group. Entries without groups (or with an empty list) remain visible to everyone. Group names are case-sensitive: `Enterprise` and `enterprise` differ.
+Add `groups` to a page, link, OpenAPI entry, or nested group inside a route section's `children`, or to a header link. Entries directly under `navigation.routes` are not filtered: route sections (`type: "group"`) do not support `groups`, and a top-level page, link, or OpenAPI entry has no sidebar entry for it to hide. Tabs and sidebar links do not support `groups` either. An entry is visible if the visitor has at least one matching group. Entries without groups (or with an empty list) remain visible to everyone. Group names are case-sensitive: `Enterprise` and `enterprise` differ.
 
 For example, add this entry under `navigation.routes` to show a nested Customer resources group to enterprise visitors or administrators:
 
@@ -286,7 +292,7 @@ Filtering a parent group hides its children in navigation too. These filters do 
 
 On a [private site](private-docs.md), `groups` also matches the slugs of the site's access groups that the visitor belongs to, with or without a hook. You do not need a user-info hook to filter navigation and content by access group. When a visitor signs in, Scalar gives them the slug of each access group in `siteConfig.accessGroups` that their email address or domain matches.
 
-To show a page in the sidebar only to the `partners` group, add `groups` to its entry inside a section:
+To show a page in the sidebar only to the `partners` group:
 
 ```json
 {
@@ -296,11 +302,11 @@ To show a page in the sidebar only to the `partners` group, add `groups` to its 
   },
   "navigation": {
     "routes": {
-      "/guides": {
+      "/": {
         "type": "group",
-        "title": "Guides",
+        "title": "Docs",
         "children": {
-          "/welcome": {
+          "": {
             "type": "page",
             "title": "Welcome",
             "filepath": "welcome.md"
@@ -318,13 +324,11 @@ To show a page in the sidebar only to the `partners` group, add `groups` to its 
 }
 ```
 
-Only entries inside a section and header links are filtered. A top-level page or link has no sidebar entry to hide, and tabs and sidebar links do not support `groups`.
-
 The same slugs work in frontmatter and in `visible` blocks, such as `:::visible{groups="partners"}`.
 
 Only the access groups listed in `siteConfig.accessGroups` count. A team member who is not in one of those groups by email address or domain does not get its slug, so they do not see entries limited to that group. To check a group's view, sign in with an address the group allows.
 
-This changes what each group sees, not what it can open. Every visitor who can sign in to the site can still open the partner guide at its URL, find it in search, read it through Ask AI, `llms.txt`, the page's Markdown copy and RSS, and the same goes for any API document hidden with `groups`. To keep pages from some visitors, see [Restrict some pages to certain groups](private-docs.md#restrict-some-pages-to-certain-groups).
+This changes what each group sees, not what it can open. Every visitor who can sign in to the site can still open the partner guide at its URL and find it through the features listed in [Current limitations](#current-limitations). To keep pages from some visitors, see [Restrict some pages to certain groups](private-docs.md#restrict-some-pages-to-certain-groups).
 
 ## Prefill the API playground
 
@@ -371,7 +375,7 @@ If you revoke the previous secret during rotation, it stops being accepted immed
 - Local preview does not load visitor identity. Test sign-in and hook calls on a published site.
 - Visibility filters run in the browser. Hidden navigation entries remain reachable by URL, and `Visible` content remains in HTML source. `Visible` blocks are omitted from plain Markdown exports, but this is not a confidentiality guarantee.
 - Page groups are not enforced server-side, including on private sites. Keep content with different access requirements in separately protected sites.
-- Search, sitemaps, RSS, `llms.txt`, Markdown copies, OpenAPI downloads and Ask AI are not group-aware. Pages and API documents filtered by `groups` appear in all of them. Do not rely on groups to hide content from discovery.
+- Search, sitemaps, Ask AI, `llms.txt`, Markdown copies, RSS feeds, and API document downloads ignore `groups` wherever they are enabled and apply. Do not rely on groups to hide content from discovery.
 - Groups do not filter individual OpenAPI operations or schema properties.
 - Use Markdown directives or MDX for `Visible` and `UserValue`; the visual editor does not currently provide menus for these elements.
 - Hook errors remove hook-provided context, not the visitor's sign-in or existing site access. Design useful anonymous and fallback content.
