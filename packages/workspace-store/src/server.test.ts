@@ -9,8 +9,10 @@ import { cwd } from 'node:process'
 
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { literalReferencesDocument } from '@test/literal-references'
+import { overlayBase, partnerOverlay } from '@test/overlays'
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import YAML from 'yaml'
 
 import { createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
@@ -32,6 +34,84 @@ import {
 } from './server'
 
 describe('create-server-store', () => {
+  it('composes a file Overlay before generating operation chunks and navigation', async () => {
+    const directory = await fs.mkdtemp(join(tmpdir(), 'scalar-overlay-'))
+    const basePath = join(directory, 'openapi.yaml')
+    const overlayDirectory = join(directory, 'overlays')
+    const overlayPath = join(overlayDirectory, 'partner.yaml')
+    const error = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      await fs.mkdir(overlayDirectory)
+      await fs.writeFile(basePath, YAML.stringify(overlayBase))
+      await fs.writeFile(overlayPath, YAML.stringify(partnerOverlay))
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documentLoading: { basePath: directory },
+        documents: [{ name: 'partner', path: basePath, overlays: [{ path: overlayPath }] }],
+      })
+      const reference = '#/partner/operations/~1pets/get'
+      const operation = store.get(reference)
+      expect(operation).toStrictEqual({
+        tags: ['Public'],
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: { type: 'object' },
+                examples: { partner: { value: { name: 'Rufus' } } },
+              },
+            },
+          },
+        },
+      })
+      expect(store.get('#/partner/operations/~1internal/get')).toBeUndefined()
+      const document = getOpenApiServerDocument(store, 'partner')
+      expect(getPathItemOperation(document?.paths?.['/internal'], 'get')).toBeUndefined()
+      expect(document?.['x-scalar-navigation']?.children?.map((entry) => entry.title)).toStrictEqual([
+        'Introduction',
+        'Public',
+        'Partner',
+      ])
+
+      await fs.writeFile(
+        overlayPath,
+        YAML.stringify({
+          ...partnerOverlay,
+          actions: [...partnerOverlay.actions, { target: '$.info.title', update: [] }],
+        }),
+      )
+      await store.addDocument({ name: 'partner', path: basePath, overlays: [{ path: overlayPath }] })
+      expect(error).toHaveBeenCalledTimes(1)
+      expect(store.get(reference)).toStrictEqual(operation)
+      expect(store.getWorkspace().documents.partner).toStrictEqual(document)
+    } finally {
+      error.mockRestore()
+      await fs.rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  it('requires the same file permissions for an Overlay as for the base description', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: '/docs',
+      documents: [{ name: 'partner', document: overlayBase }],
+    })
+    const error = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      await store.addDocument({
+        name: 'partner',
+        document: { ...overlayBase, info: { title: 'Replacement', version: '2' } },
+        overlays: [{ path: './overlay.yaml' }],
+      })
+      expect(error).toHaveBeenCalledTimes(1)
+      expect(getOpenApiServerDocument(store, 'partner')?.info.title).toBe('Partner API')
+    } finally {
+      error.mockRestore()
+    }
+  })
+
   it.each(['3.1.0', '3.2.0'])('preserves literal references when loading OpenAPI %s', async (openapi) => {
     const fetchDocument = vi
       .spyOn(globalThis, 'fetch')

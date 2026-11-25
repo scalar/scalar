@@ -605,6 +605,48 @@ await result.applyChanges({ resolvedDocument: newDocument })
 
 After `applyChanges` returns, the merged document becomes both the new active document and the new saved baseline, so a subsequent `revertDocumentChanges` rolls back to the post-rebase state rather than the pre-rebase original.
 
+## Apply OpenAPI Overlays
+
+Pass an ordered `overlays` list to `addDocument` in either store. The store applies
+[OpenAPI Overlay 1.2](https://spec.openapis.org/overlay/v1.2.0.html) actions to the
+authored API description before upgrading it, resolving references, or building navigation.
+
+```ts
+await store.addDocument({
+  name: 'partner-api',
+  url: 'https://example.com/openapi.yaml',
+  overlays: [{ url: 'https://example.com/overlays/partner.overlay.yaml' }],
+})
+```
+
+For example, `partner.overlay.yaml` can remove an internal operation and add a response example.
+
+```yaml
+overlay: 1.2.0
+info:
+  title: Partner API
+  version: 1.0.0
+extends: ../openapi.yaml
+actions:
+  - target: "$.paths['/internal'].get"
+    remove: true
+  - target: "$.paths['/pets'].get.responses['200'].content['application/json']"
+    update:
+      examples:
+        partner:
+          value: { name: Rufus }
+```
+
+Each source can be `{ url }`, `{ path }` where a file loader is configured, or
+`{ document, documentSource? }` for an inline Overlay with an optional source URI.
+The stores use their usual JSON and YAML loaders and permissions. `extends` checks
+that the Overlay matches the supplied description. The caller supplies and manages
+the base and Overlay sources.
+
+The composed description is the baseline for JSON and YAML exports. Workspace snapshots
+restore that result directly. When calling `rebaseDocument`, pass the full ordered list
+again. Pass `overlays: []` to refresh from the base alone.
+
 ## Referenced OpenAPI upgrades
 
 The workspace store uses JSON Magic's resource and target lifecycle hooks to
