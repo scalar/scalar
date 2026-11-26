@@ -1032,6 +1032,75 @@ describe('custom-references', () => {
     })
   })
 
+  it.each(['#/components/schemas', '#/components'])(
+    'keeps entries and their dependencies when a literal copy references %s',
+    async (reference) => {
+      const origin = 'https://source.test/root.json'
+      const schemas = { A: { $ref: './custom.json' }, B: { type: 'number' } }
+      const document = {
+        ...api,
+        components: { schemas, responses: { Unused: { description: 'Unused' } } },
+        'x-source': { value: { $ref: reference } },
+        'x-copy': { $ref: '#/x-source/value' },
+      }
+      const result = await bundleWithDiagnostics(document, {
+        origin,
+        traversal: 'document',
+        includeCustomReferences: true,
+        treeShake: false,
+        plugins: [loader([])],
+      })
+      expect(result.diagnostics).toStrictEqual([])
+      const bundled: typeof document = JSON.parse(JSON.stringify(result.document))
+      const expectedSchemas = structuredClone(bundled.components.schemas)
+      expect(checkDocument(bundled, { origin, prune: true, includeCustomReferences: true }).ok).toBe(true)
+      expect(local(bundled, bundled['x-copy'].$ref)).toStrictEqual({ $ref: reference })
+      expect(bundled.components.schemas).toStrictEqual(expectedSchemas)
+      expect(local(bundled, bundled.components.schemas.A.$ref)).toStrictEqual({ type: 'string' })
+      expect(bundled.components.responses).toStrictEqual(
+        reference === '#/components' ? document.components.responses : {},
+      )
+    },
+  )
+
+  it.each([false, true])(
+    'propagates Response semantics through unused external references (treeShake: %s)',
+    async (treeShake) => {
+      const origin = 'https://source.test/root.json'
+      const original = {
+        ...api,
+        openapi: '3.0.4',
+        components: { responses: { Unused: { $ref: './first.json' }, Used: { description: 'OK' } } },
+        'x-target': { $ref: '#/components/responses/Used', 'x-sibling': { $ref: '#/missing' } },
+      }
+      const options = {
+        origin,
+        treeShake,
+        traversal: 'document',
+        includeCustomReferences: true,
+        plugins: [
+          {
+            type: 'loader',
+            validate: (uri) => ['https://source.test/first.json', 'https://source.test/second.json'].includes(uri),
+            exec: (uri) =>
+              Promise.resolve({
+                ok: true,
+                data: { $ref: uri.endsWith('first.json') ? './second.json' : './root.json#/x-target' },
+                raw: '',
+              }),
+          },
+        ],
+      } satisfies Config
+      const bundled = await bundleWithDiagnostics(structuredClone(original), options)
+      expect(bundled.diagnostics).toStrictEqual([])
+      const document: typeof original = JSON.parse(JSON.stringify(bundled.document))
+      expect(checkDocument(document, { origin, prune: true, includeCustomReferences: true }).ok).toBe(true)
+      expect(document.components.responses).toStrictEqual({ Used: { description: 'OK' } })
+      expect(document['x-target']).toStrictEqual(original['x-target'])
+      expect(document).toHaveProperty('x-ext', {})
+    },
+  )
+
   it('keeps custom-only targets during opt-in standalone pruning', async () => {
     const origin = 'https://source.test/root.json'
     const extension = { $ref: './custom.json' }

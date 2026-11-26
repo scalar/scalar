@@ -241,7 +241,11 @@ const createGraph = (
     }
     const base = entry?.base ?? ancestor?.origin ?? origin
     const interpretation = { context, customReferences: custom, schemaSiblings: source?.schemaSiblings }
-    const nativeExposure = Boolean(entry?.position?.customReferences && !custom && !nativeContexts.has(path))
+    const nativeExposure =
+      includeCustomReferences &&
+      !custom &&
+      !nativeContexts.has(path) &&
+      Boolean(entry?.position?.customReferences || entry?.inferredContext)
     if (nativeExposure) {
       // Later exposure of an ancestor must preserve an established native context.
       nativeContexts.set(path, interpretation)
@@ -334,6 +338,29 @@ export const checkDocument = (
   const expandedDiscriminators = new Set<string>()
   const operationLinks: { id: string; path: string }[] = []
   let nativeExposure = false
+
+  if (prune && includeCustomReferences) {
+    // Even an unused Response can establish how a reachable fragment treats $ref siblings.
+    // expose reindexes the target at the end of the map, so forwarded references are visited in turn.
+    for (const { path, value, context, position, inferredContext } of graph.entries.values()) {
+      if (
+        inferredContext ||
+        position?.customReferences ||
+        !isReferenceContext(context) ||
+        !isDocument(value) ||
+        typeof value.$ref !== 'string'
+      ) {
+        continue
+      }
+      const target = graph.resolve(value.$ref, path)
+      if (target !== undefined) {
+        const entry = graph.entries.get(target)
+        if (entry?.inferredContext || entry?.position?.customReferences) {
+          graph.expose(target, context, position)
+        }
+      }
+    }
+  }
 
   for (const entry of graph.entries.values()) {
     const segments = pointerSegments(entry.path)
@@ -568,18 +595,24 @@ export const checkDocument = (
     }
     for (const [key, child] of Object.entries(value)) {
       const nextPath = childPath(path, key)
-      if (prune && candidates.has(nextPath)) {
+      if (prune && !includeCustomReferences && candidates.has(nextPath)) {
         continue
       }
-      // Reusable maps are storage, not roots. Their entries are reached through references.
-      // With custom references enabled, visit components so its x-* extensions can act as roots.
-      if (
-        prune &&
-        path === '' &&
-        (['x-ext', 'definitions', 'parameters', 'responses', 'securityDefinitions'].includes(key) ||
-          (key === 'components' && !includeCustomReferences))
-      ) {
-        continue
+      if (prune && path === '') {
+        if (['x-ext', 'definitions', 'parameters', 'responses', 'securityDefinitions'].includes(key)) {
+          continue
+        }
+        // Only extensions of Components are roots. A reference to the map visits its entries normally.
+        if (key === 'components') {
+          if (includeCustomReferences && isDocument(child)) {
+            for (const name of Object.keys(child)) {
+              if (name.startsWith('x-')) {
+                visit(childPath(nextPath, name))
+              }
+            }
+          }
+          continue
+        }
       }
       if (path === '' && key === 'x-ext' && isDocument(child)) {
         for (const name of Object.keys(child)) {
