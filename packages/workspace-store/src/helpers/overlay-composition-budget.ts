@@ -1,4 +1,5 @@
-import { check } from 'iregexp-check'
+// Bundlers otherwise select the package's browser IIFE, which has no module exports.
+import { check } from 'iregexp-check/dist/iregexp-check-cjs.js'
 import {
   type FilterFunction,
   JSONPathEnvironment,
