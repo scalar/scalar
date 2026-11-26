@@ -46,6 +46,8 @@ See [Getting Started](getting-started.md) for a complete inline API description.
 | `securitySchemes`       | `SecuritySchemeObjectSecret[]` | Security schemes applicable to the operation.                                                                                                                                               |
 | `codeSampleUnavailable` | `string`                       | Localized status text when the selected example has no linked code sample.                                                                                                                  |
 | `codeSampleLabel`       | `string`                       | Localized accessible name for the focusable code sample.                                                                                                                                    |
+| `codeSampleLoadFailed`  | `string`                       | Localized status text when the selected client's code generator fails to load. A Retry button follows it.                                                                                   |
+| `codeSampleRetryLabel`  | `string`                       | Localized label of the Retry button shown when a code generator fails to load.                                                                                                              |
 | `darkMode`              | `boolean`                      | Force a color mode. When omitted, the block inherits the ambient theme of the host page.                                                                                                    |
 
 ## Active document and servers

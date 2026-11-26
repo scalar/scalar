@@ -117,6 +117,24 @@ describe('CodeExample.lazy', () => {
     expect(wrapper.text()).not.toMatch(ERROR_TEXT)
   })
 
+  it('shows the snippet on Retry when another code example loaded the generator meanwhile', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.mocked(loadPlugin).mockRejectedValueOnce(new Error('Failed to fetch dynamically imported module'))
+
+    const wrapper = mountCodeExample('java/okhttp')
+    await vi.waitFor(() => expect(wrapper.find('[role="status"]').exists()).toBe(true))
+
+    // Another code example on the page loads the same generator successfully
+    await preloadClients(['java/okhttp'])
+    vi.mocked(loadPlugin).mockClear()
+
+    await wrapper.get('[role="status"] button').trigger('click')
+
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('OkHttpClient')
+    expect(loadPlugin).not.toHaveBeenCalled()
+  })
+
   it('retries a failed load when the client is selected again', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
     vi.mocked(loadPlugin).mockRejectedValueOnce(new Error('Failed to fetch dynamically imported module'))

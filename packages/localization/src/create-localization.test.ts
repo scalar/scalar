@@ -598,14 +598,15 @@ describe('create-localization', () => {
   describe('registry', () => {
     it('forgets an instance once it has been garbage collected', async () => {
       /** Stands in for `WeakRef`, so the test can collect what it registered */
-      const references: { target: object | undefined }[] = []
+      const references: { target: object | undefined; derefs: number }[] = []
       class CollectableRef<T extends object> {
-        private readonly entry: { target: object | undefined }
+        private readonly entry: { target: object | undefined; derefs: number }
         constructor(target: T) {
-          this.entry = { target }
+          this.entry = { target, derefs: 0 }
           references.push(this.entry)
         }
         deref(): T | undefined {
+          this.entry.derefs++
           return this.entry.target as T | undefined
         }
       }
@@ -625,9 +626,21 @@ describe('create-localization', () => {
           reference.target = undefined
         }
 
+        // Registering the next instance already forgets the collected one, without a `loadLocale` call
+        const [collected] = references
+        createLocalization<Translations, Key>({
+          localeTranslations: { en },
+          defaultLocale: 'en',
+          rtlLocales: new Set(),
+        })
+        const derefsAfterPruning = collected!.derefs
+        expect(derefsAfterPruning).toBeGreaterThan(0)
+
         expect(isLocaleLoaded('x-collected')).toBe(true)
         await loadLocale('x-collected')
         expect(loader).not.toHaveBeenCalled()
+        // Pruned, so later lookups no longer visit it
+        expect(collected!.derefs).toBe(derefsAfterPruning)
       } finally {
         vi.unstubAllGlobals()
       }

@@ -25,20 +25,6 @@ type RegisteredLocalization = {
 const owners = new Set<WeakRef<object>>()
 const registrations = new WeakMap<object, RegisteredLocalization>()
 
-/**
- * Registers a localization instance so {@link loadLocale} and {@link isLocaleLoaded} include it.
- *
- * Called by `createLocalization`. The registration ends by itself once nothing references `owner`.
- *
- * @param owner - An object every function of the instance reaches, so it is collected with the instance.
- */
-export const registerLocalization = (owner: object, localization: RegisteredLocalization): void => {
-  if (!registrations.has(owner)) {
-    owners.add(new WeakRef(owner))
-  }
-  registrations.set(owner, localization)
-}
-
 /** The registered instances that are still alive, forgetting the ones that were collected. */
 const getRegisteredLocalizations = (): RegisteredLocalization[] => {
   const alive: RegisteredLocalization[] = []
@@ -55,6 +41,24 @@ const getRegisteredLocalizations = (): RegisteredLocalization[] => {
   }
 
   return alive
+}
+
+/**
+ * Registers a localization instance so {@link loadLocale} and {@link isLocaleLoaded} include it.
+ *
+ * Called by `createLocalization`. The registration ends by itself once nothing references `owner`.
+ *
+ * @param owner - An object every function of the instance reaches, so it is collected with the instance.
+ */
+export const registerLocalization = (owner: object, localization: RegisteredLocalization): void => {
+  // Also prunes here, not only when loading, so a server that creates an instance per request and
+  // never calls `loadLocale` does not collect one empty `WeakRef` per request
+  getRegisteredLocalizations()
+
+  if (!registrations.has(owner)) {
+    owners.add(new WeakRef(owner))
+  }
+  registrations.set(owner, localization)
 }
 
 /**

@@ -124,7 +124,7 @@ describe('CodeExample.ssr', () => {
     expect(getMismatches()).toStrictEqual([])
   })
 
-  it('renders a status line on the server when the generator fails to load', async () => {
+  it('renders the placeholder on the server when the generator fails to load', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
     // A fresh module graph whose generator import fails, like a server that lost a chunk
     vi.resetModules()
@@ -139,7 +139,12 @@ describe('CodeExample.ssr', () => {
       // Resolves rather than rejecting or waiting forever, so one broken chunk never takes the page down
       container.innerHTML = await renderToString(createCodeExampleApp(FreshCodeExample))
 
-      expect(container.querySelector('[role="status"]')?.textContent).toContain('Could not load this code example.')
+      // The browser cannot know the server failed, so its first render is the loading placeholder. The
+      // server renders the same, so hydration matches and the browser loads the generator itself.
+      const snippet = container.querySelector('.code-snippet')
+      expect(snippet).not.toBeNull()
+      expect(snippet?.childElementCount).toBe(0)
+      expect(container.querySelector('[role="status"]')).toBeNull()
       expect(container.textContent).not.toMatch(/not loaded|no snippet found|error generating/i)
     } finally {
       vi.doUnmock('@scalar/snippetz/lazy')

@@ -48,7 +48,12 @@ export const useClientPlugin = (
   /** A client whose last load failed: we stop waiting so the snippet area shows an error, not a placeholder */
   const failedClientId = ref<string>()
 
-  const load = (id: string): Promise<void> => {
+  /**
+   * @param isServer - Whether this load runs in server prefetch. The browser has no way to know the
+   * server failed, so its first render is the loading placeholder. The server renders that same
+   * placeholder for a failure, so hydration matches, and the browser loads the generator itself.
+   */
+  const load = (id: string, isServer = false): Promise<void> => {
     if (failedClientId.value === id) {
       failedClientId.value = undefined
     }
@@ -60,7 +65,7 @@ export const useClientPlugin = (
         (error: unknown) => {
           console.error('[useClientPlugin] Failed to load the code generator', error)
           // Selecting the client again, or `retry`, loads it again, because the failed import is not cached
-          if (toValue(clientId) === id) {
+          if (!isServer && toValue(clientId) === id) {
             failedClientId.value = id
           }
         },
@@ -85,6 +90,8 @@ export const useClientPlugin = (
   /** Failed imports are not cached, so loading again makes a fresh request */
   const retry = (): void => {
     const id = toValue(clientId)
+    // Another code example may have loaded the generator meanwhile, so clear the failure either way
+    failedClientId.value = undefined
     if (needsPlugin(id)) {
       void load(id)
     }
@@ -103,7 +110,7 @@ export const useClientPlugin = (
   // Render the final snippet on the server instead of the placeholder
   onServerPrefetch(() => {
     const id = toValue(clientId)
-    return needsPlugin(id) ? load(id) : undefined
+    return needsPlugin(id) ? load(id, true) : undefined
   })
 
   return { isLoading, isFailed, retry }
