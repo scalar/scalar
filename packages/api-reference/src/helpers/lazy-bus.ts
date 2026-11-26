@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid'
 import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 
 import { getSchemaParamsFromId } from './id-routing'
+import { parseResponsePropertyAnchor } from './response-property-anchors'
 
 /**
  * List of items that are in the priority queue and will be rendered first (e.g. scroll target).
@@ -41,6 +42,9 @@ export const firstLazyLoadComplete = ref(false)
  */
 export const scrollTargetId = ref<string>('')
 
+/** The selected media type carried by the active response property link, if any. */
+export const scrollTargetResponseMediaType = ref<string>()
+
 /**
  * Whether the live scroll target is `path` itself or something inside it.
  *
@@ -67,6 +71,7 @@ export const isOnScrollTargetPath = (path: string | undefined): boolean => {
 const clearScrollTarget = (id: string): void => {
   if (scrollTargetId.value === id) {
     scrollTargetId.value = ''
+    scrollTargetResponseMediaType.value = undefined
   }
 }
 
@@ -270,17 +275,16 @@ export function useLazyBus(id: string) {
  * Scroll to a possibly lazy-loaded element. Expands parents and adds target (and
  * parents) to the priority queue, then scrolls after Vue has flushed.
  *
- * The id is used exactly as given: legacy anchors (`…responses.headers.headers.X`)
- * are deliberately never rewritten, because a rewrite can corrupt a valid anchor,
- * and an unresolvable id already falls back to scrolling its operation instead
- * (see tryScroll's fallbackId).
+ * A response property link can include a media type qualifier outside its DOM
+ * anchor. Unqualified anchors use their original id for scrolling.
  */
 export const scrollToLazy = (
-  id: string,
+  navigationId: string,
   setExpanded: (id: string, value: boolean) => void,
   getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
   { focusTarget = true }: { focusTarget?: boolean } = {},
 ): void => {
+  const { id, mediaType } = parseResponsePropertyAnchor(navigationId)
   const item = getEntryById(id)
 
   // Even a rendered destination can move while sections above it finish rendering.
@@ -293,6 +297,7 @@ export const scrollToLazy = (
   // Publish the target so collapsible schema disclosures on the path can open
   // themselves. Schema properties are not in the navigation tree, so this is the
   // only way the scroll target inside a collapsed schema becomes reachable.
+  scrollTargetResponseMediaType.value = mediaType
   scrollTargetId.value = id
 
   addToPriorityQueue(id)

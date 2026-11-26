@@ -17,7 +17,10 @@ import {
   ScalarMarkdownSummary,
 } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  type WorkspaceEventBus,
+  createWorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
 import type {
@@ -30,7 +33,12 @@ import { computed, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import { isOnScrollTargetPath, scrollTargetId } from '@/helpers/lazy-bus'
+import {
+  isOnScrollTargetPath,
+  scrollTargetId,
+  scrollTargetResponseMediaType,
+} from '@/helpers/lazy-bus'
+import { qualifyResponsePropertyAnchor } from '@/helpers/response-property-anchors'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -307,6 +315,59 @@ const headersBreadcrumb = computed<string[] | undefined>(() =>
   breadcrumb && name ? [...breadcrumb, name] : breadcrumb,
 )
 
+const responseAnchorId = computed<string | undefined>(() =>
+  hasResponseContentPicker.value
+    ? headersBreadcrumb.value?.join('.')
+    : undefined,
+)
+
+/** Carry the picker choice in copied body links while keeping the DOM breadcrumb stable. */
+const schemaEventBus = computed<WorkspaceEventBus | null>(() => {
+  const responseId = responseAnchorId.value
+  if (!eventBus || !responseId) {
+    return eventBus
+  }
+
+  const bus = createWorkspaceEventBus()
+  bus.on('copy-url:nav-item', ({ id }) => {
+    eventBus.emit('copy-url:nav-item', {
+      id: id.startsWith(`${responseId}.`)
+        ? qualifyResponsePropertyAnchor(
+            id,
+            responseId,
+            selectedContentType.value,
+          )
+        : id,
+    })
+  })
+  bus.on('scroll-to:model-by-name', (payload) =>
+    eventBus.emit('scroll-to:model-by-name', payload),
+  )
+  return bus
+})
+
+const targetResponseMediaType = computed<string | undefined>(() => {
+  const responseId = responseAnchorId.value
+  if (!responseId || !scrollTargetId.value.startsWith(`${responseId}.`)) {
+    return undefined
+  }
+
+  const mediaType = scrollTargetResponseMediaType.value
+  return mediaType && Object.hasOwn(content.value ?? {}, mediaType)
+    ? mediaType
+    : undefined
+})
+
+watch(
+  targetResponseMediaType,
+  (mediaType) => {
+    if (mediaType) {
+      selectedContentType.value = mediaType
+    }
+  },
+  { immediate: true },
+)
+
 /**
  * Whether a deep link points at a property inside this collapsed item. When it
  * does, the disclosure opens on mount so a fresh navigation can render the target
@@ -322,19 +383,26 @@ const isOnTargetPath = computed<boolean>(
     ),
 )
 
-/** Headless UI only reads defaultOpen on mount; reopen a group for later navigation too. */
-const groupNavigationKey = ref<number>(0)
-const groupOpen = ref<boolean>(false)
+/** Headless UI reads defaultOpen on mount, so later navigation may have to remount a disclosure. */
+const disclosureNavigationKey = ref<number>(0)
+const disclosureOpen = ref<boolean>(false)
 
 /** Read Headless UI's slot state after rendering, including rail and keyboard closes. */
-const trackGroupOpen = (open: boolean): void => {
-  groupOpen.value = open
+const trackDisclosureOpen = (open: boolean): void => {
+  disclosureOpen.value = open
 }
-watch(isOnTargetPath, (onTargetPath) => {
-  if (childParameters && onTargetPath && !groupOpen.value) {
-    groupNavigationKey.value++
-  }
-})
+watch(
+  [isOnTargetPath, targetResponseMediaType],
+  ([onTargetPath, mediaType]) => {
+    if (
+      (childParameters || mediaType) &&
+      onTargetPath &&
+      !disclosureOpen.value
+    ) {
+      disclosureNavigationKey.value++
+    }
+  },
+)
 
 /**
  * The anchor id for a collapsible item's own row. The schema renders without
@@ -363,7 +431,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
          section heading carries the one rule instead (see ParameterList /
          OperationResponses). -->
     <Disclosure
-      :key="groupNavigationKey"
+      :key="disclosureNavigationKey"
       v-slot="{ open, close }"
       :defaultOpen="isOnTargetPath">
       <!-- Ring the disclosure itself so keyboard focus stays visible.
@@ -372,7 +440,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
         :is="shouldCollapse ? DisclosureButton : 'div'"
         v-if="collapsableItems && !isStaticTreeItem"
         :id="isCompactParameter ? undefined : triggerAnchorId"
-        :ref="() => trackGroupOpen(open)"
+        :ref="() => trackDisclosureOpen(open)"
         class="parameter-item-trigger group/trigger group/tree-control scroll-mt-24 focus-visible:rounded-(--scalar-radius) focus-visible:outline-(length:--scalar-border-width) focus-visible:outline-offset-2 focus-visible:outline-(--scalar-focus-color)"
         :class="{
           'parameter-item-trigger-open': open,
@@ -489,7 +557,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :description="
             collapsableItems && !isStaticTreeItem ? '' : parameter.description
           "
-          :eventBus="eventBus"
+          :eventBus="schemaEventBus"
           :expansion="expansion"
           :extensionSource="'in' in parameter ? parameter : undefined"
           :hideWriteOnly="true"
