@@ -16,6 +16,10 @@ export function processResponseBody({ data, headers }: { data: unknown; headers:
   const isAttachment = /^\s*attachment\s*(?:;|$)/i.test(contentDisposition)
 
   const dataUrl = (() => {
+    if (data === '') {
+      // An empty file can use a reusable URL without registering an object URL.
+      return isAttachment ? 'data:application/octet-stream,' : ''
+    }
     if (isBlob(data)) {
       return URL.createObjectURL(data)
     }

@@ -1,5 +1,3 @@
-import { resolveObjectURL } from 'node:buffer'
-
 import type { HarResponse } from '@scalar/snippetz'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestPayload } from '@scalar/workspace-store/request-example'
@@ -45,15 +43,12 @@ describe('ResponseBlock', () => {
     'Content-Disposition': 'attachment; filename="export.csv"',
   }
   const downloadLink = 'a[aria-label="Download Response Body"]'
-  const expectZeroByteDownload = (link: Element, filename: string): void => {
+  const expectZeroByteDownload = async (link: Element, filename: string): Promise<void> => {
     const url = link.getAttribute('href')
     assert(url, 'Expected a URL for the response download')
-    try {
-      expect(link.getAttribute('download')).toBe(filename)
-      expect(resolveObjectURL(url)?.size).toBe(0)
-    } finally {
-      URL.revokeObjectURL(url)
-    }
+    expect(link.getAttribute('download')).toBe(filename)
+    const response = await fetch(url)
+    expect((await response.arrayBuffer()).byteLength).toBe(0)
   }
 
   it.each([
@@ -68,18 +63,18 @@ describe('ResponseBlock', () => {
     })
     const wrapper = mount(ResponseBlock, { props: { ...defaultProps, response: result?.response ?? null } })
     try {
-      expectZeroByteDownload(wrapper.get(downloadLink).element, filename)
+      await expectZeroByteDownload(wrapper.get(downloadLink).element, filename)
     } finally {
       wrapper.unmount()
     }
   })
 
   it.each([
-    ['GET', 204],
-    ['GET', 205],
-    ['GET', 304],
-    ['HEAD', 200],
-  ])('hides the download for a bodyless %s response with status %i', async (method, status) => {
+    ['GET', 204, '204 No Content'],
+    ['GET', 205, '205 Reset Content'],
+    ['GET', 304, '304 Not Modified'],
+    ['HEAD', 200, '200 OK'],
+  ])('hides the download for a bodyless %s response with status %i', async (method, status, statusLabel) => {
     const [, result] = await sendRequest({
       isUsingProxy: false,
       requestPayload: ['https://example.test/download', { method }],
@@ -90,7 +85,7 @@ describe('ResponseBlock', () => {
     })
     const wrapper = mount(ResponseBlock, { props: { ...defaultProps, response: result?.response ?? null } })
     try {
-      expect(wrapper.getComponent(ResponseMetaInformation).props('response').status).toBe(status)
+      expect(wrapper.text()).toContain(statusLabel)
       expect(wrapper.find(downloadLink).exists()).toBe(false)
     } finally {
       wrapper.unmount()
@@ -101,7 +96,7 @@ describe('ResponseBlock', () => {
     { name: 'a recorded empty attachment', size: 0, text: '', filename: 'export.csv' },
     { name: 'an omitted body', size: -1, text: '', filename: undefined },
     { name: 'a history entry without body text', size: 0, text: undefined, filename: undefined },
-  ])('restores the expected Download action for $name', ({ size, text, filename }) => {
+  ])('restores the expected Download action for $name', async ({ size, text, filename }) => {
     const harResponse: HarResponse = {
       status: 200,
       statusText: 'OK',
@@ -120,7 +115,7 @@ describe('ResponseBlock', () => {
         expect(wrapper.find(downloadLink).exists()).toBe(false)
         return
       }
-      expectZeroByteDownload(wrapper.get(downloadLink).element, filename)
+      await expectZeroByteDownload(wrapper.get(downloadLink).element, filename)
     } finally {
       wrapper.unmount()
     }
