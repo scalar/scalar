@@ -1,6 +1,5 @@
 /* basic theme */
 .light-mode {
-  color-scheme: light;
   /* A blush love letter, sealed in deep rose */
   --scalar-color-1: #2e1a24;
   --scalar-color-2: #674e5a;
@@ -15,7 +14,6 @@
   --scalar-border-color: #efdbe1;
 }
 .dark-mode {
-  color-scheme: dark;
   /* A candlelit wine-dark evening with rose-pink accents */
   --scalar-color-1: #fbeff3;
   --scalar-color-2: #c9b0bc;
