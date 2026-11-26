@@ -9,11 +9,11 @@ import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 
 import { normalize } from './normalize.mjs'
-import { BASELINE_NO_REPARSE, CODE_HIGHLIGHT, OUT, PROTOTYPE } from './paths.mjs'
+import { BASELINE_NO_REPARSE, MARKDOWN, OUT, PROTOTYPE } from './paths.mjs'
 
 const require = createRequire(import.meta.url)
 const { HtmlRenderer, Parser } = require('commonmark')
-const NM = CODE_HIGHLIGHT + '/node_modules/'
+const NM = MARKDOWN + '/node_modules/'
 const { unified } = await import(NM + 'unified/index.js')
 const remark = unified()
   .use((await import(NM + 'remark-parse/index.js')).default)

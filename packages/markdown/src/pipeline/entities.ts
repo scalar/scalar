@@ -14,7 +14,7 @@ const LEGACY =
   )
 
 /** micromark's rule: controls, surrogates, noncharacters and out-of-range code points become U+FFFD. */
-export const fromCodePoint = (cp: number): string =>
+const fromCodePoint = (cp: number): string =>
   cp < 9 ||
   cp === 11 ||
   (cp > 13 && cp < 32) ||

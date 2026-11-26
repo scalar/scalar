@@ -1,8 +1,11 @@
 # Markdown pipeline exploration
 
+> [!NOTE]
+> The pipeline has moved into the package: it lives in [`packages/markdown/src/pipeline`](../../packages/markdown/src/pipeline) and is what `htmlFromMarkdown`, `getHeadings` and `splitContent` from `@scalar/markdown` use. The unified renderer it replaced is still in the package behind `@scalar/markdown/renderer` (for `@scalar/code-highlight`), and this directory keeps the harness that compares the two. #10739, mentioned throughout, is the PR that created `@scalar/markdown` and has since merged, so its rows are what `main` was before the move.
+
 Can a purpose-built Markdown pipeline beat the unified/remark/rehype stack behind `htmlFromMarkdown` (`@scalar/code-highlight`, moving to `@scalar/markdown` in #10739) on **bundle size and speed**, without giving up rendering parity or safety?
 
-**Yes.** The prototype in [`src/`](./src) is **6.6× smaller** (gzipped) and **30–37× faster** on real API descriptions. It renders the **same DOM for 99.64% of 463,780 real API descriptions** (every description in APIs.guru), and **every** remaining difference is a bug in the current pipeline: a link that cannot be clicked, a lost space, a dropped alert, broken text. It passes **more** of the CommonMark spec, and survived 300,000 fuzzed inputs with no sanitizer violation. It is also linear on cmark's pathological inputs, where the current pipeline takes up to **two minutes**.
+**Yes.** The prototype, now in [`packages/markdown/src/pipeline`](../../packages/markdown/src/pipeline), is **6.6× smaller** (gzipped) and **30–37× faster** on real API descriptions. It renders the **same DOM for 99.64% of 463,780 real API descriptions** (every description in APIs.guru), and **every** remaining difference is a bug in the current pipeline: a link that cannot be clicked, a lost space, a dropped alert, broken text. It passes **more** of the CommonMark spec, and survived 300,000 fuzzed inputs with no sanitizer violation. It is also linear on cmark's pathological inputs, where the current pipeline takes up to **two minutes**.
 
 [Did anything change?](#rendering-parity-did-anything-change) covers every corpus and test suite this was checked against, including screenshots.
 
@@ -31,7 +34,7 @@ Where the current 332 KB goes (`pnpm size:breakdown`): parse5 29%, micromark + G
 
 ### In the real API Reference bundle
 
-The module-level numbers above do not translate one to one, because the unified stack has a second user: the "Copy as Markdown" buttons (`@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown`) use it to turn descriptions back into Markdown. [`bench/swap/run.mjs`](./bench/swap/run.mjs) builds `@scalar/api-reference`'s real standalone config three ways, on `main` and on #10739's branch:
+The module-level numbers above do not translate one to one, because the unified stack has a second user: the "Copy as Markdown" buttons (`@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown`) use it to turn descriptions back into Markdown. A swap script (removed when the pipeline moved into the package, because the real build now measures it directly) built `@scalar/api-reference`'s real standalone config three ways, on `main` and on #10739's branch:
 
 - **as shipped**
 - **prototype**: rendering (`ScalarMarkdown`, the introduction's headings and sections) uses the prototype. Code blocks are highlighted with `@scalar/highlight`, which `ScalarCodeBlock` already ships, and the Copy as Markdown packages keep what they use today.
@@ -160,12 +163,9 @@ An independent agent review of the sanitizer was cut off before it reproduced an
 
 ### The existing test suites
 
-The current pipeline's own tests (`markdown.test.ts`, `getHeadings.test.ts`, `splitContent.test.ts`, `rehype-alert.test.ts`) are copied into [`test/`](./test) unchanged except for the import. 84 of 92 pass. The 8 failures are expected:
+The current pipeline's own tests (`markdown.test.ts`, `getHeadings.test.ts`, `splitContent.test.ts`) now run against the pipeline in the package, and `rehype-alert.test.ts` became `pipeline/alerts.test.ts`. Before the move, 84 of 92 passed unchanged. 5 failures compared exact `rehype-format` whitespace (a leading `\n`, indentation) or `&#x3C;` against `&lt;` with an identical DOM, and those expectations were updated. 3 expected `hljs` classes and pass now that `@scalar/highlight` is wired in.
 
-- 5 compare exact `rehype-format` whitespace (a leading `\n`, indentation) or `&#x3C;` against `&lt;`. The DOM is identical.
-- 3 expect `hljs` classes. The prototype has a `highlight` hook, but no highlighter is wired in here.
-
-The test suites of the packages that render Markdown also ran unchanged with the prototype in place of `@scalar/code-highlight`'s Markdown functions ([`bench/swap/tests.mjs`](./bench/swap/tests.mjs), `pnpm test:consumers`). Code blocks went through code-highlight's own `rehypeHighlight` in both runs, so only the Markdown differs. A deliberately broken shim fails 16 api-reference tests, which shows the swap is live.
+Before the move, the test suites of the packages that render Markdown also ran unchanged with the prototype swapped in for `@scalar/code-highlight`'s Markdown functions, through a swap script that is now removed. A deliberately broken shim failed 16 api-reference tests, which showed the swap was live. Now that the package renders with the pipeline, those suites test it directly.
 
 | package                       |                current |              prototype |
 | ----------------------------- | ---------------------: | ---------------------: |
@@ -181,12 +181,12 @@ Six files, and one dependency that micromark uses today too (`decode-named-chara
 
 | file                               | what it does                                                                                                                            |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| [`blocks.ts`](./src/blocks.ts)     | CommonMark's line-by-line block algorithm, ported from commonmark.js, plus GFM tables, task list items and footnote definitions         |
-| [`inline.ts`](./src/inline.ts)     | Delimiter-run emphasis and the bracket algorithm from commonmark.js, plus GFM strikethrough, autolink literals and footnote calls       |
-| [`html.ts`](./src/html.ts)         | A small HTML tokenizer, the `hast-util-sanitize` GitHub schema the current pipeline uses (plus Scalar's `class` rule), and the `Writer` |
-| [`render.ts`](./src/render.ts)     | The tree to HTML, including GitHub alerts and footnotes with the same markup as today                                                   |
-| [`entities.ts`](./src/entities.ts) | Character references: Markdown's rules for Markdown text, the HTML parser's rules for raw HTML                                          |
-| [`index.ts`](./src/index.ts)       | `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading` and `textFromNode`, with today's signatures                              |
+| [`blocks.ts`](../../packages/markdown/src/pipeline/blocks.ts)     | CommonMark's line-by-line block algorithm, ported from commonmark.js, plus GFM tables, task list items and footnote definitions         |
+| [`inline.ts`](../../packages/markdown/src/pipeline/inline.ts)     | Delimiter-run emphasis and the bracket algorithm from commonmark.js, plus GFM strikethrough, autolink literals and footnote calls       |
+| [`html.ts`](../../packages/markdown/src/pipeline/html.ts)         | A small HTML tokenizer, the `hast-util-sanitize` GitHub schema the current pipeline uses (plus Scalar's `class` rule), and the `Writer` |
+| [`render.ts`](../../packages/markdown/src/pipeline/render.ts)     | The tree to HTML, including GitHub alerts and footnotes with the same markup as today                                                   |
+| [`entities.ts`](../../packages/markdown/src/pipeline/entities.ts) | Character references: Markdown's rules for Markdown text, the HTML parser's rules for raw HTML                                          |
+| [`pipeline.ts`](../../packages/markdown/src/pipeline/pipeline.ts) | `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading` and `textFromNode`, with today's signatures                              |
 
 Four decisions account for most of the size and speed:
 
@@ -200,12 +200,14 @@ Four decisions account for most of the size and speed:
 
 In rough order:
 
-1. **Wire in `@scalar/highlight`.** Pass a `highlight(code, lang)` that returns the highlighted HTML, and port the "guess only when it can be confirmed" detection from #10739's `rehypeHighlight`. The rest of `render.ts` already emits the `hljs language-x custom-scroll` classes.
-2. **Decide on byte-for-byte compatibility.** Output is DOM-equivalent, not string-equal: there is no `rehype-format` indentation and no leading `\n`. Tests that compare exact strings (in this package and in snapshot tests elsewhere) need to compare DOM or be updated, and visual snapshots need a review pass. The differences listed under [Did anything change?](#rendering-parity-did-anything-change) are intended fixes.
+Items 1, 2 and 6 are done: the pipeline renders `@scalar/markdown`'s output.
+
+1. ~~**Wire in `@scalar/highlight`.**~~ Done. `packages/markdown/src/markdown/highlight.ts` highlights through `@scalar/highlight/compat`. `main` dropped language detection in the meantime, so there was nothing to port. Pass a `highlight(code, lang)` that returns the highlighted HTML, and port the "guess only when it can be confirmed" detection from #10739's `rehypeHighlight`. The rest of `render.ts` already emits the `hljs language-x custom-scroll` classes.
+2. ~~**Decide on byte-for-byte compatibility.**~~ Done: DOM-equivalent, and the exact-string tests were updated. Output is DOM-equivalent, not string-equal: there is no `rehype-format` indentation and no leading `\n`. Tests that compare exact strings (in this package and in snapshot tests elsewhere) need to compare DOM or be updated, and visual snapshots need a review pass. The differences listed under [Did anything change?](#rendering-parity-did-anything-change) are intended fixes.
 3. **Table insertion modes in the `Writer`.** Insert implied `<tbody>`/`<tr>` and move content that is not allowed inside a table out of it, so the browser builds exactly the written tree. This is fidelity only, about 50 lines.
 4. **Move the Copy as Markdown packages off unified, or `standalone.js` gets bigger.** `@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown` use unified for Markdown→mdast, HTML→mdast (`rehype-remark`) and mdast→Markdown (`remark-stringify`). ESM builds load them only on click, so apps bundling the package save right away. The standalone build is UMD and inlines them, though, so swapping only the renderer makes `standalone.js` 1% larger than #10739 (see [In the real bundle](#in-the-real-api-reference-bundle)). The prototype's mdast-shaped tree covers their Markdown→mdast step. They still need an mdast→Markdown serializer and a small HTML→Markdown converter. Alternatively, ship them as a lazy chunk if the standalone build can load one.
 5. **Security sign-off.** A human review of `html.ts`, the DOMPurify and html5sec vector suites, and the invariant fuzzer from `bench/` kept in CI.
-6. **Packaging.** Make this the implementation inside `@scalar/markdown` (#10739) behind the same exports, and keep the remark-based version as the reference in its tests, the way `@scalar/highlight` freezes lowlight output. Then the usual: types, Knip, changesets.
+6. ~~**Packaging.**~~ Done, with the remark-based renderer kept as the reference in the kitchen-sink test. Make this the implementation inside `@scalar/markdown` (#10739) behind the same exports, and keep the remark-based version as the reference in its tests, the way `@scalar/highlight` freezes lowlight output. Then the usual: types, Knip, changesets.
 
 ### What is left
 
@@ -218,12 +220,12 @@ None of these appear in any real corpus above:
 
 ## Reproducing
 
-From this directory (the repository root needs `pnpm install` first, because the baseline is built from `packages/code-highlight`):
+From this directory (the repository root needs `pnpm install` and `pnpm --filter @scalar/highlight build` first, because both pipelines are built from `packages/markdown`):
 
 ```bash
 pnpm install --ignore-workspace
 pnpm setup             # download the corpora and the GFM spec, build both pipelines
-pnpm test              # the current pipeline's own test suite against the prototype
+pnpm test              # the kitchen sink: every kind of Markdown through both pipelines
 pnpm spec              # CommonMark and GFM conformance
 pnpm spec:compare      # the same, scored for both pipelines
 pnpm parity            # DOM comparison over 11,224 real descriptions
@@ -231,14 +233,12 @@ pnpm corpora           # download APIs.guru and the library fixtures, collect Ma
 pnpm gamut             # differential run and classification over every corpus
 pnpm minimize          # shrink unexplained fuzz differences to minimal inputs
 pnpm visual            # screenshots of both pipelines' output, compared byte for byte
-pnpm test:consumers    # components, api-reference and openapi-to-markdown suites with the prototype
 pnpm size              # bundle size, both pipelines and the alternatives
-pnpm size:real         # the real API Reference bundle, with and without the prototype
 pnpm bench             # throughput
 pnpm security          # vectors plus 300,000 fuzzed inputs
 pnpm pathological      # cmark's pathological inputs (the current pipeline takes minutes)
 ```
 
-`pnpm size:real` needs the API Reference's dependencies built first (`pnpm --filter "@scalar/api-reference^..." run build` from the repository root). To measure another checkout, such as #10739's branch, run `node bench/swap/run.mjs --repo <path> --label <name>` and `node bench/swap/chunks.mjs main,prototype,prototype-no-copy <name>`.
+To measure the real API Reference bundle, build it on this branch and on `main` (`pnpm --filter "@scalar/api-reference^..." run build`, then `pnpm --filter @scalar/api-reference build:standalone`) and compare `packages/api-reference/dist/browser/standalone.js`.
 
 This directory is outside the pnpm workspace, so it does not affect the build, CI or releases.

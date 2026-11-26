@@ -2,36 +2,17 @@ import { rmSync, writeFileSync } from 'node:fs'
 
 import { rolldown } from 'rolldown'
 
-import { CODE_HIGHLIGHT, HERE } from './paths.mjs'
+import { BASELINE_SRC, MARKDOWN, ROOT } from './paths.mjs'
 
-const stubPlugin = (alias) => ({
-  name: 'stub',
-  resolveId(id) {
-    if (alias[id]) return alias[id]
-    for (const [k, v] of Object.entries(alias)) if (k === '@' && id.startsWith('@/')) return null
-    return null
-  },
-})
-const CH = CODE_HIGHLIGHT
-const stubs = HERE + 'stubs'
-const file = `${CH}/.mdbench-compose.js`
-writeFileSync(
-  file,
-  `import { htmlFromMarkdown } from '${CH}/src/markdown/markdown.ts'; globalThis.__sink = htmlFromMarkdown`,
-)
-const alias = {
-  '@/rehype-highlight/shared-lowlight': stubs + '/shared-lowlight.js',
-  '@/rehype-highlight': stubs + '/rehype-highlight.js',
-  '@/languages': stubs + '/languages.js',
-  '@/rehype-alert': CH + '/src/rehype-alert/index.ts',
-}
-const b = await rolldown({ input: file, platform: 'browser', logLevel: 'silent', plugins: [stubPlugin(alias)] })
+const file = `${MARKDOWN}/.mdbench-compose.js`
+writeFileSync(file, `import { htmlFromMarkdown } from '${BASELINE_SRC}'; globalThis.__sink = htmlFromMarkdown`)
+const b = await rolldown({ input: file, cwd: MARKDOWN, platform: 'browser', logLevel: 'silent' })
 const { output } = await b.generate({ format: 'es', minify: true })
 rmSync(file)
 const by = {}
 for (const [id, m] of Object.entries(output[0].modules)) {
   const mm = id.match(/node_modules\/\.pnpm\/[^/]+\/node_modules\/((?:@[^/]+\/)?[^/]+)/)
-  const k = mm ? mm[1] : id.replace(CH, 'code-highlight')
+  const k = mm ? mm[1] : id.replace(ROOT, '')
   by[k] = (by[k] ?? 0) + m.renderedLength
 }
 const groups = {

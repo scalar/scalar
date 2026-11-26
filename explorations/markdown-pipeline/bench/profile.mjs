@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs'
 
-import { CODE_HIGHLIGHT, CORPUS } from './paths.mjs'
+import { CORPUS, UNIFIED_RENDERER } from './paths.mjs'
 
 const corpus = JSON.parse(readFileSync(CORPUS, 'utf8'))
-const src = readFileSync(CODE_HIGHLIGHT + '/src/markdown/markdown.ts', 'utf8')
+const src = readFileSync(UNIFIED_RENDERER, 'utf8')
 const PLAIN = eval(src.match(/const PLAIN_PARAGRAPH =\s*\n\s*\/\/[^\n]*\n\s*(\/.*\/i)\n/)[1])
 for (const [name, list] of Object.entries(corpus)) {
   const u = [...new Set(list)]

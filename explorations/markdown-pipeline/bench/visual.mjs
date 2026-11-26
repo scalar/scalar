@@ -46,7 +46,7 @@ const items =
 const css = [
   'packages/themes/dist/style.css',
   'packages/components/dist/style.css',
-  'packages/code-highlight/dist/css/code.css',
+  'packages/highlight/dist/compat/code.css',
 ]
   .map((f) => readFileSync(ROOT + f, 'utf8'))
   .join('\n')

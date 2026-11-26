@@ -37,7 +37,7 @@ const CLOSES_P = new Set(
   ),
 )
 /** Tags whose direct text children get inline Markdown, matching the current pipeline. */
-export const INLINE_MARKDOWN_TAGS = new Set(['dd', 'dt', 'li', 'p', 'summary', 'td', 'th'])
+const INLINE_MARKDOWN_TAGS = new Set(['dd', 'dt', 'li', 'p', 'summary', 'td', 'th'])
 
 /** `hast-util-sanitize`'s GitHub schema, which the current pipeline uses. */
 export const DEFAULT_TAGS =
@@ -182,6 +182,35 @@ const TABLE_PART_CLOSES: Record<string, string[]> = {
 /** hast maps attribute names to properties case-insensitively, so JSX-style names become HTML ones. */
 const ATTRIBUTE_ALIASES: Record<string, string> = { classname: 'class', htmlfor: 'for' }
 
+/**
+ * Serializes the attributes the schema allows on `tag`, escaped. The first of
+ * duplicate names wins, as in the HTML parser. A `null` value is a bare attribute.
+ */
+export const sanitizeAttributes = (tag: string, attrs: [name: string, value: string | null][]): string => {
+  let s = ''
+  const seen = new Set<string>()
+  const tagAttrs = TAG_ATTRS[tag]
+  for (const [raw, value] of attrs) {
+    const name = ATTRIBUTE_ALIASES[raw] ?? raw
+    if (seen.has(name)) continue
+    seen.add(name)
+    if (!GLOBAL_ATTRS.has(name) && !tagAttrs?.includes(name)) continue
+    if (tag === 'input' && (name === 'type' || name === 'disabled')) continue
+    let v = value ?? ''
+    if (name === 'class' && CLASS_RULES[tag]) {
+      v = v
+        .split(/[ \t\n\f\r]+/)
+        .filter(CLASS_RULES[tag]!)
+        .join(' ')
+    }
+    if (PROTOCOLS[name] && !isSafeUrl(v, name)) continue
+    // Not in the schema's protocol list, but every candidate is a URL, so check them like `src`.
+    if (name === 'srcset' && !v.split(',').every((c) => isSafeUrl(c.trim().split(/\s+/)[0] ?? '', 'src'))) continue
+    s += value === null ? ` ${name}` : ` ${name}="${escapeRawAttr(v)}"`
+  }
+  return s
+}
+
 export type WriterOptions = {
   tags: Set<string>
   /** Renders text found directly inside `INLINE_MARKDOWN_TAGS` in raw HTML. */
@@ -212,6 +241,14 @@ const HEAD = new Set([
   'template',
   'title',
 ])
+
+/** `Array.prototype.findLastIndex`, which is newer than the ES2022 this package targets. */
+const lastIndex = <T>(list: T[], test: (item: T) => boolean): number => {
+  for (let i = list.length - 1; i >= 0; i--) {
+    if (test(list[i]!)) return i
+  }
+  return -1
+}
 
 export class Writer {
   out = ''
@@ -289,7 +326,7 @@ export class Writer {
    */
   private closeLink(): void {
     this.pending = this.pending.filter((f) => f.tag !== 'a')
-    const at = this.stack.findLastIndex((f) => f.tag === 'a')
+    const at = lastIndex(this.stack, (f) => f.tag === 'a')
     if (at !== -1 && this.stack.slice(at + 1).every((f) => !MARKERS.has(f.tag))) {
       this.popTo(at)
       this.pending = this.pending.filter((f) => f.tag !== 'a')
@@ -325,7 +362,7 @@ export class Writer {
   /** A block start closes an open `<p>`, as the HTML parser would when it reads the output. */
   private closeP(tag: string): void {
     if (!CLOSES_P.has(tag)) return
-    const at = this.stack.findLastIndex((f) => f.tag === 'p' && !f.hidden)
+    const at = lastIndex(this.stack, (f) => f.tag === 'p' && !f.hidden)
     if (at !== -1 && this.stack.slice(at + 1).every((f) => f.hidden || !CLOSES_P.has(f.tag))) this.popTo(at)
   }
 
@@ -336,7 +373,7 @@ export class Writer {
    */
   close(id: number): void {
     this.flush()
-    const at = this.stack.findLastIndex((f) => f.id === id)
+    const at = lastIndex(this.stack, (f) => f.id === id)
     const tag = this.generated.get(id)
     this.generated.delete(id)
     const waiting = this.pending.findIndex((f) => f.id === id)
@@ -484,27 +521,7 @@ export class Writer {
       else if (!VOID.has(tag) && !RAW_TEXT.has(tag)) this.stack.push({ tag, id: this.nextId++, hidden: true })
       return
     }
-    let s = ''
-    const seen = new Set<string>()
-    const tagAttrs = TAG_ATTRS[tag]
-    for (const [raw, value] of attrs) {
-      const name = ATTRIBUTE_ALIASES[raw] ?? raw
-      if (seen.has(name)) continue
-      seen.add(name)
-      if (!GLOBAL_ATTRS.has(name) && !tagAttrs?.includes(name)) continue
-      if (tag === 'input' && (name === 'type' || name === 'disabled')) continue
-      let v = value ?? ''
-      if (name === 'class' && CLASS_RULES[tag]) {
-        v = v
-          .split(/[ \t\n\f\r]+/)
-          .filter(CLASS_RULES[tag]!)
-          .join(' ')
-      }
-      if (PROTOCOLS[name] && !isSafeUrl(v, name)) continue
-      // Not in the schema's protocol list, but every candidate is a URL, so check them like `src`.
-      if (name === 'srcset' && !v.split(',').every((c) => isSafeUrl(c.trim().split(/\s+/)[0] ?? '', 'src'))) continue
-      s += value === null ? ` ${name}` : ` ${name}="${escapeRawAttr(v)}"`
-    }
+    let s = sanitizeAttributes(tag, attrs)
     if (tag === 'input') s = ' type="checkbox"' + s + ' disabled'
     if (tag === 'a') {
       const href = attrs.find(([n]) => n === 'href')?.[1]
@@ -526,7 +543,7 @@ export class Writer {
       return this.popTo(at)
     }
     // A formatting element that was closed implicitly is forgotten, and no node is created.
-    const waiting = this.pending.findLastIndex((f) => f.tag === tag)
+    const waiting = lastIndex(this.pending, (f) => f.tag === tag)
     if (waiting !== -1) return void this.pending.splice(waiting, 1)
     if (tag === 'p' || tag === 'br') this.writeText()
     this.strayEnd(tag)
@@ -541,7 +558,7 @@ const WS = /[\t\n\f\r ]*/y
  * rules closely enough for well-formed input. Comments, doctypes and
  * processing instructions are dropped, as the sanitizer drops them today.
  */
-export const tokenize = (s: string, w: Writer): void => {
+const tokenize = (s: string, w: Writer): void => {
   let i = 0
   const n = s.length
   while (i < n) {

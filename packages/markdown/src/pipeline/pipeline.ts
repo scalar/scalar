@@ -1,14 +1,21 @@
 /**
- * Prototype replacement for the unified/remark/rehype pipeline, with the same
- * public API as `@scalar/code-highlight/markdown`.
+ * Purpose-built Markdown to HTML pipeline: CommonMark and GFM block and inline
+ * parsers, ported from commonmark.js, and an allowlist writer that re-serializes
+ * every tag. It replaces unified/remark/rehype (and parse5) for rendering, with
+ * the same API the unified renderer had.
  */
-import { type Block, BlockParser, type Root } from './blocks'
+import { type Block, BlockParser, type NodeData, type Root } from './blocks'
 import { DEFAULT_TAGS } from './html'
-import { type Inline, InlineParser } from './inline'
+import type { Inline } from './inline'
 import { type Highlighter, render } from './render'
 
-export type Node = Block | Inline | Root | { type: string; children?: Node[]; data?: unknown }
-export type Heading = Block & { type: 'heading' }
+/**
+ * Any node of the tree. The tree is shaped like mdast, so `transform` callbacks
+ * written for mdast keep working: set `data.hProperties.id` on a heading to give
+ * it an id.
+ */
+export type Node = { type: string; children?: Node[]; data?: NodeData }
+export type Heading = Extract<Block, { type: 'heading' }>
 
 export type HtmlFromMarkdownOptions = {
   removeTags?: string[]
@@ -16,14 +23,16 @@ export type HtmlFromMarkdownOptions = {
   transform?: (node: Node) => Node
   transformType?: string
   highlight?: Highlighter
-  /** Test only. */
+  /** Extra class for highlighted `<code>` elements. */
+  codeClassName?: string
+  /** Skips the sanitizer and the external link rules. Only for running the CommonMark spec. */
   unsafe?: boolean
 }
 
 export const isHeading = (node: Node): node is Heading =>
   node.type === 'heading' && 'depth' in node && 'children' in node
 
-export const parse = (markdown: string): Root => new BlockParser().parse(markdown)
+const parse = (markdown: string): Root => new BlockParser().parse(markdown)
 
 /** Visits nodes of `type`, not descending into a match, like `unist-util-visit` with `SKIP`. */
 const visit = (node: Node, type: string, fn: (node: Node) => void): void => {
@@ -55,7 +64,13 @@ export const htmlFromMarkdown = (markdown: string, options?: HtmlFromMarkdownOpt
   const root = parser.parse(markdown)
   const { transform, transformType } = options ?? {}
   if (transform && transformType) visit(root, transformType, transform)
-  return render(root, { tags, highlight: options?.highlight, inlineInHtml, unsafe: options?.unsafe })
+  return render(root, {
+    tags,
+    highlight: options?.highlight,
+    codeClassName: options?.codeClassName,
+    inlineInHtml,
+    unsafe: options?.unsafe,
+  })
 }
 
 /**
@@ -77,7 +92,7 @@ const inlineInHtml = (text: string): Inline[] | null => {
 }
 
 export const textFromNode = (node: Node): string => {
-  if (node.type === 'text') return (node as { value: string }).value ?? ''
+  if (node.type === 'text') return (node as Node & { value?: string }).value ?? ''
   const children = (node as { children?: Node[] }).children
   return Array.isArray(children) ? children.map(textFromNode).join('') : ''
 }

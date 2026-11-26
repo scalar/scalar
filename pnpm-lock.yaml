@@ -2465,6 +2465,9 @@ importers:
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
+      decode-named-character-reference:
+        specifier: ^1.0.2
+        version: 1.0.2
       hast-util-to-text:
         specifier: catalog:*
         version: 4.0.5

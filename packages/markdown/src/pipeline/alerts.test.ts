@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { htmlFromMarkdown } from '../src/index'
+import { htmlFromMarkdown } from '../markdown'
 
-describe('rehype-alert', () => {
+describe('alerts', () => {
   const process = async (markdown: string) => htmlFromMarkdown(markdown)
 
   it('transforms note alerts correctly', async () => {

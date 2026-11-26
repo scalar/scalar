@@ -2,15 +2,22 @@
  * Renders the mdast-shaped tree to HTML. Every element goes through the
  * `Writer`, so the tag allowlist applies to Markdown output as well as raw HTML.
  */
-import type { Block, ListItem, Root } from './blocks'
-import { Writer, escapeAttr, escapeText, isExternal, isSafeUrl } from './html'
+import type { Block, ListItem, NodeData, Root } from './blocks'
+import { Writer, escapeAttr, escapeText, isExternal, isSafeUrl, sanitizeAttributes } from './html'
 import { type Inline, normalizeUri } from './inline'
 
-export type Highlighter = (code: string, lang: string | null) => { html: string; lang?: string } | null | undefined
+/**
+ * Highlights the text of a fenced code block into HTML, or returns `null` when
+ * the language has no grammar, so the block stays plain text.
+ */
+export type Highlighter = (code: string, lang: string) => string | null
 
 export type RenderOptions = {
   tags: Set<string>
+  /** Without a highlighter, code blocks keep only their `language-*` class. */
   highlight?: Highlighter
+  /** Extra class for highlighted `<code>` elements, such as `custom-scroll`. */
+  codeClassName?: string
   /** Parses text found inside raw HTML tags such as `<p>`, or returns `null` to keep it as text. */
   inlineInHtml: (text: string) => Inline[] | null
   unsafe?: boolean
@@ -28,6 +35,40 @@ type Ctx = {
 
 const attr = (name: string, value: string | null | undefined): string =>
   value === null || value === undefined ? '' : ` ${name}="${escapeAttr(value)}"`
+
+/** hast property names that differ from their attribute, beyond the `aria-*` and `data-*` camel case. */
+const PROPERTY_NAMES: Record<string, string> = { className: 'class', htmlFor: 'for' }
+
+/**
+ * The element a node renders as, after the `data.hName` and `data.hProperties`
+ * a `transform` callback set on it, the way `mdast-util-to-hast` reads them.
+ * The properties go through the same allowlist as raw HTML, as they went
+ * through `rehype-sanitize` before.
+ */
+const element = (node: { data?: NodeData }, tag: string): [tag: string, attrs: string] => {
+  const data = node.data
+  if (!data) return [tag, '']
+  const name = typeof data.hName === 'string' ? data.hName.toLowerCase() : tag
+  const attrs: [string, string | null][] = []
+  for (const [key, value] of Object.entries(data.hProperties ?? {})) {
+    if (value === undefined || value === null || value === false) continue
+    const attr =
+      PROPERTY_NAMES[key] ?? (/^(aria|data)[A-Z]/.test(key) ? key.replace(/[A-Z]/g, (c) => `-${c}`) : key).toLowerCase()
+    const text = Array.isArray(value) ? value.join(' ') : String(value)
+    // Property values are text, so `&` is literal. Raw HTML keeps its references, which is all the writer escapes for.
+    attrs.push([attr, value === true ? null : text.replace(/&/g, '&amp;')])
+  }
+  return [name, sanitizeAttributes(name, attrs)]
+}
+
+/** Highlighting is best-effort: a grammar that throws must not take down the whole render. */
+const highlightSafely = (highlight: Highlighter, code: string, lang: string): string | null => {
+  try {
+    return highlight(code, lang)
+  } catch {
+    return null
+  }
+}
 
 const inlines = (nodes: Inline[], c: Ctx): void => {
   const { w } = c
@@ -138,7 +179,7 @@ const renderAlert = (node: Block & { type: 'blockquote' }, c: Ctx): boolean => {
     }
     if (afterInline) w.text('\n')
     if (n.type === 'paragraph') inlines(n.children, c)
-    else block(n as Block, c, false, false)
+    else block(n as Block, c, false)
     w.text('\n')
     afterInline = false
   }
@@ -172,7 +213,7 @@ const listItem = (item: ListItem, c: Ctx, tight: boolean): void => {
       w.newline()
     } else {
       if (tight && !first) w.newline()
-      block(child, c, false, tight)
+      block(child, c, false)
     }
     first = false
   }
@@ -180,19 +221,18 @@ const listItem = (item: ListItem, c: Ctx, tight: boolean): void => {
   w.newline()
 }
 
-const block = (node: Block, c: Ctx, atRoot: boolean, tight: boolean): void => {
+const block = (node: Block, c: Ctx, atRoot: boolean): void => {
   const { w } = c
   switch (node.type) {
     case 'paragraph': {
-      const p = w.open('p')
+      const p = w.open(...element(node, 'p'))
       inlines(node.children, c)
       w.close(p)
       w.newline()
       return
     }
     case 'heading': {
-      const id = node.data?.hProperties?.id
-      const h = w.open(`h${node.depth}`, typeof id === 'string' ? attr('id', id) : '')
+      const h = w.open(...element(node, `h${node.depth}`))
       inlines(node.children, c)
       w.close(h)
       w.newline()
@@ -204,9 +244,9 @@ const block = (node: Block, c: Ctx, atRoot: boolean, tight: boolean): void => {
       return
     case 'blockquote': {
       if (atRoot && renderAlert(node, c)) return
-      const q = w.open('blockquote')
+      const q = w.open(...element(node, 'blockquote'))
       w.newline()
-      for (const child of node.children) block(child, c, false, false)
+      for (const child of node.children) block(child, c, false)
       w.close(q)
       w.newline()
       return
@@ -224,16 +264,19 @@ const block = (node: Block, c: Ctx, atRoot: boolean, tight: boolean): void => {
     case 'code': {
       // The class takes the first word only, as today: a decoded `&#x0C;` or tab ends it.
       const lang = node.lang?.split(/[\t\n\f\r ]/)[0] || null
-      const highlighted = c.o.highlight?.(node.value, lang)
+      const text = node.value ? node.value + '\n' : ''
       const pre = w.open('pre')
-      if (highlighted) {
-        const name = highlighted.lang ?? lang
-        const code = w.open('code', ` class="hljs${name ? ` language-${escapeAttr(name)}` : ''} custom-scroll"`)
-        w.text(highlighted.html)
+      // `no-highlight` opts a block out entirely, the way highlight.js reads it.
+      if (!c.o.highlight || lang === 'no-highlight') {
+        const code = w.open('code', lang ? ` class="language-${escapeAttr(lang)}"` : '')
+        w.text(escapeText(text))
         w.close(code)
       } else {
-        const code = w.open('code', lang ? ` class="language-${escapeAttr(lang)}"` : '')
-        w.text(escapeText(node.value ? node.value + '\n' : ''))
+        // Unlabelled blocks still get the classes, so they share the look of every
+        // other code block and only lose the colours. There is no language detection.
+        const classes = ['hljs', lang ? `language-${escapeAttr(lang)}` : '', c.o.codeClassName ?? '']
+        const code = w.open('code', ` class="${classes.filter(Boolean).join(' ')}"`)
+        w.text((lang && highlightSafely(c.o.highlight, text, lang)) || escapeText(text))
         w.close(code)
       }
       w.close(pre)
@@ -246,7 +289,7 @@ const block = (node: Block, c: Ctx, atRoot: boolean, tight: boolean): void => {
       return
     case 'table': {
       const [head, ...body] = node.children
-      const t = w.open('table')
+      const t = w.open(...element(node, 'table'))
       w.newline()
       const thead = w.open('thead')
       w.newline()
@@ -267,7 +310,6 @@ const block = (node: Block, c: Ctx, atRoot: boolean, tight: boolean): void => {
     case 'footnoteDefinition':
       return
   }
-  void tight
 }
 
 const tableRow = (
@@ -332,7 +374,7 @@ const footnoteSection = (c: Ctx): void => {
         backrefs()
         w.close(p)
         w.newline()
-      } else block(child, c, false, false)
+      } else block(child, c, false)
     })
     if (last?.type !== 'paragraph') backrefs()
     w.close(li)
@@ -359,7 +401,7 @@ export const render = (root: Root, o: RenderOptions): string => {
       return true
     },
   })
-  for (const node of root.children) block(node, c, true, false)
+  for (const node of root.children) block(node, c, true)
   footnoteSection(c)
   return c.w.finish()
 }

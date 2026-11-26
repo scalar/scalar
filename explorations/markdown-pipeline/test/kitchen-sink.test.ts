@@ -5,9 +5,10 @@
  * GFM, raw HTML and sanitizing, and Scalar's own additions (alerts, inline
  * Markdown inside HTML tags, details, heading anchors, image removal, external
  * links). The sections are rendered alone and as one document, under each set
- * of options `ScalarMarkdown` passes, and the prototype must produce the same
- * DOM as `@scalar/code-highlight`. The samples behind `ScalarMarkdown`'s visual
- * snapshot tests run the same way.
+ * of options `ScalarMarkdown` passes, and the pipeline must produce the same
+ * DOM as the unified renderer it replaced, which `@scalar/markdown` still ships
+ * behind `./renderer`. The samples behind `ScalarMarkdown`'s visual snapshot
+ * tests run the same way.
  *
  * Where the prototype deliberately differs, because the current pipeline has a
  * bug, the case lives in `KNOWN_DIFFERENCES` and asserts the fixed output.
@@ -16,21 +17,18 @@
  */
 import { readFileSync } from 'node:fs'
 
-import { parseFragment } from 'parse5'
+import { type DefaultTreeAdapterMap, parseFragment, serialize } from 'parse5'
 import { describe, expect, it } from 'vitest'
 
 import { samples } from '../../../packages/components/src/components/ScalarMarkdown/samples'
-import { languages, registerLanguage } from '../../../packages/highlight/dist/all.js'
-import { syntaxHighlight } from '../../../packages/highlight/dist/compat/index.js'
+import * as shipped from '../../../packages/markdown/src/markdown/index'
+import * as prototype from '../../../packages/markdown/src/pipeline/index'
 // @ts-expect-error -- built JavaScript without type declarations
 import * as current from '../.out/baseline.mjs'
 // @ts-expect-error -- built JavaScript without type declarations
 import * as currentHighlighted from '../.out/baseline-highlighted.mjs'
 // @ts-expect-error -- plain JavaScript helper
 import { normalize } from '../bench/normalize.mjs'
-import * as prototype from '../src/index'
-
-registerLanguage(...Object.values(languages))
 
 type Pipeline = {
   htmlFromMarkdown: (markdown: string, options?: Record<string, unknown>) => string
@@ -145,54 +143,33 @@ describe('kitchen sink', () => {
     }
   })
 
-  it('highlights code blocks with the same classes and text', () => {
-    const highlight = (code: string, lang: string | null) => {
-      if (!lang) return null
-      const html = syntaxHighlight(code, { lang })
-      return { html: html.slice(html.indexOf('>', html.indexOf('<code')) + 1, html.lastIndexOf('</code>')) }
-    }
+  it('highlights code blocks exactly as the unified renderer did', () => {
     const codeBlocks = (html: string) => {
-      const out: { className: string; text: string }[] = []
-      const text = (n: { value?: string; childNodes?: unknown[] }): string =>
-        n.value ?? (n.childNodes ?? []).map((c) => text(c as typeof n)).join('')
-      const walk = (n: { tagName?: string; attrs?: { name: string; value: string }[]; childNodes?: unknown[] }) => {
-        if (n.tagName === 'code' && (n as { parentNode?: { tagName?: string } }).parentNode?.tagName === 'pre') {
-          out.push({
-            className: n.attrs!.find((a) => a.name === 'class')?.value ?? '',
-            text: text(n).replace(/\n$/, ''),
-          })
+      const out: { className: string; html: string }[] = []
+      const walk = (n: DefaultTreeAdapterMap['parentNode'] | DefaultTreeAdapterMap['childNode']) => {
+        if (
+          'tagName' in n &&
+          n.tagName === 'code' &&
+          (n.parentNode as { tagName?: string } | null)?.tagName === 'pre'
+        ) {
+          out.push({ className: n.attrs.find((a) => a.name === 'class')?.value ?? '', html: serialize(n) })
         }
-        for (const c of n.childNodes ?? []) walk(c as typeof n)
+        if ('childNodes' in n) for (const c of n.childNodes) walk(c)
       }
       walk(parseFragment(html))
       return out
     }
-    // Unlabeled fences are where the highlighters disagree by design (lowlight guesses a
-    // language), so they get one. Only opening fences: a closing fence takes no info string.
-    let open: string | null = null
-    const labeled = sections
+    // Both pipelines highlight with `@scalar/highlight` and neither guesses a language,
+    // so every block has to match: labelled, unlabelled and indented.
+    const document = sections
       .map(({ markdown }) => markdown)
       .concat(samples.map((s) => s.value))
       .join('\n\n')
-      .split('\n')
-      .map((line) => {
-        const fence = /^(\s*)(`{3,}|~{3,})(.*)$/.exec(line)
-        if (!fence) return line
-        if (open) {
-          if (fence[2]!.startsWith(open) && !fence[3]!.trim()) open = null
-          return line
-        }
-        open = fence[2]!
-        return fence[3]!.trim() ? line : `${fence[1]}${fence[2]}text`
-      })
-      .join('\n')
-    const before = codeBlocks(currentHighlighted.htmlFromMarkdown(labeled))
-    const after = codeBlocks(prototype.htmlFromMarkdown(labeled, { highlight }))
+    const before = codeBlocks(currentHighlighted.htmlFromMarkdown(document))
+    const after = codeBlocks(shipped.htmlFromMarkdown(document))
     expect(after.length).toBeGreaterThan(10)
-    expect(after.map((b) => b.text)).toEqual(before.map((b) => b.text))
-    // Indented code has no label, and lowlight guesses one for it: compare classes on fenced blocks only.
-    const fenced = (blocks: typeof after) => blocks.filter((_, i) => after[i]!.className.includes('language-'))
-    expect(fenced(after).map((b) => b.className)).toEqual(fenced(before).map((b) => b.className))
+    expect(after.some((b) => b.html.includes('hljs-'))).toBe(true)
+    expect(after).toEqual(before)
   })
 
   it.each(RESPLIT_BUGS)('fixes a bug in the current pipeline: splitContent keeps %s as written', (name) => {

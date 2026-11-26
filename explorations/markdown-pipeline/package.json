@@ -1,7 +1,7 @@
 {
   "name": "@scalar-internal/markdown-pipeline-exploration",
   "private": true,
-  "description": "Prototype Markdown pipeline and the harness comparing it with @scalar/code-highlight",
+  "description": "Harness comparing the Markdown pipeline in @scalar/markdown with the unified renderer it replaced",
   "type": "module",
   "scripts": {
     "setup": "node bench/corpus.mjs && node bench/build.mjs",
@@ -11,7 +11,6 @@
     "spec:compare": "node bench/spec-vs.mjs",
     "size": "node bench/size.mjs baseline && node bench/size-proto.mjs && node bench/size-alt.mjs",
     "size:breakdown": "node bench/compose.mjs",
-    "size:real": "node bench/swap/run.mjs && node bench/swap/chunks.mjs",
     "bench": "node bench/bench-proto.mjs",
     "bench:alternatives": "node bench/bench.mjs",
     "parity": "node bench/diff-corpus.mjs",
@@ -20,11 +19,7 @@
     "corpora": "node bench/apis-guru.mjs && node bench/markdown-files.mjs && node bench/fixtures.mjs && node bench/fuzz-corpus.mjs 25000 7",
     "gamut": "for l in apis-guru markdown-files fixtures fuzz; do node bench/differential.mjs .out/$l.json $l && node bench/classify.mjs $l; done",
     "minimize": "node bench/minimize.mjs fuzz 1000",
-    "visual": "for l in apis-guru markdown-files fixtures; do node bench/visual.mjs diff $l 2000 && node bench/visual.mjs same $l 3000; done",
-    "test:consumers": "node bench/swap/tests.mjs"
-  },
-  "dependencies": {
-    "decode-named-character-reference": "1.0.2"
+    "visual": "for l in apis-guru markdown-files fixtures; do node bench/visual.mjs diff $l 2000 && node bench/visual.mjs same $l 3000; done"
   },
   "devDependencies": {
     "commonmark": "0.31.2",

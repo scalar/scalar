@@ -54,23 +54,25 @@ type B = {
 }
 
 export type Block =
-  | { type: 'paragraph'; children: Inline[]; position: Pos }
+  | { type: 'paragraph'; children: Inline[]; position: Pos; data?: NodeData }
   | {
       type: 'heading'
       depth: number
       children: Inline[]
       position: Pos
-      data?: { hProperties?: Record<string, unknown> }
+      data?: NodeData
     }
   | { type: 'thematicBreak'; position: Pos }
-  | { type: 'blockquote'; children: Block[]; position: Pos }
+  | { type: 'blockquote'; children: Block[]; position: Pos; data?: NodeData }
   | { type: 'list'; ordered: boolean; start: number | null; spread: boolean; children: ListItem[]; position: Pos }
   | { type: 'code'; lang: string | null; meta: string | null; value: string; position: Pos }
   | { type: 'html'; value: string; position: Pos }
-  | { type: 'table'; align: (string | null)[]; children: TableRow[]; position: Pos }
+  | { type: 'table'; align: (string | null)[]; children: TableRow[]; position: Pos; data?: NodeData }
   | { type: 'footnoteDefinition'; identifier: string; label: string; children: Block[]; position: Pos }
 export type ListItem = { type: 'listItem'; checked: boolean | null; spread: boolean; children: Block[]; position: Pos }
 export type TableRow = { type: 'tableRow'; children: { type: 'tableCell'; children: Inline[] }[] }
+/** Extra data a `transform` callback attaches to a node, as in mdast. */
+export type NodeData = { hName?: string; hProperties?: Record<string, unknown>; [key: string]: unknown }
 export type Pos = { start: { line: number }; end: { line: number } }
 export type Root = { type: 'root'; children: Block[]; footnotes: Map<string, Block & { type: 'footnoteDefinition' }> }
 
@@ -708,7 +710,12 @@ export class BlockParser {
           const m = head?.type === 'text' ? /^\[([ \txX])\](?:[ \t\n]+|$)/.exec(head.value) : null
           const next = first?.type === 'paragraph' ? first.children[1] : undefined
           const spaced = m?.[0].length !== 3 || (next?.type === 'break' && next.trailing === true)
-          if (head?.type === 'text' && m && spaced && (head.value.length > m[0].length || first!.children.length > 1)) {
+          if (
+            head?.type === 'text' &&
+            m &&
+            spaced &&
+            (head.value.length > m[0].length || (first as { children: Inline[] }).children.length > 1)
+          ) {
             checked = m[1] === 'x' || m[1] === 'X'
             head.value = head.value.slice(m[0].length)
             if (!head.value) (first as { children: Inline[] }).children.shift()

@@ -3,10 +3,10 @@ import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 
 import { normalize } from './normalize.mjs'
-import { CODE_HIGHLIGHT, GFM_SPEC, PROTOTYPE } from './paths.mjs'
+import { GFM_SPEC, MARKDOWN, PROTOTYPE } from './paths.mjs'
 
 const COMMONMARK_SPEC = createRequire(import.meta.url).resolve('commonmark-spec/spec.txt')
-const BCH = CODE_HIGHLIGHT + '/node_modules/'
+const BCH = MARKDOWN + '/node_modules/'
 const { unified } = await import(BCH + 'unified/index.js')
 const remarkParse = (await import(BCH + 'remark-parse/index.js')).default
 const remarkGfm = (await import(BCH + 'remark-gfm/index.js')).default
