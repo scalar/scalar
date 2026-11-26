@@ -56,7 +56,7 @@ public class ScalarWebMvcActuatorEndpoint {
         ScalarProperties properties = propertiesProvider.getObject();
         ScalarProperties configuredProperties = configureProperties(properties, request);
 
-        String html = ScalarHtmlRenderer.render(configuredProperties);
+        String html = ScalarHtmlRenderer.renderForActuator(configuredProperties);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)

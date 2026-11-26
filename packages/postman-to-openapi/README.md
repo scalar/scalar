@@ -37,6 +37,8 @@ const result = await convert(myPostmanCollection)
 console.log(result)
 ```
 
+Authentication follows the request's own settings, then the nearest folder override, then the collection settings. This also applies when converting selected requests or folders with `requestIndexPaths`. A request or folder set to No Auth overrides inherited authentication.
+
 ### Detect Postman collections
 
 Use `isPostmanCollection` to decide whether an input string should be parsed as a Postman collection before converting.

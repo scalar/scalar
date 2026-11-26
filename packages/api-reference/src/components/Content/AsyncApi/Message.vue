@@ -16,11 +16,24 @@ import {
 } from '@scalar/workspace-store/events'
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
-import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
-import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
+import type {
+  TraversedAsyncApiReusableMessage,
+  TraversedAsyncApiMessage,
+} from '@scalar/workspace-store/schemas/navigation'
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  ref,
+  useId,
+  useTemplateRef,
+  watch,
+} from 'vue'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
+import { SpecificationExtension } from '@/features/specification-extension'
+import { useSpecificationExtensions } from '@/features/specification-extension/use-specification-extensions'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
 import { useIntersection } from '@/hooks/use-intersection'
 
@@ -32,14 +45,14 @@ import {
 } from './helpers/async-api-render-options'
 import { getCorrelationIdTarget } from './helpers/get-correlation-id-target'
 import { pickHeading } from './helpers/pick-heading'
-import { resolveAsyncApiMessage } from './helpers/resolve-async-api-nodes'
+import { resolveAsyncApiMessageEntry } from './helpers/resolve-async-api-nodes'
 import MessageExamples from './MessageExamples.vue'
-import SchemaSource from './SchemaSource.vue'
 
 /** Subset of the configuration the shared `Schema` renderer needs. */
 type SchemaRenderOptions = AsyncApiSchemaRenderOptions
 
 const {
+  specificationExtension = SpecificationExtension,
   message,
   document,
   eventBus,
@@ -52,13 +65,17 @@ const {
   expansion,
 } = defineProps<
   {
-    /** Direct channel messages sit beneath the channel catalog heading. */
-    parent?: 'channel' | 'operation'
+    /**
+     * Direct channel messages sit beneath the channel catalog heading; reusable messages sit
+     * beneath the Messages section.
+     */
+    parent?: 'channel' | 'operation' | 'messages'
     /** Render another occurrence without duplicating navigation anchors or sidebar state. */
     inline?: boolean
     /** Operation examples are displayed together in the right column. */
     hideExamples?: boolean
-    message: TraversedAsyncApiMessage
+    /** A channel message or a reusable message from `components.messages`. */
+    message: TraversedAsyncApiMessage | TraversedAsyncApiReusableMessage
     document: AsyncApiDocument
     eventBus: WorkspaceEventBus | null
     options?: Partial<SchemaRenderOptions>
@@ -66,6 +83,11 @@ const {
     expandedItems?: Record<string, boolean>
   } & SchemaRenderingProps
 >()
+
+// Native schema readers are only needed when a non-JSON Schema is displayed.
+const SchemaLanguage = defineAsyncComponent(
+  () => import('./SchemaLanguage.vue'),
+)
 
 const instanceId = useId()
 const renderedId = computed(() => (inline ? `reply-${instanceId}` : message.id))
@@ -92,11 +114,16 @@ useIntersection(
 )
 
 /**
- * Resolve the message from the channel it lives on. The navigation entry only
- * carries the identifying keys, so we walk `document.channels[channelName].messages`.
+ * Resolve the message from where it lives. The navigation entry only carries the identifying keys:
+ * a channel message walks `document.channels[channelName].messages`, a reusable message walks `document.components.messages`.
  */
 const resolvedMessage = computed(() =>
-  resolveAsyncApiMessage(document, message.channelName, message.messageName),
+  resolveAsyncApiMessageEntry(document, message),
+)
+
+/** The map key of the message, used as the last heading fallback. */
+const messageKey = computed(() =>
+  message.type === 'asyncapi-message' ? message.messageName : message.name,
 )
 
 const contentType = computed<string | undefined>(
@@ -109,7 +136,7 @@ const headingText = computed(() =>
     resolvedMessage.value?.title,
     resolvedMessage.value?.summary,
     message.title,
-    message.messageName,
+    messageKey.value,
   ),
 )
 
@@ -121,6 +148,12 @@ const summary = computed((): string => {
     ? ''
     : value
 })
+
+const extensionSelection = useSpecificationExtensions(
+  () => resolvedMessage.value,
+  () => options?.showExtensions,
+)
+const { hasExtensions } = extensionSelection
 
 const description = computed(
   (): string => resolvedMessage.value?.description ?? '',
@@ -190,6 +223,20 @@ const onCorrelationLink = (event: MouseEvent): void => {
   })
 }
 
+const hasDetails = computed<boolean>(() =>
+  Boolean(
+    hasExtensions.value ||
+    summary.value ||
+    description.value ||
+    resolvedMessage.value?.bindings ||
+    resolvedMessage.value?.externalDocs ||
+    correlationId.value ||
+    headersSchema.value ||
+    payloadSchema.value ||
+    contentType.value,
+  ),
+)
+
 /** Fill in defaults so the shared Schema renderer always receives a complete options object. */
 const schemaOptions = computed<SchemaOptions>(() => ({
   hideReadOnly: false,
@@ -228,9 +275,12 @@ const generatedPayload = computed<unknown>(() =>
     : undefined,
 )
 
-const { level: headingLevel } = useDocumentOutline(
-  parent === 'channel' ? 'channelMessage' : 'message',
-)
+const outlineRoles = {
+  messages: 'model',
+  channel: 'channelMessage',
+  operation: 'message',
+} as const
+const { level: headingLevel } = useDocumentOutline(outlineRoles[parent])
 </script>
 
 <template>
@@ -239,6 +289,7 @@ const { level: headingLevel } = useDocumentOutline(
     class="message">
     <CompactSection
       :id="renderedId"
+      class="message-section"
       :label="headingText"
       :modelValue="isExpanded"
       @copyAnchorUrl="
@@ -247,25 +298,16 @@ const { level: headingLevel } = useDocumentOutline(
       @update:modelValue="onToggle">
       <template #heading>
         <SectionHeaderTag
-          class="message-title break-words"
+          class="message-title [overflow-wrap:anywhere]"
           :level="headingLevel">
           {{ headingText }}
         </SectionHeaderTag>
       </template>
-      <div class="space-y-4 pt-2 pb-4">
+      <div class="space-y-4 pt-4 pb-6">
         <div class="message-layout">
           <div
-            v-if="
-              summary ||
-              description ||
-              resolvedMessage?.bindings ||
-              resolvedMessage?.externalDocs ||
-              correlationId ||
-              headersSchema ||
-              payloadSchema ||
-              contentType
-            "
-            class="message-schemas min-w-0 space-y-4">
+            v-if="hasDetails"
+            class="message-schemas flex min-w-0 flex-col gap-8">
             <p
               v-if="summary"
               class="text-c-1 [overflow-wrap:anywhere]">
@@ -284,6 +326,11 @@ const { level: headingLevel } = useDocumentOutline(
               scope="message" />
             <AsyncApiDocumentation
               :owner="{ externalDocs: resolvedMessage?.externalDocs }" />
+            <SpecificationExtension
+              compact
+              :selection="extensionSelection"
+              :showExtensions="options?.showExtensions"
+              :value="resolvedMessage" />
 
             <div
               v-if="correlationId"
@@ -327,9 +374,12 @@ const { level: headingLevel } = useDocumentOutline(
                 "
                 :scrollTargetId="activeScrollTarget"
                 :specificationExtension="specificationExtension" />
-              <SchemaSource
+              <SchemaLanguage
                 v-else
                 :format="headersSchema.format"
+                headers
+                :options="schemaOptions"
+                :resources="headersSchema.resources"
                 :value="headersSchema.value" />
             </div>
 
@@ -362,9 +412,11 @@ const { level: headingLevel } = useDocumentOutline(
                 "
                 :scrollTargetId="activeScrollTarget"
                 :specificationExtension="specificationExtension" />
-              <SchemaSource
+              <SchemaLanguage
                 v-else-if="payloadSchema"
                 :format="payloadSchema.format"
+                :options="schemaOptions"
+                :resources="payloadSchema.resources"
                 :value="payloadSchema.value" />
             </div>
           </div>
@@ -373,7 +425,8 @@ const { level: headingLevel } = useDocumentOutline(
             class="message-examples"
             :contentType="contentType"
             :examples="resolvedMessage?.examples"
-            :generatedPayload="isExpanded ? generatedPayload : undefined" />
+            :generatedPayload="isExpanded ? generatedPayload : undefined"
+            :showHeaders="message.type === 'asyncapi-reusable-message'" />
         </div>
       </div>
     </CompactSection>
@@ -384,6 +437,10 @@ const { level: headingLevel } = useDocumentOutline(
 .message {
   scroll-margin-top: var(--refs-viewport-offset);
 }
+/* Expanded messages use their own compact spacing in both layouts. */
+.message-section :deep(> .section.collapsible-section-content) {
+  padding: 0;
+}
 .message-title {
   font-size: var(--scalar-heading-3);
   font-weight: var(--scalar-semibold);
@@ -392,12 +449,6 @@ const { level: headingLevel } = useDocumentOutline(
 .message-description {
   padding-bottom: 4px;
   text-align: left;
-}
-.message-schema {
-  margin-top: 12px;
-}
-.message-schema:first-child {
-  margin-top: 0;
 }
 .message-schema-title {
   font-size: var(--scalar-small);

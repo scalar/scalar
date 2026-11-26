@@ -7,6 +7,7 @@ import {
   type ParameterDeclaration,
   type Program,
   type SourceFile,
+  type TypeNode,
   isArrowFunction,
   isFunctionDeclaration,
   isFunctionExpression,
@@ -14,6 +15,7 @@ import {
   isParameter,
   isPropertySignature,
   isTypeLiteralNode,
+  isTypeReferenceNode,
   isVariableStatement,
 } from 'typescript'
 
@@ -34,6 +36,20 @@ const fileNameResolver = (source: string, target: string): string => {
   return targetPath
 }
 
+/** Next.js 16 requires asynchronous route params; older handlers use plain objects. */
+const unwrapPromise = (typeNode: TypeNode): TypeNode | undefined => {
+  if (
+    isTypeReferenceNode(typeNode) &&
+    isIdentifier(typeNode.typeName) &&
+    typeNode.typeName.text === 'Promise' &&
+    typeNode.typeArguments?.length === 1
+  ) {
+    return typeNode.typeArguments[0]
+  }
+
+  return typeNode
+}
+
 /**
  * Takes a parameter node and returns a path parameter schema
  */
@@ -48,10 +64,15 @@ const extractPathParams = (node: ParameterDeclaration | undefined, program: Prog
     isPropertySignature(node.type.members[0]) &&
     isIdentifier(node.type.members[0].name) &&
     node.type.members[0].name.escapedText === 'params' &&
-    node.type.members[0].type &&
-    isTypeLiteralNode(node.type.members[0].type)
+    node.type.members[0].type
   ) {
-    return node.type.members[0].type?.members.flatMap((member) => {
+    const resolvedType = unwrapPromise(node.type.members[0].type)
+
+    if (!resolvedType || !isTypeLiteralNode(resolvedType)) {
+      return []
+    }
+
+    return resolvedType.members.flatMap((member) => {
       if (!isPropertySignature(member) || !member.type) {
         return []
       }
@@ -60,6 +81,7 @@ const extractPathParams = (node: ParameterDeclaration | undefined, program: Prog
         name: member.name?.getText(),
         schema: getSchemaFromTypeNode(member.type, program, fileNameResolver),
         in: 'path',
+        required: true,
       } as OpenAPIV3_1.ParameterObject
     })
   }
@@ -70,7 +92,11 @@ const extractPathParams = (node: ParameterDeclaration | undefined, program: Prog
 /**
  * Traverse the typescript file and extract as much info as we can for the openapi spec
  */
-export const getPathSchema = (sourceFile: SourceFile, program: Program): OpenAPIV3_1.PathsObject => {
+export const getPathSchema = (
+  sourceFile: SourceFile,
+  program: Program,
+  routePath?: string,
+): OpenAPIV3_1.PathsObject => {
   const path: OpenAPIV3_1.PathsObject = {}
   const typeChecker = program.getTypeChecker()
 
@@ -114,6 +140,27 @@ export const getPathSchema = (sourceFile: SourceFile, program: Program): OpenAPI
       }
     }
   })
+
+  // Named aliases and generated RouteContext types may not be available to the
+  // compiler host. The route still provides the names required by OpenAPI.
+  if (routePath) {
+    const parameterNames = [...new Set([...routePath.matchAll(/\{([^{}]+)\}/g)].map((match) => match[1]!))]
+
+    for (const operation of Object.values(path)) {
+      if (!operation) {
+        continue
+      }
+      const parameters = operation.parameters ?? []
+      for (const name of parameterNames) {
+        if (
+          !parameters.some((parameter) => 'name' in parameter && parameter.in === 'path' && parameter.name === name)
+        ) {
+          parameters.push({ name, in: 'path', required: true, schema: { type: 'string' } })
+        }
+      }
+      operation.parameters = parameters
+    }
+  }
 
   return path
 }

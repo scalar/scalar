@@ -2,7 +2,7 @@
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { ScalarIconArrowUpRight } from '@scalar/icons'
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { useLocalization } from '@/v2/features/localization'
 
@@ -28,20 +28,27 @@ const {
 
 const { translate } = useLocalization()
 
+// Resolve browser-dependent URLs only after hydration so the button stays in the server output.
+const pageUrl = ref<string>()
+onMounted(() => {
+  pageUrl.value = window.location.href
+})
+
 /** Link to import an OpenAPI document */
 const href = computed((): string | undefined => {
   /**
    * The URL we want to pass to client.scalar.com for the import.
    * Might be an OpenAPI document URL, but could also just be the URL of the API reference.
    */
-  const urlToImportFrom =
-    url ?? (typeof window !== 'undefined' ? window.location.href : undefined)
+  const urlToImportFrom = url ?? pageUrl.value
 
   if (!urlToImportFrom) {
     return undefined
   }
 
-  const absoluteUrl = makeUrlAbsolute(urlToImportFrom)
+  const absoluteUrl = pageUrl.value
+    ? makeUrlAbsolute(urlToImportFrom, { baseUrl: pageUrl.value })
+    : urlToImportFrom
 
   if (!absoluteUrl?.length) {
     return undefined
@@ -77,7 +84,7 @@ const href = computed((): string | undefined => {
   link.searchParams.set('utm_campaign', buttonSource)
 
   // Special for gitbook, set the source and grab the logos (hacky)
-  if (source === 'gitbook') {
+  if (source === 'gitbook' && pageUrl.value) {
     link.searchParams.set('utm_source', 'gitbook')
 
     const darkLogo = document.querySelector("img.dark\\:block[alt='Logo']")
@@ -97,7 +104,6 @@ const href = computed((): string | undefined => {
 
 <template>
   <a
-    v-if="href"
     class="open-api-client-button"
     :href="href"
     target="_blank">

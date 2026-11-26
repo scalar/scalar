@@ -43,6 +43,20 @@ describe('browser-request', () => {
     ])
   })
 
+  it('explains header entries that cannot be assigned as browser cookie pairs', () => {
+    const prepared = prepareBrowserRequest({
+      headers: [{ name: 'Cookie', value: 'bare; valid=value; ; another' }],
+    })
+    expect(prepared.headers).toStrictEqual([])
+    expect(prepared.withCredentials).toBe(true)
+    expect(prepared.setup).toStrictEqual([
+      '// Cannot set Cookie entry without "=": "bare"',
+      '// Cannot set Cookie entry without "=": "another"',
+      "// Run on the request origin; document.cookie writes cookies for the current page's domain.",
+      'document.cookie = "valid=value; path=/";',
+    ])
+  })
+
   it('leaves requests without cookies uncredentialed', () => {
     const prepared = prepareBrowserRequest({ headers: [{ name: 'X-Test', value: 'kept' }] })
 

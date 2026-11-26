@@ -296,7 +296,7 @@ describe('search-quality', () => {
     }
     const body = search('field0', document)[0]?.item.body
     expect(Array.isArray(body)).toBe(true)
-    expect(body?.length).toBe(9_998)
+    expect(body?.length).toBe(9_999)
     expect(body?.includes('field11999')).toBe(false)
 
     const verbose: SchemaObject = {
@@ -472,11 +472,12 @@ describe('search-quality', () => {
     expect(result[1]?.item?.path).toContain('/auth')
   })
 
-  it.todo('finds operations by tag', () => {
+  it('finds operations by tag', () => {
     const query = 'Foobar'
 
     const document: Partial<OpenApiDocument> = {
       paths: {
+        '/health': { get: { summary: 'Service health', tags: ['Monitoring'] } },
         '/auth/token': {
           post: {
             tags: ['Foobar'],
@@ -498,9 +499,35 @@ describe('search-quality', () => {
 
     const result = search(query, document)
 
-    expect(result[0]?.item?.type).toEqual('operation')
-    expect(result[1]?.item?.type).toEqual('operation')
-    expect(result).toHaveLength(3)
+    expect(result.map(({ item }) => ({ type: item.type, title: item.title }))).toStrictEqual([
+      { type: 'tag', title: 'Foobar' },
+      { type: 'operation', title: 'Get a token' },
+      { type: 'operation', title: 'Logout user' },
+    ])
+  })
+
+  it.each([
+    { name: 'internal_accounts', 'x-displayName': 'Authentication' },
+    { name: 'internal_accounts', summary: 'Authentication' },
+    { name: 'internal_accounts', 'x-displayName': 'Authentication', summary: 'Legacy group' },
+  ])('finds operations by the displayed tag title: %j', (tag) => {
+    const document: Partial<OpenApiDocument> = {
+      openapi: '3.2.0',
+      tags: [tag],
+      paths: {
+        '/session/start': { post: { tags: ['internal_accounts'], summary: 'Start a session' } },
+        '/health': { get: { summary: 'Service health' } },
+      },
+    }
+
+    expect(
+      search('Authentication', document).map(({ item }) => ({ type: item.type, title: item.title })),
+    ).toStrictEqual([
+      { type: 'tag', title: 'Authentication' },
+      { type: 'operation', title: 'Start a session' },
+    ])
+    expect(search('internal_accounts', document).map(({ item }) => item.title)).toStrictEqual(['Start a session'])
+    expect(search('Legacy group', document)).toStrictEqual([])
   })
 
   it('finds operations by description content', () => {
@@ -793,12 +820,11 @@ describe('search-quality', () => {
     expect(result).toHaveLength(0)
   })
 
-  it.todo('handles complex nested schemas', () => {
-    const query = 'address'
-
+  it.each(['address', 'street', 'city'])('finds models by nested property %s', (query) => {
     const document: Partial<OpenApiDocument> = {
       components: {
         schemas: {
+          Unrelated: { type: 'object', properties: { unrelatedField: { type: 'boolean' } } },
           User: {
             type: 'object',
             title: 'User',
@@ -818,8 +844,9 @@ describe('search-quality', () => {
 
     const result = search(query, document)
 
-    expect(result).toHaveLength(1)
-    expect(result[0]?.item?.type).toEqual('model')
+    expect(result.map(({ item }) => ({ type: item.type, title: item.title }))).toStrictEqual([
+      { type: 'model', title: 'User' },
+    ])
   })
 
   it('finds operations with request body parameters', () => {
@@ -854,6 +881,84 @@ describe('search-quality', () => {
     const result = search(query, document)
 
     expect(result.sort((a, b) => <number>b.score - <number>a.score)[0]?.item?.title).toEqual('Register user')
+  })
+
+  it('finds an operation by its description or a response description', () => {
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/orders': {
+          get: {
+            summary: 'List orders',
+            description: 'mintquartz status',
+            responses: {
+              '422': { description: 'velvetwalrus indicates invalid search filters' },
+              '429': {
+                $ref: '#/components/responses/RateLimited',
+                '$ref-value': { description: 'copperpuffin indicates a rate limit' },
+              },
+              '503': { $ref: '#/components/responses/Missing' },
+              '5XX': { description: 'ivorylynx indicates a server error' },
+              default: { description: 'silverfern describes other errors' },
+            },
+          },
+        },
+      },
+    }
+
+    for (const query of ['mintquartz', 'velvetwalrus', 'copperpuffin', 'ivorylynx', 'silverfern']) {
+      expect(
+        search(query, document).map(({ item }) => item.title),
+        query,
+      ).toStrictEqual(['List orders'])
+    }
+  })
+
+  it('ignores descriptions in Responses Object extensions', () => {
+    const results = search('violetmarmot', {
+      paths: {
+        '/orders': {
+          get: {
+            summary: 'List orders',
+            responses: {
+              '200': { description: 'Orders returned' },
+              'x-internal': { description: 'violetmarmot is internal metadata' },
+            },
+          },
+        },
+      },
+    })
+
+    expect(results).toStrictEqual([])
+  })
+
+  it('ranks an exact title match above a shared response description', () => {
+    const responses = { '401': { description: 'Unauthorized' } }
+    const results = search('unauthorized', {
+      paths: {
+        '/orders': { get: { summary: 'List orders', responses } },
+        '/invoices': { get: { summary: 'List invoices', responses } },
+        '/errors': { get: { summary: 'Unauthorized', responses: { '200': { description: 'Error details' } } } },
+      },
+    })
+
+    const [first, ...remaining] = results.map(({ item }) => item.title)
+    expect(first).toBe('Unauthorized')
+    expect(remaining.sort()).toStrictEqual(['List invoices', 'List orders'])
+  })
+
+  it('finds a webhook by its response description', () => {
+    const results = search('amberotter', {
+      webhooks: {
+        orderCreated: {
+          post: {
+            summary: 'Order created',
+            responses: { '200': { description: 'amberotter confirms delivery' } },
+          },
+        },
+      },
+    })
+
+    expect(results.map(({ item }) => [item.type, item.title])).toStrictEqual([['webhook', 'Order created']])
   })
 
   it('finds operations by response example content', () => {

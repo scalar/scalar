@@ -20,6 +20,7 @@ export const pt = {
     unknownType: 'tipo desconhecido',
     propertyCount: 'Propriedades: {count}',
     headerCount: 'Cabeçalhos: {count}',
+    extensionCount: 'Extensões ({count})',
     recursiveReference: 'Referência recursiva a {name}',
     recursive: 'recursivo',
     additionalProperties: 'propriedades adicionais',

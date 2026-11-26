@@ -53,6 +53,7 @@ At least one of the following is required:
 Optional:
 
 - `onRequest({ context, operation })`: callback before each request is processed
+- `onResponse({ context, operation, response })`: callback after the mock produced its response; return a `Response` to replace it, or nothing to keep it (`operation` is `undefined` for routes that are not operations)
 - `validateRequest`: set to `false` to always return a mock response instead of rejecting contract violations with `422` (default: `true`)
 - `logger`: pass `false` to silence the authentication instructions printed on startup, or a `(line) => void` sink to redirect them (default: logs to the console)
 
@@ -114,6 +115,8 @@ Document source priority (high to low):
 2. `OPENAPI_DOCUMENT`
 3. `OPENAPI_DOCUMENT_URL`
 4. `/docs` volume-mounted files
+
+Request validation is on by default (`422` for contract violations). Turn it off with `--no-validate-request` or `-e VALIDATE_REQUEST=false`; the flag wins over the variable.
 
 Useful routes:
 

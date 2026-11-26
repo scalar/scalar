@@ -4,8 +4,8 @@ import path from 'node:path'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it, test } from 'vitest'
 
-import { convert } from './convert'
-import type { PostmanCollection } from './types'
+import { type ConvertOptions, convert } from './convert'
+import type { Auth, Item, ItemGroup, PostmanCollection } from './types'
 
 const FIXTURES_DIR = path.join(import.meta.dirname, '../fixtures/input')
 const FIXTURES = fs
@@ -23,6 +23,210 @@ describe('fixtures', () => {
 })
 
 describe('convert', () => {
+  it('imports query parameters with structured Postman descriptions', () => {
+    const result = convert({
+      info: {
+        name: 'Catalog',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'List items',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.example.com/items?region=west',
+              query: [
+                {
+                  key: 'region',
+                  value: 'west',
+                  description: { content: '[required] Sales region', type: 'text/markdown' },
+                },
+              ],
+            },
+          },
+        },
+      ],
+    })
+
+    expect(result.paths?.['/items']?.get?.parameters).toEqual([
+      expect.objectContaining({ name: 'region', in: 'query', description: 'Sales region', required: true }),
+    ])
+  })
+
+  it.each([false, true])('keeps same-named Markdown parameters with a URL query present: %s', (hasQuery) => {
+    const result = convert({
+      info: {
+        name: 'Users',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'List users',
+          request: {
+            method: 'GET',
+            url: hasQuery
+              ? {
+                  raw: 'https://api.example.com/users?version=1',
+                  query: [{ key: 'version', value: '1' }],
+                }
+              : { raw: 'https://api.example.com/users' },
+            description: `| object | name | description |
+| --- | --- | --- |
+| query | version | Query version |
+| header | version | Header version |`,
+          },
+        },
+      ],
+    })
+
+    expect(result.paths?.['/users']?.get?.parameters).toStrictEqual([
+      {
+        name: 'version',
+        in: 'query',
+        description: 'Query version',
+        required: false,
+        schema: { type: 'string' },
+      },
+      {
+        name: 'version',
+        in: 'header',
+        description: 'Header version',
+        required: false,
+        schema: { type: 'string' },
+      },
+    ])
+  })
+
+  it.each([
+    { header: [], graphqlType: 'application/json', fileType: 'application/octet-stream' },
+    { header: [{ key: 'Content-Type', value: 'image/png' }], graphqlType: 'image/png', fileType: 'image/png' },
+    {
+      header: [{ key: 'content-type', value: 'application/json; charset=utf-8' }],
+      graphqlType: 'application/json',
+      fileType: 'application/json',
+    },
+    {
+      header: [{ key: 'Content-Type', value: 'text/plain', disabled: true }],
+      graphqlType: 'application/json',
+      fileType: 'application/octet-stream',
+    },
+  ])('converts GraphQL and file bodies with headers $header', ({ header, graphqlType, fileType }) => {
+    const query = 'query Item($id: ID!) { item(id: $id) { id } }'
+    const collection: PostmanCollection = {
+      info: {
+        name: 'GraphQL and files',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          request: {
+            method: 'POST',
+            url: 'https://api.example.com/graphql',
+            header,
+            body: { mode: 'graphql', graphql: { query, variables: '{"id":"1"}' } },
+          },
+        },
+        {
+          request: {
+            method: 'PUT',
+            url: 'https://api.example.com/uploads',
+            header,
+            body: { mode: 'file', file: { src: 'photo.png' } },
+          },
+        },
+      ],
+    }
+    const result = convert(collection)
+    expect(result.paths?.['/graphql']?.post?.requestBody).toStrictEqual({
+      content: {
+        [graphqlType]: {
+          schema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string' },
+              variables: { type: 'object' },
+            },
+            required: ['query'],
+          },
+          examples: { 'Default example': { value: { query, variables: { id: '1' } } } },
+        },
+      },
+    })
+    expect(result.paths?.['/uploads']?.put?.requestBody).toStrictEqual({ content: { [fileType]: {} } })
+  })
+
+  it('keeps distinct GraphQL examples when requests are merged', () => {
+    const collection: PostmanCollection = {
+      info: { name: 'Queries', schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json' },
+      item: ['First', 'Second'].map((name) => ({
+        name,
+        request: {
+          method: 'POST',
+          url: 'https://api.example.com/graphql',
+          body: {
+            mode: 'graphql',
+            graphql: { query: 'query Item($id: ID!) { item(id: $id) { id } }', variables: { id: name } },
+          },
+        },
+      })),
+    }
+    const result = convert(collection, { mergeOperation: true, requestIndexPaths: [[0], [1]] })
+    expect(result.paths?.['/graphql']?.post?.requestBody).toStrictEqual({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string' },
+              variables: { type: 'object' },
+            },
+            required: ['query'],
+          },
+          examples: {
+            First: { value: { query: 'query Item($id: ID!) { item(id: $id) { id } }', variables: { id: 'First' } } },
+            Second: { value: { query: 'query Item($id: ID!) { item(id: $id) { id } }', variables: { id: 'Second' } } },
+          },
+        },
+      },
+    })
+  })
+
+  it.each([
+    ['formdata', 'multipart/form-data'],
+    ['urlencoded', 'application/x-www-form-urlencoded'],
+  ] as const)('imports a %s field named __proto__ as an ordinary field', (mode, mediaType) => {
+    const rows = [
+      { key: '__proto__', value: 'p', type: 'text' as const, description: 'Field [required]' },
+      { key: 'name', value: 'n', type: 'text' as const },
+    ]
+    const collection: PostmanCollection = {
+      info: { name: 'Forms', schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json' },
+      item: [
+        {
+          name: 'Submit',
+          request: {
+            method: 'POST',
+            url: 'https://api.example.com/submit',
+            body: mode === 'formdata' ? { mode, formdata: rows } : { mode, urlencoded: rows },
+          },
+        },
+      ],
+    }
+
+    const requestBody = convert(collection).paths?.['/submit']?.post?.requestBody as OpenAPIV3_1.RequestBodyObject
+    const media = requestBody.content?.[mediaType]
+    const properties = media?.schema?.properties ?? {}
+
+    expect(Object.keys(properties)).toStrictEqual(['__proto__', 'name'])
+    expect(Object.getPrototypeOf(properties)).toBe(Object.prototype)
+    expect(media?.schema?.required).toStrictEqual(['__proto__'])
+    expect(media?.examples?.['Default example']?.value).toStrictEqual([
+      { name: '__proto__', value: 'p', isDisabled: false },
+      { name: 'name', value: 'n', isDisabled: false },
+    ])
+  })
+
   it('merges into an existing OpenAPI document', () => {
     const collection: PostmanCollection = {
       info: {
@@ -513,10 +717,7 @@ describe('convert', () => {
           request: {
             method: 'POST',
             url: 'https://api.scalar.com/upload',
-            body: {
-              mode: 'file',
-              file: { src: null },
-            },
+            body: {},
           },
         },
       ],
@@ -905,6 +1106,44 @@ describe('convert', () => {
     ])
   })
 
+  it('omits responses and retains operation-level servers when merging duplicate requests', () => {
+    const postRequest = { method: 'POST', url: 'https://api.example.com/items' }
+    const result = convert(
+      {
+        info: {
+          name: 'Merged requests',
+          schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        },
+        item: [
+          { name: 'Create item', request: postRequest, response: [] },
+          { name: 'Create another item', request: postRequest, response: [] },
+          { name: 'List users', request: { method: 'GET', url: 'https://api.other.com/users' } },
+        ],
+      },
+      { mergeOperation: true },
+    )
+
+    const operation = result.paths?.['/items']?.post
+    expect(operation?.servers).toStrictEqual([{ url: 'https://api.example.com' }])
+    expect(operation).not.toHaveProperty('responses')
+  })
+
+  it('preserves operation-level servers for custom Postman methods', () => {
+    const result = convert({
+      info: {
+        name: 'Extension methods',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        { name: 'Read file properties', request: { method: 'PROPFIND', url: 'https://files.example.com/files' } },
+        { name: 'List users', request: { method: 'GET', url: 'https://api.example.com/users' } },
+      ],
+    })
+
+    expect(result.paths?.['/files']?.propfind?.servers).toStrictEqual([{ url: 'https://files.example.com' }])
+    expect(result.paths?.['/users']?.get?.servers).toStrictEqual([{ url: 'https://api.example.com' }])
+  })
+
   it('keeps server placement correct after path unification', () => {
     const collection: PostmanCollection = {
       info: {
@@ -1075,4 +1314,390 @@ describe('convert', () => {
       },
     ])
   })
+  const SCHEMA = 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json'
+
+  it.each(['awsv4', 'oauth1', 'hawk', 'ntlm', 'edgegrid', 'jwt', 'asap', 'akamai'])(
+    'converts a collection with %s authentication without security',
+    (type) => {
+      const collection: PostmanCollection = {
+        info: { name: 'Unsupported auth', schema: SCHEMA },
+        auth: { type },
+        item: [
+          { name: 'Users', request: { method: 'GET', url: 'https://api.scalar.com/users' } },
+          { name: 'Orders', request: { method: 'GET', url: 'https://api.scalar.com/orders', auth: { type } } },
+        ],
+      }
+      const original = structuredClone(collection)
+
+      const result = convert(collection)
+
+      expect(Object.keys(result.paths ?? {})).toStrictEqual(['/users', '/orders'])
+      expect(result.security).toBeUndefined()
+      expect(result.components).toBeUndefined()
+      expect(result.paths?.['/users']?.get?.security).toBeUndefined()
+      expect(result.paths?.['/orders']?.get?.security).toStrictEqual([])
+      expect(collection).toStrictEqual(original)
+    },
+  )
+
+  it('converts digest authentication to an http digest scheme', () => {
+    const collection: PostmanCollection = {
+      info: { name: 'Digest', schema: SCHEMA },
+      auth: { type: 'digest' },
+      item: [{ name: 'Users', request: { method: 'GET', url: 'https://api.scalar.com/users' } }],
+    }
+
+    const result = convert(collection)
+
+    expect(result.security).toStrictEqual([{ digestAuth: [] }])
+    expect(result.components?.securitySchemes).toStrictEqual({ digestAuth: { type: 'http', scheme: 'digest' } })
+  })
+
+  it.each(['awsv4', 'hawk', 'jwt'])(
+    'keeps the collection security off an operation that overrides it with %s authentication',
+    (type) => {
+      const collection: PostmanCollection = {
+        info: { name: 'Override', schema: SCHEMA },
+        auth: { type: 'bearer' },
+        item: [
+          { name: 'Users', request: { method: 'GET', url: 'https://api.scalar.com/users' } },
+          { name: 'Orders', request: { method: 'GET', url: 'https://api.scalar.com/orders', auth: { type } } },
+        ],
+      }
+
+      const result = convert(collection)
+
+      expect(result.security).toStrictEqual([{ bearerAuth: [] }])
+      expect(result.components?.securitySchemes).toStrictEqual({ bearerAuth: { type: 'http', scheme: 'bearer' } })
+      expect(result.paths?.['/users']?.get?.security).toBeUndefined()
+      expect(result.paths?.['/orders']?.get?.security).toStrictEqual([])
+    },
+  )
+
+  it('keeps a supported request authentication under an unsupported collection authentication', () => {
+    const collection: PostmanCollection = {
+      info: { name: 'Mixed', schema: SCHEMA },
+      auth: { type: 'awsv4' },
+      item: [
+        { name: 'Users', request: { method: 'GET', url: 'https://api.scalar.com/users', auth: { type: 'basic' } } },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.security).toBeUndefined()
+    expect(result.components?.securitySchemes).toStrictEqual({ basicAuth: { type: 'http', scheme: 'basic' } })
+    expect(result.paths?.['/users']?.get?.security).toStrictEqual([{ basicAuth: [] }])
+  })
+
+  it('keeps API keys with different names and locations as separate schemes', () => {
+    const collection: PostmanCollection = {
+      info: { name: 'API keys', schema: SCHEMA },
+      auth: {
+        type: 'apikey',
+        apikey: [
+          { key: 'key', value: 'X-API-Key' },
+          { key: 'in', value: 'header' },
+        ],
+      },
+      item: [
+        { name: 'Users', request: { method: 'GET', url: 'https://api.scalar.com/users' } },
+        {
+          name: 'Orders',
+          request: {
+            method: 'GET',
+            url: 'https://api.scalar.com/orders',
+            auth: {
+              type: 'apikey',
+              apikey: [
+                { key: 'key', value: 'api_token' },
+                { key: 'in', value: 'query' },
+              ],
+            },
+          },
+        },
+      ],
+    }
+
+    const result = convert(collection)
+
+    expect(result.security).toStrictEqual([{ 'apikeyAuth_header_X-API-Key': [] }])
+    expect(result.components?.securitySchemes).toStrictEqual({
+      'apikeyAuth_header_X-API-Key': { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+      apikeyAuth_query_api_token: { type: 'apiKey', name: 'api_token', in: 'query' },
+    })
+    expect(result.paths?.['/orders']?.get?.security).toStrictEqual([{ apikeyAuth_query_api_token: [] }])
+  })
+
+  const apiKey: Auth = {
+    type: 'apikey',
+    apikey: [
+      { key: 'key', value: 'X-API-Key', type: 'string' },
+      { key: 'value', value: '{{apiKey}}', type: 'string' },
+      { key: 'in', value: 'header', type: 'string' },
+    ],
+  }
+  const apiKeySecurity = [{ 'apikeyAuth_header_X-API-Key': [] }]
+  const apiKeyScheme = { type: 'apiKey', name: 'X-API-Key', in: 'header' }
+  const request: Item = {
+    name: 'Delete item',
+    request: {
+      method: 'DELETE',
+      header: [],
+      url: {
+        raw: 'https://api.example.com/items/1',
+        protocol: 'https',
+        host: ['api', 'example', 'com'],
+        path: ['items', '1'],
+      },
+    },
+    response: [],
+  }
+
+  const collectionWith = (
+    item: Item | ItemGroup,
+    auth: Auth | undefined = { type: 'bearer', bearer: [{ key: 'token', value: '{{token}}', type: 'string' }] },
+  ): PostmanCollection => ({
+    info: { name: 'C2', schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json' },
+    auth,
+    item: [item],
+  })
+
+  const authCases = [
+    {
+      type: 'apikey',
+      auth: apiKey,
+      key: 'apikeyAuth_header_X-API-Key',
+      scheme: apiKeyScheme,
+      security: apiKeySecurity,
+    },
+    {
+      type: 'basic',
+      auth: { type: 'basic' },
+      key: 'basicAuth',
+      scheme: { type: 'http', scheme: 'basic' },
+      security: [{ basicAuth: [] }],
+    },
+    {
+      type: 'bearer',
+      auth: { type: 'bearer' },
+      key: 'bearerAuth',
+      scheme: { type: 'http', scheme: 'bearer' },
+      security: [{ bearerAuth: [] }],
+    },
+    { type: 'noauth', auth: { type: 'noauth' }, key: 'noauthAuth', scheme: undefined, security: [] },
+  ] satisfies { type: string; auth: Auth; key: string; scheme: unknown; security: Record<string, string[]>[] }[]
+
+  it('uses folder API key authentication instead of collection bearer authentication', () => {
+    const result = convert(collectionWith({ name: 'Admin', auth: apiKey, item: [request] }))
+    expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(apiKeySecurity)
+    expect(result.components?.securitySchemes?.['apikeyAuth_header_X-API-Key']).toStrictEqual(apiKeyScheme)
+  })
+
+  for (const authCase of authCases) {
+    for (const depth of [1, 2]) {
+      for (const hasCollectionAuth of [false, true]) {
+        it(`inherits ${authCase.type} at folder depth ${depth}, collection auth ${hasCollectionAuth}`, () => {
+          const folder: ItemGroup = { name: 'Admin', auth: authCase.auth, item: [request] }
+          const top = depth === 1 ? folder : { name: 'Outer', item: [folder] }
+          // A distinct collection type makes incorrect fallback observable for bearer folders too.
+          const input = collectionWith(top)
+          input.auth = hasCollectionAuth ? { type: 'digest' } : undefined
+          const result = convert(input)
+          expect({
+            security: result.paths?.['/items/1']?.delete?.security,
+            scheme: result.components?.securitySchemes?.[authCase.key],
+          }).toStrictEqual({ security: authCase.security, scheme: authCase.scheme })
+        })
+      }
+    }
+  }
+
+  it.each([
+    {
+      label: 'null request auth',
+      leaf: { ...request, request: { method: 'DELETE', url: 'https://api.example.com/items/1', auth: null } },
+    },
+    {
+      label: 'inherit request auth',
+      leaf: {
+        ...request,
+        request: { method: 'DELETE', url: 'https://api.example.com/items/1', auth: { type: 'inherit' } },
+      },
+    },
+    { label: 'string request', leaf: { name: 'Delete item', request: 'https://api.example.com/items/1' } },
+  ] satisfies { label: string; leaf: Item }[])('inherits folder auth for $label', ({ leaf }) => {
+    const result = convert(collectionWith({ name: 'Admin', auth: apiKey, item: [leaf] }))
+    const operation =
+      typeof leaf.request === 'string' ? result.paths?.['/items/1']?.get : result.paths?.['/items/1']?.delete
+    expect(operation?.security).toStrictEqual(apiKeySecurity)
+  })
+
+  it.each([null, { type: 'inherit' }] satisfies (Auth | null)[])(
+    'inherits through a child folder with auth %j',
+    (auth) => {
+      const result = convert(
+        collectionWith({ name: 'Admin', auth: apiKey, item: [{ name: 'Inner', auth, item: [request] }] }),
+      )
+      expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(apiKeySecurity)
+    },
+  )
+
+  it.each([
+    { label: 'nearest basic folder', auth: { type: 'basic' }, security: [{ basicAuth: [] }] },
+    { label: 'nearest noauth folder', auth: { type: 'noauth' }, security: [] },
+  ] satisfies { label: string; auth: Auth; security: Record<string, string[]>[] }[])(
+    'uses $label over outer-folder auth',
+    ({ auth, security }) => {
+      const result = convert(
+        collectionWith({ name: 'Admin', auth: apiKey, item: [{ name: 'Inner', auth, item: [request] }] }),
+      )
+      expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(security)
+    },
+  )
+
+  it.each([
+    { label: 'selected request', options: { requestIndexPaths: [[0, 0]] } },
+    { label: 'selected folder', options: { requestIndexPaths: [[0]] } },
+    { label: 'selected nested folder', options: { requestIndexPaths: [[0, 0]] }, nested: true },
+    { label: 'mergeOperation enabled', options: { mergeOperation: true } },
+  ] satisfies { label: string; options: ConvertOptions; nested?: boolean }[])(
+    'inherits folder auth with $label',
+    (testCase) => {
+      const folder: ItemGroup = { name: 'Admin', auth: apiKey, item: [request] }
+      const top =
+        'nested' in testCase && testCase.nested
+          ? { name: 'Outer', auth: apiKey, item: [{ name: 'Inner', item: [request] }] }
+          : folder
+      const result = convert(collectionWith(top), testCase.options)
+      expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(apiKeySecurity)
+    },
+  )
+
+  it('inherits v2.0 object-shaped API key attributes', () => {
+    const input = collectionWith({
+      name: 'Admin',
+      auth: { type: 'apikey', apikey: { key: 'X-API-Key', in: 'header', value: '{{apiKey}}' } },
+      item: [request],
+    })
+    input.info.schema = 'https://schema.getpostman.com/json/collection/v2.0.0/collection.json'
+    const result = convert(input)
+    expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(apiKeySecurity)
+  })
+
+  it.each([
+    { type: 'digest', security: [{ digestAuth: [] }] },
+    { type: 'oauth2', security: [{ oauth2Auth: [] }] },
+  ])('inherits supported $type folder auth', ({ type, security }) => {
+    const result = convert(collectionWith({ name: 'Admin', auth: { type }, item: [request] }))
+    expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(security)
+  })
+
+  it.each(authCases)('preserves explicit request $type auth over folder auth', ({ auth, security, key, scheme }) => {
+    const leaf: Item = { ...request, request: { method: 'DELETE', url: 'https://api.example.com/items/1', auth } }
+    const result = convert(collectionWith({ name: 'Admin', auth: { type: 'digest' }, item: [leaf] }))
+    expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(security)
+    expect(result.components?.securitySchemes?.[key]).toStrictEqual(scheme)
+  })
+
+  it.each([undefined, null, { type: 'inherit' }] satisfies (Auth | null | undefined)[])(
+    'preserves collection inheritance with request auth %j and no folder override',
+    (auth) => {
+      const leaf: Item = { ...request, request: { method: 'DELETE', url: 'https://api.example.com/items/1', auth } }
+      const result = convert(collectionWith({ name: 'Admin', item: [leaf] }))
+      expect(result.paths?.['/items/1']?.delete?.security).toBeUndefined()
+      expect(result.security).toStrictEqual([{ bearerAuth: [] }])
+    },
+  )
+
+  it.each([
+    { auth: undefined, security: apiKeySecurity },
+    { auth: null, security: apiKeySecurity },
+    { auth: { type: 'inherit' }, security: apiKeySecurity },
+    { auth: { type: 'noauth' }, security: [] },
+    { auth: { type: 'basic' }, security: [{ basicAuth: [] }] },
+  ] satisfies { auth: Auth | null | undefined; security: Record<string, string[]>[] }[])(
+    'preserves ancestor authentication when selecting a nested folder or request with folder auth %j',
+    ({ auth, security }) => {
+      const collection = collectionWith({
+        auth: apiKey,
+        item: [{ auth, item: [request] }],
+      })
+      for (const requestIndexPaths of [[[0, 0]], [[0, 0, 0]]]) {
+        const result = convert(collection, { requestIndexPaths })
+        expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(security)
+      }
+    },
+  )
+
+  it('keeps folder authentication isolated from siblings and unselected branches', () => {
+    const collection = collectionWith({ name: 'Admin', auth: apiKey, item: [request] })
+    collection.item.push({ name: 'Sibling', request: 'https://api.example.com/sibling' })
+
+    const result = convert(collection)
+    expect(result.paths?.['/items/1']?.delete?.security).toStrictEqual(apiKeySecurity)
+    expect(result.paths?.['/sibling']?.get?.security).toBeUndefined()
+    expect(result.security).toStrictEqual([{ bearerAuth: [] }])
+
+    const selected = convert(collection, { requestIndexPaths: [[1]] })
+    expect(Object.keys(selected.paths ?? {})).toStrictEqual(['/sibling'])
+    expect(selected.components?.securitySchemes).toStrictEqual({ bearerAuth: { type: 'http', scheme: 'bearer' } })
+  })
+
+  it.each([
+    { label: 'full collection', options: {} },
+    { label: 'selected requests', options: { requestIndexPaths: [[0, 0], [0, 1], [1, 0], [2]] } },
+    { label: 'selected folders', options: { requestIndexPaths: [[0], [1], [2]] } },
+  ] satisfies { label: string; options: ConvertOptions }[])(
+    'keeps distinct OAuth2 settings isolated for $label',
+    ({ options }) => {
+      const oauthAuth = (name: string): Auth => ({
+        type: 'oauth2',
+        oauth2: [
+          { key: 'authUrl', value: `https://${name}.example/authorize` },
+          { key: 'accessTokenUrl', value: `https://${name}.example/token` },
+          { key: 'scope', value: name },
+        ],
+      })
+      const oauthScheme = (name: string): OpenAPIV3_1.SecuritySchemeObject => ({
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: `https://${name}.example/authorize`,
+            tokenUrl: `https://${name}.example/token`,
+            scopes: { [name]: name },
+          },
+        },
+      })
+      const collection: PostmanCollection = {
+        info: { name: 'OAuth folders', schema: SCHEMA },
+        auth: oauthAuth('collection'),
+        item: [
+          {
+            name: 'Folder',
+            auth: oauthAuth('folder'),
+            item: [{ request: 'https://api.example.com/first' }, { request: 'https://api.example.com/second' }],
+          },
+          {
+            name: 'Other folder',
+            auth: oauthAuth('other'),
+            item: [{ request: 'https://api.example.com/other' }],
+          },
+          { request: 'https://api.example.com/sibling' },
+        ],
+      }
+
+      const result = convert(collection, options)
+      expect(result.security).toStrictEqual([{ oauth2Auth: ['collection'] }])
+      expect(result.paths?.['/sibling']?.get?.security).toBeUndefined()
+      expect(result.paths?.['/first']?.get?.security).toStrictEqual([{ oauth2Auth_2: ['folder'] }])
+      expect(result.paths?.['/second']?.get?.security).toStrictEqual([{ oauth2Auth_2: ['folder'] }])
+      expect(result.paths?.['/other']?.get?.security).toStrictEqual([{ oauth2Auth_3: ['other'] }])
+      expect(result.components?.securitySchemes).toStrictEqual({
+        oauth2Auth: oauthScheme('collection'),
+        oauth2Auth_2: oauthScheme('folder'),
+        oauth2Auth_3: oauthScheme('other'),
+      })
+    },
+  )
 })

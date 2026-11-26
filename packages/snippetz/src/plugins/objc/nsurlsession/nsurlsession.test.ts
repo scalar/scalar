@@ -3,6 +3,21 @@ import { describe, expect, it } from 'vitest'
 import { objcNsurlsession } from './nsurlsession'
 
 describe('objcNsurlsession', () => {
+  it.each([true, false, 0, 42, 'true', 'false', 'null', 'hello', null])(
+    'preserves the root JSON value %j as UTF-8 data',
+    (value) => {
+      const text = JSON.stringify(value)
+      const result = objcNsurlsession.generate({
+        url: 'https://example.com',
+        method: 'POST',
+        postData: { mimeType: 'application/json', text },
+      })
+      expect(result).toContain(`NSData *postData = [@${JSON.stringify(text)} dataUsingEncoding:NSUTF8StringEncoding];`)
+      expect(result).toContain('[request setHTTPBody:postData];')
+      expect(result).not.toContain('dataWithJSONObject:')
+    },
+  )
+
   it('returns an empty string for undefined request', () => {
     const result = objcNsurlsession.generate()
 

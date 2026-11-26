@@ -5,6 +5,66 @@ import { runInSandbox } from './sandbox'
 import { createStoreWrapper } from './store-wrapper'
 
 describe('sandbox', () => {
+  it('keeps guest store writes out of the host prototype', async () => {
+    const store = new Store()
+
+    try {
+      const result = await runInSandbox({
+        code: `store.create('__proto__', { id: 'scalarStoreRegression', name: 'Ada' }); return store.get('__proto__', 'scalarStoreRegression')`,
+        store,
+      })
+
+      expect(Object.hasOwn(Object.prototype, 'scalarStoreRegression')).toBe(false)
+      expect(result).toStrictEqual({ id: 'scalarStoreRegression', name: 'Ada' })
+      expect(store.list('__proto__')).toStrictEqual([result])
+    } finally {
+      Reflect.deleteProperty(Object.prototype, 'scalarStoreRegression')
+    }
+  })
+
+  it('does not let guest store updates replace host prototype methods', async () => {
+    const descriptor = Object.getOwnPropertyDescriptor(Object.prototype, 'toString')!
+
+    try {
+      const result = await runInSandbox({
+        code: `return store.update('__proto__', 'toString', { name: 'Ada' })`,
+        store: new Store(),
+      })
+      const actualDescriptor = Object.getOwnPropertyDescriptor(Object.prototype, 'toString')
+      // Restore the method before assertions so the test runner can format failures.
+      Object.defineProperty(Object.prototype, 'toString', descriptor)
+      expect(actualDescriptor).toStrictEqual(descriptor)
+      expect(result).toBeNull()
+    } finally {
+      Object.defineProperty(Object.prototype, 'toString', descriptor)
+    }
+  })
+
+  it.each([
+    `store.create(['users'], { id: '1' })`,
+    'store.list({})',
+    'store.clear([])',
+    `store.get('users', ['1'])`,
+    `store.update('users', {}, { name: 'Ada' })`,
+    `store.delete('users', ['1'])`,
+    `store.create('users', { id: ['1'] })`,
+  ])('rejects non-primitive store keys in %s', async (code) => {
+    const store = new Store()
+    store.create('users', { id: '1', name: 'Alan' })
+
+    await expect(runInSandbox({ code, store })).rejects.toThrow(/store:/)
+    expect(store.list('users')).toStrictEqual([{ id: '1', name: 'Alan' }])
+  })
+
+  it('preserves numeric item IDs through the store bridge', async () => {
+    const result = await runInSandbox({
+      code: `store.create('users', { id: 1, name: 'Ada' }); return store.get('users', 1)`,
+      store: new Store(),
+    })
+
+    expect(result).toStrictEqual({ id: 1, name: 'Ada' })
+  })
+
   describe('escape attempts', () => {
     it('has no access to host globals', async () => {
       const result = await runInSandbox({

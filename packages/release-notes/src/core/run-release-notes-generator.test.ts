@@ -19,43 +19,43 @@ describe('run-release-notes-generator', () => {
     expect(url).toBe('https://github.com/example/repo/blob/release/packages/client/CHANGELOG.md#123beta1')
   })
 
+  const temporaryDirectories: string[] = []
+
+  afterEach(async () => {
+    vi.restoreAllMocks()
+
+    await Promise.all(temporaryDirectories.map((directory) => rm(directory, { recursive: true, force: true })))
+    temporaryDirectories.length = 0
+  })
+
+  /** A package whose changelog references a pull request, so PR fetching has something to find. */
+  const createProduct = async (): Promise<ReleaseNotesProduct> => {
+    const directory = await mkdtemp(join(tmpdir(), 'scalar-release-notes-generator-'))
+    temporaryDirectories.push(directory)
+
+    const changelogPath = join(directory, 'CHANGELOG.md')
+    await writeFile(join(directory, 'package.json'), JSON.stringify({ name: '@example/client', version: '1.0.0' }))
+    await writeFile(
+      changelogPath,
+      ['# @example/client', '', '## 1.0.0', '', '- Added an import flow (#123)'].join('\n'),
+    )
+
+    return {
+      slug: 'client',
+      packageName: '@example/client',
+      displayName: 'Example Client',
+      description: 'an API client for Example',
+      changelogPath,
+      outputPath: join(directory, 'RELEASE_NOTES.json'),
+    }
+  }
+
+  const provider = {
+    name: 'test',
+    generateJson: async () => ({ version: '1.0.0', title: 'Imports are easier' }),
+  }
+
   describe('pull request context', () => {
-    const temporaryDirectories: string[] = []
-
-    afterEach(async () => {
-      vi.restoreAllMocks()
-
-      await Promise.all(temporaryDirectories.map((directory) => rm(directory, { recursive: true, force: true })))
-      temporaryDirectories.length = 0
-    })
-
-    /** A package whose changelog references a pull request, so PR fetching has something to find. */
-    const createProduct = async (): Promise<ReleaseNotesProduct> => {
-      const directory = await mkdtemp(join(tmpdir(), 'scalar-release-notes-generator-'))
-      temporaryDirectories.push(directory)
-
-      const changelogPath = join(directory, 'CHANGELOG.md')
-      await writeFile(join(directory, 'package.json'), JSON.stringify({ name: '@example/client', version: '1.0.0' }))
-      await writeFile(
-        changelogPath,
-        ['# @example/client', '', '## 1.0.0', '', '- Added an import flow (#123)'].join('\n'),
-      )
-
-      return {
-        slug: 'client',
-        packageName: '@example/client',
-        displayName: 'Example Client',
-        description: 'an API client for Example',
-        changelogPath,
-        outputPath: join(directory, 'RELEASE_NOTES.json'),
-      }
-    }
-
-    const provider = {
-      name: 'test',
-      generateJson: async () => ({ version: '1.0.0', title: 'Imports are easier' }),
-    }
-
     it('skips the GitHub API entirely when pull request context is disabled', async () => {
       const product = await createProduct()
       const fetchImpl = vi.fn<typeof fetch>()
@@ -94,6 +94,53 @@ describe('run-release-notes-generator', () => {
       })
 
       expect(fetchImpl).toHaveBeenCalledWith('https://api.github.com/repos/example/repo/pulls/123', expect.anything())
+    })
+  })
+
+  describe('highlight limit', () => {
+    const highlights = (count: number): string[] =>
+      Array.from({ length: count }, (_, index) => `Shipped change number ${index + 1}.`)
+
+    it('writes a note with more than five highlights when the product raises maxHighlights', async () => {
+      const product = { ...(await createProduct()), maxHighlights: 10 }
+      const generateJson = vi.fn(async () => ({ version: '1.0.0', title: 'A big release', highlights: highlights(10) }))
+      vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+      const result = await runReleaseNotesGeneratorForProduct({
+        product,
+        provider: { name: 'test', generateJson },
+        github: { repo: 'example/repo', pullRequestContext: false },
+        writeMarkdown: false,
+      })
+
+      expect(generateJson).toHaveBeenCalledTimes(1)
+      expect(generateJson).toHaveBeenCalledWith(
+        expect.objectContaining({ systemPrompt: expect.stringContaining('at most 10, each max 280 characters') }),
+      )
+
+      const written = JSON.parse(await readFile(result.outputPath, 'utf-8')) as Array<{
+        content: Array<{ type: string; items?: string[] }>
+      }>
+      expect(written[0]?.content.find((block) => block.type === 'list')?.items).toStrictEqual(highlights(10))
+    })
+
+    it('keeps rejecting more than five highlights when the product does not set maxHighlights', async () => {
+      const product = await createProduct()
+      const generateJson = vi.fn(async () => ({ version: '1.0.0', title: 'A big release', highlights: highlights(6) }))
+      vi.spyOn(console, 'log').mockImplementation(() => undefined)
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+      await expect(
+        runReleaseNotesGeneratorForProduct({
+          product,
+          provider: { name: 'test', generateJson },
+          github: { repo: 'example/repo', pullRequestContext: false },
+          writeMarkdown: false,
+        }),
+      ).rejects.toThrow(/failed validation/)
+      expect(generateJson).toHaveBeenCalledWith(
+        expect.objectContaining({ systemPrompt: expect.stringContaining('at most 5, each max 280 characters') }),
+      )
     })
   })
 })

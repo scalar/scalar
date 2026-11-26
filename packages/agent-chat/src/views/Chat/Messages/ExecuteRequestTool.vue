@@ -20,10 +20,7 @@ const requestState = computed(() => {
     return 'buildingRequest'
   }
 
-  if (
-    messagePart.value.state === 'approval-responded' &&
-    state.chat.status === 'submitted'
-  ) {
+  if (state.pendingRequestIds.value.has(messagePart.value.toolCallId)) {
     return 'sendingRequest'
   }
 

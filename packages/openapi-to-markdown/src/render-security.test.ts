@@ -24,6 +24,31 @@ describe('render-security', () => {
     expect(await render({ security: [] })).toContain('## Authentication\n\nNo authentication required.\n')
   })
 
+  it.each(['3.0.4', '3.1.2', '3.2.1'])(
+    'honors the authored OpenAPI %s reference description rules',
+    async (openapi) => {
+      const input = {
+        openapi,
+        security: [{ key: [] }],
+        components: {
+          securitySchemes: {
+            key: { $ref: '#/components/securitySchemes/alias', description: 'Account key.' },
+            alias: { $ref: '#/components/securitySchemes/base', description: 'Inner description.' },
+            base: { type: 'apiKey', in: 'header', name: 'X-Api-Key', description: 'Base description.' },
+          },
+        },
+      }
+      const operation = await render(input)
+      const full = await createMarkdownFromOpenApi({ info: { title: 'API', version: '1' }, paths: {}, ...input })
+      const expected = openapi === '3.0.4' ? 'Base description.' : 'Account key.'
+      for (const markdown of [operation, full]) {
+        expect(markdown).toContain(`- **key**: API key in header \`X-Api-Key\`\n\n  ${expected}`)
+        expect(markdown).not.toContain('Inner description.')
+        expect(markdown).not.toContain(openapi === '3.0.4' ? 'Account key.' : 'Base description.')
+      }
+    },
+  )
+
   it('summarizes each security scheme on one line instead of printing its JSON', async () => {
     const markdown = await render({
       security: [{ key: [] }, { bearer: [] }, { oauth: ['read', 'write'] }, { oidc: [] }, { basic: [], mtls: [] }],

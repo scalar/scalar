@@ -11,21 +11,27 @@ import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
-import { ScalarIconMagicWand } from '@scalar/icons'
+import {
+  ScalarIconArrowCounterClockwise,
+  ScalarIconMagicWand,
+} from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import {
   getExampleValue,
   getExplicitExampleText,
 } from '@scalar/workspace-store/helpers/get-example-value'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExampleFromBody,
   getSchemaExampleFromBody,
   getSelectedBodyContentType,
+  usesAspNetFormNaming,
 } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
+  MediaTypeObject,
   RequestBodyObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -34,6 +40,7 @@ import { computed, ref, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
 import RequestBodyForm from '@/v2/blocks/request-block/components/RequestBodyForm.vue'
+import RequestBodyMultipart from '@/v2/blocks/request-block/components/RequestBodyMultipart.vue'
 import RequestBodyStructured from '@/v2/blocks/request-block/components/RequestBodyStructured.vue'
 import RequestBodyViewToggle from '@/v2/blocks/request-block/components/RequestBodyViewToggle.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
@@ -41,6 +48,10 @@ import {
   getFormBodyRows,
   getFormBodyValue,
 } from '@/v2/blocks/request-block/helpers/get-form-body-rows'
+import {
+  parseMultipartBody,
+  type MultipartBodyValue,
+} from '@/v2/blocks/request-block/helpers/multipart-body'
 import { getStructuredBodyCodec } from '@/v2/blocks/request-block/helpers/structured-body-codec'
 import { CodeInput } from '@/v2/components/code-input'
 import {
@@ -55,8 +66,10 @@ const {
   requestBody,
   exampleKey,
   environment,
+  multipartNaming,
   requestBodyCompositionSelection,
   openapiVersion,
+  jsonSchemaDialect,
   title,
   defaultView = 'raw',
 } = defineProps<{
@@ -70,6 +83,9 @@ const {
   environment: XScalarEnvironment
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
+  jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
   /**
@@ -81,6 +97,7 @@ const {
 }>()
 
 const emits = defineEmits<{
+  (e: 'reset', payload: { contentType: string }): void
   (e: 'update:contentType', payload: { value: string }): void
   /** We use this event to update raw values */
   (
@@ -228,6 +245,7 @@ const example = computed(
       exampleKey,
       requestBodyCompositionSelection,
       openapiVersion,
+      jsonSchemaDialect,
     ),
 )
 
@@ -260,6 +278,27 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
     requestBody?.content?.[selectedContentType.value]?.schema ??
       requestBody?.content?.[selectedContentType.value]?.itemSchema,
   )
+})
+
+const aspNetFormNaming = computed<boolean>(() =>
+  usesAspNetFormNaming(
+    selectedContentType.value,
+    requestBody?.content?.[selectedContentType.value],
+    multipartNaming,
+  ),
+)
+
+/** Mixed and related bodies keep their ordered parts instead of named form-data rows. */
+const multipartBody = computed<
+  { media: MediaTypeObject; value: MultipartBodyValue } | undefined
+>(() => {
+  const essence = parseMimeType(selectedContentType.value).essence
+  if (essence !== 'multipart/mixed' && essence !== 'multipart/related') {
+    return undefined
+  }
+  const media = requestBody?.content?.[selectedContentType.value]
+  const value = parseMultipartBody(example.value)
+  return media && value !== undefined ? { media, value } : undefined
 })
 
 /** Codec for structured (JSON/YAML) bodies, undefined for everything else */
@@ -344,7 +383,10 @@ watch(
     const isForm =
       selectedContentType.value === 'multipart/form-data' ||
       selectedContentType.value === 'application/x-www-form-urlencoded'
-    if (!requestBody || (!codec && !isXml && !isForm)) {
+    const isMultipart = ['multipart/mixed', 'multipart/related'].includes(
+      parseMimeType(selectedContentType.value).essence,
+    )
+    if (!requestBody || (!codec && !isXml && !isForm && !isMultipart)) {
       return
     }
 
@@ -355,6 +397,7 @@ watch(
       selectedContentType.value,
       requestBodyCompositionSelection,
       openapiVersion,
+      jsonSchemaDialect,
     )
 
     if (isForm) {
@@ -363,6 +406,8 @@ watch(
         selectedContentType.value,
         bodySchema.value,
         requestBodyCompositionSelection,
+        requestBody.content?.[selectedContentType.value]?.encoding,
+        aspNetFormNaming.value,
       )
       emits('update:formValue', {
         contentType: selectedContentType.value,
@@ -376,6 +421,17 @@ watch(
           ...(row.isDisabledByDefault ? { isDisabledByDefault: true } : {}),
           ...(row.isArray ? { isArray: true } : {}),
         })),
+      })
+      return
+    }
+
+    if (isMultipart) {
+      emits('update:value', {
+        payload:
+          Array.isArray(selectedValue) || isObject(selectedValue)
+            ? selectedValue
+            : '',
+        contentType: selectedContentType.value,
       })
       return
     }
@@ -478,15 +534,27 @@ const canGenerateExample = computed(() =>
           </ScalarButton>
         </ScalarListbox>
         <div class="flex items-center gap-1">
+          <ScalarIconButton
+            v-if="selectedContentType !== 'none'"
+            :aria-label="translate('apiClient.requestBody.restoreOriginalBody')"
+            :icon="ScalarIconArrowCounterClockwise"
+            :label="translate('apiClient.requestBody.restoreOriginalBody')"
+            size="sm"
+            tooltip
+            @click.stop="
+              emits('reset', { contentType: selectedContentType })
+            " />
           <!--
             Generates a new example from the schema so the auto-generated fields stay reachable
             even once the document ships custom examples.
           -->
           <ScalarIconButton
             v-if="canGenerateExample"
-            aria-label="Generate example from schema"
+            :aria-label="
+              translate('apiClient.requestBody.createExampleFromSchema')
+            "
             :icon="ScalarIconMagicWand"
-            label="Generate example from schema"
+            :label="translate('apiClient.requestBody.createExampleFromSchema')"
             size="sm"
             tooltip
             @click.stop="
@@ -588,8 +656,10 @@ const canGenerateExample = computed(() =>
             selectedContentType === 'application/x-www-form-urlencoded'
           ">
           <RequestBodyForm
+            :aspNetFormNaming
             :bodySchema
             :compositionSelection="requestBodyCompositionSelection"
+            :encoding="requestBody?.content?.[selectedContentType]?.encoding"
             :environment
             :example
             :selectedContentType
@@ -601,6 +671,22 @@ const canGenerateExample = computed(() =>
                 })
             " />
         </template>
+
+        <RequestBodyMultipart
+          v-else-if="multipartBody"
+          :key="selectedContentType"
+          :compositionSelection="requestBodyCompositionSelection"
+          :jsonSchemaDialect
+          :media="multipartBody.media"
+          :openapiVersion
+          :value="multipartBody.value"
+          @update:value="
+            (payload) =>
+              emits('update:value', {
+                payload,
+                contentType: selectedContentType,
+              })
+          " />
 
         <!-- Code/Other -->
         <template v-else>

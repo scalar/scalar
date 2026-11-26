@@ -1,5 +1,55 @@
 # @scalar/api-reference-react
 
+## 0.9.98
+
+No changes in this release.
+
+## 0.9.97
+
+No changes in this release.
+
+## 0.9.96
+
+No changes in this release.
+
+## 0.9.95
+
+No changes in this release.
+
+## 0.9.94
+
+No changes in this release.
+
+## 0.9.93
+
+No changes in this release.
+
+## 0.9.92
+
+No changes in this release.
+
+## 0.9.91
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
+## 0.9.90
+
+No changes in this release.
+
+## 0.9.89
+
+## 0.9.88
+
+## 0.9.87
+
+## 0.9.86
+
+## 0.9.85
+
+## 0.9.84
+
 ## 0.9.83
 
 ## 0.9.82

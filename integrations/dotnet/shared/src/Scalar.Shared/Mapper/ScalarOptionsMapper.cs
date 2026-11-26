@@ -26,6 +26,7 @@ internal static partial class ScalarOptionsMapper
             ProxyUrl = options.ProxyUrl,
             Localization = options.Localization,
             ShowExtensions = options.ShowExtensions,
+            MultipartNaming = options.MultipartNaming,
             HideModelNames = options.HideModelNames,
             MaxVisibleRequestBodyProperties = options.MaxVisibleRequestBodyProperties,
             ExpandAllParameters = options.ExpandAllParameters,
@@ -43,6 +44,7 @@ internal static partial class ScalarOptionsMapper
             HideSearch = options.HideSearch,
             ForceDarkModeState = options.ForceThemeMode,
             ShowSidebar = options.ShowSidebar,
+            ShowBadgesInSidebar = options.ShowBadgesInSidebar,
             OperationTitleSource = options.OperationTitleSource,
             WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,
@@ -54,21 +56,20 @@ internal static partial class ScalarOptionsMapper
             TagSorter = options.TagSorter,
             OperationsSorter = options.OperationSorter,
             HiddenClients = options.HiddenClients ? options.HiddenClients : GetHiddenClients(options),
-            DefaultHttpClient = options.DefaultHttpClient.HasValue
-                ? new DefaultHttpClient
-                {
-                    ClientKey = options.DefaultHttpClient.Value.Value,
-                    TargetKey = options.DefaultHttpClient.Value.Key
-                }
-                : null,
+            DefaultHttpClient = (object?) options.DefaultHttpClientId ?? (options.DefaultHttpClient is { } defaultClient
+                ? new DefaultHttpClient { ClientKey = defaultClient.Value, TargetKey = defaultClient.Key }
+                : null),
+            HttpClients = options.HttpClients,
             FeaturedClients = options.FeaturedClients?
                 .Select(client => $"{client.Key.ToStringFast(true)}/{client.Value.ToStringFast(true)}")
                 .ToArray(),
+            ShowDefaultClientsWithSdkInstallation = options.ShowDefaultClientsWithSdkInstallation,
             Integration = options.DotNetFlag ? "dotnet" : null,
             HideClientButton = options.HideClientButton,
             Sources = sources,
             BaseServerUrl = options.BaseServerUrl,
             PersistAuth = options.PersistentAuthentication,
+            PersistSelectedClient = options.PersistSelectedClient,
             Telemetry = options.Telemetry,
 #pragma warning disable CS0618 // Type or member is obsolete
             DocumentDownloadType = options.HideDownloadButton ? DocumentDownloadType.None : options.DocumentDownloadType,
@@ -96,6 +97,7 @@ internal static partial class ScalarOptionsMapper
                 Title = document.Title ?? document.Name,
                 Url = routePattern.Replace(DocumentName, document.Name),
                 Default = document.IsDefault,
+                Authentication = document.Authentication,
                 Agent = document.Agent
             };
         }

@@ -4,6 +4,8 @@ Contributions are welcome. We're using [pnpm](https://pnpm.io/).
 
 ## Development setup
 
+Use Node.js 24.15.0 or later in the Node 24 release line. The jsdom development dependency requires this minimum; Run `nvm install && nvm use` from the repository root to install and select Node 24 using `.nvmrc`.
+
 1. Clone the repository: `$ git clone git@github.com:scalar/scalar.git`
 2. Install all dependencies: `$ pnpm install`
 3. Build all packages once: `$ pnpm build:packages`
@@ -51,6 +53,20 @@ Some tests require an instance of `@scalar/proxy-server` and `@scalar/void-serve
 pnpm script run test-servers
 ```
 
+## GitHub Actions dependencies
+
+Workflow dependencies are pinned in `.github/workflows/actions.lock`, including dependencies of shared composite actions. Use `$/` references for actions in this repository so their dependencies can be locked. Local reusable workflow calls keep their `./.github/workflows/` references.
+
+After adding a workflow or changing an action reference, regenerate and verify the lockfile with an authenticated GitHub CLI:
+
+```sh
+gh extension install github/gh-actions-lock --pin v0.4.1
+gh actions-lock
+gh actions-lock --verify
+```
+
+Commit the updated workflows, composite actions, and lockfile together. The Verify Actions Lockfile workflow checks every pull request, and Renovate updates the lockfile when it updates actions. Do not edit the generated lockfile manually. Review changed commit hashes and investigate any changed repository or owner IDs before merging.
+
 ## Unused-code checks
 
 In a fresh worktree, install dependencies and build the small set of packages loaded by tooling configurations before running Knip:
@@ -58,10 +74,15 @@ In a fresh worktree, install dependencies and build the small set of packages lo
 ```sh
 pnpm install --frozen-lockfile
 pnpm turbo --filter @scalar/helpers --filter @scalar/validation build
+pnpm --filter @scalar/nuxt exec nuxi prepare
+pnpm --filter @scalar/nuxt exec nuxt-module-build build --stub
+pnpm --filter @scalar-examples/nuxt-playground exec nuxi prepare
 pnpm lint:knip
 ```
 
 Turbo also builds `@scalar/themes`, which helpers needs. Playwright configurations load helpers, and the Scalar App configuration loads validation. No integration build or full monorepo build is required.
+
+Nuxt preparation generates the `.nuxt/tsconfig.json` files extended by Nuxt and Playwright configurations. The module stub lets the example load the local Nuxt module without a full integration build.
 
 To check only Docusaurus after installing dependencies, run `pnpm knip --workspace integrations/docusaurus`. This check does not require any workspace packages to be built. Knip analyzes the playground configuration statically, so configuration-only references such as sidebars must remain listed in `knip.jsonc`.
 

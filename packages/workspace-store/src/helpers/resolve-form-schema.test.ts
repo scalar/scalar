@@ -7,6 +7,24 @@ import { SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 import { resolveFormSchema } from './resolve-form-schema'
 
 describe('resolve-form-schema', () => {
+  it.each([0, 1])('preserves the selected format in an intersection for branch %s', (selected) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      allOf: [{ type: 'string' }, { oneOf: [{ type: 'string' }, { type: 'string', format: 'binary' }] }],
+    })
+    const original = structuredClone(schema)
+    const result = resolveFormSchema(schema, { 'requestBody.0.oneOf': selected })
+    expect(result && 'format' in result ? result.format : undefined).toBe(selected === 1 ? 'binary' : undefined)
+    expect(schema).toStrictEqual(original)
+  })
+
+  it('retains a format declared separately from the string type', () => {
+    const result = resolveFormSchema({
+      __scalar_: '',
+      allOf: [{ type: 'string' }, { __scalar_: '', format: 'binary' }],
+    })
+    expect(result && 'format' in result ? result.format : undefined).toBe('binary')
+  })
+
   it.each(['oneOf', 'anyOf'] as const)('exposes only the selected %s fields and their metadata', (keyword) => {
     const first = { type: 'object', properties: { name: { type: 'string' } } }
     const second = {

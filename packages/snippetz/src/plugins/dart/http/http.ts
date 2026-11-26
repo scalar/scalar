@@ -1,5 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 
 /**
@@ -38,19 +39,9 @@ export const dartHttp: Plugin = {
       code = `import 'package:http_parser/http_parser.dart';\n${code}`
     }
 
-    // Handle cookies
-    let cookieHeader = ''
-    let cookieString = ''
-    if (normalizedRequest.cookies && normalizedRequest.cookies.length > 0) {
-      cookieString = normalizedRequest.cookies
-        .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
-        .join('; ')
-      cookieHeader = `  "Cookie": "${cookieString}",\n`
-    }
-
     // Handle headers
     const headers =
-      normalizedRequest.headers?.reduce<Record<string, string>>((acc, header) => {
+      mergeCookieHeaders(normalizedRequest).reduce<Record<string, string>>((acc, header) => {
         if (header.value && !/[; ]/.test(header.name) && !(multipart && header.name.toLowerCase() === 'content-type')) {
           acc[header.name] = header.value
         }
@@ -63,12 +54,8 @@ export const dartHttp: Plugin = {
 
       if (username && password) {
         const credentials = `${username}:${password}`
-        headers['Authorization'] = `'Basic ' + base64Encode(utf8.encode('${credentials}'))`
+        headers['Authorization'] = `'Basic ' + base64Encode(utf8.encode(${dartSingleQuoted(credentials)}))`
       }
-    }
-
-    if (cookieHeader) {
-      headers['Cookie'] = cookieString
     }
 
     if (Object.keys(headers).length > 0) {
@@ -137,10 +124,9 @@ export const dartHttp: Plugin = {
       ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'].includes(normalizedRequest.method) &&
       !(body && ['GET', 'HEAD'].includes(normalizedRequest.method))
     ) {
-      code += `  final response = await http.${method}(Uri.parse('${url}')${headersPart}${bodyPart});\n`
+      code += `  final response = await http.${method}(Uri.parse(${dartSingleQuoted(url)})${headersPart}${bodyPart});\n`
     } else {
-      const wireMethod = normalizedRequest.method.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\$/g, '\\$')
-      code += `  final request = http.Request('${wireMethod}', Uri.parse('${url}'));\n`
+      code += `  final request = http.Request(${dartSingleQuoted(normalizedRequest.method)}, Uri.parse(${dartSingleQuoted(url)}));\n`
       if (Object.keys(headers).length > 0) {
         code += '  request.headers.addAll(headers);\n'
       }

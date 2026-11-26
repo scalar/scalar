@@ -300,8 +300,10 @@ describe('operationToHar', () => {
       expect(snippet).toContain(entry)
     }
     expect(snippet).not.toContain('Hello%252C%2520world')
-    if (target === 'js' && (client === 'xhr' || client === 'jquery')) {
-      expect(snippet).toContain('document.cookie')
+    if (target === 'js') {
+      for (const entry of expected.split('; ')) {
+        expect(snippet).toContain(`document.cookie = ${JSON.stringify(`${entry}; path=/`)};`)
+      }
     } else {
       expect(snippet).toContain(expected)
     }
@@ -545,6 +547,32 @@ describe('operationToHar', () => {
       })
 
       expect(result.url).toBe('https://api.example.com/api/users')
+    })
+
+    it.each<{ name: string; server: ServerObject; expected: string }>([
+      {
+        name: 'an empty string default at the end of the host',
+        server: { url: 'https://api.example.com{basePath}', variables: { basePath: { default: '' } } },
+        expected: 'https://api.example.com/p',
+      },
+      {
+        name: 'an empty string default for the Galaxy server',
+        server: {
+          url: '{protocol}://void.scalar.com/{path}',
+          variables: { protocol: { default: 'https' }, path: { default: '' } },
+        },
+        expected: 'https://void.scalar.com/p',
+      },
+      {
+        name: 'an empty string default for a Unicode variable name',
+        server: { url: 'https://api.example.com{préfixe}', variables: { préfixe: { default: '' } } },
+        expected: 'https://api.example.com/p',
+      },
+    ])('resolves $name in the HAR URL and cURL snippet', ({ server, expected }) => {
+      const request = operationToHar({ operation: { responses: {} }, method: 'get', path: '/p', server })
+
+      expect(request.url).toBe(expected)
+      expect(snippetz().findPlugin('shell', 'curl')?.generate(request)).toBe(`curl ${expected}`)
     })
 
     it('should handle server with multiple variables', () => {
@@ -1609,6 +1637,39 @@ describe('operationToHar', () => {
       })
 
       expect(result.postData?.mimeType).toBe('multipart/form-data')
+      expect(result.headers).toStrictEqual([])
+    })
+
+    it('leaves the boundary header to the multipart encoder when there are only text fields', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'Ada' },
+                  age: { type: 'integer', example: 36 },
+                },
+              }),
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/profile',
+      })
+
+      expect(result.postData?.mimeType).toBe('multipart/form-data')
+      expect(result.postData?.params?.map(({ name }) => name)).toStrictEqual(['name', 'age'])
       expect(result.headers).toStrictEqual([])
     })
 

@@ -1,5 +1,11 @@
 import { DEFAULT_MODELS_SECTION_LABEL } from '@scalar/types/api-reference'
-import type { AvailableClient, ClientId, TargetId } from '@scalar/types/snippetz'
+import type {
+  AvailableClient,
+  ClientId,
+  DefaultHttpClientId,
+  HttpClientPattern,
+  TargetId,
+} from '@scalar/types/snippetz'
 import {
   type LiteralSchema,
   any,
@@ -53,7 +59,7 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     hideModels: boolean({
       default: false,
-      typeComment: 'Whether to show models in the sidebar, search, and content.',
+      typeComment: 'Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content.',
     }),
     hideModelNames: boolean({
       default: false,
@@ -102,6 +108,10 @@ export const apiReferenceConfigurationSchema = intersection([
       default: false,
       typeComment: 'Whether to show the operationId',
     }),
+    showBadgesInSidebar: boolean({
+      default: false,
+      typeComment: 'Whether to show the x-badges of operations, webhooks, tags, tag groups and models in the sidebar',
+    }),
     darkMode: optional(boolean(), {
       typeComment: 'Whether dark mode is on or off initially (light mode)',
     }),
@@ -118,6 +128,10 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     favicon: optional(string(), {
       typeComment: 'Path to a favicon image',
+    }),
+    httpClients: optional(array(string() as unknown as LiteralSchema<HttpClientPattern>), {
+      typeComment:
+        'Built-in HTTP clients available in code sample pickers. Use a client ID such as `node/undici` or a target wildcard such as `shell/*`. Omit to use the existing client list, or pass `[]` to hide all built-in clients. `hiddenClients` still applies.',
     }),
     hiddenClients: optional(
       // The client/target names stay permissive strings at runtime, so `coerce` leaves unknown
@@ -137,19 +151,38 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu',
     }),
+    persistSelectedClient: boolean({
+      default: true,
+      typeComment: 'Whether to save and restore the selected code sample client using local storage. @default true',
+    }),
+    showDefaultClientsWithSdkInstallation: optional(boolean(), {
+      typeComment:
+        'Show built-in HTTP clients alongside `x-scalar-sdk-installation` tabs in the introduction. Defaults to false',
+    }),
     defaultHttpClient: optional(
-      // The keys stay permissive strings at runtime, so `coerce` leaves an unknown value
-      // untouched (a real union would rewrite it to the first client). The cast only tightens
+      // Client IDs and keys stay permissive strings at runtime, so `coerce` leaves an unknown value
+      // untouched (a union of literal client names would rewrite it). The cast only tightens
       // the type, so config authors get autocomplete and an error on typos like the display
-      // title 'Fetch' (the client id is the lowercase 'fetch').
-      object({
-        targetKey: string() as unknown as LiteralSchema<TargetId>,
-        clientKey: string() as unknown as LiteralSchema<ClientId<TargetId>>,
-      }),
+      // title 'Fetch' (the client id is the lowercase 'fetch'). The custom branch widens
+      // the inferred type only; the first branch already accepts custom keys at runtime.
+      union([
+        string() as unknown as LiteralSchema<DefaultHttpClientId>,
+        object({
+          targetKey: string() as unknown as LiteralSchema<TargetId>,
+          clientKey: string() as unknown as LiteralSchema<ClientId<TargetId>>,
+        }),
+        object({
+          targetKey: literal('custom'),
+          clientKey: string(),
+        }),
+      ]),
       {
-        typeComment: 'Determine the HTTP client that is selected by default',
+        typeComment: 'The default code sample client, as a client ID or a target/client object',
       },
     ),
+    multipartNaming: optional(literal('indexed-dot'), {
+      typeComment: 'Use indexed dotted names for nested multipart and URL-encoded form fields.',
+    }),
     defaultRequestBodyView: optional(union([literal('form'), literal('raw')]), {
       typeComment: 'Initial view for the request body editor with structured (JSON/YAML) bodies',
     }),
@@ -259,7 +292,8 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     withDefaultFonts: boolean({
       default: true,
-      typeComment: 'Whether to include default fonts',
+      typeComment:
+        '@deprecated Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.',
     }),
     defaultOpenFirstTag: boolean({
       default: true,

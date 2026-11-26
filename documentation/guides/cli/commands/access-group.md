@@ -2,7 +2,7 @@
 
 # scalar access-group
 
-Manage access groups and allowed email domains for the current team.
+Manage access groups, allowed emails and domains for the current team.
 
 | Command | Description |
 | --- | --- |
@@ -13,6 +13,8 @@ Manage access groups and allowed email domains for the current team.
 | [`scalar access-group delete`](#delete) | Delete an access group and remove its project assignments |
 | [`scalar access-group domain add`](#domain-add) | Add an exact email domain to an access group |
 | [`scalar access-group domain remove`](#domain-remove) | Remove an exact email domain from an access group |
+| [`scalar access-group email add`](#email-add) | Add an email address to an access group |
+| [`scalar access-group email remove`](#email-remove) | Remove an email address from an access group |
 
 ## list
 
@@ -27,6 +29,7 @@ scalar access-group list [options]
 | Option | Description |
 | --- | --- |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## create
 
@@ -49,6 +52,7 @@ scalar access-group create [options] <slug>
 | `--name <name>` | Display name. |
 | `--domain <domains...>` | Allowed email domains. |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## get
 
@@ -69,6 +73,7 @@ scalar access-group get [options] <slug>
 | Option | Description |
 | --- | --- |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## update
 
@@ -91,6 +96,7 @@ scalar access-group update [options] <slug>
 | `--name <name>` | New display name. |
 | `--new-slug <slug>` | New access group slug. |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## delete
 
@@ -112,6 +118,7 @@ scalar access-group delete [options] <slug>
 | --- | --- |
 | `-y, --yes` | Confirm deletion without prompting. |
 | `--json` | Print the result as JSON (requires --yes). |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## domain add
 
@@ -133,6 +140,7 @@ scalar access-group domain add [options] <slug> <domain>
 | Option | Description |
 | --- | --- |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## domain remove
 
@@ -154,3 +162,48 @@ scalar access-group domain remove [options] <slug> <domain>
 | Option | Description |
 | --- | --- |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
+
+## email add
+
+Add an email address to an access group.
+
+```bash
+scalar access-group email add [options] <slug> <email>
+```
+
+**Arguments**
+
+| Argument | Description |
+| --- | --- |
+| `slug` | **Required.** Access group slug. |
+| `email` | **Required.** Email address, such as alex@example.com. |
+
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
+
+## email remove
+
+Remove an email address from an access group.
+
+```bash
+scalar access-group email remove [options] <slug> <email>
+```
+
+**Arguments**
+
+| Argument | Description |
+| --- | --- |
+| `slug` | **Required.** Access group slug. |
+| `email` | **Required.** Email address, such as alex@example.com. |
+
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |

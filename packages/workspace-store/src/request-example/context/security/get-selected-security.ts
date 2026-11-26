@@ -13,9 +13,9 @@ type DefaultScopeScheme = {
   'x-default-scopes'?: string[]
 }
 
-/** Extracts the default scopes for a security scheme (only OAuth2 schemes support this) */
+/** Extracts the default scopes for a security scheme for OAuth2 and OpenID Connect */
 const getDefaultScopes = (scheme: DefaultScopeScheme | undefined): string[] => {
-  if (scheme?.type !== 'oauth2') {
+  if (scheme?.type !== 'oauth2' && scheme?.type !== 'openIdConnect') {
     return []
   }
   return scheme['x-default-scopes'] ?? []
@@ -32,7 +32,7 @@ const applyDefaultScopes = (
       }
 
       const scheme = getResolvedRef(securitySchemes[name])
-      const defaultScopes = scheme?.type === 'oauth2' ? scheme['x-default-scopes'] : undefined
+      const defaultScopes = getDefaultScopes(scheme)
       if (Array.isArray(defaultScopes) && defaultScopes.length > 0) {
         return [name, [...defaultScopes]]
       }

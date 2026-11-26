@@ -1,6 +1,6 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
-import type { TraversedAsyncApiChannel } from '@scalar/workspace-store/schemas/navigation'
+import type { TraversedAsyncApiChannel, TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -44,6 +44,30 @@ function createDocumentWithChannel(channel: Record<string, unknown>): AsyncApiDo
 }
 
 describe('Channel', () => {
+  it.each(['modern', 'classic'] as const)('renders selected referenced extensions in %s', async (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+        document: createDocumentWithChannel({
+          $ref: '#/components/channels/orders',
+          'x-meta': 'ignored sibling',
+          '$ref-value': { address: 'orders', 'x-meta': { owner: 'orders-team' }, 'x-null': null, 'x-hidden': 'secret' },
+        }),
+        options: { showExtensions: ['x-null', 'x-meta'] },
+      },
+    })
+    expect(wrapper.text()).toContain('orders-team')
+    expect(wrapper.text()).toContain('x-null:null')
+    expect(wrapper.text()).not.toContain('ignored sibling')
+    expect(wrapper.text()).not.toContain('secret')
+    await wrapper.setProps({ options: { showExtensions: [] } })
+    expect(wrapper.text()).not.toContain('orders-team')
+    expect(wrapper.text()).not.toContain('x-null')
+  })
+
   it.each(['modern', 'classic'] as const)('omits redundant channel tags in %s', (layout) => {
     const wrapper = mount(Channel, {
       props: {
@@ -555,7 +579,7 @@ describe('Channel', () => {
         wrapper
           .getComponent({ name: 'Operation' })
           .findAllComponents(Message)
-          .map((message) => message.props('message').messageName),
+          .map((message) => (message.props('message') as TraversedAsyncApiMessage).messageName),
       ).toStrictEqual(['eventA'])
       expect(wrapper.findAllComponents(Message).map((message) => message.props('message').id)).toStrictEqual([
         'catalog/channel/events/operation/listen/message/eventa',
@@ -598,9 +622,11 @@ describe('Channel', () => {
         eventBus: null,
       },
     })
-    expect(wrapper.findAllComponents(Message).map((message) => message.props('message').messageName)).toStrictEqual([
-      'signup',
-    ])
+    expect(
+      wrapper
+        .findAllComponents(Message)
+        .map((message) => (message.props('message') as TraversedAsyncApiMessage).messageName),
+    ).toStrictEqual(['signup'])
     expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
     expect(wrapper.findAll('h1,h2,h3').map((heading) => heading.text())).toStrictEqual([
       'user/signedup',

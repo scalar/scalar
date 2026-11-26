@@ -151,10 +151,10 @@ const explodedArray = (single: string | undefined, multi: string[] | undefined):
 const stripPrefix = (value: string, prefix: string): string =>
   value.startsWith(prefix) ? value.slice(prefix.length) : value
 
-/** Return the part of a `key=value` segment after the first `=`, or the whole segment when there is none. */
-const valueAfterEquals = (segment: string): string => {
+/** Return the value of a `name=value` matrix segment. A bare `name` segment carries an empty value. */
+const matrixValue = (segment: string): string => {
   const equals = segment.indexOf('=')
-  return equals === -1 ? segment : segment.slice(equals + 1)
+  return equals === -1 ? '' : segment.slice(equals + 1)
 }
 
 /** Split a `matrix`-encoded value into its `;`-separated segments, dropping the leading `;` and empties. */
@@ -210,13 +210,19 @@ const parseMatrixArray = (value: string | undefined, explode: boolean): string[]
 
   const segments = matrixSegments(value)
 
+  // An empty array is serialized as the bare name (`;ids`) or with an empty value (`;ids=`), in both
+  // explode modes. It has no elements, matching the other styles, rather than a phantom `'ids'` or `''`.
+  const [first] = segments
+  if (first === undefined || (segments.length === 1 && matrixValue(first) === '')) {
+    return []
+  }
+
   if (explode) {
-    return segments.map(valueAfterEquals)
+    return segments.map(matrixValue)
   }
 
   // Non-exploded: a single `name=a,b,c` segment whose value is comma-separated.
-  const [first] = segments
-  return first === undefined ? [] : valueAfterEquals(first).split(',')
+  return matrixValue(first).split(',')
 }
 
 /**
@@ -257,6 +263,44 @@ export const deserializeArrayParameter = ({
       // `form` (and any unrecognised style): an exploded array repeats the key, otherwise it is comma-joined.
       return explode ? explodedArray(single, multi) : split(single, ',')
   }
+}
+
+/**
+ * Deserialize a string-encoded primitive parameter, removing the `label` or `matrix` prefix.
+ *
+ * Per the spec Style Examples a `label` primitive is dot-prefixed (`.5`) and a `matrix` primitive is
+ * `;name=value` (`;id=5`), with `;id` for an empty value. Other styles send the value as-is.
+ *
+ * Returns `undefined` when the parameter is absent so the caller can enforce `required` separately.
+ */
+export const deserializePrimitiveParameter = ({
+  style,
+  single,
+  name,
+}: {
+  style: string
+  /** The raw value as read from path, query, header, or cookie */
+  single: string | undefined
+  /** Declared parameter name, used to identify the complete matrix prefix */
+  name: string
+}): string | undefined => {
+  if (single === undefined) {
+    return undefined
+  }
+
+  if (style === 'label') {
+    return stripPrefix(single, '.')
+  }
+
+  if (style === 'matrix') {
+    // Names and values are already percent-decoded. Match the declared name so an encoded `=` in
+    // the name and an encoded `;` in the value are not mistaken for serialization delimiters.
+    const prefix = `;${name}=`
+    // A segment without `=` (`;id`) is the parameter name with an empty value.
+    return single.startsWith(prefix) ? single.slice(prefix.length) : ''
+  }
+
+  return single
 }
 
 /** Parse `R,100,G,200` (a flat list alternating key, value) into an object. */
@@ -380,7 +424,7 @@ export const deserializeObjectParameter = ({
       return pairsFromList(segments)
     }
     const [first] = segments
-    return first === undefined ? {} : alternatingFromList(valueAfterEquals(first).split(','))
+    return first === undefined ? {} : alternatingFromList(matrixValue(first).split(','))
   }
 
   // `spaceDelimited` / `pipeDelimited` (query): a flat alternating key,value list joined by the

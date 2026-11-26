@@ -42,6 +42,17 @@ describe('document-references', () => {
     })
   })
 
+  it('matches the authored document identity and its normalized URL', () => {
+    const identity = 'https://example.com:443/api/openapi.json'
+    const value = { type: 'string' }
+    const document = { identity, value }
+    const references = documentReferences('x-ext', resolveDocument)
+    references.register(document, 'https://mirror.example.com/openapi.json')
+
+    expect(references.resolve(`${identity}#/value`, identity)?.value).toBe(value)
+    expect(references.resolve('./openapi.json#/value', identity)?.value).toBe(value)
+  })
+
   it('escapes pointer segments when locating an external document', () => {
     const root = { identity: 'https://example.com/orders', paths: { '/orders': { summary: 'Orders' } } }
     const references = documentReferences('external', resolveDocument)
@@ -160,4 +171,41 @@ describe('document-references', () => {
       expect(references.resolve(ref, 'https://example.com/api.json')?.preserveReference).toBe(preserved)
     },
   )
+
+  it('distinguishes resource-local storage from relocated bundle targets', () => {
+    const local = { type: 'string' }
+    const external = { type: 'number' }
+    const schema = { $id: 'schema.json', 'x-ext': { same: local } }
+    const registry = documentReferences('x-ext')
+    const root = { schema }
+    registry.register(root, '/root.json')
+    registry.register(external, '/external.json', ['x-ext', 'same'])
+    expect(registry.resolve('#/x-ext/same', '/schema.json')).toStrictEqual({
+      path: 'schema/x-ext/same',
+      document: root,
+      documentPath: [],
+      preserveReference: true,
+      value: local,
+      resourceRelative: true,
+      segments: ['schema', 'x-ext', 'same'],
+    })
+    expect(registry.resolve('#/x-ext/same', '/root.json')).toStrictEqual({
+      path: 'x-ext/same',
+      document: external,
+      documentPath: ['x-ext', 'same'],
+      preserveReference: false,
+      value: external,
+      resourceRelative: false,
+      segments: ['x-ext', 'same'],
+    })
+  })
+  it('retains fetchable bases when refreshing canonicalized stored schemas', () => {
+    const reference = { $ref: './common.yaml' }
+    const document = { $id: 'nested/Pet.yaml', reference }
+    const registry = documentReferences('x-ext', undefined, true)
+    registry.register(document, 'https://example.com/__bundle_a/document', ['x-ext', 'a'], 'https://example.com/a')
+    registry.refresh(document, [])
+    expect(registry.retrievalOrigin(reference)).toBe('https://example.com/nested/Pet.yaml')
+    expect(registry.origin(reference)).toBe('https://example.com/__bundle_a/nested/Pet.yaml')
+  })
 })

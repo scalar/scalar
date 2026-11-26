@@ -17,10 +17,10 @@ const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => 
 }
 
 describe('addResponseToHistory', () => {
-  it('adds a response to the operation history', async () => {
+  it.each(['test-doc', 'toString'])('adds a response to the operation history for %s', async (name) => {
     const store = createWorkspaceStore()
     await store.addDocument({
-      name: 'test-doc',
+      name,
       document: createDocument({
         paths: {
           '/users/{id}': {
@@ -33,7 +33,7 @@ describe('addResponseToHistory', () => {
       }),
     })
 
-    const document = getOpenApiDocument(store, 'test-doc')!
+    const document = getOpenApiDocument(store, name)!
     assert(document)
 
     const mockResponse = {
@@ -61,9 +61,11 @@ describe('addResponseToHistory', () => {
       },
     })
 
-    const history = store.history.getHistory('test-doc', '/users/{id}', 'get')
+    const history = store.history.getHistory(name, '/users/{id}', 'get')
     expect(history).toBeDefined()
     expect(history?.length).toBe(1)
+    expect(Object.keys(store.history.export())).toStrictEqual([name])
+    expect(createWorkspaceStore().history.getHistory(name, '/users/{id}', 'get')).toBeUndefined()
 
     const historyEntry = history?.[0]
     expect(historyEntry?.time).toBe(150)

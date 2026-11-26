@@ -9,9 +9,15 @@ import {
   type OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { type Component, defineComponent, h, markRaw } from 'vue'
+
+import { PLUGIN_MANAGER_SYMBOL } from '@/plugins/hooks/usePluginManager'
+import { createPluginManager } from '@/plugins/plugin-manager'
 
 import Operation from './Operation.vue'
+
+vi.unmock('@/plugins/hooks/usePluginManager')
 
 type ExtractComponentProps<TComponent> = TComponent extends new () => { $props: infer P } ? P : never
 
@@ -24,6 +30,8 @@ const workspaceStore = createWorkspaceStore()
  */
 const mountOperationWithConfig = (
   overrides: {
+    specificationExtension?: Component
+    plugins?: Parameters<typeof createPluginManager>[0]['plugins']
     slots?: { actions?: string }
     path?: string
     method?: string
@@ -42,6 +50,7 @@ const mountOperationWithConfig = (
     paths: {
       '/users/{userId}': {
         get: {
+          responses: {},
           operationId: 'getUserById',
           summary: 'Get user by ID',
         },
@@ -66,6 +75,7 @@ const mountOperationWithConfig = (
   })
 
   const props: ExtractComponentProps<typeof Operation> = {
+    specificationExtension: overrides.specificationExtension,
     id: 'test-operation',
     method: (overrides.method || 'get') as any,
     securitySchemes: {},
@@ -87,6 +97,7 @@ const mountOperationWithConfig = (
     props: props,
     slots: overrides.slots,
     global: {
+      provide: { [PLUGIN_MANAGER_SYMBOL]: createPluginManager({ plugins: overrides.plugins ?? [] }) },
       stubs: {
         RouterLink: {
           name: 'RouterLink',
@@ -98,9 +109,131 @@ const mountOperationWithConfig = (
 }
 
 describe('Operation', () => {
+  it.each(['modern', 'classic'] as const)('keeps path and operation extensions separate in %s', (layout) => {
+    const pathValue = {
+      'x-owner': 'path-team',
+      get: { 'x-owner': 'get-team', responses: { '200': { description: 'Success' } } },
+      post: { 'x-owner': 'post-team', responses: { '200': { description: 'Success' } } },
+    }
+    for (const method of ['get', 'post']) {
+      const wrapper = mountOperationWithConfig({ pathValue, method, options: { layout, showExtensions: ['x-owner'] } })
+      expect(wrapper.text()).toContain('path-team')
+      expect(wrapper.text()).not.toContain('Path: /users/{userId}')
+      expect(wrapper.text()).toContain(`${method}-team`)
+      wrapper.unmount()
+    }
+  })
+
+  it.each(['modern', 'classic'] as const)('omits unselected path extensions in %s', (layout) => {
+    const wrapper = mountOperationWithConfig({
+      pathValue: { 'x-private': 'hidden', get: { responses: { '200': { description: 'Success' } } } },
+      options: { layout },
+    })
+    expect(wrapper.text()).not.toContain('hidden')
+  })
+
+  it.each(['modern', 'classic'] as const)(
+    'renders selected Paths Object extensions in each operation in %s',
+    async (layout) => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'pets',
+        document: {
+          openapi: '3.0.1',
+          info: { title: 'Pets', version: '1' },
+          paths: {
+            'x-origins': ['https://example.com'],
+            'x-owner': 'Pet platform team',
+            'x-hidden': 'secret',
+            '/pet': {
+              get: { responses: { '200': { description: 'Success' } } },
+              post: { responses: { '200': { description: 'Success' } } },
+            },
+          },
+        },
+      })
+      const document = store.workspace.documents.pets as OpenApiDocument
+      for (const method of ['get', 'post']) {
+        const wrapper = mountOperationWithConfig({
+          document,
+          path: '/pet',
+          pathValue: document.paths?.['/pet'],
+          method,
+          options: { layout, showExtensions: ['x-origins', 'x-owner'] },
+        })
+        expect(wrapper.text()).toContain('https://example.com')
+        expect(wrapper.text()).toContain('Pet platform team')
+        expect(wrapper.text()).not.toContain('secret')
+        await wrapper.setProps({ options: { ...wrapper.props('options'), showExtensions: [] } })
+        expect(wrapper.text()).not.toContain('https://example.com')
+        await wrapper.setProps({
+          options: { ...wrapper.props('options'), showExtensions: ['x-origins', 'x-owner'] },
+          isWebhook: true,
+        })
+        expect(wrapper.text()).not.toContain('https://example.com')
+        wrapper.unmount()
+      }
+    },
+  )
+
   beforeEach(() => {
     enableConsoleWarn()
     enableConsoleError()
+  })
+
+  const extensionPath = {
+    get: {
+      responses: { '200': { description: 'Success' } },
+      parameters: [
+        {
+          name: 'userId',
+          in: 'query',
+          schema: { type: 'string' },
+          'x-owner': 'selected-team',
+          'x-hidden': 'hidden-team',
+        },
+      ],
+    },
+  }
+
+  it.each(['modern', 'classic'] as const)('renders selected parameter extensions by default in %s', (layout) => {
+    const wrapper = mountOperationWithConfig({
+      options: { layout, showExtensions: ['x-owner'] },
+      pathValue: extensionPath,
+    })
+
+    expect(wrapper.text()).toContain('selected-team')
+    expect(wrapper.text()).not.toContain('hidden-team')
+    wrapper.unmount()
+  })
+
+  it.each(['modern', 'classic'] as const)('uses configured extension plugins by default in %s', (layout) => {
+    const wrapper = mountOperationWithConfig({
+      options: { layout, showExtensions: ['x-owner'] },
+      pathValue: extensionPath,
+      plugins: [
+        () => ({
+          name: 'owner',
+          extensions: [{ name: 'x-owner', component: defineComponent({ render: () => h('span', 'Plugin owner') }) }],
+        }),
+      ],
+    })
+
+    expect(wrapper.text()).toContain('Plugin owner')
+    expect(wrapper.text()).not.toContain('selected-team')
+    wrapper.unmount()
+  })
+
+  it.each(['modern', 'classic'] as const)('preserves explicit extension renderer overrides in %s', (layout) => {
+    const wrapper = mountOperationWithConfig({
+      options: { layout, showExtensions: ['x-owner'] },
+      pathValue: extensionPath,
+      specificationExtension: markRaw(defineComponent({ render: () => h('span', 'Custom owner') })),
+    })
+
+    expect(wrapper.text()).toContain('Custom owner')
+    expect(wrapper.text()).not.toContain('selected-team')
+    wrapper.unmount()
   })
 
   it.each(['modern', 'classic'] as const)('keeps the default copy action in the %s layout', (layout) => {
@@ -160,6 +293,7 @@ describe('Operation', () => {
             },
           ],
           get: {
+            responses: {},
             summary: 'Get user by ID',
             servers: [
               {
@@ -228,6 +362,7 @@ describe('Operation', () => {
       paths: {
         '/users/{userId}': {
           get: {
+            responses: {},
             summary: 'Get user by ID',
             parameters: [
               {
@@ -285,6 +420,7 @@ describe('Operation', () => {
             },
           ],
           post: {
+            responses: {},
             summary: 'User updated webhook',
           },
         },
@@ -339,6 +475,7 @@ describe('Operation', () => {
             },
           ],
           get: {
+            responses: {},
             summary: 'Get user by ID',
             parameters: [
               {
@@ -538,6 +675,7 @@ describe('Operation', () => {
             },
           ],
           get: {
+            responses: {},
             summary: 'List users',
           },
         },

@@ -42,6 +42,16 @@ beforeEach(() => {
 })
 
 describe('ScalarCodeBlock', () => {
+  it('copies an explicit original value while displaying masked content', async () => {
+    const wrapper = mount(ScalarCodeBlock, { props: { content: 'token = "••••••••"', copyContent: 'token = "ab"' } })
+    expect(wrapper.get('[role="group"]').text()).toBe('token = "••••••••"')
+    await wrapper.get('button').trigger('click')
+    expect(mockCopy).toHaveBeenLastCalledWith('token = "ab"')
+    await wrapper.setProps({ copyContent: '' })
+    await wrapper.get('button').trigger('click')
+    expect(mockCopy).toHaveBeenLastCalledWith('')
+  })
+
   it('names the code region while keeping it keyboard-scrollable', async () => {
     const wrapper = createWrapper()
     const region = wrapper.get('[role="group"]')

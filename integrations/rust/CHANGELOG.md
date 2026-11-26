@@ -1,5 +1,119 @@
 # scalar_api_reference
 
+## 0.2.32
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.85.0
+
+No changes in this release.
+
+## 0.2.31
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.84.0
+
+### Patch Changes
+
+- [#11163](https://github.com/scalar/scalar/pull/11163): Refresh the Rust dependency lockfile and Python integration and playground dependencies while preserving existing public dependency ranges and runtime support.
+
+## 0.2.30
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.83.0
+
+No changes in this release.
+
+## 0.2.29
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.82.1
+
+No changes in this release.
+
+## 0.2.28
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.82.0
+
+No changes in this release.
+
+## 0.2.27
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.81.0
+
+No changes in this release.
+
+## 0.2.26
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.80.0
+
+No changes in this release.
+
+## 0.2.25
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.79.0
+
+### Patch Changes
+
+- [#11058](https://github.com/scalar/scalar/pull/11058): Prevent HTML injection in embedded Rust configuration and bundle URLs, and preserve literal template placeholders in user data.
+
+  Make the raw `render_scalar` helper internal so callers cannot bypass JSON validation. Use `scalar_html` with a `serde_json::Value` or `scalar_html_from_json` with a JSON string instead.
+
+## 0.2.24
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.78.1
+
+No changes in this release.
+
+## 0.2.23
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.78.0
+
+## 0.2.22
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.77.0
+
+## 0.2.21
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.76.4
+
+## 0.2.20
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.76.3
+
+## 0.2.19
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.76.2
+
+## 0.2.18
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.76.1
+
 ## 0.2.17
 
 ### Bundled API Reference

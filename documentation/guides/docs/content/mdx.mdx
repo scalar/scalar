@@ -67,6 +67,63 @@ This MDX file serves as an imported component in another MDX document.
 You can include any Markdown or JSX content here to be reused elsewhere.
 ```
 
+## Project snippets
+
+Components in the `snippets` folder at your project root are available in every MDX page, with no import line. Save a file there:
+
+```markdown
+// snippets/pop.mdx
+This content comes from a project snippet.
+```
+
+And use it by name on any page:
+
+```markdown
+# Example
+
+<Pop />
+
+This is **Markdown**.
+```
+
+Your project root is the directory that holds your `scalar.config.json`, or the directory its [`root`](../configuration/scalar.config.json.md) setting points to. Only files directly inside `snippets` count, with an `.mdx`, `.jsx`, or `.tsx` extension; nested folders are not scanned. A `.jsx` or `.tsx` snippet needs a default export, or an export named after its component.
+
+### Component names
+
+The file name becomes the component name in PascalCase. Dashes, underscores, and spaces separate words, and only the first letter of each word changes case, so capitals elsewhere in a word survive:
+
+| File                         | Component          |
+| ---------------------------- | ------------------ |
+| `snippets/pop.mdx`           | `<Pop />`          |
+| `snippets/snippet-intro.mdx` | `<SnippetIntro />` |
+| `snippets/hello_world.jsx`   | `<HelloWorld />`   |
+| `snippets/ColorPicker.tsx`   | `<ColorPicker />`  |
+| `snippets/my-URL-helper.mdx` | `<MyURLHelper />`  |
+
+A file whose name cannot be written as a JSX tag gets no component name: `snippets/2fa-notice.mdx` starts with a digit, and `snippets/intro.v2.mdx` keeps a dot. Import files like those explicitly instead.
+
+### Which name wins
+
+A name your page binds itself keeps its own meaning, whether that is an explicit import, an exported declaration, or a local declaration in scope. Scalar's built-in components keep their names too, so a `snippets/card.mdx` file does not replace the built-in `<Card>`. Import it under another name to use it.
+
+When two snippet files claim the same name, `.mdx` wins over `.jsx`, which wins over `.tsx`; after that, the first path wins. Each build logs a warning for every snippet file that does not get its name, so a shadowed snippet does not fail silently.
+
+### Explicit imports
+
+Pages that import their snippets by hand keep working, and root-absolute paths resolve against your project root:
+
+```markdown
+import Pop from '/snippets/pop.mdx'
+
+<Pop />
+```
+
+Either way, only the snippets a page renders are bundled with that page, so an unused snippet never adds to it.
+
+### In the editor
+
+MDX snippets preview in the editor just like explicit imports, including components nested inside a snippet and children the page passes through. A `.jsx` or `.tsx` snippet keeps its component name but shows its source instead of a preview, because the editor renders MDX rather than React.
+
 ## JSX Elements
 
 Use JSX directly in your content:

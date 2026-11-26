@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 #if SCALAR_ASPIRE
 namespace Scalar.Aspire;
 #elif SCALAR_AZURE_FUNCTIONS
@@ -32,4 +34,10 @@ public sealed class ScalarApiKeySecurityScheme : ScalarSecurityScheme
     /// This value will be sent as-is in the specified header. For example, "Bearer token123" or "ApiKey abc123".
     /// </remarks>
     public string? Value { get; set; }
+
+    /// <summary>
+    /// Prefix added to header API keys, separated from the raw credential by one space.
+    /// </summary>
+    [JsonPropertyName("x-scalar-token-prefix")]
+    public string? TokenPrefix { get; set; }
 }

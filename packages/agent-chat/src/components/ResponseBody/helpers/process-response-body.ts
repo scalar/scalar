@@ -1,28 +1,5 @@
+import { extractFilename } from '@scalar/helpers/http/extract-filename'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
-
-const decodeURIComponentSafe = (str: string) => {
-  try {
-    return decodeURIComponent(str)
-  } catch {
-    return str
-  }
-}
-
-function extractFilename(contentDisposition: string) {
-  let filename = ''
-
-  if (contentDisposition) {
-    const fileNameMatch =
-      contentDisposition.match(/filename\*=UTF-8''([^;]+)/)?.[1] ??
-      contentDisposition.match(/filename\s*=\s*"?([^";]+)"?/)?.[1]
-
-    if (fileNameMatch) {
-      filename = decodeURIComponentSafe(fileNameMatch.trim())
-    }
-  }
-
-  return filename
-}
 
 const isBlob = (b: any): b is Blob => b instanceof Blob
 

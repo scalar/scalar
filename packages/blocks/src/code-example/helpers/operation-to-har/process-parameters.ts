@@ -95,7 +95,13 @@ const getParameterStyleAndExplode = (param: ParameterObject): { style: string; e
  * Prioritizes example data over schema examples.
  * Returns null if the parameter is disabled so we can skip it.
  */
-const getParameterValue = (param: ParameterObject, example: string | undefined, defaultDisabled: boolean): unknown => {
+const getParameterValue = (
+  param: ParameterObject,
+  example: string | undefined,
+  defaultDisabled: boolean,
+  openapiVersion?: string,
+  jsonSchemaDialect?: string,
+): unknown => {
   // Try to get value from example first
   const selected = getParameterExample(param, example)
   const exampleValue = selected.example
@@ -127,7 +133,11 @@ const getParameterValue = (param: ParameterObject, example: string | undefined, 
     return undefined
   }
 
-  const options = param.in === 'path' ? { emptyString: `{${param.name}}` } : {}
+  const options = {
+    openapiVersion,
+    jsonSchemaDialect,
+    ...(param.in === 'path' ? { emptyString: `{${param.name}}`, preserveStringFallback: true } : {}),
+  }
   const schema = getResolvedRef(param.schema)
   return schema ? getExampleFromSchema(schema, options) : undefined
 }
@@ -144,6 +154,7 @@ export const processParameters = ({
   example,
   defaultDisabled,
   openapiVersion,
+  jsonSchemaDialect,
 }: {
   harRequest: HarRequest
   parameters: OperationObject['parameters']
@@ -153,6 +164,7 @@ export const processParameters = ({
   defaultDisabled: boolean
   /** Originating API description version. */
   openapiVersion?: string
+  jsonSchemaDialect?: string
 }): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
   const newHeaders = [...harRequest.headers]
@@ -182,7 +194,11 @@ export const processParameters = ({
     }
 
     if (param.in === 'querystring') {
-      const querystring = getQuerystringParameter(param, example, { defaultDisabled })
+      const querystring = getQuerystringParameter(param, example, {
+        defaultDisabled,
+        openapiVersion,
+        jsonSchemaDialect,
+      })
       if (querystring) {
         const hashIndex = newUrl.indexOf('#')
         const hash = hashIndex === -1 ? '' : newUrl.slice(hashIndex)
@@ -230,7 +246,7 @@ export const processParameters = ({
       }
       continue
     }
-    const paramValue = getParameterValue(param, example, defaultDisabled)
+    const paramValue = getParameterValue(param, example, defaultDisabled, openapiVersion, jsonSchemaDialect)
     if (paramValue === undefined) {
       continue
     }

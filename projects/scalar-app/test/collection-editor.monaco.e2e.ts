@@ -65,6 +65,48 @@ test.describe('collection-editor.monaco.e2e', () => {
     }
   })
 
+  test('YAML workers validate, format, and complete documents', async ({ page }) => {
+    await page.goto('/')
+    await waitForScalarAppShellReady(page)
+    await page.goto(EDITOR_ROUTE)
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
+    const modifier = await page.evaluate(() => (navigator.platform.startsWith('Mac') ? 'Meta' : 'Control'))
+    const editor = page.locator('.monaco-editor').first()
+    await expect(editor.locator('.json-focus-highlight').first()).toBeVisible()
+    await page.getByRole('tab', { name: 'YAML' }).click()
+    const input = editor.getByRole('textbox', { name: 'Editor content' })
+    await page.getByRole('button', { name: /^Problems/ }).click()
+
+    const replaceDocument = async (text: string): Promise<void> => {
+      await input.focus()
+      await input.press(`${modifier}+a`)
+      await page.evaluate((value) => navigator.clipboard.writeText(value), text)
+      await input.press(`${modifier}+v`)
+    }
+
+    const validDocument = 'openapi: 3.1.0\ninfo:\n  title: Worker compatibility\n  version: 1.0.0\npaths: {}\n'
+    await replaceDocument(`${validDocument}unknownProperty: true\n`)
+    await expect(page.getByRole('button', { name: /Property unknownProperty is not allowed/ })).toBeVisible()
+    await replaceDocument(validDocument)
+    await expect(page.getByRole('button', { name: 'Problems 0 0', exact: true })).toBeVisible()
+
+    await replaceDocument('openapi:   3.1.0\ninfo:\n    title: Worker compatibility\n    version: 1.0.0\npaths: {}\n')
+    await page.getByRole('button', { name: /Format YAML/ }).click()
+    // Moving the selection cancels Monaco's in-flight formatting request.
+    await expect(editor.locator('.view-line').first()).toHaveText(/^openapi:\s3\.1\.0$/)
+    await expect
+      .poll(async () => {
+        await input.press(`${modifier}+a`)
+        await input.press(`${modifier}+c`)
+        return page.evaluate(() => navigator.clipboard.readText())
+      })
+      .toBe(validDocument)
+    await replaceDocument(validDocument)
+    await input.pressSequentially('com')
+    await input.press('Control+Space')
+    await expect(editor.locator('.suggest-widget.visible')).toContainText('components')
+  })
+
   test('Monaco mounts and YAML mode does not throw (monaco-yaml + workers)', async ({ page }) => {
     const consoleErrors: string[] = []
     page.on('console', (message) => {

@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import * as monaco from 'monaco-editor/editor'
 
 /**
  * This function counts the number of error and warning markers in the provided array of Monaco editor markers.

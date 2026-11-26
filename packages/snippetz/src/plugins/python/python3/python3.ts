@@ -1,5 +1,6 @@
 import type { HarRequest, Plugin } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { accumulateRepeatedValue, buildQueryString, normalizeRequest } from '@/libs/http'
 import { dispositionValue } from '@/libs/prepare-request'
 import { formatPythonValue } from '@/plugins/python/requestsLike'
@@ -194,7 +195,7 @@ export const pythonPython3: Plugin = {
     const parsedUrl = parseRequestUrl(requestUrl)
     const queryString = mergeQueryString(parsedUrl, normalizedRequest.queryString)
     const path = `${parsedUrl.pathname || '/'}${queryString}`
-    const headers = normalizedRequest.headers?.reduce<Record<string, string>>((acc, header) => {
+    const headers = mergeCookieHeaders(normalizedRequest).reduce<Record<string, string>>((acc, header) => {
       if (!(header.name in acc)) {
         acc[header.name] = header.value
       }
@@ -203,18 +204,6 @@ export const pythonPython3: Plugin = {
     }, {})
 
     const preparedHeaders = headers ?? {}
-
-    if (normalizedRequest.cookies?.length) {
-      const cookieHeader = normalizedRequest.cookies
-        .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
-        .join('; ')
-
-      if (preparedHeaders.Cookie) {
-        preparedHeaders.Cookie = `${preparedHeaders.Cookie}; ${cookieHeader}`
-      } else {
-        preparedHeaders.Cookie = cookieHeader
-      }
-    }
 
     if (configuration?.auth?.username && configuration.auth.password) {
       const authValue = createBasicAuthToken(`${configuration.auth.username}:${configuration.auth.password}`)

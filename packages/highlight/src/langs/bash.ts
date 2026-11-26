@@ -1,4 +1,5 @@
-import type { Grammar } from '../core/types'
+import type { Grammar, StateRule } from '../core/types'
+import { SHELL_SPLICES, SHELL_WORD_START, shellContinuation, shellEscape } from './shared/shell'
 
 /**
  * Bash, sh and zsh.
@@ -18,23 +19,23 @@ const VAR = '\\$(?:[A-Za-z_]\\w*|[0-9!@#?*$-])'
 const BEFORE_COMMAND =
   '(?:^(?<!\\\\\\r?\\n)(?:[ \\t]*\\$(?=[ \\t]))?|[|&;(`{]|\\$\\(|\\b(?:then|do|else|elif|sudo|time|exec|xargs|nohup|env)\\b|!)'
 
+const heredocExpansions: StateRule[] = [shellContinuation, { match: '\\\\[\\\\$`]' }, { include: 'quoted-expansion' }]
+
 const bash: Grammar = {
   name: 'bash',
   aliases: ['sh', 'shell', 'zsh', 'console'],
   states: {
     root: {
       rules: [
-        { match: '^#!.*', scope: 'comment' },
-        { match: '(?:^|[ \\t])#[^\\n]*', scope: 'comment' },
+        { match: String.raw`(?<![\s\S])#!.*`, scope: 'comment' },
+        { match: String.raw`[ \t]?${SHELL_WORD_START}#[^\n]*`, scope: 'comment' },
+        // Operators can end a word without whitespace before the comment.
+        { match: String.raw`(?:&&|\|\||[|&;]|[<>]{1,2})(?=${SHELL_SPLICES}#)`, scope: 'operator', push: 'comment' },
+        { match: `[()](?=${SHELL_SPLICES}#)`, scope: 'punctuation.bracket', push: 'comment' },
 
         { include: 'expansion' },
-        // An escaped character outside quotes is literal. It has to come
-        // before the quote rules: `'it'\\''s'` is how a single quote is written
-        // inside a single-quoted string — close, escaped quote, reopen — and
-        // reading that `\\'` as the start of a string inverts the rest of the
-        // line. snippetz writes it for every curl body with an apostrophe.
-        // A backslash before a newline is a line continuation, left unscoped.
-        { match: '\\\\[^\\r\\n]', scope: 'string.escape' },
+        shellContinuation,
+        shellEscape,
         { match: '"', scope: 'string', push: 'string-double' },
         { match: "'", scope: 'string', push: 'string-single' },
         { match: "\\$'", scope: 'string', push: 'string-ansi' },
@@ -105,6 +106,9 @@ const bash: Grammar = {
         { match: '[()\\[\\]{}]', scope: 'punctuation.bracket' },
       ],
     },
+    comment: {
+      rules: [shellContinuation, { match: '#[^\\n]*', scope: 'comment', pop: true }],
+    },
 
     /** After `export`, `local` and the like: flags, then the one name it sets. */
     'declared-name': {
@@ -116,8 +120,13 @@ const bash: Grammar = {
     },
 
     expansion: {
+      rules: [{ match: '\\$\\{', scope: 'variable', push: 'brace-expansion' }, { include: 'simple-expansion' }],
+    },
+    'quoted-expansion': {
+      rules: [{ match: '\\$\\{', scope: 'variable', push: 'quoted-brace-expansion' }, { include: 'simple-expansion' }],
+    },
+    'simple-expansion': {
       rules: [
-        { match: '\\$\\{', scope: 'variable', push: 'brace-expansion' },
         { match: '\\$\\(\\(', scope: 'operator', push: 'arithmetic' },
         { match: '\\$\\(', scope: 'operator', push: 'subshell' },
         { match: VAR, scope: 'variable' },
@@ -127,12 +136,23 @@ const bash: Grammar = {
     'brace-expansion': {
       default: 'variable',
       rules: [
+        { match: "'", scope: 'string', push: 'string-single' },
+        { match: '"', scope: 'string', push: 'string-double' },
+        { include: 'quoted-brace-expansion' },
+      ],
+    },
+    'quoted-brace-expansion': {
+      default: 'variable',
+      rules: [
+        shellContinuation,
+        { ...shellEscape, scope: 'variable' },
         { match: '\\}', scope: 'variable', pop: true },
         { match: '[:#%/^,!*@-]+', scope: 'operator' },
       ],
     },
     arithmetic: {
       rules: [
+        shellContinuation,
         { match: '\\)\\)', scope: 'operator', pop: true },
         { include: 'expansion' },
         { match: '\\b\\d+\\b', scope: 'number' },
@@ -146,8 +166,9 @@ const bash: Grammar = {
     'string-double': {
       default: 'string',
       rules: [
-        { match: '\\\\(?:[\\\\$`"\\n]|\\r\\n)', scope: 'string.escape' },
-        { include: 'expansion' },
+        shellContinuation,
+        { match: '\\\\[\\\\$`"]', scope: 'string.escape' },
+        { include: 'quoted-expansion' },
         { match: '`', scope: 'string', push: 'backtick' },
         { match: '"', scope: 'string', pop: true },
       ],
@@ -171,7 +192,21 @@ const bash: Grammar = {
     },
     heredoc: {
       default: 'string',
-      rules: [{ include: 'heredoc-end' }, { include: 'expansion' }],
+      rules: [
+        { include: 'heredoc-end' },
+        // A delimiter on the next physical line is part of the body when
+        // a continuation has already joined text to the start of that line.
+        {
+          match: String.raw`(?<!^[ \t]*)(\\)\r?\n`,
+          scope: ['punctuation'],
+          push: 'heredoc-continued-line',
+        },
+        ...heredocExpansions,
+      ],
+    },
+    'heredoc-continued-line': {
+      default: 'string',
+      rules: [...heredocExpansions, { match: '\\r?\\n', pop: true }],
     },
     'heredoc-literal': {
       default: 'string',

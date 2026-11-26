@@ -1,5 +1,23 @@
 # @scalar/galaxy
 
+## 0.7.5
+
+### Patch Changes
+
+- [#11209](https://github.com/scalar/scalar/pull/11209): Remove the redundant combined header and query API key option from Galaxy’s OpenAPI descriptions. Either location is sufficient on its own.
+
+## 0.7.4
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.7.3
+
+### Patch Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when generating JSON example documents.
+
 ## 0.7.2
 
 ### Patch Changes

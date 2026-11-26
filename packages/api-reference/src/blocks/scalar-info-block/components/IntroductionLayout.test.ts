@@ -3,6 +3,7 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/stric
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import InfoVersion from './InfoVersion.vue'
 import IntroductionLayout from './IntroductionLayout.vue'
 
 const mockProps = {
@@ -61,7 +62,7 @@ describe('IntroductionLayout', () => {
 
     expect(wrapper.html()).toContain('Hello World')
     expect(wrapper.html()).toContain('Example description')
-    expect(wrapper.html()).toContain('v1.0.0')
+    expect(wrapper.getComponent(InfoVersion).text()).toBe('1.0.0')
     expect(wrapper.html()).toContain('Documentation')
     expect(wrapper.html()).toContain('Marc from Scalar')
     expect(wrapper.html()).toContain('MIT')
@@ -128,7 +129,7 @@ describe('IntroductionLayout', () => {
       },
     })
 
-    expect(wrapper.html()).toContain('v2.0.0')
+    expect(wrapper.getComponent(InfoVersion).text()).toBe('2.0.0')
   })
 
   it(`doesn't prefix version with v when version is not a number`, () => {
@@ -176,7 +177,7 @@ describe('IntroductionLayout', () => {
     expect(wrapper.html()).toContain('v1.0.0')
   })
 
-  it('prefixes version with v when version is a number', () => {
+  it('displays a numeric version without adding a prefix', () => {
     const example: OpenApiDocument = {
       openapi: '3.1.1',
       info: {
@@ -195,7 +196,7 @@ describe('IntroductionLayout', () => {
       },
     })
 
-    expect(wrapper.html()).toContain('v1')
+    expect(wrapper.getComponent(InfoVersion).text()).toBe('1')
   })
 
   it.each(['urn:example:events', 'https://example.com/events'])(
@@ -215,7 +216,7 @@ describe('IntroductionLayout', () => {
       expect(wrapper.get('dt').text()).toBe('Application identifier')
       expect(wrapper.get('dd').text()).toBe(applicationIdentifier)
       expect(wrapper.get('h1').text()).toBe('Events API')
-      expect(wrapper.text()).toContain('v1.2.3')
+      expect(wrapper.getComponent(InfoVersion).text()).toBe('1.2.3')
       expect(wrapper.text()).toContain('AsyncAPI 3.1.0')
       expect(wrapper.get('section').attributes('id')).toBe('events/introduction')
       expect(wrapper.find('a').exists()).toBe(false)

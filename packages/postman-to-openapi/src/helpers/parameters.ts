@@ -2,6 +2,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Header, Request } from '@/types'
 
+import { normalizeDescription } from './normalize-description'
 import { inferSchemaType } from './schemas'
 
 /**
@@ -39,6 +40,9 @@ function isBlockedHeader(name: string | undefined, keepHeaders: readonly string[
   return BLOCKED_HEADERS.has(lower)
 }
 
+/** Parameters are unique by name and location, so a query and a header may share a name. */
+export const getParameterKey = (parameter: OpenAPIV3_1.ParameterObject): string => `${parameter.in}:${parameter.name}`
+
 /**
  * Extracts parameters from a Postman request and converts them to OpenAPI parameter objects.
  * Processes query, path, and header parameters from the request URL and headers.
@@ -65,7 +69,7 @@ export function extractParameters(
     url.query.forEach((param) => {
       const paramObj = createParameterObject(param, 'query', exampleName)
       if (paramObj.name) {
-        parameterMap.set(paramObj.name, paramObj)
+        parameterMap.set(getParameterKey(paramObj), paramObj)
       }
     })
   }
@@ -75,7 +79,7 @@ export function extractParameters(
     url.variable.forEach((param) => {
       const paramObj = createParameterObject(param, 'path', exampleName)
       if (paramObj.name) {
-        parameterMap.set(paramObj.name, paramObj)
+        parameterMap.set(getParameterKey(paramObj), paramObj)
       }
     })
   }
@@ -85,8 +89,9 @@ export function extractParameters(
     const pathArray = Array.isArray(url.path) ? url.path : [url.path]
     const extractedVariables = extractPathVariablesFromPathArray(pathArray)
     extractedVariables.forEach((varName) => {
-      if (!parameterMap.has(varName)) {
-        parameterMap.set(varName, {
+      const key = getParameterKey({ name: varName, in: 'path' })
+      if (!parameterMap.has(key)) {
+        parameterMap.set(key, {
           name: varName,
           in: 'path',
           required: true,
@@ -106,7 +111,7 @@ export function extractParameters(
       }
       const paramObj = createParameterObject(header, 'header', exampleName)
       if (paramObj.name) {
-        parameterMap.set(paramObj.name, paramObj)
+        parameterMap.set(getParameterKey(paramObj), paramObj)
       }
     })
   }
@@ -140,10 +145,11 @@ export function createParameterObject(
   paramIn: 'query' | 'path' | 'header',
   exampleName: string,
 ): OpenAPIV3_1.ParameterObject {
+  const description = normalizeDescription(param.description)
   const parameter: OpenAPIV3_1.ParameterObject = {
     name: param.key || '',
     in: paramIn,
-    description: param.description,
+    description,
     examples: {
       [exampleName]: {
         value: param.value,
@@ -158,7 +164,7 @@ export function createParameterObject(
   } else if (paramIn === 'query') {
     // Check if the parameter is required based on description or name
     const isRequired =
-      param.description?.toLowerCase().includes('[required]') || (param.key && param.key.toLowerCase() === 'required')
+      description?.toLowerCase().includes('[required]') || (param.key && param.key.toLowerCase() === 'required')
 
     if (isRequired) {
       parameter.required = true

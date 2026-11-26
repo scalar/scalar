@@ -1,5 +1,45 @@
 # @scalar/code-highlight
 
+## 0.4.17
+
+### Patch Changes
+
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11190](https://github.com/scalar/scalar/pull/11190): Escape HTML text in plain Markdown paragraphs independently of the checks that select the shortcut.
+
+  Share the Markdown renderer with `@scalar/code-highlight` while preserving its Lowlight language detection.
+
+## 0.4.16
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.4.15
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.4.14
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
+## 0.4.13
+
+### Patch Changes
+
+- [#10923](https://github.com/scalar/scalar/pull/10923): Update the bundled mdast-util-to-hast to 13.2.1 to fix CVE-2025-66400 (unsanitized class attribute).
+
+## 0.4.12
+
+### Patch Changes
+
+- [#10742](https://github.com/scalar/scalar/pull/10742): Restore the 1.4 default for highlighted code block containers after the highlighter migration, including plain text and blank lines, while allowing Markdown to retain its own spacing.
+- [#10849](https://github.com/scalar/scalar/pull/10849): Make code block containers own line spacing so highlighted text, plain text, blank lines, and line numbers use the same height. ScalarCodeBlock defaults to 1.4 and Markdown fenced code defaults to 1.5; override either with --scalar-code-line-height on the component or an ancestor. The shared highlighting stylesheet preserves the 1.4 default for direct consumers with a zero-specificity container rule, so existing container overrides still take precedence.
+
 ## 0.4.11
 
 ### Patch Changes

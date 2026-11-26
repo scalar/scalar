@@ -9,6 +9,37 @@ const expectCommonResponseHandling = (result: string): void => {
 }
 
 describe('pythonPython3', () => {
+  it.each([
+    { mimeType: 'application/json', text: 'true', literal: 'True' },
+    { mimeType: 'application/json', text: 'false', literal: 'False' },
+    { mimeType: 'application/example+json', text: 'true', literal: 'True' },
+    { mimeType: 'application/example+json', text: 'false', literal: 'False' },
+  ])('serializes root $text with $mimeType', ({ mimeType, text, literal }) => {
+    const result = pythonPython3.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType, text },
+    })
+
+    expect(result).toBe(`import http.client
+import json
+
+conn = http.client.HTTPSConnection("example.com")
+
+payload = json.dumps(${literal})
+
+conn.request(
+    "POST",
+    "/",
+    body=payload,
+)
+
+response = conn.getresponse()
+print(response.read().decode())
+
+conn.close()`)
+  })
+
   it('escapes multipart metadata and replaces lowercase content-type headers', () => {
     const result = pythonPython3.generate({
       url: 'https://example.com',

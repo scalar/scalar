@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <title>Scalar — Layout and theme preview</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import './src/standalone.ts'
+
+      import content from '@scalar/galaxy/latest.json'
+      import { themeIds } from '@scalar/themes'
+
+      // For example: ?layout=classic&theme=purple&darkMode=true
+      const params = new URLSearchParams(location.search)
+      const theme = params.get('theme')
+      Scalar.createApiReference('#app', {
+        content,
+        layout: params.get('layout') === 'classic' ? 'classic' : 'modern',
+        theme: themeIds.includes(theme) ? theme : 'default',
+        darkMode: params.has('darkMode') && params.get('darkMode') !== 'false',
+        showDeveloperTools: 'never',
+      })
+    </script>
+  </body>
+</html>

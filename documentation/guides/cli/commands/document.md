@@ -7,6 +7,7 @@ Work with OpenAPI and AsyncAPI descriptions.
 | Command | Description |
 | --- | --- |
 | [`scalar document bundle`](#bundle) | Bundle external references into a single API description |
+| [`scalar document transform`](#transform) | Create public or environment-specific API descriptions |
 | [`scalar document split`](#split) | Split an OpenAPI or AsyncAPI description into referenced JSON files |
 | [`scalar document join`](#join) | Join API descriptions of the same format into one description |
 | [`scalar document format`](#format) | Format an OpenAPI or AsyncAPI description |
@@ -17,7 +18,7 @@ Work with OpenAPI and AsyncAPI descriptions.
 | [`scalar document share`](#share) | Publish an OpenAPI or AsyncAPI description to a public sandbox |
 | [`scalar document validate`](#validate) | Validate an OpenAPI or AsyncAPI description |
 | [`scalar document void`](#void) | Mirror HTTP requests with a local server |
-| [`scalar document lint`](#lint) | Lint an OpenAPI or AsyncAPI description with Spectral rules |
+| [`scalar document lint`](#lint) | Lint OpenAPI or AsyncAPI descriptions with Spectral rules |
 | [`scalar document upgrade`](#upgrade) | Upgrade an API description to OpenAPI 3.1 or the latest supported AsyncAPI version |
 
 ## bundle
@@ -25,23 +26,49 @@ Work with OpenAPI and AsyncAPI descriptions.
 Bundle external references into a single API description.
 
 ```bash
-scalar document bundle [options] [file|url]
+scalar document bundle [options] [file|url...]
 ```
 
 **Arguments**
 
 | Argument | Description |
 | --- | --- |
-| `file\|url` | API description file path or URL to bundle. |
+| `file\|url...` | API description files or URLs (defaults to APIs in scalar.config). |
+
+**Options**
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--config <file>` | Scalar configuration file to read when no inputs are provided. |  |
+| `-o, --output <file>` | Output file or directory, or - for single-input stdout; batches require a directory (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |  |
+| `--ext <json\|yaml\|yml>` | Output format; overrides and normalizes the output suffix. One of `json`, `yaml`, `yml`. |  |
+| `-f, --force` | Write an incomplete bundle despite unresolved references. |  |
+| `--treeShake` | Remove unused components from the bundled output. |  |
+| `--urlMap` | Generate a map of resolved URLs in the bundled output. |  |
+| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches. | `5` |
+| `--no-input` | Disable prompts and browser launches. |  |
+
+## transform
+
+Create public or environment-specific API descriptions.
+
+```bash
+scalar document transform [options] <file|url>
+```
+
+**Arguments**
+
+| Argument | Description |
+| --- | --- |
+| `file\|url` | **Required.** OpenAPI or AsyncAPI description file path or URL. |
 
 **Options**
 
 | Option | Description |
 | --- | --- |
-| `-o, --output <file>` | Output file, or - for YAML on stdout (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |
-| `--treeShake` | Remove unused components from the bundled output. |
-| `--urlMap` | Generate a map of resolved URLs in the bundled output. |
-| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches. |
+| `-c, --config <file>` | **Required.** JSON or YAML transformation configuration. |
+| `-o, --output <file>` | **Required.** JSON or YAML output file, or - for stdout; source files cannot be overwritten. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## split
 
@@ -62,6 +89,7 @@ scalar document split [options] [file|url]
 | Option | Description |
 | --- | --- |
 | `-o, --output <path>` | Output directory for the split description and referenced files. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## join
 
@@ -83,6 +111,7 @@ scalar document join [options] <files...>
 | --- | --- |
 | `-o, --output <file>` | Output file for the joined description (required). |
 | `-p, --prefix-components-with-path-value <path>` | Dot-separated path to extract a prefix value from each input file for component names. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## format
 
@@ -96,13 +125,14 @@ scalar document format [options] [file|url]
 
 | Argument | Description |
 | --- | --- |
-| `file\|url` | File or URL to format. |
+| `file\|url` | File or URL to format, or - to read JSON or YAML from stdin. |
 
 **Options**
 
 | Option | Description |
 | --- | --- |
-| `-o, --output <file>` | Output file (required for URLs; otherwise overwrites the input file). |
+| `-o, --output <file>` | Output file, or - for stdout in the input format (required for URLs; defaults to stdout in the input format for stdin, otherwise overwrites the input file). |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## convert
 
@@ -124,6 +154,7 @@ scalar document convert [options] [file|url]
 | --- | --- |
 | `-o, --output <file>` | Output file (defaults to stdout). |
 | `--merge-operations` | Merge operations with shared path+method combinations. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## markdown
 
@@ -144,6 +175,7 @@ scalar document markdown [options] [file|url]
 | Option | Description |
 | --- | --- |
 | `-o, --output <file>` | Output file (defaults to stdout). |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## mock
 
@@ -165,6 +197,7 @@ scalar document mock [options] [file|url]
 | --- | --- |
 | `-w, --watch` | Watch the file or URL for changes. |
 | `-p, --port <port>` | HTTP port for the Mock Server. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## serve
 
@@ -187,6 +220,7 @@ scalar document serve [options] [file|url]
 | `-c, --config <file>` | JSON file with API Reference configuration. |
 | `-w, --watch` | Watch the file or URL for changes. |
 | `-p, --port <port>` | HTTP port for the API Reference server. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## share
 
@@ -207,6 +241,7 @@ scalar document share [options] [file]
 | Option | Description |
 | --- | --- |
 | `-t, --token <token>` | Token to update an existing public sandbox. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## validate
 
@@ -222,6 +257,12 @@ scalar document validate [options] [file|url]
 | --- | --- |
 | `file\|url` | File or URL to validate. |
 
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--no-input` | Disable prompts and browser launches. |
+
 ## void
 
 Mirror HTTP requests with a local server.
@@ -235,31 +276,34 @@ scalar document void [options]
 | Option | Description |
 | --- | --- |
 | `-p, --port <port>` | HTTP port for the request-mirroring server. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## lint
 
-Lint an OpenAPI or AsyncAPI description with Spectral rules.
+Lint OpenAPI or AsyncAPI descriptions with Spectral rules.
 
 ```bash
-scalar document lint [options] [file|url]
+scalar document lint [options] [file|url...]
 ```
 
 **Arguments**
 
 | Argument | Description |
 | --- | --- |
-| `file\|url` | API description file path or URL to lint. |
+| `file\|url...` | API description files or URLs (defaults to APIs in scalar.config). |
 
 **Options**
 
 | Option | Description | Default |
 | --- | --- | --- |
+| `--config <file>` | Scalar configuration file to read when no inputs are provided. |  |
 | `-r, --rule <file\|url>` | Spectral ruleset file path or URL. |  |
 | `--format <format>` | Report format. One of `text`, `codeframe`, `markdown`, `summary`, `json`, `github-actions`, `junit`. | `codeframe` |
 | `--max-problems <number>` | Maximum displayed findings (totals and exit status include all findings). | `100` |
 | `-o, --output <file>` | Write the report to a file instead of stdout. |  |
 | `--generate-ignore-file` | Record current findings in the ignore baseline. |  |
 | `--ignore-file <file>` | Ignore baseline path (Scalar file takes priority over Redocly fallback in the current directory). |  |
+| `--no-input` | Disable prompts and browser launches. |  |
 
 ## upgrade
 
@@ -280,3 +324,4 @@ scalar document upgrade [options] [file|url]
 | Option | Description |
 | --- | --- |
 | `-o, --output <file>` | Output file (required for URLs; otherwise overwrites the input file). |
+| `--no-input` | Disable prompts and browser launches. |

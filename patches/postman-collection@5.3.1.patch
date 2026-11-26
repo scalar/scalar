@@ -1,0 +1,344 @@
+diff --git a/lib/superstring/dynamic-variables.js b/lib/superstring/dynamic-variables.js
+index 83424a3b19f797ed0272aceef06f759959440393..ce57c0aa6a750303caaf4f787d0cf909e65d1fe9 100644
+--- a/lib/superstring/dynamic-variables.js
++++ b/lib/superstring/dynamic-variables.js
+@@ -1,4 +1,5 @@
+-var faker = require('@faker-js/faker/locale/en'),
++// Keep Postman dynamic variables compatible with the supported, patched Faker API.
++var faker = require('@faker-js/faker/locale/en').faker,
+     uuid = require('uuid'),
+ 
+     // locale list generated from: https://github.com/chromium/chromium/blob/master/ui/base/l10n/l10n_util.cc
+@@ -105,21 +106,21 @@ var faker = require('@faker-js/faker/locale/en'),
+             }
+         },
+ 
+-        // faker.phone.phoneNumber returns phone number with or without
++        // faker.phone.number returns phone number with or without
+         // extension randomly. this only returns a phone number without extension.
+         $randomPhoneNumber: {
+             description: 'A random 10-digit phone number',
+             generator: function () {
+-                return faker.phone.phoneNumberFormat(0);
++                return faker.phone.number({ style: 'national' });
+             }
+         },
+ 
+-        // faker.phone.phoneNumber returns phone number with or without
++        // faker.phone.number returns phone number with or without
+         // extension randomly. this only returns a phone number with extension.
+         $randomPhoneNumberExt: {
+             description: 'A random phone number with extension (12 digits)',
+             generator: function () {
+-                return faker.datatype.number({ min: 1, max: 99 }) + '-' + faker.phone.phoneNumberFormat(0);
++                return faker.number.int({ min: 1, max: 99 }) + '-' + faker.phone.number({ style: 'national' });
+             }
+         },
+ 
+@@ -128,7 +129,7 @@ var faker = require('@faker-js/faker/locale/en'),
+         $randomLocale: {
+             description: 'A random two-letter language code (ISO 639-1)',
+             generator: function () {
+-                return faker.random.arrayElement(LOCALES);
++                return faker.helpers.arrayElement(LOCALES);
+             }
+         },
+ 
+@@ -138,11 +139,11 @@ var faker = require('@faker-js/faker/locale/en'),
+             description: 'Some random words',
+             generator: function () {
+                 var words = [],
+-                    count = faker.datatype.number({ min: 2, max: 5 }),
++                    count = faker.number.int({ min: 2, max: 5 }),
+                     i;
+ 
+                 for (i = 0; i < count; i++) {
+-                    words.push(faker.random.word());
++                    words.push(faker.word.sample());
+                 }
+ 
+                 return words.join(' ');
+@@ -162,42 +163,42 @@ var faker = require('@faker-js/faker/locale/en'),
+         $randomDirectoryPath: {
+             description: 'A random directory path',
+             generator: function () {
+-                return faker.random.arrayElement(DIRECTORY_PATHS);
++                return faker.helpers.arrayElement(DIRECTORY_PATHS);
+             }
+         },
+ 
+         $randomCity: {
+             description: 'A random city name',
+-            generator: faker.address.city
++            generator: faker.location.city
+         },
+         $randomStreetName: {
+             description: 'A random street name',
+-            generator: faker.address.streetName
++            generator: faker.location.street
+         },
+         $randomStreetAddress: {
+             description: 'A random street address (e.g. 1234 Main Street)',
+-            generator: faker.address.streetAddress
++            generator: faker.location.streetAddress
+         },
+         $randomCountry: {
+             description: 'A random country',
+-            generator: faker.address.country
++            generator: faker.location.country
+         },
+         $randomCountryCode: {
+             description: 'A random 2-letter country code (ISO 3166-1 alpha-2)',
+-            generator: faker.address.countryCode
++            generator: faker.location.countryCode
+         },
+         $randomLatitude: {
+             description: 'A random latitude coordinate',
+-            generator: faker.address.latitude
++            generator: faker.location.latitude
+         },
+         $randomLongitude: {
+             description: 'A random longitude coordinate',
+-            generator: faker.address.longitude
++            generator: faker.location.longitude
+         },
+ 
+         $randomColor: {
+             description: 'A random color',
+-            generator: faker.commerce.color
++            generator: faker.color.human
+         },
+         $randomDepartment: {
+             description: 'A random commerce category (e.g. electronics, clothing)',
+@@ -222,11 +223,13 @@ var faker = require('@faker-js/faker/locale/en'),
+ 
+         $randomCompanyName: {
+             description: 'A random company name',
+-            generator: faker.company.companyName
++            generator: faker.company.name
+         },
+         $randomCompanySuffix: {
+             description: 'A random company suffix (e.g. Inc, LLC, Group)',
+-            generator: faker.company.companySuffix
++            generator: function () {
++                return faker.helpers.arrayElement(faker.definitions.company.legal_entity_type);
++            }
+         },
+         $randomCatchPhrase: {
+             description: 'A random catchphrase',
+@@ -234,7 +237,7 @@ var faker = require('@faker-js/faker/locale/en'),
+         },
+         $randomBs: {
+             description: 'A random phrase of business speak',
+-            generator: faker.company.bs
++            generator: faker.company.buzzPhrase
+         },
+         $randomCatchPhraseAdjective: {
+             description: 'A random catchphrase adjective',
+@@ -250,15 +253,15 @@ var faker = require('@faker-js/faker/locale/en'),
+         },
+         $randomBsAdjective: {
+             description: 'A random business speak adjective',
+-            generator: faker.company.bsAdjective
++            generator: faker.company.buzzAdjective
+         },
+         $randomBsBuzz: {
+             description: 'A random business speak buzzword',
+-            generator: faker.company.bsBuzz
++            generator: faker.company.buzzVerb
+         },
+         $randomBsNoun: {
+             description: 'A random business speak noun',
+-            generator: faker.company.bsNoun
++            generator: faker.company.buzzNoun
+         },
+ 
+         $randomDatabaseColumn: {
+@@ -301,7 +304,7 @@ var faker = require('@faker-js/faker/locale/en'),
+ 
+         $randomBankAccount: {
+             description: 'A random 8-digit bank account number',
+-            generator: faker.finance.account
++            generator: faker.finance.accountNumber
+         },
+         $randomBankAccountName: {
+             description: 'A random bank account name (e.g. savings account, checking account)',
+@@ -309,7 +312,9 @@ var faker = require('@faker-js/faker/locale/en'),
+         },
+         $randomCreditCardMask: {
+             description: 'A random masked credit card number',
+-            generator: faker.finance.mask
++            generator: function () {
++                return faker.finance.accountNumber(4);
++            }
+         },
+         $randomPrice: {
+             description: 'A random price between 0.00 and 1000.00',
+@@ -373,64 +378,64 @@ var faker = require('@faker-js/faker/locale/en'),
+             description: 'A random avatar image',
+             generator: () => {
+                 // ref: https://github.com/faker-js/faker/blob/v8.4.1/src/modules/image/index.ts#L61
+-                return faker.random.arrayElement([
++                return faker.helpers.arrayElement([
+                     // eslint-disable-next-line @stylistic/js/max-len
+-                    `https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/${faker.datatype.number(1249)}.jpg`,
+-                    `https://avatars.githubusercontent.com/u/${faker.datatype.number(100000000)}`
++                    `https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/${faker.number.int(1249)}.jpg`,
++                    `https://avatars.githubusercontent.com/u/${faker.number.int(100000000)}`
+                 ]);
+             }
+         },
+         $randomImageUrl: {
+             description: 'A URL for a random image',
+-            generator: faker.image.imageUrl
++            generator: faker.image.url
+         },
+         $randomAbstractImage: {
+             description: 'A URL for a random abstract image',
+-            generator: faker.image.abstract
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'abstract' }); }
+         },
+         $randomAnimalsImage: {
+             description: 'A URL for a random animal image',
+-            generator: faker.image.animals
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'animals' }); }
+         },
+         $randomBusinessImage: {
+             description: 'A URL for a random stock business image',
+-            generator: faker.image.business
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'business' }); }
+         },
+         $randomCatsImage: {
+             description: 'A URL for a random cat image',
+-            generator: faker.image.cats
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'cats' }); }
+         },
+         $randomCityImage: {
+             description: 'A URL for a random city image',
+-            generator: faker.image.city
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'city' }); }
+         },
+         $randomFoodImage: {
+             description: 'A URL for a random food image',
+-            generator: faker.image.food
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'food' }); }
+         },
+         $randomNightlifeImage: {
+             description: 'A URL for a random nightlife image',
+-            generator: faker.image.nightlife
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'nightlife' }); }
+         },
+         $randomFashionImage: {
+             description: 'A URL for a random fashion image',
+-            generator: faker.image.fashion
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'fashion' }); }
+         },
+         $randomPeopleImage: {
+             description: 'A URL for a random image of a person',
+-            generator: faker.image.people
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'people' }); }
+         },
+         $randomNatureImage: {
+             description: 'A URL for a random nature image',
+-            generator: faker.image.nature
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'nature' }); }
+         },
+         $randomSportsImage: {
+             description: 'A URL for a random sports image',
+-            generator: faker.image.sports
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'sports' }); }
+         },
+         $randomTransportImage: {
+             description: 'A URL for a random transportation image',
+-            generator: faker.image.transport
++            generator: function () { return faker.image.urlLoremFlickr({ category: 'transport' }); }
+         },
+         $randomImageDataUri: {
+             description: 'A random image data URI',
+@@ -447,7 +452,7 @@ var faker = require('@faker-js/faker/locale/en'),
+         },
+         $randomUserName: {
+             description: 'A random username',
+-            generator: faker.internet.userName
++            generator: faker.internet.username
+         },
+         $randomProtocol: {
+             description: 'A random internet protocol',
+@@ -483,7 +488,7 @@ var faker = require('@faker-js/faker/locale/en'),
+         },
+         $randomHexColor: {
+             description: 'A random hex value',
+-            generator: faker.internet.color
++            generator: faker.color.rgb
+         },
+         $randomMACAddress: {
+             description: 'A random MAC address',
+@@ -533,44 +538,44 @@ var faker = require('@faker-js/faker/locale/en'),
+ 
+         $randomFirstName: {
+             description: 'A random first name',
+-            generator: faker.name.firstName
++            generator: faker.person.firstName
+         },
+         $randomLastName: {
+             description: 'A random last name',
+-            generator: faker.name.lastName
++            generator: faker.person.lastName
+         },
+         $randomFullName: {
+             description: 'A random first and last name',
+-            generator: faker.name.findName
++            generator: faker.person.fullName
+         },
+         $randomJobTitle: {
+             description: 'A random job title (e.g. senior software developer)',
+-            generator: faker.name.jobTitle
++            generator: faker.person.jobTitle
+         },
+         $randomNamePrefix: {
+             description: 'A random name prefix (e.g. Mr., Mrs., Dr.)',
+-            generator: faker.name.prefix
++            generator: faker.person.prefix
+         },
+         $randomNameSuffix: {
+             description: 'A random name suffix (e.g. Jr., MD, PhD)',
+-            generator: faker.name.suffix
++            generator: faker.person.suffix
+         },
+         $randomJobDescriptor: {
+             description: 'A random job descriptor (e.g., senior, chief, corporate, etc.)',
+-            generator: faker.name.jobDescriptor
++            generator: faker.person.jobDescriptor
+         },
+         $randomJobArea: {
+             description: 'A random job area (e.g. branding, functionality, usability)',
+-            generator: faker.name.jobArea
++            generator: faker.person.jobArea
+         },
+         $randomJobType: {
+             description: 'A random job type (e.g. supervisor, manager, coordinator, etc.)',
+-            generator: faker.name.jobType
++            generator: faker.person.jobType
+         },
+ 
+         $randomUUID: {
+             description: 'A random 36-character UUID',
+-            generator: faker.datatype.uuid
++            generator: faker.string.uuid
+         },
+         $randomBoolean: {
+             description: 'A random boolean value (true/false)',
+@@ -578,11 +583,11 @@ var faker = require('@faker-js/faker/locale/en'),
+         },
+         $randomWord: {
+             description: 'A random word',
+-            generator: faker.random.word
++            generator: faker.word.sample
+         },
+         $randomAlphaNumeric: {
+             description: 'A random alpha-numeric character',
+-            generator: faker.random.alphaNumeric
++            generator: faker.string.alphanumeric
+         },
+ 
+         $randomFileName: {

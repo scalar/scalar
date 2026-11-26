@@ -1,5 +1,43 @@
 # @scalar/core
 
+## 0.5.57
+
+No changes in this release.
+
+## 0.5.56
+
+No changes in this release.
+
+## 0.5.55
+
+No changes in this release.
+
+## 0.5.54
+
+No changes in this release.
+
+## 0.5.53
+
+No changes in this release.
+
+## 0.5.52
+
+No changes in this release.
+
+## 0.5.51
+
+No changes in this release.
+
+## 0.5.50
+
+## 0.5.49
+
+## 0.5.48
+
+## 0.5.47
+
+## 0.5.46
+
 ## 0.5.45
 
 ## 0.5.44

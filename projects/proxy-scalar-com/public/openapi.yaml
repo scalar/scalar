@@ -45,11 +45,15 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '503':
           $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        '508':
+          $ref: '#/components/responses/LoopDetected'
 
 components:
   responses:
     BadRequest:
-      description: Missing scalar_url parameter
+      description: Missing or invalid scalar_url parameter, for example one that points to the proxy itself
       content:
         text/plain:
           schema:
@@ -62,6 +66,20 @@ components:
           schema:
             type: string
           example: 'dial tcp: lookup doesnotexist on 0.0.0.0: no such host'
+    GatewayTimeout:
+      description: The target server did not accept the connection or did not respond in time
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: 'net/http: timeout awaiting response headers'
+    LoopDetected:
+      description: The request already passed through the proxy
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: 'Loop Detected: The request already passed through the proxy.'
   headers:
     AccessControlAllowHeaders:
       description: Allows all headers in CORS requests

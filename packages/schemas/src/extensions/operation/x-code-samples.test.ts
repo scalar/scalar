@@ -4,11 +4,21 @@ import { describe, expect, it } from 'vitest'
 import { XCodeSamples } from './x-code-samples'
 
 describe('XCodeSamples', () => {
+  it('preserves code-file references', () => {
+    const value = { 'x-codeSamples': [{ lang: 'python', source: { $ref: './sample.py' } }] }
+    expect(coerce(XCodeSamples, value)).toStrictEqual(value)
+  })
   const sampleCode = {
     lang: 'javascript',
     label: 'JavaScript',
     source: 'console.log("Hello, world!");',
   }
+
+  it('preserves custom sample group headings', () => {
+    const value = { 'x-codeSamples': [{ ...sampleCode, group: 'SDK' }] }
+    expect(validate(XCodeSamples, value)).toBe(true)
+    expect(coerce(XCodeSamples, value)).toStrictEqual(value)
+  })
 
   it('preserves the link to a named request body example', () => {
     const value = { 'x-codeSamples': [{ ...sampleCode, example: 'detailed', contentType: 'application/json' }] }

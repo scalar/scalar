@@ -1,15 +1,19 @@
 import { Schema } from '@scalar/blocks/schema'
 import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
 import { ScalarListbox } from '@scalar/components/listbox'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { RequestBodyObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, readonly, ref } from 'vue'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { defineComponent, h, nextTick, readonly, ref } from 'vue'
+
+import { provideLocalization } from '@/v2/features/localization'
 
 import RequestBody from './RequestBody.vue'
+import RequestBodyMultipart from './RequestBodyMultipart.vue'
 import RequestBodyStructured from './RequestBodyStructured.vue'
 import RequestTable from './RequestTable.vue'
 
@@ -56,6 +60,181 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it('edits indexed-dot URL-encoded fields without losing repeated values', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        multipartNaming: 'indexed-dot',
+        requestBody: {
+          content: {
+            'application/x-www-form-urlencoded': {
+              schema: {
+                type: 'object',
+                required: ['contacts', 'tags'],
+                properties: {
+                  contacts: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' } } } },
+                  tags: { type: 'array', items: { type: 'string' } },
+                },
+              },
+              examples: { 'example-1': { value: { contacts: [{ name: 'Ada' }], tags: ['one', 'two'] } } },
+            },
+          },
+        },
+      },
+    })
+    const table = wrapper.getComponent(RequestTable)
+    expect(table.props('data').map(({ name }) => name)).toStrictEqual(['contacts[0].name', 'tags'])
+    await table.vm.$emit('upsertRow', 0, { value: 'Grace' })
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [
+        {
+          contentType: 'application/x-www-form-urlencoded',
+          payload: [
+            { name: 'contacts[0].name', value: 'Grace', isDisabled: false },
+            { name: 'tags', value: ['one', 'two'], isDisabled: false, isArray: true },
+          ],
+        },
+      ],
+    ])
+    wrapper.unmount()
+  })
+
+  it('uploads a file using the indexed form name declared by the multipart mode', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        multipartNaming: 'indexed-dot',
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              examples: { 'example-1': { value: { certificates: [{ name: 'Ada' }], profile: { name: 'Grace' } } } },
+              schema: {
+                type: 'object',
+                required: ['certificates', 'profile'],
+                properties: {
+                  certificates: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      required: ['file'],
+                      properties: { name: { type: 'string' }, file: { type: 'string', format: 'binary' } },
+                    },
+                  },
+                  profile: { type: 'object', properties: { name: { type: 'string' } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    await wrapper.get('button[aria-label="Select File for certificates[0].file"]').trigger('click')
+
+    type FormValue = ApiReferenceEvents['operation:update:requestBody:formValue']['payload']
+    const event = wrapper.emitted<[{ contentType: string; payload: FormValue }]>('update:formValue')?.[0]?.[0]
+    assert(event)
+    expect(event.contentType).toBe('multipart/form-data')
+    expect(
+      event.payload.map(({ name, value, isDisabled }) => [
+        name,
+        value instanceof File ? value.name : value,
+        isDisabled,
+      ]),
+    ).toStrictEqual([
+      ['certificates[0].name', 'Ada', false],
+      ['certificates[0].file', 'test.txt', false],
+      ['profile.name', 'Grace', false],
+    ])
+    wrapper.unmount()
+  })
+
+  it.each(['multipart/mixed', 'multipart/related; type="application/json"'])(
+    'edits schema-aware parts for %s and forwards files intact',
+    async (contentType) => {
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          requestBody: {
+            content: {
+              [contentType]: {
+                schema: { type: 'array', prefixItems: [{ type: 'object' }, { type: 'string', format: 'binary' }] },
+                examples: { 'example-1': { value: [{ id: 1 }, ''] } },
+              },
+            },
+          },
+        },
+      })
+      expect(wrapper.findComponent(RequestBodyMultipart).exists()).toBe(true)
+      await wrapper.get('button[aria-label="Select File Part 2"]').trigger('click')
+      const event = wrapper.emitted('update:value')?.[0]?.[0] as { payload: unknown[]; contentType: string }
+      expect(event.contentType).toBe(contentType)
+      expect(event.payload[0]).toEqual({ id: 1 })
+      expect(event.payload[1]).toBeInstanceOf(File)
+      wrapper.unmount()
+    },
+  )
+
+  it('keeps explicitly serialized multipart examples in the raw editor', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'multipart/mixed': {
+              schema: { type: 'array', items: { type: 'string', format: 'binary' } },
+              examples: { 'example-1': { serializedValue: '--boundary\r\nwire', dataValue: [''] } },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findComponent(RequestBodyMultipart).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('requests a reset for the selected content type', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: { 'application/json': { example: { name: 'original' } } },
+        },
+      },
+    })
+    await wrapper.get('button[aria-label="Restore original body"]').trigger('click')
+    expect(wrapper.emitted('reset')).toStrictEqual([[{ contentType: 'application/json' }]])
+    expect(wrapper.emitted('generate:example')).toBeUndefined()
+  })
+
+  it('translates body actions while preserving the reset event', async () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization({ locale: 'de' })
+          return () =>
+            h(RequestBody, {
+              ...defaultProps,
+              requestBody: {
+                content: { 'application/json': { schema: { type: 'object' }, example: { name: 'original' } } },
+              },
+            })
+        },
+      }),
+    )
+    const body = wrapper.findComponent(RequestBody)
+    await body.get('button[aria-label="Ursprünglichen Body wiederherstellen"]').trigger('click')
+    expect(body.emitted('reset')).toStrictEqual([[{ contentType: 'application/json' }]])
+    expect(body.get('button[aria-label="Beispiel aus Schema erstellen"]').attributes('aria-label')).toBe(
+      'Beispiel aus Schema erstellen',
+    )
+    wrapper.unmount()
+  })
+
+  it('does not offer a reset when no body is selected', () => {
+    const wrapper = mount(RequestBody, { props: defaultProps })
+    expect(wrapper.find('button[aria-label="Restore original body"]').exists()).toBe(false)
+  })
+
   it('renders writable schema fields independently of a custom example and preserves the edited payload', async () => {
     const editedValue = '{"name":"Edited account"}'
     const wrapper = mount(RequestBody, {
@@ -2245,7 +2424,7 @@ describe('RequestBody', () => {
     expect(rawWrapper.find('[data-testid="structured-form"]').exists()).toBe(false)
   })
   const findGenerateButton = (wrapper: ReturnType<typeof mount>) =>
-    wrapper.find('[aria-label="Generate example from schema"]')
+    wrapper.find('[aria-label="Create example from schema"]')
 
   it('emits the selected content type when clicked', async () => {
     const requestBody: RequestBodyObject = {

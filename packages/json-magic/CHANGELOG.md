@@ -1,5 +1,112 @@
 # @scalar/json-magic
 
+## 0.23.1
+
+No changes in this release.
+
+## 0.23.0
+
+### Minor Changes
+
+- [#11097](https://github.com/scalar/scalar/pull/11097): Add opt-in custom reference positions to document-aware bundling, including extension values and unknown schema keywords, while retaining literal data, schema identities, anchors, and format-specific reference rules.
+- [#9625](https://github.com/scalar/scalar/pull/9625): Resolve JSON Schema 2020-12 `$dynamicRef` in the magic proxy and expose the bound schema through `@scalar/workspace-store/resolve`. Generic and recursive schemas now show their concrete types in rendered properties and JSON/XML request examples, including anchors nested inside a schema resource.
+
+  Keep repeated reads stable within each dynamic scope while allowing shared templates to bind independently. Edits through the proxy refresh bindings and resolved references while preserving ordinary proxy identities and unrelated documents’ anchor caches.
+
+### Patch Changes
+
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 0.22.0
+
+### Minor Changes
+
+- [#11088](https://github.com/scalar/scalar/pull/11088): Add a document graph API for checking and removing unused OpenAPI and AsyncAPI components. Follow transitive references, security requirements, discriminator mappings, schema identities and anchors. Preserve reachable cycles and literal data, remove disconnected reusable content, and support conservative retention when unresolved external references make reachability uncertain.
+- [#11087](https://github.com/scalar/scalar/pull/11087): Add `outputBase` to give bundled local schemas public output identities without changing file loading. Relative identities and resolved references can now serialize identically across checkout directories. In-memory schemas without an origin use a virtual output base; explicitly absolute identifiers, preserved references, and unresolved source locations retain their meaning.
+
+### Patch Changes
+
+- [#11087](https://github.com/scalar/scalar/pull/11087): Keep references across schema resource scopes portable when preserving selected references, including anonymous outer documents, cyclic dependencies, and local-file schema identities.
+
+  The Node file loader now accepts escaped `file:` URIs with the same directory and symlink confinement as native paths. Documents retrieved over HTTP(S) cannot load filesystem targets. Keep malformed local URI references recoverable and omit dynamic anchor declarations when copying anonymous schemas into another resource.
+- [#11149](https://github.com/scalar/scalar/pull/11149): Read local file URLs with native filesystem containment checks. Reject hosted file URLs and confined Windows network paths.
+  Resolve relative references to a declared document identity when URL normalization changes its spelling.
+  Follow nested references in newly exposed targets during document-aware bundling.
+
+## 0.21.1
+
+No changes in this release.
+
+## 0.21.0
+
+### Minor Changes
+
+- [#10997](https://github.com/scalar/scalar/pull/10997): Upgrade referenced OpenAPI 2.0 and 3.0 resources before bundling, including bare fragments interpreted in their owning API description's dialect and media types. Preserve authored reference targets when schemas and parameters move, and retain their context through lazy loading, serialization, and export.
+
+  Add JSON Magic resource and target lifecycle hooks and the typed `upgradeFragment` API. Headerless external resources are traversed through referenced subtrees, including when reached from OpenAPI 3.1/3.2 descriptions. Exports retain compact `x-scalar-upgrade` bookkeeping only when lazy external references still need the original dialect, relocation mappings, or media types.
+
+  Resources already stored in an input bundle's `x-ext` keep their existing layout so saved references remain valid. Legacy keywords in those stored resources, including OpenAPI 2.0 schema `x-nullable` and `type: file`, deliberately remain unconverted; newly loaded legacy resources are upgraded.
+
+### Patch Changes
+
+- [#11089](https://github.com/scalar/scalar/pull/11089): Resolve external RAML and Protobuf dependencies for structured AsyncAPI schema documentation, preserving source fallback when dependencies cannot be fully resolved.
+
+  Show RAML named types in schema headings instead of adding a "RAML type:" line to the description.
+
+  Show inline object item titles in array type signatures across all `@scalar/blocks` consumers, including OpenAPI documentation: an array with `items: { type: 'object', title: 'Pet' }` now displays `array of Pet` instead of `array of object`.
+
+## 0.20.1
+
+### Patch Changes
+
+- [#10983](https://github.com/scalar/scalar/pull/10983): Preserve literal $ref values in AsyncAPI examples, schema values, and extensions during initial loading and lazy resolution without fetching them. Index authored document keys without following virtual proxy links. Keep wrapper resolution independent of key order and ignore reference siblings in AsyncAPI parameter schemas and wrapped OpenAPI 3.0 and draft-04/06 schemas, including identifiers and anchors in those ignored siblings. Traverse only schema and identity keywords supported by the wrapped format so unknown keyword values stay literal, including draft-04 `id` and draft-06/07 `$id` handling.
+- [#10983](https://github.com/scalar/scalar/pull/10983): Resolve references inside AsyncAPI Multi Format Schema Objects and OpenAPI 3.2 media type `itemSchema` fields while preserving literal schema values. Keep `schemaFormat` and `schema` annotations in ordinary JSON Schema objects as literal data. Resolve native AsyncAPI schema `externalDocs` and tuple `additionalItems` references without processing ordinary JSON Schema annotations. Preserve schema contexts inside AsyncAPI protocol bindings. Resolve named AsyncAPI servers, variables, and reusable components even when their names match literal-data keywords. Ignore reference siblings in native AsyncAPI and draft-07 schemas.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.20.0
+
+### Minor Changes
+
+- [#11037](https://github.com/scalar/scalar/pull/11037): Load object-valued `x-codeSamples.source` and `x-code-samples.source` file references as raw code text, with relative origins and lazy operation loading. Retain failed references and show an unavailable sample instead of silently replacing them with an empty string. Preserve literal `$ref` values in other extensions and example data.
+
+### Patch Changes
+
+- [#11015](https://github.com/scalar/scalar/pull/11015): Update Undici to address CVE-2026-116592 and allow compatible Undici 8 updates without requiring a new Scalar release.
+- [#11005](https://github.com/scalar/scalar/pull/11005): Preserve nested deletions and their application order when a covering parent deletion conflicts with another change.
+
+## 0.19.1
+
+### Patch Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): fix: parse YAML documents that merge shared anchors into many operations
+
+  Since yaml 2.9.1, merge keys (`<<: *anchor`) count toward the alias limit, so large API Gateway exports failed with "Excessive alias count indicates a resource exhaustion attack". The limit is now 100,000 and shared through `YAML_MAX_ALIAS_COUNT` from `@scalar/helpers`.
+
+## 0.19.0
+
+### Minor Changes
+
+- [#10897](https://github.com/scalar/scalar/pull/10897): Resolve proxy references within their schema resource using the shared bundle resolver, and expose resolved targets to lifecycle hooks for scope-aware transformations.
+
+### Patch Changes
+
+- [#10904](https://github.com/scalar/scalar/pull/10904): Share confined document loading between Markdown converters and include HTTP status codes in load errors.
+
+## 0.18.0
+
+### Minor Changes
+
+- [#10619](https://github.com/scalar/scalar/pull/10619): Add `bundleWithDiagnostics` to report reference failures with authored source locations, retain incomplete output, and defer pruning until resolution succeeds. Add opt-in document-aware traversal for OpenAPI, AsyncAPI, and JSON Schema, including literal data boundaries and applicable reference siblings. Preserve cached sources across diagnostic bundle calls.
+
+  Use consistent URI fragment decoding across bundling and the magic proxy, and index newly exposed document fragments without revisiting unrelated subtrees.
+
+### Patch Changes
+
+- [#10786](https://github.com/scalar/scalar/pull/10786): Resolve `$ref` pointers with percent-encoded reserved characters, so `#/paths/~1items%23list` now points at the `/items#list` path instead of resolving to nothing. Preserve literal property names when resolving schema IDs and anchors, including keys containing `/`, `~`, or percent sequences.
+
 ## 0.17.0
 
 ### Minor Changes

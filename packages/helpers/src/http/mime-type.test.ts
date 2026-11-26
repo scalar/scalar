@@ -39,6 +39,22 @@ describe('mime-type', () => {
     expect(mimeType.toString()).toBe('text/plain; charset=utf-8; foo=bar')
   })
 
+  it('keeps delimiters and escapes inside quoted parameters', () => {
+    const mimeType = parseMimeType(
+      String.raw`application/vnd.api+json; profile="https://example.com/v;2"; note="a\\b\";c"; mode="a\;b"; charset=UTF-8`,
+    )
+
+    expect(mimeType.parameters).toStrictEqual(
+      new Map([
+        ['profile', 'https://example.com/v;2'],
+        ['note', 'a\\b";c'],
+        ['mode', 'a;b'],
+        ['charset', 'UTF-8'],
+      ]),
+    )
+    expect(parseMimeType(mimeType.toString()).parameters).toStrictEqual(mimeType.parameters)
+  })
+
   it('skips malformed parameters with an empty value', () => {
     const mimeType = parseMimeType('text/plain; charset=')
 

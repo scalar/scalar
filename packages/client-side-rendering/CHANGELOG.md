@@ -1,5 +1,47 @@
 # @scalar/client-side-rendering
 
+## 0.4.25
+
+No changes in this release.
+
+## 0.4.24
+
+No changes in this release.
+
+## 0.4.23
+
+No changes in this release.
+
+## 0.4.22
+
+No changes in this release.
+
+## 0.4.21
+
+No changes in this release.
+
+## 0.4.20
+
+No changes in this release.
+
+## 0.4.19
+
+No changes in this release.
+
+## 0.4.18
+
+## 0.4.17
+
+### Patch Changes
+
+- [#10845](https://github.com/scalar/scalar/pull/10845): Prevent custom CSS and themes from closing style elements in generated HTML.
+
+## 0.4.16
+
+## 0.4.15
+
+## 0.4.14
+
 ## 0.4.13
 
 ## 0.4.12

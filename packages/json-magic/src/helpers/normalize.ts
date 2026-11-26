@@ -1,3 +1,4 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import { parse } from 'yaml'
 
 /**
@@ -34,7 +35,7 @@ export function normalize(content: unknown): unknown {
       }
 
       return parse(withoutBom, {
-        maxAliasCount: 10000,
+        maxAliasCount: YAML_MAX_ALIAS_COUNT,
         merge: true,
       })
     }

@@ -1,6 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { collectHeaders, joinUrlAndQuery, normalizeMethod, normalizeUrl } from '@/libs/http'
+import { mergeCookieHeaders } from '@/libs/cookies'
+import { joinUrlAndQuery, normalizeMethod, normalizeUrl } from '@/libs/http'
 
 /** Methods OkHttp exposes as dedicated builder calls (anything else uses `.method(...)`). */
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD']
@@ -81,7 +82,7 @@ export const kotlinOkhttp: Plugin = {
       )
     }
     // Headers, including cookies folded into a single Cookie header
-    ;[...(request?.headers ?? []), ...collectHeaders([], request?.cookies)].forEach((header) => {
+    mergeCookieHeaders(request ?? {}).forEach((header) => {
       lines.push(`  .addHeader(${quote(header.name)}, ${quote(header.value)})`)
     })
 

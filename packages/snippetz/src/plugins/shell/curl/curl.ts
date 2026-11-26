@@ -2,6 +2,7 @@ import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-content-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
 import { escapeSingleQuotes } from '@/libs/shell'
@@ -72,9 +73,13 @@ export const shellCurl: Plugin = {
     const boundary = multipartFileBoundary(multipart)
 
     // Headers
-    const headers = multipart?.headers ?? normalizedRequest.headers
+    const headers = multipart?.headers ?? mergeCookieHeaders(normalizedRequest)
     if (headers?.length) {
       headers.forEach((header) => {
+        if (header.name.toLowerCase() === 'cookie' && normalizedRequest.cookies?.length) {
+          parts.push(`--cookie '${escapeSingleQuotes(header.value)}'`)
+          return
+        }
         const headerValue = quoteShellBoundary(
           `${header.name}: ${header.value}`,
           header.name.toLowerCase() === 'content-type' ? boundary : undefined,
@@ -87,20 +92,6 @@ export const shellCurl: Plugin = {
       if (acceptEncoding && /gzip|deflate/.test(acceptEncoding.value)) {
         parts.push('--compressed')
       }
-    }
-
-    // Cookies
-    if (normalizedRequest.cookies?.length) {
-      const cookieString = normalizedRequest.cookies
-        .map((cookie) => {
-          // Encode both cookie name and value to handle special characters
-          const encodedName = encodeURIComponent(cookie.name)
-          const encodedValue = encodeURIComponent(cookie.value)
-          return `${encodedName}=${encodedValue}`
-        })
-        .join('; ')
-      const escapedCookieString = escapeSingleQuotes(cookieString)
-      parts.push(`--cookie '${escapedCookieString}'`)
     }
 
     // Body

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarIconMinus } from '@scalar/icons'
 import { cva } from '@scalar/use-hooks/useBindCx'
 
 import { useLocalization } from '@/v2/features/localization'
@@ -10,6 +11,7 @@ withDefaults(
   defineProps<{
     modelValue: boolean
     disabled?: boolean
+    indeterminate?: boolean
     align?: 'left' | 'center'
     ariaLabel?: string
   }>(),
@@ -37,10 +39,12 @@ const variants = cva({
 <template>
   <DataTableCell class="group/cell relative flex min-w-8">
     <input
+      :aria-checked="indeterminate ? 'mixed' : modelValue"
       :aria-label="ariaLabel ?? translate('apiClient.dataTableCheckbox.toggle')"
       :checked="modelValue"
       class="peer absolute inset-0 size-full cursor-pointer opacity-0 disabled:cursor-default"
       :disabled="Boolean(disabled)"
+      :indeterminate="indeterminate"
       type="checkbox"
       @change="(e: any) => $emit('update:modelValue', e.target.checked)" />
     <div :class="variants({ align })">
@@ -50,7 +54,11 @@ const variants = cva({
           !disabled &&
           'group-has-[:focus-visible]/cell:border-c-accent group-hover:opacity-100 group-has-[:focus-visible]/cell:opacity-100'
         " />
+      <ScalarIconMinus
+        v-if="indeterminate"
+        class="text-c-1 size-3" />
       <ScalarIcon
+        v-else
         icon="Checkmark"
         size="xs"
         thickness="2.5" />

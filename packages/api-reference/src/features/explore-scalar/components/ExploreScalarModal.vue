@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { DialogTitle } from '@headlessui/vue'
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarModal, type ModalState } from '@scalar/components/modal'
 import { ScalarTooltip } from '@scalar/components/tooltip'
@@ -10,8 +9,9 @@ import {
   ScalarIconX,
 } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, useId, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import { useRegisterLink } from '@/hooks/use-register-link'
@@ -21,7 +21,13 @@ import { DEMO_CALL_URL, MARC_X_DM_URL } from '../constants'
 import ExploreScalarStickers from './ExploreScalarStickers.vue'
 import StickerMarc from './stickers/StickerMarc.vue'
 
-const { externalUrls, url, workspace, state } = defineProps<{
+const {
+  externalUrls,
+  url,
+  workspace,
+  state,
+  presentation = 'dialog',
+} = defineProps<{
   /** Shape-compatible with useModal(); every close path (X, Escape, backdrop) goes through state.hide() */
   state: ModalState
   externalUrls: ExternalUrls
@@ -31,6 +37,11 @@ const { externalUrls, url, workspace, state } = defineProps<{
   usesViewTransition: boolean
   /** True while the hero stickers take part in the morph (the card was expanded when it opened, or it is closing) */
   morphStickers: boolean
+  /**
+   * `dialog` is the modal Generate SDK opens. `panel` renders the same content inline,
+   * for the localhost shell's side panel, which owns the surrounding focus and Escape handling.
+   */
+  presentation?: 'dialog' | 'panel'
 }>()
 
 const { translate } = useLocalization()
@@ -143,10 +154,11 @@ const changeStep = async (next: 'overview' | 'demo'): Promise<void> => {
   await resize.finished.catch(() => undefined)
 }
 
+const documentRoot = useDocumentRoot()
+
 /** The booking calendar follows the color mode of the surrounding reference */
 const isDarkMode = (): boolean =>
-  typeof document !== 'undefined' &&
-  document.querySelector('.dark-mode') !== null
+  documentRoot?.querySelector('.dark-mode') != null
 
 const showDemo = async (): Promise<void> => {
   calFailed.value = false
@@ -168,22 +180,46 @@ const showDemo = async (): Promise<void> => {
   }
 }
 
+/** The demo call button, which gets focus back when Back leaves the booking step */
+const demoEl = ref<{ $el?: HTMLElement }>()
+
 const showOverview = (): void => {
   void changeStep('overview')
+  // Back unmounts with the booking step, so focus would otherwise fall to the page
+  void nextTick(() => demoEl.value?.$el?.focus())
 }
+
+/** The modal wraps the content as a dialog; the side panel only needs a plain element around it */
+const wrapper = computed(() =>
+  presentation === 'dialog'
+    ? {
+        is: ScalarModal,
+        props: {
+          'bodyClass': '!p-0 overflow-y-auto',
+          'maxWidth': step.value === 'demo' ? '960px' : '540px',
+          'size': 'lg' as const,
+          state,
+          // Falls through ScalarModal to the native dialog, which each step's heading names
+          'aria-labelledby': titleId,
+        },
+      }
+    : { is: 'div', props: {} },
+)
+
+/** Each step's heading names the dialog; only one step renders at a time, so they share the id */
+const titleId = useId()
 </script>
 
 <template>
-  <ScalarModal
-    bodyClass="!p-0 overflow-y-auto"
+  <component
+    :is="wrapper.is"
+    v-bind="wrapper.props"
     class="explore-scalar-modal"
     :class="{
       'explore-scalar-modal--vt': usesViewTransition,
       'explore-scalar-modal--stickers': morphStickers,
-    }"
-    :maxWidth="step === 'demo' ? '960px' : '540px'"
-    size="lg"
-    :state="state">
+      'explore-scalar-modal--panel': presentation === 'panel',
+    }">
     <div
       ref="panelEl"
       class="explore-scalar-panel bg-b-1 text-c-1 relative flex flex-col">
@@ -205,54 +241,16 @@ const showOverview = (): void => {
         </div>
 
         <div class="px-8 pt-2 text-center">
-          <DialogTitle
-            as="h2"
+          <h2
+            :id="titleId"
             class="text-c-1 m-0 text-xl leading-snug font-bold tracking-tight text-balance">
             {{ translate('exploreScalar.title') }}
-          </DialogTitle>
+          </h2>
         </div>
 
-        <hr class="border-border mx-8 mt-5 border-0 border-t" />
-
-        <!-- WebKit drops the list role from a list-style: none list, so the role is explicit to keep "list, 2 items" -->
-        <ul
-          class="m-0 flex list-none flex-col gap-4 px-8 py-5"
-          role="list">
-          <li class="flex items-start gap-3">
-            <!-- The icon shares the title's line box, so it sits on the title and the description hangs below -->
-            <span class="text-c-1 flex h-6 shrink-0 items-center">
-              <ScalarIconPackage
-                class="size-5"
-                weight="regular" />
-            </span>
-            <span class="flex flex-col gap-0.5">
-              <span class="text-c-1 text-base leading-6 font-bold">
-                {{ translate('exploreScalar.generateTitle') }}
-              </span>
-              <span class="text-c-2 text-sm">
-                {{ translate('exploreScalar.generateDescription') }}
-              </span>
-            </span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-c-1 flex h-6 shrink-0 items-center">
-              <ScalarIconGlobe
-                class="size-5"
-                weight="regular" />
-            </span>
-            <span class="flex flex-col gap-0.5">
-              <span class="text-c-1 text-base leading-6 font-bold">
-                {{ translate('exploreScalar.platformTitle') }}
-              </span>
-              <span class="text-c-2 text-sm">
-                {{ translate('exploreScalar.platformDescription') }}
-              </span>
-            </span>
-          </li>
-        </ul>
-
-        <!-- Sign-up comes first in the DOM so the dialog's initial focus lands on the primary action -->
-        <div class="flex flex-col gap-1 px-8 pt-1 pb-6">
+        <!-- The actions sit right under the heading, before the feature rows. Sign-up comes first in the
+             DOM so the dialog's initial focus lands on the primary action. -->
+        <div class="flex flex-col gap-1 px-8 pt-5">
           <!-- The spinner hides the label, so the name is pinned while loading (the button is still announced as busy) -->
           <ScalarButton
             :is="signUpHref ? 'a' : 'button'"
@@ -276,6 +274,7 @@ const showOverview = (): void => {
                inside the pill but beside the button in the markup: a link inside a button is invalid. -->
           <div class="bg-b-2 hover:bg-b-3 relative flex h-10 rounded-full">
             <ScalarButton
+              ref="demoEl"
               class="text-c-1 hover:text-c-1 active:text-c-1 h-10 flex-1 rounded-full bg-transparent px-12 text-base font-medium hover:bg-transparent active:bg-transparent"
               variant="ghost"
               @blur="hideMarc"
@@ -317,6 +316,45 @@ const showOverview = (): void => {
             </ScalarTooltip>
           </div>
         </div>
+
+        <hr class="border-border mx-8 mt-6 border-0 border-t" />
+
+        <!-- WebKit drops the list role from a list-style: none list, so the role is explicit to keep "list, 2 items" -->
+        <ul
+          class="m-0 flex list-none flex-col gap-4 px-8 pt-6 pb-6"
+          role="list">
+          <li class="flex items-start gap-3">
+            <!-- The icon shares the title's line box, so it sits on the title and the description hangs below -->
+            <span class="text-c-1 flex h-6 shrink-0 items-center">
+              <ScalarIconPackage
+                class="size-5"
+                weight="regular" />
+            </span>
+            <span class="flex flex-col gap-0.5">
+              <span class="text-c-1 text-base leading-6 font-bold">
+                {{ translate('exploreScalar.generateTitle') }}
+              </span>
+              <span class="text-c-2 text-sm leading-relaxed">
+                {{ translate('exploreScalar.generateDescription') }}
+              </span>
+            </span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-c-1 flex h-6 shrink-0 items-center">
+              <ScalarIconGlobe
+                class="size-5"
+                weight="regular" />
+            </span>
+            <span class="flex flex-col gap-0.5">
+              <span class="text-c-1 text-base leading-6 font-bold">
+                {{ translate('exploreScalar.platformTitle') }}
+              </span>
+              <span class="text-c-2 text-sm leading-relaxed">
+                {{ translate('exploreScalar.platformDescription') }}
+              </span>
+            </span>
+          </li>
+        </ul>
       </div>
 
       <!-- Booking step: the Cal.com calendar for a call with Marc, rendered inline -->
@@ -334,11 +372,11 @@ const showOverview = (): void => {
           <ScalarIconArrowLeft class="size-4 rtl:-scale-x-100" />
         </button>
         <!-- The calendar speaks for itself, so the title only names the dialog for assistive technology -->
-        <DialogTitle
-          as="h2"
+        <h2
+          :id="titleId"
           class="sr-only">
           {{ translate('exploreScalar.bookDemo') }}
-        </DialogTitle>
+        </h2>
         <!-- Cal.com mounts its booking iframe in here -->
         <div
           ref="calEl"
@@ -368,13 +406,13 @@ const showOverview = (): void => {
         <ScalarIconX class="size-4" />
       </button>
     </div>
-  </ScalarModal>
+  </component>
 </template>
 
-<!-- The dialog is portaled to <body>, outside this component's scope, so these rules are global and prefixed by the Dialog root class -->
+<!-- ScalarModal renders the dialog, outside this component's scope, so these rules are global and keyed on the classes it passes through -->
 <style>
 /* The same corner as the dashboard's takeover card */
-.explore-scalar-modal .scalar-modal {
+.explore-scalar-modal.scalar-modal {
   border-radius: 28px;
   overflow: hidden;
 }
@@ -385,8 +423,8 @@ const showOverview = (): void => {
  * !important beats the scoped rule and the opacity-0 utility regardless of layer order. The class
  * stays for the whole open session because re-enabling `animation` restarts it and flashes the panel.
  */
-.explore-scalar-modal--vt .scalar-modal-layout,
-.explore-scalar-modal--vt .scalar-modal {
+.explore-scalar-modal--vt.scalar-modal,
+.explore-scalar-modal--vt.scalar-modal::backdrop {
   animation: none !important;
   opacity: 1 !important;
   transform: none !important;
@@ -487,7 +525,7 @@ const showOverview = (): void => {
  * The stickers are only named when the card side has visible counterparts (see `morphStickers`);
  * otherwise they stay part of the panel image and crossfade in with it.
  */
-:root[data-scalar-explore-vt] .explore-scalar-modal .scalar-modal {
+:root[data-scalar-explore-vt] .explore-scalar-modal.scalar-modal {
   view-transition-name: scalar-explore-card;
 }
 :root[data-scalar-explore-vt]

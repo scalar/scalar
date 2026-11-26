@@ -72,6 +72,10 @@ const parsed = computed<{ extensions: Record<string, unknown>; error: string }>(
       <section aria-label="Live preview">
         <h2 class="mb-2 font-medium">Live preview</h2>
         <SpecificationExtensions :extensions="parsed.extensions" />
+        <h2 class="mt-8 mb-2 font-medium">Collapsible</h2>
+        <SpecificationExtensions
+          collapsible
+          :extensions="parsed.extensions" />
       </section>
     </div>
   </div>

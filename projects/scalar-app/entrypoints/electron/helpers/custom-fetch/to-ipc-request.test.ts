@@ -1,3 +1,5 @@
+import { Buffer } from 'node:buffer'
+
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { toIpcRequest } from './to-ipc-request'
@@ -150,7 +152,8 @@ describe('to-ipc-request', () => {
         method: 'POST',
         body: buffer,
       })
-      expect(new Uint8Array(request.body!)).toEqual(bytes)
+      // Compare every byte natively to avoid a slow deep equality walk on large buffers.
+      expect(Buffer.compare(Buffer.from(request.body!), Buffer.from(bytes))).toBe(0)
     })
   })
 

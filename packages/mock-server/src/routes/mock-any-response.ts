@@ -2,7 +2,7 @@ import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import { getExampleFromSchema, getXmlBodyExample } from '@scalar/workspace-store/request-example'
+import { getXmlBodyExample } from '@scalar/workspace-store/request-example'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Context } from 'hono'
 import { streamSSE } from 'hono/streaming'
@@ -10,7 +10,9 @@ import type { StatusCode } from 'hono/utils/http-status'
 
 import { collectSseEvents, isEventStreamContentType } from '@/utils/collect-sse-events'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
-import { generateResponseExample } from '@/utils/generate-response-example'
+import { type ExampleGenerationContext, generateResponseExample } from '@/utils/generate-response-example'
+import { getResponseHeaderExample, usesOpenApi32HeaderExamples } from '@/utils/get-response-header-example'
+import { isSettableResponseHeader } from '@/utils/is-settable-response-header'
 import { negotiateContentType } from '@/utils/negotiate-content-type'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
@@ -19,10 +21,28 @@ import { selectResponseExample } from '@/utils/select-response-example'
 import { serializeResponseBody } from '@/utils/serialize-response-body'
 import { getStreamingResponse, sendStreamingResponse } from '@/utils/streaming-response'
 
+/** These fields are owned by the response serializer and transport, never the API description. */
+const IGNORED_RESPONSE_HEADERS = new Set([
+  'content-length',
+  'content-encoding',
+  'content-type',
+  'transfer-encoding',
+  'trailer',
+  'connection',
+  'keep-alive',
+  'upgrade',
+  'te',
+  'proxy-connection',
+])
+
 /**
  * Mock any response
  */
-export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObject, openapiVersion?: string) {
+export function mockAnyResponse(
+  c: Context,
+  operation: OpenAPIV3_1.OperationObject,
+  generationContext: ExampleGenerationContext = {},
+) {
   // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
   // for requests rejected before reaching this handler.
 
@@ -54,18 +74,33 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   // Headers
   const headers = selectedResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
-    const headerObject = getResolvedRef(headers[header])
-    // Headers need `includeDeprecated` but none of `generateResponseExample`'s other options — see
-    // the note on that helper for why passing them would change what declared headers emit.
-    const value = headerObject?.schema
-      ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema), { includeDeprecated: true }) as string)
-      : null
-    // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
-    // thing to set the declared headers, so in practice a delete removes a header set earlier by
-    // middleware — `cors()` sets `Access-Control-Allow-Origin` before the handler runs.
-    if (value != null) {
-      c.header(header, value)
+    const name = header.toLowerCase()
+    // The body and transport determine these headers. Generated values can truncate a response or
+    // make clients decode uncompressed data; OpenAPI also requires ignoring declared Content-Type.
+    if (IGNORED_RESPONSE_HEADERS.has(name)) {
+      return
     }
+
+    try {
+      const example = getResponseHeaderExample(headers[header], generationContext, name)
+      // Passing undefined to Hono would delete a header already set by middleware such as cors().
+      if (example === undefined) {
+        return
+      }
+      // OpenAPI 3.2 models separate Set-Cookie fields as one cookie per line.
+      const append = name === 'set-cookie' && usesOpenApi32HeaderExamples(generationContext)
+      const values = Array.isArray(example) ? example : [example]
+      const fields = append && typeof example === 'string' ? example.split(/\r?\n/).filter(Boolean) : values
+      if (fields.length && fields.every((value) => isSettableResponseHeader(header, value))) {
+        for (const value of fields) {
+          c.header(header, value, { append })
+        }
+        return
+      }
+    } catch {
+      // An authored value may fail serialization, for example if it shadows its own toString.
+    }
+    console.warn(`Skipping invalid response header ${JSON.stringify(header)} from the API description.`)
   })
 
   // For 204 No Content responses, we should not set Content-Type and should return null body
@@ -90,6 +125,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   const acceptedResponse = selectedResponse?.content?.[acceptedContentType]
 
   const streamingResponse = getStreamingResponse(acceptedResponse, acceptedContentType, {
+    ...generationContext,
     exampleName: prefer.example,
     variables: pathParameters(c),
   })
@@ -102,7 +138,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
 
   /** Generates the response body from the schema, or returns `undefined` when there is no schema. */
   const generateFromSchema = (): unknown =>
-    responseSchema ? generateResponseExample(responseSchema, pathParameters(c)) : undefined
+    responseSchema ? generateResponseExample(responseSchema, pathParameters(c), generationContext) : undefined
 
   // Server-Sent Events are a framed, multi-event wire format, so they cannot go out as one buffered
   // body: a client reading the stream expects `data:` lines terminated by a blank line. Everything
@@ -115,9 +151,8 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
 
     c.status(statusCode)
 
-    // `streamSSE` sets the transport headers itself (`Content-Type`, `Cache-Control`, `Connection`,
-    // `Transfer-Encoding`), so those win over a value the document declared for the same header —
-    // they are what makes the stream readable. Every other declared header set above survives.
+    // Transport headers are never copied from the API description. `streamSSE` adds the framing
+    // and cache policy needed for an event stream; ordinary custom headers survive.
     return streamSSE(c, async (stream) => {
       for (const event of events) {
         if (event.framed) {
@@ -137,7 +172,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
 
   if (isXmlMediaType(acceptedContentType)) {
     const result = getXmlBodyExample(acceptedResponse?.schema as SchemaObject | undefined, selectedExample, {
-      openapiVersion,
+      ...generationContext,
       emptyString: 'string',
       variables: pathParameters(c),
       mode: 'read',

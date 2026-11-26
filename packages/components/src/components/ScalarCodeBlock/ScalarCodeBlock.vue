@@ -23,6 +23,7 @@ registerLanguage(...languages)
  *
  * Renders syntax-highlighted code using @scalar/highlight.
  * Supports line numbers, credential masking, and an optional copy button.
+ * Set --scalar-code-line-height on the component or an ancestor to override its 1.4 line height.
  *
  * @example
  * <ScalarCodeBlock content="const x = 1" lang="javascript" />
@@ -47,6 +48,10 @@ type BaseProps = {
   lineNumbers?: boolean
   hideCredentials?: string | string[]
   copy?: 'always' | 'hover' | false
+  /** Show the language in the copy button for multiline code. */
+  showCopyLanguage?: boolean
+  /** Original content to copy when the displayed content has been masked. */
+  copyContent?: string
   /**
    * Accessible name for the code scroller. Long code scrolls inside a focusable region so
    * keyboard users can reach it, and a focusable region needs a name or screen readers announce
@@ -69,8 +74,10 @@ const {
   lang = 'plaintext',
   lineNumbers = false,
   copy = 'hover',
+  showCopyLanguage = true,
   label = 'Code sample',
   copyLabel,
+  copyContent,
   content,
   prettyPrintedContent,
   hideCredentials,
@@ -155,7 +162,7 @@ const { cx } = useBindCx()
       tabindex="0">
       <pre
         :id="id"
-        class="m-0 w-fit border-0 bg-transparent p-0 text-nowrap whitespace-pre"
+        class="scalar-code-block-pre m-0 w-fit border-0 bg-transparent p-0 text-nowrap whitespace-pre"
         :class="{ 'pr-6': reserveCopySpace }"
         v-html="highlightedCode" />
     </div>
@@ -169,10 +176,10 @@ const { cx } = useBindCx()
           : 'top-2.5 right-2.5',
         { 'opacity-100': copy === 'always' },
       ]"
-      :content="prettyContent"
+      :content="copyContent ?? prettyContent"
       :copyLabel="copyLabel"
       :lang="lang"
-      :showLang="!isOneLine">
+      :showLang="showCopyLanguage && !isOneLine">
       <template #backdrop>
         <ScalarCopyBackdrop
           class="scalar-code-copy-backdrop"
@@ -187,10 +194,12 @@ const { cx } = useBindCx()
 </template>
 <style>
 @reference '../../style.css';
-@import '@scalar/code-highlight/css/code.css';
+@import '@scalar/highlight/compat/code.css';
 
-/** Disable font ligatures so code renders with literal characters */
-.scalar-code-block pre {
+/** Match the pre line-box metrics to the code font so blank and highlighted lines have the same pitch. */
+.scalar-code-block-pre {
+  font-family: var(--scalar-font-code);
+  /* Disable ligatures so code characters remain distinct. */
   font-variant-ligatures: none;
 }
 
@@ -201,8 +210,23 @@ const { cx } = useBindCx()
 .scalar-code-block.bg-b-2 .scalar-code-copy-backdrop {
   @apply bg-b-2;
 }
+/**
+ * A transparent block shows the surface of the card it sits in, so the label takes that color.
+ * Outside a card there is nothing to match, and the label goes without a backdrop.
+ */
+.scalar-code-block.bg-transparent .scalar-code-copy-backdrop {
+  background: var(--scalar-card-surface, transparent);
+}
 /** Make the copy button one shade darker than the background */
 .scalar-code-block.bg-b-2 .scalar-code-copy {
   @apply bg-b-3;
+}
+/**
+ * On a card's surface the button's own fill is the color of the card behind the surface, which
+ * reads as a hole in a dark card. It takes the card's raised color instead, one step above the
+ * surface. Outside a card the button keeps its own fill.
+ */
+.scalar-code-block.bg-transparent .scalar-code-copy {
+  background: var(--scalar-card-surface-raised, var(--scalar-background-2));
 }
 </style>

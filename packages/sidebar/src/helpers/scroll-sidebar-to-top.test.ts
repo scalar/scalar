@@ -190,4 +190,35 @@ describe('scroll-to-sidebar-top', () => {
       top: 0,
     })
   })
+
+  it('finds the sidebar item inside a shadow root', () => {
+    const host = document.createElement('div')
+    document.body.append(host)
+    const shadowRoot = host.attachShadow({ mode: 'open' })
+    const scroller = document.createElement('div')
+    const element = document.createElement('div')
+    const scrollToSpy = vi.fn()
+
+    scroller.className = 'custom-scroll'
+    element.setAttribute('data-sidebar-id', 'shadow-item')
+    Object.defineProperty(scroller, 'scrollTo', {
+      value: scrollToSpy,
+      configurable: true,
+    })
+    setOffsetTop(element, 300)
+    setOffsetParent(element, scroller)
+    scroller.append(element)
+    shadowRoot.append(scroller)
+
+    scrollSidebarToTop('shadow-item', undefined, shadowRoot)
+
+    expect(scrollToSpy).toHaveBeenCalledWith({ top: 200 })
+  })
+
+  it('returns early without a window even when no root is passed', () => {
+    vi.stubGlobal('window', undefined)
+    vi.stubGlobal('document', undefined)
+
+    expect(() => scrollSidebarToTop('operation-1', undefined, undefined)).not.toThrow()
+  })
 })

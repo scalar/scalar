@@ -43,6 +43,14 @@
           "defer": true
         },
         {
+          "path": "documentation/assets/api-hosting-waitlist.js",
+          "defer": true
+        },
+        {
+          "path": "documentation/assets/api-hosting-invite.js",
+          "defer": true
+        },
+        {
           "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js",
           "async": true
         }
@@ -50,6 +58,9 @@
       "styles": [
         {
           "path": "documentation/assets/styles.css"
+        },
+        {
+          "path": "documentation/assets/api-hosting-invite.css"
         }
       ],
       "meta": [
@@ -107,6 +118,10 @@
     ],
     "routing": {
       "redirects": [
+        {
+          "from": "/products/headless",
+          "to": "/"
+        },
         {
           "from": "/docs",
           "to": "/products"
@@ -358,6 +373,10 @@
         {
           "from": "/products/sdks/configuration/overview",
           "to": "/products/sdk-generator/configuration/overview"
+        },
+        {
+          "from": "/products/sdk-generator/configuration/signed-urls",
+          "to": "/products/sdk-generator/signed-urls#configuration-reference"
         },
         {
           "from": "/products/sdks/configuration/typescript",
@@ -1052,14 +1071,16 @@
             "type": "page",
             "filepath": "documentation/guides/introduction.md",
             "title": "Introduction",
-            "description": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves.",
+            "description": "Scalar is the infrastructure layer between an API and the agents that use it. One OpenAPI document in; docs, SDKs, and a hosted MCP server out.",
             "layout": {
               "toc": false,
               "pageTitle": false,
-              "feedback": false
+              "pageActions": false,
+              "feedback": false,
+              "pageNav": false
             },
             "head": {
-              "title": "Scalar — API Documentation, SDKs, API Client & Registry",
+              "title": "Scalar — API Documentation, SDKs & Hosted MCP Servers",
               "links": [
                 {
                   "rel": "canonical",
@@ -1071,6 +1092,26 @@
                   "property": "og:image",
                   "name": "og:image",
                   "content": "https://api.scalar.com/cdn/images/IlMnm9Mxy-SabmLxE_i0L/8O99z8O2xzEypGxOzuZYo.png"
+                },
+                {
+                  "property": "og:video",
+                  "content": "https://cdn.scalar.com/marketing/landing/home-og-video.mp4"
+                },
+                {
+                  "property": "og:video:secure_url",
+                  "content": "https://cdn.scalar.com/marketing/landing/home-og-video.mp4"
+                },
+                {
+                  "property": "og:video:type",
+                  "content": "video/mp4"
+                },
+                {
+                  "property": "og:video:width",
+                  "content": "1200"
+                },
+                {
+                  "property": "og:video:height",
+                  "content": "630"
                 },
                 {
                   "name": "twitter:image",
@@ -1086,19 +1127,19 @@
                 },
                 {
                   "property": "og:title",
-                  "content": "Scalar — API Documentation, SDKs, API Client & Registry"
+                  "content": "Scalar — API Documentation, SDKs & Hosted MCP Servers"
                 },
                 {
                   "property": "og:description",
-                  "content": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves."
+                  "content": "Scalar is the infrastructure layer between an API and the agents that use it. One OpenAPI document in; docs, SDKs, and a hosted MCP server out."
                 },
                 {
                   "name": "twitter:title",
-                  "content": "Scalar — API Documentation, SDKs, API Client & Registry"
+                  "content": "Scalar — API Documentation, SDKs & Hosted MCP Servers"
                 },
                 {
                   "name": "twitter:description",
-                  "content": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves."
+                  "content": "Scalar is the infrastructure layer between an API and the agents that use it. One OpenAPI document in; docs, SDKs, and a hosted MCP server out."
                 },
                 {
                   "name": "robots",
@@ -1107,6 +1148,31 @@
                 {
                   "name": "googlebot",
                   "content": "index, follow, max-image-preview:large"
+                }
+              ],
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/agent-marks.js"
+                },
+                {
+                  "path": "documentation/assets/agent-hero.js"
+                },
+                {
+                  "path": "documentation/assets/sdk-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/headless-window.js",
+                  "defer": true
+                }
+              ],
+              "styles": [
+                {
+                  "path": "documentation/assets/host-scene.css"
                 }
               ]
             }
@@ -1126,6 +1192,12 @@
             },
             "head": {
               "title": "Scalar Pricing — Free & Paid Plans for API Docs & SDKs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                }
+              ],
               "links": [
                 {
                   "rel": "canonical",
@@ -1158,17 +1230,13 @@
             "filepath": "documentation/guides/customers/customers.md",
             "type": "page",
             "layout": {
-              "toc": true,
+              "toc": false,
+              "pageTitle": false,
               "pageActions": false,
               "feedback": false
             },
             "head": {
               "title": "Scalar Customers — Trusted by the World's Best API Teams",
-              "scripts": [
-                {
-                  "path": "documentation/assets/company.js"
-                }
-              ],
               "links": [
                 {
                   "rel": "canonical",
@@ -1189,6 +1257,26 @@
                   "content": "Trusted by the world's best API teams."
                 },
                 {
+                  "property": "og:video",
+                  "content": "https://cdn.scalar.com/marketing/landing/customers-og-video.mp4"
+                },
+                {
+                  "property": "og:video:secure_url",
+                  "content": "https://cdn.scalar.com/marketing/landing/customers-og-video.mp4"
+                },
+                {
+                  "property": "og:video:type",
+                  "content": "video/mp4"
+                },
+                {
+                  "property": "og:video:width",
+                  "content": "1200"
+                },
+                {
+                  "property": "og:video:height",
+                  "content": "630"
+                },
+                {
                   "name": "robots",
                   "content": "index, follow"
                 }
@@ -1206,6 +1294,14 @@
               "scripts": [
                 {
                   "path": "documentation/assets/enterprise-contact-form.js"
+                },
+                {
+                  "path": "documentation/assets/headless-window.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
                 }
               ],
               "links": [
@@ -1228,13 +1324,39 @@
                   "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
                 },
                 {
+                  "property": "og:video",
+                  "content": "https://cdn.scalar.com/marketing/landing/enterprise-og-video.mp4"
+                },
+                {
+                  "property": "og:video:secure_url",
+                  "content": "https://cdn.scalar.com/marketing/landing/enterprise-og-video.mp4"
+                },
+                {
+                  "property": "og:video:type",
+                  "content": "video/mp4"
+                },
+                {
+                  "property": "og:video:width",
+                  "content": "1200"
+                },
+                {
+                  "property": "og:video:height",
+                  "content": "630"
+                },
+                {
                   "name": "robots",
                   "content": "index, follow"
+                }
+              ],
+              "styles": [
+                {
+                  "path": "documentation/assets/host-scene.css"
                 }
               ]
             },
             "layout": {
               "toc": false,
+              "pageTitle": false,
               "feedback": false
             }
           },
@@ -1244,6 +1366,8 @@
             "filepath": "documentation/guides/company.md",
             "type": "page",
             "layout": {
+              "toc": false,
+              "pageTitle": false,
               "pageActions": false,
               "feedback": false
             },
@@ -1252,6 +1376,10 @@
               "scripts": [
                 {
                   "path": "documentation/assets/company.js"
+                },
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
                 }
               ],
               "links": [
@@ -1272,6 +1400,26 @@
                 {
                   "property": "og:description",
                   "content": "Learn about Scalar, the API platform built for developers and agents."
+                },
+                {
+                  "property": "og:video",
+                  "content": "https://cdn.scalar.com/marketing/landing/company-og-video.mp4"
+                },
+                {
+                  "property": "og:video:secure_url",
+                  "content": "https://cdn.scalar.com/marketing/landing/company-og-video.mp4"
+                },
+                {
+                  "property": "og:video:type",
+                  "content": "video/mp4"
+                },
+                {
+                  "property": "og:video:width",
+                  "content": "1200"
+                },
+                {
+                  "property": "og:video:height",
+                  "content": "630"
                 },
                 {
                   "name": "robots",
@@ -1302,6 +1450,35 @@
                 "title": "SDKs",
                 "icon": "phosphor/regular/package",
                 "url": "/products/sdk-generator"
+              },
+              "api-hosting": {
+                "type": "page",
+                "title": "Deploy",
+                "icon": "phosphor/regular/butterfly",
+                "filepath": "documentation/guides/api-hosting/index.md",
+                "description": "Deploy your API from the server framework you already use: NestJS, Hono, Elysia, .NET and more.",
+                "layout": {
+                  "toc": false,
+                  "pageTitle": false,
+                  "pageActions": false,
+                  "feedback": false,
+                  "pageNav": false
+                },
+                "head": {
+                  "title": "API Hosting for server frameworks",
+                  "scripts": [
+                    {
+                      "path": "documentation/assets/api-hosting-hero.js",
+                      "defer": true
+                    }
+                  ],
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/products/api-hosting"
+                    }
+                  ]
+                }
               }
             }
           },
@@ -1592,10 +1769,18 @@
             "icon": "phosphor/regular/house",
             "showInSidebar": true,
             "layout": {
-              "toc": true,
+              "toc": false,
               "pageActions": false,
               "pageTitle": false,
               "feedback": false
+            },
+            "head": {
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                }
+              ]
             }
           },
           "products": {
@@ -1637,12 +1822,35 @@
                           "content": "Publish API references and guides in one developer portal. Markdown and MDX in Git, previews on every PR, custom domains, llms.txt, and a free plan to start."
                         },
                         {
+                          "property": "og:video",
+                          "content": "https://cdn.scalar.com/marketing/landing/docs-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:secure_url",
+                          "content": "https://cdn.scalar.com/marketing/landing/docs-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:type",
+                          "content": "video/mp4"
+                        },
+                        {
+                          "property": "og:video:width",
+                          "content": "1200"
+                        },
+                        {
+                          "property": "og:video:height",
+                          "content": "630"
+                        },
+                        {
                           "name": "robots",
                           "content": "index, follow"
                         }
                       ]
                     },
                     "layout": {
+                      "toc": false,
+                      "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     }
                   },
@@ -1886,7 +2094,7 @@
                         "title": "Private Docs",
                         "filepath": "documentation/guides/docs/configuration/private-docs.md",
                         "type": "page",
-                        "description": "Control access to your documentation with password protection, SSO, and team-based permissions.",
+                        "description": "Make your docs site private: visitors sign in, and access groups decide who outside your team can view it.",
                         "head": {
                           "links": [
                             {
@@ -1897,7 +2105,7 @@
                           "meta": [
                             {
                               "name": "description",
-                              "content": "Control access to your documentation with password protection, SSO, and team-based permissions."
+                              "content": "Make your docs site private: visitors sign in, and access groups decide who outside your team can view it."
                             },
                             {
                               "name": "robots",
@@ -2112,6 +2320,12 @@
                         "type": "page",
                         "title": "Tables"
                       },
+                      "fields": {
+                        "description": "Document parameters, properties, and response values as labelled rows with the field, param field, and response field components.",
+                        "filepath": "documentation/guides/docs/components/fields.mdx",
+                        "type": "page",
+                        "title": "Fields"
+                      },
                       "steps": {
                         "description": "Guide readers through sequential instructions with step components.",
                         "filepath": "documentation/guides/docs/components/steps.mdx",
@@ -2135,6 +2349,12 @@
                         "filepath": "documentation/guides/docs/components/details.mdx",
                         "type": "page",
                         "title": "Details"
+                      },
+                      "tooltips": {
+                        "description": "Attach a short explanation to a word or phrase in running text with the tooltip component.",
+                        "filepath": "documentation/guides/docs/components/tooltips.mdx",
+                        "type": "page",
+                        "title": "Tooltips"
                       },
                       "page-link": {
                         "description": "Link to other documentation pages with rich page-link previews.",
@@ -2178,6 +2398,14 @@
                     "description": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.",
                     "head": {
                       "title": "Scalar MCP & Agent — MCP Servers from OpenAPI for LLMs",
+                      "scripts": [
+                        {
+                          "path": "documentation/assets/agent-marks.js"
+                        },
+                        {
+                          "path": "documentation/assets/agent-hero.js"
+                        }
+                      ],
                       "links": [
                         {
                           "rel": "canonical",
@@ -2198,12 +2426,35 @@
                           "content": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication."
                         },
                         {
+                          "property": "og:video",
+                          "content": "https://cdn.scalar.com/marketing/landing/agent-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:secure_url",
+                          "content": "https://cdn.scalar.com/marketing/landing/agent-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:type",
+                          "content": "video/mp4"
+                        },
+                        {
+                          "property": "og:video:width",
+                          "content": "1200"
+                        },
+                        {
+                          "property": "og:video:height",
+                          "content": "630"
+                        },
+                        {
                           "name": "robots",
                           "content": "index, follow"
                         }
                       ]
                     },
                     "layout": {
+                      "toc": false,
+                      "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     }
                   },
@@ -2271,6 +2522,12 @@
                         }
                       ]
                     }
+                  },
+                  "tools": {
+                    "title": "MCP Tools",
+                    "type": "page",
+                    "description": "Choose which operations become MCP tools, name them, and set MCP tool annotations with x-scalar-expose.",
+                    "filepath": "documentation/guides/agent/tools.md"
                   },
                   "configuration": {
                     "title": "MCP Configuration",
@@ -2420,14 +2677,17 @@
                     "filepath": "documentation/guides/sdks/index.md",
                     "description": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are GA, plus experimental C#, PHP, and more. Your custom code survives.",
                     "layout": {
+                      "toc": false,
                       "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     },
                     "head": {
                       "title": "SDK generator from OpenAPI — TypeScript, Python, Go & more",
                       "scripts": [
                         {
-                          "path": "documentation/assets/sdk-demo.js"
+                          "path": "documentation/assets/sdk-hero.js",
+                          "defer": true
                         }
                       ],
                       "links": [
@@ -2453,6 +2713,26 @@
                           "property": "og:image",
                           "name": "og:image",
                           "content": "https://cdn.scalar.com/images/twitter-image.png"
+                        },
+                        {
+                          "property": "og:video",
+                          "content": "https://cdn.scalar.com/marketing/landing/sdk-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:secure_url",
+                          "content": "https://cdn.scalar.com/marketing/landing/sdk-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:type",
+                          "content": "video/mp4"
+                        },
+                        {
+                          "property": "og:video:width",
+                          "content": "1200"
+                        },
+                        {
+                          "property": "og:video:height",
+                          "content": "630"
                         },
                         {
                           "name": "twitter:title",
@@ -2523,7 +2803,6 @@
                     "title": "Publishing",
                     "type": "group",
                     "mode": "nested",
-                    "icon": "phosphor/regular/rocket-launch",
                     "children": {
                       "overview": {
                         "filepath": "documentation/guides/sdks/publishing/overview.md",
@@ -2709,6 +2988,11 @@
                       }
                     }
                   },
+                  "cli-output": {
+                    "filepath": "documentation/guides/sdks/cli-output.md",
+                    "type": "page",
+                    "title": "CLI Output Formats"
+                  },
                   "pagination": {
                     "filepath": "documentation/guides/sdks/pagination.md",
                     "type": "page",
@@ -2725,6 +3009,54 @@
                         {
                           "name": "description",
                           "content": "Add auto-paginating helpers to your SDK: declare offset, page-number, or cursor schemes in configuration or your OpenAPI document, and bind them to methods."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "webhooks": {
+                    "filepath": "documentation/guides/sdks/webhooks.md",
+                    "type": "page",
+                    "title": "Webhooks",
+                    "description": "Generate webhook helpers that verify a delivery's signature and decode its body into a typed event, declared with a webhookUnwrap method over your OpenAPI document's webhooks.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/webhooks"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate webhook helpers that verify a delivery's signature and decode its body into a typed event, declared with a webhookUnwrap method over your OpenAPI document's webhooks."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "signed-urls": {
+                    "filepath": "documentation/guides/sdks/signed-urls.md",
+                    "type": "page",
+                    "title": "Signed URLs (Experimental)",
+                    "description": "Generate SDK methods that get a signed URL and return it, download from it, or upload a file to it, whether your side signs the link or the API hands it out.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/signed-urls"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate SDK methods that get a signed URL and return it, download from it, or upload a file to it, whether your side signs the link or the API hands it out."
                         },
                         {
                           "name": "robots",
@@ -2758,10 +3090,21 @@
                     }
                   },
                   "custom-code": {
-                    "filepath": "documentation/guides/sdks/custom-code.md",
-                    "type": "page",
                     "title": "Custom Code",
-                    "description": "Customize generated SDKs and keep your changes across regenerations with a three-way merge."
+                    "type": "group",
+                    "mode": "nested",
+                    "children": {
+                      "overview": {
+                        "filepath": "documentation/guides/sdks/custom-code/overview.md",
+                        "type": "page",
+                        "title": "Overview"
+                      },
+                      "cli": {
+                        "filepath": "documentation/guides/sdks/custom-code/cli.md",
+                        "type": "page",
+                        "title": "CLI Commands (Experimental)"
+                      }
+                    }
                   },
                   "diagnostics": {
                     "filepath": "documentation/guides/sdks/diagnostics.md",
@@ -2892,6 +3235,12 @@
                     "title": "Upload",
                     "description": "Upload OpenAPI documents to the Scalar Registry from the dashboard, CLI, or CI.",
                     "filepath": "documentation/guides/registry/upload.md",
+                    "type": "page"
+                  },
+                  "urls": {
+                    "title": "URLs",
+                    "description": "Choose a Scalar Registry URL for a preview, a document format, a version, or generated SDK examples.",
+                    "filepath": "documentation/guides/registry/urls.md",
                     "type": "page"
                   },
                   "schemas": {
@@ -3539,6 +3888,12 @@
                         "description": "Add a Scalar API reference to your Symfony application with the official bundle or NelmioApiDocBundle.",
                         "type": "page"
                       },
+                      "trpc": {
+                        "title": "tRPC",
+                        "filepath": "documentation/integrations/trpc.md",
+                        "description": "Expose tRPC procedures as REST endpoints with trpc-to-openapi and document them with Scalar API Reference.",
+                        "type": "page"
+                      },
                       "tsed": {
                         "title": "Ts.ED",
                         "filepath": "documentation/integrations/tsed.md",
@@ -4042,6 +4397,12 @@
                     "filepath": "documentation/guides/cli/autocompletion.md",
                     "type": "page",
                     "title": "Autocompletion"
+                  },
+                  "transform": {
+                    "description": "Generate public production and private staging API descriptions from one source with ordered filtering, metadata edits, and component pruning.",
+                    "filepath": "documentation/guides/cli/transform.md",
+                    "type": "page",
+                    "title": "Transform API Descriptions"
                   },
                   "ci-and-scripting": {
                     "description": "Run the Scalar CLI in CI: authenticate with tokens, publish lint reports, adopt lint baselines, and read JSON output.",
@@ -4746,7 +5107,10 @@
               "filepath": "documentation/compare/index.md",
               "description": "Honest comparisons of Scalar against other API documentation and SDK generation platforms.",
               "layout": {
-                "toc": false
+                "toc": false,
+                "pageActions": false,
+                "pageTitle": false,
+                "feedback": false
               },
               "head": {
                 "title": "Scalar Comparison Guides",
@@ -4772,6 +5136,12 @@
                   {
                     "name": "robots",
                     "content": "index, follow"
+                  }
+                ],
+                "scripts": [
+                  {
+                    "path": "documentation/assets/headless-hero.js",
+                    "defer": true
                   }
                 ]
               }

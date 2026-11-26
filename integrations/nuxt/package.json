@@ -20,7 +20,7 @@
     "testing",
     "vue"
   ],
-  "version": "0.6.83",
+  "version": "0.6.98",
   "engines": {
     "node": ">=22"
   },
@@ -29,7 +29,7 @@
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxi prepare && nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "test": "vitest --run",
+    "test": "vitest --run --passWithNoTests",
     "test:e2e": "playwright test",
     "types:check": "NUXT_TELEMETRY_DISABLED=true nuxi typecheck"
   },
@@ -61,8 +61,8 @@
     "documentation": "https://scalar.com/products/api-references/integrations/nuxt"
   },
   "dependencies": {
-    "@nuxt/kit": "4.5.2",
-    "@nuxt/schema": "4.5.2",
+    "@nuxt/kit": "4.6.4",
+    "@nuxt/schema": "4.6.4",
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/types": "workspace:*",
@@ -73,7 +73,8 @@
     "@nuxt/module-builder": "1.0.2",
     "@types/node": "catalog:*",
     "cross-env": "catalog:*",
-    "nuxt": "^4.6.1",
+    "nuxt": "^4.6.4",
+    "typescript": "5.9.3",
     "vitest": "catalog:*"
   }
 }

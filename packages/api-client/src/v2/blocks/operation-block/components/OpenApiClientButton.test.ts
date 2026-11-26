@@ -1,9 +1,26 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { createSSRApp, nextTick } from 'vue'
+import { renderToString } from 'vue/server-renderer'
 
 import OpenApiClientButton from './OpenApiClientButton.vue'
 
 describe('OpenApiClientButton', () => {
+  it('preserves the server-rendered button while resolving the browser URL', async () => {
+    const element = document.createElement('div')
+    const props = { buttonSource: 'sidebar' as const }
+    element.innerHTML = await renderToString(createSSRApp(OpenApiClientButton, props))
+    const button = element.querySelector('a')
+    expect(button?.textContent).toContain('Open API Client')
+    expect(button?.getAttribute('href')).toBeNull()
+    const app = createSSRApp(OpenApiClientButton, props)
+    app.mount(element)
+    await nextTick()
+    expect(element.querySelector('a')).toBe(button)
+    expect(new URL(button!.href).searchParams.get('url')).toBe(window.location.href)
+    app.unmount()
+  })
+
   it('adds operation_path and operation_method query params when provided', () => {
     const wrapper = mount(OpenApiClientButton, {
       props: {

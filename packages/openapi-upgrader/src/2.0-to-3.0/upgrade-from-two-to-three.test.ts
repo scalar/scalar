@@ -190,6 +190,153 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
+  it('prefers operation produces over global produces for responses', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      paths: {
+        '/reports/{id}/export': {
+          get: {
+            produces: ['text/csv'],
+            responses: {
+              '200': {
+                description: 'CSV export',
+                schema: {
+                  type: 'string',
+                },
+                examples: {
+                  Mars: 'id,name\n1,Mars',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/reports/{id}/export']?.get?.responses).toStrictEqual({
+      '200': {
+        description: 'CSV export',
+        content: {
+          'text/csv': {
+            schema: {
+              type: 'string',
+            },
+            examples: {
+              Mars: {
+                value: 'id,name\n1,Mars',
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('replaces global produces with all operation media types', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Reports', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/reports': {
+          get: {
+            produces: ['text/csv', 'application/pdf'],
+            responses: {
+              '200': { description: 'Report export', schema: { type: 'string' } },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/reports']?.get?.responses).toStrictEqual({
+      '200': {
+        description: 'Report export',
+        content: {
+          'text/csv': { schema: { type: 'string' } },
+          'application/pdf': { schema: { type: 'string' } },
+        },
+      },
+    })
+  })
+
+  it('keeps operation produces overrides isolated from sibling operations', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Reports', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/reports': {
+          get: {
+            produces: ['text/csv'],
+            responses: {
+              '200': { description: 'CSV export', schema: { type: 'string' } },
+            },
+          },
+          post: {
+            responses: {
+              '200': { description: 'Created report', schema: { type: 'string' } },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/reports']).toStrictEqual({
+      get: {
+        responses: {
+          '200': {
+            description: 'CSV export',
+            content: { 'text/csv': { schema: { type: 'string' } } },
+          },
+        },
+      },
+      post: {
+        responses: {
+          '200': {
+            description: 'Created report',
+            content: { 'application/json': { schema: { type: 'string' } } },
+          },
+        },
+      },
+    })
+  })
+
+  it('keeps media-type-keyed examples with the operation response schema', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Reports', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/reports': {
+          get: {
+            produces: ['text/csv'],
+            responses: {
+              '200': {
+                description: 'CSV export',
+                schema: { type: 'string' },
+                examples: { 'text/csv': 'id,name\n1,Mars' },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/reports']?.get?.responses).toStrictEqual({
+      '200': {
+        description: 'CSV export',
+        content: {
+          'text/csv': {
+            schema: { type: 'string' },
+            example: 'id,name\n1,Mars',
+          },
+        },
+      },
+    })
+  })
+
   it('uses global produces for responses', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -1026,6 +1173,198 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('keeps type: file inside example data untouched', () => {
+    const entry = { name: 'report.pdf', type: 'file' }
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Files', version: '1.0' },
+      paths: {
+        '/entries': {
+          get: {
+            produces: ['application/json'],
+            parameters: [{ in: 'query', name: 'filter', type: 'string', 'x-example': { 'application/json': entry } }],
+            responses: {
+              '200': {
+                description: 'Directory listing',
+                schema: { type: 'array', items: { $ref: '#/definitions/Entry' } },
+                examples: { 'application/json': [entry] },
+              },
+            },
+          },
+        },
+      },
+      definitions: {
+        Entry: {
+          type: 'object',
+          example: entry,
+          default: entry,
+          enum: [entry],
+          properties: { name: { type: 'string' }, type: { type: 'string', enum: ['file', 'dir'] } },
+        },
+      },
+    })
+
+    const operation = result.paths?.['/entries']?.get
+
+    expect(operation?.responses?.['200']).toStrictEqual({
+      description: 'Directory listing',
+      content: {
+        'application/json': {
+          schema: { type: 'array', items: { $ref: '#/components/schemas/Entry' } },
+          example: [entry],
+        },
+      },
+    })
+    expect(operation?.parameters).toStrictEqual([
+      { in: 'query', name: 'filter', schema: { type: 'string' }, examples: { 'application/json': { value: entry } } },
+    ])
+    expect(result.components?.schemas?.Entry).toStrictEqual({
+      type: 'object',
+      example: entry,
+      default: entry,
+      enum: [entry],
+      properties: { name: { type: 'string' }, type: { type: 'string', enum: ['file', 'dir'] } },
+    })
+  })
+
+  it('still transforms type: file schemas named like data keywords', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Files', version: '1.0' },
+      paths: {
+        '/download': {
+          get: {
+            produces: ['application/octet-stream'],
+            responses: { default: { description: 'File', schema: { type: 'file' } } },
+          },
+        },
+      },
+      definitions: {
+        Upload: { type: 'object', properties: { example: { type: 'file' } } },
+      },
+    })
+
+    expect(result.paths?.['/download']?.get?.responses?.default).toStrictEqual({
+      description: 'File',
+      content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } },
+    })
+    expect(result.components?.schemas?.Upload).toStrictEqual({
+      type: 'object',
+      properties: { example: { type: 'string', format: 'binary' } },
+    })
+  })
+
+  it.each(['example', 'default', 'const', 'enum', 'x-example'])('converts reusable file responses named %s', (name) => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Files', version: '1' },
+      paths: { '/download': { get: { responses: { '200': { $ref: `#/responses/${name}` } } } } },
+      responses: { [name]: { description: 'File', schema: { type: 'file' } } },
+    })
+
+    expect(result.components?.responses?.[name]).toStrictEqual({
+      description: 'File',
+      content: { 'application/json': { schema: { type: 'string', format: 'binary' } } },
+    })
+    expect(result.paths?.['/download']?.get?.responses?.['200']).toStrictEqual({
+      $ref: `#/components/responses/${name}`,
+    })
+  })
+
+  it.each(['example', 'default', 'const', 'enum', 'x-example'])(
+    'converts reusable file parameters named %s',
+    (name) => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Files', version: '1' },
+        consumes: ['multipart/form-data'],
+        paths: {
+          '/upload': {
+            post: { parameters: [{ $ref: `#/parameters/${name}` }], responses: { '200': { description: 'OK' } } },
+          },
+        },
+        parameters: { [name]: { in: 'formData', name: 'file', type: 'file' } },
+      })
+
+      expect(result.components?.requestBodies?.[name]).toStrictEqual({
+        content: {
+          'multipart/form-data': {
+            schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } }, required: [] },
+          },
+        },
+      })
+    },
+  )
+
+  it.each(['properties', 'patternProperties', '$defs', 'definitions'])(
+    'preserves example and default data on a schema property named %s',
+    (name) => {
+      const entry = { type: 'file' }
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Files', version: '1' },
+        paths: {},
+        definitions: {
+          Entry: {
+            type: 'object',
+            properties: { [name]: { type: 'object', example: entry, default: entry } },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.Entry).toStrictEqual({
+        type: 'object',
+        properties: { [name]: { type: 'object', example: entry, default: entry } },
+      })
+    },
+  )
+
+  it.each(['filter', 'properties', 'patternProperties', '$defs', 'definitions'])(
+    'preserves x-example data on a reusable body parameter named %s',
+    (name) => {
+      const entry = { type: 'file' }
+      const schema = { type: 'object', properties: { type: { type: 'string' } } }
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Files', version: '1' },
+        paths: {},
+        parameters: {
+          [name]: { in: 'body', name: 'filter', schema, 'x-example': { 'application/json': entry } },
+        },
+      })
+
+      expect(result.components?.requestBodies?.[name]).toStrictEqual({
+        content: { 'application/json': { schema, example: entry } },
+      })
+    },
+  )
+
+  it('preserves example data on a reusable response named headers', () => {
+    const example = { type: 'file' }
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Responses', version: '1' },
+      paths: {},
+      responses: {
+        headers: {
+          description: 'File metadata',
+          schema: { type: 'object', properties: { type: { type: 'string' } } },
+          examples: { 'application/json': example },
+        },
+      },
+    })
+
+    expect(result.components?.responses?.headers).toStrictEqual({
+      description: 'File metadata',
+      content: {
+        'application/json': {
+          schema: { type: 'object', properties: { type: { type: 'string' } } },
+          example,
+        },
+      },
+    })
+  })
+
   it('transform response headers', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -1419,97 +1758,445 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
-  it('upgrades parameters defined globally and correctly update all the references - body', () => {
+  it.each([
+    { reference: false, parametersFirst: false },
+    { reference: false, parametersFirst: true },
+    { reference: true, parametersFirst: false },
+    { reference: true, parametersFirst: true },
+  ])('inherits path bodies independently of property order: %j', ({ reference, parametersFirst }) => {
+    const body = { name: 'body', in: 'body', required: true, schema: { type: 'string' } }
+    const parameters = [
+      reference ? { $ref: '#/parameters/Body' } : body,
+      { name: 'limit', in: 'query', type: 'integer' },
+    ]
+    const responses = { '200': { description: 'ok' } }
+    const operations = { post: { responses }, put: { responses }, 'x-metadata': { label: 'Pets' } }
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
-      produces: ['application/json'],
-      consumes: ['application/xml'],
-      parameters: {
-        Body: {
-          in: 'body',
-          name: 'planet body',
-          required: true,
-          schema: {
-            type: 'object',
-            properties: {
-              name: {
-                type: 'string',
-              },
-            },
-          },
+      info: { title: 'Pets', version: '1' },
+      consumes: ['application/json'],
+      parameters: { Body: body },
+      paths: {
+        '/pets': parametersFirst ? { parameters, ...operations } : { ...operations, parameters },
+      },
+    })
+    const requestBody = reference
+      ? { $ref: '#/components/requestBodies/Body' }
+      : { required: true, content: { 'application/json': { schema: { type: 'string' } } } }
+
+    expect(result.paths?.['/pets']).toStrictEqual({
+      parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
+      post: { responses, requestBody },
+      put: { responses, requestBody },
+      'x-metadata': { label: 'Pets' },
+    })
+  })
+
+  it.each([false, true])('applies operation media types without changing shared bodies, inherited: %s', (inherited) => {
+    const body = {
+      name: 'body',
+      in: 'body',
+      description: 'A pet',
+      required: true,
+      schema: { type: 'string' },
+      'x-examples': {
+        'application/json': { default: { value: 'cat' } },
+        'application/xml': { default: { value: '<pet>cat</pet>' } },
+      },
+    }
+    const parameters = [{ $ref: '#/parameters/Body' }]
+    const responses = { '200': { description: 'ok' } }
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Pets', version: '1' },
+      consumes: ['application/json'],
+      parameters: { Body: body },
+      paths: {
+        '/pets': {
+          post: { consumes: ['application/xml'], ...(inherited ? {} : { parameters }), responses },
+          put: { ...(inherited ? {} : { parameters }), responses },
+          ...(inherited ? { parameters } : {}),
         },
-        'content type': {
-          in: 'body',
-          name: 'content type',
-          required: true,
-          schema: {
-            type: 'string',
-          },
-        },
-        Accept: {
-          in: 'body',
-          name: 'Accept',
-          required: true,
-          schema: {
-            type: 'string',
+      },
+    })
+
+    expect(result.paths?.['/pets']?.post).toStrictEqual({
+      responses,
+      requestBody: {
+        description: 'A pet',
+        required: true,
+        content: {
+          'application/xml': {
+            schema: { type: 'string' },
+            examples: { default: { value: '<pet>cat</pet>' } },
           },
         },
       },
+    })
+    expect(result.paths?.['/pets']?.put).toStrictEqual({
+      responses,
+      requestBody: { $ref: '#/components/requestBodies/Body' },
+    })
+    expect(result.components?.requestBodies?.Body).toStrictEqual({
+      description: 'A pet',
+      required: true,
+      content: {
+        'application/json': { schema: { type: 'string' }, examples: { default: { value: 'cat' } } },
+      },
+    })
+  })
+
+  it.each(['50%', '%ZZ', '%E0%A4%A', 'space%20name', 'slash~1tilde~0'])(
+    'migrates shared body references containing %s without throwing',
+    (segment) => {
+      const name = segment === 'space%20name' ? 'space name' : segment === 'slash~1tilde~0' ? 'slash/tilde~' : segment
+      const responses = { '200': { description: 'ok' } }
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        parameters: { [name]: { name: 'body', in: 'body', schema: { type: 'string' } } },
+        paths: { '/pets': { post: { parameters: [{ $ref: `#/parameters/${segment}` }], responses } } },
+      })
+
+      expect(result.paths?.['/pets']?.post).toStrictEqual({
+        responses,
+        requestBody: { $ref: `#/components/requestBodies/${segment}` },
+      })
+      expect(result.components?.requestBodies?.[name]).toStrictEqual({
+        content: { 'application/json': { schema: { type: 'string' } } },
+      })
+    },
+  )
+
+  it.each(['body', 'formData'] as const)(
+    'follows shared %s aliases and preserves cyclic or unresolved references',
+    (location) => {
+      const responses = { '200': { description: 'ok' } }
+      const mediaType = location === 'body' ? 'application/json' : 'multipart/form-data'
+      const overrideMediaType = location === 'body' ? 'application/xml' : 'application/x-www-form-urlencoded'
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        consumes: [mediaType],
+        parameters: {
+          A: { $ref: '#/parameters/B' },
+          B: { $ref: '#/parameters/50%' },
+          '50%':
+            location === 'body'
+              ? { name: 'body', in: 'body', schema: { type: 'string' } }
+              : { name: 'caption', in: 'formData', type: 'string' },
+          CycleA: { $ref: '#/parameters/CycleB' },
+          CycleB: { $ref: '#/parameters/CycleA' },
+          Missing: { $ref: '#/parameters/Absent' },
+          External: { $ref: 'other.yaml#/parameters/Body' },
+        },
+        paths: {
+          '/pets': {
+            parameters: [{ $ref: '#/parameters/A' }],
+            post: { responses },
+            put: { consumes: [overrideMediaType], responses },
+          },
+        },
+      })
+      const schema =
+        location === 'body'
+          ? { type: 'string' }
+          : { type: 'object', properties: { caption: { type: 'string' } }, required: [] }
+      expect(result.paths?.['/pets']).toStrictEqual({
+        post: { responses, requestBody: { $ref: '#/components/requestBodies/A' } },
+        put: { responses, requestBody: { content: { [overrideMediaType]: { schema } } } },
+      })
+      expect(result.components?.requestBodies).toStrictEqual({
+        A: { $ref: '#/components/requestBodies/B' },
+        B: { $ref: '#/components/requestBodies/50%' },
+        '50%': { content: { [mediaType]: { schema } } },
+      })
+      expect(result.components?.parameters).toStrictEqual({
+        CycleA: { $ref: '#/components/parameters/CycleB' },
+        CycleB: { $ref: '#/components/parameters/CycleA' },
+        Missing: { $ref: '#/components/parameters/Absent' },
+        External: { $ref: 'other.yaml#/parameters/Body' },
+      })
+    },
+  )
+
+  it.each([
+    { inheritedLocation: 'body', operationLocation: 'body' },
+    { inheritedLocation: 'body', operationLocation: 'formData' },
+    { inheritedLocation: 'formData', operationLocation: 'body' },
+  ])(
+    'gives the operation payload precedence over conflicting inheritance: %j',
+    ({ inheritedLocation, operationLocation }) => {
+      const responses = { '200': { description: 'ok' } }
+      const mediaType = operationLocation === 'body' ? 'application/json' : 'multipart/form-data'
+      const inherited =
+        inheritedLocation === 'body'
+          ? { name: 'body', in: 'body', schema: { type: 'string' } }
+          : { name: 'caption', in: 'formData', type: 'string' }
+      const operation =
+        operationLocation === 'body'
+          ? { name: 'payload', in: 'body', schema: { type: 'integer' } }
+          : { name: 'count', in: 'formData', type: 'integer' }
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        consumes: [mediaType],
+        parameters: { Inherited: inherited, Operation: operation },
+        paths: {
+          '/pets': {
+            parameters: [{ $ref: '#/parameters/Inherited' }],
+            post: { parameters: [operation], responses },
+            put: { parameters: [{ $ref: '#/parameters/Operation' }], responses },
+          },
+        },
+      })
+      const schema =
+        operationLocation === 'body'
+          ? { type: 'integer' }
+          : { type: 'object', properties: { count: { type: 'integer' } }, required: [] }
+      expect(result.paths?.['/pets']).toStrictEqual({
+        post: { responses, requestBody: { content: { [mediaType]: { schema } } } },
+        put: { responses, requestBody: { $ref: '#/components/requestBodies/Operation' } },
+      })
+    },
+  )
+
+  it('reuses shared bodies with reordered or repeated operation media types', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Pets', version: '1' },
+      consumes: ['application/json', 'application/xml'],
+      parameters: { Body: { name: 'body', in: 'body', schema: { type: 'string' } } },
       paths: {
-        '/planets/{planetId}': {
-          parameters: [
-            {
-              $ref: '#/parameters/Body',
-            },
-            {
-              $ref: '#/parameters/content type',
-            },
-            {
-              $ref: '#/parameters/Accept',
-            },
-          ],
+        '/pets': {
           post: {
-            responses: {
-              '201': {
-                description: 'The planet just created.',
-              },
+            consumes: ['application/xml', 'application/json', 'application/xml'],
+            parameters: [{ $ref: '#/parameters/Body' }],
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+    })
+    expect(result.paths?.['/pets']?.post?.requestBody).toStrictEqual({ $ref: '#/components/requestBodies/Body' })
+  })
+
+  it.each([false, true])('lets an operation override an inherited body, referenced override: %s', (reference) => {
+    const responses = { '200': { description: 'ok' } }
+    const override = { name: 'body', in: 'body', required: false, schema: { type: 'integer' } }
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Pets', version: '1' },
+      parameters: {
+        Body: { name: 'body', in: 'body', required: true, schema: { type: 'string' } },
+        Override: override,
+      },
+      paths: {
+        '/pets': {
+          post: { parameters: [reference ? { $ref: '#/parameters/Override' } : override], responses },
+          put: { responses },
+          parameters: [{ $ref: '#/parameters/Body' }],
+        },
+      },
+    })
+
+    expect(result.paths?.['/pets']?.post).toStrictEqual({
+      responses,
+      requestBody: reference
+        ? { $ref: '#/components/requestBodies/Override' }
+        : { required: false, content: { 'application/json': { schema: { type: 'integer' } } } },
+    })
+    expect(result.paths?.['/pets']?.put).toStrictEqual({
+      responses,
+      requestBody: { $ref: '#/components/requestBodies/Body' },
+    })
+  })
+
+  it.each(['example', 'default', 'enum'] as const)(
+    'preserves literal parameter references inside schema %s data',
+    (keyword) => {
+      const value = { $ref: '#/parameters/50%', nested: { $ref: '#/parameters/Body' } }
+      const schema = { type: 'object', [keyword]: keyword === 'enum' ? [value] : value }
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        parameters: { Body: { name: 'body', in: 'body', schema: { $ref: '#/definitions/Pet' } } },
+        definitions: { Pet: schema },
+        paths: {
+          '/pets': {
+            post: {
+              parameters: [{ $ref: '#/parameters/Body' }],
+              responses: { '200': { description: 'ok' } },
             },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.Pet).toStrictEqual(schema)
+      expect(result.paths?.['/pets']?.post).toStrictEqual({
+        requestBody: { $ref: '#/components/requestBodies/Body' },
+        responses: { '200': { description: 'ok' } },
+      })
+    },
+  )
+
+  it('leaves unresolved and external parameter references in parameters', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Pets', version: '1' },
+      parameters: { Body: { name: 'body', in: 'body', schema: { type: 'string' } } },
+      paths: {
+        '/pets': {
+          post: {
+            parameters: [{ $ref: '#/parameters/Missing' }, { $ref: 'parameters.yaml#/Body' }],
+            responses: { '200': { description: 'ok' } },
           },
         },
       },
     })
 
-    expect(result.paths?.['/planets/{planetId}']?.parameters).toMatchObject([
-      {
-        $ref: '#/components/requestBodies/Body',
-      },
-      {
-        $ref: '#/components/requestBodies/content type',
-      },
-      {
-        $ref: '#/components/requestBodies/Accept',
-      },
-    ])
+    expect(result.paths?.['/pets']?.post).toStrictEqual({
+      parameters: [{ $ref: '#/components/parameters/Missing' }, { $ref: 'parameters.yaml#/Body' }],
+      responses: { '200': { description: 'ok' } },
+    })
+  })
 
-    expect(result.components?.requestBodies).toMatchObject({
-      Body: {
+  it('reuses a single shared form field and respects operation media types', () => {
+    const responses = { '200': { description: 'ok' } }
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Pets', version: '1' },
+      consumes: ['multipart/form-data'],
+      parameters: { Caption: { name: 'caption', in: 'formData', type: 'string', required: true } },
+      paths: {
+        '/pets': {
+          post: { parameters: [{ $ref: '#/parameters/Caption' }], responses },
+          put: {
+            consumes: ['application/x-www-form-urlencoded'],
+            parameters: [{ $ref: '#/parameters/Caption' }],
+            responses,
+          },
+        },
+      },
+    })
+    const schema = { type: 'object', properties: { caption: { type: 'string' } }, required: ['caption'] }
+
+    expect(result.paths?.['/pets']?.post).toStrictEqual({
+      responses,
+      requestBody: { $ref: '#/components/requestBodies/Caption' },
+    })
+    expect(result.paths?.['/pets']?.put).toStrictEqual({
+      responses,
+      requestBody: { content: { 'application/x-www-form-urlencoded': { schema } } },
+    })
+    expect(result.components?.requestBodies?.Caption).toStrictEqual({
+      content: { 'multipart/form-data': { schema } },
+    })
+  })
+
+  it('combines referenced and inline form fields with required fields and array encoding', () => {
+    const responses = { '200': { description: 'ok' } }
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Pets', version: '1' },
+      consumes: ['multipart/form-data'],
+      parameters: {
+        Photo: { name: 'photo', in: 'formData', type: 'file', required: true, description: 'Pet photo' },
+        Tags: { name: 'tags', in: 'formData', type: 'array', items: { type: 'string' }, collectionFormat: 'multi' },
+      },
+      paths: {
+        '/pets': {
+          post: {
+            parameters: [
+              { $ref: '#/parameters/Photo' },
+              { $ref: '#/parameters/Tags' },
+              { name: 'caption', in: 'formData', type: 'string' },
+              { name: 'limit', in: 'query', type: 'integer' },
+            ],
+            responses,
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/pets']?.post).toStrictEqual({
+      parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
+      responses,
+      requestBody: {
         content: {
-          'application/xml': {
+          'multipart/form-data': {
             schema: {
               type: 'object',
-              properties: { name: { type: 'string' } },
+              properties: {
+                photo: { type: 'string', format: 'binary', description: 'Pet photo' },
+                tags: { type: 'array', items: { type: 'string' } },
+                caption: { type: 'string' },
+              },
+              required: ['photo'],
+            },
+            encoding: { tags: { style: 'form', explode: true } },
+          },
+        },
+      },
+    })
+  })
+
+  it('combines inherited form fields with operation fields and applies overrides by name', () => {
+    const responses = { '200': { description: 'ok' } }
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Pets', version: '1' },
+      consumes: ['multipart/form-data'],
+      parameters: {
+        Photo: { name: 'photo', in: 'formData', type: 'file', required: true },
+        Caption: { name: 'caption', in: 'formData', type: 'string', required: true },
+      },
+      paths: {
+        '/pets': {
+          post: {
+            parameters: [
+              { name: 'caption', in: 'formData', type: 'integer' },
+              { name: 'tags', in: 'formData', type: 'string' },
+            ],
+            responses,
+          },
+          put: { responses },
+          parameters: [{ $ref: '#/parameters/Photo' }, { $ref: '#/parameters/Caption' }],
+        },
+      },
+    })
+
+    expect(result.paths?.['/pets']).toStrictEqual({
+      post: {
+        responses,
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                properties: {
+                  photo: { type: 'string', format: 'binary' },
+                  caption: { type: 'integer' },
+                  tags: { type: 'string' },
+                },
+                required: ['photo'],
+              },
             },
           },
         },
-        required: true,
       },
-      'content type': {
-        content: { 'application/xml': { schema: { type: 'string' } } },
-        required: true,
-      },
-      Accept: {
-        content: { 'application/xml': { schema: { type: 'string' } } },
-        required: true,
+      put: {
+        responses,
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                properties: { photo: { type: 'string', format: 'binary' }, caption: { type: 'string' } },
+                required: ['photo', 'caption'],
+              },
+            },
+          },
+        },
       },
     })
   })

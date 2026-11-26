@@ -1,4 +1,3 @@
-import defaultFonts from './fonts/fonts.css?inline'
 import alternateTheme from './presets/alternate.css?inline'
 import bluePlanetTheme from './presets/bluePlanet.css?inline'
 import customThemeStarter from './presets/custom-theme-starter.css?inline'
@@ -6,6 +5,7 @@ import deepSpaceTheme from './presets/deepSpace.css?inline'
 import defaultTheme from './presets/default.css?inline'
 import elysiajsTheme from './presets/elysiajs.css?inline'
 import fastifyTheme from './presets/fastify.css?inline'
+import halloweenTheme from './presets/halloween.css?inline'
 import keplerTheme from './presets/kepler.css?inline'
 import laserwaveTheme from './presets/laserwave.css?inline'
 import marsTheme from './presets/mars.css?inline'
@@ -18,6 +18,14 @@ export { hasObtrusiveScrollbars } from './utilities/has-obtrusive-scrollbars'
 
 import { nanoid } from 'nanoid'
 
+/**
+ * The font definitions Scalar used to load (Inter and JetBrains Mono). Scalar now uses the system font stack, so
+ * there is nothing left to load.
+ *
+ * @deprecated This is an empty string, kept so existing imports keep working. It will be removed in a future version.
+ */
+const defaultFonts = ''
+
 // Export all presets for easier access
 export {
   alternateTheme,
@@ -27,6 +35,7 @@ export {
   defaultTheme,
   elysiajsTheme,
   fastifyTheme,
+  halloweenTheme,
   keplerTheme,
   laserwaveTheme,
   marsTheme,
@@ -70,6 +79,7 @@ export const themeIds = [
   'fastify',
   'mars',
   'laserwave',
+  'halloween',
   'none',
 ] as const
 
@@ -92,6 +102,7 @@ export const themeLabels = {
   mars: 'Mars',
   deepSpace: 'Deep Space',
   laserwave: 'Laserwave',
+  halloween: 'Halloween',
   none: 'None',
 } as const satisfies Record<ThemeId, string>
 
@@ -181,6 +192,13 @@ export const presets = {
     theme: laserwaveTheme,
     slug: 'laserwave',
   },
+  halloween: {
+    uid: 'hW8oKq2Pz-Vb3nTj5LxRm',
+    name: 'Halloween',
+    description: 'Spooky season Scalar theme with a moonlit sky, bats, and pumpkin accents',
+    theme: halloweenTheme,
+    slug: 'halloween',
+  },
   elysiajs: {
     uid: 'nEVZkRmCylPkT0o9YJa7y',
     name: 'Elysia.js',
@@ -227,9 +245,9 @@ export const getThemeStyles = (
      */
     variables?: boolean
     /**
-     * Whether or not to include the definitions for the default scalar fonts (e.g. Inter)
+     * Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.
      *
-     * @default true
+     * @deprecated There are no default fonts to include any more. This option will be removed in a future version.
      */
     fonts?: boolean
     /**
@@ -240,13 +258,9 @@ export const getThemeStyles = (
     layer?: string | false
   },
 ) => {
-  const { fonts = true, layer = 'scalar-theme' } = opts ?? {}
+  const { layer = 'scalar-theme' } = opts ?? {}
 
-  // Combined theme, base variables and default fonts if configured
-  const styles = [
-    presets[(themeId as Exclude<ThemeId, 'none'>) || 'default']?.theme ?? defaultTheme,
-    fonts ? defaultFonts : '',
-  ].join('')
+  const styles = presets[(themeId as Exclude<ThemeId, 'none'>) || 'default']?.theme ?? defaultTheme
 
   // Wrap the styles in a layer if configured
   if (layer) {

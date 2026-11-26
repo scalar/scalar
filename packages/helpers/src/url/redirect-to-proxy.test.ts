@@ -9,6 +9,26 @@ describe('redirectToProxy', () => {
     )
   })
 
+  it.each([
+    ['https://proxy.scalar.com', 'https://proxy.scalar.com'],
+    ['https://example.com/proxy', 'https://example.com/api/users?limit=10#users'],
+    ['https://EXAMPLE.com:443/proxy', 'https://example.com/api'],
+    ['http://example.com:80/proxy', 'http://example.com/api'],
+    ['http://localhost:3000/proxy', 'http://localhost:3000/api'],
+  ])('skips an extra hop from %s to %s', (proxyUrl, url) => {
+    expect(shouldUseProxy(proxyUrl, url)).toBe(false)
+    expect(redirectToProxy(proxyUrl, url)).toBe(url)
+  })
+
+  it.each([
+    ['https://example.com/proxy', 'http://example.com/api'],
+    ['https://example.com/proxy', 'https://example.com:8443/api'],
+    ['https://example.com/proxy', 'https://api.example.com/api'],
+  ])('preserves proxying between different origins: %s to %s', (proxyUrl, url) => {
+    expect(shouldUseProxy(proxyUrl, url)).toBe(true)
+    expect(redirectToProxy(proxyUrl, url)).toBe(`${proxyUrl}?scalar_url=${encodeURIComponent(url)}`)
+  })
+
   it('keeps query parameters', () => {
     expect(redirectToProxy('https://proxy.scalar.com?foo=bar', 'https://example.com')).toBe(
       'https://proxy.scalar.com/?foo=bar&scalar_url=https%3A%2F%2Fexample.com',
@@ -38,8 +58,8 @@ describe('redirectToProxy', () => {
   })
 
   it("uses the proxy when it's local", () => {
-    expect(redirectToProxy('http://localhost:3000/proxy', 'http://localhost:3000/api')).toBe(
-      'http://localhost:3000/proxy?scalar_url=http%3A%2F%2Flocalhost%3A3000%2Fapi',
+    expect(redirectToProxy('http://localhost:3000/proxy', 'http://localhost:4000/api')).toBe(
+      'http://localhost:3000/proxy?scalar_url=http%3A%2F%2Flocalhost%3A4000%2Fapi',
     )
   })
 
@@ -113,7 +133,7 @@ describe('shouldUseProxy', () => {
   })
 
   it('returns true for local proxy with local URL', () => {
-    expect(shouldUseProxy('http://localhost:3000/proxy', 'http://localhost:3000/api')).toBe(true)
+    expect(shouldUseProxy('http://localhost:3000/proxy', 'http://localhost:4000/api')).toBe(true)
   })
 
   it('returns true for remote proxy with remote URL', () => {

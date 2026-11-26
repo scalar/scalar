@@ -5,9 +5,9 @@ import { beforeEach, vi } from 'vitest'
  * jsdom does not implement it, which can surface as unhandled rejections after
  * Monaco initializes asynchronously.
  *
- * Do not `vi.mock('monaco-editor')` here: `App` and `config.ts` load real
- * `monaco-editor/esm/...` contributions, which expect full `editor.api`
- * exports such as `Emitter`. A stub module breaks those imports.
+ * Do not `vi.mock('monaco-editor')` here: `config.ts` imports `monaco-editor`
+ * directly to register its language and editor contributions. The app needs
+ * the real editor API; a stub module breaks initialization.
  */
 const cssEscapeIdent = (value: string): string => {
   let out = ''
@@ -41,6 +41,13 @@ const ensureCssEscape = (): void => {
 }
 
 ensureCssEscape()
+
+/**
+ * Tests run unattended, so they report themselves as automated, as the Playwright suites do. The
+ * API Hosting beta popup never opens then; otherwise it would open partway through any test that
+ * mounts the app shell. jsdom does not define the flag itself.
+ */
+Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => true })
 
 const createMatchMediaList = (query: string): MediaQueryList =>
   ({

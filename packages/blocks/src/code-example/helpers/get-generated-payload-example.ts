@@ -44,7 +44,5 @@ export const getGeneratedPayloadExample = (message: AsyncApiMessageObject): unkn
   const snapshot = snapshotSchema(schema)
   return getExampleFromSchema(snapshot, {
     emptyString: 'string',
-    // Match the message schema, which displays fields regardless of their read/write annotations.
-    includeDeprecated: true,
   })
 }

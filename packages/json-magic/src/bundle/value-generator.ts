@@ -34,6 +34,7 @@ export function getHash(value: string): string {
  * @param compressedToValue - Object mapping compressed values to their original values
  * @param prevCompressedValue - Optional previous compressed value to use as input for generating a new value
  * @param depth - Current recursion depth to prevent infinite loops
+ * @param reservedKeys - Storage keys without a corresponding source URL
  * @returns A unique compressed value that doesn't conflict with existing values
  *
  * @example
@@ -56,6 +57,7 @@ export async function generateUniqueValue(
   compressedToValue: Record<string, string>,
   prevCompressedValue?: string,
   depth = 0,
+  reservedKeys?: ReadonlySet<string>,
 ) {
   // Prevent infinite recursion by limiting depth
   const MAX_DEPTH = 100
@@ -68,8 +70,11 @@ export async function generateUniqueValue(
   const compressedValue = await compress(prevCompressedValue ?? value)
 
   // Handle collision by recursively trying with compressed value as input
-  if (compressedToValue[compressedValue] !== undefined && compressedToValue[compressedValue] !== value) {
-    return generateUniqueValue(compress, value, compressedToValue, compressedValue, depth + 1)
+  if (
+    reservedKeys?.has(compressedValue) ||
+    (compressedToValue[compressedValue] !== undefined && compressedToValue[compressedValue] !== value)
+  ) {
+    return generateUniqueValue(compress, value, compressedToValue, compressedValue, depth + 1, reservedKeys)
   }
 
   // Store mapping and return unique compressed value
@@ -83,6 +88,7 @@ export async function generateUniqueValue(
  *
  * @param compress - Function that generates a compressed value from a string
  * @param compressedToValue - Initial mapping of compressed values to their original values
+ * @param reservedKeys - Storage keys without a corresponding source URL
  * @returns An object with a generate method that produces unique compressed values
  *
  * @example
@@ -101,6 +107,7 @@ export async function generateUniqueValue(
 export const uniqueValueGeneratorFactory = (
   compress: (value: string) => Promise<string> | string,
   compressedToValue: Record<string, string>,
+  reservedKeys?: ReadonlySet<string>,
 ) => {
   // Create a reverse mapping from original values to their compressed forms
   const valueToCompressed = new Map(Object.entries(compressedToValue).map(([key, value]) => [value, key]))
@@ -127,7 +134,7 @@ export const uniqueValueGeneratorFactory = (
       }
 
       // Generate a new unique compressed value
-      const generatedValue = await generateUniqueValue(compress, value, compressedToValue)
+      const generatedValue = await generateUniqueValue(compress, value, compressedToValue, undefined, 0, reservedKeys)
 
       // Ensure the generated string contains at least one non-numeric character
       // This prevents the `setValueAtPath` function from interpreting the value as an array index

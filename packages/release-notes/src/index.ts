@@ -36,8 +36,11 @@ export { createAnthropicProvider } from './providers/anthropic'
 export { createOpenAIProvider } from './providers/openai'
 export type { ReleaseNote, ReleaseNoteContentBlock } from './types'
 export {
+  DEFAULT_MAX_HIGHLIGHTS,
+  MAX_HIGHLIGHTS_LIMIT,
   aiReleaseNoteSchema,
   buildReleaseNoteFromAiOutput,
+  createAiReleaseNoteSchema,
   releaseNoteSchema,
   releaseNotesFileSchema,
 } from './types'

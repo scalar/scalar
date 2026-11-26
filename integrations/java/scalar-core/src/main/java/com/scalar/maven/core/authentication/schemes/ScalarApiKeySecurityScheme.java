@@ -1,6 +1,7 @@
 package com.scalar.maven.core.authentication.schemes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Represents a security scheme that uses HTTP header authentication.
@@ -21,6 +22,20 @@ public class ScalarApiKeySecurityScheme extends ScalarSecurityScheme {
      * This value will be sent as-is in the specified header. For example, "Bearer token123" or "ApiKey abc123".
      */
     private String value;
+
+    /** Prefix added to header API keys, separated from the raw credential by one space. */
+    @JsonProperty("x-scalar-token-prefix")
+    private String tokenPrefix;
+
+    /** @return the prefix added to header API keys */
+    public String getTokenPrefix() {
+        return tokenPrefix;
+    }
+
+    /** @param tokenPrefix the prefix; credentials must not include it */
+    public void setTokenPrefix(String tokenPrefix) {
+        this.tokenPrefix = tokenPrefix;
+    }
 
     /**
      * Creates a new ScalarApiKeySecurityScheme.

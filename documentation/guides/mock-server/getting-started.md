@@ -202,6 +202,18 @@ const app = await createMockServer({
 
 For file and URL inputs, the JSON and YAML export routes return the loaded, bundled API description. Inline inputs without `origin` keep their original format version.
 
+### Overlapping paths
+
+When more than one path matches a request, the most concrete one answers it, as the OpenAPI specification asks. It does not matter which one the document declares first:
+
+```yaml
+paths:
+  /pets/{petId}: … # answers /pets/42
+  /pets/mine: … # answers /pets/mine
+```
+
+Paths are compared segment by segment from the left, and the first segment that differs decides. A literal segment beats one that mixes a parameter with literal text (`{jobId}:cancel`), which beats a bare parameter (`{jobId}`). A mixed segment that is routed as a whole-segment parameter, such as `{name}.json`, matches any value and so ranks like a bare parameter. So `/a/literal/{y}` answers `/a/literal/b` ahead of `/a/{x}/b`. Paths that rank the same keep the order the document declares them in.
+
 ### Path keys with a query string
 
 Some documents describe a variant of an operation by putting a query string in the path key:
@@ -217,6 +229,25 @@ Both keys are routed. The variant answers only requests that actually send every
 Everything else in a path key is matched literally, so a path such as `/users:batchGet` or `/reports*` is served as written.
 
 A segment that mixes a path parameter with literal text of that kind (`/v1/jobs/{jobId}:cancel`) routes to the right operation, but `jobId` is not bound by name — a single path segment can only carry one parameter. Request validation reads it as missing, so a document that describes such a path has to run the mock server with `validateRequest: false`, which turns validation off for every operation in it.
+
+### Server base paths
+
+Every operation is served under the path of each of its servers as well as at its bare path key:
+
+```yaml
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /pets/{petId}: … # answers /v1/pets/42 and /pets/42
+```
+
+OpenAPI 2.0 `basePath` and relative server URLs work the same way. A relative server URL uses the HTTP retrieval URL of the document that declares it when available and the mock server root otherwise. Every enum value of a variable in the server path is served, including combinations of multiple variables, and the default is used when there is no enum. Host variables do not create extra routes. Operation and path item `servers` take precedence over the servers of the document. An explicit empty `servers` array at either level leaves the affected operations available only at their bare path keys. Routes under a base path are ranked together with the bare path keys, so the most concrete one answers a request, and on a tie the path key the document declares wins.
+
+When an operation and a built-in OAuth route share an HTTP method and URL, the built-in OAuth route answers the request. The operation still answers at its bare path key when that path is distinct.
+
+Dotted hostnames such as `api.example.com:8443/v1` can omit the scheme. Use a scheme for single-label hosts such as `http://localhost:8443/v1`.
+
+An OpenAPI description can use up to 4,096 server URL combinations and 10,000 generated operation routes. If either limit is exceeded, the mock logs a startup diagnostic and serves the bare operation routes.
 
 ### Selecting responses
 
@@ -288,7 +319,8 @@ The mock server enforces your OpenAPI contract by default. Each request is valid
 - **Path, query, header, and cookie parameters** declared in the operation are validated against their schema. Values arrive as strings, so `type: integer`/`boolean` are coerced before validation (for example `?limit=10` becomes the number `10`). Required parameters are enforced. Header names are matched case-insensitively, and the `Accept`, `Content-Type`, and `Authorization` headers are ignored as parameters because OpenAPI defines them elsewhere.
 - **Array parameters** are deserialized according to their `style` and `explode` before validation. Exploded `form` arrays read repeated query keys (`?ids=1&ids=2`), while `form` (non-exploded), `spaceDelimited`, and `pipeDelimited` query arrays, `simple` path and header arrays, `form` cookie arrays, and the `label` (`/.1.2.3`) and `matrix` (`/;ids=1;ids=2`) path styles are split on their delimiter.
 - **Object parameters** are deserialized too: `deepObject` (`?filter[min]=1&filter[max]=9`), exploded `form` (properties as top-level keys, `?r=100&g=200`), `form`/`simple`/`label`/`matrix` in both explode modes (for example `r,100,g,200`, `r=100,g=200`, or `;point=x,1,y,2`).
-- **JSON request bodies** are validated against `requestBody.content['application/json'].schema`, and `requestBody.required` is enforced.
+- **Parameters declared with `content`** use the declared media type. JSON is parsed and validated with its original types. Plain text is validated against its schema with string coercion. Other media types enforce requiredness and reject supplied values when the schema is `false`.
+- **JSON request bodies** sent as `application/json` or a media type with a `+json` suffix are validated against the schema of the most specific `requestBody.content` entry that matches `Content-Type`. If the header is absent, the mock server prefers bare `application/json`, then a parameterized `application/json` entry, then the first declared `+json` entry. The server enforces `requestBody.required` independently.
 - **Recursive schemas** (a schema that references itself, directly or through another schema) are validated down to the point where the cycle is cut. Values at and below that recursion point are accepted as they are, and a `not`, `if`, `oneOf`, or `contains` that depends on the recursion is not enforced — nor are the keywords that only qualify them, such as `unevaluatedProperties`, `unevaluatedItems`, or `additionalProperties` — so validation stays on the forgiving side.
 
 When a request violates the contract, the server responds with `422 Unprocessable Entity` and a `application/problem+json` body listing every violation, instead of a mock response.
@@ -409,6 +441,45 @@ Failures that are already handled elsewhere never reach this handler, so they ke
 - **`x-handler` errors** — an extension that throws responds with `{ "error": "Handler execution failed", "message": … }`.
 - **Operations with no response** — an operation whose `responses` are empty responds with `{ "error": "No response defined for this operation." }`.
 - **Errors that carry a response** — an error such as Hono's `HTTPException` keeps the status and body it chose, and is not logged.
+
+### Observing and changing responses
+
+Pass `onResponse` to see every response before it is sent, or to send a different one. It is called once per request, after the mock server has produced its response, with:
+
+- `context` — the Hono context of the request, the same one `onRequest` receives.
+- `operation` — the OpenAPI operation that answered the request, or `undefined` when no operation did: the `/openapi.json` and `/openapi.yaml` exports, the authentication routes, routes you add to the returned app, and `404 Not Found` responses.
+- `response` — the `Response` about to be sent.
+
+Return a `Response` to send it instead, or return nothing to keep the mock response. Async callbacks are awaited.
+
+A mock server serves the same example on every request, so a list endpoint that says `has_more: true` sends an auto-paginating client around forever. Rewrite it into the last page:
+
+```ts
+import { createMockServer } from '@scalar/mock-server'
+
+const app = await createMockServer({
+  document,
+  async onResponse({ operation, response }) {
+    // Only rewrite the paginated list, and leave every other response untouched
+    if (operation?.operationId !== 'listItems') {
+      return
+    }
+
+    const page = await response.json()
+
+    return Response.json({ ...page, has_more: false }, { status: response.status })
+  },
+})
+```
+
+A few things to know:
+
+- **Every response reaches it**, including authentication failures, `422` [request validation](#request-validation) responses and `500` [error responses](#error-responses). CORS preflight (`OPTIONS`) requests are answered before it runs. A `HEAD` request reaches it with the `GET` response, and the body is dropped afterwards either way.
+- **Streams keep streaming.** The mock server never reads the body, so a `text/event-stream` or JSON Lines response is still streaming when it reaches the callback. Reading the body consumes it, so a callback that reads it has to return a replacement — or read `response.clone()` instead.
+- **Headers.** The replacement is sent with its own headers. The CORS headers the server adds are carried over onto it, unless it sets them itself; the mock response's other headers are not, so copy them from `response.headers` when you want to keep them.
+- **Errors.** If the callback throws or its promise rejects, the server responds with a `500` that names the operation, as described in [Error Responses](#error-responses). That response is not passed to the callback again.
+
+`onResponse` only applies to OpenAPI documents. For AsyncAPI documents, use `onMessage` to observe channel messages.
 
 ### HTTP authentication
 

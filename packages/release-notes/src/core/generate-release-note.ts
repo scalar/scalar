@@ -1,8 +1,22 @@
 import type { ProductPromptContext, PromptOptions, ReleaseNotesProvider } from '../config/types'
-import { type ReleaseNote, aiReleaseNoteSchema, buildReleaseNoteFromAiOutput } from '../types'
+import {
+  DEFAULT_MAX_HIGHLIGHTS,
+  type ReleaseNote,
+  buildReleaseNoteFromAiOutput,
+  createAiReleaseNoteSchema,
+} from '../types'
 import type { PullRequestSummary } from './fetch-pull-requests'
 
 const DEFAULT_MAX_OUTPUT_TOKENS = 1024
+
+/**
+ * Pick an output token budget that leaves room for every highlight the schema allows. A note with
+ * the full number of highlights, each near the 280-character limit, plus the title and description,
+ * would otherwise be cut off mid-JSON for larger limits, and a truncated response can never pass
+ * validation however many times it is retried. The default limit keeps the original 1024 budget.
+ */
+const getDefaultMaxOutputTokens = (maxHighlights: number): number =>
+  Math.max(DEFAULT_MAX_OUTPUT_TOKENS, 256 + maxHighlights * 128)
 
 /**
  * How many times to ask the provider for a note before giving up. The output
@@ -34,14 +48,26 @@ export type GenerateReleaseNoteOptions = {
   prompts?: PromptOptions
   dependencyChangelogs?: readonly DependencyChangelog[]
   pullRequests?: ReadonlyMap<number, PullRequestSummary>
+  /**
+   * The most highlights the generated note may carry, from 1 to 20. Defaults to 5. Enforced by the
+   * response schema and stated in the default system prompt.
+   */
+  maxHighlights?: number
+  /** Output token budget for each provider call. Defaults to a budget sized for `maxHighlights`. */
   maxOutputTokens?: number
   signal?: AbortSignal
 }
 
+/**
+ * Build the system prompt the generator uses when no custom prompt is configured. A custom prompt
+ * that builds on this one should forward the `maxHighlights` it receives in its context, so the
+ * limit the model is told matches the limit its response is validated against.
+ */
 export const buildDefaultSystemPrompt = (
   product: ProductPromptContext,
-  options: { includePullRequestContext?: boolean } = {},
+  options: { includePullRequestContext?: boolean; maxHighlights?: number } = {},
 ): string => {
+  const maxHighlights = options.maxHighlights ?? DEFAULT_MAX_HIGHLIGHTS
   const inputs = [
     'Inputs:',
     '- The CHANGELOG section is the source of truth for what changed in the released package.',
@@ -70,11 +96,11 @@ export const buildDefaultSystemPrompt = (
     '',
     'Output format:',
     '- You MUST respond with a single JSON object and nothing else. No markdown fences, no commentary.',
-    '- Keys only: version, title, description (optional), highlights (optional array, max 5). No other keys.',
+    `- Keys only: version, title, description (optional), highlights (optional array, max ${maxHighlights}). No other keys.`,
     '- version must match the package version from the user message (semver string).',
     '- title is one short sentence (max 120 characters).',
     '- description is one paragraph that sets context (max 500 characters). Omit it when there is only one thing to say.',
-    '- highlights are single-sentence bullet points (at most 5, each max 280 characters). Keep each one short and split a long highlight into two rather than letting it run over. Omit the array when there are fewer than two interesting changes.',
+    `- highlights are single-sentence bullet points (at most ${maxHighlights}, each max 280 characters). Keep each one short and split a long highlight into two rather than letting it run over. Omit the array when there are fewer than two interesting changes.`,
   ].join('\n')
 }
 
@@ -82,12 +108,14 @@ export const buildSystemPrompt = (options: {
   product: ProductPromptContext
   prompts?: PromptOptions
   includePullRequestContext?: boolean
+  maxHighlights?: number
 }): string => {
   const includePullRequestContext = options.includePullRequestContext !== false
+  const maxHighlights = options.maxHighlights ?? DEFAULT_MAX_HIGHLIGHTS
 
   return (
-    options.prompts?.systemPrompt?.({ product: options.product, includePullRequestContext }) ??
-    buildDefaultSystemPrompt(options.product, { includePullRequestContext })
+    options.prompts?.systemPrompt?.({ product: options.product, includePullRequestContext, maxHighlights }) ??
+    buildDefaultSystemPrompt(options.product, { includePullRequestContext, maxHighlights })
   )
 }
 
@@ -157,6 +185,8 @@ export const buildUserPrompt = (
   return sections.join('\n')
 }
 
+type AiReleaseNoteSchema = ReturnType<typeof createAiReleaseNoteSchema>
+
 const parseProviderJson = (payload: unknown): unknown => {
   if (typeof payload === 'string') {
     const text = payload.trim()
@@ -181,8 +211,9 @@ const parseProviderJson = (payload: unknown): unknown => {
  */
 const validateProviderResponse = (
   raw: unknown,
+  schema: AiReleaseNoteSchema,
 ):
-  | { ok: true; data: ReturnType<typeof aiReleaseNoteSchema.parse> }
+  | { ok: true; data: ReturnType<AiReleaseNoteSchema['parse']> }
   | { ok: false; feedback: string; fatalError: Error } => {
   let parsed: unknown
   try {
@@ -205,7 +236,7 @@ const validateProviderResponse = (
     }
   }
 
-  const aiResult = aiReleaseNoteSchema.safeParse(parsed)
+  const aiResult = schema.safeParse(parsed)
   if (!aiResult.success) {
     return {
       ok: false,
@@ -233,8 +264,16 @@ export const generateReleaseNote = async (options: GenerateReleaseNoteOptions): 
     displayName: options.packageName,
     description: options.prompts?.productDescriptionFallback ?? 'an open-source package',
   }
+  const maxHighlights = options.maxHighlights ?? DEFAULT_MAX_HIGHLIGHTS
+  // Built before any provider call, so an out-of-range limit fails fast instead of after a paid request.
+  const schema = createAiReleaseNoteSchema(maxHighlights)
   const includePullRequestContext = (options.pullRequests?.size ?? 0) > 0
-  const systemPrompt = buildSystemPrompt({ product, prompts: options.prompts, includePullRequestContext })
+  const systemPrompt = buildSystemPrompt({
+    product,
+    prompts: options.prompts,
+    includePullRequestContext,
+    maxHighlights,
+  })
   const baseUserPrompt = buildUserPrompt(options)
 
   let userPrompt = baseUserPrompt
@@ -244,12 +283,12 @@ export const generateReleaseNote = async (options: GenerateReleaseNoteOptions): 
       model: options.model ?? options.provider.defaultModel,
       systemPrompt,
       userPrompt,
-      schema: aiReleaseNoteSchema,
-      maxOutputTokens: options.maxOutputTokens ?? DEFAULT_MAX_OUTPUT_TOKENS,
+      schema,
+      maxOutputTokens: options.maxOutputTokens ?? getDefaultMaxOutputTokens(maxHighlights),
       signal: options.signal,
     })
 
-    const result = validateProviderResponse(raw)
+    const result = validateProviderResponse(raw, schema)
     if (result.ok) {
       return buildReleaseNoteFromAiOutput(result.data, {
         version: options.version,

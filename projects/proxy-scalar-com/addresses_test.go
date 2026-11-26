@@ -21,7 +21,7 @@ func TestLocalNAT64Addresses(t *testing.T) {
 			}
 			proxy := NewProxyServer(false)
 			remote := "http://" + net.JoinHostPort(address, "80")
-			if _, errors := proxy.validateScalarURL(remote); len(errors) == 0 {
+			if _, errors := proxy.validateScalarURL(context.Background(), remote); len(errors) == 0 {
 				t.Error("URL validation accepted local translation address")
 			}
 			if _, err := proxy.transport.DialContext(context.Background(), "tcp", net.JoinHostPort(address, "80")); err == nil || !strings.Contains(err.Error(), "blocked") {

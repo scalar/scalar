@@ -113,19 +113,19 @@ const alphanumeric = (length: number): string =>
   Array.from({ length }, () => alphanumericChars[Math.floor(Math.random() * alphanumericChars.length)]).join('')
 
 /** Generate a future ISO timestamp (1–365 days from now). */
-const futureDate = (): string => {
+const futureDate: () => string = () => {
   const ms = Date.now() + randInt(1, 365) * 86_400_000
   return new Date(ms).toISOString()
 }
 
 /** Generate a past ISO timestamp (1–365 days ago). */
-const pastDate = (): string => {
+const pastDate: () => string = () => {
   const ms = Date.now() - randInt(1, 365) * 86_400_000
   return new Date(ms).toISOString()
 }
 
 /** Generate a recent ISO timestamp (1–3 days ago). */
-const recentDate = (): string => {
+const recentDate: () => string = () => {
   const ms = Date.now() - randInt(1, 3) * 86_400_000
   return new Date(ms).toISOString()
 }

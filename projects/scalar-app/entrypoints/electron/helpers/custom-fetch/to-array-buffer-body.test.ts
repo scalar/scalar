@@ -1,3 +1,5 @@
+import { Buffer } from 'node:buffer'
+
 import { describe, expect, it } from 'vitest'
 
 import { toArrayBufferBody } from './to-array-buffer-body'
@@ -56,6 +58,7 @@ describe('to-array-buffer-body', () => {
     }
     const buffer = bytes.buffer as ArrayBuffer
     const result = await toArrayBufferBody(buffer)
-    expect(new Uint8Array(result!)).toEqual(bytes)
+    // Compare every byte natively to avoid a slow deep equality walk on CI.
+    expect(Buffer.compare(Buffer.from(result!), Buffer.from(bytes))).toBe(0)
   })
 })

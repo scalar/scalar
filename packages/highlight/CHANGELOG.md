@@ -1,5 +1,55 @@
 # @scalar/highlight
 
+## 0.9.0
+
+### Minor Changes
+
+- [#11162](https://github.com/scalar/scalar/pull/11162): Add a generic `log` grammar for human-readable logs, including common timestamps, severity headers, context prefixes, strings, URLs, and exception stack frames.
+
+  Show the Log language label in ScalarCodeBlock and include it in the copy button’s accessible name.
+
+## 0.8.1
+
+### Patch Changes
+
+- [#11158](https://github.com/scalar/scalar/pull/11158): Highlight a curl request body as JSON, keep curl values intact across `'\''`, and mark a line-ending backslash as punctuation in curl and Bash. Curl flags are now plain text with no class of their own, so `true`, `false` and `null` in a body keep their colour.
+
+  Support JSON bodies attached to long options with `=`, including across shell line continuations. Keep bracketed plain text and form fields as strings, and preserve escaped apostrophes in the surrounding JSON key or value scope.
+
+  Highlight valid JSON after grouped short options such as `-sd`, keep closed malformed bodies as strings, and leave numeric and dotted options unscoped. Keep grouped switches plain before options that take a value, respect shell argument boundaries around JSON bodies, and mark continuations inside double quotes as punctuation.
+
+## 0.8.0
+
+### Minor Changes
+
+- [#11126](https://github.com/scalar/scalar/pull/11126): Give syntax highlighting a fuller palette
+
+  Parameters, object members, type names and punctuation now have their own colors, plain code is easier to read, and the colors are adjusted so they stay readable and distinct in light and dark mode. They still come from the active theme's hues.
+
+  The colors live in `@scalar/themes` as `--scalar-code-*` variables named by role (`--scalar-code-keyword`, `--scalar-code-string`, `--scalar-code-parameter` and so on), so a theme or custom stylesheet can set its own syntax colors. The Moon theme sets darker and lighter values to stay readable on its tinted backgrounds.
+
+### Patch Changes
+
+- [#11154](https://github.com/scalar/scalar/pull/11154): Color operators like punctuation in syntax highlighting
+
+  Operators such as `=`, `->` and `::` now get an `hljs-operator` class and use the same quieter color as brackets and commas, so `client.planets()` and `Client::new()` read consistently. If you pair `@scalar/highlight/compat` with your own highlight.js theme, its `.hljs-operator` rules now apply too.
+
+## 0.7.0
+
+### Minor Changes
+
+- [#11124](https://github.com/scalar/scalar/pull/11124): Ship the `hljs-*` stylesheet as `@scalar/highlight/compat/code.css`
+
+  This is the `code.css` that `@scalar/code-highlight` ships, unchanged, moved next to the compat layer whose classes it styles. Import `@scalar/highlight/compat/code.css` instead of `@scalar/code-highlight/css/code.css`.
+
+  Scalar's own packages no longer use `@scalar/code-highlight`. Its code half has a replacement in `@scalar/highlight/compat` and its Markdown half in `@scalar/markdown`.
+
+## 0.6.1
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
 ## 0.6.0
 
 ### Minor Changes

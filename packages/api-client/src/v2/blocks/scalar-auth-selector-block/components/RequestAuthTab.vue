@@ -29,7 +29,7 @@ import type {
   SecurityRequirementObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { capitalize, computed, ref } from 'vue'
+import { capitalize, computed, onMounted, ref } from 'vue'
 
 import { refreshOauth2Token } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import { getVisibleOrderedFlowKeys } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth-flows'
@@ -308,6 +308,14 @@ const oauth2Scheme = computed(() =>
 const acquisitionLoader = useLoadingState()
 const { toast } = useToasts()
 const configModal = useModal()
+/**
+ * The modal sits between table rows, where the HTML parser does not accept its closed-state
+ * placeholder, so it only renders in the browser once the server markup has been hydrated.
+ */
+const isMounted = ref(false)
+onMounted(() => {
+  isMounted.value = true
+})
 /** Bearer scheme that opened the config modal, so its Authorize callback targets it. */
 const configBearerName = ref<string | undefined>()
 
@@ -458,46 +466,49 @@ const handleConfigAuthorize = (): void => {
           Authorize stays rightmost so it never moves: Refresh only appears once there is a token,
           and it slots in between the gear and Authorize instead of pushing Authorize aside.
         -->
-        <div class="flex h-8 items-center gap-2 border-t pr-1 pl-3 text-base">
-          <span class="text-c-1 mr-auto">{{
-            translate('apiClient.requestAuthTab.getAToken')
-          }}</span>
-          <ScalarIconButton
-            class="h-6 w-6 p-1.25"
-            :icon="ScalarIconGear"
-            :label="
-              translate('apiClient.requestAuthTab.configure', {
-                name: oauth2Target.name,
-              })
-            "
-            @click="openAcquisitionConfig(name)" />
-          <ScalarButton
-            v-if="
-              scheme['x-scalar-secret-token'] &&
-              oauth2Target.flowType === 'authorizationCode'
-            "
-            class="px-3 py-1"
-            :disabled="acquisitionLoader.isLoading"
-            size="sm"
-            type="button"
-            variant="outlined"
-            @click="handleAcquisitionRefresh(name)">
-            {{ translate('apiClient.requestAuthTab.refresh') }}
-          </ScalarButton>
-          <ScalarButton
-            class="text-c-1 px-3 py-1"
-            :loader="acquisitionLoader"
-            size="sm"
-            type="button"
-            variant="gradient"
-            @click="handleAcquisitionAuthorize(name)">
-            {{
-              translate('apiClient.requestAuthTab.authorizeVia', {
-                name: oauth2Target.name,
-              })
-            }}
-          </ScalarButton>
-        </div>
+        <!-- A table row only holds cells: the HTML parser moves anything else out of the table. -->
+        <td class="contents">
+          <div class="flex h-8 items-center gap-2 border-t pr-1 pl-3 text-base">
+            <span class="text-c-1 mr-auto">{{
+              translate('apiClient.requestAuthTab.getAToken')
+            }}</span>
+            <ScalarIconButton
+              class="h-6 w-6 p-1.25"
+              :icon="ScalarIconGear"
+              :label="
+                translate('apiClient.requestAuthTab.configure', {
+                  name: oauth2Target.name,
+                })
+              "
+              @click="openAcquisitionConfig(name)" />
+            <ScalarButton
+              v-if="
+                scheme['x-scalar-secret-token'] &&
+                oauth2Target.flowType === 'authorizationCode'
+              "
+              class="px-3 py-1"
+              :disabled="acquisitionLoader.isLoading"
+              size="sm"
+              type="button"
+              variant="outlined"
+              @click="handleAcquisitionRefresh(name)">
+              {{ translate('apiClient.requestAuthTab.refresh') }}
+            </ScalarButton>
+            <ScalarButton
+              class="text-c-1 px-3 py-1"
+              :loader="acquisitionLoader"
+              size="sm"
+              type="button"
+              variant="gradient"
+              @click="handleAcquisitionAuthorize(name)">
+              {{
+                translate('apiClient.requestAuthTab.authorizeVia', {
+                  name: oauth2Target.name,
+                })
+              }}
+            </ScalarButton>
+          </div>
+        </td>
       </DataTableRow>
 
       <!-- HTTP Basic Authentication -->
@@ -630,18 +641,20 @@ const handleConfigAuthorize = (): void => {
 
       <!-- Flow selector tabs: shown when multiple visible flows are available -->
       <DataTableRow v-if="visibleFlowKeys.length > 1">
-        <div class="flex min-h-8 border-t text-base">
-          <div class="flex h-8 max-w-full gap-2.5 overflow-x-auto px-3">
-            <button
-              v-for="(key, ind) in visibleFlowKeys"
-              :key="key"
-              :class="getFlowTabClasses(key, ind)"
-              type="button"
-              @click="setActiveFlow(key)">
-              <span class="relative z-10">{{ key }}</span>
-            </button>
+        <td class="contents">
+          <div class="flex min-h-8 border-t text-base">
+            <div class="flex h-8 max-w-full gap-2.5 overflow-x-auto px-3">
+              <button
+                v-for="(key, ind) in visibleFlowKeys"
+                :key="key"
+                :class="getFlowTabClasses(key, ind)"
+                type="button"
+                @click="setActiveFlow(key)">
+                <span class="relative z-10">{{ key }}</span>
+              </button>
+            </div>
           </div>
-        </div>
+        </td>
       </DataTableRow>
 
       <!-- OAuth2 flow configuration -->
@@ -666,8 +679,12 @@ const handleConfigAuthorize = (): void => {
       </template>
     </template>
 
+    <!--
+      The hints below are rows with a cell of their own: the HTML parser moves anything else out of
+      the table. `contents` keeps the row and the cell out of the layout.
+    -->
     <!-- Browser WebSocket connections cannot apply these broker credentials. -->
-    <div
+    <tr
       v-else-if="
         scheme?.type === 'userPassword' ||
         scheme?.type === 'plain' ||
@@ -678,43 +695,63 @@ const handleConfigAuthorize = (): void => {
         scheme?.type === 'asymmetricEncryption' ||
         scheme?.type === 'gssapi'
       "
-      class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
-      {{ translate('apiClient.requestAuthTab.unsupportedCredentials') }}
-    </div>
+      class="contents">
+      <td class="contents">
+        <div
+          class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
+          {{ translate('apiClient.requestAuthTab.unsupportedCredentials') }}
+        </div>
+      </td>
+    </tr>
 
     <!-- Mutual TLS credentials are chosen during the browser-managed TLS handshake. -->
-    <div
+    <tr
       v-else-if="scheme?.type === 'mutualTLS'"
-      class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
-      {{ translate('apiClient.requestAuthTab.mutualTlsHint') }}
-    </div>
+      class="contents">
+      <td class="contents">
+        <div
+          class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
+          {{ translate('apiClient.requestAuthTab.mutualTlsHint') }}
+        </div>
+      </td>
+    </tr>
 
     <!-- Scheme has a type we do not render inputs for -->
-    <div
+    <tr
       v-else-if="getUnsupportedSchemeType(scheme)"
-      class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
-      {{
-        translate('apiClient.requestAuthTab.unsupportedType', {
-          type: getUnsupportedSchemeType(scheme) ?? '',
-        })
-      }}
-    </div>
+      class="contents">
+      <td class="contents">
+        <div
+          class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
+          {{
+            translate('apiClient.requestAuthTab.unsupportedType', {
+              type: getUnsupportedSchemeType(scheme) ?? '',
+            })
+          }}
+        </div>
+      </td>
+    </tr>
 
     <!-- Scheme is missing type -->
-    <div
+    <tr
       v-else
-      class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
-      {{
-        translate('apiClient.requestAuthTab.missingType', {
-          type: documentTypeLabel,
-        })
-      }}
-    </div>
+      class="contents">
+      <td class="contents">
+        <div
+          class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
+          {{
+            translate('apiClient.requestAuthTab.missingType', {
+              type: documentTypeLabel,
+            })
+          }}
+        </div>
+      </td>
+    </tr>
   </template>
 
   <!-- OAuth2 configuration modal (opened from the bearer scheme's gear) -->
   <ScalarModal
-    v-if="oauth2Target && oauth2Scheme"
+    v-if="isMounted && oauth2Target && oauth2Scheme"
     size="sm"
     :state="configModal"
     :title="

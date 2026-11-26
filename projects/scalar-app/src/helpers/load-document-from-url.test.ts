@@ -1,5 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, assert, describe, expect, it, vi } from 'vitest'
 
 import { loadDocumentFromSource as commandImport } from '@/features/command-palette/helpers/load-document-from-source'
 import { loadDocumentFromSource as listenerImport } from '@/features/import-listener/helpers/load-document-from-source'
@@ -51,18 +51,50 @@ describe('load-document-from-url', () => {
     expect(store.workspace.documents.api?.['x-scalar-watch-mode']).toBe(false)
   })
 
-  it('imports extensionless JSON and YAML endpoints', async () => {
-    for (const content of [
-      JSON.stringify(document),
-      'openapi: 3.1.0\ninfo:\n  title: Local Hono API\n  version: 1.0.0\npaths: {}',
-    ]) {
-      const fetch = vi.fn<typeof globalThis.fetch>(async () => new Response(content))
-      const store = createWorkspaceStore({ fetch })
+  it.each([
+    { format: 'JSON', content: JSON.stringify(document) },
+    { format: 'YAML', content: 'openapi: 3.1.0\ninfo:\n  title: Local Hono API\n  version: 1.0.0\npaths: {}' },
+  ])('downloads extensionless $format once and fetches fresh content on refresh', async ({ content }) => {
+    const fetch = vi.fn<typeof globalThis.fetch>(async () => new Response(content))
+    const store = createWorkspaceStore({ fetch })
+    const url = `${origin}/document`
 
-      expect(await loadDocumentFromUrl(store, `${origin}/document`, 'api', true, fetch)).toBe(true)
-      expect(store.workspace.documents.api?.info.title).toBe('Local Hono API')
-      expect(store.workspace.documents.api?.['x-scalar-original-source-url']).toBe(`${origin}/document`)
-    }
+    expect(await loadDocumentFromUrl(store, url, 'api', true, fetch)).toBe(true)
+    expect(store.workspace.documents.api?.info.title).toBe('Local Hono API')
+    expect(store.workspace.documents.api?.['x-scalar-original-source-url']).toBe(url)
+    expect(store.workspace.documents.api?.['x-scalar-watch-mode']).toBe(true)
+    expect(fetch.mock.calls.map(([input]) => input)).toStrictEqual([url])
+
+    // Reusing the response preserves the original bytes used to detect unchanged documents.
+    expect(await store.rebaseDocument({ name: 'api', url, fetch })).toStrictEqual({
+      ok: false,
+      type: 'NO_CHANGES_DETECTED',
+      message: "No changes detected for document 'api': document hash matches the active document",
+    })
+    expect(fetch.mock.calls.map(([input]) => input)).toStrictEqual([url, url])
+
+    fetch.mockImplementation(async () =>
+      Response.json({ ...document, info: { ...document.info, title: 'Updated API' } }),
+    )
+    const refreshed = await store.rebaseDocument({ name: 'api', url, fetch })
+    assert(refreshed.ok)
+    expect(refreshed.conflicts).toStrictEqual([])
+    await refreshed.applyChanges({ resolvedConflicts: [] })
+    expect(store.workspace.documents.api?.info.title).toBe('Updated API')
+    expect(fetch.mock.calls.map(([input]) => input)).toStrictEqual([url, url, url])
+  })
+
+  it('reuses the proxied discovery response for an extensionless document', async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>(async () => Response.json(document))
+    vi.spyOn(globalThis, 'fetch').mockImplementation(fetch)
+    const store = createWorkspaceStore({ meta: { 'x-scalar-active-proxy': 'https://proxy.example.com' } })
+
+    expect(await loadDocumentFromUrl(store, 'https://api.example.com/document', 'api', false)).toBe(true)
+    expect(fetch.mock.calls.map(([input]) => input)).toStrictEqual([
+      'https://proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fdocument',
+    ])
+    expect(store.workspace.documents.api?.['x-scalar-original-source-url']).toBe('https://api.example.com/document')
+    expect(store.workspace.documents.api?.['x-scalar-watch-mode']).toBe(false)
   })
 
   it('imports an embedded document without enabling URL watch mode', async () => {

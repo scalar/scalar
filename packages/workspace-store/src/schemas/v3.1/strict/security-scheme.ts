@@ -3,6 +3,11 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { type XDefaultScopes, XDefaultScopesSchema } from '@/schemas/extensions/security/x-default-scopes'
+import {
+  type XScalarCredentialPlaceholders,
+  XScalarCredentialPlaceholdersSchema,
+} from '@/schemas/extensions/security/x-scalar-credential-placeholders'
+import { type XScalarTokenPrefix, XScalarTokenPrefixSchema } from '@/schemas/extensions/security/x-scalar-token-prefix'
 import type { OAuthFlowsObject } from '@/schemas/v3.1/strict/oauthflows'
 import { OAuthFlowsObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
@@ -14,15 +19,18 @@ const DescriptionSchema = compose(
     description: Type.Optional(Type.String()),
   }),
   XScalarIgnoreSchema,
+  XScalarCredentialPlaceholdersSchema,
 )
 
 type Description = {
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description?: string
-} & XScalarIgnore
+} & XScalarIgnore &
+  XScalarCredentialPlaceholders
 
 const ApiKeySchema = compose(
   DescriptionSchema,
+  XScalarTokenPrefixSchema,
   Type.Object({
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
     type: Type.Literal('apiKey'),
@@ -33,14 +41,15 @@ const ApiKeySchema = compose(
   }),
 )
 
-export type ApiKeyObject = Description & {
-  /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
-  type: 'apiKey'
-  /** REQUIRED. The name of the header, query or cookie parameter to be used. */
-  name: string
-  /** REQUIRED. The location of the API key. Valid values are "query", "header", or "cookie". */
-  in: 'query' | 'header' | 'cookie'
-}
+export type ApiKeyObject = Description &
+  XScalarTokenPrefix & {
+    /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
+    type: 'apiKey'
+    /** REQUIRED. The name of the header, query or cookie parameter to be used. */
+    name: string
+    /** REQUIRED. The location of the API key. Valid values are "query", "header", or "cookie". */
+    in: 'query' | 'header' | 'cookie'
+  }
 
 const HttpSchema = compose(
   DescriptionSchema,

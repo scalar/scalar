@@ -1,0 +1,238 @@
+import Preview from './Preview.mdx'
+
+# Fields
+
+Fields document a single parameter, property, or response value as a labelled row: the name as inline code, an optional location badge, a type, flags such as `required` and `deprecated`, and a description underneath.
+
+`<ParamField>` and `<ResponseField>` are Mintlify-compatible spellings of the same component, so content written for Mintlify renders without a rename. For an OpenAPI-backed route, let the [API reference](/products/api-references) render parameters from the API description instead — fields are for hand-written pages.
+
+## Properties
+
+### Field
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `name` | `string` | _required_ | The field's name, rendered as inline code. |
+| `type` | `string` | — | The field's type, shown after the name. |
+| `location` | `string` | — | Where the parameter lives, such as `path` or `query`. Rendered in lowercase. |
+| `required` | `boolean` | `false` | Adds a `required` badge. |
+| `deprecated` | `boolean` | `false` | Adds a `deprecated` badge. |
+| `default` | `string` | — | Rendered as `default: <value>`. In Markdown, see [Defaults in Markdown](#defaults-in-markdown). |
+| `pre` | `string[]` | — | Labels rendered before the name. In Markdown, a comma-separated list. |
+| `post` | `string[]` | — | Labels rendered after the name. In Markdown, a comma-separated list. |
+| `class` | `string` | — | Extra class names on the field's root element. `className` also works in MDX. |
+
+Both booleans go by presence rather than value, so `required` on its own is enough — and `required="false"` still marks the field required. Leave the attribute off instead.
+
+### ParamField
+
+`<ParamField>` accepts everything `<Field>` accepts, plus one prop per parameter location. The prop name is the location and its value is the parameter name, which is how Mintlify writes it.
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `query` | `string` | — | Query parameter name. Sets the location to `query`. |
+| `path` | `string` | — | Path parameter name. Sets the location to `path`. |
+| `body` | `string` | — | Body property name. Sets the location to `body`. |
+| `header` | `string` | — | Header name. Sets the location to `header`. |
+| `placeholder` | `string` | — | Accepted for Mintlify compatibility and ignored. There is no playground input here to configure. |
+
+If more than one location prop is set, the first of `query`, `path`, `body`, `header` wins. An explicit `name` takes precedence over the location prop's value as the displayed name.
+
+### ResponseField
+
+`<ResponseField>` accepts everything `<Field>` accepts. It is the spelling to reach for when documenting a response value, where there is no parameter location to show.
+
+## Examples
+
+### Path Parameter
+
+<Preview>
+  <ParamField path="user_id" type="string" required>
+    The unique identifier of the user.
+  </ParamField>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-field name="user_id" location="path" type="string" required>
+
+The unique identifier of the user.
+
+</scalar-field>
+```
+```mdx MDX
+<ParamField path="user_id" type="string" required>
+  The unique identifier of the user.
+</ParamField>
+```
+</CodeGroup>
+
+### Query Parameter with a Default
+
+<Preview>
+  <ParamField query="limit" type="number" default="25">
+    How many results to return per page, between 1 and 100.
+  </ParamField>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-field name="limit" location="query" type="number" data-default="25">
+
+How many results to return per page, between 1 and 100.
+
+</scalar-field>
+```
+```mdx MDX
+<ParamField query="limit" type="number" default="25">
+  How many results to return per page, between 1 and 100.
+</ParamField>
+```
+</CodeGroup>
+
+The Markdown form writes `data-default` rather than `default`. [Defaults in Markdown](#defaults-in-markdown) explains why.
+
+### Header Parameter
+
+<Preview>
+  <ParamField header="Authorization" type="string" required>
+    Bearer token issued from the dashboard.
+  </ParamField>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-field name="Authorization" location="header" type="string" required>
+
+Bearer token issued from the dashboard.
+
+</scalar-field>
+```
+```mdx MDX
+<ParamField header="Authorization" type="string" required>
+  Bearer token issued from the dashboard.
+</ParamField>
+```
+</CodeGroup>
+
+### Response Field
+
+<Preview>
+  <ResponseField name="created_at" type="timestamp">
+    When the record was created, as an ISO 8601 timestamp.
+  </ResponseField>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-field name="created_at" type="timestamp">
+
+When the record was created, as an ISO 8601 timestamp.
+
+</scalar-field>
+```
+```mdx MDX
+<ResponseField name="created_at" type="timestamp">
+  When the record was created, as an ISO 8601 timestamp.
+</ResponseField>
+```
+</CodeGroup>
+
+### Labels and Deprecation
+
+`pre` and `post` add free-form labels before and after the name. In MDX they take an array or a comma-separated string; in Markdown, a comma-separated string.
+
+<Preview>
+  <ParamField body="mode" type="string" deprecated pre="beta" post="read-only">
+    Rendering mode for the generated page.
+  </ParamField>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-field name="mode" location="body" type="string" deprecated pre="beta" post="read-only">
+
+Rendering mode for the generated page.
+
+</scalar-field>
+```
+```mdx MDX
+<ParamField body="mode" type="string" deprecated pre="beta" post="read-only">
+  Rendering mode for the generated page.
+</ParamField>
+```
+</CodeGroup>
+
+### Stacked Fields
+
+Fields need no wrapper. Write them one after another and they stack.
+
+<Preview>
+  <Field name="first" type="string">
+    The first of two adjacent fields.
+  </Field>
+  <Field name="second" type="string">
+    The second of two adjacent fields.
+  </Field>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-field name="first" type="string">
+
+The first of two adjacent fields.
+
+</scalar-field>
+
+<scalar-field name="second" type="string">
+
+The second of two adjacent fields.
+
+</scalar-field>
+```
+```mdx MDX
+<Field name="first" type="string">
+  The first of two adjacent fields.
+</Field>
+
+<Field name="second" type="string">
+  The second of two adjacent fields.
+</Field>
+```
+</CodeGroup>
+
+## Defaults in Markdown
+
+`default` is a boolean attribute to the HTML parser, so `<scalar-field default="25">` arrives as `true` with the value lost. Rather than render `default: true`, the field drops it. Two spellings keep the real value:
+
+```md Markdown
+<scalar-field name="limit" type="number" data-default="25">
+
+How many results to return.
+
+</scalar-field>
+```
+
+Any attribute accepts a `data-` prefixed fallback, which the HTML parser leaves alone. The [directive form](#directive-syntax) is the other option, and it writes `default` directly.
+
+This only affects raw HTML in `.md` files. In MDX, `default="25"` is a plain prop and works as written.
+
+## Directive Syntax
+
+Markdown pages can also write a field as a container directive, which avoids the `default` problem entirely:
+
+```md Markdown
+:::scalar-field{name=limit type=number default=25 deprecated}
+How many results to return.
+:::
+```
+
+One difference to know about: attribute names that HTML treats as booleans need an explicit value here. `required` on its own is dropped, so write `required=true`:
+
+```md Markdown
+:::scalar-field{name=token type=string required=true}
+The API token.
+:::
+```
+
+Names HTML does not know as booleans, such as `deprecated`, keep presence semantics and work bare — as in the first example above.

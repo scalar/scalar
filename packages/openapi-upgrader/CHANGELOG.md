@@ -1,5 +1,65 @@
 # @scalar/openapi-upgrader
 
+## 0.5.3
+
+No changes in this release.
+
+## 0.5.2
+
+No changes in this release.
+
+## 0.5.1
+
+### Patch Changes
+
+- [#11105](https://github.com/scalar/scalar/pull/11105): Finish migrating legacy `nullable` schema keywords when upgrading OpenAPI 3.0 descriptions, so downstream request validators can compile the upgraded schemas and enforce the rest of the request contract.
+
+## 0.5.0
+
+### Minor Changes
+
+- [#10997](https://github.com/scalar/scalar/pull/10997): Upgrade referenced OpenAPI 2.0 and 3.0 resources before bundling, including bare fragments interpreted in their owning API description's dialect and media types. Preserve authored reference targets when schemas and parameters move, and retain their context through lazy loading, serialization, and export.
+
+  Add JSON Magic resource and target lifecycle hooks and the typed `upgradeFragment` API. Headerless external resources are traversed through referenced subtrees, including when reached from OpenAPI 3.1/3.2 descriptions. Exports retain compact `x-scalar-upgrade` bookkeeping only when lazy external references still need the original dialect, relocation mappings, or media types.
+
+  Resources already stored in an input bundle's `x-ext` keep their existing layout so saved references remain valid. Legacy keywords in those stored resources, including OpenAPI 2.0 schema `x-nullable` and `type: file`, deliberately remain unconverted; newly loaded legacy resources are upgraded.
+
+## 0.4.11
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.4.10
+
+### Patch Changes
+
+- [#10952](https://github.com/scalar/scalar/pull/10952): Fix shared Swagger 2.0 body and form-data parameters being left in parameter arrays instead of request bodies. Preserve operation media types, combine form fields, and inherit path-level bodies regardless of property order.
+
+## 0.4.9
+
+No changes in this release.
+
+## 0.4.8
+
+### Patch Changes
+
+- [#10736](https://github.com/scalar/scalar/pull/10736): Exclude benchmark fixtures from published build output.
+- [#10925](https://github.com/scalar/scalar/pull/10925): Keep `type: file` inside Swagger 2.0 example data when upgrading to OpenAPI 3.0. Continue converting file schemas in reusable responses and parameters named like data keywords. Preserve example and default data on schemas and reusable parameters whose names match schema-map keywords. Continue upgrading response headers whose names match data keywords. Limit Swagger-specific data guards to the 2.0 upgrade so OpenAPI 3.0 request bodies and callbacks named `x-example` still upgrade. Preserve example payloads on reusable objects named `headers`.
+- [#10948](https://github.com/scalar/scalar/pull/10948): Convert Swagger 2.0 discriminator strings to Discriminator Objects so upgrades preserve the discriminating property name.
+
+  Preserve x-ms-discriminator-value and x-discriminator-value aliases from allOf subtypes in discriminator mappings, including inherited subtypes, without replacing authored mappings.
+
+- [#10949](https://github.com/scalar/scalar/pull/10949): Show response header examples, including media type examples and OpenAPI 3.2 cookie examples, with explicit examples taking precedence over schema examples. Preserve this precedence through composed schemas and fall back to media type examples when header examples have no usable values.
+
+  Keep external example URLs visible and preserve line breaks in displayed string examples. Across all schemas, array-level examples take precedence over item examples.
+
+  Preserve `x-example` and `x-examples` on OpenAPI 2.0 response headers during upgrades.
+
+- [#10920](https://github.com/scalar/scalar/pull/10920): Prefer operation-level `produces` over the global `produces` when upgrading Swagger 2.0 response content.
+
+## 0.4.7
+
 ## 0.4.6
 
 ### Patch Changes

@@ -4,12 +4,13 @@ import {
   type SchemaRenderingProps,
 } from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   HeaderObject,
   OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
+
+import { getHeaderSchema } from './helpers/get-header-schema'
 
 const {
   name,
@@ -45,16 +46,7 @@ const {
     hideModelNames?: boolean
   } & SchemaRenderingProps
 >()
-/** Headers may describe their value with either schema or a single media type. */
-const schema = computed(() => {
-  if ('schema' in header && header.schema) {
-    return getResolvedRef(header.schema)
-  }
-  if ('content' in header && header.content) {
-    return getResolvedRef(Object.values(header.content)[0]?.schema)
-  }
-  return undefined
-})
+const schema = computed(() => getHeaderSchema(header))
 </script>
 <template>
   <SchemaProperty

@@ -3,6 +3,7 @@ import { intersection, literal, object, optional, record, string, union } from '
 import {
   XDefaultScopes,
   XScalarAuthUrl,
+  XScalarCredentialPlaceholders,
   XScalarCredentialsLocation,
   XScalarSecurityBody,
   XScalarSecurityQuery,
@@ -10,8 +11,10 @@ import {
   XTokenName,
   XusePkce,
 } from '@/extensions/security'
+import { XScalarTokenPrefix } from '@/extensions/security/x-scalar-token-prefix'
 
 const securitySchemeBase = object({
+  ...XScalarCredentialPlaceholders.properties,
   description: optional(
     string({
       typeComment: 'A description for security scheme. CommonMark syntax MAY be used for rich text representation.',
@@ -22,6 +25,7 @@ const securitySchemeBase = object({
 const apiKeySecurityScheme = object(
   {
     ...securitySchemeBase.properties,
+    ...XScalarTokenPrefix.properties,
     type: literal('apiKey'),
     name: string({ typeComment: 'REQUIRED. The name of the header, query or cookie parameter to be used.' }),
     in: union([literal('query'), literal('header'), literal('cookie')], {

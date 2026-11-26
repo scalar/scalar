@@ -1,11 +1,11 @@
 import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
-import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
+import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { isAllowedOAuthUrl } from '@scalar/helpers/url/is-allowed-oauth-url'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
-import { getServerVariables } from '@scalar/workspace-store/request-example'
+import { resolveServerUrl } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { fromUint8Array } from 'js-base64'
 
@@ -64,11 +64,7 @@ type RefreshableFlows = Exclude<keyof OAuthFlowsObjectSecret, 'implicit'>
 export const getServerUrl = (
   activeServer: ServerObject | null,
   environmentVariables: Record<string, string> = {},
-): string =>
-  replaceEnvVariables(
-    replacePathVariables(activeServer?.url ?? '', getServerVariables(activeServer)),
-    environmentVariables,
-  )
+): string => replaceEnvVariables(resolveServerUrl(activeServer), environmentVariables)
 
 /**
  * Builds the base option used when OAuth URLs are relative to the active server.

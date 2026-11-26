@@ -27,6 +27,7 @@ scalar sdk list [options]
 | --- | --- |
 | `--json` | Output structured SDK metadata as JSON. |
 | `--namespace <namespace>` | Team namespace. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## get
 
@@ -43,6 +44,7 @@ scalar sdk get [options]
 | `-s, --slug <slug>` | **Required.** SDK slug. |
 | `-n, --namespace <namespace>` | Team namespace. |
 | `--json` | Output structured SDK metadata as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## create
 
@@ -56,9 +58,12 @@ scalar sdk create [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |
 | `-a, --api <api>` | Scalar Registry API slug. |
 | `-n, --namespace <namespace>` | Team namespace of the source API. |
 | `-l, --language <language>` | SDK language. One of `typescript`, `python`, `cli`, `csharp`, `java`, `ruby`, `php`, `go`, `rust`, `kotlin`, `swift`, `cpp`, `dart`. |
+| `-c, --config <path>` | Scalar, Stainless, Speakeasy, or Fern SDK config file (JSON or YAML) that sets the SDK languages. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## update
 
@@ -72,10 +77,12 @@ scalar sdk update [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |
 | `-s, --slug <slug>` | SDK slug. |
 | `-n, --namespace <namespace>` | Team namespace. |
 | `--title <title>` | SDK title. |
 | `--isPrivate <isPrivate>` | Access setting (true/private or false/public). One of `true`, `false`, `public`, `private`. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## delete
 
@@ -89,8 +96,10 @@ scalar sdk delete [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |
 | `-s, --slug <slug>` | SDK slug. |
 | `-n, --namespace <namespace>` | Team namespace. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## build
 
@@ -104,5 +113,12 @@ scalar sdk build [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |
 | `-s, --slug <slug>` | SDK slug. |
 | `-n, --namespace <namespace>` | Team namespace. |
+| `--version <version>` | API description version to build (defaults to its latest version). |
+| `--custom-code-ref <ref>` | Branch, tag or commit to merge as custom code (defaults to each language's scalar-next). |
+| `-l, --language <language...>` | Languages to build (defaults to every language the config declares). One of `typescript`, `python`, `cli`, `csharp`, `java`, `ruby`, `php`, `go`, `rust`, `kotlin`, `swift`, `cpp`, `dart`. |
+| `-c, --config <path>` | Scalar, Stainless, Speakeasy, or Fern SDK config file (JSON or YAML) to build instead of the saved config. |
+| `--save` | Save the --config file as the SDK config before building (otherwise it is used for this build only). |
+| `--no-input` | Disable prompts and browser launches. |

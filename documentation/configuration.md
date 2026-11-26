@@ -6,7 +6,6 @@ You can pass a - what we call universal - configuration object to fine-tune your
 >
 > This is NOT the `scalar.config.json` (used for the [Docs](guides/docs/configuration/scalar.config.json.md)).
 
-
 ## Universal Configuration
 
 It is universal, because it works in all environments. You can pass it to the JS API directly, or you can use it in one of our integrations.
@@ -379,6 +378,51 @@ The `authentication` configuration accepts:
   - An array containing strings or arrays of strings (AND/OR relationship)
 - `securitySchemes`: An object mapping security scheme names to their configurations. Each security scheme can be configured with type-specific options.
 - `createAnySecurityScheme`: When `true`, shows generic "Add new authentication" options (API Key, HTTP Basic, OAuth2 flows, etc.) in the auth dropdown alongside the schemes defined in your OpenAPI document. Default: `false`.
+- `allowedSecuritySchemes`: Optional array of scheme names to show in authentication choices and forms. Omit to show all schemes; `[]` hides all choices. When provided, generic authentication creation is hidden. An AND combination is hidden if any member is excluded. This is a visibility setting: it does not change credentials sent with requests, saved selections, or server authorization.
+
+Individual `sources` can override `authentication`. These overrides merge recursively with the shared authentication configuration; document values win and arrays replace shared arrays:
+
+```js
+Scalar.createApiReference('#app', {
+  authentication: {
+    securitySchemes: { Basic: { username: 'demo' } },
+  },
+  sources: [
+    {
+      url: '/public.json',
+      authentication: {
+        preferredSecurityScheme: 'OAuth',
+        allowedSecuritySchemes: ['OAuth'],
+      },
+    },
+    {
+      url: '/internal.json',
+      authentication: {
+        preferredSecurityScheme: 'Basic',
+        allowedSecuritySchemes: ['Basic'],
+      },
+    },
+  ],
+})
+```
+
+Keep the preferred scheme consistent with the allowlist. User selections still take precedence over the configured preferred scheme.
+
+For header API keys, set `x-scalar-token-prefix` to add a prefix without storing it in the credential:
+
+```javascript
+{
+  authentication: {
+    securitySchemes: {
+      tokenAuth: {
+        'x-scalar-token-prefix': 'token',
+      },
+    },
+  },
+}
+```
+
+This overrides the same extension in the API description. Set it to an empty string to disable a document's prefix. Readers enter only the credential; both generated samples and actual requests add the prefix. See [header API-key token prefixes](./openapi.md#header-api-key-token-prefixes).
 
 ### baseServerURL
 
@@ -456,20 +500,37 @@ Whether dark mode is on or off initially (light mode).
 
 ### defaultHttpClient
 
-**Type:** `HttpClientState`
+**Type:** `string | { targetKey: string, clientKey: string }`
 
-By default, we're using Shell/curl as the default HTTP client. Or, if that's disabled (through `hiddenClients`), we're just using the first available HTTP client.
+**Default:** `shell/curl` for built-in clients
 
-**Default:** `{ targetKey: 'shell', clientKey: 'curl' }`
-
-You can explicitly set the default HTTP client, though:
+Set the default HTTP client using its full client ID. The object form, such as `{ targetKey: 'node', clientKey: 'fetch' }`, is also supported.
 
 ```javascript
 {
-  defaultHttpClient: {
-    targetKey: 'node',
-    clientKey: 'undici',
-  }
+  defaultHttpClient: 'node/fetch',
+}
+```
+
+When the configured built-in client is unavailable, Scalar falls back to a custom code sample when present, then to `shell/curl` or the first available built-in client. To select a custom code sample explicitly, use its `custom/` ID.
+
+```javascript
+{
+  defaultHttpClient: 'custom/python',
+}
+```
+
+This selects `custom/python`, matching a Python entry in `x-codeSamples`. The language is lowercased in the ID. Repeated languages use suffixes such as `python/1`. An operation without that sample falls back to its first custom sample, then an available built-in client. An explicit default takes precedence over a previously saved selection.
+
+### showDefaultClientsWithSdkInstallation
+
+Show built-in HTTP clients alongside the SDK tabs from `info.x-scalar-sdk-installation` in the introduction's Client Libraries card. Defaults to `false`, which shows only SDK tabs when installation instructions are available.
+
+SDK tabs appear first, followed by the built-in `featuredClients`. Additional clients remain available in **More**, and `httpClients` and `hiddenClients` still apply. Selecting an SDK tab selects its matching custom operation example; selecting a built-in client selects its generated examples. You do not need to provide custom examples for the built-in clients.
+
+```js
+const configuration = {
+  showDefaultClientsWithSdkInstallation: true,
 }
 ```
 
@@ -479,7 +540,7 @@ You can explicitly set the default HTTP client, though:
 
 The "Client Libraries" block shows a row of featured clients as tabs, the other clients can be found under "More" menu. By default the featured clients are `shell/curl`, `ruby/native`, `node/undici`, `php/guzzle` and `python/python3`.
 
-Pass a list of client ids (`target/client`) to choose which clients are featured and in which order. IDs that do not exist, or that are hidden through `hiddenClients`, are skipped.
+Pass a list of client ids (`target/client`) to choose which clients are featured and in which order. Scalar skips IDs that are unknown or unavailable under `httpClients` and `hiddenClients`.
 
 ```javascript
 {
@@ -514,6 +575,29 @@ Whether to always start with all tags open, regardless of the URL.
   defaultOpenAllTags: true
 }
 ```
+
+### multipartNaming
+
+**Type:** `'indexed-dot'`
+
+Set `multipartNaming: 'indexed-dot'` to use names such as `profile.name` and `certificates[0].name` in the form editor, sent requests, and code samples for `multipart/form-data` and `application/x-www-form-urlencoded` bodies. This supports ASP.NET Core `[FromForm]` model binding for nested objects and arrays. Arrays of files or scalar values use repeated field names. If an indexed collection skips positions, Scalar includes `.index` fields so ASP.NET Core can bind the remaining items.
+
+```js
+Scalar.createApiReference('#app', {
+  url: '/openapi.json',
+  multipartNaming: 'indexed-dot',
+})
+```
+
+Configure the ASP.NET Core integration with its fluent option.
+
+```csharp
+app.MapScalarApiReference(options => options.WithMultipartNaming(ScalarMultipartNaming.IndexedDot));
+```
+
+Spring Boot uses `scalar.multipart-naming=indexed-dot`. FastAPI and Django Ninja expose the option as `multipart_naming="indexed-dot"`. Docker and Rust accept `"multipartNaming": "indexed-dot"` in their JSON configuration.
+
+Omit the option to use OpenAPI multipart encoding. Ordered parts and nested multipart media types follow their declared encoding.
 
 ### defaultRequestBodyView
 
@@ -577,6 +661,8 @@ Show parameter details by default. Set to `false` to start path, query, header, 
 
 The default is `true`. This does not change response or nested schema expansion settings.
 
+Deep-object query parameters with expandable fields start as one collapsed group, regardless of the number of fields. Open the group to see its bracket-named fields. Parameters without expandable fields keep their ordinary presentation. Grouping does not change the API client.
+
 ```js
 Scalar.createApiReference('#app', {
   url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
@@ -597,7 +683,6 @@ By default response sections are closed in the operations. This flag will open t
   expandAllResponses: true
 }
 ```
-
 
 ### maxVisibleRequestBodyProperties
 
@@ -687,7 +772,7 @@ Whether to show the dark mode toggle.
 
 ### showExtensions
 
-Display selected OpenAPI extensions on operations, parameters, response headers, and schema fields without writing a plugin. Disabled by default.
+Display selected OpenAPI extensions on Paths Object and Path Item values within each operation, as well as operations, parameters, response headers, and schema fields without writing a plugin. For AsyncAPI, selected extensions also appear on channels, operations, messages, servers, and replies. Trait extensions follow the existing merge rules, including null deletion. Disabled by default.
 Works in both layouts and the standalone browser build:
 
 ```js
@@ -720,11 +805,27 @@ By default we don't render it in the UI. If it's helpful to show it to your user
 }
 ```
 
+### showBadgesInSidebar
+
+**Type:** `boolean`
+
+Whether to show [`x-badges`](openapi.md#x-badges) in the sidebar, next to the titles of operations, webhooks, tags, tag groups (`x-tagGroups`) and models. Badges with `position: before` show before the title, all other badges after it.
+
+By default, badges only show in the content and the sidebar looks the same as before.
+
+**Default:** `false`
+
+```javascript
+{
+  showBadgesInSidebar: true
+}
+```
+
 ### hideModels
 
 **Type:** `boolean`
 
-Whether models (`components.schemas` or `definitions`) should be shown in the sidebar, search and content.
+Hide schema models (`components.schemas` or `definitions`) from the sidebar, search, and content. For AsyncAPI, this also hides the **Messages** section.
 
 **Default:** `false`
 
@@ -807,6 +908,23 @@ Whether to show the "Test Request" button. When `true`, the authentication panel
   hideTestRequestButton: true
 }
 ```
+
+### httpClients
+
+**Type:** `string[]`
+
+Limit which built-in HTTP clients appear in Client Libraries, its More menu, and operation code sample pickers. Use a full client ID such as `node/undici` to select one client, or a target wildcard such as `shell/*` to include every client for that target.
+
+```javascript
+{
+  httpClients: ['node/fetch', 'node/undici', 'shell/*'],
+  defaultHttpClient: 'node/fetch',
+}
+```
+
+Omit `httpClients` to use the existing client list. Pass `[]` to hide all generated HTTP client examples. Unknown entries are ignored, and `hiddenClients` can further reduce the list. Use `featuredClients` to choose the tabs and their order among the available clients. Custom code samples and SDK installation tabs remain available.
+
+In FastAPI and Django Ninja, use `http_clients=["node/fetch", "shell/*"]` and `default_http_client="node/fetch"`. In .NET, use `.WithHttpClients("node/fetch", "shell/*").WithDefaultHttpClient("node/fetch")`. In Spring Boot, set `scalar.http-clients` to a list and set `scalar.default-http-client=node/fetch` for a built-in default. The Java default client model uses the integration's built-in target and client enums.
 
 ### hiddenClients
 
@@ -1059,6 +1177,31 @@ Configuration for path-based routing instead of hash-based routing. Your server 
 }
 ```
 
+### persistSelectedClient
+
+**Type:** `boolean`
+
+**Default:** `true`
+
+Save and restore the selected code sample client using local storage. Set this to `false` to prevent reads and writes to `scalar-reference-selected-client-v2`, including when `defaultHttpClient` is configured. Client selection still works for the current page, and existing stored values are left untouched. Authentication persistence is controlled separately by `persistAuth`.
+
+```javascript
+{
+  persistSelectedClient: false
+}
+```
+
+The same option is available through the integrations:
+
+| Integration                                              | Disable selected client persistence                                                     |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| JavaScript and TypeScript integrations, including React  | `persistSelectedClient: false` in the API Reference configuration                       |
+| .NET (ASP.NET Core, Aspire, AWS Lambda, Azure Functions) | `options.DisableSelectedClientPersistence()` or `options.PersistSelectedClient = false` |
+| Java (Spring MVC and WebFlux)                            | `scalar.persistSelectedClient=false`                                                    |
+| FastAPI and Django Ninja                                 | `persist_selected_client=False`                                                         |
+| Rust                                                     | `"persistSelectedClient": false` in the JSON configuration                              |
+| Docker                                                   | `"persistSelectedClient": false` inside `API_REFERENCE_CONFIG`                          |
+
 ### persistAuth
 
 **Type:** `boolean`
@@ -1239,7 +1382,9 @@ Whether and when to show the developer tools. By default only shows on `localhos
 
 **Default:** `'localhost'`
 
-To hide the toolbar, SDK generation buttons, and local sidebar promotion, set:
+When a development server on your own machine serves the reference (`localhost`, `*.localhost` or a loopback address such as `127.0.0.1`, `[::1]` or `0.0.0.0`, on a port such as `:3000`), it also invites you to the API Hosting beta once, in a popup that opens shortly after a load in which you have not started reading yet (with several API descriptions, once all of them have loaded). It does not come back after that, in any project on the same host. It never appears anywhere else, including `.test` domains, other machines on your network and apps that ship the reference in a web view.
+
+To hide the toolbar, SDK generation buttons, local sidebar promotion, and the API Hosting beta invitation, set:
 
 ```javascript
 {
@@ -1279,15 +1424,11 @@ Pass the URL of an API document (JSON or YAML).
 
 **Type:** `boolean`
 
-By default we're using Inter and JetBrains Mono, served from our fonts CDN at `https://fonts.scalar.com`. If you use a different font or just don't want to load web fonts, pass `withDefaultFonts: false` to the configuration.
+**Deprecated.** Scalar uses the system font stack and no longer loads web fonts, so this option has no effect. It is still accepted, so existing configurations keep working.
+
+To use a different font, load it yourself and overwrite the `--scalar-font` and `--scalar-font-code` CSS variables, as described in [Themes](themes.md).
 
 **Default:** `true`
-
-```javascript
-{
-  withDefaultFonts: false
-}
-```
 
 ## Methods
 Custom functions to control specific behaviors and URL generation.

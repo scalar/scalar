@@ -8,6 +8,12 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { type SecuritySchemeObject, SecuritySchemeObjectSchema } from './openapi-document'
 
 describe('security-scheme', () => {
+  it('preserves the header API-key token prefix during coercion', () => {
+    const scheme = { type: 'apiKey', in: 'header', name: 'Authorization', 'x-scalar-token-prefix': 'token' }
+    expect(coerceValue(SecuritySchemeObjectSchema, scheme)).toStrictEqual(scheme)
+    expect(Value.Check(SecuritySchemeObjectSchema, { ...scheme, 'x-scalar-token-prefix': 123 })).toBe(false)
+  })
+
   describe('strict type checking', () => {
     it('performs deep type checking on all schemas', () => {
       type SchemaType = RequiredDeep<Static<typeof SecuritySchemeObjectSchema>>

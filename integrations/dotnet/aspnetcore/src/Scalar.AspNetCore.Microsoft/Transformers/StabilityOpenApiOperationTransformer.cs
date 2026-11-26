@@ -13,12 +13,8 @@ internal sealed class StabilityOpenApiOperationTransformer : IOpenApiOperationTr
         }
 
         operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
-#if NET10_0_OR_GREATER
         var node = SerializeToNode(stabilityAttribute.Stability);
         operation.Extensions.TryAdd(ScalarStability, new JsonNodeExtension(node));
-#elif NET9_0
-        operation.Extensions.TryAdd(ScalarStability, new OpenApiString(stabilityAttribute.Stability.ToStringFast(true)));
-#endif
 
         return Task.CompletedTask;
     }

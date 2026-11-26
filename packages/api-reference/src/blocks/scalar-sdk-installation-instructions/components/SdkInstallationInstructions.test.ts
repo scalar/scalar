@@ -1,14 +1,217 @@
+import { type CustomClientOptionGroup, generateClientOptions } from '@scalar/blocks/code-example'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { DOMWrapper, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import SdkInstallationInstructions from './SdkInstallationInstructions.vue'
 
 describe('SdkInstallationInstructions', () => {
+  afterEach(() => vi.restoreAllMocks())
+
   const stubs = {
     ScalarMarkdown: true,
     ScalarIcon: true,
   }
+
+  it('combines SDK tabs with featured clients and broadcasts both selections', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('workspace:update:selected-client', listener)
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        eventBus,
+        selectedClient: 'custom/php',
+        clientOptions: generateClientOptions(['shell/curl', 'node/undici', 'python/requests']),
+        featuredClients: ['shell/curl', 'node/undici'],
+        xScalarSdkInstallation: [{ lang: 'php', label: 'PHP SDK', description: 'Install the PHP SDK' }],
+      },
+    })
+    expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(['PHP SDK', 'Shell', 'Node.js'])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install the PHP SDK')
+    expect(
+      (wrapper.getComponent({ name: 'ScalarCombobox' }).props('options') as CustomClientOptionGroup[]).map((group) => ({
+        label: group.label,
+        ids: group.options.map((option) => option.id),
+      })),
+    ).toStrictEqual([{ label: 'Python', ids: ['python/requests'] }])
+    await wrapper.findAll('[role="tab"]')[1]?.trigger('click')
+    expect(listener.mock.calls).toStrictEqual([['shell/curl']])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Shell Curl')
+    await wrapper.setProps({ selectedClient: 'node/undici' })
+    expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toBe('Node.js')
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Node.js undici')
+    await wrapper.findAll('[role="tab"]')[0]?.trigger('click')
+    expect(listener.mock.calls).toStrictEqual([['shell/curl'], ['custom/php']])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install the PHP SDK')
+    wrapper.unmount()
+  })
+
+  it('keeps non-featured clients in More and follows external selections', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('workspace:update:selected-client', listener)
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        eventBus,
+        selectedClient: 'python/requests',
+        clientOptions: generateClientOptions(),
+        featuredClients: [],
+        xScalarSdkInstallation: [{ lang: 'php', description: 'Install PHP' }],
+      },
+    })
+    expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(['php'])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Python Requests')
+    expect(wrapper.findAll('[role="tab"][aria-selected="true"]').length).toBe(0)
+    const combobox = wrapper.getComponent({ name: 'ScalarCombobox' })
+    const option = (combobox.props('options') as CustomClientOptionGroup[])
+      .flatMap((group) => group.options)
+      .find((entry) => entry.id === 'shell/curl')
+    expect(option?.id).toBe('shell/curl')
+    await combobox.vm.$emit('update:modelValue', option)
+    expect(listener.mock.calls).toStrictEqual([['shell/curl']])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Shell Curl')
+    await wrapper.setProps({ selectedClient: 'custom/php' })
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install PHP')
+    wrapper.unmount()
+  })
+
+  it('keeps SDK tabs keyboard-reachable after selecting a client from More', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('workspace:update:selected-client', listener)
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        eventBus,
+        clientOptions: generateClientOptions(),
+        featuredClients: ['shell/curl'],
+        xScalarSdkInstallation: [{ lang: 'php', description: 'Install PHP' }],
+      },
+    })
+    const combobox = wrapper.getComponent({ name: 'ScalarCombobox' })
+    const option = (combobox.props('options') as CustomClientOptionGroup[])
+      .flatMap((group) => group.options)
+      .find((entry) => entry.id === 'python/requests')
+    expect(option?.id).toBe('python/requests')
+    await combobox.vm.$emit('update:modelValue', option)
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Python Requests')
+    const tabStop = wrapper.get('[role="tab"][tabindex="0"]')
+    expect(tabStop.text()).toBe('php')
+    expect(tabStop.attributes('aria-selected')).toBe('false')
+    await tabStop.trigger('keydown', { key: 'Home' })
+    expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toBe('php')
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install PHP')
+    expect(listener.mock.calls).toStrictEqual([['python/requests'], ['custom/php']])
+    wrapper.unmount()
+  })
+
+  it('groups overflow SDKs and clients and searches by language with a labelled input', async () => {
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(100)
+    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(250)
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('workspace:update:selected-client', listener)
+    const wrapper = mount(SdkInstallationInstructions, {
+      attachTo: document.body,
+      props: {
+        eventBus,
+        selectedClient: 'custom/typescript/1',
+        clientOptions: generateClientOptions(['shell/curl', 'js/fetch', 'js/jquery', 'python/requests']),
+        featuredClients: ['shell/curl'],
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', label: 'Browser package', description: 'Install browser package' },
+          { lang: 'TypeScript', label: 'Server package', description: 'Install server package' },
+        ],
+      },
+    })
+    try {
+      await wrapper.vm.$nextTick()
+      const combobox = wrapper.getComponent({ name: 'ScalarCombobox' })
+      expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(['Browser package'])
+      expect(
+        (combobox.props('options') as CustomClientOptionGroup[]).map((group) => ({
+          label: group.label,
+          ids: group.options.map((option) => option.id),
+        })),
+      ).toStrictEqual([
+        { label: 'SDK', ids: ['custom/typescript/1'] },
+        { label: 'JavaScript', ids: ['js/fetch', 'js/jquery'] },
+        { label: 'Python', ids: ['python/requests'] },
+        { label: 'Shell', ids: ['shell/curl'] },
+      ])
+      expect(combobox.props('modelValue')?.id).toBe('custom/typescript/1')
+      await combobox.get('button').trigger('click')
+      const body = new DOMWrapper(document.body)
+      const search = body.get('input[role="combobox"]')
+      expect(search.attributes('aria-label')).toBe('Search clients')
+      await search.setValue('JavaScript')
+      expect(body.findAll('[role="option"]').map((option) => option.text())).toStrictEqual(['Fetch', 'jQuery'])
+      await body.findAll('[role="option"]')[0]?.trigger('click')
+      expect(listener.mock.calls).toStrictEqual([['js/fetch']])
+      expect(wrapper.get('[role="tabpanel"]').text()).toBe('JavaScript Fetch')
+      await combobox.get('button').trigger('click')
+      await body.get('input[role="combobox"]').setValue('TypeScript')
+      expect(body.findAll('[role="option"]').map((option) => option.text())).toStrictEqual(['Server package'])
+      await body.get('[role="option"]').trigger('click')
+      expect(listener.mock.calls).toStrictEqual([['js/fetch'], ['custom/typescript/1']])
+      expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install server package')
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
+  it('excludes hidden clients and follows selections when featured clients change', async () => {
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        selectedClient: 'node/undici',
+        clientOptions: generateClientOptions(['node/undici', 'python/requests']),
+        featuredClients: ['shell/curl', 'node/undici'],
+        xScalarSdkInstallation: [{ lang: 'php', description: 'Install PHP' }],
+      },
+    })
+    expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(['php', 'Node.js'])
+    expect(
+      (wrapper.getComponent({ name: 'ScalarCombobox' }).props('options') as CustomClientOptionGroup[])
+        .flatMap((group) => group.options)
+        .some((entry) => entry.id === 'shell/curl'),
+    ).toBe(false)
+    await wrapper.setProps({ featuredClients: ['python/requests', 'node/undici'] })
+    expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toBe('Node.js')
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Node.js undici')
+    await wrapper.setProps({ clientOptions: [] })
+    expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(['php'])
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install PHP')
+    wrapper.unmount()
+  })
+
+  it('uses display labels while preserving language selection', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('workspace:update:selected-client', listener)
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        eventBus,
+        selectedClient: 'custom/typescript',
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', label: 'JavaScript SDK', description: 'Install JavaScript' },
+          { lang: 'Python', label: 'Python SDK', description: 'Install Python' },
+        ],
+      },
+    })
+    expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(['JavaScript SDK', 'Python SDK'])
+    await wrapper.findAll('[role="tab"]')[1]?.trigger('click')
+    expect(listener.mock.calls).toStrictEqual([['custom/python']])
+    await wrapper.setProps({
+      selectedClient: 'custom/python',
+      xScalarSdkInstallation: [
+        { lang: 'TypeScript', label: 'JS SDK', description: 'Install JavaScript' },
+        { lang: 'Python', label: 'Python client library', description: 'Install Python' },
+      ],
+    })
+    const selectedTab = wrapper.get('[role="tab"][aria-selected="true"]')
+    expect(selectedTab.text()).toBe('Python client library')
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install Python')
+    wrapper.unmount()
+  })
 
   it('renders nothing without any SDK installation instructions', () => {
     const wrapper = mount(SdkInstallationInstructions, {

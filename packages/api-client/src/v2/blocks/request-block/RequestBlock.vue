@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import type { ClientOptionGroup } from '@scalar/blocks/code-example'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
@@ -56,6 +57,8 @@ type Filter =
   'All' | 'Auth' | 'Variables' | 'Cookies' | 'Headers' | 'Query' | 'Body'
 
 export type RequestBlockProps = {
+  /** Security scheme names visible in the authentication UI. */
+  allowedSecuritySchemes?: string[]
   authMeta: AuthMeta
   clientOptions: ClientOptionGroup[]
   environment: XScalarEnvironment
@@ -77,6 +80,9 @@ export type RequestBlockProps = {
   securitySchemes: MergedSecuritySchemes
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
+  jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   requestBodyCompositionSelection?: Record<string, number>
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   selectedSecurity: SelectedSecurity
@@ -90,6 +96,7 @@ export type RequestBlockProps = {
 }
 
 const {
+  allowedSecuritySchemes,
   authMeta = { type: 'document' },
   clientOptions,
   environment,
@@ -105,8 +112,10 @@ const {
   path,
   plugins,
   proxyUrl,
+  multipartNaming,
   requestBodyCompositionSelection,
   openapiVersion,
+  jsonSchemaDialect,
   securityRequirements,
   securitySchemes,
   selectedClient,
@@ -227,6 +236,8 @@ const sections = computed(() =>
         return []
       }
       return createParameterRows(param, exampleKey, {
+        openapiVersion,
+        jsonSchemaDialect,
         hiddenValuePaths:
           param.in === 'query' ? getHiddenValuePaths(param) : [],
         renamedValuePaths:
@@ -508,6 +519,18 @@ const parameterHandlers = computed(() => ({
   }),
 }))
 
+/** Apply pending typing before the reset event so a delayed edit cannot undo the reset. */
+const handleResetBody = ({ contentType }: { contentType: string }): void => {
+  eventBus.flushDebouncedEmits?.()
+  eventBus.emit('operation:reset:requestBody', {
+    documentName: documentSlug,
+    meta: meta.value,
+    contentType,
+    requestBodyCompositionSelection,
+    openapiVersion,
+  })
+}
+
 /** Handle request body content type update */
 const handleUpdateContentType = (payload: { value: string }): void =>
   eventBus.emit('operation:update:requestBody:contentType', {
@@ -586,6 +609,8 @@ const handleGenerateExample = ({
     requestBody,
     contentType,
     requestBodyCompositionSelection,
+    openapiVersion,
+    jsonSchemaDialect,
   )
 
   // A schema that generates nothing writable would leave the user on an empty new example.
@@ -711,6 +736,7 @@ const filterLabels = computed(() => ({
       <AuthSelector
         v-show="isSectionVisible('Auth') && !isAuthHidden"
         :id="filterIds.Auth"
+        :allowedSecuritySchemes
         :createAnySecurityScheme="layout !== 'modal'"
         :defaultOpen="isAuthDefaultOpen"
         :environment
@@ -790,11 +816,14 @@ const filterLabels = computed(() => ({
         :defaultView="defaultRequestBodyView"
         :environment
         :exampleKey
+        :jsonSchemaDialect
+        :multipartNaming
         :openapiVersion
         :requestBody="getResolvedRef(operation.requestBody)"
         :requestBodyCompositionSelection
         :title="translate('apiClient.requestBlock.requestBody')"
         @generate:example="handleGenerateExample"
+        @reset="handleResetBody"
         @update:contentType="handleUpdateContentType"
         @update:formValue="handleUpdateBodyFormValue"
         @update:value="handleUpdateBodyValue" />
@@ -821,7 +850,9 @@ const filterLabels = computed(() => ({
         :eventBus
         :globalCookies
         integration="client"
+        :jsonSchemaDialect
         :method
+        :multipartNaming
         :openapiVersion
         :operation
         :path

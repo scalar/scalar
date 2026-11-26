@@ -13,6 +13,7 @@ You don't like the color scheme? We've prepared some themes for you:
 * `mars`
 * `deepSpace`
 * `laserwave`
+* `halloween`
 
 Just pass the theme name to your [API Reference configuration](configuration.md):
 
@@ -37,6 +38,16 @@ We support two layouts at the moment, a `modern` layout (the default) and a Swag
 
 ## Custom Styling
 
+Set `--scalar-code-line-height` on a code component or an ancestor to customize code line spacing. Code blocks and direct users of `@scalar/highlight/compat/code.css` default to `1.4`; Markdown fenced code keeps its `1.5` default.
+
+```css
+:root {
+  --scalar-code-line-height: 1.6;
+}
+```
+
+Prefer unitless values so spacing scales with the code font size. An `em` value resolves against the `pre` element, which uses the prose font size in Markdown rather than the code font size.
+
 You can pretty much style everything you see.
 [Here's an extreme example of what's possible.](https://windows98.apidocumentation.com/)
 
@@ -52,9 +63,9 @@ To get started, overwrite our CSS variables. We won't judge.
 ```
 
 > [!NOTE]
-> By default, we're using Inter and JetBrains Mono, served by our in-house CDN.
+> By default, we use the system font stack, so no web fonts are downloaded.
 
-If you want to use a different font or want to use Google Fonts, pass `withDefaultFonts: false` to the configuration and overwrite the `--scalar-font` and `--scalar-font-code` CSS variables. You will also need to provide the source of your new font which can be local or served over the network.
+If you want to use a different font, for example one from Google Fonts, overwrite the `--scalar-font` and `--scalar-font-code` CSS variables. You will also need to provide the source of your new font, which can be local or served over the network.
 
 Here is an example of how to use the `Roboto` font from Google Fonts with the CDN API reference.
 
@@ -79,8 +90,6 @@ Here is an example of how to use the `Roboto` font from Google Fonts with the CD
     <script>
       var configuration = {
         theme: 'kepler',
-        // Do not use the default fonts from the Scalar CDN
-        withDefaultFonts: 'false',
       }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
@@ -155,6 +164,48 @@ Or get more advanced by styling our sidebar!
   }
 </style>
 ```
+
+### Syntax highlighting
+
+Code blocks take their colors from a set of `--scalar-code-*` variables, one for each kind of token. By default they're derived from the theme's hues (`--scalar-color-purple`, `--scalar-color-blue` and so on), darkened on light backgrounds and lightened on dark ones so small code stays readable. Change a hue and the code colors built on it follow.
+
+To give code its own palette without touching the rest of the theme, set the variables directly:
+
+| Variable                    | Colors                                                | Default                       |
+| --------------------------- | ----------------------------------------------------- | ----------------------------- |
+| `--scalar-code-keyword`     | Keywords such as `const` and `return`, HTML tag names | Purple                        |
+| `--scalar-code-string`      | Strings and regular expressions                       | Blue                          |
+| `--scalar-code-number`      | Numbers and literals such as `true` and `null`        | Orange                        |
+| `--scalar-code-function`    | Function names, where they're declared and called     | Orange                        |
+| `--scalar-code-builtin`     | Built-ins and decorators                              | Blue                          |
+| `--scalar-code-type`        | Class and type names                                  | Navy, close to the text color |
+| `--scalar-code-parameter`   | Function parameters                                   | Red                           |
+| `--scalar-code-property`    | Object keys, member access and attribute names        | Green                         |
+| `--scalar-code-comment`     | Comments                                              | `--scalar-color-2`            |
+| `--scalar-code-punctuation` | Brackets, commas and operators                        | `--scalar-color-2`            |
+| `--scalar-code-addition`    | Added lines in diffs                                  | Green                         |
+| `--scalar-code-deletion`    | Removed lines in diffs                                | Red                           |
+
+Set them on `.light-mode` and `.dark-mode` separately, since a color that reads well on white rarely works on a dark background. Any variable you leave out keeps its default.
+
+Make sure your styles load after Scalar's, for example with the `customCss` option or a `<style>` tag placed after the API Reference. If part of your page switches modes (a `.dark-mode` area inside `.light-mode`, or the reverse), also target `.light-mode .dark-mode` and `.dark-mode .light-mode`, since the theme sets the defaults there too.
+
+```html
+<style>
+  .light-mode {
+    --scalar-code-keyword: #8b3fd9;
+    --scalar-code-string: #0b6e99;
+    --scalar-code-comment: #6b7280;
+  }
+  .dark-mode {
+    --scalar-code-keyword: #c792ea;
+    --scalar-code-string: #89ddff;
+    --scalar-code-comment: #8b949e;
+  }
+</style>
+```
+
+Themes can set these too. The `moon` theme sets its own values so code stays readable on its tinted backgrounds.
 
 ## Embedding with CSS Frameworks
 

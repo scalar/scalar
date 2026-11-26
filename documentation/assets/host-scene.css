@@ -1,0 +1,316 @@
+/* The hosting scene, shared by the home page and /enterprise.
+ *
+ * These are the rules the scene's markup and landing.js need: the flow
+ * and its nodes, the chips and the lines. Each page lays the scene out in
+ * its own card and puts its own window at the hub (see the pages).
+ */
+
+/* The properties the scene reads, scoped to the scene itself, so nothing
+   else on the page picks them up. */
+.lp-visual--host {
+  --lp-bg-1-5: color-mix(in srgb, var(--scalar-background-1), var(--scalar-background-2));
+}
+
+/* the pill's contents go first and come back last, once the pill is
+   a pill again */
+.lp-onboard > :not(.lp-sun) {
+  flex: none;
+  transition: opacity 200ms ease 300ms;
+}
+
+.lp-visual.lp-visual--host {
+  --lp-pad: 0px;
+  min-height: 0;
+  max-height: none;
+  margin-top: 0;
+  padding: 0;
+  overflow: visible;
+  border-radius: 0;
+  background: none;
+}
+
+@media screen and (max-width: 840px) {
+  /* on a phone the scene takes the hero scene's tree (the API, the
+     orbit the full width, the agents three abreast under it); the
+     orbit's box is stretched, as the tree centres its items */
+  .lp-visual.lp-visual--host {
+    padding: 0;
+    overflow: visible;
+  }
+  .lp-visual.lp-visual--host .lp-node--hub {
+    width: 100%;
+    justify-self: stretch;
+  }
+}
+
+/* Hero scene ----------------------------------------------------------
+   The panel under the hero copy shows the flow, after the capability
+   pages on lightspark.com: Acme's OpenAPI document comes in at the
+   left, reaches the Scalar hub, fans out into the three products, and
+   each product fans out again into the people and agents that use it.
+   Everything is laid out on a 1180x552 scene, one scene unit being
+   --lp-u, so the whole thing fits the panel on one screen. The chips
+   are HTML (em-sized from that unit); landing.js draws the connectors
+   from where they land and sends packets along them. */
+.lp-visual {
+  /* never under 0.66px a unit: a narrow column scrolls the scene
+     sideways instead of shrinking it past reading size */
+  --lp-u: max(min(100cqw / 1180, 100cqh / 552), 0.66px);
+  --lp-ox: max(0px, (100cqw - 1180 * var(--lp-u)) / 2);
+  --lp-oy: calc((100cqh - 552 * var(--lp-u)) / 2);
+  /* room above and below the scene (the scene's box, which the
+     container units measure, is the content box inside it) */
+  --lp-pad: 60px;
+  position: relative;
+  box-sizing: content-box;
+  width: 100%;
+  padding: var(--lp-pad) 0;
+  aspect-ratio: 1180 / 552;
+  min-height: 400px;
+  /* never past the first screen, but never too small to read */
+  max-height: max(400px, calc(100dvh - 412px - 2 * var(--lp-pad)));
+  margin-top: 24px;
+  overflow: auto hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  border-radius: var(--scalar-radius-lg);
+  background: var(--lp-bg-1-5);
+  container-type: size;
+}
+
+.lp-visual::-webkit-scrollbar {
+  display: none;
+}
+
+.lp-flow {
+  /* which way the connectors run, for landing.js */
+  --lp-flow-dir: row;
+  position: absolute;
+  left: var(--lp-ox);
+  /* absolute children measure from the padding edge */
+  top: calc(var(--lp-pad) + var(--lp-oy));
+  width: calc(1180 * var(--lp-u));
+  height: calc(552 * var(--lp-u));
+  font-size: var(--lp-u);
+}
+
+.lp-flow-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* the connectors are hairlines, like the borders elsewhere */
+.lp-flow-line {
+  fill: none;
+  stroke: var(--scalar-border-color);
+  stroke-width: var(--scalar-border-width);
+  vector-effect: non-scaling-stroke;
+}
+
+/* each node sits at --x/--y in scene units, by its left edge, centred
+   on the line, as wide as its column (--w); the hub by its centre */
+.lp-node {
+  position: absolute;
+  left: calc(var(--x) * var(--lp-u));
+  top: calc(var(--y) * var(--lp-u));
+  width: calc(var(--w) * var(--lp-u));
+  transform: translateY(-50%);
+  z-index: 1;
+  color: inherit;
+  text-decoration: none;
+}
+
+.lp-node--hub {
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+/* The chip: a 36 tile, then the name and a detail under it, with no
+   box of its own: the connectors run from the end of the text to the
+   next tile. The tile scales with the scene; the type is the theme's
+   14px whatever the scene scales to (a short window makes the scene
+   small), which is why the chip has no padding and may run past its
+   column: the lines are measured from the words, not the column. */
+.lp-chip {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  gap: 8px;
+  font-family: var(--scalar-font);
+  font-size: var(--scalar-font-size-3, 14px);
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--scalar-color-1);
+}
+
+.lp-chip-icon {
+  display: flex;
+  flex-shrink: 0;
+  width: calc(36 * var(--lp-u));
+  height: calc(36 * var(--lp-u));
+}
+
+/* the tile is just the mark, no backing, every brand drawn in the ink
+   colour (the product glyphs in their section's colour below) */
+.lp-chip-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--scalar-color-1);
+}
+
+.lp-mark {
+  width: 72%;
+  height: 72%;
+}
+
+.lp-mark,
+.lp-mark * {
+  fill: currentColor;
+}
+
+/* the OpenAPI ring carries padding in its artwork, so it gets more room */
+.lp-mark--openapi {
+  width: 86%;
+  height: 86%;
+}
+
+.lp-chip-tile svg.t-editor__icon {
+  width: 80%;
+  height: 80%;
+}
+
+.lp-chip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125em;
+  min-width: 0;
+}
+
+.lp-chip-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-color-1);
+}
+
+.lp-chip-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  color: var(--scalar-color-2);
+}
+
+/* When a packet lands, the subtitle flips over to say what arrived
+   (in mono), holds, and flips back.
+   Both faces share one grid cell, so the chip keeps its width. */
+.lp-chip-sub {
+  display: grid;
+  perspective: 240px;
+  /* regular whatever the chip is (the product chips are links) */
+  font-weight: var(--scalar-regular);
+}
+
+.lp-chip-sub-face {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  backface-visibility: hidden;
+}
+
+.lp-chip-sub.is-in .lp-chip-sub-face--main,
+.lp-chip-sub.is-out .lp-chip-sub-face--alt {
+  animation: lp-flip-out 240ms ease-in both;
+}
+
+.lp-chip-sub.is-in .lp-chip-sub-face--alt,
+.lp-chip-sub.is-out .lp-chip-sub-face--main {
+  animation: lp-flip-in 320ms 200ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+
+.lp-chip-sub.is-in .lp-chip-sub-face--alt,
+.lp-chip-sub.is-out .lp-chip-sub-face--main {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-chip,
+  .lp-chip-sub-face {
+    transition: none;
+    animation: none;
+  }
+  /* Without motion, lay the logos out in rows so every one is visible */
+  .lp-trusted-viewport {
+    mask-image: none;
+  }
+  .lp-trusted-track {
+    animation: none;
+    flex: auto;
+    min-width: 0;
+    flex-wrap: wrap;
+    row-gap: 12px;
+    width: auto;
+  }
+  .lp-trusted-track[aria-hidden] {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 1100px) {
+  /* the flow keeps a readable size under the hero copy and scrolls
+     sideways when the column is narrower than it (swipe to explore) */
+  .lp-visual {
+    --lp-u: max(100cqw / 1180, 0.74px);
+    --lp-ox: max(0px, (100cqw - 1180 * var(--lp-u)) / 2);
+    --lp-oy: 0px;
+    aspect-ratio: auto;
+    height: calc(552 * var(--lp-u));
+    min-height: 0;
+    max-height: none;
+    margin-top: 40px;
+    container-type: inline-size;
+  }
+  .lp-flow {
+    position: relative;
+    top: 0;
+    margin-left: var(--lp-ox);
+  }
+  .lp-trusted-item {
+    padding-right: 36px;
+  }
+  .lp-trusted-item .lp-trusted-logo {
+    height: 18px;
+  }
+  .lp-trusted-item-tr .lp-trusted-logo {
+    height: 24px;
+  }
+}
+
+@keyframes lp-flip-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-45%) rotateX(75deg);
+  }
+}
+
+@keyframes lp-flip-in {
+  from {
+    opacity: 0;
+    transform: translateY(45%) rotateX(-75deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

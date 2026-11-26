@@ -48,7 +48,11 @@ export const getQuerystringParameter = (
   {
     defaultDisabled = true,
     includeDisabled = false,
+    openapiVersion,
+    jsonSchemaDialect,
   }: {
+    openapiVersion?: string
+    jsonSchemaDialect?: string
     defaultDisabled?: boolean
     /** Editors must retain the value when its checkbox is off. */
     includeDisabled?: boolean
@@ -73,7 +77,7 @@ export const getQuerystringParameter = (
   const schema = getResolvedRef(mediaType?.schema)
   let resolvedValue = value
   if (resolvedValue === undefined) {
-    resolvedValue = schema ? getExampleFromSchema(schema) : ''
+    resolvedValue = schema ? getExampleFromSchema(schema, { openapiVersion, jsonSchemaDialect }) : ''
   }
   return {
     value: resolvedValue,

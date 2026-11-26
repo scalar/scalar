@@ -1,15 +1,11 @@
 <script lang="ts" setup>
-import { ScalarIconButton } from '@scalar/components/icon-button'
-import { ScalarIconCopy, ScalarIconInfo } from '@scalar/icons'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { ScalarIconInfo } from '@scalar/icons'
 
 import { useLocalization } from '@/features/localization'
 
 import ApiReferenceToolbarPopover from './ApiReferenceToolbarPopover.vue'
+import DeveloperToolsAbout from './DeveloperToolsAbout.vue'
 
-const CONFIG_SETTING = 'showDeveloperTools: "never"'
-
-const { copyToClipboard } = useClipboard()
 const { translate } = useLocalization()
 </script>
 <template>
@@ -25,21 +21,7 @@ const { translate } = useLocalization()
       </button>
     </template>
     <div class="-m-2 flex flex-col gap-2 leading-relaxed">
-      <div>{{ translate('developerTools.intro') }}</div>
-      <div>
-        {{ translate('developerTools.disableToolbarBefore') }}
-        <div
-          class="bg-b-2 inline-flex items-center gap-0.5 rounded border px-1 py-0.5 text-sm">
-          <code class="font-code">{{ CONFIG_SETTING }}</code>
-          <ScalarIconButton
-            class="-m-1 p-1.25"
-            :icon="ScalarIconCopy"
-            :label="translate('actions.copyToClipboard')"
-            size="sm"
-            @click="copyToClipboard(CONFIG_SETTING)" />
-        </div>
-        {{ translate('developerTools.disableToolbarAfter') }}
-      </div>
+      <DeveloperToolsAbout />
     </div>
     <template #info>
       {{ translate('developerTools.localhostOnly') }}

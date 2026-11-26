@@ -19,6 +19,7 @@ import {
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
 import type {
   OpenApiDocument,
   ParameterObject,
@@ -29,10 +30,11 @@ import { computed, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
+import { isOnScrollTargetPath, scrollTargetId } from '@/helpers/lazy-bus'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
+import { applySchemaExamples } from './helpers/apply-schema-examples'
 import { getParameterExamples } from './helpers/get-parameter-examples'
 
 const {
@@ -40,6 +42,7 @@ const {
   parameter,
   options,
   collapsableItems,
+  childParameters,
   breadcrumb,
   document,
   eventBus,
@@ -50,6 +53,10 @@ const {
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
     collapsableItems?: boolean
+    /** Flattened fields of a deep-object query parameter. */
+    childParameters?: ParameterObject[]
+    /** Preserve the parameter detail setting inside a collapsed group. */
+    collapsableChildItems?: boolean
     /** The document the operation belongs to, used to resolve schema references for display */
     document?: OpenApiDocument
     options: Pick<
@@ -103,6 +110,10 @@ const content = computed(() => {
   return parameter.content
 })
 
+const hasResponseContentPicker = computed<boolean>(
+  () => !('in' in parameter) && Object.keys(content.value ?? {}).length > 1,
+)
+
 const selectedContentType = ref<string>(
   Object.keys(content.value || {})[0] ?? '',
 )
@@ -154,18 +165,25 @@ const value = computed(() => {
   const deprecated =
     'deprecated' in parameter ? parameter.deprecated : schema.value?.deprecated
 
-  /** Combine param/content/schema examples while ignoring undefined values. */
+  /** Explicit parameter/media examples override examples of the same schema value. */
   const examples = getParameterExamples({
     parameter,
-    schemaExamples: schema.value?.examples,
-    contentExamples: content.value?.[selectedContentType.value]?.examples,
+    content: content.value?.[selectedContentType.value],
   })
 
-  return {
-    ...resolvedBase,
-    deprecated: deprecated,
-    examples,
-  } as SchemaObject
+  if (!examples.length) {
+    return { ...resolvedBase, deprecated } as SchemaObject
+  }
+
+  // Response media examples describe the payload as a whole. Each variant can have its own examples.
+  return 'in' in parameter
+    ? { ...applySchemaExamples(resolvedBase, examples), deprecated }
+    : ({
+        ...resolvedBase,
+        example: undefined,
+        examples,
+        deprecated,
+      } as SchemaObject)
 })
 
 /** Composition keywords that render their members as nested rows. */
@@ -294,9 +312,29 @@ const headersBreadcrumb = computed<string[] | undefined>(() =>
  * does, the disclosure opens on mount so a fresh navigation can render the target
  * and scroll it into view (mirrors how collapsible schema disclosures behave).
  */
-const isOnTargetPath = computed<boolean>(() =>
-  isOnScrollTargetPath(schemaBreadcrumb.value?.join('.')),
+const isOnTargetPath = computed<boolean>(
+  () =>
+    isOnScrollTargetPath(schemaBreadcrumb.value?.join('.')) ||
+    Boolean(
+      breadcrumb &&
+      childParameters &&
+      scrollTargetId.value.startsWith(`${[...breadcrumb, name].join('.')}[`),
+    ),
 )
+
+/** Headless UI only reads defaultOpen on mount; reopen a group for later navigation too. */
+const groupNavigationKey = ref<number>(0)
+const groupOpen = ref<boolean>(false)
+
+/** Read Headless UI's slot state after rendering, including rail and keyboard closes. */
+const trackGroupOpen = (open: boolean): void => {
+  groupOpen.value = open
+}
+watch(isOnTargetPath, (onTargetPath) => {
+  if (childParameters && onTargetPath && !groupOpen.value) {
+    groupNavigationKey.value++
+  }
+})
 
 /**
  * The anchor id for a collapsible item's own row. The schema renders without
@@ -315,22 +353,31 @@ const triggerAnchorId = computed<string | undefined>(() =>
   <li
     :id="isCompactParameter ? triggerAnchorId : undefined"
     class="parameter-item group/parameter-item parameter-item--tree border-t-0!"
-    :class="{ 'scroll-mt-24': isCompactParameter }">
+    :class="[
+      hasResponseContentPicker
+        ? 'grid grid-cols-[minmax(0,1fr)_fit-content(50%)] gap-x-1.5'
+        : 'flex flex-col',
+      { 'scroll-mt-24': isCompactParameter },
+    ]">
     <!-- No separators between rows (the row zeroes its own top border); the
          section heading carries the one rule instead (see ParameterList /
          OperationResponses). -->
     <Disclosure
+      :key="groupNavigationKey"
       v-slot="{ open, close }"
       :defaultOpen="isOnTargetPath">
-      <!-- The trigger spans the full row, so its focus ring must too: drawing
-           it on the 12px caret leaves the actual control with no visible
-           focus state. -->
+      <!-- Ring the disclosure itself so keyboard focus stays visible.
+           Give the picker a separate column so the summary can shrink. -->
       <component
         :is="shouldCollapse ? DisclosureButton : 'div'"
         v-if="collapsableItems && !isStaticTreeItem"
         :id="isCompactParameter ? undefined : triggerAnchorId"
+        :ref="() => trackGroupOpen(open)"
         class="parameter-item-trigger group/trigger group/tree-control scroll-mt-24 focus-visible:rounded-(--scalar-radius) focus-visible:outline-(length:--scalar-border-width) focus-visible:outline-offset-2 focus-visible:outline-(--scalar-focus-color)"
-        :class="{ 'parameter-item-trigger-open': open }">
+        :class="{
+          'parameter-item-trigger-open': open,
+          'col-start-1 row-start-1 min-w-0': hasResponseContentPicker,
+        }">
         <div class="parameter-item-name min-w-0">
           <!-- The puck is the depth-0 gutter glyph, so a response row reads as
                part of the schema tree below it. Anchored to the first line so
@@ -364,6 +411,28 @@ const triggerAnchorId = computed<string | undefined>(() =>
           v-else
           class="flex-1" />
       </component>
+      <div
+        v-if="shouldCollapse && content"
+        class="flex items-center text-base"
+        :class="[
+          hasResponseContentPicker
+            ? 'col-start-2 row-start-1 min-w-0 self-center justify-self-end'
+            : 'absolute top-[calc(10px+0.5lh)] right-0 z-0 -translate-y-1/2',
+          {
+            'mb-1': hasResponseContentPicker && !collapsableItems,
+            'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
+              !hasResponseContentPicker && !open,
+          },
+        ]">
+        <div
+          v-if="!hasResponseContentPicker"
+          class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
+        <ContentTypeSelect
+          v-model="selectedContentType"
+          :class="{ 'max-w-full min-w-0': hasResponseContentPicker }"
+          :content="content"
+          :truncateLabel="hasResponseContentPicker" />
+      </div>
       <!-- Railed when collapsible: clicking the rail closes the row. The rail
            props only exist on SchemaRailPanel, so they bind only when it
            renders. The panel indents one gutter (restated here because the
@@ -391,6 +460,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
           'parameter-item-container--tree mt-1.5 mb-0.5 ps-[var(--schema-gutter,16px)]!':
             isRailedPanel,
           'parameter-item-container--static-tree': isStaticTreeItem,
+          'col-span-full row-start-2 min-w-0': hasResponseContentPicker,
         }"
         :static="!collapsableItems || isStaticTreeItem">
         <!-- The railed panel's own top margin already supplies the 6px gap to
@@ -412,6 +482,8 @@ const triggerAnchorId = computed<string | undefined>(() =>
         <!-- Schema -->
         <SchemaProperty
           is="div"
+          v-if="!childParameters"
+          :badges="getXBadges(baseSchema)"
           :breadcrumb="schemaBreadcrumb"
           compact
           :description="
@@ -456,6 +528,26 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension" />
 
+        <!-- Keep the original breadcrumbs so existing links to flattened fields still work. -->
+        <ul
+          v-if="childParameters"
+          class="list-none p-0"
+          role="list">
+          <ParameterListItem
+            v-for="child in childParameters"
+            :key="child.name"
+            :breadcrumb="breadcrumb"
+            :collapsableItems="collapsableChildItems"
+            :document="document"
+            :eventBus="eventBus"
+            :expansion="expansion"
+            :name="child.name"
+            :options="options"
+            :parameter="child"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
+        </ul>
+
         <slot />
 
         <!-- Headers: the body reads first, directly under the status row, and
@@ -480,27 +572,12 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :showExtensions="options.showExtensions"
           :specificationExtension="specificationExtension" />
       </component>
-      <div
-        v-if="shouldCollapse && content"
-        class="absolute top-[calc(10px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center text-base"
-        :class="{
-          'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
-            !open,
-        }">
-        <div
-          class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
-        <ContentTypeSelect
-          v-model="selectedContentType"
-          :content="content" />
-      </div>
     </Disclosure>
   </li>
 </template>
 
 <style scoped>
 .parameter-item {
-  display: flex;
-  flex-direction: column;
   position: relative;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }

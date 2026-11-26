@@ -763,19 +763,51 @@ describe('embed', () => {
     ])
   })
 
-  it('ignores empty holes without losing source text', () => {
+  it.each([undefined, { format: 'json', holeReplacement: 'X' }] as const)(
+    'ignores empty holes with validation %j',
+    (validate) => {
+      registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+      const grammar: Grammar = {
+        ...host,
+        states: {
+          ...host.states,
+          body: {
+            default: 'comment',
+            embed: { language: 'tiny-embedded', until: '</x>', holes: '(?=1)', validate },
+            rules: [],
+          },
+        },
+      }
+      const code = '<x>1</x>'
+      expect(tokenizeToArray(code, compile(grammar)).map(({ text, scope }) => [text, scope])).toEqual([
+        ['<x>', 'tag'],
+        ['1', 'number'],
+        ['</x>', 'tag'],
+      ])
+    },
+  )
+
+  it('keeps compiled validation independent of the source grammar', () => {
     registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
-    const grammar: Grammar = {
+    const validate = { format: 'json' as const, holeReplacement: '1' }
+    const grammar = compile({
       ...host,
       states: {
         ...host.states,
-        body: { embed: { language: 'tiny-embedded', until: '</x>', holes: '(?=1)' }, rules: [] },
+        body: {
+          default: 'comment',
+          embed: { language: 'tiny-embedded', until: '</x>', holes: '_', validate },
+          rules: [],
+        },
       },
-    }
-    const code = '<x>1</x>'
-    expect(tokenizeToArray(code, compile(grammar)).map(({ text, scope }) => [text, scope])).toEqual([
+    })
+
+    validate.holeReplacement = 'X'
+
+    expect(tokenizeToArray('<x>_2</x>', grammar).map(({ text, scope }) => [text, scope])).toStrictEqual([
       ['<x>', 'tag'],
-      ['1', 'number'],
+      ['_', null],
+      ['2', 'number'],
       ['</x>', 'tag'],
     ])
   })

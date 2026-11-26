@@ -1,3 +1,4 @@
+import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import { ScalarButton } from '../ScalarButton'
@@ -153,6 +154,36 @@ export const Scrolling: Story = {
           Show modal
         </ScalarButton>
       </div>
+    `,
+  }),
+}
+
+/**
+ * Toasts raised while a modal is open render inside it, so they paint above the modal, can be hovered,
+ * and are announced to screen readers. The second toaster sits in a hidden container and registers last,
+ * like the API client's once it closes; toasts skip it for the one the user can see.
+ */
+export const WithToasts: Story = {
+  args: {} as any,
+  render: () => ({
+    components: { ScalarButton, ScalarModal, ScalarToasts },
+    setup() {
+      const modalState = useModal()
+      modalState.show()
+      const { toast } = useToasts()
+      const showToast = (): void => toast('Saved from inside the modal', 'info', { timeout: 60_000 })
+      return { modalState, showToast }
+    },
+    template: `
+      <ScalarToasts />
+      <div style="visibility: hidden">
+        <ScalarToasts />
+      </div>
+      <ScalarModal
+        :state="modalState"
+        title="Modal with toasts">
+        <ScalarButton @click="showToast">Show toast</ScalarButton>
+      </ScalarModal>
     `,
   }),
 }

@@ -1,3 +1,4 @@
+import { formatTokenPrefix } from '@scalar/helpers/http/format-token-prefix'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { Request as HarRequest } from 'har-format'
 import { encode } from 'js-base64'
@@ -34,7 +35,7 @@ export const processSecuritySchemes = (
 
       switch (scheme.in) {
         case 'header':
-          result.headers.push(param)
+          result.headers.push({ ...param, value: formatTokenPrefix(value, scheme['x-scalar-token-prefix']) })
           break
         case 'query':
           result.queryString.push(param)

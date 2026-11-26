@@ -7,7 +7,7 @@ import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/
 import type { Context } from 'hono'
 import { stream } from 'hono/streaming'
 
-import { generateResponseExample } from './generate-response-example'
+import { type ExampleGenerationContext, generateResponseExample } from './generate-response-example'
 import { selectResponseExample } from './select-response-example'
 
 /** A finite mock stream, with its data-model value available to custom handlers. */
@@ -29,7 +29,11 @@ export const getStreamingResponse = (
       })
     | undefined,
   contentType: string,
-  options: { exampleName?: string; variables?: Record<string, unknown>; body?: unknown } = {},
+  options: ExampleGenerationContext & {
+    exampleName?: string
+    variables?: Record<string, unknown>
+    body?: unknown
+  } = {},
 ): StreamingResponse | undefined => {
   if (mediaType?.itemSchema === undefined) {
     return undefined
@@ -48,6 +52,11 @@ export const getStreamingResponse = (
   const itemSchema =
     typeof mediaType.itemSchema === 'boolean' ? mediaType.itemSchema : getResolvedRefDeep(mediaType.itemSchema)
   const completeSchema = typeof mediaType.schema === 'boolean' ? mediaType.schema : getResolvedRefDeep(mediaType.schema)
+  const generationContext: ExampleGenerationContext = {
+    openapiVersion: options.openapiVersion,
+    jsonSchemaDialect: options.jsonSchemaDialect,
+    originalOpenapiVersion: options.originalOpenapiVersion,
+  }
   const generateBody = (): unknown => {
     if (itemSchema === false || completeSchema === false) {
       return []
@@ -56,7 +65,7 @@ export const getStreamingResponse = (
       return Array.from({ length: 3 }, () =>
         itemSchema === true
           ? null
-          : generateResponseExample(coerceValue(SchemaObjectSchema, itemSchema), options.variables),
+          : generateResponseExample(coerceValue(SchemaObjectSchema, itemSchema), options.variables, generationContext),
       )
     }
     if (typeof completeSchema === 'object' && 'type' in completeSchema && completeSchema.type === 'array') {
@@ -66,9 +75,14 @@ export const getStreamingResponse = (
           items: ('items' in completeSchema ? completeSchema.items : undefined) ?? itemSchema,
         }),
         options.variables,
+        generationContext,
       )
     }
-    return generateResponseExample(coerceValue(SchemaObjectSchema, completeSchema), options.variables)
+    return generateResponseExample(
+      coerceValue(SchemaObjectSchema, completeSchema),
+      options.variables,
+      generationContext,
+    )
   }
   const body = example ? example.value : generateBody()
   const items = Array.isArray(body) ? body : [body]

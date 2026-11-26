@@ -1,8 +1,9 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { buildFormData, formDataHeaders } from '@/libs/form-data'
+import { mergeCookieHeaders } from '@/libs/cookies'
+import { buildFormData, formDataHeaders, urlSearchParams } from '@/libs/form-data'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
-import { Raw, objectToString } from '@/libs/javascript'
+import { Raw, escapeJsString, objectToString } from '@/libs/javascript'
 
 /**
  * node/undici
@@ -30,22 +31,11 @@ export const nodeUndici: Plugin = {
     const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     // Headers
-    const headers = formDataHeaders(normalizedRequest)
+    const headers = formDataHeaders({ ...normalizedRequest, headers: mergeCookieHeaders(normalizedRequest) })
     if (headers?.length) {
       options.headers = {}
       headers.forEach((header) => {
         options.headers![header.name] = header.value
-      })
-    }
-
-    // Cookies
-    if (normalizedRequest.cookies?.length) {
-      options.headers = options.headers || {}
-
-      normalizedRequest.cookies.forEach((cookie) => {
-        options.headers!['Set-Cookie'] = options.headers!['Set-Cookie']
-          ? `${options.headers!['Set-Cookie']}; ${cookie.name}=${cookie.value}`
-          : `${cookie.name}=${cookie.value}`
       })
     }
 
@@ -63,6 +53,12 @@ export const nodeUndici: Plugin = {
       if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
         prefix = `${buildFormData(normalizedRequest.postData.params, 'node').join('\n')}\n\n`
         options.body = new Raw('formData')
+      } else if (
+        normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
+        normalizedRequest.postData.params
+      ) {
+        // The undici request API accepts a string body but not a URLSearchParams instance.
+        options.body = new Raw(`${urlSearchParams(normalizedRequest.postData.params)}.toString()`)
       } else {
         options.body = normalizedRequest.postData.text
       }
@@ -82,6 +78,6 @@ export const nodeUndici: Plugin = {
     // Code Template
     return `import { ${imports} } from 'undici'
 
-${prefix}const { statusCode, body } = await request('${url}'${jsonOptions})`
+${prefix}const { statusCode, body } = await request('${escapeJsString(url)}'${jsonOptions})`
   },
 }

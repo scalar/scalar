@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <title>Scalar — Embedded API Reference</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      .portal {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        height: 100vh;
+        padding: 32px;
+        background: var(--scalar-background-2);
+        color: var(--scalar-color-1);
+        font-family: var(--scalar-font);
+      }
+      .portal-panel {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        border: 1px solid var(--scalar-border-color);
+        border-radius: var(--scalar-radius-lg);
+        background: var(--scalar-background-1);
+      }
+      .portal-footer {
+        text-align: right;
+        padding: 24px;
+        border-top: 1px solid var(--scalar-border-color);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module">
+      import './src/style.css'
+
+      import content from '@scalar/galaxy/latest.json'
+      import { createApp, h } from 'vue'
+
+      import { ApiReference } from './src'
+
+      createApp({
+        render: () =>
+          h(
+            'main',
+            {
+              class: 'scalar-app portal',
+            },
+            [
+              h('header', [
+                h('h1', { class: 'text-xl font-bold' }, 'Developer portal'),
+                h(
+                  'p',
+                  { class: 'text-base text-c-2' },
+                  'Explore our API without leaving the application.',
+                ),
+              ]),
+              h(
+                'section',
+                {
+                  'aria-label': 'Embedded API documentation',
+                  'class': 'portal-panel',
+                },
+                [
+                  h(
+                    ApiReference,
+                    {
+                      configuration: {
+                        content,
+                        darkMode: false,
+                        showDeveloperTools: 'never',
+                      },
+                    },
+                    {
+                      footer: () =>
+                        h(
+                          'footer',
+                          { class: 'portal-footer' },
+                          'Developer portal · API documentation',
+                        ),
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+      }).mount('#app')
+    </script>
+  </body>
+</html>

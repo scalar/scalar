@@ -6,6 +6,8 @@ pages outside this reference resolve.
 -->
 # Rust
 
+**Minimum version:** Rust 1.85 or newer (edition 2024).
+
 > [!NOTE]
 > The Rust target is experimental.
 
@@ -38,7 +40,7 @@ Setting up publishing: [Rust publishing guide](../publishing/rust.md). How relea
 
 **Type:** `string`
 
-Rust crate name.
+Rust crate name. Defaults to the bare SDK slug; a name whose crate identifier would be a Rust keyword, a standard-library crate (`std`, `core`, `alloc`, `test`, `proc_macro`), or one of the crate's own dependencies (`url`, `bytes`, `serde`, ...) gets a `-sdk` suffix.
 
 ## destinations
 
@@ -55,8 +57,9 @@ Primary repository this target's generated output is published to. Setting it tu
 | Property | Description |
 | --- | --- |
 | `repo`* | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
-| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the `scalar-generated` branch and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
+| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the generated branch (`generatedBranch`, `scalar-generated` by default) and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
 | `integrationBranch` | Branch where generated output is combined with your custom code; defaults to `scalar-next`. Commit customizations here: each regeneration is merged into it, release pull requests are opened from it, and each released version is synced back to it. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or collide with the branches Scalar and release-please manage, such as `scalar-generated`. |
+| `generatedBranch` | Branch Scalar pushes pristine generator output to before merging it into the integration branch; defaults to `scalar-generated`. Never commit here: every build replaces its contents. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or the integration branch, or collide with the other branches Scalar and release-please manage, such as `scalar-next` and `scalar-merge-conflict`. |
 
 ## publish
 
@@ -100,7 +103,7 @@ Rust generation options: naming overrides, date-time mapping, TLS backend, retri
 
 **Type:** `string`
 
-Cargo crate name override (kebab-case). Defaults to the target packageName.
+Cargo crate name override (kebab-case). Defaults to the target packageName, then the bare SDK slug. Gets the same `-sdk` suffix as `packageName` when its crate identifier would be a Rust keyword, a standard-library crate, or one of the crate's own dependencies.
 
 ### package_repository
 

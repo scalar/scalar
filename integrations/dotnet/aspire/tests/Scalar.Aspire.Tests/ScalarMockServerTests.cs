@@ -155,7 +155,7 @@ public class ScalarMockServerTests
         var executionContext = new DistributedApplicationExecutionContext(
             new DistributedApplicationExecutionContextOptions(DistributedApplicationOperation.Run)
             {
-                ServiceProvider = new ServiceCollection().BuildServiceProvider()
+                Services = new ServiceCollection().BuildServiceProvider()
             });
 
         var envVars = new Dictionary<string, object>();

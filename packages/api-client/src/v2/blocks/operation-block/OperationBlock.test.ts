@@ -5,15 +5,20 @@ import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import { err, ok } from '@scalar/helpers/types/result'
 import { type ClientPlugin, executeHook } from '@scalar/oas-utils/helpers'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type AuthMeta, type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import { type RequestPayload, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { OpenApiDocument, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import ResponseBodyStreaming from '@/v2/blocks/response-block/components/ResponseBodyStreaming.vue'
+import ResponseBlock from '@/v2/blocks/response-block/ResponseBlock.vue'
 import { createMockEventBus } from '@/v2/helpers/test-utils'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -58,7 +63,7 @@ vi.mock('@scalar/use-toasts', () => ({
 vi.mock('./components/Header.vue', () => ({
   default: {
     name: 'Header',
-    emits: ['execute', 'select:history:item', 'update:webhook-url'],
+    emits: ['execute', 'open:browser', 'select:history:item', 'update:webhook-url'],
     template: '<div data-test="header"></div>',
   },
 }))
@@ -244,6 +249,175 @@ describe('OperationBlock', () => {
 
   afterEach(() => {
     responseCache.clear()
+  })
+
+  it('opens the resolved GET destination without sending a request through the proxy', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    vi.mocked(requestFactory).mockReturnValue({
+      request: createDefaultRequestFactoryPayload({
+        baseUrl: 'https://{{host}}',
+        path: { raw: '/users/{id}', variables: { id: '42' } },
+        query: new URLSearchParams([
+          ['search', 'a b'],
+          ['tag', 'one'],
+          ['tag', 'two'],
+        ]),
+        security: [{ in: 'query', name: 'api_key', value: '{{token}}' }],
+        proxyUrl: 'https://proxy.example.com',
+      }),
+    })
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        environment: {
+          color: 'blue',
+          variables: [
+            { name: 'host', value: 'api.example.com' },
+            { name: 'token', value: 'secret' },
+          ],
+        },
+      },
+    })
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+    await flushPromises()
+
+    expect(open).toHaveBeenCalledExactlyOnceWith(
+      'https://api.example.com/users/42?search=a+b&tag=one&tag=two&api_key=secret',
+      '_blank',
+      'noopener,noreferrer',
+    )
+    expect(sendRequest).not.toHaveBeenCalled()
+    expect(buildRequest).not.toHaveBeenCalled()
+    wrapper.unmount()
+    open.mockRestore()
+  })
+
+  it.each(['javascript:alert(1)', 'data:text/html,test', 'file:///tmp/test', '/relative', ''])(
+    'rejects browser destination %s',
+    async (url) => {
+      const open = vi.spyOn(window, 'open').mockReturnValue(null)
+      vi.mocked(requestFactory).mockReturnValue({
+        request: createDefaultRequestFactoryPayload({ baseUrl: '', path: { raw: url, variables: {} } }),
+      })
+      const wrapper = mount(OperationBlock, { props: createDefaultProps() })
+
+      wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+      await flushPromises()
+
+      expect(open).not.toHaveBeenCalled()
+      expect(mockToast).toHaveBeenCalledExactlyOnceWith(
+        'Enter a valid HTTP or HTTPS URL to open in the browser.',
+        'error',
+      )
+      wrapper.unmount()
+      open.mockRestore()
+    },
+  )
+
+  it('opens a relative modal URL using the current origin without an absolute server', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    vi.mocked(requestFactory).mockReturnValue({
+      request: createDefaultRequestFactoryPayload({ baseUrl: '', path: { raw: '/users', variables: {} } }),
+    })
+    const wrapper = mount(OperationBlock, {
+      props: { ...createDefaultProps(), layout: 'modal', server: null, servers: [] },
+    })
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+    await flushPromises()
+
+    expect(open).toHaveBeenCalledExactlyOnceWith(
+      new URL('/users', window.location.origin).href,
+      '_blank',
+      'noopener,noreferrer',
+    )
+    expect(mockToast).not.toHaveBeenCalled()
+    wrapper.unmount()
+    open.mockRestore()
+  })
+
+  it.each([{ method: 'post' }, { externalExamplesPending: true }])(
+    'does not navigate when browser execution is unavailable: %j',
+    async (props) => {
+      const open = vi.spyOn(window, 'open').mockReturnValue(null)
+      const wrapper = mount(OperationBlock, { props: { ...createDefaultProps(), ...props } })
+
+      wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+      await flushPromises()
+
+      expect(open).not.toHaveBeenCalled()
+      expect(requestFactory).not.toHaveBeenCalled()
+      wrapper.unmount()
+      open.mockRestore()
+    },
+  )
+
+  it.each([
+    ['http://api.example.com', false],
+    ['https://api.example.com', true],
+    ['http://localhost:3000', true],
+  ])('respects the desktop browser policy for %s', async (baseUrl, allowed) => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    Object.defineProperty(window, 'electron', { value: {}, configurable: true })
+    vi.mocked(requestFactory).mockReturnValue({ request: createDefaultRequestFactoryPayload({ baseUrl }) })
+    const wrapper = mount(OperationBlock, { props: createDefaultProps() })
+    try {
+      wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+      await flushPromises()
+      if (allowed) {
+        expect(open).toHaveBeenCalledExactlyOnceWith(`${baseUrl}/api/users`, '_blank', 'noopener,noreferrer')
+        expect(mockToast).not.toHaveBeenCalled()
+      } else {
+        expect(open).not.toHaveBeenCalled()
+        expect(mockToast).toHaveBeenCalledExactlyOnceWith(
+          'The desktop app can only open HTTPS URLs or local HTTP servers in the browser.',
+          'error',
+        )
+      }
+    } finally {
+      Reflect.deleteProperty(window, 'electron')
+      wrapper.unmount()
+      open.mockRestore()
+    }
+  })
+
+  it('flushes pending edits before resolving the browser destination', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    const props = createDefaultProps()
+    const wrapper = mount(OperationBlock, { props })
+    props.eventBus.flushDebouncedEmits = vi.fn(() => {
+      void wrapper.setProps({ path: '/edited' })
+    })
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+    await flushPromises()
+
+    expect(props.eventBus.flushDebouncedEmits).toHaveBeenCalledExactlyOnceWith()
+    expect(vi.mocked(requestFactory).mock.calls[0]?.[0].path).toBe('/edited')
+    wrapper.unmount()
+    open.mockRestore()
+  })
+
+  it('requires path parameter values before browser navigation', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        path: '/users/{id}',
+        operation: createMockOperation({
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        }),
+      },
+    })
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+    await flushPromises()
+
+    expect(open).not.toHaveBeenCalled()
+    expect(requestFactory).not.toHaveBeenCalled()
+    wrapper.unmount()
+    open.mockRestore()
   })
 
   it.each(['CONNECT', 'connect', 'TRACE', 'Trace', 'TRACK', 'tRaCk'])(
@@ -1164,6 +1338,89 @@ describe('OperationBlock', () => {
     const rebuiltRequest = buildSafeBodyRequest('https://api.example.com/upload', { method: 'POST', body: formData })
     expect(await sha256Base64(rebuiltRequest)).not.toBe(hookHash)
   })
+
+  it.each([200, 600])(
+    'renders an open status %s stream while saving history and supports cancellation',
+    async (status) => {
+      const actual = await vi.importActual<typeof import('./helpers/send-request')>('./helpers/send-request')
+      vi.mocked(sendRequest).mockImplementationOnce(actual.sendRequest)
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'streaming',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Streaming', version: '1.0.0' },
+          paths: { '/api/users': { get: { responses: {} } } },
+        },
+      })
+      const document = store.workspace.documents.streaming
+      if (!isOpenApiDocument(document)) {
+        throw new Error('Expected an OpenAPI document')
+      }
+      const eventBus = createWorkspaceEventBus()
+      const saveHistory = vi.fn(generateClientMutators(store).doc('streaming').operation.addResponseToHistory)
+      eventBus.on('hooks:on:request:complete', saveHistory)
+      const controllers: ReadableStreamDefaultController<Uint8Array>[] = []
+      const cancel = vi.fn()
+      const stream = new ReadableStream<Uint8Array>({
+        start: (controller) => {
+          controllers.push(controller)
+        },
+        cancel,
+      })
+      const networkResponse = new Response(stream, { headers: { 'content-type': 'text/event-stream' } })
+      Object.defineProperty(networkResponse, 'status', { value: status })
+      const wrapper = mount(OperationBlock, {
+        props: {
+          ...createDefaultProps(),
+          document,
+          eventBus,
+          options: { customFetch: () => Promise.resolve(networkResponse) },
+        },
+        global: { stubs: { ResponseBlock } },
+      })
+
+      try {
+        await triggerExecute(wrapper)
+        // History must finish while the source stream is still open and has sent no chunks.
+        expect(saveHistory).toHaveBeenCalledOnce()
+        await saveHistory.mock.results[0]!.value
+        const history = store.history.getHistory('streaming', '/api/users', 'get')
+        expect(history?.length).toBe(1)
+        expect(history?.[0]?.response.status).toBe(status)
+        expect(history?.[0]?.response.content.text).toBe('')
+        expect(cancel).not.toHaveBeenCalled()
+
+        const viewer = wrapper.findComponent(ResponseBodyStreaming)
+        expect(viewer.exists()).toBe(true)
+        controllers[0]!.enqueue(new TextEncoder().encode('data: first\n\n'))
+        await flushPromises()
+        expect(viewer.text()).toContain('data: first')
+        expect(viewer.text()).toContain('Listening')
+        controllers[0]!.enqueue(new TextEncoder().encode('data: second\n\n'))
+        await flushPromises()
+        expect(viewer.text()).toContain('data: second')
+
+        const cancelButton = viewer.findAll('button').find((button) => button.text() === 'Cancel')
+        if (!cancelButton) {
+          throw new Error('Expected a stream cancellation button')
+        }
+        await cancelButton.trigger('click')
+        await flushPromises()
+        expect(cancel).toHaveBeenCalledOnce()
+        expect(stream.locked).toBe(false)
+        expect(viewer.text()).not.toContain('Listening')
+        expect(viewer.text()).toContain('data: first')
+        expect(viewer.text()).toContain('data: second')
+      } finally {
+        wrapper.unmount()
+        eventBus.off('hooks:on:request:complete', saveHistory)
+        if (!stream.locked) {
+          await stream.cancel()
+        }
+      }
+    },
+  )
 
   it('renders the intercepted response and persists tokens saved by response hooks', async () => {
     const actual = await vi.importActual<typeof import('./helpers/send-request')>('./helpers/send-request')

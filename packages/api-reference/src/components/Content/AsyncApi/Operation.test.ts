@@ -9,6 +9,8 @@ import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
+import { PLUGIN_MANAGER_SYMBOL, createPluginManager } from '@/plugins'
+
 import MessageExamples from './MessageExamples.vue'
 import Operation from './Operation.vue'
 import OperationMessageExamples from './OperationMessageExamples.vue'
@@ -47,7 +49,76 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
+vi.unmock('@/plugins/hooks/usePluginManager')
+
 describe('Operation', () => {
+  it('renders plugin-only extensions without default selection', () => {
+    const wrapper = mount(Operation, {
+      props: {
+        operation: createOperation(),
+        document: createDocument({
+          action: 'receive',
+          channel: { $ref: '#/channels/userSignedUp' },
+          'x-owner': 'team',
+        }),
+        eventBus: null,
+      },
+      global: {
+        provide: {
+          [PLUGIN_MANAGER_SYMBOL]: createPluginManager({
+            plugins: [
+              () => ({
+                name: 'owner',
+                extensions: [{ name: 'x-owner', component: { render: () => 'Custom owner' } }],
+              }),
+            ],
+          }),
+        },
+      },
+    })
+    expect(wrapper.text()).toContain('Custom owner')
+    expect(wrapper.text()).not.toContain('x-owner:')
+  })
+
+  it('renders referenced trait extensions with overrides and null deletion', () => {
+    const wrapper = mount(Operation, {
+      props: {
+        operation: createOperation(),
+        eventBus: null,
+        options: { showExtensions: ['x-array', 'x-own', 'x-null', 'x-removed', 'x-literal'] },
+        document: createDocument({
+          $ref: '#/components/example',
+          'x-own': 'ignored sibling',
+          '$ref-value': {
+            action: 'receive',
+            channel: { $ref: '#/channels/userSignedUp' },
+            traits: [
+              {
+                $ref: '#/components/traits/common',
+                '$ref-value': {
+                  'x-array': [false, 0, null],
+                  'x-own': 'inherited',
+                  'x-removed': 'remove me',
+                  'x-literal': { $ref: 'literal-data' },
+                },
+              },
+            ],
+            'x-own': 'local-value',
+            'x-null': null,
+            'x-removed': null,
+          },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('local-value')
+    expect(wrapper.text()).toContain('literal-data')
+    expect(wrapper.text()).toContain('x-null:null')
+    expect(wrapper.text()).toContain('false')
+    expect(wrapper.text()).not.toContain('ignored sibling')
+    expect(wrapper.text()).not.toContain('inherited')
+    expect(wrapper.text()).not.toContain('x-removed')
+  })
+
   it.each([
     { title: 'Event title', summary: 'Event summary', description: 'Event description', heading: 'Event title' },
     { title: 'Event title', summary: 'Event summary', description: undefined, heading: 'Event title' },

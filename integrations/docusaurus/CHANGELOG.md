@@ -1,5 +1,58 @@
 # @scalar/docusaurus
 
+## 0.8.65
+
+No changes in this release.
+
+## 0.8.64
+
+No changes in this release.
+
+## 0.8.63
+
+No changes in this release.
+
+## 0.8.62
+
+No changes in this release.
+
+## 0.8.61
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.8.60
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.8.59
+
+No changes in this release.
+
+## 0.8.58
+
+No changes in this release.
+
+## 0.8.57
+
+### Patch Changes
+
+- [#10908](https://github.com/scalar/scalar/pull/10908): Load Scalar only on API reference routes and destroy its instances when leaving, preventing standalone styles from affecting other Docusaurus pages.
+
+  The CDN bundle is no longer injected on every page. Sites using `window.Scalar.createApiReference` outside an API reference route must load the bundle explicitly. Upgrade pinned CDN bundles to a release with `Scalar.releaseUnusedStyles` for cleanup when navigation interrupts loading.
+
+## 0.8.56
+
+## 0.8.55
+
+## 0.8.54
+
+## 0.8.53
+
 ## 0.8.52
 
 ## 0.8.51

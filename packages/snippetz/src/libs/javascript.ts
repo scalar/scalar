@@ -25,7 +25,12 @@ export class Raw {
  *
  * Handles nested objects, arrays, and special string values
  */
-export function objectToString(obj: object, indent = 0): string {
+export function objectToString(obj: object | string | number | boolean | null, indent = 0): string {
+  // JSON bodies can be scalars; Object.keys would discard booleans and numbers.
+  if (obj === null || typeof obj !== 'object') {
+    return JSON.stringify(obj)
+  }
+
   const parts = []
   const indentation = ' '.repeat(indent)
   const innerIndentation = ' '.repeat(indent + 2)
@@ -94,3 +99,6 @@ function indentString(str: string, indent: number) {
     .map((line) => `${indentation}${line}`)
     .join('\n')
 }
+
+/** Format setup statements with a blank line before the request. */
+export const formatSetup = (setup: string[]): string => (setup.length ? `${setup.join('\n')}\n\n` : '')

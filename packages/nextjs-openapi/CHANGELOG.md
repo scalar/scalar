@@ -1,5 +1,51 @@
 # @scalar/nextjs-openapi
 
+## 0.3.64
+
+No changes in this release.
+
+## 0.3.63
+
+No changes in this release.
+
+## 0.3.62
+
+No changes in this release.
+
+## 0.3.61
+
+No changes in this release.
+
+## 0.3.60
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.3.59
+
+No changes in this release.
+
+## 0.3.58
+
+No changes in this release.
+
+## 0.3.57
+
+### Patch Changes
+
+- [#10898](https://github.com/scalar/scalar/pull/10898): Preserve path parameters when generating OpenAPI descriptions from Next.js handlers with asynchronous params, and mark path parameters as required.
+
+  Infer missing path parameters from route paths when handlers use named parameter aliases or generated Next.js RouteContext types.
+
+## 0.3.56
+
+## 0.3.55
+
+## 0.3.54
+
+## 0.3.53
+
 ## 0.3.52
 
 ## 0.3.51

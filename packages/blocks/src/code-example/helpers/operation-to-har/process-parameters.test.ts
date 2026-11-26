@@ -11,6 +11,27 @@ import { describe, expect, it, vi } from 'vitest'
 import { processParameters } from './process-parameters'
 
 describe('parameter styles', () => {
+  it('generates formatted query and header values while preserving authored examples', () => {
+    const result = processParameters({
+      harRequest: createHarRequest('https://example.com/events'),
+      defaultDisabled: false,
+      parameters: [
+        { name: 'email', in: 'query', schema: { type: 'string', format: 'email' } },
+        { name: 'X-Id', in: 'header', schema: { type: 'string', format: 'uuid4' } },
+        { name: 'contact', in: 'query', schema: { type: 'string', format: 'email', example: 'custom@example.org' } },
+        { name: 'plain', in: 'header', schema: { type: 'string' } },
+      ],
+    })
+    expect(result.queryString).toStrictEqual([
+      { name: 'email', value: 'hello@example.com' },
+      { name: 'contact', value: 'custom@example.org' },
+    ])
+    expect(result.headers).toStrictEqual([
+      { name: 'X-Id', value: '919108f7-52d1-4320-9bac-f847db4148a8' },
+      { name: 'plain', value: '' },
+    ])
+  })
+
   it.each([true, false])(
     'omits disabled nested properties from snippets with defaultDisabled %s',
     (defaultDisabled) => {
@@ -2296,6 +2317,20 @@ describe('parameter styles', () => {
       // The value should be JSON stringified and kept raw in HAR
       expect(result.queryString).toEqual([{ name: 'data', value: '{"id":123,"name":"Test"}' }])
     })
+  })
+
+  it('keeps bounded path placeholders intact and uses authored examples', () => {
+    const result = processParameters({
+      harRequest: createHarRequest('https://example.com/{country}/items/{id}/{currency}'),
+      defaultDisabled: false,
+      parameters: [
+        { name: 'country', in: 'path', required: true, schema: { type: 'string', minLength: 2, maxLength: 2 } },
+        { name: 'id', in: 'path', required: true, schema: { type: 'string', minLength: 24 } },
+        { name: 'currency', in: 'path', required: true, schema: { type: 'string', maxLength: 3, example: 'EUR' } },
+      ],
+    })
+
+    expect(result.url).toBe('https://example.com/{country}/items/{id}/EUR')
   })
 
   describe('path parameters', () => {

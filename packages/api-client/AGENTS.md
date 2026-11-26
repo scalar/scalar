@@ -2,7 +2,7 @@
 
 ## Package Overview
 
-`@scalar/api-client` is the API testing client. It provides request editors, response viewers, authentication forms, environment management, and collection organization. It ships in three layouts: **web**, **app**, and **modal**.
+`@scalar/api-client` provides request editors, response viewers, authentication forms, and shared client components. Its playground opens the embedded client modal. The full web and Electron desktop applications live in `projects/scalar-app`.
 
 ## Visual Testing
 
@@ -10,25 +10,31 @@
 
 ```bash
 cd packages/api-client
-pnpm dev                    # Starts the v2 web playground (default)
-pnpm playground:v2:web      # Same as dev — standalone web client
-pnpm playground:v2:app      # Desktop-style app layout with full workspace
-pnpm playground:v2:modal    # Modal overlay layout
+pnpm dev --port 5065 --strictPort  # Modal playground
 ```
 
 Or from the repo root with Turbo (auto-builds dependencies):
 
 ```bash
-pnpm turbo --filter @scalar/api-client dev
+pnpm turbo --filter @scalar/api-client dev -- --port 5065 --strictPort
 ```
+
+For the full application, build the workspace packages first and configure the environment required by `projects/scalar-app/assert-scalar-app-env.ts` (`VITE_ENV`, `VITE_API_URL`, `VITE_SERVICES_URL`, and `VITE_DASHBOARD_URL`). Then run from `projects/scalar-app`:
+
+```bash
+pnpm dev:web --port 5174 --strictPort  # Browser application
+pnpm dev:app                         # Electron application
+```
+
+Follow the root guide's server reuse and cleanup rules. If a port is occupied by an unrelated process, choose another port without stopping that process. For Electron, set an explicit available `renderer.server.port` and `renderer.server.strictPort: true` in the local `projects/scalar-app/electron.vite.config.ts` before launch; do not commit task-specific port changes.
 
 ### Layout differences
 
 | Layout | Script | Description |
 |--------|--------|-------------|
-| **Web** | `pnpm playground:v2:web` | Standalone browser client. Default `dev` target. Single-request focused. |
-| **App** | `pnpm playground:v2:app` | Full desktop-style layout with sidebar, collections, environments, and workspace management. Test here for changes to workspace features. |
-| **Modal** | `pnpm playground:v2:modal` | Opens as an overlay. Also testable via the api-reference playground by clicking "Test Request" on any operation. |
+| **Web** | `pnpm dev:web` in `projects/scalar-app` | Full browser client with sidebar, collections, environments, and workspace management. |
+| **App** | `pnpm dev:app` in `projects/scalar-app` | Electron desktop application. Test desktop-specific behavior here. |
+| **Modal** | `pnpm dev` in `packages/api-client` | Opens as an overlay. Also testable via the api-reference playground by clicking "Test Request" on any operation. |
 
 ### What to check
 
@@ -44,4 +50,4 @@ pnpm turbo --filter @scalar/api-client dev
 - **Broad UI changes** (components, styling, layout) — test both **web** and **app**
 - **Request/response changes** — **web** is sufficient
 - **Sidebar, collections, workspace features** — test in **app**
-- **Modal integration** — test via **api-reference** playground ("Test Request" button) or `playground:v2:modal`
+- **Modal integration** — test via **api-reference** playground ("Test Request" button) or the `api-client` modal playground

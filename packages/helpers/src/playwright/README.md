@@ -13,6 +13,7 @@ docker run … scalarapi/playwright-runner:<version> run-server --port <port> --
 - **Image:** `scalarapi/playwright-runner` (Playwright’s published runner image), tagged with the same Playwright version the repo pins in `DEFAULT_PLAYWRIGHT_VERSION` in `docker.ts`. Keep that tag in sync with the workspace `@playwright/test` version.
 - **Platform:** `linux/amd64` so Apple Silicon machines still exercise the same stack CI uses on `amd64`.
 - **Why use it:** Browsers inside the container match Linux CI for fonts, rendering, and snapshot stability better than a native macOS/Windows install alone.
+- **WebGL:** The default headless browser in the image starts with `--disable-webgl`, so `getContext('webgl')` and `getContext('webgl2')` on a `<canvas>` element return `null`. Add `-e SCALAR_RUNNER_ENABLE_WEBGL=1` to the `docker run` line to turn it back on.
 
 ### Docker and `--network=host`
 

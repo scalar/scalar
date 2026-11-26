@@ -1,4 +1,4 @@
-import { isClient } from '@scalar/blocks/code-example'
+import { isSelectedClient } from '@scalar/blocks/code-example'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'
@@ -19,10 +19,10 @@ export const mapConfigToWorkspaceStore = ({
     () => toValue(config).defaultHttpClient,
     (newValue) => {
       if (newValue) {
-        const { targetKey, clientKey } = newValue
-
-        const clientId = `${targetKey}/${clientKey}`
-        if (isClient(clientId)) {
+        const id = typeof newValue === 'string' ? newValue : `${newValue.targetKey}/${newValue.clientKey}`
+        // Custom sample IDs use the literal `custom/` prefix and a lowercased language.
+        const clientId = id.startsWith('custom/') ? id.toLowerCase() : id
+        if (isSelectedClient(clientId)) {
           store.update('x-scalar-default-client', clientId)
         }
       }

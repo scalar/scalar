@@ -45,6 +45,6 @@ export type CustomOrDefaultClientOption = ClientOption | CustomClientOption
 
 /** Augments the base combobox option group with CustomClientOptions */
 export type CustomClientOptionGroup = ScalarComboboxOptionGroup<CustomOrDefaultClientOption> & {
-  /** Key of the group */
+  /** Client category, shared by all custom sample groups; not a unique heading identifier. */
   key: 'custom' | TargetId
 }

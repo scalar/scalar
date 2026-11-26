@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ScalarFloating } from '@scalar/components/floating'
+import { getActiveElement } from '@scalar/helpers/dom/get-active-element'
 import { ScalarIconLockSimple, ScalarIconLockSimpleOpen } from '@scalar/icons'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import { onClickOutside, onKeyStroke } from '@vueuse/core'
 import { computed, onBeforeUnmount, ref } from 'vue'
 
@@ -75,11 +77,13 @@ const toggleOnClick = () => {
   isPinned.value = true
 }
 
+const documentRoot = useDocumentRoot()
+
 onClickOutside(triggerRef, close, { ignore: [panelRef] })
 onKeyStroke('Escape', () => {
   if (isOpen.value) {
     // Descriptions can contain links, so do not discard the keyboard user's focus.
-    if (panelRef.value?.contains(document.activeElement)) {
+    if (panelRef.value?.contains(getActiveElement(documentRoot))) {
       triggerRef.value?.focus()
     }
     close()
@@ -148,9 +152,11 @@ const isOrAlternatives = computed(
         weight="bold" />
       <span v-if="!hideLabel">{{ label }}</span>
     </button>
-    <template #floating>
+    <!-- Mount the wrapper with its content so Floating UI measures the full width immediately. -->
+    <template
+      v-if="isOpen"
+      #floating>
       <div
-        v-if="isOpen"
         ref="panelRef"
         :aria-label="panelLabel"
         class="bg-b-1 dark:bg-b-1.5 inset-shadow-border relative flex flex-col rounded-xl p-0.75 shadow-md"

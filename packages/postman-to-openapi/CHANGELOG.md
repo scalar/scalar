@@ -1,5 +1,55 @@
 # @scalar/postman-to-openapi
 
+## 0.7.37
+
+### Patch Changes
+
+- [#11245](https://github.com/scalar/scalar/pull/11245): fix: keep parameters that share a name in different locations
+
+## 0.7.36
+
+### Patch Changes
+
+- [#11172](https://github.com/scalar/scalar/pull/11172): Fix invalid empty `responses` on merged Postman operations that have no saved responses.
+
+## 0.7.35
+
+### Patch Changes
+
+- [#11125](https://github.com/scalar/scalar/pull/11125): Fix Postman imports that use structured descriptions on query parameters.
+
+## 0.7.34
+
+### Patch Changes
+
+- [#11092](https://github.com/scalar/scalar/pull/11092): Preserve folder authentication inheritance when converting collections and selected requests or folders.
+  Keep distinct authentication schemes separate so folder overrides do not change sibling authentication.
+- [#11093](https://github.com/scalar/scalar/pull/11093): Preserve GraphQL queries and variables with explicit request body properties, and use the declared media type or application/octet-stream for file request bodies.
+
+## 0.7.33
+
+### Patch Changes
+
+- [#11076](https://github.com/scalar/scalar/pull/11076): Skip Postman auth types that OpenAPI cannot describe, such as AWS Signature, OAuth 1.0 and Hawk, instead of failing the whole conversion, convert digest auth to an HTTP digest scheme, and read the API key name and location from apikey auth, naming every key other than the default `api_key` header after its location and name so different keys no longer overwrite each other.
+- [#11072](https://github.com/scalar/scalar/pull/11072): Import Postman form-data and urlencoded request bodies as named form rows, so the API client sends every field, code examples show the real field names and disabled rows stay disabled. Keep repeated keys in order, leave file fields empty until a file is attached, list repeated required fields once and keep fields named like `__proto__` in the schema.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.7.32
+
+### Patch Changes
+
+- [#11055](https://github.com/scalar/scalar/pull/11055): fix: wrap saved response bodies in an example object
+
+  Saved Postman responses were written straight into `examples.default`, so the converted document failed OpenAPI 3.1 validation and tools reading `examples.default.value` got nothing. The body now goes into `value`, the same way request body examples already work. Non-JSON bodies are kept as plain strings instead of `{ rawContent }` objects.
+
+## 0.7.31
+
+No changes in this release.
+
+## 0.7.30
+
+## 0.7.29
+
 ## 0.7.28
 
 ## 0.7.27

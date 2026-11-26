@@ -16,7 +16,7 @@ type DisplaySchema = SchemaObject & { nullable?: boolean }
  * instead of being combined with them (#9657).
  */
 function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)[]): Record<string, unknown> {
-  const merged: Record<string, unknown> = {}
+  const merged: Record<PropertyKey, unknown> = {}
   const properties: Record<string, unknown> = {}
   const required = new Set<string>()
   let hasProperties = false
@@ -25,6 +25,11 @@ function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)
   for (const object of objects) {
     if (!object) {
       continue
+    }
+
+    // Renderer-only symbols must survive flattening nullable and single-branch compositions.
+    for (const key of Object.getOwnPropertySymbols(object)) {
+      merged[key] = (object as Record<PropertyKey, unknown>)[key]
     }
 
     for (const [key, val] of Object.entries(object)) {
@@ -133,7 +138,8 @@ export function optimizeValueForDisplay(value: DisplaySchema | undefined): Displ
     // The discriminator belongs to the union, not to its variants. Copied into a variant, it
     // makes the variant look like a bare `discriminator.mapping` base, which then infers a
     // second selector inside the variant.
-    const { discriminator: _discriminator, ...variantRootProperties } = rootProperties
+    // The property's badges also belong to the union, while variants can define their own.
+    const { discriminator: _discriminator, 'x-badges': badges, ...variantRootProperties } = rootProperties
 
     const mergedSchemas = filteredSchemas.map((_schema) => {
       const schema = resolve.schema(_schema)
@@ -163,6 +169,9 @@ export function optimizeValueForDisplay(value: DisplaySchema | undefined): Displ
 
     // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
     const result = { [composition]: mergedSchemas } as DisplaySchema
+    if (badges !== undefined) {
+      result['x-badges'] = badges
+    }
     if (typeof value.description === 'string') {
       result.description = value.description
     }

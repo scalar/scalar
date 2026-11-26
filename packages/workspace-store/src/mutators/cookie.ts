@@ -78,7 +78,12 @@ export const deleteCookie = (
 
 export const cookieMutatorsFactory = ({ collection }: { collection: WorkspaceDocument | Workspace | null }) => {
   return {
-    upsertCookie: (payload: Event<'cookie:upsert:cookie'>) => upsertCookie(collection, payload),
+    upsertCookie: (payload: {
+      payload: Partial<XScalarCookie>
+      // Spelled out with an explicit `| undefined` so the published declarations keep accepting
+      // `index: undefined` for consumers that enable `exactOptionalPropertyTypes`.
+      index?: number | undefined
+    }) => upsertCookie(collection, payload),
     deleteCookie: (payload: Event<'cookie:delete:cookie'>) => deleteCookie(collection, payload),
   }
 }

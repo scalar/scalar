@@ -3,6 +3,27 @@ import { describe, expect, it } from 'vitest'
 import { getSelectedSecurity } from './get-selected-security'
 
 describe('getSelectedSecurity', () => {
+  it.each([undefined, 'oidc'])('applies OIDC default scopes with preferred scheme %j', (preferred) => {
+    const schemes = { oidc: { type: 'openIdConnect', 'x-default-scopes': ['openid', 'profile'] } }
+    expect(getSelectedSecurity(undefined, undefined, [{ oidc: [] }], schemes, preferred)).toStrictEqual({
+      selectedIndex: 0,
+      selectedSchemes: [{ oidc: ['openid', 'profile'] }],
+    })
+    expect(
+      getSelectedSecurity(
+        { selectedIndex: 0, selectedSchemes: [{ oidc: [] }] },
+        undefined,
+        [{ oidc: [] }],
+        schemes,
+        preferred,
+      ),
+    ).toStrictEqual({ selectedIndex: 0, selectedSchemes: [{ oidc: [] }] })
+    expect(getSelectedSecurity(undefined, undefined, [{ oidc: ['required'] }], schemes)).toStrictEqual({
+      selectedIndex: 0,
+      selectedSchemes: [{ oidc: ['required'] }],
+    })
+  })
+
   it('returns operation-level selected security when set', () => {
     const documentSelectedSecurity = undefined
     const operationSelectedSecurity = {

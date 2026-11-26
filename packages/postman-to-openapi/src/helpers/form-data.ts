@@ -2,6 +2,22 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { FormParameter } from '@/types'
 
+/** Defines the field as an own property, so a field named `__proto__` is kept instead of replacing the prototype. */
+export const setFormFieldSchema = (
+  properties: Record<string, OpenAPIV3_1.SchemaObject>,
+  key: string,
+  property: OpenAPIV3_1.SchemaObject,
+): void => {
+  Object.defineProperty(properties, key, { value: property, enumerable: true, writable: true, configurable: true })
+}
+
+/** Lists a field in `required` once, so repeated Postman keys do not duplicate it. */
+export const addRequiredFormField = (required: string[], key: string): void => {
+  if (!required.includes(key)) {
+    required.push(key)
+  }
+}
+
 /**
  * Processes form data parameters from a Postman request and converts them into an OpenAPI schema.
  * Handles file uploads, required fields, and descriptions.
@@ -29,8 +45,8 @@ export function processFormDataSchema(formdata: FormParameter[]): OpenAPIV3_1.Sc
       property.description = descriptionText.replace(' [required]', '')
 
       // If [required] was present, add to required array
-      if (descriptionText.includes('[required]')) {
-        schema.required?.push(item.key)
+      if (descriptionText.includes('[required]') && schema.required) {
+        addRequiredFormField(schema.required, item.key)
       }
     }
 
@@ -46,7 +62,7 @@ export function processFormDataSchema(formdata: FormParameter[]): OpenAPIV3_1.Sc
       property['x-scalar-disabled'] = true
     }
 
-    schema.properties[item.key] = property
+    setFormFieldSchema(schema.properties, item.key, property)
   })
 
   // Only keep required array if it has items

@@ -1,4 +1,5 @@
 import { isElectron } from '@scalar/helpers/general/is-electron'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   type SecuritySchemeObjectSecret,
@@ -55,6 +56,8 @@ export type OperationToHarProps = {
    */
   /** Originating OpenAPI version, used for version-specific serialization. */
   openapiVersion?: string
+  jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   requestBodyCompositionSelection?: Record<string, number>
   /**
    * Whether to disable parameters by default.
@@ -96,6 +99,8 @@ export const operationToHar = ({
   securitySchemes,
   globalCookies,
   openapiVersion,
+  jsonSchemaDialect,
+  multipartNaming,
   requestBodyCompositionSelection,
   defaultDisabledParameters = false,
 }: OperationToHarProps): HarRequest => {
@@ -145,6 +150,7 @@ export const operationToHar = ({
       harRequest,
       parameters: operation.parameters,
       openapiVersion,
+      jsonSchemaDialect,
       example,
       defaultDisabled: defaultDisabledParameters,
     })
@@ -172,6 +178,8 @@ export const operationToHar = ({
       contentType,
       example,
       openapiVersion,
+      jsonSchemaDialect,
+      multipartNaming,
       requestBodyCompositionSelection,
     })
 
@@ -240,12 +248,9 @@ export const operationToHar = ({
     harRequest.queryString = []
   }
 
-  // Multipart file parts are encoded by the HTTP client, which owns the boundary.
+  // Structured multipart parts (with or without files) are encoded by the HTTP client, which owns the boundary.
   // Raw multipart text already has its boundary and must retain its Content-Type.
-  if (
-    harRequest.postData?.mimeType === 'multipart/form-data' &&
-    harRequest.postData.params?.some((param) => param.fileName !== undefined)
-  ) {
+  if (harRequest.postData?.mimeType === 'multipart/form-data' && harRequest.postData.params?.length) {
     harRequest.headers = harRequest.headers.filter((header) => header.name.toLowerCase() !== 'content-type')
   }
 

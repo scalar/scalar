@@ -3,6 +3,32 @@ namespace Scalar.AspNetCore.Tests;
 public class ScalarOptionsMapperTests
 {
     [Fact]
+    public void ToConfiguration_PreservesDocumentAuthenticationOverrides()
+    {
+        var options = new ScalarOptions()
+            .AddHttpAuthentication("Basic", scheme => scheme.Username = "global")
+            .AddDocument("public", configureDocument: document => document
+                .AddPreferredSecuritySchemes("OAuth")
+                .AddAuthorizationCodeFlow("OAuth", flow => flow.ClientId = "public-client")
+                .WithAllowedSecuritySchemes("OAuth"))
+            .AddDocument("internal");
+
+        var configuration = options.ToScalarConfiguration();
+        var sources = configuration.Sources.ToArray();
+        sources[0].Authentication!.PreferredSecuritySchemes.Should().Equal("OAuth");
+        sources[0].Authentication!.AllowedSecuritySchemes.Should().Equal("OAuth");
+        sources[0].Authentication!.SecuritySchemes.Should().ContainKey("OAuth");
+        sources[1].Authentication.Should().BeNull();
+        configuration.Authentication!.SecuritySchemes.Should().ContainSingle().Which.Key.Should().Be("Basic");
+
+        var json = System.Text.Json.JsonSerializer.Serialize(configuration, ScalarConfigurationSerializerContext.Default.ScalarConfiguration);
+        using var serialized = System.Text.Json.JsonDocument.Parse(json);
+        var documentAuth = serialized.RootElement.GetProperty("sources")[0].GetProperty("authentication");
+        documentAuth.GetProperty("allowedSecuritySchemes")[0].GetString().Should().Be("OAuth");
+        serialized.RootElement.GetProperty("sources")[1].TryGetProperty("authentication", out _).Should().BeFalse();
+    }
+
+    [Fact]
     public void ToConfiguration_ShouldReturnCorrectDefaultConfiguration()
     {
         // Arrange
@@ -116,8 +142,9 @@ public class ScalarOptionsMapperTests
         configuration.Servers.Should().ContainSingle().Which.Url.Should().Be("https://example.com");
         configuration.PluginUrls.Should().ContainSingle().Which.Should().Be("https://example.com/plugin.js");
         configuration.MetaData.Should().ContainKey("key").WhoseValue.Should().Be("value");
-        configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.CSharp);
-        configuration.DefaultHttpClient!.ClientKey.Should().Be(ScalarClient.HttpClient);
+        var defaultClient = configuration.DefaultHttpClient.Should().BeOfType<DefaultHttpClient>().Which;
+        defaultClient.TargetKey.Should().Be(ScalarTarget.CSharp);
+        defaultClient.ClientKey.Should().Be(ScalarClient.HttpClient);
         ((bool) configuration.HiddenClients!).Should().BeTrue();
         configuration.Authentication.Should().NotBeNull();
 #pragma warning disable CS0618 // Type or member is obsolete

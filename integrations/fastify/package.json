@@ -17,7 +17,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.76.0",
+  "version": "1.85.0",
   "engines": {
     "node": ">=22"
   },
@@ -76,7 +76,7 @@
     "@scalar/openapi-types": "workspace:*",
     "@types/node": "catalog:*",
     "fastify": "catalog:*",
-    "typescript": "^5.9.3",
+    "typescript": "6.0.3",
     "vite": "catalog:*",
     "vite-plugin-dts": "^5.1.2",
     "vitest": "catalog:*"

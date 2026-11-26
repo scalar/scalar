@@ -1,0 +1,72 @@
+import Preview from './Preview.mdx'
+
+# Tooltips
+
+Tooltips attach a short explanation to a word or phrase in running text. The wrapped text becomes the trigger, and the tip appears in a bubble on hover or focus.
+
+Use them for a term the reader may not know — an acronym on first use, a piece of jargon, a unit. The tip is supporting detail, so keep anything the reader must not miss in the prose itself.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `tip` | `string` | _required_ | The text shown in the bubble. |
+| `headline` | `string` | — | Optional heading shown above the tip. |
+| `cta` | `string` | — | Label for a link at the bottom of the bubble. Renders only together with `href`. |
+| `href` | `string` | — | Link target for the call to action. Renders only together with `cta`. |
+| `class` | `string` | — | Extra class names on the tooltip's root element. `className` also works in MDX. |
+
+In MDX, a `<Tooltip>` without a `tip` renders its text unchanged rather than an empty bubble.
+
+The trigger is focusable and the bubble is linked to it, so the tip opens on keyboard focus as well as hover and is announced as the trigger's description.
+
+## Examples
+
+### A Term with a Tip
+
+<Preview>
+  Our <Tooltip tip="Application Programming Interface">API</Tooltip> reference lists every operation in the document.
+</Preview>
+
+<CodeGroup>
+```md Markdown
+Our <scalar-tooltip tip="Application Programming Interface">API</scalar-tooltip> reference lists every operation in the document.
+```
+```mdx MDX
+Our <Tooltip tip="Application Programming Interface">API</Tooltip> reference lists every operation in the document.
+```
+</CodeGroup>
+
+### Headline and Call to Action
+
+Add a `headline` for a title above the tip, and `cta` with `href` for a link to the full explanation. Both are needed — a `cta` without an `href` renders nothing.
+
+<Preview>
+  Every <Tooltip tip="A machine-readable description of an HTTP API." headline="OpenAPI document" cta="Read the guide" href="/learn/openapi/what-is-openapi">OpenAPI document</Tooltip> can publish a reference.
+</Preview>
+
+<CodeGroup>
+```md Markdown
+Every <scalar-tooltip tip="A machine-readable description of an HTTP API." headline="OpenAPI document" cta="Read the guide" href="/learn/openapi/what-is-openapi">OpenAPI document</scalar-tooltip> can publish a reference.
+```
+```mdx MDX
+Every <Tooltip tip="A machine-readable description of an HTTP API." headline="OpenAPI document" cta="Read the guide" href="/learn/openapi/what-is-openapi">OpenAPI document</Tooltip> can publish a reference.
+```
+</CodeGroup>
+
+### Several on One Line
+
+Tooltips are inline, so several fit in one sentence and each keeps its own bubble.
+
+<Preview>
+  Use <Tooltip tip="JavaScript Object Notation">JSON</Tooltip> or <Tooltip tip="A human-friendly data serialization language">YAML</Tooltip> for the document source, and Markdown formatting around a tooltip still applies, like this **bold** text.
+</Preview>
+
+<CodeGroup>
+```md Markdown
+Use <scalar-tooltip tip="JavaScript Object Notation">JSON</scalar-tooltip> or <scalar-tooltip tip="A human-friendly data serialization language">YAML</scalar-tooltip> for the document source, and Markdown formatting around a tooltip still applies, like this **bold** text.
+```
+```mdx MDX
+Use <Tooltip tip="JavaScript Object Notation">JSON</Tooltip> or <Tooltip tip="A human-friendly data serialization language">YAML</Tooltip> for the document source, and Markdown formatting around a tooltip still applies, like this **bold** text.
+```
+</CodeGroup>

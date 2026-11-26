@@ -2,6 +2,7 @@ export {
   /** @deprecated Please import from @scalar/json-magic/helpers/escape-json-pointer instead */
   escapeJsonPointer,
 } from '@scalar/json-magic/helpers/escape-json-pointer'
+export { normalize } from '@scalar/json-magic/helpers/normalize'
 export {
   /** @deprecated Please import from @scalar/openapi-upgrader/2.0-to-3.0 instead */
   upgradeFromTwoToThree,
@@ -18,7 +19,6 @@ export { isJson } from './utils/is-json'
 export { isYaml } from './utils/is-yaml'
 export { join } from './utils/join'
 export { load } from './utils/load'
-export { normalize } from './utils/normalize'
 export { openapi } from './utils/openapi/openapi'
 export { toJson } from './utils/to-json'
 export { toYaml } from './utils/to-yaml'

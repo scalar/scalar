@@ -44,8 +44,8 @@ export const useConfiguredServers = ({
         }
       }
     },
-    // ensureDocumentLoaded reads servers immediately after addDocument, so overrides must be applied
-    // synchronously when the document is added, before the initial server selection is computed.
+    // ApiReference.vue's addDocument reconciles the selection immediately after adding the client document.
+    // Apply overrides synchronously so initial loads and live updates select from the configured servers.
     { immediate: true, flush: 'sync' },
   )
 }

@@ -1,6 +1,7 @@
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { HarRequest, Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 
 /** Quotes a value as an R string literal, escaping backslashes and double quotes. */
@@ -83,16 +84,8 @@ export const rHttr2: Plugin = {
     // Headers
     const headers: Record<string, string> = {}
 
-    if (normalizedRequest.headers?.length) {
-      for (const header of normalizedRequest.headers) {
-        headers[header.name] = header.value
-      }
-    }
-
-    // Cookies as Cookie header
-    if (normalizedRequest.cookies?.length) {
-      const cookieString = normalizedRequest.cookies.map((c) => `${c.name}=${c.value}`).join('; ')
-      headers['Cookie'] = cookieString
+    for (const header of mergeCookieHeaders(normalizedRequest)) {
+      headers[header.name] = header.value
     }
 
     // Auth
@@ -119,23 +112,20 @@ export const rHttr2: Plugin = {
     if (normalizedRequest.queryString?.length) {
       const params = reduceQueryParams(normalizedRequest.queryString)
       const entries = Object.entries(params)
+      const formatValue = (value: string | string[]): string =>
+        Array.isArray(value) ? `c(${value.map(toRString).join(', ')})` : toRString(value)
+      // httr2 rejects vectors in req_url_query() by default, so repeated parameters need
+      // `.multi = "explode"` to be sent as `name=a&name=b`.
+      const multi = entries.some(([, value]) => Array.isArray(value)) ? '.multi = "explode"' : ''
+
       if (entries.length === 1) {
         const [name, value] = entries[0]!
-        if (Array.isArray(value)) {
-          const items = value.map(toRString).join(', ')
-          steps.push(`  req_url_query(${toRString(name)} = c(${items}))`)
-        } else {
-          steps.push(`  req_url_query(${toRString(name)} = ${toRString(value)})`)
-        }
+        const args = [`${toRString(name)} = ${formatValue(value)}`, multi].filter(Boolean).join(', ')
+        steps.push(`  req_url_query(${args})`)
       } else {
-        const paramLines = entries
-          .map(([name, value]) => {
-            if (Array.isArray(value)) {
-              const items = value.map(toRString).join(', ')
-              return `    ${toRString(name)} = c(${items})`
-            }
-            return `    ${toRString(name)} = ${toRString(value)}`
-          })
+        const paramLines = [...entries.map(([name, value]) => `${toRString(name)} = ${formatValue(value)}`), multi]
+          .filter(Boolean)
+          .map((line) => `    ${line}`)
           .join(',\n')
         steps.push(`  req_url_query(\n${paramLines}\n  )`)
       }

@@ -10,9 +10,8 @@ import WhatsNewModal from './WhatsNewModal.vue'
 enableAutoUnmount(afterEach)
 
 /**
- * `ScalarModal` teleports its body via Headless UI's `Dialog`, so the
- * rendered nodes live outside the Vue Test Utils wrapper subtree. These
- * helpers query the live document instead.
+ * The modal is mounted into the live document (see `attachTo` below), so these helpers query
+ * the document directly rather than a single wrapper.
  */
 const queryRenderedTitles = (): string[] => {
   return Array.from(document.querySelectorAll('h3')).map((node) => node.textContent?.trim() ?? '')
@@ -38,7 +37,7 @@ describe('WhatsNewModal', () => {
 
   it('renders the first batch of release notes when opened', async () => {
     const state = useModal()
-    mount(WhatsNewModal, { props: { state } })
+    mount(WhatsNewModal, { attachTo: document.body, props: { state } })
 
     state.show()
     await nextTick()
@@ -52,7 +51,7 @@ describe('WhatsNewModal', () => {
 
   it('reveals additional notes when "Show older releases" is clicked', async () => {
     const state = useModal()
-    mount(WhatsNewModal, { props: { state } })
+    mount(WhatsNewModal, { attachTo: document.body, props: { state } })
 
     state.show()
     await nextTick()
@@ -79,7 +78,7 @@ describe('WhatsNewModal', () => {
 
   it('marks the latest release as seen when the modal opens', async () => {
     const state = useModal()
-    mount(WhatsNewModal, { props: { state } })
+    mount(WhatsNewModal, { attachTo: document.body, props: { state } })
 
     expect(localStorage.getItem(WHATS_NEW_LAST_SEEN_KEY)).toBeNull()
 
@@ -91,7 +90,7 @@ describe('WhatsNewModal', () => {
 
   it('renders rich content blocks (paragraphs, images, videos) when present', async () => {
     const state = useModal()
-    mount(WhatsNewModal, { props: { state } })
+    mount(WhatsNewModal, { attachTo: document.body, props: { state } })
 
     state.show()
     await nextTick()

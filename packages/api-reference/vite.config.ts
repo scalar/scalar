@@ -9,15 +9,33 @@ import {
   createLibEntry,
   createPreserveModulesOutput,
   findEntryPoints,
-} from '../../tooling/scripts/vite-lib-config'
-import { version } from './package.json'
+  hasModuleSideEffects,
+} from '../../tooling/scripts/vite-lib-config.ts'
+import packageJson from './package.json' with { type: 'json' }
+
+const { version } = packageJson
 
 const external = createExternalsFromPackageJson()
+const preserveModulesOutput = createPreserveModulesOutput()
 const entryPaths = await findEntryPoints()
 const entry = createLibEntry(entryPaths, import.meta.dirname)
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    {
+      name: 'playground-path-routing',
+      configureServer(server): void {
+        server.middlewares.use((req, _res, next): void => {
+          if (/^\/path-routing(?:[/?]|$)/.test(req.url ?? '')) {
+            req.url = `/path-routing.html${new URL(req.url ?? '/', 'http://localhost').search}`
+          }
+          next()
+        })
+      },
+    },
+  ],
   define: {
     'process.env.NODE_ENV': '"production"',
     'PACKAGE_VERSION': `"${version}"`,
@@ -54,10 +72,18 @@ export default defineConfig({
     },
     rolldownOptions: {
       treeshake: {
-        moduleSideEffects: (id) => id.includes('.css'),
+        moduleSideEffects: hasModuleSideEffects,
       },
-      external,
-      output: createPreserveModulesOutput(),
+      // The workspace patch is not installed by npm consumers. Ship the corrected parser.
+      external: (id) => !/^proto-parser(?:\/|$)/.test(id) && external.some((pattern) => pattern.test(id)),
+      output: {
+        ...preserveModulesOutput,
+        entryFileNames: (chunk) => {
+          const parserPath = chunk.facadeModuleId?.split('/node_modules/proto-parser/')[1]
+          // npm excludes nested node_modules directories, including those emitted by preserveModules.
+          return parserPath ? `vendor/proto-parser/${parserPath}` : preserveModulesOutput.entryFileNames(chunk)
+        },
+      },
     },
   },
 })

@@ -605,6 +605,16 @@ await result.applyChanges({ resolvedDocument: newDocument })
 
 After `applyChanges` returns, the merged document becomes both the new active document and the new saved baseline, so a subsequent `revertDocumentChanges` rolls back to the post-rebase state rather than the pre-rebase original.
 
+## Referenced OpenAPI upgrades
+
+The workspace store uses JSON Magic's resource and target lifecycle hooks to
+upgrade newly loaded referenced OpenAPI 2.0 and 3.0 resources. It retains compact
+`x-scalar-upgrade` bookkeeping when lazy external references still need the
+original dialect, relocation mappings, or media types. Editable exports keep
+that bookkeeping only while those external references remain. Resources already
+stored in an input bundle's `x-ext` retain their existing layout and legacy
+keywords, including `x-nullable` and `type: file`, so saved pointers remain valid.
+
 ## OpenAPI document identity
 
 The store honors `$self` when resolving relative references in an OpenAPI 3.2 description. Relative identities resolve against the document source URL. External documents keep their own identities, including across partial bundles.

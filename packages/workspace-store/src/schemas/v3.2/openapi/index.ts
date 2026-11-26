@@ -1,8 +1,10 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import {
   type Schema,
   any,
   array,
   boolean,
+  evaluate,
   intersection,
   lazy,
   literal,
@@ -14,6 +16,7 @@ import {
   union,
 } from '@scalar/validation'
 
+import { getPathEntries } from '@/helpers/get-path-entries'
 import { extensions } from '@/schemas/extensions'
 import { XInternal } from '@/schemas/extensions/document/x-internal'
 import { XScalarDefaultRequestBodyView } from '@/schemas/extensions/document/x-scalar-default-request-body-view'
@@ -48,10 +51,12 @@ import { XExamples } from '@/schemas/extensions/schema/x-examples'
 import { XOrder } from '@/schemas/extensions/schema/x-order'
 import { XVariable } from '@/schemas/extensions/schema/x-variable'
 import { XDefaultScopes } from '@/schemas/extensions/security/x-default-scopes'
+import { XScalarCredentialPlaceholders } from '@/schemas/extensions/security/x-scalar-credential-placeholders'
 import { XScalarCredentialsLocation } from '@/schemas/extensions/security/x-scalar-credentials-location'
 import { XScalarSecurityBody } from '@/schemas/extensions/security/x-scalar-security-body'
 import { XScalarSecurityQuery } from '@/schemas/extensions/security/x-scalar-security-query'
 import { XScalarAuthUrl, XScalarTokenUrl } from '@/schemas/extensions/security/x-scalar-security-secrets'
+import { XScalarTokenPrefix } from '@/schemas/extensions/security/x-scalar-token-prefix'
 import { XTokenName } from '@/schemas/extensions/security/x-tokenName'
 import { XusePkce } from '@/schemas/extensions/security/x-use-pkce'
 import { XScalarSelectedServer } from '@/schemas/extensions/server/x-scalar-selected-server'
@@ -150,6 +155,7 @@ export const generateSchemaObject = (maybeRef: (inner: Schema) => Schema): Schem
     XEnumDescriptions,
     XEnumVarNames,
     XAdditionalPropertiesName,
+    XBadges,
     XOrder,
     XTags,
   ] as const
@@ -270,11 +276,16 @@ export const generateSchemaObject = (maybeRef: (inner: Schema) => Schema): Schem
   )
 
   const arrayValidationKeywords = object({
+    contains: optional(union([boolean(), maybeRef(lazy((): Schema => schema))])),
+    minContains: optional(number({ typeComment: 'Minimum number of items matching contains.' })),
+    maxContains: optional(number({ typeComment: 'Maximum number of items matching contains.' })),
     maxItems: optional(number({ typeComment: 'Maximum number of items in array.' })),
     minItems: optional(number({ typeComment: 'Minimum number of items in array.' })),
     uniqueItems: optional(boolean({ typeComment: 'Whether array items must be unique.' })),
-    items: optional(maybeRef(lazy((): Schema => schema))),
-    prefixItems: optional(array(maybeRef(lazy((): Schema => schema)), { typeComment: 'Schema for tuple validation.' })),
+    items: optional(union([boolean(), maybeRef(lazy((): Schema => schema))])),
+    prefixItems: optional(
+      array(union([boolean(), maybeRef(lazy((): Schema => schema))]), { typeComment: 'Schema for tuple validation.' }),
+    ),
   })
 
   const arraySchema = intersection(
@@ -481,6 +492,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
   })
 
   const securitySchemeBase = object({
+    ...XScalarCredentialPlaceholders.properties,
     deprecated: optional(boolean({ typeComment: 'Whether the security scheme is deprecated.' })),
     description: optional(
       string({
@@ -492,6 +504,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
   const apiKeySecurityScheme = object(
     {
       ...securitySchemeBase.properties,
+      ...XScalarTokenPrefix.properties,
       type: literal('apiKey'),
       name: string({ typeComment: 'REQUIRED. The name of the header, query or cookie parameter to be used.' }),
       in: union([literal('query'), literal('header'), literal('cookie')], {
@@ -1173,10 +1186,14 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
         }),
       ),
       paths: optional(
-        record(string(), pathItem, {
-          typeComment: 'The available paths and operations for the API.',
-          typeName: 'PathsObject',
-        }),
+        // Extensions keep their original values when the coerced document is merged back.
+        evaluate(
+          (value) => Object.fromEntries(getPathEntries(isObject(value) ? value : undefined)),
+          record(string(), pathItem, {
+            typeComment: 'The available paths and operations for the API.',
+            typeName: 'PathsObject',
+          }),
+        ),
       ),
       webhooks: optional(
         record(string(), pathItem, {

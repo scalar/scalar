@@ -91,9 +91,14 @@ export type ApiClientTranslations = {
     openAPIClient: string
   }
   requestBody: {
+    restoreOriginalBody: string
+    createExampleFromSchema: string
     noBody: string
     delete: string
     selectFile: string
+    part: string
+    addPart: string
+    invalidPart: string
     multipartForm: string
     formUrlEncoded: string
     binaryFile: string
@@ -118,11 +123,36 @@ export type ApiClientTranslations = {
     key: string
     value: string
   }
+  datePicker: {
+    pickDate: string
+    pickTime: string
+    pickDateFor: string
+    pickTimeFor: string
+    calendar: string
+    previousMonth: string
+    nextMonth: string
+    time: string
+    hour: string
+    minute: string
+    second: string
+    today: string
+    now: string
+    done: string
+    insertVariable: string
+    currentTimestamp: string
+    randomFutureDate: string
+    randomPastDate: string
+    randomRecentDate: string
+  }
   requestTableRow: {
     key: string
     value: string
     delete: string
     selectFile: string
+    selectFiles: string
+    addFiles: string
+    uploadFor: string
+    removeFile: string
     globalCookieHint: string
     readOnlyHint: string
     include: string
@@ -182,6 +212,10 @@ export type ApiClientTranslations = {
   addressBar: {
     path: string
     copyUrl: string
+    openInBrowser: string
+    openInBrowserHint: string
+    browserUrlRequired: string
+    desktopBrowserUrlRequired: string
     send: string
     sendRequest: string
     duplicateRequest: string

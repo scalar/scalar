@@ -7,8 +7,9 @@ import {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import ParameterListItem from './ParameterListItem.vue'
@@ -22,6 +23,59 @@ const baseOptions = {
 }
 
 describe('ParameterListItem', () => {
+  it('preserves expanded fields when navigating inside an open deep-object group', async () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: 'filters',
+        eventBus: null,
+        options: baseOptions,
+        breadcrumb: ['operation', 'query'],
+        collapsableItems: true,
+        collapsableChildItems: true,
+        parameter: coerceValue(ParameterObjectSchema, {
+          name: 'filters',
+          in: 'query',
+          schema: { type: 'object' },
+        }),
+        childParameters: ['first', 'second'].map((name) =>
+          coerceValue(ParameterObjectSchema, {
+            name: `filters[${name}]`,
+            in: 'query',
+            schema: { type: 'string', description: `${name} details` },
+          }),
+        ),
+      },
+    })
+
+    try {
+      await wrapper.get('button[aria-expanded]').trigger('click')
+      const firstField = wrapper.findAllComponents(ParameterListItem)[0]!
+      await firstField.get('button[aria-expanded]').trigger('click')
+      expect(firstField.get('button[aria-expanded]').attributes('aria-expanded')).toBe('true')
+
+      scrollTargetId.value = 'operation.query.filters[second]'
+      await nextTick()
+      scrollTargetId.value = ''
+      await nextTick()
+      scrollTargetId.value = 'operation.query.filters[second]'
+      await nextTick()
+
+      expect(
+        wrapper.findAllComponents(ParameterListItem)[0]!.get('button[aria-expanded]').attributes('aria-expanded'),
+      ).toBe('true')
+
+      await wrapper.get('button[aria-expanded]').trigger('click')
+      scrollTargetId.value = ''
+      await nextTick()
+      scrollTargetId.value = 'operation.query.filters[second]'
+      await nextTick()
+      expect(wrapper.get('button[aria-expanded]').attributes('aria-expanded')).toBe('true')
+    } finally {
+      scrollTargetId.value = ''
+      wrapper.unmount()
+    }
+  })
+
   it('renders selected extensions from both a parameter and its schema', () => {
     const wrapper = mount(ParameterListItem, {
       props: {
@@ -342,4 +396,263 @@ describe('ParameterListItem', () => {
       expect(headerAnchorIds()).toEqual(['tag/pets/GET/pets.responses.200.headers.X-Rate-Limit'])
     })
   })
+  it.each(['parameter', 'response'] as const)('preserves named %s example labels and payloads', (surface) => {
+    const examples = {
+      first: { summary: 'Friendly summary', value: { value: 'payload', summary: 'ordinary data' } },
+      second: { value: 'fallback sample' },
+    }
+    const schema = coerceValue(SchemaObjectSchema, { type: 'string' })
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: 'example',
+        eventBus: null,
+        options: baseOptions,
+        parameter:
+          surface === 'parameter'
+            ? { name: 'example', in: 'query', schema, examples }
+            : { description: 'Response body', content: { 'application/json': { schema, examples } } },
+      },
+    })
+    expect(
+      wrapper
+        .findAll('button[aria-label]')
+        .map((button) => button.attributes('aria-label'))
+        .filter((label) => label?.startsWith('Copy example value:')),
+    ).toStrictEqual([
+      'Copy example value: Friendly summary: {"value":"payload","summary":"ordinary data"}',
+      'Copy example value: second: fallback sample',
+    ])
+    wrapper.unmount()
+  })
+
+  it.each(['query', 'path', 'header', 'cookie'] as const)(
+    'shows one example when a %s parameter overrides an identical schema example',
+    (location) => {
+      const wrapper = mount(ParameterListItem, {
+        props: {
+          name: 'term',
+          eventBus: null,
+          options: baseOptions,
+          parameter: {
+            name: 'term',
+            in: location,
+            required: location === 'path',
+            description: 'Parameter description',
+            example: 'Y',
+            schema: { type: 'string', description: 'Parameter description', example: 'Y' },
+          },
+        },
+      })
+      try {
+        expect(wrapper.findAll('button[aria-label="Copy example value: Y"]').length).toBe(1)
+        expect(wrapper.text().split('Parameter description').length - 1).toBe(1)
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
+
+  it.each(['example', 'examples'] as const)('prefers an explicit parameter example over schema.%s', (keyword) => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: 'term',
+        eventBus: null,
+        options: baseOptions,
+        parameter: {
+          name: 'term',
+          in: 'query',
+          example: 'parameter',
+          schema: { type: 'string', [keyword]: keyword === 'example' ? 'schema' : ['schema'] },
+        },
+      },
+    })
+    try {
+      const labels = wrapper
+        .findAll('button[aria-label]')
+        .map((button) => button.attributes('aria-label'))
+        .filter((label) => label?.startsWith('Copy example value:'))
+      expect(labels).toStrictEqual(['Copy example value: parameter'])
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
+  it.each(['oneOf', 'anyOf', 'allOf'] as const)(
+    'overrides examples in %s branches without changing the schema',
+    (keyword) => {
+      const branch = coerceValue(SchemaObjectSchema, {
+        type: 'string',
+        example: 'schema',
+        examples: ['schema multiple'],
+      })
+      const wrapper = mount(ParameterListItem, {
+        props: {
+          name: 'term',
+          eventBus: null,
+          options: baseOptions,
+          parameter: {
+            name: 'term',
+            in: 'query',
+            example: 'parameter',
+            schema: coerceValue(SchemaObjectSchema, { [keyword]: [branch] }),
+          },
+        },
+      })
+      try {
+        const labels = wrapper
+          .findAll('button[aria-label]')
+          .map((button) => button.attributes('aria-label'))
+          .filter((label) => label?.startsWith('Copy example value:'))
+        expect(labels).toStrictEqual(['Copy example value: parameter'])
+        expect(branch.example).toBe('schema')
+        expect(branch.examples).toStrictEqual(['schema multiple'])
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
+
+  it.each(['oneOf', 'anyOf'] as const)('preserves response schema examples inside %s variants', async (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      example: 'root schema',
+      [keyword]: [
+        { title: 'Text', type: 'string', example: 'text variant' },
+        { title: 'Number', type: 'number', example: 42 },
+      ],
+    })
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: '200',
+        collapsableItems: true,
+        eventBus: null,
+        options: baseOptions,
+        parameter: {
+          description: 'OK',
+          content: { 'application/json': { schema, example: 'media' } },
+        },
+      },
+    })
+    try {
+      await wrapper.get('button[aria-expanded]').trigger('click')
+      const labels = wrapper
+        .findAll('button[aria-label]')
+        .map((button) => button.attributes('aria-label'))
+        .filter((label) => label?.startsWith('Copy example value:'))
+      expect(labels).toStrictEqual(['Copy example value: text variant', 'Copy example value: media'])
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
+  it('overrides a resolved schema reference without changing its examples', () => {
+    const schema = coerceValue(SchemaObjectSchema, { type: 'string', example: 'schema' })
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: 'term',
+        eventBus: null,
+        options: baseOptions,
+        parameter: {
+          name: 'term',
+          in: 'query',
+          examples: { sample: { summary: 'Parameter sample', value: 'parameter' } },
+          schema: { $ref: '#/components/schemas/Term', '$ref-value': schema },
+        },
+      },
+    })
+    try {
+      const labels = wrapper
+        .findAll('button[aria-label]')
+        .map((button) => button.attributes('aria-label'))
+        .filter((label) => label?.startsWith('Copy example value:'))
+      expect(labels).toStrictEqual(['Copy example value: Parameter sample: parameter'])
+      expect(schema.example).toBe('schema')
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
+  it.each(['query', 'querystring'] as const)(
+    'keeps schema example maps for %s parameters without explicit examples',
+    (location) => {
+      const schema = coerceValue(SchemaObjectSchema, { type: 'string' })
+      // @ts-expect-error Legacy API descriptions may contain a named map instead of an examples array.
+      schema.examples = { legacy: { id: 1 } }
+      const wrapper = mount(ParameterListItem, {
+        props: {
+          name: 'term',
+          eventBus: null,
+          options: baseOptions,
+          parameter: {
+            name: 'term',
+            in: location,
+            content: { 'application/json': { schema } },
+          },
+        },
+      })
+      try {
+        const labels = wrapper
+          .findAll('button[aria-label]')
+          .map((button) => button.attributes('aria-label'))
+          .filter((label) => label?.startsWith('Copy example value:'))
+        expect(labels).toStrictEqual(['Copy example value: legacy: {"id":1}'])
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
+
+  it.each(['parameter', 'response'] as const)(
+    'renders a singular %s media type example instead of schema examples',
+    (surface) => {
+      const content = {
+        'application/json': {
+          example: 'media',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string', example: 'schema', examples: ['schema multiple'] }),
+        },
+      }
+      const wrapper = mount(ParameterListItem, {
+        props: {
+          name: 'term',
+          eventBus: null,
+          options: baseOptions,
+          parameter: surface === 'parameter' ? { name: 'term', in: 'query', content } : { description: 'OK', content },
+        },
+      })
+      try {
+        const labels = wrapper
+          .findAll('button[aria-label]')
+          .map((button) => button.attributes('aria-label'))
+          .filter((label) => label?.startsWith('Copy example value:'))
+        expect(labels).toStrictEqual(['Copy example value: media'])
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
+
+  it.each(['parameter', 'response'] as const)(
+    'keeps %s content schema examples when no explicit example is available',
+    (surface) => {
+      const content = {
+        'application/json': { schema: coerceValue(SchemaObjectSchema, { type: 'string', examples: ['schema'] }) },
+      }
+      const wrapper = mount(ParameterListItem, {
+        props: {
+          name: 'term',
+          eventBus: null,
+          options: baseOptions,
+          parameter: surface === 'parameter' ? { name: 'term', in: 'query', content } : { description: 'OK', content },
+        },
+      })
+      try {
+        const labels = wrapper
+          .findAll('button[aria-label]')
+          .map((button) => button.attributes('aria-label'))
+          .filter((label) => label?.startsWith('Copy example value:'))
+        expect(labels).toStrictEqual(['Copy example value: schema'])
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
 })

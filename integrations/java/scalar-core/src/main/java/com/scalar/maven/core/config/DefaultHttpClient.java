@@ -40,6 +40,19 @@ public class DefaultHttpClient {
     }
 
     /**
+     * Creates a default HTTP client from a built-in client ID.
+     * @param clientId the client ID in target/client format, such as node/fetch
+     */
+    public DefaultHttpClient(String clientId) {
+        String[] keys = clientId.split("/", 2);
+        if (keys.length != 2) {
+            throw new IllegalArgumentException("Expected an HTTP client ID in target/client format: " + clientId);
+        }
+        this.targetKey = ScalarTarget.fromValue(keys[0]);
+        this.clientKey = ScalarClient.fromValue(keys[1]);
+    }
+
+    /**
      * Gets the target key.
      *
      * @return the target key

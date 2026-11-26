@@ -6,6 +6,8 @@ pages outside this reference resolve.
 -->
 # CLI
 
+**Minimum version:** Node.js 20 or newer for the npm package. The standalone binaries bundle their own runtime and need nothing installed.
+
 Add `cli` under `targets` to generate a command-line client.
 
 ```json
@@ -45,6 +47,10 @@ Add `cli` under `targets` to generate a command-line client.
 
 Setting up publishing: [CLI publishing guide](../publishing/cli.md). How releases are cut: [Publishing](../publishing/overview.md).
 
+Commands of your own beside the generated ones (experimental): [CLI Commands](../custom-code/cli.md).
+
+Explanations and examples for every output format: [CLI Output Formats](../cli-output.md).
+
 ## binaryName
 
 **Type:** `string`
@@ -74,8 +80,9 @@ Primary repository this target's generated output is published to. Setting it tu
 | Property | Description |
 | --- | --- |
 | `repo`* | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
-| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the `scalar-generated` branch and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
+| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the generated branch (`generatedBranch`, `scalar-generated` by default) and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
 | `integrationBranch` | Branch where generated output is combined with your custom code; defaults to `scalar-next`. Commit customizations here: each regeneration is merged into it, release pull requests are opened from it, and each released version is synced back to it. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or collide with the branches Scalar and release-please manage, such as `scalar-generated`. |
+| `generatedBranch` | Branch Scalar pushes pristine generator output to before merging it into the integration branch; defaults to `scalar-generated`. Never commit here: every build replaces its contents. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or the integration branch, or collide with the other branches Scalar and release-please manage, such as `scalar-next` and `scalar-merge-conflict`. |
 
 ## publish
 
@@ -88,6 +95,8 @@ CLI publishing configuration: three independent channels, in any combination. `n
 **Type:** `boolean | object`
 
 Publishes the generated CLI to npm, installed globally with `npm install -g`. `true` publishes with the defaults; an object tunes them. `authMethod` and `releaseEnvironment` decide how the publish authenticates; `access` and `tag` decide what it publishes.
+
+The CLI it publishes registers `upgrade` and `uninstall` and checks for a newer release at most once a day, even with no other channel configured. An npm install is compared against the npm registry (`npm_config_registry` or `NPM_CONFIG_REGISTRY` when set, `https://registry.npmjs.org` otherwise) under the dist-tag it was published on, and a prerelease also against the stable tag, and `upgrade` runs the global install command of whichever client installed it: npm, pnpm, Yarn or Bun. A package whose `access` is not `public` is not checked, since the registry shows it only to a signed-in npm.
 
 Authenticates with [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) (OIDC) by default, registered on the package's **Settings → Trusted Publisher** tab (`https://www.npmjs.com/package/<package>/access`). With `authMethod` set to `access-token` it reads a [granular access token](https://docs.npmjs.com/creating-and-viewing-access-tokens) from the `NPM_TOKEN` repository secret instead, which the first release of a new package needs: npm only registers a trusted publisher on a package that already exists.
 
@@ -139,6 +148,8 @@ There is no registry and no account to set up: the binaries are uploaded to the 
 
 Each release builds `linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`, and `windows-x64`, attached as `<binary>-<platform>.tar.gz` (`.zip` on Windows). The asset names carry no version, so `https://github.com/<owner>/<repo>/releases/latest/download/<binary>-<platform>.tar.gz` always points at the newest release; re-running a release replaces the assets.
 
+When the destination is a GitHub `owner/repo`, the generated repository also gets an `install.sh` at its root, attached to every release beside a `checksums.txt` that covers it and the archives, so `curl -fsSL https://github.com/<owner>/<repo>/releases/latest/download/install.sh | bash` installs the binary for the machine into `~/.local/bin` (`<COMMAND>_INSTALL_DIR` picks another directory). When that directory is not on `PATH`, the script appends one line to the startup file of the user's shell — `.zshrc` in `$ZDOTDIR` (or `~`) for zsh, `~/.bashrc` for bash on Linux, the login file bash already reads on macOS (`~/.bash_profile` when there is none), `conf.d/<binary>.fish` for fish, and `~/.profile` for other POSIX shells — and prints the line that does the same in the current terminal. The line names the directory's real location, with any symlink resolved, so a link cannot later be pointed elsewhere. Re-running the script adds nothing, and `<binary> uninstall` names the line among what removing the executable leaves behind. The script leaves startup files alone, and says which check declined, when `<COMMAND>_NO_MODIFY_PATH` is set or when the shell is not one of those above; it then prints the line to add by hand. As root with a `$HOME` root does not own, as `sudo` can leave it, it declines without judging the directory, offers no line to paste, and says to run it as the home directory's owner; root in a home of its own, as in a container build or under `sudo -i`, is treated like any user. It also declines, and offers no line to paste whatever else declined, when the directory is relative, when it or any directory above it is not owned by the user or root or is writable by everyone (which rules out anything under `/tmp`), or when the directory contains a colon or — outside the home directory, which is written as `$HOME` — anything but ASCII letters, digits and `/ . _ + @ -`.
+
 #### releaseEnvironment
 
 **Type:** `string`
@@ -182,7 +193,7 @@ Release environment name used by generated publishing workflows. It renders as t
 
 **Type:** `string`
 
-Homepage rendered into the generated Homebrew formula (or cask, with `cask`). Defaults to the target's production repository.
+Homepage rendered into the generated Homebrew formula (or cask, with `cask`). Defaults to `organization.homepage`, then to the target's production repository.
 
 #### description
 
@@ -240,7 +251,7 @@ Code signing for the compiled CLI executables. It is not a publishing channel: i
 
 macOS code signing for the compiled `darwin-*` executables. Omit it to ship them unsigned.
 
-- `sign` re-signs them with your Developer ID certificate. That is what makes them run on Apple Silicon, and it is enough for anything installed without a browser — `brew install` of a formula, a `curl … | tar` download — because Gatekeeper only checks files marked as downloaded. A Homebrew cask is the exception: Homebrew marks what a cask downloads the way a browser does, so `publish.homebrew.cask` requires `sign-and-notarize`. The npm package is unaffected either way: it is a plain Node CLI with no compiled executable in it.
+- `sign` replaces the ad-hoc signature Bun leaves with your Developer ID certificate and the hardened runtime. That is enough for anything installed without a browser — `brew install` of a formula, a `curl … | tar` download — because Gatekeeper only checks files marked as downloaded. A Homebrew cask is the exception: Homebrew marks what a cask downloads the way a browser does, so `publish.homebrew.cask` requires `sign-and-notarize`. The npm package is unaffected either way: it is a plain Node CLI with no compiled executable in it.
 - `sign-and-notarize` also submits them to Apple's notary service, so a release archive downloaded in a browser opens without a Gatekeeper warning. It needs the three `MACOS_NOTARY_*` secrets and adds Apple's review time to every release.
 
 The release workflow reads fixed repository secrets, the names goreleaser's notarize documentation uses, so a repository already set up for a goreleaser release needs nothing new:
@@ -253,17 +264,25 @@ The release workflow reads fixed repository secrets, the names goreleaser's nota
 
 The three `MACOS_NOTARY_*` secrets are read only for `sign-and-notarize`. Every secret the release reads is checked at the start of the publish job, before the compile and any npm publish.
 
+## packageManager
+
+**Type:** `string`
+
+Package manager the generated GitHub workflows install dependencies and build with: `npm` (the default), `pnpm`, `yarn`, or `bun`. Each sets up a pinned release (pnpm 12, Yarn 4, Bun 1.4) in CI and the release job and runs its own install and `build`. The install is frozen when that manager's lockfile (`pnpm-lock.yaml`, `yarn.lock`, `bun.lock` or `bun.lockb`) is committed and resolves fresh when it is not, since the generator writes no lockfile; another manager's lockfile is ignored. Yarn installs into `node_modules`, not Plug'n'Play, and a Yarn 1 lockfile must be migrated to Yarn 4 before the frozen install accepts it. `npm` keeps running `npm install` whether or not a `package-lock.json` exists. Publishing still runs through npm, because trusted publishing needs the npm CLI. Only the workflows change: the published package and its README install instructions are the same either way. Any other value is reported and builds with npm.
+
+**Default:** `"npm"`
+
 ## defaultFormat
 
 **Type:** `string`
 
-Default `--format` for generated commands: `auto`, `json`, `jsonl`, `pretty`, `raw`, `toon`, or `yaml`. Any other value falls back to `auto`.
+Default `--format` for generated commands: `auto`, `json`, `jsonl`, `pretty`, `raw`, `toon`, or `yaml`. Defaults to `auto`, which prints JSON indented with two spaces, in terminals and pipes alike. `--format` overrides it for one invocation. Any unsupported value falls back to `auto`.
 
 ## defaultErrorFormat
 
 **Type:** `string`
 
-Default output format for errors from generated commands: `auto`, `json`, `jsonl`, `pretty`, `raw`, `toon`, or `yaml`. Any other value falls back to `auto`.
+Default `--format-error` for generated commands: `auto`, `json`, `jsonl`, `pretty`, `raw`, `toon`, or `yaml`. Defaults to `auto`, which prints indented JSON to stderr, colored red when coloring is enabled. Error `pretty` uses the same presentation, not a table or card. `--format-error` overrides it for one invocation. Any unsupported value falls back to `auto`.
 
 ## shellCompletions
 
@@ -273,6 +292,12 @@ Whether the generated CLI ships shell completion scripts and the `completion` su
 
 **Default:** `true`
 
+## confirm
+
+**Type:** `"delete"`
+
+Turns on `cli.confirm` for every method whose HTTP verb is `DELETE`, so each of those commands asks before it runs (see `resources.<name>.methods.<method>.cli.confirm`). A method's own `cli.confirm` wins: `false` keeps a delete command promptless, and a `message` words its question. Off when unset. Turning it on is a breaking change for scripts that run those commands without `--yes`.
+
 ## subresourceSeparator
 
 **Type:** `"colon" | "space"`
@@ -280,6 +305,14 @@ Whether the generated CLI ships shell completion scripts and the `completion` su
 How the generated CLI spells a command under a nested resource. `colon` joins the resource chain into one command group (`projects:tasks create`), the shape Heroku-style `oclif` CLIs use. `space` nests each subresource as a subcommand of its parent (`projects tasks create`), the shape `gh`, `kubectl`, and `gcloud` use; `--help`, shell completion, man pages, the README, and the smoke test all follow the nested tree. Under `space` a subresource and a method of its parent resource would be the same command if they shared a name, and so would a root method and a top-level resource that has only subresources. A subresource whose accessor clashes with a method is already renamed for every target (`policies-resource`); a clash that survives that, such as a method whose `publicIdentifier` differs from its name, fails generation naming both commands rather than silently renaming either. Top-level resources and root methods are spelled the same either way.
 
 **Default:** `"colon"`
+
+## installOrder
+
+**Type:** `("npm" | "installScript" | "homebrew" | "download")[]`
+
+Order of the install methods in the generated README's Installation section, the agent skill's Install section and the augmented OpenAPI document's `x-scalar-sdk-installation`, which all follow it. `npm` is `npm install -g`; `installScript` is the `curl … | bash` one-liner for the release's `install.sh`; `homebrew` is the tap's `brew install`; `download` is the manual archive download, including the Windows `.zip`. Listed methods come first, in the order given; any left out follow in the default order, so `["homebrew"]` only moves Homebrew to the top. A method listed twice keeps its first position. A method the config does not publish is skipped wherever it is listed: the order never adds an install line for a channel no release produces.
+
+**Default:** `["installScript", "npm", "homebrew", "download"]`
 
 ## credentialStore
 
@@ -319,7 +352,7 @@ Even under `keychain`, a small index of *which base URLs are signed in* is writt
 
 **Type:** `object`
 
-Identifies this CLI to an OAuth provider, for the browser-redirect flows. Required for `authorizationCode`: the OpenAPI flow object carries the authorization and token URLs but never a `client_id`, because that identifies the *application* rather than the API, so no document can supply it. Without this block those flows are unavailable and `login` falls back to the next usable flow, or to reading a token the user supplies.
+Identifies this CLI to an OAuth provider, for the browser-redirect flows. Required for `authorizationCode`: the OpenAPI flow object carries the authorization and token URLs but has no field for a `client_id`, because that identifies the *application* rather than the API. A starter config derived from a document fills in `clientId` from an `x-scalar-client-id` extension on the flow. Without this block those flows are unavailable and `login` falls back to the next usable flow, or to reading a token the user supplies.
 
 #### clientId
 
@@ -374,6 +407,40 @@ When set, a browser sign-in requires the redirect back to the CLI to carry this 
 OpenID Connect sign-ins verify the issuer from the discovery document even without this setting, and check that an ID token names it, is issued to this `clientId`, is unexpired, and echoes the sign-in's `nonce`. The ID token's signature is not checked, since it comes straight from the token endpoint over TLS, which OpenID Connect Core section 3.1.3.7 allows.
 
 **Constraints:** `pattern: ^(https://[^\s/?#@]+|http://(localhost|127\.0\.0\.1|\[::1\])(:[0-9]+)?)(/[^\s?#]*)?$`
+
+## customCode
+
+**Type:** `object`
+
+Experimental: may change in a later release. Custom code for the generated CLI: one TypeScript file that adds commands beside the generated ones, plus the npm packages it imports. The file exports `generateCommands(cli, runtime)`, which the CLI calls once its own commands are registered; commands, hooks and their handler files are code, not config.
+
+By default the file lives in a `custom/` folder at the root of the CLI repository, beside the generated `src/`, and the generator never writes to that folder. Set `dir` to keep it in a folder beside this config instead, which the generator then copies into the CLI repository.
+
+Example: `{ "implementation": "commands/index.ts", "dependencies": { "@scalar/openapi-validator": "^0.2.0" } }`.
+
+### implementation
+
+**Type:** `string`
+
+**Required**
+
+The one custom-code file, relative to the custom folder (`custom/` at the CLI repository root, or `dir`), with forward slashes. It must end in `.ts`, stay inside the folder, not be a test or declaration file, avoid the folder names `.git`, `node_modules`, `dist`, `src` and `.scalar`, and export `generateCommands`. A file that is missing when the CLI is generated fails generation with `CliCustomCode/MissingFile`, naming the `custom-code add cli` command that writes one. Example: `"commands/index.ts"`.
+
+**Constraints:** `pattern: ^(?![/\\])(?![A-Za-z]:)(?![\s\S]*\\)(?!(?:[\s\S]*/)?\.\.?(?:/|$))(?![\s\S]*//)(?![\s\S]*/$)(?!(?:[\s\S]*/)?(?:\.git|node_modules|dist|src|\.scalar)(?:/|$))(?!(?:[\s\S]*/)?__tests__/)(?![\s\S]*\.(?:test|spec|d)\.ts$)[^\u0000-\u001f\u007f\u2028\u2029]*\.ts$`, `minLength: 4`, `maxLength: 512`
+
+### dependencies
+
+**Type:** `Record<string, string>`
+
+npm packages the custom code imports, by package name, each with a version constraint. They are merged into the generated `package.json`; a package the custom code imports without declaring it here is not installed, so the CLI's type check fails. Names must be valid npm package names, and constraints may use only digits, letters, `.`, `-`, `+`, `^`, `~`, `<`, `>`, `=`, `|`, `*` and spaces, with no space at either end, so a git URL, a path (one starting with `.`) or a tarball (one ending in `.tgz`, `.tar` or `.tar.gz`, or in `.tar` and `gz` around any one character, which package managers read the same way) is refused. A package the generated CLI already depends on (`commander`, `ansis`, `yaml`, `typescript`, `@types/node`, and `ws` and `@types/ws` in a CLI that uses WebSockets) is refused too, because the generator owns its version. Example: `{ "@scalar/openapi-validator": "^0.2.0" }`.
+
+### dir
+
+**Type:** `string`
+
+Keeps the custom folder beside this config instead of in the CLI repository: a path relative to the config file's directory, with forward slashes and no `.`, `..`, empty or trailing segment, that stays inside it and is not under `.git` or `node_modules`. The generator copies the folder into the CLI repository's `custom/` file for file, so relative imports resolve the same way in both, and records a hash of each copied file in the manifest. A CLI repository that also has its own `custom/` folder fails generation, since a target uses one layout. Example: `"cli-custom"`.
+
+**Constraints:** `pattern: ^(?![/\\])(?![A-Za-z]:)(?![\s\S]*\\)(?!(?:[\s\S]*/)?\.\.?(?:/|$))(?![\s\S]*//)(?![\s\S]*/$)(?!(?:[\s\S]*/)?(?:\.git|node_modules)(?:/|$))[^\u0000-\u001f\u007f\u2028\u2029]+$`, `minLength: 1`, `maxLength: 512`
 
 ## prereleaseType
 
@@ -434,3 +501,16 @@ Set `cli` on a method in `resources` to include or exclude the command generated
 | Property | Description |
 | --- | --- |
 | `enabled` | Enables or disables CLI command generation for this method. |
+| [`confirm`](#confirm-1) | Asks for confirmation before the generated CLI command runs. On a terminal (stdin and stderr are TTYs, `CI` is unset and `--no-input` was not passed) the command asks on stderr — by default a sentence naming the command and the path parameters it was given, such as `Delete registry "acme" "petstore"? [y/N]`, or `message` followed by those values — and runs only on `y` or `yes`. Any other answer, an empty line or end of input prints `Cancelled.` and exits 1; Ctrl-C exits 130. Neither sends a request. Anywhere else (a pipe, a body read from stdin, CI, `--no-input`) the command fails as a usage error (exit 2, written in the `--format-error` format) unless `--yes`/`-y` is passed after the command name. The check runs before credentials are resolved, so a cancelled command never refreshes a token. `false` turns off a confirmation `targets.cli.confirm` would otherwise add. Turning confirmation on for an existing command is a breaking change for scripts that run it without `--yes`. Other targets ignore it. |
+
+### confirm
+
+#### message
+
+**Type:** `string`
+
+**Required**
+
+Question the command asks in place of the default sentence, written exactly as given (no templating). The path parameters the command was given (as arguments or flags) still follow it, on the next line, before ` [y/N]`.
+
+**Constraints:** `pattern: \S`, `minLength: 1`

@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
 import { type Plugin, defineConfig } from 'vitest/config'
 
-import { createExternalsFromPackageJson, createPreserveModulesOutput } from '../../tooling/scripts/vite-lib-config'
+import { createExternalsFromPackageJson, createPreserveModulesOutput } from '../../tooling/scripts/vite-lib-config.ts'
 
 const external = createExternalsFromPackageJson()
 

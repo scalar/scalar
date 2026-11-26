@@ -1,3 +1,4 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { parse as parseYaml } from 'yaml'
 
@@ -11,7 +12,7 @@ const safeParseJson = (value: string): unknown => {
 
 const safeParseYaml = (value: string): unknown => {
   try {
-    return parseYaml(value)
+    return parseYaml(value, { maxAliasCount: YAML_MAX_ALIAS_COUNT })
   } catch {
     return null
   }

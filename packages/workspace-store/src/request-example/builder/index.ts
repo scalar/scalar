@@ -36,6 +36,7 @@ export { getExample } from './helpers/get-example'
 export { getExampleFromSchema } from './helpers/get-example-from-schema'
 export { getResolvedUrl } from './helpers/get-resolved-url'
 export { getServerVariables } from './helpers/get-server-variables'
+export { resolveServerUrl } from './helpers/resolve-server-url'
 export type { RequestFactory } from './request-factory'
 export { requestFactory } from './request-factory'
 export {

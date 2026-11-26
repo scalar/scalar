@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <title>Per-document authentication</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script
+      src="../../src/standalone.ts"
+      type="module"></script>
+    <script type="module">
+      const oauth = {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/authorize',
+            tokenUrl: 'https://example.com/token',
+            scopes: { read: 'Read records' },
+          },
+        },
+      }
+      const basic = { type: 'http', scheme: 'basic' }
+      const document = (title, scheme, definition) => ({
+        openapi: '3.2.1',
+        info: {
+          title,
+          version: '1.0.0',
+          description:
+            'Authentication defaults are shared. Each document selects and displays its own scheme.',
+        },
+        paths: {
+          '/records': {
+            get: {
+              summary: 'List records',
+              responses: { 200: { description: 'Records returned' } },
+            },
+          },
+        },
+        components: { securitySchemes: { [scheme]: definition } },
+        security: [{ [scheme]: [] }],
+      })
+      const unrestricted = new URLSearchParams(location.search).has(
+        'unrestricted',
+      )
+      Scalar.createApiReference('#app', {
+        showDeveloperTools: 'never',
+        authentication: {
+          securitySchemes: {
+            OAuth: {
+              ...oauth,
+              flows: {
+                authorizationCode: {
+                  ...oauth.flows.authorizationCode,
+                  'x-scalar-client-id': 'shared-client',
+                },
+              },
+            },
+            Basic: { ...basic, username: 'shared-user' },
+          },
+        },
+        sources: [
+          {
+            title: 'Public API',
+            slug: 'public',
+            content: document('Public API', 'OAuth', oauth),
+            authentication: {
+              preferredSecurityScheme: 'OAuth',
+              ...(unrestricted ? {} : { allowedSecuritySchemes: ['OAuth'] }),
+            },
+          },
+          {
+            title: 'Internal API',
+            slug: 'internal',
+            content: document('Internal API', 'Basic', basic),
+            authentication: {
+              preferredSecurityScheme: 'Basic',
+              securitySchemes: { Basic: { username: 'internal-demo' } },
+              ...(unrestricted ? {} : { allowedSecuritySchemes: ['Basic'] }),
+            },
+          },
+        ],
+      })
+    </script>
+  </body>
+</html>

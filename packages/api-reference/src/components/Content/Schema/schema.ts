@@ -1,7 +1,7 @@
 import { Schema as BlockSchema, SchemaProperty as BlockSchemaProperty } from '@scalar/blocks/schema'
 import { type VNode, defineComponent, h } from 'vue'
 
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
 /** Schema with the historical API Reference navigation and extension defaults. */

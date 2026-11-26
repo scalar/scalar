@@ -24,7 +24,7 @@ The values below are a curated snapshot of the **default** theme — enough to d
 
 Scalar's look is a clean, modern developer-tool aesthetic: high-contrast typography, restrained color, hairline borders, and small radii. Treat it as a product/clarity system, not a marketing/expressive one.
 
-- **Type:** `Inter` for UI and prose, `JetBrains Mono` for code.
+- **Type:** the system UI font for UI and prose, the system monospace font for code. No web fonts are loaded.
 - **Accent:** `#0099ff` (one deliberate accent; everything else is neutral).
 - **Mode:** light mode by default (`#fff` ground, `#1b1b1b` text).
 - **Borders:** hairline `0.5px`, color `#dfdfdf`.
@@ -81,7 +81,7 @@ Scalar maps `--scalar-*` variables onto a custom Tailwind theme. In components, 
 - **Border:** `border` (uses `--scalar-border-color`, default width `0.5px`); `shadow-border` for an inset hairline, or `inset-shadow-border` to stack it with a `shadow-*`.
 - **Shadow:** `shadow` / `shadow-md` (shadow-1), `shadow-lg` (shadow-2), `shadow-sm`.
 - **Radius:** `rounded` & `rounded-md` (3px), `rounded-lg` (6px), `rounded-xl` (8px), `rounded-2xl` (12px), `rounded-3xl` (16px), `rounded-full` (pill). No `rounded-sm`.
-- **Type:** `font-sans` (Inter), `font-code` (JetBrains Mono); sizes `text-3xs` 10, `text-xxs`/`text-xs` 12, `text-sm` 13, `text-base` 14, `text-lg` 16, `text-xl` 21; weights `font-normal` 400, `font-medium` 500, `font-bold` 600.
+- **Type:** `font-sans` (system UI font), `font-code` (system monospace); sizes `text-3xs` 10, `text-xxs`/`text-xs` 12, `text-sm` 13, `text-base` 14, `text-lg` 16, `text-xl` 21; weights `font-normal` 400, `font-medium` 500, `font-bold` 600.
 - **Spacing:** base unit is `4px`, so `p-1` = 4px, `p-2` = 8px, `gap-3` = 12px, etc. `h-header` = 48px.
 - **Breakpoints:** `xs` 400, `sm` 600, `md` 800, `lg` 1000, `xl` 1200.
 
@@ -111,7 +111,7 @@ Headline components (full list in [`references/components.md`](./references/comp
 Paper writes literal HTML/CSS to the canvas with `px` sizes and hex colors, so translate Scalar tokens into concrete values:
 
 - Ground `#fff`, text `#1b1b1b` (secondary `#707070`), accent `#0099ff`, borders `0.5px` `#dfdfdf`, radii 3–8px.
-- `Inter` for everything except code (`JetBrains Mono`); body text 16px, small 14px.
+- The system UI font for everything except code (system monospace); body text 16px, small 14px.
 - Spacing on a 4px grid (4, 8, 12, 16, 24…).
 - Default to light mode. Mirror the real component shapes (buttons, cards, sidebar rows) using these values.
 - Because the design system is specified here, **skip Paper's invented design brief** and design directly in Scalar's system.
@@ -119,7 +119,7 @@ Paper writes literal HTML/CSS to the canvas with `px` sizes and hex colors, so t
 ### design-to-code — turn a Paper design into Scalar code
 
 1. **Extract exact values from Paper** with `get_jsx` / `get_computed_styles` / `get_fill_image` — never read sizes or colors off a screenshot.
-2. **Map values back to tokens / Tailwind:** e.g. `#0099ff` → `--scalar-color-accent` / `text-c-accent`; `#fff` → `bg-b-1`; `#1b1b1b` → `text-c-1`; `0.5px #dfdfdf` border → `border`; `3px` radius → `rounded`; 16px Inter → `text-lg font-sans`. See [`references/paper.md`](./references/paper.md) for the full table.
+2. **Map values back to tokens / Tailwind:** e.g. `#0099ff` → `--scalar-color-accent` / `text-c-accent`; `#fff` → `bg-b-1`; `#1b1b1b` → `text-c-1`; `0.5px #dfdfdf` border → `border`; `3px` radius → `rounded`; 16px system UI font → `text-lg font-sans`. See [`references/paper.md`](./references/paper.md) for the full table.
 3. **Map elements to components:** button → `ScalarButton` (pick variant + size); card → `ScalarCard`; menu/select → `ScalarDropdown` / `ScalarListbox` / `ScalarCombobox`; dialog → `ScalarModal`; icon → an `@scalar/icons` `ScalarIcon*`. Import each from its subpath.
 4. **Where the component docs are** (to confirm a component, its props, and variants):
    - `@scalar/components` `package.json` `exports` — the subpath → component map.

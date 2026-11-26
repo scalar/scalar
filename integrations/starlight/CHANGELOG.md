@@ -1,5 +1,43 @@
 # @scalar/starlight
 
+## 0.2.28
+
+No changes in this release.
+
+## 0.2.27
+
+No changes in this release.
+
+## 0.2.26
+
+No changes in this release.
+
+## 0.2.25
+
+No changes in this release.
+
+## 0.2.24
+
+No changes in this release.
+
+## 0.2.23
+
+No changes in this release.
+
+## 0.2.22
+
+No changes in this release.
+
+## 0.2.21
+
+## 0.2.20
+
+## 0.2.19
+
+## 0.2.18
+
+## 0.2.17
+
 ## 0.2.16
 
 ## 0.2.15

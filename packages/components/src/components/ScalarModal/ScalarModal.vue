@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ScalarIconX } from '@scalar/icons'
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
-import { reactive } from 'vue'
+import { computed, reactive, useId } from 'vue'
 
+import { ScalarDialog } from '../ScalarDialog'
 import { ScalarIconButton } from '../ScalarIconButton'
 
 type ModalVariants = VariantProps<typeof modal>
 
-const { size = 'md' } = defineProps<{
+const { size = 'md', state } = defineProps<{
   state: ReturnType<typeof useModal>
   title?: string
   bodyClass?: string
@@ -19,13 +19,38 @@ const { size = 'md' } = defineProps<{
 }>()
 
 const emit = defineEmits<{
+  /** Emitted when the user dismisses the modal with Escape or a backdrop click. */
   (event: 'close'): void
 }>()
+
+const titleId = useId()
+
+/** Whether the modal is the full-height side panel rather than a centered panel */
+const isFull = computed(() => size === 'full')
+
+/** The full size dialog is an invisible full-viewport layer the side panel sits in */
+const FULL_LAYOUT =
+  'scalar-modal-layout-full m-0 h-dvh max-h-dvh w-dvw max-w-none overflow-visible rounded-none bg-transparent p-0 shadow-none backdrop:bg-transparent dark:backdrop:bg-transparent'
+
+/**
+ * Sync user dismissals from the dialog back into the modal state.
+ *
+ * Only `false` updates come through here, since the dialog never opens itself. Programmatic
+ * closes via `state.hide()` do not emit `close`, which matches how the modal has always behaved.
+ */
+const handleOpenChange = (open: boolean): void => {
+  if (!open) {
+    state.hide()
+    emit('close')
+  }
+}
 
 const modal = cva({
   base: [
     'scalar-modal',
-    'flex flex-col relative mb-0 rounded-lg bg-b-1 p-0 text-left leading-snug text-c-1 opacity-0 w-[calc(100vw-12px)] md:w-[calc(100vw-16px)] lg:w-[calc(100vw-32px)]',
+    'flex flex-col mb-0 rounded-lg bg-b-1 p-0 text-left leading-snug text-c-1 opacity-0 w-[calc(100vw-12px)] md:w-[calc(100vw-16px)] lg:w-[calc(100vw-32px)]',
+    // Let form popovers overflow the panel rather than scrolling the whole dialog
+    'overflow-visible',
   ].join(' '),
   variants: {
     size: {
@@ -92,59 +117,42 @@ export function useModal() {
 }
 </script>
 <template>
-  <Dialog
+  <ScalarDialog
+    :aria-labelledby="title ? titleId : undefined"
+    :class="isFull ? FULL_LAYOUT : modal({ size, variant })"
     :open="state.open"
-    @close="
-      () => {
-        state.hide()
-        emit('close')
-      }
-    ">
+    :style="isFull ? undefined : { maxWidth }"
+    @update:open="handleOpenChange">
+    <!-- The full size is a side panel, so the dialog fills the viewport and the panel sits inside
+         it. Every other size is the panel itself, and the wrapper steps out of the layout. -->
     <div
-      :class="
-        cx(
-          size === 'full' ? 'scalar-modal-layout-full' : 'scalar-modal-layout',
-          'fixed top-0 left-0 flex items-start justify-center',
-          'z-overlay h-dvh w-dvw',
-          'bg-backdrop dark:bg-backdrop-dark opacity-0',
-          size === 'full' && 'flex',
-        )
-      ">
-      <DialogPanel
-        :class="modal({ size, variant })"
-        :style="{ maxWidth }">
-        <DialogTitle
-          v-if="title"
-          class="scalar-modal-header text-c-1 m-0 -mb-1 rounded-lg px-3 pt-3 text-left text-sm font-medium">
-          {{ title }}
-        </DialogTitle>
-        <div
-          v-if="size === 'full'"
-          :class="bodyClass">
-          <slot />
-        </div>
-        <div
-          v-else
-          :class="cx(body({ size, variant }), bodyClass)">
-          <slot />
-        </div>
-      </DialogPanel>
-      <div
-        v-if="size === 'full'"
-        class="close-button fixed top-2 right-2 z-10">
-        <ScalarIconButton
-          class="hover:bg-b-3 focus:outline-none"
-          :icon="ScalarIconX"
-          label="Close modal"
-          @click="state.hide()" />
+      :class="isFull ? modal({ size, variant }) : 'contents'"
+      :style="isFull ? { maxWidth } : undefined">
+      <h2
+        v-if="title"
+        :id="titleId"
+        class="scalar-modal-header text-c-1 m-0 -mb-1 rounded-lg px-3 pt-3 text-left text-sm font-medium">
+        {{ title }}
+      </h2>
+      <div :class="isFull ? bodyClass : cx(body({ size, variant }), bodyClass)">
+        <slot />
       </div>
     </div>
-  </Dialog>
+    <div
+      v-if="isFull"
+      class="close-button fixed top-2 right-2 z-10">
+      <ScalarIconButton
+        class="hover:bg-b-3 focus:outline-none"
+        :icon="ScalarIconX"
+        label="Close modal"
+        @click="state.hide()" />
+    </div>
+  </ScalarDialog>
 </template>
 <style scoped>
 @reference '../../style.css';
 
-.scalar-modal-layout {
+.scalar-modal::backdrop {
   animation: fadein-layout ease-in-out 0.3s forwards;
 }
 .scalar-modal {
@@ -152,10 +160,6 @@ export function useModal() {
   animation-delay: 0.1s;
   box-shadow: var(--scalar-shadow-2);
   transform: translate3d(0, 10px, 0);
-}
-.scalar-modal-layout-full {
-  opacity: 1 !important;
-  background: transparent !important;
 }
 .modal-content-search .modal-body {
   padding: 0;
@@ -169,7 +173,7 @@ export function useModal() {
  * very short (or very zoomed in) screens
  */
 @variant zoomed {
-  .scalar-modal-layout .scalar-modal {
+  .scalar-modal:not(.full-size-styles) {
     margin-top: 5svh;
     max-height: 90svh;
   }

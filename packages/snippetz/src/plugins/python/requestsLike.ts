@@ -26,6 +26,10 @@ function convertToPythonSyntax(str: string): string {
 }
 
 export function formatPythonValue(value: unknown, indentation = 4): string {
+  if (typeof value === 'boolean') {
+    return value ? 'True' : 'False'
+  }
+
   return convertToPythonSyntax(
     JSON.stringify(value, null, 2)
       .split('\n')
@@ -94,6 +98,7 @@ export function requestsLikeGenerate(
     } else if (mimeType === 'multipart/form-data' && params) {
       const files: string[] = []
       const formData: Record<string, string | string[]> = {}
+      const textFields: string[] = []
 
       params.forEach((param) => {
         if (param.fileName !== undefined) {
@@ -116,15 +121,22 @@ export function requestsLikeGenerate(
             files.push(`(${name}, (None, ${value}, ${contentType}))`)
           } else {
             accumulateRepeatedValue(formData, param.name, param.value)
+            textFields.push(`(${JSON.stringify(param.name)}, (None, ${JSON.stringify(param.value)}))`)
           }
         }
       })
 
-      if (files.length) {
+      if (!files.length) {
+        // Without a file part, requests and httpx would send `data` as a urlencoded form,
+        // so plain text fields go through `files` to keep the body multipart.
+        if (textFields.length) {
+          options.files = textFields
+        }
+      } else {
         options.files = files
-      }
-      if (Object.keys(formData).length) {
-        options.data = formData
+        if (Object.keys(formData).length) {
+          options.data = formData
+        }
       }
     } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
       const formData: Record<string, string | string[]> = {}
@@ -148,7 +160,7 @@ export function requestsLikeGenerate(
   const formattedParams: string[] = []
 
   // Format URL based on length
-  const urlParam = `"${normalizedRequest.url}"`
+  const urlParam = JSON.stringify(normalizedRequest.url)
   if (normalizedRequest.url.length > LENGTH_CONSIDERED_AS_SHORT) {
     formattedParams.push(urlParam)
   } else {

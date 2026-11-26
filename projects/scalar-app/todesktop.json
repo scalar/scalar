@@ -5,7 +5,7 @@
   "icon": "./assets/icon.png",
   "nodeVersion": "24",
   "packageManager": "pnpm",
-  "pnpmVersion": "10.16.1",
+  "pnpmVersion": "12.21.0",
   "uploadSizeLimit": 100,
   "bundleWorkspacePackages": {
     "enabled": true

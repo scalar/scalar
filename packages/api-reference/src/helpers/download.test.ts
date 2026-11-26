@@ -1,4 +1,4 @@
-import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { type MockInstance, afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { downloadDocument } from './download'
 
@@ -23,13 +23,14 @@ const readBlobBody = async (blob: Blob) => {
 }
 
 describe('downloadDocument', () => {
-  let createObjectURLSpy: ReturnType<typeof vi.spyOn>
-  let revokeObjectURLSpy: ReturnType<typeof vi.spyOn>
+  let createObjectURLSpy: MockInstance<typeof URL.createObjectURL>
+  let revokeObjectURLSpy: MockInstance<typeof URL.revokeObjectURL>
   let createElementSpy: ReturnType<typeof vi.spyOn>
   let dispatchEventSpy: ReturnType<typeof vi.spyOn>
   let removeSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
     createObjectURLSpy = vi.spyOn(URL, 'createObjectURL')
     revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL')
     createElementSpy = vi.spyOn(document, 'createElement')
@@ -37,8 +38,14 @@ describe('downloadDocument', () => {
     removeSpy = vi.spyOn(Element.prototype, 'remove')
   })
 
-  afterEach(() => {
-    vi.restoreAllMocks()
+  afterEach(async () => {
+    try {
+      await vi.runOnlyPendingTimersAsync()
+      expect(revokeObjectURLSpy.mock.calls).toStrictEqual(createObjectURLSpy.mock.results.map(({ value }) => [value]))
+    } finally {
+      vi.useRealTimers()
+      vi.restoreAllMocks()
+    }
   })
 
   it('downloads JSON when format is explicitly set to json', async () => {
@@ -64,11 +71,33 @@ info:
     )
 
     assert(createObjectURLSpy.mock.results.length > 0)
-    const objectUrl = createObjectURLSpy.mock.results[0].value
+    const result = createObjectURLSpy.mock.results[0]
+    assert(result)
+    const objectUrl = result.value
     assert(typeof objectUrl === 'string')
-    await new Promise((resolve) => setTimeout(resolve, 150))
+    await vi.runOnlyPendingTimersAsync()
     expect(revokeObjectURLSpy).toHaveBeenCalledWith(objectUrl)
     expect(removeSpy).toHaveBeenCalled()
+  })
+
+  it('converts YAML whose merges exceed the old alias limit of 10,000 to JSON', async () => {
+    // `headers` is referenced ten times (nine `use` keys and `params`), so its count is 11 and every
+    // merge of `base` costs 11. With yaml 2.9.1, 1,000 merges need a `maxAliasCount` of 11,011.
+    const yamlContent = [
+      'headers: &headers',
+      '  accept: application/json',
+      ...Array.from({ length: 9 }, (_, index) => `use${index}: *headers`),
+      'base: &base',
+      '  type: aws',
+      '  params: *headers',
+      ...Array.from({ length: 1000 }, (_, index) => `item${index}:\n  <<: *base\n  title: item${index}`),
+    ].join('\n')
+
+    await downloadDocument(yamlContent, 'merges', 'json')
+
+    const blobArg = createObjectURLSpy.mock.calls[0]![0] as Blob
+    const body = JSON.parse(String(await readBlobBody(blobArg)))
+    expect(body.item999).toStrictEqual({ type: 'aws', params: { accept: 'application/json' }, title: 'item999' })
   })
 
   it('downloads YAML when format is explicitly set to yaml', async () => {
