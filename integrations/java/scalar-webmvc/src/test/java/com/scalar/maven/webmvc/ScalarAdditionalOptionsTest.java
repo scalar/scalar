@@ -78,6 +78,19 @@ class ScalarAdditionalOptionsTest {
     }
 
     @Test
+    void bindsHttpClientsAndShortDefault() throws Exception {
+        JsonNode config = bindAndRender(Map.of(
+                "scalar.http-clients[0]", "node/fetch",
+                "scalar.http-clients[1]", "shell/*",
+                "scalar.default-http-client", "node/fetch"
+        ));
+        assertThat(config.at("/httpClients/0").textValue()).isEqualTo("node/fetch");
+        assertThat(config.at("/httpClients/1").textValue()).isEqualTo("shell/*");
+        assertThat(config.at("/defaultHttpClient/targetKey").textValue()).isEqualTo("node");
+        assertThat(config.at("/defaultHttpClient/clientKey").textValue()).isEqualTo("fetch");
+    }
+
+    @Test
     void bindsAllHiddenClientForms() throws Exception {
         assertThat(bindAndRender(Map.of("scalar.hidden-clients.all", "true"))
                 .get("hiddenClients").booleanValue()).isTrue();
