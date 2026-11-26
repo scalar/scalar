@@ -1,6 +1,5 @@
 /* basic theme */
 .light-mode {
-  color-scheme: light;
   /* Fresh snow with candy-cane red */
   --scalar-color-1: #1d2a26;
   --scalar-color-2: #4c5a55;
@@ -15,7 +14,6 @@
   --scalar-border-color: #e4dfd2;
 }
 .dark-mode {
-  color-scheme: dark;
   /* A long winter night under the evergreens */
   --scalar-color-1: #f2f7f4;
   --scalar-color-2: #b3c2bc;
