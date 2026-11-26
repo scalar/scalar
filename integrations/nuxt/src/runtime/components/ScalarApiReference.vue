@@ -154,11 +154,12 @@ const config: Partial<ApiReferenceConfiguration> = {
 // Hydration also patches `v-html`, so a code block whose grammar has not loaded yet would replace the
 // server's highlighted code with plain text until the grammar arrives. The server markup says which
 // grammars it used, so the browser loads exactly those first. On the server there is no markup yet,
-// and the code blocks wait for their own grammars.
+// and the code blocks wait for their own grammars. (This reads `window.document`, because `document`
+// in this component is the OpenAPI document.)
 const renderedLanguages =
-  typeof document === 'undefined'
+  typeof window === 'undefined'
     ? []
-    : [...document.querySelectorAll('.scalar-api-reference')].flatMap(
+    : [...window.document.querySelectorAll('.scalar-api-reference')].flatMap(
         (element) => getRenderedLanguages(element),
       )
 
