@@ -430,8 +430,76 @@ describe('Schema', () => {
       // not repeat it, otherwise the same text would show twice.
       expect(text.split('A job.').length - 1).toBe(1)
 
-      // The allOf member still renders its own description, so nothing is lost.
-      expect(text).toContain('Base class for all searchable entities.')
+      // The schema's own description describes the whole composition, so a
+      // member's description is not shown under it (matching Swagger UI).
+      expect(text).not.toContain('Base class for all searchable entities.')
+    })
+
+    it.each([
+      [
+        'a referenced base first',
+        {
+          description: 'Request desc',
+          allOf: [
+            { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
+            { type: 'object', properties: { entityType: { type: 'string' } } },
+          ],
+        },
+      ],
+      [
+        'the members reversed',
+        {
+          description: 'Request desc',
+          allOf: [
+            { type: 'object', properties: { entityType: { type: 'string' } } },
+            { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
+          ],
+        },
+      ],
+      [
+        'an object type on the parent',
+        {
+          type: 'object',
+          description: 'Request desc',
+          allOf: [
+            { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
+            { type: 'object', properties: { entityType: { type: 'string' } } },
+          ],
+        },
+      ],
+      [
+        'a nested allOf',
+        {
+          description: 'Request desc',
+          allOf: [
+            {
+              allOf: [
+                { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
+                { type: 'object', properties: { entityType: { type: 'string' } } },
+              ],
+            },
+          ],
+        },
+      ],
+    ])('shows only the own description of an allOf schema with %s', (_, schema) => {
+      const wrapper = mount(Schema, {
+        props: {
+          scrollTargetId: scrollTargetId.value,
+          eventBus: null,
+          level: 1,
+          noncollapsible: true,
+          hideHeading: true,
+          schema: coerceValue(SchemaObjectSchema, schema),
+          options: {},
+        },
+      })
+
+      const text = wrapper.text()
+
+      expect(text.split('Request desc').length - 1).toBe(1)
+      expect(text).not.toContain('Core desc')
+      expect(text).toContain('salesBranchId')
+      expect(text).toContain('entityType')
     })
 
     it('shows the parent description for discriminator-based oneOf schemas', () => {

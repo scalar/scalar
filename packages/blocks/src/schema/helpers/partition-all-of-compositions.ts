@@ -158,6 +158,12 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
   if (Object.keys(rest).length > 0) {
     members.push({ kind: 'object', schema: rest })
   }
+  // The schema's own description describes the whole composition, so it wins
+  // over a member's. Merging lets the last member's description win, which would
+  // otherwise surface a referenced schema's description (e.g. a shared base)
+  // under the parent's own, unlike Swagger UI, and unlike `mergeAllOfSchemas`
+  // itself, which gives the base schema precedence.
+  const ownDescription = typeof rest.description === 'string' ? rest.description : undefined
   const schemaRef = '$ref' in schema ? schema.$ref : undefined
   const seenRefs = new Set<string>(typeof schemaRef === 'string' ? [schemaRef] : [])
   for (const rawMember of allOf) {
@@ -179,7 +185,13 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
       return
     }
     const merged = objectRun.length === 1 ? objectRun[0]! : mergeAllOfSchemas({ allOf: objectRun } as SchemaObject)
-    segments.push({ kind: 'object', schema: merged })
+    segments.push({
+      kind: 'object',
+      schema:
+        ownDescription !== undefined && objectRun[0] === rest && merged.description !== ownDescription
+          ? { ...merged, description: ownDescription }
+          : merged,
+    })
     objectRun = []
   }
 

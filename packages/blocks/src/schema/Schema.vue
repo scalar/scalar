@@ -239,8 +239,9 @@ const schemaDescription = computed(() => {
   }
 
   // Will be shown in the properties anyway. A composed schema is the exception:
-  // its members render as their own cards with their own descriptions, so the
-  // schema's own description has nowhere else to go.
+  // its members render as their own cards, and a member's description covers
+  // only part of the schema, so the schema's own description is shown here
+  // unless an allOf segment already carries it (see the check below).
   if (
     !('properties' in value) &&
     !('patternProperties' in value) &&
@@ -250,8 +251,10 @@ const schemaDescription = computed(() => {
     return null
   }
 
-  // An allOf object segment already displays the merged description. Keep a
-  // distinct outer description, but do not repeat text carried by that segment.
+  // An allOf object segment already displays the merged description, and the
+  // schema's own description wins that merge over its members' (see
+  // `partitionAllOfCompositions`), so a referenced base's description is not
+  // shown under it. Do not repeat text carried by that segment.
   if (
     rawSchema?.allOf &&
     partitionAllOfCompositions(rawSchema).segments.some(
