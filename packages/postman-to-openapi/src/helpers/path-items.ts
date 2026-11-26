@@ -400,8 +400,7 @@ function parseParametersFromDescription(description: string): {
   }
 
   const tableMarkdown = tableLines.join('\n')
-  const parsedTable = parseMdTable(tableMarkdown)
-  const parametersFromTable = Object.values(parsedTable)
+  const parametersFromTable = parseMdTable(tableMarkdown)
     .map((paramData) => {
       const row: ParameterRow = paramData
       if (row.object !== 'query' && row.object !== 'header' && row.object !== 'path') {

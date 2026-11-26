@@ -320,7 +320,10 @@ describe('path-items', () => {
     const result = processItem(item, 'default')
 
     const params = result.paths['/users/:id']?.get?.parameters
-    expect(params?.map((p: any) => `${p.in}:${p.name}`)).toEqual(['query:id', 'path:id'])
+    expect(params?.map(({ in: location, name }) => ({ location, name }))).toStrictEqual([
+      { location: 'query', name: 'id' },
+      { location: 'path', name: 'id' },
+    ])
   })
 
   it('lets a markdown table row replace only the parameter in the same location', () => {
@@ -343,9 +346,9 @@ describe('path-items', () => {
     const result = processItem(item, 'default')
 
     const params = result.paths['/users']?.get?.parameters
-    expect(params?.map((p: any) => `${p.in}:${p.name}:${p.description ?? ''}`)).toEqual([
-      'query:version:',
-      'header:version:API version header',
+    expect(params?.map(({ in: location, name, description }) => ({ location, name, description }))).toStrictEqual([
+      { location: 'query', name: 'version', description: undefined },
+      { location: 'header', name: 'version', description: 'API version header' },
     ])
   })
 

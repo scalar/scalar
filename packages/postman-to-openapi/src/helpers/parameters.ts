@@ -41,8 +41,7 @@ function isBlockedHeader(name: string | undefined, keepHeaders: readonly string[
 }
 
 /** Parameters are unique by name and location, so a query and a header may share a name. */
-export const getParameterKey = (parameter: Pick<OpenAPIV3_1.ParameterObject, 'name' | 'in'>): string =>
-  `${parameter.in}:${parameter.name}`
+export const getParameterKey = (parameter: OpenAPIV3_1.ParameterObject): string => `${parameter.in}:${parameter.name}`
 
 /**
  * Extracts parameters from a Postman request and converts them to OpenAPI parameter objects.
