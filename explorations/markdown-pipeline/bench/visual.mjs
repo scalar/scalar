@@ -10,21 +10,27 @@
  * are visible at all, per bucket. The raw output is rendered, not the
  * normalized one, the way `ScalarMarkdown` renders it (images removed).
  * Screenshots of differing pairs go to `.out/visual/<label>/`.
+ *
+ * With `SHIPPED=1`, both sides highlight code blocks, as users see them, and
+ * the differences come from the `SHIPPED=1` differential run (`<label>-shipped`).
  */
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 
 import { bucketOf } from './classify.mjs'
-import { BASELINE, OUT, PROTOTYPE, ROOT } from './paths.mjs'
+import { BASELINE, BASELINE_HIGHLIGHTED, OUT, PROTOTYPE, ROOT, SHIPPED } from './paths.mjs'
 
 const [mode, label, count = '2000'] = process.argv.slice(2)
-const { chromium } = await import(`${ROOT}node_modules/.pnpm/playwright@1.62.1/node_modules/playwright/index.mjs`)
-const current = await import(BASELINE)
-const prototype = await import(PROTOTYPE)
+// Whichever Playwright the repository installs, so a version bump on main does not break this.
+const playwright = readdirSync(`${ROOT}node_modules/.pnpm`).find((d) => /^playwright@\d/.test(d))
+const { chromium } = await import(`${ROOT}node_modules/.pnpm/${playwright}/node_modules/playwright/index.mjs`)
+const WITH_HIGHLIGHTING = process.env.SHIPPED === '1'
+const current = await import(WITH_HIGHLIGHTING ? BASELINE_HIGHLIGHTED : BASELINE)
+const prototype = await import(WITH_HIGHLIGHTING ? SHIPPED : PROTOTYPE)
 const OPTIONS = { removeTags: ['img', 'picture'] }
 const PLAIN = /^[^\n`*_[\]<>&#~|\\]*$/
 
 const corpus = JSON.parse(readFileSync(`${OUT}${label}.json`, 'utf8')).map((x) => (Array.isArray(x) ? x[0] : x))
-const run = JSON.parse(readFileSync(`${OUT}${label}-diffs.json`, 'utf8'))
+const run = JSON.parse(readFileSync(`${OUT}${label}${WITH_HIGHLIGHTING ? '-shipped' : ''}-diffs.json`, 'utf8'))
 const differing = new Set(run.different.map((d) => d.markdown))
 
 // A fixed, spread-out sample (every k-th item), so reruns compare the same documents.
@@ -65,7 +71,7 @@ const shot = async (html) => {
   return page.locator('.scalar-app').screenshot({ animations: 'disabled' })
 }
 
-const dir = `${OUT}visual/${label}-${mode}/`
+const dir = `${OUT}visual/${label}${WITH_HIGHLIGHTING ? '-shipped' : ''}-${mode}/`
 mkdirSync(dir, { recursive: true })
 const tally = {}
 const visible = []

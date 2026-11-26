@@ -137,6 +137,7 @@ const followsReference = (markdown) => {
 }
 export const BUCKETS = [
   ...Object.keys(KNOWN),
+  'CR inside a highlighted token',
   'content after <object>/<form> lost',
   're-parsed raw HTML',
   'micromark deviates from CommonMark',
@@ -157,7 +158,17 @@ export const bucketOf = (d) => {
   return bucketOfRest(rest)
 }
 /** Explanations that need the whole difference, tried in order after the known bugs. */
+/**
+ * With highlighting only (`SHIPPED=1` runs): a CRLF source keeps `\r` inside a highlighted token,
+ * and the browser reads a lone CR as a line break, so a line comment gets a blank line after it.
+ * Without `\r` the two outputs agree.
+ */
+const carriageReturn = (d) =>
+  d.markdown.includes('\r') &&
+  d.diffs.every((x) => x.highlightOnly) &&
+  !d.diffs.some((x) => x.highlightOnly === undefined)
 const CHECKS = [
+  ['CR inside a highlighted token', carriageReturn],
   ['content after <object>/<form> lost', swallowed],
   ['re-parsed raw HTML', fromReparse],
   ['micromark deviates from CommonMark', (d) => followsReference(d.markdown)],

@@ -5,9 +5,10 @@
  * the same API the unified renderer had.
  */
 import { type Block, BlockParser, type NodeData, type Root } from './blocks'
+import type { Highlighter } from './html'
 import { DEFAULT_TAGS } from './html'
 import type { Inline } from './inline'
-import { type Highlighter, render } from './render'
+import { render } from './render'
 
 /**
  * Any node of the tree. The tree is shaped like mdast, so `transform` callbacks

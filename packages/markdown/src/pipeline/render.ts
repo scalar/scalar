@@ -3,14 +3,17 @@
  * `Writer`, so the tag allowlist applies to Markdown output as well as raw HTML.
  */
 import type { Block, ListItem, NodeData, Root } from './blocks'
-import { Writer, escapeAttr, escapeText, isExternal, isSafeUrl, sanitizeAttributes } from './html'
+import {
+  type Highlighter,
+  Writer,
+  escapeAttr,
+  escapeText,
+  highlightSafely,
+  isExternal,
+  isSafeUrl,
+  sanitizeAttributes,
+} from './html'
 import { type Inline, normalizeUri } from './inline'
-
-/**
- * Highlights the text of a fenced code block into HTML, or returns `null` when
- * the language has no grammar, so the block stays plain text.
- */
-export type Highlighter = (code: string, lang: string) => string | null
 
 export type RenderOptions = {
   tags: Set<string>
@@ -59,15 +62,6 @@ const element = (node: { data?: NodeData }, tag: string): [tag: string, attrs: s
     attrs.push([attr, value === true ? null : text.replace(/&/g, '&amp;')])
   }
   return [name, sanitizeAttributes(name, attrs)]
-}
-
-/** Highlighting is best-effort: a grammar that throws must not take down the whole render. */
-const highlightSafely = (highlight: Highlighter, code: string, lang: string): string | null => {
-  try {
-    return highlight(code, lang)
-  } catch {
-    return null
-  }
 }
 
 const inlines = (nodes: Inline[], c: Ctx): void => {
@@ -390,6 +384,8 @@ export const render = (root: Root, o: RenderOptions): string => {
   const c: Ctx = { w: null as unknown as Writer, o, fn: new Map(), root }
   c.w = new Writer({
     tags: o.tags,
+    highlight: o.highlight,
+    codeClassName: o.codeClassName,
     unsafe: o.unsafe,
     inline: (text, w) => {
       const nodes = o.inlineInHtml(text)

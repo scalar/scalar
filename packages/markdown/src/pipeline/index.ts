@@ -1,3 +1,4 @@
+export type { Highlighter } from './html'
 export {
   type HtmlFromMarkdownOptions,
   type Node,
@@ -7,4 +8,3 @@ export {
   splitContent,
   textFromNode,
 } from './pipeline'
-export type { Highlighter } from './render'

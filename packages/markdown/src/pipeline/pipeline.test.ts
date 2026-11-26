@@ -54,6 +54,37 @@ describe('pipeline', () => {
       expect(html).toBe('<pre><code class="hljs language-js">const x = 1\n</code></pre>')
     })
 
+    it('gives raw HTML code blocks the hljs classes', () => {
+      expect(htmlFromMarkdown('<pre><code>a < b</code></pre>', { highlight, codeClassName: 'custom-scroll' })).toBe(
+        '<pre><code class="hljs custom-scroll">a &lt; b</code></pre>',
+      )
+    })
+
+    it('highlights raw HTML code blocks with a language class', () => {
+      expect(htmlFromMarkdown('<pre><code class="language-js">x &amp;&amp; <b>y</b></code></pre>', { highlight })).toBe(
+        '<pre><code class="hljs language-js"><span class="hljs-keyword">x && y</span>\n</code></pre>',
+      )
+    })
+
+    it('gives code spans inside a raw pre the hljs classes', () => {
+      // Inline, as in GoDaddy's descriptions: a `<pre>` starting a line is an HTML block, with no Markdown inside.
+      expect(htmlFromMarkdown('Price <pre>`a` = `b`</pre>', { highlight, codeClassName: 'custom-scroll' })).toBe(
+        '<p>Price </p><pre><code class="hljs custom-scroll">a</code> = <code class="hljs custom-scroll">b</code></pre><p></p>',
+      )
+    })
+
+    it('leaves raw code outside a pre alone', () => {
+      expect(htmlFromMarkdown('<p><code class="language-js">x</code></p>', { highlight })).toBe(
+        '<p><code class="language-js">x</code></p>',
+      )
+    })
+
+    it('leaves raw no-highlight code blocks alone', () => {
+      expect(htmlFromMarkdown('<pre><code class="language-no-highlight">x</code></pre>', { highlight })).toBe(
+        '<pre><code class="language-no-highlight">x</code></pre>',
+      )
+    })
+
     it('escapes the language in the class attribute', () => {
       expect(htmlFromMarkdown(fence('"><script>'), { highlight })).not.toContain('<script>')
     })

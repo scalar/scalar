@@ -167,8 +167,19 @@ const HEADINGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
 const IGNORED_IN_BODY = new Set(['body', 'head', 'html', 'frame'])
 const TABLE_ONLY = new Set(['caption', 'col', 'colgroup', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr'])
 
-/** `start`: where a raw `<th>`'s content begins in the output. */
-type Frame = { tag: string; id: number; hidden: boolean; attrs?: string; start?: number }
+/**
+ * `start`: where a raw `<th>`'s content begins in the output. `code`: a raw
+ * `<code>` inside a raw `<pre>`, to highlight once it closes, with where its
+ * content begins and its language.
+ */
+type Frame = {
+  tag: string
+  id: number
+  hidden: boolean
+  attrs?: string
+  start?: number
+  code?: { start: number; lang: string }
+}
 
 const TABLE_PART_CLOSES: Record<string, string[]> = {
   td: ['td', 'th'],
@@ -211,8 +222,34 @@ export const sanitizeAttributes = (tag: string, attrs: [name: string, value: str
   return s
 }
 
+/**
+ * Highlights the text of a code block into HTML, or returns `null` when the
+ * language has no grammar, so the block stays plain text.
+ */
+export type Highlighter = (code: string, lang: string) => string | null
+
+/** Highlighting is best-effort: a grammar that throws must not take down the whole render. */
+export const highlightSafely = (highlight: Highlighter, code: string, lang: string): string | null => {
+  try {
+    return highlight(code, lang)
+  } catch {
+    return null
+  }
+}
+
+/** The markup the writer itself emits: attribute values are quoted and never contain `"`. */
+const TAG = /<\/?[a-z][^\s>]*(?: [^\s=>]+(?:="[^"]*")?)*>/g
+
 export type WriterOptions = {
   tags: Set<string>
+  /**
+   * Highlights raw `<pre><code>` blocks, as `rehypeHighlight` did when it ran
+   * over the whole tree. Code blocks written in Markdown are highlighted by the
+   * renderer instead.
+   */
+  highlight?: Highlighter
+  /** Extra class for highlighted `<code>` elements, such as `custom-scroll`. */
+  codeClassName?: string
   /** Renders text found directly inside `INLINE_MARKDOWN_TAGS` in raw HTML. */
   inline: (text: string, w: Writer) => boolean
   /** Test only: write raw HTML through untouched, to check parsing against the CommonMark spec. */
@@ -303,6 +340,11 @@ export class Writer {
     this.closeP(tag)
     if (!NO_RECONSTRUCT.has(tag)) this.reconstruct()
     const hidden = !this.allowed(tag)
+    // A code span inside a raw `<pre>` is a `<pre><code>` too, and `rehypeHighlight` gave it the classes.
+    const top = this.stack.at(-1)
+    if (tag === 'code' && this.options.highlight && top?.tag === 'pre' && !top.hidden && !this.generated.has(top.id)) {
+      attrs = this.codeClasses(attrs)?.attrs ?? attrs
+    }
     if (!hidden) this.out += `<${tag}${attrs}>`
     if (!VOID.has(tag)) this.stack.push({ tag, id, hidden, attrs })
     if (!VOID.has(tag)) this.generated.set(id, tag)
@@ -316,7 +358,8 @@ export class Writer {
     this.pending = []
     for (const f of pending) {
       if (!f.hidden) this.out += `<${f.tag}${f.attrs ?? ''}>`
-      this.stack.push({ ...f, id: this.nextId++ })
+      // A reopened `<code>` is no longer inside the `<pre>`, so it is not highlighted again.
+      this.stack.push({ ...f, id: this.nextId++, code: undefined })
     }
   }
 
@@ -430,6 +473,7 @@ export class Writer {
       if (f.tag === 'th' && f.start !== undefined && !/[^ \t\n\r\f]/.test(this.out.slice(f.start))) {
         this.out = this.out.slice(0, f.start)
       }
+      if (f.code) this.highlightCode(f.code)
       if (!f.hidden) this.out += `</${f.tag}>`
       if (MARKERS.has(f.tag)) implicit.length = 0
       else if (i > at && FORMATTING.has(f.tag)) implicit.unshift(f)
@@ -437,6 +481,14 @@ export class Writer {
     if (MARKERS.has(this.stack[at]?.tag ?? '')) this.pending = []
     this.stack.length = at
     this.pending.push(...implicit)
+  }
+
+  /** Replaces a raw code block's content with its highlighted text, as `rehypeHighlight` replaced its children. */
+  private highlightCode({ start, lang }: { start: number; lang: string }): void {
+    if (!lang || !this.options.highlight) return
+    const text = decodeHtml(this.out.slice(start).replace(TAG, ''))
+    const html = highlightSafely(this.options.highlight, text, lang)
+    if (html !== null) this.out = this.out.slice(0, start) + html
   }
 
   text(escaped: string): void {
@@ -527,8 +579,36 @@ export class Writer {
       const href = attrs.find(([n]) => n === 'href')?.[1]
       if (href && s.includes(' href=') && isExternal(href)) s += ' rel="nofollow" target="_blank"'
     }
+    const top = this.stack.at(-1)
+    const code =
+      tag === 'code' && this.options.highlight && top?.tag === 'pre' && !top.hidden ? this.codeClasses(s) : null
+    if (code) s = code.attrs
     this.out += `<${tag}${s}>`
-    if (!VOID.has(tag)) this.stack.push({ tag, id: this.nextId++, hidden: false, attrs: s, start: this.out.length })
+    if (!VOID.has(tag)) {
+      this.stack.push({
+        tag,
+        id: this.nextId++,
+        hidden: false,
+        attrs: s,
+        start: this.out.length,
+        code: code ? { start: this.out.length, lang: code.lang } : undefined,
+      })
+    }
+  }
+
+  /**
+   * The classes `rehypeHighlight` gave a raw `<code>` inside a `<pre>`: `hljs`
+   * first and the extra class last, around the `language-*` class the sanitizer
+   * kept. `language-no-highlight` opts the block out, and gets neither.
+   */
+  private codeClasses(attrs: string): { attrs: string; lang: string } | null {
+    const classes = (/ class="([^"]*)"/.exec(attrs)?.[1] ?? '').split(' ').filter(Boolean)
+    const lang = classes.find((c) => c.startsWith('language-'))?.slice(9) ?? ''
+    if (lang === 'no-highlight') return null
+    const all = ['hljs', ...classes, this.options.codeClassName ?? ''].filter(
+      (c, i, list) => c && list.indexOf(c) === i,
+    )
+    return { attrs: `${attrs.replace(/ class="[^"]*"/, '')} class="${all.join(' ')}"`, lang }
   }
 
   /** @internal */

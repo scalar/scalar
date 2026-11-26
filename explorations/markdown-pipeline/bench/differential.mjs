@@ -9,20 +9,35 @@
  * TIMEOUT_MS in either pipeline (the current one can take minutes on hostile
  * input) has its worker killed and is reported as a timeout, not a difference.
  * Differences go to `.out/<label>-diffs.json`.
+ *
+ * With `SHIPPED=1`, both sides highlight code blocks: `@scalar/markdown`'s
+ * `htmlFromMarkdown` against the unified renderer with `rehypeHighlight`. A
+ * difference that the unhighlighted pair does not show is marked
+ * `highlightOnly`, because highlighting is what causes it.
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import { availableParallelism } from 'node:os'
 import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads'
 
-import { BASELINE, OUT, PROTOTYPE } from './paths.mjs'
+import { BASELINE, BASELINE_HIGHLIGHTED, OUT, PROTOTYPE, SHIPPED } from './paths.mjs'
+
+const WITH_HIGHLIGHTING = process.env.SHIPPED === '1'
 
 const TIMEOUT_MS = 30_000
 const OPTIONS = { default: { removeTags: ['img', 'picture'] }, withImages: { removeTags: [] } }
 
 if (!isMainThread) {
   const { normalize } = await import('./normalize.mjs')
-  const current = await import(BASELINE)
-  const prototype = await import(PROTOTYPE)
+  const current = await import(WITH_HIGHLIGHTING ? BASELINE_HIGHLIGHTED : BASELINE)
+  const prototype = await import(WITH_HIGHLIGHTING ? SHIPPED : PROTOTYPE)
+  const plain = WITH_HIGHLIGHTING ? [await import(BASELINE), await import(PROTOTYPE)] : null
+  const same = ([a, b], markdown, options) => {
+    try {
+      return normalize(a.htmlFromMarkdown(markdown, options)) === normalize(b.htmlFromMarkdown(markdown, options))
+    } catch {
+      return false
+    }
+  }
   parentPort.on('message', ({ i, markdown }) => {
     const result = { i, diffs: [], ms: [0, 0] }
     for (const [name, options] of Object.entries(OPTIONS)) {
@@ -42,7 +57,10 @@ if (!isMainThread) {
         b = `THREW ${e?.constructor?.name}: ${e?.message}`
       }
       result.ms[1] += performance.now() - t
-      if (a !== b) result.diffs.push({ options: name, current: a, prototype: b })
+      if (a !== b) {
+        const highlightOnly = plain ? same(plain, markdown, options) : undefined
+        result.diffs.push({ options: name, current: a, prototype: b, highlightOnly })
+      }
     }
     parentPort.postMessage(result)
   })
@@ -50,6 +68,7 @@ if (!isMainThread) {
   const [file, label = 'corpus'] = process.argv.slice(2)
   const items = JSON.parse(readFileSync(file, 'utf8')).map((x) => (Array.isArray(x) ? x : [x, '']))
   const out = { label, total: items.length, identical: 0, different: [], timeouts: [], threw: [], ms: [0, 0] }
+  if (WITH_HIGHLIGHTING) console.log(`${label}: comparing what ships, with highlighting`)
   let next = 0
   let finished = 0
   const t0 = Date.now()
@@ -96,6 +115,10 @@ if (!isMainThread) {
   await Promise.all(Array.from({ length: Math.max(1, availableParallelism()) }, start))
   writeFileSync(`${OUT}${label}-diffs.json`, JSON.stringify(out, null, 1))
   const pct = ((100 * out.identical) / out.total).toFixed(3)
+  if (WITH_HIGHLIGHTING) {
+    const highlightOnly = out.different.filter((d) => d.diffs.some((x) => x.highlightOnly)).length
+    console.log(`${label}: ${highlightOnly} differences come from highlighting alone`)
+  }
   console.log(
     `${label}: ${out.identical}/${out.total} identical (${pct}%), ${out.different.length} different, ${out.threw.length} prototype threw, ${out.timeouts.length} timed out; render time current ${(out.ms[0] / 1000).toFixed(1)}s, prototype ${(out.ms[1] / 1000).toFixed(1)}s (${((Date.now() - t0) / 1000).toFixed(0)}s wall)`,
   )

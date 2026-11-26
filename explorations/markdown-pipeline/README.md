@@ -133,6 +133,32 @@ Where micromark's behavior is a deliberate reading or a harmless quirk rather th
 
 **The fuzz residue** (738 of 25,000 generated documents, minimized) is synthetic HTML that real descriptions do not contain: `<td>` outside any table, which the current pipeline's fragment re-parse still treats as a cell; a table right after a block quote that ends in a table; lists that a blockquote's paragraph "interrupts" in micromark. None reproduce in any real corpus.
 
+#### After the move into `@scalar/markdown`, with highlighting
+
+Every corpus was downloaded again and rerun once the pipeline moved into the package. Two more comparisons were added:
+
+- **Nothing changed in parsing.** The prototype as it was before the move and the pipeline in the package give byte-identical output for every input: 506,129 documents under three option sets, plus `getHeadings` and `splitContent`.
+- **What ships, with highlighting.** `SHIPPED=1 node bench/differential.mjs` compares `@scalar/markdown`'s `htmlFromMarkdown`, highlighter included, with the unified renderer and `rehypeHighlight`. It marks every difference that the unhighlighted pair does not show.
+
+| corpus                 |  inputs | identical DOM, parser only | identical DOM, with highlighting | caused by highlighting |
+| ---------------------- | ------: | -------------------------: | -------------------------------: | ---------------------: |
+| APIs.guru              | 463,780 |           462,115 (99.64%) |                 462,114 (99.64%) |                      1 |
+| Stripe, GitHub, Galaxy |  11,520 |           11,512 (99.93%) |                  11,512 (99.93%) |                      0 |
+| Markdown files         |   5,082 |             4,964 (97.68%) |                   4,942 (97.25%) |                     22 |
+| Library fixtures       |   1,425 |             1,387 (97.33%) |                   1,389 (97.47%) |                      0 |
+| Fuzzed documents       |  25,000 |             13,402 (53.6%) |                   13,402 (53.6%) |                      0 |
+
+The first highlighted run found two places where the pipeline did less than `rehypeHighlight`, which ran over the whole tree. Both are fixed in `html.ts`:
+
+- **Raw `<pre><code>` in a description.** It now gets the `hljs` classes and is highlighted when it has a `language-*` class (24 of the APIs.guru descriptions).
+- **Code spans inside a raw `<pre>`.** In GoDaddy's ``<pre>`savings` = `list` - `subtotal`</pre>``, each span gets the classes too, so `ScalarMarkdown` styles them as it did before.
+
+Each of the 23 differences highlighting still causes is a bug in the unified renderer. **A CRLF source keeps `\r` inside a highlighted token**, such as a `// comment`. The browser reads the lone CR as a line break, so every comment line gets a blank line after it. The pipeline normalizes line endings, as commonmark.js does. Every one of them matches once the source's line endings are LF.
+
+Screenshots with highlighting (`SHIPPED=1 node bench/visual.mjs`): of the 1,666 APIs.guru documents whose DOM differs, 1,664 look different, all in the buckets above. Of 3,000 whose DOM matches, one differs: a single row of 104 pixels at the bottom edge, off by 16/255, from sub-pixel rasterization. Of the 140 Markdown files whose DOM differs, 119 look different, each one a bug in the unified renderer listed above or the CRLF bug. The other 21 are invisible, such as an emptied element with no text.
+
+The 300,000-input security fuzz and 139 vectors (7 new, for raw code blocks) found no violation for the bare pipeline or for what ships. A separate 200,000-input fuzz of raw `<pre><code>` blocks with highlighting found none either: everything it flags is table restructuring or parse5's `<pre>` newline. On cmark's pathological inputs, the unified renderer took up to 22 minutes (360,000 characters of raw HTML tags) and threw a `RangeError` on deeply nested block quotes. The pipeline took at most 216 ms.
+
 ### CommonMark and GFM conformance
 
 `pnpm spec` and `pnpm spec:compare`, comparing normalized DOM as the spec's own test runner does:
@@ -231,6 +257,7 @@ pnpm spec:compare      # the same, scored for both pipelines
 pnpm parity            # DOM comparison over 11,224 real descriptions
 pnpm corpora           # download APIs.guru and the library fixtures, collect Markdown files, generate the fuzz corpus
 pnpm gamut             # differential run and classification over every corpus
+SHIPPED=1 pnpm gamut   # the same with highlighting on both sides: what @scalar/markdown ships
 pnpm minimize          # shrink unexplained fuzz differences to minimal inputs
 pnpm visual            # screenshots of both pipelines' output, compared byte for byte
 pnpm size              # bundle size, both pipelines and the alternatives

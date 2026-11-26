@@ -1,8 +1,9 @@
 import { parseFragment, serialize } from 'parse5'
 
-import { PROTOTYPE } from './paths.mjs'
+import { PROTOTYPE, SHIPPED } from './paths.mjs'
 
-const { htmlFromMarkdown } = await import(PROTOTYPE)
+/** `SHIPPED=1` attacks what `@scalar/markdown` exports, highlighter included, instead of the bare pipeline. */
+const { htmlFromMarkdown } = await import(process.env.SHIPPED === '1' ? SHIPPED : PROTOTYPE)
 
 // Independent copy of the policy (from rehype-sanitize's defaultSchema plus Scalar's class rule).
 const TAGS = new Set(
