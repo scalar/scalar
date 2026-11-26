@@ -2319,6 +2319,20 @@ describe('parameter styles', () => {
     })
   })
 
+  it('keeps bounded path placeholders intact and uses authored examples', () => {
+    const result = processParameters({
+      harRequest: createHarRequest('https://example.com/{country}/items/{id}/{currency}'),
+      defaultDisabled: false,
+      parameters: [
+        { name: 'country', in: 'path', required: true, schema: { type: 'string', minLength: 2, maxLength: 2 } },
+        { name: 'id', in: 'path', required: true, schema: { type: 'string', minLength: 24 } },
+        { name: 'currency', in: 'path', required: true, schema: { type: 'string', maxLength: 3, example: 'EUR' } },
+      ],
+    })
+
+    expect(result.url).toBe('https://example.com/{country}/items/{id}/EUR')
+  })
+
   describe('path parameters', () => {
     it('should add variable name if no value or example is provided', () => {
       const result = runProcessParameters({
