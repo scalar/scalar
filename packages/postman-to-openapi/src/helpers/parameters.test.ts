@@ -337,7 +337,7 @@ describe('parameters', () => {
 
       const result = extractParameters(request, 'default')
 
-      expect(result.map(({ in: location, name }) => `${location}:${name}`)).toEqual([
+      expect(result.map(({ in: location, name }) => `${location}:${name}`)).toStrictEqual([
         'query:id',
         'query:version',
         'path:id',
