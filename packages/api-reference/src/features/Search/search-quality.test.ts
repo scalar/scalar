@@ -883,6 +883,50 @@ describe('search-quality', () => {
     expect(result.sort((a, b) => <number>b.score - <number>a.score)[0]?.item?.title).toEqual('Register user')
   })
 
+  it('finds an operation by its description or a response description', () => {
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/orders': {
+          get: {
+            summary: 'List orders',
+            description: 'mintquartz status',
+            responses: {
+              '422': { description: 'velvetwalrus indicates invalid search filters' },
+              '429': {
+                $ref: '#/components/responses/RateLimited',
+                '$ref-value': { description: 'copperpuffin indicates a rate limit' },
+              },
+              '503': { $ref: '#/components/responses/Missing' },
+              default: { description: 'silverfern describes other errors' },
+            },
+          },
+        },
+      },
+    }
+
+    for (const query of ['mintquartz', 'velvetwalrus', 'copperpuffin', 'silverfern']) {
+      expect(
+        search(query, document).map(({ item }) => item.title),
+        query,
+      ).toStrictEqual(['List orders'])
+    }
+  })
+
+  it('finds a webhook by its response description', () => {
+    const results = search('amberotter', {
+      webhooks: {
+        orderCreated: {
+          post: {
+            summary: 'Order created',
+            responses: { '200': { description: 'amberotter confirms delivery' } },
+          },
+        },
+      },
+    })
+
+    expect(results.map(({ item }) => [item.type, item.title])).toStrictEqual([['webhook', 'Order created']])
+  })
+
   it('finds operations by response example content', () => {
     const query = 'already exists'
 

@@ -73,6 +73,18 @@ function mediaTypeExamplesToStrings(mediaType: MediaTypeObject): string[] {
   return mediaTypeExample ? [mediaTypeExample, ...examplesFromNamedMap] : examplesFromNamedMap
 }
 
+/** Collects distinct response descriptions, including responses with no payload. */
+const extractResponseDescriptions = (responses: ResponsesObject | undefined): string[] => {
+  const descriptions = new Set<string>()
+  for (const response of Object.values(responses ?? {})) {
+    const description = getResolvedRef(response)?.description
+    if (typeof description === 'string' && description.trim()) {
+      descriptions.add(description)
+    }
+  }
+  return [...descriptions]
+}
+
 function extractResponseExamples(responses: ResponsesObject | undefined): string[] {
   if (!responses) {
     return []
@@ -218,6 +230,7 @@ function addEntryToIndex(
       bodyDescriptions,
       parameters,
       parameterDescriptions,
+      responseDescriptions: extractResponseDescriptions(operation.responses),
       responseExamples,
       operationId: operationWithPathParams.operationId,
       tags: operation.tags?.flatMap((name) => {
@@ -244,6 +257,7 @@ function addEntryToIndex(
       method: entry.method,
       body: names.length ? names : '',
       bodyDescriptions: webhookDescription ? [webhookDescription, ...descriptions] : descriptions,
+      responseDescriptions: extractResponseDescriptions(webhook.responses),
       operationId: webhook.operationId,
       entry,
     })
