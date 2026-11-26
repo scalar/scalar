@@ -1,6 +1,6 @@
-import { resolveResponseMimeType } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
+import { extractFilename } from '@scalar/helpers/http/extract-filename'
 
-import { extractFilename } from './../helpers/extract-filename'
+import { resolveResponseMimeType } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
 
 const isBlob = (b: any): b is Blob => b instanceof Blob
 
