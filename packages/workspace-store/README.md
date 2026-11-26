@@ -615,6 +615,9 @@ The store applies each Overlay using its declared version. It selects nodes in t
 authored API description and upgrades the composed description, including the content
 the actions added, before resolving references and building navigation.
 
+For the single-file API Reference bundle, apply Overlays with the workspace store
+and pass the composed API description to the reference.
+
 When an action selects an array directly, Overlay 1.0 appends its `update` as one
 entry. Overlay 1.1 and 1.2 concatenate array updates. To replace an entire array
 in Overlay 1.0, select its containing object and include the array in the update.
