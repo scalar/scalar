@@ -1,8 +1,6 @@
 /**
  * Solarized
  *
- * Palette: Solarized (light and dark).
- *
  * A preset is one surface, one ink and one accent per mode. Every other tone is ink blended into
  * the surface, so the greys stay on the palette's own tint. Text, accent and method hues are
  * moved in lightness only, and only as far as a 4.5:1 ratio on the page, card and sidebar
