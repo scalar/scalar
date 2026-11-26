@@ -1272,7 +1272,8 @@ const handleArraySchema = (
     const referenceScope = pushDynamicScope(childScope, items)
     const resolvedDynamic = resolveExampleDynamicRef?.(itemSchema, referenceScope, items)
     if (resolvedDynamic) {
-      items = resolvedDynamic
+      // An anchor can specialize the item through a $ref wrapper.
+      items = resolve.schema(resolvedDynamic)
       itemsSeen = new WeakSet()
       itemsScope = referenceScope
     }

@@ -1,7 +1,9 @@
 import { isIP } from 'node:net'
 
+import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import { assert, describe, expect, it, vi } from 'vitest'
 
+import { snapshotSchema } from '@/helpers/snapshot-schema'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
@@ -5224,6 +5226,25 @@ describe('getExampleFromSchema', () => {
       expect(example.items).toHaveLength(1)
       expect(example.items[0]).toHaveProperty('id')
       expect(example.items[0]).toHaveProperty('email')
+    })
+
+    it('generates array items when the dynamic anchor references a schema', () => {
+      const document = createMagicProxy({
+        $defs: {
+          template: paginatedTemplate,
+          item: { $id: 'urn:item', type: 'object', properties: { name: { const: 'Mars' } } },
+          response: {
+            $id: 'urn:response',
+            $ref: 'urn:template',
+            $defs: { itemType: { $dynamicAnchor: 'itemType', $ref: 'urn:item' } },
+          },
+        },
+      })
+
+      expect(getExampleFromSchema(snapshotSchema(dyn(document.$defs.response)))).toStrictEqual({
+        items: [{ name: 'Mars' }],
+        total: 0,
+      })
     })
 
     it('resolves the same template to different item types per binding', () => {

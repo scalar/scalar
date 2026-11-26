@@ -837,14 +837,11 @@ export const bundleDocument = async (
   const setPath = (target: object, path: string, value: unknown): void => setValueAtPath(target, path, value, parsePath)
   const customTraversal = config.traversal === 'document' && config.includeCustomReferences === true
   const createTraversal = (): ReturnType<typeof documentTraversal> =>
-    documentTraversal(
-      config.traversal === 'document',
-      documentRoot['swagger'] === '2.0',
-      documentRoot['swagger'] !== '2.0' && !String(documentRoot['openapi']).startsWith('3.0.'),
-      config.traversal === 'document' || diagnostics !== undefined,
-      typeof documentRoot['asyncapi'] === 'string',
-      customTraversal,
-    )
+    documentTraversal(documentRoot, {
+      aware: config.traversal === 'document',
+      enabled: config.traversal === 'document' || diagnostics !== undefined,
+      includeCustomReferences: customTraversal,
+    })
   const traversal = createTraversal()
   /** Vocabulary changes must resolve authored references rather than bundled storage pointers. */
   const authoredReferences = customTraversal ? new WeakMap<object, string>() : undefined
@@ -870,14 +867,7 @@ export const bundleDocument = async (
   }
   /** Native references may reinterpret custom subtrees; caller-supplied visited nodes stay excluded. */
   const processedContexts = customTraversal ? new WeakMap<object, ReturnType<typeof traversal.location>[]>() : undefined
-  traversal.register(
-    documentRoot,
-    getDefaultOrigin(),
-    config.traversal === 'document' &&
-      !('openapi' in documentRoot || 'swagger' in documentRoot || 'asyncapi' in documentRoot)
-      ? 'schema'
-      : 'object',
-  )
+  traversal.register(documentRoot, getDefaultOrigin())
   const deferredCopies: (() => void)[] = []
   const copyReferences = (owner: object, ...args: Parameters<typeof resolveAndCopyReferences>): void => {
     const exposure = processedContexts?.get(owner)?.at(-1)
@@ -1381,9 +1371,13 @@ export const bundleDocument = async (
       !config.preserveReference?.(root.$dynamicRef, { origin: nodeOrigin })
     ) {
       const prefix = root.$dynamicRef.split('#', 1)[0]
-      const retrievalUri = prefix
-        ? tryResolveResourcePath(references.retrievalOrigin(root) ?? nodeOrigin, prefix)
-        : undefined
+      // A retrieval base cannot make a relative reference valid under an opaque lexical base.
+      const lexicalUri = prefix ? tryResolveResourcePath(nodeOrigin, prefix) : undefined
+      const retrievalOrigin = references.retrievalOrigin(root) ?? nodeOrigin
+      const retrievalUri =
+        lexicalUri === undefined || retrievalOrigin === nodeOrigin
+          ? lexicalUri
+          : tryResolveResourcePath(retrievalOrigin, prefix)
       if (retrievalUri !== undefined) {
         const known = resolveInitialDynamicRef(references, prefix, nodeOrigin)
         if (known?.documentPath.length) {

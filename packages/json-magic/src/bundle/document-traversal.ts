@@ -21,14 +21,37 @@ type SourceLocation = {
   customReferences?: true
 }
 
+type TraversalDialect = { swagger: boolean; openapi30: boolean; asyncapi: boolean }
+
+/** Select the traversal dialect for a complete API description. */
+export const getDocumentTraversalDialect = (document: unknown): TraversalDialect | undefined => {
+  if (!isObject(document)) return undefined
+
+  const format = document['x-scalar-document-type']
+  if (
+    (format === undefined || format === 'asyncapi') &&
+    typeof document.asyncapi === 'string' &&
+    /^\d+\.\d+(?:\.|$)/.test(document.asyncapi)
+  ) {
+    return { swagger: false, openapi30: false, asyncapi: true }
+  }
+  if (format !== undefined && format !== 'openapi') return undefined
+  if (document.swagger === '2.0') return { swagger: true, openapi30: false, asyncapi: false }
+  // Workspace normalization uses an empty version for versionless OpenAPI input.
+  if (typeof document.openapi === 'string') {
+    return { swagger: false, openapi30: /^3\.0(?:\.|$)/.test(document.openapi), asyncapi: false }
+  }
+  return undefined
+}
+
 /** Index traversal context separately from the mutable document and reference registry. */
 export const documentTraversal = (
-  aware: boolean,
-  swagger: boolean,
-  schemaSiblings: boolean,
-  enabled = true,
-  asyncapi = false,
-  includeCustomReferences = false,
+  root: unknown,
+  {
+    aware = true,
+    enabled = true,
+    includeCustomReferences = false,
+  }: { aware?: boolean; enabled?: boolean; includeCustomReferences?: boolean } = {},
 ): {
   register: (
     document: unknown,
@@ -41,6 +64,7 @@ export const documentTraversal = (
   registerCopy: (document: unknown, location: SourceLocation) => void
   location: (node: object) => SourceLocation | undefined
 } => {
+  const rootDialect = getDocumentTraversalDialect(root)
   const exposures = new WeakMap<object, ReferenceContext>()
   const locations = new WeakMap<object, SourceLocation>()
   const registered = new WeakSet<object>()
@@ -56,14 +80,18 @@ export const documentTraversal = (
       return
     }
     let visited = new WeakSet<object>()
-    const api = isObject(document) && ['openapi', 'swagger', 'asyncapi'].some((key) => key in document)
     // External fragments inherit the root API type; complete documents use their own.
-    const isAsyncApi = api ? typeof document.asyncapi === 'string' : asyncapi
+    const dialect = document === root ? rootDialect : getDocumentTraversalDialect(document)
+    const api = dialect !== undefined
+    const { swagger, openapi30, asyncapi } = dialect ??
+      rootDialect ?? {
+        swagger: false,
+        openapi30: false,
+        asyncapi: false,
+      }
     const targetContext = context ?? (api ? 'object' : 'schema')
-    const isSwagger = api ? document.swagger === '2.0' : swagger
-    const siblings = api
-      ? document.swagger !== '2.0' && !String(document.openapi).startsWith('3.0.')
-      : (referenceSiblings ?? schemaSiblings)
+    const schemaSiblings = !swagger && !openapi30
+    const siblings = api ? schemaSiblings : (referenceSiblings ?? schemaSiblings)
     const visit = (
       value: unknown,
       path: string[],
@@ -91,19 +119,7 @@ export const documentTraversal = (
         const child = (value as Record<string, unknown>)[key]
         const next = ignoredSiblings
           ? { context: 'data' as const, customReferences }
-          : childReferencePosition(
-              value,
-              key,
-              position,
-              {
-                swagger: isSwagger,
-                openapi30: api
-                  ? String(document.openapi).startsWith('3.0.')
-                  : !position.schemaSiblings && !asyncapi && !swagger,
-                asyncapi: isAsyncApi,
-              },
-              includeCustomReferences,
-            )
+          : childReferencePosition(value, key, position, { swagger, openapi30, asyncapi }, includeCustomReferences)
         visit(child, [...path, key], next.context, position.childSchemaSiblings, next.customReferences)
       }
     }

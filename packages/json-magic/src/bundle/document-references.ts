@@ -12,7 +12,7 @@ import { type ScopeRole, getChildScopeRole } from '@/magic-proxy/dynamic-ref'
 import { getRaw } from '@/magic-proxy/symbols'
 
 import { type ReferenceContext, childReferenceContext, getSchemaVocabulary } from '../document/reference-context'
-import { documentTraversal } from './document-traversal'
+import { documentTraversal, getDocumentTraversalDialect } from './document-traversal'
 
 /** Format-specific document identity, supplied by the caller. */
 export type DocumentIdentity = {
@@ -210,6 +210,8 @@ export const documentReferences = (
       sourceUri: string
       outputBase: string
       resource: Resource
+      dialect: ReturnType<typeof getDocumentTraversalDialect>
+      customTraversal?: ReturnType<typeof documentTraversal>
     }
   >()
 
@@ -250,6 +252,10 @@ export const documentReferences = (
     const outputRetrieval = outputDocumentUri?.(retrievalUri) ?? base
     const outputBase =
       outputDocumentUri && identity ? resolveResourcePath(outputRetrieval, identity.baseUri) : outputRetrieval
+    const dialect = identifySchema === identifySchemaPosition ? getDocumentTraversalDialect(document) : undefined
+    const customTraversal =
+      includeCustomReferences && dialect ? documentTraversal(document, { includeCustomReferences: true }) : undefined
+    customTraversal?.register(document, base)
     registrations.set(document, {
       base,
       path,
@@ -258,6 +264,8 @@ export const documentReferences = (
       sourceUri,
       outputBase,
       resource,
+      dialect,
+      customTraversal,
     })
     index(document, base, path, [], retrievalOrigin)
   }
@@ -270,22 +278,7 @@ export const documentReferences = (
     targetPath: string[] = [],
     retrievalBase = base,
   ): void => {
-    const outputBase = registrations.get(document)!.outputBase
-    const api = isObject(document) ? document : undefined
-    const version = String(api?.openapi ?? '')
-    const swagger = api?.swagger === '2.0'
-    const asyncapi = typeof api?.asyncapi === 'string' && /^\d+\.\d+\./.test(api.asyncapi)
-    const format = api?.['x-scalar-document-type']
-    const recognized = format === undefined || format === 'openapi' || format === 'asyncapi'
-    const rootContext: ReferenceContext | undefined =
-      identifySchema === identifySchemaPosition && recognized && (swagger || asyncapi || /^3\.\d+\./.test(version))
-        ? 'object'
-        : undefined
-    const customTraversal =
-      includeCustomReferences && rootContext
-        ? documentTraversal(true, swagger, !swagger && !version.startsWith('3.0.'), true, asyncapi, true)
-        : undefined
-    customTraversal?.register(document, base)
+    const { outputBase, sourceUri, dialect, customTraversal } = registrations.get(document)!
     const position = (node: object, fallback?: ReferenceContext): ReferenceContext | undefined => {
       const location = customTraversal?.location(node)
       if (location?.customReferences && getSchemaVocabulary(location.context, true)?.anchors) {
@@ -298,14 +291,12 @@ export const documentReferences = (
       context: ReferenceContext | undefined,
       key: string,
     ): ReferenceContext | undefined => {
-      if (context === undefined || (Array.isArray(parent) && !['objects', 'messages'].includes(context))) {
+      if (!dialect || context === undefined || (Array.isArray(parent) && !['objects', 'messages'].includes(context))) {
         return context
       }
       const schemaFormat = Reflect.get(parent, 'schemaFormat')
       return childReferenceContext(context, key, {
-        swagger,
-        asyncapi,
-        openapi30: version.startsWith('3.0.'),
+        ...dialect,
         schemaFormat: typeof schemaFormat === 'string' ? schemaFormat : undefined,
       })
     }
@@ -327,7 +318,7 @@ export const documentReferences = (
         return
       }
       visited.add(value)
-      sourceOrigins.set(value, registrations.get(document)!.sourceUri)
+      sourceOrigins.set(value, sourceUri)
       if (isObject(value)) {
         restoreLiteralIdentifier(value)
       }
@@ -420,7 +411,7 @@ export const documentReferences = (
     let retrievalOrigin = retrievalBase
     let outputOrigin = outputBase
     let role: ScopeRole
-    let context: ReferenceContext | undefined = rootContext
+    let context: ReferenceContext | undefined = dialect ? 'object' : undefined
     for (const key of targetPath) {
       if (target === null || typeof target !== 'object') {
         return

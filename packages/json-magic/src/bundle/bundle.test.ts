@@ -32,19 +32,60 @@ import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 
 describe('bundle', () => {
-  it('leaves relative dynamic references unresolved under an opaque base URI', async () => {
-    const input = {
-      $id: 'urn:example:root',
-      properties: { item: { $dynamicRef: 'other.json#item' } },
-    }
-    const validate = vi.fn(() => false)
+  it.each([undefined, '/api/root.json', 'https://example.com/api/root.json'])(
+    'leaves relative dynamic references unresolved under an opaque base URI (origin: %s)',
+    async (origin) => {
+      const input = {
+        $id: 'urn:example:root',
+        properties: { item: { $dynamicRef: 'other.json#item' } },
+      }
+      const expected = structuredClone(input)
+      const validate = vi.fn(() => false)
 
-    await expect(
-      bundle(input, { traversal: 'document', treeShake: true, plugins: [{ type: 'loader', validate, exec: vi.fn() }] }),
-    ).resolves.toEqual(input)
-    expect(input.properties.item.$dynamicRef).toBe('other.json#item')
-    expect(validate).not.toHaveBeenCalled()
-  })
+      await expect(
+        bundle(input, {
+          origin,
+          traversal: 'document',
+          treeShake: true,
+          plugins: [{ type: 'loader', validate, exec: vi.fn() }],
+        }),
+      ).resolves.toStrictEqual(expected)
+      expect(validate).not.toHaveBeenCalled()
+    },
+  )
+
+  it.each(['3.1.0', ''])(
+    'uses the OpenAPI schema dialect with unrelated asyncapi metadata (version: %j)',
+    async (openapi) => {
+      const schema = {
+        $defs: { item: { $dynamicAnchor: 'item', const: 'local' } },
+        properties: {
+          local: { $dynamicRef: '#item' },
+          external: { $dynamicRef: 'https://example.com/target.json#item' },
+        },
+      }
+      const input = {
+        openapi,
+        asyncapi: 'unrelated metadata',
+        components: { schemas: { Example: schema } },
+      }
+      const data = { $anchor: 'item', const: 'external' }
+      const load = vi.fn((_uri: string) => Promise.resolve({ ok: true as const, data, raw: JSON.stringify(data) }))
+
+      await bundle(input, {
+        traversal: 'document',
+        treeShake: true,
+        includeCustomReferences: true,
+        plugins: [{ type: 'loader', validate: () => true, exec: load }],
+      })
+
+      expect(load).toHaveBeenCalledExactlyOnceWith('https://example.com/target.json')
+      const proxy = createMagicProxy(input, { includeCustomReferences: true })
+      const { local, external } = proxy.components.schemas.Example.properties
+      expect(Reflect.get(local, DYNAMIC_REF_VALUE)?.const).toBe('local')
+      expect(Reflect.get(external, DYNAMIC_REF_VALUE)?.const).toBe('external')
+    },
+  )
 
   it('bundles dynamic targets in opted-in custom schema positions while leaving examples opaque', async () => {
     const input = {
