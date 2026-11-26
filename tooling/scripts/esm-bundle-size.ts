@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { gzipSync } from 'node:zlib'
+import { brotliCompressSync, constants, gzipSync } from 'node:zlib'
 
 /*
  * Measures the ESM CDN bundle of `@scalar/api-reference` and writes a pull request comment that
@@ -17,6 +17,7 @@ import { gzipSync } from 'node:zlib'
 export type ChunkGroupSize = {
   minified: number
   gzip: number
+  brotli: number
 }
 
 /** Size of the ESM bundle at one commit. */
@@ -40,18 +41,21 @@ const isByteCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
 
 const isChunkGroupSize = (value: unknown): value is ChunkGroupSize =>
-  isRecord(value) && isByteCount(value.minified) && isByteCount(value.gzip)
+  isRecord(value) && isByteCount(value.minified) && isByteCount(value.gzip) && isByteCount(value.brotli)
 
 /** The commit ends up in the comment, so only accept a plain hash. */
 const isCommit = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{7,40}$/.test(value)
 
 /**
  * Reads a size written by `measure`. The baseline comes from another workflow run, so anything
- * that does not have the expected shape is treated as missing instead of trusted.
+ * that does not have the expected shape is treated as missing instead of trusted. That includes
+ * sizes recorded before a field was added, which then report without a comparison once.
  */
 export const parseEsmBundleSize = (value: unknown): EsmBundleSize | undefined => {
   if (isRecord(value) && isCommit(value.commit) && isChunkGroupSize(value.initial) && isChunkGroupSize(value.total)) {
-    return { commit: value.commit, initial: value.initial, total: value.total }
+    const pick = ({ minified, gzip, brotli }: ChunkGroupSize): ChunkGroupSize => ({ minified, gzip, brotli })
+
+    return { commit: value.commit, initial: pick(value.initial), total: pick(value.total) }
   }
 
   return undefined
@@ -80,12 +84,20 @@ const readChunks = (statsFile: string): WebpackStatsChunk[] => {
 }
 
 const measureFiles = (directory: string, files: Set<string>): ChunkGroupSize => {
-  const size: ChunkGroupSize = { minified: 0, gzip: 0 }
+  const size: ChunkGroupSize = { minified: 0, gzip: 0, brotli: 0 }
 
   for (const file of files) {
     const contents = readFileSync(join(directory, file))
     size.minified += contents.length
     size.gzip += gzipSync(contents, { level: 9 }).length
+    // Maximum quality, which is what CDNs such as jsDelivr use for static files.
+    size.brotli += brotliCompressSync(contents, {
+      params: {
+        [constants.BROTLI_PARAM_MODE]: constants.BROTLI_MODE_TEXT,
+        [constants.BROTLI_PARAM_QUALITY]: constants.BROTLI_MAX_QUALITY,
+        [constants.BROTLI_PARAM_SIZE_HINT]: contents.length,
+      },
+    }).length
   }
 
   return size
@@ -94,7 +106,7 @@ const measureFiles = (directory: string, files: Set<string>): ChunkGroupSize => 
 /**
  * Measures the bundle described by a `rollup-plugin-webpack-stats` file. The stats already know
  * which chunks load up front, so we only read the emitted files next to it to get real sizes,
- * including the license banner and gzip.
+ * including the license banner, gzip and brotli.
  */
 export const measureEsmBundle = (statsFile: string, commit: string): EsmBundleSize => {
   if (!isCommit(commit)) {
@@ -148,11 +160,16 @@ export const formatDifference = (current: number, baseline: number): string => {
   return `${sign}${bytes} (${sign}${percent}%)`
 }
 
+/**
+ * Brotli and gzip are what users download. Minified is what the browser parses and compiles, and
+ * it shows growth that compresses well. Lazy chunks only get one row, because most changes do not
+ * touch them and a single total is enough to catch the ones that do.
+ */
 const rows = [
+  { label: 'Initial load (brotli)', pick: (size: EsmBundleSize): number => size.initial.brotli },
   { label: 'Initial load (gzip)', pick: (size: EsmBundleSize): number => size.initial.gzip },
   { label: 'Initial load (minified)', pick: (size: EsmBundleSize): number => size.initial.minified },
-  { label: 'All chunks (gzip)', pick: (size: EsmBundleSize): number => size.total.gzip },
-  { label: 'All chunks (minified)', pick: (size: EsmBundleSize): number => size.total.minified },
+  { label: 'All chunks (brotli)', pick: (size: EsmBundleSize): number => size.total.brotli },
 ]
 
 const shortCommit = (commit: string): string => commit.slice(0, 7)
@@ -186,7 +203,7 @@ export const createReport = (current: EsmBundleSize, baseline: EsmBundleSize | u
 
   lines.push(
     '',
-    `<sub>Initial load is the entry and the chunks it imports statically. All chunks adds lazy chunks such as the API client modal and icons. Measured at ${shortCommit(current.commit)}.</sub>`,
+    `<sub>Initial load is the entry and the chunks it imports statically. All chunks adds lazy chunks such as the API client modal and the icons. Measured at ${shortCommit(current.commit)}.</sub>`,
     '',
   )
 

@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { gzipSync } from 'node:zlib'
+import { brotliCompressSync, constants, gzipSync } from 'node:zlib'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
@@ -19,8 +19,8 @@ const prCommit = 'b'.repeat(40)
 
 const size = (commit: string, initialGzip: number, totalGzip: number): EsmBundleSize => ({
   commit,
-  initial: { minified: initialGzip * 4, gzip: initialGzip },
-  total: { minified: totalGzip * 4, gzip: totalGzip },
+  initial: { minified: initialGzip * 4, gzip: initialGzip, brotli: initialGzip * 0.8 },
+  total: { minified: totalGzip * 4, gzip: totalGzip, brotli: totalGzip * 0.8 },
 })
 
 describe('esm-bundle-size', () => {
@@ -59,16 +59,26 @@ describe('esm-bundle-size', () => {
 
       const bytes = (file: keyof typeof files): number => Buffer.byteLength(files[file])
       const gzip = (file: keyof typeof files): number => gzipSync(files[file], { level: 9 }).length
+      const brotli = (file: keyof typeof files): number =>
+        brotliCompressSync(files[file], {
+          params: {
+            [constants.BROTLI_PARAM_MODE]: constants.BROTLI_MODE_TEXT,
+            [constants.BROTLI_PARAM_QUALITY]: constants.BROTLI_MAX_QUALITY,
+            [constants.BROTLI_PARAM_SIZE_HINT]: Buffer.byteLength(files[file]),
+          },
+        }).length
 
       expect(measureEsmBundle(join(directory, 'webpack-stats.esm.json'), mainCommit)).toEqual({
         commit: mainCommit,
         initial: {
           minified: bytes('standalone.esm.js') + bytes('chunks/vendor-1.js'),
           gzip: gzip('standalone.esm.js') + gzip('chunks/vendor-1.js'),
+          brotli: brotli('standalone.esm.js') + brotli('chunks/vendor-1.js'),
         },
         total: {
           minified: bytes('standalone.esm.js') + bytes('chunks/vendor-1.js') + bytes('chunks/modal-2.js'),
           gzip: gzip('standalone.esm.js') + gzip('chunks/vendor-1.js') + gzip('chunks/modal-2.js'),
+          brotli: brotli('standalone.esm.js') + brotli('chunks/vendor-1.js') + brotli('chunks/modal-2.js'),
         },
       })
     })
@@ -96,7 +106,11 @@ describe('esm-bundle-size', () => {
     })
 
     it('drops fields it does not know about', () => {
-      expect(parseEsmBundleSize({ ...size(mainCommit, 100, 200), extra: true })).toEqual(size(mainCommit, 100, 200))
+      const value = size(mainCommit, 100, 200)
+
+      expect(parseEsmBundleSize({ ...value, extra: true, initial: { ...value.initial, extra: true } })).toStrictEqual(
+        value,
+      )
     })
 
     it.each([
@@ -105,7 +119,11 @@ describe('esm-bundle-size', () => {
       ['a commit with Markdown in it', { ...size(mainCommit, 100, 200), commit: '[link](https://example.com)' }],
       ['a negative byte count', size(mainCommit, -1, 200)],
       ['a fractional byte count', size(mainCommit, 1.5, 200)],
-      ['a missing group', { commit: mainCommit, initial: { minified: 1, gzip: 1 } }],
+      ['a missing group', { commit: mainCommit, initial: { minified: 1, gzip: 1, brotli: 1 } }],
+      [
+        'a size recorded before brotli was measured',
+        { commit: mainCommit, initial: { minified: 4, gzip: 1 }, total: { minified: 8, gzip: 2 } },
+      ],
     ])('rejects %s', (_, value) => {
       expect(parseEsmBundleSize(value)).toBeUndefined()
     })
@@ -147,10 +165,11 @@ describe('esm-bundle-size', () => {
       const report = createReport(size(prCommit, 99_000, 205_000), size(mainCommit, 100_000, 200_000))
 
       expect(report).toContain(`compared with \`main\` at ${mainCommit}.`)
+      expect(report).toContain('| Initial load (brotli) | 80.00 kB | 79.20 kB | -800 B (-1.00%) |')
       expect(report).toContain('| Initial load (gzip) | 100.00 kB | 99.00 kB | -1.00 kB (-1.00%) |')
       expect(report).toContain('| Initial load (minified) | 400.00 kB | 396.00 kB | -4.00 kB (-1.00%) |')
-      expect(report).toContain('| All chunks (gzip) | 200.00 kB | 205.00 kB | +5.00 kB (+2.50%) |')
-      expect(report).toContain('| All chunks (minified) | 800.00 kB | 820.00 kB | +20.00 kB (+2.50%) |')
+      expect(report).toContain('| All chunks (brotli) | 160.00 kB | 164.00 kB | +4.00 kB (+2.50%) |')
+      expect(report).not.toContain('All chunks (gzip)')
       expect(report).toContain('Measured at bbbbbbb.')
     })
 
@@ -158,7 +177,7 @@ describe('esm-bundle-size', () => {
       const report = createReport(size(prCommit, 99_000, 205_000), undefined)
 
       expect(report).toContain('There is no size from `main` to compare with yet.')
-      expect(report).toContain('| Initial load (gzip) | 99.00 kB |')
+      expect(report).toContain('| Initial load (brotli) | 79.20 kB |')
       expect(report).not.toContain('Difference')
     })
   })
