@@ -31,6 +31,7 @@ import { createNativeSchemaEditTracker } from '@/helpers/async-api-schema-resour
 import { asyncApiModelChunkReference } from '@/helpers/asyncapi-model-chunk-reference'
 import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { compactUpgradeMetadata } from '@/helpers/compact-upgrade-metadata'
+import type { OverlayDiagnostic } from '@/helpers/compose-openapi-overlays'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { bumpDocumentRevision, getDocumentRevision } from '@/helpers/document-revision'
@@ -682,12 +683,14 @@ export type WorkspaceStore = {
    * For a composed description, pass the complete Overlay list again, or [] to remove it.
    *
    * @param input Object specifying which document to rebase
-   * @returns If there are unresolved conflicts, resolves to an object containing the list of conflicts and a method to apply user-resolved conflicts; otherwise resolves to void.
+   * @returns A result with the changes, conflicts, and a method to apply them on success,
+   * or a failure code and message otherwise. A completed Overlay composition also returns any
+   * actions that matched no nodes, even when the rebase finds no changes.
    *
    * @example
    * // Rebase a document and handle conflicts interactively
-   * const result = await store.rebaseDocument({ name: 'api', fetch: customFetch });
-   * if (result && result.ok) {
+   * const result = await store.rebaseDocument({ name: 'api', url: apiUrl, fetch: customFetch });
+   * if (result.ok) {
    *   // Present conflicts to the user and collect resolutions...
    *   await result.applyChanges(userResolvedConflicts);
    * }
@@ -697,11 +700,13 @@ export type WorkspaceStore = {
         ok: false
         type: 'CORRUPTED_STATE' | 'FETCH_FAILED' | 'NO_CHANGES_DETECTED' | 'OVERLAYS_REQUIRED' | 'OVERLAY_FAILED'
         message: string
+        overlayDiagnostics?: OverlayDiagnostic[]
       }
     | {
         ok: true
         changes: ReturnType<typeof merge>['diffs']
         conflicts: ReturnType<typeof merge>['conflicts']
+        overlayDiagnostics?: OverlayDiagnostic[]
         applyChanges: (
           applyChangesInput:
             | {
@@ -1503,11 +1508,18 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           const result = await composeDocument(input, { ...resolved, data: resolved.data }, overlays, fetch)
           return { ...result, documentSource: resolved.retrievalUri ?? getDocumentSource(input) }
         } catch (error) {
-          console.error("Failed to compose document '%s':", name, error)
+          console.error('Failed to compose document', name, error)
           return undefined
         }
       })
-      return composed ? await addInMemoryDocument({ ...input, ...composed, composed: true }, navigationOptions) : false
+      if (!composed) {
+        // A different load may have registered the document while composition was pending.
+        if (!getOwnEntry(workspace.documents, name)) {
+          workspace.documents[name] = createLoadFailedDocument(name, meta)
+        }
+        return false
+      }
+      return await addInMemoryDocument({ ...input, ...composed, composed: true }, navigationOptions)
     }
 
     const resolve = await withMeasurementAsync(
@@ -2142,6 +2154,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // ---- Resolve input document
       const overlayRebase = wasComposed || Boolean(input.overlays?.length)
+      // Refresh composed documents through the same transport as their initial add. Plain rebases
+      // preserve the existing caller-controlled fetch behavior.
       const fetch = overlayRebase
         ? getFetch({
             fetch: input.fetch ?? workspaceProps?.fetch,
@@ -2185,12 +2199,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         }
       }
 
+      const overlayDiagnostics = composed ? { overlayDiagnostics: composed.diagnostics } : {}
       const newHash = composed?.documentHash ?? generateHash(resolve.raw)
       if (previousHash === newHash) {
         return {
           ok: false,
           type: 'NO_CHANGES_DETECTED' as const,
           message: `No changes detected for document '${name}': document hash matches the active document`,
+          ...overlayDiagnostics,
         }
       }
 
@@ -2229,6 +2245,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             ok: true,
             changes: [],
             conflicts: [],
+            ...overlayDiagnostics,
             applyChanges: () => {
               const document = unpackOverridesProxy(getOwnEntry(workspaceState.documents, name))
               if (document && document['x-scalar-original-document-hash'] === previousHash) {
@@ -2254,6 +2271,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ok: true,
         conflicts: merged.conflicts,
         changes: merged.diffs,
+        ...overlayDiagnostics,
         applyChanges: async (applyChangesInput) => {
           // Helper function to compute the new active document based on
           // resolved conflicts or a resolved document. With the

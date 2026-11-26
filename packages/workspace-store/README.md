@@ -643,9 +643,22 @@ The stores use their usual JSON and YAML loaders and permissions. `extends` chec
 that the Overlay matches the supplied description. The caller supplies and manages
 the base and Overlay sources.
 
+For an in-memory base description, pass `{ name, document, documentSource }` to
+either store. `documentSource` supplies the base URI for relative references and
+the retrieval URI used when checking an Overlay's `extends`.
+
 The composed description is the baseline for JSON and YAML exports. Workspace snapshots
 restore that result directly. When calling `rebaseDocument`, pass the full ordered list
 again. Pass `overlays: []` to refresh from the base alone.
+
+In the browser, a rebase with Overlays uses the same fetch configuration as the
+initial add. A custom fetch takes precedence over the active proxy. A plain rebase
+uses its custom fetch, the store's custom fetch, or the browser's default fetch.
+
+The rebase result exposes unmatched Overlay actions in `overlayDiagnostics`, even
+when the input is unchanged. Each entry gives the zero-based `overlayIndex` and
+`actionIndex`, and the JSONPath `target`. If composition fails, the result returns
+`type: 'OVERLAY_FAILED'` and a `message`.
 
 ## Referenced OpenAPI upgrades
 

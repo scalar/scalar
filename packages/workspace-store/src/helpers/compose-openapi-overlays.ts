@@ -18,6 +18,8 @@ type Location = (string | number)[]
 type JsonObject = Record<string, JSONValue>
 type Action = Record<string, unknown> & { target: string }
 
+const URI_SCHEME = /^[a-z][a-z\d+.-]*:/i
+
 const isAuthoredOpenApi = (document: Record<string, unknown>): boolean =>
   !isAsyncApiDocument(document) &&
   (isOpenApiDocument(document) ? /^3\.\d+\.\d+$/.test(document.openapi) : document.swagger === '2.0')
@@ -57,9 +59,12 @@ const checkOverlayIdentity = (
   const self = uriReference(overlay, '$self')
   const extendsUri = uriReference(overlay, 'extends')
   const overlayIdentity =
-    self !== undefined && (sourceUri || /^[a-z][a-z\d+.-]*:/i.test(self)) ? new URL(self, sourceUri).href : sourceUri
+    self !== undefined && (sourceUri || URI_SCHEME.test(self)) ? new URL(self, sourceUri).href : sourceUri
   if (extendsUri === undefined) {
     return
+  }
+  if (!overlayIdentity && !URI_SCHEME.test(extendsUri)) {
+    throw new Error('A relative "extends" requires an Overlay source URI or an absolute "$self"')
   }
 
   // $self was introduced in OpenAPI 3.2. The retrieval URI identifies older descriptions.
@@ -184,6 +189,8 @@ const kindOf = (value: unknown): 'object' | 'array' | 'primitive' => {
 }
 
 const mergeValue = (target: unknown, update: unknown, appendToArray = false): unknown => {
+  // Overlay 1.2 concatenates array properties when recursively merging objects.
+  // https://spec.openapis.org/overlay/v1.2.0.html#action-object
   if (Array.isArray(target) && (appendToArray || Array.isArray(update))) {
     for (const item of Array.isArray(update) ? update : [update]) {
       target.push(item)

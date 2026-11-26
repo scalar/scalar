@@ -416,7 +416,7 @@ export type ServerWorkspaceStore = {
    * Supported inputs include:
    * - `url`: fetch and parse an OpenAPI or AsyncAPI document from a remote URL
    * - `path`: read and parse an OpenAPI or AsyncAPI document from the filesystem
-   * - `document`: use an in-memory OpenAPI or AsyncAPI object directly
+   * - `document`: use an in-memory OpenAPI or AsyncAPI object with an optional `documentSource` base URI
    *
    * If loading fails, the document is not added.
    *
@@ -921,7 +921,7 @@ export async function createServerWorkspaceStore(
       // taking the workspace with it, since the initial documents are ingested together and one
       // malformed description should not fail an entire documentation build. Loading is inside the
       // try too, so a document that cannot even be serialized is skipped the same way.
-      console.warn(`Failed to process document "${input.name}"`, error)
+      console.warn('Failed to process document', input.name, error)
     }
   }
 
