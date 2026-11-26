@@ -17,9 +17,9 @@ import {
   ScalarMarkdownSummary,
 } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
-import {
-  type WorkspaceEventBus,
-  createWorkspaceEventBus,
+import type {
+  ApiReferenceEvents,
+  WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
@@ -320,25 +320,40 @@ const responseAnchorId = computed<string | undefined>(() =>
 
 /** Carry the picker choice in copied body links while keeping the DOM breadcrumb stable. */
 const schemaEventBus = computed<WorkspaceEventBus | null>(() => {
+  const parentBus = eventBus
   const responseId = responseAnchorId.value
   const operationId = breadcrumb?.[0]
-  if (!eventBus || !operationId || !responseId) {
-    return eventBus
+  if (!parentBus || !operationId || !responseId) {
+    return parentBus
   }
 
-  const bus = createWorkspaceEventBus()
-  bus.on('copy-url:nav-item', ({ id }) => {
-    eventBus.emit('copy-url:nav-item', {
-      id,
-      responseProperty: id.startsWith(`${responseId}.`)
-        ? { operationId, mediaType: selectedContentType.value }
-        : undefined,
-    })
-  })
-  bus.on('scroll-to:model-by-name', (payload) =>
-    eventBus.emit('scroll-to:model-by-name', payload),
-  )
-  return bus
+  return {
+    ...parentBus,
+    emit: (...[event, payload, emitOptions]) => {
+      if (
+        event === 'copy-url:nav-item' &&
+        payload &&
+        typeof payload === 'object' &&
+        'id' in payload &&
+        typeof payload.id === 'string' &&
+        payload.id.startsWith(`${responseId}.`)
+      ) {
+        parentBus.emit(
+          event,
+          {
+            ...payload,
+            responseProperty: {
+              operationId,
+              mediaType: selectedContentType.value,
+            },
+          },
+          emitOptions,
+        )
+        return
+      }
+      parentBus.emit<keyof ApiReferenceEvents>(event, payload, emitOptions)
+    },
+  }
 })
 
 const targetResponseMediaType = computed<string | undefined>(() => {
