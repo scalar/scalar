@@ -1,4 +1,4 @@
-import { preloadGrammars } from '@scalar/components/code-block'
+import { getRenderedLanguages, preloadGrammars } from '@scalar/components/code-block'
 import { isLocaleLoaded, loadLocale } from '@scalar/localization'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
 import type {
@@ -257,28 +257,6 @@ export const createContainer = (doc: Document, element?: Element | null) => {
   }
 
   return _container
-}
-
-/**
- * Languages of the highlighted code in server-rendered markup.
- *
- * Grammars load on demand, so a code block whose grammar has not loaded yet renders as plain text.
- * Hydrating before they arrive would replace the server's highlighted markup with that plain text.
- * Highlighted code carries its language in a `language-*` class, so the markup itself says which
- * grammars the first render needs.
- */
-const getRenderedLanguages = (element: Element): string[] => {
-  const languages = new Set<string>()
-
-  for (const code of element.querySelectorAll('code.hljs')) {
-    for (const className of code.classList) {
-      if (className.startsWith('language-')) {
-        languages.add(className.slice('language-'.length))
-      }
-    }
-  }
-
-  return [...languages]
 }
 
 /** Locales configured on a single configuration or on every entry of a configuration array. */

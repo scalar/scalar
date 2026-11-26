@@ -29,7 +29,7 @@ vi.mock('@scalar/highlight/compat', async (importOriginal) => {
   }
 })
 
-const { ensureGrammar, preloadGrammars } = await import('./load-grammar')
+const { ensureGrammar, getRenderedLanguages, preloadGrammars } = await import('./load-grammar')
 const { grammarFor } = await import('@scalar/highlight/compat')
 
 /**
@@ -183,6 +183,41 @@ describe('load-grammar', () => {
       stop()
 
       expect(renders).toEqual([false, true])
+    })
+  })
+
+  describe('getRenderedLanguages', () => {
+    /** Server-rendered markup, the way `ScalarCodeBlock` and `ScalarMarkdown` leave it */
+    const markup = (html: string): HTMLElement => {
+      const element = document.createElement('div')
+      element.innerHTML = html
+      return element
+    }
+
+    it('reads each language once, from both language-* and lang-* classes', () => {
+      const element = markup(`
+        <pre><code class="hljs language-python">a</code></pre>
+        <pre><code class="hljs language-python custom-scroll">b</code></pre>
+        <pre><code class="hljs lang-ruby">c</code></pre>
+        <pre><code class="hljs language-Node">d</code></pre>`)
+
+      expect(getRenderedLanguages(element)).toEqual(['python', 'ruby', 'Node'])
+    })
+
+    it('reads the first language class of a block, as the Markdown highlighter does', () => {
+      const element = markup('<pre><code class="hljs lang-go language-rust">a</code></pre>')
+
+      expect(getRenderedLanguages(element)).toEqual(['go'])
+    })
+
+    it('skips blocks marked no-highlight and code that was never highlighted', () => {
+      const element = markup(`
+        <pre><code class="hljs no-highlight language-python">a</code></pre>
+        <pre><code class="hljs nohighlight language-python">b</code></pre>
+        <pre><code class="language-swift">c</code></pre>
+        <pre><code class="hljs">d</code></pre>`)
+
+      expect(getRenderedLanguages(element)).toEqual([])
     })
   })
 })

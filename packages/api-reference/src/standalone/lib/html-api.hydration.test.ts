@@ -174,16 +174,20 @@ describe('html-api hydration', () => {
     }
   })
 
-  it('waits for the grammars of server-rendered code before hydrating', async () => {
+  it.each([
+    ['a fenced code block', '```python\ndef greet(name):\n    return name\n```', 'code.language-python'],
+    // The Markdown renderer keeps raw HTML code blocks, so their languages count too
+    [
+      'a raw HTML code block',
+      '<pre><code class="language-ruby">def greet\n  1\nend</code></pre>',
+      'code.language-ruby',
+    ],
+  ])('waits for the grammars of server-rendered code in %s before hydrating', async (_, description, selector) => {
     const config = apiReferenceConfigurationWithSourceSchema({
       _integration: 'html',
       content: {
         openapi: '3.1.0',
-        info: {
-          title: 'Highlighted API',
-          version: '1.0.0',
-          description: '```python\ndef greet(name):\n    return name\n```',
-        },
+        info: { title: 'Highlighted API', version: '1.0.0', description },
         paths: {},
       },
     })
@@ -193,9 +197,8 @@ describe('html-api hydration', () => {
     const element = document.createElement('div')
     element.innerHTML = await renderToString(ssrApp)
     document.body.append(element)
-    const isHighlighted = (): boolean =>
-      element.querySelector('code.language-python')?.querySelector('[class^="hljs-"]') !== null
-    expect(element.querySelector('code.language-python')).not.toBeNull()
+    const isHighlighted = (): boolean => element.querySelector(selector)?.querySelector('[class^="hljs-"]') !== null
+    expect(element.querySelector(selector)).not.toBeNull()
     expect(isHighlighted()).toBe(true)
 
     // A browser starts without any grammar, like a fresh page load.
@@ -212,7 +215,7 @@ describe('html-api hydration', () => {
 
     const reference = browser.createApiReference(element, config)
     try {
-      // Hydration waits for the Python grammar rather than mounting straight away
+      // Hydration waits for the grammar rather than mounting straight away
       const isMounted = (): boolean => '__vue_app__' in element
       expect(isMounted()).toBe(false)
       await vi.waitFor(() => expect(isMounted()).toBe(true))

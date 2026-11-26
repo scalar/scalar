@@ -9,7 +9,10 @@ export { preloadClients } from '@scalar/blocks/code-example'
  * Preloads the syntax highlighting grammars for a list of languages, such as `['json', 'python']`.
  * Await it before hydrating server-rendered markup so code blocks stay highlighted on the first paint.
  */
-export { preloadGrammars } from '@scalar/components/code-block'
+/**
+ * Reads the languages of the highlighted code in server-rendered markup, to pass to `preloadGrammars`.
+ */
+export { getRenderedLanguages, preloadGrammars } from '@scalar/components/code-block'
 /**
  * Preloads a built-in locale for the API Reference, the API Client and the schema blocks at once.
  * Await it before mounting or hydrating to render a non-English locale on the first paint.

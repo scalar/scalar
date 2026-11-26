@@ -108,3 +108,51 @@ export const preloadGrammars = async (names: Iterable<string>): Promise<void> =>
     loadedGrammars.value++
   }
 }
+
+/**
+ * The language of a code block, read from its classes the way `rehypeHighlight` reads them.
+ *
+ * The first `no-highlight`, `lang-*` or `language-*` class wins, so a block the
+ * Markdown renderer left alone is not counted, and `lang-python` counts the same
+ * as `language-python`.
+ */
+const languageOf = (code: Element): string | undefined => {
+  for (const className of code.classList) {
+    if (className === 'no-highlight' || className === 'nohighlight') {
+      return undefined
+    }
+    if (className.startsWith('lang-')) {
+      return className.slice('lang-'.length)
+    }
+    if (className.startsWith('language-')) {
+      return className.slice('language-'.length)
+    }
+  }
+
+  return undefined
+}
+
+/**
+ * Languages of the highlighted code in server-rendered markup, to pass to `preloadGrammars`.
+ *
+ * Hydrating patches `v-html`, so a code block whose grammar has not loaded yet
+ * would replace the server's highlighted markup with plain text, and only turn
+ * highlighted again once its grammar arrives. Highlighted code carries its
+ * language in a class, so the markup itself says which grammars the first
+ * client render needs.
+ *
+ * @example
+ * await preloadGrammars(getRenderedLanguages(document.getElementById('app')!))
+ */
+export const getRenderedLanguages = (root: ParentNode): string[] => {
+  const languages = new Set<string>()
+
+  for (const code of root.querySelectorAll('code.hljs')) {
+    const language = languageOf(code)
+    if (language) {
+      languages.add(language)
+    }
+  }
+
+  return [...languages]
+}

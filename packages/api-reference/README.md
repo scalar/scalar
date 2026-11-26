@@ -76,6 +76,28 @@ createApiReference('#app', {
 
 Server rendering waits for the configured locale on its own. When you hydrate server-rendered markup yourself (instead of through `createApiReference` or the Nuxt integration, which already wait), await `loadLocale` with the same locale before calling `createSSRApp(...).mount()`.
 
+## Hydrating server-rendered markup yourself
+
+Non-English locales, syntax highlighting grammars and code example generators all load on demand. Server rendering waits for each of them, so the markup arrives complete. `createApiReference` and the Nuxt integration wait for the locale and the grammars in the browser before hydrating. A code example keeps its server-rendered snippet until its generator arrives, so waiting for the generator is optional. When you render `<ApiReference>` with your own server rendering, wait for them yourself before mounting:
+
+```ts
+import { getRenderedLanguages, loadLocale, preloadClients, preloadGrammars } from '@scalar/api-reference'
+
+const root = document.getElementById('app')!
+
+await Promise.all([
+  loadLocale('de'),
+  // The languages of the highlighted code in the server markup
+  preloadGrammars(getRenderedLanguages(root)),
+  // Optional: the code example clients the page shows, so the first client render has the snippet
+  preloadClients(['shell/curl']),
+])
+
+createSSRApp(App).mount(root)
+```
+
+Skipping a preload does not break the page, but it shows. A locale that has not loaded renders English for a moment. A grammar that has not loaded turns its highlighted code plain until the grammar arrives, and Vue logs no hydration mismatch for that.
+
 ## AsyncAPI Markdown actions
 
 AsyncAPI channels and operations include a **Copy as Markdown** button in both layouts. Copies contain the selected section and its relevant context, using `@scalar/asyncapi-to-markdown`. Tags and introduction support custom actions but do not show a copy button by default.

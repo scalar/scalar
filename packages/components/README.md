@@ -124,16 +124,18 @@ The floating element also paints its own surface: `rounded-xl bg-b-1 dark:bg-b-1
 
 `ScalarCodeBlock` and `ScalarMarkdown` highlight code with [`@scalar/highlight`](https://github.com/scalar/scalar/tree/main/packages/highlight) and load each language's grammar on demand, so a page only downloads the grammars it shows. A block whose grammar has not loaded yet renders as plain text and highlights once it arrives.
 
-Server rendering waits for the grammars, so server-rendered markup is already highlighted. To hydrate it without a mismatch, load the same grammars on the client before mounting:
+Server rendering waits for the grammars, so server-rendered markup is already highlighted. Hydrating replaces each block's highlighted markup with what the client renders, so if a grammar has not loaded on the client yet, its code visibly flashes to plain text and back. Vue logs no hydration mismatch for this. Load the grammars the server markup uses before mounting:
 
 ```ts
-import { preloadGrammars } from '@scalar/components/code-block'
+import { getRenderedLanguages, preloadGrammars } from '@scalar/components/code-block'
 
-await preloadGrammars(['json', 'shell', 'python'])
-app.mount('#app')
+const root = document.getElementById('app')!
+
+await preloadGrammars(getRenderedLanguages(root))
+app.mount(root)
 ```
 
-`preloadGrammars` takes the same names as the `lang` prop, aliases included (`js`, `ts`, `sh`). Unknown names are skipped.
+`getRenderedLanguages` reads the `language-*` (and `lang-*`) classes of the highlighted code in the markup. `preloadGrammars` takes the same names as the `lang` prop, aliases included (`js`, `ts`, `sh`), so you can also pass a list of your own, such as `['json', 'shell', 'python']`. Unknown names are skipped, and a grammar that fails to load leaves only its own blocks plain.
 
 ## CSS Layers
 
