@@ -1,6 +1,5 @@
 /* basic theme */
 .light-mode {
-  color-scheme: light;
   /* Cream graph paper and a golden crust */
   --scalar-color-1: #22262b;
   --scalar-color-2: #51555e;
@@ -15,7 +14,6 @@
   --scalar-border-color: #e2dac4;
 }
 .dark-mode {
-  color-scheme: dark;
   /* A chalkboard after a long maths lesson */
   --scalar-color-1: #f1eee4;
   --scalar-color-2: #b6bdb1;
