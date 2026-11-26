@@ -1,3 +1,5 @@
+import { stat } from 'node:fs/promises'
+
 import { expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
@@ -91,5 +93,54 @@ test.describe('client modal', () => {
     // server plus a path, so the value must not collapse to a stray "/".
     await destination.blur()
     await expect(destination).toHaveText('https://hooks.example.com/deliveries')
+  })
+
+  test('highlights and downloads an empty attachment from the keyboard', async ({ page }, testInfo) => {
+    const example = await serveExample({
+      proxyUrl: '',
+      content: {
+        openapi: '3.1.1',
+        info: { title: 'Attachment API', version: '1.0.0' },
+        servers: [{ url: '/' }],
+        paths: { '/export': { get: { responses: { '200': { description: 'CSV export' } } } } },
+      },
+    })
+    await page.route(`${example}/export`, (route) =>
+      route.fulfill({
+        headers: { 'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename="export.csv"' },
+        body: '',
+      }),
+    )
+
+    await page.goto(example)
+    const opener = page.getByRole('button', { name: 'Test Request (get /export)', exact: true })
+    await opener.click()
+    const dialog = page.getByRole('dialog')
+    await dialog.getByRole('button', { name: 'Send Request' }).click()
+
+    const response = dialog.getByRole('region', { name: 'Response', exact: true })
+    const download = response.getByRole('link', { name: 'Download Response Body', exact: true })
+    await expect(download).toBeVisible()
+    const restingBackground = await download.evaluate((link) => getComputedStyle(link).backgroundColor)
+    await download.hover()
+    const hoveredBackground = await download.evaluate((link) => getComputedStyle(link).backgroundColor)
+    expect(hoveredBackground).not.toBe(restingBackground)
+
+    const bodyTab = response.getByRole('button', { name: 'Body', exact: true })
+    await bodyTab.hover()
+    await bodyTab.focus()
+    await page.keyboard.press('Tab')
+    await expect(download).toBeFocused()
+    await expect(download).toHaveCSS('background-color', hoveredBackground)
+
+    const [file] = await Promise.all([page.waitForEvent('download'), page.keyboard.press('Enter')])
+    expect(file.suggestedFilename()).toBe('export.csv')
+    const savedPath = testInfo.outputPath('export.csv')
+    await file.saveAs(savedPath)
+    expect((await stat(savedPath)).size).toBe(0)
+
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    await expect(opener).toBeFocused()
   })
 })

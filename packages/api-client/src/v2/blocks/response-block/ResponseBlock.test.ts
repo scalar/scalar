@@ -74,7 +74,8 @@ describe('ResponseBlock', () => {
     ['GET', 205, '205 Reset Content'],
     ['GET', 304, '304 Not Modified'],
     ['HEAD', 200, '200 OK'],
-  ])('hides the download for a bodyless %s response with status %i', async (method, status, statusLabel) => {
+    ['GET', 200, '200 OK'],
+  ])('hides the download when a %s response with status %i has no stream', async (method, status, statusLabel) => {
     const [, result] = await sendRequest({
       isUsingProxy: false,
       requestPayload: ['https://example.test/download', { method }],

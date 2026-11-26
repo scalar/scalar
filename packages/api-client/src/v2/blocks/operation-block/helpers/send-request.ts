@@ -128,6 +128,7 @@ export const sendRequest = async ({
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
     const method = (requestPayload[1].method ?? 'GET') as string
+    // A custom fetch can return a null body even for a 200. Treat it as unavailable.
     const hasBody = canResponseHaveBody(method, response.status) && Boolean(response.body)
 
     /**
