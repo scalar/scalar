@@ -1,6 +1,5 @@
 /* basic theme */
 .light-mode {
-  color-scheme: light;
   /* A sunny picnic: warm napkins and a ketchup accent */
   --scalar-color-1: #2a1d17;
   --scalar-color-2: #5f4b40;
@@ -15,7 +14,6 @@
   --scalar-border-color: #ebdcc7;
 }
 .dark-mode {
-  color-scheme: dark;
   /* A warm night by the grill: charcoal, embers and ketchup */
   --scalar-color-1: #fbf1e4;
   --scalar-color-2: #c9b6a3;
