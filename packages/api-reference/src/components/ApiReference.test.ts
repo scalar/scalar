@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
 import ApiReference from '@/components/ApiReference.vue'
+import ApiHostingBetaPrompt from '@/features/api-hosting-beta/components/ApiHostingBetaPrompt.vue'
 import { DeveloperTools } from '@/features/developer-tools'
 import { authStorage } from '@/helpers/storage'
 
@@ -1352,7 +1353,7 @@ describe('localhost shell', () => {
       expect(configure.attributes('aria-expanded')).toBe('true')
       expect(configure.attributes('aria-controls')).toBe(panel.attributes('id'))
       // The panel replaces the dropdown, so nothing else opens
-      expect(window.document.querySelector('[role="dialog"]')).toBeNull()
+      expect(window.document.querySelector('dialog[open], [role="dialog"]')).toBeNull()
 
       await click(toolbarButton(wrapper, 'Share'))
       expect(wrapper.get('.references-shell-panel').attributes('aria-label')).toBe('Share')
@@ -1419,7 +1420,7 @@ describe('localhost shell', () => {
       expect(panel.attributes('aria-label')).toBe('Generate SDK')
       expect(panel.get('h2').text()).toBe('Everything your API needs, from one OpenAPI document')
       expect(generate.attributes('aria-expanded')).toBe('true')
-      expect(window.document.querySelector('[role="dialog"]')).toBeNull()
+      expect(window.document.querySelector('dialog[open], [role="dialog"]')).toBeNull()
 
       // Its own close button closes the panel
       await panel.get('button[aria-label="Close"]').trigger('click')
@@ -1437,7 +1438,111 @@ describe('localhost shell', () => {
       await click(generate)
 
       expect(wrapper.find('.references-shell-panel').exists()).toBe(false)
-      expect(window.document.querySelector('[role="dialog"]')).not.toBeNull()
+      expect(window.document.querySelector('dialog[open]')).not.toBeNull()
+    })
+  })
+
+  describe('API Hosting beta popup', () => {
+    const SEEN_KEY = 'scalar-api-hosting-beta-prompt-seen'
+
+    /**
+     * Longer than the popup waits for the reference to settle: jsdom has no `requestIdleCallback`,
+     * so the preloader takes a 200ms timer to find nothing left to load, then the popup waits 1.5s
+     */
+    const SETTLED_MS = 1900
+
+    const queryPopup = () => window.document.querySelector('[role="dialog"] .developer-tools-card')
+
+    /** jsdom names itself in its user agent, which the popup takes as automated */
+    const JSDOM_USER_AGENT = navigator.userAgent
+
+    beforeEach(() => {
+      window.document.cookie = `${SEEN_KEY}=; Max-Age=0; Path=/`
+      localStorage.clear()
+      // The test setup reports every test as automated, and jsdom names itself, which keeps the popup shut
+      Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => false })
+      Object.defineProperty(navigator, 'userAgent', {
+        configurable: true,
+        get: () => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36',
+      })
+    })
+
+    afterEach(() => {
+      Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => true })
+      Object.defineProperty(navigator, 'userAgent', { configurable: true, get: () => JSDOM_USER_AGENT })
+      window.document.cookie = `${SEEN_KEY}=; Max-Age=0; Path=/`
+    })
+
+    it('invites the developer once the reference has settled on localhost', async () => {
+      const wrapper = await mountReference({ _integration: 'fastapi' })
+      expect(wrapper.findComponent(ApiHostingBetaPrompt).exists()).toBe(true)
+
+      await vi.waitFor(() => expect(queryPopup()).not.toBeNull(), { timeout: SETTLED_MS * 2 })
+      // The Deploy panel's own card, naming the framework serving the reference
+      expect(window.document.querySelector('[role="dialog"] h2')?.textContent?.trim()).toBe(
+        'Deploy your FastAPI app on Scalar',
+      )
+      expect(localStorage.getItem(SEEN_KEY)).toBe('true')
+    })
+
+    it('holds the popup back while other documents load in the background, which can hold the page', async () => {
+      const loads = new Map<string, (response: Response) => void>()
+      vi.stubGlobal(
+        'fetch',
+        vi.fn((url: string) => new Promise<Response>((resolve) => loads.set(url, resolve))),
+      )
+      const wrapper = mount(ApiReference, {
+        attachTo: window.document.body,
+        props: {
+          configuration: {
+            sources: [
+              { slug: 'first', content: document, default: true },
+              { slug: 'second', url: 'https://example.com/second.json' },
+            ],
+          },
+        },
+      })
+      await flushPromises()
+
+      // The first document is on screen, so the prompt is already noticing anyone who starts reading
+      await vi.waitFor(() => expect(loads.has('https://example.com/second.json')).toBe(true))
+      expect(wrapper.text()).toContain('Shell API')
+      const prompt = wrapper.findComponent(ApiHostingBetaPrompt)
+      expect(prompt.exists()).toBe(true)
+      expect(prompt.props('ready')).toBe(false)
+
+      loads.get('https://example.com/second.json')?.(new Response(JSON.stringify(document)))
+      await vi.waitFor(() => expect(wrapper.findComponent(ApiHostingBetaPrompt).props('ready')).toBe(true))
+    })
+
+    // Checked by whether the prompt mounts at all, not by waiting for it: the first test has already
+    // spent this file's one try per page load, so a mounted prompt would stay shut here anyway
+    it('never mounts on a public host, not even one that always shows the developer tools', async () => {
+      stubLocation('https://docs.acme.io/')
+      // jsdom refuses history writes for a cross-origin URL, which would abort the document load
+      const wrapper = await mountReference({ showDeveloperTools: 'always', urlRouting: false })
+
+      // The document loaded, so the prompt would have mounted by now if it were going to
+      expect(wrapper.findComponent(DeveloperTools).exists()).toBe(true)
+      expect(wrapper.findComponent(ApiHostingBetaPrompt).exists()).toBe(false)
+      expect(queryPopup()).toBeNull()
+      expect(window.document.cookie).not.toContain(SEEN_KEY)
+      expect(localStorage.getItem(SEEN_KEY)).toBeNull()
+    })
+
+    it('never mounts on a reserved local name that the shell covers, such as .test', async () => {
+      stubLocation('http://my-api.test/')
+      const wrapper = await mountReference({ urlRouting: false })
+
+      expect(wrapper.find('.references-shell-toolbar').exists()).toBe(true)
+      expect(wrapper.findComponent(ApiHostingBetaPrompt).exists()).toBe(false)
+    })
+
+    it('never mounts on localhost when the developer tools are turned off', async () => {
+      const wrapper = await mountReference({ showDeveloperTools: 'never' })
+
+      expect(wrapper.find('.references-layout').exists()).toBe(true)
+      expect(wrapper.findComponent(ApiHostingBetaPrompt).exists()).toBe(false)
     })
   })
 

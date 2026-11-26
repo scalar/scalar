@@ -29,6 +29,11 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public string[]? ShowExtensions { get; set; }
 
     /// <summary>
+    /// Selects the naming convention for nested multipart form fields.
+    /// </summary>
+    public ScalarMultipartNaming? MultipartNaming { get; set; }
+
+    /// <summary>
     /// Shows structural types instead of model names in schema labels and operation headings (default: false).
     /// </summary>
     public bool? HideModelNames { get; set; }
@@ -79,12 +84,17 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public bool? ShowSidebar { get; set; }
 
     /// <summary>
+    /// Controls whether x-badges are shown in the sidebar (default: hidden).
+    /// </summary>
+    public bool? ShowBadgesInSidebar { get; set; }
+
+    /// <summary>
     /// Controls whether the sidebar and search use the operation summary or path (default: <see cref="OperationTitleSource.Summary" />).
     /// </summary>
     public OperationTitleSource? OperationTitleSource { get; set; }
 
     /// <summary>
-    /// Controls whether models are hidden from the sidebar, search, and content (default: shown).
+    /// Hides schema models and reusable AsyncAPI messages from the sidebar, search, and content.
     /// </summary>
     public bool? HideModels { get; set; }
 
@@ -137,7 +147,8 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public ScalarLayout? Layout { get; set; }
 
     /// <summary>
-    /// Controls whether to use the default fonts (Inter and JetBrains Mono from CDN) (default: enabled).
+    /// Controls whether to use the default fonts (default: enabled).
+    /// Scalar uses the system font stack and no longer loads web fonts, so this setting has no effect.
     /// </summary>
     public bool? DefaultFonts { get; set; }
 
@@ -201,7 +212,28 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     /// <summary>
     /// Controls the default HTTP client (default: shell/curl).
     /// </summary>
-    public KeyValuePair<ScalarTarget, ScalarClient>? DefaultHttpClient { get; set; }
+    /// <remarks>Assigning this property clears <see cref="DefaultHttpClientId" />.</remarks>
+    public KeyValuePair<ScalarTarget, ScalarClient>? DefaultHttpClient
+    {
+        get;
+        set
+        {
+            field = value;
+            DefaultHttpClientId = null;
+        }
+    }
+
+    /// <summary>
+    /// Controls the default code sample client by ID, such as <c>node/fetch</c>.
+    /// </summary>
+    /// <remarks>When set, takes precedence until <see cref="DefaultHttpClient" /> is assigned again.</remarks>
+    public string? DefaultHttpClientId { get; set; }
+
+    /// <summary>
+    /// Allows the specified built-in HTTP client IDs or target wildcards, such as <c>node/undici</c> or <c>shell/*</c>.
+    /// </summary>
+    /// <remarks>An empty array hides all built-in clients. Other client exclusions still apply.</remarks>
+    public string[]? HttpClients { get; set; }
 
     /// <summary>
     /// Controls which HTTP clients appear as tabs in the Client Libraries block, in order.

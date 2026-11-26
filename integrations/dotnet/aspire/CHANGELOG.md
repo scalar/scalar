@@ -1,5 +1,69 @@
 # @scalar/aspire
 
+## 1.3.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.85.0
+
+### Minor Changes
+
+- [#11234](https://github.com/scalar/scalar/pull/11234): Configure available API Reference HTTP clients with `httpClients`. Use exact client IDs or target wildcards such as `shell/*`. The `defaultHttpClient` option also accepts a client ID string.
+
+  When all available clients are under **More**, such as with `featuredClients: []`, the Client Libraries block omits the empty tab list.
+
+### Patch Changes
+
+- [#11175](https://github.com/scalar/scalar/pull/11175): Deprecate the `withDefaultFonts` configuration option. Scalar no longer loads web fonts, so the option has no effect. It is still accepted, so existing configurations keep working.
+
+## 1.2.1
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.84.0
+
+### Patch Changes
+
+- [#11163](https://github.com/scalar/scalar/pull/11163): Update .NET and Java dependencies while retaining .NET 10/11 and Java 17 support. Keep OpenAPI and Swashbuckle versions aligned with each .NET target, use the current Aspire and native test tooling, and verify both Spring Boot 3 and 4 integrations. Run the Spring Boot 4-built WebMVC and WebFlux release JARs on Spring Boot 3 before publishing.
+
+  The published .NET packages now require these minimum dependency versions:
+
+  - Scalar.Aspire: Aspire.Hosting 17.0.0 and MessagePack 3.1.12. Consumers using Aspire 13 must upgrade to Aspire 17.
+  - Scalar.Aws.Lambda: Microsoft.Extensions.DependencyInjection.Abstractions 11.0.0 and Microsoft.Extensions.Options 11.0.0 on both .NET 10 and .NET 11.
+  - Scalar.AspNetCore.Swashbuckle: Swashbuckle.AspNetCore.SwaggerGen 11.0.1 and Microsoft.OpenApi 3.11.1 on .NET 11; .NET 10 uses Swashbuckle.AspNetCore.SwaggerGen 10.3.1 and Microsoft.OpenApi 2.13.1.
+
+## 1.2.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.83.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+## 1.1.1
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.82.1
+
+No changes in this release.
+
+## 1.1.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.82.0
+
+### Minor Changes
+
+- [#11103](https://github.com/scalar/scalar/pull/11103): Support `x-scalar-token-prefix` on header API keys. Generated code examples and outgoing requests add the configured prefix while stored credentials remain unchanged.
+
+### Patch Changes
+
+- [#11143](https://github.com/scalar/scalar/pull/11143): Expose the `showBadgesInSidebar` option in Java, FastAPI, Django Ninja, and .NET integrations so applications can enable sidebar badges. Badges remain hidden by default.
+
 ## 1.0.2
 
 ### Bundled API Reference

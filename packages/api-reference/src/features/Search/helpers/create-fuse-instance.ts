@@ -45,6 +45,8 @@ export function createFuseInstance(): Fuse<FuseData> {
       { name: 'responseExamples', weight: 0.25 },
       // Verbose parameter descriptions — supplementary signal only.
       { name: 'parameterDescriptions', weight: 0.2 },
+      // Verbose response descriptions are supplementary search text.
+      { name: 'responseDescriptions', weight: 0.2 },
       // Verbose schema property descriptions — supplementary signal only.
       { name: 'bodyDescriptions', weight: 0.2 },
     ],

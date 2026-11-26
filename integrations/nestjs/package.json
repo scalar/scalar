@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/nestjs"
   },
-  "version": "1.2.39",
+  "version": "1.2.43",
   "engines": {
     "node": ">=22"
   },
@@ -20,10 +20,6 @@
     "build:fastify": "cd playground/nestjs-api-reference-fastify && pnpm build",
     "dev:express": "cd playground/nestjs-api-reference-express && pnpm run dev",
     "dev:fastify": "cd playground/nestjs-api-reference-fastify && pnpm run dev",
-    "docker:build-express": "docker build --build-arg BASE_IMAGE=scalar-base -t nestjs-api-reference-express -f playground/nestjs-api-reference-express/Dockerfile .",
-    "docker:build-fastify": "docker build --build-arg BASE_IMAGE=scalar-base -t nestjs-api-reference-fastify -f playground/nestjs-api-reference-fastify/Dockerfile .",
-    "docker:run-express": "docker run -p 5056:5056 nestjs-api-reference-express",
-    "docker:run-fastify": "docker run -p 5057:5057 nestjs-api-reference-fastify",
     "lint:check": "biome ci --diagnostic-level=error",
     "lint:fix": "biome check --write",
     "test": "vitest --run",

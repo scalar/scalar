@@ -1,5 +1,43 @@
 # @scalar/openapi-to-markdown
 
+## 1.7.14
+
+No changes in this release.
+
+## 1.7.13
+
+No changes in this release.
+
+## 1.7.12
+
+### Patch Changes
+
+- [#11149](https://github.com/scalar/scalar/pull/11149): Resolve references in Node Markdown exports against the OpenAPI 3.2 document's `$self` URI when present.
+
+  For object and inline JSON/YAML input, resolve relative `$self` values against the configured `basePath`, or the current directory when omitted. File access still requires an explicit `basePath`.
+
+  Preserve literal `$ref` keys in examples when bundling descriptions, including descriptions without `$self`.
+- [#11148](https://github.com/scalar/scalar/pull/11148): Resolve URI security requirements in Node Markdown exports for OpenAPI 3.2 descriptions.
+
+  Follow annotated security scheme references when resolving URI requirements.
+
+  Preserve security scheme reference descriptions in OpenAPI 3.1 and 3.2 Markdown exports.
+
+## 1.7.11
+
+No changes in this release.
+
+## 1.7.10
+
+### Patch Changes
+
+- [#11124](https://github.com/scalar/scalar/pull/11124): Render Markdown through `@scalar/markdown` instead of `@scalar/code-highlight`
+
+  None of them pull in lowlight or highlight.js any more: code blocks in descriptions are highlighted by `@scalar/highlight`, the same highlighter `ScalarCodeBlock` uses. A fenced code block without a language is no longer auto-detected and renders as plain text. In `@scalar/openapi-to-markdown` this shows up in descriptions that contain HTML or alerts: an unlabeled fence used to come out labeled with highlight.js's guess (often wrong, such as `properties` for JSON), and now stays unlabeled.
+- [#11124](https://github.com/scalar/scalar/pull/11124): Share one copy of the Markdown parser stack
+
+  `@scalar/markdown` adds `parseMarkdown`, `mdastFromHtml` and `createMarkdownSerializer`. `@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown` use them instead of importing `unified`, `remark-*` and `rehype-*` themselves. `@scalar/markdown` bundles that stack, so a bundle that included both used to carry two copies of parse5, micromark and the mdast/hast utilities; the API Reference standalone build is about 330 KB smaller, 99 KB gzipped. Sharing the stack does not change the Markdown either package produces.
+
 ## 1.7.9
 
 ### Patch Changes

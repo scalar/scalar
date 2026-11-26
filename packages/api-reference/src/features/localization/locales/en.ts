@@ -45,6 +45,7 @@ export const en = {
     collapsed: 'Collapsed',
     webhooks: 'Webhooks',
     channels: 'Channels',
+    messages: 'Messages',
   },
   server: {
     label: 'Server',
@@ -188,6 +189,7 @@ export const en = {
     waitlistError: 'Oops! Something went wrong, please try again',
     waitlistRateLimit: 'Too many signups, please try again in a little while',
     waitlistBack: 'Back',
+    waitlistDone: 'Done',
     deployApiButton: 'Deploy API',
     deployFrameworkButton: 'Deploy {framework}',
     deployApiTitle: 'Deploy your API on Scalar',

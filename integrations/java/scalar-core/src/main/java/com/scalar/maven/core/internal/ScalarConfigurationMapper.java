@@ -31,6 +31,7 @@ public class ScalarConfigurationMapper {
         config.setUrl(properties.getContent() == null ? properties.getUrl() : null);
         config.setProxyUrl(properties.getProxyUrl());
         config.setShowSidebar(properties.isShowSidebar());
+        config.setShowBadgesInSidebar(properties.isShowBadgesInSidebar());
         config.setHideModels(properties.isHideModels());
         config.setHideTestRequestButton(properties.isHideTestRequestButton());
         config.setDarkMode(properties.isDarkMode());
@@ -92,7 +93,11 @@ public class ScalarConfigurationMapper {
 
         config.setDefaultRequestBodyView(properties.getDefaultRequestBodyView());
 
+        config.setMultipartNaming(properties.getMultipartNaming());
+
         config.setShowExtensions(properties.getShowExtensions());
+
+        config.setHttpClients(properties.getHttpClients());
 
         config.setFeaturedClients(properties.getFeaturedClients());
 

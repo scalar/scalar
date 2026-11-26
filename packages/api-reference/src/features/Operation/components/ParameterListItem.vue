@@ -19,6 +19,7 @@ import {
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
 import type {
   OpenApiDocument,
   ParameterObject,
@@ -108,6 +109,10 @@ const content = computed(() => {
   }
   return parameter.content
 })
+
+const hasResponseContentPicker = computed<boolean>(
+  () => !('in' in parameter) && Object.keys(content.value ?? {}).length > 1,
+)
 
 const selectedContentType = ref<string>(
   Object.keys(content.value || {})[0] ?? '',
@@ -348,7 +353,12 @@ const triggerAnchorId = computed<string | undefined>(() =>
   <li
     :id="isCompactParameter ? triggerAnchorId : undefined"
     class="parameter-item group/parameter-item parameter-item--tree border-t-0!"
-    :class="{ 'scroll-mt-24': isCompactParameter }">
+    :class="[
+      hasResponseContentPicker
+        ? 'grid grid-cols-[minmax(0,1fr)_fit-content(50%)] gap-x-1.5'
+        : 'flex flex-col',
+      { 'scroll-mt-24': isCompactParameter },
+    ]">
     <!-- No separators between rows (the row zeroes its own top border); the
          section heading carries the one rule instead (see ParameterList /
          OperationResponses). -->
@@ -356,16 +366,18 @@ const triggerAnchorId = computed<string | undefined>(() =>
       :key="groupNavigationKey"
       v-slot="{ open, close }"
       :defaultOpen="isOnTargetPath">
-      <!-- The trigger spans the full row, so its focus ring must too: drawing
-           it on the 12px caret leaves the actual control with no visible
-           focus state. -->
+      <!-- Ring the disclosure itself so keyboard focus stays visible.
+           Give the picker a separate column so the summary can shrink. -->
       <component
         :is="shouldCollapse ? DisclosureButton : 'div'"
         v-if="collapsableItems && !isStaticTreeItem"
         :id="isCompactParameter ? undefined : triggerAnchorId"
         :ref="() => trackGroupOpen(open)"
         class="parameter-item-trigger group/trigger group/tree-control scroll-mt-24 focus-visible:rounded-(--scalar-radius) focus-visible:outline-(length:--scalar-border-width) focus-visible:outline-offset-2 focus-visible:outline-(--scalar-focus-color)"
-        :class="{ 'parameter-item-trigger-open': open }">
+        :class="{
+          'parameter-item-trigger-open': open,
+          'col-start-1 row-start-1 min-w-0': hasResponseContentPicker,
+        }">
         <div class="parameter-item-name min-w-0">
           <!-- The puck is the depth-0 gutter glyph, so a response row reads as
                part of the schema tree below it. Anchored to the first line so
@@ -399,6 +411,28 @@ const triggerAnchorId = computed<string | undefined>(() =>
           v-else
           class="flex-1" />
       </component>
+      <div
+        v-if="shouldCollapse && content"
+        class="flex items-center text-base"
+        :class="[
+          hasResponseContentPicker
+            ? 'col-start-2 row-start-1 min-w-0 self-center justify-self-end'
+            : 'absolute top-[calc(10px+0.5lh)] right-0 z-0 -translate-y-1/2',
+          {
+            'mb-1': hasResponseContentPicker && !collapsableItems,
+            'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
+              !hasResponseContentPicker && !open,
+          },
+        ]">
+        <div
+          v-if="!hasResponseContentPicker"
+          class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
+        <ContentTypeSelect
+          v-model="selectedContentType"
+          :class="{ 'max-w-full min-w-0': hasResponseContentPicker }"
+          :content="content"
+          :truncateLabel="hasResponseContentPicker" />
+      </div>
       <!-- Railed when collapsible: clicking the rail closes the row. The rail
            props only exist on SchemaRailPanel, so they bind only when it
            renders. The panel indents one gutter (restated here because the
@@ -426,6 +460,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
           'parameter-item-container--tree mt-1.5 mb-0.5 ps-[var(--schema-gutter,16px)]!':
             isRailedPanel,
           'parameter-item-container--static-tree': isStaticTreeItem,
+          'col-span-full row-start-2 min-w-0': hasResponseContentPicker,
         }"
         :static="!collapsableItems || isStaticTreeItem">
         <!-- The railed panel's own top margin already supplies the 6px gap to
@@ -448,6 +483,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
         <SchemaProperty
           is="div"
           v-if="!childParameters"
+          :badges="getXBadges(baseSchema)"
           :breadcrumb="schemaBreadcrumb"
           compact
           :description="
@@ -536,27 +572,12 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :showExtensions="options.showExtensions"
           :specificationExtension="specificationExtension" />
       </component>
-      <div
-        v-if="shouldCollapse && content"
-        class="absolute top-[calc(10px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center text-base"
-        :class="{
-          'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
-            !open,
-        }">
-        <div
-          class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
-        <ContentTypeSelect
-          v-model="selectedContentType"
-          :content="content" />
-      </div>
     </Disclosure>
   </li>
 </template>
 
 <style scoped>
 .parameter-item {
-  display: flex;
-  flex-direction: column;
   position: relative;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }

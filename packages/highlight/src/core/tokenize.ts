@@ -153,10 +153,11 @@ const embedded = (
   host: CompiledGrammar,
   emit: Emit,
 ): number => {
-  const boundary = state.embed!.boundary
+  const embedding = state.embed!
+  const { boundary, holes, language, validate } = embedding
   boundary.lastIndex = pos
   let found = boundary.exec(code)
-  while (state.embed!.holes !== null && found?.[1] !== undefined) {
+  while (holes !== null && found?.[1] !== undefined) {
     // An empty hole must not prevent the scanner from making progress.
     if (found[0].length === 0) {
       boundary.lastIndex += code.codePointAt(boundary.lastIndex)! > 0xffff ? 2 : 1
@@ -169,17 +170,32 @@ const embedded = (
   }
   // `{{remembered}}` takes the language from the text the entering rule
   // remembered, which is how a Markdown fence names its language at runtime.
-  const language = state.embed!.language
   const grammar = getLanguage(language === REMEMBERED ? remembered : language)
   if (grammar === undefined || depth >= MAX_EMBED_DEPTH) {
     emit(state.default, pos, stop)
-  } else {
-    depth += 1
+    return stop
+  }
+
+  const body = code.slice(pos, stop)
+  if (validate?.format === 'json' && found !== null) {
+    const { holeReplacement } = validate
     try {
-      withHoles(code.slice(pos, stop), pos, grammar, state.embed!.holes, host, emit)
-    } finally {
-      depth -= 1
+      JSON.parse(
+        holes !== null && holeReplacement !== undefined
+          ? body.replace(holes, (match) => (match.length === 0 ? match : holeReplacement))
+          : body,
+      )
+    } catch {
+      emit(state.default, pos, stop)
+      return stop
     }
+  }
+
+  depth += 1
+  try {
+    withHoles(body, pos, grammar, embedding, host, emit)
+  } finally {
+    depth -= 1
   }
   return stop
 }
@@ -191,18 +207,19 @@ const embedded = (
  * The embedded grammar reads the body with every hole character except line
  * breaks replaced by `_`, an identifier character in the languages that get
  * embedded, so a hole reads as a name and the embedded state runs on across
- * it. Its tokens are then emitted around the holes, and each hole is
- * tokenized with the host grammar in its place.
+ * it. By default, the host grammar tokenizes each hole in place of the masked
+ * text. An escape can instead keep the embedded scope across line breaks
+ * and emit only selected text as punctuation.
  */
 const withHoles = (
   body: string,
   offset: number,
   grammar: CompiledGrammar,
-  holes: RegExp | null,
+  { holes, preserveHoleScope, holePunctuation }: NonNullable<CompiledState['embed']>,
   host: CompiledGrammar,
   emit: Emit,
 ): void => {
-  // Flat [start, end, start, end, …] offsets into `body`.
+  // Flat [start, end, …] offsets for text that overrides the embedded scope.
   const ranges: number[] = []
   const pieces: string[] = []
   let cursor = 0
@@ -214,12 +231,30 @@ const withHoles = (
       if (start === end) {
         continue
       }
-      ranges.push(start, end)
-      pieces.push(body.slice(cursor, start), match[0].replace(/[^\r\n]/g, '_'))
+      const hole = match[0]
+      if (preserveHoleScope) {
+        pieces.push(body.slice(cursor, start), '_'.repeat(hole.length))
+        if (holePunctuation !== null) {
+          holePunctuation.lastIndex = 0
+          for (const punctuation of hole.matchAll(holePunctuation)) {
+            if (punctuation[0].length > 0) {
+              ranges.push(start + punctuation.index, start + punctuation.index + punctuation[0].length)
+            }
+          }
+        }
+      } else {
+        ranges.push(start, end)
+        pieces.push(body.slice(cursor, start), hole.replace(/[^\r\n]/g, '_'))
+      }
       cursor = end
     }
   }
-  const masked = ranges.length === 0 ? body : pieces.join('') + body.slice(cursor)
+  const masked = cursor === 0 ? body : pieces.join('') + body.slice(cursor)
+  if (ranges.length === 0) {
+    tokenize(masked, grammar, (scope, from, to) => emit(scope, from + offset, to + offset))
+    return
+  }
+
   let next = 0
   // Everything before `done` has been emitted, by one grammar or the other.
   let done = 0
@@ -228,7 +263,11 @@ const withHoles = (
       const start = ranges[next] ?? to
       if (start <= at) {
         const end = ranges[next + 1]!
-        tokenize(body.slice(start, end), host, (s, a, b) => emit(s, a + start + offset, b + start + offset))
+        if (preserveHoleScope) {
+          emit('punctuation', start + offset, end + offset)
+        } else {
+          tokenize(body.slice(start, end), host, (s, a, b) => emit(s, a + start + offset, b + start + offset))
+        }
         next += 2
         done = end
       } else {

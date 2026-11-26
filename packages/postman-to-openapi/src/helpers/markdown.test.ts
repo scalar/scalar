@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { parseMdTable } from './markdown'
 
-describe('md-utils', () => {
+describe('markdown', () => {
   it('parses markdown table with all supported headers', () => {
     const md = `| object | name | description | example | type | required |
 |--------|------|-------------|---------|------|----------|
@@ -11,8 +11,8 @@ describe('md-utils', () => {
 
     const result = parseMdTable(md)
 
-    expect(result).toEqual({
-      page: {
+    expect(result).toStrictEqual([
+      {
         object: 'query',
         name: 'page',
         description: 'Page number',
@@ -20,7 +20,7 @@ describe('md-utils', () => {
         type: 'integer',
         required: 'true',
       },
-      Authorization: {
+      {
         object: 'header',
         name: 'Authorization',
         description: 'Auth token',
@@ -28,7 +28,7 @@ describe('md-utils', () => {
         type: 'string',
         required: 'true',
       },
-    })
+    ])
   })
 
   it('parses markdown table with partial headers', () => {
@@ -38,13 +38,13 @@ describe('md-utils', () => {
 
     const result = parseMdTable(md)
 
-    expect(result).toEqual({
-      page: {
+    expect(result).toStrictEqual([
+      {
         object: 'query',
         name: 'page',
         description: 'Page number',
       },
-    })
+    ])
   })
 
   it('ignores unsupported headers', () => {
@@ -54,50 +54,50 @@ describe('md-utils', () => {
 
     const result = parseMdTable(md)
 
-    expect(result).toEqual({
-      page: {
+    expect(result).toStrictEqual([
+      {
         object: 'query',
         name: 'page',
         example: '1',
       },
-    })
+    ])
   })
 
-  it('returns empty object when table is missing object column', () => {
+  it('returns no rows when table is missing object column', () => {
     const md = `| name | description |
 |------|-------------|
 | page | Page number |`
 
     const result = parseMdTable(md)
 
-    expect(result).toEqual({})
+    expect(result).toStrictEqual([])
   })
 
-  it('returns empty object when table is missing name column', () => {
+  it('returns no rows when table is missing name column', () => {
     const md = `| object | description |
 |--------|-------------|
 | query  | Page number |`
 
     const result = parseMdTable(md)
 
-    expect(result).toEqual({})
+    expect(result).toStrictEqual([])
   })
 
-  it('returns empty object when markdown is empty', () => {
+  it('returns no rows when markdown is empty', () => {
     const md = ''
 
     const result = parseMdTable(md)
 
-    expect(result).toEqual({})
+    expect(result).toStrictEqual([])
   })
 
-  it('returns empty object when markdown has less than 3 lines', () => {
+  it('returns no rows when markdown has less than 3 lines', () => {
     const md = `| object | name |
 |--------|------|`
 
     const result = parseMdTable(md)
 
-    expect(result).toEqual({})
+    expect(result).toStrictEqual([])
   })
 
   it('handles empty cells', () => {
@@ -108,13 +108,13 @@ describe('md-utils', () => {
     const result = parseMdTable(md)
 
     // Empty cells shift values - description becomes "1" and example is empty
-    expect(result).toEqual({
-      page: {
+    expect(result).toStrictEqual([
+      {
         object: 'query',
         name: 'page',
         description: '1',
       },
-    })
+    ])
   })
 
   it('filters out empty lines', () => {
@@ -125,13 +125,13 @@ describe('md-utils', () => {
 
     const result = parseMdTable(md)
 
-    expect(result).toEqual({
-      page: {
+    expect(result).toStrictEqual([
+      {
         object: 'query',
         name: 'page',
         description: 'Page number',
       },
-    })
+    ])
   })
 
   it('trims whitespace from cells', () => {
@@ -141,12 +141,12 @@ describe('md-utils', () => {
 
     const result = parseMdTable(md)
 
-    expect(result).toEqual({
-      page: {
+    expect(result).toStrictEqual([
+      {
         object: 'query',
         name: 'page',
         description: 'Page number',
       },
-    })
+    ])
   })
 })

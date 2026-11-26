@@ -23,10 +23,13 @@ const {
   examples = [],
   generatedPayload,
   contentType,
+  showHeaders = false,
 } = defineProps<{
   examples?: AsyncApiMessageObject['examples']
   generatedPayload?: unknown
   contentType?: string
+  /** Reusable components document the full example, including its application headers. */
+  showHeaders?: boolean
 }>()
 
 const { translate } = useLocalization()
@@ -41,12 +44,17 @@ const availableExamples = computed(() => {
           {
             name: translate('schema.example'),
             summary: undefined,
+            headers: undefined,
             payload: generatedPayload,
           },
         ]
   const entries = candidates.flatMap((value, index) => {
     const example = getResolvedAsyncApiRef(value)
-    if (!example || example.payload === undefined) {
+    if (
+      !example ||
+      (example.payload === undefined &&
+        (!showHeaders || example.headers === undefined))
+    ) {
       return []
     }
     return [
@@ -85,9 +93,33 @@ watch(
 const selected = computed(() =>
   availableExamples.value.find(({ key }) => key === selectedKey.value),
 )
-const block = computed(() =>
-  getMessageExampleContent(selected.value?.example.payload, contentType),
-)
+const exampleBlocks = computed(() => {
+  const example = selected.value?.example
+  const headers = showHeaders && getMessageExampleContent(example?.headers)
+  const payload = getMessageExampleContent(example?.payload, contentType)
+  return [
+    ...(headers
+      ? [
+          {
+            ...headers,
+            label: 'Headers',
+            copyLabel: 'Copy headers',
+            showLabel: true,
+          },
+        ]
+      : []),
+    ...(payload
+      ? [
+          {
+            ...payload,
+            label: 'Payload',
+            copyLabel: 'Copy payload',
+            showLabel: Boolean(headers),
+          },
+        ]
+      : []),
+  ]
+})
 const pickerExamples = computed(() =>
   Object.fromEntries(
     availableExamples.value.map(({ key, label }) => [key, { summary: label }]),
@@ -98,7 +130,7 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
 
 <template>
   <ScalarCard
-    v-if="block || $slots.footer"
+    v-if="exampleBlocks.length || $slots.footer"
     class="min-w-0 self-start text-base"
     :label="translate('schema.examples')">
     <ScalarCardHeader
@@ -114,12 +146,12 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         class="min-w-0 grow">
         <div
           v-if="selected.example.name"
-          class="text-c-1 font-medium">
+          class="text-c-1 font-medium [overflow-wrap:anywhere]">
           {{ selected.label }}
         </div>
         <ScalarMarkdown
           v-if="selected.example.summary"
-          class="mt-1 text-base [&_*]:m-0"
+          class="mt-1 text-base [overflow-wrap:anywhere] [&_*]:m-0"
           :value="selected.example.summary" />
       </div>
       <template
@@ -128,13 +160,19 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         <ExamplePicker
           v-model="selectedKey"
           :aria-label="`${translate('schema.examples')}: ${selected?.label ?? ''}`"
-          class="-m-1 shrink-0 px-0"
+          class="-m-1 max-w-full shrink-0 px-0"
           :examples="pickerExamples" />
       </template>
     </ScalarCardHeader>
     <ScalarCardSection
-      v-if="block"
+      v-for="block in exampleBlocks"
+      :key="block.label"
       class="flex-col">
+      <div
+        v-if="block.showLabel"
+        class="text-c-2 px-3 pt-2 text-sm font-medium">
+        {{ block.label }}
+      </div>
       <div
         v-if="block.structural"
         class="text-c-2 px-3 py-2 text-sm">
@@ -144,18 +182,20 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         v-if="block.content.length > 20_000"
         class="bg-transparent"
         :content="block.content"
-        label="Payload"
+        :copyLabel="showHeaders ? block.copyLabel : undefined"
+        :label="block.label"
         :lang="block.lang" />
       <ScalarCodeBlock
         v-else
         class="bg-transparent"
-        copyLabel="Copy payload"
-        label="Payload"
+        :copyLabel="block.copyLabel"
+        :label="block.label"
         :lang="block.lang"
-        :prettyPrintedContent="block.content" />
+        :prettyPrintedContent="block.content"
+        :showCopyLanguage="!showHeaders" />
     </ScalarCardSection>
     <ScalarCardSection
-      v-else
+      v-if="!exampleBlocks.length"
       class="text-c-2 p-3 text-sm">
       No payload example available.
     </ScalarCardSection>

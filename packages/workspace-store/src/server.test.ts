@@ -1390,11 +1390,12 @@ describe('create-server-store', () => {
       expect(ordered['x-scalar-order']).toEqual([
         'events/description/introduction',
         'events/channel/planetevents',
+        'events/~components/messages',
         'events/models',
       ])
     })
 
-    it('refuses a document name that would write onto Object.prototype', async () => {
+    it('resolves own document names and skips the reserved name', async () => {
       const store = await createServerWorkspaceStore({
         mode: 'ssr',
         baseUrl: 'https://example.com',
@@ -1402,13 +1403,17 @@ describe('create-server-store', () => {
           { name: '__proto__', document: exampleDocument() },
           { name: '__proto__', document: exampleAsyncApiDocument() },
           { name: 'constructor', document: exampleAsyncApiDocument() },
-          { name: 'prototype', document: exampleAsyncApiDocument() },
+          { name: 'prototype', document: exampleDocument() },
           { name: 'events', document: exampleAsyncApiDocument() },
         ],
       })
 
-      expect(Object.keys(store.getWorkspace().documents)).toEqual(['events'])
-      expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+      expect(Object.keys(store.getWorkspace().documents).sort()).toStrictEqual(['constructor', 'events', 'prototype'])
+      expect(store.getResolvedDocument('constructor')?.info.title).toBe(exampleAsyncApiDocument().info.title)
+      expect(store.getResolvedDocument('prototype')?.info.title).toBe(exampleDocument().info.title)
+      expect(store.getResolvedDocument('toString')).toBeUndefined()
+      expect(store.get('#/toString')).toBeUndefined()
+      expect(store.get('#/prototype/operations/~1planets/get')).toMatchObject({ summary: 'List planets' })
     })
 
     it('leaves an existing document intact when a later one reuses its name and fails', async () => {

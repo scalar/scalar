@@ -39,6 +39,14 @@ To drop an end-of-support .NET version, remove it from both target framework pro
 
 Version-specific code uses `#if NETX_0_OR_GREATER` (not `#if NETX_0`), so new TFMs pick up the newest code path automatically.
 
+## Aspire Playground
+
+The Aspire playground uses Aspire 17 and requires the Aspire CLI. Install the matching CLI with `dotnet tool install -g Aspire.Cli --version 17.0.0` before building the AppHost. The AppHost references the BookService by path through `AddDotnetProject`; build the BookService project directly when checking its compilation without running the AppHost.
+
+## Running Tests
+
+Tests use Microsoft.Testing.Platform, selected in `global.json`, for xUnit 4. Run `dotnet test -c Release` from `integrations/dotnet` or an individual solution directory so the SDK and test runner configuration apply.
+
 ## Shared Code Architecture
 
 The `Scalar.Shared` project is not a standalone package (`IsPackable>false`). Instead, its code is compiled directly into both `Scalar.Aspire` and `Scalar.AspNetCore` assemblies using MSBuild `<Compile Include>` directives:

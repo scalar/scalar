@@ -253,7 +253,15 @@ export const createDocumentRenderer = (): ((
       if (documentContext?.authentication) {
         nodes.push(anchor(documentContext.authentication))
       }
-      nodes.push(...(await renderSecurity(document.security, document.components?.securitySchemes, description, 2)))
+      nodes.push(
+        ...(await renderSecurity(
+          document.security,
+          document.components?.securitySchemes,
+          description,
+          2,
+          openapiVersion,
+        )),
+      )
       if (document.tags?.length) {
         nodes.push(heading(2, text('Tags')))
         for (const { tag, title } of getTagSections(document.tags, openapiVersion)) {

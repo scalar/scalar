@@ -7,7 +7,7 @@ import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import { Value } from '@scalar/typebox/value'
 
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedSecurityScheme } from '@/helpers/get-resolved-security-scheme'
 import { normalizeAuthSchemes } from '@/plugins/bundler'
 import { resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
 import { SecuritySchemeObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
@@ -122,7 +122,7 @@ export const resolveSecurityRequirements = async (
                 documentUri: resolveOpenApiDocument(document, origin)?.baseUri,
               },
             )
-            const target: unknown = getResolvedRef(proxy['x-scalar-security-uri-target'])
+            const target: unknown = getResolvedSecurityScheme(proxy['x-scalar-security-uri-target'])
             // The strict runtime schema requires refreshUrl, while authored OAuth flows may omit it.
             const validationTarget =
               isObject(target) && target.type === 'oauth2' && isObject(target.flows)

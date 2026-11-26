@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { deleteRegistryDocument } from './delete-registry-document'
 import { deleteRegistryVersion } from './delete-registry-version'
@@ -6,16 +6,49 @@ import { fetchRegistryDocument } from './fetch-registry-document'
 import { publishRegistryVersion } from './publish-registry-version'
 import { scalarClient } from './scalar-client'
 
+const { checkRefresh, getAccessToken } = vi.hoisted(() => ({
+  checkRefresh: vi.fn<() => Promise<void>>(),
+  getAccessToken: vi.fn<() => string | undefined>(),
+}))
+
 vi.mock('@/environment', () => ({ env: { VITE_API_URL: 'https://api.scalar.test' } }))
 vi.mock('@/hooks/use-auth', () => ({
-  useAuth: () => ({ checkRefresh: () => Promise.resolve(), getAccessToken: () => 'access-token' }),
+  useAuth: () => ({ checkRefresh, getAccessToken }),
 }))
 
 const document = { openapi: '3.1.0', info: { title: 'Test API', version: '1.0.0' }, paths: {} }
 
 describe('scalar-client', () => {
+  beforeEach(() => {
+    checkRefresh.mockReset().mockResolvedValue(undefined)
+    getAccessToken.mockReset().mockReturnValue('access-token')
+  })
+
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  it('waits for token refresh before authenticating a registry namespace request', async () => {
+    const events: string[] = []
+    checkRefresh.mockImplementationOnce(async () => {
+      await Promise.resolve()
+      events.push('refreshed')
+    })
+    getAccessToken.mockImplementationOnce(() => {
+      events.push('read-token')
+      return 'fresh-token'
+    })
+    const fetch = vi.spyOn(scalarClient, 'fetch').mockResolvedValue(Response.json(['team']))
+
+    const namespaces = await scalarClient.namespaces.list()
+
+    expect(namespaces).toStrictEqual(['team'])
+    expect(events).toStrictEqual(['refreshed', 'read-token'])
+    expect(fetch).toHaveBeenCalledTimes(1)
+    const [url, options]: [unknown, RequestInit?] = fetch.mock.calls[0]! as [unknown, RequestInit?]
+    expect(String(url)).toBe('https://api.scalar.test/v1/namespaces')
+    expect(options?.method).toBe('GET')
+    expect(new Headers(options?.headers).get('authorization')).toBe('Bearer fresh-token')
   })
 
   it('fetches the document and version hash using an authenticated SDK request', async () => {

@@ -1,5 +1,21 @@
 # @scalar/client-side-rendering
 
+## 0.4.25
+
+No changes in this release.
+
+## 0.4.24
+
+No changes in this release.
+
+## 0.4.23
+
+No changes in this release.
+
+## 0.4.22
+
+No changes in this release.
+
 ## 0.4.21
 
 No changes in this release.

@@ -6,6 +6,7 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getTagExternalDocs } from '@/navigation/helpers/get-tag-external-docs'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import { getXBadges } from '@/schemas/extensions/get-x-badges'
 import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
 import type { OpenApiDocument, TagObject } from '@/schemas/v3.2/strict/openapi-document'
 
@@ -47,6 +48,7 @@ const createTagEntry = ({
   })
   // `summary` is the OpenAPI 3.2 display label; `x-displayName` keeps precedence for backwards compatibility.
   const externalDocs = getTagExternalDocs(tag)
+  const badges = getXBadges(tag)
   const title = tag['x-displayName'] ?? tag.summary ?? tag.name ?? 'Untitled Tag'
 
   // Update the order of the children based on the items
@@ -65,6 +67,7 @@ const createTagEntry = ({
     // Real OpenAPI 3.2 nested-tag sections keep this unset and render their summary heading.
     ...(isTagGroup ? { isTagGroup: true } : {}),
     isWebhooks: false,
+    ...(badges ? { badges } : {}),
     type: 'tag',
     xKeys: getXKeysFromObject(unpackProxyObject(tag)),
   } satisfies TraversedTag

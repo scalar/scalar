@@ -618,7 +618,7 @@ paths:
 
 ## x-badges
 
-You can add badges to operations to use as indicators in documentation. Each operation can have multiple badges, and the displayed color is also configurable. The following example sets badges on the GET `/hello-world` operation:
+Use `x-badges` to add custom badges to operations and schema properties. Each badge can have its own color and position. The following example sets badges on the GET `/hello-world` operation.
 
 ```diff
 openapi: 3.1.0
@@ -641,8 +641,59 @@ paths:
 | Option   | Type   | Description                                                                                                                 |
 | -------- | ------ | --------------------------------------------------------------------------------------------------------------------------- |
 | name     | string | **REQUIRED**. The text that displays in the badge.                                                                          |
-| position | string | The position of the badge in relation to the header. Possible values: `before`, `after`. The default value is `after`.      |
+| position | string | The position of the badge in relation to the operation heading or property name. Possible values: `before`, `after`. The default value is `after`.      |
 | color    | string | The color of the badge. It can be defined in various formats such as color keywords, RGB, RGBA, HSL, HSLA, and Hexadecimal. |
+
+### Badges on schema properties
+
+Add `x-badges` to the Schema Object for the property you want to label. To label an array property, put `x-badges` alongside `items`. In OpenAPI 3.1 and later, you can put `x-badges` alongside a property's `$ref`. Badges on schemas in `components.schemas` appear on their own model entries when sidebar badges are enabled.
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Users API
+  version: 1.0.0
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        manager:
+          type: string
+          description: The manager's ID. Pass expand=manager to include their details.
+          x-badges:
+            - name: Expandable
+              color: '#34d399'
+```
+
+### Badges in the sidebar
+
+Set [`showBadgesInSidebar`](configuration.md#showbadgesinsidebar) to also show the badges next to the titles in the sidebar. In the sidebar, `x-badges` work on every level: operations, webhooks, tags (including nested OpenAPI 3.2 tags), `x-tagGroups` entries and schemas in `components.schemas`.
+
+```diff
+openapi: 3.1.0
+info:
+  title: x-badges
+  version: 1.0.0
+x-tagGroups:
+  - name: Core
+    tags: [Users]
++    x-badges:
++      - name: 'Stable'
+tags:
+  - name: Users
++    x-badges:
++      - name: 'Beta'
++        color: '#f59e0b'
+paths:
+  /users:
+    get:
+      summary: Get users
+      tags: [Users]
++      x-badges:
++        - name: 'New'
++          color: '#22c55e'
+```
 
 ## x-enum-descriptions
 

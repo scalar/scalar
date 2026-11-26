@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "3.27.1",
+  "version": "3.29.2",
   "engines": {
     "node": ">=22"
   },
@@ -286,6 +286,11 @@
       "types": "./dist/v2/features/modal/helpers/map-hidden-clients-config.d.ts",
       "default": "./dist/v2/features/modal/helpers/map-hidden-clients-config.js"
     },
+    "./modal/filter-http-clients": {
+      "import": "./dist/v2/features/modal/helpers/filter-http-clients.js",
+      "types": "./dist/v2/features/modal/helpers/filter-http-clients.d.ts",
+      "default": "./dist/v2/features/modal/helpers/filter-http-clients.js"
+    },
     "./features/operation": {
       "import": "./dist/v2/features/operation/index.js",
       "types": "./dist/v2/features/operation/index.d.ts",
@@ -333,7 +338,7 @@
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
-    "focus-trap": "^8.2.5",
+    "focus-trap": "^8.2.6",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
     "jsonc-parser": "catalog:*",

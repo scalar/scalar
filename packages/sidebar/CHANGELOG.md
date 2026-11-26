@@ -1,5 +1,34 @@
 # @scalar/sidebar
 
+## 0.13.4
+
+No changes in this release.
+
+## 0.13.3
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11169](https://github.com/scalar/scalar/pull/11169): Look up elements and focus through the provided document root instead of `document`. Nothing provides one yet, so behavior is unchanged until shadow-root mounts wire it up
+
+## 0.13.2
+
+No changes in this release.
+
+## 0.13.1
+
+No changes in this release.
+
+## 0.13.0
+
+### Minor Changes
+
+- [#11020](https://github.com/scalar/scalar/pull/11020): feat: show `x-badges` in the sidebar with the new `showBadgesInSidebar` option
+
+  The option is off by default, so the sidebar looks the same as before. When it is on, the sidebar shows the `x-badges` of operations, webhooks, tags (including nested OpenAPI 3.2 tags), `x-tagGroups` entries and models next to their titles. Navigation entries of these types get an optional `badges` field.
+
 ## 0.12.12
 
 ### Patch Changes

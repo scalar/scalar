@@ -24,6 +24,7 @@ import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, onBeforeUnmount, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
+import { ApiHostingBetaPrompt } from '@/features/api-hosting-beta'
 import AppHeader from '@/features/app/components/AppHeader.vue'
 import AppHeaderActions from '@/features/app/components/AppHeaderActions.vue'
 import AppSidebar from '@/features/app/components/AppSidebar.vue'
@@ -477,6 +478,8 @@ const routerViewProps = computed<RouteProps>(() => {
         :paletteState="paletteState"
         :registryDocuments="registryDocuments"
         :workspaceStore="app.store.value!" />
+      <!-- One-time invitation to the API Hosting beta, as the app starts -->
+      <ApiHostingBetaPrompt :fetch="app.options?.customFetch" />
     </main>
     <!-- Splash screen -->
     <main v-else>

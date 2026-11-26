@@ -45,6 +45,7 @@ export const es = {
     collapsed: 'Contraído',
     webhooks: 'Webhooks',
     channels: 'Canales',
+    messages: 'Mensajes',
   },
   server: {
     label: 'Servidor',
@@ -188,6 +189,7 @@ export const es = {
     waitlistError: '¡Vaya! Algo salió mal, inténtalo de nuevo',
     waitlistRateLimit: 'Demasiados registros, inténtalo de nuevo en un rato',
     waitlistBack: 'Volver',
+    waitlistDone: 'Listo',
     deployApiButton: 'Desplegar API',
     deployFrameworkButton: 'Desplegar {framework}',
     deployApiTitle: 'Despliega tu API en Scalar',

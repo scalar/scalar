@@ -144,7 +144,7 @@ See the [AsyncAPI mocking guide](asyncapi.md) for supported transports and how m
 
 ## Request Validation
 
-By default the mock server validates every request against your OpenAPI document. When path or query parameters, or an `application/json` request body, violate the contract, it answers `422` with an `application/problem+json` body that describes the violations, instead of a mock response.
+By default the mock server validates each request against your OpenAPI description. When parameters or a JSON request body violate the contract, it responds with `422` and an `application/problem+json` body describing the violations. JSON validation covers `application/json` and media types with a `+json` suffix. See [Request Validation](getting-started.md#request-validation) for how the server chooses a schema.
 
 To always return a mock response, turn validation off with the `--no-validate-request` flag:
 

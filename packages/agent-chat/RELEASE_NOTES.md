@@ -9,6 +9,47 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.60 (2026-11-26)
+
+### Fixed download filenames with special characters
+
+File downloads now preserve semicolons, escaped quotes, and percent sequences in quoted filenames from Content-Disposition headers.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01260)
+
+## 0.12.59 (2026-11-25)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01259)
+
+## 0.12.58 (2026-11-22)
+
+### Content Security Policy compatibility and dependency updates
+
+This release fixes a Content Security Policy issue that caused eval violation reports when loading OAuth authentication and AI Chat, even though the page rendered correctly. The fix disables Zod's JIT compilation to prevent these reports without requiring unsafe-eval in your CSP.
+
+- Fixed CSP eval violation reports when loading OAuth authentication and AI Chat under strict Content Security Policy
+- Zod JIT compilation is now disabled to maintain CSP compatibility without requiring unsafe-eval
+- Updated dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01258)
+
+## 0.12.57 (2026-11-20)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01257)
+
+## 0.12.56 (2026-11-19)
+
+### API key prefixes and cleaner chat context
+
+- Header API keys now support token prefixes via x-scalar-token-prefix, automatically adding prefixes like "Bearer" or "token" to outgoing requests while keeping stored credentials clean.
+- Selected API context is now sent as structured metadata rather than appended to user messages, keeping your questions unchanged while ensuring the backend knows which API and version to use.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01256)
+
 ## 0.12.55 (2026-11-18)
 
 ### Polish and bug fixes shipped

@@ -20,11 +20,13 @@ import {
   getExampleValue,
   getExplicitExampleText,
 } from '@scalar/workspace-store/helpers/get-example-value'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExampleFromBody,
   getSchemaExampleFromBody,
   getSelectedBodyContentType,
+  usesAspNetFormNaming,
 } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -64,6 +66,7 @@ const {
   requestBody,
   exampleKey,
   environment,
+  multipartNaming,
   requestBodyCompositionSelection,
   openapiVersion,
   jsonSchemaDialect,
@@ -82,6 +85,7 @@ const {
   openapiVersion?: string
   /** Document-level JSON Schema dialect used when generating array `contains` examples. */
   jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
   /**
@@ -276,6 +280,14 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
   )
 })
 
+const aspNetFormNaming = computed<boolean>(() =>
+  usesAspNetFormNaming(
+    selectedContentType.value,
+    requestBody?.content?.[selectedContentType.value],
+    multipartNaming,
+  ),
+)
+
 /** Mixed and related bodies keep their ordered parts instead of named form-data rows. */
 const multipartBody = computed<
   { media: MediaTypeObject; value: MultipartBodyValue } | undefined
@@ -394,6 +406,8 @@ watch(
         selectedContentType.value,
         bodySchema.value,
         requestBodyCompositionSelection,
+        requestBody.content?.[selectedContentType.value]?.encoding,
+        aspNetFormNaming.value,
       )
       emits('update:formValue', {
         contentType: selectedContentType.value,
@@ -642,6 +656,7 @@ const canGenerateExample = computed(() =>
             selectedContentType === 'application/x-www-form-urlencoded'
           ">
           <RequestBodyForm
+            :aspNetFormNaming
             :bodySchema
             :compositionSelection="requestBodyCompositionSelection"
             :encoding="requestBody?.content?.[selectedContentType]?.encoding"

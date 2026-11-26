@@ -3,6 +3,7 @@ import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
 
+import type { ResponseBodyState } from '@/v2/blocks/operation-block/helpers/send-request'
 import { getMediaTypeConfig } from '@/v2/blocks/response-block/helpers/media-types'
 import { processResponseBody } from '@/v2/blocks/response-block/helpers/process-response-body'
 import { resolveResponseBodyHandler } from '@/v2/blocks/response-block/helpers/resolve-response-body-handler'
@@ -16,12 +17,14 @@ import ResponseBodyRaw from './ResponseBodyRaw.vue'
 import ResponseBodyToggle from './ResponseBodyToggle.vue'
 
 const {
+  bodyState,
   data,
   headers,
   plugins = [],
 } = defineProps<{
   title: string
   layout: 'client' | 'reference'
+  bodyState?: ResponseBodyState
   data: unknown
   headers: { name: string; value: string }[]
   plugins?: ClientPlugin[]
@@ -38,6 +41,16 @@ const responseBody = computed(() =>
     headers,
   }),
 )
+
+const showDownload = computed<boolean>(() => {
+  if (bodyState === 'unavailable') {
+    return false
+  }
+
+  const isEmptyAttachment =
+    bodyState === 'empty' && responseBody.value.isAttachment
+  return Boolean((data || isEmptyAttachment) && responseBody.value.dataUrl)
+})
 
 const mimeEssence = computed(() => responseBody.value.mimeType.essence)
 
@@ -73,7 +86,7 @@ const rawLanguage = computed(
     :isStatic="layout === 'reference'">
     <template #title>{{ title }}</template>
     <template
-      v-if="data && responseBody.dataUrl"
+      v-if="showDownload"
       #actions>
       <ResponseBodyDownload
         :filename="responseBody.attachmentFilename"

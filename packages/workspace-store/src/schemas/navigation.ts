@@ -4,6 +4,7 @@ import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
 import type { LiteralUnion } from 'type-fest'
 
 import { compose } from '@/schemas/compose'
+import { type XBadge, XBadgeSchema } from '@/schemas/extensions/operation/x-badge'
 import type { ExternalDocumentationObject } from '@/schemas/v3.2/strict/external-documentation'
 import type { InfoObject } from '@/schemas/v3.2/strict/info'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
@@ -98,6 +99,7 @@ export const TraversedOperationSchemaDefinition = compose(
     method: Type.String(),
     path: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
+    badges: Type.Optional(Type.Array(XBadgeSchema)),
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
   }),
 )
@@ -110,6 +112,8 @@ export type TraversedOperation = BaseSchema & {
   method: OperationMethod
   path: string
   isDeprecated?: boolean
+  /** Badges from the `x-badges` extension of the operation */
+  badges?: XBadge[]
   children?: TraversedEntry[]
 }
 
@@ -184,12 +188,43 @@ export type TraversedAsyncApiMessage = BaseSchema & {
   channelName: string
 }
 
+export const TraversedAsyncApiReusableMessageSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-reusable-message'),
+    name: Type.String(),
+  }),
+)
+
+/** A reusable message keyed by its name in `document.components.messages`. */
+export type TraversedAsyncApiReusableMessage = BaseSchema & {
+  type: 'asyncapi-reusable-message'
+  name: string
+}
+
+export const TraversedAsyncApiMessagesSchemaDefinition = compose(
+  NavigationBaseSchemaDefinition,
+  Type.Object({
+    type: Type.Literal('asyncapi-messages'),
+    name: Type.String(),
+    children: Type.Array(TraversedEntryObjectRef),
+  }),
+)
+
+/** The top-level Messages section for reusable AsyncAPI messages. */
+export type TraversedAsyncApiMessages = BaseSchema & {
+  type: 'asyncapi-messages'
+  name: string
+  children: TraversedEntry[]
+}
+
 export const TraversedSchemaSchemaDefinition = compose(
   NavigationBaseSchemaDefinition,
   Type.Object({
     type: Type.Literal('model'),
     ref: Type.String(),
     name: Type.String(),
+    badges: Type.Optional(Type.Array(XBadgeSchema)),
   }),
 )
 
@@ -200,6 +235,8 @@ export type TraversedSchema = BaseSchema & {
   type: 'model'
   ref: string
   name: string
+  /** Badges from the `x-badges` extension of the schema */
+  badges?: XBadge[]
 }
 
 export const TraversedWebhookSchemaDefinition = compose(
@@ -210,6 +247,7 @@ export const TraversedWebhookSchemaDefinition = compose(
     method: Type.String(),
     name: Type.String(),
     isDeprecated: Type.Optional(Type.Boolean()),
+    badges: Type.Optional(Type.Array(XBadgeSchema)),
   }),
 )
 
@@ -222,6 +260,8 @@ export type TraversedWebhook = BaseSchema & {
   method: OperationMethod
   name: string
   isDeprecated?: boolean
+  /** Badges from the `x-badges` extension of the webhook operation */
+  badges?: XBadge[]
 }
 
 export const TraversedTagSchemaDefinition = compose(
@@ -235,6 +275,7 @@ export const TraversedTagSchemaDefinition = compose(
     isGroup: Type.Boolean(),
     isTagGroup: Type.Optional(Type.Boolean()),
     isWebhooks: Type.Optional(Type.Boolean()),
+    badges: Type.Optional(Type.Array(XBadgeSchema)),
     xKeys: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
   }),
 )
@@ -258,6 +299,8 @@ export type TraversedTag = BaseSchema & {
    */
   isTagGroup?: boolean
   isWebhooks?: boolean
+  /** Badges from the `x-badges` extension of the tag or the `x-tagGroups` entry */
+  badges?: XBadge[]
   xKeys?: Record<string, unknown>
 }
 
@@ -309,6 +352,8 @@ export const TraversedEntrySchemaDefinition = Type.Union([
   TraversedAsyncApiOperationSchemaDefinition,
   TraversedAsyncApiChannelSchemaDefinition,
   TraversedAsyncApiMessageSchemaDefinition,
+  TraversedAsyncApiMessagesSchemaDefinition,
+  TraversedAsyncApiReusableMessageSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
   TraversedWebhookSchemaDefinition,
@@ -324,6 +369,8 @@ export type TraversedEntry =
   | TraversedAsyncApiOperation
   | TraversedAsyncApiChannel
   | TraversedAsyncApiMessage
+  | TraversedAsyncApiMessages
+  | TraversedAsyncApiReusableMessage
   | TraversedSchema
   | TraversedTag
   | TraversedWebhook
@@ -431,6 +478,13 @@ type AsyncApiMessageProps = {
   type: 'asyncapi-message'
 }
 
+type AsyncApiReusableMessageProps = {
+  parentId: string
+  /** Omitted when generating the Messages section ID. */
+  name?: string
+  type: 'asyncapi-reusable-message'
+}
+
 export type IdGeneratorProps =
   | DocumentIdProps
   | DescriptionIdProps
@@ -439,6 +493,7 @@ export type IdGeneratorProps =
   | AsyncApiOperationProps
   | AsyncApiChannelProps
   | AsyncApiMessageProps
+  | AsyncApiReusableMessageProps
   | WebhookProps
   | ModelProps
   | ExampleProps

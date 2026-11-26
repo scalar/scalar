@@ -77,4 +77,55 @@ describe('SpecificationExtensions', () => {
     await wrapper.setProps({ extensions: {} })
     expect(wrapper.text()).toBe('')
   })
+
+  it('folds the values under an Extensions row when collapsible', async () => {
+    const wrapper = mount(SpecificationExtensions, {
+      props: { extensions: { 'x-owner': 'checkout', 'x-cost': { requests: 1 } }, collapsible: true },
+    })
+    const toggle = wrapper.get('button')
+    expect(wrapper.text()).toBe('Extensions (2)')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    expect(toggle.attributes('aria-controls')).toBeUndefined()
+    expect(wrapper.get(`#${toggle.attributes('aria-labelledby')}`).text()).toBe('Extensions (2)')
+
+    await toggle.trigger('click')
+
+    expect(toggle.attributes('aria-expanded')).toBe('true')
+    expect(wrapper.find(`#${toggle.attributes('aria-controls')}`).exists()).toBe(true)
+    expect(wrapper.findAll('dt').map((row) => row.text())).toStrictEqual(['x-owner:', 'x-cost', 'requests:'])
+    expect(wrapper.findAll('code').map((row) => row.text())).toStrictEqual(['"checkout"', '1'])
+  })
+
+  it('opens the folded values like the unfolded list: top-level collections open, deeper ones closed', async () => {
+    const extensions = { 'x-limits': { daily: { requests: 100 } } }
+    const folded = mount(SpecificationExtensions, { props: { extensions, collapsible: true } })
+    const list = mount(SpecificationExtensions, { props: { extensions } })
+
+    await folded.get('button').trigger('click')
+
+    const rows = (wrapper: typeof list) => wrapper.findAll('dt').map((row) => row.text())
+    expect(rows(folded)).toStrictEqual(['x-limits', 'daily'])
+    expect(rows(folded)).toStrictEqual(rows(list))
+    expect(folded.text()).not.toContain('requests')
+  })
+
+  it('closes the folded values again', async () => {
+    const wrapper = mount(SpecificationExtensions, {
+      props: { extensions: { 'x-owner': 'checkout' }, collapsible: true },
+    })
+    const toggle = wrapper.get('button')
+    await toggle.trigger('click')
+    expect(wrapper.text()).toContain('"checkout"')
+
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    expect(toggle.attributes('aria-controls')).toBeUndefined()
+    expect(wrapper.text()).toBe('Extensions (1)')
+  })
+
+  it('renders nothing when collapsible and there are no extensions', () => {
+    const wrapper = mount(SpecificationExtensions, { props: { extensions: {}, collapsible: true } })
+    expect(wrapper.text()).toBe('')
+    expect(wrapper.find('button').exists()).toBe(false)
+  })
 })

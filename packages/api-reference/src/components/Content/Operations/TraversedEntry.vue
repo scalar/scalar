@@ -75,6 +75,7 @@ const {
       | 'showExtensions'
       | 'maxVisibleRequestBodyProperties'
       | 'showOperationId'
+      | 'multipartNaming'
       | 'hideModels'
       | 'modelsSectionLabel'
     >

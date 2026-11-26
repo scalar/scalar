@@ -263,11 +263,12 @@ describe('nodeAxios', () => {
     )
   })
 
-  it('preserves repeated query params as arrays', () => {
+  it('keeps repeated query params in the URL instead of bracketed params', () => {
     const result = nodeAxios.generate({
       url: 'https://example.com',
       queryString: [
         { name: 'status', value: 'active' },
+        { name: 'other', value: 'x' },
         { name: 'status', value: 'inactive' },
       ],
     })
@@ -275,10 +276,7 @@ describe('nodeAxios', () => {
     expect(result).toBe(
       createSnippet(`{
   method: 'GET',
-  url: 'https://example.com',
-  params: {
-    status: ['active', 'inactive']
-  }
+  url: 'https://example.com?status=active&other=x&status=inactive'
 }`),
     )
   })

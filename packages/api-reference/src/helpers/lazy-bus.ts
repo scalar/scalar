@@ -279,7 +279,8 @@ export const scrollToLazy = (
   id: string,
   setExpanded: (id: string, value: boolean) => void,
   getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
-) => {
+  { focusTarget = true }: { focusTarget?: boolean } = {},
+): void => {
   const item = getEntryById(id)
 
   // Even a rendered destination can move while sections above it finish rendering.
@@ -328,7 +329,7 @@ export const scrollToLazy = (
   addParents(rawId)
 
   void nextTick(() => {
-    tryScroll(id, stopTime, hold, rawId)
+    tryScroll(id, stopTime, hold, rawId, focusTarget)
   })
 }
 
@@ -466,20 +467,27 @@ const scrollInContainers = (element: HTMLElement, containers: HTMLElement[]): vo
  *
  * @param id - The id of the element to scroll to
  * @param stopTime - The time to stop retrying in unix milliseconds
+ * @param focusTarget - Whether navigation should move focus to the scrolled element
  */
-const tryScroll = (id: string, stopTime: number, hold: ReturnType<typeof freeze>, fallbackId?: string): void => {
+const tryScroll = (
+  id: string,
+  stopTime: number,
+  hold: ReturnType<typeof freeze>,
+  fallbackId: string,
+  focusTarget: boolean,
+): void => {
   if (!hold.isActive()) {
     return
   }
   const element = document.getElementById(id)
   if (element) {
     hold.scroll(element)
-    if (element instanceof HTMLElement && scrollTargetId.value === id) {
+    if (focusTarget && element instanceof HTMLElement && scrollTargetId.value === id) {
       element.focus({ preventScroll: true })
     }
     clearScrollTarget(id)
   } else if (Date.now() < stopTime) {
-    requestAnimationFrame(() => tryScroll(id, stopTime, hold, fallbackId))
+    requestAnimationFrame(() => tryScroll(id, stopTime, hold, fallbackId, focusTarget))
   } else {
     if (fallbackId && fallbackId !== id && scrollTargetId.value === id) {
       const fallback = document.getElementById(fallbackId)

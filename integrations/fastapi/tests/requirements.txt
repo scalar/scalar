@@ -1,4 +1,4 @@
 -r ../requirements.txt
-pytest==9.0.3
-pytest-asyncio==1.4.0
+pytest==9.2.0
+pytest-asyncio==1.5.0
 httpx==0.28.1

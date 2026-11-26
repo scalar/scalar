@@ -450,20 +450,20 @@ describe('createEmptyDocument', () => {
     ).resolves.toBeUndefined()
   })
 
-  it('creates a new empty document with basic structure', async () => {
+  it.each(['my-api', 'constructor'])('creates an empty document named %s', async (name) => {
     const store = createWorkspaceStore()
     const callback = vi.fn()
 
     await createEmptyDocument(store, {
-      name: 'my-api',
+      name,
       icon: 'api-icon',
       callback: callback,
     })
 
-    const document = getOpenApiDocument(store, 'my-api')
+    const document = getOpenApiDocument(store, name)
     expect(document).toBeDefined()
     expect(document?.openapi).toBe('3.1.0')
-    expect(document?.info.title).toBe('my-api')
+    expect(document?.info.title).toBe(name)
     expect(document?.info.version).toBe('1.0.0')
     expect(document?.paths).toEqual({ '/': { get: {} } })
     expect(document?.['x-scalar-icon']).toBe('api-icon')

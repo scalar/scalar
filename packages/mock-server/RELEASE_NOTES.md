@@ -9,6 +9,50 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.9 (2026-11-26)
+
+### Generated strings now respect length constraints
+
+Mock responses and API reference examples now honor minLength and maxLength constraints when generating string values, including formatted strings like emails and strings inside oneOf or anyOf branches.
+
+- Generated string examples now respect minLength and maxLength bounds from your OpenAPI schema.
+- Formatted strings like emails produce valid syntax within the specified length constraints.
+- Path parameter placeholders are preserved in code samples.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0219)
+
+## 0.21.8 (2026-11-25)
+
+### Better request validation and response header handling
+
+This release improves how the mock server validates incoming requests and generates response headers. Path parameters with label and matrix styles are now properly validated, JSON content parameters maintain their types during validation, and response headers respect authored examples instead of only generating values from schemas.
+
+- Operations are now served under the base path of their servers, so a mock server for an API at `/v1` will answer requests to `/v1/pets` instead of returning 404.
+- Request bodies with structured JSON media types like `application/vnd.api+json` and `application/merge-patch+json` are validated against their schemas and made available to custom handlers.
+- Response headers now send authored examples from `example` or `examples` fields instead of only generating values from the header schema.
+- Path parameters using label (`.5`) and matrix (`;id=5`) styles are properly validated against their schemas when request validation is enabled.
+- Query parameters declared with JSON content are validated with correct types, so `?filter={"price":"5"}` is rejected when price must be an integer.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0218)
+
+## 0.21.7 (2026-11-22)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0217)
+
+## 0.21.6 (2026-11-20)
+
+### Request validation now works for nullable schemas without explicit types
+
+Previously, OpenAPI 3.0 schemas with nullable but no type keyword could bypass validation entirely after upgrade, allowing invalid requests through. The mock server now properly enforces the full request contract for these schemas.
+
+- Fixed request validation being skipped when OpenAPI 3.0 schemas use nullable without an explicit type.
+- Nullable compositions are now converted to explicit unions with null during OpenAPI upgrade.
+- Invalid requests that previously returned 200 now correctly return 422 when required fields are missing.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0216)
+
 ## 0.21.5 (2026-11-18)
 
 ### Better array example generation and pattern validation

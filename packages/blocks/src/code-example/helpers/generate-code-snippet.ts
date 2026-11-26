@@ -1,4 +1,5 @@
 import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -37,6 +38,7 @@ type GenerateCodeSnippetProps = {
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
   jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   requestBodyCompositionSelection?: Record<string, number>
   /** Whether to disable parameters by default. */
   defaultDisabledParameters?: boolean
@@ -62,6 +64,7 @@ export const generateCodeSnippet = ({
   globalCookies,
   openapiVersion,
   jsonSchemaDialect,
+  multipartNaming,
   requestBodyCompositionSelection,
   defaultDisabledParameters,
 }: GenerateCodeSnippetProps): string | null => {
@@ -100,6 +103,7 @@ export const generateCodeSnippet = ({
       includeDefaultHeaders,
       openapiVersion,
       jsonSchemaDialect,
+      multipartNaming,
       requestBodyCompositionSelection,
       defaultDisabledParameters,
     })

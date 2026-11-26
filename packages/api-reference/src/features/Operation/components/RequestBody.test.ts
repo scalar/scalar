@@ -7,7 +7,7 @@ import {
   SchemaObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, onTestFinished } from 'vitest'
 import { defineComponent, h } from 'vue'
 
 import { loadLocale, provideLocalization } from '@/features/localization'
@@ -97,6 +97,7 @@ describe('RequestBody', () => {
       ]),
     )
     const wrapper = mount(RequestBody, {
+      attachTo: document.body,
       props: {
         eventBus: null,
         specificationExtension: SpecificationExtension,
@@ -109,6 +110,11 @@ describe('RequestBody', () => {
       },
     })
 
+    onTestFinished(() => {
+      wrapper.unmount()
+      document.body.replaceChildren()
+    })
+
     // Child names can appear in collapsed previews, so assert actual property rows.
     const propertyNames = (): string[] => wrapper.findAll('.property-name').map((row) => row.text())
     expect(propertyNames()).toStrictEqual(Object.keys(properties).slice(0, visibleCount))
@@ -119,7 +125,6 @@ describe('RequestBody', () => {
       expect(propertyNames()).toStrictEqual(Object.keys(properties))
       expect(reveal.isVisible()).toBe(false)
     }
-    wrapper.unmount()
   })
 
   it('counts only request properties and preserves required-first ordering', async () => {

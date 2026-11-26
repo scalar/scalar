@@ -1,5 +1,25 @@
 # @scalar/api-reference-react
 
+## 0.9.98
+
+No changes in this release.
+
+## 0.9.97
+
+No changes in this release.
+
+## 0.9.96
+
+No changes in this release.
+
+## 0.9.95
+
+No changes in this release.
+
+## 0.9.94
+
+No changes in this release.
+
 ## 0.9.93
 
 No changes in this release.

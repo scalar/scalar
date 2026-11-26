@@ -43,12 +43,13 @@ on:
       rust_build_passed:
         value: ${{ jobs.rust-build-test.outputs.passed }}
       java_build_passed:
-        value: ${{ jobs.java-build-test.outputs.passed }}
+        value: ${{ jobs.java-release-smoke-test.outputs.passed }}
 
 permissions:
   contents: read
 
 env:
+  JAVA_SPRING_BOOT_3_VERSION: '3.5.7'
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
 jobs:
@@ -61,10 +62,10 @@ jobs:
     outputs:
       passed: ${{ steps.passed.outputs.passed }}
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: scalar-js
           path: integrations/docker/assets
@@ -74,12 +75,13 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@v1.9.0
+        uses: useblacksmith/setup-docker-builder@v2.4.0
         with:
+          cache-key: ${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.head_ref || github.ref_name }}-api-reference-integration
           platforms: linux/amd64
 
       - name: Build Docker image
-        uses: useblacksmith/build-push-action@v2.2.0
+        uses: useblacksmith/build-push-action@v2.3.0
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
@@ -99,10 +101,10 @@ jobs:
     outputs:
       passed: ${{ steps.passed.outputs.passed }}
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: scalar-js
           path: temp-assets
@@ -140,7 +142,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.aws.lambda.js
 
       - name: Cache NuGet packages
-        uses: actions/cache@v5.1.0
+        uses: actions/cache@v6.1.0
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
@@ -160,11 +162,18 @@ jobs:
         working-directory: integrations/dotnet
         run: dotnet build -c Release --no-restore
 
+      - name: Install Aspire CLI for the playground
+        run: |
+          dotnet tool install Aspire.Cli --version 17.0.0 --tool-path "$RUNNER_TEMP/aspire-cli"
+          echo "$RUNNER_TEMP/aspire-cli" >> "$GITHUB_PATH"
+
       # The playground is outside Scalar.slnx, so build it separately with its own restore.
       # Compilation catches API drift without starting the AppHost or its services.
       - name: Build Aspire playground
         working-directory: integrations/dotnet
-        run: dotnet build aspire/playground/Scalar.Aspire.AppHost/Scalar.Aspire.AppHost.csproj -c Release
+        run: |
+          dotnet build aspire/playground/Scalar.Aspire.AppHost/Scalar.Aspire.AppHost.csproj -c Release
+          dotnet build aspire/playground/Scalar.Aspire.BookService/Scalar.Aspire.BookService.csproj -c Release
 
       - name: Test solution
         working-directory: integrations/dotnet
@@ -178,12 +187,13 @@ jobs:
       # in PR CI instead of only at publish time. amd64-only keeps it fast; the
       # restore errors we care about are platform-independent, and no push.
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@v1.9.0
+        uses: useblacksmith/setup-docker-builder@v2.4.0
         with:
+          cache-key: ${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.head_ref || github.ref_name }}-aspire-integration
           platforms: linux/amd64
 
       - name: Build Aspire Docker image
-        uses: useblacksmith/build-push-action@v2.2.0
+        uses: useblacksmith/build-push-action@v2.3.0
         with:
           context: integrations/dotnet
           file: integrations/dotnet/aspire/src/Scalar.Aspire.Service/Dockerfile
@@ -203,10 +213,10 @@ jobs:
     outputs:
       passed: ${{ steps.passed.outputs.passed }}
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Setup Python
-        uses: actions/setup-python@v6.3.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.11'
 
@@ -237,10 +247,10 @@ jobs:
     outputs:
       passed: ${{ steps.passed.outputs.passed }}
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Setup Python
-        uses: actions/setup-python@v6.3.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
 
@@ -271,22 +281,22 @@ jobs:
     outputs:
       passed: ${{ steps.passed.outputs.passed }}
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: scalar-js
           path: integrations/rust/ui
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
         with:
           toolchain: stable
           components: rustfmt, clippy
 
       - name: Cache cargo registry
-        uses: actions/cache@v5.1.0
+        uses: actions/cache@v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -325,21 +335,24 @@ jobs:
 
   java-build-test:
     if: inputs.java_changed == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        # Exercise the POM default without duplicating its current version here.
+        spring-boot: ['3', 'default']
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
       contents: read
     timeout-minutes: 10
-    outputs:
-      passed: ${{ steps.passed.outputs.passed }}
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: scalar-js
           path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
       - name: Setup Java
-        uses: actions/setup-java@v5.4.0
+        uses: actions/setup-java@v6.3.0
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -347,8 +360,45 @@ jobs:
           cache-dependency-path: 'integrations/java/**/pom.xml'
       - name: Run Maven tests
         working-directory: integrations/java
-        run: mvn clean test
+        env:
+          SPRING_BOOT: ${{ matrix.spring-boot }}
+        run: |
+          if [ "$SPRING_BOOT" = 'default' ]; then
+            mvn clean test
+          else
+            mvn clean test "-Dspring-boot.version=$JAVA_SPRING_BOOT_3_VERSION"
+          fi
 
+  # Matrix outputs can come from a passing leg even when another leg fails.
+  # Gate publishing on the whole matrix and the release JAR smoke tests.
+  java-release-smoke-test:
+    needs: java-build-test
+    if: ${{ !cancelled() && needs.java-build-test.result == 'success' }}
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    outputs:
+      passed: ${{ steps.passed.outputs.passed }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Download scalar.js artifact
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: scalar-js
+          path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
+      - name: Setup Java
+        uses: actions/setup-java@v6.3.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+          cache-dependency-path: 'integrations/java/**/pom.xml'
+      - name: Test release JARs on Spring Boot 3
+        working-directory: integrations/java
+        run: |
+          # Build with the same POM default as java-publish.
+          mvn clean install -pl scalar-core,scalar-webmvc,scalar-webflux -am -DskipTests -Dgpg.skip=true
+          mvn -f smoke-tests/pom.xml test -Pwebmvc "-Dspring-boot.version=$JAVA_SPRING_BOOT_3_VERSION"
+          mvn -f smoke-tests/pom.xml test -Pwebflux "-Dspring-boot.version=$JAVA_SPRING_BOOT_3_VERSION"
       - name: Mark build-test passed
         id: passed
         run: echo "passed=true" >> "$GITHUB_OUTPUT"

@@ -1,7 +1,7 @@
 import { loadLanguage } from '@scalar/highlight/lazy'
 import { describe, expect, it, vi } from 'vitest'
 
-import { htmlFromMarkdown } from './markdown'
+import { htmlFromMarkdown } from './index'
 
 describe('htmlFromMarkdown', () => {
   it('returns HTML', () => {
@@ -226,6 +226,13 @@ const x = 42;
     expect(html.trim()).toContain('hljs')
   })
 
+  it('leaves unlabelled code fences as plain text', () => {
+    const html = htmlFromMarkdown('```\ndef example():\n    return True\n```')
+
+    expect(html).toContain('custom-scroll')
+    expect(html).not.toContain('<span')
+  })
+
   it('adds custom scroll class to highlighted code blocks', () => {
     const html = htmlFromMarkdown(`
 \`\`\`sh
@@ -355,13 +362,8 @@ curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
   })
 
   /**
-   * The fast path interpolates the caller's string straight into `<p>...</p>`,
-   * with no escaping and no sanitizer. That is safe only because every
-   * character that carries meaning to the serializer or the parser keeps the
-   * string on the pipeline. These pin that boundary one character at a time, so
-   * relaxing the excluded class fails a test rather than opening a hole: each
-   * value differs between the two paths, so a fast path that swallowed it would
-   * hand back markup the pipeline escapes, drops or rewrites.
+   * These cases pin the plain-paragraph check for characters with special meaning.
+   * HTML text escaping leaves Markdown punctuation alone, so it still needs the full pipeline.
    */
   describe('fast path escaping', () => {
     const dangerous = {

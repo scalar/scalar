@@ -1,5 +1,27 @@
 # @scalar/snippetz
 
+## 0.10.24
+
+### Patch Changes
+
+- [#11238](https://github.com/scalar/scalar/pull/11238): Keep repeated query parameters and form fields in the axios, Guzzle and Laravel examples, so `ids=1&ids=2` is no longer sent as `ids[]=1&ids[]=2` or `ids[0]=1&ids[1]=2`.
+
+  Send Laravel multipart parts in request order, preserving repeated names and empty values and supporting bodies that contain only text fields.
+
+## 0.10.23
+
+No changes in this release.
+
+## 0.10.22
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
+## 0.10.21
+
+No changes in this release.
+
 ## 0.10.20
 
 ### Patch Changes

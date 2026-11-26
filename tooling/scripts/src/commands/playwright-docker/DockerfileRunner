@@ -14,6 +14,7 @@ RUN npm install -g @playwright/test@$PLAYWRIGHT_VERSION
 # Only Chromium is needed: every Playwright config in the repo runs the
 # default (Chromium) project, so bundling Firefox and WebKit only bloats the
 # image and slows the per-job container pull in CI.
-RUN playwright install --with-deps chromium
+COPY scripts/ /tmp/playwright-install/
+RUN sh /tmp/playwright-install/install-playwright.sh
 RUN chmod -R 777 /ms-playwright
 

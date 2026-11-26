@@ -4,6 +4,8 @@ Contributions are welcome. We're using [pnpm](https://pnpm.io/).
 
 ## Development setup
 
+Use Node.js 24.15.0 or later in the Node 24 release line. The jsdom development dependency requires this minimum; Run `nvm install && nvm use` from the repository root to install and select Node 24 using `.nvmrc`.
+
 1. Clone the repository: `$ git clone git@github.com:scalar/scalar.git`
 2. Install all dependencies: `$ pnpm install`
 3. Build all packages once: `$ pnpm build:packages`

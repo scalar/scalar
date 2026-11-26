@@ -1,5 +1,25 @@
 # @scalar/hono-api-reference
 
+## 0.12.26
+
+### Patch Changes
+
+- [#11243](https://github.com/scalar/scalar/pull/11243): Stop setting `color-scheme` on the bare `.dark-mode` class in the Hono theme so it no longer switches the host page's color scheme
+
+## 0.12.25
+
+No changes in this release.
+
+## 0.12.24
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
+## 0.12.23
+
+No changes in this release.
+
 ## 0.12.22
 
 ### Patch Changes

@@ -257,10 +257,133 @@ $response = Http::get('https://example.com');`)
 
     expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
 
-$response = Http::attach('file', file_get_contents('test.txt'), 'test.txt')
-  ->post('https://example.com', [
-    'field' => 'value'
+$response = Http::asMultipart()
+  ->send('POST', 'https://example.com', [
+    'multipart' => [
+      [
+        'name' => 'file',
+        'contents' => file_get_contents('test.txt'),
+        'filename' => 'test.txt'
+      ],
+      [
+        'name' => 'field',
+        'contents' => 'value'
+      ]
+    ]
   ]);`)
+  })
+
+  it('sends multipart text fields as parts when there is no file', () => {
+    const result = phpLaravel.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'field', value: 'value' }],
+      },
+    })
+
+    expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
+
+$response = Http::asMultipart()
+  ->send('POST', 'https://example.com', [
+    'multipart' => [
+      [
+        'name' => 'field',
+        'contents' => 'value'
+      ]
+    ]
+  ]);`)
+  })
+
+  it.each(['POST', 'DELETE'])('sends ordered multipart parts with a generated boundary for %s', (method) => {
+    const result = phpLaravel.generate({
+      url: 'https://example.com',
+      method,
+      headers: [
+        { name: 'content-type', value: 'multipart/form-data; boundary=captured' },
+        { name: 'X-Trace', value: '1' },
+      ],
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'file', fileName: 'test.txt' },
+          { name: 'tag', value: '0' },
+          { name: 'note' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
+
+$response = Http::withHeaders([
+  'X-Trace' => '1'
+])
+  ->asMultipart()
+  ->send('${method}', 'https://example.com', [
+    'multipart' => [
+      [
+        'name' => 'tag',
+        'contents' => 'a'
+      ],
+      [
+        'name' => 'file',
+        'contents' => file_get_contents('test.txt'),
+        'filename' => 'test.txt'
+      ],
+      [
+        'name' => 'tag',
+        'contents' => '0'
+      ],
+      [
+        'name' => 'note',
+        'contents' => ''
+      ]
+    ]
+  ]);`)
+  })
+
+  it('keeps every value of a repeated url-encoded form field', () => {
+    const result = phpLaravel.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [{ name: 'tag', value: 'a b' }, { name: 'other', value: "it's&more" }, { name: 'tag' }],
+      },
+    })
+
+    expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
+
+$response = Http::withBody('tag=a+b&other=it%27s%26more&tag=', 'application/x-www-form-urlencoded')
+  ->post('https://example.com');`)
+  })
+
+  it('passes an existing content type of a repeated url-encoded form field to withBody only', () => {
+    const result = phpLaravel.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [
+        { name: 'content-type', value: 'application/x-www-form-urlencoded; charset=utf-8' },
+        { name: 'X-Trace', value: '1' },
+      ],
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'tag', value: 'b' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
+
+$response = Http::withHeaders([
+  'X-Trace' => '1'
+])
+  ->withBody('tag=a&tag=b', 'application/x-www-form-urlencoded; charset=utf-8')
+  ->post('https://example.com');`)
   })
 
   it('handles multipart form data content types on string parts', () => {
@@ -281,10 +404,18 @@ $response = Http::attach('file', file_get_contents('test.txt'), 'test.txt')
 
     expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
 
-$response = Http::attach('user', '{"name":"scalar"}', null, [
-  'Content-Type' => 'application/json;charset=utf-8'
-])
-  ->post('https://example.com');`)
+$response = Http::asMultipart()
+  ->send('POST', 'https://example.com', [
+    'multipart' => [
+      [
+        'name' => 'user',
+        'contents' => '{"name":"scalar"}',
+        'headers' => [
+          'Content-Type' => 'application/json;charset=utf-8'
+        ]
+      ]
+    ]
+  ]);`)
   })
 
   it('handles multipart form data content types on files', () => {
@@ -305,10 +436,19 @@ $response = Http::attach('user', '{"name":"scalar"}', null, [
 
     expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
 
-$response = Http::attach('file', file_get_contents('test.txt'), 'test.txt', [
-  'Content-Type' => 'text/plain'
-])
-  ->post('https://example.com');`)
+$response = Http::asMultipart()
+  ->send('POST', 'https://example.com', [
+    'multipart' => [
+      [
+        'name' => 'file',
+        'contents' => file_get_contents('test.txt'),
+        'filename' => 'test.txt',
+        'headers' => [
+          'Content-Type' => 'text/plain'
+        ]
+      ]
+    ]
+  ]);`)
   })
 
   it('handles multipart form data with single quotes in parameter name', () => {
@@ -332,9 +472,19 @@ $response = Http::attach('file', file_get_contents('test.txt'), 'test.txt', [
 
     expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
 
-$response = Http::attach('file\\'name', file_get_contents('test.txt'), 'test.txt')
-  ->post('https://example.com', [
-    'field\\'name' => 'value'
+$response = Http::asMultipart()
+  ->send('POST', 'https://example.com', [
+    'multipart' => [
+      [
+        'name' => 'field\\'name',
+        'contents' => 'value'
+      ],
+      [
+        'name' => 'file\\'name',
+        'contents' => file_get_contents('test.txt'),
+        'filename' => 'test.txt'
+      ]
+    ]
   ]);`)
   })
 
@@ -364,6 +514,25 @@ $response = Http::withHeaders([
   ->post('https://example.com', [
     'foo' => 'bar'
   ]);`)
+  })
+
+  it('preserves the supplied boundary for a raw multipart body', () => {
+    const contentType = 'multipart/form-data; boundary=captured'
+    const text = '--captured\r\nContent-Disposition: form-data; name="field"\r\n\r\nvalue\r\n--captured--\r\n'
+    const result = phpLaravel.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: contentType }],
+      postData: { mimeType: contentType, text },
+    })
+
+    expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
+
+$response = Http::withHeaders([
+  'Content-Type' => '${contentType}'
+])
+  ->withBody('${text}', '${contentType}')
+  ->post('https://example.com');`)
   })
 
   it('handles url-encoded form data with special characters', () => {
@@ -548,8 +717,16 @@ $response = Http::withHeaders([
 
     expect(result).toBe(`use Illuminate\\Support\\Facades\\Http;
 
-$response = Http::attach('file', file_get_contents(''), '')
-  ->post('https://example.com');`)
+$response = Http::asMultipart()
+  ->send('POST', 'https://example.com', [
+    'multipart' => [
+      [
+        'name' => 'file',
+        'contents' => file_get_contents(''),
+        'filename' => ''
+      ]
+    ]
+  ]);`)
   })
 
   it('handles JSON body with special characters', () => {

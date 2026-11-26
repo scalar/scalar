@@ -549,6 +549,32 @@ describe('operationToHar', () => {
       expect(result.url).toBe('https://api.example.com/api/users')
     })
 
+    it.each<{ name: string; server: ServerObject; expected: string }>([
+      {
+        name: 'an empty string default at the end of the host',
+        server: { url: 'https://api.example.com{basePath}', variables: { basePath: { default: '' } } },
+        expected: 'https://api.example.com/p',
+      },
+      {
+        name: 'an empty string default for the Galaxy server',
+        server: {
+          url: '{protocol}://void.scalar.com/{path}',
+          variables: { protocol: { default: 'https' }, path: { default: '' } },
+        },
+        expected: 'https://void.scalar.com/p',
+      },
+      {
+        name: 'an empty string default for a Unicode variable name',
+        server: { url: 'https://api.example.com{préfixe}', variables: { préfixe: { default: '' } } },
+        expected: 'https://api.example.com/p',
+      },
+    ])('resolves $name in the HAR URL and cURL snippet', ({ server, expected }) => {
+      const request = operationToHar({ operation: { responses: {} }, method: 'get', path: '/p', server })
+
+      expect(request.url).toBe(expected)
+      expect(snippetz().findPlugin('shell', 'curl')?.generate(request)).toBe(`curl ${expected}`)
+    })
+
     it('should handle server with multiple variables', () => {
       const operation: OperationObject = {
         responses: {

@@ -16,7 +16,7 @@
     "llm",
     "swagger"
   ],
-  "version": "1.7.9",
+  "version": "1.7.14",
   "engines": {
     "node": ">=22.19.0"
   },
@@ -65,7 +65,7 @@
     "@tailwindcss/vite": "catalog:*",
     "@types/mdast": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "marked": "^18.2.0",
+    "marked": "^18.2.1",
     "rehype-parse": "^9.0.1",
     "rehype-sanitize": "^6.0.0",
     "rehype-stringify": "^10.0.1",

@@ -8,6 +8,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import AsyncApiTraversedEntry from './AsyncApiTraversedEntry.vue'
+import Message from './Message.vue'
 import SchemaSource from './SchemaSource.vue'
 
 const document = {
@@ -142,11 +143,92 @@ describe('AsyncApiTraversedEntry', () => {
         'https://example.com/channel-tag',
         // Messages owned by an operation are rendered once, with their documentation.
         'https://example.com/message',
+        // The reusable message also appears in the Messages components section.
+        'https://example.com/message',
         'https://example.com/model',
         'https://example.com/operation',
       ])
       expect(wrapper.text()).toContain('**Channel** guide')
       expect(wrapper.text()).not.toContain('*Trait tag* guide')
+    },
+  )
+
+  it.each(['modern', 'classic'] as const)(
+    'renders reusable messages with inherited traits in %s layout',
+    async (layout) => {
+      const document = {
+        asyncapi: '3.1.0',
+        info: { title: 'Components', version: '1' },
+        'x-scalar-original-document-hash': '',
+        channels: {},
+        components: {
+          messages: {
+            PlanetUpdated: {
+              title: 'Planet updated',
+              traits: [{ $ref: '#/components/messageTraits/Tracing' }],
+              payload: { type: 'object', properties: { planetId: { type: 'string' } } },
+            },
+          },
+          messageTraits: {
+            Tracing: {
+              title: 'Tracing',
+              headers: { type: 'object', properties: { traceId: { type: 'string' } } },
+              examples: [{ headers: { traceId: 'example-trace' } }],
+            },
+          },
+          operationTraits: {
+            Kafka: { title: 'Kafka defaults' },
+          },
+        },
+      } as unknown as AsyncApiDocument
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: 'components', document: document as unknown as Record<string, unknown> })
+      const resolved = store.workspace.documents.components
+      if (!isAsyncApiDocument(resolved)) {
+        throw new Error('Expected an AsyncAPI document')
+      }
+      const navigation = traverseAsyncApiDocument('components', resolved)
+      const expandedItems: Record<string, boolean> = {}
+      const expand = (entries: TraversedEntry[]): void => {
+        for (const entry of entries) {
+          expandedItems[entry.id] = true
+          if ('children' in entry && entry.children) {
+            expand(entry.children)
+          }
+        }
+      }
+      expand(navigation.children ?? [])
+
+      const wrapper = mount(AsyncApiTraversedEntry, {
+        props: {
+          document: resolved,
+          entries: navigation.children ?? [],
+          expandedItems,
+          eventBus: createWorkspaceEventBus(),
+          options: {
+            layout,
+            hideModels: false,
+            expandAllSchemaProperties: true,
+            schemaKeyboardNav: false,
+            orderSchemaPropertiesBy: 'preserve',
+            orderRequiredPropertiesFirst: true,
+          },
+        },
+      })
+
+      expect(wrapper.find('[aria-label="Message Traits"]').exists()).toBe(false)
+      expect(wrapper.find('[aria-label="Operation Traits"]').exists()).toBe(false)
+      const messagesSection = wrapper.get('[id="components/~components/messages"]')
+      expect(messagesSection.attributes('aria-label')).toBe('Messages')
+      if (layout === 'classic') {
+        const toggle = messagesSection.get('button[aria-labelledby]')
+        expect(toggle.attributes('aria-expanded')).toBe('true')
+      }
+
+      const message = messagesSection.getComponent(Message)
+      expect(message.text()).toContain('planetId')
+      expect(message.text()).toContain('traceId')
+      expect(message.get('pre').text()).toBe('{\n  "traceId": "example-trace"\n}')
     },
   )
 

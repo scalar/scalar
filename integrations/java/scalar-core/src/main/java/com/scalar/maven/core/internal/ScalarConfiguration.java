@@ -63,6 +63,10 @@ public class ScalarConfiguration {
     @JsonProperty("hiddenClients")
     private ScalarHiddenClients hiddenClients;
 
+    /** The built-in client IDs and target wildcards allowed in code sample pickers. */
+    @JsonProperty("httpClients")
+    private List<String> httpClients;
+
     /** The full client identifiers shown as tabs, in order. */
     @JsonProperty("featuredClients")
     private List<String> featuredClients;
@@ -74,6 +78,10 @@ public class ScalarConfiguration {
     /** The initial request body view: form or raw. */
     @JsonProperty("defaultRequestBodyView")
     private ScalarRequestBodyView defaultRequestBodyView;
+
+    /** Naming convention for nested multipart form fields. */
+    @JsonProperty("multipartNaming")
+    private ScalarMultipartNaming multipartNaming;
 
     /** The maximum initially visible request body properties; zero shows all. */
     @JsonProperty("maxVisibleRequestBodyProperties")
@@ -96,6 +104,9 @@ public class ScalarConfiguration {
 
     @JsonProperty("proxyUrl")
     private String proxyUrl;
+
+    @JsonProperty("showBadgesInSidebar")
+    private Boolean showBadgesInSidebar;
 
     @JsonProperty("showSidebar")
     private Boolean showSidebar;
@@ -241,6 +252,14 @@ public class ScalarConfiguration {
 
     public void setProxyUrl(String proxyUrl) {
         this.proxyUrl = proxyUrl;
+    }
+
+    public Boolean getShowBadgesInSidebar() {
+        return showBadgesInSidebar;
+    }
+
+    public void setShowBadgesInSidebar(Boolean showBadgesInSidebar) {
+        this.showBadgesInSidebar = showBadgesInSidebar;
     }
 
     public Boolean getShowSidebar() {
@@ -661,6 +680,14 @@ public class ScalarConfiguration {
         this.maxVisibleRequestBodyProperties = maxVisibleRequestBodyProperties;
     }
 
+    public ScalarMultipartNaming getMultipartNaming() {
+        return multipartNaming;
+    }
+
+    public void setMultipartNaming(ScalarMultipartNaming multipartNaming) {
+        this.multipartNaming = multipartNaming;
+    }
+
     /**
      * Gets the initial request body view: form or raw.
      *
@@ -713,6 +740,22 @@ public class ScalarConfiguration {
      */
     public void setFeaturedClients(List<String> featuredClients) {
         this.featuredClients = featuredClients;
+    }
+
+    /**
+     * Gets the built-in HTTP clients allowed in the code sample pickers.
+     * @return the configured client IDs and target wildcards, or null to use the default list
+     */
+    public List<String> getHttpClients() {
+        return httpClients;
+    }
+
+    /**
+     * Sets the HTTP client allowlist. An empty list hides all built-in clients.
+     * @param httpClients client IDs such as node/undici or target wildcards such as shell/*
+     */
+    public void setHttpClients(List<String> httpClients) {
+        this.httpClients = httpClients;
     }
 
     /**

@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.7.5
+
+### Patch Changes
+
+- [#11209](https://github.com/scalar/scalar/pull/11209): Remove the redundant combined header and query API key option from Galaxy’s OpenAPI descriptions. Either location is sufficient on its own.
+
 ## 0.7.4
 
 ### Patch Changes

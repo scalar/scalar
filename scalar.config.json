@@ -43,6 +43,14 @@
           "defer": true
         },
         {
+          "path": "documentation/assets/api-hosting-waitlist.js",
+          "defer": true
+        },
+        {
+          "path": "documentation/assets/api-hosting-invite.js",
+          "defer": true
+        },
+        {
           "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js",
           "async": true
         }
@@ -50,6 +58,9 @@
       "styles": [
         {
           "path": "documentation/assets/styles.css"
+        },
+        {
+          "path": "documentation/assets/api-hosting-invite.css"
         }
       ],
       "meta": [
@@ -1459,10 +1470,6 @@
                     {
                       "path": "documentation/assets/api-hosting-hero.js",
                       "defer": true
-                    },
-                    {
-                      "path": "documentation/assets/api-hosting-waitlist.js",
-                      "defer": true
                     }
                   ],
                   "links": [
@@ -2087,7 +2094,7 @@
                         "title": "Private Docs",
                         "filepath": "documentation/guides/docs/configuration/private-docs.md",
                         "type": "page",
-                        "description": "Control access to your documentation with password protection, SSO, and team-based permissions.",
+                        "description": "Make your docs site private: visitors sign in, and access groups decide who outside your team can view it.",
                         "head": {
                           "links": [
                             {
@@ -2098,7 +2105,7 @@
                           "meta": [
                             {
                               "name": "description",
-                              "content": "Control access to your documentation with password protection, SSO, and team-based permissions."
+                              "content": "Make your docs site private: visitors sign in, and access groups decide who outside your team can view it."
                             },
                             {
                               "name": "robots",
@@ -2981,6 +2988,11 @@
                       }
                     }
                   },
+                  "cli-output": {
+                    "filepath": "documentation/guides/sdks/cli-output.md",
+                    "type": "page",
+                    "title": "CLI Output Formats"
+                  },
                   "pagination": {
                     "filepath": "documentation/guides/sdks/pagination.md",
                     "type": "page",
@@ -3078,10 +3090,21 @@
                     }
                   },
                   "custom-code": {
-                    "filepath": "documentation/guides/sdks/custom-code.md",
-                    "type": "page",
                     "title": "Custom Code",
-                    "description": "Customize generated SDKs and keep your changes across regenerations with a three-way merge."
+                    "type": "group",
+                    "mode": "nested",
+                    "children": {
+                      "overview": {
+                        "filepath": "documentation/guides/sdks/custom-code/overview.md",
+                        "type": "page",
+                        "title": "Overview"
+                      },
+                      "cli": {
+                        "filepath": "documentation/guides/sdks/custom-code/cli.md",
+                        "type": "page",
+                        "title": "CLI Commands (Experimental)"
+                      }
+                    }
                   },
                   "diagnostics": {
                     "filepath": "documentation/guides/sdks/diagnostics.md",
@@ -3212,6 +3235,12 @@
                     "title": "Upload",
                     "description": "Upload OpenAPI documents to the Scalar Registry from the dashboard, CLI, or CI.",
                     "filepath": "documentation/guides/registry/upload.md",
+                    "type": "page"
+                  },
+                  "urls": {
+                    "title": "URLs",
+                    "description": "Choose a Scalar Registry URL for a preview, a document format, a version, or generated SDK examples.",
+                    "filepath": "documentation/guides/registry/urls.md",
                     "type": "page"
                   },
                   "schemas": {
@@ -3859,6 +3888,12 @@
                         "description": "Add a Scalar API reference to your Symfony application with the official bundle or NelmioApiDocBundle.",
                         "type": "page"
                       },
+                      "trpc": {
+                        "title": "tRPC",
+                        "filepath": "documentation/integrations/trpc.md",
+                        "description": "Expose tRPC procedures as REST endpoints with trpc-to-openapi and document them with Scalar API Reference.",
+                        "type": "page"
+                      },
                       "tsed": {
                         "title": "Ts.ED",
                         "filepath": "documentation/integrations/tsed.md",
@@ -4362,6 +4397,12 @@
                     "filepath": "documentation/guides/cli/autocompletion.md",
                     "type": "page",
                     "title": "Autocompletion"
+                  },
+                  "transform": {
+                    "description": "Generate public production and private staging API descriptions from one source with ordered filtering, metadata edits, and component pruning.",
+                    "filepath": "documentation/guides/cli/transform.md",
+                    "type": "page",
+                    "title": "Transform API Descriptions"
                   },
                   "ci-and-scripting": {
                     "description": "Run the Scalar CLI in CI: authenticate with tokens, publish lint reports, adopt lint baselines, and read JSON output.",

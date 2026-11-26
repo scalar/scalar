@@ -11,8 +11,8 @@ import { scopeChain } from '../core/scopes'
  * Values are full class attributes, not suffixes, because highlight.js uses
  * two-class tokens for a few scopes (`hljs-title function_`).
  *
- * `null` means "emit bare text". highlight.js leaves operators unscoped, and a
- * span nobody styles is bytes for nothing.
+ * `null` means "emit bare text", because a span nobody styles is bytes for
+ * nothing.
  */
 const HLJS_CLASSES: Record<string, string | null> = {
   // --- comments -------------------------------------------------------------
@@ -61,7 +61,7 @@ const HLJS_CLASSES: Record<string, string | null> = {
   decorator: 'hljs-meta',
 
   // --- syntax ---------------------------------------------------------------
-  operator: null,
+  operator: 'hljs-operator',
   punctuation: 'hljs-punctuation',
   'punctuation.bracket': 'hljs-punctuation',
   'punctuation.delimiter': 'hljs-punctuation',

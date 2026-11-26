@@ -36,6 +36,7 @@ const {
   globalCookies,
   openapiVersion,
   jsonSchemaDialect,
+  multipartNaming,
   requestBodyCompositionSelection,
   integration,
 } = defineProps<CodeExampleProps & { eventBus: WorkspaceEventBus }>()
@@ -112,6 +113,7 @@ const generatedCode = computed<string | null>(() =>
         globalCookies,
         openapiVersion,
         jsonSchemaDialect,
+        multipartNaming,
         requestBodyCompositionSelection,
         includeDefaultHeaders: integration === 'client',
       }),

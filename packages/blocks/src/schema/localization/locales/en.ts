@@ -20,6 +20,7 @@ export const en = {
     unknownType: 'unknown type',
     propertyCount: 'Properties: {count}',
     headerCount: 'Headers: {count}',
+    extensionCount: 'Extensions ({count})',
     recursiveReference: 'Recursive reference to {name}',
     recursive: 'recursive',
     additionalProperties: 'additional properties',

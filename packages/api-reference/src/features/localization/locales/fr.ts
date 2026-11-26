@@ -46,6 +46,7 @@ export const fr = {
     collapsed: 'Réduit',
     webhooks: 'Webhooks',
     channels: 'Canaux',
+    messages: 'Messages',
   },
   server: {
     label: 'Serveur',
@@ -189,6 +190,7 @@ export const fr = {
     waitlistError: 'Oups ! Une erreur est survenue, veuillez réessayer',
     waitlistRateLimit: "Trop d'inscriptions, veuillez réessayer dans un instant",
     waitlistBack: 'Retour',
+    waitlistDone: 'Terminé',
     deployApiButton: "Déployer l'API",
     deployFrameworkButton: 'Déployer {framework}',
     deployApiTitle: 'Déployez votre API sur Scalar',

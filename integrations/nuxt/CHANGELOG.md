@@ -1,5 +1,29 @@
 # @scalar/nuxt
 
+## 0.6.98
+
+No changes in this release.
+
+## 0.6.97
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 0.6.96
+
+No changes in this release.
+
+## 0.6.95
+
+No changes in this release.
+
+## 0.6.94
+
+No changes in this release.
+
 ## 0.6.93
 
 ### Patch Changes

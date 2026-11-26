@@ -16,7 +16,6 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
  */
 const customTheme = `
 .dark-mode {
-  color-scheme: dark;
   --scalar-color-1: rgba(255, 255, 245, .86);
   --scalar-color-2: rgba(255, 255, 245, .6);
   --scalar-color-3: rgba(255, 255, 245, .38);

@@ -74,7 +74,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Get version from package.json
         id: package-version
@@ -82,7 +82,7 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: scalar-js
           path: integrations/docker/assets
@@ -92,21 +92,22 @@ jobs:
         run: gzip --keep --verbose --force scalar.js
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@v1.9.0
+        uses: useblacksmith/setup-docker-builder@v2.4.0
         with:
+          cache-key: ${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.head_ref || github.ref_name }}-api-reference-publish
           platforms: |
             linux/amd64
             linux/arm64
 
       - name: Log in to DockerHub with OIDC
-        uses: docker/login-action@v4.5.0
+        uses: docker/login-action@v4.8.0
         env:
           DOCKERHUB_OIDC_CONNECTIONID: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
         with:
           username: scalarapi
 
       - name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@v2.2.0
+        uses: useblacksmith/build-push-action@v2.3.0
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
@@ -138,7 +139,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Get version from package.json
         id: package-version
@@ -146,27 +147,28 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download mock server docker entrypoint artifact
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: mock-server-docker-entrypoint
           path: packages/mock-server/docker/dist/
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@v1.9.0
+        uses: useblacksmith/setup-docker-builder@v2.4.0
         with:
+          cache-key: ${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.head_ref || github.ref_name }}-mock-server-publish
           platforms: |
             linux/amd64
             linux/arm64
 
       - name: Log in to DockerHub with OIDC
-        uses: docker/login-action@v4.5.0
+        uses: docker/login-action@v4.8.0
         env:
           DOCKERHUB_OIDC_CONNECTIONID: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
         with:
           username: scalarapi
 
       - name: Build and Push Docker image
-        uses: useblacksmith/build-push-action@v2.2.0
+        uses: useblacksmith/build-push-action@v2.3.0
         with:
           context: packages/mock-server/docker
           file: packages/mock-server/docker/Dockerfile
@@ -193,7 +195,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Git Status
         run: git status
@@ -207,7 +209,7 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: scalar-js
           path: integrations/dotnet/aspnetcore/src/Scalar.AspNetCore/StaticAssets
@@ -217,7 +219,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js scalar.aspnetcore.js favicon.svg
 
       - name: Cache NuGet packages
-        uses: actions/cache@v5.1.0
+        uses: actions/cache@v6.1.0
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
@@ -239,7 +241,7 @@ jobs:
           dotnet pack src/Scalar.AspNetCore.Swashbuckle -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
       - name: Upload NuGet packages
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: aspnetcore-nuget
           path: integrations/dotnet/aspnetcore/nupkgs
@@ -260,7 +262,7 @@ jobs:
       id-token: write
     steps:
       - name: Download NuGet packages
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: aspnetcore-nuget
           path: nupkgs
@@ -293,7 +295,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Get version from package.json
         id: package-version
@@ -301,30 +303,31 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: scalar-js
           path: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
 
       - name: Log in to DockerHub with OIDC
-        uses: docker/login-action@v4.5.0
+        uses: docker/login-action@v4.8.0
         env:
           DOCKERHUB_OIDC_CONNECTIONID: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
         with:
           username: scalarapi
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3.6.0
+        uses: docker/setup-qemu-action@v4.4.0
 
       - name: Setup Docker Builder
-        uses: useblacksmith/setup-docker-builder@v1.9.0
+        uses: useblacksmith/setup-docker-builder@v2.4.0
         with:
+          cache-key: ${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.head_ref || github.ref_name }}-aspire-publish
           platforms: |
             linux/amd64
             linux/arm64
 
       - name: Build and push Aspire Docker image
-        uses: useblacksmith/build-push-action@v2.2.0
+        uses: useblacksmith/build-push-action@v2.3.0
         with:
           context: integrations/dotnet
           file: integrations/dotnet/aspire/src/Scalar.Aspire.Service/Dockerfile
@@ -352,7 +355,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Git Status
         run: git status
@@ -373,7 +376,7 @@ jobs:
           cat src/Scalar.Aspire/Constants.cs
 
       - name: Cache NuGet packages
-        uses: actions/cache@v5.1.0
+        uses: actions/cache@v6.1.0
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
@@ -392,7 +395,7 @@ jobs:
         run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
       - name: Upload NuGet packages
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: aspire-nuget
           path: integrations/dotnet/aspire/src/Scalar.Aspire/nupkgs
@@ -413,7 +416,7 @@ jobs:
       id-token: write
     steps:
       - name: Download NuGet packages
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: aspire-nuget
           path: nupkgs
@@ -441,7 +444,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Git Status
         run: git status
@@ -455,7 +458,7 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: scalar-js
           path: integrations/dotnet/azure-functions/src/Scalar.Azure.Functions/StaticAssets
@@ -465,7 +468,7 @@ jobs:
         run: gzip --keep --verbose --force scalar.js scalar.azure.functions.js favicon.svg
 
       - name: Cache NuGet packages
-        uses: actions/cache@v5.1.0
+        uses: actions/cache@v6.1.0
         with:
           key: ${{ github.repository }}-nuget-${{ hashFiles('integrations/dotnet/**/*.csproj', 'integrations/dotnet/**/Directory.Packages.props') }}
           path: ${{ env.NUGET_PACKAGES }}
@@ -484,7 +487,7 @@ jobs:
         run: dotnet pack src/Scalar.Azure.Functions -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
       - name: Upload NuGet packages
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: azure-functions-nuget
           path: integrations/dotnet/azure-functions/nupkgs
@@ -505,7 +508,7 @@ jobs:
       id-token: write
     steps:
       - name: Download NuGet packages
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: azure-functions-nuget
           path: nupkgs
@@ -537,22 +540,22 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
 
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: scalar-js
           path: integrations/rust/ui
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
         with:
           toolchain: stable
           components: rustfmt, clippy
 
       - name: Cache cargo registry
-        uses: actions/cache@v5.1.0
+        uses: actions/cache@v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -592,24 +595,24 @@ jobs:
       contents: read
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Download scalar.js artifact
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: scalar-js
           path: integrations/java/scalar-core/src/main/resources/META-INF/resources/webjars/scalar
       - name: Setup Java
-        uses: actions/setup-java@v5.4.0
+        uses: actions/setup-java@v6.3.0
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
           cache-dependency-path: '**/java/pom.xml'
           server-id: 'central'
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
+          server-username-env-var: MAVEN_USERNAME
+          server-password-env-var: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: GPG_PASSPHRASE
+          gpg-passphrase-env-var: GPG_PASSPHRASE
 
       - name: Get version from package.json
         id: package-version

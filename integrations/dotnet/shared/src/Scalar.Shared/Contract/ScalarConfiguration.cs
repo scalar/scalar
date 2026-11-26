@@ -22,6 +22,8 @@ internal sealed class ScalarConfiguration
 
     public required string[]? ShowExtensions { get; init; }
 
+    public required ScalarMultipartNaming? MultipartNaming { get; init; }
+
     public required bool? HideModelNames { get; init; }
 
     public required int? MaxVisibleRequestBodyProperties { get; init; }
@@ -31,6 +33,8 @@ internal sealed class ScalarConfiguration
     public required bool? ExpandAllSchemaProperties { get; init; }
 
     public required bool? ShowSidebar { get; init; }
+
+    public required bool? ShowBadgesInSidebar { get; init; }
 
     public required OperationTitleSource? OperationTitleSource { get; init; }
 
@@ -54,7 +58,10 @@ internal sealed class ScalarConfiguration
 
     public required IDictionary<string, string>? MetaData { get; init; }
 
-    public required DefaultHttpClient? DefaultHttpClient { get; init; }
+    /// <remarks>A client ID or a legacy target/client pair.</remarks>
+    public required object? DefaultHttpClient { get; init; }
+
+    public required string[]? HttpClients { get; init; }
 
     public required string[]? FeaturedClients { get; init; }
 
@@ -121,6 +128,7 @@ internal sealed class ScalarConfiguration
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]
+[JsonSerializable(typeof(DefaultHttpClient))]
 [JsonSerializable(typeof(Dictionary<ScalarTarget, ScalarClient[]>))] // Type of hidden clients
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 internal sealed partial class ScalarConfigurationSerializerContext : JsonSerializerContext;

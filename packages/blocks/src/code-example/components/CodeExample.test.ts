@@ -553,6 +553,18 @@ describe('RequestExample', () => {
     })
   })
 
+  it('removes the generated example when all clients are removed', async () => {
+    const wrapper = mount(RequestExample, {
+      props: { ...defaultProps, selectedClient: 'js/fetch', fallback: false },
+    })
+    expect(wrapper.get('[data-testid="client-picker"]').text()).toBe('JavaScript Fetch API')
+
+    await wrapper.setProps({ clientOptions: [] })
+
+    expect(wrapper.find('[data-testid="client-picker"]').exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+  })
+
   describe('Client Selection', () => {
     it('emits update:selectedClient when client is changed', async () => {
       const wrapper = mount(RequestExample, {

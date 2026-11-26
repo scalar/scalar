@@ -1,8 +1,9 @@
 /**
- * The hosting waitlist on /products/api-hosting: an email and the framework it would run on, sent to the Loops form
- * behind the Deploy card in the API reference's developer tools. It uses the same `Hosting` user group, the same
- * messages and the same one-minute local rate limit as the card, so a sign-up in either place behaves alike, and Loops
- * keeps `framework` as a contact property of that name, as it does for the card.
+ * The hosting waitlist on /products/api-hosting and in the site's invitation popup (api-hosting-invite.js): an email
+ * and the framework it would run on, sent to the Loops form behind the Deploy card in the API reference's developer
+ * tools. It uses the same `Hosting` user group, the same messages and the same one-minute local rate limit as the
+ * card, so a sign-up in any of these places behaves alike, and Loops keeps `framework` as a contact property of that
+ * name, as it does for the card.
  *
  * The page is rendered on the server and hydration then replaces it, so the form is never bound to directly: listeners
  * on the document catch its events, whichever copy of the form is on the page.
@@ -82,10 +83,17 @@
     } else {
       write()
     }
-    // An error reads out with the field it is about, the next time the field is focused
+    // An error reads out with the field it is about, the next time the field is focused, alongside anything else
+    // that already describes the field
     if (email instanceof HTMLElement) {
+      const ids = new Set((email.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean))
       if (isError) {
-        email.setAttribute('aria-describedby', status.id)
+        ids.add(status.id)
+      } else {
+        ids.delete(status.id)
+      }
+      if (ids.size) {
+        email.setAttribute('aria-describedby', [...ids].join(' '))
       } else {
         email.removeAttribute('aria-describedby')
       }
@@ -113,6 +121,19 @@
   const fitAll = () => {
     for (const select of document.querySelectorAll(`${FORM} select`)) {
       fitSelect(select)
+    }
+  }
+  /* A form can arrive after this script has run: hydration swaps the page's copy, a page opened in the app brings its
+     own, and the site's invitation popup builds one. Each new dropdown is sized once, a frame after it appears. */
+  const fitted = new WeakSet()
+  let fitQueued = false
+  const fitNew = () => {
+    fitQueued = false
+    for (const select of document.querySelectorAll(`${FORM} select`)) {
+      if (!fitted.has(select)) {
+        fitted.add(select)
+        fitSelect(select)
+      }
     }
   }
 
@@ -158,6 +179,12 @@
       form.reset()
       form.classList.add('is-done')
       say(form, MESSAGES.success, false)
+      // Someone on the waitlist is not invited to it again by the site's popup
+      try {
+        localStorage.setItem('scalar-api-hosting-beta-prompt-seen', 'true')
+      } catch {
+        // The popup cannot remember having been seen either, so it stays away anyway
+      }
     } catch (error) {
       // Loops sits behind Cloudflare, which answers too many sign-ups with a blocked request
       if (error instanceof TypeError && /Failed to fetch|Load failed|NetworkError/.test(error.message)) {
@@ -208,7 +235,13 @@
   })
 
   if (!sizesItself) {
-    fitAll()
+    fitNew()
     window.addEventListener('load', fitAll)
+    new MutationObserver(() => {
+      if (!fitQueued) {
+        fitQueued = true
+        requestAnimationFrame(fitNew)
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true })
   }
 })()

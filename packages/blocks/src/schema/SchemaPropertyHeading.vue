@@ -3,6 +3,7 @@ import { ScalarTooltip } from '@scalar/components/tooltip'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
+import type { XBadge } from '@scalar/workspace-store/schemas/extensions/operation'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   isArraySchema,
@@ -38,6 +39,7 @@ import SchemaPropertyPattern from './SchemaPropertyPattern.vue'
 const props = withDefaults(
   defineProps<{
     value: SchemaObject | undefined
+    badges?: XBadge[]
     enum?: boolean
     isDiscriminator?: boolean
     /** Effective AsyncAPI variant value, separate from const/enum constraints. */
@@ -101,6 +103,21 @@ const presenceDescription = computed(() =>
 )
 
 const valueRef = toRef(props, 'value')
+const badgeClass = 'min-w-0 wrap-anywhere whitespace-normal'
+
+const positionedBadges = computed<
+  { before: XBadge[]; after: XBadge[] } | undefined
+>(() => {
+  const entries = props.badges
+  if (!entries) {
+    return undefined
+  }
+
+  return {
+    before: entries.filter((badge) => badge.position === 'before'),
+    after: entries.filter((badge) => badge.position !== 'before'),
+  }
+})
 
 const constValue = computed(() => {
   if (!valueRef.value) {
@@ -153,7 +170,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
   const properties: ValidationProperty[] = []
 
   if (isStringSchema(schema)) {
-    if (schema.minLength) {
+    if (isDefined(schema.minLength)) {
       properties.push({
         key: 'min-length',
         prefix: `${translate('schema.minLength')}: `,
@@ -161,7 +178,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
       })
     }
 
-    if (schema.maxLength) {
+    if (isDefined(schema.maxLength)) {
       properties.push({
         key: 'max-length',
         prefix: `${translate('schema.maxLength')}: `,
@@ -235,10 +252,10 @@ const validationProperties = computed(() => {
 
   // Array validation properties
   if (isArraySchema(schema)) {
-    if (schema.minItems || schema.maxItems) {
+    if (isDefined(schema.minItems) || isDefined(schema.maxItems)) {
       properties.push({
         key: 'array-range',
-        value: `${schema.minItems || ''}…${schema.maxItems || ''}`,
+        value: `${schema.minItems ?? ''}…${schema.maxItems ?? ''}`,
       })
     }
 
@@ -426,6 +443,13 @@ const patternValue = computed(() => {
          collapsed preview and the trailing copy-link are spans as well, so it
          would strip the margin from the final detail and glue "Addressrequired"
          together on a collapsed row. -->
+    <Badge
+      v-for="(badge, index) in positionedBadges?.before"
+      :key="index"
+      :class="badgeClass"
+      :color="badge.color">
+      {{ badge.name }}
+    </Badge>
     <div
       v-if="$slots.name"
       class="property-name"
@@ -587,6 +611,13 @@ const patternValue = computed(() => {
       class="property-deprecated">
       <Badge>{{ translate('schema.deprecated') }}</Badge>
     </div>
+    <Badge
+      v-for="(badge, index) in positionedBadges?.after"
+      :key="index"
+      :class="badgeClass"
+      :color="badge.color">
+      {{ badge.name }}
+    </Badge>
     <span
       v-if="discriminatorValue !== undefined"
       class="text-c-2">

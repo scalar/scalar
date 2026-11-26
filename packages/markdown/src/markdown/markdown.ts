@@ -10,12 +10,11 @@ import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import remarkStringify from 'remark-stringify'
-import { unified } from 'unified'
+import { type Plugin, unified } from 'unified'
 import { SKIP, visit } from 'unist-util-visit'
 import type { VFile } from 'vfile'
 
 import { rehypeAlert } from '../rehype-alert'
-import { rehypeHighlight } from '../rehype-highlight'
 
 type Options = {
   transform?: (node: Node) => Node
@@ -145,7 +144,12 @@ type HtmlFromMarkdownOptions = {
 /**
  * Build the markdown to HTML pipeline.
  */
-const createProcessor = (tagNames: string[], transform: Options['transform'], transformType: string | undefined) =>
+const createProcessor = (
+  tagNames: string[],
+  transform: Options['transform'],
+  transformType: string | undefined,
+  highlight: Plugin<[], HastRoot>,
+) =>
   unified()
     // Parses markdown
     .use(remarkParse)
@@ -180,27 +184,13 @@ const createProcessor = (tagNames: string[], transform: Options['transform'], tr
       strip: ['script', 'style', 'object', 'embed', 'form'],
     })
     // Syntax highlighting
-    .use(rehypeHighlight, {
-      // Adds Scalar's custom scrollbar styling to highlighted code blocks
-      className: 'custom-scroll',
-    })
+    .use(highlight)
     // Adds target="_blank" to external links
     .use(rehypeExternalLinks, { target: '_blank' })
     // Formats the HTML
     .use(rehypeFormat)
     // Converts the HTML AST to a string
     .use(rehypeStringify)
-
-/**
- * Frozen pipelines keyed by the options that shape them.
- *
- * Every plugin in the chain is stateless once attached, so a pipeline can be
- * frozen and reused for every call that shares the same options. This matters
- * because API references render one description per schema row, and building
- * the pipeline used to cost far more than running it. Calls with a `transform`
- * callback are not cached, because that closure belongs to the caller.
- */
-const processorCache = new Map<string, ReturnType<typeof createProcessor>>()
 
 /**
  * Matches strings that CommonMark, GFM and this pipeline all render as a single plain paragraph.
@@ -231,45 +221,56 @@ const PLAIN_PARAGRAPH =
   /^(?![-+=]|\d{1,9}[.)](?:\s|$))(?!.*(?: {2}|:\/|www\.|mailto:|xmpp:))[^\s\\`*_\[\]<>&#~|@\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff](?:[^\\`*_\[\]<>&#~|@\t\n\v\f\r\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff]*[^\s\\`*_\[\]<>&#~|@\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff])?$/i
 
 /**
- * Take a Markdown string and generate HTML from it
+ * Create a Markdown renderer with a syntax-highlighting plugin.
+ *
+ * Each renderer caches frozen processors for its highlighter. Calls with a
+ * transform callback get a fresh processor because the callback belongs to the caller.
  */
-export function htmlFromMarkdown(markdown: string, options?: HtmlFromMarkdownOptions): string {
-  // Add permitted tags and remove stripped ones
-  const removeTags = options?.removeTags ?? []
+export const createHtmlFromMarkdown = (
+  highlight: Plugin<[], HastRoot>,
+): ((markdown: string, options?: HtmlFromMarkdownOptions) => string) => {
+  const processorCache = new Map<string, ReturnType<typeof createProcessor>>()
 
-  // Plain text needs none of the pipeline, and the caller can only observe the
-  // returned string. A `transform` callback still has to see the AST, and a
-  // caller that removes `p` expects the paragraph to be stripped, so both keep
-  // the full pipeline.
-  if (!options?.transform && !removeTags.includes('p') && PLAIN_PARAGRAPH.test(markdown)) {
-    return `\n<p>${markdown}</p>\n`
-  }
+  return (markdown, options) => {
+    // Add permitted tags and remove stripped ones
+    const removeTags = options?.removeTags ?? []
 
-  const allowTags = options?.allowTags ?? []
-  const tagNames = [...(defaultSchema.tagNames ?? []), ...allowTags].filter((t) => !removeTags.includes(t))
+    // Plain text needs none of the pipeline, and the caller can only observe the
+    // returned string. A `transform` callback still has to see the AST, and a
+    // caller that removes `p` expects the paragraph to be stripped, so both keep
+    // the full pipeline.
+    if (!options?.transform && !removeTags.includes('p') && PLAIN_PARAGRAPH.test(markdown)) {
+      // Escape HTML text independently of which strings qualify for the shortcut.
+      const escaped = markdown.replace(/[&<]/g, (character) => (character === '&' ? '&amp;' : '&lt;'))
+      return `\n<p>${escaped}</p>\n`
+    }
 
-  if (options?.transform) {
-    return reportMissingLanguages(
-      createProcessor(tagNames, options.transform, options.transformType).processSync(markdown),
-      options.onMissingLanguage,
+    const allowTags = options?.allowTags ?? []
+    const tagNames = [...(defaultSchema.tagNames ?? []), ...allowTags].filter((t) => !removeTags.includes(t))
+
+    if (options?.transform) {
+      return reportMissingLanguages(
+        createProcessor(tagNames, options.transform, options.transformType, highlight).processSync(markdown),
+        options.onMissingLanguage,
+      )
+    }
+
+    const key = [[...removeTags].sort().join(','), [...allowTags].sort().join(','), options?.transformType ?? ''].join(
+      '|',
     )
+
+    let processor = processorCache.get(key)
+
+    if (!processor) {
+      processor = createProcessor(tagNames, undefined, options?.transformType, highlight).freeze()
+      processorCache.set(key, processor)
+    }
+
+    return reportMissingLanguages(processor.processSync(markdown), options?.onMissingLanguage)
   }
-
-  const key = [[...removeTags].sort().join(','), [...allowTags].sort().join(','), options?.transformType ?? ''].join(
-    '|',
-  )
-
-  let processor = processorCache.get(key)
-
-  if (!processor) {
-    processor = createProcessor(tagNames, undefined, options?.transformType).freeze()
-    processorCache.set(key, processor)
-  }
-
-  return reportMissingLanguages(processor.processSync(markdown), options?.onMissingLanguage)
 }
 
-/** Hands the languages `rehypeHighlight` could not highlight to the caller, and returns the HTML. */
+/** Hands the languages the highlighter could not highlight to the caller, and returns the HTML. */
 const reportMissingLanguages = (file: VFile, onMissingLanguage: ((lang: string) => void) | undefined): string => {
   for (const lang of file.data.missingLanguages ?? []) {
     onMissingLanguage?.(lang)

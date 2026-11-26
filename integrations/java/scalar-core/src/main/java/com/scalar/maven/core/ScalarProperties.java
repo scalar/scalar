@@ -67,6 +67,9 @@ public class ScalarProperties {
     /** The clients hidden from code sample selection. */
     private ScalarHiddenClients hiddenClients;
 
+    /** The built-in client IDs and target wildcards allowed in code sample pickers. */
+    private List<String> httpClients;
+
     /** The full client identifiers shown as tabs, in order. */
     private List<String> featuredClients;
 
@@ -75,6 +78,9 @@ public class ScalarProperties {
 
     /** The initial request body view: form or raw. */
     private ScalarRequestBodyView defaultRequestBodyView;
+
+    /** Naming convention for nested multipart form fields. */
+    private ScalarMultipartNaming multipartNaming;
 
     /** The maximum initially visible request body properties; zero shows all. */
     private Integer maxVisibleRequestBodyProperties;
@@ -125,7 +131,13 @@ public class ScalarProperties {
     private boolean showSidebar = true;
 
     /**
-     * Whether models (components.schemas or definitions) should be hidden from the
+     * Whether to show x-badges in the sidebar.
+     * Defaults to false.
+     */
+    private boolean showBadgesInSidebar = false;
+
+    /**
+     * Hide schema models and reusable AsyncAPI messages from the
      * sidebar, search, and content.
      * Defaults to false.
      */
@@ -221,8 +233,8 @@ public class ScalarProperties {
     private Map<String, String> metadata;
 
     /**
-     * Controls whether to use the default fonts (Inter and JetBrains Mono from
-     * CDN).
+     * Controls whether to use the default fonts. Scalar uses the system font
+     * stack and no longer loads web fonts, so this setting has no effect.
      * Defaults to true.
      */
     private boolean withDefaultFonts = true;
@@ -415,6 +427,14 @@ public class ScalarProperties {
 
     public void setPageTitle(String pageTitle) {
         this.pageTitle = pageTitle;
+    }
+
+    public boolean isShowBadgesInSidebar() {
+        return showBadgesInSidebar;
+    }
+
+    public void setShowBadgesInSidebar(boolean showBadgesInSidebar) {
+        this.showBadgesInSidebar = showBadgesInSidebar;
     }
 
     public boolean isShowSidebar() {
@@ -843,6 +863,14 @@ public class ScalarProperties {
         this.maxVisibleRequestBodyProperties = maxVisibleRequestBodyProperties;
     }
 
+    public ScalarMultipartNaming getMultipartNaming() {
+        return multipartNaming;
+    }
+
+    public void setMultipartNaming(ScalarMultipartNaming multipartNaming) {
+        this.multipartNaming = multipartNaming;
+    }
+
     /**
      * Gets the initial request body view: form or raw.
      *
@@ -895,6 +923,22 @@ public class ScalarProperties {
      */
     public void setFeaturedClients(List<String> featuredClients) {
         this.featuredClients = featuredClients;
+    }
+
+    /**
+     * Gets the built-in HTTP clients allowed in the code sample pickers.
+     * @return the configured client IDs and target wildcards, or null to use the default list
+     */
+    public List<String> getHttpClients() {
+        return httpClients;
+    }
+
+    /**
+     * Sets the HTTP client allowlist. An empty list hides all built-in clients.
+     * @param httpClients client IDs such as node/undici or target wildcards such as shell/*
+     */
+    public void setHttpClients(List<String> httpClients) {
+        this.httpClients = httpClients;
     }
 
     /**

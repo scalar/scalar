@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import 'fake-indexeddb/auto'
 
+import { createWorkspaceStore } from '@/client'
+
 import { createWorkspaceStorePersistence } from './index'
 
 const blankWorkspace = () => ({
@@ -92,6 +94,52 @@ describe('createWorkspaceStorePersistence', { concurrent: false }, () => {
       expect(fetched?.name).toBe('API Workspace')
       expect(fetched?.workspace.meta).toEqual({ 'x-scalar-color-mode': 'dark' })
       expect(fetched?.workspace.documents['doc-1']).toBeDefined()
+    })
+
+    it.each(['constructor', 'prototype'])('hydrates a persisted workspace with a document named %s', async (name) => {
+      const workspaceUid = newUid()
+      const document = {
+        openapi: '3.1.0' as const,
+        info: { title: 'Workspace API', version: '1.0.0' },
+        paths: {},
+        'x-scalar-original-document-hash': 'hash',
+      }
+      const secret = {
+        type: 'http',
+        'x-scalar-secret-token': 'token',
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-password': '',
+      } as const
+
+      await persistence.workspace.setItem(
+        { workspaceUid, slug: 'api' },
+        {
+          name: 'API Workspace',
+          workspace: {
+            ...blankWorkspace(),
+            meta: { 'x-scalar-active-document': name },
+            documents: { [name]: document },
+            originalDocuments: { [name]: document },
+            intermediateDocuments: { [name]: document },
+            overrides: { [name]: {} },
+            history: { [name]: { '/users': { get: [] } } },
+            auth: { [name]: { secrets: { bearer: secret }, selected: {} } },
+          },
+        },
+      )
+
+      const stored = await persistence.workspace.getItemBySlug({ slug: 'api' })
+      if (!stored) {
+        throw new Error('Expected the workspace to be persisted')
+      }
+      const store = createWorkspaceStore()
+      store.loadWorkspace(stored.workspace)
+
+      expect(store.workspace.activeDocument?.info.title).toBe('Workspace API')
+      expect(store.getOriginalDocument(name)).toStrictEqual(document)
+      expect(store.getIntermediateDocument(name)).toStrictEqual(document)
+      expect(store.history.getHistory(name, '/users', 'get')).toStrictEqual([])
+      expect(store.auth.getAuthSecrets(name, 'bearer')).toStrictEqual(secret)
     })
 
     it('returns undefined for a missing workspace', async () => {

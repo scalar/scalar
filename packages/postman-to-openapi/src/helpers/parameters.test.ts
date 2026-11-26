@@ -320,6 +320,30 @@ describe('parameters', () => {
       expect(result).toHaveLength(1)
       expect(result[0]?.name).toBe('userId')
     })
+
+    it('keeps parameters that share a name in different locations', () => {
+      const request: Request = {
+        method: 'GET',
+        header: [{ key: 'version', value: '2' }],
+        url: {
+          raw: 'https://example.com/users/:id?id=7&version=1',
+          query: [
+            { key: 'id', value: '7' },
+            { key: 'version', value: '1' },
+          ],
+          variable: [{ key: 'id', value: '5' }],
+        },
+      }
+
+      const result = extractParameters(request, 'default')
+
+      expect(result.map(({ in: location, name }) => `${location}:${name}`)).toStrictEqual([
+        'query:id',
+        'query:version',
+        'path:id',
+        'header:version',
+      ])
+    })
   })
 
   describe('createParameterObject', () => {

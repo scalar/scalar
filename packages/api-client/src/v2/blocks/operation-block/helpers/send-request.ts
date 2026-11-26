@@ -17,7 +17,11 @@ import {
 } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
 import { getResponseStreamFormat } from '@/v2/blocks/response-block/helpers/response-stream'
 
+import { canResponseHaveBody } from './can-response-have-body'
 import { decodeBuffer } from './decode-buffer'
+
+/** Whether the buffered response contains bytes, is empty, or has no available body. */
+export type ResponseBodyState = 'present' | 'empty' | 'unavailable'
 
 /** A single set of populated values for a sent request */
 export type ResponseInstance = Omit<Response, 'headers'> & {
@@ -41,15 +45,14 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
         data: string | Blob
         /** The response size in bytes */
         size: number
+        /** Whether the body is available, including when its size is zero. */
+        bodyState?: ResponseBodyState
       }
     | {
         /** A stream reader for a streamable response body */
         reader: ReadableStreamDefaultReader<Uint8Array>
       }
   )
-
-/** HTTP status codes that should not include a response body */
-const NO_BODY_STATUS_CODES = [204, 205, 304]
 
 /** Custom fetch function signature compatible with the global fetch API */
 export type CustomFetch = typeof fetch
@@ -125,14 +128,15 @@ export const sendRequest = async ({
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
     const method = (requestPayload[1].method ?? 'GET') as string
-    const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
+    // A custom fetch can return a null body even for a 200. Treat it as unavailable.
+    const hasBody = canResponseHaveBody(method, response.status) && Boolean(response.body)
 
     /**
      * Handle sequential response formats without buffering the complete body.
      * These responses need a reader instead of buffered data.
      * We check this early to avoid unnecessary body reading.
      */
-    if (!shouldSkipBody && contentType && getResponseStreamFormat(contentType) && response.body) {
+    if (hasBody && contentType && getResponseStreamFormat(contentType)) {
       return buildStreamingResponse({
         response,
         requestPayload,
@@ -147,6 +151,7 @@ export const sendRequest = async ({
 
     return await buildStandardResponse({
       response,
+      hasBody,
       requestPayload,
       timestamp,
       duration,
@@ -170,11 +175,8 @@ export const sendRequest = async ({
  * Returns an array of serialized cookie strings, or null if no cookies were found.
  */
 const getCustomCookie = (response: Response): string[] | null => {
-  const result = parseSetCookie(response.headers.get(X_SCALAR_SET_COOKIE) ?? '').map((c) =>
-    serializeCookie(c.name, c.value, {
-      ...c,
-      sameSite: c.sameSite as boolean | 'lax' | 'strict' | 'none' | undefined,
-    }),
+  const result = parseSetCookie(response.headers.get(X_SCALAR_SET_COOKIE) ?? '').map((cookie) =>
+    serializeCookie(cookie.name, cookie.value, cookie),
   )
 
   if (result.length) {
@@ -268,6 +270,7 @@ const buildStreamingResponse = ({
  */
 const buildStandardResponse = async ({
   response,
+  hasBody,
   requestPayload,
   timestamp,
   duration,
@@ -279,6 +282,7 @@ const buildStandardResponse = async ({
   plugins,
 }: {
   response: Response
+  hasBody: boolean
   requestPayload: RequestPayload
   timestamp: number
   duration: number
@@ -302,6 +306,7 @@ const buildStandardResponse = async ({
    * it with `new Response`, which rejects statuses outside [200, 599].
    */
   const arrayBuffer = await response.clone().arrayBuffer()
+  const bufferedBodyState = arrayBuffer.byteLength === 0 ? 'empty' : 'present'
   const responseType = resolveResponseContentType(contentType)
   const mimeEssence = resolveResponseMimeType(contentType).essence
   const pluginHandler = resolveResponseBodyHandler(mimeEssence, plugins)
@@ -323,6 +328,7 @@ const buildStandardResponse = async ({
         cookieHeaderKeys,
         data: responseData,
         size: arrayBuffer.byteLength,
+        bodyState: hasBody ? bufferedBodyState : 'unavailable',
         duration,
         method,
         path: fullPath,

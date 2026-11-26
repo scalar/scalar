@@ -1,5 +1,31 @@
 # @scalar/server-side-rendering
 
+## 0.1.77
+
+No changes in this release.
+
+## 0.1.76
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 0.1.75
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
+## 0.1.74
+
+No changes in this release.
+
+## 0.1.73
+
+No changes in this release.
+
 ## 0.1.72
 
 ### Patch Changes

@@ -1,5 +1,29 @@
 # @scalar/asyncapi-to-markdown
 
+## 0.2.16
+
+No changes in this release.
+
+## 0.2.15
+
+No changes in this release.
+
+## 0.2.14
+
+No changes in this release.
+
+## 0.2.13
+
+No changes in this release.
+
+## 0.2.12
+
+### Patch Changes
+
+- [#11124](https://github.com/scalar/scalar/pull/11124): Share one copy of the Markdown parser stack
+
+  `@scalar/markdown` adds `parseMarkdown`, `mdastFromHtml` and `createMarkdownSerializer`. `@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown` use them instead of importing `unified`, `remark-*` and `rehype-*` themselves. `@scalar/markdown` bundles that stack, so a bundle that included both used to carry two copies of parse5, micromark and the mdast/hast utilities; the API Reference standalone build is about 330 KB smaller, 99 KB gzipped. Sharing the stack does not change the Markdown either package produces.
+
 ## 0.2.11
 
 ### Patch Changes

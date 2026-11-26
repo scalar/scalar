@@ -6,6 +6,8 @@ pages outside this reference resolve.
 -->
 # CLI
 
+**Minimum version:** Node.js 20 or newer for the npm package. The standalone binaries bundle their own runtime and need nothing installed.
+
 Add `cli` under `targets` to generate a command-line client.
 
 ```json
@@ -45,6 +47,10 @@ Add `cli` under `targets` to generate a command-line client.
 
 Setting up publishing: [CLI publishing guide](../publishing/cli.md). How releases are cut: [Publishing](../publishing/overview.md).
 
+Commands of your own beside the generated ones (experimental): [CLI Commands](../custom-code/cli.md).
+
+Explanations and examples for every output format: [CLI Output Formats](../cli-output.md).
+
 ## binaryName
 
 **Type:** `string`
@@ -74,8 +80,9 @@ Primary repository this target's generated output is published to. Setting it tu
 | Property | Description |
 | --- | --- |
 | `repo`* | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
-| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the `scalar-generated` branch and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
+| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the generated branch (`generatedBranch`, `scalar-generated` by default) and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
 | `integrationBranch` | Branch where generated output is combined with your custom code; defaults to `scalar-next`. Commit customizations here: each regeneration is merged into it, release pull requests are opened from it, and each released version is synced back to it. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or collide with the branches Scalar and release-please manage, such as `scalar-generated`. |
+| `generatedBranch` | Branch Scalar pushes pristine generator output to before merging it into the integration branch; defaults to `scalar-generated`. Never commit here: every build replaces its contents. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or the integration branch, or collide with the other branches Scalar and release-please manage, such as `scalar-next` and `scalar-merge-conflict`. |
 
 ## publish
 
@@ -269,13 +276,13 @@ Package manager the generated GitHub workflows install dependencies and build wi
 
 **Type:** `string`
 
-Default `--format` for generated commands: `auto`, `json`, `jsonl`, `pretty`, `raw`, `toon`, or `yaml`. Any other value falls back to `auto`.
+Default `--format` for generated commands: `auto`, `json`, `jsonl`, `pretty`, `raw`, `toon`, or `yaml`. Defaults to `auto`, which prints JSON indented with two spaces, in terminals and pipes alike. `--format` overrides it for one invocation. Any unsupported value falls back to `auto`.
 
 ## defaultErrorFormat
 
 **Type:** `string`
 
-Default output format for errors from generated commands: `auto`, `json`, `jsonl`, `pretty`, `raw`, `toon`, or `yaml`. Any other value falls back to `auto`.
+Default `--format-error` for generated commands: `auto`, `json`, `jsonl`, `pretty`, `raw`, `toon`, or `yaml`. Defaults to `auto`, which prints indented JSON to stderr, colored red when coloring is enabled. Error `pretty` uses the same presentation, not a table or card. `--format-error` overrides it for one invocation. Any unsupported value falls back to `auto`.
 
 ## shellCompletions
 
@@ -400,6 +407,40 @@ When set, a browser sign-in requires the redirect back to the CLI to carry this 
 OpenID Connect sign-ins verify the issuer from the discovery document even without this setting, and check that an ID token names it, is issued to this `clientId`, is unexpired, and echoes the sign-in's `nonce`. The ID token's signature is not checked, since it comes straight from the token endpoint over TLS, which OpenID Connect Core section 3.1.3.7 allows.
 
 **Constraints:** `pattern: ^(https://[^\s/?#@]+|http://(localhost|127\.0\.0\.1|\[::1\])(:[0-9]+)?)(/[^\s?#]*)?$`
+
+## customCode
+
+**Type:** `object`
+
+Experimental: may change in a later release. Custom code for the generated CLI: one TypeScript file that adds commands beside the generated ones, plus the npm packages it imports. The file exports `generateCommands(cli, runtime)`, which the CLI calls once its own commands are registered; commands, hooks and their handler files are code, not config.
+
+By default the file lives in a `custom/` folder at the root of the CLI repository, beside the generated `src/`, and the generator never writes to that folder. Set `dir` to keep it in a folder beside this config instead, which the generator then copies into the CLI repository.
+
+Example: `{ "implementation": "commands/index.ts", "dependencies": { "@scalar/openapi-validator": "^0.2.0" } }`.
+
+### implementation
+
+**Type:** `string`
+
+**Required**
+
+The one custom-code file, relative to the custom folder (`custom/` at the CLI repository root, or `dir`), with forward slashes. It must end in `.ts`, stay inside the folder, not be a test or declaration file, avoid the folder names `.git`, `node_modules`, `dist`, `src` and `.scalar`, and export `generateCommands`. A file that is missing when the CLI is generated fails generation with `CliCustomCode/MissingFile`, naming the `custom-code add cli` command that writes one. Example: `"commands/index.ts"`.
+
+**Constraints:** `pattern: ^(?![/\\])(?![A-Za-z]:)(?![\s\S]*\\)(?!(?:[\s\S]*/)?\.\.?(?:/|$))(?![\s\S]*//)(?![\s\S]*/$)(?!(?:[\s\S]*/)?(?:\.git|node_modules|dist|src|\.scalar)(?:/|$))(?!(?:[\s\S]*/)?__tests__/)(?![\s\S]*\.(?:test|spec|d)\.ts$)[^\u0000-\u001f\u007f\u2028\u2029]*\.ts$`, `minLength: 4`, `maxLength: 512`
+
+### dependencies
+
+**Type:** `Record<string, string>`
+
+npm packages the custom code imports, by package name, each with a version constraint. They are merged into the generated `package.json`; a package the custom code imports without declaring it here is not installed, so the CLI's type check fails. Names must be valid npm package names, and constraints may use only digits, letters, `.`, `-`, `+`, `^`, `~`, `<`, `>`, `=`, `|`, `*` and spaces, with no space at either end, so a git URL, a path (one starting with `.`) or a tarball (one ending in `.tgz`, `.tar` or `.tar.gz`, or in `.tar` and `gz` around any one character, which package managers read the same way) is refused. A package the generated CLI already depends on (`commander`, `ansis`, `yaml`, `typescript`, `@types/node`, and `ws` and `@types/ws` in a CLI that uses WebSockets) is refused too, because the generator owns its version. Example: `{ "@scalar/openapi-validator": "^0.2.0" }`.
+
+### dir
+
+**Type:** `string`
+
+Keeps the custom folder beside this config instead of in the CLI repository: a path relative to the config file's directory, with forward slashes and no `.`, `..`, empty or trailing segment, that stays inside it and is not under `.git` or `node_modules`. The generator copies the folder into the CLI repository's `custom/` file for file, so relative imports resolve the same way in both, and records a hash of each copied file in the manifest. A CLI repository that also has its own `custom/` folder fails generation, since a target uses one layout. Example: `"cli-custom"`.
+
+**Constraints:** `pattern: ^(?![/\\])(?![A-Za-z]:)(?![\s\S]*\\)(?!(?:[\s\S]*/)?\.\.?(?:/|$))(?![\s\S]*//)(?![\s\S]*/$)(?!(?:[\s\S]*/)?(?:\.git|node_modules)(?:/|$))[^\u0000-\u001f\u007f\u2028\u2029]+$`, `minLength: 1`, `maxLength: 512`
 
 ## prereleaseType
 

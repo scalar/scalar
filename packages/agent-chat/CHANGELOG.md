@@ -1,5 +1,40 @@
 # @scalar/agent-chat
 
+## 0.12.60
+
+### Patch Changes
+
+- [#11252](https://github.com/scalar/scalar/pull/11252): Preserve semicolons, escaped quotes, and literal percent sequences in quoted response download filenames. Support case-insensitive extended filename parameters with language tags and normalize the suggested filename in API Client and Agent Chat.
+
+## 0.12.59
+
+### Patch Changes
+
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 0.12.58
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+- [#11145](https://github.com/scalar/scalar/pull/11145): Prevent CSP eval violation reports when loading OAuth authentication and AI Chat by configuring Zod before schemas are constructed.
+
+  This disables JIT compilation for the shared Zod instance, so applications using that same instance may also see slower object parsing.
+
+## 0.12.57
+
+No changes in this release.
+
+## 0.12.56
+
+### Patch Changes
+
+- [#11103](https://github.com/scalar/scalar/pull/11103): Support `x-scalar-token-prefix` on header API keys. Generated code examples and outgoing requests add the configured prefix while stored credentials remain unchanged.
+- [#10854](https://github.com/scalar/scalar/pull/10854): Send the selected API source and version as structured chat request metadata, keeping user messages unchanged.
+
 ## 0.12.55
 
 ### Patch Changes

@@ -99,6 +99,10 @@
         "@scalar/api-reference"
       ]
     },
+    "tooling/scripts": {
+      // The Docker workflow streams the smoke test into the candidate image.
+      "entry": ["src/commands/playwright-docker/smoke-test.ts"]
+    },
     "tooling/changelog-generator": {
       "entry": ["src/index.ts", "src/version.ts"]
     },
@@ -246,6 +250,7 @@
     },
     "packages/json-magic": {
       "entry": [
+        "src/document/index.ts",
         "src/bundle/index.ts",
         "src/magic-proxy/index.ts",
         "src/join/index.ts",
@@ -364,7 +369,8 @@
         "src/useBindCx/index.ts",
         "src/useBreakpoints/index.ts",
         "src/useClipboard/index.ts",
-        "src/useColorMode/index.ts"
+        "src/useColorMode/index.ts",
+        "src/useDocumentRoot/index.ts"
       ]
     },
     "packages/workspace-store": {
@@ -391,7 +397,7 @@
         "./src/schemas/v3.2/strict/openapi-document.ts",
         "./src/schemas/v3.2/strict/type-guards.ts",
         "./src/server.ts",
-        "./src/resolve.ts"
+        "./src/resolve/index.ts"
       ]
     },
     "packages/pre-post-request-scripts": {

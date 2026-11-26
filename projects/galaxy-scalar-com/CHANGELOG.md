@@ -1,5 +1,17 @@
 # galaxy-scalar-com
 
+## 0.2.32
+
+### Patch Changes
+
+- [#11218](https://github.com/scalar/scalar/pull/11218): Load the processed Scalar Galaxy OpenAPI document from the Scalar Registry so the production API reference shows SDK installation instructions and examples.
+
+## 0.2.31
+
+### Patch Changes
+
+- [#9778](https://github.com/scalar/scalar/pull/9778): Initialize Galaxy mock servers on the first request to keep Cloudflare Worker startup within its CPU limit.
+
 ## 0.2.30
 
 ### Patch Changes

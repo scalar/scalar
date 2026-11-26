@@ -1,5 +1,21 @@
 # @scalar/localization
 
+## 0.2.17
+
+No changes in this release.
+
+## 0.2.16
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 0.2.15
+
+No changes in this release.
+
 ## 0.2.14
 
 ### Patch Changes

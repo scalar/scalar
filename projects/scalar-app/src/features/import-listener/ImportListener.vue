@@ -11,6 +11,7 @@ import {
 import type { InMemoryWorkspace } from '@scalar/workspace-store/schemas/inmemory-workspace'
 import { onMounted, ref } from 'vue'
 
+import { holdApiHostingBetaPrompt } from '@/features/api-hosting-beta'
 import { loadDocumentFromSource } from '@/features/import-listener/helpers/load-document-from-source'
 import {
   type CreateWorkspacePayload,
@@ -149,6 +150,9 @@ const directImport = async (
  * If conditions allow, directly imports the document. Otherwise, shows the import modal.
  */
 const handleInput = async (importEventData: ImportEventData): Promise<void> => {
+  // An import is the user starting something, so the hosting beta popup stays out of its way
+  holdApiHostingBetaPrompt()
+
   // Wait for the workspace store to be ready
   const isWorkspaceStoreReady = await waitForCondition(
     () => workspaceStore !== null,

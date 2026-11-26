@@ -4,8 +4,8 @@ import { resolve } from 'node:path'
 import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
-import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
-import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { type LoaderPlugin, bundle, extensions as bundleExtensions } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
@@ -698,11 +698,6 @@ export async function createServerWorkspaceStore(
   ) => {
     const { name, ...documentMeta } = meta
 
-    // The name is caller-supplied and used as a computed key on both `workspace.documents` and
-    // `assets`, so a name like `__proto__` would write straight onto Object.prototype. Rejected
-    // here rather than filtered, and `addDocument` turns the throw into a skipped document.
-    preventPollution(name, 'server workspace document name')
-
     // AsyncAPI documents get their own ingestion path, mirroring the client store. The OpenAPI
     // upgrade and coerce steps would strip `channels` and `operations`, inject an empty
     // `openapi: ''` that breaks the type discriminator, and add an empty `paths` object.
@@ -817,6 +812,12 @@ export async function createServerWorkspaceStore(
    * @param input - The document input containing the document source and metadata
    */
   const addDocument: ServerWorkspaceStore['addDocument'] = async (input, navigationOptions) => {
+    // The document name is used as a key on plain maps.
+    if (input.name === '__proto__') {
+      console.warn(`Invalid server workspace document name: "${input.name}"`)
+      return
+    }
+
     // Captured so a failed add restores exactly what was there. The assets are written partway
     // through, and several steps throw before that point, so clearing the key outright would strip
     // a working document's chunks whenever a name is reused — leaving the workspace pointing at
@@ -826,7 +827,7 @@ export async function createServerWorkspaceStore(
     // both capture the pre-state and the failing one could put back what the other just replaced.
     // Adds are not serialized per name: concurrent adds sharing a name are already last-write-wins,
     // and callers are expected to await one before starting another.
-    const assetsBeforeAdd = assets[input.name]
+    const assetsBeforeAdd = getOwnEntry(assets, input.name)
 
     try {
       const document = await loadDocument(input, workspaceProps.documentLoading)
@@ -880,7 +881,7 @@ export async function createServerWorkspaceStore(
       }
       addDocumentSync(
         data,
-        { name: input.name, ...(origin ? { 'x-scalar-original-source-url': origin } : {}), ...input.meta },
+        { ...(origin ? { 'x-scalar-original-source-url': origin } : {}), ...input.meta, name: input.name },
         navigationOptions,
       )
     } catch (error) {
@@ -967,7 +968,7 @@ export async function createServerWorkspaceStore(
     getWorkspace: () => {
       return workspace
     },
-    getResolvedDocument: (name) => resolvedDocuments[name],
+    getResolvedDocument: (name) => getOwnEntry(resolvedDocuments, name),
     get: (pointer: string) => {
       const pointerPath = (() => {
         if (pointer.startsWith('#')) {
@@ -1007,7 +1008,10 @@ export async function createServerWorkspaceStore(
             ).map((segment, index) =>
               segments[1] === 'components' && index >= 3 ? segment : escapeJsonPointer(segment),
             )
-      return getValueAtPath(assets, path)
+      return path.reduce<unknown>(
+        (value, segment) => (isObjectLike(value) ? getOwnEntry(value, segment) : undefined),
+        assets,
+      )
     },
     addDocument,
   }

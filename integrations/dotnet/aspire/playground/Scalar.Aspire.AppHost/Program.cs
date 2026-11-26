@@ -1,4 +1,3 @@
-using Projects;
 using Scalar.Aspire;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -10,7 +9,7 @@ var userService = builder
     .WithHttpEndpoint(env: "PORT")
     .PublishAsDockerFile();
 
-var bookService = builder.AddProject<Scalar_Aspire_BookService>("book-service");
+var bookService = builder.AddDotnetProject("book-service", "../Scalar.Aspire.BookService/Scalar.Aspire.BookService.csproj");
 
 var keycloak = builder
     .AddKeycloak("keycloak", 8080)

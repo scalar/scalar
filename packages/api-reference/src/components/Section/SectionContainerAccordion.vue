@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIconCaretRight } from '@scalar/icons'
-import { useId } from 'vue'
+import { computed, useId } from 'vue'
 
-defineProps<{
+const { id } = defineProps<{
+  id?: string
   modelValue: boolean
 }>()
 
@@ -18,14 +18,19 @@ defineSlots<{
   actions?: () => unknown
 }>()
 
+const instanceId = useId()
+const disclosureId = computed(
+  () => `~accordion/${encodeURIComponent(id ?? '')}/${instanceId}`,
+)
 /** Names the toggle after the title, which renders over the button rather than inside it. */
-const titleId = useId()
+const titleId = computed(() => `${disclosureId.value}/title`)
+const panelId = computed(() => `${disclosureId.value}/panel`)
 </script>
 <template>
-  <section class="section-accordion-wrapper">
-    <Disclosure
-      as="div"
-      class="section-accordion">
+  <section
+    :id="id"
+    class="section-accordion-wrapper">
+    <div class="section-accordion">
       <!-- Preserve the original header formatting context when no actions are supplied. -->
       <div
         :class="
@@ -42,14 +47,17 @@ const titleId = useId()
         <div
           class="section-accordion-header group/heading"
           :class="{ 'min-w-0 flex-1': $slots.actions }">
-          <DisclosureButton
+          <button
+            :aria-controls="modelValue ? panelId : undefined"
+            :aria-expanded="modelValue"
             :aria-labelledby="titleId"
             class="section-accordion-button"
+            type="button"
             @click="emit('update:modelValue', !modelValue)">
             <ScalarIconCaretRight
               class="section-accordion-chevron size-5 transition-transform"
               :class="{ 'rotate-90': modelValue }" />
-          </DisclosureButton>
+          </button>
           <div
             :id="titleId"
             class="section-accordion-title">
@@ -62,13 +70,13 @@ const titleId = useId()
           <slot name="actions" />
         </div>
       </div>
-      <DisclosurePanel
+      <div
         v-if="modelValue"
-        class="section-accordion-content"
-        static>
+        :id="panelId"
+        class="section-accordion-content">
         <slot />
-      </DisclosurePanel>
-    </Disclosure>
+      </div>
+    </div>
   </section>
 </template>
 <style scoped>

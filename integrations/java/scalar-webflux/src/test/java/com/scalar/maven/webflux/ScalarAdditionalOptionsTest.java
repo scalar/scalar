@@ -24,6 +24,16 @@ class ScalarAdditionalOptionsTest {
     }
 
     @Test
+    void bindsAndRendersSidebarBadges() throws Exception {
+        assertThat(bindAndRender(Map.of()).get("showBadgesInSidebar").booleanValue()).isFalse();
+        for (boolean enabled : new boolean[]{true, false}) {
+            JsonNode config = bindAndRender(Map.of(
+                    "scalar.show-badges-in-sidebar", Boolean.toString(enabled)));
+            assertThat(config.get("showBadgesInSidebar").booleanValue()).isEqualTo(enabled);
+        }
+    }
+
+    @Test
     void bindsAndRendersDefaultClientsWithSdkInstallation() throws Exception {
         assertThat(bindAndRender(Map.of()).get("showDefaultClientsWithSdkInstallation").booleanValue()).isFalse();
         for (boolean enabled : new boolean[]{true, false}) {
@@ -41,6 +51,7 @@ class ScalarAdditionalOptionsTest {
                 Map.entry("scalar.expand-all-parameters", "false"),
                 Map.entry("scalar.max-visible-request-body-properties", "0"),
                 Map.entry("scalar.default-request-body-view", "form"),
+                Map.entry("scalar.multipart-naming", "indexed-dot"),
                 Map.entry("scalar.show-extensions[0]", "x-internal"),
                 Map.entry("scalar.featured-clients[0]", "node/fetch"),
                 Map.entry("scalar.url-routing", "false"),
@@ -55,6 +66,7 @@ class ScalarAdditionalOptionsTest {
         assertThat(config.get("expandAllParameters").booleanValue()).isFalse();
         assertThat(config.get("maxVisibleRequestBodyProperties").intValue()).isZero();
         assertThat(config.get("defaultRequestBodyView").textValue()).isEqualTo("form");
+        assertThat(config.get("multipartNaming").textValue()).isEqualTo("indexed-dot");
         assertThat(config.at("/showExtensions/0").textValue()).isEqualTo("x-internal");
         assertThat(config.at("/featuredClients/0").textValue()).isEqualTo("node/fetch");
         assertThat(config.get("urlRouting").booleanValue()).isFalse();
@@ -63,6 +75,19 @@ class ScalarAdditionalOptionsTest {
         assertThat(config.at("/externalUrls/dashboardUrl").isMissingNode()).isTrue();
         assertThat(config.at("/agent/hideAddApi").booleanValue()).isTrue();
         assertThat(config.at("/sources/0/agent/hideAddApi").booleanValue()).isFalse();
+    }
+
+    @Test
+    void bindsHttpClientsAndShortDefault() throws Exception {
+        JsonNode config = bindAndRender(Map.of(
+                "scalar.http-clients[0]", "node/fetch",
+                "scalar.http-clients[1]", "shell/*",
+                "scalar.default-http-client", "node/fetch"
+        ));
+        assertThat(config.at("/httpClients/0").textValue()).isEqualTo("node/fetch");
+        assertThat(config.at("/httpClients/1").textValue()).isEqualTo("shell/*");
+        assertThat(config.at("/defaultHttpClient/targetKey").textValue()).isEqualTo("node");
+        assertThat(config.at("/defaultHttpClient/clientKey").textValue()).isEqualTo("fetch");
     }
 
     @Test
@@ -106,7 +131,7 @@ class ScalarAdditionalOptionsTest {
     void leavesNewOptionsUnsetByDefault() throws Exception {
         JsonNode config = bindAndRender(Map.of());
         for (String name : new String[] {"hideModelNames", "schemaKeyboardNav", "expandAllParameters",
-                "maxVisibleRequestBodyProperties", "defaultRequestBodyView", "showExtensions",
+                "maxVisibleRequestBodyProperties", "defaultRequestBodyView", "multipartNaming", "showExtensions",
                 "featuredClients", "hiddenClients", "urlRouting", "oauth2RedirectUri", "externalUrls"}) {
             assertThat(config.has(name)).as(name).isFalse();
         }

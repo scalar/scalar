@@ -1,5 +1,29 @@
 # @scalar/scripts
 
+## 0.4.72
+
+No changes in this release.
+
+## 0.4.71
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 0.4.70
+
+No changes in this release.
+
+## 0.4.69
+
+No changes in this release.
+
+## 0.4.68
+
+No changes in this release.
+
 ## 0.4.67
 
 ### Patch Changes

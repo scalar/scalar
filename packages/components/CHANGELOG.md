@@ -1,5 +1,58 @@
 # @scalar/components
 
+## 0.36.1
+
+### Patch Changes
+
+- [#11241](https://github.com/scalar/scalar/pull/11241): fix(components): keep the tint of card surfaces in Chrome
+
+  Card surfaces now lighten `--scalar-background-2` in oklab rather than oklch. Current Chrome treats the hue of a near-grey color in `oklch(from …)` as missing but keeps its small chroma, so themes with tinted greys got pink code and response cards. With oklab the surface keeps the theme's own tint, and pure greys and saturated colors look the same as before.
+- [#11223](https://github.com/scalar/scalar/pull/11223): `ScalarModal` now renders `ScalarDialog`, the native `<dialog>` modal, instead of the Headless UI dialog. Its props, sizes and variants are unchanged. `ScalarDialog` also stays hidden while closed, even when a consumer class sets its display.
+- [#11223](https://github.com/scalar/scalar/pull/11223): Pressing Escape while a tooltip is showing inside a modal dialog now hides only the tooltip, instead of also closing the dialog.
+- [#11226](https://github.com/scalar/scalar/pull/11226): Teleport into a `ScalarTeleportRoot` inside a shadow root, and fall back to the shadow root instead of the host page's body
+
+## 0.36.0
+
+### Minor Changes
+
+- [#11170](https://github.com/scalar/scalar/pull/11170): Add `ScalarDialog`, a modal dialog built on the native `<dialog>` element and `showModal()`. Control it with `v-model:open` and compose its contents with the default slot. Focus trapping, focus restore, background inert, and top-layer stacking come from the platform. On top of that it locks page scrolling while open, gives popovers inside it a teleport target so they render above the dialog, lets child widgets handle Escape before the dialog closes, and closes on a backdrop click (ignoring text-selection drags and keyboard-activated controls).
+
+### Patch Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11162](https://github.com/scalar/scalar/pull/11162): Add a generic `log` grammar for human-readable logs, including common timestamps, severity headers, context prefixes, strings, URLs, and exception stack frames.
+
+  Show the Log language label in ScalarCodeBlock and include it in the copy button’s accessible name.
+
+## 0.35.5
+
+No changes in this release.
+
+## 0.35.4
+
+### Patch Changes
+
+- [#11154](https://github.com/scalar/scalar/pull/11154): Color operators like punctuation in syntax highlighting
+
+  Operators such as `=`, `->` and `::` now get an `hljs-operator` class and use the same quieter color as brackets and commas, so `client.planets()` and `Client::new()` read consistently. If you pair `@scalar/highlight/compat` with your own highlight.js theme, its `.hljs-operator` rules now apply too.
+- [#11126](https://github.com/scalar/scalar/pull/11126): Give syntax highlighting a fuller palette
+
+  Parameters, object members, type names and punctuation now have their own colors, plain code is easier to read, and the colors are adjusted so they stay readable and distinct in light and dark mode. They still come from the active theme's hues.
+
+  The colors live in `@scalar/themes` as `--scalar-code-*` variables named by role (`--scalar-code-keyword`, `--scalar-code-string`, `--scalar-code-parameter` and so on), so a theme or custom stylesheet can set its own syntax colors. The Moon theme sets darker and lighter values to stay readable on its tinted backgrounds.
+
+## 0.35.3
+
+### Patch Changes
+
+- [#11124](https://github.com/scalar/scalar/pull/11124): Render Markdown through `@scalar/markdown` instead of `@scalar/code-highlight`
+
+  None of them pull in lowlight or highlight.js any more: code blocks in descriptions are highlighted by `@scalar/highlight`, the same highlighter `ScalarCodeBlock` uses. A fenced code block without a language is no longer auto-detected and renders as plain text. In `@scalar/openapi-to-markdown` this shows up in descriptions that contain HTML or alerts: an unlabeled fence used to come out labeled with highlight.js's guess (often wrong, such as `properties` for JSON), and now stays unlabeled.
+- [#11112](https://github.com/scalar/scalar/pull/11112): Render legacy ScalarIcon stroke-width styles during server-side rendering to avoid hydration mismatches in Vue and Nuxt applications.
+
 ## 0.35.2
 
 ### Patch Changes

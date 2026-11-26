@@ -1,5 +1,43 @@
 # @scalar/mock-server
 
+## 0.21.9
+
+### Patch Changes
+
+- [#11215](https://github.com/scalar/scalar/pull/11215): Respect string length bounds when generating plain text and formatted string examples, including API reference examples and mock server responses. Preserve path parameter placeholders in code samples.
+
+## 0.21.8
+
+### Patch Changes
+
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11192](https://github.com/scalar/scalar/pull/11192): Validate JSON and plain-text request parameters declared with `content`. Malformed JSON is rejected, and JSON values keep their original types during validation, so `?filter={"price":"5"}` is rejected when `price` is an integer.
+- [#11178](https://github.com/scalar/scalar/pull/11178): Read an empty `matrix` path array (`;ids`) as an empty array during request validation instead of a one-element `['ids']` array.
+- [#11207](https://github.com/scalar/scalar/pull/11207): Validate and parse request bodies sent with structured `+json` media types such as `application/vnd.api+json` and `application/merge-patch+json`, so they are checked against the schema and reach `x-handler` as `req.body`.
+- [#11177](https://github.com/scalar/scalar/pull/11177): Strip the `label` and `matrix` prefixes from primitive path parameters before request validation, so `/users/.5` and `/users/;id=5` are accepted for an integer `id`.
+
+  Preserve percent-encoded delimiters in matrix parameter names and primitive values so validation checks the complete string.
+- [#11224](https://github.com/scalar/scalar/pull/11224): Send authored response header examples (`example`, `examples`, or a `content` media type) instead of values generated from the header schema.
+
+  Emit each cookie in its own field and escape Unicode in JSON and XML header examples. Use the referenced schema’s component name as the default XML root element.
+
+  Share HTTP quoted-string escaping and support character references for line breaks and Unicode in XML header data.
+- [#11204](https://github.com/scalar/scalar/pull/11204): Serve OpenAPI operations under the base path of their servers, so `GET /v1/pets` answers when the document declares `servers: [{ url: 'https://api.example.com/v1' }]`. OpenAPI 2.0 `basePath`, relative server URLs, and every enum value of a server variable in the path are served too, and operation and path item servers take precedence over the servers of the document. Operations keep answering at their bare path keys.
+
+  Descriptions that exceed the server URL expansion or generated route budget continue serving their bare operation routes.
+
+## 0.21.7
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
+## 0.21.6
+
+### Patch Changes
+
+- [#11105](https://github.com/scalar/scalar/pull/11105): Finish migrating legacy `nullable` schema keywords when upgrading OpenAPI 3.0 descriptions, so downstream request validators can compile the upgraded schemas and enforce the rest of the request contract.
+
 ## 0.21.5
 
 ### Patch Changes

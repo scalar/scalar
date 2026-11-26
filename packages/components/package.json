@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.35.2",
+  "version": "0.36.1",
   "engines": {
     "node": ">=22"
   },
@@ -76,6 +76,11 @@
       "types": "./dist/components/ScalarCopy/index.d.ts",
       "import": "./dist/components/ScalarCopy/index.js",
       "default": "./dist/components/ScalarCopy/index.js"
+    },
+    "./dialog": {
+      "types": "./dist/components/ScalarDialog/index.d.ts",
+      "import": "./dist/components/ScalarDialog/index.js",
+      "default": "./dist/components/ScalarDialog/index.js"
     },
     "./dropdown": {
       "types": "./dist/components/ScalarDropdown/index.d.ts",
@@ -248,9 +253,10 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",
-    "@storybook/addon-docs": "10.6.7",
-    "@storybook/addon-links": "10.6.7",
-    "@storybook/vue3-vite": "10.6.7",
+    "@scalar/use-toasts": "workspace:*",
+    "@storybook/addon-docs": "10.6.8",
+    "@storybook/addon-links": "10.6.8",
+    "@storybook/vue3-vite": "10.6.8",
     "@tailwindcss/cli": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/jsdom": "catalog:*",
@@ -259,7 +265,7 @@
     "@vue/test-utils": "catalog:*",
     "concurrently": "catalog:*",
     "jsdom": "catalog:*",
-    "storybook": "10.6.7",
+    "storybook": "10.6.8",
     "svglint": "^4.2.1",
     "tailwindcss": "catalog:*",
     "typescript": "6.0.3",

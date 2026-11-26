@@ -1,5 +1,72 @@
 # @scalar/workspace-store
 
+## 0.78.0
+
+### Minor Changes
+
+- [#11232](https://github.com/scalar/scalar/pull/11232): Support custom `x-badges` on OpenAPI schema properties so API references can highlight details like expandable fields. Property rows use the badges declared on the property, including when the property references a model or is an array of models.
+
+### Patch Changes
+
+- [#11215](https://github.com/scalar/scalar/pull/11215): Respect string length bounds when generating plain text and formatted string examples, including API reference examples and mock server responses. Preserve path parameter placeholders in code samples.
+
+## 0.77.0
+
+### Minor Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+- [#9625](https://github.com/scalar/scalar/pull/9625): Resolve JSON Schema 2020-12 `$dynamicRef` in the magic proxy and expose the bound schema through `@scalar/workspace-store/resolve`. Generic and recursive schemas now show their concrete types in rendered properties and JSON/XML request examples, including anchors nested inside a schema resource.
+
+  Keep repeated reads stable within each dynamic scope while allowing shared templates to bind independently. Edits through the proxy refresh bindings and resolved references while preserving ordinary proxy identities and unrelated documents’ anchor caches.
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11206](https://github.com/scalar/scalar/pull/11206): Use empty OpenAPI server variable defaults in request URLs, OAuth server URLs, and code snippets.
+- [#11224](https://github.com/scalar/scalar/pull/11224): Send authored response header examples (`example`, `examples`, or a `content` media type) instead of values generated from the header schema.
+
+  Emit each cookie in its own field and escape Unicode in JSON and XML header examples. Use the referenced schema’s component name as the default XML root element.
+
+  Share HTTP quoted-string escaping and support character references for line breaks and Unicode in XML header data.
+- [#11193](https://github.com/scalar/scalar/pull/11193): Guard document, history, and authentication lookups against inherited properties while preserving valid workspace document names such as `constructor` and `prototype`. Ignore reserved keys when loading workspace snapshots and copying workspace metadata.
+- [#11188](https://github.com/scalar/scalar/pull/11188): Preserve OAuth flow client IDs and other configured defaults when normalizing authentication schemes.
+
+## 0.76.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+- [#11147](https://github.com/scalar/scalar/pull/11147): Honor OpenAPI 3.2 `dataValue` and `serializedValue` examples for multipart part headers. Serialize structured header values using simple style and preserve explicit falsy examples and serialized text.
+  Use schema fallbacks for null examples and omit the header when no value is available.
+- [#11148](https://github.com/scalar/scalar/pull/11148): Resolve URI security requirements in Node Markdown exports for OpenAPI 3.2 descriptions.
+
+  Follow annotated security scheme references when resolving URI requirements.
+
+  Preserve security scheme reference descriptions in OpenAPI 3.1 and 3.2 Markdown exports.
+
+## 0.75.0
+
+### Minor Changes
+
+- [#11103](https://github.com/scalar/scalar/pull/11103): Support `x-scalar-token-prefix` on header API keys. Generated code examples and outgoing requests add the configured prefix while stored credentials remain unchanged.
+- [#11020](https://github.com/scalar/scalar/pull/11020): feat: show `x-badges` in the sidebar with the new `showBadgesInSidebar` option
+
+  The option is off by default, so the sidebar looks the same as before. When it is on, the sidebar shows the `x-badges` of operations, webhooks, tags (including nested OpenAPI 3.2 tags), `x-tagGroups` entries and models next to their titles. Navigation entries of these types get an optional `badges` field.
+
+### Patch Changes
+
+- [#11123](https://github.com/scalar/scalar/pull/11123): Fix the API reference freezing on schemas with several recursive or cross-referencing `$ref`s. Generated examples that are too large to render at full depth are now rendered at the deepest depth that fits.
+- [#11115](https://github.com/scalar/scalar/pull/11115): Fix examples for a `oneOf` or `anyOf` variant that is a nullable object or array, which came out as `null` instead of the object or array.
+- [#11113](https://github.com/scalar/scalar/pull/11113): Load native AsyncAPI RAML and Protobuf dependencies when their message or model is expanded, sharing authenticated downloads until the document changes and preserving source fallback and prebuilt server resources.
+
+  Use the containing document location for deferred dependencies and prevent remote schemas from invoking a filesystem loader.
+
 ## 0.74.0
 
 ### Minor Changes

@@ -17,7 +17,7 @@
     "blocks",
     "docs"
   ],
-  "version": "0.7.4",
+  "version": "0.11.0",
   "engines": {
     "node": ">=22"
   },
@@ -91,15 +91,16 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",
-    "@storybook/addon-docs": "10.6.7",
-    "@storybook/addon-links": "10.6.7",
-    "@storybook/vue3-vite": "10.6.7",
+    "@scalar/json-magic": "workspace:*",
+    "@storybook/addon-docs": "10.6.8",
+    "@storybook/addon-links": "10.6.8",
+    "@storybook/vue3-vite": "10.6.8",
     "@tailwindcss/cli": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "jsdom": "catalog:*",
-    "storybook": "10.6.7",
+    "storybook": "10.6.8",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",

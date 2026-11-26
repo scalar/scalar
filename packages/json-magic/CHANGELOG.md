@@ -1,5 +1,45 @@
 # @scalar/json-magic
 
+## 0.23.1
+
+No changes in this release.
+
+## 0.23.0
+
+### Minor Changes
+
+- [#11097](https://github.com/scalar/scalar/pull/11097): Add opt-in custom reference positions to document-aware bundling, including extension values and unknown schema keywords, while retaining literal data, schema identities, anchors, and format-specific reference rules.
+- [#9625](https://github.com/scalar/scalar/pull/9625): Resolve JSON Schema 2020-12 `$dynamicRef` in the magic proxy and expose the bound schema through `@scalar/workspace-store/resolve`. Generic and recursive schemas now show their concrete types in rendered properties and JSON/XML request examples, including anchors nested inside a schema resource.
+
+  Keep repeated reads stable within each dynamic scope while allowing shared templates to bind independently. Edits through the proxy refresh bindings and resolved references while preserving ordinary proxy identities and unrelated documents’ anchor caches.
+
+### Patch Changes
+
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 0.22.0
+
+### Minor Changes
+
+- [#11088](https://github.com/scalar/scalar/pull/11088): Add a document graph API for checking and removing unused OpenAPI and AsyncAPI components. Follow transitive references, security requirements, discriminator mappings, schema identities and anchors. Preserve reachable cycles and literal data, remove disconnected reusable content, and support conservative retention when unresolved external references make reachability uncertain.
+- [#11087](https://github.com/scalar/scalar/pull/11087): Add `outputBase` to give bundled local schemas public output identities without changing file loading. Relative identities and resolved references can now serialize identically across checkout directories. In-memory schemas without an origin use a virtual output base; explicitly absolute identifiers, preserved references, and unresolved source locations retain their meaning.
+
+### Patch Changes
+
+- [#11087](https://github.com/scalar/scalar/pull/11087): Keep references across schema resource scopes portable when preserving selected references, including anonymous outer documents, cyclic dependencies, and local-file schema identities.
+
+  The Node file loader now accepts escaped `file:` URIs with the same directory and symlink confinement as native paths. Documents retrieved over HTTP(S) cannot load filesystem targets. Keep malformed local URI references recoverable and omit dynamic anchor declarations when copying anonymous schemas into another resource.
+- [#11149](https://github.com/scalar/scalar/pull/11149): Read local file URLs with native filesystem containment checks. Reject hosted file URLs and confined Windows network paths.
+  Resolve relative references to a declared document identity when URL normalization changes its spelling.
+  Follow nested references in newly exposed targets during document-aware bundling.
+
+## 0.21.1
+
+No changes in this release.
+
 ## 0.21.0
 
 ### Minor Changes

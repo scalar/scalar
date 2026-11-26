@@ -1,5 +1,78 @@
 # @scalar/api-reference
 
+## 1.85.0
+
+### Minor Changes
+
+- [#11234](https://github.com/scalar/scalar/pull/11234): Configure available API Reference HTTP clients with `httpClients`. Use exact client IDs or target wildcards such as `shell/*`. The `defaultHttpClient` option also accepts a client ID string.
+
+  When all available clients are under **More**, such as with `featuredClients: []`, the Client Libraries block omits the empty tab list.
+- [#11175](https://github.com/scalar/scalar/pull/11175): Use the system font stack and stop loading web fonts. `--scalar-font` and `--scalar-font-code` now default to the platform's own UI and monospace fonts, and the Inter and JetBrains Mono files from fonts.scalar.com are no longer requested. `defaultFonts`, `@scalar/themes/fonts.css` and the `fonts` option of `getThemeStyles` are deprecated and do nothing. A custom theme that names Inter or JetBrains Mono now needs to load that font itself.
+
+### Patch Changes
+
+- [#11232](https://github.com/scalar/scalar/pull/11232): Support custom `x-badges` on OpenAPI schema properties so API references can highlight details like expandable fields. Property rows use the badges declared on the property, including when the property references a model or is an array of models.
+- [#11223](https://github.com/scalar/scalar/pull/11223): Name the Explore Scalar dialog with a plain heading instead of Headless UI's `DialogTitle`, now that `ScalarModal` renders a native dialog.
+- [#11251](https://github.com/scalar/scalar/pull/11251): Find OpenAPI operations and webhooks by text in their response descriptions.
+- [#11215](https://github.com/scalar/scalar/pull/11215): Respect string length bounds when generating plain text and formatted string examples, including API reference examples and mock server responses. Preserve path parameter placeholders in code samples.
+
+## 1.84.0
+
+### Minor Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+
+### Patch Changes
+
+- [#11222](https://github.com/scalar/scalar/pull/11222): Keep response media-type pickers visible when multiple media types are available and reserve room for them beside response summaries on narrow screens.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11208](https://github.com/scalar/scalar/pull/11208): Keep syntax highlighting in fenced code blocks inside request body and property descriptions.
+- [#11169](https://github.com/scalar/scalar/pull/11169): Look up elements and focus through the provided document root instead of `document`. Nothing provides one yet, so behavior is unchanged until shadow-root mounts wire it up
+- [#11160](https://github.com/scalar/scalar/pull/11160): Simplify API Reference browser test configuration.
+- [#11221](https://github.com/scalar/scalar/pull/11221): Display explicit zero bounds for string lengths and array item counts in schema details.
+
+## 1.83.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+### Patch Changes
+
+- [#11176](https://github.com/scalar/scalar/pull/11176): feat(api-reference): invite developers to the API Hosting beta from the localhost reference
+
+  The localhost reference now shows the Deploy panel's waitlist card in a popup once, shortly after it loads (with several API descriptions, once all of them have loaded), if nobody has started reading yet, as the API client invites its users. It only ever appears when a development server on the developer's own machine serves the page (`localhost`, `*.localhost`, `127.0.0.1`, `[::1]`, on an explicit port), never in automated browsers or jsdom. It is remembered across every port on the same host, and opening the Deploy panel counts too. Hosted references never show it, and `showDeveloperTools: 'never'` turns it off. The localhost toolbar's Deploy button now uses the gradient style.
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+- [#11145](https://github.com/scalar/scalar/pull/11145): Prevent CSP eval violation reports when loading OAuth authentication and AI Chat by configuring Zod before schemas are constructed.
+
+  This disables JIT compilation for the shared Zod instance, so applications using that same instance may also see slower object parsing.
+- [#11130](https://github.com/scalar/scalar/pull/11130): Update nanoid to version 6 for faster identifier generation while preserving existing identifier formats.
+
+## 1.82.1
+
+No changes in this release.
+
+## 1.82.0
+
+### Minor Changes
+
+- [#11020](https://github.com/scalar/scalar/pull/11020): feat: show `x-badges` in the sidebar with the new `showBadgesInSidebar` option
+
+  The option is off by default, so the sidebar looks the same as before. When it is on, the sidebar shows the `x-badges` of operations, webhooks, tags (including nested OpenAPI 3.2 tags), `x-tagGroups` entries and models next to their titles. Navigation entries of these types get an optional `badges` field.
+
+### Patch Changes
+
+- [#11123](https://github.com/scalar/scalar/pull/11123): Fix the API reference freezing on schemas with several recursive or cross-referencing `$ref`s. Generated examples that are too large to render at full depth are now rendered at the deepest depth that fits.
+- [#11113](https://github.com/scalar/scalar/pull/11113): Load native AsyncAPI RAML and Protobuf dependencies when their message or model is expanded, sharing authenticated downloads until the document changes and preserving source fallback and prebuilt server resources.
+
+  Use the containing document location for deferred dependencies and prevent remote schemas from invoking a filesystem loader.
+- [#11124](https://github.com/scalar/scalar/pull/11124): Render Markdown through `@scalar/markdown` instead of `@scalar/code-highlight`
+
+  None of them pull in lowlight or highlight.js any more: code blocks in descriptions are highlighted by `@scalar/highlight`, the same highlighter `ScalarCodeBlock` uses. A fenced code block without a language is no longer auto-detected and renders as plain text. In `@scalar/openapi-to-markdown` this shows up in descriptions that contain HTML or alerts: an unlabeled fence used to come out labeled with highlight.js's guess (often wrong, such as `properties` for JSON), and now stays unlabeled.
+- [#10854](https://github.com/scalar/scalar/pull/10854): Send the selected API source and version as structured chat request metadata, keeping user messages unchanged.
+
 ## 1.81.0
 
 ### Minor Changes

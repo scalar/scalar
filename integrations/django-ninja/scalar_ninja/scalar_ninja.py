@@ -4,7 +4,7 @@ from enum import Enum
 from django.http import HttpResponse
 from ninja.openapi.docs import DocsBase
 from pydantic import BaseModel, ConfigDict, Field
-from typing import List, Dict, Any, Union, Optional
+from typing import List, Dict, Any, Union, Optional, Literal
 
 
 def _inline_script_json(value: object) -> str:
@@ -168,6 +168,11 @@ class ScalarConfig(BaseModel):
         description="A boolean to show the sidebar. Default is True which means the sidebar is shown.",
     )
 
+    show_badges_in_sidebar: bool = Field(
+        default=False,
+        description="Whether to show x-badges in the sidebar. Default is False.",
+    )
+
     hide_download_button: bool = Field(
         default=False,
         description="A boolean to hide the download button. @deprecated Use document_download_type instead.",
@@ -185,7 +190,7 @@ class ScalarConfig(BaseModel):
 
     hide_models: bool = Field(
         default=False,
-        description="A boolean to hide all models. Default is False which means all models are shown.",
+        description="Hide schema models and reusable AsyncAPI messages. Defaults to False.",
     )
 
     hide_search: bool = Field(
@@ -211,6 +216,16 @@ class ScalarConfig(BaseModel):
     search_hot_key: SearchHotKey = Field(
         default=SearchHotKey.K,
         description="The hotkey to use for search. Default is 'k' (e.g. CMD+k).",
+    )
+
+    http_clients: Optional[List[str]] = Field(
+        default=None,
+        description='Built-in HTTP client IDs such as "node/undici" or target wildcards such as "shell/*". An empty list hides all built-in clients.',
+    )
+
+    default_http_client: Optional[str] = Field(
+        default=None,
+        description='The default code sample client ID, such as "node/fetch".',
     )
 
     hidden_clients: Union[bool, Dict[str, Union[bool, List[str]]], List[str]] = Field(
@@ -263,6 +278,11 @@ class ScalarConfig(BaseModel):
         description="Show built-in HTTP clients alongside SDK installation tabs in the introduction. Default is False, which shows only SDK tabs when installation instructions are available.",
     )
 
+    multipart_naming: Optional[Literal["indexed-dot"]] = Field(
+        default=None,
+        description="Use indexed dotted names for nested multipart form fields.",
+    )
+
     hide_client_button: bool = Field(
         default=False,
         description="Whether to show the client button from the reference sidebar and modal. Default is False which means the client button is shown.",
@@ -280,7 +300,7 @@ class ScalarConfig(BaseModel):
 
     with_default_fonts: bool = Field(
         default=True,
-        description="Whether to use default fonts (Inter and JetBrains Mono). Default is True which means default fonts are used.",
+        description="Deprecated: Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.",
     )
 
     custom_css: str = Field(
@@ -437,6 +457,9 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
     if not config.show_sidebar:  # Default is True
         js_config["showSidebar"] = config.show_sidebar
 
+    if config.show_badges_in_sidebar:  # Default is False
+        js_config["showBadgesInSidebar"] = config.show_badges_in_sidebar
+
     # Handle download button configuration
     if (
         config.hide_download_button
@@ -466,6 +489,10 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
     if config.search_hot_key != SearchHotKey.K:  # Default is K
         js_config["searchHotKey"] = config.search_hot_key.value
 
+    if config.http_clients is not None:
+        js_config["httpClients"] = config.http_clients
+    if config.default_http_client is not None:
+        js_config["defaultHttpClient"] = config.default_http_client
     if config.hidden_clients:  # Default is []
         js_config["hiddenClients"] = config.hidden_clients
 
@@ -499,6 +526,9 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
         js_config["showDefaultClientsWithSdkInstallation"] = (
             config.show_default_clients_with_sdk_installation
         )
+
+    if config.multipart_naming is not None:
+        js_config["multipartNaming"] = config.multipart_naming
 
     if config.hide_client_button:  # Default is False
         js_config["hideClientButton"] = config.hide_client_button

@@ -1,5 +1,52 @@
 # @scalar/api-client
 
+## 3.29.2
+
+### Patch Changes
+
+- [#11254](https://github.com/scalar/scalar/pull/11254): Allow downloading zero-byte response attachments. Keep the Download action hidden for bodyless responses and responses whose bodies were omitted from history. Give the Download link the same highlight on keyboard focus and pointer hover.
+- [#11252](https://github.com/scalar/scalar/pull/11252): Preserve semicolons, escaped quotes, and literal percent sequences in quoted response download filenames. Support case-insensitive extended filename parameters with language tags and normalize the suggested filename in API Client and Agent Chat.
+- [#11234](https://github.com/scalar/scalar/pull/11234): Configure available API Reference HTTP clients with `httpClients`. Use exact client IDs or target wildcards such as `shell/*`. The `defaultHttpClient` option also accepts a client ID string.
+
+  When all available clients are under **More**, such as with `featuredClients: []`, the Client Libraries block omits the empty tab list.
+
+## 3.29.1
+
+### Patch Changes
+
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11169](https://github.com/scalar/scalar/pull/11169): Look up elements and focus through the provided document root instead of `document`. Nothing provides one yet, so behavior is unchanged until shadow-root mounts wire it up
+- [#11206](https://github.com/scalar/scalar/pull/11206): Use empty OpenAPI server variable defaults in request URLs, OAuth server URLs, and code snippets.
+
+## 3.29.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+- [#11140](https://github.com/scalar/scalar/pull/11140): Update response cookie parsing to follow browser UTC expiration rules and ignore empty cookies.
+- [#11145](https://github.com/scalar/scalar/pull/11145): Prevent CSP eval violation reports when loading OAuth authentication and AI Chat by configuring Zod before schemas are constructed.
+
+  This disables JIT compilation for the shared Zod instance, so applications using that same instance may also see slower object parsing.
+- [#11130](https://github.com/scalar/scalar/pull/11130): Update nanoid to version 6 for faster identifier generation while preserving existing identifier formats.
+
+## 3.28.1
+
+No changes in this release.
+
+## 3.28.0
+
+### Minor Changes
+
+- [#11103](https://github.com/scalar/scalar/pull/11103): Support `x-scalar-token-prefix` on header API keys. Generated code examples and outgoing requests add the configured prefix while stored credentials remain unchanged.
+- [#9778](https://github.com/scalar/scalar/pull/9778): Add a date and time picker for request fields with `format: date`, `date-time`, or `time`. A calendar/clock icon opens an accessible picker (built on radix-vue's Calendar) that writes a correctly formatted value back into the field. For `date-time` fields, the picker also offers shortcuts to insert faker variables like `{{$isoTimestamp}}` and `{{$randomDateFuture}}`. Free-text entry and `{{variables}}` keep working, so you can still type invalid data on purpose.
+
 ## 3.27.1
 
 ### Patch Changes

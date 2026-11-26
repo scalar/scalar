@@ -1,5 +1,23 @@
 # @scalar/postman-to-openapi
 
+## 0.7.37
+
+### Patch Changes
+
+- [#11245](https://github.com/scalar/scalar/pull/11245): fix: keep parameters that share a name in different locations
+
+## 0.7.36
+
+### Patch Changes
+
+- [#11172](https://github.com/scalar/scalar/pull/11172): Fix invalid empty `responses` on merged Postman operations that have no saved responses.
+
+## 0.7.35
+
+### Patch Changes
+
+- [#11125](https://github.com/scalar/scalar/pull/11125): Fix Postman imports that use structured descriptions on query parameters.
+
 ## 0.7.34
 
 ### Patch Changes

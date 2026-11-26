@@ -46,6 +46,7 @@ export const zhTw = {
     collapsed: '已摺疊',
     webhooks: 'Webhooks',
     channels: '通道',
+    messages: '訊息',
   },
   server: {
     label: '伺服器',
@@ -185,6 +186,7 @@ export const zhTw = {
     waitlistError: '糟糕！發生錯誤，請再試一次',
     waitlistRateLimit: '註冊次數過多，請稍後再試',
     waitlistBack: '返回',
+    waitlistDone: '完成',
     deployApiButton: '部署 API',
     deployFrameworkButton: '部署 {framework}',
     deployApiTitle: '將你的 API 部署到 Scalar',

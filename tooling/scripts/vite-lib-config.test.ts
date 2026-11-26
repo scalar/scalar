@@ -8,6 +8,7 @@ import {
   createLibEntry,
   createPreserveModulesOutput,
   findEntryPoints,
+  hasModuleSideEffects,
 } from './vite-lib-config'
 
 vi.mock('node:fs', () => ({
@@ -24,6 +25,25 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks()
+})
+
+describe('hasModuleSideEffects', () => {
+  it.each([
+    '@scalar/types/zod',
+    '/repo/packages/types/src/zod.ts',
+    '/repo/node_modules/@scalar/types/dist/zod.js',
+    String.raw`C:\repo\packages\agent-chat\src\state\ai-sdk\index.ts`,
+    '/repo/node_modules/@scalar/agent-chat/dist/state/ai-sdk/index.js',
+  ])('preserves Scalar CSP setup for %s', (id) => {
+    expect(hasModuleSideEffects(id)).toBe(true)
+  })
+
+  it.each(['/repo/node_modules/@other/types/dist/zod.js', '/repo/packages/other/src/state/ai-sdk/index.ts'])(
+    'leaves unrelated modules eligible for tree shaking at %s',
+    (id) => {
+      expect(hasModuleSideEffects(id)).toBe(false)
+    },
+  )
 })
 
 describe('createPreserveModulesOutput', () => {

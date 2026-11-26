@@ -287,6 +287,18 @@ describe('get-operation-from-curl', () => {
     })
   })
 
+  it.each([
+    ['equal signs in a value', 'token=YWJjZA==&next=/a?b=c', { token: 'YWJjZA==', next: '/a?b=c' }],
+    ['a plus sign as a space', 'q=hello+world&phone=%2B49', { q: 'hello world', phone: '+49' }],
+    ['a bare percent sign', 'discount=50%&name=John', { discount: '50%', name: 'John' }],
+  ])('handles form-encoded data with %s', (_, body, value) => {
+    const result = getOperationFromCurl(`curl -X POST https://api.example.com/forms -d '${body}'`)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+    const content = requestBody?.content['application/x-www-form-urlencoded']
+    expect(getResolvedRef(content?.examples?.curl)?.value).toStrictEqual(value)
+  })
+
   it('handles form-encoded data with malformed pairs', () => {
     const curl = 'curl -X POST http://example.com/api/users -d "name=John&invalidpair&age=30"'
     const result = getOperationFromCurl(curl)

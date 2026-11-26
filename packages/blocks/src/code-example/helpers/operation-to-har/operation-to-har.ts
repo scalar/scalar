@@ -1,4 +1,5 @@
 import { isElectron } from '@scalar/helpers/general/is-electron'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   type SecuritySchemeObjectSecret,
@@ -56,6 +57,7 @@ export type OperationToHarProps = {
   /** Originating OpenAPI version, used for version-specific serialization. */
   openapiVersion?: string
   jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   requestBodyCompositionSelection?: Record<string, number>
   /**
    * Whether to disable parameters by default.
@@ -98,6 +100,7 @@ export const operationToHar = ({
   globalCookies,
   openapiVersion,
   jsonSchemaDialect,
+  multipartNaming,
   requestBodyCompositionSelection,
   defaultDisabledParameters = false,
 }: OperationToHarProps): HarRequest => {
@@ -176,6 +179,7 @@ export const operationToHar = ({
       example,
       openapiVersion,
       jsonSchemaDialect,
+      multipartNaming,
       requestBodyCompositionSelection,
     })
 

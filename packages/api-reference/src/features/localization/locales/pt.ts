@@ -46,6 +46,7 @@ export const pt = {
     collapsed: 'Recolhido',
     webhooks: 'Webhooks',
     channels: 'Canais',
+    messages: 'Mensagens',
   },
   server: {
     label: 'Servidor',
@@ -189,6 +190,7 @@ export const pt = {
     waitlistError: 'Ops! Algo deu errado, tente novamente',
     waitlistRateLimit: 'Muitas inscrições, tente novamente daqui a pouco',
     waitlistBack: 'Voltar',
+    waitlistDone: 'Pronto',
     deployApiButton: 'Publicar API',
     deployFrameworkButton: 'Publicar {framework}',
     deployApiTitle: 'Publique sua API na Scalar',

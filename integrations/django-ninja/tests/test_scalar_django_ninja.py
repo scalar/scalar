@@ -324,6 +324,24 @@ class TestScalarConfig:
 class TestGetScalarApiReference:
     """Test the get_scalar_api_reference function"""
 
+    @pytest.mark.parametrize(
+        "options",
+        [{}, {"show_badges_in_sidebar": False}, {"show_badges_in_sidebar": True}],
+    )
+    def test_show_badges_in_sidebar(self, options):
+        response = get_scalar_api_reference(
+            ScalarViewer(show_sidebar=False, **options).config
+        )
+        configuration, _ = json.JSONDecoder().raw_decode(
+            response.content.decode().split('Scalar.createApiReference("#app", ', 1)[1]
+        )
+
+        assert configuration["showSidebar"] is False
+        if options.get("show_badges_in_sidebar", False):
+            assert configuration["showBadgesInSidebar"] is True
+        else:
+            assert "showBadgesInSidebar" not in configuration
+
     @pytest.mark.parametrize("enabled", [True, False])
     def test_show_default_clients_with_sdk_installation(self, enabled):
         response = get_scalar_api_reference(
@@ -377,6 +395,7 @@ class TestGetScalarApiReference:
         assert "defaultOpenAllTags" not in config_section
         assert "authentication" not in config_section
         assert "hideClientButton" not in config_section
+        assert "multipartNaming" not in config_section
         assert "showDefaultClientsWithSdkInstallation" not in config_section
         assert "theme" not in config_section
 
@@ -416,6 +435,7 @@ class TestGetScalarApiReference:
             default_open_all_tags=True,
             authentication={"apiKey": "test-key"},
             hide_client_button=True,
+            multipart_naming="indexed-dot",
             integration="django-ninja",
             theme=Theme.MOON,
         )
@@ -439,6 +459,7 @@ class TestGetScalarApiReference:
         )
         assert '"defaultOpenAllTags": true' in html_content
         assert '"authentication": {"apiKey": "test-key"}' in html_content
+        assert '"multipartNaming": "indexed-dot"' in html_content
         assert '"hideClientButton": true' in html_content
         assert '"_integration": "django-ninja"' in html_content
         assert '"theme": "moon"' in html_content
@@ -791,6 +812,20 @@ class TestEdgeCases:
         # The complex JSON should be properly serialized
         assert "oauth2" in html_content
         assert "authorizationCode" in html_content
+
+    @pytest.mark.parametrize("http_clients", [None, [], ["node/fetch", "shell/*"]])
+    def test_http_client_configuration(self, http_clients):
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            http_clients=http_clients,
+            default_http_client="node/fetch",
+        )
+        html = get_scalar_api_reference(config).content.decode()
+        if http_clients is None:
+            assert '"httpClients"' not in html
+        else:
+            assert f'"httpClients": {json.dumps(http_clients)}' in html
+        assert '"defaultHttpClient": "node/fetch"' in html
 
     def test_hidden_clients_dict_format(self):
         """Test hidden_clients parameter with dictionary format"""

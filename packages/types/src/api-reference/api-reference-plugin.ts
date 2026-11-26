@@ -1,6 +1,6 @@
 import type { MarkdownRenderHook } from '@scalar/helpers/markdown/markdown-render-hook'
-import { z } from 'zod'
 
+import { z } from '../zod'
 import { baseConfigurationSchema } from './base-configuration'
 
 const openApiExtensionSchema = z.object({

@@ -38,6 +38,7 @@ import {
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
 import { escapeCssForStyleTag } from '@scalar/helpers/dom/escape-css-for-style-tag'
+import { getActiveElement } from '@scalar/helpers/dom/get-active-element'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
@@ -58,6 +59,7 @@ import {
 } from '@scalar/types/api-reference'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
@@ -107,6 +109,15 @@ import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
+/*
+ * The one-time invitation to the API Hosting beta, mounted only by the localhost shell on this
+ * machine's own addresses. It is imported directly rather than as a lazy chunk on purpose: a lazy
+ * chunk shares modules with the main bundle, and the ESM build splits every shared module into a
+ * chunk of its own that every page then fetches, hosted ones included. In the main bundle it is
+ * inert code that hosted pages never run.
+ */
+import ApiHostingBetaPrompt from '@/features/api-hosting-beta/components/ApiHostingBetaPrompt.vue'
+import { isLocalDevelopmentPage } from '@/features/api-hosting-beta/helpers/is-local-development-page'
 import { DeveloperTools } from '@/features/developer-tools'
 import {
   useShellPanel,
@@ -119,6 +130,7 @@ import {
 import {
   provideLocalization,
   resolveLocalization,
+  toLanguageTag,
 } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
@@ -189,6 +201,9 @@ defineSlots<{
 }>()
 
 const { copyToClipboard } = useClipboard()
+
+/** Where to look things up by id or selector, the shadow root when the reference is embedded in one */
+const documentRoot = useDocumentRoot()
 
 /**
  * Used to inject the environment into built packages
@@ -401,12 +416,9 @@ const poweredByUrl = computed(() =>
   makePoweredByUrl(mergedConfig.value._integration),
 )
 
-/**
- * Locale string for the `lang` attribute. We normalize underscores to hyphens so values like
- * `es_MX` become valid BCP-47 language tags (`es-MX`).
- */
+/** Locale string for the `lang` attribute, as a valid BCP-47 language tag (`es_MX` becomes `es-MX`). */
 const documentLang = computed(() =>
-  apiReferenceLocalization.locale.value.replace('_', '-'),
+  toLanguageTag(apiReferenceLocalization.locale.value),
 )
 
 /** Embeds can keep navigation local without taking over the host page URL. */
@@ -460,7 +472,6 @@ const toolbarTheme = computed<ApiReferenceConfiguration['theme'] | undefined>(
 
 const themeStyle = computed(() =>
   getThemeStyles(toolbarTheme.value ?? mergedConfig.value.theme, {
-    fonts: mergedConfig.value.withDefaultFonts,
     // Only the toolbar theme is unlayered, so hosted pages keep the layered output
     layer: toolbarTheme.value ? false : undefined,
   }),
@@ -758,6 +769,9 @@ const localizeNavigationEntries = (
   )
   const modelsSectionLabel =
     mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
+  const messagesSectionLabel = apiReferenceLocalization.translate(
+    'navigation.messages',
+  )
 
   const localize = (list: TraversedEntry[]): TraversedEntry[] => {
     let changed = false
@@ -787,6 +801,15 @@ const localizeNavigationEntries = (
           title: modelsSectionLabel,
           name: modelsSectionLabel,
         } as TraversedEntry
+      } else if (
+        entry.type === 'asyncapi-messages' &&
+        entry.title !== messagesSectionLabel
+      ) {
+        localized = {
+          ...entry,
+          title: messagesSectionLabel,
+          name: messagesSectionLabel,
+        }
       }
 
       if ('children' in entry && entry.children) {
@@ -855,7 +878,11 @@ const sidebarState = createSidebarState<TraversedEntry>(itemsFromWorkspace, {
 /** Recursively set all children of the given items to open */
 const setChildrenOpen = (items: TraversedEntry[]): void => {
   items.forEach((item) => {
-    if (item.type === 'tag' || item.type === 'models') {
+    if (
+      item.type === 'tag' ||
+      item.type === 'models' ||
+      item.type === 'asyncapi-messages'
+    ) {
       sidebarState.setExpanded(item.id, true)
     }
     if ('children' in item && item.children) {
@@ -1012,10 +1039,12 @@ const contextChain = computed(() => {
   return crumbs
 })
 
-const scrollToLazyElement = (id: string) => {
+const scrollToLazyElement = (id: string, focusTarget = true): void => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
-  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
+  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById, {
+    focusTarget,
+  })
 }
 
 /**
@@ -1259,6 +1288,13 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
 let isPreloadStopped = false
 /** Cancels the currently scheduled idle preload callback, if one is pending */
 let cancelScheduledPreload: (() => void) | undefined
+/**
+ * Whether idle preloading has run out of documents to load. Until then a large document can still
+ * hold the page for a moment while it is parsed, so the localhost API Hosting beta popup waits for
+ * it rather than open in the middle of that and leave its email field unresponsive. A document that
+ * never finishes loading keeps the popup away for that page load.
+ */
+const hasPreloadedDocuments = ref(false)
 
 /**
  * Stop any in-progress idle preloading. Without this, an orphaned instance (an Astro view
@@ -1303,6 +1339,7 @@ const preloadDocumentsWhenIdle = () => {
     const slug = pendingSlugs.shift()
 
     if (!slug) {
+      hasPreloadedDocuments.value = true
       return
     }
 
@@ -1810,13 +1847,15 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
     }
   }
   const item = sidebarState.getEntryById(id)
+  const isSection =
+    item?.type === 'tag' ||
+    item?.type === 'models' ||
+    item?.type === 'asyncapi-messages'
 
   updatePageTitle(id)
 
   if (
-    (item?.type === 'tag' ||
-      item?.type === 'models' ||
-      item?.type === 'text') &&
+    (isSection || item?.type === 'text') &&
     sidebarState.isExpanded(id) && // Only close if the item is expanded
     sidebarState.selectedItem.value === id // Only close if the item is not the currently selected item
   ) {
@@ -1830,12 +1869,16 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
     return
   }
 
-  // Close the mobile menu upon selecting any item that's not a tag or model
-  if (item?.type !== 'tag' && item?.type !== 'models') {
+  // Keep focus in the open mobile menu while scrolling to the group beneath it.
+  const keepSidebarFocus =
+    isSection &&
+    caller === 'sidebar' &&
+    isSidebarOpen.value &&
+    !isWideViewport.value
+  if (!isSection) {
     isSidebarOpen.value = false
   }
-
-  scrollToLazyElement(id)
+  scrollToLazyElement(id, !keepSidebarFocus)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {
@@ -1902,7 +1945,7 @@ eventBus.on('intersecting:nav-item', ({ id: intersectingId }) => {
   updatePageTitle(id)
 
   // Scroll the sidebar to keep the selected element near the top
-  scrollSidebarToTop(id)
+  scrollSidebarToTop(id, undefined, documentRoot)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (urlRouting.value && url && workspaceStore.workspace.activeDocument) {
@@ -2058,8 +2101,9 @@ const onShellPanelFocusOut = (event: FocusEvent): void => {
 
 /** Whether focus is in the panel, which then hands it back to the trigger when the panel goes away */
 const isFocusInShellPanel = (): boolean =>
-  document.getElementById(shellPanel.id)?.contains(document.activeElement) ??
-  false
+  documentRoot
+    ?.getElementById(shellPanel.id)
+    ?.contains(getActiveElement(documentRoot)) ?? false
 
 /**
  * Closes the panel from outside it (the window narrowed, its tool stopped applying). Focus inside it
@@ -2075,7 +2119,7 @@ const closeShellPanelFromOutside = (): void => {
   shellPanelHadFocus.value = false
   shellPanel.close({ restoreFocus: hadFocus })
 
-  const active = document.activeElement
+  const active = getActiveElement(documentRoot)
   const backOnTrigger =
     active instanceof HTMLElement &&
     active !== document.body &&
@@ -2181,7 +2225,7 @@ const referenceLayout = useTemplateRef<HTMLElement>('documentEl')
  */
 const findReadingAnchor = (): Element | null => {
   const content = referenceLayout.value?.querySelector('.references-rendered')
-  const toolbar = document.querySelector('.references-shell-toolbar')
+  const toolbar = documentRoot?.querySelector('.references-shell-toolbar')
   if (!content || !toolbar) {
     return null
   }
@@ -2205,7 +2249,7 @@ const findReadingAnchor = (): Element | null => {
 
   for (let y = line + 4; y < line + 240; y += 12) {
     for (const fraction of [0.05, 0.15, 0.3]) {
-      const hit = document.elementFromPoint(
+      const hit = documentRoot?.elementFromPoint(
         area.left + area.width * fraction,
         y,
       )
@@ -2220,7 +2264,7 @@ const findReadingAnchor = (): Element | null => {
   }
 
   const selectedId = sidebarState.selectedItem.value
-  const section = selectedId ? document.getElementById(selectedId) : null
+  const section = selectedId ? documentRoot?.getElementById(selectedId) : null
   return section && content.contains(section) ? section : null
 }
 
@@ -2272,7 +2316,7 @@ const openGenerateSdk = (): void => {
   }
 
   const fromToolbar =
-    document.activeElement?.closest('.references-shell-toolbar') != null
+    getActiveElement(documentRoot)?.closest('.references-shell-toolbar') != null
   void loadShellPanel()
   shellPanel.toggle('sdk', { focus: !fromToolbar })
 }
@@ -2384,6 +2428,17 @@ const sidebarCta = computed((): SidebarCta => {
       <div
         aria-hidden="true"
         class="references-shell-frame" />
+      <!-- One-time invitation to the API Hosting beta, once the document is on screen, and only when
+           this machine serves the page to itself: the shell also covers `.test` and other reserved
+           names, which can be shared sites. It opens only after the other documents have loaded in
+           the background, but it notices someone starting to read from the moment it mounts. The
+           popup renders in a portal, so where it sits here does not matter. -->
+      <ApiHostingBetaPrompt
+        v-if="
+          workspaceStore.workspace.activeDocument && isLocalDevelopmentPage()
+        "
+        :integration="mergedConfig._integration"
+        :ready="hasPreloadedDocuments" />
     </template>
     <div
       ref="documentEl"

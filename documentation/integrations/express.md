@@ -12,16 +12,16 @@ npm install @scalar/express-api-reference
 
 ## Usage
 
-[Set up Express](https://expressjs.com/en/starter/hello-world.html) and pass a URL to an OpenAPI/Swagger document to the `apiReference` middleware:
+[Set up Express](https://expressjs.com/en/starter/hello-world.html) and pass a URL to an OpenAPI/Swagger document to the `Scalar` middleware:
 
 > Wait, but how do we get the OpenAPI document? 🤔 There are multiple ways to generate an OpenAPI file for Express. The most popular way is to use [`swagger-jsdoc`](https://github.com/Surnet/swagger-jsdoc).
 
 ```typescript
-import { apiReference } from '@scalar/express-api-reference'
+import { Scalar } from '@scalar/express-api-reference'
 
 app.use(
   '/reference',
-  apiReference({
+  Scalar({
     // Put your OpenAPI url here:
     url: '/openapi.json',
   }),
@@ -35,11 +35,11 @@ The Express middleware takes our universal configuration object, [read more abou
 The middleware comes with a custom theme for Express. You can use one of [the other predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) (`alternate`, `default`, `moon`, `purple`, `solarized`) or overwrite it with `none`. All themes come with a light and dark color scheme.
 
 ```typescript
-import { apiReference } from '@scalar/express-api-reference'
+import { Scalar } from '@scalar/express-api-reference'
 
 app.use(
   '/reference',
-  apiReference({
+  Scalar({
     theme: 'purple',
     url: '/openapi.json',
   }),
@@ -51,11 +51,11 @@ app.use(
 You can use a custom CDN, default is `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
 
 ```typescript
-import { apiReference } from '@scalar/express-api-reference'
+import { Scalar } from '@scalar/express-api-reference'
 
 app.use(
   '/reference',
-  apiReference({
+  Scalar({
     cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
     url: '/openapi.json',
   }),
@@ -72,11 +72,11 @@ To render a beautiful UI using [Scalar](https://github.com/scalar/scalar), you j
 npm install @scalar/express-api-reference
 ```
 
-And then hook into Express and pass the `apiReference` middleware with the OpenAPI document:
+And then hook into Express and pass the `Scalar` middleware with the OpenAPI document:
 
 ```typescript
 import { createConfig } from 'express-zod-api'
-import { apiReference } from '@scalar/express-api-reference'
+import { Scalar } from '@scalar/express-api-reference'
 
 const config = createConfig({
   beforeRouting: ({ app, getLogger }) => {
@@ -85,7 +85,7 @@ const config = createConfig({
 
     app.use(
       '/docs',
-      apiReference({
+      Scalar({
         // Pass your generated OpenAPI document
         content: documentation.getSpecAsJson(),
       }),

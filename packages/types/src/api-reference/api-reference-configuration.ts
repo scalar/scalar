@@ -1,6 +1,5 @@
-import { type ZodType, z } from 'zod'
-
-import type { AvailableClient, ClientId, TargetId } from '../snippetz'
+import type { AvailableClient, ClientId, DefaultHttpClientId, HttpClientPattern, TargetId } from '../snippetz'
+import { z } from '../zod'
 import { apiReferencePluginSchema } from './api-reference-plugin'
 import type { AuthenticationConfiguration } from './authentication-configuration'
 import { NEW_PROXY_URL, OLD_PROXY_URL, baseConfigurationSchema } from './base-configuration'
@@ -17,7 +16,7 @@ const apiReferenceLocalizationSchema = z
     direction: z.enum(['ltr', 'rtl', 'auto']).optional().catch('auto'),
     translations: z.record(z.string(), z.unknown()).optional(),
   })
-  .optional() as ZodType<ApiReferenceLocalization | undefined>
+  .optional() as z.ZodType<ApiReferenceLocalization | undefined>
 
 /**
  * Standard configuration for the Api Reference.
@@ -81,7 +80,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   isEditable: z.boolean().optional().default(false).catch(false),
   /**
-   * Whether to show models in the sidebar, search, and content.
+   * Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content.
    * @default false
    */
   hideModels: z.boolean().optional().default(false).catch(false),
@@ -135,6 +134,12 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default false
    */
   showOperationId: z.boolean().optional().default(false).catch(false),
+  /**
+   * Whether to show the `x-badges` of operations, webhooks, tags, tag groups and models in the sidebar
+   *
+   * @default false
+   */
+  showBadgesInSidebar: z.boolean().optional().default(false).catch(false),
   /** Extension keys to display on operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions: z.array(z.string().regex(/^x-/)).optional(),
   /** Whether dark mode is on or off initially (light mode) */
@@ -158,6 +163,13 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   favicon: z.string().optional(),
   /**
+   * Built-in HTTP clients available in code sample pickers.
+   * Use a client ID such as `node/undici` or a target wildcard such as `shell/*`.
+   * Omit to use the existing client list, or pass `[]` to hide all built-in clients.
+   * `hiddenClients` still applies.
+   */
+  httpClients: z.array(z.custom<HttpClientPattern>((value) => typeof value === 'string')).optional(),
+  /**
    * List of httpsnippet clients to hide from the clients menu
    * By default hides Unirest, pass `[]` to show all clients
    */
@@ -173,11 +185,12 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default true
    */
   persistSelectedClient: z.boolean().optional().default(true).catch(true),
-  /** Determine the HTTP client that's selected by default */
+  /** The default code sample client, as a client ID or a target/client object. */
   // The custom branch widens the inferred type only; the permissive first branch
   // already accepts custom keys at runtime.
   defaultHttpClient: z
     .union([
+      z.custom<DefaultHttpClientId>((value) => typeof value === 'string'),
       z.object({
         targetKey: z.custom<TargetId>(),
         clientKey: z.custom<ClientId<TargetId>>(),
@@ -210,6 +223,8 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default 'raw'
    */
   defaultRequestBodyView: z.enum(['form', 'raw']).optional(),
+  /** Use indexed dotted names for nested multipart form fields. */
+  multipartNaming: z.literal('indexed-dot').optional(),
   /** Custom CSS to be added to the page */
   customCss: z.string().optional(),
   /** onServerChange is fired on selected server change */
@@ -438,7 +453,8 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional(),
   /**
-   * Whether to include default fonts
+   * Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.
+   * @deprecated There are no default fonts to load any more.
    * @default true
    */
   withDefaultFonts: z.boolean().optional().default(true).catch(true),
@@ -635,7 +651,7 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
 // const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfigurationSchema>>
 
 /** Configuration for the Api Reference */
-export const apiReferenceConfigurationWithSourceSchema: ZodType<
+export const apiReferenceConfigurationWithSourceSchema: z.ZodType<
   Omit<ApiReferenceConfiguration, 'url' | 'content'> & SourceConfiguration
 > = apiReferenceConfigurationSchema.extend(sourceConfigurationSchema.shape).transform((parsed) => {
   // Migration removes the deprecated field from this same configuration object.

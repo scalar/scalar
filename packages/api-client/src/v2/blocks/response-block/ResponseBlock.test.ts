@@ -1,10 +1,12 @@
+import type { HarResponse } from '@scalar/snippetz'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestPayload } from '@scalar/workspace-store/request-example'
 import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { assert, describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw } from 'vue'
 
-import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
+import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
+import { type ResponseInstance, sendRequest } from '@/v2/blocks/operation-block/helpers/send-request'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import ResponseEmpty from './components/ResponseEmpty.vue'
@@ -36,6 +38,89 @@ describe('ResponseBlock', () => {
     plugins: [],
     eventBus: createWorkspaceEventBus(),
   }
+  const csvHeaders = {
+    'Content-Type': 'text/csv',
+    'Content-Disposition': 'attachment; filename="export.csv"',
+  }
+  const downloadLink = 'a[aria-label="Download Response Body"]'
+  const expectZeroByteDownload = async (link: Element, filename: string): Promise<void> => {
+    const url = link.getAttribute('href')
+    assert(url, 'Expected a URL for the response download')
+    expect(link.getAttribute('download')).toBe(filename)
+    const response = await fetch(url)
+    expect((await response.arrayBuffer()).byteLength).toBe(0)
+  }
+
+  it.each([
+    ['attachment; filename="export.csv"', 'export.csv'],
+    ['Attachment', 'response.csv'],
+  ])('offers a zero-byte download for an empty CSV with %s', async (disposition, filename) => {
+    const [, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: ['https://example.test/download', { method: 'GET' }],
+      customFetch: () =>
+        Promise.resolve(new Response('', { headers: { ...csvHeaders, 'Content-Disposition': disposition } })),
+    })
+    const wrapper = mount(ResponseBlock, { props: { ...defaultProps, response: result?.response ?? null } })
+    try {
+      await expectZeroByteDownload(wrapper.get(downloadLink).element, filename)
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
+  it.each([
+    ['GET', 204, '204 No Content'],
+    ['GET', 205, '205 Reset Content'],
+    ['GET', 304, '304 Not Modified'],
+    ['HEAD', 200, '200 OK'],
+    ['GET', 200, '200 OK'],
+  ])('hides the download when a %s response with status %i has no stream', async (method, status, statusLabel) => {
+    const [, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: ['https://example.test/download', { method }],
+      customFetch: () =>
+        Promise.resolve(
+          new Response(null, { status, headers: { ...csvHeaders, 'Content-Type': 'application/octet-stream' } }),
+        ),
+    })
+    const wrapper = mount(ResponseBlock, { props: { ...defaultProps, response: result?.response ?? null } })
+    try {
+      expect(wrapper.text()).toContain(statusLabel)
+      expect(wrapper.find(downloadLink).exists()).toBe(false)
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
+  it.each([
+    { name: 'a recorded empty attachment', size: 0, text: '', filename: 'export.csv' },
+    { name: 'an omitted body', size: -1, text: '', filename: undefined },
+    { name: 'a history entry without body text', size: 0, text: undefined, filename: undefined },
+  ])('restores the expected Download action for $name', async ({ size, text, filename }) => {
+    const harResponse: HarResponse = {
+      status: 200,
+      statusText: 'OK',
+      httpVersion: 'HTTP/1.1',
+      headers: Object.entries(csvHeaders).map(([name, value]) => ({ name, value })),
+      cookies: [],
+      content: { size, mimeType: 'text/csv', text },
+      redirectURL: '',
+      headersSize: -1,
+      bodySize: size,
+    }
+    const response = harToFetchResponse({ harResponse, method: 'GET', path: '/download' })
+    const wrapper = mount(ResponseBlock, { props: { ...defaultProps, response } })
+    try {
+      if (filename === undefined) {
+        expect(wrapper.find(downloadLink).exists()).toBe(false)
+        return
+      }
+      await expectZeroByteDownload(wrapper.get(downloadLink).element, filename)
+    } finally {
+      wrapper.unmount()
+    }
+  })
 
   it.each(['Content-Type', 'content-type'])('formats live records using the %s header', async (header) => {
     const stream = new ReadableStream<Uint8Array>({

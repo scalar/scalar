@@ -65,6 +65,8 @@ Defined in [theme presets](https://github.com/scalar/scalar/blob/main/packages/t
 | `--scalar-background-3` | Tertiary background  |
 | `--scalar-border-color` | Border color         |
 
+Code blocks have their own `--scalar-code-*` color variables, so you can change syntax highlighting without changing the rest of the theme. See [Syntax highlighting](../../../themes.md#syntax-highlighting).
+
 **Typography and Sizing**
 
 Defined in [variables.css](https://github.com/scalar/scalar/blob/main/packages/themes/src/base/variables.css)

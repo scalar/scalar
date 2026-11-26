@@ -1,5 +1,36 @@
 # @scalar/themes
 
+## 0.22.0
+
+### Minor Changes
+
+- [#11175](https://github.com/scalar/scalar/pull/11175): Use the system font stack and stop loading web fonts. `--scalar-font` and `--scalar-font-code` now default to the platform's own UI and monospace fonts, and the Inter and JetBrains Mono files from fonts.scalar.com are no longer requested. `defaultFonts`, `@scalar/themes/fonts.css` and the `fonts` option of `getThemeStyles` are deprecated and do nothing. A custom theme that names Inter or JetBrains Mono now needs to load that font itself.
+- [#11241](https://github.com/scalar/scalar/pull/11241): feat(themes): refresh the palettes of nine presets and remove their hero flares
+
+  `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `saturn`, `kepler`, `mars` and `deepSpace` get new light and dark palettes. A palette is a surface, an ink and an accent; the other tones are ink blended into the surface, so the sidebar sits one step under the page, cards one step above it, and links carry the accent. Body text, secondary text, the accent and every method hue reach 4.5:1 on the page, card and sidebar surfaces.
+
+  The decorative hero flares are gone from these nine presets, along with their gradient headings and scroll-driven header backgrounds. The other presets keep theirs. The `.section-flare` elements are still rendered, so custom CSS that styles them keeps working.
+
+### Patch Changes
+
+- [#11243](https://github.com/scalar/scalar/pull/11243): Keep the color mode's `color-scheme` on Scalar elements so an embedded reference no longer switches the host page's color scheme
+
+## 0.21.1
+
+### Patch Changes
+
+- [#11130](https://github.com/scalar/scalar/pull/11130): Update nanoid to version 6 for faster identifier generation while preserving existing identifier formats.
+
+## 0.21.0
+
+### Minor Changes
+
+- [#11126](https://github.com/scalar/scalar/pull/11126): Give syntax highlighting a fuller palette
+
+  Parameters, object members, type names and punctuation now have their own colors, plain code is easier to read, and the colors are adjusted so they stay readable and distinct in light and dark mode. They still come from the active theme's hues.
+
+  The colors live in `@scalar/themes` as `--scalar-code-*` variables named by role (`--scalar-code-keyword`, `--scalar-code-string`, `--scalar-code-parameter` and so on), so a theme or custom stylesheet can set its own syntax colors. The Moon theme sets darker and lighter values to stay readable on its tinted backgrounds.
+
 ## 0.20.3
 
 ### Patch Changes

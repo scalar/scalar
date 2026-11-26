@@ -567,6 +567,17 @@ app.MapScalarApiReference(options => options
 > [!CAUTION]
 > Persisting authentication information in the browser's local storage may present security risks. Use with caution.
 
+### Nested multipart uploads
+
+For endpoints that bind nested objects or arrays with `[FromForm]`, opt in to indexed multipart field names.
+
+```csharp
+app.MapScalarApiReference(options =>
+    options.WithMultipartNaming(ScalarMultipartNaming.IndexedDot));
+```
+
+Scalar uses names such as `profile.file` and `certificates[0].file` in the request editor, sent requests, and generated code samples. The option applies to named multipart forms across that API Reference. See [multipartNaming](../../configuration.md#multipartnaming) for details.
+
 ### Custom HTTP Client
 
 Set a default HTTP client for code samples:
@@ -577,6 +588,16 @@ app.MapScalarApiReference(options =>
     options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
 ```
+
+Use full client IDs or target wildcards to limit the clients available in the pickers. The string overload of `WithDefaultHttpClient` selects the initial client.
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithHttpClients("node/fetch", "shell/*")
+    .WithDefaultHttpClient("node/fetch"));
+```
+
+Call `WithHttpClients()` with no arguments to hide all built-in clients. `EnabledClients` and `EnabledTargets` can further narrow the list. The same fluent methods are available in Aspire, Azure Functions, and AWS Lambda.
 
 Choose which clients appear as tabs in the **Client Libraries** block, in order:
 
@@ -589,7 +610,7 @@ app.MapScalarApiReference(options =>
 });
 ```
 
-Leave `FeaturedClients` unset to keep the default tabs. Call `WithFeaturedClients()` with no arguments to put all clients under **More**. Clients excluded by `EnabledClients` or `EnabledTargets` are skipped. This controls the tab row; use `WithDefaultHttpClient` separately to choose the initial selection.
+Leave `FeaturedClients` unset to keep the default tabs. Call `WithFeaturedClients()` with no arguments to put all clients under **More**. Tabs are limited to clients available under your client filters. This controls the tab row; use `WithDefaultHttpClient` separately to choose the initial selection.
 
 To show built-in HTTP clients alongside SDK installation tabs from `info.x-scalar-sdk-installation`, enable:
 
@@ -598,6 +619,16 @@ app.MapScalarApiReference(options => options.WithDefaultClientsWithSdkInstallati
 ```
 
 This sets `ShowDefaultClientsWithSdkInstallation` to `true`. The default is `false`, which shows only SDK tabs when installation instructions are available. The same option and fluent method are available in Aspire, Azure Functions, and AWS Lambda.
+
+### Sidebar badges
+
+To show `x-badges` next to sidebar titles, enable:
+
+```csharp
+app.MapScalarApiReference(options => options.WithBadgesInSidebar());
+```
+
+You can also set `options.ShowBadgesInSidebar = true`. Badges are hidden by default; use `WithBadgesInSidebar(false)` to disable them explicitly. The same option and fluent method are available in Aspire, Azure Functions, and AWS Lambda.
 
 ### Selected client persistence
 
@@ -676,7 +707,7 @@ app.MapScalarApiReference(options =>
 ```
 
 > [!NOTE]
-> Fonts are loaded from a CDN by default. To disable this, use `DisableDefaultFonts()`.
+> Scalar uses the system font stack and does not load any fonts, so `DisableDefaultFonts()` has no effect.
 
 ### Custom JavaScript Configuration
 

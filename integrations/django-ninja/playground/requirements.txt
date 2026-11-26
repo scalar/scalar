@@ -1,5 +1,5 @@
 Django>=6.0.4
-django-ninja==1.6.2
-pydantic==2.13.0
-pydantic_core==2.46.0
+django-ninja==1.8.0
+pydantic==2.14.4
+pydantic_core==2.50.5
 

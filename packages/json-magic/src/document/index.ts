@@ -1,0 +1,1 @@
+export { checkDocument } from './graph'

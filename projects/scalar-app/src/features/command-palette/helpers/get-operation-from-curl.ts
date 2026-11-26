@@ -37,16 +37,10 @@ const parseRequestBodyData = (data: string): ParsedData => {
     return JSON.parse(data) as ParsedData
   } catch {
     // If JSON parsing fails, parse as form-encoded data (key=value&key2=value2)
-    const result: Record<string, string> = {}
+    // A pair without an equal sign is not a field
+    const pairs = data.split('&').filter((pair) => pair.includes('='))
 
-    data.split('&').forEach((pair) => {
-      const [key, value] = pair.split('=')
-      if (key && value !== undefined) {
-        result[decodeURIComponent(key)] = decodeURIComponent(value)
-      }
-    })
-
-    return result
+    return Object.fromEntries([...new URLSearchParams(pairs.join('&'))].filter(([key]) => key))
   }
 }
 

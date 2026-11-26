@@ -1,5 +1,21 @@
 # @scalar/nextjs-api-reference
 
+## 0.12.24
+
+No changes in this release.
+
+## 0.12.23
+
+No changes in this release.
+
+## 0.12.22
+
+No changes in this release.
+
+## 0.12.21
+
+No changes in this release.
+
 ## 0.12.20
 
 ### Patch Changes

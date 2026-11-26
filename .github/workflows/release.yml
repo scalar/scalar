@@ -95,11 +95,11 @@ jobs:
       # protection rules.
       - name: Generate GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@v3.2.0
+        uses: actions/create-github-app-token@v3.4.0
         with:
           client-id: ${{ secrets.RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
@@ -205,28 +205,28 @@ jobs:
 
       - name: Purge CDN Cache
         if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v1.16.4
+        uses: fjogeleit/http-request-action@v2.0.1
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
           method: 'GET'
 
       - name: Purge CDN Cache (standalone bundle)
         if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v1.16.4
+        uses: fjogeleit/http-request-action@v2.0.1
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.js'
           method: 'GET'
 
       - name: Purge CDN Cache (ESM entry point)
         if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v1.16.4
+        uses: fjogeleit/http-request-action@v2.0.1
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/esm.js'
           method: 'GET'
 
       - name: Purge CDN Cache (standalone ESM bundle)
         if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v1.16.4
+        uses: fjogeleit/http-request-action@v2.0.1
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/dist/browser/standalone.esm.js'
           method: 'GET'
@@ -252,7 +252,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
       - name: Generate release tag
@@ -303,14 +303,14 @@ jobs:
     needs: [npm-publish]
 
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.1
       - name: Build @scalar/galaxy
         uses: $/.github/actions/build
         with:
           packages: '@scalar/galaxy...'
       - name: Check whether there's a new version of @scalar/galaxy
         id: changed-files
-        uses: step-security/changed-files@v47.0.1
+        uses: step-security/changed-files@v47.0.5
         with:
           files_yaml: |
             galaxy:

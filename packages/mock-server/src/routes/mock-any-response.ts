@@ -2,7 +2,7 @@ import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import { getExampleFromSchema, getXmlBodyExample } from '@scalar/workspace-store/request-example'
+import { getXmlBodyExample } from '@scalar/workspace-store/request-example'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Context } from 'hono'
 import { streamSSE } from 'hono/streaming'
@@ -11,6 +11,7 @@ import type { StatusCode } from 'hono/utils/http-status'
 import { collectSseEvents, isEventStreamContentType } from '@/utils/collect-sse-events'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 import { type ExampleGenerationContext, generateResponseExample } from '@/utils/generate-response-example'
+import { getResponseHeaderExample, usesOpenApi32HeaderExamples } from '@/utils/get-response-header-example'
 import { isSettableResponseHeader } from '@/utils/is-settable-response-header'
 import { negotiateContentType } from '@/utils/negotiate-content-type'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
@@ -73,32 +74,33 @@ export function mockAnyResponse(
   // Headers
   const headers = selectedResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
+    const name = header.toLowerCase()
     // The body and transport determine these headers. Generated values can truncate a response or
     // make clients decode uncompressed data; OpenAPI also requires ignoring declared Content-Type.
-    if (IGNORED_RESPONSE_HEADERS.has(header.toLowerCase())) {
+    if (IGNORED_RESPONSE_HEADERS.has(name)) {
       return
     }
 
-    const headerObject = getResolvedRef(headers[header])
-    // Headers use the generator defaults to preserve their declared values.
-    const value = headerObject?.schema
-      ? getExampleFromSchema(getResolvedRefDeep(headerObject.schema), generationContext)
-      : null
-    // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
-    // thing to set the declared headers, so in practice a delete removes a header set earlier by
-    // middleware — `cors()` sets `Access-Control-Allow-Origin` before the handler runs.
-    if (value != null) {
-      try {
-        const text = String(value)
-        if (isSettableResponseHeader(header, text)) {
-          c.header(header, text)
-          return
-        }
-      } catch {
-        // An authored object can also shadow toString and prevent string conversion.
+    try {
+      const example = getResponseHeaderExample(headers[header], generationContext, name)
+      // Passing undefined to Hono would delete a header already set by middleware such as cors().
+      if (example === undefined) {
+        return
       }
-      console.warn(`Skipping invalid response header ${JSON.stringify(header)} from the API description.`)
+      // OpenAPI 3.2 models separate Set-Cookie fields as one cookie per line.
+      const append = name === 'set-cookie' && usesOpenApi32HeaderExamples(generationContext)
+      const values = Array.isArray(example) ? example : [example]
+      const fields = append && typeof example === 'string' ? example.split(/\r?\n/).filter(Boolean) : values
+      if (fields.length && fields.every((value) => isSettableResponseHeader(header, value))) {
+        for (const value of fields) {
+          c.header(header, value, { append })
+        }
+        return
+      }
+    } catch {
+      // An authored value may fail serialization, for example if it shadows its own toString.
     }
+    console.warn(`Skipping invalid response header ${JSON.stringify(header)} from the API description.`)
   })
 
   // For 204 No Content responses, we should not set Content-Type and should return null body

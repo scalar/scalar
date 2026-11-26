@@ -1,7 +1,7 @@
 import type { MarkdownRenderHook } from '@scalar/helpers/markdown/markdown-render-hook'
 import type { PartialDeep } from 'type-fest'
 
-import type { AvailableClient, ClientId, TargetId } from '../snippetz'
+import type { AvailableClient, ClientId, DefaultHttpClientId, HttpClientPattern, TargetId } from '../snippetz'
 import type { ApiClientTranslations } from './api-client-translations'
 import type { PluginAuthState, PluginNavigationEntry } from './api-reference-plugin'
 
@@ -476,6 +476,7 @@ export type ApiReferenceTranslations = {
     operations: string
     webhooks: string
     channels: string
+    messages: string
     endpoints: string
     showAllEndpoints: string
     sidebarFor: string
@@ -553,6 +554,8 @@ export type ApiReferenceTranslations = {
     unknownType: string
     propertyCount: string
     headerCount: string
+    /** The blocks package supplies a localized default for the extensions disclosure. */
+    extensionCount?: string
     recursiveReference: string
     recursive: string
     additionalProperties: string
@@ -684,6 +687,7 @@ export type ApiReferenceTranslations = {
     waitlistError: string
     waitlistRateLimit: string
     waitlistBack: string
+    waitlistDone: string
     deployApiButton: string
     deployFrameworkButton: string
     deployApiTitle: string
@@ -768,7 +772,7 @@ export type ApiReferenceTranslations = {
  * For example, `{ search: { label: string } }` becomes `'search.label'`.
  */
 type TranslationDotPaths<T, Prefix extends string = ''> = {
-  [Key in keyof T & string]: T[Key] extends string
+  [Key in keyof T & string]: T[Key] extends string | undefined
     ? `${Prefix}${Key}`
     : T[Key] extends Record<string, unknown>
       ? TranslationDotPaths<T[Key], `${Prefix}${Key}.`>
@@ -825,7 +829,7 @@ type ExtendedConfiguration = {
   pluginUrls?: string[]
   /** Allows the user to inject an editor for the spec */
   isEditable: boolean
-  /** Whether to show models in the sidebar, search, and content. */
+  /** Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content. */
   hideModels: boolean
   /** Show structural types instead of model names in schema type labels and operation headings. */
   hideModelNames?: boolean
@@ -843,6 +847,8 @@ type ExtendedConfiguration = {
   hideSearch: boolean
   /** Whether to show the operationId */
   showOperationId: boolean
+  /** Whether to show the x-badges of operations, webhooks, tags, tag groups and models in the sidebar */
+  showBadgesInSidebar: boolean
   /** Extension keys to display on Paths Objects, Path Items, operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions?: string[]
   /** Whether dark mode is on or off initially (light mode) */
@@ -855,6 +861,13 @@ type ExtendedConfiguration = {
   metaData?: any
   /** Path to a favicon image */
   favicon?: string
+  /**
+   * Built-in HTTP clients available in code sample pickers.
+   * Use a client ID such as `node/undici` or a target wildcard such as `shell/*`.
+   * Omit to use the existing client list, or pass `[]` to hide all built-in clients.
+   * `hiddenClients` still applies.
+   */
+  httpClients?: HttpClientPattern[]
   /**
    * List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients
    *
@@ -870,8 +883,9 @@ type ExtendedConfiguration = {
    * @default true
    */
   persistSelectedClient?: boolean
-  /** Determine the HTTP client that is selected by default */
+  /** The default code sample client, as a client ID or a target/client object. */
   defaultHttpClient?:
+    | DefaultHttpClientId
     | {
         targetKey: TargetId
         clientKey: ClientId<TargetId>
@@ -899,6 +913,9 @@ type ExtendedConfiguration = {
    * @default 'raw'
    */
   defaultRequestBodyView?: 'form' | 'raw'
+
+  /** Use indexed dotted names for nested multipart and URL-encoded form fields, such as `items[0].name`. */
+  multipartNaming?: MultipartNaming
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onServerChange is fired on selected server change */
@@ -955,7 +972,7 @@ type ExtendedConfiguration = {
   setPageTitle?: (input: { title: string; document: { title: string; slug: string } }) => string
   /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
   redirect?: (input: string) => string | null | undefined
-  /** Whether to include default fonts */
+  /** @deprecated Scalar uses the system font stack and no longer loads web fonts, so this option has no effect. */
   withDefaultFonts: boolean
   /** Whether to expand the first tag in the sidebar when no specific URL target is present */
   defaultOpenFirstTag: boolean
@@ -982,6 +999,9 @@ type ExtendedConfiguration = {
   /** Sort the schema properties by required ones first */
   orderRequiredPropertiesFirst: boolean
 }
+
+/** Naming convention for multipart and URL-encoded request fields. */
+export type MultipartNaming = 'indexed-dot'
 
 export type SourceConfiguration = {
   /** Authentication overrides merged with the shared configuration. Arrays replace shared arrays. */

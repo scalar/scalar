@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
+import { hasRepeatedName, joinUrlAndQuery, normalizeMethod, reduceQueryParams } from '@/libs/http'
 import { Raw, getCookieDomain, objectToString, quotePhpString } from '@/libs/php'
 
 /**
@@ -17,7 +17,9 @@ export const phpGuzzle: Plugin = {
 
     const options: Record<string, any> = {}
     const method = normalizeMethod(request.method)
-    const url = request.url || ''
+    // Guzzle encodes array query values with indexed names, so a repeated name keeps the query in the URL.
+    const keepsQueryInUrl = hasRepeatedName(request.queryString)
+    const url = keepsQueryInUrl ? joinUrlAndQuery(request.url || '', request.queryString) : request.url || ''
 
     // Handle headers
     if (request.headers && Array.isArray(request.headers) && request.headers.length > 0) {
@@ -35,7 +37,7 @@ export const phpGuzzle: Plugin = {
     }
 
     // Handle query parameters
-    if (request.queryString && request.queryString.length > 0) {
+    if (!keepsQueryInUrl && request.queryString && request.queryString.length > 0) {
       options.query = reduceQueryParams(request.queryString)
     }
 
@@ -87,12 +89,7 @@ export const phpGuzzle: Plugin = {
         }
       } else if (request.postData.mimeType === 'application/x-www-form-urlencoded') {
         if (request.postData.params) {
-          // A repeated field name keeps every value instead of the last one
-          const formParams: Record<string, string | string[]> = {}
-          request.postData.params.forEach((param) => {
-            accumulateRepeatedValue(formParams, param.name, param.value || '')
-          })
-          if (Object.values(formParams).some(Array.isArray)) {
+          if (hasRepeatedName(request.postData.params)) {
             // Guzzle encodes arrays with indexed names, so serialize repeated fields directly.
             options.body = new URLSearchParams(
               request.postData.params.map(({ name, value }) => [name, value ?? '']),
@@ -103,7 +100,9 @@ export const phpGuzzle: Plugin = {
             }
             options.headers = headers
           } else {
-            options.form_params = formParams
+            options.form_params = Object.fromEntries(
+              request.postData.params.map(({ name, value }) => [name, value || '']),
+            )
           }
         }
       } else {

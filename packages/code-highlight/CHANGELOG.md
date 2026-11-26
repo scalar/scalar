@@ -1,5 +1,14 @@
 # @scalar/code-highlight
 
+## 0.4.17
+
+### Patch Changes
+
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11190](https://github.com/scalar/scalar/pull/11190): Escape HTML text in plain Markdown paragraphs independently of the checks that select the shortcut.
+
+  Share the Markdown renderer with `@scalar/code-highlight` while preserving its Lowlight language detection.
+
 ## 0.4.16
 
 ### Patch Changes

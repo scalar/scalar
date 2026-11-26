@@ -23,7 +23,9 @@
  * frame (see the conductor).
  *
  * Pages on scalar.com render on the client and hydrate over the first copy of the hero, so binding goes through a
- * MutationObserver with a dataset flag on the element: a node replaced by hydration comes back unbound and heals itself.
+ * MutationObserver with a dataset flag on the element: a node that comes back unbound is bound then. A root that
+ * hydration puts in the place of one already drawn is not built again: the meadow moves into it, picture and all (see
+ * `rehome`).
  */
 ;(() => {
   // The docs run a route's scripts again on every visit. The first run watches the page for good, so a later one has
@@ -1078,6 +1080,10 @@
      fit       (w, h) => how large the grass, the flowers, the clouds and the butterflies are drawn on a canvas that size.
      stillAt   the clock the still picture is painted at.
      plant     null, or a hook (garden) => {} run each time the meadow is laid out, which can plant more (see growMeadow).
+     regrow    how the meadow is laid out again once the stage has changed: all at once, in one task, when not given; or
+               'steps', a few milliseconds at a time in tasks of their own, the frames drawing the meadow as it was laid
+               out, moved with the land, until the new one is handed over whole (see regrowSoon): for a composition whose
+               planting is long, as the enterprise tree's is.
      cover     the footer's only: (band) => how far its canvas reaches up behind the footer (see footerMeadow).
      onPage    whether a stroke keeps its paint where there is no land under it, as a tree's crown against the sky does;
                otherwise it fades where the land fades into the page.
@@ -1113,8 +1119,6 @@
                butterflies, so that the fish come in and go out through the glass at the sides as the butterflies do,
                and a school always has the lens. A school with no fish is none. A composition with a school cannot also
                talk: both say what they are in their strokes' phase, and the face's codes run on past 400.
-     lightFoot whether the light it plants in the haze kind, marked even, goes into the canvas's foot whole rather than
-               thinning into specks there, as a figure the picture's foot cuts off does (see LIGHT_FOOT).
      perch     null, or how a flock that lands does it (see the butterflies that perch): its butterflies sit on the places
                the composition's planting gives (garden.perch), take off when the pointer comes onto the tree (the shape
                garden.tree draws for it) and come back to land once it has gone. Where the words stand over the places,
@@ -1125,6 +1129,11 @@
                clear of the glass. With `hover` ({ pose: [heading, pitch, roll], bob, sway }), one sitting in its place is on
                the wing there instead, beating its wings at `beat`, held in that pose, rising and sinking `bob` and
                drifting `sway` pixels (at a fit of 1).
+     tree      null, or how a tree that the composition's planting lays out is drawn in a pass of its own rather than in
+               the meadow's strokes (see TREE_VERTEX, treeFragment and TREE_LIGHT_FRAGMENT, and ENT_TREE for its knobs):
+               its planting hands over the mesh of its boughs, leaves and motes, and the shade and glow it leaves on the
+               land (garden.solid); the tree is drawn among the strokes at the depth of its foot, its shade and glow into
+               the land's texture.
      orbit     null, or how a flock that comes to the pointer does it (see the butterflies that come to the pointer):
                none of its butterflies is in the picture until the pointer rests for `call` seconds (0.25 when not
                given) in the place `zone`, an ellipse given as `words` is, { at: [x, y], half: [a, b] } in shares of the
@@ -1206,9 +1215,12 @@
   /* A meadow round the site's footer, after a footer card set down in a landscape of soft rolling hills: the root is
      made in the band under the footer (see footerMeadow), fills it, and reaches up over the footer's lower part. The far
      land is behind the footer, which is cut out of it, and the near hills come up in front of its foot (`front`, and see
-     the near hills). Rounded hills lie one behind another, paler and cooler the further off they are: the slate ridge far
-     away, the wallpaper's hill on the left and a dome on the right, then the footer, the near hills over its foot, two
-     lower hills in front of those, and the meadow at the front, rising into both corners. The flowers are fields of
+     the near hills). Rounded hills lie one behind another, paler and cooler the further off they are: the far ridge in the
+     air's blue, the wallpaper's hill on the left and a dome on the right, then the footer, the near hills over its foot,
+     two lower hills in front of those, and the meadow at the front, rising into both corners. The hills are the hero's
+     turf, at the end of the same day (see FOOTER_PHOTO): one low sun on the right behind them lights their crests through,
+     each against the hollow behind it, so that the hills stand one in front of another, and lays one band of light
+     slanting across them from beside the footer on the right down to the meadow on the left. The flowers are fields of
      colour over all of it (see FOOTER_PAINTS), and the low sun lies along the crests (see NEAR_BANDS and CREST_GLOW).
      Where the band is wider than the footer, the far hills rise beside it under the hero's band of sky. Live while it is
      on the screen, as the hero is, and built only once the page is scrolled near it.
@@ -1293,7 +1305,32 @@
       [1.6, 0.06],
     ],
   }
-  /* The slate ridge, uneven along its top as the wallpaper's is: it shows only over the dome's shoulder on the right,
+  const UNDER_HILLS_FOOT = {
+    hill: [
+      [-1.6, 0.07],
+      [1.6, 0.07],
+    ],
+  }
+  /* Whether the band beside the footer is too narrow for its sky, on the stage the land is built for. */
+  const footerSkyHidden = ({ w, hidden }) => !!hidden && Math.max(hidden.left, w - hidden.right) < FOOTER_SIDE
+  /* How high the far hills' crests stand beside the footer, in pixels over its foot on the stage the lines were drawn for:
+     the hill's highest, on the left (the ridge's on the right are 6 to 11 lower, so they meet the air's palest too). */
+  const FOOTER_HORIZON = 84
+  /* The foot of the sky where it is drawn: level, so that its air's colour goes by height alone, as a sky's does, rather
+     than following the far hills down where they dip behind the near ones; and as low as puts its horizon (FOOTER_AIR's,
+     a number of rooms over its foot) along the far hills' crests, which `relief` raises and lowers with the stage's width
+     as it does every line of the land (see landSteps), so that they go into the air as the hero's far hill goes into its
+     sky at every width. It always runs on under the far hills: they come down to about 5 pixels over the footer's foot,
+     under it, and this lies at least 4 under the footer's foot. */
+  const footerSkyFoot = ({ w }) => {
+    const relief = clamp(w / 1232, FOOTER_RELIEF[0], FOOTER_RELIEF[1])
+    const px = (FOOTER_AIR.horizon * FOOTER_ROOM) / relief - FOOTER_HORIZON
+    return footerLine([
+      [-1.6, px],
+      [1.6, px],
+    ])
+  }
+  /* The far ridge, uneven along its top as the wallpaper's is: it shows only over the dome's shoulder on the right,
      beside the footer, and runs low behind the far hills everywhere else. */
   const FOOTER_RIDGE = [
     [-1.6, 44],
@@ -1430,51 +1467,8 @@
     // the paler side of grass pushed over in the shade: a lighter green, not the hero's near-white
     sheen: ['#8cc054', '#93c55c'],
   }
-  /* A far hill, lit along a broad band at its crest, which is what the footer sits on, as the hero's words sit over its
-     hill's lit crest; a deeper band of shade under that; and its own shade again at its foot, where the next hill comes up
-     in front of it. */
-  const FOOTER_FAR_PAINT = [
-    [0, 'crest', 0],
-    [0.03, 'crest', 0.9],
-    [0.12, 'crest', 1],
-    [0.25, 'mist', 1],
-    [0.4, 'fern', 1],
-    [0.58, 'sage', 1],
-    [0.84, 'sage', 1],
-    [1, 'fern', 1],
-  ]
-  /* and a nearer one, in the hero's own greens, gilded along its crest where the sun reaches it */
-  const FOOTER_NEAR_PAINT = [
-    [0, 'gilt', 0],
-    [0.025, 'gilt', 0.85],
-    [0.07, 'glow', 1],
-    [0.16, 'lime', 1],
-    [0.3, 'green', 1],
-    [0.55, 'deepGreen', 1],
-    [0.85, 'shade', 1],
-    [1, 'shade', 1],
-  ]
-  /* The near hill on the left, right under the footer's foot and the furthest land a narrow screen shows, lit the longest
-     along its crest, where the footer sits in the sun, and falling into shade down its slope, under the band of light. */
-  const NEAR_HILL_PAINT = [
-    [0, 'gilt', 0],
-    [0.03, 'gilt', 0.9],
-    [0.09, 'glow', 1],
-    [0.18, 'lime', 1],
-    [0.32, 'green', 1],
-    [0.6, 'deepGreen', 1],
-    [0.9, 'shade', 1],
-    [1, 'shade', 1],
-  ]
-  /* and the right rise, turned from the light, in shade from just under its crest */
-  const FOOTER_SHADE_PAINT = [
-    [0, 'lime', 0],
-    [0.03, 'lime', 0.8],
-    [0.08, 'green', 1],
-    [0.2, 'deepGreen', 1],
-    [0.45, 'shade', 1],
-    [1, 'night', 1],
-  ]
+  /* (The hills were painted in bands of these inks along their lines; they are turf now, painted by how much light a
+     place has, from the hero's own inks: see FOOTER_TURF_INK, FOOTER_TURF_PAINT and FOOTER_PHOTO.) */
   /* The near hills, in front of the footer: they come up over its foot, as the hills of a landscape a card is set down in
      come up in front of it, so that its foot and its corners go into the land. A broad hill rises from the left over the
      footer's lower left corner and passes under its copyright; it falls away into a valley, where more of the footer shows;
@@ -1580,8 +1574,12 @@
      out of focus, so that it reads as light on the flowers rather than as flowers, as [the crest, from across, to across,
      how strong, its tints, where across it begins to fade, how large]: gold over the near hills' band, fading on the
      right, where they turn from the light, and a softer gold over the left rise's band; and right along the near
-     hills' crest, under the footer, a thin rim of paler light, where the sun catches the flowers' heads. 'near' is the near hills' crest, and any
-     other a sheet's, where it is the crest one sees. The right rise, in shade, has none. */
+     hills' crest, under the footer, a thin rim of paler light, where the sun catches the flowers' heads. 'near' is the
+     near hills' crest, and any other a sheet's, where it is the crest one sees. The right rise, in shade, has none.
+     On turf the sun lights the crests through itself (see each hill's crest and rim, and PHOTO_VALLEY), and the gold
+     haze, thin paint over a darker ground, only muddied the flowers under it into olive: so the two gold entries are
+     at nothing, and only the pale rim is left. (They stay, at nothing, so that every planting after them draws the
+     same randoms, the front's cornflowers among them.) */
   const GOLD_LIGHT = [
     ['saffron', 'apricot'],
     ['apricot', 'gold'],
@@ -1594,9 +1592,9 @@
     ['saffron', 'butter'],
   ]
   const CREST_GLOW = [
-    ['near', -1.7, 1.7, 1.25, GOLD_LIGHT, 0.1, 1],
-    ['left rise', -1.7, 0.2, 0.9, GOLD_LIGHT, 0, 1],
-    ['near', -1.7, 1.7, 0.8, RIM_LIGHT, 0.1, 0.5],
+    ['near', -1.7, 1.7, 0, GOLD_LIGHT, 0.1, 1],
+    ['left rise', -1.7, 0.2, 0, GOLD_LIGHT, 0, 1],
+    ['near', -1.7, 1.7, 0.5, RIM_LIGHT, 0.1, 0.5],
   ]
   /* the sheets in front of each crest that glows, which hide it where they stand higher */
   const GLOW_HIDDEN_BY = { 'left rise': ['meadow'], 'right rise': ['left rise', 'meadow'] }
@@ -1720,7 +1718,9 @@
   /* How much of the ground the flowers cover by how near (see FLOWERS), for the canvas's width and the room under the
      footer's foot: the fields far off are full, the left rise's band fullest, and the cornflowers at the front stand
      apart; over a phone's short band, whose meadow is shallow, the front is thinner still, and the fields far off a little
-     thinner too, since its flowers are smaller and so many more cover the same ground. */
+     thinner too, since its flowers are smaller and so many more cover the same ground. All of it is FOOTER_SPARSE of a
+     full field, so that the hills read as grass with flowers in it rather than as a carpet of them. */
+  const FOOTER_SPARSE = 0.3
   const footerCover = (w, room) => {
     const front = shortBand(room) ? 0.7 : 1
     const far = shortBand(room) ? 0.8 : 1
@@ -1734,7 +1734,286 @@
       [0.72, 1.5],
       [0.8, 2.4 * front],
       [1, 2 * front],
-    ]
+    ].map(([near, cover]) => [near, cover * FOOTER_SPARSE])
+  }
+
+  /* The sky over the hills, as air (see a sheet's `air` and airFragment), the same over the home hero and the footer, so
+     that the page's top and its foot lie under one sky. By day it is sky blue all the way, never lilac (the lines'
+     colour, which read as out of place): from the grey haze along the far hill's top, through the air low over it, of
+     the same lightness, and a soft band of blue, to a deeper zone over that (the blue for the pink band over the
+     photograph's sun), and the paler blue it dissolves into the page from. Its zones differ by a step in lightness and a
+     small turn from cyan towards blue, as the photograph's do in its own colours; and the haze it ends in is no lighter
+     than the band, so the far hill goes into it rather than standing under a pale rim. The breath of whiter light lies
+     low on the horizon on the sun's side; `airDip` is the land far off under the horizon, seen through that haze
+     (where the footer's far hills dip, see FOOTER_AIR). On a dark page it is the same sky at dusk: deep blue going to
+     indigo as it dissolves into the page, lighter towards the horizon, and on the sun's side the last of the light low
+     on the horizon, the brightest thing in the sky, so that the land it lights has a light to be lit by. */
+  const AIR_INK = {
+    airHaze: ['#c1d1dc', '#566c90'],
+    airLow: ['#bfd1e0', '#354d74'],
+    airBand: ['#b1cef0', '#1e2f53'],
+    airZone: ['#a5c5e6', '#1d264b'],
+    airHigh: ['#bcd7f3', '#161f3c'],
+    airGlow: ['#eef5fb', '#96a8bb'],
+    airDip: ['#b8c8b8', '#4a6164'],
+  }
+  /* The footer's hills are the hero's turf (see photoFragment and the docs composition's DOCS_PHOTO), so that the page's
+     top and its foot read as one valley at the end of the same day: the same greens read by how much light a place
+     has, the same low sun on the right behind the hills, the same dew, under the same sky. Its inks are the hero's own. */
+  const FOOTER_TURF_INK = {
+    ...FOOTER_INK,
+    ...AIR_INK,
+    turfDeep: ['#11230c', '#13260d'],
+    turfDusk: ['#182e11', '#1a3112'],
+    turfShade: ['#24411a', '#25431b'],
+    turfOpen: ['#315423', '#325624'],
+    turfHalf: ['#516f2c', '#51702d'],
+    turfLit: ['#6b8b33', '#6b8b34'],
+    turfSun: ['#84a23d', '#84a23e'],
+    turfHot: ['#a2ba54', '#a2ba56'],
+    turfGlow: ['#bfd07c', '#bfd07e'],
+    // the haze along the far hills' tops, which is the sky's own air at its horizon, as the hero's
+    turfHaze: AIR_INK.airHaze,
+    turfMist: ['#a3bf6c', '#6f9146'],
+    turfLamp: ['#f1f6d2', '#eef3cc'],
+    // the air over the far land at the end of the day: lit grass seen through warm air, as the hero's far meadow is
+    turfFar: ['#9db46a', '#4f6a38'],
+  }
+  /* a hill of turf's paint, read by how much light a place has (as DOCS_TURF_PAINT) */
+  const FOOTER_TURF_PAINT = [
+    [0, 'turfDeep', 1],
+    [0.12, 'turfDusk', 1],
+    [0.23, 'turfShade', 1],
+    [0.34, 'turfOpen', 1],
+    [0.47, 'turfHalf', 1],
+    [0.6, 'turfLit', 1],
+    [0.72, 'turfSun', 1],
+    [0.84, 'turfHot', 1],
+    [1, 'turfGlow', 1],
+  ]
+  /* What all the footer's turf shares, in the terms of DOCS_PHOTO (places [across, rooms], lengths in rooms of the
+     footer's land, 416 pixels on the stage its lines were drawn for). It has no figure (`lamp: null`), and its canvas
+     runs on to the page's foot (`foot: 0`). The band of light rakes across the hills as the hero's does, at about the
+     same slant: it comes in from the right beside the footer, where the sun is low behind the far hills, crosses the
+     near right hill's crest under the footer's foot, the near hills' faces and the left rise where the gold band is,
+     and runs out at the left over the meadow's crest, so that each lit stretch crosses the crests rather than lying
+     along them. The near left hill under the copyright is in the shade on its far side, the right rise and the meadow
+     at the front in the shade on its near side, where the dew glints; a faint shaft lies over the front's left and
+     another over the right rise's turned-away face. The far hills' tops go into the sky beside the footer as the hero's
+     far hill goes into its sky (`haze`, towards the air at its horizon, over their warm air: mostly added as light by
+     day, laid on at dusk; it is short, as the hills beside the footer are small). At dusk the sun has less in it here
+     than in the hero. Also:
+     valley   the hollow behind each nearer hill's crest (see PHOTO_VALLEY): how far up the hill behind it reaches in
+              pixels, how much of that hill's shade it takes away there [on a light page, on a dark page], and how much
+              of its sun.
+     dewFloor how much of the dew lies even in deep shade (the hero's turf has 0.12: see dewFloorFragment).
+     blur     how far up from the canvas's foot the ground is as out of focus as the cornflowers in front of the lens,
+              in pixels (see blurFootFragment).
+     airInk   the ink the far land's air goes towards (see PHOTO_AIR): warm, lit air, not the sky's blue.
+     bush     the shrubs' leaves (see PHOTO_BUSH): how large a leaf is (the grain's speck drawn out that many times),
+              how large its clumps are in pixels, how far its leaves bite into its outline in pixels, how round the whole
+              of it is (`round`, the power of one dome over its lumps, so that it falls away into the grass at its ends),
+              how far its ends draw in for each pixel under the grass's line (`taper`), how far its outline swells and
+              dips with its clumps (`lobe`) and how soft its edge is (`soft`), both in pixels, so that it is as much in
+              focus as the crest it stands on; how few sprigs stand past it and how far (`sprigs`: the noise they need,
+              pixels); how light its shade is, how bright its side and top towards the sun glow, how much of the film's
+              grain it takes, and how far over its outline it is lofted, in pixels, for its edge and sprigs.
+     trod     how the grass parted by the unseen passer and the pointer shows (see trodFragment): the sheen it starts and
+              is whole at, how much of the dew it brushes off, and how much light it adds to the ground and to the
+              blades' tips.
+     noiseTile  the turf's smooth noise read from a tile this many places square (see tileNoiseFragment), which keeps
+              the footer, drawn every frame on every page, within its budget.
+     cut      how far above the land in front of the card the land behind it is still worked out inside the card's
+              box, in pixels (see cutFragment): none of it shows there, and on a phone that is all of the far land.
+     dewReach how far from a glint, in its own widths, its light is worked out (see dewReachFragment). */
+  const FOOTER_PHOTO = {
+    sun: { way: [0.8, 0.26, -0.54], lit: [0.02, 0.4], power: [1.2, 0.7] },
+    beam: {
+      at: [0.1, 0.28],
+      run: [-1, 0.3],
+      half: 0.08,
+      soft: [0.2, 0.16],
+      widen: 0.25,
+      ragged: 0.04,
+      creep: [
+        [0.05, 0.2, -1.25],
+        [0.02, 0.47, -2.94],
+      ],
+    },
+    shafts: [
+      [0.3, 0.05, 0.1, 0.18, 0.07],
+      [0.54, 0.08, 0.12, 0.3, 0.05],
+    ],
+    dapple: { size: [420, 140], drift: 14, dim: 0.55 },
+    near: { from: 104, to: 60, light: [0, 0] },
+    lamp: null,
+    haze: [
+      [1, 0.85],
+      [16, 12],
+      [0.4, 1],
+    ],
+    dew: [1, 0.55, 0.8, 0.35],
+    valley: [14, [0.5, 0.45], 0.25],
+    dewFloor: 0.35,
+    blur: 70,
+    foot: 0,
+    fringe: 9,
+    hide: 14,
+    inks: ['turfHaze', 'turfMist', 'turfLamp'],
+    airInk: 'turfFar',
+    bush: {
+      leaf: 2.2,
+      clump: 8,
+      bite: 2,
+      round: 0.75,
+      taper: 1.5,
+      lobe: 3,
+      soft: 3,
+      sprigs: [0.8, 1],
+      ambient: [0.7, 0.5],
+      rim: [2, 1.3],
+      grain: 0.2,
+      fringe: 5,
+    },
+    trod: [0.25, 0.55, 0.85, 0.04, 1.6],
+    noiseTile: 256,
+    cut: 28,
+    dewReach: 4.5,
+  }
+  /* The band of sky beside the footer is the hero's sky (see the docs composition's DOCS_AIR, whose knobs these are, and
+     AIR_INK): soft air rather than lines, its fall of colour fitted to a band about half as tall as the hero's. It comes
+     in from the page over 48 pixels, as softly as it can on a wide screen, but over no more than seven tenths of its own
+     height (the third of `fade`, see airFragment), so that the short strips of it a laptop shows still hold their blue
+     down to the horizon. Its horizon is level, along the far hills' crests beside the footer (its foot is placed for
+     that, see footerSkyFoot), so the far hills go into it as the hero's far hill goes into its sky; where they dip behind
+     the near hills, the air under the horizon goes, over 24 pixels, to the far land seen through the haze (`airDip`),
+     so that the dip reads as land far off rather than as a bank of fog. The breath of light low on it is on the right,
+     where the low sun stands behind the far hills: faint by day, and at dusk the last of the light. The band shows only
+     beside the footer, so it clears round nothing. */
+  const FOOTER_AIR = {
+    inks: [
+      [-24, 'airDip'],
+      [0, 'airHaze'],
+      [8, 'airLow'],
+      [16, 'airBand'],
+      [32, 'airZone'],
+    ],
+    horizon: 0.235,
+    rise: 12,
+    fade: [48, 1.5, 0.7],
+    smear: [
+      [420, 10, 12, 2.4],
+      [180, 3.5, 3, -3.6],
+      [90, 1.4, 1.1, 1.5],
+    ],
+    value: 0.007,
+    wander: 4,
+    grain: [0.06, 0.03],
+    pan: 10,
+    dither: 1,
+    glow: { at: 0.9, height: [12, 10], reach: [0.3, [22, 24]], amount: [0.2, 0.5], ink: 'airGlow' },
+  }
+  /* Each hill's turf, by its part in the picture (see the docs composition for what each knob is; `air` is how much of
+     the air lies over its face [on a light page, on a dark page], how far down its face the air thins in pixels, and how
+     much it thins by there; `tipsToLine` keeps its blades' tips under its line). The far ridge and the strip at the
+     right edge are the furthest land, in the low sun's warm air, as the hero's far meadow is; the hills beside the
+     footer a little nearer, with a track or two; the near hills over its foot nearer again, quieter and finer than the
+     rises in front of them, their tips never over the line that keeps them clear of the footer's text, and a thin lit
+     crest; then the right rise, turned from the sun, its shade full of dew; the left rise, turned to it, with a thin
+     lit crest of its own; and the meadow at the front, the coarsest. */
+  const FOOTER_TURF_FAR = {
+    off: 1,
+    round: 120,
+    scale: [0.22, 0.28, 60],
+    rough: 0.35,
+    blades: [0.6, 0.3],
+    grain: 0.1,
+    dew: 0,
+    form: [1.6, 0.05, 0.3],
+    take: 0.9,
+    crest: [0, 1],
+    ambient: [0.48, 0.3],
+    rim: [0.25, 6],
+    skyline: [4, 0.5, 0],
+    mist: [24, 0.12],
+    deep: [0, 100],
+    air: [[0.35, 0.18], 30, 0.4],
+  }
+  const FOOTER_TURF_BESIDE = {
+    ...FOOTER_TURF_FAR,
+    off: 0.8,
+    scale: [0.25, 0.32, 70],
+    rough: 0.45,
+    blades: [0.65, 0.38],
+    dew: 0.1,
+    ambient: [0.5, 0.3],
+    rim: [0.35, 8],
+    skyline: [4, 0.5, 0],
+    mist: [26, 0.12],
+    deep: [0.15, 100],
+    air: [[0.25, 0.12], 30, 0.5],
+    tracks: [44, 96, 0.15],
+  }
+  const FOOTER_TURF_NEAR = {
+    off: 0,
+    round: 90,
+    scale: [0.32, 0.45, 60],
+    rough: 0.6,
+    blades: [0.75, 0.3],
+    grain: 0.12,
+    dew: 0.4,
+    form: [4, 0.18, 0.25],
+    take: 0.85,
+    crest: [1.2, 20],
+    ambient: [0.3, 0.2],
+    rim: [[1.1, 0.8], 8],
+    skyline: [0.5, 3, 0],
+    tipsToLine: true,
+    mist: [18, 0.08],
+    deep: [0.45, 50],
+  }
+  const FOOTER_TURF_SHADE = {
+    ...FOOTER_TURF_NEAR,
+    scale: [0.5, 0.8, 90],
+    rough: 0.8,
+    blades: [1, 0.55],
+    grain: 0.2,
+    dew: 1.6,
+    form: [1.5, 0.18, 0.25],
+    take: 0.55,
+    crest: [0, 1],
+    ambient: [0.24, 0.17],
+    rim: [1, 5],
+    skyline: [0.4, 4, 0],
+    tipsToLine: false,
+    mist: [18, 0.08],
+    deep: [0.45, 90],
+  }
+  const FOOTER_TURF_LIT = {
+    ...FOOTER_TURF_SHADE,
+    scale: [0.42, 0.6, 90],
+    rough: 0.7,
+    dew: 1.2,
+    take: 0.92,
+    crest: [1.1, 10],
+    ambient: [0.26, 0.18],
+    rim: [0.8, 5],
+    deep: [0.45, 60],
+    tracks: [36, 70, 0.18],
+  }
+  const FOOTER_TURF_FRONT = {
+    ...FOOTER_TURF_SHADE,
+    round: 200,
+    scale: [0.6, 0.95, 110],
+    rough: 1,
+    blades: [1.3, 0.8],
+    dew: 1.3,
+    take: 0.95,
+    ambient: [0.31, 0.21],
+    rim: [1.3, 6],
+    skyline: [0.4, 7, 2],
+    mist: [20, 0],
+    deep: [0.12, 110],
   }
 
   const FOOTER = {
@@ -1755,14 +2034,18 @@
     // footer's height: where the band shows beside the footer wide enough for the sky (FOOTER_SIDE, on either side: on
     // some widths the footer keeps to the left of the band), far enough for the sky over the far hills, as `relief` and
     // the band's own room scale it (a phone's shorter band has a smaller room, see `room`), with the gap between the
-    // footer and the band and room for the sky's lines to breathe; where only a sliver shows, far enough for the far hills
+    // footer and the band and room for the sky to come in softly over its top line (FOOTER_AIR's `rise`, which must stay
+    // under the 14 pixels kept here, or the canvas's top would cut it); where only a sliver shows, far enough for the far hills
     // there and the shrubs on them; and far enough everywhere for the near hills at their highest and the shrubs that
-    // peek over them. No further: the canvas never reaches up where nothing of the land would be.
+    // peek over them. No further: the canvas never reaches up where nothing of the land would be. The band's room counts
+    // the meadow's foot that the page leaves off under it (--hl-footer-cut), as the canvas runs on over that too.
     cover: ({ width, tall }) => {
       const card = document.querySelector('.docs-global-footer')?.getBoundingClientRect()
-      const band = document.querySelector('.docs-footer-band')?.getBoundingClientRect()
+      const banded = document.querySelector('.docs-footer-band')
+      const band = banded?.getBoundingClientRect()
       const gap = card && band ? Math.max(0, band.top - card.bottom) : 12
-      const room = band ? band.height + gap : 252
+      const cut = banded ? Number.parseFloat(getComputedStyle(banded).getPropertyValue('--hl-footer-cut')) || 0 : 0
+      const room = band ? band.height + cut + gap : 252
       const scale =
         (clamp(width / 1232, FOOTER_RELIEF[0], FOOTER_RELIEF[1]) * (room + FOOTER_PAST)) /
         (1 - FOOTER_CARD) /
@@ -1777,11 +2060,14 @@
     // Solid down to the foot of the page, every line run the whole way across, past the screen's right edge, and fewer of
     // the beads of light along the lines, so that they glint here and there rather than sparkle over the flowers. On a
     // light page the land between the lines is lifted only a little towards white (0.08, not the hero's 0.3), so that
-    // the land in shade reads as deep paint rather than as stripes.
+    // the land in shade reads as deep paint rather than as stripes. (Nothing is drawn in lines now: the sky is air, the
+    // hills are turf, and the shrubs bushes.)
     lines: { ...LINES, sink: 0.001, whole: true, beadChance: 0.15, lift: 0.08 },
-    inks: FOOTER_INK,
+    inks: FOOTER_TURF_INK,
     land: {
       ...HERO.land,
+      // the hills are the hero's turf, lit by the same low sun (see FOOTER_PHOTO and each hill's `turf`)
+      photo: FOOTER_PHOTO,
       profile: footerLine(footerHigher(FOOTER_HILL, FOOTER_DOME)).crest,
       crest: FOOTER_CARD,
       relief: FOOTER_RELIEF,
@@ -1789,16 +2075,12 @@
         {
           name: 'sky',
           // where the band beside the footer is too narrow for it (FOOTER_SIDE), it lies under the far hills, unseen
-          top: ({ w, hidden }) =>
-            hidden && Math.max(hidden.left, w - hidden.right) < FOOTER_SIDE ? UNDER_HILLS : footerLine(FOOTER_SKY),
-          // it runs on under the far hills, so that no page shows at their crests
-          foot: {
-            hill: [
-              [-1.6, 0.07],
-              [1.6, 0.07],
-            ],
-          },
-          // light, and thinning into the page at its top: a haze of sky rather than a block of it
+          top: (stage) => (footerSkyHidden(stage) ? UNDER_HILLS : footerLine(FOOTER_SKY)),
+          // it runs on under the far hills, so that no page shows at their crests: level where it is drawn (see
+          // footerSkyFoot), and just under its own top where it lies unseen
+          foot: (stage) => (footerSkyHidden(stage) ? UNDER_HILLS_FOOT : footerSkyFoot(stage)),
+          // soft air, thinning into the page at its top (see FOOTER_AIR); it keeps a paint and line options only because
+          // every sheet is given them (the air reads none of them)
           paint: [
             [0, 'pale', 0],
             [0.14, 'pale', 0.32],
@@ -1811,33 +2093,32 @@
           fill: 0.7,
           under: 0.38,
           flow: 1.2,
-          breath: 2,
+          // a soft sky does not wobble: it drifts (see `air`)
+          breath: 0,
+          air: FOOTER_AIR,
         },
         /* A strip of land under all the rest along the right edge. It was the backstop for the notches of page that the
            few lines which stopped a pixel or two short of the canvas's edge left there, before `lines.whole` carried
            every line through; it stays because each sheet's lines are seeded by its place in this list, and taking it
-           out would draw all of them again differently. */
+           out would draw all of them again differently. As turf it is the furthest land, in the air's blue. */
         {
           name: 'right edge',
           opaque: true,
           top: footerLine(
             FOOTER_RIDGE.filter(([across]) => across >= 0.8).map(([across, px]) => [Math.max(across, 0.84), px]),
           ),
+          // (as turf it is hidden under the far ridge, so it runs no further down than half a room: the turf works out
+          // nothing below that the hills in front would hide)
           foot: [
-            [0.84, 1.1],
-            [1.6, 1.1],
+            [0.84, 0.5],
+            [1.6, 0.5],
           ],
-          paint: [
-            [0, 'slateHaze', 0],
-            [0.01, 'slate', 1],
-            [0.06, 'sage', 1],
-            [0.5, 'green', 1],
-            [1, 'olive', 1],
-          ],
+          paint: FOOTER_TURF_PAINT,
           fill: 0.72,
           under: 0.6,
           flow: 0.5,
-          breath: 1.2,
+          breath: 0,
+          turf: FOOTER_TURF_FAR,
         },
         {
           name: 'far ridge',
@@ -1849,58 +2130,58 @@
               [1.6, 0.12],
             ],
           },
-          paint: [
-            [0, 'slateHaze', 0],
-            [0.08, 'slateHaze', 0.8],
-            [0.4, 'slate', 1],
-            [1, 'slate', 1],
-          ],
+          paint: FOOTER_TURF_PAINT,
           fill: 0.72,
           under: 0.5,
           patch: 0.2,
           flow: 0.5,
-          breath: 1.2,
+          breath: 0,
+          turf: FOOTER_TURF_FAR,
         },
         {
           name: 'hill',
           opaque: true,
           top: footerLine(FOOTER_HILL),
+          // (its foot is 40 pixels under the footer's, where the near hills hide it everywhere, further down only where
+          // its own top runs lower behind the dome: below that, the turf would only work out what is never seen)
           foot: footerLine([
-            [-1.6, 108],
-            [-0.8, 102],
-            [-0.3, 93],
-            [0.2, 93],
-            [0.6, 87],
-            [1.6, 124],
+            [-1.6, 40],
+            [0.5, 40],
+            [0.7, 60],
+            [1.1, 120],
+            [1.6, 166],
           ]),
-          paint: FOOTER_FAR_PAINT,
+          paint: FOOTER_TURF_PAINT,
           lean: 0.3,
           fill: 0.74,
           under: 0.78,
           patch: 0.15,
           flow: 0.6,
-          breath: 1.4,
+          breath: 0,
+          turf: FOOTER_TURF_BESIDE,
         },
         {
           name: 'dome',
           opaque: true,
           top: footerLine(FOOTER_DOME),
           foot: footerLine([
-            [-0.1, 143],
-            [0.3, 93],
-            [0.8, 87],
-            [1.6, 93],
+            [-0.1, 140],
+            [0.3, 60],
+            [0.8, 40],
+            [1.6, 40],
           ]),
-          paint: FOOTER_FAR_PAINT,
+          paint: FOOTER_TURF_PAINT,
           lean: 0.3,
           fill: 0.74,
           under: 0.78,
           patch: 0.15,
           flow: 0.6,
-          breath: 1.4,
+          breath: 0,
+          turf: FOOTER_TURF_BESIDE,
         },
         // gorse on the far hills' crests beside the footer, as small as the hills under them are low, and on the left further
-        // in than the near hill's shrub, so that the two never stand one over the other
+        // in than the near hill's shrub, so that the two never stand one over the other; bushes in the turf's light (see
+        // PHOTO_BUSH), half lost in the air as the hills under them are
         {
           name: 'far shrubs',
           opaque: true,
@@ -1910,50 +2191,44 @@
             [-1.03, 9, 6, false],
             [0.97, 13, 8, true],
           ],
-          paint: SHRUB_PAINT,
+          paint: FOOTER_TURF_PAINT,
           fill: 0.8,
           under: 0.7,
           patch: 0.25,
           flow: 0.3,
           breath: 0.8,
+          bush: { air: [0.5, 0.42] },
         },
         {
           name: 'right rise',
           opaque: true,
           top: footerLine(FOOTER_RIGHT_RISE),
-          foot: footerLine([
-            [-0.1, 232],
-            [0.5, 224],
-            [1.6, 216],
-          ]),
-          paint: FOOTER_SHADE_PAINT,
+          // (as turf, its slope runs on down only 36 pixels under the meadow's crest, which hides the rest)
+          foot: footerLine(FOOTER_MEADOW.map(([across, px]) => [across, px + 36])),
+          paint: FOOTER_TURF_PAINT,
           lean: 0.25,
           fill: 0.88,
           under: 0.88,
           patch: 0.3,
           flow: 0.7,
-          breath: 1.6,
+          breath: 0,
           sheen: 0.6,
+          turf: FOOTER_TURF_SHADE,
         },
         {
           name: 'left rise',
           opaque: true,
           top: footerLine(FOOTER_LEFT_RISE),
-          foot: footerLine([
-            [-1.6, 196],
-            [-0.8, 214],
-            [0, 226],
-            [0.6, 222],
-            [1.2, 262],
-          ]),
-          paint: FOOTER_NEAR_PAINT,
+          foot: footerLine(FOOTER_MEADOW.map(([across, px]) => [across, px + 36])),
+          paint: FOOTER_TURF_PAINT,
           lean: 0.25,
           fill: 0.88,
           under: 0.88,
           patch: 0.3,
           flow: 0.7,
-          breath: 1.6,
+          breath: 0,
           sheen: 0.6,
+          turf: FOOTER_TURF_LIT,
         },
         {
           name: 'meadow',
@@ -1965,23 +2240,17 @@
             [1.6, 1],
           ],
           // lit along its crest, and in its own shade under the cornflowers, deepening towards the front
-          paint: [
-            [0, 'lime', 0],
-            [0.03, 'lime', 0.85],
-            [0.07, 'lime', 1],
-            [0.14, 'green', 1],
-            [0.3, 'deepGreen', 1],
-            [0.6, 'shade', 1],
-            [1, 'night', 1],
-          ],
+          paint: FOOTER_TURF_PAINT,
           fill: 0.92,
           under: 0.9,
           patch: 0.2,
           flow: 0.8,
-          breath: 2,
-          // Where the unseen passer parts the grass it shows its paler side (FOOTER_INK's sheen), but only so far: over
-          // the deep shade at the front a full sheen read as a smear of fog behind it, just as a reader arrives.
-          sheen: 0.5,
+          breath: 0,
+          turf: FOOTER_TURF_FRONT,
+          // Where the unseen passer parts the grass it leaves a trodden way through the dew (see trodFragment): on lines
+          // a full sheen read as a smear of fog behind it, just as a reader arrives, so it was held at a half; on turf the
+          // way shows blade by blade, and needs more of it to show at all.
+          sheen: 0.8,
         },
         // a dark shrub in flower where the meadow rises into each corner, as low as the meadow is shallow and wider than tall
         {
@@ -1992,12 +2261,13 @@
             [-0.94, 22, 11, true],
             [0.93, 24, 11, true],
           ],
-          paint: SHRUB_PAINT,
+          paint: FOOTER_TURF_PAINT,
           fill: 0.8,
           under: 0.7,
           patch: 0.25,
           flow: 0.3,
           breath: 0.8,
+          bush: true,
         },
         /* The near hills in front of the footer, after all the rest so that every other sheet keeps its place in this list,
            and so its lines and its patches; they are drawn where `front` puts them, in front of the footer and behind the
@@ -2013,22 +2283,24 @@
           under: 0.88,
           patch: 0.3,
           flow: 0.7,
-          breath: 1.6,
+          breath: 0,
           sheen: 0.6,
+          turf: FOOTER_TURF_NEAR,
         },
         {
           name: 'near left',
           opaque: true,
           top: nearGuide(nearLeft, -1.6, 1.2),
           foot: NEAR_FOOT,
-          paint: NEAR_HILL_PAINT,
+          paint: FOOTER_TURF_PAINT,
           lean: 0.25,
           fill: 0.88,
           under: 0.88,
           patch: 0.3,
           flow: 0.7,
-          breath: 1.6,
+          breath: 0,
           sheen: 0.6,
+          turf: FOOTER_TURF_NEAR,
         },
         // round shrubs peeking over their crests, clear of the footer's content (see NEAR_SHRUBS_RIGHT)
         {
@@ -2042,6 +2314,7 @@
           patch: 0.25,
           flow: 0.3,
           breath: 0.8,
+          bush: true,
         },
         {
           name: 'near left shrubs',
@@ -2054,6 +2327,7 @@
           patch: 0.25,
           flow: 0.3,
           breath: 0.8,
+          bush: true,
         },
       ],
       // in front of the footer, in the order they are drawn: the near hills and what grows on them, then the rises and the
@@ -2240,8 +2514,8 @@
           paints: 'cornflowers',
         },
       ],
-      // a very few strays in the plain grass, of the meadow's own colours
-      strays: 12,
+      // a very few strays in the plain grass, of the meadow's own colours, as thin as the fields are
+      strays: Math.round(12 * FOOTER_SPARSE),
     },
     paints: FOOTER_PAINTS,
     palettes: FOOTER_PALETTES,
@@ -2312,13 +2586,14 @@
         return a + (hashed((i + 1) * 1.37 + seed * 91.1) - a) * f * f * (3 - 2 * f)
       }
       for (const [start, end, deep, cover, palette, seed, lower, cool] of NEAR_BANDS) {
-        // only what is on the canvas, as many as cover that share of the band's ground at their mean size
+        // only what is on the canvas, as many as cover that share of the band's ground at their mean size, as thin as the
+        // fields are (FOOTER_SPARSE)
         const from = Math.max(start, -1.02)
         const to = Math.min(end, 1.02)
         const mean = NEAR_BAND_DAB * Math.max(size, 0.95)
         const count = Math.max(
           0,
-          Math.round(((to - from) * half * deep * height * cover) / (Math.PI * 0.7 * mean * mean)),
+          Math.round(((to - from) * half * deep * height * cover * FOOTER_SPARSE) / (Math.PI * 0.7 * mean * mean)),
         )
         for (let k = 0; k < count; k += 1) {
           const across = from + (to - from) * rand()
@@ -2391,15 +2666,21 @@
           const reach = (9 + 4.5 * rand()) * size * large
           const blur = reach * 0.85
           const tint = tints[Math.floor(rand() * tints.length)]
-          const load = (0.34 + 0.16 * rand()) * strength * (fade ? 1 - 0.9 * smooth(fade, 0.7, at / half - 1) : 1)
+          // (where a hill in front rises towards the crest, the light thins away as it comes, rather than stopping short
+          // in a row of round blobs)
+          const open = before.reduce(
+            (least, other) => Math.min(least, ground(other, at) - top),
+            Number.POSITIVE_INFINITY,
+          )
+          const load =
+            (0.34 + 0.16 * rand()) *
+            strength *
+            (fade ? 1 - 0.9 * smooth(fade, 0.7, at / half - 1) : 1) *
+            smooth(0, 2 * reach, open)
           // its soft edge comes to a little over the crest at most, and no nearer the footer's content than NEAR_CALM; and
           // where it has faded to nothing, on the right, there is none
           const y = top + reach * 0.95 + blur * 0.5 + 1
-          if (
-            load < 0.04 ||
-            before.some((other) => ground(other, at) < top + reach) ||
-            !clear(at - reach * 2, at + reach * 2, y - reach * 1.12 - blur * 0.5 - 1.5)
-          ) {
+          if (load < 0.04 || !clear(at - reach * 2, at + reach * 2, y - reach * 1.12 - blur * 0.5 - 1.5)) {
             continue
           }
           dab({
@@ -2443,85 +2724,140 @@
   /* --- the enterprise composition -------------------------------------------------------------------- */
 
   /* The hero of /enterprise: a valley among mountains under the calls to action, after a sturdy tree on a knoll in a
-     mountain valley. Far ranges in soft greys, blue-grey and warm grey, under a thin band of the hero's sky, receding by
-     value, with their crests about the buttons and one peak rising higher well to the left of the words; a nearer range
-     in a deeper grey; ridges with a little of the land's green coming down into the valley; and in front the valley's
-     slopes in sunlight, gold and ochre, with a little grass on them. On a knoll close by on the right stands one tree,
-     seen from a few paces off, looking up into it: painted with the meadow's own brush after an oil of a twisting violet
-     trunk, the trunk massive where it flares into roots that spread over the knoll towards us, leaning a little and
-     tapering fast as it rises, its bark's strokes drawing together towards the sky; limbs radiating up and out from the
-     crotch; and the crown overhead, seen partly from beneath, its clumps dark and cool underneath and lit along their
-     upper rims, and all of it swaying a very little in the wind. Very small butterflies sit about its crown and its
-     limbs, opening and closing their wings; when the pointer comes onto the tree they are off, and they come back to it
-     once it has gone (see the butterflies that perch). It is the hero of its page, as the meadow is of
-     the home page: built as soon as it is bound (in the builder's short steps, so the page never waits on it), live
-     while on the screen, and in a dark theme the same day. */
+     mountain valley, seen as the home hero's meadow is, as a photograph at the end of the same day (see ENT_PHOTO):
+     snow mountains under the hero's soft air, far ranges pale with distance, with their crests about the buttons and
+     one peak rising higher well to the left of the words; a nearer range, clearer; green ridges coming down into the
+     valley; and in front the valley's slopes in the low sun, their riper grass gold where it is lit, with a little grass
+     standing on them. On a knoll close by on the right stands one tree, seen from a few paces off, looking up into it,
+     in a pass of its own (see ENT_TREE and `tree`): a dark, smooth trunk, massive where it flares into roots that grip
+     the knoll, leaning a little and tapering fast as it rises; limbs radiating up and out from the crotch and forking
+     into fine twigs, dark against the leaves; and overhead a broad crown of fine leaves in soft billows, lit through by
+     the low sun, lime and yellow on the sun's side and along its rims and deep green in its heart, with a soft glow
+     where its lit rim meets the air and a few motes in the light under it; it throws a long soft shade over the knoll,
+     and its crown sways a very little in the wind, the light flickering on its rim. Very small butterflies sit about
+     its crown and its limbs, opening and closing their wings; when the pointer comes onto the tree they are off, and
+     they come back to it once it has gone (see the butterflies that perch). It is the hero of its page, as the meadow
+     is of the home page: built as soon as it is bound (in the builder's short steps, so the page never waits on it),
+     live while on the screen, and in a dark theme the same day. */
   const ENTERPRISE_INKS = {
     ...LAND_INK,
-    // The ranges as snow and ice, quiet behind the fields: snow on the peaks and upper slopes, the palest ice-blue
-    // under it and the faintest blue-grey on the sides in shade, the nearer range a little deeper and still icy, so
-    // they recede by value. On a dark page the snow keeps its light but is softened, so it never glares.
-    snow: ['#f6f9fb', '#e4ebf1'],
-    haze: ['#e5eef4', '#d5e0e9'],
-    steel: ['#ccdae5', '#bccbd8'],
-    mist: ['#d9e5ed', '#c9d6e1'],
-    stone: ['#bccbd8', '#adbfcf'],
-    stoneDeep: ['#a8bacb', '#9bafc2'],
-    // The fields in late-afternoon sun: the nearer ridges a living meadow green, the light catching their crests in
-    // lime; and the valley's slopes and floor gold and amber where they are lit, running into spring and meadow greens
-    // through the grass and the shade.
-    ridgeLit: ['#b5dc5c', '#c2e472'],
-    ridge: ['#5fae46', '#72bd57'],
-    ridgeDeep: ['#3f9145', '#52a356'],
-    sunGold: ['#f7d566', '#f9dc7c'],
-    gold: ['#f3be3c', '#f6c756'],
-    amber: ['#e9a534', '#eeb14b'],
-    spring: ['#a3d34c', '#b2de61'],
-    meadow: ['#62b343', '#73c155'],
-    meadowDeep: ['#419a43', '#53aa53'],
+    // The land as the home hero's photograph has it (see ENT_PHOTO): the sky's air, the same as the hero's and the
+    // footer's, and the turf's greens, read by how much light a place has, from the deep shade of a hollow to a blade
+    // lit through. The valley's own late-afternoon gold is the light on its grass: on the sunlit slopes the grass is a
+    // little riper, so its lights go to a warm gold green, as full of colour as the hero's (never the straw or khaki of
+    // a dry lawn), and its shade is the same deep green. On a dark page it is the same valley at dusk, as the hero's is:
+    // the same greens, under a weaker sun.
+    ...AIR_INK,
+    turfDeep: ['#11230c', '#13260d'],
+    turfDusk: ['#182e11', '#1a3112'],
+    turfShade: ['#24411a', '#25431b'],
+    turfOpen: ['#315423', '#325624'],
+    turfHalf: ['#516f2c', '#51702d'],
+    turfLit: ['#6b8b33', '#6b8b34'],
+    turfSun: ['#84a23d', '#84a23e'],
+    turfHot: ['#a2ba54', '#a2ba56'],
+    turfGlow: ['#bfd07c', '#bfd07e'],
+    ripeHalf: ['#59722a', '#59722b'],
+    ripeLit: ['#7f9132', '#7f9133'],
+    ripeSun: ['#a3ad3f', '#a3ad40'],
+    ripeHot: ['#c0bd4e', '#c0bd4f'],
+    ripeGlow: ['#dcd36a', '#dcd36b'],
+    turfHaze: AIR_INK.airHaze,
+    turfMist: ['#a9bd78', '#6f8a52'],
+    turfLamp: ['#f1f6d2', '#eef3cc'],
+    // The mountains through a long lens in the same late light (see the turf's `peaks`): snow lit warm white on the
+    // faces turned to the sun and cool blue in the shade, rock a dark warm grey in the light and slate blue out of it,
+    // and on a narrow stage's lower slopes the dark of their forest; the air lies over all of it (see ENT_PHOTO's
+    // `peak`), lit warm in front of the sunlit faces. At dusk the snow keeps only the last of the light, a dusky rose on
+    // the faces still turned to it, and the shade goes to the evening's blue: never brighter than the sky's glow.
+    rockShade: ['#242a3a', '#161b2a'],
+    rockLit: ['#695e54', '#3e3a44'],
+    snowShade: ['#8495b6', '#1f2742'],
+    snowCool: ['#c2cde6', '#2f3755'],
+    snowLit: ['#fff0d6', '#6c5a6c'],
+    forestShade: ['#2a3d24', '#17241e'],
+    forestLit: ['#5d7343', '#2c3b2f'],
+    // the air in front of them: by day the sky's own haze at its horizon, low and higher up; at dusk the evening's
+    // blue, darker than the last light along the horizon, so the ranges stand against it as dusk has them; and lit
+    // warm in front of a sunlit face
+    rockAir: [AIR_INK.airHaze[0], '#2a3654'],
+    rockAirHigh: [AIR_INK.airLow[0], '#26324f'],
+    airWarm: ['#f6e8d6', '#4a4560'],
+    // and on a phone, where the band of air behind the buttons is short, its blue a little deeper, so that it holds
+    // as much colour there as the home hero's band does
+    airBandDeep: ['#a6c6ef', AIR_INK.airBand[1]],
   }
 
-  /* A range's line: the highest of a few peaks, each [across, how high above `base` in rooms, how far it reaches to
-     either side], with flanks a little hollowed as a mountain's are and a little unevenness all along, as points close
-     enough together that the land's curve through them keeps the summits. */
-  const entPeaks = (base, peaks) =>
-    Array.from({ length: 129 }, (_, k) => {
-      const across = -1.6 + k * 0.025
-      let up = 0
-      for (const [at, high, wide] of peaks) {
-        up = Math.max(up, high * Math.max(0, 1 - Math.abs(across - at) / wide) ** 1.3)
+  /* A range's line: a ridge that rises and falls along its length, and over it the highest of a few summits, each
+     [across, how high above `base` in rooms, how far it reaches to its left and to its right], its flanks a little
+     hollowed as a mountain's are; broken along its crest at two sizes, more where it stands high, as a range's skyline
+     is; as points close enough together that the land's curve through them keeps the summits and the breaks. A summit
+     close beside a higher one, and lower, is its shoulder. `floor` is the ridge's own height and how far it rises and
+     falls. (Its own smooth random, as the engine's helpers are defined after the compositions.) */
+  const entRough = (x) => {
+    const i = Math.floor(x)
+    const f = x - i
+    const at = (n) => {
+      const s = Math.sin(n * 127.1 + 311.7) * 43758.5453
+      return s - Math.floor(s)
+    }
+    return at(i) + (at(i + 1) - at(i)) * f * f * (3 - 2 * f) - 0.5
+  }
+  const entPeaks = (base, peaks, floor = [0, 0]) =>
+    Array.from({ length: 257 }, (_, k) => {
+      const across = -1.6 + k * 0.0125
+      let up = floor[0] + 2 * floor[1] * entRough(across * 4.3 + base * 13)
+      for (const [at, high, left, right, toLeft = 1.3, toRight = 1.3] of peaks) {
+        const off = Math.abs(across - at) / (across < at ? left : right)
+        up = Math.max(up, high * Math.max(0, 1 - off) ** (across < at ? toLeft : toRight))
       }
-      up += 0.008 * Math.sin(across * 41.3 + base * 7) + 0.005 * Math.sin(across * 97.1 + 2.1)
-      return [Math.round(across * 1000) / 1000, Math.round((base - up) * 10000) / 10000]
+      up += Math.sqrt(up) * (0.07 * entRough(across * 23 + base * 31) + 0.028 * entRough(across * 61 + base * 17))
+      return [Math.round(across * 10000) / 10000, Math.round((base - up) * 10000) / 10000]
     })
+  /* On a stage wider than the composition's own 1232 pixels every line is drawn out across it, so a range's summits are
+     drawn in towards themselves there, and do not flatten out as much as the stage widens. A range is its summits for
+     the stage (see the turf's `peaks`), and its line is drawn from them. */
+  const entSummits = (peaks) => (stage) => {
+    const squeeze = Math.min(1, (1232 / stage.w) ** 0.5)
+    return peaks.map(([at, high, left, right, ...flanks]) => [at, high, left * squeeze, right * squeeze, ...flanks])
+  }
 
   /* The sheets, from the furthest, in rooms down from the land's top line, which sits a little above the foot of the
      buttons (the page gives the canvas the depth for that, as the home page does): every crest is about the
      buttons or under them, so the words have the page to themselves. The ranges are measured from the land's crest, so on
      a narrower stage they rise less (the land's `relief`), as they would seen from further off, and the one peak that
      rises higher, far to the left of the words, comes down among the rest on a phone, where the words take the whole
-     width. */
-  const ENT_PEAK = [
-    [-0.9, 0.86, 0.32],
-    [-1.2, 0.56, 0.3],
-  ]
-  const ENT_FAR = entPeaks(0.34, [
-    [-1.38, 0.38, 0.3],
-    [-0.62, 0.32, 0.26],
-    [-0.3, 0.36, 0.3],
-    [0.12, 0.34, 0.3],
-    [0.46, 0.38, 0.28],
-    [0.84, 0.44, 0.32],
-    [1.2, 0.4, 0.3],
-    [1.52, 0.36, 0.3],
+     width. No two summits are alike: the high peak is a massif with two shoulders on its shaded side; the far range
+     undulates, its summits uneven, a few with a shoulder, its saddles at all heights; and the nearer range is lower and
+     broader, its summits fewer. */
+  // (each summit also says how its flank falls to its left and to its right: by the power 1.3 if it says nothing, under
+  // 1 a flank that bulges as a shoulder does, over 1.5 one that falls steeply from the top and runs out long and low)
+  const ENT_PEAK = entSummits([
+    [-0.88, 0.86, 0.34, 0.3, 1.1, 1.6],
+    [-0.72, 0.44, 0.12, 0.18, 1.6, 0.85],
+    [-0.56, 0.3, 0.1, 0.14, 1.1, 2],
   ])
-  const ENT_RANGE = entPeaks(0.48, [
-    [-1.12, 0.3, 0.32],
-    [-0.52, 0.24, 0.3],
-    [0.28, 0.26, 0.3],
-    [0.72, 0.3, 0.3],
-    [1.32, 0.32, 0.34],
+  const ENT_FAR_PEAKS = entSummits([
+    [-0.98, 0.28, 0.16, 0.18, 1.6, 1.1],
+    [-0.62, 0.4, 0.24, 0.3, 1.1, 1.6],
+    [-0.44, 0.3, 0.2, 0.22, 0.85, 2],
+    [-0.06, 0.13, 0.24, 0.18, 1.6, 1.6],
+    [0.24, 0.44, 0.26, 0.3, 2, 1.1],
+    [0.44, 0.33, 0.22, 0.16, 1.1, 1.6],
+    [0.66, 0.13, 0.14, 0.22, 1.6, 2],
+    [0.97, 0.4, 0.24, 0.26, 1.1, 0.85],
   ])
+  const ENT_RANGE_PEAKS = entSummits([
+    [-1.08, 0.3, 0.3, 0.22, 1.6, 1.1],
+    [-0.7, 0.22, 0.2, 0.3, 1.1, 2],
+    [-0.38, 0.17, 0.12, 0.24, 2, 1.1],
+    [0.16, 0.24, 0.32, 0.22, 1.1, 1.6],
+    [0.66, 0.31, 0.28, 0.16, 1.6, 0.85],
+    [0.86, 0.2, 0.1, 0.22, 0.85, 1.6],
+    [1.24, 0.3, 0.3, 0.3, 1.1, 1.1],
+  ])
+  const ENT_FAR = (stage) => ({ crest: entPeaks(0.34, ENT_FAR_PEAKS(stage), [0.12, 0.06]) })
+  const ENT_RANGE = (stage) => ({ crest: entPeaks(0.48, ENT_RANGE_PEAKS(stage), [0.07, 0.03]) })
   const ENT_RIDGES = [
     [-1.6, 0.27],
     [-1.2, 0.25],
@@ -2606,18 +2942,16 @@
     })
   const ENT_KNOLL = ({ w }) =>
     entKnoll(ENT_KNOLL_PEAK[0] + (ENT_KNOLL_PEAK[1] - ENT_KNOLL_PEAK[0]) * smooth(760, 1160, w))
-  /* The one high peak, as the land's crest measures it, so that a narrower stage lowers it; and the band of sky, a
-     little over the highest of it and the far range, smoothed, measured the same way. */
-  const ENT_HIGH = entPeaks(0.4, ENT_PEAK)
-  const ENT_SKY = ENT_FAR.map(([across], k) => {
-    let sum = 0
-    let many = 0
-    for (let j = Math.max(0, k - 4); j <= Math.min(ENT_FAR.length - 1, k + 4); j += 1) {
-      sum += Math.min(ENT_FAR[j][1], ENT_HIGH[j][1])
-      many += 1
-    }
-    return [across, Math.round((sum / many - 0.17) * 10000) / 10000]
-  })
+  /* The one high peak, as the land's crest measures it, so that a narrower stage lowers it. */
+  const ENT_HIGH = (stage) => ({ crest: entPeaks(0.4, ENT_PEAK(stage)) })
+  /* The sky is air (see ENT_AIR), whose colour goes by height alone, as a sky's does, so its top is level, where the
+     first ranges' smoothed line came highest on the stage (-0.4433 rooms), so the land keeps the room it had; its air
+     reaches over that line (its `rise`), so the high peak's summit stands in the air and never on the bare page. */
+  const ENT_SKY_TOP = -0.4433
+  const ENT_SKY = [
+    [-1.6, ENT_SKY_TOP],
+    [1.6, ENT_SKY_TOP],
+  ]
 
   /* The tree in three dimensions, in metres (see its planting): its trunk, from its foot to where it splits, as the
      four places of a curve, how thick it is at its foot and at the fork, and how far it flares out into its roots; its
@@ -2627,46 +2961,152 @@
      is turned. `shares` are where across the picture its foot may stand, and `footShare` how wide the foot of its trunk
      may be, as shares of the picture. */
   const ENT_TREE = {
+    // A great broad tree as Cameron's pictures have it: a short trunk, nearly straight and no thicker than it needs to
+    // be, leaning a very little away from the words, that flares into its roots only at its foot, and splits low into
+    // limbs that spread wide and rise, so that its crown is a broad dome, wider than it is tall.
     trunk: [
-      [-0.03, -0.45, -0.02],
-      [0.21, 1.1, -0.12],
-      [0.51, 2.1, -0.25],
-      [0.86, 2.9, -0.39],
+      [0, -0.45, 0],
+      [0.03, 0.7, 0.02],
+      [0.14, 1.5, 0.03],
+      [0.32, 2.2, 0.05],
     ],
-    foot: 0.74,
-    waist: 0.5,
-    flare: 0.75,
+    foot: 0.4,
+    waist: 0.29,
+    flare: 0.55,
+    // Five great limbs, each thinner than the last as a tree's are, rising at a low slant and spreading wide, and three
+    // lesser ones low down that spread the crown's lower edge, so the crown is a broad dome, wider than it is tall, as
+    // Cameron's pictures have it. (The limbs towards the words are shorter, and those away from them spread long, so
+    // that the crown leans a little away from the words and keeps clear of them, its outline beside them rounding away.)
     limbs: [
-      [205, 2.2, 3.2, 0.34, 0.35],
-      [158, 2.44, 4.1, 0.33, 0.1],
-      [112, 4.2, 4.9, 0.36, 0],
-      [68, 5, 4.4, 0.34, 0.15],
-      [22, 5.4, 3.6, 0.33, 0.05],
-      [-28, 4.6, 3.2, 0.3, 0.3],
-      [-78, 3.4, 3.7, 0.28, 0.2],
+      [60, 3.6, 2.6, 0.19, 0.05],
+      [100, 1.2, 3.6, 0.17, 0],
+      [16, 5.6, 1.9, 0.15, 0.25],
+      [-55, 3.4, 2.1, 0.12, 0.4],
+      [160, 1.8, 1.7, 0.1, 0.3],
+      [-115, 1.6, 1.9, 0.08, 0.55],
+      [-14, 5.0, 1.4, 0.075, 0.8],
+      [205, 1.2, 1.3, 0.07, 0.75],
     ],
     roots: [
-      [-108, 2.4, 0.33, -10],
-      [-62, 2.5, 0.34, 12],
-      [-12, 1.8, 0.3, -8],
-      [56, 1.5, 0.27, 8],
-      [110, 1.9, 0.29, 14],
-      [158, 2.3, 0.31, -10],
+      [-150, 1.5, 0.16, -10],
+      [-95, 1.7, 0.17, 12],
+      [-35, 1.35, 0.15, -8],
+      [25, 1.25, 0.14, 8],
+      [95, 1.2, 0.14, -6],
+      [150, 1.5, 0.16, 12],
     ],
-    // A little over a metre up, a few paces off to the left of the tree and in front of it, looking up into it: low
-    // enough that the tree towers and leans over us, with its trunk and limbs drawing together towards the sky, and high
-    // enough that the ground round its foot is seen going away, the roots lying on it in depth, as the land round it is
-    // seen. From a few centimetres up, as it was, the ground there was seen edge on, and every root ended in one line.
-    eye: [-6.66, 1.2, -2.99],
-    at: [3.38, 7.74, -3.66],
-    roll: 0.04,
-    // how much of the crown may run off the right, and how much of it is in the picture at least, as shares of it
-    offRight: 0.55,
-    inFrame: 0.8,
-    shares: { wide: [0.78, 0.82, 0.86], phone: [0.74, 0.8, 0.86] },
+    // Across the valley from it, a little to its left, at a standing eye's height, looking up a little into its crown,
+    // as the land round it is seen from afar: so the trunk stands upright, the crown is seen from its side as a dome
+    // and not from under it as a ceiling, and the knoll at its foot is seen going away. (Close under it and looking up
+    // steeply, as the old tree was seen, the trunk leaned across the picture and the crown was an umbrella overhead.)
+    eye: [-2.4, 1.7, -17],
+    at: [1.4, 5.6, 0.4],
+    roll: 0,
+    // how much of the crown may run off the right, and how much of it is in the picture at least, as shares of it;
+    // how far under the canvas's top its crown keeps (pixels), so its dome is seen whole there and never cut by the
+    // site's header; and how much further it keeps from the words at their top than at their foot (pixels), so that
+    // its outline beside them curves away from them rather than running down them
+    offRight: 0.5,
+    inFrame: 0.6,
+    top: 10,
+    // and how large it may be at most, as a share of the canvas's height (on a wide screen the broad dome would
+    // otherwise grow until it met the canvas's top, and fill the whole right of the picture)
+    most: 1.3,
+    clear: 46,
+    shares: { wide: [0.84, 0.87, 0.9], phone: [0.74, 0.8, 0.86] },
     footShare: 0.32,
     // how far above the canvas's foot the roots end at least, as a share of its height
     footRoom: 0.12,
+    /* How it is drawn, in a pass of its own (see `tree` in the template, treeFragment and TREE_LIGHT_FRAGMENT), after
+       Cameron's three pictures of trees in a low sun: a dark, smooth trunk flaring into roots that grip the knoll, its
+       limbs forking into a fine dark net of twigs that shows through the crown, under a broad dome of fine leaves lit
+       through by the sun as one mass, lime and yellow along its top and its sun side, a little deeper in its heart and
+       under it, throwing a long shade down the knoll towards us.
+       sun     where the sun stands: how many degrees up, and how many round behind the tree from due left. The land's
+               light comes from the left, low; well behind the tree, the sun lights its crown through and throws its
+               shade down the knoll towards us.
+       twigs   off each limb, branches at the shares `branches` along it; off each branch, at the shares `at` along it, a
+               twig `reach` metres long [least, most], and off the end of each `fine` finer ones `fineReach` long, each
+               with leaves at its end, and `bare` more without, and off each of those `finer` finer still, which are the
+               fine dark net of the crown; off each limb `side` more with theirs; each turned out to its side by `spread`
+               degrees [least, most]
+       crown   its billows of leaves: one at the end of every fine twig, `end` metres in radius [least, most], one in
+               the heart of each of the crown's clumps, `heart` of the clump's height, and over the upper half of the
+               crown's own ellipsoid `dome` places where one more fills its dome out if none lies near; how quickly the
+               crown's own leaves keep the sun from those behind them, and darken those deep in it, a metre (`shade`,
+               `deep`); how much of the crown's deeper leaves shows between its sprays of leaves (`holes`); and how large
+               the tufts of leaves are that a billow's light is broken into, in metres (`cluster`, never under 3 or over
+               14 CSS pixels)
+       leaf    the leaves as the shader draws them: a single leaf's size in device pixels (their sprays are 2.2 times
+               that), how far a billow's outline swells and dips with its masses (a share of its radius), how deep its
+               edge runs where it is the crown's own outline (CSS pixels), and how much the light flickers on its lit rim
+       light   how the crown takes the light, [on a light page, on a dark page]: the sun on what turns to it, how much
+               lighter where the crown is thin (along its outline, the more on its sun side), the sky's over its top and
+               less under it, and the light all through it
+       rim     how much lighter the crown's own outline is, its leaves lit through against the air [light page, dark page]
+       bark, leaves, mote   inks, each [on a light page, on a dark page]: the bark in its shade, its body, where the sun
+               touches it and the sky on its tops; the leaves from the crown's deepest to a leaf lit through on its rim
+               (read at 0, 0.16, 0.34, 0.54, 0.76 and 1 of the light); the motes
+       shade   the shade it throws: its ink (what the ground keeps of each of its colours there), how dark [light page,
+               dark page], how soft at the foot of each part and how much softer for every metre it is above the ground,
+               how dark round its foot and along its roots, where less of the sky reaches the ground, and how many
+               degrees the knoll's face falls away towards us (`tilt`), down which the shade runs
+       glow    the bloom where its lit crown meets the land and the air behind it: how far out it reaches (CSS pixels),
+               how strong [light page, dark page], and its ink
+       sway    how far the crown swings about its fork, in radians
+       motes   how many points of light drift under its crown */
+    sun: { up: 18, round: 62 },
+    twigs: {
+      branches: [0.45, 0.65, 0.85],
+      at: [0.4, 0.62, 0.84],
+      reach: [0.9, 1.5],
+      fine: 3,
+      fineReach: [0.6, 1.1],
+      bare: 4,
+      finer: 2,
+      side: 3,
+      spread: [24, 48],
+    },
+    crown: { end: [0.55, 0.85], heart: 1.0, dome: 70, shade: 0.22, deep: 0.12, holes: 0.45, cluster: 0.24 },
+    leaf: [3.2, 0.1, 6, 0.1],
+    light: [
+      [0.15, 0.34, 0.14, 0.52],
+      [0.1, 0.5, 0.0, 0.26],
+    ],
+    rim: [0.4, 0.75],
+    bark: {
+      shade: ['#1c1e23', '#0b0c0e'],
+      body: ['#30271d', '#120e0b'],
+      sun: ['#a8743f', '#5a3e28'],
+      sky: ['#2a2e35', '#121418'],
+    },
+    leaves: [
+      ['#15290a', '#101d0c'],
+      ['#223e10', '#172a12'],
+      ['#5c7a1e', '#21401a'],
+      ['#9cb52a', '#44692a'],
+      ['#d2dc40', '#7e9a36'],
+      ['#f4f27a', '#b9c65a'],
+    ],
+    mote: ['#ffe9a0', '#f4f0b0'],
+    shade: {
+      ink: ['#4f8a6c', '#6f8f80'],
+      dark: [0.85, 0.5],
+      soft: [0.1, 0.2],
+      foot: 0.55,
+      roots: 0.6,
+      tilt: 10,
+    },
+    glow: { reach: 30, amount: [0.3, 0.28], ink: ['#fff1bf', '#b8c86a'] },
+    sway: 0.003,
+    motes: 14,
+    // the patches the flowers at its foot grow in out on the knoll, each [across, towards us (less than nothing) or
+    // away, how wide across and how far towards us, in metres]
+    drifts: [
+      [-1.15, -0.8, 0.38, 1.1],
+      [0.75, -1.5, 0.32, 1.2],
+      [1.7, -0.3, 0.3, 0.9],
+    ],
   }
 
   /* The drift of flowers at the tree's foot, in the meadow's own colours: whites, coral and peach and a little gold, each
@@ -2681,6 +3121,201 @@
     ['gold', 'butter', 5, 0.3],
   ]
 
+  /* The valley and its mountains as a photograph, as the home hero's hills are (see DOCS_PHOTO, whose knobs these are,
+     and photoFragment): the same late afternoon under the same air. There is one light, low on the left, and the tree
+     says where it stands: its bark is warm on its left sides, its crown is lit through from its upper left rims, and
+     the shade it throws runs off to the right over the knoll (see ENT_TREE's `sun`). It lights the faces of the
+     mountains turned to the left warm white and leaves the rest in cool blue shade; one band of it comes down across
+     the valley from the left to the knoll, so the tree stands in it, with the dew in the shade on the valley's left and
+     on its floor in front, out of which the ground at the picture's foot comes into the sun again; and the sky's breath
+     of light is on the left. (The land takes the sun a little in front of the scene, so that the snowfields turned to
+     it are lit full on and the valley's slopes take its band, and the tree a little behind it, so that its crown is
+     lit through and its shade comes down the knoll towards us: the two agree on its side and its height, which is what
+     the picture shows. Taken behind the scene, as the tree has it, the sun left the mountains' faces greyer, more of
+     them in shade, and the valley darker.) By day the sun is a little stronger than the hero's; at dusk it is weaker,
+     so the valley falls into the evening's shade and the summits keep the last of the light.
+     Places are [across, rooms]; lengths rooms unless they say pixels.
+     raised   how far over the canvas's foot the land's own foot stands, in pixels (the meadow ends LAND_FOOT over it):
+              the turf breaks into the page's specks above that, rather than running on to its own edge.
+     noiseTile the turf's and the mountains' smooth noise read from a tile, as the footer's is (see tileNoiseFragment),
+              which keeps a land of seven sheets of turf and rock within the home hero's budget.
+     dusk     at dusk, how much of their daylight colour the strokes on the land (the flowers at the tree's foot) and the
+              butterflies keep, as the land is in the evening's shade (see photoBloom and flyFragment)
+     peak     what the mountains' rock and snow share (see peakFragment; each range's own is in its turf):
+              arete   how far the arête that parts a summit's two planes wanders as it comes down, and how far it leans,
+                      as shares of the cone (each summit leans its own way, by its own dice)
+              spread  how far the ridges and gullies of the face spread out to either side of a summit as they come down
+              planes  how far a summit's two planes are turned to the left and to the right (more where its flank is
+                      steep; a range's own `planes` stands in for it)
+              parting how many pixels the two planes take to part at a summit's top (and more further down)
+              fine    how much the finest ridges of the face stand out (a range's own `fine` stands in for it: with
+                      nothing, the two finer sizes are left out, as a far range is too hazed and too fine for them)
+              warm    how far the air in front of a sunlit face is lit warm (the `airWarm` ink)
+              snow    how soft the edge of a band of rock along a crest is, in pixels, and how much of the steep walls is
+                      bare; where the snow gives way to rock under a summit is each range's own `snow`, as a share of
+                      its height, and each summit holds a little more or less
+              evening how far under a summit, as shares of its height, the valley's evening shade has risen [by day, at
+                      dusk, when only the summits catch the last of the light]
+              light   the light's edge on the faces, from where it starts to where it is full, as they turn to the sun:
+                      narrow, so that every ridge parts its light from its shade
+              thrown  how wide the shade is that a gully's wall throws on its sunward wall, in pixels
+              grain   how much of the film's grain it takes [on a light page, on a dark page]
+              cornice how far its skyline breaks along its length, in pixels
+              saddle  how far a gully under a saddle wanders from side to side, in pixels
+              clear   the oval it clears round the words, as the sky's air does (see ENT_AIR)
+              inks    the air over it, low and high; the air lit warm in front of a sunlit face; and the forest on a
+                      narrow stage's lower slopes */
+  /* The oval the air clears round the words, as the home hero's (see DOCS_AIR), so that the headline and the lede keep
+     the page; on a stage narrower than `narrow.below` pixels, where the words take the whole width and the buttons stand
+     under the lede, only round the headline and the lede (the air's own fade keeps the lede on the page there), so that
+     the air shows behind and under the buttons, as it does on the home hero's phone. The mountains clear a shallower
+     oval, only as far as the lede: the far range is pale enough to stand in the air where it is coming back, and so the
+     summits about the buttons are whole rather than fading into a halo round the words. */
+  const ENT_CLEAR = {
+    at: -0.29,
+    size: [0.9, 0.7],
+    pad: [110, 6],
+    // (at dusk its edge is softer: there the band of air is lit low on the left, and a crisper oval cut it into a
+    // beam reaching from the high peak to the headline)
+    soft: [
+      [0.45, 1.4],
+      [0.45, 1.7],
+    ],
+    narrow: { below: 600, at: -0.42, size: 0.5 },
+  }
+  const ENT_PEAK_CLEAR = {
+    ...ENT_CLEAR,
+    size: [1, 0.62],
+    soft: [0.6, 1.1],
+    narrow: { below: 600, at: -0.42, size: 0.62 },
+  }
+  const ENT_PHOTO = {
+    sun: { way: [-0.82, 0.32, 0.44], lit: [0.02, 0.4], power: [1.15, 0.62] },
+    // the sun is on the left, so the crests glow brightest towards the left
+    mirror: true,
+    beam: {
+      at: [0.55, 0.78],
+      run: [1, 0.9],
+      half: 0.2,
+      soft: [0.25, 0.55],
+      widen: 0.4,
+      ragged: 0.05,
+      creep: [
+        [0.09, 0.2, -1.25],
+        [0.035, 0.47, -2.94],
+      ],
+    },
+    shafts: [
+      [-0.55, 0.09, 0.2, 0.3, 0.07],
+      [0.75, 0.12, 0.3, 0.34, 0.05],
+    ],
+    dapple: { size: [210, 74], drift: 14, dim: 0.7 },
+    near: { from: 120, to: 60, light: [0.9, 0] },
+    lamp: null,
+    haze: [
+      [0.5, 0.6],
+      [24, 14],
+      [0.3, 1],
+    ],
+    dew: [1.3, 0.7, 0.8, 0.35],
+    foot: 56,
+    raised: LAND_FOOT,
+    fringe: 9,
+    hide: 14,
+    noiseTile: 256,
+    dusk: 0.55,
+    inks: ['turfHaze', 'turfMist', 'turfLamp'],
+    peak: {
+      arete: [0.7, 1.7],
+      spread: 0.5,
+      planes: 0.2,
+      parting: 6,
+      fine: 1,
+      warm: 0.75,
+      snow: [0.35, 0.85],
+      evening: [2.4, 0.45],
+      light: [-0.02, 0.04],
+      thrown: 7,
+      grain: [0.1, 0.05],
+      cornice: 2.5,
+      saddle: 30,
+      clear: ENT_PEAK_CLEAR,
+      inks: ['rockAir', 'rockAirHigh', 'airWarm', 'forestShade', 'forestLit'],
+    },
+  }
+  /* The sky over the mountains, as air rather than lines, after the home hero's (see DOCS_AIR, whose knobs these are, and
+     AIR_INK, which it shares with the hero and the footer). Its horizon lies just under the far range's saddles, so the
+     haze along the horizon is behind the ranges and the band of cornflower blue shows just over the saddles, as the
+     hero's does over its far hill; over that it pales steadily towards the page (the hero's darker zone of blue would lie
+     here as a level stripe, as this sky is taller). Its breath of light is on the left, where the sun is low: by day a
+     little whiter there, low and wide so that it blooms rather than lies as a stripe; at dusk the last of the light. It
+     reaches a little over its level top, so the high peak's summit stands in the air, and comes in from the page over
+     72 pixels, or over half its own height where that is less (a phone's), so the band shows there too; and it clears
+     round the words as the hero's does (see ENT_CLEAR). */
+  const ENT_AIR = {
+    inks: [
+      [0, 'airHaze'],
+      [18, 'airLow'],
+      [44, 'airBand'],
+      [150, 'airHigh'],
+    ],
+    horizon: 0.04,
+    rise: 24,
+    fade: [72, 1.5, 0.5],
+    smear: [
+      [640, 16, 20, 2.4],
+      [240, 5.5, 5, -3.6],
+      [120, 1.9, 1.6, 1.5],
+    ],
+    value: 0.007,
+    wander: 7,
+    grain: [0.06, 0.03],
+    pan: 10,
+    dither: 1,
+    glow: { at: 0.2, height: [60, 30], reach: [0.34, [110, 90]], amount: [0.25, 0.4], ink: 'airGlow' },
+    clear: ENT_CLEAR,
+    // on a stage narrower than the clear oval's `narrow.below`, the band of blue lower, nearer the horizon, so that it
+    // lies behind the buttons, as the home hero's phone has it
+    narrowInks: [
+      [0, 'airHaze'],
+      [14, 'airLow'],
+      [30, 'airBandDeep'],
+      [130, 'airHigh'],
+    ],
+  }
+  /* A hill of turf's paint, read by how much light a place has (as the home hero's, DOCS_TURF_PAINT): the ridges'
+     greens, and the riper grass of the sunlit valley, whose lights go to a warm gold green. */
+  const ENT_TURF_PAINT = [
+    [0, 'turfDeep', 1],
+    [0.12, 'turfDusk', 1],
+    [0.23, 'turfShade', 1],
+    [0.34, 'turfOpen', 1],
+    [0.47, 'turfHalf', 1],
+    [0.6, 'turfLit', 1],
+    [0.72, 'turfSun', 1],
+    [0.84, 'turfHot', 1],
+    [1, 'turfGlow', 1],
+  ]
+  const ENT_RIPE_PAINT = [
+    [0, 'turfDeep', 1],
+    [0.12, 'turfDusk', 1],
+    [0.23, 'turfShade', 1],
+    [0.34, 'turfOpen', 1],
+    [0.47, 'ripeHalf', 1],
+    [0.6, 'ripeLit', 1],
+    [0.72, 'ripeSun', 1],
+    [0.84, 'ripeHot', 1],
+    [1, 'ripeGlow', 1],
+  ]
+  /* A mountain's paint: its rock read by light from 0 to 0.47, and its snow from 0.52 (see peakFragment). */
+  const ENT_ROCK_PAINT = [
+    [0, 'rockShade', 1],
+    [0.47, 'rockLit', 1],
+    [0.52, 'snowShade', 1],
+    [0.66, 'snowCool', 1],
+    [1, 'snowLit', 1],
+  ]
+
   const ENTERPRISE = {
     ...HERO,
     // No opening: the first picture is the finished scene, every line in, the tree whole and the butterflies sitting
@@ -2690,6 +3325,9 @@
     // it is on the screen when the page opens; drawn live while on the screen, as the hero is.
     wake: 'idle',
     near: '100% 0px',
+    // Its tree takes several times as long to lay out as any other meadow, far too long for one task, so after a resize
+    // the meadow is laid out again in steps (see regrowSoon).
+    regrow: 'steps',
     words: '.ent-copy',
     lines: { ...LINES, veil: [96, 70] },
     inks: ENTERPRISE_INKS,
@@ -2717,15 +3355,22 @@
       crest: 0,
       // how much of the ranges' rise there is for the stage's width: all of it from 1232 pixels, a third on a phone's
       relief: [0.18, 1],
+      // the land is a photograph's, as the home hero's is (see ENT_PHOTO, each sheet's `turf` and the sky's `air`)
+      photo: ENT_PHOTO,
       sheets: [
-        // a thin band of the hero's sky behind the ranges and the high peak, its pale blues only
+        // The sky behind the ranges and the high peak, as soft air (see ENT_AIR). Its top line still sets the land's
+        // room, and it keeps a paint and line options only because every sheet is given them (the air reads none). Its
+        // foot, and so its horizon, is measured from the land's crest as the ranges are, so that on a narrow stage its
+        // band of blue comes down with them and shows over them, behind the buttons.
         {
           name: 'sky',
           top: { crest: ENT_SKY },
-          foot: [
-            [-1.6, 0.36],
-            [1.6, 0.36],
-          ],
+          foot: {
+            crest: [
+              [-1.6, 0.36],
+              [1.6, 0.36],
+            ],
+          },
           paint: [
             [0, 'pale', 0],
             [0.2, 'pale', 0.3],
@@ -2735,74 +3380,115 @@
           fill: 0.5,
           under: 0.12,
           flow: 1,
-          breath: 1,
+          // a soft sky does not wobble: it drifts (see `air`)
+          breath: 0,
+          air: ENT_AIR,
         },
+        /* The mountains are rock and snow (see peakFragment): their summits' planes lit from the left, their faces'
+           ridges and gullies, snow on the gentler ground and in the gullies, rock on the steep ribs, and the air over all
+           of it; nothing of theirs breathes, as ground does not, and their paint is two ramps read by light, their rock's
+           from 0 to 0.47 and their snow's from 0.52. The further off a range is, the more of the air lies over it and
+           the finer and fainter its relief, so the far peak and the far range are pale and soft, nearly sky, and the
+           range in front of them clearer, its shade deeper and its light warmer. A range's turf:
+           peaks    its summits for the stage, as its line was drawn from (see entSummits and entPeaks)
+           scale    how large its face's ridges and gullies are, as a share of the nearer range's
+           relief   how far they turn its face, as a share of the nearer range's
+           fine     whether its two finer sizes of ridge are there at all (see ENT_PHOTO's `peak`)
+           soft     how soft its skyline is, in pixels
+           rim      how much of the air lies along its skyline, falling away over 12 pixels under it
+           snow     where its snow gives way to rock, as a share of each peak's height (see ENT_PHOTO's `peak`)
+           planes   how far its summits' two planes are turned, if not as all of them are (see ENT_PHOTO's `peak`)
+           forest   how far under each summit its forest begins, as shares of the summit's snow (2.4 if it says nothing)
+           strata   how strongly its rock is bedded in strata, and how many pixels apart the ledges are (none if it says
+                    nothing)
+           haze     the air over it: [how much over all of it, how much more towards its foot (and more again far under
+                    its summits, where a narrow stage squeezes it), how much just over a nearer crest, how far up from
+                    that crest it pools, in pixels]; the first three can be [on a light page, on a dark page] */
         {
           name: 'far peak',
           opaque: true,
-          top: { crest: ENT_HIGH },
+          top: ENT_HIGH,
           foot: [
             [-1.6, 0.42],
             [1.6, 0.42],
           ],
-          paint: [
-            [0, 'snow', 0],
-            [0.02, 'snow', 0.85],
-            [0.08, 'haze', 1],
-            [0.3, 'steel', 1],
-            [1, 'mist', 1],
-          ],
+          paint: ENT_ROCK_PAINT,
           lean: 0.35,
           fill: 0.7,
           under: 0.55,
           patch: 0.22,
           flow: 0.35,
-          breath: 0.3,
+          breath: 0,
+          turf: {
+            peaks: ENT_PEAK,
+            scale: 0.55,
+            relief: 0.8,
+            fine: 1,
+            soft: 1.5,
+            rim: 0.2,
+            snow: 0.55,
+            planes: 0.35,
+            haze: [[0.5, 0.5], 0.2, 0.35, 48],
+          },
         },
         {
           name: 'far range',
           opaque: true,
-          top: { crest: ENT_FAR },
+          top: ENT_FAR,
           foot: [
             [-1.6, 0.56],
             [1.6, 0.56],
           ],
-          paint: [
-            [0, 'snow', 0],
-            [0.03, 'haze', 0.85],
-            [0.12, 'steel', 1],
-            [0.45, 'mist', 1],
-            [1, 'mist', 1],
-          ],
+          paint: ENT_ROCK_PAINT,
           lean: 0.35,
           fill: 0.7,
           under: 0.55,
           patch: 0.22,
           flow: 0.35,
-          breath: 0.3,
+          breath: 0,
+          turf: {
+            peaks: ENT_FAR_PEAKS,
+            scale: 0.7,
+            relief: 1.15,
+            fine: 1,
+            soft: 1.2,
+            rim: 0.25,
+            snow: 0.5,
+            planes: 0.35,
+            haze: [[0.44, 0.45], 0.2, 0.35, 40],
+          },
         },
         {
           name: 'range',
           opaque: true,
-          top: { crest: ENT_RANGE },
+          top: ENT_RANGE,
           foot: [
             [-1.6, 0.66],
             [1.6, 0.66],
           ],
-          paint: [
-            [0, 'haze', 0],
-            [0.04, 'mist', 0.9],
-            [0.18, 'stone', 1],
-            [0.6, 'stoneDeep', 1],
-            [1, 'stone', 1],
-          ],
+          paint: ENT_ROCK_PAINT,
           lean: 0.4,
           fill: 0.72,
           under: 0.6,
           patch: 0.28,
           flow: 0.35,
-          breath: 0.3,
+          breath: 0,
+          turf: {
+            peaks: ENT_RANGE_PEAKS,
+            scale: 1,
+            relief: 1.3,
+            soft: 0.8,
+            rim: 0,
+            snow: 0.22,
+            planes: 0.06,
+            forest: 2.4,
+            strata: [0.45, 9],
+            haze: [[0.12, 0.14], 0.24, 0.32, 44],
+          },
         },
+        /* The valley is the home hero's turf (see the docs composition for what each of a hill's `turf` knobs is): the
+           ridges a living green, their crests catching the light; the slopes, the knoll and the meadow in front the
+           riper grass of the sunlit valley, whose lights are its gold. */
         {
           name: 'ridges',
           opaque: true,
@@ -2811,19 +3497,30 @@
             [-1.6, 0.86],
             [1.6, 0.86],
           ],
-          paint: [
-            [0, 'ridgeLit', 0],
-            [0.05, 'ridgeLit', 0.9],
-            [0.16, 'ridge', 1],
-            [0.55, 'ridgeDeep', 1],
-            [1, 'ridge', 1],
-          ],
+          paint: ENT_TURF_PAINT,
           lean: 0.45,
           fill: 0.74,
           under: 0.66,
           patch: 0.3,
           flow: 0.4,
-          breath: 0.3,
+          breath: 0,
+          turf: {
+            off: 0.3,
+            round: 90,
+            scale: [0.32, 0.45, 80],
+            rough: 0.5,
+            blades: [0.75, 0.42],
+            grain: 0.14,
+            dew: 0.3,
+            form: [1.8, 0.1, 0.3],
+            take: 0.85,
+            crest: [0.9, 18],
+            ambient: [0.44, 0.28],
+            rim: [0.5, 6],
+            skyline: [1.0, 2.5, 0],
+            mist: [30, 0.12],
+            deep: [0.15, 90],
+          },
         },
         {
           name: 'slopes',
@@ -2833,22 +3530,32 @@
             [-1.6, 1.12],
             [1.6, 1.12],
           ],
-          paint: [
-            [0, 'sunGold', 0],
-            [0.04, 'sunGold', 0.9],
-            [0.12, 'gold', 1],
-            [0.3, 'amber', 1],
-            [0.5, 'spring', 1],
-            [0.75, 'meadow', 1],
-            [1, 'meadowDeep', 1],
-          ],
+          paint: ENT_RIPE_PAINT,
           lean: 0.5,
           fill: 0.72,
           under: 0.62,
           patch: 0.32,
           flow: 0.5,
-          breath: 0.6,
+          breath: 0,
           sheen: 0.6,
+          turf: {
+            off: 0,
+            round: 120,
+            scale: [0.5, 0.8, 200],
+            rough: 0.8,
+            blades: [1, 0.55],
+            grain: 0.2,
+            dew: 1,
+            form: [1.5, 0.18, 0.25],
+            take: 0.6,
+            crest: [0.8, 26],
+            ambient: [0.3, 0.14],
+            rim: [0.5, 5],
+            skyline: [0.4, 5, 0],
+            mist: [24, 0.1],
+            deep: [0.3, 200],
+            tracks: [40, 96, 0.2],
+          },
         },
         {
           name: 'knoll',
@@ -2858,22 +3565,31 @@
             [-0.3, 1.3],
             [1.6, 1.3],
           ],
-          paint: [
-            [0, 'sunGold', 0],
-            [0.03, 'sunGold', 0.9],
-            [0.1, 'gold', 1],
-            [0.3, 'amber', 1],
-            [0.55, 'spring', 1],
-            [0.8, 'meadow', 1],
-            [1, 'meadowDeep', 1],
-          ],
+          paint: ENT_RIPE_PAINT,
           lean: 0.55,
           fill: 0.72,
           under: 0.62,
           patch: 0.3,
           flow: 0.5,
-          breath: 0.5,
+          breath: 0,
           sheen: 0.6,
+          turf: {
+            off: 0,
+            round: 160,
+            scale: [0.7, 1.05, 140],
+            rough: 0.9,
+            blades: [1.1, 0.6],
+            grain: 0.2,
+            dew: 1,
+            form: [1.3, 0.2, 0.3],
+            take: 0.75,
+            crest: [0.6, 30],
+            ambient: [0.26, 0.14],
+            rim: [0.6, 5],
+            skyline: [0.4, 6, 2],
+            mist: [22, 0.08],
+            deep: [0.25, 140],
+          },
         },
         {
           name: 'meadow',
@@ -2884,54 +3600,56 @@
             [-1.6, 1.26],
             [1.6, 1.26],
           ],
-          paint: [
-            [0, 'gold', 0],
-            [0.06, 'gold', 0.85],
-            [0.28, 'amber', 1],
-            [0.52, 'spring', 0.95],
-            [0.76, 'meadow', 0.8],
-            [0.9, 'sunGold', 0.45],
-            [1, 'sunGold', 0],
-          ],
+          paint: ENT_RIPE_PAINT,
           fill: 0.68,
           under: 0.5,
           patch: 0.25,
           flow: 0.7,
-          breath: 1,
+          breath: 0,
           sheen: 1,
+          turf: {
+            off: 0,
+            round: 300,
+            scale: [0.85, 1.2, 110],
+            rough: 1,
+            blades: [1.2, 0.65],
+            grain: 0.2,
+            dew: 1,
+            form: [1.1, 0.2, 0.3],
+            take: 0.95,
+            crest: [0, 1],
+            ambient: [0.31, 0.17],
+            rim: [0.3, 5],
+            skyline: [0.4, 6, 3],
+            mist: [20, 0],
+            deep: [0.2, 120],
+          },
         },
       ],
       foot: LAND_FOOT,
       least: 110,
     },
-    // a little grass on the sunlit slopes, gold and olive, and nothing going through it but the pointer
+    // a little grass on the sunlit slopes, and nothing going through it but the pointer: on the turf a blade takes
+    // the ground's light (see PHOTO_BLADE), so its inks are those of the tufts at the tree's foot, the ripe grass lit
     grass: {
       ...GRASS,
       tufts: 0.05,
       lane: 0,
       singles: 0.16,
       tall: [6, 30],
-      inks: ['lime', 'meadow', 'spring', 'gold', 'sunGold'],
+      inks: ['turfSun', 'ripeLit', 'ripeSun', 'ripeHot', 'ripeGlow'],
     },
     passer: null,
     // no flowers at all
     flowers: { ...FLOWERS, drifts: [], strays: 0 },
-    // The tree's paints: a violet-brown bark, lit and in its own shade, and a crown of deep teal greens with lighter
-    // flecks and the cool dark of its undersides, as [on a light page, on a dark page].
+    // The tree itself is drawn in a pass of its own (see ENT_TREE); the strokes at its foot keep the meadow's paints,
+    // but for the leaves among its flowers, which would otherwise be the land's lawn green: on the knoll's sunlit turf
+    // they are the turf's own deep green (the same on a dark page, as the turf's greens are).
     paints: {
       ...PAINTS,
-      bark: ['#54406d', '#62507b'],
-      barkDeep: ['#362a4c', '#45385b'],
-      barkLit: ['#8b77ae', '#9884b9'],
-      barkWarm: ['#73546c', '#80627a'],
-      crownUnder: ['#1d3c46', '#1a3241'],
-      crownDeep: ['#21504b', '#204c49'],
-      crown: ['#215853', '#2b6560'],
-      crownMid: ['#2f6f63', '#3b7c70'],
-      crownLit: ['#5c9a80', '#6aa88e'],
-      fleck: ['#a5cd96', '#b2d6a4'],
-      sunFleck: ['#d6db8a', '#dee39c'],
+      deepGreen: ['#1d3211', '#1d3211'],
     },
+    tree: ENT_TREE,
     clouds: [],
     flock: Array.from({ length: 15 }, (_, k) => ({
       size: 10 + 3.5 * ((k * 0.7549 + 0.31) % 1),
@@ -2971,19 +3689,19 @@
       clear: 26,
     },
     fit: (w, h) => clamp(Math.min(w / 1300, (h + 100) / 760), 0.72, 1.2),
-    plant: (garden) => {
+    // (a generator: the tree is long to lay out, so it is handed to the builder in its short steps, see growSteps)
+    plant: function* (garden) {
       const { w, h, rand, words } = garden
       // A smooth jitter of its own, so the tree is the same at every size.
       const jitter = (n) => hashed(n * 17.13 + 3.1) - 0.5
 
       /* ---- the tree, in three dimensions ----
-         In metres, its foot at the origin, y up, x to the right as we stand and z away from us. A massive trunk, short
-         and flaring into roots that grip the knoll, splits low into great limbs that sweep up and out, each branching
-         twice towards its end, and the crown is a ceiling of leafy clumps at their ends and between them. It is seen
-         as by someone who has come up to it and looks up into it: from in front of it and to the left, the eye a little
-         over a metre up, looking up steeply, so that the trunk leans across the picture and everything converges towards
-         a point high above, the limbs fan out overhead like the ribs of an umbrella, and the crown is seen from
-         underneath, while the ground at its foot is seen going away, as the land round it is. */
+         In metres, its foot at the origin, y up, x to the right as we stand and z away from us. A short trunk, flaring
+         into roots that grip the knoll, splits low into limbs that spread wide and rise, each branching twice towards its
+         end and forking on into twigs, and the crown is a broad dome of leafy clumps at their ends and between them
+         (filled with billows of leaves, see its crown below). It is seen from across the valley, from a little to its
+         left, at a standing eye's height and looking up a little, as the land round it is seen: its trunk upright, its
+         crown a dome seen from the side, the ground at its foot going away. */
       const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
       const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
       const times = (a, k) => [a[0] * k, a[1] * k, a[2] * k]
@@ -2993,7 +3711,7 @@
         const l = Math.hypot(a[0], a[1], a[2]) || 1
         return [a[0] / l, a[1] / l, a[2] / l]
       }
-      // a cubic through four places: where it is at t, which way it goes there, and how long it is
+      // a cubic through four places: where it is at t, and which way it goes there
       const along = (p, t) => {
         const v = 1 - t
         const k = [v * v * v, 3 * v * v * t, 3 * v * t * t, t * t * t]
@@ -3003,16 +3721,6 @@
         const v = 1 - t
         const k = [-3 * v * v, 3 * v * v - 6 * v * t, 6 * v * t - 3 * t * t, 3 * t * t]
         return unit([0, 1, 2].map((i) => p[0][i] * k[0] + p[1][i] * k[1] + p[2][i] * k[2] + p[3][i] * k[3]))
-      }
-      const lengthOf = (p) => {
-        let l = 0
-        let q = along(p, 0)
-        for (let i = 1; i <= 16; i += 1) {
-          const r = along(p, i / 16)
-          l += Math.hypot(...sub(r, q))
-          q = r
-        }
-        return l
       }
       const deg = Math.PI / 180
       const flat = (a) => [Math.cos(a * deg), 0, Math.sin(a * deg)]
@@ -3036,19 +3744,19 @@
         return { k, a, p, r0, r1: r0 * 0.3 }
       })
       const limbR = (limb) => (t) => limb.r0 + (limb.r1 - limb.r0) * t
-      // two branches off each, towards its end, turned to either side of it
+      // branches off each, towards its end, turned to either side of it in turn, as long as the limb is (so a short limb
+      // keeps its leaves close and a long one spreads them wide), rising only a little, so the crown's top is a dome
       const branches = []
       limbs.forEach((limb) => {
-        ;[
-          [0.56, -1],
-          [0.8, 1],
-        ].forEach(([t, side], q) => {
+        const out = Math.hypot(limb.p[3][0] - limb.p[0][0], limb.p[3][2] - limb.p[0][2])
+        T.twigs.branches.forEach((t, q) => {
+          const side = (q + limb.k) % 2 ? 1 : -1
           const n = limb.k * 10 + q
           const start = along(limb.p, t)
-          const a = limb.a + side * (34 + 10 * hashed(n * 1.7))
+          const a = limb.a + side * (30 + 14 * hashed(n * 1.7))
           const h = flat(a)
-          const reach = 1.5 + 0.9 * hashed(n * 2.3)
-          const rise = 1.0 + 0.8 * hashed(n * 3.1)
+          const reach = (0.8 + 0.5 * hashed(n * 2.3)) * clamp(out / 3.4, 0.55, 1.5) * (1.15 - 0.3 * t)
+          const rise = 0.6 + 0.6 * hashed(n * 3.1)
           const p = [
             start,
             add(start, add(times(h, reach * 0.2), [0, rise * 0.5, 0])),
@@ -3076,19 +3784,6 @@
         return { k, p, r0, r1: r0 * 0.3 }
       })
       const rootR = (root) => (t) => root.r0 + (root.r1 - root.r0) * t ** 0.7
-      // Whether a place is inside the trunk, by how far it is from the trunk's middle at its height: a root's bark is
-      // only painted where the root has come out of the trunk, so the two meet in a ridge rather than a seam.
-      const axis = Array.from({ length: 49 }, (_, i) => [...along(TRUNK, i / 48), trunkR(i / 48)])
-      const inTrunk = (q, margin) => {
-        let i = 0
-        while (i < axis.length - 2 && axis[i + 1][1] < q[1]) {
-          i += 1
-        }
-        const [x0, y0, z0, r0] = axis[i]
-        const [x1, y1, z1, r1] = axis[i + 1]
-        const f = clamp((q[1] - y0) / (y1 - y0 || 1), 0, 1)
-        return Math.hypot(q[0] - (x0 + (x1 - x0) * f), q[2] - (z0 + (z1 - z0) * f)) < r0 + (r1 - r0) * f - margin
-      }
       // The crown: a clump at the end of every branch and every limb, and one between each limb and the next, and one
       // overhead, each [middle, half its width, half its height].
       const clumps = []
@@ -3115,17 +3810,154 @@
           return
         }
         const m = times(add(limb.p[3], next.p[3]), 0.5)
-        clumps.push({ c: add(m, [0, 1.1, 0]), rx: 1.8, ry: 1.15 })
+        clumps.push({ c: add(m, [0, 0.8, 0]), rx: 1.8, ry: 1.15 })
       })
-      clumps.push({ c: add(fork, [0.3, 6.2, 0.4]), rx: 2.3, ry: 1.3 })
+      clumps.push({ c: add(fork, [0.6, 4.4, 0.6]), rx: 2.3, ry: 1.3 })
+
+      /* ---- its twigs ----
+         Off each branch towards its end, turned out to its side and up, and off the end of each of those finer ones,
+         each thinner and shorter than what it grows from, so the limbs fork and fork again into the leaves; and a few off
+         each limb, with theirs. Of the finest, some carry no leaves of their own: they are the fine dark net that shows
+         through the crown's light, thinning away into it. */
+      const TW = T.twigs
+      // (each bends a little to one side and back on its way, by its own dice, as a twig grows from bud to bud, so that
+      // none is a ruled line)
+      const sprout = (parent, at, n, reach, rise, turn, r0, r1) => {
+        const start = along(parent, at)
+        const way = wayOf(parent, at)
+        const a = Math.atan2(way[2], way[0]) / deg + turn
+        const h = flat(a)
+        const kink = times(flat(a + 90), reach * 0.16 * (hashed(n * 6.7) - 0.5))
+        const sag = rise * 0.25 * (hashed(n * 7.9) - 0.5)
+        return {
+          k: n,
+          p: [
+            start,
+            add(add(start, add(times(h, reach * 0.3), [0, rise * 0.4 + sag, 0])), kink),
+            add(add(start, add(times(h, reach * 0.72), [0, rise * 0.9 - sag, 0])), times(kink, -0.7)),
+            add(start, add(times(h, reach), [0, rise, 0])),
+          ],
+          r0,
+          r1,
+        }
+      }
+      const radiusOf = (b) => (t) => b.r0 + (b.r1 - b.r0) * t
+      const spreadOf = (n) => TW.spread[0] + (TW.spread[1] - TW.spread[0]) * hashed(n * 5.1)
+      const twigs = []
+      const fine = []
+      const bare = []
+      const twigOff = (parent, at, n, side) => {
+        const reach = (TW.reach[0] + (TW.reach[1] - TW.reach[0]) * hashed(n * 3.7)) * (1.15 - 0.3 * at)
+        const twig = sprout(
+          parent.p,
+          at,
+          n,
+          reach,
+          reach * (0.35 + 0.45 * hashed(n * 4.3)),
+          side * spreadOf(n),
+          Math.max(0.02, radiusOf(parent)(at) * 0.62),
+          0.012,
+        )
+        twigs.push(twig)
+        for (let f = 0; f < TW.fine + TW.bare; f += 1) {
+          const m = n * 7 + f
+          const leafy = f < TW.fine
+          const leafAt = TW.fine > 1 ? 0.7 + (0.3 * f) / (TW.fine - 1) : 1
+          const at2 = leafy ? leafAt : 0.35 + 0.6 * hashed(m * 1.9)
+          const reach2 = (TW.fineReach[0] + (TW.fineReach[1] - TW.fineReach[0]) * hashed(m * 2.9)) * (leafy ? 1 : 0.85)
+          ;(leafy ? fine : bare).push(
+            sprout(
+              twig.p,
+              at2,
+              m,
+              reach2,
+              reach2 * (0.3 + 0.5 * hashed(m * 3.3)),
+              (f % 2 ? 1 : -1) * spreadOf(m),
+              Math.max(leafy ? 0.01 : 0.011, radiusOf(twig)(at2) * (leafy ? 0.75 : 0.65)),
+              leafy ? 0.005 : 0.005,
+            ),
+          )
+        }
+      }
+      branches.forEach((b) => {
+        TW.at.forEach((at, q) => twigOff(b, at, 5000 + b.k * 10 + q, (q + b.k) % 2 ? 1 : -1))
+      })
+      // (from a third of the way along each limb, so its leaves come down over it and it is not a bare pole under them)
+      limbs.forEach((limb) => {
+        for (let q = 0; q < TW.side; q += 1) {
+          twigOff(limb, 0.3 + (0.55 * (q + 0.5)) / TW.side, 8000 + limb.k * 10 + q, q % 2 ? -1 : 1)
+        }
+      })
+      // and off each bare one, `finer` more, shorter and finer still: the last of the net, thinning away below a device
+      // pixel into the leaves
+      const finest = []
+      bare.forEach((b) => {
+        for (let f = 0; f < TW.finer; f += 1) {
+          const m = 900000 + b.k * 3 + f
+          const at3 = 0.4 + 0.5 * hashed(m * 1.3)
+          const reach3 = 0.3 + 0.3 * hashed(m * 2.1)
+          finest.push(
+            sprout(
+              b.p,
+              at3,
+              m,
+              reach3,
+              reach3 * (0.2 + 0.4 * hashed(m * 3.7)),
+              (f % 2 ? 1 : -1) * spreadOf(m),
+              Math.max(0.006, radiusOf(b)(at3) * 0.75),
+              0.004,
+            ),
+          )
+        }
+      })
+      // (laying out the skeleton is the longest stretch of the planting, so it is split into steps here and after the crown)
+      yield COST.plant
+
+      /* ---- its crown, in three dimensions ----
+         A billow of leaves at the end of every leafy fine twig, and one in the heart of each of the crown's clumps to fill
+         it out, each a sphere of them. */
+      const C = T.crown
+      const billows = []
+      for (const f of fine) {
+        billows.push({
+          c: add(f.p[3], [0, 0.12, 0]),
+          r: C.end[0] + (C.end[1] - C.end[0]) * hashed(f.k * 1.3),
+          seed: hashed(f.k * 2.17),
+        })
+      }
+      clumps.forEach((clump, j) => {
+        billows.push({ c: clump.c, r: clump.ry * C.heart, seed: hashed(j * 3.91 + 0.5) })
+      })
+      // A crown's top is a dome, rounding over smoothly, which the leaves at the twigs' ends alone leave lumpy: so over
+      // the upper half of the crown's own ellipsoid, laid out evenly (by the golden angle), wherever no billow lies near
+      // already, one more fills it out, `dome` places in all.
+      const lo3 = [0, 1, 2].map((i) => Math.min(...billows.map((b) => b.c[i])))
+      const hi3 = [0, 1, 2].map((i) => Math.max(...billows.map((b) => b.c[i])))
+      const mid3 = [0, 1, 2].map((i) => (lo3[i] + hi3[i]) / 2)
+      const half3 = [0, 1, 2].map((i) => Math.max(0.5, (hi3[i] - lo3[i]) / 2))
+      const shellR = (C.end[0] + C.end[1]) / 2
+      for (let i = 0; i < C.dome; i += 1) {
+        const y = 1 - (i + 0.5) / C.dome
+        const ring = Math.sqrt(1 - y * y)
+        const a = i * 2.39996
+        const p = [
+          mid3[0] + half3[0] * ring * Math.cos(a),
+          mid3[1] + half3[1] * y,
+          mid3[2] + half3[2] * ring * Math.sin(a),
+        ]
+        if (!billows.some((b) => Math.hypot(...sub(b.c, p)) < (b.r + shellR) * 0.7)) {
+          billows.push({ c: p, r: shellR * (0.9 + 0.3 * hashed(i * 4.3 + 0.7)), seed: hashed(i * 5.7 + 0.3) })
+        }
+      }
+      yield COST.plant
 
       /* ---- the eye ---- */
       const eye3 = T.eye
       const look = unit(sub(T.at, eye3))
       let right = unit(cross([0, 1, 0], look))
       let upward = cross(look, right)
-      // The frame turned only a very little. Turned further, it leaned the tree across the picture, but it tilted the
-      // ground under the roots with it, against the level knoll they stand on, and the tree looked to be falling.
+      // The frame turned only as the tree says, if at all: turned, it leans the tree across the picture, but it tilts the
+      // ground under the roots with it, against the level knoll they stand on, and the tree looks to be falling.
       const roll = T.roll
       ;[right, upward] = [
         add(times(right, Math.cos(roll)), times(upward, Math.sin(roll))),
@@ -3144,19 +3976,25 @@
 
       /* ---- where it stands and how large it is ----
          Its foot on the knoll, near the right; as large as it can be with nothing of it over the words or the buttons
-         (nothing over their width above their foot), the crown allowed to run off the top and the right of the picture
-         only a little, the foot of the trunk no wider than a share of the picture, and its roots clear of the foot of
-         the canvas, where the picture fades into the page. */
+         (nothing over their width above their foot, and its crown further from them the higher it is beside them, so
+         its outline curves away from them), its dome whole under the canvas's top, the crown allowed to run off the
+         right of the picture only so far, the foot of the trunk no wider than a share of the picture, and its roots clear
+         of the foot of the canvas, where the picture fades into the page. Every billow is in the outline, so none of
+         them has to be cut where the words are, which left the crown a straight edge there. */
       const margin = 30
       const wordsLeft = words.x - words.a - margin
       const wordsRight = words.x + words.a + margin
+      const wordsTop = words.y - words.b
       const wordsFoot = words.y + words.b + margin
-      // the outline to keep clear: every clump, and points along every limb, as [u, v, radius in units, a clump or not]
+      const clearAt = (y) =>
+        wordsRight + T.clear * (1 - clamp((y - wordsTop) / Math.max(1, wordsFoot - wordsTop), 0, 1) ** 2)
+      // the outline to keep clear: every billow, and points along every limb and branch, as [u, v, radius in units,
+      // leaves or not]
       const outline = []
-      for (const c of clumps) {
-        const q = seen(c.c)
+      for (const b of billows) {
+        const q = seen(b.c)
         if (q) {
-          outline.push([q.u, q.v, Math.max(c.rx, c.ry) / q.z, true])
+          outline.push([q.u, q.v, b.r / q.z, true])
         }
       }
       for (const b of [...limbs, ...branches]) {
@@ -3167,7 +4005,7 @@
           }
         }
       }
-      // where each root goes under the ground for good, as the painting cuts it (see onGround)
+      // where each root goes under the ground for good, as the tree's pass cuts it at the ground (see treeFragment)
       const rootEnds = roots
         .map((root) => {
           let t = 1
@@ -3185,19 +4023,21 @@
       const fits = () => {
         let left = Number.POSITIVE_INFINITY
         let right2 = Number.NEGATIVE_INFINITY
-        // how much of the crown is in the picture, its clumps as squares, by area
+        let top = Number.POSITIVE_INFINITY
+        // how much of the crown is in the picture, its billows as squares, by area
         let crown = 0
         let shown = 0
-        for (const [u, v, r, clump] of outline) {
+        for (const [u, v, r, leafy] of outline) {
           const x = bx + S * (u - foot.u)
           const y = by + S * (v - foot.v)
           const R = r * S
-          if (x + R > wordsLeft && x - R < wordsRight && y - R < wordsFoot) {
+          if (x + R > wordsLeft && x - R < clearAt(y) && y - R < wordsFoot) {
             return false
           }
           left = Math.min(left, x - R)
           right2 = Math.max(right2, x + R)
-          if (clump) {
+          if (leafy) {
+            top = Math.min(top, y - R)
             crown += 4 * R * R
             shown +=
               Math.max(0, Math.min(w, x + R) - Math.max(0, x - R)) *
@@ -3210,9 +4050,13 @@
             return false
           }
         }
-        // not most of the crown off the right, most of it in the picture, and the foot of the trunk not too wide
+        // not too much of the crown off the right, most of it in the picture, its top under the canvas's, and the foot
+        // of the trunk not too wide
         return (
-          right2 - w < (right2 - left) * T.offRight && shown > crown * T.inFrame && trunkFoot * S * 2 < w * T.footShare
+          right2 - w < (right2 - left) * T.offRight &&
+          shown > crown * T.inFrame &&
+          top > T.top &&
+          trunkFoot * S * 2 < w * T.footShare
         )
       }
       // Seen from a little above the ground, the roots that go away from us end higher in the picture than the foot of
@@ -3223,7 +4067,7 @@
       for (const share of w < 700 ? T.shares.phone : T.shares.wide) {
         bx = w * share
         const crest = garden.ground('knoll', bx) + 6
-        for (S = 2400 * Math.max(0.5, w / 1232); S >= 100; S -= 10) {
+        for (S = Math.min(2400 * Math.max(0.5, w / 1232), T.most * h); S >= 100; S -= 10) {
           by = crest + behind * S
           if (fits()) {
             if (!best || S > best.S + 5) {
@@ -3232,6 +4076,7 @@
             break
           }
         }
+        yield COST.plant
       }
       // (and should nothing fit, a small tree low on the right, which at least keeps off the words)
       ;({ S, bx, by } = best || { S: 100, bx: w * 0.86, by: garden.ground('knoll', w * 0.86) + 6 })
@@ -3244,391 +4089,559 @@
         return { x, y, z: q.z, px: S / q.z }
       }
       const k = clamp(w / 1232, 0.6, 1.2)
+      yield COST.plant
 
-      /* ---- painting it ----
-         Every stroke is kept with how far it is from the eye, and they are painted from the farthest in, so that what is
-         nearer covers what is behind it; all of them at the depth of the tree's foot, so the grass in front of that is
-         painted over the roots. */
-      const marks = []
-      const L = unit([-0.55, 0.78, -0.3])
-      const BARK = ['barkDeep', 'bark', 'barkWarm', 'barkLit']
-      const shade = (ramp, t, n) => {
-        const at = clamp(t, 0, 0.999) * (ramp.length - 1)
-        const i = Math.floor(at)
-        const j = Math.min(ramp.length - 1, i + 1)
-        return at - i > 0.5 + jitter(n + 13) * 0.5 ? [ramp[j], ramp[i]] : [ramp[i], ramp[j]]
-      }
-      // A stroke between two places, cut off where it would go under the ground, so that the tree meets the ground in a
-      // clean line rather than fraying below it; and how it lies on the canvas.
-      const ground = 0.012
-      const onGround = (a3, b3) => {
-        if (a3[1] < ground && b3[1] < ground) {
-          return null
+      /* ---- its light ----
+         The sun the land is lit by, low on the left, and a little behind the tree, so that its crown is lit through: in
+         the tree's own terms from the eye's way across and ahead, and in the eye's own (across, up the canvas, towards
+         us) for the shader. */
+      const sunUp = T.sun.up * deg
+      const sunRound = T.sun.round * deg
+      const leftward = unit([-right[0], 0, -right[2]])
+      const ahead = unit([look[0], 0, look[2]])
+      const sunWay = unit(
+        add(times(add(times(leftward, Math.cos(sunRound)), times(ahead, Math.sin(sunRound))), Math.cos(sunUp)), [
+          0,
+          Math.sin(sunUp),
+          0,
+        ]),
+      )
+      const inView = (a) => [dot(a, right), dot(a, upward), -dot(a, look)]
+      // the crown sways about the fork
+      const swayAt = project(fork) || { x: bx, y: by - 200 }
+
+      /* ---- its crown on the canvas ----
+         Each billow is lit as much as the rest of the crown lets the sun through to it and as it stands on the crown's
+         side towards the sun, and is the darker the deeper in the crown it lies, as seen from the eye; it knows which way
+         its outline lies open to the sky (the crown's rim) and the billow in front of it whose shade lies along its edge.
+         None reaches over the words: the fit keeps them all clear, and only should nothing have fitted is one cut, by a
+         share of its own, so that even then the crown's edge there is ragged rather than straight. */
+      const sprites = []
+      for (const b of billows) {
+        const m = project(b.c)
+        if (!m) {
+          continue
         }
-        let p3 = a3
-        let q3 = b3
-        if (a3[1] < ground || b3[1] < ground) {
-          const cut = add(a3, times(sub(b3, a3), (ground - a3[1]) / (b3[1] - a3[1])))
-          if (a3[1] < ground) {
-            p3 = cut
-          } else {
-            q3 = cut
+        let R = b.r * m.px
+        const over = Math.min(m.x - R - clearAt(m.y), wordsFoot - (m.y - R))
+        if (over < 0 && m.y - R < wordsFoot && m.x + R > wordsLeft) {
+          R = Math.max(0, R + over - (0.1 + 0.45 * b.seed) * R)
+          if (R < b.r * m.px * 0.6) {
+            continue
           }
         }
-        const a = project(p3)
-        const b = project(q3)
-        const m = project(times(add(p3, q3), 0.5))
-        if (!a || !b || !m) {
-          return null
-        }
-        return { a, b, m, long: Math.hypot(b.x - a.x, b.y - a.y) / 2 }
+        sprites.push({ ...b, m, R })
       }
-      // A bough, as strokes of bark laid along it round the side that faces the eye, turned a little round it as bark
-      // spirals, lit on the side towards the sun and dark towards its edges and underneath, as a round thing is.
-      // (`fromTrunk` for one that comes out of the trunk, `coatRows` for more coats than rows of bark)
-      const bough = (
-        id,
-        p,
-        rAt,
-        { twist = 0, spiral = 0.16, rowPx = 15, colPx = 6.5, fromTrunk = false, coatRows = 1 } = {},
-      ) => {
-        const len = lengthOf(p)
-        // its length on the canvas, so that its strokes are about the same size there however near it is
+      // how much of a ray from a place goes through the billows on its way, in metres, each taken as a share of its
+      // radius (worked out a few thousand times in the planting, so without making anything along the way)
+      const through = (from, way, skip, share = 1) => {
+        let sum = 0
+        for (const o of sprites) {
+          if (o === skip) {
+            continue
+          }
+          const dx = o.c[0] - from[0]
+          const dy = o.c[1] - from[1]
+          const dz = o.c[2] - from[2]
+          const t = dx * way[0] + dy * way[1] + dz * way[2]
+          const miss = dx * dx + dy * dy + dz * dz - t * t
+          const r2 = o.r * o.r * share * share
+          if (t > 0 && miss < r2) {
+            sum += 2 * Math.sqrt(r2 - miss)
+          }
+        }
+        return sum
+      }
+      // whether a place on the canvas is inside a billow other than one, within a share of its radius (and, with
+      // `nearer`, only a billow nearer than that one)
+      const covered = (x, y, me, share, nearer = false) => {
+        for (const p of sprites) {
+          const dx = x - p.m.x
+          const dy = y - p.m.y
+          if (p !== me && dx * dx + dy * dy < p.R * p.R * share * share && (!nearer || p.m.z < me.m.z)) {
+            return true
+          }
+        }
+        return false
+      }
+      // the crown's middle and its size, in metres, for which side of it each billow is on
+      const middle = times(
+        sprites.reduce((sum, o) => add(sum, o.c), [0, 0, 0]),
+        1 / Math.max(1, sprites.length),
+      )
+      const span = Math.max(1, ...sprites.map((o) => Math.hypot(...sub(o.c, middle)) + o.r))
+      // (a few hundred billows, each looking through all the others: handed to the builder a share at a time)
+      for (const [i, o] of sprites.entries()) {
+        if (i % 80 === 79) {
+          yield COST.plant
+        }
+        const toward = smooth(-0.8, 0.7, dot(sub(o.c, middle), sunWay) / span)
+        o.sun = 0.5 * Math.exp(-C.shade * through(o.c, sunWay, o)) + 0.5 * toward
+        o.deep = 1 - Math.exp(-C.deep * through(o.c, unit(sub(eye3, o.c)), o))
+        // which way its outline lies open to the sky, and how much of it does
+        let open = 0
+        o.open = [0, 0]
+        for (let i = 0; i < 12; i += 1) {
+          const a = (i / 12) * Math.PI * 2
+          const x = o.m.x + o.R * Math.cos(a)
+          const y = o.m.y - o.R * Math.sin(a)
+          if (!covered(x, y, o, 0.92)) {
+            open += 1
+            o.open[0] += Math.cos(a) / 12
+            o.open[1] += Math.sin(a) / 12
+          }
+        }
+        o.rim = open / 12
+        o.veil = C.holes * (0.7 + 0.6 * hashed(o.seed * 9.1))
+        // the billow in front of it that covers most of it, whose shade lies along its edge (in its own radius, y up)
+        let most = 0
+        o.crease = [0, 0, 0]
+        for (const p of sprites) {
+          const gap = Math.hypot(p.m.x - o.m.x, p.m.y - o.m.y)
+          const overlap = o.R + p.R * 0.85 - gap
+          if (p !== o && p.m.z < o.m.z && overlap > most && gap > p.R * 0.3) {
+            most = overlap
+            o.crease = [(p.m.x - o.m.x) / o.R, -(p.m.y - o.m.y) / o.R, p.R / o.R]
+          }
+        }
+        o.sway = smooth(fork[1], fork[1] + 6, o.c[1])
+      }
+      yield COST.plant
+      // A billow wholly behind nearer ones, its middle and its edge all well inside them (inside the part of each that
+      // is solid leaves, whatever its outline does), would only be painted over: it still keeps the sun from the others,
+      // but it is not drawn.
+      for (const o of sprites) {
+        let hidden = covered(o.m.x, o.m.y, o, 0.62, true)
+        for (let i = 0; hidden && i < 12; i += 1) {
+          const a = (i / 12) * Math.PI * 2
+          hidden = covered(o.m.x + o.R * 0.94 * Math.cos(a), o.m.y - o.R * 0.94 * Math.sin(a), o, 0.62, true)
+        }
+        o.hidden = hidden
+      }
+      yield COST.plant
+
+      /* ---- the mesh ----
+         Every bough as rings along it, every piece between two rings a square of its own, so the twigs and the leaves
+         among them are painted in the order they stand in; and each billow and each mote a square. All of it from the
+         farthest, as one mesh for the tree's pass (see TREE_VERTEX). */
+      const pieces = []
+      // every square's four corners of seventeen numbers, written as it is laid out and put in order at the end
+      const SQUARE = 68
+      let laid = new Float32Array(SQUARE * 1024)
+      const square = (over, z) => {
+        const at = pieces.length
+        if ((at + 1) * SQUARE > laid.length) {
+          const more = new Float32Array(laid.length * 2)
+          more.set(laid)
+          laid = more
+        }
+        pieces.push({ over, z, at })
+        return at * SQUARE
+      }
+      // a corner of a bough's piece: where it is, which side, and the ring's own numbers
+      const ringCorner = (o, ring, sideOf) => {
+        laid[o] = ring.x
+        laid[o + 1] = ring.y
+        laid[o + 2] = ring.across[0]
+        laid[o + 3] = ring.across[1]
+        laid[o + 4] = sideOf
+        laid[o + 5] = ring.R
+        laid[o + 6] = ring.crown
+        laid[o + 7] = ring.veil
+        laid.set(ring.light, o + 8)
+        laid.set(ring.more, o + 12)
+        laid[o + 16] = ring.show
+      }
+      // the four corners of a billow's or a mote's square round its middle, with its own twelve numbers and one more
+      const CORNERS = [-1, -1, 1, -1, -1, 1, 1, 1]
+      const quad = (z, x, y, rest, last) => {
+        const o = square(false, z)
+        for (let k = 0; k < 4; k += 1) {
+          laid[o + k * 17] = x
+          laid[o + k * 17 + 1] = y
+          laid[o + k * 17 + 2] = CORNERS[k * 2]
+          laid[o + k * 17 + 3] = CORNERS[k * 2 + 1]
+          laid.set(rest, o + k * 17 + 4)
+          laid[o + k * 17 + 16] = last
+        }
+      }
+      // How much of the fine net shows at a place on the canvas: nothing outside the crown's billows, and over the
+      // crown's top less and less, where the outer leaves are thickest and hide it, as they do in Cameron's pictures.
+      const domeTop = Math.min(...sprites.map((o) => o.m.y - o.R))
+      const domeFoot = Math.max(...sprites.map((o) => o.m.y + o.R))
+      const leavesBehind = (x, y) => {
+        let most = 0
+        for (const o of sprites) {
+          most = Math.max(most, 1 - Math.hypot(x - o.m.x, y - o.m.y) / Math.max(o.R, 1e-3))
+        }
+        return (
+          smooth(0.08, 0.35, most) * (1 - 0.8 * smooth(0.45, 0.92, (domeFoot - y) / Math.max(1, domeFoot - domeTop)))
+        )
+      }
+      const bough = (p, rAt, { behind = 0, over = false, show = () => 1, veiled = true, inLeaves = false } = {}) => {
         let lenPx = 0
         let prev = project(along(p, 0))
-        for (let i = 1; i <= 12; i += 1) {
-          const q = project(along(p, i / 12))
+        for (let i = 1; i <= 8; i += 1) {
+          const q = project(along(p, i / 8))
           if (q && prev) {
             lenPx += Math.hypot(q.x - prev.x, q.y - prev.y)
           }
           prev = q
         }
-        const rows = Math.max(2, Math.round(lenPx / rowPx))
-        const onCanvas = (m, pad) => m.x > -pad && m.x < w + pad && m.y > -pad && m.y < h + pad
-        // First a soft coat in the bark's middle tone, a little wider than the bough is on the canvas, so nothing shows
-        // through, and the coats of a root and of the trunk it leaves overlap where they meet. An upright bough's coat
-        // the ground cuts across; one lying half in the ground has its coat over the part of it that is out of the ground
-        // only. Where a bough swells quickly, as the trunk does into its flare, it has more of them, each as wide as the
-        // bough is where it lies, so the coat neither stands out beside it nor leaves its sides bare.
-        const coat = (n, c0, tan, r, reach) => {
-          const lying = 1 - Math.abs(tan[1])
-          const bottom = Math.max(ground, c0[1] - r)
-          const above = c0[1] + r - bottom
-          if (above < 0.04) {
-            return
-          }
-          const c = [c0[0], c0[1] + lying * (bottom + above / 2 - c0[1]), c0[2]]
-          const half = r + lying * (above / 2 - r)
-          // (an upright one's middle above the ground only)
-          if (c[1] < 0.03) {
-            return
-          }
-          const cut = onGround(sub(c, times(tan, reach)), add(c, times(tan, reach)))
-          if (!cut || !onCanvas(cut.m, half * cut.m.px + 30)) {
-            return
-          }
-          const { a, b, m, long } = cut
-          if (long < 0.4) {
-            return
-          }
-          marks.push({
-            z: m.z + r * 1.05,
-            n,
-            leaf: false,
-            x: m.x,
-            y: m.y,
-            long,
-            wide: clamp((half * m.px * 1.05) / long, 0.1, 4),
-            turn: Math.atan2(b.y - a.y, b.x - a.x),
-            paints: ['barkDeep', 'bark'],
-            kind: 0.25,
-            blur: 1,
-          })
-        }
-        const coats = rows * coatRows
-        for (let i = 0; i < coats; i += 1) {
-          const t = (i + 0.5) / coats
-          // (as wide as the bough is at its narrowest along the stroke, so that it never stands out beside it)
-          const r = Math.min(rAt(t), rAt(Math.max(0, t - 0.7 / coats)), rAt(Math.min(1, t + 0.7 / coats)))
-          coat(id * 100000 + 90000 + i, along(p, t), wayOf(p, t), r, (len / coats) * 0.7)
-        }
-        // and two more, a little wider, where it comes out of what it grows from, so the two coats overlap in the crotch
-        if (fromTrunk) {
-          for (const t of [0.2, 0.3]) {
-            coat(id * 100000 + 99000 + t * 100, along(p, t), wayOf(p, t), rAt(t) * 1.15, len * 0.08)
-          }
-        }
-        for (let i = 0; i < rows; i += 1) {
-          const t = (i + 0.5 + jitter(id * 977 + i) * 0.3) / rows
+        const many = clamp(Math.round(lenPx / 9), 4, 40)
+        const rings = []
+        let walked = 0
+        for (let i = 0; i <= many; i += 1) {
+          const t = i / many
           const c = along(p, t)
           const tan = wayOf(p, t)
-          const ref = Math.abs(tan[1]) > 0.9 ? [1, 0, 0] : [0, 1, 0]
-          const nA = unit(cross(tan, ref))
-          const nB = cross(tan, nA)
           const r = rAt(t)
-          const mid = project(c)
-          if (!mid || !onCanvas(mid, r * mid.px + 30)) {
-            continue
+          const m = project(c)
+          const m2 = project(add(c, times(tan, 0.05)))
+          if (!m || !m2) {
+            return
           }
-          // Towards a thin end its strokes are shorter and narrower and lie along it, so that a root or a branch tapers
-          // to its end, rather than fanning out like the tip of a brush.
-          const thin = clamp((r * mid.px) / 10, 0.2, 1)
-          const cols = Math.max(5, Math.round((2 * Math.PI * r * mid.px) / colPx))
-          for (let j = 0; j < cols; j += 1) {
-            const n = id * 100000 + i * 211 + j
-            const phi = (2 * Math.PI * (j + 0.5 + jitter(n) * 0.4)) / cols + twist * t
-            const normal = add(times(nA, Math.cos(phi)), times(nB, Math.sin(phi)))
-            const at = add(c, times(normal, r))
-            const facing = dot(normal, unit(sub(eye3, at)))
-            // nothing under the ground, and of a root nothing still inside the trunk; and towards a thin end only the
-            // strokes that face the eye, so the end narrows to a point
-            if (facing < 0.03 + 0.45 * (1 - thin) || at[1] < 0.02 || (fromTrunk && inTrunk(at, 0.03))) {
-              continue
-            }
-            const dir = unit(add(tan, times(cross(normal, tan), spiral * thin * thin)))
-            const reach = (len / rows) * 0.7 * (0.45 + 0.55 * thin)
-            const cut = onGround(sub(at, times(dir, reach)), add(at, times(dir, reach)))
-            if (!cut) {
-              continue
-            }
-            const { a, b, m, long } = cut
-            // half its breadth: a share of the way round, foreshortened towards the edge
-            const breadth = ((Math.PI * r) / cols) * 1.15 * m.px * (0.4 + 0.6 * Math.sqrt(facing))
-            if (long < 0.4) {
-              continue
-            }
-            const lit = dot(normal, L)
-            const edge = 1 - smooth(0.05, 0.45, facing)
-            const tone = 0.42 + 0.42 * lit - 0.3 * edge + jitter(n + 3) * 0.12
-            marks.push({
-              z: m.z,
-              n,
-              leaf: false,
-              x: m.x,
-              y: m.y,
-              long,
-              wide: clamp((breadth * (0.6 + 0.4 * thin)) / long, 0.1, 1.1),
-              turn: Math.atan2(b.y - a.y, b.x - a.x) + (j % 2 ? Math.PI : 0),
-              paints: shade(BARK, tone, n),
-            })
+          const run = Math.hypot(m2.x - m.x, m2.y - m.y) || 1
+          const across = [-(m2.y - m.y) / run, (m2.x - m.x) / run]
+          let side = unit(cross(tan, unit(sub(eye3, c))))
+          const s2 = project(add(c, times(side, 0.05)))
+          if (s2 && (s2.x - m.x) * across[0] + (s2.y - m.y) * across[1] < 0) {
+            side = times(side, -1)
           }
-        }
-      }
-      bough(1, TRUNK, trunkR, { twist: 1.1, spiral: 0.2, rowPx: 26, colPx: 5.6, coatRows: 2 })
-      roots.forEach((root) => bough(20 + root.k, root.p, rootR(root), { rowPx: 20, colPx: 5.6, fromTrunk: true }))
-      limbs.forEach((limb) => bough(40 + limb.k, limb.p, limbR(limb), { twist: 0.5, rowPx: 20, colPx: 5.4 }))
-      branches.forEach((b) => bough(100 + b.k, b.p, (t) => b.r0 + (b.r1 - b.r0) * t, { rowPx: 12, colPx: 5.5 }))
-
-      // The clumps, seen from underneath: each its outline on the canvas, an oval round the projected ellipsoid.
-      const placed = clumps
-        .map((c, j) => {
-          const m = project(c.c)
-          if (!m) {
-            return null
+          let face = unit(cross(side, tan))
+          if (dot(face, sub(eye3, c)) < 0) {
+            face = times(face, -1)
           }
-          let x0 = Number.POSITIVE_INFINITY
-          let x1 = Number.NEGATIVE_INFINITY
-          let y0 = Number.POSITIVE_INFINITY
-          let y1 = Number.NEGATIVE_INFINITY
-          for (const d of [
-            [c.rx, 0, 0],
-            [-c.rx, 0, 0],
-            [0, c.ry, 0],
-            [0, -c.ry, 0],
-            [0, 0, c.rx],
-            [0, 0, -c.rx],
-          ]) {
-            const q = project(add(c.c, d))
-            if (q) {
-              x0 = Math.min(x0, q.x)
-              x1 = Math.max(x1, q.x)
-              y0 = Math.min(y0, q.y)
-              y1 = Math.max(y1, q.y)
-            }
+          if (i > 0) {
+            const last = rings[rings.length - 1]
+            walked += Math.hypot(m.x - last.x, m.y - last.y)
           }
-          return { j, x: m.x, y: m.y, a: (x1 - x0) / 2, b: (y1 - y0) / 2, z: m.z, px: m.px }
-        })
-        .filter(Boolean)
-      const nearer = (x, y, me, within = 0.62) =>
-        placed.some((o) => o.z < me.z && ((x - o.x) / o.a) ** 2 + ((y - o.y) / o.b) ** 2 < within)
-      const top = Math.min(...placed.map((o) => o.y - o.b))
-      const low = Math.max(...placed.map((o) => o.y + o.b))
-      const passes = [
-        { step: 0.2, long: 0.22, wide: 0.58, edge: 1.04 },
-        { step: 0.24, long: 0.15, wide: 0.5, edge: 0.98 },
-        { step: 0.26, long: 0.11, wide: 0.52, edge: 1.02 },
-      ]
-      const spots = []
-      for (const o of placed) {
-        // how high in the crown, from its lowest clumps (0) to its top (1)
-        const high = 1 - (o.y - top) / Math.max(1, low - top)
-        passes.forEach((pass, which) => {
-          const step = clamp(pass.step * o.px, 3.2, [9, 10.5, 11.5][which] * k)
-          const cols = Math.ceil((o.a * 2.2) / step)
-          const rows = Math.ceil((o.b * 2.2) / step)
-          for (let r = 0; r <= rows; r += 1) {
-            for (let c = 0; c <= cols; c += 1) {
-              const n = 200000 + o.j * 30000 + which * 9000 + r * 90 + c
-              const x = o.x - o.a * 1.1 + (c + 0.5 + jitter(n) * 0.9) * step
-              const y = o.y - o.b * 1.1 + (r + 0.5 + jitter(n + 1) * 0.9) * step
-              const ex = (x - o.x) / o.a
-              const ey = (y - o.y) / o.b
-              const d = Math.hypot(ex, ey)
-              if (d > pass.edge + jitter(n + 2) * 0.24 || x < -16 || x > w + 16 || y < -16 || nearer(x, y, o)) {
-                continue
-              }
-              // Seen from underneath, most of a clump is its underside, cool and dark; the light catches the rims of
-              // the leaves along its upper left, where the sunlit top shows over its edge, more so high in the crown.
-              const light = clamp((-ey * 0.8 - ex * 0.4) * 0.75 + (high - 0.5) * 0.4, -1, 1)
-              const under = smooth(-0.35, 0.55, ey)
-              let paints = light > 0.25 ? ['crown', 'crownMid'] : ['crownDeep', 'crown']
-              if (which === 0) {
-                if (under > 0.6) {
-                  // The underside's own inks, mixed leaf by leaf so it keeps a leafy texture rather than reading as one
-                  // dark mass, and on its lower rims now and then a leaf catching the light of the sky.
-                  paints = jitter(n + 9) > 0 ? ['crownUnder', 'crownDeep'] : ['crownDeep', 'crown']
-                  if (d > 0.8 && jitter(n + 10) > 0.3) {
-                    paints = ['crown', 'crownMid']
-                  }
-                } else if (under > 0.3) {
-                  paints = ['crownUnder', 'crownDeep']
-                } else if (light < -0.2) {
-                  paints = ['crownDeep', 'crownDeep']
-                }
-              } else if (which === 1) {
-                if (light < 0.05 + jitter(n + 3) * 0.4 || under > 0.45) {
-                  continue
-                }
-                paints = light > 0.5 ? ['crownMid', 'crownLit'] : ['crown', 'crownMid']
-              } else {
-                const rim = smooth(0.55, 0.95, d) * (1 - under)
-                if (light + rim * 0.6 < 0.3 + jitter(n + 3) * 0.6 || under > 0.32) {
-                  continue
-                }
-                paints = jitter(n + 4) > 0 ? ['crownLit', 'fleck'] : ['crownMid', 'crownLit']
-                if (light > 0.6 && jitter(n + 4) > 0.25) {
-                  paints = ['fleck', 'sunFleck']
-                }
-                if (d > 0.82 && d < 1.0 && hashed(n * 5.3) < 0.5) {
-                  spots.push({ x, y, z: o.z, o, dice: hashed(n * 7.7) })
-                }
-              }
-              const round = Math.atan2(y - o.y, x - o.x) + (o.j % 2 ? 1 : -1) * Math.PI * 0.5
-              const brush = -0.55 + 0.5 * Math.sin(x * 0.045 + y * 0.03)
-              const towards = ((((brush - round) % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2)) - Math.PI
-              marks.push({
-                z: o.z - which * 1e-3,
-                n,
-                leaf: true,
-                x,
-                y,
-                long: Math.min(pass.long * o.px, [11, 8, 6][which] * k) * (0.8 + 0.45 * (jitter(n + 5) + 0.5)),
-                wide: pass.wide + 0.1 * jitter(n + 6),
-                turn: round + towards * 0.6 + jitter(n + 7) * 1.5,
-                paints,
-                load: 0.9 + 0.06 * jitter(n + 8),
-              })
-            }
-          }
-        })
-      }
-
-      // The crown sways about the fork, all of it together and a very little, as /enterprise's tree always has.
-      const swayAt = project(fork) || { x: bx, y: by - 200 }
-      marks.sort((p, q) => q.z - p.z)
-      marks.forEach((mk, i) => {
-        rand.reseed(61813 + mk.n * 7919)
-        const order = by + i * 1e-5
-        if (!mk.leaf) {
-          garden.dab({
-            x: mk.x,
-            y: mk.y,
-            long: mk.long,
-            wide: mk.wide,
-            turn: mk.turn,
-            paints: mk.paints,
-            blur: mk.blur ?? 0.42,
-            kind: mk.kind ?? 0,
-            load: 0.93,
-            stiff: 1,
-            lean: 0,
-            order,
+          // Inside the crown the leaves keep the sun off it, and a veil of those in front of it lies over it: worked out
+          // at every third ring (and the last), and between them in straight lines, as they change slowly along it.
+          const looked = i % 3 === 0 || i === many
+          rings.push({
+            x: m.x,
+            y: m.y,
+            z: m.z,
+            across,
+            R: r * m.px,
+            crown: looked ? 1 - Math.exp(-C.shade * 1.6 * through(c, sunWay, null)) : -1,
+            // (the veil only from the solid part of each billow in front, as its outline dips inside its sphere, so that
+            // a bough seen past a billow's edge is not veiled by leaves that are not there)
+            veil: looked && veiled ? 1 - Math.exp(-C.deep * 2.5 * through(c, unit(sub(eye3, c)), null, 0.66)) : 0,
+            show: show(t) * (inLeaves ? leavesBehind(m.x, m.y) : 1),
+            light: [dot(side, sunWay), dot(face, sunWay), side[1], face[1]],
+            more: [c[1], r, smooth(fork[1] - 0.3, fork[1] + 6, c[1]), walked],
           })
-          return
         }
-        const dx = mk.x - swayAt.x
-        const dy = Math.max(4, swayAt.y - mk.y)
-        const tilt = Math.atan2(dx, dy)
-        garden.dab({
-          x: swayAt.x,
-          y: swayAt.y,
-          stem: Math.hypot(dx, dy),
-          long: mk.long,
-          wide: mk.wide,
-          turn: mk.turn - tilt * 0.7,
-          blur: 0.45,
-          paints: mk.paints,
-          load: mk.load,
-          stiff: 0.94,
-          lean: tilt,
-          phase: 1.3,
-          order,
+        rings.forEach((ring, i) => {
+          if (ring.crown < 0) {
+            const [a, b] = [rings[i - (i % 3)], rings[Math.min(rings.length - 1, i - (i % 3) + 3)]]
+            const f = (i % 3) / Math.max(1, rings.indexOf(b) - rings.indexOf(a))
+            ring.crown = a.crown + (b.crown - a.crown) * f
+            ring.veil = a.veil + (b.veil - a.veil) * f
+          }
         })
+        // (the shade and the veil eased along it, so neither steps from one ring to the next)
+        const crowns = rings.map((ring) => ring.crown)
+        const veils = rings.map((ring) => ring.veil)
+        rings.forEach((ring, i) => {
+          let [crown, veil, many2] = [0, 0, 0]
+          for (let j = Math.max(0, i - 2); j <= Math.min(rings.length - 1, i + 2); j += 1) {
+            crown += crowns[j]
+            veil += veils[j]
+            many2 += 1
+          }
+          ring.crown = crown / many2
+          ring.veil = veil / many2
+        })
+        for (let i = 0; i < rings.length - 1; i += 1) {
+          const [a, b] = [rings[i], rings[i + 1]]
+          const o = square(over, (a.z + b.z) / 2 + behind)
+          ringCorner(o, a, -1)
+          ringCorner(o + 17, a, 1)
+          ringCorner(o + 34, b, -1)
+          ringCorner(o + 51, b, 1)
+        }
+      }
+      bough(TRUNK, trunkR, { veiled: false })
+      // and on past the fork a little, rounding off under the limbs, which cover it, so the trunk has no end of its own
+      const onward = wayOf(TRUNK, 1)
+      bough(
+        [fork, add(fork, times(onward, 0.2)), add(fork, times(onward, 0.42)), add(fork, times(onward, 0.6))],
+        (t) => T.waist * Math.sqrt(Math.max(0.04, 1 - t * t)),
+        { veiled: false },
+      )
+      // A root comes out of the trunk from inside it, so it is drawn behind it, where the trunk covers its start (and its
+      // start comes in by degrees, should it show beside the trunk); and it thins as it goes into the ground, which
+      // ends it where it goes in, whole to the last, so that it grips the knoll rather than fading off over it.
+      roots.forEach((root) =>
+        bough(root.p, (t) => rootR(root)(t) * (1 - 0.6 * smooth(0.55, 0.9, t)), {
+          behind: 3,
+          veiled: false,
+          show: (t) => smooth(0, 0.2, t),
+        }),
+      )
+      // The limbs and the branches show through the crown, lit through behind them, as dark shapes broken up by the
+      // leaves in front (see treeFragment), so they are drawn over it, and so are the twigs; the finest twigs are drawn
+      // among the billows, so the nearer leaves cover them, and they thin away into the leaves towards their ends.
+      // (A limb comes out of the trunk by degrees, but only over the part of it inside the trunk's rounded end, so it
+      // starts with no edge and never as smoke beside the trunk.)
+      limbs.forEach((limb) => {
+        const long = Math.hypot(...sub(limb.p[3], limb.p[0])) * 1.15
+        bough(limb.p, limbR(limb), { over: true, show: (t) => smooth(0, (T.waist * 0.9) / long, t) })
+      })
+      branches.forEach((b) => bough(b.p, radiusOf(b), { over: true, show: (t) => smooth(0, 0.07, t) }))
+      yield COST.plant
+      for (const [i, b] of twigs.entries()) {
+        bough(b.p, radiusOf(b), { over: true, show: (t) => smooth(0, 0.06, t) * (1 - 0.35 * smooth(0.6, 1, t)) })
+        if (i % 40 === 39) {
+          yield COST.plant
+        }
+      }
+      yield COST.plant
+      // The leafy finest twigs among the billows, so the nearer leaves cover them; the bare ones, and the finer ones
+      // off them, over the leaves, as the fine dark net that shows through a crown lit from behind, broken up by the
+      // leaves in front of them, thinning away towards their ends, and only where there are leaves behind them, so
+      // that none pokes out of the crown into the air.
+      for (const [i, b] of fine.entries()) {
+        bough(b.p, radiusOf(b), { show: (t) => 1 - 0.85 * smooth(0.45, 1, t) })
+        if (i % 60 === 59) {
+          yield COST.plant
+        }
+      }
+      for (const [i, b] of [...bare, ...finest].entries()) {
+        bough(b.p, radiusOf(b), { over: true, inLeaves: true, show: (t) => 1 - 0.7 * smooth(0.6, 1, t) })
+        if (i % 60 === 59) {
+          yield COST.plant
+        }
+      }
+      for (const o of sprites) {
+        if (o.hidden) {
+          continue
+        }
+        // (its front, nearer than its middle, covers the twig it grows on)
+        quad(
+          o.m.z - o.r * 0.6,
+          o.m.x,
+          o.m.y,
+          [2, o.R, o.sun, o.deep, o.crease[0], o.veil, o.open[0], o.open[1], o.seed, o.crease[1], o.sway, o.crease[2]],
+          clamp(C.cluster * o.m.px, 3, 14),
+        )
+      }
+      // A few motes in the light under the crown, about its trunk, clear of the words: they show only where the land
+      // behind them is in shade (see treeFragment), as motes in a low sun do.
+      for (let i = 0; i < T.motes; i += 1) {
+        const n = 7000 + i
+        const q3 = add(add(times(leftward, 3.2 - 6 * hashed(n * 1.7)), times(ahead, (hashed(n * 2.3) - 0.5) * 3)), [
+          0,
+          0.7 + 2.6 * hashed(n * 3.1),
+          0,
+        ])
+        const m = project(q3)
+        if (!m || m.x < wordsRight + 10 || m.x > w - 10 || m.y < 10 || m.y > h * 0.8) {
+          continue
+        }
+        quad(
+          m.z,
+          m.x,
+          m.y,
+          [
+            3,
+            (1.6 + 1.4 * hashed(n * 4.7)) * k,
+            0.5 + 0.5 * hashed(n * 5.3),
+            0,
+            0,
+            0,
+            0,
+            0,
+            hashed(n * 6.1),
+            0,
+            0.3,
+            0,
+          ],
+          1,
+        )
+      }
+      pieces.sort((p, q) => (p.over ? 1 : 0) - (q.over ? 1 : 0) || q.z - p.z)
+      const vertices = new Float32Array(pieces.length * SQUARE)
+      const indices = new Uint16Array(pieces.length * 6)
+      pieces.forEach((piece, i) => {
+        vertices.set(laid.subarray(piece.at * SQUARE, (piece.at + 1) * SQUARE), i * SQUARE)
+        const v = i * 4
+        indices.set([v, v + 1, v + 2, v + 2, v + 1, v + 3], i * 6)
+      })
+      yield COST.plant
+
+      /* ---- the light it leaves on the land ----
+         The shade it throws, worked out on the ground itself (see TREE_LIGHT_FRAGMENT): the trunk's, long over the knoll
+         away from the sun, from where each part of it falls along the sun's way onto the ground, as wide as it is there
+         and the softer the higher that part is; the limbs' after it; and a soft darkening round its foot and along its
+         roots. Then the glow round the billows along its lit rim. Each as a box on the canvas to draw over. */
+      const SH = T.shade
+      // (the knoll's face in front of the tree falls away towards us, `tilt` degrees, so a shade thrown down it runs on
+      // towards us as down a hill, not as across a level floor seen from afar, where it would be a thin line)
+      const tilt = [Math.sin(SH.tilt * deg), Math.cos(SH.tilt * deg)]
+      const slope3 = [0, tilt[1], -tilt[0]]
+      const onFloor = (q3) => {
+        const over = dot(slope3, q3)
+        return over <= 0 ? q3 : add(q3, times(sunWay, -over / dot(slope3, sunWay)))
+      }
+      const groundAt = (x, z) => [x, (z * tilt[0]) / tilt[1], z]
+      const shadeParts = []
+      const shadeBox = [w, h, 0, 0]
+      const shadeOf = (a3, b3, ra, rb, softA, softB, darkA, darkB) => {
+        shadeParts.push([a3[0], a3[2], b3[0], b3[2], ra, rb, softA, softB, darkA, darkB])
+        for (const [q3, r] of [
+          [a3, ra + softA],
+          [b3, rb + softB],
+        ]) {
+          for (const [dx, dz] of [
+            [0, 0],
+            [r, 0],
+            [-r, 0],
+            [0, r],
+            [0, -r],
+          ]) {
+            const m = project(groundAt(q3[0] + dx, q3[2] + dz))
+            if (m) {
+              shadeBox[0] = Math.min(shadeBox[0], m.x)
+              shadeBox[1] = Math.min(shadeBox[1], m.y)
+              shadeBox[2] = Math.max(shadeBox[2], m.x)
+              shadeBox[3] = Math.max(shadeBox[3], m.y)
+            }
+          }
+        }
+      }
+      const shadeSoft = (q3) => SH.soft[0] + SH.soft[1] * Math.max(0, q3[1])
+      for (let i = 0; i < 6; i += 1) {
+        const [t0, t1] = [i / 6, (i + 1) / 6]
+        const [a3, b3] = [along(TRUNK, t0), along(TRUNK, t1)]
+        shadeOf(
+          onFloor(a3),
+          onFloor(b3),
+          trunkR(t0),
+          trunkR(t1),
+          shadeSoft(a3),
+          shadeSoft(b3),
+          1 - 0.35 * t0,
+          1 - 0.35 * t1,
+        )
+      }
+      // (the great limbs only: a lesser one's shade is too faint and too far off to show, and every part is worked out
+      // for every pixel of the box)
+      limbs
+        .filter((limb) => limb.r0 >= 0.12)
+        .forEach((limb) => {
+          const [a3, b3] = [along(limb.p, 0), along(limb.p, 0.6)]
+          shadeOf(onFloor(a3), onFloor(b3), limb.r0, limbR(limb)(0.6), shadeSoft(a3), shadeSoft(b3), 0.7, 0.45)
+        })
+      shadeOf([0, 0, 0], [0, 0, 0], trunkR(0.12) * 1.05, trunkR(0.12) * 1.05, 0.45, 0.45, SH.foot, SH.foot)
+      roots.forEach((root) => {
+        const [a3, b3] = [along(root.p, 0.35), along(root.p, 1)]
+        shadeOf(
+          [a3[0], 0, a3[2]],
+          [b3[0], 0, b3[2]],
+          rootR(root)(0.35) * 1.3,
+          rootR(root)(1) * 1.6,
+          0.14,
+          0.08,
+          SH.roots,
+          SH.roots * 0.6,
+        )
+      })
+      const crownMid = [0, 1].map(
+        (i) => sprites.reduce((sum, o) => sum + [o.m.x, o.m.y][i], 0) / Math.max(1, sprites.length),
+      )
+      const sunSeen = inView(sunWay)
+      const glowAt = sprites
+        .map((o) => {
+          const along2 = (o.m.x - crownMid[0]) * sunSeen[0] - (o.m.y - crownMid[1]) * sunSeen[1]
+          return { o, weight: o.rim * o.sun * (0.45 + 0.55 * smooth(-200, 200, along2)) }
+        })
+        .filter((g) => g.weight > 0.05)
+        .sort((p, q) => q.weight - p.weight)
+        .slice(0, 16)
+      // (the strongest glows fully)
+      const strongest = Math.max(1e-3, ...glowAt.map((g) => g.weight))
+      const glowBox = [w, h, 0, 0]
+      const reach = T.glow.reach * 4
+      for (const { o } of glowAt) {
+        glowBox[0] = Math.min(glowBox[0], o.m.x - o.R - reach)
+        glowBox[1] = Math.min(glowBox[1], o.m.y - o.R - reach)
+        glowBox[2] = Math.max(glowBox[2], o.m.x + o.R + reach)
+        glowBox[3] = Math.max(glowBox[3], o.m.y + o.R + reach)
+      }
+      const boxed = (box) => [
+        clamp(box[0] - 40, 0, w),
+        clamp(box[1] - 40, 0, h),
+        clamp(box[2] + 40, 0, w),
+        clamp(box[3] + 40, 0, h),
+      ]
+      const fourOf = (rows, pick) => {
+        const out = new Float32Array(24 * pick)
+        rows.slice(0, 24).forEach((row, i) => out.set(row, i * pick))
+        return out
+      }
+      const view = new Float32Array([...right, ...upward, ...look])
+      const footFade = h - (ENT_PHOTO.raised || 0) - (ENT_PHOTO.foot || 0)
+      // the crown as a whole on the canvas, its middle and its half width and height, which its light follows (see
+      // treeFragment), off the canvas as well as on it
+      const crownBox = [
+        Math.min(...sprites.map((o) => o.m.x - o.R)),
+        Math.min(...sprites.map((o) => o.m.y - o.R)),
+        Math.max(...sprites.map((o) => o.m.x + o.R)),
+        Math.max(...sprites.map((o) => o.m.y + o.R)),
+      ]
+      garden.solid?.({
+        vertices,
+        indices,
+        count: indices.length,
+        order: by,
+        pivot: [swayAt.x, swayAt.y],
+        crown: [
+          (crownBox[0] + crownBox[2]) / 2,
+          (crownBox[1] + crownBox[3]) / 2,
+          Math.max(1, (crownBox[2] - crownBox[0]) / 2),
+          Math.max(1, (crownBox[3] - crownBox[1]) / 2),
+        ],
+        sunView: inView(sunWay),
+        shade: {
+          count: Math.min(24, shadeParts.length),
+          parts: fourOf(
+            shadeParts.map((s) => s.slice(0, 4)),
+            4,
+          ),
+          look: fourOf(
+            shadeParts.map((s) => s.slice(4, 8)),
+            4,
+          ),
+          dark: fourOf(
+            shadeParts.map((s) => s.slice(8, 10)),
+            2,
+          ),
+          eye: new Float32Array(eye3),
+          view,
+          fit: new Float32Array([bx, by, S, foot.u]),
+          fitV: foot.v,
+          tilt: new Float32Array(tilt),
+          foot: new Float32Array([footFade, footFade + 45]),
+          box: new Float32Array(boxed(shadeBox)),
+        },
+        glow: {
+          count: glowAt.length,
+          parts: fourOf(
+            glowAt.map(({ o, weight }) => [o.m.x, o.m.y, o.R * 0.85, weight / strongest]),
+            4,
+          ),
+          box: new Float32Array(boxed(glowBox)),
+        },
       })
 
       /* ---- where it meets the ground ----
-         The shade it throws, soft, round its foot and away from the sun; grass in tufts round its foot and along each
-         root, so that it stands in the meadow rather than on it; and flowers, daisies and buttercups with a little lilac
-         as the meadow grows them, in clumps in the crotches between the roots and here and there on the knoll in front. */
-      const away = unit([-L[0], 0, -L[2]])
-      for (let i = 0; i < 64; i += 1) {
-        const n = 950000 + i
-        const a = hashed(n * 1.3) * Math.PI * 2
-        const r = Math.sqrt(hashed(n * 2.1)) * 2.4
-        const m = project(add([Math.cos(a) * r * 1.15, 0.005, Math.sin(a) * r * 0.9], times(away, 0.8)))
-        if (!m) {
-          continue
-        }
-        rand.reseed(61813 + n * 7919)
-        garden.dab({
-          x: m.x,
-          y: m.y,
-          long: 0.75 * m.px,
-          wide: 0.5,
-          turn: 0,
-          paints: ['shade', 'deepGreen'],
-          load: 0.26 * (1 - smooth(1.2, 2.5, r)),
-          kind: 0.25,
-          blur: 4,
-          stiff: 1,
-          lean: 0,
-          order: by - 1,
-        })
-      }
-      for (let i = 0; i < 36; i += 1) {
-        const n = 951000 + i
-        const a = hashed(n * 1.3) * Math.PI * 2
-        const r = 0.6 + Math.sqrt(hashed(n * 2.1)) * 0.9
-        const m = project([Math.cos(a) * r * 1.1, 0.005, Math.sin(a) * r])
-        if (!m) {
-          continue
-        }
-        rand.reseed(61813 + n * 7919)
-        garden.dab({
-          x: m.x,
-          y: m.y,
-          long: 0.45 * m.px,
-          wide: 0.5,
-          turn: 0,
-          paints: ['shade', 'deepGreen'],
-          load: 0.3,
-          kind: 0.25,
-          blur: 2.5,
-          stiff: 1,
-          lean: 0,
-          order: by - 0.9,
-        })
-      }
+         Grass in tufts round its foot and along each root, so that it stands in the meadow rather than on it; and
+         flowers, daisies and buttercups with a little lilac as the meadow grows them, in clumps in the crotches between
+         the roots and here and there on the knoll in front. */
       // Places on the ground where the tree meets it: round the side of its foot that faces us, and all along each root
       // where it lies on the ground, a little towards us, so the grass there stands in front of the root's edge.
       const toEye = unit([eye3[0], 0, eye3[2]])
@@ -3662,7 +4675,7 @@
             y: m.y + jitter(nn + 1) * 3,
             tall: (12 + 20 * hashed(nn * 1.7)) * k * (0.75 + 0.5 * (near - 0.5)),
             wide: 1,
-            // the meadow's greens, lime to spring, not the gold of the slopes
+            // the knoll's own grass, from a lit green to the ripe gold the low sun finds in it (see the grass's inks)
             ink: 0.3 + 1.4 * hashed(nn * 2.9),
             mix: 0.5,
             soft: 0,
@@ -3713,7 +4726,11 @@
       const scale = clamp(S / 320, 0.72, 1.15)
       const many = clamp(S / 320, 0.45, 1)
       const footAt = trunkR(0.1)
-      for (let ring = 0; ring < 16; ring += 1) {
+      yield COST.plant
+      for (let ring = 0; ring < 24; ring += 1) {
+        if (ring % 4 === 3) {
+          yield COST.plant
+        }
         const rho = footAt + 0.04 + ring * 0.085
         const steps = Math.ceil((rho * Math.PI * 1.3) / 0.085)
         for (let s2 = 0; s2 < steps; s2 += 1) {
@@ -3726,16 +4743,24 @@
           if (edge < 0.05) {
             continue
           }
-          // against the trunk, along the roots and in the crotches, and hardly anywhere else
+          // a few against the trunk, along the roots and in the crotches, and the rest in two or three loose patches out
+          // over the knoll, as a drift grows in the grass rather than a bunch at the foot of the bark
           const out = r - footAt
           const against = Math.exp(-out / 0.32)
           const along2 = Math.exp(-edge / 0.16) * (1 - smooth(1.0, 1.6, out))
           const crotch =
             Math.max(...crotches.map((c) => Math.exp(-((angleFrom(a, c) / 0.32) ** 2)))) *
             Math.exp(-(((out - 0.3) / 0.45) ** 2))
+          // (most of it in front of the trunk, where the knoll comes towards us, and in a few loose patches rather than a
+          // ring, each drawn out towards us, as the knoll is seen at a slant)
+          const drift = Math.max(
+            ...T.drifts.map(([dx, dz, sx, sz]) => Math.exp(-(((x - dx) / sx) ** 2) - ((z - dz) / sz) ** 2)),
+          )
           const thick =
-            smooth(-0.15, 0.45, Math.cos(a - facingUs)) * (Math.max(against, along2 * 0.9, crotch) + 0.04) * many
-          if (hashed(n * 2.3) > thick * (0.55 + 0.75 * hashed(Math.floor(x * 3) * 13.1 + Math.floor(z * 3) * 7.7))) {
+            smooth(-0.35, 0.6, Math.cos(a - facingUs)) *
+            (0.3 * against + 0.25 * along2 + 0.25 * crotch + 0.9 * drift) *
+            many
+          if (hashed(n * 2.3) > thick * (0.3 + 0.4 * hashed(Math.floor(x * 3) * 13.1 + Math.floor(z * 3) * 7.7))) {
             continue
           }
           const m = project([x, 0, z])
@@ -3759,8 +4784,8 @@
               turn: -Math.PI / 2 + jitter(n + 10) * 1.2,
               paints: ['leaf', hashed(n * 4.1) < 0.6 ? 'leaf' : 'deepGreen'],
               kind: 0.25,
-              blur: 0.5,
-              load: 0.8,
+              blur: 0.8,
+              load: 0.5,
               stiff: 0.7,
               lean,
               order: m.y - 0.01,
@@ -3774,7 +4799,8 @@
             stem: reach * ((0.5 + 0.6 * hashed(n * 8.9)) * (1 - 0.5 * low) + 1.6 * against),
             reach,
             petals,
-            blur: 0.5,
+            // (soft, as the home hero's flowers are, so they are flowers in the light and not cut paper)
+            blur: 1.3,
             paints: [ink, second],
             turn: jitter(n + 9) * 0.8,
             stiff: 0.7,
@@ -3786,7 +4812,10 @@
         }
       }
 
-      /* ---- where the pointer finds it, and where the butterflies land ---- */
+      yield COST.plant
+      /* ---- where the pointer finds it, and where the butterflies land ----
+         Its trunk, limbs and branches, and every billow of its crown; and the butterflies sit about the crown on the
+         leaves along the tops of its billows, where no nearer billow covers them, and on the limbs where they show. */
       for (const b of [{ p: TRUNK, r0: trunkR(0), r1: T.waist }, ...limbs, ...branches]) {
         for (let t = 0; t <= 1; t += 0.12) {
           const m = project(along(b.p, t))
@@ -3795,28 +4824,77 @@
           }
         }
       }
-      for (const o of placed) {
-        garden.tree(o.x, o.y, Math.max(o.a, o.b) * 0.96)
+      for (const o of sprites) {
+        garden.tree(o.m.x, o.m.y, o.R * 0.96)
       }
-      spots.sort((p, q) => p.dice - q.dice)
+      // (How many places there are to sit is how many butterflies sit in it: all of them on a wide stage, and on a
+      // narrower one, where the tree is small, fewer, so that they never heap up along its crown as a bed of blossom;
+      // they sit well apart, the more over the crown's upper half, and a few on the limbs.)
+      const seats = Math.round(12 * clamp((w - 390) / 842, 0.3, 1))
+      const crownTop = Math.min(...sprites.map((o) => o.m.y - o.R))
+      const crownFoot = Math.max(...sprites.map((o) => o.m.y + o.R))
+      // (each well inside its billow, 12 pixels in at least, so its wings lie over leaves and never over the page)
+      const spots = []
+      for (const o of sprites) {
+        if (o.hidden) {
+          continue
+        }
+        const inward = Math.max(0, Math.min(o.R * 0.82, o.R - 12))
+        for (let i = 0; i < 9; i += 1) {
+          const a = (0.1 + (0.8 * i) / 8) * Math.PI
+          const x = o.m.x + inward * Math.cos(a)
+          const y = o.m.y - inward * Math.sin(a)
+          if (covered(x, y, o, 0.7, true)) {
+            continue
+          }
+          const low = clamp((y - crownTop) / Math.max(1, crownFoot - crownTop), 0, 1)
+          spots.push({ x, y, dice: hashed(o.seed * 91.3 + i * 7.7), rank: hashed(o.seed * 91.3 + i * 7.7) + 0.6 * low })
+        }
+      }
+      spots.sort((p, q) => p.rank - q.rank)
       const taken = []
       for (const spot of spots) {
-        if (spot.y < 72 || taken.length >= 46 || taken.some((t) => Math.hypot(t.x - spot.x, t.y - spot.y) < 13 * k)) {
+        if (
+          spot.y < 72 ||
+          spot.x > w - 6 ||
+          taken.length >= seats - 2 ||
+          taken.some((t) => Math.hypot(t.x - spot.x, t.y - spot.y) < 44 * k)
+        ) {
           continue
         }
         taken.push(spot)
         garden.perch(spot.x, spot.y, spot.dice > 0.5 ? 1 : -1)
       }
+      let onLimbs = 0
       limbs.forEach((limb) => {
         for (const t of [0.3, 0.45]) {
           const m = project(add(along(limb.p, t), [0, limbR(limb)(t), 0]))
-          if (m && !placed.some((o) => ((m.x - o.x) / o.a) ** 2 + ((m.y - o.y) / o.b) ** 2 < 1)) {
+          const free = onLimbs < 2 + Math.max(0, seats - 2 - taken.length)
+          if (m && free && !sprites.some((o) => Math.hypot(m.x - o.m.x, m.y - o.m.y) < o.R)) {
             garden.perch(m.x, m.y - 2, limb.a > 90 && limb.a < 270 ? -1 : 1)
+            onLimbs += 1
           }
         }
       })
       if (window.__entDebug) {
-        window.__entDebug.tree = { S, bx, by, marks: marks.length, clumps: placed.length, foot, top }
+        window.__entDebug.tree = {
+          S,
+          bx,
+          by,
+          pieces: pieces.length,
+          billows: sprites.length,
+          twigs: twigs.length + fine.length + bare.length + finest.length,
+          perches: taken.length,
+          seats: taken.map((t) => [Math.round(t.x), Math.round(t.y)]),
+          sun: sunWay,
+          sunView: inView(sunWay),
+          foot,
+          shadeBox: boxed(shadeBox),
+          shadeParts: shadeParts.map((part) => part.map((v) => Math.round(v * 100) / 100)),
+        }
+        window.__entDebug.billows = sprites.map((o) =>
+          [o.m.x, o.m.y, o.R, o.m.z, o.sun, o.deep, o.rim].map((v) => Math.round(v * 100) / 100),
+        )
         // and the stage the tree was fitted to, for trying other eyes away from the page
         window.__entDebug.stage = {
           w,
@@ -3830,140 +4908,265 @@
 
   /* --- the company composition ----------------------------------------------------------------------- */
 
-  /* The hero of /company, after Cameron's two pictures: a sea at the magic hour, painted in pastel, its water a chalky
-     blue in the land's own fine lines, with a path of pink light laid across it in wavy ribbons and stars of light
-     twinkling on it, a low shore far off under a sky that warms just above it; and over the water, in place of the
-     other heroes' butterflies, a school of bright fish, each a few soft strokes of colour with the blur of its own speed
-     trailing behind it, swimming across in three groups and swerving from the pointer. The picture starts under the
-     calls to action. In a dark theme it is the same sea at night, the fish glowing a little. */
+  /* The hero of /company, after the three seas Cameron sent: open water as a photograph would take it through a long
+     lens on a bright day, cerulean near and paler and hazier towards the horizon, the sun's path of light on it from
+     the horizon to the front, a haze of glitter far off and single glints near; over the horizon a soft band of sky,
+     thin layers of cloud and far hills in the haze at either side of the path (see CO_SEA and seaFragment); and in the
+     lower corners, very near the lens and out of focus, two sprays of small wildflowers (CO_SPRAYS). The picture starts
+     under the calls to action (only its first, nearly clear air rises behind them, as the home hero's does). In a dark
+     theme it is the same sea under the moon. */
   const CO_EVEN = 0.005
   const CO_HAZE = 0.4 + CO_EVEN
-  // twinkling (see the twinkle in the strokes' shader): a strong one for the stars' rays, a gentle one for their hearts
-  const CO_TWINKLE = 3.25 + CO_EVEN
-  const CO_GLIMMER = 3.4 + CO_EVEN
-  /* Where the sea meets the sky, in the land's room under its top line: about a fifth of a room, a little way under the
-     buttons' foot (the page lays the land's top line just above it), so the picture starts under the calls to action. */
-  const CO_HORIZON = 0.2
-  /* The sheets' inks, light and dark: the sky warming to the horizon, the far shore, and the water, palest at the
-     horizon and deepening towards the front. */
+  /* Where the sea meets the sky, in the land's room under its top line: under the buttons' foot by about a band of sky
+     (the page lays the land's top line just above it), so the picture starts under the calls to action and the far
+     hills and the clouds over the horizon have room. */
+  const CO_HORIZON = 0.3
+  // the sea's foot under the canvas's foot, in the land's room, and the least room the land is given
+  const CO_DEEP = 1.3
+  const CO_LEAST = 110
+  /* The sheets' inks, light and dark: the sky's air (see CO_AIR), soft cornflower blue paling to a haze over the
+     horizon, with the sun's warm haze low over its path; at night the home hero's dusk. Every sheet's paint names one of
+     them, though only the air reads its inks: the sea's shader has its own colours (see CO_SEA). */
   const CO_INKS = {
     ...LAND_INK,
-    coLilac: ['#e3dcf6', '#2c2a52'],
-    coDawn: ['#f8d9e2', '#4a3d6e'],
-    coPeach: ['#fde3d4', '#5e4775'],
-    coShore: ['#a8c9cf', '#22405a'],
-    coShoreDeep: ['#86b4be', '#1b3550'],
-    coWaterHi: ['#b0d5e2', '#335f86'],
-    coWater: ['#7cb1cc', '#28527a'],
-    coWaterDeep: ['#6198bb', '#1d446c'],
-    coWaterNear: ['#4f88ad', '#173860'],
+    coAirHaze: ['#cad9e3', '#566c90'],
+    coAirLow: ['#c3d7e3', '#354d74'],
+    coAirBand: ['#adc9e6', '#1e2f53'],
+    coAirZone: ['#a1c1e2', '#1d264b'],
+    coAirHigh: ['#b5cfeb', '#161f3c'],
+    coAirGlow: ['#e9eef0', '#96a8bb'],
   }
-  // how large the water's strokes and stars are drawn on a canvas this wide, and how much larger again the fish are
-  const CO_SCALE = (w) => clamp(w / 1232, 0.5, 1.15)
-  const CO_FISH_SIZE = 2
-  /* The fish's colours: body, belly, the shade of the back, the tail, and the spots. */
-  const CO_SCALES = [
-    { body: 'coFishPink', belly: 'coFishWhite', back: 'coFishRose', fin: 'coFishPink', spots: [] },
-    {
-      body: 'coFishWhite',
-      belly: 'coFishWhite',
-      back: 'coFishCream',
-      fin: 'coFishWhite',
-      spots: ['coFishRed', 'coFishRed', 'coFishRed', 'coFishOrange'],
-    },
-    { body: 'coFishCoral', belly: 'coFishPeachy', back: 'coFishRed', fin: 'coFishCoral', spots: ['coFishRed'] },
-    {
-      body: 'coFishBlue',
-      belly: 'coFishPale',
-      back: 'coFishNavy',
-      fin: 'coFishBlue',
-      spots: ['coFishNavy', 'coFishNavy', 'coFishNavy', 'coFishWhite'],
-    },
-    {
-      body: 'coFishCream',
-      belly: 'coFishWhite',
-      back: 'coFishGreen',
-      fin: 'coFishCream',
-      spots: ['coFishGreen', 'coFishGreen', 'coFishGreen', 'coFishGreen', 'coFishYellow'],
-    },
-    {
-      body: 'coFishYellow',
-      belly: 'coFishCream',
-      back: 'coFishOrange',
-      fin: 'coFishYellow',
-      spots: ['coFishOrange', 'coFishOrange', 'coFishRed'],
-    },
-    {
-      body: 'coFishMint',
-      belly: 'coFishPale',
-      back: 'coFishBlue',
-      fin: 'coFishMint',
-      spots: ['coFishWhite', 'coFishWhite'],
-    },
-    {
-      body: 'coFishLilac',
-      belly: 'coFishWhite',
-      back: 'coFishBlue',
-      fin: 'coFishLilac',
-      spots: ['coFishPink', 'coFishPink'],
-    },
+  /* How large the flowers are drawn on a canvas this wide, as a share of their size on a canvas 1232 wide: [that
+     width, the least, the most]. */
+  const CO_SIZE = [1232, 0.5, 1.15]
+  const CO_SCALE = (w) => clamp(w / CO_SIZE[0], CO_SIZE[1], CO_SIZE[2])
+  /* The wildflowers out of focus in the lower corners (see COMPANY.plant): for each spray, where it stands across (a
+     share of the canvas), how high over the canvas's foot its tallest head stands, how many stems it has, and how far
+     across they spread (pixels at a canvas 1232 wide). */
+  const CO_SPRAYS = [
+    [0.05, 96, 10, 120],
+    [0.96, 64, 7, 90],
   ]
-  /* The school: three groups, a third of their round apart, so that one is always crossing the sea, each swimming at
-     the same pace so that it stays together, its fish spread through the band from its top at the back of the group to
-     its foot at the front, each surging a little ahead and back and rising and falling at its own rate. For each fish:
-     its length (CSS pixels at a canvas 1232 wide, before CO_FISH_SIZE), pace (pixels a second, likewise), lane (0 at
-     the band's top, 1 at its foot), where it is in the round, how far it rises and falls and how often (seconds), how
-     far it surges and how often, how fast its tail beats (a second), how far its tail swings (a share of its length),
-     its colours (see CO_SCALES), a seed of its own, and, for every third fish of a group, that it swims only on a
-     canvas wider than a phone's, where two groups at once would crowd the sea. Written once, as the script loads. */
-  // (the engine's own hashed and clamp come later in the file than this, which is worked out as it loads)
+  // a hash of a number, for the flowers' places (the engine's own hashed and clamp come later in the file than this,
+  // which is worked out as it loads)
   const coHash = (value) => {
     const x = Math.sin(value * 127.1 + 311.7) * 43758.5453
     return x - Math.floor(x)
   }
-  const CO_GROUPS = [8, 7, 7]
-  const CO_FISH = CO_GROUPS.flatMap((count, g) =>
-    Array.from({ length: count }, (_, j) => {
-      const i = CO_GROUPS.slice(0, g).reduce((a, b) => a + b, 0) + j
-      const h = (k) => coHash(i * 13.7 + k * 3.1 + 0.5)
-      const lane = Math.min(1, Math.max(0, (j + 0.5) / count + (h(3) - 0.5) * 0.08))
-      return {
-        size: 42 + 20 * h(1),
-        speed: 37,
-        lane,
-        // further on in the round the lower in the band, so each group leans down to the front, as a school going down
-        phase: g / CO_GROUPS.length + 0.05 + (lane - 0.5) * 0.12 + (h(4) - 0.5) * 0.02,
-        drift: 3 + 4 * h(5),
-        period: 3.5 + 2.5 * h(6),
-        surge: 6 + 6 * h(11),
-        surgePeriod: 2.5 + 2 * h(12),
-        beat: 1.4 + 1 * h(7),
-        wag: 0.05 + 0.03 * h(8),
-        scales: Math.floor(h(9) * CO_SCALES.length),
-        from: j % 3 === 2 ? 600 : 0,
-        seed: h(10),
-      }
-    }),
-  )
+  // the clock the still picture is painted at (see COMPANY.stillAt)
+  const CO_STILL = 9.5
+  /* The sky over the sea, as the home hero's is: soft air rather than lines (see airFragment), its fall of colour
+     fitted to the band between the buttons and the horizon. Its first, nearly clear rows rise behind the buttons' lower
+     half and it comes in from the page slowly, as the home hero's air does, so the clouds, the hills and the sea still
+     start under the calls to action; it is palest just over the horizon, where the far sea goes into it; the breath of
+     light low on it stands over the sun's path, in the middle. At night it is the home hero's dusk, with the moon's
+     haze low over the path. Lengths are CSS pixels (see DOCS_AIR for each knob). */
+  const CO_AIR = {
+    inks: [
+      [0, 'coAirHaze'],
+      [8, 'coAirLow'],
+      [18, 'coAirBand'],
+      [32, 'coAirZone'],
+      [56, 'coAirHigh'],
+    ],
+    horizon: 0,
+    rise: 8,
+    fade: [64, 1.3],
+    smear: [
+      [520, 8, 7, 2.4],
+      [210, 3, 2.6, -3.6],
+      [100, 1.2, 1, 1.5],
+    ],
+    value: 0.006,
+    wander: 3,
+    grain: [0.05, 0.03],
+    pan: 10,
+    dither: 1,
+    glow: { at: 0.5, height: [6, 4], reach: [0.24, [24, 12]], amount: [0.25, 0.55], ink: 'coAirGlow' },
+  }
+  /* The sea itself, as a photograph would take it (see seaFragment), after the three seas Cameron sent: a long lens
+     looking out over open water towards the sun, so that the water lies flat and its waves are fine, flatter and finer
+     the further off they are; the water's own blue seen down into it near, and the sky given back more and more towards
+     the horizon, where it goes into the air; the sun's light laid on it as a path from the horizon to the front, a warm
+     haze of glitter far off and glints near, which gather in patches and strings and come up, flare and fade, warm
+     white where they burn brightest. Over the horizon, hills far off in the haze at either side, clear of the path, and
+     thin layers of cloud over them, as in sea-3. At night the same sea under the moon. Colours are [on a light page,
+     on a dark page], as is any pair of numbers marked so; lengths are CSS pixels unless they say.
+     horizon  where the sea meets the sky, in the land's room (the water's top line)
+     focal    how far the eye is from the canvas, in pixels: a long lens, so the sea lies flat
+     sun      where the sun (or the moon) stands across, as a share of the canvas, and how high, in degrees
+     waves    the waves, in layers: the largest's cell in heights of the eye over the water (`cell`), each next's as a
+              share of it (`step`), how much longer across than away a cell is (`stretch`, so the crests run across
+              the view), how steep the largest is and each next as a share of it (`tilt`, `fall`), how many, how fast
+              they roll in (the larger the faster, as waves do), how rough the water is with ripples finer than any
+              layer (`floor`), how far its crests wander (`wobble`), and how much rougher and calmer the wind makes it
+              in broad drifting patches (`gusts`)
+     water    the water's own colour seen down into it (`deep`), and in broad patches where it is clearer (`teal`, by
+              `patches`); how much of the sky it gives back at the most (`reflect`), and that sky low over the
+              horizon, a little higher and high up; the air over the far water and how far off, in heights of the
+              eye, the water is half lost in it (`hazeFar`); how far up from the canvas's foot it is out of focus, as
+              in front of a lens (`focus`), its finer waves lost there up to `blur` pixels tall; how far up from the
+              foot it pales towards the page and by how much (`fade`); how far up from the foot it breaks into the
+              page's specks (`foot`); and, far off, where no layer of waves shows, between which depths under the
+              horizon the rows of waves still show as fine streaks along the screen's rows and the wind's long slicks
+              lie across it (`far`, from where they are whole to where they are gone), and how strong each is
+              (`streaks`, `slicks`), and how much the slicks roughen the far glitter (`slickRough`)
+     light    the sun's light on the water: the glitter's colour (`ink`), the glints' hearts and their bloom and rays
+              (`heart`, `glint`), the warm white all of it rolls off towards rather than clipping (`top`, see
+              seaLight), and how bright the hearts and the blooms are laid on (`shine`); the glow round the sun as the
+              water gives it back (`glow`, how much and how tight); how much wider the path is than the waves alone
+              would make it (`wide`: less is wider); how bright its glitter is ([far, near]), how rough the water
+              always is for it (`least`) and how near the glints' crests are to throwing the sun to the eye
+              (`catch`); how far down from the horizon its haze of glitter is brightest (`band`), how much that haze
+              sparkles (`speck`); how wide the path the glints lie in is, as a share of the canvas up to a laptop's,
+              [far, near] (`path`); how wide, likewise, and how far the far water under the sun takes on the sun's
+              own colour (`warm`); which share of the glints, the brightest, have rays (`rayed`) and how strong those
+              are by day (`ray`), how strong the broad glare round every glint is (`glare`), and the moon's glints'
+              size and how thickly they lie in its path, as shares of the sun's ([[size by day, at night], [how
+              thick by day, at night]], `moon`)
+     glints   layers of glints in the path, each [its cell, how many of its lives may hold a cluster at the most, how
+              large, how long its rays are in its own sizes (none for a fleck), how many lives a second, how far down
+              from the horizon it is at its thickest and gone again, and whether its clusters are strings of hearts
+              (1) or single hearts (0)]; cells and sizes are a little smaller on a narrow canvas
+     far      the far hills: how high they stand at the most, how far from the sun's path they start and are whole
+              ([left of it, right of it], shares of the canvas), how soft their skyline is, their colour and the
+              haze they go into at their foot
+     clouds   the thin layers of cloud over the horizon: each [how high its middle is over the horizon, how thick it
+              is at its thickest, how much of the air behind it it covers at the most] (`layers`); how long the
+              pieces it breaks into are, two scales whose noises are multiplied (`pieces`), how far its middle wanders
+              up and down (`wander`), how wide the heaps along its top are (`heaps`), how soft its edges are at the
+              least (`feather`), and the cells inside it, across and up (`cells`); over how many pixels under the
+              band's top they come in from the page and how (`fade`), the band's height they are laid out for
+              (`room`: a shorter one lowers and thins them) and the least share of their size on a narrow canvas
+              (`narrow`); how much of their cover they keep over the sun's path (`path`), how much more of them the
+              sun lights towards it (`toward`), their colour facing the sun and away from it (`lit`, `shade`), and
+              how much their grain shows in it (`grain`) */
+  const CO_SEA = {
+    horizon: CO_HORIZON,
+    focal: 1400,
+    sun: { at: 0.5, high: 16 },
+    waves: {
+      cell: 0.3,
+      step: 0.55,
+      stretch: 0.95,
+      tilt: 0.09,
+      fall: 0.9,
+      layers: 6,
+      pace: 0.045,
+      floor: 0.05,
+      wobble: 1.3,
+      gusts: 0.35,
+    },
+    water: {
+      deep: ['#00749c', '#0d2337'],
+      teal: ['#008299', '#0e2639'],
+      patches: 0.35,
+      reflect: 0.8,
+      low: ['#89b8ca', '#2e4866'],
+      mid: ['#519fbf', '#1a3c5a'],
+      high: ['#2b8db4', '#0f3459'],
+      haze: ['#a2c0cc', '#2f4a6b'],
+      hazeFar: 500,
+      focus: 90,
+      blur: 5,
+      fade: [120, 0.45],
+      foot: 56,
+      far: [50, 150],
+      streaks: 0.16,
+      slicks: 0.12,
+      slickRough: 0.7,
+    },
+    light: {
+      ink: ['#fdf8ee', '#e6edfb'],
+      heart: ['#fff0cc', '#f2f6ff'],
+      glint: ['#ffc458', '#dfe8fb'],
+      top: ['#fffbf2', '#eef3ff'],
+      shine: [10, 5],
+      glow: ['#f4f1ea', '#606971'],
+      glowAmount: [0.45, 0.35],
+      glowTight: 40,
+      wide: [0.2, 0.55],
+      glitter: [
+        [0.02, 0.016],
+        [0.005, 0.0015],
+      ],
+      least: 0.006,
+      catch: 0.0025,
+      band: 28,
+      speck: 0.55,
+      path: [
+        [0.13, 0.09],
+        [0.17, 0.12],
+      ],
+      warm: [0.3, 0.7],
+      rayed: 0.85,
+      ray: 0.3,
+      glare: 0.06,
+      moon: [
+        [1, 0.6],
+        [1, 1.5],
+      ],
+    },
+    glints: [
+      [14, [0.45, 1], 0.6, 0, 1.1, [16, 110], 0],
+      [28, [1, 1], 3.4, 1.3, 0.9, [24, 280], 1],
+      [80, [1, 0.5], 2.8, 1.8, 0.7, [80, 340], [0, 1]],
+    ],
+    far: {
+      high: 24,
+      gap: [
+        [0.12, 0.3],
+        [0.3, 0.42],
+      ],
+      soft: 1.1,
+      ink: ['#86abbe', '#1a2b45'],
+      haze: ['#a9c3cf', '#2c405e'],
+    },
+    clouds: {
+      layers: [
+        [8, 6, 0.6],
+        [20, 12, 0.75],
+        [36, 16, 0.7],
+      ],
+      pieces: [420, 150],
+      wander: 2,
+      heaps: 9,
+      feather: 0.6,
+      cells: [22, 3.5],
+      fade: [58, 1.3],
+      room: 72,
+      narrow: 0.65,
+      path: 0.45,
+      toward: [0.35, 0.2],
+      lit: ['#f4e8c8', '#7d8fab'],
+      shade: ['#b9c8d6', '#27334a'],
+      grain: 0.05,
+    },
+  }
+  /* The sky's top line, in rooms down the land: just under the buttons' foot, `lower` pixels lower again (or higher,
+     where it is less than nothing), and never nearer the horizon than a band of sky. */
+  const coSkyTop = (stage, lower) => {
+    const under = Math.min((stage.words.y + stage.words.b + 3 + lower - stage.base) / stage.room, CO_HORIZON - 0.08)
+    return [
+      [-1.6, under],
+      [1.6, under],
+    ]
+  }
   const COMPANY = {
     ...HERO,
     intro: false,
-    /* Its still picture is painted where a group is crossing the middle of the sea on any canvas, a phone's too: at the
-       meadow's clock one group is coming in on a phone and the next going out, both in the glass at the sides, which a
-       still picture leaves out (see `school`), and the sea would be empty. */
-    stillAt: 9.5,
+    stillAt: CO_STILL,
     words: '.co-copy',
-    // a few beads, the oval of page kept round the words shallow, and every line carried to the canvas's edges
-    lines: { ...LINES, lift: 0.08, veil: [80, 18], beadChance: 0.12, whole: true },
+    /* Every sheet is the sea's or the air, and neither draws lines, so of the lines' options only the oval round the
+       words is still read, by the strokes (the flowers in the corners, far from it), and it is kept shallow. */
+    lines: { ...LINES, veil: [80, 18] },
     film: FOOTER.film,
-    /* The sea's haze and light are large soft strokes that breathe and twinkle every frame, so they cost by the canvas's
+    /* The sea is worked out afresh for every pixel of it every frame (see seaFragment), so it costs by the canvas's
        pixels: on a canvas wider than any laptop's (1800 CSS pixels, a window 2080 wide) it draws at a little less than
-       the screen's density, the less the wider it is, so that it never costs much more than it does there (on a
-       screen 2560 wide at 2x, about 5 milliseconds a frame instead of 6.3). */
+       the screen's density, the less the wider it is, so that it never costs much more than it does there. */
     dprCap: (w) => Math.min(2, 2 * Math.sqrt(1800 / w)),
     inks: CO_INKS,
-    // the stars on the water twinkle, the strokes are even (neither bowing nor tapering) and soft-edged
-    twinkle: true,
+    // the flowers' strokes are even (neither bowing nor tapering) and soft-edged, in the haze kind
     marks: true,
     glyphs: true,
     land: {
@@ -3974,67 +5177,74 @@
       ],
       crest: 0,
       relief: [1, 1],
+      // the sea and what stands over its horizon are a photograph's (see CO_SEA, and each sheet's `sea`)
+      sea: CO_SEA,
+      /* The sheets keep a paint and line options only because every sheet is given them: the air reads none of them,
+         and a sheet with `sea` is painted by the sea's shader as what it names. None of them breathes: a horizon is
+         level. */
       sheets: [
-        // the sky's glow, a band from the buttons' foot down to the horizon, so that nothing of the picture rises behind
-        // the words (not named 'sky', which the land is laid out from before its room is known, and this one's top is
+        // the sky, as air (see CO_AIR), from behind the buttons' lower half, where it is still nearly clear, down to the
+        // horizon (not named 'sky', which the land is laid out from before its room is known, and this one's top is
         // worked out from it)
         {
           name: 'air',
-          top: (stage) => {
-            const under = Math.min((stage.words.y + stage.words.b + 3 - stage.base) / stage.room, CO_HORIZON - 0.06)
-            return [
-              [-1.6, under],
-              [1.6, under],
-            ]
-          },
+          top: (stage) => coSkyTop(stage, -30),
           foot: [
             [-1.6, CO_HORIZON],
             [1.6, CO_HORIZON],
           ],
           paint: [
-            [0, 'coLilac', 0],
-            [0.3, 'coDawn', 0.44],
-            [0.75, 'coPeach', 1],
-            [1, 'coPeach', 1],
+            [0, 'coAirHaze', 1],
+            [1, 'coAirHaze', 1],
           ],
           fill: 0.6,
           under: 0.4,
           flow: 1.1,
-          breath: 2,
+          breath: 0,
+          air: CO_AIR,
         },
-        // the far shore, low hills along the horizon
+        // the bank of cumulus over the horizon, its heads coming in from the page with the air (low over the sun's path,
+        // under the buttons, and only at the sides as high as the air's top)
         {
-          name: 'shore',
-          opaque: true,
-          top: {
-            crest: [
-              [-1.6, CO_HORIZON - 0.07],
-              [-1.15, CO_HORIZON - 0.11],
-              [-0.8, CO_HORIZON - 0.06],
-              [-0.45, CO_HORIZON - 0.03],
-              [0.5, CO_HORIZON - 0.025],
-              [0.85, CO_HORIZON - 0.075],
-              [1.2, CO_HORIZON - 0.1],
-              [1.6, CO_HORIZON - 0.06],
-            ],
-          },
+          name: 'clouds',
+          sea: 'clouds',
+          top: (stage) => coSkyTop(stage, -24),
           foot: [
-            [-1.6, CO_HORIZON + 0.02],
-            [1.6, CO_HORIZON + 0.02],
+            [-1.6, CO_HORIZON],
+            [1.6, CO_HORIZON],
           ],
           paint: [
-            [0, 'coShore', 0],
-            [0.2, 'coShore', 0.9],
-            [1, 'coShoreDeep', 1],
+            [0, 'coAirHaze', 1],
+            [1, 'coAirHaze', 1],
+          ],
+          fill: 0.6,
+          under: 0.4,
+          breath: 0,
+        },
+        // the far hills along the horizon, at either side of the sun's path
+        {
+          name: 'shore',
+          sea: 'far',
+          top: [
+            [-1.6, CO_HORIZON - 0.09],
+            [1.6, CO_HORIZON - 0.09],
+          ],
+          foot: [
+            [-1.6, CO_HORIZON],
+            [1.6, CO_HORIZON],
+          ],
+          paint: [
+            [0, 'coAirHaze', 1],
+            [1, 'coAirHaze', 1],
           ],
           fill: 0.7,
           under: 0.6,
-          flow: 0.6,
-          breath: 1.4,
+          breath: 0,
         },
-        // the sea, from the horizon to the canvas's foot, palest at the horizon
+        // the sea, from the horizon to the canvas's foot
         {
           name: 'meadow',
+          sea: 'water',
           opaque: true,
           laid: true,
           top: [
@@ -4042,640 +5252,1034 @@
             [1.6, CO_HORIZON],
           ],
           foot: [
-            [-1.6, 1.3],
-            [1.6, 1.3],
+            [-1.6, CO_DEEP],
+            [1.6, CO_DEEP],
           ],
           paint: [
-            [0, 'coWaterHi', 1],
-            [0.18, 'coWater', 1],
-            [0.55, 'coWaterDeep', 1],
-            [1, 'coWaterNear', 1],
+            [0, 'coAirHaze', 1],
+            [1, 'coAirHaze', 1],
           ],
           fill: 0.74,
           under: 0.7,
-          patch: 0.12,
-          flow: 0.9,
-          breath: 1.6,
+          breath: 0,
         },
       ],
-      least: 110,
+      least: CO_LEAST,
     },
     grass: null,
     flowers: null,
     passer: null,
     pointer: false,
     clouds: [],
-    // no butterflies: the fish are this sea's flock, but the lens all the same, for the fade at the canvas's foot
+    /* No butterflies and no school: the sea alone is the picture. The lens all the same, for the fade at the canvas's
+       foot. */
     flock: [],
-    // and the fish's glass gives off only a little light onto the water round it
-    lens: { ...LENS, foot: 'ease', always: true, halo: [2.6, 0.2] },
-    school: {
-      fish: CO_FISH,
-      size: (w) => CO_SCALE(w) * CO_FISH_SIZE,
-      // from well under the horizon (on a desktop it lies about 25px under the buttons' foot), far enough that a fish
-      // the fall lifts on the left keeps clear of it, to above the canvas's foot, where it fades into the page, falling
-      // across the canvas towards the right, less on a narrow one, where a steep fall would tip the fish over
-      band: ({ w, h, words }) => [
-        Math.max(words.y + words.b + 88, h * 0.4),
-        h * 0.87,
-        h * 0.15 * Math.min(1, w / 1232),
-      ],
-      // the blur of its speed trails nearly two lengths behind its middle, its light a little ahead of its snout, and the
-      // last of its glow, which the glass blurs out further still, about half a length beyond either
-      reach: [1.9, 0.7],
-      glow: [2.35, 1.3],
-      scatter: { radius: 120, push: 340, back: 1.4 },
-    },
+    lens: { ...LENS, foot: 'ease', always: true },
     paints: {
       ...PAINTS,
-      // the path of light on the water, the waves' glints, the stars
-      coRefPink: ['#f4a9c2', '#e396b8'],
-      coRefPeach: ['#ffd5c0', '#ecb498'],
-      coRefLight: ['#fff1e8', '#efd2c8'],
-      coWave: ['#e2f4f7', '#8fc2d4'],
-      coWaveDeep: ['#a7d0e1', '#4f88aa'],
-      coStar: ['#ffffff', '#ffffff'],
-      coStarGold: ['#ffe46e', '#ffdc55'],
-      coStarGlow: ['#fff5c8', '#fff1b4'],
-      // the fish
-      coFishPink: ['#f6a9c6', '#f19ac0'],
-      coFishRose: ['#e77ea6', '#e070a0'],
-      coFishWhite: ['#fdf7f2', '#f6f0f6'],
-      coFishCream: ['#fff0d4', '#f8e6c6'],
-      coFishRed: ['#e8452f', '#e2422e'],
-      coFishOrange: ['#ff9b3d', '#fb9134'],
-      coFishCoral: ['#ff6e4f', '#fb6448'],
-      coFishPeachy: ['#ffc9b0', '#fbbda2'],
-      coFishBlue: ['#5d8fe2', '#5a8be0'],
-      coFishNavy: ['#2c4a8c', '#2a4686'],
-      coFishPale: ['#dcecf8', '#d2e6f6'],
-      coFishGreen: ['#2f6b42', '#2f6a42'],
-      coFishYellow: ['#ffd650', '#fcce42'],
-      coFishMint: ['#93dcb0', '#86d4a6'],
-      coFishLilac: ['#c3b4ef', '#b8a8ec'],
-      coFishEye: ['#ff4b3a', '#ff5545'],
-      coFishInk: ['#1f2b3c', '#1a2433'],
-      // the light round a fish: lost in the sea by day, a glow at night
-      coFishGlow: ['#a8d2e8', '#fff3e4'],
-      // the water's own colours, washed across it, and the light dappled on its ripples
-      coPoolLime: ['#cfe383', '#4f7a3e'],
-      coPoolGreen: ['#94cc72', '#3a6a4a'],
-      coPoolSky: ['#acd8f4', '#36689a'],
-      coPoolTeal: ['#86cbc4', '#2c6670'],
-      coDapple: ['#fffbea', '#bcd2dc'],
-      coDappleLime: ['#eef7b8', '#93b57e'],
+      // the wildflowers out of focus in the corners (see CO_SPRAYS); at night all but lost against the dark water
+      coSprayStem: ['#93ab6a', '#132538'],
+      coSprayYellow: ['#f4d65e', '#1a3046'],
+      coSprayGold: ['#ecbd4c', '#182c41'],
+      coSprayWhite: ['#fbf8ef', '#22384e'],
     },
     plant: (garden) => {
-      const { w, h, rand, ground } = garden
-      const half = w / 2
+      const { w, h, rand } = garden
       const sc = CO_SCALE(w)
-      // a stroke standing still where it is painted (rooted under the canvas, its stem up to it); the same seed gives
-      // the same dice, so the two rays and the heart of a star twinkle together
-      const put = (n, { x, y, ...o }) => {
-        rand.reseed(77001 + n * 7919)
-        const root = h + 40
-        garden.dab({
-          kind: CO_HAZE,
-          blur: 0.6,
-          load: 0.9,
-          turn: 0,
-          ...o,
-          x,
-          y: root,
-          stem: root - y,
-          lean: 0,
-          stiff: 1,
-        })
-      }
-      const horizon = ground('meadow', half)
-      const deep = h - 6
-      let n = 0
-      // how many washes of colour, how strong, how much of them green, and how large; and the ripples' centres, their
-      // rings, how close their dapples lie and how bright they are
-      const pools = { count: 26, load: 1.6, green: 0.7, size: 1.3 }
-      const ripples = { centers: 6, rings: 6, density: 1.3, load: 1.2 }
-      // The water's colours: broad soft washes of lime and green, sky and teal across the sea, as a lagoon's water
-      // takes the colours of what is over it and under it, smaller and flatter towards the horizon.
-      for (let k = 0; k < pools.count; k += 1) {
-        const f = hashed(k * 4.3 + 2.1) ** 0.9
-        const y = horizon + 8 + f * (deep - horizon - 14)
-        const x = hashed(k * 6.7 + 0.8) * w
-        const long = (0.05 + 0.15 * f) * w * pools.size * (0.7 + 0.6 * hashed(k * 2.9))
-        const pick = hashed(k * 8.1 + 0.3)
-        let paint = 'coPoolTeal'
-        if (pick < pools.green * 0.55) {
-          paint = 'coPoolLime'
-        } else if (pick < pools.green) {
-          paint = 'coPoolGreen'
-        } else if (pick < pools.green + (1 - pools.green) * 0.6) {
-          paint = 'coPoolSky'
-        }
-        put((n += 1), {
-          x,
-          y,
-          long,
-          wide: 0.18 + 0.16 * f,
-          blur: long * 0.6,
-          paints: [paint, paint],
-          load: Math.min(0.9, (0.2 + 0.2 * hashed(k * 5.5)) * pools.load),
-          order: 590 + f,
-        })
-      }
-      // Ripples spreading from a few places, each a few rings of dappled light, flattened as the sea lies away from us:
-      // short strokes laid along each ring, cream and pale lime, as the light breaks on a ripple; each ring only part
-      // of the way round and its radius wandering, so they swirl rather than stand as targets.
-      const CENTERS = [
-        [0.2, 0.42],
-        [0.46, 0.72],
-        [0.7, 0.5],
-        [0.88, 0.86],
-        [0.08, 0.8],
-        [0.6, 0.25],
-      ]
-      for (let c = 0; c < Math.min(ripples.centers, CENTERS.length); c += 1) {
-        const [across, depth] = CENTERS[c]
-        const cx = across * w
-        const cy = horizon + 8 + depth * (deep - horizon - 14)
-        const flat = 0.2 + 0.18 * depth
-        const r0 = (18 + 30 * depth) * sc
-        for (let ring = 0; ring < ripples.rings; ring += 1) {
-          const rx = r0 * (1 + 0.6 * ring)
-          const ry = rx * flat
-          // the stretch of the ring that is there, and how its radius wanders
-          const from = hashed(c * 31 + ring * 7.3) * Math.PI * 2
-          const span = (0.45 + 0.4 * hashed(c * 17 + ring * 5.1)) * Math.PI * 2
-          const wobble = 0.06 + 0.06 * hashed(c * 13 + ring * 2.9)
-          const around = Math.PI * 2 * Math.sqrt((rx * rx + ry * ry) / 2)
-          const count = Math.floor((around / (14 * sc)) * ripples.density)
-          for (let j = 0; j < count; j += 1) {
-            const q = c * 1000 + ring * 100 + j
-            const a = ((j + hashed(q * 2.3) * 0.6) / count) * Math.PI * 2
-            const into = (a - from + Math.PI * 4) % (Math.PI * 2)
-            if (into > span) {
-              continue
+      /* The water, its light and its glints are the sea's shader's (see seaFragment); only the
+         flowers are painted here: two sprays of small wildflowers very near the lens, in the canvas's lower corners and
+         so out of focus, as in sea-1 and as a breath of the home hero's meadow: thin stems rising from under the
+         canvas, each with a small yellow head, and a white one in each spray. They stand clear of the words, in the
+         glass at the sides, the right spray lower than the left, and go into the page with
+         the sea at the foot. */
+      CO_SPRAYS.forEach(([across, high, count, spread], s) => {
+        for (let k = 0; k < count; k += 1) {
+          const q = (n) => coHash(s * 97.1 + k * 13.3 + n * 5.9)
+          const x = across * w + (q(1) - 0.5) * spread * sc
+          const headY = h - (0.35 + 0.65 * q(2)) * high * sc
+          const root = h + 40
+          const lean = (q(3) - 0.5) * 0.35
+          const white = k === 2
+          rand.reseed(88001 + s * 401 + k * 37)
+          // its stem, a thin stroke from under the canvas up to its head, leaning a little, as soft as the lens makes it
+          // (a stroke's length and breadth are given from its middle, so half the stem's)
+          const half = (root - headY) / 2
+          garden.dab({
+            kind: CO_HAZE,
+            x: x - Math.tan(lean) * half,
+            y: root - half,
+            long: half,
+            wide: (1.8 * sc) / half,
+            turn: Math.PI / 2 + lean,
+            blur: 2.2 * sc,
+            paints: ['coSprayStem', 'coSprayStem'],
+            load: 0.6,
+            order: h + 200 + k,
+            stiff: 1,
+            lean: 0,
+          })
+          /* its heads: one at its top and one or two on short branches under it, each a small soft round blur of colour
+             with a brighter middle, as a small flower very near a lens is (a white one is a little cluster of florets) */
+          const topX = x + Math.tan(lean) * half
+          const heads = 1 + Math.floor(q(7) * 2.6)
+          for (let j = 0; j < heads; j += 1) {
+            const p = (n) => coHash(s * 31.7 + k * 7.1 + j * 3.3 + n * 1.9)
+            const r = (3.6 + 2.6 * p(1)) * sc * (j ? 0.8 : 1)
+            const way = p(2) < 0.5 ? -1 : 1
+            const hx = topX + (j ? way * (5 + 6 * p(3)) * sc : 0)
+            const hy = headY + j * (8 + 9 * p(4)) * sc
+            const florets = white ? 3 : 1
+            for (let f = 0; f < florets; f += 1) {
+              const fx = hx + (white ? (p(5 + f) - 0.5) * 2.4 * r : 0)
+              const fy = hy + (white ? (p(8 + f) - 0.5) * 2 * r : 0)
+              ;[
+                [2.2, 0.32, 0.5, ['coSprayGold', 'coSprayYellow']],
+                [1.1, 0.22, 0.85, ['coSprayYellow', 'coSprayYellow']],
+              ].forEach(([size, soft, load, paints], m) => {
+                rand.reseed(88101 + s * 401 + k * 37 + j * 11 + f * 3 + m)
+                garden.dab({
+                  kind: CO_HAZE,
+                  x: fx,
+                  y: fy,
+                  long: r * size * (white ? 0.7 : 1),
+                  wide: 0.85,
+                  turn: p(11) * Math.PI,
+                  blur: r * size * soft,
+                  paints: white ? ['coSprayWhite', 'coSprayWhite'] : paints,
+                  load,
+                  order: h + 201 + k + j * 0.01 + m * 0.001,
+                  stiff: 1,
+                  lean: 0,
+                })
+              })
             }
-            const swell = 1 + wobble * Math.sin(a * 3 + c * 1.7 + ring)
-            const px = cx + Math.cos(a) * rx * swell
-            const py = cy + Math.sin(a) * ry * swell
-            if (hashed(q * 1.7) < 0.35 || py < horizon + 4 || py > deep) {
-              continue
-            }
-            const fade = 1 - (ring / ripples.rings) * 0.6
-            const long = (3 + 5 * hashed(q * 3.1)) * sc * (0.7 + 0.6 * depth)
-            let ink = 'coWave'
-            if (hashed(q * 4.7) < 0.55) {
-              ink = 'coDapple'
-            } else if (hashed(q * 5.9) < 0.6) {
-              ink = 'coDappleLime'
-            }
-            put((n += 1), {
-              x: px,
-              y: py,
-              long,
-              wide: 0.32,
-              turn: Math.atan2(Math.cos(a) * ry, -Math.sin(a) * rx),
-              blur: 0.9 + 0.6 * depth,
-              paints: [ink, ink],
-              load: Math.min(0.95, (0.45 + 0.35 * hashed(q * 6.1)) * fade * ripples.load),
-              order: 640 + depth,
-            })
           }
         }
-      }
-      // The path of light: wavy ribbons of pink and peach across the water under the words, a few to a row, the rows
-      // closer together and the ribbons shorter and thinner towards the horizon, the path wider towards the front.
-      const ROWS = 26
-      for (let k = 0; k < ROWS; k += 1) {
-        const f = ((k + 0.5) / ROWS) ** 1.45
-        const y = horizon + 5 + f * (deep - horizon - 5)
-        const spread = (0.02875 + 0.184 * f) * w
-        const pieces = 1 + Math.floor(hashed(k * 5.3 + 0.2) * 3)
-        for (let j = 0; j < pieces; j += 1) {
-          const q = k * 17 + j
-          const x = half + (hashed(q * 2.7 + 0.4) - 0.5) * 2 * spread
-          const long = (0.018 + 0.105 * f) * w * (0.55 + 0.9 * hashed(q * 4.1 + 0.6))
-          const thick = (2.398 + 7.848 * f) * sc
-          put((n += 1), {
-            x,
-            y: y + (hashed(q * 6.3) - 0.5) * 4 * sc,
-            long,
-            wide: clamp(thick / long, 0.02, 0.7),
-            turn: (hashed(q * 8.9) - 0.5) * 0.17,
-            blur: 0.8 + 2.2 * f,
-            paints: [hashed(q * 9.7) < 0.7 ? 'coRefPink' : 'coRefPeach', 'coRefLight'],
-            load: Math.min(0.97, 0.65 + 0.455 * hashed(q * 3.3 + 0.9)),
-            order: 600 + f,
-          })
-        }
-      }
-      // The waves' glints: short pale strokes laid across the water, many, short and thin far off, fewer and longer in
-      // front.
-      for (let k = 0; k < 120; k += 1) {
-        const f = hashed(k * 3.7 + 1.1) ** 1.3
-        const y = horizon + 4 + f * (deep - horizon - 4)
-        const x = hashed(k * 5.9 + 0.3) * w
-        const long = (0.008 + 0.03 * f) * w * (0.6 + 0.8 * hashed(k * 2.3)) * 1.6
-        put((n += 1), {
-          x,
-          y,
-          long,
-          wide: clamp(((0.9 + 2.1 * f) * sc) / long, 0.01, 0.5),
-          turn: (hashed(k * 7.1) - 0.5) * 0.1,
-          blur: 0.6 + 0.8 * f,
-          paints: ['coWave', hashed(k * 1.9) < 0.5 ? 'coWave' : 'coWaveDeep'],
-          load: Math.min(0.97, 0.455 + 0.455 * hashed(k * 4.4)),
-          order: 620 + f,
-        })
-      }
-      // The stars of light on the water: two rays and a heart each, gold or white, half of them near the path.
-      for (let k = 0; k < 130; k += 1) {
-        const f = hashed(k * 2.9 + 0.7) ** 1.2
-        const y = horizon + 6 + f * (deep - horizon - 12)
-        const nearPath = hashed(k * 6.1 + 0.2) < 0.5
-        const x = nearPath ? half + (hashed(k * 3.3) - 0.5) * (0.1 + 0.4 * f) * w : hashed(k * 4.7 + 0.9) * w
-        const r = (4.95 + 10.35 * hashed(k * 8.3)) * sc * (0.6 + 0.6 * f)
-        const gold = hashed(k * 9.1) < 0.45
-        const ink = gold ? 'coStarGold' : 'coStar'
-        const id = 50000 + k
-        put(id, {
-          x,
-          y,
-          long: r,
-          wide: 0.1,
-          turn: 0,
-          blur: 0.5,
-          paints: [ink, 'coStarGlow'],
-          load: 0.95,
-          kind: CO_TWINKLE,
-          order: 700 + f,
-        })
-        put(id, {
-          x,
-          y,
-          long: r * 0.75,
-          wide: 0.12,
-          turn: Math.PI / 2,
-          blur: 0.5,
-          paints: [ink, 'coStarGlow'],
-          load: 0.95,
-          kind: CO_TWINKLE,
-          order: 700.001 + f,
-        })
-        put(id, {
-          x,
-          y,
-          long: r * 0.38,
-          wide: 1,
-          blur: r * 0.35,
-          paints: ['coStarGlow', ink],
-          load: 0.9,
-          kind: CO_GLIMMER,
-          order: 700.002 + f,
-        })
-      }
-      // The school. Each fish painted facing right round the canvas's middle (the shader carries it where it is, see
-      // schoolVertex), a few soft strokes of colour: a soft light round it, the blur of its speed behind it in its own
-      // colour, its body, belly and the shade of its back, its spots, its tail, its snout and its eye; every stroke of
-      // it with its phase 400 and its index.
-      const hx = half
-      const hy = h / 2
-      const fishScale = sc * CO_FISH_SIZE
-      CO_FISH.forEach((f, i) => {
-        const len = f.size * fishScale
-        const scales = CO_SCALES[f.scales]
-        const phase = 400 + i
-        const base = 2000 + i * 0.1
-        const at = (lx, ly) => ({ x: hx + lx * len, y: hy + ly * len })
-        const id = 90000 + i * 40
-        put(id + 3, {
-          ...at(-0.05, 0),
-          long: len * 0.7,
-          wide: 0.55,
-          blur: len * 0.45,
-          paints: ['coFishGlow', 'coFishGlow'],
-          load: 0.1,
-          order: base - 0.001,
-          phase,
-        })
-        ;[
-          [-0.81, -0.04, 0.567, 0.51],
-          [-1.107, 0.03, 0.486, 0.33],
-          [-1.377, -0.01, 0.405, 0.18],
-        ].forEach(([lx, ly, long, load], j) => {
-          put(id + j, {
-            ...at(lx, ly),
-            long: long * len,
-            wide: 0.2,
-            blur: len * 0.2,
-            paints: [scales.body, scales.body],
-            load,
-            order: base,
-            phase,
-          })
-        })
-        put(id + 4, {
-          ...at(0, 0),
-          long: len * 0.37,
-          wide: 0.36,
-          blur: len * 0.05,
-          paints: [scales.body, scales.body],
-          load: 0.95,
-          order: base + 0.002,
-          phase,
-        })
-        put(id + 5, {
-          ...at(0.02, 0.06),
-          long: len * 0.27,
-          wide: 0.2,
-          blur: len * 0.05,
-          paints: [scales.belly, scales.belly],
-          load: 0.6,
-          order: base + 0.003,
-          phase,
-        })
-        put(id + 6, {
-          ...at(-0.02, -0.07),
-          long: len * 0.28,
-          wide: 0.16,
-          blur: len * 0.05,
-          paints: [scales.back, scales.back],
-          load: 0.45,
-          order: base + 0.004,
-          phase,
-        })
-        // its spots, on its body behind its eye
-        scales.spots.forEach((paint, j) => {
-          const q = i * 11 + j
-          const lx = -0.25 + 0.4 * coHash(q * 2.3 + 0.1)
-          const ly = (coHash(q * 3.9 + 0.7) - 0.6) * 0.14
-          const r = (0.035 + 0.05 * coHash(q * 5.1)) * len
-          put(id + 8 + j, {
-            ...at(lx, ly),
-            long: r,
-            wide: 0.85,
-            blur: r * 0.4,
-            paints: [paint, paint],
-            load: 0.85,
-            order: base + 0.005,
-            phase,
-          })
-        })
-        ;[-1, 1].forEach((side, j) => {
-          put(id + 20 + j, {
-            ...at(-0.43, side * 0.035),
-            long: len * 0.168,
-            wide: 0.42,
-            turn: side * 0.5,
-            blur: len * 0.03,
-            paints: [scales.fin, scales.belly],
-            load: 0.8,
-            order: base + 0.006,
-            phase,
-          })
-        })
-        put(id + 24, {
-          ...at(0.27, 0),
-          long: len * 0.09,
-          wide: 0.75,
-          blur: len * 0.04,
-          paints: [scales.belly, scales.body],
-          load: 0.45,
-          order: base + 0.007,
-          phase,
-        })
-        put(id + 25, {
-          ...at(0.27, -0.035),
-          long: len * 0.034,
-          wide: 1,
-          blur: len * 0.012,
-          paints: ['coFishEye', 'coFishEye'],
-          load: 0.95,
-          order: base + 0.008,
-          phase,
-        })
-        put(id + 26, {
-          ...at(0.28, -0.035),
-          long: len * 0.015,
-          wide: 1,
-          blur: len * 0.006,
-          paints: ['coFishInk', 'coFishInk'],
-          load: 0.9,
-          order: base + 0.009,
-          phase,
-        })
       })
     },
   }
 
+  /* --- the company's sea, as a photograph ------------------------------------------------------------ */
+
+  /* A composition whose land has a `sea` (only /company's, see CO_SEA) has the sheets that name a part of it painted as
+     that part by the land's shader, rather than drawn in lines: 'water', 'far' (the far hills) or 'clouds'. The land's
+     shader knows its sheets apart by the row of the paint each one reads (as the land lays them out: see paintRow), so
+     nothing is set for them that every sheet is not set already, and every other composition's shader is the text it
+     was. Everything is worked out on the screen, in the canvas's CSS pixels, from where the sheet's own mesh says a
+     place is: how far under the horizon (the water's top line), or how far over it (the foot of the far hills' and the
+     clouds' bands).
+
+     The water is seen through a long lens from a little above it, so a place on it is as far off as it is near the
+     horizon on the screen, and its waves are laid in its own terms (across, and away from the eye) and seen in
+     perspective: flatter and finer the further off. They are a few layers of smooth noise, drawn out across so that
+     their crests run across the view, each turned a little from the next and rolling in at its own pace; a layer finer
+     than the screen can show is left out, and the tilt it would have given the water is kept as roughness instead
+     (which is how the far water goes to a haze of glitter). Each place is lit as water is: it gives back the sky (more
+     of it the flatter the eye sees it, which is nearly all of it far off) and shows its own blue under that, and the
+     sky it gives back is the one its waves tilt it to, paler low over the horizon and bluer higher up, so the waves'
+     faces turned to the eye are darker than their backs. The sun's light lies on it where the waves tilt it to throw
+     the sun to the eye: a path from the horizon to the front under the sun, a haze of glitter far off where the waves
+     are too fine to see, and single glints near, each a soft point with fine rays that comes, flares and fades. Far off
+     it goes into the air. At the canvas's foot it breaks into the page's specks, as everything in the heroes does. */
+  const seaGlsl = (value) => Number(value).toFixed(4)
+  const seaInk = ([light, dark]) =>
+    `mix(vec3(${rgb(light).map(seaGlsl).join(', ')}), vec3(${rgb(dark).map(seaGlsl).join(', ')}), uDark)`
+  const seaPair = (pair) =>
+    Array.isArray(pair) ? `mix(${seaGlsl(pair[0])}, ${seaGlsl(pair[1])}, uDark)` : seaGlsl(pair)
+  const SEA_HELPERS = (sea) => `  /* -- the sea (see seaFragment) -- */
+  const float SEA_FOCAL = ${seaGlsl(sea.focal)};
+  const float SEA_SUN_AT = ${seaGlsl(sea.sun.at)};
+  const vec3 SEA_SUN = vec3(0.0, ${seaGlsl(Math.sin((sea.sun.high * Math.PI) / 180))}, ${seaGlsl(Math.cos((sea.sun.high * Math.PI) / 180))});
+  const float SEA_CATCH = ${seaGlsl(sea.light.catch)};
+  /* how much wider the path of light is than the waves alone would make it (see the water) */
+  float seaWide() {
+    return ${seaPair(sea.light.wide)};
+  }
+  /* a smooth noise and its slope, in its own cells */
+  vec3 seaNoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    vec2 du = 6.0 * f * (1.0 - f);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float e = hash(i + vec2(1.0, 1.0));
+    float k = a - b - c + e;
+    return vec3(a + (b - a) * u.x + (c - a) * u.y + k * u.x * u.y, du * vec2(b - a + k * u.y, c - a + k * u.x));
+  }
+  /* The waves at a place on the water (g, in heights of the eye: across, and away), which lies d pixels under the
+     horizon, with the layers shorter than \`blur\` pixels on the screen left out as a lens out of focus would: [the
+     water's slope across, its slope away, the roughness left that the screen cannot show]. The wind lays broad patches
+     of rougher and calmer water across it, drifting slowly. */
+  vec3 seaWaves(vec2 g, float d, float blur) {
+    vec2 slope = vec2(0.0);
+    float lost = ${seaGlsl(sea.waves.floor * sea.waves.floor)};
+    float cell = ${seaGlsl(sea.waves.cell)};
+    float tilt = ${seaGlsl(sea.waves.tilt)} * mix(${seaGlsl(1 - sea.waves.gusts)}, ${seaGlsl(1 + sea.waves.gusts)}, smoothstep(0.2, 0.8, noise(g * vec2(0.045, 0.02) + vec2(uClock * 0.015, 3.3))));
+    for (int i = 0; i < ${sea.waves.layers}; i++) {
+      float k = float(i);
+      /* how tall a cell of this layer is on the screen here, in pixels: under about two device pixels it is left out */
+      float tall = cell * d * d / ${seaGlsl(sea.focal)};
+      float shown = smoothstep(1.1, 3.2, tall * uPixels) * smoothstep(blur * 0.5, blur * 1.5 + 0.001, tall);
+      if (shown > 0.0) {
+        float a = 0.85 * sin(k * 2.39 + 0.7);
+        float ca = cos(a);
+        float sa = sin(a);
+        vec2 q = vec2(ca * g.x - sa * g.y, sa * g.x + ca * g.y) / (cell * vec2(${seaGlsl(sea.waves.stretch)}, 1.0));
+        q += vec2(0.13, 1.0) * uClock * ${seaGlsl(sea.waves.pace)} * inversesqrt(cell) + k * 17.31;
+        /* (its crests wander, so that none runs straight) */
+        q.y += ${seaGlsl(sea.waves.wobble)} * (0.65 * sin(q.x * 0.61 + k * 1.7) + 0.35 * sin(q.x * 1.43 - k * 2.3));
+        vec3 n = seaNoise(q);
+        vec2 v = n.yz * vec2(${seaGlsl(1 / sea.waves.stretch)}, 1.0);
+        slope += shown * tilt * vec2(ca * v.x + sa * v.y, -sa * v.x + ca * v.y);
+      }
+      lost += (1.0 - shown) * tilt * tilt * 0.14;
+      cell *= ${seaGlsl(sea.waves.step)};
+      tilt *= ${seaGlsl(sea.waves.fall)};
+    }
+    return vec3(slope, sqrt(lost));
+  }
+  /* A layer of the sun's glints on the water (p in pixels). Its cells are staggered from row to row, so they make no
+     grid, and in each cell one cluster of glints after another comes up at the cell's own pace: each lives about a
+     second, somewhere new in the cell, coming up quickly, holding and fading more slowly, and a life holds none unless
+     the cell lies in one of the patches the glints gather in (as the light does on the crests of the larger waves,
+     drifting in with them) and is among the \`fill\` that may. A cluster is one heart, or in the layers with \`string\` a
+     row of two to five along the crest, as glints come in strings: each a soft point drawn out a little along it, never
+     smaller than the screen can show (a smaller one is drawn that size and as much fainter), each its own brightness;
+     round them a soft bloom with a long tail, as a lens spreads a bright light; and the brightest have fine rays, all
+     turned alike, as one lens's blades make them, each a device pixel wide. The four cells nearest a place are looked
+     at, so a bloom may reach over its cell's edge. On a dark page the moon's glints are short dashes along the rows.
+     It gives [the hearts, the bloom and rays], which are laid on as light (see the water). */
+  vec2 seaGlint(vec2 p, float cell, float fill, float size, float rays, float pace, float seed, float string) {
+    vec2 sum = vec2(0.0);
+    if (fill < 0.02) {
+      return sum;
+    }
+    vec2 g = p / cell;
+    float row0 = floor(g.y - 0.5);
+    for (int j = 0; j < 2; j++) {
+      float row = row0 + float(j);
+      float shift = fract(row * 0.618 + seed);
+      float col0 = floor(g.x + shift - 0.5);
+      for (int i = 0; i < 2; i++) {
+        vec2 id = vec2(col0 + float(i), row);
+        vec2 r0 = dice2(id + seed);
+        float life = uClock * pace * (0.75 + 0.5 * r0.x) + r0.y * 9.0;
+        float n = floor(life);
+        float age = fract(life);
+        vec2 r1 = dice2(id + seed + n * 7.31);
+        float flare = smoothstep(0.0, 0.12, age) * (1.0 - smoothstep(0.4, 1.0, age));
+        if (r1.x >= fill || flare < 0.02) {
+          continue;
+        }
+        vec2 r2 = dice2(id.yx + seed * 1.37 + n * 3.73 + 11.3);
+        vec2 mid = (id + vec2(-shift, 0.0) + 0.2 + 0.6 * r2) * cell;
+        float gather = smoothstep(0.22, 0.62, noise(mid / vec2(90.0, 26.0) + vec2(seed, uClock * 0.07)));
+        float bright = flare * mix(0.55, 1.0, r1.y * r1.y) * smoothstep(0.0, 0.1, fill * gather - r1.x);
+        if (bright < 0.01) {
+          continue;
+        }
+        vec2 dd = p - mid;
+        float s = size * (0.7 + 0.5 * r1.y * r1.y);
+        vec2 r3 = dice2(id + seed * 2.11 + n * 1.91 + 47.9);
+        float hearts = 1.0 + floor(string * (0.15 + 0.85 * r3.y) * 4.99);
+        float gap = 1.7 * s;
+        float span = 0.5 * (hearts - 1.0) * gap;
+        bool rayed = rays > 0.0 && r1.y > ${seaGlsl(sea.light.rayed)};
+        float reach = min(s * max(8.0, 3.0 * rays) + span, 0.7 * cell);
+        if (dot(dd, dd) > reach * reach) {
+          continue;
+        }
+        vec2 own = s * mix(vec2(0.6 + 0.4 * r3.x, 0.46), vec2(0.5 + 0.9 * r3.x, 0.24), uDark);
+        vec2 shown = max(own, vec2(0.6 / uPixels));
+        float keep = (own.x * own.y) / (shown.x * shown.y);
+        float heart = 0.0;
+        /* (how far the nearest heart is, in its sizes, a little nearer across than along: each heart's bloom is its
+           own round one, so that a string's is a row of them rather than one long slab) */
+        float far = 1e4;
+        for (int k = 0; k < 5; k++) {
+          if (float(k) >= hearts) {
+            break;
+          }
+          vec2 h = dice2(vec2(float(k), n) + id * 1.7 + seed);
+          vec2 at = vec2((float(k) - 0.5 * (hearts - 1.0)) * gap + (h.x - 0.5) * 0.6 * gap, (h.y - 0.5) * 1.2 * s);
+          vec2 q = (dd - at) / shown;
+          float lit = k == 0 ? 1.0 : 0.35 + 0.65 * h.x;
+          heart += exp(-0.5 * dot(q, q)) * lit;
+          far = min(far, length((dd - at) * vec2(0.8, 1.0)) / (s * mix(0.6, 1.0, lit)));
+        }
+        /* (the bloom: a tight core, a long tail, and a broad soft glare round it, as a lens spreads a bright light) */
+        float bloom = (0.55 * exp(-far) + 0.06 / (1.0 + far * far * 0.4) + ${seaGlsl(sea.light.glare)} * exp(-far / 2.5)) * (1.0 - smoothstep(0.55, 1.0, length(dd) / reach));
+        if (rayed) {
+          /* (the rays are glare, not lines: twelve short soft spokes, each a little wider than a device pixel, fading
+             within about two of the heart's widths) */
+          float thin = max(0.7, 1.2 / uPixels);
+          float len = rays * s;
+          float fit = 1.0 - smoothstep(0.45, 0.7, length(dd) / cell);
+          for (int k = 0; k < 6; k++) {
+            float a = 0.35 + float(k) * 0.5236;
+            vec2 u = vec2(cos(a), sin(a));
+            float along = abs(dot(dd, u));
+            float across = abs(dd.x * u.y - dd.y * u.x);
+            bloom += fit * mix(${seaGlsl(sea.light.ray)}, 0.08, uDark) * exp(-0.5 * across * across / (thin * thin) - along / len * (1.2 + 0.6 * fract(float(k) * 0.618 + r2.y))) * min(1.0, s / thin);
+          }
+        }
+        sum += bright * vec2(heart * keep, bloom);
+      }
+    }
+    return sum;
+  }
+  /* Light added to a colour as light is (in its square, near enough to the screen's own light), rolling off softly
+     towards the brightest the picture holds (\`top\`, the sun's own warm white, or the moon's) rather than clipping,
+     each channel by itself, so that a light warmer than the water it lies on burns out warm: a cream heart on blue
+     water, not a cyan-white one. Where no light is added the colour is what it was. */
+  vec3 seaLight(vec3 color, vec3 light) {
+    vec3 top = ${seaInk(sea.light.top)};
+    vec3 base = color * color;
+    vec3 room = max(top * top - base, vec3(0.02));
+    return sqrt(base + room * (1.0 - exp(-light / room)));
+  }
+  /* A thin layer of cloud lying level over the horizon (see the clouds), at x and h pixels over its middle line,
+     \`thick\` pixels thick at its thickest and covering at the most \`cover\` of the air behind it. It is broken along its
+     length into long pieces with clear air between them (a long noise times a shorter one, so the pieces are of every
+     length), thicker where a piece is whole and thinning to wisps at its ends; its middle line wanders a little up and
+     down; its top is a row of small heaps and its foot is flatter, both feathered into the air. Gives [how much of the
+     air it covers here, how far up through it the place is (0 at its foot, 1 at its top), its own grain]. */
+  vec3 seaLayer(float x, float h, float thick, float cover, float seed) {
+    /* (nothing to work out beyond its thickest top and foot and its wander: most places in the band are clear of most
+       layers) */
+    if (abs(h) > 0.65 * thick + ${seaGlsl(sea.clouds.wander + 1)}) {
+      return vec3(0.0);
+    }
+    float piece = noise(vec2(x / ${seaGlsl(sea.clouds.pieces[0])} + seed, seed * 1.3)) * noise(vec2(x / ${seaGlsl(sea.clouds.pieces[1])} - seed * 2.1, seed + 4.7));
+    float whole = smoothstep(0.02, 0.2, piece);
+    if (whole <= 0.0) {
+      return vec3(0.0);
+    }
+    float t = thick * (0.45 + 0.55 * whole);
+    float mid = h - ${seaGlsl(2 * sea.clouds.wander)} * (noise(vec2(x / 600.0 + seed, 9.1)) - 0.5);
+    /* (how deep into the layer a place is: 1 along its middle, 0 at its top and foot; the top stands higher over a
+       row of small heaps, and the foot is flatter) */
+    float top = 0.5 * t * (0.7 + 0.6 * noise(vec2(x / ${seaGlsl(sea.clouds.heaps)} + seed * 3.7, seed * 2.9)));
+    float foot = 0.5 * t * (0.85 + 0.3 * noise(vec2(x / ${seaGlsl(4 * sea.clouds.heaps)} - seed, 6.3)));
+    float across = mid > 0.0 ? mid / top : -mid / foot;
+    float deep = clamp(1.0 - across * across, 0.0, 1.0) * whole;
+    /* Inside it the cloud is cells of its own, several times wider than tall, at three sizes: where the layer is
+       deep they nearly all show, towards its edges only the largest, so its edges are heaped and broken and the air
+       shows through it here and there. */
+    vec2 q = vec2(x / ${seaGlsl(sea.clouds.cells[0])}, mid / ${seaGlsl(sea.clouds.cells[1])}) + seed * vec2(7.1, 1.9);
+    float lumps = 0.55 * noise(q) + 0.3 * noise(q * vec2(2.2, 2.0) + 5.3) + 0.15 * noise(q * vec2(4.7, 4.1) + 1.7);
+    float soft = max(${seaGlsl(sea.clouds.feather)} / max(t, 1.0), 0.5 / (uPixels * max(t, 1.0)));
+    float density = smoothstep(-0.12 - soft, 0.22 + soft, lumps - 1.0 + deep);
+    return vec3(density * cover, clamp(0.5 + 0.5 * mid / max(top, 1.0), 0.0, 1.0) * 0.6 + 0.4 * smoothstep(0.45, 0.75, lumps), lumps);
+  }
+  /* a layer of cloud laid over the ones already gathered: [unused, how lit, its grain] weighted by its cover, and the
+     cover of them all */
+  void seaCloudOver(inout vec4 cloud, vec3 layer) {
+    float lit = smoothstep(0.15, 0.95, layer.y);
+    cloud.gb = cloud.gb * (1.0 - layer.x) + vec2(lit, layer.z) * layer.x;
+    cloud.a += layer.x * (1.0 - cloud.a);
+  }
+  /* the far hills' skyline at x, in shares of their height: long swells, ridges on them and smaller ridges on those,
+     the larger sharper at their tops than at their feet, the smallest rounded, as the haze softens what is small far
+     off (sharp little ridges read as thorns) */
+  float seaRidges(float x) {
+    float r = 0.46 * (1.0 - abs(2.0 * noise(vec2(x / 260.0, 1.7)) - 1.0));
+    r += 0.3 * (1.0 - abs(2.0 * noise(vec2(x / 96.0, 4.3)) - 1.0));
+    float knoll = 2.0 * noise(vec2(x / 31.0, 8.9)) - 1.0;
+    float bump = 2.0 * noise(vec2(x / 11.0, 3.1)) - 1.0;
+    return r + 0.16 * (1.0 - knoll * knoll) + 0.05 * (1.0 - bump * bump);
+  }
+`
+  /* The sea's parts, each a branch of the land's shader taken by the sheet whose paint row it is (see seaFragment). */
+  const SEA_PARTS = (sea, rowOf) => {
+    const { water, light, far, clouds, sun } = sea
+    const glints = sea.glints
+      .map(
+        ([cell, fill, size, rays, pace, [from, to], string], k) =>
+          `      glints += seaGlint(css, ${seaGlsl(cell)} * small, ${seaPair(fill)} * path * smoothstep(${seaGlsl(from - 10)}, ${seaGlsl(from + 10)}, below) * (1.0 - smoothstep(${seaGlsl(to - 30)}, ${seaGlsl(to + 30)}, below)), ${seaGlsl(size)} * small * moonSize, ${seaGlsl(rays)}, ${seaGlsl(pace)}, ${seaGlsl(17.3 * (k + 1))}, ${seaPair(string)});\n`,
+      )
+      .join('')
+    const intro = `      float front = uHead * 1.3 - 0.15;
+      cover *= 1.0 - smoothstep(front - 0.02, front, css.x / uCanvas.x);
+`
+    const parts = []
+    const waterRow = rowOf('water')
+    /* (a sea with a hill of turf in front of it, `water.under`, is not worked out where the hill is laid over it whole:
+       that many pixels under the hill's own top line, past its soft edge and the blades along it) */
+    const under =
+      water.under === undefined
+        ? ''
+        : `      if (css.y > crestsAt(css.x).x + ${seaGlsl(water.under)}) {
+        outColor = vec4(0.0);
+        return;
+      }
+`
+    /* (the glints of a sea with a second ink for them, `light.edge`, take it towards the path's edges, where the sky
+       they lie under is pinker, and keep their own in its middle; and the glitter of a sea with an ink for it near,
+       `light.near`, goes over to that ink as it comes towards us out of the far haze of glitter, as a sunset's path
+       is gold under the sun and pink at our feet) */
+    const edge = `${light.near ? `      sunInk = mix(${seaInk(light.near)}, sunInk, band);\n` : ''}${
+      light.edge
+        ? `      heartInk = mix(${seaInk(light.edge)}, heartInk, smoothstep(0.15, 0.85, path));
+      glintInk = mix(${seaInk(light.edge)}, glintInk, smoothstep(0.3, 1.0, path));
+`
+        : ''
+    }`
+    /* (and in a sea with a chop, `light.chop`, the water's own chop, finer than any of its waves, breaks the path's
+       sheen into small crescents of light, each a facet tilted to throw the sun to the eye, finer far off and larger
+       near, running and shimmering as the chop does; by so much [by day, at dusk]. The far haze of glitter keeps its
+       own specks.) */
+    /* (and a sea with a drift of colour across the view, `water.drift`, is a little bluer on its left and a little more
+       violet on its right, [left, right] as shares of each colour, as a sea seen under a sky that is not the same on
+       both sides is, so that no column of it mirrors another) */
+    const drift =
+      water.drift === undefined
+        ? ''
+        : `      color *= mix(vec3(${water.drift[0].map(seaGlsl).join(', ')}), vec3(${water.drift[1].map(seaGlsl).join(', ')}), smoothstep(0.0, 1.0, css.x / uCanvas.x));
+`
+    const chop =
+      light.chop === undefined
+        ? ''
+        : `      vec2 chopAt = vec2((sx + 0.12 * css.y + uClock * 1.6) / (2.6 + 0.05 * d), (css.y + 0.03 * sx) / (0.9 + 0.012 * d) - uClock * 0.6);
+      float facet = 0.62 * noise(chopAt) + 0.38 * noise(chopAt * vec2(2.1, 1.7) + vec2(5.3, uClock * 0.4));
+      glitter *= mix(1.0, 0.2 + 3.2 * smoothstep(0.48, 0.78, facet), ${seaPair(light.chop)} * (1.0 - band));
+`
+    if (waterRow >= 0) {
+      parts.push(`    if (abs(uRow - ${seaGlsl(waterRow)}) < 0.002) {
+${under}      /* (the sun's path is as wide whatever the window: a share of the canvas up to a laptop's, and on a wider one the
+         sea beyond it at either side is calmer) */
+      float wide = min(uCanvas.x, 1232.0);
+      /* (the sheet reaches a little over the horizon: what of a pixel lies over it is left to the sky behind) */
+      float raw = vSheet.x * vSheet.z;
+      float below = max(raw, 0.0);
+      float d = below + 0.6;
+      float sx = css.x - uCanvas.x * SEA_SUN_AT;
+      /* where a place is on the water, in heights of the eye over it: across, and away */
+      vec2 g = vec2(sx, SEA_FOCAL) / d;
+      /* how far out of focus the water is here: only near the canvas's foot, as in front of a lens */
+      float fromFoot = uCanvas.y - css.y;
+      float soft = 1.0 - smoothstep(0.0, ${seaGlsl(water.focus)}, fromFoot);
+      vec3 w = seaWaves(g, d, soft * ${seaGlsl(water.blur)});
+      /* the way to the eye, the water's tilt here, and the sun */
+      vec3 eye = normalize(vec3(-sx, d, -SEA_FOCAL));
+      vec3 nrm = normalize(vec3(-w.x, 1.0, -w.y));
+      vec3 sun = SEA_SUN;
+      float facing = clamp(dot(eye, nrm), 0.0, 1.0);
+      float fres = (0.02 + 0.98 * pow(1.0 - facing, 5.0)) * ${seaGlsl(water.reflect)};
+      /* the sky it gives back: pale low over the horizon, bluer higher up, and whiter towards the sun */
+      vec3 ray = reflect(-eye, nrm);
+      float up = clamp(ray.y, 0.0, 1.0);
+      vec3 sky = mix(${seaInk(water.low)}, ${seaInk(water.mid)}, smoothstep(0.0, 0.18, up));
+      sky = mix(sky, ${seaInk(water.high)}, smoothstep(0.18, 0.55, up));
+      sky = mix(sky, ${seaInk(light.glow)}, ${seaPair(light.glowAmount)} * pow(max(dot(ray, sun), 0.0), ${seaGlsl(light.glowTight)}));
+      /* its own blue under that, seen down into it, clearer in one broad patch than the next */
+      float clearer = smoothstep(0.25, 0.75, noise(g / vec2(16.0, 34.0) + 3.7)) * ${seaGlsl(water.patches)};
+      vec3 body = mix(${seaInk(water.deep)}, ${seaInk(water.teal)}, clearer);
+      vec3 color = mix(body, sky, fres);
+${drift}      /* (and where its waves are too fine for any layer, their ripples as the grain drawn out along the row) */
+      float ripple = texture(uGrain, vec2(gl_FragCoord.x / (uTile * 5.0), gl_FragCoord.y / uTile)).r - 0.5;
+      color *= 1.0 + ripple * 0.09 * smoothstep(0.03, 0.12, w.z);
+      /* Far off, where no layer of the waves is tall enough on the screen to show, each row of the screen still sees a
+         run of them of its own, far longer across than tall: fine streaks along the rows, drifting a little; and the
+         wind lays long slicks of calmer water across the far sea, which give the sky back a little differently. Both
+         are gone where the waves show, and go into the haze at the horizon. */
+      float rough = 1.0;
+      float distant = (1.0 - smoothstep(${seaGlsl(water.far[0])}, ${seaGlsl(water.far[1])}, below)) * smoothstep(0.0, 6.0, below);
+      if (distant > 0.0) {
+        /* (each streak a few device rows tall; and the slicks only where they change slowly down the screen: closer to
+           the horizon one device row would span more of them than it can show, and each row would take a value of its
+           own across the whole band, brighter or darker than the next, which reads as scanlines. How fast they change
+           is worked out from the depth, since a derivative cannot be taken in this branch.) */
+${
+  water.level
+    ? `        /* (their length along the row grows with the distance, read from two fixed lengths rather than from one
+           that changes down the screen, which would tilt them towards the sun at the sides of a narrow canvas) */
+        float streak = mix(noise(vec2((sx + uClock * 3.0) / 8.0, css.y * uPixels * 0.3)), noise(vec2((sx + uClock * 3.0) / 26.0, css.y * uPixels * 0.3 + 3.7)), smoothstep(10.0, 70.0, d)) - 0.5;
+`
+    : `        float streak = noise(vec2((sx + uClock * 3.0) / (5.0 + 0.3 * d), css.y * uPixels * 0.3)) - 0.5;
+`
+}        float slickRate = 0.07 * SEA_FOCAL / (d * d * uPixels);
+        float slick = (noise(vec2(g.x * 0.012 + uClock * 0.004, g.y * 0.07 + 2.9)) - 0.5) * (1.0 - smoothstep(0.08, 0.3, slickRate));
+        color *= 1.0 + distant * (${seaGlsl(water.streaks)} * streak + ${seaGlsl(water.slicks)} * slick);
+        rough += distant * slick * ${seaGlsl(water.slickRough)};
+      }
+      /* The sun's light, where a wave is tilted to throw it to the eye: how far from that tilt the water is here,
+         against how rough it is with waves too fine to see (and how much its tilt changes within a pixel), so that it
+         is a haze of glitter far off and a soft sheen on the waves near. The path is wider than the waves alone would
+         make it (\`wide\`), as the long lens's sun is larger than the real one. */
+      vec3 bisect = normalize(eye + sun);
+      vec2 miss = bisect.xz / bisect.y * vec2(seaWide(), 1.0) + w.xy;
+      vec2 blur = fwidth(miss);
+      float spread = w.z * w.z + 0.25 * dot(blur, blur) + ${seaGlsl(light.least)};
+      float glitter = exp(-0.5 * dot(miss, miss) / spread) / spread;
+      float band = exp(-below / ${seaGlsl(light.band)});
+      /* (far off its glitter is a speckle of short streaks along the far waves' rows, laid on the water so that it
+         drifts in with it, each speck twinkling at its own pace; their rows lie a few degrees off the screen's, so that
+         no row of the screen runs along a row of them and comes out brighter than the next) */
+      vec2 speckAt = vec2(gl_FragCoord.x * 0.24, (gl_FragCoord.y + gl_FragCoord.x * 0.05) * 0.7 + uClock * 1.2);
+      vec2 speckId = floor(speckAt + 0.5);
+      float speckBeat = 0.5 + 0.5 * sin(uClock * (1.8 + 2.4 * hash(speckId)) + hash(speckId + 3.1) * 6.283);
+      float speck = pow(noise(speckAt), 3.0) * speckBeat * speckBeat * 6.0;
+      glitter *= fres * mix(${seaPair(light.glitter[1])}, ${seaPair(light.glitter[0])} * (0.7 + ${seaGlsl(light.speck)} * speck), band) * max(rough, 0.2);
+${chop}      /* the air over the far water, which it goes into at the horizon */
+      float hazed = 1.0 - exp(-SEA_FOCAL / d / ${seaGlsl(water.hazeFar)});
+      color = mix(color, ${seaInk(water.haze)}, hazed);
+      /* (and the far water right under the sun is so thick with glitter that it takes on the sun's own warm colour) */
+      float sunlit = exp(-0.5 * pow(sx / (wide * ${seaGlsl(light.warm[0])}), 2.0)) * band;
+      color = mix(color, ${seaInk(light.glow)}, sunlit * ${seaGlsl(light.warm[1])});
+      /* single glints in the path, finer far off and larger near (at night the moon's path is narrower, and its glints
+         smaller and thicker in it, so that the column breaks into many fine dashes) */
+      float path = exp(-0.5 * pow(sx / (wide * mix(${seaPair(light.path[0])}, ${seaPair(light.path[1])}, smoothstep(0.0, 220.0, below))), 2.0)) * ${seaPair(light.moon[1])};
+      float moonSize = ${seaPair(light.moon[0])};
+      vec2 glints = vec2(0.0);
+      float small = clamp(uCanvas.x / 1232.0, 0.65, 1.0);
+${glints}      /* (they burn brightest on the crests turned to throw the sun to the eye) */
+      glints *= mix(0.45, 1.0, exp(-0.5 * dot(miss, miss) / (w.z * w.z + 4.0 * SEA_CATCH)));
+      /* The sun's light on the water, laid on as light is: the glitter, the glints' hearts and their bloom and rays,
+         each in its own ink, rolling off towards the sun's own warm white rather than clipping (see seaLight), so a
+         bright heart burns out cream and the far glitter is a warm haze with its sparkle kept, not a white bar. */
+      vec3 sunInk = ${seaInk(light.ink)};
+      vec3 heartInk = ${seaInk(light.heart)};
+      vec3 glintInk = ${seaInk(light.glint)};
+${edge}      color = seaLight(color, sunInk * sunInk * glitter + heartInk * heartInk * glints.x * ${seaGlsl(light.shine[0])} + glintInk * glintInk * glints.y * ${seaGlsl(light.shine[1])});
+      /* at the canvas's foot it pales towards the page and then breaks into the page's specks, and it comes in with the
+         land on the way in */
+      color = mix(color, uPage, (1.0 - smoothstep(0.0, ${seaGlsl(water.fade[0])}, fromFoot)) * ${seaGlsl(water.fade[1])});
+      float cover = smoothstep(grain - 0.25, grain + 0.25, clamp(fromFoot / ${seaGlsl(water.foot)}, 0.0, 1.0) * 1.25 - 0.1);
+      cover *= clamp(raw * uPixels + 0.5, 0.0, 1.0);
+${intro}      float dither = (hash(gl_FragCoord.xy) + hash(gl_FragCoord.xy + vec2(41.7, 13.1)) - 1.0) / 255.0;
+      outColor = vec4((min(color, vec3(1.0)) + dither) * cover, cover);
+      return;
+    }
+`)
+    }
+    const farRow = rowOf('far')
+    if (farRow >= 0) {
+      parts.push(`    if (abs(uRow - ${seaGlsl(farRow)}) < 0.002) {
+      /* how far over the horizon a place is, in pixels, and how high the far hills stand here: at either side, and
+         not at all behind the sun's path */
+      float above = (vSheet.x / max(vAcross, 0.001) - vSheet.x) * vSheet.z;
+      /* (each side its own: the far shore comes nearer the path on one side than the other, as a coast seen across a
+         bay does, so the two never mirror each other) */
+      float off = css.x / uCanvas.x - ${seaGlsl(sun.at)};
+      float stands = off < 0.0 ? smoothstep(${seaGlsl(far.gap[0][0])}, ${seaGlsl(far.gap[0][1])}, -off) : smoothstep(${seaGlsl(far.gap[1][0])}, ${seaGlsl(far.gap[1][1])}, off);
+      float x = css.x;
+      float top = ${seaGlsl(far.high)} * stands * (0.15 + 0.85 * pow(seaRidges(x), 1.6));
+      float soft = max(${seaGlsl(far.soft)}, 1.0 / uPixels);
+      float cover = clamp((top - above) / soft + 0.5, 0.0, 1.0) * smoothstep(0.0, 1.5, top);
+      if (cover <= 0.0) {
+        outColor = vec4(0.0);
+        return;
+      }
+      /* their faces: the ones turned to the sun a little lighter, the gullies down them a little darker, all of it
+         nearly the air's own colour, and more so towards their foot, where the haze lies thickest */
+      float lean = (seaRidges(x + 2.0) - seaRidges(x - 2.0)) * sign(${seaGlsl(sun.at)} * uCanvas.x - x);
+      float gully = noise(vec2(x / 7.0, above / 9.0 + 2.1));
+      vec3 color = ${seaInk(far.ink)} * (1.0 + 0.35 * lean - 0.06 * gully);
+      color = mix(color, ${seaInk(far.haze)}, 0.15 + 0.75 * pow(1.0 - smoothstep(0.0, max(top, 1.0), above), 1.6));
+${intro}      outColor = vec4(min(color, vec3(1.0)) * cover, cover);
+      return;
+    }
+`)
+    }
+    const cloudRow = rowOf('clouds')
+    if (cloudRow >= 0) {
+      const layers = clouds.layers
+        .map(
+          ([high, thick, cover], k) =>
+            `      seaCloudOver(cloud, seaLayer(x, above - ${seaGlsl(high)} * small, ${seaGlsl(thick)} * small, ${seaGlsl(cover)}, ${seaGlsl(5.3 * (k + 1))}));\n`,
+        )
+        .join('')
+      parts.push(`    if (abs(uRow - ${seaGlsl(cloudRow)}) < 0.002) {
+      /* how far over the horizon a place is, and how far under the band's top, in pixels */
+      float above = (vSheet.x / max(vAcross, 0.001) - vSheet.x) * vSheet.z;
+      float fromTop = vSheet.x * vSheet.z;
+      float x = css.x${clouds.drift === undefined ? '' : ` - uClock * ${seaGlsl(clouds.drift)}`};
+      float side = abs(${clouds.drift === undefined ? 'x' : 'css.x'} / uCanvas.x - ${seaGlsl(sun.at)});
+      /* With the sun ahead of the eye, the sky over a sea is lit through thin layers of cloud lying level over the
+         horizon, as in sea-3 (a bank of cumulus there would be lit from behind, a dark body with a bright rim): a few
+         long ribbons one over another, each broken into pieces along its length, a little lower or higher as it goes,
+         a row of small heaps along its top and its foot flatter, feathered into the air over and under it, and thin
+         enough that the air shows through. Each is warm cream where it faces the sun (its top, and towards the sun) and
+         blue-grey underneath, away from it; over the sun's path they thin rather than coming down to the horizon. They
+         are a little lower on a narrow canvas, never higher than the band holds, and come in from the page as the air
+         does. At night they are the same layers under the moon: dark, silvered on their tops towards it. */
+      float small = clamp(uCanvas.x / 1232.0, ${seaGlsl(clouds.narrow)}, 1.0) * min(1.0, (above + fromTop) / ${seaGlsl(clouds.room)});
+      vec4 cloud = vec4(0.0);
+${layers}      float cover = cloud.a * mix(${seaGlsl(clouds.path)}, 1.0, smoothstep(0.04, 0.2, side));
+${
+  clouds.lean === undefined
+    ? ''
+    : `      /* (heavier on one side than the other, as a haze over the sea is, so that the two sides never mirror) */
+      cover = min(cover * (1.0 + ${seaGlsl(clouds.lean)} * (1.0 - 2.0 * css.x / uCanvas.x)), 1.0);
+`
+}      cover *= pow(clamp(fromTop / ${seaGlsl(clouds.fade[0])}, 0.0, 1.0), ${seaGlsl(clouds.fade[1])});
+      if (cover <= 0.002) {
+        outColor = vec4(0.0);
+        return;
+      }
+      float lit = clamp(cloud.g / max(cloud.a, 0.001), 0.0, 1.0);
+      /* (towards the sun more of each layer catches its light, and its thinnest wisps glow with it) */
+      lit = clamp(lit + mix(${seaPair(clouds.toward)}, 0.0, smoothstep(0.0, 0.3, side)) - 0.25 * (1.0 - lit) * smoothstep(0.1, 0.4, side), 0.0, 1.0);
+${
+  clouds.away === undefined
+    ? ''
+    : `      /* (with the sun low ahead, the haze away from it is seen against the light: only so much of it is lit) */
+      lit *= mix(1.0, ${seaPair(clouds.away)}, smoothstep(0.1, 0.4, side));
+`
+}      vec3 color = mix(${seaInk(clouds.shade)}, ${seaInk(clouds.lit)}, lit);
+      color *= 1.0 + (cloud.b / max(cloud.a, 0.001) - 0.5) * ${seaGlsl(clouds.grain)};
+${intro}      outColor = vec4(min(color, vec3(1.0)) * cover, cover);
+      return;
+    }
+`)
+    }
+    const sunRow = rowOf('sun')
+    if (sunRow >= 0 && sun.disc) {
+      const disc = sun.disc
+      parts.push(`    if (abs(uRow - ${seaGlsl(sunRow)}) < 0.002) {
+      /* how far over the horizon a place is, and how far under the band's top, in pixels; and how far it is from the
+         sun's middle, which stands so far over the horizon (or under it), in the sun's radius */
+      float above = (vSheet.x / max(vAcross, 0.001) - vSheet.x) * vSheet.z;
+      float fromTop = vSheet.x * vSheet.z;
+      float radius = ${seaPair(disc.r)} * clamp(uCanvas.x / 1232.0, 0.65, 1.0);
+      /* (low on the horizon the air over the warm sea bends its light a little: its lower limb shimmers by a pixel or
+         so, slowly) */
+      float shimmer = (noise(vec2(css.x / 7.0, uClock * 0.9 + 3.3)) - 0.5) * 2.0 * (1.0 - smoothstep(0.0, 10.0, above));
+      vec2 d = vec2(css.x - uCanvas.x * SEA_SUN_AT, (above + shimmer - radius * ${seaPair(disc.high)}) * ${seaGlsl(disc.squash)});
+      float r = length(d) / radius;
+      /* (nothing of it reaches further than its broad halo does: most of the band is clear of it) */
+      if (r > 1.0 + 6.0 * ${seaGlsl(Math.max(...disc.bloom[1]))}) {
+        outColor = vec4(0.0);
+        return;
+      }
+      /* A sun this low is seen through so much air that it is flattened a little and dimmed, its limb deeper than its
+         middle; the haze it sets behind lies across it in broad level bands drifting slowly along the horizon, which
+         dim it here and there; and round it is a halo of its light, a tight bright one and a broad warm one, as a lens
+         spreads a bright light. Its face hides the sky behind it, and its halo is laid over the sky as a veil of its
+         own colour rather than added to it as light: the sky round a low sun is already nearly as bright as the
+         picture holds, and light added to it would clip one colour after another into rings of hue. */
+      float edge = max(${seaPair(disc.soft)}, 0.9 / uPixels) / radius;
+      float face = 1.0 - smoothstep(1.0 - edge, 1.0 + edge, r);
+      float streak = noise(vec2((css.x - uClock * 1.8) / 150.0 + 2.3, above / 9.0)) * noise(vec2((css.x - uClock * 1.2) / 61.0 - 1.7, above / 14.0 + 5.1));
+      float dim = 1.0 - ${seaPair(disc.haze)} * smoothstep(0.08, 0.5, streak);
+      vec3 color = mix(${seaInk(disc.core)}, ${seaInk(disc.limb)}, smoothstep(0.35, 1.0, r * r));
+      float past = max(r - 1.0, 0.0);
+      float tight = ${seaPair(disc.bloom[0])} * exp(-past * 2.2);
+      float broad = ${seaPair(disc.bloom[2])} * exp(-past / ${seaPair(disc.bloom[1])});
+      /* (and it comes in from the page under the sheet's top as the air does, so that it is never cut there and never
+         shows over the page) */
+      float halo = (1.0 - exp(-tight - broad)) * pow(smoothstep(0.0, 1.0, fromTop / ${seaGlsl(disc.fade[0])}), ${seaGlsl(disc.fade[1])}) * mix(1.0, dim, 0.5);
+      vec3 haloInk = mix(${seaInk(disc.glow)}, ${seaInk(disc.limb)}, tight / max(tight + broad, 0.0001));
+      float shown = face * dim;
+      float cover = 1.0;
+${intro}      /* (dithered a step either way wherever it shows, so that its long soft halo never bands) */
+      float dither = (hash(gl_FragCoord.xy) + hash(gl_FragCoord.xy + vec2(41.7, 13.1)) - 1.0) / 255.0;
+      float alpha = (shown + halo * (1.0 - shown)) * cover;
+      vec3 shine = (color * shown + haloInk * halo * (1.0 - shown)) * cover;
+      outColor = vec4(shine + dither * smoothstep(0.0, 0.02, alpha), alpha);
+      return;
+    }
+`)
+    }
+    return parts.join('')
+  }
+  const seaFragment = (mode, whole) => {
+    const sea = mode.land.sea
+    if (!sea) {
+      return whole
+    }
+    const { sheets } = mode.land
+    // the paint row each sheet reads, as the land works them out (see paintRow and paintRows)
+    const rows = sheets.map((sheet, row) =>
+      typeof sheet.paint === 'string' ? sheets.findIndex((other) => other.name === sheet.paint) : row,
+    )
+    if (mode.glow || !whole.includes(LINE_MAIN) || !whole.includes(LINE_SPREAD)) {
+      throw new Error('the sea cannot find its sheets in the land shader')
+    }
+    const count = Math.max(1, ...rows.map((row) => row + 1))
+    const rowOf = (part) => {
+      const at = sheets.findIndex((sheet) => sheet.sea === part)
+      return at < 0 ? -1 : (rows[at] + 0.5) / count
+    }
+    return whole
+      .replace(LINE_MAIN, `${SEA_HELPERS(sea)}${LINE_MAIN}`)
+      .replace(LINE_SPREAD, `${SEA_PARTS(sea, rowOf)}${LINE_SPREAD}`)
+  }
+
   /* --- the pricing composition ---------------------------------------------------------------------- */
 
-  /* The hero of /pricing: a sunset over the sea, after a painting of one, made of nothing but light, in the fine lines
-     of /products/sdk-generator. The painting's sky, butter and peach at the sides, a soft column of pink light in its
-     middle deepening to coral over a narrow band of hot orange along the horizon, and under it a still lavender sea.
-     Each is a band of fine lines that sweeps gently across the stage, and the colours run through each other line by
-     line where they meet. Under the header there is only the page: the sky's lines come in from nothing far below it,
-     thin, few and pale at first, and are at their full only around the words and under them. Behind the words the sun
-     is going down, a disc of light standing in the pink column with its foot behind the horizon: the sky's lines take
-     its light as they run into it, white at its middle where the words stand, a pale gold limb and a glowing rim, a halo
-     of apricot and pink round it, and its light rises softly above the lines; the horizon glows gold where it sets, and
-     its reflection lies in the sea in streaks. A long wave runs through the horizon and the sea's lines roll gently.
-     Every band thins into specks at its edges, so nothing is drawn as an edge. It is live, breathing and drifting, and
-     in a dark theme the same sunset at dusk, the sun a deep warm glow, darkest at its middle where the words stand, its
-     light in its rim and its halo. When the pointer rests on the sun's reflection, the butterflies come to it. */
+  /* The hero of /pricing, after the sunset Cameron sent: the sun going down into a calm sea behind a thin layer of
+     haze, seen from the top of a green hill. A pastel sky falls from lavender high up through pink to peach and gold
+     round the sun, which sits on the horizon under the calls to action; the sea is /company's own water (see CO_SEA
+     and seaFragment) at the end of the day, lavender-blue and giving back the sky, with a broad path of glittering
+     light running from the sun towards us, gold far off and pink and white near; and in front, the top of a green
+     hill, the home hero's turf (see photoFragment), raked by the low sun's gold light and glittering all over with
+     tiny points of light (its dew, laid thickest where the light is). The picture starts under the words, as the home
+     hero's does: only the sky's first, nearly clear air rises behind the buttons. When the pointer rests on the path of
+     light the butterflies come to it. In a dark theme it is the same sea a little later, at dusk: the sun half gone,
+     the sky deep violet over a band of rose and ember, the path a dimmer rose, the hill dark with its glitter catching
+     the last light. */
+
+  /* The sky's inks and the hill's, light and dark. The sky is air (see PR_AIR); the sea's shader has its own colours
+     (see PR_SEA); every other sheet's paint still names one of them. */
   const PR_INKS = {
-    // the land's inks the engine asks for, unused here
     ...LAND_INK,
-    // the sky, from its top down: cream, butter at the sides, the pale light the words stand in, peach, and apricot
-    // over the horizon; at dusk the top is night coming on and the words stand in its deep plum
-    cream: ['#f7e2c6', '#2b2340'],
-    butter: ['#f6cc80', '#4a3858'],
-    light: ['#f8dcab', '#3a2c4b'],
-    peach: ['#f7b386', '#7a4a66'],
-    apricot: ['#f5a56c', '#b25e5e'],
-    // the glow, from its pale heart to its deep foot over the horizon
-    pale: ['#fbd6c6', '#40304f'],
-    blush: ['#f9c4b6', '#6a4262'],
-    // the column's head, over the words, dimmer at dusk
-    rose: ['#f5a49a', '#6e4466'],
-    pink: ['#f5a49a', '#a85674'],
-    salmon: ['#f3988a', '#d0687a'],
-    coral: ['#f08a6c', '#e27b5c'],
-    // the horizon, its soft top and its hot middle and foot
-    tangerine: ['#f39a58', '#eb7a45'],
-    gold: ['#f7c070', '#ffb054'],
-    flame: ['#ee7a3c', '#f2662e'],
-    ember: ['#e2602e', '#df4f27'],
-    // the sea, slate-lavender under the horizon and warmer towards us
-    slate: ['#8c859c', '#544c6e'],
-    seaHigh: ['#988ea4', '#4d4767'],
-    lavender: ['#a69aae', '#443e5d'],
-    lavenderLow: ['#b4a5b2', '#302b45'],
-    sand: ['#c5b1a4', '#1f1c2a'],
-    sheen: ['#f6dfc2', '#3e3354'],
-    // the sun: its middle, nearly white on a light page and at dusk the deepest of the warm darks, so the words read on
-    // it either way; its face's edge; its rim, pale gold, at dusk glowing; the glow just past it; and its halo, the pink
-    // it fades into
-    sunCore: ['#fffcf6', '#1c0f17'],
-    sunFace: ['#ffecce', '#4a1d2b'],
-    sunRim: ['#ffc98a', '#ff9a5c'],
-    sunGlow: ['#ffa98a', '#f06a62'],
-    sunHalo: ['#f598a0', '#a8406c'],
-    // its reflection in the sea, in streaks
-    sunWater: ['#f8d0a4', '#e08868'],
-    sunWaterLow: ['#efb9a6', '#8f4766'],
+    // the sky from the horizon up: a deep mauve haze low down at either side, darker than anything over it, so that the
+    // sun has something to glow against, then rose and pink over it, lighter as it rises; the sun's light over its
+    // middle, much lighter than the sky round it (a light, not only a hue); at dusk violet and indigo over a band of
+    // rose and ember
+    prAirHaze: ['#7f709b', '#5a3557'],
+    prAirLow: ['#8d729d', '#7a3f5c'],
+    prAirBand: ['#a378a3', '#4c2c58'],
+    prAirZone: ['#bf84a9', '#2a2148'],
+    prAirHigh: ['#d294af', '#191934'],
+    prAirGlow: ['#ffd2a5', '#e0704f'],
+    // the hill's turf, read by how much light a place has (see PR_TURF_PAINT): the home hero's greens, the lights going
+    // towards the low sun's gold rather than its noon yellow
+    turfDeep: ['#10230d', '#0b1a0f'],
+    turfDusk: ['#172e11', '#10241a'],
+    turfShade: ['#244020', '#163322'],
+    turfOpen: ['#30522a', '#1f4229'],
+    turfHalf: ['#557236', '#38562c'],
+    turfLit: ['#768f42', '#5a7230'],
+    turfSun: ['#9cad5c', '#7d8a3c'],
+    turfHot: ['#c4c574', '#a39448'],
+    turfGlow: ['#e6da9a', '#d2a468'],
+    // the air over the hill's far edge, the mist and a lamp it has none of (its photograph asks for three)
+    turfHaze: ['#c8a9c8', '#4a3150'],
+    turfMist: ['#b9c879', '#5d7a3e'],
+    turfLamp: ['#f6eed2', '#f2e2c0'],
   }
+  /* The hill's paint, by how much light a place has (0 none, 0.72 full sun, 1 lit through), as the home hero's. */
+  const PR_TURF_PAINT = [
+    [0, 'turfDeep', 1],
+    [0.12, 'turfDusk', 1],
+    [0.23, 'turfShade', 1],
+    [0.34, 'turfOpen', 1],
+    [0.47, 'turfHalf', 1],
+    [0.6, 'turfLit', 1],
+    [0.72, 'turfSun', 1],
+    [0.84, 'turfHot', 1],
+    [1, 'turfGlow', 1],
+  ]
 
-  /* The places across a guide is given at, past both sides of the stage. */
-  const PR_ACROSS = Array.from({ length: 129 }, (_, k) => -1.6 + (3.2 * k) / 128)
-
-  /* Where the words are, in the land's terms: how far across their middle is and how far either side they reach (shares
-     of the half-width), and how far down their top, their middle and their foot are (rooms). Nothing is laid round
-     them: the sky's bands only change colour at their height. */
-  const prWords = ({ w, words, room, base }) => {
-    const half = w / 2
-    return {
-      at: (words.x - half) / half,
-      wide: (words.a + 24) / half,
-      top: (words.y - words.b - base) / room,
-      mid: (words.y - base) / room,
-      foot: (words.y + words.b - base) / room,
-    }
+  /* Where the horizon lies: this many pixels under the words' foot (the buttons' foot on a laptop), so that the sun on
+     it stands just under the calls to action and its glow rises behind them, and the sea and the hill have the rest of
+     the canvas. A phone's words are taller and its canvas narrow, so there it lies a little nearer them. */
+  const PR_HORIZON = (stage) => stage.words.y + stage.words.b + (stage.w < 640 ? 52 : 76)
+  /* The hill's top line: how high over the canvas's foot it stands at each place across, in pixels (a share of that on
+     a short canvas), where ±1 are a laptop's canvas's sides and the rest is for wider ones: a dome, rounded over the
+     top with its crest a little left of the sun's path, falling away to the sides, faster on its right past a low
+     shoulder, as the reference's does, so that the low light turns round a form and its line is never an arc; and
+     under the path's foot, so that the sea between the sun and the crest keeps its room for the butterflies. */
+  const PR_HILL = [
+    [-1.6, 44],
+    [-1.25, 66],
+    [-1, 88],
+    [-0.76, 110],
+    [-0.52, 136],
+    [-0.3, 158],
+    [-0.12, 170],
+    [0.06, 167],
+    [0.22, 155],
+    [0.38, 137],
+    [0.52, 121],
+    [0.64, 113],
+    [0.76, 100],
+    [0.92, 76],
+    [1.1, 56],
+    [1.35, 38],
+    [1.6, 28],
+  ]
+  /* how high the hill stands at its crest over the canvas's foot, as a share of PR_HILL's, by the canvas's height: the
+     whole of it on a laptop, less on a short canvas, so the sea keeps its room; and on a narrow one, whose canvas is
+     tall for its width, a little more of it, so that the hill is as much of the picture as it is in the reference (a
+     third) rather than a strip at the foot of a tall sea, and the sea keeps its room over it */
+  const prHillScale = (stage) => clamp((stage.h - 420) / 280, 0.6, 1) * (1 + 0.14 * clamp((800 - stage.w) / 400, 0, 1))
+  /* Each guide in the land's terms (rooms down from its top line), from pixels down the canvas. */
+  const prRooms = (stage, px) => (px - stage.base) / stage.room
+  const prLevel = (stage, px) => [
+    [-1.6, prRooms(stage, px)],
+    [1.6, prRooms(stage, px)],
+  ]
+  /* (on a narrow canvas only the middle of the hill is in the picture, broad and running off both sides, rather than
+     the whole of it squeezed into a mound; on a canvas wider than a laptop's the hill keeps the size it has on a
+     laptop and falls away further towards the sides, rather than being drawn out into a long low strip; its line runs
+     through its points as the land's own curves do) */
+  const prHillCurve = footerCurve(PR_HILL)
+  const PR_HILL_ACROSS = Array.from({ length: 65 }, (_, k) => -1.6 + (3.2 * k) / 64)
+  const prHillTop = (stage) => {
+    const narrow = stage.w < 1512 ? clamp(stage.w / 1232, 0.42, 1) : Math.min(stage.w / 1512, 1.75)
+    return PR_HILL_ACROSS.map((x) => [x, prRooms(stage, stage.h - prHillCurve(x * narrow) * prHillScale(stage))])
   }
-  /* The canvas's top, in rooms above the horizon. */
-  const prTop = ({ base, room }) => -base / room
-  /* A long wave along a guide, in CSS pixels: so high, so long, from where; so that it reads the same on any screen. */
-  const prWave = (stage, x, high, long, phase = 0) =>
-    (high / stage.room) * Math.sin(((x * stage.w) / 2 / long) * Math.PI * 2 + phase)
-
-  /* The sun: a disc of light behind the words, its middle under theirs a little above the horizon, so that it is going
-     down, and its bright face reaching past every line of the copy: the heading's ends at its top (the heading is never
-     wider than its text, 330 pixels), the lede's at either side, the buttons' at its foot. Worked out from the words
-     each time the land is laid out. */
-  const PR_SUN_FACE = 0.9
-  const prSun = (stage) => {
-    const { w, words, base } = stage
-    const top = words.y - words.b
-    const foot = words.y + words.b
-    const y = foot + (base - foot) * 0.3
-    const reach = Math.max(
-      Math.hypot(Math.min(words.a, 168), y - top),
-      Math.hypot(words.a, y - (top + words.b * 0.7)),
-      Math.hypot(Math.min(words.a, 194), y - foot),
-    )
-    const r = (reach + 10) / PR_SUN_FACE
-    if (2 * r < 0.94 * w) {
-      return { x: words.x, y, r }
-    }
-    // On a phone the copy is as wide as the screen, and a sun holding all of it would be wider still, its rim off the
-    // screen, a white sky rather than a sun. There the heading and the lede stand on the page itself (the sky's lines
-    // only come in under them), and the sun goes down under them: a whole disc as wide as the screen allows, its top
-    // just over the buttons, which stand on its face, and its foot behind the horizon.
-    const small = Math.min(w * 0.46, (base - top) * 0.6)
-    return { x: words.x, y: foot - 100 + small, r: small }
-  }
-
-  /* Where the glow is: a soft column of light centred on the words, wider than they are and reaching from the top of
-     the sky to the horizon, worked out from the words each time the land is laid out (see glowPlaces), the sun standing
-     in it. It breathes, a little larger and smaller, over a long slow breath. It only colours the lines passing through
-     it. The sun's reflection lies in the sea under the sun, narrower than it. */
-  const PR_GLOW = {
-    place: (stage) => {
-      const { at, wide, mid } = prWords(stage)
-      return { at: [at, mid + 0.25], half: [Math.max(0.3, wide * 1.1), 1.6] }
-    },
-    breathe: [0.08, 14],
-  }
-  const prReflection = (stage) => {
-    const { w } = stage
-    const sun = prSun(stage)
-    return { at: [(sun.x - w / 2) / (w / 2), 0.32], half: [Math.max(0.2, (sun.r * 0.55) / (w / 2)), 0.6] }
-  }
-  /* Where the sun goes down behind the horizon, which glows there: as wide as most of the sun, along the horizon. */
-  const prSunset = (stage) => {
-    const { w } = stage
-    const sun = prSun(stage)
-    return { at: [(sun.x - w / 2) / (w / 2), 0], half: [(sun.r * 0.85) / (w / 2), 0.3] }
-  }
-  /* The place that calls the butterflies: the sun's reflection, under the buttons, in CSS pixels on the canvas. */
+  /* The place that calls the butterflies: the path of light on the sea, from a little under the horizon to the hill's
+     crest under the sun, in CSS pixels on the canvas. */
   const prZone = (stage) => {
-    const { w, room, base } = stage
-    const half = w / 2
-    const { at, half: size } = prReflection(stage)
+    const horizon = PR_HORIZON(stage)
+    const crest = stage.h - prHillCurve(0) * prHillScale(stage)
     return {
-      x: half + at[0] * half,
-      y: base + 0.3 * room,
-      a: Math.max(size[0] * half * 0.95, 110),
-      b: Math.max(room * 0.24, 50),
+      x: stage.w / 2,
+      y: (horizon + crest) / 2 + 6,
+      a: Math.max(Math.min(stage.w, 1232) * 0.16, 110),
+      b: Math.max((crest - horizon) * 0.42, 40),
     }
   }
 
-  /* The horizon's foot, where the sky ends and the sea begins, nearly level; and its top, which a long wave runs along,
-     so the band swells and thins as it goes. */
-  const prHorizon = (stage, x, lift = 0) => lift + prWave(stage, x, 2, 1900, 0.9)
-  const prHorizonTop = (stage, x) =>
-    prHorizon(stage, x, -0.16) + prWave(stage, x, 10, 1500, 2.1) + prWave(stage, x, 3, 610, 0.3)
-  /* How far under the canvas's top the sky's top line is, in rooms: a twenty-fifth of the stage's width at its left
-     edge and nothing at its right, with a long slow wave in it; so the sky's lines, which run from it down to the level
-     horizon, sweep up to the right, as the Warp hero's streaks do, the most at the top and less and less down. */
-  const prDip = (stage, x) => (0.02 * stage.w * (1 - x)) / stage.room + prWave(stage, x, 6, 1700, 0.6)
+  /* The sky over the sea, as the home hero's is: soft air rather than lines (see airFragment), its fall of colour
+     fitted to the band between the lede and the horizon, as the reference's is fitted to its whole sky: a deep mauve
+     haze along the horizon at either side, the darkest thing in the sky, rising through rose to pink, which comes in
+     softly from the page behind the buttons. The sun's light (`glow`) stands over its middle, where the sun sits, a
+     little over the horizon: by day a warm gold much lighter than the sky round it, so that the sun glows against the
+     dark sides as the reference's does rather than only turning the pink peach; at dusk an ember warmth rising over
+     the sun. Lengths are CSS pixels (see DOCS_AIR for each knob). */
+  const PR_AIR = {
+    inks: [
+      [0, 'prAirHaze'],
+      [12, 'prAirLow'],
+      [34, 'prAirBand'],
+      [70, 'prAirZone'],
+      [118, 'prAirHigh'],
+    ],
+    horizon: 0,
+    rise: 10,
+    fade: [84, 1.5],
+    smear: [
+      [560, 7, 6, 2.2],
+      [220, 2.6, 2.4, -3.2],
+      [110, 1.1, 1, 1.4],
+    ],
+    value: 0.005,
+    wander: 3,
+    grain: [0.05, 0.03],
+    pan: 10,
+    dither: 1,
+    glow: { at: 0.5, height: [45, 6], reach: [0.27, [95, 40]], amount: [1, 0.75], ink: 'prAirGlow' },
+  }
+
+  /* The sea, /company's water at the end of the day (see CO_SEA for every knob): the same waves and glints, the water
+     lavender-blue and giving back the sunset's sky, the sun low on the horizon ahead (`sun.high` degrees), so that
+     its path of light runs all the way from the horizon to the hill, broad (`light.path`) and thick with small glints:
+     its glitter gold under the sun and pink near us (`light.near`), its glints warm white in its middle and pink
+     towards its edges (`light.edge`), its sheen broken into the small crescents of light of the water's own chop
+     (`light.chop`). Over the horizon a bank of haze, mauve at the sides and lit orange where the sun shines through
+     it (`clouds.away`: how much of the haze away from the sun is lit, seen against the light), drifting slowly along
+     the horizon (`clouds.drift`) and heavier on the left than on the right (`clouds.lean`), as the water is a little
+     bluer on the left and more violet on the right (`water.drift`), so that the picture never mirrors about the sun.
+     The sun itself is the sea's too (`sun.disc`, see the sun in SEA_PARTS): a soft disc half sunk into the haze. No far
+     hills and no koi; the water is not worked out where the hill is laid over it (`water.under`, how far under the
+     hill's top line, in pixels), and its far streaks lie level whatever the canvas's width (`water.level`). */
+  const PR_SEA = {
+    horizon: 0,
+    focal: 1400,
+    sun: {
+      at: 0.5,
+      high: 2.2,
+      /* the disc: its radius in pixels on a canvas 1232 wide, how far its middle stands over the horizon in its radius
+         (less than nothing is sunk), how much flatter than round it is, how soft its edge is in pixels, its colours at
+         its middle, its limb and its halo, its halo (how strong the tight one is, how far the broad one reaches in its
+         radius, and how strong that one is), how much the haze across it dims it, and how its halo comes in from the
+         page under its sheet's top (as the air's own does, see PR_AIR's fade, so that it never shows over the page),
+         each [by day, at dusk] where it is a pair. By day it is large and soft, half sunk behind the haze bank, an
+         orange gold a little lighter than the light round it, as a sun seen through that much air is; at dusk a smaller
+         ember mostly gone. */
+      disc: {
+        r: [40, 27],
+        high: [0.5, -0.42],
+        squash: 1.12,
+        soft: [22, 2.6],
+        core: ['#ffd49c', '#ffe2b8'],
+        limb: ['#ffc186', '#ff9a56'],
+        glow: ['#ffba87', '#f06a48'],
+        bloom: [
+          [1.4, 0.85],
+          [1.4, 2.2],
+          [0.35, 0.3],
+        ],
+        haze: [0.4, 0.45],
+        fade: [84, 1.5],
+      },
+    },
+    waves: {
+      cell: 0.3,
+      step: 0.55,
+      stretch: 0.95,
+      tilt: 0.1,
+      fall: 0.9,
+      layers: 6,
+      pace: 0.04,
+      floor: 0.05,
+      wobble: 1.3,
+      gusts: 0.35,
+    },
+    water: {
+      deep: ['#424c8e', '#151838'],
+      teal: ['#4c5c9a', '#171d42'],
+      patches: 0.3,
+      reflect: 0.85,
+      low: ['#a690bd', '#6a3e62'],
+      mid: ['#8486c4', '#2e2b58'],
+      high: ['#6c74b4', '#1c1d44'],
+      haze: ['#a08fba', '#4a3258'],
+      hazeFar: 700,
+      focus: 90,
+      blur: 5,
+      fade: [120, 0.45],
+      foot: 56,
+      far: [50, 150],
+      streaks: 0.16,
+      slicks: 0.12,
+      slickRough: 0.7,
+      under: 14,
+      level: true,
+      drift: [
+        [0.95, 1, 1.05],
+        [1.03, 0.96, 1.02],
+      ],
+    },
+    light: {
+      ink: ['#ffd3a6', '#ffc9a8'],
+      near: ['#ffc6c0', '#f0a0b0'],
+      heart: ['#fff0ec', '#ffe2cf'],
+      glint: ['#ffb4b0', '#ff9a8a'],
+      edge: ['#ffb6d6', '#f2a0c0'],
+      top: ['#ffe6cc', '#fff0e4'],
+      shine: [7, 6],
+      glow: ['#ffbd8e', '#e8785c'],
+      glowAmount: [0.6, 0.5],
+      glowTight: 24,
+      wide: [0.16, 0.24],
+      glitter: [
+        [0.013, 0.018],
+        [0.02, 0.004],
+      ],
+      least: 0.006,
+      catch: 0.0025,
+      band: 34,
+      speck: 0.6,
+      path: [
+        [0.12, 0.1],
+        [0.21, 0.18],
+      ],
+      warm: [0.22, 0.6],
+      rayed: 0.9,
+      ray: 0.22,
+      glare: 0.05,
+      chop: [0.9, 0.7],
+      moon: [
+        [1, 0.8],
+        [1, 1],
+      ],
+    },
+    glints: [
+      [8, [0.8, 0.6], 0.55, 0, 1.3, [8, 110], 0],
+      [11, [1, 0.9], 1.05, 1.1, 1.05, [16, 420], 1],
+      [36, [0.9, 0.6], 1.9, 1.5, 0.8, [40, 280], [0, 1]],
+    ],
+    /* The haze is one soft bank lying along the horizon with a thinner wisp over it, as the reference's is: thick
+       enough that the sun's lower half sinks into it, its thickness changing along its length in long pieces, its
+       cells broad and soft so that it never reads as ruled lines; deep mauve away from the sun and lit orange where
+       the sun shines through it. It drifts slowly along the horizon (`drift`, pixels a second). */
+    clouds: {
+      layers: [
+        [6, 32, 0.5],
+        [12, 24, 0.42],
+        [30, 16, 0.22],
+      ],
+      pieces: [900, 360],
+      wander: 4,
+      heaps: 40,
+      feather: 8,
+      cells: [60, 7],
+      fade: [30, 1.2],
+      room: 72,
+      narrow: 0.65,
+      path: 1,
+      toward: [0.9, 0.3],
+      away: [0.25, 0.4],
+      lit: ['#f88f69', '#f08060'],
+      shade: ['#877198', '#3a2448'],
+      grain: 0.05,
+      drift: 1.5,
+      lean: 0.25,
+    },
+  }
+
+  /* The hill's turf, lit by the sun low ahead of us (see DOCS_PHOTO for every knob): its light rakes in over the
+     hill's left shoulder from behind it, a broad band of gold down its face, and the rest of the face towards us is in
+     its own shade, deep green; its crest is lit through against the sea. Its dew is laid as glitter (`glitter`, see
+     glitterFragment for each knob), fine and thick and thickest where the light is, so that the hill glitters all over
+     and most in the sun. No figure stands on it (no `lamp`), and it has no far edge for haze. At dusk the same hill
+     with less sun in it, and less glitter, more dimly. */
+  const PR_PHOTO = {
+    sun: { way: [-0.75, 0.45, -0.5], lit: [0.02, 0.45], power: [1.22, 0.42] },
+    beam: {
+      at: [-0.26, 0.63],
+      run: [-1, 1.4],
+      half: 0.3,
+      soft: [0.5, 0.85],
+      widen: 0.4,
+      ragged: 0.05,
+      creep: [
+        [0.06, 0.2, -1.25],
+        [0.025, 0.47, -2.94],
+      ],
+    },
+    shafts: [
+      [-0.75, 0.08, 0.22, 0.28, 0.07],
+      [0.8, 0.1, 0.3, 0.32, 0.05],
+    ],
+    dapple: { size: [210, 74], drift: 12, dim: 0.92 },
+    near: { from: 112, to: 56, light: [0.5, 0] },
+    lamp: null,
+    haze: [
+      [0, 0],
+      [14, 14],
+      [0, 0],
+    ],
+    dew: [1, 0.8, 0.9, 0.85],
+    glitter: {
+      shade: [0.12, 0.12],
+      light: [
+        [0.02, 0],
+        [0.3, 0.4],
+      ],
+      lustre: 0.15,
+      white: 0.3,
+      bright: [1.6, 0.85],
+      fleck: [3, 0.36, 0.55],
+      sizes: [0.3, 0.9],
+      halo: [0.08, 0.2],
+      glow: [0.3, 0],
+      tints: 0.6,
+      narrow: 0.75,
+      foot: 12,
+    },
+    foot: 44,
+    fringe: 9,
+    hide: 14,
+    inks: ['turfHaze', 'turfMist', 'turfLamp'],
+  }
 
   const PRICING = {
     ...HERO,
+    intro: false,
     words: '.pr-copy',
-    // The hero's lines, lifted a little less between them on a light page, so the colour fields read as full as the
-    // painting's; round the words a soft veil that thins the lines a little rather than clearing them (the sun does the
-    // rest); and every line reaching past the canvas's right edge once it is in (`whole`), so none stops short of it in
-    // a dash of page.
-    lines: {
-      ...LINES,
-      lift: 0.15,
-      veil: [150, 100],
-      veilCore: 0,
-      veilDepth: [0.25, 0.35],
-      sink: 70,
-      introMs: 2600,
-      whole: true,
-    },
+    /* Every sheet is air, the sea's or turf, and none draws lines, so of the lines' options only the oval round the
+       words is still read (the turf breaks into the page's specks in it). */
+    lines: { ...LINES, veil: [80, 18] },
+    /* The sea and the turf are worked out afresh for every pixel every frame, so on a canvas wider than any laptop's it
+       draws at a little less than the screen's density, the less the wider it is, as /company's does; and on a phone,
+       whose tall canvas is nearly all sea and whose screen is three times as dense as its pixels, at a little under
+       two, where nothing of the soft light and the fine glitter is lost that its screen would show. */
+    dprCap: (w) => Math.min(w < 640 ? 1.85 : 2, 2 * Math.sqrt(1800 / w)),
     inks: PR_INKS,
-    glow: PR_GLOW,
-    waves: true,
-    // The sun, behind the words: white at its middle (at dusk the deepest warm dark), a pale gold limb, glowing at its
-    // rim, a halo of apricot and pink round it fading into the column and the peach. Its light comes in from a little
-    // under the header, higher than the lines do, so its top is a soft glow on the page; on a light page it lays none
-    // on its face, where the page is its white, and at dusk it lays its deep glow there.
-    sun: {
-      place: prSun,
-      face: PR_SUN_FACE,
-      halo: 0.45,
-      rim: 0.09,
-      rise: (stage) => [stage.h * 0.04, stage.words.y - stage.words.b * 0.6],
-      inks: ['sunCore', 'sunFace', 'sunRim', 'sunGlow', 'sunHalo'],
-      light: [
-        [0, 0.7],
-        [0.4, 0.6],
-        [0.35, 0.45],
-      ],
-      lines: [
-        [0.8, 0.85],
-        [1, 0.08],
-      ],
-      breathe: [0.06, 13],
-    },
-    // The sky's lines come in from nothing: none at all under the header, then thin, few and pale, with hardly a bead,
-    // and at their full only a little under the words; a long ramp eased in, so the top third of the canvas is the page.
-    fade: {
-      at: (stage) => {
-        const foot = stage.words.y + stage.words.b
-        return [stage.h * 0.05, foot + (stage.base - foot) * 0.15]
-      },
-      ease: 1.6,
-      pale: 0.6,
-      sparse: 0.8,
-      specks: 2.5,
-    },
     land: {
       ...HERO.land,
-      // No hill: the land's line is the horizon, level across the stage, and its room the sea under it, the sky above
+      // No hill line of the land's own: its top line is level, and every sheet is laid from the words and the canvas's
+      // foot in pixels (see PR_HORIZON and PR_HILL), so the land's room only sets the scale its guides are given in.
       profile: [
         [-1.6, 0],
         [1.6, 0],
@@ -4686,124 +6290,107 @@
       foot: 8,
       head: 0,
       least: 150,
+      // the sea, the haze and the sun are a photograph's (see PR_SEA, and each sheet's `sea`), and so is the hill (see
+      // PR_PHOTO and its `turf`)
+      sea: PR_SEA,
+      photo: PR_PHOTO,
+      /* The sheets keep a paint and line options only because every sheet is given them: the air reads none of them,
+         a sheet with `sea` is painted by the sea's shader as what it names, and the hill's paint is the ramp its turf
+         is read by. Each has a paint of its own all the same, since the sea's shader tells its sheets apart by their
+         paint's row. None of them breathes. */
       sheets: [
-        // The sky, one band of lines from just under the header to the horizon, which hides its foot: cream at its very
-        // top, butter at the sides, peach and apricot lower down; and in its middle the column of pink light, rose over
-        // the words, paling to its heart where the sun stands and deepening under it to salmon and coral over the
-        // horizon. Its lines rise a little to the right, and its colours with them; they come in from nothing (fade),
-        // and take the sun's light as they run into it.
+        // the sky, as air (see PR_AIR), from just under the lede's last line, where it is still clear, down to the
+        // horizon, so that the buttons stand in its first light as the home hero's do
         {
           name: 'air',
-          top: (stage) => PR_ACROSS.map((x) => [x, prTop(stage) + 2 / stage.room + Math.max(0, prDip(stage, x))]),
-          foot: (stage) => PR_ACROSS.map((x) => [x, prHorizon(stage, x, -0.05)]),
+          top: (stage) => prLevel(stage, stage.words.y + stage.words.b - 78),
+          foot: (stage) => prLevel(stage, PR_HORIZON(stage)),
           paint: [
-            [0, 'cream', 0.08],
-            [0.06, 'cream', 0.6],
-            [0.12, 'cream', 0.95],
-            [0.4, 'butter', 1],
-            [0.62, 'butter', 1],
-            [0.8, 'peach', 1],
-            [0.93, 'apricot', 1],
-            [1, 'tangerine', 0.9],
+            [0, 'prAirHaze', 1],
+            [1, 'prAirHaze', 1],
           ],
-          glow: [
-            [0, 'blush', 0.08],
-            [0.06, 'blush', 0.6],
-            [0.16, 'rose', 0.95],
-            [0.3, 'rose', 1],
-            [0.4, 'pale', 1],
-            [0.72, 'pale', 1],
-            [0.8, 'pink', 1],
-            [0.9, 'salmon', 1],
-            [1, 'coral', 0.95],
-          ],
-          glowTake: 1.5,
-          sun: [1, 1],
-          fade: true,
           fill: 0.6,
-          under: 0.76,
-          patch: 0.18,
-          lean: 0.08,
-          beads: [1, 0.5],
-          flow: 0.6,
-          breath: 4,
+          under: 0.4,
+          flow: 1.1,
+          breath: 0,
+          air: PR_AIR,
         },
-        // The sea, slate under the horizon, lavender further down and warming to sand towards us, in stripes that run
-        // through each other line by line, with the sun's reflection in it in streaks, and thinning into specks at its
-        // foot. It runs on up under the horizon, which hides its top. Its lines roll gently on a wave of their own.
+        // the sun, setting on the horizon under the buttons (see the sun in SEA_PARTS); its sheet is as tall as the air's,
+        // so that its halo comes in from the page as the air does rather than being cut short over it
+        {
+          name: 'sun',
+          sea: 'sun',
+          top: (stage) => prLevel(stage, stage.words.y + stage.words.b - 78),
+          foot: (stage) => prLevel(stage, PR_HORIZON(stage)),
+          paint: [
+            [0, 'prAirHaze', 1],
+            [1, 'prAirHaze', 1],
+          ],
+          fill: 0.6,
+          under: 0.4,
+          breath: 0,
+        },
+        // the bank of haze over the horizon, which the sun sinks into and shines through
+        {
+          name: 'haze',
+          sea: 'clouds',
+          top: (stage) => prLevel(stage, PR_HORIZON(stage) - 72),
+          foot: (stage) => prLevel(stage, PR_HORIZON(stage)),
+          paint: [
+            [0, 'prAirHaze', 1],
+            [1, 'prAirHaze', 1],
+          ],
+          fill: 0.6,
+          under: 0.4,
+          breath: 0,
+        },
+        // the sea, from the horizon to under the canvas's foot
         {
           name: 'sea',
-          top: (stage) => PR_ACROSS.map((x) => [x, prHorizon(stage, x, -0.02)]),
-          // level at the horizon and rolling more and more towards us, as swells seen across still water do
-          foot: (stage) =>
-            PR_ACROSS.map((x) => [x, 0.98 + prWave(stage, x, 9, 900, 2.2) + prWave(stage, x, 4, 430, 0.7)]),
-          paint: [
-            [0, 'slate', 0.95],
-            [0.08, 'slate', 1],
-            [0.22, 'seaHigh', 1],
-            [0.36, 'lavender', 1],
-            [0.46, 'seaHigh', 1],
-            [0.6, 'lavender', 1],
-            [0.72, 'lavenderLow', 1],
-            [0.82, 'sand', 0.8],
-            [0.92, 'sand', 0.35],
-            [1, 'sand', 0],
-          ],
-          glow: [
-            [0, 'sunWater', 0.9],
-            [0.3, 'sunWater', 1],
-            [0.62, 'sunWaterLow', 1],
-            [0.82, 'sunWaterLow', 0.8],
-            [0.92, 'sunWaterLow', 0.35],
-            [1, 'sunWaterLow', 0],
-          ],
-          glowAt: prReflection,
-          glowTake: 0.85,
-          shimmer: 1,
-          fill: 0.62,
-          under: 0.8,
-          patch: 0.3,
-          beads: [0.5, 0.25],
-          flow: 0.3,
-          breath: 2.5,
-          wave: [2.5, 760, 0.28, 1.3],
-        },
-        // The horizon: hot orange, soft above and crisp at its foot, a long wave running along its top, and the band
-        // rising and falling slowly on a longer one.
-        {
-          name: 'horizon',
-          // it hides the sky's foot and the sea's top behind it, and its soft top comes in over the sky with its haze
+          sea: 'water',
           opaque: true,
           laid: true,
-          top: (stage) => PR_ACROSS.map((x) => [x, prHorizonTop(stage, x)]),
-          foot: (stage) => PR_ACROSS.map((x) => [x, prHorizon(stage, x, 0.012)]),
+          top: (stage) => prLevel(stage, PR_HORIZON(stage)),
+          foot: (stage) => prLevel(stage, stage.h + 24),
           paint: [
-            [0, 'tangerine', 0],
-            [0.12, 'tangerine', 0.7],
-            [0.3, 'flame', 1],
-            [0.4, 'gold', 1],
-            [0.47, 'flame', 1],
-            [0.8, 'ember', 1],
-            [1, 'ember', 1],
+            [0, 'prAirHaze', 1],
+            [1, 'prAirHaze', 1],
           ],
-          // where the sun goes down behind it, it glows gold
-          glow: [
-            [0, 'sunGlow', 0],
-            [0.12, 'sunGlow', 0.75],
-            [0.28, 'gold', 1],
-            [0.4, 'sunRim', 1],
-            [0.5, 'gold', 1],
-            [0.75, 'flame', 1],
-            [1, 'ember', 1],
-          ],
-          glowAt: prSunset,
-          glowTake: 0.7,
+          fill: 0.74,
+          under: 0.7,
+          breath: 0,
+        },
+        // the hill in front, on which we stand: the home hero's turf (see the turf's knobs at DOCS)
+        {
+          name: 'hill',
+          opaque: true,
+          top: prHillTop,
+          foot: (stage) => prLevel(stage, stage.h + 24),
+          paint: PR_TURF_PAINT,
+          lean: 0.3,
           fill: 0.72,
-          under: 0.9,
-          patch: 0.15,
-          flow: 0.45,
-          breath: 3,
-          wave: [3, 1800, 0.18, 0],
+          under: 0.6,
+          patch: 0.2,
+          flow: 0.8,
+          breath: 0,
+          sheen: 0.6,
+          turf: {
+            off: 0,
+            round: 170,
+            scale: [0.55, 1.1, 130],
+            rough: 0.6,
+            blades: [1, 0.5],
+            grain: 0.18,
+            dew: 1,
+            form: [1.5, 0.18, 0.3],
+            take: 0.8,
+            crest: [0.45, 22],
+            ambient: [0.24, 0.14],
+            rim: [1, 6],
+            skyline: [0.5, 4, 2.5],
+            mist: [20, 0],
+            deep: [0.25, 150],
+          },
         },
       ],
     },
@@ -4812,10 +6399,10 @@
     pointer: false,
     flowers: null,
     clouds: [],
-    // Five of the family, at the hero's sizes, none of them in the picture until the pointer rests on the sun's
-    // reflection in the sea: then each comes in through the glass at the sides and goes round the pointer on a ring of
-    // its own, so far out, so fast and that way round (one goes the other way), tipped back so far and leaning so far,
-    // and trailing the pointer by so much; and they go when it does.
+    // Five of the family, at the hero's sizes, none of them in the picture until the pointer rests on the path of light
+    // on the sea: then each comes in through the glass at the sides and goes round the pointer on a ring of its own, so
+    // far out, so fast and that way round (one goes the other way), tipped back so far and leaning so far, and trailing
+    // the pointer by so much; and they go when it does.
     flock: [
       { size: 21, seed: 0.13, pastel: 0, wing: 'round', ring: 42, spin: 1.45, tilt: 1.05, lean: 0.14, trail: 0.2 },
       { size: 25, seed: 0.46, pastel: 1, wing: 'broad', ring: 88, spin: 0.86, tilt: 1.18, lean: -0.12, trail: 0.36 },
@@ -4823,11 +6410,11 @@
       { size: 23, seed: 0.31, pastel: 0, wing: 'broad', ring: 112, spin: 0.68, tilt: 1.24, lean: -0.06, trail: 0.44 },
       { size: 18, seed: 0.62, pastel: 2, wing: 'round', ring: 132, spin: 0.6, tilt: 1.3, lean: -0.18, trail: 0.5 },
     ],
-    // the glass along the top is left out: the hero's top is the site's header
-    lens: { ...LENS, top: false },
-    // The place that calls them is the sun's reflection on the sea, under the buttons and clear of them: the warmest
-    // light in the lower half of the picture, where the eye goes down from the sun, with the sea's room round it for
-    // their rings.
+    // the glass along the top is left out: the hero's top is the site's header; and the picture's foot is eased into
+    // the page, as the home hero's is
+    lens: { ...LENS, top: false, foot: 'ease' },
+    // The place that calls them is the path of light on the sea, under the buttons and clear of them, where the eye
+    // goes down from the sun, with the sea's room round it for their rings.
     orbit: { zone: prZone },
     stillAt: 6,
   }
@@ -4913,14 +6500,11 @@
 
   /* --- the docs composition --- */
 
-  /* The hero of the docs' overview page: a valley in the footer's rolling hills, after the photograph of a shining
-     figure in the poppy hills. Two hills come down to it from either side, the left one lit and gilded along its crest,
-     the right one turning into its own shade, a far hill closing the valley behind, and a field in front; the flowers
-     are the footer's, fields of one colour each, gold and marigold where the light lies, cornflowers in the shade. In
-     the valley, under the words, stands a figure of light: a silhouette so bright that it has no detail, only its shape
-     and the light it gives off, which blooms out round it, lies on the flowers at its feet and drifts near it in a few
-     motes. In a dark theme it is the same valley at dusk, where the figure shines the more. */
-  const DOCS_EVEN = 0.005
+  /* The home page's hero: a valley in the footer's rolling hills, after the photograph of the poppy hills. Two hills
+     come down to it from either side, the left one lit and gilded along its crest, the right one turning into its own
+     shade, a far hill closing the valley behind, and a field in front; the flowers are the footer's, fields of one
+     colour each, gold and marigold where the light lies, cornflowers in the shade. In a dark theme it is the same
+     valley at dusk. */
   /* The hills, as lines in the land's room from its top line (0) down: the far hill closing the valley, the left hill
      coming down into it from the left edge, the right hill from the right, and the field in front, rising into both
      front corners. The land runs 1.3 rooms deep, as the headless page's does. */
@@ -4964,216 +6548,6 @@
     [1.0, 0.9],
     [1.6, 0.78],
   ]
-  /* The figure, traced from the photograph Cameron sent (its brightest pixels, through potrace, smoothed a little; see
-     scratchpad docs/trace): its outline, and the light between its right arm and its waist, as points in its own terms,
-     x across from the middle of its head and y down from the top of its head, both as shares of its height in the
-     photograph, where the picture's foot cuts it off at the thighs. It is cut off the same way here: it stands so tall
-     that the canvas's foot crosses it there, and its feet are never seen. */
-  const DOCS_SILHOUETTE = {
-    outer: [
-      [-0.0566, 0.2035],
-      [-0.0509, 0.2285],
-      [-0.0521, 0.2392],
-      [-0.0625, 0.2611],
-      [-0.0832, 0.281],
-      [-0.1371, 0.3126],
-      [-0.1484, 0.322],
-      [-0.1592, 0.3379],
-      [-0.171, 0.3785],
-      [-0.1689, 0.4373],
-      [-0.1702, 0.4849],
-      [-0.1913, 0.5751],
-      [-0.1978, 0.5903],
-      [-0.2004, 0.6196],
-      [-0.2102, 0.6726],
-      [-0.2106, 0.6844],
-      [-0.2066, 0.7067],
-      [-0.2131, 0.7385],
-      [-0.2096, 0.7606],
-      [-0.1997, 0.7814],
-      [-0.1977, 0.7928],
-      [-0.1923, 0.8011],
-      [-0.1881, 0.8032],
-      [-0.1843, 0.8029],
-      [-0.1811, 0.7975],
-      [-0.1822, 0.7609],
-      [-0.1807, 0.7537],
-      [-0.173, 0.751],
-      [-0.1691, 0.7522],
-      [-0.1633, 0.7587],
-      [-0.1615, 0.7756],
-      [-0.1613, 0.8515],
-      [-0.154, 0.8792],
-      [-0.1456, 0.8955],
-      [-0.1455, 0.9145],
-      [-0.1372, 0.9452],
-      [-0.1321, 0.9565],
-      [-0.131, 0.9622],
-      [-0.1326, 0.9766],
-      [-0.1272, 0.9998],
-      [-0.0194, 1],
-      [-0.0143, 0.999],
-      [-0.0145, 0.9921],
-      [-0.0049, 0.9724],
-      [0.0029, 0.9681],
-      [0.0089, 0.9722],
-      [0.0196, 0.9984],
-      [0.0248, 1],
-      [0.1328, 0.9999],
-      [0.1448, 0.9989],
-      [0.1472, 0.9959],
-      [0.1441, 0.9921],
-      [0.1499, 0.9643],
-      [0.1429, 0.9384],
-      [0.1418, 0.899],
-      [0.1479, 0.8677],
-      [0.1441, 0.8513],
-      [0.1447, 0.849],
-      [0.1483, 0.8482],
-      [0.1492, 0.8431],
-      [0.1502, 0.8042],
-      [0.1583, 0.7744],
-      [0.1751, 0.734],
-      [0.1763, 0.7179],
-      [0.1829, 0.6895],
-      [0.1945, 0.6573],
-      [0.197, 0.6379],
-      [0.2085, 0.627],
-      [0.2107, 0.6225],
-      [0.2123, 0.611],
-      [0.2118, 0.5871],
-      [0.2053, 0.5547],
-      [0.2133, 0.525],
-      [0.2116, 0.5139],
-      [0.2045, 0.4923],
-      [0.2063, 0.4568],
-      [0.2052, 0.4393],
-      [0.2001, 0.4229],
-      [0.194, 0.3896],
-      [0.1709, 0.3197],
-      [0.1613, 0.3075],
-      [0.1554, 0.2916],
-      [0.144, 0.2851],
-      [0.1322, 0.2739],
-      [0.1064, 0.266],
-      [0.0814, 0.2508],
-      [0.054, 0.2292],
-      [0.047, 0.2204],
-      [0.0433, 0.2095],
-      [0.0416, 0.1991],
-      [0.0405, 0.192],
-      [0.0411, 0.1872],
-      [0.0444, 0.1842],
-      [0.0492, 0.181],
-      [0.0543, 0.178],
-      [0.0593, 0.1747],
-      [0.0631, 0.1701],
-      [0.0652, 0.1645],
-      [0.066, 0.1586],
-      [0.0661, 0.1526],
-      [0.0662, 0.1466],
-      [0.0664, 0.1406],
-      [0.0665, 0.1346],
-      [0.0667, 0.1286],
-      [0.0671, 0.1227],
-      [0.0681, 0.1167],
-      [0.069, 0.1108],
-      [0.07, 0.1049],
-      [0.071, 0.099],
-      [0.0718, 0.093],
-      [0.0722, 0.0871],
-      [0.0727, 0.0811],
-      [0.0723, 0.0751],
-      [0.0719, 0.0691],
-      [0.0704, 0.0633],
-      [0.0678, 0.0579],
-      [0.0653, 0.0525],
-      [0.0625, 0.0472],
-      [0.0592, 0.0422],
-      [0.0551, 0.0378],
-      [0.051, 0.0334],
-      [0.0463, 0.0297],
-      [0.0416, 0.0259],
-      [0.0369, 0.0222],
-      [0.0322, 0.0185],
-      [0.0269, 0.0158],
-      [0.0214, 0.0135],
-      [0.0159, 0.0111],
-      [0.0106, 0.0081],
-      [0.0054, 0.0052],
-      [-0.0, 0.0027],
-      [-0.0057, 0.0008],
-      [-0.0117, 0.0],
-      [-0.0176, 0.0006],
-      [-0.0236, 0.0011],
-      [-0.0296, 0.0016],
-      [-0.0356, 0.002],
-      [-0.0415, 0.0025],
-      [-0.0474, 0.0037],
-      [-0.0532, 0.0053],
-      [-0.0587, 0.0077],
-      [-0.0636, 0.0111],
-      [-0.0685, 0.0146],
-      [-0.0733, 0.0181],
-      [-0.0774, 0.0225],
-      [-0.0809, 0.0273],
-      [-0.0839, 0.0325],
-      [-0.0862, 0.038],
-      [-0.0889, 0.0433],
-      [-0.0923, 0.0483],
-      [-0.0957, 0.0532],
-      [-0.0976, 0.0588],
-      [-0.0991, 0.0646],
-      [-0.1006, 0.0704],
-      [-0.1021, 0.0763],
-      [-0.1033, 0.0821],
-      [-0.1035, 0.0881],
-      [-0.1023, 0.0939],
-      [-0.1003, 0.0996],
-      [-0.0988, 0.1053],
-      [-0.0985, 0.1113],
-      [-0.0983, 0.1173],
-      [-0.0981, 0.1233],
-      [-0.0978, 0.1293],
-      [-0.0973, 0.1352],
-      [-0.0957, 0.141],
-      [-0.0934, 0.1465],
-      [-0.0903, 0.1517],
-      [-0.0873, 0.1568],
-      [-0.085, 0.1624],
-      [-0.0827, 0.1679],
-      [-0.0804, 0.1735],
-      [-0.0775, 0.1786],
-      [-0.0738, 0.1829],
-      [-0.0689, 0.186],
-      [-0.0634, 0.1883],
-      [-0.0608, 0.1901],
-    ],
-    holes: [
-      [
-        [0.1286, 0.543],
-        [0.1421, 0.569],
-        [0.1442, 0.6101],
-        [0.1363, 0.6439],
-        [0.1364, 0.6728],
-        [0.1313, 0.7094],
-        [0.1286, 0.714],
-        [0.1212, 0.7179],
-        [0.1158, 0.7136],
-        [0.1115, 0.7042],
-        [0.1006, 0.6857],
-        [0.0975, 0.6745],
-        [0.0974, 0.6515],
-        [0.1053, 0.638],
-        [0.0973, 0.6339],
-        [0.0959, 0.6308],
-        [0.0953, 0.5957],
-        [0.102, 0.5734],
-        [0.1068, 0.5636],
-        [0.1223, 0.5422],
-      ],
-    ],
-  }
   /* How much of the ground the flowers cover where a drift is thickest, by how near. */
   const DOCS_COVER = [
     [0, 2.2],
@@ -5184,7 +6558,7 @@
     [1, 2.2],
   ]
   /* The fields, in the footer's colours: gold lying along the lit left hill and down its slope, the right hill's slope
-     in cornflowers as it turns into its shade, marigolds and gold round the figure's feet in the valley, cornflowers
+     in cornflowers as it turns into its shade, marigolds and gold in the middle of the valley, cornflowers
      again in both front corners, and far off, specks of gold on the far hill. */
   const DOCS_DRIFTS = [
     {
@@ -5227,7 +6601,7 @@
       patchy: true,
       patchyFrom: 0.6,
     },
-    // round the figure's feet in the valley: a field of gold and marigold in the light
+    // in the middle of the valley: a field of gold and marigold in the light
     {
       line: [
         [-0.55, 0.72],
@@ -5290,36 +6664,192 @@
       patchy: true,
     },
   ]
+  /* The valley as a photograph (see photoFragment): its hills are turf, seen at the end of the day with the sun low on
+     the right behind them, after the meadow Cameron sent (a field raked by one band of low sun, deep shade either side,
+     dew glinting where the light gives way to the shade). Its colours were measured off that photograph, as [on a
+     light page, on a dark page]: grass by how much light it has, from the deep shade of a hollow, through open shade
+     and half light, to lit grass and the glow of a blade with the sun behind it. The shade is the richest green of
+     them, never the greyest (about 105 degrees round the wheel, two fifths saturated); the light turns the grass
+     yellower and no more saturated (about 75 degrees), and its brightest goes towards the warm light itself rather
+     than towards yellow. Then the haze far land takes under the sky, which is the sky's own air at its horizon;
+     the mist that lies between the hills, which is lit grass seen through air; and a lamp's light on the ground,
+     which the turf asks for though this valley has no lamp. In a dark theme it is the same valley at dusk: the same
+     greens (its deepest a breath lighter, so that the hills still part from the page), under a sun with less in it and
+     a sky that lights the shade less; the strokes painted on the hills know deep turf for land there (see
+     photoBloom). */
+  const DOCS_INK = {
+    ...FOOTER_INK,
+    turfDeep: ['#11230c', '#13260d'],
+    turfDusk: ['#182e11', '#1a3112'],
+    turfShade: ['#24411a', '#25431b'],
+    turfOpen: ['#315423', '#325624'],
+    turfHalf: ['#516f2c', '#51702d'],
+    turfLit: ['#6b8b33', '#6b8b34'],
+    turfSun: ['#84a23d', '#84a23e'],
+    turfHot: ['#a2ba54', '#a2ba56'],
+    turfGlow: ['#bfd07c', '#bfd07e'],
+    turfHaze: AIR_INK.airHaze,
+    turfMist: ['#a3bf6c', '#6f9146'],
+    turfLamp: ['#f1f6d2', '#eef3cc'],
+    // the sky over the hills, as air (see the sky sheet's `air`), the same sky as the footer's
+    ...AIR_INK,
+  }
+  /* A hill of turf's paint is read by how much light a place has (0 none, 0.72 full sun, 1 lit through). */
+  const DOCS_TURF_PAINT = [
+    [0, 'turfDeep', 1],
+    [0.12, 'turfDusk', 1],
+    [0.23, 'turfShade', 1],
+    [0.34, 'turfOpen', 1],
+    [0.47, 'turfHalf', 1],
+    [0.6, 'turfLit', 1],
+    [0.72, 'turfSun', 1],
+    [0.84, 'turfHot', 1],
+    [1, 'turfGlow', 1],
+  ]
+  /* What all the turf shares. Places are [across the stage, rooms down the land], as the hills' own lines are, and
+     lengths are rooms unless they say pixels, so the light lies on the same hills at every width.
+     sun      `way`: where it stands, [across, up, towards us]; `lit`: the lean towards it at which a slope has none of
+              it and all of it (a hill's `take` is how much a slope turned from it still has); `power`: how strong it
+              is, [on a light page, on a dark page], where it is the last of the day's.
+     beam     the one band of sunlight that rakes across the valley, between the shadows of whatever stands far off
+              towards the sun: `at`, a place on its middle line, and `run`, the way it runs from its far end to its
+              near one; `half`, half the width of its full light; `soft`, how wide its penumbra is on its far side and
+              on its near one; `widen`, how much wider all of it is at its near end than at `at` (and narrower at its
+              far end); `ragged`, how far the turf's own roughness breaks its edge; `creep`, how it wanders across its
+              own run, as [how far, how fast in radians a second, where in its swing it starts], summed.
+     shafts   the fainter shafts of the same light that lie beside it in the shade, each [how far from its middle line
+              (less than nothing is its far side), half its width, its penumbra, how strong it is as a share of the
+              beam, how fast it wanders by itself].
+     dapple   the light inside all of that is uneven, as light through thin cloud is: soft patches [along the beam,
+              across it] in pixels, how fast they `drift` along it in pixels a second (one way, always), and how much
+              of the sun is left in a dim one (`dim`).
+     near     the ground at the picture's foot lies in front of the hills' shade, in the sun: how far above the
+              picture's foot it starts to come out of the shade and where it is all out, in pixels; and how much sun
+              that is, [on a light page, on a dark page].
+     lamp     null, or the light a figure standing under the words lays on the ground: `at`, how far down the figure
+              its middle lies; `reach`, how far it carries across and down, both in the figure's height; how much
+              `light` it adds and how far it turns the grass towards its own colour (`tint`).
+     haze     the air along the farthest hill's top, under the sky, so that the sky and the hill meet as air: how far
+              it goes towards the sky's air at its horizon, how far down the hill it reaches in pixels, and how far it
+              is laid on as that air's own colour rather than added over the grass as light (see the turf's air), each
+              [on a light page, on a dark page].
+     dew      how many of the cells of each layer of glints hold one where the dew is thickest: flecks, drops, jewels;
+              and how much of it is left at a hill's crest, where it is furthest off. How thick it lies anywhere is
+              read off the light: thickest along the light's edge, thinner in full sun, nearly none in deep shade.
+     foot     how far up from the picture's foot the turf breaks into the page's specks, in pixels; `fringe`, how far
+              over its top line a hill is lofted for its blades; `hide`, how far under a nearer hill's top line a hill
+              stops being painted.
+     inks     the air's, the mist's and the lamp's colours, by name. */
+  const DOCS_PHOTO = {
+    sun: { way: [0.8, 0.26, -0.54], lit: [0.02, 0.4], power: [1, 0.76] },
+    beam: {
+      at: [0.02, 0.7],
+      run: [-1, 0.6],
+      half: 0.17,
+      soft: [0.25, 0.55],
+      widen: 0.45,
+      ragged: 0.05,
+      creep: [
+        [0.09, 0.2, -1.25],
+        [0.035, 0.47, -2.94],
+      ],
+    },
+    shafts: [
+      [-0.62, 0.09, 0.2, 0.32, 0.07],
+      [0.7, 0.13, 0.3, 0.38, 0.05],
+    ],
+    dapple: { size: [210, 74], drift: 14, dim: 0.78 },
+    near: { from: 104, to: 60, light: [0.85, 0] },
+    lamp: null,
+    haze: [
+      [0.9, 0.85],
+      [32, 14],
+      [0.4, 1],
+    ],
+    dew: [1, 0.55, 0.8, 0.35],
+    foot: 56,
+    fringe: 9,
+    hide: 14,
+    inks: ['turfHaze', 'turfMist', 'turfLamp'],
+  }
+  /* The sky over the turf, as air rather than lines (see airFragment), after the sky of the photograph Cameron sent:
+     a long exposure of a low sun, a little out of focus, so that its sky is a smooth fall of colour crossed by soft
+     smears and nothing in it is sharp; here in blues, minimal, so that it reads as air over the hills and never as a
+     thing of its own. Lengths are CSS pixels.
+     inks     the fall of colour, [how high above the horizon, ink], from the horizon up, each easing into the next
+              (up to five; the photograph's sky lies in soft zones of colour, gold, pink and orange round its sun, so
+              this one has a cooler zone over its band of blue for the smears to break up)
+     horizon  how far above the sheet's foot its horizon lies, in rooms: the far hill's own top line
+     rise     how far over its top line the sheet reaches, so that it has room to come in softly from the page
+     fade     [how far under its top it is wholly in, how slowly it starts to come in, and if given, the most of its own
+              height, from its top to its horizon, that it takes to come in (see airFragment)]
+     smear    up to three layers of smears: [how long, how tall, how far in pixels each borrows its colour from above
+              or below, how fast it drifts across in pixels a second]
+     value    how much lighter or darker a smear is for each pixel it borrows from, besides
+     wander   how far a smear's row wanders up and down along its length, in pixels
+     grain    how much of the page's grain it takes, [on a light page, on a dark page]
+     pan      how many times longer than tall that grain is drawn out along the row, as a panned camera draws it
+     dither   how many 8-bit steps it is dithered by, either way, so that it never bands
+     glow     the breath of light low on the horizon, on the side the turf's low sun stands (see DOCS_PHOTO): where it
+              stands across (a share of the canvas) and how high above the horizon, how far it reaches [across as a
+              share of the canvas, up and down in pixels], how much of its ink it lays on, and its ink (its height,
+              its reach up and down and its amount can each be [on a light page, on a dark page]); by day tall enough
+              to pale the band above it too, as the sky is whiter towards a low sun, so that the band is not one even
+              stripe from side to side; at dusk lower and stronger, the last of the light along the horizon, so that
+              the sky there is brighter than the land it lights; the smears slice it as they slice the photograph's
+              sun
+     clear    the soft oval it clears round the words' text: its middle `at` this share of the words' half-height from
+              theirs (less than nothing is higher, towards the headline, so that the buttons stay on the air), its size
+              as shares of their half-width and half-height plus `pad` pixels, and [where it is clear to, where it is
+              wholly air again] as shares of its size; low and deep enough that the lede keeps a line's space of page
+              under it before the air comes in. */
+  const DOCS_AIR = {
+    inks: [
+      [0, 'airHaze'],
+      [14, 'airLow'],
+      [30, 'airBand'],
+      [46, 'airZone'],
+      [72, 'airHigh'],
+    ],
+    horizon: 0.06,
+    rise: 34,
+    fade: [72, 1.5],
+    smear: [
+      [640, 16, 20, 2.4],
+      [240, 5.5, 5, -3.6],
+      [120, 1.9, 1.6, 1.5],
+    ],
+    value: 0.007,
+    wander: 7,
+    grain: [0.06, 0.03],
+    pan: 10,
+    dither: 1,
+    glow: { at: 0.9, height: [14, 8], reach: [0.3, [36, 30]], amount: [0.4, 0.7], ink: 'airGlow' },
+    clear: { at: -0.29, size: [1, 0.85], pad: [70, 18], soft: [0.6, 1.1] },
+  }
   const DOCS = {
     ...HERO,
     intro: false,
-    // the docs overview's words, or the home page's where this figure stands in for the meadow
+    // the home page's words, or the docs overview's, which this valley was first painted for
     words: '.dc-copy, .hl-copy',
-    // the oval of page kept round the words is shallow under them, so the figure's light just under them stays whole;
-    // and the lines' beads glint only here and there, as the footer's do, so the motes are the only sparkle near it
+    // the oval of page kept round the words is shallow under them, and the lines' beads glint only here and there, as
+    // the footer's do
     lines: { ...LINES, lift: 0.08, veil: [80, 18], beadChance: 0.15 },
-    // the picture's foot eased in rather than faded evenly, so that the white figure going into a dark page shows no
-    // line where the fade begins
+    // the picture's foot eased in rather than faded evenly, so that a dark page shows no line where the fade begins
     lens: { ...LENS, foot: 'ease' },
     film: FOOTER.film,
-    inks: FOOTER_INK,
-    // the motes twinkle (see the glow in the strokes' shader), and the figure is drawn in plain round strokes that
-    // neither bow nor taper (the even mark)
-    twinkle: true,
-    marks: true,
-    // its light in the haze kind, which fades smoothly at its edge rather than breaking into the grain's specks as paint
-    // does (`glyphs` brings it)
-    glyphs: true,
-    // and that light goes into the canvas's foot whole, as the photograph's frame cuts the figure off: white into a light
-    // page, fading smoothly into a dark one, never breaking into specks there (see LIGHT_FOOT in the strokes' shader)
-    lightFoot: true,
+    inks: DOCS_INK,
     land: {
       ...HERO.land,
       profile: DOCS_FAR,
       crest: 0,
       relief: [1, 1],
+      // the hills are a photograph's: turf, lit by one low sun (see DOCS_PHOTO and each hill's `turf`)
+      photo: DOCS_PHOTO,
       sheets: [
-        // a haze of sky over the far hill, thinning into the page at its top
+        // the sky over the far hill, thinning into the page at its top: soft air rather than lines (see DOCS_AIR); its
+        // top line still sets the land's room, and it keeps a paint and line options only because every sheet is given
+        // them (the air reads none of them)
         {
           name: 'sky',
           top: {
@@ -5345,11 +6875,38 @@
           fill: 0.7,
           under: 0.38,
           flow: 1.2,
-          breath: 2,
+          // a soft sky does not wobble: it drifts (see `air`)
+          breath: 0,
+          air: DOCS_AIR,
         },
-        // the far hill closing the valley, which the flowers grow on: lit only along its crest, under the words, and
-        // deepening soon under it, so the figure's head and shoulders stand against saturated green, as the photograph's
-        // white bloom stands against its hills
+        /* The hills are turf (see photoFragment): a hill of turf does not breathe, as ground does not, and its paint
+           is the ramp its turf is read by; the line options it keeps (lean, fill, under, patch, flow) are for the line
+           shader's uniforms only, and its turf reads none of them. A hill's `turf`:
+           off      how far off it is, 0 at the lens to 1 the farthest: how much haze lies along its top
+           round    how far down its face it has turned half way towards us, in pixels: its roundness
+           scale    how large the ground's texture is [at its crest, further down, that far down in pixels], 1 at the lens
+           rough    how much its tufts and swells stand out
+           blades   [how large a blade is (at 1 it is half a pixel wide and about one long), how much the blades
+                    stand out]
+           grain    how much of the film's grain it takes
+           dew      how much dew lies on it
+           form     [how far its crest's fall leans it to the light, how far it is turned to us at its crest, and how
+                    much more further down]
+           take     how much of the sun a face of it turned from the sun still has (at 1 its form shades nothing)
+           crest    the sun its top catches over its crest where it leans to the sun, whatever shade its face is in:
+                    [how much, how far down its face that light carries in pixels]
+           ambient  how light its shade is (0.36 is open shade, 0.6 shade seen through a valley's air)
+           rim      [how bright the blades along its crest glow, how far down the glow carries in pixels]
+           skyline  [how soft its top line is in pixels, how tall the blades that stand over it are, how far the line
+                    itself wanders up and down along its length]
+           mist     [how far above a nearer hill's top line the mist lies on it in pixels, how thick]
+           deep     [how much deeper its shade is far down its face (lighter, if less than nothing), how far down
+                    that is in pixels]
+           tracks   two soft tracks along the hillside: [how far under its top line each runs in pixels, how dark]
+           Any of ambient, rim's first, grain, dew, mist's second and deep's first can be [on a light page, on a dark
+           page]. */
+        // the far hill closing the valley, which the flowers grow on: the same grass as the nearer hills, finer and
+        // quieter for being far off, its shade lifted by the valley's air, and haze along its top under the sky
         {
           name: 'meadow',
           opaque: true,
@@ -5364,23 +6921,33 @@
             [-1.6, 1.3],
             [1.6, 1.3],
           ],
-          paint: [
-            [0, 'crest', 0],
-            [0.03, 'crest', 0.9],
-            [0.06, 'mist', 1],
-            [0.14, 'sage', 1],
-            [0.3, 'fern', 1],
-            [0.6, 'sage', 1],
-            [1, 'fern', 1],
-          ],
+          paint: DOCS_TURF_PAINT,
           lean: 0.3,
           fill: 0.74,
           under: 0.78,
           patch: 0.15,
           flow: 0.6,
-          breath: 1.4,
+          breath: 0,
+          turf: {
+            off: 1,
+            round: 150,
+            scale: [0.3, 0.42, 170],
+            rough: 0.45,
+            blades: [0.7, 0.42],
+            grain: 0.12,
+            dew: 0.12,
+            form: [1.6, 0.05, 0.3],
+            take: 0.9,
+            crest: [0, 1],
+            ambient: [0.46, 0.3],
+            rim: [0.3, 10],
+            skyline: [1.6, 1.5, 0],
+            mist: [40, 0.14],
+            deep: [0.1, 200],
+            tracks: [44, 96, 0.15],
+          },
         },
-        // the left hill, lit, gilded along its crest
+        // the left hill, which the band of light crosses on its way out to the front
         {
           name: 'left hill',
           opaque: true,
@@ -5389,25 +6956,34 @@
             [-1.6, 1.32],
             [1.6, 1.32],
           ],
-          paint: [
-            [0, 'gilt', 0],
-            [0.025, 'gilt', 0.85],
-            [0.07, 'glow', 1],
-            [0.16, 'lime', 1],
-            [0.3, 'green', 1],
-            [0.55, 'deepGreen', 1],
-            [0.85, 'shade', 1],
-            [1, 'shade', 1],
-          ],
+          paint: DOCS_TURF_PAINT,
           lean: 0.3,
           fill: 0.74,
           under: 0.7,
           patch: 0.2,
           flow: 0.7,
-          breath: 1.5,
+          breath: 0,
           sheen: 0.6,
+          turf: {
+            off: 0,
+            round: 120,
+            scale: [0.5, 0.8, 200],
+            rough: 0.8,
+            blades: [1, 0.55],
+            grain: 0.2,
+            dew: 1,
+            form: [1.5, 0.18, 0.25],
+            take: 0.88,
+            crest: [0.8, 30],
+            ambient: [0.26, 0.18],
+            rim: [0.8, 5],
+            skyline: [0.4, 5, 0],
+            mist: [24, 0.1],
+            deep: [0.3, 220],
+            tracks: [58, 124, 0.24],
+          },
         },
-        // the right hill, turned from the light, in shade from just under its crest
+        // the right hill, turned from the light: of the band that crosses its shoulder it takes less than half
         {
           name: 'right hill',
           opaque: true,
@@ -5416,23 +6992,34 @@
             [-1.6, 1.32],
             [1.6, 1.32],
           ],
-          paint: [
-            [0, 'lime', 0],
-            [0.03, 'lime', 0.8],
-            [0.08, 'green', 1],
-            [0.22, 'deepGreen', 1],
-            [0.5, 'shade', 1],
-            [1, 'night', 1],
-          ],
+          paint: DOCS_TURF_PAINT,
           lean: 0.3,
           fill: 0.74,
           under: 0.7,
           patch: 0.2,
           flow: 0.7,
-          breath: 1.5,
+          breath: 0,
           sheen: 0.5,
+          turf: {
+            off: 0,
+            round: 120,
+            scale: [0.5, 0.8, 200],
+            rough: 0.8,
+            blades: [1, 0.55],
+            grain: 0.2,
+            dew: 1,
+            form: [1.5, 0.18, 0.25],
+            take: 0.55,
+            crest: [0, 1],
+            ambient: [0.21, 0.15],
+            rim: [1.1, 5],
+            skyline: [0.4, 5, 0],
+            mist: [24, 0.1],
+            deep: [0.45, 200],
+          },
         },
-        // the field in front, where the figure stands, in the valley's light
+        // the field in front: the band of light runs out over its left, and all of it comes
+        // out of the hills' shade into the sun before the picture's foot
         {
           name: 'field',
           opaque: true,
@@ -5441,20 +7028,31 @@
             [-1.6, 1.34],
             [1.6, 1.34],
           ],
-          paint: [
-            [0, 'gilt', 0],
-            [0.06, 'glow', 0.9],
-            [0.25, 'lime', 1],
-            [0.55, 'green', 1],
-            [1, 'deepGreen', 1],
-          ],
+          paint: DOCS_TURF_PAINT,
           lean: 0.3,
           fill: 0.72,
           under: 0.6,
           patch: 0.2,
           flow: 0.8,
-          breath: 1.5,
+          breath: 0,
           sheen: 0.8,
+          turf: {
+            off: 0,
+            round: 300,
+            scale: [0.85, 1.2, 110],
+            rough: 1,
+            blades: [1.2, 0.65],
+            grain: 0.2,
+            dew: 1,
+            form: [1.1, 0.2, 0.3],
+            take: 0.95,
+            crest: [0, 1],
+            ambient: [0.25, 0.17],
+            rim: [0.25, 5],
+            skyline: [0.4, 6, 3],
+            mist: [20, 0],
+            deep: [0.2, 120],
+          },
         },
       ],
       least: 110,
@@ -5470,224 +7068,8 @@
       strays: 0,
     },
     palettes: FOOTER_PALETTES,
-    // the footer's paints, and the light's own: white at its heart, a breath of warmth in its glow
-    paints: {
-      ...FOOTER_PAINTS,
-      light: ['#ffffff', '#ffffff'],
-      lightWarm: ['#fffaf0', '#fff6e6'],
-      lightGlow: ['#fff0cf', '#ffe6b0'],
-    },
+    paints: FOOTER_PAINTS,
     clouds: [],
-    plant: (garden) => {
-      const { w, h, rand, words } = garden
-      const s = clamp(w / 1232, 0.42, 1.12)
-      // Where it stands: in the valley under the middle of the words, its head just under them, so tall that the
-      // canvas's foot cuts it off at the thighs, as the photograph's does.
-      const fx = words.x
-      const top = words.y + words.b + Math.max(24, 28 * s)
-      const tall = (h - top) * 1.07
-      const at = ([x, y]) => [fx + x * tall, top + y * tall]
-      const rings = [DOCS_SILHOUETTE.outer.map(at), ...DOCS_SILHOUETTE.holes.map((r) => r.map(at))]
-      let left = Number.POSITIVE_INFINITY
-      let right = Number.NEGATIVE_INFINITY
-      for (const [x] of rings[0]) {
-        left = Math.min(left, x)
-        right = Math.max(right, x)
-      }
-      if (window.__dcDebug) {
-        window.__dcDebug.figure = {
-          fx: Math.round(fx),
-          top: Math.round(top),
-          tall: Math.round(tall),
-          wide: Math.round(right - left),
-        }
-      }
-      let laid = 0
-      // A stroke's seed also sets how much lighter or darker, warmer or cooler than its paint it comes out (see the
-      // strokes' shader): for the light, take the first seed near its own that makes it lighter and warmer, so that no
-      // stroke of it comes out a cool grey.
-      const bright = (seed) => {
-        for (let k = 0; k < 24; k += 1) {
-          rand.reseed(seed + k * 104729)
-          // (its sway takes three draws first: lean, phase and growth)
-          rand()
-          rand()
-          rand()
-          const dice = rand()
-          if ((dice * 91.7) % 1 >= 0.55 && (dice * 37.3) % 1 >= 0.55) {
-            return seed + k * 104729
-          }
-        }
-        return seed
-      }
-      const put = (n, o) => {
-        rand.reseed(o.light ? bright(51749 + n * 7919) : 51749 + n * 7919)
-        laid += 1
-        garden.dab({
-          stiff: 1,
-          lean: 0,
-          blur: 0.6,
-          load: 0.97,
-          kind: 0.25 + DOCS_EVEN,
-          ...o,
-          order: o.order + laid * 1e-7,
-        })
-      }
-      // Where a column down the canvas crosses the figure: its runs of figure, top to bottom (even-odd, so the light at
-      // its waist is left out).
-      const runsAt = (x) => {
-        const ys = []
-        for (const r of rings) {
-          for (let i = 0; i < r.length; i += 1) {
-            const [x1, y1] = r[i]
-            const [x2, y2] = r[(i + 1) % r.length]
-            if (x1 <= x !== x2 <= x) {
-              ys.push(y1 + ((x - x1) * (y2 - y1)) / (x2 - x1))
-            }
-          }
-        }
-        ys.sort((a, b) => a - b)
-        const runs = []
-        for (let i = 0; i + 1 < ys.length; i += 2) {
-          runs.push([ys[i], ys[i + 1]])
-        }
-        return runs
-      }
-      const inFigure = (x, y) => runsAt(x).some(([a, b]) => y > a && y < b)
-      const HAZE = 0.4 + DOCS_EVEN
-      // Its body filled in columns, each run in short lengths so no stroke tapers far from its ends; and down to a little
-      // past the canvas's foot, which cuts it off there (its light goes into the foot whole: see `lightFoot`).
-      const fill = (n, { col, blur, load, paints, order }) => {
-        let k = n
-        for (let x = left + col / 2; x < right; x += col) {
-          for (const [a, b0] of runsAt(x)) {
-            const b = Math.min(b0, h + 24)
-            if (b - a < 0.6) {
-              continue
-            }
-            const segs = Math.max(1, Math.round((b - a) / (col * 4)))
-            const seg = (b - a) / segs
-            for (let q = 0; q < segs; q += 1) {
-              const long = seg / 2 + col * 0.55
-              put(k, {
-                x,
-                y: a + (q + 0.5) * seg,
-                long,
-                wide: clamp((col * 0.78) / long, 0.02, 1.4),
-                turn: Math.PI / 2,
-                paints,
-                load,
-                blur,
-                kind: HAZE,
-                order,
-                light: true,
-              })
-              k += 1
-            }
-          }
-        }
-        return k
-      }
-      // Its light, from the widest to the brightest, all in the smooth haze kind: a faint wash of light over the valley
-      // round it and an aura that hugs its body, gone by about a fifth of its height out, as the photograph's is; its
-      // glow, wide and then close; and the figure, white, its edge soft rather than cut out, so its shape is the light's
-      // own. It stands in front of everything, the land, the flowers and the grass, as nothing crosses the figure in the
-      // photograph.
-      const ord = h + 60
-      put(1, {
-        x: fx,
-        y: top + tall * 0.45,
-        long: tall * 0.95,
-        wide: 0.72,
-        turn: Math.PI / 2,
-        paints: ['lightGlow', 'lightWarm'],
-        load: 0.12,
-        blur: tall * 0.42,
-        kind: HAZE,
-        order: ord - 0.1,
-        light: true,
-      })
-      put(2, {
-        x: fx,
-        y: top + tall * 0.42,
-        long: tall * 0.55,
-        wide: 0.5,
-        turn: Math.PI / 2,
-        paints: ['lightWarm', 'lightGlow'],
-        load: 0.36,
-        blur: tall * 0.15,
-        kind: HAZE,
-        order: ord - 0.09,
-        light: true,
-      })
-      fill(50000, {
-        col: Math.max(5, tall * 0.026),
-        blur: tall * 0.13,
-        load: 0.38,
-        paints: ['lightGlow', 'lightWarm'],
-        order: ord - 0.085,
-      })
-      fill(100000, {
-        col: Math.max(3.5, tall * 0.018),
-        blur: tall * 0.065,
-        load: 0.72,
-        paints: ['lightWarm', 'light'],
-        order: ord - 0.08,
-      })
-      fill(200000, {
-        col: Math.max(2.4, tall * 0.01),
-        blur: tall * 0.022,
-        load: 0.9,
-        paints: ['light', 'lightWarm'],
-        order: ord - 0.07,
-      })
-      // (its edge no softer than this, or the shape goes vague)
-      fill(300000, {
-        col: Math.max(1.6, tall * 0.0065),
-        blur: Math.max(1.6, tall * 0.007),
-        load: 1,
-        paints: ['light', 'light'],
-        order: ord - 0.06,
-      })
-      // The motes: small round lights near it, each twinkling at its own pace, a few large and soft; none over the words,
-      // and none on the figure, where one reads as a blinking eye on a blank face.
-      for (let i = 0; i < 20; i += 1) {
-        const n = 5000 + i * 3
-        const a = hashed(n * 1.3) * Math.PI * 2
-        const d = 0.4 + 0.75 * hashed(n * 2.1)
-        const x = fx + Math.cos(a) * d * tall * 0.75
-        const y = top + tall * 0.45 + Math.sin(a) * d * tall * 0.42
-        if ((y < top + 6 && Math.abs(x - words.x) < words.a + 30) || inFigure(x, y)) {
-          continue
-        }
-        const big = hashed(n * 4.1) < 0.25
-        const core = Math.max(1.2, (big ? 3.4 + 2 * hashed(n * 3.7) : 1.4 + 1.6 * hashed(n * 3.7)) * s)
-        put(n, {
-          x,
-          y,
-          long: core * (big ? 2.6 : 4),
-          wide: 1,
-          turn: 0,
-          paints: ['lightGlow', 'lightWarm'],
-          load: big ? 0.55 : 0.42,
-          kind: 3.25,
-          blur: core * (big ? 1.6 : 3.2),
-          order: ord + 0.2,
-        })
-        put(n + 1, {
-          x,
-          y,
-          long: core,
-          wide: 0.95,
-          turn: 0,
-          paints: ['light', 'lightWarm'],
-          load: big ? 0.75 : 0.95,
-          kind: 3.4,
-          blur: big ? core * 0.5 : 0.4,
-          order: ord + 0.21,
-        })
-      }
-    },
   }
 
   /* --- the collage compositions ---------------------------------------------------------------------- */
@@ -7765,103 +9147,160 @@
 
   /* --- the sky composition ----------------------------------------------------------------------------- */
 
-  /* The hero of the docs overview (/products), after Cameron's pictures: a clear sky under the calls to action, in the
-     land's own fine lines, easing in pale under the buttons, deepening to cobalt and paling again to lilac at the
-     horizon; a veil of light across it, as of high cloud lit from beyond (an aurora at night); cumulus framing it from
-     either side, soft and irregular, lit white on their tops and blue in their shade, a lower, bluer bank behind; a few
-     stars; and a flock of white birds crossing it, doves far off, their wings beating and then held as they glide,
-     coming in and going out through the glass at the sides as the butterflies do (a gentler glass than theirs, even
-     and level, since a bright bird drawn through the butterflies' would streak across the sky like a comet). */
-  const SK_EVEN = 0.005
-  const SK_HAZE = 0.4 + SK_EVEN
-  const SK_TWINKLE = 3.25 + SK_EVEN
-  const SK_GLIMMER = 3.4 + SK_EVEN
-  // (the engine's own hashed and clamp come later in the file than this, which is worked out as it loads)
-  const skHash = (value) => {
-    const x = Math.sin(value * 127.1 + 311.7) * 43758.5453
-    return x - Math.floor(x)
-  }
-  // The sky's inks, light and dark: pale where it comes in under the buttons, cobalt above, lilac at the horizon.
+  /* The hero of the docs overview (/products), after Cameron's pictures of 2026-11-24, "reaching for stars, sky and
+     butterflies", without the hands: a deep blue sky full of small stars under the words, a soft bank of cloud along its
+     foot, low in the middle and rising to the sides, and butterflies that come up out of the bank a few at a time and
+     flutter away up into the sky. Out-of-focus orbs, specks of light and a faint veil of stardust are in the air. The
+     clouds are out of focus, pink-lit by day and violet at night (the clouds of the "hands of light" direction, on the
+     bank of the "realistic hands" one). */
+
+  /* The sky's inks, light and dark. By day the band comes in under the buttons as the home hero's pale air, deepens to
+     cerulean through its middle and pales again towards the bank of cloud at its foot. At night it is navy all the way,
+     darkest at its foot. Then the bank's inks: its crests in the light, cream by day and rose at night, its pink body,
+     violet at night, and its lilac-blue shade, indigo at night. */
   const SK_INKS = {
     ...LAND_INK,
-    skTop: ['#78a5e6', '#1c3c86'],
-    skHigh: ['#1450bf', '#0a1b56'],
-    skMid: ['#246bce', '#0f276c'],
-    skLow: ['#5f95e2', '#1b3482'],
-    skHorizon: ['#c0c2ee', '#383f8e'],
+    skAir: ['#b4cfed', '#04294a'],
+    skHigh: ['#729fd0', '#002243'],
+    skDeep: ['#1d6eaf', '#021e3b'],
+    skLow: ['#4885bf', '#021b35'],
+    skSoft: ['#89afd6', '#06182d'],
+    skBankLit: ['#fff4e8', '#e9b7c6'],
+    skBankBody: ['#f4cfdb', '#7e5f98'],
+    skBankShade: ['#b8b6de', '#34336a'],
   }
-  // how large the sky's strokes are drawn on a canvas this wide
-  const SK_SCALE = (w) => Math.min(1.15, Math.max(0.5, w / 1232))
-  /* The flock: three groups, a third of their round apart, each flying at one pace so that it keeps together, its birds
-     spread through the upper part of the band and along it, each in a lane of its own and spaced along the round as the
-     golden ratio spaces them, so that no two of a group fly into each other, each rising and falling and surging a
-     little at its own rate; and two nearer, larger and faster, in the lanes under the groups, low over the clouds, so
-     that they overtake the groups below them rather than through them, only on a canvas wider than a phone's (on a
-     phone's, the groups have the whole band, see `band`). For
-     each: its wingspan (CSS pixels at a canvas 1232 wide), pace (pixels a second, likewise), lane (0 at the band's top,
-     1 at its foot), where it is in the round, how far it rises and falls and how often, how far it surges and how
-     often, how fast its wings beat (a second), how far they swing, how often it glides, and a seed of its own. Written
-     once, as the script loads. */
-  const SK_GROUPS = [8, 8, 7]
-  // how much of the band, from its top, the groups fly in, and how wide a canvas the near birds fly on
-  const SK_UPPER = 0.8
-  const SK_NEAR_FROM = 700
-  const skBird = (h, lane, phase) => ({
-    size: 30 + 16 * h(1),
-    speed: 46,
-    lane,
-    phase,
-    drift: 3 + 2.5 * h(5),
-    period: 4 + 3 * h(6),
-    surge: 3 + 4 * h(11),
-    surgePeriod: 3 + 2 * h(12),
-    beat: 2.2 + 0.8 * h(7),
-    wag: 0,
-    flap: 0.36 * (0.85 + 0.3 * h(8)),
-    glide: 3.5 + 3 * h(9),
-    seed: h(10),
-  })
-  const SK_BIRDS = [
-    ...SK_GROUPS.flatMap((count, g) =>
-      Array.from({ length: count }, (_, j) => {
-        const i = SK_GROUPS.slice(0, g).reduce((a, b) => a + b, 0) + j
-        const h = (k) => skHash(i * 11.3 + k * 2.7 + 0.3)
-        const lane = Math.min(1, Math.max(0, ((j + 0.5) / count) * SK_UPPER + (h(3) - 0.5) * 0.08))
-        const along = (((j * 0.618034 + g * 0.31) % 1) - 0.5) * 0.2 + (h(4) - 0.5) * 0.03
-        return skBird(h, lane, g / SK_GROUPS.length + 0.04 + (lane - 0.5) * 0.05 + along)
-      }),
-    ),
-    ...[0, 1].map((j) => {
-      const h = (k) => skHash(j * 23.9 + k * 4.3 + 7.7)
-      const bird = skBird(h, 0.92 + 0.12 * h(3), (j + 0.3 + 0.4 * h(4)) / 2)
-      return { ...bird, size: bird.size * 1.5, speed: bird.speed * 1.6, from: SK_NEAR_FROM }
-    }),
+  /* The sky's sheet (see nightFragment): its inks from the band's top down, each at a share of the way from the band's
+     top to the canvas's foot (five at most); how far under its top it comes in from the page, in pixels, and how slowly;
+     the slow unevenness of the air, how large (CSS pixels) and how much [light, dark], so that the blue reads as air and
+     not as a ramp; and the stars: four fields of them, each [its cell in CSS pixels, the share of cells that have one,
+     how bright they are at most, how large in device pixels], the last a few soft large ones with halos `halo` [device
+     pixels, strength] wide; thinning out from `thin[0]` of the way down to `thin[1]`, `shine` [light, dark] as bright,
+     dithered by `dither` 8-bit steps. `dust` is a faint diagonal veil of stardust across the sky, after hands-1: its
+     middle (a share across the canvas, a share down the band), its slant (radians from level), its half-width (CSS
+     pixels), how much glitter [light, dark] and how much of a prism's fringe at its edges [light, dark]. */
+  const SK_NIGHT = {
+    inks: [
+      [0, 'skAir'],
+      [0.17, 'skHigh'],
+      [0.4, 'skDeep'],
+      [0.68, 'skLow'],
+      [1, 'skSoft'],
+    ],
+    fade: [96, 1.2],
+    air: { size: 420, amount: [0.16, 0.12] },
+    stars: [
+      [6, 0.45, 0.8, 0.7],
+      [11, 0.58, 1.3, 1.05],
+      [24, 0.64, 2.1, 1.45],
+      [58, 0.34, 1.7, 2.4],
+    ],
+    halo: [7, 0.34],
+    thin: [0.5, 0.95],
+    shine: [1.35, 1.25],
+    dither: 1,
+    grain: [0.05, 0.03],
+    dust: { at: [0.47, 0.42], slant: -0.42, half: 30, glitter: [0.07, 0.09], prism: [0.04, 0.018] },
+  }
+  /* The bank of cloud along the foot of the picture (see BANK_FRAGMENT), drawn over the sky: big lobes along a line that
+     stands `low` over the canvas's foot in the middle and `high` at its sides (shares of the band), rising towards the
+     sides as sharply as `bow` says, small lobes breaking its edge and a body under them (`lobe`: the big and small
+     lobes' sizes, CSS pixels), drifting `drift` CSS pixels a second. It is out of focus, as the clouds of the "hands of
+     light" direction were: each lobe bulges towards us, out to `bulge` of its radius, and is lit from the middle of the
+     picture and from above (`light`, the way to that light from the left half [across, up, towards us], mirrored on the
+     right half); its heads are lit
+     and its foot is in its own shade over `heads` of the band; its faces are billowed by a slow noise (`billow`: how
+     much, and how large, a share of the band); its edge is `edge` CSS pixels soft where the light is on it and where it
+     is not; `amount` is how much of it there is [light, dark], so that a little of the sky shows through, and `grain`
+     how much of the page's grain it takes [light, dark]. Its inks: the crest, the body and the shade. */
+  const SK_BANK = {
+    low: 0.22,
+    high: 0.62,
+    bow: 2.4,
+    lobe: [72, 24],
+    drift: 1.4,
+    bulge: 1.3,
+    light: [0.62, 0.62, 0.48],
+    heads: 0.42,
+    billow: [0.2, 0.068],
+    edge: [3.5, 16],
+    amount: [0.94, 0.88],
+    grain: [0.085, 0.045],
+    inks: ['skBankLit', 'skBankBody', 'skBankShade'],
+  }
+
+  /* The lights in the sky's air (see the glints' shaders): specks of light drifting slowly up through the middle of the
+     band, `wide` either side of its middle, behind the bank of cloud; and orbs out of focus, nearer, spread along the
+     band in front of the bank but kept above it. Sizes and `wide` are CSS pixels as they are drawn on a laptop's band,
+     and grow and shrink with the band (`scale`: by `band` for each of its pixels, no more than `most`, and on a narrow
+     canvas no more than its width over `span`). For each kind: how many, how large, how fast they rise (CSS pixels a
+     second), how far and how fast they sway, their inks and how strong they are [light, dark]. */
+  const SK_LIGHTS = {
+    scale: { band: 0.0031, most: 1.2, span: 500 },
+    specks: {
+      count: 40,
+      wide: 340,
+      size: [1, 2.2],
+      rise: [4, 11],
+      sway: [4, 12],
+      ink: [1, 0.9, 0.74],
+      strength: [0.55, 0.8],
+    },
+    orbs: {
+      count: 9,
+      size: [6, 16],
+      rise: [2, 5],
+      sway: [5, 12],
+      inks: [
+        [1, 0.8, 0.66],
+        [1, 0.74, 0.8],
+        [1, 0.9, 0.66],
+        [1, 0.95, 0.9],
+      ],
+      strength: [0.34, 0.5],
+    },
+  }
+
+  /* How the butterflies rise out of the bank of cloud (see riseFlock). They go round together, a `round` seconds long,
+     each `at` of the way into it in the still picture, so that one comes up every few seconds, never two together and
+     never two in a row from the same side: each comes up out of the bank `from` of the way across the canvas, a little
+     under its crest, small, as out of a mist, and opens to its size as it leaves the cloud; it flutters up and across
+     towards `to` (CSS pixels across from where it started, at a canvas 1232 wide, and a share of the band from its top),
+     smaller as it goes, and goes only at the very end, high in the pale air; and it is away for `rest` of the round
+     before it comes up again, so a few are in the air at a time. Each time round its way out and its start differ a
+     little, by `vary` (a share of the way across, and a share of the canvas's width), so the flights never repeat.
+     `scatter` is how they swerve from the pointer: how near it must come (CSS pixels), how far it pushes them, and over
+     how many seconds they come back. */
+  const SK_RISE = {
+    round: 16,
+    rest: 0.3,
+    flights: [
+      { from: 0.12, at: 0.3, to: [170, 0.06] },
+      { from: 0.86, at: 0.5, to: [-260, 0.04] },
+      { from: 0.3, at: 0.7, to: [-150, 0.1] },
+      { from: 0.7, at: 0.9, to: [200, 0.03] },
+      { from: 0.52, at: 0.1, to: [-90, 0.05] },
+    ],
+    vary: [0.22, 0.025],
+    scatter: { radius: 130, push: 150, back: 1.6 },
+  }
+  // the butterflies themselves: as the other heroes' flocks, their sizes for a canvas 1232 wide
+  const SK_FLOCK = [
+    { size: 26, speed: 40, lane: 0.5, seed: 0.13, pastel: 1, wing: 'round' },
+    { size: 22, speed: 40, lane: 0.5, seed: 0.46, pastel: 0, wing: 'broad' },
+    { size: 24, speed: 40, lane: 0.5, seed: 0.79, pastel: 1, wing: 'slim' },
+    { size: 20, speed: 40, lane: 0.5, seed: 0.31, pastel: 2, wing: 'broad' },
+    { size: 21, speed: 40, lane: 0.5, seed: 0.62, pastel: 0, wing: 'round' },
   ]
-  /* The clouds' towers: where each stands across the canvas (a share of its width), how tall it is (a share of the
-     picture under the buttons) and half how wide (CSS pixels at 1232). Tall at either side, framing the sky, and low in
-     the middle, under the words. */
-  const SK_TOWERS = [
-    [0, 0.36, 200],
-    [0.15, 0.15, 120],
-    [0.36, 0.08, 140],
-    [0.6, 0.1, 120],
-    [0.82, 0.3, 170],
-    [1.02, 0.24, 150],
-  ]
+
   const SKY = {
     ...HERO,
     intro: false,
     words: '.dc-copy, .hl-copy',
-    // a few beads, the oval of page kept round the words shallow, and every line carried to the canvas's edges
     lines: { ...LINES, lift: 0.08, veil: [80, 18], beadChance: 0.08, whole: true },
     film: FOOTER.film,
     // drawn at a little less than the screen's density on a canvas wider than any laptop's, as the company's sea is
     dprCap: (w) => Math.min(2, 2 * Math.sqrt(1800 / w)),
     inks: SK_INKS,
-    // the stars twinkle, and the strokes are even (neither bowing nor tapering) and soft-edged
-    twinkle: true,
-    marks: true,
-    glyphs: true,
     land: {
       ...HERO.land,
       profile: [
@@ -7887,20 +9326,14 @@
             [1.6, 1.3],
           ],
           paint: [
-            [0, 'skTop', 0],
-            [0.12, 'skTop', 0.78],
-            [0.32, 'skHigh', 1],
-            [0.58, 'skMid', 1],
-            [0.82, 'skLow', 1],
-            [1, 'skHorizon', 1],
+            [0, 'skDeep', 0],
+            [1, 'skSoft', 1],
           ],
-          fill: 0.9,
-          under: 0.85,
-          patch: 0.1,
-          flow: 1.1,
-          breath: 2,
+          fill: 0,
+          under: 0,
+          night: SK_NIGHT,
         },
-        // the land's foot, as the other heroes' meadows are, under the clouds: it lays the land out and draws nothing
+        // the land's foot, as the other heroes' meadows are: it lays the land out and draws nothing
         {
           name: 'meadow',
           top: [
@@ -7912,8 +9345,8 @@
             [1.6, 1.3],
           ],
           paint: [
-            [0, 'skHorizon', 0],
-            [1, 'skHorizon', 0],
+            [0, 'skSoft', 0],
+            [1, 'skSoft', 0],
           ],
           fill: 0,
           under: 0,
@@ -7926,14 +9359,16 @@
     passer: null,
     pointer: false,
     clouds: [],
-    // No butterflies: the birds are this sky's flock, drawn through the lens's glass, which here is gentle and even (see
-    // `lens`): it bends less than the butterflies', only across, never shows a part of the flock twice, neither splits
-    // its colours nor draws them out along the way, blurs them only a little towards the edge and glows only a little
-    // round them, so that a bird comes in drawn out and level and goes out the same, with no comet's tail.
-    flock: [],
+    // the butterflies rise out of the bank of cloud (see riseFlock), through glass at the sides that is gentle and even,
+    // so that one that drifts out that way goes out drawn level, with no comet's tail
+    flock: SK_FLOCK,
+    rise: SK_RISE,
+    bank: SK_BANK,
+    lights: SK_LIGHTS,
     lens: {
       ...LENS,
       foot: 'ease',
+      footShare: 0.15,
       always: true,
       even: true,
       bend: 1,
@@ -7943,379 +9378,9 @@
       soften: 1,
       halo: [2.6, 0.2],
     },
-    school: {
-      fish: SK_BIRDS,
-      // never smaller than this, or on a phone they would be ticks
-      size: (w) => Math.max(0.7, SK_SCALE(w)),
-      // a bird banks and climbs only a little, never tipping as a fish does
-      turn: 0.35,
-      /* From a little under the buttons, so that none flies close under them, down over the clouds' heads, rising a
-         little across the canvas to the right. Its top is that much lower again as the lanes rise to the right, and a
-         little more than a bird rises and falls, so that none flies up into the top of the sky, where it fades into the
-         page. Where the near birds are left out, its foot is lowered so that the groups' part of it reaches the foot,
-         and they have the whole of it. */
-      band: ({ w, h, words }) => {
-        const rise = h * 0.08 * Math.min(1, w / 1232)
-        const top = Math.max(words.y + words.b + 48 + rise / 2 + 8 * Math.max(0.7, SK_SCALE(w)), h * 0.36)
-        const foot = Math.max(top + 90, h * 0.78)
-        return [top, w < SK_NEAR_FROM ? top + (foot - top) / SK_UPPER : foot, -rise]
-      },
-      scatter: { radius: 120, push: 340, back: 1.3 },
-    },
-    paints: {
-      ...PAINTS,
-      // the birds, white, with a little light round them
-      skBird: ['#ffffff', '#ffffff'],
-      skBirdSoft: ['#eef4ff', '#e6eeff'],
-      skBirdGlow: ['#ffffff', '#eaf2ff'],
-      // the veil, and its threads, which are hardly to be told from it by day and are the aurora's faint strands at night
-      skVeil: ['#8cc4f4', '#48acd8'],
-      skThread: ['#a8d2f6', '#74c4dc'],
-      // the clouds, from their lit tops to their shade, the far bank, and the haze at the horizon
-      skCloudLit: ['#fffdf8', '#a2b3e2'],
-      skCloud: ['#f2f6fd', '#8396cf'],
-      skCloudMid: ['#dce5f8', '#687bb8'],
-      skCloudShade: ['#c3d2f1', '#5063a0'],
-      skCloudDeep: ['#a9bdea', '#3d4f8a'],
-      skCloudFar: ['#dbe4fa', '#5a6db0'],
-      skCloudFarShade: ['#c4d2f2', '#43569a'],
-      skDusk: ['#e8def7', '#4a4c9a'],
-      // the stars, faint against the day's blue and bright at night
-      skStar: ['#dce9fb', '#ffffff'],
-      skStarGlow: ['#e8f1fd', '#fff6d6'],
-    },
-    plant: (garden) => {
-      const { w, h, rand, ground } = garden
-      const half = w / 2
-      const sc = SK_SCALE(w)
-      // a stroke standing still where it is painted (rooted under the canvas, its stem up to it); the same seed gives
-      // the same dice, so the two rays and the heart of a star twinkle together
-      const put = (n, { x, y, ...o }) => {
-        rand.reseed(66001 + n * 7919)
-        const root = h + 40
-        garden.dab({
-          kind: SK_HAZE,
-          blur: 0.6,
-          load: 0.9,
-          turn: 0,
-          ...o,
-          x,
-          y: root,
-          stem: root - y,
-          lean: 0,
-          stiff: 1,
-        })
-      }
-      // value noise and a few octaves of it, from the engine's hash
-      const noise = (x, y) => {
-        const xi = Math.floor(x)
-        const yi = Math.floor(y)
-        const u = (x - xi) * (x - xi) * (3 - 2 * (x - xi))
-        const v = (y - yi) * (y - yi) * (3 - 2 * (y - yi))
-        const r = (i, j) => hashed(i * 157.31 + j * 311.73 + 0.17)
-        const a = r(xi, yi) + (r(xi + 1, yi) - r(xi, yi)) * u
-        const b = r(xi, yi + 1) + (r(xi + 1, yi + 1) - r(xi, yi + 1)) * u
-        return a + (b - a) * v
-      }
-      const fbm = (x, y) =>
-        (noise(x, y) * 0.5 +
-          noise(x * 2.03 + 5.2, y * 2.03 + 1.3) * 0.25 +
-          noise(x * 4.07 + 9.7, y * 4.07 + 7.1) * 0.125 +
-          noise(x * 8.11 + 3.3, y * 8.11 + 4.9) * 0.0625) /
-        0.9375
-      const top = ground('air', half)
-      const pic = h - top
-      let n = 0
-
-      // A veil of light across the sky, as of high cloud lit from beyond (at night an aurora): soft broad strokes along
-      // a long curve from high on the left to low on the right, and fine threads along it, sized by the picture as well
-      // as by the width, so that on a phone it is still a broad soft veil and not a ribbon (and thinner, as its strokes
-      // lie closer together there).
-      const vw = Math.max(w, 2.5 * pic)
-      const thin = (w / vw) ** 0.75
-      const veilAt = (f) => [(-0.08 + 1.16 * f) * w, top + (0.1 + 0.36 * f + 0.06 * Math.sin(f * Math.PI * 1.7)) * pic]
-      const veilTurn = (f) => {
-        const [x0, y0] = veilAt(f - 0.01)
-        const [x1, y1] = veilAt(f + 0.01)
-        return Math.atan2(y1 - y0, x1 - x0)
-      }
-      for (let k = 0; k < 26; k += 1) {
-        const f = k / 25
-        const [x, y] = veilAt(f)
-        put((n += 1), {
-          x,
-          y,
-          long: 0.065 * vw,
-          wide: 0.45,
-          turn: veilTurn(f),
-          blur: 0.045 * vw,
-          paints: ['skVeil', 'skVeil'],
-          load: (0.27 + 0.15 * hashed(k * 3.1)) * thin,
-          order: 560,
-        })
-      }
-      for (let k = 0; k < 8; k += 1) {
-        const f = hashed(k * 2.3 + 0.7)
-        const [x, y] = veilAt(f)
-        const turn = veilTurn(f)
-        const off = (hashed(k * 5.9 + 0.2) - 0.5) * 0.11 * pic
-        const long = (0.03 + 0.06 * hashed(k * 4.1)) * vw
-        put((n += 1), {
-          x: x - Math.sin(turn) * off,
-          y: y + Math.cos(turn) * off,
-          long,
-          wide: Math.max(0.006, (0.55 * sc) / long),
-          turn,
-          blur: 0.7,
-          paints: ['skThread', 'skThread'],
-          load: 0.24 + 0.24 * hashed(k * 7.7),
-          order: 561,
-        })
-      }
-
-      // A few stars.
-      for (let k = 0; k < 30; k += 1) {
-        const x = hashed(k * 5.1 + 0.4) * w
-        const y = top + 8 + hashed(k * 3.7 + 0.9) ** 1.5 * pic * 0.55
-        const r = (1.1 + 2.2 * hashed(k * 7.3) ** 2) * sc
-        const id = 40000 + k
-        put(id, {
-          x,
-          y,
-          long: r,
-          wide: 0.12,
-          blur: 0.4,
-          paints: ['skStar', 'skStarGlow'],
-          load: 0.6,
-          kind: SK_TWINKLE,
-          order: 565,
-        })
-        put(id, {
-          x,
-          y,
-          long: r * 0.7,
-          wide: 0.14,
-          turn: Math.PI / 2,
-          blur: 0.4,
-          paints: ['skStar', 'skStarGlow'],
-          load: 0.6,
-          kind: SK_TWINKLE,
-          order: 565.001,
-        })
-        put(id, {
-          x,
-          y,
-          long: r * 0.32,
-          wide: 1,
-          blur: r * 0.3,
-          paints: ['skStarGlow', 'skStar'],
-          load: 0.6,
-          kind: SK_GLIMMER,
-          order: 565.002,
-        })
-      }
-
-      // The clouds: cumulus rising from the foot, a low bank all along and the towers, their edges billowing (the noise
-      // round the skyline). A tower is never much taller than it is wide, but on a narrow canvas it keeps more of its
-      // height than of its width, so that the clouds still frame a phone's sky.
-      const low = 0.085 * pic
-      const skyline = (x) => {
-        let most = low
-        for (const [at, tall, wide] of SK_TOWERS) {
-          const d = (x - at * w) / (wide * sc)
-          if (Math.abs(d) < 1) {
-            most = Math.max(most, Math.min(tall * pic, wide * Math.max(sc, 0.75) * 1.15) * (1 - d * d) ** 0.55)
-          }
-        }
-        return most * (0.88 + 0.24 * fbm(x / (70 * sc), 3.7))
-      }
-      const edge = (x, y) =>
-        20 * sc * (fbm(x / (26 * sc), y / (26 * sc)) - 0.5) + 9 * sc * (noise(x / (9 * sc) + 40, y / (9 * sc)) - 0.5)
-      let highest = 0
-      for (let x = 0; x <= w; x += 4) {
-        highest = Math.max(highest, skyline(x))
-      }
-      // A soft lilac haze low in the sky behind the clouds, as the air near the horizon catches the light.
-      for (let k = 0; k < 14; k += 1) {
-        const x = ((k + 0.5) / 14) * w
-        put((n += 1), {
-          x,
-          y: h - low - 0.12 * pic,
-          long: 0.11 * w,
-          wide: 0.42,
-          blur: 0.06 * w,
-          paints: ['skDusk', 'skDusk'],
-          load: 0.24 + 0.08 * hashed(k * 2.7),
-          order: 562,
-        })
-      }
-      // A far bank behind, lower and flatter and bluer, laid first, in larger dabs than the near clouds', being far.
-      const farStep = 9 * sc
-      const farLine = (x) => low * 1.4 + 0.16 * pic * fbm(x / (110 * sc) + 20, 1.3)
-      const deepest = 110 * Math.max(sc, 0.8)
-      for (let gy = h - 0.45 * pic; gy < h + farStep; gy += farStep) {
-        for (let gx = -farStep; gx < w + farStep; gx += farStep) {
-          const q = Math.round(gx / farStep) * 6113 + Math.round(gy / farStep) * 92821 + 17
-          const x = gx + (hashed(q * 0.013 + 0.3) - 0.5) * farStep * 0.8
-          const y = gy + (hashed(q * 0.017 + 0.2) - 0.5) * farStep * 0.8
-          const depth = farLine(x) + 0.7 * edge(x + 300, y) - (h - y)
-          if (depth < 0) {
-            continue
-          }
-          const f = clamp(depth / deepest, 0, 0.999)
-          const r = farStep * (0.9 + 0.3 * hashed(q * 0.023))
-          put((n += 1), {
-            x,
-            y,
-            long: r,
-            wide: 0.95,
-            turn: 1.2,
-            blur: r * 0.45,
-            paints: f < 0.3 ? ['skCloudFar', 'skCloudFarShade'] : ['skCloudFarShade', 'skCloudFarShade'],
-            load: 0.92,
-            order: 566 - f,
-          })
-        }
-      }
-      /* The near clouds, laid as round soft dabs close together, each shaded from its upper left, white, to its lower
-         right, blue, and the deepest first, so that every billow lies over the one under it with its lit top and casts
-         its shade on it, as cumulus is piled up: the nearer the top, the lighter, and the nearer the canvas's foot, the
-         deeper, so that their feet go into the page in colour, as the other heroes' land does, rather than white. */
-      const PAIRS = [
-        ['skCloudLit', 'skCloud'],
-        ['skCloudLit', 'skCloudMid'],
-        ['skCloud', 'skCloudShade'],
-        ['skCloudMid', 'skCloudShade'],
-        ['skCloudMid', 'skCloudDeep'],
-      ]
-      const step = 6 * sc
-      for (let gy = h - highest - 30 * sc; gy < h + step; gy += step) {
-        for (let gx = -step; gx < w + step; gx += step) {
-          const q = Math.round(gx / step) * 7919 + Math.round(gy / step) * 104729
-          const x = gx + (hashed(q * 0.013 + 0.1) - 0.5) * step * 0.7
-          const y = gy + (hashed(q * 0.017 + 0.6) - 0.5) * step * 0.7
-          const depth = skyline(x) + edge(x, y) - (h - y)
-          if (depth < 0) {
-            continue
-          }
-          const footward = 0.7 * smooth(h - 0.24 * pic, h - 0.02 * pic, y)
-          const f = clamp(Math.max(depth / deepest, footward) + (hashed(q * 0.031) - 0.5) * 0.1, 0, 0.999)
-          const [lit, shaded] = PAIRS[Math.floor(f * PAIRS.length)]
-          const r = step * (1 + 0.6 * hashed(q * 0.023 + 0.4))
-          put((n += 1), {
-            x,
-            y,
-            long: r,
-            wide: 0.95,
-            turn: 1.2,
-            blur: r * 0.35,
-            paints: [lit, shaded],
-            load: 0.95,
-            order: 571 - f,
-          })
-        }
-      }
-
-      // The birds. Each painted round the canvas's middle (the shader carries it where it is, see schoolVertex), as a
-      // white bird far off is drawn: a soft light round it, its wings in a shallow V from its middle, each up and out to
-      // the wrist and then out to a fine tip, a small body, head and tail.
-      const hx = half
-      const hy = h / 2
-      const birdScale = Math.max(0.7, sc)
-      SK_BIRDS.forEach((b, i) => {
-        const len = b.size * birdScale
-        const phase = 400 + i
-        const base = 2000 + i * 0.1
-        const at = (lx, ly) => ({ x: hx + lx * len, y: hy + ly * len })
-        // a stroke from one place to another: its middle, half its length and its turn
-        const span = (a, z) => ({
-          ...at((a[0] + z[0]) / 2, (a[1] + z[1]) / 2),
-          long: (Math.hypot(z[0] - a[0], z[1] - a[1]) / 2) * len,
-          turn: Math.atan2(z[1] - a[1], z[0] - a[0]),
-        })
-        const id = 80000 + i * 20
-        put(id, {
-          ...at(0, -0.04),
-          long: len * 0.4,
-          wide: 0.5,
-          blur: len * 0.28,
-          paints: ['skBirdGlow', 'skBirdGlow'],
-          load: 0.18,
-          order: base,
-          phase,
-        })
-        // the left wing, the far one, a little shorter, and the right
-        put(id + 1, {
-          ...span([0, -0.01], [-0.19, -0.13]),
-          wide: 0.26,
-          blur: len * 0.012,
-          paints: ['skBird', 'skBird'],
-          load: 0.96,
-          order: base + 0.001,
-          phase: phase + 0.2,
-        })
-        put(id + 2, {
-          ...span([-0.18, -0.125], [-0.43, -0.075]),
-          wide: 0.17,
-          blur: len * 0.01,
-          paints: ['skBird', 'skBirdSoft'],
-          load: 0.94,
-          kind: 0,
-          order: base + 0.002,
-          phase: phase + 0.2,
-        })
-        put(id + 3, {
-          ...span([0, -0.01], [0.21, -0.15]),
-          wide: 0.26,
-          blur: len * 0.012,
-          paints: ['skBird', 'skBird'],
-          load: 0.96,
-          order: base + 0.001,
-          phase: phase + 0.4,
-        })
-        put(id + 4, {
-          ...span([0.2, -0.145], [0.49, -0.09]),
-          wide: 0.17,
-          blur: len * 0.01,
-          paints: ['skBird', 'skBirdSoft'],
-          load: 0.94,
-          kind: 0,
-          order: base + 0.002,
-          phase: phase + 0.4,
-        })
-        // its body, head and tail
-        put(id + 5, {
-          ...at(0.005, 0),
-          long: len * 0.075,
-          wide: 0.48,
-          turn: 0.08,
-          blur: len * 0.01,
-          paints: ['skBird', 'skBird'],
-          load: 0.97,
-          order: base + 0.003,
-          phase,
-        })
-        put(id + 6, {
-          ...at(0.075, -0.012),
-          long: len * 0.03,
-          wide: 0.95,
-          blur: len * 0.008,
-          paints: ['skBird', 'skBird'],
-          load: 0.97,
-          order: base + 0.004,
-          phase,
-        })
-        put(id + 7, {
-          ...span([-0.06, 0.006], [-0.14, 0.024]),
-          wide: 0.42,
-          blur: len * 0.01,
-          paints: ['skBird', 'skBirdSoft'],
-          load: 0.95,
-          order: base + 0.005,
-          phase,
-        })
-      })
-    },
+    paints: { ...PAINTS },
+    // nothing is planted: the sky, the bank of cloud and the lights in the air are drawn by passes of their own
+    plant: null,
   }
   /* --- the compositions, ready --- */
 
@@ -8688,6 +9753,18 @@
     gl_Position = vec4(pixel.x / uCanvas.x * 2.0 - 1.0, 1.0 - pixel.y / uCanvas.y * 2.0, 0.0, 1.0);
   }`
 
+  /* On land that is a photograph (land.photo, see photoFragment) a blade of grass is lit as the turf it stands on is:
+     it takes the ground's colour there, read blurred, deeper at its root, where it stands in its own shade, and
+     brighter towards its tip, which catches the light; so it is yellow green in the sun and a wiry lighter green in the
+     shade. And the finest blades, far up the hill, are left out: there the turf's own texture is the grass, and a
+     drawn blade on it reads as a speck. A flower's stem is none of this: it is the flower's, and is drawn as it always
+     was (a stem is laid at 0.85 of its ink, which no blade of grass is: see where the meadow is grown). Only such a
+     composition's shader has this. */
+  const PHOTO_BLADE = `
+    float grassy = step(0.0001, abs(vInk.z - 0.85));
+    vec3 turf = textureLod(uLand, gl_FragCoord.xy / (uCanvas * uPixels), 3.0).rgb;
+    color = mix(color, turf * mix(0.7, 1.7, t) + vec3(0.03, 0.05, 0.0) * t, 0.85 * grassy);
+    cover *= mix(1.0, smoothstep(0.62, 0.92, vWide.x), grassy);`
   const bladeFragment = (mode) => `#version 300 es
   precision highp float;
   in vec2 vLocal;
@@ -8703,7 +9780,7 @@
   uniform vec4 uWords;
   uniform float uWordsCore;
   uniform float uSink;
-  uniform float uHead;
+  uniform float uHead;${mode.land.photo ? '\n  uniform sampler2D uLand;' : ''}
   out vec4 outColor;
   float dot2(vec2 v) {
     return dot(v, v);
@@ -8761,7 +9838,7 @@
     }
     int i = int(vInk.x);
     vec3 color = mix(uInks[i], uInks[min(i + 1, ${mode.grass.inks.length - 1})], vInk.y);
-    color *= mix(0.92, 1.06, t);
+    color *= mix(0.92, 1.06, t);${mode.land.photo ? PHOTO_BLADE : ''}
     vec2 css = vec2(gl_FragCoord.x, uCanvas.y * uPixels - gl_FragCoord.y) / uPixels;
     float grain = texture(uGrain, gl_FragCoord.xy / uTile).r;
     vec3 overlaid = mix(2.0 * color * grain, 1.0 - 2.0 * (1.0 - color) * (1.0 - grain), step(0.5, color));
@@ -8975,23 +10052,6 @@
       if (abs(${MARK} - 0.501) < 0.05 || abs(${MARK} - 0.751) < 0.05) {
         roundness = 1.0;
       }`
-  /* A composition whose figure of light runs off the canvas's foot (`lightFoot`), as the docs' figure does, keeps that
-     light whole there: its strokes of light, the haze kind marked even, are not thinned into the grain's specks at the
-     hero's foot, as the photograph's frame simply cuts its figure off. On a light page its white goes on into the page
-     whole, white into white, and the rest of its light fades smoothly there, as all of it does into a dark page. Round
-     the words it thins as everything does, and above the foot it fades where the land fades into the page. Only such a
-     composition's shader has this; every other one's last lines are as they were. */
-  const LIGHT_FOOT = (fade) => `float thin = smoothstep(grain - 0.25, grain + 0.25, stay);
-    float fade = smoothstep(0.08, 0.32, land);
-    if (vLook.w > 0.3 && vLook.w < 0.5 && abs(${MARK} - 0.501) < 0.05) {
-      float lightPage = step(0.5, dot(uPage, vec3(0.3, 0.59, 0.11)));
-      float white = smoothstep(0.96, 0.995, min(c.r, min(c.g, c.b)));
-      float words = clamp(smoothstep(uWordsCore, 1.0, length((css - uWords.xy) / uWords.zw)), 0.0, 1.0);
-      float foot = smoothstep(0.0, 1.0, clamp(sink, 0.0, 1.0));
-      thin = smoothstep(grain - 0.25, grain + 0.25, words) * mix(foot, 1.0, lightPage * white);
-      fade = mix(fade, 1.0, 1.0 - step(1.0, sink));
-    }
-    alpha *= thin * smoothstep(0.0, 0.3, vLook.z)${fade ? ' * fade' : ''};`
   const bloomFragment = (mode) => `#version 300 es
   precision highp float;
   in vec2 vLocal;
@@ -9121,9 +10181,43 @@
     float sink = (uCanvas.y - css.y) / uSink;
     float stay = clamp(min(sink, smoothstep(uWordsCore, 1.0, length((css - uWords.xy) / uWords.zw))), 0.0, 1.0);${mode.marks ? MIST_STAY : ''}
     float land = distance(textureLod(uLand, gl_FragCoord.xy / (uCanvas * uPixels), log2(3.0 * uPixels)).rgb, uPage);
-    ${mode.lightFoot ? LIGHT_FOOT(!(mode.sky || mode.onPage)) : `alpha *= smoothstep(grain - 0.25, grain + 0.25, stay) * smoothstep(0.0, 0.3, vLook.z)${mode.sky || mode.onPage ? '' : ' * smoothstep(0.08, 0.32, land)'};`}
+    alpha *= smoothstep(grain - 0.25, grain + 0.25, stay) * smoothstep(0.0, 0.3, vLook.z)${mode.sky || mode.onPage ? '' : ' * smoothstep(0.08, 0.32, land)'};
     outColor = vec4(min(c, vec3(1.0)) * alpha, alpha);
   }`
+
+  /* The strokes fade where the land under them comes close to the page's colour, which is how they know that the land
+     has thinned away there (see the last lines above). On a dark page the deep shade of turf is close to the page's
+     colour too, though all of it is there, and a flower standing on it would thin away with no cause. So on land that is a photograph (land.photo), on a dark page only, the strokes also take the land for land
+     wherever it is more of a colour than the page is, which is the one thing a deep green and a dark page never
+     share. On a light page the test is the one it always was, and without `land.photo` so is the shader. */
+  const BLOOM_LAND =
+    '    float land = distance(textureLod(uLand, gl_FragCoord.xy / (uCanvas * uPixels), log2(3.0 * uPixels)).rgb, uPage);\n'
+  /* A photograph's land at dusk (`photo.dusk`, /enterprise's) is in the evening's shade, and so are the strokes on it:
+     they keep that share of their daylight colour, so its flowers never stand brighter than the light they are in. */
+  const photoBloom = (mode, fragment) =>
+    mode.land.photo && fragment.includes(BLOOM_LAND)
+      ? fragment.replace(
+          BLOOM_LAND,
+          `    vec3 ground = textureLod(uLand, gl_FragCoord.xy / (uCanvas * uPixels), log2(3.0 * uPixels)).rgb;
+    float vivid = max(ground.r, max(ground.g, ground.b)) - min(ground.r, min(ground.g, ground.b));
+    float plain = max(uPage.r, max(uPage.g, uPage.b)) - min(uPage.r, min(uPage.g, uPage.b));
+    float dusk = 1.0 - step(0.5, dot(uPage, vec3(0.3, 0.59, 0.11)));
+    float land = max(distance(ground, uPage), dusk * 3.0 * abs(vivid - plain));
+${mode.land.photo.dusk ? `    c *= mix(1.0, ${mode.land.photo.dusk.toFixed(3)}, dusk);\n` : ''}`,
+        )
+      : fragment
+  /* The butterflies over such a land at dusk keep the same share of their daylight colour (`photo.dusk`). */
+  const FLY_SHOW = '    outColor = vec4(min(c, vec3(1.0)) * show, show);\n  }'
+  const flyFragment = (mode) => {
+    const dusk = mode.land?.photo?.dusk
+    if (!dusk) {
+      return FLY_FRAGMENT
+    }
+    if (!FLY_FRAGMENT.endsWith(FLY_SHOW)) {
+      throw new Error('the butterflies shader has changed under its patch: dusk')
+    }
+    return `${FLY_FRAGMENT.slice(0, -FLY_SHOW.length)}    c *= mix(1.0, ${dusk.toFixed(3)}, uDark);\n${FLY_SHOW}`
+  }
 
   /* A cloud of frosted glass: a heap of balls, through which the land shows blurred and pale. */
   const CLOUD_VERTEX = `#version 300 es
@@ -9250,6 +10344,368 @@
     vec2 q = abs(p - centre) - size + r;
     float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
     outColor = vec4(0.0, 0.0, 0.0, clamp(0.5 - d, 0.0, 1.0));
+  }`
+
+  /* --- the tree in a pass of its own ---------------------------------------------------------------------- */
+
+  /* A composition's `tree` (see the template) is drawn in a pass of its own rather than in the meadow's strokes, whose
+     brush reads as paint: its trunk, roots, limbs and twigs as smooth round boughs, its crown as soft billows of fine
+     leaves lit through by a low sun, and a few motes in the light under it. All of it is one mesh of squares: the trunk,
+     its roots, the leaves and the motes from the farthest (a bough a piece at a time), and then the limbs and all that
+     grows from them over the leaves, as the dark shapes seen through a crown lit from behind; drawn into the scene at
+     the depth of its foot (see draw). Each square is laid in the terms the meadow was laid out in and moved with the land
+     until it is laid out again, as moveMeadow moves the strokes (uMove); everything above the fork sways a very little
+     about it, the higher the more (uSway: the fork, and how far it swings); and each place is told where it is on the
+     crown as a whole (uCrown, the crown's middle and half sizes as laid out; vCrown), which the crown's light follows.
+     aPlace  where it is laid, in CSS pixels, and the way out from there: across a bough on the canvas, or the corner of a
+             billow's or a mote's square
+     aShape  what it is (a bough's side, -1 or 1; a billow, 2; a mote, 3), how large in CSS pixels (a bough's radius, a
+             billow's or a mote's), and two of its own: a bough's shade from the crown and the veil of leaves in front of
+             it; a billow's sun and how deep in the crown it lies; a mote's strength
+     aLook   a bough's light across it: the sun on its side and on its face, and how far each looks up; a billow's crease
+             (across, see aMore), how much shows through between its clusters, and which way its outline lies open
+     aMore   a bough's height and radius in metres, how much it sways, and how far along it this is in CSS pixels; a
+             billow's dice, its crease (up), how much it sways, and the crease's radius: the billow in front of it, in its
+             own radius, along whose edge it lies in shade; a mote's dice and how much it sways
+     aShow   a bough's share that shows (a limb comes out of the trunk, and a root goes into the grass, by degrees); a
+             billow's clusters' size, in CSS pixels */
+  const TREE_VERTEX = `#version 300 es
+  precision highp float;
+  layout(location = 0) in vec4 aPlace;
+  layout(location = 1) in vec4 aShape;
+  layout(location = 2) in vec4 aLook;
+  layout(location = 3) in vec4 aMore;
+  layout(location = 4) in float aShow;
+  uniform vec2 uCanvas;
+  uniform float uPixels;
+  uniform float uClock;
+  uniform vec4 uMove;
+  uniform vec3 uSway;
+  uniform vec4 uCrown;
+  out vec2 vLocal;
+  out vec4 vShape;
+  out vec4 vLook;
+  out vec4 vMore;
+  out float vShow;
+  out vec2 vCrown;
+  void main() {
+    float kind = aShape.x;
+    float size = aShape.y;
+    vec2 pos = aPlace.xy;
+    if (abs(kind) < 1.5) {
+      /* a bough: out to its side and a device pixel on, for its soft edge; one thinner than a device pixel is drawn that
+         wide, and as much fainter (see treeFragment) */
+      float drawn = max(size, 0.5 / uPixels) + 1.0 / uPixels;
+      pos += aPlace.zw * kind * drawn;
+      vLocal = vec2(kind * drawn / size, aMore.w);
+      vCrown = vec2(pos.x - uCrown.x, uCrown.y - pos.y) / uCrown.zw;
+    } else {
+      /* a billow or a mote, in a square round its middle; a billow's leaves move a little of themselves, and a mote
+         drifts in the light */
+      pos += vec2(aPlace.z, -aPlace.w) * size * 1.04;
+      vLocal = aPlace.zw * 1.04;
+      /* where it is on the crown as a whole, as shares of its half width and half height from its middle, up the canvas
+         (the crown is lit as one mass, see treeFragment) */
+      vCrown = vec2(pos.x - uCrown.x, uCrown.y - pos.y) / uCrown.zw;
+      float seed = aMore.x;
+      if (kind > 2.5) {
+        pos += vec2(sin(uClock * 0.23 + seed * 6.3) * 6.0 + sin(uClock * 0.57 + seed * 2.1) * 2.0, cos(uClock * 0.19 + seed * 4.1) * 4.0);
+      } else {
+        pos += vec2(sin(uClock * 0.9 + seed * 7.1), cos(uClock * 0.7 + seed * 5.3)) * 0.2 * aMore.z;
+      }
+    }
+    float swing = uSway.z * aMore.z * (0.6 * sin(uClock * 0.53) + 0.4 * sin(uClock * 1.21 + 1.3));
+    vec2 arm = pos - uSway.xy;
+    pos = uSway.xy + vec2(cos(swing) * arm.x - sin(swing) * arm.y, sin(swing) * arm.x + cos(swing) * arm.y);
+    pos = vec2(pos.x * uMove.x, uMove.w + (pos.y - uMove.z) * uMove.y);
+    vShape = aShape;
+    vLook = aLook;
+    vMore = aMore;
+    vShow = aShow;
+    gl_Position = vec4(pos.x / uCanvas.x * 2.0 - 1.0, 1.0 - pos.y / uCanvas.y * 2.0, 0.0, 1.0);
+  }`
+
+  /* The tree's boughs, leaves and motes (see TREE_VERTEX), under one light: the sun low on the left and well behind
+     the tree (uSunView, in the eye's terms: across, up the canvas and towards us).
+     A bough is dark and smooth, its bark furrowed along it: the side turned from the sun cooler, a warm light where the
+     sun touches it, a little of the sky on its tops (none of that on a twig a device pixel or two across, which against
+     the light is only a dark line); inside the crown the leaves keep the sun off it but for a fleck here and there, and
+     the leaves in front of it break it up in patches, so it is seen through the leaves rather than laid over them, but
+     only a little, so it still runs on through the light as one dark line; and a root is cut where it goes into the
+     ground.
+     A billow of leaves is a sphere of them, and the crown is lit as one mass of them (uCrown, the crown's middle and
+     half sizes on the canvas, which the vertex stage turns into a place on the crown, vCrown): lit through from behind
+     by the low sun, light all through, the lighter where the crown is thinner, along its outline and over its top and
+     the more on its sun side, a little deeper in its heart and under it; each billow swells only a little out of that,
+     its side towards the sun a little lighter, so the billows are masses of one crown rather than lobes. Under that
+     light lie the leaves themselves, a few device pixels across, and sprays of them a little larger, each a little
+     lighter or darker than the next, with the crown's deeper leaves showing between the sprays, never a pattern of
+     dots. Its outline is the sphere dented a little by its masses and its tufts and broken over a wide fringe into
+     sprays and single leaves; where it is the crown's own outline, open to the air, the light shows between the sprays,
+     its leaves are lit through nearly yellow on the sun's side, flicker as they move, and here and there one glints.
+     Its colour is read from the leaves' inks by that light, in straight lines between them, from the deep green of the
+     crown's deepest leaves to the yellow of a leaf lit through.
+     A mote is a point of light that comes and goes, added where the land behind it is in shade (the land's own picture,
+     uLand), as a mote in a low sun shows against shade and is lost against the bright air. */
+  const treeFragment = (tile) => `#version 300 es
+  precision highp float;
+  in vec2 vLocal;
+  in vec4 vShape;
+  in vec4 vLook;
+  in vec4 vMore;
+  in float vShow;
+  in vec2 vCrown;
+  uniform sampler2D uNoise;
+  uniform sampler2D uLand;
+  uniform float uPixels;
+  uniform float uClock;
+  uniform vec3 uSunView;
+  uniform vec3 uBark[4];
+  uniform vec3 uLeaf[6];
+  uniform vec4 uLeafLook;
+  uniform vec4 uLeafLight;
+  uniform float uLeafRim;
+  uniform vec3 uMote;
+  out vec4 outColor;
+  float tileNoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    return textureLod(uNoise, (i + f * f * (3.0 - 2.0 * f) + 0.5) / ${tile}.0, 0.0).r;
+  }
+  vec3 leafInk(float v) {
+    vec3 c = mix(uLeaf[0], uLeaf[1], clamp(v / 0.16, 0.0, 1.0));
+    c = mix(c, uLeaf[2], clamp((v - 0.16) / 0.18, 0.0, 1.0));
+    c = mix(c, uLeaf[3], clamp((v - 0.34) / 0.2, 0.0, 1.0));
+    c = mix(c, uLeaf[4], clamp((v - 0.54) / 0.22, 0.0, 1.0));
+    return mix(c, uLeaf[5], clamp((v - 0.76) / 0.24, 0.0, 1.0));
+  }
+  void main() {
+    float kind = vShape.x;
+    float size = vShape.y;
+    if (abs(kind) < 1.5) {
+      float s = vLocal.x;
+      float drawn = max(size, 0.5 / uPixels);
+      float cover = clamp((drawn - abs(s) * size) * uPixels + 0.5, 0.0, 1.0) * size / drawn * vShow;
+      float sc = clamp(s, -1.0, 1.0);
+      float c = sqrt(max(1.0 - sc * sc, 0.0));
+      float up = sc * vLook.z + c * vLook.w;
+      /* how far above the ground its surface is here, in device pixels */
+      cover *= clamp((vMore.x / vMore.y + up) * size * uPixels + 0.5, 0.0, 1.0);
+      /* inside the crown, the leaves in front of it: where they are, it is a little hidden behind them (they are drawn
+         here, lit through as the crown's are, so it never shows what is behind the crown through them); only a fifth, so
+         that every limb and branch still runs on through the light as one dark line, as a crown lit from behind shows
+         them */
+      vec2 leafy = vec2(vMore.w, s * size) * uPixels / uLeafLook.x;
+      float front = 0.0;
+      if (vShape.w > 0.0) {
+        front = vShape.w * smoothstep(0.44, 0.62, 0.6 * tileNoise(leafy * 0.5 + 5.1) + 0.4 * tileNoise(leafy * 1.3 + 2.7));
+      }
+      cover *= 1.0 - 0.2 * front;
+      if (cover < 0.004) {
+        discard;
+      }
+      float facing = sc * vLook.x + c * vLook.y;
+      float fleck = smoothstep(0.58, 0.78, tileNoise(vec2(vMore.w / 7.0, 3.7)));
+      float reach = 1.0 - vShape.z * (1.0 - 0.6 * fleck);
+      /* (a twig only a device pixel or two across shows no side lit and no side in shade: against the light it is a
+         dark line, as the finest twigs are against a crown lit from behind) */
+      float girth = smoothstep(1.5, 4.0, size * uPixels);
+      vec3 col = mix(uBark[1], uBark[0], smoothstep(0.0, 0.8, -facing) * 0.75);
+      col += uBark[2] * 0.7 * max(facing, 0.0) * reach * girth;
+      col += uBark[3] * max(up, 0.0) * (1.0 - 0.6 * vShape.z) * girth;
+      /* its bark, furrowed along it a few device pixels apart, the furrows closing up towards its sides as a round
+         bough's do; on all but the finest */
+      float arc = asin(sc) * size * uPixels;
+      float furrow = tileNoise(vec2(arc / 2.6 + 3.1, vMore.w * uPixels / 16.0));
+      col *= mix(1.0, 0.72 + 0.52 * furrow, smoothstep(1.5, 5.0, size * uPixels));
+      col *= 0.92 + 0.16 * tileNoise(vec2(vMore.w / 4.0, sc * 1.7 + 13.0));
+      /* and a little of the light of the leaves in front of it over it */
+      col = mix(col, leafInk(0.5 + 0.25 * tileNoise(leafy)), max(vShape.w * 0.05, 0.25 * front));
+      outColor = vec4(col * cover, cover);
+      return;
+    }
+    vec2 q = vLocal;
+    float r = length(q);
+    if (r > 1.0) {
+      discard;
+    }
+    float seed = vMore.x;
+    if (kind > 2.5) {
+      float twinkle = 0.55 + 0.45 * sin(uClock * (0.6 + 0.7 * fract(seed * 7.31)) + seed * 6.283);
+      float light = (exp(-r * r * 10.0) + 0.3 * exp(-r * r * 2.5)) * (1.0 - r) * twinkle * vShape.z;
+      vec3 land = texelFetch(uLand, ivec2(gl_FragCoord.xy), 0).rgb;
+      float shaded = 1.0 - smoothstep(0.4, 0.66, dot(land, vec3(0.3, 0.59, 0.11)));
+      outColor = vec4(uMote * light * shaded, 0.0);
+      return;
+    }
+    /* where it is on the billow, in CSS pixels from its middle (up the canvas) and in device pixels */
+    vec2 px = q * size;
+    vec2 dev = px * uPixels;
+    vec2 off = vec2(seed * 61.7, seed * 23.3);
+    float tuft = vShow;
+    /* Its masses, its tufts of leaves and its leaves: single leaves a few device pixels across, and sprays of them at
+       three times that, which carry most of the play of light between them, as a crown's foliage does seen from afar. */
+    float massAt = size * 0.42;
+    float mass = tileNoise(px / massAt + off);
+    float tufts = tileNoise(px / tuft + off * 1.9);
+    float sprays = tileNoise(mat2(0.8, 0.6, -0.6, 0.8) * dev / (uLeafLook.x * 2.2) + off * 2.3 + 1.9);
+    float leaves = 0.53 * tileNoise(dev / uLeafLook.x + off * 3.1) + 0.12 * tileNoise(dev / (uLeafLook.x * 0.55) + off * 4.3 + 7.7) + 0.35 * sprays;
+    /* its outline: the sphere dented a little by the masses and the tufts, and broken over a wide fringe into sprays
+       and single leaves, so it is lace rather than a lobe; how far in from it a place is, in CSS pixels, and how much
+       of it is leaves */
+    float inside = (1.0 - r) * size - uLeafLook.y * size * mass - 0.7 * tuft * tufts;
+    float cover = clamp(inside * uPixels + (leaves - 0.5) * 5.0 * uLeafLook.x + 0.5, 0.0, 1.0);
+    float within = clamp(inside / uLeafLook.z, 0.0, 1.0);
+    /* Which way its outline lies open to the sky (the crown's own rim) and how much: there the light shows between its
+       sprays of leaves. Inside the crown a gap between them shows only the crown's deeper leaves, darker, never the
+       page, which is what makes the foliage lace rather than felt. */
+    vec2 dir = q / max(r, 1e-4);
+    float open = smoothstep(0.0, 0.22, dot(dir, vLook.zw)) * (1.0 - within);
+    float foliage = 0.6 * sprays + 0.4 * leaves;
+    cover *= 1.0 - open * smoothstep(0.42, 0.3, foliage);
+    if (cover < 0.004) {
+      discard;
+    }
+    float deeper = vLook.y * smoothstep(0.4, 0.25, foliage) * (1.0 - open);
+    /* Its light is the crown's, as one mass of leaves lit through from behind by the low sun: the crown's own dome
+       turns it, each billow swells only a little out of that, and its tufts turn their own ways a little more. So the
+       crown is light all through (uLeafLight.w), the lighter where it is thinner, along its outline and over its top,
+       the more on the sun's side (.y); the sky's light over its top and less under it (.z); the sun itself on what
+       turns to it (.x); a little deeper in its heart, and the billows are masses of one crown rather than lobes. */
+    vec2 cq = vCrown;
+    float thick = sqrt(max(1.0 - dot(cq, cq), 0.0));
+    vec3 n = normalize(vec3(cq * 0.72 + q * 0.28, thick * 0.7 + 0.35));
+    /* (each tuft of leaves turned its own way, as much as its leaves rise towards the sun across a pixel) */
+    float tuftLean = tileNoise((px + normalize(uSunView.xy)) / tuft + off * 1.9) - tufts;
+    float facing = dot(n, uSunView) + 0.25 * tuft * tuftLean;
+    float sunSide = smoothstep(-0.6, 0.8, dot(cq / max(length(cq), 1e-3), normalize(uSunView.xy)));
+    float under = smoothstep(-0.95, 0.4, cq.y);
+    float v = uLeafLight.w + uLeafLight.y * (1.0 - thick) * mix(0.55, 1.0, sunSide) * mix(0.3, 1.0, under) + uLeafLight.z * cq.y + uLeafLight.x * max(facing, 0.0);
+    /* (each billow's own side towards the sun a little lighter, so the crown keeps its masses) */
+    v *= mix(0.86, 1.08, 0.5 + 0.5 * dot(q, normalize(uSunView.xy))) * mix(0.88, 1.0, vShape.z) * (1.0 - 0.15 * vShape.w * thick);
+    /* the crown's own outline, its leaves lit through against the sky: lighter, the more on the sun's side */
+    v += uLeafRim * open * (0.25 + 0.75 * sunSide);
+    /* a billow's underside, where it lies over the crown's other billows, and the edge of the billow in front of it:
+       only a breath of shade, so the billows still part */
+    v *= 1.0 - 0.06 * (1.0 - within) * smoothstep(0.1, 0.8, -dir.y);
+    float creaseR = vMore.w;
+    if (creaseR > 0.0) {
+      float d = (length(q - vec2(vLook.x, vMore.y)) - creaseR * 0.8) * size;
+      v *= 1.0 - 0.08 * exp(-max(d, 0.0) / 20.0);
+    }
+    /* Its leaves under that light, each a little lighter or darker than the next, the sprays a little more, and the
+       crown's deeper leaves showing between the sprays; those on its lit rim flicker as they move. */
+    float fleck = smoothstep(0.28, 0.74, leaves);
+    v *= mix(0.88, 1.08, fleck) * mix(0.9, 1.08, sprays) * (1.0 - 0.1 * smoothstep(0.45, 0.85, tufts)) * (1.0 - 0.5 * deeper);
+    if (within < 1.0) {
+      v *= 1.0 + uLeafLook.w * sin(uClock * 1.3 + 18.8 * tileNoise(dev / 5.0 + off * 5.0)) * (1.0 - within) * max(facing, 0.0) * fleck;
+    }
+    vec3 col = leafInk(clamp(v, 0.0, 1.0));
+    /* along the crown's own outline on the sun's side, leaves lit through nearly yellow; and here and there along that
+       sunlit rim a leaf turned square to the low sun throws it back: a glint, the dew's light in the crown, coming and
+       going slowly, never whiter than a leaf lit through */
+    if (open * sunSide > 0.0) {
+      col = mix(col, uLeaf[5], open * sunSide * 0.6 * fleck);
+      float glint = smoothstep(0.9, 0.96, tileNoise(dev / (uLeafLook.x * 0.8) + off * 7.3 + 3.3));
+      glint *= open * sunSide * mix(0.4, 1.0, vShape.z);
+      glint *= 0.5 + 0.5 * sin(uClock * (0.5 + 0.9 * tileNoise(dev / 9.0 + off * 2.1)) + 25.0 * tileNoise(dev / 6.0 + off));
+      col = mix(col, uLeaf[5], clamp(glint, 0.0, 1.0));
+    }
+    outColor = vec4(col * cover, cover);
+  }`
+
+  /* The light the tree leaves on the land (see `tree`), laid into the land's texture once its sheets are drawn, so the
+     grass, the flowers, the glass and the butterflies read it as land: the shade it throws, multiplied into the ground
+     (uPart 0), and the glow of its lit crown, laid over it as light (uPart 1: a pale aura on a light page, light on a
+     dark one), each over a box laid out as the tree is and moved with the land (uBox, uMove).
+     Its shade is worked out on the ground itself: the place on the ground under each pixel, as the tree's eye sees it
+     (uEye, uView: the eye's way across, up and ahead; uFit, uFitV: where its foot is on the canvas, how many pixels a
+     unit of the eye's view is, and where the foot is in that view), the ground being the knoll's face, which falls away
+     from the tree's foot towards us (uTilt: the sine and cosine of how far), is tested against the shade of each of its parts
+     there, a stretch of the ground with a half width and a soft edge at each end, in metres, and as dark as each end
+     says: the trunk's long shade away from the sun, softer the further it falls, and a little round its foot and along
+     its roots, where less of the sky reaches the ground. The darkest says how much of the ground's light it keeps,
+     towards its ink, and it fades out over the picture's foot (uFoot), where the land breaks into the page's specks.
+     Its glow is a soft light round each of the billows along its lit rim (CSS pixels, and how strong), falling away
+     outside them over `uReach` pixels, dithered so that it never climbs in rings. */
+  const TREE_LIGHT_VERTEX = `#version 300 es
+  precision highp float;
+  uniform vec2 uCanvas;
+  uniform vec4 uBox;
+  uniform vec4 uMove;
+  out vec2 vLaid;
+  void main() {
+    vec2 corner = vec2(float(gl_VertexID & 1), float(gl_VertexID >> 1));
+    vLaid = mix(uBox.xy, uBox.zw, corner);
+    vec2 pos = vec2(vLaid.x * uMove.x, uMove.w + (vLaid.y - uMove.z) * uMove.y);
+    gl_Position = vec4(pos.x / uCanvas.x * 2.0 - 1.0, 1.0 - pos.y / uCanvas.y * 2.0, 0.0, 1.0);
+  }`
+  const TREE_LIGHT_FRAGMENT = `#version 300 es
+  precision highp float;
+  in vec2 vLaid;
+  uniform int uPart;
+  uniform int uCount;
+  uniform vec4 uParts[24];
+  uniform vec4 uPartLook[24];
+  uniform vec2 uPartDark[24];
+  uniform vec3 uEye;
+  uniform mat3 uView;
+  uniform vec4 uFit;
+  uniform float uFitV;
+  uniform vec2 uTilt;
+  uniform vec2 uFoot;
+  uniform vec3 uInk;
+  uniform float uAmount;
+  uniform float uReach;
+  out vec4 outColor;
+  void main() {
+    if (uPart == 0) {
+      float u = (vLaid.x - uFit.x) / uFit.z + uFit.w;
+      float v = (vLaid.y - uFit.y) / uFit.z + uFitV;
+      vec3 ray = uView * vec3(u, -v, 1.0);
+      /* the ground there: the knoll's face, falling away towards us (uTilt, the sine and cosine of how far) */
+      vec3 face = vec3(0.0, uTilt.y, -uTilt.x);
+      float toward = dot(face, ray);
+      if (toward > -1e-4) {
+        discard;
+      }
+      vec2 ground = (uEye - ray * dot(face, uEye) / toward).xz;
+      float dark = 0.0;
+      for (int i = 0; i < 24; i++) {
+        if (i >= uCount) {
+          break;
+        }
+        vec4 seg = uParts[i];
+        vec4 look = uPartLook[i];
+        vec2 ab = seg.zw - seg.xy;
+        float h = clamp(dot(ground - seg.xy, ab) / max(dot(ab, ab), 1e-6), 0.0, 1.0);
+        float d = length(ground - seg.xy - ab * h) - mix(look.x, look.y, h);
+        float soft = mix(look.z, look.w, h);
+        dark = max(dark, (1.0 - smoothstep(-soft, soft, d)) * mix(uPartDark[i].x, uPartDark[i].y, h));
+      }
+      dark *= 1.0 - smoothstep(uFoot.x, uFoot.y, vLaid.y);
+      if (dark < 0.002) {
+        discard;
+      }
+      outColor = vec4(mix(vec3(1.0), uInk, dark * uAmount), 1.0);
+      return;
+    }
+    float glow = 0.0;
+    for (int i = 0; i < 24; i++) {
+      if (i >= uCount) {
+        break;
+      }
+      vec4 disc = uParts[i];
+      float d = length(vLaid - disc.xy) - disc.z;
+      float fall = d > 0.0 ? exp(-d / uReach) : 1.0 - 0.4 * smoothstep(0.0, disc.z * 0.6, -d);
+      glow = max(glow, disc.w * fall);
+    }
+    if (glow < 0.002) {
+      discard;
+    }
+    /* dithered by half a level either way, so that its long soft fall never climbs in rings on a dark page */
+    float dither = (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5) / 255.0;
+    outColor = vec4(uInk * glow * uAmount + dither, glow * uAmount);
   }`
 
   /* A sky of its own, for a composition that has one: its inks from the top of the canvas down, brushed across a little
@@ -9926,7 +11382,10 @@ ${k}        vec3 seen = mix(m.rgb / max(m.a, 1e-3) * vec3(${tint.map(f).join(', 
   const lensFragment = (mode) => {
     let fragment = mode.lens.foot === false ? LENS_FRAGMENT.replace(LENS_FOOT, 'float foot = 1.0;') : LENS_FRAGMENT
     if (mode.lens.foot === 'ease') {
-      fragment = fragment.replace(LENS_FOOT, 'float foot = smoothstep(0.0, 1.0, gl_FragCoord.y / (uRes.y * 0.1));')
+      // (over a tenth of the canvas, or the share a composition's `lens.footShare` gives: the docs overview's bank of
+      // cloud fades a little longer)
+      const share = (mode.lens.footShare || 0.1).toFixed(2).replace(/0$/, '')
+      fragment = fragment.replace(LENS_FOOT, `float foot = smoothstep(0.0, 1.0, gl_FragCoord.y / (uRes.y * ${share}));`)
     }
     if (mode.lens.even && fragment.includes(LENS_EVEN[0])) {
       fragment = fragment.replace(...LENS_EVEN)
@@ -10101,6 +11560,1510 @@ ${LINE_FILL}`,
       )
       .replace(LINE_HAZE, 'float alpha = max(cover, haze * uUnder * mix(1.0, fade * fade, uFade.w));')
       .replace(LINE_CHANCE, `${LINE_CHANCE}mix(1.0, pow(fade, uFadeLook.z), uFade.w) * `)
+  /* A composition whose land is a photograph (`land.photo`, see the docs composition) has its hills shaded as turf
+     rather than drawn in lines: a sheet with `turf` is a hillside of grass seen at the end of the day, and a sheet
+     without one (the sky) is drawn in its lines as ever, or as air (see airFragment). Only such a composition's
+     shader has any of this.
+
+     The light is one thing, shared by every hill: a broad band of low sun that rakes across the valley (uBeam), with
+     a wide penumbra either side, wider towards the near end, fainter shafts of the same light beside it in the shade
+     (uShafts), and the ground at the picture's foot out in the sun again in front of the hills' shade (uNear). It is
+     laid in the stage's own terms, so it crosses every hill where it lies rather than following any hill's shape; the
+     turf's own roughness breaks its edge, so the light gives way to the shade through the blades' tips; and all of it
+     creeps slowly with the clock, the patches of thinner cloud inside it drifting one way along it.
+
+     The shader knows where every hill of turf has its skyline (uCrests: each hill's top line by place across, a lane
+     of the texture to a hill, in the order they are drawn), and from that:
+     - how far down its own face a place is, and which way the hill leans there: a slope turned from the sun takes less
+       of the band's light (never none: grass lets light through), the top of a hill that leans to the sun catches a
+       little of it over its crest whatever shade its face is in, and the blades along a crest glow where the band
+       crosses it with the sun behind them;
+     - where the nearer hills stand in front of it: under them it paints nothing, and just above them lies a little
+       mist, thinning away before their top line so that it never ends on a ruled edge.
+     The turf itself is the page's grain read at other scales: drawn out into short flecks three ways for the blades,
+     which lean one way in one tuft and the other in the next, a speckle as fine as the screen, and clumps and the
+     small dark dashes of tufts' shadows in the ground's own terms (along the hill and down its face, drawn together
+     towards the crest, so that they follow its curve and grow finer up it); with the shader's own noise for the
+     swells, the broad mottling and the tufts' relief, and a soft track or two along a hillside. All of that shows in
+     proportion to the light: deep shade is quiet, and the sun brings the ground's relief out. A sheet's paint is read
+     by how much light a place has, from deep shade to a blade lit through. A hill's skyline is the tips of the blades
+     that stand along it, each its own height and lean, and never a ruled line.
+
+     The dew answers the light: it is thickest where the light gives way to the shade, thinner in full sun and nearly
+     gone in deep shade. A glint is light, added to the turf, and never white laid over it: most are flecks the yellow
+     green of a lit blade, short dashes that lie along a blade; some are drops with a white heart and a pale bloom;
+     and a few are jewels, sky blue, gold or pink round a white heart, with a soft halo. Each comes and goes at its own
+     slow pace. At the picture's foot and round the words the turf breaks into the page's own specks, as everything
+     in the hero does. Everything that moves is a function of the clock alone. */
+  const LINE_MAIN = '  void main() {\n    vec4 dye = vec4(0.0);\n'
+  const LINE_SPREAD = '    float spread = max(vSheet.z, 0.001);\n'
+  // how many places across the crests' texture holds, and how far to either side of the stage's middle it reaches, in
+  // half-widths: as far as the land's sheets run
+  const CRESTS = 512
+  const CREST_SPAN = 1.6
+  const PHOTO_UNIFORMS = `  uniform sampler2D uCrests;
+  uniform vec4 uLandAt;
+  uniform vec4 uTurf;
+  uniform vec4 uTurfNear;
+  uniform vec4 uTurfLook;
+  uniform vec4 uTurfForm;
+  uniform vec4 uTurfRim;
+  uniform vec4 uTurfTake;
+  uniform vec4 uTurfMist;
+  uniform vec4 uTurfTracks;
+  uniform vec3 uTurfInk[3];
+  uniform vec3 uSunDir;
+  uniform vec4 uSunWay;
+  uniform vec4 uBeam;
+  uniform vec4 uBeamLook;
+  uniform vec4 uBeamRun;
+  uniform vec4 uShafts[2];
+  uniform vec4 uDapple;
+  uniform vec4 uNear;
+  uniform vec4 uLamp;
+  uniform vec4 uLampLook;
+  uniform float uHazeLay;
+  uniform vec4 uDew;
+  uniform vec4 uPhotoEdge;
+`
+  const PHOTO_HELPERS = `  /* Where each hill of turf has its skyline at a place across, in CSS pixels down the canvas. */
+  vec4 crestsAt(float x) {
+    return uLandAt.x + uLandAt.y * textureLod(uCrests, vec2((x - uLandAt.z) / uLandAt.w, 0.5), 0.0);
+  }
+  /* How much of the sun a place has from the band of light and the shafts beside it: \`off\` is how far it lies from
+     the band's middle line towards its near side, in pixels, and \`wide\` how much wider all of it is here than at the
+     band's middle. Its penumbra is wide on both sides, wider on the near one. */
+  float sunAt(float off, float wide) {
+    float lit = (1.0 - smoothstep(0.0, 1.0, (-off - uBeamLook.x * wide) / (uBeamLook.y * wide)))
+      * (1.0 - smoothstep(0.0, 1.0, (off - uBeamLook.x * wide) / (uBeamLook.z * wide)));
+    for (int i = 0; i < 2; i++) {
+      vec4 shaft = uShafts[i];
+      lit = max(lit, shaft.w * (1.0 - smoothstep(shaft.y, shaft.y + shaft.z, abs(off / wide - shaft.x))));
+    }
+    return lit;
+  }
+  /* The colour of a drop of dew's bloom: white, pale gold, gold, sky blue or pink, the further along the rarer. */
+  vec3 dewTint(float k) {
+    vec3 c = vec3(1.0, 1.0, 0.94);
+    c = mix(c, vec3(1.0, 0.95, 0.58), step(0.38, k));
+    c = mix(c, vec3(1.0, 0.76, 0.28), step(0.6, k));
+    c = mix(c, vec3(0.4, 0.7, 1.0), step(0.76, k));
+    c = mix(c, vec3(1.0, 0.5, 0.78), step(0.94, k));
+    return c;
+  }
+  /* A layer of dew: at most one glint to a cell of its grid, anywhere in the cell's middle, so that none is cut off
+     at a cell's edge and none stands in a row. A glint is light on a wet blade: a soft point, or (\`dash\`) a short
+     dash that lies along its blade, upright and turned a little either way, no two alike. It is never smaller than
+     the screen can show: a smaller one is drawn that size and as much fainter, so that it neither crawls nor
+     flickers. Round it there can be a bloom (\`halo\`), which falls away softly and is gone before the cell's edge.
+     Each has a lustre of its own, many faint and a few bright, and comes and goes at its own slow pace, by as much as
+     \`deep\`. (\`tilt\` is how far the grid itself is turned, so that upright is upright on the screen.) It gives [its
+     heart, its bloom, a dice for its colour]. */
+  vec3 dewAt(vec2 p, float cell, float fill, float size, float dash, float halo, float deep, float tilt) {
+    vec2 g = p / cell;
+    vec2 id = floor(g);
+    vec2 r2 = dice2(id + 37.7);
+    float there = smoothstep(0.0, 0.08, fill - r2.x);
+    if (there <= 0.0) {
+      return vec3(0.0);
+    }
+    vec2 r1 = dice2(id);
+    vec2 r3 = dice2(id.yx + 91.3);
+    vec2 at = fract(g);
+    vec2 d = (at - 0.32 - 0.36 * r1) * cell;
+    /* (what little of its light would reach the cell's edge is let go softly there, never cut) */
+    vec2 fromEdge = min(at, 1.0 - at);
+    there *= smoothstep(0.0, 0.08, min(fromEdge.x, fromEdge.y));
+    vec2 way = normalize(vec2(tilt + (r3.x - 0.5) * 1.5, 1.0));
+    vec2 q = vec2(d.x * way.y - d.y * way.x, dot(d, way));
+    vec2 own = size * (0.6 + 0.6 * r1.y) * vec2(1.0, 1.0 + dash * step(0.34, r3.y) * (0.2 + 0.4 * r2.y));
+    vec2 shown = max(own, vec2(0.6 / uPixels));
+    q /= shown;
+    float heart = exp(-0.5 * dot(q, q)) * (own.x * own.y) / (shown.x * shown.y);
+    float apart = length(d) / cell;
+    float bloom = halo * (1.0 - smoothstep(0.1, 0.34, apart)) / (1.0 + dot(d, d) / (size * size * 7.0));
+    float beat = 0.5 + 0.5 * sin(uClock * (0.4 + 1.5 * r1.x * r1.x) + r3.y * 43.0);
+    float lustre = there * mix(0.22, 1.0, r2.y * r2.y * r2.y) * (1.0 - deep * (1.0 - beat * beat));
+    return vec3(heart * lustre, bloom * lustre, fract(r3.x * 17.3 + r1.x * 5.1));
+  }
+`
+  const PHOTO_TURF = `    if (uTurf.x > 0.5) {
+      const float TILE = ${GRAIN_TILE}.0;
+      float stage = uPhotoEdge.w;
+      vec4 tops = crestsAt(css.x);
+      vec4 lanes = vec4(0.0, 1.0, 2.0, 3.0);
+      vec4 mine = 1.0 - step(0.5, abs(lanes - uTurf.y));
+      vec4 nearer = step(uTurf.y + 0.5, lanes);
+      vec4 rise = tops - css.y;
+      /* behind a nearer hill there is nothing to paint */
+      if (dot(nearer, step(rise, vec4(-uPhotoEdge.x))) > 0.5) {
+        outColor = vec4(0.0);
+        return;
+      }
+      float top = dot(tops, mine);
+      float below = css.y - top;
+      /* its top line can wander a little along its length, so that a long level one is never ruled */
+      if (uTurfTake.y > 0.0) {
+        below += uTurfTake.y * (2.0 * noise(vec2(css.x / 83.0, uTurf.y * 3.7 + 0.5)) - 1.0);
+      }
+      float down = max(below, 0.0);
+
+      /* The blades: the grain drawn out into short flecks that lie three ways, half a pixel wide and about one long
+         (never finer than the screen can show, which would turn the turf to static), each laid a little askew of its
+         own tile so that none repeats; and which way they lean changes from tuft to tuft, one way in one and the
+         other in the next, with short upright ones through both. Then the finest speckle the screen can show. */
+      float bw = max(uTurfLook.x, 1.9 / uPixels);
+      float lay = noise(css / 23.0 + uTurf.y * 17.0 + 5.0);
+      vec2 askew = css + (lay - 0.5) * vec2(5.0, -3.0);
+      vec2 ra = vec2(askew.x * 0.788 + askew.y * 0.616, askew.y * 0.788 - askew.x * 0.616);
+      vec2 rb = vec2(askew.x * 0.996 - askew.y * 0.087, askew.y * 0.996 + askew.x * 0.087);
+      vec2 rc = vec2(askew.x * 0.829 - askew.y * 0.559, askew.y * 0.829 + askew.x * 0.559);
+      float ga = textureLod(uGrain, ra / (vec2(0.5, 1.0) * bw * TILE), 0.0).r - 0.5;
+      float gb = textureLod(uGrain, rb / (vec2(0.45, 0.7) * bw * TILE) + vec2(0.37, 0.61), 0.0).r - 0.5;
+      float gc = textureLod(uGrain, rc / (vec2(0.55, 1.2) * bw * TILE) + vec2(0.71, 0.13), 0.0).r - 0.5;
+      float leans = smoothstep(0.4, 0.58, lay);
+      float wiry = (ga * leans + gb * 0.7 + gc * (1.0 - leans)) * inversesqrt(leans * leans + 0.49 + (1.0 - leans) * (1.0 - leans));
+      float speck = textureLod(uGrain, gl_FragCoord.xy / TILE + vec2(0.29, 0.83), 0.0).r - 0.5;
+
+      /* Its skyline is the tips of the blades that stand along it: each as wide as a blade, its own height, and
+         leaning one way here and the other there. How much of a pixel a tip covers is how much of it is drawn, so no
+         tip is stepped; and far off the line is soft besides. */
+      float tips = 0.0;
+      /* (only the line's own neighbourhood has them to work out: further down the face there is nothing to break) */
+      if (below < uTurfRim.w + 4.0) {
+        float tipLean = 1.3 * (noise(vec2(css.x / 37.0, uTurf.y * 7.3 + 1.7)) - 0.5);
+        float tipWide = max(0.9, 1.3 / uPixels) * TILE;
+        float tip = textureLod(uGrain, vec2((css.x + below * tipLean) / tipWide, 0.37 + uTurf.y * 0.21), 0.0).r;
+        float other = textureLod(uGrain, vec2((css.x - below * (0.5 + tipLean)) / (tipWide * 1.37), 0.71 + uTurf.y * 0.13), 0.0).r;
+        tip = max(clamp((tip - 0.3) / 0.4, 0.0, 1.0), 0.85 * clamp((other - 0.34) / 0.4, 0.0, 1.0));
+        /* (they stand in tufts: tall in one stretch of the line and barely there in the next) */
+        float tall = uTurfRim.w * (0.35 + 0.65 * noise(vec2(css.x / 13.0, uTurf.y * 5.1 + 8.3)));
+        tips = tall * (0.1 + 0.9 * tip * tip) * (1.0 - smoothstep(uTurfRim.w, uTurfRim.w + 4.0, below));
+      }
+      float brow = below + tips;
+      float edge = clamp(brow / (fwidth(brow) * 1.25 + uTurfRim.z) + 0.5, 0.0, 1.0);
+
+      /* At the picture's foot and round the words it breaks into the page's own specks, as everything in the hero
+         does (above that it is whole: the grain's palest specks would otherwise let the page through everywhere). */
+      float fromFoot = uCanvas.y - css.y;
+      float clear = smoothstep(uWordsCore, 1.0, length((css - uWords.xy) / uWords.zw));
+      float stay = clamp(min(fromFoot / uPhotoEdge.y, clear), 0.0, 1.0);
+      float keep = smoothstep(grain - 0.25, grain + 0.25, stay * 1.25 - 0.1);
+      float front = uHead * 1.3 - 0.15;
+      keep *= 1.0 - smoothstep(front - 0.02, front, css.x / uCanvas.x);
+      if (edge * keep <= 0.0) {
+        outColor = vec4(0.0);
+        return;
+      }
+
+      /* The hill's form: it leans the way its crest falls, and turns towards us down its face. A slope that leans
+         towards the sun takes all of the light that falls on it, and one turned from it only some. */
+      float slope = (dot(crestsAt(css.x + 6.0), mine) - top) / 6.0 * stage;
+      float face = down / (down + uTurf.w);
+      vec3 nrm = normalize(vec3(slope * uTurfForm.x * (1.0 - 0.4 * face), 1.0, uTurfForm.y + uTurfForm.z * face));
+      float turned = smoothstep(uSunWay.z, uSunWay.w, dot(nrm, uSunDir));
+      float take = uSunWay.y * mix(uTurfTake.x, 1.0, turned);
+      /* and the top of a hill that leans to the sun catches it over its crest, whatever shade its face is in: a soft
+         light along the crest that falls away down the face */
+      float crestLit = uSunWay.y * uTurfTake.z * turned * exp(-down / uTurfTake.w);
+
+      /* The ground in its own terms: along the hill, and down its face, drawn together towards the crest as the
+         hill turns away there. In them lie its clumps, the small dark dashes of its tufts' shadows, the swells and the
+         broad patches of its colour, its tufts' relief, and a track or two that follow the ground's curve. */
+      vec2 scales = uTurfNear.xy;
+      float span = uTurfNear.z;
+      float k = max((scales.y - scales.x) / span, 1e-5);
+      float gv = log(1.0 + k * min(down, span) / scales.x) / k + max(down - span, 0.0) / scales.y;
+      vec2 ground = vec2(css.x / mix(scales.x, scales.y, 0.5), gv) + uTurf.y * 311.7;
+      float clump = textureLod(uGrain, ground / (vec2(3.2, 2.4) * TILE), 0.0).r - 0.5;
+      float swell = noise(ground / vec2(31.0, 11.0));
+      float mottle = noise(ground / vec2(150.0, 56.0) + 9.7);
+      /* (tufts come in drifts: thick in one stretch of ground, none in the next; and so does the dew, further down) */
+      float drifts = noise(ground / vec2(83.0, 37.0) + 41.3);
+      float tufty = smoothstep(0.3, 0.7, drifts);
+      float dash = tufty * smoothstep(0.7, 0.82, textureLod(uGrain, ground / (vec2(11.0, 2.6) * TILE) + vec2(0.19, 0.47), 0.0).r);
+      /* a tuft stands up out of the ground: its side towards the sun is lit and its other side is in its own shade */
+      float tuft = noise(ground / vec2(13.0, 4.6) + 23.1);
+      float relief = tufty * clamp((noise((ground + vec2(3.0 * uSunWay.x, -1.1)) / vec2(13.0, 4.6) + 23.1) - tuft) * 5.0, -1.0, 1.0);
+      float hollow = tufty * smoothstep(0.7, 0.86, tuft);
+      /* a track: a soft dark line a couple of pixels wide on any hill, its upper edge catching the light, broken here
+         and there */
+      float track = 0.0;
+      for (int i = 0; i < 2 && uTurfTracks.z > 0.0; i++) {
+        float lane = float(i);
+        float wander = (noise(vec2(css.x / 110.0, 3.7 + lane * 5.1)) - 0.5) * 30.0;
+        float from = (gv - uTurfTracks[i] - wander) * mix(scales.x, scales.y, smoothstep(0.0, span, down));
+        float broken = step(0.5, uTurfTracks[i]) * smoothstep(0.34, 0.5, noise(vec2(css.x / 58.0, 9.1 + lane * 3.3)));
+        float rut = (1.0 - smoothstep(0.5, 1.7, abs(from))) - 0.45 * (1.0 - smoothstep(0.3, 1.6, abs(from + 2.3)));
+        track = abs(rut * broken) > abs(track) ? rut * broken : track;
+      }
+
+      /* The light: the band of low sun across the valley and the shafts beside it, uneven as light through thin
+         cloud is, its edge broken by the turf's own roughness; and the ground at the picture's foot out in the sun
+         again. (The dew is laid by the light without that roughness, so that a glint is not cut by it.) */
+      vec2 fromBeam = css - uBeam.xy;
+      float wide = max(1.0 + uBeamRun.z * dot(fromBeam, uBeamRun.xy), 0.35);
+      float off = dot(fromBeam, uBeam.zw);
+      float thin = mix(uDapple.w, 1.0, smoothstep(0.25, 0.75, noise(vec2(dot(fromBeam, uBeamRun.xy) - uDapple.z, off) / uDapple.xy + 3.1)));
+      float jag = wiry * 1.6 + clump;
+      float beam = sunAt(off, wide) * thin;
+      float lies = max(max(take * beam, crestLit), uNear.z * (1.0 - smoothstep(uNear.y, uNear.x, fromFoot)));
+      float direct = max(max(take * sunAt(off + jag * uBeamLook.w, wide) * thin, crestLit * (1.0 + jag)), uNear.z * (1.0 - smoothstep(uNear.y, uNear.x, fromFoot + jag * 12.0)));
+
+      /* The air between the hills: a little mist lies just above a nearer hill's top line, thinning away before it
+         reaches the line, so that the hill in front stands against it without a ruled edge. */
+      vec4 over = max(rise, vec4(0.0));
+      float veil = clamp(dot(nearer, exp(-over / uTurfMist.x) * smoothstep(vec4(0.0), vec4(9.0), over)), 0.0, 1.0);
+      /* The dew answers the light. It shows most where the light is giving way to the shade, on ground still dark
+         enough for a glint to stand out; less in full sun, and little in deep shade, where there is nothing for it to
+         catch. It lies in drifts, thick in one stretch of ground and thin in the next (thick where the tufts are few);
+         it thins up a hill as it goes away from the eye; and there is none in the mist, on the skyline, or where the
+         turf breaks into the page. */
+      float wet = uTurfLook.w * (0.12 + 0.88 * smoothstep(0.01, 0.12, lies) * (1.0 - 0.7 * smoothstep(0.25, 0.7, lies)));
+      wet *= (1.0 - veil) * smoothstep(2.0, 14.0, down) * mix(uDew.w, 1.0, smoothstep(0.0, span * 0.6, down));
+      wet *= 0.55 + 0.65 * smoothstep(0.3, 0.7, 1.0 - drifts);
+      wet *= smoothstep(uPhotoEdge.y + 4.0, uPhotoEdge.y + 30.0, fromFoot) * smoothstep(0.85, 1.0, clear);
+
+      /* How much light a place has: its shade, which deepens down a hill's face, the sun, and what the ground's own
+         texture does with both. That texture shows in proportion to the light: deep shade is quiet, and the sun
+         brings the ground's relief out. */
+      float rough = uTurfNear.w;
+      float shade = uTurfForm.w * (1.0 - uTurfMist.z * smoothstep(0.0, 1.0, down / uTurfMist.w));
+      float sunny = smoothstep(0.4, 0.9, direct);
+      float detail = mix(0.45, 1.0, smoothstep(0.0, 0.35, direct)) * (1.0 - 0.5 * sunny);
+      float light = shade * (1.0 + ((swell - 0.5) * 0.8 + (mottle - 0.5) * 0.7) * rough) + (1.0 - uTurfForm.w) * direct * (1.0 + ((swell - 0.5) * 0.3 + (mottle - 0.5) * 0.3) * rough);
+      /* The blades stand out against the dark between them, more in one tuft than the next, and most where the
+         light gives way to the shade and picks the blades' tips out; in full sun the turf is finer and its relief
+         shows instead: a tuft is lit on its side towards the sun and dark on its other side, the hollows between
+         tufts are dark crescents, and a blade here and there catches the sun whole. */
+      float nap = uTurfLook.y * (0.6 + 0.8 * swell) * mix(0.6, 1.0, smoothstep(0.0, span, down)) * detail;
+      light += (max(wiry, 0.0) * 3.0 + min(wiry, 0.0) * 2.2) * nap + speck * 0.35 * uTurfLook.y * detail;
+      light += smoothstep(0.16, 0.3, wiry) * 0.2 * uTurfLook.y * direct;
+      /* (and where the dew lies the wet tips of the blades catch what light there is: a fine glisten over the ground) */
+      light += smoothstep(0.1, 0.28, wiry) * wet * 0.55 * uTurfLook.y;
+      light += clump * rough * 0.4 * mix(0.5, 1.0, smoothstep(0.0, 0.35, direct));
+      light += (relief * 0.1 - hollow * 0.16) * rough * direct;
+      light -= dash * rough * (0.04 + 0.3 * direct);
+      light *= 1.0 - uTurfTracks.z * track * mix(0.5, 1.0, direct);
+      /* the blades along the crest, lit through where the band crosses it with the sun behind them: brightest
+         towards the sun */
+      float toSun = clamp(0.6 + 0.5 * css.x / uCanvas.x + slope * 0.5, 0.25, 1.3);
+      float rim = exp(-down / uTurfRim.y) * uTurfRim.x * toSun * (0.5 + 7.0 * max(wiry, 0.0) * uTurfLook.y) * (0.2 + 0.8 * beam);
+      /* (on turf already in the sun it adds little: the blades there are lit from the front as well) */
+      light += rim * (1.0 - 0.7 * smoothstep(0.2, 0.8, direct));
+      /* the figure's own light on the ground round it */
+      vec2 toLamp = (css - uLamp.xy) / uLamp.zw;
+      float pool = exp(-dot(toLamp, toLamp));
+      light += pool * uLampLook.x;
+      /* and where the wind pushes the grass over it shows its paler side */
+      light += vSheen * uSheen * 0.3;
+
+      vec3 color = textureLod(uPaint, vec2(clamp(light * 0.72, 0.0, 1.0), uRow), 0.0).rgb;
+      /* a little warmer here and cooler there, in broad patches and from blade to blade (never bluer: the shade is
+         the paint's own green) */
+      color *= mix(vec3(0.97, 1.0, 0.97), vec3(1.05, 1.01, 0.9), smoothstep(0.2, 0.8, mottle));
+      color *= 1.0 + vec3(0.3, 0.06, -0.45) * gb * uTurfLook.y * detail;
+      /* The air. Haze lies along the farthest hill's top, under the sky and of its colour there, and is gone a
+         little way down. By day it is light scattered in the air, so it is added over the grass, which stays green
+         under it, rather than laid on as paint, which would turn it grey. At dusk the air low over the hill is of a
+         light with the grass, and light added there would only make a pale rim; so there it is laid on as the air's
+         own colour (uHazeLay), and the hill's top goes into the sky as far land does rather than meeting it at a line
+         of hue. Then the mist above a nearer hill's top line. */
+      float hazed = uTurf.z * uLampLook.z * exp(-down / uLampLook.w);
+      color = mix(color + uTurfInk[0] * (1.0 - color) * hazed, mix(color, uTurfInk[0], hazed), uHazeLay);
+      color = mix(color, uTurfInk[1], veil * uTurfMist.y);
+      color = mix(color, uTurfInk[2], pool * uLampLook.y);
+      /* a film's grain over it all, as the flowers have */
+      vec3 filmed = mix(2.0 * color * grain, 1.0 - 2.0 * (1.0 - color) * (1.0 - grain), step(0.5, color));
+      color = mix(color, filmed, uTurfLook.z);
+
+      /* The dew's glints are added as light, and never laid on as white, which would leave grey dots where one is dim.
+         Most are flecks the yellow green of a lit blade (warmer where the sun is on them); some are drops, white with
+         a breath of colour in their bloom; and a few are jewels, sky blue, gold or pink round a white heart, with a
+         soft halo. A bright one is brighter than the picture can hold, so its heart burns out pale and its colour
+         shows round it, as a point of light does in a photograph; a dim one is only a paler blade. */
+      if (wet > 0.004) {
+        float drop = mix(0.6, 1.0, 1.0 - uTurf.z) * mix(0.75, 1.0, smoothstep(0.0, span, down));
+        vec2 da = vec2(css.x * 0.956 + css.y * 0.292, css.y * 0.956 - css.x * 0.292);
+        vec2 db = vec2(css.x * 0.875 - css.y * 0.485, css.y * 0.875 + css.x * 0.485) + 31.0;
+        vec2 dc = vec2(css.x * 0.755 + css.y * 0.656, css.y * 0.755 - css.x * 0.656) + 77.0;
+        vec3 flecks = dewAt(da, 9.0, wet * uDew.x, 0.58 * drop, 1.0, 0.0, 0.8, 0.305);
+        vec3 drops = dewAt(db, 14.0, wet * uDew.y, 0.72 * drop, 0.3, 0.14, 0.6, -0.554);
+        vec3 jewels = dewAt(dc, 40.0, wet * uDew.z, 1.0 * drop, 0.0, 0.5, 0.35, 0.0);
+        vec3 blade = mix(vec3(0.84, 0.94, 0.58), vec3(0.93, 0.94, 0.5), smoothstep(0.1, 0.6, lies));
+        vec3 tintB = dewTint(drops.z * 0.7);
+        vec3 tintC = dewTint(0.3 + jewels.z * 0.7);
+        vec3 glints = blade * blade * flecks.x * 4.0;
+        glints += mix(vec3(1.0, 0.98, 0.7), tintB * tintB, 0.5) * drops.x * 3.4 + tintB * tintB * drops.y;
+        glints += vec3(1.0) * jewels.x * 2.6 + tintC * tintC * jewels.y;
+        color = sqrt(color * color + glints);
+      }
+
+      float show = edge * keep;
+      outColor = vec4(min(color, vec3(1.0)) * show, show);
+      return;
+    }
+`
+  /* The turf shader above was written for the hero's valley as it was first painted: four hills, each the whole way
+     across, a figure standing in it, and a picture that dissolves into the page at its foot. A land that is otherwise
+     has those parts of it rewritten here, each only where its land needs it.
+     - More than four hills of turf: the crests' texture has a row of four lanes for every four of them (crestRows), and
+       the three places that read it (whether a nearer hill hides this one, the slope of its crest, the mist above a
+       nearer hill) read every row that can hold a hill nearer than this one, and no other.
+     - No figure (`lamp: null`): no light of its round its feet.
+     - A canvas that runs on to the page's foot (`foot: 0`): nothing dissolves there, and the dew runs to the edge. */
+  const photoPatch = (text, from, to) => {
+    if (!text.includes(from)) {
+      throw new Error(`the turf shader has changed under its patch: ${from.trim().slice(0, 48)}`)
+    }
+    return text.replace(from, to)
+  }
+  const PHOTO_CRESTS = `  vec4 crestsAt(float x) {
+    return uLandAt.x + uLandAt.y * textureLod(uCrests, vec2((x - uLandAt.z) / uLandAt.w, 0.5), 0.0);
+  }
+`
+  const PHOTO_NEARER = `      vec4 tops = crestsAt(css.x);
+      vec4 lanes = vec4(0.0, 1.0, 2.0, 3.0);
+      vec4 mine = 1.0 - step(0.5, abs(lanes - uTurf.y));
+      vec4 nearer = step(uTurf.y + 0.5, lanes);
+      vec4 rise = tops - css.y;
+      /* behind a nearer hill there is nothing to paint */
+      if (dot(nearer, step(rise, vec4(-uPhotoEdge.x))) > 0.5) {
+        outColor = vec4(0.0);
+        return;
+      }
+      float top = dot(tops, mine);
+`
+  const PHOTO_SLOPE = '      float slope = (dot(crestsAt(css.x + 6.0), mine) - top) / 6.0 * stage;\n'
+  const PHOTO_VEIL = `      vec4 over = max(rise, vec4(0.0));
+      float veil = clamp(dot(nearer, exp(-over / uTurfMist.x) * smoothstep(vec4(0.0), vec4(9.0), over)), 0.0, 1.0);
+`
+  const PHOTO_LAMP = `      /* the figure's own light on the ground round it */
+      vec2 toLamp = (css - uLamp.xy) / uLamp.zw;
+      float pool = exp(-dot(toLamp, toLamp));
+      light += pool * uLampLook.x;
+`
+  const PHOTO_LAMP_TINT = '      color = mix(color, uTurfInk[2], pool * uLampLook.y);\n'
+  const PHOTO_STAY = '      float stay = clamp(min(fromFoot / uPhotoEdge.y, clear), 0.0, 1.0);\n'
+  const PHOTO_DEW_FOOT =
+    '      wet *= smoothstep(uPhotoEdge.y + 4.0, uPhotoEdge.y + 30.0, fromFoot) * smoothstep(0.85, 1.0, clear);\n'
+  const PHOTO_TURF_OPEN = '    if (uTurf.x > 0.5) {\n'
+  // (the mountains' branch opens so, ahead of the turf's: see peakFragment)
+  const PEAK_OPEN = '    if (uTurf.x > 2.5) {\n'
+  const PHOTO_WET =
+    '      float wet = uTurfLook.w * (0.12 + 0.88 * smoothstep(0.01, 0.12, lies) * (1.0 - 0.7 * smoothstep(0.25, 0.7, lies)));\n'
+  /* How much dew lies even in deep shade, where nothing lights it (`photo.dewFloor`; the hero's turf has 0.12): in the
+     reference's shaded foreground the dew still glints with the sky, so a land whose open shade is most of what one sees
+     (the footer's) keeps more of it there. */
+  const dewFloorFragment = (floor) =>
+    PHOTO_WET.replace('(0.12 + 0.88 *', `(${floor.toFixed(3)} + ${(1 - floor).toFixed(3)} *`)
+  /* A hill whose dew is glitter (`photo.glitter`, the pricing hill's, after the sunset Cameron sent, where the grass
+     glitters all over with tiny points of light): it lies thickest where the light is rather than along the light's
+     edge (`shade`, how much of it lies even in deep shade, and `light`, the light at which it starts to thicken and
+     the light at which it is thickest), so the hill glitters everywhere and most where the low sun rakes it; few of its
+     glints are faint (`lustre`, the least a glint shines, where the dew's least is 0.22 and most are near it); they
+     are whiter than a lit blade (`white`, how far its flecks go from the blade's green towards the sun's own white);
+     all of them are `bright` times as bright as dew; its finest layer is finer and thicker than the dew's (`fleck`,
+     its cell and its glints' size in pixels, where the dew's are 9 and 0.58, and how deeply they twinkle, where the
+     dew's twinkle by 0.8 and a glitter that deep goes dark between its points), so that most of the glitter is a fine
+     sparkle with the larger glints among it, never a scatter of even dots; a glint's size goes with how brightly it
+     shines (`sizes`, the least and the most, as shares of its layer's size), so that most are fine and faint and the
+     few brilliant ones are the larger, as in a photograph of glitter (the dew's sizes are 0.6 to 1.2, whatever their
+     lustre); its drops and its jewels have only a breath of a halo of their light (`halo`, [drops, jewels], where the
+     dew's have 0.14 and 0.5: a larger halo makes every glint a soft disc, and the glitter a scatter of dots); and it
+     comes down to within `foot` pixels of where the turf breaks into the page's specks (the dew stays 30 pixels over
+     them).
+     Where it lies thick, its countless finest points run together into a shimmer that lifts the ground itself towards
+     the low sun's warm white (`glow`, how far at the thickest, a little more on one grain of the ground than the next),
+     so the lit grass glows as a glittering surface does rather than standing dark between bright dots; a share of its
+     finest points are coloured (`tints`: white, pale gold, gold and now and then sky blue, as glitter is), not all the
+     green of a lit blade; and on a phone's canvas, which its screen shows larger than it is drawn, every glint is a
+     share smaller (`narrow`), so that it stays a point there too. */
+  const PHOTO_LUSTRE =
+    '    float lustre = there * mix(0.22, 1.0, r2.y * r2.y * r2.y) * (1.0 - deep * (1.0 - beat * beat));\n'
+  const PHOTO_BLADE_GLINT =
+    '        vec3 blade = mix(vec3(0.84, 0.94, 0.58), vec3(0.93, 0.94, 0.5), smoothstep(0.1, 0.6, lies));\n'
+  const PHOTO_FLECKS = '        vec3 flecks = dewAt(da, 9.0, wet * uDew.x, 0.58 * drop, 1.0, 0.0, 0.8, 0.305);\n'
+  const PHOTO_DEW_SIZE = 'vec2 own = size * (0.6 + 0.6 * r1.y) * '
+  const PHOTO_DROPS = '        vec3 drops = dewAt(db, 14.0, wet * uDew.y, 0.72 * drop, 0.3, 0.14, 0.6, -0.554);\n'
+  const PHOTO_JEWELS = '        vec3 jewels = dewAt(dc, 40.0, wet * uDew.z, 1.0 * drop, 0.0, 0.5, 0.35, 0.0);\n'
+  const PHOTO_DEW_OPEN = '      if (wet > 0.004) {\n'
+  const PHOTO_FLECK_GLINTS = '        vec3 glints = blade * blade * flecks.x * 4.0;\n'
+  /* (any of its shade, its light's two ends, its brightness and its glow can be [on a light page, on a dark page]: at
+     dusk there is less light for it to catch, so less of it shines, and more dimly) */
+  const glitterPair = (v) => (Array.isArray(v) ? `mix(${v[0].toFixed(3)}, ${v[1].toFixed(3)}, uDark)` : v.toFixed(3))
+  const glitterFragment = (
+    text,
+    { shade, light, lustre, white, bright, fleck, foot, sizes, halo, glow, tints, narrow },
+  ) => {
+    const law = `      float glitterShade = ${glitterPair(shade)};
+      float glitterLit = smoothstep(${glitterPair(light[0])}, ${glitterPair(light[1])}, lies);
+      float wet = uTurfLook.w * (glitterShade + (1.0 - glitterShade) * glitterLit);
+`
+    let out = photoPatch(text, PHOTO_WET, law)
+    out = photoPatch(
+      out,
+      PHOTO_LUSTRE,
+      PHOTO_LUSTRE.replace('mix(0.22, 1.0, r2.y * r2.y * r2.y)', `mix(${lustre.toFixed(3)}, 1.0, r2.y * r2.y)`),
+    )
+    out = photoPatch(
+      out,
+      PHOTO_BLADE_GLINT,
+      `${PHOTO_BLADE_GLINT}        blade = mix(blade, vec3(1.0, 0.97, 0.84), ${white.toFixed(3)});\n`,
+    )
+    out = photoPatch(
+      out,
+      PHOTO_FLECKS,
+      PHOTO_FLECKS.replace('9.0', fleck[0].toFixed(1))
+        .replace('0.58 *', `${fleck[1].toFixed(3)} *`)
+        .replace('0.8, 0.305', `${fleck[2].toFixed(3)}, 0.305`),
+    )
+    out = photoPatch(
+      out,
+      PHOTO_DEW_SIZE,
+      `vec2 own = size * mix(${sizes[0].toFixed(3)}, ${sizes[1].toFixed(3)}, r2.y * r2.y) * mix(${narrow.toFixed(3)}, 1.0, smoothstep(480.0, 760.0, uCanvas.x)) * `,
+    )
+    out = photoPatch(out, PHOTO_DROPS, PHOTO_DROPS.replace('0.3, 0.14,', `0.3, ${halo[0].toFixed(3)},`))
+    out = photoPatch(out, PHOTO_JEWELS, PHOTO_JEWELS.replace('0.0, 0.5,', `0.0, ${halo[1].toFixed(3)},`))
+    out = photoPatch(
+      out,
+      PHOTO_DEW_FOOT,
+      PHOTO_DEW_FOOT.replace('uPhotoEdge.y + 30.0', `uPhotoEdge.y + ${foot.toFixed(1)}`),
+    )
+    out = photoPatch(
+      out,
+      PHOTO_DEW_OPEN,
+      `      color = mix(color, vec3(1.0, 0.96, 0.82), ${glitterPair(glow)} * glitterLit * wet * (0.6 + 0.8 * smoothstep(-0.2, 0.3, speck)));\n${PHOTO_DEW_OPEN}`,
+    )
+    out = photoPatch(
+      out,
+      PHOTO_FLECK_GLINTS,
+      `        vec3 fleckInk = mix(blade, dewTint(flecks.z * 0.9), ${tints.toFixed(3)} * step(0.6, fract(flecks.z * 9.7)));
+        vec3 glints = fleckInk * fleckInk * flecks.x * 4.0;
+`,
+    )
+    return photoPatch(out, PHOTO_GLINTS, `        color = sqrt(color * color + glints * ${glitterPair(bright)});\n`)
+  }
+  /* The ground at the canvas's foot, where the picture runs on to the page's foot (`photo.blur`, in pixels up from it):
+     right in front of the lens it is as out of focus as the flowers that stand in it, so the blades' fine flecks and
+     the finest speckle fade there, and the dew's glints spread into soft discs of the same light rather than staying
+     points. */
+  const PHOTO_NAP =
+    '      float nap = uTurfLook.y * (0.6 + 0.8 * swell) * mix(0.6, 1.0, smoothstep(0.0, span, down)) * detail;\n'
+  const PHOTO_SPECK =
+    '      light += (max(wiry, 0.0) * 3.0 + min(wiry, 0.0) * 2.2) * nap + speck * 0.35 * uTurfLook.y * detail;\n'
+  const PHOTO_GLISTEN = '      light += smoothstep(0.1, 0.28, wiry) * wet * 0.55 * uTurfLook.y;\n'
+  const PHOTO_DROP =
+    '        float drop = mix(0.6, 1.0, 1.0 - uTurf.z) * mix(0.75, 1.0, smoothstep(0.0, span, down));\n'
+  const PHOTO_GLINTS = '        color = sqrt(color * color + glints);\n'
+  const blurFootFragment = (text, px) => {
+    let out = photoPatch(
+      text,
+      PHOTO_NAP,
+      `      float soft = 1.0 - smoothstep(0.0, ${px.toFixed(1)}, fromFoot);\n${PHOTO_NAP.replace(';\n', ' * mix(1.0, 0.35, soft);\n')}`,
+    )
+    out = photoPatch(out, PHOTO_SPECK, PHOTO_SPECK.replace('speck * 0.35', 'speck * 0.35 * mix(1.0, 0.35, soft)'))
+    out = photoPatch(out, PHOTO_GLISTEN, PHOTO_GLISTEN.replace(';\n', ' * mix(1.0, 0.35, soft);\n'))
+    out = photoPatch(out, PHOTO_DROP, PHOTO_DROP.replace(';\n', ' * (1.0 + 1.5 * soft);\n'))
+    return photoPatch(out, PHOTO_GLINTS, '        color = sqrt(color * color + glints * mix(1.0, 0.16, soft));\n')
+  }
+  const PHOTO_SHEEN = '      light += vSheen * uSheen * 0.3;\n'
+  /* Distant land in aerial perspective (a hill's `air`): the air between it and the eye lies over all of its face, most
+     along its top, where it is furthest off, and its colour goes that far towards the air's own (`photo.airInk`: at the
+     end of the day, the low sun's warm light in the air, as the hero's far meadow has it, rather than the sky's blue,
+     which turned the far hills to grey fog). */
+  const PHOTO_AIR =
+    '      color = mix(color, uTurfAirInk, uTurfAir.x * (1.0 - uTurfAir.z * (1.0 - exp(-down / uTurfAir.y))));\n'
+  /* (that warm air lies under the haze along the farthest tops, see the turf's air: so a far hill's top still goes into
+     the sky's own air at its horizon, as the hero's far hill goes into its sky, and the warm air shows further down) */
+  const PHOTO_HAZE = '      float hazed = uTurf.z * uLampLook.z * exp(-down / uLampLook.w);\n'
+  /* The way the unseen passer and the pointer leave through turf (`trod`): where the grass has just been parted its
+     blades lie over and their paler sides catch the light, blade by blade, and the dew is brushed off them, so a
+     trodden way shows as a path through the dew and never as a wash; and only the stirs part it, not the wind's gusts
+     (which are under a quarter of the sheen: see sheenOf). */
+  const trodFragment = ([from, to, brushed, lift, tips]) => ({
+    wet: `      float trod = smoothstep(${from.toFixed(3)}, ${to.toFixed(3)}, vSheen) * uSheen;\n${PHOTO_WET}      wet *= 1.0 - ${brushed.toFixed(3)} * trod;\n`,
+    sheen: `      light += trod * (${lift.toFixed(3)} + ${tips.toFixed(3)} * max(wiry, 0.0) * 3.0 * uTurfLook.y);\n`,
+  })
+  /* A bush (a sheet of shrubs with `bush`, see `photo.bush`): a heap of leaves in the same light as the turf. Its
+     outline is the heap's own, closed at both its ends (see the shrubs' loft), wandering in and out softly with the
+     leaves along it, and here and there a sprig stands a pixel or three past it; its edge is as soft as a small thing
+     seen through a lens is, never cut. It faces the way its outline slopes and turns towards us further in, so its side
+     towards the sun (behind it, on the right) and its top are lit through where the band of light crosses it, and the
+     rest is in its own shade, deepest at its foot, where it sits down into the grass and its edge breaks into the
+     grain's specks. Its leaves are the grain read at their size, in clumps lit on their side towards the sun. */
+  const PHOTO_BUSH = `    if (uTurf.x > 1.5) {
+      float below = vSheet.x * max(vSheet.z, 0.001);
+      float deep = clamp(vAcross, 0.0, 1.0);
+      float leaf = textureLod(uGrain, css / (uTurfNear.x * ${GRAIN_TILE}.0) + vec2(0.43, 0.17), 0.0).r;
+      float clumps = noise(css / uTurfNear.y + uTurfNear.z);
+      float lit = noise((css + vec2(1.4, -0.9) * uTurfNear.y * 0.3) / uTurfNear.y + uTurfNear.z) - clumps;
+      /* (how far in from its outline a place is, in pixels, whichever way the outline runs, steep sides and all) */
+      float inside = below / max(length(vec2(dFdx(below), dFdy(below))) * uPixels, 0.3);
+      float bites = 0.65 * noise(css / 1.7 + uTurfNear.z) + 0.35 * noise(css / 0.8 + uTurfNear.z + 7.1);
+      /* (a few sprigs stand a little past it, leaning as a twig does; and its outline swells and dips with its clumps
+         of leaves, so that no side of it runs straight) */
+      float sprigs = smoothstep(uTurfForm.z, uTurfForm.z + 0.16, noise(vec2(css.x + 0.45 * css.y, css.y) / vec2(1.3, 3.0) + uTurfNear.z + 3.3)) * (1.0 - deep);
+      float bitten = inside + uTurfForm.x * (clumps - 0.5) - uTurfNear.w * smoothstep(0.3, 0.75, bites) * (1.0 - sprigs) + uTurfRim.y * sprigs;
+      float edge = clamp(bitten / max(uTurfForm.y, 2.0 / uPixels) + 0.5, 0.0, 1.0);
+      float rooted = smoothstep(grain - 0.25, grain + 0.25, (1.0 - deep) * 4.0 - 0.4);
+      float show = edge * rooted;
+      if (show <= 0.0) {
+        outColor = vec4(0.0);
+        return;
+      }
+      float side = clamp(vSheet.y, -2.0, 2.0);
+      vec3 nrm = normalize(vec3(side * (1.0 - deep), 1.2 * (1.0 - deep), 0.5 + 1.5 * deep));
+      vec2 fromBeam = css - uBeam.xy;
+      float wide = max(1.0 + uBeamRun.z * dot(fromBeam, uBeamRun.xy), 0.35);
+      float beam = sunAt(dot(fromBeam, uBeam.zw), wide);
+      float facing = smoothstep(-0.1, 0.6, dot(nrm, uSunDir));
+      float light = uTurfForm.w * (0.6 + 0.8 * nrm.y) * (1.0 - 0.45 * deep);
+      light += uSunWay.y * facing * mix(0.2, 1.0, beam) * 0.6;
+      light *= 0.35 + 1.3 * leaf;
+      light += lit * 0.4 * (0.35 + facing + 0.4 * beam);
+      /* lit through along its top as well as down its side towards the sun, as the crests are */
+      float toSun = clamp(0.6 + 0.5 * css.x / uCanvas.x + side * 0.5, 0.25, 1.3);
+      light += uTurfRim.x * exp(-max(inside, 0.0) / 2.0) * (max(side, 0.0) + 0.6 * (1.0 - deep)) * toSun * (0.25 + 0.75 * beam) * (0.3 + leaf);
+      vec3 color = textureLod(uPaint, vec2(clamp(light * 0.72, 0.0, 1.0), uRow), 0.0).rgb * vec3(0.93, 1.0, 1.04);
+      color = mix(color, uTurfAirInk, uTurfAir.x);
+      vec3 filmed = mix(2.0 * color * grain, 1.0 - 2.0 * (1.0 - color) * (1.0 - grain), step(0.5, color));
+      color = mix(color, filmed, uTurfLook.z);
+      outColor = vec4(min(color, vec3(1.0)) * show, show);
+      return;
+    }
+`
+  /* the crests' rows, read row by row: `rows` of them, and only those at or after the row this hill's own lane is in;
+     only the first `hills` lanes are hills (a lane after them holds the top of the land in front: see cutFragment); with
+     `valley`, also how deep in the hollow behind a nearer hill's crest a place lies (see PHOTO_VALLEY) */
+  const crestRowsFragment = (rows, hills, valley) => {
+    const each = Array.from({ length: rows }, (_, k) => k)
+    const read = each
+      .map(
+        (k) => `      vec4 tops${k} = uTurf.y < ${(4 * k + 3.5).toFixed(1)} ? crestRow(css.x, ${k}.0) : vec4(1e4);
+      vec4 nearer${k} = step(uTurf.y + 0.5, lanes + ${(4 * k).toFixed(1)}) * (1.0 - step(${(hills - 0.5).toFixed(1)}, lanes + ${(4 * k).toFixed(1)}));
+      vec4 rise${k} = tops${k} - css.y;
+`,
+      )
+      .join('')
+    return {
+      helper: `  vec4 crestRow(float x, float row) {
+    return uLandAt.x + uLandAt.y * textureLod(uCrests, vec2((x - uLandAt.z) / uLandAt.w, (row + 0.5) / ${rows}.0), 0.0);
+  }
+`,
+      nearer: `      vec4 lanes = vec4(0.0, 1.0, 2.0, 3.0);
+      float myRow = floor((uTurf.y + 0.5) / 4.0);
+      vec4 mine = 1.0 - step(0.5, abs(lanes + myRow * 4.0 - uTurf.y));
+${read}      /* behind a nearer hill there is nothing to paint */
+      if (${each.map((k) => `dot(nearer${k}, step(rise${k}, vec4(-uPhotoEdge.x)))`).join(' + ')} > 0.5) {
+        outColor = vec4(0.0);
+        return;
+      }
+      float top = ${each.map((k) => `dot(tops${k}, 1.0 - step(0.5, abs(lanes + ${(4 * k).toFixed(1)} - uTurf.y)))`).join(' + ')};
+`,
+      slope: '      float slope = (dot(crestRow(css.x + 6.0, myRow), mine) - top) / 6.0 * stage;\n',
+      veil: `      float veil = 0.0;
+${each
+  .map(
+    (k) =>
+      `      veil += dot(nearer${k}, exp(-max(rise${k}, vec4(0.0)) / uTurfMist.x) * smoothstep(vec4(0.0), vec4(9.0), max(rise${k}, vec4(0.0))));\n`,
+  )
+  .join('')}      veil = clamp(veil, 0.0, 1.0);
+${
+  valley
+    ? `      float valley = 0.0;
+${each.map((k) => `      valley += dot(nearer${k}, exp(-max(rise${k}, vec4(0.0)) / uValley.x));\n`).join('')}      valley = clamp(valley, 0.0, 1.0);
+`
+    : ''
+}`,
+    }
+  }
+  /* The hollow between two hills (`photo.valley`): where a nearer hill's crest cuts across the one behind it, the foot of
+     the one behind lies down in the hollow between them, and less of the sky reaches it there, so it is deeper in shade
+     the nearer it comes to that crest (and takes a little less of the sun besides). Against it the nearer crest stands
+     lit, as stacked hills do in a photograph, and the planes part by value rather than by a line. */
+  const PHOTO_SHADE =
+    '      float shade = uTurfForm.w * (1.0 - uTurfMist.z * smoothstep(0.0, 1.0, down / uTurfMist.w));\n'
+  const PHOTO_VALLEY = '      shade *= 1.0 - uValley.y * valley;\n      direct *= 1.0 - uValley.z * valley;\n'
+  /* A land whose turf covers nearly all of a canvas drawn every frame on every page (the footer's) reads its smooth
+     noise from a tile (`photo.noiseTile`, the tile's size in whole places): the value noise the turf is made of, with
+     the same smooth fade between the same kind of random values, from one look into the tile rather than four hashes,
+     which is most of what a place of turf costs to work out. The tile repeats only every that many of the noise's own
+     cells, further than any of its patterns' sizes times the widest screen. */
+  const tileNoiseFragment = (text, size) => {
+    const from = Math.min(
+      ...[PEAK_OPEN, '    if (uTurf.x > 1.5) {\n', PHOTO_TURF_OPEN]
+        .map((open) => text.indexOf(open))
+        .filter((at) => at >= 0),
+    )
+    const to = text.indexOf(LINE_SPREAD, from)
+    if (!(from >= 0 && to > from)) {
+      throw new Error('the turf shader has changed under its noise tile')
+    }
+    const helper = `  uniform sampler2D uNoise;
+  float tileNoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    return textureLod(uNoise, (i + f * f * (3.0 - 2.0 * f) + 0.5) / ${size}.0, 0.0).r;
+  }
+`
+    const turf = text.slice(from, to).replaceAll('noise(', 'tileNoise(')
+    return photoPatch(`${text.slice(0, from)}${turf}${text.slice(to)}`, LINE_MAIN, `${helper}${LINE_MAIN}`)
+  }
+  /* A land in front of what stands in front of its canvas (the footer's card), whose turf `cut`s behind it: inside the
+     card's box everything behind the card is cut out of the picture (see cutFront), so there, above the top of the land
+     in front of it (a lane of the crests' texture after the hills', see where it is laid) and `cut` pixels more, none of
+     it is worked out at all. The margin is what the strokes painted on the land in front read of the land under their
+     soft edges (see bloomFragment), so the picture is as it was; on a phone, where the card spans the canvas, that is
+     all of the far land. */
+  const PHOTO_GRAIN = '    float grain = texture(uGrain, gl_FragCoord.xy / uTile).r;\n'
+  const cutFragment = (
+    lane,
+    margin,
+  ) => `${PHOTO_GRAIN}    if (uBehind > 0.5 && css.x > uCut.x && css.x < uCut.y && css.y < uCut.z) {
+      if (css.y < crestRow(css.x, ${Math.floor(lane / 4)}.0)[${lane % 4}] - ${margin.toFixed(1)}) {
+        outColor = vec4(0.0);
+        return;
+      }
+    }
+`
+  /* A land whose dew lies on nearly every place of a canvas drawn every frame (the footer's) works out a glint only near
+     it (`photo.dewReach`, in a glint's own widths): a place further from its cell's glint than that, and than the
+     glint's bloom reaches, is left dark at once, which is where the light of the glint is less than the screen shows. */
+  const PHOTO_DEW_CELL = `    vec2 r1 = dice2(id);
+    vec2 r3 = dice2(id.yx + 91.3);
+    vec2 at = fract(g);
+    vec2 d = (at - 0.32 - 0.36 * r1) * cell;
+`
+  const dewReachFragment = (widths) => `    vec2 r1 = dice2(id);
+    vec2 at = fract(g);
+    vec2 d = (at - 0.32 - 0.36 * r1) * cell;
+    float reach = max(${widths.toFixed(1)} * max(1.2 * size * (1.0 + 0.6 * dash), 0.6 / uPixels), step(0.001, halo) * 0.34 * cell);
+    if (dot(d, d) > reach * reach) {
+      return vec3(0.0);
+    }
+    vec2 r3 = dice2(id.yx + 91.3);
+`
+  /* Mountains (a hill of turf with `peaks`, see the enterprise composition): rock and snow, seen through a long lens in
+     the same late light as the turf. A range's line was drawn from its summits (see entPeaks), so the shader is told
+     where each stands, how far its cone reaches to its left and to its right, how tall it is and by what power each of
+     its flanks falls (uPeaks and uPeakLook, worked out when the land is laid out), and a place on the range belongs to
+     the summit whose cone stands highest
+     over it: where two meet, a gully comes down from the saddle between them, wandering from side to side, its sunward
+     wall in the ragged shade its other wall throws, so that two peaks meet in a valley and never at a cut.
+     Each summit has two planes, parted by an arête that comes down from it off its middle, by its own lean, wandering
+     and broken; the cone rounds them, and they are parted less and less further down the face. Over them lies the face's
+     own relief, a height field in the screen's own terms so that it runs on unbroken from one summit's face into the
+     next: ridges and gullies of a gradient noise, which run on and branch where a value noise's would close in rings,
+     in four sizes (about 110, 46, 20 and 9 pixels across on the nearer range, finer on the far ones), each longer down
+     the fall line than across it, warped by a slow noise so that they wander, and spread a little to either side of each
+     summit as they come down. The light finds the face's form from all of that through its slope, so the light is larger
+     than the texture: its edge is crisp, so every ridge parts its light from its shade; a face is the brighter the more
+     squarely it is turned to the sun; and what is in shade still has its form from the sky. Snow lies over all of it but
+     where the rock shows: along the crests of the ridges, which the wind keeps bare, as bands that are thin high on a
+     summit and wider further down, broken along their length; on the steep walls; and towards the foot on all but the
+     gullies; its edges crisp and ragged, as snow on rock is through a long lens, but never sharper than a device pixel
+     shows. The snow lies smooth over the finer relief, which the rock shows, darker than the snow in shade; on a nearer
+     range the rock is bedded in strata here and there, a ledge lit along its lip with a line of snow on it; each summit
+     holds its own share. Below the rock a forest covers the lower slopes, from a ragged treeline that comes lower on
+     the ridges and climbs the gullies, its spurs broad and rounded, sunlit green and blue green in their shade: trees,
+     each a crown a few pixels across lit on its side towards the sun, thinning out into single trees at the treeline,
+     with now and then an avalanche's chute of meadow down a gully; past the summits' own foot (where a narrow stage
+     squeezes a range under its peaks) the planes give way to those spurs. The valley's evening shade has
+     risen up the lower slopes, a ragged line, and at dusk up to the summits, which keep the last of the light. Its paint
+     is two ramps read by the light, the rock's and the snow's, and two inks for the forest. Then the air: over all of it
+     as much as it is far off, more towards its foot, pooling just over a nearer crest so that the nearer land stands
+     against haze, along a far skyline, lit warm in front of a sunlit face; and over the sky's own top it fades into the
+     page with the air, so that no summit stands on the bare page. Its skyline is soft, as far land's is through air, and
+     breaks a little along its length. Round the words it clears, as the sky's air does. Nothing in it moves. Only such a
+     land's shader has any of this. */
+  const PEAK_UNIFORMS = `  uniform vec4 uPeaks[8];
+  uniform vec4 uPeakLook[8];
+  uniform vec4 uRockEdge;
+  uniform vec4 uRockForm;
+  uniform vec4 uRockRelief;
+  uniform vec4 uRockSnow;
+  uniform vec4 uRockLight;
+  uniform vec4 uRockAir;
+  uniform vec3 uRockInk[5];
+  uniform vec4 uRockClear;
+  uniform vec4 uRockTop;
+  uniform vec4 uRockMore;
+  uniform int uRockCount;
+`
+  const PEAK_HELPERS = `  /* Gradient noise and its slope, for the lie of a mountain's face: its ridges are the lines where it crosses
+     nothing, which run on and branch more than a value noise's do, but still close into rings and hooks here and
+     there; so a face keeps only the stretches of them that run down its fall line (see peakFragment). */
+  vec3 gnoiseD(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    vec2 du = 6.0 * f * (1.0 - f);
+    vec2 ga = dice2(i) * 2.0 - 1.0;
+    vec2 gb = dice2(i + vec2(1.0, 0.0)) * 2.0 - 1.0;
+    vec2 gc = dice2(i + vec2(0.0, 1.0)) * 2.0 - 1.0;
+    vec2 gd = dice2(i + vec2(1.0, 1.0)) * 2.0 - 1.0;
+    float va = dot(ga, f);
+    float vb = dot(gb, f - vec2(1.0, 0.0));
+    float vc = dot(gc, f - vec2(0.0, 1.0));
+    float vd = dot(gd, f - vec2(1.0, 1.0));
+    float k = va - vb - vc + vd;
+    return vec3(va + u.x * (vb - va) + u.y * (vc - va) + u.x * u.y * k, ga + u.x * (gb - ga) + u.y * (gc - ga) + u.x * u.y * (ga - gb - gc + gd) + du * (u.yx * k + vec2(vb, vc) - va));
+  }
+  /* A ridge out of a gradient noise, and its slope: high along its crest, where the noise crosses nothing, and low in
+     the gullies either side, its crest rounded over \`soft\` (more for a finer one, so that it never flickers), and
+     its gullies' floors never quite flat. As [how high it stands, from nothing to 1, and its slope across and down, in
+     the noise's own terms]. */
+  vec3 ridgeOf(vec3 n, float soft) {
+    float x = 2.4 * n.x;
+    float c = x * inversesqrt(1.0 + x * x);
+    float s = sqrt(c * c + soft * soft);
+    float most = sqrt(1.0 + soft * soft);
+    return vec3((most - s) / (most - soft), -c / (s * (most - soft)) * 2.4 * pow(1.0 + x * x, -1.5) * n.yz);
+  }
+`
+  /* The mountains' branch of the turf shader, with the land's own way of reading the crests (`nearer`, see
+     crestRowsFragment), how much a place lies just over a nearer crest (`pooled`), and this range's own top line a
+     pixel further across (`ahead`). */
+  const peakFragment = (nearer, pooled, ahead) => `${PEAK_OPEN}
+      const float TILE = ${GRAIN_TILE}.0;
+${nearer}      float below = css.y - top;
+      /* (its skyline breaks along its length at two sizes: a cornice here, a rock standing out of the snow there) */
+      float brow = below + uRockEdge.y * (noise(vec2(css.x / 7.0, uTurf.y * 5.3 + 1.1)) + 0.5 * noise(vec2(css.x / 2.3, uTurf.y * 3.7 + 4.1)) - 0.75);
+      /* (its edge is smoothed over as far as the line falls across a pixel, worked out from the line itself, since a
+         derivative is not to be trusted after the early return above) */
+      float fallAcross = ${ahead} - top;
+      float edge = clamp(brow / ((1.6 + abs(fallAcross)) * 1.25 / uPixels + uRockEdge.x) + 0.5, 0.0, 1.0);
+      /* (it clears round the words as the sky's air does, and over the air's own top it fades into the page with the
+         air) */
+      float open = smoothstep(uRockTop.z, uRockTop.w, length((css - uRockClear.xy) / uRockClear.zw));
+      float aloft = smoothstep(0.0, 1.0, (css.y - uRockTop.x) / uRockTop.y);
+      float show = edge * open * aloft;
+      if (show <= 0.0) {
+        outColor = vec4(0.0);
+        return;
+      }
+      /* The summit this face comes down from: the peak whose cone stands highest over this place across; and how far
+         it is across to where the next one's does, which is the gully that comes down from the saddle between them. */
+      vec4 peak = uPeaks[0];
+      vec4 look = uPeakLook[0];
+      vec4 nextPeak = peak;
+      vec4 nextLook = look;
+      float best = -1e8;
+      float next = -1e8;
+      float pace = 1.0;
+      float paceNext = 1.0;
+      float nextAt = 0.0;
+      /* (the gullies wander from side to side as they come down, so that none is ruler-straight) */
+      float sway = uRockEdge.w * (noise(vec2(css.y / 41.0, uTurf.y * 3.3)) + 0.5 * noise(vec2(css.y / 13.0, uTurf.y * 5.1)) - 0.75);
+      for (int i = 0; i < 8; i++) {
+        if (i >= uRockCount) {
+          break;
+        }
+        vec4 p = uPeaks[i];
+        float d = css.x + sway - p.x;
+        float slopeOf = uPeakLook[i].x / (d < 0.0 ? p.z : p.w);
+        float rank = uPeakLook[i].x - slopeOf * abs(d);
+        if (rank > best) {
+          next = best;
+          paceNext = pace;
+          nextAt = peak.x;
+          nextPeak = peak;
+          nextLook = look;
+          best = rank;
+          pace = slopeOf;
+          peak = p;
+          look = uPeakLook[i];
+        } else if (rank > next) {
+          next = rank;
+          paceNext = slopeOf;
+          nextAt = p.x;
+          nextPeak = p;
+          nextLook = uPeakLook[i];
+        }
+      }
+      float saddle = (best - next) / (pace + paceNext);
+      float tall = look.y;
+      float dx = css.x - peak.x;
+      float under = max(css.y - peak.y, 0.0);
+      float alt = under / tall;
+      float reach = dx < 0.0 ? peak.z : peak.w;
+      /* each summit's own throw of the dice: how its arête leans, how much snow it holds, how far its planes turn */
+      vec3 luck = vec3(hash(vec2(look.z, 1.7)), hash(vec2(look.z, 9.4)), hash(vec2(look.z, 6.2)));
+      /* how far round its cone a place is: -1 at its left side, 0 turned to us, 1 at its right side */
+      /* (its flank on each side falls by a power of its own, see entPeaks: straight, hollowed or bulging) */
+      float flank = dx < 0.0 ? floor(look.w / 1000.0) / 100.0 : mod(look.w, 1000.0) / 100.0;
+      float wideAt = reach * (1.0 - pow(clamp(1.0 - alt, 0.0, 1.0), 1.0 / max(flank, 0.5))) + 3.0 + max(under - tall, 0.0) * 0.6;
+      float about = clamp(dx / wideAt, -1.0, 1.0);
+      /* The summit's own two planes, parted by its arête: off its middle by its own lean, wandering as it comes down,
+         and softer further down, where the planes round into each other. */
+      float arete = (uRockForm.x * (noise(vec2(under / 46.0 + look.z, 3.3)) - 0.5) + uRockForm.y * (luck.x - 0.5) * min(alt, 1.5)) * wideAt + (noise(vec2(under / 7.0 + look.z, 8.1)) - 0.5) * (2.0 + 6.0 * alt);
+      float plane = smoothstep(-1.0, 1.0, (dx - arete) / (uRockMore.y + 40.0 * alt * alt));
+      /* (what goes by a summit's height, its snowline, its forest and its evening shade, is shared with the next summit
+         over a gully's width either side of the saddle between them, so that it runs on across it without a step) */
+      float joined = smoothstep(0.0, 30.0, saddle);
+      float lie = mix(0.5 * (alt + max(css.y - nextPeak.y, 0.0) / nextLook.y), alt, joined);
+      /* (past the summits' own foot, where a narrow stage squeezes a range under its peaks, the planes give way to the
+         spurs of its coarser ridges) */
+      float spent = smoothstep(1.1, 2.2, lie);
+      /* (how much snow this summit holds, and below its rock a forest on the lower slopes, as far under its snowline as
+         it holds snow) */
+      float own = uRockSnow.x * mix(0.5 * (1.2 + 0.8 * (luck.y + hash(vec2(nextLook.z, 9.4)))), 0.6 + 0.8 * luck.y, joined);
+
+      /* The face's own relief, in the screen's own terms so that it runs on unbroken from one summit's face into the
+         next one's: ridges and gullies in four sizes, each a little longer down the fall line than across it, warped by
+         a slow noise, and spread to either side of each summit as they come down, as its flanks fall away. */
+      vec2 at = css * uRockRelief.x + vec2(uTurf.y * 211.0, uTurf.y * 97.0);
+      vec2 warp = vec2(noise(at / 150.0 + 3.1), noise(at / 150.0 + 17.9)) - 0.5;
+      at += warp * vec2(84.0, 48.0);
+      at.x -= uRockForm.z * about * under * uRockRelief.x * smoothstep(0.0, 70.0, saddle);
+      const vec2 SIZE1 = vec2(130.0, 175.0);
+      const vec2 SIZE2 = vec2(56.0, 84.0);
+      const vec2 SIZE3 = vec2(24.0, 36.0);
+      vec3 g1 = gnoiseD(at / SIZE1);
+      vec3 g2 = gnoiseD(at / SIZE2 + 5.3);
+      /* (the finer two only where they show: as far from any of their crests where a range goes without) */
+      vec3 g3 = vec3(1.0, 0.0, 0.0);
+      vec3 g4 = vec3(1.0, 0.0, 0.0);
+      if (uRockRelief.z > 0.0) {
+        g3 = gnoiseD(at / SIZE3 + 11.7);
+        g4 = gnoiseD(at / vec2(10.0, 13.0) + 23.1);
+      }
+      /* A face keeps only the stretches of the noise's lines that run down its fall line, as its ribs and gullies do:
+         where a line turns across the slope it is closing into a ring, which on the snow reads as a scrawl. (The
+         coarsest keep a little everywhere, so that no face is flat.) */
+      /* (how squarely each one's slope runs across the screen, which is its lines running down it; going to nothing
+         where it has hardly any slope, at a top or a hollow of it, so that it never flips there) */
+      vec2 d1 = g1.yz / SIZE1;
+      vec2 d2 = g2.yz / SIZE2;
+      vec2 d3 = g3.yz / SIZE3;
+      vec3 fall = smoothstep(vec3(0.45), vec3(0.8), vec3(abs(d1.x) / (length(d1) + 0.08 / SIZE1.x), abs(d2.x) / (length(d2) + 0.08 / SIZE2.x), abs(d3.x) / (length(d3) + 0.08 / SIZE3.x)));
+      vec3 r1 = ridgeOf(g1, 0.035) * mix(0.45, 1.0, fall.x);
+      vec3 r2 = ridgeOf(g2, 0.06) * mix(0.1, 1.0, fall.y);
+      vec3 r3 = uRockRelief.z > 0.0 ? ridgeOf(g3, 0.1) * mix(0.1, 1.0, fall.z) : vec3(0.5, 0.0, 0.0);
+      vec3 r4 = uRockRelief.z > 0.0 ? ridgeOf(g4, 0.16) : vec3(0.45, 0.0, 0.0);
+      /* (the finer ones stand out most along the coarser ones' crests, and the gullies between are smoother; on a
+         narrow stage's lower slopes the coarser two are the spurs, with a little of the finer on them) */
+      float w2 = 0.45 + 0.55 * r1.x;
+      float w3 = (0.4 + 0.6 * r2.x) * (1.0 - 0.6 * spent);
+      float w4 = (0.4 + 0.6 * r3.x) * uRockRelief.z * (1.0 - 0.6 * spent);
+      /* (Below the rock a forest, as far under the snowline as the range says (uRockMore.x shares of its snow): its line
+         ragged, lower on the ridges, where the wind is, and higher up the gullies. Its spurs are broad and rounded, but
+         still stand out of it in the light.) */
+      float treeline = own * uRockMore.x + 0.35 * (r1.x - 0.5) * own + 0.2 * (noise(at / 23.0 + 5.7) - 0.5);
+      float forest = max(spent, smoothstep(treeline, treeline + 0.12, lie));
+      vec2 tilt = uRockRelief.y * (vec2(r1.y, r1.z * 0.55) * 0.7 + vec2(r2.y, r2.z * 0.42) * 0.42 * w2) * (1.0 - 0.25 * forest);
+      vec2 rough = uRockRelief.y * (vec2(r3.y, r3.z * 0.42) * 0.32 * w3 + vec2(r4.y, r4.z * 0.64) * 0.18 * w4);
+      /* how high a place stands on its ridges: 1 along the great crests, nothing deep in a gully */
+      float ridge = (0.55 * r1.x + 0.3 * w2 * r2.x + 0.15 * w3 * r3.x) / (0.55 + 0.3 * w2 + 0.15 * w3);
+      /* its form: the planes, steeper to the side its flank is steeper, rounded with the cone, and less and less
+         parted further down the face, turned across and down by the relief */
+      float steep = min(tall / reach, 1.2);
+      float turn = uRockForm.w * (0.6 + 0.5 * steep) * (0.8 + 0.4 * luck.z);
+      float nx = (mix(-turn, turn, plane) * (1.0 - 0.7 * smoothstep(0.2, 0.9, alt)) + 0.3 * about) * (1.0 - 0.6 * spent);
+      /* (where one summit's face meets the next's, both turn as the floor of the gully between them does, away from the
+         low sun, so that the two meet in its shade and never at a step) */
+      nx = mix(abs(nx), nx, smoothstep(0.0, 3.0, saddle));
+      /* Snow over all of it but where the rock shows: along the crests of the ridges, great and lesser, which the wind
+         keeps bare, and on the steep walls, where no snow lies; high on a summit only the sharpest crests, and further
+         down more and wider, until towards the foot only the gullies hold any. Each summit holds its own share. */
+      float down = smoothstep(0.0, own * 2.0, lie);
+      /* (how far a place is from each size of crest, in pixels, and how wide a band of rock each keeps bare here:
+         thin high up and wider further down, wider and narrower along its length, never finer than a pixel shows) */
+      vec3 fromCrest = vec3(abs(g1.x) / max(length(g1.yz / SIZE1), 1e-4), abs(g2.x) / max(length(g2.yz / SIZE2), 1e-4), abs(g3.x) / max(length(g3.yz / SIZE3), 1e-4)) / uRockRelief.x;
+      float wander = noise(at / 31.0 + 9.1) * (0.3 + 1.4 * noise(at / vec2(9.0, 17.0) + 4.4));
+      vec3 band = vec3(13.0, 6.5, 3.0) * smoothstep(vec3(0.0, 0.12, 0.3), vec3(0.6, 0.8, 0.95), vec3(down)) * wander * vec3(1.0, 0.6 + 0.4 * w2, 0.5 + 0.5 * w3) / uRockRelief.x;
+      /* (a band too thin to show is let go, rather than left as a speck) */
+      vec3 bareBy = (1.0 - smoothstep(band - uRockSnow.y, band + uRockSnow.y, fromCrest + (r4.x - 0.45) * 3.0 / uRockRelief.x)) * smoothstep(0.6, 1.8, band * uPixels);
+      /* (only down the fall line, and the finer bands only along the coarser crests, as ribs branch off a ridge) */
+      bareBy *= fall * vec3(1.0, smoothstep(0.3, 0.6, r1.x), smoothstep(0.3, 0.6, r2.x));
+      float crest = max(max(bareBy.x, bareBy.y), bareBy.z);
+      /* (and the steep walls, more of them further down; the ribs' own crests from a little under the summit, where
+         the wind and the sun keep them bare; and towards the foot all but the gullies) */
+      /* (its edges crisp and ragged, as snow lies on rock seen through a long lens; never sharper than a device pixel
+         shows, by how fast the ribs rise across one, so that a crisp edge is never a jagged one) */
+      float rib = max(r1.x, 0.9 * r2.x) + 0.1 * (r4.x - 0.5);
+      float ribPx = max(length(r1.yz / SIZE1), 0.9 * length(r2.yz / SIZE2)) * uRockRelief.x / uPixels;
+      float edgeW = max(0.02, ribPx);
+      float bare = max(crest, max(smoothstep(1.47 - 0.5 * down, 1.53 - 0.5 * down, length(tilt) + 0.3 * (r4.x - 0.45)) * uRockSnow.z, smoothstep(0.5 - edgeW, 0.5 + edgeW, rib + 0.12 * (r4.x - 0.45)) * smoothstep(1.2, 2.6, lie / own)));
+      bare = max(bare, smoothstep(0.685 - edgeW, 0.685 + edgeW, rib) * smoothstep(0.04, 0.5, down));
+      float snow = (1.0 - bare) * (1.0 - forest);
+      /* The light on it: its form, the snow smooth over the finer relief and the rock rough with it, turned to the sun
+         or away; its light's edge crisp, so that every ridge parts its light from its shade, and on the lit side a face
+         the brighter the more squarely it is turned to the sun. (The wall of a gully that faces the sun lies in the
+         shade its other wall throws, a ragged band along it that widens further down, which the gully's floor shares
+         from the other side, so that the two walls meet in its shade; and the valley's evening shade has risen up the
+         lower slopes, a ragged line that the ridges stand out of longest.) */
+      float coarse = 1.6 - 1.3 * snow;
+      vec3 nrm = normalize(vec3(nx - tilt.x - rough.x * coarse, 0.45 + tilt.y + rough.y * coarse, 0.55));
+      float facing = dot(nrm, uSunDir);
+      float thrown = uRockLight.z * (0.6 + 0.8 * noise(vec2(css.y / 11.0 + look.z, 5.7))) * (0.6 + min(alt, 1.5));
+      float shadowed = mix(1.0 - smoothstep(0.0, 3.0, saddle), 1.0 - smoothstep(thrown - 1.5, thrown + 1.5, saddle), step(0.0, (nextAt - peak.x) * uSunDir.x));
+      float evening = smoothstep(uRockSnow.w - 0.3, uRockSnow.w + 0.3, lie + 0.45 * (noise(vec2(css.x / 37.0 + look.z, 1.9)) - 0.5) - 0.35 * (ridge - 0.5));
+      float lit = smoothstep(uRockLight.x, uRockLight.y, facing) * mix(0.5, 1.0, clamp(facing, 0.0, 1.0)) * (1.0 - max(shadowed, evening));
+      /* (and what is in shade still has its form from the sky, brightest on the side towards the low sun's glow) */
+      lit += (1.0 - lit) * 0.26 * (0.5 + 0.5 * dot(nrm, vec3(-0.38, 0.84, 0.39)));
+      /* its paint, read by the light: the rock weathered in blotches a few pixels across and a few larger, and darker
+         deep in its own gullies; below the summits' foot the dark of the forest on the lower slopes */
+      float blot = 0.6 * noise(at / 6.0 + 2.3) + 0.4 * noise(at / 15.0 + 7.9);
+      float crumbs = textureLod(uGrain, at / (0.5 * TILE) + vec2(0.31, 0.47), 0.0).r;
+      vec3 rockInk = textureLod(uPaint, vec2(0.02 + 0.44 * lit, uRow), 0.0).rgb * (0.92 + 0.16 * blot) * (0.88 + 0.24 * crumbs) * (0.88 + 0.24 * ridge);
+      /* (Here and there a nearer range's rock is bedded in strata, a ledge every few pixels (uRockMore.w), warped by a
+         slow noise and tilted by each summit's own lean: lit along its upper lip, in its own shade under it, and holding a
+         line of snow on the ledge where the wall is gentle enough.) */
+      if (uRockMore.z > 0.0) {
+        float bed = fract((css.y + 22.0 * noise(css / 60.0 + uTurf.y * 3.1) + css.x * (luck.z - 0.5) * 0.3) / uRockMore.w);
+        float beds = uRockMore.z * smoothstep(0.35, 0.65, noise(css / 44.0 + uTurf.y * 1.7));
+        float lip = smoothstep(0.66, 0.8, bed) * (1.0 - smoothstep(0.88, 0.99, bed));
+        float shelf = smoothstep(0.0, 0.08, bed) * (1.0 - smoothstep(0.08, 0.34, bed));
+        rockInk *= 1.0 + beds * (0.35 * lip - 0.3 * shelf);
+        snow = max(snow, beds * lip * smoothstep(1.4, 0.7, length(tilt)) * (1.0 - forest) * (1.0 - smoothstep(0.6, 1.0, down)) * 0.8);
+      }
+      /* (The forest is trees: crowns a few pixels across, a little taller than wide and no two the same size, each lit on
+         its side towards the sun, with the dark of the wood between them; every column of them shifted by its own dice,
+         so that no row of them lines up. Sunlit green on the spurs turned to the sun and blue green in their shade, the
+         light turning softly across a spur as it does across a wood; at the treeline they thin out into single trees
+         on the open slope; and down a gully here and there a narrow avalanche's chute of open meadow.) */
+      float litWood = smoothstep(-0.15, 0.5, facing) * (1.0 - evening);
+      litWood += (1.0 - litWood) * 0.35 * (0.5 + 0.5 * dot(nrm, vec3(-0.38, 0.84, 0.39)));
+      vec3 wood = mix(uRockInk[3], uRockInk[4], litWood);
+      if (forest > 0.0) {
+        /* (one size of tree for the whole range: grown with the depth down the face, it would draw the rows out into
+           swirls) */
+        vec2 cellT = vec2(2.1, 2.5) / uRockRelief.x;
+        vec2 gt = css / cellT;
+        vec2 toSun = normalize(vec2(uSunDir.x, -uSunDir.y));
+        float crown = 0.0;
+        float side = 0.5;
+        for (int i = 0; i < 2; i++) {
+          float column = floor(gt.x) + float(i) - 1.0 + step(0.5, fract(gt.x));
+          float shift = hash(vec2(column, 7.7 + uTurf.y));
+          float gy = gt.y + shift;
+          for (int j = 0; j < 2; j++) {
+            float row = floor(gy) + float(j) - 1.0 + step(0.5, fract(gy));
+            vec2 r = dice2(vec2(column, row) + uTurf.y * 17.0);
+            vec2 c = vec2(column + 0.15 + 0.7 * r.x, row + 0.15 + 0.7 * r.y - shift);
+            float size = 0.5 + 0.3 * fract(r.x * 7.31 + r.y * 3.17);
+            vec2 d = (gt - c) * cellT / (size * cellT.x);
+            d.y *= 0.8;
+            float k = smoothstep(1.0, 0.55, length(d));
+            if (k > crown) {
+              crown = k;
+              side = clamp(0.5 + 0.6 * dot(d, toSun), 0.0, 1.0);
+            }
+          }
+        }
+        float chute = smoothstep(0.08, 0.03, r2.x) * smoothstep(0.55, 0.75, noise(vec2(css.x / 60.0, uTurf.y * 3.7)));
+        wood *= mix(mix(0.42, 1.25, crown * mix(0.5, 1.0, side)), 1.2, chute);
+        forest *= mix(smoothstep(0.3, 0.6, crown), 1.0, smoothstep(0.45, 0.95, forest));
+      }
+      rockInk = mix(rockInk, wood, forest);
+      vec3 snowInk = textureLod(uPaint, vec2(0.52 + 0.46 * lit, uRow), 0.0).rgb;
+      vec3 color = mix(rockInk, snowInk, snow);
+      /* The air between it and the eye: over all of it as much as it is far off, more towards its foot, pooling just
+         over a nearer crest, along a far skyline, and towards the air's own top; and where the sun is on the face, the
+         air in front of it is lit warm. */
+      float pool = clamp(${pooled}, 0.0, 1.0);
+      float hazed = clamp(uRockAir.x + uRockAir.y * smoothstep(25.0, 220.0, below) + uRockAir.z * pool + uRockLight.w * exp(-max(below, 0.0) / 12.0), 0.0, 1.0);
+      /* (where a narrow stage shows a range's forested lower slopes, its air is thinner over them than over its far
+         snows, so the forest keeps its spurs and its trees, lit and in shade, and never stands as a bank of fog) */
+      hazed *= 1.0 - 0.65 * forest * spent;
+      hazed = max(hazed, 1.0 - smoothstep(0.0, 1.0, (css.y - uRockTop.x) / (uRockTop.y * 1.8)));
+      vec3 air = mix(uRockInk[0], uRockInk[1], smoothstep(90.0, 0.0, below) * 0.6);
+      air = mix(air, uRockInk[2], lit * uRockRelief.w);
+      color = mix(color, air, hazed);
+      /* (the film's grain lies on the snow and the air, and much less on the rock, whose own texture it would only
+         muddy; none on the forest's trees) */
+      vec3 filmed = mix(2.0 * color * grain, 1.0 - 2.0 * (1.0 - color) * (1.0 - grain), step(0.5, color));
+      color = mix(color, filmed, uRockEdge.z * mix(0.4, 1.0, max(snow, hazed)) * (1.0 - forest));
+      outColor = vec4(min(color, vec3(1.0)) * show, show);
+      return;
+    }
+`
+  /* A land lit from the left that asks for it (`photo.mirror`, as /enterprise's does) has the blades along its crests
+     lit through brightest towards the left, and on the faces that lean to the left, rather than the right. */
+  const PHOTO_TO_SUN = '      float toSun = clamp(0.6 + 0.5 * css.x / uCanvas.x + slope * 0.5, 0.25, 1.3);\n'
+  /* A land whose own foot stands over the canvas's (`photo.raised`, in pixels) breaks into the page's specks above it. */
+  const PHOTO_FROM_FOOT = '      float fromFoot = uCanvas.y - css.y;\n'
+  const photoFragment = (whole, mode) => {
+    const photo = mode.land.photo
+    let text = whole
+      .replace(LINE_DARK, `${LINE_DARK}${PHOTO_UNIFORMS}`)
+      .replace(LINE_MAIN, `${PHOTO_HELPERS}${LINE_MAIN}`)
+      .replace(LINE_SPREAD, `${PHOTO_TURF}${LINE_SPREAD}`)
+    const rows = Math.ceil((mode.land.sheets.filter((sheet) => sheet.turf).length + (photo.cut ? 1 : 0)) / 4)
+    const valley = !!photo.valley && rows > 1
+    if (rows > 1) {
+      const crests = crestRowsFragment(rows, mode.land.sheets.filter((sheet) => sheet.turf).length, valley)
+      text = photoPatch(text, PHOTO_CRESTS, crests.helper)
+      text = photoPatch(text, PHOTO_NEARER, crests.nearer)
+      text = photoPatch(text, PHOTO_SLOPE, crests.slope)
+      text = photoPatch(text, PHOTO_VEIL, crests.veil)
+    }
+    if (valley) {
+      text = photoPatch(text, PHOTO_UNIFORMS, `${PHOTO_UNIFORMS}  uniform vec4 uValley;\n`)
+      text = photoPatch(text, PHOTO_SHADE, `${PHOTO_SHADE}${PHOTO_VALLEY}`)
+    }
+    if (!photo.lamp) {
+      text = photoPatch(text, PHOTO_LAMP, '')
+      text = photoPatch(text, PHOTO_LAMP_TINT, '')
+    }
+    if (photo.foot === 0) {
+      text = photoPatch(text, PHOTO_STAY, '      float stay = clear;\n')
+      text = photoPatch(text, PHOTO_DEW_FOOT, '      wet *= smoothstep(0.85, 1.0, clear);\n')
+    }
+    const aired = mode.land.sheets.some((sheet) => sheet.turf?.air)
+    const bushes = !!photo.bush && mode.land.sheets.some((sheet) => sheet.bush)
+    if (aired || bushes) {
+      text = photoPatch(
+        text,
+        PHOTO_UNIFORMS,
+        `${PHOTO_UNIFORMS}  uniform vec4 uTurfAir;\n  uniform vec3 uTurfAirInk;\n`,
+      )
+    }
+    if (photo.cut && rows > 1) {
+      const lane = mode.land.sheets.filter((sheet) => sheet.turf).length
+      text = photoPatch(text, PHOTO_UNIFORMS, `${PHOTO_UNIFORMS}  uniform vec4 uCut;\n  uniform float uBehind;\n`)
+      text = photoPatch(text, PHOTO_GRAIN, cutFragment(lane, photo.cut))
+    }
+    if (aired) {
+      text = photoPatch(text, PHOTO_HAZE, `${PHOTO_AIR}${PHOTO_HAZE}`)
+    }
+    if (bushes) {
+      text = photoPatch(text, PHOTO_TURF_OPEN, `${PHOTO_BUSH}${PHOTO_TURF_OPEN}`)
+    }
+    if (photo.trod) {
+      const trod = trodFragment(photo.trod)
+      text = photoPatch(text, PHOTO_WET, trod.wet)
+      text = photoPatch(text, PHOTO_SHEEN, trod.sheen)
+    }
+    if (photo.dewFloor) {
+      text = photoPatch(text, PHOTO_WET, dewFloorFragment(photo.dewFloor))
+    }
+    if (photo.glitter) {
+      text = glitterFragment(text, photo.glitter)
+    }
+    if (photo.blur && photo.foot === 0) {
+      text = blurFootFragment(text, photo.blur)
+    }
+    if (photo.dewReach) {
+      text = photoPatch(text, PHOTO_DEW_CELL, dewReachFragment(photo.dewReach))
+    }
+    // a turf lit from the left glows brightest along its crests towards the left (`mirror`, see ENT_PHOTO)
+    if (photo.mirror) {
+      text = photoPatch(
+        text,
+        PHOTO_TO_SUN,
+        '      float toSun = clamp(0.6 + 0.5 * (1.0 - css.x / uCanvas.x) - slope * 0.5, 0.25, 1.3);\n',
+      )
+    }
+    if (photo.raised) {
+      text = photoPatch(text, PHOTO_FROM_FOOT, '      float fromFoot = uCanvas.y - uPhotoEdge.z - css.y;\n')
+    }
+    // the mountains' branch last, so that no patch above lands on its own reading of the crests
+    if (mode.land.sheets.some((sheet) => sheet.turf?.peaks)) {
+      const hills = mode.land.sheets.filter((sheet) => sheet.turf).length
+      const nearer = rows > 1 ? crestRowsFragment(rows, hills, false).nearer : PHOTO_NEARER
+      const ahead = rows > 1 ? 'dot(crestRow(css.x + 1.0, myRow), mine)' : 'dot(crestsAt(css.x + 1.0), mine)'
+      const pooled =
+        rows > 1
+          ? Array.from(
+              { length: rows },
+              (_, k) => `dot(nearer${k}, exp(-max(rise${k}, vec4(0.0)) / uRockAir.w) * step(vec4(0.0), rise${k}))`,
+            ).join(' + ')
+          : 'dot(nearer, exp(-max(rise, vec4(0.0)) / uRockAir.w) * step(vec4(0.0), rise))'
+      text = photoPatch(text, PHOTO_UNIFORMS, `${PHOTO_UNIFORMS}${PEAK_UNIFORMS}`)
+      text = photoPatch(text, LINE_MAIN, `${PEAK_HELPERS}${LINE_MAIN}`)
+      text = photoPatch(text, PHOTO_TURF_OPEN, `${peakFragment(nearer, pooled, ahead)}${PHOTO_TURF_OPEN}`)
+    }
+    return photo.noiseTile ? tileNoiseFragment(text, photo.noiseTile) : text
+  }
+  /* A sheet of sky can be air rather than lines (a sheet's `air`, see the docs composition): a soft photograph of a
+     sky, as a long exposure taken a little out of focus gives one, with nothing sharp anywhere in it. Only a
+     composition with such a sheet has any of this in its shader, and only that sheet draws it; every other sheet is
+     drawn as it was.
+
+     It is a smooth fall of colour by how high a place stands above the sheet's horizon (which lies a little above its
+     foot, under the hills in front of it), each ink easing into the next so that no stop shows as a crease; it comes
+     in from the page over a long eased ramp under its top line, so its top is no edge; and it is crossed by soft
+     smears, long across and short down, as a camera moved along the horizon lays them: each a streak of the air's own
+     colour from a little higher or lower, drifting slowly, its row wandering a little along its length so that none
+     is ruled; its grain is drawn out along the row the same way. Low on the horizon, wherever the sheet says (the
+     docs put it on the side their turf's low sun stands), lies a breath of paler light, as a low sun gives a hazy sky,
+     wide and soft and striated by the same smears, never a disc. Round the words' text it clears softly, with no
+     specks; and it is dithered in the 8-bit picture it is drawn into, so that a long gentle fall of colour never
+     bands. Where a place is on the sheet comes from its own mesh (a sheet's line count is its line coordinate over its
+     paint coordinate, everywhere on it), so the air needs nothing of any other sheet, nor of a photograph's land. */
+  const AIR_UNIFORMS = `  uniform vec4 uAir;
+  uniform vec3 uAirInk[5];
+  uniform float uAirAt[5];
+  uniform vec4 uAirSmear[3];
+  uniform vec4 uAirLook;
+  uniform float uAirPan;
+  uniform vec4 uAirGlow;
+  uniform vec4 uAirGlowInk;
+  uniform vec4 uAirClear;
+  uniform vec2 uAirSoft;
+`
+  const AIR_SKY = `    if (uAir.x > 0.5) {
+      /* how far down from its top a place is, and how far above its horizon, in pixels */
+      float fromTop = vSheet.x * vSheet.z;
+      float above = (vSheet.x / max(vAcross, 0.001) - vSheet.x) * vSheet.z - uAir.w;
+      /* the smears, as how far each place's colour is borrowed from above or below it, in pixels */
+      float wander = (noise(vec2(css.x / 340.0, 7.3)) - 0.5) * uAirLook.y;
+      float sway = 0.0;
+      for (int i = 0; i < 3; i++) {
+        vec4 s = uAirSmear[i];
+        sway += (noise(vec2((css.x - uClock * s.w) / s.x, (css.y + wander) / s.y) + float(i) * 19.7) - 0.5) * s.z;
+      }
+      float h = above + sway;
+      vec3 air = uAirInk[0];
+      for (int i = 1; i < 5; i++) {
+        air = mix(air, uAirInk[i], smoothstep(uAirAt[i - 1], uAirAt[i], h));
+      }
+      /* the breath of light low on the horizon */
+      vec2 toGlow = vec2((css.x - uAirGlow.x) / uAirGlow.z, (h - uAirGlow.y) / uAirGlow.w);
+      air = mix(air, uAirGlowInk.rgb, exp(-dot(toGlow, toGlow)) * uAirGlowInk.w);
+      air *= 1.0 + sway * uAirLook.x;
+      /* a breath of the page's grain, so that it has the tooth the rest of the picture has; drawn out along the row,
+         as a camera panned along the horizon draws every speck of its film out into a short dash */
+      float panned = texture(uGrain, vec2(gl_FragCoord.x / (uTile * uAirPan), gl_FragCoord.y / uTile)).r;
+      vec3 grained = mix(2.0 * air * panned, 1.0 - 2.0 * (1.0 - air) * (1.0 - panned), step(0.5, air));
+      air = mix(air, grained, uAirLook.z);
+      /* in from the page under its top line (the smears reach into that ramp, but never to the line itself) */
+      float body = smoothstep(0.0, 1.0, (fromTop + 0.6 * sway * min(fromTop / 8.0, 1.0)) / uAir.y);
+      body = pow(body, uAir.z);
+      /* clear round the words, at the foot of the canvas, and ahead of the opening's sweep */
+      float open = smoothstep(uAirSoft.x, uAirSoft.y, length((css - uAirClear.xy) / uAirClear.zw));
+      float sinkAir = clamp((uCanvas.y - css.y) / uSink, 0.0, 1.0);
+      float frontAir = uHead * 1.3;
+      float alphaAir = body * open * sinkAir * (1.0 - smoothstep(frontAir - 0.3, frontAir, css.x / uCanvas.x));
+      /* dithered by a pixel's worth either way, coming in with the air so the page round it stays the page */
+      float dither = (hash(gl_FragCoord.xy) + hash(gl_FragCoord.xy + vec2(41.7, 13.1)) - 1.0) * uAirLook.w / 255.0;
+      outColor = vec4(min(air, vec3(1.0)) * alphaAir + dither * smoothstep(0.0, 0.02, alphaAir), alphaAir);
+      return;
+    }
+`
+  /* A band of sky whose height changes a good deal from screen to screen (the footer's, beside its card) comes in over
+     no more than a share of its own height, from its top to its horizon (its air's `fade[2]`), rather than over the
+     same length everywhere: so a short band still holds its blue down to its horizon, and a tall one comes in from the
+     page as softly as the hero's. */
+  const AIR_BODY =
+    '      float body = smoothstep(0.0, 1.0, (fromTop + 0.6 * sway * min(fromTop / 8.0, 1.0)) / uAir.y);\n'
+  const airFragment = (whole, mode) => {
+    const shared = mode.land.sheets.some((sheet) => sheet.air?.fade[2])
+    if (shared && !AIR_SKY.includes(AIR_BODY)) {
+      throw new Error('the air shader has changed under its patch: body')
+    }
+    const sky = shared
+      ? AIR_SKY.replace(
+          AIR_BODY,
+          AIR_BODY.replace('/ uAir.y)', '/ max(min(uAir.y, uAirShare * (fromTop + above)), 1.0))'),
+        )
+      : AIR_SKY
+    const uniforms = shared ? `${AIR_UNIFORMS}  uniform float uAirShare;\n` : AIR_UNIFORMS
+    return whole.replace(LINE_DARK, `${LINE_DARK}${uniforms}`).replace(LINE_SPREAD, `${sky}${LINE_SPREAD}`)
+  }
+  /* The sky over the bank of cloud (a sheet's `night`, the docs overview's; see SK_NIGHT): its inks from the band's top
+     down, a slow unevenness drifting through them so that it is air and not a ramp, four fields of stars (most of them
+     faint, a few bright with short rays, a few large and soft in halos), each twinkling at its own pace, thinning out
+     down the band, and a faint diagonal veil of stardust across it, glittering, with a prism's fringe along its edges.
+     It comes in softly from the page under its top line, keeps the soft oval of page round the words that the
+     lines keep, thins at the canvas's foot as the land does, and is dithered, so that its long falls of colour never
+     band. Where a place is down the band comes from the sheet's own mesh, as the air's does. */
+  const NIGHT_UNIFORMS = `  uniform vec4 uNight;
+  uniform vec3 uNightInk[5];
+  uniform float uNightAt[5];
+  uniform vec4 uNightAir;
+  uniform vec4 uNightStars[4];
+  uniform vec4 uNightHalo;
+  uniform vec4 uNightLook;
+  uniform vec4 uNightDust;
+  uniform vec4 uNightDustLook;
+  uniform float uNightGrain;
+`
+  const NIGHT_STARS = `  /* A field of stars: in some of the cells of a grid f.x CSS pixels across (a share f.y of them) one star, somewhere in
+     its middle, of its own brightness (most faint, a few bright, f.z at most), warmth and pace of twinkling, drawn as a
+     soft point about f.w device pixels across; the brightest with short faint rays, as a lens draws them, and in the
+     last field each in a soft halo of its own. */
+  vec3 starField(vec2 css, vec4 f, float layer) {
+    vec2 c = floor(css / f.x);
+    vec2 seed = c + layer * 37.0;
+    if (hash(seed) > f.y) {
+      return vec3(0.0);
+    }
+    vec2 at = (c + 0.2 + 0.6 * vec2(hash(seed + 1.7), hash(seed + 4.3))) * f.x;
+    float mag = hash(seed + 7.9);
+    vec2 d = (css - at) * uPixels;
+    float r = f.w * (0.7 + 0.6 * mag);
+    float shine = exp(-dot(d, d) / (r * r));
+    if (layer > 2.5) {
+      shine += exp(-length(d) / (uNightHalo.x * (0.6 + 0.8 * mag))) * uNightHalo.y;
+    } else if (mag > 0.9) {
+      float ray = 3.5 * r;
+      shine += (exp(-abs(d.x) / 0.55 - abs(d.y) / ray) + exp(-abs(d.y) / 0.55 - abs(d.x) / ray)) * (mag - 0.9) * 3.0;
+    }
+    float twinkle = 0.72 + 0.28 * sin(uClock * (0.9 + 2.2 * hash(seed + 2.2)) + 6.2832 * hash(seed + 9.1));
+    float hue = hash(seed + 5.5);
+    vec3 tint = hue < 0.2 ? vec3(1.0, 0.88, 0.72) : (hue > 0.85 ? vec3(0.84, 0.91, 1.0) : vec3(1.0, 0.98, 0.94));
+    return tint * f.z * (0.12 + 0.88 * mag * mag * mag) * twinkle * shine;
+  }
+`
+  const NIGHT_SKY = `    if (uNight.x > 0.5) {
+      /* how far down the band a place is: in pixels from its top, and as a share of the way to the canvas's foot */
+      float fromTop = vSheet.x * vSheet.z;
+      float down = clamp(fromTop / max(uNight.w, 1.0), 0.0, 1.0);
+      vec3 sky = uNightInk[0];
+      for (int i = 1; i < 5; i++) {
+        sky = mix(sky, uNightInk[i], smoothstep(uNightAt[i - 1], uNightAt[i], down));
+      }
+      float drift = noise(vec2(css.x / uNightAir.x - uClock * 0.004, css.y / (uNightAir.x * 0.45))) * 0.65 + noise(vec2(css.x / (uNightAir.x * 0.4) + uClock * 0.006, css.y / (uNightAir.x * 0.2) + 3.1)) * 0.35;
+      sky *= 1.0 + (drift - 0.5) * uNightAir.y * 2.0;
+      /* the veil of stardust: a soft diagonal band across the sky, glittering, a prism's colours at its edges */
+      vec2 way = vec2(cos(uNightDust.z), sin(uNightDust.z));
+      float across = dot(css - uNightDust.xy, vec2(-way.y, way.x)) / uNightDust.w;
+      float along = dot(css - uNightDust.xy, way);
+      float thick = (0.55 + 0.45 * noise(vec2(along / 110.0, 1.3))) * (1.0 - smoothstep(0.55, 0.95, down));
+      if (abs(across) < 2.2 && thick > 0.01) {
+        float veil = exp(-across * across) * thick;
+        float spark = pow(hash(floor(gl_FragCoord.xy)), 28.0) * (0.55 + 0.45 * sin(uClock * 1.7 + 40.0 * hash(floor(gl_FragCoord.xy) + 3.7)));
+        sky += vec3(1.0, 0.97, 0.92) * spark * veil * uNightDustLook.x * 6.0 + vec3(0.92, 0.9, 1.0) * veil * uNightDustLook.x * 0.35;
+        float fringe = exp(-pow(abs(across) - 0.95, 2.0) * 5.0) * thick;
+        /* (a warm side and a cool side, as hands-1's haze has, with only a breath of green between) */
+        vec3 prism = mix(vec3(1.0, 0.62, 0.42), vec3(0.5, 0.62, 1.0), smoothstep(-1.3, 1.3, across)) + vec3(-0.04, 0.06, -0.04) * exp(-across * across * 4.0);
+        sky += (prism - 0.72) * fringe * uNightDustLook.y * 2.0;
+      }
+      float field = 1.0 - smoothstep(uNightLook.x, uNightLook.y, down);
+      if (field > 0.0) {
+        vec3 stars = starField(css, uNightStars[0], 0.0) + starField(css, uNightStars[1], 1.0) + starField(css, uNightStars[2], 2.0) + starField(css, uNightStars[3], 3.0);
+        sky += stars * field * uNightLook.z;
+      }
+      /* a breath of the page's grain, as the home hero's air has */
+      sky = mix(sky, mix(2.0 * sky * grain, 1.0 - 2.0 * (1.0 - sky) * (1.0 - grain), step(0.5, sky)), uNightGrain);
+      float bodyNight = pow(smoothstep(0.0, 1.0, fromTop / uNight.y), uNight.z);
+      float clearNight = smoothstep(uWordsCore, 1.0, length((css - uWords.xy) / uWords.zw));
+      float sinkNight = clamp((uCanvas.y - css.y) / uSink, 0.0, 1.0);
+      float alphaNight = bodyNight * clearNight * sinkNight;
+      float ditherNight = (hash(gl_FragCoord.xy) + hash(gl_FragCoord.xy + vec2(41.7, 13.1)) - 1.0) * uNightLook.w / 255.0;
+      outColor = vec4(clamp(sky, 0.0, 1.0) * alphaNight + ditherNight * smoothstep(0.0, 0.02, alphaNight), alphaNight);
+      return;
+    }
+`
+  const NIGHT_MAIN = '  void main() {\n    vec4 dye = vec4(0.0);\n'
+  const nightFragment = (whole) => {
+    if (!whole.includes(NIGHT_MAIN) || !whole.includes(LINE_SPREAD)) {
+      throw new Error('the line shader has changed under its patch: night')
+    }
+    return whole
+      .replace(LINE_DARK, `${LINE_DARK}${NIGHT_UNIFORMS}`)
+      .replace(NIGHT_MAIN, `${NIGHT_STARS}${NIGHT_MAIN}`)
+      .replace(LINE_SPREAD, `${NIGHT_SKY}${LINE_SPREAD}`)
+  }
+
+  /* The lights in the sky's air (see SK_LIGHTS): orbs out of focus and specks of light drifting slowly up through the
+     band, swaying, coming round again from its foot and fading in the page at its top. Each is a small quad of its own;
+     all of it is light, added to what is there. */
+  const GLINT_VERTEX = `#version 300 es
+  precision highp float;
+  layout(location = 0) in vec2 aCorner;
+  layout(location = 1) in vec4 aAt;
+  layout(location = 2) in vec4 aInk;
+  layout(location = 3) in vec4 aWay;
+  uniform vec2 uCanvas;
+  uniform float uClock;
+  uniform vec2 uBand;
+  uniform vec4 uBankLine;
+  out vec2 vAt;
+  out vec4 vInk;
+  flat out vec2 vKind;
+  void main() {
+    float kind = aAt.w;
+    float span = uBand.y - uBand.x + 2.0 * aAt.z;
+    float y = mod(aAt.y - uBand.x + aAt.z - aWay.x * uClock, span) + uBand.x - aAt.z;
+    vec2 at = vec2(aAt.x + aWay.y * sin(uClock * aWay.z + aWay.w * 6.2832), y);
+    float show = smoothstep(uBand.x + 12.0, uBand.x + 80.0, at.y) * (1.0 - smoothstep(uBand.y - 70.0, uBand.y, at.y));
+    /* an orb keeps above the bank of cloud, so none reads as a lamp in a fog */
+    if (kind < 0.5 && uBankLine.y > 0.0) {
+      float side = clamp(abs(at.x - uBankLine.w) / (uCanvas.x * 0.5), 0.0, 1.0);
+      float bank = uCanvas.y - mix(uBankLine.x, uBankLine.y, pow(side, uBankLine.z));
+      show *= 1.0 - smoothstep(bank - 70.0, bank - 20.0, at.y);
+    }
+    vAt = aCorner * 2.0 - 1.0;
+    vInk = vec4(aInk.rgb, aInk.a * show);
+    vKind = vec2(kind, aWay.w);
+    vec2 p = at + vAt * aAt.z;
+    gl_Position = vec4(p.x / uCanvas.x * 2.0 - 1.0, 1.0 - p.y / uCanvas.y * 2.0, 0.0, 1.0);
+  }`
+  const GLINT_FRAGMENT = `#version 300 es
+  precision highp float;
+  in vec2 vAt;
+  in vec4 vInk;
+  flat in vec2 vKind;
+  uniform float uClock;
+  out vec4 outColor;
+  void main() {
+    float r = length(vAt);
+    float seed = vKind.y;
+    /* an orb: a disc of light out of focus, a little brighter at its rim, as a lens draws one; a speck: a soft point of
+       light, twinkling */
+    float a = vKind.x < 0.5
+      ? exp(-r * r * 3.2) * (1.0 - smoothstep(0.75, 1.0, r)) * (0.8 + 0.3 * smoothstep(0.3, 0.7, r))
+      : exp(-r * r * 7.0) * (0.55 + 0.45 * sin(uClock * (1.3 + 2.0 * fract(seed * 7.1)) + seed * 40.0));
+    outColor = vec4(vInk.rgb * a * vInk.a, 0.0);
+  }`
+  /* The bank of cloud along the foot of the picture (see SK_BANK), over the sky in the land's picture: big lobes along a
+     line that is low in the middle and rises to the canvas's sides, small lobes riding on their heads and a body under
+     them, all softly joined. It is out of focus, as the clouds of the "hands of light" direction were: each lobe bulges
+     towards us and is lit from the middle of the picture and from above, the bank's heads lit and its foot in its own
+     shade, near white and a little cream where it faces the light, pink in its body and lilac-blue where it turns away
+     (rose, violet and indigo at night), its faces billowed by a slow gradient noise; its edge crisp where the light is
+     on it and soft where it turns away, and a little of the sky shows through it. It drifts very slowly. */
+  const BANK_FRAGMENT = `#version 300 es
+  precision highp float;
+  uniform vec2 uCanvas;
+  uniform float uPixels;
+  uniform float uDrift;
+  uniform vec4 uBankLine;
+  uniform vec4 uLobe;
+  uniform vec4 uBankLight;
+  uniform vec2 uBillow;
+  uniform vec3 uBankLook;
+  uniform vec3 uBankInk[3];
+  uniform sampler2D uGrain;
+  uniform float uTile;
+  out vec4 outColor;
+  float hash1(float n) {
+    return fract(sin(n * 127.1 + 311.7) * 43758.5453);
+  }
+  float hash2(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+  }
+  float noise2(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash2(i), hash2(i + vec2(1.0, 0.0)), f.x), mix(hash2(i + vec2(0.0, 1.0)), hash2(i + vec2(1.0, 1.0)), f.x), f.y);
+  }
+  /* a gradient noise, for the faces, which value noise would leave blocky */
+  float billow(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    float a00 = hash2(i) * 6.2831853;
+    float a10 = hash2(i + vec2(1.0, 0.0)) * 6.2831853;
+    float a01 = hash2(i + vec2(0.0, 1.0)) * 6.2831853;
+    float a11 = hash2(i + vec2(1.0, 1.0)) * 6.2831853;
+    float n00 = dot(vec2(cos(a00), sin(a00)), f);
+    float n10 = dot(vec2(cos(a10), sin(a10)), f - vec2(1.0, 0.0));
+    float n01 = dot(vec2(cos(a01), sin(a01)), f - vec2(0.0, 1.0));
+    float n11 = dot(vec2(cos(a11), sin(a11)), f - vec2(1.0, 1.0));
+    return mix(mix(n00, n10, u.x), mix(n01, n11, u.x), u.y);
+  }
+  float smin(float a, float b, float k) {
+    float h = max(k - abs(a - b), 0.0) / k;
+    return min(a, b) - h * h * k * 0.25;
+  }
+  /* the bank's line, how high it stands over the canvas's foot at x: low in the middle, rising to the sides */
+  float line(float x) {
+    float side = clamp(abs(x - uBankLine.w) / (uCanvas.x * 0.5), 0.0, 1.0);
+    return mix(uBankLine.x, uBankLine.y, pow(side, uBankLine.z)) * (0.86 + 0.28 * noise2(vec2(x / 230.0, 1.7)));
+  }
+  /* a big lobe: its middle (CSS pixels, y down) and its radius, its head a little over the line */
+  vec3 bigLobe(float i) {
+    float cx = (i + 0.5 + (hash1(i) - 0.5) * 0.7) * uLobe.x - uDrift;
+    float r = uLobe.x * (0.42 + 0.62 * hash1(i + 17.3));
+    return vec3(cx, uCanvas.y - line(cx) + 0.62 * r, r);
+  }
+  /* the highest of the big lobes' heads over x */
+  float bigTop(float x) {
+    float i0 = floor((x + uDrift) / uLobe.x);
+    float top = uCanvas.y - line(x) + uLobe.x * 0.3;
+    for (int k = -1; k <= 1; k++) {
+      vec3 c = bigLobe(i0 + float(k));
+      float dx = x - c.x;
+      if (abs(dx) < c.z) {
+        top = min(top, c.y - sqrt(c.z * c.z - dx * dx));
+      }
+    }
+    return top;
+  }
+  /* a small lobe, riding on the big ones' heads */
+  vec3 smallLobe(float i) {
+    float cx = (i + 0.5 + (hash1(i * 1.31 + 5.1) - 0.5) * 0.8) * uLobe.y - uDrift;
+    float r = uLobe.y * (0.4 + 0.65 * hash1(i * 0.73 + 9.7));
+    return vec3(cx, bigTop(cx) + 0.74 * r, r);
+  }
+  void main() {
+    vec2 css = vec2(gl_FragCoord.x, uCanvas.y * uPixels - gl_FragCoord.y) / uPixels;
+    float here = line(css.x);
+    if (css.y < uCanvas.y - here - uLobe.x * 1.3 - uLobe.w * 2.0) {
+      discard;
+    }
+    /* a lobe is never a true circle: the place is moved a little by a slow noise before it is measured */
+    vec2 p = css + (vec2(noise2(css / 52.0), noise2(css / 52.0 + 7.3)) - 0.5) * uLobe.y * 0.7;
+    /* How far outside the bank a place is (negative inside): the big lobes on the body, joined softly, and the small
+       lobes breaking its edge (the lobes of one size are joined by a plain minimum, the softening only between the sizes
+       and the body, so that a lobe just outside the few looked at can never reach in and cut a seam). And how its face
+       is turned: each lobe near bulges towards us, the small ones half as much, and every bulge is added, so that the
+       light changes smoothly from one lobe to the next and no lobe shows as a ball with an outline. A bulge reaches a
+       little past its lobe's rim (to uBankLight.w of its radius), so that a head is still turned up to the light at the
+       bank's edge, where it would otherwise be flat, and its crest shows. And how high the big lobes' heads stand over
+       the place, as a smooth line, for the light only: where a lobe stands over the body its side drops sheer at its
+       rim, and light measured from the heads would cut a line straight down the bank there; so each head runs on down
+       beyond its rim and the heads and the body are joined softly. */
+    float top = uCanvas.y - here + uLobe.x * 0.3;
+    float body = top - p.y;
+    vec2 bulge = vec2(0.0);
+    float heads = top;
+    float i0 = floor((p.x + uDrift) / uLobe.x);
+    float big = 1e5;
+    for (int k = -2; k <= 2; k++) {
+      vec3 c = bigLobe(i0 + float(k));
+      vec2 q = p - c.xy;
+      big = min(big, length(q) - c.z);
+      float dx = abs(q.x);
+      heads = smin(heads, dx < c.z ? c.y - sqrt(c.z * c.z - dx * dx) : c.y + (dx - c.z) * 1.5, uLobe.x * 0.3);
+      float r = c.z * uBankLight.w;
+      float f = max(1.0 - dot(q, q) / (r * r), 0.0);
+      bulge += vec2(q.x, -q.y) / r * f * f;
+    }
+    float j0 = floor((p.x + uDrift) / uLobe.y);
+    float small = 1e5;
+    for (int k = -2; k <= 2; k++) {
+      vec3 c = smallLobe(j0 + float(k));
+      vec2 q = p - c.xy;
+      small = min(small, length(q) - c.z);
+      float r = c.z * uBankLight.w;
+      float f = max(1.0 - dot(q, q) / (r * r), 0.0);
+      bulge += vec2(q.x, -q.y) / r * f * f * 0.5;
+    }
+    float d = smin(smin(big, body, uLobe.x * 0.3), small, uLobe.y * 0.8);
+    vec3 n = normalize(vec3(bulge * 1.3, 0.7));
+    /* Lit from the middle of the picture and from above: the light comes from the right on the left half and from the
+       left on the right half, turning through overhead across the middle rather than at a line. The bank's heads are
+       lit and its foot is in its own shade, by how far a place is under the big lobes' heads (uBankLook.x is how deep
+       that goes); the side nearer the middle is a little brighter; and the faces are billowed by the noise (uBillow:
+       how large, in CSS pixels, and how much). */
+    float fromMid = css.x - uBankLine.w;
+    float toMiddle = -clamp(fromMid / (uCanvas.x * 0.12), -1.0, 1.0);
+    float lit = 0.6 * dot(n, normalize(vec3(uBankLight.x * toMiddle, uBankLight.y, uBankLight.z)));
+    float deep = p.y - heads;
+    lit += 0.35 * (1.0 - smoothstep(-uBankLook.x * 0.1, uBankLook.x * 0.4, deep));
+    lit -= 0.3 * smoothstep(uBankLook.x * 0.3, uBankLook.x, deep);
+    lit += 0.15 * (1.0 - smoothstep(0.2, 0.75, abs(fromMid) / (uCanvas.x * 0.5)));
+    vec2 bp = vec2(css.x + uDrift, css.y) / max(uBillow.x, 6.0);
+    lit += uBillow.y * (billow(bp) + 0.5 * billow(bp * 2.1 + 7.1));
+    /* its edge, crisp where the light is on it and soft where it turns away, so the light picks out soft heads and the
+       rest melts into the sky */
+    float soft = mix(uLobe.w, uLobe.z, smoothstep(0.35, 0.8, lit));
+    float a = smoothstep(soft, -soft, d) * uBankLook.y;
+    vec3 col = mix(uBankInk[2], uBankInk[1], smoothstep(-0.05, 0.45, lit));
+    col = mix(col, uBankInk[0], smoothstep(0.5, 0.95, lit));
+    /* the page's grain, as the sky round it has */
+    float g = texture(uGrain, gl_FragCoord.xy / uTile).r;
+    col = mix(col, mix(2.0 * col * g, 1.0 - 2.0 * (1.0 - col) * (1.0 - g), step(0.5, col)), uBankLook.z);
+    outColor = vec4(col * a, a);
+  }`
   const lineFragment = (mode) => {
     const whole = mode.lines.whole
       ? LINE_FRAGMENT.replace(
@@ -10113,7 +13076,10 @@ ${LINE_FILL}`,
     const glowing = mode.glow ? glowFragment(lifted) : lifted
     const veiled = mode.lines.veilDepth ? veilFragment(glowing, mode.lines.veilDepth) : glowing
     const sunlit = mode.sun ? sunFragment(veiled) : veiled
-    return mode.fade ? fadeFragment(sunlit) : sunlit
+    const faded = mode.fade ? fadeFragment(sunlit) : sunlit
+    const pictured = mode.land.photo ? photoFragment(faded, mode) : faded
+    const aired = mode.land.sheets.some((sheet) => sheet.air) ? airFragment(pictured, mode) : pictured
+    return mode.land.sheets.some((sheet) => sheet.night) ? nightFragment(aired) : aired
   }
   /* --- programs ------------------------------------------------------------------------------------ */
 
@@ -10487,15 +13453,25 @@ ${LINE_FILL}`,
       return built
     }
     const wanted = [
-      ['land', sheets.length > 0, () => send(landVertex(mode), lineFragment(mode))],
+      ['land', sheets.length > 0, () => send(landVertex(mode), seaFragment(mode, lineFragment(mode)))],
       ['blades', true, () => send(BLADE_VERTEX, bladeFragment(mode))],
-      ['blooms', true, () => send(schoolVertex(mode, talkVertex(mode, bloomVertexOf(mode))), bloomFragment(mode))],
+      [
+        'blooms',
+        true,
+        () => send(schoolVertex(mode, talkVertex(mode, bloomVertexOf(mode))), photoBloom(mode, bloomFragment(mode))),
+      ],
       ['clouds', mode.clouds.length > 0, () => send(CLOUD_VERTEX, CLOUD_FRAGMENT)],
       ['copy', true, () => send(FULL_VERTEX, COPY_FRAGMENT)],
-      ['fly', mode.lensed && mode.flock.length > 0, () => send(FLY_VERTEX, FLY_FRAGMENT)],
+      ['fly', mode.lensed && mode.flock.length > 0, () => send(FLY_VERTEX, flyFragment(mode))],
       ['lens', mode.lensed, () => send(LENS_VERTEX, lensFragment(mode))],
       ['sky', !!mode.sky, () => send(FULL_VERTEX, SKY_FRAGMENT)],
       ['cut', !!(mode.behind && mode.land.front), () => send(FULL_VERTEX, CUT_FRAGMENT)],
+      // a tree in a pass of its own, and the light it leaves on the land (see `tree`)
+      ['tree', !!mode.tree, () => send(TREE_VERTEX, treeFragment(mode.land.photo?.noiseTile || 256))],
+      ['treeLight', !!mode.tree, () => send(TREE_LIGHT_VERTEX, TREE_LIGHT_FRAGMENT)],
+      // the lights in the sky's air and its bank of cloud
+      ['glints', !!mode.lights, () => send(GLINT_VERTEX, GLINT_FRAGMENT)],
+      ['bank', !!mode.bank, () => send(FULL_VERTEX, BANK_FRAGMENT)],
     ]
     const sent = {}
     for (const [name, needed, make] of wanted) {
@@ -10509,7 +13485,21 @@ ${LINE_FILL}`,
       }
       sent[name] = make()
     }
-    const { land, blades, blooms, clouds, copy, fly, lens, sky, cut } = sent
+    const {
+      land,
+      blades,
+      blooms,
+      clouds,
+      copy,
+      fly,
+      lens,
+      sky,
+      cut,
+      tree: treeShader,
+      treeLight: treeLightShader,
+      glints,
+      bank,
+    } = sent
     // the textures it keeps, and then its buffers, each a step of its own
     yield COST.texture
     if (gone()) {
@@ -10581,6 +13571,39 @@ ${LINE_FILL}`,
       .map((name) => sheets.findIndex((sheet) => sheet.name === name))
       .filter((row) => row >= 0)
     const landOrder = [...sheets.keys()].filter((row) => !frontRows.includes(row)).concat(frontRows)
+    /* A land that is a photograph (land.photo, see photoFragment): its hills of turf in the order they are drawn (with
+       land in front of what stands in front of the canvas, that is not the order they are listed in), each a lane of the
+       crests' texture, which holds every hill's top line by place across for their shader: four lanes to a row of it,
+       and as many rows as that takes (see crestRows in photoFragment). */
+    const photo = mode.land.photo || null
+    const turfRows = photo ? landOrder.filter((row) => sheets[row].turf) : []
+    const crestRows = Math.max(1, Math.ceil((turfRows.length + (photo?.cut ? 1 : 0)) / 4))
+    const crestTex = photo ? gl.createTexture() : null
+    /* A land whose turf reads its smooth noise from a tile (`photo.noiseTile`, see tileNoiseFragment): the tile's
+       lattice of random values, the same hash the shader's own noise uses at each whole place, laid once. */
+    const noiseTex = photo?.noiseTile || mode.tree ? gl.createTexture() : null
+    if (noiseTex) {
+      // (a tree drawn in a pass of its own reads its leaves from the same tile, see `tree`)
+      const size = photo?.noiseTile || 256
+      const lattice = new Uint8Array(size * size)
+      const fract = (v) => v - Math.floor(v)
+      for (let y = 0; y < size; y += 1) {
+        for (let x = 0; x < size; x += 1) {
+          const [a, b, c] = [fract(x * 0.1031), fract(y * 0.1031), fract(x * 0.1031)]
+          const d = a * (b + 33.33) + b * (c + 33.33) + c * (a + 33.33)
+          lattice[y * size + x] = Math.round(fract((a + d + b + d) * (c + d)) * 255)
+        }
+      }
+      gl.activeTexture(gl.TEXTURE8)
+      gl.bindTexture(gl.TEXTURE_2D, noiseTex)
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, size, size, 0, gl.RED, gl.UNSIGNED_BYTE, lattice)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
+      gl.activeTexture(gl.TEXTURE0)
+    }
     const paintTex = gl.createTexture()
     const paintLand = (dark) => {
       const rows = paintRows
@@ -10739,6 +13762,27 @@ ${LINE_FILL}`,
     gl.bindVertexArray(null)
     let landRanges = []
 
+    /* A tree in a pass of its own (see `tree`): one mesh of squares, four corners of seventeen numbers each (see
+       TREE_VERTEX), the farthest first; what its planting laid out last (garden.solid), and what of it is on the GPU;
+       and the band of depth it is drawn in, before that band's first stroke in front of its foot (see draw). */
+    const treeVao = mode.tree ? gl.createVertexArray() : null
+    const treeVertices = treeVao ? gl.createBuffer() : null
+    const treeIndices = treeVao ? gl.createBuffer() : null
+    if (treeVao) {
+      gl.bindVertexArray(treeVao)
+      gl.bindBuffer(gl.ARRAY_BUFFER, treeVertices)
+      for (let k = 0; k < 5; k += 1) {
+        gl.enableVertexAttribArray(k)
+        gl.vertexAttribPointer(k, k < 4 ? 4 : 1, gl.FLOAT, false, 68, k * 16)
+      }
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, treeIndices)
+      gl.bindVertexArray(null)
+    }
+    let treeNext = null
+    let treeLaid = null
+    let treeBand = -1
+    let treeSplit = 0
+
     yield COST.upload
     if (gone()) {
       return null
@@ -10783,7 +13827,7 @@ ${LINE_FILL}`,
     // the composition's lens, which the stage and the last pass both read
     const optics = mode.lens
     // The words the land keeps clear of: an element in the root, a box on the canvas, or none, which is far away.
-    const copyBox = typeof mode.words === 'string' ? root.querySelector(mode.words) : null
+    let copyBox = typeof mode.words === 'string' ? root.querySelector(mode.words) : null
     let cssW = 0
     let cssH = 0
     let w = 0
@@ -11079,8 +14123,12 @@ ${LINE_FILL}`,
     /* Whether a place is on the land in front: anything rooted there is drawn in front of what stands in front of the
        canvas, and anything rooted higher up behind it. */
     const inFront = (x, y) => !!frontTops && y >= frontTops[clamp(Math.round(x), 0, frontTops.length - 1)] - 1
-    // each sheet's top line by its name, for a composition's planting to stand things on (garden.ground)
+    // each sheet's top line by its name, for a composition's planting to stand things on (garden.ground), and the span
+    // across that it is lofted over
     const sheetTops = new Map()
+    const sheetSpans = new Map()
+    // a range of mountains' summits on the canvas, by its row (see peakFragment and where the crests are laid)
+    const peakData = new Map()
     const pointsOf = (g) => (Array.isArray(g) ? g : g.crest || g.hill)
     const landSteps = function* (parts) {
       const key = [
@@ -11195,7 +14243,7 @@ ${LINE_FILL}`,
             links.set([i0, i0 + rows + 1, i0 + 1, i0 + 1, i0 + rows + 1, i0 + rows + 2], (c * rows + r) * 6)
           }
         }
-        return { places, links }
+        return { places, links, cols, rows, fromPx, step }
       }
       // Grids one after another, as one.
       const join = (grids) => {
@@ -11241,22 +14289,76 @@ ${LINE_FILL}`,
         const reach = Math.max(...lumps.map(([c, lw]) => Math.abs(c - across) + lw))
         const heap = (x) => Math.max(0, ...lumps.map(([c, lw, lh]) => lh * Math.max(0, 1 - ((x - c) / lw) ** 2) ** 0.5))
         const top = (x) => ground(x) - heap(x)
+        // A bush on turf (see PHOTO_BUSH) has the heap's lumps under one dome over the whole of it, `leafy.round` its
+        // power (at none, the row of lumps as they are), so that it falls away towards its two ends as a heap of leaves
+        // does rather than standing up out of the grass there as a box would; nowhere higher than the heap. Its flowers
+        // and the room kept round it follow that outline.
+        const bushy = photo && sheet.bush
+        const leafy = bushy ? { ...photo.bush, ...(sheet.bush === true ? {} : sheet.bush) } : null
+        const crown = bushy
+          ? (x) => ground(x) - heap(x) * Math.max(0, 1 - ((x - across) / reach) ** 2) ** (leafy.round ?? 0)
+          : top
         if (flowering) {
           gorse.push({
             from: (across - reach * 0.9) * half + half,
             to: (across + reach * 0.9) * half + half,
-            top: (x) => down(top(x / half - 1)),
+            top: (x) => down(crown(x / half - 1)),
             seed,
+            // (a bush far off in the air, see PHOTO_BUSH, has its flowers as thin as its leaves are hazed)
+            air: photo && sheet.bush?.air ? [sheet.bush.air].flat()[0] : 0,
           })
         }
         bushes.push({
           from: (across - reach) * half + half,
           to: (across + reach) * half + half,
-          top: (x) => down(top(x / half - 1)),
+          top: (x) => down(crown(x / half - 1)),
           base: (x) => down(ground(x / half - 1) + shape.sink),
           front: sheet.front,
         })
-        return loft(top, (x) => ground(x) + shape.sink, [across - reach, across + reach], seed * 53, 0)
+        // A bush on turf is no lines. It is lofted a little over its outline, for the sprigs that stand past it, and a
+        // little past its two ends; and where a line's place along it would be, each place carries instead how far under
+        // the outline it is in pixels (and no further from the heap's nearer end than that, so that its edge closes there
+        // as everywhere else, the shader's own and never the mesh's), how its outline slopes over that column (in pixels
+        // down for one across, the way the bush faces there), and how far down it is from the outline to the base, 0 to 1.
+        const grid = bushy
+          ? loft(
+              (x) => top(x) - leafy.fringe / room,
+              (x) => ground(x) + shape.sink,
+              [across - reach - leafy.fringe / half, across + reach + leafy.fringe / half],
+              seed * 53,
+              0,
+            )
+          : loft(top, (x) => ground(x) + shape.sink, [across - reach, across + reach], seed * 53, 0)
+        if (bushy) {
+          const { places, cols, rows, fromPx, step } = grid
+          // (under the grass's line its ends draw in, `leafy.taper` pixels for each pixel down, so that it sits down into
+          // the grass rather than standing on it as a wall)
+          const taper = leafy.taper ?? 0
+          const edge = (x) => down(crown(x / half))
+          const grass = (x) => down(ground(x / half))
+          const base = (x) => down(ground(x / half) + shape.sink)
+          const ends = [
+            Math.min(...lumps.map(([c, lw]) => c - lw)) * half,
+            Math.max(...lumps.map(([c, lw]) => c + lw)) * half,
+          ]
+          for (let c = 0; c <= cols; c += 1) {
+            const x = fromPx + step * c
+            const slope = (edge(x + 1) - edge(x - 1)) / 2
+            const outline = edge(x)
+            const tall = Math.max(base(x) - outline, 1)
+            const fromEnd = Math.min(x - ends[0], ends[1] - x)
+            for (let r = 0; r <= rows; r += 1) {
+              const o = (c * (rows + 1) + r) * 6
+              const under = places[o + 1] - outline
+              const sunk = Math.max(0, places[o + 1] - grass(x))
+              places[o + 2] = Math.min(under / Math.sqrt(1 + slope * slope), fromEnd - taper * sunk)
+              places[o + 3] = slope
+              places[o + 4] = 1
+              places[o + 5] = under / tall
+            }
+          }
+        }
+        return grid
       }
       gorse.length = 0
       bushes.length = 0
@@ -11272,9 +14374,17 @@ ${LINE_FILL}`,
           const top = resolve(sheet.top)
           const points = pointsOf(top)
           const topAt = guide(top)
-          // its top line by name, for a composition's planting to stand things on (garden.ground)
+          // its top line by name, for a composition's planting to stand things on (garden.ground), and how far across
+          // it runs (beyond that it is not there, though its curve runs on flat)
           sheetTops.set(sheet.name, topAt)
-          made.push(loft(topAt, guide(resolve(sheet.foot)), [points[0][0], points[points.length - 1][0]], row * 137, 0))
+          sheetSpans.set(sheet.name, [points[0][0], points[points.length - 1][0]])
+          // A hill of turf is lofted from a little over its top line: its skyline is its shader's own, soft and broken
+          // by the blades that stand over it, and never the mesh's edge (see photoFragment).
+          // A sheet of air is lofted a little over its top line, so that it has room to come in softly from the page;
+          // its top line still sets the land's room, so nothing else on the land moves (see airFragment).
+          const lofted = sheet.air?.rise ? (across) => topAt(across) - sheet.air.rise / room : topAt
+          const from = photo && sheet.turf ? (across) => topAt(across) - photo.fringe / room : lofted
+          made.push(loft(from, guide(resolve(sheet.foot)), [points[0][0], points[points.length - 1][0]], row * 137, 0))
           // the land in front, where it comes highest
           if (front) {
             sheetHigh[row] = Number.POSITIVE_INFINITY
@@ -11305,6 +14415,93 @@ ${LINE_FILL}`,
         }
         yield
       }
+      if (photo) {
+        // Every hill of turf's top line by place across, in rooms down from the land's base, a lane to a hill and four
+        // lanes to a row. A hill is there only over the span it is lofted over (and a texel past it, so that the
+        // texture's own blending never eats into its ends); elsewhere it is far below everything (1e4), so that a hill
+        // that runs only part of the way across hides nothing beyond its ends.
+        const crests = new Float32Array(CRESTS * 4 * crestRows).fill(1e4)
+        const texel = (2 * CREST_SPAN) / CRESTS
+        turfRows.forEach((row, lane) => {
+          const { name, turf } = sheets[row]
+          const topAt = sheetTops.get(name)
+          const [from, to] = sheetSpans.get(name)
+          const offset = Math.floor(lane / 4) * CRESTS * 4 + (lane % 4)
+          // A hill whose blades may come no higher than its line (`tipsToLine`, as the footer's near hills, whose line is
+          // measured to keep clear of the card's text) has its skyline drawn as far under the line as its tips stand,
+          // with their soft edge and a pixel more for the edge's own smoothing.
+          const sunk = turf.tipsToLine ? (turf.skyline[1] + turf.skyline[0] + 1) / room : 0
+          for (let i = 0; i < CRESTS; i += 1) {
+            const across = ((i + 0.5) / CRESTS) * 2 * CREST_SPAN - CREST_SPAN
+            if (across >= from - texel && across <= to + texel) {
+              crests[offset + i * 4] = topAt(across) + sunk
+            }
+          }
+        })
+        // and after the hills, a lane for the top of the land in front of the card, for the land behind it to stop at
+        // inside the card's box (see cutFragment)
+        if (photo.cut && frontTops) {
+          const lane = turfRows.length
+          const offset = Math.floor(lane / 4) * CRESTS * 4 + (lane % 4)
+          for (let i = 0; i < CRESTS; i += 1) {
+            const x = (((i + 0.5) / CRESTS) * 2 * CREST_SPAN - CREST_SPAN + 1) * half
+            const top = x >= 0 && x <= cssW ? frontTops[clamp(Math.round(x), 0, frontTops.length - 1)] : 1e9
+            crests[offset + i * 4] = Number.isFinite(top) && top < 1e8 ? (top - base) / room : 1e4
+          }
+        }
+        gl.activeTexture(gl.TEXTURE7)
+        gl.bindTexture(gl.TEXTURE_2D, crestTex)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, CRESTS, crestRows, 0, gl.RGBA, gl.FLOAT, crests)
+        clampLinear()
+        gl.activeTexture(gl.TEXTURE0)
+        // A range of mountains' summits (a turf with `peaks`, see peakFragment), in CSS pixels on the canvas: where each
+        // stands, where its line has its top, and how far its cone reaches to its left and to its right; and how tall it
+        // is, its height to the power that ranks the cones as their own slopes do, and a seed of its own (by its place
+        // in the list, so that it looks the same at every width); eight at most, the rest never chosen. With them, what
+        // its shader needs of the stage and the page, worked out here once rather than every frame: the oval it clears
+        // round the words, the sky's air's top line and how far under it the air comes in, and its inks in both themes.
+        for (const row of turfRows) {
+          const { name, turf } = sheets[row]
+          if (!turf.peaks) {
+            continue
+          }
+          const topAt = sheetTops.get(name)
+          const places = new Float32Array(32)
+          const looks = new Float32Array(32)
+          for (let i = 0; i < 8; i += 1) {
+            places.set([0, 0, 1e9, 1e9], i * 4)
+            looks.set([-1e6, 1, 0, 0], i * 4)
+          }
+          const summits = resolve(turf.peaks).slice(0, 8)
+          summits.forEach(([at, high, left, right, toLeft = 1.3, toRight = 1.3], i) => {
+            const tall = Math.max(1, high * relief * room)
+            places.set([half + at * half, down(topAt(at)), Math.max(1, left * half), Math.max(1, right * half)], i * 4)
+            // (with the powers its flanks fall by, both packed in one number, see peakFragment)
+            const flanks = Math.round(toLeft * 100) * 1000 + Math.round(toRight * 100)
+            looks.set([tall ** (1 / 1.3), tall, i * 1.618 + row * 0.37, flanks], i * 4)
+          })
+          const { clear, inks } = photo.peak
+          const narrow = clear.narrow && cssW < clear.narrow.below ? clear.narrow : null
+          // (the air's top and how far under it the air comes in, as airFragment has it, the middle of the stage's)
+          const airy = sheets.find((other) => other.air)
+          const airTop = airy ? down(guide(resolve(airy.top))(0)) - (airy.air.rise ?? 0) : -1e4
+          const airHorizon = airy ? down(guide(resolve(airy.foot))(0)) - airy.air.horizon * room : 0
+          const airFade = airy ? Math.min(airy.air.fade[0], (airy.air.fade[2] ?? 1e4) * (airHorizon - airTop)) : 1
+          peakData.set(row, {
+            count: summits.length,
+            places,
+            looks,
+            clear: [
+              words.x,
+              words.y + (narrow ? narrow.at : clear.at) * words.b,
+              Math.max(1, words.a * clear.size[0] + clear.pad[0]),
+              Math.max(1, words.b * (narrow ? narrow.size : clear.size[1]) + clear.pad[1]),
+            ],
+            top: [airTop, Math.max(airFade, 1), clear.soft[0], clear.soft[1]],
+            inks: [0, 1].map((theme) => new Float32Array(inks.flatMap((ink) => rgb(mode.inks[ink][theme])))),
+          })
+        }
+      }
       const mesh = join(made)
       landRanges = mesh.ranges
       yield COST.upload
@@ -11329,8 +14526,12 @@ ${LINE_FILL}`,
     let cutBand = -1
     /* It is laid out in steps, the grass, then the flowers a column of the drifts' grid at a time, so that a root built in
        the page's idle time can lay its meadow out a little at a time (see the builder); the hero lays it out all at
-       once, as growMeadow. */
-    const growSteps = function* (parts = false) {
+       once, as growMeadow. Laid out `apart`, as a meadow is laid out again in steps while the one on the screen goes on
+       being drawn (see regrowSoon), it keeps everything to itself until it yields HAND_OVER, once its planting is done:
+       until then it touches nothing a frame, the pointer or moveMeadow reads, and from then on it hands the planting's
+       places, the buffers and the bands of depth over, all of which the caller runs in one go. */
+    const HAND_OVER = 'hand over'
+    const growSteps = function* (parts = false, apart = false) {
       const rand = random(7919)
       const blades = []
       const grass = mode.grass
@@ -12044,11 +15245,14 @@ ${LINE_FILL}`,
             0.3,
             [rand() < 0.6 ? 'gold' : 'butter', 'butter'],
             0,
-            0.95,
+            0.95 * (1 - 0.7 * crown.air),
             swayAt(x, 0.85),
           )
         }
       })
+      // Laid out apart, what the planting gives the meadow round it is kept aside until the hand-over below, since until
+      // then the frames still read the places, the mist and the tree the meadow on the screen was laid out with.
+      const laying = apart ? { perches: [], shelter: [], mist: [-1e5, -99999], tree: null } : null
       yield mode.plant ? COST.plant : undefined
       // A composition can plant more of its own once the meadow is laid out (see `plant` in the modes): a flower of a
       // drift's palette at a place on the meadow, a flower painted petal by petal, a single stroke, or a stem, anywhere
@@ -12068,10 +15272,15 @@ ${LINE_FILL}`,
           }
           return sway
         }
-        perches.length = 0
-        shelter.length = 0
-        mistBand = [-1e5, -99999]
-        mode.plant({
+        const perchesTo = laying ? laying.perches : perches
+        const shelterTo = laying ? laying.shelter : shelter
+        if (!laying) {
+          perches.length = 0
+          shelter.length = 0
+          mistBand = [-1e5, -99999]
+          treeNext = null
+        }
+        const planting = mode.plant({
           w: cssW,
           h: cssH,
           hidden,
@@ -12141,18 +15350,55 @@ ${LINE_FILL}`,
           },
           // a place a butterfly can land, facing left (-1) or right (1), and a disc of the tree's shape (see `perch`)
           perch: (x, y, facing = 1) => {
-            perches.push([x, y, facing])
+            perchesTo.push([x, y, facing])
           },
           tree: (x, y, r) => {
-            shelter.push([x, y, r])
+            shelterTo.push([x, y, r])
           },
           // the band, in CSS pixels down the canvas, across which strokes marked as mist thin away upward (see `mist`)
           mist: (from, to) => {
-            mistBand = [from, to]
+            if (laying) {
+              laying.mist = [from, to]
+            } else {
+              mistBand = [from, to]
+            }
           },
+          // a tree drawn in a pass of its own: its mesh and the light it leaves on the land, as laid out (see `tree`)
+          ...(mode.tree
+            ? {
+                solid: (laid) => {
+                  if (laying) {
+                    laying.tree = laid
+                  } else {
+                    treeNext = laid
+                  }
+                },
+              }
+            : {}),
         })
-        if (perching) {
+        // (a planting too long for one step hands itself over in steps of its own, as the builder's are: see the
+        // enterprise composition's tree)
+        if (planting?.next) {
+          yield* planting
+        }
+        if (perching && !laying) {
           shelterAt()
+        }
+      }
+      // The hand-over, for a meadow laid out apart: everything from here on goes in one task (see regrowSoon), the
+      // planting's places first, just as they would have been had it been laid out at once.
+      if (laying) {
+        yield HAND_OVER
+        if (mode.plant) {
+          perches.length = 0
+          perches.push(...laying.perches)
+          shelter.length = 0
+          shelter.push(...laying.shelter)
+          mistBand = laying.mist
+          treeNext = laying.tree
+          if (perching) {
+            shelterAt()
+          }
         }
       }
       // Far ones first, so the near grass stands in front.
@@ -12212,6 +15458,16 @@ ${LINE_FILL}`,
       bloomVao.laid = bloomData
       bloomVao.count = dabs.length
       schoolFrom = sceneEnd
+      // a tree in a pass of its own, handed over as its planting laid it out (see `tree`)
+      if (treeVao) {
+        treeLaid = treeNext
+        if (treeLaid) {
+          yield COST.upload
+          yield* upload(gl.ARRAY_BUFFER, treeVertices, treeLaid.vertices, parts)
+          yield COST.upload
+          yield* upload(gl.ELEMENT_ARRAY_BUFFER, treeIndices, treeLaid.indices, parts, treeVao)
+        }
+      }
       yield
       // Where each band of depth starts in the grass and in the strokes, both sorted from the farthest: the grass of a
       // band is drawn over the flowers of every band behind it, so near blades cross the flowers further back. With land
@@ -12254,6 +15510,19 @@ ${LINE_FILL}`,
         layBands(blades.length, sceneEnd, 0, BANDS)
         cutBand = -1
       }
+      // The tree goes into the band its foot is in, after that band's strokes behind its foot and before the rest.
+      treeBand = -1
+      if (treeLaid) {
+        const front = dabs.findIndex((d, i) => i < sceneEnd && d[0] >= treeLaid.order)
+        treeSplit = front < 0 ? sceneEnd : front
+        treeBand = BANDS - 1
+        for (let band = 0; band < BANDS; band += 1) {
+          if (treeSplit < bands[band * 4 + 2] + bands[band * 4 + 3]) {
+            treeBand = band
+            break
+          }
+        }
+      }
     }
     const growMeadow = () => {
       const steps = growSteps()
@@ -12269,6 +15538,9 @@ ${LINE_FILL}`,
        This is the stage it was laid out for. */
     const grownFor = { key: '', w: 1, h: 1, base: 0, room: 1 }
     let meadowTimer = 0
+    // the meadow being laid out again in steps, for a composition that asks for that (see regrowSoon), or none
+    const regrows = mode.regrow === 'steps'
+    let regrowing = null
     // The meadow is laid out for the stage as it is now.
     const grown = () => {
       grownFor.key = landKey
@@ -12281,9 +15553,12 @@ ${LINE_FILL}`,
       dirty = true
       settled = false
     }
+    // (Laid out here at once, or once the timer below runs, a meadow being laid out in steps is dropped: none of it was
+    // handed over.)
     const meadowNow = () => {
       clearTimeout(meadowTimer)
       meadowTimer = 0
+      regrowing = null
       if (!landKey || cssW < 2) {
         return
       }
@@ -12294,10 +15569,83 @@ ${LINE_FILL}`,
     let building = null
     const meadowAfter = (ms) => {
       clearTimeout(meadowTimer)
+      regrowing = null
       meadowTimer = setTimeout(() => {
+        if (regrows && grownFor.key) {
+          regrowSoon()
+          return
+        }
         meadowNow()
         sync()
       }, ms)
+    }
+
+    /* For a composition that asks for it (`regrow`), a meadow already on the screen is laid out again a few
+       milliseconds at a time, in tasks of its own, rather than in one task that holds the page up for as long as its
+       planting takes. Its steps are those of growSteps laid out apart, which up to the hand-over touch nothing that a
+       frame, the pointer or moveMeadow reads, so until then the frames go on drawing the meadow as it was laid out,
+       moved with the land; the hand-over (the planting's places, the buffers, the bands of depth and the stage it was
+       laid out for) is made in one task of its own, so nothing half laid out is ever drawn. The steps read the stage as
+       they go, so a change of stage drops them (see `resized`), and anything that needs the meadow laid out at once, a
+       capture or the first picture, drops them and lays it out at once (meadowNow). Between tasks it yields to a
+       message, which neither waits as a run of timers does nor goes ahead of the frames as scheduler.yield would. */
+    // (as long as a step of a planting is said to take at least, so that no slice holds two of them, which before the
+    // engine has warmed up can each take twice what they are said to)
+    const REGROW_SLICE = 3
+    let regrowChannel = null
+    let regrowQueued = false
+    const regrowNext = () => {
+      if (!regrowQueued) {
+        regrowQueued = true
+        regrowChannel.port2.postMessage(0)
+      }
+    }
+    const regrowSlice = () => {
+      regrowQueued = false
+      const job = regrowing
+      if (!job || !alive) {
+        return
+      }
+      // The frames it holds up a little say nothing about the GPU.
+      hush()
+      const from = performance.now()
+      for (let first = true; ; first = false) {
+        const room = REGROW_SLICE - (performance.now() - from)
+        // A step announced as longer than the slice has left waits for the next task; once handed over, nothing does.
+        if (!job.over && !first && ((job.next && job.next.ms > room) || room <= 0)) {
+          break
+        }
+        const step = job.steps.next()
+        if (step.done) {
+          regrowing = null
+          grown()
+          sync()
+          return
+        }
+        if (step.value === HAND_OVER) {
+          // the hand-over starts a task of its own, so it never adds to a slice already spent
+          job.over = true
+          break
+        }
+        job.next = step.value?.least ? step.value : null
+      }
+      regrowNext()
+    }
+    // what of the stage the steps read: the land (and through it the canvas's size), and where the words stand across,
+    // which the land does not depend on but the meadow keeps clear of
+    const regrowStage = () => `${landKey} ${words.x} ${words.a}`
+    const regrowSoon = () => {
+      clearTimeout(meadowTimer)
+      meadowTimer = 0
+      if (!landKey || cssW < 2) {
+        return
+      }
+      if (!regrowChannel) {
+        regrowChannel = new MessageChannel()
+        regrowChannel.port1.onmessage = regrowSlice
+      }
+      regrowing = { steps: growSteps(false, true), stage: regrowStage(), next: null, over: false }
+      regrowNext()
     }
 
     /* Until then each blade and each stroke is moved with the land, which is lofted again at once: across with the
@@ -13384,6 +16732,240 @@ ${LINE_FILL}`,
       }
       return times(far)
     }
+    /* ---- the bank of cloud and the lights in the sky's air (`bank` and `lights`, the docs overview's) ---- */
+    /* Laid out for the stage as it is (skyLay): the band from just under the buttons to the canvas's foot, how large the
+       lights are drawn on it, the bank's line, and the lights themselves, put in their buffer once. Each frame the specks
+       are drawn over the sky, the bank of cloud over them and the orbs over the bank (see drawSky). Nothing of it is
+       worked out on the CPU from frame to frame. */
+    const skyBank = mode.bank || null
+    const skyLights = mode.lights || null
+    const skyDrawn = !!(skyBank || skyLights)
+    const skyNow = { key: '', top: 0, band: 1 }
+    let skyGlints = 0
+    let skyBehind = 0
+    const glintVao = skyLights ? instanced([4, 4, 4]) : null
+    // the bank's line, as the bank's shader and the orbs read it: how high it stands over the canvas's foot in the middle
+    // and at the sides (CSS pixels), how sharply it rises and where its middle is
+    const skyBankLine = () =>
+      skyBank ? [skyBank.low * skyNow.band, skyBank.high * skyNow.band, skyBank.bow, cssW / 2] : [0, 0, 1, 0]
+    // the same line's height over the canvas's foot at x, without the slow unevenness the shader gives it
+    const skyBankAt = (x) => {
+      const [low, high, bow, middle] = skyBankLine()
+      return low + (high - low) * clamp(Math.abs(x - middle) / (cssW / 2), 0, 1) ** bow
+    }
+    const skyLay = () => {
+      const key = [cssW, cssH, landBase, landRoom, words.y, words.b, dark].join()
+      if (key === skyNow.key) {
+        return
+      }
+      skyNow.key = key
+      const night = sheets.find((sheet) => sheet.night)
+      const topAt = night && sheetTops.get(night.name)
+      const top = topAt ? landBase + topAt(0) * landRoom : words.y + words.b + 3
+      const band = Math.max(1, cssH - top)
+      Object.assign(skyNow, { top, band })
+      if (!skyLights) {
+        return
+      }
+      // The lights: the specks first, drifting through the middle of the band behind the bank, then the orbs out of
+      // focus in front of it. Each is [x, y, its quad's half-size, kind], [colour, strength], [how fast it rises, how far
+      // and how fast it sways, a seed of its own].
+      const { scale, specks, orbs } = skyLights
+      const size = Math.min(scale.most, band * scale.band, cssW / scale.span)
+      const data = []
+      const put = (x, y, r, kind, ink, alpha, rise, sway, pace, seed) => {
+        data.push(x, y, r, kind, ink[0], ink[1], ink[2], alpha, rise, sway, pace, seed)
+      }
+      const span = (pair, f) => pair[0] + (pair[1] - pair[0]) * f
+      for (let k = 0; k < specks.count; k += 1) {
+        const across = (hashed(k * 2.3 + 0.7) - 0.5) * 2
+        put(
+          cssW / 2 + across * Math.abs(across) ** 0.4 * specks.wide * size,
+          top + hashed(k * 4.1 + 0.3) * band,
+          span(specks.size, hashed(k * 6.7) ** 2) * size,
+          1,
+          specks.ink,
+          theme(specks.strength) * (0.5 + 0.5 * hashed(k * 8.9)),
+          span(specks.rise, hashed(k * 3.3)),
+          span(specks.sway, hashed(k * 5.9)),
+          0.25 + 0.4 * hashed(k * 9.7),
+          hashed(k * 1.3 + 0.5),
+        )
+      }
+      skyBehind = data.length / 12
+      for (let k = 0; k < orbs.count; k += 1) {
+        put(
+          (k + 0.15 + 0.7 * hashed(k * 3.7 + 0.1)) * (cssW / orbs.count),
+          top + hashed(k * 2.9 + 0.6) * band,
+          span(orbs.size, hashed(k * 4.4) ** 1.5) * size,
+          0,
+          orbs.inks[k % orbs.inks.length],
+          theme(orbs.strength) * (0.6 + 0.4 * hashed(k * 7.3)),
+          span(orbs.rise, hashed(k * 6.1)),
+          span(orbs.sway, hashed(k * 8.3)),
+          0.08 + 0.14 * hashed(k * 2.1),
+          hashed(k * 9.1 + 0.3),
+        )
+      }
+      skyGlints = data.length / 12
+      gl.bindBuffer(gl.ARRAY_BUFFER, glintVao.buffer)
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
+      glintVao.count = skyGlints
+    }
+    // a run of the lights in the air
+    const skyGlintRun = (first, count) => {
+      if (!glints || count <= 0) {
+        return
+      }
+      gl.useProgram(glints.program)
+      const u = glints.uniforms
+      gl.uniform2f(u.uCanvas, cssW, cssH)
+      gl.uniform1f(u.uClock, clock)
+      gl.uniform2f(u.uBand, skyNow.top, cssH)
+      gl.uniform4fv(u.uBankLine, skyBankLine())
+      drawRun(glintVao, first, count)
+    }
+    // the specks, the bank of cloud over them and the orbs over it, over the sky in the land's picture
+    const drawSky = () => {
+      skyGlintRun(0, skyBehind)
+      if (bank) {
+        const b = skyBank
+        const line = skyBankLine()
+        const high = Math.max(line[0], line[1]) * 1.1 + b.lobe[0] * 1.2 + Math.max(...b.edge)
+        const rows = Math.min(h, Math.ceil(high * (h / cssH)) + 2)
+        gl.enable(gl.SCISSOR_TEST)
+        gl.scissor(0, 0, w, rows)
+        gl.useProgram(bank.program)
+        const u = bank.uniforms
+        gl.activeTexture(gl.TEXTURE0)
+        gl.bindTexture(gl.TEXTURE_2D, grainTex)
+        gl.uniform1i(u.uGrain, 0)
+        gl.uniform1f(u.uTile, GRAIN_TILE * (w / cssW))
+        gl.uniform2f(u.uCanvas, cssW, cssH)
+        gl.uniform1f(u.uPixels, w / cssW)
+        gl.uniform1f(u.uDrift, (isStill() ? mode.stillAt : clock) * b.drift)
+        gl.uniform4fv(u.uBankLine, line)
+        gl.uniform4f(u.uLobe, b.lobe[0], b.lobe[1], b.edge[0], b.edge[1])
+        const way = Math.hypot(...b.light) || 1
+        gl.uniform4f(u.uBankLight, b.light[0] / way, b.light[1] / way, b.light[2] / way, b.bulge)
+        gl.uniform2f(u.uBillow, b.billow[1] * skyNow.band, b.billow[0])
+        gl.uniform3f(u.uBankLook, b.heads * skyNow.band, theme(b.amount), theme(b.grain))
+        gl.uniform3fv(
+          u.uBankInk,
+          b.inks.flatMap((name) => rgb(mode.inks[name][dark ? 1 : 0])),
+        )
+        gl.bindVertexArray(emptyVao)
+        gl.drawArrays(gl.TRIANGLES, 0, 3)
+        gl.disable(gl.SCISSOR_TEST)
+      }
+      skyGlintRun(skyBehind, skyGlints - skyBehind)
+      gl.bindVertexArray(null)
+    }
+
+    /* ---- the butterflies that rise out of the bank of cloud (`rise`, the docs overview's) ---- */
+    /* Each goes round a flight of its own on the meadow's clock, so that a still picture or a capture at a moment is
+       always the same: up out of the bank, small, opening to its size as it leaves the cloud, fluttering up and across
+       along a gentle curve, smaller as it goes away, and away a while before the next. The pointer pushes those near it
+       aside, and they come back to their way over a second or two. */
+    const rising = !!mode.rise && !!skyBank
+    const risePointer = { x: -1e5, y: -1e5, at: -1e9 }
+    const onRisePointer = (event) => {
+      if (PREFERS_REDUCED.matches || !inView) {
+        return
+      }
+      const rect = canvas.getBoundingClientRect()
+      risePointer.x = event.clientX - rect.left
+      risePointer.y = event.clientY - rect.top
+      risePointer.at = clock
+    }
+    if (rising) {
+      window.addEventListener('pointermove', onRisePointer, { passive: true })
+    }
+    const riseFlock = (dt, still) => {
+      skyLay()
+      const { flights, round, rest, vary, scatter } = mode.rise
+      const across = Math.min(1, cssW / 1232)
+      for (const b of flock) {
+        const fl = flights[b.index % flights.length]
+        const seed = b.seed
+        const into = (clock - mode.stillAt) / round + fl.at
+        const u = fract(into) / (1 - rest)
+        // this time round's own way: a little wider or narrower, from a little to one side
+        const lap = Math.floor(into)
+        const wide = 1 + (hashed(lap * 12.9898 + b.index * 78.233) - 0.5) * 2 * vary[0]
+        const aside = (hashed(lap * 39.346 + b.index * 11.135) - 0.5) * 2 * vary[1]
+        if (u >= 1) {
+          b.show = 0
+          b.away = [0, 0]
+          continue
+        }
+        // its way: up out of the bank, a little under its crest, straight up at first and then leaning its way, as a
+        // cubic curve
+        const fromX = cssW * (fl.from + aside)
+        const from = [fromX, cssH - skyBankAt(fromX) * 0.8]
+        const to = [from[0] + fl.to[0] * wide * across, skyNow.top + fl.to[1] * skyNow.band]
+        const rise = from[1] - to[1]
+        const c1 = [from[0] + (to[0] - from[0]) * 0.12, from[1] - rise * 0.7]
+        const c2 = [to[0] - (to[0] - from[0]) * 0.35, to[1] + rise * 0.25]
+        const e = 1 - (1 - u) ** 1.35
+        const v = 1 - e
+        const k = [v * v * v, 3 * v * v * e, 3 * v * e * e, e * e * e]
+        let x = k[0] * from[0] + k[1] * c1[0] + k[2] * c2[0] + k[3] * to[0]
+        let y = k[0] * from[1] + k[1] * c1[1] + k[2] * c2[1] + k[3] * to[1]
+        const dx = 3 * v * v * (c1[0] - from[0]) + 6 * v * e * (c2[0] - c1[0]) + 3 * e * e * (to[0] - c2[0])
+        const dy = 3 * v * v * (c1[1] - from[1]) + 6 * v * e * (c2[1] - c1[1]) + 3 * e * e * (to[1] - c2[1])
+        // it comes out of the cloud small and opens to its size as it leaves it, and grows smaller as it goes
+        const size = mode.flock[b.index].size * fit * (0.3 + 0.7 * smooth(0, 0.1, u)) * (1 - 0.48 * e)
+        b.size = size
+        // a flutter about its way
+        x += Math.sin(clock * (1.6 + seed) + seed * 20) * 0.3 * size
+        y += Math.sin(clock * (2.7 + seed) + seed * 11) * 0.18 * size
+        // the pointer pushes it aside, and it comes back to its way
+        const away = b.away || [0, 0]
+        if (!still && clock - risePointer.at < 1.2) {
+          const px = x + away[0] - risePointer.x
+          const py = y + away[1] - risePointer.y
+          const d = Math.hypot(px, py) || 1
+          if (d < scatter.radius) {
+            const push = (1 - d / scatter.radius) ** 2 * scatter.push * Math.min(1, dt * 5)
+            away[0] += (px / d) * push
+            away[1] += (py / d) * push - push * 0.4
+          }
+        }
+        const back = Math.exp(-dt / scatter.back)
+        away[0] *= back
+        away[1] *= back
+        b.away = away
+        b.screenX = x + away[0]
+        // however far it is pushed, its wings stay under the buttons, in the sky
+        b.screenY = Math.max(y + away[1], skyNow.top + size * 0.9)
+        // it comes up out of the cloud as out of a mist, and only at the very end, small and high in the pale air, goes
+        b.show = smooth(0, 0.06, u) * (1 - smooth(0.91, 1, u))
+        // its wings: beating, and held now and then as it glides, worked out from the clock
+        const envelope = 0.5 + 0.5 * Math.sin(clock * (FLIGHT.bursts[0] + seed * FLIGHT.bursts[1]) + seed * 91)
+        const beating = smooth(0.1, 0.3, envelope)
+        const rate = 3.4 * (0.85 + seed * 0.3)
+        const openAt = (s) => {
+          const turn = (s * rate + seed * 7) * Math.PI * 2
+          const shut =
+            (0.5 + 0.5 * Math.sin(turn + 0.35 * Math.sin(turn))) ** FLIGHT.snap *
+            (1 - FLIGHT.shallow * (0.5 + 0.5 * Math.sin((s * rate + seed * 7) * 1.37 + seed * 23)))
+          return FLIGHT.soar + (FLIGHT.open + (FLIGHT.shut - FLIGHT.open) * shut - FLIGHT.soar) * beating
+        }
+        const open = still ? 0.42 + seed * 0.6 : openAt(clock)
+        const before = still ? open : openAt(clock - 0.035)
+        b.flap = open
+        b.hind = before - 0.06
+        b.lag = clamp(-((open - before) / 0.035) * 0.04, -0.26, 0.26)
+        // facing the way it goes, mostly up, tipped away from us
+        const heading = Math.atan2(-dy, dx)
+        b.heading =
+          clamp(Math.PI / 2 + (heading - Math.PI / 2) * 0.55, 0.85, 2.3) +
+          0.05 * Math.sin(clock * (0.41 + seed * 0.27) + seed * 29)
+        b.pitch = FLIGHT.away * 0.5 + 0.1 * (seed - 0.5) + 0.05 * Math.sin(clock * (0.27 + seed * 0.2) + seed * 47)
+        b.roll = b.pose + 0.05 * Math.sin(clock * (0.33 + seed * 0.2) + seed * 61)
+      }
+    }
     const advance = (dt) => {
       const still = isStill()
       clock += dt
@@ -13426,6 +17008,10 @@ ${LINE_FILL}`,
       }
       if (orbiting) {
         orbitFlock(dt, still)
+        return
+      }
+      if (rising) {
+        riseFlock(dt, still)
         return
       }
       // the butterflies, as /products/api-hosting flies its own, only small, and with nothing to carry
@@ -13868,12 +17454,294 @@ ${LINE_FILL}`,
       gl.uniform2f(u.uSunTake, take[0], take[1])
       gl.uniform4f(u.uFade, fadeAt[0], Math.max(fadeAt[1], fadeAt[0] + 1), mode.fade?.ease ?? 1, sheet.fade ? 1 : 0)
     }
+    /* A land that is a photograph (land.photo, see photoFragment): what all its turf shares in a frame, the sun and
+       its band of light, the figure's light, the dew and how it ends at the picture's edges; and then each hill's own
+       look (its `turf`). A knob given as [on a light page, on a dark page] is read for the page's theme. The hills'
+       lengths were measured on a stage 1232 pixels wide, and the hills are as many times wider or narrower as the
+       stage is, so the shader is told how many (uPhotoEdge.w) and leans its hills by as much. */
+    const sunWay = photo ? photo.sun.way.map((v) => v / Math.hypot(...photo.sun.way)) : null
+    const shafts = photo ? new Float32Array(8) : null
+    // a hill's tracks are given as how far under its top line they run; its shader has them in the ground's own terms
+    const turfTracks = photo
+      ? sheets.map((sheet) => {
+          const turf = sheet.turf
+          if (!turf?.tracks) {
+            return [0, 0, 0, 0]
+          }
+          const [s0, s1, span] = turf.scale
+          const k = Math.max((s1 - s0) / span, 1e-5)
+          const along = (below) => Math.log(1 + (k * Math.min(below, span)) / s0) / k + Math.max(below - span, 0) / s1
+          return [along(turf.tracks[0]), along(turf.tracks[1]), turf.tracks[2], 0]
+        })
+      : []
+    const photoUniforms = (u) => {
+      // the crests are bound afresh every frame, as the grain and the paint are, and the paint's unit left as it was
+      gl.activeTexture(gl.TEXTURE7)
+      gl.bindTexture(gl.TEXTURE_2D, crestTex)
+      gl.uniform1i(u.uCrests, 7)
+      if (noiseTex) {
+        gl.activeTexture(gl.TEXTURE8)
+        gl.bindTexture(gl.TEXTURE_2D, noiseTex)
+        gl.uniform1i(u.uNoise, 8)
+      }
+      if (u.uCut) {
+        const round = hidden ? Math.max(0, ...(hidden.radii || [0])) : 0
+        if (hidden) {
+          gl.uniform4f(u.uCut, hidden.left + round, hidden.right - round, hidden.bottom - round, 0)
+        } else {
+          gl.uniform4f(u.uCut, 0, -1, -1, 0)
+        }
+      }
+      gl.activeTexture(gl.TEXTURE2)
+      const half = cssW / 2
+      gl.uniform4f(u.uLandAt, landBase, landRoom, half - CREST_SPAN * half, 2 * CREST_SPAN * half)
+      gl.uniform3fv(u.uSunDir, sunWay)
+      gl.uniform4f(u.uSunWay, Math.sign(sunWay[0]) || 1, theme(photo.sun.power), photo.sun.lit[0], photo.sun.lit[1])
+      // The band of light, out of the stage's terms into pixels: a place on its middle line, the way it runs, and the
+      // way across it towards its near side, which is the side further down the canvas. It creeps across its own run
+      // with the clock, a slow swing and a smaller, quicker one, and each shaft beside it wanders a little by itself.
+      const { beam, dapple, near } = photo
+      const run = [beam.run[0] * half, beam.run[1] * landRoom]
+      const long = Math.hypot(run[0], run[1])
+      const flip = run[0] < 0 ? -1 : 1
+      const side = [(-run[1] / long) * flip, (run[0] / long) * flip]
+      const creep =
+        beam.creep.reduce((sum, [far, pace, start]) => sum + far * Math.sin(clock * pace + start), 0) * landRoom
+      gl.uniform4f(
+        u.uBeam,
+        half + beam.at[0] * half + side[0] * creep,
+        landBase + beam.at[1] * landRoom + side[1] * creep,
+        side[0],
+        side[1],
+      )
+      gl.uniform4f(
+        u.uBeamLook,
+        beam.half * landRoom,
+        beam.soft[0] * landRoom,
+        beam.soft[1] * landRoom,
+        beam.ragged * landRoom,
+      )
+      gl.uniform4f(u.uBeamRun, run[0] / long, run[1] / long, beam.widen / long, 0)
+      for (let i = 0; i < 2; i += 1) {
+        const [off, wide, soft, strong, pace] = photo.shafts[i] || [0, 1, 1, 0, 0]
+        shafts[i * 4] = (off + 0.04 * Math.sin(clock * pace + i * 2.1)) * landRoom
+        shafts[i * 4 + 1] = wide * landRoom
+        shafts[i * 4 + 2] = soft * landRoom
+        shafts[i * 4 + 3] = strong
+      }
+      gl.uniform4fv(u.uShafts, shafts)
+      const sized = landRoom / 256
+      gl.uniform4f(u.uDapple, dapple.size[0] * sized, dapple.size[1] * sized, clock * dapple.drift, theme(dapple.dim))
+      gl.uniform4f(u.uNear, near.from * sized, near.to * sized, theme(near.light), 0)
+      // a figure of light standing under the middle of the words, so tall that the canvas's foot cuts it off, lays
+      // its light on the ground round where it stands (`lamp`); a land with no figure has none of it
+      if (photo.lamp) {
+        const top = words.y + words.b + 28
+        const tall = Math.max(1, cssH - top)
+        gl.uniform4f(
+          u.uLamp,
+          words.x,
+          top + photo.lamp.at * tall,
+          photo.lamp.reach[0] * tall,
+          photo.lamp.reach[1] * tall,
+        )
+        gl.uniform4f(
+          u.uLampLook,
+          theme(photo.lamp.light),
+          theme(photo.lamp.tint),
+          theme(photo.haze[0]),
+          theme(photo.haze[1]),
+        )
+      } else {
+        gl.uniform4f(u.uLamp, 0, 0, 1, 1)
+        gl.uniform4f(u.uLampLook, 0, 0, theme(photo.haze[0]), theme(photo.haze[1]))
+      }
+      // the haze is added as light unless the photograph says to lay it on as the air's colour (see the turf's air)
+      if (u.uHazeLay) {
+        gl.uniform1f(u.uHazeLay, theme(photo.haze[2] ?? 0))
+      }
+      gl.uniform4f(u.uDew, photo.dew[0], photo.dew[1], photo.dew[2], photo.dew[3])
+      // the hollow behind each nearer crest (see PHOTO_VALLEY): how far up it reaches in pixels, how much of the shade
+      // and how much of the sun it takes there
+      if (u.uValley) {
+        gl.uniform4f(u.uValley, photo.valley[0], theme(photo.valley[1]), photo.valley[2], 0)
+      }
+      // (a land whose canvas runs to the page's foot, `foot: 0`, has no dissolve there: its shader never divides by it;
+      // and one whose foot stands over the canvas's, `raised`, dissolves from there)
+      gl.uniform4f(u.uPhotoEdge, photo.hide, photo.foot || 1, photo.raised ?? 0, cssW / 1232)
+      gl.uniform3fv(
+        u.uTurfInk,
+        photo.inks.flatMap((name) => rgb(mode.inks[name][dark ? 1 : 0])),
+      )
+      if (u.uTurfAirInk) {
+        gl.uniform3fv(u.uTurfAirInk, rgb(mode.inks[photo.airInk ?? photo.inks[0]][dark ? 1 : 0]))
+      }
+    }
+    const sheetTurf = (u, sheet, row) => {
+      const turf = sheet.turf
+      // a bush (see PHOTO_BUSH): the land's own bush, with what the sheet changes of it
+      if (!turf && sheet.bush && photo.bush && u.uTurfAir) {
+        const bush = { ...photo.bush, ...(sheet.bush === true ? {} : sheet.bush) }
+        gl.uniform4f(u.uTurf, 2, 0, 0, 1)
+        gl.uniform4f(u.uTurfNear, bush.leaf, bush.clump, row * 7.31, bush.bite)
+        gl.uniform4f(u.uTurfLook, 1, 1, theme(bush.grain), 0)
+        gl.uniform4f(u.uTurfForm, bush.lobe ?? 0, bush.soft ?? 0, bush.sprigs?.[0] ?? 0.7, theme(bush.ambient))
+        gl.uniform4f(u.uTurfRim, theme(bush.rim), bush.sprigs?.[1] ?? 2, 0, 0)
+        gl.uniform4f(u.uTurfAir, theme(bush.air ?? 0), 1, 0, 0)
+        return
+      }
+      if (!turf) {
+        gl.uniform4f(u.uTurf, 0, 0, 0, 1)
+        return
+      }
+      // a range of mountains (see peakFragment): its summits and what it needs of the stage, as the land was last laid
+      // out, its own look and the look all of them share
+      if (turf.peaks && u.uPeaks) {
+        const look = photo.peak
+        const own = peakData.get(row)
+        gl.uniform4f(u.uTurf, 3, turfRows.indexOf(row), 0, 0)
+        gl.uniform4fv(u.uPeaks, own.places)
+        gl.uniform4fv(u.uPeakLook, own.looks)
+        gl.uniform4f(u.uRockEdge, turf.soft, look.cornice, theme(look.grain), look.saddle)
+        gl.uniform4f(u.uRockForm, look.arete[0], look.arete[1], look.spread, turf.planes ?? look.planes)
+        gl.uniform4f(u.uRockRelief, 1 / turf.scale, turf.relief, turf.fine ?? look.fine, look.warm)
+        gl.uniform4f(u.uRockSnow, turf.snow, look.snow[0], look.snow[1], theme(look.evening))
+        gl.uniform4f(u.uRockLight, look.light[0], look.light[1], look.thrown, turf.rim)
+        gl.uniform4f(u.uRockAir, theme(turf.haze[0]), theme(turf.haze[1]), theme(turf.haze[2]), turf.haze[3])
+        gl.uniform3fv(u.uRockInk, own.inks[dark ? 1 : 0])
+        gl.uniform4fv(u.uRockClear, own.clear)
+        gl.uniform4fv(u.uRockTop, own.top)
+        gl.uniform4f(
+          u.uRockMore,
+          turf.forest ?? 2.4,
+          turf.parting ?? look.parting,
+          turf.strata?.[0] ?? 0,
+          turf.strata?.[1] ?? 8,
+        )
+        gl.uniform1i(u.uRockCount, own.count)
+        return
+      }
+      if (u.uTurfAir) {
+        const [amount, far, fall] = turf.air || [0, 1, 0]
+        gl.uniform4f(u.uTurfAir, theme(amount), far, fall, 0)
+      }
+      gl.uniform4f(u.uTurf, 1, turfRows.indexOf(row), turf.off, turf.round)
+      gl.uniform4f(u.uTurfNear, turf.scale[0], turf.scale[1], turf.scale[2], turf.rough)
+      gl.uniform4f(u.uTurfLook, turf.blades[0], turf.blades[1], theme(turf.grain), theme(turf.dew))
+      gl.uniform4f(u.uTurfForm, turf.form[0], turf.form[1], turf.form[2], theme(turf.ambient))
+      gl.uniform4f(u.uTurfRim, theme(turf.rim[0]), turf.rim[1], turf.skyline[0], turf.skyline[1])
+      gl.uniform4f(u.uTurfTake, turf.take, turf.skyline[2], turf.crest[0], turf.crest[1])
+      gl.uniform4fv(u.uTurfTracks, turfTracks[row])
+      gl.uniform4f(u.uTurfMist, turf.mist[0], theme(turf.mist[1]), theme(turf.deep[0]), turf.deep[1])
+    }
+    /* A sheet of air (see airFragment): its inks by height above its horizon, five of them (the last repeated, a
+       pixel higher each time, should it give fewer), its smears, its breath of light and the words it clears round,
+       all for the page's theme. Only its inks, horizon and fade are needed: without smears it is smooth, without a
+       glow it has no light of its own, and without `clear` it clears round nothing. A sheet without air says so, and
+       is drawn in its lines. */
+    const airy = sheets.some((sheet) => sheet.air)
+    const airInks = airy ? new Float32Array(15) : null
+    const airAt = airy ? new Float32Array(5) : null
+    const airSmear = airy ? new Float32Array(12) : null
+    const sheetAir = (u, sheet) => {
+      const air = sheet.air
+      if (!air) {
+        gl.uniform4f(u.uAir, 0, 0, 0, 0)
+        return
+      }
+      const { smear = [], glow, clear } = air
+      // (a sheet whose air has its own inks for a narrow stage takes them there, see ENT_AIR)
+      const inks = air.narrowInks && clear?.narrow && cssW < clear.narrow.below ? air.narrowInks : air.inks
+      const last = inks.length - 1
+      for (let i = 0; i < 5; i += 1) {
+        const [at, name] = inks[Math.min(i, last)]
+        airInks.set(rgb(mode.inks[name][dark ? 1 : 0]), i * 3)
+        airAt[i] = i > last ? inks[last][0] + i - last : at
+      }
+      for (let i = 0; i < 3; i += 1) {
+        airSmear.set(smear[i] || [1, 1, 0, 0], i * 4)
+      }
+      gl.uniform4f(u.uAir, 1, air.fade[0], air.fade[1], air.horizon * landRoom)
+      // (a band that comes in over at most a share of its own height, see airFragment)
+      if (u.uAirShare) {
+        gl.uniform1f(u.uAirShare, air.fade[2] ?? 1e4)
+      }
+      gl.uniform3fv(u.uAirInk, airInks)
+      gl.uniform1fv(u.uAirAt, airAt)
+      gl.uniform4fv(u.uAirSmear, airSmear)
+      gl.uniform4f(u.uAirLook, air.value ?? 0, air.wander ?? 0, theme(air.grain ?? 0), air.dither ?? 1)
+      gl.uniform1f(u.uAirPan, Math.max(1, air.pan ?? 1))
+      if (glow) {
+        gl.uniform4f(u.uAirGlow, glow.at * cssW, theme(glow.height), glow.reach[0] * cssW, theme(glow.reach[1]))
+        gl.uniform4f(u.uAirGlowInk, ...rgb(mode.inks[glow.ink][dark ? 1 : 0]), theme(glow.amount))
+      } else {
+        gl.uniform4f(u.uAirGlow, 0, 0, 1, 1)
+        gl.uniform4f(u.uAirGlowInk, 0, 0, 0, 0)
+      }
+      // the oval it clears round the words' text: the words' box, lifted and resized by the sheet's own shares (and on a
+      // stage narrower than its `narrow.below`, by `narrow`'s, see ENT_CLEAR)
+      if (clear) {
+        const narrow = clear.narrow && cssW < clear.narrow.below ? clear.narrow : null
+        gl.uniform4f(
+          u.uAirClear,
+          words.x,
+          words.y + (narrow ? narrow.at : clear.at) * words.b,
+          Math.max(1, words.a * clear.size[0] + clear.pad[0]),
+          Math.max(1, words.b * (narrow ? narrow.size : clear.size[1]) + clear.pad[1]),
+        )
+        // (its edge's softness can be a pair for each theme, see ENT_CLEAR)
+        const soft = Array.isArray(clear.soft[0]) ? theme(clear.soft) : clear.soft
+        gl.uniform2f(u.uAirSoft, soft[0], soft[1])
+      } else {
+        gl.uniform4f(u.uAirClear, 0, 0, 1, 1)
+        gl.uniform2f(u.uAirSoft, -2, -1)
+      }
+    }
+
+    /* The sky over the bank of cloud, a sheet's `night` (see nightFragment). */
+    const nightly = sheets.some((sheet) => sheet.night)
+    const nightInks = new Float32Array(15)
+    const nightAt = new Float32Array(5)
+    const nightStars = new Float32Array(16)
+    const sheetNight = (u, sheet) => {
+      const { night } = sheet
+      if (!night) {
+        gl.uniform4f(u.uNight, 0, 0, 0, 0)
+        return
+      }
+      const last = night.inks.length - 1
+      for (let i = 0; i < 5; i += 1) {
+        const [at, name] = night.inks[Math.min(i, last)]
+        nightInks.set(rgb(mode.inks[name][dark ? 1 : 0]), i * 3)
+        nightAt[i] = i > last ? night.inks[last][0] + i - last : at
+      }
+      night.stars.forEach((field, i) => {
+        nightStars.set(field, i * 4)
+      })
+      const topAt = sheetTops.get(sheet.name)
+      const top = landBase + (topAt ? topAt(0) : 0) * landRoom
+      const band = Math.max(1, cssH - top)
+      const { air, dust } = night
+      gl.uniform4f(u.uNight, 1, night.fade[0], night.fade[1], band)
+      gl.uniform3fv(u.uNightInk, nightInks)
+      gl.uniform1fv(u.uNightAt, nightAt)
+      gl.uniform4f(u.uNightAir, air.size, theme(air.amount), 0, 0)
+      gl.uniform4fv(u.uNightStars, nightStars)
+      gl.uniform4f(u.uNightHalo, night.halo[0], night.halo[1], 0, 0)
+      gl.uniform4f(u.uNightLook, night.thin[0], night.thin[1], theme(night.shine), night.dither)
+      gl.uniform4f(u.uNightDust, dust.at[0] * cssW, top + dust.at[1] * band, dust.slant, dust.half)
+      gl.uniform4f(u.uNightDustLook, theme(dust.glitter), theme(dust.prism), 0, 0)
+      gl.uniform1f(u.uNightGrain, theme(night.grain))
+    }
 
     /* The land's sheets, in the order given, each with its own look. */
     const drawSheets = (rows) => {
       const u = land.uniforms
       if (mode.sun || mode.fade) {
         sunUniforms(u)
+      }
+      if (photo) {
+        photoUniforms(u)
       }
       rows.forEach((row) => {
         const sheet = sheets[row]
@@ -13897,6 +17765,18 @@ ${LINE_FILL}`,
         }
         if (mode.sun || mode.fade) {
           sheetSun(u, sheet)
+        }
+        if (photo) {
+          sheetTurf(u, sheet, row)
+          if (u.uBehind) {
+            gl.uniform1f(u.uBehind, frontRows.includes(row) ? 0 : 1)
+          }
+        }
+        if (airy) {
+          sheetAir(u, sheet)
+        }
+        if (nightly) {
+          sheetNight(u, sheet)
         }
         gl.drawElements(gl.TRIANGLES, range.count, gl.UNSIGNED_INT, range.offset)
       })
@@ -13941,6 +17821,91 @@ ${LINE_FILL}`,
       gl.disable(gl.SCISSOR_TEST)
     }
 
+    /* A tree in a pass of its own (see `tree`): its inks for each theme, worked out once; where the meadow was laid out
+       against where the land is now, as moveMeadow moves the strokes; the light it leaves on the land (its shade,
+       multiplied into the ground with the land's alpha kept, and its glow, added), drawn into the land's texture once its
+       sheets are; and itself, drawn into the scene. */
+    const treeInks = mode.tree
+      ? [0, 1].map((t) => {
+          const { bark, leaves, mote, shade, glow } = mode.tree
+          return {
+            bark: new Float32Array([bark.shade, bark.body, bark.sun, bark.sky].flatMap((pair) => rgb(pair[t]))),
+            leaves: new Float32Array(leaves.flatMap((pair) => rgb(pair[t]))),
+            mote: rgb(mote[t]),
+            shade: rgb(shade.ink[t]),
+            glow: rgb(glow.ink[t]),
+          }
+        })
+      : null
+    const treeMove = (u) => {
+      gl.uniform4f(u.uMove, cssW / grownFor.w, landRoom / grownFor.room, grownFor.base, landBase)
+    }
+    const drawTreeLight = () => {
+      const { shade, glow } = treeLaid
+      const u = treeLightShader.uniforms
+      const inks = treeInks[dark ? 1 : 0]
+      gl.useProgram(treeLightShader.program)
+      gl.bindVertexArray(emptyVao)
+      gl.uniform2f(u.uCanvas, cssW, cssH)
+      treeMove(u)
+      if (shade.count) {
+        gl.blendFuncSeparate(gl.DST_COLOR, gl.ZERO, gl.ZERO, gl.ONE)
+        gl.uniform1i(u.uPart, 0)
+        gl.uniform1i(u.uCount, shade.count)
+        gl.uniform4fv(u.uParts, shade.parts)
+        gl.uniform4fv(u.uPartLook, shade.look)
+        gl.uniform2fv(u.uPartDark, shade.dark)
+        gl.uniform3fv(u.uEye, shade.eye)
+        gl.uniformMatrix3fv(u.uView, false, shade.view)
+        gl.uniform4fv(u.uFit, shade.fit)
+        gl.uniform1f(u.uFitV, shade.fitV)
+        gl.uniform2fv(u.uTilt, shade.tilt)
+        gl.uniform2fv(u.uFoot, shade.foot)
+        gl.uniform3fv(u.uInk, inks.shade)
+        gl.uniform1f(u.uAmount, theme(mode.tree.shade.dark))
+        gl.uniform4fv(u.uBox, shade.box)
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+      }
+      if (glow.count) {
+        gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE)
+        gl.uniform1i(u.uPart, 1)
+        gl.uniform1i(u.uCount, glow.count)
+        gl.uniform4fv(u.uParts, glow.parts)
+        gl.uniform3fv(u.uInk, inks.glow)
+        gl.uniform1f(u.uAmount, theme(mode.tree.glow.amount))
+        gl.uniform1f(u.uReach, mode.tree.glow.reach)
+        gl.uniform4fv(u.uBox, glow.box)
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+      }
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+    }
+    const drawTree = () => {
+      const u = treeShader.uniforms
+      const inks = treeInks[dark ? 1 : 0]
+      gl.useProgram(treeShader.program)
+      gl.activeTexture(gl.TEXTURE8)
+      gl.bindTexture(gl.TEXTURE_2D, noiseTex)
+      gl.uniform1i(u.uNoise, 8)
+      gl.activeTexture(gl.TEXTURE0)
+      // (the land's own picture, bound since its mipmaps were made, for where a mote shows)
+      gl.uniform1i(u.uLand, 4)
+      gl.uniform2f(u.uCanvas, cssW, cssH)
+      gl.uniform1f(u.uPixels, w / cssW)
+      gl.uniform1f(u.uClock, clock)
+      treeMove(u)
+      gl.uniform3f(u.uSway, treeLaid.pivot[0], treeLaid.pivot[1], mode.tree.sway)
+      gl.uniform4fv(u.uCrown, treeLaid.crown)
+      gl.uniform3fv(u.uSunView, treeLaid.sunView)
+      gl.uniform3fv(u.uBark, inks.bark)
+      gl.uniform3fv(u.uLeaf, inks.leaves)
+      gl.uniform4fv(u.uLeafLook, mode.tree.leaf)
+      gl.uniform4fv(u.uLeafLight, theme(mode.tree.light))
+      gl.uniform1f(u.uLeafRim, theme(mode.tree.rim))
+      gl.uniform3fv(u.uMote, inks.mote)
+      gl.bindVertexArray(treeVao)
+      gl.drawElements(gl.TRIANGLES, treeLaid.count, gl.UNSIGNED_SHORT, 0)
+    }
+
     const draw = () => {
       if (!ready || !w) {
         return
@@ -13949,6 +17914,10 @@ ${LINE_FILL}`,
       if (dark !== painted) {
         painted = dark
         paintLand(dark)
+      }
+      // The bank of cloud and the lights in the sky's air, laid out for the stage as it is (see skyLay).
+      if (skyDrawn) {
+        skyLay()
       }
 
       // Pass 1: the land, crisp, on the page's colour or on the composition's own sky, into the land's texture.
@@ -13969,6 +17938,13 @@ ${LINE_FILL}`,
         u = land.uniforms
         lineUniforms(u)
         drawSheets(landOrder)
+      }
+      // the shade a tree in a pass of its own throws, and the glow of its crown, as land (see `tree`)
+      if (treeLightShader && treeLaid) {
+        drawTreeLight()
+      }
+      if (skyDrawn) {
+        drawSky()
       }
 
       // The glass and the wings read the land blurred.
@@ -14054,6 +18030,10 @@ ${LINE_FILL}`,
         mode.grass.inks.flatMap((name) => rgb(mode.inks[name][dark ? 1 : 0])),
       )
       gl.uniform1f(blades.uniforms.uGrainStrength, 0.6)
+      if (photo) {
+        // on turf a blade takes the ground's light (see PHOTO_BLADE)
+        gl.uniform1i(blades.uniforms.uLand, 4)
+      }
       gl.useProgram(blooms.program)
       lineUniforms(blooms.uniforms)
       gl.uniform3fv(blooms.uniforms.uPaints, paints[dark ? 1 : 0])
@@ -14069,14 +18049,23 @@ ${LINE_FILL}`,
         drawRun(bladeVao, bands[band * 4], bands[band * 4 + 1])
         gl.useProgram(blooms.program)
         const first = bands[band * 4 + 2]
-        drawRun(bloomVao, first, Math.min(bands[band * 4 + 3], schoolFrom - first))
+        const count = Math.min(bands[band * 4 + 3], schoolFrom - first)
+        if (band === treeBand && treeShader && treeLaid) {
+          // a tree in a pass of its own, among the strokes at the depth of its foot (see `tree`)
+          const split = clamp(treeSplit - first, 0, Math.max(0, count))
+          drawRun(bloomVao, first, split)
+          drawTree()
+          gl.useProgram(blooms.program)
+          drawRun(bloomVao, first + split, count - split)
+        } else {
+          drawRun(bloomVao, first, count)
+        }
       }
 
       // The first picture of a root painted ahead of being seen is what lets it fade in.
       if (!eager && !announced) {
         announced = true
-        root.dataset.hlReady = 'true'
-        root.dataset.hlShown = 'true'
+        markReady()
       }
       if (!mode.lensed) {
         return
@@ -14233,6 +18222,37 @@ ${LINE_FILL}`,
     let alive = true
     let slowFrames = 0
     let announced = false
+    /* The page fades the picture in when its root is marked ready, with transitions of its own. They are kept track of,
+       so that a meadow that moves to a new root (see `home`) is as far into its fade there as it was: each fade the mark
+       set off and when it began, or none if the picture came up at once, as it does when the root is marked before the
+       page has first worked out its style; and nothing until the frame after the mark, when the fades begin. */
+    let fades = null
+    const fading = (el) =>
+      (el.getAnimations?.({ subtree: true }) || []).filter(
+        (fade) => typeof CSSTransition === 'function' && fade instanceof CSSTransition,
+      )
+    const follow = (fade) => {
+      const began = { at: null }
+      fade.ready.then(
+        () => {
+          began.at = fade.startTime
+        },
+        () => {},
+      )
+      return began
+    }
+    const markReady = () => {
+      const marked = root
+      root.dataset.hlReady = 'true'
+      root.dataset.hlShown = 'true'
+      requestAnimationFrame(() => {
+        if (alive && root === marked) {
+          fades = fading(root)
+            .filter((fade) => fade.pending)
+            .map(follow)
+        }
+      })
+    }
     // Whether frames went to other meadows since this one's last, which says nothing about the GPU.
     let rested = false
     // A frame held up by the page's own work, a resize or the meadow being laid out, says nothing about the GPU, so no
@@ -14381,6 +18401,11 @@ ${LINE_FILL}`,
       const wasDirty = dirty
       const cleared = measure()
       buildLand()
+      // A meadow being laid out again in steps reads the stage as it goes, so one whose stage has changed under it is
+      // laid out again from the start once the stage is still, as one still waiting on its timer would be.
+      if (regrowing && regrowing.stage !== regrowStage()) {
+        meadowAfter(150)
+      }
       // A root painted ahead of being seen whose canvas and land are as they were has nothing to do, as when it first
       // starts to watch its size.
       if (!eager && !cleared && landKey === before) {
@@ -14399,6 +18424,10 @@ ${LINE_FILL}`,
         if (landKey && !meadowTimer) {
           meadowAfter(0)
         }
+      } else if (grownFor.key !== landKey && regrowing) {
+        // already being laid out again for this very stage (one for any other was dropped above), and until it is, moved
+        // with the land
+        moveMeadow()
       } else if (grownFor.key !== landKey) {
         const wider = cssW / grownFor.w
         const taller = landRoom / grownFor.room
@@ -14408,7 +18437,13 @@ ${LINE_FILL}`,
           most = 1.1
         }
         if (Math.max(wider, 1 / wider, taller, 1 / taller) > most) {
-          meadowNow()
+          if (regrows) {
+            // moved with the land for the few frames until it has been laid out again, which starts at once
+            moveMeadow()
+            regrowSoon()
+          } else {
+            meadowNow()
+          }
         } else {
           moveMeadow()
           meadowAfter(150)
@@ -14427,7 +18462,9 @@ ${LINE_FILL}`,
       settled = !eager && !dirty && isStill()
       sync()
     })
+    let watching = false
     const watchSize = () => {
+      watching = true
       try {
         resized.observe(canvas, { box: 'device-pixel-content-box' })
       } catch {
@@ -14512,6 +18549,8 @@ ${LINE_FILL}`,
       alive = false
       stop()
       clearTimeout(meadowTimer)
+      regrowing = null
+      regrowChannel?.port1.close()
       seen.disconnect()
       nearby.disconnect()
       resized.disconnect()
@@ -14521,6 +18560,7 @@ ${LINE_FILL}`,
       document.removeEventListener('visibilitychange', sync)
       window.removeEventListener('pointermove', onPointer)
       window.removeEventListener('pointermove', onSchoolPointer)
+      window.removeEventListener('pointermove', onRisePointer)
       window.removeEventListener('pointerdown', onPress)
       document.documentElement.removeEventListener('pointerleave', onLeave)
       window.removeEventListener('pointermove', onOrbitMove)
@@ -14533,6 +18573,7 @@ ${LINE_FILL}`,
       contexts.delete(gl)
       gl.getExtension('WEBGL_lose_context')?.loseContext()
       heroes.delete(release)
+      homes.delete(home)
       canvas.replaceWith(canvas.cloneNode(false))
       delete root.dataset.hlHeroBound
       delete root.dataset.hlReady
@@ -14543,6 +18584,66 @@ ${LINE_FILL}`,
       }
     }
     heroes.add(release)
+
+    /* A page that hydrates throws its first copy of the root away and puts another in its place, in one go. Starting
+       again in the new root would take the picture off the screen and fade it in a second time, so the meadow moves
+       instead (see `rehome`): its canvas takes the place of the new root's, with the picture on it and everything
+       behind it, and the new root is the root from then on. */
+    const home = {
+      mode,
+      path: window.location.pathname,
+      vacant: () => alive && !canvas.isConnected,
+      move: (next, spare) => {
+        const from = root
+        root = next
+        spare.replaceWith(canvas)
+        next.dataset.hlHeroBound = 'true'
+        for (const hook of ['hlLead', 'hlSeek', 'hlRun', 'hlOrbit']) {
+          if (from[hook]) {
+            next[hook] = from[hook]
+          }
+        }
+        if (losses.has(from)) {
+          losses.set(next, losses.get(from))
+        }
+        if (from.dataset.hlShown === 'true') {
+          next.dataset.hlShown = 'true'
+        }
+        if (from.dataset.hlReady === 'true') {
+          // The new root's picture is to be as strong as the old one's was. By now the page may have worked out the new
+          // root's style without the mark, in which case marking it sets its fades off from the start. So its style is
+          // worked out first in any case, the fades the mark then sets off are found, and they are put where the old
+          // root's had got to: at their end if its picture came up at once, at their start if it had been marked but
+          // not yet seen, and otherwise given the moment the old root's began as their own, which keeps them in step
+          // with it however long the page takes to draw its next frame.
+          const shownAtOnce = !!fades && !fades.length
+          const began = (fades || []).map((fade) => fade.at).filter((at) => at !== null)
+          const before = new Set(fading(next))
+          next.dataset.hlReady = 'true'
+          const moved = fading(next).filter((fade) => !before.has(fade))
+          for (const fade of moved) {
+            if (shownAtOnce) {
+              fade.finish()
+            } else if (began.length) {
+              fade.startTime = Math.min(...began)
+            }
+          }
+          fades = shownAtOnce ? [] : moved.map(follow)
+          // and the picture is on the canvas before the new root is first seen
+          if (ready) {
+            advance(0)
+            draw()
+          }
+        }
+        // The words and whatever stands in front of the canvas are the new root's own, and are measured again.
+        copyBox = typeof mode.words === 'string' ? next.querySelector(mode.words) : null
+        if (watching) {
+          resized.disconnect()
+          watchSize()
+        }
+      },
+    }
+    homes.add(home)
 
     // A hook for captures and tests: run the meadow forward to a moment, with the opening finished and the meadow laid
     // out for the stage as it is, and optionally send the unseen passer through at a place across, from -1 to 1. It says
@@ -14559,7 +18660,7 @@ ${LINE_FILL}`,
       return lead
     }
     root.hlSeek = (seconds, passAt) => {
-      if (meadowTimer) {
+      if (meadowTimer || regrowing) {
         meadowNow()
       }
       if (building && ready) {
@@ -14586,7 +18687,7 @@ ${LINE_FILL}`,
     // steps of a sixtieth, from the opening if asked, and draw where it has got to.
     if (perching) {
       root.hlRun = (seconds, restart = false) => {
-        if (meadowTimer) {
+        if (meadowTimer || regrowing) {
           meadowNow()
         }
         if (building && ready) {
@@ -14620,6 +18721,12 @@ ${LINE_FILL}`,
       }
     }
 
+    // And for a flock that rises out of the bank of cloud: where each butterfly is, how much it shows and how far the
+    // pointer has pushed it aside.
+    if (rising) {
+      root.hlRise = () => flock.map((b) => ({ x: b.screenX, y: b.screenY, show: b.show, away: b.away || [0, 0] }))
+    }
+
     // And for a flock that comes to the pointer: where the place is, where the rings go round and where each butterfly
     // is; and the meadow run on by `seconds` in steps of a sixtieth, from the start if asked, and drawn where it has got to.
     if (orbiting) {
@@ -14642,7 +18749,7 @@ ${LINE_FILL}`,
         })),
       })
       root.hlRun = (seconds, restart = false) => {
-        if (meadowTimer) {
+        if (meadowTimer || regrowing) {
           meadowNow()
         }
         if (building && ready) {
@@ -14678,7 +18785,7 @@ ${LINE_FILL}`,
         ready = true
         // The first picture has the meadow in it, even if its own task has not run yet, and the first frames, which
         // draw everything for the first time, are not counted against the GPU either.
-        if (meadowTimer) {
+        if (meadowTimer || regrowing) {
           meadowNow()
         }
         hush()
@@ -14687,8 +18794,7 @@ ${LINE_FILL}`,
         // A root painted ahead of being seen draws its first picture when the conductor next gives it a frame.
         if (eager) {
           draw()
-          root.dataset.hlReady = 'true'
-          root.dataset.hlShown = 'true'
+          markReady()
         }
         sync()
       })
@@ -14738,6 +18844,8 @@ ${LINE_FILL}`,
 
   /** Each bound root's release(), which lets the root go once it has left the page. */
   const heroes = new Set()
+  /** Each started root's home: what moves its meadow into the root that takes its place (see `rehome`). */
+  const homes = new Set()
   /** When the browser took each root's context, over the last minute: a root gives up only if it keeps happening. */
   const losses = new WeakMap()
   /** The roots binding again after a lost context, which start from the finished picture. */
@@ -15017,7 +19125,30 @@ ${LINE_FILL}`,
     footer = { root, band, fit }
   }
 
+  /* Pages on scalar.com hydrate over their first copy, and hydration throws that copy away: the root a meadow was
+     started in leaves the page, and a new one with the same markup stands in its place before anything is drawn. A
+     meadow whose canvas has left the page while a root of the same composition waits unbound on the same page moves
+     into that root rather than being let go of and built again from nothing, the first with the first where there are
+     several. A page change brings other roots, which start their own. */
+  const rehome = () => {
+    let unbound = null
+    for (const home of homes) {
+      if (!home.vacant() || home.path !== window.location.pathname) {
+        continue
+      }
+      unbound =
+        unbound ||
+        [...document.querySelectorAll('[data-hl-hero]')].filter((root) => root.dataset.hlHeroBound !== 'true')
+      const at = unbound.findIndex((root) => modeOf(root) === home.mode && root.querySelector('[data-hl-canvas]'))
+      if (at >= 0) {
+        const [root] = unbound.splice(at, 1)
+        home.move(root, root.querySelector('[data-hl-canvas]'))
+      }
+    }
+  }
+
   const run = () => {
+    rehome()
     heroes.forEach((release) => release())
     footerMeadow()
     document.querySelectorAll('[data-hl-hero]').forEach(init)

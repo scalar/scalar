@@ -23,6 +23,81 @@ describe('fixtures', () => {
 })
 
 describe('convert', () => {
+  it('imports query parameters with structured Postman descriptions', () => {
+    const result = convert({
+      info: {
+        name: 'Catalog',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'List items',
+          request: {
+            method: 'GET',
+            url: {
+              raw: 'https://api.example.com/items?region=west',
+              query: [
+                {
+                  key: 'region',
+                  value: 'west',
+                  description: { content: '[required] Sales region', type: 'text/markdown' },
+                },
+              ],
+            },
+          },
+        },
+      ],
+    })
+
+    expect(result.paths?.['/items']?.get?.parameters).toEqual([
+      expect.objectContaining({ name: 'region', in: 'query', description: 'Sales region', required: true }),
+    ])
+  })
+
+  it.each([false, true])('keeps same-named Markdown parameters with a URL query present: %s', (hasQuery) => {
+    const result = convert({
+      info: {
+        name: 'Users',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'List users',
+          request: {
+            method: 'GET',
+            url: hasQuery
+              ? {
+                  raw: 'https://api.example.com/users?version=1',
+                  query: [{ key: 'version', value: '1' }],
+                }
+              : { raw: 'https://api.example.com/users' },
+            description: `| object | name | description |
+| --- | --- | --- |
+| query | version | Query version |
+| header | version | Header version |`,
+          },
+        },
+      ],
+    })
+
+    expect(result.paths?.['/users']?.get?.parameters).toStrictEqual([
+      {
+        name: 'version',
+        in: 'query',
+        description: 'Query version',
+        required: false,
+        schema: { type: 'string' },
+      },
+      {
+        name: 'version',
+        in: 'header',
+        description: 'Header version',
+        required: false,
+        schema: { type: 'string' },
+      },
+    ])
+  })
+
   it.each([
     { header: [], graphqlType: 'application/json', fileType: 'application/octet-stream' },
     { header: [{ key: 'Content-Type', value: 'image/png' }], graphqlType: 'image/png', fileType: 'image/png' },
@@ -1029,6 +1104,44 @@ describe('convert', () => {
         schema: { type: 'string' },
       },
     ])
+  })
+
+  it('omits responses and retains operation-level servers when merging duplicate requests', () => {
+    const postRequest = { method: 'POST', url: 'https://api.example.com/items' }
+    const result = convert(
+      {
+        info: {
+          name: 'Merged requests',
+          schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        },
+        item: [
+          { name: 'Create item', request: postRequest, response: [] },
+          { name: 'Create another item', request: postRequest, response: [] },
+          { name: 'List users', request: { method: 'GET', url: 'https://api.other.com/users' } },
+        ],
+      },
+      { mergeOperation: true },
+    )
+
+    const operation = result.paths?.['/items']?.post
+    expect(operation?.servers).toStrictEqual([{ url: 'https://api.example.com' }])
+    expect(operation).not.toHaveProperty('responses')
+  })
+
+  it('preserves operation-level servers for custom Postman methods', () => {
+    const result = convert({
+      info: {
+        name: 'Extension methods',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        { name: 'Read file properties', request: { method: 'PROPFIND', url: 'https://files.example.com/files' } },
+        { name: 'List users', request: { method: 'GET', url: 'https://api.example.com/users' } },
+      ],
+    })
+
+    expect(result.paths?.['/files']?.propfind?.servers).toStrictEqual([{ url: 'https://files.example.com' }])
+    expect(result.paths?.['/users']?.get?.servers).toStrictEqual([{ url: 'https://api.example.com' }])
   })
 
   it('keeps server placement correct after path unification', () => {

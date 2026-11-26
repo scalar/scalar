@@ -8,6 +8,57 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.46.1 (2026-11-21)
+
+### Generated CLIs wrap output and reject missing required inputs
+
+This release ships improvements to generated CLIs, signed upload configuration for callers behind proxies or private CAs, and fixes to webhook verification across multiple targets.
+
+- Generated CLIs wrap pretty output cards to the terminal width, including nested responses and table fallback, while preserving full values in redirected output.
+- CLIs now reject missing required inputs before sending requests, and accept whole JSON arrays alongside repeated object items for object-array flags.
+- Required request bodies must now be supplied even when every property is optional; scripts that previously sent an empty POST must pipe `{}` or supply body flags.
+- C++ SDKs now support proxy and CA certificate configuration through `CurlTransport::Options`, including `proxy`, `no_proxy`, and `ca_bundle` or `ca_path`.
+- C# SDKs with signed uploads add `ClientOptions.SignedUploadConnection` for callers who reach the internet only through a proxy or private CA.
+- Dart SDKs gain a `connection` option with proxy and TLS settings the client connects with, so callers behind a proxy or private CA can reach the upload host.
+- Go SDKs with signed uploads add `option.SignedUploadTransport`, an opt-in marker for custom transports so proxy or TLS setups reach the upload host.
+- PHP SDKs with signed uploads gain a `signedUploadConnection` request option for callers who reach the internet only through a proxy or private CA.
+- Python and Ruby webhook verifiers now treat malformed `webhook-signature` entries as non-matching rather than raising unrelated errors.
+- TypeScript SDKs export `signedUploadTransport(fetch)` to declare that a custom fetch sends requests as handed over, so proxy or TLS setups reach uploads.
+
+## 0.46.0 (2026-11-20)
+
+### Generated branch configuration and per-target config types
+
+This release refines how the generator handles per-target configuration and introduces a new setting to control the branch name for pristine SDK output. The internal configuration structure now gives each target language its own typed view, ensuring targets only carry settings they understand. Generated SDKs work exactly as before, with improvements to CLIs, C++, Go, TypeScript, and Java/Kotlin.
+
+- Generated CLIs now print lists of objects as tables when you pass `--format pretty`.
+- C++ models are now organized under `include/<root>/models/` instead of splitting `$shared` types into their own directory.
+- C++ requests now have their own types separate from response models, with `readOnly` and `writeOnly` properties correctly split between them.
+- C++ SDKs accept `targets.cpp.packageName` to name the library, matching other languages.
+- Go unions with an enum arm beside other arms are now typed unions instead of `interface{}`.
+- TypeScript packages now provide proper CommonJS declarations for `require` consumers.
+- Java and Kotlin SDKs with signed uploads can send the upload through your own `HttpClient` by implementing the new `SignedUploadTransport` marker interface.
+- Set `destinations.production.generatedBranch` to name the branch pristine generator output is pushed to, replacing the default `scalar-generated`.
+- C++ webhook decode-only methods are now named after `parseUnsafe` by default (`parse_unsafe`) rather than `<method>_unverified`.
+- Configuration reference pages now state the minimum language version each target supports, such as Python 3.9 or Go 1.22.
+
+## 0.45.0 (2026-11-18)
+
+### Custom CLI commands and refined model generation
+
+Generated CLIs can now load custom commands from a TypeScript file you provide, with full type safety and hooks into the CLI runtime. Models that only error responses use are no longer generated, and reserved names in Java, Kotlin and Ruby are now handled automatically.
+
+- Custom CLI commands can be added through `targets.cli.customCode`, with a typed builder API for arguments, options and hooks into the CLI runtime.
+- Before writing files, the generator installs and runs a staged copy of the CLI to validate custom code and render documentation from the full command tree.
+- Models used only in error responses are no longer generated in C++, Dart, Go, Java, Kotlin, Ruby, Rust and Swift, since error bodies are returned as raw JSON.
+- Java and Kotlin models no longer take names that shadow `java.lang` or Kotlin implicit imports such as `Error`, `Exception` or `Result`.
+- Ruby SDKs no longer alias models at the gem root when the name would shadow constants like `Error`, `Client` or `VERSION`.
+- Signed uploads in Java, Kotlin, Go, Python and TypeScript now use the proxy and TLS settings configured on the client.
+- The CLI gains a hidden `context` command that prints the full command tree as JSON, including custom commands and their metadata.
+- Generated CLIs can register five hooks in custom code: `flagDefaults`, `beforeCommand`, `afterCommand`, `onError` and `clientOptions`.
+- ProGuard and R8 keep rules for JVM SDKs are now targeted, allowing most of the SDK to be shrunk and obfuscated in minified builds.
+- The in-memory compilation steps now live in browser-safe packages, so hosts can resolve and compile exactly as the CLI does.
+
 ## 0.44.0 (2026-11-17)
 
 ### Improved typing for wrapped references and AsyncAPI smoke testing
