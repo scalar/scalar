@@ -73,8 +73,11 @@ describe('load-grammar', () => {
   })
 
   describe('ensureGrammar', () => {
-    it('highlights curl, JSON, JavaScript and TypeScript on the first render, without a download', () => {
-      for (const name of ['curl', 'json', 'javascript', 'js', 'typescript', 'ts', 'tsx', 'Node']) {
+    it('highlights the bundled grammars on the first render, without a download', () => {
+      for (const name of [
+        ...['curl', 'json', 'javascript', 'js', 'typescript', 'ts', 'tsx', 'Node'],
+        ...['http', 'https', 'bash', 'sh', 'shell', 'zsh', 'console'],
+      ]) {
         expect(ensureGrammar(name), name).toBe(true)
       }
 
@@ -113,19 +116,19 @@ describe('load-grammar', () => {
     })
 
     it('stops asking when the grammar is registered but still not found under that name', async () => {
-      expectNotLoaded('bash')
+      expectNotLoaded('haskell')
       // A name `resolveLanguageName` knows and `grammarFor` does not, as `Node` once was.
       // Every finished load would re-render the block, which would ask again, forever.
-      state.unfindable.add('zsh')
+      state.unfindable.add('hs')
 
-      const { renders, stop } = renderWithGrammar('Zsh')
-      await vi.waitFor(() => expect(grammarFor('bash')).toBeDefined())
+      const { renders, stop } = renderWithGrammar('Hs')
+      await vi.waitFor(() => expect(grammarFor('haskell')).toBeDefined())
       for (let tick = 0; tick < 20; tick++) {
         await flushPromises()
       }
       stop()
 
-      expect(state.calls).toEqual(['bash'])
+      expect(state.calls).toEqual(['haskell'])
       // Once for the first render, and once more when the grammar arrives, then it stops
       expect(renders).toEqual([false, false])
     })

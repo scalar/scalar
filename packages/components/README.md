@@ -122,7 +122,7 @@ The floating element also paints its own surface: `rounded-xl bg-b-1 dark:bg-b-1
 
 ## Code Highlighting
 
-`ScalarCodeBlock` and `ScalarMarkdown` highlight code with [`@scalar/highlight`](https://github.com/scalar/scalar/tree/main/packages/highlight). The grammars nearly every page shows are bundled and highlight on the first render: curl, JSON, and JavaScript, which also covers TypeScript, TSX and JSX. Every other grammar loads on demand, so a page only downloads the ones it shows. A block whose grammar has not loaded yet renders its code as plain text and colours in once the grammar arrives, without changing size.
+`ScalarCodeBlock` and `ScalarMarkdown` highlight code with [`@scalar/highlight`](https://github.com/scalar/scalar/tree/main/packages/highlight). The grammars nearly every page shows are bundled and highlight on the first render: curl, JSON, JavaScript (which also covers TypeScript, TSX and JSX), HTTP and bash (which also covers `sh`, `shell` and `zsh`). Every other grammar loads on demand, so a page only downloads the ones it shows. A block whose grammar has not loaded yet renders its code as plain text and colours in once the grammar arrives, without changing size.
 
 Server rendering waits for the grammars, so server-rendered markup is already highlighted. Hydrating replaces each block's highlighted markup with what the client renders, so if a grammar has not loaded on the client yet, its code visibly flashes to plain text and back. Vue logs no hydration mismatch for this. Load the grammars the server markup uses before mounting:
 
