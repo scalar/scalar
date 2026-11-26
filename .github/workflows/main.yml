@@ -91,6 +91,21 @@ jobs:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
+      # Record the ESM bundle size of every main commit. Pull requests compare
+      # against it in the esm-bundle-size job of pr.yml, which finds this
+      # artifact by name, so keep the name in sync there.
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        name: Measure ESM bundle size
+        # Size reporting is informational, so it must never fail the build.
+        continue-on-error: true
+        run: node tooling/scripts/esm-bundle-size.ts measure packages/api-reference/dist/browser/webpack-stats.esm.json "$GITHUB_SHA" esm-bundle-size.json
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        name: Upload ESM bundle size
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: api-reference-esm-bundle-size
+          path: esm-bundle-size.json
+          retention-days: 30
 
   check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204

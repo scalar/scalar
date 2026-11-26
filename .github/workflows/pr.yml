@@ -39,6 +39,9 @@ jobs:
       # Required for build provenance attestation (scalar.js CDN artifact).
       id-token: write
       attestations: write
+    outputs:
+      esm_bundle_size: ${{ steps.esm-bundle-size.outputs.size }}
+      esm_bundle_size_base: ${{ steps.esm-bundle-size.outputs.base }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -48,6 +51,22 @@ jobs:
         with:
           packages: './{packages,integrations}/**'
           archive-output: 'true'
+      # Measured here so the esm-bundle-size job does not have to restore the
+      # whole build. A pull_request run builds the merge commit, so its first
+      # parent is the main commit this build should be compared with. The raw
+      # commit object lists its parents even in a shallow checkout.
+      - if: github.event_name == 'pull_request'
+        name: Measure ESM bundle size
+        id: esm-bundle-size
+        # Size reporting is informational, so it must never fail the build.
+        continue-on-error: true
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          node tooling/scripts/esm-bundle-size.ts measure packages/api-reference/dist/browser/webpack-stats.esm.json "$HEAD_SHA" esm-bundle-size.json
+          echo "size=$(cat esm-bundle-size.json)" >> "$GITHUB_OUTPUT"
+          echo "base=$(git cat-file -p HEAD | awk '/^parent /{print $2; exit}')" >> "$GITHUB_OUTPUT"
       - name: Copy and rename standalone.js to scalar.js
         run: |
           mkdir -p temp-artifacts
@@ -221,6 +240,75 @@ jobs:
       - name: Report lint status
         if: ${{ !cancelled() }}
         run: exit ${{ steps.lint.outputs.exit_code }}
+
+  # Comments how the PR changes the size of the @scalar/api-reference ESM
+  # bundle compared with main. Main pushes record their size as an artifact
+  # (see the build job in main.yml), and this job looks it up. Informational
+  # only, so it is not part of required-jobs-pull-requests.
+  esm-bundle-size:
+    needs: [build]
+    # Only PRs from the same repository have a writable token for comments.
+    # The size is empty when the build could not measure it.
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') && needs.build.outputs.esm_bundle_size != '' }}
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      # Required to find and download the size artifact of a main run.
+      actions: read
+      # Required so the size report can be posted back to the PR.
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      # The script only uses Node built-ins, so no install is needed.
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+      # Prefer the size of the exact main commit this PR was merged with. If
+      # that main build has not uploaded it yet (or it expired), fall back to
+      # the newest main size so the comment still shows a comparison. The
+      # repository check keeps artifacts from fork branches named main out.
+      - name: Find the main size to compare with
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BASE_SHA: ${{ needs.build.outputs.esm_bundle_size_base }}
+        run: |
+          set -euo pipefail
+          run_id=$(gh api -X GET "repos/${REPO}/actions/artifacts" \
+            -f name=api-reference-esm-bundle-size -f per_page=100 \
+            --jq '[.artifacts[]
+              | select(.expired | not)
+              | select(.workflow_run.head_branch == "main" and .workflow_run.head_repository_id == .workflow_run.repository_id)]
+              | (map(select(.workflow_run.head_sha == env.BASE_SHA)) + .)
+              | .[0].workflow_run.id // empty')
+          echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
+      - if: steps.baseline.outputs.run_id != ''
+        name: Download the main size
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: api-reference-esm-bundle-size
+          path: baseline
+          run-id: ${{ steps.baseline.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Write the size report
+        env:
+          SIZE: ${{ needs.build.outputs.esm_bundle_size }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$SIZE" > esm-bundle-size.json
+          node tooling/scripts/esm-bundle-size.ts report esm-bundle-size.json esm-bundle-size.md baseline/esm-bundle-size.json
+      - name: Post the size report to the PR
+        uses: thollander/actions-comment-pull-request@v3.0.1
+        with:
+          file-path: esm-bundle-size.md
+          # Reuse (update) the same comment on every new commit instead of
+          # posting a new one.
+          comment-tag: esm-bundle-size
 
   types:
     needs: [build]
