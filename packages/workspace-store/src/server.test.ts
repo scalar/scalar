@@ -40,6 +40,13 @@ describe('create-server-store', () => {
     const overlayDirectory = join(directory, 'overlays')
     const overlayPath = join(overlayDirectory, 'partner.yaml')
     const overlay = { ...partnerOverlay, extends: '../openapi@partner.yaml' }
+    const legacy = {
+      document: {
+        overlay: '1.0.0',
+        info: overlay.info,
+        actions: [{ target: "$.paths['/pets'].get", update: { summary: 'List visible pets' } }],
+      },
+    }
     const error = vi.spyOn(console, 'warn').mockReturnValue(undefined)
     try {
       await fs.mkdir(overlayDirectory)
@@ -49,12 +56,13 @@ describe('create-server-store', () => {
         mode: 'ssr',
         baseUrl: '/docs',
         documentLoading: { basePath: directory },
-        documents: [{ name: 'partner', path: basePath, overlays: [{ path: overlayPath }] }],
+        documents: [{ name: 'partner', path: basePath, overlays: [legacy, { path: overlayPath }] }],
       })
       const reference = '#/partner/operations/~1pets/get'
       const operation = store.get(reference)
       expect(operation).toStrictEqual({
         tags: ['Public'],
+        summary: 'List visible pets',
         responses: {
           '200': {
             description: 'OK',

@@ -17,6 +17,7 @@ export type OverlayDiagnostic = { overlayIndex: number; actionIndex: number; tar
 type Location = (string | number)[]
 type JsonObject = Record<string, JSONValue>
 type Action = Record<string, unknown> & { target: string }
+type OverlayVersion = '1.0' | '1.1' | '1.2'
 
 const URI_SCHEME = /^[a-z][a-z\d+.-]*:/i
 
@@ -32,10 +33,16 @@ const optionalString = (object: Record<string, unknown>, key: string): string | 
   return value
 }
 
-const uriReference = (object: Record<string, unknown>, key: string): string | undefined => {
+const uriReference = (object: Record<string, unknown>, key: string, allowFragment = false): string | undefined => {
   const value = optionalString(object, key)
-  if (value !== undefined && (/[^A-Za-z0-9\-._~:/?[\]@!$&'()*+,;=%]/.test(value) || /%(?![\da-f]{2})/i.test(value))) {
-    throw new Error(`"${key}" must be a URI reference without a fragment`)
+  if (
+    value !== undefined &&
+    (/[^A-Za-z0-9\-._~:/?[\]@!$&'()*+,;=%#]/.test(value) ||
+      /%(?![\da-f]{2})/i.test(value) ||
+      /#.*#/.test(value) ||
+      (!allowFragment && value.includes('#')))
+  ) {
+    throw new Error(`"${key}" must be a URI reference${allowFragment ? '' : ' without a fragment'}`)
   }
   return value
 }
@@ -55,16 +62,19 @@ const checkOverlayIdentity = (
   sourceUri: string | undefined,
   base: Record<string, unknown>,
   baseSourceUri: string | undefined,
+  version: OverlayVersion,
 ): void => {
-  const self = uriReference(overlay, '$self')
-  const extendsUri = uriReference(overlay, 'extends')
+  const self = version === '1.2' ? uriReference(overlay, '$self') : undefined
+  const extendsUri = uriReference(overlay, 'extends', version !== '1.2')
   const overlayIdentity =
     self !== undefined && (sourceUri || URI_SCHEME.test(self)) ? new URL(self, sourceUri).href : sourceUri
   if (extendsUri === undefined) {
     return
   }
   if (!overlayIdentity && !URI_SCHEME.test(extendsUri)) {
-    throw new Error('A relative "extends" requires an Overlay source URI or an absolute "$self"')
+    throw new Error(
+      `A relative "extends" requires an Overlay source URI${version === '1.2' ? ' or an absolute "$self"' : ''}`,
+    )
   }
 
   // $self was introduced in OpenAPI 3.2. The retrieval URI identifies older descriptions.
@@ -149,9 +159,19 @@ const getReusableActions = (overlay: Record<string, unknown>): Map<string, Recor
   return actions
 }
 
-const getAction = (action: unknown, reusableActions: Map<string, Record<string, unknown>>): Action => {
+const getAction = (
+  action: unknown,
+  reusableActions: Map<string, Record<string, unknown>>,
+  version: OverlayVersion,
+): Action => {
   if (!isObject(action) || typeof action.target !== 'string') {
     throw new Error('An action must specify a JSONPath "target"')
+  }
+  if (version === '1.0' && Object.hasOwn(action, 'copy')) {
+    throw new Error('"copy" requires Overlay 1.1 or later')
+  }
+  if (version !== '1.2' && Object.hasOwn(action, '$ref')) {
+    throw new Error('Reusable action references require Overlay 1.2')
   }
   validateFields(action)
 
@@ -188,18 +208,21 @@ const kindOf = (value: unknown): 'object' | 'array' | 'primitive' => {
   return isObject(value) ? 'object' : 'primitive'
 }
 
-const mergeValue = (target: unknown, update: unknown, appendToArray = false): unknown => {
-  // Overlay 1.2 concatenates array properties when recursively merging objects.
-  // https://spec.openapis.org/overlay/v1.2.0.html#action-object
-  if (Array.isArray(target) && (appendToArray || Array.isArray(update))) {
-    for (const item of Array.isArray(update) ? update : [update]) {
-      target.push(item)
+const mergeValue = (target: unknown, update: unknown, version: OverlayVersion, direct = false): unknown => {
+  if (Array.isArray(target) && (direct || Array.isArray(update))) {
+    // Overlay 1.0 appends one entry to a directly selected array and replaces array properties in object updates.
+    if (version === '1.0' && !direct) {
+      return update
+    }
+    const values = version !== '1.0' && Array.isArray(update) ? update : [update]
+    for (const value of values) {
+      target.push(value)
     }
     return target
   }
   if (isObject(target) && isObject(update)) {
     for (const [key, value] of Object.entries(update)) {
-      target[key] = Object.hasOwn(target, key) ? mergeValue(target[key], value) : value
+      target[key] = Object.hasOwn(target, key) ? mergeValue(target[key], value, version) : value
     }
     return target
   }
@@ -217,7 +240,7 @@ const lastIndex = (location: Location): number => {
   return typeof key === 'number' ? key : -1
 }
 
-const applyAction = (document: JsonObject, action: Action): boolean => {
+const applyAction = (document: JsonObject, action: Action, version: OverlayVersion): boolean => {
   // JSONPath can select the same location more than once. Apply a mutation once per location.
   const matches = new Map<string, JSONPathNode>()
   for (const node of compileSelector(action.target, 'target').findIter(document)) {
@@ -235,6 +258,10 @@ const applyAction = (document: JsonObject, action: Action): boolean => {
       (action.remove === true ? lastIndex(b.location) - lastIndex(a.location) : 0),
   )
 
+  if (version === '1.0' && ordered.some(({ value }) => kindOf(value) === 'primitive')) {
+    throw new Error('Overlay 1.0 targets must select only objects or arrays')
+  }
+
   if (action.remove === true) {
     for (const { location } of ordered) {
       const key = location.at(-1)
@@ -251,15 +278,14 @@ const applyAction = (document: JsonObject, action: Action): boolean => {
     return true
   }
 
-  // Overlay 1.2 defines update and copy as having no effect when both are present.
+  // Overlay 1.1 and 1.2 define update and copy as having no effect when both are present.
   const hasUpdate = Object.hasOwn(action, 'update')
   const hasCopy = typeof action.copy === 'string'
   if (hasUpdate === hasCopy) {
     return true
   }
 
-  const kinds = new Set(ordered.map(({ value }) => kindOf(value)))
-  if (kinds.size > 1) {
+  if (version !== '1.0' && new Set(ordered.map(({ value }) => kindOf(value))).size > 1) {
     throw new Error('Update and copy require all selected nodes to have the same kind')
   }
 
@@ -275,7 +301,7 @@ const applyAction = (document: JsonObject, action: Action): boolean => {
   // Snapshot the value before mutating any target, including when it contains the copy source.
   const serializedUpdate = serializeUpdate(update)
   for (const { location, value } of ordered) {
-    const updated = mergeValue(value, JSON.parse(serializedUpdate), true)
+    const updated = mergeValue(value, JSON.parse(serializedUpdate), version, true)
     const key = location.at(-1)
     if (key !== undefined && updated !== value) {
       Reflect.set(getParent(document, location), key, updated)
@@ -285,7 +311,15 @@ const applyAction = (document: JsonObject, action: Action): boolean => {
   return true
 }
 
-/** Applies already-loaded Overlay 1.2 documents to a fresh copy of an authored OpenAPI description. */
+const getOverlayVersion = (value: unknown): OverlayVersion => {
+  const version = typeof value === 'string' ? /^(1\.[012])\.(0|[1-9]\d*)$/.exec(value)?.[1] : undefined
+  if (version === '1.0' || version === '1.1' || version === '1.2') {
+    return version
+  }
+  throw new Error('Expected an Overlay with version 1.0.x, 1.1.x, or 1.2.x')
+}
+
+/** Applies already-loaded Overlays to a fresh copy of an authored OpenAPI description. */
 export const composeOpenApiOverlays = (
   base: Record<string, unknown>,
   overlays: readonly LoadedOverlay[],
@@ -302,8 +336,15 @@ export const composeOpenApiOverlays = (
   for (const [overlayIndex, { document: overlay, sourceUri }] of overlays.entries()) {
     const context = `Overlay ${overlayIndex + 1}${sourceUri ? ` (${sourceUri})` : ''}`
     try {
-      if (!isObject(overlay) || typeof overlay.overlay !== 'string' || !/^1\.2\.(0|[1-9]\d*)$/.test(overlay.overlay)) {
-        throw new Error('Expected an Overlay with version 1.2.x')
+      if (!isObject(overlay)) {
+        throw new Error('An Overlay must be an object')
+      }
+      const version = getOverlayVersion(overlay.overlay)
+      if (version !== '1.2' && Object.hasOwn(overlay, '$self')) {
+        throw new Error('"$self" requires Overlay 1.2')
+      }
+      if (version !== '1.2' && Object.hasOwn(overlay, 'components')) {
+        throw new Error('Reusable action components require Overlay 1.2')
       }
       if (
         !isObject(overlay.info) ||
@@ -316,12 +357,12 @@ export const composeOpenApiOverlays = (
       if (!Array.isArray(overlay.actions) || overlay.actions.length === 0) {
         throw new Error('An Overlay must contain at least one action')
       }
-      checkOverlayIdentity(overlay, sourceUri, base, baseSourceUri)
+      checkOverlayIdentity(overlay, sourceUri, base, baseSourceUri, version)
       const reusableActions = getReusableActions(overlay)
       for (const [actionIndex, entry] of overlay.actions.entries()) {
         try {
-          const action = getAction(entry, reusableActions)
-          if (!applyAction(document, action)) {
+          const action = getAction(entry, reusableActions, version)
+          if (!applyAction(document, action, version)) {
             diagnostics.push({ overlayIndex, actionIndex, target: action.target })
           }
         } catch (error) {
