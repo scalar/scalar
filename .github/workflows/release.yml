@@ -66,7 +66,7 @@ jobs:
       id-token: write
     # 'true' when this commit released at least one public package — every
     # release-gated job downstream (production galaxy deploy, GitHub release,
-    # integration publishes, CDN purge, production web deploy) keys off this.
+    # integration publishes, production web deploy) keys off this.
     #
     # We deliberately do NOT use changesets/action's own `published` output:
     # that action reads published packages from the CHANGESETS_OUTPUT file
@@ -203,33 +203,9 @@ jobs:
           # CHANGELOG.md section into a friendly release-notes entry.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
-      - name: Purge CDN Cache
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v2.0.1
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
-          method: 'GET'
-
-      - name: Purge CDN Cache (standalone bundle)
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v2.0.1
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.js'
-          method: 'GET'
-
-      - name: Purge CDN Cache (ESM entry point)
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v2.0.1
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/esm.js'
-          method: 'GET'
-
-      - name: Purge CDN Cache (standalone ESM bundle)
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v2.0.1
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/dist/browser/standalone.esm.js'
-          method: 'GET'
+      # The jsDelivr purge lives in purge-cdn.yml, which runs after Main
+      # completes: npm scans new versions before serving them, so a purge sent
+      # from here would cache the previous version again.
 
       # Record this job's own result so the main-push deploys can gate on the
       # npm publish alone. `always()` ensures it runs even if an earlier step

@@ -1,0 +1,85 @@
+name: Purge CDN
+
+# Purge jsDelivr's cached @scalar/api-reference URLs once npm serves a new
+# release, and check that the CDN then serves it.
+#
+# npm scans every new version before it becomes installable (about five
+# minutes, sometimes 15 or more), so a purge sent straight after publishing
+# makes jsDelivr cache the previous version for another seven days. Waiting
+# for npm inside release.yml would hold the Main workflow, and with it the
+# CI-main-base-ci concurrency group, open for that long and queue the next
+# push to main. Running after Main completes keeps that wait off the release
+# path entirely.
+#
+# Every Main run triggers this, but when nothing new was released jsDelivr
+# already serves the version in package.json and the job exits within seconds.
+
+on:
+  workflow_run:
+    workflows: [Main]
+    types: [completed]
+    branches: [main]
+  # Re-run the purge by hand, for example after a jsDelivr outage.
+  workflow_dispatch: null
+
+permissions:
+  contents: read
+
+concurrency:
+  # A newer run checks the same or a newer version, so it can replace an
+  # older one that is still waiting for npm.
+  group: purge-cdn
+  cancel-in-progress: true
+
+jobs:
+  purge:
+    # Nothing here builds anything; a GitHub-hosted runner is free for this
+    # public repository, which matters because most of the job is waiting.
+    # ubuntu-slim is not an option because it caps jobs at 15 minutes.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      # Read the triggering Main run's jobs to see whether it published.
+      actions: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          # The commit Main ran on, not whatever main points at by now.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            packages/api-reference/package.json
+            tooling/scripts/purge-jsdelivr.sh
+          sparse-checkout-cone-mode: false
+
+      - name: Check whether the Main run published to npm
+        id: published
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          # A manual run always waits for npm; that is why someone started it.
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
+            echo "wait_for_npm=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Without a successful npm-publish job the version in package.json
+          # may never reach npm, and waiting for it would only time out.
+          conclusion=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/jobs" --paginate \
+            --jq '.jobs[] | select(.name | endswith("npm-publish")) | .conclusion')
+          echo "npm-publish conclusion: ${conclusion:-not found}"
+          if [ "$conclusion" = 'success' ]; then
+            echo "wait_for_npm=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "wait_for_npm=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Purge jsDelivr once npm serves the release
+        env:
+          WAIT_FOR_NPM: ${{ steps.published.outputs.wait_for_npm }}
+        run: |
+          VERSION=$(jq -r .version packages/api-reference/package.json)
+          export VERSION
+          bash ./tooling/scripts/purge-jsdelivr.sh
