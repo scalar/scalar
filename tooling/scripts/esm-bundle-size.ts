@@ -162,14 +162,15 @@ export const formatDifference = (current: number, baseline: number): string => {
 
 /**
  * Brotli and gzip are what users download. Minified is what the browser parses and compiles, and
- * it shows growth that compresses well. Lazy chunks only get one row, because most changes do not
- * touch them and a single total is enough to catch the ones that do.
+ * it shows growth that compresses well.
  */
 const rows = [
   { label: 'Initial load (brotli)', pick: (size: EsmBundleSize): number => size.initial.brotli },
   { label: 'Initial load (gzip)', pick: (size: EsmBundleSize): number => size.initial.gzip },
   { label: 'Initial load (minified)', pick: (size: EsmBundleSize): number => size.initial.minified },
   { label: 'All chunks (brotli)', pick: (size: EsmBundleSize): number => size.total.brotli },
+  { label: 'All chunks (gzip)', pick: (size: EsmBundleSize): number => size.total.gzip },
+  { label: 'All chunks (minified)', pick: (size: EsmBundleSize): number => size.total.minified },
 ]
 
 const shortCommit = (commit: string): string => commit.slice(0, 7)

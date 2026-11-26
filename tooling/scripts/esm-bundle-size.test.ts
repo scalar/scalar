@@ -169,7 +169,8 @@ describe('esm-bundle-size', () => {
       expect(report).toContain('| Initial load (gzip) | 100.00 kB | 99.00 kB | -1.00 kB (-1.00%) |')
       expect(report).toContain('| Initial load (minified) | 400.00 kB | 396.00 kB | -4.00 kB (-1.00%) |')
       expect(report).toContain('| All chunks (brotli) | 160.00 kB | 164.00 kB | +4.00 kB (+2.50%) |')
-      expect(report).not.toContain('All chunks (gzip)')
+      expect(report).toContain('| All chunks (gzip) | 200.00 kB | 205.00 kB | +5.00 kB (+2.50%) |')
+      expect(report).toContain('| All chunks (minified) | 800.00 kB | 820.00 kB | +20.00 kB (+2.50%) |')
       expect(report).toContain('Measured at bbbbbbb.')
     })
 
