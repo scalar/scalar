@@ -9,6 +9,14 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.60 (2026-11-26)
+
+### Fixed download filenames with special characters
+
+File downloads now preserve semicolons, escaped quotes, and percent sequences in quoted filenames from Content-Disposition headers.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01260)
+
 ## 0.12.59 (2026-11-25)
 
 ### Polish and bug fixes shipped

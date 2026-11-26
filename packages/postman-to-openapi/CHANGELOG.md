@@ -1,5 +1,11 @@
 # @scalar/postman-to-openapi
 
+## 0.7.37
+
+### Patch Changes
+
+- [#11245](https://github.com/scalar/scalar/pull/11245): fix: keep parameters that share a name in different locations
+
 ## 0.7.36
 
 ### Patch Changes

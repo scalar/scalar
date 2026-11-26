@@ -1,5 +1,17 @@
 # @scalar/types
 
+## 0.33.0
+
+### Minor Changes
+
+- [#11234](https://github.com/scalar/scalar/pull/11234): Configure available API Reference HTTP clients with `httpClients`. Use exact client IDs or target wildcards such as `shell/*`. The `defaultHttpClient` option also accepts a client ID string.
+
+  When all available clients are under **More**, such as with `featuredClients: []`, the Client Libraries block omits the empty tab list.
+
+### Patch Changes
+
+- [#11175](https://github.com/scalar/scalar/pull/11175): Deprecate the `withDefaultFonts` configuration option. Scalar no longer loads web fonts, so the option has no effect. It is still accepted, so existing configurations keep working.
+
 ## 0.32.1
 
 ### Patch Changes

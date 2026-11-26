@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.85.0 (2026-11-26)
+
+### Control available HTTP clients and switch to system fonts
+
+This release introduces fine-grained control over which HTTP clients appear in your API reference and replaces web fonts with native system fonts for faster page loads and reduced bandwidth usage.
+
+- Configure available HTTP clients with the new httpClients option, which accepts exact client IDs or wildcards like shell/* to show only the clients your API supports
+- API references now use your operating system's native fonts instead of downloading web fonts from the internet, making pages load faster and reducing data transfer
+- Schema properties now support custom x-badges to highlight important details like expandable fields, using the same badge component as operations
+- Search now finds operations by text in their response descriptions, not just the operation description itself
+- Generated string examples now respect minLength and maxLength constraints, producing valid placeholder values that fit within your schema bounds
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1850)
+
 ## 1.84.0 (2026-11-25)
 
 ### AsyncAPI messages and trait rendering, plus polish and fixes

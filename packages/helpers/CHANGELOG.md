@@ -1,5 +1,13 @@
 # @scalar/helpers
 
+## 0.20.1
+
+### Patch Changes
+
+- [#11223](https://github.com/scalar/scalar/pull/11223): Add `stubDialogApi` to `@scalar/helpers/testing/stub-dialog`, a stand-in for the native dialog API in jsdom tests.
+- [#11252](https://github.com/scalar/scalar/pull/11252): Preserve semicolons, escaped quotes, and literal percent sequences in quoted response download filenames. Support case-insensitive extended filename parameters with language tags and normalize the suggested filename in API Client and Agent Chat.
+- [#11175](https://github.com/scalar/scalar/pull/11175): Stop passing the deprecated `fonts` option when the Storybook theme helper builds theme styles.
+
 ## 0.20.0
 
 ### Minor Changes

@@ -1,5 +1,18 @@
 # @scalar/blocks
 
+## 0.11.0
+
+### Minor Changes
+
+- [#11232](https://github.com/scalar/scalar/pull/11232): Support custom `x-badges` on OpenAPI schema properties so API references can highlight details like expandable fields. Property rows use the badges declared on the property, including when the property references a model or is an array of models.
+
+### Patch Changes
+
+- [#11234](https://github.com/scalar/scalar/pull/11234): Configure available API Reference HTTP clients with `httpClients`. Use exact client IDs or target wildcards such as `shell/*`. The `defaultHttpClient` option also accepts a client ID string.
+
+  When all available clients are under **More**, such as with `featuredClients: []`, the Client Libraries block omits the empty tab list.
+- [#11215](https://github.com/scalar/scalar/pull/11215): Respect string length bounds when generating plain text and formatted string examples, including API reference examples and mock server responses. Preserve path parameter placeholders in code samples.
+
 ## 0.10.0
 
 ### Minor Changes

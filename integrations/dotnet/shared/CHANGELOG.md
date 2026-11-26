@@ -1,5 +1,11 @@
 # @scalar/dotnet-shared
 
+## 1.2.1
+
+### Patch Changes
+
+- [#11175](https://github.com/scalar/scalar/pull/11175): Deprecate the `withDefaultFonts` configuration option. Scalar no longer loads web fonts, so the option has no effect. It is still accepted, so existing configurations keep working.
+
 ## 1.2.0
 
 ### Minor Changes

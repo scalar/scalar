@@ -1,5 +1,9 @@
 # @scalar/import
 
+## 0.5.41
+
+No changes in this release.
+
 ## 0.5.40
 
 No changes in this release.

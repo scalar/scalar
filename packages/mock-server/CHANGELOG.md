@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.21.9
+
+### Patch Changes
+
+- [#11215](https://github.com/scalar/scalar/pull/11215): Respect string length bounds when generating plain text and formatted string examples, including API reference examples and mock server responses. Preserve path parameter placeholders in code samples.
+
 ## 0.21.8
 
 ### Patch Changes

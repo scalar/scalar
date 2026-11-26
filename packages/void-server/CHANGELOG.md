@@ -1,5 +1,9 @@
 # @scalar/void-server
 
+## 2.5.29
+
+No changes in this release.
+
 ## 2.5.28
 
 ### Patch Changes
