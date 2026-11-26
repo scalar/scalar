@@ -29,15 +29,12 @@ import type {
   ResponseObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import {
-  isOnScrollTargetPath,
-  scrollTargetId,
-  scrollTargetResponse,
-} from '@/helpers/lazy-bus'
+import { isOnScrollTargetPath, scrollTargetId } from '@/helpers/lazy-bus'
+import { RESPONSE_PROPERTY_TARGET } from '@/helpers/response-property-target'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -89,6 +86,7 @@ defineSlots<{
 }>()
 
 const { translate } = useLocalization()
+const responsePropertyTarget = inject(RESPONSE_PROPERTY_TARGET, undefined)
 
 /** Compact parameter rows also hide scalar details, unlike response rows. */
 const isCompactParameter = computed<boolean>(
@@ -345,13 +343,17 @@ const schemaEventBus = computed<WorkspaceEventBus | null>(() => {
 
 const targetResponseMediaType = computed<string | undefined>(() => {
   const responseId = responseAnchorId.value
-  if (!responseId || !isOnScrollTargetPath(responseId, breadcrumb?.[0])) {
+  const target = responsePropertyTarget?.value
+  if (
+    !target ||
+    target.operationId !== breadcrumb?.[0] ||
+    !isOnScrollTargetPath(responseId)
+  ) {
     return undefined
   }
 
-  const mediaType = scrollTargetResponse.value?.mediaType
-  return mediaType && Object.hasOwn(content.value ?? {}, mediaType)
-    ? mediaType
+  return Object.hasOwn(content.value ?? {}, target.mediaType)
+    ? target.mediaType
     : undefined
 })
 
@@ -372,7 +374,9 @@ watch(
  */
 const isOnTargetPath = computed<boolean>(
   () =>
-    isOnScrollTargetPath(schemaBreadcrumb.value?.join('.'), breadcrumb?.[0]) ||
+    ((!responsePropertyTarget?.value ||
+      responsePropertyTarget.value.operationId === breadcrumb?.[0]) &&
+      isOnScrollTargetPath(schemaBreadcrumb.value?.join('.'))) ||
     Boolean(
       breadcrumb &&
       childParameters &&

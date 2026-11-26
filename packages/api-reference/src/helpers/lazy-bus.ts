@@ -1,6 +1,6 @@
 import { watchDebounced } from '@vueuse/core'
 import { nanoid } from 'nanoid'
-import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
+import { type ShallowRef, computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 
 import { type ResponsePropertyLink, getSchemaParamsFromId } from './id-routing'
 
@@ -41,9 +41,6 @@ export const firstLazyLoadComplete = ref(false)
  */
 export const scrollTargetId = ref<string>('')
 
-/** The media type and navigation entry of the active response property link. */
-export const scrollTargetResponse = ref<ResponsePropertyLink>()
-
 /**
  * Whether the live scroll target is `path` itself or something inside it.
  *
@@ -52,15 +49,10 @@ export const scrollTargetResponse = ref<ResponsePropertyLink>()
  * on a segment boundary or `user` would claim a deep link to `username`.
  * Returns false for an empty path, so a node with no breadcrumb never matches.
  */
-export const isOnScrollTargetPath = (path: string | undefined, operationId?: string): boolean => {
+export const isOnScrollTargetPath = (path: string | undefined): boolean => {
   const target = scrollTargetId.value
 
   if (!path || !target) {
-    return false
-  }
-
-  const response = scrollTargetResponse.value
-  if (operationId && response && operationId !== response.operationId) {
     return false
   }
 
@@ -75,7 +67,6 @@ export const isOnScrollTargetPath = (path: string | undefined, operationId?: str
 const clearScrollTarget = (id: string): void => {
   if (scrollTargetId.value === id) {
     scrollTargetId.value = ''
-    scrollTargetResponse.value = undefined
   }
 }
 
@@ -276,9 +267,29 @@ export function useLazyBus(id: string) {
 }
 
 /** Options for navigating to an element and restoring its view state. */
-export type ScrollToLazyOptions = {
+type ScrollToLazyOptions = {
   focusTarget?: boolean
-  responseProperty?: ResponsePropertyLink
+  response?: {
+    link: ResponsePropertyLink
+    target: ShallowRef<ResponsePropertyLink | undefined>
+    root: HTMLElement | null
+  }
+}
+
+/** Find an anchor inside its owner when another mounted section has the same ID. */
+const findScopedElement = (id: string, root: HTMLElement | null, selector = '[id]'): HTMLElement | null => {
+  const tree = root?.getRootNode()
+  const documentRoot = tree instanceof ShadowRoot ? tree : document
+  const element = documentRoot.getElementById(id)
+  if (!element || ((!root || root.contains(element)) && element.matches(selector))) {
+    return element
+  }
+
+  return (
+    Array.from((root ?? documentRoot).querySelectorAll<HTMLElement>(selector)).find(
+      (candidate) => candidate.id === id,
+    ) ?? null
+  )
 }
 
 /**
@@ -291,29 +302,47 @@ export const scrollToLazy = (
   id: string,
   setExpanded: (id: string, value: boolean) => void,
   getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
-  { focusTarget = true, responseProperty }: ScrollToLazyOptions = {},
+  { focusTarget = true, response }: ScrollToLazyOptions = {},
 ): void => {
-  const item = getEntryById(id)
-
   // Even a rendered destination can move while sections above it finish rendering.
   cancelActiveScroll?.()
-  const stopTime = Date.now() + SCROLL_RETRY_MS
-  const hold = freeze(id, blockIntersection())
-  addLazyCompleteCallback(hold.renderComplete)
-  const owningOperation = responseProperty?.operationId
+  const owningOperation = response?.link.operationId
   const responseTarget =
-    owningOperation && id.startsWith(`${owningOperation}.`) && getEntryById(owningOperation)
-      ? responseProperty
-      : undefined
+    owningOperation && id.startsWith(`${owningOperation}.`) && getEntryById(owningOperation) ? response.link : undefined
   const rawId = responseTarget?.operationId ?? resolveNavigationId(id, getEntryById).rawId
+  const item = getEntryById(responseTarget?.operationId ?? id)
+
+  const getOperation = (): HTMLElement | null =>
+    findScopedElement(rawId, response?.root ?? null, '[data-scalar-operation]')
+  const getTarget = (): HTMLElement | null => {
+    if (!responseTarget) {
+      return document.getElementById(id)
+    }
+
+    const operation = getOperation()
+    return operation && findScopedElement(id, operation)
+  }
+  const clearTarget = (): void => {
+    clearScrollTarget(id)
+    if (response && response.target.value === responseTarget) {
+      response.target.value = undefined
+    }
+  }
+  const stopTime = Date.now() + SCROLL_RETRY_MS
+  const hold = freeze(getTarget, clearTarget, blockIntersection())
+  addLazyCompleteCallback(hold.renderComplete)
 
   // Publish the target so collapsible schema disclosures on the path can open
   // themselves. Schema properties are not in the navigation tree, so this is the
   // only way the scroll target inside a collapsed schema becomes reachable.
-  scrollTargetResponse.value = responseTarget
+  if (response) {
+    response.target.value = responseTarget
+  }
   scrollTargetId.value = id
 
-  addToPriorityQueue(id)
+  if (!responseTarget) {
+    addToPriorityQueue(id)
+  }
   addToPriorityQueue(rawId)
 
   // When there are children we ensure the first 2 are loaded
@@ -324,7 +353,7 @@ export const scrollToLazy = (
   // When there are sibling items we attempt to load the next 2 to better fill the viewport
   if (item?.parent) {
     const parent = getEntryById(item.parent.id)
-    const elementIdx = parent?.children?.findIndex((child) => child.id === id)
+    const elementIdx = parent?.children?.findIndex((child) => child.id === item.id)
     if (elementIdx !== undefined && elementIdx >= 0) {
       parent?.children?.slice(elementIdx, elementIdx + 2).forEach((child) => addToPriorityQueue(child.id))
     }
@@ -347,7 +376,8 @@ export const scrollToLazy = (
   addParents(rawId)
 
   void nextTick(() => {
-    tryScroll(id, stopTime, hold, rawId, focusTarget)
+    const getFallback = responseTarget ? getOperation : () => (rawId === id ? null : document.getElementById(rawId))
+    tryScroll(id, stopTime, hold, getFallback, focusTarget)
   })
 }
 
@@ -491,37 +521,39 @@ const tryScroll = (
   id: string,
   stopTime: number,
   hold: ReturnType<typeof freeze>,
-  fallbackId: string,
+  getFallback: () => HTMLElement | null,
   focusTarget: boolean,
 ): void => {
   if (!hold.isActive()) {
     return
   }
-  const element = document.getElementById(id)
+  const element = hold.getTarget()
   if (element) {
     hold.scroll(element)
     if (focusTarget && element instanceof HTMLElement && scrollTargetId.value === id) {
       element.focus({ preventScroll: true })
     }
-    clearScrollTarget(id)
+    hold.clearTarget()
   } else if (Date.now() < stopTime) {
-    requestAnimationFrame(() => tryScroll(id, stopTime, hold, fallbackId, focusTarget))
+    requestAnimationFrame(() => tryScroll(id, stopTime, hold, getFallback, focusTarget))
   } else {
-    if (fallbackId && fallbackId !== id && scrollTargetId.value === id) {
-      const fallback = document.getElementById(fallbackId)
+    if (scrollTargetId.value === id) {
+      const fallback = getFallback()
       if (fallback) {
         scrollToElement(fallback)
       }
     }
-    clearScrollTarget(id)
     hold.cancel()
   }
 }
 
 const freeze = (
-  id: string,
+  getTarget: () => HTMLElement | null,
+  clearTarget: () => void,
   unblock: UnblockFn,
 ): {
+  getTarget: () => HTMLElement | null
+  clearTarget: () => void
   renderComplete: () => void
   cancel: () => void
   isActive: () => boolean
@@ -578,7 +610,7 @@ const freeze = (
     if (cancelActiveScroll === cancel) {
       cancelActiveScroll = undefined
     }
-    clearScrollTarget(id)
+    clearTarget()
     unblock()
   }
 
@@ -601,7 +633,7 @@ const freeze = (
     if (containers.every((container, index) => container.scrollTop === expectedScrollTops[index])) {
       return
     }
-    const element = document.getElementById(id)
+    const element = getTarget()
     if (element) {
       // Replacing a lazy placeholder or native anchoring during a layout change
       // must not be mistaken for a scrollbar drag, which has no pointer event.
@@ -625,7 +657,7 @@ const freeze = (
     if (stopped) {
       return
     }
-    const element = document.getElementById(id)
+    const element = getTarget()
     if (element) {
       updateContainers(element)
       // Include every scrollport so browser anchoring does not hide layout changes,
@@ -653,5 +685,5 @@ const freeze = (
 
   runFrame()
 
-  return { renderComplete, cancel, isActive: () => !stopped, scroll }
+  return { getTarget, clearTarget, renderComplete, cancel, isActive: () => !stopped, scroll }
 }

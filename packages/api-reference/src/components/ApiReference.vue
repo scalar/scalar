@@ -160,7 +160,6 @@ import {
   isIntroductionEntry,
 } from '@/helpers/is-introduction-entry'
 import {
-  type ScrollToLazyOptions,
   scrollToLazy as _scrollToLazy,
   addToPriorityQueue,
   blockIntersection,
@@ -178,6 +177,7 @@ import {
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
 import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
+import { RESPONSE_PROPERTY_TARGET } from '@/helpers/response-property-target'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { toStoreDocumentTypes } from '@/helpers/to-store-document-types'
 import { useDocumentEnvironment } from '@/helpers/use-document-environment'
@@ -246,6 +246,8 @@ provideUseId(() => useId())
  * be called twice on one page, and two references must not share expansion.
  */
 const expansion = useSchemaExpansion(scrollTargetId)
+const responsePropertyTarget = shallowRef<ResponsePropertyLink>()
+provide(RESPONSE_PROPERTY_TARGET, responsePropertyTarget)
 
 // ---------------------------------------------------------------------------
 /**
@@ -1059,16 +1061,21 @@ const contextChain = computed(() => {
 
 const scrollToLazyElement = (
   id: string,
-  options?: ScrollToLazyOptions,
+  {
+    focusTarget,
+    responseProperty,
+  }: { focusTarget?: boolean; responseProperty?: ResponsePropertyLink } = {},
 ): void => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
-  _scrollToLazy(
-    id,
-    sidebarState.setExpanded,
-    sidebarState.getEntryById,
-    options,
-  )
+  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById, {
+    focusTarget,
+    response: responseProperty && {
+      link: responseProperty,
+      target: responsePropertyTarget,
+      root: referenceLayout.value,
+    },
+  })
 }
 
 /**

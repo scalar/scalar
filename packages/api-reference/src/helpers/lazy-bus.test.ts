@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, shallowRef } from 'vue'
 
-import { getStickyHeaderOffset, isOnScrollTargetPath, requestLazyRender, scrollToLazy } from './lazy-bus'
+import type { ResponsePropertyLink } from './id-routing'
+import { getStickyHeaderOffset, requestLazyRender, scrollToLazy } from './lazy-bus'
 
 // ---------------------------------------------------------------------------
 // scrollToLazy — existing tests
@@ -47,26 +48,27 @@ describe('lazy-bus', () => {
     it('expands the operation whose path contains a response marker', () => {
       const dottedOperation = `${operationId}.responses.200.json`
       const expanded: string[] = []
+      const link = { mediaType: 'application/xml', operationId: dottedOperation }
+      const target = shallowRef<ResponsePropertyLink>()
 
       scrollToLazy(
         `${dottedOperation}.responses.200.name`,
         (id, value) => value && expanded.push(id),
         (id) => (id === operationId || id === dottedOperation ? { id } : undefined),
-        { responseProperty: { mediaType: 'application/xml', operationId: dottedOperation } },
+        { response: { link, target, root: null } },
       )
 
       expect(expanded).toStrictEqual([dottedOperation])
-      expect(isOnScrollTargetPath(`${operationId}.responses.200`, operationId)).toBe(false)
-      expect(isOnScrollTargetPath(`${dottedOperation}.responses.200`, dottedOperation)).toBe(true)
+      expect(target.value).toBe(link)
     })
 
     it.each([
-      { suffix: 'body.customer', options: {} },
+      { suffix: 'body.customer', link: undefined },
       {
         suffix: 'responses.200.customer',
-        options: { responseProperty: { mediaType: 'application/xml', operationId } },
+        link: { mediaType: 'application/xml', operationId },
       },
-    ])('uses the owning operation when another path starts with $suffix', ({ suffix, options }) => {
+    ])('uses the owning operation when another path starts with $suffix', ({ suffix, link }) => {
       const otherOperation = `${operationId}.${suffix}`
       const expanded: string[] = []
 
@@ -74,10 +76,45 @@ describe('lazy-bus', () => {
         `${otherOperation}.id`,
         (id, value) => value && expanded.push(id),
         (id) => (id === operationId || id === otherOperation ? { id } : undefined),
-        options,
+        { response: link ? { link, target: shallowRef(), root: null } : undefined },
       )
 
       expect(expanded).toStrictEqual([operationId])
+    })
+
+    it('waits for the property inside its operation when another section has the same ID', async () => {
+      vi.useFakeTimers()
+      const operation = document.createElement('section')
+      const duplicate = document.createElement('button')
+      const duplicateOwner = document.createElement('div')
+      const property = document.createElement('button')
+      const root = document.createElement('div')
+      operation.id = duplicateOwner.id = operationId
+      operation.setAttribute('data-scalar-operation', '')
+      duplicate.id = property.id = `${operationId}.responses.200.name`
+      duplicate.scrollIntoView = vi.fn()
+      property.scrollIntoView = vi.fn()
+      root.append(duplicate, duplicateOwner, operation)
+      document.body.append(root)
+      const link = { mediaType: 'application/xml', operationId }
+      const target = shallowRef<ResponsePropertyLink>()
+
+      try {
+        scrollToLazy(property.id, () => undefined, navigationTree(), { response: { link, target, root } })
+        await nextTick()
+        expect(target.value).toBe(link)
+        expect(duplicate.scrollIntoView).not.toHaveBeenCalled()
+
+        operation.append(property)
+        vi.advanceTimersToNextFrame()
+        expect(document.activeElement).toBe(property)
+        expect(property.scrollIntoView).toHaveBeenCalled()
+        expect(duplicate.scrollIntoView).not.toHaveBeenCalled()
+        expect(target.value).toBeUndefined()
+      } finally {
+        root.remove()
+        vi.useRealTimers()
+      }
     })
 
     it('expands the operation behind a callback anchor', () => {
