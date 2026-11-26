@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 // @vitest-environment-options { "url": "https://example.com/docs/" }
 
+import { isObject } from '@scalar/helpers/object/is-object'
 import { getOpenApiDocument } from '@test/helpers'
 import { overlayBase, partnerOverlay } from '@test/overlays'
 import { assert, describe, expect, it, vi } from 'vitest'
@@ -233,8 +234,15 @@ describe('client.browser', () => {
     ]
     expect(await store.addDocument({ ...input, overlays })).toBe(true)
 
-    const getNameSchema = () => getResolvedRef(getOpenApiDocument(store, input.name)?.components?.schemas?.Name)
-    const getExport = () => JSON.parse(store.exportDocument(input.name, 'json')!)
+    const getNameSchema = (): unknown =>
+      getResolvedRef(getOpenApiDocument(store, input.name)?.components?.schemas?.Name)
+    const getExport = (): Record<string, unknown> => {
+      const exported = store.exportDocument(input.name, 'json')
+      assert(exported)
+      const parsed: unknown = JSON.parse(exported)
+      assert(isObject(parsed))
+      return parsed
+    }
     expect(getNameSchema()).toStrictEqual({ type: ['string', 'null'], description: 'Nullable' })
     expect(getExport()['x-items']).toStrictEqual([[1], [2], 3])
 

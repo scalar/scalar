@@ -1,4 +1,5 @@
 import { isObject } from '@scalar/helpers/object/is-object'
+import { isValidUrl } from '@scalar/helpers/url/is-valid-url'
 import { type JSONPathQuery, compile } from 'json-p3'
 
 /** A migration issue at a JSON Pointer in the input Overlay. */
@@ -40,8 +41,10 @@ const isUriReference = (value: string): boolean => {
     return false
   }
   if (host.startsWith('[')) {
-    // WHATWG URLs can validate IPv6 literals. RFC 3986 also allows IPvFuture literals.
-    return URL.canParse(`http://${host}`) || /^\[v[\da-f]+\.[a-z\d._~!$&'()*+,;=:-]+\]$/i.test(host)
+    // Check the characters first because the URL parser strips tabs and newlines.
+    const ipv6 = /^\[[\da-f:.]+\]$/i.test(host) && isValidUrl(`http://${host}`)
+    const ipvFuture = /^\[v[\da-f]+\.[a-z\d._~!$&'()*+,;=:-]+\]$/i.test(host)
+    return ipv6 || ipvFuture
   }
   return /^[a-z\d._~!$&'()*+,;=%-]*$/i.test(host)
 }

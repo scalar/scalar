@@ -93,14 +93,24 @@ describe('upgrade-overlay', () => {
     'bad%escape',
     'open api.yaml',
     'https://[::zz]/api',
+    'https://[::\n1]/api',
+    'https://[::\t1]/api',
     '../a[b]',
-  ])('reports an invalid 1.2 extends URI %s when migrating 1.1', (extendsUri) => {
+  ])('reports an invalid 1.2 extends URI %j when migrating 1.1', (extendsUri) => {
     const input = { ...overlay('1.1.0', [{ target: '$.info', update: { title: 'Partner' } }]), extends: extendsUri }
     expect(upgradeOverlay(input)).toStrictEqual({
       ok: false,
       diagnostics: [{ path: '/extends', message: 'Set "extends" to a valid URI reference without a fragment.' }],
     })
   })
+
+  it.each(['https://[::1]/api', 'https://[v1.a:b]/api'])(
+    'preserves an IP literal in the extends URI %s',
+    (extendsUri) => {
+      const input = { ...overlay('1.1.0', [{ target: '$.info', update: { title: 'Partner' } }]), extends: extendsUri }
+      expect(upgradeOverlay(input)).toStrictEqual({ ok: true, document: { ...input, overlay: '1.2.0' } })
+    },
+  )
 
   it('copies an existing 1.2 Overlay with reusable actions and a relative identity', () => {
     const input = {

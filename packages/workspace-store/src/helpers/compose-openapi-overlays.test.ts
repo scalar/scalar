@@ -32,7 +32,7 @@ describe('compose-openapi-overlays', () => {
   it.each(['1.0.0', '1.1.0', '1.2.0'])('applies mixed object and array matches according to %s', (version) => {
     const base = { ...overlayBase, 'x-items': [{ before: true }, []] }
     const document = overlay([{ target: "$['x-items'][*]", update: { after: true } }], version)
-    const compose = () => composeOpenApiOverlays(base, [{ document }])
+    const compose = (): ReturnType<typeof composeOpenApiOverlays> => composeOpenApiOverlays(base, [{ document }])
 
     if (version === '1.0.0') {
       expect(compose().document['x-items']).toStrictEqual([{ before: true, after: true }, [{ after: true }]])
