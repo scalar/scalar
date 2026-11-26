@@ -1,5 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+import { getParameterKey } from './parameters'
 import {
   POSTMAN_EXAMPLE_NAME_EXTENSION,
   POSTMAN_POST_RESPONSE_SCRIPTS_EXTENSION,
@@ -82,12 +83,10 @@ export const mergeOperations = (
 
   const parameters = new Map<string, OpenAPIV3_1.ParameterObject>()
 
-  const generateParameterId = (param: OpenAPIV3_1.ParameterObject) => `${param.name}/${param.in}`
-
   // Seed parameter list from operation2 (the base)
   if (operation.parameters) {
     for (const parameter of operation.parameters) {
-      const id = generateParameterId(parameter)
+      const id = getParameterKey(parameter)
       parameters.set(id, parameter)
     }
   }
@@ -96,7 +95,7 @@ export const mergeOperations = (
   // For each parameter, merge their 'examples' objects, assuming example keys are unique.
   if (operation1.parameters) {
     for (const parameter of operation1.parameters) {
-      const id = generateParameterId(parameter)
+      const id = getParameterKey(parameter)
       if (parameters.has(id)) {
         const existingParameter = parameters.get(id)
         if (existingParameter) {

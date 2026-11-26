@@ -71,6 +71,40 @@ describe('OperationParameters', () => {
     }
   })
 
+  it('shows badges authored on flattened deepObject properties', async () => {
+    const roleReference = {
+      $ref: '#/components/schemas/Role',
+      '$ref-value': { type: 'string' as const, 'x-badges': [{ name: 'Internal model' }] },
+    }
+    const wrapper = mount(OperationParameters, {
+      props: {
+        eventBus: null,
+        options: defaultSchemaOptions,
+        parameters: [
+          {
+            in: 'query',
+            name: 'filters',
+            style: 'deepObject',
+            schema: {
+              type: 'object',
+              properties: {
+                role: roleReference,
+                secondaryRole: { ...roleReference, 'x-badges': [{ name: 'Optional filter' }] },
+              },
+            },
+          },
+        ],
+      },
+    })
+
+    await wrapper.get('button[aria-expanded]').trigger('click')
+
+    expect(wrapper.text()).toContain('filters[role]')
+    expect(wrapper.text()).toContain('filters[secondaryRole]')
+    expect(wrapper.text()).toContain('Optional filter')
+    expect(wrapper.text()).not.toContain('Internal model')
+  })
+
   it.each([true, false])('groups six fields and preserves detail expansion=%s', async (expandAllParameters) => {
     const wrapper = mount(OperationParameters, {
       props: {

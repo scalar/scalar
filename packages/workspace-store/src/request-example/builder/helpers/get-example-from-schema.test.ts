@@ -1022,6 +1022,134 @@ describe('getExampleFromSchema', () => {
     ).toBe('…')
   })
 
+  it('applies string length bounds to nested and union examples', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        plain: { type: 'string', minLength: 1 },
+        union: { type: ['string', 'number'], minLength: 2 },
+      },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual({ plain: 'a', union: 'aa' })
+  })
+
+  it.each([
+    { minLength: 1, maxLength: 1, emptyString: '😀z', expected: '😀' },
+    { minLength: 2, maxLength: 2, emptyString: '😀', expected: '😀a' },
+    { minLength: 0, maxLength: 0, emptyString: 'string', expected: '' },
+    { minLength: 1, maxLength: 8, emptyString: 'string', expected: 'string' },
+  ])(
+    'fits a plain string fallback to $minLength–$maxLength characters',
+    ({ minLength, maxLength, emptyString, expected }) => {
+      expect(getExampleFromSchema({ type: 'string', minLength, maxLength }, { emptyString })).toBe(expected)
+    },
+  )
+
+  it('bounds generated padding for excessively large minimum lengths', () => {
+    const result = getExampleFromSchema({ type: 'string', minLength: 1_000_000_000 })
+    assert(typeof result === 'string')
+    expect(result.length).toBe(4_096)
+  })
+
+  it.each(['email', 'idn-email'])('generates a usable short %s example', (format) => {
+    const result = getExampleFromSchema({ type: 'string', format, maxLength: 10 })
+    assert(typeof result === 'string')
+    expect(result).toMatch(/^[a-z]+@[a-z]+\.[a-z]+$/)
+    expect(result.length).toBeLessThanOrEqual(10)
+  })
+
+  it('generates a longer email within the address and DNS label limits', () => {
+    const result = getExampleFromSchema({ type: 'string', format: 'email', minLength: 200, maxLength: 200 })
+    assert(typeof result === 'string')
+    expect(result.length).toBe(200)
+    expect(result).toMatch(/^[a-z]{1,64}@[a-z]{1,63}(?:\.[a-z]{1,63})+$/)
+  })
+
+  it.each([
+    [3, 'a@b'],
+    [5, 'a@b.c'],
+    [2, 'hello@example.com'],
+  ])('keeps email syntax with a maximum length of %i', (maxLength, expected) => {
+    expect(getExampleFromSchema({ type: 'string', format: 'email', maxLength })).toBe(expected)
+  })
+
+  it.each([
+    ['hostname', 6, /^[a-z]{6}$/],
+    ['uri', 8, /^[a-z]:[a-z]{6}$/],
+    ['json-pointer', 3, /^\/[a-z]{2}$/],
+    ['duration', 4, /^P01D$/],
+    ['time', 9, /^\d{2}:\d{2}:\d{2}Z$/],
+    ['date-time', 20, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/],
+  ] as const)('fits %s to %i characters with its format intact', (format, length, pattern) => {
+    expect(getExampleFromSchema({ type: 'string', format, minLength: length, maxLength: length })).toEqual(
+      expect.stringMatching(pattern),
+    )
+  })
+
+  it('adds fractional-second precision when a timestamp needs a longer example', () => {
+    expect(getExampleFromSchema({ type: 'string', format: 'date-time', minLength: 27, maxLength: 27 })).toEqual(
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}000Z$/),
+    )
+  })
+
+  it.each([
+    ['ipv4', 7, 4],
+    ['ipv6', 4, 6],
+    ['ipv6', 20, 6],
+    ['ipv6', 45, 6],
+  ] as const)('generates a valid %s address of %i characters', (format, length, version) => {
+    const result = getExampleFromSchema({ type: 'string', format, minLength: length, maxLength: length })
+    assert(typeof result === 'string')
+    expect(result.length).toBe(length)
+    expect(isIP(result)).toBe(version)
+  })
+
+  it('keeps preserved placeholders distinct from fitted fallbacks in the example cache', () => {
+    const schema: SchemaObject = { type: 'string', maxLength: 2 }
+    const options = { emptyString: '{id}' }
+
+    expect(getExampleFromSchema(schema, options)).toBe('{i')
+    expect(getExampleFromSchema(schema, { ...options, preserveStringFallback: true })).toBe('{id}')
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('intersects the parent and selected %s length bounds', (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'string',
+      minLength: 4,
+      maxLength: 4,
+      [keyword]: [{ type: 'string', minLength: 2, maxLength: 8 }],
+    })
+    expect(getExampleFromSchema(schema)).toBe('aaaa')
+    expect(getExampleFromSchema(schema, { emptyString: 'string' })).toBe('stri')
+    expect(getExampleFromSchema({ type: 'array', items: schema })).toStrictEqual(['aaaa'])
+    expect(getExampleFromSchema({ type: 'array', items: schema }, { emptyString: 'string' })).toStrictEqual(['stri'])
+  })
+
+  it.each([
+    ['email format', { format: 'email', oneOf: [{ maxLength: 10 }] }, 'a@b.co'],
+    ['Base64 encoding', { contentEncoding: 'base64', oneOf: [{ minLength: 5, maxLength: 8 }] }, 'c2NhbGFy'],
+  ] as const)(
+    'inherits the enclosing %s for an array item variant that supplies only bounds',
+    (_name, item, expected) => {
+      const schema = coerceValue(SchemaObjectSchema, { type: 'array', items: { type: 'string', ...item } })
+      expect(getExampleFromSchema(schema)).toStrictEqual([expected])
+    },
+  )
+
+  it('uses a valid object ID when the minimum length requires a nonempty example', () => {
+    expect(getExampleFromSchema({ type: 'string', format: 'object-id', minLength: 1, maxLength: 24 })).toEqual(
+      expect.stringMatching(/^[a-f0-9]{24}$/),
+    )
+  })
+
+  it('keeps the authored default of an untyped array item variant', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: { type: 'string', minLength: 3, oneOf: [{ default: 42 }] },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual([42])
+  })
+
   it('returns emails as an example value', () => {
     const result = getExampleFromSchema(
       coerceValue(SchemaObjectSchema, {
@@ -1143,6 +1271,22 @@ describe('getExampleFromSchema', () => {
     }
   })
 
+  it.each([
+    [{ format: 'byte' }, 4, 'AAAA'],
+    [{ contentEncoding: 'base64' }, 4, 'AAAA'],
+    [{ contentEncoding: 'base64url' }, 7, 'AAAA'],
+  ] as const)('fits an encoded string %j to %i characters', (encoding, maxLength, expected) => {
+    const schema = coerceValue(SchemaObjectSchema, { type: 'string', ...encoding, maxLength })
+    expect(getExampleFromSchema(schema)).toBe(expected)
+  })
+
+  it.each([
+    [9, 12, 'AAAAAAAAAAAA'],
+    [5, 5, 'c2NhbGFy'],
+  ])('preserves base64 encoding with bounds %i–%i', (minLength, maxLength, expected) => {
+    expect(getExampleFromSchema({ type: 'string', contentEncoding: 'base64', minLength, maxLength })).toBe(expected)
+  })
+
   describe('base64 strings', () => {
     const decodesStrictly = (value: unknown, alphabet: 'base64' | 'base64url'): boolean => {
       if (typeof value !== 'string' || value.length % 4 !== 0) {
@@ -1255,6 +1399,7 @@ describe('getExampleFromSchema', () => {
           coerceValue(SchemaObjectSchema, {
             type: 'string',
             format: 'email',
+            maxLength: 10,
             [keyword]: keyword === 'examples' || keyword === 'enum' ? [value] : value,
           }),
         ),

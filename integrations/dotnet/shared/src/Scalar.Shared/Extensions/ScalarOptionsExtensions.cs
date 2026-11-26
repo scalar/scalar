@@ -783,6 +783,24 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets the default code sample client by ID, such as <c>node/fetch</c>.
+    /// </summary>
+    public static TOptions WithDefaultHttpClient<TOptions>(this TOptions options, string clientId) where TOptions : ScalarOptions
+    {
+        options.DefaultHttpClientId = clientId;
+        return options;
+    }
+
+    /// <summary>
+    /// Allows the specified built-in HTTP clients. An empty list hides all built-in clients.
+    /// </summary>
+    public static TOptions WithHttpClients<TOptions>(this TOptions options, params string[] clients) where TOptions : ScalarOptions
+    {
+        options.HttpClients = clients;
+        return options;
+    }
+
+    /// <summary>
     /// Controls which HTTP clients appear as tabs in the Client Libraries block, in order.
     /// </summary>
     /// <remarks>An empty array places all clients under More. This does not change the default HTTP client or enable hidden clients.</remarks>
