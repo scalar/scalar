@@ -4,12 +4,14 @@ import { CalendarRoot } from 'radix-vue'
 import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 
-import { provideLocalization } from '@/v2/features/localization'
+import { loadLocale, provideLocalization } from '@/v2/features/localization'
 
 import DatePicker from './DatePicker.vue'
 
 describe('DatePicker', () => {
   it('opens with localized labels and inserts a variable from the disclosure', async () => {
+    // German loads on demand, so load it before the first render reads its labels
+    await loadLocale('de-DE')
     const wrapper = mount(
       defineComponent({
         setup() {
