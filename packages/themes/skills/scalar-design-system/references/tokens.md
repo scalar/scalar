@@ -113,20 +113,18 @@ In component code, prefer these classes over raw variables.
 | Theme | `slug` | Light (text / bg / accent) | Dark (text / bg / accent) |
 |---|---|---|---|
 | Default | `default` | `#1b1b1b` / `#fff` / `#0099ff` | `#e7e7e7` / `#0f0f0f` / `#00aeff` |
-| Alternate | `alternate` | `#1b1b1b` / `#f9f9f9` / mono | `rgba(255,255,255,.9)` / `#131313` / mono |
-| Moon | `moon` | `#000000` / `#ccc9b3` / `#645b0f` | `#fffef3` / `#313332` / `#c3b531` |
-| Purple | `purple` | `#1b1b1b` / `#fff` / `#5469d4` | `#fafafa` / `#15171c` / `#5469d4` |
-| Solarized | `solarized` | `#584c27` / `#fdf6e3` / `#b58900` | `#fff` / `#00212b` / `#007acc` |
-| Blue Planet | `blue-planet` | `rgb(9,9,11)` / `#f0f2f5` / mono | `#fafafa` / `#000e23` / mono |
-| Deep Space | `deep-space` | `rgb(9,9,11)` / `#fff` / mono | `#fafafa` / `#09090b` / mono |
-| Saturn | `saturn` | `#1b1b1b` / `#f3f3ee` / `#1763a6` | `#fafafa` / `#09090b` / `#4eb3ec` |
-| Kepler-11e | `kepler-11e` | `#1b1b1b` / `#fff` / `#7070ff` | `#f7f8f8` / `#000212` / `#828fff` |
-| Mars | `mars` | `#b94f44` / `#f9f6f0` / `#b94f44` | `rgba(255,255,255,.9)` / `#140507` / mono |
+| Alternate | `alternate` | `#383a42` / `#fafafa` / `#465fee` | `#bdc4d1` / `#282c34` / `#92ade0` |
+| Moon | `moon` | `#45525a` / `#fdf6e3` / `#5b7719` | `#ded1b5` / `#2d353b` / `#c9d9b2` |
+| Purple | `purple` | `#484b65` / `#eff1f5` / `#8839ef` | `#cdd6f4` / `#1e1e2e` / `#dfc9fa` |
+| Solarized | `solarized` | `#3f545c` / `#fdf6e3` / `#8b6905` | `#abbdbf` / `#002b36` / `#ec6c6c` |
+| Blue Planet | `blue-planet` | `#1f2328` / `#ffffff` / `#0969da` | `#e6edf3` / `#0d1117` / `#76a7f3` |
+| Deep Space | `deep-space` | `#171717` / `#ffffff` / `#0868f6` | `#ededed` / `#000000` / `#5ba2fe` |
+| Saturn | `saturn` | `#3c3836` / `#fbf1c7` / `#327376` | `#ebdbb2` / `#282828` / `#8eb5b6` |
+| Kepler-11e | `kepler-11e` | `#1b1b1b` / `#fcfcfd` / `#5a65cd` | `#e3e4e6` / `#0f0f11` / `#9ea4e0` |
+| Mars | `mars` | `#2d2d2b` / `#f9f9f7` / `#a4593b` | `#f9f9f7` / `#2d2d2b` / `#e0b09d` |
 | Laserwave | `laserwave` | `#322b3b` / `#fff` / `#40b4c4` | `#fff` / `#27212e` / `#ed78c2` |
 | Elysia.js | `elysiajs` | `#1b1b1b` / `#fff` / `#f06292` | `rgba(255,255,255,.9)` / `#111728` / `#f06292` |
 | Fastify | `fastify` | `#1c1e21` / `#fff` / `#2f8555` | `rgba(255,255,255,.9)` / `#1b1b1d` / `#27c2a0` |
-
-"mono" = the theme sets `--scalar-color-accent: var(--scalar-color-1)`, i.e. a monochrome accent equal to the text color.
 
 ## Applying a theme in code
 
