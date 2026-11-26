@@ -4,6 +4,7 @@ import { compose } from '@/schemas/compose'
 import { type XInternal, XInternalSchema } from '@/schemas/extensions/document/x-internal'
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { type XTags, XTagsSchema } from '@/schemas/extensions/document/x-tags'
+import { type XBadges, XBadgesSchema } from '@/schemas/extensions/operation/x-badge'
 import {
   type XAdditionalPropertiesName,
   XAdditionalPropertiesNameSchema,
@@ -87,6 +88,7 @@ const Extensions = compose(
   XEnumDescriptionsSchema,
   XEnumVarNamesSchema,
   XAdditionalPropertiesNameSchema,
+  XBadgesSchema,
   XOrderSchema,
   XTagsSchema,
 )
@@ -98,6 +100,7 @@ type Extensions = XScalarIgnore &
   XEnumVarNames &
   XExamples &
   XAdditionalPropertiesName &
+  XBadges &
   XOrder &
   XTags
 

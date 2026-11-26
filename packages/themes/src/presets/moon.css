@@ -1,119 +1,98 @@
+/**
+ * Moon
+ *
+ * A preset is one surface, one ink and one accent per mode. Every other tone is ink blended into
+ * the surface, so the greys stay on the palette's own tint. Text, accent and method hues are
+ * moved in lightness only, and only as far as a 4.5:1 ratio on the page, card and sidebar
+ * surfaces requires.
+ */
 .light-mode {
-  color-scheme: light;
-  --scalar-color-1: #000000;
-  --scalar-color-2: #000000;
-  --scalar-color-3: #000000;
-  --scalar-color-accent: #645b0f;
-  --scalar-background-1: #ccc9b3;
-  --scalar-background-2: #c2bfaa;
-  --scalar-background-3: #b8b5a1;
-  --scalar-background-accent: #000000;
+  --scalar-background-1: #fdf6e3;
+  --scalar-background-2: #f7f0de;
+  --scalar-background-3: #ede8d8;
+  --scalar-background-accent: #efedd1;
 
-  --scalar-border-color: rgba(0, 0, 0, 0.2);
-  --scalar-scrollbar-color: rgba(0, 0, 0, 0.18);
-  --scalar-scrollbar-color-active: rgba(0, 0, 0, 0.36);
-  --scalar-backdrop-brightness: 1;
+  --scalar-color-1: #45525a;
+  --scalar-color-2: #696f6f;
+  --scalar-color-3: #848781;
+  --scalar-color-accent: #5b7719;
 
-  --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
-  --scalar-shadow-2:
-    rgba(0, 0, 0, 0.08) 0px 13px 20px 0px, rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, var(--scalar-border-color) 0px 0 0 1px;
+  --scalar-border-color: #eae6d6;
 
-  --scalar-button-1: rgb(49 53 56);
-  --scalar-button-1-color: #fff;
-  --scalar-button-1-hover: rgb(28 31 33);
+  --scalar-button-1: #45525a;
+  --scalar-button-1-hover: #626c70;
+  --scalar-button-1-color: #fdf6e3;
 
-  --scalar-color-red: #b91c1c;
-  --scalar-color-orange: #a16207;
-  --scalar-color-green: #047857;
-  --scalar-color-blue: #1841b5;
-  --scalar-color-orange: #c2410c;
-  --scalar-color-purple: #6d28d9;
-  --scalar-color-query: #0f766e;
+  --scalar-color-green: #667404;
+  --scalar-color-red: #d02c31;
+  --scalar-color-yellow: #906601;
+  --scalar-color-blue: #0c75a4;
+  --scalar-color-orange: #af5307;
+  --scalar-color-purple: #b34192;
+  --scalar-color-query: #027d58;
+
+  --scalar-sidebar-background-1: #f7f0de;
+  --scalar-sidebar-border-color: #e5e0d1;
+  --scalar-sidebar-item-hover-background: #efe9d8;
+  --scalar-sidebar-item-active-background: #e8e3d3;
+  --scalar-sidebar-search-background: #fdf7e6;
 }
-
 .dark-mode {
-  color-scheme: dark;
-  --scalar-color-1: #fffef3;
-  --scalar-color-2: #fffef3;
-  --scalar-color-3: #fffef3;
-  --scalar-color-accent: #c3b531;
-  --scalar-background-1: #313332;
-  --scalar-background-2: #393b3a;
-  --scalar-background-3: #414342;
-  --scalar-background-accent: #fffef3;
+  --scalar-background-1: #2d353b;
+  --scalar-background-2: #393f43;
+  --scalar-background-3: #424849;
+  --scalar-background-accent: #293020;
 
-  --scalar-border-color: #505452;
-  --scalar-scrollbar-color: rgba(255, 255, 255, 0.24);
-  --scalar-scrollbar-color-active: rgba(255, 255, 255, 0.48);
-  --scalar-backdrop-brightness: 0.5;
+  --scalar-color-1: #ded1b5;
+  --scalar-color-2: #afa896;
+  --scalar-color-3: #8f8d81;
+  --scalar-color-accent: #c9d9b2;
 
-  --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
-  --scalar-shadow-2:
-    rgba(15, 15, 15, 0.2) 0px 3px 6px, rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --scalar-border-color: #474c4c;
 
-  --scalar-button-1: #f6f6f6;
-  --scalar-button-1-color: #000;
-  --scalar-button-1-hover: #e7e7e7;
+  --scalar-button-1: #ded1b5;
+  --scalar-button-1-hover: #c2b8a1;
+  --scalar-button-1-color: #191d20;
 
-  --scalar-color-green: #00b648;
-  --scalar-color-red: #dc1b19;
-  --scalar-color-yellow: #ffc90d;
-  --scalar-color-blue: #4eb3ec;
-  --scalar-color-orange: #ff8d4d;
-  --scalar-color-purple: #b191f9;
-  --scalar-color-query: #5eead4;
+  --scalar-color-green: #a7c080;
+  --scalar-color-red: #f48a8c;
+  --scalar-color-yellow: #dbbc7f;
+  --scalar-color-blue: #7fbbb3;
+  --scalar-color-orange: #e69875;
+  --scalar-color-purple: #d699b6;
+  --scalar-color-query: #83c092;
+
+  --scalar-sidebar-background-1: #262d32;
+  --scalar-sidebar-border-color: #414545;
+  --scalar-sidebar-item-hover-background: #32373a;
+  --scalar-sidebar-item-active-background: #373c3e;
+  --scalar-sidebar-search-background: #363b3d;
 }
 
-/* Sidebar */
-.light-mode .t-doc__sidebar,
-.dark-mode .t-doc__sidebar {
-  --scalar-sidebar-background-1: var(--scalar-background-1);
+/* Sidebar: one step under the page, with the current item marked in ink rather than accent */
+.light-mode,
+.dark-mode {
   --scalar-sidebar-color-1: var(--scalar-color-1);
   --scalar-sidebar-color-2: var(--scalar-color-2);
-  --scalar-sidebar-border-color: var(--scalar-border-color);
 
-  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
-  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-color: var(--scalar-sidebar-color-1);
+  --scalar-sidebar-color-active: var(--scalar-sidebar-color-1);
 
-  --scalar-sidebar-item-active-background: var(--scalar-background-3);
-  --scalar-sidebar-color-active: var(--scalar-color-1);
+  --scalar-sidebar-indent-border: var(--scalar-sidebar-border-color);
+  --scalar-sidebar-indent-border-hover: var(--scalar-sidebar-border-color);
+  --scalar-sidebar-indent-border-active: var(--scalar-sidebar-border-color);
 
-  --scalar-sidebar-search-background: transparent;
   --scalar-sidebar-search-color: var(--scalar-color-3);
-  --scalar-sidebar-search-border-color: var(--scalar-border-color);
-}
-*::selection {
-  background-color: color-mix(in srgb, var(--scalar-color-accent), transparent 80%);
+  --scalar-sidebar-search-border-color: var(--scalar-sidebar-border-color);
+
+  /* Links are where the accent shows, as they are in the palette's own interface */
+  --scalar-link-color: var(--scalar-color-accent);
+  --scalar-link-color-hover: var(--scalar-color-accent);
 }
 
-/*
- * Syntax highlighting: Moon's tinted backgrounds sit far from white and black, so the default
- * adjustments leave code too faint. Pull every hue further toward the text color instead.
- */
-@supports (color: oklch(from white l c h)) {
-  .light-mode {
-    --scalar-code-keyword: oklch(from var(--scalar-color-purple) min(l, 0.38) min(c, 0.2) h);
-    --scalar-code-string: oklch(from var(--scalar-color-blue) min(l, 0.38) min(c, 0.14) h);
-    --scalar-code-number: oklch(from var(--scalar-color-orange) min(l, 0.4) min(c, 0.13) calc(h + 3));
-    --scalar-code-function: oklch(from var(--scalar-color-orange) min(l, 0.4) min(c, 0.13) calc(h + 3));
-    --scalar-code-builtin: oklch(from var(--scalar-color-blue) min(l, 0.38) min(c, 0.14) h);
-    --scalar-code-type: oklch(from var(--scalar-color-blue) min(l, 0.3) min(c, 0.09) calc(h + 8));
-    --scalar-code-parameter: oklch(from var(--scalar-color-red) min(l, 0.4) min(c, 0.15) calc(h - 14));
-    --scalar-code-property: oklch(from var(--scalar-color-green) min(l, 0.38) min(c, 0.09) h);
-    --scalar-code-addition: oklch(from var(--scalar-color-green) min(l, 0.38) min(c, 0.09) h);
-    --scalar-code-deletion: oklch(from var(--scalar-color-red) min(l, 0.4) min(c, 0.15) calc(h - 14));
-  }
-
-  .dark-mode {
-    --scalar-code-keyword: oklch(from var(--scalar-color-purple) max(l, 0.78) min(c, 0.14) h);
-    --scalar-code-string: oklch(from var(--scalar-color-blue) max(l, 0.78) min(c, 0.12) h);
-    --scalar-code-number: oklch(from var(--scalar-color-orange) max(l, 0.8) min(c, 0.13) h);
-    --scalar-code-function: oklch(from var(--scalar-color-orange) max(l, 0.8) min(c, 0.13) h);
-    --scalar-code-builtin: oklch(from var(--scalar-color-blue) max(l, 0.78) min(c, 0.12) h);
-    --scalar-code-type: oklch(from var(--scalar-color-blue) max(l, 0.88) min(c, 0.06) h);
-    --scalar-code-parameter: oklch(from var(--scalar-color-red) max(l, 0.76) min(c, 0.14) calc(h - 14));
-    --scalar-code-property: oklch(from var(--scalar-color-green) max(l, 0.78) min(c, 0.15) h);
-    --scalar-code-addition: oklch(from var(--scalar-color-green) max(l, 0.78) min(c, 0.15) h);
-    --scalar-code-deletion: oklch(from var(--scalar-color-red) max(l, 0.76) min(c, 0.14) calc(h - 14));
-  }
+.light-mode *::selection {
+  background-color: #edecce;
+}
+.dark-mode *::selection {
+  background-color: #313825;
 }

@@ -1,156 +1,98 @@
-/* basic theme */
+/**
+ * Kepler-11e
+ *
+ * A preset is one surface, one ink and one accent per mode. Every other tone is ink blended into
+ * the surface, so the greys stay on the palette's own tint. Text, accent and method hues are
+ * moved in lightness only, and only as far as a 4.5:1 ratio on the page, card and sidebar
+ * surfaces requires.
+ */
 .light-mode {
+  --scalar-background-1: #fcfcfd;
+  --scalar-background-2: #f3f3f4;
+  --scalar-background-3: #e6e6e7;
+  --scalar-background-accent: #e8e9f7;
+
   --scalar-color-1: #1b1b1b;
-  --scalar-color-2: #707070;
-  --scalar-color-3: #8e8e8e;
-  --scalar-color-accent: #7070ff;
+  --scalar-color-2: #606060;
+  --scalar-color-3: #878787;
+  --scalar-color-accent: #5a65cd;
 
-  --scalar-background-1: #fff;
-  --scalar-background-2: #f6f6f6;
-  --scalar-background-3: #e7e7e7;
-  --scalar-background-accent: #7070ff1f;
+  --scalar-border-color: #e2e2e3;
 
-  --scalar-border-color: rgba(0, 0, 0, 0.1);
+  --scalar-button-1: #1b1b1b;
+  --scalar-button-1-hover: #3f3f3f;
+  --scalar-button-1-color: #fcfcfd;
 
-  --scalar-code-language-color-supersede: var(--scalar-color-3);
+  --scalar-color-green: #2c7f2c;
+  --scalar-color-red: #c54043;
+  --scalar-color-yellow: #8c6a02;
+  --scalar-color-blue: #0c6ed2;
+  --scalar-color-orange: #bf4a06;
+  --scalar-color-purple: #8a46ee;
+  --scalar-color-query: #007e6a;
+
+  --scalar-sidebar-background-1: #f3f3f4;
+  --scalar-sidebar-border-color: #dadadb;
+  --scalar-sidebar-item-hover-background: #e7e7e8;
+  --scalar-sidebar-item-active-background: #dededf;
+  --scalar-sidebar-search-background: #fcfcfd;
 }
 .dark-mode {
-  --scalar-color-1: #f7f8f8;
-  --scalar-color-2: rgb(180, 188, 208);
-  --scalar-color-3: #b4bcd099;
-  --scalar-color-accent: #828fff;
+  --scalar-background-1: #0f0f11;
+  --scalar-background-2: #1e1e20;
+  --scalar-background-3: #2a2a2c;
+  --scalar-background-accent: #181a33;
 
-  --scalar-background-1: #000212;
-  --scalar-background-2: #0d0f1e;
-  --scalar-background-3: #232533;
-  --scalar-background-accent: #8ab4f81f;
+  --scalar-color-1: #e3e4e6;
+  --scalar-color-2: #a6a6a8;
+  --scalar-color-3: #79797b;
+  --scalar-color-accent: #9ea4e0;
 
-  --scalar-border-color: #313245;
-  --scalar-code-language-color-supersede: var(--scalar-color-3);
-}
-/* Document Sidebar */
-.light-mode .t-doc__sidebar {
-  --scalar-sidebar-background-1: var(--scalar-background-1);
-  --scalar-sidebar-item-hover-color: currentColor;
-  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
-  --scalar-sidebar-item-active-background: var(--scalar-background-accent);
-  --scalar-sidebar-border-color: var(--scalar-border-color);
-  --scalar-sidebar-color-1: var(--scalar-color-1);
-  --scalar-sidebar-color-2: var(--scalar-color-2);
-  --scalar-sidebar-color-active: var(--scalar-color-accent);
-  --scalar-sidebar-search-background: rgba(0, 0, 0, 0.05);
-  --scalar-sidebar-search-border-color: 1px solid rgba(0, 0, 0, 0.05);
-  --scalar-sidebar-search-color: var(--scalar-color-3);
-  --scalar-background-2: rgba(0, 0, 0, 0.03);
-}
-.dark-mode .t-doc__sidebar {
-  --scalar-sidebar-background-1: var(--scalar-background-1);
-  --scalar-sidebar-item-hover-color: currentColor;
-  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
-  --scalar-sidebar-item-active-background: rgba(255, 255, 255, 0.1);
-  --scalar-sidebar-border-color: var(--scalar-border-color);
-  --scalar-sidebar-color-1: var(--scalar-color-1);
-  --scalar-sidebar-color-2: var(--scalar-color-2);
-  --scalar-sidebar-color-active: var(--scalar-color-accent);
-  --scalar-sidebar-search-background: rgba(255, 255, 255, 0.1);
-  --scalar-sidebar-search-border-color: 1px solid rgba(255, 255, 255, 0.05);
-  --scalar-sidebar-search-color: var(--scalar-color-3);
-}
-/* advanced */
-.light-mode {
-  --scalar-color-green: #069061;
-  --scalar-color-red: #ef0006;
-  --scalar-color-yellow: #edbe20;
-  --scalar-color-blue: #0072bd;
-  --scalar-color-orange: #fb892c;
-  --scalar-color-purple: #5203d1;
-  --scalar-color-query: #007b80;
+  --scalar-border-color: #303032;
 
-  --scalar-button-1: rgba(0, 0, 0, 1);
-  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --scalar-button-1-color: #fff;
+  --scalar-button-1: #e3e4e6;
+  --scalar-button-1-hover: #c1c2c4;
+  --scalar-button-1-color: #080809;
+
+  --scalar-color-green: #69c967;
+  --scalar-color-red: #ff7e78;
+  --scalar-color-yellow: #ffc300;
+  --scalar-color-blue: #0285ff;
+  --scalar-color-orange: #fb6a22;
+  --scalar-color-purple: #9e65fe;
+  --scalar-color-query: #04bb9f;
+
+  --scalar-sidebar-background-1: #0d0d0e;
+  --scalar-sidebar-border-color: #2e2f30;
+  --scalar-sidebar-item-hover-background: #1c1c1d;
+  --scalar-sidebar-item-active-background: #222324;
+  --scalar-sidebar-search-background: #202021;
 }
+
+/* Sidebar: one step under the page, with the current item marked in ink rather than accent */
+.light-mode,
 .dark-mode {
-  --scalar-color-green: #00b648;
-  --scalar-color-red: #dc1b19;
-  --scalar-color-yellow: #ffc90d;
-  --scalar-color-blue: #4eb3ec;
-  --scalar-color-orange: #ff8d4d;
-  --scalar-color-purple: #b191f9;
-  --scalar-color-query: #65d4cf;
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
 
-  --scalar-button-1: rgba(255, 255, 255, 1);
-  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
-  --scalar-button-1-color: black;
-}
-/* Custom Theme */
-.dark-mode h2.t-editor__heading,
-.dark-mode .t-editor__page-title h1,
-.dark-mode h1.section-header:not(::selection),
-.dark-mode .markdown h1,
-.dark-mode .markdown h2,
-.dark-mode .markdown h3,
-.dark-mode .markdown h4,
-.dark-mode .markdown h5,
-.dark-mode .markdown h6 {
-  -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(to right bottom, rgb(255, 255, 255) 30%, rgba(255, 255, 255, 0.38));
-  -webkit-background-clip: text;
-  background-clip: text;
-}
-.sidebar-search {
-  backdrop-filter: blur(12px);
-}
-@keyframes headerbackground {
-  from {
-    background: transparent;
-    backdrop-filter: none;
-  }
-  to {
-    background: var(--scalar-header-background-1);
-    backdrop-filter: blur(12px);
-  }
-}
-.dark-mode .scalar-card {
-  background: rgba(255, 255, 255, 0.05) !important;
-}
-.dark-mode .scalar-card * {
-  --scalar-background-2: transparent !important;
-  --scalar-background-1: transparent !important;
-}
-.light-mode .dark-mode.scalar-card *,
-.light-mode .dark-mode.scalar-card {
-  --scalar-background-1: #0d0f1e !important;
-  --scalar-background-2: #0d0f1e !important;
-  --scalar-background-3: #191b29 !important;
-}
-.light-mode .dark-mode.scalar-card {
-  background: #191b29 !important;
-}
-.badge {
-  box-shadow: 0 0 0 1px var(--scalar-border-color);
-  margin-right: 6px;
+  --scalar-sidebar-item-hover-color: var(--scalar-sidebar-color-1);
+  --scalar-sidebar-color-active: var(--scalar-sidebar-color-1);
+
+  --scalar-sidebar-indent-border: var(--scalar-sidebar-border-color);
+  --scalar-sidebar-indent-border-hover: var(--scalar-sidebar-border-color);
+  --scalar-sidebar-indent-border-active: var(--scalar-sidebar-border-color);
+
+  --scalar-sidebar-search-color: var(--scalar-color-3);
+  --scalar-sidebar-search-border-color: var(--scalar-sidebar-border-color);
+
+  /* Links are where the accent shows, as they are in the palette's own interface */
+  --scalar-link-color: var(--scalar-color-accent);
+  --scalar-link-color-hover: var(--scalar-color-accent);
 }
 
-.table-row.required-parameter .table-row-item:nth-of-type(2):after {
-  background: transparent;
-  box-shadow: none;
-}
-/* Hero Section Flare */
-.section-flare {
-  width: 100vw;
-  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(120, 119, 198, 0.3), transparent);
-  height: 100vh;
-}
 .light-mode *::selection {
-  background-color: color-mix(in srgb, var(--scalar-color-accent), transparent 70%);
+  background-color: #e4e6f6;
 }
 .dark-mode *::selection {
-  background-color: color-mix(in srgb, var(--scalar-color-accent), transparent 50%);
-}
-
-/* document layout */
-.light-mode .t-doc .layout-content,
-.dark-mode .t-doc .layout-content {
-  background: transparent;
+  background-color: #1c1f3c;
 }

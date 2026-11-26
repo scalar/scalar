@@ -43,7 +43,6 @@ scalar document bundle [options] [file|url...]
 | `-o, --output <file>` | Output file or directory, or - for single-input stdout; batches require a directory (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |  |
 | `--ext <json\|yaml\|yml>` | Output format; overrides and normalizes the output suffix. One of `json`, `yaml`, `yml`. |  |
 | `-f, --force` | Write an incomplete bundle despite unresolved references. |  |
-| `-k, --keep-url-references` | Preserve absolute HTTP(S) references without fetching their targets. |  |
 | `--treeShake` | Remove unused components from the bundled output. |  |
 | `--urlMap` | Generate a map of resolved URLs in the bundled output. |  |
 | `--fetchLimit <limit>` | Maximum number of concurrent URL fetches. | `5` |

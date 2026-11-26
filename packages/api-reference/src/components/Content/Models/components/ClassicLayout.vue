@@ -7,6 +7,7 @@ import {
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
+import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
 import type {
   OpenApiDocument,
   SchemaObject,
@@ -67,6 +68,7 @@ const { level: headingLevel } = useDocumentOutline('model')
       <SchemaProperty
         v-for="[property, value] in Object.entries(schema.properties ?? {})"
         :key="property"
+        :badges="getXBadges(value)"
         :breadcrumb="[id]"
         :discriminator="schema.discriminator"
         :eventBus="eventBus"

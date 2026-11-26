@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getXBadges } from '@/navigation/helpers/get-x-badges'
+import { getXBadges } from './get-x-badges'
 
 describe('getXBadges', () => {
   it('returns the badges with their name, position and color', () => {

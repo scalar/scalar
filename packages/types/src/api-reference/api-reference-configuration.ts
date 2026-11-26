@@ -1,4 +1,4 @@
-import type { AvailableClient, ClientId, TargetId } from '../snippetz'
+import type { AvailableClient, ClientId, DefaultHttpClientId, HttpClientPattern, TargetId } from '../snippetz'
 import { z } from '../zod'
 import { apiReferencePluginSchema } from './api-reference-plugin'
 import type { AuthenticationConfiguration } from './authentication-configuration'
@@ -163,6 +163,13 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   favicon: z.string().optional(),
   /**
+   * Built-in HTTP clients available in code sample pickers.
+   * Use a client ID such as `node/undici` or a target wildcard such as `shell/*`.
+   * Omit to use the existing client list, or pass `[]` to hide all built-in clients.
+   * `hiddenClients` still applies.
+   */
+  httpClients: z.array(z.custom<HttpClientPattern>((value) => typeof value === 'string')).optional(),
+  /**
    * List of httpsnippet clients to hide from the clients menu
    * By default hides Unirest, pass `[]` to show all clients
    */
@@ -178,11 +185,12 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default true
    */
   persistSelectedClient: z.boolean().optional().default(true).catch(true),
-  /** Determine the HTTP client that's selected by default */
+  /** The default code sample client, as a client ID or a target/client object. */
   // The custom branch widens the inferred type only; the permissive first branch
   // already accepts custom keys at runtime.
   defaultHttpClient: z
     .union([
+      z.custom<DefaultHttpClientId>((value) => typeof value === 'string'),
       z.object({
         targetKey: z.custom<TargetId>(),
         clientKey: z.custom<ClientId<TargetId>>(),
