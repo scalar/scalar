@@ -16,6 +16,7 @@ import type {
 import type { FuseData } from '@/features/Search/types'
 import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
 import { isIntroductionEntry } from '@/helpers/is-introduction-entry'
+import { isResponseKey } from '@/helpers/is-response-key'
 import { createSearchFieldExtractor, extractParameterDescriptions, extractParameterNames } from '@/helpers/openapi'
 
 import { createAsyncApiSearchEntry } from './create-async-api-search-entry'
@@ -76,7 +77,11 @@ function mediaTypeExamplesToStrings(mediaType: MediaTypeObject): string[] {
 /** Collects distinct response descriptions, including responses with no payload. */
 const extractResponseDescriptions = (responses: ResponsesObject | undefined): string[] => {
   const descriptions = new Set<string>()
-  for (const response of Object.values(responses ?? {})) {
+  for (const [key, response] of Object.entries(responses ?? {})) {
+    if (!isResponseKey(key)) {
+      continue
+    }
+
     const description = getResolvedRef(response)?.description
     if (typeof description === 'string' && description.trim()) {
       descriptions.add(description)

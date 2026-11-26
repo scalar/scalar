@@ -897,6 +897,7 @@ describe('search-quality', () => {
                 '$ref-value': { description: 'copperpuffin indicates a rate limit' },
               },
               '503': { $ref: '#/components/responses/Missing' },
+              '5XX': { description: 'ivorylynx indicates a server error' },
               default: { description: 'silverfern describes other errors' },
             },
           },
@@ -904,12 +905,45 @@ describe('search-quality', () => {
       },
     }
 
-    for (const query of ['mintquartz', 'velvetwalrus', 'copperpuffin', 'silverfern']) {
+    for (const query of ['mintquartz', 'velvetwalrus', 'copperpuffin', 'ivorylynx', 'silverfern']) {
       expect(
         search(query, document).map(({ item }) => item.title),
         query,
       ).toStrictEqual(['List orders'])
     }
+  })
+
+  it('ignores descriptions in Responses Object extensions', () => {
+    const results = search('violetmarmot', {
+      paths: {
+        '/orders': {
+          get: {
+            summary: 'List orders',
+            responses: {
+              '200': { description: 'Orders returned' },
+              'x-internal': { description: 'violetmarmot is internal metadata' },
+            },
+          },
+        },
+      },
+    })
+
+    expect(results).toStrictEqual([])
+  })
+
+  it('ranks an exact title match above a shared response description', () => {
+    const responses = { '401': { description: 'Unauthorized' } }
+    const results = search('unauthorized', {
+      paths: {
+        '/orders': { get: { summary: 'List orders', responses } },
+        '/invoices': { get: { summary: 'List invoices', responses } },
+        '/errors': { get: { summary: 'Unauthorized', responses: { '200': { description: 'Error details' } } } },
+      },
+    })
+
+    const [first, ...remaining] = results.map(({ item }) => item.title)
+    expect(first).toBe('Unauthorized')
+    expect(remaining.sort()).toStrictEqual(['List invoices', 'List orders'])
   })
 
   it('finds a webhook by its response description', () => {
