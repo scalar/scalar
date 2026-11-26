@@ -50,6 +50,39 @@ console.log(document.openapi)
 // Output: 3.1.1
 ```
 
+### Save an Overlay in version 1.2
+
+Pass a parsed Overlay to `upgradeOverlay` to get a copy you can serialize as JSON
+or YAML. It accepts Overlay 1.0.x, 1.1.x, and 1.2.x.
+
+```typescript
+import { upgradeOverlay } from '@scalar/openapi-upgrader'
+
+const result = upgradeOverlay({
+  overlay: '1.0.0',
+  info: { title: 'Add a sample row', version: '1' },
+  actions: [{ target: "$['x-sample-rows']", update: [2] }],
+})
+
+if (result.ok) {
+  console.log(JSON.stringify(result.document, null, 2))
+} else {
+  console.error(result.diagnostics)
+}
+```
+
+Migrating from 1.1 preserves the actions and checks that `extends` is a valid
+URI reference without a fragment. Migrating from 1.0 wraps a direct array update
+in an outer array so the original value is still appended as one entry. Each
+diagnostic gives a JSON Pointer and a suggested edit. For example, an object
+update that might select both objects and arrays needs separate selectors, and
+replacing an array inside an object may need explicit remove and update actions.
+
+Migration assumes the 1.0 actions are valid for their intended target description.
+The function preserves the Overlay's actions and data except for the changes
+needed to express them in 1.2. In a workspace, the store applies Overlays to the
+authored API description before upgrading the composed description.
+
 ### Upgrade a referenced fragment
 
 Use `upgradeFragment` when the source dialect and the kind of object are known. It

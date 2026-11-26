@@ -2851,6 +2851,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      json-p3:
+        specifier: catalog:*
+        version: 3.0.3
     devDependencies:
       '@scalar/types':
         specifier: workspace:*

@@ -77,7 +77,8 @@
   "sideEffects": false,
   "dependencies": {
     "@scalar/helpers": "workspace:*",
-    "@scalar/openapi-types": "workspace:*"
+    "@scalar/openapi-types": "workspace:*",
+    "json-p3": "catalog:*"
   },
   "devDependencies": {
     "@scalar/types": "workspace:*",

@@ -192,6 +192,76 @@ describe('client.browser', () => {
     }
   })
 
+  it('applies a mixed-version Overlay list before upgrading the description on add and rebase', async () => {
+    const store = createWorkspaceStore()
+    const document = {
+      ...overlayBase,
+      openapi: '3.0.4',
+      components: { schemas: { Label: { type: 'string' }, Name: { type: 'string' } } },
+      'x-items': [[1]],
+    }
+    const input = { name: 'partner', document }
+    const info = { title: 'Partner Overlay', version: '1' }
+    const overlays = [
+      {
+        document: {
+          overlay: '1.0.0',
+          info,
+          actions: [
+            { target: "$['x-items']", update: [2] },
+            { target: '$.components.schemas.Label', update: { nullable: true } },
+          ],
+        },
+      },
+      {
+        document: {
+          overlay: '1.1.0',
+          info,
+          actions: [
+            { target: "$['x-items']", update: [3] },
+            { target: '$.components.schemas.Name', copy: '$.components.schemas.Label' },
+          ],
+        },
+      },
+      {
+        document: {
+          overlay: '1.2.0',
+          info,
+          actions: [{ target: '$.components.schemas[?@.nullable == true]', update: { description: 'Nullable' } }],
+        },
+      },
+    ]
+    expect(await store.addDocument({ ...input, overlays })).toBe(true)
+
+    const getNameSchema = () => getResolvedRef(getOpenApiDocument(store, input.name)?.components?.schemas?.Name)
+    const getExport = () => JSON.parse(store.exportDocument(input.name, 'json')!)
+    expect(getNameSchema()).toStrictEqual({ type: ['string', 'null'], description: 'Nullable' })
+    expect(getExport()['x-items']).toStrictEqual([[1], [2], 3])
+
+    const rebase = await store.rebaseDocument({
+      ...input,
+      document: { ...document, 'x-items': [[0]] },
+      overlays,
+    })
+    assert(rebase.ok)
+    await rebase.applyChanges({ resolvedConflicts: [] })
+    expect(getNameSchema()).toStrictEqual({ type: ['string', 'null'], description: 'Nullable' })
+    const beforeFailure = getExport()
+    expect(beforeFailure['x-items']).toStrictEqual([[0], [2], 3])
+
+    const failed = await store.rebaseDocument({
+      ...input,
+      overlays: [
+        ...overlays,
+        { document: { overlay: '1.0.0', info, actions: [{ target: '$.info.title', remove: true }] } },
+      ],
+    })
+    assert(!failed.ok)
+    expect(failed.type).toBe('OVERLAY_FAILED')
+    expect(failed.message).toContain('Overlay 1.0 targets must select only objects or arrays')
+    expect(getExport()).toStrictEqual(beforeFailure)
+  })
+
   it('returns Overlay diagnostics when rebasing and when the same sources are unchanged', async () => {
     const store = createWorkspaceStore()
     const input = { name: 'partner', document: overlayBase, documentSource: 'https://example.com/openapi.yaml' }

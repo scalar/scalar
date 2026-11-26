@@ -607,9 +607,20 @@ After `applyChanges` returns, the merged document becomes both the new active do
 
 ## Apply OpenAPI Overlays
 
-Pass an ordered `overlays` list to `addDocument` in either store. The store applies
-[OpenAPI Overlay 1.2](https://spec.openapis.org/overlay/v1.2.0.html) actions to the
-authored API description before upgrading it, resolving references, or building navigation.
+Pass an ordered `overlays` list to `addDocument` in either store. The list can mix
+OpenAPI Overlay [1.0](https://spec.openapis.org/overlay/v1.0.0.html),
+[1.1](https://spec.openapis.org/overlay/v1.1.0.html), and
+[1.2](https://spec.openapis.org/overlay/v1.2.0.html) documents, including patch releases.
+The store applies each Overlay using its declared version. It selects nodes in the
+authored API description and upgrades the composed description, including the content
+the actions added, before resolving references and building navigation.
+
+When an action selects an array directly, Overlay 1.0 appends its `update` as one
+entry. Overlay 1.1 and 1.2 concatenate array updates. To replace an entire array
+in Overlay 1.0, select its containing object and include the array in the update.
+Overlay 1.0 selectors can match objects and arrays but cannot match primitives or
+null. `copy` is available from 1.1. `$self` and reusable actions require 1.2.
+Selectors use RFC 9535 JSONPath across all supported versions.
 
 ```ts
 await store.addDocument({
