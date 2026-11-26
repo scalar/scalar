@@ -991,6 +991,8 @@ Pruning also removes security schemes that no security requirement references. I
 
 When pruning a bundle built with `includeCustomReferences: true`, pass the same option to `checkDocument(document, { origin, prune: true, includeCustomReferences: true })`. This keeps targets reached through extensions and unknown schema keywords, including the bundler's synthetic `literal-N` copies and their dependencies. Literal examples and defaults remain opaque. Custom reference traversal is off by default.
 
+If a native `$ref` points directly into literal data, such as `#/components/schemas/Source/default`, standalone pruning keeps the literal opaque. It may remove components referenced only from inside that literal. Bundle first with `traversal: 'document'` and `includeCustomReferences: true` to redirect these references to synthetic copies whose dependencies pruning can follow.
+
 The default unresolved-reference policy is `error`. With `retain`, a reachable external reference that cannot resolve inside the bundle leaves all reusable content intact and produces warnings. Missing local targets still fail. Callers with known resolution failures must skip pruning entirely: an incomplete graph cannot establish which components are unused. This API is independent of the bundler's existing `treeShake` option. Dynamic references conservatively retain matching dynamic anchors; `$recursiveRef` is rejected.
 
 ## Community

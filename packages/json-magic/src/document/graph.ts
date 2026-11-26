@@ -312,7 +312,11 @@ export const checkDocument = (
   }: {
     origin: string
     prune?: boolean
-    /** Follow references in extensions and unknown schema keywords. */
+    /**
+     * Follow references in extensions and unknown schema keywords.
+     * A direct native `$ref` into literal data leaves the target opaque, so pruning can remove its dependencies.
+     * Bundle first with `traversal: 'document'` and `includeCustomReferences: true` to follow dependencies in synthetic copies.
+     */
     includeCustomReferences?: boolean
     /** Retain all reusable content when an unresolved external edge makes reachability uncertain. */
     unresolvedReferences?: 'error' | 'retain'
@@ -568,6 +572,7 @@ export const checkDocument = (
         continue
       }
       // Reusable maps are storage, not roots. Their entries are reached through references.
+      // With custom references enabled, visit components so its x-* extensions can act as roots.
       if (
         prune &&
         path === '' &&
@@ -637,7 +642,8 @@ export const checkDocument = (
 
   visit('')
   visitOperationLinks()
-  // A native use site can reinterpret a custom subtree after it has been visited.
+  // Most documents need one pass. Repeat only when the previous pass recorded a new native context
+  // that may invalidate reachability or diagnostics from a custom interpretation.
   while (nativeExposure) {
     nativeExposure = false
     live.clear()

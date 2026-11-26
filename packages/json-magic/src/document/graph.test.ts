@@ -155,6 +155,31 @@ describe('graph', () => {
     expect(Object.keys(document.securityDefinitions)).toEqual(['key/~'])
   })
 
+  it('follows OpenAPI 2 extension references and keeps response examples opaque', () => {
+    const response = {
+      description: 'OK',
+      schema: { type: 'object' },
+      'x-schema': { $ref: '#/definitions/Used' },
+      examples: { 'application/json': { $ref: '#/definitions/Unused' } },
+    }
+    const document = {
+      swagger: '2.0',
+      info: { title: 'API', version: '1' },
+      produces: ['application/json'],
+      paths: { '/pets': { get: { responses: { '200': response } } } },
+      definitions: { Used: { type: 'object' }, Unused: { type: 'string' } },
+    }
+
+    expect(checkDocument(document, { origin, prune: true, includeCustomReferences: true })).toStrictEqual({
+      ok: true,
+      data: { document, warnings: [] },
+    })
+    expect(document.definitions).toStrictEqual({ Used: { type: 'object' } })
+    expect(document.paths['/pets'].get.responses['200'].examples).toStrictEqual({
+      'application/json': { $ref: '#/definitions/Unused' },
+    })
+  })
+
   it('retains OpenAPI 2 discriminator descendants through allOf', () => {
     const document = {
       swagger: '2.0',
