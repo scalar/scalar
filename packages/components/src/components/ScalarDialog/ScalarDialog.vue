@@ -54,6 +54,8 @@ const dialog = cva({
   base: [
     // Reset the native dialog chrome and center it within the top layer
     'scalar-dialog m-auto rounded-lg border-0 p-3 shadow-lg',
+    // Keep a closed dialog hidden even when a consumer class sets its display, such as `flex`
+    'not-open:hidden',
     // Surface colors
     'bg-b-1 text-c-1',
     // Theme the native ::backdrop via Tailwind's backdrop variant
@@ -67,6 +69,30 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 
 const dialogRef = ref<HTMLDialogElement | null>(null)
+
+/**
+ * Open the dialog as a modal, or just mark it open where the dialog API is missing.
+ *
+ * jsdom (and so every consumer's component tests) and very old browsers do not implement
+ * `showModal()`. Toggling the `open` attribute there keeps the contents rendering and the model
+ * working, without the top layer, focus trap or inert background the real API adds.
+ */
+const showModal = (element: HTMLDialogElement): void => {
+  if (typeof element.showModal === 'function') {
+    element.showModal()
+  } else {
+    element.setAttribute('open', '')
+  }
+}
+
+/** Close the dialog, falling back to removing the `open` attribute like {@link showModal}. */
+const closeDialog = (element: HTMLDialogElement): void => {
+  if (typeof element.close === 'function') {
+    element.close()
+  } else {
+    element.removeAttribute('open')
+  }
+}
 
 const { lock, unlock } = useScrollLock()
 
@@ -89,13 +115,13 @@ watchPostEffect(() => {
 
   if (open.value) {
     if (!element.open) {
-      element.showModal()
+      showModal(element)
     }
     lock(element)
     wasOpen = true
   } else {
     if (element.open) {
-      element.close()
+      closeDialog(element)
     }
     unlock()
     // Emit here rather than from the native `close` event, which is queued and never
