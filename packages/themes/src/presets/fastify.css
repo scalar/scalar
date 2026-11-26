@@ -1,5 +1,4 @@
 .light-mode {
-  color-scheme: light;
   --scalar-color-1: #1c1e21;
   --scalar-color-2: #707070;
   --scalar-color-3: #8e8e8e;
@@ -34,7 +33,6 @@
 }
 
 .dark-mode {
-  color-scheme: dark;
   --scalar-color-1: rgba(255, 255, 255, 0.9);
   --scalar-color-2: rgba(255, 255, 255, 0.62);
   --scalar-color-3: rgba(255, 255, 255, 0.44);
