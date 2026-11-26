@@ -176,6 +176,8 @@ These options work in both WebMVC and WebFlux. Omitted values use the frontend d
 | `scalar.oauth2-redirect-uri` | Default OAuth redirect URI |
 | `scalar.agent.hide-add-api` | Hide the agent's control for adding APIs; also available under each source |
 
+The Java integration supports built-in client IDs for `scalar.default-http-client`. Selecting a custom code sample by its `custom/` ID is unsupported by this property.
+
 Override individual service URLs with `scalar.external-urls.dashboard-url`,
 `registry-url`, `proxy-url`, and `api-base-url`. Unset URLs retain their defaults.
 

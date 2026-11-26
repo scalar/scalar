@@ -778,7 +778,6 @@ public static partial class ScalarOptionsExtensions
     /// <param name="client">The client to set.</param>
     public static TOptions WithDefaultHttpClient<TOptions>(this TOptions options, ScalarTarget target, ScalarClient client) where TOptions : ScalarOptions
     {
-        options.DefaultHttpClientId = null;
         options.DefaultHttpClient = new KeyValuePair<ScalarTarget, ScalarClient>(target, client);
         return options;
     }

@@ -502,6 +502,8 @@ Whether dark mode is on or off initially (light mode).
 
 **Type:** `string | { targetKey: string, clientKey: string }`
 
+**Default:** `shell/curl` for built-in clients
+
 Set the default HTTP client using its full client ID. The object form, such as `{ targetKey: 'node', clientKey: 'fetch' }`, is also supported.
 
 ```javascript

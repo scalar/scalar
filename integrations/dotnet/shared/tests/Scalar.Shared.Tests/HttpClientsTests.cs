@@ -39,4 +39,15 @@ public class HttpClientsTests
         defaultClient.GetProperty("targetKey").GetString().Should().Be("shell");
         defaultClient.GetProperty("clientKey").GetString().Should().Be("curl");
     }
+
+    [Fact]
+    public void DefaultHttpClient_AssignmentOverridesStringSelection()
+    {
+        var options = new ScalarOptions().WithDefaultHttpClient("node/fetch");
+        options.DefaultHttpClient = new(ScalarTarget.Shell, ScalarClient.Curl);
+
+        var defaultClient = SerializeConfiguration(options).GetProperty("defaultHttpClient");
+        defaultClient.GetProperty("targetKey").GetString().Should().Be("shell");
+        defaultClient.GetProperty("clientKey").GetString().Should().Be("curl");
+    }
 }

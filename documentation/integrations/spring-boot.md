@@ -260,6 +260,8 @@ spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
 | `scalar.http-clients`          | `null`                                                        | Built-in client IDs and target wildcards such as `node/fetch` and `shell/*`. Set to `[]` to hide all built-in clients.                                           |
 | `scalar.default-http-client`   | `null`                                                        | Default built-in HTTP client ID such as `node/fetch`. The nested `target-key` and `client-key` properties are also supported.                                    |
 
+Selecting a custom code sample by its `custom/` ID is unsupported by `scalar.default-http-client`.
+
 ## Authentication Configuration
 
 The Scalar integration supports pre-filling authentication details for API testing and documentation. You can configure API keys, OAuth2 flows, and HTTP authentication schemes to make it easier for developers to test your endpoints.

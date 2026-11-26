@@ -212,12 +212,21 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     /// <summary>
     /// Controls the default HTTP client (default: shell/curl).
     /// </summary>
-    public KeyValuePair<ScalarTarget, ScalarClient>? DefaultHttpClient { get; set; }
+    /// <remarks>Assigning this property clears <see cref="DefaultHttpClientId" />.</remarks>
+    public KeyValuePair<ScalarTarget, ScalarClient>? DefaultHttpClient
+    {
+        get;
+        set
+        {
+            field = value;
+            DefaultHttpClientId = null;
+        }
+    }
 
     /// <summary>
     /// Controls the default code sample client by ID, such as <c>node/fetch</c>.
     /// </summary>
-    /// <remarks>When set, takes precedence over <see cref="DefaultHttpClient" />.</remarks>
+    /// <remarks>When set, takes precedence until <see cref="DefaultHttpClient" /> is assigned again.</remarks>
     public string? DefaultHttpClientId { get; set; }
 
     /// <summary>
