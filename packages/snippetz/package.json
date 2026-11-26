@@ -36,11 +36,6 @@
       "types": "./dist/clients/index.d.ts",
       "default": "./dist/clients/index.js"
     },
-    "./lazy": {
-      "import": "./dist/lazy/index.js",
-      "types": "./dist/lazy/index.d.ts",
-      "default": "./dist/lazy/index.js"
-    },
     "./plugins/c/libcurl": {
       "import": "./dist/plugins/c/libcurl/index.js",
       "types": "./dist/plugins/c/libcurl/index.d.ts",

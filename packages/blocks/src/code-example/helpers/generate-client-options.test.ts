@@ -1,33 +1,9 @@
-import { AVAILABLE_CLIENTS, getLoadedPlugin, loadPlugin } from '@scalar/snippetz/lazy'
-import { describe, expect, it, vi } from 'vitest'
+import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
+import { describe, expect, it } from 'vitest'
 
 import { generateClientOptions, getCustomClientIds } from './generate-client-options'
 
-// The full entry points import every generator: the client selector must not pull them in
-vi.mock('@scalar/snippetz', () => {
-  throw new Error('generateClientOptions must not import @scalar/snippetz')
-})
-vi.mock('@scalar/snippetz/clients', () => {
-  throw new Error('generateClientOptions must not import @scalar/snippetz/clients')
-})
-vi.mock('@scalar/snippetz/lazy', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@scalar/snippetz/lazy')>()
-  return { ...actual, loadPlugin: vi.fn(actual.loadPlugin) }
-})
-
 describe('generateClientOptions', () => {
-  it('lists every client without loading any generator', () => {
-    const result = generateClientOptions()
-
-    expect(result.flatMap((group) => group.options.map((option) => option.id)).sort()).toStrictEqual(
-      [...AVAILABLE_CLIENTS].sort(),
-    )
-    expect(loadPlugin).not.toHaveBeenCalled()
-    for (const option of result.flatMap((group) => group.options)) {
-      expect(getLoadedPlugin(option.targetKey, option.clientKey)).toBeUndefined()
-    }
-  })
-
   describe('with all clients allowed', () => {
     it('returns all available clients grouped by target', () => {
       const result = generateClientOptions(AVAILABLE_CLIENTS)

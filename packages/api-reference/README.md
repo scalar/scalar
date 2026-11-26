@@ -78,10 +78,10 @@ Server rendering waits for the configured locale on its own. When you hydrate se
 
 ## Hydrating server-rendered markup yourself
 
-Non-English locales, syntax highlighting grammars and code example generators all load on demand. Server rendering waits for each of them, so the markup arrives complete. `createApiReference` and the Nuxt integration wait for the locale and the grammars in the browser before hydrating. A code example keeps its server-rendered snippet until its generator arrives, so waiting for the generator is optional. When you render `<ApiReference>` with your own server rendering, wait for them yourself before mounting:
+Non-English locales and syntax highlighting grammars load on demand. Server rendering waits for both, so the markup arrives complete. `createApiReference` and the Nuxt integration also wait for them in the browser before hydrating. When you render `<ApiReference>` with your own server rendering, wait for them yourself before mounting:
 
 ```ts
-import { getRenderedLanguages, loadLocale, preloadClients, preloadGrammars } from '@scalar/api-reference'
+import { getRenderedLanguages, loadLocale, preloadGrammars } from '@scalar/api-reference'
 
 const root = document.getElementById('app')!
 
@@ -89,8 +89,6 @@ await Promise.all([
   loadLocale('de'),
   // The languages of the highlighted code in the server markup
   preloadGrammars(getRenderedLanguages(root)),
-  // Optional: the code example clients the page shows, so the first client render has the snippet
-  preloadClients(['shell/curl']),
 ])
 
 createSSRApp(App).mount(root)

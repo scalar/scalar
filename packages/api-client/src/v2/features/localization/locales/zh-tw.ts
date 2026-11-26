@@ -122,8 +122,6 @@ export const zhTw = {
   'requestCodeSnippet': {
     unavailable: '此範例沒有可用的程式碼範例。',
     'codeSnippet': '程式碼片段',
-    loadFailed: '無法載入此程式碼片段。',
-    retry: '重試',
   },
   'requestTable': {
     'enabled': '已啟用',

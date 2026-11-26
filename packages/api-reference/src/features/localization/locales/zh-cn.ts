@@ -70,8 +70,6 @@ export const zhCn = {
   },
   operation: {
     codeSampleUnavailable: '此示例暂无可用的代码示例。',
-    codeSampleLoadFailed: '无法加载此代码示例。',
-    codeSampleRetry: '重试',
     codeSample: '代码示例',
     body: '请求体',
     cookies: 'Cookie',

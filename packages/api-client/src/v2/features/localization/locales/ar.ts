@@ -122,8 +122,6 @@ export const ar = {
   'requestCodeSnippet': {
     unavailable: 'لا يوجد نموذج تعليمات برمجية متاح لهذا المثال.',
     'codeSnippet': 'مقتطف برمجي',
-    loadFailed: 'تعذر تحميل هذا المقتطف البرمجي.',
-    retry: 'إعادة المحاولة',
   },
   'requestTable': {
     'enabled': 'مفعّل',

@@ -95,44 +95,6 @@ console.log(source)
 // )
 ```
 
-### Lazy loading
-
-`@scalar/snippetz/lazy` loads each generator on demand. Every client is its own dynamic `import()`, so bundlers split the generators into separate chunks and an app only downloads the clients it renders. Nothing in this entry point imports a generator statically.
-
-```ts
-import { clientsMetadata, getLoadedPlugin, loadPlugin, print } from '@scalar/snippetz/lazy'
-
-// List targets and clients (keys and titles) without loading any generator
-const targets = clientsMetadata.map((target) => ({
-  title: target.title,
-  clients: target.clients.map((client) => client.title),
-}))
-
-// Load one generator, then use it
-const plugin = await loadPlugin('node', 'undici')
-const source = plugin?.generate({ url: 'https://example.com' })
-
-// Or load and generate in one call (resolves `undefined` for unknown clients)
-const snippet = await print('shell', 'curl', { url: 'https://example.com' })
-
-// A generator that has already been loaded is available synchronously
-getLoadedPlugin('node', 'undici')?.generate({ url: 'https://example.com' })
-```
-
-Loading is cached: concurrent calls for the same client share one import, a failed import is retried on the next call, and a loaded client resolves right away. `hasPlugin(target, client)` tells you whether a client exists without loading it.
-
-#### Preloading
-
-To generate snippets synchronously on the first render, for example before hydrating server-rendered markup, await `preloadClients` with the `target/client` ids you need. Ids that are not built-in clients are ignored.
-
-```ts
-import { preloadClients } from '@scalar/snippetz/lazy'
-
-await preloadClients(['shell/curl', 'node/fetch'])
-```
-
-The `snippetz()` API, `@scalar/snippetz/clients` and `@scalar/snippetz/plugins/*` keep working as before and still include every generator.
-
 ## Community
 
 We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>

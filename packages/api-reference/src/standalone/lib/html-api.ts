@@ -345,8 +345,7 @@ export const createApiReference: CreateApiReference = (
         beforeMount.push(Promise.all(localesToLoad.map((locale) => loadLocale(locale))))
       }
 
-      // Likewise for the grammars of the highlighted code the server rendered. Code snippets need no
-      // wait: their placeholder keeps the server-rendered snippet until the generator arrives.
+      // Likewise for the grammars of the highlighted code the server rendered.
       const languagesToLoad = shouldHydrate ? getRenderedLanguages(mountElement) : []
 
       if (languagesToLoad.length) {

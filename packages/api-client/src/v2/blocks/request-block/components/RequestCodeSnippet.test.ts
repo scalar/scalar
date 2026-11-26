@@ -1,22 +1,14 @@
-import { type ClientOptionGroup, type CodeExampleProps, generateClientOptions } from '@scalar/blocks/code-example'
+import type { ClientOptionGroup, CodeExampleProps } from '@scalar/blocks/code-example'
 import type { ApiReferenceLocalization } from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { flushPromises, mount, shallowMount } from '@vue/test-utils'
+import { mount, shallowMount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref, vShow, withDirectives } from 'vue'
 
 import { loadLocale, provideLocalization } from '@/v2/features/localization'
 
 import RequestCodeSnippet from './RequestCodeSnippet.vue'
-
-// Wrap the real loader, so a test can make one generator fail to load
-vi.mock('@scalar/snippetz/lazy', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@scalar/snippetz/lazy')>()
-  return { ...actual, loadPlugin: vi.fn(actual.loadPlugin) }
-})
-
-const { loadPlugin } = await import('@scalar/snippetz/lazy')
 
 /** Minimal event bus mock - only the emit method is used by the component */
 const createEventBus = () =>
@@ -42,64 +34,8 @@ const createProps = (overrides: Partial<Props> = {}): Props => ({
 })
 
 describe('RequestCodeSnippet', () => {
-  it('loads the selected client generator without showing an error, then renders the snippet', async () => {
-    const wrapper = mount(RequestCodeSnippet, {
-      props: createProps({
-        clientOptions: generateClientOptions(['shell/curl', 'node/undici']),
-        selectedClient: 'node/undici',
-        selectedServer: { url: 'https://example.com' },
-      }),
-    })
-    await wrapper.get('button[aria-expanded]').trigger('click')
-
-    // The generator is still loading: no code block and no error text yet
-    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
-    expect(wrapper.text()).not.toMatch(/not loaded|no snippet found|error generating/i)
-
-    await vi.waitFor(() =>
-      expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain(
-        "import { request } from 'undici'",
-      ),
-    )
-
-    await wrapper.setProps({ selectedClient: 'shell/curl' })
-    await flushPromises()
-    await vi.waitFor(() =>
-      expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain(
-        'curl https://example.com/test',
-      ),
-    )
-    wrapper.unmount()
-  })
-
-  it('shows a status line with Retry when the generator fails to load', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    vi.mocked(loadPlugin).mockRejectedValueOnce(new Error('Failed to fetch dynamically imported module'))
-    const wrapper = mount(RequestCodeSnippet, {
-      props: createProps({
-        clientOptions: generateClientOptions(['shell/wget']),
-        selectedClient: 'shell/wget',
-        selectedServer: { url: 'https://example.com' },
-      }),
-    })
-    await wrapper.get('button[aria-expanded]').trigger('click')
-
-    await vi.waitFor(() =>
-      expect(wrapper.find('[role="status"]').text()).toContain('Could not load this code snippet.'),
-    )
-    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
-    expect(wrapper.text()).not.toMatch(/not loaded|no snippet found|error generating/i)
-
-    await wrapper.get('[role="status"] button').trigger('click')
-
-    await vi.waitFor(() =>
-      expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain('https://example.com/test'),
-    )
-    expect(wrapper.find('[role="status"]').exists()).toBe(false)
-    wrapper.unmount()
-  })
-
   it('localizes the unavailable status and reacts to locale and translation overrides', async () => {
+    // German and French load on demand, so load them before the first render reads their labels
     await Promise.all([loadLocale('de'), loadLocale('fr')])
     const localization = ref<ApiReferenceLocalization>({ locale: 'de' })
     const wrapper = mount(

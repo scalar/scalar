@@ -511,10 +511,6 @@ export type ApiReferenceTranslations = {
   }
   operation: {
     codeSampleUnavailable: string
-    /** Status shown when the code generator of the selected client fails to load */
-    codeSampleLoadFailed: string
-    /** Label of the button that loads a failed code generator again */
-    codeSampleRetry: string
     codeSample: string
     body: string
     cookies: string

@@ -1,11 +1,6 @@
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 /**
- * Preloads the code generators for a list of `target/client` ids, such as `['shell/curl']`.
- * Await it before hydrating server-rendered markup so code examples render on the first paint.
- */
-export { preloadClients } from '@scalar/blocks/code-example'
-/**
  * `preloadGrammars` preloads the syntax highlighting grammars for a list of languages, such as
  * `['json', 'python']`, and `getRenderedLanguages` reads that list from server-rendered markup.
  * Await `preloadGrammars(getRenderedLanguages(root))` before hydrating so code blocks stay

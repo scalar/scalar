@@ -70,8 +70,6 @@ export const es = {
   },
   operation: {
     codeSampleUnavailable: 'No hay ninguna muestra de código disponible para este ejemplo.',
-    codeSampleLoadFailed: 'No se pudo cargar este ejemplo de código.',
-    codeSampleRetry: 'Reintentar',
     codeSample: 'Ejemplo de código',
     body: 'Cuerpo',
     cookies: 'Cookies',

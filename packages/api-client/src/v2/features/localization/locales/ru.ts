@@ -122,8 +122,6 @@ export const ru = {
   'requestCodeSnippet': {
     unavailable: 'Для этого примера нет доступного образца кода.',
     'codeSnippet': 'Фрагмент кода',
-    loadFailed: 'Не удалось загрузить этот фрагмент кода.',
-    retry: 'Повторить',
   },
   'requestTable': {
     'enabled': 'Включено',

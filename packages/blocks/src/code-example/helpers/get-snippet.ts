@@ -1,5 +1,5 @@
 import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
-import { type ClientId, type TargetId, getLoadedPlugin, hasPlugin } from '@scalar/snippetz/lazy'
+import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import type { Request as HarRequest } from 'har-format'
 
 /** Key used to hack around the invalid urls */
@@ -7,10 +7,6 @@ const INVALID_URLS_PREFIX = 'ws://replace.me'
 
 /**
  * Returns a code example for given operation
- *
- * Generators are loaded on demand, so this only uses a plugin that is already loaded (see
- * `useClientPlugin` and `preloadClients`). It stays synchronous, which keeps snippets in sync with every
- * keystroke once the generator is there.
  */
 export const getSnippet = <T extends TargetId>(
   target: T,
@@ -40,13 +36,8 @@ export const getSnippet = <T extends TargetId>(
         return [new Error('Invalid JSON body'), null]
       }
     }
-    if (hasPlugin(target, client)) {
-      const plugin = getLoadedPlugin(target, client)
-      if (!plugin) {
-        return [new Error('Code snippet generator is not loaded'), null]
-      }
-
-      const payload = plugin.generate(harRequest)
+    if (snippetz().hasPlugin(target, client)) {
+      const payload = snippetz().print(target, client, harRequest)
       if (!payload) {
         return [new Error('Error generating snippet'), null]
       }

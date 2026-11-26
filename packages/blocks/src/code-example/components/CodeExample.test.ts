@@ -1,12 +1,11 @@
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { AVAILABLE_CLIENTS, preloadClients } from '@scalar/snippetz/lazy'
 import type { AvailableClient } from '@scalar/types/snippetz'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
 import { mockEventBus } from '../test-utils'
@@ -51,9 +50,6 @@ vi.mock('@scalar/use-toasts', () => ({
 }))
 
 describe('RequestExample', () => {
-  // Generators load on demand (see CodeExample.lazy.test.ts), so render these tests with them loaded
-  beforeAll(() => preloadClients(AVAILABLE_CLIENTS))
-
   const mockOperation: OperationObject = {
     summary: 'Test operation',
     requestBody: {

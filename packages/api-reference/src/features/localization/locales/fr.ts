@@ -71,8 +71,6 @@ export const fr = {
   },
   operation: {
     codeSampleUnavailable: 'Aucun extrait de code disponible pour cet exemple.',
-    codeSampleLoadFailed: 'Impossible de charger cet exemple de code.',
-    codeSampleRetry: 'Réessayer',
     codeSample: 'Exemple de code',
     body: 'Corps',
     cookies: 'Cookies',

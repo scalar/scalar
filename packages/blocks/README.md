@@ -24,21 +24,6 @@ Scalar is an open-source API platform for teams who want beautiful developer int
 
 See [Getting Started](https://scalar.com/products/api-references/blocks/getting-started) for installation, styles, and a complete runnable example.
 
-## Code example generators
-
-Code examples load the generator of the selected client on demand (through `@scalar/snippetz/lazy`), so a page only downloads the clients it shows. The client picker lists every client without loading any generator. While the selected client's generator loads, the code example keeps the space of a short code block and shows no text. Switching clients loads that client's generator.
-
-When the reference is rendered on the server, `CodeExample` waits for the selected generator before rendering, so the markup contains the final snippet. Before you hydrate (or mount), await `preloadClients` with the clients the page shows, so the first browser render matches the server markup:
-
-```ts
-import { preloadClients } from '@scalar/blocks/code-example'
-
-await preloadClients(['shell/curl'])
-app.mount('#app')
-```
-
-Without the preload, the browser keeps the server-rendered snippet until the generator arrives. If you call `generateCodeSnippet` yourself, load the client first (with `preloadClients`), or use `useClientPlugin(() => clientId)` in a component: its `isLoading` is true until the generator is there.
-
 ## Schema tree
 
 Render an OpenAPI schema in a Vue application using the same tree as API Reference:

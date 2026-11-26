@@ -1,8 +1,3 @@
-/**
- * Await before mounting or hydrating, so the first render can generate the selected client's snippet.
- * Generators otherwise load on demand.
- */
-export { preloadClients } from '@scalar/snippetz/lazy'
 // Re-export commonly used workspace-store helpers
 export { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 
@@ -14,7 +9,7 @@ export { default as HttpMethod } from './components/HttpMethod.vue'
 export { filterClientsByQuery } from './helpers/filter-clients-by-query'
 export { DEFAULT_CLIENT, type SelectedClientId, findClient, isClient, isSelectedClient } from './helpers/find-client'
 export { generateClientOptions, getCustomClientIds } from './helpers/generate-client-options'
-export { generateCodeSnippet, generateCodeSnippetAsync } from './helpers/generate-code-snippet'
+export { generateCodeSnippet } from './helpers/generate-code-snippet'
 export { getClients } from './helpers/get-clients'
 export { getCustomCodeSamples } from './helpers/get-custom-code-samples'
 export { getGeneratedPayloadExample } from './helpers/get-generated-payload-example'
@@ -22,7 +17,6 @@ export { getMessageExampleContent } from './helpers/get-message-example-content'
 export { getSecrets } from './helpers/get-secrets'
 export type { OperationToHarProps } from './helpers/operation-to-har/operation-to-har'
 export { operationToHar } from './helpers/operation-to-har/operation-to-har'
-export { useClientPlugin } from './helpers/use-client-plugin'
 export { type CreateCodeExampleOptions, createCodeExample } from './mount'
 export type { CreateAsyncApiCodeExampleOptions } from './mount-asyncapi'
 export type { ClientOption, ClientOptionGroup, CustomClientOption, CustomClientOptionGroup } from './types'

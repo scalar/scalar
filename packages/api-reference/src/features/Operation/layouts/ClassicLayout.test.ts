@@ -246,8 +246,7 @@ describe('ClassicLayout', () => {
       },
     })
 
-    // The code generator loads on demand, so the code block appears once it is there
-    await vi.waitFor(() => expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(true))
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(true)
 
     const compositionSelector = wrapper.findComponent(ScalarListbox)
     const listboxOptions = compositionSelector.props('options')
@@ -273,8 +272,7 @@ describe('ClassicLayout', () => {
       },
     })
 
-    // The code generator loads on demand, so the code block appears once it is there
-    await vi.waitFor(() => expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(true))
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(true)
 
     const compositionSelector = wrapper.findComponent(ScalarListbox)
     const listboxOptions = compositionSelector.props('options')

@@ -71,8 +71,6 @@ export const pt = {
   },
   operation: {
     codeSampleUnavailable: 'Nenhuma amostra de código disponível para este exemplo.',
-    codeSampleLoadFailed: 'Não foi possível carregar este exemplo de código.',
-    codeSampleRetry: 'Tentar novamente',
     codeSample: 'Exemplo de código',
     body: 'Corpo',
     cookies: 'Cookies',

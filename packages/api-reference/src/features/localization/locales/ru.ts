@@ -71,8 +71,6 @@ export const ru = {
   },
   operation: {
     codeSampleUnavailable: 'Для этого примера нет доступного образца кода.',
-    codeSampleLoadFailed: 'Не удалось загрузить этот пример кода.',
-    codeSampleRetry: 'Повторить',
     codeSample: 'Пример кода',
     body: 'Тело',
     cookies: 'Cookie',

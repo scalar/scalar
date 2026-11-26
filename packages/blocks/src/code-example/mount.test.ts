@@ -1,6 +1,5 @@
-import { AVAILABLE_CLIENTS, preloadClients } from '@scalar/snippetz/lazy'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import { findClient } from './helpers/find-client'
@@ -37,9 +36,6 @@ const createStore = async () => {
 }
 
 describe('mount', () => {
-  // Generators load on demand, so render with them loaded
-  beforeAll(() => preloadClients(AVAILABLE_CLIENTS))
-
   it('accepts localized unavailable text when mounted without a Vue parent', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({

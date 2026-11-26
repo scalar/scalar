@@ -5,7 +5,6 @@ import {
   getClients,
   getCustomCodeSamples,
   getSecrets,
-  useClientPlugin,
   type ClientOption,
   type CodeExampleProps,
   type CustomClientOption,
@@ -89,37 +88,26 @@ const handleClientChange = (option: ClientOption | undefined) => {
   }
 }
 
-/** Code generators load on demand, so wait for the selected client's generator */
-const {
-  isLoading: isGeneratorLoading,
-  isFailed: isGeneratorFailed,
-  retry: retryGenerator,
-} = useClientPlugin(() => localSelectedClient.value?.id)
-
 /** Generate the code snippet for the selected example */
 const generatedCode = computed<string | null>(() =>
-  // Render an empty placeholder until the generator arrives, and a status line if it failed,
-  // instead of a "not loaded" error shown as code
-  isGeneratorLoading.value || isGeneratorFailed.value
-    ? ''
-    : generateCodeSnippet({
-        defaultDisabledParameters: true,
-        clientId: localSelectedClient.value?.id,
-        customCodeSamples: customCodeSamples.value.samples,
-        operation,
-        method,
-        path,
-        contentType: selectedContentType,
-        server: selectedServer,
-        securitySchemes,
-        example: selectedExample,
-        globalCookies,
-        openapiVersion,
-        jsonSchemaDialect,
-        multipartNaming,
-        requestBodyCompositionSelection,
-        includeDefaultHeaders: integration === 'client',
-      }),
+  generateCodeSnippet({
+    defaultDisabledParameters: true,
+    clientId: localSelectedClient.value?.id,
+    customCodeSamples: customCodeSamples.value.samples,
+    operation,
+    method,
+    path,
+    contentType: selectedContentType,
+    server: selectedServer,
+    securitySchemes,
+    example: selectedExample,
+    globalCookies,
+    openapiVersion,
+    jsonSchemaDialect,
+    multipartNaming,
+    requestBodyCompositionSelection,
+    includeDefaultHeaders: integration === 'client',
+  }),
 )
 
 /** Check if there are any clients available (built-in or custom code samples) */
@@ -170,24 +158,8 @@ const hasClients = computed(() =>
         presentational>
         <DataTableRow>
           <div class="overflow-hidden">
-            <!-- Keep the space of a short code block while the generator loads -->
             <div
-              v-if="isGeneratorLoading"
-              class="min-h-20" />
-            <div
-              v-else-if="isGeneratorFailed"
-              class="text-c-2 p-4"
-              role="status">
-              {{ translate('apiClient.requestCodeSnippet.loadFailed') }}
-              <ScalarButton
-                size="sm"
-                variant="ghost"
-                @click="retryGenerator">
-                {{ translate('apiClient.requestCodeSnippet.retry') }}
-              </ScalarButton>
-            </div>
-            <div
-              v-else-if="generatedCode === null"
+              v-if="generatedCode === null"
               class="text-c-2 p-4"
               role="status">
               {{ translate('apiClient.requestCodeSnippet.unavailable') }}
