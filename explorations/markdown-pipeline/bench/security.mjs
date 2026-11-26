@@ -49,7 +49,7 @@ const urlOk = (v, list) => {
   return !m || list.includes(m[1].toLowerCase())
 }
 
-const problems = (out, removed) => {
+export const problems = (out, removed) => {
   const errs = []
   for (const scriptingEnabled of [true, false]) {
     const walk = (n) => {
