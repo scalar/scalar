@@ -9,7 +9,8 @@ import {
   type EsmBundleSize,
   createReport,
   formatBytes,
-  formatDifference,
+  formatBytesDifference,
+  formatPercentDifference,
   measureEsmBundle,
   parseEsmBundleSize,
 } from './esm-bundle-size'
@@ -142,21 +143,32 @@ describe('esm-bundle-size', () => {
     })
   })
 
-  describe('formatDifference', () => {
-    it('shows growth in bytes and percent', () => {
-      expect(formatDifference(101_200, 100_000)).toBe('+1.20 kB (+1.20%)')
+  describe('formatBytesDifference', () => {
+    it.each([
+      [101_200, 100_000, '+1.20 kB'],
+      [99_950, 100_000, '-50 B'],
+      [100_000, 100_000, '0 B'],
+      [500, 0, '+500 B'],
+    ])('formats %i against %i as %s', (current, baseline, expected) => {
+      expect(formatBytesDifference(current, baseline)).toBe(expected)
+    })
+  })
+
+  describe('formatPercentDifference', () => {
+    it('marks growth red', () => {
+      expect(formatPercentDifference(101_200, 100_000)).toBe('+1.20% 🔴')
     })
 
-    it('shows savings in bytes and percent', () => {
-      expect(formatDifference(99_950, 100_000)).toBe('-50 B (-0.05%)')
+    it('marks savings green', () => {
+      expect(formatPercentDifference(99_950, 100_000)).toBe('-0.05% 🟢')
     })
 
-    it('says when nothing changed', () => {
-      expect(formatDifference(100_000, 100_000)).toBe('No change')
+    it('marks no change white', () => {
+      expect(formatPercentDifference(100_000, 100_000)).toBe('0% ⚪')
     })
 
-    it('leaves out the percent when main had nothing to compare with', () => {
-      expect(formatDifference(500, 0)).toBe('+500 B')
+    it('shows only the marker when main had nothing to compare with', () => {
+      expect(formatPercentDifference(500, 0)).toBe('🔴')
     })
   })
 
@@ -165,12 +177,12 @@ describe('esm-bundle-size', () => {
       const report = createReport(size(prCommit, 99_000, 205_000), size(mainCommit, 100_000, 200_000))
 
       expect(report).toContain(`compared with \`main\` at ${mainCommit}.`)
-      expect(report).toContain('| Initial load (brotli) | 80.00 kB | 79.20 kB | -800 B (-1.00%) |')
-      expect(report).toContain('| Initial load (gzip) | 100.00 kB | 99.00 kB | -1.00 kB (-1.00%) |')
-      expect(report).toContain('| Initial load (minified) | 400.00 kB | 396.00 kB | -4.00 kB (-1.00%) |')
-      expect(report).toContain('| All chunks (brotli) | 160.00 kB | 164.00 kB | +4.00 kB (+2.50%) |')
-      expect(report).toContain('| All chunks (gzip) | 200.00 kB | 205.00 kB | +5.00 kB (+2.50%) |')
-      expect(report).toContain('| All chunks (minified) | 800.00 kB | 820.00 kB | +20.00 kB (+2.50%) |')
+      expect(report).toContain('| Initial load (brotli) | 80.00 kB | 79.20 kB | -800 B | -1.00% 🟢 |')
+      expect(report).toContain('| Initial load (gzip) | 100.00 kB | 99.00 kB | -1.00 kB | -1.00% 🟢 |')
+      expect(report).toContain('| Initial load (minified) | 400.00 kB | 396.00 kB | -4.00 kB | -1.00% 🟢 |')
+      expect(report).toContain('| All chunks (brotli) | 160.00 kB | 164.00 kB | +4.00 kB | +2.50% 🔴 |')
+      expect(report).toContain('| All chunks (gzip) | 200.00 kB | 205.00 kB | +5.00 kB | +2.50% 🔴 |')
+      expect(report).toContain('| All chunks (minified) | 800.00 kB | 820.00 kB | +20.00 kB | +2.50% 🔴 |')
       expect(report).toContain('Measured at bbbbbbb.')
     })
 

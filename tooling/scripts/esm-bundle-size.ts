@@ -140,24 +140,40 @@ export const formatBytes = (bytes: number): string => {
   return `${(bytes / 1_000_000).toFixed(2)} MB`
 }
 
-/** Shows the change in bytes and percent, for example `+1.20 kB (+0.35%)`. */
-export const formatDifference = (current: number, baseline: number): string => {
+/** Shows the change in bytes, for example `+1.20 kB`. */
+export const formatBytesDifference = (current: number, baseline: number): string => {
   const difference = current - baseline
 
   if (difference === 0) {
-    return 'No change'
+    return '0 B'
+  }
+
+  return `${difference > 0 ? '+' : '-'}${formatBytes(Math.abs(difference))}`
+}
+
+/**
+ * Shows the change in percent with a marker, for example `+0.35% 🔴`. Smaller is better for a
+ * bundle, so growth is red. Sizes are exact rather than sampled, so every change is real and there
+ * is no noise band to account for.
+ */
+export const formatPercentDifference = (current: number, baseline: number): string => {
+  const difference = current - baseline
+
+  if (difference === 0) {
+    return '0% ⚪'
+  }
+
+  const marker = difference > 0 ? '🔴' : '🟢'
+
+  // There is nothing to take a percentage of, for example a chunk group that did not exist on main.
+  if (baseline === 0) {
+    return marker
   }
 
   const sign = difference > 0 ? '+' : '-'
-  const bytes = formatBytes(Math.abs(difference))
-
-  if (baseline === 0) {
-    return `${sign}${bytes}`
-  }
-
   const percent = Math.abs((difference / baseline) * 100).toFixed(2)
 
-  return `${sign}${bytes} (${sign}${percent}%)`
+  return `${sign}${percent}% ${marker}`
 }
 
 /**
@@ -191,20 +207,20 @@ export const createReport = (current: EsmBundleSize, baseline: EsmBundleSize | u
     lines.push(
       `\`@scalar/api-reference\` ESM build (\`standalone.esm.js\`), compared with \`main\` at ${baseline.commit}.`,
       '',
-      '| | `main` | This PR | Difference |',
-      '| --- | ---: | ---: | ---: |',
+      '| | `main` | This PR | Difference | Δ |',
+      '| --- | ---: | ---: | ---: | ---: |',
       ...rows.map((row) => {
         const before = row.pick(baseline)
         const after = row.pick(current)
 
-        return `| ${row.label} | ${formatBytes(before)} | ${formatBytes(after)} | ${formatDifference(after, before)} |`
+        return `| ${row.label} | ${formatBytes(before)} | ${formatBytes(after)} | ${formatBytesDifference(after, before)} | ${formatPercentDifference(after, before)} |`
       }),
     )
   }
 
   lines.push(
     '',
-    `<sub>Initial load is the entry and the chunks it imports statically. All chunks adds lazy chunks such as the API client modal and the icons. Measured at ${shortCommit(current.commit)}.</sub>`,
+    `<sub>Initial load is the entry and the chunks it imports statically. All chunks adds lazy chunks such as the API client modal and the icons. 🟢 smaller, 🔴 bigger, ⚪ unchanged. Measured at ${shortCommit(current.commit)}.</sub>`,
     '',
   )
 
