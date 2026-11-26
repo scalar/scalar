@@ -89,3 +89,20 @@ test('the color scheme follows the mode on pages that put scalar-app on the body
   await expect(page.locator('body')).toHaveCSS('color-scheme', 'light')
   await expect(page.locator('.dark-mode')).toHaveCSS('color-scheme', 'dark')
 })
+
+/** A block pinned to one mode, like `createCodeExample(el, { darkMode: true })`, keeps it on a page in the other mode. */
+test('a pinned color mode wins over the page color mode', async ({ page }) => {
+  await page.setContent(`
+    <body class="light-mode">
+      <div class="scalar-app dark-mode" id="pinned-dark">Dark block</div>
+    </body>
+  `)
+  await page.addStyleTag({ path: join(packageRoot, 'dist/style.css') })
+  await expect(page.locator('#pinned-dark')).toHaveCSS('color-scheme', 'dark')
+
+  await page.evaluate(() => {
+    document.body.className = 'dark-mode'
+    document.body.innerHTML = '<div class="scalar-app light-mode" id="pinned-light">Light block</div>'
+  })
+  await expect(page.locator('#pinned-light')).toHaveCSS('color-scheme', 'light')
+})
