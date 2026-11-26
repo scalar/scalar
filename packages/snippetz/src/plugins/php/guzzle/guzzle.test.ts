@@ -1,6 +1,5 @@
+import { repeatedQueryCases } from '@test/fixtures/repeated-query'
 import { describe, expect, it } from 'vitest'
-
-import { repeatedQueryCases } from '@/plugins/shared/repeated-query-fixtures'
 
 import { phpGuzzle } from './guzzle'
 
