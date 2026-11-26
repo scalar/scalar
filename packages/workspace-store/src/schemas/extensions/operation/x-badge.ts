@@ -82,7 +82,7 @@ export const XBadge = object(
 
 export const XBadgesSchema = Type.Object({
   /**
-   * You can add badges to operations to use as indicators in documentation. Each operation can have multiple badges, and the displayed color is also configurable. The following example sets badges on the GET `/hello-world` operation:
+   * You can add badges to operations and schema properties in documentation. Each can have multiple badges with configurable colors. The following example sets badges on the GET `/hello-world` operation:
    *
    * ```yaml
    * openapi: 3.1.0
@@ -107,7 +107,7 @@ export const XBadgesSchema = Type.Object({
 
 export type XBadges = {
   /**
-   * You can add badges to operations to use as indicators in documentation. Each operation can have multiple badges, and the displayed color is also configurable. The following example sets badges on the GET `/hello-world` operation:
+   * You can add badges to operations and schema properties in documentation. Each can have multiple badges with configurable colors. The following example sets badges on the GET `/hello-world` operation:
    *
    * ```yaml
    * openapi: 3.1.0
@@ -134,12 +134,12 @@ export const XBadges = object(
   {
     'x-badges': optional(
       array(XBadge, {
-        typeComment: 'Badges displayed for this operation in documentation',
+        typeComment: 'Badges displayed in documentation',
       }),
     ),
   },
   {
     typeName: 'XBadges',
-    typeComment: 'Badges for an operation in the Scalar UI',
+    typeComment: 'Badges for an OpenAPI object in the Scalar UI',
   },
 )

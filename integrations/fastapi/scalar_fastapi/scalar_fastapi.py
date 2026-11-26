@@ -404,6 +404,17 @@ def get_scalar_api_reference(
             """
         ),
     ] = SearchHotKey.K,
+    http_clients: Annotated[
+        list[str] | None,
+        Doc(
+            """Built-in HTTP clients to show. Use client IDs such as "node/undici" or target
+            wildcards such as "shell/*". An empty list hides all built-in clients."""
+        ),
+    ] = None,
+    default_http_client: Annotated[
+        str | None,
+        Doc('The default code sample client ID, such as "node/fetch".'),
+    ] = None,
     hidden_clients: Annotated[
         bool | dict[str, bool | list[str]] | list[str] | None,
         Doc(
@@ -541,8 +552,8 @@ def get_scalar_api_reference(
         bool,
         Doc(
             """
-            Whether to use default fonts (Inter and JetBrains Mono).
-            Default is True which means default fonts are used.
+            Deprecated: Scalar uses the system font stack and no longer loads web fonts,
+            so this option has no effect.
             """
         ),
     ] = True,
@@ -695,6 +706,10 @@ def get_scalar_api_reference(
     if search_hot_key != SearchHotKey.K.value:  # Default is K
         config["searchHotKey"] = search_hot_key
 
+    if http_clients is not None:
+        config["httpClients"] = http_clients
+    if default_http_client is not None:
+        config["defaultHttpClient"] = default_http_client
     if hidden_clients:  # Default is []
         config["hiddenClients"] = hidden_clients
 

@@ -63,9 +63,9 @@ To get started, overwrite our CSS variables. We won't judge.
 ```
 
 > [!NOTE]
-> By default, we're using Inter and JetBrains Mono, served by our in-house CDN.
+> By default, we use the system font stack, so no web fonts are downloaded.
 
-If you want to use a different font or want to use Google Fonts, pass `withDefaultFonts: false` to the configuration and overwrite the `--scalar-font` and `--scalar-font-code` CSS variables. You will also need to provide the source of your new font which can be local or served over the network.
+If you want to use a different font, for example one from Google Fonts, overwrite the `--scalar-font` and `--scalar-font-code` CSS variables. You will also need to provide the source of your new font, which can be local or served over the network.
 
 Here is an example of how to use the `Roboto` font from Google Fonts with the CDN API reference.
 
@@ -90,8 +90,6 @@ Here is an example of how to use the `Roboto` font from Google Fonts with the CD
     <script>
       var configuration = {
         theme: 'kepler',
-        // Do not use the default fonts from the Scalar CDN
-        withDefaultFonts: 'false',
       }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>

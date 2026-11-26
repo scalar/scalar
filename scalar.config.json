@@ -43,6 +43,14 @@
           "defer": true
         },
         {
+          "path": "documentation/assets/api-hosting-waitlist.js",
+          "defer": true
+        },
+        {
+          "path": "documentation/assets/api-hosting-invite.js",
+          "defer": true
+        },
+        {
           "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js",
           "async": true
         }
@@ -50,6 +58,9 @@
       "styles": [
         {
           "path": "documentation/assets/styles.css"
+        },
+        {
+          "path": "documentation/assets/api-hosting-invite.css"
         }
       ],
       "meta": [
@@ -1909,10 +1920,6 @@
                     {
                       "path": "documentation/assets/api-hosting-hero.js",
                       "defer": true
-                    },
-                    {
-                      "path": "documentation/assets/api-hosting-waitlist.js",
-                      "defer": true
                     }
                   ],
                   "links": [
@@ -2537,7 +2544,7 @@
                         "title": "Private Docs",
                         "filepath": "documentation/guides/docs/configuration/private-docs.md",
                         "type": "page",
-                        "description": "Control access to your documentation with password protection, SSO, and team-based permissions.",
+                        "description": "Make your docs site private: visitors sign in, and access groups decide who outside your team can view it.",
                         "head": {
                           "links": [
                             {
@@ -2548,7 +2555,7 @@
                           "meta": [
                             {
                               "name": "description",
-                              "content": "Control access to your documentation with password protection, SSO, and team-based permissions."
+                              "content": "Make your docs site private: visitors sign in, and access groups decide who outside your team can view it."
                             },
                             {
                               "name": "robots",

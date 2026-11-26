@@ -7,10 +7,12 @@ import { type DOMWrapper, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import { defineComponent, h, isReactive, nextTick, ref } from 'vue'
 
+import Badge from '../shared/Badge.vue'
 import { type SchemaExpansionStore, createSchemaExpansionStore } from './helpers/schema-expansion'
 import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from './request-body-composition-index'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
+import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 const scrollTargetId = ref('')
 
@@ -73,6 +75,69 @@ describe('Schema', () => {
     expect(wrapper.text()).not.toContain('Order')
     expect(wrapper.text().match(/Type: object/g)?.length).toBe(2)
     expect(wrapper.text()).toContain('Type: string')
+  })
+
+  it('renders badges on nested, referenced, and composed properties from the workspace store', async () => {
+    const store = createWorkspaceStore()
+    const documentName = 'users'
+    await store.addDocument({
+      name: documentName,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Users', version: '1' },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                manager: {
+                  $ref: '#/components/schemas/Manager',
+                  'x-badges': [{ name: 'Expandable', color: '#34d399' }],
+                },
+                status: {
+                  oneOf: [{ type: 'string' }, { type: 'integer' }],
+                  'x-badges': [{ name: 'Legacy format' }],
+                },
+              },
+            },
+            Manager: {
+              type: 'object',
+              properties: {
+                login: {
+                  type: 'string',
+                  deprecated: true,
+                  'x-badges': [{ name: 'Legacy', position: 'before' }, { name: 'Use email instead' }],
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const document = store.workspace.documents[documentName]
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Expected an OpenAPI document')
+    }
+    const wrapper = mount(Schema, {
+      props: {
+        eventBus: null,
+        options: { expandAllSchemaProperties: true },
+        schema: getResolvedRef(document.components?.schemas?.User),
+      },
+    })
+
+    const status = wrapper.findAllComponents(SchemaProperty).find((property) => property.props('name') === 'status')
+    expect(status?.getComponent(SchemaPropertyHeading).getComponent(Badge).text()).toBe('Legacy format')
+    expect(wrapper.findAllComponents(Badge).map((badge) => badge.text())).toStrictEqual([
+      'Expandable',
+      'Legacy',
+      'deprecated',
+      'Use email instead',
+      'Legacy format',
+    ])
+    const text = wrapper.text()
+    expect(text.indexOf('Expandable')).toBeGreaterThan(text.indexOf('manager'))
+    expect(text.indexOf('Legacy')).toBeLessThan(text.indexOf('login'))
   })
 
   it('does not render internal markers from ingested boolean schemas', async () => {

@@ -72,7 +72,7 @@ const styles = getThemeStyles('alternate', { layer: 'scalar-theme' })
 document.head.insertAdjacentHTML('beforeend', `<style>${styles}</style>`)
 ```
 
-The function allows you to pass in a theme ID and an optional options object to configure the layer (default: `scalar-theme`) and whether to include the default fonts (default: `true`).
+The function allows you to pass in a theme ID and an optional options object to configure the layer (default: `scalar-theme`).
 
 ### Usage via Tailwind
 

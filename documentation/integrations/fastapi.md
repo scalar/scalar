@@ -188,7 +188,7 @@ DocumentDownloadType.NONE    # Hide download button
 - `dark_mode` (default `None`) - Whether dark mode is on or off initially. When left unset, the reader's preference is used
 - `force_dark_mode_state` (default `None`) - Force dark mode state to always be this state. Can be 'dark' or 'light'
 - `hide_dark_mode_toggle` (default `False`) - Whether to show the dark mode toggle
-- `with_default_fonts` (default `True`) - Whether to use default fonts (Inter and JetBrains Mono)
+- `with_default_fonts` (default `True`) - Deprecated and has no effect, because Scalar uses the system font stack and no longer loads web fonts
 - `custom_css` (default `""`) - Custom CSS string to apply to the API reference
 
 ### Search and Navigation
@@ -204,6 +204,8 @@ DocumentDownloadType.NONE    # Hide download button
 
 - `base_server_url` (default `""`) - If you want to prefix all relative servers with a base URL
 - `servers` (default `[]`) - List of OpenAPI Server Objects. Each item must have a required `url` (string) and may have optional `description` (string) and `variables` (map). Example: `[{"url": "https://api.example.com", "description": "Production"}]`
+- `http_clients` (default `None`) - Built-in client IDs and target wildcards such as `["node/fetch", "shell/*"]`. Set to `[]` to hide all built-in clients.
+- `default_http_client` (default `None`) - The default code sample client ID, such as `"node/fetch"`.
 - `hidden_clients` (default `[]`)
 - `persist_selected_client` (default `True`) - Set to `False` to disable saving and restoring the selected code sample client in local storage. Client selection still works for the current page; `persist_auth` is independent.
 

@@ -1,5 +1,11 @@
 import { DEFAULT_MODELS_SECTION_LABEL } from '@scalar/types/api-reference'
-import type { AvailableClient, ClientId, TargetId } from '@scalar/types/snippetz'
+import type {
+  AvailableClient,
+  ClientId,
+  DefaultHttpClientId,
+  HttpClientPattern,
+  TargetId,
+} from '@scalar/types/snippetz'
 import {
   type LiteralSchema,
   any,
@@ -123,6 +129,10 @@ export const apiReferenceConfigurationSchema = intersection([
     favicon: optional(string(), {
       typeComment: 'Path to a favicon image',
     }),
+    httpClients: optional(array(string() as unknown as LiteralSchema<HttpClientPattern>), {
+      typeComment:
+        'Built-in HTTP clients available in code sample pickers. Use a client ID such as `node/undici` or a target wildcard such as `shell/*`. Omit to use the existing client list, or pass `[]` to hide all built-in clients. `hiddenClients` still applies.',
+    }),
     hiddenClients: optional(
       // The client/target names stay permissive strings at runtime, so `coerce` leaves unknown
       // values untouched (a real union would rewrite them to the first literal). The casts only
@@ -150,12 +160,13 @@ export const apiReferenceConfigurationSchema = intersection([
         'Show built-in HTTP clients alongside `x-scalar-sdk-installation` tabs in the introduction. Defaults to false',
     }),
     defaultHttpClient: optional(
-      // The keys stay permissive strings at runtime, so `coerce` leaves an unknown value
+      // Client IDs and keys stay permissive strings at runtime, so `coerce` leaves an unknown value
       // untouched (a union of literal client names would rewrite it). The cast only tightens
       // the type, so config authors get autocomplete and an error on typos like the display
       // title 'Fetch' (the client id is the lowercase 'fetch'). The custom branch widens
       // the inferred type only; the first branch already accepts custom keys at runtime.
       union([
+        string() as unknown as LiteralSchema<DefaultHttpClientId>,
         object({
           targetKey: string() as unknown as LiteralSchema<TargetId>,
           clientKey: string() as unknown as LiteralSchema<ClientId<TargetId>>,
@@ -166,7 +177,7 @@ export const apiReferenceConfigurationSchema = intersection([
         }),
       ]),
       {
-        typeComment: 'Determine the HTTP client that is selected by default',
+        typeComment: 'The default code sample client, as a client ID or a target/client object',
       },
     ),
     multipartNaming: optional(literal('indexed-dot'), {
@@ -281,7 +292,8 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     withDefaultFonts: boolean({
       default: true,
-      typeComment: 'Whether to include default fonts',
+      typeComment:
+        '@deprecated Scalar uses the system font stack and no longer loads web fonts, so this option has no effect.',
     }),
     defaultOpenFirstTag: boolean({
       default: true,

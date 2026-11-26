@@ -22,6 +22,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ScalarConfigurationTest {
 
     @Test
+    void preservesEmptyHttpClientAllowlist() {
+        var mapper = new ObjectMapper();
+        var properties = new ScalarProperties();
+        assertFalse(mapper.valueToTree(ScalarConfigurationMapper.map(properties)).has("httpClients"));
+
+        properties.setHttpClients(List.of());
+        var clients = mapper.valueToTree(ScalarConfigurationMapper.map(properties)).path("httpClients");
+        assertTrue(clients.isArray());
+        assertTrue(clients.isEmpty());
+    }
+
+    @Test
     public void testMultipartNamingConfiguration() {
         var mapper = new ObjectMapper();
         var properties = new ScalarProperties();

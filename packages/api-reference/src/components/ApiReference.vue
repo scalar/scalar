@@ -472,7 +472,6 @@ const toolbarTheme = computed<ApiReferenceConfiguration['theme'] | undefined>(
 
 const themeStyle = computed(() =>
   getThemeStyles(toolbarTheme.value ?? mergedConfig.value.theme, {
-    fonts: mergedConfig.value.withDefaultFonts,
     // Only the toolbar theme is unlayered, so hosted pages keep the layered output
     layer: toolbarTheme.value ? false : undefined,
   }),

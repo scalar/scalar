@@ -500,31 +500,23 @@ Whether dark mode is on or off initially (light mode).
 
 ### defaultHttpClient
 
-**Type:** `HttpClientState`
+**Type:** `string | { targetKey: string, clientKey: string }`
 
-By default, we're using Shell/curl as the default HTTP client. Or, if that's disabled (through `hiddenClients`), we're just using the first available HTTP client.
+**Default:** `shell/curl` for built-in clients
 
-**Default:** `{ targetKey: 'shell', clientKey: 'curl' }`
-
-You can explicitly set the default HTTP client, though:
+Set the default HTTP client using its full client ID. The object form, such as `{ targetKey: 'node', clientKey: 'fetch' }`, is also supported.
 
 ```javascript
 {
-  defaultHttpClient: {
-    targetKey: 'node',
-    clientKey: 'undici',
-  }
+  defaultHttpClient: 'node/fetch',
 }
 ```
 
-To select a custom code sample, use `custom` as the target and the sample ID without the `custom/` prefix as the client:
+When the configured built-in client is unavailable, Scalar falls back to a custom code sample when present, then to `shell/curl` or the first available built-in client. To select a custom code sample explicitly, use its `custom/` ID.
 
 ```javascript
 {
-  defaultHttpClient: {
-    targetKey: 'custom',
-    clientKey: 'python',
-  }
+  defaultHttpClient: 'custom/python',
 }
 ```
 
@@ -534,7 +526,7 @@ This selects `custom/python`, matching a Python entry in `x-codeSamples`. The la
 
 Show built-in HTTP clients alongside the SDK tabs from `info.x-scalar-sdk-installation` in the introduction's Client Libraries card. Defaults to `false`, which shows only SDK tabs when installation instructions are available.
 
-SDK tabs appear first, followed by the built-in `featuredClients`. Additional clients remain available in **More**, and `hiddenClients` still applies. Selecting an SDK tab selects its matching custom operation example; selecting a built-in client selects its generated examples. You do not need to provide custom examples for the built-in clients.
+SDK tabs appear first, followed by the built-in `featuredClients`. Additional clients remain available in **More**, and `httpClients` and `hiddenClients` still apply. Selecting an SDK tab selects its matching custom operation example; selecting a built-in client selects its generated examples. You do not need to provide custom examples for the built-in clients.
 
 ```js
 const configuration = {
@@ -548,7 +540,7 @@ const configuration = {
 
 The "Client Libraries" block shows a row of featured clients as tabs, the other clients can be found under "More" menu. By default the featured clients are `shell/curl`, `ruby/native`, `node/undici`, `php/guzzle` and `python/python3`.
 
-Pass a list of client ids (`target/client`) to choose which clients are featured and in which order. IDs that do not exist, or that are hidden through `hiddenClients`, are skipped.
+Pass a list of client ids (`target/client`) to choose which clients are featured and in which order. Scalar skips IDs that are unknown or unavailable under `httpClients` and `hiddenClients`.
 
 ```javascript
 {
@@ -916,6 +908,23 @@ Whether to show the "Test Request" button. When `true`, the authentication panel
   hideTestRequestButton: true
 }
 ```
+
+### httpClients
+
+**Type:** `string[]`
+
+Limit which built-in HTTP clients appear in Client Libraries, its More menu, and operation code sample pickers. Use a full client ID such as `node/undici` to select one client, or a target wildcard such as `shell/*` to include every client for that target.
+
+```javascript
+{
+  httpClients: ['node/fetch', 'node/undici', 'shell/*'],
+  defaultHttpClient: 'node/fetch',
+}
+```
+
+Omit `httpClients` to use the existing client list. Pass `[]` to hide all generated HTTP client examples. Unknown entries are ignored, and `hiddenClients` can further reduce the list. Use `featuredClients` to choose the tabs and their order among the available clients. Custom code samples and SDK installation tabs remain available.
+
+In FastAPI and Django Ninja, use `http_clients=["node/fetch", "shell/*"]` and `default_http_client="node/fetch"`. In .NET, use `.WithHttpClients("node/fetch", "shell/*").WithDefaultHttpClient("node/fetch")`. In Spring Boot, set `scalar.http-clients` to a list and set `scalar.default-http-client=node/fetch` for a built-in default. The Java default client model uses the integration's built-in target and client enums.
 
 ### hiddenClients
 
@@ -1415,15 +1424,11 @@ Pass the URL of an API document (JSON or YAML).
 
 **Type:** `boolean`
 
-By default we're using Inter and JetBrains Mono, served from our fonts CDN at `https://fonts.scalar.com`. If you use a different font or just don't want to load web fonts, pass `withDefaultFonts: false` to the configuration.
+**Deprecated.** Scalar uses the system font stack and no longer loads web fonts, so this option has no effect. It is still accepted, so existing configurations keep working.
+
+To use a different font, load it yourself and overwrite the `--scalar-font` and `--scalar-font-code` CSS variables, as described in [Themes](themes.md).
 
 **Default:** `true`
-
-```javascript
-{
-  withDefaultFonts: false
-}
-```
 
 ## Methods
 Custom functions to control specific behaviors and URL generation.

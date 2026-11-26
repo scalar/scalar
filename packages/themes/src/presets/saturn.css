@@ -1,93 +1,98 @@
-/* basic theme */
+/**
+ * Saturn
+ *
+ * A preset is one surface, one ink and one accent per mode. Every other tone is ink blended into
+ * the surface, so the greys stay on the palette's own tint. Text, accent and method hues are
+ * moved in lightness only, and only as far as a 4.5:1 ratio on the page, card and sidebar
+ * surfaces requires.
+ */
 .light-mode {
-  --scalar-background-1: #f3f3ee;
-  --scalar-background-2: #e8e8e3;
-  --scalar-background-3: #e4e4df;
-  --scalar-border-color: rgba(215, 215, 206, 0.85);
+  --scalar-background-1: #fbf1c7;
+  --scalar-background-2: #f3eac1;
+  --scalar-background-3: #e8dfb9;
+  --scalar-background-accent: #e4e3bf;
 
-  --scalar-color-1: #1b1b1b;
-  --scalar-color-2: #676767;
-  --scalar-color-3: #8e8e8e;
+  --scalar-color-1: #3c3836;
+  --scalar-color-2: #6f695b;
+  --scalar-color-3: #88816c;
+  --scalar-color-accent: #327376;
 
-  --scalar-color-accent: #1763a6;
-  --scalar-background-accent: #1f648e1f;
+  --scalar-border-color: #e5dbb6;
+
+  --scalar-button-1: #3c3836;
+  --scalar-button-1-hover: #5b564d;
+  --scalar-button-1-color: #fbf1c7;
+
+  --scalar-color-green: #6e6d08;
+  --scalar-color-red: #cc241d;
+  --scalar-color-yellow: #8c6107;
+  --scalar-color-blue: #327376;
+  --scalar-color-orange: #b14a01;
+  --scalar-color-purple: #9d5074;
+  --scalar-color-query: #417544;
+
+  --scalar-sidebar-background-1: #f3eac1;
+  --scalar-sidebar-border-color: #ded5b1;
+  --scalar-sidebar-item-hover-background: #e9e0ba;
+  --scalar-sidebar-item-active-background: #e1d9b3;
+  --scalar-sidebar-search-background: #fbf3cd;
 }
 .dark-mode {
-  --scalar-background-1: #09090b;
-  --scalar-background-2: #18181b;
-  --scalar-background-3: #2c2c30;
-  --scalar-border-color: rgba(255, 255, 255, 0.17);
+  --scalar-background-1: #282828;
+  --scalar-background-2: #363532;
+  --scalar-background-3: #413f3a;
+  --scalar-background-accent: #112122;
 
-  --scalar-color-1: #fafafa;
-  --scalar-color-2: rgb(161, 161, 170);
-  --scalar-color-3: rgba(255, 255, 255, 0.533);
+  --scalar-color-1: #ebdbb2;
+  --scalar-color-2: #b2a78a;
+  --scalar-color-3: #8a826e;
+  --scalar-color-accent: #8eb5b6;
 
-  --scalar-color-accent: #4eb3ec;
-  --scalar-background-accent: #8ab4f81f;
+  --scalar-border-color: #46443e;
+
+  --scalar-button-1: #ebdbb2;
+  --scalar-button-1-hover: #ccbe9c;
+  --scalar-button-1-color: #161616;
+
+  --scalar-color-green: #b8bb26;
+  --scalar-color-red: #fe715c;
+  --scalar-color-yellow: #fabd2f;
+  --scalar-color-blue: #83a598;
+  --scalar-color-orange: #fe8019;
+  --scalar-color-purple: #d4879c;
+  --scalar-color-query: #8ec07c;
+
+  --scalar-sidebar-background-1: #222222;
+  --scalar-sidebar-border-color: #413f38;
+  --scalar-sidebar-item-hover-background: #302f2c;
+  --scalar-sidebar-item-active-background: #363530;
+  --scalar-sidebar-search-background: #34332f;
 }
-/* Document Sidebar */
-.light-mode .t-doc__sidebar,
-.dark-mode .t-doc__sidebar {
-  --scalar-sidebar-background-1: var(--scalar-background-1);
+
+/* Sidebar: one step under the page, with the current item marked in ink rather than accent */
+.light-mode,
+.dark-mode {
   --scalar-sidebar-color-1: var(--scalar-color-1);
   --scalar-sidebar-color-2: var(--scalar-color-2);
-  --scalar-sidebar-border-color: var(--scalar-border-color);
 
-  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
-  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-color: var(--scalar-sidebar-color-1);
+  --scalar-sidebar-color-active: var(--scalar-sidebar-color-1);
 
-  --scalar-sidebar-item-active-background: var(--scalar-background-3);
-  --scalar-sidebar-color-active: var(--scalar-color-1);
+  --scalar-sidebar-indent-border: var(--scalar-sidebar-border-color);
+  --scalar-sidebar-indent-border-hover: var(--scalar-sidebar-border-color);
+  --scalar-sidebar-indent-border-active: var(--scalar-sidebar-border-color);
 
-  --scalar-sidebar-search-background: var(--scalar-background-1);
-  --scalar-sidebar-search-border-color: var(--scalar-border-color);
   --scalar-sidebar-search-color: var(--scalar-color-3);
+  --scalar-sidebar-search-border-color: var(--scalar-sidebar-border-color);
+
+  /* Links are where the accent shows, as they are in the palette's own interface */
+  --scalar-link-color: var(--scalar-color-accent);
+  --scalar-link-color-hover: var(--scalar-color-accent);
 }
 
-/* advanced */
-.light-mode {
-  --scalar-color-green: #17803d;
-  --scalar-color-red: #e10909;
-  --scalar-color-yellow: #edbe20;
-  --scalar-color-blue: #1763a6;
-  --scalar-color-orange: #e25b09;
-  --scalar-color-purple: #5c3993;
-  --scalar-color-query: #147873;
-
-  --scalar-button-1: rgba(0, 0, 0, 1);
-  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --scalar-button-1-color: #fff;
-}
-.dark-mode {
-  --scalar-color-green: #30a159;
-  --scalar-color-red: #dc1b19;
-  --scalar-color-yellow: #eec644;
-  --scalar-color-blue: #3e86c5;
-  --scalar-color-orange: #f07528;
-  --scalar-color-purple: #7a59b1;
-  --scalar-color-query: #4ac6b7;
-
-  --scalar-button-1: rgba(255, 255, 255, 1);
-  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
-  --scalar-button-1-color: black;
-}
-.dark-mode h2.t-editor__heading,
-.dark-mode .t-editor__page-title h1,
-.dark-mode h1.section-header:not(::selection),
-.dark-mode .markdown h1,
-.dark-mode .markdown h2,
-.dark-mode .markdown h3,
-.dark-mode .markdown h4,
-.dark-mode .markdown h5,
-.dark-mode .markdown h6 {
-  -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(to right bottom, rgb(255, 255, 255) 30%, rgba(255, 255, 255, 0.38));
-  -webkit-background-clip: text;
-  background-clip: text;
-}
 .light-mode *::selection {
-  background-color: color-mix(in srgb, var(--scalar-color-accent), transparent 70%);
+  background-color: #dfe1bd;
 }
 .dark-mode *::selection {
-  background-color: color-mix(in srgb, var(--scalar-color-accent), transparent 50%);
+  background-color: #142728;
 }

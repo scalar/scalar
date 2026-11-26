@@ -3,7 +3,13 @@ import type { Plugin, TargetId } from '@scalar/types/snippetz'
 import { prepareBrowserCookies } from '@/libs/browser-request'
 import { mergeCookieHeaders } from '@/libs/cookies'
 import { buildFormData, formDataHeaders } from '@/libs/form-data'
-import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
+import {
+  accumulateRepeatedValue,
+  hasRepeatedName,
+  joinUrlAndQuery,
+  normalizeMethod,
+  reduceQueryParams,
+} from '@/libs/http'
 import { Raw, escapeJsString, formatSetup, objectToString } from '@/libs/javascript'
 
 type AxiosHeaders = Record<string, string | string[]>
@@ -107,12 +113,16 @@ export const createAxiosPlugin = <T extends Extract<TargetId, 'js' | 'node'>>(ta
     }
     normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
+    const queryString = normalizedRequest.queryString ?? []
+    // axios serializes array params as `name[]=`, so a repeated name keeps the query in the URL.
+    const keepsQueryInUrl = hasRepeatedName(queryString)
+
     const options: Record<string, unknown> = {
       method: normalizedRequest.method,
-      url: normalizedRequest.url ?? '',
+      url: keepsQueryInUrl ? joinUrlAndQuery(normalizedRequest.url ?? '', queryString) : (normalizedRequest.url ?? ''),
     }
 
-    const params = reduceQueryParams(normalizedRequest.queryString)
+    const params = keepsQueryInUrl ? {} : reduceQueryParams(queryString)
     if (Object.keys(params).length) {
       options.params = params
     }

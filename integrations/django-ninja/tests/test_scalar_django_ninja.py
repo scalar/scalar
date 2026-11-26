@@ -813,6 +813,20 @@ class TestEdgeCases:
         assert "oauth2" in html_content
         assert "authorizationCode" in html_content
 
+    @pytest.mark.parametrize("http_clients", [None, [], ["node/fetch", "shell/*"]])
+    def test_http_client_configuration(self, http_clients):
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            http_clients=http_clients,
+            default_http_client="node/fetch",
+        )
+        html = get_scalar_api_reference(config).content.decode()
+        if http_clients is None:
+            assert '"httpClients"' not in html
+        else:
+            assert f'"httpClients": {json.dumps(http_clients)}' in html
+        assert '"defaultHttpClient": "node/fetch"' in html
+
     def test_hidden_clients_dict_format(self):
         """Test hidden_clients parameter with dictionary format"""
         hidden_clients = {

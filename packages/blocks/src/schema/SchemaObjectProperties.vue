@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
+import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
+import type { XBadge } from '@scalar/workspace-store/schemas/extensions/operation'
 import type {
   DiscriminatorObject,
   SchemaObject,
@@ -160,6 +162,7 @@ const getPropertyDescription = (
 }
 
 type PropertyRow = {
+  badges: XBadge[] | undefined
   name: string
   cycleKey: unknown
   description: string | undefined
@@ -189,6 +192,7 @@ const rows = computed((): PropertyRow[] => {
     const property = properties[name]
 
     return {
+      badges: getXBadges(property),
       name,
       cycleKey: getCycleKey(property),
       description: getPropertyDescription(property),
@@ -239,6 +243,7 @@ const getAdditionalPropertiesValue = (
     <SchemaProperty
       v-for="row in rows"
       :key="row.name"
+      :badges="row.badges"
       :breadcrumb
       :compact
       :compositionPath="compositionPath"
@@ -266,6 +271,7 @@ const getAdditionalPropertiesValue = (
     <SchemaProperty
       v-for="[key, property] in Object.entries(schema.patternProperties)"
       :key="key"
+      :badges="getXBadges(property)"
       :breadcrumb
       :compact
       :compositionPath="compositionPath"
@@ -290,6 +296,7 @@ const getAdditionalPropertiesValue = (
   <!-- additionalProperties -->
   <template v-if="isTypeObject(schema) && schema.additionalProperties">
     <SchemaProperty
+      :badges="getXBadges(schema.additionalProperties)"
       :breadcrumb
       :compact
       :compositionPath="compositionPath"
