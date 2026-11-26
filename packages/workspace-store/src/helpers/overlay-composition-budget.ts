@@ -1,5 +1,3 @@
-// Bundlers otherwise select the package's browser IIFE, which has no module exports.
-import { check } from 'iregexp-check/dist/iregexp-check-cjs.js'
 import {
   type FilterFunction,
   JSONPathEnvironment,
@@ -8,7 +6,8 @@ import {
   LOGICAL_TYPE,
   VALUE_TYPE,
 } from 'json-p3'
-import { RE2JS } from 're2js'
+
+import { compileOverlayRegExp } from '@/helpers/overlay-regexp'
 
 /** Resource limits shared by every action in one Overlay composition. */
 export type OverlayCompositionLimits = {
@@ -31,40 +30,6 @@ const DEFAULT_LIMITS: OverlayCompositionLimits = {
   regexProgramSize: 4_096,
   selectorLength: 4_096,
   work: 2_000_000,
-}
-
-// RFC 9485's dot matches a Unicode character other than CR or LF. Escaped dots
-// and dots inside character classes already have the right meaning in RE2.
-const mapIRegexp = (pattern: string, programLimit: number): string => {
-  let escaped = false
-  let inClass = false
-  let offset = 0
-  let repetitionFactor = 1
-  const parts: string[] = []
-  for (const character of pattern) {
-    if (!escaped && !inClass && character === '{') {
-      const repeat = /^\{(\d+)(?:,(\d*))?\}/.exec(pattern.slice(offset))
-      if (repeat) {
-        const [, minimum, maximum] = repeat
-        // Counted repetitions can expand the program during compilation. The product also
-        // accounts for nested repetitions without needing a separate expression parser.
-        repetitionFactor *= Math.max(1, maximum === '' ? Number(minimum) + 1 : Number(maximum ?? minimum))
-        if (repetitionFactor * pattern.length > programLimit) {
-          throw new Error('Overlay JSONPath regular expression exceeded its complexity limit')
-        }
-      }
-    }
-    parts.push(!escaped && !inClass && character === '.' ? '[^\\r\\n]' : character)
-    if (escaped) {
-      escaped = false
-    } else if (character === '\\') {
-      escaped = true
-    } else if (character === '[' || character === ']') {
-      inClass = character === '['
-    }
-    offset += character.length
-  }
-  return parts.join('')
 }
 
 type OverlayCompositionBudget = {
@@ -93,7 +58,9 @@ export const createOverlayCompositionBudget = (
     }
   }
 
-  const regexes = new Map<string, { regex: RE2JS; instructions: number } | null>()
+  const regexes = new Map<string, ReturnType<typeof compileOverlayRegExp>>()
+  // Charge actual matcher transitions across all actions, in the same scale as string reads.
+  const spendRegexTransition = (): void => spendWork(1 / 32)
   const regexFunction = (fullMatch: boolean): FilterFunction => ({
     argTypes: [VALUE_TYPE, VALUE_TYPE],
     returnType: LOGICAL_TYPE,
@@ -110,24 +77,15 @@ export const createOverlayCompositionBudget = (
           throw new Error('Overlay composition exceeded its regular expression limit')
         }
         spendWork(1 + pattern.length)
-        const mapped = check(pattern) ? mapIRegexp(pattern, limits.regexProgramSize) : undefined
-        try {
-          const regex = mapped === undefined ? undefined : RE2JS.compile(mapped)
-          compiled = regex ? { regex, instructions: Number(regex.re2().numberOfInstructions()) } : null
-        } catch {
-          // Per JSONPath, an invalid I-Regexp evaluates to false.
-          compiled = null
-        }
-        if (compiled && compiled.instructions > limits.regexProgramSize) {
-          throw new Error('Overlay JSONPath regular expression exceeded its complexity limit')
-        }
+        compiled = compileOverlayRegExp(pattern, limits.regexProgramSize, spendRegexTransition)
         regexes.set(pattern, compiled)
       }
       if (!compiled) {
         return false
       }
-      spendWork(1 + Math.ceil(((text.length + 1) * compiled.instructions) / 32))
-      return fullMatch ? compiled.regex.testExact(text) : compiled.regex.test(text)
+      // Treffer checks the subject's Unicode scalars before visiting any matcher states.
+      spendWork(1 + Math.ceil(text.length / 32))
+      return compiled(text, fullMatch)
     },
   })
   const environment = new JSONPathEnvironment()

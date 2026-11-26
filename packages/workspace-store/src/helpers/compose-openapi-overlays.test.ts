@@ -25,6 +25,20 @@ describe('compose-openapi-overlays', () => {
     ])
   })
 
+  it('recognizes Unicode categories and treats invalid I-Regexps as non-matches', () => {
+    const base = { ...overlayBase, 'x-items': ['É', 'A', 'a', '42'] }
+    const invalid = "$['x-items'][?match(@, '\\\\d+')]"
+    const document = overlay([
+      { target: invalid, remove: true },
+      { target: "$['x-items'][?match(@, '\\\\p{Lu}')]", update: 'Uppercase' },
+    ])
+
+    const result = composeOpenApiOverlays(base, [{ document }])
+
+    expect(result.document['x-items']).toStrictEqual(['Uppercase', 'Uppercase', 'a', '42'])
+    expect(result.diagnostics).toStrictEqual([{ overlayIndex: 0, actionIndex: 0, target: invalid }])
+  })
+
   it.each(['match', 'search'])('rejects an over-limit %s pattern before applying the action', (functionName) => {
     const base = { ...overlayBase, 'x-items': ['Partner'] }
     const document = overlay([{ target: `$['x-items'][?${functionName}(@, 'Partner')]`, remove: true }])
@@ -60,15 +74,29 @@ describe('compose-openapi-overlays', () => {
     )
   })
 
-  it('bounds counted repetitions before compiling the pattern', () => {
+  it('bounds compiled states created by counted repetitions', () => {
     const base = { ...overlayBase, 'x-items': ['2026'] }
     const document = overlay([{ target: "$['x-items'][?match(@, '[0-9]{4}')]", remove: true }])
 
     expect(
       composeOpenApiOverlays(base, [{ document }], undefined, { regexProgramSize: 64 }).document['x-items'],
     ).toStrictEqual([])
-    expect(() => composeOpenApiOverlays(base, [{ document }], undefined, { regexProgramSize: 20 })).toThrow(
+    expect(() => composeOpenApiOverlays(base, [{ document }], undefined, { regexProgramSize: 4 })).toThrow(
       'Overlay JSONPath regular expression exceeded its complexity limit',
+    )
+  })
+
+  it('charges regex transitions across Overlays that find no matches', () => {
+    const base = { ...overlayBase, 'x-items': ['a'.repeat(2_048)] }
+    const target = "$['x-items'][?search(@, 'z')]"
+    const document = overlay([{ target, remove: true }])
+    const limits = { work: 700 }
+
+    expect(composeOpenApiOverlays(base, [{ document }], undefined, limits).diagnostics).toStrictEqual([
+      { overlayIndex: 0, actionIndex: 0, target },
+    ])
+    expect(() => composeOpenApiOverlays(base, [{ document }, { document }], undefined, limits)).toThrow(
+      'Overlay 2: Action 1: Overlay composition exceeded its work budget',
     )
   })
 

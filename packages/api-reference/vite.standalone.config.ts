@@ -38,9 +38,6 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
     'PACKAGE_VERSION': `"${version}"`,
-    // The reference renders API descriptions. Composition is a workspace-store API, and
-    // the single-file UMD build would inline the composer and its JSONPath and regex engines.
-    'SCALAR_DISABLE_OPENAPI_OVERLAY_COMPOSITION': 'true',
     // Stamp this version onto bundled sub-packages (e.g. @scalar/blocks) whose
     // own PACKAGE_VERSION is already baked into their prebuilt dist. Without this
     // the request-snippet User-Agent would report the block library's version

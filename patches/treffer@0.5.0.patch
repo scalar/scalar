@@ -1,0 +1,98 @@
+diff --git a/lib/index.js b/lib/index.js
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -174,6 +174,10 @@
+ let len;
+ /** @type {number} */
+ let steps;
++/** @type {number} */
++let stateLimit;
++/** @type {(() => void) | undefined} */
++let chargeTransition;
+ 
+ /**
+  * Count Unicode scalar values without allocating, rejecting lone surrogates.
+@@ -474,7 +478,7 @@
+  * @returns {number}
+  */
+ let addState = (t, x = -1, y = -1, v) => {
+-  within(states.length + 1, MAX, "TREFFER_MAX_NFA_STATES");
++  within(states.length + 1, stateLimit, "TREFFER_MAX_NFA_STATES");
+   return states.push([t, x, y, v]) - 1;
+ };
+ 
+@@ -566,7 +570,10 @@
+           }))
+         : quantified(n);
+ 
+-const spend = () => within(++steps, STEPS, "TREFFER_MAX_TRANSITIONS");
++const spend = () => {
++  within(++steps, STEPS, "TREFFER_MAX_TRANSITIONS");
++  chargeTransition?.();
++};
+ 
+ /**
+  * Take one state out of the closure walk: a split queues both successors, an
+@@ -656,9 +663,10 @@
+  * @param {Nfa} nfa
+  * @param {string} str
+  * @param {boolean} full
++ * @param {(() => void) | undefined} onTransition
+  * @returns {boolean}
+  */
+-let run = (nfa, str, full) => {
++let run = (nfa, str, full, onTransition) => {
+   // oxlint-disable-next-line no-unused-expressions
+   typeof str === "string" || mint(diags, TypeError, "Subject must be a string");
+   scalarCount(
+@@ -669,8 +677,13 @@
+   );
+   [states, len, steps] = [nfa.states, str.length, 0];
+   const cur = /** @type {Set<number>} */ (new Set());
+-  if (full) add(cur, nfa.start, 0);
+-  return scan(str, cur, nfa, full);
++  chargeTransition = onTransition;
++  try {
++    if (full) add(cur, nfa.start, 0);
++    return scan(str, cur, nfa, full);
++  } finally {
++    chargeTransition = undefined;
++  }
+ };
+ 
+ /**
+@@ -697,6 +710,8 @@
+   if (options != null && typeof options !== "object")
+     mint(diags, TypeError, "Options must be an object");
+   const ast = parse(pattern, anchorsOption(options));
++  const onTransition = options?.onTransition;
++  stateLimit = Math.min(MAX, options?.maxStates ?? MAX);
+   states = /** @type {State[]} */ ([]);
+   const f = visit(ast),
+     end = addState(3);
+@@ -704,9 +719,9 @@
+   const nfa = /** @type {Nfa} */ ({ states, start: f.s, end });
+   return Object.freeze({
+     /** @param {string} subject */
+-    match: (subject) => run(nfa, subject, true),
++    match: (subject) => run(nfa, subject, true, onTransition),
+     /** @param {string} subject */
+-    search: (subject) => run(nfa, subject, false),
++    search: (subject) => run(nfa, subject, false, onTransition),
+   });
+ };
+ 
+diff --git a/lib/index.d.ts b/lib/index.d.ts
+--- a/lib/index.d.ts
++++ b/lib/index.d.ts
+@@ -7,6 +7,10 @@
+    * This is a compatibility extension and is not part of RFC 9485.
+    */
+   anchors?: boolean;
++  /** Narrow the maximum compiled state count. */
++  maxStates?: number;
++  /** Charge one transition to a budget shared by the caller. May throw to stop the match. */
++  onTransition?: () => void;
+ }
+ 
+ export type TrefferErrorCode =

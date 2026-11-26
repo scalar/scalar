@@ -4,13 +4,6 @@ import { type LoaderPlugin, resolveReferencePath } from '@scalar/json-magic/bund
 import type { OverlayDiagnostic } from '@/helpers/compose-openapi-overlays'
 import { deepClone } from '@/helpers/deep-clone'
 
-declare const SCALAR_DISABLE_OPENAPI_OVERLAY_COMPOSITION: boolean
-
-const loadOverlayComposer =
-  typeof SCALAR_DISABLE_OPENAPI_OVERLAY_COMPOSITION !== 'undefined' && SCALAR_DISABLE_OPENAPI_OVERLAY_COMPOSITION
-    ? undefined
-    : () => import('./compose-openapi-overlays')
-
 /** An explicitly supplied Overlay source. Paths use the workspace's configured file loader. */
 export type OverlaySource =
   | { url: string }
@@ -73,12 +66,6 @@ export const loadOpenApiOverlays = async (
   load: (source: OverlaySource) => Promise<DocumentLoadResult>,
   getSourceUri: (source: OverlaySource) => string | undefined,
 ): Promise<{ document: Record<string, unknown>; documentHash: string; diagnostics: OverlayDiagnostic[] }> => {
-  if (!loadOverlayComposer) {
-    throw new Error(
-      'This build requires precomposed OpenAPI descriptions. Apply Overlays with @scalar/workspace-store.',
-    )
-  }
-
   const loadedOverlays = []
   for (const [index, source] of overlays.entries()) {
     const result = await load(source)
@@ -89,7 +76,7 @@ export const loadOpenApiOverlays = async (
     loadedOverlays.push({ document: result.data, sourceUri, raw: result.raw })
   }
 
-  const { composeOpenApiOverlays } = await loadOverlayComposer()
+  const { composeOpenApiOverlays } = await import('./compose-openapi-overlays')
   const { document, diagnostics } = composeOpenApiOverlays(base.data, loadedOverlays, base.sourceUri)
   for (const { overlayIndex, actionIndex, target } of diagnostics) {
     console.warn(`Overlay ${overlayIndex + 1}, action ${actionIndex + 1}: JSONPath "${target}" matched no nodes`)

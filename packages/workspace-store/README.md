@@ -615,9 +615,6 @@ The store applies each Overlay using its declared version. It selects nodes in t
 authored API description and upgrades the composed description, including the content
 the actions added, before resolving references and building navigation.
 
-For the single-file API Reference bundle, apply Overlays with the workspace store
-and pass the composed API description to the reference.
-
 When an action selects an array directly, Overlay 1.0 appends its `update` as one
 entry. Overlay 1.1 and 1.2 concatenate array updates. To replace an entire array
 in Overlay 1.0, select its containing object and include the array in the update.
@@ -677,11 +674,11 @@ when the input is unchanged. Each entry gives the zero-based `overlayIndex` and
 Overlay composition limits apply to the full list. The store allows up to 1,000
 actions including reusable definitions, 4,096 characters per selector, 50,000
 matches per action, and 512 characters per regular expression. `match()` and
-`search()` use a linear-time matcher with limits on counted repetitions, compiled
-program size, distinct patterns, and evaluation work. The store also caps estimated
-document allocations at 64 MiB, including the base description and values copied
-to each target. Exceeding a limit fails composition before the workspace registers
-any changes.
+`search()` use a bounded I-Regexp matcher with limits on counted repetitions,
+compiled states, distinct patterns, and transitions across the composition. The
+store also caps estimated document allocations at 64 MiB, including the base
+description and values copied to each target. Exceeding a limit fails composition
+before the workspace registers any changes.
 
 ## Referenced OpenAPI upgrades
 
