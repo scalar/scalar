@@ -187,6 +187,13 @@ The only remaining check that fails is "the browser builds exactly the tree the 
 
 An independent agent review of the sanitizer was cut off before it reproduced anything. Its leads (fast path, undecoded `href` in the external-link check, table parts, `noscript` under both scripting modes, `class` on generated elements) are covered by the vectors above. Before shipping, this still deserves a human security review and the existing XSS test suites (DOMPurify's, html5sec).
 
+**Other projects' attack suites.** [`bench/sanitizer-suites.mjs`](./bench/sanitizer-suites.mjs) collects 6,582 unique vectors and parses every file as data, never running it. The sources are DOMPurify's test fixtures, Cure53's HTML5 Security Cheatsheet, OWASP's XSS Filter Evasion Cheat Sheet, PortSwigger's XSS cheat sheet, PayloadsAllTheThings (its write-ups plus the Jhaddix, RSnake, BruteLogic, Mario Heiderich and polyglot lists), Markdown-XSS-Payloads, the tests of sanitize-html, bleach and hast-util-sanitize, and 1,614 documents from html5lib's tree-construction tests, which mutation XSS is built from. [`bench/sanitizer-run.mjs`](./bench/sanitizer-run.mjs) puts each one in 16 places a description can hold it: raw, inline, a list item, a table cell, an alert, link and image destinations, an autolink, a reference, a footnote, inside raw `<p>` and `<details>`, after an open `<div>`, a fence info string and a raw code block. It renders each with images removed and kept, through what `@scalar/markdown` ships, highlighter included. That makes 421,248 renders and 165,900 distinct outputs. Each output is checked two ways:
+
+- The policy check above finds **no violation**, and none for the unified renderer either. 3,573 outputs, against 5,296 for the unified renderer, get restructured by the browser (tables, misnesting) without breaking the policy.
+- **Real Chromium finds nothing.** Each output loads in its own `srcdoc` iframe that runs scripts, with `alert`, `confirm`, `prompt` and `print` trapped, browser dialogs recorded and the network blocked, so error handlers fire at once. After it loads, the DOM the browser built is audited for any event handler, script-capable or foreign element, `style`, `srcdoc` or `formaction` attribute, or `javascript:`, `vbscript:` or `data:` URL. 9 positive controls (unsanitized `onerror`, `<script>`, `<svg onload>`, `javascript:` links, `srcdoc`, `style`, `ontoggle`, MathML and `formaction`) are all flagged, which shows the check works. The unified renderer also comes back clean.
+
+`HTML5LIB_TESTS=<dir>` reads the html5lib tests from a local `tree-construction` folder, such as the one in the `html5lib` source distribution on PyPI, for when GitHub's raw files cannot be reached.
+
 ### The existing test suites
 
 The current pipeline's own tests (`markdown.test.ts`, `getHeadings.test.ts`, `splitContent.test.ts`) now run against the pipeline in the package, and `rehype-alert.test.ts` became `pipeline/alerts.test.ts`. Before the move, 84 of 92 passed unchanged. 5 failures compared exact `rehype-format` whitespace (a leading `\n`, indentation) or `&#x3C;` against `&lt;` with an identical DOM, and those expectations were updated. 3 expected `hljs` classes and pass now that `@scalar/highlight` is wired in.
@@ -263,6 +270,7 @@ pnpm visual            # screenshots of both pipelines' output, compared byte fo
 pnpm size              # bundle size, both pipelines and the alternatives
 pnpm bench             # throughput
 pnpm security          # vectors plus 300,000 fuzzed inputs
+pnpm sanitizer         # 6,582 vectors from other projects' suites, 16 contexts, policy check and Chromium
 pnpm pathological      # cmark's pathological inputs (the current pipeline takes minutes)
 ```
 

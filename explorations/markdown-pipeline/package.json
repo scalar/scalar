@@ -15,6 +15,7 @@
     "bench:alternatives": "node bench/bench.mjs",
     "parity": "node bench/diff-corpus.mjs",
     "security": "node bench/attack.mjs 300000",
+    "sanitizer": "node bench/sanitizer-suites.mjs && node --stack-size=4000 bench/sanitizer-run.mjs --baseline",
     "pathological": "node --stack-size=4000 bench/patho.mjs 30000",
     "corpora": "node bench/apis-guru.mjs && node bench/markdown-files.mjs && node bench/fixtures.mjs && node bench/fuzz-corpus.mjs 25000 7",
     "gamut": "for l in apis-guru markdown-files fixtures fuzz; do node bench/differential.mjs .out/$l.json $l${SHIPPED:+-shipped} && node bench/classify.mjs $l${SHIPPED:+-shipped}; done",
