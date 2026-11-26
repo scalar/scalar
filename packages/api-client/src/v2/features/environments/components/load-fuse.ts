@@ -6,9 +6,10 @@ type FuseConstructor = typeof Fuse
 /**
  * fuse.js, once it has loaded.
  *
- * The environment-variable dropdown is the only place in the API Reference that needs fuzzy
- * matching outside of search, and only once someone opens it, so fuse.js stays out of the bundle
- * a page loads up front. Shared between dropdowns so it loads once.
+ * The environment-variable dropdown only needs fuzzy matching once someone opens it, so it imports
+ * fuse.js on demand. Search still imports fuse.js statically, so the API Reference and the API Client
+ * load it up front today; this pays off once search loads it on demand too. Shared between dropdowns
+ * so it loads once.
  */
 const fuse = shallowRef<FuseConstructor | null>(null)
 
@@ -18,8 +19,9 @@ let loading: Promise<void> | null = null
 export const useFuse = (): Readonly<ShallowRef<FuseConstructor | null>> => fuse
 
 /**
- * Loads fuse.js. Concurrent calls share one import, and a failed import is retried on the next
- * call, so a dropdown keeps working (unfiltered) rather than breaking when the chunk fails to load.
+ * Loads fuse.js. Concurrent calls share one import, and a failed import is logged and retried on the
+ * next call, so a dropdown keeps working (with plain substring matching) rather than breaking when the
+ * chunk fails to load. Never rejects.
  */
 export const loadFuse = (): Promise<void> => {
   if (fuse.value) {
@@ -30,7 +32,8 @@ export const loadFuse = (): Promise<void> => {
     (module) => {
       fuse.value = module.default
     },
-    () => {
+    (error: unknown) => {
+      console.warn('[loadFuse] Failed to load fuse.js, falling back to plain matching', error)
       loading = null
     },
   )
