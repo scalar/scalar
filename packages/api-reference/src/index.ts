@@ -6,11 +6,10 @@ import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
  */
 export { preloadClients } from '@scalar/blocks/code-example'
 /**
- * Preloads the syntax highlighting grammars for a list of languages, such as `['json', 'python']`.
- * Await it before hydrating server-rendered markup so code blocks stay highlighted on the first paint.
- */
-/**
- * Reads the languages of the highlighted code in server-rendered markup, to pass to `preloadGrammars`.
+ * `preloadGrammars` preloads the syntax highlighting grammars for a list of languages, such as
+ * `['json', 'python']`, and `getRenderedLanguages` reads that list from server-rendered markup.
+ * Await `preloadGrammars(getRenderedLanguages(root))` before hydrating so code blocks stay
+ * highlighted on the first paint.
  */
 export { getRenderedLanguages, preloadGrammars } from '@scalar/components/code-block'
 /**
