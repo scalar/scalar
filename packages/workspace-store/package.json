@@ -170,8 +170,10 @@
     "@scalar/typebox": "catalog:*",
     "@scalar/types": "workspace:*",
     "@scalar/validation": "workspace:*",
+    "iregexp-check": "catalog:*",
     "js-base64": "catalog:*",
     "json-p3": "catalog:*",
+    "re2js": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"

@@ -671,6 +671,15 @@ when the input is unchanged. Each entry gives the zero-based `overlayIndex` and
 `actionIndex`, and the JSONPath `target`. If composition fails, the result returns
 `type: 'OVERLAY_FAILED'` and a `message`.
 
+Overlay composition limits apply to the full list. The store allows up to 1,000
+actions including reusable definitions, 4,096 characters per selector, 50,000
+matches per action, and 512 characters per regular expression. `match()` and
+`search()` use a linear-time matcher with limits on counted repetitions, compiled
+program size, distinct patterns, and evaluation work. The store also caps estimated
+document allocations at 64 MiB, including the base description and values copied
+to each target. Exceeding a limit fails composition before the workspace registers
+any changes.
+
 ## Referenced OpenAPI upgrades
 
 The workspace store uses JSON Magic's resource and target lifecycle hooks to

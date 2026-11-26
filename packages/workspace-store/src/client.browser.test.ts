@@ -171,6 +171,25 @@ describe('client.browser', () => {
     },
   )
 
+  it('keeps the existing document when an Overlay rebase exceeds the action limit', async () => {
+    const store = createWorkspaceStore()
+    const input = { name: 'partner', document: overlayBase }
+    expect(await store.addDocument(input)).toBe(true)
+    const baseline = store.exportDocument('partner', 'json')
+    const { extends: _extends, ...inlineOverlay } = partnerOverlay
+    const document = {
+      ...inlineOverlay,
+      actions: Array.from({ length: 1_001 }, () => ({ target: '$.info.title', update: 'New title' })),
+    }
+
+    expect(await store.rebaseDocument({ ...input, overlays: [{ document }] })).toStrictEqual({
+      ok: false,
+      type: 'OVERLAY_FAILED',
+      message: "Failed to compose document 'partner': Overlay 1: Overlay composition exceeded its action limit",
+    })
+    expect(store.exportDocument('partner', 'json')).toBe(baseline)
+  })
+
   it('checks plugin detectors before requesting Overlay sources', async () => {
     const store = createWorkspaceStore({
       documentTypes: [{ type: 'other', detect: (document) => document['x-format'] === 'other', traverse: () => [] }],

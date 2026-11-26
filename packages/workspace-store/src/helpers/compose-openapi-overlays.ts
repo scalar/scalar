@@ -3,8 +3,9 @@ import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
-import { type JSONPathNode, type JSONPathQuery, type JSONValue, compile } from 'json-p3'
+import type { JSONPathNode, JSONPathQuery, JSONValue } from 'json-p3'
 
+import { type OverlayCompositionLimits, createOverlayCompositionBudget } from '@/helpers/overlay-composition-budget'
 import { PLUGIN_DOCUMENT_TYPE_KEY } from '@/schemas/plugin-document'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 
@@ -18,6 +19,7 @@ type Location = (string | number)[]
 type JsonObject = Record<string, JSONValue>
 type Action = Record<string, unknown> & { target: string }
 type OverlayVersion = '1.0' | '1.1' | '1.2'
+type Budget = ReturnType<typeof createOverlayCompositionBudget>
 
 const URI_SCHEME = /^[a-z][a-z\d+.-]*:/i
 
@@ -89,8 +91,8 @@ const checkOverlayIdentity = (
   }
 }
 
-const serializeUpdate = (value: unknown): string =>
-  JSON.stringify(value, (key, item: unknown) => {
+const serializeUpdate = (value: unknown, budget: Budget): { json: string; size: number } =>
+  budget.serialize(value, (key, item) => {
     // The result will also pass through the workspace's object and proxy helpers.
     if (key === '__proto__') {
       preventPollution(key, 'Overlay update')
@@ -103,14 +105,14 @@ const serializeUpdate = (value: unknown): string =>
       Array.isArray(item) ||
       isObject(item)
     ) {
-      return item
+      return
     }
     throw new Error('"update" must contain only JSON values')
   })
 
-const compileSelector = (expression: string, field: 'target' | 'copy'): JSONPathQuery => {
+const compileSelector = (expression: string, field: 'target' | 'copy', budget: Budget): JSONPathQuery => {
   try {
-    return compile(expression)
+    return budget.compile(expression)
   } catch (error) {
     throw new Error(`Invalid JSONPath in "${field}": ${error instanceof Error ? error.message : String(error)}`, {
       cause: error,
@@ -118,7 +120,7 @@ const compileSelector = (expression: string, field: 'target' | 'copy'): JSONPath
   }
 }
 
-const validateFields = (action: Record<string, unknown>): void => {
+const validateFields = (action: Record<string, unknown>, budget: Budget): void => {
   optionalString(action, 'description')
   if (Object.hasOwn(action, 'remove') && typeof action.remove !== 'boolean') {
     throw new Error('"remove" must be a boolean')
@@ -127,14 +129,14 @@ const validateFields = (action: Record<string, unknown>): void => {
     if (typeof action.copy !== 'string') {
       throw new Error('"copy" must be a valid JSONPath expression')
     }
-    compileSelector(action.copy, 'copy')
+    compileSelector(action.copy, 'copy', budget)
   }
   if (Object.hasOwn(action, 'update')) {
-    serializeUpdate(action.update)
+    serializeUpdate(action.update, budget)
   }
 }
 
-const getReusableActions = (overlay: Record<string, unknown>): Map<string, Record<string, unknown>> => {
+const getReusableActions = (overlay: Record<string, unknown>, budget: Budget): Map<string, Record<string, unknown>> => {
   const actions = new Map<string, Record<string, unknown>>()
   const { components } = overlay
   if (components === undefined) {
@@ -145,6 +147,7 @@ const getReusableActions = (overlay: Record<string, unknown>): Map<string, Recor
   }
 
   for (const [key, action] of Object.entries(components.actions ?? {})) {
+    budget.reserveActions(1)
     if (!isObject(action)) {
       throw new Error(`Invalid reusable action "${key}"`)
     }
@@ -153,7 +156,7 @@ const getReusableActions = (overlay: Record<string, unknown>): Map<string, Recor
     if (!isObject(fields) || Object.hasOwn(fields, 'target') || Object.hasOwn(fields, '$ref')) {
       throw new Error(`Invalid fields for reusable action "${key}"`)
     }
-    validateFields(fields)
+    validateFields(fields, budget)
     actions.set(key, fields)
   }
   return actions
@@ -163,6 +166,7 @@ const getAction = (
   action: unknown,
   reusableActions: Map<string, Record<string, unknown>>,
   version: OverlayVersion,
+  budget: Budget,
 ): Action => {
   if (!isObject(action) || typeof action.target !== 'string') {
     throw new Error('An action must specify a JSONPath "target"')
@@ -173,7 +177,7 @@ const getAction = (
   if (version !== '1.2' && Object.hasOwn(action, '$ref')) {
     throw new Error('Reusable action references require Overlay 1.2')
   }
-  validateFields(action)
+  validateFields(action, budget)
 
   if (!Object.hasOwn(action, '$ref')) {
     return { ...action, target: action.target }
@@ -242,10 +246,14 @@ const lastIndex = (location: Location): number => {
   return typeof key === 'number' ? key : -1
 }
 
-const applyAction = (document: JsonObject, action: Action, version: OverlayVersion): boolean => {
+const applyAction = (document: JsonObject, action: Action, version: OverlayVersion, budget: Budget): boolean => {
   // JSONPath can select the same location more than once. Apply a mutation once per location.
   const matches = new Map<string, JSONPathNode>()
-  for (const node of compileSelector(action.target, 'target').findIter(document)) {
+  let matchCount = 0
+  const target = compileSelector(action.target, 'target', budget)
+  for (const node of target.findIter(budget.read(document, action.target))) {
+    matchCount += 1
+    budget.checkMatch(matchCount, node.location)
     matches.set(node.normalizedPath(), node)
   }
   if (matches.size === 0) {
@@ -272,6 +280,8 @@ const applyAction = (document: JsonObject, action: Action, version: OverlayVersi
       }
       const parent = getParent(document, location)
       if (Array.isArray(parent) && typeof key === 'number') {
+        // Removing an element shifts everything to its right.
+        budget.spendWork(parent.length - key)
         parent.splice(key, 1)
       } else {
         Reflect.deleteProperty(parent, key)
@@ -293,19 +303,28 @@ const applyAction = (document: JsonObject, action: Action, version: OverlayVersi
 
   let update = action.update
   if (typeof action.copy === 'string') {
-    const copied = compile(action.copy).findAll(document)
-    if (copied.length !== 1) {
+    const copy = compileSelector(action.copy, 'copy', budget)
+    let copied: JSONValue | undefined
+    for (const node of copy.findIter(budget.read(document, action.copy))) {
+      if (copied !== undefined) {
+        throw new Error('"copy" must select exactly one node')
+      }
+      copied = budget.unwrap(node.value)
+    }
+    if (copied === undefined) {
       throw new Error('"copy" must select exactly one node')
     }
-    update = copied[0]
+    update = copied
   }
 
   // Snapshot the value before mutating any target, including when it contains the copy source.
-  const serializedUpdate = serializeUpdate(update)
+  const { json, size } = serializeUpdate(update, budget)
+  budget.reserveSize(size * ordered.length)
   for (const { location, value } of ordered) {
-    const updated = mergeValue(value, JSON.parse(serializedUpdate), version, true)
+    const original = budget.unwrap(value)
+    const updated = mergeValue(original, JSON.parse(json), version, true)
     const key = location.at(-1)
-    if (key !== undefined && updated !== value) {
+    if (key !== undefined && updated !== original) {
       Reflect.set(getParent(document, location), key, updated)
     }
   }
@@ -326,9 +345,13 @@ export const composeOpenApiOverlays = (
   base: Record<string, unknown>,
   overlays: readonly LoadedOverlay[],
   baseSourceUri?: string,
+  limits?: Partial<OverlayCompositionLimits>,
 ): { document: Record<string, unknown>; diagnostics: OverlayDiagnostic[] } => {
+  const budget = createOverlayCompositionBudget(limits)
   // JSON has independent nodes at each location, even when the source used YAML aliases.
-  const document: JsonObject = JSON.parse(JSON.stringify(base))
+  const { json, size } = budget.serialize(base)
+  budget.reserveSize(size)
+  const document: JsonObject = JSON.parse(json)
   delete document[PLUGIN_DOCUMENT_TYPE_KEY]
   if (!isAuthoredOpenApi(document)) {
     throw new Error('Overlays require an OpenAPI description')
@@ -359,12 +382,13 @@ export const composeOpenApiOverlays = (
       if (!Array.isArray(overlay.actions) || overlay.actions.length === 0) {
         throw new Error('An Overlay must contain at least one action')
       }
+      budget.reserveActions(overlay.actions.length)
       checkOverlayIdentity(overlay, sourceUri, base, baseSourceUri, version)
-      const reusableActions = getReusableActions(overlay)
+      const reusableActions = getReusableActions(overlay, budget)
       for (const [actionIndex, entry] of overlay.actions.entries()) {
         try {
-          const action = getAction(entry, reusableActions, version)
-          if (!applyAction(document, action, version)) {
+          const action = getAction(entry, reusableActions, version, budget)
+          if (!applyAction(document, action, version, budget)) {
             diagnostics.push({ overlayIndex, actionIndex, target: action.target })
           }
         } catch (error) {

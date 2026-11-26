@@ -368,6 +368,9 @@ catalogs:
     hono:
       specifier: ^4.13.20
       version: 4.13.20
+    iregexp-check:
+      specifier: 0.1.2
+      version: 0.1.2
     js-base64:
       specifier: ^3.9.7
       version: 3.9.7
@@ -422,6 +425,9 @@ catalogs:
     radix-vue:
       specifier: ^1.9.17
       version: 1.9.17
+    re2js:
+      specifier: 2.9.1
+      version: 2.9.1
     react:
       specifier: ^19.3.1
       version: 19.3.1
@@ -3381,12 +3387,18 @@ importers:
       '@scalar/validation':
         specifier: workspace:*
         version: link:../validation
+      iregexp-check:
+        specifier: catalog:*
+        version: 0.1.2
       js-base64:
         specifier: catalog:*
         version: 3.9.7
       json-p3:
         specifier: catalog:*
         version: 3.0.3
+      re2js:
+        specifier: catalog:*
+        version: 2.9.1
       type-fest:
         specifier: catalog:*
         version: 5.10.0
