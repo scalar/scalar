@@ -54,6 +54,50 @@ describe('convert', () => {
     ])
   })
 
+  it.each([false, true])('keeps same-named Markdown parameters with a URL query present: %s', (hasQuery) => {
+    const result = convert({
+      info: {
+        name: 'Users',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+      },
+      item: [
+        {
+          name: 'List users',
+          request: {
+            method: 'GET',
+            url: hasQuery
+              ? {
+                  raw: 'https://api.example.com/users?version=1',
+                  query: [{ key: 'version', value: '1' }],
+                }
+              : { raw: 'https://api.example.com/users' },
+            description: `| object | name | description |
+| --- | --- | --- |
+| query | version | Query version |
+| header | version | Header version |`,
+          },
+        },
+      ],
+    })
+
+    expect(result.paths?.['/users']?.get?.parameters).toStrictEqual([
+      {
+        name: 'version',
+        in: 'query',
+        description: 'Query version',
+        required: false,
+        schema: { type: 'string' },
+      },
+      {
+        name: 'version',
+        in: 'header',
+        description: 'Header version',
+        required: false,
+        schema: { type: 'string' },
+      },
+    ])
+  })
+
   it.each([
     { header: [], graphqlType: 'application/json', fileType: 'application/octet-stream' },
     { header: [{ key: 'Content-Type', value: 'image/png' }], graphqlType: 'image/png', fileType: 'image/png' },
