@@ -1,7 +1,7 @@
 /**
  * Safely decode a URI component, returning the original string if decoding fails
  */
-const decodeURIComponentSafe = (str: string) => {
+const decodeURIComponentSafe = (str: string): string => {
   try {
     return decodeURIComponent(str)
   } catch {
@@ -9,22 +9,28 @@ const decodeURIComponentSafe = (str: string) => {
   }
 }
 
-/**
- * Extract the filename from a content disposition header
- */
-export function extractFilename(contentDisposition: string) {
-  let filename = ''
+// Consume quoted values as a whole so their semicolons cannot start another parameter.
+const DISPOSITION_PARAMETER = /(?:^|;)\s*([^"=;\s]+)\s*=\s*(?:"((?:[^"\\]|\\.)*)"|([^";]*))/g
 
-  if (contentDisposition) {
-    const fileNameMatch =
-      contentDisposition.match(/filename\*=UTF-8''([^;]+)/)?.[1] ??
-      contentDisposition.match(/filename\s*=\s*"?([^";]+)"?/)?.[1]
+/** Extract the download filename from a Content-Disposition header. */
+export const extractFilename = (contentDisposition: string): string => {
+  let filename: string | undefined
 
-    if (fileNameMatch) {
-      // Decode filename
-      filename = decodeURIComponentSafe(fileNameMatch.trim())
+  for (const [, name, quotedValue, unquotedValue] of contentDisposition.matchAll(DISPOSITION_PARAMETER)) {
+    if (name === 'filename*') {
+      const extendedFilename = unquotedValue?.match(/^UTF-8''(.+)/)?.[1]?.trim()
+      if (extendedFilename) {
+        return decodeURIComponentSafe(extendedFilename)
+      }
+    }
+
+    if (name === 'filename' && filename === undefined) {
+      const value = quotedValue?.replaceAll(/\\(.)/g, '$1') ?? unquotedValue
+      if (value) {
+        filename = value.trim()
+      }
     }
   }
 
-  return filename
+  return decodeURIComponentSafe(filename ?? '')
 }

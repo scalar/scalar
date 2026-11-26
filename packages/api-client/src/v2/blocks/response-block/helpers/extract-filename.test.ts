@@ -25,8 +25,15 @@ describe('extractFilename', () => {
     })
 
     it('prioritizes UTF-8 encoded filename over regular filename', () => {
-      const result = extractFilename('attachment; filename="fallback.txt"; filename*=UTF-8\'\'priority.txt')
+      const result = extractFilename('attachment; filename="fallback;name.txt"; filename*=UTF-8\'\'priority.txt')
       expect(result).toBe('priority.txt')
+    })
+
+    it('prefers the extended filename before a quoted fallback containing a semicolon', () => {
+      const result = extractFilename(
+        `attachment; filename*=UTF-8''sales%3BNovember.xlsx; filename="fallback;name.xlsx"`,
+      )
+      expect(result).toBe('sales;November.xlsx')
     })
   })
 
@@ -110,9 +117,19 @@ describe('extractFilename', () => {
       expect(result).toBe('')
     })
 
-    it('extracts filename with semicolon in the name (quoted)', () => {
-      const result = extractFilename('attachment; filename="file;name.txt"')
-      expect(result).toBe('file')
+    it('preserves semicolons in quoted filenames', () => {
+      const result = extractFilename('attachment; filename=";sales;November.xlsx"; size=16')
+      expect(result).toBe(';sales;November.xlsx')
+    })
+
+    it('unescapes quoted characters without ending the filename', () => {
+      const result = extractFilename(String.raw`inline; filename="sales\";November.xlsx"`)
+      expect(result).toBe('sales";November.xlsx')
+    })
+
+    it('ignores filename-like text inside another quoted parameter', () => {
+      const result = extractFilename(`attachment; note="report; filename*=UTF-8''draft.xlsx"; filename="final.xlsx"`)
+      expect(result).toBe('final.xlsx')
     })
 
     it('handles multiple filename parameters (uses first match)', () => {
