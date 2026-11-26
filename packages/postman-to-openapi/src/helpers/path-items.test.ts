@@ -303,6 +303,52 @@ describe('path-items', () => {
     expect(params?.find((p: any) => p.name === 'limit')).toBeDefined()
   })
 
+  it('keeps a query parameter that shares its name with a path parameter', () => {
+    const item: Item = {
+      name: 'Get User',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://api.example.com/users/:id?id=7',
+          path: ['users', ':id'],
+          query: [{ key: 'id', value: '7' }],
+          variable: [{ key: 'id', value: '5' }],
+        },
+      },
+    }
+
+    const result = processItem(item, 'default')
+
+    const params = result.paths['/users/:id']?.get?.parameters
+    expect(params?.map((p: any) => `${p.in}:${p.name}`)).toEqual(['query:id', 'path:id'])
+  })
+
+  it('lets a markdown table row replace only the parameter in the same location', () => {
+    const item: Item = {
+      name: 'List Users',
+      request: {
+        method: 'GET',
+        header: [{ key: 'version', value: '2' }],
+        url: {
+          raw: 'https://api.example.com/users?version=1',
+          path: ['users'],
+          query: [{ key: 'version', value: '1' }],
+        },
+        description: `| object | name | description |
+| --- | --- | --- |
+| header | version | API version header |`,
+      },
+    }
+
+    const result = processItem(item, 'default')
+
+    const params = result.paths['/users']?.get?.parameters
+    expect(params?.map((p: any) => `${p.in}:${p.name}:${p.description ?? ''}`)).toEqual([
+      'query:version:',
+      'header:version:API version header',
+    ])
+  })
+
   it('extracts parameters from markdown table in description', () => {
     const item: Item = {
       name: 'Get Users',

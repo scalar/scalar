@@ -40,6 +40,10 @@ function isBlockedHeader(name: string | undefined, keepHeaders: readonly string[
   return BLOCKED_HEADERS.has(lower)
 }
 
+/** Parameters are unique by name and location, so a query and a header may share a name. */
+export const getParameterKey = (parameter: Pick<OpenAPIV3_1.ParameterObject, 'name' | 'in'>): string =>
+  `${parameter.in}:${parameter.name}`
+
 /**
  * Extracts parameters from a Postman request and converts them to OpenAPI parameter objects.
  * Processes query, path, and header parameters from the request URL and headers.
@@ -66,7 +70,7 @@ export function extractParameters(
     url.query.forEach((param) => {
       const paramObj = createParameterObject(param, 'query', exampleName)
       if (paramObj.name) {
-        parameterMap.set(paramObj.name, paramObj)
+        parameterMap.set(getParameterKey(paramObj), paramObj)
       }
     })
   }
@@ -76,7 +80,7 @@ export function extractParameters(
     url.variable.forEach((param) => {
       const paramObj = createParameterObject(param, 'path', exampleName)
       if (paramObj.name) {
-        parameterMap.set(paramObj.name, paramObj)
+        parameterMap.set(getParameterKey(paramObj), paramObj)
       }
     })
   }
@@ -86,8 +90,9 @@ export function extractParameters(
     const pathArray = Array.isArray(url.path) ? url.path : [url.path]
     const extractedVariables = extractPathVariablesFromPathArray(pathArray)
     extractedVariables.forEach((varName) => {
-      if (!parameterMap.has(varName)) {
-        parameterMap.set(varName, {
+      const key = getParameterKey({ name: varName, in: 'path' })
+      if (!parameterMap.has(key)) {
+        parameterMap.set(key, {
           name: varName,
           in: 'path',
           required: true,
@@ -107,7 +112,7 @@ export function extractParameters(
       }
       const paramObj = createParameterObject(header, 'header', exampleName)
       if (paramObj.name) {
-        parameterMap.set(paramObj.name, paramObj)
+        parameterMap.set(getParameterKey(paramObj), paramObj)
       }
     })
   }
