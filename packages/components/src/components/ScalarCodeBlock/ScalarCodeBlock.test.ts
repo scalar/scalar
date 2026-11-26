@@ -118,8 +118,8 @@ describe('ScalarCodeBlock', () => {
 
     await flushPromises()
 
-    // The grammar loads on demand, and v-html swaps the <code> element when it arrives
-    await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-'))
+    // JavaScript and JSON are bundled, so they highlight without waiting for a download
+    expect(wrapper.get('code').html()).toContain('hljs-')
 
     // Check the outer elements - the pre element contains v-html with highlighted code
     const pre = wrapper.find('pre')
@@ -163,8 +163,8 @@ describe('ScalarCodeBlock', () => {
 
     await flushPromises()
 
-    // The grammar loads on demand, and v-html swaps the <code> element when it arrives
-    await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-'))
+    // JavaScript and JSON are bundled, so they highlight without waiting for a download
+    expect(wrapper.get('code').html()).toContain('hljs-')
 
     // Check the outer elements - the pre element contains v-html with highlighted code
     const pre = wrapper.find('pre')

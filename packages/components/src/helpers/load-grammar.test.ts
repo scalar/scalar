@@ -73,6 +73,14 @@ describe('load-grammar', () => {
   })
 
   describe('ensureGrammar', () => {
+    it('highlights curl, JSON, JavaScript and TypeScript on the first render, without a download', () => {
+      for (const name of ['curl', 'json', 'javascript', 'js', 'typescript', 'ts', 'tsx', 'Node']) {
+        expect(ensureGrammar(name), name).toBe(true)
+      }
+
+      expect(state.calls).toEqual([])
+    })
+
     it('renders again with the grammar once it has loaded', async () => {
       expectNotLoaded('python')
 
@@ -95,13 +103,13 @@ describe('load-grammar', () => {
     })
 
     it('highlights a capitalised language name', async () => {
-      expectNotLoaded('javascript')
+      expectNotLoaded('php')
 
-      const { renders, stop } = renderWithGrammar('Node')
+      const { renders, stop } = renderWithGrammar('PHP')
       await vi.waitFor(() => expect(renders).toEqual([false, true]))
       stop()
 
-      expect(state.calls).toEqual(['javascript'])
+      expect(state.calls).toEqual(['php'])
     })
 
     it('stops asking when the grammar is registered but still not found under that name', async () => {

@@ -1,7 +1,21 @@
 import { createSharedLoader } from '@scalar/helpers/general/create-shared-loader'
+import { registerLanguage } from '@scalar/highlight'
 import { grammarFor } from '@scalar/highlight/compat'
+import curl from '@scalar/highlight/langs/curl'
+import javascript from '@scalar/highlight/langs/javascript'
+import json from '@scalar/highlight/langs/json'
 import { type BundledLanguage, loadLanguage, resolveLanguageName } from '@scalar/highlight/lazy'
 import { ref } from 'vue'
+
+/**
+ * The grammars nearly every page shows straight away, bundled so they highlight on the first render.
+ *
+ * curl is the default code example client, JSON covers request and response bodies, and the
+ * JavaScript grammar also covers TypeScript, TSX and JSX for SDK samples. Every other grammar loads
+ * on demand. Registering is cheap, because a grammar compiles on first use, and a named import keeps
+ * a binding the bundler can see used, where a bare side-effect import of a package may be dropped.
+ */
+registerLanguage(curl, json, javascript)
 
 /**
  * Bumped every time a grammar finishes loading.
