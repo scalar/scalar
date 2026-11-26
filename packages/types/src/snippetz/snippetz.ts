@@ -75,6 +75,12 @@ export type AvailableClient = AvailableClients[number]
  */
 export type TargetId = keyof typeof GROUPED_CLIENTS
 
+/** Matches one built-in HTTP client or all built-in clients for a target. */
+export type HttpClientPattern = AvailableClient | `${TargetId}/*`
+
+/** Selects a built-in HTTP client or a custom code sample by ID. */
+export type DefaultHttpClientId = AvailableClient | `custom/${string}`
+
 /**
  * Extracts the client name from a full client identifier for a given target.
  * For example, for target `js`, this extracts `fetch` from `js/fetch`.

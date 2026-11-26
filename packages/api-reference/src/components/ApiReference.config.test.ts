@@ -608,7 +608,7 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
 
     // theme: solarized
     const html = wrapper.html()
-    expect(html).toContain('--scalar-background-1: #00212b')
+    expect(html).toContain('--scalar-background-1: #002b36')
 
     // defaultOpenAllTags: true
     expect(wrapper.findComponent({ name: 'Content' }).text().includes('Get others')).toBe(true)
@@ -1341,7 +1341,7 @@ describe('ApiReference developer tools theme', () => {
     const styleContent = getStyleContent(wrapper)
     expect(styleContent).not.toContain('@layer')
     // The Moon background color
-    expect(styleContent).toContain('#ccc9b3')
+    expect(styleContent).toContain('#fdf6e3')
   })
 
   it('keeps customCss after the unlayered toolbar theme', async () => {
@@ -1355,7 +1355,7 @@ describe('ApiReference developer tools theme', () => {
 
     const styles = wrapper.findAll('style')
     expect(styles.map((style) => style.element.textContent).slice(1)).toStrictEqual([customCss])
-    expect(styles[0]?.element.textContent).toContain('#ccc9b3')
+    expect(styles[0]?.element.textContent).toContain('#fdf6e3')
   })
 
   it('keeps custom CSS imports valid after picking a toolbar theme', async () => {
@@ -1388,7 +1388,7 @@ describe('ApiReference developer tools theme', () => {
 
     const styleContent = getStyleContent(wrapper)
     expect(styleContent).toContain('@layer scalar-theme {')
-    expect(styleContent).toContain('#ccc9b3')
+    expect(styleContent).toContain('#fdf6e3')
   })
 
   it('keeps the layered theme when the toolbar picks default and no theme is configured', async () => {

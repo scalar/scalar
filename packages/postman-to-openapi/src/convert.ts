@@ -7,6 +7,7 @@ import { processLicense } from '@/helpers/license'
 import { processLogo } from '@/helpers/logo'
 import { DEFAULT_EXAMPLE_NAME, OPERATION_KEYS, mergePathItem } from '@/helpers/merge-path-item'
 import { normalizeDescription } from '@/helpers/normalize-description'
+import { getParameterKey } from '@/helpers/parameters'
 import {
   POSTMAN_EXAMPLE_NAME_EXTENSION,
   POSTMAN_FOLDER_SEGMENTS_EXTENSION,
@@ -595,7 +596,7 @@ const renameParameters = (
     const nextName = parameter.in === 'path' ? (renameMap.get(parameter.name) ?? parameter.name) : parameter.name
     const renamedParameter: OpenAPIV3_1.ParameterObject =
       nextName === parameter.name ? parameter : { ...parameter, name: nextName }
-    const parameterKey = `${renamedParameter.name}/${renamedParameter.in}`
+    const parameterKey = getParameterKey(renamedParameter)
     const existingParameter = mergedParameters.get(parameterKey)
 
     if (!existingParameter || '$ref' in existingParameter || '$ref' in renamedParameter) {

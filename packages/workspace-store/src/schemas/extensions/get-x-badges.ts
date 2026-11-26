@@ -1,13 +1,12 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import type { XBadge } from '@/schemas/extensions/operation/x-badge'
+import type { XBadge } from './operation/x-badge'
 
 /**
- * Reads the `x-badges` extension of an OpenAPI object (operation, tag, tag group or schema)
- * for the navigation entry of that object.
+ * Reads the `x-badges` extension of an OpenAPI object (operation, tag, tag group or schema).
  *
  * Badges without a name are dropped, and so are fields with an invalid value.
- * Returns `undefined` when no badge is left, so the entry can omit the key.
+ * Returns `undefined` when no badge is left.
  */
 export const getXBadges = (object: unknown): XBadge[] | undefined => {
   if (!isObject(object) || !Array.isArray(object['x-badges'])) {
