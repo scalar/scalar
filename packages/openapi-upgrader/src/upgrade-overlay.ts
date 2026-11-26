@@ -16,22 +16,31 @@ export type OverlayUpgradeResult =
 // A canonical JSONPath with only child segments made up of one name or index selector each.
 const SINGULAR_PATH = /^\$(?:\[(?:-?\d+|'(?:[^'\\]|\\.)*')\])*$/u
 
-const URI_REFERENCE = /^(?:([a-z][a-z\d+.-]*):)?(?:\/\/([^/?]*))?([^?]*)(?:\?(.*))?$/i
 const AUTHORITY = /^(?:([^@]*)@)?(\[[^\]]+\]|[^:[\]@]*)(?::\d*)?$/
 const INVALID_PATH_OR_QUERY_CHARACTER = /[^a-z\d._~!$&'()*+,;=:%@/?-]/i
 
 const isUriReference = (value: string): boolean => {
-  const match = URI_REFERENCE.exec(value)
-  if (!match || /%(?![\da-f]{2})/i.test(value)) {
+  if (/%(?![\da-f]{2})/i.test(value)) {
     return false
   }
-  const [, scheme, authority, path = '', query = ''] = match
+
+  // Find the component boundaries first so authority and path validation never backtrack over each other.
+  const queryStart = value.indexOf('?')
+  const hierarchy = queryStart === -1 ? value : value.slice(0, queryStart)
+  const query = queryStart === -1 ? '' : value.slice(queryStart + 1)
+  const scheme = /^[a-z][a-z\d+.-]*:/i.exec(hierarchy)?.[0]
+  const remainder = scheme ? hierarchy.slice(scheme.length) : hierarchy
+  const hasAuthority = remainder.startsWith('//')
+  const pathStart = hasAuthority ? remainder.indexOf('/', 2) : 0
+  const path = pathStart === -1 ? '' : remainder.slice(pathStart)
   if (INVALID_PATH_OR_QUERY_CHARACTER.test(path) || INVALID_PATH_OR_QUERY_CHARACTER.test(query)) {
     return false
   }
-  if (authority === undefined) {
+  if (!hasAuthority) {
     return scheme !== undefined || !/^[^/]*:/.test(path)
   }
+
+  const authority = pathStart === -1 ? remainder.slice(2) : remainder.slice(2, pathStart)
   const parts = AUTHORITY.exec(authority)
   if (!parts) {
     return false

@@ -96,6 +96,9 @@ describe('upgrade-overlay', () => {
     'https://[::\n1]/api',
     'https://[::\t1]/api',
     '../a[b]',
+    '//api.example.test:public/openapi.yaml',
+    './openapi.yaml?view=public\n',
+    'bad_scheme:openapi.yaml',
   ])('reports an invalid 1.2 extends URI %j when migrating 1.1', (extendsUri) => {
     const input = { ...overlay('1.1.0', [{ target: '$.info', update: { title: 'Partner' } }]), extends: extendsUri }
     expect(upgradeOverlay(input)).toStrictEqual({
@@ -104,13 +107,17 @@ describe('upgrade-overlay', () => {
     })
   })
 
-  it.each(['https://[::1]/api', 'https://[v1.a:b]/api'])(
-    'preserves an IP literal in the extends URI %s',
-    (extendsUri) => {
-      const input = { ...overlay('1.1.0', [{ target: '$.info', update: { title: 'Partner' } }]), extends: extendsUri }
-      expect(upgradeOverlay(input)).toStrictEqual({ ok: true, document: { ...input, overlay: '1.2.0' } })
-    },
-  )
+  it.each([
+    'https://[::1]/api',
+    'https://[v1.a:b]/api',
+    '//docs:public@api.example.test:8443/openapi.yaml?view=public?preview',
+    '//api.example.test?view=public',
+    'urn:example:openapi',
+    'file:///api/openapi.yaml',
+  ])('preserves a valid extends URI reference %s', (extendsUri) => {
+    const input = { ...overlay('1.1.0', [{ target: '$.info', update: { title: 'Partner' } }]), extends: extendsUri }
+    expect(upgradeOverlay(input)).toStrictEqual({ ok: true, document: { ...input, overlay: '1.2.0' } })
+  })
 
   it('copies an existing 1.2 Overlay with reusable actions and a relative identity', () => {
     const input = {

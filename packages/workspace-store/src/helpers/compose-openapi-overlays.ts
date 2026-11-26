@@ -214,6 +214,8 @@ const mergeValue = (target: unknown, update: unknown, version: OverlayVersion, d
     if (version === '1.0' && !direct) {
       return update
     }
+    // Overlay 1.1 and 1.2 concatenate array properties when merging objects.
+    // https://spec.openapis.org/overlay/v1.2.0.html#action-object
     const values = version !== '1.0' && Array.isArray(update) ? update : [update]
     for (const value of values) {
       target.push(value)
