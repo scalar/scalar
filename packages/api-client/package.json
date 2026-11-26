@@ -347,8 +347,7 @@
     "radix-vue": "catalog:*",
     "set-cookie-parser": "catalog:*",
     "vue": "catalog:*",
-    "yaml": "catalog:*",
-    "zod": "catalog:*"
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "@tailwindcss/cli": "catalog:*",

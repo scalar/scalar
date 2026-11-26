@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { boolean } from 'zod'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 
 describe('file', () => {
   describe('getFileName', () => {
-    it.each([[1], [''], [boolean], [null]])('should return undefined for primitive inputs', (value) => {
+    it.each([[1], [''], [true], [null]])('should return undefined for primitive inputs', (value) => {
       expect(getFileName(value)).toBe(undefined)
     })
 

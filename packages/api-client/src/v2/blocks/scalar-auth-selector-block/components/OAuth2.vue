@@ -15,7 +15,6 @@ export type OAuth2Options = Pick<
 import { ScalarButton } from '@scalar/components/button'
 import { useLoadingState } from '@scalar/components/loading'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
-import { pkceOptions } from '@scalar/types/entities'
 import { useToasts } from '@scalar/use-toasts'
 import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth'
 import type {
@@ -245,9 +244,22 @@ const canReset = (
   return canResetSecretField(flow.value, field, value, fallback)
 }
 
+/**
+ * The values the `x-usePkce` extension accepts.
+ *
+ * They live here rather than coming from `@scalar/types/entities`, because that module builds its
+ * Zod schemas as soon as it loads, which would put all of Zod into the initial API Reference bundle
+ * just for this list. Passing them to `handleOauth2Update` keeps them type-checked against the
+ * workspace store's `x-usePkce` type.
+ */
+const pkceOptions = ['SHA-256', 'plain', 'no'] as const
+
+const isPkceOption = (value: string): value is (typeof pkceOptions)[number] =>
+  (pkceOptions as readonly string[]).includes(value)
+
 /** Fixed-choice fields must never write an empty string into the document. */
 const handlePkceUpdate = (value: string): void => {
-  if (value === 'SHA-256' || value === 'plain' || value === 'no') {
+  if (isPkceOption(value)) {
     handleOauth2Update({ 'x-usePkce': value })
   }
 }
