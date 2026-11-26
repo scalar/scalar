@@ -1,5 +1,38 @@
 # @scalar/use-codemirror
 
+## 0.14.21
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 0.14.20
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.14.19
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.14.18
+
+### Patch Changes
+
+- [#10925](https://github.com/scalar/scalar/pull/10925): Stabilize the color-picker edit-position regression test by completing syntax parsing after document changes.
+
+## 0.14.17
+
+### Patch Changes
+
+- [#10824](https://github.com/scalar/scalar/pull/10824): Maintain the CSS color picker locally and declare its Lezer dependency so imports work with strict package-manager layouts.
+- [#10734](https://github.com/scalar/scalar/pull/10734): Refresh color swatches when background parsing updates the syntax tree.
+
 ## 0.14.16
 
 ### Patch Changes

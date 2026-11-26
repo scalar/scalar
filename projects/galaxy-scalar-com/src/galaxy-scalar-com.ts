@@ -7,6 +7,7 @@ import { createMockServer } from '@scalar/mock-server'
 import { Hono } from 'hono'
 
 import { asyncApiDocument } from './asyncapi-document'
+import { getSeasonalTheme } from './seasonal-theme'
 import { upgradeWebSocket } from './upgrade-websocket'
 
 /**
@@ -62,10 +63,22 @@ const isProductionBuild = typeof GALAXY_IS_PRODUCTION !== 'undefined' && GALAXY_
 type AssetsBinding = { ASSETS: { fetch: (request: Request) => Promise<Response> } }
 
 /**
+ * The visitor's IANA time zone, as Cloudflare geolocates it from their IP address.
+ *
+ * Cloudflare attaches it to the incoming request as `request.cf.timezone`. It is missing in local
+ * tests and in any runtime outside Cloudflare, where the caller falls back to UTC.
+ */
+const getVisitorTimeZone = (request: Request): string | undefined => {
+  const timeZone = (request as Request & { cf?: { timezone?: unknown } }).cf?.timezone
+
+  return typeof timeZone === 'string' && timeZone !== '' ? timeZone : undefined
+}
+
+/**
  * Mount the Scalar API reference UI at the root path.
  *
- * Production loads the published Galaxy document from the registry. Previews
- * use the local mock server document so branch changes can be reviewed together.
+ * Production loads the processed Galaxy document with SDK examples from the
+ * registry. Previews use the local mock server document to show branch changes.
  */
 export const configureApiReference = (app: Hono): void => {
   // Serve the branch-built ESM entry point and chunks that the build step copied into
@@ -75,35 +88,53 @@ export const configureApiReference = (app: Hono): void => {
 
   app.get(
     '/',
-    Scalar({
+    // The configuration is resolved per request so the seasonal theme follows today's date.
+    // The worker renders this HTML on every request without cache headers, and Cloudflare does
+    // not cache worker responses by default, so the server always sees the current day. Doing it
+    // here also keeps the page a plain serialized configuration, with no extra script that would
+    // have to pick the theme in the browser.
+    Scalar((c) => ({
       pageTitle: 'Scalar Galaxy',
       sources: [
         {
           title: 'Scalar Galaxy',
-          url: isProductionBuild ? 'https://registry.scalar.com/@scalar/apis/galaxy?format=json' : '/openapi.yaml',
+          url: isProductionBuild
+            ? 'https://registry.scalar.com/@scalar/apis/galaxy?variant=processed&format=json'
+            : '/openapi.yaml',
+          agent: {
+            key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiJKcWpjUkQ0aEZFRGpocGpCNDJEM24iLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTI4NTc4NDQ3LCJpYXQiOjE3NzA4OTg0NDd9.URUeP5n-RCTCHk8yJyAwlYZaLgJs0yAnOm6av-QoUD1vAuMd18eaSD3ziJFv9O5Vthcat7ICjJmq-qKe18EjBw',
+          },
         },
         {
           title: 'Scalar Galaxy Events (AsyncAPI)',
           url: '/asyncapi.json',
+          agent: {
+            key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiIxODk0YWRkOC03Mzc3LTQ3NjktOWMxMy01ZWY2YzhhYmNhMTYiLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTUxNjUyMDAyLCJpYXQiOjE3OTM5NzIwMDJ9._GjAhfLSfKOQrlRaF99pcmkxx3R25CBEiPafRLfWlxgoMYn3g6QyFvDaQSvQGvgOQy_jbGZMihyNQjzUtj_GDw',
+          },
         },
         {
           title: 'Petstore (OpenAPI 3.1)',
           url: PETSTORE_URL_3_1,
+          agent: {
+            key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiI1MzA0NTJkOC1iYjEyLTQxNzUtOWIyMi0yN2Q1YmU0NzYzNTMiLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTUxNjUxOTc0LCJpYXQiOjE3OTM5NzE5NzR9.n4Eiv_mFuIXvotyp0lI6z0iV6S0ie5lO6PVLIMf8NhTviEh6J2Qn7QFOgOfl0V32c8Kc_d_TUTO3zCehh0bKDA',
+          },
         },
         {
           title: 'Petstore (Swagger 2.0)',
           url: PETSTORE_URL_2_0,
+          agent: {
+            key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiJmYjMzODlmMC0zYWU0LTQ4MDAtYWI5MS02YTk3MGZmMDA4ZjIiLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTUxNjUxOTIwLCJpYXQiOjE3OTM5NzE5MjB9.Ig_zNAFXEX99o3KHRPuW6Co0fHEH_tOMX5wPxX3q1B-hpNfYHXCMsTRHAsJlxcLcDm2a26we0IuF2f6od3UKCg',
+          },
         },
       ],
-      theme: 'default',
+      // Read the date in the visitor's own time zone, so a date-only window like Halloween
+      // starts and ends at their local midnight rather than at UTC midnight.
+      theme: getSeasonalTheme(new Date(), { timeZone: getVisitorTimeZone(c.req.raw) }),
       proxyUrl: 'https://proxy.scalar.com',
       persistAuth: true,
-      agent: {
-        key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiJKcWpjUkQ0aEZFRGpocGpCNDJEM24iLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTI4NTc4NDQ3LCJpYXQiOjE3NzA4OTg0NDd9.URUeP5n-RCTCHk8yJyAwlYZaLgJs0yAnOm6av-QoUD1vAuMd18eaSD3ziJFv9O5Vthcat7ICjJmq-qKe18EjBw',
-      },
       // Staging and PR previews render the reference UI built from this branch;
       // production explicitly loads the published ESM build from jsDelivr.
       bundle: isProductionBuild ? true : LOCAL_BUNDLE_PATH,
-    }),
+    })),
   )
 }

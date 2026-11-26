@@ -1,3 +1,4 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import YAML from 'yaml'
 
 import type { LoaderPlugin } from '@/bundle'
@@ -21,7 +22,7 @@ export function parseYaml(): LoaderPlugin {
       try {
         return Promise.resolve({
           ok: true,
-          data: YAML.parse(value, { merge: true, maxAliasCount: 10000 }),
+          data: YAML.parse(value, { merge: true, maxAliasCount: YAML_MAX_ALIAS_COUNT }),
           raw: value,
         })
       } catch {

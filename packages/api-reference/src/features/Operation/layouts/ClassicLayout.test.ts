@@ -5,7 +5,11 @@ import type { ApiReferenceLocalization } from '@scalar/types/api-reference'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import {
+  OpenAPIDocumentSchema,
+  PathItemObjectSchema,
+  SchemaObjectSchema,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, defineComponent, h, nextTick, ref } from 'vue'
@@ -105,6 +109,7 @@ const nestedOperation: OperationObject = {
 
 const props: ExtractComponentProps<typeof ClassicLayout> = {
   id: 'create-widget',
+  pathValue: undefined,
   clientOptions: [
     {
       label: 'Shell',
@@ -166,6 +171,28 @@ const getRequestBodyCompositionSelection = <T>(wrapper: VueWrapper<T>) =>
     | undefined
 
 describe('ClassicLayout', () => {
+  it('mounts Paths and Path Item extension sections only when selected', async () => {
+    const wrapper = mount(ClassicLayout, {
+      props: {
+        ...props,
+        document: coerceValue(OpenAPIDocumentSchema, {
+          openapi: '3.2.1',
+          info: { title: 'Pets', version: '1' },
+          paths: { 'x-owner': 'Paths owner' },
+        }),
+        pathValue: coerceValue(PathItemObjectSchema, { 'x-owner': 'Path owner' }),
+      },
+    })
+    expect(wrapper.findAllComponents({ name: 'SpecificationExtension' }).length).toBe(0)
+    await wrapper.setProps({ options: { ...props.options, showExtensions: ['x-owner'] } })
+    expect(wrapper.findAllComponents({ name: 'SpecificationExtension' }).length).toBe(2)
+    expect(wrapper.text()).toContain('Paths owner')
+    expect(wrapper.text()).toContain('Path owner')
+    await wrapper.setProps({ options: { ...props.options, showExtensions: ['x-missing'] } })
+    expect(wrapper.findAllComponents({ name: 'SpecificationExtension' }).length).toBe(0)
+    wrapper.unmount()
+  })
+
   it.each([
     { name: 'classic', Layout: ClassicLayout },
     { name: 'modern', Layout: ModernLayout },
@@ -384,33 +411,27 @@ describe('ClassicLayout', () => {
       return { context, wrapper }
     }
 
+    // Generate SDK lives in the developer toolbar only, so offering it adds nothing to the request example
     it.each([
       { name: 'classic', Layout: ClassicLayout },
       { name: 'modern', Layout: ModernLayout },
-    ])(
-      'puts Generate SDK in the request example footer while it is offered in the $name layout',
-      async ({ Layout }) => {
-        const { context, wrapper } = mountWithGenerateSdk(Layout, true)
-        await nextTick()
-
-        const footer = wrapper.findComponent({ name: 'CodeExample' }).findComponent({ name: 'ScalarCardFooter' })
-        const button = footer.findAll('button').find((candidate) => candidate.text() === 'Generate SDK')
-        expect(button?.attributes('aria-haspopup')).toBe('dialog')
-
-        await button?.trigger('click')
-        expect(context.open).toHaveBeenCalledTimes(1)
-        wrapper.unmount()
-      },
-    )
-
-    it('adds no footer to the request example when Generate SDK is not offered', async () => {
-      // The classic layout has no other footer controls here, so an always-passed slot would leave an empty bar
-      const { wrapper } = mountWithGenerateSdk(ClassicLayout, false)
+    ])('keeps Generate SDK out of the request example in the $name layout', async ({ Layout }) => {
+      const { wrapper } = mountWithGenerateSdk(Layout, true)
       await nextTick()
 
       const codeExample = wrapper.findComponent({ name: 'CodeExample' })
-      expect(codeExample.text()).not.toContain('Generate SDK')
-      expect(codeExample.findComponent({ name: 'ScalarCardFooter' }).exists()).toBe(false)
+      expect(codeExample.findAll('button').some((button) => button.text() === 'Generate SDK')).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('adds no footer to the classic request example while Generate SDK is offered', async () => {
+      // The classic layout has no other footer controls here, so a footer would be an empty bar
+      const { wrapper } = mountWithGenerateSdk(ClassicLayout, true)
+      await nextTick()
+
+      expect(wrapper.findComponent({ name: 'CodeExample' }).findComponent({ name: 'ScalarCardFooter' }).exists()).toBe(
+        false,
+      )
       wrapper.unmount()
     })
   })

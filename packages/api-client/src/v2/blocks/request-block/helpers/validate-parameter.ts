@@ -1,3 +1,4 @@
+import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /**
@@ -33,16 +34,30 @@ export const validateParameter = (
 
   // string validations
   if (schema.type === 'string' && schema.format) {
+    // Environment and faker variables are resolved when the request is sent.
+    if (
+      (schema.format === 'date' || schema.format === 'date-time' || schema.format === 'time') &&
+      [...value.matchAll(REGEX.VARIABLES)].some(([match, key]) => match === value && key?.trim())
+    ) {
+      return { ok: true }
+    }
+
     if (schema.format === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(value ?? '')) {
       return { ok: false, message: 'Please enter a valid date in YYYY-MM-DD format (e.g., 2024-03-20)' }
     }
     if (
       schema.format === 'date-time' &&
-      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/.test(value ?? '')
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/i.test(value ?? '')
     ) {
       return {
         ok: false,
         message: 'Please enter a valid date and time in RFC 3339 format (e.g., 2024-03-20T13:45:30Z)',
+      }
+    }
+    if (schema.format === 'time' && !/^\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/i.test(value ?? '')) {
+      return {
+        ok: false,
+        message: 'Please enter a valid time in HH:MM:SS format (e.g., 13:45:30)',
       }
     }
     if (schema.format === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value ?? '')) {

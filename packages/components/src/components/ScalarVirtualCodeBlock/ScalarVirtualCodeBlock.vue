@@ -24,6 +24,7 @@ const {
   label = 'Code sample',
   lang = 'plaintext',
   copy = 'hover',
+  copyLabel,
   lineHeight = 20,
 } = defineProps<{
   /** Text content to display */
@@ -34,6 +35,8 @@ const {
   lang?: StandardLanguageKey | string
   /** Copy button visibility: 'always', 'hover', or false */
   copy?: 'always' | 'hover' | false
+  /** Accessible name for the copy button. Uses the visible “Copy” label when provided. */
+  copyLabel?: string
   /** Height of each line in pixels */
   lineHeight?: number
 }>()
@@ -61,8 +64,9 @@ const { cx } = useBindCx()
       class="scalar-code-copy absolute top-2.5 right-2.5"
       :class="[{ 'opacity-100': copy === 'always' }]"
       :content="content"
+      :copyLabel="copyLabel"
       :lang="lang"
-      :showLang="true">
+      :showLang="!copyLabel">
       <template #backdrop>
         <ScalarCopyBackdrop
           class="scalar-code-copy-backdrop -top-1 -right-1.5" />

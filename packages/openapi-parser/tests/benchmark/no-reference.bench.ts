@@ -1,4 +1,4 @@
-import { bench, describe } from 'vitest'
+import { describe, it } from 'vitest'
 
 import { resolveNew } from './utils/resolveNew'
 import { resolveOld } from './utils/resolveOld'
@@ -13,13 +13,16 @@ describe('no reference', () => {
     paths: {},
   }
 
-  bench('@apidevtools/swagger-parser', async () => {
-    // Action!
-    await resolveOld(specification)
-  })
-
-  bench('@scalar/openapi-parser', () => {
-    // Action!
-    resolveNew(specification)
+  it('compares reference resolution', async ({ bench }) => {
+    await bench.compare(
+      bench('@apidevtools/swagger-parser', async () => {
+        // Action!
+        await resolveOld(specification)
+      }),
+      bench('@scalar/openapi-parser', () => {
+        // Action!
+        resolveNew(specification)
+      }),
+    )
   })
 })

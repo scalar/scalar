@@ -143,7 +143,30 @@ resp_body_string(response)`)
     expect(result).toBe(`library(httr2)
 
 response <- request("https://example.com") |>
-  req_url_query("status" = c("active", "inactive")) |>
+  req_url_query("status" = c("active", "inactive"), .multi = "explode") |>
+  req_perform()
+
+resp_body_string(response)`)
+  })
+
+  it('explodes repeated query parameters alongside single ones', () => {
+    const result = rHttr2.generate({
+      url: 'https://example.com',
+      queryString: [
+        { name: 'status', value: 'active' },
+        { name: 'page', value: '2' },
+        { name: 'status', value: 'inactive' },
+      ],
+    })
+
+    expect(result).toBe(`library(httr2)
+
+response <- request("https://example.com") |>
+  req_url_query(
+    "status" = c("active", "inactive"),
+    "page" = "2",
+    .multi = "explode"
+  ) |>
   req_perform()
 
 resp_body_string(response)`)

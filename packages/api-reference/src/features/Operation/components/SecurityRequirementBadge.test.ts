@@ -74,6 +74,30 @@ describe('SecurityRequirementBadge', () => {
     wrapper.unmount()
   })
 
+  it('does not mount the floating wrapper while closed, and mounts it with the panel on hover', async () => {
+    disableConsoleError()
+    disableConsoleWarn()
+
+    const wrapper = mount(SecurityRequirementBadge, {
+      props: { requiredSecurity: requiredAndGroup },
+      attachTo: document.body,
+    })
+
+    // Before the fix, ScalarFloating rendered an empty 0px floating wrapper
+    // while closed, which Floating UI positioned at that width; the panel
+    // then grew past the viewport on hover until the next autoUpdate.
+    expect(document.querySelector('.z-context')).toBeNull()
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+
+    await wrapper.find('.security-requirement-badge').trigger('mouseenter')
+    await nextTick()
+
+    expect(document.querySelector('.z-context')).not.toBeNull()
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull()
+
+    wrapper.unmount()
+  })
+
   it('renders "Auth Optional" badge for optional state', () => {
     const wrapper = mount(SecurityRequirementBadge, {
       props: { requiredSecurity: optional },

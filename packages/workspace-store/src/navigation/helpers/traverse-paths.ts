@@ -1,10 +1,12 @@
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 
 import { forEachPathItemOperation, getPathItemOperationKey } from '@/helpers/for-each-path-item-operation'
+import { getPathEntries } from '@/helpers/get-path-entries'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
 import type { OperationTitleSource, TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import { getXBadges } from '@/schemas/extensions/get-x-badges'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation'
 import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject } from '@/schemas/v3.2/strict/openapi-document'
@@ -58,6 +60,7 @@ const createOperationEntry = ({
   const title = operationTitleSource !== 'path' && operation.summary?.trim() ? operation.summary : path
 
   const isDeprecated = isDeprecatedOperation(operation)
+  const badges = getXBadges(operation)
 
   const examples: TraversedExample[] = traverseOperationExamples(operation).map((example) => ({
     type: 'example',
@@ -78,6 +81,7 @@ const createOperationEntry = ({
     ref,
     type: 'operation',
     isDeprecated,
+    ...(badges ? { badges } : {}),
     children: examples.length ? examples : undefined,
   } satisfies TraversedOperation
 
@@ -121,7 +125,7 @@ export const traversePaths = ({
   const untaggedOperations: TraversedOperation[] = []
 
   // Traverse paths
-  Object.entries(document.paths ?? {}).forEach(([path, pathItemRef]) => {
+  getPathEntries(document.paths).forEach(([path, pathItemRef]) => {
     forEachPathItemOperation(pathItemRef, (method, operationRef) => {
       const operation = getResolvedRef(operationRef, mergeSiblingReferences)
       if (!operation) {

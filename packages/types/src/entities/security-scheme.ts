@@ -1,6 +1,5 @@
-import { z } from 'zod'
-
 import { type ENTITY_BRANDS, nanoidSchema } from '../utils/nanoid'
+import { z } from '../zod'
 
 // ---------------------------------------------------------------------------
 // COMMON PROPS FOR ALL SECURITY SCHEMES
@@ -33,6 +32,8 @@ const oasSecuritySchemeApiKey = commonProps.extend({
 })
 
 const apiKeyValueSchema = z.object({
+  /** Prefix added to header API keys only; enter credentials without this prefix. */
+  'x-scalar-token-prefix': z.string().optional(),
   value: z.string().default(''),
 })
 
@@ -86,20 +87,6 @@ const oasSecuritySchemeMutualTls = commonProps.extend({
 
 export const securityMutualTlsSchema = oasSecuritySchemeMutualTls.merge(extendedSecuritySchema)
 export type SecuritySchemeMutualTls = z.infer<typeof securityMutualTlsSchema>
-
-// ---------------------------------------------------------------------------
-// OPENID CONNECT
-const oasSecuritySchemeOpenId = commonProps.extend({
-  type: z.literal('openIdConnect'),
-  /**
-   * REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the
-   * form of a URL. The OpenID Connect standard requires the use of TLS.
-   */
-  openIdConnectUrl: z.string().optional().default(''),
-})
-
-export const securityOpenIdSchema = oasSecuritySchemeOpenId.merge(extendedSecuritySchema)
-export type SecuritySchemaOpenId = z.infer<typeof securityOpenIdSchema>
 
 // ---------------------------------------------------------------------------
 
@@ -214,6 +201,24 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
       },
     }),
 })
+
+// ---------------------------------------------------------------------------
+// OPENID CONNECT
+const oasSecuritySchemeOpenId = commonProps.extend({
+  type: z.literal('openIdConnect'),
+  /**
+   * REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the
+   * form of a URL. The OpenID Connect standard requires the use of TLS.
+   */
+  openIdConnectUrl: z.string().optional().default(''),
+  /** Defaults for discovered OAuth flows; these do not bypass discovery. */
+  flows: oasSecuritySchemeOauth2.shape.flows.unwrap().optional(),
+  /** Default scopes to select after discovery. */
+  'x-default-scopes': oasSecuritySchemeOauth2.shape['x-default-scopes'],
+})
+
+export const securityOpenIdSchema = oasSecuritySchemeOpenId.merge(extendedSecuritySchema)
+export type SecuritySchemaOpenId = z.infer<typeof securityOpenIdSchema>
 
 export const securityOauthSchema = oasSecuritySchemeOauth2.merge(extendedSecuritySchema)
 

@@ -1,3 +1,5 @@
+import { quoteHttpString } from './quote-http-string'
+
 export type ParsedMimeType = {
   essence: string
   type: string
@@ -8,9 +10,28 @@ export type ParsedMimeType = {
 
 const HTTP_TOKEN_CODE_POINT = /^[!#$%&'*+\-.^_`|~A-Za-z0-9]+$/
 
-const quoteParameterValue = (value: string): string => {
-  const escapedValue = value.replaceAll(/(["\\])/g, '\\$1')
-  return `"${escapedValue}"`
+/** Split at semicolons outside quoted parameter values. */
+const splitMimeType = (value: string): string[] => {
+  const parts: string[] = []
+  let start = 0
+  let quoted = false
+
+  for (let index = 0; index < value.length; index++) {
+    const character = value[index]
+    if (quoted && character === '\\') {
+      index++
+      continue
+    }
+    if (character === '"') {
+      quoted = !quoted
+    } else if (character === ';' && !quoted) {
+      parts.push(value.slice(start, index))
+      start = index + 1
+    }
+  }
+
+  parts.push(value.slice(start))
+  return parts
 }
 
 const parseParameter = (entry: string): [string, string] | null => {
@@ -30,7 +51,7 @@ const parseParameter = (entry: string): [string, string] | null => {
   }
 
   if (rawValue.startsWith('"') && rawValue.endsWith('"') && rawValue.length >= 2) {
-    const unescaped = rawValue.slice(1, -1).replaceAll(/\\(["\\])/g, '$1')
+    const unescaped = rawValue.slice(1, -1).replaceAll(/\\(.)/g, '$1')
     return [rawName, unescaped]
   }
 
@@ -60,7 +81,7 @@ const parseEssence = (value: string): { essence: string; type: string; subtype: 
  * essence, parameters, and stable stringification.
  */
 export const parseMimeType = (value: string = 'text/plain'): ParsedMimeType => {
-  const [essencePart = '', ...parameterParts] = value.split(';')
+  const [essencePart = '', ...parameterParts] = splitMimeType(value)
   let parsedEssence: { essence: string; type: string; subtype: string }
 
   try {
@@ -83,9 +104,7 @@ export const parseMimeType = (value: string = 'text/plain'): ParsedMimeType => {
 
   const serialize = (): string => {
     const serializedParameters = Array.from(parameters.entries()).map(([name, parameterValue]) => {
-      const safeValue = HTTP_TOKEN_CODE_POINT.test(parameterValue)
-        ? parameterValue
-        : quoteParameterValue(parameterValue)
+      const safeValue = HTTP_TOKEN_CODE_POINT.test(parameterValue) ? parameterValue : quoteHttpString(parameterValue)
       return `${name}=${safeValue}`
     })
 

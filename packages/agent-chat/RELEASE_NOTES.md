@@ -9,6 +9,105 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.60 (2026-11-26)
+
+### Fixed download filenames with special characters
+
+File downloads now preserve semicolons, escaped quotes, and percent sequences in quoted filenames from Content-Disposition headers.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01260)
+
+## 0.12.59 (2026-11-25)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01259)
+
+## 0.12.58 (2026-11-22)
+
+### Content Security Policy compatibility and dependency updates
+
+This release fixes a Content Security Policy issue that caused eval violation reports when loading OAuth authentication and AI Chat, even though the page rendered correctly. The fix disables Zod's JIT compilation to prevent these reports without requiring unsafe-eval in your CSP.
+
+- Fixed CSP eval violation reports when loading OAuth authentication and AI Chat under strict Content Security Policy
+- Zod JIT compilation is now disabled to maintain CSP compatibility without requiring unsafe-eval
+- Updated dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01258)
+
+## 0.12.57 (2026-11-20)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01257)
+
+## 0.12.56 (2026-11-19)
+
+### API key prefixes and cleaner chat context
+
+- Header API keys now support token prefixes via x-scalar-token-prefix, automatically adding prefixes like "Bearer" or "token" to outgoing requests while keeping stored credentials clean.
+- Selected API context is now sent as structured metadata rather than appended to user messages, keeping your questions unchanged while ensuring the backend knows which API and version to use.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01256)
+
+## 0.12.55 (2026-11-18)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01255)
+
+## 0.12.54 (2026-11-17)
+
+### Plugin document types and TypeScript 6 support
+
+This release adds support for custom document types through plugins and upgrades the TypeScript compiler to version 6.
+
+- Plugins can now register custom document types alongside OpenAPI and AsyncAPI, with their own detection, traversal, and rendering logic.
+- Plugin documents are kept separate from OpenAPI and AsyncAPI processing, preventing unsupported operations like Ask AI on plugin-specific formats.
+- Document classification remains consistent when replacing, hydrating, or rebasing plugin documents in the workspace.
+- The TypeScript compiler has been upgraded to version 6, preserving package output paths and application aliases during builds.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01254)
+
+## 0.12.53 (2026-11-16)
+
+### Improved Vite compatibility and cleaner dependencies
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01253)
+
+## 0.12.52 (2026-11-12)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01252)
+
+## 0.12.51 (2026-11-10)
+
+### Require approval for all API requests and redact credentials
+
+Agent Chat now requires explicit approval before executing any AI-generated API request, including GET requests. Saved credentials are validated and redacted from response data before being sent to the chat model.
+
+- All API requests now require approval before execution, preventing automatic data access with stored credentials.
+- Request destinations are validated before attaching credentials to prevent sending them to model-supplied URLs.
+- Saved credentials are redacted from response URLs, headers, and bodies before sending results to the chat backend.
+- The approval preview shows the resolved API destination and method before the request is sent.
+- Requests are rejected when no usable server is configured, prompting API authors to add a server to their description.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01251)
+
+## 0.12.50 (2026-11-05)
+
+### Security hardening and agent key document fix
+
+This release fixes a security issue in the CORS proxy and restores full-mode chat functionality while backend support is being finalized.
+
+- The CORS proxy now protects against XSS, open redirect, and origin abuse attacks by rejecting document requests and sandboxing responses.
+- Response headers in post-response scripts, agent logs, and request history now show the values your API sent, not the proxy's security headers.
+- Full-mode Ask AI uses the agent key's registered documents again, fixing questions that require API context.
+- Preview mode continues to upload the selected API description as before.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01250)
+
 ## 0.12.46 (2026-10-23)
 
 ### Polish and bug fixes shipped

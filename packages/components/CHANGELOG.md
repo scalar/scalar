@@ -1,5 +1,114 @@
 # @scalar/components
 
+## 0.36.1
+
+### Patch Changes
+
+- [#11241](https://github.com/scalar/scalar/pull/11241): fix(components): keep the tint of card surfaces in Chrome
+
+  Card surfaces now lighten `--scalar-background-2` in oklab rather than oklch. Current Chrome treats the hue of a near-grey color in `oklch(from …)` as missing but keeps its small chroma, so themes with tinted greys got pink code and response cards. With oklab the surface keeps the theme's own tint, and pure greys and saturated colors look the same as before.
+- [#11223](https://github.com/scalar/scalar/pull/11223): `ScalarModal` now renders `ScalarDialog`, the native `<dialog>` modal, instead of the Headless UI dialog. Its props, sizes and variants are unchanged. `ScalarDialog` also stays hidden while closed, even when a consumer class sets its display.
+- [#11223](https://github.com/scalar/scalar/pull/11223): Pressing Escape while a tooltip is showing inside a modal dialog now hides only the tooltip, instead of also closing the dialog.
+- [#11226](https://github.com/scalar/scalar/pull/11226): Teleport into a `ScalarTeleportRoot` inside a shadow root, and fall back to the shadow root instead of the host page's body
+
+## 0.36.0
+
+### Minor Changes
+
+- [#11170](https://github.com/scalar/scalar/pull/11170): Add `ScalarDialog`, a modal dialog built on the native `<dialog>` element and `showModal()`. Control it with `v-model:open` and compose its contents with the default slot. Focus trapping, focus restore, background inert, and top-layer stacking come from the platform. On top of that it locks page scrolling while open, gives popovers inside it a teleport target so they render above the dialog, lets child widgets handle Escape before the dialog closes, and closes on a backdrop click (ignoring text-selection drags and keyboard-activated controls).
+
+### Patch Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11162](https://github.com/scalar/scalar/pull/11162): Add a generic `log` grammar for human-readable logs, including common timestamps, severity headers, context prefixes, strings, URLs, and exception stack frames.
+
+  Show the Log language label in ScalarCodeBlock and include it in the copy button’s accessible name.
+
+## 0.35.5
+
+No changes in this release.
+
+## 0.35.4
+
+### Patch Changes
+
+- [#11154](https://github.com/scalar/scalar/pull/11154): Color operators like punctuation in syntax highlighting
+
+  Operators such as `=`, `->` and `::` now get an `hljs-operator` class and use the same quieter color as brackets and commas, so `client.planets()` and `Client::new()` read consistently. If you pair `@scalar/highlight/compat` with your own highlight.js theme, its `.hljs-operator` rules now apply too.
+- [#11126](https://github.com/scalar/scalar/pull/11126): Give syntax highlighting a fuller palette
+
+  Parameters, object members, type names and punctuation now have their own colors, plain code is easier to read, and the colors are adjusted so they stay readable and distinct in light and dark mode. They still come from the active theme's hues.
+
+  The colors live in `@scalar/themes` as `--scalar-code-*` variables named by role (`--scalar-code-keyword`, `--scalar-code-string`, `--scalar-code-parameter` and so on), so a theme or custom stylesheet can set its own syntax colors. The Moon theme sets darker and lighter values to stay readable on its tinted backgrounds.
+
+## 0.35.3
+
+### Patch Changes
+
+- [#11124](https://github.com/scalar/scalar/pull/11124): Render Markdown through `@scalar/markdown` instead of `@scalar/code-highlight`
+
+  None of them pull in lowlight or highlight.js any more: code blocks in descriptions are highlighted by `@scalar/highlight`, the same highlighter `ScalarCodeBlock` uses. A fenced code block without a language is no longer auto-detected and renders as plain text. In `@scalar/openapi-to-markdown` this shows up in descriptions that contain HTML or alerts: an unlabeled fence used to come out labeled with highlight.js's guess (often wrong, such as `properties` for JSON), and now stays unlabeled.
+- [#11112](https://github.com/scalar/scalar/pull/11112): Render legacy ScalarIcon stroke-width styles during server-side rendering to avoid hydration mismatches in Vue and Nuxt applications.
+
+## 0.35.2
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.35.1
+
+### Patch Changes
+
+- [#11078](https://github.com/scalar/scalar/pull/11078): Center card headers and footers between the card's edge and the surface beside them. They sat on the card's 4px padding on one side only, so their contents were 2px off center toward the surface: the request example's buttons, for example, were 6px under the code but 10px above the card's edge. Cards keep their height, and a card given `p-0` is unchanged.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+
+## 0.35.0
+
+### Minor Changes
+
+- [#10980](https://github.com/scalar/scalar/pull/10980): feat: redesign code cards as a padded shell with the code on a lifted surface
+
+  This changes the default look of every `ScalarCard`, not only the cards in the API reference. `ScalarCard` drops its border and dividers for a 12px shell with 4px of padding, and each plain `ScalarCardSection` becomes an 8px surface lifted off it. If you use these components in your own app, check your cards after this bump:
+
+  - A card recolored to match its page (for example `bg-b-1` on a `bg-b-1` page) no longer has an edge. Pass `border` to bring it back, or give the card a fill that differs from the page.
+  - Two plain sections in a row are two surfaces with a 4px gap, where they were one box with a divider.
+  - Content placed straight in `ScalarCard` without a section sits inside the 4px padding. Pass `p-0` to remove it.
+
+  In the API reference, the request example, example responses, operations list and AsyncAPI cards all pick this up. The surface color is derived from `--scalar-background-2`, and its outline from `--scalar-shadow-1` and `--scalar-border-color`. A copy button on a surface sits one step above it, toward the text color. Set `--scalar-card-surface`, `--scalar-card-surface-raised` or `--scalar-card-surface-shadow` on `.scalar-card` to change them. Every class name is unchanged, and the new rules are single-class selectors, so existing theme and `customCss` rules keep winning.
+- [#11040](https://github.com/scalar/scalar/pull/11040): feat: add a medium size to ScalarToggle and ScalarTristateToggle
+
+  Pass `size="md"` for a larger toggle with a 20×32px track and a 16px thumb, sized to sit next to full-height form controls in settings rows. The tristate toggle's center position scales with it. The default stays `sm`, so existing toggles are unchanged. The input and group wrappers keep the `sm` toggle, since their form-row layout is built around it.
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+- [#11027](https://github.com/scalar/scalar/pull/11027): fix: render server-rendered teleports in place until they are mounted, so hydrating the API reference no longer replaces elements of the host page or breaks its dropdowns
+
+## 0.34.1
+
+No changes in this release.
+
+## 0.34.0
+
+### Minor Changes
+
+- [#10894](https://github.com/scalar/scalar/pull/10894): Substitute explicitly mapped reader credentials into custom code samples with default masking, public field opt-outs, and real values on copy.
+- [#10890](https://github.com/scalar/scalar/pull/10890): Add an Elixir language icon and show it on Elixir SDK installation tabs.
+
+## 0.33.2
+
+### Patch Changes
+
+- [#10735](https://github.com/scalar/scalar/pull/10735): Cancel the pending selected-option scroll when a combobox is unmounted.
+- [#10843](https://github.com/scalar/scalar/pull/10843): Prevent opening or navigating combobox options from scrolling the surrounding page before the picker is positioned.
+- [#10849](https://github.com/scalar/scalar/pull/10849): Make code block containers own line spacing so highlighted text, plain text, blank lines, and line numbers use the same height. ScalarCodeBlock defaults to 1.4 and Markdown fenced code defaults to 1.5; override either with --scalar-code-line-height on the component or an ancestor. The shared highlighting stylesheet preserves the 1.4 default for direct consumers with a zero-specificity container rule, so existing container overrides still take precedence.
+
+## 0.33.1
+
 ## 0.33.0
 
 ### Minor Changes

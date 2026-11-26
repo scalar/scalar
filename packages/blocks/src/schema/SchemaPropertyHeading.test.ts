@@ -4,9 +4,75 @@ import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-sto
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
+import { type ProtobufSchema, protobufFieldNumber, protobufPresence } from './protobuf-metadata'
+import { type RecursiveSchema, schemaRecursiveTarget } from './recursive-metadata'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 describe('SchemaPropertyHeading', () => {
+  it.each(['explicit', 'implicit'] as const)('renders %s presence as an optional label with a tooltip', (presence) => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: { value: { type: 'string', [protobufPresence]: presence } as ProtobufSchema },
+      slots: { name: 'email' },
+    })
+    const label = wrapper.getComponent({ name: 'ScalarTooltip' })
+    expect(label.text()).toContain(`Optional (${presence} presence)`)
+    expect(label.find('[tabindex="0"]').exists()).toBe(false)
+    expect(wrapper.getComponent({ name: 'ScalarTooltip' }).props('content')).toContain(
+      presence === 'explicit' ? 'Protobuf distinguishes' : 'Protobuf does not distinguish',
+    )
+    wrapper.unmount()
+  })
+
+  it('uses the existing recursive indicator for native schema cycles', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: { value: { type: 'object', title: 'User', [schemaRecursiveTarget]: 'User' } as RecursiveSchema },
+      slots: { name: 'parent' },
+    })
+    expect(wrapper.text()).toContain('recursive')
+    expect(wrapper.get('.property-recursive').attributes('title')).toContain('User')
+    expect(wrapper.text()).not.toContain('Recursive reference')
+    wrapper.unmount()
+  })
+
+  it('renders native Protobuf field numbers with an accessible tooltip target', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: { value: { type: 'string', [protobufFieldNumber]: 2 } as ProtobufSchema },
+      slots: { name: 'email' },
+    })
+    const tag = wrapper.getComponent({ name: 'ScalarTooltip' })
+    expect(tag.text()).toContain('Protobuf field number: 2')
+    expect(tag.find('[tabindex="0"]').exists()).toBe(false)
+    expect(wrapper.getComponent({ name: 'ScalarTooltip' }).props('content')).toBe('Protobuf field number')
+    wrapper.unmount()
+  })
+
+  it('does not invent field numbers for ordinary schemas', () => {
+    const wrapper = mount(SchemaPropertyHeading, { props: { value: { type: 'string' } }, slots: { name: 'email' } })
+    expect(wrapper.find('[aria-label^="Protobuf field number:"]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it.each([
+    { examples: ['array sample'], expected: ['Copy example value: array sample'] },
+    { examples: [], expected: ['Copy example value: item sample'] },
+    { examples: undefined, expected: ['Copy example value: item sample'] },
+  ])('uses array examples before falling back to the item example: $examples', ({ examples, expected }) => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: coerceValue(SchemaObjectSchema, {
+          type: 'array',
+          examples,
+          items: { type: 'string', example: 'item sample' },
+        }),
+      },
+    })
+
+    expect(
+      wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+    ).toStrictEqual(expected)
+    wrapper.unmount()
+  })
+
   it('renders falsy default values', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
@@ -597,47 +663,22 @@ describe('SchemaPropertyHeading', () => {
   })
 
   describe('array validation properties', () => {
-    it('renders minItems and maxItems', () => {
+    it.each([
+      { description: 'positive bounds', bounds: { minItems: 1, maxItems: 10 }, expected: ['1…10'] },
+      { description: 'a minimum alone', bounds: { minItems: 1 }, expected: ['1…'] },
+      { description: 'a maximum alone', bounds: { maxItems: 10 }, expected: ['…10'] },
+      { description: 'a zero minimum alone', bounds: { minItems: 0 }, expected: ['0…'] },
+      { description: 'a zero maximum alone', bounds: { maxItems: 0 }, expected: ['…0'] },
+      { description: 'a zero minimum and a positive maximum', bounds: { minItems: 0, maxItems: 3 }, expected: ['0…3'] },
+      { description: 'both bounds set to zero', bounds: { minItems: 0, maxItems: 0 }, expected: ['0…0'] },
+      { description: 'omitted bounds', bounds: {}, expected: [] },
+    ])('displays the array range for $description', ({ bounds, expected }) => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: {
-          value: coerceValue(SchemaObjectSchema, {
-            type: 'array',
-            minItems: 1,
-            maxItems: 10,
-          }),
-        },
+        props: { value: coerceValue(SchemaObjectSchema, { type: 'array', items: { type: 'integer' }, ...bounds }) },
       })
 
-      const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('1…10')
-    })
-
-    it('renders only minItems', () => {
-      const wrapper = mount(SchemaPropertyHeading, {
-        props: {
-          value: coerceValue(SchemaObjectSchema, {
-            type: 'array',
-            minItems: 1,
-          }),
-        },
-      })
-
-      const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('1…')
-    })
-
-    it('renders only maxItems', () => {
-      const wrapper = mount(SchemaPropertyHeading, {
-        props: {
-          value: coerceValue(SchemaObjectSchema, {
-            type: 'array',
-            maxItems: 10,
-          }),
-        },
-      })
-
-      const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('…10')
+      const ranges = wrapper.text().match(/\d*…\d*/g) ?? []
+      expect(ranges).toStrictEqual(expected)
     })
 
     it('renders uniqueItems property', () => {
@@ -656,52 +697,38 @@ describe('SchemaPropertyHeading', () => {
   })
 
   describe('string validation properties', () => {
-    it('renders minLength property', () => {
+    it.each([
+      { description: 'a minimum alone', bounds: { minLength: 5 }, expected: ['min length: 5'] },
+      { description: 'a maximum alone', bounds: { maxLength: 100 }, expected: ['max length: 100'] },
+      {
+        description: 'positive bounds',
+        bounds: { minLength: 5, maxLength: 100 },
+        expected: ['min length: 5', 'max length: 100'],
+      },
+      { description: 'a zero minimum alone', bounds: { minLength: 0 }, expected: ['min length: 0'] },
+      { description: 'a zero maximum alone', bounds: { maxLength: 0 }, expected: ['max length: 0'] },
+      { description: 'omitted bounds', bounds: {}, expected: [] },
+    ])('displays string lengths for $description', ({ bounds, expected }) => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: {
-          value: coerceValue(SchemaObjectSchema, {
-            type: 'string',
-            minLength: 5,
-          }),
-        },
+        props: { value: coerceValue(SchemaObjectSchema, { type: 'string', ...bounds }) },
       })
 
-      const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('min length:')
-      expect(detailsElement.text()).toContain('5')
+      const text = wrapper.text().replace(/\s+/g, ' ')
+      const lengths = text.match(/(?:min|max) length: ?\d*/g)?.map((length) => length.trim()) ?? []
+      expect(lengths).toStrictEqual(expected)
     })
 
-    it('renders maxLength property', () => {
+    it('displays a zero maximum string length for primitive array items', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
           value: coerceValue(SchemaObjectSchema, {
-            type: 'string',
-            maxLength: 100,
+            type: 'array',
+            items: { type: 'string', maxLength: 0 },
           }),
         },
       })
 
-      const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('max length:')
-      expect(detailsElement.text()).toContain('100')
-    })
-
-    it('renders both minLength and maxLength', () => {
-      const wrapper = mount(SchemaPropertyHeading, {
-        props: {
-          value: coerceValue(SchemaObjectSchema, {
-            type: 'string',
-            minLength: 5,
-            maxLength: 100,
-          }),
-        },
-      })
-
-      const detailsElement = wrapper.find('.property-heading')
-      expect(detailsElement.text()).toContain('min length:')
-      expect(detailsElement.text()).toContain('5')
-      expect(detailsElement.text()).toContain('max length:')
-      expect(detailsElement.text()).toContain('100')
+      expect(wrapper.text()).toMatch(/max length:\s*0/)
     })
   })
 

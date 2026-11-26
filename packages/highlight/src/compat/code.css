@@ -1,0 +1,195 @@
+/* Keep direct stylesheet consumers at the default spacing without competing with container overrides. */
+:where(pre:has(> code.hljs)) {
+  line-height: var(--scalar-code-line-height, 1.4);
+}
+
+/*
+ * Token colors come from the `--scalar-code-*` variables in `@scalar/themes`, so a theme can tune
+ * its own syntax colors. The fallbacks keep code readable where the themes base is not loaded.
+ */
+.scalar-app {
+  :where(code.hljs) * {
+    font-size: inherit;
+    font-family: var(--scalar-font-code);
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    tab-size: 4;
+  }
+  code.hljs {
+    all: unset;
+    font-size: inherit;
+    color: var(--scalar-color-1);
+    font-family: var(--scalar-font-code);
+    counter-reset: linenumber;
+  }
+  .hljs {
+    background: transparent;
+    color: var(--scalar-color-1);
+  }
+
+  .hljs .line::before {
+    color: var(--scalar-color-3);
+    display: inline-block;
+    counter-increment: linenumber;
+    content: counter(linenumber);
+    margin-right: 0.875rem;
+    /* Variable is set on the code element by the plugin when line numbers are used */
+    min-width: calc(var(--line-digits) * 1ch);
+    text-align: right;
+  }
+  /* ------------------------------------------------------------- */
+  /* Data types */
+  .hljs-comment,
+  .hljs-quote {
+    color: var(--scalar-code-comment, var(--scalar-color-2));
+    font-style: italic;
+  }
+
+  /** Brackets, commas, separators and operators stay quieter than the code around them */
+  .hljs-punctuation,
+  .hljs-operator,
+  .hljs-bullet {
+    color: var(--scalar-code-punctuation, var(--scalar-color-2));
+  }
+
+  .hljs-number,
+  .hljs-literal,
+  .hljs-symbol {
+    color: var(--scalar-code-number, var(--scalar-color-orange));
+  }
+
+  .hljs-regexp,
+  .hljs-string {
+    color: var(--scalar-code-string, var(--scalar-color-blue));
+  }
+
+  /** Globals such as `var()` and `!important`, plus decorators */
+  .hljs-built_in,
+  .hljs-meta {
+    color: var(--scalar-code-builtin, var(--scalar-color-blue));
+  }
+
+  /** Language indicators such as `new`, `const`, or `function` in JS  */
+  .hljs-keyword,
+  .hljs-doctag {
+    color: var(--scalar-code-keyword, var(--scalar-color-purple));
+  }
+
+  /** Template substitution */
+  .hljs-subst {
+    color: var(--scalar-code-keyword, var(--scalar-color-purple));
+  }
+
+  /** HTML Tag name */
+  .hljs-name {
+    color: var(--scalar-code-keyword, var(--scalar-color-purple));
+  }
+
+  /** Function names when declaring and calling */
+  .hljs-section,
+  .hljs-link,
+  .hljs-title,
+  .hljs-title.function_ {
+    color: var(--scalar-code-function, var(--scalar-color-orange));
+  }
+
+  /** Class initializers such as `Array` or `Date` */
+  /** Type declarations such as `Record` */
+  .hljs-title.class_,
+  .hljs-type {
+    color: var(--scalar-code-type, var(--scalar-color-1));
+  }
+
+  /** Function parameters and keyword arguments */
+  .hljs-params {
+    color: var(--scalar-code-parameter, var(--scalar-color-red));
+  }
+
+  /** Member access, object keys and attribute names (ex. `class`, `id`) */
+  .hljs-property,
+  .hljs-attr,
+  .hljs-attribute,
+  .hljs-selector-tag,
+  .hljs-selector-attr,
+  .hljs-selector-pseudo {
+    color: var(--scalar-code-property, var(--scalar-color-green));
+  }
+
+  .hljs-selector-id,
+  .hljs-template-variable,
+  .hljs-variable {
+    color: var(--scalar-color-1);
+  }
+
+  .hljs-addition {
+    color: var(--scalar-code-addition, var(--scalar-color-green));
+  }
+
+  .hljs-name,
+  .hljs-section,
+  .hljs-strong {
+    font-weight: var(--scalar-semibold);
+  }
+
+  .hljs-deletion {
+    color: var(--scalar-code-deletion, var(--scalar-color-red));
+  }
+
+  .hljs-formula {
+    background: var(--scalar-color-1);
+  }
+
+  .hljs-emphasis {
+    font-style: italic;
+  }
+
+  /** Hide credentials */
+  .credential .credential-value {
+    font-size: 0;
+    color: transparent;
+  }
+
+  /** Show a few dots instead */
+  .credential::after {
+    content: "·····";
+    color: var(--scalar-color-3);
+    user-select: none;
+  }
+}
+
+/* -------------------------------------------------------------- */
+/* Language specific overrides */
+
+/** For HTML we leave the content strings brighter */
+.hljs.language-html {
+  color: var(--scalar-color-1);
+}
+
+/** For HTML make the attr text different than the content */
+.hljs.language-html .hljs-attr {
+  color: var(--scalar-code-property, var(--scalar-color-green));
+}
+
+.hljs.language-curl .hljs-string {
+  color: var(--scalar-code-string, var(--scalar-color-blue));
+}
+
+/** Compromise here */
+.hljs.language-cpp .hljs-built_in {
+  /* color: var(--scalar-color-1); */
+}
+
+.hljs.language-php .hljs-variable {
+  color: var(--scalar-color-1);
+}
+
+.hljs.language-objectivec .hljs-meta {
+  color: var(--scalar-color-1);
+}
+
+.hljs.language-objectivec .hljs-built_in {
+  color: var(--scalar-code-builtin, var(--scalar-color-blue));
+}

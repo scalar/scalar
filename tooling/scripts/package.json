@@ -18,12 +18,17 @@
     "semver": "catalog:*",
     "yaml": "catalog:*",
     "zod": "catalog:*",
-    "concurrently": "catalog:*"
+    "concurrently": "catalog:*",
+    "typescript-native": "npm:typescript@7.0.2"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:*",
     "@types/picomatch": "catalog:*",
     "@types/semver": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*"
+  },
+  "bin": {
+    "tsgo": "./tsgo.mjs"
   }
 }

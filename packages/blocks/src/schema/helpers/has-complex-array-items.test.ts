@@ -246,11 +246,18 @@ describe('has-complex-array-items', () => {
       expect(hasComplexArrayItems(schema)).toBe(false)
     })
 
+    it.each([true, false])('returns true for boolean array item constraints: %s', (items) => {
+      const schema = coerceValue(SchemaObjectSchema, { type: 'array', items })
+
+      expect(hasComplexArrayItems(schema)).toBe(true)
+    })
+
     it('returns false for array with items as non-object', () => {
-      const schema = coerceValue(SchemaObjectSchema, {
+      // Pass invalid data directly so this exercises the helper without schema coercion.
+      const schema = {
         type: 'array',
         items: 'string',
-      })
+      } as unknown as SchemaObject
 
       expect(hasComplexArrayItems(schema)).toBe(false)
     })

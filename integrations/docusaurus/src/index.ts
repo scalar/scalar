@@ -3,7 +3,7 @@ import path from 'node:path'
 import type { LoadContext, Plugin } from '@docusaurus/types'
 import { normalizeUrl } from '@docusaurus/utils'
 import { getConfiguration, serializeConfigToJs } from '@scalar/client-side-rendering'
-import type { AnyApiReferenceConfiguration } from '@scalar/types'
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 export type ScalarOptions = {
   label?: string
@@ -42,23 +42,6 @@ const ScalarDocusaurus = (
 
   return {
     name: '@scalar/docusaurus',
-
-    /**
-     * Load the Standalone API Reference script
-     * This is loaded into the dom once for every plugin thats loaded BUT it only downloads the script once
-     */
-    injectHtmlTags() {
-      return {
-        preBodyTags: [
-          {
-            tagName: 'script',
-            attributes: {
-              src: options.cdn ?? 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
-            },
-          },
-        ],
-      }
-    },
 
     loadContent() {
       return defaultOptions
@@ -101,6 +84,7 @@ const ScalarDocusaurus = (
         // biome-ignore lint/correctness/noGlobalDirnameFilename: Docusaurus builds this plugin as CommonJS.
         component: path.resolve(__dirname, './ScalarDocusaurus'),
         exact: true,
+        cdn: defaultOptions.cdn ?? 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
         configuration: serializeConfigToJs(normalizedConfiguration),
       })
     },

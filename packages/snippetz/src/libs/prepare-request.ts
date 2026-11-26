@@ -1,7 +1,8 @@
 import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 import { Base64 } from 'js-base64'
 
-import { collectHeaders, joinUrlAndQuery, normalizeMethod, normalizeUrl } from './http'
+import { mergeCookieHeaders } from './cookies'
+import { joinUrlAndQuery, normalizeMethod, normalizeUrl } from './http'
 
 /** A body segment is either literal UTF-8 text or a file read when the snippet runs. */
 export type BodySegment = { text: string } | { file: string }
@@ -50,7 +51,7 @@ export const prepareRequest = (
   request: Partial<HarRequest> = {},
   configuration?: PluginConfiguration,
 ): PreparedRequest => {
-  const headers = [...(request.headers ?? []), ...collectHeaders([], request.cookies)]
+  const headers = mergeCookieHeaders(request)
   if (configuration?.auth?.username && configuration.auth.password) {
     headers.push({
       name: 'Authorization',

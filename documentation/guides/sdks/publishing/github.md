@@ -42,7 +42,7 @@ Builds never commit straight to your default branch. The repository follows a th
   size="full">
 </scalar-image>
 
-- **`scalar-generated`** holds pristine generator output. Scalar pushes here; you never commit to it.
+- **`scalar-generated`** (renamable with `generatedBranch`) holds pristine generator output. Scalar pushes here; you never commit to it.
 - **`scalar-next`** (renamable with `integrationBranch`) holds that output merged with your custom code. This is where you commit your own changes, directly or through pull requests, and where Scalar merges each regeneration.
 - **The default branch** (`main` unless you configure otherwise) only ever receives released states. Scalar keeps a **release pull request** open from `scalar-next` against it, so the diff you review is the entire pending release. Merging that pull request is what releases and publishes the version.
 - **`scalar-merge-conflict`** carries a regeneration that could not be merged cleanly; it arrives as a pull request for you to resolve.
@@ -107,7 +107,7 @@ Turning **Promote manually** off ships the build already waiting, so production 
 
 ## Your custom code is preserved
 
-You can edit generated files in your repository on `scalar-next`. Scalar performs a three-way merge on every regeneration, so your changes are carried forward into the next release pull request instead of being overwritten. Review it as usual; only genuine conflicts need your attention. See [Custom Code](../custom-code.md).
+You can edit generated files in your repository on `scalar-next`. Scalar performs a three-way merge on every regeneration, so your changes are carried forward into the next release pull request instead of being overwritten. Review it as usual; only genuine conflicts need your attention. See [Custom Code](../custom-code/overview.md).
 
 ## Repository prerequisites
 
@@ -136,12 +136,13 @@ Linking from the dashboard sets the target's `destinations` in your SDK configur
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | `repo` | `string` | The `owner/repo` the generated SDK is pushed to. |
-| `branch` | `string` | The repository's default branch, which releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |
+| `branch` | `string` | The repository's default branch, which releases are promoted to. Defaults to `main`. |
 | `integrationBranch` | `string` | The branch where generated output is combined with your custom code. Defaults to `scalar-next`. |
+| `generatedBranch` | `string` | The branch pristine generator output is pushed to before it is merged into the integration branch. Defaults to `scalar-generated`. It cannot be the default branch or the integration branch. |
 
 ## Adding repository secrets
 
-[OIDC trusted publishing](overview.md#authentication) needs no secrets, with two exceptions: NuGet's OIDC login reads your profile name from `NUGET_USER`, and npm and crates.io only accept a trusted publisher for a package that already exists, so their first release uses a token secret. Token-based publishing, and Maven Central's GPG signing, store credentials as secrets on the SDK repository. The generated workflows read them by exact name, so the name has to match.
+[OIDC trusted publishing](overview.md#authentication) needs no secrets, with two exceptions: NuGet's OIDC login reads your profile name from `NUGET_USER`, and npm and crates.io only accept a trusted publisher for a package that already exists, so their first release uses a token secret (pub.dev likewise, whose first version is published by hand with `dart pub publish`). Token-based publishing, Maven Central's GPG signing, and a C# strong-name key you choose not to commit (`STRONG_NAME_KEY`, see [Strong naming](csharp.md#strong-naming)) store credentials as secrets on the SDK repository. The generated workflows read them by exact name, so the name has to match.
 
 <scalar-steps>
   <scalar-step id="secret-open" title="Open the repository's Actions secrets">

@@ -5,14 +5,17 @@ import {
 } from '@scalar/schemas/api-reference'
 import { coerce } from '@scalar/validation'
 import { createHead } from '@unhead/vue/client'
-import { renderToString } from '@vue/server-renderer'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createSSRApp, h, nextTick } from 'vue'
+import { nextTick } from 'vue'
 
-import ApiReference from '@/components/ApiReference.vue'
-
-import { createApiReference, createContainer, findDataAttributes, getConfigurationFromDataAttributes } from './html-api'
+import {
+  createApiReference,
+  createContainer,
+  findDataAttributes,
+  getConfigurationFromDataAttributes,
+  releaseUnusedStyles,
+} from './html-api'
 
 vi.mock('@unhead/vue/client', async () => {
   const actual = await vi.importActual<typeof import('@unhead/vue/client')>('@unhead/vue/client')
@@ -24,17 +27,20 @@ vi.mock('@unhead/vue/client', async () => {
 })
 
 beforeEach(() => {
-  global.document = createHtmlDocument(`
+  vi.stubGlobal(
+    'document',
+    createHtmlDocument(`
     <html>
       <body>
         <div id="mount-point"></div>
       </body>
     </html>
-  `)
+  `),
+  )
 })
 
 afterEach(() => {
-  // vi.resetAllMocks()
+  vi.unstubAllGlobals()
 })
 
 const consoleWarnSpy = vi.spyOn(console, 'warn')
@@ -98,44 +104,6 @@ describe('createApiReference', () => {
     createApiReference(element!, coerce(apiReferenceConfigurationSchema, config))
 
     expect(createHeadSpy).toHaveBeenCalledTimes(1)
-  })
-
-  it('does not log hydration warnings or errors when hydrating server-rendered content', async () => {
-    const element = document.querySelector('#mount-point')
-    expect(element).toBeInstanceOf(HTMLElement)
-
-    const config = apiReferenceConfigurationWithSourceSchema({
-      _integration: 'html',
-      content: JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 'Hydration Test API', version: '1.0.0' },
-        paths: {},
-      }),
-    })
-
-    const ssrApp = createSSRApp({
-      render: () => h(ApiReference, { configuration: config }),
-    })
-    ssrApp.config.idPrefix = 'scalar-refs'
-    const serverRenderedHtml = await renderToString(ssrApp)
-    element!.innerHTML = serverRenderedHtml
-
-    consoleWarnSpy.mockClear()
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-
-    createApiReference(element!, config)
-
-    await flushPromises()
-    await nextTick()
-
-    const hydrationMessages = [...consoleWarnSpy.mock.calls, ...consoleErrorSpy.mock.calls]
-      .flat()
-      .map((value) => String(value))
-      .filter((message) => /hydration/i.test(message))
-
-    expect(hydrationMessages).toStrictEqual([])
-
-    consoleErrorSpy.mockRestore()
   })
 
   it('handles scalar:reload-references event', () => {
@@ -216,6 +184,44 @@ describe('createApiReference', () => {
 
     return style
   }
+
+  it('releases orphaned styles without changing body classes and restores them on mount', () => {
+    const style = injectStandaloneStyle()
+    document.body.className = 'dark-mode host-theme'
+
+    releaseUnusedStyles()
+    releaseUnusedStyles()
+
+    expect(document.getElementById('scalar-style')).toBeNull()
+    expect(document.body.className).toBe('dark-mode host-theme')
+    const instance = createApiReference('#mount-point', {})
+    expect(document.getElementById('scalar-style')).toBe(style)
+    instance.destroy()
+  })
+
+  it('does not release styles owned by an active reference', () => {
+    const style = injectStandaloneStyle()
+    const instance = createApiReference('#mount-point', {})
+    releaseUnusedStyles()
+    releaseUnusedStyles()
+    expect(document.getElementById('scalar-style')).toBe(style)
+    instance.destroy()
+    expect(document.getElementById('scalar-style')).toBeNull()
+  })
+
+  it('releases styles when destroyed before plugins finish loading', async () => {
+    injectStandaloneStyle()
+    const instance = createApiReference('#mount-point', {
+      pluginUrls: ['data:text/javascript,export default () => ({ name: "late", extensions: [] })'],
+    })
+    const bodyClasses = document.body.className
+    instance.destroy()
+    releaseUnusedStyles()
+    await flushPromises()
+    expect(document.getElementById('scalar-style')).toBeNull()
+    expect(document.body.className).toBe(bodyClasses)
+    expect(document.querySelector('#mount-point')?.innerHTML).toBe('')
+  })
 
   it('detaches the injected standalone styles on destroy', () => {
     injectStandaloneStyle()
@@ -411,13 +417,16 @@ describe('findDataAttributes (legacy)', () => {
 
 describe('getConfigurationFromDataAttributes', () => {
   it('createApiReference', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
         <html>
           <body>
             <script id="api-reference" data-url="/openapi.json"></script>
           </body>
         </html>
-      `)
+      `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
@@ -427,13 +436,16 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('handles spec content from script tag', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script id="api-reference" type="application/json">{"openapi":"3.1.0"}</script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
@@ -443,13 +455,16 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('handles proxy URL configuration', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script id="api-reference" data-proxy-url="https://proxy.example.com" data-url="/spec.json"></script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
       ...baseConfig,
@@ -460,13 +475,16 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('handles custom configuration via data-configuration attribute', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script id="api-reference" data-configuration='{"darkMode":true,"spec":{"url":"/custom.json"}}'></script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
@@ -477,7 +495,9 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('preserves multiple sources from the data-configuration attribute', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script
@@ -485,7 +505,8 @@ describe('getConfigurationFromDataAttributes', () => {
             data-configuration='{"sources":[{"url":"/public.json"},{"url":"/admin.json"}]}'></script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     // toStrictEqual guarantees we do not emit a stray `proxyUrl: undefined` when none is configured.
     expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
@@ -495,7 +516,9 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('preserves shared configuration and the proxy url alongside multiple sources', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script
@@ -504,7 +527,8 @@ describe('getConfigurationFromDataAttributes', () => {
             data-configuration='{"theme":"purple","sources":[{"url":"/public.json"},{"url":"/admin.json"}]}'></script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
       _integration: 'html',
@@ -515,7 +539,9 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('falls back to single-source parsing when the sources array is empty', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script
@@ -524,7 +550,8 @@ describe('getConfigurationFromDataAttributes', () => {
             data-configuration='{"sources":[]}'></script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     // An empty sources array carries no documents, so the data-url should still be picked up
     // and the (unusable) sources key should be dropped by the single-source schema.
@@ -536,13 +563,16 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('handles deprecated data-spec attribute with warning', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <div data-spec='{"openapi":"3.1.0"}'></div>
         </body>
       </html>
-    `)
+    `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,

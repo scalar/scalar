@@ -1,4 +1,5 @@
 import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -36,6 +37,8 @@ type GenerateCodeSnippetProps = {
   /** Selected oneOf/anyOf variants for nested request body example generation. */
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   requestBodyCompositionSelection?: Record<string, number>
   /** Whether to disable parameters by default. */
   defaultDisabledParameters?: boolean
@@ -55,6 +58,8 @@ export const generateCodeSnippet = ({
   securitySchemes,
   globalCookies,
   openapiVersion,
+  jsonSchemaDialect,
+  multipartNaming,
   requestBodyCompositionSelection,
   defaultDisabledParameters,
 }: GenerateCodeSnippetProps): string | null => {
@@ -68,7 +73,8 @@ export const generateCodeSnippet = ({
       const ids = getCustomClientIds(customCodeSamples)
       const samples = customCodeSamples.filter((_, index) => ids[index] === clientId)
       if (!samples.some((sample) => sample.example !== undefined)) {
-        return samples[0]?.source ?? 'Custom example not found'
+        const source = samples[0]?.source
+        return typeof source === 'object' ? null : (source ?? 'Custom example not found')
       }
 
       const content = getResolvedRef(operation.requestBody)?.content ?? {}
@@ -77,7 +83,7 @@ export const generateCodeSnippet = ({
       const sample =
         samples.find((sample) => sample.example === exampleKey && sample.contentType === mediaType) ??
         samples.find((sample) => sample.example === exampleKey && sample.contentType === undefined)
-      return sample?.source ?? null
+      return typeof sample?.source === 'string' ? sample.source : null
     }
 
     const harRequest = operationToHar({
@@ -91,6 +97,8 @@ export const generateCodeSnippet = ({
       globalCookies,
       includeDefaultHeaders,
       openapiVersion,
+      jsonSchemaDialect,
+      multipartNaming,
       requestBodyCompositionSelection,
       defaultDisabledParameters,
     })

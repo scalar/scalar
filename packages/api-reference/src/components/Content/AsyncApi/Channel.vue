@@ -23,6 +23,7 @@ import {
 } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import AsyncApiLabels from './AsyncApiLabels.vue'
@@ -47,6 +48,7 @@ type ParameterListOptions = AsyncApiSchemaRenderOptions &
   Pick<ApiReferenceConfigurationRaw, 'hideModels'>
 
 const {
+  specificationExtension = SpecificationExtension,
   channel,
   document,
   layout,
@@ -203,6 +205,9 @@ const { level: headingLevel } = useDocumentOutline('channel')
       scope="channel" />
     <AsyncApiDocumentation
       :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
+    <SpecificationExtension
+      :showExtensions="options?.showExtensions"
+      :value="resolvedChannel" />
     <ParameterList
       v-if="parameters.length"
       class="[&_.parameter-list-title--tree]:text-base!"
@@ -306,6 +311,9 @@ const { level: headingLevel } = useDocumentOutline('channel')
               scope="channel" />
             <AsyncApiDocumentation
               :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
+            <SpecificationExtension
+              :showExtensions="options?.showExtensions"
+              :value="resolvedChannel" />
             <ParameterList
               v-if="parameters.length"
               class="[&_.parameter-list-title--tree]:text-base!"

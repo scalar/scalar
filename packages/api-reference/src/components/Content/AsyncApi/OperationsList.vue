@@ -67,7 +67,7 @@ const navigate = (event: MouseEvent, id: string): void => {
     <ScalarCardSection class="custom-scroll max-h-[60vh]">
       <ul
         :aria-label="`${channelTitle} ${translate('navigation.operations')}`"
-        class="bg-b-2 w-full overflow-auto px-3 py-2.5">
+        class="w-full overflow-auto px-3 py-2.5">
         <li
           v-for="operation in entries"
           :key="operation.id">

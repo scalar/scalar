@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -9,9 +8,9 @@
     "isolatedModules": true,
     "jsx": "react",
     "lib": ["esnext", "dom", "dom.iterable"],
-    "module": "commonjs",
+    "module": "NodeNext",
     "moduleDetection": "force",
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
     "outDir": "dist",
     "resolveJsonModule": true,
     "skipLibCheck": true,

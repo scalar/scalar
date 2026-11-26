@@ -103,17 +103,20 @@ export type Variable = {
 export type Auth = {
   type: string
   noauth?: null
-  apikey?: AuthAttribute[]
-  awsv4?: AuthAttribute[]
-  basic?: AuthAttribute[]
-  bearer?: AuthAttribute[]
-  digest?: AuthAttribute[]
-  edgegrid?: AuthAttribute[]
-  hawk?: AuthAttribute[]
-  ntlm?: AuthAttribute[]
-  oauth1?: AuthAttribute[]
-  oauth2?: AuthAttribute[]
+  apikey?: AuthAttributes
+  awsv4?: AuthAttributes
+  basic?: AuthAttributes
+  bearer?: AuthAttributes
+  digest?: AuthAttributes
+  edgegrid?: AuthAttributes
+  hawk?: AuthAttributes
+  ntlm?: AuthAttributes
+  oauth1?: AuthAttributes
+  oauth2?: AuthAttributes
 }
+
+/** Postman v2.1 lists attributes as key/value rows, while v2.0 uses one object. */
+export type AuthAttributes = AuthAttribute[] | Record<string, string | number | boolean>
 
 type AuthAttribute = {
   key: string
@@ -164,7 +167,7 @@ export type RequestBody = {
   raw?: string
   graphql?: {
     query?: string
-    variables?: Record<string, string | number | boolean | null>
+    variables?: string | Record<string, unknown> | null
   }
   urlencoded?: UrlEncodedParameter[]
   formdata?: FormParameter[]
@@ -240,10 +243,6 @@ export type ParsedUrl = {
 
 export type TableCell = {
   [key: string]: string
-}
-
-export type TableObject = {
-  [key: string]: TableCell
 }
 
 type ProtocolProfileBehavior = {

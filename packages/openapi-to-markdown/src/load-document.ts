@@ -1,13 +1,18 @@
+import { isAbsolute, resolve, sep } from 'node:path'
+import { pathToFileURL } from 'node:url'
+
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { isObject } from '@scalar/helpers/object/is-object'
-import { bundle } from '@scalar/json-magic/bundle'
+import { type DocumentResolver, bundle } from '@scalar/json-magic/bundle'
+import type { DocumentLoadOptions } from '@scalar/json-magic/bundle/plugins/node'
 import { convertToLocalRef } from '@scalar/json-magic/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@scalar/json-magic/helpers/get-schemas'
 import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
-import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
+import { resolveSecurityRequirements } from '@scalar/workspace-store/helpers/resolve-security-requirements'
+import { resolveOpenApiDocument } from '@scalar/workspace-store/plugins/bundler'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema,
@@ -70,8 +75,8 @@ const attachRefValues = (
     let kind: KindPosition | undefined = 'document'
     let parent = document
     for (const key of segments) {
+      position = Array.isArray(parent) ? position : position && getChildPosition(position, key, kind)
       kind = kind && getChildKind(kind, key)
-      position = Array.isArray(parent) ? position : position && getChildPosition(position, key)
       // Arbitrary extension and example data has not passed an OpenAPI object schema.
       if (position === 'document' && kind === undefined) {
         position = undefined
@@ -105,6 +110,7 @@ const attachRefValues = (
     value: unknown,
     schema: Parameters<typeof coerceValue>[0],
     position: SchemaPosition,
+    kind: KindPosition | undefined,
   ): unknown => {
     // OpenAPI 3.1 keeps boolean schemas, and a nested reference is linked once it is walked.
     if (value === undefined || (fallback?.booleanSchemas && position === 'schema' && typeof value === 'boolean')) {
@@ -133,7 +139,7 @@ const attachRefValues = (
         }
       }
       if (fallback?.booleanSchemas) {
-        restoreBooleanSchemas(value, cast, position)
+        restoreBooleanSchemas(value, cast, position, kind)
       }
       casts.set(schema, cast)
     }
@@ -178,7 +184,7 @@ const attachRefValues = (
         const expectedSchema = getTargetSchema(position, kind)
         const schema = resolved?.schema === expectedSchema ? undefined : expectedSchema
         // Point to the target instead of copying it into every reference.
-        const target = schema ? castFallback(resolved?.value, schema, position ?? 'document') : resolved?.value
+        const target = schema ? castFallback(resolved?.value, schema, position ?? 'document', kind) : resolved?.value
 
         if (target !== undefined) {
           Object.defineProperty(node, '$ref-value', {
@@ -198,7 +204,7 @@ const attachRefValues = (
     // Preserve the nearest resource base while walking into child schemas.
     for (const [key, child] of Object.entries(node)) {
       const childKind = kind && getChildKind(kind, key)
-      const childPosition = Array.isArray(node) ? position : position && getChildPosition(position, key)
+      const childPosition = Array.isArray(node) ? position : position && getChildPosition(position, key, kind)
       visit(child, base, childPosition === 'document' && childKind === undefined ? undefined : childPosition, childKind)
     }
   }
@@ -206,83 +212,77 @@ const attachRefValues = (
   return hasExternalReferences
 }
 
-/** Permissions for loading an API description and its external references. */
-export type DocumentLoadOptions = {
-  /** Allow private-network requests only for trusted input. Defaults to false. */
-  allowPrivateNetworks?: boolean
-  /** Approved directory for local files and references. File access is disabled when omitted. */
-  basePath?: string
-}
+export type { DocumentLoadOptions } from '@scalar/json-magic/bundle/plugins/node'
+
+// A relative $self is a URI reference even when the document was retrieved from a local path.
+const resolveNodeOpenApiDocument: DocumentResolver = (document, retrievalUri) =>
+  resolveOpenApiDocument(document, isAbsolute(retrievalUri) ? pathToFileURL(retrievalUri).href : retrievalUri)
 
 /** Coerce one plain document and keep references linked to shared targets. */
 export const loadDocument = async (
   input: OpenApiDocument | Record<string, unknown> | string,
   options: DocumentLoadOptions = {},
 ): Promise<OpenApiDocument> => {
-  let raw: unknown
-  let origin: string | undefined
-  const { fetchUrls, readFiles } = await import('@scalar/json-magic/bundle/plugins/node')
-  const urlLoader = fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks })
-  const fileLoader = options.basePath === undefined ? undefined : readFiles({ basePath: options.basePath })
-
+  const { createDocumentLoader } = await import('@scalar/json-magic/bundle/plugins/node')
+  const loader = createDocumentLoader(options)
   // Reference links are attached below, so never mutate the caller's document.
-  if (typeof input !== 'string') {
-    raw = deepClone(getRaw(input))
-  }
-
-  // Inline JSON and YAML avoid the I/O path; URLs and files are loaded afterward.
-  else {
-    const normalized = normalize(input)
-
-    if (isObject(normalized)) {
-      raw = normalized
-    } else if (/^https?:\/\//i.test(input)) {
-      const result = await urlLoader.exec(input)
-      if (!result.ok) {
-        throw new Error('Failed to load OpenAPI document')
-      }
-      raw = result.data
-      origin = input
-    } else {
-      if (!fileLoader) {
-        throw new Error('Local file access requires an explicit basePath')
-      }
-      const { resolve } = await import('node:path')
-      origin = resolve(input)
-      const result = await fileLoader.exec(origin)
-      if (!result.ok) {
-        throw new Error('Failed to load OpenAPI document')
-      }
-      raw = result.data
-    }
-  }
+  const { value: raw, origin } =
+    typeof input === 'string'
+      ? await loader.load(input, 'OpenAPI')
+      : { value: deepClone(getRaw(input)), origin: undefined }
   if (!isObject(raw)) {
     throw new Error('Failed to load OpenAPI document')
   }
 
+  // Check identity before upgrading so older descriptions cannot acquire $self semantics.
+  // In-memory input has no retrieval URI. Keep the fallback directory's trailing separator
+  // so relative identities resolve inside it rather than alongside it.
+  const retrievalUri = origin ?? `${resolve(options.basePath ?? '.')}${sep}`
+  const entryIdentity = resolveNodeOpenApiDocument(raw, retrievalUri)
   // Upgrade before indexing so reference resolution sees one consistent dialect.
   const declaredOpenapiVersion = typeof raw.openapi === 'string' ? raw.openapi : '2.0'
+  const isThreeTwo = /^3\.2\.\d+$/.test(declaredOpenapiVersion)
   const { document: upgraded } = upgrade(raw, '3.2', { onIncompatible: 'collect' })
   const upgradedSchemas = getSchemas(upgraded)
-  const hasExternalReferences = attachRefValues(upgraded, upgradedSchemas, { detectOnly: true })
 
   let document = upgraded
   let schemas = upgradedSchemas
 
-  // Resolve external targets only when the initial local-reference pass finds them.
-  if (hasExternalReferences) {
+  // The local fast path only indexes schema IDs. Let the bundler handle document identities.
+  if (entryIdentity || attachRefValues(upgraded, upgradedSchemas, { detectOnly: true })) {
     const errors: string[] = []
-    const plugins = fileLoader ? [urlLoader, fileLoader] : [urlLoader]
     document = await bundle(upgraded, {
-      plugins,
+      plugins: loader.plugins,
+      // Example payloads can contain literal $ref keys.
+      traversal: 'document',
       origin,
       treeShake: false,
-      hooks: { onResolveError: (node) => errors.push(`Failed to resolve ${node.$ref}`) },
+      urlMap: isThreeTwo,
+      hooks: {
+        resolveDocument: (resource, retrievalUri) =>
+          resource === upgraded ? entryIdentity : resolveNodeOpenApiDocument(resource, retrievalUri),
+        onResolveError: (node) => errors.push(`Failed to resolve ${node.$ref}`),
+      },
     })
     if (errors.length) {
       throw new Error(errors.join('\n'))
     }
     schemas = getSchemas(document)
+    // References from nested schema resources can be rewritten to absolute pointers into the entry document.
+    if (entryIdentity) {
+      schemas.set(entryIdentity.baseUri, '')
+    }
+  }
+
+  // URI requirements are not $ref fields, so they need the same alias pass as the workspace store.
+  // Check the authored version because upgrading older descriptions must not enable URI semantics.
+  if (isThreeTwo) {
+    await resolveSecurityRequirements(document, { origin: retrievalUri, loaders: loader.plugins })
+    schemas = getSchemas(document)
+    // The URI pass can add resources, so retain the entry identity in the refreshed index.
+    if (entryIdentity) {
+      schemas.set(entryIdentity.baseUri, '')
+    }
   }
 
   // Cast the document before linking references. TypeBox clones every value that already

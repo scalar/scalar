@@ -3,11 +3,11 @@ import type { AnyApiReferenceConfiguration, ApiReferencePlugin } from '@scalar/t
 /**
  * Import a plugin module with a browser-native dynamic `import()`.
  *
- * The specifier is fully dynamic, so bundlers can't analyze it and leave the `import()` call
- * as-is in the output (including the UMD standalone bundle) — the `@vite-ignore` comment just
- * silences the warning about that.
+ * Plugin URLs are resolved at runtime. Keep the import native when consumers bundle
+ * this package with Vite, Webpack, or Turbopack.
  */
-const importModule = (url: string): Promise<Record<string, unknown>> => import(/* @vite-ignore */ url)
+const importModule = (url: string): Promise<Record<string, unknown>> =>
+  import(/* @vite-ignore */ /* webpackIgnore: true */ url)
 
 /**
  * Load a single plugin module and return its default export.

@@ -1,6 +1,7 @@
 import type { Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 import { encode } from 'js-base64'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 
 /**
@@ -76,8 +77,7 @@ function getHttpMethod(method: string): string {
  * Add headers and authentication to the request
  */
 function addHeadersAndAuth(lines: string[], request: any, configuration?: PluginConfiguration): void {
-  const headers = request.headers || []
-  const cookies = request.cookies || []
+  const headers = mergeCookieHeaders(request)
 
   // Check for explicit Authorization header first
   const authHeader = headers.find((h: any) => h.name.toLowerCase() === 'authorization')
@@ -120,12 +120,6 @@ function addHeadersAndAuth(lines: string[], request: any, configuration?: Plugin
         `request.Headers.TryAddWithoutValidation("${escapeCSharpString(name)}", "${escapeCSharpString(value)}");`,
       )
     }
-  }
-
-  // Add cookies
-  if (cookies.length > 0) {
-    const cookieString = escapeCSharpString(cookies.map((cookie: any) => `${cookie.name}=${cookie.value}`).join('; '))
-    lines.push(`request.Headers.TryAddWithoutValidation("Cookie", "${cookieString}");`)
   }
 }
 

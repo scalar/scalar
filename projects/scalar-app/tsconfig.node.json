@@ -5,7 +5,7 @@
     "electron.vite.config.*",
     "assert-scalar-app-env.ts",
     "assert-scalar-app-env-plugin.ts",
-    "monaco-vite-plugin-options.ts",
+    "monaco-vite-config.ts",
     "vite.config.ts",
     "entrypoints/electron/main/**/*",
     "entrypoints/electron/preload/**/*",
@@ -15,12 +15,12 @@
     "src/helpers/auth/schema.ts"
   ],
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "moduleResolution": "bundler",
     "composite": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@electron/*": ["entrypoints/electron/*"]
+      "@/*": ["./src/*"],
+      "@electron/*": ["./entrypoints/electron/*"]
     },
     "types": ["electron-vite/node", "node"]
   }

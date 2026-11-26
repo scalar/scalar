@@ -12,6 +12,8 @@ import YAML from 'yaml'
 import { parseJson } from '@/bundle/plugins/parse-json'
 import { parseYaml } from '@/bundle/plugins/parse-yaml'
 import { getHash } from '@/bundle/value-generator'
+import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
+import { getValueByPath } from '@/helpers/get-value-by-path'
 
 import {
   type LoaderPlugin,
@@ -22,11 +24,52 @@ import {
   prefixInternalRefRecursive,
   resolveAndCopyReferences,
 } from './bundle'
+import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { documentReferences } from './document-references'
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 
 describe('bundle', () => {
+  it.each([
+    [undefined, false],
+    ['nested/Pet.yaml', false],
+    [undefined, true],
+    ['nested/Pet.yaml', true],
+  ] as const)(
+    'loads stored document relatives from their retrieval base with id %s (strict: %s)',
+    async ($id, strict) => {
+      const reads: string[] = []
+      const run = strict ? bundleWithDiagnostics : bundle
+      const result = await run(
+        {
+          entry: { $ref: '#/x-ext/a' },
+          'x-ext': { a: { ...($id ? { $id } : {}), value: { $ref: './common.yaml#/Value' } } },
+        },
+        {
+          origin: 'https://example.com/api/root.json',
+          treeShake: false,
+          plugins: [
+            {
+              type: 'loader',
+              validate: () => true,
+              exec: (uri) => {
+                reads.push(uri)
+                return Promise.resolve({ ok: true, data: { Value: { type: 'string' } }, raw: '' })
+              },
+            },
+          ],
+        },
+      )
+      expect(reads).toStrictEqual([
+        $id ? 'https://example.com/api/nested/common.yaml' : 'https://example.com/api/common.yaml',
+      ])
+      if (strict) expect(result['complete']).toBe(true)
+      const reference = (strict ? result['document'] : result)['x-ext'].a.value.$ref
+      expect(reference.startsWith('#/x-ext/')).toBe(true)
+      expect(reference.endsWith('/Value')).toBe(true)
+    },
+  )
+
   it.each([true, false])(
     'preserves authored URL edges while loading remote relatives (treeShake: %s)',
     async (treeShake) => {
@@ -110,7 +153,9 @@ describe('bundle', () => {
       expect(child.$id).toBe('https://example.test/api/schemas/child.json')
       expect(index.resolve(child.self.$ref, child.$id)?.value).toBe(child)
       expect(index.resolve(child.value.$ref, child.$id)?.value).toBe(child.$defs.value)
-      expect(index.resolve(child.next.$ref, child.$id)?.value).toBe(exported['x-ext']['schemas%2Fnested.json'])
+      const next = getValueByPath(child, getSegmentsFromPath(new URL(child.next.$ref, child.$id).hash)).value
+      expect(index.resolve(child.next.$ref, child.$id)?.value).toBe(next)
+      expect(next).toEqual(exported['x-ext']['schemas%2Fnested.json'])
       const nested = child.$defs.nested
       expect(index.resolve(nested.self.$ref, nested.$id)?.value).toBe(nested)
       expect(nested.$id).toBe('https://example.test/api/schemas/nested-resource.json')
@@ -3016,6 +3061,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
       expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
@@ -3038,6 +3084,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
 
@@ -3062,6 +3109,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
       expect(onAfterNodeProcess).toHaveBeenNthCalledWith(
@@ -3082,6 +3130,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
     })

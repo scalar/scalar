@@ -19,14 +19,15 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "go build main.go",
-    "dev": "cross-env ENV=dev PORT=5051 go run main.go",
+    "build": "go build -o main .",
+    "dev": "cross-env ENV=dev PORT=5051 go run .",
     "docker:build": "docker build -t scalar-proxy-server .",
-    "docker:run": "pnpm docker:build && docker run --env ENV=dev -p 5051:9033 scalar-proxy-server",
-    "lint:check": "go fmt ./main.go",
-    "lint:fix": "go fmt ./main.go",
+    "docker:run": "pnpm docker:build && docker run --env PROXY_LISTEN_HOST=0.0.0.0 -p 127.0.0.1:5051:9033 scalar-proxy-server",
+    "lint:check": "test -z \"$(gofmt -l .)\"",
+    "lint:fix": "go fmt ./...",
     "preview": "pnpm dev",
     "test": "go test -v",
+    "test:server": "cross-env SCALAR_PROXY_FIXTURE_SERVER=1 PORT=5051 go test -run '^TestProxyFixtureServer$' -timeout 0 -count=1",
     "types:build": "pnpm build",
     "types:check": "pnpm build"
   },

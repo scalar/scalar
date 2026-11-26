@@ -14,7 +14,7 @@ import {
   updateSelectedSecuritySchemes,
   upsertScope,
 } from '@/mutators/auth'
-import type { WorkspaceDocument } from '@/schemas'
+import { type WorkspaceDocument, isAsyncApiDocument } from '@/schemas'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
 import type { OAuth2Object, SecuritySchemeObject } from '@/schemas/v3.2/strict/security-scheme'
@@ -1145,6 +1145,22 @@ describe('updateSelectedScopes', () => {
 })
 
 describe('deleteSecurityScheme', () => {
+  it('leaves method-shaped Paths extensions unchanged', async () => {
+    const store = createWorkspaceStore()
+    const extension = { get: { security: [{ A: [] }] } }
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        components: { securitySchemes: { A: { type: 'http', scheme: 'bearer' } } },
+        paths: { 'x-metadata': extension, '/pets': { get: { security: [{ A: [] }] } } },
+      }),
+    })
+    deleteSecurityScheme(store, store.workspace.activeDocument!, { names: ['A'] })
+    const document = getActiveOpenApiDocument(store)
+    expect(document?.paths?.['x-metadata']).toStrictEqual(extension)
+    expect(getResolvedRef(getPathItemOperation(document?.paths?.['/pets'], 'get'))?.security).toStrictEqual([])
+  })
+
   it('removes schemes from components, document selections, document security, and operations', async () => {
     const document = createDocument({
       components: {
@@ -2027,7 +2043,11 @@ describe('AsyncAPI document auth', () => {
 
   // Resolve a scheme (and any ref wrapper on `components`) from the active AsyncAPI document.
   const getScheme = (document: WorkspaceDocument, name: string) =>
-    getResolvedRef(getResolvedRef(document.components)?.securitySchemes?.[name]) as Record<string, unknown> | undefined
+    isAsyncApiDocument(document)
+      ? (getResolvedRef(getResolvedRef(document.components)?.securitySchemes?.[name]) as
+          | Record<string, unknown>
+          | undefined)
+      : undefined
 
   it('persists the selected security scheme for an AsyncAPI document', async () => {
     const documentName = 'async'

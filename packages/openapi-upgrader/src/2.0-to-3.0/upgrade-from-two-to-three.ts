@@ -1,8 +1,13 @@
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
+import { isInsideDataValue } from '@/helpers/is-inside-data-value'
 import { traverse } from '@/helpers/traverse'
+
+import { migrateDiscriminatorMappings } from './migrate-discriminator-mappings'
 
 type XExampleExtensions = {
   xExample: unknown
@@ -233,8 +238,9 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   // Schemas
   if (document.definitions) {
     for (const schema of Object.values(document.definitions)) {
-      migrateSchemaNullability(schema)
+      migrateSchema(schema)
     }
+    migrateDiscriminatorMappings(document.definitions)
 
     document.components = Object.assign({}, document.components, {
       schemas: document.definitions,
@@ -254,8 +260,8 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   }
 
   // Transform file type to string with binary format
-  document = traverse(document, (schema) => {
-    if (schema.type === 'file') {
+  document = traverse(document, (schema, path) => {
+    if (schema.type === 'file' && !isInsideDataValue(path, '2.0')) {
       schema.type = 'string'
       schema.format = 'binary'
     }
@@ -263,22 +269,34 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     return schema
   })
 
-  if (Object.hasOwn(document, 'parameters')) {
-    // update all the $refs before we do any transformations
-    document = traverse(document, (schema) => {
-      if (typeof schema.$ref === 'string' && schema.$ref.startsWith('#/parameters/')) {
-        const schemaName = schema.$ref.split('/')[2]
+  const globalConsumes = (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
+  // Keep the source fields and examples for operation-specific media types and combined forms.
+  const sharedBodyParameters = new Map<string, OpenAPIV2.ParameterObject>()
 
-        if (!schemaName) {
+  if (Object.hasOwn(document, 'parameters')) {
+    const sourceParameters = isObjectLike(document.parameters) ? document.parameters : {}
+    const sharedBodyNames = new Map<string, string>()
+    for (const name of Object.keys(sourceParameters)) {
+      const targetName = resolveSharedBodyName(name, sourceParameters)
+      if (targetName !== undefined) {
+        sharedBodyNames.set(name, targetName)
+      }
+    }
+
+    // Update references before transforming their targets, but leave literal payload data untouched.
+    document = traverse(document, (schema, path) => {
+      if (
+        !isInsideDataValue(path, '2.0') &&
+        typeof schema.$ref === 'string' &&
+        schema.$ref.startsWith('#/parameters/')
+      ) {
+        const schemaName = parseParameterReference(schema.$ref)[1]
+
+        if (schemaName === undefined) {
           return schema
         }
 
-        const param =
-          isObjectLike(document.parameters) && schemaName in document.parameters
-            ? document.parameters[schemaName]
-            : undefined
-
-        if (param && typeof param === 'object' && 'in' in param && (param.in === 'body' || param.in === 'formData')) {
+        if (sharedBodyNames.has(schemaName)) {
           schema.$ref = schema.$ref.replace(/^#\/parameters\//, '#/components/requestBodies/')
         } else {
           schema.$ref = schema.$ref.replace(/^#\/parameters\//, '#/components/parameters/')
@@ -291,20 +309,24 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     document.components ??= {}
 
     const params: Record<string, OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject> = {}
-    const bodyParams: Record<string, OpenAPIV3.RequestBodyObject> = {}
+    const bodyParams: Record<string, OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject> = {}
     const parameters = isObjectLike(document.parameters) ? document.parameters : {}
+    for (const [name, targetName] of sharedBodyNames) {
+      sharedBodyParameters.set(name, structuredClone(parameters[targetName]) as OpenAPIV2.ParameterObject)
+    }
     for (const [name, param] of Object.entries(parameters)) {
       if (param && typeof param === 'object') {
         // Handle reference objects
         if ('$ref' in param) {
           const convertedParam = transformParameterObject(param as OpenAPIV2.ReferenceObject)
-          params[name] = convertedParam
+          if (sharedBodyParameters.has(name)) {
+            bodyParams[name] = param as OpenAPIV3.ReferenceObject
+          } else {
+            params[name] = convertedParam
+          }
         } else if ('in' in param) {
           if (param.in === 'body') {
-            bodyParams[name] = migrateBodyParameter(
-              param as OpenAPIV2.ParameterObject,
-              (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
-            )
+            bodyParams[name] = migrateBodyParameter(param as OpenAPIV2.ParameterObject, globalConsumes)
           } else if (param.in === 'formData') {
             bodyParams[name] = migrateFormDataParameter(
               [param as OpenAPIV2.ParameterObject],
@@ -351,79 +373,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
           migratedResponses[name] = response as OpenAPIV3.ReferenceObject
         } else {
           // Transform the response object
-          const responseObj = response
-          const produces = (document.produces as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
-
-          // Transform schema to content
-          if (responseObj.schema) {
-            migrateSchemaNullability(responseObj.schema)
-            if (typeof responseObj.content !== 'object') {
-              responseObj.content = {}
-            }
-
-            for (const type of produces) {
-              ;(responseObj.content as Record<string, unknown>)[type] = {
-                schema: responseObj.schema,
-              }
-            }
-
-            delete responseObj.schema
-          }
-
-          // Transform examples from Swagger 2.0 to OpenAPI 3.0 format
-          if (responseObj.examples && typeof responseObj.examples === 'object') {
-            if (typeof responseObj.content !== 'object') {
-              responseObj.content = {}
-            }
-
-            const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
-
-            for (const [key, exampleValue] of Object.entries(responseObj.examples as Record<string, unknown>)) {
-              // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
-              if (isMediaTypeKey(key, produces)) {
-                if (typeof (responseObj.content as Record<string, unknown>)[key] !== 'object') {
-                  ;(responseObj.content as Record<string, unknown>)[key] = {}
-                }
-                ;((responseObj.content as Record<string, unknown>)[key] as Record<string, unknown>).example =
-                  exampleValue
-              } else {
-                if (typeof (responseObj.content as Record<string, unknown>)[defaultMediaType] !== 'object') {
-                  ;(responseObj.content as Record<string, unknown>)[defaultMediaType] = {}
-                }
-                const mediaEntry = (responseObj.content as Record<string, unknown>)[defaultMediaType] as Record<
-                  string,
-                  unknown
-                >
-                if (typeof mediaEntry.examples !== 'object') {
-                  mediaEntry.examples = {}
-                }
-                ;(mediaEntry.examples as Record<string, OpenAPIV3.ExampleObject>)[key] =
-                  wrapAsExampleObject(exampleValue)
-              }
-            }
-
-            delete responseObj.examples
-          }
-
-          // Clean up content entries that only have an empty schema when other entries have examples
-          if (responseObj.content && typeof responseObj.content === 'object') {
-            removeEmptySchemaOnlyContentEntries(responseObj.content as Record<string, unknown>)
-          }
-
-          // Transform headers if present
-          if (isObjectLike(responseObj.headers)) {
-            responseObj.headers = Object.entries(responseObj.headers).reduce<
-              Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>
-            >((acc, [headerName, header]) => {
-              if (header && typeof header === 'object') {
-                return {
-                  [headerName]: transformResponseHeader(header),
-                  ...acc,
-                }
-              }
-              return acc
-            }, {})
-          }
+          const responseObj = transformResponseObject(
+            response,
+            (document.produces as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
+          )
 
           migratedResponses[name] = responseObj as OpenAPIV3.ResponseObject
         }
@@ -443,32 +396,61 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
       if (Object.hasOwn(document.paths, path)) {
         const pathItem = isObjectLike(document.paths) && path in document.paths ? document.paths[path] : undefined
 
-        if (!pathItem || typeof pathItem !== 'object') {
+        if (!isObjectLike(pathItem)) {
           continue
         }
 
-        let requestBodyObject: OpenAPIV3.RequestBodyObject | undefined
+        // Path parameters apply to every operation, regardless of their position in the document.
+        const pathParameters = (Array.isArray(pathItem.parameters) ? structuredClone(pathItem.parameters) : []).map(
+          (original: SwaggerParameter) => ({
+            original,
+            resolved: resolveBodyParameter(original, sharedBodyParameters),
+          }),
+        )
+        const inheritedBodyParameters = pathParameters.filter(({ resolved }) => isRequestBodyParameter(resolved))
+
+        if (Array.isArray(pathItem.parameters)) {
+          const parameters = pathParameters
+            .filter(({ resolved }) => !isRequestBodyParameter(resolved))
+            .map(({ original }) => transformParameterObject(original))
+          if (parameters.length === 0) {
+            delete pathItem.parameters
+          } else {
+            pathItem.parameters = parameters
+          }
+        }
 
         for (const methodOrParameters in pathItem) {
-          if (methodOrParameters === 'parameters' && Object.hasOwn(pathItem, methodOrParameters)) {
-            const pathItemParameters = migrateParameters(
-              (pathItem as any).parameters,
-              (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
-            )
-
-            ;(pathItem as any).parameters = pathItemParameters.parameters
-            requestBodyObject = pathItemParameters.requestBody
-          } else if (Object.hasOwn(pathItem, methodOrParameters)) {
-            const operationItem = (pathItem as any)[methodOrParameters]
-
-            if (requestBodyObject) {
-              operationItem.requestBody = requestBodyObject
+          if (methodOrParameters !== 'parameters' && Object.hasOwn(pathItem, methodOrParameters)) {
+            if (!isObjectLike(pathItem[methodOrParameters]) || methodOrParameters.startsWith('x-')) {
+              continue
             }
 
-            if (operationItem.parameters) {
+            const operationItem = (pathItem as any)[methodOrParameters]
+
+            const operationParameters: SwaggerParameter[] = Array.isArray(operationItem.parameters)
+              ? operationItem.parameters
+              : []
+            const operationBodies = operationParameters
+              .map((parameter) => resolveBodyParameter(parameter, sharedBodyParameters))
+              .filter(isRequestBodyParameter)
+            const inheritedParameters = inheritedBodyParameters
+              .filter(
+                ({ resolved: inherited }) =>
+                  !operationBodies.some(
+                    (override) =>
+                      // A body replaces the entire payload; form fields still combine by name.
+                      override.in === 'body' || inherited.in === 'body' || inherited.name === override.name,
+                  ),
+              )
+              .map(({ original }) => original)
+
+            if (operationParameters.length || inheritedParameters.length) {
               const migrationResult = migrateParameters(
-                operationItem.parameters,
-                operationItem.consumes ?? document.consumes ?? [DEFAULT_MEDIA_TYPE],
+                [...structuredClone(inheritedParameters), ...operationParameters],
+                (operationItem.consumes as string[] | undefined) ?? globalConsumes,
+                sharedBodyParameters,
+                globalConsumes,
               )
 
               operationItem.parameters = migrationResult.parameters
@@ -484,74 +466,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
             if (operationItem.responses) {
               for (const response in operationItem.responses) {
                 if (Object.hasOwn(operationItem.responses, response)) {
-                  const responseItem = operationItem.responses[response]
-
-                  if (responseItem.headers && typeof responseItem.headers === 'object') {
-                    responseItem.headers = Object.entries(responseItem.headers).reduce<
-                      Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>
-                    >((acc, [name, header]) => {
-                      if (header && typeof header === 'object') {
-                        return {
-                          [name]: transformResponseHeader(header),
-                          ...acc,
-                        }
-                      }
-                      return acc
-                    }, {})
-                  }
-                  if (responseItem.schema) {
-                    migrateSchemaNullability(responseItem.schema)
-                    const produces = document.produces ?? operationItem.produces ?? [DEFAULT_MEDIA_TYPE]
-
-                    if (typeof responseItem.content !== 'object') {
-                      responseItem.content = {}
-                    }
-
-                    for (const type of produces) {
-                      responseItem.content[type] = {
-                        schema: responseItem.schema,
-                      }
-                    }
-
-                    delete responseItem.schema
-                  }
-
-                  // Transform response examples from Swagger 2.0 to OpenAPI 3.0 format
-                  // In Swagger 2.0, examples are at response level: examples: { DEFAULT_MEDIA_TYPE: {...} } or named: { 'Example': {...} }
-                  // In OpenAPI 3.0, examples move inside content: content: { DEFAULT_MEDIA_TYPE: { example: {...} } } or examples: { Example: { value: {...} } }
-                  if (responseItem.examples && typeof responseItem.examples === 'object') {
-                    if (typeof responseItem.content !== 'object') {
-                      responseItem.content = {}
-                    }
-
-                    const produces: string[] = document.produces ?? operationItem.produces ?? [DEFAULT_MEDIA_TYPE]
-                    const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
-                    for (const [key, exampleValue] of Object.entries(responseItem.examples)) {
-                      // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
-                      if (isMediaTypeKey(key, operationItem.produces ?? produces)) {
-                        if (typeof responseItem.content[key] !== 'object') {
-                          responseItem.content[key] = {}
-                        }
-                        responseItem.content[key].example = exampleValue
-                      } else {
-                        if (typeof responseItem.content[defaultMediaType] !== 'object') {
-                          responseItem.content[defaultMediaType] = {}
-                        }
-                        const mediaEntry = responseItem.content[defaultMediaType]
-                        if (typeof mediaEntry.examples !== 'object') {
-                          mediaEntry.examples = {}
-                        }
-                        mediaEntry.examples[key] = wrapAsExampleObject(exampleValue)
-                      }
-                    }
-
-                    delete responseItem.examples
-                  }
-
-                  // Clean up content entries that only have an empty schema when other entries have examples
-                  if (responseItem.content && typeof responseItem.content === 'object') {
-                    removeEmptySchemaOnlyContentEntries(responseItem.content)
-                  }
+                  operationItem.responses[response] = transformResponseObject(
+                    operationItem.responses[response],
+                    operationItem.produces ?? document.produces ?? [DEFAULT_MEDIA_TYPE],
+                  )
                 }
               }
             }
@@ -656,12 +574,24 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 }
 
 /**
- * Swagger tooling uses x-nullable for the nullability keyword introduced in OpenAPI 3.0.
- * Visit only subschemas so example/default values and custom extensions remain user data.
+ * Converts Swagger discriminator and nullability fields to their OpenAPI 3.0 forms.
+ * Visit only OpenAPI 2.0 subschema keywords so example/default values and custom extensions remain user data.
+ * Set recursive to false when the caller already owns schema traversal.
  */
-const migrateSchemaNullability = (schema: unknown): void => {
+export const migrateSchema = (schema: unknown, recursive = true): void => {
   if (!isObjectLike(schema)) {
     return
+  }
+
+  if (typeof schema.discriminator === 'string') {
+    const propertyName = schema.discriminator
+    schema.discriminator = { propertyName }
+    // OpenAPI 2.0 requires the discriminating property, including an empty property name.
+    if (schema.required === undefined) {
+      schema.required = [propertyName]
+    } else if (Array.isArray(schema.required) && !schema.required.includes(propertyName)) {
+      schema.required.push(propertyName)
+    }
   }
 
   if (typeof schema['x-nullable'] === 'boolean') {
@@ -672,44 +602,49 @@ const migrateSchemaNullability = (schema: unknown): void => {
     delete schema['x-nullable']
   }
 
+  if (!recursive) {
+    return
+  }
+
   if (isObjectLike(schema.properties)) {
     for (const property of Object.values(schema.properties)) {
-      migrateSchemaNullability(property)
+      migrateSchema(property)
     }
   }
 
-  migrateSchemaNullability(schema.items)
-  migrateSchemaNullability(schema.additionalProperties)
+  migrateSchema(schema.items)
+  migrateSchema(schema.additionalProperties)
 
   if (Array.isArray(schema.allOf)) {
     for (const member of schema.allOf) {
-      migrateSchemaNullability(member)
+      migrateSchema(member)
     }
   }
 }
 
-function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): OpenAPIV3.SchemaObject {
-  const schemaProperties = [
-    'type',
-    'format',
-    'default',
-    'items',
-    'maximum',
-    'exclusiveMaximum',
-    'minimum',
-    'exclusiveMinimum',
-    'maxLength',
-    'minLength',
-    'pattern',
-    'maxItems',
-    'minItems',
-    'uniqueItems',
-    'enum',
-    'multipleOf',
-    'x-nullable',
-  ]
+/** Schema-valued fields moved from a 2.0 non-body parameter or header into its schema. */
+export const parameterSchemaFields = [
+  'type',
+  'format',
+  'default',
+  'items',
+  'maximum',
+  'exclusiveMaximum',
+  'minimum',
+  'exclusiveMinimum',
+  'maxLength',
+  'minLength',
+  'pattern',
+  'maxItems',
+  'minItems',
+  'uniqueItems',
+  'enum',
+  'multipleOf',
+  'x-nullable',
+] as const
 
-  const schema = schemaProperties.reduce<OpenAPIV3.SchemaObject>((acc, property) => {
+function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): OpenAPIV3.SchemaObject {
+  const schema = parameterSchemaFields.reduce<OpenAPIV3.SchemaObject>((acc, property) => {
     if (Object.hasOwn(obj, property)) {
       acc[property] = obj[property]
       delete obj[property]
@@ -718,7 +653,7 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
     return acc
   }, {})
 
-  migrateSchemaNullability(schema)
+  migrateSchema(schema)
   return schema
 }
 
@@ -732,7 +667,8 @@ function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.
   return location
 }
 
-function transformParameterObject(
+/** Convert a 2.0 non-body parameter in place, moving validation fields into its schema. */
+export function transformParameterObject(
   parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject,
 ): OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject {
   if (Object.hasOwn(parameter, '$ref') && typeof parameter.$ref === 'string') {
@@ -795,7 +731,7 @@ function transformParameterObject(
  * Transform OpenAPI 2.0 response header to OpenAPI 3.0 format.
  * Response headers do not have "in", "name", "style", or "explode" properties.
  */
-function transformResponseHeader(
+export function transformResponseHeader(
   header: OpenAPIV2.HeaderObject | OpenAPIV2.ReferenceObject,
 ): OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject {
   if (Object.hasOwn(header, '$ref') && typeof header.$ref === 'string') {
@@ -805,10 +741,16 @@ function transformResponseHeader(
   }
 
   const schema = transformItemsObject(header)
+  const { xExample, xExamples } = extractXExampleExtensions(header)
+  const examples = isNonEmptyObject(xExamples)
+    ? Object.fromEntries(Object.entries(xExamples).map(([name, value]) => [name, wrapAsExampleObject(value)]))
+    : undefined
 
   return {
     ...header,
     schema,
+    ...(examples ? { examples } : {}),
+    ...(!examples && xExample !== undefined ? { example: xExample } : {}),
   }
 }
 
@@ -894,10 +836,11 @@ function getFormDataEncoding(parameter: OpenAPIV2.ParameterObject): OpenAPIV3.En
 
 type ParameterMigrationResult = {
   parameters: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[]
-  requestBody?: OpenAPIV3.RequestBodyObject
+  requestBody?: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject
 }
 
-function migrateBodyParameter(
+/** Convert a 2.0 body parameter in place using the owning operation's effective request media types. */
+export function migrateBodyParameter(
   bodyParameter: OpenAPIV2.ParameterObject,
   consumes: string[],
 ): OpenAPIV3.RequestBodyObject {
@@ -909,7 +852,7 @@ function migrateBodyParameter(
   delete bodyParameter.in
 
   const { schema, ...requestBody } = bodyParameter
-  migrateSchemaNullability(schema)
+  migrateSchema(schema)
 
   const requestBodyObject: OpenAPIV3.RequestBodyObject = {
     content: {},
@@ -980,7 +923,8 @@ function migrateBodyParameter(
   return requestBodyObject
 }
 
-function migrateFormDataParameter(
+/** Combine 2.0 form parameters without modifying them, using the effective request media types. */
+export function migrateFormDataParameter(
   parameters: OpenAPIV2.ParameterObject[],
   consumes: string[] | undefined = ['multipart/form-data'],
 ): OpenAPIV3.RequestBodyObject {
@@ -1041,44 +985,184 @@ function migrateFormDataParameter(
   return requestBodyObject
 }
 
-function migrateParameters(parameters: OpenAPIV2.ParameterObject[], consumes: string[]): ParameterMigrationResult {
-  const result: ParameterMigrationResult = {
-    parameters: parameters
-      .filter((parameter) => !(parameter.in === 'body' || parameter.in === 'formData'))
-      .map((parameter) => transformParameterObject(parameter)),
-  }
+type SwaggerParameter = OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject
 
-  const bodyParameter = structuredClone(
-    parameters.find((parameter: OpenAPIV2.ParameterObject) => parameter.in === 'body') ?? {},
+/** Keep malformed percent escapes from aborting an otherwise usable API description. */
+const parseParameterReference = (reference: string): string[] => {
+  try {
+    return parseJsonPointerSegments(reference.slice(1))
+  } catch {
+    return reference.split('/').slice(1).map(unescapeJsonPointerSegment)
+  }
+}
+
+/** Follow local aliases without looping on cyclic or unresolved parameter references. */
+const resolveSharedBodyName = (name: string, parameters: UnknownObject): string | undefined => {
+  const seen = new Set<string>()
+  let currentName = name
+  while (!seen.has(currentName) && Object.hasOwn(parameters, currentName)) {
+    seen.add(currentName)
+    const parameter = parameters[currentName]
+    if (!isObjectLike(parameter)) {
+      return undefined
+    }
+    if (typeof parameter.$ref !== 'string') {
+      return parameter.in === 'body' || parameter.in === 'formData' ? currentName : undefined
+    }
+    if (!parameter.$ref.startsWith('#/parameters/')) {
+      return undefined
+    }
+    const segments = parseParameterReference(parameter.$ref)
+    if (segments.length !== 2 || segments[1] === undefined) {
+      return undefined
+    }
+    currentName = segments[1]
+  }
+  return undefined
+}
+
+/** Resolve only the shared parameters that were migrated to request body components. */
+const resolveBodyParameter = (
+  parameter: SwaggerParameter,
+  sharedBodyParameters: ReadonlyMap<string, OpenAPIV2.ParameterObject>,
+): SwaggerParameter => {
+  if ('$ref' in parameter && parameter.$ref.startsWith('#/components/requestBodies/')) {
+    const segments = parseParameterReference(parameter.$ref)
+    const name = segments[2]
+    return (segments.length === 3 && name !== undefined ? sharedBodyParameters.get(name) : undefined) ?? parameter
+  }
+  return parameter
+}
+
+const isRequestBodyParameter = (parameter: SwaggerParameter): parameter is OpenAPIV2.ParameterObject =>
+  'in' in parameter && (parameter.in === 'body' || parameter.in === 'formData')
+
+function migrateParameters(
+  parameters: SwaggerParameter[],
+  consumes: string[],
+  sharedBodyParameters: ReadonlyMap<string, OpenAPIV2.ParameterObject>,
+  globalConsumes: string[],
+): ParameterMigrationResult {
+  const resolvedParameters = parameters.map((parameter) => ({
+    original: parameter,
+    resolved: resolveBodyParameter(parameter, sharedBodyParameters),
+  }))
+  const requestBodyParameters = resolvedParameters.filter(
+    (parameter): parameter is { original: SwaggerParameter; resolved: OpenAPIV2.ParameterObject } =>
+      isRequestBodyParameter(parameter.resolved),
   )
-
-  if (bodyParameter && Object.keys(bodyParameter).length) {
-    result.requestBody = migrateBodyParameter(bodyParameter, consumes)
+  const result: ParameterMigrationResult = {
+    parameters: resolvedParameters
+      .filter(({ resolved }) => !isRequestBodyParameter(resolved))
+      .map(({ original }) => transformParameterObject(original)),
   }
 
-  const formDataParameters = parameters.filter((parameter: OpenAPIV2.ParameterObject) => parameter.in === 'formData')
+  // A component can be reused only when it represents the entire body with the same media types.
+  const sharedParameter = requestBodyParameters.length === 1 ? requestBodyParameters[0]?.original : undefined
+  if (
+    sharedParameter &&
+    '$ref' in sharedParameter &&
+    new Set(consumes).size === new Set(globalConsumes).size &&
+    consumes.every((type) => globalConsumes.includes(type))
+  ) {
+    result.requestBody = { $ref: sharedParameter.$ref }
+    return result
+  }
+
+  const bodyParameter = requestBodyParameters.find(({ resolved }) => resolved.in === 'body')?.resolved
+  if (bodyParameter) {
+    result.requestBody = migrateBodyParameter(structuredClone(bodyParameter), consumes)
+  }
+
+  const formDataParameters = requestBodyParameters
+    .filter(({ resolved }) => resolved.in === 'formData')
+    .map(({ resolved }) => resolved)
 
   if (formDataParameters.length > 0) {
     const requestBodyObject = migrateFormDataParameter(formDataParameters, consumes)
-
-    if (typeof result.requestBody !== 'object') {
-      result.requestBody = requestBodyObject
-    } else {
-      result.requestBody = {
-        ...result.requestBody,
-        content: {
-          ...result.requestBody.content,
-          ...requestBodyObject.content,
-        },
-      }
-    }
-
-    if (typeof result.requestBody !== 'object') {
-      result.requestBody = {
-        content: {},
-      }
+    result.requestBody = {
+      ...result.requestBody,
+      content: {
+        ...result.requestBody?.content,
+        ...requestBodyObject.content,
+      },
     }
   }
 
   return result
+}
+
+/** Convert a 2.0 response in place using the owning operation's effective response media types. */
+export const transformResponseObject = (responseObj: UnknownObject, produces: string[]): UnknownObject => {
+  if (typeof responseObj.$ref === 'string') {
+    return responseObj
+  }
+
+  // Transform schema to content
+  if (responseObj.schema) {
+    migrateSchema(responseObj.schema)
+    if (typeof responseObj.content !== 'object') {
+      responseObj.content = {}
+    }
+
+    for (const type of produces) {
+      ;(responseObj.content as Record<string, unknown>)[type] = {
+        schema: responseObj.schema,
+      }
+    }
+
+    delete responseObj.schema
+  }
+
+  // Transform examples from Swagger 2.0 to OpenAPI 3.0 format
+  if (responseObj.examples && typeof responseObj.examples === 'object') {
+    if (typeof responseObj.content !== 'object') {
+      responseObj.content = {}
+    }
+
+    const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
+
+    for (const [key, exampleValue] of Object.entries(responseObj.examples as Record<string, unknown>)) {
+      // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
+      if (isMediaTypeKey(key, produces)) {
+        if (typeof (responseObj.content as Record<string, unknown>)[key] !== 'object') {
+          ;(responseObj.content as Record<string, unknown>)[key] = {}
+        }
+        ;((responseObj.content as Record<string, unknown>)[key] as Record<string, unknown>).example = exampleValue
+      } else {
+        if (typeof (responseObj.content as Record<string, unknown>)[defaultMediaType] !== 'object') {
+          ;(responseObj.content as Record<string, unknown>)[defaultMediaType] = {}
+        }
+        const mediaEntry = (responseObj.content as Record<string, unknown>)[defaultMediaType] as Record<string, unknown>
+        if (typeof mediaEntry.examples !== 'object') {
+          mediaEntry.examples = {}
+        }
+        ;(mediaEntry.examples as Record<string, OpenAPIV3.ExampleObject>)[key] = wrapAsExampleObject(exampleValue)
+      }
+    }
+
+    delete responseObj.examples
+  }
+
+  // Clean up content entries that only have an empty schema when other entries have examples
+  if (responseObj.content && typeof responseObj.content === 'object') {
+    removeEmptySchemaOnlyContentEntries(responseObj.content as Record<string, unknown>)
+  }
+
+  // Transform headers if present
+  if (isObjectLike(responseObj.headers)) {
+    responseObj.headers = Object.entries(responseObj.headers).reduce<
+      Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>
+    >((acc, [headerName, header]) => {
+      if (header && typeof header === 'object') {
+        return {
+          [headerName]: transformResponseHeader(header),
+          ...acc,
+        }
+      }
+      return acc
+    }, {})
+  }
+
+  return responseObj
 }

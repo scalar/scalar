@@ -9,7 +9,8 @@ export function traverse(
   transform: (content: UnknownObject, path?: string[]) => UnknownObject,
   path: string[] = [],
 ) {
-  const result: UnknownObject = {}
+  // Define input keys as own properties before assignment, including literal __proto__ mapping keys.
+  const result: UnknownObject = { ...content }
 
   for (const [key, value] of Object.entries(content)) {
     const currentPath = [...path, key]

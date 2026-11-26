@@ -4,7 +4,8 @@ import { array, object, optional, record, string, union, unknown } from '@scalar
 const XCodeSampleSchema = Type.Object({
   lang: Type.Optional(Type.String()),
   label: Type.Optional(Type.String()),
-  source: Type.String(),
+  group: Type.Optional(Type.String()),
+  source: Type.Union([Type.String(), Type.Object({ $ref: Type.String() })]),
   example: Type.Optional(Type.String()),
   contentType: Type.Optional(Type.String()),
 })
@@ -50,7 +51,10 @@ export const XCodeSamplesSchema = Type.Object({
 export type XCodeSample = {
   lang?: string
   label?: string
-  source: string
+  /** Optional heading in the code sample picker. */
+  group?: string
+  /** Inline source, or a code-file reference supported by x-codeSamples and x-code-samples. */
+  source: string | { $ref: string }
   /** Request body example key used by this sample. */
   example?: string
   /** Request body media type used by this sample. */
@@ -76,7 +80,8 @@ export type XLanguageExample = {
 export const XCodeSample = object({
   lang: optional(string()),
   label: optional(string()),
-  source: string(),
+  group: optional(string()),
+  source: union([string(), object({ $ref: string() })]),
   example: optional(string()),
   contentType: optional(string()),
 })

@@ -22,6 +22,8 @@ type Body = {
    * multipart boundary, so passing the one from the request would break the body.
    */
   omitContentType: boolean
+  /** The `Content-Type` HTTP.jl would not set itself for this body, added when the request has none. */
+  contentType?: string
 }
 
 /**
@@ -54,9 +56,8 @@ const formatMultipartPart = (param: {
  * Turns the request body into a Julia expression.
  *
  * JSON payloads are rendered as `Dict`s so they can be edited without touching
- * the raw JSON, form bodies use the native types HTTP.jl knows how to encode
- * (`Dict` for url-encoded, `HTTP.Form` for multipart) and anything else is sent
- * as a plain string.
+ * the raw JSON, multipart bodies use `HTTP.Form`, url-encoded bodies are encoded
+ * from ordered pairs and anything else is sent as a plain string.
  */
 const getBody = (postData: HarRequest['postData']): Body | undefined => {
   if (!postData) {
@@ -86,13 +87,15 @@ const getBody = (postData: HarRequest['postData']): Body | undefined => {
   }
 
   if (mimeType === 'application/x-www-form-urlencoded' && params?.length) {
+    // HTTP.jl only encodes a Dict body, which cannot hold a repeated name, so the ordered pairs are encoded here.
     return {
-      value: formatDict(
+      value: `HTTP.URIs.escapeuri(${formatPairVector(
         params.map((param) => ({ name: param.name, value: param.value ?? '' })),
         ARGUMENT_LEVEL,
-      ),
+      )})`,
       packages: [],
       omitContentType: false,
+      contentType: 'application/x-www-form-urlencoded',
     }
   }
 
@@ -158,6 +161,10 @@ export const juliaHttp: Plugin = {
       }
 
       headers.set(header.name, header.value ?? '')
+    }
+
+    if (body?.contentType && ![...headers.keys()].some((name) => name.toLowerCase() === 'content-type')) {
+      headers.set('Content-Type', body.contentType)
     }
 
     const verb = [...VERBS_WITH_BODY, ...VERBS_WITHOUT_BODY].includes(method) ? method.toLowerCase() : undefined

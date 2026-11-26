@@ -1,3 +1,4 @@
+import { getOwnEntry } from '@/object/get-own-entry'
 import { REGEX } from '@/regex/regex-helpers'
 
 /**
@@ -24,8 +25,8 @@ export function replaceVariables(
 }
 
 /** Replace {path} variables with their values */
-export const replacePathVariables = (path: string, variables: Record<string, string> = {}) =>
-  path.replace(REGEX.PATH, (match, key) => variables[key] ?? match)
+export const replacePathVariables = (path: string, variables: Record<string, string> = {}): string =>
+  path.replace(REGEX.PATH, (match, key) => getOwnEntry(variables, key) ?? match)
 
 /** Replace {{env}} variables with their values */
 export const replaceEnvVariables = (

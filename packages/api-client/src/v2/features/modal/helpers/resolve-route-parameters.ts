@@ -4,6 +4,7 @@ import {
   forEachPathItemOperation,
   getPathItemOperation,
 } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import { getPathEntries } from '@scalar/workspace-store/helpers/get-path-entries'
 import { getOperationEntries } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry, TraversedExample } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
@@ -95,7 +96,7 @@ export const resolvePath = (ctx: ResolverContext, path: string | undefined, isWe
   }
 
   if (path === 'default') {
-    return Object.keys(isWebhook ? (document.webhooks ?? {}) : (document.paths ?? {}))[0]
+    return isWebhook ? Object.keys(document.webhooks ?? {})[0] : getPathEntries(document.paths)[0]?.[0]
   }
 
   return path

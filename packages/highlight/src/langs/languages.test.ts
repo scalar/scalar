@@ -78,6 +78,7 @@ describe('every bundled language', () => {
       'json',
       'julia',
       'kotlin',
+      'log',
       'lua',
       'makefile',
       'markdown',
@@ -782,10 +783,75 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'bash', `'s ok"}'`, 'string')
   })
 
+  it('bash: scopes continuations in unquoted and double-quoted text', () => {
+    const code = `echo \\\n"double\\\nquoted" 'single\\\nquoted' # comment \\\n`
+    expect(runs(code, 'bash').filter(([text]) => text.includes('\\'))).toStrictEqual([
+      ['\\', 'punctuation'],
+      ['\\', 'punctuation'],
+      ["'single\\\nquoted'", 'string'],
+      [' # comment \\', 'comment'],
+    ])
+  })
+
+  it.each([';', '&&', '|'])('bash: keeps a trailing backslash in a comment after %s', (operator) => {
+    const comment = '# comment \\'
+    const code = `echo line${operator}${comment}\necho next`
+    assertHas(code, 'bash', operator, 'operator')
+    assertHas(code, 'bash', comment, 'comment')
+  })
+
+  it('bash: keeps an escaped semicolon with its shell word', () => {
+    const code = 'echo line\\;# text\\\necho next'
+    assertHas(code, 'bash', '\\;', 'string.escape')
+    assertHas(code, 'bash', '\\', 'punctuation')
+  })
+
+  it('bash: distinguishes a spliced comment from a hash in a continued shell word', () => {
+    const continuation = '\\\n'
+    const comment = '# comment \\'
+    const afterOperator = `echo line;${continuation}${comment}\necho next`
+    assertHas(afterOperator, 'bash', '\\', 'punctuation')
+    assertHas(afterOperator, 'bash', comment, 'comment')
+
+    const joinedWord = `echo first${continuation}#literal${continuation}second`
+    expect(runs(joinedWord, 'bash').filter(([text]) => text.includes('\\'))).toStrictEqual([
+      ['\\', 'punctuation'],
+      ['\\', 'punctuation'],
+    ])
+  })
+
+  it.each(['\n', '\r\n'])('bash: scopes continuations in parameter and arithmetic expansions (%j)', (newline) => {
+    const continuation = '\\' + newline
+    const code = 'echo "${HEL' + continuation + 'LO}" $((1 +' + continuation + '2))'
+    expect(runs(code, 'bash').filter(([text]) => text.includes('\\'))).toStrictEqual([
+      ['\\', 'punctuation'],
+      ['\\', 'punctuation'],
+    ])
+  })
+
+  it.each(['\n', '\r\n'])('bash: respects the quoting context in a parameter expansion (%j)', (newline) => {
+    const continuation = '\\' + newline
+    const value = "'first" + continuation + "second'"
+    assertHas('echo ${missing:-' + value + '}', 'bash', value, 'string')
+    assertHas('echo "${missing:-' + value + '}"', 'bash', '\\', 'punctuation')
+  })
+
   it('bash: closes a heredoc only on its terminator, and does not expand a quoted one', () => {
     assertHas('cat <<EOF\nEND\n$HOME\nEOF\necho done\n', 'bash', 'echo', 'function.builtin')
     // The body merges with the closing quote of the marker into one run.
     assertHas("cat <<'EOF'\n$HOME\nEOF\n", 'bash', "'\n$HOME\n", 'string')
+  })
+
+  it.each(['\n', '\r\n'])('bash: recognizes a continuation only in an unquoted heredoc (%j)', (newline) => {
+    const continuation = '\\' + newline
+    const body = 'first' + continuation + 'EOF' + newline
+    const unquoted = ['cat <<EOF', body + 'second', 'EOF', 'echo done'].join(newline)
+    const quoted = ["cat <<'EOF'", 'first' + continuation + 'second', 'EOF'].join(newline)
+
+    expect(runs(unquoted, 'bash').filter(([text]) => text.includes('\\'))).toStrictEqual([['\\', 'punctuation']])
+    assertHas(unquoted, 'bash', newline + 'EOF' + newline + 'second' + newline, 'string')
+    assertHas(unquoted, 'bash', 'echo', 'function.builtin')
+    assertHas(quoted, 'bash', "'" + newline + 'first' + continuation + 'second' + newline, 'string')
   })
 
   it('yaml: keeps prose with a colon inside a block scalar', () => {

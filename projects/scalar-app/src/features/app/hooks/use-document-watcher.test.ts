@@ -185,7 +185,10 @@ describe('use-document-watcher', () => {
     expect(calls).toStrictEqual(['a', 'b', 'b'])
     expect(store.workspace.documents['a']?.info?.title).toBe('Document A1')
     expect(store.workspace.documents['b']?.info?.title).toBe('Document B2')
-    expect(vi.getTimerCount()).toBe(1)
+
+    // The next interval should poll `b` again and leave `a` alone
+    await vi.advanceTimersByTimeAsync(initialTimeout)
+    expect(calls).toStrictEqual(['a', 'b', 'b', 'b'])
   })
 
   it('backs off after failures and resets the delay after an unchanged response', async () => {

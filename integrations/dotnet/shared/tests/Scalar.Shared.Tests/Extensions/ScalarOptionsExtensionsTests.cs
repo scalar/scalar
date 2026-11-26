@@ -3,6 +3,34 @@ namespace Scalar.Shared.Tests;
 public class ScalarOptionsExtensionsTests
 {
     [Fact]
+    public void AddDocument_PreservesPositionalNullTitleCalls()
+    {
+        var options = new ScalarOptions().AddDocument("v1", null);
+        options.Documents.Single().Title.Should().BeNull();
+        options.Documents.Single().Authentication.Should().BeNull();
+    }
+
+    [Fact]
+    public void AddDocument_ConfiguresAuthenticationWithoutMutatingGlobalOptions()
+    {
+        var options = new ScalarOptions().AddPreferredSecuritySchemes("Global");
+        options.AddDocument("v1", configureDocument: document => document
+            .AddPreferredSecuritySchemes("Basic")
+            .AddHttpAuthentication("Basic", auth => auth.Username = "demo")
+            .WithAllowedSecuritySchemes(), title: "Version 1", routePattern: "/v1.json", isDefault: true);
+
+        options.Authentication!.PreferredSecuritySchemes.Should().Equal("Global");
+        var document = options.Documents.Single();
+        document.Title.Should().Be("Version 1");
+        document.RoutePattern.Should().Be("/v1.json");
+        document.IsDefault.Should().BeTrue();
+        document.Authentication!.PreferredSecuritySchemes.Should().Equal("Basic");
+        document.Authentication.AllowedSecuritySchemes.Should().BeEmpty();
+        document.Authentication.SecuritySchemes!["Basic"].Should().BeOfType<ScalarHttpSecurityScheme>()
+            .Which.Username.Should().Be("demo");
+    }
+
+    [Fact]
     public void Extensions_ShouldSetPropertiesCorrectly()
     {
         // Arrange
@@ -28,6 +56,50 @@ public class ScalarOptionsExtensionsTests
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.org" && x.Description == "My other server");
         options.PluginUrls.Should().ContainSingle().Which.Should().Be("https://example.com/plugin.js");
         options.Documents.Should().HaveCount(4);
+    }
+
+    [Fact]
+    public void AddAsyncApiDocument_ConfiguresAuthenticationWithoutMutatingGlobalOptions()
+    {
+        var options = new ScalarOptions().AddPreferredSecuritySchemes("Global");
+        var result = options.AddAsyncApiDocument("events", title: "Events", routePattern: "/events.yaml", isDefault: true, agentKey: "agent-key",
+            configureDocument: document => document
+                .AddPreferredSecuritySchemes("Basic")
+                .AddHttpAuthentication("Basic", auth => auth.Username = "demo")
+                .WithAllowedSecuritySchemes("Basic"));
+
+        result.Should().BeSameAs(options);
+        options.Authentication!.PreferredSecuritySchemes.Should().Equal("Global");
+        options.Authentication.SecuritySchemes.Should().BeNull();
+        var document = options.Documents.Single();
+        document.Name.Should().Be("events");
+        document.Title.Should().Be("Events");
+        document.RoutePattern.Should().Be("/events.yaml");
+        document.IsDefault.Should().BeTrue();
+        document.Agent!.Key.Should().Be("agent-key");
+        document.DocumentType.Should().Be(DocumentType.AsyncApi);
+        document.Authentication!.PreferredSecuritySchemes.Should().Equal("Basic");
+        document.Authentication.AllowedSecuritySchemes.Should().Equal("Basic");
+        document.Authentication.SecuritySchemes!["Basic"].Should().BeOfType<ScalarHttpSecurityScheme>()
+            .Which.Username.Should().Be("demo");
+    }
+
+    [Fact]
+    public void AddAsyncApiDocument_PreservesOriginalSignatureAndNullTitleCalls()
+    {
+        var options = new ScalarOptions();
+        options.AddAsyncApiDocument("events", null);
+        options.AddAsyncApiDocument("legacy", "Legacy", "/legacy.yaml", true, "agent-key");
+
+        options.Documents[0].Title.Should().BeNull();
+        options.Documents[0].Authentication.Should().BeNull();
+        var document = options.Documents[1];
+        document.Title.Should().Be("Legacy");
+        document.RoutePattern.Should().Be("/legacy.yaml");
+        document.IsDefault.Should().BeTrue();
+        document.Agent!.Key.Should().Be("agent-key");
+        document.DocumentType.Should().Be(DocumentType.AsyncApi);
+        document.Authentication.Should().BeNull();
     }
 
     [Fact]

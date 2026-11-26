@@ -8,6 +8,252 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.46.1 (2026-11-21)
+
+### Generated CLIs wrap output and reject missing required inputs
+
+This release ships improvements to generated CLIs, signed upload configuration for callers behind proxies or private CAs, and fixes to webhook verification across multiple targets.
+
+- Generated CLIs wrap pretty output cards to the terminal width, including nested responses and table fallback, while preserving full values in redirected output.
+- CLIs now reject missing required inputs before sending requests, and accept whole JSON arrays alongside repeated object items for object-array flags.
+- Required request bodies must now be supplied even when every property is optional; scripts that previously sent an empty POST must pipe `{}` or supply body flags.
+- C++ SDKs now support proxy and CA certificate configuration through `CurlTransport::Options`, including `proxy`, `no_proxy`, and `ca_bundle` or `ca_path`.
+- C# SDKs with signed uploads add `ClientOptions.SignedUploadConnection` for callers who reach the internet only through a proxy or private CA.
+- Dart SDKs gain a `connection` option with proxy and TLS settings the client connects with, so callers behind a proxy or private CA can reach the upload host.
+- Go SDKs with signed uploads add `option.SignedUploadTransport`, an opt-in marker for custom transports so proxy or TLS setups reach the upload host.
+- PHP SDKs with signed uploads gain a `signedUploadConnection` request option for callers who reach the internet only through a proxy or private CA.
+- Python and Ruby webhook verifiers now treat malformed `webhook-signature` entries as non-matching rather than raising unrelated errors.
+- TypeScript SDKs export `signedUploadTransport(fetch)` to declare that a custom fetch sends requests as handed over, so proxy or TLS setups reach uploads.
+
+## 0.46.0 (2026-11-20)
+
+### Generated branch configuration and per-target config types
+
+This release refines how the generator handles per-target configuration and introduces a new setting to control the branch name for pristine SDK output. The internal configuration structure now gives each target language its own typed view, ensuring targets only carry settings they understand. Generated SDKs work exactly as before, with improvements to CLIs, C++, Go, TypeScript, and Java/Kotlin.
+
+- Generated CLIs now print lists of objects as tables when you pass `--format pretty`.
+- C++ models are now organized under `include/<root>/models/` instead of splitting `$shared` types into their own directory.
+- C++ requests now have their own types separate from response models, with `readOnly` and `writeOnly` properties correctly split between them.
+- C++ SDKs accept `targets.cpp.packageName` to name the library, matching other languages.
+- Go unions with an enum arm beside other arms are now typed unions instead of `interface{}`.
+- TypeScript packages now provide proper CommonJS declarations for `require` consumers.
+- Java and Kotlin SDKs with signed uploads can send the upload through your own `HttpClient` by implementing the new `SignedUploadTransport` marker interface.
+- Set `destinations.production.generatedBranch` to name the branch pristine generator output is pushed to, replacing the default `scalar-generated`.
+- C++ webhook decode-only methods are now named after `parseUnsafe` by default (`parse_unsafe`) rather than `<method>_unverified`.
+- Configuration reference pages now state the minimum language version each target supports, such as Python 3.9 or Go 1.22.
+
+## 0.45.0 (2026-11-18)
+
+### Custom CLI commands and refined model generation
+
+Generated CLIs can now load custom commands from a TypeScript file you provide, with full type safety and hooks into the CLI runtime. Models that only error responses use are no longer generated, and reserved names in Java, Kotlin and Ruby are now handled automatically.
+
+- Custom CLI commands can be added through `targets.cli.customCode`, with a typed builder API for arguments, options and hooks into the CLI runtime.
+- Before writing files, the generator installs and runs a staged copy of the CLI to validate custom code and render documentation from the full command tree.
+- Models used only in error responses are no longer generated in C++, Dart, Go, Java, Kotlin, Ruby, Rust and Swift, since error bodies are returned as raw JSON.
+- Java and Kotlin models no longer take names that shadow `java.lang` or Kotlin implicit imports such as `Error`, `Exception` or `Result`.
+- Ruby SDKs no longer alias models at the gem root when the name would shadow constants like `Error`, `Client` or `VERSION`.
+- Signed uploads in Java, Kotlin, Go, Python and TypeScript now use the proxy and TLS settings configured on the client.
+- The CLI gains a hidden `context` command that prints the full command tree as JSON, including custom commands and their metadata.
+- Generated CLIs can register five hooks in custom code: `flagDefaults`, `beforeCommand`, `afterCommand`, `onError` and `clientOptions`.
+- ProGuard and R8 keep rules for JVM SDKs are now targeted, allowing most of the SDK to be shrunk and obfuscated in minified builds.
+- The in-memory compilation steps now live in browser-safe packages, so hosts can resolve and compile exactly as the CLI does.
+
+## 0.44.0 (2026-11-17)
+
+### Improved typing for wrapped references and AsyncAPI smoke testing
+
+Generated SDKs now name models directly at array elements, map values, and nullable branches instead of declaring per-site wrapper types. AsyncAPI documents with WebSocket channels can be smoke-tested, and gRPC RPCs transcoded to HTTP are also supported.
+
+- Models are now referenced by name at array elements, map values, and nullable branches instead of generating wrapper types like `Holder.List` or `HolderMapItem`.
+- AsyncAPI documents with only WebSocket channels can now be smoke-tested without an augmented OpenAPI document.
+- Smoke testing now supports gRPC RPCs transcoded to HTTP under `grpc.protocol: transcode`.
+- Open enums are now generated from unions of a free string and named constants, with each known value documented.
+- CLI flag names with invalid `customCasings` spellings now fall back to derived names and report the `Config/InvalidCliCasing` diagnostic.
+- Code sample formatters are only started for the targets being generated, reducing overhead when sampling additional languages.
+- Generated CLIs now write underscores in flag names as hyphens to ensure values are passed correctly.
+- Invalid casing spellings for CLI names are now rejected with a diagnostic rather than generating unparseable commands.
+- The `GenerateResult.irForTarget` method now returns a per-target projection with config methods expanded and unrenderable methods omitted.
+- Per-target IR projections now record omitted methods in `SdkIr.omittedMethods` and skipped union variants in `UnionType.targetSkippedVariants`.
+
+## 0.43.1 (2026-11-14)
+
+### Faster Kotlin and Java formatting with code sample improvements
+
+Generated Kotlin and Java SDKs are now formatted with ktfmt 0.65 through a WebAssembly build, making formatting roughly ten times faster. Code samples can now handle OpenAPI examples with hundreds of thousands of array elements or object keys without crashing.
+
+- Generated Kotlin and Java SDKs are formatted with ktfmt 0.65's kotlinlang style, which is roughly ten times faster than the previous formatter and no longer requires Node 24.15.
+- Regenerating a Kotlin or Java SDK adds a trailing comma to every argument and parameter list that is split across lines.
+- Code samples now handle OpenAPI examples with hundreds of thousands of array elements or object keys by collecting them with loops instead of spreading into function calls.
+- The generator no longer runs google-java-format anywhere, and Java code samples in documentation ship without reformatting.
+- Generated Kotlin is written in ktfmt 0.65's layout before the formatter runs, making generation faster.
+- Without a native `ktrs` executable, the WebAssembly formatter now runs one worker per core (up to four) instead of leaving a core free.
+- Formatted PHP output now parses on PHP 8.1 through 8.3 instead of only PHP 8.4.
+- A config method written with `endpoint` alone, or with `verb` and `path` alone, now generates the same method as one that writes all three.
+
+## 0.43.0 (2026-11-14)
+
+### Proto smoke testing and code sample formatting improvements
+
+This release brings smoke testing to proto-based Connect SDKs and improves code sample formatting performance by moving layout logic into the builders themselves.
+
+- Smoke testing now works for SDKs generated from protos when every call is a Connect RPC, answering each procedure from the Connect protocol.
+- Code sample builders now lay out samples themselves, removing the need for runtime formatters and improving performance.
+- Rust SDK formatting is now significantly faster, dropping from about 6.8s to under 0.5s by formatting each file once across parallel processes.
+- TypeScript SDKs now distinguish request and response shapes with explicit `<Model>Param` types, preventing accidental submission of read-only fields.
+- Generated CLIs no longer create flags for `readOnly` properties nested in object body parameters, since servers ignore those values.
+- Java code samples are now formatted at build time rather than runtime, eliminating the need to boot google-java-format.
+- New timing and audit APIs let you track formatter choices and code sample performance with `nativeFormatterChoices()` and `codeSampleFormatStats()`.
+- Generated SDK CI workflows now pin formatter versions to match the generator, preventing spurious format check failures.
+- Config methods can now be written with just `endpoint`, or just `verb` and `path`, and the generator fills in the missing fields.
+- Kotlin sources are now formatted with ktfmt until stable, fixing potential format check failures in generated SDKs.
+
+## 0.42.1 (2026-11-13)
+
+### C++ and PHP SDKs generate with standalone binaries again
+
+This patch release fixes an issue where the standalone binary could not generate C++ and PHP SDKs, and improves how you configure methods when using the `endpoint` property alone.
+
+- The standalone `scalar-sdk-generator` binary now generates C++ and PHP SDKs without errors.
+- You can now write a method configuration with just `endpoint` (like `{"kind": "http", "endpoint": "get /users"}`), and the generator fills in the missing `verb` and `path` automatically.
+- Methods configured with only `verb` and `path` now work the same way as those with all three properties.
+- A new `Config/UnresolvedMethodEndpoint` warning reports methods whose `endpoint` cannot be parsed and have no `verb` and `path`.
+- A new `Config/MethodEndpointMismatch` warning reports methods where `endpoint` points to a different operation than `verb` and `path`.
+
+## 0.42.0 (2026-11-13)
+
+### Faster code sample generation and improved smoke testing
+
+Code samples are now laid out directly by the builder instead of runtime formatters, reducing generation time and memory usage. Smoke tests handle SDKs with no operations gracefully, and formatting across multiple targets is now parallelized.
+
+- Code samples are now built in their final layout without runtime formatters for C++, C#, Dart, Go, Kotlin, PHP, Python, Ruby, Rust, Swift, and TypeScript.
+- Generated C++, C#, Dart, and Swift SDKs now format files in parallel across worker threads when using bundled formatters.
+- Ruby SDKs are now formatted with rbcop alone, reducing formatting time from minutes to seconds and removing the syntax_tree dependency.
+- The `smoke-test` command now exits successfully when an SDK has no operations to test, instead of failing.
+- Generated SDKs with no operations no longer include smoke test files, dependencies, or configuration.
+- Generated CLI `upgrade` and `uninstall` commands now start from the user's home directory, avoiding conflicts with project-level package manager configurations.
+- Config method objects can now be written with just `endpoint`, or just `verb` and `path`, and will generate correctly.
+- Kotlin code samples now spell empty arrays in free-form JSON as `emptyList<Any?>()` so they compile successfully.
+- Ruby properties named `1` through `9` are now emitted as `_1_` through `_9_` to avoid conflicts with numbered block parameters.
+- Rust crates named after their own root modules now compile examples and tests correctly.
+
+## 0.41.1 (2026-11-12)
+
+### Improved method configuration and User-Agent headers
+
+This release fixes how method configuration works when you write only some of the endpoint fields, and standardizes User-Agent headers across Python, C#, and Ruby SDKs.
+
+- Methods configured with only `endpoint`, or only `verb` and `path`, now generate correctly. The generator fills in missing fields automatically.
+- New warnings help catch mismatched endpoint configurations with `Config/UnresolvedMethodEndpoint` and `Config/MethodEndpointMismatch`.
+- Python SDKs now send `User-Agent: <Name>/Python <version>` for both sync and async clients, matching the format other languages use.
+- C# SDKs now send `User-Agent: <Name>/C# <version>` instead of including the client class name.
+- Ruby SDKs now send `User-Agent: <Module>/Ruby <version>` with valid RFC 9110 token characters, fixing issues with strict API gateways.
+
+## 0.41.0 (2026-11-11)
+
+### Native formatters, unified one-arm unions, and smoke tests as framework suites
+
+Generated SDKs now use native formatters when available, handle single-arm unions consistently across languages, and ship smoke tests integrated with each language's test framework rather than standalone scripts.
+
+- Native formatters are now used when the exact pinned version is installed on PATH, falling back to WebAssembly builds otherwise.
+- TypeScript, Python, Go, Rust, C++, PHP, Dart, Kotlin, Java, Swift, and C# all detect version-matched native formatters before loading bundled WebAssembly builds.
+- The `SCALAR_SDK_FORMATTER` environment variable controls formatter selection: `auto` (default), `wasm`, or `native`.
+- One-arm unions now render consistently across all targets, either as the arm type directly or as a named model when configured.
+- Swift, Kotlin, Java, and C++ no longer wrap single-arm unions in enums or sealed classes.
+- Smoke tests now ship as proper test suites: xUnit for C#, CTest for C++, pytest for Python, JUnit for Kotlin and Java, and framework-native suites for Go, Rust, PHP, Ruby, Dart, and Swift.
+- Each smoke suite runs through its language's standard test runner and skips unless `TEST_API_BASE_URL` is set.
+- The `smoke-test` command now accepts `--spec` and `--config` to compile operation facts from an OpenAPI document.
+- Generated CLIs now ship on Bun 1.4.4, with improved cross-platform macOS signing support.
+- Formatters are pinned to Biome 2.6.6, ruff 0.17.4, ktfmt 0.64, google-java-format 1.36.1, swift-format 604.0.0, CSharpier 1.3.0, and rustfmt 1.10.0.
+
+## 0.40.1 (2026-11-10)
+
+### Patch release to complete the previous publish
+
+## 0.40.0 (2026-11-10)
+
+### C# target stable, custom README sections, and signed uploads for more languages
+
+The C# target is now stable and ready for production use. You can now add custom sections to generated READMEs without manual edits between regenerations. Signed upload methods are now generated for C#, C++, Dart, Rust, and Swift SDKs.
+
+- The C# target is now marked as stable in the configuration schema and target catalog.
+- Custom README sections can be configured with `readme.sections`, supporting position control and per-target filtering.
+- Signed upload methods are now generated for C#, C++, Dart, Rust, and Swift SDKs, with type-safe file handling.
+- Generated CLIs published to npm now check for updates against the npm registry and support upgrade commands.
+- Webhook verification now honors configured signature algorithms and headers across Python, Go, Ruby, Kotlin, Java, Rust, TypeScript, and Dart targets.
+
+## 0.39.0 (2026-11-06)
+
+### CLI confirmations, improved pluralization, and form encoding
+
+Generated CLIs can now prompt for confirmation before running destructive commands. This release also fixes how names are derived from plurals like 'analyses' and 'aliases', and improves form-encoded request body handling across multiple targets.
+
+- CLI commands can now ask for confirmation before running. Set `cli.confirm` on a method or use `targets.cli.confirm: "delete"` to prompt before every `DELETE` operation.
+- Names derived from plurals are now singularized correctly. Words like 'analyses', 'aliases', 'warehouses', and 'quizzes' now generate proper singular forms ('analysis', 'alias', 'warehouse', 'quiz').
+- Form-encoded request bodies (`application/x-www-form-urlencoded`) are now properly encoded in C#, Go, Java, Kotlin, and Python SDKs instead of being sent as JSON.
+- TypeScript SDKs and CLIs can now build with pnpm, Yarn, or Bun. Set `targets.typescript.packageManager` or `targets.cli.packageManager` to use an alternative package manager in generated workflows.
+- Request types now include `readOnly` properties that serve as discriminator tags, so polymorphic requests carry the type information needed for dispatch.
+
+## 0.38.0 (2026-11-04)
+
+### Improved name pluralization and SDK credential handling
+
+This release improves how array elements and model names are derived from plural nouns, and refines security credential selection across multiple targets.
+
+- Array elements named from `-ie` plurals now use the proper singular form: `cookies` generates `Cookie` instead of `Cooky`, and the same applies to `movies`, `zombies`, `ties` and similar words across all naming.
+- Generated CLIs with `openapi.operationSecurity` now send only the credentials each command's security requirements select, so conflicting schemes no longer overwrite each other.
+- The CLI install script now updates your shell's startup file to put the command on `PATH`, so it works by name after installation without manual configuration.
+- SDKs in C++, C#, Go, Kotlin, Java, Python, Ruby, Rust, Swift and TypeScript honor `openapi.operationSecurity`, sending each request only the credentials its operation requires rather than every configured credential.
+- Experimental signed-URL methods landed in C++, Go, Rust and Swift SDKs for generating and fetching presigned URLs, with shared signing rules across all targets.
+
+## 0.37.1 (2026-11-01)
+
+### Signed URL methods ship for C++, C#, Dart, Go, Java, Kotlin, PHP, Python, Ruby and TypeScript
+
+Experimental signed URL methods now generate across ten languages. Each target builds, signs and fetches secure URLs following shared byte rules so every SDK signs consistently. TypeScript and Python also render CLI commands for these methods.
+
+- C++, C#, Dart, Go, Java, Kotlin, PHP, Python, Ruby and TypeScript SDKs now render `kind: signedUrl` methods for the `sign → return`, `sign → fetch` and `request → fetch` flows.
+- Every SDK follows the same byte rules when signing: declaration-order JSON payload, absent properties left out, RFC 3986 percent-encoding, HMAC-SHA256 keyed with UTF-8 bytes over exactly the bytes in the URL.
+- Generated CLIs for TypeScript SDKs now include commands for signed URL methods, calling the embedded SDK to build, sign and fetch URLs with per-param flags.
+- New `clientSettings.idempotency` block lets you configure the idempotency key format as `uuid-v4` or time-ordered `uuid-v7`, with optional hyphens and custom prefix.
+- CLI `upgrade` command now runs the owning package manager itself instead of printing instructions, and standalone binaries get an `install.sh` script for one-command installation.
+
+## 0.37.0 (2026-10-29)
+
+### PHP signed uploads, backward pagination, and hardened runtimes
+
+This release brings file uploads to PHP SDKs, backward pagination to cursor schemes, and runtime security improvements across all targets.
+
+- PHP SDKs now generate signed upload methods that handle the full upload flow, from initiation through pre-signed URL upload to confirmation.
+- Cursor pagination can now step backward when the caller sets a backward parameter, with support landing in TypeScript, Python, CLI, C#, Swift, Dart, C++ and PHP SDKs.
+- TypeScript and CLI SDKs gained hardened redirect handling that drops credentials when leaving the API origin, caps response bodies at 64 MiB, and masks secrets in logs.
+- Swift SDKs changed scalar typing: `uuid` format is now `String`, `int32` is `Int`, and watchOS is no longer a supported platform.
+- Generated package manifests now link homepage, repository, issue tracker, changelog and documentation, and list configured keywords.
+
+## 0.36.11 (2026-10-26)
+
+### PHP SDK enhancements and webhook verification improvements
+
+This release brings significant improvements to generated PHP SDKs, including file downloads, date-time parsing, and webhook signature verification with no external dependencies. It also adds webhook companion methods and signed upload support across multiple targets.
+
+- PHP SDKs now write raw responses to files with `toFile($path)` and parse date-times using configured fallback formats before falling back to PHP's own parser.
+- PHP SDKs verify webhook signatures with a built-in verifier and no longer require the standardwebhooks package.
+- PHP SDKs expose `getRequestID()` on raw responses and API exceptions, and add client conveniences like `withOptions()` and idempotency key support.
+- Webhook helpers now generate `verify_signature` and `parse_unsafe` companion methods alongside the parse method across TypeScript, Python, Go, Java, Kotlin, Ruby and PHP.
+- Signed upload methods are now generated for Go, Java, Kotlin, Ruby and the CLI, uploading files to pre-signed URLs returned by the API.
+
+## 0.36.10 (2026-10-23)
+
+### TypeScript webhook verification improvements and C++ SDK updates
+
+This release brings a faster, built-in webhook verifier to TypeScript SDKs and extends signed upload support to TypeScript and Python. The experimental C++ SDK adds comprehensive features including client options, logging, and webhook handling.
+
+- TypeScript SDKs now verify webhook signatures with a built-in verifier that is 2–6× faster than the previous library dependency.
+- Signed upload methods are now available in TypeScript and Python SDKs for two-step file upload flows.
+- The experimental C++ SDK can now authenticate requests, validate credentials at build time, and log requests at configurable levels.
+- Generated Go, Java, Kotlin, and Rust SDKs can parse date-time responses in custom formats through `dateTimeSettings.fallbackFormats`.
+- Method aliases can now point to methods on any resource, with independent control over positional parameters.
+
 ## 0.36.9 (2026-10-21)
 
 ### Configuration handling improvements and code generation refinements

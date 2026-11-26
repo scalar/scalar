@@ -9,6 +9,7 @@ Run `scalar <command> --help` for the same details in your terminal, or `scalar 
 Work with OpenAPI and AsyncAPI descriptions.
 
 - [`scalar document bundle`](commands/document.md#bundle): Bundle external references into a single API description
+- [`scalar document transform`](commands/document.md#transform): Create public or environment-specific API descriptions
 - [`scalar document split`](commands/document.md#split): Split an OpenAPI or AsyncAPI description into referenced JSON files
 - [`scalar document join`](commands/document.md#join): Join API descriptions of the same format into one description
 - [`scalar document format`](commands/document.md#format): Format an OpenAPI or AsyncAPI description
@@ -19,7 +20,7 @@ Work with OpenAPI and AsyncAPI descriptions.
 - [`scalar document share`](commands/document.md#share): Publish an OpenAPI or AsyncAPI description to a public sandbox
 - [`scalar document validate`](commands/document.md#validate): Validate an OpenAPI or AsyncAPI description
 - [`scalar document void`](commands/document.md#void): Mirror HTTP requests with a local server
-- [`scalar document lint`](commands/document.md#lint): Lint an OpenAPI or AsyncAPI description with Spectral rules
+- [`scalar document lint`](commands/document.md#lint): Lint OpenAPI or AsyncAPI descriptions with Spectral rules
 - [`scalar document upgrade`](commands/document.md#upgrade): Upgrade an API description to OpenAPI 3.1 or the latest supported AsyncAPI version
 
 ## [scalar project](commands/project.md)
@@ -35,6 +36,7 @@ Manage Scalar Docs projects.
 - [`scalar project publish`](commands/project.md#publish): Publish a new build of a Scalar project
 - [`scalar project rollback`](commands/project.md#rollback): Roll the live deployment back to a previously deployed build
 - [`scalar project deployments list`](commands/project.md#deployments-list): List production deployments for a project
+- [`scalar project deployments get`](commands/project.md#deployments-get): Inspect an existing build in the selected team without resubmitting
 - [`scalar project upgrade`](commands/project.md#upgrade): Upgrade a Scalar Docs configuration
 
 ## [scalar registry](commands/registry.md)
@@ -72,6 +74,7 @@ Manage shared schemas in the Scalar Registry.
 - [`scalar schema list`](commands/schema.md#list): List shared schemas in a team namespace
 - [`scalar schema get`](commands/schema.md#get): Download a shared schema version from the Scalar Registry
 - [`scalar schema publish`](commands/schema.md#publish): Publish a shared schema to the Scalar Registry
+- [`scalar schema diff`](commands/schema.md#diff): Compare two schema versions, files, or URLs
 
 ## [scalar sdk](commands/sdk.md)
 
@@ -86,7 +89,7 @@ Manage Scalar SDKs (Enterprise only).
 
 ## [scalar access-group](commands/access-group.md)
 
-Manage access groups and allowed email domains for the current team.
+Manage access groups, allowed emails and domains for the current team.
 
 - [`scalar access-group list`](commands/access-group.md#list): List access groups for the current team
 - [`scalar access-group create`](commands/access-group.md#create): Create an access group (Pro or above)
@@ -95,6 +98,18 @@ Manage access groups and allowed email domains for the current team.
 - [`scalar access-group delete`](commands/access-group.md#delete): Delete an access group and remove its project assignments
 - [`scalar access-group domain add`](commands/access-group.md#domain-add): Add an exact email domain to an access group
 - [`scalar access-group domain remove`](commands/access-group.md#domain-remove): Remove an exact email domain from an access group
+- [`scalar access-group email add`](commands/access-group.md#email-add): Add an email address to an access group
+- [`scalar access-group email remove`](commands/access-group.md#email-remove): Remove an email address from an access group
+
+## [scalar mcp](commands/mcp.md)
+
+Manage Scalar-hosted MCP servers.
+
+- [`scalar mcp list`](commands/mcp.md#list): List MCP servers in the current team
+- [`scalar mcp get`](commands/mcp.md#get): Get an MCP server and its environment versions
+- [`scalar mcp create`](commands/mcp.md#create): Create an MCP server from an existing Registry API or Docs project
+- [`scalar mcp update`](commands/mcp.md#update): Change an MCP server name or slug
+- [`scalar mcp delete`](commands/mcp.md#delete): Delete an MCP server and stop its endpoints
 
 ## [General](commands/general.md)
 

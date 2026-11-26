@@ -17,7 +17,11 @@ import {
 } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
 import { getResponseStreamFormat } from '@/v2/blocks/response-block/helpers/response-stream'
 
+import { canResponseHaveBody } from './can-response-have-body'
 import { decodeBuffer } from './decode-buffer'
+
+/** Whether the buffered response contains bytes, is empty, or has no available body. */
+export type ResponseBodyState = 'present' | 'empty' | 'unavailable'
 
 /** A single set of populated values for a sent request */
 export type ResponseInstance = Omit<Response, 'headers'> & {
@@ -41,15 +45,14 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
         data: string | Blob
         /** The response size in bytes */
         size: number
+        /** Whether the body is available, including when its size is zero. */
+        bodyState?: ResponseBodyState
       }
     | {
         /** A stream reader for a streamable response body */
         reader: ReadableStreamDefaultReader<Uint8Array>
       }
   )
-
-/** HTTP status codes that should not include a response body */
-const NO_BODY_STATUS_CODES = [204, 205, 304]
 
 /** Custom fetch function signature compatible with the global fetch API */
 export type CustomFetch = typeof fetch
@@ -94,6 +97,10 @@ export const sendRequest = async ({
     response: ResponseInstance
     requestPayload: RequestPayload
     timestamp: number
+    /**
+     * Completion-hook response. Buffered responses retain their body; streaming responses
+     * expose a cloneable, bodyless metadata snapshot so history never waits for the stream.
+     */
     originalResponse: Response
   }>
 > => {
@@ -121,14 +128,15 @@ export const sendRequest = async ({
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
     const method = (requestPayload[1].method ?? 'GET') as string
-    const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
+    // A custom fetch can return a null body even for a 200. Treat it as unavailable.
+    const hasBody = canResponseHaveBody(method, response.status) && Boolean(response.body)
 
     /**
      * Handle sequential response formats without buffering the complete body.
      * These responses need a reader instead of buffered data.
      * We check this early to avoid unnecessary body reading.
      */
-    if (!shouldSkipBody && contentType && getResponseStreamFormat(contentType) && response.body) {
+    if (hasBody && contentType && getResponseStreamFormat(contentType)) {
       return buildStreamingResponse({
         response,
         requestPayload,
@@ -143,6 +151,7 @@ export const sendRequest = async ({
 
     return await buildStandardResponse({
       response,
+      hasBody,
       requestPayload,
       timestamp,
       duration,
@@ -151,7 +160,6 @@ export const sendRequest = async ({
       method,
       fullPath,
       contentType,
-      shouldSkipBody,
       plugins,
     })
   } catch (error) {
@@ -167,11 +175,8 @@ export const sendRequest = async ({
  * Returns an array of serialized cookie strings, or null if no cookies were found.
  */
 const getCustomCookie = (response: Response): string[] | null => {
-  const result = parseSetCookie(response.headers.get(X_SCALAR_SET_COOKIE) ?? '').map((c) =>
-    serializeCookie(c.name, c.value, {
-      ...c,
-      sameSite: c.sameSite as boolean | 'lax' | 'strict' | 'none' | undefined,
-    }),
+  const result = parseSetCookie(response.headers.get(X_SCALAR_SET_COOKIE) ?? '').map((cookie) =>
+    serializeCookie(cookie.name, cookie.value, cookie),
   )
 
   if (result.length) {
@@ -179,6 +184,28 @@ const getCustomCookie = (response: Response): string[] | null => {
   }
 
   return null
+}
+
+/**
+ * Completion hooks clone this snapshot and history reads it independently of the viewer.
+ * Only the viewer owns the live body: teeing it with Response.clone() would buffer unread
+ * chunks on the history branch and can grow without bound for an endless response.
+ * A null body lets history finish immediately, even before the first stream chunk arrives.
+ * Set status separately because the Response constructor rejects nonstandard status codes.
+ * Clones must preserve that status too, instead of reverting to the constructor default.
+ */
+const createStreamingResponseSnapshot = ({
+  status,
+  statusText,
+  headers,
+}: Pick<Response, 'status' | 'statusText' | 'headers'>): Response => {
+  const snapshot = new Response(null, { statusText, headers })
+  Object.defineProperties(snapshot, {
+    status: { value: status },
+    ok: { value: status >= 200 && status <= 299 },
+    clone: { value: (): Response => createStreamingResponseSnapshot(snapshot) },
+  })
+  return snapshot
 }
 
 /**
@@ -209,14 +236,8 @@ const buildStreamingResponse = ({
   timestamp: number
   originalResponse: Response
 }> => {
-  const normalizedResponse = new Response(null, {
-    status: response.status,
-    statusText,
-    headers: response.headers,
-  })
-
-  const customCookie = getCustomCookie(normalizedResponse)
-  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(normalizedResponse.headers)
+  const customCookie = getCustomCookie(response)
+  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(response.headers)
 
   return [
     null,
@@ -224,7 +245,7 @@ const buildStreamingResponse = ({
       timestamp,
       requestPayload,
       response: {
-        ...normalizedResponse,
+        ...response,
         status: response.status,
         statusText,
         headers: responseHeaders,
@@ -234,7 +255,11 @@ const buildStreamingResponse = ({
         method,
         path: fullPath,
       },
-      originalResponse: normalizedResponse.clone(),
+      originalResponse: createStreamingResponseSnapshot({
+        status: response.status,
+        statusText,
+        headers: response.headers,
+      }),
     },
   ]
 }
@@ -245,6 +270,7 @@ const buildStreamingResponse = ({
  */
 const buildStandardResponse = async ({
   response,
+  hasBody,
   requestPayload,
   timestamp,
   duration,
@@ -253,10 +279,10 @@ const buildStandardResponse = async ({
   method,
   fullPath,
   contentType,
-  shouldSkipBody,
   plugins,
 }: {
   response: Response
+  hasBody: boolean
   requestPayload: RequestPayload
   timestamp: number
   duration: number
@@ -265,7 +291,6 @@ const buildStandardResponse = async ({
   method: string
   fullPath: string
   contentType: string | null
-  shouldSkipBody: boolean
   plugins: ClientPlugin[]
 }): Promise<
   ErrorResponse<{
@@ -276,28 +301,19 @@ const buildStandardResponse = async ({
   }>
 > => {
   /**
-   * Clone the response to preserve the original for body reading.
-   * Read the body once and reuse the buffer for both decoding and creating a new Response.
+   * Clone so we can decode the body without consuming the network Response.
+   * Keep the original Response (and its real status) for callers — never rebuild
+   * it with `new Response`, which rejects statuses outside [200, 599].
    */
-  const clonedResponse = response.clone()
-  const arrayBuffer = await clonedResponse.arrayBuffer()
+  const arrayBuffer = await response.clone().arrayBuffer()
+  const bufferedBodyState = arrayBuffer.byteLength === 0 ? 'empty' : 'present'
   const responseType = resolveResponseContentType(contentType)
   const mimeEssence = resolveResponseMimeType(contentType).essence
   const pluginHandler = resolveResponseBodyHandler(mimeEssence, plugins)
   const responseData = await decodeBuffer(arrayBuffer, responseType, pluginHandler)
 
-  /**
-   * Create a new Response using the arrayBuffer we already read.
-   * ArrayBuffers can be reused to create new Response objects without additional memory.
-   */
-  const normalizedResponse = new Response(shouldSkipBody ? null : arrayBuffer, {
-    status: response.status,
-    statusText,
-    headers: response.headers,
-  })
-
-  const customCookie = getCustomCookie(normalizedResponse)
-  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(normalizedResponse.headers)
+  const customCookie = getCustomCookie(response)
+  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(response.headers)
 
   return [
     null,
@@ -305,13 +321,14 @@ const buildStandardResponse = async ({
       timestamp,
       requestPayload,
       response: {
-        ...normalizedResponse,
+        ...response,
         status: response.status,
         statusText,
         headers: responseHeaders,
         cookieHeaderKeys,
         data: responseData,
         size: arrayBuffer.byteLength,
+        bodyState: hasBody ? bufferedBodyState : 'unavailable',
         duration,
         method,
         path: fullPath,

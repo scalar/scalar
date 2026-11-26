@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
+import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
+import type { XBadge } from '@scalar/workspace-store/schemas/extensions/operation'
 import type {
   DiscriminatorObject,
   SchemaObject,
@@ -8,6 +10,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
+import { resolveDynamicSchema } from './helpers/dynamic-scope'
 import { isTypeObject } from './helpers/is-type-object'
 import { getCycleKey } from './helpers/schema-cycle'
 import { sortPropertyNames } from './helpers/sort-property-names'
@@ -132,6 +135,10 @@ const additionalPropertiesKeySchema = computed(() => {
  * This allows us to render both:
  * - the property-specific description written next to the $ref, and
  * - the referenced schema's own description (for example discriminator parent docs)
+ *
+ * A property that is itself a `$dynamicRef` is bound to its concrete type first, while the value is
+ * still a magic proxy. `resolve.schema` coerces the value into a plain object and would drop the proxy's
+ * virtual `$dynamicRef-value` accessor, so binding afterwards is impossible — see {@link resolveDynamicSchema}.
  */
 const getPropertySchema = (
   property: SchemaReferenceType<SchemaObject> | undefined,
@@ -139,7 +146,7 @@ const getPropertySchema = (
   if (property === undefined) {
     return undefined
   }
-  return resolve.schema(property)
+  return resolve.schema(resolveDynamicSchema(property))
 }
 
 const getPropertyDescription = (
@@ -155,6 +162,7 @@ const getPropertyDescription = (
 }
 
 type PropertyRow = {
+  badges: XBadge[] | undefined
   name: string
   cycleKey: unknown
   description: string | undefined
@@ -184,6 +192,7 @@ const rows = computed((): PropertyRow[] => {
     const property = properties[name]
 
     return {
+      badges: getXBadges(property),
       name,
       cycleKey: getCycleKey(property),
       description: getPropertyDescription(property),
@@ -234,6 +243,7 @@ const getAdditionalPropertiesValue = (
     <SchemaProperty
       v-for="row in rows"
       :key="row.name"
+      :badges="row.badges"
       :breadcrumb
       :compact
       :compositionPath="compositionPath"
@@ -261,6 +271,7 @@ const getAdditionalPropertiesValue = (
     <SchemaProperty
       v-for="[key, property] in Object.entries(schema.patternProperties)"
       :key="key"
+      :badges="getXBadges(property)"
       :breadcrumb
       :compact
       :compositionPath="compositionPath"
@@ -285,6 +296,7 @@ const getAdditionalPropertiesValue = (
   <!-- additionalProperties -->
   <template v-if="isTypeObject(schema) && schema.additionalProperties">
     <SchemaProperty
+      :badges="getXBadges(schema.additionalProperties)"
       :breadcrumb
       :compact
       :compositionPath="compositionPath"

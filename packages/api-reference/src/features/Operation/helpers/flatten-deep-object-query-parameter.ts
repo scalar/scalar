@@ -1,4 +1,5 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
 import type {
   ParameterObject,
   ParameterWithSchemaObject,
@@ -54,13 +55,19 @@ const flattenDeepObjectProperties = (
       return []
     }
 
+    // The flattened row represents the property that declared the reference.
+    const badges = getXBadges(propertySchema)
+    const displaySchema =
+      badges || resolvedPropertySchema['x-badges']
+        ? { ...resolvedPropertySchema, 'x-badges': badges }
+        : resolvedPropertySchema
     const nestedName = `${namePrefix}[${propertyName}]`
     const nestedParameter = toFlattenedDeepObjectParameter(
       parameter,
       nestedName,
       resolvedPropertySchema.description ?? parameter.description,
-      requiredProperties.has(propertyName),
-      resolvedPropertySchema,
+      parameter.required === true && requiredProperties.has(propertyName),
+      displaySchema,
     )
 
     if (isObjectSchema(resolvedPropertySchema) && resolvedPropertySchema.properties) {

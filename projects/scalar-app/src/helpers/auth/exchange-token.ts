@@ -6,13 +6,17 @@ import { env } from '@/environment'
 import { type TokenResponse, tokenResponseSchema } from './schema'
 
 /** Exchange a short lived exchange token for access and refresh tokens */
-export const exchangeToken = async (token: string): Promise<ErrorResponse<TokenResponse>> => {
+export const exchangeToken = async (
+  token: string,
+  { codeVerifier, signal }: { codeVerifier?: string; signal?: AbortSignal } = {},
+): Promise<ErrorResponse<TokenResponse>> => {
   try {
     const response = await fetch(`${env.VITE_SERVICES_URL}/core/login/exchange`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ exchangeToken: token }),
+      body: JSON.stringify({ exchangeToken: token, ...(codeVerifier && { codeVerifier }) }),
+      signal,
     })
 
     if (!response.ok) {

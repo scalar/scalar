@@ -2,6 +2,7 @@ export type {
   PluginAuthSecrets,
   PluginAuthState,
   PluginDocumentAuth,
+  PluginNavigationEntry,
   PluginSelectedSecurity,
 } from './api-reference-plugin'
 export type { ApiReferenceInstance, CreateApiReference } from './html-api'
@@ -27,6 +28,8 @@ export type {
   ExternalUrls,
   LifecycleHooks,
   ModelsSectionLabel,
+  MultipartNaming,
+  PluginDocumentType,
   SecurityScheme,
   SecuritySchemeApiKey,
   SecuritySchemeHttp,

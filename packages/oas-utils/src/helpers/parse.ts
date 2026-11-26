@@ -1,3 +1,4 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import type { UnknownObject } from '@scalar/types/utils'
 import { parse, stringify } from 'yaml'
 
@@ -7,7 +8,7 @@ type PrimitiveOrObject = object | string | null | number | boolean | undefined
 export const yaml = {
   /** Parse and throw if the return value is not an object */
   parse: (val: string) => {
-    const yamlObject = parse(val, { merge: true, maxAliasCount: 10000 })
+    const yamlObject = parse(val, { merge: true, maxAliasCount: YAML_MAX_ALIAS_COUNT })
     if (typeof yamlObject !== 'object') {
       throw Error('Invalid YAML object')
     }

@@ -20,7 +20,7 @@ Scalar's code highlighter.
 - **No theme system.** Colors come from the `--scalar-*` variables `@scalar/themes` already defines, so a code block follows the app's theme and switches with `.light-mode` / `.dark-mode` — without being re-highlighted.
 - **Zero runtime dependencies.**
 
-Forty-one languages ship today: Python, JavaScript/TypeScript/JSX/TSX, Rust, Go, C, C++, C#, F#, Java, Kotlin, Scala, Swift, Objective-C, OCaml, Haskell, Elixir, Clojure, Dart, Julia, Mojo, PHP, Perl, Ruby, Lua, R, MATLAB, Bash, PowerShell, SQL, GraphQL, HTTP, YAML, JSON, TOML/INI, CSS, HTML, Markdown, Dockerfiles, Makefiles, nginx configs, and diffs.
+Bundled languages include Python, JavaScript/TypeScript/JSX/TSX, Rust, Go, C, C++, C#, F#, Java, Kotlin, Scala, Swift, Objective-C, OCaml, Haskell, Elixir, Clojure, Dart, Julia, Mojo, PHP, Perl, Ruby, Lua, R, MATLAB, Bash, PowerShell, SQL, GraphQL, HTTP, YAML, JSON, TOML/INI, CSS, HTML, Markdown, Dockerfiles, Makefiles, nginx configs, diffs, and logs.
 
 ```bash
 npm install @scalar/highlight
@@ -70,6 +70,7 @@ own chunk. The initial chunk with the loader and no languages is 5.0 KB.
 | `@scalar/highlight/lazy` | `loadLanguage`, for code splitting |
 | `@scalar/highlight/all` | Every language, registered. For build-time rendering |
 | `@scalar/highlight/compat` | Drop-in `syntaxHighlight` for `@scalar/code-highlight` |
+| `@scalar/highlight/compat/code.css` | The stylesheet for the `hljs-*` classes `compat` emits |
 
 ### Rendering somewhere other than HTML
 
@@ -179,7 +180,7 @@ code they punctuate.
 
 ## Adding a language
 
-A grammar is plain data with no imports beyond its type:
+A grammar is plain data. It can reuse shared rule data and refer to other languages by name:
 
 ```ts
 import type { Grammar } from '@scalar/highlight/core';
@@ -237,6 +238,13 @@ the body that belong to the host grammar instead: the embedded language reads ac
 as if each were a name, so its state carries over, and the host grammar tokenizes each hole.
 A PHP template's `<script>` uses it for `<?= $x ?>`, which keeps `"<?= $name ?>"` one string.
 Hole patterns may contain capture groups. An end marker inside a hole does not close the embedded body.
+Use `preserveHoleScope: true` when a masked escape should keep the scope of the surrounding
+embedded token, such as a shell-escaped apostrophe in a JSON key. This masks line breaks inside
+the hole so the embedded grammar sees one continuous token, and `holePunctuation` can still
+assign punctuation scope to parts of the escape.
+Set `validate: { format: 'json' }` to use the default host scope for closed bodies that fail
+JSON parsing. Set `validate.holeReplacement` to the text each hole represents during validation.
+Unterminated bodies can still use the embedded grammar while the user types.
 
 Lines end at `\n` (or `\r\n`) and nowhere else: the compiler rewrites `$` and `.` so a lone
 `\r` or a U+2028 inside a string literal cannot end it early, as JavaScript's `m` flag would.
@@ -246,59 +254,56 @@ reconstruct the source exactly, that scopes come from the shared vocabulary, and
 tokenizing every truncated prefix terminates and stays consistent — which is what an editor
 does on every keystroke.
 
-## Replacing `@scalar/code-highlight`
+## Migrating from `@scalar/code-highlight`
 
-`@scalar/highlight/compat` is a drop-in `syntaxHighlight`. Same signature, same
-`<pre><code class="hljs language-x">` envelope, same `hljs-*` token classes — so
-[`code.css`](https://github.com/scalar/scalar/blob/main/packages/code-highlight/src/css/code.css)
-keeps working unchanged and `ScalarCodeBlock` needs one import line changed:
+Scalar's own packages no longer use `@scalar/code-highlight`, and it is due to be removed.
+It is two packages wearing one name, and each half has a replacement:
+
+| export | now |
+| --- | --- |
+| `syntaxHighlight`, `standardLanguages`, `lowlightLanguageMappings` | `@scalar/highlight/compat` |
+| `css/code.css` | `@scalar/highlight/compat/code.css` |
+| `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading`, `textFromNode` | [`@scalar/markdown`](https://github.com/scalar/scalar/tree/main/packages/markdown) |
+| `rehypeHighlight`, `rehypeAlert` | [`@scalar/markdown`](https://github.com/scalar/scalar/tree/main/packages/markdown) |
+| `basicLanguages`, `jsonYamlLanguages` | **no replacement** — grammars are registered, not passed in |
+
+`@scalar/highlight/compat` preserves the `syntaxHighlight` signature and the
+`<pre><code class="hljs language-x">` envelope. It uses the `hljs-*` class names
+that [`code.css`](src/compat/code.css) styles. Token scopes vary by grammar:
 
 ```diff
 -import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight';
-+import '@scalar/highlight/all';
+-import '@scalar/code-highlight/css/code.css';
++import { languages, registerLanguage } from '@scalar/highlight/all';
 +import { standardLanguages, syntaxHighlight } from '@scalar/highlight/compat';
++import '@scalar/highlight/compat/code.css';
++
++registerLanguage(...languages);
 ```
 
 `standardLanguages` is re-exported with the same key set, so `StandardLanguageKey` is
-unchanged and the component's props keep their types.
-
-### What it covers, and what it does not
-
-`@scalar/code-highlight` is two packages wearing one name. The compat layer replaces the
-first half only:
-
-| export | status |
-| --- | --- |
-| `syntaxHighlight` | covered |
-| `standardLanguages` | key-compatible; 49 of 50 names have a grammar |
-| `basicLanguages`, `jsonYamlLanguages` | **not covered** — never exported here |
-| `lowlightLanguageMappings` | covered |
-| `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading`, `textFromNode` | **not covered** |
-| `rehypeHighlight`, `rehypeAlert` | **not covered** |
-
-The Markdown half is a remark/rehype pipeline — GFM, sanitization, GitHub alerts, external
-links — that has nothing to do with tokenizing code, and it is not something this library
-should grow. A swap keeps `@scalar/code-highlight` as a dependency for
-`ScalarMarkdown` and drops it from `ScalarCodeBlock`.
+unchanged and the component's props keep their types. The `languages` option is accepted
+and ignored, since the registry already knows every grammar.
 
 The one `standardLanguages` name with no grammar — `plaintext` — renders as escaped,
-unhighlighted code, which is exactly what the lowlight pipeline already does for a language
-it cannot resolve. `curl` resolves to the Bash grammar, since a curl invocation is a shell
-command line; the `language-curl` class `code.css` targets is unaffected, because that
-class comes from the name the caller asked for.
+unhighlighted code, which is exactly what the lowlight pipeline did for a language it could
+not resolve. `curl` gives the command and request method their own scopes. Curl flags
+are plain text and no longer emit `hljs-literal`. Single-quoted JSON bodies use the JSON
+grammar when it is registered.
 
 ### Verifying it
 
-[`src/compat/compat.test.ts`](src/compat/compat.test.ts) runs the real lowlight pipeline —
-imported straight from [`@scalar/code-highlight`](../code-highlight) — beside ours over the
-shared sample corpus, and asserts that the rendered text, the `<code>` envelope and the line
-elements match exactly. It also ports the four assertions `@scalar/code-highlight` ships
-today. Because the comparison runs against the workspace package rather than a copy of it,
-a change on either side shows up here.
+[`src/compat/compat.test.ts`](src/compat/compat.test.ts) compares ours against what the
+lowlight pipeline rendered for the shared sample corpus, and asserts that the rendered text,
+the `<code>` envelope and the line elements match exactly. It also ports the four
+assertions `@scalar/code-highlight` ships. The lowlight output is frozen in
+[`test/reference.json`](test/reference.json) rather than imported, so these tests do not
+depend on the old package; [`test/reference.ts`](test/reference.ts) explains what to do when
+a sample changes.
 
 Colour is the part that does *not* match exactly, and `pnpm compat:report --detail`
-quantifies it: across the whole 42-sample corpus 68.6% of visible characters keep the colour
-`code.css` gives them, and 82% across the thirteen languages the corpus started with. The
+quantifies it: across the whole corpus 68.4% of visible characters keep the colour they
+had under highlight.js and the original `code.css`, and 82% across the thirteen languages the corpus started with. The
 rest is our finer scope vocabulary showing through — f-string interiors scoped as code
 rather than string, docstrings as comments rather than strings, punctuation given its own
 scope — and it is widest where highlight.js scopes least, as on `http`, where it leaves
@@ -306,12 +311,65 @@ header values, `#` comments and status numbers unstyled. Each round of grammars 
 own floor — the whole corpus, the twenty-six samples before the latest round, and the
 original thirteen — so a new language cannot dilute a regression in an older one.
 
-For the same three languages `ScalarCodeBlock` shows most often:
+For the same three languages `ScalarCodeBlock` shows most often, measured before the swap:
 
 | | gzipped |
 | --- | ---: |
 | `@scalar/code-highlight` | 127.58 KB |
 | `@scalar/highlight/compat` | 7.67 KB |
+
+## Human-readable logs
+
+Use `log` for plain-text logs. It is available through
+`@scalar/highlight/langs/log`, `@scalar/highlight/all`, `loadLanguage('log')`,
+and the compatibility renderers once it is registered. The legacy
+`standardLanguages` list and `StandardLanguageKey` stay unchanged; compatibility
+rendering finds `log` through the existing grammar registry. There are no
+additional aliases; `console`
+continues to mean Bash.
+
+```ts
+import { highlight } from '@scalar/highlight'
+import log from '@scalar/highlight/langs/log'
+
+highlight('2024-12-21 14:07:41,517 [main] WARN App.Worker - Queue busy', log)
+```
+
+The grammar recognizes common numeric and English month dates, colon-separated
+and basic ISO timestamps, fractional seconds with `.` or `,`, and `Z`, UTC/GMT,
+or numeric timezone offsets. Header fields can be reordered or omitted:
+timestamps, bracketed context, numeric process IDs, and delimited component or
+logger names do not require one prescribed layout. Quoted strings, URLs,
+exception type names, and Java/JavaScript `at method(location)` stack frames
+also receive highlighting. All text, including multiline continuations and
+unrecognized lines, is preserved.
+
+Severity labels use the existing `keyword` scope, timestamps use `number`,
+context uses `namespace`, and the other constructs use the shared string, link,
+type, and function scopes. Native and compatibility output use their existing
+themes without adding log-specific colors or coloring entire message lines.
+
+This is a conservative heuristic, not a logging-framework parser. Bare severity
+labels must be uppercase; other casing needs brackets or a colon. A colon after
+a severity or a standalone `-`/`|` ends the header; otherwise the first
+unrecognized text starts the message. Each entry recognizes at most one severity
+label; later severity words start message text and stay plain. A logger name
+directly before a severity label must be qualified, such as `App.Worker`, so
+ordinary prose such as `No ERROR occurred` remains plain.
+A message that itself starts with an uppercase severity word is inherently
+ambiguous and may look like a header. Context brackets are limited to 128
+non-whitespace characters. Arbitrary logger names without delimiters, custom
+levels, localized dates, and every possible stack-trace dialect are not inferred.
+Dates are recognized lexically rather than validated as calendar dates.
+Numeric prefixes that continue as an IP address or version stay plain.
+Apostrophes inside words stay plain, and an unterminated quote ends at the line
+boundary. JSON/NDJSON parsing and ANSI escape rendering are outside this grammar;
+use the JSON grammar or a separate ANSI renderer for those inputs.
+
+The heuristics and tests draw on the
+[Shiki/TextMate log grammar](https://github.com/shikijs/textmate-grammars-themes/blob/main/packages/tm-grammars/grammars/log.json),
+[Log4j PatternLayout](https://logging.apache.org/log4j/2.x/manual/pattern-layout.html),
+and [log4net layouts](https://logging.apache.org/log4net/manual/configuration/layouts.html).
 
 ## Trade-offs
 
@@ -337,6 +395,9 @@ to another grammar, when that one is registered:
 - A Markdown fence goes to the language it names, front matter to YAML, and HTML at the start
   of a line to HTML.
 - An HTTP body that starts with `<` goes to HTML.
+- A single-quoted JSON object or array passed to a curl data option goes to JSON.
+  If loading grammars on demand, call `loadLanguages('curl', 'json')` from
+  `@scalar/highlight/lazy` before highlighting the snippet.
 
 When the grammar is not registered, the body is a plain string or unscoped text. A fence of four
 or more backticks stays a plain string either way, so a block that shows ` ``` ` inside it
@@ -354,7 +415,7 @@ From the repository root:
 ```bash
 pnpm install
 pnpm vitest packages/highlight --run       # the suite
-pnpm --filter @scalar/highlight build      # tsc, plus a copy of style.css
+pnpm --filter @scalar/highlight build      # tsc, plus a copy of both stylesheets
 pnpm --filter @scalar/highlight types:check
 ```
 
@@ -363,12 +424,11 @@ From this directory:
 ```bash
 pnpm bench          # throughput per language, for comparing a branch against main
 pnpm size           # bundle size per entry point and per language
-pnpm compat:report  # @scalar/code-highlight swap report; --detail for colour drift
+pnpm compat:report  # colour drift against the old lowlight output; --detail for the breakdown
 ```
 
-The published package ships zero dependencies. `rolldown` measures bundle size and
-`highlight.js` supplies the reference grammars the compat tests differ against; both are
-devDependencies and neither reaches consumers.
+The published package ships zero runtime dependencies. `rolldown` measures bundle size; it
+is a devDependency and never reaches consumers.
 
 Repository-wide conventions live in the root [`AGENTS.md`](../../AGENTS.md).
 

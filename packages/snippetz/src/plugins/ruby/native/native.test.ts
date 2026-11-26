@@ -117,7 +117,7 @@ http.use_ssl = true
 
 request = Net::HTTP::Post.new(url)
 request["Content-Type"] = 'application/json'
-request.body = <<~JSON
+request.body = <<~'JSON'
 {
   "hello": "world"
 }
@@ -654,7 +654,7 @@ puts response.read_body`)
     })
 
     expect(result).toContain(`request["Content-Type"] = 'application/json'`)
-    expect(result).toContain('request.body = <<~JSON')
+    expect(result).toContain("request.body = <<~'JSON'")
     expect(result).toContain(`"key": "\\"quotes\\" and \\\\backslashes\\\\"`)
   })
 
@@ -694,7 +694,7 @@ puts response.read_body`)
       },
     })
 
-    expect(result).toContain('request.body = <<~JSON')
+    expect(result).toContain("request.body = <<~'JSON'")
     expect(result).toContain(`"simple": "value"`)
   })
 
@@ -752,6 +752,73 @@ puts response.read_body`)
     expect(result).toContain(`request.body = "hell'o"`)
   })
 
+  it('keeps escaped quotes and backslashes in JSON bodies as written', () => {
+    const result = rubyNative.generate({
+      url: 'https://example.com/quotes',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({ text: 'She said "hi"', path: 'C:\\tmp' }),
+      },
+    })
+
+    expect(result).toContain(`request.body = <<~'JSON'
+{
+  "text": "She said \\"hi\\"",
+  "path": "C:\\\\tmp"
+}
+JSON`)
+  })
+
+  it('does not interpolate #{} in JSON bodies', () => {
+    const result = rubyNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({ template: '#{name}' }),
+      },
+    })
+
+    expect(result).toContain("request.body = <<~'JSON'")
+    expect(result).toContain('"template": "#{name}"')
+  })
+
+  it('escapes interpolation in string bodies', () => {
+    const result = rubyNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'text/plain',
+        text: 'Hello #{name}, #$global #@ivar # plain',
+      },
+    })
+
+    expect(result).toContain('request.body = "Hello \\#{name}, \\#$global \\#@ivar # plain"')
+  })
+
+  it('escapes interpolation in JSON body fallback and octet-stream bodies', () => {
+    const invalidJson = rubyNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: '{"a": "#{x}"',
+      },
+    })
+    const binary = rubyNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/octet-stream',
+        text: '#{x}',
+      },
+    })
+
+    expect(invalidJson).toContain('request.body = "{\\"a\\": \\"\\#{x}\\""')
+    expect(binary).toContain('request.body = "\\#{x}"')
+  })
+
   it('supports custom HTTP methods', () => {
     const result = rubyNative.generate({
       url: 'https://example.com',
@@ -766,5 +833,16 @@ puts response.read_body`)
     expect(result).toContain("METHOD = 'customMethod'")
     expect(result).toContain("REQUEST_HAS_BODY = 'true'")
     expect(result).toContain('request = Net::HTTP::CustomRequest.new(url)')
+  })
+
+  it.each([
+    ['https://example.com/docs#{id}', 'https://example.com/docs\\#{id}'],
+    ['https://example.com/docs#$id', 'https://example.com/docs\\#$id'],
+    ['https://example.com/docs#@id', 'https://example.com/docs\\#@id'],
+    ['https://example.com/docs#section', 'https://example.com/docs#section'],
+  ])('escapes interpolation in the request URL %s', (url, expected) => {
+    expect(rubyNative.generate({ url })).toBe(
+      baseHttpsRequest.replace('URI("https://example.com")', `URI("${expected}")`),
+    )
   })
 })

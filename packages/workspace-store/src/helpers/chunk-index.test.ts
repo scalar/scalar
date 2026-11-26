@@ -1,8 +1,24 @@
 import { describe, expect, it } from 'vitest'
 
-import { CHUNK_INDEX_KEY, type ChunkIndex, chunkRefTemplates, expandChunkIndex } from './chunk-index'
+import { CHUNK_INDEX_KEY, type ChunkIndex, buildChunkIndex, chunkRefTemplates, expandChunkIndex } from './chunk-index'
 
 describe('chunk-index', () => {
+  it.each(['static', 'ssr'] as const)('round-trips Paths Object extensions in %s mode', (mode) => {
+    const paths = JSON.parse(
+      '{"x-array":["origin"],"x-null":null,"x-false":false,"x-zero":0,"x-object":{"get":{"summary":"metadata"}}}',
+    )
+    const document: Record<string, unknown> = {
+      [CHUNK_INDEX_KEY]: buildChunkIndex({
+        mode,
+        refs: chunkRefTemplates({ mode, name: 'doc', baseUrl: '/docs' }),
+        components: {},
+        paths,
+      }),
+    }
+    expect(expandChunkIndex(document)).toBe(true)
+    expect(document['paths']).toStrictEqual(paths)
+  })
+
   it.each(['static', 'ssr'] as const)('preserves security schemes alongside chunked entries in %s mode', (mode) => {
     const securitySchemes = JSON.parse(
       '{"token":{"type":"http","scheme":"bearer"},"alias":{"$ref":"#/components/securitySchemes/token"},"__proto__":{"type":"http","scheme":"basic"}}',

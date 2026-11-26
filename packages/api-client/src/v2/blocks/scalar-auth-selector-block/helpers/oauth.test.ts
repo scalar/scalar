@@ -65,6 +65,46 @@ describe('oauth', () => {
     url: 'https://api.example.com',
   } as ServerObject
 
+  it('authorizes a configured public PKCE client without a client secret', async () => {
+    const scheme = mergeSecurity(
+      {},
+      {
+        oauth: {
+          type: 'oauth2',
+          flows: {
+            authorizationCode: {
+              authorizationUrl,
+              tokenUrl,
+              scopes: {},
+              'x-scalar-client-id': 'public-client',
+              'x-usePkce': 'SHA-256',
+            },
+          },
+        },
+      },
+      createWorkspaceStore().auth,
+      'test',
+    ).oauth
+    if (scheme?.type !== 'oauth2') {
+      throw new Error('Expected OAuth2 scheme')
+    }
+    const capturedUrls: string[] = []
+    const captureComplete = new Error('Capture complete')
+    const capture: CaptureOAuth2Callback = ({ authorizationUrl: url }) => {
+      capturedUrls.push(url)
+      return Promise.resolve([captureComplete, null])
+    }
+    const [error] = await authorizeOauth2(scheme.flows, 'authorizationCode', [], null, '', {}, undefined, capture)
+
+    expect(error).toBe(captureComplete)
+    expect(capturedUrls.length).toBe(1)
+    const url = new URL(capturedUrls[0] ?? '')
+    expect(url.searchParams.get('client_id')).toBe('public-client')
+    expect(url.searchParams.get('code_challenge_method')).toBe('S256')
+    expect(url.searchParams.get('code_challenge')?.length).toBe(43)
+    expect(scheme.flows.authorizationCode?.['x-scalar-secret-client-secret']).toBe('')
+  })
+
   it.each(
     (['authorizationCode', 'implicit'] as const).flatMap((type) =>
       [false, true].flatMap((capture) =>
@@ -340,6 +380,29 @@ describe('oauth', () => {
       const result = getServerUrl(server, { hostname: 'api.example.com' })
 
       expect(result).toBe('https://api.example.com/v1')
+    })
+
+    it.each<{ name: string; server: ServerObject; expected: string }>([
+      {
+        name: 'an empty string default at the end of the host',
+        server: { url: 'https://api.example.com{basePath}', variables: { basePath: { default: '' } } },
+        expected: 'https://api.example.com',
+      },
+      {
+        name: 'an empty string default in the path',
+        server: { url: 'https://api.example.com/{basePath}', variables: { basePath: { default: '' } } },
+        expected: 'https://api.example.com/',
+      },
+      {
+        name: 'an empty string default that is part of the enum',
+        server: {
+          url: 'https://api.example.com{basePath}',
+          variables: { basePath: { default: '', enum: ['', '/v2'] } },
+        },
+        expected: 'https://api.example.com',
+      },
+    ])('resolves $name', ({ server, expected }) => {
+      expect(getServerUrl(server)).toBe(expected)
     })
 
     it('returns an empty server URL when no active server is selected', () => {

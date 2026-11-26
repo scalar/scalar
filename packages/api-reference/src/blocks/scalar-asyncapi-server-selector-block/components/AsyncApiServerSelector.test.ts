@@ -3,6 +3,8 @@ import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
+import { PLUGIN_MANAGER_SYMBOL, createPluginManager } from '@/plugins'
+
 import AsyncApiServerSelector from './AsyncApiServerSelector.vue'
 
 /** Build an AsyncAPI server entry with sensible defaults for tests. */
@@ -16,7 +18,64 @@ const createEntry = (
   ...overrides,
 })
 
+vi.unmock('@/plugins/hooks/usePluginManager')
+
 describe('AsyncApiServerSelector', () => {
+  it('renders plugin-only extensions without default selection', () => {
+    const wrapper = mount(AsyncApiServerSelector, {
+      props: {
+        servers: [],
+        selectedServer: createEntry({
+          name: 'first',
+          url: 'mqtt://first',
+          server: { host: 'first', protocol: 'mqtt', ...{ 'x-owner': 'team' } },
+        }),
+        eventBus: createWorkspaceEventBus(),
+      },
+      global: {
+        provide: {
+          [PLUGIN_MANAGER_SYMBOL]: createPluginManager({
+            plugins: [
+              () => ({
+                name: 'owner',
+                extensions: [{ name: 'x-owner', component: { render: () => 'Custom owner' } }],
+              }),
+            ],
+          }),
+        },
+      },
+    })
+    expect(wrapper.text()).toContain('Custom owner')
+    expect(wrapper.text()).not.toContain('x-owner:')
+  })
+
+  it('shows extension-only server details and updates them with the selection', async () => {
+    const first = createEntry({
+      name: 'first',
+      url: 'mqtt://first',
+      server: { host: 'first', protocol: 'mqtt', ...{ 'x-owner': 'first-team' } },
+    })
+    const second = createEntry({
+      name: 'second',
+      url: 'mqtt://second',
+      server: { host: 'second', protocol: 'mqtt', ...{ 'x-owner': null } },
+    })
+    const wrapper = mount(AsyncApiServerSelector, {
+      props: {
+        servers: [first, second],
+        selectedServer: first,
+        eventBus: createWorkspaceEventBus(),
+        options: { showExtensions: ['x-owner'] },
+      },
+    })
+    expect(wrapper.text()).toContain('first-team')
+    await wrapper.setProps({ selectedServer: second })
+    expect(wrapper.text()).toContain('x-owner:null')
+    expect(wrapper.text()).not.toContain('first-team')
+    await wrapper.setProps({ options: { showExtensions: [] } })
+    expect(wrapper.text()).not.toContain('x-owner')
+  })
+
   const eventBus = createWorkspaceEventBus()
 
   const mockServers: AsyncApiServerEntry[] = [

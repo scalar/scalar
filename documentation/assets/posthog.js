@@ -26,7 +26,7 @@
           u.people = u.people || [],
           u.toString = (t) => {
             let e = 'posthog'
-            return 'posthog' !== name && (e += '.' + name), t || (e += ' (stub)'), e
+            return ('posthog' !== name && (e += '.' + name), t || (e += ' (stub)'), e)
           },
           u.people.toString = () => u.toString(1) + '.people (stub)',
           o =

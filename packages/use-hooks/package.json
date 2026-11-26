@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/use-hooks"
   },
-  "version": "0.4.22",
+  "version": "0.5.1",
   "engines": {
     "node": ">=22"
   },
@@ -40,6 +40,11 @@
       "import": "./dist/useColorMode/index.js",
       "types": "./dist/useColorMode/index.d.ts",
       "default": "./dist/useColorMode/index.js"
+    },
+    "./useDocumentRoot": {
+      "import": "./dist/useDocumentRoot/index.js",
+      "types": "./dist/useDocumentRoot/index.d.ts",
+      "default": "./dist/useDocumentRoot/index.js"
     }
   },
   "files": [
@@ -52,7 +57,7 @@
     "@scalar/validation": "workspace:*",
     "@vueuse/core": "catalog:*",
     "cva": "1.0.0-beta.4",
-    "tailwind-merge": "3.7.0",
+    "tailwind-merge": "3.7.1",
     "vue": "catalog:*"
   },
   "devDependencies": {

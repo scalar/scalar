@@ -23,6 +23,7 @@ scalar team list [options]
 | Option | Description |
 | --- | --- |
 | `--json` | Output teams as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## get
 
@@ -37,6 +38,7 @@ scalar team get [options]
 | Option | Description |
 | --- | --- |
 | `--json` | Output the current team as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## set
 
@@ -50,4 +52,6 @@ scalar team set [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the result as JSON without prompting. |
 | `--team <team>` | Team ID. |
+| `--no-input` | Disable prompts and browser launches. |

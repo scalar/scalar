@@ -1,5 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { objectToString } from '@/libs/php'
 import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
@@ -38,24 +39,27 @@ export const phpCurl: Plugin = {
     // Initialize cURL
     // URL (with query parameters)
     const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
-    parts.push(`$ch = curl_init("${url}");`)
+    parts.push(`$ch = curl_init(${objectToString(url)});`)
     parts.push('')
 
     // Method
     if (normalizedRequest.method === 'POST') {
       parts.push('curl_setopt($ch, CURLOPT_POST, true);')
     } else if (normalizedRequest.method !== 'GET') {
-      parts.push(`curl_setopt($ch, CURLOPT_CUSTOMREQUEST, '${normalizedRequest.method}');`)
+      parts.push(`curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ${objectToString(normalizedRequest.method)});`)
     }
 
     // Basic Auth
     if (configuration?.auth?.username && configuration?.auth?.password) {
-      parts.push(`curl_setopt($ch, CURLOPT_USERPWD, '${configuration.auth.username}:${configuration.auth.password}');`)
+      parts.push(
+        `curl_setopt($ch, CURLOPT_USERPWD, ${objectToString(`${configuration.auth.username}:${configuration.auth.password}`)});`,
+      )
     }
 
     // Collect all headers to emit once, avoiding duplicate CURLOPT_HTTPHEADER calls.
     // Body processing may add a Content-Type header, so we determine it first.
-    const allHeaders = multipart?.headers ?? [...(normalizedRequest.headers || [])]
+    const mergedHeaders = multipart?.headers ?? mergeCookieHeaders(normalizedRequest)
+    const allHeaders = mergedHeaders.filter(({ name }) => name.toLowerCase() !== 'cookie')
 
     // Helper to add Content-Type header if not already present
     const hasContentType = () => allHeaders.some((h) => h.name.toLowerCase() === 'content-type')
@@ -89,16 +93,9 @@ export const phpCurl: Plugin = {
       }
     }
 
-    // Cookies
-    if (normalizedRequest.cookies?.length) {
-      const cookieString = normalizedRequest.cookies
-        .map((cookie) => {
-          const encodedName = encodeURIComponent(cookie.name)
-          const encodedValue = encodeURIComponent(cookie.value)
-          return `${encodedName}=${encodedValue}`
-        })
-        .join('; ')
-      parts.push(`curl_setopt($ch, CURLOPT_COOKIE, '${cookieString}');`)
+    const cookieHeader = mergedHeaders.find(({ name }) => name.toLowerCase() === 'cookie')
+    if (cookieHeader) {
+      parts.push(`curl_setopt($ch, CURLOPT_COOKIE, ${objectToString(cookieHeader.value)});`)
     }
 
     // Body
@@ -137,7 +134,7 @@ export const phpCurl: Plugin = {
             return `${encodedName}=${encodedValue}`
           })
           .join('&')
-        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${formData}');`)
+        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(formData)});`)
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
         parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(normalizedRequest.postData.text || '')});`)
       } else if (normalizedRequest.postData.text) {
@@ -155,8 +152,6 @@ export const phpCurl: Plugin = {
     // Execute and close
     parts.push('')
     parts.push('curl_exec($ch);')
-    parts.push('')
-    parts.push('curl_close($ch);')
 
     return parts.join('\n').replace(/\n\n\n/g, '\n\n')
   },

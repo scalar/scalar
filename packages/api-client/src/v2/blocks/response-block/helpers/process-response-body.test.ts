@@ -59,6 +59,15 @@ describe('processResponseBody', () => {
     expect(dataUrl).toBe('mockedBlobURL')
   })
 
+  it('skips object URL creation for empty plain text', () => {
+    const { dataUrl } = processResponseBody({
+      data: '',
+      headers: [{ name: 'Content-Type', value: 'text/plain' }],
+    })
+    expect(dataUrl).toBe('')
+    expect(URL.createObjectURL).not.toHaveBeenCalled()
+  })
+
   it('generates a data URL for an object', () => {
     const props = {
       data: { key: 'value' },

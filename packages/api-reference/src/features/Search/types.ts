@@ -27,9 +27,13 @@ export type FuseData = {
   identifiers?: string[]
   /** AsyncAPI action displayed without an HTTP method badge. */
   action?: 'send' | 'receive'
+  /** Descriptions of OpenAPI responses, searchable even when a response has no payload. */
+  responseDescriptions?: string[]
   responseExamples?: string[]
   method?: string
   path?: string
   operationId?: string
+  /** OpenAPI tag names and display titles, searchable independently of the operation title. */
+  tags?: string[]
   entry: TraversedEntry
 }

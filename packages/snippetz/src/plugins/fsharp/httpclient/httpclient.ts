@@ -20,13 +20,13 @@ export const fsharpHttpclient: Plugin = {
     // Initialize HttpRequestMessage
     code += generateHttpRequestMessage(request.method, finalUrl)
 
-    // Add headers if present
-    if (request.headers && request.headers.length > 0) {
-      code += generateHeadersCode(
-        request.postData?.mimeType === 'multipart/form-data' && request.postData.params
-          ? request.headers.filter(({ name }) => name.toLowerCase() !== 'content-type')
-          : request.headers,
-      )
+    // Add headers if present. When there is a body, the content object carries the Content-Type,
+    // and .NET throws "Misused header name" if it is added to the request headers instead.
+    const headers = request.postData
+      ? (request.headers ?? []).filter(({ name }) => name.toLowerCase() !== 'content-type')
+      : (request.headers ?? [])
+    if (headers.length > 0) {
+      code += generateHeadersCode(headers)
     }
 
     // Add request body if present
@@ -176,12 +176,14 @@ function generateJsonContentCode(postData: NonNullable<HarRequest['postData']>):
  * Generates code for application/x-www-form-urlencoded content
  */
 function generateUrlEncodedFormDataCode(postData: NonNullable<HarRequest['postData']>): string {
-  let code = 'let formUrlEncodedContentDictionary = new Dictionary<string, string>()\n'
+  // A Dictionary throws on a repeated name, so the fields are passed as a list of pairs.
+  let code = 'let formUrlEncodedContentPairs = [\n'
   for (const param of postData.params ?? []) {
-    code += `formUrlEncodedContentDictionary.Add("${escapeString(param.name ?? '')}", "${escapeString(param.value ?? '')}")\n`
+    code += `  KeyValuePair("${escapeString(param.name ?? '')}", "${escapeString(param.value ?? '')}")\n`
   }
 
-  code += 'let content = new FormUrlEncodedContent(formUrlEncodedContentDictionary)\n'
+  code += ']\n'
+  code += 'let content = new FormUrlEncodedContent(formUrlEncodedContentPairs)\n'
   return code
 }
 

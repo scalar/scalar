@@ -20,6 +20,8 @@ import {
 } from '@/features/document-outline'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
+import { SpecificationExtension } from '@/features/specification-extension'
+import { useSpecificationExtensions } from '@/features/specification-extension/use-specification-extensions'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
@@ -39,6 +41,7 @@ import OperationReply from './OperationReply.vue'
 type OperationOptions = AsyncApiSchemaRenderOptions
 
 const {
+  specificationExtension = SpecificationExtension,
   operation,
   document,
   eventBus,
@@ -103,17 +106,25 @@ const summary = computed((): string => {
     : value
 })
 
+const extensionSelection = useSpecificationExtensions(
+  () => resolvedOperation.value,
+  () => options?.showExtensions,
+)
+const { hasExtensions } = extensionSelection
+
 const description = computed(
   (): string => resolvedOperation.value?.description ?? '',
 )
 
-const hasOverview = computed(() =>
+const hasMetadata = computed<boolean>(() =>
   Boolean(
-    summary.value ||
-    description.value ||
+    hasExtensions.value ||
     resolvedOperation.value?.bindings ||
     resolvedOperation.value?.externalDocs,
   ),
+)
+const hasOverview = computed<boolean>(() =>
+  Boolean(summary.value || description.value || hasMetadata.value),
 )
 
 /** Only the message children of this operation. */
@@ -217,7 +228,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         withImages />
 
       <div
-        v-if="resolvedOperation?.bindings || resolvedOperation?.externalDocs"
+        v-if="hasMetadata"
         class="space-y-4"
         :class="{ 'mt-12': summary || description }">
         <Bindings
@@ -226,6 +237,10 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
           scope="operation" />
         <AsyncApiDocumentation
           :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
+        <SpecificationExtension
+          :selection="extensionSelection"
+          :showExtensions="options?.showExtensions"
+          :value="resolvedOperation" />
       </div>
     </div>
 

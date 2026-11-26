@@ -1,5 +1,237 @@
 # @scalar/api-reference
 
+## 1.85.0
+
+### Minor Changes
+
+- [#11234](https://github.com/scalar/scalar/pull/11234): Configure available API Reference HTTP clients with `httpClients`. Use exact client IDs or target wildcards such as `shell/*`. The `defaultHttpClient` option also accepts a client ID string.
+
+  When all available clients are under **More**, such as with `featuredClients: []`, the Client Libraries block omits the empty tab list.
+- [#11175](https://github.com/scalar/scalar/pull/11175): Use the system font stack and stop loading web fonts. `--scalar-font` and `--scalar-font-code` now default to the platform's own UI and monospace fonts, and the Inter and JetBrains Mono files from fonts.scalar.com are no longer requested. `defaultFonts`, `@scalar/themes/fonts.css` and the `fonts` option of `getThemeStyles` are deprecated and do nothing. A custom theme that names Inter or JetBrains Mono now needs to load that font itself.
+
+### Patch Changes
+
+- [#11232](https://github.com/scalar/scalar/pull/11232): Support custom `x-badges` on OpenAPI schema properties so API references can highlight details like expandable fields. Property rows use the badges declared on the property, including when the property references a model or is an array of models.
+- [#11223](https://github.com/scalar/scalar/pull/11223): Name the Explore Scalar dialog with a plain heading instead of Headless UI's `DialogTitle`, now that `ScalarModal` renders a native dialog.
+- [#11251](https://github.com/scalar/scalar/pull/11251): Find OpenAPI operations and webhooks by text in their response descriptions.
+- [#11215](https://github.com/scalar/scalar/pull/11215): Respect string length bounds when generating plain text and formatted string examples, including API reference examples and mock server responses. Preserve path parameter placeholders in code samples.
+
+## 1.84.0
+
+### Minor Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+
+### Patch Changes
+
+- [#11222](https://github.com/scalar/scalar/pull/11222): Keep response media-type pickers visible when multiple media types are available and reserve room for them beside response summaries on narrow screens.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11208](https://github.com/scalar/scalar/pull/11208): Keep syntax highlighting in fenced code blocks inside request body and property descriptions.
+- [#11169](https://github.com/scalar/scalar/pull/11169): Look up elements and focus through the provided document root instead of `document`. Nothing provides one yet, so behavior is unchanged until shadow-root mounts wire it up
+- [#11160](https://github.com/scalar/scalar/pull/11160): Simplify API Reference browser test configuration.
+- [#11221](https://github.com/scalar/scalar/pull/11221): Display explicit zero bounds for string lengths and array item counts in schema details.
+
+## 1.83.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+### Patch Changes
+
+- [#11176](https://github.com/scalar/scalar/pull/11176): feat(api-reference): invite developers to the API Hosting beta from the localhost reference
+
+  The localhost reference now shows the Deploy panel's waitlist card in a popup once, shortly after it loads (with several API descriptions, once all of them have loaded), if nobody has started reading yet, as the API client invites its users. It only ever appears when a development server on the developer's own machine serves the page (`localhost`, `*.localhost`, `127.0.0.1`, `[::1]`, on an explicit port), never in automated browsers or jsdom. It is remembered across every port on the same host, and opening the Deploy panel counts too. Hosted references never show it, and `showDeveloperTools: 'never'` turns it off. The localhost toolbar's Deploy button now uses the gradient style.
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+- [#11145](https://github.com/scalar/scalar/pull/11145): Prevent CSP eval violation reports when loading OAuth authentication and AI Chat by configuring Zod before schemas are constructed.
+
+  This disables JIT compilation for the shared Zod instance, so applications using that same instance may also see slower object parsing.
+- [#11130](https://github.com/scalar/scalar/pull/11130): Update nanoid to version 6 for faster identifier generation while preserving existing identifier formats.
+
+## 1.82.1
+
+No changes in this release.
+
+## 1.82.0
+
+### Minor Changes
+
+- [#11020](https://github.com/scalar/scalar/pull/11020): feat: show `x-badges` in the sidebar with the new `showBadgesInSidebar` option
+
+  The option is off by default, so the sidebar looks the same as before. When it is on, the sidebar shows the `x-badges` of operations, webhooks, tags (including nested OpenAPI 3.2 tags), `x-tagGroups` entries and models next to their titles. Navigation entries of these types get an optional `badges` field.
+
+### Patch Changes
+
+- [#11123](https://github.com/scalar/scalar/pull/11123): Fix the API reference freezing on schemas with several recursive or cross-referencing `$ref`s. Generated examples that are too large to render at full depth are now rendered at the deepest depth that fits.
+- [#11113](https://github.com/scalar/scalar/pull/11113): Load native AsyncAPI RAML and Protobuf dependencies when their message or model is expanded, sharing authenticated downloads until the document changes and preserving source fallback and prebuilt server resources.
+
+  Use the containing document location for deferred dependencies and prevent remote schemas from invoking a filesystem loader.
+- [#11124](https://github.com/scalar/scalar/pull/11124): Render Markdown through `@scalar/markdown` instead of `@scalar/code-highlight`
+
+  None of them pull in lowlight or highlight.js any more: code blocks in descriptions are highlighted by `@scalar/highlight`, the same highlighter `ScalarCodeBlock` uses. A fenced code block without a language is no longer auto-detected and renders as plain text. In `@scalar/openapi-to-markdown` this shows up in descriptions that contain HTML or alerts: an unlabeled fence used to come out labeled with highlight.js's guess (often wrong, such as `properties` for JSON), and now stays unlabeled.
+- [#10854](https://github.com/scalar/scalar/pull/10854): Send the selected API source and version as structured chat request metadata, keeping user messages unchanged.
+
+## 1.81.0
+
+### Minor Changes
+
+- [#11089](https://github.com/scalar/scalar/pull/11089): Resolve external RAML and Protobuf dependencies for structured AsyncAPI schema documentation, preserving source fallback when dependencies cannot be fully resolved.
+
+  Show RAML named types in schema headings instead of adding a "RAML type:" line to the description.
+
+  Show inline object item titles in array type signatures across all `@scalar/blocks` consumers, including OpenAPI documentation: an array with `items: { type: 'object', title: 'Pet' }` now displays `array of Pet` instead of `array of object`.
+- [#10895](https://github.com/scalar/scalar/pull/10895): Substitute declared credential placeholders in SDK installation text using the selected document authentication, with masked display and real code copy values.
+
+### Patch Changes
+
+- [#11029](https://github.com/scalar/scalar/pull/11029): fix: respect contains match counts in simple array examples
+
+  Generate matching and nonmatching primitive items for direct contains constraints, counting tuple prefixes and respecting item schemas, length bounds, uniqueness, and the declared dialect. Authored examples remain authoritative. Candidate generation is bounded and may return a partial example for contradictory constraints.
+
+  Complex references and compositions, nested object or array candidate synthesis, and XML branch reconstruction retain existing best-effort behavior and are deferred to a follow-up.
+- [#11098](https://github.com/scalar/scalar/pull/11098): Select response example labels and syntax highlighting from the media type instead of treating non-XML responses as JSON.
+- [#11100](https://github.com/scalar/scalar/pull/11100): Prefer explicit parameter and media type examples over schema examples, avoiding duplicate examples and preserving schema examples as a fallback.
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11094](https://github.com/scalar/scalar/pull/11094): Keep deep-link targets aligned while lazy content and collapsing sections finish changing height.
+- [#11111](https://github.com/scalar/scalar/pull/11111): fix: the theme picked in the developer tools now applies on pages where an integration injects its own default theme CSS
+
+## 1.80.0
+
+### Minor Changes
+
+- [#10816](https://github.com/scalar/scalar/pull/10816): Add `documentTypes` to the API Reference plugin API, so a plugin can teach API Reference a document format it does not support natively. The plugin detects its documents, builds their sidebar entries and renders them with its own component, while API Reference handles loading, the document selector, routing and the sidebar.
+
+### Patch Changes
+
+- [#11079](https://github.com/scalar/scalar/pull/11079): Collapse the Ask AI Agent field in the request example footer when focus leaves it, even with a question typed. The expanded field is drawn over the whole footer, so moving focus on to the example picker or Test Request used to land on a control hidden underneath it, with no visible focus ring. The typed question is kept and comes back when the field is focused again, and pressing the field or its send button no longer takes focus from the input, so a click still sends in Safari.
+- [#10816](https://github.com/scalar/scalar/pull/10816): Keep plugin document classification consistent through replacement, hydration, and rebasing. Exclude plugin documents from Ask AI and reject unsupported request, authentication, and mock-server processing even when plugin data contains OpenAPI or AsyncAPI fields.
+- [#11078](https://github.com/scalar/scalar/pull/11078): Center card headers and footers between the card's edge and the surface beside them. They sat on the card's 4px padding on one side only, so their contents were 2px off center toward the surface: the request example's buttons, for example, were 6px under the code but 10px above the card's edge. Cards keep their height, and a card given `p-0` is unchanged.
+- [#11084](https://github.com/scalar/scalar/pull/11084): fix: keep the lazy-load placeholder until mount, so a reference mounted again in the same document hydrates without a mismatch
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+- [#11060](https://github.com/scalar/scalar/pull/11060): Apply saved color-mode preferences after hydrating server-rendered controls.
+
+## 1.79.0
+
+### Minor Changes
+
+- [#10980](https://github.com/scalar/scalar/pull/10980): feat: redesign code cards as a padded shell with the code on a lifted surface
+
+  This changes the default look of every `ScalarCard`, not only the cards in the API reference. `ScalarCard` drops its border and dividers for a 12px shell with 4px of padding, and each plain `ScalarCardSection` becomes an 8px surface lifted off it. If you use these components in your own app, check your cards after this bump:
+
+  - A card recolored to match its page (for example `bg-b-1` on a `bg-b-1` page) no longer has an edge. Pass `border` to bring it back, or give the card a fill that differs from the page.
+  - Two plain sections in a row are two surfaces with a 4px gap, where they were one box with a divider.
+  - Content placed straight in `ScalarCard` without a section sits inside the 4px padding. Pass `p-0` to remove it.
+
+  In the API reference, the request example, example responses, operations list and AsyncAPI cards all pick this up. The surface color is derived from `--scalar-background-2`, and its outline from `--scalar-shadow-1` and `--scalar-border-color`. A copy button on a surface sits one step above it, toward the text color. Set `--scalar-card-surface`, `--scalar-card-surface-raised` or `--scalar-card-surface-shadow` on `.scalar-card` to change them. Every class name is unchanged, and the new rules are single-class selectors, so existing theme and `customCss` rules keep winning.
+- [#11036](https://github.com/scalar/scalar/pull/11036): Add `showDefaultClientsWithSdkInstallation` to show SDK installation tabs alongside built-in HTTP clients in the introduction.
+- [#11033](https://github.com/scalar/scalar/pull/11033): Add `persistSelectedClient` to disable saving and restoring the selected code sample client in local storage.
+
+### Patch Changes
+
+- [#11041](https://github.com/scalar/scalar/pull/11041): fix: keep the copy link out of the tag accordion button in the classic layout, so server-rendered markup hydrates
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+- [#11041](https://github.com/scalar/scalar/pull/11041): fix: keep the first tag open while hydrating a server-rendered reference
+- [#10996](https://github.com/scalar/scalar/pull/10996): Include operation tag names and their displayed titles (`x-displayName` or `summary`) in API reference search results.
+- [#10989](https://github.com/scalar/scalar/pull/10989): Remove the unused inline editor placeholder template and slot declaration.
+- [#11027](https://github.com/scalar/scalar/pull/11027): fix: render server-rendered teleports in place until they are mounted, so hydrating the API reference no longer replaces elements of the host page or breaks its dropdowns
+- [#10961](https://github.com/scalar/scalar/pull/10961): Preserve named example summaries and names in header, parameter, and body example lists as muted labels above the value boxes while copying only their values. Keep schema example objects intact when their payload contains fields named `value` or `summary`.
+
+  Retain raw object examples in legacy schema example maps.
+
+## 1.78.1
+
+### Patch Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when rendering RAML and Avro schemas.
+- [#10967](https://github.com/scalar/scalar/pull/10967): fix: parse YAML documents that merge shared anchors into many operations
+
+  Since yaml 2.9.1, merge keys (`<<: *anchor`) count toward the alias limit, so large API Gateway exports failed with "Excessive alias count indicates a resource exhaustion attack". The limit is now 100,000 and shared through `YAML_MAX_ALIAS_COUNT` from `@scalar/helpers`.
+
+## 1.78.0
+
+### Minor Changes
+
+- [#10892](https://github.com/scalar/scalar/pull/10892): Allow defaultHttpClient to select custom code samples with targetKey: 'custom'.
+- [#10891](https://github.com/scalar/scalar/pull/10891): Support optional display labels for SDK installation tabs while retaining language-based selection and icons.
+- [#10902](https://github.com/scalar/scalar/pull/10902): Render self-contained Avro, RAML, and Protobuf schemas as native field and type documentation, retaining copyable source for unsupported schemas.
+
+### Patch Changes
+
+- [#10890](https://github.com/scalar/scalar/pull/10890): Add an Elixir language icon and show it on Elixir SDK installation tabs.
+- [#10936](https://github.com/scalar/scalar/pull/10936): Mark hosting waitlist sign-ups from the developer tools Deploy card with an `oss` contact property.
+- [#10898](https://github.com/scalar/scalar/pull/10898): Preserve browser-native plugin URL imports when bundling API Reference with Next.js Turbopack.
+- [#10908](https://github.com/scalar/scalar/pull/10908): Expose `Scalar.releaseUnusedStyles()` in the standalone bundle to release orphaned CSS without mounting a temporary reference or changing body theme classes. Preserve styles owned by active references and restore detached styles on the next mount.
+- [#10873](https://github.com/scalar/scalar/pull/10873): Display the API description version verbatim without adding a `v` prefix, so commit hashes and other version identifiers remain accurate.
+- [#10874](https://github.com/scalar/scalar/pull/10874): Automatically group deep-object query parameters with expandable fields in a collapsed row.
+
+  Keep expanded fields open during navigation within a group, and mark flattened fields as required only when every ancestor is required.
+
+- [#10949](https://github.com/scalar/scalar/pull/10949): Show response header examples, including media type examples and OpenAPI 3.2 cookie examples, with explicit examples taking precedence over schema examples. Preserve this precedence through composed schemas and fall back to media type examples when header examples have no usable values.
+
+  Keep external example URLs visible and preserve line breaks in displayed string examples. Across all schemas, array-level examples take precedence over item examples.
+
+  Preserve `x-example` and `x-examples` on OpenAPI 2.0 response headers during upgrades.
+
+## 1.77.0
+
+### Minor Changes
+
+- [#10728](https://github.com/scalar/scalar/pull/10728): Add per-document authentication overrides merged with global defaults and an optional security scheme allowlist for the authentication UI.
+- [#10732](https://github.com/scalar/scalar/pull/10732): Render Paths Object and Path Item extensions alongside operation extensions within each operation in both layouts. Preserve arbitrary Paths Object extension values during browser loading and server preprocessing, and exclude them from operation navigation and tag/auth edits.
+- [#10662](https://github.com/scalar/scalar/pull/10662): Supply the plugin-aware specification extension renderer by default in API reference components while preserving custom renderer overrides. Export scrollTargetId from the helpers entry point for custom layouts.
+- [#10733](https://github.com/scalar/scalar/pull/10733): Render configured and plugin extensions on AsyncAPI channels, operations, messages, servers, and replies.
+
+### Patch Changes
+
+- [#10841](https://github.com/scalar/scalar/pull/10841): Fix the "Auth Required" badge panel briefly overflowing the viewport on hover by mounting the floating panel together with its content, so Floating UI positions it at its real width on first render.
+- [#10755](https://github.com/scalar/scalar/pull/10755): fix: add space below section dividers and between the last untagged operation and the next section in the classic layout
+- [#10733](https://github.com/scalar/scalar/pull/10733): Align AsyncAPI message and server extensions with their surrounding content and reduce excess spacing.
+- [#10734](https://github.com/scalar/scalar/pull/10734): Select an available server when a live API description update removes the previously selected server URL.
+- [#10805](https://github.com/scalar/scalar/pull/10805): fix: keep the page on the newest navigation target while an earlier target is still rendering
+- [#10771](https://github.com/scalar/scalar/pull/10771): Wrap operation titles without spaces, such as webhook names, on narrow screens instead of pushing the page wider than the viewport.
+- [#10732](https://github.com/scalar/scalar/pull/10732): Keep Paths extensions out of request-body snapshots, resets, default routing, and path parameter synchronization. Hide unselected Paths and Path Item extension sections in the classic layout.
+- [#10735](https://github.com/scalar/scalar/pull/10735): Preserve server-rendered API content during hydration by restoring the preloaded document state before the first browser render.
+- [#10869](https://github.com/scalar/scalar/pull/10869): Revert selected API description uploads in full mode until the backend supports them with agent-key authorization. Full mode uses the agent key's registered documents again.
+- [#10818](https://github.com/scalar/scalar/pull/10818): Open search much faster for API descriptions whose models reference each other by expanding each schema only once while building the search index. Preserve property descriptions through shared reference aliases and stop reading wide compositions at the traversal budget.
+- [#10820](https://github.com/scalar/scalar/pull/10820): Keep search responsive for API descriptions whose models reference each other by indexing schema fields up to 6 edges deep instead of 64. Fields nested more deeply no longer match their operations in search.
+- [#10819](https://github.com/scalar/scalar/pull/10819): Open search faster by reading each schema once per search index build, however many operations reference it.
+- [#10735](https://github.com/scalar/scalar/pull/10735): Reduce embedded hydration state, recover from damaged state, and preserve the client button during server rendering.
+- [#10771](https://github.com/scalar/scalar/pull/10771): Place request actions below the method and path in narrow fallback cards, keeping button labels readable without clipping.
+- [#10845](https://github.com/scalar/scalar/pull/10845): Prevent custom CSS and themes from closing style elements in generated HTML.
+
+## 1.76.4
+
+### Patch Changes
+
+- [#10796](https://github.com/scalar/scalar/pull/10796): feat: send the server framework with hosting waitlist sign-ups
+
+## 1.76.3
+
+### Patch Changes
+
+- [#10775](https://github.com/scalar/scalar/pull/10775): fix: name downloaded documents after the document title when no slug is configured
+
+## 1.76.2
+
+### Patch Changes
+
+- [#10740](https://github.com/scalar/scalar/pull/10740): Detect schemas in custom AsyncAPI binding fields, including WebSocket operation headers and message schemas, and render their properties instead of expandable raw JSON.
+- [#10763](https://github.com/scalar/scalar/pull/10763): feat(api-reference): give the localhost playground a developer toolbar with a side panel for its tools
+
+  On localhost, the developer toolbar becomes a sticky bar above the reference, which renders as a bordered card. Configure, Share, Deploy and Generate SDK open in a side panel beside the card; Deploy is now a waitlist sign-up for hosting on Scalar. The Generate SDK buttons in the client libraries card and the request examples, and the sidebar's "Generate SDKs & MCP" card and API client button, no longer show on localhost. Hosted references are unchanged.
+
+- [#10740](https://github.com/scalar/scalar/pull/10740): Match the AsyncAPI application identifier heading to channel metadata headings with a full-column divider.
+
+## 1.76.1
+
+### Patch Changes
+
+- [#10761](https://github.com/scalar/scalar/pull/10761): feat(api-reference): give the localhost playground a developer toolbar with a side panel for its tools
+
+  On localhost, the developer toolbar becomes a sticky bar above the reference, which renders as a bordered card. Configure, Share, Deploy and Generate SDK open in a side panel beside the card; Deploy is now a waitlist sign-up for hosting on Scalar. The Generate SDK buttons in the client libraries card and the request examples, and the sidebar's "Generate SDKs & MCP" card and API client button, no longer show on localhost. Hosted references are unchanged.
+
 ## 1.76.0
 
 ### Minor Changes

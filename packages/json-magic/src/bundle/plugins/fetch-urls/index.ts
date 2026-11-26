@@ -46,6 +46,7 @@ export async function fetchUrl(
   url: string,
   limiter: <T>(fn: () => Promise<T>) => Promise<T>,
   config?: FetchConfig,
+  options?: Parameters<LoaderPlugin['exec']>[1],
 ): Promise<ResolveResult> {
   try {
     const host = getHost(url)
@@ -70,7 +71,7 @@ export async function fetchUrl(
 
       return {
         ok: true,
-        data: normalize(body),
+        data: options?.parseAs === 'text' ? body : normalize(body),
         raw: body,
       }
     }
@@ -85,9 +86,10 @@ export async function fetchUrl(
     console.warn(`[WARN] Fetch failed with status ${result.status} ${result.statusText} for URL: ${url}`)
     return {
       ok: false,
+      status: result.status,
     }
   } catch {
-    console.warn(`[WARN] Failed to parse JSON/YAML from URL: ${url}`)
+    console.warn(`[WARN] Failed to ${options?.parseAs === 'text' ? 'load text' : 'parse JSON/YAML'} from URL: ${url}`)
     return {
       ok: false,
     }
@@ -112,6 +114,6 @@ export function fetchUrls(config?: FetchConfig & Partial<{ limit: number | null 
   return {
     type: 'loader',
     validate: isHttpUrl,
-    exec: (value) => fetchUrl(value, limiter, config),
+    exec: (value, options) => fetchUrl(value, limiter, config, options),
   }
 }

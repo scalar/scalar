@@ -17,7 +17,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.4.31",
+  "version": "0.4.43",
   "engines": {
     "node": ">=22"
   },
@@ -55,7 +55,7 @@
     "@scalar/client-side-rendering": "workspace:*"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
+    "@astrojs/check": "^0.9.12",
     "astro": "catalog:*"
   },
   "peerDependencies": {

@@ -168,6 +168,42 @@ describe('getResponseCookieActions', () => {
     ])
   })
 
+  it.each(['PST', 'PST8PDT'])('expires cookies using UTC rather than the %s time zone', (timeZone) => {
+    const actions = getResponseCookieActions({
+      cookieHeaderKeys: [`session=; Expires=Tue, 19 Jan 2038 03:14:07 ${timeZone}; Path=/`],
+      documentCookies: [{ name: 'session', value: 'old', domain: 'example.com', path: '/' }],
+      requestUrl: 'https://example.com/api',
+      now: Date.parse('2038-01-19T04:00:00Z'),
+    })
+
+    expect(actions).toStrictEqual([{ type: 'delete', cookieName: 'session', index: 0 }])
+  })
+
+  it('keeps a cookie with a two-digit expiration year in the future', () => {
+    const actions = getResponseCookieActions({
+      cookieHeaderKeys: ['session=abc; Expires=19 Jan 67 03:14:07 GMT; Path=/'],
+      documentCookies: [],
+      requestUrl: 'https://example.com/api',
+      now: Date.parse('2026-11-19T00:00:00Z'),
+    })
+
+    expect(actions).toStrictEqual([
+      { type: 'upsert', cookie: { name: 'session', value: 'abc', domain: 'example.com', path: '/' } },
+    ])
+  })
+
+  it('preserves a malformed encoded cookie value and its request scope', () => {
+    const actions = getResponseCookieActions({
+      cookieHeaderKeys: ['session=%E0%A4%A; Path=/api; Secure; HttpOnly; SameSite=None'],
+      documentCookies: [],
+      requestUrl: 'https://example.com/api',
+    })
+
+    expect(actions).toStrictEqual([
+      { type: 'upsert', cookie: { name: 'session', value: '%E0%A4%A', domain: 'example.com', path: '/api' } },
+    ])
+  })
+
   it('orders index-based changes before appends and deletes from highest index down', () => {
     const documentCookies: XScalarCookie[] = [
       { name: 'a', value: '1', domain: 'example.com', path: '/' },

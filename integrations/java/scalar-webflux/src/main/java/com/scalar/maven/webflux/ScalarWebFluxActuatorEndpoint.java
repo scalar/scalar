@@ -59,7 +59,7 @@ public class ScalarWebFluxActuatorEndpoint {
         return Mono.fromCallable(() -> {
                     ScalarProperties properties = propertiesProvider.getObject();
                     ScalarProperties configuredProperties = configureProperties(properties, request);
-                    String html = ScalarHtmlRenderer.render(configuredProperties);
+                    String html = ScalarHtmlRenderer.renderForActuator(configuredProperties);
                     Resource resource = new ByteArrayResource(html.getBytes(StandardCharsets.UTF_8));
                     return resource;
                 })

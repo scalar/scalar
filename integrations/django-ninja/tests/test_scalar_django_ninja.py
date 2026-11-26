@@ -2,6 +2,7 @@
 Tests for scalar_ninja core functionality.
 """
 
+import json
 from html.parser import HTMLParser
 
 import pytest
@@ -323,6 +324,37 @@ class TestScalarConfig:
 class TestGetScalarApiReference:
     """Test the get_scalar_api_reference function"""
 
+    @pytest.mark.parametrize(
+        "options",
+        [{}, {"show_badges_in_sidebar": False}, {"show_badges_in_sidebar": True}],
+    )
+    def test_show_badges_in_sidebar(self, options):
+        response = get_scalar_api_reference(
+            ScalarViewer(show_sidebar=False, **options).config
+        )
+        configuration, _ = json.JSONDecoder().raw_decode(
+            response.content.decode().split('Scalar.createApiReference("#app", ', 1)[1]
+        )
+
+        assert configuration["showSidebar"] is False
+        if options.get("show_badges_in_sidebar", False):
+            assert configuration["showBadgesInSidebar"] is True
+        else:
+            assert "showBadgesInSidebar" not in configuration
+
+    @pytest.mark.parametrize("enabled", [True, False])
+    def test_show_default_clients_with_sdk_installation(self, enabled):
+        response = get_scalar_api_reference(
+            ScalarConfig(show_default_clients_with_sdk_installation=enabled)
+        )
+        configuration, _ = json.JSONDecoder().raw_decode(
+            response.content.decode().split('Scalar.createApiReference("#app", ', 1)[1]
+        )
+        if enabled:
+            assert configuration["showDefaultClientsWithSdkInstallation"] is True
+        else:
+            assert "showDefaultClientsWithSdkInstallation" not in configuration
+
     def test_basic_functionality(self):
         """Test basic functionality with minimal parameters"""
         config = ScalarConfig(openapi_url="/openapi.json", title="Test API")
@@ -363,6 +395,8 @@ class TestGetScalarApiReference:
         assert "defaultOpenAllTags" not in config_section
         assert "authentication" not in config_section
         assert "hideClientButton" not in config_section
+        assert "multipartNaming" not in config_section
+        assert "showDefaultClientsWithSdkInstallation" not in config_section
         assert "theme" not in config_section
 
     def test_default_openapi_url(self):
@@ -401,6 +435,7 @@ class TestGetScalarApiReference:
             default_open_all_tags=True,
             authentication={"apiKey": "test-key"},
             hide_client_button=True,
+            multipart_naming="indexed-dot",
             integration="django-ninja",
             theme=Theme.MOON,
         )
@@ -424,6 +459,7 @@ class TestGetScalarApiReference:
         )
         assert '"defaultOpenAllTags": true' in html_content
         assert '"authentication": {"apiKey": "test-key"}' in html_content
+        assert '"multipartNaming": "indexed-dot"' in html_content
         assert '"hideClientButton": true' in html_content
         assert '"_integration": "django-ninja"' in html_content
         assert '"theme": "moon"' in html_content
@@ -714,17 +750,41 @@ class TestEdgeCases:
         assert '"url": ""' in html_content
         assert "<title>Scalar</title>" in html_content
 
-    def test_special_characters_in_title(self):
-        """Test with special characters in title"""
-        title_with_special_chars = "API & Documentation <script>alert('xss')</script>"
-        config = ScalarConfig(
-            openapi_url="/openapi.json", title=title_with_special_chars
+    @pytest.mark.parametrize("as_string", [False, True], ids=["dictionary", "json"])
+    @pytest.mark.parametrize("in_sources", [False, True], ids=["content", "sources"])
+    @pytest.mark.parametrize(
+        "title",
+        ["</ScRiPt><script>alert(1)</script>", "<!--<script>"],
+        ids=["script-breakout", "script-tokenizer"],
+    )
+    def test_openapi_content_stays_inside_initializer(self, as_string, in_sources, title):
+        document = {
+            "openapi": "3.1.0",
+            "info": {"title": title, "version": "1.0.0"},
+            "paths": {},
+        }
+        content = json.dumps(document) if as_string else document
+        options = (
+            {"sources": [OpenAPISource(content=content)]}
+            if in_sources
+            else {"content": content}
         )
-        response = get_scalar_api_reference(config)
-
-        html_content = response.content.decode()
-        # The title should be included in the HTML
-        assert title_with_special_chars in html_content
+        viewer = ScalarViewer(ScalarConfig(**options))
+        html_content = viewer.render_page(None, None).content.decode()
+        _, initializer, script_and_tail = html_content.partition(
+            'Scalar.createApiReference("#app", '
+        )
+        assert initializer
+        config_json, closing_script, tail = script_and_tail.partition("</script>")
+        assert closing_script
+        assert "</body>" in tail
+        assert "<script" not in tail.lower()
+        assert "<" not in config_json
+        config = json.loads(config_json.strip().removesuffix(")"))
+        actual_content = (
+            config["sources"][0]["content"] if in_sources else config["content"]
+        )
+        assert actual_content == content
 
     def test_complex_json_in_configuration(self):
         """Test with complex JSON structures in configuration"""
@@ -752,6 +812,20 @@ class TestEdgeCases:
         # The complex JSON should be properly serialized
         assert "oauth2" in html_content
         assert "authorizationCode" in html_content
+
+    @pytest.mark.parametrize("http_clients", [None, [], ["node/fetch", "shell/*"]])
+    def test_http_client_configuration(self, http_clients):
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            http_clients=http_clients,
+            default_http_client="node/fetch",
+        )
+        html = get_scalar_api_reference(config).content.decode()
+        if http_clients is None:
+            assert '"httpClients"' not in html
+        else:
+            assert f'"httpClients": {json.dumps(http_clients)}' in html
+        assert '"defaultHttpClient": "node/fetch"' in html
 
     def test_hidden_clients_dict_format(self):
         """Test hidden_clients parameter with dictionary format"""
@@ -838,3 +912,145 @@ class TestResourceUrlEscaping:
             for name, attrs in baseline.elements
         ]
         assert actual.elements == expected
+
+
+class TestHtmlEscaping:
+    @pytest.mark.parametrize("use_viewer", [False, True])
+    @pytest.mark.parametrize(
+        "title",
+        [
+            "</title><script>window.SCALAR_TITLE_PROBE=1</script><title>",
+            "</TiTlE><script>window.SCALAR_TITLE_PROBE=1</script><title>",
+            'API & <Documentation> "quoted" — 日本語',
+            "",
+            None,
+        ],
+    )
+    def test_title_remains_text(self, title, use_viewer):
+        """Both entry points preserve title text without introducing elements."""
+        config = ScalarConfig(title=title)
+        response = (
+            ScalarViewer(config=config).render_page(None, None)
+            if use_viewer
+            else get_scalar_api_reference(config)
+        )
+
+        class TitleParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.elements = []
+                self.title = ""
+                self.in_title = False
+
+            def handle_starttag(self, tag, attrs):
+                self.elements.append(tag)
+                if tag == "title":
+                    self.in_title = True
+
+            def handle_endtag(self, tag):
+                if tag == "title":
+                    self.in_title = False
+
+            def handle_data(self, data):
+                if self.in_title:
+                    self.title += data
+
+        baseline = TitleParser()
+        baseline.feed(get_scalar_api_reference(ScalarConfig()).content.decode())
+        actual = TitleParser()
+        actual.feed(response.content.decode())
+        assert actual.elements == baseline.elements
+        assert actual.title == (title or "Scalar")
+
+    @pytest.mark.parametrize(
+        "field, js_field",
+        [
+            ("openapi_url", "url"),
+            ("content", "content"),
+            ("custom_css", "customCss"),
+            ("sources", "sources"),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "</script><script>window.SCALAR_TITLE_PROBE=1</script>",
+            "</ScRiPt><script>window.SCALAR_TITLE_PROBE=1</script>",
+            '<!--<script> & "quotes" \u2028\u2029日本語',
+        ],
+    )
+    def test_configuration_remains_inside_script(self, field, js_field, payload):
+        """Embedded JSON preserves values without allowing HTML parser breakouts."""
+        value = (
+            [{"title": payload, "url": "/openapi.json"}]
+            if field == "sources"
+            else payload
+        )
+        response = get_scalar_api_reference(ScalarConfig(**{field: value}))
+
+        class ScriptParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.scripts = []
+                self.in_script = False
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "script":
+                    self.scripts.append("")
+                    self.in_script = True
+
+            def handle_endtag(self, tag):
+                if tag == "script":
+                    self.in_script = False
+
+            def handle_data(self, data):
+                if self.in_script:
+                    self.scripts[-1] += data
+
+        parser = ScriptParser()
+        parser.feed(response.content.decode())
+        baseline = ScriptParser()
+        baseline.feed(get_scalar_api_reference(ScalarConfig()).content.decode())
+        assert len(parser.scripts) == len(baseline.scripts)
+        prefix = 'Scalar.createApiReference("#app", '
+        initializations = [
+            script.strip()
+            for script in parser.scripts
+            if script.strip().startswith(prefix)
+        ]
+        assert len(initializations) == 1
+        initialization = initializations[0]
+        assert initialization.endswith(")")
+        config_json = initialization[len(prefix) : -1]
+        # Also prevent HTML comment/script sequences from changing parser state.
+        assert "<" not in config_json
+        decoded = json.loads(config_json)
+        if field == "sources":
+            assert decoded[js_field][0]["title"] == payload
+            assert decoded[js_field][0]["url"] == "/openapi.json"
+        else:
+            assert decoded[js_field] == value
+
+
+class TestSelectedClientPersistence:
+    @pytest.mark.parametrize("options", [{}, {"persist_selected_client": True}])
+    def test_keeps_frontend_default_when_enabled(self, options):
+        config = ScalarConfig(openapi_url="/openapi.json", **options)
+        assert config.persist_selected_client is True
+        html = get_scalar_api_reference(config).content.decode()
+        assert '"persistSelectedClient"' not in html
+
+    def test_serializes_disabled_selection_with_auth_enabled(self):
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            persist_selected_client=False,
+            persist_auth=True,
+        )
+        html = get_scalar_api_reference(config).content.decode()
+        assert '"persistSelectedClient": false' in html
+        assert '"persistAuth": true' in html
+
+    def test_viewer_kwargs_forward_disabled_selection(self):
+        viewer = ScalarViewer(persist_selected_client=False)
+        html = get_scalar_api_reference(viewer.config).content.decode()
+        assert '"persistSelectedClient": false' in html

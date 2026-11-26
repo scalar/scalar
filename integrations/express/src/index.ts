@@ -1,2 +1,10 @@
-export { apiReference } from './apiReference'
+import { Scalar } from './scalar'
+
 export type { ApiReferenceConfiguration } from './types'
+export {
+  Scalar,
+  /**
+   * @deprecated Use Scalar instead.
+   */
+  Scalar as apiReference,
+}

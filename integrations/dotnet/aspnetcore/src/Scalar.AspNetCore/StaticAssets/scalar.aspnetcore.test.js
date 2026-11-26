@@ -2,6 +2,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getBasePath, initialize } from './scalar.aspnetcore'
 
+// Mock dynamic imports for testing the modulePath parameter
+vi.mock(
+  'https://example.com/api/config.js',
+  () => ({
+    default: { theme: 'dark', logo: 'custom-logo.png' },
+  }),
+  { virtual: true },
+)
+
+vi.mock(
+  'https://example.com/absolute/path/config.js',
+  () => ({
+    default: { theme: 'light', header: { enabled: true } },
+  }),
+  { virtual: true },
+)
+
 describe('scalar.aspnetcore', () => {
   describe('getBasePath', () => {
     beforeEach(() => {
@@ -55,23 +72,6 @@ describe('scalar.aspnetcore', () => {
         location: new URL('https://example.com/api/docs'),
         Scalar: mockScalar,
       }
-      // Mock dynamic imports for testing the modulePath parameter
-      vi.mock(
-        'https://example.com/api/config.js',
-        () => ({
-          default: { theme: 'dark', logo: 'custom-logo.png' },
-        }),
-        { virtual: true },
-      )
-
-      vi.mock(
-        'https://example.com/absolute/path/config.js',
-        () => ({
-          default: { theme: 'light', header: { enabled: true } },
-        }),
-        { virtual: true },
-      )
-
       // Spy on console.error
       vi.spyOn(console, 'error').mockImplementation(vi.fn())
     })

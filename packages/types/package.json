@@ -16,7 +16,7 @@
     "scalar",
     "references"
   ],
-  "version": "0.25.0",
+  "version": "0.33.0",
   "engines": {
     "node": ">=22"
   },
@@ -28,6 +28,11 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "exports": {
+    "./zod": {
+      "import": "./dist/zod.js",
+      "types": "./dist/zod.d.ts",
+      "default": "./dist/zod.js"
+    },
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",

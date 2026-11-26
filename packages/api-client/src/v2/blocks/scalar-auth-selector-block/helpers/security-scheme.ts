@@ -159,7 +159,21 @@ export const getSecuritySchemeOptions = (
   /** Allows adding authentication which is not in the document */
   canAddNewAuth = false,
   labels: Pick<ApiClientTranslations, 'authSelector' | 'authOptions'> = en,
+  allowedSecuritySchemes?: string[],
 ): SecuritySchemeOption[] | SecuritySchemeGroup[] => {
+  if (allowedSecuritySchemes) {
+    const isAllowed = (requirement: SecurityRequirementObject): boolean =>
+      Object.keys(requirement).every((name) => allowedSecuritySchemes.includes(name))
+    return getSecuritySchemeOptions(
+      security.filter(isAllowed),
+      Object.fromEntries(Object.entries(securitySchemes).filter(([name]) => allowedSecuritySchemes.includes(name))),
+      selectedSchemes.filter(isAllowed),
+      // Generic creation cannot guarantee that the new scheme belongs to the allowlist.
+      false,
+      labels,
+    )
+  }
+
   const selectedByRequirement = new Map(
     selectedSchemes.map((selectedScheme) => [requirementSignature(selectedScheme), selectedScheme]),
   )
@@ -208,7 +222,8 @@ export const getSecuritySchemeOptions = (
       // Reuse the current selection so changing scopes does not create a second option.
       // Defaults seed a new selection, but must not replace scopes the user deliberately cleared.
       const value = selectedByRequirement.get(requirementSignature({ [name]: [] })) ?? {
-        [name]: scheme.type === 'oauth2' ? [...(scheme['x-default-scopes'] ?? [])] : [],
+        [name]:
+          scheme.type === 'oauth2' || scheme.type === 'openIdConnect' ? [...(scheme['x-default-scopes'] ?? [])] : [],
       }
       const formatted = formatScheme({ name, value })
       availableFormatted.push(formatted)

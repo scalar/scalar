@@ -58,4 +58,26 @@ describe('resolve-async-api-schema', () => {
       schema: schema ? { description: 'Accepts any value.' } : { not: {}, description: 'Accepts no value.' },
     })
   })
+  it('validates dependency metadata including the failure marker', () => {
+    const wrapper = { schemaFormat: 'application/vnd.google.protobuf;version=3', schema: 'message M {}' }
+    const source = { kind: 'source', format: wrapper.schemaFormat, value: wrapper.schema }
+    expect(
+      resolveAsyncApiSchema({
+        ...wrapper,
+        'x-scalar-schema-resources': { origin: '/m.proto', files: {}, failed: true },
+      }),
+    ).toStrictEqual({ ...source, resources: { origin: '/m.proto', files: {}, failed: true } })
+    expect(
+      resolveAsyncApiSchema({
+        ...wrapper,
+        'x-scalar-schema-resources': { origin: '/m.proto', files: {}, failed: 'false' },
+      }),
+    ).toStrictEqual(source)
+    expect(
+      resolveAsyncApiSchema({
+        ...wrapper,
+        'x-scalar-schema-resources': { origin: '/m.proto', files: { '/a.proto': 1 } },
+      }),
+    ).toStrictEqual(source)
+  })
 })

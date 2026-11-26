@@ -11,6 +11,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ScalarAgentOptions {
 
+    /** Whether to hide the control for adding APIs in the agent chat. */
+    private Boolean hideAddApi;
+
     /**
      * Agent Scalar key for production deployments. Required for Agent Scalar to
      * appear in production; when omitted, the agent is enabled only on localhost
@@ -64,5 +67,23 @@ public class ScalarAgentOptions {
      */
     public void setDisabled(Boolean disabled) {
         this.disabled = disabled;
+    }
+
+    /**
+     * Gets whether to hide the control for adding APIs in the agent chat.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Boolean getHideAddApi() {
+        return hideAddApi;
+    }
+
+    /**
+     * Sets whether to hide the control for adding APIs in the agent chat.
+     *
+     * @param hideAddApi the configured value, or null to use the frontend default
+     */
+    public void setHideAddApi(Boolean hideAddApi) {
+        this.hideAddApi = hideAddApi;
     }
 }

@@ -2,15 +2,19 @@ import { expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('mcpButton', () => {
-  // The examples are served from localhost, where the footer pitches Scalar instead of the
-  // "Generate MCP" fan-out. That fan-out is only rendered on public hosts now.
-  test('shows the Explore Scalar call to action by default on localhost', async ({ page }) => {
+  // The examples are served from localhost, where the developer toolbar offers Generate SDK and the
+  // sidebar footer stays empty: no call to action, no "Generate MCP" fan-out, no API client button
+  test('keeps the sidebar footer empty on localhost and offers Generate SDK in the toolbar', async ({ page }) => {
     const example = await serveExample({ showDeveloperTools: 'localhost' })
 
     await page.goto(example)
 
-    await expect(page.getByRole('button', { name: 'Generate SDKs & MCP' })).toBeVisible()
+    await expect(
+      page.getByRole('region', { name: 'Developer Tools' }).getByRole('button', { name: 'Generate SDK' }),
+    ).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Generate SDKs & MCP' })).toHaveCount(0)
     await expect(page.getByText('Generate MCP')).toBeHidden()
+    await expect(page.getByRole('link', { name: 'Open API Client' })).toHaveCount(0)
   })
 
   test('hides SDK generation and the local promotion when developer tools are disabled', async ({ page }) => {
@@ -49,36 +53,26 @@ test.describe('mcpButton', () => {
     await expect(page.getByRole('link', { name: 'Open API Client' })).toBeVisible()
   })
 
-  test('expands the Explore Scalar card on hover and opens the dialog on click', async ({ page }) => {
+  test('opens Generate SDK in the side panel beside the reference', async ({ page }) => {
     const example = await serveExample({ showDeveloperTools: 'localhost' })
 
     await page.goto(example)
 
-    const trigger = page.getByRole('button', { name: 'Generate SDKs & MCP' })
-    const card = page.locator('.explore-scalar-card')
-    const height = async () => (await card.boundingBox())?.height ?? 0
-
-    const collapsed = await height()
-
-    await trigger.hover()
-
-    // The card grows upward over the navigation, from a 32px bar to a card with the stickers.
-    // poll waits out the CSS transition rather than reading a mid-animation frame.
-    await expect.poll(async () => (await height()) - collapsed).toBeGreaterThan(100)
-
+    const toolbar = page.getByRole('region', { name: 'Developer Tools' })
+    const trigger = toolbar.getByRole('button', { name: 'Generate SDK' })
     await trigger.click()
 
-    // The dialog root has no box of its own (its panel is fixed), so the panel content is what to look for
-    const dialog = page.getByRole('dialog')
+    const panel = page.getByRole('complementary', { name: 'Generate SDK' })
     await expect(
-      dialog.getByRole('heading', { name: 'Everything your API needs, from one OpenAPI document' }),
+      panel.getByRole('heading', { name: 'Everything your API needs, from one OpenAPI document' }),
     ).toBeVisible()
-    await expect(dialog.getByRole('button', { name: 'or get a demo with Marc' })).toBeVisible()
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
 
-    // Input is ignored while the open morph is still playing, so wait for it to settle first
-    await expect(page.locator('html')).not.toHaveAttribute('data-scalar-explore-vt')
+    await panel.getByRole('button', { name: 'or get a demo with Marc' }).focus()
     await page.keyboard.press('Escape')
 
-    await expect(dialog).toHaveCount(0)
+    await expect(panel).toHaveCount(0)
+    await expect(trigger).toBeFocused()
   })
 })

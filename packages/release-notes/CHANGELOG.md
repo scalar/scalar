@@ -1,5 +1,45 @@
 # @scalar/release-notes
 
+## 0.3.6
+
+No changes in this release.
+
+## 0.3.5
+
+No changes in this release.
+
+## 0.3.4
+
+No changes in this release.
+
+## 0.3.3
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.3.2
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.3.1
+
+No changes in this release.
+
+## 0.3.0
+
+### Minor Changes
+
+- [#10935](https://github.com/scalar/scalar/pull/10935): feat(release-notes): add a per-product `maxHighlights` option (1 to 20, default 5) that sets how many highlights a generated note may carry. The limit is stated in the default system prompt, enforced when the response is validated, and passed to custom system prompts, and the default output token budget grows with it.
+
+### Patch Changes
+
+- [#10900](https://github.com/scalar/scalar/pull/10900): Upgrade the CLI to Commander 15 and require Node.js 22.12.0 or later.
+
+## 0.2.10
+
 ## 0.2.9
 
 ### Patch Changes

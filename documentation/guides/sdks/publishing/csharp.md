@@ -1,8 +1,5 @@
 # C# (NuGet)
 
-> [!NOTE]
-> The C# target is experimental.
-
 The C# target publishes to [NuGet](https://www.nuget.org/). The package id is the target's `packageName` reduced to a PascalCase .NET identifier: `acme-api` and `Acme.Api` both publish as `AcmeApi`. See the [C# configuration](../configuration/csharp.md#publish) for options.
 
 Authenticate the release with **OIDC trusted publishing** (recommended) or a **NuGet API key**.
@@ -90,4 +87,16 @@ Add the key as a repository secret named **`NUGET_API_KEY`**. See [Adding reposi
 ## Notes
 
 - The workflow pushes with `--skip-duplicate`, so re-publishing an existing version is a no-op.
-- With [`options.strongName`](../configuration/csharp.md#strongname) set, commit the `.snk` key at its `keyFile` path to the integration branch before the first release. The generator never writes the key, and packing without it fails the publish job after release-please has already tagged the release. A tag cut without the key cannot be re-published, because both `release-please.yml` and `sdk-release.yml` build the tagged commit; commit the key, and the next release publishes signed.
+
+## Strong naming
+
+With [`options.strongName`](../configuration/csharp.md#strongname) set, the release has to sign the package with your `.snk` key, which the generator never creates or writes. Provide it in one of two ways before the first release:
+
+- **Commit it** at its `keyFile` path on the integration branch.
+- **Store it as a secret** named **`STRONG_NAME_KEY`**, holding the key file base64-encoded (`base64 -w0 Sdk.snk` on Linux, `base64 -i Sdk.snk` on macOS). The release workflows write it to `keyFile` before building, so the key never has to be committed. When `publish.nuget.releaseEnvironment` is set, an environment secret of the same name overrides the repository one.
+
+The release workflows check for the key before anything builds, and stop with an error if neither the file nor the secret is there: an unsigned package is never published.
+
+The generated CI also has a **Strong-name key** check on the release PR, which fails if the key is missing. Wait for it before merging: merging the release PR is what tags the release, and the publish job runs after that. A pull request run cannot read environment secrets, so with `releaseEnvironment` set and no repository-level key, the check only warns.
+
+If a release was tagged without a key anyway, its publish job fails. To publish it, add the `STRONG_NAME_KEY` secret, then re-run the failed `publish` job or dispatch `sdk-release.yml` at that tag. Committing the key does not help here, because both workflows build the tagged commit, which does not contain it. This needs the tagged commit to contain workflows that restore the key. A tag cut before the SDK was regenerated with them still runs the old workflows, so cut a new release instead.

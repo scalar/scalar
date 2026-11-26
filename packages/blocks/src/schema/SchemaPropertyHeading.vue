@@ -1,7 +1,9 @@
 <script lang="ts" setup>
+import { ScalarTooltip } from '@scalar/components/tooltip'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
+import type { XBadge } from '@scalar/workspace-store/schemas/extensions/operation'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   isArraySchema,
@@ -19,6 +21,15 @@ import {
 } from './helpers/is-model-linkable'
 import { getModelNameWithArray } from './helpers/schema-name'
 import { useLocalization } from './localization'
+import {
+  protobufFieldNumber,
+  protobufPresence,
+  type ProtobufSchema,
+} from './protobuf-metadata'
+import {
+  schemaRecursiveTarget,
+  type RecursiveSchema,
+} from './recursive-metadata'
 import RenderString from './RenderString.vue'
 import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
@@ -28,6 +39,7 @@ import SchemaPropertyPattern from './SchemaPropertyPattern.vue'
 const props = withDefaults(
   defineProps<{
     value: SchemaObject | undefined
+    badges?: XBadge[]
     enum?: boolean
     isDiscriminator?: boolean
     /** Effective AsyncAPI variant value, separate from const/enum constraints. */
@@ -71,7 +83,41 @@ const props = withDefaults(
 const { translate } = useLocalization()
 
 // Convert to reactive refs for composables
+const fieldNumber = computed(
+  () => (props.value as ProtobufSchema | undefined)?.[protobufFieldNumber],
+)
+
+const recursiveTarget = computed(
+  () =>
+    props.recursiveTo ??
+    (props.value as RecursiveSchema | undefined)?.[schemaRecursiveTarget],
+)
+
+const presence = computed(
+  () => (props.value as ProtobufSchema | undefined)?.[protobufPresence],
+)
+const presenceDescription = computed(() =>
+  presence.value === 'explicit'
+    ? 'Explicit presence: Protobuf distinguishes an unset field from one set to its default value.'
+    : 'Implicit presence: Protobuf does not distinguish an unset field from one set to its default value.',
+)
+
 const valueRef = toRef(props, 'value')
+const badgeClass = 'min-w-0 wrap-anywhere whitespace-normal'
+
+const positionedBadges = computed<
+  { before: XBadge[]; after: XBadge[] } | undefined
+>(() => {
+  const entries = props.badges
+  if (!entries) {
+    return undefined
+  }
+
+  return {
+    before: entries.filter((badge) => badge.position === 'before'),
+    after: entries.filter((badge) => badge.position !== 'before'),
+  }
+})
 
 const constValue = computed(() => {
   if (!valueRef.value) {
@@ -124,7 +170,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
   const properties: ValidationProperty[] = []
 
   if (isStringSchema(schema)) {
-    if (schema.minLength) {
+    if (isDefined(schema.minLength)) {
       properties.push({
         key: 'min-length',
         prefix: `${translate('schema.minLength')}: `,
@@ -132,7 +178,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
       })
     }
 
-    if (schema.maxLength) {
+    if (isDefined(schema.maxLength)) {
       properties.push({
         key: 'max-length',
         prefix: `${translate('schema.maxLength')}: `,
@@ -206,10 +252,10 @@ const validationProperties = computed(() => {
 
   // Array validation properties
   if (isArraySchema(schema)) {
-    if (schema.minItems || schema.maxItems) {
+    if (isDefined(schema.minItems) || isDefined(schema.maxItems)) {
       properties.push({
         key: 'array-range',
-        value: `${schema.minItems || ''}…${schema.maxItems || ''}`,
+        value: `${schema.minItems ?? ''}…${schema.maxItems ?? ''}`,
       })
     }
 
@@ -320,7 +366,12 @@ const exampleValue = computed(() => {
     return props.value.example
   }
 
-  if (props.value && isArraySchema(props.value)) {
+  // An array's own examples take precedence over the fallback from its items.
+  if (
+    props.value &&
+    isArraySchema(props.value) &&
+    !props.value.examples?.length
+  ) {
     const itemsSchema = resolve.schema(props.value.items)
     if (
       itemsSchema &&
@@ -392,12 +443,27 @@ const patternValue = computed(() => {
          collapsed preview and the trailing copy-link are spans as well, so it
          would strip the margin from the final detail and glue "Addressrequired"
          together on a collapsed row. -->
+    <Badge
+      v-for="(badge, index) in positionedBadges?.before"
+      :key="index"
+      :class="badgeClass"
+      :color="badge.color">
+      {{ badge.name }}
+    </Badge>
     <div
       v-if="$slots.name"
       class="property-name"
       :class="{ deprecated: props.value?.deprecated }">
       <slot name="name" />
     </div>
+    <ScalarTooltip
+      v-if="fieldNumber !== undefined"
+      content="Protobuf field number">
+      <span class="text-c-3 font-code mr-2 text-xs">
+        <span aria-hidden="true">#{{ fieldNumber }}</span>
+        <span class="sr-only">Protobuf field number: {{ fieldNumber }}</span>
+      </span>
+    </ScalarTooltip>
     <div
       v-if="props.isDiscriminator"
       class="property-discriminator">
@@ -481,13 +547,24 @@ const patternValue = computed(() => {
       <!-- A cycle reads `array of Satellite · recursive`, a modifier like
            `nullable`; the full sentence rides the tooltip. -->
       <SchemaPropertyDetail
-        v-if="props.recursiveTo"
+        v-if="recursiveTarget"
         class="property-recursive"
         :title="
-          translate('schema.recursiveReference', { name: props.recursiveTo })
+          translate('schema.recursiveReference', { name: recursiveTarget })
         ">
         {{ translate('schema.recursive') }}
       </SchemaPropertyDetail>
+
+      <ScalarTooltip
+        v-if="presence"
+        :content="presenceDescription">
+        <span class="text-c-2 mr-2 text-xs">
+          <span aria-hidden="true">optional</span>
+          <span class="sr-only"
+            >Optional ({{ presence }} presence). {{ presenceDescription }}</span
+          >
+        </span>
+      </ScalarTooltip>
 
       <!-- Key constraints from propertyNames (e.g. "keys: string · uuid") -->
       <SchemaPropertyDetail
@@ -534,6 +611,13 @@ const patternValue = computed(() => {
       class="property-deprecated">
       <Badge>{{ translate('schema.deprecated') }}</Badge>
     </div>
+    <Badge
+      v-for="(badge, index) in positionedBadges?.after"
+      :key="index"
+      :class="badgeClass"
+      :color="badge.color">
+      {{ badge.name }}
+    </Badge>
     <span
       v-if="discriminatorValue !== undefined"
       class="text-c-2">

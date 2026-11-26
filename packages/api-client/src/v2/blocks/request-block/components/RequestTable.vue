@@ -18,6 +18,7 @@ const {
   hasCheckboxDisabled,
   deferKeyUpdates,
   showUploadButton,
+  allowUnknownFileUploads = true,
   showAddRowPlaceholder = true,
   environment,
 } = defineProps<{
@@ -29,6 +30,8 @@ const {
   invalidParams?: Set<string>
   label?: string
   showUploadButton?: boolean
+  /** Keep manual uploads available for multipart requests without a body schema. */
+  allowUnknownFileUploads?: boolean
   showAddRowPlaceholder?: boolean
   environment: XScalarEnvironment
 }>()
@@ -47,7 +50,8 @@ const emit = defineEmits<{
    * when the file is selected.
    */
   (e: 'uploadFile', index: number): void
-  (e: 'removeFile', index: number): void
+  (e: 'removeFile', index: number, fileIndex?: number): void
+  (e: 'updateFile', fileIndex: number, isDisabled: boolean): void
   (e: 'navigate', route: NonNullable<TableRow['globalRoute']>): void
   /** Select a value for a grouped global cookie preset at the given row index. */
   (e: 'selectPreset', index: number, value: string): void
@@ -208,6 +212,7 @@ defineExpose({
       v-for="(row, index) in keyedRows"
       :key="row.key"
       :ref="(el) => setRowRef(row.key, el)"
+      :allowUnknownFileUploads="allowUnknownFileUploads"
       :data="row.data"
       :deferKeyUpdates="deferKeyUpdates"
       :environment="environment"
@@ -217,8 +222,11 @@ defineExpose({
       :showUploadButton="showUploadButton"
       @deleteRow="emit('deleteRow', index)"
       @navigate="(route) => emit('navigate', route)"
-      @removeFile="emit('removeFile', index)"
+      @removeFile="(...args) => emit('removeFile', index, ...args)"
       @selectPreset="(value) => emit('selectPreset', index, value)"
+      @updateFile="
+        (fileIndex, disabled) => emit('updateFile', fileIndex, disabled)
+      "
       @uploadFile="emit('uploadFile', index)"
       @upsertRow="(payload) => handleUpsertRow(row, index, payload)" />
   </DataTable>

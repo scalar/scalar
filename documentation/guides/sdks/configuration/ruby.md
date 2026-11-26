@@ -6,6 +6,8 @@ pages outside this reference resolve.
 -->
 # Ruby
 
+**Minimum version:** Ruby 3.2 or newer.
+
 Add `ruby` under `targets` to generate a Ruby SDK gem.
 
 ```json
@@ -56,8 +58,9 @@ Primary repository this target's generated output is published to. Setting it tu
 | Property | Description |
 | --- | --- |
 | `repo`* | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
-| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the `scalar-generated` branch and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
+| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the generated branch (`generatedBranch`, `scalar-generated` by default) and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
 | `integrationBranch` | Branch where generated output is combined with your custom code; defaults to `scalar-next`. Commit customizations here: each regeneration is merged into it, release pull requests are opened from it, and each released version is synced back to it. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or collide with the branches Scalar and release-please manage, such as `scalar-generated`. |
+| `generatedBranch` | Branch Scalar pushes pristine generator output to before merging it into the integration branch; defaults to `scalar-generated`. Never commit here: every build replaces its contents. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or the integration branch, or collide with the other branches Scalar and release-please manage, such as `scalar-next` and `scalar-merge-conflict`. |
 
 ## publish
 
@@ -90,6 +93,14 @@ This registry's own `publish.<registry>` entry names the page to register a trus
 **Type:** `string`
 
 Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) — required reviewers, wait timers, environment secrets — gate the release. Under OIDC trusted publishing the name must also match the environment registered on the trusted publisher, which is how a registry constrains who in a repository may publish; leave the registry's environment field blank when this is unset, since a publisher that names an environment rejects a run without one. When it is set, the publish job can read that environment's secrets as well as the repository's, and an environment secret takes precedence over a repository secret of the same name.
+
+## installOrder
+
+**Type:** `("bundler" | "gem")[]`
+
+Order of the install methods in the generated README's Installation section, the agent skill's Install section and the augmented OpenAPI document's `x-scalar-sdk-installation`, which all follow it. `bundler` is the `Gemfile` line; `gem` is `gem install`. Listed methods come first, in the order given; any left out follow in the default order, so a one-item list only moves that method to the top. A method listed twice keeps its first position. A method the config does not publish is skipped wherever it is listed.
+
+**Default:** `["bundler", "gem"]`
 
 ## prereleaseType
 

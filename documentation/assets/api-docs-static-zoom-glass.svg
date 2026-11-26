@@ -645,23 +645,31 @@
         color: var(--scalar-color-1);
       }
 
-      .h-green {
-        color: var(--scalar-color-green);
-      }
-
-      .h-blue {
-        color: var(--scalar-color-blue);
-      }
-
-      .h-orange {
-        color: var(--scalar-color-orange);
-      }
-      .h-purple {
-        color: var(--scalar-color-purple);
-      }
-
+      .h-green,
+      .h-blue,
+      .h-orange,
+      .h-purple,
       .h-red {
-        color: var(--scalar-color-red);
+        /* The method badges and the words these used to colour read as
+           ink now. One grey ramp across the whole drawing, the three the
+           default theme gives every other page on the site. */
+        color: var(--scalar-color-1);
+      }
+
+      /* Except where one of them marks a field in a parameter row --
+         Required, read-only, write-only. Those are an aside beside the
+         field's name and type, so they take the quietest of the three
+         rather than the ink a method badge keeps. */
+      .h-markdown-item .h-green,
+      .h-markdown-item .h-blue,
+      .h-markdown-item .h-orange {
+        color: var(--scalar-color-3);
+      }
+
+      /* The customer's lockup in the header, drawn in the page's own ink
+         rather than their brand colour. */
+      .h-animation-doc-header > svg path {
+        fill: var(--scalar-color-1);
       }
 
       .h-black {

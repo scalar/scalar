@@ -1,6 +1,6 @@
-import { resolveResponseMimeType } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
+import { extractFilename } from '@scalar/helpers/http/extract-filename'
 
-import { extractFilename } from './../helpers/extract-filename'
+import { resolveResponseMimeType } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
 
 const isBlob = (b: any): b is Blob => b instanceof Blob
 
@@ -11,11 +11,15 @@ const isBlob = (b: any): b is Blob => b instanceof Blob
 export function processResponseBody({ data, headers }: { data: unknown; headers: { name: string; value: string }[] }) {
   const contentType = headers.find((header) => header.name.toLowerCase() === 'content-type')
   const mimeType = resolveResponseMimeType(contentType?.value)
-  const attachmentFilename = extractFilename(
-    headers.find((header) => header.name.toLowerCase() === 'content-disposition')?.value ?? '',
-  )
+  const contentDisposition = headers.find((header) => header.name.toLowerCase() === 'content-disposition')?.value ?? ''
+  const attachmentFilename = extractFilename(contentDisposition)
+  const isAttachment = /^\s*attachment\s*(?:;|$)/i.test(contentDisposition)
 
   const dataUrl = (() => {
+    if (data === '') {
+      // An empty file can use a reusable URL without registering an object URL.
+      return isAttachment ? 'data:application/octet-stream,' : ''
+    }
     if (isBlob(data)) {
       return URL.createObjectURL(data)
     }
@@ -32,5 +36,5 @@ export function processResponseBody({ data, headers }: { data: unknown; headers:
     return ''
   })()
 
-  return { mimeType, attachmentFilename, dataUrl }
+  return { mimeType, attachmentFilename, isAttachment, dataUrl }
 }

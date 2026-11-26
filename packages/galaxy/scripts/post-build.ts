@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import { parse } from 'yaml'
 
 const packageFile = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
@@ -27,7 +28,7 @@ const asyncapiVersion = fs.readFileSync('dist/asyncapi/3.0.yaml', 'utf-8')
 const asyncapiLatest = fs.readFileSync('dist/asyncapi/latest.yaml', 'utf-8')
 
 const toJson = (yamlContent: string) =>
-  JSON.stringify(parse(yamlContent, { maxAliasCount: 10000, merge: true }), null, 2)
+  JSON.stringify(parse(yamlContent, { maxAliasCount: YAML_MAX_ALIAS_COUNT, merge: true }), null, 2)
 
 fs.writeFileSync('./dist/3.1.json', toJson(version))
 fs.writeFileSync('./dist/3.2.json', toJson(versionThreeTwo))

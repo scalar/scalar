@@ -11,6 +11,7 @@ Manage shared schemas in the Scalar Registry.
 | [`scalar schema list`](#list) | List shared schemas in a team namespace |
 | [`scalar schema get`](#get) | Download a shared schema version from the Scalar Registry |
 | [`scalar schema publish`](#publish) | Publish a shared schema to the Scalar Registry |
+| [`scalar schema diff`](#diff) | Compare two schema versions, files, or URLs |
 
 ## delete
 
@@ -24,8 +25,10 @@ scalar schema delete [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |
 | `-s, --slug <slug>` | Schema slug. |
 | `-n, --namespace <namespace>` | Team namespace. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## update
 
@@ -39,11 +42,15 @@ scalar schema update [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |
 | `-s, --slug <slug>` | Schema slug. |
 | `-n, --namespace <namespace>` | Team namespace. |
 | `--title <title>` | Schema title. |
 | `--description <description>` | Schema description. |
-| `--isPrivate <isPrivate>` | Access setting (true/private or false/public). One of `true`, `false`, `public`, `private`. |
+| `--isPrivate <isPrivate>` | Whole-entry access, including existing versions (true/private or false/public). One of `true`, `false`, `public`, `private`. |
+| `--public` | Make the whole entry public, including existing versions. |
+| `--private` | Make the whole entry private, including existing versions. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## list
 
@@ -59,6 +66,7 @@ scalar schema list [options]
 | --- | --- |
 | `--namespace <namespace>` | Team namespace. |
 | `--json` | Output schema metadata as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## get
 
@@ -82,6 +90,7 @@ scalar schema get [options] [namespace] [slug]
 | `--version <version>` | Schema version (defaults to latest). |  |
 | `--format <format>` | Output format. One of `json`, `yaml`. | `json` |
 | `-o, --output <file>` | Output file (defaults to stdout). |  |
+| `--no-input` | Disable prompts and browser launches. |  |
 
 ## publish
 
@@ -101,13 +110,41 @@ scalar schema publish [options] [file]
 
 | Option | Description | Default |
 | --- | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |  |
 | `--slug <slug>` | Shared schema slug. |  |
 | `--title <title>` | Schema title. |  |
 | `--namespace <namespace>` | Scalar team namespace. |  |
 | `--version <version>` | Schema version (for example, 0.1.0). |  |
-| `--private` | Make the shared schema private. | `false` |
+| `--private` | Create a private entry or require an existing private entry. | `false` |
 | `--force` | Overwrite an existing version. | `false` |
 | `--bundle` | Bundle all external references before uploading. |  |
 | `--treeShake` | Remove unused components from the bundled document. |  |
 | `--urlMap` | Generate a map of resolved URLs when bundling the document. |  |
-| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. |  |
+| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. | `5` |
+| `--no-input` | Disable prompts and browser launches. |  |
+
+## diff
+
+Compare two schema versions, files, or URLs.
+
+```bash
+scalar schema diff [options] <from> <to>
+```
+
+**Arguments**
+
+| Argument | Description |
+| --- | --- |
+| `from` | **Required.** Published schema (namespace/slug@version), file, or URL. |
+| `to` | **Required.** Published schema (namespace/slug@version), file, or URL. |
+
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `-v, --verbose` | Show the full before and after value of every change. |
+| `--json` | Output the changes as JSON. |
+| `--check [exit-code]` | Exit with a non-zero code when the schemas differ (default 1). |
+| `-q, --quiet` | Print nothing; use with --check to only set the exit code. |
+| `--ignore <pointer...>` | Skip changes at or under a JSON Pointer (repeatable). |
+| `--no-input` | Disable prompts and browser launches. |

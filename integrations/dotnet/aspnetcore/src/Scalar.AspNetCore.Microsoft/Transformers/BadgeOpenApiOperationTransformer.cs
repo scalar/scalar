@@ -12,7 +12,6 @@ internal sealed class BadgeOpenApiOperationTransformer : IOpenApiOperationTransf
         }
 
         operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
-#if NET10_0_OR_GREATER
         var badges = badgeAttributes.Select(badgeAttribute => new Badge
         {
             Name = badgeAttribute.Name,
@@ -22,31 +21,6 @@ internal sealed class BadgeOpenApiOperationTransformer : IOpenApiOperationTransf
 
         var node = SerializeToNode(badges);
         operation.Extensions.TryAdd(Badges, new JsonNodeExtension(node));
-#elif NET9_0
-        var badges = new OpenApiArray();
-
-        foreach (var badgeAttribute in badgeAttributes)
-        {
-            var badge = new OpenApiObject
-            {
-                ["name"] = new OpenApiString(badgeAttribute.Name)
-            };
-
-            if (badgeAttribute.Position.HasValue)
-            {
-                badge["position"] = new OpenApiString(badgeAttribute.Position.Value.ToStringFast(true));
-            }
-
-            if (badgeAttribute.Color is not null)
-            {
-                badge["color"] = new OpenApiString(badgeAttribute.Color);
-            }
-
-            badges.Add(badge);
-        }
-
-        operation.Extensions.TryAdd(Badges, badges);
-#endif
 
         return Task.CompletedTask;
     }

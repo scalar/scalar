@@ -52,23 +52,23 @@ You can specify predefined environment variables for the API Client/References t
 ```yaml
 x-scalar-environments:
   production:
-    description: "Production environment"
-    color: "#0082D0"
+    description: 'Production environment'
+    color: '#0082D0'
     # Variables are saved directly to the specification
     variables:
       userId:
-        description: "User ID"
-        default: "1234567890"
+        description: 'User ID'
+        default: '1234567890'
       apiUrl:
-        description: "API URL"
-        default: "https://api.production.example.com"
+        description: 'API URL'
+        default: 'https://api.production.example.com'
   staging:
-    description: "Staging environment"
+    description: 'Staging environment'
     variables:
-      userId: "1234567890"
+      userId: '1234567890'
       apiUrl:
-        description: "API URL"
-        default: "https://api.staging.example.com"
+        description: 'API URL'
+        default: 'https://api.staging.example.com'
 ```
 
 ## x-scalar-active-environment
@@ -80,6 +80,28 @@ x-scalar-active-environment: staging
 ```
 
 ## x-codeSamples
+
+`x-codeSamples` and its legacy spelling `x-code-samples` also support a code file as the source:
+
+```yaml
+openapi: 3.1.0
+info: { title: Code samples, version: '1' }
+paths:
+  /pets:
+    get:
+      x-codeSamples:
+        - lang: Python
+          source:
+            $ref: ./code/list-pets.py
+      responses:
+        '200': { description: OK }
+```
+
+Scalar loads the whole file as source text, preserving its formatting. Relative paths resolve against the API description that contains the operation. In-memory descriptions need a source URL to resolve relative files. A server-preprocessed operation can load its code file when the operation is loaded lazily. Local file references require a configured file loader.
+
+Code files use the same network and filesystem controls as other external references. On the server, local files require `documentLoading.basePath`, and traversal and symlink escapes outside that directory are refused. A client running in Node uses the host-provided `fileLoader`; configure its `basePath` when using `readFiles` to confine reads. Any file readable by that loader can become sample text, regardless of its extension. Fetched code files have no built-in size limit, just like other external references.
+
+If a file cannot be loaded, the sample is unavailable and its reference is retained. JSON Pointer fragments, such as `#/components/schemas/Pet`, are not code-file sources. Only these two extensions load code files; `$ref` keys in other extensions and example data remain literal.
 
 We provide examples for a lot of popular HTTP clients and frameworks. For something completely custom, for example to show the use of your own SDK, you can use `x-codeSamples`:
 
@@ -198,6 +220,73 @@ paths:
             name: Custom cURL
             code: curl https://api.example.com/accounts
 ```
+
+### Custom sample groups
+
+Set `group` on individual samples to give them separate headings in the code sample picker, for example an SDK and a CLI:
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Sample groups
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: A list of pets
+      x-codeSamples:
+        - lang: python
+          label: Python
+          group: SDK
+          source: client.pets.list()
+        - lang: shell
+          label: Command line
+          group: CLI
+          source: example-cli pets list
+```
+
+Groups appear in the order they first occur. Samples without a group, or with a blank group, keep the existing default heading. Grouping does not change IDs of unlinked samples or the priority between code sample extensions. Linked request examples share an ID only when their language, label, and group match. The same field is supported on `x-scalar-examples`, `x-code-samples`, and `x-custom-examples` entries.
+
+### Credentials in custom code samples
+
+Use `x-scalar-credential-placeholders` on a security scheme to insert the reader's current credentials into custom code samples. Each name matches a case-sensitive `{{name}}` placeholder. Names may contain letters, digits, underscores, dots, and hyphens, and must start with a letter or underscore.
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Credential examples
+  version: 1.0.0
+security:
+  - account: []
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: A list of pets
+      x-codeSamples:
+        - lang: python
+          source: client = ExampleClient("{{accountId}}", "{{apiKey}}")
+components:
+  securitySchemes:
+    account:
+      type: http
+      scheme: basic
+      x-scalar-credential-placeholders:
+        accountId:
+          field: username
+          mask: false
+        apiKey:
+          field: password
+```
+
+Available fields are `token` for API keys and bearer authentication, `username` and `password` for basic authentication, and `token`, `clientId`, `clientSecret`, `username`, and `password` where available in OAuth2 or OpenID Connect. OAuth placeholders use the first flow with an access token, matching request authentication; other flows are not used.
+
+Values are masked by default in the displayed example. Copy includes their real values, matching generated code samples. Set `mask: false` only for public values such as an account ID. If a public value is also a secret elsewhere in the selected schemes, it remains masked.
+
+Only the operation's selected authentication schemes supply values. Unknown names, missing credentials, and names declared by multiple selected schemes remain unchanged. Samples update when credentials change, while the original API description keeps its placeholders. Replacement is literal and happens once: it does not evaluate expressions, escape programming-language strings, or expand placeholders contained in credentials. Choose sample syntax appropriate for the credential format your API accepts.
 
 ## x-example / x-examples
 
@@ -529,7 +618,7 @@ paths:
 
 ## x-badges
 
-You can add badges to operations to use as indicators in documentation. Each operation can have multiple badges, and the displayed color is also configurable. The following example sets badges on the GET `/hello-world` operation:
+Use `x-badges` to add custom badges to operations and schema properties. Each badge can have its own color and position. The following example sets badges on the GET `/hello-world` operation.
 
 ```diff
 openapi: 3.1.0
@@ -552,8 +641,59 @@ paths:
 | Option   | Type   | Description                                                                                                                 |
 | -------- | ------ | --------------------------------------------------------------------------------------------------------------------------- |
 | name     | string | **REQUIRED**. The text that displays in the badge.                                                                          |
-| position | string | The position of the badge in relation to the header. Possible values: `before`, `after`. The default value is `after`.      |
+| position | string | The position of the badge in relation to the operation heading or property name. Possible values: `before`, `after`. The default value is `after`.      |
 | color    | string | The color of the badge. It can be defined in various formats such as color keywords, RGB, RGBA, HSL, HSLA, and Hexadecimal. |
+
+### Badges on schema properties
+
+Add `x-badges` to the Schema Object for the property you want to label. To label an array property, put `x-badges` alongside `items`. In OpenAPI 3.1 and later, you can put `x-badges` alongside a property's `$ref`. Badges on schemas in `components.schemas` appear on their own model entries when sidebar badges are enabled.
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Users API
+  version: 1.0.0
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        manager:
+          type: string
+          description: The manager's ID. Pass expand=manager to include their details.
+          x-badges:
+            - name: Expandable
+              color: '#34d399'
+```
+
+### Badges in the sidebar
+
+Set [`showBadgesInSidebar`](configuration.md#showbadgesinsidebar) to also show the badges next to the titles in the sidebar. In the sidebar, `x-badges` work on every level: operations, webhooks, tags (including nested OpenAPI 3.2 tags), `x-tagGroups` entries and schemas in `components.schemas`.
+
+```diff
+openapi: 3.1.0
+info:
+  title: x-badges
+  version: 1.0.0
+x-tagGroups:
+  - name: Core
+    tags: [Users]
++    x-badges:
++      - name: 'Stable'
+tags:
+  - name: Users
++    x-badges:
++      - name: 'Beta'
++        color: '#f59e0b'
+paths:
+  /users:
+    get:
+      summary: Get users
+      tags: [Users]
++      x-badges:
++        - name: 'New'
++          color: '#22c55e'
+```
 
 ## x-enum-descriptions
 
@@ -617,9 +757,11 @@ Aliases: `x-enumNames`
 
 We generate custom code examples for all languages, but you might have a custom SDK for your API. Provide installation instructions in the header and they replace the generic HTTP clients in the introduction.
 
-Each entry has a `lang` (used as the tab label and to pick a matching language icon) and a `description`. The `description` supports Markdown, including fenced code blocks with syntax highlighting, so a single tab can show multiple snippets (for example Maven and Gradle for Java).
+Set [`showDefaultClientsWithSdkInstallation`](./configuration.md#showdefaultclientswithsdkinstallation) to `true` to show SDK tabs and built-in HTTP clients together in the same card.
 
-```diff
+Each entry has a `lang` (used to pick a matching language icon and synchronize code sample selection) and a `description`. Set an optional `label` to customize the tab text, for example `lang: python` with `label: Python SDK`. If `label` is missing or blank, the tab displays `lang`. The `description` supports Markdown, including fenced code blocks with syntax highlighting, so a single tab can show multiple snippets (for example Maven and Gradle for Java).
+
+````diff
 openapi: 3.1.0
 info:
   title: Example
@@ -649,12 +791,47 @@ info:
 +      ```groovy
 +      implementation 'com.your-awesome-company:sdk:1.0.0'
 +      ```
-```
+````
 
-| Option      | Type   | Description                                                                                        |
+| Option      | Type   | Description                                                                                       |
 | ----------- | ------ | ------------------------------------------------------------------------------------------------- |
 | lang        | string | **REQUIRED**. The language or platform of the SDK (for example `TypeScript`, `Java`, `Python`).   |
+| label       | string | Optional display text for the SDK tab. Defaults to `lang` when omitted or blank.                  |
 | description | string | The installation instructions for this language. Supports Markdown, including fenced code blocks. |
+
+### Credentials in installation instructions
+
+SDK installation instructions support the same `{{name}}` placeholders as custom code samples. Declare mappings with `x-scalar-credential-placeholders` on a security scheme, then enter credentials in the authentication panel. Installation instructions use the document's current authentication selection.
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Example API
+  version: 1.0.0
+  x-scalar-sdk-installation:
+    - lang: shell
+      description: |
+        Configure the CLI:
+        ```sh
+        example-cli configure --api-key "{{apiKey}}"
+        ```
+security:
+  - apiKey: []
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      x-scalar-credential-placeholders:
+        apiKey:
+          field: token
+paths: {}
+```
+
+Placeholders work in ordinary Markdown text, inline code, fenced code blocks, and the legacy `source` field. Secret values appear masked; a code block's copy button copies the real value. Set `mask: false` in a mapping only for public identifiers. Missing or ambiguous values keep their placeholders.
+
+Substituted values are literal text. They cannot create Markdown formatting, HTML, or new code blocks. Link destinations, raw HTML blocks, and paragraphs containing inline HTML are not substituted. The original API description remains unchanged.
 
 ## x-scalar-links
 
@@ -672,10 +849,10 @@ info:
 +    url: https://example.com/imprint
 ```
 
-| Option | Type   | Description                                       |
-| ------ | ------ | ------------------------------------------------- |
-| name   | string | **REQUIRED**. The label to display for the link.  |
-| url    | string | **REQUIRED**. The URL the link points to.         |
+| Option | Type   | Description                                      |
+| ------ | ------ | ------------------------------------------------ |
+| name   | string | **REQUIRED**. The label to display for the link. |
+| url    | string | **REQUIRED**. The URL the link points to.        |
 
 ## x-pre-request
 
@@ -784,3 +961,33 @@ paths:
 
 For OpenAPI 3.0 or 3.1, use a string `value` in the media-level Example Object.
 Schema-level string examples represent data and are escaped as XML text.
+
+## Header API-key token prefixes
+
+Set `x-scalar-token-prefix` on a header API-key security scheme to add a prefix to generated code samples and outgoing requests:
+
+```yaml
+openapi: 3.0.3
+info:
+  title: Token authentication
+  version: 1.0.0
+security:
+  - tokenAuth: []
+paths:
+  /me:
+    get:
+      responses:
+        '200':
+          description: Current user
+components:
+  securitySchemes:
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      x-scalar-token-prefix: token
+```
+
+Readers enter the raw credential, for example `abc`. Scalar sends `Authorization: token abc`. With no credential, generated samples show `token YOUR_SECRET_TOKEN`; actual requests do not send a prefix by itself.
+
+When a prefix is configured, the prefix and outgoing credential are trimmed and separated by one space. Whitespace-only credentials do not send a prefix. Stored credentials remain unchanged: entering `token abc` with the prefix `token` produces `token token abc`. Environment variables in credentials are resolved before the prefix is added. The prefix is ignored for query and cookie API keys and does not affect HTTP Basic, Bearer, or OAuth authentication.

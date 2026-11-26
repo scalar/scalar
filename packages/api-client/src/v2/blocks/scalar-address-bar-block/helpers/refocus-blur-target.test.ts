@@ -73,4 +73,18 @@ describe('refocusBlurTarget', () => {
 
     expect(focus).not.toHaveBeenCalled()
   })
+
+  it('finds the element inside the shadow root it was captured in', () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const shadowRoot = host.attachShadow({ mode: 'open' })
+    const button = document.createElement('button')
+    button.id = 'target'
+    shadowRoot.appendChild(button)
+    const click = vi.spyOn(button, 'click')
+
+    refocusBlurTarget('#target', shadowRoot)
+
+    expect(click).toHaveBeenCalledTimes(1)
+  })
 })

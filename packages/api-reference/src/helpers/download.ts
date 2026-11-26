@@ -1,3 +1,5 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
+
 /**
  * Create a click event that works in both browser and test environments
  */
@@ -26,7 +28,7 @@ async function parseContent(content: string) {
   } catch {
     const { parse } = await import('yaml')
     return parse(content, {
-      maxAliasCount: 10000,
+      maxAliasCount: YAML_MAX_ALIAS_COUNT,
       merge: true,
     })
   }

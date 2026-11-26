@@ -255,7 +255,7 @@ export const normalizeAuthSchemes = (): LifecyclePlugin => {
 /**
  * Lifecycle plugin to normalize $ref nodes:
  * Ensures that for any OpenAPI Reference Object containing a $ref, only $ref,
- * summary, description, and $status properties are preserved.
+ * summary, description, $status, and $global properties are preserved.
  * This keeps $ref references clean and predictable for downstream consumers.
  *
  * Schema Objects are deliberately skipped: in JSON Schema 2020-12 a $ref may
@@ -275,8 +275,8 @@ export const normalizeRefs = (): LifecyclePlugin => {
       // and in raw external schema documents. Stripping those siblings would discard the binding and leave
       // `$dynamicRef` resolving to the template's empty fallback. See https://github.com/scalar/scalar/issues/9414.
       if (typeof node['$ref'] === 'string' && !isSchema) {
-        // Remove any other properties from the node and only keep the '$ref', 'summary', 'description' and '$status'
-        const keepProperties = new Set(['$ref', 'summary', 'description', '$status'])
+        // Keep the server chunk marker so reloads retain the owning document's dialect and media types.
+        const keepProperties = new Set(['$ref', 'summary', 'description', '$status', '$global'])
 
         Object.keys(node).forEach((key) => {
           if (!keepProperties.has(key)) {
@@ -307,7 +307,7 @@ export const syncPathParameters = (): LifecyclePlugin => {
       const { path } = context
 
       // Only process path items (e.g., paths -> /users/{id} -> operations)
-      if (path.length !== 2 || path[0] !== 'paths' || typeof path[1] !== 'string') {
+      if (path.length !== 2 || path[0] !== 'paths' || typeof path[1] !== 'string' || path[1].startsWith('x-')) {
         return
       }
 
@@ -397,8 +397,10 @@ const NESTED_INTERNAL_KEYS = ['__scalar_', '$status']
 export const removeExtraScalarKeys = (): LifecyclePlugin => {
   return {
     type: 'lifecycle',
-    onBeforeNodeProcess: (node) => {
+    onBeforeNodeProcess: (node, context) => {
       if (isObject(node)) {
+        // Authored edits must reload native dependencies; workspace snapshots retain their prepared graphs.
+        if (context.referenceContext === 'asyncapi-schema') delete node['x-scalar-schema-resources']
         for (const key of NESTED_INTERNAL_KEYS) {
           if (key in node) {
             delete node[key]

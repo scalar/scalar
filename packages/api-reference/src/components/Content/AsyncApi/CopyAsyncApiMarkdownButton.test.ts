@@ -1,6 +1,7 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { initializeToasts } from '@scalar/use-toasts'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
@@ -30,7 +31,7 @@ beforeAll(async () => {
 
 const getDocument = (): AsyncApiDocument => {
   const document = store.workspace.documents.events
-  if (!document || !('asyncapi' in document)) {
+  if (!isAsyncApiDocument(document)) {
     throw new Error('Expected AsyncAPI document')
   }
   return document

@@ -1,7 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
-import { Raw, objectToString } from '@/libs/php'
+import { hasRepeatedName, joinUrlAndQuery, normalizeMethod, reduceQueryParams } from '@/libs/http'
+import { Raw, getCookieDomain, objectToString, quotePhpString } from '@/libs/php'
 
 /**
  * php/guzzle
@@ -17,7 +17,9 @@ export const phpGuzzle: Plugin = {
 
     const options: Record<string, any> = {}
     const method = normalizeMethod(request.method)
-    const url = request.url || ''
+    // Guzzle encodes array query values with indexed names, so a repeated name keeps the query in the URL.
+    const keepsQueryInUrl = hasRepeatedName(request.queryString)
+    const url = keepsQueryInUrl ? joinUrlAndQuery(request.url || '', request.queryString) : request.url || ''
 
     // Handle headers
     if (request.headers && Array.isArray(request.headers) && request.headers.length > 0) {
@@ -35,17 +37,19 @@ export const phpGuzzle: Plugin = {
     }
 
     // Handle query parameters
-    if (request.queryString && request.queryString.length > 0) {
+    if (!keepsQueryInUrl && request.queryString && request.queryString.length > 0) {
       options.query = reduceQueryParams(request.queryString)
     }
 
-    // Handle cookies
+    // Handle cookies: Guzzle only accepts a CookieJarInterface for the `cookies` option
+    let cookieJar = ''
     if (request.cookies && request.cookies.length > 0) {
       const cookies: Record<string, string> = {}
       request.cookies.forEach((cookie) => {
         cookies[cookie.name] = cookie.value
       })
-      options.cookies = cookies
+      cookieJar = `$jar = \\GuzzleHttp\\Cookie\\CookieJar::fromArray(${objectToString(cookies)}, ${quotePhpString(getCookieDomain(url))});\n\n`
+      options.cookies = new Raw('$jar')
     }
 
     // Handle authentication
@@ -67,7 +71,7 @@ export const phpGuzzle: Plugin = {
           options.multipart = request.postData.params.map((param) => {
             const part: Record<string, any> = {
               name: param.name,
-              contents: param.fileName ? new Raw(`fopen('${param.fileName}', 'rb')`) : param.value || '',
+              contents: param.fileName ? new Raw(`fopen(${quotePhpString(param.fileName)}, 'rb')`) : param.value || '',
             }
 
             if (param.contentType) {
@@ -85,12 +89,7 @@ export const phpGuzzle: Plugin = {
         }
       } else if (request.postData.mimeType === 'application/x-www-form-urlencoded') {
         if (request.postData.params) {
-          // A repeated field name keeps every value instead of the last one
-          const formParams: Record<string, string | string[]> = {}
-          request.postData.params.forEach((param) => {
-            accumulateRepeatedValue(formParams, param.name, param.value || '')
-          })
-          if (Object.values(formParams).some(Array.isArray)) {
+          if (hasRepeatedName(request.postData.params)) {
             // Guzzle encodes arrays with indexed names, so serialize repeated fields directly.
             options.body = new URLSearchParams(
               request.postData.params.map(({ name, value }) => [name, value ?? '']),
@@ -101,7 +100,9 @@ export const phpGuzzle: Plugin = {
             }
             options.headers = headers
           } else {
-            options.form_params = formParams
+            options.form_params = Object.fromEntries(
+              request.postData.params.map(({ name, value }) => [name, value || '']),
+            )
           }
         }
       } else {
@@ -120,14 +121,14 @@ export const phpGuzzle: Plugin = {
     }
 
     // Generate the PHP code
-    let code = '$client = new GuzzleHttp\\Client();\n\n'
+    let code = `$client = new GuzzleHttp\\Client();\n\n${cookieJar}`
 
     if (Object.keys(options).length > 0) {
       // Format the options array with proper indentation
       const formattedOptions = objectToString(options)
-      code += `$response = $client->request('${method}', '${url}', ${formattedOptions});`
+      code += `$response = $client->request(${objectToString(method)}, ${objectToString(url)}, ${formattedOptions});`
     } else {
-      code += `$response = $client->request('${method}', '${url}');`
+      code += `$response = $client->request(${objectToString(method)}, ${objectToString(url)});`
     }
 
     return code

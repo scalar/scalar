@@ -32,17 +32,18 @@ npm add @scalar/json-magic
 
 There is no root export. Every module is imported from its own entry point, so you only pay for what you use.
 
-| Entry point                                 | Exports                                                                                                                                                                               |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@scalar/json-magic/bundle`                 | `bundle`, `isLocalRef`, `prefixInternalRef`, `prefixInternalRefRecursive`, `resolveAndCopyReferences`, plus the `Plugin`, `LoaderPlugin`, `LifecyclePlugin` and `ResolveResult` types |
-| `@scalar/json-magic/bundle/plugins/browser` | `fetchUrls`, `parseJson`, `parseYaml`                                                                                                                                                 |
-| `@scalar/json-magic/bundle/plugins/node`    | `fetchUrls`, `parseJson`, `parseYaml`, `readFiles`                                                                                                                                    |
-| `@scalar/json-magic/bundle/value-generator` | `getHash`, `generateUniqueValue`, `uniqueValueGeneratorFactory`                                                                                                                       |
-| `@scalar/json-magic/dereference`            | `dereference`                                                                                                                                                                         |
-| `@scalar/json-magic/join`                   | `join`, plus the `JoinOptions`, `JoinStrategy`, `JoinContext`, `JoinConflict` and `JoinResult` types                                                                                  |
-| `@scalar/json-magic/diff`                   | `diff`, `merge`, `apply`, the `Difference` type                                                                                                                                       |
-| `@scalar/json-magic/magic-proxy`            | `createMagicProxy`, `getRaw`                                                                                                                                                          |
-| `@scalar/json-magic/helpers/*`              | Small standalone helpers, see [Helpers](#helpers)                                                                                                                                     |
+| Entry point | Exports |
+| --- | --- |
+| `@scalar/json-magic/bundle` | `bundle`, `bundleWithDiagnostics`, `isLocalRef`, `prefixInternalRef`, `prefixInternalRefRecursive`, `resolveAndCopyReferences`, plus the `Plugin`, `LoaderPlugin`, `LifecyclePlugin` and `ResolveResult` types |
+| `@scalar/json-magic/bundle/plugins/browser` | `fetchUrls`, `parseJson`, `parseYaml` |
+| `@scalar/json-magic/bundle/plugins/node` | `fetchUrls`, `parseJson`, `parseYaml`, `readFiles` |
+| `@scalar/json-magic/bundle/value-generator` | `getHash`, `generateUniqueValue`, `uniqueValueGeneratorFactory` |
+| `@scalar/json-magic/dereference` | `dereference` |
+| `@scalar/json-magic/join` | `join`, plus the `JoinOptions`, `JoinStrategy`, `JoinContext`, `JoinConflict` and `JoinResult` types |
+| `@scalar/json-magic/document` | `checkDocument` |
+| `@scalar/json-magic/diff` | `diff`, `merge`, `apply`, the `Difference` type |
+| `@scalar/json-magic/magic-proxy` | `createMagicProxy`, `getRaw` |
+| `@scalar/json-magic/helpers/*` | Small standalone helpers, see [Helpers](#helpers) |
 
 ## Which module do I need?
 
@@ -130,27 +131,111 @@ const result = await bundle('https://example.test/api/root.json', {
 })
 ```
 
-This loads the URL root and bundles local files, internal references, and relative
-references such as `./child.json` inside remote documents. Only authored absolute
-HTTP(S) references are preserved by this predicate; keep the HTTP loader enabled.
+This loads the URL root and bundles internal references and relative references
+such as `./child.json` inside remote documents. Local entry documents can also
+bundle local file dependencies. Only authored absolute HTTP(S) references are
+preserved by this predicate; keep the HTTP loader enabled.
 Preservation emits no resolution start, success, or error hooks. Real failures on
 other edges retain normal error reporting. Node-processing hooks still run.
 
 When this option is present, indexed `$id` values are resolved against their
 original effective bases so serialization at another location retains schema
 identity and anchor scope. Like normal bundling, this can mutate input and cached
-objects. URL maps include only bundled resources. Omit the option to retain the
+objects. URL maps include only bundled resources. Omit both `preserveReference` and `outputBase` to retain the
 existing bundling behavior. Predicates preserving relative references are
 responsible for ensuring those references remain meaningful at the output base;
 use the absolute HTTP(S) predicate above for portable external references.
 
-Known limitation: an embedded schema with its own `$id` cannot reliably reference
-another bundled resource through the outer document when that outer document has
-no declared identity. For example, a fragment-only `#/x-ext/...` reference inside
-that schema resolves against the schema, not the outer bundle. Supplying a
-format-appropriate root identity through `resolveDocument` avoids this case.
-Preserving selected references does not currently fix anonymous-root cross-scope
-bundling; `$id` normalization alone does not make that output portable.
+With `traversal: 'document'`, set `includeCustomReferences: true` to also bundle
+references in `x-*` extension values and unknown schema keywords. Literal example,
+default, enum, const, and value data remains untouched. References exposing literal
+data as schemas bundle an independent copy, preserving the original value. The option is off by
+default; strict document traversal and generic traversal retain their behavior.
+Custom objects retain their identifier and anchor scope, while references into
+standard API structures keep the target's format rules. Native references also
+keep their format rules when their targets are stored in extensions. Objects declaring a
+schema identifier, dialect, anchor, or JSON Schema type use schema keyword rules.
+Other custom objects keep ordinary reference-bearing children, including fields
+named `schemas`, `paths`, or `components`; their literal data remains opaque.
+
+References inside a schema with its own `$id` remain relative to that schema
+resource. References to another named resource use its canonical identity;
+anonymous dependencies outside the schema are copied into resource-local
+`x-ext` storage (or `externalDocumentsKey`) and addressed with local pointers.
+Legacy fragment-bearing `id` / `$id` values use named aliases in schema
+`definitions`, since a fragment identifier cannot serve as a JSON Pointer root.
+These aliases use the active dialect's identifier keyword and avoid existing
+identities and preserved references.
+Cycles reuse that storage, and copied subtrees reference named resources rather
+than duplicating their identities. Anonymous imports and their local copies omit
+anchor declarations whose scope would otherwise change; bundled references
+address their targets with pointers instead. Literal example and default values
+remain literal data. Unresolved references in relocated dependencies retain their
+original source base, while diagnostics retain the authored reference.
+This also works when the outer API description
+has no declared identity: the bundler does not add `$id` to that document.
+Local filesystem schema identities become `file:` URIs, including escaped path
+characters. The Node file loader accepts these URIs as well as filesystem paths,
+including its existing base-directory and symlink confinement checks. References
+from documents retrieved over HTTP(S) cannot load non-HTTP(S) targets, even when
+an authored `$id` changes the resolution base to a `file:` URI.
+
+When passing an in-memory object that your application fetched over HTTP(S), set
+`origin` to its retrieval URL so the filesystem guard retains that source boundary.
+For untrusted local input, configure `readFiles({ basePath: allowedDirectory })` to
+confine reads to an allowed directory. `outputBase` controls output identities;
+it does not establish the input's source or grant filesystem access.
+
+Relative native retrieval paths resolve against the current working directory;
+canonical local identities therefore include absolute filesystem paths. In-memory
+input without an origin uses the virtual output base `https://scalar.invalid/`
+when relocating resources, rather than claiming a filesystem identity. This URI
+is an identifier namespace and is not fetched.
+
+Without `outputBase`, `preserveReference` emits local schema identities as absolute
+`file:` URIs. For published bundles, set `outputBase` to an absolute hierarchical
+URI without a fragment to avoid embedding checkout paths:
+
+```ts
+const result = await bundle('./openapi.json', {
+  plugins: [readFiles()],
+  treeShake: true,
+  traversal: 'document',
+  outputBase: 'https://schemas.example.com/api/openapi.json',
+})
+```
+
+An imported schema with `$id: './schemas/Pet.json'` beside the input document
+now identifies itself as `https://schemas.example.com/api/schemas/Pet.json`.
+Dependencies still load from the original local files; `origin`, loader paths,
+cache keys, source diagnostics, and the preservation callback retain their source
+meaning. `outputBase` enables resource relocation even without `preserveReference`.
+Explicitly absolute schema identifiers and intentionally preserved references are
+unchanged. Files outside the entry directory use isolated `__bundle__/source-N/`
+namespaces so their parent directories are not exposed. Mapping two different
+resources to the same output identity is rejected.
+
+This remaps relative schema identities intentionally. Incomplete bundles retain
+unresolved local references as absolute source URIs so they can be retried later;
+these references can still expose local paths. An authored absolute `file:`
+identifier or preserved reference can also contain a local path. Check `complete`
+from `bundleWithDiagnostics` before treating the result as a complete portable
+bundle. URL maps, when requested, retain source locations.
+
+In an OpenAPI 3.0 Schema Object, the default `generic` traversal honors
+`$id` as a schema identifier for compatibility. For example, given a document
+at `https://example.com/api/openapi.json` and a schema with
+`$id: 'nested/box.json'`, a child `$ref: 'item.json'` resolves to
+`https://example.com/api/nested/item.json`. The `preserveReference` callback
+receives the schema's effective source URI as its `origin`. Preservation can
+make the schema ID absolute, and `outputBase` can relocate a relative schema ID
+to the published location.
+
+OpenAPI 3.0 does not support `$id`. With `traversal: 'document'`, the same
+reference resolves to `https://example.com/api/item.json`, the preservation
+callback receives the document URI, and the schema's authored `$id` is left
+as-is during relocation. Document traversal still honors `$id` in OpenAPI 3.1
+Schema Objects and standalone JSON Schema.
 
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
 
@@ -190,6 +275,86 @@ console.log(result)
 
 When the input is an object it is modified in place, and the same object is returned. When the input is a string it is resolved with the given plugins first.
 
+### Bundling with reference diagnostics
+
+`bundleWithDiagnostics` returns `{ document, diagnostics, complete, pruning }`. It uses the same loaders, lifecycle hooks, URI registry, compression, and URL map options as `bundle`. Existing `bundle` calls retain their return value and generic traversal behavior.
+
+```ts
+import { bundleWithDiagnostics } from '@scalar/json-magic/bundle'
+import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+
+const result = await bundleWithDiagnostics('/api/openapi.yaml', {
+  plugins: [readFiles(), fetchUrls({ limit: 5 })],
+  traversal: 'document',
+  treeShake: true,
+  urlMap: true,
+})
+
+for (const diagnostic of result.diagnostics) {
+  console.error(diagnostic.source, diagnostic.pointer, diagnostic.kind, diagnostic.reference)
+}
+
+// The caller chooses whether to serialize an incomplete document.
+if (result.complete || allowIncompleteOutput) {
+  writeDocument(result.document)
+}
+```
+
+Each diagnostic contains:
+
+- `kind`: `unresolved-document` for loading/parsing failures (including missing loaders), or `missing-target` for a missing pointer/anchor in a loaded document.
+- `reference`: the authored reference, captured before lifecycle processing or bundler rewriting.
+- `source`: the source URI/path, including for external documents. Object inputs use `origin`, or `/` when none is provided.
+- `pointer`: the escaped JSON pointer to the authored `$ref` field, such as `#/components/schemas/Pet/properties/name/$ref`.
+
+Recoverable reference failures leave their references intact and return `complete: false`. A missing external fragment does not become a dangling pointer into `x-ext`. Unreadable or unparseable roots and unexpected bundling or lifecycle-hook failures reject the promise; they do not return an incomplete result. Custom loaders may return `{ ok: false }` or reject to report a loading failure. All loader exceptions and rejected cache entries become `unresolved-document` diagnostics for external references, including programming errors inside custom loaders; the loader contract does not classify exceptions. Loading and parsing share one diagnostic kind because existing loaders do not distinguish them.
+
+Pruning runs after reference resolution, without refetching or replaying lifecycle hooks. `pruning` is `disabled` when `treeShake` is false, `applied` after successful resolution, or `skipped` when diagnostics make reachability uncertain. A skipped prune retains unpruned external documents. Diagnostics cover visited source content, including unused parts of loaded documents, before pruning. Existing `depth` and partial-root options still limit traversal.
+
+The diagnostics API keeps cached loader data unmodified, cloning it into each bundling run. A supplied cache can be reused across calls and can contain preloaded resources and identities. New cache entries use resolved source URIs; relative preloaded keys remain supported by the bundler's registry. Object inputs are still modified in place. Cache values must be structured-cloneable JSON/YAML data.
+
+Set `preserveReference: (reference, { origin }) => boolean` to intentionally leave selected references untouched. Preserved references are not failures, produce no diagnostics, and are not fetched. `complete` means no resolution failures were found in the visited content; it does not promise that intentionally preserved or depth-limited references are embedded.
+
+### Document-aware traversal
+
+`traversal: 'document'` is an explicit opt-in on either bundling API. It recognizes OpenAPI and AsyncAPI roots; other roots are treated as JSON Schema fragments. The default, `generic`, keeps treating arbitrary `$ref` properties as references.
+
+Document mode leaves instance data untouched in examples, defaults, enum/const values, Example Object values, and extensions. Actual references to Example Objects, callbacks, schemas, and AsyncAPI messages/traits remain active. Message and message-trait examples are literal data. Schema property names are interpreted as names, even when they are `examples`, `default`, or start with `x-`. External fragments inherit the context of their referring object.
+
+Applicable schema and Path Item siblings are traversed internally. OpenAPI 2.0/3.0 Reference Object siblings and explicitly declared older JSON Schema draft siblings remain ignored. Siblings are preserved separately, not merged; this API does not decide conflicts between Path Item fields. Recursive schemas and reference-only cycles are allowed when their targets exist. `$id`, `$anchor`, custom `resolveDocument` identities, escaped pointers, and `$global` chunk context use the existing registry.
+
+This is reference resolution, not OpenAPI or AsyncAPI validation. It does not validate required fields, target object types, unknown schema vocabularies, or schema dialect conformance. It does not add document metadata, output policy, or CLI flags.
+
+### Replacing a CLI reference checker
+
+Before, a CLI had to inspect sources, temporarily mask literal `$ref` values, supply cached loaders, and recursively invoke the bundler from sibling hooks:
+
+```ts
+const inspected = await inspectReferences(input, loaders)
+const document = await bundle(inspected.document, {
+  plugins: [inspected.loader],
+  treeShake: prune && inspected.diagnostics.length === 0,
+  hooks: recursiveSiblingHooks,
+})
+inspected.restore(document)
+```
+
+After, the library performs those steps in one operation:
+
+```ts
+const { document, diagnostics, complete, pruning } = await bundleWithDiagnostics(input, {
+  plugins: loaders,
+  traversal: 'document',
+  treeShake: prune,
+  urlMap,
+})
+// The CLI retains its own failure reporting, force flag, and filesystem output policy.
+if (!complete && !force) throw new Error(formatDiagnostics(diagnostics))
+await writeOutput(document)
+```
+
+No separate checker, Symbol masking, or recursive sibling hooks are needed. Hooks that implement unrelated features and custom document identity can remain.
+
 ### Loaders
 
 A loader plugin teaches the bundler how to read one kind of reference. Import loaders from `@scalar/json-magic/bundle/plugins/browser` in the browser, or from `@scalar/json-magic/bundle/plugins/node` in Node.js. The Node entry point is a superset: it adds `readFiles`, which needs filesystem access.
@@ -197,7 +362,7 @@ A loader plugin teaches the bundler how to read one kind of reference. Import lo
 | Loader      | Handles                               | Available in  |
 | ----------- | ------------------------------------- | ------------- |
 | `fetchUrls` | `http://` and `https://` references   | browser, node |
-| `readFiles` | Local file paths                      | node          |
+| `readFiles` | Local file paths and `file:` URLs      | node          |
 | `parseJson` | A raw JSON string passed as the input | browser, node |
 | `parseYaml` | A raw YAML string passed as the input | browser, node |
 
@@ -314,7 +479,8 @@ console.log(result)
 
 #### readFiles
 
-Resolves local files. This loader only works in a Node.js environment.
+Reads local file paths and `file:` URLs in Node.js. Pass `basePath` to confine reads to an approved directory.
+Hosted file URLs are rejected. Confined reads on Windows also reject UNC and device paths.
 
 ```ts
 import { bundle } from '@scalar/json-magic/bundle'
@@ -437,12 +603,14 @@ await bundle(document, {
 | ------------------------------ | ---------------------------------------------- | -------------- | --------------------------------------------------------------------------------------- |
 | `plugins`                      | `Plugin[]`                                     | —              | Loader and lifecycle plugins used during bundling. Required.                            |
 | `treeShake`                    | `boolean`                                      | —              | Only keep the parts of external documents that are actually referenced. Required.       |
+| `traversal`                    | `'generic' \| 'document'`                      | `'generic'`    | Use document-aware reference rules for OpenAPI, AsyncAPI, and JSON Schema.               |
+| `includeCustomReferences`      | `boolean`                                      | `false`        | Follow references in extensions and unknown schema keywords in document mode.           |
 | `depth`                        | `number`                                       | unlimited      | How deeply nested `$ref` pointers are followed. See the note below.                     |
 | `root`                         | `UnknownObject`                                | the input      | Base document to write external documents into, used for partial bundling.              |
 | `origin`                       | `string`                                       | the input      | Base path used to resolve relative references.                                          |
 | `cache`                        | `Map<string, Promise<ResolveResult>>`          | new map        | Cache of in-flight resolutions, reused across `bundle` calls to avoid refetching.       |
 | `visitedNodes`                 | `Set<unknown>`                                 | new set        | Nodes that have already been bundled, used to avoid re-bundling during partial bundles. |
-| `urlMap`                       | `boolean`                                      | `false`        | Keep the mapping of generated keys to their original URLs in the output.                |
+| `urlMap`                       | `boolean`                                      | `false`        | Map bundled external documents to their original URLs. Synthetic literal copies have no entry. |
 | `externalDocumentsKey`         | `string`                                       | `'x-ext'`      | Key that holds the bundled external documents.                                          |
 | `externalDocumentsMappingsKey` | `string`                                       | `'x-ext-urls'` | Key that holds the mapping between generated keys and original URLs.                    |
 | `compress`                     | `(value: string) => string \| Promise<string>` | hash           | Function used to shorten URLs and file paths into document keys.                        |
@@ -500,13 +668,15 @@ await bundle(input, {
 
 Hooks let you observe and extend the bundling process, which is handy for progress reporting and error tracking.
 
-| Hook                  | Called when                              |
-| --------------------- | ---------------------------------------- |
-| `onResolveStart`      | The bundler starts resolving a `$ref`    |
-| `onResolveSuccess`    | A `$ref` was resolved successfully       |
-| `onResolveError`      | A `$ref` could not be resolved           |
-| `onBeforeNodeProcess` | Before a node is processed, may be async |
-| `onAfterNodeProcess`  | After a node is processed, may be async  |
+| Hook                    | Called when                                                                         |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| `onDocumentLoaded`      | Before a parsed root, external, cached, or stored resource is indexed; may be async |
+| `onBeforeTargetProcess` | After target lookup, before traversing the target; may be async                     |
+| `onResolveStart`        | The bundler starts resolving a `$ref`                                               |
+| `onResolveSuccess`      | A `$ref` was resolved successfully                                                  |
+| `onResolveError`        | A `$ref` could not be resolved                                                      |
+| `onBeforeNodeProcess`   | Before a node is processed, may be async                                            |
+| `onAfterNodeProcess`    | After a node is processed, may be async                                             |
 
 ```ts
 import { bundle } from '@scalar/json-magic/bundle'
@@ -541,6 +711,59 @@ await bundle(document, {
   treeShake: false,
 })
 ```
+
+#### Transforming resources and targets
+
+Both transformation hooks work through `BundleConfig.hooks` and reusable
+`LifecyclePlugin` objects. The configuration hook runs first, then matching
+plugins in order, awaiting each result before the next hook runs.
+
+`onDocumentLoaded(document, { uri, stored, loadDocument })` receives parsed source
+content before indexing. Return replacement content, or `undefined` to retain it.
+`uri` is the retrieval location. `stored: true` identifies a resource already in
+the input bundle's external-document storage; transformations that relocate fields
+can use it to preserve existing bundled pointers. `loadDocument(uri)` shares
+source loading and cache results without recursively invoking transformations.
+
+`onBeforeTargetProcess(target, context)` receives the located value and:
+
+- `document`, `uri`, and `path`: its resource, retrieval location, and path relative
+  to that resource.
+- `referencedFrom`: the referring node's processing context.
+- `referenceSource`: the referring resource, URI, and semantic source path,
+  including the owning location of a partial input or server chunk.
+
+Return `undefined` to keep the target, `{ value }` to replace it at its original
+path, or `{ value, path }` to store a contextual variant at a different
+resource-relative path. Returned values are written into the resource; `path: []`
+replaces the resource's keys. References marked `$global: true` identify
+already-processed server chunks and bypass target transformations.
+
+When a transform relocates fields, `resolveDocument` can return a
+`remapPointer(pointer)` function alongside its `baseUri`. It receives decoded
+JSON Pointer segments and returns the transformed segments for authored pointers.
+Pointers into the bundle's generated external-document storage bypass remapping.
+A resolver can also set `visitReferencedSubtrees: true` so a headerless resource
+is traversed through referenced subtrees with their referring context.
+
+For partial bundling, pass the complete `root` and the partial input's `inputPath`.
+The latter prefixes `context.path` for every node-processing hook. Bundling
+mutates the caller's input, cached resources, and target storage; returning a copy
+from a transformation hook does not make the whole operation immutable.
+
+#### Resolving targets in lifecycle hooks
+
+`context.resolveReference(reference)` resolves a reference from the current node's
+resource and returns `{ path, value, resourceRelative }`, or `undefined` for an
+unknown resource. `path` contains decoded path segments from the bundle root;
+`value` is `undefined` for a missing target. `resourceRelative` identifies
+fragment references scoped to a schema `$id`, which should retain their local
+spelling when root component names change. Pointers into the bundle's external
+storage return `resourceRelative: false`.
+
+Use `traversal: 'document'` to exclude literal examples and defaults. When renaming
+targets, collect changes during traversal and apply them afterward so subsequent
+references still resolve against the original names.
 
 ## dereference
 
@@ -745,6 +968,30 @@ const { value } = getValueByPath(
   ['components', 'schemas', 'User'],
 )
 ```
+
+## Remove unused API components
+
+`checkDocument` checks an already bundled OpenAPI 2.0/3.x or AsyncAPI 2/3 description without fetching files or URLs. With `prune: true`, it mutates reusable storage only after checking the graph successfully. Keep a copy with `structuredClone` when the original is needed.
+
+```ts
+import { checkDocument } from '@scalar/json-magic/document'
+
+const result = checkDocument(document, {
+  origin: '/api/openapi.json',
+  prune: true,
+  unresolvedReferences: 'retain',
+})
+if (!result.ok) throw new Error(result.error)
+for (const warning of result.data.warnings) console.warn(warning)
+```
+
+Reachability starts outside reusable storage and follows transitive references, named security schemes, explicit and implicit discriminator mappings, top-level AsyncAPI channels and schema identities/anchors. Reachable cycles remain; disconnected cycles and unused stored external siblings under `x-ext` are removed. Names and pointer layout remain unchanged. Literal examples and extensions do not create dependencies unless an explicit reference targets them. Root components are retained whole; references to their descendants retain their other dependencies too.
+
+Pruning also removes security schemes that no security requirement references. Integrations that offer every declared scheme as a selectable authentication option must explicitly choose whether to enable pruning, since it can remove those options. Empty reusable maps such as `components.schemas: {}` are preserved.
+
+When bundling with `includeCustomReferences: true`, use the bundler's `treeShake` option to trim external documents. Skip the `checkDocument` pruning pass for these bundles. It ignores references in extensions and unknown schema keywords, so it can remove their targets and leave dangling references.
+
+The default unresolved-reference policy is `error`. With `retain`, a reachable external reference that cannot resolve inside the bundle leaves all reusable content intact and produces warnings. Missing local targets still fail. Callers with known resolution failures must skip pruning entirely: an incomplete graph cannot establish which components are unused. This API is independent of the bundler's existing `treeShake` option. Dynamic references conservatively retain matching dynamic anchors; `$recursiveRef` is rejected.
 
 ## Community
 

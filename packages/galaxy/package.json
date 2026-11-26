@@ -16,7 +16,7 @@
     "swagger",
     "petstore"
   ],
-  "version": "0.7.2",
+  "version": "0.7.5",
   "engines": {
     "node": ">=22"
   },
@@ -54,6 +54,7 @@
     "CHANGELOG.md"
   ],
   "devDependencies": {
+    "@scalar/helpers": "workspace:*",
     "vite": "catalog:*",
     "yaml": "catalog:*"
   }

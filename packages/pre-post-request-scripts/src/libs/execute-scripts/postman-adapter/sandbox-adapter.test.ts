@@ -28,6 +28,25 @@ describe('sandbox-adapter', () => {
     expect(result.stream).toEqual({ type: 'Buffer', data: Array.from(new TextEncoder().encode('{"ok":true}')) })
   })
 
+  it('exposes the headers the API sent instead of the ones the proxy replaced', async () => {
+    const response = new Response('{}', {
+      headers: {
+        'content-security-policy': "default-src 'none'; sandbox",
+        'content-type': 'application/json',
+        'x-content-type-options': 'nosniff',
+        'x-scalar-modified-headers': 'Content-Security-Policy, X-Content-Type-Options',
+        'x-scalar-original-content-security-policy': "default-src 'self'",
+      },
+    })
+
+    const result = await toPostmanResponse(response)
+
+    expect(result.header).toStrictEqual([
+      { key: 'content-security-policy', value: "default-src 'self'" },
+      { key: 'content-type', value: 'application/json' },
+    ])
+  })
+
   it('leaves response timing absent when it is unavailable', async () => {
     const result = await toPostmanResponse(new Response('{}'))
     expect(result).not.toHaveProperty('responseTime')

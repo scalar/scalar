@@ -2,15 +2,16 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { FormParameter, RequestBody, UrlEncodedParameter } from '@/types'
 
-import { processFormDataSchema } from './form-data'
+import { addRequiredFormField, processFormDataSchema, setFormFieldSchema } from './form-data'
 import { createParameterObject } from './parameters'
 
 /**
  * Extracts and converts the request body from a Postman request to an OpenAPI RequestBodyObject.
- * Handles raw JSON, form-data, and URL-encoded body types, creating appropriate schemas and content types.
+ * Handles raw, GraphQL, file, form-data, and URL-encoded body types.
  *
  * When `contentType` is provided (already normalised via `parseMediaType`), it
- * wins over the Postman `options.raw.language` hint for `raw` bodies.
+ * wins over the Postman `options.raw.language` hint for `raw` bodies and the
+ * default media type for GraphQL and file bodies.
  * `formdata` and `urlencoded` modes keep their natural media types.
  */
 export function extractRequestBody(
@@ -27,6 +28,37 @@ export function extractRequestBody(
     return requestBody
   }
 
+  if (body.mode === 'graphql') {
+    const variables = parseGraphqlVariables(body.graphql?.variables)
+    requestBody.content = {
+      [contentType ?? 'application/json']: {
+        schema: {
+          type: 'object',
+          properties: {
+            query: { type: 'string' },
+            variables: { type: 'object' },
+          },
+          required: ['query'],
+        },
+        examples: {
+          [exampleName]: {
+            value: {
+              query: body.graphql?.query ?? '',
+              ...(variables !== undefined && { variables }),
+            },
+          },
+        },
+      },
+    }
+    return requestBody
+  }
+
+  if (body.mode === 'file') {
+    // A local filename is not the uploaded content and must not become an example.
+    requestBody.content = { [contentType ?? 'application/octet-stream']: {} }
+    return requestBody
+  }
+
   if (body.mode === 'formdata' && body.formdata) {
     handleFormDataBody(body.formdata, requestBody, exampleName)
     return requestBody
@@ -38,6 +70,22 @@ export function extractRequestBody(
   }
 
   return requestBody
+}
+
+/** Parses exported JSON variables while preserving unresolved templates or malformed input. */
+const parseGraphqlVariables = (variables: NonNullable<RequestBody['graphql']>['variables']): unknown => {
+  if (typeof variables !== 'string') {
+    return variables
+  }
+  if (!variables.trim()) {
+    return undefined
+  }
+  try {
+    const parsed: unknown = JSON.parse(variables)
+    return parsed
+  } catch {
+    return variables
+  }
 }
 
 function handleRawBody(
@@ -93,6 +141,19 @@ function handleRawBody(
   }
 }
 
+/** A form row in the shape the API client, request builder and code examples read, so imported fields keep their names. */
+type FormRow = { name: string; value: string; isDisabled: boolean }
+
+/** Keeps every Postman row in order, including repeated keys, and leaves file rows empty until a file is attached. */
+const toFormRows = (rows: (FormParameter | UrlEncodedParameter)[]): FormRow[] =>
+  rows.map(
+    (row): FormRow => ({
+      name: row.key,
+      value: 'type' in row && row.type === 'file' ? '' : (row.value ?? ''),
+      isDisabled: row.disabled === true,
+    }),
+  )
+
 function handleFormDataBody(
   formdata: FormParameter[],
   requestBody: OpenAPIV3_1.RequestBodyObject,
@@ -103,7 +164,7 @@ function handleFormDataBody(
       schema: processFormDataSchema(formdata),
       examples: {
         [exampleName]: {
-          value: formdata,
+          value: toFormRows(formdata),
         },
       },
     },
@@ -125,16 +186,16 @@ function handleUrlEncodedBody(
       const paramObject = createParameterObject(item, 'query', exampleName)
       const property: OpenAPIV3_1.SchemaObject = {
         type: 'string',
-        examples: [item.value],
+        examples: [item.value ?? ''],
         description: paramObject.description,
       }
       // Add x-scalar-disabled extension if parameter is disabled
       if (item.disabled === true) {
         property['x-scalar-disabled'] = true
       }
-      schema.properties[item.key] = property
-      if (paramObject.required) {
-        schema.required?.push(item.key)
+      setFormFieldSchema(schema.properties, item.key, property)
+      if (paramObject.required && schema.required) {
+        addRequiredFormField(schema.required, item.key)
       }
     }
   })
@@ -143,7 +204,7 @@ function handleUrlEncodedBody(
       schema,
       examples: {
         [exampleName]: {
-          value: urlencoded,
+          value: toFormRows(urlencoded),
         },
       },
     },

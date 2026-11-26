@@ -1,5 +1,235 @@
 [
   {
+    "version": "0.21.9",
+    "date": "2026-11-26",
+    "title": "Generated strings now respect length constraints",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Mock responses and API reference examples now honor minLength and maxLength constraints when generating string values, including formatted strings like emails and strings inside oneOf or anyOf branches."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Generated string examples now respect minLength and maxLength bounds from your OpenAPI schema.",
+          "Formatted strings like emails produce valid syntax within the specified length constraints.",
+          "Path parameter placeholders are preserved in code samples."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0219",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.21.8",
+    "date": "2026-11-25",
+    "title": "Better request validation and response header handling",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release improves how the mock server validates incoming requests and generates response headers. Path parameters with label and matrix styles are now properly validated, JSON content parameters maintain their types during validation, and response headers respect authored examples instead of only generating values from schemas."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Operations are now served under the base path of their servers, so a mock server for an API at `/v1` will answer requests to `/v1/pets` instead of returning 404.",
+          "Request bodies with structured JSON media types like `application/vnd.api+json` and `application/merge-patch+json` are validated against their schemas and made available to custom handlers.",
+          "Response headers now send authored examples from `example` or `examples` fields instead of only generating values from the header schema.",
+          "Path parameters using label (`.5`) and matrix (`;id=5`) styles are properly validated against their schemas when request validation is enabled.",
+          "Query parameters declared with JSON content are validated with correct types, so `?filter={\"price\":\"5\"}` is rejected when price must be an integer."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0218",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.21.7",
+    "date": "2026-11-22",
+    "title": "Polish and bug fixes",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0217",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.21.6",
+    "date": "2026-11-20",
+    "title": "Request validation now works for nullable schemas without explicit types",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Previously, OpenAPI 3.0 schemas with nullable but no type keyword could bypass validation entirely after upgrade, allowing invalid requests through. The mock server now properly enforces the full request contract for these schemas."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Fixed request validation being skipped when OpenAPI 3.0 schemas use nullable without an explicit type.",
+          "Nullable compositions are now converted to explicit unions with null during OpenAPI upgrade.",
+          "Invalid requests that previously returned 200 now correctly return 422 when required fields are missing."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0216",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.21.5",
+    "date": "2026-11-18",
+    "title": "Better array example generation and pattern validation",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release fixes how the mock server generates examples for arrays with contains constraints and resolves an issue where certain regex patterns would prevent request validation from running."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Array examples now respect contains, minContains, and maxContains constraints when generating primitive items.",
+          "Generated arrays honor tuple prefixes, length bounds, uniqueness requirements, and the OpenAPI dialect you are using.",
+          "Request validation no longer fails silently when a schema pattern uses escape sequences like \\-, \\_, or \\ that are only valid without the unicode flag.",
+          "Patterns that work with the unicode flag keep it, so astral characters and \\p{L} continue to behave as expected."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0215",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.21.4",
+    "date": "2026-11-17",
+    "title": "Plugin document handling and TypeScript 6 support",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release improves how plugin documents are classified and processed throughout the application, ensuring they are handled consistently and excluded from features that do not support them."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Plugin documents now maintain consistent classification during replacement, hydration, and rebasing operations.",
+          "Plugin documents are excluded from Ask AI features and authentication processing.",
+          "Builds with TypeScript 6 now preserve package output paths and application aliases correctly."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0214",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.21.3",
+    "date": "2026-11-16",
+    "title": "Polish and bug fixes",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0213",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.21.2",
+    "date": "2026-11-12",
+    "title": "Mock server now generates valid base64 examples",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The mock server previously returned invalid base64 strings for byte format fields, causing strict decoders to reject responses. It now generates valid base64 examples that decode correctly."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Generated examples for format byte fields are now valid base64 strings instead of the placeholder string.",
+          "Content encoding base64 and base64url schemas receive proper base64 examples.",
+          "Custom examples, defaults, and enums still take precedence over generated values."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0212",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.21.1",
+    "date": "2026-11-10",
+    "title": "Decimal validation and deep nesting fixes",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release fixes how the mock server validates decimal constraints and generates deeply nested responses. Required properties now appear correctly in truncated objects, decimal multiples are checked with exact arithmetic, and path parameters work reliably when mixed with literal text."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Decimal multipleOf constraints now accept valid values like 19.99 for multipleOf: 0.01 using exact arithmetic instead of floating-point division.",
+          "Deeply nested mock responses keep their required properties instead of serving empty objects that violate the schema.",
+          "Path segments mixing parameters with literal text, such as {id}.json or v{version}, now route correctly and pass their parameters to validation.",
+          "Request validation no longer rejects bodies that omit required readOnly properties, so create endpoints with auto-generated IDs work without disabling validation.",
+          "Array items with allOf compositions merge into single objects instead of splitting into multiple partial objects per member."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0211",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.21.0",
+    "date": "2026-11-05",
+    "title": "Response hooks and smarter path matching",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release adds an onResponse hook so you can observe or modify responses before they are sent, and fixes how the server chooses between overlapping paths."
+      },
+      {
+        "type": "list",
+        "items": [
+          "New onResponse hook lets you adjust responses after the mock generates them, useful for pagination or tweaking examples per request.",
+          "Concrete paths like /pets/mine now match before templated paths like /pets/{petId}, following the OpenAPI specification.",
+          "Passing an object document to createMockServer no longer mutates the original object or fails with frozen documents.",
+          "Deprecated schemas and properties are now included in XML responses, so a deprecated response schema no longer returns an empty body."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0210",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.20.0",
     "date": "2026-10-23",
     "title": "Updated to Undici 8 with HTTP/2 enabled by default",

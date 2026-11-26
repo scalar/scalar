@@ -270,4 +270,62 @@ describe('querystring-parameter', () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({})
   })
+
+  it.each(['application/json', 'application/x-www-form-urlencoded'])(
+    'validates decimal multiples in whole-query %s content',
+    async (contentType) => {
+      const server = await createMockServer({
+        logger: false,
+        document: documentWith({
+          name: 'wholeQuery',
+          in: 'querystring',
+          required: true,
+          content: {
+            [contentType]: { schema: { type: 'object', properties: { price: { type: 'number', multipleOf: 0.01 } } } },
+          },
+        }),
+      })
+      for (const [price, status] of [
+        [19.99, 200],
+        [1000000.19, 200],
+        [0.075, 422],
+        [0.010000000001, 422],
+      ] as const) {
+        const query =
+          contentType === 'application/json' ? encodeURIComponent(JSON.stringify({ price })) : `price=${price}`
+        const response = await server.request(`/search?${query}`)
+        expect(response.status, String(price)).toBe(status)
+        if (status === 422) {
+          expect(await response.json()).toStrictEqual({
+            error: 'Request validation failed',
+            violations: [{ location: 'query', path: '/price', message: 'price must be multiple of 0.01' }],
+          })
+        }
+      }
+    },
+  )
+
+  it('validates decimal multiples inside JSON-encoded form properties', async () => {
+    const server = await createMockServer({
+      logger: false,
+      document: documentWith({
+        name: 'wholeQuery',
+        in: 'querystring',
+        required: true,
+        content: {
+          'application/x-www-form-urlencoded': {
+            schema: { type: 'object', properties: { price: { type: 'number', multipleOf: 0.01 } } },
+            encoding: { price: { contentType: 'application/json' } },
+          },
+        },
+      }),
+    })
+    expect((await server.request('/search?price=19.99')).status).toBe(200)
+    const invalid = await server.request('/search?price=0.010000000001')
+    expect(invalid.status).toBe(422)
+    expect(await invalid.json()).toStrictEqual({
+      error: 'Request validation failed',
+      violations: [{ location: 'query', path: '/price', message: 'price must be multiple of 0.01' }],
+    })
+  })
 })

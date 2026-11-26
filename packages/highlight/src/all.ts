@@ -23,6 +23,7 @@ import javascript from './langs/javascript'
 import json from './langs/json'
 import julia from './langs/julia'
 import kotlin from './langs/kotlin'
+import log from './langs/log'
 import lua from './langs/lua'
 import makefile from './langs/makefile'
 import markdown from './langs/markdown'
@@ -74,6 +75,7 @@ export const languages: Grammar[] = [
   json,
   julia,
   kotlin,
+  log,
   lua,
   makefile,
   markdown,

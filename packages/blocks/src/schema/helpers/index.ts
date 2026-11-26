@@ -1,5 +1,6 @@
 export { inferDiscriminatorMappingComposition } from './get-compositions-to-render'
 export { getRefName } from './get-ref-name'
+export { type RenderedExample, getRenderedExample, normalizeRenderedExamples } from './get-rendered-example'
 export { getSchemaType } from './get-schema-type'
 export { getTypeSignatureTokens } from './get-type-signature-tokens'
 export { hasComplexArrayItems } from './has-complex-array-items'

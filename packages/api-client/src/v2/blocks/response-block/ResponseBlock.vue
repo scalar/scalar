@@ -104,7 +104,11 @@ const filterIds = computed<Record<Filter, string>>(() => ({
 /** Threshold for virtualizing response bodies in bytes */
 const VIRTUALIZATION_THRESHOLD = 200_000
 const shouldVirtualize = computed(() => {
-  if (!response || !('size' in response)) {
+  if (
+    !response ||
+    !('size' in response) ||
+    response.bodyState === 'unavailable'
+  ) {
     return false
   }
 
@@ -297,6 +301,7 @@ const filterLabels = computed(() => ({
             v-else
             :id="filterIds.Body"
             :active="true"
+            :bodyState="response.bodyState"
             class="response-section-content-body"
             :data="response?.data"
             :headers="responseHeaders"

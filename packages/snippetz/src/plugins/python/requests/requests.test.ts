@@ -255,12 +255,10 @@ describe('pythonRequests', () => {
     })
 
     expect(result).toBe(`requests.post("https://example.com",
-    data={
-      "file": [
-        "@first.png",
-        "@second.png"
-      ]
-    }
+    files=[
+      ("file", (None, "@first.png")),
+      ("file", (None, "@second.png"))
+    ]
 )`)
   })
 
@@ -668,5 +666,13 @@ describe('pythonRequests', () => {
     })
 
     expect(result).toContain('data="it\'s plain"')
+  })
+
+  it.each([
+    ['https://example.com/a"b', 'requests.get("https://example.com/a\\"b")'],
+    ['https://example.com/files/a\\b', 'requests.get("https://example.com/files/a\\\\b")'],
+    ["https://example.com/Customers('ALFKI')", 'requests.get("https://example.com/Customers(\'ALFKI\')")'],
+  ])('escapes the request URL %s', (url, expected) => {
+    expect(pythonRequests.generate({ url })).toBe(expected)
   })
 })

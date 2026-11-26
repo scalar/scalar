@@ -85,6 +85,41 @@ const securedOperationContent = {
   },
 }
 
+const unbrokenTitleContent = {
+  openapi: '3.1.1',
+  info: { title: 'Webhooks', version: '1.0.0' },
+  webhooks: {
+    'order.purchase.created': {
+      post: { responses: { '200': { description: 'Delivered' } } },
+    },
+  },
+}
+
+/** An operation with two request body examples, so its request example footer shows the example picker. */
+const requestExamplesContent = {
+  openapi: '3.1.1',
+  info: { title: 'Request examples', version: '1.0.0' },
+  paths: {
+    '/planets': {
+      post: {
+        summary: 'Create a planet',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: { type: 'object', properties: { name: { type: 'string' } } },
+              examples: {
+                earth: { summary: 'Earth', value: { name: 'Earth' } },
+                mars: { summary: 'Mars', value: { name: 'Mars' } },
+              },
+            },
+          },
+        },
+        responses: { '201': { description: 'Created' } },
+      },
+    },
+  },
+}
+
 const taggedContent = {
   openapi: '3.1.1',
   info: { title: 'Tagged operations', version: '1.0.0' },
@@ -222,4 +257,92 @@ test.describe('reference controls', () => {
     expect(box!.x + box!.width).toBeLessThanOrEqual(320)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
   })
+
+  for (const width of [320, 393, 1920]) {
+    test(`wraps an operation title without spaces inside the page at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      const example = await serveExample({ content: unbrokenTitleContent })
+      await page.goto(example)
+
+      const title = page.getByRole('heading', { name: 'order.purchase.created', exact: true })
+      await expect(title).toBeVisible()
+      await title.scrollIntoViewIfNeeded()
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
+
+      const operation = page.getByRole('region', { name: 'order.purchase.created', exact: true })
+      const requestHeader = operation.locator('.request-header')
+      const testRequest = operation.getByRole('button', { name: 'Test Request', exact: false })
+      const headerBox = await requestHeader.boundingBox()
+      const buttonBox = await testRequest.boundingBox()
+      const agentBox = await operation.locator('.agent-button-container').boundingBox()
+      expect(headerBox).not.toBeNull()
+      expect(buttonBox).not.toBeNull()
+      expect(agentBox).not.toBeNull()
+      expect(agentBox!.height).toBeCloseTo(buttonBox!.height, 1)
+      expect(agentBox!.y).toBeCloseTo(buttonBox!.y, 1)
+      if (width < 1920) {
+        expect(buttonBox!.y).toBeGreaterThanOrEqual(headerBox!.y + headerBox!.height)
+        const actionsBox = await operation.locator('.operation-request-actions').boundingBox()
+        expect(actionsBox).not.toBeNull()
+        expect(agentBox!.width).toBeCloseTo(buttonBox!.width, 0)
+        expect(agentBox!.x).toBeCloseTo(actionsBox!.x, 0)
+        expect(buttonBox!.x + buttonBox!.width).toBeCloseTo(actionsBox!.x + actionsBox!.width, 0)
+      } else {
+        expect(buttonBox!.x).toBeGreaterThanOrEqual(headerBox!.x + headerBox!.width)
+        expect(buttonBox!.y).toBeLessThan(headerBox!.y + headerBox!.height)
+      }
+      await expect(operation.locator('.operation-request-actions')).toHaveScreenshot(`operation-actions-${width}.png`)
+      await expect(page.getByRole('region', { name: 'order.purchase.created', exact: true })).toHaveScreenshot(
+        `operation-title-wrap-${width}.png`,
+      )
+    })
+  }
+
+  for (const width of [320, 390, 1440]) {
+    test(`keeps the request example name visible in the footer at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      const example = await serveExample({ content: requestExamplesContent })
+      await page.goto(example)
+
+      const card = page.locator('.request-card')
+      const picker = card.getByRole('button', { name: 'Earth', exact: true })
+      await picker.scrollIntoViewIfNeeded()
+      await expect(picker).toBeVisible()
+
+      // The whole name shows, and the caret stays inside the button instead of running under the actions
+      const name = picker.getByText('Earth', { exact: true })
+      expect(await name.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
+      const pickerBox = (await picker.boundingBox())!
+      const caretBox = (await picker.locator('svg').boundingBox())!
+      expect(caretBox.x + caretBox.width).toBeLessThanOrEqual(pickerBox.x + pickerBox.width)
+
+      const actions = [
+        card.locator('.agent-button-container'),
+        card.getByRole('button', { name: 'Test Request (post /planets)', exact: true }),
+      ]
+      for (const action of actions) {
+        const box = (await action.boundingBox())!
+        // Nothing overlaps the picker: each action sits after it on the line or on a line below it
+        expect(box.x >= pickerBox.x + pickerBox.width || box.y >= pickerBox.y + pickerBox.height).toBe(true)
+        if (width === 320) {
+          // Too narrow for both, so the actions wrap onto their own line
+          expect(box.y).toBeGreaterThanOrEqual(pickerBox.y + pickerBox.height)
+        }
+        if (width === 1440) {
+          // Wide cards keep the picker and the actions on one line
+          expect(box.y).toBeCloseTo(pickerBox.y, 0)
+        }
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
+
+      // The picker still works from the keyboard
+      await picker.focus()
+      await expect(card.locator('.request-card-footer')).toHaveScreenshot(`request-example-footer-${width}.png`)
+      await page.keyboard.press('ArrowDown')
+      await expect(page.getByRole('option', { name: 'Mars', exact: true })).toBeVisible()
+      await page.keyboard.press('ArrowDown')
+      await page.keyboard.press('Enter')
+      await expect(card.getByRole('button', { name: 'Mars', exact: true })).toBeFocused()
+    })
+  }
 })

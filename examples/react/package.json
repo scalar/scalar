@@ -37,7 +37,7 @@
     "@typescript-eslint/parser": "catalog:*",
     "@vitejs/plugin-react": "catalog:*",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.7",
+    "eslint-plugin-react-refresh": "^0.5.8",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*"
   }

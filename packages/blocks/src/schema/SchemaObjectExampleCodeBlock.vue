@@ -50,7 +50,7 @@ const selectedExampleKey = ref<string>(Object.keys(examples.value)[0] ?? '')
     <ScalarCardSection>
       <div class="code-snippet">
         <ScalarCodeBlock
-          class="bg-b-2"
+          class="bg-transparent"
           lang="json"
           lineNumbers
           :prettyPrintedContent="
@@ -61,9 +61,7 @@ const selectedExampleKey = ref<string>(Object.keys(examples.value)[0] ?? '')
     </ScalarCardSection>
 
     <!-- Example picker -->
-    <ScalarCardFooter
-      v-if="Object.keys(examples).length > 1"
-      class="bg-b-3">
+    <ScalarCardFooter v-if="Object.keys(examples).length > 1">
       <ExamplePicker
         v-model="selectedExampleKey"
         :examples />

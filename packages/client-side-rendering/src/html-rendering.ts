@@ -1,3 +1,4 @@
+import { escapeCssForStyleTag } from '@scalar/helpers/dom/escape-css-for-style-tag'
 import { escapeJsonForInlineScript } from '@scalar/helpers/json/escape-json-for-inline-script'
 import { serializePropertyKey } from '@scalar/helpers/json/serialize-property-key'
 import type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration } from '@scalar/types/api-reference'
@@ -82,7 +83,7 @@ const getStyles = (configuration: Record<string, unknown>, customTheme: string, 
 
   return `
     <style type="text/css"${nonceAttribute(nonce)}>
-      ${addIndent(styles.join('\n\n'), 6)}
+      ${addIndent(escapeCssForStyleTag(styles.join('\n\n')), 6)}
     </style>`
 }
 

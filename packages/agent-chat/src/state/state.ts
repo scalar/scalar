@@ -1,4 +1,3 @@
-import { Chat } from '@ai-sdk/vue'
 import { type ModalState, useModal } from '@scalar/components/modal'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
@@ -7,13 +6,12 @@ import { coerce } from '@scalar/validation'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import { DefaultChatTransport, type UIDataTypes, type UIMessage, lastAssistantMessageIsCompleteWithToolCalls } from 'ai'
+import { isAsyncApiDocument, isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import type { UIDataTypes, UIMessage } from 'ai'
 import { n } from 'neverpanic'
 import { type ComputedRef, type InjectionKey, type Ref, computed, inject, reactive, ref, watch } from 'vue'
 
 import { type Api, createApi, createAuthorizationHeaders } from '@/api'
-import { executeRequestTool } from '@/client-tools/execute-request'
 import { URLS } from '@/consts/urls'
 import { createError } from '@/entities'
 import type { ApiMetadata } from '@/entities/registry/document'
@@ -35,13 +33,14 @@ import type {
   SearchOpenAPIOperationsToolInput,
   SearchOpenAPIOperationsToolOutput,
 } from '@/entities/tools/search-openapi-operations'
-import { createDocumentSettings } from '@/helpers'
 import { useTermsAndConditions } from '@/hooks/use-term-and-conditions'
 import { type UploadTmpDocumentState, removeTmpDocFromLocalStorage } from '@/hooks/use-upload-tmp-document'
 import { persistencePlugin } from '@/plugins/persistance'
 import { loadDocument } from '@/registry/add-documents-to-store'
 import { createDocumentName } from '@/registry/create-document-name'
-import type { ChatMode } from '@/types'
+import type { ChatMode, SelectedDocument } from '@/types'
+
+import { Chat, DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from './ai-sdk'
 
 export type RegistryDocument = {
   namespace: string
@@ -72,6 +71,7 @@ export const STATE_SYMBOL: InjectionKey<State> = Symbol('STATE_SYMBOL')
 const { toast } = useToasts()
 
 type State = {
+  pendingRequestIds: Ref<Set<string>>
   prompt: Ref<string>
   chat: Chat<UIMessage<unknown, UIDataTypes, Tools>>
   workspaceStore: WorkspaceStore
@@ -100,7 +100,6 @@ type State = {
   uploadedTmpDocumentUrl: Ref<string | undefined>
   curatedDocuments: Ref<ApiMetadata[]>
   getActiveDocumentJson?: () => string
-  getActiveDocumentContext?: () => string | undefined
   hideAddApi?: boolean
 }
 
@@ -108,16 +107,16 @@ function createChat({
   registryDocuments,
   workspaceStore,
   baseUrl,
-  proxyUrl,
   getAccessToken,
   getAgentKey,
+  getActiveDocumentSelection,
 }: {
   registryDocuments: Ref<ApiMetadata[]>
   workspaceStore: WorkspaceStore
   baseUrl: string
-  proxyUrl: ComputedRef<string>
   getAccessToken?: () => string
   getAgentKey?: () => string
+  getActiveDocumentSelection?: () => SelectedDocument | undefined
 }) {
   const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
@@ -126,9 +125,10 @@ function createChat({
       headers: () => createAuthorizationHeaders({ getAccessToken, getAgentKey }),
       body: () => ({
         registryDocuments: registryDocuments.value,
+        selectedDocument: getActiveDocumentSelection?.(),
       }),
     }),
-    async onToolCall({ toolCall }): Promise<any> {
+    onToolCall({ toolCall }): void {
       if (toolCall.dynamic) {
         return
       }
@@ -136,30 +136,18 @@ function createChat({
       if (
         (toolCall.toolName === EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME ||
           toolCall.toolName === 'ask-for-authentication') &&
-        isAsyncApiDocument(workspaceStore.workspace.documents[toolCall.input.documentName])
+        !isOpenApiDocument(workspaceStore.workspace.documents[toolCall.input.documentName])
       ) {
         // Tool callbacks run inside the stream queue; enqueue the result without waiting on that queue.
         void chat.addToolOutput({
           tool: toolCall.toolName,
           toolCallId: toolCall.toolCallId,
           state: 'output-error',
-          errorText:
-            'Live AsyncAPI messaging and authentication are not supported in Ask AI. Ask for an explanation or code example instead.',
+          errorText: isAsyncApiDocument(workspaceStore.workspace.documents[toolCall.input.documentName])
+            ? 'Live AsyncAPI messaging and authentication are not supported in Ask AI. Ask for an explanation or code example instead.'
+            : 'Requests and authentication require an OpenAPI document. This document format is not supported in Ask AI.',
         })
         return
-      }
-
-      if (
-        toolCall.toolName === EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME &&
-        toolCall.input.method.toLowerCase() === 'get'
-      ) {
-        await executeRequestTool({
-          documentSettings: createDocumentSettings(workspaceStore),
-          input: toolCall.input,
-          toolCallId: toolCall.toolCallId,
-          chat,
-          proxyUrl: proxyUrl.value,
-        })
       }
     },
   })
@@ -178,7 +166,7 @@ export function createState({
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
-  getActiveDocumentContext,
+  getActiveDocumentSelection,
   prefilledMessageRef,
   hideAddApi,
 }: {
@@ -192,7 +180,7 @@ export function createState({
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
-  getActiveDocumentContext?: () => string | undefined
+  getActiveDocumentSelection?: () => SelectedDocument | undefined
   prefilledMessageRef?: Ref<string>
   hideAddApi?: boolean
 }): State {
@@ -225,9 +213,9 @@ export function createState({
     registryDocuments,
     workspaceStore,
     baseUrl,
-    proxyUrl,
     getAccessToken,
     getAgentKey,
+    getActiveDocumentSelection,
   })
 
   const api = createApi({
@@ -379,6 +367,7 @@ export function createState({
   initialRegistryDocuments.forEach(({ namespace, slug }) => addDocument({ namespace, slug, removable: false }))
 
   return {
+    pendingRequestIds: ref(new Set<string>()),
     prompt,
     chat,
     workspaceStore,
@@ -407,7 +396,6 @@ export function createState({
     uploadedTmpDocumentUrl,
     curatedDocuments,
     getActiveDocumentJson,
-    getActiveDocumentContext,
     hideAddApi,
   }
 }

@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { addComponent, createResolver, defineNuxtModule, extendPages, extendViteConfig } from '@nuxt/kit'
+import type { NuxtModule } from '@nuxt/schema'
 
 import type { Configuration } from './types'
 
@@ -15,7 +16,7 @@ export type ModuleOptions = {
   layout: string | false
 } & Configuration
 
-export default defineNuxtModule<ModuleOptions>({
+const scalarModule: NuxtModule<ModuleOptions, ModuleOptions> = defineNuxtModule<ModuleOptions>({
   meta: {
     name: '@scalar/nuxt',
     configKey: 'scalar',
@@ -115,10 +116,10 @@ export default defineNuxtModule<ModuleOptions>({
     // "failed to resolve" warning in setups where it is not hoisted (such as this
     // repo's playground).
     //
-    // The other CommonJS offenders (cookie, extend, debug, highlight.js) are
-    // handled at the source packages — `cookie` was dropped from @scalar/api-client
-    // and the Markdown/highlight stack is bundled into @scalar/code-highlight — so
-    // no shims are needed here for those.
+    // The other CommonJS offenders (cookie, extend, debug) are handled at the
+    // source packages — `cookie` was dropped from @scalar/api-client and the
+    // Markdown stack is bundled into @scalar/markdown — so no shims are needed
+    // here for those.
     if (existsSync(join(_nuxt.options.rootDir, 'node_modules', '@vercel', 'oidc'))) {
       extendViteConfig((config) => {
         config.optimizeDeps ||= {}
@@ -146,3 +147,5 @@ export default defineNuxtModule<ModuleOptions>({
     }
   },
 })
+
+export default scalarModule

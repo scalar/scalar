@@ -45,6 +45,7 @@ const {
   environment,
   eventBus,
   createAnySecurityScheme = false,
+  allowedSecuritySchemes,
   canDeleteSchemes = true,
   defaultOpen = true,
   heading = true,
@@ -64,6 +65,8 @@ const {
   eventBus: WorkspaceEventBus
   /** Allows adding authentication which is not in the document */
   createAnySecurityScheme?: boolean
+  /** Limits visible schemes without changing request authentication. */
+  allowedSecuritySchemes?: string[]
   /**
    * Whether schemes can be deleted from the selector. Enabled for the editable client, disabled in
    * the read-only reference where the schemes come from the document and cannot be removed.
@@ -128,6 +131,17 @@ const authIndicator = computed<{ icon: Icon; text: string } | null>(() => {
   }
 })
 
+/** Excluded schemes must also stay out of secondary forms such as OAuth acquisition. */
+const visibleSecuritySchemes = computed<MergedSecuritySchemes>(() =>
+  allowedSecuritySchemes
+    ? Object.fromEntries(
+        Object.entries(securitySchemes).filter(([name]) =>
+          allowedSecuritySchemes.includes(name),
+        ),
+      )
+    : securitySchemes,
+)
+
 /** All available auth scheme options for the dropdown */
 const availableSchemeOptions = computed(() =>
   getSecuritySchemeOptions(
@@ -136,6 +150,7 @@ const availableSchemeOptions = computed(() =>
     selectedSecurity?.selectedSchemes ?? [],
     createAnySecurityScheme,
     translations.value.apiClient,
+    allowedSecuritySchemes,
   ),
 )
 
@@ -149,7 +164,11 @@ const activeSchemeOptions = computed<SecuritySchemeOption[]>(() => {
   return schemes.flatMap((requirement) => {
     const schemeNames = Object.keys(requirement)
 
-    if (schemeNames.length === 0) {
+    if (
+      schemeNames.length === 0 ||
+      (allowedSecuritySchemes &&
+        schemeNames.some((name) => !allowedSecuritySchemes.includes(name)))
+    ) {
       return []
     }
 
@@ -175,6 +194,19 @@ const activeSchemeOptions = computed<SecuritySchemeOption[]>(() => {
     })
   })
 })
+
+/** Preserve store indexes when the allowlist hides earlier saved selections. */
+const visibleSchemeIndexes = computed<number[]>(() =>
+  activeSchemeOptions.value.map(
+    (option) =>
+      selectedSecurity?.selectedSchemes.findIndex(
+        (requirement) => formatComplexScheme(requirement).id === option.id,
+      ) ?? -1,
+  ),
+)
+const visibleActiveIndex = computed<number>(() =>
+  visibleSchemeIndexes.value.indexOf(selectedSecurity?.selectedIndex ?? 0),
+)
 
 /** Keep selection available whenever it can change auth or recover an empty saved selection. */
 const showSchemeSelector = computed<boolean>(() => {
@@ -359,7 +391,7 @@ defineExpose({
 
     <!-- Auth Table -->
     <RequestAuthDataTable
-      :activeAuthIndex="selectedSecurity?.selectedIndex ?? 0"
+      :activeAuthIndex="visibleActiveIndex"
       :documentType
       :environment
       :eventBus
@@ -367,7 +399,8 @@ defineExpose({
       :meta
       :options
       :proxyUrl
-      :securitySchemes
+      :securitySchemes="visibleSecuritySchemes"
+      :selectedSchemeIndexes="visibleSchemeIndexes"
       :selectedSchemeOptions="activeSchemeOptions"
       :server />
 

@@ -1,9 +1,9 @@
 import type { MarkdownRenderHook } from '@scalar/helpers/markdown/markdown-render-hook'
 import type { PartialDeep } from 'type-fest'
 
-import type { AvailableClient, ClientId, TargetId } from '../snippetz'
+import type { AvailableClient, ClientId, DefaultHttpClientId, HttpClientPattern, TargetId } from '../snippetz'
 import type { ApiClientTranslations } from './api-client-translations'
-import type { PluginAuthState } from './api-reference-plugin'
+import type { PluginAuthState, PluginNavigationEntry } from './api-reference-plugin'
 
 /** Some common properties used in all security schemes */
 type SecuirtySchemeCommon = {
@@ -28,6 +28,8 @@ type OasSecurityApiKey = {
   in: SecuritySchemeApiKeyIn
   /** REQUIRED. The API key to be sent in the Authorization header or as a cookie. */
   value: string
+  /** Prefix added to header API keys only, separated from the raw credential by one space. */
+  'x-scalar-token-prefix'?: string
 }
 
 export type SecuritySchemeApiKey = SecuirtySchemeCommon & ExtendedSecurityScheme & OasSecurityApiKey
@@ -59,6 +61,10 @@ type OasSecurityOpenIdConnect = {
   /** REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the
    * form of a URL. The OpenID Connect standard requires the use of TLS. */
   openIdConnectUrl: string
+  /** Defaults applied to matching flows after OpenID Connect discovery. */
+  flows?: PartialDeep<OasSecurityOauth2FlowImplicit['flows']>
+  /** Scopes selected by default after discovery. */
+  'x-default-scopes'?: string[]
 }
 export type SecuritySchemeOpenIdConnect = SecuirtySchemeCommon & ExtendedSecurityScheme & OasSecurityOpenIdConnect
 
@@ -86,6 +92,10 @@ type FlowsCommon = {
   'x-scalar-security-body'?: Record<string, string>
   /** Extension to specify custom token name in the response (defaults to 'access_token') */
   'x-tokenName'?: string
+  /** Display order of this flow's tab in the auth UI (ascending). Flows with an order come first. */
+  'x-order'?: number
+  /** When true, this flow's tab is hidden from the auth UI. */
+  'x-scalar-ignore'?: boolean
 }
 
 type PkceOptions = 'SHA-256' | 'plain' | 'no'
@@ -199,6 +209,13 @@ export type AuthenticationConfiguration = {
    * @default false
    */
   createAnySecurityScheme?: boolean
+
+  /**
+   * Restricts visible authentication choices and forms to these scheme names.
+   * Omit to show all schemes; an empty array hides all choices, including generic creation.
+   * This does not change authentication sent with requests or API security requirements.
+   */
+  allowedSecuritySchemes?: string[]
 }
 
 export type SpecificationExtension = {
@@ -219,6 +236,50 @@ export type ViewComponent = {
   }
 }
 
+/**
+ * A document format that API Reference does not support natively (it supports OpenAPI and AsyncAPI).
+ *
+ * The plugin detects documents of its format, optionally normalizes them, builds their sidebar entries,
+ * and renders the whole document. Loading, the document selector, routing and the sidebar are handled
+ * by API Reference.
+ */
+export type PluginDocumentType = {
+  /** Stable identifier, stored on every claimed document as `x-scalar-document-type`. */
+  type: string
+  /** Whether this type handles the raw (parsed) document. Checked before OpenAPI and AsyncAPI. */
+  detect: (document: Record<string, unknown>) => boolean
+  /**
+   * Optional hook to upgrade, validate or normalize the document before it is stored. API Reference
+   * keeps two stores, so this can run more than once per document: keep it free of side effects.
+   */
+  ingest?: (
+    document: Record<string, unknown>,
+    context: { documentName: string },
+  ) => Record<string, unknown> | Promise<Record<string, unknown>>
+  /** Resolve `$ref`s with the configured fetch before storing the document. Defaults to `false`. */
+  bundle?: boolean
+  /** Build the sidebar entries for the document. */
+  traverse: (context: {
+    documentName: string
+    documentId: string
+    document: Record<string, unknown>
+  }) => PluginNavigationEntry[]
+  /**
+   * Renders the document in place of the built-in content.
+   *
+   * The component receives `document`, `documentName`, `documents` (every document in the workspace,
+   * read-only), `navigation` (its sidebar entries), `eventBus` and `options`. Each rendered entry should
+   * use the entry `id` as its element id, so sidebar navigation and deep links can scroll to it. To keep
+   * the sidebar and the URL in sync while scrolling, emit `intersecting:nav-item` with the entry `id` on
+   * the `eventBus` when an entry scrolls into view.
+   */
+  content: {
+    component: unknown
+    renderer?: unknown
+    props?: Record<string, any>
+  }
+}
+
 export type LifecycleHooks = {
   onInit?: ({ config, auth }: { config: Partial<BaseConfiguration>; auth: PluginAuthState }) => void
   onConfigChange?: ({ config, auth }: { config: Partial<BaseConfiguration>; auth: PluginAuthState }) => void
@@ -232,6 +293,8 @@ export type ApiReferencePlugin = () => {
     'content.start'?: ViewComponent[]
     'content.end'?: ViewComponent[]
   }
+  /** Document formats this plugin teaches API Reference to load and render. */
+  documentTypes?: PluginDocumentType[]
   hooks?: LifecycleHooks
   apiClientPlugins?: any[]
   /** Enhance sanitized Markdown after it renders in the browser. */
@@ -313,6 +376,7 @@ export type BaseConfiguration = {
     | 'fastify'
     | 'mars'
     | 'laserwave'
+    | 'halloween'
     | 'none'
   /** Integration type identifier */
   _integration?:
@@ -412,6 +476,7 @@ export type ApiReferenceTranslations = {
     operations: string
     webhooks: string
     channels: string
+    messages: string
     endpoints: string
     showAllEndpoints: string
     sidebarFor: string
@@ -489,6 +554,8 @@ export type ApiReferenceTranslations = {
     unknownType: string
     propertyCount: string
     headerCount: string
+    /** The blocks package supplies a localized default for the extensions disclosure. */
+    extensionCount?: string
     recursiveReference: string
     recursive: string
     additionalProperties: string
@@ -613,6 +680,27 @@ export type ApiReferenceTranslations = {
     mcpServers: string
     unableToExportDocument: string
     unknownError: string
+    waitlistEmail: string
+    waitlistPlaceholder: string
+    joinWaitlist: string
+    waitlistSuccess: string
+    waitlistError: string
+    waitlistRateLimit: string
+    waitlistBack: string
+    waitlistDone: string
+    deployApiButton: string
+    deployFrameworkButton: string
+    deployApiTitle: string
+    deployFrameworkTitle: string
+    deployApiDescription: string
+    hostingScaleTitle: string
+    hostingScaleDescription: string
+    hostingIdleTitle: string
+    hostingIdleDescription: string
+    hostingDeploysTitle: string
+    hostingDeploysDescription: string
+    hostingPlans: string
+    hostingSeePlans: string
   }
   exploreScalar: {
     /** The sidebar call to action that opens the dialog */
@@ -684,7 +772,7 @@ export type ApiReferenceTranslations = {
  * For example, `{ search: { label: string } }` becomes `'search.label'`.
  */
 type TranslationDotPaths<T, Prefix extends string = ''> = {
-  [Key in keyof T & string]: T[Key] extends string
+  [Key in keyof T & string]: T[Key] extends string | undefined
     ? `${Prefix}${Key}`
     : T[Key] extends Record<string, unknown>
       ? TranslationDotPaths<T[Key], `${Prefix}${Key}.`>
@@ -741,7 +829,7 @@ type ExtendedConfiguration = {
   pluginUrls?: string[]
   /** Allows the user to inject an editor for the spec */
   isEditable: boolean
-  /** Whether to show models in the sidebar, search, and content. */
+  /** Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content. */
   hideModels: boolean
   /** Show structural types instead of model names in schema type labels and operation headings. */
   hideModelNames?: boolean
@@ -759,7 +847,9 @@ type ExtendedConfiguration = {
   hideSearch: boolean
   /** Whether to show the operationId */
   showOperationId: boolean
-  /** Extension keys to display on operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
+  /** Whether to show the x-badges of operations, webhooks, tags, tag groups and models in the sidebar */
+  showBadgesInSidebar: boolean
+  /** Extension keys to display on Paths Objects, Path Items, operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions?: string[]
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
@@ -772,6 +862,13 @@ type ExtendedConfiguration = {
   /** Path to a favicon image */
   favicon?: string
   /**
+   * Built-in HTTP clients available in code sample pickers.
+   * Use a client ID such as `node/undici` or a target wildcard such as `shell/*`.
+   * Omit to use the existing client list, or pass `[]` to hide all built-in clients.
+   * `hiddenClients` still applies.
+   */
+  httpClients?: HttpClientPattern[]
+  /**
    * List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients
    *
    * An entry can be a target (`'node'`), a client name (`'fetch'`), or a full id (`'node/fetch'`). The record form is
@@ -781,15 +878,31 @@ type ExtendedConfiguration = {
     | Partial<Record<TargetId, boolean | ClientId<TargetId>[]>>
     | Array<TargetId | ClientId<TargetId> | AvailableClient>
     | true
-  /** Determine the HTTP client that is selected by default */
-  defaultHttpClient?: {
-    targetKey: TargetId
-    clientKey: ClientId<TargetId>
-  }
+  /**
+   * Whether to save and restore the selected code sample client using local storage.
+   * @default true
+   */
+  persistSelectedClient?: boolean
+  /** The default code sample client, as a client ID or a target/client object. */
+  defaultHttpClient?:
+    | DefaultHttpClientId
+    | {
+        targetKey: TargetId
+        clientKey: ClientId<TargetId>
+      }
+    | {
+        targetKey: 'custom'
+        clientKey: string
+      }
   /**
    * Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu.
    */
   featuredClients?: Array<AvailableClient>
+  /**
+   * Show built-in HTTP clients alongside `x-scalar-sdk-installation` tabs in the introduction.
+   * @default false
+   */
+  showDefaultClientsWithSdkInstallation?: boolean
   /**
    * Initial view for the request body editor with structured (JSON/YAML) bodies.
    *
@@ -800,6 +913,9 @@ type ExtendedConfiguration = {
    * @default 'raw'
    */
   defaultRequestBodyView?: 'form' | 'raw'
+
+  /** Use indexed dotted names for nested multipart and URL-encoded form fields, such as `items[0].name`. */
+  multipartNaming?: MultipartNaming
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onServerChange is fired on selected server change */
@@ -856,7 +972,7 @@ type ExtendedConfiguration = {
   setPageTitle?: (input: { title: string; document: { title: string; slug: string } }) => string
   /** To handle redirects, pass a function that receives the current path/hash and passes that to history.replaceState */
   redirect?: (input: string) => string | null | undefined
-  /** Whether to include default fonts */
+  /** @deprecated Scalar uses the system font stack and no longer loads web fonts, so this option has no effect. */
   withDefaultFonts: boolean
   /** Whether to expand the first tag in the sidebar when no specific URL target is present */
   defaultOpenFirstTag: boolean
@@ -884,7 +1000,12 @@ type ExtendedConfiguration = {
   orderRequiredPropertiesFirst: boolean
 }
 
+/** Naming convention for multipart and URL-encoded request fields. */
+export type MultipartNaming = 'indexed-dot'
+
 export type SourceConfiguration = {
+  /** Authentication overrides merged with the shared configuration. Arrays replace shared arrays. */
+  authentication?: AuthenticationConfiguration
   default?: boolean
   /** URL to an OpenAPI/Swagger document */
   url?: string

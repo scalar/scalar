@@ -1,79 +1,17 @@
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { isObject } from '@scalar/helpers/object/is-object'
 import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
+import {
+  isInsideDataValue,
+  isNamedOpenApiMap,
+  isNamedSchemaMap,
+  isOpenApiObjectName,
+} from '@/helpers/is-inside-data-value'
 import { traverse } from '@/helpers/traverse'
-
-// Segments whose value is a map of *named* subschemas. Keys inside these maps are
-// arbitrary names (property names, definition names), never schema keywords.
-const NAMED_SCHEMA_MAP_SEGMENTS = new Set(['properties', 'patternProperties', '$defs', 'definitions'])
-
-/**
- * Determine if the node at `path` is a map of named subschemas rather than a schema object.
- *
- * This matters because the 3.0 to 3.1 upgrade rewrites the `example` keyword into `examples`.
- * A key called `example` (or `examples`) inside one of these maps is a member *name*, not the
- * schema keyword, so it must be left untouched.
- */
-function isNamedSchemaMap(path: string[] | undefined): boolean {
-  const last = path?.[path.length - 1]
-
-  if (last === undefined) {
-    return false
-  }
-
-  // OpenAPI's named-schema map lives at components/schemas
-  if (last === 'schemas' && path?.[path.length - 2] === 'components') {
-    return true
-  }
-
-  return NAMED_SCHEMA_MAP_SEGMENTS.has(last)
-}
-
-/**
- * Determine if `path[index]` is the `default` entry of a Responses Object.
- *
- * That `default` is a response, not the `default` keyword, so everything under it (its schemas
- * included) still has to be upgraded. A schema property literally called `responses` does not
- * count: there `default` is the keyword again.
- */
-function isDefaultResponse(path: string[], index: number): boolean {
-  return path[index] === 'default' && path[index - 1] === 'responses' && !isNamedSchemaMap(path.slice(0, index - 1))
-}
-
-// Keywords whose value is arbitrary data rather than a schema. The upgrade rules only make
-// sense for schema keywords, so nothing nested under these may be rewritten.
-const DATA_KEYWORDS = new Set(['example', 'default', 'const', 'enum'])
-
-/**
- * Determine if the node at `path` lives inside a data value rather than a schema.
- *
- * The traversal visits every object node, but a value held by keywords like `example` or
- * `default` is user data, not a schema. Applying the schema transforms to it would mangle it
- * (turning `nullable: true` into a type array, renaming a nested `x-webhooks`, and so on).
- */
-function isInsideDataValue(path: string[] | undefined): boolean {
-  if (!path) {
-    return false
-  }
-
-  for (const [index, segment] of path.entries()) {
-    // Only treat it as data when the keyword is a real keyword. Inside a named-schema map the
-    // same word (e.g. a property literally called `default`) is just a member name.
-    if (DATA_KEYWORDS.has(segment) && !isNamedSchemaMap(path.slice(0, index)) && !isDefaultResponse(path, index)) {
-      return true
-    }
-
-    // The `value` of an Example Object (`examples/<name>/value`) holds arbitrary data too.
-    // Require a real examples map two segments up so a property named `value` inside a schema
-    // named `examples` is not mistaken for it.
-    if (segment === 'value' && path[index - 2] === 'examples' && !isNamedSchemaMap(path.slice(0, index - 2))) {
-      return true
-    }
-  }
-
-  return false
-}
 
 // Keywords that only describe a schema. An arm made of these and `nullable` constrains nothing else.
 const ANNOTATION_KEYWORDS = new Set([
@@ -88,23 +26,115 @@ const ANNOTATION_KEYWORDS = new Set([
   'writeOnly',
 ])
 
-/**
- * Determine if the node at `path` is one arm of a `oneOf` or `anyOf`.
- *
- * Extension payloads can contain objects that look like union arms too. Only interpret unions
- * in schema context, keeping extension values opaque and allowing schema names prefixed by `x-`.
- */
-function isUnionArm(path: string[] | undefined): boolean {
-  if (!path || path.length < 2 || !isSchemaPath(path.slice(0, -2))) {
-    return false
-  }
+/** Keep extension payloads opaque, including extensions outside Schema Objects. */
+const isInsideExtension = (path: string[] | undefined): boolean => {
+  const segments = path?.[0] === 'x-ext' && path[1] !== undefined ? path.slice(2) : path
+  // This legacy root extension is migrated as a Webhooks Object below.
+  const objectPath = path?.[0] === 'x-webhooks' ? ['webhooks', ...path.slice(1)] : segments
+  return (
+    !!objectPath &&
+    objectPath.some(
+      (segment, index) =>
+        segment.startsWith('x-') &&
+        !isNamedSchemaMap(objectPath.slice(0, index)) &&
+        !isOpenApiObjectName(objectPath, index),
+    )
+  )
+}
 
-  const isInsideSchemaExtension = path.some((segment, index) => {
-    const parent = path.slice(0, index)
-    return segment.startsWith('x-') && isSchemaPath(parent) && !isNamedSchemaMap(parent)
+/** Keep schema keywords separate from author-chosen names. */
+const isSchemaObjectPath = (path: string[] | undefined): boolean =>
+  !!path && isSchemaPath(path) && !isNamedSchemaMap(path) && !isInsideExtension(path)
+
+type BundleContext = {
+  preserved: ReadonlySet<string>
+  fragments: ReadonlyMap<string, readonly string[]>
+}
+
+/** Interpret referenced fragments at their consuming location and leave unrecognized extension data opaque. */
+const getResourcePath = (path: string[] | undefined, bundle: BundleContext): string[] | undefined => {
+  if (path?.[0] !== 'x-ext') {
+    return path
+  }
+  for (let length = path.length; length >= 1; length--) {
+    const context = bundle.fragments.get(JSON.stringify(path.slice(0, length)))
+    if (context) {
+      return [...context, ...path.slice(length)]
+    }
+  }
+  return undefined
+}
+
+/** Decode the URI fragment before parsing pointer tokens, without decoding literal percent signs twice. */
+const parseLocalReference = (ref: string): string[] | undefined => {
+  if (!ref.startsWith('#')) {
+    return undefined
+  }
+  try {
+    const pointer = decodeURIComponent(ref.slice(1))
+    return pointer.startsWith('/') ? parseJsonPointerSegments(pointer.replaceAll('%', '%25')) : undefined
+  } catch {
+    // Invalid URI escapes must not make an otherwise unrelated migration fail.
+    return undefined
+  }
+}
+
+/** Establish fragment contexts from real references, never from an extension's field names. */
+const getBundleContext = (content: UnknownObject): BundleContext => {
+  const preserved = new Set<string>()
+  const resources = content['x-ext']
+  if (isObject(resources)) {
+    for (const [key, resource] of Object.entries(resources)) {
+      if (!isObject(resource)) {
+        continue
+      }
+      if (
+        (typeof resource.openapi === 'string' && !resource.openapi.startsWith('3.0')) ||
+        typeof resource.swagger === 'string' ||
+        typeof resource.$schema === 'string'
+      ) {
+        preserved.add(key)
+      }
+    }
+  }
+  const fragments = new Map<string, readonly string[]>()
+  const bundle: BundleContext = { preserved, fragments }
+  const references: { path: string[]; target: string[] }[] = []
+  traverse(content, (node, path = []) => {
+    if (path[0] === 'x-ext' && preserved.has(path[1] ?? '')) {
+      return node
+    }
+    const target = typeof node.$ref === 'string' ? parseLocalReference(node.$ref) : undefined
+    if (target?.[0] === 'x-ext') {
+      references.push({ path, target })
+    }
+    return node
   })
 
-  if (isInsideSchemaExtension) {
+  // A referenced fragment can itself contain references to more fragments.
+  while (references.length > 0) {
+    const pending = references.splice(0)
+    for (const reference of pending) {
+      const path = getResourcePath(reference.path, bundle)
+      if (path && !isInsideDataValue(path, '3.0') && !isInsideExtension(path)) {
+        const key = JSON.stringify(reference.target)
+        if (!fragments.has(key)) {
+          fragments.set(key, isSchemaObjectPath(path) ? ['schema'] : path)
+        }
+      } else {
+        references.push(reference)
+      }
+    }
+    if (references.length === pending.length) {
+      break
+    }
+  }
+  return bundle
+}
+
+/** Determine if the node at `path` is one arm of a schema's `oneOf` or `anyOf`. */
+function isUnionArm(path: string[] | undefined): boolean {
+  if (!path || path.length < 2 || !isSchemaObjectPath(path.slice(0, -2))) {
     return false
   }
 
@@ -119,6 +149,53 @@ function isUnionArm(path: string[] | undefined): boolean {
  */
 function isNullableOnly(schema: UnknownObject): boolean {
   return Object.keys(schema).every((key) => key === 'nullable' || ANNOTATION_KEYWORDS.has(key) || key.startsWith('x-'))
+}
+
+type NullableComposition = { base: unknown; keywords: string[]; unwrapAllOf: boolean }
+
+/** Plan nullable composition wrapping consistently for migrations and reference locations. */
+export const getNullableComposition = (schema: UnknownObject): NullableComposition | undefined => {
+  if (schema.nullable !== true || schema.type !== undefined || typeof schema.$ref === 'string') {
+    return undefined
+  }
+  const keywords = ['allOf', 'anyOf', 'oneOf'].filter((keyword) => Array.isArray(schema[keyword]))
+  if (keywords.length === 0) {
+    return undefined
+  }
+  const { allOf, anyOf, oneOf } = schema
+  const composition = {
+    ...(allOf === undefined ? {} : { allOf }),
+    ...(anyOf === undefined ? {} : { anyOf }),
+    ...(oneOf === undefined ? {} : { oneOf }),
+  }
+  const unwrapAllOf = Object.keys(composition).length === 1 && Array.isArray(allOf) && allOf.length === 1
+  return { base: unwrapAllOf && Array.isArray(allOf) ? allOf[0] : composition, keywords, unwrapAllOf }
+}
+
+/** Keep local references pointing at the same subschema when composition members move. */
+const relocateReference = (ref: string, compositions: ReadonlyMap<string, NullableComposition>): string => {
+  const segments = parseLocalReference(ref)
+  if (!segments) {
+    return ref
+  }
+  const output: string[] = []
+  for (let index = 0; index < segments.length; index++) {
+    const keyword = segments[index]!
+    const composition = compositions.get(JSON.stringify(segments.slice(0, index)))
+    if (composition?.keywords.includes(keyword)) {
+      output.push('anyOf', '0')
+      if (keyword === 'allOf' && composition.unwrapAllOf && segments[index + 1] === '0') {
+        index++
+      } else {
+        output.push(keyword)
+      }
+    } else {
+      output.push(keyword)
+    }
+  }
+  return output.every((segment, index) => segment === segments[index]) && output.length === segments.length
+    ? ref
+    : `#/${output.map((segment) => encodeURIComponent(escapeJsonPointer(segment))).join('/')}`
 }
 
 /**
@@ -136,51 +213,68 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
 
   content.openapi = '3.1.1'
 
-  // Single traversal that handles all transformations
-  content = traverse(content, applyChangesToDocument)
+  const bundle = getBundleContext(content)
+  const isPreservedResource = (path: string[] | undefined): boolean =>
+    path?.[0] === 'x-ext' && bundle.preserved.has(path[1] ?? '')
+  const compositions = new Map<string, NullableComposition>()
+  // Record moves in the original tree before applying them, including nested compositions.
+  traverse(content, (node, path = []) => {
+    const schemaPath = getResourcePath(path, bundle)
+    const composition = getNullableComposition(node)
+    if (
+      !isPreservedResource(path) &&
+      composition &&
+      isSchemaObjectPath(schemaPath) &&
+      !isInsideDataValue(schemaPath, '3.0')
+    ) {
+      compositions.set(JSON.stringify(path), composition)
+    }
+    return node
+  })
+  content = traverse(content, (node, path) => {
+    const schemaPath = getResourcePath(path, bundle)
+    if (isPreservedResource(path) || !schemaPath) {
+      return node
+    }
+    if (typeof node.$ref === 'string' && !isInsideDataValue(schemaPath, '3.0') && !isInsideExtension(schemaPath)) {
+      node.$ref = relocateReference(node.$ref, compositions)
+    }
+    return applyChangesToDocument(node, schemaPath)
+  })
 
   return content as OpenAPIV3_1.Document
 }
 
-const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
-  // 0. Bail out inside data values (example, default, const, enum). These hold user data, not a
-  // schema, so none of the schema transforms below apply and running them would corrupt the data.
-  if (isInsideDataValue(path)) {
+/** Apply one migration step to a node at its semantic OpenAPI location. */
+export const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
+  // Data values and extension payloads are opaque, even when their keys look like schema keywords.
+  if (isInsideDataValue(path, '3.0') || isInsideExtension(path)) {
     return schema
   }
 
-  // 1. Handle nullable types
-  if (schema.type !== undefined && schema.nullable === true) {
-    schema.type = [schema.type, 'null']
+  // Only schema keywords migrate: a property named `nullable` or an extension payload is data.
+  if (isSchemaObjectPath(path)) {
+    const composition = getNullableComposition(schema)
+    if (schema.type !== undefined && schema.nullable === true) {
+      schema.type = [schema.type, 'null']
+    } else if (schema.nullable === true) {
+      // Preserve the legacy nullable-reference spelling used by OpenAPI 3.0 exporters.
+      if (typeof schema.$ref === 'string') {
+        schema.anyOf = [{ $ref: schema.$ref }, { type: 'null' }]
+        delete schema.$ref
+      } else if (composition) {
+        // Keep sibling constraints and annotations outside the union, as for nullable references.
+        schema.anyOf = [composition.base, { type: 'null' }]
+        delete schema.allOf
+        delete schema.oneOf
+      } else if (isUnionArm(path) && isNullableOnly(schema)) {
+        // Some exporters use a nullable-only alternative to mean "or null".
+        schema.type = 'null'
+      }
+    }
+
+    // `nullable: false` and an untyped nullable without a union add no constraints in 3.1.
     delete schema.nullable
-  }
-  // 1b. Handle nullable `$ref` patterns.
-  // OpenAPI 3.0 had no way to mark a `$ref` as nullable, so people wrote `nullable: true` next to
-  // a `$ref`, or next to an `allOf` wrapping one. `nullable` does not exist in 3.1, so leaving these
-  // untouched would silently drop the null option. Rewrite them to the 3.1 null-union form. This only
-  // runs when there is no sibling `type` (that case is handled above).
-  else if (schema.nullable === true && schema.type === undefined) {
-    if (typeof schema.$ref === 'string') {
-      const { nullable: _nullable, $ref, ...rest } = schema
-      return { ...rest, anyOf: [{ $ref }, { type: 'null' }] }
-    }
-
-    if (Array.isArray(schema.allOf)) {
-      const { nullable: _nullable, allOf, ...rest } = schema
-      // A single-member `allOf` unwraps so the union reads `anyOf: [<member>, { type: 'null' }]`.
-      const base = allOf.length === 1 ? allOf[0] : { allOf }
-      return { ...rest, anyOf: [base, { type: 'null' }] }
-    }
-
-    // A union arm that says nothing but `nullable: true` is how some 3.0 exporters spell "or null":
-    // `oneOf: [{ nullable: true }, { $ref: X }]`. Left alone, the arm reads as "any value" in 3.1 and
-    // swallows the real arm, so it becomes the `{ type: 'null' }` arm it was meant to be.
-    if (isUnionArm(path) && isNullableOnly(schema)) {
-      delete schema.nullable
-      schema.type = 'null'
-    }
-
-    // Otherwise there is nothing for `nullable` to attach to, so leave the schema untouched.
   }
 
   // 2. Handle exclusiveMinimum and exclusiveMaximum
@@ -205,14 +299,14 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
   const isInsideExamplesMap = path?.some((segment, index) => {
     if (segment === 'examples' && index > 0) {
       // If the parent node is a named-schema map, 'examples' is a member name, not an examples map
-      return !isNamedSchemaMap(path.slice(0, index))
+      return !isNamedSchemaMap(path.slice(0, index)) && !isNamedOpenApiMap(path.slice(0, index))
     }
     return false
   })
 
   // If the current node is itself a map of named subschemas, a key called 'example' is a
   // member name (property, $defs entry, components/schemas entry) and not the schema keyword.
-  if (schema.example !== undefined && !isInsideExamplesMap && !isNamedSchemaMap(path)) {
+  if (schema.example !== undefined && !isInsideExamplesMap && !isNamedSchemaMap(path) && !isNamedOpenApiMap(path)) {
     if (isSchemaPath(path)) {
       schema.examples = [schema.example]
     } else {

@@ -16,7 +16,7 @@
     "swagger",
     "typescript"
   ],
-  "version": "0.9.8",
+  "version": "0.9.10",
   "engines": {
     "node": ">=22"
   },
@@ -75,7 +75,8 @@
   "dependencies": {},
   "devDependencies": {
     "@types/node": "catalog:*",
-    "typescript": "^5.9.3",
+    "typescript": "6.0.3",
+    "typescript-5": "npm:typescript@5.9.3",
     "vitest": "catalog:*"
   }
 }

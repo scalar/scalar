@@ -23,6 +23,7 @@ import {
   updateOperationExtraParameters,
   upsertOperationParameter,
 } from '@/mutators/operation/parameters'
+import { resetOperationRequestBody } from '@/mutators/operation/reset-request-body'
 import type { WorkspaceDocument } from '@/schemas'
 
 export const operationMutatorsFactory = ({
@@ -33,6 +34,8 @@ export const operationMutatorsFactory = ({
   store: WorkspaceStore | null
 }) => {
   return {
+    resetOperationRequestBody: (payload: OperationEvents['operation:reset:requestBody']) =>
+      resetOperationRequestBody(store, payload),
     createOperation: (payload: OperationEvents['operation:create:operation']) => createOperation(store, payload),
     updateOperationMeta: (payload: OperationEvents['operation:update:meta']) =>
       updateOperationMeta(store, document, payload),

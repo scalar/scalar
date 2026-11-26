@@ -1,5 +1,47 @@
 # @scalar/nestjs-api-reference
 
+## 1.2.43
+
+No changes in this release.
+
+## 1.2.42
+
+No changes in this release.
+
+## 1.2.41
+
+No changes in this release.
+
+## 1.2.40
+
+No changes in this release.
+
+## 1.2.39
+
+No changes in this release.
+
+## 1.2.38
+
+No changes in this release.
+
+## 1.2.37
+
+No changes in this release.
+
+## 1.2.36
+
+## 1.2.35
+
+### Patch Changes
+
+- [#10837](https://github.com/scalar/scalar/pull/10837): Set the `text/html` content type before sending the API reference, so the page renders with `@nestjs/platform-node`, whose `send()` treats strings as plain text.
+
+## 1.2.34
+
+## 1.2.33
+
+## 1.2.32
+
 ## 1.2.31
 
 ## 1.2.30

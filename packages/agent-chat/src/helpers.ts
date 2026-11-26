@@ -1,4 +1,5 @@
 import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { type Auth, AuthSchema } from '@scalar/workspace-store/entities/auth'
@@ -20,8 +21,14 @@ function getSecurityFromDocument(
   documentName: string,
   document: OpenApiDocument,
   authStore: AuthStore,
+  authentication?: AuthenticationConfiguration,
 ): SecuritySchemeObjectSecret[] {
-  const mergedSecurity = mergeSecurity(document?.components?.securitySchemes, {}, authStore, documentName)
+  const mergedSecurity = mergeSecurity(
+    document?.components?.securitySchemes,
+    authentication?.securitySchemes,
+    authStore,
+    documentName,
+  )
 
   const securityRequirements = getSecurityRequirements(document.security)
 
@@ -38,7 +45,7 @@ function getSecurityFromDocument(
 }
 
 /** Generate document settings from workspace store. AsyncAPI docs are skipped — this feature is OpenAPI-native. */
-export function createDocumentSettings(workspaceStore: WorkspaceStore) {
+export function createDocumentSettings(workspaceStore: WorkspaceStore, authentication?: AuthenticationConfiguration) {
   const openApiEntries: [string, OpenApiDocument][] = []
   for (const [key, document] of Object.entries(workspaceStore.workspace.documents)) {
     if (isOpenApiDocument(document)) {
@@ -56,7 +63,7 @@ export function createDocumentSettings(workspaceStore: WorkspaceStore) {
         key,
         {
           activeServer: getSelectedServer(document, null, null, servers),
-          securitySchemes: getSecurityFromDocument(key, document, workspaceStore.auth),
+          securitySchemes: getSecurityFromDocument(key, document, workspaceStore.auth, authentication),
         },
       ]
     }),

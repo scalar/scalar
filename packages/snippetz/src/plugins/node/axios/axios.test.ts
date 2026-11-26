@@ -18,6 +18,20 @@ try {
 }
 
 describe('nodeAxios', () => {
+  it.each(['cookie', 'Cookie', 'cOoKiE'])('merges an existing %s header with encoded cookies', (name) => {
+    const result = nodeAxios.generate({
+      url: 'https://example.com',
+      headers: [{ name, value: 'existing=a+b==; escaped=%2F' }],
+      cookies: [
+        { name: 'session', value: 'a b;c' },
+        { name: 'empty', value: '' },
+      ],
+    })
+    expect(result).toContain(`headers: {
+    Cookie: 'existing=a+b==; escaped=%2F; session=a%20b%3Bc; empty='
+  }`)
+  })
+
   it('uses ESM imports and avoids CommonJS require', () => {
     const result = nodeAxios.generate({
       url: 'https://example.com',
@@ -249,11 +263,12 @@ describe('nodeAxios', () => {
     )
   })
 
-  it('preserves repeated query params as arrays', () => {
+  it('keeps repeated query params in the URL instead of bracketed params', () => {
     const result = nodeAxios.generate({
       url: 'https://example.com',
       queryString: [
         { name: 'status', value: 'active' },
+        { name: 'other', value: 'x' },
         { name: 'status', value: 'inactive' },
       ],
     })
@@ -261,10 +276,7 @@ describe('nodeAxios', () => {
     expect(result).toBe(
       createSnippet(`{
   method: 'GET',
-  url: 'https://example.com',
-  params: {
-    status: ['active', 'inactive']
-  }
+  url: 'https://example.com?status=active&other=x&status=inactive'
 }`),
     )
   })

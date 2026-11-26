@@ -341,6 +341,7 @@ describe('createSearchIndex', () => {
         parameterDescriptions: ['Number of users to return'],
         path: '/users',
         method: 'get',
+        responseDescriptions: [],
         responseExamples: [],
         body: [],
         bodyDescriptions: [],

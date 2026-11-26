@@ -1,11 +1,308 @@
-import { describe, expect, it } from 'vitest'
+import { isIP } from 'node:net'
+
+import { assert, describe, expect, it, vi } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
-import { getExampleFromSchema } from './get-example-from-schema'
+import { EXAMPLE_EVALUATION, type ExampleEvaluationState } from './example-evaluation'
+import { type GetExampleFromSchemaOptions, getExampleFromSchema } from './get-example-from-schema'
+
+type NullableVariantRow = {
+  name: string
+  schema: unknown
+  options?: GetExampleFromSchemaOptions
+  expected: unknown
+}
+
+const NULLABLE_CAT = { type: ['object', 'null'], properties: { lives: { type: 'integer', example: 9 } } }
+const NULLABLE_DOG = { type: ['object', 'null'], properties: { bark: { type: 'boolean' } } }
+const NULLABLE_TAGS = { type: ['array', 'null'], items: { type: 'string', example: 'x' } }
+const DOG = { type: 'object', properties: { bark: { type: 'boolean' } } }
 
 describe('getExampleFromSchema', () => {
+  it.each([
+    {
+      minItems: 2,
+      maxItems: 2,
+      expected: [
+        { id: 1, active: true },
+        { id: 1, active: true },
+      ],
+    },
+    { minItems: 0, maxItems: 1, expected: [{ id: 1, active: true }] },
+  ])('applies bounds after merging untyped allOf items: $minItems/$maxItems', ({ minItems, maxItems, expected }) => {
+    // Runtime schemas can omit type even though the strict model requires it.
+    const schema = {
+      type: 'array',
+      minItems,
+      maxItems,
+      items: { allOf: [{ properties: { id: { type: 'number' } } }, { properties: { active: { type: 'boolean' } } }] },
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual(expected)
+  })
+
+  it.each([
+    { name: 'numeric items', schema: { items: { type: 'number' }, minItems: 2, maxItems: 2 }, expected: [1, 1] },
+    { name: 'zero maximum', schema: { items: { type: 'number' }, maxItems: 0 }, expected: [] },
+    {
+      name: 'object items',
+      schema: { items: { type: 'object', properties: { id: { type: 'number' } } }, minItems: 2 },
+      expected: [{ id: 1 }, { id: 1 }],
+    },
+    {
+      name: 'nested arrays',
+      schema: { items: { type: 'array', items: { type: 'number' }, minItems: 2 }, minItems: 2 },
+      expected: [
+        [1, 1],
+        [1, 1],
+      ],
+    },
+    {
+      name: 'oneOf items',
+      schema: {
+        items: coerceValue(SchemaObjectSchema, { oneOf: [{ type: 'number' }, { type: 'string' }] }),
+        minItems: 2,
+      },
+      expected: [1, 1],
+    },
+    {
+      name: 'anyOf items',
+      schema: {
+        items: coerceValue(SchemaObjectSchema, { anyOf: [{ type: 'number' }, { type: 'string' }] }),
+        minItems: 2,
+      },
+      expected: [1, 1],
+    },
+    {
+      name: 'object allOf items',
+      schema: {
+        items: coerceValue(SchemaObjectSchema, {
+          allOf: [
+            { type: 'object', properties: { id: { type: 'number' } } },
+            { type: 'object', properties: { active: { type: 'boolean' } } },
+          ],
+        }),
+        minItems: 2,
+      },
+      expected: [
+        { id: 1, active: true },
+        { id: 1, active: true },
+      ],
+    },
+    {
+      name: 'scalar allOf items',
+      schema: {
+        items: coerceValue(SchemaObjectSchema, { allOf: [{ type: 'number' }, { type: 'number' }] }),
+        maxItems: 1,
+      },
+      expected: [1],
+    },
+    {
+      name: 'shortened tuple',
+      schema: { prefixItems: [{ type: 'number' }, { type: 'string' }], maxItems: 1 },
+      expected: [1],
+    },
+    {
+      name: 'tuple with typed tail',
+      schema: { prefixItems: [{ type: 'string' }], items: { type: 'number' }, minItems: 3 },
+      expected: ['', 1, 1],
+    },
+    { name: 'empty prefixes', schema: { prefixItems: [], items: { type: 'number' }, minItems: 2 }, expected: [1, 1] },
+    {
+      name: 'nested tuple inferred from prefixes',
+      schema: { items: coerceValue(SchemaObjectSchema, { prefixItems: [{ type: 'number' }] }), minItems: 2 },
+      expected: [[1], [1]],
+    },
+    {
+      name: 'reference to an empty item schema',
+      schema: { items: { $ref: '#/$defs/Any', '$ref-value': {} }, minItems: 2 },
+      expected: [null, null],
+    },
+    {
+      name: 'untyped const items',
+      schema: { items: coerceValue(SchemaObjectSchema, { const: 'fixed' }), minItems: 2 },
+      expected: ['fixed', 'fixed'],
+    },
+    {
+      name: 'stricter outer maximum',
+      schema: { items: { type: 'number' }, maxItems: 0, anyOf: [{ type: 'array', maxItems: 1 }] },
+      expected: [],
+    },
+    {
+      name: 'stricter outer minimum',
+      schema: { items: { type: 'number' }, minItems: 3, oneOf: [{ type: 'array', minItems: 1 }] },
+      expected: [1, 1, 1],
+    },
+    { name: 'omitted items', schema: { minItems: 2 }, expected: [null, null] },
+    {
+      name: 'annotation-only items',
+      schema: { items: { description: 'Any', title: 'Any value' } as SchemaObject, minItems: 2 },
+      expected: [null, null],
+    },
+    {
+      name: 'empty item schema',
+      schema: { items: {} as SchemaObject, minItems: 2 },
+      expected: [null, null],
+    },
+    { name: 'unique items', schema: { items: { type: 'number' }, minItems: 2, uniqueItems: true }, expected: [1] },
+    { name: 'explicit example', schema: { items: { type: 'number' }, maxItems: 0, example: [4, 5] }, expected: [4, 5] },
+  ] satisfies { name: string; schema: Omit<Extract<SchemaObject, { type: 'array' }>, 'type'>; expected: unknown[] }[])(
+    'applies array length bounds for $name',
+    ({ schema, expected }) => {
+      expect(getExampleFromSchema({ type: 'array', ...schema })).toStrictEqual(expected)
+    },
+  )
+
+  it('keeps outer bounds when selecting a tuple inferred from prefixes', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      maxItems: 0,
+      anyOf: [{ prefixItems: [{ type: 'number' }], maxItems: 1 }],
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual([])
+  })
+
+  it('uses contains as the padding sample when items are unrestricted', () => {
+    const schema = {
+      type: 'array',
+      contains: { type: 'string', const: 'match' },
+      minItems: 2,
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual(['match', 'match'])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('stops recursive array items selected through %s', (keyword) => {
+    const tree: SchemaObject = { type: 'array' }
+    tree.items = {
+      [keyword]: [{ $ref: '#/$defs/Tree', '$ref-value': tree }, { type: 'string' }],
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(tree)).toStrictEqual([])
+    expect(getExampleFromSchema(tree)).toStrictEqual([])
+  })
+
+  it('keeps outer bounds when selecting an array inside items', () => {
+    const schema: SchemaObject = {
+      type: 'array',
+      items: {
+        type: 'array',
+        items: { type: 'number' },
+        maxItems: 0,
+        anyOf: [{ type: 'array', items: { type: 'number' }, maxItems: 1 }],
+      },
+    }
+    expect(getExampleFromSchema(schema)).toStrictEqual([[]])
+  })
+
+  it('ignores object properties when selecting a nested array branch', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        type: 'array',
+        properties: { ignored: { type: 'number' } },
+        maxItems: 0,
+        anyOf: [{ type: 'array', items: { type: 'number' }, maxItems: 1 }],
+      },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual([[]])
+  })
+
+  it('keeps outer uniqueness when selecting an array branch', () => {
+    const schema: SchemaObject = {
+      type: 'array',
+      items: { type: 'number' },
+      minItems: 2,
+      uniqueItems: true,
+      anyOf: [{ type: 'array', uniqueItems: false }],
+    }
+    expect(getExampleFromSchema(schema)).toStrictEqual([1])
+  })
+
+  it('retains the tuple prefix when tail items are omitted in write mode', () => {
+    const schema: SchemaObject = {
+      type: 'array',
+      prefixItems: [{ type: 'number' }],
+      items: { type: 'number', readOnly: true },
+      minItems: 2,
+    }
+    expect(getExampleFromSchema(schema, { mode: 'write' })).toStrictEqual([1])
+  })
+
+  it('keeps the prefix when the runtime schema forbids additional items', () => {
+    // The runtime accepts boolean items even though the strict OpenAPI type does not model them.
+    const schema = {
+      type: 'array',
+      prefixItems: [{ type: 'number' }],
+      items: false,
+      minItems: 2,
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual([1])
+  })
+
+  it('pads items referencing a runtime boolean true schema', () => {
+    const items = { $ref: '#/$defs/Any', '$ref-value': true } as unknown as Extract<
+      SchemaObject,
+      { type: 'array' }
+    >['items']
+    expect(getExampleFromSchema({ type: 'array', items, minItems: 2 })).toStrictEqual([null, null])
+  })
+
+  it('limits padding for nested arrays with very large minima', () => {
+    const inner: SchemaObject = { type: 'array', items: { type: 'number' }, minItems: 1_000_000 }
+    const value = getExampleFromSchema({ type: 'array', items: inner, minItems: 1_000_000 })
+    expect(value).toStrictEqual([Array.from({ length: 999 }, () => 1)])
+  })
+
+  it('pads generated XML items without changing their wrapper', () => {
+    const schema: SchemaObject = {
+      type: 'array',
+      items: { type: 'number', xml: { name: 'coordinate' } },
+      minItems: 2,
+      xml: { wrapped: true },
+    }
+    expect(getExampleFromSchema(schema, { xml: true })).toStrictEqual([{ coordinate: 1 }, { coordinate: 1 }])
+  })
+
+  it.each([{ type: ['string', 'null'], format: 'binary' }, {}, { allOf: [{ type: 'string' }, { format: 'binary' }] }])(
+    'retains file placeholders for multipart schema %j',
+    (definition) => {
+      const schema = coerceValue(SchemaObjectSchema, { ...definition, example: '@payload.bin' })
+      const result = getExampleFromSchema(schema, { binaryAsFile: true })
+      expect(result).toBeInstanceOf(File)
+      expect((result as File).name).toBe('payload.bin')
+      expect(getExampleFromSchema(schema)).toBe('@payload.bin')
+    },
+  )
+
+  it('refreshes generated dates and times in reused nested schemas', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        values: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              date: { type: 'string', format: 'date' },
+              timestamp: { type: 'string', format: 'date-time' },
+              time: { type: 'string', format: 'time' },
+            },
+          },
+        },
+      },
+    })
+    vi.useFakeTimers()
+    try {
+      for (const iso of ['2026-11-03T23:59:59.000Z', '2026-11-04T00:00:01.000Z']) {
+        vi.setSystemTime(new Date(iso))
+        expect(getExampleFromSchema(schema)).toStrictEqual({
+          values: [{ date: iso.split('T')[0], timestamp: iso, time: iso.split('T')[1] }],
+        })
+      }
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('retains file metadata when allOf combines binary contributions', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       allOf: [
@@ -239,6 +536,213 @@ describe('getExampleFromSchema', () => {
     })
 
     expect(getExampleFromSchema(schema, { variables: { petKind: 'Cat' } })).toStrictEqual([{ result: 'Cat' }])
+  })
+
+  describe('discriminator values', () => {
+    const pet = {
+      type: 'object',
+      required: ['petType'],
+      properties: { petType: { type: 'string' }, name: { type: 'string', example: 'Rex' } },
+    }
+    const variant = (
+      name: string,
+      extra: Record<string, unknown>,
+      petType: Record<string, unknown> = {},
+    ): Record<string, unknown> => ({
+      $ref: '#/components/schemas/' + name,
+      '$ref-value': {
+        allOf: [
+          { $ref: '#/components/schemas/Pet', '$ref-value': pet },
+          { type: 'object', properties: { ...extra, ...(Object.keys(petType).length ? { petType } : {}) } },
+        ],
+      },
+    })
+    const cat = variant('Cat', { meow: { type: 'boolean' } })
+    const dog = variant('Dog', { bark: { type: 'boolean' } })
+
+    it.each([
+      {
+        name: 'explicit mapping',
+        discriminator: {
+          propertyName: 'petType',
+          mapping: { cat: '#/components/schemas/Cat', dog: '#/components/schemas/Dog' },
+        },
+        cat: 'cat',
+        dog: 'dog',
+      },
+      {
+        name: 'mapping to a schema name',
+        discriminator: { propertyName: 'petType', mapping: { kitty: 'Cat' } },
+        cat: 'kitty',
+        dog: 'Dog',
+      },
+      { name: 'implicit mapping', discriminator: { propertyName: 'petType' }, cat: 'Cat', dog: 'Dog' },
+    ])('fills the selected variant tag with $name', ({ discriminator, cat: catTag, dog: dogTag }) => {
+      const schema = coerceValue(SchemaObjectSchema, { oneOf: [cat, dog], discriminator })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual({ petType: catTag, name: 'Rex', meow: true })
+      expect(getExampleFromSchema(schema, { compositionSelection: { oneOf: 1 } })).toStrictEqual({
+        petType: dogTag,
+        name: 'Rex',
+        bark: true,
+      })
+      expect(getExampleFromSchema({ type: 'array', items: schema })).toStrictEqual([
+        { petType: catTag, name: 'Rex', meow: true },
+      ])
+      expect(
+        getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'object', properties: { pet: schema } })),
+      ).toStrictEqual({ pet: { petType: catTag, name: 'Rex', meow: true } })
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: { petType: { type: 'string' } },
+            oneOf: [cat, dog],
+            discriminator,
+          }),
+        ),
+      ).toStrictEqual({ petType: catTag, name: 'Rex', meow: true })
+    })
+
+    it('keeps a declared discriminator value', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        oneOf: [variant('Cat', {}, { type: 'string', example: 'house-cat' })],
+        discriminator: { propertyName: 'petType' },
+      })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual({ petType: 'house-cat', name: 'Rex' })
+    })
+
+    it('leaves inline variants without a tag', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        oneOf: [{ type: 'object', properties: { petType: { type: 'string' } } }],
+        discriminator: { propertyName: 'petType' },
+      })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual({ petType: '' })
+    })
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('fills generated discriminator placeholders for %s', (composition) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      [composition]: [
+        {
+          $ref: '#/components/schemas/Cat',
+          '$ref-value': { type: 'object', properties: { petType: { type: 'string' } } },
+        },
+      ],
+      discriminator: { propertyName: 'petType', mapping: { cat: '#/components/schemas/Cat' } },
+    })
+    const options = { emptyString: 'string', mode: 'read' as const }
+
+    expect(getExampleFromSchema(schema, options)).toStrictEqual({ petType: 'cat' })
+    expect(getExampleFromSchema({ ...schema, type: 'object' }, options)).toStrictEqual({ petType: 'cat' })
+    expect(getExampleFromSchema({ type: 'array', items: schema }, options)).toStrictEqual([{ petType: 'cat' }])
+  })
+
+  it.each([{ const: '' }, { enum: [''] }, { example: '' }, { examples: [''] }, { default: '' }])(
+    'preserves an empty declared discriminator value %j through allOf references',
+    (declaration) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        oneOf: [
+          {
+            $ref: '#/components/schemas/Cat',
+            '$ref-value': {
+              allOf: [
+                {
+                  $ref: '#/components/schemas/Pet',
+                  '$ref-value': { type: 'object', properties: { petType: { type: 'string', ...declaration } } },
+                },
+              ],
+            },
+          },
+        ],
+        discriminator: { propertyName: 'petType', mapping: { cat: '#/components/schemas/Cat' } },
+      })
+      const options = { emptyString: 'string' }
+
+      expect(getExampleFromSchema(schema, options)).toStrictEqual({ petType: '' })
+      expect(getExampleFromSchema({ ...schema, type: 'object' }, options)).toStrictEqual({ petType: '' })
+      expect(getExampleFromSchema({ type: 'array', items: schema }, options)).toStrictEqual([{ petType: '' }])
+    },
+  )
+
+  it.each(['oneOf', 'anyOf'] as const)('preserves the selected %s discriminator declaration', (composition) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Cat',
+          '$ref-value': {
+            type: 'object',
+            properties: {
+              petType: { type: 'string', [composition]: [{ const: 'house-cat' }, { const: '' }, { type: 'string' }] },
+            },
+          },
+        },
+      ],
+      discriminator: { propertyName: 'petType', mapping: { cat: '#/components/schemas/Cat' } },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({ petType: 'house-cat' })
+    expect(getExampleFromSchema(schema, { compositionSelection: { [`petType.${composition}`]: 1 } })).toStrictEqual({
+      petType: '',
+    })
+    expect(
+      getExampleFromSchema(schema, { emptyString: 'string', compositionSelection: { [`petType.${composition}`]: 2 } }),
+    ).toStrictEqual({ petType: 'cat' })
+    expect(
+      getExampleFromSchema(
+        { type: 'array', items: schema },
+        { compositionSelection: { [`items.petType.${composition}`]: 1 } },
+      ),
+    ).toStrictEqual([{ petType: '' }])
+    expect(
+      getExampleFromSchema(
+        { type: 'object', properties: { pet: schema } },
+        { compositionSelection: { [`pet.petType.${composition}`]: 1 } },
+      ),
+    ).toStrictEqual({ pet: { petType: '' } })
+  })
+
+  it.each([
+    { property: { readOnly: true }, mode: 'write' as const },
+    { property: { writeOnly: true }, mode: 'read' as const },
+  ])('keeps discriminator omission in $mode mode', ({ property, mode }) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Cat',
+          '$ref-value': {
+            allOf: [
+              { type: 'object', properties: { petType: { type: 'string', ...property }, name: { const: 'Milo' } } },
+            ],
+          },
+        },
+      ],
+      discriminator: { propertyName: 'petType', mapping: { cat: '#/components/schemas/Cat' } },
+    })
+
+    expect(getExampleFromSchema(schema, { mode })).toStrictEqual({ name: 'Milo' })
+    expect(getExampleFromSchema({ ...schema, type: 'object' }, { mode })).toStrictEqual({ name: 'Milo' })
+    expect(getExampleFromSchema({ type: 'array', items: schema }, { mode })).toStrictEqual([{ name: 'Milo' }])
+    expect(getExampleFromSchema(schema, { mode: mode === 'read' ? 'write' : 'read' })).toStrictEqual({
+      petType: 'cat',
+      name: 'Milo',
+    })
+  })
+
+  it('fills required discriminator properties when optional empty properties are omitted', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Cat',
+          '$ref-value': { type: 'object', required: ['petType'], properties: { petType: { type: 'string' } } },
+        },
+      ],
+      discriminator: { propertyName: 'petType', mapping: { cat: '#/components/schemas/Cat' } },
+    })
+
+    expect(getExampleFromSchema(schema, { omitEmptyAndOptionalProperties: true })).toStrictEqual({ petType: 'cat' })
   })
 
   it('does not infer discriminator mappings from inline schema titles', () => {
@@ -518,6 +1022,134 @@ describe('getExampleFromSchema', () => {
     ).toBe('…')
   })
 
+  it('applies string length bounds to nested and union examples', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        plain: { type: 'string', minLength: 1 },
+        union: { type: ['string', 'number'], minLength: 2 },
+      },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual({ plain: 'a', union: 'aa' })
+  })
+
+  it.each([
+    { minLength: 1, maxLength: 1, emptyString: '😀z', expected: '😀' },
+    { minLength: 2, maxLength: 2, emptyString: '😀', expected: '😀a' },
+    { minLength: 0, maxLength: 0, emptyString: 'string', expected: '' },
+    { minLength: 1, maxLength: 8, emptyString: 'string', expected: 'string' },
+  ])(
+    'fits a plain string fallback to $minLength–$maxLength characters',
+    ({ minLength, maxLength, emptyString, expected }) => {
+      expect(getExampleFromSchema({ type: 'string', minLength, maxLength }, { emptyString })).toBe(expected)
+    },
+  )
+
+  it('bounds generated padding for excessively large minimum lengths', () => {
+    const result = getExampleFromSchema({ type: 'string', minLength: 1_000_000_000 })
+    assert(typeof result === 'string')
+    expect(result.length).toBe(4_096)
+  })
+
+  it.each(['email', 'idn-email'])('generates a usable short %s example', (format) => {
+    const result = getExampleFromSchema({ type: 'string', format, maxLength: 10 })
+    assert(typeof result === 'string')
+    expect(result).toMatch(/^[a-z]+@[a-z]+\.[a-z]+$/)
+    expect(result.length).toBeLessThanOrEqual(10)
+  })
+
+  it('generates a longer email within the address and DNS label limits', () => {
+    const result = getExampleFromSchema({ type: 'string', format: 'email', minLength: 200, maxLength: 200 })
+    assert(typeof result === 'string')
+    expect(result.length).toBe(200)
+    expect(result).toMatch(/^[a-z]{1,64}@[a-z]{1,63}(?:\.[a-z]{1,63})+$/)
+  })
+
+  it.each([
+    [3, 'a@b'],
+    [5, 'a@b.c'],
+    [2, 'hello@example.com'],
+  ])('keeps email syntax with a maximum length of %i', (maxLength, expected) => {
+    expect(getExampleFromSchema({ type: 'string', format: 'email', maxLength })).toBe(expected)
+  })
+
+  it.each([
+    ['hostname', 6, /^[a-z]{6}$/],
+    ['uri', 8, /^[a-z]:[a-z]{6}$/],
+    ['json-pointer', 3, /^\/[a-z]{2}$/],
+    ['duration', 4, /^P01D$/],
+    ['time', 9, /^\d{2}:\d{2}:\d{2}Z$/],
+    ['date-time', 20, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/],
+  ] as const)('fits %s to %i characters with its format intact', (format, length, pattern) => {
+    expect(getExampleFromSchema({ type: 'string', format, minLength: length, maxLength: length })).toEqual(
+      expect.stringMatching(pattern),
+    )
+  })
+
+  it('adds fractional-second precision when a timestamp needs a longer example', () => {
+    expect(getExampleFromSchema({ type: 'string', format: 'date-time', minLength: 27, maxLength: 27 })).toEqual(
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}000Z$/),
+    )
+  })
+
+  it.each([
+    ['ipv4', 7, 4],
+    ['ipv6', 4, 6],
+    ['ipv6', 20, 6],
+    ['ipv6', 45, 6],
+  ] as const)('generates a valid %s address of %i characters', (format, length, version) => {
+    const result = getExampleFromSchema({ type: 'string', format, minLength: length, maxLength: length })
+    assert(typeof result === 'string')
+    expect(result.length).toBe(length)
+    expect(isIP(result)).toBe(version)
+  })
+
+  it('keeps preserved placeholders distinct from fitted fallbacks in the example cache', () => {
+    const schema: SchemaObject = { type: 'string', maxLength: 2 }
+    const options = { emptyString: '{id}' }
+
+    expect(getExampleFromSchema(schema, options)).toBe('{i')
+    expect(getExampleFromSchema(schema, { ...options, preserveStringFallback: true })).toBe('{id}')
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('intersects the parent and selected %s length bounds', (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'string',
+      minLength: 4,
+      maxLength: 4,
+      [keyword]: [{ type: 'string', minLength: 2, maxLength: 8 }],
+    })
+    expect(getExampleFromSchema(schema)).toBe('aaaa')
+    expect(getExampleFromSchema(schema, { emptyString: 'string' })).toBe('stri')
+    expect(getExampleFromSchema({ type: 'array', items: schema })).toStrictEqual(['aaaa'])
+    expect(getExampleFromSchema({ type: 'array', items: schema }, { emptyString: 'string' })).toStrictEqual(['stri'])
+  })
+
+  it.each([
+    ['email format', { format: 'email', oneOf: [{ maxLength: 10 }] }, 'a@b.co'],
+    ['Base64 encoding', { contentEncoding: 'base64', oneOf: [{ minLength: 5, maxLength: 8 }] }, 'c2NhbGFy'],
+  ] as const)(
+    'inherits the enclosing %s for an array item variant that supplies only bounds',
+    (_name, item, expected) => {
+      const schema = coerceValue(SchemaObjectSchema, { type: 'array', items: { type: 'string', ...item } })
+      expect(getExampleFromSchema(schema)).toStrictEqual([expected])
+    },
+  )
+
+  it('uses a valid object ID when the minimum length requires a nonempty example', () => {
+    expect(getExampleFromSchema({ type: 'string', format: 'object-id', minLength: 1, maxLength: 24 })).toEqual(
+      expect.stringMatching(/^[a-f0-9]{24}$/),
+    )
+  })
+
+  it('keeps the authored default of an untyped array item variant', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: { type: 'string', minLength: 3, oneOf: [{ default: 42 }] },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual([42])
+  })
+
   it('returns emails as an example value', () => {
     const result = getExampleFromSchema(
       coerceValue(SchemaObjectSchema, {
@@ -532,21 +1164,248 @@ describe('getExampleFromSchema', () => {
     expect(result).toBe('hello@example.com')
   })
 
-  it('uses a uuid example for version-specific uuid formats', () => {
-    for (const format of ['uuid', 'uuid1', 'uuid3', 'uuid4', 'uuid5']) {
-      const result = getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
-          type: 'string',
-          format,
-        }),
-        {
-          emptyString: '…',
-        },
-      )
+  it.each(['date', 'date-time', 'time'] as const)('generates a parseable UTC %s example', (format) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    // Round-tripping catches invalid calendar dates that Date would otherwise normalize.
+    const timestamp = { date: `${result}T00:00:00.000Z`, 'date-time': result, time: `2000-01-01T${result}` }[format]
+    expect(new Date(timestamp).toISOString()).toBe(timestamp)
+  })
 
-      expect(result).toBe('123e4567-e89b-12d3-a456-426614174000')
+  it.each([
+    ['ipv4', 4],
+    ['ipv6', 6],
+  ] as const)('generates a parseable %s address', (format, version) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    expect(isIP(result)).toBe(version)
+  })
+
+  it.each([
+    ['uri', 'https://example.com/'],
+    ['iri', 'https://example.com/entity/123'],
+    ['uri-reference', 'https://example.com/folder'],
+    ['iri-reference', 'https://example.com/entity/1'],
+    ['uri-template', 'https://example.com/123'],
+  ])('generates a usable %s example', (format, expected) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    // Exercise the simple template by expanding its parameter before parsing the URL.
+    const expanded = format === 'uri-template' ? result.replace('{id}', '123') : result
+    const base = format.endsWith('-reference') ? 'https://example.com/base/' : undefined
+    expect(new URL(expanded, base).href).toBe(expected)
+  })
+
+  it('generates a usable regular expression', () => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format: 'regex' }))
+    assert(typeof result === 'string')
+    const expression = new RegExp(result)
+    expect(expression.test('a')).toBe(true)
+    expect(expression.test('1')).toBe(false)
+  })
+
+  // These checks cover the simple examples we emit, not every form allowed by the standards.
+  // ASCII examples are also valid for the internationalized email and hostname formats.
+  it.each([
+    ['email', /^[a-z]+@[a-z]+\.[a-z]+$/],
+    ['idn-email', /^[a-z]+(?:\.[a-z]+)*@[a-z]+\.[a-z]+$/],
+    ['hostname', /^[a-z]+(?:\.[a-z]+)+$/],
+    ['idn-hostname', /^[a-z]+(?:\.[a-z]+)+$/],
+    ['duration', /^P[1-9]\d*D$/],
+    ['json-pointer', /^(?:\/(?:[^~/]|~[01])*)+$/],
+    ['relative-json-pointer', /^(?:0|[1-9]\d*)(?:\/(?:[^~/]|~[01])*)+$/],
+    ['uuid', /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/],
+  ] as const)('generates a syntactically valid %s example', (format, pattern) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    expect(result).toEqual(expect.stringMatching(pattern))
+  })
+
+  it.each([1, 2, 3, 4, 5, 6, 7, 8])('generates a version %i UUID with the RFC variant', (version) => {
+    for (const emptyString of [undefined, '', '…']) {
+      const result = getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, { type: 'string', format: `uuid${version}` }),
+        { emptyString },
+      )
+      expect(result).toEqual(
+        expect.stringMatching(
+          new RegExp(`^[0-9a-f]{8}-[0-9a-f]{4}-${version}[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`),
+        ),
+      )
     }
   })
+
+  it.each([
+    ['duration', 'P1D'],
+    ['email', 'hello@example.com'],
+    ['idn-email', 'jane.doe@example.com'],
+    ['hostname', 'example.com'],
+    ['idn-hostname', 'example.com'],
+    ['ipv4', '192.0.2.1'],
+    ['ipv6', '2001:db8::1'],
+    ['uri', 'https://example.com'],
+    ['iri', 'https://example.com/entity/123'],
+    ['uri-reference', '../folder'],
+    ['iri-reference', '/entity/1'],
+    ['uri-template', 'https://example.com/{id}'],
+    ['json-pointer', '/nested/objects'],
+    ['relative-json-pointer', '1/nested/objects'],
+    ['regex', '[a-z]'],
+    ['uuid', '123e4567-e89b-12d3-a456-426614174000'],
+  ])('generates a formatted %s example regardless of the plain string fallback', (format, expected) => {
+    for (const emptyString of [undefined, '', '…']) {
+      expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }), { emptyString })).toBe(
+        expected,
+      )
+    }
+  })
+
+  it.each(['base64', 'base64url'])('prioritizes %s encoding over generated format placeholders', (contentEncoding) => {
+    for (const format of ['password', 'object-id', 'email', 'date-time']) {
+      for (const emptyString of [undefined, '', 'string']) {
+        expect(
+          getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format, contentEncoding }), {
+            emptyString,
+          }),
+        ).toBe('c2NhbGFy')
+      }
+    }
+  })
+
+  it.each([
+    [{ format: 'byte' }, 4, 'AAAA'],
+    [{ contentEncoding: 'base64' }, 4, 'AAAA'],
+    [{ contentEncoding: 'base64url' }, 7, 'AAAA'],
+  ] as const)('fits an encoded string %j to %i characters', (encoding, maxLength, expected) => {
+    const schema = coerceValue(SchemaObjectSchema, { type: 'string', ...encoding, maxLength })
+    expect(getExampleFromSchema(schema)).toBe(expected)
+  })
+
+  it.each([
+    [9, 12, 'AAAAAAAAAAAA'],
+    [5, 5, 'c2NhbGFy'],
+  ])('preserves base64 encoding with bounds %i–%i', (minLength, maxLength, expected) => {
+    expect(getExampleFromSchema({ type: 'string', contentEncoding: 'base64', minLength, maxLength })).toBe(expected)
+  })
+
+  describe('base64 strings', () => {
+    const decodesStrictly = (value: unknown, alphabet: 'base64' | 'base64url'): boolean => {
+      if (typeof value !== 'string' || value.length % 4 !== 0) {
+        return false
+      }
+      const pattern = alphabet === 'base64' ? /^[A-Za-z0-9+/]*={0,2}$/ : /^[A-Za-z0-9_-]*={0,2}$/
+      return (
+        pattern.test(value) &&
+        Buffer.from(value, alphabet).toString(alphabet).replace(/=+$/, '') === value.replace(/=+$/, '')
+      )
+    }
+
+    it.each([
+      { type: 'string', format: 'byte' },
+      { type: 'string', contentEncoding: 'base64' },
+      { type: 'string', contentEncoding: 'base64url' },
+      { type: 'string', contentEncoding: 'BASE64' },
+      { type: 'string', contentMediaType: 'image/png', contentEncoding: 'base64' },
+      { type: 'string', format: 'custom-format', contentEncoding: 'base64' },
+    ])('generates base64 that decodes under both alphabets for %j', (definition) => {
+      for (const emptyString of [undefined, '', 'string']) {
+        const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, definition), { emptyString })
+        expect(result).toBe('c2NhbGFy')
+        expect(decodesStrictly(result, 'base64')).toBe(true)
+        expect(decodesStrictly(result, 'base64url')).toBe(true)
+        expect(Buffer.from(result as string, 'base64').toString('utf8')).toBe('scalar')
+      }
+    })
+
+    it('generates base64 for encoded properties in a response object', () => {
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              legacy: { type: 'string', format: 'byte' },
+              encoded: { type: 'string', contentEncoding: 'base64' },
+              name: { type: 'string' },
+            },
+          }),
+          { emptyString: 'string', mode: 'read' },
+        ),
+      ).toEqual({ legacy: 'c2NhbGFy', encoded: 'c2NhbGFy', name: 'string' })
+    })
+
+    it.each(['examples', 'example', 'default', 'const', 'enum'] as const)(
+      'preserves authored base64 values from %s',
+      (keyword) => {
+        const value = 'aGVsbG8='
+        for (const encoding of [{ format: 'byte' }, { contentEncoding: 'base64' }]) {
+          expect(
+            getExampleFromSchema(
+              coerceValue(SchemaObjectSchema, {
+                type: 'string',
+                ...encoding,
+                [keyword]: keyword === 'examples' || keyword === 'enum' ? [value] : value,
+              }),
+              { emptyString: 'string' },
+            ),
+          ).toBe(value)
+        }
+      },
+    )
+
+    it.each([
+      { type: 'string', format: 'binary' },
+      { type: 'string', format: 'binary', contentEncoding: 'base64' },
+    ])('keeps the file placeholder for binary schema %j', (definition) => {
+      expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, definition), { emptyString: 'string' })).toBe(
+        '@filename',
+      )
+    })
+
+    it.each(['quoted-printable', '7bit', 'base32'])('does not apply base64 to %s content', (contentEncoding) => {
+      expect(
+        getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', contentEncoding }), {
+          emptyString: 'string',
+        }),
+      ).toBe('string')
+    })
+  })
+
+  it('generates a UTC time including its timezone', () => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format: 'time' }))
+    expect(result).toEqual(expect.stringMatching(/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/))
+  })
+
+  it.each([
+    ['password', '', 'super-secret'],
+    ['binary', '@filename', '@filename'],
+    ['object-id', '', '6592008029c8c3e4dc76256c'],
+    ['custom-format', '', '…'],
+    ['uuid9', '', '…'],
+    ['toString', '', '…'],
+    ['__proto__', '', '…'],
+    ['', '', '…'],
+  ])('preserves fallback behavior for %s', (format, empty, populated) => {
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))).toBe(empty)
+    expect(
+      getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }), { emptyString: '…' }),
+    ).toBe(populated)
+  })
+
+  it.each(['examples', 'example', 'default', 'const', 'enum'] as const)(
+    'preserves authored formatted values from %s',
+    (keyword) => {
+      const value = 'author@example.org'
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            type: 'string',
+            format: 'email',
+            maxLength: 10,
+            [keyword]: keyword === 'examples' || keyword === 'enum' ? [value] : value,
+          }),
+        ),
+      ).toBe(value)
+    },
+  )
 
   it('uses variables as an example value', () => {
     expect(
@@ -990,6 +1849,555 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject(['foobar', 'barfoo'])
   })
 
+  const allOfExtraProperties = {
+    required: ['extra'],
+    properties: { extra: { type: 'string', example: 'more' } },
+  }
+
+  it('merges a $ref to an untyped allOf base into one item', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/Base',
+            '$ref-value': {
+              allOf: [
+                { type: 'object', required: ['id'], properties: { id: { type: 'integer', example: 1 } } },
+                { type: 'object', required: ['name'], properties: { name: { type: 'string', example: 'test' } } },
+              ],
+            },
+          },
+          allOfExtraProperties,
+        ],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'test', extra: 'more' }])
+  })
+
+  it('merges an inline untyped allOf first member into one item', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            allOf: [
+              { type: 'object', properties: { id: { type: 'integer', example: 1 } } },
+              { type: 'object', properties: { name: { type: 'string', example: 'test' } } },
+            ],
+          },
+          allOfExtraProperties,
+        ],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'test', extra: 'more' }])
+  })
+
+  it('merges a first member that is an object by shape but has no type', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/Base',
+            '$ref-value': { required: ['id'], properties: { id: { type: 'integer', example: 1 } } },
+          },
+          allOfExtraProperties,
+        ],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, extra: 'more' }])
+  })
+
+  it('merges when a later member is the first one to describe an object', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [
+          { description: 'A list entry' },
+          { type: 'object', properties: { id: { type: 'integer', example: 1 } } },
+          allOfExtraProperties,
+        ],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, extra: 'more' }])
+  })
+
+  it('merges an object example alongside an allOf cycle', () => {
+    const cyclic: Record<string, unknown> = {}
+    cyclic.allOf = [cyclic]
+    const schema = {
+      type: 'array',
+      items: { allOf: [cyclic, allOfExtraProperties] },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ extra: 'more' }])
+  })
+
+  it('keeps one example per member when no member describes an object', () => {
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'array',
+          items: {
+            allOf: [
+              { type: 'integer', example: 1 },
+              { type: 'integer', example: 2 },
+            ],
+          },
+        }),
+      ),
+    ).toStrictEqual([1, 2])
+  })
+
+  it('already merges an untyped allOf at the root and in a property', () => {
+    const untyped = coerceValue(SchemaObjectSchema, {
+      allOf: [
+        {
+          allOf: [
+            { properties: { id: { type: 'integer', example: 1 } } },
+            { properties: { name: { type: 'string', example: 'test' } } },
+          ],
+        },
+        allOfExtraProperties,
+      ],
+    })
+
+    expect(getExampleFromSchema(untyped)).toStrictEqual({ id: 1, name: 'test', extra: 'more' })
+    expect(getExampleFromSchema({ type: 'object', properties: { item: untyped } })).toStrictEqual({
+      item: { id: 1, name: 'test', extra: 'more' },
+    })
+  })
+
+  it('merges array items when allOf contains a recursive reference', () => {
+    const base: Record<string, unknown> = {}
+    const reference = { $ref: '#/components/schemas/Base', '$ref-value': base }
+    base.allOf = [reference]
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [reference, { properties: { extra: { type: 'string', example: 'more' } } }],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ extra: 'more' }])
+  })
+
+  it.each([false, true])('preserves primitive allOf array items with object keywords (reversed: %s)', (reversed) => {
+    const members = [{ type: 'string', example: 'hello' }, { additionalProperties: false }]
+    // Coercion adds an object type to keyword-only members; keep the original untyped input here.
+    const schema = {
+      type: 'array',
+      items: { allOf: reversed ? [...members].reverse() : members },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it('checks nested referenced type constraints before inferring object array items', () => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [
+          { additionalProperties: false },
+          {
+            $ref: '#/components/schemas/Value',
+            '$ref-value': { allOf: [{ type: ['string'], example: 'hello' }] },
+          },
+        ],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it.each([
+    { constraint: { const: 'hello' }, reversed: false },
+    { constraint: { const: 'hello' }, reversed: true },
+    { constraint: { enum: ['hello'] }, reversed: false },
+    { constraint: { enum: ['hello'] }, reversed: true },
+  ])('preserves primitive allOf values for $constraint (reversed: $reversed)', ({ constraint, reversed }) => {
+    const members = [constraint, { additionalProperties: false }]
+    // Keep keyword-only members untyped rather than letting coercion assign them an object type.
+    const schema = {
+      type: 'array',
+      items: { allOf: reversed ? [...members].reverse() : members },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it.each([{ const: 'hello' }, { enum: ['hello'] }])(
+    'respects nested referenced allOf value constraints: %j',
+    (constraint) => {
+      const schema = {
+        type: 'array',
+        items: {
+          allOf: [
+            { required: [] },
+            {
+              $ref: '#/components/schemas/Value',
+              '$ref-value': { allOf: [constraint] },
+            },
+          ],
+        },
+      } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+    },
+  )
+
+  it.each([{ const: [1, 2] }, { enum: [[1, 2]] }])('preserves array-only allOf value constraints: %j', (constraint) => {
+    const schema = {
+      type: 'array',
+      items: { allOf: [constraint, { additionalProperties: false }] },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([[1, 2]])
+  })
+
+  it.each([{ const: { id: 1 } }, { enum: [{ id: 1 }] }])(
+    'still merges allOf members when value constraints allow objects: %j',
+    (constraint) => {
+      const schema = {
+        type: 'array',
+        items: {
+          allOf: [constraint, { properties: { id: { type: 'integer', example: 1 } } }],
+        },
+      } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1 }])
+    },
+  )
+
+  it.each([{ const: 'hello' }, { enum: ['hello'] }, { type: 'string', example: 'hello' }])(
+    'follows annotated reference chains before merging allOf array items: %j',
+    (constraint) => {
+      const schema = {
+        type: 'array',
+        items: {
+          allOf: [
+            {
+              $ref: '#/components/schemas/Alias',
+              '$ref-value': {
+                $ref: '#/components/schemas/Value',
+                description: 'Annotated alias',
+                '$ref-value': constraint,
+              },
+            },
+            { additionalProperties: false },
+          ],
+        },
+      } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+    },
+  )
+
+  it.each([
+    { enum: ['hello', { id: 1 }] },
+    { example: 'hello' },
+    { examples: ['hello', { id: 1 }] },
+    { default: 'hello' },
+  ])('preserves a declared primitive when allOf also allows objects: %j', (declared) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: { allOf: [{ type: ['object', 'string'], ...declared }] },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it('merges an object example that overrides a primitive reference annotation', () => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/Value',
+            example: { id: 1 },
+            '$ref-value': { type: ['object', 'string'], example: 'hello' },
+          },
+          { properties: { name: { type: 'string', example: 'world' } } },
+        ],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'world' }])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('preserves primitive allOf examples selected through %s', (keyword) => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [{ [keyword]: [{ type: 'string', example: 'hello' }] }, { additionalProperties: false }],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('merges only object examples from a selected %s variant', (keyword) => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            [keyword]: [
+              { type: 'string', example: 'hello' },
+              { type: 'object', example: { id: 1 } },
+            ],
+          },
+          { properties: { name: { type: 'string', example: 'Rex' } } },
+        ],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema, { compositionSelection: { [`items.${keyword}`]: 0 } })).toStrictEqual([
+      'hello',
+      { name: 'Rex' },
+    ])
+    expect(getExampleFromSchema(schema, { compositionSelection: { [`items.${keyword}`]: 1 } })).toStrictEqual([
+      { id: 1, name: 'Rex' },
+    ])
+  })
+
+  it('preserves a primitive variable value in untyped allOf array items', () => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [{ 'x-variable': 'value', properties: { id: { type: 'integer' } } }, { additionalProperties: false }],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema, { variables: { value: 'hello' } })).toStrictEqual(['hello'])
+  })
+
+  it.each<NullableVariantRow>([
+    { name: 'oneOf', schema: { oneOf: [NULLABLE_CAT, DOG] }, expected: { lives: 9 } },
+    { name: 'anyOf', schema: { anyOf: [NULLABLE_CAT, DOG] }, expected: { lives: 9 } },
+    {
+      name: 'null listed first',
+      schema: { oneOf: [{ ...NULLABLE_CAT, type: ['null', 'object'] }, DOG] },
+      expected: { lives: 9 },
+    },
+    { name: 'a single variant', schema: { oneOf: [NULLABLE_CAT] }, expected: { lives: 9 } },
+    {
+      name: 'a type list without null',
+      schema: { oneOf: [{ ...NULLABLE_CAT, type: ['object'] }, DOG] },
+      expected: { lives: 9 },
+    },
+    {
+      name: 'a referenced variant',
+      schema: { oneOf: [{ $ref: '#/$defs/Cat', '$ref-value': NULLABLE_CAT }, DOG] },
+      expected: { lives: 9 },
+    },
+    {
+      name: 'the first of several nullable variants',
+      schema: { oneOf: [NULLABLE_CAT, NULLABLE_DOG] },
+      expected: { lives: 9 },
+    },
+    {
+      name: 'the selected second variant',
+      schema: { oneOf: [NULLABLE_CAT, NULLABLE_DOG] },
+      options: { compositionSelection: { oneOf: 1 } },
+      expected: { bark: true },
+    },
+    {
+      name: 'a selected anyOf variant',
+      schema: { anyOf: [NULLABLE_CAT, NULLABLE_DOG] },
+      options: { compositionSelection: { anyOf: 1 } },
+      expected: { bark: true },
+    },
+    {
+      name: 'a property',
+      schema: { type: 'object', properties: { pet: { oneOf: [NULLABLE_CAT, DOG] } } },
+      expected: { pet: { lives: 9 } },
+    },
+    {
+      name: 'a selected property variant',
+      schema: { type: 'object', properties: { pet: { oneOf: [NULLABLE_CAT, NULLABLE_DOG] } } },
+      options: { compositionSelection: { 'pet.oneOf': 1 } },
+      expected: { pet: { bark: true } },
+    },
+    {
+      name: 'array items',
+      schema: { type: 'array', items: { oneOf: [NULLABLE_CAT, DOG] } },
+      expected: [{ lives: 9 }],
+    },
+    {
+      name: 'a nested union',
+      schema: { oneOf: [{ type: ['object', 'null'], properties: { pet: { oneOf: [NULLABLE_CAT, DOG] } } }, DOG] },
+      expected: { pet: { lives: 9 } },
+    },
+    {
+      name: 'properties shared by the union',
+      schema: { type: 'object', properties: { id: { type: 'integer' } }, oneOf: [NULLABLE_CAT] },
+      expected: { id: 1, lives: 9 },
+    },
+    { name: 'a root allOf member', schema: { allOf: [{ oneOf: [NULLABLE_CAT, DOG] }] }, expected: { lives: 9 } },
+    {
+      name: 'a read-only property omitted in write mode',
+      schema: {
+        oneOf: [
+          {
+            type: ['object', 'null'],
+            properties: { id: { type: 'integer', readOnly: true }, name: { type: 'string', example: 'Rex' } },
+          },
+        ],
+      },
+      options: { mode: 'write' },
+      expected: { name: 'Rex' },
+    },
+    {
+      name: 'a read-only property kept in read mode',
+      schema: {
+        oneOf: [
+          {
+            type: ['object', 'null'],
+            properties: { id: { type: 'integer', readOnly: true }, name: { type: 'string', example: 'Rex' } },
+          },
+        ],
+      },
+      options: { mode: 'read' },
+      expected: { id: 1, name: 'Rex' },
+    },
+    { name: 'an array variant', schema: { oneOf: [NULLABLE_TAGS, DOG] }, expected: ['x'] },
+    {
+      name: 'an array variant with null listed first',
+      schema: { oneOf: [{ ...NULLABLE_TAGS, type: ['null', 'array'] }, DOG] },
+      expected: ['x'],
+    },
+    { name: 'an array variant under anyOf', schema: { anyOf: [NULLABLE_TAGS] }, expected: ['x'] },
+    {
+      name: 'an array variant bounded by the union',
+      schema: { minItems: 2, oneOf: [NULLABLE_TAGS] },
+      expected: ['x', 'x'],
+    },
+    {
+      name: 'array items that are arrays',
+      schema: { type: 'array', items: { oneOf: [NULLABLE_TAGS, DOG] } },
+      expected: [['x']],
+    },
+  ])('generates a nullable variant like its non-nullable type: $name', ({ schema, options, expected }) => {
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, schema), options)).toStrictEqual(expected)
+  })
+
+  it.each([
+    { name: 'an object example of null', variant: { example: null } },
+    { name: 'an object default of null', variant: { default: null } },
+    { name: 'an object const of null', variant: { const: null } },
+    { name: 'an object enum of only null', variant: { enum: [null] } },
+    {
+      name: 'an array example of null',
+      variant: { type: ['array', 'null'], items: { type: 'string' }, example: null },
+    },
+    {
+      name: 'an array enum of only null',
+      variant: { type: ['array', 'null'], items: { type: 'string' }, enum: [null] },
+    },
+  ])('keeps an authored null for a nullable variant: $name', ({ variant }) => {
+    const schema = coerceValue(SchemaObjectSchema, { oneOf: [{ ...NULLABLE_CAT, ...variant }, DOG] })
+
+    expect(getExampleFromSchema(schema)).toBeNull()
+  })
+
+  it.each([{ example: null }, { examples: [null] }, { default: null }, { const: null }, { enum: [null] }])(
+    'keeps an authored null beside shared union properties: %j',
+    (declaration) => {
+      for (const keyword of ['oneOf', 'anyOf']) {
+        for (const type of ['object', ['object', 'null']]) {
+          const schema = coerceValue(SchemaObjectSchema, {
+            type,
+            properties: { id: { type: 'integer' } },
+            [keyword]: [{ ...NULLABLE_CAT, ...declaration }],
+          })
+
+          expect(getExampleFromSchema(schema)).toBeNull()
+        }
+      }
+    },
+  )
+
+  it.each([
+    { name: 'an object example', variant: { example: { lives: 3 } }, expected: { lives: 3 } },
+    {
+      name: 'an array example',
+      variant: { type: ['array', 'null'], items: { type: 'string' }, example: ['y'] },
+      expected: ['y'],
+    },
+  ])('keeps an authored value for a nullable variant: $name', ({ variant, expected }) => {
+    const schema = coerceValue(SchemaObjectSchema, { oneOf: [{ ...NULLABLE_CAT, ...variant }, DOG] })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(expected)
+  })
+
+  it.each([
+    {
+      name: 'a nullable integer',
+      schema: { oneOf: [{ type: ['integer', 'null'] }, { type: 'string' }] },
+      expected: null,
+    },
+    {
+      name: 'a nullable string',
+      schema: { oneOf: [{ type: ['string', 'null'] }, { type: 'integer' }] },
+      expected: null,
+    },
+    { name: 'a null type', schema: { oneOf: [{ type: ['null'] }, DOG] }, expected: null },
+    {
+      name: 'a type list that also allows arrays',
+      schema: { oneOf: [{ ...NULLABLE_CAT, type: ['object', 'array', 'null'] }, DOG] },
+      expected: null,
+    },
+    {
+      name: 'a plain object variant',
+      schema: { oneOf: [{ ...NULLABLE_CAT, type: 'object' }, DOG] },
+      expected: { lives: 9 },
+    },
+    {
+      name: 'a plain string variant',
+      schema: { oneOf: [{ type: 'string', example: 'a' }, NULLABLE_CAT] },
+      expected: 'a',
+    },
+  ])('leaves $name alone', ({ schema, expected }) => {
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, schema))).toStrictEqual(expected)
+  })
+
+  it.each(['oneOf', 'anyOf'])('keeps unconstrained nullable variants under %s unchanged', (keyword) => {
+    for (const type of [
+      ['object', 'null'],
+      ['array', 'null'],
+    ]) {
+      for (const holder of [
+        {},
+        { properties: { id: { type: 'integer' } } },
+        { items: { type: 'string', example: 'shared' } },
+      ]) {
+        const schema = coerceValue(SchemaObjectSchema, { ...holder, [keyword]: [{ type }] })
+
+        expect(getExampleFromSchema(schema)).toBeNull()
+      }
+    }
+  })
+
+  it('still merges array items when a type list allows objects', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [
+          { type: ['object', 'null'], properties: { id: { type: 'integer', example: 1 } } },
+          { properties: { name: { type: 'string', example: 'Rex' } } },
+        ],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'Rex' }])
+  })
+
   it('uses the default value', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'string',
@@ -1407,7 +2815,7 @@ describe('getExampleFromSchema', () => {
             contentEncoding: 'base64',
           }),
         ),
-      ).toBe('')
+      ).toBe('c2NhbGFy')
       expect(
         getExampleFromSchema(
           coerceValue(SchemaObjectSchema, {
@@ -2344,30 +3752,7 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  it('omits deprecated properties', () => {
-    expect(
-      getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
-          type: 'object',
-          properties: {
-            name: {
-              type: 'string',
-              example: 'test',
-            },
-            oldField: {
-              type: 'string',
-              example: 'should not appear',
-              deprecated: true,
-            },
-          },
-        }),
-      ),
-    ).toStrictEqual({
-      name: 'test',
-    })
-  })
-
-  it('keeps deprecated properties with includeDeprecated', () => {
+  it('keeps deprecated properties', () => {
     expect(
       getExampleFromSchema(
         coerceValue(SchemaObjectSchema, {
@@ -2384,7 +3769,6 @@ describe('getExampleFromSchema', () => {
             },
           },
         }),
-        { includeDeprecated: true },
       ),
     ).toStrictEqual({
       name: 'test',
@@ -2392,9 +3776,7 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  it('omits a deprecated root schema entirely', () => {
-    // The annotation is tested on every schema including the root, so a wholly deprecated response
-    // schema generates nothing at all — which is what answered a declared JSON body with zero bytes.
+  it('generates a value for a deprecated root schema', () => {
     expect(
       getExampleFromSchema(
         coerceValue(SchemaObjectSchema, {
@@ -2403,27 +3785,11 @@ describe('getExampleFromSchema', () => {
           required: ['id'],
           properties: { id: { type: 'string' } },
         }),
-      ),
-    ).toBeUndefined()
-  })
-
-  it('generates a value for a deprecated root schema with includeDeprecated', () => {
-    expect(
-      getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
-          deprecated: true,
-          type: 'object',
-          required: ['id'],
-          properties: { id: { type: 'string' } },
-        }),
-        { includeDeprecated: true },
       ),
     ).toStrictEqual({ id: '' })
   })
 
-  it('omits a required deprecated property, violating the schema', () => {
-    // `required` does not rescue the property: without the flag the generated object breaks the very
-    // contract it was generated from, which is why a mock response needs the opt-in.
+  it('keeps a required deprecated property', () => {
     expect(
       getExampleFromSchema(
         coerceValue(SchemaObjectSchema, {
@@ -2434,43 +3800,37 @@ describe('getExampleFromSchema', () => {
             legacyName: { type: 'string', deprecated: true },
           },
         }),
-      ),
-    ).toStrictEqual({ name: '' })
-  })
-
-  it('keeps a required deprecated property with includeDeprecated', () => {
-    expect(
-      getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
-          type: 'object',
-          required: ['name', 'legacyName'],
-          properties: {
-            name: { type: 'string' },
-            legacyName: { type: 'string', deprecated: true },
-          },
-        }),
-        { includeDeprecated: true },
       ),
     ).toStrictEqual({ name: '', legacyName: '' })
   })
 
-  it('does not leak a cached example between includeDeprecated and the default', () => {
-    // `resultCache` is a module global keyed by schema identity plus the serialized options, and its
-    // lookup runs before the annotation is tested. If the flag were missing from that key, whichever
-    // caller ran first would decide the answer for the other one.
+  it.each(['read', 'write'] as const)('keeps deprecated properties while respecting %s mode', (mode) => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',
+      deprecated: true,
       properties: {
-        name: { type: 'string', example: 'test' },
-        oldField: { type: 'string', example: 'legacy', deprecated: true },
+        legacy: { type: 'string', deprecated: true, example: 'old' },
+        id: { type: 'integer', deprecated: true, readOnly: true, example: 1 },
+        secret: { type: 'string', deprecated: true, writeOnly: true, example: 's' },
       },
     })
 
-    expect(getExampleFromSchema(schema, { includeDeprecated: true })).toStrictEqual({
-      name: 'test',
-      oldField: 'legacy',
+    expect(getExampleFromSchema(schema, { mode })).toStrictEqual(
+      mode === 'read' ? { legacy: 'old', id: 1 } : { legacy: 'old', secret: 's' },
+    )
+  })
+
+  it('keeps required deprecated properties when omitting empty optional properties', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      required: ['legacy'],
+      properties: {
+        legacy: { type: 'string', deprecated: true },
+        optional: { type: 'string', deprecated: true },
+      },
     })
-    expect(getExampleFromSchema(schema)).toStrictEqual({ name: 'test' })
+
+    expect(getExampleFromSchema(schema, { omitEmptyAndOptionalProperties: true })).toStrictEqual({ legacy: '' })
   })
 
   it('expands objects and arrays in arrays (without a type)', () => {
@@ -2520,6 +3880,206 @@ describe('getExampleFromSchema', () => {
         'foobar': [['foobar']],
       },
     ])
+  })
+
+  describe('example size budget', () => {
+    /** A resolved component reference, the shape `snapshotSchema` hands to the generator. */
+    const reference = (name: string, target: SchemaObject): SchemaObject =>
+      ({ $ref: `#/components/schemas/${name}`, '$ref-value': target }) as unknown as SchemaObject
+
+    /** An object with an `id` and several properties that reference the object itself. */
+    const selfReferencing = (count: number, required: string[] = []): SchemaObject => {
+      const properties: Record<string, SchemaObject> = { id: { type: 'integer', example: 1 } }
+      const schema: SchemaObject = { type: 'object', required, properties }
+      for (let index = 1; index <= count; index++) {
+        properties[`a${index}`] = reference('A', schema)
+      }
+      return schema
+    }
+
+    /** Distinct schemas that all reference each other, so that no path repeats a schema for a long time. */
+    const cluster = (size: number): SchemaObject[] => {
+      const properties = Array.from(
+        { length: size },
+        (_, index): Record<string, SchemaObject> => ({ id: { type: 'integer', example: index } }),
+      )
+      const schemas = properties.map((own): SchemaObject => ({ type: 'object', properties: own }))
+      properties.forEach((own, index) => {
+        schemas.forEach((target, targetIndex) => {
+          if (targetIndex !== index) {
+            own[`m${targetIndex}`] = reference(`M${targetIndex}`, target)
+          }
+        })
+      })
+      return schemas
+    }
+
+    /** Reads a nested value, since these examples are too deep to type usefully. */
+    const at = (value: unknown, ...path: string[]): unknown =>
+      path.reduce<unknown>((current, key) => (current as Record<string, unknown> | undefined)?.[key], value)
+
+    it('renders a schema with several references to itself at the deepest depth that fits', () => {
+      const example = getExampleFromSchema(reference('A', selfReferencing(5)))
+
+      expect(at(example, 'a5', 'a5', 'a5', 'id')).toBe(1)
+      expect(at(example, 'a5', 'a5', 'a5', 'a5')).toStrictEqual({})
+      expect(JSON.stringify(example).length).toBeLessThan(20_000)
+    })
+
+    it('cuts every branch of a dense cluster at the same depth', () => {
+      const example = getExampleFromSchema(reference('M0', cluster(30)[0]!)) as Record<string, object>
+
+      expect(at(example, 'm1', 'id')).toBe(1)
+      expect(at(example, 'm29', 'id')).toBe(29)
+      expect(at(example, 'm29', 'm1')).toStrictEqual({})
+      expect(Object.keys(example.m1!)).toHaveLength(Object.keys(example.m29!).length)
+      expect(JSON.stringify(example).length).toBeLessThan(20_000)
+    })
+
+    it('renders an example that fits without cutting anything', () => {
+      const leaf: SchemaObject = { type: 'object', properties: { value: { type: 'string', example: 'x' } } }
+      const level = (child: SchemaObject, name: string): SchemaObject => ({
+        type: 'object',
+        properties: Object.fromEntries(Array.from({ length: 8 }, (_, index) => [`p${index}`, reference(name, child)])),
+      })
+
+      // Too large for a shallower attempt, so this only renders in full under the full budget.
+      const example = getExampleFromSchema(level(level(level(level(leaf, 'Leaf'), 'Fourth'), 'Third'), 'Second'))
+
+      expect(at(example, 'p7', 'p7', 'p7', 'p7')).toStrictEqual({ value: 'x' })
+    })
+
+    it('keeps every property of a root too wide for a shallower attempt', () => {
+      const child: SchemaObject = {
+        type: 'object',
+        properties: { a: { type: 'string' }, b: { type: 'string' }, c: { type: 'string' }, d: { type: 'string' } },
+      }
+      const properties = Object.fromEntries(Array.from({ length: 2_100 }, (_, index) => [`p${index}`, child]))
+
+      const example = getExampleFromSchema({ type: 'object', properties }) as Record<string, unknown>
+
+      expect(Object.keys(example)).toHaveLength(2_100)
+    })
+
+    it('keeps required properties in an example that does not fit', () => {
+      const required = ['id', 'a1', 'a2', 'a3', 'a4', 'a5']
+
+      const example = getExampleFromSchema(reference('A', selfReferencing(5, required)))
+
+      // The attempt that fits has a depth cap of one, and fills required properties one level past it.
+      expect(Object.keys(example as object)).toStrictEqual(required)
+      expect(Object.keys(at(example, 'a5', 'a5') as object)).toStrictEqual(required)
+      expect(at(example, 'a5', 'a5', 'a5')).toStrictEqual({})
+      expect(JSON.stringify(example).length).toBeLessThan(20_000)
+    })
+
+    it.each([
+      ['directly', { $dynamicRef: '#node' }],
+      ['through array items', { type: 'array', items: { $dynamicRef: '#node' } }],
+    ])('bounds a type that references itself dynamically %s', (_, child) => {
+      const properties = Object.fromEntries(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map((name) => [name, child]))
+      const schema = {
+        $dynamicAnchor: 'node',
+        type: 'object',
+        properties: { value: { type: 'string', example: 'leaf' }, ...properties },
+      } as unknown as SchemaObject
+
+      const example = getExampleFromSchema(schema)
+
+      expect(at(example, 'value')).toBe('leaf')
+      expect(JSON.stringify(example).length).toBeLessThan(20_000)
+    })
+
+    it('stops compositions that keep exhausting the search for required properties', () => {
+      const properties: Record<string, SchemaObject> = {}
+      const a = { allOf: [] as SchemaObject[] } as SchemaObject & { allOf: SchemaObject[] }
+      const b = { allOf: [reference('A', a), reference('A', a)] } as SchemaObject
+      a.allOf.push(reference('B', b), reference('B', b), { type: 'object', required: ['p1'], properties })
+      for (let index = 1; index <= 5; index++) {
+        properties[`p${index}`] = reference('A', a)
+      }
+
+      // Each of these visits used to walk ten thousand composition members.
+      expect(getExampleFromSchema(reference('A', a))).toBeDefined()
+    })
+
+    it('does not mistake a small composition with a long search for a large example', () => {
+      const y = { allOf: [] as SchemaObject[] } as SchemaObject & { allOf: SchemaObject[] }
+      y.allOf.push({ oneOf: [reference('Y', y)] } as SchemaObject, { oneOf: [reference('Y', y)] } as SchemaObject)
+      const schema = {
+        type: 'object',
+        allOf: [reference('Y', y)],
+        properties: {
+          id: { type: 'integer' },
+          child: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              inner: { type: 'object', properties: { deep: { type: 'string', example: 'kept' } } },
+            },
+          },
+        },
+      } as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual({ id: 1, child: { name: '', inner: { deep: 'kept' } } })
+    })
+
+    it('does not show the depth marker at a shallower cut', () => {
+      const schema = selfReferencing(5) as { properties: Record<string, SchemaObject> }
+      schema.properties.meta = { description: 'Anything goes' } as SchemaObject
+
+      expect(JSON.stringify(getExampleFromSchema(schema as SchemaObject))).not.toContain('Max Depth Exceeded')
+    })
+
+    it('gives the same example on repeated calls', () => {
+      const child: SchemaObject = {
+        type: 'object',
+        properties: Object.fromEntries(Array.from({ length: 100 }, (_, index) => [`v${index}`, { type: 'string' }])),
+      }
+      const properties = Object.fromEntries(Array.from({ length: 120 }, (_, index) => [`p${index}`, { ...child }]))
+      const schema: SchemaObject = { type: 'object', properties }
+
+      const first = getExampleFromSchema(schema)
+
+      expect(getExampleFromSchema(schema)).toStrictEqual(first)
+      expect(getExampleFromSchema(schema)).toStrictEqual(first)
+    })
+
+    it('cuts a subtree the full-depth attempt already cached', () => {
+      const deepest: SchemaObject = { type: 'object', properties: { value: { type: 'string', example: 'x' } } }
+      const nested = Array.from({ length: 6 }).reduce<SchemaObject>(
+        (child) => ({ type: 'object', properties: { next: child } }),
+        deepest,
+      )
+      const { properties } = selfReferencing(5) as { properties: Record<string, SchemaObject> }
+
+      const example = getExampleFromSchema({ type: 'object', properties: { inline: nested, ...properties } })
+
+      expect(at(example, 'inline', 'next', 'next', 'next')).toBeDefined()
+      expect(at(example, 'inline', 'next', 'next', 'next', 'next')).toBeUndefined()
+    })
+
+    it('records the evaluation of the attempt it kept', () => {
+      const capture: ExampleEvaluationState = { stack: [] }
+
+      const example = getExampleFromSchema(reference('A', selfReferencing(5)), { [EXAMPLE_EVALUATION]: capture })
+
+      expect(capture.root?.value).toBe(example)
+    })
+
+    it('starts over after a walk throws', () => {
+      const broken = { type: 'object', properties: {} } as SchemaObject
+      Object.defineProperty(broken, 'properties', {
+        enumerable: true,
+        get: () => {
+          throw new Error('unreadable schema')
+        },
+      })
+      expect(() => getExampleFromSchema(broken)).toThrow('unreadable schema')
+
+      // Joining the abandoned call would leave this example without its later branches.
+      expect(at(getExampleFromSchema(reference('A', selfReferencing(5))), 'a5', 'a5', 'a5', 'id')).toBe(1)
+    })
   })
 
   describe('maximum depth', () => {
@@ -2720,6 +4280,735 @@ describe('getExampleFromSchema', () => {
       const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
 
       expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.oneOf`]: 1 } })).toStrictEqual([])
+    })
+
+    it('keeps the required properties of a truncated object', () => {
+      // A strict decoder rejects an object missing a required key, so an empty stand-in is not enough.
+      const leaf = {
+        type: 'object',
+        required: ['field', 'operator', 'values', 'count'],
+        properties: {
+          field: { type: 'string', enum: ['price_id', 'item_id'] },
+          operator: { type: 'string', const: 'includes' },
+          values: { type: 'array', items: { type: 'string' } },
+          count: { type: 'integer', default: 3 },
+          note: { type: 'string', const: 'optional, so left out' },
+        },
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ field: 'price_id', operator: 'includes', values: [], count: 3 })
+    })
+
+    it.each(['example', 'default', 'const', 'enum', 'examples'] as const)(
+      'preserves a required %s value equal to the depth marker',
+      (keyword) => {
+        const value = '[Max Depth Exceeded]'
+        const leaf = {
+          type: 'object',
+          required: ['value'],
+          properties: {
+            value: { type: 'string', [keyword]: keyword === 'enum' || keyword === 'examples' ? [value] : value },
+          },
+        }
+
+        expect(truncate(leaf)).toStrictEqual({ value })
+      },
+    )
+
+    it('preserves a required variable value equal to the depth marker', () => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: { value: { type: 'string', 'x-variable': 'value' } },
+      }
+
+      expect(truncate(leaf, { variables: { value: '[Max Depth Exceeded]' } })).toStrictEqual({
+        value: '[Max Depth Exceeded]',
+      })
+    })
+
+    it.each(['oneOf', 'anyOf'] as const)('collects required names only from the selected %s branch', (keyword) => {
+      const leaf = {
+        type: 'object',
+        properties: { first: { type: 'string', const: 'a' }, second: { type: 'string', const: 'b' } },
+        [keyword]: [
+          { type: 'object', required: ['first'] },
+          { type: 'object', required: ['second'] },
+        ],
+      }
+      const nested = nestObjects(TRUNCATED_DEPTH, coerceValue(SchemaObjectSchema, leaf))
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      // Reusing the schema catches required-name caches that ignore the selected branch.
+      expect(deepestNext(getExampleFromSchema(nested))).toStrictEqual({ first: 'a' })
+      expect(
+        deepestNext(getExampleFromSchema(nested, { compositionSelection: { [`${selectionKey}.${keyword}`]: 1 } })),
+      ).toStrictEqual({ second: 'b' })
+      expect(deepestNext(getExampleFromSchema(nested))).toStrictEqual({ first: 'a' })
+    })
+
+    it('uses allOf choice paths when collecting required names', () => {
+      const leaf = {
+        type: 'object',
+        allOf: [
+          { properties: { first: { const: 'a' }, second: { const: 'b' } } },
+          {
+            oneOf: [
+              { type: 'object', required: ['first'] },
+              { type: 'object', required: ['second'] },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf)).toStrictEqual({ first: 'a' })
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.0.oneOf`]: 1 } })).toStrictEqual({
+        second: 'b',
+      })
+    })
+
+    it('collects shared choice requirements at each allOf selection path', () => {
+      const choice = coerceValue(SchemaObjectSchema, {
+        oneOf: [
+          { type: 'object', required: ['first'] },
+          { type: 'object', required: ['second'] },
+        ],
+      })
+      const leaf: SchemaObject = {
+        type: 'object',
+        properties: { first: { type: 'string', const: 'a' }, second: { type: 'string', const: 'b' } },
+        allOf: [choice, choice],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(
+        deepestNext(
+          getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf), {
+            compositionSelection: { [`${selectionKey}.1.oneOf`]: 1 },
+          }),
+        ),
+      ).toStrictEqual({ first: 'a', second: 'b' })
+    })
+
+    it('consumes a selection while collecting nested union requirements', () => {
+      const leaf = {
+        type: 'object',
+        properties: { first: { const: 'a' }, second: { const: 'b' }, outer: { const: 'unused' } },
+        oneOf: [
+          { type: 'object', required: ['outer'] },
+          {
+            oneOf: [
+              { type: 'object', required: ['first'] },
+              { type: 'object', required: ['second'] },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.oneOf`]: 1 } })).toStrictEqual({ first: 'a' })
+    })
+
+    it.each([
+      ['read', 'writeOnly'],
+      ['write', 'readOnly'],
+    ] as const)('omits excluded members of a required primitive composition in %s mode', (mode, flag) => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: { value: { allOf: [{ type: 'string', const: 'hidden', [flag]: true }] } },
+      }
+
+      expect(truncate(leaf, { mode })).toStrictEqual({ value: null })
+    })
+
+    it('substitutes a variable inside a required primitive composition', () => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: { value: { allOf: [{ type: 'integer', 'x-variable': 'value' }] } },
+      }
+
+      expect(truncate(leaf, { variables: { value: '42' }, omitEmptyAndOptionalProperties: true })).toStrictEqual({
+        value: 42,
+      })
+    })
+
+    it('consumes a selection inside a required primitive composition', () => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: { oneOf: [{ const: 'outer' }, { oneOf: [{ const: 'first' }, { const: 'second' }] }] },
+        },
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.value.oneOf`]: 1 } })).toStrictEqual({
+        value: 'first',
+      })
+    })
+
+    it('preserves an explicit depth marker inside a required primitive composition', () => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: { value: { allOf: [{ const: '[Max Depth Exceeded]' }] } },
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ value: '[Max Depth Exceeded]' })
+    })
+
+    it.each([9, 10, 11])('collects the rendered discriminator branch requirements at depth %i', (depth) => {
+      const leaf = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: { kind: { const: 'B' } },
+        discriminator: { propertyName: 'kind', defaultMapping: 'A' },
+        oneOf: [
+          {
+            $ref: '#/components/schemas/A',
+            '$ref-value': { type: 'object', required: ['a'], properties: { a: { const: 'A' } } },
+          },
+          {
+            $ref: '#/components/schemas/B',
+            '$ref-value': { type: 'object', required: ['b'], properties: { b: { const: 'B' } } },
+          },
+        ],
+      })
+
+      expect(deepestNext(getExampleFromSchema(nestObjects(depth, leaf)))).toStrictEqual(
+        depth > 10 ? { a: 'A' } : { kind: 'B', b: 'B' },
+      )
+      // The requirement collector must also account for a composition crossing the cap.
+      expect(
+        deepestNext(getExampleFromSchema(nestObjects(depth, coerceValue(SchemaObjectSchema, { allOf: [leaf] })))),
+      ).toStrictEqual(depth >= 10 ? { a: 'A' } : { kind: 'B', b: 'B' })
+    })
+
+    it('keeps a discriminator required by a sibling composition member', () => {
+      const leaf = {
+        allOf: [
+          { required: ['kind'] },
+          {
+            type: 'object',
+            properties: { kind: { const: 'B' } },
+            discriminator: { propertyName: 'kind', defaultMapping: 'A' },
+            oneOf: [
+              {
+                $ref: '#/components/schemas/A',
+                '$ref-value': { type: 'object', required: ['a'], properties: { a: { const: 'A' } } },
+              },
+              {
+                $ref: '#/components/schemas/B',
+                '$ref-value': { type: 'object', required: ['b'], properties: { b: { const: 'B' } } },
+              },
+            ],
+          },
+        ],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ kind: 'B', b: 'B' })
+    })
+
+    it.each([
+      { kind: { const: 'B', writeOnly: true }, options: { mode: 'read' as const }, expected: { a: 'A' } },
+      { kind: { const: 'B', readOnly: true }, options: { mode: 'write' as const }, expected: { a: 'A' } },
+      { kind: { type: 'string' }, options: { emptyString: 'B' }, expected: { kind: 'B', b: 'B' } },
+      { kind: { allOf: [{ type: 'string' }] }, options: { emptyString: 'B' }, expected: { kind: 'B', b: 'B' } },
+      { kind: { 'x-variable': 'tag' }, options: { variables: { tag: 'B' } }, expected: { kind: 'B', b: 'B' } },
+    ])('collects requirements from the evaluated discriminator $kind with $options', ({ kind, options, expected }) => {
+      for (const depth of [9, 10, 11]) {
+        const leaf = coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          required: ['kind'],
+          properties: { kind },
+          discriminator: { propertyName: 'kind', defaultMapping: 'A' },
+          oneOf: [
+            { $ref: '#/components/schemas/A', '$ref-value': { required: ['a'], properties: { a: { const: 'A' } } } },
+            { $ref: '#/components/schemas/B', '$ref-value': { required: ['b'], properties: { b: { const: 'B' } } } },
+          ],
+        })
+
+        expect(deepestNext(getExampleFromSchema(nestObjects(depth, leaf), options))).toStrictEqual(expected)
+        expect(
+          deepestNext(
+            getExampleFromSchema(nestObjects(depth, coerceValue(SchemaObjectSchema, { allOf: [leaf] })), options),
+          ),
+        ).toStrictEqual(expected)
+      }
+    })
+
+    it('refreshes discriminator decisions when generated dates change between calls', () => {
+      const leaf = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        required: ['kind'],
+        properties: { kind: { type: 'string', format: 'date' } },
+        discriminator: { propertyName: 'kind', defaultMapping: 'A', mapping: { '2026-01-01': 'A', '2027-01-01': 'B' } },
+        oneOf: [
+          { $ref: '#/components/schemas/A', '$ref-value': { required: ['a'], properties: { a: { const: 'A' } } } },
+          { $ref: '#/components/schemas/B', '$ref-value': { required: ['b'], properties: { b: { const: 'B' } } } },
+        ],
+      })
+      const nested = nestObjects(TRUNCATED_DEPTH, leaf)
+      vi.useFakeTimers()
+      try {
+        vi.setSystemTime(new Date('2026-01-01T00:00:00Z'))
+        expect(deepestNext(getExampleFromSchema(nested))).toStrictEqual({ kind: '2026-01-01', a: 'A' })
+        vi.setSystemTime(new Date('2027-01-01T00:00:00Z'))
+        expect(deepestNext(getExampleFromSchema(nested))).toStrictEqual({ kind: '2027-01-01', b: 'B' })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it.each([
+      { prefixItems: [{ type: 'string', const: 'one' }] },
+      { allOf: [{ prefixItems: [{ type: 'string', const: 'one' }] }] },
+    ])('leaves inferred tuple array items out past the cap: %j', (tuple) => {
+      expect(truncate({ type: 'object', required: ['tuple'], properties: { tuple } })).toStrictEqual({ tuple: [] })
+    })
+
+    it('keeps only the required keys of a required child object', () => {
+      const leaf = {
+        type: 'object',
+        required: ['child'],
+        properties: {
+          child: {
+            type: 'object',
+            required: ['id'],
+            properties: { id: { type: 'string', const: 'kept' }, extra: { type: 'string', const: 'dropped' } },
+          },
+        },
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ child: { id: 'kept' } })
+    })
+
+    it('terminates on an object that requires itself', () => {
+      const node: Record<string, unknown> = { type: 'object', required: ['self'] }
+      node.properties = { self: node }
+
+      // The cycle guard drops the self-reference, the same answer the walk gives at any depth.
+      expect(truncate(node)).toStrictEqual({})
+    })
+
+    it('leaves out required properties the full walk would leave out', () => {
+      const leaf = {
+        type: 'object',
+        required: ['id', 'secret', 'old'],
+        properties: {
+          id: { type: 'string', const: 'kept' },
+          secret: { type: 'string', const: 'hidden', writeOnly: true },
+          old: { type: 'string', const: 'retired', deprecated: true },
+        },
+      }
+
+      // Deprecated properties are kept, the way the full walk keeps them.
+      expect(truncate(leaf, { mode: 'read' })).toStrictEqual({ id: 'kept', old: 'retired' })
+    })
+
+    it.each([
+      ['read', 'writeOnly'],
+      ['write', 'readOnly'],
+    ] as const)('ignores requirements within a %s-mode excluded composition member', (mode, flag) => {
+      const leaf = {
+        type: 'object',
+        properties: { id: { const: 'kept' }, direct: { const: 'omitted' }, nested: { const: 'omitted' } },
+        allOf: [{ [flag]: true, required: ['direct'], allOf: [{ required: ['nested'] }] }, { required: ['id'] }],
+      }
+
+      expect(truncate(leaf, { mode })).toStrictEqual({ id: 'kept' })
+    })
+
+    it('keeps required properties an object declares through allOf', () => {
+      const leaf = {
+        type: 'object',
+        allOf: [{ type: 'object', required: ['id'], properties: { id: { type: 'string', const: 'ok' } } }],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ id: 'ok' })
+    })
+
+    // Keep raw JSON Schema keywords in these fixtures: coercion drops $defs before dynamic scope can read it.
+    it.each(['object', undefined] as const)(
+      'keeps shared requirements through a dynamic allOf member with type %s',
+      (type) => {
+        const leaf = {
+          type,
+          $defs: {
+            Base: {
+              $dynamicAnchor: 'Base',
+              type: 'object',
+              properties: { id: { const: 'ok' }, optional: { const: 'omitted' } },
+            },
+          },
+          allOf: [{ required: ['id'] }, { $dynamicRef: '#Base' }],
+        }
+
+        expect(
+          deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject))),
+        ).toStrictEqual({ id: 'ok' })
+      },
+    )
+
+    it.each(['object', undefined] as const)(
+      'collects requirements from a dynamic allOf member with type %s',
+      (type) => {
+        const leaf = {
+          type,
+          $defs: { Base: { $dynamicAnchor: 'Base', required: ['id'] } },
+          allOf: [{ properties: { id: { const: 'ok' }, optional: { const: 'omitted' } } }, { $dynamicRef: '#Base' }],
+        }
+
+        expect(
+          deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject))),
+        ).toStrictEqual({ id: 'ok' })
+      },
+    )
+
+    it('preserves required primitive composition rules through a dynamic reference', () => {
+      const leaf = {
+        type: 'object',
+        $defs: {
+          Value: { $dynamicAnchor: 'Value', oneOf: [{ type: 'string', 'x-variable': 'value' }] },
+          Empty: { $dynamicAnchor: 'Empty' },
+        },
+        required: ['value', 'empty'],
+        properties: { value: { $dynamicRef: '#Value' }, empty: { $dynamicRef: '#Empty' } },
+      }
+
+      expect(
+        deepestNext(
+          getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject), {
+            variables: { value: 'resolved' },
+          }),
+        ),
+      ).toStrictEqual({ value: 'resolved', empty: null })
+    })
+
+    it.each([false, true])(
+      'collects shared template requirements under distinct dynamic bindings (reverse: %s)',
+      (reverse) => {
+        const template = {
+          $id: 'urn:template',
+          $defs: { Item: { $dynamicAnchor: 'Item', type: 'object' } },
+          allOf: [{ $dynamicRef: '#Item' }],
+        }
+        const bindings = ['a', 'b'].map((name) => ({
+          $id: `urn:binding:${name}`,
+          $defs: { Item: { $dynamicAnchor: 'Item', type: 'object', required: [name] } },
+          allOf: [{ $ref: 'urn:template', '$ref-value': template }],
+        }))
+        const leaf = {
+          type: 'object',
+          properties: { a: { const: 'a' }, b: { const: 'b' }, optional: { const: 'omitted' } },
+          allOf: reverse ? [...bindings].reverse() : bindings,
+        }
+
+        expect(
+          deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject))),
+        ).toStrictEqual({ a: 'a', b: 'b' })
+      },
+    )
+
+    it('collects requirements against the resource that declares a dynamic allOf reference', () => {
+      const leaf = {
+        type: 'object',
+        allOf: [
+          { properties: { id: { const: 'kept' }, optional: { const: 'omitted' } } },
+          {
+            $id: 'urn:inner',
+            $defs: { Base: { $dynamicAnchor: 'Base', required: ['id'] } },
+            $dynamicRef: '#Base',
+          },
+        ],
+      }
+
+      expect(
+        deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject))),
+      ).toStrictEqual({ id: 'kept' })
+    })
+
+    it('bounds recursive dynamic composition while collecting required names', () => {
+      const leaf = {
+        type: 'object',
+        $dynamicAnchor: 'Node',
+        required: ['id'],
+        properties: { id: { const: 'ok' }, optional: { const: 'omitted' } },
+        allOf: [{ $dynamicRef: '#Node' }],
+      }
+
+      expect(
+        deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject))),
+      ).toStrictEqual({ id: 'ok' })
+    })
+
+    it('keeps a required property whose definition lives in another allOf member', () => {
+      const base = { type: 'object', properties: { id: { type: 'string', const: 'ok' }, note: { type: 'string' } } }
+      const extension = { required: ['id'] }
+
+      expect(truncate({ allOf: [base, extension] })).toStrictEqual({ id: 'ok' })
+      expect(truncate({ type: 'object', allOf: [extension, base] })).toStrictEqual({ id: 'ok' })
+    })
+
+    it.each([8, 9, 10, 11])('preserves shared requirements across composition wrappers at depth %i', (depth) => {
+      const leaf = coerceValue(SchemaObjectSchema, {
+        allOf: [
+          { required: ['id'] },
+          { type: 'object', allOf: [{ properties: { id: { type: 'string' }, optional: { type: 'string' } } }] },
+        ],
+      })
+
+      expect(deepestNext(getExampleFromSchema(nestObjects(depth, leaf)))).toStrictEqual(
+        depth === 8 ? { id: '', optional: '' } : { id: '' },
+      )
+    })
+
+    it.each([
+      ['read', 'writeOnly'],
+      ['write', 'readOnly'],
+    ] as const)('keeps shared required properties with optional omission in %s mode', (mode, excludedFlag) => {
+      const leaf = {
+        type: 'object',
+        allOf: [
+          { required: ['id', 'hidden'] },
+          {
+            properties: {
+              id: { type: 'string' },
+              hidden: { type: 'string', [excludedFlag]: true },
+              optional: { type: 'string' },
+            },
+          },
+        ],
+      }
+
+      expect(truncate(leaf, { omitEmptyAndOptionalProperties: true, mode })).toStrictEqual({ id: '' })
+    })
+
+    it('keeps the required properties of the selected oneOf variant only', () => {
+      const leaf = {
+        type: 'object',
+        oneOf: [
+          { required: ['first'], properties: { first: { type: 'string', const: 'a' } } },
+          { required: ['second'], properties: { second: { type: 'string', const: 'b' } } },
+        ],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ first: 'a' })
+    })
+
+    it('bounds the stand-in for a branching chain of shared schemas', () => {
+      // Every link requires two properties pointing at the same next link, so without a shared budget
+      // the stand-in would double with each of the forty links. Built by hand rather than through
+      // `truncate`, whose coercion deep-clones and would expand the shared links itself.
+      let link: SchemaObject = { type: 'string', const: 'leaf' }
+      for (let index = 0; index < 40; index++) {
+        link = { type: 'object', required: ['left', 'right'], properties: { left: link, right: link } }
+      }
+
+      /** Count every key in the generated value, however deeply nested. */
+      const countKeys = (value: unknown): number =>
+        value !== null && typeof value === 'object'
+          ? Object.values(value).reduce<number>((total, child) => total + 1 + countKeys(child), 0)
+          : 0
+
+      const example = deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, link)))
+
+      expect(countKeys(example)).toBeGreaterThan(0)
+      expect(countKeys(example)).toBeLessThanOrEqual(10_000)
+    })
+
+    it.each([
+      ['typed', { type: 'object' }],
+      ['untyped', {}],
+    ] as const)('bounds an %s allOf chain that lists each member twice', (_, wrapper) => {
+      // Each link lists the same next link twice, so walking every route to the leaf would take 2^links
+      // steps. Built by hand for the same reason as the branching case above.
+      const chain = (links: number): SchemaObject => {
+        let link: SchemaObject = {
+          type: 'object',
+          required: ['id'],
+          properties: { id: { type: 'string', const: 'ok' } },
+        }
+        for (let index = 0; index < links; index++) {
+          link = { ...wrapper, allOf: [link, link] } as SchemaObject
+        }
+        return link
+      }
+
+      // A short chain still reaches the leaf and keeps its required key.
+      expect(deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, chain(4))))).toStrictEqual({ id: 'ok' })
+      // A long one finishes within the step budget and still answers with an object.
+      expect(deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, chain(40))))).toBeTypeOf('object')
+    })
+
+    it('keeps required properties named like Object.prototype members', () => {
+      const leaf = {
+        type: 'object',
+        required: ['constructor', 'toString', 'id'],
+        properties: {
+          constructor: { type: 'string', const: 'a' },
+          toString: { type: 'string', const: 'b' },
+          id: { type: 'string', const: 'ok' },
+        },
+      }
+
+      expect(Object.entries(truncate(leaf) as object)).toStrictEqual([
+        ['constructor', 'a'],
+        ['toString', 'b'],
+        ['id', 'ok'],
+      ])
+    })
+
+    it('combines the definitions of a property repeated across allOf members', () => {
+      const leaf = {
+        type: 'object',
+        required: ['child'],
+        allOf: [
+          { properties: { child: { type: 'object' } } },
+          {
+            properties: {
+              child: { type: 'object', required: ['id'], properties: { id: { type: 'string', const: 'ok' } } },
+            },
+          },
+        ],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ child: { id: 'ok' } })
+    })
+
+    it('refines a required property an earlier member of an untyped allOf already filled', () => {
+      // The first member describes `child` on its own and fills it with an empty object, so the
+      // refinement in the second member has to be merged into that key rather than skipped.
+      const leaf = {
+        allOf: [
+          { type: 'object', required: ['child'], properties: { child: { type: 'object' } } },
+          {
+            type: 'object',
+            properties: {
+              child: { type: 'object', required: ['id'], properties: { id: { type: 'string', const: 'ok' } } },
+            },
+          },
+        ],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ child: { id: 'ok' } })
+    })
+
+    it('describes a property collected from an allOf choice member at that member’s selection path', () => {
+      const leaf = {
+        type: 'object',
+        allOf: [
+          {
+            oneOf: [
+              {
+                type: 'object',
+                required: ['child'],
+                properties: {
+                  child: {
+                    oneOf: [
+                      { type: 'string', const: 'first' },
+                      { type: 'string', const: 'second' },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf)).toStrictEqual({ child: 'first' })
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.0.child.oneOf`]: 1 } })).toStrictEqual({
+        child: 'second',
+      })
+    })
+
+    it.each([
+      ['read', 'writeOnly'],
+      ['write', 'readOnly'],
+    ] as const)('leaves out a required property of an allOf member flagged %s-excluded (%s)', (mode, flag) => {
+      // The flag sits on the member, not the property, and the walk drops the whole member.
+      const leaf = {
+        type: 'object',
+        allOf: [
+          {
+            type: 'object',
+            [flag]: true,
+            required: ['secret'],
+            properties: { secret: { type: 'string', const: 'hidden' } },
+          },
+        ],
+      }
+
+      expect(truncate(leaf, { mode })).toStrictEqual({})
+    })
+
+    it('consumes a composition selection before descending into the selected variant', () => {
+      // The outer selection picks the nested union, which must then fall back to its own first
+      // variant rather than be steered by the outer key a second time.
+      const leaf = {
+        type: 'object',
+        oneOf: [
+          { type: 'object', required: ['outer'], properties: { outer: { const: 'unused' } } },
+          {
+            oneOf: [
+              { type: 'object', required: ['first'], properties: { first: { const: 'a' } } },
+              { type: 'object', required: ['second'], properties: { second: { const: 'b' } } },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.oneOf`]: 1 } })).toStrictEqual({ first: 'a' })
+    })
+
+    it.each([
+      ['an empty schema', {}],
+      ['a boolean true schema', true],
+      ['an empty selected schema', { oneOf: [{}] }],
+    ])('keeps a required property whose schema is %s as null', (_, value) => {
+      const leaf = { type: 'object', required: ['value'], properties: { value } }
+
+      expect(truncate(leaf)).toStrictEqual({ value: null })
+    })
+
+    it('substitutes a variable for a required property', () => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: { value: { type: 'integer', 'x-variable': 'value' } },
+      }
+
+      expect(truncate(leaf, { variables: { value: '42' } })).toStrictEqual({ value: 42 })
+    })
+
+    it('converts a required binary property to a file when asked to', () => {
+      const leaf = {
+        type: 'object',
+        required: ['upload'],
+        properties: { upload: { type: 'string', format: 'binary' } },
+      }
+
+      const example = truncate(leaf, { binaryAsFile: true }) as { upload: unknown }
+
+      expect(example.upload).toBeInstanceOf(File)
+    })
+
+    it('stops filling required properties at a bounded depth', () => {
+      // Every object requires the next, far past the cap. The walk stops at a fixed depth and the
+      // innermost object it reaches stands in empty, rather than following the chain to its end.
+      let link: SchemaObject = { type: 'string', const: 'leaf' }
+      for (let index = 0; index < 60; index++) {
+        link = { type: 'object', required: ['next'], properties: { next: link } }
+      }
+
+      const innermost = deepestNext(getExampleFromSchema(link))
+
+      expect(innermost).toStrictEqual({})
     })
 
     it('keeps the sentinel when the schema declares no shape', () => {
@@ -2952,6 +5241,57 @@ describe('getExampleFromSchema', () => {
       expect(example.items).toEqual([])
     })
 
+    it('bookends a $dynamicRef declared on a resource against that resource, like the magic proxy', () => {
+      // `urn:inner` holds the reference but declares no `itemType`, so the reference stays unresolved
+      // instead of borrowing the outer binding. The rendered schema behaves the same way.
+      const example = getExampleFromSchema(
+        dyn({
+          $id: 'urn:outer',
+          $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'object', properties: { id: { type: 'string' } } } },
+          type: 'object',
+          properties: { value: { $id: 'urn:inner', $dynamicRef: '#itemType' } },
+        }),
+      )
+
+      expect(example).toEqual({ value: null })
+    })
+
+    it('does not borrow an outer anchor for an array item declared in its own resource', () => {
+      const example = getExampleFromSchema(
+        dyn({
+          $id: 'urn:outer',
+          type: 'array',
+          $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'string', const: 'outer' } },
+          items: { $id: 'urn:inner', $dynamicRef: '#itemType' },
+        }),
+      )
+
+      expect(example).toStrictEqual([])
+    })
+
+    it('binds a recursive anchor on a schema reached through a $ref from an explicit resource', () => {
+      // `User` has no `$id`, so its `#node` anchor is not hidden by the `urn:user-page` resource that led here.
+      const user = {
+        $dynamicAnchor: 'node',
+        type: 'object',
+        required: ['name', 'friends'],
+        properties: {
+          name: { type: 'string' },
+          friends: { type: 'array', items: { $dynamicRef: '#node' } },
+        },
+      }
+      const example = getExampleFromSchema(
+        dyn({
+          $id: 'urn:user-page',
+          type: 'object',
+          required: ['owner'],
+          properties: { owner: { $ref: '#/components/schemas/User', '$ref-value': user } },
+        }),
+      ) as { owner: { friends: Record<string, unknown>[] } }
+
+      expect(example.owner.friends[0]).toHaveProperty('name')
+    })
+
     it('resolves recursive $dynamicRef to the active extended type', () => {
       const baseCategory = {
         $id: 'urn:base',
@@ -3040,13 +5380,13 @@ describe('options cache key', () => {
       type: 'object',
       properties: {
         name: { type: 'string' },
-        legacy: { type: 'string', deprecated: true },
+        legacy: { type: 'string', readOnly: true },
       },
     } as const
 
-    expect(getExampleFromSchema(schema)).toEqual({ name: '' })
-    expect(getExampleFromSchema(schema, { includeDeprecated: true })).toEqual({ name: '', legacy: '' })
-    expect(getExampleFromSchema(schema)).toEqual({ name: '' })
+    expect(getExampleFromSchema(schema, { mode: 'write' })).toEqual({ name: '' })
+    expect(getExampleFromSchema(schema, { mode: 'read' })).toEqual({ name: '', legacy: '' })
+    expect(getExampleFromSchema(schema, { mode: 'write' })).toEqual({ name: '' })
   })
 
   it('keys nested results by the options of the call they were produced in', () => {
@@ -3055,27 +5395,27 @@ describe('options cache key', () => {
       properties: {
         child: {
           type: 'object',
-          properties: { name: { type: 'string' }, legacy: { type: 'string', deprecated: true } },
+          properties: { name: { type: 'string' }, legacy: { type: 'string', readOnly: true } },
         },
       },
     } as const
 
-    expect(getExampleFromSchema(schema, { includeDeprecated: true })).toEqual({
+    expect(getExampleFromSchema(schema, { mode: 'read' })).toEqual({
       child: { name: '', legacy: '' },
     })
-    expect(getExampleFromSchema(schema)).toEqual({ child: { name: '' } })
+    expect(getExampleFromSchema(schema, { mode: 'write' })).toEqual({ child: { name: '' } })
   })
 
   it('picks up an options object mutated between two calls', () => {
     const schema = {
       type: 'object',
-      properties: { name: { type: 'string' }, legacy: { type: 'string', deprecated: true } },
+      properties: { name: { type: 'string' }, legacy: { type: 'string', readOnly: true } },
     } as const
-    const options: { includeDeprecated?: boolean } = { includeDeprecated: true }
+    const options: { mode: 'read' | 'write' } = { mode: 'read' }
 
     expect(getExampleFromSchema(schema, options)).toEqual({ name: '', legacy: '' })
 
-    options.includeDeprecated = false
+    options.mode = 'write'
 
     expect(getExampleFromSchema(schema, options)).toEqual({ name: '' })
   })

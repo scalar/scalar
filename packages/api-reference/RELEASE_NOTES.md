@@ -9,6 +9,193 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.85.0 (2026-11-26)
+
+### Control available HTTP clients and switch to system fonts
+
+This release introduces fine-grained control over which HTTP clients appear in your API reference and replaces web fonts with native system fonts for faster page loads and reduced bandwidth usage.
+
+- Configure available HTTP clients with the new httpClients option, which accepts exact client IDs or wildcards like shell/* to show only the clients your API supports
+- API references now use your operating system's native fonts instead of downloading web fonts from the internet, making pages load faster and reducing data transfer
+- Schema properties now support custom x-badges to highlight important details like expandable fields, using the same badge component as operations
+- Search now finds operations by text in their response descriptions, not just the operation description itself
+- Generated string examples now respect minLength and maxLength constraints, producing valid placeholder values that fit within your schema bounds
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1850)
+
+## 1.84.0 (2026-11-25)
+
+### AsyncAPI messages and trait rendering, plus polish and fixes
+
+AsyncAPI documents now render reusable messages, message traits, and operation traits in searchable sections above Models. This release also fixes syntax highlighting in code blocks, improves response media-type picker visibility, and displays explicit zero bounds in schema details.
+
+- Reusable AsyncAPI messages from components.messages now render in a searchable Messages section with headers, payloads, examples, and applied traits
+- Message traits and operation traits from AsyncAPI components are listed in their own sections with full details and security badges
+- Response media-type pickers stay visible when multiple types are available and fit beside summaries on narrow screens
+- Syntax highlighting now works in fenced code blocks inside request body and property descriptions
+- Explicit zero bounds for string lengths and array item counts are displayed in schema details
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1840)
+
+## 1.83.0 (2026-11-22)
+
+### ASP.NET Core form naming and localhost beta invitation
+
+This release adds support for ASP.NET Core's indexed form field naming convention and introduces a one-time invitation to the API Hosting beta for developers running the reference locally.
+
+- Configure indexed form field names with multipartNaming: 'indexed-dot' for ASP.NET Core compatibility
+- Nested multipart and URL-encoded request bodies now use indexed dotted names like Certificates[0].name
+- Show API Hosting beta invitation popup once on localhost development servers
+- Prevent Content Security Policy eval violation reports when loading OAuth and AI Chat
+- Update dependencies for improved identifier generation performance
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1830)
+
+## 1.82.1 (2026-11-20)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1821)
+
+## 1.82.0 (2026-11-19)
+
+### Sidebar badges, faster rendering for cyclic schemas, and cleaner code highlights
+
+This release adds an optional sidebar badge display, fixes performance issues with complex schemas, and updates the Markdown rendering pipeline to use a unified highlighter.
+
+- New `showBadgesInSidebar` option displays `x-badges` next to operations, webhooks, tags, and models in the sidebar (off by default)
+- Fixed freezing on schemas with multiple recursive or cross-referencing `$ref`s by limiting example generation depth intelligently
+- Native AsyncAPI RAML and Protobuf dependencies now load on expansion rather than upfront, reducing initial load overhead
+- Code blocks in Markdown descriptions now use the same highlighter as `ScalarCodeBlock`, removing highlight.js from the bundle
+- Improved AI chat integration by sending selected API context as structured metadata instead of appending it to user messages
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1820)
+
+## 1.81.0 (2026-11-18)
+
+### AsyncAPI schema resolution, credential substitution in SDK instructions, and improved examples
+
+This release resolves external RAML and Protobuf dependencies in AsyncAPI schemas, substitutes credentials in SDK installation commands, and fixes response example language detection and parameter example precedence.
+
+- SDK installation instructions now substitute credential placeholders with real values from your selected authentication, masking secrets on screen while copying unmasked code
+- AsyncAPI schemas with RAML libraries and Protobuf imports now resolve their dependencies and display structured field documentation instead of falling back to source view
+- Response examples now select their syntax highlighting from the media type, so CSV responses display as Plain Text instead of JSON
+- Parameter and media type examples now take precedence over schema examples, avoiding duplicate entries in the example popup
+- Deep-link targets stay aligned while lazy content and collapsing sections finish changing height
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1810)
+
+## 1.80.0 (2026-11-17)
+
+### Plugin document types and accessibility improvements
+
+This release introduces an extension point that lets plugins teach API Reference new document formats, alongside fixes for focus management, hydration, and visual alignment.
+
+- Plugins can now register custom document types with their own detection, sidebar entries, and rendering components, while API Reference handles loading, routing, and navigation
+- The Ask AI Agent field collapses when focus leaves it, so keyboard users can reach the example picker and Test Request button without hidden focus rings
+- Card headers and footers are now centered between the card edge and the content surface, fixing alignment in request examples and operation lists
+- Server-rendered references hydrate cleanly when mounted again in the same document after client-side navigation or manual remount
+- TypeScript 6 builds are now supported while preserving runtime output and public handler types
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1800)
+
+## 1.79.0 (2026-11-16)
+
+### Redesigned code cards, SDK installation alongside built-in clients, and hydration fixes
+
+Code cards across the API reference now render on a lifted surface with updated styling. SDK installation tabs can appear alongside built-in HTTP clients in the introduction. Server-side rendering now hydrates correctly without replacing markup or breaking the host page.
+
+- Code cards redesigned with a padded shell and lifted surface for better visual hierarchy. Cards now use a 12px radius with 4px padding and surfaces with subtle shadows.
+- Show SDK installation tabs alongside built-in HTTP clients with the new showDefaultClientsWithSdkInstallation option. SDK tabs appear first with additional clients in a grouped More menu.
+- Disable saving selected code sample client to local storage with persistSelectedClient: false. Useful when embedding on third-party pages.
+- Server-rendered references now hydrate without replacing markup or breaking host page elements. Fixes issues with dropdowns, tag accordions, and teleported content.
+- Parameter, body, and header examples now display their summary or name as muted labels above value boxes while keeping copy buttons focused on values only.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1790)
+
+## 1.78.1 (2026-11-12)
+
+### Large API documents with shared components now parse successfully
+
+This release fixes a parsing error that occurred when rendering API documents that reuse shared schemas or responses across many operations, particularly exports from AWS API Gateway.
+
+- Raised the YAML alias limit from 10,000 to 100,000 to support documents that merge shared anchors into hundreds of operations
+- Fixed "Excessive alias count" errors when rendering large API Gateway exports with shared error responses
+- Applied the unified alias limit across RAML and Avro schema rendering
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1781)
+
+## 1.78.0 (2026-11-10)
+
+### Schema rendering, SDK customization, and response header examples
+
+This release brings native rendering for Avro, RAML, and Protobuf schemas in AsyncAPI messages, with field-level documentation that preserves declaration order. SDK installation tabs now support custom display labels while retaining language-based icons and code sample selection. Response headers display examples with proper precedence and support for OpenAPI 3.2 cookie examples.
+
+- Render Avro, RAML, and Protobuf schemas as native field and type documentation with copyable source for unsupported constructs
+- Add optional display labels for SDK installation tabs while keeping language-based selection and icons
+- Show response header examples with proper precedence, including OpenAPI 3.2 cookie examples with preserved line breaks
+- Group deep-object query parameters with expandable fields in a single collapsed row that preserves expansion during navigation
+- Select custom code samples with defaultHttpClient using targetKey custom and a clientKey that matches your sample language
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1780)
+
+## 1.77.0 (2026-11-05)
+
+### Custom authentication per document and extension rendering improvements
+
+This release brings per-document authentication configuration, rendering for specification extensions across OpenAPI and AsyncAPI objects, and significant performance improvements for search on API descriptions with interconnected models.
+
+- Configure authentication separately for each document in ASP.NET Core references with merged defaults and optional security scheme allowlists
+- Render specification extensions on Paths objects, Path Items, and AsyncAPI channels, operations, messages, servers, and replies
+- Open search much faster on API descriptions with interconnected models by expanding and walking each schema only once per index build
+- Preserve server-rendered content during hydration so titles and operations stay in place when the browser takes over
+- Wrap operation titles without spaces, such as webhook names, on narrow screens instead of pushing the page wider than the viewport
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1770)
+
+## 1.76.4 (2026-10-30)
+
+### Hosting waitlist sign-ups now capture server framework
+
+The Deploy card in localhost developer tools now sends the server framework name when users sign up for hosting, helping us understand which integrations are most popular.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1764)
+
+## 1.76.3 (2026-10-29)
+
+### Downloaded OpenAPI documents now use meaningful filenames
+
+When you download an OpenAPI document without configuring a custom slug, the filename now uses the document title instead of a generic placeholder like api-1.json.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1763)
+
+## 1.76.2 (2026-10-28)
+
+### AsyncAPI metadata improvements and localhost developer toolbar
+
+This release improves AsyncAPI documentation rendering and introduces a new developer toolbar for localhost environments.
+
+- Schemas in AsyncAPI binding fields like WebSocket headers and message schemas now render as structured properties instead of raw JSON.
+- AsyncAPI application identifier headings now match channel metadata styling with consistent dividers.
+- On localhost, a new developer toolbar appears above the reference with a side panel for Configure, Share, Deploy, and Generate SDK tools.
+- The localhost Deploy tool now shows a waitlist sign-up for Scalar hosting instead of the full deployment flow.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1762)
+
+## 1.76.1 (2026-10-28)
+
+### Developer toolbar with side panel for localhost
+
+When running on localhost, the API reference now displays with a sticky developer toolbar and renders tools in a side panel instead of dropdowns. The interface presents as a bordered card on a backdrop, making development workflows more accessible.
+
+- Added a sticky toolbar above the reference on localhost with Configure, Share, Generate SDK, and Deploy buttons
+- Tools now open in a side panel beside the reference card instead of dropdown overlays
+- Introduced Deploy waitlist for API hosting on Scalar, with framework detection for FastAPI, Hono, Express, and others
+- Reference renders as a bordered card on localhost while maintaining full page scrolling
+- Consolidated Generate SDK into the toolbar, removing redundant buttons from client libraries and request examples
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1761)
+
 ## 1.76.0 (2026-10-23)
 
 ### AsyncAPI message examples and optional URL routing

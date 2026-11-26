@@ -1,115 +1,98 @@
-/* basic theme */
-:root,
-:host {
-  --scalar-text-decoration: underline;
-  --scalar-text-decoration-hover: underline;
-}
+/**
+ * Alternate
+ *
+ * A preset is one surface, one ink and one accent per mode. Every other tone is ink blended into
+ * the surface, so the greys stay on the palette's own tint. Text, accent and method hues are
+ * moved in lightness only, and only as far as a 4.5:1 ratio on the page, card and sidebar
+ * surfaces requires.
+ */
+.light-mode {
+  --scalar-background-1: #fafafa;
+  --scalar-background-2: #f2f2f3;
+  --scalar-background-3: #e7e7e8;
+  --scalar-background-accent: #e4e8fb;
 
+  --scalar-color-1: #383a42;
+  --scalar-color-2: #6c6e73;
+  --scalar-color-3: #86878b;
+  --scalar-color-accent: #465fee;
+
+  --scalar-border-color: #e3e4e4;
+
+  --scalar-button-1: #383a42;
+  --scalar-button-1-hover: #57595f;
+  --scalar-button-1-color: #fafafa;
+
+  --scalar-color-green: #0c802e;
+  --scalar-color-red: #c83c32;
+  --scalar-color-yellow: #956506;
+  --scalar-color-blue: #3167e0;
+  --scalar-color-orange: #b0550d;
+  --scalar-color-purple: #a626a4;
+  --scalar-color-query: #0276a9;
+
+  --scalar-sidebar-background-1: #f2f2f3;
+  --scalar-sidebar-border-color: #dcdcde;
+  --scalar-sidebar-item-hover-background: #e8e8ea;
+  --scalar-sidebar-item-active-background: #e0e0e2;
+  --scalar-sidebar-search-background: #fbfbfb;
+}
 .dark-mode {
-  --scalar-background-1: #131313;
-  --scalar-background-2: #1d1d1d;
-  --scalar-background-3: #272727;
-  --scalar-background-card: #1d1d1d;
+  --scalar-background-1: #282c34;
+  --scalar-background-2: #31353e;
+  --scalar-background-3: #393d46;
+  --scalar-background-accent: #131e33;
 
-  --scalar-color-1: rgba(255, 255, 255, 0.9);
-  --scalar-color-2: rgba(255, 255, 255, 0.62);
-  --scalar-color-3: rgba(255, 255, 255, 0.44);
+  --scalar-color-1: #bdc4d1;
+  --scalar-color-2: #979da8;
+  --scalar-color-3: #7d838d;
+  --scalar-color-accent: #92ade0;
 
-  --scalar-color-accent: var(--scalar-color-1);
-  --scalar-background-accent: var(--scalar-background-3);
+  --scalar-border-color: #3c414a;
 
-  --scalar-border-color: #2a2b2a;
+  --scalar-button-1: #bdc4d1;
+  --scalar-button-1-hover: #a5acb8;
+  --scalar-button-1-color: #16181c;
+
+  --scalar-color-green: #8cc265;
+  --scalar-color-red: #fd6f79;
+  --scalar-color-yellow: #e6b965;
+  --scalar-color-blue: #4aa5f0;
+  --scalar-color-orange: #d18f52;
+  --scalar-color-purple: #d576f3;
+  --scalar-color-query: #42b3c2;
+
+  --scalar-sidebar-background-1: #22252c;
+  --scalar-sidebar-border-color: #373b43;
+  --scalar-sidebar-item-hover-background: #2b2f36;
+  --scalar-sidebar-item-active-background: #30333b;
+  --scalar-sidebar-search-background: #2e3239;
 }
 
+/* Sidebar: one step under the page, with the current item marked in ink rather than accent */
 .light-mode,
-.light-mode .dark-mode {
-  --scalar-background-1: #f9f9f9;
-  --scalar-background-2: #f1f1f1;
-  --scalar-background-3: #e7e7e7;
-  --scalar-background-card: #fff;
-
-  --scalar-color-1: #1b1b1b;
-  --scalar-color-2: #6d6d6d;
-  --scalar-color-3: #8e8e8e;
-
-  --scalar-color-accent: var(--scalar-color-1);
-  --scalar-background-accent: var(--scalar-background-3);
-
-  --scalar-border-color: rgba(0, 0, 0, 0.1);
-}
-
-/* Document Sidebar */
-.t-doc__sidebar {
-  --scalar-color-green: var(--scalar-color-1);
-  --scalar-color-red: var(--scalar-color-1);
-  --scalar-color-yellow: var(--scalar-color-1);
-  --scalar-color-blue: var(--scalar-color-1);
-  --scalar-color-orange: var(--scalar-color-1);
-  --scalar-color-purple: var(--scalar-color-1);
-  --scalar-color-query: var(--scalar-color-1);
-}
-
-.light-mode .t-doc__sidebar,
-.dark-mode .t-doc__sidebar {
-  --scalar-sidebar-background-1: var(--scalar-background-1);
+.dark-mode {
   --scalar-sidebar-color-1: var(--scalar-color-1);
   --scalar-sidebar-color-2: var(--scalar-color-2);
-  --scalar-sidebar-border-color: var(--scalar-border-color);
 
-  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
-  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-color: var(--scalar-sidebar-color-1);
+  --scalar-sidebar-color-active: var(--scalar-sidebar-color-1);
 
-  --scalar-sidebar-item-active-background: var(--scalar-background-accent);
-  --scalar-sidebar-color-active: var(--scalar-color-accent);
+  --scalar-sidebar-indent-border: var(--scalar-sidebar-border-color);
+  --scalar-sidebar-indent-border-hover: var(--scalar-sidebar-border-color);
+  --scalar-sidebar-indent-border-active: var(--scalar-sidebar-border-color);
 
-  --scalar-sidebar-search-background: transparent;
   --scalar-sidebar-search-color: var(--scalar-color-3);
-  --scalar-sidebar-search-border-color: var(--scalar-border-color);
-}
-/* advanced */
-.light-mode .dark-mode,
-.light-mode {
-  --scalar-color-green: #069061;
-  --scalar-color-red: #ef0006;
-  --scalar-color-yellow: #edbe20;
-  --scalar-color-blue: #0071bb;
-  --scalar-color-orange: #fb892c;
-  --scalar-color-purple: #5203d1;
-  --scalar-color-query: #007b80;
+  --scalar-sidebar-search-border-color: var(--scalar-sidebar-border-color);
 
-  --scalar-button-1: rgba(0, 0, 0, 1);
-  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --scalar-button-1-color: #fff;
-}
-/* biome-ignore lint/style/noDescendingSpecificity: Nested light-mode scopes override this palette by specificity; retain the cascade for elements with both mode classes. */
-.dark-mode {
-  --scalar-color-green: #00b648;
-  --scalar-color-red: #dd2f2c;
-  --scalar-color-yellow: #ffc90d;
-  --scalar-color-blue: #4eb3ec;
-  --scalar-color-orange: #ff8d4d;
-  --scalar-color-purple: #b191f9;
-  --scalar-color-query: #65d4cf;
-
-  --scalar-button-1: rgba(255, 255, 255, 1);
-  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
-  --scalar-button-1-color: black;
-}
-
-.scalar-api-client__item,
-.scalar-card,
-.dark-mode .dark-mode.scalar-card {
-  --scalar-background-1: var(--scalar-background-card);
-  --scalar-background-2: var(--scalar-background-1);
-  --scalar-background-3: var(--scalar-background-1);
-}
-.dark-mode .dark-mode.scalar-card {
-  --scalar-background-3: var(--scalar-background-3);
+  /* Links are where the accent shows, as they are in the palette's own interface */
+  --scalar-link-color: var(--scalar-color-accent);
+  --scalar-link-color-hover: var(--scalar-color-accent);
 }
 
 .light-mode *::selection {
-  background-color: color-mix(in srgb, var(--scalar-color-blue), transparent 70%);
+  background-color: #e0e5fb;
 }
 .dark-mode *::selection {
-  background-color: color-mix(in srgb, var(--scalar-color-blue), transparent 50%);
+  background-color: #16233c;
 }

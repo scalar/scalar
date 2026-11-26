@@ -2,6 +2,7 @@ import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
@@ -297,6 +298,189 @@ paths:
         return
       }
       expect(target.properties).toStrictEqual({ id: { type: 'string' } })
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  it.each([
+    { openapi: '3.2.1', identity: 'absolute', expected: 'Canonical pet schema.' },
+    { openapi: '3.2.1', identity: 'relative', expected: 'Canonical pet schema.' },
+    { openapi: '3.2.1', identity: 'absent', expected: 'Retrieval directory pet schema.' },
+    { openapi: '3.1.2', identity: 'relative', expected: 'Retrieval directory pet schema.' },
+  ])(
+    'uses the correct reference base for OpenAPI $openapi with $identity identity',
+    async ({ openapi, identity, expected }) => {
+      const directory = await mkdtemp(join(tmpdir(), 'markdown-self-'))
+      const documentPath = join(directory, 'openapi.json')
+      const canonical = join(directory, 'canonical directory')
+      const self =
+        identity === 'absolute'
+          ? pathToFileURL(join(canonical, 'openapi.json')).href
+          : './canonical%20directory/openapi.json'
+
+      try {
+        await mkdir(canonical)
+        for (const [location, description] of [
+          [directory, 'Retrieval directory pet schema.'],
+          [canonical, 'Canonical pet schema.'],
+        ] as const) {
+          const definitions = { components: { schemas: { Pet: { type: 'string', description } } } }
+          await writeFile(join(location, 'defs.json'), JSON.stringify(definitions))
+        }
+        await writeFile(
+          documentPath,
+          JSON.stringify({
+            ...loadingDocument,
+            openapi,
+            ...(identity === 'absent' ? {} : { $self: self }),
+            components: { schemas: { Pet: { $ref: './defs.json#/components/schemas/Pet' } } },
+          }),
+        )
+
+        const markdown = await createMarkdownFromOpenApi(documentPath, { documentLoading: { basePath: directory } })
+
+        expect(markdown.match(/^(?:Canonical|Retrieval directory) pet schema\.$/gm)).toStrictEqual([expected])
+      } finally {
+        await rm(directory, { recursive: true, force: true })
+      }
+    },
+  )
+
+  it.each(['object', 'json', 'yaml'])('resolves a relative identity against basePath for %s input', async (format) => {
+    const directory = await mkdtemp(join(tmpdir(), 'markdown-object-self-'))
+    try {
+      await mkdir(join(directory, 'canonical directory'))
+      await writeFile(join(directory, 'pet.json'), JSON.stringify({ type: 'integer' }))
+      await writeFile(join(directory, 'canonical directory', 'pet.json'), JSON.stringify({ type: 'string' }))
+      const input = {
+        ...loadingDocument,
+        openapi: '3.2.1',
+        $self: './canonical%20directory/openapi.json',
+        components: { schemas: { Pet: { $ref: './pet.json' } } },
+      }
+      const serialized =
+        format === 'yaml'
+          ? `openapi: 3.2.1
+$self: ./canonical%20directory/openapi.json
+info: { title: Trusted API, version: '1' }
+paths: {}
+components:
+  schemas:
+    Pet:
+      $ref: ./pet.json
+`
+          : JSON.stringify(input)
+      const document = await loadDocument(format === 'object' ? input : serialized, { basePath: directory })
+
+      expect(getReferenceTarget(document.components?.schemas?.Pet)).toStrictEqual({ type: 'string' })
+      await expect(loadDocument(format === 'object' ? input : serialized)).rejects.toThrow('Failed to resolve')
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  it('resolves references from the identity declared by a fetched OpenAPI document', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'markdown-external-self-'))
+    const documentPath = join(directory, 'openapi.json')
+    const canonical = join(directory, 'canonical')
+    try {
+      await mkdir(canonical)
+      await writeFile(documentPath, JSON.stringify(externalDocument('./external.json#/components/schemas/Pet')))
+      await writeFile(
+        join(directory, 'external.json'),
+        JSON.stringify({
+          ...loadingDocument,
+          openapi: '3.2.1',
+          $self: './canonical/external.json',
+          components: {
+            schemas: { Pet: { type: 'object', properties: { name: { $ref: './defs.json#/Name' } } } },
+          },
+        }),
+      )
+      await writeFile(
+        join(canonical, 'defs.json'),
+        JSON.stringify({ Name: { type: 'string', description: 'Schema from the external document identity.' } }),
+      )
+
+      const markdown = await createMarkdownFromOpenApi(documentPath, { documentLoading: { basePath: directory } })
+
+      expect(markdown).toContain('Schema from the external document identity.')
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  it.each([
+    'https://example.com/api/openapi.json',
+    'https://example.com:443/api/openapi.json',
+    'file://localhost/example/api/openapi.json',
+  ])('links relative references to the entry document identity %s from nested schema resources', async (self) => {
+    const result = await loadDocument({
+      ...loadingDocument,
+      openapi: '3.2.1',
+      $self: self,
+      components: {
+        schemas: {
+          Pet: { type: 'string' },
+          Model: { $id: 'model.json', properties: { pet: { $ref: './openapi.json#/components/schemas/Pet' } } },
+        },
+      },
+    })
+
+    const pet = result.components?.schemas?.Pet
+    const reference = getValueAtPath(result, ['components', 'schemas', 'Model', 'properties', 'pet'])
+    expect(pet).toStrictEqual({ type: 'string' })
+    expect(getReferenceTarget(isObject(reference) ? reference : undefined)).toBe(pet)
+  })
+
+  it('preserves literal references in schema examples when the document declares an identity', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      ...loadingDocument,
+      openapi: '3.2.1',
+      $self: 'urn:example:pets',
+      components: { schemas: { Pet: { type: 'object', examples: [{ $ref: '#literal-example' }] } } },
+    })
+
+    expect(markdown).toContain('"$ref": "#literal-example"')
+  })
+
+  it('follows nested references in multiple fragments of the same external file', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'markdown-external-fragments-'))
+    const documentPath = join(directory, 'openapi.json')
+    try {
+      await writeFile(
+        documentPath,
+        JSON.stringify({
+          ...loadingDocument,
+          openapi: '3.2.1',
+          components: {
+            schemas: {
+              First: { $ref: './defs.json#/First' },
+              Second: { $ref: './defs.json#/Second' },
+            },
+          },
+        }),
+      )
+      await writeFile(
+        join(directory, 'defs.json'),
+        JSON.stringify({
+          First: { type: 'object', properties: { first: { $ref: './types.json#/First' } } },
+          Second: { type: 'object', properties: { second: { $ref: './types.json#/Second' } } },
+        }),
+      )
+      await writeFile(
+        join(directory, 'types.json'),
+        JSON.stringify({
+          First: { type: 'string', description: 'First fragment value.' },
+          Second: { type: 'string', description: 'Second fragment value.' },
+        }),
+      )
+
+      const markdown = await createMarkdownFromOpenApi(documentPath, { documentLoading: { basePath: directory } })
+
+      expect(markdown).toContain('First fragment value.')
+      expect(markdown).toContain('Second fragment value.')
     } finally {
       await rm(directory, { recursive: true, force: true })
     }
@@ -721,6 +905,142 @@ paths:
       properties: { name: { type: 'string' } },
     })
     expect(getValueAtPath(document, ['components', 'schemas', 'Anything', 'contentSchema'])).toBe(true)
+  })
+
+  it.each(['default', 'example', 'examples', 'const', 'enum', 'schema', 'schemas', 'itemSchema'])(
+    'links references inside OpenAPI objects named %s',
+    async (name) => {
+      const header = (): object => ({ schema: { $ref: '#/components/schemas/Error' } })
+      const content = (): object => ({ 'application/json': header() })
+      const document = await loadDocument({
+        openapi: '3.1.1',
+        info: { title: 'Names', version: '1' },
+        paths: {
+          '/pets': {
+            get: {
+              requestBody: {
+                content: {
+                  'multipart/form-data': {
+                    schema: { type: 'object' },
+                    encoding: { [name]: { headers: { [name]: header() } } },
+                  },
+                },
+              },
+              responses: { [name]: { description: 'Error', content: content(), headers: { [name]: header() } } },
+              callbacks: { [name]: { [name]: { post: { requestBody: { content: content() } } } } },
+            },
+          },
+        },
+        webhooks: { [name]: { post: { requestBody: { content: content() } } } },
+        components: {
+          schemas: { Error: { type: 'object', properties: { code: { type: 'integer' } } } },
+          responses: { [name]: { description: 'Error', content: content() } },
+          requestBodies: { [name]: { content: content() } },
+          headers: { [name]: header() },
+          callbacks: { [name]: { [name]: { post: { requestBody: { content: content() } } } } },
+          pathItems: { [name]: { post: { requestBody: { content: content() } } } },
+        },
+      })
+
+      const references = findReferences(document)
+      expect(references).toHaveLength(10)
+      for (const reference of references) {
+        expect(getReferenceTarget(reference)).toBe(document.components?.schemas?.Error)
+      }
+    },
+  )
+
+  it('resolves pointers into a default response as schemas', async () => {
+    const document = await loadDocument({
+      openapi: '3.1.1',
+      info: { title: 'Pointers', version: '1' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              default: {
+                description: 'Error',
+                content: { 'application/json': { schema: { type: 'object', required: true } } },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Error: { $ref: '#/paths/~1pets/get/responses/default/content/application~1json/schema' },
+        },
+      },
+    })
+
+    expect(getReferenceTarget(document.components?.schemas?.Error)).toStrictEqual({ type: 'object', required: [] })
+  })
+
+  it('restores boolean schemas inside a default response', async () => {
+    const input = {
+      openapi: '3.1.1',
+      info: { title: 'Boolean default response', version: '1' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              default: {
+                description: 'Error',
+                content: { 'application/json': { schema: { type: 'object', properties: { detail: false } } } },
+                headers: { 'X-Trace': { schema: true } },
+              },
+            },
+          },
+        },
+      },
+    }
+    const original = structuredClone(input)
+
+    const document = await loadDocument(input)
+
+    const response = getValueAtPath(document, ['paths', '/pets', 'get', 'responses', 'default'])
+    expect(getValueAtPath(response, ['content', 'application/json', 'schema', 'properties', 'detail'])).toBe(false)
+    expect(getValueAtPath(response, ['headers', 'X-Trace', 'schema'])).toBe(true)
+    expect(input).toStrictEqual(original)
+  })
+
+  it('keeps default and example keyword values as data', async () => {
+    const data = { $ref: '#/components/schemas/Error', flag: false }
+    const document = await loadDocument({
+      openapi: '3.1.1',
+      info: { title: 'Keyword data', version: '1' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              default: {
+                description: 'Error',
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', default: data },
+                    examples: { default: { value: data } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: { schemas: { Error: { type: 'object' } } },
+    })
+
+    const media = getValueAtPath(document, [
+      'paths',
+      '/pets',
+      'get',
+      'responses',
+      'default',
+      'content',
+      'application/json',
+    ])
+    expect(hasReferenceLinks(media)).toBe(false)
+    expect(getValueAtPath(media, ['schema', 'default'])).toStrictEqual(data)
+    expect(getValueAtPath(media, ['examples', 'default', 'value'])).toStrictEqual(data)
   })
 
   it('loads densely linked descriptions without copying the reference graph', async () => {

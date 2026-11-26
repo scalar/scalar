@@ -1,0 +1,7 @@
+{
+  "info": { "name": "C3", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" },
+  "item": [
+    { "name": "Query", "request": { "method": "POST", "header": [], "body": { "mode": "graphql", "graphql": { "query": "query Item($id: ID!) { item(id: $id) { id } }", "variables": "{\"id\": \"1\"}" } }, "url": { "raw": "https://api.example.com/graphql", "protocol": "https", "host": ["api", "example", "com"], "path": ["graphql"] } }, "response": [] },
+    { "name": "Upload", "request": { "method": "PUT", "header": [], "body": { "mode": "file", "file": { "src": "photo.png" } }, "url": { "raw": "https://api.example.com/uploads", "protocol": "https", "host": ["api", "example", "com"], "path": ["uploads"] } }, "response": [] }
+  ]
+}

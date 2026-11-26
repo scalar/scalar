@@ -6,8 +6,7 @@ pages outside this reference resolve.
 -->
 # PHP
 
-> [!NOTE]
-> The PHP target is experimental.
+**Minimum version:** PHP 8.1 or newer.
 
 Add `php` under `targets` to generate a PHP SDK package.
 
@@ -23,7 +22,9 @@ Add `php` under `targets` to generate a PHP SDK package.
         }
       },
       "publish": {
-        "packagist": true
+        "packagist": {
+          "releaseEnvironment": "production"
+        }
       }
     }
   }
@@ -59,8 +60,9 @@ Primary repository this target's generated output is published to. Setting it tu
 | Property | Description |
 | --- | --- |
 | `repo`* | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
-| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the `scalar-generated` branch and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
+| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the generated branch (`generatedBranch`, `scalar-generated` by default) and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
 | `integrationBranch` | Branch where generated output is combined with your custom code; defaults to `scalar-next`. Commit customizations here: each regeneration is merged into it, release pull requests are opened from it, and each released version is synced back to it. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or collide with the branches Scalar and release-please manage, such as `scalar-generated`. |
+| `generatedBranch` | Branch Scalar pushes pristine generator output to before merging it into the integration branch; defaults to `scalar-generated`. Never commit here: every build replaces its contents. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or the integration branch, or collide with the other branches Scalar and release-please manage, such as `scalar-next` and `scalar-merge-conflict`. |
 
 ## publish
 
@@ -74,7 +76,9 @@ Packagist publishing configuration.
 
 Publishes the PHP package on Packagist. `true` publishes with the defaults; an object tunes them.
 
-Packagist reads versions from the repository's git tags, so a release is the `vX.Y.Z` tag: there is no upload step, no secret, and `authMethod` is unused. The destination repository has to be [submitted to Packagist](https://packagist.org/packages/submit) once.
+Packagist reads versions from the repository's git tags, so a release is the `vX.Y.Z` tag and there is no upload step; `authMethod` is unused. The destination repository has to be [submitted to Packagist](https://packagist.org/packages/submit) once.
+
+After each release the generated `publish` job runs `composer validate --strict` and then calls Packagist's update-package API for the package, so a release fails when Packagist cannot find the package or the account cannot maintain it. That call reads your Packagist username from a `PACKAGIST_USERNAME` secret and an API token from your [Packagist profile](https://packagist.org/profile/) (the safe token is enough) from a `PACKAGIST_API_TOKEN` secret, falling back to an existing `PACKAGIST_SAFE_KEY` secret. Both are optional: without them the call is skipped with a notice, and Packagist's GitHub hook picks up the tag on its own.
 
 #### releaseEnvironment
 
@@ -97,6 +101,20 @@ Prerelease channel this target's releases publish on, as a bare semver prereleas
 Omit it to release on the stable line. A release train promoting to a conventionally named prerelease branch (`alpha`, `beta`, `canary`, `next`, `preview`, `rc`) adopts that branch's name as its channel, so this only has to be set to name a channel the branch does not, or to put a target on a prerelease line while promoting to a branch named something else.
 
 **Constraints:** `pattern: ^[A-Za-z][0-9A-Za-z-]*$`
+
+## options
+
+**Type:** `object`
+
+PHP generation options.
+
+### parameterDefaults
+
+**Type:** `"signature" | "server"`
+
+How a service method declares an optional parameter or body field that has a schema `default`. `signature` (the default) uses the default as the PHP argument default, as in `int $limit = 20`, and always sends that value. `server` declares the argument nullable, as in `?int $limit = null`, and sends it only when the caller sets it, so the server applies its own default. The method's docblock notes the default value unless the parameter's description already states it. Required arguments are unaffected. Switching a published SDK between the two changes method signatures, so treat it as a breaking change.
+
+**Default:** `"signature"`
 
 ## skip
 

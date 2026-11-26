@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <title>Store API · Sidebar Badges</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script
+      src="../../src/standalone.ts"
+      type="module"></script>
+    <script type="module">
+      const params = new URLSearchParams(location.search)
+
+      Scalar.createApiReference('#app', {
+        // Open /playground/sidebar-badges/?badges=off to compare with the default sidebar
+        showBadgesInSidebar: params.get('badges') !== 'off',
+        defaultOpenAllTags: true,
+        showDeveloperTools: 'never',
+        content: {
+          'openapi': '3.1.0',
+          'info': {
+            title: 'Store API',
+            version: '1.0.0',
+            description:
+              'Badges from `x-badges` on tag groups, tags, operations, webhooks and models.',
+          },
+          'x-tagGroups': [
+            {
+              'name': 'Core',
+              'tags': ['Users', 'Orders'],
+              'x-badges': [{ name: 'Stable', color: '#22c55e' }],
+            },
+            {
+              'name': 'Labs',
+              'tags': ['Recommendations'],
+              'x-badges': [{ name: 'Experimental', color: '#a855f7' }],
+            },
+          ],
+          'tags': [
+            { name: 'Users' },
+            {
+              'name': 'Orders',
+              'x-badges': [{ name: 'Beta', color: '#f59e0b' }],
+            },
+            { name: 'Recommendations' },
+          ],
+          'paths': {
+            '/users': {
+              get: {
+                'summary': 'Get users',
+                'tags': ['Users'],
+                'x-badges': [
+                  { name: 'Beta', color: '#f59e0b' },
+                  { name: 'New', color: '#22c55e' },
+                ],
+                'responses': { 200: { description: 'OK' } },
+              },
+              post: {
+                summary: 'Create user',
+                tags: ['Users'],
+                responses: { 201: { description: 'Created' } },
+              },
+            },
+            '/users/{id}': {
+              delete: {
+                'summary': 'Delete user',
+                'tags': ['Users'],
+                'deprecated': true,
+                'x-badges': [{ name: 'Removed in v2', color: 'red' }],
+                'responses': { 204: { description: 'Deleted' } },
+              },
+            },
+            '/orders': {
+              get: {
+                'summary': 'List orders',
+                'tags': ['Orders'],
+                'x-badges': [{ name: 'v2', position: 'before' }],
+                'responses': { 200: { description: 'OK' } },
+              },
+            },
+            '/recommendations': {
+              get: {
+                summary: 'Get recommendations',
+                tags: ['Recommendations'],
+                responses: { 200: { description: 'OK' } },
+              },
+            },
+          },
+          'webhooks': {
+            orderShipped: {
+              post: {
+                'summary': 'Order shipped',
+                'x-badges': [{ name: 'New', color: '#22c55e' }],
+                'responses': { 200: { description: 'OK' } },
+              },
+            },
+          },
+          'components': {
+            schemas: {
+              User: {
+                type: 'object',
+                properties: { id: { type: 'string' } },
+              },
+              Order: {
+                'type': 'object',
+                'x-badges': [{ name: 'Beta', color: '#f59e0b' }],
+                'properties': { id: { type: 'string' } },
+              },
+            },
+          },
+        },
+      })
+    </script>
+  </body>
+</html>

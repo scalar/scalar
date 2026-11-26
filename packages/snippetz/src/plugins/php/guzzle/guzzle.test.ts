@@ -1,3 +1,4 @@
+import { repeatedQueryCases } from '@test/fixtures/repeated-query'
 import { describe, expect, it } from 'vitest'
 
 import { phpGuzzle } from './guzzle'
@@ -110,7 +111,7 @@ $response = $client->request('GET', 'https://example.com', [
 ]);`)
   })
 
-  it('preserves repeated query parameters as arrays', () => {
+  it('keeps repeated query parameters in the URL instead of indexed names', () => {
     const result = phpGuzzle.generate({
       url: 'https://example.com',
       queryString: [
@@ -127,14 +128,13 @@ $response = $client->request('GET', 'https://example.com', [
 
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
-$response = $client->request('GET', 'https://example.com', [
-  'query' => [
-    'statuses' => [
-      'active',
-      'inactive'
-    ]
-  ]
-]);`)
+$response = $client->request('GET', 'https://example.com?statuses=active&statuses=inactive');`)
+  })
+
+  it.each(repeatedQueryCases)('keeps every repeated query value with $name', ({ url, queryString, expected }) => {
+    expect(phpGuzzle.generate({ url, queryString })).toBe(
+      `$client = new GuzzleHttp\\Client();\n\n$response = $client->request('GET', ${expected});`,
+    )
   })
 
   it('has cookies', () => {
@@ -154,11 +154,13 @@ $response = $client->request('GET', 'https://example.com', [
 
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
+$jar = \\GuzzleHttp\\Cookie\\CookieJar::fromArray([
+  'foo' => 'bar',
+  'bar' => 'foo'
+], 'example.com');
+
 $response = $client->request('GET', 'https://example.com', [
-  'cookies' => [
-    'foo' => 'bar',
-    'bar' => 'foo'
-  ]
+  'cookies' => $jar
 ]);`)
   })
 
@@ -621,11 +623,37 @@ $response = $client->request('POST', 'https://example.com', [
 
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
+$jar = \\GuzzleHttp\\Cookie\\CookieJar::fromArray([
+  'special;cookie' => 'value with spaces'
+], 'example.com');
+
 $response = $client->request('GET', 'https://example.com', [
-  'cookies' => [
-    'special;cookie' => 'value with spaces'
-  ]
+  'cookies' => $jar
 ]);`)
+  })
+
+  it('scopes the cookie jar to the request host', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://api.example.com:8080/v1/users',
+      cookies: [{ name: 'session', value: 'abc' }],
+    })
+
+    expect(result).toContain(`CookieJar::fromArray([
+  'session' => 'abc'
+], 'api.example.com');`)
+  })
+
+  it('escapes quotes and backslashes in multipart file names', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'file', fileName: "it's\\here.png" }],
+      },
+    })
+
+    expect(result).toContain(`'contents' => fopen('it\\'s\\\\here.png', 'rb')`)
   })
 
   it('prettifies JSON body using PHP array', () => {
@@ -712,6 +740,43 @@ $response = $client->request('POST', 'https://example.com', [
     'content-type' => 'application/x-www-form-urlencoded; charset=utf-8'
   ],
   'body' => 'tag=a+b&other=a%26b&tag='
+]);`)
+  })
+
+  it.each([
+    ["https://example.com/Customers('ALFKI')/$count", "'https://example.com/Customers(\\'ALFKI\\')/$count'"],
+    ['https://example.com/files/a\\b', "'https://example.com/files/a\\\\b'"],
+    ['https://example.com/{$id}/${id}', "'https://example.com/{$id}/${id}'"],
+  ])('escapes the request URL %s', (url, expected) => {
+    expect(phpGuzzle.generate({ url })).toBe(
+      `$client = new GuzzleHttp\\Client();\n\n$response = $client->request('GET', ${expected});`,
+    )
+  })
+
+  it.each([
+    ['PURGE', "'PURGE'"],
+    ["X-It's", "'X-It\\'s'"],
+  ])('escapes the method %s', (method, expected) => {
+    expect(phpGuzzle.generate({ url: 'https://example.com', method })).toBe(
+      `$client = new GuzzleHttp\\Client();\n\n$response = $client->request(${expected}, 'https://example.com');`,
+    )
+  })
+
+  it('escapes header and query names', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://example.com',
+      headers: [{ name: "X-It's", value: 'a' }],
+      queryString: [{ name: "it's", value: 'b' }],
+    })
+    expect(result).toBe(`$client = new GuzzleHttp\\Client();
+
+$response = $client->request('GET', 'https://example.com', [
+  'headers' => [
+    'X-It\\'s' => 'a'
+  ],
+  'query' => [
+    'it\\'s' => 'b'
+  ]
 ]);`)
   })
 })

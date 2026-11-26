@@ -164,6 +164,38 @@ describe('useTooltip', () => {
     expect(tooltipElement?.style.display).toBe('none')
   })
 
+  it('claims Escape while showing so a surrounding dialog does not also close', async () => {
+    useTooltip({
+      content: 'Test tooltip',
+      targetRef: targetElement,
+    })
+
+    targetElement.dispatchEvent(new FocusEvent('focus'))
+    await nextTick()
+
+    const escapeKey = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true })
+    targetElement.dispatchEvent(escapeKey)
+
+    expect(escapeKey.defaultPrevented).toBe(true)
+  })
+
+  it('leaves Escape alone once the tooltip has already hidden', async () => {
+    useTooltip({
+      content: 'Test tooltip',
+      targetRef: targetElement,
+    })
+
+    targetElement.dispatchEvent(new FocusEvent('focus'))
+    await nextTick()
+    targetElement.dispatchEvent(new FocusEvent('blur'))
+    await nextTick()
+
+    const escapeKey = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true })
+    targetElement.dispatchEvent(escapeKey)
+
+    expect(escapeKey.defaultPrevented).toBe(false)
+  })
+
   it('should show tooltip on focus immediately', async () => {
     useTooltip({
       content: 'Test tooltip',

@@ -2,6 +2,7 @@ import type { WorkspaceStore } from '@/client'
 import { canHaveOrder, getOpenapiObject } from '@/navigation/helpers/get-openapi-object'
 import { getParentEntry } from '@/navigation/helpers/get-parent-entry'
 import type { IdGenerator, TraversedOperation, TraversedTag, TraversedWebhook, WithParent } from '@/schemas/navigation'
+import { isPluginDocument } from '@/schemas/plugin-document'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { TagObject } from '@/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
@@ -83,7 +84,7 @@ export const updateOrderIds = ({ store, generateId, ...rest }: UpdateOrderIdPara
 
     // Operation/webhook entries: generate a new operation ID with the updated path and method
     const parentTag =
-      entry.parent.type === 'tag' && 'name' in parentOpenAPIObject
+      entry.parent.type === 'tag' && 'name' in parentOpenAPIObject && !isPluginDocument(parentOpenAPIObject)
         ? { tag: parentOpenAPIObject, id: entry.parent.id }
         : undefined
 

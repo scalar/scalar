@@ -13,6 +13,26 @@ import OperationReply from './OperationReply.vue'
 enableAutoUnmount(afterEach)
 
 describe('OperationReply', () => {
+  it('renders resolved reply extensions without reference siblings', () => {
+    const document: AsyncApiDocument = {
+      asyncapi: '3.1.0',
+      info: { title: 'Reply', version: '1' },
+      'x-scalar-original-document-hash': '',
+    }
+    const source = { messages: [], 'x-reply': { status: 'accepted' }, 'x-null': null }
+    const reply = getOperationReply(document, {
+      action: 'send',
+      channel: { $ref: '#/channels/orders' },
+      reply: { $ref: '#/components/replies/result', ...{ 'x-reply': 'ignored' }, '$ref-value': source },
+    })!
+    const wrapper = mount(OperationReply, {
+      props: { document, reply, eventBus: null, level: 3, options: { showExtensions: ['x-reply', 'x-null'] } },
+    })
+    expect(wrapper.text()).toContain('accepted')
+    expect(wrapper.text()).toContain('x-null:null')
+    expect(wrapper.text()).not.toContain('ignored')
+  })
+
   it('expands reply schemas independently without duplicating canonical message anchors', async () => {
     const document: AsyncApiDocument = {
       asyncapi: '3.1.0',

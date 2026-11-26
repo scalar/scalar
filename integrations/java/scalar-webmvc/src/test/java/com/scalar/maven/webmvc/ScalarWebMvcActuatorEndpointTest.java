@@ -1,6 +1,7 @@
 package com.scalar.maven.webmvc;
 
 import jakarta.servlet.http.HttpServletRequest;
+import com.scalar.maven.core.config.ScalarPathRouting;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -124,5 +125,18 @@ class ScalarWebMvcActuatorEndpointTest {
                     .isNotEmpty();
         }
     }
-}
 
+    @Test
+    void ignoresApplicationPathRoutingWithoutMutatingProperties() throws Exception {
+        SpringBootScalarProperties configured = new SpringBootScalarProperties();
+        ScalarPathRouting routing = new ScalarPathRouting();
+        routing.setBasePath("/docs");
+        configured.setPathRouting(routing);
+        when(propertiesProvider.getObject()).thenReturn(configured);
+
+        String html = endpoint.scalarUi(request).getBody();
+
+        assertThat(html).contains("src=\"scalar/scalar.js\"").doesNotContain("\"pathRouting\"");
+        assertThat(configured.getPathRouting()).isSameAs(routing);
+    }
+}

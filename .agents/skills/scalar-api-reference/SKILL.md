@@ -47,7 +47,7 @@ Read only the guide for the application's framework. These are routing hints and
 | React | `@scalar/api-reference-react` | `ApiReferenceReact` with a `configuration` prop; [React](https://scalar.com/products/api-references/integrations/react) |
 | Next.js standalone route | `@scalar/nextjs-api-reference` | `ApiReference` returns a route handler; [Next.js](https://scalar.com/products/api-references/integrations/nextjs) |
 | Nuxt | `@scalar/nuxt` | Nuxt module with `scalar` configuration; [Nuxt](https://scalar.com/products/api-references/integrations/nuxt) |
-| Express | `@scalar/express-api-reference` | `app.use('/reference', apiReference({ url }))`; [Express](https://scalar.com/products/api-references/integrations/express) |
+| Express | `@scalar/express-api-reference` | `app.use('/reference', Scalar({ url }))`; [Express](https://scalar.com/products/api-references/integrations/express) |
 | Fastify | `@scalar/fastify-api-reference` | Register plugin with `routePrefix` and nested `configuration`; [Fastify](https://scalar.com/products/api-references/integrations/fastify) |
 | Hono | `@scalar/hono-api-reference` | `app.get('/scalar', Scalar({ url }))`; [Hono](https://scalar.com/products/api-references/integrations/hono) |
 | NestJS | `@scalar/nestjs-api-reference` | `apiReference({ content: document })` with existing SwaggerModule output; [NestJS](https://scalar.com/products/api-references/integrations/nestjs) |

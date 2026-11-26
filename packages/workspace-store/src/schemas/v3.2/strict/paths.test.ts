@@ -8,6 +8,20 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { type PathsObject, PathsObjectSchema } from './openapi-document'
 
 describe('paths', () => {
+  it('preserves arbitrary extension values without treating them as path items', () => {
+    const input = {
+      '/pets': { get: {} },
+      'x-origins': ['https://example.com'],
+      'x-object': { get: 'metadata', nested: { a: true } },
+      'x-false': false,
+      'x-zero': 0,
+      'x-null': null,
+      'x-empty': [],
+    }
+    expect(Value.Check(PathsObjectSchema, input)).toBe(true)
+    expect(coerceValue(PathsObjectSchema, input)).toStrictEqual(input)
+  })
+
   describe('strict type checking', () => {
     it('performs deep type checking on all nested properties', () => {
       type SchemaType = RequiredDeep<Static<typeof PathsObjectSchema>>

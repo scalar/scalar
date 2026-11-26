@@ -32,11 +32,14 @@ const extensions = {
 
 ## Props and behavior
 
-| Prop         | Type                      | Description                                                                         |
-| ------------ | ------------------------- | ----------------------------------------------------------------------------------- |
-| `extensions` | `Record<string, unknown>` | Required. The selected extension names and their original values, in display order. |
+| Prop          | Type                      | Description                                                                                   |
+| ------------- | ------------------------- | --------------------------------------------------------------------------------------------- |
+| `extensions`  | `Record<string, unknown>` | Required. The selected extension names and their original values, in display order.           |
+| `collapsible` | `boolean`                 | Optional. Folds the values under an "Extensions (n)" row that starts closed. Default `false`. |
 
 Strings, numbers, booleans, and `null` render as values. Nonempty objects and arrays have expand/collapse controls. Top-level containers start expanded; nested containers start collapsed. Empty objects and arrays display as `{}` and `[]`. An empty `extensions` object renders no content.
+
+With `collapsible`, the row uses the same expand/collapse control as nested values, and its label follows the configured locale. Opening it shows the values exactly as without the option. Use it where the extensions matter less than the content around them.
 
 The component displays the keys you pass. It does not scan an API description, filter names to `x-*`, or interpret extension semantics. Select the extension fields you want to expose before passing them in.
 

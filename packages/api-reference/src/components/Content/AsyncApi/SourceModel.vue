@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
+import type { SchemaOptions } from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { computed, useTemplateRef } from 'vue'
+import { computed, defineAsyncComponent, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import {
@@ -11,17 +13,32 @@ import {
 import { useDocumentOutline } from '@/features/document-outline'
 import { useIntersection } from '@/hooks/use-intersection'
 
-import SchemaSource from './SchemaSource.vue'
-
-const { id, name, format, value, layout, isCollapsed, eventBus } = defineProps<{
+const {
+  id,
+  name,
+  format,
+  value,
+  resources,
+  layout,
+  isCollapsed,
+  eventBus,
+  options,
+} = defineProps<{
   id: string
   name: string
   format: string
+  resources?: AsyncApiSchemaResources
   value: unknown
   layout: 'classic' | 'modern'
   isCollapsed: boolean
   eventBus: WorkspaceEventBus
+  options?: SchemaOptions
 }>()
+
+// Native schema readers are only needed when a non-JSON Schema is displayed.
+const SchemaLanguage = defineAsyncComponent(
+  () => import('./SchemaLanguage.vue'),
+)
 
 const section = useTemplateRef<HTMLElement>('section')
 useIntersection(section, () => eventBus?.emit('intersecting:nav-item', { id }))
@@ -58,8 +75,10 @@ const toggle = (open: boolean): void => {
           <span>{{ name }}</span>
         </SectionHeaderTag>
       </template>
-      <SchemaSource
+      <SchemaLanguage
         :format="format"
+        :options="options"
+        :resources="resources"
         :value="value" />
     </component>
   </div>

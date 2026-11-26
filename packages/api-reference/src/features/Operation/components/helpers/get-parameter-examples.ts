@@ -1,66 +1,37 @@
-import { isObjectLike } from '@scalar/helpers/object/is-object'
-import { getExampleValue } from '@scalar/workspace-store/helpers/get-example-value'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ParameterObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-
-const filterUndefined = (example: unknown): example is unknown => example !== undefined
+import { type RenderedExample, getRenderedExample, normalizeRenderedExamples } from '@scalar/blocks/schema/helpers'
+import { isObject } from '@scalar/helpers/object/is-object'
+import type {
+  HeaderObject,
+  MediaTypeObject,
+  ParameterObject,
+  ResponseObject,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 type GetParameterExamplesArgs = {
-  parameter: ParameterObject | ResponseObject
-  schemaExamples?: unknown[]
-  contentExamples?: unknown
+  parameter: ParameterObject | HeaderObject | ResponseObject
+  content?: MediaTypeObject
 }
 
-/**
- * Build a normalized examples array from parameter/content/schema examples.
- * Undefined values are removed so the UI does not render "undefined" entries.
- */
-export const getParameterExamples = ({
-  parameter,
-  schemaExamples,
-  contentExamples,
-}: GetParameterExamplesArgs): unknown[] => {
-  const paramExamples = 'examples' in parameter && isObjectLike(parameter.examples) ? parameter.examples : {}
-
-  if ('in' in parameter && parameter.in === 'querystring') {
-    const examples = Object.values({
-      ...(isObjectLike(contentExamples) ? contentExamples : {}),
-      ...paramExamples,
-    })
-      .map((entry) => {
-        const example = getResolvedRef(entry)
-        if (!isObjectLike(example)) {
-          return example
-        }
-        return example.dataValue !== undefined ? example.dataValue : (example.serializedValue ?? example.value)
-      })
-      .filter(filterUndefined)
-    if (examples.length) {
-      // The rendering component unwraps Example Objects once, so preserve a wrapper around object data.
-      return examples.map((value) => ({ value }))
-    }
-    return (parameter.example !== undefined ? [parameter.example] : (schemaExamples ?? []))
-      .filter(filterUndefined)
-      .map((value) => ({ value }))
+/** Select explicit examples without mixing them with examples from a less specific source. */
+const getExamples = (
+  source: ParameterObject | HeaderObject | ResponseObject | MediaTypeObject | undefined,
+  preferData: boolean,
+): RenderedExample[] => {
+  if (source && 'example' in source && source.example !== undefined) {
+    return normalizeRenderedExamples([source.example])
   }
-
-  const recordExamples = Object.values({
-    ...paramExamples,
-    ...(isObjectLike(contentExamples) ? contentExamples : {}),
+  if (!source || !('examples' in source) || !isObject(source.examples)) {
+    return []
+  }
+  return Object.entries(source.examples).flatMap(([name, entry]) => {
+    const example = getRenderedExample(entry, name, preferData)
+    return example ? [example] : []
   })
-    .map((entry) => {
-      const resolved = getResolvedRef(entry)
-      if (isObjectLike(resolved) && ('dataValue' in resolved || 'serializedValue' in resolved)) {
-        return { value: getExampleValue(resolved)?.value }
-      }
-      return entry
-    })
-    .filter(filterUndefined)
+}
 
-  const fallbackExample =
-    recordExamples.length === 0 && 'example' in parameter && parameter.example !== undefined ? [parameter.example] : []
-
-  const arrayExamples = (schemaExamples ?? fallbackExample).filter(filterUndefined)
-
-  return [...recordExamples, ...arrayExamples]
+/** Prefer parameter/header examples to media type examples; the caller retains schema examples as a fallback. */
+export const getParameterExamples = ({ parameter, content }: GetParameterExamplesArgs): RenderedExample[] => {
+  const preferData = 'in' in parameter && parameter.in === 'querystring'
+  const parameterExamples = getExamples(parameter, preferData)
+  return parameterExamples.length ? parameterExamples : getExamples(content, preferData)
 }

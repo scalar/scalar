@@ -5,7 +5,7 @@ import { useLoadingState } from '@scalar/components/loading'
 import { debounce } from '@scalar/helpers/general/debounce'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { ScalarIconArrowsIn, ScalarIconArrowsOut } from '@scalar/icons'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import * as monaco from 'monaco-editor/editor'
 import {
   computed,
   nextTick,

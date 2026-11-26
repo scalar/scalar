@@ -1,6 +1,8 @@
+import { getStreamFormat } from '@scalar/helpers/http/is-streaming-content-type'
 import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isFileSchema } from '@scalar/workspace-store/helpers/is-file-schema'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -15,19 +17,27 @@ import {
   serializeFormPropertyWithEncoding,
   serializeMultipartArray,
   serializeMultipartBody,
+  usesAspNetFormNaming,
 } from '@scalar/workspace-store/request-example'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   MediaTypeObject,
   RequestBodyObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isArraySchema, isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import type { Param, PostData } from 'har-format'
 
 import type { OperationToHarProps } from './operation-to-har'
 
 type ProcessBodyProps = Pick<
   OperationToHarProps,
-  'contentType' | 'example' | 'requestBodyCompositionSelection' | 'openapiVersion'
+  | 'multipartNaming'
+  | 'contentType'
+  | 'example'
+  | 'requestBodyCompositionSelection'
+  | 'openapiVersion'
+  | 'jsonSchemaDialect'
 > & {
   requestBody: RequestBodyObject
 }
@@ -225,7 +235,9 @@ export const processBody = ({
   contentType,
   example,
   openapiVersion,
+  jsonSchemaDialect,
   requestBodyCompositionSelection,
+  multipartNaming,
 }: ProcessBodyProps): PostData | undefined => {
   const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
   /** Empty when "Other" is selected so snippets do not inject `Content-Type: other`. */
@@ -237,13 +249,34 @@ export const processBody = ({
   const encoding = requestBody.content[_contentType]?.encoding
 
   const media = requestBody.content[_contentType]
-  if (media && needsMultipartEncoding(_contentType, media)) {
+  const aspNetNaming = usesAspNetFormNaming(_contentType, media, multipartNaming)
+  if (media && (aspNetNaming || needsMultipartEncoding(_contentType, media))) {
     const exampleName = example ?? Object.keys(media.examples ?? {})[0] ?? 'default'
     const body = buildRequestBody(
       { ...requestBody, 'x-scalar-selected-content-type': { [exampleName]: _contentType } },
       exampleName,
       requestBodyCompositionSelection,
+      openapiVersion,
+      jsonSchemaDialect,
+      { multipartNaming, aspNetFilePlaceholders: aspNetNaming && _contentType === 'multipart/form-data' },
     )
+    if (aspNetNaming && body?.mode === 'urlencoded') {
+      return { mimeType: harMimeType, params: body.value.map(({ key, value }) => ({ name: key, value })) }
+    }
+    if (aspNetNaming && body?.mode === 'formdata') {
+      return {
+        mimeType: harMimeType,
+        params: body.value.flatMap((part): Param[] => {
+          if (part.type === 'file') {
+            return [buildFileParam(part.key, part.value.name, part.contentType ?? part.value.type)]
+          }
+          if (part.type !== 'text') {
+            return []
+          }
+          return [{ name: part.key, value: part.value, ...(part.contentType ? { contentType: part.contentType } : {}) }]
+        }),
+      }
+    }
     if (body?.mode === 'multipart') {
       const encoded = serializeMultipartBody(body.value, body.contentType)
       return {
@@ -272,6 +305,7 @@ export const processBody = ({
       example ?? '',
       requestBodyCompositionSelection,
       openapiVersion,
+      jsonSchemaDialect,
     )
     return xmlExample ? { mimeType: harMimeType, text: xmlExample.value as string } : undefined
   }
@@ -321,11 +355,47 @@ export const processBody = ({
   const mediaType = requestBody.content[_contentType]
   const contentSchema = getResolvedRef(mediaType?.schema ?? mediaType?.itemSchema)
   if (typeof contentSchema !== 'undefined') {
+    const exampleSchema = snapshotSchema(contentSchema)
+    if (_contentType === 'multipart/form-data' && isObjectSchema(exampleSchema)) {
+      // Adapt upgraded upload fields only on the code example's private snapshot.
+      // The generator already supports the legacy binary shape, including file arrays.
+      for (const [name, property] of Object.entries(exampleSchema.properties ?? {})) {
+        const resolved = resolve.schema(property)
+        const file = resolved && isArraySchema(resolved) ? resolve.schema(resolved.items) : resolved
+        if (
+          file &&
+          !('type' in file) &&
+          !('properties' in file) &&
+          !file.allOf &&
+          !file.oneOf &&
+          !file.anyOf &&
+          !file.contentSchema &&
+          isFileSchema(file, false)
+        ) {
+          const binary: SchemaObject = { ...file, type: 'string', format: 'binary' }
+          exampleSchema.properties![name] =
+            resolved && isArraySchema(resolved) ? { ...resolved, items: binary } : binary
+        }
+      }
+    }
+    // A migrated whole-body binary schema is empty. Do not infer files from
+    // declared values, constraints, compositions, or schemas for individual stream items.
+    const isEmptyBinaryBody =
+      !isFormData &&
+      mediaType?.schema !== undefined &&
+      Object.keys(exampleSchema).every((key) => ['__scalar_', 'title', 'description'].includes(key)) &&
+      !getStreamFormat(_contentType) &&
+      isFileSchema(exampleSchema, false, _contentType)
+    if (isEmptyBinaryBody) {
+      return { mimeType: harMimeType, text: '@filename' }
+    }
     const extractedExample = getExampleFromSchema(
-      snapshotSchema(contentSchema),
+      exampleSchema,
       {
         compositionSelection: requestBodyCompositionSelection,
         mode: 'write',
+        openapiVersion,
+        jsonSchemaDialect,
         binaryAsFile: _contentType === 'multipart/form-data',
       },
       {

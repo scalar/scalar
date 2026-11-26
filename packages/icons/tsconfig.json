@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "include": ["src", "scripts", "vite.config.ts", "vitest.config.ts"],
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "paths": {
       "@/*": ["./src/*"]
     },

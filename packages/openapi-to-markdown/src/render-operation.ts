@@ -190,6 +190,7 @@ export const renderOperation = async (
         document.components?.securitySchemes,
         description,
         h(1),
+        openapiVersion,
       )),
     )
   }

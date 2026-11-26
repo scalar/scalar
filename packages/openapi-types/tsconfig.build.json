@@ -3,6 +3,7 @@
   "include": ["src"],
   "exclude": ["**/*.test.ts", "**/*.test-d.ts"],
   "compilerOptions": {
+    "rootDir": "src",
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,

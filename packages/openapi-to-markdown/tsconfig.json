@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "include": ["src", "playground"],
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "types": ["node"]
   }
 }

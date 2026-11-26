@@ -105,6 +105,6 @@ export function apiReference(givenConfiguration: NestJSReferenceConfiguration) {
   }
 
   return (_req: Request, res: Response) => {
-    res.send(content())
+    res.type('text/html').send(content())
   }
 }

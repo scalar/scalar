@@ -8,7 +8,6 @@ export type BenchResults = {
   node?: string
   sizes?: Record<string, number>
   languageSizes?: Record<string, number>
-  comparisonSizes?: Record<string, number>
   /** Bytes per second, keyed by language. */
   throughput?: Record<string, number>
   large?: { bytes: number; scalarMs: number }

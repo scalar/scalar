@@ -12,10 +12,14 @@ import {
   createMarkdownFromAsyncApi,
 } from '@scalar/asyncapi-to-markdown'
 
-const markdown = await createMarkdownFromAsyncApi('./asyncapi.yaml')
+const markdown = await createMarkdownFromAsyncApi('./asyncapi.yaml', {
+  documentLoading: { basePath: process.cwd() },
+})
 
 // Load, upgrade and bundle references once for a documentation build.
-const renderer = await createAsyncApiMarkdownRenderer('./asyncapi.yaml')
+const renderer = await createAsyncApiMarkdownRenderer('./asyncapi.yaml', {
+  basePath: process.cwd(),
+})
 await renderer.render() // Complete description
 await renderer.render({ introduction: true })
 await renderer.render({ channel: 'orders' })
@@ -34,6 +38,17 @@ string inputs need absolute external references. AsyncAPI 1.0–1.2, 2.0–2.6, 
 inputs use Scalar's upgrader to produce a 3.1 document. The original version stays visible
 in the introduction. Input objects are not modified. Create a new renderer to pick up
 source changes; rendering pages does not fetch the source again.
+
+Private-network requests are blocked by default for both the source URL and external
+references. Local file access is disabled unless `basePath` names an approved directory;
+source files and references, including symlink targets, must remain inside it. Prefer the
+smallest directory containing the files you intend to expose.
+
+For trusted private-network descriptions, pass `allowPrivateNetworks: true` to
+`createAsyncApiMarkdownRenderer`, or use
+`{ documentLoading: { allowPrivateNetworks: true } }` with `createMarkdownFromAsyncApi`.
+Only enable this option for trusted input. Loading permissions apply to all nested
+references and are separate from page-rendering options.
 
 Choose at most one selector per call. Strings identify exact, case-sensitive map keys:
 channels, operations, component messages, or component schemas. Channel addresses and

@@ -1,4 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import Ajv2020 from 'ajv/dist/2020.js'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
 
@@ -20,6 +21,131 @@ const person = {
 }
 
 describe('mock-any-response', () => {
+  it.each([
+    { dialect: undefined, expected: '2\n1\n1\n' },
+    { dialect: 'https://example.com/unsupported', expected: '1\n1\n1\n' },
+  ])('keeps document dialect context for streaming responses: $dialect', async ({ dialect, expected }) => {
+    const schema = { type: 'array', minItems: 3, maxItems: 3, contains: { const: 2 }, maxContains: 1 }
+    const app = new Hono().get('/', (c) =>
+      mockAnyResponse(c, operation('application/x-ndjson', { schema, itemSchema: { type: 'integer' } }), {
+        openapiVersion: '3.2.0',
+        jsonSchemaDialect: dialect,
+      }),
+    )
+    expect(await (await app.request('/')).text()).toBe(expected)
+  })
+
+  it.each([false, true])('sends arrays satisfying the complete contains schema (unique: %s)', async (uniqueItems) => {
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 3,
+      maxItems: 3,
+      contains: { const: 2 },
+      minContains: 1,
+      maxContains: 1,
+      uniqueItems,
+    }
+    const app = new Hono().get('/', (c) =>
+      mockAnyResponse(c, operation('application/json', { schema }), { openapiVersion: '3.1.0' }),
+    )
+    const response = await app.request('/')
+    const value = await response.json()
+    const validate = new Ajv2020({ strict: false }).compile(schema)
+    expect(response.status).toBe(200)
+    expect({ valid: validate(value), errors: validate.errors }).toStrictEqual({ valid: true, errors: null })
+    expect(value).toStrictEqual(uniqueItems ? [2, 1, 3] : [2, 1, 1])
+  })
+
+  it.each([
+    { version: '3.0.4', dialect: undefined, expected: [1, 1, 1] },
+    { version: '3.1.0', dialect: undefined, expected: [2, 1, 1] },
+    { version: '3.2.0', dialect: 'https://example.com/unknown-dialect', expected: [1, 1, 1] },
+  ])('uses the response document dialect for $version/$dialect', async ({ version, dialect, expected }) => {
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 3,
+      maxItems: 3,
+      contains: { const: 2 },
+      maxContains: 1,
+    }
+    const app = new Hono().get('/', (c) =>
+      mockAnyResponse(c, operation('application/json', { schema }), {
+        openapiVersion: version,
+        jsonSchemaDialect: dialect,
+      }),
+    )
+    expect(await (await app.request('/')).json()).toStrictEqual(expected)
+  })
+
+  it('sends authored response header examples instead of generated values', async () => {
+    const app = new Hono().get('/', (c) =>
+      mockAnyResponse(c, {
+        responses: {
+          '200': {
+            description: 'OK',
+            headers: {
+              'X-Rate-Limit': { schema: { type: 'integer' }, example: 100 },
+              'X-Request-Id': { schema: { type: 'string' }, examples: { first: { value: 'req-1' } } },
+              'X-Note': { content: { 'text/plain': { example: 'hello' } } },
+            },
+            content: { 'application/json': { example: {} } },
+          },
+        },
+      }),
+    )
+
+    const response = await app.request('/')
+    expect(response.headers.get('x-rate-limit')).toBe('100')
+    expect(response.headers.get('x-request-id')).toBe('req-1')
+    expect(response.headers.get('x-note')).toBe('hello')
+  })
+
+  it('preserves transport headers set by middleware when the document declares different values', async () => {
+    const app = new Hono()
+      .use((c, next) => {
+        c.header('Content-Length', '0')
+        c.header('Content-Encoding', 'identity')
+        c.header('Content-Type', 'text/plain')
+        return next()
+      })
+      .get('/', (c) =>
+        mockAnyResponse(c, {
+          responses: {
+            '200': {
+              description: 'Empty response',
+              headers: {
+                'CONTENT-LENGTH': { schema: { type: 'integer', example: 1024 } },
+                'CONTENT-ENCODING': { schema: { type: 'string', example: 'gzip' } },
+                'CONTENT-TYPE': { schema: { type: 'string', example: 'application/json' } },
+              },
+            },
+          },
+        }),
+      )
+
+    const response = await app.request('/')
+    expect(await response.text()).toBe('')
+    expect(response.headers.get('content-length')).toBe('0')
+    expect(response.headers.get('content-encoding')).toBe('identity')
+    expect(response.headers.get('content-type')).toBe('text/plain')
+  })
+
+  it('sends generated arrays within their declared bounds', async () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        coordinates: { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 2 },
+        empty: { type: 'array', items: { type: 'number' }, maxItems: 0 },
+      },
+    }
+    const app = new Hono().get('/', (c) => mockAnyResponse(c, operation('application/json', { schema })))
+    const response = await app.request('/')
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ coordinates: [1, 1], empty: [] })
+  })
+
   it.each([
     [{ $ref: '#/components/schemas/Missing' }, {}, 'unresolved-reference'],
     [

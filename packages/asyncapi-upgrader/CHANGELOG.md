@@ -1,5 +1,31 @@
 # @scalar/asyncapi-upgrader
 
+## 0.1.25
+
+No changes in this release.
+
+## 0.1.24
+
+No changes in this release.
+
+## 0.1.23
+
+No changes in this release.
+
+## 0.1.22
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.1.21
+
+No changes in this release.
+
+## 0.1.20
+
+## 0.1.19
+
 ## 0.1.18
 
 ## 0.1.17

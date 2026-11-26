@@ -1,17 +1,74 @@
-import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
-import { getId, getSchemas } from '@/helpers/get-schemas'
+import { type DocumentReferences, bundledDocumentUri, documentReferences } from '@/bundle/document-references'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { createPathFromSegments } from '@/helpers/json-path-utils'
+import {
+  type DynamicScope,
+  carriesDynamicAnchor,
+  collectDynamicAnchors,
+  resolveDynamicRef,
+} from '@/magic-proxy/dynamic-ref'
+import {
+  DYNAMIC_REF_VALUE,
+  dynamicAnchorCacheKey,
+  getRaw,
+  isMagicProxy,
+  magicProxyRevision,
+  magicProxyTarget,
+} from '@/magic-proxy/symbols'
 import type { UnknownObject } from '@/types'
-
-const isMagicProxy = Symbol('isMagicProxy')
-const magicProxyTarget = Symbol('magicProxyTarget')
 
 const REF_VALUE = '$ref-value'
 const REF_KEY = '$ref'
+const DYNAMIC_REF_KEY = '$dynamicRef'
+
+/** Distinguish schema containers from instance data without growing the scope for either. */
+const getChildScopeRole = (role: 'map' | 'data' | undefined, prop: string | symbol): 'map' | 'data' | undefined => {
+  if (role === 'data') {
+    return 'data'
+  }
+  if (role === 'map') {
+    return undefined
+  }
+  if (['example', 'examples', 'default', 'const', 'enum'].includes(String(prop))) {
+    return 'data'
+  }
+  // Map entries can be named after instance-data keywords, including OpenAPI's default response.
+  if (
+    ['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas', 'schemas', 'responses'].includes(
+      String(prop),
+    )
+  ) {
+    return 'map'
+  }
+  return undefined
+}
+
+/**
+ * Grow a dynamic scope by one resource, returning a stable (interned) array.
+ *
+ * The same `(parentScope, resource)` pair always yields the same array identity, so the scope can be
+ * used as a WeakMap key for per-scope proxy caching. Without interning, every descent would allocate a
+ * fresh scope array and the scope-keyed cache could never hit, defeating referential stability.
+ */
+const internScope = (
+  cache: WeakMap<object, WeakMap<object, DynamicScope>>,
+  parentScope: DynamicScope,
+  resource: UnknownObject,
+): DynamicScope => {
+  let byResource = cache.get(parentScope)
+  if (!byResource) {
+    byResource = new WeakMap()
+    cache.set(parentScope, byResource)
+  }
+  let child = byResource.get(resource)
+  if (!child) {
+    child = [...parentScope, resource]
+    byResource.set(resource, child)
+  }
+  return child
+}
 
 /**
  * Creates a "magic" proxy for a given object or array, enabling transparent access to
@@ -69,36 +126,123 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * It is helpful when dealing with reactive frameworks like Vue,
      */
     proxyCache: WeakMap<object, T>
+    /** Shared resource index for fragment pointers, identifiers, and anchors. */
+    references: DocumentReferences
+    origin: string
     /**
-     * Cache to store resolved JSON references.
-     */
-    cache: Map<string, unknown>
-    /**
-     * Map of all schemas by their $id or $anchor for cross-document reference resolution.
-     */
-    schemas: Map<string, string>
-    /**
-     * The current JSON path context within the root object.
+     * The JSON Schema 2020-12 dynamic scope on the current traversal path, outermost-first.
      *
-     * Used to resolve $anchor references correctly.
+     * Grown as we descend past schema resources that can hold a `$dynamicAnchor`, and used to resolve
+     * the virtual `$dynamicRef-value` property. Stays empty until a resource with a dynamic anchor is entered.
      */
-    currentContext: string
-  } = {
-    root: target,
-    proxyCache: new WeakMap(),
-    cache: new Map(),
-    schemas: getSchemas(target, '', [], new Map(options?.documentUri ? [[options.documentUri, '']] : [])),
-    currentContext: '',
-  },
+    dynamicScope: DynamicScope
+    /** Keyword maps and instance data do not introduce schema resources. */
+    scopeRole?: 'map' | 'data'
+    /** Refresh inherited scopes for proxies retained across schema edits. */
+    getDynamicScope?: () => DynamicScope
+    /**
+     * Interns dynamic-scope arrays so the same `(parentScope, resource)` always yields the same array
+     * identity. That stable identity is what makes the scope-keyed caches below work.
+     */
+    scopeCache: WeakMap<object, WeakMap<object, DynamicScope>>
+    /**
+     * Scope-keyed proxy cache used while a dynamic scope is active: one proxy per `(scope, target)`.
+     *
+     * `$dynamicRef` is path-dependent, so a target can bind differently under different scopes and the
+     * plain `proxyCache` (one proxy per target) cannot be used. Keying by scope preserves referential
+     * stability *within* a scope — which cycle detection and Vue rely on — while still returning distinct
+     * proxies across scopes.
+     *
+     * There is no size cap or eviction: evicting a live entry would break identity on the next read.
+     * Entries are created lazily for visited `(scope, target)` pairs. Both cache levels use weak keys,
+     * so they do not retain a discarded document once its root and proxies are no longer reachable.
+     */
+    dynamicProxyCache: WeakMap<object, WeakMap<object, T>>
+    /** Shared edit revision invalidating scoped proxies, anchor collections, and reference paths. */
+    mutationState: {
+      revision: number
+    }
+  } = (() => {
+    const references = documentReferences('x-ext')
+    const origin = options?.documentUri ?? '/'
+    references.register(target, origin)
+    if (isObject(target) && isObject(target['x-ext'])) {
+      for (const [key, document] of Object.entries(target['x-ext'])) {
+        const mappings = target['x-ext-urls']
+        const source = isObject(mappings) && typeof mappings[key] === 'string' ? mappings[key] : undefined
+        references.register(document, bundledDocumentUri(origin, key, source), ['x-ext', key])
+      }
+    }
+    return {
+      root: target,
+      proxyCache: new WeakMap<object, T>(),
+      references,
+      origin,
+      dynamicScope: [],
+      scopeCache: new WeakMap(),
+      dynamicProxyCache: new WeakMap(),
+      mutationState: { revision: 0 },
+    }
+  })(),
 ): T => {
   if (!isObject(target) && !Array.isArray(target)) {
     return target
   }
 
-  // Return existing proxy for the same target to ensure referential stability
-  if (args.proxyCache.has(target)) {
-    return args.proxyCache.get(target)
+  // While a dynamic scope is active, resolution is path-dependent: the same target can bind differently
+  // depending on the path, so the plain one-proxy-per-target `proxyCache` cannot be used. Instead we key
+  // proxies by `(scope, target)` — preserving referential stability within a scope (cycle detection and
+  // Vue depend on it) while still returning distinct proxies across scopes. Ordinary documents never
+  // grow a scope, so they keep using `proxyCache` unchanged.
+  const dynamicScopeActive = args.dynamicScope.length > 0
+
+  // Return the existing proxy for this (scope, target) to ensure referential stability
+  const scopedProxyCache = dynamicScopeActive ? args.dynamicProxyCache.get(args.dynamicScope) : undefined
+  const existingProxy = dynamicScopeActive ? scopedProxyCache?.get(target) : args.proxyCache.get(target)
+  if (
+    existingProxy &&
+    (!dynamicScopeActive || Reflect.get(existingProxy, magicProxyRevision) === args.mutationState.revision)
+  ) {
+    return existingProxy
   }
+
+  // The dynamic scope handed to child proxies: grow it by this resource when it can carry a
+  // `$dynamicAnchor`. The cheap `carriesDynamicAnchor` check comes first so only candidate resources
+  // (`$id`, `$defs`, or `$dynamicAnchor`) are scanned for anchors, and that scan is cached per resource.
+  // There is deliberately no document-wide "uses `$dynamicRef`" probe: the store adds content to a live
+  // document (lazy chunks, client edits), and a memoized negative answer would never see it.
+  // The resource index tracks lexical ownership even when a schema is reached through a reference.
+  // Grown scopes are interned so the same `(parentScope, resource)` yields one stable array identity.
+  const getChildScope = (): DynamicScope => {
+    const inheritedScope = args.getDynamicScope?.() ?? args.dynamicScope
+    return !args.scopeRole &&
+      carriesDynamicAnchor(
+        target as UnknownObject,
+        args.references.isSchemaResource(args.references.origin(target) ?? args.origin),
+      ) &&
+      (inheritedScope.length > 0 ||
+        collectDynamicAnchors(target as UnknownObject, getRaw, args.mutationState).size > 0) &&
+      !inheritedScope.includes(target)
+      ? internScope(args.scopeCache, inheritedScope, target as UnknownObject)
+      : inheritedScope
+  }
+
+  const creationRevision = args.mutationState.revision
+  let scopeRevision = creationRevision
+  let childScope = getChildScope()
+  const getDynamicScope = (): DynamicScope => {
+    if (scopeRevision !== args.mutationState.revision) {
+      childScope = getChildScope()
+      scopeRevision = args.mutationState.revision
+    }
+    return childScope
+  }
+  const invalidate = (): void => {
+    args.mutationState.revision++
+  }
+
+  // Cache paths per proxy, never values: a raw target can be replaced between reads.
+  let cached: { ref: string; origin: string; revision: number; segments: string[] } | undefined
 
   const handler: ProxyHandler<T> = {
     /**
@@ -110,6 +254,18 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * - For all other properties, recursively wrap the returned value in a magic proxy (if applicable).
      */
     get(target, prop, receiver) {
+      // Read this before refreshing scopes: anchor collection also asks proxy views for this key.
+      if (prop === dynamicAnchorCacheKey) {
+        return args.mutationState
+      }
+      if (prop === magicProxyRevision) {
+        return creationRevision
+      }
+      // Retained proxies also need to re-check their own resource after edits.
+      if (scopeRevision !== args.mutationState.revision) {
+        childScope = getChildScope()
+        scopeRevision = args.mutationState.revision
+      }
       if (prop === isMagicProxy) {
         // Used to identify if an object is a magic proxy
         return true
@@ -128,36 +284,56 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       // Get the $ref value of the current target (if any)
       const ref = Reflect.get(target, REF_KEY, receiver)
-      // Get the identifier ($id) of the current target for context tracking
-      const id = getId(target)
 
-      // If accessing "$ref-value" and $ref is a local reference, resolve and return the referenced value
-      if (prop === REF_VALUE && typeof ref === 'string') {
-        // Check cache first for performance optimization
-        if (args.cache.has(ref)) {
-          return args.cache.get(ref)
-        }
-
-        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
-
-        if (path === undefined) {
+      // If accessing "$dynamicRef-value" and this node carries a $dynamicRef, resolve it against the
+      // dynamic scope threaded to here. Like "$ref-value" but path-dependent, so it is never cached and
+      // is get-only (see the `has` trap). Unresolvable references return undefined; the schema is unchanged.
+      if (prop === DYNAMIC_REF_VALUE) {
+        const dynamicRef = Reflect.get(target, DYNAMIC_REF_KEY, receiver)
+        if (args.scopeRole || typeof dynamicRef !== 'string') {
           return undefined
         }
 
-        // Resolve the reference and create a new magic proxy
-        const resolvedValue = getValueByPath(args.root, parseJsonPointerSegments(`/${path}`))
-        // Return early if the value is already a magic proxy
-        if (isMagicProxyObject(resolvedValue.value)) {
-          return resolvedValue.value
+        // A reference on the resource root belongs to that resource, including its bookend.
+        const resolved = resolveDynamicRef(dynamicRef, childScope, getRaw, args.mutationState)
+        if (resolved === undefined) {
+          return undefined
         }
-        const proxiedValue = createMagicProxy(resolvedValue.value, options, {
+        if (isMagicProxyObject(resolved)) {
+          return resolved
+        }
+        // Walk the bound schema with the scope grown by this resource (same as the `$ref-value` branch),
+        // so a nested `$dynamicRef` inside a recursive template binds against the right scope.
+        return createMagicProxy(resolved as T, options, {
           ...args,
-          currentContext: resolvedValue.context,
+          origin: args.references.origin(resolved) ?? args.origin,
+          dynamicScope: childScope,
+          scopeRole: undefined,
+          getDynamicScope,
         })
+      }
 
-        // Store in cache for future lookups
-        args.cache.set(ref, proxiedValue)
-        return proxiedValue
+      // If accessing "$ref-value" and $ref is a local reference, resolve and return the referenced value
+      if (prop === REF_VALUE && typeof ref === 'string') {
+        const origin = args.references.origin(target) ?? args.origin
+        if (cached?.ref !== ref || cached.origin !== origin || cached.revision !== args.mutationState.revision) {
+          const resolved = args.references.resolve(ref, origin, true)
+          if (!resolved) {
+            return undefined
+          }
+          cached = { ref, origin, revision: args.mutationState.revision, segments: resolved.segments }
+        }
+        const value = getValueByPath(args.root, cached.segments).value
+        if (isMagicProxyObject(value)) {
+          return value
+        }
+        return createMagicProxy(value, options, {
+          ...args,
+          origin: isObject(value) ? (args.references.origin(value) ?? args.origin) : args.origin,
+          dynamicScope: childScope,
+          scopeRole: undefined,
+          getDynamicScope,
+        })
       }
 
       // For all other properties, recursively wrap the value in a magic proxy
@@ -168,7 +344,17 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         return value
       }
 
-      return createMagicProxy(value as T, options, { ...args, currentContext: id ?? args.currentContext })
+      if (!isObject(value) && !Array.isArray(value)) {
+        return value
+      }
+      const scopeRole = getChildScopeRole(args.scopeRole, prop)
+      return createMagicProxy(value as T, options, {
+        ...args,
+        origin: args.references.origin(target) ?? args.origin,
+        dynamicScope: childScope,
+        scopeRole,
+        getDynamicScope,
+      })
     },
     /**
      * Proxy "set" trap for magic proxy.
@@ -186,14 +372,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       }
 
       if (prop === REF_VALUE && typeof ref === 'string') {
-        const id = getId(target)
-        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
-
-        if (path === undefined) {
+        const segments = args.references.resolve(ref, args.references.origin(target) ?? args.origin, true)?.segments
+        if (segments === undefined) {
           return undefined
         }
-
-        const segments = parseJsonPointerSegments(`/${path}`)
 
         if (segments.length === 0) {
           return false // Can not set top level $ref-value
@@ -219,10 +401,16 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         } else {
           parent[key] = newValue
         }
+        invalidate()
         return true
       }
 
-      return Reflect.set(target, prop, newValue, receiver)
+      const previous = Reflect.get(target, prop, receiver)
+      const updated = Reflect.set(target, prop, newValue, receiver)
+      if (updated && previous !== newValue) {
+        invalidate()
+      }
+      return updated
     },
     /**
      * Proxy "deleteProperty" trap for magic proxy.
@@ -230,7 +418,12 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * This will update the underlying target object.
      */
     deleteProperty(target, prop) {
-      return Reflect.deleteProperty(target, prop)
+      const existed = Reflect.has(target, prop)
+      const deleted = Reflect.deleteProperty(target, prop)
+      if (deleted && existed) {
+        invalidate()
+      }
+      return deleted
     },
     /**
      * Proxy "has" trap for magic proxy.
@@ -250,6 +443,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       if (prop === REF_VALUE && REF_KEY in target) {
         return true
       }
+      // Note: "$dynamicRef-value" is intentionally NOT surfaced here, in `ownKeys`, or in
+      // `getOwnPropertyDescriptor`. It is a get-only virtual accessor: resolution is path-dependent, so
+      // it must not leak into enumeration, spreads, coercion or serialization (which would embed a
+      // resolved schema at the wrong scope). Consumers read it explicitly after an `isDynamicRef` check.
       return Reflect.has(target, prop)
     },
     /**
@@ -304,32 +501,22 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   }
 
   const proxied = new Proxy<T>(target, handler)
-  args.proxyCache.set(target, proxied)
+  // Cache the proxy for reuse. Under an active dynamic scope, key it by `(scope, target)` so the same
+  // target reached again on the same path returns the same proxy (referential stability that cycle
+  // detection and Vue rely on) while a different path — a different scope — gets its own proxy.
+  if (dynamicScopeActive) {
+    let scoped = args.dynamicProxyCache.get(args.dynamicScope)
+    if (!scoped) {
+      scoped = new WeakMap()
+      args.dynamicProxyCache.set(args.dynamicScope, scoped)
+    }
+    scoped.set(target, proxied)
+  } else {
+    args.proxyCache.set(target, proxied)
+  }
   return proxied
 }
 
 const isMagicProxyObject = (obj: unknown): boolean => {
   return typeof obj === 'object' && obj !== null && (obj as { [isMagicProxy]: boolean })[isMagicProxy] === true
-}
-
-/**
- * Gets the raw (non-proxied) version of an object created by createMagicProxy.
- * This is useful when you need to access the original object without the magic proxy wrapper.
- *
- * @param obj - The magic proxy object to get the raw version of
- * @returns The raw version of the object
- * @example
- * const proxy = createMagicProxy({ foo: { $ref: '#/bar' } })
- * const raw = getRaw(proxy) // { foo: { $ref: '#/bar' } }
- */
-export function getRaw<T>(obj: T): T {
-  if (typeof obj !== 'object' || obj === null) {
-    return obj
-  }
-
-  if ((obj as T & { [isMagicProxy]: boolean | undefined })[isMagicProxy]) {
-    return (obj as T & { [magicProxyTarget]: T })[magicProxyTarget]
-  }
-
-  return obj
 }

@@ -69,7 +69,7 @@ export default defineConfig(async ({ command, mode }) => {
             alias: [
               {
                 find: /^monaco-editor$/,
-                replacement: `${import.meta.dirname}/node_modules/monaco-editor/esm/vs/editor/editor.api`,
+                replacement: `${import.meta.dirname}/node_modules/monaco-editor/esm/vs/editor.js`,
               },
             ],
             server: {

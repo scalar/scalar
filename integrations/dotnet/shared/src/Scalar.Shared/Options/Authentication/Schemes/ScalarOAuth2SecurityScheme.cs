@@ -18,7 +18,7 @@ namespace Scalar.AspNetCore;
 /// when making API requests. It specifies flows and default scopes to be used
 /// during the authorization process.
 /// </remarks>
-public sealed class ScalarOAuth2SecurityScheme : ScalarSecurityScheme
+public class ScalarOAuth2SecurityScheme : ScalarSecurityScheme
 {
     /// <summary>
     /// Gets or sets the OAuth 2.0 flows configuration for this security scheme.

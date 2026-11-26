@@ -1,3 +1,4 @@
+import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
 
 import { type ProcessedDocument, processDocument } from './process-document'
@@ -34,6 +35,20 @@ describe('resolveChannels', () => {
       '/api/v1/v1/planets/:id/events',
       '/api/v2/v2/planets/:id/events',
     ])
+  })
+
+  it('matches a channel address that mixes a parameter with literal text only when the literal text is sent', async () => {
+    const document = await processAsyncApiDocument({
+      asyncapi: '3.0.0',
+      info: { title: 'Paths', version: '1' },
+      channels: { signedUp: { address: 'user.{userId}.signedup', messages: {} } },
+    })
+    const [channel] = resolveChannels(document)
+    const app = new Hono()
+    app.get(channel?.route ?? '', (c) => c.text('matched'))
+
+    expect((await app.request('/user.42.signedup')).status).toBe(200)
+    expect((await app.request('/user.42.signedout')).status).toBe(404)
   })
 
   it('keeps authentication alternatives scoped to their server pathname', async () => {

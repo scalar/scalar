@@ -1,4 +1,3 @@
-import { ScalarCopy } from '@scalar/components/copy'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -6,9 +5,11 @@ import { traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import AsyncApiTraversedEntry from './AsyncApiTraversedEntry.vue'
+import Message from './Message.vue'
+import SchemaSource from './SchemaSource.vue'
 
 const document = {
   asyncapi: '3.0.0',
@@ -18,32 +19,35 @@ const document = {
 } as unknown as AsyncApiDocument
 
 describe('AsyncApiTraversedEntry', () => {
-  it.each(['classic', 'modern'] as const)('renders source models and keeps their anchors in %s layout', (layout) => {
-    const schema = 'message User { string id = 1; }'
-    const wrapper = mount(AsyncApiTraversedEntry, {
-      props: {
-        entries: [{ type: 'model', id: 'model-user', ref: '#/components/schemas/User', name: 'User', title: 'User' }],
-        document: {
-          ...document,
-          components: { schemas: { User: { schemaFormat: 'application/vnd.google.protobuf;version=3', schema } } },
+  it.each(['classic', 'modern'] as const)(
+    'renders native models and keeps their anchors in %s layout',
+    async (layout) => {
+      const schema = 'message User { string id = 1; }'
+      const wrapper = mount(AsyncApiTraversedEntry, {
+        props: {
+          entries: [{ type: 'model', id: 'model-user', ref: '#/components/schemas/User', name: 'User', title: 'User' }],
+          document: {
+            ...document,
+            components: { schemas: { User: { schemaFormat: 'application/vnd.google.protobuf;version=3', schema } } },
+          },
+          expandedItems: { 'model-user': true },
+          options: {
+            layout,
+            hideModels: false,
+            expandAllSchemaProperties: false,
+            schemaKeyboardNav: false,
+            orderSchemaPropertiesBy: 'preserve',
+            orderRequiredPropertiesFirst: true,
+          },
+          eventBus: createWorkspaceEventBus(),
         },
-        expandedItems: { 'model-user': true },
-        options: {
-          layout,
-          hideModels: false,
-          expandAllSchemaProperties: false,
-          schemaKeyboardNav: false,
-          orderSchemaPropertiesBy: 'preserve',
-          orderRequiredPropertiesFirst: true,
-        },
-        eventBus: createWorkspaceEventBus(),
-      },
-    })
-    expect(wrapper.text()).toContain('User')
-    expect(wrapper.text()).toContain('application/vnd.google.protobuf;version=3')
-    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(schema)
-    expect(wrapper.find('[id="model-user"]').exists()).toBe(true)
-  })
+      })
+      expect(wrapper.text()).toContain('User')
+      await vi.waitFor(() => expect(wrapper.text()).toContain('#1'))
+      expect(wrapper.findComponent(SchemaSource).exists()).toBe(false)
+      expect(wrapper.find('[id="model-user"]').exists()).toBe(true)
+    },
+  )
 
   it.each(['modern', 'classic'] as const)(
     'renders documentation across an AsyncAPI document in %s layout',
@@ -139,11 +143,92 @@ describe('AsyncApiTraversedEntry', () => {
         'https://example.com/channel-tag',
         // Messages owned by an operation are rendered once, with their documentation.
         'https://example.com/message',
+        // The reusable message also appears in the Messages components section.
+        'https://example.com/message',
         'https://example.com/model',
         'https://example.com/operation',
       ])
       expect(wrapper.text()).toContain('**Channel** guide')
       expect(wrapper.text()).not.toContain('*Trait tag* guide')
+    },
+  )
+
+  it.each(['modern', 'classic'] as const)(
+    'renders reusable messages with inherited traits in %s layout',
+    async (layout) => {
+      const document = {
+        asyncapi: '3.1.0',
+        info: { title: 'Components', version: '1' },
+        'x-scalar-original-document-hash': '',
+        channels: {},
+        components: {
+          messages: {
+            PlanetUpdated: {
+              title: 'Planet updated',
+              traits: [{ $ref: '#/components/messageTraits/Tracing' }],
+              payload: { type: 'object', properties: { planetId: { type: 'string' } } },
+            },
+          },
+          messageTraits: {
+            Tracing: {
+              title: 'Tracing',
+              headers: { type: 'object', properties: { traceId: { type: 'string' } } },
+              examples: [{ headers: { traceId: 'example-trace' } }],
+            },
+          },
+          operationTraits: {
+            Kafka: { title: 'Kafka defaults' },
+          },
+        },
+      } as unknown as AsyncApiDocument
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: 'components', document: document as unknown as Record<string, unknown> })
+      const resolved = store.workspace.documents.components
+      if (!isAsyncApiDocument(resolved)) {
+        throw new Error('Expected an AsyncAPI document')
+      }
+      const navigation = traverseAsyncApiDocument('components', resolved)
+      const expandedItems: Record<string, boolean> = {}
+      const expand = (entries: TraversedEntry[]): void => {
+        for (const entry of entries) {
+          expandedItems[entry.id] = true
+          if ('children' in entry && entry.children) {
+            expand(entry.children)
+          }
+        }
+      }
+      expand(navigation.children ?? [])
+
+      const wrapper = mount(AsyncApiTraversedEntry, {
+        props: {
+          document: resolved,
+          entries: navigation.children ?? [],
+          expandedItems,
+          eventBus: createWorkspaceEventBus(),
+          options: {
+            layout,
+            hideModels: false,
+            expandAllSchemaProperties: true,
+            schemaKeyboardNav: false,
+            orderSchemaPropertiesBy: 'preserve',
+            orderRequiredPropertiesFirst: true,
+          },
+        },
+      })
+
+      expect(wrapper.find('[aria-label="Message Traits"]').exists()).toBe(false)
+      expect(wrapper.find('[aria-label="Operation Traits"]').exists()).toBe(false)
+      const messagesSection = wrapper.get('[id="components/~components/messages"]')
+      expect(messagesSection.attributes('aria-label')).toBe('Messages')
+      if (layout === 'classic') {
+        const toggle = messagesSection.get('button[aria-labelledby]')
+        expect(toggle.attributes('aria-expanded')).toBe('true')
+      }
+
+      const message = messagesSection.getComponent(Message)
+      expect(message.text()).toContain('planetId')
+      expect(message.text()).toContain('traceId')
+      expect(message.get('pre').text()).toBe('{\n  "traceId": "example-trace"\n}')
     },
   )
 
