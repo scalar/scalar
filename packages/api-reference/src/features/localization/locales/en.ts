@@ -70,6 +70,8 @@ export const en = {
   },
   operation: {
     codeSampleUnavailable: 'No code sample available for this example.',
+    codeSampleLoadFailed: 'Could not load this code example.',
+    codeSampleRetry: 'Retry',
     codeSample: 'Code sample',
     body: 'Body',
     cookies: 'Cookies',

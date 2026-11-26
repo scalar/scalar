@@ -71,6 +71,8 @@ export const zhTw = {
   },
   operation: {
     codeSampleUnavailable: '此範例沒有可用的程式碼範例。',
+    codeSampleLoadFailed: '無法載入此程式碼範例。',
+    codeSampleRetry: '重試',
     codeSample: '程式碼範例',
     body: '請求主體',
     cookies: 'Cookie',

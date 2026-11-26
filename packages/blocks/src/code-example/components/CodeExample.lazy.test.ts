@@ -97,21 +97,38 @@ describe('CodeExample.lazy', () => {
     expect(loadPlugin).not.toHaveBeenCalled()
   })
 
-  it('stops waiting after a failed load and retries when the client is selected again', async () => {
+  it('shows a status line with Retry after a failed load, instead of an error as code', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
     vi.mocked(loadPlugin).mockRejectedValueOnce(new Error('Failed to fetch dynamically imported module'))
 
     const wrapper = mountCodeExample('kotlin/okhttp')
 
-    // The snippet area stays empty while loading, then explains that the generator is missing
     expect(wrapper.text()).not.toMatch(ERROR_TEXT)
-    await vi.waitFor(() => expect(wrapper.text()).toContain('Code snippet generator is not loaded'))
+    await vi.waitFor(() =>
+      expect(wrapper.find('[role="status"]').text()).toContain('Could not load this code example.'),
+    )
+    expect(wrapper.text()).not.toMatch(ERROR_TEXT)
+    expect(wrapper.find('code').exists()).toBe(false)
+
+    await wrapper.get('[role="status"] button').trigger('click')
+
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
+    await vi.waitFor(() => expect(wrapper.text()).toContain('OkHttpClient'))
+    expect(wrapper.text()).not.toMatch(ERROR_TEXT)
+  })
+
+  it('retries a failed load when the client is selected again', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.mocked(loadPlugin).mockRejectedValueOnce(new Error('Failed to fetch dynamically imported module'))
+
+    const wrapper = mountCodeExample('java/unirest')
+    await vi.waitFor(() => expect(wrapper.find('[role="status"]').exists()).toBe(true))
 
     await wrapper.setProps({ selectedClient: 'shell/curl' })
-    await wrapper.setProps({ selectedClient: 'kotlin/okhttp' })
+    await wrapper.setProps({ selectedClient: 'java/unirest' })
 
     expect(wrapper.text()).not.toMatch(ERROR_TEXT)
-    await vi.waitFor(() => expect(wrapper.text()).toContain('OkHttpClient'))
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Unirest'))
   })
 
   it('getSnippet reports a generator that is not loaded yet', () => {

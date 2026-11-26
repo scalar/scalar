@@ -122,6 +122,8 @@ export const fr = {
   'requestCodeSnippet': {
     unavailable: 'Aucun extrait de code disponible pour cet exemple.',
     'codeSnippet': 'Extrait de code',
+    loadFailed: 'Impossible de charger cet extrait de code.',
+    retry: 'Réessayer',
   },
   'requestTable': {
     'enabled': 'Activé',

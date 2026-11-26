@@ -35,7 +35,14 @@ const needsPlugin = (clientId: string | undefined): clientId is string => {
  */
 export const useClientPlugin = (
   clientId: MaybeRefOrGetter<string | undefined>,
-): { isLoading: ComputedRef<boolean> } => {
+): {
+  /** Whether the selected client's generator is still loading */
+  isLoading: ComputedRef<boolean>
+  /** Whether the last load of the selected client's generator failed */
+  isFailed: ComputedRef<boolean>
+  /** Load the selected client's generator again, after a failure */
+  retry: () => void
+} => {
   /** The plugin cache is not reactive, so we count settled loads to re-evaluate `isLoading` */
   const settledLoads = ref(0)
   /** A client whose last load failed: we stop waiting so the snippet area shows an error, not a placeholder */
@@ -52,7 +59,7 @@ export const useClientPlugin = (
         () => undefined,
         (error: unknown) => {
           console.error('[useClientPlugin] Failed to load the code generator', error)
-          // Selecting the client again retries, because the failed import is not cached
+          // Selecting the client again, or `retry`, loads it again, because the failed import is not cached
           if (toValue(clientId) === id) {
             failedClientId.value = id
           }
@@ -70,6 +77,19 @@ export const useClientPlugin = (
     return needsPlugin(id) && failedClientId.value !== id
   })
 
+  const isFailed = computed(() => {
+    const id = toValue(clientId)
+    return id !== undefined && failedClientId.value === id
+  })
+
+  /** Failed imports are not cached, so loading again makes a fresh request */
+  const retry = (): void => {
+    const id = toValue(clientId)
+    if (needsPlugin(id)) {
+      void load(id)
+    }
+  }
+
   watch(
     () => toValue(clientId),
     (id) => {
@@ -86,5 +106,5 @@ export const useClientPlugin = (
     return needsPlugin(id) ? load(id) : undefined
   })
 
-  return { isLoading }
+  return { isLoading, isFailed, retry }
 }

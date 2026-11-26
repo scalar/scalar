@@ -122,6 +122,8 @@ export const pt = {
   'requestCodeSnippet': {
     unavailable: 'Nenhuma amostra de código disponível para este exemplo.',
     'codeSnippet': 'Trecho de código',
+    loadFailed: 'Não foi possível carregar este trecho de código.',
+    retry: 'Tentar novamente',
   },
   'requestTable': {
     'enabled': 'Habilitado',

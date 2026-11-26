@@ -121,6 +121,8 @@ export const en = {
   requestCodeSnippet: {
     unavailable: 'No code sample available for this example.',
     codeSnippet: 'Code Snippet',
+    loadFailed: 'Could not load this code snippet.',
+    retry: 'Retry',
   },
   requestTable: {
     enabled: 'Enabled',

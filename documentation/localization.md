@@ -166,6 +166,12 @@ The status shown when a linked SDK sample is missing follows the selected locale
 
 When using the standalone `CodeExample` component or `createCodeExample`, pass `codeSampleUnavailable` to supply localized status text. It defaults to English.
 
+### Code samples that fail to load
+
+Code generators load on demand. If the selected client's generator fails to load, for example after a network error, the code sample shows a status line with a Retry button instead of the code. Override `operation.codeSampleLoadFailed` and `operation.codeSampleRetry` for the API Reference, or `apiClient.requestCodeSnippet.loadFailed` and `apiClient.requestCodeSnippet.retry` for the API Client, in `localization.translations`.
+
+When using the standalone `CodeExample` component or `createCodeExample`, pass `codeSampleLoadFailed` and `codeSampleRetryLabel`. They default to English.
+
 ### Code sample region name
 
 A code sample is a keyboard tab stop so it can be scrolled, and it is exposed as a named group so screen readers announce it when it receives focus. Override `operation.codeSample` for the API Reference in `localization.translations` to change the name (the selected client's title is appended, e.g. "Code sample: Shell cURL"). The API Client reuses `apiClient.requestCodeSnippet.codeSnippet`.

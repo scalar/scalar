@@ -1,4 +1,5 @@
 import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
+import { preloadClients } from '@scalar/snippetz/lazy'
 import type { MultipartNaming } from '@scalar/types/api-reference'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
@@ -48,7 +49,8 @@ type GenerateCodeSnippetProps = {
  * Generate the code snippet for the selected example OR operation, or null when a linked sample is unavailable.
  *
  * Built-in clients generate with their lazily loaded generator: load it first (with `preloadClients`, or
- * `useClientPlugin` in a component). Until then this returns "Code snippet generator is not loaded".
+ * `useClientPlugin` in a component), or call {@link generateCodeSnippetAsync}, which loads it for you.
+ * Until then this returns "Code snippet generator is not loaded".
  */
 export const generateCodeSnippet = ({
   clientId,
@@ -121,4 +123,19 @@ export const generateCodeSnippet = ({
     console.error('[generateCodeSnippet]', error)
     return error instanceof CookieSerializationError ? error.message : 'Error generating code snippet'
   }
+}
+
+/**
+ * Generate the code snippet like {@link generateCodeSnippet}, after loading the client's generator.
+ *
+ * For callers that used to call `generateCodeSnippet` without a preload, before generators loaded on
+ * demand: awaiting this returns the snippet instead of "Code snippet generator is not loaded". A generator
+ * that fails to load returns that message, and the next call tries again.
+ */
+export const generateCodeSnippetAsync = async (props: GenerateCodeSnippetProps): Promise<string | null> => {
+  if (props.clientId && !props.clientId.startsWith('custom')) {
+    await preloadClients([props.clientId])
+  }
+
+  return generateCodeSnippet(props)
 }

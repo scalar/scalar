@@ -122,6 +122,8 @@ export const zhCn = {
   'requestCodeSnippet': {
     unavailable: '此示例暂无可用的代码示例。',
     'codeSnippet': '代码片段',
+    loadFailed: '无法加载此代码片段。',
+    retry: '重试',
   },
   'requestTable': {
     'enabled': '已启用',

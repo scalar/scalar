@@ -71,7 +71,9 @@ export const createLazyPlugins = (loaders: Partial<Record<string, PluginLoader>>
   }
 
   const preloadClients: LazyPlugins['preloadClients'] = (clientIds) =>
-    Promise.all(
+    // Settled rather than `all`: a host awaits this before mounting, so one generator that fails to
+    // load must neither reject nor cut the wait short for the others. It loads again on next use.
+    Promise.allSettled(
       clientIds.flatMap((clientId) => {
         // Custom code samples and unknown ids have nothing to load
         if (!getLoader(clientId)) {
@@ -120,7 +122,8 @@ export const hasPlugin = lazyPlugins.hasPlugin
  * Load the plugins for a list of `target/client` ids (for example `['shell/curl', 'node/fetch']`).
  *
  * Await this before rendering or hydrating, so the first render can generate snippets synchronously.
- * Ids that do not belong to a built-in client (such as custom code samples) are ignored.
+ * Ids that do not belong to a built-in client (such as custom code samples) are ignored. It never
+ * rejects: a client whose generator fails to load stays unloaded, and loads again on its next use.
  */
 export const preloadClients = lazyPlugins.preloadClients
 

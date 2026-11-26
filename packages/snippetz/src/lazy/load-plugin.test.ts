@@ -76,6 +76,31 @@ describe('load-plugin', () => {
       expect(wget).not.toHaveBeenCalled()
       expect(lazy.getLoadedPlugin('shell', 'curl')?.title).toBe('cURL')
     })
+
+    it('waits for every client and resolves when one of them fails to load', async () => {
+      let releaseWget: () => void = () => undefined
+      const curl = vi.fn(() => Promise.reject(new Error('Failed to fetch dynamically imported module')))
+      const wget = vi.fn(
+        () =>
+          new Promise<Plugin>((resolve) => {
+            releaseWget = () => resolve(makePlugin('Wget'))
+          }),
+      )
+      const lazy = createLazyPlugins({ 'shell/curl': curl, 'shell/wget': wget })
+
+      let settled = false
+      const preload = lazy.preloadClients(['shell/curl', 'shell/wget']).then(() => {
+        settled = true
+      })
+      await Promise.resolve()
+      // The failed curl import must not end the wait while wget is still loading
+      expect(settled).toBe(false)
+
+      releaseWget()
+      await expect(preload).resolves.toBeUndefined()
+      expect(lazy.getLoadedPlugin('shell', 'curl')).toBeUndefined()
+      expect(lazy.getLoadedPlugin('shell', 'wget')?.title).toBe('Wget')
+    })
   })
 
   describe('default loaders', () => {

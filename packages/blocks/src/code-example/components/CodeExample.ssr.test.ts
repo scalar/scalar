@@ -123,4 +123,26 @@ describe('CodeExample.ssr', () => {
     expect(container.querySelector('.code-snippet')?.textContent).toContain(CURL_SNIPPET)
     expect(getMismatches()).toStrictEqual([])
   })
+
+  it('renders a status line on the server when the generator fails to load', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    // A fresh module graph whose generator import fails, like a server that lost a chunk
+    vi.resetModules()
+    vi.doMock('@scalar/snippetz/lazy', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('@scalar/snippetz/lazy')>()
+      return { ...actual, loadPlugin: () => Promise.reject(new Error('Failed to load the generator')) }
+    })
+
+    try {
+      const { default: FreshCodeExample } = await import('./CodeExample.vue')
+      const container = document.createElement('div')
+      // Resolves rather than rejecting or waiting forever, so one broken chunk never takes the page down
+      container.innerHTML = await renderToString(createCodeExampleApp(FreshCodeExample))
+
+      expect(container.querySelector('[role="status"]')?.textContent).toContain('Could not load this code example.')
+      expect(container.textContent).not.toMatch(/not loaded|no snippet found|error generating/i)
+    } finally {
+      vi.doUnmock('@scalar/snippetz/lazy')
+    }
+  })
 })

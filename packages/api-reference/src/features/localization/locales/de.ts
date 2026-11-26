@@ -71,6 +71,8 @@ export const de = {
   },
   operation: {
     codeSampleUnavailable: 'Für dieses Beispiel ist kein Codebeispiel verfügbar.',
+    codeSampleLoadFailed: 'Dieses Codebeispiel konnte nicht geladen werden.',
+    codeSampleRetry: 'Erneut versuchen',
     codeSample: 'Codebeispiel',
     body: 'Body',
     cookies: 'Cookies',

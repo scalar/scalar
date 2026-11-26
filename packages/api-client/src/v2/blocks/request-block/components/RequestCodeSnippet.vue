@@ -90,14 +90,17 @@ const handleClientChange = (option: ClientOption | undefined) => {
 }
 
 /** Code generators load on demand, so wait for the selected client's generator */
-const { isLoading: isGeneratorLoading } = useClientPlugin(
-  () => localSelectedClient.value?.id,
-)
+const {
+  isLoading: isGeneratorLoading,
+  isFailed: isGeneratorFailed,
+  retry: retryGenerator,
+} = useClientPlugin(() => localSelectedClient.value?.id)
 
 /** Generate the code snippet for the selected example */
 const generatedCode = computed<string | null>(() =>
-  // Render an empty placeholder until the generator arrives, instead of a "not loaded" error
-  isGeneratorLoading.value
+  // Render an empty placeholder until the generator arrives, and a status line if it failed,
+  // instead of a "not loaded" error shown as code
+  isGeneratorLoading.value || isGeneratorFailed.value
     ? ''
     : generateCodeSnippet({
         defaultDisabledParameters: true,
@@ -171,6 +174,18 @@ const hasClients = computed(() =>
             <div
               v-if="isGeneratorLoading"
               class="min-h-20" />
+            <div
+              v-else-if="isGeneratorFailed"
+              class="text-c-2 p-4"
+              role="status">
+              {{ translate('apiClient.requestCodeSnippet.loadFailed') }}
+              <ScalarButton
+                size="sm"
+                variant="ghost"
+                @click="retryGenerator">
+                {{ translate('apiClient.requestCodeSnippet.retry') }}
+              </ScalarButton>
+            </div>
             <div
               v-else-if="generatedCode === null"
               class="text-c-2 p-4"

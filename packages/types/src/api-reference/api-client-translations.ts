@@ -117,6 +117,8 @@ export type ApiClientTranslations = {
   requestCodeSnippet: {
     unavailable: string
     codeSnippet: string
+    loadFailed: string
+    retry: string
   }
   requestTable: {
     enabled: string

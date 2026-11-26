@@ -122,6 +122,8 @@ export const es = {
   'requestCodeSnippet': {
     unavailable: 'No hay ninguna muestra de código disponible para este ejemplo.',
     'codeSnippet': 'Fragmento de código',
+    loadFailed: 'No se pudo cargar este fragmento de código.',
+    retry: 'Reintentar',
   },
   'requestTable': {
     'enabled': 'Habilitado',

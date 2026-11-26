@@ -4,6 +4,10 @@ import type { MultipartNaming } from '@scalar/types/api-reference'
 export type CodeExampleProps = {
   /** Localized status text shown when the selected example has no linked code sample. */
   codeSampleUnavailable?: string
+  /** Localized status text shown when the selected client's code generator fails to load. */
+  codeSampleLoadFailed?: string
+  /** Localized label of the button that loads a failed code generator again. */
+  codeSampleRetryLabel?: string
   /**
    * Localized purpose of the client picker. It opens the button's accessible name and the
    * selected client's title is appended, so the name still contains the visible label.
@@ -203,6 +207,8 @@ import SnippetIdScope from './SnippetIdScope.vue'
 const {
   integration,
   codeSampleUnavailable = 'No code sample available for this example.',
+  codeSampleLoadFailed = 'Could not load this code example.',
+  codeSampleRetryLabel = 'Retry',
   clientPickerLabel = 'Change code sample language',
   clientSearchLabel = 'Search clients',
   codeSampleLabel = 'Code sample',
@@ -426,7 +432,11 @@ const webhookHar = computed(() => {
  * snippet inside it instead of reporting a mismatch, then swaps in the live snippet.
  * (Template comments stay out of that v-if chain, in development they would turn a branch into a fragment.)
  */
-const { isLoading: isGeneratorLoading } = useClientPlugin(() =>
+const {
+  isLoading: isGeneratorLoading,
+  isFailed: isGeneratorFailed,
+  retry: retryGenerator,
+} = useClientPlugin(() =>
   isWebhook ? undefined : localSelectedClient.value?.id,
 )
 
@@ -436,8 +446,9 @@ const generatedTemplate = computed<string | null>(() => {
     return webhookHar.value?.postData?.text ?? ''
   }
 
-  // Render the placeholder until the generator arrives, instead of a "not loaded" error
-  if (isGeneratorLoading.value) {
+  // Render the placeholder until the generator arrives, and the status line if it failed to load,
+  // instead of showing a "not loaded" error as if it were code
+  if (isGeneratorLoading.value || isGeneratorFailed.value) {
     return ''
   }
 
@@ -547,7 +558,8 @@ const id = useId()
       generatedCode === null ||
       generatedCode ||
       externalExamples.pending.value ||
-      isGeneratorLoading
+      isGeneratorLoading ||
+      isGeneratorFailed
     "
     ref="elem"
     class="request-card dark-mode">
@@ -626,6 +638,18 @@ const id = useId()
           v-else-if="isGeneratorLoading"
           :id="`${id}-example`"
           class="code-snippet group/code-block relative" />
+        <div
+          v-else-if="isGeneratorFailed"
+          class="text-c-2 p-4"
+          role="status">
+          {{ codeSampleLoadFailed }}
+          <ScalarButton
+            size="sm"
+            variant="ghost"
+            @click="retryGenerator">
+            {{ codeSampleRetryLabel }}
+          </ScalarButton>
+        </div>
         <div
           v-else-if="generatedCode === null"
           class="text-c-2 p-4"
@@ -802,10 +826,13 @@ const id = useId()
   flex-direction: column;
   width: 100%;
 }
-/* An empty snippet is the loading placeholder: roughly three lines of code plus the code block padding */
+/*
+ * An empty snippet is the loading placeholder: roughly three lines of code plus the code block padding.
+ * `--scalar-code-line-height` may be a number or a length, so it goes through `line-height` and `lh`
+ * rather than into a multiplication, which a length would turn into an invalid value.
+ */
 .code-snippet:empty {
-  min-height: calc(
-    3 * var(--scalar-code-line-height, 1.4) * var(--scalar-font-size-3) + 1rem
-  );
+  line-height: var(--scalar-code-line-height, 1.4);
+  min-height: calc(3lh + 1rem);
 }
 </style>

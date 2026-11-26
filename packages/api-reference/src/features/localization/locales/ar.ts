@@ -70,6 +70,8 @@ export const ar = {
   },
   operation: {
     codeSampleUnavailable: 'لا يوجد نموذج تعليمات برمجية متاح لهذا المثال.',
+    codeSampleLoadFailed: 'تعذر تحميل هذا المثال البرمجي.',
+    codeSampleRetry: 'إعادة المحاولة',
     codeSample: 'مثال على الكود',
     body: 'الجسم',
     cookies: 'ملفات تعريف الارتباط',

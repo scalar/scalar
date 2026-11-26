@@ -10,6 +10,14 @@ import { loadLocale, provideLocalization } from '@/v2/features/localization'
 
 import RequestCodeSnippet from './RequestCodeSnippet.vue'
 
+// Wrap the real loader, so a test can make one generator fail to load
+vi.mock('@scalar/snippetz/lazy', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@scalar/snippetz/lazy')>()
+  return { ...actual, loadPlugin: vi.fn(actual.loadPlugin) }
+})
+
+const { loadPlugin } = await import('@scalar/snippetz/lazy')
+
 /** Minimal event bus mock - only the emit method is used by the component */
 const createEventBus = () =>
   ({
@@ -61,6 +69,33 @@ describe('RequestCodeSnippet', () => {
         'curl https://example.com/test',
       ),
     )
+    wrapper.unmount()
+  })
+
+  it('shows a status line with Retry when the generator fails to load', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.mocked(loadPlugin).mockRejectedValueOnce(new Error('Failed to fetch dynamically imported module'))
+    const wrapper = mount(RequestCodeSnippet, {
+      props: createProps({
+        clientOptions: generateClientOptions(['shell/wget']),
+        selectedClient: 'shell/wget',
+        selectedServer: { url: 'https://example.com' },
+      }),
+    })
+    await wrapper.get('button[aria-expanded]').trigger('click')
+
+    await vi.waitFor(() =>
+      expect(wrapper.find('[role="status"]').text()).toContain('Could not load this code snippet.'),
+    )
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+    expect(wrapper.text()).not.toMatch(/not loaded|no snippet found|error generating/i)
+
+    await wrapper.get('[role="status"] button').trigger('click')
+
+    await vi.waitFor(() =>
+      expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain('https://example.com/test'),
+    )
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
     wrapper.unmount()
   })
 

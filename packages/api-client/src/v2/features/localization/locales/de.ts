@@ -122,6 +122,8 @@ export const de = {
   'requestCodeSnippet': {
     unavailable: 'Für dieses Beispiel ist kein Codebeispiel verfügbar.',
     'codeSnippet': 'Codebeispiel',
+    loadFailed: 'Dieses Codebeispiel konnte nicht geladen werden.',
+    retry: 'Erneut versuchen',
   },
   'requestTable': {
     'enabled': 'Aktiviert',

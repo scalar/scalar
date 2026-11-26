@@ -20,6 +20,10 @@ import { type CreateAsyncApiCodeExampleOptions, createAsyncApiCodeExample } from
 export type CreateCodeExampleOptions = {
   /** Localized status text shown when the selected example has no linked code sample. */
   codeSampleUnavailable?: string
+  /** Localized status text shown when the selected client's code generator fails to load. */
+  codeSampleLoadFailed?: string
+  /** Localized label of the button that loads a failed code generator again. */
+  codeSampleRetryLabel?: string
   /** Localized accessible name for the focusable code sample scroller. */
   codeSampleLabel?: string
   /** Workspace store that holds the OpenAPI document(s) to render from. */
@@ -164,6 +168,12 @@ export const createCodeExample = (
   const props = reactive<CodeExampleProps>({
     get codeSampleUnavailable() {
       return options.codeSampleUnavailable
+    },
+    get codeSampleLoadFailed() {
+      return options.codeSampleLoadFailed
+    },
+    get codeSampleRetryLabel() {
+      return options.codeSampleRetryLabel
     },
     get codeSampleLabel() {
       return options.codeSampleLabel
