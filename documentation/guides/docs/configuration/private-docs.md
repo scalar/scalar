@@ -66,56 +66,25 @@ The Private Docs toggle, access groups and login portal are also stored in your 
 
 See [Access Control](site-config.md#access-control) for every property.
 
-## Show pages to specific access groups
+<a id="show-pages-to-specific-access-groups"></a>
 
-On a private site, you can show navigation entries and content only to visitors in certain access groups. When a visitor signs in, Scalar gives them the slug of each of the site's access groups that their email address or domain matches. Use those slugs in `groups`. You do not need a [user-info hook](personalization.md).
+## Restrict some pages to certain groups
 
-To show a page only to the `partners` group, add `groups` to its navigation entry:
+Access groups apply to the whole site, so you cannot limit individual pages of a site to some access groups. Everyone who can sign in can open every page on it, including pages you leave out of their navigation with `groups`. Those pages also still appear in features such as search and Ask AI (see [Personalization limitations](personalization.md#current-limitations)).
+
+To keep pages from some visitors, publish them as a separate private project with its own access groups. With subpath hosting, available on the Business plan, that project can share your domain. For example, a `partners` project at `docs.example.com/partners` next to your main docs at `docs.example.com`:
 
 ```json
 {
   "siteConfig": {
+    "customDomain": "docs.example.com",
+    "subpath": "/partners",
     "isPrivate": true,
-    "accessGroups": ["partners", "internal-team"]
-  },
-  "navigation": {
-    "routes": {
-      "/": {
-        "type": "page",
-        "title": "Welcome",
-        "filepath": "welcome.md"
-      },
-      "/partner-guide": {
-        "type": "page",
-        "title": "Partner guide",
-        "filepath": "partner-guide.md",
-        "groups": ["partners"]
-      }
-    }
+    "accessGroups": ["partners"]
   }
 }
 ```
 
-You can also set the groups in the page's frontmatter:
+See [Deploying multiple projects on the same domain](scalar.config.json.md#deploying-multiple-projects-on-the-same-domain) to set it up.
 
-```markdown
----
-groups: [partners]
----
-
-# Partner guide
-```
-
-An entry is shown when the visitor belongs to at least one of its groups. Entries without `groups` are shown to everyone who can view the site. Hiding a group in the navigation also hides its children. `groups` works on pages, links, OpenAPI entries, nested groups and header links. Top-level route sections do not support it. See [Filter navigation](personalization.md#filter-navigation) for the full rules.
-
-To show part of a page to some groups only, use a `visible` block:
-
-```markdown
-:::visible{groups="partners"}
-Partner pricing is listed in your partner agreement.
-:::
-```
-
-Only the access groups listed in `siteConfig.accessGroups` count. A team member who is not in one of those groups by email address or domain does not get its slug, so they do not see entries limited to that group. To check a group's view, sign in with an address the group allows.
-
-`groups` only changes what appears in the navigation and on the page. A hidden page can still be opened at its URL, and hidden blocks stay in the page source. Search and sitemaps include them too. If some content must be kept from certain visitors, publish it as a separate private site and give that site its own access groups.
+To change what each access group sees in the navigation without restricting what it can open, use `groups`. See [Filter by access group on a private site](personalization.md#filter-by-access-group-on-a-private-site).
