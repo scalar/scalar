@@ -2,7 +2,7 @@ import { watchDebounced } from '@vueuse/core'
 import { nanoid } from 'nanoid'
 import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 
-import { getSchemaParamsFromId } from './id-routing'
+import { type ResponsePropertyLink, getSchemaParamsFromId } from './id-routing'
 
 /**
  * List of items that are in the priority queue and will be rendered first (e.g. scroll target).
@@ -42,7 +42,7 @@ export const firstLazyLoadComplete = ref(false)
 export const scrollTargetId = ref<string>('')
 
 /** The media type and navigation entry of the active response property link. */
-export const scrollTargetResponse = ref<{ mediaType: string; operationId: string }>()
+export const scrollTargetResponse = ref<ResponsePropertyLink>()
 
 /**
  * Whether the live scroll target is `path` itself or something inside it.
@@ -278,7 +278,7 @@ export function useLazyBus(id: string) {
 /** Options for navigating to an element and restoring its view state. */
 export type ScrollToLazyOptions = {
   focusTarget?: boolean
-  responseMediaType?: string
+  responseProperty?: ResponsePropertyLink
 }
 
 /**
@@ -291,7 +291,7 @@ export const scrollToLazy = (
   id: string,
   setExpanded: (id: string, value: boolean) => void,
   getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
-  { focusTarget = true, responseMediaType }: ScrollToLazyOptions = {},
+  { focusTarget = true, responseProperty }: ScrollToLazyOptions = {},
 ): void => {
   const item = getEntryById(id)
 
@@ -300,12 +300,17 @@ export const scrollToLazy = (
   const stopTime = Date.now() + SCROLL_RETRY_MS
   const hold = freeze(id, blockIntersection())
   addLazyCompleteCallback(hold.renderComplete)
-  const { rawId } = resolveNavigationId(id, getEntryById)
+  const owningOperation = responseProperty?.operationId
+  const responseTarget =
+    owningOperation && id.startsWith(`${owningOperation}.`) && getEntryById(owningOperation)
+      ? responseProperty
+      : undefined
+  const rawId = responseTarget?.operationId ?? resolveNavigationId(id, getEntryById).rawId
 
   // Publish the target so collapsible schema disclosures on the path can open
   // themselves. Schema properties are not in the navigation tree, so this is the
   // only way the scroll target inside a collapsed schema becomes reachable.
-  scrollTargetResponse.value = responseMediaType ? { mediaType: responseMediaType, operationId: rawId } : undefined
+  scrollTargetResponse.value = responseTarget
   scrollTargetId.value = id
 
   addToPriorityQueue(id)
@@ -349,25 +354,43 @@ export const scrollToLazy = (
 /**
  * Find the navigation entry a schema-property anchor belongs to.
  *
- * Look for the longest known ID because operation paths, callback expressions
- * and model names can themselves contain dots and schema markers. Keep the
- * routing parser's fallback for IDs with no matching entry.
+ * `getSchemaParamsFromId` splits on operation markers (`.body.`, `.responses.`),
+ * so it lands on the operation for a plain property anchor. Three shapes need
+ * more than that split, and all three are handled by trimming dot segments from
+ * the right until the navigation tree recognises one:
+ *
+ * - model and AsyncAPI message anchors (`…/models/Planet.name`) carry no marker
+ *   at all, so the split returns the whole id
+ * - a callback anchor continues past the marker
+ *   (`…/post.callbacks.<name>.<url>.<method>.responses.200.id`), so the split
+ *   stops at a segment that is not a navigation entry
+ * - a callback url expression can hold a marker of its own
+ *   (`{$request.query.q}`), so the split can stop mid-expression
+ *
+ * Trying the full id first keeps a model whose own name contains a dot
+ * resolving, and the untrimmed `rawId` stays the fallback when nothing matches.
  */
 const resolveNavigationId = (id: string, getEntryById: (id: string) => unknown): { rawId: string } => {
-  let candidate = id
+  const { rawId } = getSchemaParamsFromId(id)
+
+  if (getEntryById(rawId)) {
+    return { rawId }
+  }
+
+  let candidate = rawId
 
   while (true) {
-    if (getEntryById(candidate)) {
-      return { rawId: candidate }
-    }
-
     const lastDot = candidate.lastIndexOf('.')
 
     if (lastDot === -1) {
-      return { rawId: getSchemaParamsFromId(id).rawId }
+      return { rawId }
     }
 
     candidate = candidate.slice(0, lastDot)
+
+    if (getEntryById(candidate)) {
+      return { rawId: candidate }
+    }
   }
 }
 

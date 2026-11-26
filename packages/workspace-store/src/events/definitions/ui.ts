@@ -277,8 +277,11 @@ export type UIEvents = {
    * Useful for sharing direct links to specific sections.
    */
   'copy-url:nav-item': NavigationItemPayload & {
-    /** Selected response media type when copying a schema property link. */
-    responseMediaType?: string
+    /** Owning operation and selected media type for a response property link. */
+    responseProperty?: {
+      operationId: string
+      mediaType: string
+    }
   }
 
   /**

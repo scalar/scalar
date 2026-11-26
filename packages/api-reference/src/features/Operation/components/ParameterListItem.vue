@@ -323,7 +323,8 @@ const responseAnchorId = computed<string | undefined>(() =>
 /** Carry the picker choice in copied body links while keeping the DOM breadcrumb stable. */
 const schemaEventBus = computed<WorkspaceEventBus | null>(() => {
   const responseId = responseAnchorId.value
-  if (!eventBus || !responseId) {
+  const operationId = breadcrumb?.[0]
+  if (!eventBus || !operationId || !responseId) {
     return eventBus
   }
 
@@ -331,8 +332,8 @@ const schemaEventBus = computed<WorkspaceEventBus | null>(() => {
   bus.on('copy-url:nav-item', ({ id }) => {
     eventBus.emit('copy-url:nav-item', {
       id,
-      responseMediaType: id.startsWith(`${responseId}.`)
-        ? selectedContentType.value
+      responseProperty: id.startsWith(`${responseId}.`)
+        ? { operationId, mediaType: selectedContentType.value }
         : undefined,
     })
   })

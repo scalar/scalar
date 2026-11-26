@@ -1,5 +1,6 @@
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { slugify } from '@scalar/helpers/string/slugify'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 
 /**
  * Strips leading slashes.
@@ -75,10 +76,36 @@ const encodeBasePath = (sanitized: string) => {
 }
 
 const RESPONSE_MEDIA_TYPE_PARAM = 'scalar-response-media-type'
+const RESPONSE_OPERATION_PARAM = 'scalar-response-operation'
 
-/** Read the media type from a copied response property URL. */
-export const getResponseMediaTypeFromUrl = (url: URL): string | undefined =>
-  url.searchParams.get(RESPONSE_MEDIA_TYPE_PARAM) ?? undefined
+/** Routing information carried by a response property link. */
+export type ResponsePropertyLink = NonNullable<ApiReferenceEvents['copy-url:nav-item']['responseProperty']>
+
+/** Read the owning operation and selected media type independently of the property anchor. */
+export const getResponsePropertyFromUrl = (
+  url: URL,
+  slugPrefix: string | undefined,
+): ResponsePropertyLink | undefined => {
+  const operationId = url.searchParams.get(RESPONSE_OPERATION_PARAM)
+  const mediaType = url.searchParams.get(RESPONSE_MEDIA_TYPE_PARAM)
+  return operationId && mediaType ? { operationId: applySlugPrefix(operationId, slugPrefix), mediaType } : undefined
+}
+
+/** Apply a response link's URL-relative operation ID and media type. */
+export const setResponsePropertyInUrl = (url: URL, responseProperty: ResponsePropertyLink | undefined): void => {
+  if (responseProperty) {
+    const { operationId, mediaType } = responseProperty
+    url.searchParams.set(RESPONSE_OPERATION_PARAM, operationId)
+    url.searchParams.set(RESPONSE_MEDIA_TYPE_PARAM, mediaType)
+    return
+  }
+
+  for (const key of [RESPONSE_OPERATION_PARAM, RESPONSE_MEDIA_TYPE_PARAM]) {
+    if (url.searchParams.has(key)) {
+      url.searchParams.delete(key)
+    }
+  }
+}
 
 /** Extracts an element id from the hash when using hash routing */
 export const getIdFromHash = (location: string | URL, slugPrefix: string | undefined) => {
@@ -172,13 +199,13 @@ const stripFirstSegment = (id: string): string => {
  * @param id - The id to apply to the URL
  * @param basePath - The base path used in path routing
  * @param isMultiDocument - Whether the document is multi-document or single-document. Single-document documents will strip the document slug from the id
- * @param responseMediaType - The media type selected when a response property link is copied
+ * @param responseProperty - The operation and selected media type for a copied response property
  */
 export const makeUrlFromId = (
   _id: string,
   basePath: string | undefined,
   isMultiDocument: boolean,
-  responseMediaType?: string,
+  responseProperty?: ResponsePropertyLink,
 ): URL | undefined => {
   if (typeof window === 'undefined') {
     return undefined
@@ -188,11 +215,13 @@ export const makeUrlFromId = (
   const id = isMultiDocument ? _id : stripFirstSegment(_id)
   const url = new URL(window.location.href)
 
-  if (responseMediaType) {
-    url.searchParams.set(RESPONSE_MEDIA_TYPE_PARAM, responseMediaType)
-  } else if (url.searchParams.has(RESPONSE_MEDIA_TYPE_PARAM)) {
-    url.searchParams.delete(RESPONSE_MEDIA_TYPE_PARAM)
-  }
+  setResponsePropertyInUrl(
+    url,
+    responseProperty && {
+      ...responseProperty,
+      operationId: isMultiDocument ? responseProperty.operationId : stripFirstSegment(responseProperty.operationId),
+    },
+  )
 
   if (typeof basePath === 'string') {
     if (isHashBasePath(basePath)) {
@@ -219,8 +248,21 @@ export const resolveHashPrefix = (
   currentHash: string,
   navigationIds: Iterable<string>,
   isMultiDocument: boolean,
+  responseOperationId?: string,
 ): string => {
   const ids = new Set(Array.from(navigationIds, (id) => (isMultiDocument ? id : stripFirstSegment(id))).filter(Boolean))
+
+  // A copied response link carries its operation so dots in either the
+  // operation path or the property name cannot change where the hash splits.
+  if (responseOperationId) {
+    const operationId = isMultiDocument ? responseOperationId : stripFirstSegment(responseOperationId)
+    if (ids.has(operationId)) {
+      const start = `/${currentHash}`.indexOf(`/${operationId}.`)
+      if (start !== -1) {
+        return currentHash.slice(0, Math.max(0, start - 1))
+      }
+    }
+  }
 
   const { rawId: sectionHash } = getSchemaParamsFromId(currentHash)
 
@@ -232,27 +274,6 @@ export const resolveHashPrefix = (
     if (sectionHash.indexOf('/', start) === -1) {
       break
     }
-  }
-
-  // An operation path can itself contain a schema marker. Try the authored
-  // navigation IDs before treating the whole hash as the host route.
-  if (sectionHash !== currentHash) {
-    const fullHash = `/${currentHash}`
-    let prefixEnd = currentHash.length
-    for (const id of ids) {
-      if (!SCHEMA_PARAM_MARKERS.some((marker) => id.includes(marker))) {
-        continue
-      }
-
-      const start = fullHash.indexOf(`/${id}.`)
-      if (start === 0) {
-        return ''
-      }
-      if (start !== -1) {
-        prefixEnd = Math.min(prefixEnd, start - 1)
-      }
-    }
-    return currentHash.slice(0, prefixEnd)
   }
 
   return currentHash

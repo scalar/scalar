@@ -52,12 +52,32 @@ describe('lazy-bus', () => {
         `${dottedOperation}.responses.200.name`,
         (id, value) => value && expanded.push(id),
         (id) => (id === operationId || id === dottedOperation ? { id } : undefined),
-        { responseMediaType: 'application/xml' },
+        { responseProperty: { mediaType: 'application/xml', operationId: dottedOperation } },
       )
 
       expect(expanded).toStrictEqual([dottedOperation])
       expect(isOnScrollTargetPath(`${operationId}.responses.200`, operationId)).toBe(false)
       expect(isOnScrollTargetPath(`${dottedOperation}.responses.200`, dottedOperation)).toBe(true)
+    })
+
+    it.each([
+      { suffix: 'body.customer', options: {} },
+      {
+        suffix: 'responses.200.customer',
+        options: { responseProperty: { mediaType: 'application/xml', operationId } },
+      },
+    ])('uses the owning operation when another path starts with $suffix', ({ suffix, options }) => {
+      const otherOperation = `${operationId}.${suffix}`
+      const expanded: string[] = []
+
+      scrollToLazy(
+        `${otherOperation}.id`,
+        (id, value) => value && expanded.push(id),
+        (id) => (id === operationId || id === otherOperation ? { id } : undefined),
+        options,
+      )
+
+      expect(expanded).toStrictEqual([operationId])
     })
 
     it('expands the operation behind a callback anchor', () => {
