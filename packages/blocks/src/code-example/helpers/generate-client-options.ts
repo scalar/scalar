@@ -3,6 +3,7 @@ import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/ope
 import { capitalize } from 'vue'
 
 import type { ClientOptionGroup } from '../types'
+import { getBuiltInClientLanguage } from './get-client-language'
 
 /** Type of custom code sample IDs */
 export type CustomCodeSampleId = `custom/${string}`
@@ -75,7 +76,7 @@ export const generateClientOptions = (allowedClients: AvailableClients = AVAILAB
 
         return {
           id,
-          lang: plugin.client === 'curl' ? ('curl' as const) : group.key,
+          lang: getBuiltInClientLanguage(group.key, plugin.client),
           title: `${capitalize(group.title)} ${plugin.title}`,
           label: plugin.title,
           targetKey: group.key,

@@ -6,6 +6,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ApiReference from './ApiReference.vue'
 
+// Wrap the real preload, so the tests see which grammars the reference asks for up front
+vi.mock('@scalar/components/code-block', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@scalar/components/code-block')>()
+  return { ...actual, preloadGrammars: vi.fn(actual.preloadGrammars) }
+})
+
+const { preloadGrammars } = await import('@scalar/components/code-block')
+
+/** Every language the reference asked to preload */
+const preloadedLanguages = (): string[] => vi.mocked(preloadGrammars).mock.calls.flatMap(([names]) => [...names])
+
 enableAutoUnmount(afterEach)
 
 const content = {
@@ -120,5 +131,39 @@ describe('ApiReference.persistence', () => {
 
     expect(selector.props('selectedClient')).toBe('js/fetch')
     expect(localStorage.getItem(storageKey)).toBeNull()
+  })
+
+  describe('grammar of the selected client', () => {
+    beforeEach(() => {
+      vi.mocked(preloadGrammars).mockClear()
+    })
+
+    it('starts loading the grammar of the saved client before any code example renders', async () => {
+      localStorage.setItem(storageKey, 'php/guzzle')
+      // The document has no operations, so no code example is there to ask for the grammar itself
+      mount(ApiReference, { props: { configuration: { content } } })
+      await flushPromises()
+
+      expect(preloadedLanguages()).toContain('php')
+    })
+
+    it('loads the grammar of a client the reader switches to', async () => {
+      const wrapper = mount(ApiReference, { props: { configuration: { content } } })
+      await flushPromises()
+
+      const eventBus: WorkspaceEventBus = wrapper.findComponent({ name: 'ClientSelector' }).props('eventBus')
+      eventBus.emit('workspace:update:selected-client', 'ruby/native')
+      await flushPromises()
+
+      expect(preloadedLanguages()).toContain('ruby')
+    })
+
+    it('ignores the saved client when persistence is disabled', async () => {
+      localStorage.setItem(storageKey, 'php/guzzle')
+      mount(ApiReference, { props: { configuration: { content, persistSelectedClient: false } } })
+      await flushPromises()
+
+      expect(preloadedLanguages()).not.toContain('php')
+    })
   })
 })
