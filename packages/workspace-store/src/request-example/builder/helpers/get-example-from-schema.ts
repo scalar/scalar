@@ -187,7 +187,7 @@ const fitTimeExample = (value: string, minLength: number, maxLength: number): st
   return `${seconds}.${milliseconds.slice(0, precision).padEnd(precision, '0')}Z`
 }
 
-/** Build a compatible placeholder for formats with variable-width syntax. */
+/** Fit length bounds where possible, keeping the original formatted value when no suitable example can be generated. */
 const fitFormattedStringExample = (format: string, value: string, minLength: number, maxLength: number): string => {
   if (value.length >= minLength && value.length <= maxLength) {
     return value
@@ -1131,7 +1131,7 @@ const applyParentStringBounds = (parent: SchemaObject, selected: SchemaObject): 
     Object.assign(selected, {
       minLength: Math.max(
         readLengthBound(parent.minLength, 0),
-        readLengthBound('minLength' in selected && selected.minLength, 0),
+        readLengthBound('minLength' in selected ? selected.minLength : undefined, 0),
       ),
     })
   }
@@ -1140,7 +1140,7 @@ const applyParentStringBounds = (parent: SchemaObject, selected: SchemaObject): 
     Object.assign(selected, {
       maxLength: Math.min(
         readLengthBound(parent.maxLength, unbounded),
-        readLengthBound('maxLength' in selected && selected.maxLength, unbounded),
+        readLengthBound('maxLength' in selected ? selected.maxLength : undefined, unbounded),
       ),
     })
   }
