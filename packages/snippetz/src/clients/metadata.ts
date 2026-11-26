@@ -15,6 +15,12 @@ export type PluginMetadata = {
 }[TargetId]
 
 /**
+ * Every `target/client` pair that exists. Unlike `AvailableClient`, each target is only paired with its
+ * own clients, so a record keyed by it must list exactly the built-in clients.
+ */
+export type PluginId = { [T in TargetId]: `${T}/${ClientId<T>}` }[TargetId]
+
+/**
  * A target (language or environment) and the metadata of its clients, without any generator code.
  */
 export type TargetMetadata = {
@@ -31,10 +37,12 @@ export type TargetMetadata = {
 }[TargetId]
 
 /**
- * Static metadata for every built-in client, in the same order as `clients` from `@scalar/snippetz/clients`.
+ * Static metadata for every built-in client: the single list of targets, their titles and defaults, and
+ * the order of their clients. `clients` from `@scalar/snippetz/clients` is built from it.
  *
  * This module deliberately imports no plugin implementation, so a client selector can list every client
- * without pulling the generators into the bundle. A test keeps it in sync with the plugins themselves.
+ * without pulling the generators into the bundle. Client titles also live on the plugins, which need them
+ * without this list, so a test keeps those two in sync.
  */
 export const clientsMetadata: TargetMetadata[] = [
   {

@@ -1,4 +1,4 @@
-import type { Target } from '@scalar/types/snippetz'
+import type { Plugin, Target } from '@scalar/types/snippetz'
 
 import { cLibcurl } from '@/plugins/c/libcurl'
 import { clojureCljhttp } from '@/plugins/clojure/clj_http'
@@ -42,140 +42,71 @@ import { shellHttpie } from '@/plugins/shell/httpie'
 import { shellWget } from '@/plugins/shell/wget'
 import { swiftNsurlsession } from '@/plugins/swift/nsurlsession'
 
+import { type PluginId, clientsMetadata } from './metadata'
+
+/**
+ * Every built-in plugin, keyed by `target/client`.
+ *
+ * Typing the record by `PluginId` makes TypeScript flag a missing or unknown client whenever the list of
+ * clients changes, the same way it does for the lazy loaders.
+ */
+const plugins: Record<PluginId, Plugin> = {
+  'c/libcurl': cLibcurl,
+  'csharp/httpclient': csharpHttpclient,
+  'csharp/restsharp': csharpRestsharp,
+  'clojure/clj_http': clojureCljhttp,
+  'dart/http': dartHttp,
+  'fsharp/httpclient': fsharpHttpclient,
+  'go/native': goNative,
+  'http/http1.1': httpHttp11,
+  'java/asynchttp': javaAsynchttp,
+  'java/nethttp': javaNethttp,
+  'java/okhttp': javaOkhttp,
+  'java/unirest': javaUnirest,
+  'js/fetch': jsFetch,
+  'js/axios': jsAxios,
+  'js/ofetch': jsOfetch,
+  'js/jquery': jsJquery,
+  'js/xhr': jsXhr,
+  'julia/http': juliaHttp,
+  'kotlin/okhttp': kotlinOkhttp,
+  'node/fetch': nodeFetch,
+  'node/axios': nodeAxios,
+  'node/ofetch': nodeOfetch,
+  'node/undici': nodeUndici,
+  'objc/nsurlsession': objcNsurlsession,
+  'ocaml/cohttp': ocamlCohttp,
+  'php/curl': phpCurl,
+  'php/guzzle': phpGuzzle,
+  'php/laravel': phpLaravel,
+  'powershell/webrequest': powershellWebrequest,
+  'powershell/restmethod': powershellRestmethod,
+  'python/python3': pythonPython3,
+  'python/requests': pythonRequests,
+  'python/aiohttp': pythonAiohttp,
+  'python/httpx_sync': pythonHttpxSync,
+  'python/httpx_async': pythonHttpxAsync,
+  'r/httr2': rHttr2,
+  'ruby/native': rubyNative,
+  'rust/reqwest': rustReqwest,
+  'shell/curl': shellCurl,
+  'shell/wget': shellWget,
+  'shell/httpie': shellHttpie,
+  'swift/nsurlsession': swiftNsurlsession,
+}
+
 /**
  * All available clients
+ *
+ * Targets, their titles and defaults, and the order of their clients come from `clientsMetadata`, the
+ * same list the lazy entry point exposes, so the two catalogs cannot drift apart.
  */
-export const clients: Target[] = [
-  {
-    key: 'c',
-    title: 'C',
-    default: 'libcurl',
-    clients: [cLibcurl],
-  },
-  {
-    key: 'csharp',
-    title: 'C#',
-    default: 'restsharp',
-    clients: [csharpHttpclient, csharpRestsharp],
-  },
-  {
-    key: 'clojure',
-    title: 'Clojure',
-    default: 'clj_http',
-    clients: [clojureCljhttp],
-  },
-  {
-    key: 'dart',
-    title: 'Dart',
-    default: 'http',
-    clients: [dartHttp],
-  },
-  {
-    key: 'fsharp',
-    title: 'F#',
-    default: 'httpclient',
-    clients: [fsharpHttpclient],
-  },
-  {
-    key: 'go',
-    title: 'Go',
-    default: 'native',
-    clients: [goNative],
-  },
-  {
-    key: 'http',
-    title: 'HTTP',
-    default: 'http1.1',
-    clients: [httpHttp11],
-  },
-  {
-    key: 'java',
-    title: 'Java',
-    default: 'unirest',
-    clients: [javaAsynchttp, javaNethttp, javaOkhttp, javaUnirest],
-  },
-  {
-    key: 'js',
-    title: 'JavaScript',
-    default: 'fetch',
-    clients: [jsFetch, jsAxios, jsOfetch, jsJquery, jsXhr],
-  },
-  {
-    key: 'julia',
-    title: 'Julia',
-    default: 'http',
-    clients: [juliaHttp],
-  },
-  {
-    key: 'kotlin',
-    title: 'Kotlin',
-    default: 'okhttp',
-    clients: [kotlinOkhttp],
-  },
-  {
-    key: 'node',
-    title: 'Node.js',
-    default: 'fetch',
-    clients: [nodeFetch, nodeAxios, nodeOfetch, nodeUndici],
-  },
-  {
-    key: 'objc',
-    title: 'Objective-C',
-    default: 'nsurlsession',
-    clients: [objcNsurlsession],
-  },
-  {
-    key: 'ocaml',
-    title: 'OCaml',
-    default: 'cohttp',
-    clients: [ocamlCohttp],
-  },
-  {
-    key: 'php',
-    title: 'PHP',
-    default: 'curl',
-    clients: [phpCurl, phpGuzzle, phpLaravel],
-  },
-  {
-    key: 'powershell',
-    title: 'PowerShell',
-    default: 'webrequest',
-    clients: [powershellWebrequest, powershellRestmethod],
-  },
-  {
-    key: 'python',
-    title: 'Python',
-    default: 'python3',
-    clients: [pythonPython3, pythonRequests, pythonAiohttp, pythonHttpxSync, pythonHttpxAsync],
-  },
-  {
-    key: 'r',
-    title: 'R',
-    default: 'httr2',
-    clients: [rHttr2],
-  },
-  {
-    key: 'ruby',
-    title: 'Ruby',
-    default: 'native',
-    clients: [rubyNative],
-  },
-  {
-    key: 'rust',
-    title: 'Rust',
-    default: 'reqwest',
-    clients: [rustReqwest],
-  },
-  {
-    key: 'shell',
-    title: 'Shell',
-    default: 'curl',
-    clients: [shellCurl, shellWget, shellHttpie],
-  },
-  {
-    key: 'swift',
-    title: 'Swift',
-    default: 'nsurlsession',
-    clients: [swiftNsurlsession],
-  },
-]
+export const clients: Target[] = clientsMetadata.map(
+  (target) =>
+    ({
+      key: target.key,
+      title: target.title,
+      default: target.default,
+      clients: target.clients.map(({ target, client }) => plugins[`${target}/${client}` as PluginId]),
+    }) as Target,
+)

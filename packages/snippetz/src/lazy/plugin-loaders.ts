@@ -1,10 +1,6 @@
-import type { ClientId, Plugin, TargetId } from '@scalar/types/snippetz'
+import type { Plugin } from '@scalar/types/snippetz'
 
-/**
- * Every `target/client` pair that exists. Unlike `AvailableClient`, each target is only paired with its
- * own clients, so the loader record below must list exactly the built-in clients.
- */
-type PluginId = { [T in TargetId]: `${T}/${ClientId<T>}` }[TargetId]
+import type { PluginId } from '@/clients/metadata'
 
 /**
  * One loader per built-in client. Every entry is its own dynamic `import()`, so bundlers emit a separate
