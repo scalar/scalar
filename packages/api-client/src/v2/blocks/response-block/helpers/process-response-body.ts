@@ -11,9 +11,9 @@ const isBlob = (b: any): b is Blob => b instanceof Blob
 export function processResponseBody({ data, headers }: { data: unknown; headers: { name: string; value: string }[] }) {
   const contentType = headers.find((header) => header.name.toLowerCase() === 'content-type')
   const mimeType = resolveResponseMimeType(contentType?.value)
-  const attachmentFilename = extractFilename(
-    headers.find((header) => header.name.toLowerCase() === 'content-disposition')?.value ?? '',
-  )
+  const contentDisposition = headers.find((header) => header.name.toLowerCase() === 'content-disposition')?.value ?? ''
+  const attachmentFilename = extractFilename(contentDisposition)
+  const isAttachment = /^\s*attachment\s*(?:;|$)/i.test(contentDisposition)
 
   const dataUrl = (() => {
     if (isBlob(data)) {
@@ -32,5 +32,5 @@ export function processResponseBody({ data, headers }: { data: unknown; headers:
     return ''
   })()
 
-  return { mimeType, attachmentFilename, dataUrl }
+  return { mimeType, attachmentFilename, isAttachment, dataUrl }
 }

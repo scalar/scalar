@@ -22,7 +22,7 @@ const filenameExtension = computed(() => {
 <template>
   <a
     :aria-label="translate('apiClient.responseBodyDownload.download')"
-    class="text-c-3 text-xxs hover:bg-b-3 flex items-center gap-1 rounded px-1.5 py-0.5 no-underline"
+    class="text-c-1 text-xxs hover:bg-b-3 flex items-center gap-1 rounded px-1.5 py-0.5 no-underline"
     :download="`${filenameExtension}`"
     :href="href"
     @click.stop>
