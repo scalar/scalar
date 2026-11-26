@@ -12,6 +12,7 @@ import { type ScopeRole, getChildScopeRole } from '@/magic-proxy/dynamic-ref'
 import { getRaw } from '@/magic-proxy/symbols'
 
 import { type ReferenceContext, childReferenceContext, getSchemaVocabulary } from '../document/reference-context'
+import { documentTraversal } from './document-traversal'
 
 /** Format-specific document identity, supplied by the caller. */
 export type DocumentIdentity = {
@@ -115,6 +116,22 @@ export type DocumentReferences = {
 export const bundledDocumentUri = (origin: string, key: string, source?: string): string =>
   resolveReferencePath(origin, source ?? `./__bundle_${encodeURIComponent(key)}/document`)
 
+/** An opaque resource URI cannot resolve a relative dynamic reference. */
+export const resolveInitialDynamicRef = (
+  references: DocumentReferences,
+  reference: string,
+  origin: string,
+): ReturnType<DocumentReferences['resolve']> => {
+  try {
+    return references.resolve(reference, origin)
+  } catch (error) {
+    if (!(error instanceof TypeError)) {
+      throw error
+    }
+    return undefined
+  }
+}
+
 const identifySchemaPosition = (
   node: object,
   role?: ScopeRole,
@@ -133,7 +150,7 @@ const identifySchemaPosition = (
     anchor:
       (context === undefined || vocabulary?.anchors) && typeof node.$anchor === 'string' ? node.$anchor : undefined,
     dynamicAnchor:
-      (context === undefined || context === 'schema') && typeof node.$dynamicAnchor === 'string'
+      (context === undefined || vocabulary?.anchors) && typeof node.$dynamicAnchor === 'string'
         ? node.$dynamicAnchor
         : undefined,
   }
@@ -150,6 +167,7 @@ export const documentReferences = (
   shouldVisit: (node: object) => boolean = () => true,
   identifySchema: typeof identifySchemaPosition = identifySchemaPosition,
   outputDocumentUri?: (retrievalUri: string) => string,
+  { includeCustomReferences = false }: { includeCustomReferences?: boolean } = {},
 ): DocumentReferences => {
   const identities = new Map<unknown, DocumentIdentity>()
   const resources = new Map<string, Resource>()
@@ -263,6 +281,18 @@ export const documentReferences = (
       identifySchema === identifySchemaPosition && recognized && (swagger || asyncapi || /^3\.\d+\./.test(version))
         ? 'object'
         : undefined
+    const customTraversal =
+      includeCustomReferences && rootContext
+        ? documentTraversal(true, swagger, !swagger && !version.startsWith('3.0.'), true, asyncapi, true)
+        : undefined
+    customTraversal?.register(document, base)
+    const position = (node: object, fallback?: ReferenceContext): ReferenceContext | undefined => {
+      const location = customTraversal?.location(node)
+      if (location?.customReferences && getSchemaVocabulary(location.context, true)?.anchors) {
+        return 'schema'
+      }
+      return location?.context ?? fallback
+    }
     const nextContext = (
       parent: object,
       context: ReferenceContext | undefined,
@@ -291,7 +321,7 @@ export const documentReferences = (
       retrievalOrigin = retrievalBase,
       outputOrigin = outputBase,
       role?: ScopeRole,
-      context?: ReferenceContext,
+      inheritedContext?: ReferenceContext,
     ): void => {
       if (value === null || typeof value !== 'object' || visited.has(value) || !shouldVisit(value)) {
         return
@@ -301,6 +331,7 @@ export const documentReferences = (
       if (isObject(value)) {
         restoreLiteralIdentifier(value)
       }
+      const context = position(value, inheritedContext)
       if (context !== undefined) {
         schemaPositions.set(value, context)
       }
@@ -397,6 +428,7 @@ export const documentReferences = (
       origin = origins.get(target) ?? origin
       retrievalOrigin = retrievalOrigins.get(target) ?? retrievalOrigin
       outputOrigin = outputOrigins.get(target) ?? outputOrigin
+      context = position(target, context)
       identifier = identifySchema(target, role, context)?.id ?? identifier
       role = getChildScopeRole(role, key)
       context = nextContext(target, context, key)
@@ -469,7 +501,7 @@ export const documentReferences = (
     },
     dynamicSchemaPosition: (node) => {
       const context = schemaPositions.get(node)
-      return context === undefined ? undefined : context === 'schema'
+      return context === undefined ? undefined : (getSchemaVocabulary(context)?.anchors ?? false)
     },
     origin: (node) => origins.get(node),
     retrievalOrigin: (node) => retrievalOrigins.get(node),

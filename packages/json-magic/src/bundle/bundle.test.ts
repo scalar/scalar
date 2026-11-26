@@ -32,6 +32,48 @@ import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 
 describe('bundle', () => {
+  it('leaves relative dynamic references unresolved under an opaque base URI', async () => {
+    const input = {
+      $id: 'urn:example:root',
+      properties: { item: { $dynamicRef: 'other.json#item' } },
+    }
+    const validate = vi.fn(() => false)
+
+    await expect(
+      bundle(input, { traversal: 'document', treeShake: true, plugins: [{ type: 'loader', validate, exec: vi.fn() }] }),
+    ).resolves.toEqual(input)
+    expect(input.properties.item.$dynamicRef).toBe('other.json#item')
+    expect(validate).not.toHaveBeenCalled()
+  })
+
+  it('bundles dynamic targets in opted-in custom schema positions while leaving examples opaque', async () => {
+    const input = {
+      openapi: '3.1.0',
+      'x-templates': {
+        $id: 'https://example.com/api/template.json',
+        $defs: { override: { $dynamicAnchor: 'item', const: 'local' } },
+        properties: { item: { $dynamicRef: '../schemas/target.json#item' } },
+        example: { $dynamicRef: '../schemas/example.json#item' },
+      },
+    }
+    const data = { $dynamicAnchor: 'item', const: 'external' }
+    const load = vi.fn((_uri: string) => Promise.resolve({ ok: true as const, data, raw: JSON.stringify(data) }))
+    await bundle(input, {
+      traversal: 'document',
+      treeShake: true,
+      includeCustomReferences: true,
+      plugins: [{ type: 'loader', validate: () => true, exec: load }],
+    })
+
+    expect(load).toHaveBeenCalledTimes(1)
+    expect(load.mock.calls[0]?.[0]).toBe('https://example.com/schemas/target.json')
+    const ordinary = createMagicProxy(input)['x-templates']
+    const custom = createMagicProxy(input, { includeCustomReferences: true })['x-templates']
+    expect(Reflect.get(ordinary.properties.item, DYNAMIC_REF_VALUE)).toBeUndefined()
+    expect(Reflect.get(custom.properties.item, DYNAMIC_REF_VALUE)?.const).toBe('local')
+    expect(Reflect.get(custom.example, DYNAMIC_REF_VALUE)).toBeUndefined()
+  })
+
   it.each(['$anchor', '$dynamicAnchor'])(
     'retains external resources named by a $dynamicRef with %s',
     async (anchor) => {
@@ -58,6 +100,7 @@ describe('bundle', () => {
 
       expect(loads).toStrictEqual(['https://example.com/schemas/target.json'])
       expect(input.items.$dynamicRef).toBe('../schemas/target.json#item')
+      expect(Object.values(Reflect.get(input, 'x-ext-urls'))).toStrictEqual(['https://example.com/schemas/target.json'])
       expect(Reflect.get(createMagicProxy(input).items, DYNAMIC_REF_VALUE)?.const).toBe('loaded')
     },
   )

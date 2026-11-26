@@ -1,9 +1,14 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { type DocumentReferences, bundledDocumentUri, documentReferences } from '@/bundle/document-references'
+import {
+  type DocumentReferences,
+  bundledDocumentUri,
+  documentReferences,
+  resolveInitialDynamicRef,
+} from '@/bundle/document-references'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { createPathFromSegments } from '@/helpers/json-path-utils'
-import { resolveResourcePath } from '@/helpers/resolve-resource-path'
+import { tryResolveResourcePath } from '@/helpers/resolve-resource-path'
 import {
   type DynamicScope,
   type ScopeRole,
@@ -26,10 +31,24 @@ import type { UnknownObject } from '@/types'
 const REF_VALUE = '$ref-value'
 const REF_KEY = '$ref'
 const DYNAMIC_REF_KEY = '$dynamicRef'
+const REFERENCE_INDEX_KEYS = new Set([
+  '$id',
+  '$anchor',
+  '$dynamicAnchor',
+  '$schema',
+  '$ref',
+  'schemaFormat',
+  'openapi',
+  'swagger',
+  'asyncapi',
+  'x-scalar-document-type',
+])
 
 /** Index the document and bundled resources using the same bases as ordinary references. */
-const indexReferences = (root: unknown, origin: string): DocumentReferences => {
-  const references = documentReferences('x-ext')
+const indexReferences = (root: unknown, origin: string, includeCustomReferences = false): DocumentReferences => {
+  const references = documentReferences('x-ext', undefined, false, undefined, undefined, undefined, {
+    includeCustomReferences,
+  })
   references.register(root, origin)
   if (isObject(root) && isObject(root['x-ext'])) {
     const mappings = root['x-ext-urls']
@@ -39,22 +58,6 @@ const indexReferences = (root: unknown, origin: string): DocumentReferences => {
     }
   }
   return references
-}
-
-/** An opaque resource URI cannot resolve a relative path. */
-const resolveInitialDynamicRef = (
-  references: DocumentReferences,
-  reference: string,
-  origin: string,
-): ReturnType<DocumentReferences['resolve']> => {
-  try {
-    return references.resolve(reference, origin)
-  } catch (error) {
-    if (!(error instanceof TypeError)) {
-      throw error
-    }
-    return undefined
-  }
 }
 
 /** Select the dynamic override only when the initial URI names a dynamic anchor. */
@@ -85,17 +88,19 @@ const indexDetachedReferences = (root: object): DocumentReferences => {
       const target = node[REF_VALUE]
       if (isObject(target) && references.origin(target) === undefined) {
         const prefix = node.$ref.split('#', 1)[0]
-        const retrievalUri = prefix ? resolveResourcePath(origin, prefix) : origin
+        const retrievalUri = prefix ? tryResolveResourcePath(origin, prefix) : origin
         const path = [REF_VALUE, String(linkCount++)]
-        if (prefix && !resolveInitialDynamicRef(references, prefix, origin)) {
-          references.register(target, retrievalUri, path)
-        } else {
-          references.registerFragment(target, {
-            origin: retrievalUri,
-            retrievalBase: retrievalUri,
-            sourceUri: retrievalUri,
-            path,
-          })
+        if (retrievalUri !== undefined) {
+          if (prefix && !resolveInitialDynamicRef(references, prefix, origin)) {
+            references.register(target, retrievalUri, path)
+          } else {
+            references.registerFragment(target, {
+              origin: retrievalUri,
+              retrievalBase: retrievalUri,
+              sourceUri: retrievalUri,
+              path,
+            })
+          }
         }
         pending.push({ node: target })
       }
@@ -201,6 +206,8 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     showInternal: boolean
     /** Canonical URI identifying the root document for qualified references. */
     documentUri: string
+    /** Interpret custom reference positions using the same opt-in as the document bundler. */
+    includeCustomReferences: boolean
   }>,
   args: {
     /**
@@ -212,7 +219,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      *
      * It is helpful when dealing with reactive frameworks like Vue,
      */
-    proxyCache: WeakMap<object, T>
+    proxyCache: WeakMap<
+      object,
+      { proxy: T; scopeRole?: ScopeRole; references: DocumentReferences; indexRevision: number }
+    >
     /** Shared resource index for fragment pointers, identifiers, and anchors. */
     references: DocumentReferences
     origin: string
@@ -248,24 +258,39 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     /** Shared edit revision invalidating scoped proxies, anchor collections, and reference paths. */
     mutationState: {
       revision: number
+      indexRevision: number
       dynamicIndex?: { revision: number; references: DocumentReferences }
     }
   } = (() => {
     const origin = options?.documentUri ?? '/'
     return {
       root: target,
-      proxyCache: new WeakMap<object, T>(),
-      references: indexReferences(target, origin),
+      proxyCache: new WeakMap(),
+      references: indexReferences(target, origin, options?.includeCustomReferences),
       origin,
       dynamicScope: [],
       scopeCache: new WeakMap(),
       dynamicProxyCache: new WeakMap(),
-      mutationState: { revision: 0 },
+      mutationState: { revision: 0, indexRevision: 0 },
     }
   })(),
 ): T => {
   if (!isObject(target) && !Array.isArray(target)) {
     return target
+  }
+
+  const inheritedScope = args.dynamicScope
+  const unscoped = inheritedScope.length === 0 ? args.proxyCache.get(target) : undefined
+  const indexRevision = args.mutationState.indexRevision
+  const currentReferences = args.mutationState.dynamicIndex?.references ?? args.references
+  // A warm unscoped entry already ruled out a scope at this lexical position.
+  if (
+    unscoped &&
+    unscoped.references === currentReferences &&
+    unscoped.indexRevision === indexRevision &&
+    unscoped.scopeRole === args.scopeRole
+  ) {
+    return unscoped.proxy
   }
 
   // The dynamic scope handed to child proxies: grow it by this resource when it can carry a
@@ -275,8 +300,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   // document (lazy chunks, client edits), and a memoized negative answer would never see it.
   // The resource index tracks lexical ownership even when a schema is reached through a reference.
   // Grown scopes are interned so the same `(parentScope, resource)` yields one stable array identity.
-  const getChildScope = (references: DocumentReferences): DynamicScope => {
-    const inheritedScope = args.getDynamicScope?.() ?? args.dynamicScope
+  const getChildScope = (references: DocumentReferences, inheritedScope: DynamicScope): DynamicScope => {
     if (!(references.dynamicSchemaPosition(target) ?? !args.scopeRole)) {
       return inheritedScope
     }
@@ -295,10 +319,9 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       : inheritedScope
   }
 
-  const creationRevision = args.mutationState.revision
-  let scopeRevision = creationRevision
-  let scopeReferences = args.mutationState.dynamicIndex?.references ?? args.references
-  let childScope = getChildScope(scopeReferences)
+  let scopeRevision = indexRevision
+  let scopeReferences = currentReferences
+  let childScope = getChildScope(scopeReferences, inheritedScope)
   // While a dynamic scope is active, resolution is path-dependent: the same target can bind differently
   // depending on the path, so the plain one-proxy-per-target `proxyCache` cannot be used. Instead we key
   // proxies by `(scope, target)` — preserving referential stability within a scope (cycle detection and
@@ -309,25 +332,30 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
   // Return the existing proxy for this (scope, target) to ensure referential stability
   const scopedProxyCache = dynamicScopeActive ? args.dynamicProxyCache.get(initialScope) : undefined
-  const existingProxy = dynamicScopeActive ? scopedProxyCache?.get(target) : args.proxyCache.get(target)
-  if (
-    existingProxy &&
-    (!dynamicScopeActive || Reflect.get(existingProxy, magicProxyRevision) === args.mutationState.revision)
-  ) {
+  const existingProxy = scopedProxyCache?.get(target)
+  if (existingProxy && Reflect.get(existingProxy, magicProxyRevision) === indexRevision) {
     return existingProxy
+  }
+  const existingUnscoped = dynamicScopeActive ? undefined : (unscoped ?? args.proxyCache.get(target))
+  if (existingUnscoped) {
+    if (existingUnscoped.scopeRole === args.scopeRole) {
+      existingUnscoped.references = currentReferences
+      existingUnscoped.indexRevision = indexRevision
+    }
+    return existingUnscoped.proxy
   }
 
   const getDynamicScope = (): DynamicScope => {
     const references = args.mutationState.dynamicIndex?.references ?? args.references
-    if (scopeRevision !== args.mutationState.revision || references !== scopeReferences) {
-      childScope = getChildScope(references)
-      scopeRevision = args.mutationState.revision
+    if (scopeRevision !== args.mutationState.indexRevision || references !== scopeReferences) {
+      childScope = getChildScope(references, args.getDynamicScope?.() ?? args.dynamicScope)
+      scopeRevision = args.mutationState.indexRevision
       scopeReferences = references
     }
     return childScope
   }
   const getDynamicReferences = (): DocumentReferences => {
-    const { revision, dynamicIndex } = args.mutationState
+    const { indexRevision: revision, dynamicIndex } = args.mutationState
     if (revision === 0) {
       return args.references
     }
@@ -335,7 +363,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       return dynamicIndex.references
     }
     // Re-index lazily so edited identifiers and anchors get a fresh lexical lookup.
-    const references = indexReferences(args.root, options?.documentUri ?? '/')
+    const references = indexReferences(args.root, options?.documentUri ?? '/', options?.includeCustomReferences)
     args.mutationState.dynamicIndex = { revision, references }
     return references
   }
@@ -351,10 +379,22 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       getDynamicScope,
     })
   }
-  const invalidate = (): void => {
+  const invalidate = (refreshReferences: boolean): void => {
     args.mutationState.revision++
-    args.mutationState.dynamicIndex = undefined
+    if (refreshReferences) {
+      args.mutationState.indexRevision++
+      args.mutationState.dynamicIndex = undefined
+    }
   }
+  const affectsReferenceIndex = (prop: string | symbol, previous: unknown, next: unknown): boolean =>
+    typeof prop === 'string' &&
+    (REFERENCE_INDEX_KEYS.has(prop) ||
+      (options?.includeCustomReferences === true && prop === 'type') ||
+      (Array.isArray(target) && prop === 'length') ||
+      (previous !== null && typeof previous === 'object') ||
+      (next !== null && typeof next === 'object') ||
+      target === Reflect.get(args.root, 'x-ext') ||
+      target === Reflect.get(args.root, 'x-ext-urls'))
 
   // Cache paths per proxy, never values: a raw target can be replaced between reads.
   let cached: { ref: string; origin: string; revision: number; segments: string[] } | undefined
@@ -374,7 +414,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         return args.mutationState
       }
       if (prop === magicProxyRevision) {
-        return creationRevision
+        return indexRevision
       }
       if (prop === isMagicProxy) {
         // Used to identify if an object is a magic proxy
@@ -494,14 +534,14 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         } else {
           parent[key] = newValue
         }
-        invalidate()
+        invalidate(true)
         return true
       }
 
       const previous = Reflect.get(target, prop, receiver)
       const updated = Reflect.set(target, prop, newValue, receiver)
       if (updated && previous !== newValue) {
-        invalidate()
+        invalidate(affectsReferenceIndex(prop, previous, newValue))
       }
       return updated
     },
@@ -511,10 +551,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * This will update the underlying target object.
      */
     deleteProperty(target, prop) {
-      const existed = Reflect.has(target, prop)
+      const descriptor = Reflect.getOwnPropertyDescriptor(target, prop)
       const deleted = Reflect.deleteProperty(target, prop)
-      if (deleted && existed) {
-        invalidate()
+      if (deleted && descriptor) {
+        invalidate(Boolean(descriptor.get) || affectsReferenceIndex(prop, descriptor.value, undefined))
       }
       return deleted
     },
@@ -605,7 +645,12 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     }
     scoped.set(target, proxied)
   } else {
-    args.proxyCache.set(target, proxied)
+    args.proxyCache.set(target, {
+      proxy: proxied,
+      scopeRole: args.scopeRole,
+      references: currentReferences,
+      indexRevision,
+    })
   }
   return proxied
 }

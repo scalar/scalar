@@ -8,7 +8,7 @@ import { getValueByPath } from '@/helpers/get-value-by-path'
 import { isFilePath } from '@/helpers/is-file-path'
 import { isHttpUrl } from '@/helpers/is-http-url'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
-import { resolveResourcePath } from '@/helpers/resolve-resource-path'
+import { resolveResourcePath, tryResolveResourcePath } from '@/helpers/resolve-resource-path'
 import { setValueAtPath } from '@/helpers/set-value-at-path'
 import { toRelativePath } from '@/helpers/to-relative-path'
 import { getRaw } from '@/magic-proxy/symbols'
@@ -30,6 +30,7 @@ import {
   type SchemaIdentity,
   bundledDocumentUri,
   documentReferences,
+  resolveInitialDynamicRef,
 } from './document-references'
 import { documentTraversal } from './document-traversal'
 import { type RelocationTarget, type SourceReference, relocateReferences } from './relocate-references'
@@ -1375,14 +1376,16 @@ export const bundleDocument = async (
     if (
       isObject(root) &&
       typeof root.$dynamicRef === 'string' &&
-      (location?.context === 'schema' || config.traversal !== 'document') &&
+      (config.traversal !== 'document' ||
+        getSchemaVocabulary(location?.context, location?.customReferences)?.anchors) &&
       !config.preserveReference?.(root.$dynamicRef, { origin: nodeOrigin })
     ) {
       const prefix = root.$dynamicRef.split('#', 1)[0]
-      if (prefix) {
-        const retrievalOrigin = references.retrievalOrigin(root) ?? nodeOrigin
-        const retrievalUri = resolveResourcePath(retrievalOrigin, prefix)
-        const known = references.resolve(prefix, nodeOrigin)
+      const retrievalUri = prefix
+        ? tryResolveResourcePath(references.retrievalOrigin(root) ?? nodeOrigin, prefix)
+        : undefined
+      if (retrievalUri !== undefined) {
+        const known = resolveInitialDynamicRef(references, prefix, nodeOrigin)
         if (known?.documentPath.length) {
           const source = isObject(known.document) ? references.source(known.document)?.uri : undefined
           retainDynamicDocument(known.documentPath[1]!, known.document, source ?? retrievalUri)
@@ -1902,11 +1905,16 @@ export const bundleDocument = async (
       outputBase: config.outputBase,
     })
   }
-  if (relocate || customTraversal) {
+  // Dynamic targets need retrieval aliases even in a full bundle without an explicit URL map.
+  const keepAllMappings = config.urlMap || isPartialBundling
+  if (!keepAllMappings && dynamicDocuments.size === 0) {
+    delete documentRoot[config.externalDocumentsMappingsKey]
+  } else if (!keepAllMappings || relocate || customTraversal) {
     const documents = documentRoot[config.externalDocumentsKey]
     const mappings = Object.fromEntries(
       Object.entries(documentRoot[config.externalDocumentsMappingsKey]).filter(
-        ([key]) => isObject(documents) && Object.hasOwn(documents, key),
+        ([key]) =>
+          (keepAllMappings || dynamicDocuments.has(key)) && isObject(documents) && Object.hasOwn(documents, key),
       ),
     )
     Object.defineProperty(documentRoot, config.externalDocumentsMappingsKey, {
@@ -1915,22 +1923,6 @@ export const bundleDocument = async (
       configurable: true,
       writable: true,
     })
-  }
-
-  // Keep urlMappings when doing partial bundling to track hash values and handle collisions
-  // For full bundling without urlMap config, remove the mappings to clean up the output
-  if (!config.urlMap && !isPartialBundling) {
-    // Remove the external document mappings from the output when doing a full bundle without urlMap config
-    if (dynamicDocuments.size === 0) {
-      delete documentRoot[config.externalDocumentsMappingsKey]
-    } else {
-      const mappings = documentRoot[config.externalDocumentsMappingsKey]
-      for (const key of Object.keys(mappings)) {
-        if (!dynamicDocuments.has(key)) {
-          delete mappings[key]
-        }
-      }
-    }
   }
 
   return rawSpecification

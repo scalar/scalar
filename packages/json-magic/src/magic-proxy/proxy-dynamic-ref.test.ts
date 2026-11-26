@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { collectDynamicAnchors, pushDynamicScope, resolveDynamicRef } from '@/magic-proxy/dynamic-ref'
 import { createMagicProxy } from '@/magic-proxy/proxy'
+import { DYNAMIC_REF_VALUE } from '@/magic-proxy/symbols'
 
 /** A proxied document read by path, including the virtual `$ref-value` and `$dynamicRef-value` keys. */
 type ProxyNode = { readonly [key: string]: ProxyNode }
@@ -653,6 +654,49 @@ describe('proxy-dynamic-ref', () => {
     const shared = proxy.shared
     proxy.title = 'After'
     expect(proxy.shared).toBe(shared)
+  })
+
+  it('refreshes a retained dynamic reference when its lexical id and matching anchor are edited', () => {
+    const proxy = createMagicProxy({
+      $id: 'https://example.com/root.json',
+      $defs: {
+        source: { $id: 'one/source.json', properties: { value: { $dynamicRef: 'target.json#item' } } },
+        one: { $id: 'one/target.json', $dynamicAnchor: 'item', const: 'one' },
+        two: { $id: 'two/target.json', $dynamicAnchor: 'item', const: 'two' },
+      },
+    })
+    const value = proxy.$defs.source.properties.value
+    const read = (): unknown => Reflect.get(value, DYNAMIC_REF_VALUE)
+
+    expect(read()).toMatchObject({ const: 'one' })
+    proxy.$defs.source.$id = 'two/source.json'
+    expect(read()).toMatchObject({ const: 'two' })
+    proxy.$defs.two.$dynamicAnchor = 'other'
+    expect(read()).toBeUndefined()
+    value.$dynamicRef = 'target.json#other'
+    expect(read()).toMatchObject({ const: 'two' })
+  })
+
+  it('reuses the lexical index and dynamic target after annotation edits', () => {
+    const inspect = vi.fn(() => ({ type: 'string' }))
+    const proxy = createMagicProxy({
+      $id: 'urn:example:root',
+      title: 'Before',
+      $defs: { item: { $dynamicAnchor: 'item', const: 'selected' } },
+      properties: { value: { $dynamicRef: '#item' } },
+      get unrelated() {
+        return inspect()
+      },
+    })
+    const read = (): unknown => Reflect.get(proxy.properties.value, DYNAMIC_REF_VALUE)
+    const first = read()
+    expect(first).toMatchObject({ const: 'selected' })
+    expect(inspect).toHaveBeenCalledTimes(1)
+
+    proxy.title = 'After'
+
+    expect(read()).toBe(first)
+    expect(inspect).toHaveBeenCalledTimes(1)
   })
 
   it('activates a previously scanned anchor-free resource after an in-place edit', () => {

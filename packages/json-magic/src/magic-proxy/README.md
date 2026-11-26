@@ -43,6 +43,8 @@ Edits through the magic proxy's `set` and `deleteProperty` traps invalidate anch
 
 The proxy resolves fragment-only, relative, and absolute `$dynamicRef` values against the lexical resource URI established by the nearest enclosing `$id` or the document base. This includes resources already registered as part of the bundle. A JSON Pointer can enter a subschema directly, and the subschema keeps its lexical resource.
 
+If you bundle with `includeCustomReferences: true`, pass the same option to `createMagicProxy` to resolve dynamic references in those custom schema positions. Example values remain literal data.
+
 When the initial URI names a `$dynamicAnchor`, the outermost matching anchor on the active traversal path wins. Without an override, resolution uses the initial target. Ordinary anchors, JSON Pointers, and URIs without fragments resolve directly. A JSON Pointer to a schema that also declares a dynamic anchor still resolves directly to that schema.
 
 The proxy refreshes the lexical index on the next dynamic reference read after an edit. JSON and XML example generation read the same virtual accessor, with an equivalent lexical lookup for detached schemas whose resource is available to the generator.
