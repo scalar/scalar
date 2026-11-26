@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.57 (2026-11-26)
+
+### System fonts, refreshed theme palettes, and HTTP client filtering
+
+The app now uses your operating system's native fonts instead of downloading web fonts. Nine theme presets receive updated color palettes with improved contrast and simplified styling. You can now control which HTTP clients appear in the API Reference.
+
+- The app uses system fonts for text and code instead of downloading web fonts, making pages load faster
+- Nine theme presets (purple, moon, solarized, bluePlanet, saturn, kepler, mars, deepSpace, and alternate) have refreshed color palettes with better contrast and simpler styling
+- Configure which HTTP clients appear in the API Reference using exact client IDs or wildcards like shell/*
+- Empty file attachments can now be downloaded from API responses
+- Filenames with semicolons and special characters are preserved when downloading response attachments
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1157)
+
 ## 1.1.56 (2026-11-25)
 
 ### Improved cURL imports and server variable handling

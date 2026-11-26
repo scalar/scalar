@@ -1,5 +1,21 @@
 [
   {
+    "version": "0.12.60",
+    "date": "2026-11-26",
+    "title": "Fixed download filenames with special characters",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "File downloads now preserve semicolons, escaped quotes, and percent sequences in quoted filenames from Content-Disposition headers."
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01260",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.12.59",
     "date": "2026-11-25",
     "title": "Polish and bug fixes shipped",

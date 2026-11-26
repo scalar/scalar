@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.36.1
+
+### Patch Changes
+
+- [#11241](https://github.com/scalar/scalar/pull/11241): fix(components): keep the tint of card surfaces in Chrome
+
+  Card surfaces now lighten `--scalar-background-2` in oklab rather than oklch. Current Chrome treats the hue of a near-grey color in `oklch(from …)` as missing but keeps its small chroma, so themes with tinted greys got pink code and response cards. With oklab the surface keeps the theme's own tint, and pure greys and saturated colors look the same as before.
+- [#11223](https://github.com/scalar/scalar/pull/11223): `ScalarModal` now renders `ScalarDialog`, the native `<dialog>` modal, instead of the Headless UI dialog. Its props, sizes and variants are unchanged. `ScalarDialog` also stays hidden while closed, even when a consumer class sets its display.
+- [#11223](https://github.com/scalar/scalar/pull/11223): Pressing Escape while a tooltip is showing inside a modal dialog now hides only the tooltip, instead of also closing the dialog.
+- [#11226](https://github.com/scalar/scalar/pull/11226): Teleport into a `ScalarTeleportRoot` inside a shadow root, and fall back to the shadow root instead of the host page's body
+
 ## 0.36.0
 
 ### Minor Changes

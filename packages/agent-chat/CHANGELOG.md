@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.12.60
+
+### Patch Changes
+
+- [#11252](https://github.com/scalar/scalar/pull/11252): Preserve semicolons, escaped quotes, and literal percent sequences in quoted response download filenames. Support case-insensitive extended filename parameters with language tags and normalize the suggested filename in API Client and Agent Chat.
+
 ## 0.12.59
 
 ### Patch Changes

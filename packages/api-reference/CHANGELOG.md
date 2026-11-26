@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.85.0
+
+### Minor Changes
+
+- [#11234](https://github.com/scalar/scalar/pull/11234): Configure available API Reference HTTP clients with `httpClients`. Use exact client IDs or target wildcards such as `shell/*`. The `defaultHttpClient` option also accepts a client ID string.
+
+  When all available clients are under **More**, such as with `featuredClients: []`, the Client Libraries block omits the empty tab list.
+- [#11175](https://github.com/scalar/scalar/pull/11175): Use the system font stack and stop loading web fonts. `--scalar-font` and `--scalar-font-code` now default to the platform's own UI and monospace fonts, and the Inter and JetBrains Mono files from fonts.scalar.com are no longer requested. `defaultFonts`, `@scalar/themes/fonts.css` and the `fonts` option of `getThemeStyles` are deprecated and do nothing. A custom theme that names Inter or JetBrains Mono now needs to load that font itself.
+
+### Patch Changes
+
+- [#11232](https://github.com/scalar/scalar/pull/11232): Support custom `x-badges` on OpenAPI schema properties so API references can highlight details like expandable fields. Property rows use the badges declared on the property, including when the property references a model or is an array of models.
+- [#11223](https://github.com/scalar/scalar/pull/11223): Name the Explore Scalar dialog with a plain heading instead of Headless UI's `DialogTitle`, now that `ScalarModal` renders a native dialog.
+- [#11251](https://github.com/scalar/scalar/pull/11251): Find OpenAPI operations and webhooks by text in their response descriptions.
+- [#11215](https://github.com/scalar/scalar/pull/11215): Respect string length bounds when generating plain text and formatted string examples, including API reference examples and mock server responses. Preserve path parameter placeholders in code samples.
+
 ## 1.84.0
 
 ### Minor Changes

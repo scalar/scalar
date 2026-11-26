@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 3.29.2
+
+### Patch Changes
+
+- [#11254](https://github.com/scalar/scalar/pull/11254): Allow downloading zero-byte response attachments. Keep the Download action hidden for bodyless responses and responses whose bodies were omitted from history. Give the Download link the same highlight on keyboard focus and pointer hover.
+- [#11252](https://github.com/scalar/scalar/pull/11252): Preserve semicolons, escaped quotes, and literal percent sequences in quoted response download filenames. Support case-insensitive extended filename parameters with language tags and normalize the suggested filename in API Client and Agent Chat.
+- [#11234](https://github.com/scalar/scalar/pull/11234): Configure available API Reference HTTP clients with `httpClients`. Use exact client IDs or target wildcards such as `shell/*`. The `defaultHttpClient` option also accepts a client ID string.
+
+  When all available clients are under **More**, such as with `featuredClients: []`, the Client Libraries block omits the empty tab list.
+
 ## 3.29.1
 
 ### Patch Changes

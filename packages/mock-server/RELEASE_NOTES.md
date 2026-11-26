@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.9 (2026-11-26)
+
+### Generated strings now respect length constraints
+
+Mock responses and API reference examples now honor minLength and maxLength constraints when generating string values, including formatted strings like emails and strings inside oneOf or anyOf branches.
+
+- Generated string examples now respect minLength and maxLength bounds from your OpenAPI schema.
+- Formatted strings like emails produce valid syntax within the specified length constraints.
+- Path parameter placeholders are preserved in code samples.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0219)
+
 ## 0.21.8 (2026-11-25)
 
 ### Better request validation and response header handling

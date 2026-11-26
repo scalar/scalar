@@ -1,5 +1,9 @@
 # @scalar/openapi-upgrader
 
+## 0.5.3
+
+No changes in this release.
+
 ## 0.5.2
 
 No changes in this release.
