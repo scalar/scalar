@@ -318,6 +318,8 @@ jobs:
         run: pnpm --filter api-reference test:e2e:storybook:ci
       - name: Run e2e tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:ci
+      - name: Run documentation browser tests
+        run: pnpm exec playwright test documentation/playwright/test
 
   test-e2e-scalar-app:
     needs: [build]
