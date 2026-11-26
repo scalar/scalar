@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { extractFilename } from './extract-filename'
 
-describe('extractFilename', () => {
+describe('extract-filename', () => {
   it('prefers the extended filename before a quoted fallback containing a semicolon', () => {
     const result = extractFilename(`attachment; filename*=UTF-8''sales%3BNovember.xlsx; filename="fallback;name.xlsx"`)
     expect(result).toBe('sales;November.xlsx')
@@ -16,6 +16,30 @@ describe('extractFilename', () => {
   it('ignores filename-like text inside another quoted parameter', () => {
     const result = extractFilename(`attachment; note="report; filename*=UTF-8''draft.xlsx"; filename="final.xlsx"`)
     expect(result).toBe('final.xlsx')
+  })
+
+  it('discards an unterminated quoted parameter and its contents', () => {
+    expect(extractFilename("attachment; note=\"report; filename*=UTF-8''draft.xlsx")).toBe('')
+    expect(extractFilename("attachment; filename=final.xlsx; note=\"report; filename*=UTF-8''draft.xlsx\\")).toBe(
+      'final.xlsx',
+    )
+  })
+
+  it('keeps only the basename after decoding and strips control characters', () => {
+    expect(extractFilename("attachment; filename*=UTF-8''folder%2Fexports%5Cre%00port%0D%0A%C2%85.txt")).toBe(
+      'report.txt',
+    )
+    expect(extractFilename('attachment; filename="folder/report\r\n.txt"')).toBe('report.txt')
+  })
+
+  it('uses the plain filename when the extended basename is unusable', () => {
+    expect(extractFilename("attachment; filename*=UTF-8''folder%2F..; filename=backup.txt")).toBe('backup.txt')
+  })
+
+  it('limits filenames to 255 UTF-8 bytes without splitting a character', () => {
+    const prefix = 'a'.repeat(251)
+    expect(extractFilename('attachment; filename=' + prefix + '🦊x')).toBe(prefix + '🦊')
+    expect(extractFilename('attachment; filename=' + prefix + 'x🦊')).toBe(prefix + 'x')
   })
 
   describe('UTF-8 encoded filenames', () => {
@@ -147,24 +171,24 @@ describe('extractFilename', () => {
       expect(result).toBe('my file.txt')
     })
 
-    it('decodes percent-encoded filename in regular format', () => {
-      const result = extractFilename('attachment; filename="my%20file.txt"')
-      expect(result).toBe('my file.txt')
+    it('preserves literal percent sequences in plain filenames', () => {
+      expect(extractFilename('attachment; filename="100%25.txt"')).toBe('100%25.txt')
+      expect(extractFilename('attachment; filename=my%20file.txt')).toBe('my%20file.txt')
     })
 
     it('returns original string when URI decoding fails', () => {
       // Invalid percent encoding should return the original string
-      const result = extractFilename('attachment; filename="invalid%"')
+      const result = extractFilename("attachment; filename*=UTF-8''invalid%")
       expect(result).toBe('invalid%')
     })
 
     it('handles malformed percent encoding', () => {
-      const result = extractFilename('attachment; filename="file%2"')
+      const result = extractFilename("attachment; filename*=UTF-8''file%2")
       expect(result).toBe('file%2')
     })
 
     it('handles mixed encoded and unencoded characters', () => {
-      const result = extractFilename('attachment; filename="my%20file%20(1).txt"')
+      const result = extractFilename("attachment; filename*=UTF-8''my%20file%20(1).txt")
       expect(result).toBe('my file (1).txt')
     })
   })
@@ -238,12 +262,15 @@ describe('extractFilename', () => {
     })
   })
 
-  describe('case sensitivity', () => {
+  describe('case and language tags', () => {
     it('matches filename parameter case-insensitively in disposition', () => {
-      // The regex should match regardless of case in the parameter name
       const result = extractFilename('attachment; FILENAME="test.txt"')
-      // Current implementation is case-sensitive, so this tests actual behavior
-      expect(result).toBe('')
+      expect(result).toBe('test.txt')
+    })
+
+    it('accepts mixed-case extended parameters and an optional language tag', () => {
+      expect(extractFilename("attachment; FILENAME*=utf-8''my%20file.txt; filename=fallback.txt")).toBe('my file.txt')
+      expect(extractFilename("attachment; filename*=UTF-8'en-US'caf%C3%A9.txt")).toBe('café.txt')
     })
 
     it('preserves filename case', () => {
