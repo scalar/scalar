@@ -123,7 +123,9 @@ export const createLocalization = <Translations extends Record<string, unknown>,
       return defaultLocale
     }
 
-    if (locale in localeTranslations) {
+    // `hasOwn` rather than `in`: a locale such as `constructor` would otherwise match a property of
+    // `Object.prototype`, and `isLoader` would then call it as a loader.
+    if (Object.hasOwn(localeTranslations, locale)) {
       return locale
     }
 
@@ -135,7 +137,7 @@ export const createLocalization = <Translations extends Record<string, unknown>,
       return exactMatch
     }
 
-    if (normalized.startsWith('zh') && 'zh-CN' in localeTranslations) {
+    if (normalized.startsWith('zh') && Object.hasOwn(localeTranslations, 'zh-CN')) {
       return 'zh-CN'
     }
 
@@ -233,7 +235,9 @@ export const createLocalization = <Translations extends Record<string, unknown>,
   const loadLocale = (locale?: Locale): Promise<void> => loadBuiltInLocale(resolveBuiltInLocale(locale))
 
   // Lets `loadLocale` from `@scalar/localization` warm this instance together with every other package.
-  registerLocalization({ load: loadLocale, isLoaded: isLocaleLoaded })
+  // Every function this instance returns reaches `loadedTranslations`, so it is the owner that keeps the
+  // registration alive exactly as long as the instance is in use.
+  registerLocalization(loadedTranslations, { load: loadLocale, isLoaded: isLocaleLoaded })
 
   const resolveLocalization = (localization?: LocalizationInput<Translations>): ResolvedLocalization<Translations> => {
     const locale = localization?.locale ?? defaultLocale
@@ -301,19 +305,23 @@ export const createLocalization = <Translations extends Record<string, unknown>,
    *
    * Server rendering is a single synchronous pass per component, so without this a non-default locale
    * would render in the fallback language. Vue awaits `serverPrefetch` hooks before rendering the
-   * component's subtree, and never calls them in the browser. The hook is only registered when there
-   * is something to load, so the default locale renders exactly as before.
+   * component's subtree, and never calls them in the browser.
+   *
+   * The hook is registered whether or not the locale has loaded yet, and checks inside. Vue makes every
+   * component with a `serverPrefetch` hook an async boundary for `useId()`, in the browser too, so
+   * registering it only when something is missing would give descendants different ids on a server
+   * that had to load the locale and a client that had it already, and break their ARIA references.
    */
   const awaitLocaleOnServer = (
     context: LocalizationContext<Translations, Key>,
     isLoaded: (locale: Locale) => boolean,
     load: (locale: Locale) => Promise<void>,
   ): void => {
-    if (!getCurrentInstance() || isLoaded(context.locale.value)) {
+    if (!getCurrentInstance()) {
       return
     }
 
-    onServerPrefetch(() => load(context.locale.value))
+    onServerPrefetch(() => (isLoaded(context.locale.value) ? undefined : load(context.locale.value)))
   }
 
   const ownContexts = new WeakSet<LocalizationContext<Translations, Key>>()

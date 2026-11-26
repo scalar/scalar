@@ -1,6 +1,6 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
+import { createSSRApp, defineComponent, h, nextTick, ref, useId } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
 import { createLocalization } from './create-localization'
@@ -507,6 +507,144 @@ describe('create-localization', () => {
       )
 
       expect(await renderToString(app)).toBe('<div><p>Hallo</p><span>Spät</span></div>')
+    })
+
+    it('does not treat properties of Object.prototype as locales', async () => {
+      const lazy = createLocalization<Translations, Key>({
+        localeTranslations: { en, de: async () => de },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+
+      for (const locale of ['constructor', 'toString', 'hasOwnProperty', '__proto__']) {
+        await lazy.loadLocale(locale)
+
+        expect(lazy.resolveLocalization({ locale }).translations, locale).toEqual(en)
+        expect(isLocaleLoaded(locale), locale).toBe(true)
+      }
+    })
+
+    it('keeps the latest locale when an earlier one finishes loading after it', async () => {
+      const german = createDeferredLoader(de)
+      const arabic = createDeferredLoader(ar)
+      const lazy = createLocalization<Translations, Key>({
+        localeTranslations: { en, de: german.loader, ar: arabic.loader },
+        defaultLocale: 'en',
+        rtlLocales: new Set(['ar']),
+      })
+      const locale = ref('de')
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            const { translate, direction } = lazy.provideLocalization(() => ({ locale: locale.value }))
+            return () => h('div', { dir: direction.value }, translate('common.greeting'))
+          },
+        }),
+      )
+      expect(wrapper.text()).toBe('Hello')
+
+      // Switch while German is still loading, and let Arabic arrive first
+      locale.value = 'ar'
+      await nextTick()
+      arabic.release()
+      await flushPromises()
+      expect(wrapper.text()).toBe('مرحبا')
+
+      german.release()
+      await flushPromises()
+
+      expect(wrapper.text()).toBe('مرحبا')
+      expect(wrapper.attributes('dir')).toBe('rtl')
+      expect(german.loader).toHaveBeenCalledOnce()
+      expect(arabic.loader).toHaveBeenCalledOnce()
+      wrapper.unmount()
+    })
+
+    it('gives descendants the same ids whether or not the locale had to load first', async () => {
+      const lazy = createLocalization<Translations, Key>({
+        localeTranslations: { en, 'x-ids': async () => de },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+      const Field = defineComponent({
+        setup() {
+          const id = useId()
+          const { translate } = lazy.useLocalization()
+          return () => h('label', { for: id }, translate('common.greeting'))
+        },
+      })
+      const render = () =>
+        renderToString(
+          createSSRApp(
+            defineComponent({
+              setup() {
+                lazy.provideLocalization({ locale: 'x-ids' })
+                return () => h('div', [h(Field), h(Field)])
+              },
+            }),
+          ),
+        )
+
+      // The first render has to wait for the locale, the second finds it loaded, like a browser that
+      // preloaded it before hydrating. Vue numbers ids per async boundary, so both must agree on those.
+      const cold = await render()
+      const warm = await render()
+
+      expect(cold).toContain('Hallo')
+      expect(warm).toBe(cold)
+    })
+  })
+
+  describe('registry', () => {
+    it('forgets an instance once it has been garbage collected', async () => {
+      /** Stands in for `WeakRef`, so the test can collect what it registered */
+      const references: { target: object | undefined }[] = []
+      class CollectableRef<T extends object> {
+        private readonly entry: { target: object | undefined }
+        constructor(target: T) {
+          this.entry = { target }
+          references.push(this.entry)
+        }
+        deref(): T | undefined {
+          return this.entry.target as T | undefined
+        }
+      }
+      vi.stubGlobal('WeakRef', CollectableRef)
+
+      try {
+        const loader = vi.fn(async () => de)
+        // A request-scoped instance, as a server that creates one per request would make
+        createLocalization<Translations, Key>({
+          localeTranslations: { en, 'x-collected': loader },
+          defaultLocale: 'en',
+          rtlLocales: new Set(),
+        })
+        expect(isLocaleLoaded('x-collected')).toBe(false)
+
+        for (const reference of references) {
+          reference.target = undefined
+        }
+
+        expect(isLocaleLoaded('x-collected')).toBe(true)
+        await loadLocale('x-collected')
+        expect(loader).not.toHaveBeenCalled()
+      } finally {
+        vi.unstubAllGlobals()
+      }
+    })
+
+    it('keeps an instance registered while it is in use', async () => {
+      const loader = vi.fn(async () => de)
+      const lazy = createLocalization<Translations, Key>({
+        localeTranslations: { en, 'x-alive': loader },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+
+      await loadLocale('x-alive')
+
+      expect(loader).toHaveBeenCalledOnce()
+      expect(lazy.resolveLocalization({ locale: 'x-alive' }).translations.common.greeting).toBe('Hallo')
     })
   })
 })

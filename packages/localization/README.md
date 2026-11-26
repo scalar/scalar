@@ -66,7 +66,7 @@ await loadLocale(configuration.localization.locale)
 createApiReference('#app', configuration)
 ```
 
-Instances register when their module is evaluated, so import the packages you render before you await `loadLocale`. `@scalar/api-reference` and `@scalar/api-client/features/localization` re-export the same function. `isLocaleLoaded(locale)` reports whether every registered instance can render a locale synchronously.
+Instances register when their module is evaluated, so import the packages you render before you await `loadLocale`. `@scalar/api-reference` and `@scalar/api-client/features/localization` re-export the same function. `isLocaleLoaded(locale)` reports whether every registered instance can render a locale synchronously. An instance stays registered only while something still references it, so creating one per server request does not grow the registry.
 
 ### Server rendering
 

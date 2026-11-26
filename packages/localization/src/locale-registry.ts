@@ -10,21 +10,51 @@ type RegisteredLocalization = {
 }
 
 /**
- * Every localization instance created in this JavaScript context.
+ * The localization instances created in this JavaScript context, held weakly.
  *
  * The API Reference, API Client and blocks are separate bundles that only share this module (and its
  * injection key). Keeping the registry at module scope is what lets one `loadLocale` call warm all of
  * their dictionaries, without the host knowing which packages contribute translations.
+ *
+ * Packages create their instance once, at module scope, but `createLocalization` is public, and a
+ * caller that creates one per server request must not grow this registry with every request. So each
+ * instance is keyed by an owner object that lives exactly as long as the instance does, and both
+ * collections hold it weakly: the `WeakMap` keeps the loaders only while the owner is alive, even
+ * though the loaders themselves reference it, and the `WeakRef`s are how `loadLocale` finds them.
  */
-const registeredLocalizations = new Set<RegisteredLocalization>()
+const owners = new Set<WeakRef<object>>()
+const registrations = new WeakMap<object, RegisteredLocalization>()
 
 /**
  * Registers a localization instance so {@link loadLocale} and {@link isLocaleLoaded} include it.
  *
- * Called by `createLocalization`; instances are module-level singletons, so they are never removed.
+ * Called by `createLocalization`. The registration ends by itself once nothing references `owner`.
+ *
+ * @param owner - An object every function of the instance reaches, so it is collected with the instance.
  */
-export const registerLocalization = (localization: RegisteredLocalization): void => {
-  registeredLocalizations.add(localization)
+export const registerLocalization = (owner: object, localization: RegisteredLocalization): void => {
+  if (!registrations.has(owner)) {
+    owners.add(new WeakRef(owner))
+  }
+  registrations.set(owner, localization)
+}
+
+/** The registered instances that are still alive, forgetting the ones that were collected. */
+const getRegisteredLocalizations = (): RegisteredLocalization[] => {
+  const alive: RegisteredLocalization[] = []
+
+  for (const reference of owners) {
+    const owner = reference.deref()
+    const localization = owner && registrations.get(owner)
+
+    if (localization) {
+      alive.push(localization)
+    } else {
+      owners.delete(reference)
+    }
+  }
+
+  return alive
 }
 
 /**
@@ -42,7 +72,7 @@ export const registerLocalization = (localization: RegisteredLocalization): void
  * Passing `undefined` (the default locale) resolves immediately.
  */
 export const loadLocale = async (locale?: Locale): Promise<void> => {
-  await Promise.all(Array.from(registeredLocalizations, (localization) => localization.load(locale)))
+  await Promise.all(getRegisteredLocalizations().map((localization) => localization.load(locale)))
 }
 
 /**
@@ -51,4 +81,4 @@ export const loadLocale = async (locale?: Locale): Promise<void> => {
  * Useful to skip waiting for {@link loadLocale} when nothing needs to load, for example before hydration.
  */
 export const isLocaleLoaded = (locale?: Locale): boolean =>
-  Array.from(registeredLocalizations).every((localization) => localization.isLoaded(locale))
+  getRegisteredLocalizations().every((localization) => localization.isLoaded(locale))
