@@ -1,6 +1,5 @@
 /* basic theme */
 .light-mode {
-  color-scheme: light;
   /* Tractor-feed printout paper, fresh off the line printer */
   --scalar-color-1: #1c2a1f;
   --scalar-color-2: #4a5a4d;
@@ -15,7 +14,6 @@
   --scalar-border-color: #dde3cb;
 }
 .dark-mode {
-  color-scheme: dark;
   /* A retro terminal: a near-black screen with phosphor-green accents, and neutral text to read by */
   --scalar-color-1: #e3ebe4;
   --scalar-color-2: #a6b5a9;
