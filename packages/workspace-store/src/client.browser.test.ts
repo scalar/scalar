@@ -142,6 +142,34 @@ describe('client.browser', () => {
     }
   })
 
+  it.each(['base', 'Overlay'])(
+    'shows a load-failed entry when the %s cannot be fetched on first add',
+    async (source) => {
+      const store = createWorkspaceStore()
+      const url = 'https://example.com/openapi.yaml'
+      const overlayUrl = 'https://example.com/overlays/partner.yaml'
+      const unavailable = source === 'base' ? url : overlayUrl
+      const fetchDocument: typeof fetch = (input) =>
+        Promise.resolve(
+          input === unavailable
+            ? new Response(null, { status: 404 })
+            : Response.json(input === url ? overlayBase : partnerOverlay),
+        )
+      const error = vi.spyOn(console, 'error').mockReturnValue(undefined)
+
+      try {
+        expect(
+          await store.addDocument({ name: 'partner', url, overlays: [{ url: overlayUrl }], fetch: fetchDocument }),
+        ).toBe(false)
+        const failed = getOpenApiDocument(store, 'partner')
+        expect(failed?.info.title).toBe("Document 'partner' could not be loaded")
+        expect(failed?.['x-scalar-original-document-hash']).toBe('not-a-hash')
+      } finally {
+        error.mockRestore()
+      }
+    },
+  )
+
   it('checks plugin detectors before requesting Overlay sources', async () => {
     const store = createWorkspaceStore({
       documentTypes: [{ type: 'other', detect: (document) => document['x-format'] === 'other', traverse: () => [] }],
@@ -158,9 +186,90 @@ describe('client.browser', () => {
         }),
       ).toBe(false)
       expect(fetchDocument.mock.calls).toStrictEqual([])
-      expect(store.workspace.documents.plugin).toBeUndefined()
+      expect(getOpenApiDocument(store, 'plugin')?.info.title).toBe("Document 'plugin' could not be loaded")
     } finally {
       error.mockRestore()
+    }
+  })
+
+  it('returns Overlay diagnostics when rebasing and when the same sources are unchanged', async () => {
+    const store = createWorkspaceStore()
+    const input = { name: 'partner', document: overlayBase, documentSource: 'https://example.com/openapi.yaml' }
+    const source = { document: partnerOverlay, documentSource: 'https://example.com/overlays/partner.yaml' }
+    expect(await store.addDocument({ ...input, overlays: [source] })).toBe(true)
+    const target = '$.info.missing'
+    const updated = {
+      ...source,
+      document: {
+        ...partnerOverlay,
+        actions: [
+          ...partnerOverlay.actions,
+          { target, remove: true },
+          { target: '$.info.title', update: 'Public API' },
+        ],
+      },
+    }
+    const warn = vi.spyOn(console, 'warn').mockReturnValue(undefined)
+    try {
+      const rebase = await store.rebaseDocument({ ...input, overlays: [updated] })
+      const expected = [{ overlayIndex: 0, actionIndex: partnerOverlay.actions.length, target }]
+      assert(rebase.ok)
+      expect(rebase.overlayDiagnostics).toStrictEqual(expected)
+      await rebase.applyChanges({ resolvedConflicts: [] })
+      expect(getOpenApiDocument(store, 'partner')?.info.title).toBe('Public API')
+
+      const unchanged = await store.rebaseDocument({ ...input, overlays: [updated] })
+      assert(!unchanged.ok)
+      expect(unchanged.type).toBe('NO_CHANGES_DETECTED')
+      expect(unchanged.overlayDiagnostics).toStrictEqual(expected)
+
+      const invalid = { ...source, document: { ...partnerOverlay, extends: './other-api.yaml' } }
+      const failed = await store.rebaseDocument({ ...input, overlays: [invalid] })
+      assert(!failed.ok)
+      expect(failed.type).toBe('OVERLAY_FAILED')
+      expect(failed.message).toContain('which does not identify the base description')
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('uses the active proxy for composed rebases and the legacy transport for plain rebases', async () => {
+    const store = createWorkspaceStore({ meta: { 'x-scalar-active-proxy': '/proxy' } })
+    const url = 'https://example.com/openapi.yaml'
+    const overlayUrl = 'https://example.com/overlays/partner.yaml'
+    const source = { document: overlayBase, documentSource: url }
+    expect(await store.addDocument({ name: 'plain', ...source })).toBe(true)
+    expect(
+      await store.addDocument({
+        name: 'composed',
+        ...source,
+        overlays: [{ document: partnerOverlay, documentSource: overlayUrl }],
+      }),
+    ).toBe(true)
+
+    const proxiedBase = `/proxy?scalar_url=${encodeURIComponent(url)}`
+    const proxiedOverlay = `/proxy?scalar_url=${encodeURIComponent(overlayUrl)}`
+    const fetchDocument = vi
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation((input) =>
+        Promise.resolve(Response.json(input === proxiedOverlay ? partnerOverlay : overlayBase)),
+      )
+    try {
+      const plain = await store.rebaseDocument({ name: 'plain', url })
+      const composed = await store.rebaseDocument({ name: 'composed', url, overlays: [{ url: overlayUrl }] })
+      assert(!plain.ok && !composed.ok)
+      expect(plain.type).toBe('NO_CHANGES_DETECTED')
+      expect(composed.type).toBe('NO_CHANGES_DETECTED')
+      expect(fetchDocument.mock.calls.map(([input]) => input)).toStrictEqual([url, proxiedBase, proxiedOverlay])
+
+      const customFetch = vi.fn<typeof fetch>((input) =>
+        Promise.resolve(Response.json(input === overlayUrl ? partnerOverlay : overlayBase)),
+      )
+      await store.rebaseDocument({ name: 'composed', url, overlays: [{ url: overlayUrl }], fetch: customFetch })
+      expect(customFetch.mock.calls.map(([input]) => input)).toStrictEqual([url, overlayUrl])
+      expect(fetchDocument).toHaveBeenCalledTimes(3)
+    } finally {
+      fetchDocument.mockRestore()
     }
   })
 

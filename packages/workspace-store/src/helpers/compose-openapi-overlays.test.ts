@@ -69,6 +69,23 @@ describe('compose-openapi-overlays', () => {
     expect(result.document.info).toStrictEqual({ title: 'Partner', version: '1.0.0' })
   })
 
+  it('explains how to resolve a relative extends in an inline Overlay', () => {
+    const document = {
+      ...overlay([{ target: '$.info.title', update: 'Partner' }]),
+      extends: '../openapi.yaml',
+    }
+    const baseUri = 'https://example.com/openapi.yaml'
+
+    expect(() => composeOpenApiOverlays(overlayBase, [{ document }], baseUri)).toThrow(
+      'Overlay 1: A relative "extends" requires an Overlay source URI or an absolute "$self"',
+    )
+    const identified = { ...document, $self: 'https://example.com/overlays/partner.yaml' }
+    expect(composeOpenApiOverlays(overlayBase, [{ document: identified }], baseUri).document.info).toStrictEqual({
+      title: 'Partner',
+      version: '1.0.0',
+    })
+  })
+
   it('returns a diagnostic for each action with zero matches', () => {
     const document = overlay([
       { target: '$.missing', copy: '$.alsoMissing' },

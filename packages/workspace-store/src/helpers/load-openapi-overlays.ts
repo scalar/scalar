@@ -1,6 +1,7 @@
 import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { type LoaderPlugin, resolveReferencePath } from '@scalar/json-magic/bundle'
 
+import type { OverlayDiagnostic } from '@/helpers/compose-openapi-overlays'
 import { deepClone } from '@/helpers/deep-clone'
 
 /** An explicitly supplied Overlay source. Paths use the workspace's configured file loader. */
@@ -64,7 +65,7 @@ export const loadOpenApiOverlays = async (
   overlays: readonly OverlaySource[],
   load: (source: OverlaySource) => Promise<DocumentLoadResult>,
   getSourceUri: (source: OverlaySource) => string | undefined,
-): Promise<{ document: Record<string, unknown>; documentHash: string }> => {
+): Promise<{ document: Record<string, unknown>; documentHash: string; diagnostics: OverlayDiagnostic[] }> => {
   const loadedOverlays = []
   for (const [index, source] of overlays.entries()) {
     const result = await load(source)
@@ -78,11 +79,11 @@ export const loadOpenApiOverlays = async (
   const { composeOpenApiOverlays } = await import('./compose-openapi-overlays')
   const { document, diagnostics } = composeOpenApiOverlays(base.data, loadedOverlays, base.sourceUri)
   for (const { overlayIndex, actionIndex, target } of diagnostics) {
-    console.warn('Overlay %d, action %d: JSONPath "%s" matched no nodes', overlayIndex + 1, actionIndex + 1, target)
+    console.warn(`Overlay ${overlayIndex + 1}, action ${actionIndex + 1}: JSONPath "${target}" matched no nodes`)
   }
 
   const inputs = [[base.sourceUri, base.raw], ...loadedOverlays.map(({ sourceUri, raw }) => [sourceUri, raw])]
   // The shared hash consumes bytes. Encode Unicode before hashing so all code units affect the result.
   const documentHash = COMPOSED_HASH_PREFIX + generateHash(encodeURIComponent(JSON.stringify(inputs)))
-  return { document, documentHash }
+  return { document, documentHash, diagnostics }
 }
