@@ -5,7 +5,7 @@ import { isHidden } from '@/helpers/is-hidden'
 import { getNavigationTagNames } from '@/navigation/helpers/get-navigation-tag-names'
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import { getXBadges } from '@/schemas/extensions/operation/get-x-badges'
+import { getXBadges } from '@/schemas/extensions/get-x-badges'
 import type { ParentTag, TraversedSchema } from '@/schemas/navigation'
 import type { OpenApiDocument, SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 

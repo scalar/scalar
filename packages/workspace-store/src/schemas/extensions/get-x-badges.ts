@@ -1,6 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import type { XBadge } from './x-badge'
+import type { XBadge } from './operation/x-badge'
 
 /**
  * Reads the `x-badges` extension of an OpenAPI object (operation, tag, tag group or schema).

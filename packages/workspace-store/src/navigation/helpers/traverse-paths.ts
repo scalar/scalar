@@ -6,8 +6,8 @@ import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-r
 import { isHidden } from '@/helpers/is-hidden'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
 import type { OperationTitleSource, TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import { getXBadges } from '@/schemas/extensions/get-x-badges'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation'
-import { getXBadges } from '@/schemas/extensions/operation/get-x-badges'
 import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject } from '@/schemas/v3.2/strict/openapi-document'
 

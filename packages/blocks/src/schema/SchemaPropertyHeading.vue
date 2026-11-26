@@ -3,10 +3,7 @@ import { ScalarTooltip } from '@scalar/components/tooltip'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
-import {
-  getXBadges,
-  type XBadge,
-} from '@scalar/workspace-store/schemas/extensions/operation'
+import type { XBadge } from '@scalar/workspace-store/schemas/extensions/operation'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   isArraySchema,
@@ -42,6 +39,7 @@ import SchemaPropertyPattern from './SchemaPropertyPattern.vue'
 const props = withDefaults(
   defineProps<{
     value: SchemaObject | undefined
+    badges?: XBadge[]
     enum?: boolean
     isDiscriminator?: boolean
     /** Effective AsyncAPI variant value, separate from const/enum constraints. */
@@ -105,20 +103,21 @@ const presenceDescription = computed(() =>
 )
 
 const valueRef = toRef(props, 'value')
+const badgeClass = 'min-w-0 wrap-anywhere whitespace-normal'
 
-const badges = computed<{ before: XBadge[]; after: XBadge[] } | undefined>(
-  () => {
-    const entries = getXBadges(valueRef.value)
-    if (!entries) {
-      return undefined
-    }
+const positionedBadges = computed<
+  { before: XBadge[]; after: XBadge[] } | undefined
+>(() => {
+  const entries = props.badges
+  if (!entries) {
+    return undefined
+  }
 
-    return {
-      before: entries.filter((badge) => badge.position === 'before'),
-      after: entries.filter((badge) => badge.position !== 'before'),
-    }
-  },
-)
+  return {
+    before: entries.filter((badge) => badge.position === 'before'),
+    after: entries.filter((badge) => badge.position !== 'before'),
+  }
+})
 
 const constValue = computed(() => {
   if (!valueRef.value) {
@@ -445,9 +444,9 @@ const patternValue = computed(() => {
          would strip the margin from the final detail and glue "Addressrequired"
          together on a collapsed row. -->
     <Badge
-      v-for="(badge, index) in badges?.before"
+      v-for="(badge, index) in positionedBadges?.before"
       :key="index"
-      class="min-w-0 wrap-anywhere whitespace-normal"
+      :class="badgeClass"
       :color="badge.color">
       {{ badge.name }}
     </Badge>
@@ -613,9 +612,9 @@ const patternValue = computed(() => {
       <Badge>{{ translate('schema.deprecated') }}</Badge>
     </div>
     <Badge
-      v-for="(badge, index) in badges?.after"
+      v-for="(badge, index) in positionedBadges?.after"
       :key="index"
-      class="min-w-0 wrap-anywhere whitespace-normal"
+      :class="badgeClass"
       :color="badge.color">
       {{ badge.name }}
     </Badge>

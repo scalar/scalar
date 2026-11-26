@@ -646,7 +646,7 @@ paths:
 
 ### Badges on schema properties
 
-Add `x-badges` to the Schema Object for the property you want to label. The badge appears on that property's row wherever the schema is displayed.
+Add `x-badges` to the Schema Object for the property you want to label. To label an array property, put `x-badges` alongside `items`. In OpenAPI 3.1 and later, you can put `x-badges` alongside a property's `$ref`. Badges on schemas in `components.schemas` appear on their own model entries when sidebar badges are enabled.
 
 ```yaml
 openapi: 3.1.0

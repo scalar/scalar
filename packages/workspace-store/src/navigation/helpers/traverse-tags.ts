@@ -6,7 +6,7 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getTagExternalDocs } from '@/navigation/helpers/get-tag-external-docs'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
-import { getXBadges } from '@/schemas/extensions/operation/get-x-badges'
+import { getXBadges } from '@/schemas/extensions/get-x-badges'
 import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
 import type { OpenApiDocument, TagObject } from '@/schemas/v3.2/strict/openapi-document'
 
