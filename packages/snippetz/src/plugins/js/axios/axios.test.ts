@@ -1,3 +1,4 @@
+import { repeatedQueryCases } from '@test/fixtures/repeated-query'
 import { describe, expect, it } from 'vitest'
 
 import { jsAxios } from './axios'
@@ -279,7 +280,7 @@ document.cookie = "escaped=%2F; path=/";`)
     )
   })
 
-  it('preserves repeated query params as arrays', () => {
+  it('keeps repeated query params in the URL instead of bracketed params', () => {
     const result = jsAxios.generate({
       url: 'https://example.com',
       queryString: [
@@ -291,10 +292,16 @@ document.cookie = "escaped=%2F; path=/";`)
     expect(result).toBe(
       createSnippet(`{
   method: 'GET',
-  url: 'https://example.com',
-  params: {
-    status: ['active', 'inactive']
-  }
+  url: 'https://example.com?status=active&status=inactive'
+}`),
+    )
+  })
+
+  it.each(repeatedQueryCases)('keeps every repeated query value with $name', ({ url, queryString, expected }) => {
+    expect(jsAxios.generate({ url, queryString })).toBe(
+      createSnippet(`{
+  method: 'GET',
+  url: ${expected}
 }`),
     )
   })

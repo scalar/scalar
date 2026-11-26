@@ -155,6 +155,7 @@ export const generateSchemaObject = (maybeRef: (inner: Schema) => Schema): Schem
     XEnumDescriptions,
     XEnumVarNames,
     XAdditionalPropertiesName,
+    XBadges,
     XOrder,
     XTags,
   ] as const

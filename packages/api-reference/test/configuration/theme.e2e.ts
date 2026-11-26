@@ -9,6 +9,6 @@ test.describe('theme', () => {
 
     await page.goto(example)
 
-    await expect(page.locator('.scalar-api-reference')).toHaveCSS('background-color', 'rgb(204, 201, 179)')
+    await expect(page.locator('.scalar-api-reference')).toHaveCSS('background-color', 'rgb(253, 246, 227)')
   })
 })

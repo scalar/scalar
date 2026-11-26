@@ -1,3 +1,4 @@
+import { repeatedQueryCases } from '@test/fixtures/repeated-query'
 import { describe, expect, it } from 'vitest'
 
 import { phpGuzzle } from './guzzle'
@@ -110,7 +111,7 @@ $response = $client->request('GET', 'https://example.com', [
 ]);`)
   })
 
-  it('preserves repeated query parameters as arrays', () => {
+  it('keeps repeated query parameters in the URL instead of indexed names', () => {
     const result = phpGuzzle.generate({
       url: 'https://example.com',
       queryString: [
@@ -127,14 +128,13 @@ $response = $client->request('GET', 'https://example.com', [
 
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
-$response = $client->request('GET', 'https://example.com', [
-  'query' => [
-    'statuses' => [
-      'active',
-      'inactive'
-    ]
-  ]
-]);`)
+$response = $client->request('GET', 'https://example.com?statuses=active&statuses=inactive');`)
+  })
+
+  it.each(repeatedQueryCases)('keeps every repeated query value with $name', ({ url, queryString, expected }) => {
+    expect(phpGuzzle.generate({ url, queryString })).toBe(
+      `$client = new GuzzleHttp\\Client();\n\n$response = $client->request('GET', ${expected});`,
+    )
   })
 
   it('has cookies', () => {

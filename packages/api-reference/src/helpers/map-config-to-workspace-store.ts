@@ -19,9 +19,9 @@ export const mapConfigToWorkspaceStore = ({
     () => toValue(config).defaultHttpClient,
     (newValue) => {
       if (newValue) {
-        const { targetKey, clientKey } = newValue
-
-        const clientId = `${targetKey}/${targetKey === 'custom' ? clientKey.toLowerCase() : clientKey}`
+        const id = typeof newValue === 'string' ? newValue : `${newValue.targetKey}/${newValue.clientKey}`
+        // Custom sample IDs use the literal `custom/` prefix and a lowercased language.
+        const clientId = id.startsWith('custom/') ? id.toLowerCase() : id
         if (isSelectedClient(clientId)) {
           store.update('x-scalar-default-client', clientId)
         }

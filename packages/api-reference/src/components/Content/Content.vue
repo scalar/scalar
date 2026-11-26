@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { filterHttpClients } from '@scalar/api-client/modal/filter-http-clients'
 import { mapHiddenClientsConfig } from '@scalar/api-client/modal/map-hidden-clients-config'
 import { generateClientOptions } from '@scalar/blocks/code-example'
 import type { SchemaRenderingProps } from '@scalar/blocks/schema'
@@ -98,6 +99,7 @@ const {
       | 'featuredClients'
       | 'showDefaultClientsWithSdkInstallation'
       | 'hiddenClients'
+      | 'httpClients'
       | 'hideTestRequestButton'
       | 'layout'
       | 'oauth2RedirectUri'
@@ -133,9 +135,12 @@ const {
 >()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
-const clientOptions = computed(() =>
-  generateClientOptions(mapHiddenClientsConfig(options.hiddenClients)),
-)
+const clientOptions = computed(() => {
+  const visibleClients = mapHiddenClientsConfig(options.hiddenClients)
+  return generateClientOptions(
+    filterHttpClients(visibleClients, options.httpClients),
+  )
+})
 
 /** Reserve the context-bar slot before scrolling reaches a nested tag. */
 const showContextBar = computed(() =>

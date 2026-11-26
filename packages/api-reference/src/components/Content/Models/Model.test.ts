@@ -1,5 +1,8 @@
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getBooleanSchema } from '@scalar/workspace-store/helpers/get-boolean-schema'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -51,6 +54,62 @@ describe('Model', () => {
     })
     expect(wrapper.text()).toContain('Boolean model')
     expect(wrapper.text()).toContain(value ? 'Accepts any value.' : 'Accepts no value.')
+  })
+
+  it.each(['classic', 'modern'] as const)('shows only property-level badges in the %s model layout', async (layout) => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'users',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Users', version: '1.0.0' },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                manager: { $ref: '#/components/schemas/Manager' },
+                reviewers: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Manager' },
+                  'x-badges': [{ name: 'Optional reviewers' }],
+                },
+                supervisor: {
+                  $ref: '#/components/schemas/Manager',
+                  'x-badges': [{ name: 'Expandable' }],
+                },
+              },
+            },
+            Manager: {
+              type: 'object',
+              'x-badges': [{ name: 'Internal model' }],
+              properties: { name: { type: 'string' } },
+            },
+          },
+        },
+      },
+    })
+    const document = store.workspace.documents.users
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Expected an OpenAPI document')
+    }
+
+    const wrapper = mount(Model, {
+      props: {
+        id: 'user',
+        name: 'User',
+        schema: getResolvedRef(document.components?.schemas?.User),
+        document,
+        eventBus,
+        isCollapsed: false,
+        options: layout === 'classic' ? mockConfigClassic : mockConfigModern,
+      },
+    })
+
+    expect(wrapper.text()).toContain('manager')
+    expect(wrapper.text()).toContain('Optional reviewers')
+    expect(wrapper.text()).toContain('Expandable')
+    expect(wrapper.text()).not.toContain('Internal model')
   })
 
   const mockDocument = {
