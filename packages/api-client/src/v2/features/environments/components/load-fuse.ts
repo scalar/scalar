@@ -1,3 +1,4 @@
+import { createSharedLoader } from '@scalar/helpers/general/create-shared-loader'
 import type Fuse from 'fuse.js'
 import { type ShallowRef, shallowRef } from 'vue'
 
@@ -13,7 +14,17 @@ type FuseConstructor = typeof Fuse
  */
 const fuse = shallowRef<FuseConstructor | null>(null)
 
-let loading: Promise<void> | null = null
+/** Shares one import between dropdowns, and forgets a failed one so the next call tries again */
+const fuseModule = createSharedLoader(() =>
+  import('fuse.js').then(
+    (module) => module.default,
+    (error: unknown) => {
+      // Logged here, once per failed import, rather than once per dropdown that waited on it
+      console.warn('[loadFuse] Failed to load fuse.js, falling back to plain matching', error)
+      throw error
+    },
+  ),
+)
 
 /** The fuse.js constructor, or `null` until {@link loadFuse} has resolved. */
 export const useFuse = (): Readonly<ShallowRef<FuseConstructor | null>> => fuse
@@ -23,20 +34,11 @@ export const useFuse = (): Readonly<ShallowRef<FuseConstructor | null>> => fuse
  * next call, so a dropdown keeps working (with plain substring matching) rather than breaking when the
  * chunk fails to load. Never rejects.
  */
-export const loadFuse = (): Promise<void> => {
-  if (fuse.value) {
-    return Promise.resolve()
-  }
-
-  loading ??= import('fuse.js').then(
-    (module) => {
-      fuse.value = module.default
+export const loadFuse = (): Promise<void> =>
+  fuseModule.load(undefined).then(
+    (Fuse) => {
+      fuse.value = Fuse
     },
-    (error: unknown) => {
-      console.warn('[loadFuse] Failed to load fuse.js, falling back to plain matching', error)
-      loading = null
-    },
+    // Logged by the loader, and the dropdown keeps plain matching meanwhile
+    () => undefined,
   )
-
-  return loading
-}

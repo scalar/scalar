@@ -1,3 +1,4 @@
+import { createSharedLoader } from '@scalar/helpers/general/create-shared-loader'
 import type { ClientId, HarRequest, Plugin, TargetId } from '@scalar/types/snippetz'
 
 import { pluginLoaders } from './plugin-loaders'
@@ -25,49 +26,20 @@ type LazyPlugins = {
  * generators. Separate from the default instance so tests can pass loaders they control.
  */
 export const createLazyPlugins = (loaders: Partial<Record<string, PluginLoader>>): LazyPlugins => {
-  const loaded = new Map<string, Plugin>()
-  const pending = new Map<string, Promise<Plugin>>()
-
   const getLoader = (id: string): PluginLoader | undefined => (Object.hasOwn(loaders, id) ? loaders[id] : undefined)
 
-  const getLoadedPlugin: LazyPlugins['getLoadedPlugin'] = (target, client) => loaded.get(`${target}/${client}`)
+  // Shares an import between concurrent callers, and forgets a failed one so the next call tries again
+  // (for example after a network hiccup). Only called for ids that have a loader.
+  const plugins = createSharedLoader((id: string) => getLoader(id)!())
+
+  const getLoadedPlugin: LazyPlugins['getLoadedPlugin'] = (target, client) => plugins.get(`${target}/${client}`)
 
   const hasPlugin: LazyPlugins['hasPlugin'] = (target, client) => Boolean(getLoader(`${target}/${client}`))
 
   const loadPlugin: LazyPlugins['loadPlugin'] = (target, client) => {
     const id = `${target}/${client}`
 
-    const plugin = loaded.get(id)
-    if (plugin) {
-      return Promise.resolve(plugin)
-    }
-
-    const loader = getLoader(id)
-    if (!loader) {
-      return Promise.resolve(undefined)
-    }
-
-    // Share the in-flight request, so concurrent callers trigger a single import
-    const inFlight = pending.get(id)
-    if (inFlight) {
-      return inFlight
-    }
-
-    const request = loader().then(
-      (result) => {
-        loaded.set(id, result)
-        pending.delete(id)
-        return result
-      },
-      (error: unknown) => {
-        // Forget the failed attempt, so the next call tries again (for example after a network hiccup)
-        pending.delete(id)
-        throw error
-      },
-    )
-    pending.set(id, request)
-
-    return request
+    return getLoader(id) ? plugins.load(id) : Promise.resolve(undefined)
   }
 
   const preloadClients: LazyPlugins['preloadClients'] = (clientIds) =>

@@ -1,3 +1,4 @@
+import { createSharedLoader } from '@scalar/helpers/general/create-shared-loader'
 import { grammarFor } from '@scalar/highlight/compat'
 import { type BundledLanguage, loadLanguage, resolveLanguageName } from '@scalar/highlight/lazy'
 import { ref } from 'vue'
@@ -14,14 +15,17 @@ import { ref } from 'vue'
 const loadedGrammars = ref(0)
 
 /**
- * Bundled languages whose grammar is downloading.
+ * Downloads a grammar once and bumps the counter when it arrives.
  *
- * Keyed by the resolved language rather than the name a block asked for, so
- * `js`, `javascript` and `ts` blocks wait on one download between them.
- * `loadLanguage` shares the import itself; this only keeps hundreds of blocks
- * from each attaching a handler that bumps the counter.
+ * Keyed by the resolved language rather than the name a block asked for, so `js`, `javascript` and
+ * `ts` blocks wait on one download between them, and hundreds of blocks attach one handler rather
+ * than one each. A failed download is forgotten, so the next render that asks tries again.
  */
-const pending = new Set<BundledLanguage>()
+const downloads = createSharedLoader((language: BundledLanguage) =>
+  loadLanguage(language).then(() => {
+    loadedGrammars.value++
+  }),
+)
 
 /**
  * The bundled language a block would have to download to highlight `name`, if any.
@@ -62,18 +66,8 @@ export const ensureGrammar = (name: string): boolean => {
   // Read so the caller renders again when this (or any) grammar finishes loading
   void loadedGrammars.value
 
-  if (!pending.has(language)) {
-    pending.add(language)
-    loadLanguage(language).then(
-      () => {
-        pending.delete(language)
-        loadedGrammars.value++
-      },
-      () => {
-        pending.delete(language)
-      },
-    )
-  }
+  // A failed download leaves the block plain rather than throwing into the render
+  downloads.load(language).catch(() => undefined)
 
   return false
 }

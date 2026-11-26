@@ -1,3 +1,4 @@
+import { createSharedLoader } from '@scalar/helpers/general/create-shared-loader'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { mergeObjects } from '@scalar/helpers/object/merge-objects'
 import type { PartialDeep } from 'type-fest'
@@ -166,12 +167,31 @@ export const createLocalization = <Translations extends Record<string, unknown>,
    */
   const loadedTranslations = shallowReactive(new Map<string, Translations>())
 
-  /** In-flight loads, so concurrent requests for the same locale share a single loader call. */
-  const pendingLoads = new Map<string, Promise<void>>()
-
   const isLoader = (
     source: LocaleTranslationsSource<Translations> | undefined,
   ): source is LocaleTranslationsLoader<Translations> => typeof source === 'function'
+
+  /**
+   * Loads each lazy dictionary once. Concurrent requests share one loader call, and a failure is
+   * forgotten, so the next request retries instead of replaying it. Loaded dictionaries land in the
+   * reactive map above, which is what re-renders the components that read the fallback meanwhile.
+   */
+  const dictionaries = createSharedLoader((builtInLocale: string): Promise<Translations> => {
+    const source = localeTranslations[builtInLocale]
+
+    // Only called for loaders, see `loadBuiltInLocale`. The executor also turns a loader that throws
+    // instead of rejecting into a rejection, so it is logged the same way.
+    return new Promise<Translations>((resolve) => resolve((source as LocaleTranslationsLoader<Translations>)())).catch(
+      (error: unknown) => {
+        // Logged here, once per failed load, rather than once per caller that waited on it
+        console.warn(
+          `${logPrefix} Failed to load translations for locale "${builtInLocale}". Falling back to "${defaultLocale}".`,
+          error,
+        )
+        throw error
+      },
+    )
+  }, loadedTranslations)
 
   /** Returns the dictionary for a built-in locale, or `undefined` while it has not loaded yet. */
   const getBuiltInTranslations = (builtInLocale: string): Translations | undefined => {
@@ -187,38 +207,14 @@ export const createLocalization = <Translations extends Record<string, unknown>,
    * of caching the error, and callers (including renders) keep the default-locale fallback.
    */
   const loadBuiltInLocale = (builtInLocale: string): Promise<void> => {
-    const source = localeTranslations[builtInLocale]
-
-    if (!isLoader(source) || loadedTranslations.has(builtInLocale)) {
+    if (!isLoader(localeTranslations[builtInLocale])) {
       return Promise.resolve()
     }
 
-    const pending = pendingLoads.get(builtInLocale)
-    if (pending) {
-      return pending
-    }
-
-    // The executor calls the loader synchronously, so the request starts right away and a loader that
-    // throws instead of rejecting is handled the same way.
-    const load = new Promise<Translations>((resolve) => resolve(source()))
-      .then(
-        (translations) => {
-          loadedTranslations.set(builtInLocale, translations)
-        },
-        (error: unknown) => {
-          console.warn(
-            `${logPrefix} Failed to load translations for locale "${builtInLocale}". Falling back to "${defaultLocale}".`,
-            error,
-          )
-        },
-      )
-      .finally(() => {
-        pendingLoads.delete(builtInLocale)
-      })
-
-    pendingLoads.set(builtInLocale, load)
-
-    return load
+    return dictionaries.load(builtInLocale).then(
+      () => undefined,
+      () => undefined,
+    )
   }
 
   /** Whether the built-in dictionary a locale resolves to is available synchronously. */
