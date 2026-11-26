@@ -168,6 +168,22 @@ describe('every bundled language', () => {
     expect(disagreeing, 'names the compat layer highlights that src/lazy.ts resolves differently').toEqual([])
   })
 
+  it('highlights every name the lazy loader resolves, once its grammar is registered', async () => {
+    // The reverse drift: a name `loadLanguage` accepts but `grammarFor` cannot
+    // find. A code block waiting on such a name would load the grammar, still
+    // find nothing, and ask again, so every name has to land on its grammar.
+    const { bundledLanguages, languageAliases, resolveLanguageName } = await import('../lazy')
+    const { grammarFor } = await import('../compat/languages')
+
+    const names = [...bundledLanguages, ...Object.keys(languageAliases)]
+    const unfound = names
+      // Case variants come straight from documents, so check those too
+      .flatMap((name) => [name, name.toUpperCase(), name[0]!.toUpperCase() + name.slice(1)])
+      .filter((name) => resolveLanguageName(name) && !grammarFor(name))
+
+    expect(unfound).toEqual([])
+  })
+
   for (const [lang, code] of Object.entries(samples)) {
     describe(lang, () => {
       it('emits tokens that cover the source exactly', () => {

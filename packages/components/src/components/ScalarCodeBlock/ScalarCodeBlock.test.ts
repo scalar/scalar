@@ -1,3 +1,4 @@
+import { grammarFor } from '@scalar/highlight/compat'
 import { type VueWrapper, flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createSSRApp, h, ref } from 'vue'
@@ -197,7 +198,8 @@ describe('ScalarCodeBlock', () => {
 
   describe('loading grammars on demand', () => {
     it('starts one download for many blocks in the same language', async () => {
-      // No other test highlights Lua, so its grammar is not loaded yet
+      // Grammars stay loaded for the whole file, so check nothing loaded Lua already
+      expect(grammarFor('lua')).toBeUndefined()
       const blocks = Array.from({ length: 5 }, (_, index) =>
         mount(ScalarCodeBlock, { props: { content: `local n = ${index}`, lang: 'lua' } }),
       )
@@ -211,7 +213,8 @@ describe('ScalarCodeBlock', () => {
     })
 
     it('highlights on the first render when the grammar was preloaded', async () => {
-      // No other test highlights Ruby, so only the preload can have loaded it
+      // Only the preload can load Ruby, so check nothing loaded it already
+      expect(grammarFor('ruby')).toBeUndefined()
       await preloadGrammars(['ruby'])
 
       wrapper = mount(ScalarCodeBlock, { props: { content: 'puts 1', lang: 'ruby' } })
@@ -231,7 +234,8 @@ describe('ScalarCodeBlock', () => {
     })
 
     it('renders highlighted markup on the server for a grammar that was not loaded', async () => {
-      // No other test highlights Swift, so the server render has to wait for its grammar
+      // The server render has to wait for Swift, so check nothing loaded it already
+      expect(grammarFor('swift')).toBeUndefined()
       const html = await renderToString(
         createSSRApp({ render: () => h(ScalarCodeBlock, { content: 'let x = 1', lang: 'swift' }) }),
       )
@@ -250,13 +254,25 @@ describe('ScalarCodeBlock', () => {
     })
 
     it('renders plain text first and highlights once the grammar has loaded', async () => {
-      // No other test highlights Python, so its grammar is not loaded yet
+      // Grammars stay loaded for the whole file, so check nothing loaded Python already
+      expect(grammarFor('python')).toBeUndefined()
       wrapper = mount(ScalarCodeBlock, { props: { content: 'def greet(): pass', lang: 'python' } })
 
       expect(wrapper.get('code').html()).toBe('<code class="hljs language-python">def greet(): pass</code>')
 
       await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
       expect(wrapper.get('code').text()).toBe('def greet(): pass')
+    })
+
+    it('highlights a capitalised language name with a bounded number of loads', async () => {
+      vi.mocked(loadLanguage).mockClear()
+      // `x-codeSamples` passes `lang` through as written, so `Node` reaches the block as is
+      wrapper = mount(ScalarCodeBlock, { props: { content: 'const a = 1', lang: 'Node' } })
+
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+      await flushPromises()
+
+      expect(vi.mocked(loadLanguage).mock.calls.length).toBeLessThanOrEqual(1)
     })
 
     it('loads the grammar for an alias', async () => {

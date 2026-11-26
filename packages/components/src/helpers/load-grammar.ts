@@ -1,5 +1,5 @@
 import { grammarFor } from '@scalar/highlight/compat'
-import { loadLanguage, loadLanguages, resolveLanguageName } from '@scalar/highlight/lazy'
+import { type BundledLanguage, loadLanguage, resolveLanguageName } from '@scalar/highlight/lazy'
 import { ref } from 'vue'
 
 /**
@@ -13,8 +13,29 @@ import { ref } from 'vue'
  */
 const loadedGrammars = ref(0)
 
-/** Languages whose grammar is downloading, so hundreds of blocks start one load between them. */
-const pending = new Set<string>()
+/**
+ * Bundled languages whose grammar is downloading.
+ *
+ * Keyed by the resolved language rather than the name a block asked for, so
+ * `js`, `javascript` and `ts` blocks wait on one download between them.
+ * `loadLanguage` shares the import itself; this only keeps hundreds of blocks
+ * from each attaching a handler that bumps the counter.
+ */
+const pending = new Set<BundledLanguage>()
+
+/**
+ * The bundled language a block would have to download to highlight `name`, if any.
+ *
+ * Returns `undefined` for plain text and names we have no grammar for, and
+ * also when the grammar is registered already but `grammarFor` still cannot
+ * find it under this name. Loading cannot help with that last one, and
+ * treating it as loadable would make every finished load re-render the block,
+ * which would ask again, forever.
+ */
+const loadableLanguage = (name: string): BundledLanguage | undefined => {
+  const resolved = resolveLanguageName(name)
+  return resolved && !grammarFor(resolved) ? resolved : undefined
+}
 
 /**
  * Whether the grammar for a language is registered, starting its download when it is not.
@@ -33,22 +54,23 @@ export const ensureGrammar = (name: string): boolean => {
     return true
   }
 
-  if (!resolveLanguageName(name)) {
+  const language = loadableLanguage(name)
+  if (!language) {
     return false
   }
 
   // Read so the caller renders again when this (or any) grammar finishes loading
   void loadedGrammars.value
 
-  if (!pending.has(name)) {
-    pending.add(name)
-    loadLanguage(name).then(
+  if (!pending.has(language)) {
+    pending.add(language)
+    loadLanguage(language).then(
       () => {
-        pending.delete(name)
+        pending.delete(language)
         loadedGrammars.value++
       },
       () => {
-        pending.delete(name)
+        pending.delete(language)
       },
     )
   }
@@ -62,16 +84,27 @@ export const ensureGrammar = (name: string): boolean => {
  * Code blocks highlight on their first render when their grammar is already
  * registered, so a server-rendered page hydrates without a mismatch if the
  * client awaits this for the languages the page shows. Unknown names and plain
- * text are skipped, and a grammar that fails to load leaves its blocks plain.
+ * text are skipped. It waits for every download to settle, so one grammar that
+ * fails to load leaves only its own blocks plain, and it never rejects.
  */
 export const preloadGrammars = async (names: Iterable<string>): Promise<void> => {
-  const known = [...new Set(names)].filter((name) => !grammarFor(name) && resolveLanguageName(name))
-  if (!known.length) {
+  const languages = new Set<BundledLanguage>()
+  for (const name of names) {
+    const language = grammarFor(name) ? undefined : loadableLanguage(name)
+    if (language) {
+      languages.add(language)
+    }
+  }
+
+  if (!languages.size) {
     return
   }
 
-  await loadLanguages(...known).catch(() => undefined)
+  const results = await Promise.allSettled([...languages].map((language) => loadLanguage(language)))
+
   // Blocks that already rendered plain, such as a Markdown block that rendered once during server
   // prefetch to learn its languages, render again with the new grammars
-  loadedGrammars.value++
+  if (results.some((result) => result.status === 'fulfilled')) {
+    loadedGrammars.value++
+  }
 }

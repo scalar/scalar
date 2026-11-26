@@ -91,6 +91,9 @@ const GRAMMAR_FOR: Record<string, string> = {
   mysql: 'sql',
   nginx: 'nginx',
   nginxconf: 'nginx',
+  // Lowercase `node` goes through `lowlightLanguageMappings` first, but a
+  // fence or `x-codeSamples` entry spelled `Node` skips that case-sensitive table
+  node: 'javascript',
   'obj-c': 'objectivec',
   objc: 'objectivec',
   objectivec: 'objectivec',

@@ -1,3 +1,4 @@
+import { grammarFor } from '@scalar/highlight/compat'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
@@ -137,7 +138,8 @@ describe('ScalarMarkdown', () => {
 
   describe('loading grammars on demand', () => {
     it('renders a code block plain first and highlights it once the grammar has loaded', async () => {
-      // No other test here highlights Go, so its grammar is not loaded yet
+      // Grammars stay loaded for the whole file, so check nothing loaded Go already
+      expect(grammarFor('go')).toBeUndefined()
       const wrapper = mount(ScalarMarkdown, { props: { value: '```go\nfunc main() {}\n```' } })
 
       expect(wrapper.get('code').html()).toBe('<code class="hljs language-go custom-scroll">func main() {}\n</code>')
@@ -147,7 +149,8 @@ describe('ScalarMarkdown', () => {
     })
 
     it('renders highlighted markup on the server for a grammar that was not loaded', async () => {
-      // No other test here highlights Dart, so the server render has to wait for its grammar
+      // The server render has to wait for Dart, so check nothing loaded it already
+      expect(grammarFor('dart')).toBeUndefined()
       const html = await renderToString(
         createSSRApp({ render: () => h(ScalarMarkdown, { value: '```dart\nvoid main() {}\n```' }) }),
       )
