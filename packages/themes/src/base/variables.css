@@ -124,16 +124,26 @@
  * Set the color scheme on Scalar elements, never on the mode class by itself. The mode class
  * often sits on the host page's body, and setting the scheme there would switch the whole
  * host page (native inputs, scrollbars, system colors) along with the reference.
- * The ancestor forms sit in :where() so an element's own mode class wins, for example a
- * forced-dark block mounted on a light page.
+ *
+ * These rules share one specificity, so their order decides: later rules are more specific.
  */
+/* The page's mode, for a top-level Scalar element */
+.dark-mode .scalar-app {
+  color-scheme: dark;
+}
+.light-mode .scalar-app {
+  color-scheme: light;
+}
+/* Nested apps (teleported popovers, say) follow their nearest Scalar ancestor, not the page */
+.scalar-app .scalar-app {
+  color-scheme: inherit;
+}
+/* An element's own mode class wins, for example a forced-dark block mounted on a light page */
 .scalar-app.dark-mode,
-:where(.dark-mode) .scalar-app,
 .scalar-app .dark-mode {
   color-scheme: dark;
 }
 .scalar-app.light-mode,
-:where(.light-mode) .scalar-app,
 .scalar-app .light-mode {
   color-scheme: light;
 }

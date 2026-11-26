@@ -106,3 +106,21 @@ test('a pinned color mode wins over the page color mode', async ({ page }) => {
   })
   await expect(page.locator('#pinned-light')).toHaveCSS('color-scheme', 'light')
 })
+
+/** Teleported popovers render their own `.scalar-app` inside a pinned block and should follow it. */
+test('a nested scalar-app follows its pinned ancestor', async ({ page }) => {
+  await page.setContent(`
+    <body class="light-mode">
+      <div class="scalar-app dark-mode"><div><div class="scalar-app" id="nested-dark">Popover</div></div></div>
+    </body>
+  `)
+  await page.addStyleTag({ path: join(packageRoot, 'dist/style.css') })
+  await expect(page.locator('#nested-dark')).toHaveCSS('color-scheme', 'dark')
+
+  await page.evaluate(() => {
+    document.body.className = 'dark-mode'
+    document.body.innerHTML =
+      '<div class="scalar-app light-mode"><div><div class="scalar-app" id="nested-light">Popover</div></div></div>'
+  })
+  await expect(page.locator('#nested-light')).toHaveCSS('color-scheme', 'light')
+})
