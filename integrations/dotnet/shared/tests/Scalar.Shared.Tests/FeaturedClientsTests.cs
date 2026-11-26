@@ -56,7 +56,8 @@ public class FeaturedClientsTests
         configuration.FeaturedClients.Should().Equal("java/nethttp");
         ((Dictionary<ScalarTarget, ScalarClient[]>) configuration.HiddenClients!).Should()
             .ContainKey(ScalarTarget.Java).WhoseValue.Should().Contain(ScalarClient.NetHttp);
-        configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.Shell);
-        configuration.DefaultHttpClient.ClientKey.Should().Be(ScalarClient.Curl);
+        var defaultClient = SerializeConfiguration(options).GetProperty("defaultHttpClient");
+        defaultClient.GetProperty("targetKey").GetString().Should().Be("shell");
+        defaultClient.GetProperty("clientKey").GetString().Should().Be("curl");
     }
 }

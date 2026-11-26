@@ -138,7 +138,8 @@ export function optimizeValueForDisplay(value: DisplaySchema | undefined): Displ
     // The discriminator belongs to the union, not to its variants. Copied into a variant, it
     // makes the variant look like a bare `discriminator.mapping` base, which then infers a
     // second selector inside the variant.
-    const { discriminator: _discriminator, ...variantRootProperties } = rootProperties
+    // The property's badges also belong to the union, while variants can define their own.
+    const { discriminator: _discriminator, 'x-badges': badges, ...variantRootProperties } = rootProperties
 
     const mergedSchemas = filteredSchemas.map((_schema) => {
       const schema = resolve.schema(_schema)
@@ -168,6 +169,9 @@ export function optimizeValueForDisplay(value: DisplaySchema | undefined): Displ
 
     // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
     const result = { [composition]: mergedSchemas } as DisplaySchema
+    if (badges !== undefined) {
+      result['x-badges'] = badges
+    }
     if (typeof value.description === 'string') {
       result.description = value.description
     }

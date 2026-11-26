@@ -19,6 +19,7 @@ import {
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
 import type {
   OpenApiDocument,
   ParameterObject,
@@ -482,6 +483,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
         <SchemaProperty
           is="div"
           v-if="!childParameters"
+          :badges="getXBadges(baseSchema)"
           :breadcrumb="schemaBreadcrumb"
           compact
           :description="

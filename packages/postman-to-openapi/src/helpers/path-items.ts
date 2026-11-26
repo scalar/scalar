@@ -5,7 +5,7 @@ import type { Auth, Item, ItemGroup } from '@/types'
 import { processAuth, resolveAuth } from './auth'
 import { parseMediaType, pickAcceptMediaType, readHeader } from './header-utils'
 import { parseMdTable } from './markdown'
-import { extractParameters } from './parameters'
+import { extractParameters, getParameterKey } from './parameters'
 import { processPostResponseScripts } from './post-response-scripts'
 import { processPreRequestScripts } from './pre-request-scripts'
 import { extractRequestBody } from './request-body'
@@ -224,7 +224,7 @@ export function processItem(
       if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
         return
       }
-      mergedParameters.set(param.name, param)
+      mergedParameters.set(getParameterKey(param), param)
     }
   })
 
@@ -240,7 +240,7 @@ export function processItem(
         if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
           return
         }
-        mergedParameters.set(param.name, param)
+        mergedParameters.set(getParameterKey(param), param)
       }
     })
   }
@@ -400,8 +400,7 @@ function parseParametersFromDescription(description: string): {
   }
 
   const tableMarkdown = tableLines.join('\n')
-  const parsedTable = parseMdTable(tableMarkdown)
-  const parametersFromTable = Object.values(parsedTable)
+  const parametersFromTable = parseMdTable(tableMarkdown)
     .map((paramData) => {
       const row: ParameterRow = paramData
       if (row.object !== 'query' && row.object !== 'header' && row.object !== 'path') {

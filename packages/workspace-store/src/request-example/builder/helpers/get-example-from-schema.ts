@@ -37,6 +37,13 @@ const MAX_REDUCED_EXAMPLE_VISITS = 2_000
 /** Default name used for additional properties when no custom name is provided */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
+/** Limit new padding when an API description asks for an unusually large example. */
+const MAX_STRING_PADDING = 4_096
+
+/** Ignore malformed bounds from unvalidated descriptions. */
+const readLengthBound = (value: unknown, fallback: number): number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : fallback
+
 /**
  * Base64 of the bytes "scalar". Six bytes encode without `=` padding and the output avoids `+`, `/`,
  * `-` and `_`, so strict decoders accept it under both the standard and URL-safe alphabets (RFC 4648).
@@ -51,8 +58,6 @@ const BASE64_CONTENT_ENCODINGS = new Set(['base64', 'base64url'])
  * Used to generate realistic examples for different string formats.
  */
 const genericExampleValues: Record<string, string> = {
-  // OpenAPI 3.0 base64 encoded characters. A plain placeholder like "string" is not valid base64.
-  'byte': BASE64_EXAMPLE,
   'duration': 'P1D',
   'email': 'hello@example.com',
   'hostname': 'example.com',
@@ -87,6 +92,160 @@ const genericExampleValues: Record<string, string> = {
   'object-id': '6592008029c8c3e4dc76256c',
 }
 
+/** Fit a free-form placeholder using JSON Schema character counts. */
+const fitPlainStringExample = (value: string, minLength: number, maxLength: number): string => {
+  if (minLength === 0 && maxLength === Number.POSITIVE_INFINITY) {
+    return value
+  }
+
+  const characters = Array.from(value)
+  if (characters.length > maxLength) {
+    return characters.slice(0, maxLength).join('')
+  }
+
+  const padding = Math.min(minLength, maxLength) - characters.length
+  return padding > 0 ? value + 'a'.repeat(Math.min(padding, MAX_STRING_PADDING)) : value
+}
+
+/** Distribute characters and separators evenly so no label exceeds its format's limit. */
+const buildLabels = (
+  length: number,
+  maxLabelLength: number,
+  separator: string,
+  character: string,
+  labelCount = Math.ceil((length + 1) / (maxLabelLength + 1)),
+): string => {
+  const labelCharacterCount = length - labelCount + 1
+  const size = Math.floor(labelCharacterCount / labelCount)
+  const remainder = labelCharacterCount % labelCount
+  return Array.from({ length: labelCount }, (_, index) => character.repeat(size + Number(index < remainder))).join(
+    separator,
+  )
+}
+
+/** The four octets and three separators take at least seven characters. */
+const buildIpv4Example = (length: number): string => {
+  const extraCharacters = length - 7
+  const octets = ['0', '10', '192']
+  const extraPerOctet = octets.length - 1
+  return Array.from({ length: 4 }, (_, index) => {
+    const padding = Math.max(0, Math.min(extraPerOctet, extraCharacters - index * extraPerOctet))
+    return octets[padding]
+  }).join('.')
+}
+
+/** Generate a length-compatible address without cutting through the local part or domain. */
+const fitEmailExample = (value: string, minLength: number, maxLength: number): string => {
+  if (value.length >= minLength && value.length <= maxLength) {
+    return value
+  }
+
+  const length = Math.max(minLength, Math.min(maxLength, 'a@b.co'.length))
+  // SMTP allows up to 254 characters for a mailbox and up to 64 in its local part.
+  if (length < 3 || length > 254 || length > maxLength) {
+    return value
+  }
+  if (length < 5) {
+    return `${'a'.repeat(length - 2)}@b`
+  }
+
+  const suffix = length >= 8 ? '.test' : '.co'.slice(0, length - 3)
+  const localLength = Math.min(64, length - suffix.length - 2)
+  const domainPrefixLength = length - localLength - suffix.length - 1
+  return `${'a'.repeat(localLength)}@${buildLabels(domainPrefixLength, 63, '.', 'b')}${suffix}`
+}
+
+/** Choose an RFC 4648 quantum that fits, retaining the existing encoding when no quantum fits. */
+const fitBase64Example = (minLength: number, maxLength: number): string => {
+  if (BASE64_EXAMPLE.length >= minLength && BASE64_EXAMPLE.length <= maxLength) {
+    return BASE64_EXAMPLE
+  }
+
+  // Complete quanta work with strict decoders for both alphabets.
+  const shortestLength = Math.ceil(minLength / 4) * 4
+  const preferredLength = Math.floor(Math.min(maxLength, BASE64_EXAMPLE.length) / 4) * 4
+  const length = Math.max(shortestLength, preferredLength)
+  return length <= maxLength && length <= MAX_STRING_PADDING ? 'A'.repeat(length) : BASE64_EXAMPLE
+}
+
+/** Vary the optional fractional seconds of an ISO timestamp without changing its timezone. */
+const fitTimeExample = (value: string, minLength: number, maxLength: number): string => {
+  if (value.length >= minLength && value.length <= maxLength) {
+    return value
+  }
+  const seconds = value.slice(0, -'.000Z'.length)
+  const milliseconds = value.slice(-4, -1)
+  const wholeLength = seconds.length + 1
+  if (wholeLength >= minLength && maxLength < wholeLength + 2 && wholeLength <= maxLength) {
+    return `${seconds}Z`
+  }
+  const length = Math.max(minLength, Math.min(maxLength, value.length), wholeLength + 2)
+  if (length > maxLength || length > MAX_STRING_PADDING) {
+    return value
+  }
+  const precision = length - wholeLength - 1
+  return `${seconds}.${milliseconds.slice(0, precision).padEnd(precision, '0')}Z`
+}
+
+/** Fit length bounds where possible, keeping the original formatted value when no suitable example can be generated. */
+const fitFormattedStringExample = (format: string, value: string, minLength: number, maxLength: number): string => {
+  if (value.length >= minLength && value.length <= maxLength) {
+    return value
+  }
+
+  const length = Math.max(minLength, Math.min(maxLength, value.length))
+  if (length > maxLength || length > MAX_STRING_PADDING) {
+    return value
+  }
+
+  switch (format) {
+    case 'hostname':
+    case 'idn-hostname':
+      return length >= 1 && length <= 253 ? buildLabels(length, 63, '.', 'b') : value
+    case 'ipv4':
+      return length >= 7 && length <= 15 ? buildIpv4Example(length) : value
+    case 'ipv6': {
+      if (length < 2 || length > 45) {
+        return value
+      }
+      if (length > 39) {
+        // RFC 4291 permits an IPv4 tail after six hextets, which can take up to 45 characters.
+        const prefix = '1111:1111:1111:1111:1111:1111:'
+        return prefix + buildIpv4Example(length - prefix.length)
+      }
+      if (length < 15) {
+        return length === 2 ? '::' : `::${buildLabels(length - 2, 4, ':', '1')}`
+      }
+      return buildLabels(length, 4, ':', '1', 8)
+    }
+    case 'uri':
+    case 'iri': {
+      const prefix = 'https://example.com/'
+      if (length >= prefix.length) {
+        return fitPlainStringExample(prefix, length, length)
+      }
+      return length >= 2 ? `x:${'a'.repeat(length - 2)}` : value
+    }
+    case 'uri-reference':
+    case 'iri-reference':
+    case 'uri-template':
+    case 'regex':
+      return 'a'.repeat(length)
+    case 'json-pointer':
+      return length === 0 ? '' : `/${'a'.repeat(length - 1)}`
+    case 'relative-json-pointer':
+      if (length < 2) {
+        return length === 1 ? '0' : value
+      }
+      return `0/${'a'.repeat(length - 2)}`
+    case 'duration':
+      return length >= 3 ? `P${'0'.repeat(length - 3)}1D` : value
+    default:
+      // Fixed-width formats such as UUID cannot fit a range that excludes their width.
+      return value
+  }
+}
+
 /**
  * Extract enum values from the propertyNames keyword of an object schema.
  * JSON Schema's propertyNames constrains which keys are valid in a map/dict.
@@ -105,50 +264,50 @@ const getPropertyNamesEnumValues = (schema: SchemaObject): unknown[] | undefined
 }
 
 /**
- * Generate example values for string types based on their format.
+ * Generate a string placeholder, honoring length bounds where the format allows it.
  * Binary examples use filename placeholders unless the caller requests File objects.
  */
-const guessFromFormat = (
-  schema: SchemaObject,
-  makeUpRandomData: boolean = false,
-  fallback: string = '',
-): string | File => {
+const getStringExample = (schema: SchemaObject, options: GetExampleFromSchemaOptions | undefined): string => {
+  const fallback = options?.emptyString ?? ''
   // Binary filename placeholders are converted to File objects only for multipart callers.
   if (isFileSchema(schema, false)) {
     return '@filename'
   }
 
-  // Encoded strings need a valid encoding even when a format also supplies a placeholder, such as password.
-  if (
-    typeof schema.contentEncoding === 'string' &&
-    BASE64_CONTENT_ENCODINGS.has(schema.contentEncoding.toLowerCase())
-  ) {
-    return BASE64_EXAMPLE
+  const minLength = readLengthBound('minLength' in schema ? schema.minLength : undefined, 0)
+  const maxLength = readLengthBound('maxLength' in schema ? schema.maxLength : undefined, Number.POSITIVE_INFINITY)
+  const format = 'format' in schema ? schema.format : undefined
+  const encoding = typeof schema.contentEncoding === 'string' ? schema.contentEncoding.toLowerCase() : undefined
+
+  // Encoding takes precedence over overlapping format hints and the legacy OpenAPI 3.0 byte format.
+  if ((encoding && BASE64_CONTENT_ENCODINGS.has(encoding)) || format === 'byte') {
+    return fitBase64Example(minLength, maxLength)
   }
 
-  if ('format' in schema && ['date', 'date-time', 'time'].includes(schema.format ?? '')) {
+  if (format === 'date' || format === 'date-time' || format === 'time') {
     // Do not persist enclosing objects or arrays with generated clock-dependent values.
     generatedCurrentTime = true
     const iso = new Date().toISOString()
-    if (schema.format === 'date') {
+    if (format === 'date') {
       return iso.split('T')[0]!
     }
-    if (schema.format === 'time') {
-      return iso.split('T')[1]!
-    }
-    return iso
+    return fitTimeExample(format === 'time' ? iso.split('T')[1]! : iso, minLength, maxLength)
   }
 
-  if ('format' in schema && schema.format && Object.hasOwn(genericExampleValues, schema.format)) {
-    // Password and object-id retain their opt-in placeholders; other known formats need valid syntax.
-    if (schema.format === 'password' || schema.format === 'object-id') {
-      return makeUpRandomData ? genericExampleValues[schema.format]! : fallback
+  if (format && Object.hasOwn(genericExampleValues, format)) {
+    const value = genericExampleValues[format]!
+    if (format === 'email' || format === 'idn-email') {
+      return fitEmailExample(value, minLength, maxLength)
     }
-
-    return genericExampleValues[schema.format]!
+    if (format === 'password') {
+      return fitPlainStringExample(fallback ? value : '', minLength, maxLength)
+    }
+    if (format !== 'object-id' || fallback || minLength > 0) {
+      return fitFormattedStringExample(format, value, minLength, maxLength)
+    }
   }
 
-  return fallback
+  return options?.preserveStringFallback ? fallback : fitPlainStringExample(fallback, minLength, maxLength)
 }
 
 /**
@@ -918,10 +1077,6 @@ const countExampleNodes = (value: unknown, limit: number): number => {
   return count
 }
 
-/** Ignore malformed bounds from unvalidated descriptions. */
-const readArrayLengthBound = (value: unknown, fallback: number): number =>
-  typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : fallback
-
 /** Recognize an array described by its item keywords when no type was declared. */
 const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
   !('properties' in schema) && ('items' in schema || 'prefixItems' in schema) ? 'array' : undefined
@@ -970,28 +1125,62 @@ const ITEM_ANNOTATIONS = new Set([
   'externalDocs',
 ])
 
-/** Keep constraints from the surrounding array when selecting a composition branch. */
-const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArray: boolean): SchemaObject => {
+/** Intersect the parent's length bounds with those of a newly copied selected schema. */
+const applyParentStringBounds = (parent: SchemaObject, selected: SchemaObject): void => {
+  if ('minLength' in parent) {
+    Object.assign(selected, {
+      minLength: Math.max(
+        readLengthBound(parent.minLength, 0),
+        readLengthBound('minLength' in selected ? selected.minLength : undefined, 0),
+      ),
+    })
+  }
+  if ('maxLength' in parent) {
+    const unbounded = Number.POSITIVE_INFINITY
+    Object.assign(selected, {
+      maxLength: Math.min(
+        readLengthBound(parent.maxLength, unbounded),
+        readLengthBound('maxLength' in selected ? selected.maxLength : undefined, unbounded),
+      ),
+    })
+  }
+}
+
+/** Keep surrounding constraints when selecting a composition branch. */
+const mergeSelectedSchema = (
+  schema: SchemaObject,
+  variant: SchemaObject,
+  selectedType: string | string[],
+  inherit: 'all' | 'string-keywords' = 'all',
+): SchemaObject => {
   const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
-  const merged = { ...base, ...variant } as SchemaObject
-  // Object properties would otherwise take precedence in non-object schema dispatch.
-  if ('properties' in merged) {
+  // A generated string item inherits just the keywords needed to produce its value.
+  const format = 'format' in schema && !('format' in variant) ? { format: schema.format } : {}
+  const merged = { ...(inherit === 'all' ? base : format), ...variant } as SchemaObject
+  if (inherit === 'string-keywords') {
+    Object.assign(merged, { type: selectedType })
+    if (variant.contentEncoding === undefined && schema.contentEncoding !== undefined) {
+      merged.contentEncoding = schema.contentEncoding
+    }
+  } else if ('properties' in merged) {
+    // Object properties would otherwise take precedence in non-object schema dispatch.
     delete merged.properties
   }
-  if (isArray) {
+  applyParentStringBounds(schema, merged)
+  if (selectedType === 'array') {
     if ('minItems' in schema) {
       Object.assign(merged, {
         minItems: Math.max(
-          readArrayLengthBound(schema.minItems, 0),
-          readArrayLengthBound('minItems' in variant ? variant.minItems : undefined, 0),
+          readLengthBound(schema.minItems, 0),
+          readLengthBound('minItems' in variant ? variant.minItems : undefined, 0),
         ),
       })
     }
     if ('maxItems' in schema) {
       Object.assign(merged, {
         maxItems: Math.min(
-          readArrayLengthBound(schema.maxItems, Number.POSITIVE_INFINITY),
-          readArrayLengthBound('maxItems' in variant ? variant.maxItems : undefined, Number.POSITIVE_INFINITY),
+          readLengthBound(schema.maxItems, Number.POSITIVE_INFINITY),
+          readLengthBound('maxItems' in variant ? variant.maxItems : undefined, Number.POSITIVE_INFINITY),
         ),
       })
     }
@@ -1015,9 +1204,9 @@ const handleArraySchema = (
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
-  const maxItems = readArrayLengthBound('maxItems' in schema ? schema.maxItems : undefined, Number.POSITIVE_INFINITY)
+  const maxItems = readLengthBound('maxItems' in schema ? schema.maxItems : undefined, Number.POSITIVE_INFINITY)
   const minItems = Math.min(
-    readArrayLengthBound('minItems' in schema ? schema.minItems : undefined, 0),
+    readLengthBound('minItems' in schema ? schema.minItems : undefined, 0),
     maxItems,
     MAX_ARRAY_PADDING_NODES,
   )
@@ -1171,8 +1360,20 @@ const handleArraySchema = (
         return values.length > 0 || level === 0 ? cache(schema, values, cacheKey, skipCache) : undefined
       }
       const selectedType = getSelectedType(variant, items)
+      let selectedSchema = variant
+      if (variant && selectedType === 'array') {
+        selectedSchema = mergeSelectedSchema(items, variant, selectedType)
+      } else if (
+        variant &&
+        ('minLength' in items || 'maxLength' in items || 'minLength' in variant || 'maxLength' in variant) &&
+        (selectedType === 'string' || (Array.isArray(selectedType) && selectedType[0] === 'string')) &&
+        getDeclaredValue(variant) === undefined
+      ) {
+        // Type inheritance can change default validation, so use it only for generated examples.
+        selectedSchema = mergeSelectedSchema(items, variant, selectedType, 'string-keywords')
+      }
       const ex = getExampleFromSchema(
-        variant && selectedType === 'array' ? mergeSelectedSchema(items, variant, true) : variant,
+        selectedSchema,
         consumeCompositionSelection(options, itemsSchemaPath, compositionKeyword),
         {
           level: level + 1,
@@ -1241,11 +1442,14 @@ const handleArraySchema = (
 }
 
 /** Return primitive example value for single-type schemas, or undefined if not primitive */
-const getPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, emptyString: string | undefined) => {
+const getPrimitiveValue = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+): string | number | boolean | [] | undefined => {
   if ('type' in schema && schema.type && !Array.isArray(schema.type)) {
     switch (schema.type) {
       case 'string':
-        return guessFromFormat(schema, makeUpRandomData, emptyString ?? '')
+        return getStringExample(schema, options)
       case 'boolean':
         return true
       case 'integer':
@@ -1262,7 +1466,10 @@ const getPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, empt
 }
 
 /** Return primitive example value for union-type schemas (type: string[]) */
-const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, emptyString: string | undefined) => {
+const getUnionPrimitiveValue = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+): string | number | boolean | null | undefined => {
   if ('type' in schema && Array.isArray(schema.type)) {
     if (schema.type.includes('null')) {
       return null
@@ -1272,7 +1479,7 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
     if (first) {
       switch (first) {
         case 'string':
-          return guessFromFormat(schema, makeUpRandomData, emptyString ?? '')
+          return getStringExample(schema, options)
         case 'boolean':
           return true
         case 'integer':
@@ -1303,6 +1510,8 @@ export type GetExampleFromSchemaOptions = {
   binaryAsFile?: boolean
   /** Fallback string for empty string values. */
   emptyString?: string
+  /** Keep the fallback unchanged when it represents a placeholder such as a path parameter. */
+  preserveStringFallback?: boolean
   /** @deprecated Use getXmlExampleFromSchema for schema-aware XML serialization. */
   xml?: boolean
   /** Whether to show read-only/write-only properties. */
@@ -1323,6 +1532,7 @@ const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined)
     jsonSchemaDialect: options?.jsonSchemaDialect,
     binaryAsFile: options?.binaryAsFile,
     emptyString: options?.emptyString,
+    preserveStringFallback: options?.preserveStringFallback,
     xml: options?.xml,
     mode: options?.mode,
     variables: options?.variables,
@@ -1782,8 +1992,7 @@ const getMaxDepthValue = (
 
   // A schema with no children renders the same at every level, so nothing is lost and the cache stays
   // usable for the rest of the call.
-  const makeUpRandomData = !!options?.emptyString
-  const primitive = getPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  const primitive = getPrimitiveValue(schema, options)
   if (primitive !== undefined) {
     return primitive
   }
@@ -1809,7 +2018,7 @@ const getMaxDepthValue = (
     truncated = true
   }
 
-  const unionPrimitive = getUnionPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  const unionPrimitive = getUnionPrimitiveValue(schema, options)
   if (unionPrimitive !== undefined) {
     return unionPrimitive
   }
@@ -1954,9 +2163,6 @@ const generateExampleFromSchema = (
     }
   }
 
-  // Determine if we should generate realistic example data
-  const makeUpRandomData = !!options?.emptyString
-
   // Early exits for schemas that should not be included (readOnly, writeOnly, omitEmptyAndOptionalProperties)
   if (shouldOmitProperty(_schema, parentSchema, name, options, isRequiredProperty)) {
     seen.delete(targetValue)
@@ -2052,7 +2258,7 @@ const generateExampleFromSchema = (
         seen.delete(targetValue)
         return undefined
       }
-      const selectedSchema = mergeSelectedSchema(_schema, selectedVariant, selectedType === 'array')
+      const selectedSchema = mergeSelectedSchema(_schema, selectedVariant, selectedType)
       // These keywords only constrain their own types, but also drive our type inference.
       if (selectedType !== 'array' && 'items' in selectedSchema) {
         delete selectedSchema.items
@@ -2115,7 +2321,7 @@ const generateExampleFromSchema = (
   }
 
   // Handle primitive types without allocating temporary objects
-  const primitive = getPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
+  const primitive = getPrimitiveValue(_schema, options)
   if (primitive !== undefined) {
     seen.delete(targetValue)
     return cache(_schema, primitive, cacheKey, skipCache)
@@ -2189,7 +2395,7 @@ const generateExampleFromSchema = (
   }
 
   // Handle union types (array of types)
-  const unionPrimitive = getUnionPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
+  const unionPrimitive = getUnionPrimitiveValue(_schema, options)
   if (unionPrimitive !== undefined) {
     seen.delete(targetValue)
     return cache(_schema, unionPrimitive, cacheKey, skipCache)

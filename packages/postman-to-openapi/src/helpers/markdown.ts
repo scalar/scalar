@@ -1,14 +1,14 @@
-import type { TableCell, TableObject } from '@/types'
+import type { TableCell } from '@/types'
 
 const supHeaders = ['object', 'name', 'description', 'example', 'type', 'required']
 
 /**
- * Parses a Markdown table and returns an object representation.
+ * Preserves rows in order so callers can distinguish parameters by location.
  */
-export function parseMdTable(md: string): TableObject {
+export function parseMdTable(md: string): TableCell[] {
   const lines = md.split('\n').filter((line) => line.trim() !== '')
   if (typeof lines[0] === 'undefined' || lines.length < 3) {
-    return {}
+    return []
   }
 
   const header = lines[0]
@@ -16,30 +16,23 @@ export function parseMdTable(md: string): TableObject {
     .map((cell) => cell.trim())
     .filter(Boolean)
   if (!header.includes('object') || !header.includes('name')) {
-    return {}
+    return []
   }
 
   const headers = header.map((h) => (supHeaders.includes(h) ? h : false))
 
-  const rows = lines.slice(2).map((line) =>
-    line
+  return lines.slice(2).flatMap((line) => {
+    const cells = line
       .split('|')
       .map((cell) => cell.trim())
-      .filter(Boolean),
-  )
-
-  const tableObj: TableObject = rows.reduce((accTable: TableObject, cell) => {
-    const cellObj: TableCell = cell.reduce((accCell: TableCell, field, index) => {
-      if (headers[index] && typeof headers[index] === 'string') {
-        accCell[headers[index]] = field
+      .filter(Boolean)
+    const row: TableCell = {}
+    cells.forEach((value, index) => {
+      const headerName = headers[index]
+      if (headerName) {
+        row[headerName] = value
       }
-      return accCell
-    }, {})
-    if (cellObj.name) {
-      accTable[cellObj.name] = cellObj
-    }
-    return accTable
-  }, {})
-
-  return tableObj
+    })
+    return row.name ? [row] : []
+  })
 }

@@ -14,6 +14,7 @@ import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { isDynamicRef } from '@scalar/workspace-store/helpers/dynamic-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
+import type { XBadge } from '@scalar/workspace-store/schemas/extensions/operation'
 import type {
   DiscriminatorObject,
   SchemaObject,
@@ -75,6 +76,8 @@ const props = withDefaults(
     {
       is?: string | Component
       schema: SchemaObject | undefined
+      /** Badges authored on this property before resolving its schema. */
+      badges?: XBadge[]
       /** Extensions on the containing parameter or header; schema values take precedence. */
       extensionSource?: Record<string, unknown>
       noncollapsible?: boolean
@@ -1008,6 +1011,7 @@ const onBeforeMatch = (): void => {
          carries no margin of its own — see below). -->
     <SchemaPropertyHeading
       v-if="shouldDisplayHeadingComputed"
+      :badges="badges"
       class="group"
       :class="[
         { 'cursor-pointer': isTreeRow },

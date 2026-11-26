@@ -589,6 +589,16 @@ app.MapScalarApiReference(options =>
 });
 ```
 
+Use full client IDs or target wildcards to limit the clients available in the pickers. The string overload of `WithDefaultHttpClient` selects the initial client.
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithHttpClients("node/fetch", "shell/*")
+    .WithDefaultHttpClient("node/fetch"));
+```
+
+Call `WithHttpClients()` with no arguments to hide all built-in clients. `EnabledClients` and `EnabledTargets` can further narrow the list. The same fluent methods are available in Aspire, Azure Functions, and AWS Lambda.
+
 Choose which clients appear as tabs in the **Client Libraries** block, in order:
 
 ```csharp
@@ -600,7 +610,7 @@ app.MapScalarApiReference(options =>
 });
 ```
 
-Leave `FeaturedClients` unset to keep the default tabs. Call `WithFeaturedClients()` with no arguments to put all clients under **More**. Clients excluded by `EnabledClients` or `EnabledTargets` are skipped. This controls the tab row; use `WithDefaultHttpClient` separately to choose the initial selection.
+Leave `FeaturedClients` unset to keep the default tabs. Call `WithFeaturedClients()` with no arguments to put all clients under **More**. Tabs are limited to clients available under your client filters. This controls the tab row; use `WithDefaultHttpClient` separately to choose the initial selection.
 
 To show built-in HTTP clients alongside SDK installation tabs from `info.x-scalar-sdk-installation`, enable:
 
