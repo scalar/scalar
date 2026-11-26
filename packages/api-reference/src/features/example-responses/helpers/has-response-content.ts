@@ -1,6 +1,8 @@
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import type { MediaTypeObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { isResponseKey } from '@/helpers/is-response-key'
+
 import { normalizeMimeTypeObject } from './normalize-mime-type-object'
 
 /**
@@ -21,10 +23,6 @@ function hasMediaTypeContent(mediaType: MediaTypeObject | undefined): boolean {
   const hasExamples = Boolean(mediaType.examples)
 
   return hasSchema || hasExample || hasExamples
-}
-
-function isResponseKey(responseKey: string): boolean {
-  return responseKey === 'default' || /^[1-5][0-9]{2}$/.test(responseKey) || /^[1-5]XX$/.test(responseKey)
 }
 
 /**
