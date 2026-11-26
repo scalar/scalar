@@ -145,6 +145,7 @@ import {
 } from '@/helpers/hydration-state'
 import {
   getIdFromUrl,
+  getResponseMediaTypeFromUrl,
   makeHrefFromId,
   makeUrlFromId,
   matchesBasePath,
@@ -157,6 +158,7 @@ import {
   isIntroductionEntry,
 } from '@/helpers/is-introduction-entry'
 import {
+  type ScrollToLazyOptions,
   scrollToLazy as _scrollToLazy,
   addToPriorityQueue,
   blockIntersection,
@@ -286,6 +288,7 @@ if (
       idFromUrl,
       configList.value[apiParam].config.pathRouting?.basePath,
       isMultiDocument.value,
+      getResponseMediaTypeFromUrl(url),
     )
     if (newUrl) {
       newUrl.searchParams.delete('api')
@@ -566,12 +569,14 @@ function syncSlugAndUrlWithDocument(
   slug: string,
   elementId: string | undefined,
   config: ApiReferenceConfigurationRaw,
+  responseMediaType?: string,
 ) {
   // We create a new URL and go to the root element if an ID is not provided
   const url = makeUrlFromId(
     elementId || slug,
     config.pathRouting?.basePath ?? inferredHashBasePath.value,
     isMultiDocument.value,
+    responseMediaType,
   )
 
   if (config.urlRouting !== false && url) {
@@ -1039,12 +1044,18 @@ const contextChain = computed(() => {
   return crumbs
 })
 
-const scrollToLazyElement = (id: string, focusTarget = true): void => {
+const scrollToLazyElement = (
+  id: string,
+  options?: ScrollToLazyOptions,
+): void => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
-  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById, {
-    focusTarget,
-  })
+  _scrollToLazy(
+    id,
+    sidebarState.setExpanded,
+    sidebarState.getEntryById,
+    options,
+  )
 }
 
 /**
@@ -1364,6 +1375,7 @@ const preloadDocumentsWhenIdle = () => {
 const changeSelectedDocument = async (
   slug: string,
   elementId?: string | undefined,
+  responseMediaType?: string,
 ) => {
   const normalized = configList.value[slug]
 
@@ -1384,7 +1396,7 @@ const changeSelectedDocument = async (
   const onDocumentSelectPromise = config.onDocumentSelect?.()
 
   // Set the active slug and update any routing
-  syncSlugAndUrlWithDocument(slug, elementId, config)
+  syncSlugAndUrlWithDocument(slug, elementId, config, responseMediaType)
 
   // Sync the modal to the new document without naming an operation. Leaving path and
   // method out resolves them to the document's first operation instead of a route that
@@ -1449,7 +1461,7 @@ const changeSelectedDocument = async (
     if (hydratedFirstTagId) {
       sidebarState.setExpanded(hydratedFirstTagId, false)
     }
-    scrollToLazyElement(scrollTargetId)
+    scrollToLazyElement(scrollTargetId, { responseMediaType })
   }
   // If there is no child element of the document specified and defaultOpenFirstTag is enabled, we expand the first tag
   else if (config.defaultOpenFirstTag) {
@@ -1622,15 +1634,17 @@ onBeforeMount(async () => {
     }
   }
 
+  const url = urlRouting.value ? new URL(window.location.href) : undefined
   await changeSelectedDocument(
     activeSlug.value,
-    urlRouting.value
+    url
       ? getIdFromUrl(
-          window.location.href,
+          url,
           basePath.value,
           isMultiDocument.value ? undefined : activeSlug.value,
         )
       : undefined,
+    url && getResponseMediaTypeFromUrl(url),
   )
 
   // Warm up the remaining documents in the background so switching between them is instant
@@ -1878,7 +1892,7 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
   if (!isSection) {
     isSidebarOpen.value = false
   }
-  scrollToLazyElement(id, !keepSidebarFocus)
+  scrollToLazyElement(id, { focusTarget: !keepSidebarFocus })
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {
@@ -1970,11 +1984,12 @@ eventBus.on('toggle:nav-item', ({ id, open }) => {
   sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
 })
 
-eventBus.on('copy-url:nav-item', ({ id }) => {
+eventBus.on('copy-url:nav-item', ({ id, responseMediaType }) => {
   const url = makeUrlFromId(
     id,
     basePath.value,
     isMultiDocument.value,
+    responseMediaType,
   )?.toString()
   return url && copyToClipboard(url)
 })
@@ -1986,13 +2001,16 @@ const handlePopState = (): void => {
   if (!urlRouting.value) {
     return
   }
+  const url = new URL(window.location.href)
   const id = getIdFromUrl(
-    window.location.href,
+    url,
     basePath.value,
     isMultiDocument.value ? undefined : activeSlug.value,
   )
   if (id) {
-    scrollToLazyElement(id)
+    scrollToLazyElement(id, {
+      responseMediaType: getResponseMediaTypeFromUrl(url),
+    })
   }
 }
 

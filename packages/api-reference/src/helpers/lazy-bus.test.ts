@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import { getStickyHeaderOffset, requestLazyRender, scrollToLazy } from './lazy-bus'
+import { getStickyHeaderOffset, isOnScrollTargetPath, requestLazyRender, scrollToLazy } from './lazy-bus'
 
 // ---------------------------------------------------------------------------
 // scrollToLazy — existing tests
@@ -42,6 +42,22 @@ describe('lazy-bus', () => {
   describe('scrollToLazy', () => {
     it('expands the operation behind a request-body anchor', () => {
       expect(expandedIdsFor(`${operationId}.body.name`)).toContain(operationId)
+    })
+
+    it('expands the operation whose path contains a response marker', () => {
+      const dottedOperation = `${operationId}.responses.200.json`
+      const expanded: string[] = []
+
+      scrollToLazy(
+        `${dottedOperation}.responses.200.name`,
+        (id, value) => value && expanded.push(id),
+        (id) => (id === operationId || id === dottedOperation ? { id } : undefined),
+        { responseMediaType: 'application/xml' },
+      )
+
+      expect(expanded).toStrictEqual([dottedOperation])
+      expect(isOnScrollTargetPath(`${operationId}.responses.200`, operationId)).toBe(false)
+      expect(isOnScrollTargetPath(`${dottedOperation}.responses.200`, dottedOperation)).toBe(true)
     })
 
     it('expands the operation behind a callback anchor', () => {

@@ -36,9 +36,8 @@ import type { OperationProps } from '@/features/Operation/Operation.vue'
 import {
   isOnScrollTargetPath,
   scrollTargetId,
-  scrollTargetResponseMediaType,
+  scrollTargetResponse,
 } from '@/helpers/lazy-bus'
-import { qualifyResponsePropertyAnchor } from '@/helpers/response-property-anchors'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -331,13 +330,10 @@ const schemaEventBus = computed<WorkspaceEventBus | null>(() => {
   const bus = createWorkspaceEventBus()
   bus.on('copy-url:nav-item', ({ id }) => {
     eventBus.emit('copy-url:nav-item', {
-      id: id.startsWith(`${responseId}.`)
-        ? qualifyResponsePropertyAnchor(
-            id,
-            responseId,
-            selectedContentType.value,
-          )
-        : id,
+      id,
+      responseMediaType: id.startsWith(`${responseId}.`)
+        ? selectedContentType.value
+        : undefined,
     })
   })
   bus.on('scroll-to:model-by-name', (payload) =>
@@ -348,11 +344,11 @@ const schemaEventBus = computed<WorkspaceEventBus | null>(() => {
 
 const targetResponseMediaType = computed<string | undefined>(() => {
   const responseId = responseAnchorId.value
-  if (!responseId || !scrollTargetId.value.startsWith(`${responseId}.`)) {
+  if (!responseId || !isOnScrollTargetPath(responseId, breadcrumb?.[0])) {
     return undefined
   }
 
-  const mediaType = scrollTargetResponseMediaType.value
+  const mediaType = scrollTargetResponse.value?.mediaType
   return mediaType && Object.hasOwn(content.value ?? {}, mediaType)
     ? mediaType
     : undefined
@@ -375,7 +371,7 @@ watch(
  */
 const isOnTargetPath = computed<boolean>(
   () =>
-    isOnScrollTargetPath(schemaBreadcrumb.value?.join('.')) ||
+    isOnScrollTargetPath(schemaBreadcrumb.value?.join('.'), breadcrumb?.[0]) ||
     Boolean(
       breadcrumb &&
       childParameters &&

@@ -74,6 +74,12 @@ const encodeBasePath = (sanitized: string) => {
     .join('/')}`
 }
 
+const RESPONSE_MEDIA_TYPE_PARAM = 'scalar-response-media-type'
+
+/** Read the media type from a copied response property URL. */
+export const getResponseMediaTypeFromUrl = (url: URL): string | undefined =>
+  url.searchParams.get(RESPONSE_MEDIA_TYPE_PARAM) ?? undefined
+
 /** Extracts an element id from the hash when using hash routing */
 export const getIdFromHash = (location: string | URL, slugPrefix: string | undefined) => {
   const url = typeof location === 'string' ? new URL(location) : location
@@ -166,8 +172,14 @@ const stripFirstSegment = (id: string): string => {
  * @param id - The id to apply to the URL
  * @param basePath - The base path used in path routing
  * @param isMultiDocument - Whether the document is multi-document or single-document. Single-document documents will strip the document slug from the id
+ * @param responseMediaType - The media type selected when a response property link is copied
  */
-export const makeUrlFromId = (_id: string, basePath: string | undefined, isMultiDocument: boolean) => {
+export const makeUrlFromId = (
+  _id: string,
+  basePath: string | undefined,
+  isMultiDocument: boolean,
+  responseMediaType?: string,
+): URL | undefined => {
   if (typeof window === 'undefined') {
     return undefined
   }
@@ -175,6 +187,12 @@ export const makeUrlFromId = (_id: string, basePath: string | undefined, isMulti
   /** When there is only 1 document we don't need to include the document name in the URL */
   const id = isMultiDocument ? _id : stripFirstSegment(_id)
   const url = new URL(window.location.href)
+
+  if (responseMediaType) {
+    url.searchParams.set(RESPONSE_MEDIA_TYPE_PARAM, responseMediaType)
+  } else if (url.searchParams.has(RESPONSE_MEDIA_TYPE_PARAM)) {
+    url.searchParams.delete(RESPONSE_MEDIA_TYPE_PARAM)
+  }
 
   if (typeof basePath === 'string') {
     if (isHashBasePath(basePath)) {
@@ -214,6 +232,27 @@ export const resolveHashPrefix = (
     if (sectionHash.indexOf('/', start) === -1) {
       break
     }
+  }
+
+  // An operation path can itself contain a schema marker. Try the authored
+  // navigation IDs before treating the whole hash as the host route.
+  if (sectionHash !== currentHash) {
+    const fullHash = `/${currentHash}`
+    let prefixEnd = currentHash.length
+    for (const id of ids) {
+      if (!SCHEMA_PARAM_MARKERS.some((marker) => id.includes(marker))) {
+        continue
+      }
+
+      const start = fullHash.indexOf(`/${id}.`)
+      if (start === 0) {
+        return ''
+      }
+      if (start !== -1) {
+        prefixEnd = Math.min(prefixEnd, start - 1)
+      }
+    }
+    return currentHash.slice(0, prefixEnd)
   }
 
   return currentHash
@@ -570,10 +609,9 @@ export const redirectUrl = (
 
 /** Extracts the schema parameters from the id if they are present */
 export const getSchemaParamsFromId = (id: string): { rawId: string; params: string } => {
-  // Split at the first marker: an operation id never contains one, so everything
-  // before the first marker is the operation id and the rest is the schema path.
-  // (Splitting at the last marker would mishandle a property named like a marker
-  // keyword, e.g. a request body field called `responses`.) A plain string scan
+  // Without the navigation index, the first marker is the best fallback for the
+  // operation boundary. Later markers can belong to properties, such as a request
+  // body field called `responses`. A plain string scan
   // avoids the polynomial backtracking a `(.*)marker(.*)` regex would incur on
   // long, marker-less ids.
   let markerIndex = -1

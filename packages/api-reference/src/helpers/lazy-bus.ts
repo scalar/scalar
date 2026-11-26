@@ -3,7 +3,6 @@ import { nanoid } from 'nanoid'
 import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 
 import { getSchemaParamsFromId } from './id-routing'
-import { parseResponsePropertyAnchor } from './response-property-anchors'
 
 /**
  * List of items that are in the priority queue and will be rendered first (e.g. scroll target).
@@ -42,8 +41,8 @@ export const firstLazyLoadComplete = ref(false)
  */
 export const scrollTargetId = ref<string>('')
 
-/** The selected media type carried by the active response property link, if any. */
-export const scrollTargetResponseMediaType = ref<string>()
+/** The media type and navigation entry of the active response property link. */
+export const scrollTargetResponse = ref<{ mediaType: string; operationId: string }>()
 
 /**
  * Whether the live scroll target is `path` itself or something inside it.
@@ -53,10 +52,15 @@ export const scrollTargetResponseMediaType = ref<string>()
  * on a segment boundary or `user` would claim a deep link to `username`.
  * Returns false for an empty path, so a node with no breadcrumb never matches.
  */
-export const isOnScrollTargetPath = (path: string | undefined): boolean => {
+export const isOnScrollTargetPath = (path: string | undefined, operationId?: string): boolean => {
   const target = scrollTargetId.value
 
   if (!path || !target) {
+    return false
+  }
+
+  const response = scrollTargetResponse.value
+  if (operationId && response && operationId !== response.operationId) {
     return false
   }
 
@@ -71,7 +75,7 @@ export const isOnScrollTargetPath = (path: string | undefined): boolean => {
 const clearScrollTarget = (id: string): void => {
   if (scrollTargetId.value === id) {
     scrollTargetId.value = ''
-    scrollTargetResponseMediaType.value = undefined
+    scrollTargetResponse.value = undefined
   }
 }
 
@@ -271,20 +275,24 @@ export function useLazyBus(id: string) {
   }
 }
 
+/** Options for navigating to an element and restoring its view state. */
+export type ScrollToLazyOptions = {
+  focusTarget?: boolean
+  responseMediaType?: string
+}
+
 /**
  * Scroll to a possibly lazy-loaded element. Expands parents and adds target (and
  * parents) to the priority queue, then scrolls after Vue has flushed.
  *
- * A response property link can include a media type qualifier outside its DOM
- * anchor. Unqualified anchors use their original id for scrolling.
+ * Keep the anchor as supplied so existing property IDs resolve exactly.
  */
 export const scrollToLazy = (
-  navigationId: string,
+  id: string,
   setExpanded: (id: string, value: boolean) => void,
   getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
-  { focusTarget = true }: { focusTarget?: boolean } = {},
+  { focusTarget = true, responseMediaType }: ScrollToLazyOptions = {},
 ): void => {
-  const { id, mediaType } = parseResponsePropertyAnchor(navigationId)
   const item = getEntryById(id)
 
   // Even a rendered destination can move while sections above it finish rendering.
@@ -297,7 +305,7 @@ export const scrollToLazy = (
   // Publish the target so collapsible schema disclosures on the path can open
   // themselves. Schema properties are not in the navigation tree, so this is the
   // only way the scroll target inside a collapsed schema becomes reachable.
-  scrollTargetResponseMediaType.value = mediaType
+  scrollTargetResponse.value = responseMediaType ? { mediaType: responseMediaType, operationId: rawId } : undefined
   scrollTargetId.value = id
 
   addToPriorityQueue(id)
@@ -341,43 +349,25 @@ export const scrollToLazy = (
 /**
  * Find the navigation entry a schema-property anchor belongs to.
  *
- * `getSchemaParamsFromId` splits on operation markers (`.body.`, `.responses.`),
- * so it lands on the operation for a plain property anchor. Three shapes need
- * more than that split, and all three are handled by trimming dot segments from
- * the right until the navigation tree recognises one:
- *
- * - model and AsyncAPI message anchors (`…/models/Planet.name`) carry no marker
- *   at all, so the split returns the whole id
- * - a callback anchor continues past the marker
- *   (`…/post.callbacks.<name>.<url>.<method>.responses.200.id`), so the split
- *   stops at a segment that is not a navigation entry
- * - a callback url expression can hold a marker of its own
- *   (`{$request.query.q}`), so the split can stop mid-expression
- *
- * Trying the full id first keeps a model whose own name contains a dot
- * resolving, and the untrimmed `rawId` stays the fallback when nothing matches.
+ * Look for the longest known ID because operation paths, callback expressions
+ * and model names can themselves contain dots and schema markers. Keep the
+ * routing parser's fallback for IDs with no matching entry.
  */
 const resolveNavigationId = (id: string, getEntryById: (id: string) => unknown): { rawId: string } => {
-  const { rawId } = getSchemaParamsFromId(id)
-
-  if (getEntryById(rawId)) {
-    return { rawId }
-  }
-
-  let candidate = rawId
+  let candidate = id
 
   while (true) {
-    const lastDot = candidate.lastIndexOf('.')
-
-    if (lastDot === -1) {
-      return { rawId }
-    }
-
-    candidate = candidate.slice(0, lastDot)
-
     if (getEntryById(candidate)) {
       return { rawId: candidate }
     }
+
+    const lastDot = candidate.lastIndexOf('.')
+
+    if (lastDot === -1) {
+      return { rawId: getSchemaParamsFromId(id).rawId }
+    }
+
+    candidate = candidate.slice(0, lastDot)
   }
 }
 

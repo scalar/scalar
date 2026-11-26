@@ -5,6 +5,7 @@ import {
   getIdFromHashBasePath,
   getIdFromPath,
   getIdFromUrl,
+  getResponseMediaTypeFromUrl,
   getSchemaParamsFromId,
   makeHrefFromId,
   makeUrlFromId,
@@ -623,6 +624,33 @@ describe('makeUrlFromId', () => {
     vi.stubGlobal('window', {
       location: createLocationMock() as Location,
     })
+  })
+
+  it.each([undefined, '#docs', '/docs'])('preserves the raw anchor and response media type at %s', (basePath) => {
+    vi.stubGlobal('window', {
+      location: createLocationMock({ href: 'https://example.com/?view=compact' }),
+    })
+    const id = 'doc/GET/orders.responses.200.json.responses.200.order.name'
+    const mediaType = 'application/vnd.example+json; profile="https://example.com/a~b?[q]#x"'
+    const url = makeUrlFromId(id, basePath, false, mediaType)!
+
+    expect(getIdFromUrl(url, basePath, 'doc')).toBe(id)
+    expect(getResponseMediaTypeFromUrl(url)).toBe(mediaType)
+    expect(url.searchParams.get('view')).toBe('compact')
+  })
+
+  it('leaves an existing property name intact and clears media state on unrelated navigation', () => {
+    vi.stubGlobal('window', {
+      location: createLocationMock({
+        href: 'https://example.com/?view=compact&scalar-response-media-type=application%2Fxml',
+      }),
+    })
+    const id = 'doc/POST/orders.body.responses.200[media=application~2Fxml].name'
+    const url = makeUrlFromId(id, undefined, false)!
+
+    expect(getIdFromUrl(url, undefined, 'doc')).toBe(id)
+    expect(getResponseMediaTypeFromUrl(url)).toBeUndefined()
+    expect(url.searchParams.get('view')).toBe('compact')
   })
 
   it('returns undefined when window is undefined', () => {
@@ -1356,6 +1384,8 @@ describe('resolveHashPrefix', () => {
     ['app/docs/custom-heading', ['doc/custom-heading'], false, 'app/docs'],
     ['app/tag/parent/tag/child', ['doc/tag/child', 'doc/tag/parent/tag/child'], false, 'app'],
     ['docs/api-spec/tag/users/GET/users.responses.200.name', ['doc/tag/users/GET/users'], false, 'docs/api-spec'],
+    ['GET/orders.responses.200.json.responses.200.name', ['doc/GET/orders.responses.200.json'], false, ''],
+    ['docs/GET/orders.responses.200.json.responses.200.name', ['doc/GET/orders.responses.200.json'], false, 'docs'],
     ['tag/users-extra', ['doc/tag/users'], false, 'tag/users-extra'],
     ['docs/my api/tag/users', ['doc/tag/users'], false, 'docs/my api'],
   ])('resolves %s against known navigation IDs', (hash, ids, multi, expected) => {

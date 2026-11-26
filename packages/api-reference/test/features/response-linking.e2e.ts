@@ -31,13 +31,14 @@ test.describe('response linking with multiple media types', () => {
   for (const routing of ['hash', 'path'] as const) {
     test(`copied property links restore the media type with ${routing} routing`, async ({ page, context }) => {
       await context.grantPermissions(['clipboard-write', 'clipboard-read'])
+      const path = '/orders.responses.200.json'
       const example = await serveExample({
         pathRouting: routing === 'path' ? { basePath: '/docs' } : undefined,
         content: {
           openapi: '3.1.0',
           info: { title: 'Orders API', version: '1.0.0' },
           paths: {
-            '/orders': {
+            [path]: {
               get: {
                 responses: {
                   '200': {
@@ -73,6 +74,7 @@ test.describe('response linking with multiple media types', () => {
       await responses.getByRole('button', { name: 'Copy link to xmlOnlyField', exact: true }).press('Enter')
       await expect(page.getByText('Copied to the clipboard', { exact: true })).toBeVisible()
       const copiedUrl = await page.evaluate(() => navigator.clipboard.readText())
+      expect(new URL(copiedUrl).searchParams.get('scalar-response-media-type')).toBe('application/xml')
 
       const freshPage = await context.newPage()
       await freshPage.goto(copiedUrl)
@@ -96,8 +98,9 @@ test.describe('response linking with multiple media types', () => {
         await expect(
           freshResponses.getByRole('button', { name: 'Selected Content Type: application/json' }),
         ).toBeVisible()
-        await freshPage.goto(new URL('#GET/orders', copiedUrl).href)
-        await freshPage.goto(copiedUrl)
+        await freshPage.evaluate((url) => history.replaceState({}, '', url), copiedUrl)
+        await freshPage.getByRole('link', { name: /HTTP Method: GET/ }).click()
+        await freshPage.goBack()
         await expect(freshDisclosure).toHaveAttribute('aria-expanded', 'true')
         await expect(xmlProperty).toBeInViewport()
       }
