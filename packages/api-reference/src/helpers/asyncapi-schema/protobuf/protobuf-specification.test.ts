@@ -451,21 +451,22 @@ describe('protobuf-specification', () => {
     },
   )
 
-  it.each(['/* Documents the choice. */ oneof choice', 'oneof choice /* Documents the choice. */'])(
-    'preserves inline oneof header documentation: %s',
-    (header) => {
-      const source = `message M {
+  it.each([
+    '/* Documents the choice. */ oneof choice',
+    'oneof choice /* Documents the choice. */',
+    'oneof choice /* Documents the choice. */\n',
+  ])('preserves inline oneof header documentation: %s', (header) => {
+    const source = `message M {
         ${header} {
           string a = 1;
           string b = 2;
         }
       }`
-      expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
-        'Documents the choice.',
-        undefined,
-      ])
-    },
-  )
+    expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
+      'Documents the choice.',
+      undefined,
+    ])
+  })
 
   it('keeps a oneof member description when the header also has a block comment', () => {
     const source = `message M {
@@ -534,11 +535,28 @@ describe('protobuf-specification', () => {
   it.each([
     'string id = 1 /* Stable identifier. */;',
     'map<string, string> id = 1 /* Stable identifier. */;',
+    'string\n/* Stable identifier. */\nid = 1;',
+    'map<string, string>\n/* Stable identifier. */ id = 1;',
     'oneof identity { string id = /* Stable identifier. */ 1; }',
     'string id = 1 [deprecated = /* Stable identifier. */ true];',
   ])('preserves descriptions within field declarations: %s', (field) => {
     const source = `message M { ${field} }`
     expect(readProtobuf(source, '3').nodes[0]?.children?.[0]?.description).toBe('Stable identifier.')
+  })
+
+  it('keeps consecutive comments between the tokens of a wrapped field', () => {
+    const source = `message M {
+      optional string
+      // First line.
+      // Second line.
+      id = 1;
+    }`
+    expect(readProtobuf(source, '2').nodes[0]?.children?.[0]?.description).toBe('First line.\nSecond line.')
+  })
+
+  it('leaves out detached comments after a field number', () => {
+    const source = 'message M { string id = 1\n/* Detached. */; }'
+    expect(readProtobuf(source, '3').nodes[0]?.children?.[0]?.description).toBeUndefined()
   })
 
   it('preserves inline enum value descriptions', () => {
