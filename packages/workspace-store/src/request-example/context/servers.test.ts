@@ -120,6 +120,42 @@ describe('servers', () => {
     expect(resolveServerUrl(server ?? null)).toBe('api.example.com')
   })
 
+  it.each<{ server: ServerObject; expectedPath: string }>([
+    {
+      server: { url: '{host}/v1', variables: { host: { default: 'api.example.com' } } },
+      expectedPath: 'api.example.com/v1',
+    },
+    {
+      server: { url: '{host}:8080/v1', variables: { host: { default: 'api.example.com' } } },
+      expectedPath: 'api.example.com:8080/v1',
+    },
+    {
+      server: { url: 'api.example.com:{port}/v1', variables: { port: { default: '8080' } } },
+      expectedPath: 'api.example.com:8080/v1',
+    },
+    { server: { url: 'api.example.com/v1' }, expectedPath: 'api.example.com/v1' },
+    { server: { url: 'api.example.com:8080/v1' }, expectedPath: 'api.example.com:8080/v1' },
+  ])('resolves $server.url as a path when a document or configured base is available', ({ server, expectedPath }) => {
+    const documentUrl = 'https://docs.example.com/specs/openapi.json'
+    const [documentServer] = getServers([server], { documentUrl })
+    const [configuredServer] = getServers([server], { documentUrl, baseServerUrl: 'https://proxy.example.com/api' })
+
+    expect(resolveServerUrl(documentServer ?? null)).toBe(`https://docs.example.com/specs/${expectedPath}`)
+    expect(resolveServerUrl(configuredServer ?? null)).toBe(`https://proxy.example.com/api/${expectedPath}`)
+  })
+
+  it('resolves literal relative paths and explicit network hosts', () => {
+    const servers = getServers([{ url: 'v2' }, { url: '../api' }, { url: '//api.example.com:8080/v2' }], {
+      documentUrl: 'https://docs.example.com/specs/openapi.json',
+    })
+
+    expect(servers.map(resolveServerUrl)).toStrictEqual([
+      'https://docs.example.com/specs/v2',
+      'https://docs.example.com/api',
+      'https://api.example.com:8080/v2',
+    ])
+  })
+
   it('uses only the configured base for dotted paths in inline descriptions', () => {
     const [server] = getServers([{ url: '{prefix}', variables: { prefix: { default: 'release.v1' } } }], {
       baseServerUrl: 'https://api.example.com/base',
@@ -128,13 +164,16 @@ describe('servers', () => {
     expect(resolveServerUrl(server ?? null)).toBe('https://api.example.com/base/release.v1')
   })
 
-  it('falls back to the browser origin when the description URL cannot resolve relative paths', () => {
-    const [server] = getServers([{ url: '{prefix}/v2', variables: { prefix: { default: '' } } }], {
-      documentUrl: 'about:blank',
-    })
+  it.each(['about:blank', 'file:///docs/openapi.json', 'ftp://docs.example.com/openapi.json'])(
+    'falls back to the browser origin for a description at %s',
+    (documentUrl) => {
+      const [server] = getServers([{ url: '{prefix}/v2', variables: { prefix: { default: '' } } }], {
+        documentUrl,
+      })
 
-    expect(resolveServerUrl(server ?? null)).toBe('https://example.com/v2')
-  })
+      expect(resolveServerUrl(server ?? null)).toBe('https://example.com/v2')
+    },
+  )
 
   it('excludes document credentials from rooted and templated server URLs', () => {
     const servers = getServers(

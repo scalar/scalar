@@ -122,7 +122,7 @@ export const setPathItemOperation = (
  * the `$ref`, at any depth, and `getResolvedPathItem` merges all of them. Anything that writes to a
  * path item therefore has to see the same set of nodes that reading it does.
  */
-const pathItemRefChain = (pathItem: NodeInput<PathItemObject>): Record<string, unknown>[] => {
+const pathItemRefChain = (pathItem: NodeInput<PathItemObject> | undefined): Record<string, unknown>[] => {
   const chain: Record<string, unknown>[] = []
   let node: unknown = pathItem
 
@@ -138,6 +138,10 @@ const pathItemRefChain = (pathItem: NodeInput<PathItemObject>): Record<string, u
 
   return chain
 }
+
+/** Finds the writable node that supplies a path item's effective server list. */
+export const getPathItemServerTarget = (pathItem: NodeInput<PathItemObject> | undefined): PathItemObject | undefined =>
+  pathItemRefChain(pathItem).find((node) => Object.hasOwn(node, 'servers')) as PathItemObject | undefined
 
 /**
  * Deletes an operation from a path item, including when the path item is a $ref wrapper.

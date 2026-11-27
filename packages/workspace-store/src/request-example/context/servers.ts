@@ -1,10 +1,9 @@
-import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import { withServerUrlBase } from '@/request-example/builder/helpers/resolve-server-url'
+import { resolveServerUrl, withServerUrlBase } from '@/request-example/builder/helpers/resolve-server-url'
 import type { WorkspaceDocument } from '@/schemas'
+import type { XScalarSelectedServer } from '@/schemas/extensions/server/x-scalar-selected-server'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 
 /**
  * Server processing options containing base URLs for resolving relative server URLs.
@@ -15,7 +14,7 @@ type ServerProcessingOptions = {
 }
 
 /**
- * Retrieves server choices and associates relative templates with their configured or document base.
+ * Retrieves server choices and associates relative URLs with their configured or document base.
  * Root-relative inputs are resolved in place so selections and edits share the same URL key.
  */
 export const getServers = (
@@ -36,14 +35,14 @@ export const getServers = (
   const source = baseServerUrl ? 'configuration' : fallbackSource
   const base = { url: baseUrl, source } as const
   return servers.map((server) => {
-    if (server.url?.startsWith('/')) {
-      const origin = baseServerUrl || (documentBase ? new URL('/', documentBase).href : baseUrl)
+    const preparedServer = withServerUrlBase(server, base)
+    if (server.url?.startsWith('/') && !server.url.startsWith('//') && !server.url.includes('{')) {
       // Existing selections and server mutations use the same resolved URL as their key.
-      server.url = combineUrlAndPath(origin, server.url)
+      server.url = resolveServerUrl(preparedServer)
       return server
     }
 
-    return withServerUrlBase(server, base)
+    return preparedServer
   })
 }
 
@@ -55,8 +54,9 @@ const getDocumentBase = (documentUrl: string | undefined): URL | undefined => {
 
   try {
     const base = new URL(documentUrl)
-    // Opaque URLs cannot resolve relative server paths.
-    new URL('.', base)
+    if (base.protocol !== 'http:' && base.protocol !== 'https:') {
+      return undefined
+    }
     base.username = ''
     base.password = ''
     return base
@@ -72,18 +72,20 @@ function getFallbackUrl(): string | undefined {
   if (typeof window === 'undefined' || typeof window?.location?.origin !== 'string') {
     return undefined
   }
-  return window.location.origin
+  return window.location.origin === 'null' ? undefined : window.location.origin
 }
 
 export const getSelectedServer = (
   document: WorkspaceDocument | null,
-  operation: OperationObject | null,
+  localScope: XScalarSelectedServer | null,
   configServers: ServerObject[] | null,
   servers: ServerObject[],
 ): ServerObject | null => {
   const documentSelectedServer = isOpenApiDocument(document) ? document['x-scalar-selected-server'] : undefined
   const selectedServerUrl =
-    configServers != null ? documentSelectedServer : (operation?.['x-scalar-selected-server'] ?? documentSelectedServer)
+    configServers != null
+      ? documentSelectedServer
+      : (localScope?.['x-scalar-selected-server'] ?? documentSelectedServer)
 
   if (selectedServerUrl == null) {
     return servers[0] ?? null

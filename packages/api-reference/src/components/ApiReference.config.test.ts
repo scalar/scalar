@@ -507,6 +507,30 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v2/planets'))
   })
 
+  it('updates code samples after selecting and editing a path-item server in Try It', async () => {
+    const content = {
+      ...createBasicDocument(),
+      servers: [{ url: 'https://document.example.com' }],
+      paths: {
+        '/planets': {
+          servers: [{ url: 'v1' }, { url: '{version}', variables: { version: { default: 'v2' } } }],
+          get: { responses: { '200': { description: 'OK' } } },
+        },
+      },
+    }
+    const wrapper = mountComponent({
+      props: { configuration: { content, baseServerURL: 'https://api.example.com/base' } },
+    })
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v1/planets'))
+
+    const meta = { type: 'path-item', path: '/planets' } as const
+    wrapper.vm.eventBus.emit('server:update:selected', { url: '{version}', meta })
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v2/planets'))
+
+    wrapper.vm.eventBus.emit('server:update:variables', { index: 1, key: 'version', value: 'v3', meta })
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v3/planets'))
+  })
+
   it('default configuration values', async () => {
     const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
     await flushPromises()

@@ -428,7 +428,9 @@ This overrides the same extension in the API description. Set it to an empty str
 
 **Type:** `string`
 
-Sets the base for root-relative OpenAPI server URLs and server templates that become relative after Scalar substitutes server variables. A configured base includes its path prefix. With no configured base, Scalar resolves relative templates against the API description's URL when available. An empty expansion uses the configured base or the directory containing the API description.
+Sets the base for relative OpenAPI server URLs after Scalar substitutes server variables. A configured base includes its path prefix. Without a configured base, Scalar resolves relative server URLs against the API description's HTTP(S) URL when available. An empty expansion uses the configured base or the directory containing the API description.
+
+With either base, bare values such as `api.example.com/v1` and `api.example.com:8080/v1` resolve as paths. To target that host, use an explicit URL such as `https://api.example.com:8080/v1` or `//api.example.com:8080/v1`.
 
 ```javascript
 {

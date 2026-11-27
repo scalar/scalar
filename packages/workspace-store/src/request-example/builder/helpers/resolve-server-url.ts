@@ -9,28 +9,30 @@ import { getServerVariables } from './get-server-variables'
 
 type ServerUrlBase = { url: string; source: 'configuration' | 'document' | 'browser' }
 
+// The base belongs to the in-memory server choice. Object spread keeps this symbol, while JSON
+// and structured cloning drop it. Prepare the server again after restoring a serialized document.
 const serverUrlBase = Symbol('serverUrlBase')
 const urlScheme = /^[a-z][a-z\d+.-]*:/i
+const schemelessHostWithPort = /^(?:localhost|[a-z\d-]+(?:\.[a-z\d-]+)+|\[[\da-f:]+\]):(?:\d+|\{[^}]+\})(?:[/?#]|$)/i
 
 type ServerWithUrlBase = ServerObject & { [serverUrlBase]?: ServerUrlBase }
 
-/** Carries the base on the server view while keeping the authored template available for selection and editing. */
+/** Carries the base on the server view while keeping the authored URL available for selection and editing. */
 export const withServerUrlBase = (server: ServerObject, base: ServerUrlBase): ServerWithUrlBase =>
-  server.variables && server.url?.includes('{') && !urlScheme.test(server.url)
-    ? { ...server, [serverUrlBase]: base }
-    : server
+  !urlScheme.test(server.url) || schemelessHostWithPort.test(server.url) ? { ...server, [serverUrlBase]: base } : server
 
-/** Substitutes OpenAPI server variable defaults, then resolves a relative template against its base. */
+/** Substitutes OpenAPI server variable defaults, then resolves a relative URL against its base. */
 export const resolveServerUrl = (server: ServerWithUrlBase | null): string => {
   const url = replacePathVariables(server?.url ?? '', getServerVariables(server))
   const base = server?.[serverUrlBase]
+  const hostWithPort = schemelessHostWithPort.test(url)
 
-  if (!base || urlScheme.test(url)) {
+  if (!base || (urlScheme.test(url) && !hostWithPort)) {
     return url
   }
 
   // Without an OpenAPI or configured base, preserve support for schemeless hosts entered in the client.
-  if (base.source === 'browser' && !isRelativePath(url)) {
+  if (base.source === 'browser' && (hostWithPort || !isRelativePath(url))) {
     return url
   }
 
@@ -51,9 +53,10 @@ export const resolveServerUrl = (server: ServerWithUrlBase | null): string => {
     return combineUrlAndPath(base.url, url)
   }
 
-  // Resolve only the known prefix when a path placeholder still needs substitution.
-  // An empty expansion uses the directory that contains the API description.
-  const prefix = placeholderIndex === -1 ? url || '.' : url.slice(0, firstPathSlash + 1)
+  // An empty expansion uses the description's directory so the request path is never appended to the description file.
+  const knownPath = placeholderIndex === -1 ? url || '.' : url.slice(0, firstPathSlash + 1)
+  // A bare host and port can look like a custom scheme to the URL parser. Require an explicit authority for a host.
+  const prefix = hostWithPort ? `./${knownPath}` : knownPath
   const resolvedPrefix = makeUrlAbsolute(prefix, { baseUrl: base.url })
   if (resolvedPrefix === prefix) {
     return url
