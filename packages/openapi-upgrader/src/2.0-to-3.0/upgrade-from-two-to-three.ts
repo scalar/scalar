@@ -200,7 +200,7 @@ const upgradeFlow = (flow: string): 'implicit' | 'password' | 'clientCredentials
 /** OpenAPI 2.0 uses the retrieval scheme when specified, with HTTP as the fallback for local input. */
 const getDefaultServerScheme = (sourceUrl?: string): 'http' | 'https' => {
   try {
-    return sourceUrl && new URL(sourceUrl).protocol === 'https:' ? 'https' : 'http'
+    return typeof sourceUrl === 'string' && new URL(sourceUrl).protocol === 'https:' ? 'https' : 'http'
   } catch {
     return 'http'
   }
@@ -217,7 +217,14 @@ const getDefaultServerScheme = (sourceUrl?: string): 'http' | 'https' => {
  */
 export function upgradeFromTwoToThree(
   originalSpecification: UnknownObject,
-  sourceUrl?: string,
+  sourceUrl: string | undefined,
+): UnknownObject | OpenAPIV3.Document
+/** Upgrade an OpenAPI 2.0 description with the default HTTP fallback. */
+export function upgradeFromTwoToThree(originalSpecification: UnknownObject): UnknownObject | OpenAPIV3.Document
+export function upgradeFromTwoToThree(
+  originalSpecification: UnknownObject,
+  // Keep the original arity for callers that use the converter as a callback.
+  sourceUrl: string | undefined = undefined,
 ): UnknownObject | OpenAPIV3.Document {
   let document = originalSpecification
 
