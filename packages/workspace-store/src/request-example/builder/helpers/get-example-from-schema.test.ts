@@ -3588,6 +3588,86 @@ describe('getExampleFromSchema', () => {
         'additionalProperty': '',
       })
     })
+
+    it('generates at least minProperties entries for dictionaries', () => {
+      const result = getExampleFromSchema({
+        type: 'object',
+        minProperties: 2,
+        additionalProperties: { type: 'string' },
+      } as SchemaObject) as Record<string, unknown>
+
+      expect(Object.keys(result)).toEqual(['additionalProperty', 'additionalProperty2'])
+      expect(Object.values(result)).toEqual(['', ''])
+    })
+
+    it('uses distinct propertyNames enum keys to satisfy minProperties', () => {
+      const result = getExampleFromSchema({
+        type: 'object',
+        minProperties: 2,
+        additionalProperties: { type: 'string' },
+        propertyNames: {
+          type: 'string',
+          enum: ['en', 'fr', 'de'],
+        },
+      } as SchemaObject) as Record<string, unknown>
+
+      expect(result).toEqual({
+        en: '',
+        fr: '',
+      })
+    })
+
+    it('returns empty object when maxProperties is 0', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          maxProperties: 0,
+          additionalProperties: { type: 'string' },
+        } as SchemaObject),
+      ).toEqual({})
+    })
+
+    it('caps existing properties and suppresses additionalProperties when maxProperties is reached', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          maxProperties: 1,
+          properties: {
+            first: { type: 'string' },
+            second: { type: 'string' },
+          },
+          additionalProperties: { type: 'string' },
+        } as SchemaObject),
+      ).toEqual({
+        first: '',
+      })
+    })
+
+    it('pads objects with omitted additionalProperties to minProperties', () => {
+      const result = getExampleFromSchema({
+        type: 'object',
+        minProperties: 2,
+      } as SchemaObject) as Record<string, unknown>
+
+      expect(Object.keys(result)).toHaveLength(2)
+      expect(result).toEqual({
+        additionalProperty: 'anything',
+        additionalProperty2: 'anything',
+      })
+    })
+
+    it('caps minProperties at maxProperties and handles conflicting bounds', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'object',
+          minProperties: 3,
+          maxProperties: 1,
+          additionalProperties: { type: 'integer' },
+        } as SchemaObject),
+      ).toEqual({
+        additionalProperty: 1,
+      })
+    })
   })
 
   it('works with anyOf', () => {

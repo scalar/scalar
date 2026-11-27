@@ -875,6 +875,134 @@ const sortPropertyNamesByXOrder = (properties: Record<string, unknown>): string[
     return 0
   })
 
+/** Bound padding per array or dictionary, counting repeated values by their serialized size; not a global output limit. */
+const MAX_ARRAY_PADDING_NODES = 1_000
+
+const addObjectPropertyWithinLimit = (
+  response: Record<string, unknown>,
+  key: string,
+  value: unknown,
+  maxProperties: number,
+  nodeBudgetRemaining?: number,
+  entryNodeSize?: number,
+): boolean => {
+  if (Object.keys(response).length >= maxProperties || Object.hasOwn(response, key)) {
+    return false
+  }
+  if (nodeBudgetRemaining !== undefined && entryNodeSize !== undefined && nodeBudgetRemaining < entryNodeSize) {
+    return false
+  }
+  response[key] = value
+  return true
+}
+
+const getAdditionalPropertiesNameInfo = (schema: SchemaObject, additional: unknown) => {
+  const customName =
+    typeof additional === 'object' && additional !== null && 'x-additionalPropertiesName' in additional
+      ? additional['x-additionalPropertiesName']
+      : undefined
+  const hasCustomName = typeof customName === 'string' && customName.trim().length > 0
+  const propertyNamesEnum = hasCustomName ? undefined : getPropertyNamesEnumValues(schema)
+  const additionalName = hasCustomName ? customName.trim() : DEFAULT_ADDITIONAL_PROPERTIES_NAME
+  return { propertyNamesEnum, additionalName }
+}
+
+const populateAdditionalProperties = (
+  response: Record<string, unknown>,
+  schema: SchemaObject,
+  options: Parameters<typeof getExampleFromSchema>[1],
+  level: number,
+  seen: WeakSet<object>,
+  schemaPath: string[],
+  dynamicScope: DynamicScope,
+  targetCount: number,
+  maxProperties: number,
+): void => {
+  const rawAdditional = 'additionalProperties' in schema ? schema.additionalProperties : undefined
+  const hasExplicitAdditional = !!rawAdditional
+  if (!hasExplicitAdditional && Object.keys(response).length >= targetCount) {
+    return
+  }
+  if (rawAdditional === false || Object.keys(response).length >= maxProperties) {
+    return
+  }
+
+  const additional =
+    typeof rawAdditional === 'boolean' || rawAdditional === undefined
+      ? (rawAdditional ?? true)
+      : resolve.schema(rawAdditional)
+  const isAnyType =
+    additional === true ||
+    (typeof additional === 'object' && additional !== null && Object.keys(additional).length === 0)
+
+  const { propertyNamesEnum, additionalName } = getAdditionalPropertiesNameInfo(schema, additional)
+
+  const additionalValue =
+    !isAnyType && typeof additional === 'object' && additional !== null
+      ? getExampleFromSchema(additional, options, {
+          level: level + 1,
+          schemaPath: [...schemaPath, additionalName],
+          seen,
+          dynamicScope,
+        })
+      : 'anything'
+
+  const entrySize = countExampleNodes(additionalValue, MAX_ARRAY_PADDING_NODES)
+  let remainingNodes = MAX_ARRAY_PADDING_NODES - countExampleNodes(response, MAX_ARRAY_PADDING_NODES)
+
+  if (propertyNamesEnum && propertyNamesEnum.length > 0) {
+    for (const enumValue of propertyNamesEnum) {
+      if (Object.keys(response).length >= targetCount) {
+        break
+      }
+      const key = String(enumValue)
+      // Always insert at least one additionalProperty entry when explicitly requested, matching array padding semantics.
+      const enforceBudget = hasExplicitAdditional && Object.keys(response).length > 0
+      if (
+        addObjectPropertyWithinLimit(
+          response,
+          key,
+          additionalValue,
+          maxProperties,
+          enforceBudget ? remainingNodes : undefined,
+          enforceBudget ? entrySize : undefined,
+        )
+      ) {
+        remainingNodes -= entrySize
+      }
+    }
+    return
+  }
+
+  if (
+    !Object.hasOwn(response, additionalName) &&
+    Object.keys(response).length < targetCount &&
+    addObjectPropertyWithinLimit(response, additionalName, additionalValue, maxProperties)
+  ) {
+    remainingNodes -= entrySize
+  }
+
+  let suffix = 2
+  while (Object.keys(response).length < targetCount && remainingNodes >= entrySize) {
+    const key = `${additionalName}${suffix++}`
+    if (addObjectPropertyWithinLimit(response, key, additionalValue, maxProperties, remainingNodes, entrySize)) {
+      remainingNodes -= entrySize
+    }
+  }
+}
+
+const wrapObjectXml = (
+  schema: SchemaObject,
+  response: Record<string, unknown>,
+  options: Parameters<typeof getExampleFromSchema>[1],
+  level: number,
+): Record<string, unknown> => {
+  if (options?.xml && 'xml' in schema && schema.xml?.name && level === 0) {
+    return { [schema.xml.name]: response }
+  }
+  return response
+}
+
 /**
  * Build an example for an object schema, including properties, patternProperties,
  * additionalProperties, and composition (allOf/oneOf/anyOf) merging.
@@ -890,6 +1018,21 @@ const handleObjectSchema = (
   requiredScope: ReadonlySet<string> | undefined,
 ): unknown => {
   const response: Record<string, unknown> = {}
+  const maxProperties = readLengthBound(
+    'maxProperties' in schema ? schema.maxProperties : undefined,
+    Number.POSITIVE_INFINITY,
+  )
+  const minProperties = Math.min(
+    readLengthBound('minProperties' in schema ? schema.minProperties : undefined, 0),
+    maxProperties,
+    MAX_ARRAY_PADDING_NODES,
+  )
+
+  if (maxProperties === 0) {
+    const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
+    return cache(schema, wrapObjectXml(schema, response, options, level), cacheKey, skipCache)
+  }
+
   // Children are evaluated with this schema added to the dynamic scope so nested `$dynamicRef`s bind here.
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
@@ -913,6 +1056,9 @@ const handleObjectSchema = (
     const limit = propertyNames.length
 
     for (let i = 0; i < limit; i++) {
+      if (Object.keys(response).length >= maxProperties) {
+        break
+      }
       const propertyName = propertyNames[i]!
       const propertySchema = resolve.schema(properties[propertyName])
       if (!propertySchema || (required && !required.has(propertyName))) {
@@ -953,6 +1099,9 @@ const handleObjectSchema = (
 
   if (!required && 'patternProperties' in schema && schema.patternProperties) {
     for (const pattern of Object.keys(schema.patternProperties)) {
+      if (Object.keys(response).length >= maxProperties) {
+        break
+      }
       const propertySchema = resolve.schema(schema.patternProperties[pattern])
       if (!propertySchema) {
         continue
@@ -968,43 +1117,27 @@ const handleObjectSchema = (
     }
   }
 
-  if (!required && 'additionalProperties' in schema && schema.additionalProperties) {
-    const additional =
-      typeof schema.additionalProperties === 'boolean'
-        ? schema.additionalProperties
-        : resolve.schema(schema.additionalProperties)
-    const isAnyType =
-      schema.additionalProperties === true ||
-      (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
-
-    // Check for explicit x-additionalPropertiesName first
-    const customName =
-      typeof additional === 'object' && 'x-additionalPropertiesName' in additional
-        ? additional['x-additionalPropertiesName']
-        : undefined
-    const hasCustomName = typeof customName === 'string' && customName.trim().length > 0
-
-    // Use propertyNames enum values as example keys when no custom name is set
-    const propertyNamesEnum = hasCustomName ? undefined : getPropertyNamesEnumValues(schema)
-
-    const additionalName = hasCustomName ? customName.trim() : DEFAULT_ADDITIONAL_PROPERTIES_NAME
-
-    const additionalValue =
-      !isAnyType && typeof additional === 'object'
-        ? getExampleFromSchema(additional, options, {
-            level: level + 1,
-            schemaPath: [...schemaPath, additionalName],
-            seen,
-            dynamicScope: childScope,
-          })
-        : 'anything'
-
-    if (propertyNamesEnum && propertyNamesEnum.length > 0) {
-      // Use the first enum value as a realistic example key
-      response[String(propertyNamesEnum[0])] = additionalValue
-    } else {
-      response[additionalName] = additionalValue
-    }
+  if (
+    !required &&
+    'additionalProperties' in schema &&
+    schema.additionalProperties &&
+    Object.keys(response).length < maxProperties
+  ) {
+    const initialTarget = Math.min(
+      maxProperties,
+      isComposed(schema) ? Object.keys(response).length + 1 : Math.max(Object.keys(response).length + 1, minProperties),
+    )
+    populateAdditionalProperties(
+      response,
+      schema,
+      options,
+      level,
+      seen,
+      schemaPath,
+      childScope,
+      initialTarget,
+      maxProperties,
+    )
   }
 
   const anyOfKeyword = schema.anyOf ? 'anyOf' : undefined
@@ -1053,17 +1186,32 @@ const handleObjectSchema = (
     }
   }
 
-  if (options?.xml && 'xml' in schema && schema.xml?.name && level === 0) {
-    const wrapped: Record<string, unknown> = {}
-    wrapped[schema.xml.name] = response
-    return cache(schema, wrapped, cacheKey, skipCache)
+  if (Object.keys(response).length > maxProperties) {
+    for (const excessKey of Object.keys(response).slice(maxProperties)) {
+      delete response[excessKey]
+    }
   }
 
-  return cache(schema, response, cacheKey, skipCache)
-}
+  if (
+    !required &&
+    Object.keys(response).length < minProperties &&
+    (!('additionalProperties' in schema) || schema.additionalProperties !== false)
+  ) {
+    populateAdditionalProperties(
+      response,
+      schema,
+      options,
+      level,
+      seen,
+      schemaPath,
+      childScope,
+      minProperties,
+      maxProperties,
+    )
+  }
 
-/** Bound padding per array, counting repeated values by their serialized size; not a global output limit. */
-const MAX_ARRAY_PADDING_NODES = 1_000
+  return cache(schema, wrapObjectXml(schema, response, options, level), cacheKey, skipCache)
+}
 
 const countExampleNodes = (value: unknown, limit: number): number => {
   if (limit <= 1 || value === null || typeof value !== 'object') {
