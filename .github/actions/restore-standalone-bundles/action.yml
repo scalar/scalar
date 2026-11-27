@@ -1,0 +1,11 @@
+name: Restore standalone API Reference bundles
+description: Extract the standalone files for bundle size reporting from the workspace build artifact.
+runs:
+  using: composite
+  steps:
+    - uses: actions/download-artifact@v8.0.2
+      with:
+        name: build-output
+    - name: Extract standalone bundles
+      shell: bash
+      run: tar -xzf build-output.tar.gz --exclude='*.map' -- packages/api-reference/dist/browser

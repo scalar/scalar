@@ -207,6 +207,7 @@ export const createReport = (current: BundleSizes, baseline?: BundleSizes, expec
     ...sizeRows('ESM all chunks', sumSizes(current.esm), baseline && sumSizes(baseline.esm)),
     '',
     'ESM initial load includes the entry point and its static imports. ESM all chunks also includes lazy imports.',
+    `Measured commit \`${current.commit.slice(0, 7)}\`.`,
     '',
   ].join('\n')
 }

@@ -39,9 +39,6 @@ jobs:
       # Required for build provenance attestation (scalar.js CDN artifact).
       id-token: write
       attestations: write
-    outputs:
-      bundle_size: ${{ steps.bundle-size.outputs.size }}
-      bundle_size_base: ${{ steps.bundle-size.outputs.base }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -79,17 +76,6 @@ jobs:
           # The tarball is already gzip-compressed; skip the upload action's
           # outer zip-compression pass.
           compression-level: 0
-      - if: github.event_name == 'pull_request'
-        name: Measure API Reference bundles
-        id: bundle-size
-        continue-on-error: true
-        timeout-minutes: 1
-        run: |
-          set -euo pipefail
-          node tooling/scripts/bundle-size.ts measure packages/api-reference/dist/browser "$GITHUB_SHA" bundle-size.json
-          # The first parent of the test merge commit is the exact baseline built into this PR.
-          echo "base=$(git cat-file -p HEAD | awk '/^parent /{print $2; exit}')" >> "$GITHUB_OUTPUT"
-          echo "size=$(cat bundle-size.json)" >> "$GITHUB_OUTPUT"
 
   check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -230,9 +216,10 @@ jobs:
 
   bundle-size:
     needs: [build]
-    if: github.event_name == 'pull_request' && needs.build.outputs.bundle_size != ''
+    if: github.event_name == 'pull_request'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 5
+    continue-on-error: true
     permissions:
       contents: read
       actions: read
@@ -245,12 +232,20 @@ jobs:
         uses: actions/setup-node@v7.1.0
         with:
           node-version-file: '.nvmrc'
+      - uses: $/.github/actions/restore-standalone-bundles
+      - name: Measure API Reference bundles
+        id: measure
+        run: |
+          set -euo pipefail
+          node tooling/scripts/bundle-size.ts measure packages/api-reference/dist/browser "$GITHUB_SHA" bundle-size.json
+          # The test merge commit's first parent is the main commit included in this build.
+          echo "base=$(git cat-file -p HEAD | awk '/^parent / && !seen {print $2; seen = 1}')" >> "$GITHUB_OUTPUT"
       - name: Find the main baseline
         id: baseline
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
-          BASE_SHA: ${{ needs.build.outputs.bundle_size_base }}
+          BASE_SHA: ${{ steps.measure.outputs.base }}
         run: |
           set -euo pipefail
           run_id=$(gh api --paginate -X GET "repos/${GITHUB_REPOSITORY}/actions/artifacts" \
@@ -273,11 +268,9 @@ jobs:
           github-token: ${{ github.token }}
       - name: Write the bundle size report
         env:
-          SIZE: ${{ needs.build.outputs.bundle_size }}
-          BASE_SHA: ${{ needs.build.outputs.bundle_size_base }}
+          BASE_SHA: ${{ steps.measure.outputs.base }}
         run: |
           set -euo pipefail
-          printf '%s' "$SIZE" > bundle-size.json
           node tooling/scripts/bundle-size.ts report bundle-size.json bundle-size.md chunks.md baseline/bundle-size.json "$BASE_SHA"
           cat bundle-size.md chunks.md >> "$GITHUB_STEP_SUMMARY"
           printf '\n[Per-chunk ESM sizes](%s/%s/actions/runs/%s#summary)\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> bundle-size.md

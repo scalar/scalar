@@ -111,6 +111,7 @@ describe('bundle-size', () => {
     expect(report).toContain('| UMD standalone | minified | 1.20 kB | 1.30 kB | +100 B (+8.33%) |')
     expect(report).toContain('| ESM initial load | minified | 300 B | 300 B | 0 B |')
     expect(report).toContain('| ESM all chunks | minified | 600 B | 600 B | 0 B |')
+    expect(report).toContain('Measured commit `bbbbbbb`.')
     expect(createReport(current, baseline, main)).toContain('Compared with `main` at `aaaaaaa`.')
     expect(createReport(current)).toContain('| UMD standalone | minified | 1.30 kB |')
     expect(createReport(current)).toContain('No `main` baseline is available for comparison.')

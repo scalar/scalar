@@ -84,16 +84,27 @@ jobs:
           path: build-output.tar.gz
           retention-days: 1
           compression-level: 0
-      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        name: Measure API Reference bundles
-        id: bundle-size
-        continue-on-error: true
-        timeout-minutes: 1
+
+  bundle-size:
+    needs: [build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+      - uses: $/.github/actions/restore-standalone-bundles
+      - name: Measure API Reference bundles
         run: node tooling/scripts/bundle-size.ts measure packages/api-reference/dist/browser "$GITHUB_SHA" bundle-size.json >> "$GITHUB_STEP_SUMMARY"
-      - if: steps.bundle-size.outcome == 'success'
-        name: Upload the bundle size baseline
-        continue-on-error: true
-        timeout-minutes: 1
+      - name: Upload the bundle size baseline
         uses: actions/upload-artifact@v7.0.2
         with:
           name: api-reference-bundle-size
