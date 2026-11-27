@@ -12,12 +12,24 @@ import { workspaceMutatorsFactory } from '@/mutators/workspace'
 import type { WorkspaceDocument } from '@/schemas'
 
 /**
+ * The parts of a workspace store the mutators read and write.
+ *
+ * Mutators only depend on this slice, so any store that provides it can be driven by the same
+ * events. Keep it as narrow as the mutators allow: every member added here is one more thing a
+ * replacement store has to implement.
+ */
+export type MutatorStore = Pick<
+  WorkspaceStore,
+  'workspace' | 'auth' | 'history' | 'addDocument' | 'deleteDocument' | 'buildSidebar' | 'getOriginalRequestBody'
+>
+
+/**
  * Generates a set of mutators for managing OpenAPI document and workspace state.
  *
  * @param store - The workspace store containing all documents and workspace-level data
  * @returns An object with mutators for the workspace, the active document, and any named document
  */
-export function generateClientMutators(store: WorkspaceStore | null) {
+export function generateClientMutators(store: MutatorStore | null) {
   /**
    * Returns mutators for a specific document by name.
    *

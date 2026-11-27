@@ -31,7 +31,7 @@ export const operationMutatorsFactory = ({
   store,
 }: {
   document: WorkspaceDocument | null
-  store: WorkspaceStore | null
+  store: Pick<WorkspaceStore, 'workspace' | 'history' | 'buildSidebar' | 'getOriginalRequestBody'> | null
 }) => {
   return {
     resetOperationRequestBody: (payload: OperationEvents['operation:reset:requestBody']) =>

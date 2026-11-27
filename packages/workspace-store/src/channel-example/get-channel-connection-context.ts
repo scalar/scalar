@@ -28,7 +28,7 @@ const ASYNCAPI_CHANNEL_AUTH_METHOD = 'get' as const
  * with AsyncAPI messages, servers, and parameters as the data store.
  */
 export const getChannelConnectionContext = (
-  workspaceStore: WorkspaceStore,
+  workspaceStore: Pick<WorkspaceStore, 'workspace' | 'auth'>,
   documentName: string,
   channelConnectionMeta: ChannelConnectionMeta,
   options: Partial<{

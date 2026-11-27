@@ -47,7 +47,7 @@ export const getOpenapiObject = <Entry extends TraversedOrderable>({
   store,
   entry,
 }: {
-  store: WorkspaceStore
+  store: Pick<WorkspaceStore, 'workspace'>
   entry: Entry
 }): GetOpenapiObject<Entry> | null => {
   const documentEntry = getParentEntry('document', entry)

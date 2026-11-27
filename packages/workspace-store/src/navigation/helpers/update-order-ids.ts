@@ -8,7 +8,7 @@ import type { TagObject } from '@/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 
 type UpdateOrderIdParams = {
-  store: WorkspaceStore
+  store: Pick<WorkspaceStore, 'workspace'>
   generateId: IdGenerator
 } & (
   | {

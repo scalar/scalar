@@ -17,7 +17,7 @@ import type { ExampleObject } from '@/schemas/v3.2/strict/openapi-document'
 
 /** Restore a single body without reverting headers, authentication, or other examples. */
 export const resetOperationRequestBody = async (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'workspace' | 'getOriginalRequestBody'> | null,
   {
     documentName,
     meta,

@@ -17,7 +17,7 @@ import { isOpenApiDocument } from '@/schemas/type-guards'
  * @param document - The target WorkspaceDocument
  * @param payload - The name of the tag to add
  */
-export const createTag = (store: WorkspaceStore | null, payload: TagEvents['tag:create:tag']) => {
+export const createTag = (store: Pick<WorkspaceStore, 'workspace'> | null, payload: TagEvents['tag:create:tag']) => {
   const document = store?.workspace.documents[payload.documentName]
 
   if (!isOpenApiDocument(document)) {
@@ -40,7 +40,7 @@ export const createTag = (store: WorkspaceStore | null, payload: TagEvents['tag:
  * @param document - The target WorkspaceDocument
  * @param payload - holds the old tag and the new name
  */
-export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:edit:tag']) => {
+export const editTag = (store: Pick<WorkspaceStore, 'workspace'> | null, payload: TagEvents['tag:edit:tag']) => {
   const document = store?.workspace.documents[payload.documentName]
   if (!store || !isOpenApiDocument(document)) {
     console.error('Document not found', { payload, store })
@@ -122,7 +122,10 @@ export const editTag = (store: WorkspaceStore | null, payload: TagEvents['tag:ed
  * })
  * ```
  */
-export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['tag:delete:tag']) => {
+export const deleteTag = (
+  workspace: Pick<WorkspaceStore, 'workspace'> | null,
+  payload: TagEvents['tag:delete:tag'],
+) => {
   const document = workspace?.workspace.documents[payload.documentName]
   if (!isOpenApiDocument(document)) {
     return
@@ -161,7 +164,7 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
   document.tags = plainDocTags?.filter((tag) => tag.name !== payload.name)
 }
 
-export const tagMutatorsFactory = ({ store }: { store: WorkspaceStore | null }) => {
+export const tagMutatorsFactory = ({ store }: { store: Pick<WorkspaceStore, 'workspace'> | null }) => {
   return {
     createTag: (payload: TagEvents['tag:create:tag']) => createTag(store, payload),
     editTag: (payload: TagEvents['tag:edit:tag']) => editTag(store, payload),

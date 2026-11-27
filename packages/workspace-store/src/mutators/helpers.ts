@@ -1,7 +1,10 @@
 import type { WorkspaceStore } from '@/client'
 import type { WorkspaceDocument } from '@/schemas'
 
-export const getDocument = (store: WorkspaceStore | null, documentName: string): WorkspaceDocument | null => {
+export const getDocument = (
+  store: Pick<WorkspaceStore, 'workspace'> | null,
+  documentName: string,
+): WorkspaceDocument | null => {
   if (!store) {
     return null
   }

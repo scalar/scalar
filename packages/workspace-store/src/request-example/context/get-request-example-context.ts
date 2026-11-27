@@ -59,7 +59,7 @@ export type BuildRequestExampleContext = {
 }
 
 export const getRequestExampleContext = (
-  workspaceStore: WorkspaceStore,
+  workspaceStore: Pick<WorkspaceStore, 'workspace' | 'auth'>,
   documentName: string,
   requestExampleMeta: RequestExampleMeta,
   options: Partial<{

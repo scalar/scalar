@@ -35,7 +35,7 @@ import { isOpenApiDocument } from '@/schemas/type-guards'
  * ```
  */
 export const createOperation = (
-  workspaceStore: WorkspaceStore | null,
+  workspaceStore: Pick<WorkspaceStore, 'workspace'> | null,
   payload: OperationEvents['operation:create:operation'],
 ): string | undefined => {
   const document = workspaceStore?.workspace.documents[payload.documentName]
@@ -110,7 +110,7 @@ export const createOperation = (
  * ```
  */
 export const updateOperationMeta = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'buildSidebar'> | null,
   document: WorkspaceDocument | null,
   { meta, payload }: OperationEvents['operation:update:meta'],
 ) => {
@@ -157,7 +157,7 @@ export const updateOperationMeta = (
  */
 export const updateOperationPathMethod = (
   document: WorkspaceDocument | null,
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'workspace' | 'history'> | null,
   { meta, payload: { method, path }, blurTargetSelector, callback }: OperationEvents['operation:update:pathMethod'],
 ): void => {
   const methodChanged = meta.method !== method
@@ -271,7 +271,7 @@ export const updateOperationPathMethod = (
  * ```
  */
 export const deleteOperation = (
-  workspace: WorkspaceStore | null,
+  workspace: Pick<WorkspaceStore, 'workspace'> | null,
   { meta, documentName }: OperationEvents['operation:delete:operation'],
 ) => {
   const document = workspace?.workspace.documents[documentName]
@@ -298,7 +298,7 @@ export const deleteOperation = (
  * - Safely no-ops if the document or operation does not exist.
  */
 export const createOperationDraftExample = (
-  workspace: WorkspaceStore | null,
+  workspace: Pick<WorkspaceStore, 'workspace'> | null,
   { meta: { path, method }, documentName, exampleName }: OperationEvents['operation:create:draft-example'],
 ) => {
   const document = workspace?.workspace.documents[documentName]
@@ -332,7 +332,7 @@ export const createOperationDraftExample = (
  * - Safely no-ops if the document, operation, or request body does not exist.
  */
 export const deleteOperationExample = (
-  workspace: WorkspaceStore | null,
+  workspace: Pick<WorkspaceStore, 'workspace'> | null,
   { meta: { path, method, exampleKey }, documentName }: OperationEvents['operation:delete:example'],
 ) => {
   // Find the document in workspace based on documentName
@@ -399,7 +399,7 @@ export const deleteOperationExample = (
  * accidental data overwrites.
  */
 export const renameOperationExample = (
-  workspace: WorkspaceStore | null,
+  workspace: Pick<WorkspaceStore, 'workspace'> | null,
   { meta: { path, method, exampleKey }, documentName, payload }: OperationEvents['operation:rename:example'],
 ) => {
   const document = workspace?.workspace.documents[documentName]

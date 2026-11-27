@@ -82,7 +82,7 @@ const getFlowScopeKey = (document: OpenApiDocument | AsyncApiDocument): 'scopes'
  * ```
  */
 export const updateSelectedSecuritySchemes = async (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'auth'> | null,
   document: WorkspaceDocument | null,
   { selectedRequirements, newSchemes, meta }: AuthEvents['auth:update:selected-security-schemes'],
 ) => {
@@ -173,7 +173,7 @@ export const updateSelectedSecuritySchemes = async (
  * If the document name cannot be determined, nothing happens.
  */
 const clearSelectedSecuritySchemes = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'auth'> | null,
   document: WorkspaceDocument | null,
   { meta }: AuthEvents['auth:clear:selected-security-schemes'],
 ) => {
@@ -240,7 +240,7 @@ export const updateSecurityScheme = (
 }
 
 const updateSecuritySchemeSecrets = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'auth'> | null,
   document: WorkspaceDocument | null,
   { payload, name, overwrite = false }: AuthEvents['auth:update:security-scheme-secrets'],
 ) => {
@@ -265,7 +265,7 @@ const updateSecuritySchemeSecrets = (
 }
 
 const resetSecuritySchemeSecret = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'auth'> | null,
   document: WorkspaceDocument | null,
   { name, flow, field }: AuthEvents['auth:reset:security-scheme-secret'],
 ): void => {
@@ -294,7 +294,7 @@ const resetSecuritySchemeSecret = (
 }
 
 const clearSecuritySchemeSecrets = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'auth'> | null,
   document: WorkspaceDocument | null,
   { name }: AuthEvents['auth:clear:security-scheme-secrets'],
 ) => {
@@ -333,7 +333,7 @@ const clearSecuritySchemeSecrets = (
  * });
  */
 export const updateSelectedAuthTab = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'auth'> | null,
   document: WorkspaceDocument | null,
   { index, meta }: AuthEvents['auth:update:active-index'],
 ) => {
@@ -430,7 +430,7 @@ const securityRequirementIdsMatch = (requirement: SecurityRequirementObject, id:
  * ```
  */
 export const updateSelectedScopes = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'auth'> | null,
   document: WorkspaceDocument | null,
   { id, name, scopes, scope, selected, meta }: AuthEvents['auth:update:selected-scopes'],
 ) => {
@@ -537,7 +537,7 @@ const resolveOAuthFlow = (
  * `setAuthSelectedSchemas` so persistence hooks run.
  */
 const walkSelectedSchemes = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'auth'> | null,
   document: WorkspaceDocument,
   transform: (selectedSchemes: SecurityRequirementObject[]) => void,
 ) => {
@@ -587,7 +587,7 @@ const walkSelectedSchemes = (
  * flow without a separate selection mutation.
  */
 export const upsertScope = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'auth'> | null,
   document: WorkspaceDocument | null,
   { name, flowType, scope, description, oldScope, enable }: AuthEvents['auth:upsert:scopes'],
 ) => {
@@ -655,7 +655,7 @@ export const upsertScope = (
  * the matching security scheme.
  */
 export const deleteScope = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'auth'> | null,
   document: WorkspaceDocument | null,
   { name, flowType, scope }: AuthEvents['auth:delete:scopes'],
 ) => {
@@ -703,7 +703,7 @@ export const deleteScope = (
  * - Any extended x-scalar-selected-security references to those schemes are also removed.
  */
 export const deleteSecurityScheme = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'auth'> | null,
   document: WorkspaceDocument | null,
   { names }: AuthEvents['auth:delete:security-scheme'],
 ) => {
@@ -798,7 +798,7 @@ export const authMutatorsFactory = ({
   store,
 }: {
   document: WorkspaceDocument | null
-  store: WorkspaceStore | null
+  store: Pick<WorkspaceStore, 'auth'> | null
 }) => {
   return {
     updateSelectedSecuritySchemes: (payload: AuthEvents['auth:update:selected-security-schemes']) =>

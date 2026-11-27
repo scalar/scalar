@@ -87,11 +87,11 @@ export const updateDocumentIcon = (document: WorkspaceDocument | null, icon: str
  * - On success, a new OpenAPI 3.1.0 document is added with a basic path and info.
  * - Callback is called with `true` if document is created.
  *
- * @param store WorkspaceStore | null – The workspace store to add the document to.
+ * @param store – The workspace store to add the document to, or null to no-op.
  * @param payload DocumentEvents['document:create:empty-document'] – Contains name, icon, and callback.
  */
 export const createEmptyDocument = async (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'workspace' | 'addDocument'> | null,
   payload: DocumentEvents['document:create:empty-document'],
 ) => {
   if (!store) {
@@ -129,7 +129,10 @@ export const createEmptyDocument = async (
  *
  * Safely no-ops if the store is null.
  */
-export const deleteDocument = (store: WorkspaceStore | null, payload: DocumentEvents['document:delete:document']) => {
+export const deleteDocument = (
+  store: Pick<WorkspaceStore, 'deleteDocument'> | null,
+  payload: DocumentEvents['document:delete:document'],
+) => {
   if (!store) {
     return
   }
@@ -142,7 +145,7 @@ export const documentMutatorsFactory = ({
   store,
 }: {
   document: WorkspaceDocument | null
-  store: WorkspaceStore | null
+  store: Pick<WorkspaceStore, 'workspace' | 'addDocument' | 'deleteDocument'> | null
 }) => {
   return {
     updateDocumentExtension: (payload: DocumentEvents['document:update:extension']) =>

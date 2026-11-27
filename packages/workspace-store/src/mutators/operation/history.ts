@@ -12,7 +12,7 @@ import { fetchResponseToHar } from './helpers/fetch-response-to-har'
 import { harToOperation } from './helpers/har-to-operation'
 
 export const addResponseToHistory = async (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'history'> | null,
   document: WorkspaceDocument | null,
   { payload, meta }: HooksEvents['hooks:on:request:complete'],
 ) => {
@@ -61,7 +61,7 @@ export const addResponseToHistory = async (
 }
 
 export const reloadOperationHistory = (
-  store: WorkspaceStore | null,
+  store: Pick<WorkspaceStore, 'history'> | null,
   document: WorkspaceDocument | null,
   { meta, index, callback }: OperationEvents['operation:reload:history'],
 ) => {
