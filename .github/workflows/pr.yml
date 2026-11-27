@@ -39,6 +39,9 @@ jobs:
       # Required for build provenance attestation (scalar.js CDN artifact).
       id-token: write
       attestations: write
+    outputs:
+      bundle_size: ${{ steps.bundle-size.outputs.size }}
+      bundle_size_base: ${{ steps.bundle-size.outputs.base }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -76,14 +79,17 @@ jobs:
           # The tarball is already gzip-compressed; skip the upload action's
           # outer zip-compression pass.
           compression-level: 0
-      # Dependabot runs cannot read Actions secrets, including the RelativeCI key.
-      - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]')
-        name: Upload webpack stats to RelativeCI
-        uses: relative-ci/agent-action@v3.2.4
-        with:
-          key: ${{ secrets.RELATIVE_CI_KEY }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
+      - if: github.event_name == 'pull_request'
+        name: Measure API Reference bundles
+        id: bundle-size
+        continue-on-error: true
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          node tooling/scripts/bundle-size.ts measure packages/api-reference/dist/browser "$GITHUB_SHA" bundle-size.json
+          # The first parent of the test merge commit is the exact baseline built into this PR.
+          echo "base=$(git cat-file -p HEAD | awk '/^parent /{print $2; exit}')" >> "$GITHUB_OUTPUT"
+          echo "size=$(cat bundle-size.json)" >> "$GITHUB_OUTPUT"
 
   check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -221,6 +227,66 @@ jobs:
       - name: Report lint status
         if: ${{ !cancelled() }}
         run: exit ${{ steps.lint.outputs.exit_code }}
+
+  bundle-size:
+    needs: [build]
+    if: github.event_name == 'pull_request' && needs.build.outputs.bundle_size != ''
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+      - name: Find the main baseline
+        id: baseline
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_SHA: ${{ needs.build.outputs.bundle_size_base }}
+        run: |
+          set -euo pipefail
+          run_id=$(gh api --paginate -X GET "repos/${GITHUB_REPOSITORY}/actions/artifacts" \
+            -f name=api-reference-bundle-size -f per_page=100 |
+            jq -rs --arg base "$BASE_SHA" '
+              [.[].artifacts[]
+                | select(.expired | not)
+                | select(.workflow_run.head_branch == "main" and .workflow_run.head_repository_id == .workflow_run.repository_id)]
+              | sort_by(.created_at)
+              | ((map(select(.workflow_run.head_sha == $base)) | last) // last).workflow_run.id // empty')
+          echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
+      - if: steps.baseline.outputs.run_id != ''
+        name: Download the main baseline
+        continue-on-error: true
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: api-reference-bundle-size
+          path: baseline
+          run-id: ${{ steps.baseline.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Write the bundle size report
+        env:
+          SIZE: ${{ needs.build.outputs.bundle_size }}
+          BASE_SHA: ${{ needs.build.outputs.bundle_size_base }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$SIZE" > bundle-size.json
+          node tooling/scripts/bundle-size.ts report bundle-size.json bundle-size.md chunks.md baseline/bundle-size.json "$BASE_SHA"
+          cat bundle-size.md chunks.md >> "$GITHUB_STEP_SUMMARY"
+          printf '\n[Per-chunk ESM sizes](%s/%s/actions/runs/%s#summary)\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> bundle-size.md
+      - if: github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+        name: Post the bundle size report to the PR
+        uses: thollander/actions-comment-pull-request@v3.0.1
+        with:
+          file-path: bundle-size.md
+          comment-tag: api-reference-bundle-size
 
   types:
     needs: [build]
