@@ -18,6 +18,7 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.swagger).toBeUndefined()
   })
 
+  // Keep the converter a one-argument callback so collection indexes and keys cannot become retrieval context.
   it('upgrades descriptions when passed directly to Array.map', () => {
     const descriptions = [
       { swagger: '2.0', host: 'api.example.com', basePath: '/v1' },
