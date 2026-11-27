@@ -44,6 +44,10 @@ describe('encode-path-parameter', () => {
     { style: 'matrix', value: [null, 'abc'], expected: ';id=abc' },
     { style: 'label', value: [null], expected: '' },
     { style: 'matrix', value: '', expected: ';id' },
+    { style: 'label', value: null, expected: '' },
+    { style: 'matrix', value: null, expected: '' },
+    { style: 'label', value: 'null', expected: '.null' },
+    { style: 'matrix', value: 'null', expected: ';id=null' },
   ])('expands empty and undefined values in $style style ($expected)', ({ style, value, expected }) => {
     expect(serializePathParameter('id', { value, style, explode: true }, (text) => text)).toBe(expected)
   })

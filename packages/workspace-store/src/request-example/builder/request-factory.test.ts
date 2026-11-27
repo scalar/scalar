@@ -136,6 +136,36 @@ describe('requestFactory', () => {
     expect(built.data.requestPayload[0]).toBe(`https://api.example.test/items/${expected}`)
   })
 
+  it.each([
+    { openapiVersion: '3.0.4', style: 'matrix', expected: ';id' },
+    { openapiVersion: '3.1.2', style: 'label', expected: '.' },
+    { openapiVersion: '3.2.1', style: 'matrix', expected: '' },
+    { openapiVersion: '3.2.1', style: 'label', expected: '' },
+  ])('expands a null $style value using OpenAPI $openapiVersion', ({ openapiVersion, style, expected }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/items/prefix{id}',
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        openapiVersion,
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              style,
+              schema: { type: ['string', 'null'] },
+              example: null,
+            },
+          ],
+        },
+      }),
+    )
+
+    expect(resolveExecutableRequestUrl(request, {})).toBe(`https://api.example.test/items/prefix${expected}`)
+  })
+
   it('preserves styled path expansion after a request hook replaces the preview value', () => {
     const { request } = requestFactory(
       createBaseArgs({

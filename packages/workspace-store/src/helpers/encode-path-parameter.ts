@@ -27,6 +27,8 @@ export type PathParameterSerialization = {
   originalValue: string
   style: string
   explode: boolean
+  /** OpenAPI 3.0 and 3.1 include the style prefix when a value is undefined. */
+  includeUndefinedPrefix?: boolean
 }
 
 /** OpenAPI 3.2 path parameter metadata for reserved expansion. */
@@ -35,14 +37,19 @@ export type ReservedPathParameter = PathParameterSerialization
 /** Encodes individual keys and values before adding OpenAPI path style delimiters. */
 export const serializePathParameter = (
   name: string,
-  parameter: Pick<PathParameterSerialization, 'value' | 'style' | 'explode'>,
+  parameter: Pick<PathParameterSerialization, 'value' | 'style' | 'explode' | 'includeUndefinedPrefix'>,
   replace: (value: string) => string,
   allowReserved = false,
 ): string => {
-  const { value, style, explode } = parameter
+  const { value, style, explode, includeUndefinedPrefix } = parameter
   const encode = (item: unknown): string => {
     const text = replace(String(item))
     return allowReserved ? encodePathParameter(text, true) : encodeUriComponent(text)
+  }
+  const encodeName = (): string => {
+    const encoded = encode(name)
+    // RFC 6570 treats percent-encoded triplets in template variable names as literal.
+    return allowReserved ? encoded : encoded.replace(/%25([0-9a-f]{2})/gi, '%$1')
   }
   const entries =
     isObjectLike(value) && !Array.isArray(value)
@@ -51,8 +58,11 @@ export const serializePathParameter = (
   const array = Array.isArray(value) ? value : undefined
   const items = allowReserved ? array : array?.filter(isDefined)
 
-  if (!allowReserved && (items?.length === 0 || entries?.length === 0)) {
-    return ''
+  if (!allowReserved && (!isDefined(value) || items?.length === 0 || entries?.length === 0)) {
+    if (includeUndefinedPrefix && style === 'matrix') {
+      return `;${encodeName()}`
+    }
+    return includeUndefinedPrefix && style === 'label' ? '.' : ''
   }
 
   const pair = (encodedKey: string, data: string): string => `${encodedKey}${data || allowReserved ? `=${data}` : ''}`
@@ -61,8 +71,7 @@ export const serializePathParameter = (
       return entries.map(([key, item]) => `;${pair(encode(key), encode(item))}`).join('')
     }
 
-    // RFC 6570 treats percent-encoded triplets in template variable names as literal.
-    const encodedName = allowReserved ? encode(name) : encode(name).replace(/%25([\da-f]{2})/gi, '%$1')
+    const encodedName = encodeName()
     if (items && explode) {
       return items.map((item) => `;${pair(encodedName, encode(item))}`).join('')
     }

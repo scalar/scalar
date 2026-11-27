@@ -186,7 +186,10 @@ export const buildRequestParameters = (
         if (openapiVersion?.startsWith('3.2.') && 'schema' in param && param.allowReserved === true) {
           ;(result.reservedPathParameters ??= {})[paramName] = serialization
         } else if (style === 'matrix' || style === 'label') {
-          ;(result.styledPathParameters ??= {})[paramName] = serialization
+          ;(result.styledPathParameters ??= {})[paramName] = {
+            ...serialization,
+            includeUndefinedPrefix: /^3\.[01]\./.test(openapiVersion ?? ''),
+          }
         }
         break
       }
