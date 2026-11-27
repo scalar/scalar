@@ -2,7 +2,7 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
-import { isObject } from '@scalar/helpers/object/is-object'
+import { isObject, isObjectLike } from '@scalar/helpers/object/is-object'
 
 import {
   type DynamicScope,
@@ -45,6 +45,9 @@ const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
 /** Bound dictionary padding and retries when keys do not yield a renderable value. */
 const MAX_ADDITIONAL_PROPERTIES = 1_000
+
+/** Bound the number of property pattern comparisons used to pad one dictionary. */
+const MAX_PROPERTY_PATTERN_CHECKS = 1_000
 
 /** Limit new padding when an API description asks for an unusually large example. */
 const MAX_STRING_PADDING = 4_096
@@ -1015,6 +1018,8 @@ const handleObjectSchema = (
       let attempted = 0
       let isFirstValue = true
       let paddingNodesLeft = MAX_PADDING_NODES
+      let patternChecksLeft = MAX_PROPERTY_PATTERN_CHECKS
+      let oversizedValues: WeakSet<object> | undefined
       for (
         let index = 0;
         index < candidateCount &&
@@ -1030,15 +1035,23 @@ const handleObjectSchema = (
           continue
         }
         attempted++
-        if (
-          missingProperties > 0 &&
-          propertyPatterns.some((pattern) => {
-            const matches = matchPropertyPattern(pattern, key)
-            // Keep the legacy first name if the bounded matcher cannot classify the pattern.
-            return matches === true || (matches === undefined && index > 0)
-          })
-        ) {
-          continue
+        if (missingProperties > 0 && propertyPatterns.length > 0) {
+          if (patternChecksLeft < propertyPatterns.length) {
+            if (index > 0) {
+              break
+            }
+          } else {
+            patternChecksLeft -= propertyPatterns.length
+            if (
+              propertyPatterns.some((pattern) => {
+                const matches = matchPropertyPattern(pattern, key)
+                // Keep the legacy first name when the bounded matcher cannot classify the pattern.
+                return matches === true || (matches === undefined && index > 0)
+              })
+            ) {
+              continue
+            }
+          }
         }
         // The first enum key historically used the placeholder path for composition selection.
         const pathName = propertyNamesEnum && !usePreferredName && isFirstValue ? baseName : key
@@ -1053,8 +1066,17 @@ const handleObjectSchema = (
             })
           : 'anything'
         if (added > 0 && value !== undefined) {
+          const objectValue = isObjectLike(value) ? value : undefined
+          if (objectValue && oversizedValues?.has(objectValue)) {
+            continue
+          }
           const size = countExampleNodes(value, paddingNodesLeft + 1)
           if (size > paddingNodesLeft) {
+            // The remaining budget can only shrink, so this same explicit value will never fit.
+            if (objectValue) {
+              oversizedValues ??= new WeakSet()
+              oversizedValues.add(objectValue)
+            }
             continue
           }
           paddingNodesLeft -= size

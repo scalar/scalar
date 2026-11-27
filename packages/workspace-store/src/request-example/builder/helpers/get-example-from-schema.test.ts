@@ -3304,15 +3304,39 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual({ '^(foo|bar)$': '', additionalProperty: '' })
   })
 
-  it('limits the serialized size of extra dictionary values', () => {
-    const value = { values: Array.from({ length: 2_000 }, () => 0) }
+  it('bounds pattern checks during dictionary padding', () => {
+    const patterns = Array.from({ length: 501 }, (_, index) => `^named${index}$`)
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: patterns.length + 2,
+      patternProperties: Object.fromEntries(patterns.map((pattern) => [pattern, { type: 'integer' }])),
+      additionalProperties: { type: 'string' },
+    }
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({
+      ...Object.fromEntries(patterns.map((pattern) => [pattern, 1])),
+      additionalProperty: '',
+    })
+  })
+
+  it('measures a shared oversized dictionary value only once', () => {
+    const values = Array.from({ length: 2_000 }, () => 0)
+    let measurements = 0
+    const value = {
+      get values(): number[] {
+        measurements++
+        return values
+      },
+    }
     const schema: SchemaObject = {
       type: 'object',
       minProperties: 2,
       additionalProperties: { type: 'object', example: value },
     }
 
-    expect(getExampleFromSchema(schema)).toStrictEqual({ additionalProperty: value })
+    const example = getExampleFromSchema(schema)
+    expect(measurements).toBe(1)
+    expect(example).toStrictEqual({ additionalProperty: value })
   })
 
   it('tries the next dictionary key if its selected value would exceed the padding budget', () => {
