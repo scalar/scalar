@@ -1080,6 +1080,21 @@ describe('create-workspace-store', () => {
     }
   })
 
+  it('inherits the HTTPS scheme of a fetched Swagger 2.0 description', async () => {
+    const document = {
+      swagger: '2.0',
+      info: { title: 'Orders API', version: '1.0' },
+      host: 'api.example.test',
+      basePath: '/api',
+      paths: { '/orders': { get: { responses: { '200': { description: 'OK' } } } } },
+    }
+    const store = createWorkspaceStore({ fetch: () => Promise.resolve(Response.json(document)) })
+
+    await store.addDocument({ name: 'orders', url: 'https://docs.example.test/swagger.json' })
+
+    expect(getOpenApiDocument(store, 'orders')?.servers).toStrictEqual([{ url: 'https://api.example.test/api' }])
+  })
+
   it('load files form the remote url', async () => {
     // Send the default document
     server.get('/', (_, reply) => {

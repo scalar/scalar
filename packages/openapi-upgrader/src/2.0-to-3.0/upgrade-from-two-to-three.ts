@@ -202,7 +202,7 @@ const upgradeFlow = (flow: string): 'implicit' | 'password' | 'clientCredentials
  *
  * https://swagger.io/blog/news/whats-new-in-openapi-3-0/
  */
-export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
+export function upgradeFromTwoToThree(originalSpecification: UnknownObject, sourceUrl?: string): OpenAPIV3.Document {
   let document = originalSpecification
 
   // Version
@@ -221,9 +221,12 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
   // Servers
   if (document.host) {
-    const schemes = Array.isArray(document.schemes) && document.schemes?.length ? document.schemes : ['http']
+    // Swagger 2.0 defaults to the scheme used to retrieve the description.
+    const sourceProtocol = sourceUrl && URL.canParse(sourceUrl) ? new URL(sourceUrl).protocol : undefined
+    const defaultScheme = sourceProtocol === 'https:' ? 'https' : 'http'
+    const schemes = Array.isArray(document.schemes) && document.schemes.length ? document.schemes : [defaultScheme]
 
-    document.servers = schemes.map((scheme: string[]) => ({
+    document.servers = schemes.map((scheme: string) => ({
       url: `${scheme}://${document.host}${document.basePath ?? ''}`,
     }))
 

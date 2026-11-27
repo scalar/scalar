@@ -37,6 +37,27 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.host).toBeUndefined()
   })
 
+  it.each([
+    { sourceUrl: 'https://docs.example.com/swagger.json', expected: 'https' },
+    { sourceUrl: 'HTTPS://docs.example.com/swagger.json', expected: 'https' },
+    { sourceUrl: 'http://docs.example.com/swagger.json', expected: 'http' },
+    { sourceUrl: 'file:///docs/swagger.json', expected: 'http' },
+    { sourceUrl: '/docs/swagger.json', expected: 'http' },
+  ])('inherits the scheme from $sourceUrl when available', ({ sourceUrl, expected }) => {
+    const result = upgradeFromTwoToThree({ swagger: '2.0', host: 'api.example.com', basePath: '/v1' }, sourceUrl)
+
+    expect(result.servers).toStrictEqual([{ url: `${expected}://api.example.com/v1` }])
+  })
+
+  it('preserves explicit schemes on a description retrieved over HTTPS', () => {
+    const result = upgradeFromTwoToThree(
+      { swagger: '2.0', host: 'api.example.com', schemes: ['http', 'wss'] },
+      'https://docs.example.com/swagger.json',
+    )
+
+    expect(result.servers).toStrictEqual([{ url: 'http://api.example.com' }, { url: 'wss://api.example.com' }])
+  })
+
   it('upgrades basePath to new server syntax', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

@@ -39,6 +39,8 @@ export type FragmentUpgradeOptions = {
   from: '2.0' | '3.0'
   to: '3.1'
   kind: FragmentKind
+  /** Retrieval URL for a complete document, used to resolve the default Swagger 2.0 scheme. */
+  sourceUrl?: string
   consumes?: readonly string[]
   produces?: readonly string[]
   /**
@@ -198,7 +200,7 @@ export const upgradeFragment = async (
       }
       // The existing document converter owns root-only metadata such as servers and security schemes.
       const { paths, definitions, parameters, responses, components, ...metadata } = result
-      result = v2 ? upgradeFromTwoToThree(metadata) : result
+      result = v2 ? upgradeFromTwoToThree(metadata, options.sourceUrl) : result
       result.openapi = '3.1.1'
       if (v2 && isObject(definitions)) {
         Object.values(definitions).forEach((schema) => migrateSchema(schema))
