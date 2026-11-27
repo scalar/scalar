@@ -8,6 +8,71 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.47.0 (2026-11-27)
+
+### Irregular plural handling, file streaming, and body options
+
+Generated SDKs now handle irregular plurals consistently across names, stream file uploads from disk in most targets, and send client body options in request payloads.
+
+- Generated SDKs now singularize irregular plurals like `people` and `children` in type names and method signatures.
+- TypeScript, Python, Go, C++, Dart, Swift, Kotlin, Java, Ruby, Rust and PHP signed uploads now stream regular files from disk instead of reading them into memory.
+- C#, Kotlin, Java, Go, PHP, Swift, Ruby, Rust and TypeScript clients now send `sendAsBodyParam` options as top-level fields in request bodies.
+- Generated CLIs can describe custom command groups with `cli.group(path, description)` and limit flag choices with the `choices` option.
+- Signed-URL methods that fetch URLs on the API's own host now send the client's headers, query parameters and telemetry as ordinary requests do.
+- Generated READMEs include new capability sections for file uploads, environments, enums, raw responses and undocumented requests where targets support them.
+- The CLI custom-code gate now exports helpers for callers that build the CLI elsewhere, and refuses custom code that changes the command tree on rebuild.
+- Python response models no longer shadow `BaseModel` attributes, and soft keywords `match` and `case` keep their spelling.
+- Java and Kotlin workflows now survive Maven Central rate limiting with retry logic.
+- An `allOf` that only documents a component reference now types as that component instead of copying its fields.
+
+## 0.46.4 (2026-11-25)
+
+### Credential handling improvements and serialization fixes
+
+This release improves how generated SDKs handle credentials in default headers, fixes serialization of pages and responses to avoid leaking sensitive data, and adds experimental configuration for signed upload transport modes.
+
+- Generated Dart SDKs accept `defaultHeaders` with `null` values to explicitly opt out of credentials on a per-request basis.
+- Generated Python SDKs honor `default_headers={"Authorization": Omit()}` to opt out of credentials client-wide, and credential headers now match case-insensitively.
+- Generated TypeScript SDKs store the client in a private field on pages and connections, so `JSON.stringify(page)` no longer includes configuration or credentials.
+- Generated PHP SDKs no longer print credentials when debugging responses with `var_dump()` or `print_r()`.
+- Generated Ruby SDKs define `as_json` on pages to serialize only page data, excluding the client and its credentials.
+- Generated Swift SDKs no longer show URLs or base URLs when printing pages, which could expose query-placed credentials.
+- Python SDKs with signed uploads in `isolated` mode now respect the client's `proxy`, `verify`, and `cert` settings when uploading files.
+- The experimental `signedUploads.transport` configuration option allows choosing between `isolated` and `client` modes for signed upload requests.
+- The SDK preview outline now includes `configKey` for each resource, showing its key in the config exactly as written.
+- Breaking: Python `WebhookVerificationError` and `EmptyWebhookSecretError` no longer subclass the SDK's base error, so catch them separately around webhook helpers.
+
+## 0.46.3 (2026-11-25)
+
+### Idempotency keys, signed upload routing, and authentication fixes
+
+Generated SDKs now send idempotency keys only on write operations, route signed upload confirmations to their declared servers, and handle authentication headers more precisely. Several targets also gained configurable timeouts and retry counts.
+
+- Idempotency keys are no longer sent on `GET` requests in C#, Go, Java, Kotlin, PHP, Ruby, and TypeScript SDKs. Other methods still receive a generated key that is reused across retries.
+- Signed upload confirm requests now route to the operation's own `servers` declaration in Go, PHP, Python, Ruby, Swift, and TypeScript SDKs, instead of always using the client's base URL.
+- Go and Python SDKs now honor `clientSettings.defaultTimeout` and `clientSettings.defaultRetries.maxRetries` from the configuration, applying them as client defaults that can be overridden per request.
+- TypeScript SDKs now respect `defaultHeaders: { Authorization: null }` to explicitly omit credential headers, and `prepareRequest` runs before authentication validation.
+- Python SDKs configured with `signedUploads.transport: "client"` can send uploads through a custom `http_client` transport, with `isolate_signed_uploads=True` available to restore isolated behavior.
+- Go, Java, Kotlin, Swift, and TypeScript SDKs configured with `signedUploads.transport: "client"` can send uploads through the SDK client's HTTP transport, with isolation options available when needed.
+- C++ webhook helpers now provide a `verify_signature` method that checks delivery signatures without parsing, alongside the existing parse method.
+- Rust SDKs with OAuth client-credentials flows now automatically refresh tokens when the API returns a 401, fetching a new token and retrying the request.
+- Swift and Rust SDKs now correctly paginate through `Link` header responses, following `rel="next"` links across all pages instead of stopping after the first.
+- TypeScript promise rejection handlers now type their error parameter as `any` instead of `unknown`, matching the standard `Promise` interface and fixing compatibility with existing error handling code.
+
+## 0.46.2 (2026-11-23)
+
+### C++ target is stable and signed-URL fetches send SDK headers
+
+The C++ target is now stable with source compatibility guarantees, and signed-URL fetches now send the SDK's own headers when requesting resources from the API's host.
+
+- The C++ target is now stable, with source compatibility promised across minor releases.
+- Generated C++ SDKs now support client options sent in request bodies via `sendAsBodyParam`.
+- Signed-URL fetches to the API's own host now include SDK headers like `User-Agent` and `X-Scalar-*` headers.
+- Signed-URL fetches now write the same request and response logs as other SDK calls.
+- The generated CLI now excludes SDK headers from its own signed-URL fetches, since the TypeScript SDK sends them by default.
+- Generated C++ READMEs now present known gaps as current SDK limitations rather than experimental features.
+- The C++ README compatibility promise now documents when API additions remove methods.
+
 ## 0.46.1 (2026-11-21)
 
 ### Generated CLIs wrap output and reject missing required inputs

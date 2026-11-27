@@ -2837,13 +2837,13 @@
                       "typescript": {
                         "filepath": "documentation/guides/sdks/publishing/typescript.md",
                         "type": "page",
-                        "title": "TypeScript",
+                        "title": "TypeScript (npm)",
                         "description": "Publish the TypeScript SDK to npm with OIDC trusted publishing or an npm token."
                       },
                       "python": {
                         "filepath": "documentation/guides/sdks/publishing/python.md",
                         "type": "page",
-                        "title": "Python",
+                        "title": "Python (PyPI)",
                         "description": "Publish the Python SDK to PyPI with OIDC trusted publishing or a PyPI token."
                       },
                       "go": {
@@ -2855,31 +2855,31 @@
                       "rust": {
                         "filepath": "documentation/guides/sdks/publishing/rust.md",
                         "type": "page",
-                        "title": "Rust",
+                        "title": "Rust (crates.io)",
                         "description": "Publish the Rust crate to crates.io with OIDC trusted publishing or a crates.io token."
                       },
                       "java": {
                         "filepath": "documentation/guides/sdks/publishing/java.md",
                         "type": "page",
-                        "title": "Java and Kotlin",
+                        "title": "Java and Kotlin (Maven Central)",
                         "description": "Publish the Java or Kotlin SDK to Maven Central with a Central Portal token and GPG signing."
                       },
                       "csharp": {
                         "filepath": "documentation/guides/sdks/publishing/csharp.md",
                         "type": "page",
-                        "title": "C#",
+                        "title": "C# (NuGet)",
                         "description": "Publish the C# SDK to NuGet with OIDC trusted publishing or a NuGet API key."
                       },
                       "ruby": {
                         "filepath": "documentation/guides/sdks/publishing/ruby.md",
                         "type": "page",
-                        "title": "Ruby",
+                        "title": "Ruby (RubyGems)",
                         "description": "Publish the Ruby gem to RubyGems with an API key."
                       },
                       "php": {
                         "filepath": "documentation/guides/sdks/publishing/php.md",
                         "type": "page",
-                        "title": "PHP",
+                        "title": "PHP (Packagist)",
                         "description": "Publish the PHP SDK to Packagist by tagging a version and connecting the repository."
                       },
                       "swift": {
@@ -2891,13 +2891,13 @@
                       "dart": {
                         "filepath": "documentation/guides/sdks/publishing/dart.md",
                         "type": "page",
-                        "title": "Dart",
+                        "title": "Dart (pub.dev)",
                         "description": "Publish the Dart package to pub.dev with OIDC automated publishing or a token."
                       },
                       "cli": {
                         "filepath": "documentation/guides/sdks/publishing/cli.md",
                         "type": "page",
-                        "title": "CLI",
+                        "title": "CLI (npm, binaries, Homebrew)",
                         "description": "Publish the CLI to npm, and optionally through a GitHub Release and a Homebrew tap."
                       }
                     }
@@ -2945,13 +2945,13 @@
                         "type": "page"
                       },
                       "csharp": {
-                        "title": "C# (Experimental)",
+                        "title": "C#",
                         "description": "Configuration reference for the experimental C# SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/csharp.md",
                         "type": "page"
                       },
                       "php": {
-                        "title": "PHP (Experimental)",
+                        "title": "PHP",
                         "description": "Configuration reference for the experimental PHP SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/php.md",
                         "type": "page"
@@ -2981,13 +2981,13 @@
                         "type": "page"
                       },
                       "dart": {
-                        "title": "Dart (Experimental)",
+                        "title": "Dart",
                         "description": "Configuration reference for the experimental Dart SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/dart.md",
                         "type": "page"
                       },
                       "cpp": {
-                        "title": "C++ (Experimental)",
+                        "title": "C++",
                         "description": "Configuration reference for the experimental C++ SDK target: naming and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/cpp.md",
                         "type": "page"

@@ -38,7 +38,7 @@ Setting up publishing: [Python publishing guide](../publishing/python.md). How r
 
 **Type:** `string`
 
-Python import package name, used in `import` statements (e.g. `my_company_client` for `import my_company_client`).
+Python import package name, used in `import` statements (e.g. `my_company_client` for `import my_company_client`). A dotted name is an import path: `acme.dev` generates the `dev` subpackage of a regular `acme` package, imported with `from acme.dev import ...` and laid out under `src/acme/dev/`.
 
 ## projectName
 

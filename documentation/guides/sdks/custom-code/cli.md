@@ -87,8 +87,9 @@ The chain decides what the handler's `ctx` has, and the CLI's own `tsc` checks e
 | Chain | Effect |
 | --- | --- |
 | `.argument(spec)`, `.option(flags)`, `.requiredOption(flags)` | Typed `ctx.args` and `ctx.flags`. |
+| `.option(flags, description, { choices, default })` | `choices` limits a flag that takes a value to those values: anything else is a usage error that lists them, and help, completions and `context` list them too. `ctx.flags` is typed as their union. `default` sets the flag when it is not typed, so `.option('--force', 'Overwrite', { default: false })` is always a boolean. |
 | `.auth('required' \| 'optional' \| 'none')` | `ctx.client()`, built with the same credential resolution generated commands use. `none` drops the credential flags. The default is `required`. |
-| `.globals('api' \| 'output' \| 'none')` | Which global flags the command accepts. The default is `api`. |
+| `.globals('api' \| 'output' \| 'none')` | Which global flags the command accepts. The default is `api`. `--no-input` is accepted in every mode. An `.option()` that reuses one of the mode's global flags fails generation. |
 | `.interactive('never' \| 'optional' \| 'required')` | Whether `ctx.prompt` may ask. The default is `never`: a command that does not say otherwise never prompts. |
 | `.longRunning()` | `ctx.signal`, aborted on SIGINT or SIGTERM (exit 130 or 143). |
 | `.session('read' \| 'write')` | `ctx.session`, to read or store the sign-in. Only in a CLI with `login`. |
@@ -108,6 +109,8 @@ export default async (ctx: Ctx<{ client: 'required' }>) => {
   return widgets[0] ?? null
 }
 ```
+
+A group that only custom code creates, such as `document` for `document validate`, has no description of its own. `cli.group('document', 'Work with API descriptions')` gives it one, shown in `--help`, shell completions and `context`. A generated group takes its description from the config's `resources`, and the CLI's own `auth` group keeps its own, so describing either fails when the program is built, and so do a path that is a command, a group described twice, and a group with no command under it or only hidden ones.
 
 For what the chain cannot express, `cli.program` is the Commander root. Commands added there still appear in help, the man pages and the README.
 

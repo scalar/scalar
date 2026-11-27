@@ -8,9 +8,6 @@ pages outside this reference resolve.
 
 **Minimum version:** C++20 (GCC 11, Clang 14, AppleClang 16, MSVC 19.38 or newer) and CMake 3.20 or newer.
 
-> [!NOTE]
-> The C++ target is experimental.
-
 Add `cpp` under `targets` to generate a C++ SDK.
 
 ```json

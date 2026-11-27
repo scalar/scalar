@@ -499,6 +499,106 @@ const stored = await client.files.upload(new File(['a,b\n'], 'report.csv'), {
 
 The method takes the first operation's path parameters, then the file, then its other parameters: here, the body `POST /files` requires.
 
+### Several files in one upload
+
+Some APIs hand out one upload URL per file in a single response: an audio track per language, say. `files` takes the place of `urlField` for them. The initiating request lists the keys, its response lists a URL per key, and the confirm step can report which files arrived:
+
+```json
+"upload_tracks": {
+  "kind": "signedUpload",
+  "endpoint": "post /tracks/{track_id}/uploads",
+  "signedUpload": {
+    "files": {
+      "keysParam": "languages",
+      "urlsField": "urls",
+      "keyField": "language",
+      "urlField": "url"
+    },
+    "confirm": {
+      "endpoint": "post /tracks/{track_id}/uploads/complete",
+      "pathParams": { "track_id": "id" },
+      "results": { "field": "results", "keyField": "language", "statusField": "ok" }
+    }
+  }
+}
+```
+
+The method takes a map from key to file in place of the initiating body, and sends `{ "languages": [<the map's keys>] }` itself, so no other body property may be required; an optional one is left out. A response that leaves out a key, names one twice, or names one the caller did not send fails the call before any file is sent. The files then go one at a time, in the map's order, each under the single upload's rules. If one fails, the rest are not sent, the confirm step is still called with `ok: false` for every file that did not arrive, and the method then raises the first upload error, naming the keys that failed. With `kind: signedUrl`, `files` goes on `source.request` in place of its `urlField`.
+
+A target generates these methods only once its emitter renders them; until then it leaves them out and reports `Unsupported/SignedMultiFileUpload`.
+
+### Large files in parts
+
+An object store takes at most 5 GiB in one upload. For larger files, many APIs sign each part of a multipart upload separately and assemble the parts once they are all uploaded. `parts` adds that to a single-file upload, beside its `urlField`:
+
+```json
+"upload_file": {
+  "kind": "signedUpload",
+  "endpoint": "post /widgets/uploads",
+  "signedUpload": {
+    "urlField": "url",
+    "parts": {
+      "threshold": 104857600,
+      "partSize": 16777216,
+      "concurrency": 4,
+      "partUrl": {
+        "endpoint": "get /widgets/{widget_id}/parts/{part_number}",
+        "pathParams": { "widget_id": "id" },
+        "partNumberParam": "part_number",
+        "urlField": "url"
+      },
+      "complete": {
+        "endpoint": "post /widgets/{widget_id}/parts/complete",
+        "pathParams": { "widget_id": "id" },
+        "partsField": "parts",
+        "partNumberField": "partNumber",
+        "etagField": "etag"
+      },
+      "abort": { "endpoint": "post /widgets/{widget_id}/parts/abort", "pathParams": { "widget_id": "id" } }
+    }
+  }
+}
+```
+
+The method makes the initiating call either way. A file smaller than `threshold` (100 MiB by default) then takes the single upload to `urlField`. A file at or above it, or one whose size cannot be known in advance (a stream or a pipe), goes in parts of `partSize` bytes (16 MiB by default, at least 5 MiB), the last one possibly smaller. A file that would need more than 10,000 parts gets the smallest whole number of MiB per part that keeps it to 10,000; one too large even for 10,000 parts of 5 GiB is refused before any request, and a stream that needs more than 10,000 parts fails. A stream that ends before it fills its first part, an empty one included, takes the single upload instead, since a complete call must list at least one part.
+
+Each part is signed with `partUrl`, an API request that sends the part's number (counted from 1) in `partNumberParam`, a path or query parameter, and reads the part's upload URL off `urlField` of its response. The part is then sent to that URL as a raw-body `PUT`, whatever `method` the single upload uses, without the client's credentials, with an explicit `Content-Length`, no `Content-Type` and none of the `headersField` headers, and with the single upload's retries, timeout and URL rules. It is signed again before each retry, since its URL may expire. Each part's `ETag` response header is kept byte for byte, and a part answered without one fails. Up to `concurrency` parts (4 by default, from 1 to 16) are in flight at once. A part of a stream is held in memory until it is sent, so a stream takes up to `concurrency` × `partSize` bytes. The generated method takes a per-call override of the part size and the concurrency.
+
+Once every part is uploaded, `complete` is called with `{ "parts": [{ "partNumber": 1, "etag": "…" }, …] }` in part order, then `confirm` when there is one. If a part fails after its retries, no new part is started, `abort` is called when configured, and the method raises the part's error, with the abort's error attached if the abort failed too. Like a single upload, the method returns the confirm step's response if there is one, else the initiating response. `parts` cannot be set beside `files`, or beside a single upload sent as `body: multipart`. With `kind: signedUrl`, `parts` goes on `action.upload`.
+
+A target sends files in parts only once its emitter renders them. Until then it generates the method as a single upload, which sends every file in one request, and reports `Unsupported/SignedPartsUpload`.
+
+### Which HTTP client sends an upload
+
+`signedUploads.transport` (experimental) decides which HTTP client carries the file. It is an SDK-level setting, so every target reads the same value:
+
+```json
+{
+  "signedUploads": { "transport": "client" }
+}
+```
+
+- **`isolated`, the default.** The upload goes through a client the SDK builds for it. That client reuses only the proxy and TLS settings configured on the SDK client; the Python SDK instead borrows the connections of a transport that is exactly httpx's own. A client object the caller configured carries the upload only when it carries the SDK's signed-upload marker.
+- **`client`, an opt-in.** The upload goes through the HTTP client object the caller configured on the SDK client, so a proxy that is the caller's only route out, a private CA, observability and a test's mock transport all apply to uploads too.
+
+An object the SDK built or generates never carries the upload in either mode: the default client, the generated OkHttp client, a `URLSessionTransport` and the SDK's own middleware layers at most hand over their proxy and TLS settings. Each generated README names exactly which objects carry an upload.
+
+Either way the SDK builds the upload as a bare request: the file, its `Content-Type` and the headers the response names. It never carries the SDK's auth, default headers, default query, cookies, telemetry headers, middleware or hooks. The `https:` rule, the redirect refusal and the upload's own timeout and retries apply in both modes. Whether an upload URL that carries a user name or password is refused depends on the target and mode: the Python SDK in `isolated` mode, for one, sends those credentials as Basic auth.
+
+**Choose `client` knowing what it hands over.** The caller's client object is code the SDK hands the request to: a wrapping `fetch`, a Go `RoundTripper`, an httpx transport, a JVM `HttpClient` or a Swift `HTTPTransport`. The SDK cannot see or remove what that code adds after the hand-off. A credential it attaches to every request, such as an OAuth middleware's `Authorization`, reaches the upload host, which is usually a third-party object store. So a `client`-mode SDK gives every client an opt-out that keeps its uploads on an SDK-built client, and its README tells callers whose client adds credentials to set it:
+
+| SDK | Caller's object that carries the upload in `client` mode | Opt-out in `client` mode | Marker in `isolated` mode |
+| --- | --- | --- | --- |
+| TypeScript | The client's `fetch` (or a compatibility profile's `httpClient`) | `isolateSignedUploads: true` | `signedUploadTransport(fetch)` |
+| Python | The transport a custom `http_client` routes the upload URL to, except an aiohttp one | `isolate_signed_uploads=True` | A transport that inherits `SignedUploadTransport` |
+| Go | A wrapping `RoundTripper` on, or a custom `HTTPClient` given to, `option.WithHTTPClient`; a plain `*http.Transport` is cloned for its settings | `option.WithIsolatedSignedUploads()` | One that implements `option.SignedUploadTransport` |
+| Java, Kotlin | An `HttpClient` of your own given to `ClientOptions.Builder.httpClient` | `isolateSignedUploads(true)` on `ClientOptions.Builder` | One that implements `SignedUploadTransport` |
+| Swift | An `HTTPTransport` of your own set as `Configuration.transport` | `Configuration.isolateSignedUploads` | One that returns `true` from `isSignedUploadTransport` |
+
+Switching a published SDK from `isolated` to `client` changes what its existing callers' code sees, with no change on their side: every custom client object they already pass starts carrying uploads. Announce it in the SDK's release notes together with the opt-out, or choose `client` when the SDK is first published.
+
+The C++, C#, Dart, PHP, Ruby and Rust SDKs and the CLI do not send uploads through a caller's client yet, so they send them the `isolated` way under either value. Under `client`, generation reports each of those SDKs that has a signed upload as [`Unsupported/SignedUploadClientTransport`](diagnostics.md); the CLI takes no caller client, so it is not reported.
+
 ## Security
 
 - **The key never appears in the URL.** It is left out of the path, the query and the payload. A `{ "param": … }` field or a path placeholder that reads a `param` key is refused.
@@ -507,20 +607,37 @@ The method takes the first operation's path parameters, then the file, then its 
 
 ### What a fetch sends
 
-The request carries only:
+A fetch for a `request` source goes to a host a response named, so it carries only:
 
-- the URL exactly as built or received;
+- the URL exactly as received;
 - `Accept`, when `accept` is set;
-- for a `request` source, the headers named by `headersField`;
-- for a `sign` source, which points at your API, the `headers` of the call's own request options (a caller's `Accept` wins over `accept`, and a `null` removes a header), and, when the API description secures its operation, the client's auth headers and auth cookies.
+- the headers named by `headersField`.
 
-It never carries the client's default headers, `fetchOptions.headers`, or the SDK's own `User-Agent` and `X-Scalar-*` headers. A requested URL never carries the client's credentials or the call's headers. A signed URL's operation is secured when it declares security of its own, or inherits the document's default security; one that declares `security: []` is open, so its URL is its only credential. Only header and cookie credentials go: an API key sent in the query would change the URL that was signed. A secured fetch with no credential to send goes out without one, and the API answers as it would an unauthenticated call. A header the call sets is checked like a header a response names, stricter than on other calls: one the HTTP transport controls, such as `Accept-Encoding`, `Cookie` or `Transfer-Encoding`, or a value outside visible ASCII, is refused before any request. The platform still adds what it adds to every request, such as its own `User-Agent` and `Accept-Encoding`. The call's `body` is never sent, and neither is its `query` (a TypeScript fetch of a URL it signed aside, below), since the URL goes exactly as it was signed or received; its `signal`, `timeout`, `maxRetries` and `fetchOptions` apply.
+It never carries the client's credentials, cookies, default headers or default query, the call's headers, or anything an HTTP client the caller configured adds by default.
+
+A fetch for a `sign` source goes to your API, so it applies everything an ordinary request to your API applies:
+
+- the SDK's own `User-Agent` and `X-Scalar-*` headers, with each attempt numbered by `X-Scalar-Retry-Count`, and the request log lines the SDK writes for any request, with the URL shown as its origin and path;
+- the client's default headers, and the defaults of an HTTP client the caller configured: its default headers, its cookies or cookie jar, and its default query params, where that client holds them (an `httpx.Client` in Python, a caller's cookie jar in Go, an `HttpClient` in C#, a Guzzle client in PHP, a `URLSession` in Swift, a `reqwest::Client` in Rust, `fetchOptions.headers` in TypeScript);
+- the client's default query and the call's own query, after the signed query;
+- the hooks an ordinary request runs (TypeScript's `prepareOptions`, the headers and query Python's `_prepare_options` sets, Go middleware and the like);
+- the call's own headers, `Cookie` and `Referer` among them (a caller's `Accept` wins over `accept`, and a `null` removes a header);
+- and, when the API description secures the operation, the client's auth headers and auth cookies.
+
+Only four things differ from an ordinary request:
+
+- **A redirect is refused** rather than followed (below).
+- **Some call headers are refused** before any request: one that frames the message or manages the connection (`Connection`, `Content-Length`, `Expect`, `Keep-Alive`, `TE`, `Trailer`, `Transfer-Encoding`, `Upgrade`), even a `Connection: close` an ordinary request would send, and one whose value holds a character outside visible ASCII (below). HTTP clients disagree about these headers, so every SDK refuses the same ones rather than sending them in one language and failing in another. A TypeScript SDK holds a header in the client's or the call's `fetchOptions.headers`, or one a `prepareOptions` override adds, to the same two rules on this fetch, though an ordinary request sends it.
+- **A signed query field is never overridden or duplicated.** The signed query goes first, exactly as signed, and a default, client or call query field a server may read as a signed one is left out (see [The client's default query](#the-clients-default-query)). When the signature covers the query (`signatureBase` lists `query`), nothing is added to it.
+- **No idempotency key is sent.**
+
+A signed URL's operation is secured when it declares security of its own, or inherits the document's default security; one that declares `security: []` is open, so its URL is its only credential. Only header and cookie credentials go: no SDK adds a query credential, which would change the URL that was signed. A secured fetch with no credential to send goes out without one, and the API answers as it would an unauthenticated call. A header the call sets goes as it goes on any request to your API, `Cookie`, `Referer` and the other names an HTTP transport controls included, but for the framing headers below: the platform drops or overrides what it must (a browser drops `Cookie` and `Host`). Two kinds of call header are refused before any request, with an error that names the header but not its value: a malformed one (a name that is not an HTTP token, or a value that is not visible ASCII with spaces and tabs only between visible characters, so a control character, a character above `~` or leading or trailing whitespace), and one that frames the message or manages the connection (`Connection`, `Content-Length`, `Expect`, `Keep-Alive`, `TE`, `Trailer`, `Transfer-Encoding` and `Upgrade`), which an HTTP client sets from the request itself or refuses at send. The call's `body` is never sent; its `signal`, `timeout`, `maxRetries` and `fetchOptions` apply. A method's or resource's configured default headers (`defaultRequestOptions.headers`) do not reach its signed fetch yet; its configured timeout does. In a TypeScript SDK generated with the Speakeasy compatibility profile, that profile's flat call options (`timeoutMs`, `serverURL`, `retries`, `retryCodes`) do not apply to it either. A credential that an HTTP client the caller configured adds through its auth hook (such as Python's `httpx.Client(auth=...)`) goes only on a fetch for a secured operation, like the client's own credentials. That client's default headers, a default `Authorization` header included, and its cookie jar (Go's `http.Client.Jar`, or Python's httpx cookies, which fill from the API's own `Set-Cookie`) go on every fetch to the API's own host, open or secured, as on any request to the API; in a browser the fetch keeps sending `credentials: 'omit'`. Where an SDK keeps the base URL's own query on every request (PHP, Dart and Swift), a signed fetch keeps it too, after the signed query; the other SDKs do not keep it on any request, so give them a base URL without one.
 
 In TypeScript, a fetch method returns an `APIPromise`, like every other method: `await` it for the body, or call `.withResponse()` or `.asResponse()` for the host's `Response`.
 
 A redirect is refused rather than followed (in a Dart SDK running on the web, the browser fails it instead, as a connection error the client retries; on the Dart VM and in Flutter apps it is refused), since following it could hand the URL and its headers to another host. A Go SDK given an `option.WithHTTPClient` that is not an `*http.Client` cannot stop that client following a redirect for a signed URL, only refuse the answer it ends at, so such a client must not follow redirects for these fetches. A requested URL that answers with a redirect, such as a download link that sends the browser on to storage, fails with an SDK error; point `urlField` at the final URL instead.
 
-A signed URL is built on the client's base URL, or on the server its operation declares (a Dart SDK always builds it on the client's base URL, since it reads no operation-level `servers` for any call), so it goes through the client's own HTTP function, as a call to that operation does. A requested URL points at another host, such as an object store, so it goes through the platform's HTTP function, not a custom one set on the client, which might add the API's credentials. Both use the client's timeout, retries and `fetchOptions` (minus `headers`, `body`, `method`, `redirect`, `credentials`, `referrer`, `referrerPolicy` and `mode`), so a proxy dispatcher applies to them too. A Swift SDK fetches a requested URL over a plain `URLSession` of its own, never `Configuration.transport` or its session, so neither a proxy nor a delegate configured there applies to it; the client's timeout applies as an idle timeout, and its retries as on every call. A C# SDK fetches a requested URL over an `HttpClient` of its own, with the platform's default proxy and TLS settings rather than those of a caller-supplied `HttpClient`; a PHP SDK sends it through PHP's HTTP stream wrapper, so it needs `allow_url_fopen`; and a Rust SDK sends it through a reqwest client of its own, so it needs the crate's default `reqwest` feature.
+A signed URL is built on the client's base URL, or on the server its operation declares (unless the caller pinned a base URL), so it goes through the client's own HTTP function, as a call to that operation does. A requested URL points at another host, such as an object store, so it goes through the platform's HTTP function, not a custom one set on the client, which might add the API's credentials. Both use the client's timeout and retries. A signed URL takes the `fetchOptions` minus `body`, `method`, `redirect`, `credentials`, `referrer`, `referrerPolicy` and `mode`; a requested URL takes only their transport fields (`dispatcher`, `agent`, `proxy`, `tls`, `client`) and `signal`, so a proxy dispatcher applies to both. A Swift SDK fetches a requested URL over a plain `URLSession` of its own, never `Configuration.transport` or its session, so neither a proxy nor a delegate configured there applies to it; the client's timeout applies as an idle timeout, and its retries as on every call. A C# SDK fetches a requested URL over an `HttpClient` of its own, with the platform's default proxy and TLS settings rather than those of a caller-supplied `HttpClient`; a PHP SDK sends it through PHP's HTTP stream wrapper, so it needs `allow_url_fopen`; and a Rust SDK sends it through a reqwest client of its own, so it needs the crate's default `reqwest` feature.
 
 A retry resends the same URL. A signed URL with a short expiry can expire while the first attempt waits out its timeout, so give the default a lifetime longer than the client's timeout.
 
@@ -528,17 +645,11 @@ A requested URL must be `https:`, or plain `http:` only to `localhost`, `127.0.0
 
 #### The client's default query
 
-A requested URL, and a URL a method returns, never carry the client's default query. A URL the SDK signs and then fetches is a call to your API, so two targets add it there:
+A requested URL, and a URL a method returns, never carry the client's default query. A URL the SDK signs and then fetches is a call to your API, so it carries the query every request to your API carries, after the signed query: the client's default query (and, where the SDK has them, the query client options and the default params of an HTTP client the caller configured), with the call's own query over it. A target with no client-wide default query (C#, Rust) adds what it has, and Rust has no call query either.
 
-- **TypeScript** sends the client's `defaultQuery` after the signed query, with the call's own `query` over it.
-- **Python** sends the client's `default_query` after the signed query.
+No SDK sends one of those fields where a server may read it as a signed field. Every SDK compares names by one rule, the one common query parsers follow: it drops case and leading whitespace, cuts at the first `[` or `.` (so `hmac[x]` and `hmac.x` count as `hmac`), reads a space, a `.` or a `[` with no `]` after it as `_`, as PHP does (so `embed.request` and `embed[request` count as `embed_request`), drops leading brackets and dots and cuts at the next `[`, `]` or `.`, as `qs` and Rack do (so `[hmac]` and `.hmac` count as `hmac`), and ends a name at a NUL, as PHP does. A nested value is checked under the name it is sent as. TypeScript also leaves out a field named like any query field the `sign` source declares, even one the call left absent; the other SDKs reserve the fields the signed URL carries. A host whose parser reads names by some other rule is not covered.
 
-Neither sends a default under the exact name of a signed field, but TypeScript also leaves out a name a host may read as a signed one:
-
-- **TypeScript** leaves out every field whose name a host may read as a field the `sign` source declares: its payload field, its signature field, or any declared query field, even one the call left absent. The comparison follows common query parsers: it drops case and leading whitespace, cuts at the first `[` or `.` (so `hmac[x]` and `hmac.x` count as `hmac`), reads a space, a `.` or a `[` with no `]` after it as `_`, as PHP does (so `embed.request` and `embed[request` count as `embed_request`), drops leading brackets and dots and cuts at the next `[`, `]` or `.`, as `qs` and Rack do (so `[hmac]` and `.hmac` count as `hmac`), and ends a name at a NUL, as PHP does. A host whose parser reads names by some other rule is not covered.
-- **Python** leaves out a default whose name is exactly a field the signed URL already carries.
-
-In both, when the signature covers the query (`signatureBase` lists `query`), none of it is added, since a host checking the signature over the query it receives would refuse the extra fields. The worked examples above show the URL every client builds.
+When the signature covers the query (`signatureBase` lists `query`), none of it is added, since a host checking the signature over the query it receives would refuse the extra fields. The worked examples above show the URL every client builds.
 
 ### Redaction
 
@@ -603,6 +714,7 @@ A config that breaks one of these rules does not load. Each message follows the 
 | `params` | must be an object schema or a `$ref`, since it becomes the method's one params argument: `{ "type": "object", "properties": { … } }` or `{ "$ref": "#/components/schemas/Name" }` | Write an object schema. |
 | `params` | is required when the URL carries a payload (`sign.payload`, a `{ "payload": … }` query field or a `"payload"` signature base part), which serializes the params in the order `params` declares them: declare them here | Write `params` out. |
 | `signedUrl/action/upload/confirm` | needs a `request` source: its path is filled from the response that issued the URL, which a `sign` source has none of. Remove `confirm`, or get the URL from a `request` source | Remove `confirm`. |
+| `signedUrl/action/upload/parts` | needs a `request` source: each step's path is filled from the response that issued the URL, which a `sign` source has none of. Remove `parts`, or get the URL from a `request` source | Remove `parts`. |
 | `returns` | must be a non-binary string schema with the `return` action, which hands back the URL; leave it out for `{ "type": "string", "format": "uri" }` | Remove `returns`. |
 | `returns/async` | must be `false` with the `return` action, which makes no request: remove `async`, or set it to `false` | Remove `async`. |
 | `returns` | is required with the `fetch` action, which returns the body: `{ "type": "string" }`, a JSON schema, or `{ "type": "string", "format": "binary" }` for the raw response | Add `returns`. |
@@ -666,8 +778,23 @@ These need the API description, so they are reported as `Config/InvalidSignedUrl
 | the response field `x` of "…" is an integer, not the URL string the method reads (or, for `headersField`, not the map of header names to values, such as a map of arrays) | Point `urlField` at a string field, `headersField` at an object of strings. |
 | its `params` do not resolve to an object schema | Point the `$ref` at an object schema. |
 | its `signedUrl.source.method` names "…", which is not generated | Fix the named method; its own report says why. |
+| `signedUrl.source.request.urlField` and `signedUrl.source.request.files` are both set | Keep one: `files` for one URL per file, `urlField` for one URL. |
+| `signedUrl.source.request.files` lists one URL per file to upload, which only the `upload` action sends | Use `urlField` with `fetch` or `return`. |
+| the items of `x` in the response of "…" have no field `y` (`files.keyField`, `files.urlField` or `headersField`), or the field is the wrong kind | Point `keyField` and `urlField` at a string field of each item, `headersField` at an object of strings. |
+| `files.keyField` and `files.urlField` both name `x`, or `confirm.results.keyField` and `confirm.results.statusField` do | Point each at its own field: a key is one field, its URL or status another. |
+| the request body of "…" has no property `x` (`files.keysParam`), requires another property besides it, or holds something other than an array of strings | Point `keysParam` at the body's array of keys; the method takes a map of files in place of the body and sends only the keys, so the body can require nothing else. |
+| `confirm.results` reports each file of a multi-file upload, and the method sets no `files` | Remove `results`, or set `files`. |
+| `parts.threshold`, `parts.partSize` or `parts.concurrency` is outside its range | Keep `threshold` from 1 byte to 5 GiB, `partSize` from 5 MiB to 5 GiB, and `concurrency` from 1 to 16. |
+| `parts` and `files` are both set | Keep one: `parts` sends one large file in parts, `files` sends several files whole. |
+| `parts` sends each part as a raw-body PUT, and the single upload is a `multipart` form | Send the single upload as `binary`, or remove `parts`. |
+| the part-sign endpoint declares no path or query parameter `x` (`parts.partUrl.partNumberParam`), or it is neither a number nor a string | Point `partNumberParam` at the parameter that takes the part's number. |
+| the response of the part-sign endpoint has no field `x` (`parts.partUrl.urlField`), or the field is not a string | Point `urlField` at the string field holding the part's upload URL. |
+| `parts.complete.partNumberField` and `parts.complete.etagField` both name `x` | Point each at its own field of a part entry. |
+| the complete endpoint takes no JSON body to send the parts in, or its body, items, `partNumberField` or `etagField` do not match | Point `partsField` at the complete body's array of `{ number, string }` items. |
+| a part-sign, complete or abort endpoint requires a parameter or body the step cannot send, or a path parameter is not filled | Fill each path parameter in that step's `pathParams`; the step sends nothing else of its own. |
+| the confirm step takes no JSON body to send the results in, or its body, items, `keyField` or `statusField` do not match | Point `results` at the confirm body's array of `{ key, boolean }` items. |
 
-A `request` source with the `upload` action is checked like `kind: signedUpload`, and its reasons name the `signedUrl` keys. A target that does not render a method's flow reports `Unsupported/SignedUrlMethod` (a warning), or `Unsupported/SignedUploadMethod` for an upload, and leaves the method out of that SDK only.
+A `request` source with the `upload` action is checked like `kind: signedUpload`, and its reasons name the `signedUrl` keys. A multi-file upload that reaches a target that does not render one yet reports `Unsupported/SignedMultiFileUpload` (a warning) for that target, and a multipart upload that reaches a target that does not send parts yet reports `Unsupported/SignedPartsUpload` (a warning) and is generated as a single upload there. A target that does not render a method's flow reports `Unsupported/SignedUrlMethod` (a warning), or `Unsupported/SignedUploadMethod` for an upload, and leaves the method out of that SDK only.
 
 See [Diagnostics](diagnostics.md) for how findings are graded, suppressed, and used to fail a build.
 
@@ -838,7 +965,7 @@ The `get` operation whose URL is built, as `"get <path>"`. Only `get`: a signed 
 
 **Type:** `"json"`
 
-Serializes the params into one value, the payload, which a `{ "payload": "<encoding>" }` query field carries and a `"payload"` signature base part signs. Optional: it defaults to `json` when a query field or the signature base reads the payload, and to none otherwise; `json` is the only value. A payload needs `params` written out, since it serializes them in the order `params` declares them. `json` writes the params as compact UTF-8 JSON: properties in the order `params` declares them (never the caller's order), absent ones left out rather than written as `null`, no whitespace, non-ASCII as UTF-8 rather than `\u` escapes, and a `param` signing key left out. A `date-time` string is written as given; a native date as UTC `YYYY-MM-DDTHH:MM:SSZ`, without fractional seconds. Example: `{ "token": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "expiration": "2026-01-01T00:00:00Z" }` serializes to `{"token":"3fa85f64-5717-4562-b3fc-2c963f66afa6","expiration":"2026-01-01T00:00:00Z"}`.
+Serializes the params into one value, the payload, which a `{ "payload": "<encoding>" }` query field carries and a `"payload"` signature base part signs. Optional: it defaults to `json` when a query field or the signature base reads the payload, and to none otherwise; `json` is the only value. A payload needs `params` written out, since it serializes them in the order `params` declares them. `json` writes the params as compact UTF-8 JSON: properties in the order `params` declares them (never the caller's order), absent ones left out rather than written as `null`, no whitespace, non-ASCII as UTF-8 rather than `\u` escapes, and a `param` signing key left out. A `date-time` string is written as given; a native date as UTC `YYYY-MM-DDTHH:MM:SSZ`, without fractional seconds. A param the caller passes that `params` does not declare, where the SDK lets a caller pass one (TypeScript keys, Java and Kotlin `putAdditionalBodyProperty`, C# raw body data, Ruby keywords, PHP raw method arrays, Go `v2` `SetExtraFields`; Python refuses one), follows the declared params, in code point order of its name, when a `{ "payload": … }` query field carries the payload; a payload the server rebuilds from the path and query fields holds the declared params alone. Where such params sit apart from the declared ones (Java and Kotlin, Go `v2`), one named like a declared param is left out, so it never replaces or fills in a declared value. Where they share one object or map with the declared ones, a key that is a declared param's own key is that param: in C#, Ruby and PHP that key is its wire name, and in TypeScript its params key, while a TypeScript key spelled as a declared param's wire name but not its params key (under a `propertyCasing` that tells them apart) is left out. Such a param may hold any JSON value, written as `JSON.stringify` writes it except that an object's members are also sorted by code point and an integer the SDK holds as one (a TypeScript `bigint`, a Ruby, PHP, JVM or Go integer, integer JSON text in C# raw body data) is written as its digits. Example: `{ "token": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "expiration": "2026-01-01T00:00:00Z" }` serializes to `{"token":"3fa85f64-5717-4562-b3fc-2c963f66afa6","expiration":"2026-01-01T00:00:00Z"}`.
 
 #### signature
 
@@ -986,9 +1113,53 @@ The operation that answers with the URL, as `"<verb> <path>"`. The method takes 
 
 **Type:** `string`
 
+Where the URL is in that operation's response, as a dot-separated path of wire names. When the response schema types the field, it must be a string. The URL must be `https:` (plain `http:` only to `localhost`, `127.0.0.1` or `::1`) and carry no user name or password. Example: `"download_url"`, or `"data.link.url"` for a nested one. Required unless `files` is set, and refused beside it.
+
+**Constraints:** `minLength: 1`
+
+#### files
+
+**Type:** `object`
+
+With the `upload` action only: the operation issues one URL per key, and the method sends one file to each, as `signedUpload.files` does. In place of `urlField`. Example: `{ "keysParam": "languages", "urlsField": "urls", "keyField": "language", "urlField": "url" }`.
+
+##### keysParam
+
+**Type:** `string`
+
 **Required**
 
-Where the URL is in that operation's response, as a dot-separated path of wire names. When the response schema types the field, it must be a string. The URL must be `https:` (plain `http:` only to `localhost`, `127.0.0.1` or `::1`) and carry no user name or password. Example: `"download_url"`, or `"data.link.url"` for a nested one.
+Top-level property of the initiating operation's JSON request body that lists the keys, an array of strings, by wire name. The body may have no other required property: the generated method takes a map from key to file in place of the body and sends only the map's keys in it, in the map's order, leaving any optional property out. Example: `"languages"`.
+
+**Constraints:** `minLength: 1`
+
+##### urlsField
+
+**Type:** `string`
+
+**Required**
+
+Property of the initiating response that holds an array of objects, one per key, each naming its key and its upload URL, written as a dot-separated path of wire names. When the response schema types it, it must be an array. Example: `"urls"`.
+
+**Constraints:** `minLength: 1`
+
+##### keyField
+
+**Type:** `string`
+
+**Required**
+
+Property of each `urlsField` item that holds its key, written as a dot-separated path of wire names from the item. When the response schema types it, it must be a string. A response that leaves out a key the caller sent, names one twice, or names one the caller did not send is refused before any file is sent. Example: `"language"`.
+
+**Constraints:** `minLength: 1`
+
+##### urlField
+
+**Type:** `string`
+
+**Required**
+
+Property of each `urlsField` item that holds its pre-signed upload URL, written as a dot-separated path of wire names from the item. When the response schema types it, it must be a string. Every URL is held to the single upload's rules: `https:` (plain `http:` only to `localhost`, `127.0.0.1` or `::1`), no redirect followed. With `files`, `headersField` is read off each item too, so each file carries the headers its own item names. Example: `"url"`.
 
 **Constraints:** `minLength: 1`
 
@@ -1004,7 +1175,7 @@ Where that response holds a string map of headers the request to the URL must ca
 
 **Type:** `"all" | "path"`
 
-Which of the operation's parameters the method takes: `all` (default), or only its `path` parameters for an operation that needs nothing else, which is then sent with no body, query, header or cookie parameters, so it must require none. Example: `"path"`.
+Which of the operation's parameters the method takes: `all` (default), or only its `path` parameters for an operation that needs nothing else, which is then sent with no body, query, header or cookie parameters, so it must require none. A multi-file upload (`files`) still sends its own `{ <keysParam>: [keys] }` body, so only a required non-path parameter rules `path` out for it. Example: `"path"`.
 
 ### signedUrl.source.method
 
@@ -1026,7 +1197,7 @@ What the method does with the URL: `"return"` returns it as a string with no req
 
 **Type:** `object`
 
-Downloads the URL: sends a `GET` to it and returns the body, read as `returns` says. The URL is its own credential, so the request carries none of the client's credentials, cookies, default headers or default query (a fetch of a URL the SDK signed is the exception in Python and TypeScript, which append the client's default query after the signed query, never over a signed field and not at all when the signature covers the query; a TypeScript fetch adds the call's own `query` the same way): only `accept` and, for a `request` source, the headers `headersField` names. A redirect is refused rather than followed, since following it could hand the URL to another host, and the URL's query is kept out of logs and error messages. A signed URL is built on the client's base URL, so it is sent through the client's own HTTP function; a requested URL points at another host, such as an object store, so it is sent through the platform's HTTP function rather than a custom one set on the client, which might add the API's credentials. Both use the client's timeout and retries. Example: `{ "fetch": { "accept": "text/html" } }`.
+Downloads the URL: sends a `GET` to it and returns the body, read as `returns` says. The URL is its own credential. For a `request` source the request carries none of the client's credentials, cookies, default headers or default query: only `accept` and the headers `headersField` names. For a `sign` source, which points at your API, it applies what any request to your API applies: the SDK's own `User-Agent` and `X-Scalar-*` headers, the client's default headers, the defaults of an HTTP client the caller configured, the call's own headers (`Cookie` and `Referer` included, as on any request; only a malformed one, or one that frames the message such as `Content-Length` or `Transfer-Encoding`, is refused), the client's hooks and, when the API secures the operation, its credentials, with the client's default query and the call's own query after the signed query. Only four things differ from an ordinary request: a redirect is refused, a call header that frames the message or manages the connection, or holds a character outside visible ASCII, is refused before any request, a query field a server may read as a signed one is left out rather than sent over or beside it, and no idempotency key is sent; when the signature covers the query, nothing is added to it. The redirect is refused because following it could hand the URL to another host, and the URL's query is kept out of logs and error messages. A signed URL is built on the client's base URL, so it is sent through the client's own HTTP function; a requested URL points at another host, such as an object store, so it is sent through the platform's HTTP function rather than a custom one set on the client, which might add the API's credentials. Both use the client's timeout and retries. Example: `{ "fetch": { "accept": "text/html" } }`.
 
 ##### accept
 
@@ -1040,7 +1211,7 @@ Downloads the URL: sends a `GET` to it and returns the body, read as `returns` s
 
 **Type:** `object`
 
-Sends a file to the URL, as `kind: signedUpload` does, and returns the response that issued the URL, or the confirm step's, so the method takes no `returns`. It needs a `request` source. The file goes without the client's credentials, to an `https:` URL, without following a redirect, and reading the whole file into memory once so every retry sends the same bytes. Example: `{ "upload": { "method": "put" } }`.
+Sends a file to the URL, as `kind: signedUpload` does, and returns the response that issued the URL, or the confirm step's, so the method takes no `returns`. It needs a `request` source. The file goes without the client's credentials, to an `https:` URL, without following a redirect, and every retry sends the same bytes: the TypeScript and Python SDKs stream a file on disk, reading it again for each attempt; other inputs, and every file in the other SDKs, are read into memory once. Example: `{ "upload": { "method": "put" } }`.
 
 ##### method
 
@@ -1074,7 +1245,7 @@ Form field the file is sent under with `multipart`. Defaults to `file`. Example:
 
 **Type:** `string`
 
-Name of the file argument, before target casing. Defaults to `file`. Example: `"image"`.
+Name of the file argument, before target casing. Defaults to `file`, or `files` with `source.request.files`, where it is the map from key to file. Example: `"image"`.
 
 **Constraints:** `pattern: ^[A-Za-z_][A-Za-z0-9_]*$`
 
@@ -1098,7 +1269,85 @@ Operation called after the upload succeeds, as `"<verb> <path>"`. Its response b
 
 **Type:** `Record<string, string>`
 
-Fills each path parameter of the confirm endpoint, keyed by its wire name, from a property of the initiating response, written as a dot-separated path of wire names (`id`, `upload.id`). Every path parameter must be named here, except one a client option supplies (`clientSettings.opts.<name>.sendAsPathParam`), which the client fills unless it is named; the confirm step sends no body, query or header parameters of its own.
+Fills each path parameter of the confirm endpoint, keyed by its wire name, from a property of the initiating response, written as a dot-separated path of wire names (`id`, `upload.id`). Every path parameter must be named here, except one a client option supplies (`clientSettings.opts.<name>.sendAsPathParam`), which the client fills unless it is named; the confirm step sends no query or header parameters of its own, and no body unless `results` adds one.
+
+###### results
+
+**Type:** `object`
+
+For a multi-file upload (`files`) only: the confirm step's JSON body reports each file, as `{ "<field>": [{ "<keyField>": key, "<statusField>": true }] }` with one entry per key the caller passed, in their order. A file whose upload failed, or that was not attempted after an earlier one failed, is reported `false`, and the confirm step is still called before the method raises the first upload error. Without `results` the confirm step sends no body. Example: `{ "field": "results", "keyField": "language", "statusField": "ok" }`.
+
+| Property | Description |
+| --- | --- |
+| `field`* | Top-level property of the confirm operation's request body that holds the array of per-file results, by wire name. When the request body schema types it, it must be an array of objects. Example: `"results"`. |
+| `keyField`* | Property of each result that holds the file's key, as the caller passed it, by wire name. Example: `"language"`. |
+| `statusField`* | Property of each result that holds `true` when the file was uploaded and `false` otherwise, by wire name. When the schema types it, it must be a boolean. Example: `"ok"`. |
+
+##### parts
+
+**Type:** `object`
+
+Sends a large file in parts above a size threshold, as `signedUpload.parts` does, with `source.request.urlField` still taking a smaller file. It needs a `request` source and cannot be set beside `source.request.files` or `body: multipart`. Example: `{ "partUrl": { "endpoint": "get /widgets/{widget_id}/parts/{part_number}", "pathParams": { "widget_id": "id" }, "partNumberParam": "part_number", "urlField": "url" }, "complete": { "endpoint": "post /widgets/{widget_id}/parts/complete", "pathParams": { "widget_id": "id" }, "partsField": "parts", "partNumberField": "partNumber", "etagField": "etag" } }`.
+
+###### threshold
+
+**Type:** `integer`
+
+Size in bytes from which a file goes in parts. Defaults to 104857600 (100 MiB); at least 1 and at most 5368709120 (5 GiB), the largest single upload an object store takes, else `Config/InvalidSignedUpload`. A smaller file takes the single upload to `urlField`, and a file whose size cannot be known in advance (a stream or a pipe) goes in parts unless it ends before filling the first one, when it takes the single upload. Example: `104857600`.
+
+###### partSize
+
+**Type:** `integer`
+
+Size in bytes of each part but the last, which may be smaller. Defaults to 16777216 (16 MiB); at least 5242880 (5 MiB) and at most 5368709120 (5 GiB), else `Config/InvalidSignedUpload`. A file of known size that would need more than 10,000 parts uses the smallest whole number of MiB that keeps it to 10,000 instead; one too large for 10,000 parts of 5 GiB is refused before any request, and a stream that needs more than 10,000 parts fails. The generated method takes a per-call override. Example: `16777216`.
+
+###### concurrency
+
+**Type:** `integer`
+
+How many parts are signed and sent at once. Defaults to 4; from 1 to 16, else `Config/InvalidSignedUpload`. A part of a stream is held in memory until it is sent, so a stream takes up to `concurrency` times `partSize` bytes. The generated method takes a per-call override. Example: `4`.
+
+###### partUrl
+
+**Type:** `object`
+
+**Required**
+
+How each part is signed: an API request that takes the part number and answers with the part's upload URL. Example: `{ "endpoint": "get /widgets/{widget_id}/parts/{part_number}", "pathParams": { "widget_id": "id" }, "partNumberParam": "part_number", "urlField": "url" }`.
+
+| Property | Description |
+| --- | --- |
+| `endpoint`* | Operation that signs one part, as `"<verb> <path>"`. It is a request to your API, sent through the client's own pipeline with its credentials, like the confirm step, and is called again before each retry of a part, since a part's URL may expire. It is sent with no body (`{}` when the operation takes a JSON body), so it may require no body and no query or header parameter besides `partNumberParam`. Example: `"get /widgets/{widget_id}/parts/{part_number}"`. |
+| `partNumberParam`* | Wire name of the path or query parameter of `endpoint` that takes the part's number, counted from 1. The operation must declare it. Example: `"part_number"`. |
+| `urlField`* | Property of the part-sign response that holds the part's pre-signed upload URL, written as a dot-separated path of wire names. The response must declare it, and when its schema types it, it must be a string. The URL is held to the single upload's rules: `https:` (plain `http:` only to `localhost`, `127.0.0.1` or `::1`), no redirect followed, none of the client's credentials sent. Example: `"url"`. |
+| `pathParams` | Fills each path parameter of the part-sign endpoint, keyed by its wire name, from a property of the initiating response, written as a dot-separated path of wire names, as `confirm.pathParams` does. Every path parameter must be named here besides `partNumberParam`, except one a client option supplies (`clientSettings.opts.<name>.sendAsPathParam`). Example: `{ "widget_id": "id" }`. |
+
+###### complete
+
+**Type:** `object`
+
+**Required**
+
+The API request that assembles the parts once every one is uploaded, sent before `confirm` when there is one. Example: `{ "endpoint": "post /widgets/{widget_id}/parts/complete", "pathParams": { "widget_id": "id" }, "partsField": "parts", "partNumberField": "partNumber", "etagField": "etag" }`.
+
+| Property | Description |
+| --- | --- |
+| `endpoint`* | Operation called once every part is uploaded, as `"<verb> <path>"`. It must take a JSON request body, which the method sends as `{ "<partsField>": [{ "<partNumberField>": 1, "<etagField>": "<etag>" }] }`, one entry per part in part order, and may require nothing else besides its path parameters. Example: `"post /widgets/{widget_id}/parts/complete"`. |
+| `partsField`* | Top-level property of the complete operation's request body that holds the array of parts, by wire name. When the body schema types it, it must be an array of objects. Example: `"parts"`. |
+| `partNumberField`* | Property of each part entry that holds its number, counted from 1, by wire name. When the schema types it, it must be an integer or a number. Example: `"partNumber"`. |
+| `etagField`* | Property of each part entry that holds the `ETag` response header its upload answered with, byte for byte, by wire name. When the schema types it, it must be a string. It must differ from `partNumberField`. Example: `"etag"`. |
+| `pathParams` | Fills each path parameter of the complete endpoint, keyed by its wire name, from a property of the initiating response, written as a dot-separated path of wire names, as `confirm.pathParams` does. Every path parameter must be named here, except one a client option supplies (`clientSettings.opts.<name>.sendAsPathParam`). Example: `{ "widget_id": "id" }`. |
+
+###### abort
+
+**Type:** `object`
+
+Optional API request that discards the uploaded parts once one has failed. Without it the parts are left for the server to expire. Example: `{ "endpoint": "post /widgets/{widget_id}/parts/abort", "pathParams": { "widget_id": "id" } }`.
+
+| Property | Description |
+| --- | --- |
+| `endpoint`* | Operation called once a part has failed, as `"<verb> <path>"`, so the server discards the parts it holds. It is sent with an empty body (`{}` when the operation takes a JSON body), so it may require no body and no query or header parameter. Example: `"post /widgets/{widget_id}/parts/abort"`. |
+| `pathParams` | Fills each path parameter of the abort endpoint, keyed by its wire name, from a property of the initiating response, written as a dot-separated path of wire names, as `confirm.pathParams` does. Every path parameter must be named here, except one a client option supplies (`clientSettings.opts.<name>.sendAsPathParam`). Example: `{ "widget_id": "id" }`. |
 
 ### signedUrl.summary
 
