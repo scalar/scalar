@@ -1,5 +1,32 @@
 [
   {
+    "version": "1.86.0",
+    "date": "2026-11-27",
+    "title": "Trusted local origins and improved schema resolution",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release adds support for trusted local development origins in OAuth flows and fixes several issues with JSON Schema resolution, server URLs, and deep linking."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Added trustedLocalOrigins configuration to allow HTTP OAuth authorization on internal development hosts without using remote proxies",
+          "Fixed JSON Schema dynamic references to resolve correctly from their lexical resource, including URI-qualified targets and meta-schemas",
+          "Relative server URLs with templates now resolve correctly against the base server URL or API description location",
+          "Response property links now preserve the selected media type when copying and sharing URLs",
+          "Path-item servers are now used in Try It and code samples, including server variable edits"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1860",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.85.0",
     "date": "2026-11-26",
     "title": "Control available HTTP clients and switch to system fonts",

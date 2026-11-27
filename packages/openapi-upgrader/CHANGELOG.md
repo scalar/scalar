@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.5.4
+
+### Patch Changes
+
+- [#11269](https://github.com/scalar/scalar/pull/11269): Use the retrieval scheme when an OpenAPI 2.0 description sets `host` and omits `schemes`.
+
 ## 0.5.3
 
 No changes in this release.

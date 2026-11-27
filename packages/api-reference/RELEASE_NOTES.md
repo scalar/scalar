@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.86.0 (2026-11-27)
+
+### Trusted local origins and improved schema resolution
+
+This release adds support for trusted local development origins in OAuth flows and fixes several issues with JSON Schema resolution, server URLs, and deep linking.
+
+- Added trustedLocalOrigins configuration to allow HTTP OAuth authorization on internal development hosts without using remote proxies
+- Fixed JSON Schema dynamic references to resolve correctly from their lexical resource, including URI-qualified targets and meta-schemas
+- Relative server URLs with templates now resolve correctly against the base server URL or API description location
+- Response property links now preserve the selected media type when copying and sharing URLs
+- Path-item servers are now used in Try It and code samples, including server variable edits
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1860)
+
 ## 1.85.0 (2026-11-26)
 
 ### Control available HTTP clients and switch to system fonts

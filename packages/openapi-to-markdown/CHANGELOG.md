@@ -1,5 +1,9 @@
 # @scalar/openapi-to-markdown
 
+## 1.7.15
+
+No changes in this release.
+
 ## 1.7.14
 
 No changes in this release.

@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.10.12
+
+### Patch Changes
+
+- [#11281](https://github.com/scalar/scalar/pull/11281): Show a toast fired right before its modal closes. A toast followed by closing a modal that unmounts on close (`toast(); modal.hide()`) moved the toaster into the dialog as it left the page, so the toast never appeared.
+
 ## 0.10.11
 
 ### Patch Changes

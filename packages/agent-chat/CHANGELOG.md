@@ -1,5 +1,9 @@
 # @scalar/agent-chat
 
+## 0.12.61
+
+No changes in this release.
+
 ## 0.12.60
 
 ### Patch Changes

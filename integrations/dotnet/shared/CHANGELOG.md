@@ -1,5 +1,11 @@
 # @scalar/dotnet-shared
 
+## 1.3.0
+
+### Minor Changes
+
+- [#11272](https://github.com/scalar/scalar/pull/11272): Add `trustedLocalOrigins` so explicitly configured development origins can use HTTP for OAuth authorization and bypass remote proxies for API and OAuth requests.
+
 ## 1.2.1
 
 ### Patch Changes

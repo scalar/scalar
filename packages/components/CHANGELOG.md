@@ -1,5 +1,9 @@
 # @scalar/components
 
+## 0.36.2
+
+No changes in this release.
+
 ## 0.36.1
 
 ### Patch Changes

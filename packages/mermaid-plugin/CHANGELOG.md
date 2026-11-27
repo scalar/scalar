@@ -1,5 +1,9 @@
 # @scalar/mermaid-plugin
 
+## 0.1.15
+
+No changes in this release.
+
 ## 0.1.14
 
 No changes in this release.

@@ -1,5 +1,9 @@
 # @scalar/hono-api-reference
 
+## 0.12.27
+
+No changes in this release.
+
 ## 0.12.26
 
 ### Patch Changes
