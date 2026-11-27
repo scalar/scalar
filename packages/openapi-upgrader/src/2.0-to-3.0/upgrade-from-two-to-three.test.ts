@@ -362,6 +362,40 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('prefers operation produces over global produces for shared responses', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Reports', version: '1.0' },
+      produces: ['application/json'],
+      responses: {
+        Export: { description: 'CSV export', schema: { type: 'string' } },
+      },
+      paths: {
+        '/export': {
+          get: {
+            produces: ['text/csv'],
+            responses: { '200': { $ref: '#/responses/Export' } },
+          },
+          post: {
+            responses: { '200': { $ref: '#/responses/Export' } },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/export']?.get?.responses?.['200']).toStrictEqual({
+      description: 'CSV export',
+      content: { 'text/csv': { schema: { type: 'string' } } },
+    })
+    expect(result.paths?.['/export']?.post?.responses?.['200']).toStrictEqual({
+      $ref: '#/components/responses/Export',
+    })
+    expect(result.components?.responses?.Export).toStrictEqual({
+      description: 'CSV export',
+      content: { 'application/json': { schema: { type: 'string' } } },
+    })
+  })
+
   it('uses global produces for responses', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

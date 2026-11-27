@@ -270,6 +270,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   })
 
   const globalConsumes = (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
+  const globalProduces = (document.produces as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
   // Keep the source fields and examples for operation-specific media types and combined forms.
   const sharedBodyParameters = new Map<string, OpenAPIV2.ParameterObject>()
 
@@ -351,6 +352,9 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     delete document.parameters
   }
 
+  // Keep the source responses for operations that override the global produces.
+  const sharedResponses = new Map<string, UnknownObject>()
+
   // Handle global responses defined in #/responses
   if (Object.hasOwn(document, 'responses') && typeof document.responses === 'object' && document.responses !== null) {
     // Update all $refs from #/responses/ to #/components/responses/
@@ -368,15 +372,14 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
     for (const [name, response] of Object.entries(responses)) {
       if (isObjectLike(response)) {
+        sharedResponses.set(name, structuredClone(response))
+
         // Handle reference objects
         if ('$ref' in response) {
           migratedResponses[name] = response as OpenAPIV3.ReferenceObject
         } else {
           // Transform the response object
-          const responseObj = transformResponseObject(
-            response,
-            (document.produces as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
-          )
+          const responseObj = transformResponseObject(response, globalProduces)
 
           migratedResponses[name] = responseObj as OpenAPIV3.ResponseObject
         }
@@ -464,11 +467,15 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
             // Responses
             if (operationItem.responses) {
+              const produces: string[] = operationItem.produces ?? globalProduces
+              const overridesProduces = produces.join() !== globalProduces.join()
               for (const response in operationItem.responses) {
                 if (Object.hasOwn(operationItem.responses, response)) {
                   operationItem.responses[response] = transformResponseObject(
-                    operationItem.responses[response],
-                    operationItem.produces ?? document.produces ?? [DEFAULT_MEDIA_TYPE],
+                    overridesProduces
+                      ? resolveSharedResponse(operationItem.responses[response], sharedResponses)
+                      : operationItem.responses[response],
+                    produces,
                   )
                 }
               }
@@ -1032,6 +1039,26 @@ const resolveBodyParameter = (
     return (segments.length === 3 && name !== undefined ? sharedBodyParameters.get(name) : undefined) ?? parameter
   }
   return parameter
+}
+
+/** Inline a shared response so an operation that overrides the global produces gets its own media types. */
+const resolveSharedResponse = (
+  response: UnknownObject,
+  sharedResponses: ReadonlyMap<string, UnknownObject>,
+): UnknownObject => {
+  if (typeof response.$ref !== 'string' || !response.$ref.startsWith('#/components/responses/')) {
+    return response
+  }
+
+  const segments = parseParameterReference(response.$ref)
+  const name = segments[2]
+  const sharedResponse = segments.length === 3 && name !== undefined ? sharedResponses.get(name) : undefined
+
+  if (sharedResponse === undefined || typeof sharedResponse.$ref === 'string') {
+    return response
+  }
+
+  return structuredClone(sharedResponse)
 }
 
 const isRequestBodyParameter = (parameter: SwaggerParameter): parameter is OpenAPIV2.ParameterObject =>
