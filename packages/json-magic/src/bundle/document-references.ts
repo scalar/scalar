@@ -413,7 +413,7 @@ export const documentReferences = (
     let role: ScopeRole
     let context: ReferenceContext | undefined = dialect ? 'object' : undefined
     for (const key of targetPath) {
-      if (target === null || typeof target !== 'object') {
+      if (target === null || typeof target !== 'object' || !Object.hasOwn(getRaw(target), key)) {
         return
       }
       origin = origins.get(target) ?? origin

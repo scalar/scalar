@@ -31,6 +31,24 @@ describe('document-traversal', () => {
     expect(traversal.location(input)).toBeUndefined()
   })
 
+  it('skips inherited properties when exposing a fragment', () => {
+    let reads = 0
+    const input = {
+      container: Object.create({
+        get child(): undefined {
+          reads++
+          return undefined
+        },
+      }),
+    }
+    const traversal = documentTraversal(input)
+    traversal.register(input, '/root.json')
+
+    traversal.register(input, '/root.json', 'schema', ['container', 'child'])
+
+    expect(reads).toBe(0)
+  })
+
   it('exposes and indexes only the selected subtree after initial registration', () => {
     let reads = 0
     const untouched = {
