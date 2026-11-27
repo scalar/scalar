@@ -55,23 +55,29 @@ export const serializePathParameter = (
     return ''
   }
 
-  const pair = (key: string, data: string): string => `${encode(key)}${data || allowReserved ? `=${data}` : ''}`
+  const pair = (encodedKey: string, data: string): string => `${encodedKey}${data || allowReserved ? `=${data}` : ''}`
   if (style === 'matrix') {
     if (entries && explode) {
-      return entries.map(([key, item]) => `;${pair(key, encode(item))}`).join('')
+      return entries.map(([key, item]) => `;${pair(encode(key), encode(item))}`).join('')
     }
+
+    // RFC 6570 treats percent-encoded triplets in template variable names as literal.
+    const encodedName = allowReserved ? encode(name) : encode(name).replace(/%25([\da-f]{2})/gi, '%$1')
     if (items && explode) {
-      return items.map((item) => `;${pair(name, encode(item))}`).join('')
+      return items.map((item) => `;${pair(encodedName, encode(item))}`).join('')
     }
-    const parts = entries ? entries.flatMap(([key, item]) => [key, item]) : (items ?? [value])
-    return `;${pair(name, parts.map(encode).join(','))}`
+    const parts = entries?.flatMap(([key, item]) => [key, item]) ?? items
+    if (parts) {
+      return `;${encodedName}=${parts.map(encode).join(',')}`
+    }
+    return `;${pair(encodedName, encode(value))}`
   }
 
   const delimiter = style === 'label' && explode ? '.' : ','
   let data: string
   if (entries) {
     data = entries
-      .map(([key, item]) => (explode ? pair(key, encode(item)) : `${encode(key)}${delimiter}${encode(item)}`))
+      .map(([key, item]) => (explode ? pair(encode(key), encode(item)) : `${encode(key)}${delimiter}${encode(item)}`))
       .join(delimiter)
   } else {
     data = items ? items.map(encode).join(delimiter) : encode(value)

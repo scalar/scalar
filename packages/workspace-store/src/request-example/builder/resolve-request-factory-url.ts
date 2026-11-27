@@ -1,5 +1,4 @@
 import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
-import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { type Result, err, ok } from '@scalar/helpers/types/result'
 import { safeRun } from '@scalar/helpers/types/safe-run'
@@ -95,19 +94,28 @@ export const resolveRequestFactoryUrl = (
     if (request.path.reservedParameters && Object.keys(request.path.reservedParameters).length) {
       assertReservedPathUrl(mergedUrl)
     }
-    // Only check segments a label can turn into a dot segment. Authored segments in
-    // the server URL or elsewhere in the operation path keep normal URL semantics.
     const styled = request.path.styledParameters
-    if (styled) {
-      const segments = (rawPath.split(/[?#]/, 1)[0] ?? '').split('/')
-      for (const segment of segments) {
-        const hasLabel = [...segment.matchAll(REGEX.PATH)].some(
-          ([, key]) => key !== undefined && getOwnEntry(styled, key)?.style === 'label',
-        )
-        if (hasLabel) {
-          assertReservedPathUrl(replacePathVariables(segment, pathVariables))
+    if (styled && Object.values(styled).some(({ style }) => style === 'label')) {
+      // Mark label expansions before splitting the path, since template names may
+      // themselves contain URI separators. Literal segments must keep normal URL semantics.
+      const markedPath = replacePathVariables(
+        rawPath,
+        Object.fromEntries(
+          Object.entries(pathVariables).map(([name, value]) => [
+            name,
+            getOwnEntry(styled, name)?.style === 'label' && !request.path.serializedParameters?.has(name)
+              ? `x${value}`
+              : value,
+          ]),
+        ),
+      )
+      const getPathSegments = (value: string): string[] => (value.split(/[?#]/, 1)[0] ?? '').trim().split('/')
+      const markedSegments = getPathSegments(markedPath)
+      getPathSegments(path).forEach((segment, index) => {
+        if (segment !== markedSegments[index]) {
+          assertReservedPathUrl(segment)
         }
-      }
+      })
     }
     return new URL(mergedUrl, urlBase)
   })

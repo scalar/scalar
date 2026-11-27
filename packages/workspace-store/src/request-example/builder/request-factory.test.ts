@@ -182,26 +182,29 @@ describe('requestFactory', () => {
     expect(built.data.requestPayload[0]).toBe('https://api.example.test/v2/items/.abc')
   })
 
-  it('rejects a label value that the browser would normalize into another path', () => {
-    const { request } = requestFactory(
-      createBaseArgs({
-        path: '/items/{id}',
-        server: { url: 'https://api.example.test' },
-        proxyUrl: '',
-        operation: {
-          parameters: [
-            { name: 'id', in: 'path', required: true, style: 'label', schema: { type: 'string' }, example: '.' },
-          ],
-        },
-      }),
-    )
+  it.each(['id', 'id/part', 'id?part', 'id#part'])(
+    'rejects a label for %s that the browser would normalize into another path',
+    (name) => {
+      const { request } = requestFactory(
+        createBaseArgs({
+          path: `/items/{${name}}`,
+          server: { url: 'https://api.example.test' },
+          proxyUrl: '',
+          operation: {
+            parameters: [
+              { name, in: 'path', required: true, style: 'label', schema: { type: 'string' }, example: '.' },
+            ],
+          },
+        }),
+      )
 
-    expect(buildRequest(request, { envVariables: {} })).toStrictEqual({
-      ok: false,
-      error: 'INVALID_REQUEST_FACTORY_URL',
-      message: 'The request URL could not be parsed. Check the server URL and path for invalid characters.',
-    })
-  })
+      expect(buildRequest(request, { envVariables: {} })).toStrictEqual({
+        ok: false,
+        error: 'INVALID_REQUEST_FACTORY_URL',
+        message: 'The request URL could not be parsed. Check the server URL and path for invalid characters.',
+      })
+    },
+  )
 
   it.each([
     { version: '3.2.0', allowReserved: true, expected: 'a:b%2Fc' },

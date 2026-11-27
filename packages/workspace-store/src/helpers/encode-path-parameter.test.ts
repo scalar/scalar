@@ -48,6 +48,19 @@ describe('encode-path-parameter', () => {
     expect(serializePathParameter('id', { value, style, explode: true }, (text) => text)).toBe(expected)
   })
 
+  it('preserves existing percent escapes in matrix template names and encodes percent signs in values', () => {
+    expect(
+      serializePathParameter('id%20name', { value: 'a%20b', style: 'matrix', explode: false }, (text) => text),
+    ).toBe(';id%20name=a%2520b')
+    expect(
+      serializePathParameter('id%20name', { value: ['a', 'b'], style: 'matrix', explode: true }, (text) => text),
+    ).toBe(';id%20name=a;id%20name=b')
+  })
+
+  it('keeps a single empty item in a non-exploded matrix array', () => {
+    expect(serializePathParameter('id', { value: [''], style: 'matrix', explode: false }, (text) => text)).toBe(';id=')
+  })
+
   it('encodes environment values before adding style delimiters', () => {
     expect(
       serializeReservedPathParameter(
