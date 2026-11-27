@@ -556,7 +556,9 @@ describe('protobuf-specification', () => {
 
   it('leaves out detached comments after a field number', () => {
     const source = 'message M { string id = 1\n/* Detached. */; }'
-    expect(readProtobuf(source, '3').nodes[0]?.children?.[0]?.description).toBeUndefined()
+    expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
+      undefined,
+    ])
   })
 
   it('preserves inline enum value descriptions', () => {
@@ -584,6 +586,21 @@ describe('protobuf-specification', () => {
     expect(node?.children?.map(({ description }) => description)).toStrictEqual([
       'First line.\nSecond line.',
       undefined,
+    ])
+  })
+
+  it.each(['2', '3'])('preserves descriptions inside wrapped proto%s declaration headers', (version) => {
+    const source = `message
+      // Payload tracked by the carrier.
+      Envelope {}
+      enum
+      /* Delivery status. */
+      Status { QUEUED = 0; }
+    `
+    const nodes = readProtobuf(source, version).nodes
+    expect(nodes.map(({ name, description }) => ({ name, description }))).toStrictEqual([
+      { name: 'Envelope', description: 'Payload tracked by the carrier.' },
+      { name: 'Status', description: 'Delivery status.' },
     ])
   })
 

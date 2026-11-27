@@ -240,7 +240,29 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -713,7 +807,7 @@
+@@ -685,11 +779,20 @@
+         bracketClose,
+     };
+ }
++// A description may sit between a block declaration's keyword and name.
++function skipDeclarationHeaderComments(parser, leadingComments) {
++    const { commentGroups, trailingNewline } = skipWsAndSweepComments(parser);
++    const group = commentGroups.at(-1);
++    if (!group || leadingComments.length || trailingNewline)
++        return;
++    if (group.comments.at(-1)?.text.endsWith("\n") || /[\r\n]/.test(parser.input.slice(group.end, parser.loc)))
++        leadingComments.push(group);
++}
+ function acceptEnum(parser, leadingComments, leadingDetachedComments) {
+     const keyword = acceptKeyword(parser, "enum");
+     if (!keyword)
+         return;
+-    skipWsAndComments(parser);
++    skipDeclarationHeaderComments(parser, leadingComments);
+     const enumName = parser.expect(identPattern);
+     skipWsAndComments(parser);
+     const enumBody = expectEnumBody(parser);
+@@ -713,7 +816,7 @@
  }
  function acceptField(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;
@@ -249,7 +271,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      skipWsAndComments(parser);
      const fieldType = acceptType(parser);
      if (!fieldType) {
-@@ -855,10 +949,22 @@
+@@ -855,10 +958,22 @@
      const keyword = acceptKeyword(parser, "oneof");
      if (!keyword)
          return;
@@ -274,7 +296,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      const trailingComments = acceptTrailingComments(parser);
      return {
          ...(0, misc_1.mergeSpans)([
-@@ -1031,13 +1137,13 @@
+@@ -1031,13 +1146,13 @@
  }
  function acceptGroup(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;
@@ -290,6 +312,15 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword) {
          parser.loc = loc;
          return;
+@@ -1134,7 +1249,7 @@
+     const keyword = acceptKeyword(parser, "message");
+     if (!keyword)
+         return;
+-    skipWsAndComments(parser);
++    skipDeclarationHeaderComments(parser, leadingComments);
+     const messageName = parser.expect(identPattern);
+     skipWsAndComments(parser);
+     const messageBody = expectMessageBody(parser);
 diff --git a/core/parser/recursive-descent-parser.js b/core/parser/recursive-descent-parser.js
 --- a/core/parser/recursive-descent-parser.js
 +++ b/core/parser/recursive-descent-parser.js
