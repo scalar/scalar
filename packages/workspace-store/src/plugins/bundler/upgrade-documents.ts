@@ -4,13 +4,23 @@ import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
 import { type LifecyclePlugin, resolveReferencePath } from '@scalar/json-magic/bundle'
 import { getHash, uniqueValueGeneratorFactory } from '@scalar/json-magic/bundle/value-generator'
 import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
-import { type FragmentKind, type FragmentLocation, upgradeFragment } from '@scalar/openapi-upgrader'
+import {
+  type FragmentKind,
+  type FragmentLocation,
+  type FragmentUpgradeResult,
+  upgradeFragment,
+} from '@scalar/openapi-upgrader'
 
 import { openApiDocument, resolveOpenApiDocument } from './openapi-document'
 
 const metadataKey = 'x-scalar-upgrade'
 type SourceVersion = '2.0' | '3.0'
 type SourceDialect = SourceVersion | 'modern'
+type SourceDocument = {
+  document: unknown
+  version?: SourceDialect
+  resolveSharedResponse?: FragmentUpgradeResult['resolveSharedResponse']
+}
 type UpgradeMetadata = { from: SourceVersion; locations: FragmentLocation[]; pointers: Map<string, readonly string[]> }
 
 const sourceVersion = (value: unknown): SourceVersion | undefined => {
@@ -105,7 +115,7 @@ const fragmentKind = (path: readonly string[]): FragmentKind | undefined => {
 
 /** Upgrade loaded resources at their source locations, before bundling hides them under x-ext. */
 export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
-  const sources = new Map<string, { document: unknown; version?: SourceDialect }>()
+  const sources = new Map<string, SourceDocument>()
   let entryUri: string | undefined
   const resolvers = new Map<string, (ref: string) => Promise<unknown>>()
   const converted = new WeakSet<object>()
@@ -137,7 +147,11 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
           : undefined)
       // Retain source context only when a complete legacy resource will be replaced.
       // Lazy resolves of an already upgraded root must not copy the whole API description.
-      sources.set(uri, { document: from && !metadata(document) ? structuredClone(document) : document, version })
+      const source: SourceDocument = {
+        document: from && !metadata(document) ? structuredClone(document) : document,
+        version,
+      }
+      sources.set(uri, source)
       const resolveSource = async (ref: string, origin = uri, visited = new Set<string>()): Promise<unknown> => {
         const [prefix, fragment = ''] = ref.split('#', 2)
         const resource = prefix ? resolveReferencePath(origin, prefix) : origin
@@ -214,10 +228,12 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
         kind: 'document',
         sourceUrl: uri,
         resolveSource,
+        resolveReferencePath,
       })
       if (!isObject(result.value)) {
         return result.value
       }
+      source.resolveSharedResponse = result.resolveSharedResponse
       // Keep only prefix substitutions that cannot be inherited from a relocated parent.
       const prefixes = new Map<string, readonly string[]>()
       const locations = result.locations.filter(({ source, output }) => {
@@ -272,11 +288,22 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
         return undefined
       }
       const source = sources.get(context.uri)
+      const referring = sources.get(context.referenceSource.uri)
       const document = context.document
+      const resolveSharedResponse =
+        referring?.version === '2.0' &&
+        context.referenceSource.uri !== context.uri &&
+        fragmentKind(context.referenceSource.path) === 'response'
+          ? source?.resolveSharedResponse?.(context.path)
+          : undefined
       // Complete versioned resources were converted at load time. Saved resources carry
       // the same information so lazy resolution after serialization cannot upgrade twice.
       const referenceNode = atPath(context.referenceSource.document, context.referenceSource.path)
-      if (isObject(document) && (document.openapi || document.swagger || metadata(document))) {
+      if (
+        !resolveSharedResponse &&
+        isObject(document) &&
+        (document.openapi || document.swagger || metadata(document))
+      ) {
         if (metadata(document) && document !== context.referencedFrom.rootNode && isObject(referenceNode)) {
           originalReferences.onBeforeNodeProcess?.(referenceNode, {
             ...context.referencedFrom,
@@ -289,10 +316,9 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
         }
         return undefined
       }
-      if (converted.has(target)) {
+      if (!resolveSharedResponse && converted.has(target)) {
         return undefined
       }
-      const referring = sources.get(context.referenceSource.uri)
       const storedPath = context.referenceSource.path
       const variant =
         storedPath[0] === metadataKey && storedPath[1] === 'variants'
@@ -363,6 +389,9 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
             : isObject(owner) && stringArray(owner.produces)
               ? owner.produces
               : saved?.produces
+      if (resolveSharedResponse) {
+        return resolveSharedResponse(produces)
+      }
       const storage = Object.assign(Object.create(null), isObject(document[metadataKey]) ? document[metadataKey] : {})
       const mappings = Object.assign(
         Object.create(null),

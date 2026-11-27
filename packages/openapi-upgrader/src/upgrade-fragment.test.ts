@@ -82,6 +82,36 @@ describe('upgrade-fragment', () => {
     })
   })
 
+  it('resolves each response alias only once when operations share the same chain', async () => {
+    const references = Array.from({ length: 32 }, (_, index) => `#/paths/~1report-${index}/get/responses/200`)
+    references.unshift('#/responses/Report')
+    const filename = './api.json'
+    const paths = Object.fromEntries(
+      references
+        .map((reference, index) => [
+          `/report-${index}`,
+          { get: { responses: { '200': { $ref: filename + reference } } } },
+        ])
+        .reverse(),
+    )
+    const lookups: string[] = []
+    await upgradeFragment(
+      { swagger: '2.0', responses: { Report: { description: 'Report' } }, paths },
+      {
+        from: '2.0',
+        to: '3.1',
+        kind: 'document',
+        sourceUrl: 'https://example.com/api.json',
+        resolveReferencePath: (base, path) => {
+          lookups.push(path)
+          return new URL(path, base).href
+        },
+      },
+    )
+
+    expect(lookups).toStrictEqual(references.map(() => filename))
+  })
+
   it('upgrades a 2.0 path item including query, header and body parameters', async () => {
     const result = await upgradeFragment(
       {

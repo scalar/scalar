@@ -7,9 +7,9 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import {
   isInsideDataValue,
+  isInsideExtension,
   isNamedOpenApiMap,
   isNamedSchemaMap,
-  isOpenApiObjectName,
 } from '@/helpers/is-inside-data-value'
 import { traverse } from '@/helpers/traverse'
 
@@ -25,22 +25,6 @@ const ANNOTATION_KEYWORDS = new Set([
   'readOnly',
   'writeOnly',
 ])
-
-/** Keep extension payloads opaque, including extensions outside Schema Objects. */
-const isInsideExtension = (path: string[] | undefined): boolean => {
-  const segments = path?.[0] === 'x-ext' && path[1] !== undefined ? path.slice(2) : path
-  // This legacy root extension is migrated as a Webhooks Object below.
-  const objectPath = path?.[0] === 'x-webhooks' ? ['webhooks', ...path.slice(1)] : segments
-  return (
-    !!objectPath &&
-    objectPath.some(
-      (segment, index) =>
-        segment.startsWith('x-') &&
-        !isNamedSchemaMap(objectPath.slice(0, index)) &&
-        !isOpenApiObjectName(objectPath, index),
-    )
-  )
-}
 
 /** Keep schema keywords separate from author-chosen names. */
 const isSchemaObjectPath = (path: string[] | undefined): boolean =>

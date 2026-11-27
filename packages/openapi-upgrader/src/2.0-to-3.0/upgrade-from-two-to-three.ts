@@ -1,10 +1,12 @@
-import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
+import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
-import { isInsideDataValue } from '@/helpers/is-inside-data-value'
+import { isInsideDataValue, isInsideExtension } from '@/helpers/is-inside-data-value'
 import { traverse } from '@/helpers/traverse'
 
 import { migrateDiscriminatorMappings } from './migrate-discriminator-mappings'
@@ -270,6 +272,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   })
 
   const globalConsumes = (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
+  const globalProduces = Array.isArray(document.produces) ? document.produces : [DEFAULT_MEDIA_TYPE]
   // Keep the source fields and examples for operation-specific media types and combined forms.
   const sharedBodyParameters = new Map<string, OpenAPIV2.ParameterObject>()
 
@@ -290,7 +293,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
         typeof schema.$ref === 'string' &&
         schema.$ref.startsWith('#/parameters/')
       ) {
-        const schemaName = parseParameterReference(schema.$ref)[1]
+        const schemaName = parseLocalReference(schema.$ref)[1]
 
         if (schemaName === undefined) {
           return schema
@@ -351,32 +354,41 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     delete document.parameters
   }
 
+  // Relocation creates a new paths tree. Keep authored references for alias resolution.
+  const sourcePaths = document.paths
+  let sharedResponses: UnknownObject | undefined
+  const migratedResponses: Record<string, OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject> = {}
+
   // Handle global responses defined in #/responses
   if (Object.hasOwn(document, 'responses') && typeof document.responses === 'object' && document.responses !== null) {
     // Update all $refs from #/responses/ to #/components/responses/
-    document = traverse(document, (schema) => {
-      if (typeof schema.$ref === 'string' && schema.$ref.startsWith('#/responses/')) {
-        schema.$ref = schema.$ref.replace(/^#\/responses\//, '#/components/responses/')
+    document = traverse(document, (schema, path) => {
+      if (typeof schema.$ref === 'string' && !isInsideDataValue(path, '2.0') && !isInsideExtension(path, '2.0')) {
+        if (schema.$ref.startsWith('#/responses/')) {
+          schema.$ref = schema.$ref.replace(/^#\/responses\//, '#/components/responses/')
+        } else {
+          const [section, ...segments] = parseLocalReference(schema.$ref)
+          if (section === 'responses' && segments.length) {
+            schema.$ref = sharedResponseReference('components/responses', segments)
+          }
+        }
       }
       return schema
     })
 
     document.components ??= {}
 
-    const migratedResponses: Record<string, OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject> = {}
-    const responses = document.responses as Record<string, unknown>
+    sharedResponses = document.responses as UnknownObject
 
-    for (const [name, response] of Object.entries(responses)) {
+    for (const [name, response] of Object.entries(sharedResponses)) {
       if (isObjectLike(response)) {
         // Handle reference objects
         if ('$ref' in response) {
           migratedResponses[name] = response as OpenAPIV3.ReferenceObject
         } else {
           // Transform the response object
-          const responseObj = transformResponseObject(
-            response,
-            (document.produces as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
-          )
+          // Convert a copy so each operation can still use the original schema and examples.
+          const responseObj = transformResponseObject(structuredClone(response), globalProduces)
 
           migratedResponses[name] = responseObj as OpenAPIV3.ResponseObject
         }
@@ -389,6 +401,13 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
     delete document.responses
   }
+
+  const sharedResponseResolver = createSharedResponseResolver({
+    responses: sharedResponses,
+    paths: sourcePaths,
+    globalProduces,
+    section: 'components/responses',
+  })
 
   // Paths
   if (typeof document.paths === 'object') {
@@ -464,12 +483,14 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
             // Responses
             if (operationItem.responses) {
-              for (const response in operationItem.responses) {
-                if (Object.hasOwn(operationItem.responses, response)) {
-                  operationItem.responses[response] = transformResponseObject(
-                    operationItem.responses[response],
-                    operationItem.produces ?? document.produces ?? [DEFAULT_MEDIA_TYPE],
-                  )
+              const produces = Array.isArray(operationItem.produces) ? operationItem.produces : globalProduces
+              const sourceOperation = own(own(sourcePaths, path), methodOrParameters)
+              const sourceResponses = own(sourceOperation, 'responses')
+              for (const status in operationItem.responses) {
+                if (Object.hasOwn(operationItem.responses, status) && !status.startsWith('x-')) {
+                  const response = operationItem.responses[status]
+                  const shared = sharedResponseResolver?.resolve(own(sourceResponses, status), produces)
+                  operationItem.responses[status] = transformResponseObject(shared?.reference ?? response, produces)
                 }
               }
             }
@@ -484,6 +505,12 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
         }
       }
     }
+  }
+
+  for (const [name, variant] of sharedResponseResolver?.variants ?? []) {
+    migratedResponses[name] = transformResponseObject(structuredClone(variant.response), [
+      ...variant.produces,
+    ]) as OpenAPIV3.ResponseObject
   }
 
   // Upgrade securityDefinitions
@@ -987,13 +1014,42 @@ export function migrateFormDataParameter(
 
 type SwaggerParameter = OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject
 
-/** Keep malformed percent escapes from aborting an otherwise usable API description. */
-const parseParameterReference = (reference: string): string[] => {
-  try {
-    return parseJsonPointerSegments(reference.slice(1))
-  } catch {
-    return reference.split('/').slice(1).map(unescapeJsonPointerSegment)
+/** Resolve a resource path against the document's retrieval location. */
+export type ResolveReferencePath = (base: string, path: string) => string
+
+type ReferenceOrigin = {
+  uri: string
+  resolvePath: ResolveReferencePath
+}
+
+/** Parse a JSON Pointer after checking that the reference targets this document. */
+const parseLocalReference = (reference: string, origin?: ReferenceOrigin): string[] => {
+  const separator = reference.indexOf('#')
+  if (separator === -1) {
+    return []
   }
+
+  if (separator > 0) {
+    if (!origin) {
+      return []
+    }
+    try {
+      if (origin.resolvePath(origin.uri, reference.slice(0, separator)) !== origin.uri) {
+        return []
+      }
+    } catch {
+      // Leave unresolvable references for the caller to diagnose.
+      return []
+    }
+  }
+
+  let pointer = reference.slice(separator + 1)
+  try {
+    pointer = decodeURIComponent(pointer)
+  } catch {
+    // Legacy references can contain literal percent characters.
+  }
+  return pointer.startsWith('/') ? pointer.slice(1).split('/').map(unescapeJsonPointerSegment) : []
 }
 
 /** Follow local aliases without looping on cyclic or unresolved parameter references. */
@@ -1012,7 +1068,7 @@ const resolveSharedBodyName = (name: string, parameters: UnknownObject): string 
     if (!parameter.$ref.startsWith('#/parameters/')) {
       return undefined
     }
-    const segments = parseParameterReference(parameter.$ref)
+    const segments = parseLocalReference(parameter.$ref)
     if (segments.length !== 2 || segments[1] === undefined) {
       return undefined
     }
@@ -1027,11 +1083,148 @@ const resolveBodyParameter = (
   sharedBodyParameters: ReadonlyMap<string, OpenAPIV2.ParameterObject>,
 ): SwaggerParameter => {
   if ('$ref' in parameter && parameter.$ref.startsWith('#/components/requestBodies/')) {
-    const segments = parseParameterReference(parameter.$ref)
+    const segments = parseLocalReference(parameter.$ref)
     const name = segments[2]
     return (segments.length === 3 && name !== undefined ? sharedBodyParameters.get(name) : undefined) ?? parameter
   }
   return parameter
+}
+
+const own = (value: unknown, name: string): unknown => (isObjectLike(value) ? getOwnEntry(value, name) : undefined)
+
+type SharedResponseSection = 'responses' | 'components/responses'
+
+const sharedResponseReference = (section: SharedResponseSection, segments: string[]): string =>
+  `#/${section}/${segments.map((segment) => encodeURIComponent(escapeJsonPointer(segment))).join('/')}`
+
+type SharedResponseContext = {
+  responses: unknown
+  paths: unknown
+  globalProduces: readonly string[]
+  /** The response section targeted by references returned to the caller. */
+  section: SharedResponseSection
+  referenceOrigin?: ReferenceOrigin
+}
+
+type SharedResponseTarget = {
+  name: string
+  response: UnknownObject
+  passesThroughOverride: boolean
+}
+
+type SharedResponseResolver = {
+  resolve: (
+    response: unknown,
+    produces: readonly string[],
+  ) => { name: string; variantName?: string; reference?: OpenAPIV3.ReferenceObject } | undefined
+  variants: ReadonlyMap<string, { response: UnknownObject; produces: readonly string[] }>
+}
+
+/** Resolve response aliases once per document, then apply each consuming operation's media types. */
+export const createSharedResponseResolver = ({
+  responses,
+  paths,
+  globalProduces,
+  section,
+  referenceOrigin,
+}: SharedResponseContext): SharedResponseResolver | undefined => {
+  if (!isObjectLike(responses)) {
+    return undefined
+  }
+
+  const targets = new Map<string, SharedResponseTarget | null>()
+  const variants = new Map<string, { response: UnknownObject; produces: readonly string[] }>()
+  const variantNames = new Map<string, string>()
+  let variantIndex = 0
+  const resolveTarget = (reference: string): SharedResponseTarget | null => {
+    const aliases = new Map<string, boolean>()
+    let current = reference
+    let target: SharedResponseTarget | null = null
+    while (!aliases.has(current)) {
+      const cached = targets.get(current)
+      if (cached !== undefined) {
+        target = cached
+        break
+      }
+
+      const [root, name, method, field, status, ...rest] = parseLocalReference(current, referenceOrigin)
+      if (root === 'responses' && name !== undefined && method === undefined) {
+        const response = getOwnEntry(responses, name)
+        if (isObjectLike(response) && typeof response.$ref !== 'string') {
+          target = { name, response, passesThroughOverride: false }
+        }
+        targets.set(current, target)
+        break
+      }
+
+      if (
+        root !== 'paths' ||
+        name === undefined ||
+        method === undefined ||
+        field !== 'responses' ||
+        status === undefined ||
+        status.startsWith('x-') ||
+        rest.length > 0
+      ) {
+        targets.set(current, null)
+        break
+      }
+      const operation = own(own(paths, name), method)
+      const operationProduces = own(operation, 'produces')
+      const response = own(own(operation, 'responses'), status)
+      const next = own(response, '$ref')
+      aliases.set(current, Array.isArray(operationProduces) && !isObjectEqual(operationProduces, globalProduces))
+      if (typeof next !== 'string') {
+        break
+      }
+      current = next
+    }
+
+    // Cache each suffix with only the overrides it crosses, including misses and cycles.
+    for (const [alias, overridesProduces] of Array.from(aliases).reverse()) {
+      if (target && overridesProduces && !target.passesThroughOverride) {
+        target = { ...target, passesThroughOverride: true }
+      }
+      targets.set(alias, target)
+    }
+    return target
+  }
+
+  const resolve: SharedResponseResolver['resolve'] = (response, produces) => {
+    const reference = own(response, '$ref')
+    if (typeof reference !== 'string') {
+      return undefined
+    }
+    const cached = targets.get(reference)
+    const target = cached === undefined ? resolveTarget(reference) : cached
+    if (!target) {
+      return undefined
+    }
+    if (!isObjectEqual(produces, globalProduces)) {
+      const key = JSON.stringify([target.name, produces])
+      let name = variantNames.get(key)
+      if (name === undefined) {
+        const baseName = target.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+        do {
+          variantIndex += 1
+          name = `${baseName}-variant-${variantIndex}`
+        } while (Object.hasOwn(responses, name))
+        variantNames.set(key, name)
+        variants.set(name, { response: target.response, produces })
+      }
+      return {
+        name: target.name,
+        variantName: name,
+        reference: { $ref: sharedResponseReference('components/responses', [name]) },
+      }
+    }
+    // An intermediate operation can point to a different variant than the consumer needs.
+    const replacement = target.passesThroughOverride
+      ? { $ref: sharedResponseReference(section, [target.name]) }
+      : undefined
+    return { name: target.name, reference: replacement }
+  }
+  return { resolve, variants }
 }
 
 const isRequestBodyParameter = (parameter: SwaggerParameter): parameter is OpenAPIV2.ParameterObject =>

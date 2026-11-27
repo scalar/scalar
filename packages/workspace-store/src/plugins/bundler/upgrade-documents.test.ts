@@ -3,6 +3,7 @@ import { type LoaderPlugin, bundle, bundleWithDiagnostics } from '@scalar/json-m
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { describe, expect, it, vi } from 'vitest'
 
+import { openApiDocument } from './openapi-document'
 import { upgradeDocuments } from './upgrade-documents'
 
 const loader = (documents: Record<string, unknown>): LoaderPlugin => ({
@@ -213,6 +214,145 @@ describe('upgrade-documents', () => {
       ],
     })
     expect(read(input, ['components', 'schemas', 'Name', '$ref-value', 'type'])).toBe('string')
+  })
+
+  it('uses operation media types for shared 2.0 responses when loading a document', async () => {
+    const input = {
+      swagger: '2.0',
+      info: { title: 'CSV export', version: '1.0' },
+      produces: ['application/json'],
+      responses: { Export: { description: 'Export', schema: { $ref: '#/definitions/Row' } } },
+      definitions: { Row: { type: 'string' } },
+      paths: {
+        '/export': {
+          get: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export' } } },
+          post: { responses: { '200': { $ref: '#/responses/Export' } } },
+          put: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export' } } },
+        },
+      },
+    }
+    await bundle(input, {
+      traversal: 'document',
+      origin: 'https://example.com/api.json',
+      treeShake: false,
+      plugins: [upgradeDocuments('2.0'), openApiDocument()],
+    })
+
+    const csv = ['paths', '/export', 'get', 'responses', '200', '$ref-value', 'content']
+    expect(read(input, ['paths', '/export', 'get', 'responses', '200', '$ref'])).toBe(
+      '#/components/responses/Export-variant-1',
+    )
+    expect(read(input, ['paths', '/export', 'put', 'responses', '200', '$ref'])).toBe(
+      '#/components/responses/Export-variant-1',
+    )
+    expect(Object.keys(read(input, csv) as object)).toStrictEqual(['text/csv'])
+    expect(read(input, [...csv, 'text/csv', 'schema', '$ref-value', 'type'])).toBe('string')
+    expect(read(input, ['paths', '/export', 'post', 'responses', '200', '$ref'])).toBe('#/components/responses/Export')
+    expect(getRaw(read(input, ['components', 'responses', 'Export', 'content']))).toStrictEqual({
+      'application/json': { schema: { $ref: '#/components/schemas/Row' } },
+    })
+  })
+
+  it.each(['', './api.json', 'https://example.com/api.json'])(
+    'uses the consuming operation media types for shared 2.0 response aliases with prefix %j',
+    async (prefix) => {
+      const reference = `${prefix}#/paths/~1export/get/responses/200`
+      const input = {
+        swagger: '2.0',
+        produces: ['application/json'],
+        responses: { Export: { description: 'Export', schema: { type: 'string' } } },
+        paths: {
+          '/export': { get: { produces: ['text/csv'], responses: { '200': { $ref: `${prefix}#/responses/Export` } } } },
+          '/report': { get: { responses: { '200': { $ref: reference } } } },
+          '/xml': { get: { produces: ['application/xml'], responses: { '200': { $ref: reference } } } },
+        },
+      }
+      await bundle(input, {
+        origin: 'https://example.com/api.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [upgradeDocuments('2.0'), openApiDocument()],
+      })
+
+      expect(
+        getRaw(read(input, ['paths', '/export', 'get', 'responses', '200', '$ref-value', 'content'])),
+      ).toStrictEqual({
+        'text/csv': { schema: { type: 'string' } },
+      })
+      expect(
+        getRaw(read(input, ['paths', '/report', 'get', 'responses', '200', '$ref-value', 'content'])),
+      ).toStrictEqual({
+        'application/json': { schema: { type: 'string' } },
+      })
+      expect(getRaw(read(input, ['paths', '/xml', 'get', 'responses', '200', '$ref-value', 'content']))).toStrictEqual({
+        'application/xml': { schema: { type: 'string' } },
+      })
+    },
+  )
+
+  it('uses the consuming operation media types for shared 2.0 response aliases in another document', async () => {
+    const reference = './export.json#/paths/~1export/get/responses/200'
+    const input = {
+      swagger: '2.0',
+      produces: ['application/json'],
+      paths: {
+        '/report': { get: { responses: { '200': { $ref: reference } } } },
+        '/xml': { get: { produces: ['application/xml'], responses: { '200': { $ref: reference } } } },
+      },
+    }
+    await bundle(input, {
+      origin: 'https://example.com/report.json',
+      traversal: 'document',
+      treeShake: false,
+      plugins: [
+        upgradeDocuments('2.0'),
+        openApiDocument(),
+        loader({
+          'https://example.com/export.json': {
+            swagger: '2.0',
+            produces: ['application/json'],
+            responses: { Export: { description: 'Export', schema: { $ref: '#/definitions/Row' } } },
+            definitions: { Row: { type: 'string' } },
+            paths: {
+              '/export': { get: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export' } } } },
+            },
+          },
+        }),
+      ],
+    })
+
+    for (const [path, media] of [
+      ['/report', 'application/json'],
+      ['/xml', 'application/xml'],
+    ] as const) {
+      const content = ['paths', path, 'get', 'responses', '200', '$ref-value', 'content']
+      expect(Object.keys(read(input, content) as object)).toStrictEqual([media])
+      expect(read(input, [...content, media, 'schema', '$ref-value', 'type'])).toBe('string')
+    }
+  })
+
+  it('decodes the shared 2.0 response pointer before finding the operation variant', async () => {
+    const input = {
+      swagger: '2.0',
+      produces: ['application/json'],
+      responses: {
+        'Export#': { description: 'Export', schema: { type: 'string' } },
+        'Export%23': { description: 'Other response', schema: { type: 'integer' } },
+      },
+      paths: {
+        '/export': { get: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export%23' } } } },
+      },
+    }
+    await bundle(input, {
+      traversal: 'document',
+      treeShake: false,
+      plugins: [upgradeDocuments('2.0'), openApiDocument()],
+    })
+
+    expect(getRaw(read(input, ['paths', '/export', 'get', 'responses', '200', '$ref-value']))).toStrictEqual({
+      description: 'Export',
+      content: { 'text/csv': { schema: { type: 'string' } } },
+    })
   })
 
   it('converts an external body parameter using the operation media type', async () => {

@@ -45,7 +45,7 @@ const openApiNameLevels = (path: readonly string[]): number => {
 export const isNamedOpenApiMap = (path: string[] | undefined): boolean => !!path && openApiNameLevels(path) > 0
 
 /** Distinguish author-chosen OpenAPI names from keywords and Specification Extensions. */
-export const isOpenApiObjectName = (path: readonly string[], index: number): boolean => {
+const isOpenApiObjectName = (path: readonly string[], index: number): boolean => {
   const parent = path.slice(0, index)
   const levels = openApiNameLevels(parent)
   if (levels === 0) {
@@ -95,6 +95,22 @@ export function isNamedSchemaMap(path: string[] | undefined): boolean {
  */
 function isDefaultResponse(path: string[], index: number): boolean {
   return path[index] === 'default' && path[index - 1] === 'responses' && !isNamedSchemaMap(path.slice(0, index - 1))
+}
+
+/** Keep extension payloads opaque, including extensions outside Schema Objects. */
+export const isInsideExtension = (path: string[] | undefined, sourceVersion: '2.0' | '3.0' = '3.0'): boolean => {
+  const segments = sourceVersion === '3.0' && path?.[0] === 'x-ext' && path[1] !== undefined ? path.slice(2) : path
+  // This legacy root extension is migrated as a Webhooks Object.
+  const objectPath = path?.[0] === 'x-webhooks' ? ['webhooks', ...path.slice(1)] : segments
+  return (
+    !!objectPath &&
+    objectPath.some(
+      (segment, index) =>
+        segment.startsWith('x-') &&
+        !isNamedSchemaMap(objectPath.slice(0, index)) &&
+        !isOpenApiObjectName(objectPath, index),
+    )
+  )
 }
 
 // Keywords whose value is arbitrary data rather than a schema. The upgrade rules only make

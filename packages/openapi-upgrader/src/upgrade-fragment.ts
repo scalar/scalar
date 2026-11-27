@@ -5,6 +5,8 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import { migrateDiscriminatorMappings } from './2.0-to-3.0/migrate-discriminator-mappings'
 import {
+  type ResolveReferencePath,
+  createSharedResponseResolver,
   migrateBodyParameter,
   migrateFormDataParameter,
   migrateSchema,
@@ -39,7 +41,7 @@ export type FragmentUpgradeOptions = {
   from: '2.0' | '3.0'
   to: '3.1'
   kind: FragmentKind
-  /** Retrieval URL for a complete OpenAPI 2.0 description with `host` and omitted `schemes`. */
+  /** Retrieval URL or file path for resolving references and inferring the OpenAPI 2.0 retrieval scheme. */
   sourceUrl?: string
   consumes?: readonly string[]
   produces?: readonly string[]
@@ -49,6 +51,8 @@ export type FragmentUpgradeOptions = {
    * retain the authored reference. Without this callback, referenced body/form parameters stay in parameters.
    */
   resolveSource?: (ref: string) => Promise<unknown>
+  /** Resolve relative resource paths against the source URL or file path. */
+  resolveReferencePath?: ResolveReferencePath
 }
 
 /** Converted content and the locations of original reference targets. */
@@ -58,6 +62,10 @@ export type FragmentUpgradeResult = {
   locations: FragmentLocation[]
   /** Effective operation media types, needed when later loading bare external fragments. */
   contexts: { path: readonly string[]; consumes: readonly string[]; produces: readonly string[] }[]
+  /** Find the shared response converter for an authored operation response path. */
+  resolveSharedResponse?: (
+    path: readonly string[],
+  ) => ((produces?: readonly string[]) => Promise<{ value: unknown; path: string[] } | undefined>) | undefined
 }
 
 const schemaMaps = new Set(['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas'])
@@ -118,6 +126,43 @@ export const upgradeFragment = async (
   const locations: FragmentLocation[] = []
   const contexts: FragmentUpgradeResult['contexts'] = []
   const v2 = options.from === '2.0'
+  const source = structuredClone(input)
+  const sourceDocument = v2 && options.kind === 'document' && isObject(source) ? source : undefined
+  const defaultProduces = options.produces ?? ['application/json']
+  const declaredProduces = sourceDocument?.produces
+  const { sourceUrl, resolveReferencePath } = options
+  const sharedResponseResolver = createSharedResponseResolver({
+    // Keep source response schemas and examples available after the component traversal.
+    responses: sourceDocument ? structuredClone(sourceDocument.responses) : undefined,
+    paths: sourceDocument?.paths,
+    globalProduces: Array.isArray(declaredProduces) ? declaredProduces : defaultProduces,
+    section: 'responses',
+    referenceOrigin:
+      sourceUrl !== undefined && resolveReferencePath
+        ? { uri: sourceUrl, resolvePath: resolveReferencePath }
+        : undefined,
+  })
+  const sharedResponseAliases = new Map<string, unknown>()
+  const convertedVariants = new Map<string, Promise<unknown>>()
+  const convertResponseVariant = (name: string): Promise<unknown> | undefined => {
+    const cached = convertedVariants.get(name)
+    const variant = sharedResponseResolver?.variants.get(name)
+    if (cached || !variant) {
+      return cached
+    }
+    const path = ['components', 'responses', name]
+    const converted = visit(structuredClone(variant.response), {
+      kind: 'response',
+      source: path,
+      output: path,
+      consumes: [],
+      produces: variant.produces,
+      semanticPath: path,
+      generated: true,
+    })
+    convertedVariants.set(name, converted)
+    return converted
+  }
   const resolvedParameters = new Map<string, Promise<unknown>>()
   const resolveParameter = (parameter: unknown): Promise<unknown> => {
     if (!v2 || !isObject(parameter) || typeof parameter.$ref !== 'string' || !options.resolveSource) {
@@ -287,9 +332,6 @@ export const upgradeFragment = async (
           )
         }
       }
-      if (Object.keys(convertedComponents).length) {
-        result.components = { ...(isObject(result.components) ? result.components : {}), ...convertedComponents }
-      }
       if (isObject(paths)) {
         const convertedPaths: UnknownObject = {}
         result.paths = convertedPaths
@@ -309,6 +351,14 @@ export const upgradeFragment = async (
       }
       if (isObject(value['x-webhooks'])) {
         result.webhooks = await map(value['x-webhooks'], 'path-item', ['x-webhooks'], ['webhooks'])
+      }
+      if (isObject(convertedComponents.responses)) {
+        for (const name of sharedResponseResolver?.variants.keys() ?? []) {
+          setOwn(convertedComponents.responses, name, await convertResponseVariant(name))
+        }
+      }
+      if (Object.keys(convertedComponents).length) {
+        result.components = { ...(isObject(result.components) ? result.components : {}), ...convertedComponents }
       }
       delete result['x-webhooks']
       return result
@@ -439,9 +489,18 @@ export const upgradeFragment = async (
         const convertedResponses: UnknownObject = {}
         result.responses = convertedResponses
         for (const [status, response] of Object.entries(value.responses)) {
-          const converted = await visit(response, {
+          if (v2 && status.startsWith('x-')) {
+            setOwn(convertedResponses, status, response)
+            continue
+          }
+          const responsePath = [...source, 'responses', status]
+          const shared = sharedResponseResolver?.resolve(response, effectiveProduces)
+          if (shared) {
+            sharedResponseAliases.set(JSON.stringify(responsePath), response)
+          }
+          const converted = await visit(shared?.reference ?? response, {
             kind: 'response',
-            source: [...source, 'responses', status],
+            source: responsePath,
             output: [...output, 'responses', status],
             consumes: effectiveConsumes,
             produces: effectiveProduces,
@@ -537,8 +596,10 @@ export const upgradeFragment = async (
       if (headers !== undefined) {
         result.headers = headers
       }
-      for (const media of produces) {
-        remember([...source, 'schema'], [...output, 'content', media, 'schema'])
+      if (!generated) {
+        for (const media of produces) {
+          remember([...source, 'schema'], [...output, 'content', media, 'schema'])
+        }
       }
     }
     if (isObject(result.schema)) {
@@ -582,13 +643,30 @@ export const upgradeFragment = async (
     return result
   }
   const semanticPath = options.kind === 'schema' ? ['components', 'schemas', 'fragment'] : []
-  const value = await visit(structuredClone(input), {
+  const value = await visit(source, {
     kind: options.kind,
     source: [],
     output: [],
     consumes: options.consumes ?? ['application/json'],
-    produces: options.produces ?? ['application/json'],
+    produces: defaultProduces,
     semanticPath,
   })
-  return { value, locations, contexts }
+  const components = isObject(value) && isObject(value.components) ? value.components : undefined
+  const responses = isObject(components?.responses) ? components.responses : undefined
+  const resolveSharedResponse: FragmentUpgradeResult['resolveSharedResponse'] = (path) => {
+    const response = sharedResponseAliases.get(JSON.stringify(path))
+    if (response === undefined || !responses || !sharedResponseResolver) {
+      return undefined
+    }
+    return async (produces = ['application/json']) => {
+      const shared = sharedResponseResolver.resolve(response, produces)
+      if (!shared) {
+        return undefined
+      }
+      const name = shared.variantName ?? shared.name
+      const value = shared.variantName === undefined ? responses[name] : await convertResponseVariant(name)
+      return { value, path: ['components', 'responses', name] }
+    }
+  }
+  return { value, locations, contexts, ...(sharedResponseAliases.size ? { resolveSharedResponse } : {}) }
 }

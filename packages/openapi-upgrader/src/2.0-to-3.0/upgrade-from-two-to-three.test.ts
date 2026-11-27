@@ -362,6 +362,183 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('shares a response variant between operations with matching produces overrides', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Reports', version: '1.0' },
+      produces: ['application/json'],
+      responses: {
+        Export: { description: 'CSV export', schema: { type: 'string' } },
+        'Export-variant-1': { description: 'Existing component' },
+      },
+      paths: {
+        '/export': {
+          get: {
+            produces: ['text/csv'],
+            responses: { '200': { $ref: '#/responses/Export' } },
+          },
+          post: {
+            responses: { '200': { $ref: '#/responses/Export' } },
+          },
+        },
+        '/report': {
+          get: {
+            produces: ['text/csv'],
+            responses: { '200': { $ref: '#/paths/~1export/get/responses/200' } },
+          },
+        },
+      },
+    })
+
+    const variant = { $ref: '#/components/responses/Export-variant-2' }
+    expect(result.paths?.['/export']?.get?.responses?.['200']).toStrictEqual(variant)
+    expect(result.paths?.['/report']?.get?.responses?.['200']).toStrictEqual(variant)
+    expect(result.paths?.['/export']?.post?.responses?.['200']).toStrictEqual({
+      $ref: '#/components/responses/Export',
+    })
+    expect(result.components?.responses).toStrictEqual({
+      Export: { description: 'CSV export', content: { 'application/json': { schema: { type: 'string' } } } },
+      'Export-variant-1': { description: 'Existing component' },
+      'Export-variant-2': { description: 'CSV export', content: { 'text/csv': { schema: { type: 'string' } } } },
+    })
+  })
+
+  it('keeps the global media types when an alias points to an operation with an override', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      responses: { Export: { description: 'Export', schema: { type: 'string' } } },
+      paths: {
+        '/export': { get: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export' } } } },
+        '/report': { get: { responses: { '200': { $ref: '#/paths/~1export/get/responses/200' } } } },
+      },
+    })
+
+    expect(result.paths?.['/report']?.get?.responses?.['200']).toStrictEqual({
+      $ref: '#/components/responses/Export',
+    })
+    expect(result.components?.responses?.Export).toStrictEqual({
+      description: 'Export',
+      content: { 'application/json': { schema: { type: 'string' } } },
+    })
+  })
+
+  it('preserves a cyclic response alias', () => {
+    const response = { $ref: '#/paths/~1export/get/responses/200' }
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      responses: { Export: { description: 'Export' } },
+      paths: { '/export': { get: { produces: ['text/csv'], responses: { '200': response } } } },
+    })
+
+    expect(result.paths?.['/export']?.get?.responses?.['200']).toStrictEqual(response)
+  })
+
+  it.each(['#/responses/Export%23', '#%2Fresponses%2FExport%23'])(
+    'decodes the shared response pointer %s before selecting the source',
+    ($ref) => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        produces: ['application/json'],
+        responses: {
+          'Export#': { description: 'Export', schema: { type: 'string' } },
+          'Export%23': { description: 'Other response', schema: { type: 'integer' } },
+        },
+        paths: {
+          '/export': {
+            get: { produces: ['text/csv'], responses: { '200': { $ref } } },
+            post: { responses: { '200': { $ref } } },
+          },
+        },
+      })
+
+      expect(result.paths?.['/export']?.get?.responses?.['200']).toStrictEqual({
+        $ref: '#/components/responses/Export_-variant-1',
+      })
+      expect(result.components?.responses?.['Export_-variant-1']).toStrictEqual({
+        description: 'Export',
+        content: { 'text/csv': { schema: { type: 'string' } } },
+      })
+      expect(result.paths?.['/export']?.post?.responses?.['200']).toStrictEqual({
+        $ref: '#/components/responses/Export%23',
+      })
+    },
+  )
+
+  it('falls back to the global media types when operation produces is malformed', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      paths: {
+        '/export': {
+          get: {
+            produces: 'text/csv',
+            responses: { '200': { description: 'Export', schema: { type: 'string' } } },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/export']?.get?.responses?.['200']).toStrictEqual({
+      description: 'Export',
+      content: { 'application/json': { schema: { type: 'string' } } },
+    })
+  })
+
+  it('preserves vendor extensions containing literal references', () => {
+    const metadata = { $ref: '#%2Fresponses%2Fx-Export', label: 'keep' }
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Test', version: '1.0', 'x-metadata': metadata },
+      produces: ['application/json'],
+      responses: { 'x-Export': { description: 'CSV export', schema: { type: 'string' }, 'x-metadata': metadata } },
+      paths: {
+        '/export': {
+          get: {
+            produces: ['text/csv'],
+            responses: { '200': { $ref: '#/responses/x-Export' }, 'x-metadata': metadata },
+          },
+        },
+      },
+    })
+
+    expect(result.info).toStrictEqual({ title: 'Test', version: '1.0', 'x-metadata': metadata })
+    expect(result.paths?.['/export']?.get?.responses).toStrictEqual({
+      '200': { $ref: '#/components/responses/x-Export-variant-1' },
+      'x-metadata': metadata,
+    })
+    expect(result.components?.responses?.['x-Export-variant-1']).toStrictEqual({
+      description: 'CSV export',
+      content: { 'text/csv': { schema: { type: 'string' } } },
+      'x-metadata': metadata,
+    })
+  })
+
+  it.each(['#/responses/Export', '#%2Fresponses%2FExport'])(
+    'preserves the literal reference %s in an example',
+    ($ref) => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        produces: ['application/json'],
+        responses: { Export: { description: 'Reusable response' } },
+        paths: {
+          '/example': {
+            get: {
+              responses: {
+                '200': { description: 'Example', examples: { 'application/json': { $ref } } },
+              },
+            },
+          },
+        },
+      })
+
+      expect(result.paths?.['/example']?.get?.responses?.['200']).toStrictEqual({
+        description: 'Example',
+        content: { 'application/json': { example: { $ref } } },
+      })
+    },
+  )
+
   it('uses global produces for responses', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

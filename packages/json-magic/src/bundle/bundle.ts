@@ -1731,10 +1731,12 @@ export const bundleDocument = async (
             initialTarget && !isChunk
               ? await prepareTarget(initialTarget, context, location, referenceSource)
               : initialTarget
+          // A hook can add a target after the complete external document was already traversed.
           if (
             target &&
             !isChunk &&
-            (references.identity(result.data)?.visitReferencedSubtrees ||
+            (target !== initialTarget ||
+              references.identity(result.data)?.visitReferencedSubtrees ||
               (customTraversal && target.document !== result.data))
           ) {
             await bundler(
