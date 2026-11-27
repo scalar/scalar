@@ -10,6 +10,7 @@ import keplerTheme from './presets/kepler.css?inline'
 import laserwaveTheme from './presets/laserwave.css?inline'
 import marsTheme from './presets/mars.css?inline'
 import moonTheme from './presets/moon.css?inline'
+import piDayTheme from './presets/piDay.css?inline'
 import purpleTheme from './presets/purple.css?inline'
 import saturnTheme from './presets/saturn.css?inline'
 import solarizedTheme from './presets/solarized.css?inline'
@@ -40,6 +41,7 @@ export {
   laserwaveTheme,
   marsTheme,
   moonTheme,
+  piDayTheme,
   purpleTheme,
   saturnTheme,
   solarizedTheme,
@@ -80,6 +82,7 @@ export const themeIds = [
   'mars',
   'laserwave',
   'halloween',
+  'piDay',
   'none',
 ] as const
 
@@ -103,6 +106,7 @@ export const themeLabels = {
   deepSpace: 'Deep Space',
   laserwave: 'Laserwave',
   halloween: 'Halloween',
+  piDay: 'Pi Day',
   none: 'None',
 } as const satisfies Record<ThemeId, string>
 
@@ -198,6 +202,13 @@ export const presets = {
     description: 'Spooky season Scalar theme with a moonlit sky, bats, and pumpkin accents',
     theme: halloweenTheme,
     slug: 'halloween',
+  },
+  piDay: {
+    uid: 'G7ebwxc4REruNheGLR00G',
+    name: 'Pi Day',
+    description: 'March 14 Scalar theme with a chalkboard, drifting digits of pi, and a slice of pie',
+    theme: piDayTheme,
+    slug: 'pi-day',
   },
   elysiajs: {
     uid: 'nEVZkRmCylPkT0o9YJa7y',

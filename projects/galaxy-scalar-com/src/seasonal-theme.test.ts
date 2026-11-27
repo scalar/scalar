@@ -15,7 +15,22 @@ describe('seasonal-theme', () => {
     it.each([
       ['the day before Halloween starts', '2026-09-30T23:59:59Z'],
       ['the day after Halloween ends', '2026-11-01T00:00:00Z'],
-      ['a day with no celebration', '2026-03-14T12:00:00Z'],
+      ['a day with no celebration', '2026-07-01T12:00:00Z'],
+    ])('falls back to the default theme on %s', (_, isoDate) => {
+      expect(getSeasonalTheme(new Date(isoDate))).toBe('default')
+    })
+
+    it.each([
+      ['the start of Pi Day', '2026-03-14T00:00:00Z'],
+      ['the middle of Pi Day', '2026-03-14T15:09:26Z'],
+      ['the end of Pi Day', '2026-03-14T23:59:59Z'],
+    ])('uses the Pi Day theme on %s', (_, isoDate) => {
+      expect(getSeasonalTheme(new Date(isoDate))).toBe('piDay')
+    })
+
+    it.each([
+      ['the day before Pi Day', '2026-03-13T12:00:00Z'],
+      ['the day after Pi Day', '2026-03-15T12:00:00Z'],
     ])('falls back to the default theme on %s', (_, isoDate) => {
       expect(getSeasonalTheme(new Date(isoDate))).toBe('default')
     })
