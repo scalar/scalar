@@ -11,6 +11,7 @@ import {
   getSchemaType,
   hasComplexArrayItems,
   optimizeValueForDisplay,
+  resolveDisplaySchema,
 } from '@scalar/blocks/schema/helpers'
 import {
   ScalarMarkdown,
@@ -21,7 +22,6 @@ import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
 import type {
   OpenApiDocument,
@@ -99,7 +99,7 @@ const truncated = ref(false)
 /** Responses and params may both have a schema */
 const schema = computed<SchemaObject | null>(() =>
   'schema' in parameter && parameter.schema
-    ? (getResolvedRef(parameter.schema) ?? null)
+    ? (resolveDisplaySchema(parameter.schema) ?? null)
     : null,
 )
 
@@ -165,7 +165,7 @@ const schemaModelName = computed(() => {
 /** Computed value from the combined schema param and content param */
 const value = computed(() => {
   const base = baseSchema.value
-  const resolvedBase = content.value ? getResolvedRef(base) : schema.value
+  const resolvedBase = content.value ? resolveDisplaySchema(base) : schema.value
 
   const deprecated =
     'deprecated' in parameter ? parameter.deprecated : schema.value?.deprecated
@@ -608,7 +608,9 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :name="translate('common.streamItem')"
           :noncollapsible="true"
           :options="{ ...options, hideWriteOnly: true, document }"
-          :schema="getResolvedRef(content[selectedContentType]?.itemSchema)"
+          :schema="
+            resolveDisplaySchema(content[selectedContentType]?.itemSchema)
+          "
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension" />
 

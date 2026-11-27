@@ -473,6 +473,54 @@ describe('get-xml-example', () => {
     })
   })
 
+  it('resolves URI-qualified dynamic references and ordinary anchors in a detached schema', () => {
+    const input = schema({
+      $id: 'https://example.com/root.json',
+      type: 'object',
+      xml: { name: 'root' },
+      $defs: {
+        outer: { $dynamicAnchor: 'item', type: 'string', const: 'outer', xml: { nodeType: 'attribute' } },
+        defaults: { $id: 'defaults.json', $dynamicAnchor: 'item', type: 'boolean' },
+      },
+      properties: {
+        nested: {
+          $id: 'nested/schema.json',
+          type: 'object',
+          $defs: { anchor: { $anchor: 'item', type: 'string', const: 'static' } },
+          properties: {
+            dynamic: { $dynamicRef: '../defaults.json#item' },
+            ordinary: { $dynamicRef: '#item' },
+            pointer: { $dynamicRef: '#/$defs/anchor' },
+          },
+        },
+      },
+    })
+
+    expect(getXmlExampleFromSchema(input, { ...compact, openapiVersion: '3.2.0' })).toStrictEqual({
+      xml: '<root><nested dynamic="outer"><ordinary>static</ordinary><pointer>static</pointer></nested></root>',
+      diagnostics: [],
+    })
+  })
+
+  it('resolves detached references from the pre-resolved target resource', () => {
+    const input = schema({
+      '$ref': 'https://example.com/nested/target.json',
+      '$ref-value': {
+        $id: 'https://example.com/nested/target.json',
+        type: 'object',
+        xml: { name: 'target' },
+        $defs: { other: { $id: '../other.json', $anchor: 'label', type: 'string', const: 'ok' } },
+        properties: { value: { $dynamicRef: '../other.json#label' } },
+      },
+    })
+
+    expect(getExampleFromSchema(input)).toStrictEqual({ value: 'ok' })
+    expect(getXmlExampleFromSchema(input, { ...compact, openapiVersion: '3.2.0' })).toStrictEqual({
+      xml: '<target><value>ok</value></target>',
+      diagnostics: [],
+    })
+  })
+
   it('keeps dynamic XML item bindings isolated between calls', () => {
     const template = {
       $id: 'urn:template',

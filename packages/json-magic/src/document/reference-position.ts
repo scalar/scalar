@@ -89,6 +89,6 @@ export const childReferencePosition = (
       customReferences ||
       (includeCustomReferences &&
         next !== 'data' &&
-        childReferenceContext(context, key, { swagger, asyncapi, schemaFormat }) === 'data'),
+        childReferenceContext(context, key, { swagger, openapi30, asyncapi, schemaFormat }) === 'data'),
   }
 }

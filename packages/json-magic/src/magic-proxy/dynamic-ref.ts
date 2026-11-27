@@ -27,6 +27,38 @@ type Unwrap = (value: unknown) => unknown
  */
 export type DynamicScope = UnknownObject[]
 
+/** Schema keyword maps and instance data cannot declare anchors themselves. */
+export type ScopeRole = 'map' | 'data' | undefined
+
+const INSTANCE_KEYWORDS = new Set<string | symbol>(['example', 'examples', 'default', 'const', 'enum'])
+const MAP_KEYWORDS = new Set<string | symbol>([
+  'properties',
+  'patternProperties',
+  '$defs',
+  'definitions',
+  'dependentSchemas',
+  'schemas',
+  'responses',
+])
+
+/** Distinguish schema containers from instance data without growing the scope for either. */
+export const getChildScopeRole = (role: ScopeRole, prop: string | symbol): ScopeRole => {
+  if (role === 'data') {
+    return 'data'
+  }
+  if (role === 'map') {
+    return undefined
+  }
+  if (INSTANCE_KEYWORDS.has(prop)) {
+    return 'data'
+  }
+  // Map entries can be named after instance-data keywords, including OpenAPI's default response.
+  if (MAP_KEYWORDS.has(prop)) {
+    return 'map'
+  }
+  return undefined
+}
+
 /** Narrow a value to a schema carrying a string `$dynamicRef`. */
 export const isDynamicRef = (schema: unknown): schema is UnknownObject & { $dynamicRef: string } =>
   isObject(schema) && typeof schema.$dynamicRef === 'string'
@@ -231,19 +263,10 @@ export const pushDynamicScope = (
 ): DynamicScope => (carriesDynamicAnchor(schema, withinExplicitResource) ? [...scope, schema] : scope)
 
 /**
- * Resolve a `$dynamicRef` fragment against the dynamic scope.
+ * Resolve a detached plain-name reference using the available scope.
  *
- * Follows the JSON Schema 2020-12 "bookending" rule: a `$dynamicRef` only resolves dynamically when the
- * schema resource it sits in *also* declares a matching `$dynamicAnchor` — the "bookend" default. That
- * resource starts at the innermost scope entry with an `$id` and includes every entry after it; when no
- * entry has an `$id`, the whole scope belongs to the document's own resource. Entries pushed only for
- * `$defs` or an inline `$dynamicAnchor` are not resource boundaries, so they cannot hide a bookend that
- * the enclosing resource declares. Without the bookend, `$dynamicRef` degrades to a plain `$ref` and must
- * not borrow an unrelated anchor from an outer resource. With the bookend present, the scope is scanned outermost-first
- * and the first resource declaring a matching `$dynamicAnchor` wins (worst case, the bookend itself).
- *
- * Returns `undefined` when the reference cannot be bound, in which case callers should leave it unresolved
- * (the schema renders as it did before, with no regression).
+ * When a pre-resolved schema has no indexed lexical location, the innermost identified resource
+ * provides the initial anchor. Definition containers and inline anchors share that resource.
  */
 export const resolveDynamicRef = (
   dynamicRef: string,
@@ -268,6 +291,16 @@ export const resolveDynamicRef = (
     return undefined
   }
 
+  return findDynamicAnchor(name, scope, unwrap, cacheKey)
+}
+
+/** Find the outermost override of an already resolved dynamic anchor. */
+export const findDynamicAnchor = (
+  name: string,
+  scope: DynamicScope,
+  unwrap: Unwrap,
+  cacheKey?: { revision: number },
+): UnknownObject | undefined => {
   for (const resource of scope) {
     const match = collectDynamicAnchors(resource, unwrap, cacheKey).get(name)
     if (match) {
