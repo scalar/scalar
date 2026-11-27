@@ -62,6 +62,18 @@ How to read this:
 - **For `standalone.js`, swapping the renderer alone is a regression** against #10739. #10739 already removed lowlight and the duplicate copy of the stack, and the Copy as Markdown packages keep the rest, so the prototype only adds its own 16 KB. The saving (134 KB gzipped against #10739) arrives only when those packages move off unified as well.
 - Against `main`, part of every saving here is #10739's: dropping lowlight and highlight.js, and dropping the second copy of the stack (`main` has two copies of parse5 and micromark).
 
+**Measured after the move, in the package.** The first CI size report for this PR showed the initial load 0.3% *larger*, not smaller. `@scalar/markdown` bundles its dependencies, and its build put all of them into one shared chunk that the root entry imported. The parser still needed one export from that chunk (`decode-named-character-reference`, shared with micromark), so every consumer of `htmlFromMarkdown` loaded the whole unified stack. Top-level `unified().use(…)` calls count as side effects, so no bundler could drop it. The estimates above swapped the source in directly, which bypassed the package's own build.
+
+The package now emits one file per module, dependencies included, under `vendor/`. Consumers drop the files they never import, as its `sideEffects: false` allows. Built from the real `vite.standalone.esm.config.ts`, the parser, `decode-named-character-reference` and its entity table are all that load up front. The 90 unified, remark, rehype and parse5 modules moved into the lazy Copy as Markdown chunk:
+
+| `standalone.esm.js` | shared chunk | one file per module |  change |
+| ------------------- | -----------: | ------------------: | ------: |
+| initial load, gzip  |     867.6 KB |            767.5 KB | −100.1 KB (−11.5%) |
+| initial load, brotli |    731.9 KB |            651.0 KB |  −80.9 KB (−11.1%) |
+| all chunks, gzip    |   1,365.2 KB |          1,364.2 KB |   −1.0 KB |
+
+The entity table (24.8 KB minified) could go too. `decode-named-character-reference` has a browser build that asks the DOM instead, but the package forces the universal build so that its bundle runs in Node. Switching would need its own parity and sanitizer run, because that build writes the name into `innerHTML`.
+
 ### Speed
 
 Every `description` in the Stripe and GitHub API descriptions, rendered the way `ScalarMarkdown` does (`removeTags: ['img', 'picture']`). "Slow path" excludes the plain one-line strings that both implementations short-circuit with the same `PLAIN_PARAGRAPH` check (58–65% of descriptions).
@@ -80,6 +92,8 @@ Rendering every description of a Stripe-sized API costs about **2 s of main-thre
 The parity work below first doubled the prototype's time: GFM email autolinks were looked for at every word, with a regular expression per character. Each inline string now checks once whether it contains an `@`, `http(s)://` or `www.` at all, which brought it back to the first version's speed.
 
 ### Adversarial input
+
+CodeQL flagged two regular expressions that backtrack quadratically on a long run of tabs: the GFM delimiter row and the closing `#`s of an ATX heading. A search for the same shape found seven more: trims written as `/^[ \t]+|[ \t]+$/`, a trailing-backslash count, trailing spaces before a line break, trailing punctuation on autolink literals, and trailing whitespace of inline Markdown in raw HTML. Without a start anchor, `[ \t]+$` retries from every position inside a long run that is not at the end. A 40,000-tab heading took 3 seconds. All of them now scan instead (`pipeline/text.ts`), and the output is byte-identical to before on all 506,129 corpus documents.
 
 cmark's pathological test cases, about 100 KB each (`pnpm pathological`):
 

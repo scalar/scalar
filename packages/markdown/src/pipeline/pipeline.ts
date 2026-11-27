@@ -5,10 +5,10 @@
  * the same API the unified renderer had.
  */
 import { type Block, BlockParser, type NodeData, type Root } from './blocks'
-import type { Highlighter } from './html'
-import { DEFAULT_TAGS } from './html'
+import { DEFAULT_TAGS, type Highlighter, escapeText } from './html'
 import type { Inline } from './inline'
 import { render } from './render'
+import { trimEnd, trimStart } from './text'
 
 /**
  * Any node of the tree. The tree is shaped like mdast, so `transform` callbacks
@@ -52,7 +52,11 @@ const PLAIN_PARAGRAPH =
 export const htmlFromMarkdown = (markdown: string, options?: HtmlFromMarkdownOptions): string => {
   const removeTags = options?.removeTags ?? []
   const allowTags = options?.allowTags ?? []
-  if (!options?.transform && !removeTags.includes('p') && PLAIN_PARAGRAPH.test(markdown)) return `<p>${markdown}</p>`
+  if (!options?.transform && !removeTags.includes('p') && PLAIN_PARAGRAPH.test(markdown)) {
+    // The check keeps out `&`, `<` and `>` already. Escaping as well means the output stays
+    // safe even if someone relaxes the check later.
+    return `<p>${escapeText(markdown)}</p>`
+  }
 
   const key = `${removeTags.join(',')}|${allowTags.join(',')}`
   let tags = tagCache.get(key)
@@ -83,8 +87,8 @@ const inlineInHtml = (text: string): Inline[] | null => {
   const root = new BlockParser({ htmlAsText: true }).parse(text)
   const only = root.children[0]
   if (root.children.length !== 1 || only?.type !== 'paragraph') return null
-  const lead = /^[ \t\r\n]*/.exec(text)![0]
-  const trail = /[ \t\r\n]*$/.exec(text)![0]
+  const lead = text.slice(0, text.length - trimStart(text, ' \t\r\n').length)
+  const trail = text.slice(trimEnd(text, ' \t\r\n').length)
   return [
     ...(lead ? [{ type: 'text' as const, value: lead }] : []),
     ...only.children,

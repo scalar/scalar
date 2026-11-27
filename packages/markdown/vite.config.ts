@@ -62,11 +62,22 @@ export default defineConfig({
       // grammars rather than two.
       external: [/^@scalar\/highlight(\/|$)/],
       output: {
-        // Map each entry to the dist layout the `exports` map expects
-        // (e.g. `code/index` -> `dist/code/index.js`).
-        entryFileNames: '[name].js',
-        // Co-locate shared chunks under a predictable directory.
-        chunkFileNames: 'chunks/[name].js',
+        // One file per module, dependencies included. With shared chunks, every bundled
+        // dependency landed in one chunk that the root entry imported, so `htmlFromMarkdown`
+        // dragged the whole unified stack (and parse5) into every consumer's initial load,
+        // even though only the "Copy as Markdown" helpers use it. Separate files let a
+        // consumer's bundler drop what it never imports, as `sideEffects: false` allows.
+        preserveModules: true,
+        preserveModulesRoot: './src',
+        entryFileNames: (chunk) => {
+          // npm drops nested `node_modules` folders from the tarball, so bundled dependencies
+          // go under `vendor/`, keyed by their pnpm store folder so two versions cannot collide.
+          const vendored = chunk.facadeModuleId?.match(
+            /\/node_modules\/\.pnpm\/([^/]+)\/node_modules\/(?:@[^/]+\/)?[^/]+\/(.+)\.[cm]?js$/,
+          )
+          if (vendored) return `vendor/${vendored[1]}/${vendored[2]}.js`
+          return `${chunk.name.replace(/node_modules/g, 'vendor')}.js`
+        },
       },
     },
   },

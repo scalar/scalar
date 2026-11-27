@@ -139,4 +139,53 @@ describe('pipeline', () => {
       )
     })
   })
+
+  describe('headings', () => {
+    it.each([
+      ['# foo #', 'foo'],
+      ['# foo ###   ', 'foo'],
+      ['# foo#', 'foo#'],
+      ['# foo \\#', 'foo #'],
+      ['# ###', ''],
+      ['# #', ''],
+      ['#\t#\t', ''],
+      ['# foo # bar', 'foo # bar'],
+      ['# foo\t#', 'foo'],
+    ])('strips the closing sequence of %j', (markdown, text) => {
+      expect(htmlFromMarkdown(markdown)).toBe(`<h1>${text}</h1>`)
+    })
+
+    it('takes linear time on a long run of tabs', () => {
+      const tabs = '\t'.repeat(100_000)
+      const start = performance.now()
+      htmlFromMarkdown(`# a${tabs}b`)
+      htmlFromMarkdown(`# a${tabs}`)
+
+      // Quadratic backtracking took about 20 seconds here.
+      expect(performance.now() - start).toBeLessThan(2000)
+    })
+  })
+
+  describe('tables', () => {
+    it('recognizes a delimiter row with a trailing pipe and spaces', () => {
+      expect(htmlFromMarkdown('| a |\n| - |  \n| b |')).toContain('<td>b</td>')
+    })
+
+    it('takes linear time on a long run of tabs after a dash', () => {
+      const start = performance.now()
+      htmlFromMarkdown(`a\n-${'\t'.repeat(100_000)}x`)
+
+      expect(performance.now() - start).toBeLessThan(2000)
+    })
+  })
+
+  describe('raw HTML comments', () => {
+    it('ends a comment at --!>, as the browser does', () => {
+      expect(htmlFromMarkdown('<!-- a --!> visible')).toBe(' visible')
+    })
+
+    it('still drops the comment itself', () => {
+      expect(htmlFromMarkdown('<p>a<!-- <img src=x onerror=alert(1)> --!>b</p>', { removeTags: [] })).toBe('<p>ab</p>')
+    })
+  })
 })

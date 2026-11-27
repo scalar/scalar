@@ -3,6 +3,7 @@
  * commonmark.js), plus GFM tables, task list items and footnote definitions.
  */
 import { CLOSETAG, type Inline, InlineParser, OPENTAG, type Refs, normalizeLabel, unescapeString } from './inline'
+import { trim, trimEnd } from './text'
 
 type Kind =
   | 'root'
@@ -86,7 +87,12 @@ const SETEXT = /^(?:=+|-+)[ \t]*$/
 const BULLET = /^[*+-]/
 const ORDERED = /^(\d{1,9})([.)])/
 const MAYBE_SPECIAL = /^[#`~*+_=<>0-9|:[-]/
-const TABLE_DELIM = /^\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$/
+/**
+ * A GFM delimiter row. The trailing pipe is `(?:\|[ \t]*)?` rather than `\|?[ \t]*` so that no
+ * two whitespace runs are adjacent: with them, a long run of tabs that fails to match
+ * backtracked quadratically.
+ */
+const TABLE_DELIM = /^\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*(?:\|[ \t]*)?$/
 const FOOTNOTE_DEF = /^\[\^([^\]\s][^\]]*)\]:/
 const HTML_OPEN = [
   /./,
@@ -101,6 +107,26 @@ const HTML_OPEN = [
 const HTML_CLOSE = [/./, /<\/(?:script|pre|textarea|style)>/i, /-->/, /\?>/, />/, /\]\]>/]
 
 const isSpaceOrTab = (c: string | undefined): boolean => c === ' ' || c === '\t'
+
+/**
+ * Removes an ATX heading's optional closing sequence: spaces or tabs, `#`s, then
+ * spaces or tabs to the end. Content that is only `#`s is all closing sequence.
+ *
+ * commonmark.js does this with `/^[ \t]*#+[ \t]*$/` and `/[ \t]+#+[ \t]*$/`, but the
+ * second backtracks quadratically on a long run of tabs not followed by `#`. Scanning
+ * from the end gives the same result in linear time.
+ */
+const stripClosingSequence = (s: string): string => {
+  let end = s.length
+  while (end > 0 && isSpaceOrTab(s[end - 1])) end--
+  let hashes = end
+  while (hashes > 0 && s[hashes - 1] === '#') hashes--
+  if (hashes === end) return s
+  let space = hashes
+  while (space > 0 && isSpaceOrTab(s[space - 1])) space--
+  if (space === 0) return ''
+  return space === hashes ? s : s.slice(0, space)
+}
 
 const canContain = (parent: Kind, child: Kind): boolean => {
   switch (parent) {
@@ -120,10 +146,10 @@ const acceptsLines = (k: Kind): boolean => k === 'paragraph' || k === 'code' || 
 /** Splits a table row into cells on unescaped pipes. */
 const splitRow = (line: string): string[] => {
   // GFM trims spaces and tabs only: a no-break space is cell content.
-  let s = line.replace(/^[ \t]+|[ \t]+$/g, '')
+  let s = trim(line, ' \t')
   if (s.startsWith('|')) s = s.slice(1)
   // A final pipe ends the row unless an odd number of backslashes escapes it.
-  if (s.endsWith('|') && (s.length - 1 - s.slice(0, -1).replace(/\\+$/, '').length) % 2 === 0) s = s.slice(0, -1)
+  if (s.endsWith('|') && (s.length - 1 - trimEnd(s.slice(0, -1), '\\').length) % 2 === 0) s = s.slice(0, -1)
   const cells: string[] = []
   let cell = ''
   for (let i = 0; i < s.length; i++) {
@@ -136,11 +162,11 @@ const splitRow = (line: string): string[] => {
       cell += '\\\\'
       i++
     } else if (c === '|') {
-      cells.push(cell.replace(/^[ \t]+|[ \t]+$/g, ''))
+      cells.push(trim(cell, ' \t'))
       cell = ''
     } else cell += c
   }
-  cells.push(cell.replace(/^[ \t]+|[ \t]+$/g, ''))
+  cells.push(trim(cell, ' \t'))
   return cells
 }
 
@@ -373,10 +399,7 @@ export class BlockParser {
         this.closeUnmatchedBlocks()
         const h = this.addChild('heading')
         h.depth = m[0].trim().length
-        h.content = ln
-          .slice(this.offset)
-          .replace(/^[ \t]*#+[ \t]*$/, '')
-          .replace(/[ \t]+#+[ \t]*$/, '')
+        h.content = stripClosingSequence(ln.slice(this.offset))
         this.advanceOffset(ln.length - this.offset, false)
         return 2
       }
@@ -438,7 +461,7 @@ export class BlockParser {
         })
         // micromark needs no pipe when the delimiter row cannot be anything else, but a lone `|`
         // is a row without cells, so not a header.
-        const head = header.replace(/^[ \t]+|[ \t]+$/g, '')
+        const head = trim(header, ' \t')
         if (head !== '' && head !== '|' && splitRow(header).length === align.length) {
           this.closeUnmatchedBlocks()
           const before = lines.slice(0, -1)
@@ -678,7 +701,7 @@ export class BlockParser {
 
   private convert(b: B, footnotes: Root['footnotes']): Block | null {
     const position: Pos = { start: { line: b.startLine }, end: { line: b.endLine } }
-    const inline = (s: string): Inline[] => this.inline.parse(s.replace(/^[ \t\n]+|[ \t\n]+$/g, ''))
+    const inline = (s: string): Inline[] => this.inline.parse(trim(s, ' \t\n'))
     switch (b.kind) {
       case 'paragraph':
         if (b.content === '') return null

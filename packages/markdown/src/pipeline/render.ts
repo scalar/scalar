@@ -270,7 +270,7 @@ const block = (node: Block, c: Ctx, atRoot: boolean): void => {
         // other code block and only lose the colours. There is no language detection.
         const classes = ['hljs', lang ? `language-${escapeAttr(lang)}` : '', c.o.codeClassName ?? '']
         const code = w.open('code', ` class="${classes.filter(Boolean).join(' ')}"`)
-        w.text((lang && highlightSafely(c.o.highlight, text, lang)) || escapeText(text))
+        w.text((lang && highlightSafely(c.o.highlight, text, lang)) || escapeText(text), text)
         w.close(code)
       }
       w.close(pre)

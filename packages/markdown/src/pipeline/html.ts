@@ -170,7 +170,7 @@ const TABLE_ONLY = new Set(['caption', 'col', 'colgroup', 'tbody', 'td', 'tfoot'
 /**
  * `start`: where a raw `<th>`'s content begins in the output. `code`: a raw
  * `<code>` inside a raw `<pre>`, to highlight once it closes, with where its
- * content begins and its language.
+ * content begins, its language and the text written inside it so far.
  */
 type Frame = {
   tag: string
@@ -178,8 +178,9 @@ type Frame = {
   hidden: boolean
   attrs?: string
   start?: number
-  code?: { start: number; lang: string }
+  code?: RawCode
 }
+type RawCode = { start: number; lang: string; text: string }
 
 const TABLE_PART_CLOSES: Record<string, string[]> = {
   td: ['td', 'th'],
@@ -236,9 +237,6 @@ export const highlightSafely = (highlight: Highlighter, code: string, lang: stri
     return null
   }
 }
-
-/** The markup the writer itself emits: attribute values are quoted and never contain `"`. */
-const TAG = /<\/?[a-z][^\s>]*(?: [^\s=>]+(?:="[^"]*")?)*>/g
 
 export type WriterOptions = {
   tags: Set<string>
@@ -311,6 +309,8 @@ export class Writer {
   private body = false
   /** Raw text not yet written: the parser joins text across tokens that create no node (`a</b>b`). */
   private pendingText = ''
+  /** How many raw code blocks to highlight are open, so text is recorded only inside one. */
+  private rawCodeDepth = 0
 
   constructor(private readonly options: WriterOptions) {}
 
@@ -484,18 +484,32 @@ export class Writer {
   }
 
   /** Replaces a raw code block's content with its highlighted text, as `rehypeHighlight` replaced its children. */
-  private highlightCode({ start, lang }: { start: number; lang: string }): void {
+  private highlightCode({ start, lang, text }: RawCode): void {
+    this.rawCodeDepth--
     if (!lang || !this.options.highlight) return
-    const text = decodeHtml(this.out.slice(start).replace(TAG, ''))
     const html = highlightSafely(this.options.highlight, text, lang)
     if (html !== null) this.out = this.out.slice(0, start) + html
   }
 
-  text(escaped: string): void {
+  /** Records text written inside a raw code block, which is what gets highlighted when it closes. */
+  private recordCodeText(text: string): void {
+    if (this.rawCodeDepth === 0) return
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+      const code = this.stack[i]!.code
+      if (code) {
+        code.text += text
+        return
+      }
+    }
+  }
+
+  /** Writes escaped text. `plain` is its text, when `escaped` is markup such as highlighted code. */
+  text(escaped: string, plain?: string): void {
     this.flush()
     if (this.skip) return
     if (escaped) this.reconstruct()
     if (/[^\t\n\f\r ]/.test(escaped)) this.body = true
+    this.recordCodeText(plain ?? decodeHtml(escaped))
     this.out += escaped
   }
 
@@ -537,6 +551,7 @@ export class Writer {
     const markdown = top && !top.hidden && INLINE_MARKDOWN_TAGS.has(top.tag) && /[`*_[~]/.test(text)
     if (markdown && this.options.inline(decodeHtml(text), this)) return
     this.reconstruct()
+    this.recordCodeText(decodeHtml(text))
     this.out += escapeRawText(text)
   }
 
@@ -591,8 +606,9 @@ export class Writer {
         hidden: false,
         attrs: s,
         start: this.out.length,
-        code: code ? { start: this.out.length, lang: code.lang } : undefined,
+        code: code ? { start: this.out.length, lang: code.lang, text: '' } : undefined,
       })
+      if (code) this.rawCodeDepth++
     }
   }
 
@@ -655,8 +671,11 @@ const tokenize = (s: string, w: Writer): void => {
         if (s.startsWith('<!-->', i)) i += 5
         else if (s.startsWith('<!--->', i)) i += 6
         else {
-          const end = s.indexOf('-->', i + 4)
-          i = end === -1 ? n : end + 3
+          // The HTML tokenizer ends a comment at `--!>` as well as `-->`, so text after either is visible.
+          const dash = s.indexOf('-->', i + 4)
+          const bang = s.indexOf('--!>', i + 4)
+          if (bang !== -1 && (dash === -1 || bang < dash)) i = bang + 4
+          else i = dash === -1 ? n : dash + 3
         }
       } else {
         const end = s.indexOf('>', i)

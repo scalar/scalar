@@ -4,6 +4,7 @@
  * calls. Produces mdast-shaped nodes.
  */
 import { decodeEntity } from './entities'
+import { trimEnd } from './text'
 
 export type Inline =
   | { type: 'text'; value: string }
@@ -268,7 +269,7 @@ export class InlineParser {
     const last = block.last
     if (last?.type === 'text' && last.value!.endsWith(' ')) {
       const hard = last.value!.endsWith('  ')
-      last.value = last.value!.replace(/ +$/, '')
+      last.value = trimEnd(last.value!, ' ')
       append(block, hard ? { type: 'break', value: '  ' } : text('\n'))
     } else append(block, text('\n'))
     while (this.s[this.pos] === ' ' || this.s[this.pos] === '\t') this.pos++
@@ -811,21 +812,27 @@ const isCorrectDomain = (domain: string): boolean => {
   return parts.length >= 2 && !bad(parts.at(-1)) && !bad(parts.at(-2))
 }
 
+/** Punctuation that ends an autolink literal's URL rather than belonging to it, as in GFM. */
+const TRAILING_PUNCTUATION = '!"&\'),.:;<>?]}'
+
+/**
+ * Splits trailing punctuation off a URL, keeping each `)` that closes an open `(`.
+ * Scans with indexes: slicing the trail once per `)` was quadratic on a long run of them.
+ */
 const splitUrl = (url: string): [string, string | undefined] => {
-  const trailExec = /[!"&'),.:;<>?\]}]+$/.exec(url)
-  if (!trailExec) return [url, undefined]
-  url = url.slice(0, trailExec.index)
-  let trail = trailExec[0]
-  let closingParenIndex = trail.indexOf(')')
-  const openingParens = url.split('(').length - 1
-  let closingParens = url.split(')').length - 1
-  while (closingParenIndex !== -1 && openingParens > closingParens) {
-    url += trail.slice(0, closingParenIndex + 1)
-    trail = trail.slice(closingParenIndex + 1)
-    closingParenIndex = trail.indexOf(')')
+  const end = trimEnd(url, TRAILING_PUNCTUATION).length
+  if (end === url.length) return [url, undefined]
+  const head = url.slice(0, end)
+  const openingParens = head.split('(').length - 1
+  let closingParens = head.split(')').length - 1
+  let cut = end
+  while (openingParens > closingParens) {
+    const paren = url.indexOf(')', cut)
+    if (paren === -1) break
+    cut = paren + 1
     closingParens++
   }
-  return [url, trail]
+  return [url.slice(0, cut), url.slice(cut)]
 }
 
 type Replace = (m: RegExpExecArray) => Inline[] | false
