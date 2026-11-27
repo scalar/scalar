@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { gfmToMarkdown } from 'mdast-util-gfm'
 import { toMarkdown as toMarkdownLatest } from 'mdast-util-to-markdown-latest'
 
-import { EXPLANATIONS, explainSerializer, joinFix } from './copy-explain.mjs'
+import { EXPLANATIONS, explainSerializer, hasIntendedDifference, joinFix } from './copy-explain.mjs'
 import { OUT } from './paths.mjs'
 
 const [corpusPath = `${OUT}apis-guru.json`, label = 'apis-guru', limit] = process.argv.slice(2)
@@ -153,7 +153,8 @@ for (const [value, source] of corpus) {
     else if (s.latestJoined({ type: 'root', children: explainSerializer(newNodes) }) === after) {
       // The tree needed one of the two fixes to upstream: blocks in inline content, or line endings in code spans.
       stats.serializerPort.identicalWithFixes++
-    } else if (portMismatches.length < 50) portMismatches.push({ value, source, options: name, latest, after })
+    } else if (newNodes.some(hasIntendedDifference)) stats.serializerPort.identicalWithFixes++
+    else if (portMismatches.length < 50) portMismatches.push({ value, source, options: name, latest, after })
 
     if (name !== 'openapi') continue
     if (before === after) {
@@ -175,6 +176,16 @@ for (const [value, source] of corpus) {
       if (explained !== after) steps.push('serializer: mdast-util-to-markdown 2.1.2 attention encoding')
       sample.roundTrip = { before: roundTrips(before, tree), after: roundTrips(after, tree) }
       record(steps.join(' + '), sample)
+      continue
+    }
+    if (newNodes.some(hasIntendedDifference) && !firstDifference(tree.map(normalize), newNodes.map(normalize))) {
+      record(
+        [
+          ...steps,
+          'serializer: escapes no tree change can show (titles, `<` URLs, blank lines, upper case `HTTPS://`)',
+        ].join(' + '),
+        sample,
+      )
       continue
     }
     // A different tree that none of the intended changes explain.

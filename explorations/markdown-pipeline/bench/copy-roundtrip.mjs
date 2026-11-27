@@ -14,7 +14,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { gfmToMarkdown } from 'mdast-util-gfm'
 import { toMarkdown as toMarkdownLatest } from 'mdast-util-to-markdown-latest'
 
-import { explainSerializer, joinFix } from './copy-explain.mjs'
+import { explainSerializer, hasIntendedDifference, joinFix } from './copy-explain.mjs'
 import { OUT } from './paths.mjs'
 
 const [count = '100000', corpusPath, limit = '20000', label = 'roundtrip'] = process.argv.slice(2)
@@ -347,13 +347,6 @@ const note = (kind, cls, sample) => {
   list.count++
   if (list.samples.length < 10) list.samples.push(sample)
 }
-
-/** What the serializer writes differently on purpose: a link title with line endings, a URL starting with `<`, blank lines in text. */
-const hasIntendedDifference = (node) =>
-  (node.type === 'link' && (/[\r\n]/.test(node.title ?? '') || node.url.startsWith('<'))) ||
-  // A line ending at the start of text can follow another (the paragraph's start, a hard break).
-  (node.type === 'text' && /^(?:\r\n|\r|\n)|(?:\r\n|\r|\n)(?:\r\n|\r|\n)/.test(node.value)) ||
-  (node.children ?? []).some(hasIntendedDifference)
 
 const check = (kind, tree) => {
   const r = results[kind]

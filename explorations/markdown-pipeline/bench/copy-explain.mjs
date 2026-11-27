@@ -139,12 +139,56 @@ export const codeSpanSpaces = (nodes) =>
 export const joinFix = (left, right, parent) => {
   if (!('spread' in parent)) return undefined
   const interrupts = (list) => (!list.ordered || (list.start ?? 1) === 1) && Boolean(list.children[0]?.children.length)
-  if (left.type === 'table' || (left.type === 'paragraph' && right.type === 'list' && !interrupts(right))) return 1
+  if (
+    left.type === 'table' ||
+    left.type === 'html' ||
+    (left.type === 'paragraph' && right.type === 'list' && !interrupts(right))
+  ) {
+    return 1
+  }
   return undefined
 }
 
+/** Empty code spans go, and adjacent ones become one. */
+export const codeSpans = (nodes) => {
+  const out = []
+  for (const n of nodes) {
+    const copy = n.children ? { ...n, children: codeSpans(n.children) } : n
+    if (copy.type === 'inlineCode' && !copy.value) continue
+    const last = out.at(-1)
+    if (copy.type === 'inlineCode' && last?.type === 'inlineCode')
+      out[out.length - 1] = { ...last, value: last.value + copy.value }
+    else out.push(copy)
+  }
+  return out
+}
+
+const FLOW_PARENTS = new Set(['listItem', 'blockquote', 'footnoteDefinition'])
+/** Runs of inline nodes in a flow container (and the root) go into paragraphs. */
+export const flowParagraphs = (nodes, flow = true) => {
+  const out = []
+  for (const n of nodes) {
+    const copy = n.children ? { ...n, children: flowParagraphs(n.children, FLOW_PARENTS.has(n.type)) } : n
+    const last = out.at(-1)
+    // A list item outside a list gets a list of its own.
+    if (flow && copy.type === 'listItem') {
+      if (last?._list) last.children.push(copy)
+      else out.push({ type: 'list', ordered: false, spread: false, children: [copy], _list: true })
+    } else if (!flow || !PHRASING.has(copy.type)) out.push(copy)
+    else if (last?._wrapped) last.children.push(copy)
+    else out.push({ type: 'paragraph', children: [copy], _wrapped: true })
+  }
+  return out.map((n) =>
+    n._wrapped
+      ? { type: 'paragraph', children: n.children }
+      : n._list
+        ? { type: 'list', ordered: false, spread: false, children: n.children }
+        : n,
+  )
+}
+
 /** What the serializer does differently from upstream, for any tree, as changes to the tree. */
-export const explainSerializer = (nodes) => codeSpanSpaces(inlineBlocks(nodes))
+export const explainSerializer = (nodes) => codeSpans(codeSpanSpaces(inlineBlocks(flowParagraphs(nodes))))
 
 export const EXPLANATIONS = [
   ['reference link becomes inline link', resolveReferences],
@@ -153,5 +197,19 @@ export const EXPLANATIONS = [
   ['line ending in a code span becomes a space', codeSpanLineEndings],
   ['block in inline content written inline', inlineBlocks],
   ['line ending in a code span written as a space', codeSpanSpaces],
+  ['empty code span dropped, adjacent ones joined', codeSpans],
+  ['inline content in a list item written as a paragraph', flowParagraphs],
 ]
 export const explain = (nodes) => EXPLANATIONS.reduce((tree, [, change]) => change(tree), nodes)
+
+/**
+ * Trees the serializer writes differently from upstream in ways no tree change can show: a link
+ * title with line endings, a URL starting with `<`, blank lines in text, and the `:` of an upper
+ * case `HTTPS://`.
+ */
+export const hasIntendedDifference = (node) =>
+  (node.type === 'link' && (/[\r\n]/.test(node.title ?? '') || node.url.startsWith('<'))) ||
+  (node.type === 'inlineCode' && /\\\|/.test(node.value)) ||
+  (node.type === 'text' &&
+    (/^(?:\r\n|\r|\n)|(?:\r\n|\r|\n)(?:\r\n|\r|\n)/.test(node.value) || /[PS]:\//.test(node.value))) ||
+  (node.children ?? []).some(hasIntendedDifference)
