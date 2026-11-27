@@ -1,4 +1,7 @@
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
+
+import { encodeUriComponent } from './encode-uri-component'
 
 /**
  * Encodes a path parameter, preserving only path-safe reserved characters and
@@ -38,39 +41,40 @@ export const serializePathParameter = (
 ): string => {
   const { value, style, explode } = parameter
   const encode = (item: unknown): string => {
-    const encoded = encodePathParameter(replace(String(item)), allowReserved)
-    // Ordinary URI Template expansion only leaves unreserved characters intact.
-    return allowReserved
-      ? encoded
-      : encoded.replace(/[!'()*]/g, (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`)
+    const text = replace(String(item))
+    return allowReserved ? encodePathParameter(text, true) : encodeUriComponent(text)
   }
-  const entries = isObjectLike(value) && !Array.isArray(value) ? Object.entries(value) : undefined
+  const entries =
+    isObjectLike(value) && !Array.isArray(value)
+      ? Object.entries(value).filter(([, item]) => allowReserved || isDefined(item))
+      : undefined
   const array = Array.isArray(value) ? value : undefined
+  const items = allowReserved ? array : array?.filter(isDefined)
 
-  if (!allowReserved && (array?.length === 0 || entries?.length === 0)) {
+  if (!allowReserved && (items?.length === 0 || entries?.length === 0)) {
     return ''
   }
 
+  const pair = (key: string, data: string): string => `${encode(key)}${data || allowReserved ? `=${data}` : ''}`
   if (style === 'matrix') {
-    const pair = (key: string, data: string): string => `;${encode(key)}${data || allowReserved ? `=${data}` : ''}`
     if (entries && explode) {
-      return entries.map(([key, item]) => pair(key, encode(item))).join('')
+      return entries.map(([key, item]) => `;${pair(key, encode(item))}`).join('')
     }
-    if (array && explode) {
-      return array.map((item) => pair(name, encode(item))).join('')
+    if (items && explode) {
+      return items.map((item) => `;${pair(name, encode(item))}`).join('')
     }
-    const parts = entries ? entries.flatMap(([key, item]) => [key, item]) : (array ?? [value])
-    return pair(name, parts.map(encode).join(','))
+    const parts = entries ? entries.flatMap(([key, item]) => [key, item]) : (items ?? [value])
+    return `;${pair(name, parts.map(encode).join(','))}`
   }
 
   const delimiter = style === 'label' && explode ? '.' : ','
   let data: string
   if (entries) {
     data = entries
-      .map(([key, item]) => (explode ? `${encode(key)}=${encode(item)}` : `${encode(key)}${delimiter}${encode(item)}`))
+      .map(([key, item]) => (explode ? pair(key, encode(item)) : `${encode(key)}${delimiter}${encode(item)}`))
       .join(delimiter)
   } else {
-    data = array ? array.map(encode).join(delimiter) : encode(value)
+    data = items ? items.map(encode).join(delimiter) : encode(value)
   }
   return style === 'label' ? `.${data}` : data
 }

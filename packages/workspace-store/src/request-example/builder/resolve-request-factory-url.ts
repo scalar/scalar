@@ -1,4 +1,5 @@
 import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
+import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { type Result, err, ok } from '@scalar/helpers/types/result'
 import { safeRun } from '@scalar/helpers/types/safe-run'
@@ -91,11 +92,22 @@ export const resolveRequestFactoryUrl = (
   const urlBase = origin && origin !== 'null' ? origin : 'http://localhost:3000'
   // Fallback for modal layout without a base server url (it should use the current origin)
   const urlParsed = safeRun(() => {
-    if (
-      (request.path.reservedParameters && Object.keys(request.path.reservedParameters).length) ||
-      Object.values(request.path.styledParameters ?? {}).some(({ style }) => style === 'label')
-    ) {
+    if (request.path.reservedParameters && Object.keys(request.path.reservedParameters).length) {
       assertReservedPathUrl(mergedUrl)
+    }
+    // Only check segments a label can turn into a dot segment. Authored segments in
+    // the server URL or elsewhere in the operation path keep normal URL semantics.
+    const styled = request.path.styledParameters
+    if (styled) {
+      const segments = (rawPath.split(/[?#]/, 1)[0] ?? '').split('/')
+      for (const segment of segments) {
+        const hasLabel = [...segment.matchAll(REGEX.PATH)].some(
+          ([, key]) => key !== undefined && getOwnEntry(styled, key)?.style === 'label',
+        )
+        if (hasLabel) {
+          assertReservedPathUrl(replacePathVariables(segment, pathVariables))
+        }
+      }
     }
     return new URL(mergedUrl, urlBase)
   })

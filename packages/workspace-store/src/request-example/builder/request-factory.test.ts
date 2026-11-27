@@ -87,6 +87,7 @@ describe('requestFactory', () => {
             {
               name: 'id',
               in: 'path',
+              required: true,
               style,
               explode,
               schema: { type: 'array', items: { type: 'string' } },
@@ -119,6 +120,7 @@ describe('requestFactory', () => {
             {
               name: 'id',
               in: 'path',
+              required: true,
               style,
               explode,
               schema: { type: 'object' },
@@ -141,7 +143,16 @@ describe('requestFactory', () => {
         server: { url: 'https://api.example.test' },
         proxyUrl: '',
         operation: {
-          parameters: [{ name: 'id', in: 'path', style: 'matrix', schema: { type: 'string' }, example: 'original' }],
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              style: 'matrix',
+              schema: { type: 'string' },
+              example: 'original',
+            },
+          ],
         },
       }),
     )
@@ -152,6 +163,25 @@ describe('requestFactory', () => {
     expect(built.data.requestPayload[0]).toBe('https://api.example.test/items/;id=updated%2F123')
   })
 
+  it('preserves URL normalization for authored segments outside the label expansion', () => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/prefix/../items/{id}',
+        server: { url: 'https://api.example.test/v1/../v2' },
+        proxyUrl: '',
+        operation: {
+          parameters: [
+            { name: 'id', in: 'path', required: true, style: 'label', schema: { type: 'string' }, example: 'abc' },
+          ],
+        },
+      }),
+    )
+
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(built.data.requestPayload[0]).toBe('https://api.example.test/v2/items/.abc')
+  })
+
   it('rejects a label value that the browser would normalize into another path', () => {
     const { request } = requestFactory(
       createBaseArgs({
@@ -159,7 +189,9 @@ describe('requestFactory', () => {
         server: { url: 'https://api.example.test' },
         proxyUrl: '',
         operation: {
-          parameters: [{ name: 'id', in: 'path', style: 'label', schema: { type: 'string' }, example: '.' }],
+          parameters: [
+            { name: 'id', in: 'path', required: true, style: 'label', schema: { type: 'string' }, example: '.' },
+          ],
         },
       }),
     )
