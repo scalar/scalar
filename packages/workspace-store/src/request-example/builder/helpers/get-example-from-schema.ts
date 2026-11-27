@@ -19,6 +19,7 @@ import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
 import { generateContainsArray, getArrayDialect } from './array-contains'
 import { EXAMPLE_EVALUATION, type ExampleEvaluation, type ExampleEvaluationState } from './example-evaluation'
+import { getNumericExample } from './get-numeric-example'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
@@ -1457,9 +1458,8 @@ const getPrimitiveValue = (
       case 'boolean':
         return true
       case 'integer':
-        return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
       case 'number':
-        return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
+        return getNumericExample(schema, schema.type === 'integer')
       case 'array':
         return []
       default:
@@ -1487,9 +1487,8 @@ const getUnionPrimitiveValue = (
         case 'boolean':
           return true
         case 'integer':
-          return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
         case 'number':
-          return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
+          return getNumericExample(schema, first === 'integer')
         case 'null':
           return null
         default:
