@@ -49,7 +49,9 @@ jobs:
           ref: ${{ github.workflow_sha }}
           persist-credentials: false
           sparse-checkout: |
-            tooling/scripts/purge-jsdelivr.mjs
+            /.nvmrc
+            /tooling/scripts/package.json
+            /tooling/scripts/purge-jsdelivr.ts
           sparse-checkout-cone-mode: false
 
       - name: Check whether the Main run published to npm
@@ -92,9 +94,14 @@ jobs:
             "repos/$GITHUB_REPOSITORY/contents/packages/api-reference/package.json?ref=$VERSION_REF" | \
             jq -er '.version | strings | select(test("^[0-9A-Za-z.+-]+$")) | "version=\(.)"' >> "$GITHUB_OUTPUT"
 
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+          package-manager-cache: false
+
       - name: Purge jsDelivr once npm serves the release
         env:
           VERSION: ${{ steps.release-version.outputs.version }}
           PURGE_ALL: ${{ steps.published.outputs.purge_all }}
           WAIT_FOR_NPM: ${{ steps.published.outputs.wait_for_npm }}
-        run: node ./tooling/scripts/purge-jsdelivr.mjs
+        run: node ./tooling/scripts/purge-jsdelivr.ts

@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
-const scriptPath = join(dirname(fileURLToPath(import.meta.url)), 'purge-jsdelivr.mjs')
+const scriptPath = join(dirname(fileURLToPath(import.meta.url)), 'purge-jsdelivr.ts')
 
 const PATHS = [
   '@scalar/api-reference',

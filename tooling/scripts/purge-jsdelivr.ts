@@ -1,6 +1,17 @@
 import { execFileSync } from 'node:child_process'
 import { setTimeout as sleep } from 'node:timers/promises'
 
+type NpmViewEntry = {
+  version: string
+  'dist-tags.latest': string
+}
+
+type PurgeResult = {
+  id?: string
+  status?: string
+  paths?: Record<string, { throttled?: unknown; providers?: unknown }>
+}
+
 const { VERSION: version, PACKAGE: pkg = '@scalar/api-reference' } = process.env
 if (!version) {
   throw new Error('Missing VERSION')
@@ -25,21 +36,21 @@ const release = `${pkg}@${version}`
 
 // npm applies its own semver and dist-tag rules. An older latest is pending,
 // while a newer installable latest means another release superseded this one.
-const npmLatest = (timeout) => {
+const npmLatest = (timeout: number): string | undefined => {
   try {
     const output = execFileSync(
       process.env.NPM_COMMAND ?? 'npm',
       ['view', `${pkg}@>=${version}`, 'version', 'dist-tags.latest', '--json', '--prefer-online', '--fetch-retries=0'],
       { timeout, killSignal: 'SIGKILL', encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
     )
-    const versions = JSON.parse(output)
+    const versions: NpmViewEntry | NpmViewEntry[] = JSON.parse(output)
     return [versions].flat().find((entry) => entry.version === entry['dist-tags.latest'])?.version
   } catch {
     return undefined
   }
 }
 
-const waitForNpm = async () => {
+const waitForNpm = async (): Promise<string | undefined> => {
   const deadline = Date.now() + npmTimeout
   for (let remaining = npmTimeout; remaining > 0; remaining = deadline - Date.now()) {
     const latest = npmLatest(Math.min(remaining, requestTimeout))
@@ -48,9 +59,10 @@ const waitForNpm = async () => {
     }
     await sleep(Math.max(0, Math.min(pollInterval, deadline - Date.now())))
   }
+  return undefined
 }
 
-const superseded = (latest) => {
+const superseded = (latest: string | undefined): boolean => {
   if (latest && latest !== version) {
     console.log(`Skipping ${release} because npm latest is now ${latest}`)
     return true
@@ -58,9 +70,10 @@ const superseded = (latest) => {
   return false
 }
 
-const request = (url, method = 'GET') => fetch(url, { method, signal: AbortSignal.timeout(requestTimeout) })
+const request = (url: string, method: 'GET' | 'HEAD' = 'GET'): Promise<Response> =>
+  fetch(url, { method, signal: AbortSignal.timeout(requestTimeout) })
 
-const isStale = async (path) => {
+const isStale = async (path: string): Promise<boolean> => {
   try {
     // fetch follows redirects and exposes only the final response's headers.
     const response = await request(`${cdnOrigin}/npm/${path}`, 'HEAD')
@@ -72,8 +85,8 @@ const isStale = async (path) => {
 
 // If jsDelivr queues the request, check that request on the next round.
 // Resubmitting the same path can be throttled even when the first purge succeeded.
-const pendingRequests = new Map()
-const purge = async (path) => {
+const pendingRequests = new Map<string, string>()
+const purge = async (path: string): Promise<boolean> => {
   const id = pendingRequests.get(path)
   try {
     const url = id ? `status/${encodeURIComponent(id)}` : `npm/${path}`
@@ -84,7 +97,7 @@ const purge = async (path) => {
       }
       throw new Error(`HTTP ${response.status}: ${await response.text()}`)
     }
-    const result = await response.json()
+    const result: PurgeResult = await response.json()
     if (result.status !== 'finished') {
       if (typeof result.id === 'string' && result.id) {
         pendingRequests.set(path, result.id)
@@ -102,15 +115,15 @@ const purge = async (path) => {
     console.log(`Purged ${path}`)
     return true
   } catch (error) {
-    console.log(`Failed to purge ${path} (${error.message})`)
+    console.log(`Failed to purge ${path} (${error instanceof Error ? error.message : String(error)})`)
     return false
   }
 }
 
-const run = async () => {
+const run = async (): Promise<void> => {
   // A fresh response from this runner cannot confirm the other CDN providers.
   const required = new Set(process.env.PURGE_ALL === 'true' ? paths : [])
-  const stalePaths = async () => {
+  const stalePaths = async (): Promise<string[]> => {
     const stale = []
     for (const path of paths) {
       if (required.has(path) || (await isStale(path))) {
@@ -173,7 +186,7 @@ const run = async () => {
   }
 }
 
-await run().catch((error) => {
-  console.error(error.message)
+await run().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : String(error))
   process.exitCode = 1
 })

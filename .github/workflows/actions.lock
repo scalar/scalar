@@ -100,6 +100,7 @@ workflows:
         - 'useblacksmith/setup-docker-builder@v2.4.0'
     '.github/workflows/purge-cdn.yml':
         - 'actions/checkout@v7.0.1'
+        - 'actions/setup-node@v7.1.0'
     '.github/workflows/release.yml':
         - 'actions/cache@v6.1.0'
         - 'actions/checkout@v7.0.1'

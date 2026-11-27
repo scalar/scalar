@@ -46,7 +46,7 @@ describe('purge-jsdelivr-workflow', () => {
     expect(release.find((step) => step.id === 'changesets')?.with?.['publish-script']?.split(/\s+/)).toContain(
       '--report-summary',
     )
-    const script = purge.find((step) => step.run?.includes('node ./tooling/scripts/purge-jsdelivr.mjs'))
+    const script = purge.find((step) => step.run?.includes('node ./tooling/scripts/purge-jsdelivr.ts'))
     expect(script?.env?.PURGE_ALL).toBe('${{ steps.published.outputs.purge_all }}')
     expect(script?.env?.WAIT_FOR_NPM).toBe('${{ steps.published.outputs.wait_for_npm }}')
 
