@@ -1008,11 +1008,14 @@ const handleObjectSchema = (
         if (Object.hasOwn(response, key) || Object.hasOwn(declaredProperties, key)) {
           continue
         }
+        // The first enum key historically used the placeholder path for composition selection.
+        const pathName = propertyNamesEnum && remaining === additionalCount ? baseName : key
         const value =
           !isAnyType && typeof additional === 'object'
             ? getExampleFromSchema(additional, options, {
                 level: level + 1,
-                schemaPath: [...schemaPath, key],
+                schemaPath: [...schemaPath, pathName],
+                name: key,
                 seen,
                 dynamicScope: childScope,
               })

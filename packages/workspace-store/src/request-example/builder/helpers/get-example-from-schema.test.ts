@@ -3167,6 +3167,37 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual({ feature: true, feature2: true })
   })
 
+  it('preserves composition selection for the first enum key', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      propertyNames: { type: 'string', enum: ['cpu', 'memory'] },
+      additionalProperties: {
+        type: 'string',
+        oneOf: [
+          { type: 'string', const: 'first' },
+          { type: 'string', const: 'second' },
+        ],
+      },
+    }
+
+    expect(getExampleFromSchema(schema, { compositionSelection: { 'additionalProperty.oneOf': 1 } })).toStrictEqual({
+      cpu: 'second',
+      memory: 'first',
+    })
+  })
+
+  it('limits the number of synthesized dictionary entries', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: Number.MAX_SAFE_INTEGER,
+      additionalProperties: true,
+    }
+
+    const example = getExampleFromSchema(schema)
+    expect(Object.keys(example as object).length).toBe(1_000)
+  })
+
   describe('additionalProperties', () => {
     it('allows any additonalProperty', () => {
       expect(
