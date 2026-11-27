@@ -2528,9 +2528,29 @@ describe('getExampleFromSchema', () => {
       expected: 1.0000000000000002e20,
     },
     {
+      name: 'exact multiple between rounded grid values',
+      schema: { type: 'number', minimum: 15.2, maximum: 16.2, multipleOf: 0.1234567890123465 },
+      expected: 15.802468993580352,
+    },
+    {
+      name: 'exact multiple between widely spaced integers',
+      schema: {
+        type: 'integer',
+        minimum: 10_000_000_000_000_000_000,
+        maximum: 10_000_000_000_000_102_000,
+        multipleOf: 19,
+      },
+      expected: 10_000_000_000_000_053_000,
+    },
+    {
       name: 'numeric type array',
       schema: { type: ['integer', 'string'], exclusiveMinimum: 0, multipleOf: 2 },
       expected: 2,
+    },
+    {
+      name: 'type array that allows fractions',
+      schema: { type: ['integer', 'number'], minimum: 0.1, maximum: 0.3, multipleOf: 0.2 },
+      expected: 0.2,
     },
     {
       name: 'nullable numeric type array',

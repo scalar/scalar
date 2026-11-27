@@ -38,7 +38,21 @@ const adjacentNumber = (value: number, direction: 1 | -1): number => {
   return view.getFloat64(0)
 }
 
-/** Find an exact JSON number on the given decimal grid. */
+/** Keep precision recovery bounded even when the schema spans a huge range. */
+const MAX_PRECISION_CANDIDATES = 64
+
+const gridValue = (coefficient: bigint, exponent: number): number | undefined => {
+  const value = Number(`${coefficient}e${exponent}`)
+  if (!Number.isFinite(value)) {
+    return undefined
+  }
+  // Parsing may round the decimal to a number whose JSON representation differs.
+  const rounded = toDecimal(value)
+  const scale = Math.min(exponent, rounded.exponent)
+  return scaleDecimal(rounded, scale) === scaleDecimal({ coefficient, exponent }, scale) ? value : undefined
+}
+
+/** Try nearby multiples and the interval edges, then scan grids with few candidates. */
 const findGridValue = (
   grid: { lower: bigint; upper: bigint; target: bigint; scale: number },
   stride: bigint,
@@ -53,20 +67,41 @@ const findGridValue = (
   const preferredIndex = -floorDivide(-target, stride)
   const closest = preferredIndex > last ? last : preferredIndex
   for (const candidate of [closest, closest + 1n, closest - 1n, first, last, 0n]) {
-    if (candidate < first || candidate > last) {
-      continue
+    if (candidate >= first && candidate <= last) {
+      const value = gridValue(candidate * stride, scale)
+      if (value !== undefined) {
+        return value
+      }
     }
-    const coefficient = candidate * stride
-    const value = Number(`${coefficient}e${scale}`)
-    if (!Number.isFinite(value)) {
-      continue
+  }
+  if (last - first < BigInt(MAX_PRECISION_CANDIDATES)) {
+    for (let candidate = first + 1n; candidate < last; candidate++) {
+      const value = gridValue(candidate * stride, scale)
+      if (value !== undefined) {
+        return value
+      }
     }
-    // Rounding can also occur when parsing the decimal back into a JS number.
-    const rounded = toDecimal(value)
-    const comparisonScale = Math.min(scale, rounded.exponent)
-    if (scaleDecimal(rounded, comparisonScale) === scaleDecimal({ coefficient, exponent: scale }, comparisonScale)) {
-      return value
+  }
+  return undefined
+}
+
+/** A small interval can contain many exact multiples but very few representable numbers. */
+const findRepresentableMultiple = (
+  lower: number,
+  upper: number,
+  step: Decimal,
+  integer: boolean,
+): number | undefined => {
+  let value = lower
+  for (let attempt = 0; attempt < MAX_PRECISION_CANDIDATES && Number.isFinite(value) && value <= upper; attempt++) {
+    if (!integer || Number.isInteger(value)) {
+      const decimal = toDecimal(value)
+      const scale = Math.min(decimal.exponent, step.exponent)
+      if (scaleDecimal(decimal, scale) % scaleDecimal(step, scale) === 0n) {
+        return value
+      }
     }
+    value = adjacentNumber(value, 1)
   }
   return undefined
 }
@@ -113,7 +148,7 @@ const getSteppedExample = (
       }
     }
   }
-  return undefined
+  return findRepresentableMultiple(Number.isFinite(lower) ? lower : target, upper, step, integer)
 }
 
 const readBound = (value: unknown): number | undefined =>

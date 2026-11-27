@@ -1488,7 +1488,7 @@ const getUnionPrimitiveValue = (
           return true
         case 'integer':
         case 'number':
-          return getNumericExample(schema, first === 'integer')
+          return getNumericExample(schema, first === 'integer' && !schema.type.includes('number'))
         case 'null':
           return null
         default:
