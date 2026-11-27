@@ -30,8 +30,6 @@ Your logo renders on the first of these surfaces your site has:
 2. The **tabs**, if you have `navigation.tabs` but no header
 3. The **sidebar**, if you have neither
 
-On the [contained layout](layouts.md#pages-with-tabs-and-no-header), a page with tabs but no header shows the logo at the top of the sidebar instead of in the tabs.
-
 To force the logo to go in the header, set `layout.header` to `true`. If a page hides all three surfaces through its [layout options](navigation.md#layout-options), the logo does not render on that page.
 
 If you do not set a `logo`, your project title from `info.title` renders in the same place instead.
@@ -138,6 +136,8 @@ Set `layout.colorSchemeToggle` to `"sidebar"` (the default), `"header"`, `"tabs"
 ```
 
 If a page does not have that surface, the toggle falls back to the sidebar, then the header, then the tabs, and does not render if the page has none of them. On mobile, pages without a sidebar show it in the header. You can override the location per page in its [layout options](navigation.md#layout-options).
+
+The [minimal layout](layouts.md#light-and-dark-mode) has no toggle, whatever `colorSchemeToggle` is set to.
 
 ### Examples
 
