@@ -3131,6 +3131,28 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  it.each(['allOf', 'oneOf', 'anyOf'] as const)(
+    'counts properties supplied by %s before padding the dictionary',
+    (composition) => {
+      const schema: SchemaObject = {
+        type: 'object',
+        minProperties: 2,
+        maxProperties: 2,
+        additionalProperties: { type: 'string' },
+        [composition]: [
+          {
+            type: 'object',
+            required: ['fixed'],
+            properties: { fixed: { type: 'string', const: 'value' } },
+          },
+        ],
+      }
+
+      expect(getExampleFromSchema(schema)).toStrictEqual({ fixed: 'value', additionalProperty: '' })
+      expect(getExampleFromSchema({ ...schema, minProperties: 1, maxProperties: 1 })).toStrictEqual({ fixed: 'value' })
+    },
+  )
+
   it('counts declared properties before adding dictionary entries', () => {
     const schema: SchemaObject = {
       type: 'object',

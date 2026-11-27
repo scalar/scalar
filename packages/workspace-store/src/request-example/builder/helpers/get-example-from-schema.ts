@@ -882,6 +882,144 @@ const sortPropertyNamesByXOrder = (properties: Record<string, unknown>): string[
     return 0
   })
 
+/** Add dictionary entries within the available property count and traversal budget. */
+const padDictionaryExample = (
+  response: Record<string, unknown>,
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  {
+    level,
+    schemaPath,
+    seen,
+    dynamicScope,
+  }: {
+    level: number
+    schemaPath: string[]
+    seen: WeakSet<object>
+    dynamicScope: DynamicScope
+  },
+): void => {
+  if (!('additionalProperties' in schema) || !schema.additionalProperties) {
+    return
+  }
+  const minProperties = readLengthBound(schema.minProperties, 0)
+  const maxProperties = readLengthBound(schema.maxProperties, Number.POSITIVE_INFINITY)
+  const propertyCount = Object.values(response).filter((value) => value !== undefined).length
+  const missingProperties = minProperties - propertyCount
+  // Keep the usual single placeholder when the schema leaves room for one.
+  const additionalCount = Math.min(
+    Math.max(1, missingProperties),
+    maxProperties - propertyCount,
+    MAX_ADDITIONAL_PROPERTIES,
+  )
+
+  if (additionalCount <= 0) {
+    return
+  }
+
+  const additional =
+    typeof schema.additionalProperties === 'boolean'
+      ? schema.additionalProperties
+      : resolve.schema(schema.additionalProperties)
+  const isAnyType =
+    schema.additionalProperties === true ||
+    (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
+  const additionalSchema = !isAnyType && typeof additional === 'object' ? additional : undefined
+
+  const customName =
+    typeof additional === 'object' && 'x-additionalPropertiesName' in additional
+      ? additional['x-additionalPropertiesName']
+      : undefined
+  const preferredName = typeof customName === 'string' ? customName.trim() : ''
+  const propertyNamesEnum = getPropertyNamesEnumValues(schema)
+  const usePreferredName =
+    preferredName !== '' &&
+    (missingProperties <= 0 || !propertyNamesEnum || propertyNamesEnum.some((name) => String(name) === preferredName))
+  const baseName = usePreferredName ? preferredName : DEFAULT_ADDITIONAL_PROPERTIES_NAME
+  const enumOffset = Number(usePreferredName)
+  const candidateCount = propertyNamesEnum ? propertyNamesEnum.length + enumOffset : Number.POSITIVE_INFINITY
+  const declaredProperties = schema.properties ?? {}
+  const propertyPatterns = Object.keys(schema.patternProperties ?? {})
+
+  let added = 0
+  let attempted = 0
+  let isFirstValue = true
+  let paddingNodesLeft = MAX_PADDING_NODES
+  let patternChecksLeft = MAX_PROPERTY_PATTERN_CHECKS
+  let oversizedValues: WeakSet<object> | undefined
+  for (
+    let index = 0;
+    index < candidateCount && added < additionalCount && attempted < MAX_ADDITIONAL_PROPERTIES && paddingNodesLeft > 0;
+    index++
+  ) {
+    const suffix = index === 0 ? '' : String(index + 1)
+    const enumIndex = index - enumOffset
+    const key = propertyNamesEnum && enumIndex >= 0 ? String(propertyNamesEnum[enumIndex]) : baseName + suffix
+    if (Object.hasOwn(response, key) || Object.hasOwn(declaredProperties, key)) {
+      continue
+    }
+    attempted++
+    if (missingProperties > 0 && propertyPatterns.length > 0) {
+      if (patternChecksLeft < propertyPatterns.length) {
+        if (index > 0) {
+          break
+        }
+      } else {
+        patternChecksLeft -= propertyPatterns.length
+        if (
+          propertyPatterns.some((pattern) => {
+            const matches = matchPropertyPattern(pattern, key)
+            // Keep the legacy first name when the bounded matcher cannot classify the pattern.
+            return matches === true || (matches === undefined && index > 0)
+          })
+        ) {
+          continue
+        }
+      }
+    }
+    // The first enum key historically used the placeholder path for composition selection.
+    const pathName = propertyNamesEnum && !usePreferredName && isFirstValue ? baseName : key
+    isFirstValue = false
+    const value = additionalSchema
+      ? getExampleFromSchema(additionalSchema, options, {
+          level,
+          schemaPath: [...schemaPath, pathName],
+          name: key,
+          seen,
+          dynamicScope,
+        })
+      : 'anything'
+    if (added > 0 && value !== undefined) {
+      const objectValue = isObjectLike(value) ? value : undefined
+      if (objectValue && oversizedValues?.has(objectValue)) {
+        continue
+      }
+      const size = countExampleNodes(value, paddingNodesLeft + 1)
+      if (size > paddingNodesLeft) {
+        // The remaining budget can only shrink, so this same explicit value will never fit.
+        if (objectValue) {
+          oversizedValues ??= new WeakSet()
+          oversizedValues.add(objectValue)
+        }
+        continue
+      }
+      paddingNodesLeft -= size
+      // An explicit value can contain many nodes even when generation visited just one schema.
+      visitsLeft -= size - Number(!!additionalSchema)
+    }
+    if (visitsLeft < 0) {
+      truncated = true
+      break
+    }
+    if (value === undefined && added < missingProperties) {
+      continue
+    }
+    // A dictionary key can have the same name as a property on Object.prototype.
+    Object.defineProperty(response, key, { value, enumerable: true, configurable: true, writable: true })
+    added++
+  }
+}
+
 /**
  * Build an example for an object schema, including properties, patternProperties,
  * additionalProperties, and composition (allOf/oneOf/anyOf) merging.
@@ -975,126 +1113,14 @@ const handleObjectSchema = (
     }
   }
 
-  if (!required && 'additionalProperties' in schema && schema.additionalProperties) {
-    const minProperties = readLengthBound(schema.minProperties, 0)
-    const maxProperties = readLengthBound(schema.maxProperties, Number.POSITIVE_INFINITY)
-    const propertyCount = Object.values(response).filter((value) => value !== undefined).length
-    const missingProperties = minProperties - propertyCount
-    // Keep the usual single placeholder when the schema leaves room for one.
-    const additionalCount = Math.min(
-      Math.max(1, missingProperties),
-      maxProperties - propertyCount,
-      MAX_ADDITIONAL_PROPERTIES,
-    )
-
-    if (additionalCount > 0) {
-      const additional =
-        typeof schema.additionalProperties === 'boolean'
-          ? schema.additionalProperties
-          : resolve.schema(schema.additionalProperties)
-      const isAnyType =
-        schema.additionalProperties === true ||
-        (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
-      const additionalSchema = !isAnyType && typeof additional === 'object' ? additional : undefined
-
-      const customName =
-        typeof additional === 'object' && 'x-additionalPropertiesName' in additional
-          ? additional['x-additionalPropertiesName']
-          : undefined
-      const preferredName = typeof customName === 'string' ? customName.trim() : ''
-      const propertyNamesEnum = getPropertyNamesEnumValues(schema)
-      const usePreferredName =
-        preferredName !== '' &&
-        (missingProperties <= 0 ||
-          !propertyNamesEnum ||
-          propertyNamesEnum.some((name) => String(name) === preferredName))
-      const baseName = usePreferredName ? preferredName : DEFAULT_ADDITIONAL_PROPERTIES_NAME
-      const enumOffset = Number(usePreferredName)
-      const candidateCount = propertyNamesEnum ? propertyNamesEnum.length + enumOffset : Number.POSITIVE_INFINITY
-      const declaredProperties = schema.properties ?? {}
-      const propertyPatterns = Object.keys(schema.patternProperties ?? {})
-
-      let added = 0
-      let attempted = 0
-      let isFirstValue = true
-      let paddingNodesLeft = MAX_PADDING_NODES
-      let patternChecksLeft = MAX_PROPERTY_PATTERN_CHECKS
-      let oversizedValues: WeakSet<object> | undefined
-      for (
-        let index = 0;
-        index < candidateCount &&
-        added < additionalCount &&
-        attempted < MAX_ADDITIONAL_PROPERTIES &&
-        paddingNodesLeft > 0;
-        index++
-      ) {
-        const suffix = index === 0 ? '' : String(index + 1)
-        const enumIndex = index - enumOffset
-        const key = propertyNamesEnum && enumIndex >= 0 ? String(propertyNamesEnum[enumIndex]) : baseName + suffix
-        if (Object.hasOwn(response, key) || Object.hasOwn(declaredProperties, key)) {
-          continue
-        }
-        attempted++
-        if (missingProperties > 0 && propertyPatterns.length > 0) {
-          if (patternChecksLeft < propertyPatterns.length) {
-            if (index > 0) {
-              break
-            }
-          } else {
-            patternChecksLeft -= propertyPatterns.length
-            if (
-              propertyPatterns.some((pattern) => {
-                const matches = matchPropertyPattern(pattern, key)
-                // Keep the legacy first name when the bounded matcher cannot classify the pattern.
-                return matches === true || (matches === undefined && index > 0)
-              })
-            ) {
-              continue
-            }
-          }
-        }
-        // The first enum key historically used the placeholder path for composition selection.
-        const pathName = propertyNamesEnum && !usePreferredName && isFirstValue ? baseName : key
-        isFirstValue = false
-        const value = additionalSchema
-          ? getExampleFromSchema(additionalSchema, options, {
-              level: level + 1,
-              schemaPath: [...schemaPath, pathName],
-              name: key,
-              seen,
-              dynamicScope: childScope,
-            })
-          : 'anything'
-        if (added > 0 && value !== undefined) {
-          const objectValue = isObjectLike(value) ? value : undefined
-          if (objectValue && oversizedValues?.has(objectValue)) {
-            continue
-          }
-          const size = countExampleNodes(value, paddingNodesLeft + 1)
-          if (size > paddingNodesLeft) {
-            // The remaining budget can only shrink, so this same explicit value will never fit.
-            if (objectValue) {
-              oversizedValues ??= new WeakSet()
-              oversizedValues.add(objectValue)
-            }
-            continue
-          }
-          paddingNodesLeft -= size
-          // An explicit value can contain many nodes even when generation visited just one schema.
-          visitsLeft -= size - Number(!!additionalSchema)
-        }
-        if (visitsLeft < 0) {
-          truncated = true
-          break
-        }
-        if (value === undefined && added < missingProperties) {
-          continue
-        }
-        // A dictionary key can have the same name as a property on Object.prototype.
-        Object.defineProperty(response, key, { value, enumerable: true, configurable: true, writable: true })
-        added++
-      }
-    }
+  // Bounded dictionaries need the composed property count before adding placeholders.
+  // Keep the existing generation order for dictionaries without bounds.
+  const padAfterComposition =
+    ('minProperties' in schema && schema.minProperties !== undefined) ||
+    ('maxProperties' in schema && schema.maxProperties !== undefined)
+  const dictionaryContext = { level: level + 1, schemaPath, seen, dynamicScope: childScope }
+  if (!required && !padAfterComposition) {
+    padDictionaryExample(response, schema, options, dictionaryContext)
   }
 
   const anyOfKeyword = schema.anyOf ? 'anyOf' : undefined
@@ -1141,6 +1167,10 @@ const handleObjectSchema = (
     if (merged && typeof merged === 'object') {
       Object.assign(response, merged)
     }
+  }
+
+  if (!required && padAfterComposition) {
+    padDictionaryExample(response, schema, options, dictionaryContext)
   }
 
   if (options?.xml && 'xml' in schema && schema.xml?.name && level === 0) {
