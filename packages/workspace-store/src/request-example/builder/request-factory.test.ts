@@ -8,7 +8,7 @@ import { assert, describe, expect, it } from 'vitest'
 
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 
-import { buildRequest } from './build-request'
+import { buildRequest, resolveExecutableRequestUrl } from './build-request'
 import { requestFactory } from './request-factory'
 
 type ExtendedParameter = ParameterObject & { value: string }
@@ -46,6 +46,131 @@ const createBaseArgs = (overrides: Partial<FactoryArgs> = {}): FactoryArgs => ({
 })
 
 describe('requestFactory', () => {
+  it.each([
+    { style: 'matrix', expected: ';id=abc' },
+    { style: 'label', expected: '.abc' },
+    { style: 'simple', expected: 'abc' },
+    { style: undefined, expected: 'abc' },
+  ])('uses path style $style for sending and copying the request URL', ({ style, expected }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/items/{id}',
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        openapiVersion: '3.1.0',
+        operation: {
+          parameters: [{ name: 'id', in: 'path', required: true, style, schema: { type: 'string' }, example: 'abc' }],
+        },
+      }),
+    )
+
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(built.data.requestPayload[0]).toBe(`https://api.example.test/items/${expected}`)
+    expect(resolveExecutableRequestUrl(request, {})).toBe(`https://api.example.test/items/${expected}`)
+  })
+
+  it.each([
+    { style: 'matrix', explode: false, expected: ';id=a%2Fb%2Cc,d%3Fe%3Bf%21' },
+    { style: 'matrix', explode: true, expected: ';id=a%2Fb%2Cc;id=d%3Fe%3Bf%21' },
+    { style: 'label', explode: false, expected: '.a%2Fb%2Cc,d%3Fe%3Bf%21' },
+    { style: 'label', explode: true, expected: '.a%2Fb%2Cc.d%3Fe%3Bf%21' },
+  ])('encodes array items before expanding $style with explode=$explode', ({ style, explode, expected }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/items/{id}',
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        openapiVersion: '3.0.4',
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              style,
+              explode,
+              schema: { type: 'array', items: { type: 'string' } },
+              example: '["{{first}}","d?e;f!"]',
+            },
+          ],
+        },
+      }),
+    )
+
+    const built = buildRequest(request, { envVariables: { first: 'a/b,c' } })
+    assert(built.ok)
+    expect(built.data.requestPayload[0]).toBe(`https://api.example.test/items/${expected}`)
+  })
+
+  it.each([
+    { style: 'matrix', explode: false, expected: ';id=k%3D1,a%23b,k%3B2,c%25d' },
+    { style: 'matrix', explode: true, expected: ';k%3D1=a%23b;k%3B2=c%25d' },
+    { style: 'label', explode: false, expected: '.k%3D1,a%23b,k%3B2,c%25d' },
+    { style: 'label', explode: true, expected: '.k%3D1=a%23b.k%3B2=c%25d' },
+  ])('encodes object entries before expanding $style with explode=$explode', ({ style, explode, expected }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/items/{id}',
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        openapiVersion: '3.2.1',
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              style,
+              explode,
+              schema: { type: 'object' },
+              example: { 'k=1': 'a#b', 'k;2': 'c%d' },
+            },
+          ],
+        },
+      }),
+    )
+
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(built.data.requestPayload[0]).toBe(`https://api.example.test/items/${expected}`)
+  })
+
+  it('preserves styled path expansion after a request hook replaces the preview value', () => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/items/{id}',
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        operation: {
+          parameters: [{ name: 'id', in: 'path', style: 'matrix', schema: { type: 'string' }, example: 'original' }],
+        },
+      }),
+    )
+    request.path.variables.id = 'updated/123'
+
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(built.data.requestPayload[0]).toBe('https://api.example.test/items/;id=updated%2F123')
+  })
+
+  it('rejects a label value that the browser would normalize into another path', () => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/items/{id}',
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        operation: {
+          parameters: [{ name: 'id', in: 'path', style: 'label', schema: { type: 'string' }, example: '.' }],
+        },
+      }),
+    )
+
+    expect(buildRequest(request, { envVariables: {} })).toStrictEqual({
+      ok: false,
+      error: 'INVALID_REQUEST_FACTORY_URL',
+      message: 'The request URL could not be parsed. Check the server URL and path for invalid characters.',
+    })
+  })
+
   it.each([
     { version: '3.2.0', allowReserved: true, expected: 'a:b%2Fc' },
     { version: '3.2.1', allowReserved: false, expected: 'a%3Ab%2Fc' },
@@ -93,8 +218,9 @@ describe('requestFactory', () => {
               in: 'path',
               required: true,
               allowReserved: true,
+              style: 'matrix',
               schema: { type: 'string' },
-              examples: { default: { serializedValue: 'a%2fb%3Fc' } },
+              examples: { default: { serializedValue: ';id=a%2fb%3Fc' } },
             },
           ],
         },
@@ -102,7 +228,7 @@ describe('requestFactory', () => {
     )
     const built = buildRequest(request, { envVariables: {} })
     assert(built.ok)
-    expect(String(built.data.requestPayload[0])).toBe('https://example.com/a%2fb%3Fc')
+    expect(built.data.requestPayload[0]).toBe('https://example.com/;id=a%2fb%3Fc')
   })
 
   it('preserves reserved path encoding after a request hook overrides the preview value', () => {

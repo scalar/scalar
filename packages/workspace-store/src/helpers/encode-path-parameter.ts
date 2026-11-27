@@ -17,7 +17,7 @@ export const encodePathParameter = (value: string, allowReserved = false): strin
 }
 
 /** Style metadata retained until environment substitution and path encoding. */
-export type ReservedPathParameter = {
+export type PathParameterSerialization = {
   /** Structured input retains array items and object entries for style delimiters. */
   value: unknown
   /** Original preview value lets request hooks override path.variables. */
@@ -26,27 +26,41 @@ export type ReservedPathParameter = {
   explode: boolean
 }
 
-/** Serializes OpenAPI reserved path expansion without exposing forbidden delimiters. */
-export const serializeReservedPathParameter = (
+/** OpenAPI 3.2 path parameter metadata for reserved expansion. */
+export type ReservedPathParameter = PathParameterSerialization
+
+/** Encodes individual keys and values before adding OpenAPI path style delimiters. */
+export const serializePathParameter = (
   name: string,
-  parameter: Pick<ReservedPathParameter, 'value' | 'style' | 'explode'>,
-  replace: (value: string) => string = (value) => value,
+  parameter: Pick<PathParameterSerialization, 'value' | 'style' | 'explode'>,
+  replace: (value: string) => string,
+  allowReserved = false,
 ): string => {
   const { value, style, explode } = parameter
-  const encode = (item: unknown): string => encodePathParameter(replace(String(item)), true)
+  const encode = (item: unknown): string => {
+    const encoded = encodePathParameter(replace(String(item)), allowReserved)
+    // Ordinary URI Template expansion only leaves unreserved characters intact.
+    return allowReserved
+      ? encoded
+      : encoded.replace(/[!'()*]/g, (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`)
+  }
   const entries = isObjectLike(value) && !Array.isArray(value) ? Object.entries(value) : undefined
   const array = Array.isArray(value) ? value : undefined
 
+  if (!allowReserved && (array?.length === 0 || entries?.length === 0)) {
+    return ''
+  }
+
   if (style === 'matrix') {
+    const pair = (key: string, data: string): string => `;${encode(key)}${data || allowReserved ? `=${data}` : ''}`
     if (entries && explode) {
-      return entries.map(([key, item]) => `;${encode(key)}=${encode(item)}`).join('')
+      return entries.map(([key, item]) => pair(key, encode(item))).join('')
     }
     if (array && explode) {
-      return array.map((item) => `;${encode(name)}=${encode(item)}`).join('')
+      return array.map((item) => pair(name, encode(item))).join('')
     }
     const parts = entries ? entries.flatMap(([key, item]) => [key, item]) : (array ?? [value])
-    const data = parts.map(encode).join(',')
-    return `;${encode(name)}=${data}`
+    return pair(name, parts.map(encode).join(','))
   }
 
   const delimiter = style === 'label' && explode ? '.' : ','
@@ -61,10 +75,17 @@ export const serializeReservedPathParameter = (
   return style === 'label' ? `.${data}` : data
 }
 
+/** Serializes OpenAPI reserved path expansion without exposing forbidden delimiters. */
+export const serializeReservedPathParameter = (
+  name: string,
+  parameter: Pick<ReservedPathParameter, 'value' | 'style' | 'explode'>,
+  replace: (value: string) => string = (value) => value,
+): string => serializePathParameter(name, parameter, replace, true)
+
 /** Rejects dot segments that browser URL parsing would silently remove. */
 export const assertReservedPathUrl = (url: string): void => {
   const path = url.split(/[?#]/, 1)[0] ?? ''
   if (path.split('/').some((segment) => /^(?:\.|%2e){1,2}$/i.test(segment))) {
-    throw new URIError('Reserved path parameters cannot form dot segments because browsers normalize them.')
+    throw new URIError('Path parameters cannot form dot segments because browsers normalize them.')
   }
 }

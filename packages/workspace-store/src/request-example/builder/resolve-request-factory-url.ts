@@ -1,14 +1,11 @@
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { type Result, err, ok } from '@scalar/helpers/types/result'
 import { safeRun } from '@scalar/helpers/types/safe-run'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { mergeSearchParams, mergeUrls } from '@scalar/helpers/url/merge-urls'
 
-import {
-  assertReservedPathUrl,
-  encodePathParameter,
-  serializeReservedPathParameter,
-} from '@/helpers/encode-path-parameter'
+import { assertReservedPathUrl, encodePathParameter, serializePathParameter } from '@/helpers/encode-path-parameter'
 import { serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 
@@ -53,21 +50,20 @@ export const resolveRequestFactoryUrl = (
     Object.fromEntries(
       Object.entries(request.path.variables).map(([key, value]) => {
         const replace = (text: string): string => replaceEnvVariables(text, variables)
-        const reserved =
-          request.path.reservedParameters && Object.hasOwn(request.path.reservedParameters, key)
-            ? request.path.reservedParameters[key]
-            : undefined
         if (request.path.serializedParameters?.has(key)) {
           return [key, replace(value)]
         }
-        const encoded = reserved
-          ? serializeReservedPathParameter(
+        const reserved = getOwnEntry(request.path.reservedParameters, key)
+        const serialization = reserved ?? getOwnEntry(request.path.styledParameters, key)
+        const encoded = serialization
+          ? serializePathParameter(
               key,
               {
-                ...reserved,
-                value: value === reserved.originalValue ? reserved.value : value,
+                ...serialization,
+                value: value === serialization.originalValue ? serialization.value : value,
               },
               replace,
+              reserved !== undefined,
             )
           : encodePathParameter(replace(value))
         return [key, encoded]
@@ -95,7 +91,10 @@ export const resolveRequestFactoryUrl = (
   const urlBase = origin && origin !== 'null' ? origin : 'http://localhost:3000'
   // Fallback for modal layout without a base server url (it should use the current origin)
   const urlParsed = safeRun(() => {
-    if (request.path.reservedParameters && Object.keys(request.path.reservedParameters).length) {
+    if (
+      (request.path.reservedParameters && Object.keys(request.path.reservedParameters).length) ||
+      Object.values(request.path.styledParameters ?? {}).some(({ style }) => style === 'label')
+    ) {
       assertReservedPathUrl(mergedUrl)
     }
     return new URL(mergedUrl, urlBase)
