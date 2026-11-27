@@ -26,6 +26,7 @@ type CodeViewport = {
   lineWindow: ComputedRef<{ start: number; end: number; top: number; bottom: number }>
   maxColumns: ComputedRef<number>
   onScroll: () => void
+  scrollToRow: (row: number) => void
   sourceLine: (row: number) => number
 }
 
@@ -116,6 +117,13 @@ export const useCodeViewport = ({
     scrollTop.value = scroll.value?.scrollTop ?? 0
   }
 
+  const scrollToRow = (row: number): void => {
+    if (scroll.value) {
+      scroll.value.scrollTop = offsets.value?.[row] ?? row * LINE_HEIGHT
+      onScroll()
+    }
+  }
+
   const clearMeasurements = (): void => {
     measurements.clear()
     measurementRevision.value++
@@ -185,5 +193,5 @@ export const useCodeViewport = ({
   )
   onUpdated(measureRows)
 
-  return { lineWindow, maxColumns, onScroll, sourceLine }
+  return { lineWindow, maxColumns, onScroll, scrollToRow, sourceLine }
 }

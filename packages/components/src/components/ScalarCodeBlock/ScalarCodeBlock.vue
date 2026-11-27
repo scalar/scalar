@@ -35,7 +35,7 @@ import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { syntaxHighlight, syntaxHighlightLines } from '@scalar/highlight/compat'
 import { ScalarIconCaretDown, ScalarIconCaretRight } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, ref, useId, watch } from 'vue'
+import { computed, nextTick, ref, useId, watch } from 'vue'
 
 import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
 
@@ -158,10 +158,14 @@ const foldRanges = computed(() =>
       : undefined,
 )
 const folded = ref(new Map<number, number>())
+const activeFold = ref<number>()
 const scroll = ref<HTMLElement | null>(null)
 const characterWidthProbe = ref<HTMLElement | null>(null)
 
-watch([prettyContent, () => lang, () => foldable], () => folded.value.clear())
+watch([prettyContent, () => lang, () => foldable], () => {
+  folded.value.clear()
+  activeFold.value = undefined
+})
 
 const highlightedLines = computed(() =>
   !isVirtual.value && foldRanges.value?.size
@@ -186,15 +190,16 @@ const renderedAsRows = computed(
   () => isVirtual.value || !!foldRanges.value?.size,
 )
 
-const { lineWindow, maxColumns, onScroll, sourceLine } = useCodeViewport({
-  enabled: () => isVirtual.value,
-  lines: () => sourceLines.value,
-  expandedLines: () => expandedLines.value,
-  wrap: () => wrap,
-  lineNumbers: () => lineNumbers,
-  scroll,
-  characterWidthProbe,
-})
+const { lineWindow, maxColumns, onScroll, scrollToRow, sourceLine } =
+  useCodeViewport({
+    enabled: () => isVirtual.value,
+    lines: () => sourceLines.value,
+    expandedLines: () => expandedLines.value,
+    wrap: () => wrap,
+    lineNumbers: () => lineNumbers,
+    scroll,
+    characterWidthProbe,
+  })
 
 const visibleLines = computed(() => {
   const { start, end } = lineWindow.value
@@ -227,20 +232,67 @@ const visibleLines = computed(() => {
   return lines
 })
 
+// Only a mounted fold button can be the tab stop, including after scrolling.
+const tabbableFold = computed(() => {
+  if (!renderedAsRows.value || !foldable) return undefined
+  const lines = visibleLines.value
+  return (
+    lines.find(({ canFold, index }) => canFold && index === activeFold.value)
+      ?.index ?? lines.find(({ canFold }) => canFold)?.index
+  )
+})
+
 watch(
-  () => (isVirtual.value ? visibleLines.value : undefined),
+  () => (renderedAsRows.value ? visibleLines.value : []),
   (lines) => {
-    if (!lines) return
     const active = scroll.value?.ownerDocument.activeElement
     const row = active?.closest<HTMLElement>('[data-code-line]')
     if (
       scroll.value?.contains(row ?? null) &&
-      !lines.some(({ index }) => index === Number(row?.dataset.codeLine))
+      !lines.some(
+        ({ index, canFold }) =>
+          canFold && index === Number(row?.dataset.codeLine),
+      )
     ) {
       scroll.value.focus({ preventScroll: true })
     }
   },
 )
+
+/** Move between fold buttons, mounting the destination first if it is offscreen. */
+const moveFoldFocus = async (
+  event: KeyboardEvent,
+  index: number,
+): Promise<void> => {
+  event.preventDefault()
+  const direction = event.key === 'ArrowDown' ? 1 : -1
+  const expanded = expandedLines.value
+  const currentRow = expanded?.indexOf(index) ?? index
+  const rowCount = expanded?.length ?? sourceLines.value.length
+  const ranges = foldRanges.value
+
+  for (
+    let row = currentRow + direction;
+    row >= 0 && row < rowCount;
+    row += direction
+  ) {
+    const target = sourceLine(row)
+    if (!ranges?.has(target)) continue
+
+    const { start, end } = lineWindow.value
+    if (row < start || row >= end) {
+      scrollToRow(row)
+      await nextTick()
+    }
+
+    scroll.value
+      ?.querySelector<HTMLButtonElement>(
+        `[data-code-line="${target}"] [data-code-fold]`,
+      )
+      ?.focus()
+    return
+  }
+}
 
 const toggleFold = (index: number): void => {
   if (folded.value.has(index)) {
@@ -290,6 +342,9 @@ const { cx } = useBindCx()
     -->
     <div
       ref="scroll"
+      :aria-describedby="
+        tabbableFold === undefined ? undefined : `${id}-fold-help`
+      "
       :aria-label="label"
       class="custom-scroll min-h-0 min-w-0 flex-1 overflow-x-auto rounded-[inherit] p-2 -outline-offset-2"
       :class="{ 'scalar-code-viewport': isVirtual }"
@@ -328,10 +383,15 @@ const { cx } = useBindCx()
               <button
                 v-if="line.canFold"
                 :aria-expanded="!line.collapsed"
+                aria-keyshortcuts="ArrowUp ArrowDown"
                 :aria-label="`Toggle code fold at line ${line.index + 1}`"
-                class="text-c-2 hover:text-c-1 focus-visible:outline-c-accent flex size-6 cursor-pointer items-center justify-center rounded focus-visible:outline"
+                class="text-c-2 hocus:text-c-1 focus-visible:outline-c-accent flex size-6 cursor-pointer items-center justify-center rounded focus-visible:outline"
+                data-code-fold
+                :tabindex="line.index === tabbableFold ? 0 : -1"
                 type="button"
-                @click="toggleFold(line.index)">
+                @click="toggleFold(line.index)"
+                @focus="activeFold = line.index"
+                @keydown.up.down.exact="moveFoldFocus($event, line.index)">
                 <component
                   :is="line.collapsed ? ScalarIconCaretRight : ScalarIconCaretDown"
                   aria-hidden="true"
@@ -361,6 +421,12 @@ const { cx } = useBindCx()
         ]"
         v-html="highlightedCode" />
     </div>
+    <span
+      v-if="tabbableFold !== undefined"
+      :id="`${id}-fold-help`"
+      class="sr-only select-none">
+      Use the Up and Down arrow keys to move between code fold buttons.
+    </span>
     <ScalarCodeBlockCopy
       v-if="showCopy"
       :aria-controls="id"

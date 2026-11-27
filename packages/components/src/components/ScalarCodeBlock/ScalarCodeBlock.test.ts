@@ -104,6 +104,37 @@ describe('ScalarCodeBlock', () => {
     }
   })
 
+  it('gives the fold buttons one tab stop and navigates past an offscreen gap', async () => {
+    const wrapper = mount(ScalarCodeBlock, {
+      attachTo: document.body,
+      props: {
+        prettyPrintedContent: `a {\n  color: red;\n}\n${'\n'.repeat(20)}b {\n  color: blue;\n}${'\n'.repeat(100)}`,
+        lang: 'css',
+        foldable: true,
+        virtualize: true,
+      },
+    })
+    try {
+      await flushPromises()
+      const firstSelector = 'button[aria-label="Toggle code fold at line 1"]'
+      const lastSelector = 'button[aria-label="Toggle code fold at line 24"]'
+      const first = wrapper.get<HTMLButtonElement>(firstSelector)
+      expect(first.attributes('tabindex')).toBe('0')
+      expect(wrapper.find(lastSelector).exists()).toBe(false)
+
+      first.element.focus()
+      await first.trigger('keydown', { key: 'ArrowDown' })
+      const last = wrapper.get(lastSelector)
+      expect(document.activeElement).toBe(last.element)
+      expect(last.attributes('tabindex')).toBe('0')
+
+      await last.trigger('keydown', { key: 'ArrowUp' })
+      expect(document.activeElement).toBe(wrapper.get(firstSelector).element)
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
   it('reveals collapsed rows when folding is disabled', async () => {
     const content = 'a {\n  color: red;\n}\n'.repeat(100)
     const wrapper = mount(ScalarCodeBlock, {
