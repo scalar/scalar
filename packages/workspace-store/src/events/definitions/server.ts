@@ -5,6 +5,10 @@ export type ServerMeta =
       type: 'document'
     }
   | {
+      type: 'path'
+      path: string
+    }
+  | {
       type: 'operation'
       path: string
       method: string

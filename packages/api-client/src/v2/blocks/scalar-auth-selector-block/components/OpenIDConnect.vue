@@ -22,6 +22,7 @@ const {
   scheme,
   proxyUrl,
   customFetch,
+  trustedLocalOrigins,
 } = defineProps<{
   /** Current environment configuration */
   environment: XScalarEnvironment
@@ -37,6 +38,7 @@ const {
   scheme: OpenIdConnectObjectSecret
   /** Optional fetch override (IPC-backed on desktop) used for discovery requests */
   customFetch?: CustomFetch
+  trustedLocalOrigins?: readonly string[]
 }>()
 
 const { translate } = useLocalization()
@@ -57,6 +59,7 @@ const handleOpenIdConnect = async (): Promise<void> => {
     scheme.openIdConnectUrl,
     proxyUrl,
     customFetch,
+    trustedLocalOrigins,
   )
   await loader.clear()
 

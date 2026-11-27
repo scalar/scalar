@@ -66,7 +66,7 @@ jobs:
       id-token: write
     # 'true' when this commit released at least one public package — every
     # release-gated job downstream (production galaxy deploy, GitHub release,
-    # integration publishes, CDN purge, production web deploy) keys off this.
+    # integration publishes, production web deploy) keys off this.
     #
     # We deliberately do NOT use changesets/action's own `published` output:
     # that action reads published packages from the CHANGESETS_OUTPUT file
@@ -187,7 +187,7 @@ jobs:
           # The commit message to use.
           commit-message: 'chore: version packages'
           # The command to use to build and publish packages.
-          publish-script: 'pnpm -r publish --access public --no-git-checks --provenance'
+          publish-script: 'pnpm -r publish --access public --no-git-checks --provenance --report-summary'
           # Pass the app token explicitly so the release PR triggers CI.
           github-token: ${{ steps.app-token.outputs.token }}
           # Preserve the existing Git CLI push behavior.
@@ -203,33 +203,21 @@ jobs:
           # CHANGELOG.md section into a friendly release-notes entry.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
-      - name: Purge CDN Cache
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v2.0.1
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
-          method: 'GET'
-
-      - name: Purge CDN Cache (standalone bundle)
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v2.0.1
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.js'
-          method: 'GET'
-
-      - name: Purge CDN Cache (ESM entry point)
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v2.0.1
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/esm.js'
-          method: 'GET'
-
-      - name: Purge CDN Cache (standalone ESM bundle)
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@v2.0.1
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/dist/browser/standalone.esm.js'
-          method: 'GET'
+      # pnpm writes this report when the publish command runs. A release PR
+      # can leave an unpublished version for a later Main run to publish.
+      - name: Read pnpm publish summary
+        id: publish-summary
+        run: |
+          if [ -f pnpm-publish-summary.json ]; then
+            version=$(jq -er .version packages/api-reference/package.json)
+            published=$(jq --arg version "$version" \
+              'any(.publishedPackages[]; .name == "@scalar/api-reference" and .version == $version)' pnpm-publish-summary.json)
+            echo "api_reference=$published" >> "$GITHUB_OUTPUT"
+          fi
+      # purge-cdn.yml reads this step's conclusion from the triggering attempt.
+      - name: API Reference published to npm
+        if: steps.publish-summary.outputs.api_reference == 'true'
+        run: echo 'The CDN aliases need a global purge.'
 
       # Record this job's own result so the main-push deploys can gate on the
       # npm publish alone. `always()` ensures it runs even if an earlier step

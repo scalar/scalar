@@ -4,6 +4,51 @@ import { serveExample } from '@test/utils/serve-example'
 
 import { type Slug, sources } from '../utils/sources'
 
+test('shows each allOf model description on its own card', async ({ page }) => {
+  const employeeDescription = 'An employee in the company directory.'
+  const personDescription = 'Basic information about a person.'
+  const example = await serveExample({
+    layout: 'modern',
+    showSidebar: false,
+    forceDarkModeState: 'light',
+    expandAllModelSections: true,
+    content: {
+      openapi: '3.1.0',
+      info: { title: 'Company Directory', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Employee: {
+            description: employeeDescription,
+            allOf: [
+              { $ref: '#/components/schemas/Person' },
+              { type: 'object', properties: { employeeId: { type: 'string' } } },
+            ],
+          },
+          Person: {
+            type: 'object',
+            description: personDescription,
+            properties: { fullName: { type: 'string' } },
+          },
+        },
+      },
+    },
+  })
+
+  await page.setViewportSize({ width: 800, height: 600 })
+  await page.goto(`${example}#models`)
+
+  const models = page.getByRole('region', { name: 'Models' })
+  const employee = models.getByRole('region', { name: 'Employee', exact: true })
+  const person = models.getByRole('region', { name: 'Person', exact: true })
+  await expect(employee.getByText(employeeDescription, { exact: true })).toBeVisible()
+  await expect(employee.getByText(personDescription, { exact: true })).toHaveCount(0)
+  await expect(employee.getByText('fullName', { exact: true })).toBeVisible()
+  await expect(person.getByText(personDescription, { exact: true })).toBeVisible()
+
+  await expect(models).toHaveScreenshot('allof-model-descriptions.png')
+})
+
 /** A shorter list of slugs to test */
 const slugs: Slug[] = ['scalar-galaxy', 'scalar-galaxy-classic']
 const toTest = sources.filter(({ slug }) => slugs.includes(slug))

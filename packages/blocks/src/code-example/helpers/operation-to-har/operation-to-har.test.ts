@@ -167,6 +167,81 @@ describe('operationToHar', () => {
   )
 
   it.each([
+    { openapiVersion: '3.0.4', style: 'matrix', explode: false, value: 'a:b/c', expected: ';id=a%3Ab%2Fc' },
+    { openapiVersion: '3.1.2', style: 'matrix', explode: true, value: ['a;b', 'c,d'], expected: ';id=a%3Bb;id=c%2Cd' },
+    {
+      openapiVersion: '3.2.1',
+      style: 'label',
+      explode: true,
+      value: { 'a/b': '%2F', empty: '' },
+      expected: '.a%2Fb=%252F.empty=',
+    },
+    { openapiVersion: '3.1.2', style: 'matrix', explode: false, value: null, expected: ';id' },
+    { openapiVersion: '3.1.2', style: 'label', explode: false, value: null, expected: '.' },
+    { openapiVersion: '3.2.1', style: 'label', explode: false, value: null, expected: '' },
+  ])(
+    'uses the request URL in samples for OpenAPI $openapiVersion $style ($expected)',
+    ({ openapiVersion, style, explode, value, expected }) => {
+      const operation: OperationObject = {
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            style,
+            explode,
+            // Older versions ignore allowReserved for path parameters.
+            allowReserved: openapiVersion !== '3.2.1',
+            schema: coerceValue(SchemaObjectSchema, {}),
+            examples: { default: { dataValue: value } },
+          },
+        ],
+      }
+      const server = { url: 'https://example.com' }
+      const path = '/items/prefix{id}'
+      const { request } = requestFactory({
+        exampleName: 'default',
+        method: 'get',
+        path,
+        environment: { color: '#FFFFFF', variables: [] },
+        globalCookies: [],
+        proxyUrl: '',
+        server,
+        defaultHeaders: {},
+        isElectron: false,
+        selectedSecuritySchemes: [],
+        operation,
+        openapiVersion,
+      })
+      const built = buildRequest(request, { envVariables: {} })
+      if (!built.ok) {
+        throw new Error(built.message)
+      }
+      const har = operationToHar({ operation, method: 'get', path, server, example: 'default', openapiVersion })
+      const url = `https://example.com/items/prefix${expected}`
+      expect(built.data.requestPayload[0]).toBe(url)
+      expect(har.url).toBe(url)
+      expect(snippetz().print('shell', 'curl', har)).toContain(url)
+    },
+  )
+
+  it('rejects label sample URLs whose empty path segment would be removed by the browser', () => {
+    expect(() =>
+      operationToHar({
+        method: 'get',
+        path: '/items/{id}/detail',
+        server: { url: 'https://example.com' },
+        openapiVersion: '3.1.2',
+        operation: {
+          parameters: [
+            { name: 'id', in: 'path', required: true, style: 'label', schema: { type: 'string' }, example: '' },
+          ],
+        },
+      }),
+    ).toThrow('A label-style path parameter produces a dot segment that browsers remove.')
+  })
+
+  it.each([
     { name: 'a single file', schema: { type: 'object', properties: { upload: { type: 'string', format: 'binary' } } } },
     {
       name: 'an array of files',

@@ -137,6 +137,8 @@ Set `layout.colorSchemeToggle` to `"sidebar"` (the default), `"header"`, `"tabs"
 
 If a page does not have that surface, the toggle falls back to the sidebar, then the header, then the tabs, and does not render if the page has none of them. On mobile, pages without a sidebar show it in the header. You can override the location per page in its [layout options](navigation.md#layout-options).
 
+The [minimal layout](layouts.md#light-and-dark-mode) has no toggle, whatever `colorSchemeToggle` is set to.
+
 ### Examples
 
 #### Force Light Mode
@@ -261,6 +263,7 @@ The `layout` property controls global layout options that apply to all pages unl
   "scalar": "2.0.0",
   "siteConfig": {
     "layout": {
+      "preset": "default",
       "toc": true,
       "header": true,
       "pageTitle": true,
@@ -281,6 +284,7 @@ The `layout` property controls global layout options that apply to all pages unl
 
 | Property      | Type      | Default  | Description                                    |
 | ------------- | --------- | -------- | ---------------------------------------------- |
+| `preset`      | `"default" \| "minimal" \| "contained"` | `"default"` | How the whole page is arranged. Site-wide only. See [Layouts](layouts.md) |
 | `toc`         | `boolean` | `true`   | Whether to show the table of contents globally |
 | `tocLayout`   | `"default" \| "condensed"` | `"default"` | How the table of contents is laid out. See [Table of contents layout](#table-of-contents-layout) |
 | `header`      | `boolean` | —        | Whether to show the header globally. Falls back to whether or not [`navigation.header`](navigation.md#header) is declared |

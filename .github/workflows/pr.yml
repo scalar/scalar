@@ -76,14 +76,6 @@ jobs:
           # The tarball is already gzip-compressed; skip the upload action's
           # outer zip-compression pass.
           compression-level: 0
-      # Dependabot runs cannot read Actions secrets, including the RelativeCI key.
-      - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]')
-        name: Upload webpack stats to RelativeCI
-        uses: relative-ci/agent-action@v3.2.4
-        with:
-          key: ${{ secrets.RELATIVE_CI_KEY }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
   check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -221,6 +213,150 @@ jobs:
       - name: Report lint status
         if: ${{ !cancelled() }}
         run: exit ${{ steps.lint.outputs.exit_code }}
+
+  bundle-size:
+    needs: [build]
+    if: github.event_name == 'pull_request'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    continue-on-error: true
+    outputs:
+      approval_required: ${{ steps.report.outputs.approval_required }}
+      comment_required: ${{ steps.report.outputs.comment_required }}
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+      - uses: $/.github/actions/restore-standalone-bundles
+      - name: Measure API Reference bundles
+        id: measure
+        run: |
+          set -euo pipefail
+          node tooling/scripts/bundle-size.ts measure packages/api-reference/dist/browser "$GITHUB_SHA" bundle-size.json
+          # The test merge commit's first parent is the main commit included in this build.
+          echo "base=$(git cat-file -p HEAD | awk '/^parent / && !seen {print $2; seen = 1}')" >> "$GITHUB_OUTPUT"
+      - name: Find the main baseline
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_SHA: ${{ steps.measure.outputs.base }}
+        run: |
+          set -euo pipefail
+          snapshots=$(gh api --paginate -X GET "repos/${GITHUB_REPOSITORY}/actions/artifacts" \
+            -f name=api-reference-bundle-size -f per_page=100 |
+            jq -cs '
+              [.[].artifacts[]
+                | select(.expired | not)
+                | select(.workflow_run.head_branch == "main" and .workflow_run.head_repository_id == .workflow_run.repository_id)]
+              | sort_by(.created_at) | map(.workflow_run)')
+          exact_run=$(jq -r --arg base "$BASE_SHA" 'map(select(.head_sha == $base)) | last.id // empty' <<< "$snapshots")
+          latest_run=$(jq -r 'last.id // empty' <<< "$snapshots")
+          echo "run_id=${exact_run:-$latest_run}" >> "$GITHUB_OUTPUT"
+          echo "exact_run_id=${exact_run}" >> "$GITHUB_OUTPUT"
+          # Before main begins recording snapshots, recover the exact baseline from its regular build artifact.
+          if [[ -z "$exact_run" && -n "$BASE_SHA" ]]; then
+            runs=$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/workflows/main.yml/runs" \
+              -f branch=main -f event=push -f head_sha="$BASE_SHA" \
+              --jq '.workflow_runs[] | select(.head_sha == env.BASE_SHA).id')
+            while IFS= read -r run; do
+              [[ -n "$run" ]] || continue
+              has_archive=$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/runs/${run}/artifacts" \
+                -f name=build-output --jq '.artifacts | any(.name == "build-output" and (.expired | not))')
+              if [[ "$has_archive" == true ]]; then
+                echo "archive_run_id=${run}" >> "$GITHUB_OUTPUT"
+                break
+              fi
+            done <<< "$runs"
+          fi
+      - if: steps.baseline.outputs.run_id != ''
+        name: Download the main baseline
+        continue-on-error: true
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: api-reference-bundle-size
+          path: baseline
+          run-id: ${{ steps.baseline.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - if: steps.baseline.outputs.archive_run_id != ''
+        name: Download the archived main build
+        id: archived-main
+        continue-on-error: true
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: build-output
+          path: baseline-build
+          run-id: ${{ steps.baseline.outputs.archive_run_id }}
+          github-token: ${{ github.token }}
+      - if: steps.archived-main.outcome == 'success'
+        name: Measure the archived main build
+        continue-on-error: true
+        env:
+          BASE_SHA: ${{ steps.measure.outputs.base }}
+        run: |
+          set -euo pipefail
+          mkdir -p baseline
+          tar -xzf baseline-build/build-output.tar.gz -C baseline-build --exclude='*.map' -- packages/api-reference/dist/browser
+          node tooling/scripts/bundle-size.ts measure-archive baseline-build/packages/api-reference/dist/browser "$BASE_SHA" baseline/bundle-size.json
+      - name: Write the bundle size report
+        id: report
+        env:
+          BASE_SHA: ${{ steps.measure.outputs.base }}
+          EXPECT_EXACT_BUNDLE_BASELINE: ${{ steps.baseline.outputs.exact_run_id != '' || steps.baseline.outputs.archive_run_id != '' }}
+        run: |
+          set -euo pipefail
+          node tooling/scripts/bundle-size.ts report bundle-size.json bundle-size.md chunks.md baseline/bundle-size.json "$BASE_SHA" >> "$GITHUB_OUTPUT"
+          cat bundle-size.md chunks.md >> "$GITHUB_STEP_SUMMARY"
+          printf '\n[Per-chunk ESM sizes](%s/%s/actions/runs/%s#summary)\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> bundle-size.md
+      - if: github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') && steps.report.outputs.comment_required == 'true'
+        name: Upload the bundle size PR report
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: api-reference-bundle-size-report
+          path: bundle-size.md
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
+  bundle-size-comment:
+    needs: [bundle-size]
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') && (needs.bundle-size.outputs.comment_required == 'true' || needs.bundle-size.outputs.comment_required == 'false')
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - if: needs.bundle-size.outputs.comment_required == 'true'
+        name: Download the bundle size PR report
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: api-reference-bundle-size-report
+      - name: Update the bundle size PR comment
+        uses: thollander/actions-comment-pull-request@v3.0.1
+        with:
+          file-path: ${{ needs.bundle-size.outputs.comment_required == 'true' && 'bundle-size.md' || '' }}
+          comment-tag: api-reference-bundle-size
+          mode: ${{ needs.bundle-size.outputs.comment_required == 'true' && 'upsert' || 'delete' }}
+          create-if-not-exists: ${{ needs.bundle-size.outputs.comment_required == 'true' }}
+
+  bundle-size-approval:
+    needs: [bundle-size]
+    if: needs.bundle-size.outputs.approval_required == 'true'
+    runs-on: ubuntu-slim
+    timeout-minutes: 1
+    permissions: {}
+    # Keep this environment's required reviewers in sync with the API Reference code owners.
+    environment:
+      name: api-reference-bundle-size
+      deployment: false
+    steps:
+      - run: echo 'Bundle size regression approved.'
 
   types:
     needs: [build]
@@ -676,6 +812,8 @@ jobs:
       [
         build,
         build-apps,
+        bundle-size,
+        bundle-size-approval,
         test-server-side-rendering,
         format,
         knip,
@@ -690,6 +828,16 @@ jobs:
         verify-generated-docs,
       ]
     steps:
-      - name: Exit with error if some jobs are not successful
-        run: exit 1
-        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
+      - name: Verify required jobs and bundle size approval
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          if ! jq -e '."bundle-size".outputs.approval_required | . == "true" or . == "false"' <<< "$JOB_RESULTS"; then
+            echo '::error::Bundle size approval could not be evaluated. Check the bundle-size job.'
+            exit 1
+          fi
+          jq -e '
+            ."bundle-size".outputs.approval_required as $approval
+            | ($approval == "false" or ($approval == "true" and ."bundle-size-approval".result == "success"))
+            and (del(."bundle-size", ."bundle-size-approval") | all(.[]; .result == "success"))
+          ' <<< "$JOB_RESULTS"

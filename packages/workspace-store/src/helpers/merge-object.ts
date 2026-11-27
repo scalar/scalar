@@ -1,6 +1,8 @@
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 
+import { followReferenceChain } from '@/helpers/get-resolved-ref'
+
 /**
  * Deep merges two objects, combining their properties recursively.
  * Handles circular references by tracking visited objects to prevent infinite recursion.
@@ -49,7 +51,10 @@ export const mergeObjects = (
         a[key] = b[key]
       }
     } else {
-      const aValue = a[key]
+      // Reference coercion evaluates the terminal target. Writing that view to the first hop
+      // would copy schema keywords, including a target's lexical $id, onto a reference wrapper.
+      const destination = key === '$ref-value' && getRaw(a) !== a ? (followReferenceChain(a).lastReference ?? a) : a
+      const aValue = destination[key]
       const bValue = b[key]
 
       /** Replace whole array instead of replacing each index */
@@ -72,7 +77,7 @@ export const mergeObjects = (
         mergeObjects(aValue, bValue, replaceArrays, cache)
       } else {
         try {
-          a[key] = bValue // Overwrite with b's value if not an object
+          destination[key] = bValue // Overwrite with b's value if not an object
         } catch (error) {
           console.warn(`Issue setting ${key} on object`)
           console.warn(error)

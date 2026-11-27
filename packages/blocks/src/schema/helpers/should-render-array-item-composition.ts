@@ -3,6 +3,12 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-
 
 import { hasComplexArrayItems } from './has-complex-array-items'
 
+/** Whether the array declares the composition on its item schema. */
+export const hasArrayItemComposition = (schema: SchemaObject | undefined, composition: string): boolean =>
+  Boolean(
+    schema && isArraySchema(schema) && schema.items && typeof schema.items === 'object' && composition in schema.items,
+  )
+
 /**
  * Check if array item composition should be rendered
  *
@@ -10,18 +16,5 @@ import { hasComplexArrayItems } from './has-complex-array-items'
  * @param composition - The composition keyword to check for
  * @returns true if array item composition should be rendered, false otherwise
  */
-export const shouldRenderArrayItemComposition = (schema: SchemaObject | undefined, composition: string): boolean => {
-  // Early return if schema is invalid or not an array
-  if (!schema || !isArraySchema(schema)) {
-    return false
-  }
-
-  // Check if items exist and have the composition keyword
-  const items = schema.items
-  if (!items || typeof items !== 'object' || !(composition in items)) {
-    return false
-  }
-
-  // Only render if items are not complex (complex items are handled differently)
-  return !hasComplexArrayItems(schema)
-}
+export const shouldRenderArrayItemComposition = (schema: SchemaObject | undefined, composition: string): boolean =>
+  hasArrayItemComposition(schema, composition) && !hasComplexArrayItems(schema)

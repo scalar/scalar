@@ -1,17 +1,18 @@
 import { isLocalUrl } from './is-local-url'
 import { isRelativePath } from './is-relative-path'
+import { isTrustedLocalOrigin } from './is-trusted-local-origin'
 
 /**
  * Redirects the request to a proxy server with a given URL. But not for:
  *
  * - URLs on the same origin as the proxy
  * - Relative URLs
- * - URLs that seem to point to a local IP (except the proxy is on the same domain)
+ * - Local destinations, including explicitly configured origins, when the proxy is remote
  * - URLs that don't look like a domain
  **/
-export const redirectToProxy = (proxyUrl?: string, url?: string): string => {
+export const redirectToProxy = (proxyUrl?: string, url?: string, trustedLocalOrigins?: readonly string[]): string => {
   try {
-    if (!proxyUrl || !shouldUseProxy(proxyUrl, url)) {
+    if (!proxyUrl || !shouldUseProxy(proxyUrl, url, trustedLocalOrigins)) {
       return url ?? ''
     }
 
@@ -40,10 +41,17 @@ export const redirectToProxy = (proxyUrl?: string, url?: string): string => {
   }
 }
 
+const isLocalProxy = (proxy: URL, pageOrigin: string | undefined, trustedLocalOrigins?: readonly string[]): boolean =>
+  proxy.origin === pageOrigin || isLocalUrl(proxy.href) || isTrustedLocalOrigin(proxy, trustedLocalOrigins)
+
 /**
  * Returns false for requests to localhost, relative URLs, if no proxy is defined …
  **/
-export const shouldUseProxy = (proxyUrl?: string, url?: string): url is string => {
+export const shouldUseProxy = (
+  proxyUrl?: string,
+  url?: string,
+  trustedLocalOrigins?: readonly string[],
+): url is string => {
   try {
     // ❌ We don't have a proxy URL or the URL
     if (!proxyUrl || !url) {
@@ -55,15 +63,28 @@ export const shouldUseProxy = (proxyUrl?: string, url?: string): url is string =
       return false
     }
 
-    // ✅ Proxy URL is on the same domain (e.g. /proxy)
-    // It's more likely (not guaranteed, though) that the proxy has access to local domains.
+    const pageOrigin = typeof location !== 'undefined' && location.origin !== 'null' ? location.origin : undefined
+
+    // Relative proxies can reach the local network. A network-path reference such
+    // as //proxy.example.com can also be relative but still point to a remote origin.
     if (isRelativePath(proxyUrl)) {
-      return true
+      if (!trustedLocalOrigins?.length || !isTrustedLocalOrigin(new URL(url), trustedLocalOrigins)) {
+        return true
+      }
+      const base = typeof document !== 'undefined' ? document.baseURI : (pageOrigin ?? 'https://localhost')
+      return isLocalProxy(new URL(proxyUrl, base), pageOrigin, trustedLocalOrigins)
     }
 
     // The proxy already permits cross-origin requests, so its own origin needs no extra hop.
-    if (new URL(proxyUrl).origin === new URL(url).origin) {
+    const proxy = new URL(proxyUrl)
+    const target = new URL(url)
+    if (proxy.origin === target.origin) {
       return false
+    }
+
+    if (isTrustedLocalOrigin(target, trustedLocalOrigins)) {
+      // An explicitly local proxy or one on the page's origin can reach the private network.
+      return isLocalProxy(proxy, pageOrigin, trustedLocalOrigins)
     }
 
     // ✅ Proxy URL is local

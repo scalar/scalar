@@ -4,11 +4,16 @@ import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
+import {
+  type DynamicScope,
+  createSchemaDynamicRefResolver,
+  isDynamicRef,
+  pushDynamicScope,
+} from '@/helpers/dynamic-ref'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
-import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { unpackProxyShallow } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
@@ -336,7 +341,7 @@ let levelsDeep = MAX_LEVELS_DEEP
 let visitsLeft = MAX_EXAMPLE_VISITS
 
 /** Whether an attempt is in progress, so that the calls it makes join it instead of starting another. */
-let isGenerating = false
+let resolveExampleDynamicRef: ReturnType<typeof createSchemaDynamicRefResolver> | undefined
 
 /**
  * What the attempt in progress has cached. An abandoned attempt removes its entries: they would make the
@@ -351,7 +356,7 @@ let generatedCurrentTime = false
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
 
 /** Normalize schema identity for cache and cycle tracking */
-const getSchemaCacheTarget = (schema: object): object => unpackProxyObject(schema, { depth: 1 })
+const getSchemaCacheTarget = (schema: object): object => unpackProxyShallow(schema)
 
 /**
  * Retrieves the set of required property names from a schema.
@@ -392,14 +397,12 @@ const cache = (schema: SchemaObject, result: unknown, cacheKey: string, skip = f
   if (skip || truncated || generatedCurrentTime || typeof result !== 'object' || result === null) {
     return result
   }
-  const rawSchema = getSchemaCacheTarget(schema)
-
-  const cacheMap = resultCache.get(rawSchema) ?? new Map()
+  const cacheMap = resultCache.get(schema) ?? new Map()
   if (cacheMap) {
     cacheMap.set(cacheKey, result)
     attemptCacheEntries.push([cacheMap, cacheKey])
   }
-  resultCache.set(rawSchema, cacheMap)
+  resultCache.set(schema, cacheMap)
   return result
 }
 
@@ -1265,11 +1268,12 @@ const handleArraySchema = (
   // tripping the shared guard. Depth stays bounded by `MAX_LEVELS_DEEP`.
   let itemsSeen = seen
   let itemsScope = childScope
-  if (items && isDynamicRef(items)) {
+  if (items && isDynamicRef(items) && itemSchema && typeof itemSchema === 'object') {
     const referenceScope = pushDynamicScope(childScope, items)
-    const resolvedDynamic = resolveDynamicRef(items.$dynamicRef, referenceScope)
+    const resolvedDynamic = resolveExampleDynamicRef?.(itemSchema, referenceScope, items)
     if (resolvedDynamic) {
-      items = resolvedDynamic
+      // An anchor can specialize the item through a $ref wrapper.
+      items = resolve.schema(resolvedDynamic)
       itemsSeen = new WeakSet()
       itemsScope = referenceScope
     }
@@ -1717,7 +1721,7 @@ const getCompositionRequiredNames = (
     // Follow the same binding as the example walk, within this collector's existing depth and step bounds.
     const childScope = pushDynamicScope(current.dynamicScope, current.schema)
     if (isDynamicRef(current.schema)) {
-      const resolved = resolveDynamicRef(current.schema.$dynamicRef, childScope)
+      const resolved = resolveExampleDynamicRef?.(current.schema, childScope)
       if (resolved) {
         pending.push({ ...current, schema: resolved, dynamicScope: childScope, depth: current.depth + 1 })
         continue
@@ -2119,7 +2123,7 @@ const generateExampleFromSchema = (
   // A reference declared on a resource belongs to that resource, matching the magic proxy's
   // `$dynamicRef-value`. When nothing matches, fall through and render the reference as before.
   if (isDynamicRef(_schema)) {
-    const resolvedDynamic = resolveDynamicRef(_schema.$dynamicRef, childScope)
+    const resolvedDynamic = resolveExampleDynamicRef?.(schema, childScope, _schema)
     if (resolvedDynamic) {
       // The `seen` set guards against cycles in the static schema graph, but a `$dynamicRef` is resolved
       // per evaluation path and intentionally points outside that graph. Re-entering the bound type with a
@@ -2156,7 +2160,7 @@ const generateExampleFromSchema = (
 
   // Check cache first for performance - avoid recomputing the same schema (skipped under a dynamic scope)
   if (!skipCache) {
-    const cached = resultCache.get(targetValue)?.get(cacheKey)
+    const cached = resultCache.get(_schema)?.get(cacheKey)
     if (typeof cached !== 'undefined') {
       seen.delete(targetValue)
       return cached
@@ -2495,11 +2499,11 @@ export const getExampleFromSchema = (
   options?: GetExampleFromSchemaOptions,
   context: Parameters<typeof generateExampleFromSchema>[2] = {},
 ): unknown => {
-  if (isGenerating) {
+  if (resolveExampleDynamicRef) {
     return generateWithCapture(schema, options, context)
   }
 
-  isGenerating = true
+  resolveExampleDynamicRef = createSchemaDynamicRefResolver(schema)
   try {
     const full = attemptExample(schema, options, context, MAX_LEVELS_DEEP, MAX_EXAMPLE_VISITS)
     if (full) {
@@ -2523,6 +2527,6 @@ export const getExampleFromSchema = (
     }
     return kept.value
   } finally {
-    isGenerating = false
+    resolveExampleDynamicRef = undefined
   }
 }

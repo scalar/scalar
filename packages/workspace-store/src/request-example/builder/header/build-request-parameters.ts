@@ -9,7 +9,11 @@ import {
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import type { ReservedPathParameter } from '@/helpers/encode-path-parameter'
+import {
+  type PathParameterSerialization,
+  type ReservedPathParameter,
+  includesUndefinedPathPrefix,
+} from '@/helpers/encode-path-parameter'
 import { getParameterExample } from '@/helpers/get-parameter-example'
 import { deSerializeParameter } from '@/request-example/builder/header/de-serialize-parameter'
 
@@ -54,6 +58,7 @@ export const buildRequestParameters = (
   headers: Record<string, string>
   pathVariables: Record<string, string>
   reservedPathParameters?: Record<string, ReservedPathParameter>
+  styledPathParameters?: Record<string, PathParameterSerialization>
   allowReservedQueryParameters: Set<string>
   urlParams: URLSearchParams
   serializedQuery?: string[]
@@ -176,15 +181,18 @@ export const buildRequestParameters = (
       }
 
       case 'path': {
-        // Path parameters use simple style by default
-        const serialized = serializeSimpleStyle(deSerializedValue, getExplode(param, false))
-        result.pathVariables[paramName] = String(serialized)
+        const style = 'style' in param ? (param.style ?? 'simple') : 'simple'
+        const explode = getExplode(param, false)
+        const originalValue = String(serializeSimpleStyle(deSerializedValue, explode))
+        result.pathVariables[paramName] = originalValue
+
+        const serialization = { value: deSerializedValue, originalValue, style, explode }
         if (openapiVersion?.startsWith('3.2.') && 'schema' in param && param.allowReserved === true) {
-          ;(result.reservedPathParameters ??= {})[paramName] = {
-            value: deSerializedValue,
-            originalValue: String(serialized),
-            style: param.style ?? 'simple',
-            explode: getExplode(param, false),
+          ;(result.reservedPathParameters ??= {})[paramName] = serialization
+        } else if (style === 'matrix' || style === 'label') {
+          ;(result.styledPathParameters ??= {})[paramName] = {
+            ...serialization,
+            includeUndefinedPrefix: includesUndefinedPathPrefix(openapiVersion),
           }
         }
         break

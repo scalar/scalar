@@ -14,6 +14,12 @@ import {
   isSchemaContext,
   isSchemaMapContext,
 } from './reference-context'
+import {
+  type ReferencePosition,
+  childReferencePosition,
+  ignoresReferenceSiblings,
+  referencePosition,
+} from './reference-position'
 
 type Entry = {
   value: unknown
@@ -21,15 +27,22 @@ type Entry = {
   origin: string
   base: string
   context: ReferenceContext
+  position?: ReferencePosition
   /** Stored fragments have no authored schema vocabulary until a reference supplies it. */
   inferredContext: boolean
+}
+type IndexContext = {
+  context: ReferenceContext
+  inferredContext?: boolean
+  customReferences?: boolean
+  schemaSiblings?: boolean
 }
 /** Indexed locations and reference resolution for a bundled API description. */
 type DocumentGraph = {
   entries: Map<string, Entry>
-  errors: Set<string>
+  errors: Map<string, string>
   resolve: (reference: string, from?: string) => string | undefined
-  expose: (path: string, context: ReferenceContext) => void
+  expose: (path: string, context: ReferenceContext, source?: ReferencePosition) => boolean
 }
 /** HTTP operation fields understood by the OpenAPI graph and use-site filters. */
 const operationMethods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query']
@@ -80,16 +93,22 @@ const traversalContext = (
 }
 
 /** Index the bundled graph without fetching anything after transformations. */
-const createGraph = (document: Record<string, unknown>, origin: string): DocumentGraph => {
+const createGraph = (
+  document: Record<string, unknown>,
+  origin: string,
+  includeCustomReferences: boolean,
+): DocumentGraph => {
   const entries = new Map<string, Entry>()
   const resources = new Map<string, string>([[origin, '']])
   const anchors = new Map<string, string>()
-  const errors = new Set<string>()
+  const errors = new Map<string, string>()
+  const externalUrls = document['x-ext-urls']
+  const nativeContexts = new Map<string, IndexContext>()
   const resolveIdentity = (base: string, identity: string, path: string): string | undefined => {
     try {
       return resolveReferencePath(base, identity)
     } catch {
-      errors.add(`${path || '/'}: Cannot resolve schema identity ${identity} against ${base}`)
+      errors.set(path, `${path || '/'}: Cannot resolve schema identity ${identity} against ${base}`)
       return undefined
     }
   }
@@ -97,26 +116,41 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
     value: unknown,
     path: string,
     base: string,
-    context: ReferenceContext,
+    interpretation: IndexContext,
     ancestors: Set<object>,
-    inferredContext = false,
   ): void => {
+    const {
+      context: inherited,
+      inferredContext = false,
+      customReferences = false,
+      schemaSiblings,
+    } = (interpretation.context !== 'data' && nativeContexts.get(path)) || interpretation
     const owner = documentAt(document, path)
     const modernSchemas = modernSchemaDocument(owner)
-    const vocabulary = getSchemaVocabulary(context)
-    const externalRoot = pointerSegments(path).length === 2 && path.startsWith('/x-ext/')
-    const identity = isDocument(value)
-      ? externalRoot
-        ? value.$id
-        : vocabulary?.idKeyword && (modernSchemas || typeof owner.asyncapi === 'string')
-          ? value[vocabulary.idKeyword]
-          : undefined
+    const position = includeCustomReferences
+      ? referencePosition(value, inherited, schemaSiblings ?? modernSchemas, customReferences)
       : undefined
+    const context = position?.context ?? inherited
+    const ignoresSiblings = position !== undefined && ignoresReferenceSiblings(value, position)
+    const vocabulary = getSchemaVocabulary(context, position?.customReferences)
+    const externalRoot = path.startsWith('/x-ext/') && path.indexOf('/', '/x-ext/'.length) === -1
+    const externalKey = path.slice('/x-ext/'.length)
+    const literalCopy =
+      includeCustomReferences &&
+      externalRoot &&
+      /^literal-\d+$/.test(externalKey) &&
+      !(isDocument(externalUrls) && Object.hasOwn(externalUrls, externalKey))
+    // Literal copies inherit the use site's schema vocabulary.
+    const hasSchemaIdentity = modernSchemas || typeof owner.asyncapi === 'string' || customReferences
+    const schemaIdKeyword = hasSchemaIdentity ? vocabulary?.idKeyword : undefined
+    const idKeyword = externalRoot && !literalCopy ? '$id' : schemaIdKeyword
+    const identity =
+      isDocument(value) && idKeyword && !(ignoresSiblings && isSchemaContext(context)) ? value[idKeyword] : undefined
     const currentOrigin = typeof identity === 'string' ? resolveIdentity(base, identity, path) : base
     if (currentOrigin === undefined) {
       return
     }
-    entries.set(path, { value, path, base, origin: currentOrigin, context, inferredContext })
+    entries.set(path, { value, path, base, origin: currentOrigin, context, position, inferredContext })
     if (value === null || typeof value !== 'object' || context === 'data' || ancestors.has(value)) {
       return
     }
@@ -124,35 +158,76 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
     if (typeof identity === 'string') {
       resources.set(currentOrigin, path)
     }
-    if (isDocument(value) && vocabulary) {
-      for (const anchor of modernSchemas && vocabulary.anchors ? [value.$anchor, value.$dynamicAnchor] : []) {
+    if (isDocument(value) && vocabulary && !ignoresSiblings) {
+      for (const anchor of (modernSchemas || customReferences) && vocabulary.anchors
+        ? [value.$anchor, value.$dynamicAnchor]
+        : []) {
         if (typeof anchor === 'string') {
           anchors.set(`${currentOrigin}#${anchor}`, path)
         }
       }
     }
     for (const [key, child] of Object.entries(value)) {
-      const childContext = traversalContext(value, context, key, owner)
-      index(child, childPath(path, key), currentOrigin, childContext, ancestors, inferredContext)
+      const next =
+        position && !ignoresSiblings && !(path === '' && key === 'x-ext')
+          ? childReferencePosition(
+              value,
+              key,
+              position,
+              {
+                swagger: owner.swagger === '2.0',
+                asyncapi: typeof owner.asyncapi === 'string',
+                openapi30: String(owner.openapi).startsWith('3.0.'),
+              },
+              includeCustomReferences,
+            )
+          : {
+              context: ignoresSiblings ? ('data' as const) : traversalContext(value, context, key, owner),
+              customReferences,
+            }
+      index(
+        child,
+        childPath(path, key),
+        currentOrigin,
+        { ...next, inferredContext, schemaSiblings: position?.childSchemaSiblings },
+        ancestors,
+      )
     }
     ancestors.delete(value)
   }
-  index(document, '', origin, 'object', new Set())
+  index(document, '', origin, { context: 'object' }, new Set())
   if (isDocument(document['x-ext'])) {
     for (const [key, value] of Object.entries(document['x-ext'])) {
       const path = childPath('/x-ext', key)
       const api = isDocument(value) && ('openapi' in value || 'swagger' in value || 'asyncapi' in value)
       // References into stored fragments supply their semantic context at the use site.
-      index(value, path, origin, api ? 'object' : 'schema', new Set(), !api)
+      index(value, path, origin, { context: api ? 'object' : 'schema', inferredContext: !api }, new Set())
     }
   }
-  const expose = (path: string, context: ReferenceContext): void => {
+  const expose = (path: string, context: ReferenceContext, source?: ReferencePosition): boolean => {
     const entry = entries.get(path)
-    if (
+    const custom = source?.customReferences ?? false
+    if (includeCustomReferences) {
+      const targetContext =
+        custom && context === 'object' && entry
+          ? referencePosition(entry.value, context, source.schemaSiblings, custom).context
+          : context
+      // A custom edge can give an external fragment its context. Standard API positions carry their own.
+      if (
+        entry &&
+        !entry.inferredContext &&
+        (entry.context === 'data' ||
+          (custom && !entry.position?.customReferences) ||
+          (custom === entry.position?.customReferences &&
+            (entry.context === targetContext || (isSchemaContext(entry.context) && isSchemaContext(targetContext)))))
+      ) {
+        return false
+      }
+    } else if (
       entry?.context === context ||
       (isSchemaContext(entry?.context) && isSchemaContext(context) && !entry.inferredContext)
     ) {
-      return
+      return false
     }
     let ancestor = entry
     for (let parent = path; !ancestor && parent; ) {
@@ -160,9 +235,39 @@ const createGraph = (document: Record<string, unknown>, origin: string): Documen
       ancestor = entries.get(parent)
     }
     const value = pointerValue(document, pointerSegments(path))
-    if (value !== undefined) {
-      index(value, path, entry?.base ?? ancestor?.origin ?? origin, context, new Set())
+    // Bundled references to literal data use an independent copy. Its original stays opaque.
+    if (value === undefined || (includeCustomReferences && ancestor?.context === 'data')) {
+      return false
     }
+    const base = entry?.base ?? ancestor?.origin ?? origin
+    const interpretation = { context, customReferences: custom, schemaSiblings: source?.schemaSiblings }
+    const nativeExposure =
+      includeCustomReferences &&
+      !custom &&
+      !nativeContexts.has(path) &&
+      Boolean(entry?.position?.customReferences || entry?.inferredContext)
+    if (nativeExposure) {
+      // Later exposure of an ancestor must preserve an established native context.
+      nativeContexts.set(path, interpretation)
+      // Reinterpreting a custom subtree can make its children and schema identities opaque.
+      const includesPath = (location: string): boolean => location === path || location.startsWith(`${path}/`)
+      for (const locations of [entries, errors]) {
+        for (const location of locations.keys()) {
+          if (includesPath(location)) {
+            locations.delete(location)
+          }
+        }
+      }
+      for (const identities of [resources, anchors]) {
+        for (const [identity, location] of identities) {
+          if (includesPath(location)) {
+            identities.delete(identity)
+          }
+        }
+      }
+    }
+    index(value, path, base, interpretation, new Set())
+    return nativeExposure
   }
 
   const resolve = (reference: string, from = ''): string | undefined => {
@@ -206,18 +311,25 @@ export const checkDocument = (
   {
     origin,
     prune = false,
+    includeCustomReferences = false,
     unresolvedReferences = 'error',
   }: {
     origin: string
     prune?: boolean
+    /**
+     * Follow references in extensions and unknown schema keywords.
+     * A direct native `$ref` into literal data leaves the target opaque, so pruning can remove its dependencies.
+     * Bundle first with `traversal: 'document'` and `includeCustomReferences: true` to follow dependencies in synthetic copies.
+     */
+    includeCustomReferences?: boolean
     /** Retain all reusable content when an unresolved external edge makes reachability uncertain. */
     unresolvedReferences?: 'error' | 'retain'
   },
 ): Result<{ document: Record<string, unknown>; warnings: string[] }> => {
-  const graph = createGraph(document, origin)
+  const graph = createGraph(document, origin, includeCustomReferences)
   const async = typeof document.asyncapi === 'string'
   const async3 = async && String(document.asyncapi).startsWith('3.')
-  const errors = graph.errors
+  const errors = new Set<string>()
   const warnings = new Set<string>()
   const live = new Set<string>()
   const visited = new Set<string>()
@@ -225,6 +337,30 @@ export const checkDocument = (
   const schemaChildren = new Map<string, Set<string>>()
   const expandedDiscriminators = new Set<string>()
   const operationLinks: { id: string; path: string }[] = []
+  let nativeExposure = false
+
+  if (prune && includeCustomReferences) {
+    // Even an unused Response can establish how a reachable fragment treats $ref siblings.
+    // expose reindexes the target at the end of the map, so forwarded references are visited in turn.
+    for (const { path, value, context, position, inferredContext } of graph.entries.values()) {
+      if (
+        inferredContext ||
+        position?.customReferences ||
+        !isReferenceContext(context) ||
+        !isDocument(value) ||
+        typeof value.$ref !== 'string'
+      ) {
+        continue
+      }
+      const target = graph.resolve(value.$ref, path)
+      if (target !== undefined) {
+        const entry = graph.entries.get(target)
+        if (entry?.inferredContext || entry?.position?.customReferences) {
+          graph.expose(target, context, position)
+        }
+      }
+    }
+  }
 
   for (const entry of graph.entries.values()) {
     const segments = pointerSegments(entry.path)
@@ -286,7 +422,7 @@ export const checkDocument = (
       mark(path.slice(0, path.lastIndexOf('/')))
     }
   }
-  const follow = (reference: string, from: string, context?: ReferenceContext): void => {
+  const follow = (reference: string, from: string, context?: ReferenceContext, source?: ReferencePosition): void => {
     const target = graph.resolve(reference, from)
     if (target === undefined) {
       const message = `${from || '/'}: Reference target does not exist: ${reference}`
@@ -296,16 +432,13 @@ export const checkDocument = (
         errors.add(message)
       }
     } else {
-      if (context) {
-        graph.expose(target, context)
-      }
-      visit(target, context)
+      visit(target, context, source)
       // Arrays retain their indices, so all retained elements need their dependencies.
       const segments = pointerSegments(target)
       for (const index of segments.keys()) {
         const parentPath = segments.slice(0, index).reduce(childPath, '')
         if (Array.isArray(pointerValue(document, segments.slice(0, index)))) {
-          visit(parentPath, context)
+          visit(parentPath, includeCustomReferences ? undefined : context)
         }
       }
       // Root components are retained whole, so their other children must remain valid too.
@@ -353,18 +486,24 @@ export const checkDocument = (
       }
     }
   }
-  const visit = (path: string, override?: ReferenceContext): void => {
-    if (override) {
-      graph.expose(path, override)
+  const visit = (path: string, override?: ReferenceContext, source?: ReferencePosition): void => {
+    if (override && graph.expose(path, override, source)) {
+      nativeExposure = true
     }
     const entry = graph.entries.get(path)
     if (!entry) {
+      if (includeCustomReferences && override) {
+        mark(path)
+      }
       return
     }
+    const { position } = entry
     const context =
-      isSchemaContext(entry.context) && isSchemaContext(override) ? entry.context : (override ?? entry.context)
+      position || (isSchemaContext(entry.context) && isSchemaContext(override))
+        ? entry.context
+        : (override ?? entry.context)
     mark(path)
-    const visitKey = `${context}:${path}`
+    const visitKey = `${context}:${position?.customReferences ?? false}:${position?.schemaSiblings ?? false}:${path}`
     if (visited.has(visitKey)) {
       return
     }
@@ -374,18 +513,19 @@ export const checkDocument = (
     if (value === null || typeof value !== 'object' || context === 'data') {
       return
     }
-    if (isDocument(value) && isReferenceContext(context)) {
-      if (typeof value.$ref === 'string') {
-        follow(value.$ref, path, context)
-        if (
-          isSchemaContext(context) &&
-          (!modernSchemaDocument(owner) || !getSchemaVocabulary(context)?.referenceSiblings)
-        ) {
-          return
-        }
+    if (isDocument(value) && isReferenceContext(context) && typeof value.$ref === 'string') {
+      follow(value.$ref, path, context, position)
+      if (
+        !position &&
+        isSchemaContext(context) &&
+        (!modernSchemaDocument(owner) || !getSchemaVocabulary(context)?.referenceSiblings)
+      ) {
+        return
       }
+    }
+    if (isDocument(value) && isReferenceContext(context) && !(position && ignoresReferenceSiblings(value, position))) {
       if (isSchemaContext(context) && typeof value.$dynamicRef === 'string') {
-        follow(value.$dynamicRef, path, 'schema')
+        follow(value.$dynamicRef, path, 'schema', position)
         const target = graph.resolve(value.$dynamicRef, path)
         const targetValue = target === undefined ? undefined : graph.entries.get(target)?.value
         if (isDocument(targetValue) && typeof targetValue.$dynamicAnchor === 'string') {
@@ -442,10 +582,10 @@ export const checkDocument = (
           operationLinks.push({ id: value.operationId, path })
         }
       }
-      if (context === 'object' || context === 'path-item') {
+      if (!position?.customReferences && (context === 'object' || context === 'path-item')) {
         security(value.security, path)
       }
-      if (typeof owner.asyncapi === 'string' && Array.isArray(value.servers)) {
+      if (!position?.customReferences && typeof owner.asyncapi === 'string' && Array.isArray(value.servers)) {
         for (const server of value.servers) {
           if (typeof server === 'string') {
             follow(`#/servers/${escapeJsonPointer(server)}`, path)
@@ -455,16 +595,24 @@ export const checkDocument = (
     }
     for (const [key, child] of Object.entries(value)) {
       const nextPath = childPath(path, key)
-      if (prune && candidates.has(nextPath)) {
+      if (prune && !includeCustomReferences && candidates.has(nextPath)) {
         continue
       }
-      // Reusable maps are storage, not roots. Their entries are reached through references.
-      if (
-        prune &&
-        path === '' &&
-        ['components', 'x-ext', 'definitions', 'parameters', 'responses', 'securityDefinitions'].includes(key)
-      ) {
-        continue
+      if (prune && path === '') {
+        if (['x-ext', 'definitions', 'parameters', 'responses', 'securityDefinitions'].includes(key)) {
+          continue
+        }
+        // Only extensions of Components are roots. A reference to the map visits its entries normally.
+        if (key === 'components') {
+          if (includeCustomReferences && isDocument(child)) {
+            for (const name of Object.keys(child)) {
+              if (name.startsWith('x-')) {
+                visit(childPath(nextPath, name))
+              }
+            }
+          }
+          continue
+        }
       }
       if (path === '' && key === 'x-ext' && isDocument(child)) {
         for (const name of Object.keys(child)) {
@@ -472,60 +620,76 @@ export const checkDocument = (
         }
         continue
       }
-      const childContext = traversalContext(value, context, key, owner)
       if (child !== undefined) {
-        visit(nextPath, childContext)
+        visit(nextPath, position ? undefined : traversalContext(value, context, key, owner))
       }
     }
   }
-  visit('')
-  // Visiting linked operations can expose new Path Items and add more links.
-  let pendingLinks = operationLinks.splice(0)
-  while (pendingLinks.length) {
-    const operationIds = new Map<string, Set<string>>()
-    for (const entry of graph.entries.values()) {
-      const segments = pointerSegments(entry.path)
-      const parent = graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/')))
-      if (
-        isDocument(entry.value) &&
-        typeof entry.value.operationId === 'string' &&
-        ((parent?.context === 'path-item' && operationMethods.includes(segments.at(-1) ?? '')) ||
-          (segments.at(-2) === 'additionalOperations' &&
-            graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/additionalOperations/')))?.context ===
-              'path-item') ||
-          (async && ['publish', 'subscribe'].includes(segments.at(-1) ?? '')) ||
-          (async3 && segments[0] === 'operations' && segments.length === 2))
-      ) {
-        const paths = operationIds.get(entry.value.operationId) ?? new Set<string>()
-        paths.add(entry.path)
-        operationIds.set(entry.value.operationId, paths)
-      }
-    }
-    const unresolvedLinks = []
-    const visitedBefore = visited.size
-    for (const link of pendingLinks) {
-      const targets = operationIds.get(link.id)
-      if (!targets) {
-        unresolvedLinks.push(link)
-        continue
-      }
-      if (prune && ![...targets].some((target) => live.has(target))) {
-        for (const target of targets) {
-          const pathItem = target.replace(/\/(?:additionalOperations\/)?[^/]+$/, '')
-          visit(pathItem)
+  const visitOperationLinks = (): void => {
+    // Visiting linked operations can expose new Path Items and add more links.
+    let pendingLinks = operationLinks.splice(0)
+    while (pendingLinks.length) {
+      const operationIds = new Map<string, Set<string>>()
+      for (const entry of graph.entries.values()) {
+        const segments = pointerSegments(entry.path)
+        const parent = graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/')))
+        if (
+          isDocument(entry.value) &&
+          typeof entry.value.operationId === 'string' &&
+          ((parent?.context === 'path-item' && operationMethods.includes(segments.at(-1) ?? '')) ||
+            (segments.at(-2) === 'additionalOperations' &&
+              graph.entries.get(entry.path.slice(0, entry.path.lastIndexOf('/additionalOperations/')))?.context ===
+                'path-item') ||
+            (async && ['publish', 'subscribe'].includes(segments.at(-1) ?? '')) ||
+            (async3 && segments[0] === 'operations' && segments.length === 2))
+        ) {
+          const paths = operationIds.get(entry.value.operationId) ?? new Set<string>()
+          paths.add(entry.path)
+          operationIds.set(entry.value.operationId, paths)
         }
       }
-    }
-    if (operationLinks.length === 0 && visited.size === visitedBefore) {
-      for (const link of unresolvedLinks) {
-        errors.add(`${link.path}: Operation does not exist: ${link.id}`)
+      const unresolvedLinks = []
+      const visitedBefore = visited.size
+      for (const link of pendingLinks) {
+        const targets = operationIds.get(link.id)
+        if (!targets) {
+          unresolvedLinks.push(link)
+          continue
+        }
+        if (prune && ![...targets].some((target) => live.has(target))) {
+          for (const target of targets) {
+            const pathItem = target.replace(/\/(?:additionalOperations\/)?[^/]+$/, '')
+            visit(pathItem)
+          }
+        }
       }
-      break
+      if (operationLinks.length === 0 && visited.size === visitedBefore) {
+        for (const link of unresolvedLinks) {
+          errors.add(`${link.path}: Operation does not exist: ${link.id}`)
+        }
+        break
+      }
+      pendingLinks = [...unresolvedLinks, ...operationLinks.splice(0)]
     }
-    pendingLinks = [...unresolvedLinks, ...operationLinks.splice(0)]
   }
-  if (errors.size) {
-    return err([...errors].join('\n'))
+
+  visit('')
+  visitOperationLinks()
+  // Most documents need one pass. Repeat only when the previous pass recorded a new native context
+  // that may invalidate reachability or diagnostics from a custom interpretation.
+  while (nativeExposure) {
+    nativeExposure = false
+    live.clear()
+    visited.clear()
+    errors.clear()
+    warnings.clear()
+    expandedDiscriminators.clear()
+    operationLinks.length = 0
+    visit('')
+    visitOperationLinks()
+  }
+  if (graph.errors.size || errors.size) {
+    return err([...graph.errors.values(), ...errors].join('\n'))
   }
   if (prune && warnings.size === 0) {
     for (const path of [...candidates].sort((a, b) => b.length - a.length)) {

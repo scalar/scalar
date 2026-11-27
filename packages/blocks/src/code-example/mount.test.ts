@@ -253,6 +253,24 @@ describe('mount', () => {
     expect(element.textContent).toContain('api.example.com')
   })
 
+  it('resolves a templated server against its API description URL', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      documentSource: 'https://api.example.com/docs/openapi.json',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Relative server', version: '1' },
+        servers: [{ url: '{prefix}', variables: { prefix: { default: 'release.v1' } } }],
+        paths: { '/hello': { get: { responses: { 200: { description: 'OK' } } } } },
+      },
+    })
+    const element = document.createElement('div')
+    mounted.push(createCodeExample(element, { store, path: '/hello', method: 'get', selectedClient: 'shell/curl' }))
+
+    expect(element.textContent).toContain('https://api.example.com/docs/release.v1/hello')
+  })
+
   it('keeps the operation and its server from the same document when the operation disappears', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({

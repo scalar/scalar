@@ -700,6 +700,23 @@ describe('buildRequest', () => {
     expect((requestInit.headers as Headers).get('User-Agent')).toBe('ScalarTest/1.0')
   })
 
+  it('builds the request for the trusted origin with direct-request headers', () => {
+    const baseUrl = 'http://api.dev.internal:8080'
+    const { requestPayload } = unwrap(
+      createFactory({
+        baseUrl,
+        proxyUrl: 'https://proxy.scalar.com',
+        headers: new Headers({ 'Date': 'Wed, 01 Jan 2025 12:00:00 GMT' }),
+      }),
+      { envVariables: {}, trustedLocalOrigins: [baseUrl] },
+    )
+
+    expect(requestPayload[0]).toBe(`${baseUrl}/users`)
+    const headers = new Headers(requestPayload[1].headers)
+    expect(headers.get('Date')).toBe('Wed, 01 Jan 2025 12:00:00 GMT')
+    expect(headers.get('X-Scalar-Date')).toBeNull()
+  })
+
   it('rewrites the request URL through the proxy when shouldUseProxy is true', () => {
     const { requestPayload, isUsingProxy } = unwrap(
       createFactory({
