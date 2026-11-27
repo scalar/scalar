@@ -691,6 +691,36 @@ describe('protobuf-specification', () => {
     }
   })
 
+  it.each([
+    [
+      'oneof choice { string a = 1; }',
+      [
+        ['a', 'Header text.'],
+        ['b', undefined],
+      ],
+    ],
+    [
+      '\noneof choice { string a = 1; }',
+      [
+        ['a', undefined],
+        ['b', undefined],
+      ],
+    ],
+    [
+      'oneof\nchoice { string a = 1; }',
+      [
+        ['a', undefined],
+        ['b', undefined],
+      ],
+    ],
+    ['\noneof choice {}', [['b', undefined]]],
+  ] as const)('preserves header comment ownership around a nested oneof: %j', (declaration, fields) => {
+    const source = `message M /* Header text. */ { ${declaration} string b = 2; }`
+    expect(
+      readProtobuf(source, '3').nodes[0]?.children?.map(({ name, description }) => [name, description]),
+    ).toStrictEqual(fields)
+  })
+
   it('keeps a header comment detached after a blank line', () => {
     const source = 'message M /* Detached. */ {\n\n string id = 1; }'
     expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([

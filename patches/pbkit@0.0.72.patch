@@ -311,7 +311,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
 +    for (const statement of statements) {
 +        if (isDocumentedField(statement))
 +            return { node: statement, start: statement.start };
-+        const name = statement.messageName ?? statement.enumName;
++        const name = statement.messageName ?? statement.enumName ?? statement.oneofName;
 +        if (name && input.slice(commentEnd, name.start).includes("\n"))
 +            return { node: statement, start: name.start };
 +        const body = statement.messageBody ?? statement.enumBody ?? statement.oneofBody;
