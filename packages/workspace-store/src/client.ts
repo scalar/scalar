@@ -31,6 +31,7 @@ import { createNativeSchemaEditTracker } from '@/helpers/async-api-schema-resour
 import { asyncApiModelChunkReference } from '@/helpers/asyncapi-model-chunk-reference'
 import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { compactUpgradeMetadata } from '@/helpers/compact-upgrade-metadata'
+import type { OverlayDiagnostic } from '@/helpers/compose-openapi-overlays'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { bumpDocumentRevision, getDocumentRevision } from '@/helpers/document-revision'
@@ -38,9 +39,18 @@ import { type ExternalExampleResolver, createExternalExampleResolver } from '@/h
 import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
 import { type RefNode, getResolvedRef } from '@/helpers/get-resolved-ref'
+import {
+  type DocumentLoadResult,
+  type OverlaySource,
+  getOverlayFileUri,
+  isComposedDocumentHash,
+  loadInlineDocument,
+  loadOpenApiOverlays,
+  loadUrlWithRetrievalUri,
+} from '@/helpers/load-openapi-overlays'
 import { mergeObjects } from '@/helpers/merge-object'
 import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
-import { createOverridesProxy } from '@/helpers/overrides-proxy'
+import { createOverridesProxy, unpackOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { type RequestBodyBaselines, snapshotRequestBodies } from '@/helpers/snapshot-request-bodies'
 import { unpackProxyObject, unpackProxyShallow } from '@/helpers/unpack-proxy'
@@ -127,6 +137,8 @@ type WorkspaceDocumentMetaInput = {
   meta?: WorkspaceDocumentMeta
   /** Required unique identifier for the document */
   name: string
+  /** Overlay 1.2 sources to apply to the authored OpenAPI description in order. */
+  overlays?: readonly OverlaySource[]
   /** Overrides for the document */
   overrides?: PartialDeep<OpenApiDocument>
   /** Optional custom fetch implementation to use when retrieving the document. By default the global fetch implementation will be used */
@@ -189,16 +201,22 @@ export type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
  * })
  */
 function loadDocument(
-  workspaceDocument: WorkspaceDocumentInput & {
+  workspaceDocument: OverlaySource & {
+    fetch?: WorkspaceDocumentMetaInput['fetch']
+    response?: Response
+    captureRetrievalUri?: boolean
+    snapshotInline?: boolean
     /** A file loader plugin for resolving local file references (for non browser environments) */
     fileLoader?: LoaderPlugin
   },
-): ReturnType<LoaderPlugin['exec']> {
+): Promise<DocumentLoadResult> {
   if ('url' in workspaceDocument) {
-    const response = workspaceDocument.response
-    return fetchUrls({
-      fetch: response ? () => Promise.resolve(response) : workspaceDocument.fetch,
-    }).exec(workspaceDocument.url)
+    const { response, url, captureRetrievalUri } = workspaceDocument
+    const fetch = response ? () => Promise.resolve(response) : workspaceDocument.fetch
+    if (captureRetrievalUri) {
+      return loadUrlWithRetrievalUri(url, (transport) => fetchUrls({ fetch: transport }), fetch ?? globalThis.fetch)
+    }
+    return fetchUrls({ fetch }).exec(url)
   }
 
   if ('path' in workspaceDocument) {
@@ -212,12 +230,7 @@ function loadDocument(
     return loader.exec(workspaceDocument.path)
   }
 
-  return Promise.resolve({
-    ok: true,
-    data: workspaceDocument.document,
-    // string version of the raw document for hashing purposes
-    raw: JSON.stringify(workspaceDocument.document),
-  })
+  return loadInlineDocument(workspaceDocument.document, workspaceDocument.snapshotInline ?? false)
 }
 
 /**
@@ -229,7 +242,7 @@ function loadDocument(
  * @param input - The workspace document input (either UrlDoc or ObjectDoc)
  * @returns The URL string if present, otherwise undefined
  */
-const getDocumentSource = (input: WorkspaceDocumentInput) => {
+const getDocumentSource = (input: OverlaySource): string | undefined => {
   if ('url' in input) {
     // Match browser fetch resolution, including a page's <base href>.
     return makeUrlAbsolute(input.url, {
@@ -244,6 +257,22 @@ const getDocumentSource = (input: WorkspaceDocumentInput) => {
     return input.documentSource ?? (typeof originalSource === 'string' ? originalSource : undefined)
   }
   return undefined
+}
+
+/**
+ * Resolves the identity of a source without changing how the store loads it.
+ */
+const getOverlaySourceUri = (input: OverlaySource, source: string | undefined): string | undefined => {
+  if ('path' in input) {
+    return getOverlayFileUri(input.path)
+  }
+  if (source === undefined) {
+    return undefined
+  }
+  const absolute = makeUrlAbsolute(source, {
+    baseUrl: typeof document === 'undefined' ? undefined : document.baseURI,
+  })
+  return absolute.split('#', 1)[0]
 }
 
 /**
@@ -651,13 +680,17 @@ export type WorkspaceStore = {
    * If automatic resolution isn't possible due to conflicts, returns a conflict list for the caller to resolve.
    * If `resolvedConflicts` are provided (e.g., after user intervention), applies them to complete the rebase.
    *
+   * For a composed description, pass the complete Overlay list again, or [] to remove it.
+   *
    * @param input Object specifying which document to rebase
-   * @returns If there are unresolved conflicts, resolves to an object containing the list of conflicts and a method to apply user-resolved conflicts; otherwise resolves to void.
+   * @returns A result with the changes, conflicts, and a method to apply them on success,
+   * or a failure code and message otherwise. A completed Overlay composition also returns any
+   * actions that matched no nodes, even when the rebase finds no changes.
    *
    * @example
    * // Rebase a document and handle conflicts interactively
-   * const result = await store.rebaseDocument({ name: 'api', fetch: customFetch });
-   * if (result && result.ok) {
+   * const result = await store.rebaseDocument({ name: 'api', url: apiUrl, fetch: customFetch });
+   * if (result.ok) {
    *   // Present conflicts to the user and collect resolutions...
    *   await result.applyChanges(userResolvedConflicts);
    * }
@@ -665,13 +698,15 @@ export type WorkspaceStore = {
   rebaseDocument: (input: WorkspaceDocumentInput) => Promise<
     | {
         ok: false
-        type: 'CORRUPTED_STATE' | 'FETCH_FAILED' | 'NO_CHANGES_DETECTED'
+        type: 'CORRUPTED_STATE' | 'FETCH_FAILED' | 'NO_CHANGES_DETECTED' | 'OVERLAYS_REQUIRED' | 'OVERLAY_FAILED'
         message: string
+        overlayDiagnostics?: OverlayDiagnostic[]
       }
     | {
         ok: true
         changes: ReturnType<typeof merge>['diffs']
         conflicts: ReturnType<typeof merge>['conflicts']
+        overlayDiagnostics?: OverlayDiagnostic[]
         applyChanges: (
           applyChangesInput:
             | {
@@ -1139,9 +1174,41 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     'x-scalar-original-document-hash': 'not-a-hash',
   })
 
-  // Add a document to the store synchronously from an in-memory OpenAPI or AsyncAPI document
+  // A proxied HTTP response can expose the proxy's URL instead of the requested document's URI.
+  const usesDirectTransport = (input: WorkspaceDocumentInput): boolean =>
+    Boolean(input.fetch || workspaceProps?.fetch || !workspace['x-scalar-active-proxy'])
+
+  const composeDocument = async (
+    input: WorkspaceDocumentInput,
+    base: { data: Record<string, unknown>; raw: string; retrievalUri?: string },
+    overlays: readonly OverlaySource[],
+    fetch: WorkspaceDocumentInput['fetch'],
+  ): ReturnType<typeof loadOpenApiOverlays> => {
+    // A plugin can claim a raw document even when it carries an OpenAPI version field.
+    const authoredDocument = deepClone(base.data)
+    delete authoredDocument[PLUGIN_DOCUMENT_TYPE_KEY]
+    if (findDocumentType(workspaceProps?.documentTypes, authoredDocument) || isAsyncApiDocument(authoredDocument)) {
+      throw new Error('Overlays require an OpenAPI description')
+    }
+    const captureRetrievalUri = usesDirectTransport(input)
+    return await loadOpenApiOverlays(
+      { ...base, sourceUri: getOverlaySourceUri(input, base.retrievalUri ?? getDocumentSource(input)) },
+      overlays,
+      (source) =>
+        loadDocument({
+          ...source,
+          fetch,
+          captureRetrievalUri,
+          snapshotInline: true,
+          fileLoader: workspaceProps?.fileLoader,
+        }),
+      (source) => getOverlaySourceUri(source, 'document' in source ? source.documentSource : getDocumentSource(source)),
+    )
+  }
+
+  // Add a document to the store from an in-memory OpenAPI or AsyncAPI document
   async function addInMemoryDocument(
-    input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
+    input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string; composed?: boolean },
     navigationOptions?: NavigationOptions,
   ) {
     const { name } = input
@@ -1194,7 +1261,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Registered document types come first, so a format they claim never reaches the OpenAPI
     // upgrade and coercion below (which would turn it into a broken OpenAPI document).
-    const documentType = findDocumentType(workspaceProps?.documentTypes, clonedRawInputDocument)
+    const documentType = input.composed
+      ? undefined
+      : findDocumentType(workspaceProps?.documentTypes, clonedRawInputDocument)
     if (documentType) {
       // Third-party code runs here, so a failure ends up as the usual "could not be loaded" document
       // instead of leaving the workspace without this document.
@@ -1421,6 +1490,37 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       fetch: input.fetch ?? workspaceProps?.fetch,
       proxyUrl: workspace['x-scalar-active-proxy'] ?? undefined,
     })
+
+    if (input.overlays?.length) {
+      const overlays = input.overlays
+      const composed = await withMeasurementAsync('composeDocument', async () => {
+        try {
+          const resolved = await loadDocument({
+            ...input,
+            fetch,
+            captureRetrievalUri: usesDirectTransport(input),
+            snapshotInline: true,
+            fileLoader: workspaceProps?.fileLoader,
+          })
+          if (!resolved.ok || !isObject(resolved.data)) {
+            throw new Error('Failed to load the base OpenAPI description')
+          }
+          const result = await composeDocument(input, { ...resolved, data: resolved.data }, overlays, fetch)
+          return { ...result, documentSource: resolved.retrievalUri ?? getDocumentSource(input) }
+        } catch (error) {
+          console.error('Failed to compose document', name, error)
+          return undefined
+        }
+      })
+      if (!composed) {
+        // A different load may have registered the document while composition was pending.
+        if (!getOwnEntry(workspace.documents, name)) {
+          workspace.documents[name] = createLoadFailedDocument(name, meta)
+        }
+        return false
+      }
+      return await addInMemoryDocument({ ...input, ...composed, composed: true }, navigationOptions)
+    }
 
     const resolve = await withMeasurementAsync(
       'loadDocument',
@@ -1917,6 +2017,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         document: baseline,
         documentSource: workspaceDocument['x-scalar-original-source-url'],
         documentHash: workspaceDocument['x-scalar-original-document-hash'],
+        composed: isComposedDocumentHash(workspaceDocument['x-scalar-original-document-hash']),
         initialize: false,
         meta: {
           // Preserve the registry meta
@@ -2041,13 +2142,34 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         }
       }
 
+      const previousHash = activeDocumentRaw['x-scalar-original-document-hash']
+      const wasComposed = isComposedDocumentHash(previousHash)
+      if (wasComposed && !Array.isArray(input.overlays)) {
+        return {
+          ok: false,
+          type: 'OVERLAYS_REQUIRED' as const,
+          message: `Rebasing document '${name}' requires an explicit Overlay list. Use [] to remove all Overlays.`,
+        }
+      }
+
       // ---- Resolve input document
+      const overlayRebase = wasComposed || Boolean(input.overlays?.length)
+      // Refresh composed documents through the same transport as their initial add. Plain rebases
+      // preserve the existing caller-controlled fetch behavior.
+      const fetch = overlayRebase
+        ? getFetch({
+            fetch: input.fetch ?? workspaceProps?.fetch,
+            proxyUrl: workspace['x-scalar-active-proxy'] ?? undefined,
+          })
+        : (input.fetch ?? workspaceProps?.fetch)
       const resolve = await withMeasurementAsync(
         'loadDocument',
         async () =>
           await loadDocument({
             ...input,
-            fetch: input.fetch ?? workspaceProps?.fetch,
+            fetch,
+            captureRetrievalUri: overlayRebase && usesDirectTransport(input),
+            snapshotInline: overlayRebase,
             fileLoader: workspaceProps?.fileLoader,
           }),
       )
@@ -2062,22 +2184,44 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // Compare document hashes to see if the document has changed
       // When the hashes match, we can skip the rebase process
-      const newHash = generateHash(resolve.raw)
-      if (activeDocumentRaw['x-scalar-original-document-hash'] === newHash) {
+      const composed = input.overlays?.length
+        ? await composeDocument(input, { ...resolve, data: resolve.data }, input.overlays, fetch).catch(
+            (error: unknown) => ({
+              error,
+            }),
+          )
+        : undefined
+      if (composed && 'error' in composed) {
+        return {
+          ok: false,
+          type: 'OVERLAY_FAILED' as const,
+          message: `Failed to compose document '${name}': ${composed.error instanceof Error ? composed.error.message : String(composed.error)}`,
+        }
+      }
+
+      const overlayDiagnostics = composed ? { overlayDiagnostics: composed.diagnostics } : {}
+      const newHash = composed?.documentHash ?? generateHash(resolve.raw)
+      if (previousHash === newHash) {
         return {
           ok: false,
           type: 'NO_CHANGES_DETECTED' as const,
           message: `No changes detected for document '${name}': document hash matches the active document`,
+          ...overlayDiagnostics,
         }
       }
 
       // Source markers are not classification evidence, including when rebasing a saved baseline.
-      const newDocumentOrigin = deepClone(resolve.data)
+      const newDocumentOrigin = composed?.document ?? deepClone(resolve.data)
       delete newDocumentOrigin[PLUGIN_DOCUMENT_TYPE_KEY]
 
-      // ---- Override the configurations and metadata
-      overrides[name] = input.overrides ?? {}
-      extraDocumentConfigurations[name] = { fetch: input.fetch }
+      const documentSource = resolve.retrievalUri ?? getDocumentSource(input)
+      const applyInputConfiguration = (): void => {
+        overrides[name] = input.overrides ?? {}
+        extraDocumentConfigurations[name] = { fetch: input.fetch }
+      }
+      if (!overlayRebase) {
+        applyInputConfiguration()
+      }
 
       // ---- Compute the merge between upstream and local edits
       // Two-way merge anchored on the original (last saved) snapshot:
@@ -2087,13 +2231,35 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       //     original since the last save (what we want to keep)
       const changelogIncoming = diff(originalDocument, newDocumentOrigin)
 
-      // When there are no changes, we can return early since we don't need to do anything
-      // This is not supposed to happen due to the hash check above, but just in case
       if (changelogIncoming.length === 0) {
-        return {
-          ok: false,
-          type: 'NO_CHANGES_DETECTED' as const,
-          message: `No changes detected for document '${name}' after fetching the latest version.`,
+        if (!overlayRebase) {
+          return {
+            ok: false,
+            type: 'NO_CHANGES_DETECTED' as const,
+            message: `No changes detected for document '${name}' after fetching the latest version.`,
+          }
+        }
+        // Changing the retrieval URI can give the same authored references new targets.
+        if (documentSource === activeDocumentRaw['x-scalar-original-source-url']) {
+          return {
+            ok: true,
+            changes: [],
+            conflicts: [],
+            ...overlayDiagnostics,
+            applyChanges: () => {
+              const document = unpackOverridesProxy(getOwnEntry(workspaceState.documents, name))
+              if (document && document['x-scalar-original-document-hash'] === previousHash) {
+                // Rebind the overrides without merging local edits into the saved baseline.
+                document['x-scalar-original-document-hash'] = newHash
+                applyInputConfiguration()
+                const nextOverrides = unpackProxyObject(overrides[name])
+                workspace.documents[name] = needsOverridesProxy(nextOverrides)
+                  ? createOverridesProxy(document, { overrides: nextOverrides })
+                  : document
+              }
+              return Promise.resolve()
+            },
+          }
         }
       }
 
@@ -2105,6 +2271,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         ok: true,
         conflicts: merged.conflicts,
         changes: merged.diffs,
+        ...overlayDiagnostics,
         applyChanges: async (applyChangesInput) => {
           // Helper function to compute the new active document based on
           // resolved conflicts or a resolved document. With the
@@ -2147,6 +2314,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           // the document type discriminator.
           originalDocuments[name] = mergedDocument
           intermediateDocuments[name] = deepClone(mergedDocument)
+          if (overlayRebase) {
+            applyInputConfiguration()
+          }
 
           // Document-level UI settings never come from the upstream source and
           // would otherwise be wiped on every rebase. Carry over only the keys
@@ -2165,6 +2335,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           const activeServers = activeDocumentRaw.servers
           const mergedHasServers = Array.isArray(mergedServers) && mergedServers.length > 0
           const activeHasServers = Array.isArray(activeServers) && activeServers.length > 0
+          // A composed baseline can intentionally remove servers that were present in the previous input.
+          const hadAuthoredServers =
+            overlayRebase && Array.isArray(originalDocument.servers) && originalDocument.servers.length > 0
           // add the new active document to the workspace but don't re-initialize
           await addInMemoryDocument({
             ...input,
@@ -2174,9 +2347,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               // when we are rebasing, we want to ensure that the navigation is always up to date
               [extensions.document.navigation]: undefined,
             },
-            documentSource: getDocumentSource(input),
-            // Update the original document hash
-            documentHash: generateHash(resolve.raw),
+            documentSource,
+            documentHash: newHash,
+            composed: composed !== undefined,
             initialize: false,
             meta: {
               ...input.meta,
@@ -2195,7 +2368,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           // Re-ingestion determines the resulting format. Raw input can carry OpenAPI-looking fields
           // while being claimed by a plugin, so only preserve HTTP servers after classification.
           const rebasedDocument = workspace.documents[name]
-          if (isOpenApi && isOpenApiDocument(rebasedDocument) && !mergedHasServers && activeHasServers) {
+          if (
+            isOpenApi &&
+            isOpenApiDocument(rebasedDocument) &&
+            !mergedHasServers &&
+            activeHasServers &&
+            !hadAuthoredServers
+          ) {
             rebasedDocument.servers = deepClone(activeServers)
           }
         },

@@ -374,6 +374,9 @@ catalogs:
     jsdom:
       specifier: 31.0.1
       version: 31.0.1
+    json-p3:
+      specifier: 3.0.3
+      version: 3.0.3
     jsonc-parser:
       specifier: 3.3.1
       version: 3.3.1
@@ -452,6 +455,9 @@ catalogs:
     tailwindcss:
       specifier: ^4.3.5
       version: 4.3.5
+    treffer:
+      specifier: 0.5.0
+      version: 0.5.0
     truncate-json:
       specifier: 3.0.1
       version: 3.0.1
@@ -522,6 +528,7 @@ overrides:
 patchedDependencies:
   postman-collection@5.3.1: b4f135fe799f683b090d71fb24e3416a351cdd03f1870ac9fa23c3e55a3af5e5
   proto-parser@0.0.9: 9a9f39b59d1e305dc00a2afd937042507255aee61b36f8e56836e83741936aeb
+  treffer@0.5.0: b77a4e82918f68c64c34093ffc3864a03d57a6258b49b67a971eeda7d95e8482
 
 importers:
 
@@ -2848,6 +2855,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      json-p3:
+        specifier: catalog:*
+        version: 3.0.3
     devDependencies:
       '@scalar/types':
         specifier: workspace:*
@@ -3375,6 +3385,9 @@ importers:
       js-base64:
         specifier: catalog:*
         version: 3.9.7
+      json-p3:
+        specifier: catalog:*
+        version: 3.0.3
       type-fest:
         specifier: catalog:*
         version: 5.10.0
@@ -3400,6 +3413,9 @@ importers:
       google-auth-library:
         specifier: catalog:*
         version: 11.3.4(supports-color@10.2.2)
+      treffer:
+        specifier: catalog:*
+        version: 0.5.0(patch_hash=b77a4e82918f68c64c34093ffc3864a03d57a6258b49b67a971eeda7d95e8482)
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -14735,6 +14751,9 @@ packages:
     resolution: {integrity: sha512-aq+t5NAc+cS6rZQQVWC2x98CPqGtKKTMDd4Gaodv0wShnItdKg/51djkGJ1hqH+Oy0ivDftCbSLCQob8zso01w==}
     engines: {node: '>= 10'}
 
+  iregexp-check@0.1.2:
+    resolution: {integrity: sha512-RCcV2SFO5JKh+DdmWiY7yVyiZzzk6XZiHEJvTKbzVs8Z0u404gnoSqDtFqg6C5qJBEG4QseWBQz9zhI68zskEQ==}
+
   iron-webcrypto@1.2.1:
     resolution: {integrity: sha512-feOM6FaSr6rEABp/eDfVseKyTMDt+KGpeB35SkVn9Tyn0CqvVsY3EwI0v5i8nMHyJnzCIQf7nsy3p41TPkJZhg==}
 
@@ -15220,6 +15239,9 @@ packages:
 
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
+
+  json-p3@3.0.3:
+    resolution: {integrity: sha512-MjAFMrS+tMHfpvd2AaMHXwM9ssYlaFoFQW1fu/OCCpqIM0BHIXPzRD9Ey5GRftlohDkrK+Y4X8dDjjCyErGIOQ==}
 
   json-parse-even-better-errors@2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
@@ -19355,6 +19377,10 @@ packages:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
 
+  treffer@0.5.0:
+    resolution: {integrity: sha512-j9sFXFeM2vN13wrW4QUCjp7VNhx1i0/FJCoLP2zhelXDtY4GqMWi3zoGtW7R6h0N7OJXDW72+g3IcXHnDdnljg==}
+    engines: {node: '>=22.0.0'}
+
   trim-lines@3.0.1:
     resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
 
@@ -20549,6 +20575,10 @@ packages:
   w3c-xmlserializer@6.0.0:
     resolution: {integrity: sha512-4Nsy8K5Tr6SPDH9jhKJOHf7ChDrc1zufZTVSF7x72hwuEXBqxqk9G6cK+K2NRUtB3iELRJqjXb4JPDMBjMTl2Q==}
     engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
+
+  waarmerk@0.1.0:
+    resolution: {integrity: sha512-YhSjaCLOuKDPV4Sev/5UPIX2VBQdXuszcBMrqXpLvFMXSTFUiyDRHZ5a3/VLqRJVCbEcMpGQSOpuolCy4sVxmw==}
+    engines: {node: '>=22.0.0'}
 
   walk-up-path@4.0.0:
     resolution: {integrity: sha512-3hu+tD8YzSLGuFYtPRb48vdhKMi0KQV5sn+uWr8+7dMEq/2G/dtLrdDinkLjqq5TIbIBjYJ4Ax/n3YiaW7QM8A==}
@@ -35249,6 +35279,8 @@ snapshots:
 
   ipaddr.js@2.5.0: {}
 
+  iregexp-check@0.1.2: {}
+
   iron-webcrypto@1.2.1: {}
 
   iron-webcrypto@2.0.0:
@@ -35894,6 +35926,10 @@ snapshots:
       bignumber.js: 9.3.0
 
   json-buffer@3.0.1: {}
+
+  json-p3@3.0.3:
+    dependencies:
+      iregexp-check: 0.1.2
 
   json-parse-even-better-errors@2.3.1: {}
 
@@ -41766,6 +41802,10 @@ snapshots:
 
   tree-kill@1.2.2: {}
 
+  treffer@0.5.0(patch_hash=b77a4e82918f68c64c34093ffc3864a03d57a6258b49b67a971eeda7d95e8482):
+    dependencies:
+      waarmerk: 0.1.0
+
   trim-lines@3.0.1: {}
 
   trim-trailing-lines@2.1.0: {}
@@ -43667,6 +43707,8 @@ snapshots:
   w3c-xmlserializer@6.0.0:
     dependencies:
       xml-name-validator: 5.0.0
+
+  waarmerk@0.1.0: {}
 
   walk-up-path@4.0.0: {}
 

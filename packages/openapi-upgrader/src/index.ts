@@ -7,3 +7,4 @@ export {
   upgradeFragment,
 } from './upgrade-fragment'
 export { UpgradeIncompatibilityError } from './upgrade-incompatibility-error'
+export { type OverlayUpgradeDiagnostic, type OverlayUpgradeResult, upgradeOverlay } from './upgrade-overlay'

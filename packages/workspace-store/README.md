@@ -605,6 +605,81 @@ await result.applyChanges({ resolvedDocument: newDocument })
 
 After `applyChanges` returns, the merged document becomes both the new active document and the new saved baseline, so a subsequent `revertDocumentChanges` rolls back to the post-rebase state rather than the pre-rebase original.
 
+## Apply OpenAPI Overlays
+
+Pass an ordered `overlays` list to `addDocument` in either store. The list can mix
+OpenAPI Overlay [1.0](https://spec.openapis.org/overlay/v1.0.0.html),
+[1.1](https://spec.openapis.org/overlay/v1.1.0.html), and
+[1.2](https://spec.openapis.org/overlay/v1.2.0.html) documents, including patch releases.
+The store applies each Overlay using its declared version. It selects nodes in the
+authored API description and upgrades the composed description, including the content
+the actions added, before resolving references and building navigation.
+
+When an action selects an array directly, Overlay 1.0 appends its `update` as one
+entry. Overlay 1.1 and 1.2 concatenate array updates. To replace an entire array
+in Overlay 1.0, select its containing object and include the array in the update.
+Overlay 1.0 selectors can match objects and arrays but cannot match primitives or
+null. `copy` is available from 1.1. `$self` and reusable actions require 1.2.
+Selectors use RFC 9535 JSONPath across all supported versions.
+
+```ts
+await store.addDocument({
+  name: 'partner-api',
+  url: 'https://example.com/openapi.yaml',
+  overlays: [{ url: 'https://example.com/overlays/partner.overlay.yaml' }],
+})
+```
+
+For example, `partner.overlay.yaml` can remove an internal operation and add a response example.
+
+```yaml
+overlay: 1.2.0
+info:
+  title: Partner API
+  version: 1.0.0
+extends: ../openapi.yaml
+actions:
+  - target: "$.paths['/internal'].get"
+    remove: true
+  - target: "$.paths['/pets'].get.responses['200'].content['application/json']"
+    update:
+      examples:
+        partner:
+          value: { name: Rufus }
+```
+
+Each source can be `{ url }`, `{ path }` where a file loader is configured, or
+`{ document, documentSource? }` for an inline Overlay with an optional source URI.
+The stores use their usual JSON and YAML loaders and permissions. `extends` checks
+that the Overlay matches the supplied description. The caller supplies and manages
+the base and Overlay sources.
+
+For an in-memory base description, pass `{ name, document, documentSource }` to
+either store. `documentSource` supplies the base URI for relative references and
+the retrieval URI used when checking an Overlay's `extends`.
+
+The composed description is the baseline for JSON and YAML exports. Workspace snapshots
+restore that result directly. When calling `rebaseDocument`, pass the full ordered list
+again. Pass `overlays: []` to refresh from the base alone.
+
+In the browser, a rebase with Overlays uses the same fetch configuration as the
+initial add. A custom fetch takes precedence over the active proxy. A plain rebase
+uses its custom fetch, the store's custom fetch, or the browser's default fetch.
+
+The rebase result exposes unmatched Overlay actions in `overlayDiagnostics`, even
+when the input is unchanged. Each entry gives the zero-based `overlayIndex` and
+`actionIndex`, and the JSONPath `target`. If composition fails, the result returns
+`type: 'OVERLAY_FAILED'` and a `message`.
+
+Overlay composition limits apply to the full list. The store allows up to 1,000
+actions including reusable definitions, 4,096 characters per selector, 50,000
+matches per action, and 512 characters per regular expression. `match()` and
+`search()` use a bounded I-Regexp matcher with limits on counted repetitions,
+compiled states, distinct patterns, and transitions across the composition. The
+store also caps estimated document allocations at 64 MiB, including the base
+description and values copied to each target. Exceeding a limit fails composition
+before the workspace registers any changes.
+
 ## Referenced OpenAPI upgrades
 
 The workspace store uses JSON Magic's resource and target lifecycle hooks to

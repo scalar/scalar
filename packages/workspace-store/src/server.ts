@@ -5,8 +5,8 @@ import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
-import { isObjectLike } from '@scalar/helpers/object/is-object'
-import { type LoaderPlugin, bundle, extensions as bundleExtensions } from '@scalar/json-magic/bundle'
+import { isObject, isObjectLike } from '@scalar/helpers/object/is-object'
+import { bundle, extensions as bundleExtensions } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/json-magic/helpers/unescape-json-pointer'
@@ -34,6 +34,14 @@ import { encodeChunkName } from '@/helpers/encode-chunk-name'
 import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
 import { keyOf } from '@/helpers/general'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import {
+  type DocumentLoadResult,
+  type OverlaySource,
+  getOverlayFileUri,
+  loadInlineDocument,
+  loadOpenApiOverlays,
+  loadUrlWithRetrievalUri,
+} from '@/helpers/load-openapi-overlays'
 import { mergeObjects } from '@/helpers/merge-object'
 import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { resolveSecurityRequirements } from '@/helpers/resolve-security-requirements'
@@ -58,16 +66,12 @@ import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
 
-type WorkspaceDocumentMetaInput = {
+type WorkspaceDocumentInput = OverlaySource & {
   name: string
   meta?: WorkspaceDocumentMeta
+  /** Overlay 1.2 sources to apply to the authored OpenAPI description in order. */
+  overlays?: readonly OverlaySource[]
 }
-
-type UrlDoc = { url: string } & WorkspaceDocumentMetaInput
-type FileDoc = { path: string } & WorkspaceDocumentMetaInput
-type ObjectDoc = { document: Record<string, unknown> } & WorkspaceDocumentMetaInput
-
-type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
 
 type CreateServerWorkspaceStoreBase = {
   documents: WorkspaceDocumentInput[]
@@ -365,10 +369,15 @@ type ServerWorkspace = Omit<Workspace, 'activeDocument'>
  * })
  */
 function loadDocument(
-  workspaceDocument: WorkspaceDocumentInput,
+  workspaceDocument: OverlaySource,
   options: CreateServerWorkspaceStoreBase['documentLoading'] = {},
-): ReturnType<LoaderPlugin['exec']> {
+  compose = false,
+): Promise<DocumentLoadResult> {
   if ('url' in workspaceDocument) {
+    // The protected loader does not follow redirects and must use its guarded transport.
+    if (compose && options.allowPrivateNetworks) {
+      return loadUrlWithRetrievalUri(workspaceDocument.url, (fetch) => fetchUrls({ fetch }), globalThis.fetch)
+    }
     return fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks }).exec(workspaceDocument.url)
   }
 
@@ -379,11 +388,22 @@ function loadDocument(
     return readFiles({ basePath: options.basePath }).exec(workspaceDocument.path)
   }
 
-  return Promise.resolve({
-    ok: true,
-    data: workspaceDocument.document,
-    raw: JSON.stringify(workspaceDocument.document),
-  })
+  return loadInlineDocument(workspaceDocument.document, compose)
+}
+
+const getDocumentSource = (source: OverlaySource): string | undefined => {
+  if ('url' in source) {
+    return source.url
+  }
+  return 'path' in source ? source.path : source.documentSource
+}
+
+/** Resolves a retrieval URI for comparing Overlay and OpenAPI document identities. */
+const getOverlaySourceUri = (source: OverlaySource): string | undefined => {
+  if ('path' in source) {
+    return getOverlayFileUri(source.path)
+  }
+  return getDocumentSource(source)?.split('#', 1)[0]
 }
 
 /**
@@ -396,7 +416,7 @@ export type ServerWorkspaceStore = {
    * Supported inputs include:
    * - `url`: fetch and parse an OpenAPI or AsyncAPI document from a remote URL
    * - `path`: read and parse an OpenAPI or AsyncAPI document from the filesystem
-   * - `document`: use an in-memory OpenAPI or AsyncAPI object directly
+   * - `document`: use an in-memory OpenAPI or AsyncAPI object with an optional `documentSource` base URI
    *
    * If loading fails, the document is not added.
    *
@@ -818,32 +838,32 @@ export async function createServerWorkspaceStore(
       return
     }
 
-    // Captured so a failed add restores exactly what was there. The assets are written partway
-    // through, and several steps throw before that point, so clearing the key outright would strip
-    // a working document's chunks whenever a name is reused — leaving the workspace pointing at
-    // references that resolve to nothing.
-    //
-    // The snapshot is taken before the first await, so two adds racing under the same name would
-    // both capture the pre-state and the failing one could put back what the other just replaced.
-    // Adds are not serialized per name: concurrent adds sharing a name are already last-write-wins,
-    // and callers are expected to await one before starting another.
-    const assetsBeforeAdd = getOwnEntry(assets, input.name)
-
     try {
-      const document = await loadDocument(input, workspaceProps.documentLoading)
+      const options = workspaceProps.documentLoading
+      const document = await loadDocument(input, options, Boolean(input.overlays?.length))
 
       if (!document.ok) {
         console.warn(`Failed to load document "${input.name}"`)
         return
       }
 
-      const loaded = document.data as Record<string, unknown>
+      let loaded = document.data as Record<string, unknown>
+      if (input.overlays?.length) {
+        if (!isObject(loaded) || isAsyncApiDocument(loaded)) {
+          throw new Error('Overlays require an OpenAPI description')
+        }
+        const composed = await loadOpenApiOverlays(
+          { ...document, data: loaded, sourceUri: document.retrievalUri ?? getOverlaySourceUri(input) },
+          input.overlays,
+          (source) => loadDocument(source, options, true),
+          getOverlaySourceUri,
+        )
+        loaded = composed.document
+      }
       const isThreeTwo = typeof loaded.openapi === 'string' && /^3\.2\.\d+$/.test(loaded.openapi)
       // URI resolution adds working aliases; keep the caller's authored object unchanged.
       const data: Record<string, unknown> = JSON.parse(JSON.stringify(loaded))
-      const fileOrigin = 'path' in input ? input.path : undefined
-      const origin = 'url' in input ? input.url : fileOrigin
-      const options = workspaceProps.documentLoading
+      const origin = document.retrievalUri ?? getDocumentSource(input)
       const loaders = [
         fetchUrls({ blockPrivateNetworks: !options?.allowPrivateNetworks }),
         ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),
@@ -879,23 +899,29 @@ export async function createServerWorkspaceStore(
       } else {
         await loadCodeSampleSources(data, origin ?? '/', loaders)
       }
-      addDocumentSync(
-        data,
-        { ...(origin ? { 'x-scalar-original-source-url': origin } : {}), ...input.meta, name: input.name },
-        navigationOptions,
-      )
+      // Only synchronous registration can modify the assets. Capture their current state
+      // here so a failed load cannot roll back another add that finished while this one waited.
+      const assetsBeforeAdd = getOwnEntry(assets, input.name)
+      try {
+        addDocumentSync(
+          data,
+          { ...(origin ? { 'x-scalar-original-source-url': origin } : {}), ...input.meta, name: input.name },
+          navigationOptions,
+        )
+      } catch (error) {
+        if (assetsBeforeAdd === undefined) {
+          delete assets[input.name]
+        } else {
+          assets[input.name] = assetsBeforeAdd
+        }
+        throw error
+      }
     } catch (error) {
       // Honours the contract above: a document that cannot be processed is skipped rather than
       // taking the workspace with it, since the initial documents are ingested together and one
       // malformed description should not fail an entire documentation build. Loading is inside the
       // try too, so a document that cannot even be serialized is skipped the same way.
-      if (assetsBeforeAdd === undefined) {
-        delete assets[input.name]
-      } else {
-        assets[input.name] = assetsBeforeAdd
-      }
-
-      console.warn(`Failed to process document "${input.name}"`, error)
+      console.warn('Failed to process document', input.name, error)
     }
   }
 

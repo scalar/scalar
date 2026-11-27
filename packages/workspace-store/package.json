@@ -21,7 +21,7 @@
     "node": ">=22.19.0"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && vite build --config vite.overlay-regexp.config.ts",
     "generate-json-schemas": "tsx ./scripts/generate-json-schemas.ts",
     "generate-openapi-types": "tsx ./scripts/generate-openapi-types.ts",
     "test": "vitest --run",
@@ -171,6 +171,7 @@
     "@scalar/types": "workspace:*",
     "@scalar/validation": "workspace:*",
     "js-base64": "catalog:*",
+    "json-p3": "catalog:*",
     "type-fest": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"
@@ -181,6 +182,7 @@
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
     "google-auth-library": "catalog:*",
+    "treffer": "catalog:*",
     "typescript": "7.0.2",
     "vite": "catalog:*",
     "vitest": "catalog:*"

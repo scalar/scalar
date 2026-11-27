@@ -84,6 +84,7 @@ catalogs:
     highlight.js: ^11.12.0
     js-base64: ^3.9.7
     jsdom: 31.0.1
+    json-p3: 3.0.3
     jsonc-parser: 3.3.1
     jwt-decode: 4.0.0
     microdiff: 1.6.0
@@ -106,6 +107,7 @@ catalogs:
     supertest: '7.3.2'
     svelte: ^5.59.1
     tailwindcss: ^4.3.5
+    treffer: 0.5.0
     type-fest: ^5.10.0
     truncate-json: 3.0.1
     tsx: 4.23.15
@@ -189,3 +191,4 @@ minimumReleaseAgeExclude:
 patchedDependencies:
   postman-collection@5.3.1: patches/postman-collection@5.3.1.patch
   proto-parser@0.0.9: patches/proto-parser@0.0.9.patch
+  treffer@0.5.0: patches/treffer@0.5.0.patch
