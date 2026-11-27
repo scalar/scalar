@@ -380,6 +380,7 @@ export type BaseConfiguration = {
     | 'mars'
     | 'laserwave'
     | 'halloween'
+    | 'hotDogDay'
     | 'none'
   /** Integration type identifier */
   _integration?:
