@@ -12,6 +12,7 @@ import {
   measureBundles,
   parseBundleSizes,
   requiresApproval,
+  requiresComment,
 } from './bundle-size'
 
 const main = 'a'.repeat(40)
@@ -206,6 +207,29 @@ describe('bundle-size', () => {
 
     expect(requiresApproval(earlyGrowth, baseline, main)).toBe(true)
     expect(requiresApproval(lazyGrowth, baseline, main)).toBe(true)
+  })
+
+  it('skips the comment when the exact baseline has identical sizes even if a chunk hash changed', () => {
+    const baseline = snapshot(main)
+    const current = snapshot(head)
+    current.esm = current.esm.map((chunk) => ({ ...chunk, file: chunk.file.replace('AbcDEfgh', '12345678') }))
+
+    expect(requiresComment(current, baseline, main)).toBe(false)
+    expect(requiresComment(current, baseline, 'c'.repeat(40))).toBe(true)
+    expect(requiresComment(current, undefined, main)).toBe(true)
+  })
+
+  it('keeps the comment when file sizes or the set of ESM chunks changes', () => {
+    const baseline = snapshot(main)
+    const current = snapshot(head)
+    current.esm = current.esm.map((chunk) => {
+      const delta = chunk.key === 'src/esm.ts' ? 10 : -5
+      return { ...chunk, size: { ...chunk.size, minified: chunk.size.minified + delta } }
+    })
+
+    expect(requiresComment(current, baseline, main)).toBe(true)
+    expect(requiresComment({ ...snapshot(head), umd: sizes(1200, 501, 400) }, baseline, main)).toBe(true)
+    expect(requiresComment({ ...current, esm: current.esm.slice(0, 2) }, baseline, main)).toBe(true)
   })
 
   it('matches a renamed chunk by key, and shows new and removed chunks', () => {

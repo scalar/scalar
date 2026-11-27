@@ -357,6 +357,27 @@ const matchChunks = (current: ChunkSize[], previous: ChunkSize[]): Map<string, C
   return matches
 }
 
+/** Keep the PR comment quiet only when an exact baseline confirms every measured size is unchanged. */
+export const requiresComment = (current: BundleSizes, baseline?: BundleSizes, expectedBase?: string): boolean => {
+  if (!baseline || baseline.commit !== expectedBase || current.esm.length !== baseline.esm.length) {
+    return true
+  }
+
+  if (encodings.some((encoding) => current.umd[encoding] !== baseline.umd[encoding])) {
+    return true
+  }
+
+  const matches = matchChunks(current.esm, baseline.esm)
+  return current.esm.some(({ file, initial, size }) => {
+    const previous = matches.get(file)
+    return (
+      !previous ||
+      previous.initial !== initial ||
+      encodings.some((encoding) => previous.size[encoding] !== size[encoding])
+    )
+  })
+}
+
 /** Include every emitted ESM chunk, matching hashes by a unique logical chunk name when possible. */
 export const createChunkReport = (current: BundleSizes, baseline?: BundleSizes): string => {
   const previous = baseline?.esm ?? []
@@ -426,6 +447,7 @@ const run = ([command, input, output, details, baselineFile, expectedBase]: stri
     writeFileSync(output, createReport(current, baseline, base, repositoryUrl))
     writeFileSync(details, createChunkReport(current, baseline))
     console.log(`approval_required=${requiresApproval(current, baseline, base)}`)
+    console.log(`comment_required=${requiresComment(current, baseline, base)}`)
     return
   }
 

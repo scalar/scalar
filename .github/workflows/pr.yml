@@ -314,12 +314,14 @@ jobs:
           node tooling/scripts/bundle-size.ts report bundle-size.json bundle-size.md chunks.md baseline/bundle-size.json "$BASE_SHA" >> "$GITHUB_OUTPUT"
           cat bundle-size.md chunks.md >> "$GITHUB_STEP_SUMMARY"
           printf '\n[Per-chunk ESM sizes](%s/%s/actions/runs/%s#summary)\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> bundle-size.md
-      - if: github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
-        name: Post the bundle size report to the PR
+      - if: github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') && (steps.report.outputs.comment_required == 'true' || steps.report.outputs.comment_required == 'false')
+        name: Update the bundle size PR comment
         uses: thollander/actions-comment-pull-request@v3.0.1
         with:
           file-path: bundle-size.md
           comment-tag: api-reference-bundle-size
+          mode: ${{ steps.report.outputs.comment_required == 'true' && 'upsert' || 'delete' }}
+          create-if-not-exists: ${{ steps.report.outputs.comment_required == 'true' }}
 
   bundle-size-approval:
     needs: [bundle-size]
