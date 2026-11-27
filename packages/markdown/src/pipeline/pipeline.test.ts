@@ -210,4 +210,112 @@ describe('pipeline', () => {
       expect(performance.now() - start).toBeLessThan(2000)
     })
   })
+
+  describe('containment', () => {
+    /**
+     * The end tags the output contains, minus the start tags, by name. A server-rendered page
+     * concatenates the output into its own HTML, so an end tag without a start tag of its own
+     * would close one of the page's elements.
+     */
+    const unmatchedEndTags = (html: string): string[] => {
+      const open: string[] = []
+      const stray: string[] = []
+      for (const [, end, name] of html.matchAll(/<(\/?)([a-z][a-z0-9]*)[^>]*>/g)) {
+        if (!end) {
+          if (!['br', 'hr', 'img', 'input', 'source', 'wbr'].includes(name!)) open.push(name!)
+        } else if (open.at(-1) === name) open.pop()
+        else stray.push(name!)
+      }
+      return stray
+    }
+
+    it.each([
+      ['a table start tag inside a table', '<table><div><div><table></table></div></div></table>\n\n<div>after</div>'],
+      ['a ruby text inside a list item', '<ul><li><div><ruby><li><rt>x</rt></li></ruby></div></li></ul>\n\nafter'],
+      ['a heading inside a heading', '<h1><h2>x</h2></h1>\n\nafter'],
+      ['a table part after a foster-parented element', '<table><div><tr><td>x</td></tr></table>'],
+      [
+        'a Markdown list item after raw HTML closed its list',
+        '- a\n  <li><div><marquee>\n- b\n\n</marquee></div>\n\nafter',
+      ],
+    ])('leaves no end tag for the page for %s', (_name, markdown) => {
+      expect(unmatchedEndTags(htmlFromMarkdown(markdown))).toEqual([])
+    })
+
+    it('closes the table and what is open in it when another table starts', () => {
+      expect(htmlFromMarkdown('<table><div><table></table></div></table>')).toBe(
+        '<table><div></div></table><table></table>',
+      )
+    })
+
+    it('puts a list item outside any list in a list of its own, whose start tag would otherwise reach the page', () => {
+      expect(htmlFromMarkdown('<li>a<li>b')).toBe('<ul><li>a</li></ul><ul><li>b</li></ul>')
+      expect(htmlFromMarkdown('<div><dd>x</dd></div>')).toBe('<div><dl><dd>x</dd></dl></div>')
+      expect(htmlFromMarkdown('<ul><li>a<li>b</ul>')).toBe('<ul><li>a</li><li>b</li></ul>')
+      expect(htmlFromMarkdown('<li>a', { removeTags: ['ul'] })).toBe('a')
+    })
+  })
+
+  describe('limits', () => {
+    it('reopens at most three identical formatting elements', () => {
+      expect(htmlFromMarkdown('<p><b><b><b><b><b><p>x')).toBe(
+        '<p><b><b><b><b><b></b></b></b></b></b></p><p><b><b><b>x</b></b></b></p>',
+      )
+    })
+
+    it('drops raw start tags past 512 open elements', () => {
+      const html = htmlFromMarkdown('<span>'.repeat(1000))
+
+      expect(html.match(/<span>/g)?.length).toBeLessThanOrEqual(512)
+    })
+
+    it('stops padding table rows past the budget', () => {
+      const width = 1000
+      const markdown = `|${'a|'.repeat(width)}\n|${'-|'.repeat(width)}\n${'x\n'.repeat(1000)}`
+
+      expect(htmlFromMarkdown(markdown).length).toBeLessThan(2_000_000)
+    })
+
+    it('stops expanding references past the budget', () => {
+      const markdown = `[a]: /${'x'.repeat(10_000)}\n\n${'[a] '.repeat(1000)}`
+
+      expect(htmlFromMarkdown(markdown).length).toBeLessThan(400_000)
+    })
+
+    it.each([
+      ['a URL with long trailing punctuation', `http://a.b/${'.'.repeat(100_000)}a`],
+      ['www. followed by underscores', 'www._'.repeat(20_000)],
+      ['footnote openers', `${'[^'.repeat(30_000)}${']'.repeat(30_000)}`],
+      ['image footnote calls', '![^'.repeat(30_000)],
+      ['unclosed instructions', `a${' <?'.repeat(30_000)}`],
+      ['unclosed CDATA sections', `a${' <![CDATA['.repeat(10_000)}`],
+      ['comments in raw HTML', `<div>\n${'<!--a-->'.repeat(10_000)}`],
+      ['delimiter-like lines in a paragraph', 'x\n|-|-\n'.repeat(10_000)],
+      ['deep raw HTML', '<div>'.repeat(100_000)],
+    ])('takes linear time on %s', (_name, markdown) => {
+      const start = performance.now()
+      htmlFromMarkdown(markdown)
+
+      expect(performance.now() - start).toBeLessThan(2000)
+    })
+  })
+
+  describe('attributes', () => {
+    it('checks srcset candidates after decoding, as the browser splits them', () => {
+      const options = { removeTags: [] }
+
+      expect(
+        htmlFromMarkdown('<picture><source srcset="https://a 1x&#44;data:image/svg+xml,x 2x"></picture>', options),
+      ).not.toContain('srcset')
+      expect(
+        htmlFromMarkdown('<picture><source srcset="https://a/x.png 1x, https://a/y,z.png 2x"></picture>', options),
+      ).toContain('srcset="https://a/x.png 1x, https://a/y,z.png 2x"')
+    })
+
+    it('drops name on images, which would clobber document properties', () => {
+      expect(htmlFromMarkdown('<img name="getElementById" src="https://a/x.png">', { removeTags: [] })).toBe(
+        '<img src="https://a/x.png">',
+      )
+    })
+  })
 })

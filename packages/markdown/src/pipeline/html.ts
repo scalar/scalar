@@ -166,6 +166,23 @@ const HEADINGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
 /** Start tags the parser ignores in the body: no element is created for them. */
 const IGNORED_IN_BODY = new Set(['body', 'head', 'html', 'frame'])
 const TABLE_ONLY = new Set(['caption', 'col', 'colgroup', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr'])
+/** The elements that put the HTML parser in a table insertion mode when they are the nearest of their kind. */
+const TABLE_STRUCTURE = new Set(['table', 'tbody', 'tfoot', 'thead', 'tr'])
+/** What "generate implied end tags" pops, for the ruby start tags that trigger it. */
+const IMPLIED_END = new Set(['dd', 'dt', 'li', 'optgroup', 'option', 'p', 'rb', 'rp', 'rt', 'rtc'])
+const RUBY_PARTS = new Set(['rb', 'rp', 'rt', 'rtc'])
+/**
+ * How deep raw HTML may nest. Chromium's parser stops nesting at 512 too, and the bound keeps
+ * every search of the stack cheap: unbounded, `<div>` repeated took quadratic time.
+ */
+const MAX_DEPTH = 512
+/**
+ * How many implicitly closed formatting elements wait to be reopened. The HTML parser keeps at
+ * most three identical ones ("Noah's Ark"); the overall cap stops differing attributes from
+ * getting around that. Without either, a few kilobytes reopened into megabytes of output.
+ */
+const MAX_PENDING = 16
+const MAX_IDENTICAL_PENDING = 3
 
 /**
  * `start`: where a raw `<th>`'s content begins in the output. `code`: a raw
@@ -179,6 +196,9 @@ type Frame = {
   attrs?: string
   start?: number
   code?: RawCode
+  /** A list the writer opened around a list item outside any list (`wrapper`), and that item (`wrapped`). */
+  wrapper?: true
+  wrapped?: true
 }
 type RawCode = { start: number; lang: string; text: string }
 
@@ -194,6 +214,39 @@ const TABLE_PART_CLOSES: Record<string, string[]> = {
 /** hast maps attribute names to properties case-insensitively, so JSX-style names become HTML ones. */
 const ATTRIBUTE_ALIASES: Record<string, string> = { classname: 'class', htmlfor: 'for' }
 
+const isSpace = (c: string | undefined): boolean => c === ' ' || c === '\t' || c === '\n' || c === '\f' || c === '\r'
+
+/**
+ * The candidate URLs of a decoded `srcset`, as the browser splits them ("parse a srcset
+ * attribute"): a URL is a run of non-whitespace and may contain commas, trailing commas end it,
+ * and descriptors run to the next comma outside parentheses. Splitting on commas before decoding
+ * missed `&#44;` and URLs with commas in them, such as `data:` ones.
+ */
+const srcsetUrls = (value: string): string[] => {
+  const urls: string[] = []
+  let i = 0
+  for (;;) {
+    while (isSpace(value[i]) || value[i] === ',') i++
+    if (i >= value.length) return urls
+    const start = i
+    while (i < value.length && !isSpace(value[i])) i++
+    let end = i
+    while (end > start && value[end - 1] === ',') end--
+    urls.push(value.slice(start, end))
+    if (end < i) continue
+    let parens = false
+    for (; i < value.length; i++) {
+      const c = value[i]
+      if (c === '(') parens = true
+      else if (c === ')') parens = false
+      else if (c === ',' && !parens) {
+        i++
+        break
+      }
+    }
+  }
+}
+
 /**
  * Serializes the attributes the schema allows on `tag`, escaped. The first of
  * duplicate names wins, as in the HTML parser. A `null` value is a bare attribute.
@@ -208,6 +261,9 @@ export const sanitizeAttributes = (tag: string, attrs: [name: string, value: str
     seen.add(name)
     if (!GLOBAL_ATTRS.has(name) && !tagAttrs?.includes(name)) continue
     if (tag === 'input' && (name === 'type' || name === 'disabled')) continue
+    // A named `<img>` becomes a property of `document` ("DOM clobbering"): `<img name="getElementById">`
+    // breaks every script on the page. It is the only allowed element that does, and the attribute is obsolete.
+    if (tag === 'img' && name === 'name') continue
     let v = value ?? ''
     if (name === 'class' && CLASS_RULES[tag]) {
       v = v
@@ -217,7 +273,7 @@ export const sanitizeAttributes = (tag: string, attrs: [name: string, value: str
     }
     if (PROTOCOLS[name] && !isSafeUrl(v, name)) continue
     // Not in the schema's protocol list, but every candidate is a URL, so check them like `src`.
-    if (name === 'srcset' && !v.split(',').every((c) => isSafeUrl(c.trim().split(/\s+/)[0] ?? '', 'src'))) continue
+    if (name === 'srcset' && !srcsetUrls(decodeHtml(v, true)).every((url) => isSafeUrl(url, 'src', true))) continue
     s += value === null ? ` ${name}` : ` ${name}="${escapeRawAttr(v)}"`
   }
   return s
@@ -337,16 +393,21 @@ export class Writer {
     const id = this.nextId++
     if (this.skip) return id
     this.body = true
-    this.closeP(tag)
+    this.implicitCloses(tag)
     if (!NO_RECONSTRUCT.has(tag)) this.reconstruct()
-    const hidden = !this.allowed(tag)
+    let hidden = !this.allowed(tag)
+    let wrapped = false
+    if (!hidden && this.listItemEscapes(tag)) {
+      wrapped = this.wrapListItem(tag)
+      hidden = !wrapped
+    }
     // A code span inside a raw `<pre>` is a `<pre><code>` too, and `rehypeHighlight` gave it the classes.
     const top = this.stack.at(-1)
     if (tag === 'code' && this.options.highlight && top?.tag === 'pre' && !top.hidden && !this.generated.has(top.id)) {
       attrs = this.codeClasses(attrs)?.attrs ?? attrs
     }
     if (!hidden) this.out += `<${tag}${attrs}>`
-    if (!VOID.has(tag)) this.stack.push({ tag, id, hidden, attrs })
+    if (!VOID.has(tag)) this.stack.push(wrapped ? { tag, id, hidden, attrs, wrapped } : { tag, id, hidden, attrs })
     if (!VOID.has(tag)) this.generated.set(id, tag)
     return id
   }
@@ -464,6 +525,8 @@ export class Writer {
   }
 
   private popTo(at: number): void {
+    // A list item outside any list closes together with the list the writer opened around it.
+    if (this.stack[at]?.wrapped && this.stack[at - 1]?.wrapper) at--
     if (this.skip && at < this.skip.at) this.skip = null
     const implicit: Frame[] = []
     for (let i = this.stack.length - 1; i >= at; i--) {
@@ -480,7 +543,129 @@ export class Writer {
     }
     if (MARKERS.has(this.stack[at]?.tag ?? '')) this.pending = []
     this.stack.length = at
-    this.pending.push(...implicit)
+    for (const f of implicit) {
+      const same = this.pending.filter((p) => p.tag === f.tag && p.attrs === f.attrs)
+      if (same.length >= MAX_IDENTICAL_PENDING) this.pending.splice(this.pending.indexOf(same[0]!), 1)
+      this.pending.push(f)
+    }
+    if (this.pending.length > MAX_PENDING) this.pending.splice(0, this.pending.length - MAX_PENDING)
+  }
+
+  /**
+   * Start tags that make the HTML parser pop elements without an end tag. Each one is modelled,
+   * and the writer pops the same frames with end tags first, so the browser closes them itself.
+   * A start tag that popped silently would leave the writer's later end tags to close elements
+   * outside the output, which in server-rendered HTML are the page's own. Dropped elements are
+   * skipped throughout: the browser never sees them.
+   */
+  private implicitCloses(tag: string): void {
+    this.tableModeStart(tag)
+    this.closeListItem(tag)
+    this.closeP(tag)
+    if (tag === 'a') this.closeLink()
+    this.closeTablePart(tag)
+    if (RUBY_PARTS.has(tag)) this.closeRubyParts(tag)
+    if (HEADINGS.has(tag)) this.closeHeading()
+  }
+
+  /**
+   * Whether the browser's search for an open `<li>` (or `<dd>`, `<dt>`) to close would run past
+   * the output. The search passes over `<div>`, `<p>` and `<address>`, so without a list item or
+   * another special element of the output's own in the way, it reaches the page around it: in
+   * server-rendered HTML a description inside an `<li>` would close that `<li>`. Such an item is
+   * outside any list, so the writer opens one around it (`wrapListItem`), which stops the search.
+   */
+  private listItemEscapes(tag: string): boolean {
+    if (tag !== 'li' && tag !== 'dd' && tag !== 'dt') return false
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+      const f = this.stack[i]!
+      if (f.hidden) continue
+      if (SPECIAL.has(f.tag) && f.tag !== 'address' && f.tag !== 'div' && f.tag !== 'p') return false
+    }
+    return true
+  }
+
+  /**
+   * Opens a list around a list item outside any list, closed together with the item, so the item
+   * keeps its marker. Returns false when the list's tag is not allowed, and the item is dropped.
+   */
+  private wrapListItem(tag: string): boolean {
+    const list = tag === 'li' ? 'ul' : 'dl'
+    if (!this.allowed(list)) return false
+    this.out += `<${list}>`
+    this.stack.push({ tag: list, id: this.nextId++, hidden: false, wrapper: true })
+    return true
+  }
+
+  /** The topmost frame the browser sees. */
+  private visibleTop(): number {
+    for (let i = this.stack.length - 1; i >= 0; i--) if (!this.stack[i]!.hidden) return i
+    return -1
+  }
+
+  /**
+   * The nearest table-structure frame when the browser would be in a table insertion mode, or -1
+   * inside a cell or caption, or outside any table.
+   */
+  private tableModeAt(): number {
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+      const f = this.stack[i]!
+      if (f.hidden) continue
+      if (f.tag === 'td' || f.tag === 'th' || f.tag === 'caption') return -1
+      if (TABLE_STRUCTURE.has(f.tag)) return i
+    }
+    return -1
+  }
+
+  /**
+   * In a table insertion mode the browser foster-parents other elements but keeps them on its
+   * stack, then pops them without end tags: a `<table>` start tag closes the current table, and a
+   * table part clears the stack back to the table.
+   */
+  private tableModeStart(tag: string): void {
+    if (tag !== 'table' && !TABLE_ONLY.has(tag)) return
+    const at = this.tableModeAt()
+    if (at === -1) return
+    const pending = this.pending.length
+    if (tag === 'table') {
+      for (let i = at; i >= 0; i--) {
+        if (this.stack[i]!.tag === 'table' && !this.stack[i]!.hidden) {
+          this.popTo(i)
+          break
+        }
+      }
+    } else if (at + 1 < this.stack.length) this.popTo(at + 1)
+    // The browser does not reopen formatting popped this way inside the table.
+    this.pending.length = Math.min(this.pending.length, pending)
+  }
+
+  /** `<rb>`, `<rp>`, `<rt>` and `<rtc>` with a `<ruby>` in scope generate implied end tags (`<rtc>` survives `<rp>` and `<rt>`). */
+  private closeRubyParts(tag: string): void {
+    let ruby = false
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+      const f = this.stack[i]!
+      if (f.hidden) continue
+      if (f.tag === 'ruby') {
+        ruby = true
+        break
+      }
+      if (SCOPE.has(f.tag)) break
+    }
+    if (!ruby) return
+    let at = -1
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+      const f = this.stack[i]!
+      if (f.hidden) continue
+      if (!IMPLIED_END.has(f.tag) || ((tag === 'rp' || tag === 'rt') && f.tag === 'rtc')) break
+      at = i
+    }
+    if (at !== -1) this.popTo(at)
+  }
+
+  /** A heading start tag pops a heading that is the current node. */
+  private closeHeading(): void {
+    const top = this.visibleTop()
+    if (top !== -1 && HEADINGS.has(this.stack[top]!.tag)) this.popTo(top)
   }
 
   /** Replaces a raw code block's content with its highlighted text, as `rehypeHighlight` replaced its children. */
@@ -574,14 +759,15 @@ export class Writer {
     }
     if (!HEAD.has(tag)) this.body = true
     if (IGNORED_IN_BODY.has(tag) || (TABLE_ONLY.has(tag) && !this.stack.some((f) => f.tag === 'table'))) return
+    // Past the depth limit a start tag is dropped, and its end tag then closes by name as usual.
+    if (this.stack.length >= MAX_DEPTH && !VOID.has(tag)) return
     this.writeText()
-    // Before the allowlist: the browser does this even for a tag the sanitizer then drops.
-    this.closeListItem(tag)
-    this.closeP(tag)
-    if (tag === 'a') this.closeLink()
-    this.closeTablePart(tag)
+    // Before the allowlist, as today's pipeline parsed first: a dropped tag still closes what the
+    // parser would close for it. That only adds end tags, which the browser applies itself.
+    this.implicitCloses(tag)
     if (!NO_RECONSTRUCT.has(tag)) this.reconstruct()
-    if (!this.allowed(tag)) {
+    const wrapped = this.allowed(tag) && this.listItemEscapes(tag) && this.wrapListItem(tag)
+    if (!this.allowed(tag) || (this.listItemEscapes(tag) && !wrapped)) {
       if (STRIP.has(tag) && !VOID.has(tag)) this.skip = { tag, depth: 1, at: this.stack.length }
       // Today's pipeline parses first and sanitizes after, so a dropped tag still shapes the tree
       // (`</aside>` closes the paragraph inside it). A hidden frame keeps that, and writes nothing.
@@ -595,8 +781,11 @@ export class Writer {
       if (href && s.includes(' href=') && isExternal(href)) s += ' rel="nofollow" target="_blank"'
     }
     const top = this.stack.at(-1)
+    // Only the outermost raw code block is highlighted, so nested ones are not highlighted again and again.
     const code =
-      tag === 'code' && this.options.highlight && top?.tag === 'pre' && !top.hidden ? this.codeClasses(s) : null
+      tag === 'code' && this.options.highlight && this.rawCodeDepth === 0 && top?.tag === 'pre' && !top.hidden
+        ? this.codeClasses(s)
+        : null
     if (code) s = code.attrs
     this.out += `<${tag}${s}>`
     if (!VOID.has(tag)) {
@@ -607,6 +796,7 @@ export class Writer {
         attrs: s,
         start: this.out.length,
         code: code ? { start: this.out.length, lang: code.lang, text: '' } : undefined,
+        ...(wrapped ? { wrapped: true as const } : {}),
       })
       if (code) this.rawCodeDepth++
     }
@@ -658,6 +848,7 @@ export type TokenSink = Pick<Writer, 'onText' | 'onComment' | 'onStart' | 'onEnd
  * processing instructions are dropped, as the sanitizer drops them today.
  */
 export const tokenize = (s: string, w: TokenSink): void => {
+  let bang = s.indexOf('--!>')
   let i = 0
   const n = s.length
   while (i < n) {
@@ -676,7 +867,8 @@ export const tokenize = (s: string, w: TokenSink): void => {
         else {
           // The HTML tokenizer ends a comment at `--!>` as well as `-->`, so text after either is visible.
           const dash = s.indexOf('-->', i + 4)
-          const bang = s.indexOf('--!>', i + 4)
+          // The next `--!>` is remembered: searching for it from every comment was quadratic.
+          if (bang !== -1 && bang < i + 4) bang = s.indexOf('--!>', i + 4)
           if (bang !== -1 && (dash === -1 || bang < dash)) i = bang + 4
           else i = dash === -1 ? n : dash + 3
         }

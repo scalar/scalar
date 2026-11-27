@@ -206,6 +206,20 @@ An independent agent review of the sanitizer was cut off before it reproduced an
 - The policy check above finds **no violation**, and none for the unified renderer either. 3,573 outputs, against 5,296 for the unified renderer, get restructured by the browser (tables, misnesting) without breaking the policy.
 - **Real Chromium finds nothing.** Each output loads in its own `srcdoc` iframe that runs scripts, with `alert`, `confirm`, `prompt` and `print` trapped, browser dialogs recorded and the network blocked, so error handlers fire at once. After it loads, the DOM the browser built is audited for any event handler, script-capable or foreign element, `style`, `srcdoc` or `formaction` attribute, or `javascript:`, `vbscript:` or `data:` URL. 9 positive controls (unsanitized `onerror`, `<script>`, `<svg onload>`, `javascript:` links, `srcdoc`, `style`, `ontoggle`, MathML and `formaction`) are all flagged, which shows the check works. The unified renderer also comes back clean.
 
+**Adversarial review.** Three independent reviewers read the code white-box, each with one target: the sanitizer and writer, the Markdown paths, and denial of service. Every finding was reproduced, fixed and pinned with a test:
+
+- **Server-rendered output could close the page's own elements.** In a few places the browser pops elements without an end tag: table insertion modes, where a `<table>` start tag closes the current table and table parts clear back to it; ruby text with its implied end tags; a heading inside a heading; and a list item outside any list, whose search for an open item passes over `<div>` and reaches the page. The writer did not model these, so its later end tags closed elements outside the output. Client-side `v-html` was never affected, because it parses a fragment. The writer now models each case and writes the end tags itself, and it gives a stray list item a list of its own. The unified renderer had the list-item case too: 268 of the vectors above escape a list-item host through it, against 0 now.
+- **Why the checks above missed it.** They filed it as "restructured" fidelity. The policy check and the Chromium run now render every output inside a host (a `div`, a table cell and a list item, each with a sibling after it) and fail when anything leaves the container. A deliberately escaping control proves the check fires.
+- **Smaller issues.** `srcset` was split on commas before decoding, so `&#44;` let a `data:` image through; candidates are now parsed after decoding, as the browser does. A named `<img>` clobbered `document` properties (`<img name="getElementById">` broke the page); images no longer keep `name`. An `id` can still shadow an undefined `window` global, as with DOMPurify's defaults.
+- **Denial of service.** Twelve inputs of a few dozen kilobytes took seconds or produced hundreds of megabytes. The fixes:
+  - raw HTML nests at most 512 deep, as in Chromium;
+  - at most three identical formatting elements are reopened, the HTML parser's "Noah's Ark" rule;
+  - table padding and reference expansion are capped by the input's length, as in cmark;
+  - the URL literal, footnote, instruction, declaration, CDATA, comment and delimiter-row scans no longer repeat.
+
+  A doubling sweep over 5,040 inputs (one character repeated after each Markdown construct) finds nothing super-linear.
+- **No other output change.** Across every corpus, the only output differences besides the stray list items are a few unclosed `<a name>` anchors in old READMEs, which render the same, and 1,000,000 fuzzed inputs agree with the version before the review.
+
 `HTML5LIB_TESTS=<dir>` reads the html5lib tests from a local `tree-construction` folder, such as the one in the `html5lib` source distribution on PyPI, for when GitHub's raw files cannot be reached.
 
 ### The existing test suites
