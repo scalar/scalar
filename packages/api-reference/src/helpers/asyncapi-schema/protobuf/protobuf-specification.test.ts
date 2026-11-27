@@ -509,15 +509,49 @@ describe('protobuf-specification', () => {
     expect(() => readProtobuf('message M { optional string x = 1 [default = TRUE]; }', '2')).toThrow()
   })
 
-  it('decodes UTF-8 byte escapes across proto2 string tokens and preserves raw bytes', () => {
+  it('decodes UTF-8 byte escapes across proto2 string tokens', () => {
     const source = String.raw`message M {
       optional string city = 1 [default = "caf\xC3" "\251"];
-      optional bytes octet = 2 [default = "\xFF"];
+    }`
+    expect(readProtobuf(source, '2').nodes[0]?.children?.[0]?.details).toStrictEqual(['Default: "café"'])
+  })
+
+  it('displays the exact octets of proto2 bytes defaults', () => {
+    const source = String.raw`message M {
+      optional bytes raw = 1 [default = "é"];
+      optional bytes unicode = 2 [default = "\u00E9"];
+      optional bytes utf8 = 3 [default = "\xC3\xA9"];
+      optional bytes octet = 4 [default = "\xE9"];
     }`
     expect(readProtobuf(source, '2').nodes[0]?.children?.map(({ details }) => details)).toStrictEqual([
-      ['Default: "café"'],
-      ['Default: "ÿ"'],
+      [String.raw`Default: "\xc3\xa9"`],
+      [String.raw`Default: "\xc3\xa9"`],
+      [String.raw`Default: "\xc3\xa9"`],
+      [String.raw`Default: "\xe9"`],
     ])
+  })
+
+  it.each([
+    'string id = 1 /* Stable identifier. */;',
+    'map<string, string> id = 1 /* Stable identifier. */;',
+    'oneof identity { string id = /* Stable identifier. */ 1; }',
+    'string id = 1 [deprecated = /* Stable identifier. */ true];',
+  ])('preserves descriptions within field declarations: %s', (field) => {
+    const source = `message M { ${field} }`
+    expect(readProtobuf(source, '3').nodes[0]?.children?.[0]?.description).toBe('Stable identifier.')
+  })
+
+  it('preserves inline enum value descriptions', () => {
+    const source = 'enum E { ZERO = /* Default value. */ 0; }'
+    expect(readProtobuf(source, '3').nodes[0]?.children?.[0]?.description).toBe('Default value.')
+  })
+
+  it('uses leading comments before inline and trailing comments', () => {
+    const source = `message M {
+      // Leading description.
+      string id = 1 /* Inline description. */; // Trailing description.
+    }`
+    expect(readProtobuf(source, '3').nodes[0]?.children?.[0]?.description).toBe('Leading description.')
   })
 
   it('keeps a continued trailing comment on the same field', () => {

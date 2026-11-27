@@ -21,7 +21,15 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
  Object.defineProperty(exports, "__esModule", { value: true });
  exports.parse = parse;
  exports.parseConstant = parseConstant;
-@@ -21,7 +22,7 @@
+@@ -9,6 +10,7 @@
+ function parse(text) {
+     const comments = [];
+     const parser = createProtoParser(text);
++    parser.sourceComments = comments;
+     parser.on("comment", (comment) => comments.push(comment));
+     const statements = acceptStatements(parser, [
+         acceptSyntax,
+@@ -21,7 +23,7 @@
          acceptExtend,
          acceptService,
          acceptEmpty,
@@ -30,7 +38,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      const ast = { statements };
      return { ast, parser, comments };
  }
-@@ -57,7 +58,36 @@
+@@ -57,7 +59,64 @@
      }
      return { partial, result };
  }
@@ -64,19 +72,53 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
 +    if (adjacent || sameLine)
 +        leadingComments.push(trailing);
 +}
++// A field's inline comments are documentation when the field has no leading comment.
++function attachInlineFieldDescription(parser, statement, start, commentIndex) {
++    if (!["field", "map-field", "oneof-field", "enum-field"].includes(statement.type) || statement.leadingComments.length)
++        return;
++    const byOffset = new Map();
++    for (const comment of parser.sourceComments.slice(commentIndex)) {
++        if (comment.start >= start && comment.end <= statement.semi.start)
++            byOffset.set(comment.start, comment);
++    }
++    const comments = [...byOffset.values()].sort((a, b) => a.start - b.start);
++    const inlineIndex = comments.findLastIndex((comment) => {
++        const lineStart = Math.max(start, parser.input.lastIndexOf("\n", comment.start - 1) + 1);
++        return /\S/.test(parser.input.slice(lineStart, comment.start));
++    });
++    if (inlineIndex < 0)
++        return;
++    const first = comments[inlineIndex];
++    const group = [first];
++    let last = first;
++    for (const next of comments.slice(inlineIndex + 1)) {
++        if (last.type !== "singleline-comment" || next.type !== "singleline-comment" ||
++            !/^[^\S\r\n]*$/.test(parser.input.slice(last.end, next.start)))
++            break;
++        group.push(next);
++        last = next;
++    }
++    statement.leadingComments.push({ type: "comment-group", start: first.start, end: last.end, comments: group });
++}
 +function acceptStatements(parser, acceptStatementFns, topLevel = false) {
      const statements = [];
      statements: while (true) {
          const { commentGroups, trailingNewline } = skipWsAndSweepComments(parser);
-@@ -77,6 +107,7 @@
+@@ -77,9 +136,13 @@
                  leadingDetachedComments = commentGroups;
              }
          }
 +        carryUnusedDescription(parser, statements.at(-1), leadingComments, leadingDetachedComments, topLevel);
++        const statementStart = parser.loc;
++        const commentIndex = parser.sourceComments.length;
          for (const acceptStatementFn of acceptStatementFns) {
              const statement = acceptStatementFn(parser, leadingComments, leadingDetachedComments);
              if (statement) {
-@@ -91,14 +122,17 @@
++                attachInlineFieldDescription(parser, statement, statementStart, commentIndex);
+                 statements.push(statement);
+                 continue statements;
+             }
+@@ -91,14 +154,17 @@
  const whitespacePattern = /^\s+/;
  const whitespaceWithoutNewlinePattern = /^[ \f\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+/;
  const newlinePattern = /^\r?\n/;
@@ -101,7 +143,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
  const acceptDot = (0, misc_1.acceptPatternAndThen)(".", (dot) => ({ type: "dot", ...dot }));
  const acceptComma = (0, misc_1.acceptPatternAndThen)(",", (comma) => ({ type: "comma", ...comma }));
  const acceptSemi = (0, misc_1.acceptPatternAndThen)(";", (semi) => ({ type: "semi", ...semi }));
-@@ -110,10 +144,19 @@
+@@ -110,10 +176,19 @@
  }
  const acceptIdent = (0, misc_1.acceptPatternAndThen)(identPattern, (ident) => ({ type: "ident", ...ident }));
  function acceptKeyword(parser, pattern = identPattern) {
@@ -123,7 +165,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
  }
  function acceptCommentGroup(parser) {
      const loc = parser.loc;
-@@ -163,7 +206,16 @@
+@@ -163,7 +238,16 @@
          }
          const singlelineComment = (0, misc_1.acceptSpecialToken)(parser, "singleline-comment", singlelineCommentPattern);
          if (singlelineComment) {
@@ -141,7 +183,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
              break;
          }
          break;
-@@ -194,7 +246,10 @@
+@@ -194,7 +278,10 @@
              continue;
          const newline = parser.accept(newlinePattern);
          if (newline) {
@@ -153,7 +195,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
              continue;
          }
          break;
-@@ -315,8 +370,9 @@
+@@ -315,8 +402,9 @@
          return signedIntLit;
      throw new recursive_descent_parser_1.SyntaxError(parser, ["-", intLitPattern]);
  }
@@ -165,7 +207,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!floatLit)
          return;
      return { type: "float-lit", ...floatLit };
-@@ -325,7 +381,7 @@
+@@ -325,7 +413,7 @@
      var _a;
      const loc = parser.loc;
      const sign = (_a = parser.accept("-")) !== null && _a !== void 0 ? _a : parser.accept("+");
@@ -174,7 +216,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!floatLit) {
          parser.loc = loc;
          return;
-@@ -501,7 +557,7 @@
+@@ -501,7 +589,7 @@
      if (!keyword)
          return;
      skipWsAndComments(parser);
@@ -183,7 +225,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      skipWsAndComments(parser);
      const strLit = expectStrLit(parser);
      skipWsAndComments(parser);
-@@ -552,7 +608,7 @@
+@@ -552,7 +640,7 @@
      };
  }
  function acceptOption(parser, leadingComments, leadingDetachedComments) {
@@ -192,7 +234,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -713,7 +769,7 @@
+@@ -713,7 +801,7 @@
  }
  function acceptField(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;
@@ -201,7 +243,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      skipWsAndComments(parser);
      const fieldType = acceptType(parser);
      if (!fieldType) {
-@@ -855,10 +911,17 @@
+@@ -855,10 +943,17 @@
      const keyword = acceptKeyword(parser, "oneof");
      if (!keyword)
          return;
@@ -221,7 +263,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      const trailingComments = acceptTrailingComments(parser);
      return {
          ...(0, misc_1.mergeSpans)([
-@@ -1031,13 +1094,13 @@
+@@ -1031,13 +1126,13 @@
  }
  function acceptGroup(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;

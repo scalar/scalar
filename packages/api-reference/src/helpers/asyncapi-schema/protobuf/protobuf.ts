@@ -121,10 +121,18 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
       } else {
         child.presence = isMessage(target) ? 'explicit' : 'implicit'
       }
-      if (field.options?.default !== undefined) {
-        details.push(
-          `Default: ${typeof field.options.default === 'number' && !Number.isFinite(field.options.default) ? String(field.options.default) : JSON.stringify(field.options.default)}`,
-        )
+      const defaultValue = field.options?.default
+      if (defaultValue !== undefined) {
+        const literal =
+          typeof defaultValue === 'number' && !Number.isFinite(defaultValue)
+            ? String(defaultValue)
+            : JSON.stringify(defaultValue)
+        // A bytes default is a sequence of octets. Escape non-ASCII octets to display the exact bytes.
+        const display =
+          field.type.value === 'bytes'
+            ? literal.replace(/[^\x20-\x7e]/g, (byte) => `\\x${byte.charCodeAt(0).toString(16).padStart(2, '0')}`)
+            : literal
+        details.push(`Default: ${display}`)
       }
       for (const key of ['packed', 'deprecated', 'json_name']) {
         if (field.options?.[key] !== undefined) {

@@ -66,42 +66,39 @@ const escapeCharacters: Record<string, string> = {
 }
 
 const stringParts = /\\(u[\da-fA-F]{4}|U[\da-fA-F]{8}|[xX][\da-fA-F]{1,2}|[0-7]{1,3}|.)|[^\\]+/g
+const utf8Encoder = new TextEncoder()
 const utf8Decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true })
 
 const stringLiteral = ({ tokens }: StrLit, asBytes = false): string => {
-  // A UTF-8 sequence can span multiple adjacent string tokens.
-  const byteEscapes: number[] = []
-  const takeByteEscapes = (): string => {
-    if (!byteEscapes.length) {
-      return ''
+  // Literal text and byte escapes can form a single sequence across adjacent tokens.
+  const bytes: number[] = []
+  let text = ''
+  const flushText = (): void => {
+    if (text) {
+      for (const byte of utf8Encoder.encode(text)) {
+        bytes.push(byte)
+      }
+      text = ''
     }
-    const text = utf8Decoder.decode(Uint8Array.from(byteEscapes))
-    byteEscapes.length = 0
+  }
+
+  for (const { text: token } of tokens) {
+    for (const [part, escape] of token.slice(1, -1).matchAll(stringParts)) {
+      if (escape && /^[xX0-7]/.test(escape)) {
+        flushText()
+        bytes.push(/^\d/.test(escape) ? Number.parseInt(escape, 8) % 256 : Number.parseInt(escape.slice(1), 16))
+      } else if (escape && /^[uU]/.test(escape)) {
+        text += String.fromCodePoint(Number.parseInt(escape.slice(1), 16))
+      } else {
+        text += escape ? (escapeCharacters[escape] ?? escape) : part
+      }
+    }
+  }
+  if (!asBytes && !bytes.length) {
     return text
   }
-
-  let decoded = ''
-  for (const { text } of tokens) {
-    for (const [part, escape] of text.slice(1, -1).matchAll(stringParts)) {
-      if (escape && /^[xX0-7]/.test(escape)) {
-        const byte = /^\d/.test(escape) ? Number.parseInt(escape, 8) % 256 : Number.parseInt(escape.slice(1), 16)
-        if (asBytes) {
-          decoded += String.fromCharCode(byte)
-        } else {
-          byteEscapes.push(byte)
-        }
-        continue
-      }
-
-      decoded += takeByteEscapes()
-      if (escape && /^[uU]/.test(escape)) {
-        decoded += String.fromCodePoint(Number.parseInt(escape.slice(1), 16))
-      } else {
-        decoded += escape ? (escapeCharacters[escape] ?? escape) : part
-      }
-    }
-  }
-  return decoded + takeByteEscapes()
+  flushText()
+  return asBytes ? bytes.map((byte) => String.fromCharCode(byte)).join('') : utf8Decoder.decode(Uint8Array.from(bytes))
 }
 
 const fullIdentifier = /^[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*$/
