@@ -194,6 +194,18 @@ export const getNumericExample = (schema: object, integer: boolean): number => {
     return getSteppedExample(target, lower, upper, multipleOf, integer) ?? fallback
   }
   if (!integer) {
+    // A rounded midpoint keeps narrow open intervals readable when it still fits the bounds.
+    if (
+      preferred > upper &&
+      belowExclusiveMaximum < lower &&
+      exclusiveMinimum !== undefined &&
+      exclusiveMaximum !== undefined
+    ) {
+      const midpoint = Number((exclusiveMinimum / 2 + exclusiveMaximum / 2).toPrecision(15))
+      if (midpoint >= lower && midpoint <= upper) {
+        return midpoint
+      }
+    }
     return target
   }
 

@@ -2488,6 +2488,31 @@ describe('getExampleFromSchema', () => {
     { name: 'negative exclusive upper bound', schema: { type: 'number', exclusiveMaximum: -2 }, expected: -3 },
     { name: 'negative exclusive lower bound', schema: { type: 'number', exclusiveMinimum: -2 }, expected: -1 },
     {
+      name: 'open interval between zero and one',
+      schema: { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 1 },
+      expected: 0.5,
+    },
+    {
+      name: 'negative open interval with no whole number',
+      schema: { type: 'number', exclusiveMinimum: -1, exclusiveMaximum: 0 },
+      expected: -0.5,
+    },
+    {
+      name: 'open interval with decimal bounds',
+      schema: { type: 'number', exclusiveMinimum: 0.1, exclusiveMaximum: 0.2 },
+      expected: 0.15,
+    },
+    {
+      name: 'open interval containing one representable value',
+      schema: { type: 'number', exclusiveMinimum: 0.1, exclusiveMaximum: 0.10000000000000003 },
+      expected: 0.10000000000000002,
+    },
+    {
+      name: 'stronger inclusive upper bound below the midpoint',
+      schema: { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 1, maximum: 0.25 },
+      expected: 0.25,
+    },
+    {
       name: 'stronger inclusive lower bound',
       schema: { type: 'number', minimum: 0.2, exclusiveMinimum: 0.1 },
       expected: 0.2,
