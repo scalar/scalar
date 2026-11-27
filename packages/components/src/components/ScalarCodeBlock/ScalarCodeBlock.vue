@@ -32,13 +32,17 @@ export default {}
 </script>
 <script lang="ts" setup>
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import { syntaxHighlight } from '@scalar/highlight/compat'
+import { syntaxHighlight, syntaxHighlightLines } from '@scalar/highlight/compat'
+import { ScalarIconCaretDown, ScalarIconCaretRight } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, useId } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 
 import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
 
 import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
+import { getCodeFoldRanges } from './get-code-fold-ranges'
+import { useCodeHighlighting } from './use-code-highlighting'
+import { useCodeViewport } from './use-code-viewport'
 import type { StandardLanguageKey } from './types'
 
 type BaseProps = {
@@ -46,6 +50,12 @@ type BaseProps = {
   prettyPrintedContent?: string
   lang?: StandardLanguageKey | string
   lineNumbers?: boolean
+  /** Wrap long lines at the edge of the code scroller. */
+  wrap?: boolean
+  /** Show disclosure buttons for multi-line blocks in supported languages. */
+  foldable?: boolean
+  /** Limit mounted lines in long blocks. Use inside a bounded scroll area. */
+  virtualize?: boolean
   hideCredentials?: string | string[]
   copy?: 'always' | 'hover' | false
   /** Show the language in the copy button for multiline code. */
@@ -73,6 +83,9 @@ type BaseProps = {
 const {
   lang = 'plaintext',
   lineNumbers = false,
+  wrap = false,
+  foldable = false,
+  virtualize = false,
   copy = 'hover',
   showCopyLanguage = true,
   label = 'Code sample',
@@ -104,7 +117,7 @@ const id = useId()
 
 /** Formatted the content into an indented json string */
 const prettyContent = computed(
-  () => prettyPrintedContent || prettyPrintJson(content ?? ''),
+  () => prettyPrintedContent ?? prettyPrintJson(content ?? ''),
 )
 
 const highlightedCode = computed(() => {
@@ -117,6 +130,121 @@ const highlightedCode = computed(() => {
   // Need to remove the wrapping <pre> element so we can use v-html without another wrapper
   return html.slice(5, -6)
 })
+
+const sourceLines = computed(() => prettyContent.value.split('\n'))
+// Credentials must never be exposed on plain lines while highlighting catches up.
+const isVirtual = computed(
+  () =>
+    virtualize && !hideCredentials?.length && sourceLines.value.length > 100,
+)
+const { document: virtualDocument, revision } = useCodeHighlighting({
+  enabled: () => isVirtual.value,
+  code: () => prettyContent.value,
+  lang: () => lang,
+  foldable: () => foldable,
+  sourceLines: () => sourceLines.value,
+})
+const foldRanges = computed(() =>
+  isVirtual.value
+    ? virtualDocument.value?.ranges
+    : foldable
+      ? getCodeFoldRanges(prettyContent.value, lang)
+      : undefined,
+)
+const folded = ref(new Map<number, number>())
+const scroll = ref<HTMLElement | null>(null)
+const characterWidthProbe = ref<HTMLElement | null>(null)
+
+watch([prettyContent, () => lang], () => folded.value.clear())
+
+const highlightedLines = computed(() =>
+  !isVirtual.value && foldRanges.value?.size
+    ? syntaxHighlightLines(prettyContent.value, {
+        lang,
+        maskCredentials: hideCredentials,
+      })
+    : [],
+)
+
+const expandedLines = computed(() => {
+  if (!folded.value.size) return undefined
+  const lines: number[] = []
+  for (let index = 0; index < sourceLines.value.length; index++) {
+    lines.push(index)
+    index = folded.value.get(index) ?? index
+  }
+  return lines
+})
+
+const renderedAsRows = computed(
+  () => isVirtual.value || !!foldRanges.value?.size,
+)
+
+const {
+  window: lineWindow,
+  maxColumns,
+  onScroll,
+  sourceLine,
+} = useCodeViewport({
+  enabled: () => isVirtual.value,
+  lines: () => sourceLines.value,
+  expandedLines: () => expandedLines.value,
+  wrap: () => wrap,
+  lineNumbers: () => lineNumbers,
+  scroll,
+  characterWidthProbe,
+})
+
+const visibleLines = computed(() => {
+  const { start, end } = lineWindow.value
+  const lines: {
+    html: string | undefined
+    text: string
+    index: number
+    canFold: boolean
+    collapsed: boolean
+  }[] = []
+  void revision.value
+  const highlights =
+    virtualDocument.value?.highlighter.lines ?? highlightedLines.value
+  const ranges = foldRanges.value
+
+  for (let row = start; row < end; row++) {
+    const index = sourceLine(row)
+    lines.push({
+      html: highlights[index],
+      text: sourceLines.value[index] ?? '',
+      index,
+      canFold: ranges?.has(index) ?? false,
+      collapsed: folded.value.has(index),
+    })
+  }
+  return lines
+})
+
+watch(
+  () => (isVirtual.value ? visibleLines.value : undefined),
+  (lines) => {
+    if (!lines) return
+    const active = scroll.value?.ownerDocument.activeElement
+    const row = active?.closest<HTMLElement>('[data-code-line]')
+    if (
+      scroll.value?.contains(row ?? null) &&
+      !lines.some(({ index }) => index === Number(row?.dataset.codeLine))
+    ) {
+      scroll.value.focus({ preventScroll: true })
+    }
+  },
+)
+
+const toggleFold = (index: number): void => {
+  if (folded.value.has(index)) {
+    folded.value.delete(index)
+  } else {
+    const end = foldRanges.value?.get(index)
+    if (end !== undefined) folded.value.set(index, end)
+  }
+}
 
 /** Determine if the content is a single line */
 const isOneLine = computed(() => !prettyContent.value.includes('\n'))
@@ -156,14 +284,76 @@ const { cx } = useBindCx()
       group rather than a region, so every code sample does not add a landmark.
     -->
     <div
+      ref="scroll"
       :aria-label="label"
       class="custom-scroll min-h-0 min-w-0 flex-1 overflow-x-auto rounded-[inherit] p-2 -outline-offset-2"
+      :class="{ 'scalar-code-viewport': isVirtual }"
       role="group"
-      tabindex="0">
-      <pre
+      tabindex="0"
+      @scroll.passive="isVirtual && onScroll()">
+      <!-- prettier-ignore -->
+      <div
+        v-if="renderedAsRows"
         :id="id"
-        class="scalar-code-block-pre m-0 w-fit border-0 bg-transparent p-0 text-nowrap whitespace-pre"
-        :class="{ 'pr-6': reserveCopySpace }"
+        class="scalar-code-block-pre scalar-code-block-folded"
+        :class="wrap ? 'scalar-code-block-wrap w-full' : 'w-max min-w-full'"
+        :style="{
+          '--line-digits': sourceLines.length.toString().length,
+          '--code-columns': isVirtual && !wrap ? maxColumns : undefined,
+          paddingBlockStart: isVirtual ? `${lineWindow.top}px` : undefined,
+          paddingBlockEnd: isVirtual ? `${lineWindow.bottom}px` : undefined,
+        }">
+        <span
+          v-if="isVirtual && wrap"
+          ref="characterWidthProbe"
+          aria-hidden="true"
+          class="pointer-events-none absolute invisible w-[32ch]" />
+        <code class="hljs">
+          <span
+            v-for="line in visibleLines"
+            :key="line.index"
+            class="scalar-code-fold-line grid min-h-6 items-start gap-x-1"
+            :class="lineNumbers ? 'grid-cols-[calc(var(--line-digits)*1ch)_24px_minmax(0,1fr)]' : 'grid-cols-[24px_minmax(0,1fr)]'"
+            :data-code-line="line.index">
+            <span
+              v-if="lineNumbers"
+              aria-hidden="true"
+              class="text-c-2 self-start text-right select-none">{{ line.index + 1 }}</span>
+            <span class="select-none">
+              <button
+                v-if="line.canFold"
+                :aria-expanded="!line.collapsed"
+                :aria-label="`Toggle code fold at line ${line.index + 1}`"
+                class="text-c-2 hover:text-c-1 focus-visible:outline-c-accent flex size-6 cursor-pointer items-center justify-center rounded focus-visible:outline"
+                type="button"
+                @click="toggleFold(line.index)">
+                <component
+                  :is="line.collapsed ? ScalarIconCaretRight : ScalarIconCaretDown"
+                  aria-hidden="true"
+                  class="size-3" />
+              </button>
+            </span>
+            <span class="scalar-code-fold-text">
+              <span
+                v-if="line.html !== undefined"
+                v-html="line.html" /><span v-else>{{ line.text }}</span><span
+                v-if="line.collapsed"
+                aria-hidden="true"
+                class="text-c-2 select-none"> …</span>
+            </span>
+          </span>
+        </code>
+      </div>
+      <pre
+        v-else
+        :id="id"
+        class="scalar-code-block-pre m-0 border-0 bg-transparent p-0"
+        :class="[
+          wrap
+            ? 'scalar-code-block-wrap w-full'
+            : 'w-fit text-nowrap whitespace-pre',
+          { 'pr-6': reserveCopySpace },
+        ]"
         v-html="highlightedCode" />
     </div>
     <ScalarCodeBlockCopy
@@ -201,6 +391,38 @@ const { cx } = useBindCx()
   font-family: var(--scalar-font-code);
   /* Disable ligatures so code characters remain distinct. */
   font-variant-ligatures: none;
+}
+
+.scalar-code-viewport {
+  overflow-anchor: none;
+}
+
+.scalar-code-viewport .scalar-code-block-folded:not(.scalar-code-block-wrap) {
+  min-width: max(
+    100%,
+    calc((var(--code-columns) + var(--line-digits)) * 1ch + 2.5rem)
+  );
+}
+
+.scalar-code-block-folded :where(code.hljs) * {
+  white-space: normal;
+}
+
+.scalar-code-fold-line {
+  line-height: 24px;
+}
+
+.scalar-code-block-folded .scalar-code-fold-text,
+.scalar-code-block-folded .scalar-code-fold-text * {
+  white-space: pre;
+}
+
+.scalar-code-block-wrap code.hljs,
+.scalar-code-block-wrap code.hljs *,
+.scalar-code-block-folded.scalar-code-block-wrap .scalar-code-fold-text,
+.scalar-code-block-folded.scalar-code-block-wrap .scalar-code-fold-text * {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /** Make the copy button label backdrop match the background */

@@ -42,6 +42,55 @@ beforeEach(() => {
 })
 
 describe('ScalarCodeBlock', () => {
+  it('mounts a window of source lines and copies the complete document after scrolling', async () => {
+    const content = Array.from({ length: 250 }, (_, index) => `value ${index + 1}`).join('\n')
+    const wrapper = mount(ScalarCodeBlock, {
+      props: { prettyPrintedContent: content, virtualize: true, lineNumbers: true },
+    })
+    try {
+      const region = wrapper.get<HTMLElement>('[role="group"]')
+      expect(region.text()).toContain('value 1')
+      expect(region.text()).not.toContain('value 250')
+
+      region.element.scrollTop = 249 * 24
+      await region.trigger('scroll')
+      expect(region.text()).toContain('value 250')
+      expect(region.text()).not.toContain('value 1')
+
+      await wrapper.get('button[aria-label="Copy Plain Text code"]').trigger('click')
+      expect(mockCopy).toHaveBeenLastCalledWith(content)
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
+  it('toggles a nested fold and copies the full source while collapsed', async () => {
+    const content = '{\n  "items": [\n    123\n  ]\n}'
+    const wrapper = mount(ScalarCodeBlock, {
+      attachTo: document.body,
+      props: { prettyPrintedContent: content, lang: 'json', lineNumbers: true, foldable: true },
+    })
+    try {
+      const toggle = wrapper.get<HTMLButtonElement>('button[aria-label="Toggle code fold at line 2"]')
+      toggle.element.focus()
+      expect(wrapper.get('code').text()).toContain('123')
+
+      await toggle.trigger('click')
+      expect(document.activeElement).toBe(toggle.element)
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+      expect(wrapper.get('code').text()).not.toContain('123')
+
+      await wrapper.get('button[aria-label="Copy JSON code"]').trigger('click')
+      expect(mockCopy).toHaveBeenLastCalledWith(content)
+
+      await toggle.trigger('click')
+      expect(toggle.attributes('aria-expanded')).toBe('true')
+      expect(wrapper.get('code').text()).toContain('123')
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
   it('copies an explicit original value while displaying masked content', async () => {
     const wrapper = mount(ScalarCodeBlock, { props: { content: 'token = "••••••••"', copyContent: 'token = "ab"' } })
     expect(wrapper.get('[role="group"]').text()).toBe('token = "••••••••"')

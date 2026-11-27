@@ -74,7 +74,7 @@ import { isPlaceholderPath } from '@/v2/blocks/scalar-address-bar-block/helpers/
 import { refocusBlurTarget } from '@/v2/blocks/scalar-address-bar-block/helpers/refocus-blur-target'
 import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/use-loading-animation'
 import { usePathMasking } from '@/v2/blocks/scalar-address-bar-block/hooks/use-path-masking'
-import { CodeInput } from '@/v2/components/code-input'
+import CodeInput from '@/v2/components/code-input/CodeInput.vue'
 import { ServerDropdown } from '@/v2/components/server'
 import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'

@@ -4,13 +4,12 @@ import type { CompiledGrammar, CompiledRule, CompiledState, Emit, Token } from '
 import { REMEMBERED } from './types'
 
 /**
- * Runs the state machine over `code`, calling `emit` for every range.
- *
- * Ranges are emitted in order and cover the input exactly — concatenating
- * every emitted slice reproduces the source. Nothing is allocated per token,
- * which is why the HTML renderer can build its output in a single pass.
+ * Creates a scanner that can pause between grammar matches. Each advance still
+ * matches against the complete source, so lookaheads and embedded code see the
+ * same context as a single scan. Returns the offset reached, which can pass the
+ * requested offset when a match spans it.
  */
-export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): void => {
+export const createTokenizer = (code: string, grammar: CompiledGrammar, emit: Emit): ((through?: number) => number) => {
   const len = code.length
   const stack: CompiledState[] = [grammar.root]
   // What each stack entry remembered (see `Rule.remember`), in step with `stack`.
@@ -21,107 +20,119 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
   // but a rule that neither consumes nor eventually changes state would spin.
   let spin = 0
 
-  while (pos < len) {
-    if (top.embed !== null) {
-      pos = embedded(code, pos, top, memory[memory.length - 1]!, grammar, emit)
-      // An embedding state pops itself. A rule that `set` into it from the
-      // only state on the stack leaves nothing below, so the root takes over.
-      if (stack.length > 1) {
-        stack.length -= 1
-        memory.length -= 1
-      } else {
-        stack[0] = grammar.root
-        memory[0] = ''
+  return (through = len) => {
+    const limit = Math.min(through, len)
+    while (pos < limit) {
+      if (top.embed !== null) {
+        pos = embedded(code, pos, top, memory[memory.length - 1]!, grammar, emit)
+        // An embedding state pops itself. A rule that `set` into it from the
+        // only state on the stack leaves nothing below, so the root takes over.
+        if (stack.length > 1) {
+          stack.length -= 1
+          memory.length -= 1
+        } else {
+          stack[0] = grammar.root
+          memory[0] = ''
+        }
+        top = stack[stack.length - 1]!
+        continue
       }
-      top = stack[stack.length - 1]!
-      continue
-    }
 
-    const dyn = top.dynamic === null ? null : dynamicRegExps(top, memory[memory.length - 1]!)
-    const re = dyn === null ? top.re : dyn.re
-    re.lastIndex = pos
-    const m = re.exec(code)
-    if (m === null) {
-      break
-    }
-
-    const start = m.index
-    if (start > pos) {
-      emit(top.default, pos, start)
-      pos = start
-    }
-
-    const rules = top.rules
-    let rule: CompiledRule | undefined
-    let index = 0
-    for (; index < rules.length; index++) {
-      if (m[rules[index]!.group] !== undefined) {
-        rule = rules[index]
+      const dyn = top.dynamic === null ? null : dynamicRegExps(top, memory[memory.length - 1]!)
+      const re = dyn === null ? top.re : dyn.re
+      re.lastIndex = pos
+      const m = re.exec(code)
+      if (m === null) {
+        emit(top.default, pos, len)
+        pos = len
         break
       }
-    }
-    if (rule === undefined) {
-      break // unreachable: some alternative matched
-    }
 
-    const end = start + m[0].length
-    if (end > start) {
-      if (rule.captures !== null) {
-        // Only rules that use the remembered text are rebuilt per value; the
-        // rest of a dynamic state's capture rules keep their own pattern.
-        emitCaptures(code, start, rule, dyn?.own[index] ?? rule.own!, top, emit)
-      } else {
-        emit(rule.scope ?? top.default, start, end)
+      const start = m.index
+      if (start > pos) {
+        emit(top.default, pos, start)
+        pos = start
+      }
+
+      const rules = top.rules
+      let rule: CompiledRule | undefined
+      let index = 0
+      for (; index < rules.length; index++) {
+        if (m[rules[index]!.group] !== undefined) {
+          rule = rules[index]
+          break
+        }
+      }
+      if (rule === undefined) {
+        emit(top.default, pos, len)
+        pos = len
+        break // unreachable: some alternative matched
+      }
+
+      const end = start + m[0].length
+      if (end > start) {
+        if (rule.captures !== null) {
+          // Only rules that use the remembered text are rebuilt per value; the
+          // rest of a dynamic state's capture rules keep their own pattern.
+          emitCaptures(code, start, rule, dyn?.own[index] ?? rule.own!, top, emit)
+        } else {
+          emit(rule.scope ?? top.default, start, end)
+        }
+      }
+
+      // Read before the stack changes: an entered state inherits the memory of
+      // the state that entered it unless the rule remembers something new.
+      let remembered = memory[memory.length - 1]!
+      if (rule.remember > 0) {
+        // The merged regex captures only which rule won, so the group comes from
+        // the rule's own pattern, re-run where the merged one matched.
+        const own = dyn?.own[index] ?? rule.own!
+        own.lastIndex = start
+        const text = own.exec(code)?.[rule.remember] ?? ''
+        remembered = rule.rememberIndent ? ' '.repeat(text.length) : text
+      }
+
+      if (rule.pop > 0) {
+        // Never pop the root state off.
+        const n = Math.min(rule.pop, stack.length - 1)
+        stack.length -= n
+        memory.length -= n
+        if (rule.remember === 0) {
+          remembered = memory[memory.length - 1]!
+        }
+      }
+      if (rule.set !== null) {
+        stack[stack.length - 1] = grammar.states[rule.set]!
+        memory[memory.length - 1] = remembered
+      }
+      if (rule.push !== null) {
+        stack.push(grammar.states[rule.push]!)
+        memory.push(remembered)
+      }
+      top = stack[stack.length - 1]!
+
+      if (end > pos) {
+        pos = end
+        spin = 0
+      } else if (++spin > 32) {
+        // Give up on the cycle and consume a whole code point so we always
+        // terminate — stepping by one UTF-16 unit could bisect a surrogate pair.
+        const step = code.codePointAt(pos)! > 0xffff ? 2 : 1
+        emit(top.default, pos, pos + step)
+        pos += step
+        spin = 0
       }
     }
 
-    // Read before the stack changes: an entered state inherits the memory of
-    // the state that entered it unless the rule remembers something new.
-    let remembered = memory[memory.length - 1]!
-    if (rule.remember > 0) {
-      // The merged regex captures only which rule won, so the group comes from
-      // the rule's own pattern, re-run where the merged one matched.
-      const own = dyn?.own[index] ?? rule.own!
-      own.lastIndex = start
-      const text = own.exec(code)?.[rule.remember] ?? ''
-      remembered = rule.rememberIndent ? ' '.repeat(text.length) : text
-    }
-
-    if (rule.pop > 0) {
-      // Never pop the root state off.
-      const n = Math.min(rule.pop, stack.length - 1)
-      stack.length -= n
-      memory.length -= n
-      if (rule.remember === 0) {
-        remembered = memory[memory.length - 1]!
-      }
-    }
-    if (rule.set !== null) {
-      stack[stack.length - 1] = grammar.states[rule.set]!
-      memory[memory.length - 1] = remembered
-    }
-    if (rule.push !== null) {
-      stack.push(grammar.states[rule.push]!)
-      memory.push(remembered)
-    }
-    top = stack[stack.length - 1]!
-
-    if (end > pos) {
-      pos = end
-      spin = 0
-    } else if (++spin > 32) {
-      // Give up on the cycle and consume a whole code point so we always
-      // terminate — stepping by one UTF-16 unit could bisect a surrogate pair.
-      const step = code.codePointAt(pos)! > 0xffff ? 2 : 1
-      emit(top.default, pos, pos + step)
-      pos += step
-      spin = 0
-    }
+    return pos
   }
+}
 
-  if (pos < len) {
-    emit(top.default, pos, len)
-  }
+/**
+ * Runs the state machine over `code`, emitting ordered ranges that cover the input exactly.
+ */
+export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): void => {
+  createTokenizer(code, grammar, emit)()
 }
 
 /**

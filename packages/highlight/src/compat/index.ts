@@ -31,4 +31,4 @@ export {
   unsupportedLanguages,
 } from './languages'
 export type { SyntaxHighlightOptions } from './syntax-highlight'
-export { syntaxHighlight } from './syntax-highlight'
+export { createLineHighlighter, syntaxHighlight, syntaxHighlightLines } from './syntax-highlight'

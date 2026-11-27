@@ -35,6 +35,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./editor": {
+      "import": "./dist/hooks/useCodeMirror.js",
+      "types": "./dist/hooks/useCodeMirror.d.ts",
+      "default": "./dist/hooks/useCodeMirror.js"
+    },
     "./themes": {
       "import": "./dist/themes/index.js",
       "types": "./dist/themes/index.d.ts",

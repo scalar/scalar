@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
 
 import type { ResponseBodyState } from '@/v2/blocks/operation-block/helpers/send-request'
@@ -136,7 +135,7 @@ const rawLanguage = computed(
         v-else-if="hasRaw && showRaw && !pluginHandler?.rawComponent"
         :key="`raw-${responseBody.dataUrl}`"
         :content="data"
-        :language="rawLanguage as CodeMirrorLanguage" />
+        :language="rawLanguage" />
 
       <ResponseBodyInfo v-if="!hasRaw && !hasPreview">
         {{ translate('apiClient.responseBody.binaryFile') }}

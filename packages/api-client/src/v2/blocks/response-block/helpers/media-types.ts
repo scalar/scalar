@@ -1,12 +1,10 @@
-import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
-
 export type MediaPreview = 'object' | 'image' | 'video' | 'audio' | 'json' | 'ndjson'
 
 type MediaConfig = {
   preview?: MediaPreview
   alpha?: boolean
   raw?: boolean
-  language?: CodeMirrorLanguage
+  language?: string
   extension: string
 }
 

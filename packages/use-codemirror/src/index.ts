@@ -17,6 +17,6 @@ export { colorPicker } from './extensions/color-picker/color-picker'
 export {
   type UseCodeMirrorParameters,
   useCodeMirror,
-} from './hooks/useCodeMirror'
+} from './hooks/useCodeMirrorWithAllLanguages'
 export { useDropdown } from './hooks/useDropdown'
 export type { CodeMirrorLanguage } from './types'

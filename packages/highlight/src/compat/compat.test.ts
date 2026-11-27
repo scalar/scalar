@@ -38,7 +38,7 @@ import {
 import { samples } from '../../test/samples'
 import { STYLED_CLASSES } from '../../test/styled'
 import { hljsClass } from './hljs'
-import { syntaxHighlight } from './index'
+import { createLineHighlighter, syntaxHighlight, syntaxHighlightLines } from './index'
 import { standardLanguages, unsupportedLanguages } from './languages'
 
 // --- helpers ---------------------------------------------------------------
@@ -57,6 +57,26 @@ const lineTexts = (html: string): string[] => {
 const classesOf = (html: string): Set<string> => {
   return new Set([...html.matchAll(/<span class="(hljs-[^"]*)">/g)].map((m) => m[1]!))
 }
+
+describe('createLineHighlighter', () => {
+  it.each([
+    ['html', '<style>\n/* comment\ncontinues */\na { color: red }\n</style>\n<p>&amp;</p>\n'],
+    ['javascript', 'const a = `key=secret\nmultiline ${name}`;\nconst b = 42\n'],
+    ['unknown', 'a < b\nkey=secret\n\n'],
+    ['unknown', ''],
+  ])('matches a single %s scan when advancing one character at a time', (lang, code) => {
+    const options = { lang, maskCredentials: 'key=secret' }
+    const highlighter = createLineHighlighter(code, options)
+    const second = createLineHighlighter(code, options)
+    for (let offset = 1; offset <= code.length; offset++) {
+      highlighter.advance(offset)
+      second.advance(offset)
+    }
+    expect(highlighter.advance(code.length)).toBe(code.length)
+    expect(highlighter.lines).toEqual(syntaxHighlightLines(code, options))
+    expect(second.lines).toEqual(highlighter.lines)
+  })
+})
 
 // --- the tests @scalar/code-highlight ships today --------------------------
 

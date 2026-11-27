@@ -19,7 +19,7 @@ type ResponseBodyHandlerBase = {
  *
  * The raw view is configured with either:
  * - `rawComponent`: A custom Vue component (receives `content` and `contentType` props).
- * - `language`: A CodeMirror language hint for the built-in raw renderer.
+ * - `language`: A syntax highlighting language hint for the built-in raw renderer.
  *
  * These two options are mutually exclusive — providing `rawComponent` means the
  * built-in renderer is not used, so `language` would have no effect.

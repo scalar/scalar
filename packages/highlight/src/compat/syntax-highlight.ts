@@ -1,6 +1,6 @@
 import { escapeAttribute, escapeHtml } from '../core/render'
-import { tokenize } from '../core/tokenize'
-import type { CompiledGrammar } from '../core/types'
+import { createTokenizer, tokenize } from '../core/tokenize'
+import type { CompiledGrammar, Emit } from '../core/types'
 import { hljsClass } from './hljs'
 import { canonicalName, grammarFor } from './languages'
 
@@ -95,12 +95,7 @@ const MASK_CLOSE = '</span></span>'
  * length, so it always lands inside a single span, the way a credential inside
  * a string literal did with lowlight.
  */
-const render = (
-  code: string,
-  grammar: CompiledGrammar | undefined,
-  lineMode: boolean,
-  masked: Masked[],
-): { html: string; count: number } => {
+const createLineRenderer = (code: string, lineMode: boolean, masked: Masked[]) => {
   const lines: string[] = []
   let line = ''
 
@@ -116,6 +111,7 @@ const render = (
   // Flushes move forward through the source, and the masked ranges are
   // sorted and disjoint, so a cursor keeps each flush from rescanning them all.
   let textIndex = 0
+  let newline = lineMode ? code.indexOf('\n') : -1
 
   /** Escaped text of `[from, to)`, with masked ranges wrapped. */
   const text = (from: number, to: number): string => {
@@ -156,8 +152,7 @@ const render = (
     let at = s
 
     while (at < e) {
-      const nl = lineMode ? code.indexOf('\n', at) : -1
-      const stop = nl === -1 || nl >= e ? e : nl
+      const stop = newline === -1 || newline >= e ? e : newline
 
       if (stop > at) {
         if (next !== cls || at !== end) {
@@ -176,6 +171,7 @@ const render = (
       // itself is written by the wrapper, not carried as token text.
       endLine()
       at = stop + 1
+      newline = code.indexOf('\n', at)
       cls = null
       start = at
       end = at
@@ -209,6 +205,16 @@ const render = (
     }
   }
 
+  return { lines, emit, endLine }
+}
+
+const renderLines = (
+  code: string,
+  grammar: CompiledGrammar | undefined,
+  lineMode: boolean,
+  masked: Masked[],
+): string[] => {
+  const { lines, emit, endLine } = createLineRenderer(code, lineMode, masked)
   if (grammar) {
     tokenize(code, grammar, emit)
   } else {
@@ -218,15 +224,47 @@ const render = (
   }
   endLine()
 
-  if (!lineMode) {
-    return { html: lines.join(''), count: lines.length }
+  return lines
+}
+
+/** Highlight each line in context, with HTML-escaped text and no line wrappers. */
+export const syntaxHighlightLines = (code: string, options: SyntaxHighlightOptions): string[] =>
+  renderLines(code, grammarFor(canonicalName(options.lang)), true, findCredentials(code, options.maskCredentials))
+
+/**
+ * Highlights successive slices of one document, keeping grammar state between
+ * calls. Completed lines are appended to `lines` as the scanner advances.
+ */
+export const createLineHighlighter = (
+  code: string,
+  options: SyntaxHighlightOptions,
+  onToken?: Emit,
+): { lines: string[]; advance: (through: number) => number } => {
+  const grammar = grammarFor(canonicalName(options.lang))
+  const { lines, emit, endLine } = createLineRenderer(code, true, findCredentials(code, options.maskCredentials))
+  const scan =
+    grammar &&
+    createTokenizer(code, grammar, (scope, start, end) => {
+      onToken?.(scope, start, end)
+      emit(scope, start, end)
+    })
+
+  let offset = 0
+  const advance = (through: number): number => {
+    if (offset >= code.length) return offset
+    if (scan) {
+      offset = scan(through)
+    } else {
+      const limit = Math.min(through, code.length)
+      emit(null, offset, limit)
+      offset = limit
+    }
+    if (offset === code.length) endLine()
+    return offset
   }
 
-  let html = ''
-  for (const content of lines) {
-    html += `<span class="line">${content}\n</span>`
-  }
-  return { html, count: lines.length }
+  if (!code.length) endLine()
+  return { lines, advance }
 }
 
 /**
@@ -254,7 +292,9 @@ export const syntaxHighlight = (codeString: string, options: SyntaxHighlightOpti
 
   const lineMode = options.lineNumbers === true
   const masked = findCredentials(codeString, options.maskCredentials)
-  const { html, count } = render(codeString, grammar, lineMode, masked)
+  const lines = renderLines(codeString, grammar, lineMode, masked)
+  const count = lines.length
+  const html = lineMode ? lines.map((line) => `<span class="line">${line}\n</span>`).join('') : lines.join('')
   const style = lineMode ? ` style="--line-count: ${count}; --line-digits: ${count.toString().length};"` : ''
 
   return `<pre><code class="hljs language-${escapeAttribute(name)}"${style}>${html}</code></pre>`

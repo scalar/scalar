@@ -16,4 +16,11 @@ describe('prettifyJsoncString', () => {
     const s = 'not json'
     expect(prettifyJsoncString(s)).toBe(s)
   })
+
+  it('keeps JSONC comments and orders multiple edits against the original text', () => {
+    const source = '{  "items":[9007199254740993,  2], // comment\r\n"enabled":true }'
+    expect(prettifyJsoncString(source)).toBe(
+      '{\r\n  "items": [\r\n    9007199254740993,\r\n    2\r\n  ], // comment\r\n  "enabled": true\r\n}',
+    )
+  })
 })
