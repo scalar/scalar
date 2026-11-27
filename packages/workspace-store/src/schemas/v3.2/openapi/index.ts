@@ -1145,6 +1145,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
       ),
       servers: optional(array(servers, { typeName: 'PathItemServers' })),
       parameters: optional(array(maybeRef(lazy((): Schema => parameter)), { typeName: 'PathItemParameters' })),
+      ...XScalarSelectedServer.properties,
     },
     { typeName: 'PathItemObject' },
   )

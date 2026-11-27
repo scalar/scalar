@@ -1,9 +1,9 @@
-import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { resolveServerUrl, withServerUrlBase } from '@/request-example/builder/helpers/resolve-server-url'
 import type { WorkspaceDocument } from '@/schemas'
+import type { XScalarSelectedServer } from '@/schemas/extensions/server/x-scalar-selected-server'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 
 /**
  * Server processing options containing base URLs for resolving relative server URLs.
@@ -14,37 +14,52 @@ type ServerProcessingOptions = {
 }
 
 /**
- * Retrieves and processes servers from an OpenAPI document.
- *
- * This function handles several scenarios:
- * 1. No servers provided - creates a default server from document URL or fallback
- * 2. Invalid server configurations - filters them out with warnings
- * 3. Relative URLs - resolves them to absolute URLs using available base URLs
- *
- * @param servers - Array of OpenAPI server objects from the document
- * @param options - Configuration options for server processing
- * @returns Array of validated Server entities
+ * Retrieves server choices and associates relative URLs with their configured or document base.
+ * Root-relative inputs are resolved in place so selections and edits share the same URL key.
  */
-export function getServers(servers: ServerObject[] | undefined, options: ServerProcessingOptions = {}): ServerObject[] {
-  // Handle invalid server array
+export const getServers = (
+  servers: ServerObject[] | undefined,
+  { baseServerUrl, documentUrl }: ServerProcessingOptions = {},
+): ServerObject[] => {
   if (!Array.isArray(servers)) {
     return []
   }
 
-  // Process each server and filter out invalid ones
-  const validServers = servers.map((server) => processServerObject(server, options))
-  return validServers
+  const documentBase = getDocumentBase(documentUrl)
+  const baseUrl = baseServerUrl || documentBase?.href || getFallbackUrl()
+  if (!baseUrl) {
+    return servers
+  }
+
+  const fallbackSource = documentBase ? 'document' : 'browser'
+  const source = baseServerUrl ? 'configuration' : fallbackSource
+  const base = { url: baseUrl, source } as const
+  return servers.map((server) => {
+    const preparedServer = withServerUrlBase(server, base)
+    if (server.url?.startsWith('/') && !server.url.startsWith('//') && !server.url.includes('{')) {
+      // Existing selections and server mutations use the same resolved URL as their key.
+      server.url = resolveServerUrl(preparedServer)
+      return server
+    }
+
+    return preparedServer
+  })
 }
 
-/**
- * Extracts the base URL (protocol + hostname) from a document URL.
- * Returns undefined if the URL is invalid.
- */
-function extractBaseUrlFromDocumentUrl(documentUrl: string): string | undefined {
+/** Keeps credentials used to fetch an API description out of the server URLs derived from it. */
+const getDocumentBase = (documentUrl: string | undefined): URL | undefined => {
+  if (!documentUrl) {
+    return undefined
+  }
+
   try {
-    const url = new URL(documentUrl)
-    const port = url.port ? `:${url.port}` : ''
-    return `${url.protocol}//${url.hostname}${port}`
+    const base = new URL(documentUrl)
+    if (base.protocol !== 'http:' && base.protocol !== 'https:') {
+      return undefined
+    }
+    base.username = ''
+    base.password = ''
+    return base
   } catch {
     return undefined
   }
@@ -57,60 +72,20 @@ function getFallbackUrl(): string | undefined {
   if (typeof window === 'undefined' || typeof window?.location?.origin !== 'string') {
     return undefined
   }
-  return window.location.origin
-}
-
-/**
- * Resolves a relative server URL to an absolute URL using available base URLs.
- * Uses a priority system: baseServerURL > documentUrl > fallbackUrl.
- */
-function resolveRelativeServerUrl(serverUrl: string, options: ServerProcessingOptions): string {
-  const { baseServerUrl: baseServerURL, documentUrl } = options
-
-  // Priority 1: Use provided base server URL
-  if (baseServerURL) {
-    return combineUrlAndPath(baseServerURL, serverUrl)
-  }
-
-  // Priority 2: Extract base URL from document URL
-  if (documentUrl) {
-    const baseUrl = extractBaseUrlFromDocumentUrl(documentUrl)
-    if (baseUrl) {
-      return combineUrlAndPath(baseUrl, serverUrl)
-    }
-  }
-
-  // Priority 3: Use fallback URL (window.location.origin)
-  const fallbackUrl = getFallbackUrl()
-  if (fallbackUrl) {
-    return combineUrlAndPath(fallbackUrl, serverUrl)
-  }
-
-  // If no base URL is available, return the original URL
-  return serverUrl
-}
-
-/**
- * Processes a single server object, handling validation and URL resolution.
- */
-function processServerObject(server: ServerObject, options: ServerProcessingOptions): ServerObject {
-  // Resolve relative URLs to absolute URLs
-  if (server.url?.startsWith('/')) {
-    server.url = resolveRelativeServerUrl(server.url, options)
-  }
-
-  return server
+  return window.location.origin === 'null' ? undefined : window.location.origin
 }
 
 export const getSelectedServer = (
   document: WorkspaceDocument | null,
-  operation: OperationObject | null,
+  localScope: XScalarSelectedServer | null,
   configServers: ServerObject[] | null,
   servers: ServerObject[],
 ): ServerObject | null => {
   const documentSelectedServer = isOpenApiDocument(document) ? document['x-scalar-selected-server'] : undefined
   const selectedServerUrl =
-    configServers != null ? documentSelectedServer : (operation?.['x-scalar-selected-server'] ?? documentSelectedServer)
+    configServers != null
+      ? documentSelectedServer
+      : (localScope?.['x-scalar-selected-server'] ?? documentSelectedServer)
 
   if (selectedServerUrl == null) {
     return servers[0] ?? null

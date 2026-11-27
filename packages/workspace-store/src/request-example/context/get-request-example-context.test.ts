@@ -1,6 +1,8 @@
 import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
+import { updateSelectedServer, updateServerVariables } from '@/mutators/server'
+import { resolveServerUrl } from '@/request-example/builder/helpers/resolve-server-url'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getRequestExampleContext } from './get-request-example-context'
@@ -58,6 +60,46 @@ describe('getRequestExampleContext', () => {
     )
     assert(withoutOverride.ok)
     expect(withoutOverride.data.servers.meta).toStrictEqual({ type: 'operation', path: '/pets', method: 'get' })
+  })
+
+  it('uses and edits path-item servers when the operation inherits them', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'test',
+      document: createMinimalDocument({
+        servers: [{ url: 'https://document.example.com' }],
+        paths: { '/pets': { $ref: '#/components/pathItems/Pets' } },
+        components: {
+          pathItems: {
+            Pets: {
+              servers: [{ url: 'v1' }, { url: '{version}', variables: { version: { default: 'v2' } } }],
+              get: { responses: {} },
+              post: { responses: {}, servers: [{ url: 'https://operation.example.com' }] },
+            },
+          },
+        },
+      }),
+    })
+    const document = workspaceStore.workspace.documents.test ?? null
+    updateSelectedServer(document, { url: 'https://document.example.com', meta: { type: 'document' } })
+    const requestContext = (method: string, options = { baseServerUrl: 'https://configured.example.com/api' }) =>
+      getRequestExampleContext(workspaceStore, 'test', { path: '/pets', method, exampleName: 'default' }, options)
+
+    const inherited = requestContext('get')
+    assert(inherited.ok)
+    const { meta } = inherited.data.servers
+    expect(meta).toStrictEqual({ type: 'path', path: '/pets' })
+    expect(resolveServerUrl(inherited.data.servers.selected)).toBe('https://configured.example.com/api/v1')
+
+    updateSelectedServer(document, { url: '{version}', meta })
+    updateServerVariables(document, { index: 1, key: 'version', value: 'v3', meta })
+    const updated = requestContext('get')
+    assert(updated.ok)
+    expect(resolveServerUrl(updated.data.servers.selected)).toBe('https://configured.example.com/api/v3')
+
+    const overridden = requestContext('post')
+    assert(overridden.ok)
+    expect(overridden.data.servers.selected).toStrictEqual({ url: 'https://operation.example.com' })
   })
 
   it('merges options.authentication securitySchemes into security.schemes', async () => {

@@ -8,7 +8,7 @@ import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
-import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
+import { type SecuritySchemeObjectSecret, getServers } from '@scalar/workspace-store/request-example'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type App, createApp, h, reactive } from 'vue'
@@ -134,7 +134,10 @@ export const createCodeExample = (
       return undefined
     }
     const server = getFirstServer(operation.servers ?? null, pathItem?.servers ?? null, activeDocument.servers ?? null)
-    return { operation, server }
+    const [preparedServer] = getServers(server ? [{ ...server }] : [], {
+      documentUrl: activeDocument['x-scalar-original-source-url'],
+    })
+    return { operation, server: preparedServer ?? null }
   }
 
   // Fail loudly if the path and method do not point at an operation in the store,
