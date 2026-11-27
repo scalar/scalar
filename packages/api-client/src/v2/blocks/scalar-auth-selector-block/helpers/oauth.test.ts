@@ -179,45 +179,57 @@ describe('oauth', () => {
     expect(error?.message).toBe('Captured')
   })
 
-  it('opens a trusted local OAuth origin and exchanges the code without the hosted proxy', async () => {
-    const origin = 'http://auth.dev.internal:8080'
-    const flows = {
-      authorizationCode: {
-        ...baseFlow,
-        authorizationUrl: '/authorize',
-        tokenUrl: '/token',
-        'x-usePkce': 'no',
-        'x-scalar-secret-token': '',
-        'x-scalar-secret-client-secret': '',
-        'x-scalar-secret-redirect-uri': redirectUri,
-      },
-    } satisfies OAuthFlowsObjectSecret
-    const capture: CaptureOAuth2Callback = ({ authorizationUrl: url }) => {
-      const authorize = new URL(url)
-      expect(authorize.origin + authorize.pathname).toBe(`${origin}/authorize`)
-      return Promise.resolve([
-        null,
-        { callbackUrl: `${redirectUri}?code=local-code&state=${authorize.searchParams.get('state')}`, redirectUri },
-      ])
-    }
-    const customFetch = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ access_token: 'local-token' }))
+  it.each([
+    {
+      proxy: 'https://proxy.scalar.com',
+      expected: 'http://auth.dev.internal:8080/token',
+    },
+    {
+      proxy: 'http://localhost:5051/proxy?mode=local',
+      expected: 'http://localhost:5051/proxy?mode=local&scalar_url=http%3A%2F%2Fauth.dev.internal%3A8080%2Ftoken',
+    },
+  ])(
+    'opens a trusted local OAuth origin and resolves the correct token URL through $proxy',
+    async ({ proxy, expected }) => {
+      const origin = 'http://auth.dev.internal:8080'
+      const flows = {
+        authorizationCode: {
+          ...baseFlow,
+          authorizationUrl: '/authorize',
+          tokenUrl: '/token',
+          'x-usePkce': 'no',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-client-secret': '',
+          'x-scalar-secret-redirect-uri': redirectUri,
+        },
+      } satisfies OAuthFlowsObjectSecret
+      const capture: CaptureOAuth2Callback = ({ authorizationUrl: url }) => {
+        const authorize = new URL(url)
+        expect(authorize.origin + authorize.pathname).toBe(`${origin}/authorize`)
+        return Promise.resolve([
+          null,
+          { callbackUrl: `${redirectUri}?code=local-code&state=${authorize.searchParams.get('state')}`, redirectUri },
+        ])
+      }
+      const customFetch = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ access_token: 'local-token' }))
 
-    expect(
-      await authorizeOauth2(
-        flows,
-        'authorizationCode',
-        [],
-        { url: origin },
-        'https://proxy.scalar.com',
-        {},
-        customFetch,
-        capture,
-        undefined,
-        [origin],
-      ),
-    ).toStrictEqual([null, { accessToken: 'local-token' }])
-    expect(customFetch.mock.calls.map(([url]) => url)).toStrictEqual([`${origin}/token`])
-  })
+      expect(
+        await authorizeOauth2(
+          flows,
+          'authorizationCode',
+          [],
+          { url: origin },
+          proxy,
+          {},
+          customFetch,
+          capture,
+          undefined,
+          [origin],
+        ),
+      ).toStrictEqual([null, { accessToken: 'local-token' }])
+      expect(customFetch.mock.calls.map(([url]) => url)).toStrictEqual([expected])
+    },
+  )
 
   it('rejects a relative authorization URL resolved against a file server', async () => {
     const captureCallback = vi.fn<CaptureOAuth2Callback>().mockResolvedValue([new Error('Unexpected capture'), null])
@@ -1197,7 +1209,7 @@ describe('oauth', () => {
 
       // Test the server call
       expect(global.fetch).toHaveBeenCalledWith(
-        'https://proxy.example.com?scalar_url=https%3A%2F%2Fauth.example.com%2Ftoken',
+        'https://proxy.example.com/?scalar_url=https%3A%2F%2Fauth.example.com%2Ftoken',
         {
           method: 'POST',
           body: new URLSearchParams({
@@ -2353,7 +2365,7 @@ describe('oauth', () => {
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, expect.any(Object))
     })
 
-    it('uses the proxy when provided', async () => {
+    it('preserves existing query parameters in the refresh proxy URL', async () => {
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () =>
           Promise.resolve({
@@ -2361,10 +2373,10 @@ describe('oauth', () => {
           }),
       })
 
-      await refreshOauth2Token(refreshScheme, 'authorizationCode', 'https://proxy.example.com', mockServer)
+      await refreshOauth2Token(refreshScheme, 'authorizationCode', 'https://proxy.example.com?mode=refresh', mockServer)
 
       expect(global.fetch).toHaveBeenCalledWith(
-        `https://proxy.example.com?scalar_url=${encodeURIComponent(refreshScheme.authorizationCode.refreshUrl)}`,
+        `https://proxy.example.com/?mode=refresh&scalar_url=${encodeURIComponent(refreshScheme.authorizationCode.refreshUrl)}`,
         expect.any(Object),
       )
     })

@@ -35,12 +35,31 @@ describe('redirectToProxy', () => {
     ['/proxy', true],
     ['http://localhost:5051/proxy', true],
     ['https://proxy.dev.internal/proxy', true],
+    ['//proxy.dev.internal/proxy', true],
+    ['//127.0.0.1:5051/proxy', true],
   ])('uses %s for a trusted local origin only when the proxy is local', (proxy, expected) => {
     const url = 'http://auth.dev.internal:8080/token'
-    const trustedLocalOrigins = ['http://auth.dev.internal:8080', 'https://proxy.dev.internal']
+    const trustedLocalOrigins = [
+      'http://auth.dev.internal:8080',
+      'http://proxy.dev.internal',
+      'https://proxy.dev.internal',
+    ]
     expect(shouldUseProxy(proxy, url, trustedLocalOrigins)).toBe(expected)
     if (!expected) {
       expect(redirectToProxy(proxy, url, trustedLocalOrigins)).toBe(url)
+    }
+  })
+
+  it('uses the document base to classify relative proxy URLs', () => {
+    const base = document.createElement('base')
+    base.href = 'https://proxy.example.com/docs/'
+    document.head.append(base)
+
+    try {
+      const url = 'http://auth.dev.internal:8080/token'
+      expect(redirectToProxy('/proxy', url, ['http://auth.dev.internal:8080'])).toBe(url)
+    } finally {
+      base.remove()
     }
   })
 

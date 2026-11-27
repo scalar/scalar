@@ -3,7 +3,7 @@ import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { isAllowedOAuthUrl } from '@scalar/helpers/url/is-allowed-oauth-url'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
-import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
+import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
 import { resolveServerUrl } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -514,9 +514,7 @@ const authorizeServers = async (
       return [new Error('Token URL is required'), null]
     }
     const tokenUrl = makeUrlAbsolute(tokenUrlValue, getActiveServerBase(activeServer, environmentVariables))
-    const url = shouldUseProxy(proxyUrl, tokenUrl, trustedLocalOrigins)
-      ? `${proxyUrl}?${new URLSearchParams([['scalar_url', tokenUrl]]).toString()}`
-      : tokenUrl
+    const url = redirectToProxy(proxyUrl, tokenUrl, trustedLocalOrigins)
 
     // Make the call
     const resp = await customFetch(url, {
@@ -622,9 +620,7 @@ export const refreshOauth2Token = async (
       return [new Error('Token URL is required'), null]
     }
     const absoluteRefreshUrl = makeUrlAbsolute(refreshUrl, getActiveServerBase(activeServer, environmentVariables))
-    const url = shouldUseProxy(proxyUrl, absoluteRefreshUrl, trustedLocalOrigins)
-      ? `${proxyUrl}?${new URLSearchParams([['scalar_url', absoluteRefreshUrl]]).toString()}`
-      : absoluteRefreshUrl
+    const url = redirectToProxy(proxyUrl, absoluteRefreshUrl, trustedLocalOrigins)
 
     const resp = await customFetch(url, {
       method: 'POST',

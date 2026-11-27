@@ -41,6 +41,9 @@ export const redirectToProxy = (proxyUrl?: string, url?: string, trustedLocalOri
   }
 }
 
+const isLocalProxy = (proxy: URL, pageOrigin: string | undefined, trustedLocalOrigins?: readonly string[]): boolean =>
+  proxy.origin === pageOrigin || isLocalUrl(proxy.href) || isTrustedLocalOrigin(proxy, trustedLocalOrigins)
+
 /**
  * Returns false for requests to localhost, relative URLs, if no proxy is defined …
  **/
@@ -60,15 +63,16 @@ export const shouldUseProxy = (
       return false
     }
 
+    const pageOrigin = typeof location !== 'undefined' && location.origin !== 'null' ? location.origin : undefined
+
     // Relative proxies can reach the local network. A network-path reference such
     // as //proxy.example.com can also be relative but still point to a remote origin.
     if (isRelativePath(proxyUrl)) {
       if (!trustedLocalOrigins?.length || !isTrustedLocalOrigin(new URL(url), trustedLocalOrigins)) {
         return true
       }
-      const pageOrigin =
-        typeof location !== 'undefined' && location.origin !== 'null' ? location.origin : 'https://localhost'
-      return new URL(proxyUrl, pageOrigin).origin === pageOrigin
+      const base = typeof document !== 'undefined' ? document.baseURI : (pageOrigin ?? 'https://localhost')
+      return isLocalProxy(new URL(proxyUrl, base), pageOrigin, trustedLocalOrigins)
     }
 
     // The proxy already permits cross-origin requests, so its own origin needs no extra hop.
@@ -78,17 +82,14 @@ export const shouldUseProxy = (
       return false
     }
 
+    if (isTrustedLocalOrigin(target, trustedLocalOrigins)) {
+      // An explicitly local proxy or one on the page's origin can reach the private network.
+      return isLocalProxy(proxy, pageOrigin, trustedLocalOrigins)
+    }
+
     // ✅ Proxy URL is local
     if (isLocalUrl(proxyUrl)) {
       return true
-    }
-
-    if (isTrustedLocalOrigin(target, trustedLocalOrigins)) {
-      // An explicitly local proxy or one on the page's origin can reach the private network.
-      return (
-        isTrustedLocalOrigin(proxy, trustedLocalOrigins) ||
-        (typeof location !== 'undefined' && proxy.origin === location.origin)
-      )
     }
 
     // ❌ Requests to localhost

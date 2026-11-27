@@ -62,10 +62,13 @@ test.describe('trustedLocalOrigins', () => {
     await page.goto(example)
     await page.getByRole('button', { name: 'Test Request (get /data)', exact: true }).click()
 
-    const [request] = await Promise.all([
-      page.waitForRequest((candidate) => candidate.url() === `${origin}/data` && candidate.method() === 'GET'),
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (candidate) => candidate.url() === `${origin}/data` && candidate.request().method() === 'GET',
+      ),
       page.getByRole('dialog').getByRole('button', { name: 'Send Request' }).click(),
     ])
-    expect(request.url()).toBe(`${origin}/data`)
+    expect(response.status()).toBe(200)
+    expect(await response.json()).toStrictEqual({ direct: true })
   })
 })
