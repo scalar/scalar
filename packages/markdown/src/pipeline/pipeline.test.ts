@@ -188,4 +188,26 @@ describe('pipeline', () => {
       expect(htmlFromMarkdown('<p>a<!-- <img src=x onerror=alert(1)> --!>b</p>', { removeTags: [] })).toBe('<p>ab</p>')
     })
   })
+
+  describe('email autolink literals', () => {
+    it.each([
+      ['a@x.com', '<p><a href="mailto:a@x.com">a@x.com</a></p>'],
+      ['a@x.com.org', '<p><a href="mailto:a@x.com.org">a@x.com.org</a></p>'],
+      ['a.b-c+d@x.co', '<p><a href="mailto:a.b-c+d@x.co">a.b-c+d@x.co</a></p>'],
+      ['/a@x.com', '<p>/a@x.com</p>'],
+      ['a@x.com1', '<p>a@x.com1</p>'],
+      ['a@b@x.com', '<p>a@<a href="mailto:b@x.com">b@x.com</a></p>'],
+    ])('links %j as GFM does', (markdown, html) => {
+      expect(htmlFromMarkdown(markdown)).toBe(html)
+    })
+
+    it('takes linear time on a long local part with no domain', () => {
+      const start = performance.now()
+      htmlFromMarkdown(`a@${'_'.repeat(100_000)}`)
+      htmlFromMarkdown(`x ${'a.'.repeat(50_000)}@b`)
+
+      // The regular expression this replaced took about 25 seconds here.
+      expect(performance.now() - start).toBeLessThan(2000)
+    })
+  })
 })

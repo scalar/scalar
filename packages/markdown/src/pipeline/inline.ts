@@ -799,7 +799,6 @@ const literalCandidate = (s: string, from: number, to: number, kinds: Literals, 
  * links, for literals the tokenizer did not take.
  */
 const FIND_URL = /(https?:\/\/|www(?=\.))([-.\w]+)([^ \t\r\n]*)/gi
-const FIND_EMAIL = /([-.\w+]+)@([-\w]+(?:\.[-\w]+)+)/g
 
 const previousOk = (input: string, index: number, email: boolean): boolean => {
   const c = input[index - 1]
@@ -858,17 +857,71 @@ const findUrl: Replace = (m) => {
   return trail ? [link, { type: 'text', value: trail }] : [link]
 }
 
-const findEmail: Replace = (m) => {
-  const [, atext, label] = m as unknown as [string, string, string]
-  if (!previousOk(m.input, m.index, true) || /[-\d_]$/.test(label)) return false
-  return [
-    {
+const isWord = (c: string | undefined): boolean => c !== undefined && /\w/.test(c)
+const isEmailLocal = (c: string | undefined): boolean => isWord(c) || c === '-' || c === '.' || c === '+'
+const isLabel = (c: string | undefined): boolean => isWord(c) || c === '-'
+
+/**
+ * The end of the domain after the `@` at `at`, as `/[-\w]+(?:\.[-\w]+)+/` would match it
+ * greedily, or -1: labels joined by single dots, at least two of them.
+ */
+const emailDomainEnd = (value: string, at: number): number => {
+  let j = at + 1
+  if (!isLabel(value[j])) return -1
+  while (isLabel(value[j])) j++
+  let end = -1
+  while (value[j] === '.' && isLabel(value[j + 1])) {
+    j++
+    while (isLabel(value[j])) j++
+    end = j
+  }
+  return end
+}
+
+/**
+ * Email literals in one text value, as `mdast-util-gfm-autolink-literal` finds them with
+ * `/([-.\w+]+)@([-\w]+(?:\.[-\w]+)+)/g` and `mdast-util-find-and-replace`, which retries a
+ * rejected match one character later. That search backtracked quadratically on a long
+ * run of local-part characters with no domain after it, so this scans from each `@`.
+ *
+ * Every candidate for an `@` shares its domain, and its start can only move right within
+ * the local part before it, so the first start that passes `previousOk` is the match.
+ */
+const findEmails = (value: string): Inline[] => {
+  const out: Inline[] = []
+  let start = 0
+  let at = value.indexOf('@')
+  while (at !== -1) {
+    let local = at
+    while (local > start && isEmailLocal(value[local - 1])) local--
+    const end = local < at ? emailDomainEnd(value, at) : -1
+    const label = end === -1 ? '' : value.slice(at + 1, end)
+    let match = -1
+    if (end !== -1 && !/[-\d_]$/.test(label)) {
+      for (let i = local; i < at; i++) {
+        if (previousOk(value, i, true)) {
+          match = i
+          break
+        }
+      }
+    }
+    if (match === -1) {
+      at = value.indexOf('@', at + 1)
+      continue
+    }
+    if (match !== start) out.push({ type: 'text', value: value.slice(start, match) })
+    const literal = value.slice(match, end)
+    out.push({
       type: 'link',
-      url: normalizeUri(`mailto:${atext}@${label}`),
+      url: normalizeUri(`mailto:${literal}`),
       title: null,
-      children: [{ type: 'text', value: `${atext}@${label}` }],
-    },
-  ]
+      children: [{ type: 'text', value: literal }],
+    })
+    start = end
+    at = value.indexOf('@', end)
+  }
+  if (start < value.length) out.push({ type: 'text', value: value.slice(start) })
+  return out
 }
 
 /** `mdast-util-find-and-replace` on one text value: a rejected match is retried one character later. */
@@ -895,7 +948,7 @@ const findAndReplace = (value: string, find: RegExp, replace: Replace): Inline[]
 const linkLiterals = (value: string, out: Inline[]): void => {
   const urls = /[wW:]/.test(value) ? findAndReplace(value, FIND_URL, findUrl) : [{ type: 'text' as const, value }]
   for (const node of urls) {
-    if (node.type === 'text' && node.value.includes('@')) out.push(...findAndReplace(node.value, FIND_EMAIL, findEmail))
+    if (node.type === 'text' && node.value.includes('@')) out.push(...findEmails(node.value))
     else out.push(node)
   }
 }
