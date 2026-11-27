@@ -264,15 +264,21 @@ const sizeRows = (labels: string[], current: ByteSizes, baseline: ByteSizes | un
   })
 
 /** Summarize UMD and ESM independently and identify the baseline used for comparison. */
-export const createReport = (current: BundleSizes, baseline?: BundleSizes, expectedBase?: string): string => {
+export const createReport = (
+  current: BundleSizes,
+  baseline?: BundleSizes,
+  expectedBase?: string,
+  repositoryUrl?: string,
+): string => {
   const lines = ['### API Reference bundle sizes', '']
   if (baseline) {
-    const sha = baseline.commit.slice(0, 7)
+    const sha = `\`${baseline.commit.slice(0, 7)}\``
+    const commit = repositoryUrl ? `[${sha}](${repositoryUrl}/commit/${baseline.commit})` : sha
     const exact = !expectedBase || baseline.commit === expectedBase
     lines.push(
       exact
-        ? `Compared with \`main\` at \`${sha}\`.`
-        : `Compared with the latest available \`main\` build at \`${sha}\`. The baseline for \`${expectedBase.slice(0, 7)}\` is unavailable.`,
+        ? `Compared with \`main\` at ${commit}.`
+        : `Compared with the latest available \`main\` build at ${commit}. The baseline for \`${expectedBase.slice(0, 7)}\` is unavailable.`,
       '',
     )
   } else {
@@ -414,7 +420,10 @@ const run = ([command, input, output, details, baselineFile, expectedBase]: stri
     if (process.env.EXPECT_EXACT_BUNDLE_BASELINE === 'true' && (!base || baseline?.commit !== base)) {
       throw new Error('The exact main baseline was found but could not be read')
     }
-    writeFileSync(output, createReport(current, baseline, base))
+    const { GITHUB_SERVER_URL, GITHUB_REPOSITORY } = process.env
+    const repositoryUrl =
+      GITHUB_SERVER_URL && GITHUB_REPOSITORY ? `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}` : undefined
+    writeFileSync(output, createReport(current, baseline, base, repositoryUrl))
     writeFileSync(details, createChunkReport(current, baseline))
     console.log(`approval_required=${requiresApproval(current, baseline, base)}`)
     return

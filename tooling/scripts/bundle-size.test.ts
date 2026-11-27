@@ -162,6 +162,18 @@ describe('bundle-size', () => {
     expect(report).toContain('| minified | 200.00 kB | 210.00 kB | 🔴 +10.00 kB | +5.00% |')
   })
 
+  it('links the displayed baseline to its full commit SHA for exact and fallback reports', () => {
+    const baseline = snapshot(main)
+    const current = snapshot(head)
+    const repositoryUrl = 'https://github.com/scalar/scalar'
+    const commitLink = `[\`aaaaaaa\`](${repositoryUrl}/commit/${main})`
+
+    expect(createReport(current, baseline, main, repositoryUrl)).toContain(`Compared with \`main\` at ${commitLink}.`)
+    expect(createReport(current, baseline, head, repositoryUrl)).toContain(
+      `Compared with the latest available \`main\` build at ${commitLink}.`,
+    )
+  })
+
   it('requires approval at both Brotli limits only against the exact baseline', () => {
     const baseline = { ...snapshot(main), umd: sizes(300_000, 240_000, 200_000) }
     const current = { ...snapshot(head), umd: sizes(300_000, 240_000, 210_000) }
