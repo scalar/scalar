@@ -2487,6 +2487,30 @@ describe('getExampleFromSchema', () => {
     ).toBe(200)
   })
 
+  it('generates numbers within upper bounds, exclusive bounds, and multipleOf', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        required: ['bounded', 'increment', 'strict'],
+        properties: {
+          bounded: { type: 'integer', maximum: 0 },
+          increment: { type: 'number', minimum: 5, maximum: 8, multipleOf: 2 },
+          strict: { type: 'integer', exclusiveMinimum: 10 },
+        },
+      }),
+    ).toStrictEqual({ bounded: 0, increment: 6, strict: 11 })
+  })
+
+  it.each([
+    [{ type: 'integer', exclusiveMaximum: 1 }, 0],
+    [{ type: 'integer', minimum: 2.5 }, 3],
+    [{ type: 'integer', multipleOf: 5 }, 5],
+    [{ type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 1 }, 0.5],
+    [{ type: ['integer', 'string'], minimum: 3, multipleOf: 4 }, 4],
+  ] as const)('generates a number that satisfies %j', (schema, expected) => {
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, schema))).toBe(expected)
+  })
+
   it('returns plaintext', () => {
     expect(
       getExampleFromSchema(

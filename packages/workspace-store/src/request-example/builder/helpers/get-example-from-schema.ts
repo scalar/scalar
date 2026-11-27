@@ -49,6 +49,10 @@ const MAX_STRING_PADDING = 4_096
 const readLengthBound = (value: unknown, fallback: number): number =>
   typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : fallback
 
+/** Ignore malformed numeric keywords from unvalidated descriptions. */
+const readNumericBound = (value: unknown): number | undefined =>
+  typeof value === 'number' && Number.isFinite(value) ? value : undefined
+
 /**
  * Base64 of the bytes "scalar". Six bytes encode without `=` padding and the output avoids `+`, `/`,
  * `-` and `_`, so strict decoders accept it under both the standard and URL-safe alphabets (RFC 4648).
@@ -1445,6 +1449,39 @@ const handleArraySchema = (
   return completeArrayExample([], unrestricted ? null : undefined)
 }
 
+/**
+ * Generate a number close to the lower bound (or 1 without one) that satisfies the inclusive and exclusive
+ * bounds and multipleOf. Falls back to that starting value when the constraints cannot be satisfied.
+ */
+const getNumberExample = (schema: SchemaObject, integer: boolean): number => {
+  const minimum = readNumericBound('minimum' in schema ? schema.minimum : undefined)
+  const exclusiveMinimum = readNumericBound('exclusiveMinimum' in schema ? schema.exclusiveMinimum : undefined)
+  const maximum = readNumericBound('maximum' in schema ? schema.maximum : undefined)
+  const exclusiveMaximum = readNumericBound('exclusiveMaximum' in schema ? schema.exclusiveMaximum : undefined)
+  const multipleOf = readNumericBound('multipleOf' in schema ? schema.multipleOf : undefined)
+
+  const lower = Math.max(minimum ?? Number.NEGATIVE_INFINITY, exclusiveMinimum ?? Number.NEGATIVE_INFINITY)
+  const upper = Math.min(maximum ?? Number.POSITIVE_INFINITY, exclusiveMaximum ?? Number.POSITIVE_INFINITY)
+  const start = Number.isFinite(lower) ? lower : Math.min(1, upper)
+
+  const fits = (value: number): boolean =>
+    (minimum === undefined || value >= minimum) &&
+    (exclusiveMinimum === undefined || value > exclusiveMinimum) &&
+    (maximum === undefined || value <= maximum) &&
+    (exclusiveMaximum === undefined || value < exclusiveMaximum)
+
+  const onGrid = (step: number): number[] => {
+    const above = Math.ceil(start / step)
+    const below = Math.floor(start / step)
+    return [above, above + 1, below, below - 1].map((factor) => factor * step)
+  }
+
+  const hasStep = multipleOf !== undefined && multipleOf > 0 && (!integer || Number.isInteger(multipleOf))
+  const candidates = hasStep ? onGrid(multipleOf) : integer ? onGrid(1) : [start, ...onGrid(1), (lower + upper) / 2]
+
+  return candidates.find(fits) ?? start
+}
+
 /** Return primitive example value for single-type schemas, or undefined if not primitive */
 const getPrimitiveValue = (
   schema: SchemaObject,
@@ -1457,9 +1494,9 @@ const getPrimitiveValue = (
       case 'boolean':
         return true
       case 'integer':
-        return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
+        return getNumberExample(schema, true)
       case 'number':
-        return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
+        return getNumberExample(schema, false)
       case 'array':
         return []
       default:
@@ -1487,9 +1524,9 @@ const getUnionPrimitiveValue = (
         case 'boolean':
           return true
         case 'integer':
-          return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
+          return getNumberExample(schema, true)
         case 'number':
-          return 'minimum' in schema && typeof schema.minimum === 'number' ? schema.minimum : 1
+          return getNumberExample(schema, false)
         case 'null':
           return null
         default:
