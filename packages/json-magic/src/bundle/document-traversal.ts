@@ -3,14 +3,13 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getRaw } from '@/magic-proxy/symbols'
 
+import { type ReferenceContext, isSchemaContext } from '../document/reference-context'
 import {
-  type ReferenceContext,
-  childReferenceContext,
-  getSchemaVocabulary,
-  isReferenceContext,
-  isSchemaContext,
-  isSchemaMapContext,
-} from '../document/reference-context'
+  childReferencePosition,
+  declaresSchema,
+  ignoresReferenceSiblings,
+  referencePosition,
+} from '../document/reference-position'
 
 /** The authored location survives relocation into external document storage. */
 type SourceLocation = {
@@ -21,17 +20,6 @@ type SourceLocation = {
   /** Custom branches permit object identities and reference siblings. */
   customReferences?: true
 }
-
-const schemaTypes = new Set(['null', 'boolean', 'object', 'array', 'number', 'integer', 'string'])
-
-/** Explicit schema declarations distinguish schema maps from arbitrary custom objects. */
-const declaresSchema = (value: unknown): boolean =>
-  isObject(value) &&
-  (typeof value.$id === 'string' ||
-    typeof value.$schema === 'string' ||
-    typeof value.$anchor === 'string' ||
-    (typeof value.type === 'string' && schemaTypes.has(value.type)) ||
-    (Array.isArray(value.type) && value.type.every((type) => typeof type === 'string' && schemaTypes.has(type))))
 
 /** Index traversal context separately from the mutable document and reference registry. */
 export const documentTraversal = (
@@ -86,59 +74,37 @@ export const documentTraversal = (
       if (value === null || typeof value !== 'object' || visited.has(value)) return
       visited.add(value)
       const inheritedContext = !aware ? 'generic' : (exposures.get(value) ?? inherited)
-      const customSchema = customReferences && inheritedContext === 'object' && declaresSchema(value)
-      const current = customSchema ? 'schema' : inheritedContext
-      const vocabularySiblings = customSchema ? true : inheritedSiblings
-      const currentSiblings =
-        isObject(value) && typeof value.$schema === 'string'
-          ? vocabularySiblings && !/draft-0[3467]/.test(value.$schema)
-          : vocabularySiblings
-      // Keep the inherited dialect separate for wrappers containing newer schemas.
-      const schemaSiblings =
-        customReferences && !isSchemaContext(current)
-          ? true
-          : currentSiblings && (getSchemaVocabulary(current)?.referenceSiblings ?? true)
+      const position = referencePosition(value, inheritedContext, inheritedSiblings, customReferences)
       locations.set(value, {
         source,
         pointer: `#${path.map((key) => `/${escapeJsonPointer(key)}`).join('')}`,
-        context: current,
-        schemaSiblings,
+        context: position.context,
+        schemaSiblings: position.schemaSiblings,
         ...(customReferences ? { customReferences: true as const } : {}),
       })
-      const ignoredSiblings =
-        aware &&
-        current !== 'generic' &&
-        current !== 'path-item' &&
-        isReferenceContext(current) &&
-        isObject(value) &&
-        typeof value.$ref === 'string' &&
-        ((!isSchemaContext(current) && !customReferences) || !schemaSiblings)
-      const schemaFormat = isObject(value) && typeof value.schemaFormat === 'string' ? value.schemaFormat : undefined
+      const ignoredSiblings = aware && ignoresReferenceSiblings(value, position)
       // Virtual $ref-value links can reach a message before its authored location and
       // give it the wrong context. Enumerate authored keys but retain proxied reads
       // so locations use the same identities as the bundler and preserve overrides.
       // Keys present only in an overrides layer are not indexed.
       for (const key of Object.keys(getRaw(value))) {
         const child = (value as Record<string, unknown>)[key]
-        // Ignored reference siblings must not introduce schema resources or anchors.
         const next = ignoredSiblings
-          ? 'data'
-          : Array.isArray(value) && !['objects', 'messages'].includes(current) && !isSchemaMapContext(current)
-            ? current
-            : childReferenceContext(current, key, {
+          ? { context: 'data' as const, customReferences }
+          : childReferencePosition(
+              value,
+              key,
+              position,
+              {
                 swagger: isSwagger,
-                openapi30: api ? String(document.openapi).startsWith('3.0.') : !schemaSiblings && !asyncapi && !swagger,
+                openapi30: api
+                  ? String(document.openapi).startsWith('3.0.')
+                  : !position.schemaSiblings && !asyncapi && !swagger,
                 asyncapi: isAsyncApi,
-                schemaFormat,
-                includeCustomReferences,
-                customReferences,
-              })
-        const customChild =
-          customReferences ||
-          (includeCustomReferences &&
-            next !== 'data' &&
-            childReferenceContext(current, key, { swagger: isSwagger, asyncapi: isAsyncApi, schemaFormat }) === 'data')
-        visit(child, [...path, key], next, currentSiblings, customChild)
+              },
+              includeCustomReferences,
+            )
+        visit(child, [...path, key], next.context, position.childSchemaSiblings, next.customReferences)
       }
     }
     // Index a document once; later references only expose their target subtree.
