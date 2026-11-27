@@ -362,13 +362,14 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
-  it('prefers operation produces over global produces for shared responses', () => {
+  it('shares a response variant between operations with matching produces overrides', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       info: { title: 'Reports', version: '1.0' },
       produces: ['application/json'],
       responses: {
         Export: { description: 'CSV export', schema: { type: 'string' } },
+        'Export-variant-1': { description: 'Existing component' },
       },
       paths: {
         '/export': {
@@ -380,19 +381,25 @@ describe('upgradeFromTwoToThree', () => {
             responses: { '200': { $ref: '#/responses/Export' } },
           },
         },
+        '/report': {
+          get: {
+            produces: ['text/csv'],
+            responses: { '200': { $ref: '#/paths/~1export/get/responses/200' } },
+          },
+        },
       },
     })
 
-    expect(result.paths?.['/export']?.get?.responses?.['200']).toStrictEqual({
-      description: 'CSV export',
-      content: { 'text/csv': { schema: { type: 'string' } } },
-    })
+    const variant = { $ref: '#/components/responses/Export-variant-2' }
+    expect(result.paths?.['/export']?.get?.responses?.['200']).toStrictEqual(variant)
+    expect(result.paths?.['/report']?.get?.responses?.['200']).toStrictEqual(variant)
     expect(result.paths?.['/export']?.post?.responses?.['200']).toStrictEqual({
       $ref: '#/components/responses/Export',
     })
-    expect(result.components?.responses?.Export).toStrictEqual({
-      description: 'CSV export',
-      content: { 'application/json': { schema: { type: 'string' } } },
+    expect(result.components?.responses).toStrictEqual({
+      Export: { description: 'CSV export', content: { 'application/json': { schema: { type: 'string' } } } },
+      'Export-variant-1': { description: 'Existing component' },
+      'Export-variant-2': { description: 'CSV export', content: { 'text/csv': { schema: { type: 'string' } } } },
     })
   })
 
@@ -446,6 +453,9 @@ describe('upgradeFromTwoToThree', () => {
       })
 
       expect(result.paths?.['/export']?.get?.responses?.['200']).toStrictEqual({
+        $ref: '#/components/responses/Export_-variant-1',
+      })
+      expect(result.components?.responses?.['Export_-variant-1']).toStrictEqual({
         description: 'Export',
         content: { 'text/csv': { schema: { type: 'string' } } },
       })
@@ -475,24 +485,31 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
-  it('preserves response extensions containing literal references', () => {
-    const metadata = { $ref: '#/responses/Export', label: 'keep' }
+  it('preserves vendor extensions containing literal references', () => {
+    const metadata = { $ref: '#%2Fresponses%2Fx-Export', label: 'keep' }
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
+      info: { title: 'Test', version: '1.0', 'x-metadata': metadata },
       produces: ['application/json'],
-      responses: { Export: { description: 'CSV export', schema: { type: 'string' } } },
+      responses: { 'x-Export': { description: 'CSV export', schema: { type: 'string' }, 'x-metadata': metadata } },
       paths: {
         '/export': {
           get: {
             produces: ['text/csv'],
-            responses: { '200': { $ref: '#/responses/Export' }, 'x-metadata': metadata },
+            responses: { '200': { $ref: '#/responses/x-Export' }, 'x-metadata': metadata },
           },
         },
       },
     })
 
+    expect(result.info).toStrictEqual({ title: 'Test', version: '1.0', 'x-metadata': metadata })
     expect(result.paths?.['/export']?.get?.responses).toStrictEqual({
-      '200': { description: 'CSV export', content: { 'text/csv': { schema: { type: 'string' } } } },
+      '200': { $ref: '#/components/responses/x-Export-variant-1' },
+      'x-metadata': metadata,
+    })
+    expect(result.components?.responses?.['x-Export-variant-1']).toStrictEqual({
+      description: 'CSV export',
+      content: { 'text/csv': { schema: { type: 'string' } } },
       'x-metadata': metadata,
     })
   })

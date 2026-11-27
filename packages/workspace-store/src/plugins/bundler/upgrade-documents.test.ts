@@ -227,6 +227,7 @@ describe('upgrade-documents', () => {
         '/export': {
           get: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export' } } },
           post: { responses: { '200': { $ref: '#/responses/Export' } } },
+          put: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export' } } },
         },
       },
     }
@@ -237,7 +238,13 @@ describe('upgrade-documents', () => {
       plugins: [upgradeDocuments('2.0'), openApiDocument()],
     })
 
-    const csv = ['paths', '/export', 'get', 'responses', '200', 'content']
+    const csv = ['paths', '/export', 'get', 'responses', '200', '$ref-value', 'content']
+    expect(read(input, ['paths', '/export', 'get', 'responses', '200', '$ref'])).toBe(
+      '#/components/responses/Export-variant-1',
+    )
+    expect(read(input, ['paths', '/export', 'put', 'responses', '200', '$ref'])).toBe(
+      '#/components/responses/Export-variant-1',
+    )
     expect(Object.keys(read(input, csv) as object)).toStrictEqual(['text/csv'])
     expect(read(input, [...csv, 'text/csv', 'schema', '$ref-value', 'type'])).toBe('string')
     expect(read(input, ['paths', '/export', 'post', 'responses', '200', '$ref'])).toBe('#/components/responses/Export')
@@ -267,7 +274,9 @@ describe('upgrade-documents', () => {
         plugins: [upgradeDocuments('2.0'), openApiDocument()],
       })
 
-      expect(getRaw(read(input, ['paths', '/export', 'get', 'responses', '200', 'content']))).toStrictEqual({
+      expect(
+        getRaw(read(input, ['paths', '/export', 'get', 'responses', '200', '$ref-value', 'content'])),
+      ).toStrictEqual({
         'text/csv': { schema: { type: 'string' } },
       })
       expect(
@@ -275,11 +284,52 @@ describe('upgrade-documents', () => {
       ).toStrictEqual({
         'application/json': { schema: { type: 'string' } },
       })
-      expect(getRaw(read(input, ['paths', '/xml', 'get', 'responses', '200', 'content']))).toStrictEqual({
+      expect(getRaw(read(input, ['paths', '/xml', 'get', 'responses', '200', '$ref-value', 'content']))).toStrictEqual({
         'application/xml': { schema: { type: 'string' } },
       })
     },
   )
+
+  it('uses the consuming operation media types for shared 2.0 response aliases in another document', async () => {
+    const reference = './export.json#/paths/~1export/get/responses/200'
+    const input = {
+      swagger: '2.0',
+      produces: ['application/json'],
+      paths: {
+        '/report': { get: { responses: { '200': { $ref: reference } } } },
+        '/xml': { get: { produces: ['application/xml'], responses: { '200': { $ref: reference } } } },
+      },
+    }
+    await bundle(input, {
+      origin: 'https://example.com/report.json',
+      traversal: 'document',
+      treeShake: false,
+      plugins: [
+        upgradeDocuments('2.0'),
+        openApiDocument(),
+        loader({
+          'https://example.com/export.json': {
+            swagger: '2.0',
+            produces: ['application/json'],
+            responses: { Export: { description: 'Export', schema: { $ref: '#/definitions/Row' } } },
+            definitions: { Row: { type: 'string' } },
+            paths: {
+              '/export': { get: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export' } } } },
+            },
+          },
+        }),
+      ],
+    })
+
+    for (const [path, media] of [
+      ['/report', 'application/json'],
+      ['/xml', 'application/xml'],
+    ] as const) {
+      const content = ['paths', path, 'get', 'responses', '200', '$ref-value', 'content']
+      expect(Object.keys(read(input, content) as object)).toStrictEqual([media])
+      expect(read(input, [...content, media, 'schema', '$ref-value', 'type'])).toBe('string')
+    }
+  })
 
   it('decodes the shared 2.0 response pointer before finding the operation variant', async () => {
     const input = {
@@ -299,7 +349,7 @@ describe('upgrade-documents', () => {
       plugins: [upgradeDocuments('2.0'), openApiDocument()],
     })
 
-    expect(getRaw(read(input, ['paths', '/export', 'get', 'responses', '200']))).toStrictEqual({
+    expect(getRaw(read(input, ['paths', '/export', 'get', 'responses', '200', '$ref-value']))).toStrictEqual({
       description: 'Export',
       content: { 'text/csv': { schema: { type: 'string' } } },
     })
