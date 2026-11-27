@@ -43,7 +43,9 @@ scalar document bundle [options] [file|url...]
 | `-o, --output <file>` | Output file or directory, or - for single-input stdout; batches require a directory (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |  |
 | `--ext <json\|yaml\|yml>` | Output format; overrides and normalizes the output suffix. One of `json`, `yaml`, `yml`. |  |
 | `-f, --force` | Write an incomplete bundle despite unresolved references. |  |
-| `--treeShake` | Remove unused components from the bundled output. |  |
+| `-k, --keep-url-references` | Preserve absolute HTTP(S) references without fetching their targets. |  |
+| `--remove-unused-components` | Remove unreachable reusable components from OpenAPI 2.0 and 3.x descriptions. |  |
+| `--treeShake` | Keep only referenced content from external documents. |  |
 | `--urlMap` | Generate a map of resolved URLs in the bundled output. |  |
 | `--fetchLimit <limit>` | Maximum number of concurrent URL fetches. | `5` |
 | `--no-input` | Disable prompts and browser launches. |  |

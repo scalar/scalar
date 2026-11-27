@@ -32,14 +32,14 @@ scalar mcp list [options]
 Get an MCP server and its environment versions.
 
 ```bash
-scalar mcp get [options] <server-id>
+scalar mcp get [options] <server-uid>
 ```
 
 **Arguments**
 
 | Argument | Description |
 | --- | --- |
-| `server-id` | **Required.** Server UUID from scalar mcp list. |
+| `server-uid` | **Required.** Server UID from scalar mcp list. |
 
 **Options**
 
@@ -62,7 +62,7 @@ scalar mcp create [options]
 | --- | --- |
 | `--name <name>` | **Required.** Server name. |
 | `--slug <slug>` | Server slug (generated from the name by default). |
-| `--api <reference>` | Registry API as namespace/slug[@version] (current version by default, pinned). |
+| `--api <reference>` | Registry API as namespace/slug (builds from its versions). |
 | `--project <uid>` | Docs project UID (tracks its active publish). |
 | `--json` | Output created server metadata as JSON. |
 | `--no-input` | Disable prompts and browser launches. |
@@ -72,14 +72,14 @@ scalar mcp create [options]
 Change an MCP server name or slug.
 
 ```bash
-scalar mcp update [options] <server-id>
+scalar mcp update [options] <server-uid>
 ```
 
 **Arguments**
 
 | Argument | Description |
 | --- | --- |
-| `server-id` | **Required.** Server UUID from scalar mcp list. |
+| `server-uid` | **Required.** Server UID from scalar mcp list. |
 
 **Options**
 
@@ -95,14 +95,14 @@ scalar mcp update [options] <server-id>
 Delete an MCP server and stop its endpoints.
 
 ```bash
-scalar mcp delete [options] <server-id>
+scalar mcp delete [options] <server-uid>
 ```
 
 **Arguments**
 
 | Argument | Description |
 | --- | --- |
-| `server-id` | **Required.** Server UUID from scalar mcp list. |
+| `server-uid` | **Required.** Server UID from scalar mcp list. |
 
 **Options**
 

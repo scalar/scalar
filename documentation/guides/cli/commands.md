@@ -86,6 +86,7 @@ Manage Scalar SDKs (Enterprise only).
 - [`scalar sdk update`](commands/sdk.md#update): Update SDK metadata
 - [`scalar sdk delete`](commands/sdk.md#delete): Delete an SDK
 - [`scalar sdk build`](commands/sdk.md#build): Start an SDK build
+- [`scalar sdk download`](commands/sdk.md#download): Download a generated SDK or CLI build as a ZIP
 
 ## [scalar access-group](commands/access-group.md)
 
