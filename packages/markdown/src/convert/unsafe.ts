@@ -221,6 +221,24 @@ const escapeBackslashes = (value: string, after: string): string => {
   return results.join('')
 }
 
+/**
+ * Which characters are in a run that a GFM autolink literal could take: from `http://`,
+ * `https://` or `www.` to the next whitespace. Such a literal ends at a `<` and takes a backslash
+ * before it, which leaves the `<` unescaped, so there a `<` needs a character reference. Not in
+ * `mdast-util-to-markdown`, whose output turns `https://x\\<script>` into raw HTML.
+ */
+const literalRuns = (value: string): boolean[] | undefined => {
+  if (!/https?:\/\/|www\./i.test(value)) return undefined
+  const runs: boolean[] = []
+  let inRun = false
+  for (let index = 0; index < value.length; index++) {
+    if (/\s/.test(value[index]!)) inRun = false
+    else if (!inRun && /^(?:https?:\/\/|www\.)/i.test(value.slice(index, index + 8))) inRun = true
+    runs.push(inRun)
+  }
+  return runs
+}
+
 /** What surrounds the text in the output, so patterns that depend on it match. */
 export type SafeConfig = { before: string; after: string; encode?: string[] }
 
@@ -252,6 +270,7 @@ export const safe = (stack: ConstructName[], input: string, config: SafeConfig):
     }
   }
   const positions = [...infos.keys()].sort((a, b) => a - b)
+  const literals = literalRuns(value)
   const result: string[] = []
   let start = config.before.length
   const end = value.length - config.after.length
@@ -277,7 +296,11 @@ export const safe = (stack: ConstructName[], input: string, config: SafeConfig):
     if (start !== position) result.push(escapeBackslashes(value.slice(start, position), '\\'))
     start = position
     const character = value.charAt(position)
-    if (/[!-/:-@[-`{-~]/.test(character) && !config.encode?.includes(character)) {
+    if (
+      /[!-/:-@[-`{-~]/.test(character) &&
+      !config.encode?.includes(character) &&
+      !(character === '<' && literals?.[position])
+    ) {
       result.push('\\')
     } else {
       result.push(encodeCharacterReference(value.charCodeAt(position)))

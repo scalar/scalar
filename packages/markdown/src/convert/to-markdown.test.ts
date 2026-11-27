@@ -273,6 +273,14 @@ describe('to-markdown', () => {
     })
   })
 
+  it('escapes < with a character reference where an autolink literal would take the backslash', () => {
+    const markdown = serialize(root(paragraph(text('HTTPS://example.com/a.js></script> and <b>'))))
+    const html = (node: Nodes): boolean => node.type === 'html' || ('children' in node && node.children.some(html))
+
+    expect(markdown).toBe('HTTPS://example.com/a.js>&#x3C;/script> and \\<b>\n')
+    expect(html(parseMarkdown(markdown))).toBe(false)
+  })
+
   it('round-trips random text made of Markdown punctuation', () => {
     // A small, deterministic version of `explorations/markdown-pipeline/bench/copy-roundtrip.mjs`.
     let seed = 7
