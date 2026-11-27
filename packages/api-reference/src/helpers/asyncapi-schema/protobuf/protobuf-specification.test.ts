@@ -648,6 +648,26 @@ describe('protobuf-specification', () => {
     ])
   })
 
+  it.each([
+    ['enum E { ZERO = 0; }', 'E', 'ZERO'],
+    ['enum E {\n  ZERO = 0;\n}', 'E', 'ZERO'],
+    ['message N {\n  string nested = 1;\n}', 'N', 'nested'],
+  ])('preserves descriptions on nested blocks that begin on the next line: %s', (declaration, name, field) => {
+    const source = `message M /* Header text. */ {
+      ${declaration}
+      string id = 1;
+    }`
+    const nodes = readProtobuf(source, '3').nodes.map(({ name, description, children }) => ({
+      name,
+      description,
+      children: children?.map(({ name, description }) => ({ name, description })),
+    }))
+    expect(nodes).toStrictEqual([
+      { name: 'M', description: undefined, children: [{ name: 'id', description: undefined }] },
+      { name, description: 'Header text.', children: [{ name: field, description: undefined }] },
+    ])
+  })
+
   it('keeps a header comment detached after a blank line', () => {
     const source = 'message M /* Detached. */ {\n\n string id = 1; }'
     expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([

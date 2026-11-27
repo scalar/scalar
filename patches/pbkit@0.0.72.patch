@@ -287,7 +287,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -685,14 +777,51 @@
+@@ -685,14 +777,54 @@
          bracketClose,
      };
  }
@@ -306,27 +306,30 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
 +    const inlineLeading = leading && !/\n/.test(parser.input.slice(leading.end, keyword.start)) ? leading : undefined;
 +    return { name, memberComment: bodyComment ?? (precedesName ? undefined : nameComment) ?? inlineLeading };
 +}
-+// The first documented field can belong to a nested declaration or oneof.
-+function firstDocumentedField(statements) {
++// A named declaration on its own line can receive the preceding header description.
++function firstDescriptionTarget(input, commentEnd, statements) {
 +    for (const statement of statements) {
 +        if (isDocumentedField(statement))
 +            return statement;
++        if ((statement.type === "message" || statement.type === "enum") &&
++            input.slice(commentEnd, statement.keyword.start).includes("\n"))
++            return statement;
 +        const body = statement.messageBody ?? statement.enumBody ?? statement.oneofBody;
 +        if (body) {
-+            const field = firstDocumentedField(body.statements);
-+            if (field)
-+                return field;
++            const target = firstDescriptionTarget(input, commentEnd, body.statements);
++            if (target)
++                return target;
 +        }
 +    }
 +}
 +function attachBlockMemberDescription(parser, comment, statements) {
 +    if (!comment)
 +        return;
-+    const member = firstDocumentedField(statements);
++    const start = comment.comments.at(-1)?.text.endsWith("\n") ? comment.end - 1 : comment.end;
++    const member = firstDescriptionTarget(parser.input, start, statements);
 +    if (!member || member.leadingComments.length || member.leadingDetachedComments.length)
 +        return;
-+    const start = comment.comments.at(-1)?.text.endsWith("\n") ? comment.end - 1 : comment.end;
-+    if (parser.input.slice(start, member.start).split("\n").length <= 2)
++    if (parser.input.slice(start, member.start).split("\n", 3).length <= 2)
 +        member.leadingComments.push(comment);
 +}
  function acceptEnum(parser, leadingComments, leadingDetachedComments) {
@@ -342,7 +345,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      const trailingComments = acceptTrailingComments(parser);
      return {
          ...(0, misc_1.mergeSpans)([
-@@ -713,7 +842,7 @@
+@@ -713,7 +845,7 @@
  }
  function acceptField(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;
@@ -351,7 +354,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      skipWsAndComments(parser);
      const fieldType = acceptType(parser);
      if (!fieldType) {
-@@ -855,10 +984,9 @@
+@@ -855,10 +987,9 @@
      const keyword = acceptKeyword(parser, "oneof");
      if (!keyword)
          return;
@@ -364,7 +367,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      const trailingComments = acceptTrailingComments(parser);
      return {
          ...(0, misc_1.mergeSpans)([
-@@ -1031,13 +1159,13 @@
+@@ -1031,13 +1162,13 @@
  }
  function acceptGroup(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;
@@ -380,7 +383,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword) {
          parser.loc = loc;
          return;
-@@ -1134,10 +1262,9 @@
+@@ -1134,10 +1265,9 @@
      const keyword = acceptKeyword(parser, "message");
      if (!keyword)
          return;
