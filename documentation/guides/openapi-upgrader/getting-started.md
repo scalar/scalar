@@ -75,7 +75,7 @@ console.log(locations)
 `consumes` and `produces` media types. Both default to `application/json`; form
 parameters use form-compatible types and fall back to `multipart/form-data`.
 
-For `kind: 'document'`, pass the description's retrieval URL as `sourceUrl`.
+For `kind: 'document'`, the optional `sourceUrl` supplies the description's retrieval URL.
 When an OpenAPI 2.0 description sets `host` and omits `schemes`, the upgrader
 uses the retrieval URL's HTTP or HTTPS scheme for the generated server URL.
 The fallback is HTTP when the description has no HTTP or HTTPS retrieval URL.
@@ -129,9 +129,6 @@ console.log(document.openapi)
 ```
 
 ### From Swagger 2.0 to OpenAPI 3.0
-
-Pass the retrieval URL as the optional second argument to use the same scheme
-default as `sourceUrl` in `upgradeFragment`.
 
 ```typescript
 import { upgradeFromTwoToThree } from '@scalar/openapi-upgrader/2.0-to-3.0'

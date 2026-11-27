@@ -197,35 +197,12 @@ const upgradeFlow = (flow: string): 'implicit' | 'password' | 'clientCredentials
   }
 }
 
-/** OpenAPI 2.0 uses the retrieval scheme when specified, with HTTP as the fallback for local input. */
-const getDefaultServerScheme = (sourceUrl?: string): 'http' | 'https' => {
-  try {
-    return typeof sourceUrl === 'string' && new URL(sourceUrl).protocol === 'https:' ? 'https' : 'http'
-  } catch {
-    return 'http'
-  }
-}
-
 /**
- * Upgrade an OpenAPI 2.0 description to OpenAPI 3.0.
+ * Upgrade Swagger 2.0 to OpenAPI 3.0
  *
- * When the description sets `host` and omits `schemes`, use the retrieval URL's HTTP or HTTPS
- * scheme for the server URL. The default is HTTP without an HTTP or HTTPS retrieval URL.
- *
- * @param originalSpecification - The API description to upgrade.
- * @param sourceUrl - The URL used to retrieve the description, when available.
+ * https://swagger.io/blog/news/whats-new-in-openapi-3-0/
  */
-export function upgradeFromTwoToThree(
-  originalSpecification: UnknownObject,
-  sourceUrl: string | undefined,
-): UnknownObject | OpenAPIV3.Document
-/** Upgrade an OpenAPI 2.0 description with the default HTTP fallback. */
-export function upgradeFromTwoToThree(originalSpecification: UnknownObject): UnknownObject | OpenAPIV3.Document
-export function upgradeFromTwoToThree(
-  originalSpecification: UnknownObject,
-  // Keep the original arity for callers that use the converter as a callback.
-  sourceUrl: string | undefined = undefined,
-): UnknownObject | OpenAPIV3.Document {
+export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   let document = originalSpecification
 
   // Version
@@ -244,11 +221,9 @@ export function upgradeFromTwoToThree(
 
   // Servers
   if (document.host) {
-    // OpenAPI 2.0 applies the retrieval scheme only when the schemes field is omitted.
-    const fallbackScheme = document.schemes === undefined ? getDefaultServerScheme(sourceUrl) : 'http'
-    const schemes = Array.isArray(document.schemes) && document.schemes.length ? document.schemes : [fallbackScheme]
+    const schemes = Array.isArray(document.schemes) && document.schemes?.length ? document.schemes : ['http']
 
-    document.servers = schemes.map((scheme: string) => ({
+    document.servers = schemes.map((scheme: string[]) => ({
       url: `${scheme}://${document.host}${document.basePath ?? ''}`,
     }))
 

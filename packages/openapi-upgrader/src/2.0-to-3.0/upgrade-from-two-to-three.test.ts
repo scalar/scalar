@@ -33,6 +33,15 @@ describe('upgradeFromTwoToThree', () => {
     expect(upgradeFromTwoToThree.length).toBe(1)
   })
 
+  it('uses the default HTTP scheme when passed directly to Map.forEach', () => {
+    const description: Record<string, unknown> = { swagger: '2.0', host: 'api.example.com', basePath: '/v1' }
+    const descriptions = new Map([['https://docs.example.com/swagger.json', description]])
+
+    descriptions.forEach(upgradeFromTwoToThree)
+
+    expect(description.servers).toStrictEqual([{ url: 'http://api.example.com/v1' }])
+  })
+
   it('upgrades URLs to new server syntax', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -50,36 +59,6 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.basePath).toBeUndefined()
     expect(result.schemes).toBeUndefined()
     expect(result.host).toBeUndefined()
-  })
-
-  it.each([
-    { sourceUrl: 'https://docs.example.com/swagger.json', expected: 'https' },
-    { sourceUrl: 'HTTPS://docs.example.com/swagger.json', expected: 'https' },
-    { sourceUrl: 'http://docs.example.com/swagger.json', expected: 'http' },
-    { sourceUrl: 'file:///docs/swagger.json', expected: 'http' },
-    { sourceUrl: '/docs/swagger.json', expected: 'http' },
-  ])('defaults to $expected for a description at $sourceUrl', ({ sourceUrl, expected }) => {
-    const result = upgradeFromTwoToThree({ swagger: '2.0', host: 'api.example.com', basePath: '/v1' }, sourceUrl)
-
-    expect(result.servers).toStrictEqual([{ url: `${expected}://api.example.com/v1` }])
-  })
-
-  it('preserves explicit schemes on a description retrieved over HTTPS', () => {
-    const result = upgradeFromTwoToThree(
-      { swagger: '2.0', host: 'api.example.com', schemes: ['http', 'wss'] },
-      'https://docs.example.com/swagger.json',
-    )
-
-    expect(result.servers).toStrictEqual([{ url: 'http://api.example.com' }, { url: 'wss://api.example.com' }])
-  })
-
-  it('keeps the HTTP fallback for an explicit empty schemes list', () => {
-    const result = upgradeFromTwoToThree(
-      { swagger: '2.0', host: 'api.example.com', schemes: [] },
-      'https://docs.example.com/swagger.json',
-    )
-
-    expect(result.servers).toStrictEqual([{ url: 'http://api.example.com' }])
   })
 
   it('upgrades basePath to new server syntax', () => {

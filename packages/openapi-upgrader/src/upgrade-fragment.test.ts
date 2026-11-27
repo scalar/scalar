@@ -52,6 +52,33 @@ describe('upgrade-fragment', () => {
     )
   })
 
+  it.each([
+    { sourceUrl: 'https://docs.example.com/swagger.json', fields: {}, schemes: ['https'] },
+    { sourceUrl: 'HTTPS://docs.example.com/swagger.json', fields: {}, schemes: ['https'] },
+    { sourceUrl: 'http://docs.example.com/swagger.json', fields: {}, schemes: ['http'] },
+    { sourceUrl: 'file:///docs/swagger.json', fields: {}, schemes: ['http'] },
+    { sourceUrl: '/docs/swagger.json', fields: {}, schemes: ['http'] },
+    {
+      sourceUrl: 'https://docs.example.com/swagger.json',
+      fields: { schemes: ['http', 'wss'] },
+      schemes: ['http', 'wss'],
+    },
+    { sourceUrl: 'https://docs.example.com/swagger.json', fields: { schemes: [] }, schemes: ['http'] },
+  ])('uses $schemes for a 2.0 description with $fields at $sourceUrl', async ({ sourceUrl, fields, schemes }) => {
+    const info = { title: 'Test', version: '1' }
+    const { value } = await upgradeFragment(
+      { swagger: '2.0', info, paths: {}, host: 'api.example.com', basePath: '/v1', ...fields },
+      { from: '2.0', to: '3.1', kind: 'document', sourceUrl },
+    )
+
+    expect(value).toStrictEqual({
+      openapi: '3.1.1',
+      info,
+      paths: {},
+      servers: schemes.map((scheme) => ({ url: `${scheme}://api.example.com/v1` })),
+    })
+  })
+
   it('upgrades a 2.0 path item including query, header and body parameters', async () => {
     const result = await upgradeFragment(
       {
