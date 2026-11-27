@@ -2543,6 +2543,11 @@ describe('getExampleFromSchema', () => {
       expected: 10_000_000_000_000_053_000,
     },
     {
+      name: 'subnormal multiple between rounded grid values',
+      schema: { type: 'number', minimum: 8.940166805434e-311, maximum: 8.946573223303e-311, multipleOf: 1.000033e-318 },
+      expected: 8.940167015776e-311,
+    },
+    {
       name: 'numeric type array',
       schema: { type: ['integer', 'string'], exclusiveMinimum: 0, multipleOf: 2 },
       expected: 2,

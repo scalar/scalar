@@ -52,7 +52,7 @@ const gridValue = (coefficient: bigint, exponent: number): number | undefined =>
   return scaleDecimal(rounded, scale) === scaleDecimal({ coefficient, exponent }, scale) ? value : undefined
 }
 
-/** Try nearby multiples and the interval edges, then scan grids with few candidates. */
+/** Try nearby multiples and the interval edges, then check a bounded window on the grid. */
 const findGridValue = (
   grid: { lower: bigint; upper: bigint; target: bigint; scale: number },
   stride: bigint,
@@ -74,12 +74,15 @@ const findGridValue = (
       }
     }
   }
-  if (last - first < BigInt(MAX_PRECISION_CANDIDATES)) {
-    for (let candidate = first + 1n; candidate < last; candidate++) {
-      const value = gridValue(candidate * stride, scale)
-      if (value !== undefined) {
-        return value
-      }
+  const count = BigInt(MAX_PRECISION_CANDIDATES)
+  const centered = closest - count / 2n
+  const rightmostStart = last - count + 1n
+  const start = centered < rightmostStart ? centered : rightmostStart
+  const firstCandidate = start < first ? first : start
+  for (let candidate = firstCandidate; candidate <= last && candidate < firstCandidate + count; candidate++) {
+    const value = gridValue(candidate * stride, scale)
+    if (value !== undefined) {
+      return value
     }
   }
   return undefined
