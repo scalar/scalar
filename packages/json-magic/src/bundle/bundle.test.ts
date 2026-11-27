@@ -186,6 +186,38 @@ describe('bundle', () => {
     },
   )
 
+  it.each([
+    { name: 'bundle', run: bundle },
+    { name: 'bundleWithDiagnostics', run: bundleWithDiagnostics },
+  ])('relocates an own fragment exposed through a proxy with $name', async ({ run }) => {
+    const origin = 'https://example.test/root.json'
+    const selected = { $id: './nested/selected.json', type: 'string' }
+    const byPointer = { $ref: '#/x-schemas/Selected' }
+    const byId = { $ref: 'https://example.test/nested/selected.json' }
+    const input = createMagicProxy({
+      openapi: '3.2.0',
+      info: { title: 'Fragments', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { ByPointer: byPointer, ById: byId } },
+      'x-schemas': { Selected: selected },
+    })
+
+    const result = await run(input, {
+      origin,
+      traversal: 'document',
+      treeShake: false,
+      plugins: [],
+      preserveReference: () => false,
+    })
+
+    if ('diagnostics' in result) {
+      expect(result.diagnostics).toStrictEqual([])
+    }
+    expect(selected.$id).toBe('https://example.test/nested/selected.json')
+    expect(byPointer.$ref).toBe('#/x-schemas/Selected')
+    expect(byId.$ref).toBe('#/x-schemas/Selected')
+  })
+
   it.each([true, false])(
     'preserves authored URL edges while loading remote relatives (treeShake: %s)',
     async (treeShake) => {

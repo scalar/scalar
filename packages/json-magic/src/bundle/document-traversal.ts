@@ -133,7 +133,7 @@ export const documentTraversal = (
     }
     let target: unknown = document
     for (const key of targetPath) {
-      if (target === null || typeof target !== 'object') {
+      if (target === null || typeof target !== 'object' || !Object.hasOwn(getRaw(target), key)) {
         return
       }
       const location = locations.get(target)

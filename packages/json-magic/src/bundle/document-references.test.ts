@@ -208,4 +208,22 @@ describe('document-references', () => {
     expect(registry.retrievalOrigin(reference)).toBe('https://example.com/nested/Pet.yaml')
     expect(registry.origin(reference)).toBe('https://example.com/__bundle_a/nested/Pet.yaml')
   })
+
+  it('skips inherited properties when refreshing a fragment', () => {
+    let reads = 0
+    const document = {
+      container: Object.create({
+        get child(): undefined {
+          reads++
+          return undefined
+        },
+      }),
+    }
+    const references = documentReferences('x-ext')
+    references.register(document, '/root.json')
+
+    references.refresh(document, ['container', 'child'])
+
+    expect(reads).toBe(0)
+  })
 })
