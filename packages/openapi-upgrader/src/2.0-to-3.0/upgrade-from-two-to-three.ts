@@ -363,7 +363,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     // Update all $refs from #/responses/ to #/components/responses/
     document = traverse(document, (schema, path) => {
       const isResponseExtension = path?.[0] === 'paths' && path[3] === 'responses' && path[4]?.startsWith('x-')
-      if (!isResponseExtension && typeof schema.$ref === 'string') {
+      if (!isResponseExtension && typeof schema.$ref === 'string' && !isInsideDataValue(path, '2.0')) {
         if (schema.$ref.startsWith('#/responses/')) {
           schema.$ref = schema.$ref.replace(/^#\/responses\//, '#/components/responses/')
         } else {
@@ -402,6 +402,13 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
     delete document.responses
   }
+
+  const resolveSharedResponse = createSharedResponseResolver({
+    responses: sharedResponses,
+    paths: sourcePaths,
+    globalProduces,
+    section: 'components/responses',
+  })
 
   // Paths
   if (typeof document.paths === 'object') {
@@ -480,17 +487,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
               const produces = Array.isArray(operationItem.produces) ? operationItem.produces : globalProduces
               const sourceOperation = own(own(sourcePaths, path), methodOrParameters)
               const sourceResponses = own(sourceOperation, 'responses')
-              const responseContext: SharedResponseContext = {
-                responses: sharedResponses,
-                paths: sourcePaths,
-                produces,
-                globalProduces,
-                section: 'components/responses',
-              }
               for (const status in operationItem.responses) {
                 if (Object.hasOwn(operationItem.responses, status) && !status.startsWith('x-')) {
                   const response = operationItem.responses[status]
-                  const shared = contextualizeSharedResponse(own(sourceResponses, status), responseContext)
+                  const shared = resolveSharedResponse?.(own(sourceResponses, status), produces)
                   operationItem.responses[status] = transformResponseObject(shared ?? response, produces)
                 }
               }
@@ -1072,57 +1072,104 @@ const sharedResponseReference = (section: SharedResponseSection, segments: strin
 type SharedResponseContext = {
   responses: unknown
   paths: unknown
-  produces: readonly string[]
   globalProduces: readonly string[]
   /** The response section targeted by references returned to the caller. */
   section: SharedResponseSection
+  getLocalReference?: (reference: string) => string | undefined
 }
 
-/** Apply the consuming operation's media types to a response shared through local references. */
-export const contextualizeSharedResponse = (
-  response: unknown,
-  { responses, paths, produces, globalProduces, section }: SharedResponseContext,
-): UnknownObject | undefined => {
-  let reference = own(response, '$ref')
-  if (!isObjectLike(responses) || typeof reference !== 'string') {
+type SharedResponseResolver = (response: unknown, produces: readonly string[]) => UnknownObject | undefined
+
+type SharedResponseTarget = {
+  name: string
+  response: UnknownObject
+  passesThroughOverride: boolean
+}
+
+/** Resolve response aliases once per document, then apply each consuming operation's media types. */
+export const createSharedResponseResolver = ({
+  responses,
+  paths,
+  globalProduces,
+  section,
+  getLocalReference,
+}: SharedResponseContext): SharedResponseResolver | undefined => {
+  if (!isObjectLike(responses)) {
     return undefined
   }
 
-  const overridesProduces = !isObjectEqual(produces, globalProduces)
-  const seen = new Set<string>()
-  let passesThroughOverride = false
-  while (typeof reference === 'string' && !seen.has(reference)) {
-    seen.add(reference)
-    const [root, name, method, field, status, ...rest] = parseLocalReference(reference)
-    if (root === 'responses' && name !== undefined && method === undefined) {
-      const target = getOwnEntry(responses, name)
-      if (!isObjectLike(target) || typeof target.$ref === 'string') {
-        return undefined
+  const targets = new Map<string, SharedResponseTarget | null>()
+  const resolveTarget = (reference: string): SharedResponseTarget | null => {
+    const aliases = new Map<string, boolean>()
+    let current = reference
+    let target: SharedResponseTarget | null = null
+    while (!aliases.has(current)) {
+      const cached = targets.get(current)
+      if (cached !== undefined) {
+        target = cached
+        break
       }
-      if (overridesProduces) {
-        return structuredClone(target)
+
+      const local = getLocalReference ? getLocalReference(current) : current
+      const [root, name, method, field, status, ...rest] = parseLocalReference(local ?? '')
+      if (root === 'responses' && name !== undefined && method === undefined) {
+        const response = getOwnEntry(responses, name)
+        if (isObjectLike(response) && typeof response.$ref !== 'string') {
+          target = { name, response, passesThroughOverride: false }
+        }
+        targets.set(current, target)
+        break
       }
-      // An intermediate operation may inline its own variant at the authored address.
-      return passesThroughOverride ? { $ref: sharedResponseReference(section, [name]) } : undefined
+
+      if (
+        root !== 'paths' ||
+        name === undefined ||
+        method === undefined ||
+        field !== 'responses' ||
+        status === undefined ||
+        status.startsWith('x-') ||
+        rest.length > 0
+      ) {
+        targets.set(current, null)
+        break
+      }
+      const operation = own(own(paths, name), method)
+      const operationProduces = own(operation, 'produces')
+      const response = own(own(operation, 'responses'), status)
+      const next = own(response, '$ref')
+      aliases.set(current, Array.isArray(operationProduces) && !isObjectEqual(operationProduces, globalProduces))
+      if (typeof next !== 'string') {
+        break
+      }
+      current = next
     }
-    if (
-      root !== 'paths' ||
-      name === undefined ||
-      method === undefined ||
-      field !== 'responses' ||
-      status === undefined ||
-      status.startsWith('x-') ||
-      rest.length > 0
-    ) {
+
+    // Cache each suffix with only the overrides it crosses, including misses and cycles.
+    for (const [alias, overridesProduces] of Array.from(aliases).reverse()) {
+      if (target && overridesProduces && !target.passesThroughOverride) {
+        target = { ...target, passesThroughOverride: true }
+      }
+      targets.set(alias, target)
+    }
+    return target
+  }
+
+  return (response, produces) => {
+    const reference = own(response, '$ref')
+    if (typeof reference !== 'string') {
       return undefined
     }
-    const operation = own(own(paths, name), method)
-    const operationProduces = own(operation, 'produces')
-    const target = own(own(operation, 'responses'), status)
-    passesThroughOverride ||= Array.isArray(operationProduces) && !isObjectEqual(operationProduces, globalProduces)
-    reference = own(target, '$ref')
+    const cached = targets.get(reference)
+    const target = cached === undefined ? resolveTarget(reference) : cached
+    if (!target) {
+      return undefined
+    }
+    if (!isObjectEqual(produces, globalProduces)) {
+      return structuredClone(target.response)
+    }
+    // An intermediate operation may inline its own variant at the authored address.
+    return target.passesThroughOverride ? { $ref: sharedResponseReference(section, [target.name]) } : undefined
   }
-  return undefined
 }
 
 const isRequestBodyParameter = (parameter: SwaggerParameter): parameter is OpenAPIV2.ParameterObject =>

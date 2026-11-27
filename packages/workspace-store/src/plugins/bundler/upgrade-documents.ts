@@ -214,6 +214,22 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
         kind: 'document',
         sourceUrl: uri,
         resolveSource,
+        getLocalReference: (reference) => {
+          const separator = reference.indexOf('#')
+          if (separator === 0) {
+            return reference
+          }
+          if (separator > 0) {
+            try {
+              if (resolveReferencePath(uri, reference.slice(0, separator)) === uri) {
+                return reference.slice(separator)
+              }
+            } catch {
+              // Let the bundler diagnose references it cannot resolve.
+            }
+          }
+          return undefined
+        },
       })
       if (!isObject(result.value)) {
         return result.value

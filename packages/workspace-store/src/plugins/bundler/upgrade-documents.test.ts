@@ -246,33 +246,40 @@ describe('upgrade-documents', () => {
     })
   })
 
-  it('uses the consuming operation media types across shared 2.0 response aliases', async () => {
-    const reference = '#/paths/~1export/get/responses/200'
-    const input = {
-      swagger: '2.0',
-      produces: ['application/json'],
-      responses: { Export: { description: 'Export', schema: { type: 'string' } } },
-      paths: {
-        '/export': { get: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export' } } } },
-        '/report': { get: { responses: { '200': { $ref: reference } } } },
-        '/xml': { get: { produces: ['application/xml'], responses: { '200': { $ref: reference } } } },
-      },
-    }
-    await bundle(input, {
-      traversal: 'document',
-      treeShake: false,
-      plugins: [upgradeDocuments('2.0'), openApiDocument()],
-    })
+  it.each(['', './api.json', 'https://example.com/api.json'])(
+    'uses the consuming operation media types for shared 2.0 response aliases with prefix %j',
+    async (prefix) => {
+      const reference = `${prefix}#/paths/~1export/get/responses/200`
+      const input = {
+        swagger: '2.0',
+        produces: ['application/json'],
+        responses: { Export: { description: 'Export', schema: { type: 'string' } } },
+        paths: {
+          '/export': { get: { produces: ['text/csv'], responses: { '200': { $ref: `${prefix}#/responses/Export` } } } },
+          '/report': { get: { responses: { '200': { $ref: reference } } } },
+          '/xml': { get: { produces: ['application/xml'], responses: { '200': { $ref: reference } } } },
+        },
+      }
+      await bundle(input, {
+        origin: 'https://example.com/api.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [upgradeDocuments('2.0'), openApiDocument()],
+      })
 
-    expect(getRaw(read(input, ['paths', '/report', 'get', 'responses', '200', '$ref-value', 'content']))).toStrictEqual(
-      {
+      expect(getRaw(read(input, ['paths', '/export', 'get', 'responses', '200', 'content']))).toStrictEqual({
+        'text/csv': { schema: { type: 'string' } },
+      })
+      expect(
+        getRaw(read(input, ['paths', '/report', 'get', 'responses', '200', '$ref-value', 'content'])),
+      ).toStrictEqual({
         'application/json': { schema: { type: 'string' } },
-      },
-    )
-    expect(getRaw(read(input, ['paths', '/xml', 'get', 'responses', '200', 'content']))).toStrictEqual({
-      'application/xml': { schema: { type: 'string' } },
-    })
-  })
+      })
+      expect(getRaw(read(input, ['paths', '/xml', 'get', 'responses', '200', 'content']))).toStrictEqual({
+        'application/xml': { schema: { type: 'string' } },
+      })
+    },
+  )
 
   it('decodes the shared 2.0 response pointer before finding the operation variant', async () => {
     const input = {

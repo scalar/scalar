@@ -5,7 +5,7 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import { migrateDiscriminatorMappings } from './2.0-to-3.0/migrate-discriminator-mappings'
 import {
-  contextualizeSharedResponse,
+  createSharedResponseResolver,
   migrateBodyParameter,
   migrateFormDataParameter,
   migrateSchema,
@@ -50,6 +50,8 @@ export type FragmentUpgradeOptions = {
    * retain the authored reference. Without this callback, referenced body/form parameters stay in parameters.
    */
   resolveSource?: (ref: string) => Promise<unknown>
+  /** Return the fragment of a reference to the current document when its source URI is known. */
+  getLocalReference?: (reference: string) => string | undefined
 }
 
 /** Converted content and the locations of original reference targets. */
@@ -121,8 +123,16 @@ export const upgradeFragment = async (
   const v2 = options.from === '2.0'
   const source = structuredClone(input)
   const sourceDocument = v2 && options.kind === 'document' && isObject(source) ? source : undefined
-  // Keep source response schemas and examples available after the component traversal.
-  const sharedResponses = sourceDocument ? structuredClone(sourceDocument.responses) : undefined
+  const defaultProduces = options.produces ?? ['application/json']
+  const declaredProduces = sourceDocument?.produces
+  const resolveSharedResponse = createSharedResponseResolver({
+    // Keep source response schemas and examples available after the component traversal.
+    responses: sourceDocument ? structuredClone(sourceDocument.responses) : undefined,
+    paths: sourceDocument?.paths,
+    globalProduces: Array.isArray(declaredProduces) ? declaredProduces : defaultProduces,
+    section: 'responses',
+    getLocalReference: options.getLocalReference,
+  })
   const resolvedParameters = new Map<string, Promise<unknown>>()
   const resolveParameter = (parameter: unknown): Promise<unknown> => {
     if (!v2 || !isObject(parameter) || typeof parameter.$ref !== 'string' || !options.resolveSource) {
@@ -442,23 +452,13 @@ export const upgradeFragment = async (
       }
       if (isObject(value.responses)) {
         const convertedResponses: UnknownObject = {}
-        const responseContext =
-          sharedResponses === undefined
-            ? undefined
-            : {
-                responses: sharedResponses,
-                paths: sourceDocument?.paths,
-                produces: effectiveProduces,
-                globalProduces: produces,
-                section: 'responses' as const,
-              }
         result.responses = convertedResponses
         for (const [status, response] of Object.entries(value.responses)) {
           if (v2 && status.startsWith('x-')) {
             setOwn(convertedResponses, status, response)
             continue
           }
-          const shared = responseContext && contextualizeSharedResponse(response, responseContext)
+          const shared = resolveSharedResponse?.(response, effectiveProduces)
           const converted = await visit(shared ?? response, {
             kind: 'response',
             source: [...source, 'responses', status],
@@ -607,7 +607,7 @@ export const upgradeFragment = async (
     source: [],
     output: [],
     consumes: options.consumes ?? ['application/json'],
-    produces: options.produces ?? ['application/json'],
+    produces: defaultProduces,
     semanticPath,
   })
   return { value, locations, contexts }

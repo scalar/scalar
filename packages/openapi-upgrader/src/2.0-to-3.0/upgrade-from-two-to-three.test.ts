@@ -497,6 +497,31 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it.each(['#/responses/Export', '#%2Fresponses%2FExport'])(
+    'preserves the literal reference %s in an example',
+    ($ref) => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        produces: ['application/json'],
+        responses: { Export: { description: 'Reusable response' } },
+        paths: {
+          '/example': {
+            get: {
+              responses: {
+                '200': { description: 'Example', examples: { 'application/json': { $ref } } },
+              },
+            },
+          },
+        },
+      })
+
+      expect(result.paths?.['/example']?.get?.responses?.['200']).toStrictEqual({
+        description: 'Example',
+        content: { 'application/json': { example: { $ref } } },
+      })
+    },
+  )
+
   it('uses global produces for responses', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
