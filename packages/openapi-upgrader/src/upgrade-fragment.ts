@@ -1,12 +1,11 @@
 import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import { isObject } from '@scalar/helpers/object/is-object'
-import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 import type { OpenAPIV2 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { migrateDiscriminatorMappings } from './2.0-to-3.0/migrate-discriminator-mappings'
 import {
-  copySharedResponse,
+  contextualizeSharedResponse,
   migrateBodyParameter,
   migrateFormDataParameter,
   migrateSchema,
@@ -120,9 +119,10 @@ export const upgradeFragment = async (
   const locations: FragmentLocation[] = []
   const contexts: FragmentUpgradeResult['contexts'] = []
   const v2 = options.from === '2.0'
+  const source = structuredClone(input)
+  const sourceDocument = v2 && options.kind === 'document' && isObject(source) ? source : undefined
   // Keep source response schemas and examples available after the component traversal.
-  const sharedResponses =
-    v2 && options.kind === 'document' && isObject(input) ? structuredClone(input.responses) : undefined
+  const sharedResponses = sourceDocument ? structuredClone(sourceDocument.responses) : undefined
   const resolvedParameters = new Map<string, Promise<unknown>>()
   const resolveParameter = (parameter: unknown): Promise<unknown> => {
     if (!v2 || !isObject(parameter) || typeof parameter.$ref !== 'string' || !options.resolveSource) {
@@ -442,14 +442,23 @@ export const upgradeFragment = async (
       }
       if (isObject(value.responses)) {
         const convertedResponses: UnknownObject = {}
-        const overridesProduces = sharedResponses !== undefined && !isObjectEqual(effectiveProduces, produces)
+        const responseContext =
+          sharedResponses === undefined
+            ? undefined
+            : {
+                responses: sharedResponses,
+                paths: sourceDocument?.paths,
+                produces: effectiveProduces,
+                globalProduces: produces,
+                section: 'responses' as const,
+              }
         result.responses = convertedResponses
         for (const [status, response] of Object.entries(value.responses)) {
           if (v2 && status.startsWith('x-')) {
             setOwn(convertedResponses, status, response)
             continue
           }
-          const shared = overridesProduces ? copySharedResponse(response, sharedResponses, ['responses']) : undefined
+          const shared = responseContext && contextualizeSharedResponse(response, responseContext)
           const converted = await visit(shared ?? response, {
             kind: 'response',
             source: [...source, 'responses', status],
@@ -593,7 +602,7 @@ export const upgradeFragment = async (
     return result
   }
   const semanticPath = options.kind === 'schema' ? ['components', 'schemas', 'fragment'] : []
-  const value = await visit(structuredClone(input), {
+  const value = await visit(source, {
     kind: options.kind,
     source: [],
     output: [],

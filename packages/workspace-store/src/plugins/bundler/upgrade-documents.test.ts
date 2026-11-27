@@ -246,6 +246,58 @@ describe('upgrade-documents', () => {
     })
   })
 
+  it('uses the consuming operation media types across shared 2.0 response aliases', async () => {
+    const reference = '#/paths/~1export/get/responses/200'
+    const input = {
+      swagger: '2.0',
+      produces: ['application/json'],
+      responses: { Export: { description: 'Export', schema: { type: 'string' } } },
+      paths: {
+        '/export': { get: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export' } } } },
+        '/report': { get: { responses: { '200': { $ref: reference } } } },
+        '/xml': { get: { produces: ['application/xml'], responses: { '200': { $ref: reference } } } },
+      },
+    }
+    await bundle(input, {
+      traversal: 'document',
+      treeShake: false,
+      plugins: [upgradeDocuments('2.0'), openApiDocument()],
+    })
+
+    expect(getRaw(read(input, ['paths', '/report', 'get', 'responses', '200', '$ref-value', 'content']))).toStrictEqual(
+      {
+        'application/json': { schema: { type: 'string' } },
+      },
+    )
+    expect(getRaw(read(input, ['paths', '/xml', 'get', 'responses', '200', 'content']))).toStrictEqual({
+      'application/xml': { schema: { type: 'string' } },
+    })
+  })
+
+  it('decodes the shared 2.0 response pointer before finding the operation variant', async () => {
+    const input = {
+      swagger: '2.0',
+      produces: ['application/json'],
+      responses: {
+        'Export#': { description: 'Export', schema: { type: 'string' } },
+        'Export%23': { description: 'Other response', schema: { type: 'integer' } },
+      },
+      paths: {
+        '/export': { get: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export%23' } } } },
+      },
+    }
+    await bundle(input, {
+      traversal: 'document',
+      treeShake: false,
+      plugins: [upgradeDocuments('2.0'), openApiDocument()],
+    })
+
+    expect(getRaw(read(input, ['paths', '/export', 'get', 'responses', '200']))).toStrictEqual({
+      description: 'Export',
+      content: { 'text/csv': { schema: { type: 'string' } } },
+    })
+  })
+
   it('converts an external body parameter using the operation media type', async () => {
     const input = {
       swagger: '2.0',

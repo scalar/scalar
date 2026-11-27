@@ -1,5 +1,6 @@
-import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
@@ -353,6 +354,8 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     delete document.parameters
   }
 
+  // Relocation creates a new paths tree. Keep authored references for alias resolution.
+  const sourcePaths = document.paths
   let sharedResponses: UnknownObject | undefined
 
   // Handle global responses defined in #/responses
@@ -360,8 +363,15 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     // Update all $refs from #/responses/ to #/components/responses/
     document = traverse(document, (schema, path) => {
       const isResponseExtension = path?.[0] === 'paths' && path[3] === 'responses' && path[4]?.startsWith('x-')
-      if (!isResponseExtension && typeof schema.$ref === 'string' && schema.$ref.startsWith('#/responses/')) {
-        schema.$ref = schema.$ref.replace(/^#\/responses\//, '#/components/responses/')
+      if (!isResponseExtension && typeof schema.$ref === 'string') {
+        if (schema.$ref.startsWith('#/responses/')) {
+          schema.$ref = schema.$ref.replace(/^#\/responses\//, '#/components/responses/')
+        } else {
+          const [section, ...segments] = parseLocalReference(schema.$ref)
+          if (section === 'responses' && segments.length) {
+            schema.$ref = sharedResponseReference('components/responses', segments)
+          }
+        }
       }
       return schema
     })
@@ -468,13 +478,19 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
             // Responses
             if (operationItem.responses) {
               const produces = Array.isArray(operationItem.produces) ? operationItem.produces : globalProduces
-              const overridesProduces = !isObjectEqual(produces, globalProduces)
+              const sourceOperation = own(own(sourcePaths, path), methodOrParameters)
+              const sourceResponses = own(sourceOperation, 'responses')
+              const responseContext: SharedResponseContext = {
+                responses: sharedResponses,
+                paths: sourcePaths,
+                produces,
+                globalProduces,
+                section: 'components/responses',
+              }
               for (const status in operationItem.responses) {
                 if (Object.hasOwn(operationItem.responses, status) && !status.startsWith('x-')) {
                   const response = operationItem.responses[status]
-                  const shared = overridesProduces
-                    ? copySharedResponse(response, sharedResponses, ['components', 'responses'])
-                    : undefined
+                  const shared = contextualizeSharedResponse(own(sourceResponses, status), responseContext)
                   operationItem.responses[status] = transformResponseObject(shared ?? response, produces)
                 }
               }
@@ -993,13 +1009,19 @@ export function migrateFormDataParameter(
 
 type SwaggerParameter = OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject
 
-/** Keep malformed percent escapes from aborting an otherwise usable API description. */
+/** Decode a local URI fragment before interpreting JSON Pointer escapes. */
 const parseLocalReference = (reference: string): string[] => {
-  try {
-    return parseJsonPointerSegments(reference.slice(1))
-  } catch {
-    return reference.split('/').slice(1).map(unescapeJsonPointerSegment)
+  if (!reference.startsWith('#')) {
+    return []
   }
+
+  let pointer = reference.slice(1)
+  try {
+    pointer = decodeURIComponent(pointer)
+  } catch {
+    // Legacy references can contain literal percent characters.
+  }
+  return pointer.startsWith('/') ? pointer.slice(1).split('/').map(unescapeJsonPointerSegment) : []
 }
 
 /** Follow local aliases without looping on cyclic or unresolved parameter references. */
@@ -1040,34 +1062,67 @@ const resolveBodyParameter = (
   return parameter
 }
 
-/** Copy the source of a local shared response so it can be converted in the operation's media types. */
-export const copySharedResponse = (
+const own = (value: unknown, name: string): unknown => (isObjectLike(value) ? getOwnEntry(value, name) : undefined)
+
+type SharedResponseSection = 'responses' | 'components/responses'
+
+const sharedResponseReference = (section: SharedResponseSection, segments: string[]): string =>
+  `#/${section}/${segments.map((segment) => encodeURIComponent(escapeJsonPointer(segment))).join('/')}`
+
+type SharedResponseContext = {
+  responses: unknown
+  paths: unknown
+  produces: readonly string[]
+  globalProduces: readonly string[]
+  /** The response section targeted by references returned to the caller. */
+  section: SharedResponseSection
+}
+
+/** Apply the consuming operation's media types to a response shared through local references. */
+export const contextualizeSharedResponse = (
   response: unknown,
-  sharedResponses: unknown,
-  section: readonly string[],
+  { responses, paths, produces, globalProduces, section }: SharedResponseContext,
 ): UnknownObject | undefined => {
-  if (
-    !isObjectLike(sharedResponses) ||
-    !isObjectLike(response) ||
-    typeof response.$ref !== 'string' ||
-    !response.$ref.startsWith('#/')
-  ) {
+  let reference = own(response, '$ref')
+  if (!isObjectLike(responses) || typeof reference !== 'string') {
     return undefined
   }
 
-  const segments = parseLocalReference(response.$ref)
-  const name = segments.at(-1)
-  if (
-    segments.length !== section.length + 1 ||
-    !section.every((segment, index) => segment === segments[index]) ||
-    name === undefined ||
-    !Object.hasOwn(sharedResponses, name)
-  ) {
-    return undefined
+  const overridesProduces = !isObjectEqual(produces, globalProduces)
+  const seen = new Set<string>()
+  let passesThroughOverride = false
+  while (typeof reference === 'string' && !seen.has(reference)) {
+    seen.add(reference)
+    const [root, name, method, field, status, ...rest] = parseLocalReference(reference)
+    if (root === 'responses' && name !== undefined && method === undefined) {
+      const target = getOwnEntry(responses, name)
+      if (!isObjectLike(target) || typeof target.$ref === 'string') {
+        return undefined
+      }
+      if (overridesProduces) {
+        return structuredClone(target)
+      }
+      // An intermediate operation may inline its own variant at the authored address.
+      return passesThroughOverride ? { $ref: sharedResponseReference(section, [name]) } : undefined
+    }
+    if (
+      root !== 'paths' ||
+      name === undefined ||
+      method === undefined ||
+      field !== 'responses' ||
+      status === undefined ||
+      status.startsWith('x-') ||
+      rest.length > 0
+    ) {
+      return undefined
+    }
+    const operation = own(own(paths, name), method)
+    const operationProduces = own(operation, 'produces')
+    const target = own(own(operation, 'responses'), status)
+    passesThroughOverride ||= Array.isArray(operationProduces) && !isObjectEqual(operationProduces, globalProduces)
+    reference = own(target, '$ref')
   }
-
-  const target = sharedResponses[name]
-  return isObjectLike(target) && typeof target.$ref !== 'string' ? structuredClone(target) : undefined
+  return undefined
 }
 
 const isRequestBodyParameter = (parameter: SwaggerParameter): parameter is OpenAPIV2.ParameterObject =>
