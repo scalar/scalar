@@ -7,8 +7,10 @@
  * The escaping (`./unsafe`) is the security-relevant part: text must parse back to the same text,
  * never to emphasis, links or raw HTML. The output is byte for byte upstream's, except where
  * upstream's does not parse back, and can leave raw HTML behind: blocks inside inline content
- * (`inlineContent`), line endings in code spans, URLs that start with `<`, line endings in titles
- * and blank lines in text (`./unsafe`), and tables and lists in tight lists (`joinDefaults`).
+ * (`inlineContent`), inline content in flow containers (`flowContent`), empty and adjacent code
+ * spans (`codeSpans`), line endings in code spans,
+ * URLs that start with `<`, line endings in titles, blank lines in text and upper case `HTTPS://`
+ * (`./unsafe`), and tables and lists in tight lists (`joinDefaults`).
  */
 import type {
   Blockquote,
@@ -26,6 +28,7 @@ import type {
   Nodes,
   Paragraph,
   Parents,
+  PhrasingContent,
   Root,
   RootContent,
   Strong,
@@ -185,7 +188,7 @@ const handle = (node: Nodes, parent: Parents | undefined, state: State, info: In
  * a line break, and a code block becomes a code span. `mdast-util-to-markdown` writes the blocks.
  */
 const inlineContent = (nodes: Nodes[]): Nodes[] => {
-  if (nodes.every((node) => PHRASING.has(node.type) || node.type === 'html')) return nodes
+  if (nodes.every((node) => PHRASING.has(node.type) || node.type === 'html')) return codeSpans(nodes)
   const out: Nodes[] = []
   let afterBlock = false
   const add = (content: Nodes[], block: boolean): void => {
@@ -199,6 +202,31 @@ const inlineContent = (nodes: Nodes[]): Nodes[] => {
     else if (node.type === 'code') add([{ type: 'inlineCode', value: node.value }], true)
     else if ('children' in node) add(inlineContent(node.children), true)
     // A thematic break has no inline form, and goes.
+  }
+  return codeSpans(out)
+}
+
+/**
+ * Code spans as Markdown can write them. An empty one has no syntax (two backticks are text), and
+ * two in a row run their fences together, so either way backticks pair up differently and code
+ * comes back as Markdown and raw HTML. Empty ones go, and neighbours become one span, which looks
+ * the same. `mdast-util-to-markdown` writes them as they are.
+ */
+const codeSpans = (nodes: Nodes[]): Nodes[] => {
+  if (
+    !nodes.some((node, index) => node.type === 'inlineCode' && (!node.value || nodes[index + 1]?.type === 'inlineCode'))
+  ) {
+    return nodes
+  }
+  const out: Nodes[] = []
+  for (const node of nodes) {
+    if (node.type !== 'inlineCode') out.push(node)
+    else if (!node.value) continue
+    else {
+      const last = out.at(-1)
+      if (last?.type === 'inlineCode') out[out.length - 1] = { ...last, value: last.value + node.value }
+      else out.push(node)
+    }
   }
   return out
 }
@@ -269,9 +297,34 @@ const between = (left: RootContent, right: RootContent, parent: Parents, state: 
   return '\n\n'
 }
 
+/**
+ * Flow content from children that may include inline nodes, which a converted tree can have (text
+ * before the first `<li>` lands in a list item). Written as flow, text gets no inline escapes, so
+ * `![a](b)` or `x <img>` in it would come back as markup and raw HTML. Each run of inline nodes
+ * goes into a paragraph, which is how it renders anyway. `mdast-util-to-markdown` writes the
+ * runs as they are (and a root with any inline child entirely as inline content).
+ */
+const flowContent = (nodes: RootContent[]): RootContent[] => {
+  if (!nodes.some((node) => PHRASING.has(node.type))) return nodes
+  const out: RootContent[] = []
+  for (const node of nodes) {
+    const last = out.at(-1)
+    if (!PHRASING.has(node.type)) out.push(node)
+    else if (last?.type === 'paragraph' && wrapped.has(last)) last.children.push(node as PhrasingContent)
+    else {
+      const paragraph: Paragraph = { type: 'paragraph', children: [node as PhrasingContent] }
+      wrapped.add(paragraph)
+      out.push(paragraph)
+    }
+  }
+  return out
+}
+/** Paragraphs `flowContent` made, so it only adds to its own. */
+const wrapped = new WeakSet<Paragraph>()
+
 const containerFlow = (parent: Parents, state: State): string => {
   const indexStack = state.indexStack
-  const children = parent.children as RootContent[]
+  const children = flowContent(parent.children as RootContent[])
   const results: string[] = []
   indexStack.push(-1)
   for (let index = 0; index < children.length; index++) {
@@ -314,10 +367,7 @@ const joinDefaults: Join = (left, right, parent) => {
   return
 }
 
-const root: Handler<Root> = (node, _, state, info) =>
-  node.children.some((child) => PHRASING.has(child.type))
-    ? containerPhrasing(node, state, info)
-    : containerFlow(node, state)
+const root: Handler<Root> = (node, _, state) => containerFlow(node, state)
 
 const paragraph: Handler<Paragraph> = (node, _, state, info) => {
   const exit = enter(state, 'paragraph')

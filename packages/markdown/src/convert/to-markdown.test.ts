@@ -273,12 +273,47 @@ describe('to-markdown', () => {
     })
   })
 
-  it('escapes < with a character reference where an autolink literal would take the backslash', () => {
-    const markdown = serialize(root(paragraph(text('HTTPS://example.com/a.js></script> and <b>'))))
+  it('escapes upper case URLs too, so an autolink literal cannot run on through escapes and code', () => {
+    const markdown = serialize(
+      root(paragraph(text('HTTPS://example.com/a.js></script> and HTTP://x'), { type: 'inlineCode', value: '<b>' })),
+    )
     const html = (node: Nodes): boolean => node.type === 'html' || ('children' in node && node.children.some(html))
 
-    expect(markdown).toBe('HTTPS://example.com/a.js>&#x3C;/script> and \\<b>\n')
+    expect(markdown).toBe('HTTPS\\://example.com/a.js>\\</script> and HTTP\\://x`<b>`\n')
     expect(html(parseMarkdown(markdown))).toBe(false)
+  })
+
+  it('writes inline content in a list item or the root as a paragraph, with inline escapes', () => {
+    const item: RootContent = {
+      type: 'list',
+      ordered: false,
+      spread: false,
+      children: [
+        { type: 'listItem', spread: false, children: [text('x <img src=x onerror=alert(1)> ![a](b)') as never] },
+      ],
+    }
+    const html = (node: Nodes): boolean => node.type === 'html' || ('children' in node && node.children.some(html))
+
+    expect(serialize(root(item))).toBe('* x \\<img src=x onerror=alert(1)> !\\[a]\\(b)\n')
+    expect(serialize({ type: 'root', children: [text('a <b>') as never] })).toBe('a \\<b>\n')
+    expect(html(parseMarkdown(serialize(root(item))))).toBe(false)
+  })
+
+  it('drops empty code spans and joins adjacent ones, whose fences would pair up wrong', () => {
+    const tree = root(
+      paragraph(
+        { type: 'inlineCode', value: '=' },
+        { type: 'inlineCode', value: '`<r>' },
+        { type: 'inlineCode', value: '' },
+      ),
+    )
+
+    expect(serialize(tree)).toBe('``=`<r>``\n')
+    expect(parseMarkdown(serialize(tree)).children[0]).toStrictEqual({
+      type: 'paragraph',
+      children: [{ type: 'inlineCode', value: '=`<r>' }],
+    })
+    expect(serialize(root(paragraph(text('a'), { type: 'inlineCode', value: '' }, text('b'))))).toBe('ab\n')
   })
 
   it('round-trips random text made of Markdown punctuation', () => {
