@@ -2601,6 +2601,48 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toBe(expected)
   })
 
+  it.each<{ name: string; schema: SchemaObject; expected: number }>([
+    {
+      name: 'an int32 minimum above the format range',
+      schema: { type: 'integer', format: 'int32', minimum: 3e9 },
+      expected: 2_147_483_647,
+    },
+    {
+      name: 'an int32 exclusive maximum below the format range',
+      schema: { type: 'integer', format: 'int32', exclusiveMaximum: -3e9 },
+      expected: -2_147_483_648,
+    },
+    {
+      name: 'an int32 format on a number schema',
+      schema: { type: 'number', format: 'int32', minimum: 1.5 },
+      expected: 2,
+    },
+    {
+      name: 'an int32 range that contains a valid multiple',
+      schema: { type: 'integer', format: 'int32', minimum: 2_147_483_641, maximum: 3e9, multipleOf: 5 },
+      expected: 2_147_483_645,
+    },
+    {
+      name: 'a float minimum above the format range',
+      schema: { type: 'number', format: 'float', minimum: 1e40 },
+      expected: 3.4028234663852886e38,
+    },
+    {
+      name: 'a double minimum above the float range',
+      schema: { type: 'number', format: 'double', minimum: 1e40 },
+      expected: 1e40,
+    },
+  ])('generates numeric examples with $name', ({ schema, expected }) => {
+    expect(getExampleFromSchema(schema)).toBe(expected)
+  })
+
+  it.each<{ schema: SchemaObject; expected: string }>([
+    { schema: { type: 'integer', format: 'int64', minimum: 1e20 }, expected: '9223372036854775000' },
+    { schema: { type: 'integer', format: 'int64', maximum: -1e20 }, expected: '-9223372036854775000' },
+  ])('serializes an int64 example within the signed 64-bit range for $schema', ({ schema, expected }) => {
+    expect(JSON.stringify(getExampleFromSchema(schema))).toBe(expected)
+  })
+
   it.each(['examples', 'example', 'default', 'const', 'enum'] as const)(
     'keeps numeric values declared in %s',
     (key) => {

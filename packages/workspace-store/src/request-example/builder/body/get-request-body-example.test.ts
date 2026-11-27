@@ -23,7 +23,18 @@ describe('get-request-body-example', () => {
     })
   })
 
-  it('generates a numeric JSON request body from upgraded OpenAPI 3.0 bounds', () => {
+  it.each([
+    {
+      bound: 'exclusive minimum',
+      schema: { type: 'integer', minimum: -12, exclusiveMinimum: true, multipleOf: 3 },
+      expected: -9,
+    },
+    {
+      bound: 'exclusive maximum',
+      schema: { type: 'integer', maximum: -9, exclusiveMaximum: true, multipleOf: 3 },
+      expected: -12,
+    },
+  ])('generates a numeric JSON request body from an upgraded OpenAPI 3.0 $bound', ({ schema, expected }) => {
     const contentType = 'application/json'
     const document = upgrade(
       {
@@ -35,14 +46,7 @@ describe('get-request-body-example', () => {
               requestBody: {
                 content: {
                   [contentType]: {
-                    schema: {
-                      type: 'integer',
-                      minimum: -10,
-                      exclusiveMinimum: true,
-                      maximum: -8,
-                      exclusiveMaximum: true,
-                      multipleOf: 3,
-                    },
+                    schema,
                   },
                 },
               },
@@ -55,7 +59,7 @@ describe('get-request-body-example', () => {
     )
     const requestBody = coerceValue(RequestBodyObjectSchema, document.paths?.['/limits']?.post?.requestBody)
 
-    expect(getSchemaExampleFromBody(requestBody, contentType, undefined, document.openapi)).toBe(-9)
+    expect(getSchemaExampleFromBody(requestBody, contentType, undefined, document.openapi)).toBe(expected)
   })
 
   it.each(['application/json', 'application/x-www-form-urlencoded', 'multipart/form-data'])(

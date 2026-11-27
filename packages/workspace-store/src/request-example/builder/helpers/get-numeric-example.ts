@@ -157,30 +157,65 @@ const getSteppedExample = (
 const readBound = (value: unknown): number | undefined =>
   typeof value === 'number' && Number.isFinite(value) ? value : undefined
 
+type FormatBounds = { minimum: number; maximum: number; integer?: true }
+
+const getFormatBounds = (format: unknown): FormatBounds | undefined => {
+  switch (format) {
+    case 'int32':
+      return { minimum: -(2 ** 31), maximum: 2 ** 31 - 1, integer: true }
+    case 'int64': {
+      // The exact endpoints cannot both be emitted as in-range JSON numbers.
+      const maximum = adjacentNumber(2 ** 63, -1)
+      return { minimum: -maximum, maximum, integer: true }
+    }
+    case 'float': {
+      const maximum = (2 - 2 ** -23) * 2 ** 127
+      return { minimum: -maximum, maximum }
+    }
+    default:
+      return undefined
+  }
+}
+
 /** Generate a finite numeric sample from a normalized OpenAPI Schema Object. */
-export const getNumericExample = (schema: object, integer: boolean): number => {
+export const getNumericExample = (schema: object, integerType: boolean): number => {
   const minimum = readBound('minimum' in schema ? schema.minimum : undefined)
   const maximum = readBound('maximum' in schema ? schema.maximum : undefined)
   const exclusiveMinimum = readBound('exclusiveMinimum' in schema ? schema.exclusiveMinimum : undefined)
   const exclusiveMaximum = readBound('exclusiveMaximum' in schema ? schema.exclusiveMaximum : undefined)
   const multipleOf = readBound('multipleOf' in schema ? schema.multipleOf : undefined)
+  const format = getFormatBounds('format' in schema ? schema.format : undefined)
+  const integer = integerType || format?.integer === true
 
-  const lower = Math.max(
+  const schemaLower = Math.max(
     minimum ?? Number.NEGATIVE_INFINITY,
     exclusiveMinimum === undefined ? Number.NEGATIVE_INFINITY : adjacentNumber(exclusiveMinimum, 1),
   )
-  const upper = Math.min(
+  const schemaUpper = Math.min(
     maximum ?? Number.POSITIVE_INFINITY,
     exclusiveMaximum === undefined ? Number.POSITIVE_INFINITY : adjacentNumber(exclusiveMaximum, -1),
   )
-  const fallback = integer ? Math.ceil(minimum ?? 1) : (minimum ?? 1)
+  // When the two ranges cannot overlap, use the closest finite value in the format.
+  if (format && schemaLower > format.maximum) {
+    return format.maximum
+  }
+  if (format && schemaUpper < format.minimum) {
+    return format.minimum
+  }
+
+  const formatMinimum = format?.minimum ?? Number.NEGATIVE_INFINITY
+  const formatMaximum = format?.maximum ?? Number.POSITIVE_INFINITY
+  const lower = Math.max(schemaLower, formatMinimum)
+  const upper = Math.min(schemaUpper, formatMaximum)
+  const defaultValue = integer ? Math.ceil(minimum ?? 1) : (minimum ?? 1)
+  const fallback = Math.max(formatMinimum, Math.min(defaultValue, formatMaximum))
   if (lower > upper) {
     return fallback
   }
 
   // Prefer the lower bound when present, choosing a simple whole number above a strict bound.
   const preferred =
-    exclusiveMinimum !== undefined && lower > (minimum ?? Number.NEGATIVE_INFINITY)
+    exclusiveMinimum !== undefined && schemaLower > (minimum ?? Number.NEGATIVE_INFINITY)
       ? Math.floor(exclusiveMinimum) + 1
       : (minimum ?? 1)
   const belowExclusiveMaximum = exclusiveMaximum === undefined ? upper : Math.ceil(exclusiveMaximum) - 1
