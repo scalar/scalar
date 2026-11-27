@@ -14,6 +14,7 @@ You don't like the color scheme? We've prepared some themes for you:
 * `deepSpace`
 * `laserwave`
 * `halloween`
+* `programmersDay`
 
 Just pass the theme name to your [API Reference configuration](configuration.md):
 
