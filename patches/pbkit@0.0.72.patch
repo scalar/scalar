@@ -287,7 +287,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -685,14 +777,38 @@
+@@ -685,14 +777,51 @@
          bracketClose,
      };
  }
@@ -306,10 +306,23 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
 +    const inlineLeading = leading && !/\n/.test(parser.input.slice(leading.end, keyword.start)) ? leading : undefined;
 +    return { name, memberComment: bodyComment ?? (precedesName ? undefined : nameComment) ?? inlineLeading };
 +}
++// The first documented field can belong to a nested declaration or oneof.
++function firstDocumentedField(statements) {
++    for (const statement of statements) {
++        if (isDocumentedField(statement))
++            return statement;
++        const body = statement.messageBody ?? statement.enumBody ?? statement.oneofBody;
++        if (body) {
++            const field = firstDocumentedField(body.statements);
++            if (field)
++                return field;
++        }
++    }
++}
 +function attachBlockMemberDescription(parser, comment, statements) {
 +    if (!comment)
 +        return;
-+    const member = statements.find((statement) => isDocumentedField(statement));
++    const member = firstDocumentedField(statements);
 +    if (!member || member.leadingComments.length || member.leadingDetachedComments.length)
 +        return;
 +    const start = comment.comments.at(-1)?.text.endsWith("\n") ? comment.end - 1 : comment.end;
@@ -329,7 +342,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      const trailingComments = acceptTrailingComments(parser);
      return {
          ...(0, misc_1.mergeSpans)([
-@@ -713,7 +829,7 @@
+@@ -713,7 +842,7 @@
  }
  function acceptField(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;
@@ -338,7 +351,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      skipWsAndComments(parser);
      const fieldType = acceptType(parser);
      if (!fieldType) {
-@@ -855,10 +971,9 @@
+@@ -855,10 +984,9 @@
      const keyword = acceptKeyword(parser, "oneof");
      if (!keyword)
          return;
@@ -351,7 +364,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      const trailingComments = acceptTrailingComments(parser);
      return {
          ...(0, misc_1.mergeSpans)([
-@@ -1031,13 +1146,13 @@
+@@ -1031,13 +1159,13 @@
  }
  function acceptGroup(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;
@@ -367,7 +380,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword) {
          parser.loc = loc;
          return;
-@@ -1134,10 +1249,9 @@
+@@ -1134,10 +1262,9 @@
      const keyword = acceptKeyword(parser, "message");
      if (!keyword)
          return;

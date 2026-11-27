@@ -624,6 +624,7 @@ describe('protobuf-specification', () => {
 
   it.each([
     ['message Sample /* Header text. */ { string field = 1; }', 'field'],
+    ['message Sample /* Header text. */ { oneof choice { string field = 1; } }', 'field'],
     ['message /* Header text. */ Sample { string field = 1; }', 'field'],
     ['enum Sample // Header text.\n{ ZERO = 0; }', 'ZERO'],
     ['message Sample { oneof choice // Header text.\n{ string field = 1; } }', 'field'],
@@ -632,6 +633,18 @@ describe('protobuf-specification', () => {
     expect(node?.description).toBeUndefined()
     expect(node?.children?.map(({ name, description }) => ({ name, description }))).toStrictEqual([
       { name, description: 'Header text.' },
+    ])
+  })
+
+  it('attaches a header description to the first value of a preceding nested enum', () => {
+    const source = 'message M /* Header text. */ { enum E { ZERO = 0; } string id = 1; }'
+    const descriptions = readProtobuf(source, '3').nodes.map(({ name, children }) => ({
+      name,
+      children: children?.map(({ name, description }) => ({ name, description })),
+    }))
+    expect(descriptions).toStrictEqual([
+      { name: 'M', children: [{ name: 'id', description: undefined }] },
+      { name: 'E', children: [{ name: 'ZERO', description: 'Header text.' }] },
     ])
   })
 
