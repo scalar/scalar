@@ -187,7 +187,7 @@ jobs:
           # The commit message to use.
           commit-message: 'chore: version packages'
           # The command to use to build and publish packages.
-          publish-script: 'pnpm -r publish --access public --no-git-checks --provenance'
+          publish-script: 'pnpm -r publish --access public --no-git-checks --provenance --report-summary'
           # Pass the app token explicitly so the release PR triggers CI.
           github-token: ${{ steps.app-token.outputs.token }}
           # Preserve the existing Git CLI push behavior.
@@ -203,9 +203,21 @@ jobs:
           # CHANGELOG.md section into a friendly release-notes entry.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
-      # The jsDelivr purge lives in purge-cdn.yml, which runs after Main
-      # completes: npm scans new versions before serving them, so a purge sent
-      # from here would cache the previous version again.
+      # pnpm writes this report when the publish command runs. A release PR
+      # can leave an unpublished version for a later Main run to publish.
+      - name: Read pnpm publish summary
+        id: publish-summary
+        run: |
+          if [ -f pnpm-publish-summary.json ]; then
+            version=$(jq -er .version packages/api-reference/package.json)
+            published=$(jq --arg version "$version" \
+              'any(.publishedPackages[]; .name == "@scalar/api-reference" and .version == $version)' pnpm-publish-summary.json)
+            echo "api_reference=$published" >> "$GITHUB_OUTPUT"
+          fi
+      # purge-cdn.yml reads this step's conclusion from the triggering attempt.
+      - name: API Reference published to npm
+        if: steps.publish-summary.outputs.api_reference == 'true'
+        run: echo 'The CDN aliases need a global purge.'
 
       # Record this job's own result so the main-push deploys can gate on the
       # npm publish alone. `always()` ensures it runs even if an earlier step

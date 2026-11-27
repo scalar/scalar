@@ -49,7 +49,7 @@ jobs:
           ref: ${{ github.workflow_sha }}
           persist-credentials: false
           sparse-checkout: |
-            tooling/scripts/purge-jsdelivr.sh
+            tooling/scripts/purge-jsdelivr.mjs
           sparse-checkout-cone-mode: false
 
       - name: Check whether the Main run published to npm
@@ -63,58 +63,38 @@ jobs:
           # A manual run always waits for npm; that is why someone started it.
           if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
             echo "wait_for_npm=true" >> "$GITHUB_OUTPUT"
+            echo "purge_all=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          # Without a successful npm-publish job the version in package.json
-          # may never reach npm, and waiting for it would only time out.
-          conclusion=''
+
+          # A partial rerun can inherit the publish job from an earlier attempt.
           for ((attempt = RUN_ATTEMPT; attempt > 0; attempt--)); do
-            conclusion=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/attempts/$attempt/jobs" --paginate \
-              --jq '.jobs[] | select(.name == "release / npm-publish") | .conclusion')
-            # A partial rerun can inherit the publish job from an earlier attempt.
-            if [ -n "$conclusion" ]; then
+            result=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/attempts/$attempt/jobs" --paginate \
+              --jq '.jobs[] | select(.name == "release / npm-publish") |
+                {success: (.conclusion == "success"), published: any(.steps[]?; .name == "API Reference published to npm" and .conclusion == "success")}')
+            if [ -n "$result" ]; then
               break
             fi
           done
-          echo "npm-publish conclusion: ${conclusion:-not found}"
-          if [ "$conclusion" = 'success' ]; then
-            echo "wait_for_npm=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "wait_for_npm=false" >> "$GITHUB_OUTPUT"
-          fi
+          # Other successful runs can repair stale aliases. Only publication
+          # of this package requires purging even when the local route is fresh.
+          jq -nr --argjson job "${result:-null}" \
+            '"wait_for_npm=\($job.success == true)", "purge_all=\($job.success == true and $job.published == true)"' >> "$GITHUB_OUTPUT"
 
       - name: Read the API Reference version
         id: release-version
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
           VERSION_REF: ${{ github.event.workflow_run.head_sha || github.sha }}
-          WAIT_FOR_NPM: ${{ steps.published.outputs.wait_for_npm }}
         run: |
-          read_version() {
-            gh api --header 'Accept: application/vnd.github.raw+json' \
-              "repos/$GITHUB_REPOSITORY/contents/packages/api-reference/package.json?ref=$1" | \
-              jq -er '.version | strings | select(test("^[0-9A-Za-z.+-]+$"))'
-          }
-
-          version=$(read_version "$VERSION_REF")
-          printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
-          purge_all=false
-          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
-            purge_all=true
-          elif [ "$WAIT_FOR_NPM" = 'true' ]; then
-            # Like release.yml, compare the commit with its first parent.
-            previous_version=$(read_version "$VERSION_REF%5E")
-            if [ "$version" != "$previous_version" ]; then
-              purge_all=true
-            fi
-          fi
-          printf 'purge_all=%s\n' "$purge_all" >> "$GITHUB_OUTPUT"
+          gh api --header 'Accept: application/vnd.github.raw+json' \
+            "repos/$GITHUB_REPOSITORY/contents/packages/api-reference/package.json?ref=$VERSION_REF" | \
+            jq -er '.version | strings | select(test("^[0-9A-Za-z.+-]+$")) | "version=\(.)"' >> "$GITHUB_OUTPUT"
 
       - name: Purge jsDelivr once npm serves the release
         env:
           VERSION: ${{ steps.release-version.outputs.version }}
-          PURGE_ALL: ${{ steps.release-version.outputs.purge_all }}
+          PURGE_ALL: ${{ steps.published.outputs.purge_all }}
           WAIT_FOR_NPM: ${{ steps.published.outputs.wait_for_npm }}
-        run: bash ./tooling/scripts/purge-jsdelivr.sh
+        run: node ./tooling/scripts/purge-jsdelivr.mjs
