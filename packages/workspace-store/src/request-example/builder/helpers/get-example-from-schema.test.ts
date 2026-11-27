@@ -2506,6 +2506,7 @@ describe('getExampleFromSchema', () => {
     [{ type: 'integer', minimum: 2.5 }, 3],
     [{ type: 'integer', multipleOf: 5 }, 5],
     [{ type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 1 }, 0.5],
+    [{ type: 'number', minimum: 1.15, multipleOf: 0.01 }, 1.15],
     [{ type: ['integer', 'string'], minimum: 3, multipleOf: 4 }, 4],
   ] as const)('generates a number that satisfies %j', (schema, expected) => {
     expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, schema))).toBe(expected)

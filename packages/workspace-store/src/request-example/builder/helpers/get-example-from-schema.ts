@@ -1473,12 +1473,15 @@ const getNumberExample = (schema: SchemaObject, integer: boolean): number => {
   const onGrid = (step: number): number[] => {
     const above = Math.ceil(start / step)
     const below = Math.floor(start / step)
-    return [above, above + 1, below, below - 1].map((factor) => factor * step)
+    // Drop float noise from decimal steps, so 3 * 0.1 gives 0.3 instead of 0.30000000000000004.
+    return [above, above + 1, below, below - 1].map((factor) => Number((factor * step).toPrecision(15)))
   }
 
-  const hasStep = multipleOf !== undefined && multipleOf > 0 && (!integer || Number.isInteger(multipleOf))
-  const candidates = hasStep ? onGrid(multipleOf) : integer ? onGrid(1) : [start, ...onGrid(1), (lower + upper) / 2]
+  if (multipleOf !== undefined && multipleOf > 0 && (!integer || Number.isInteger(multipleOf))) {
+    return onGrid(multipleOf).find(fits) ?? start
+  }
 
+  const candidates = integer ? onGrid(1) : [start, ...onGrid(1), (lower + upper) / 2]
   return candidates.find(fits) ?? start
 }
 
