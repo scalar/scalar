@@ -39,7 +39,7 @@ export type FragmentUpgradeOptions = {
   from: '2.0' | '3.0'
   to: '3.1'
   kind: FragmentKind
-  /** Retrieval URL for a complete document, used to resolve the default Swagger 2.0 scheme. */
+  /** Retrieval URL for a complete document, used to resolve the default OpenAPI 2.0 scheme. */
   sourceUrl?: string
   consumes?: readonly string[]
   produces?: readonly string[]

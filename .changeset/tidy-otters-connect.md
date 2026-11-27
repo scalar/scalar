@@ -3,4 +3,4 @@
 '@scalar/workspace-store': patch
 ---
 
-Use the description's retrieval scheme when a Swagger 2.0 description omits schemes.
+Use the description's retrieval scheme when an OpenAPI 2.0 description omits schemes.

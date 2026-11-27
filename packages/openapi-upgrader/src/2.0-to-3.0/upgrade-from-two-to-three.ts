@@ -197,7 +197,7 @@ const upgradeFlow = (flow: string): 'implicit' | 'password' | 'clientCredentials
   }
 }
 
-/** Swagger 2.0 uses the retrieval scheme when specified, with HTTP as the fallback for local input. */
+/** OpenAPI 2.0 uses the retrieval scheme when specified, with HTTP as the fallback for local input. */
 const getDefaultServerScheme = (sourceUrl?: string): 'http' | 'https' => {
   try {
     return sourceUrl && new URL(sourceUrl).protocol === 'https:' ? 'https' : 'http'
@@ -233,7 +233,7 @@ export function upgradeFromTwoToThree(
 
   // Servers
   if (document.host) {
-    // Swagger 2.0 applies the retrieval scheme only when the schemes field is omitted.
+    // OpenAPI 2.0 applies the retrieval scheme only when the schemes field is omitted.
     const fallbackScheme = document.schemes === undefined ? getDefaultServerScheme(sourceUrl) : 'http'
     const schemes = Array.isArray(document.schemes) && document.schemes.length ? document.schemes : [fallbackScheme]
 

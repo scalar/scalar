@@ -1080,7 +1080,7 @@ describe('create-workspace-store', () => {
     }
   })
 
-  it('inherits the HTTPS scheme of a fetched Swagger 2.0 description', async () => {
+  it('inherits the HTTPS scheme of a fetched OpenAPI 2.0 description', async () => {
     const document = {
       swagger: '2.0',
       info: { title: 'Orders API', version: '1.0' },

@@ -76,7 +76,7 @@ console.log(locations)
 parameters use form-compatible types and fall back to `multipart/form-data`.
 
 For `kind: 'document'`, pass the description's retrieval URL as `sourceUrl`.
-When a Swagger 2.0 API description sets `host` and omits `schemes`, the upgrader
+When an OpenAPI 2.0 description sets `host` and omits `schemes`, the upgrader
 uses the retrieval URL's HTTP or HTTPS scheme for the generated server URL.
 The fallback is HTTP when the description has no HTTP or HTTPS retrieval URL.
 
