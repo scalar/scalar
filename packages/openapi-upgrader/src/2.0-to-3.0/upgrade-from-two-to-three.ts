@@ -207,9 +207,13 @@ const getDefaultServerScheme = (sourceUrl?: string): 'http' | 'https' => {
 }
 
 /**
- * Upgrade Swagger 2.0 to OpenAPI 3.0
+ * Upgrade an OpenAPI 2.0 description to OpenAPI 3.0.
  *
- * https://swagger.io/blog/news/whats-new-in-openapi-3-0/
+ * When the description sets `host` and omits `schemes`, use the retrieval URL's HTTP or HTTPS
+ * scheme for the server URL. The default is HTTP without an HTTP or HTTPS retrieval URL.
+ *
+ * @param originalSpecification - The API description to upgrade.
+ * @param sourceUrl - The URL used to retrieve the description, when available.
  */
 export function upgradeFromTwoToThree(
   originalSpecification: UnknownObject,
