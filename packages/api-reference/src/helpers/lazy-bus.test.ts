@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, shallowRef } from 'vue'
 
 import type { ResponsePropertyLink } from './id-routing'
-import { getStickyHeaderOffset, requestLazyRender, scrollToLazy } from './lazy-bus'
+import { getStickyHeaderOffset, requestLazyRender, scrollToElement, scrollToLazy } from './lazy-bus'
 
 // ---------------------------------------------------------------------------
 // scrollToLazy — existing tests
@@ -314,6 +314,82 @@ describe('lazy-bus', () => {
       expect(element.scrollIntoView).not.toHaveBeenCalled()
     },
   )
+
+  it('holds a pending pane jump through host input and releases it on pane input', async () => {
+    vi.useFakeTimers()
+    const pane = document.createElement('div')
+    pane.dataset.scalarScrollContainer = ''
+    pane.scrollBy = vi.fn()
+    const navigation = document.createElement('button')
+    pane.append(navigation)
+    document.body.append(pane)
+    navigation.focus()
+    const id = 'pending-pane-target'
+
+    scrollToLazy(
+      id,
+      () => undefined,
+      () => undefined,
+      { focusTarget: false, pane },
+    )
+    await nextTick()
+    document.body.dispatchEvent(new Event('wheel', { bubbles: true }))
+
+    const target = document.createElement('h2')
+    target.id = id
+    target.tabIndex = -1
+    pane.append(target)
+    vi.advanceTimersToNextFrame()
+    expect(pane.scrollBy).toHaveBeenCalled()
+    expect(document.activeElement).toBe(navigation)
+
+    vi.mocked(pane.scrollBy).mockClear()
+    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    vi.advanceTimersToNextFrame()
+    expect(pane.scrollBy).toHaveBeenCalled()
+
+    vi.mocked(pane.scrollBy).mockClear()
+    pane.dispatchEvent(new Event('wheel', { bubbles: true }))
+    vi.advanceTimersToNextFrame()
+    expect(pane.scrollBy).not.toHaveBeenCalled()
+  })
+
+  it('honors scroll padding in nested scrollports without moving the host', () => {
+    const host = document.createElement('div')
+    const pane = document.createElement('div')
+    const inner = document.createElement('div')
+    const target = document.createElement('h2')
+
+    for (const container of [host, pane, inner]) {
+      container.style.overflowY = 'auto'
+      container.scrollBy = vi.fn((options?: ScrollToOptions | number) => {
+        if (typeof options === 'object') {
+          container.scrollTop += options.top ?? 0
+        }
+      })
+    }
+    pane.dataset.scalarScrollContainer = ''
+    pane.style.scrollPaddingTop = '10%'
+    inner.style.scrollPaddingTop = '20px'
+    target.style.scrollMarginTop = '12px'
+    Object.defineProperty(pane, 'clientHeight', { value: 300 })
+    vi.spyOn(pane, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 100, 500, 300))
+    vi.spyOn(inner, 'getBoundingClientRect').mockImplementation(() => new DOMRect(0, 250 - pane.scrollTop, 400, 200))
+    vi.spyOn(target, 'getBoundingClientRect').mockImplementation(
+      () => new DOMRect(0, 800 - inner.scrollTop - pane.scrollTop, 400, 30),
+    )
+
+    inner.append(target)
+    pane.append(inner)
+    host.append(pane)
+    document.body.append(host)
+    scrollToElement(target)
+
+    expect(host.scrollBy).not.toHaveBeenCalled()
+    expect(inner.scrollBy).toHaveBeenCalledExactlyOnceWith({ top: 518, behavior: 'instant' })
+    expect(pane.scrollBy).toHaveBeenCalledExactlyOnceWith({ top: 140, behavior: 'instant' })
+    expect(target.getBoundingClientRect().top).toBe(142)
+  })
 
   it('does not retry an obsolete destination after a newer navigation', async () => {
     vi.useFakeTimers()
