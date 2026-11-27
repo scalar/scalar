@@ -120,7 +120,7 @@ Every corpus and suite below renders through both pipelines. [`bench/differentia
 | Markdown files: this repository and its `node_modules` (READMEs, changelogs, docs)                                                                 |     4,772 |   4,657 (97.59%) |                                                                        **0** |
 | Test fixtures of markdown-it, marked, cmark, cmark-gfm, commonmark.js, remark-gfm and mdast utilities                                              |     1,419 |   1,381 (97.32%) |                                                                        **0** |
 | CommonMark and GFM spec examples                                                                                                                   |       676 |              674 | **0**: neither pipeline passes the 2 that differ, or only the prototype does |
-| Fuzzed documents from a grammar of every construct (`pnpm corpora`)                                                                                |    25,000 |   13,403 (53.6%) |                                                                     738 (3%) |
+| Fuzzed documents from a grammar of every construct (`pnpm corpora`)                                                                                |    25,000 |   13,367 (53.5%) |                                                                     733 (3%) |
 | [Kitchen sink](./test/kitchen-sink.test.ts): 42 sections × 5 option sets, `ScalarMarkdown`'s visual-test samples, headings, sections, highlighting | 276 tests |         all pass |                                                                        **0** |
 
 Every difference in a real corpus is one of these, and each is a bug in the current pipeline that the prototype does not have:
@@ -145,7 +145,7 @@ Where micromark's behavior is a deliberate reading or a harmless quirk rather th
 - **Identical DOM looks identical.** 9,028 documents whose DOM matched (3,000 from APIs.guru, 4,654 Markdown files, 1,374 fixtures) render the same. The first run found two that did not, both hidden by the normalizer, and both now fixed in the prototype and the normalizer. One was indented code ending in lines of spaces: micromark keeps one empty line, and the normalizer had collapsed newlines inside `<pre>`. The other was a raw `<th>` left holding only whitespace after its image was removed; Scalar's styles hide `th:empty`, so it showed as an empty header row. What remains is 6 pairs with identical layout: 4 differ by one pixel, which is sub-pixel rasterization of table borders that any whitespace text node triggers, and 2 differ only in PNG encoding.
 - **Different DOM is visible.** Of the 1,817 documents whose DOM differs, 1,784 look different, every one in a bucket above. The other 33 do not render differently, such as a space before a removed image or an emptied element with no text. [`bench/visual-crop.mjs`](./bench/visual-crop.mjs) cuts each pair down to the rows that differ, side by side.
 
-**The fuzz residue** (738 of 25,000 generated documents, minimized) is synthetic HTML that real descriptions do not contain: `<td>` outside any table, which the current pipeline's fragment re-parse still treats as a cell; a table right after a block quote that ends in a table; lists that a blockquote's paragraph "interrupts" in micromark. None reproduce in any real corpus.
+**The fuzz residue** (733 of 25,000 generated documents, minimized) is synthetic HTML that real descriptions do not contain: `<td>` outside any table, which the current pipeline's fragment re-parse still treats as a cell; a table right after a block quote that ends in a table; lists that a blockquote's paragraph "interrupts" in micromark. None reproduce in any real corpus.
 
 #### After the move into `@scalar/markdown`, with highlighting
 
@@ -160,7 +160,7 @@ Every corpus was downloaded again and rerun once the pipeline moved into the pac
 | Stripe, GitHub, Galaxy |  11,520 |           11,512 (99.93%) |                  11,512 (99.93%) |                      0 |
 | Markdown files         |   5,082 |             4,964 (97.68%) |                   4,942 (97.25%) |                     22 |
 | Library fixtures       |   1,425 |             1,387 (97.33%) |                   1,389 (97.47%) |                      0 |
-| Fuzzed documents       |  25,000 |             13,402 (53.6%) |                   13,402 (53.6%) |                      0 |
+| Fuzzed documents       |  25,000 |             13,367 (53.5%) |                   13,367 (53.5%) |                      0 |
 
 The first highlighted run found two places where the pipeline did less than `rehypeHighlight`, which ran over the whole tree. Both are fixed in `html.ts`:
 

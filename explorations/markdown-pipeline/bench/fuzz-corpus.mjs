@@ -146,7 +146,7 @@ const block = (depth = 0) => {
     () => pick(['***', '---', '___']),
     () => {
       const cols = 1 + rnd(4)
-      const row = () => `| ${many(() => line().replace(/\n/g, ' ').replace(/\|/g, '\\|'), cols, cols, ' | ')} |`
+      const row = () => `| ${many(() => line().replace(/\n/g, ' ').replace(/[\\|]/g, '\\$&'), cols, cols, ' | ')} |`
       return `${row()}\n|${many(() => pick([' --- ', ':---', '---:', ':-:']), cols, cols, '|')}|\n${many(row, 0, 3, '\n')}`
     },
     () =>

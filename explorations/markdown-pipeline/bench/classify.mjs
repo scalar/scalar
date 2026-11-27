@@ -8,6 +8,8 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 
+import { parseFragment } from 'parse5'
+
 import { normalize } from './normalize.mjs'
 import { BASELINE_NO_REPARSE, MARKDOWN, OUT, PROTOTYPE } from './paths.mjs'
 
@@ -62,6 +64,14 @@ const reference = (md) => normalize(new HtmlRenderer().render(new Parser().parse
 const currentParse = (md) => normalize(String(remark.processSync(md)).trimEnd())
 const prototypeParse = (md) => normalize(prototype.htmlFromMarkdown(md, { unsafe: true }).trimEnd())
 
+/**
+ * The text of an HTML string, without whitespace, as the browser would read it. Parsed
+ * rather than stripped with a regular expression, which a tag inside an attribute fools.
+ */
+const textOnly = (html) => {
+  const walk = (n) => n.value ?? (n.childNodes ?? []).map(walk).join('')
+  return walk(parseFragment(html)).replace(/\s/g, '')
+}
 const EMPTIED =
   /<(a|span|b|strong|i|em|code|font|div|p|sup|sub|u|li|td|th|kbd|var|s|del|ins|q|small|big|abbr|dd|dt|summary|h[1-6])\b[^>]*><\/\1>/g
 const count = (s, re) => (s.match(re) ?? []).length
@@ -79,9 +89,7 @@ const KNOWN = {
   /** An alert whose marker stands alone skips its first block of content. */
   'alert skips first block': ({ current, prototype }) => {
     const content = (html) =>
-      [...html.matchAll(/markdown-alert-content">([\s\S]*?)<\/div>\n<\/div>/g)].map((m) =>
-        m[1].replace(/<[^>]+>|\s/g, ''),
-      )
+      [...html.matchAll(/markdown-alert-content">([\s\S]*?)<\/div>\n<\/div>/g)].map((m) => textOnly(m[1]))
     const a = content(current)
     const b = content(prototype)
     return (
@@ -101,7 +109,7 @@ const KNOWN = {
 /** An unclosed `<object>` or `<form>` makes the current pipeline strip everything after it. */
 const swallowed = (d) =>
   /<(object|form)\b/i.test(d.markdown) &&
-  d.diffs.every((x) => x.current.replace(/<[^>]+>|\s/g, '').length < x.prototype.replace(/<[^>]+>|\s/g, '').length)
+  d.diffs.every((x) => textOnly(x.current).length < textOnly(x.prototype).length)
 /**
  * micromark itself parses the input differently from the CommonMark reference (commonmark.js),
  * and the prototype parses it like the reference. Checked on unsanitized output, so the
