@@ -304,12 +304,21 @@ const between = (left: RootContent, right: RootContent, parent: Parents, state: 
  * goes into a paragraph, which is how it renders anyway. `mdast-util-to-markdown` writes the
  * runs as they are (and a root with any inline child entirely as inline content).
  */
-const flowContent = (nodes: RootContent[]): RootContent[] => {
-  if (!nodes.some((node) => PHRASING.has(node.type))) return nodes
+const flowContent = (parent: Parents): RootContent[] => {
+  const nodes = parent.children as RootContent[]
+  if (parent.type === 'list' || !nodes.some((node) => PHRASING.has(node.type) || node.type === 'listItem')) return nodes
   const out: RootContent[] = []
   for (const node of nodes) {
     const last = out.at(-1)
-    if (!PHRASING.has(node.type)) out.push(node)
+    if (node.type === 'listItem') {
+      // A list item outside a list (a `<dd>` in an `<li>`) has no marker to write; it gets a list.
+      if (last?.type === 'list' && wrappedLists.has(last)) last.children.push(node)
+      else {
+        const list: List = { type: 'list', ordered: false, spread: false, children: [node] }
+        wrappedLists.add(list)
+        out.push(list)
+      }
+    } else if (!PHRASING.has(node.type)) out.push(node)
     else if (last?.type === 'paragraph' && wrapped.has(last)) last.children.push(node as PhrasingContent)
     else {
       const paragraph: Paragraph = { type: 'paragraph', children: [node as PhrasingContent] }
@@ -319,12 +328,13 @@ const flowContent = (nodes: RootContent[]): RootContent[] => {
   }
   return out
 }
-/** Paragraphs `flowContent` made, so it only adds to its own. */
+/** Paragraphs and lists `flowContent` made, so it only adds to its own. */
 const wrapped = new WeakSet<Paragraph>()
+const wrappedLists = new WeakSet<List>()
 
 const containerFlow = (parent: Parents, state: State): string => {
   const indexStack = state.indexStack
-  const children = flowContent(parent.children as RootContent[])
+  const children = flowContent(parent)
   const results: string[] = []
   indexStack.push(-1)
   for (let index = 0; index < children.length; index++) {
@@ -349,9 +359,14 @@ const interruptsParagraph = (list: List): boolean =>
 const joinDefaults: Join = (left, right, parent) => {
   if ('spread' in parent && typeof parent.spread === 'boolean') {
     // Not in `mdast-util-to-markdown`, which writes these on consecutive lines in a tight list:
-    // a table takes in the lines after it as rows, and a list that cannot interrupt a paragraph
-    // becomes part of it. Either way the text that follows is read anew, so it gets a blank line.
-    if (left.type === 'table' || (left.type === 'paragraph' && right.type === 'list' && !interruptsParagraph(right))) {
+    // a table takes in the lines after it as rows, an HTML block runs on to a blank line, and a list
+    // that cannot interrupt a paragraph becomes part of it. Either way what follows is read anew,
+    // so it gets a blank line.
+    if (
+      left.type === 'table' ||
+      left.type === 'html' ||
+      (left.type === 'paragraph' && right.type === 'list' && !interruptsParagraph(right))
+    ) {
       return 1
     }
     if (
@@ -460,7 +475,11 @@ const inlineCode: Handler<InlineCode> = (node, _, state) => {
     value = ` ${value} `
   }
   // A pipe would end a table cell, and inside a cell the table's own escape applies to code too.
-  if (state.stack.includes('tableCell')) value = value.replace(/\|/g, '\\$&')
+  // A pipe after an even number of backslashes still ends the cell, so an odd run before one gets
+  // another backslash. `mdast-util-to-markdown` only adds the one, so `\|` in code split the cell.
+  if (state.stack.includes('tableCell')) {
+    value = value.replace(/(\\*)\|/g, (_, slashes: string) => `${slashes}${slashes.length % 2 ? '\\' : ''}\\|`)
+  }
   return sequence + value + sequence
 }
 inlineCode.peek = () => '`'

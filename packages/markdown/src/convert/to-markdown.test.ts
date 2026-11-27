@@ -299,6 +299,40 @@ describe('to-markdown', () => {
     expect(html(parseMarkdown(serialize(root(item))))).toBe(false)
   })
 
+  it('keeps a pipe after a backslash in code from ending a table cell', () => {
+    const tree = root({
+      type: 'table',
+      align: [null],
+      children: [
+        { type: 'tableRow', children: [{ type: 'tableCell', children: [{ type: 'inlineCode', value: '\\|<b>' }] }] },
+      ],
+    })
+    const html = (node: Nodes): boolean => node.type === 'html' || ('children' in node && node.children.some(html))
+
+    expect(serialize(tree)).toBe('| `\\\\\\|<b>` |\n| --------- |\n')
+    expect(html(parseMarkdown(serialize(tree)))).toBe(false)
+  })
+
+  it('separates an HTML block from what follows, and gives a stray list item a list', () => {
+    const item: RootContent = {
+      type: 'list',
+      ordered: false,
+      spread: false,
+      children: [
+        {
+          type: 'listItem',
+          spread: false,
+          children: [
+            { type: 'html', value: '<a id="x"></a>' },
+            { type: 'listItem', spread: false, children: [paragraph(text('b'))] } as never,
+          ],
+        },
+      ],
+    }
+
+    expect(serialize(root(item))).toBe('* <a id="x"></a>\n\n  * b\n')
+  })
+
   it('drops empty code spans and joins adjacent ones, whose fences would pair up wrong', () => {
     const tree = root(
       paragraph(
