@@ -233,10 +233,9 @@ export function upgradeFromTwoToThree(
 
   // Servers
   if (document.host) {
-    const schemes =
-      Array.isArray(document.schemes) && document.schemes.length
-        ? document.schemes
-        : [getDefaultServerScheme(sourceUrl)]
+    // Swagger 2.0 applies the retrieval scheme only when the schemes field is omitted.
+    const fallbackScheme = document.schemes === undefined ? getDefaultServerScheme(sourceUrl) : 'http'
+    const schemes = Array.isArray(document.schemes) && document.schemes.length ? document.schemes : [fallbackScheme]
 
     document.servers = schemes.map((scheme: string) => ({
       url: `${scheme}://${document.host}${document.basePath ?? ''}`,

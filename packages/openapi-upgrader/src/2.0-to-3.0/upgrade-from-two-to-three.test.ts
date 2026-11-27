@@ -58,6 +58,15 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.servers).toStrictEqual([{ url: 'http://api.example.com' }, { url: 'wss://api.example.com' }])
   })
 
+  it('keeps the HTTP fallback for an explicit empty schemes list', () => {
+    const result = upgradeFromTwoToThree(
+      { swagger: '2.0', host: 'api.example.com', schemes: [] },
+      'https://docs.example.com/swagger.json',
+    )
+
+    expect(result.servers).toStrictEqual([{ url: 'http://api.example.com' }])
+  })
+
   it('upgrades basePath to new server syntax', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
