@@ -246,6 +246,7 @@ class TestScalarConfig:
             title="Custom API",
             scalar_js_url="https://custom.cdn.com/scalar.js",
             scalar_proxy_url="https://proxy.example.com",
+            trusted_local_origins=["http://auth.dev.internal:8080"],
             scalar_favicon_url="https://example.com/favicon.ico",
             layout=Layout.CLASSIC,
             show_sidebar=False,
@@ -259,6 +260,7 @@ class TestScalarConfig:
         assert config.title == "Custom API"
         assert config.scalar_js_url == "https://custom.cdn.com/scalar.js"
         assert config.scalar_proxy_url == "https://proxy.example.com"
+        assert config.trusted_local_origins == ["http://auth.dev.internal:8080"]
         assert config.scalar_favicon_url == "https://example.com/favicon.ico"
         assert config.layout == Layout.CLASSIC
         assert config.show_sidebar is False
@@ -423,6 +425,7 @@ class TestGetScalarApiReference:
             title="Custom API",
             scalar_js_url="https://custom.cdn.com/scalar.js",
             scalar_proxy_url="https://proxy.example.com",
+            trusted_local_origins=["http://auth.dev.internal:8080"],
             scalar_favicon_url="https://example.com/favicon.ico",
             layout=Layout.CLASSIC,
             show_sidebar=False,
@@ -446,6 +449,7 @@ class TestGetScalarApiReference:
         # Check custom values in the config
         assert '"url": "/custom/openapi.json"' in html_content
         assert '"proxyUrl": "https://proxy.example.com"' in html_content
+        assert '"trustedLocalOrigins": ["http://auth.dev.internal:8080"]' in html_content
         assert '"layout": "classic"' in html_content
         assert '"showSidebar": false' in html_content
         assert '"hideDownloadButton": true' in html_content

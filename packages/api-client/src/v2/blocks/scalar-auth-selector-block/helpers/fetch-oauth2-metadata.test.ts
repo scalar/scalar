@@ -13,6 +13,21 @@ describe('fetch-oauth2-metadata', () => {
     expect(customFetch.mock.calls).toStrictEqual([['https://auth.example.com/custom?version=2']])
   })
 
+  it('fetches trusted HTTPS metadata directly and retains its endpoint TLS requirements', async () => {
+    const origin = 'https://auth.dev.internal'
+    const metadataUrl = `${origin}/metadata`
+    const metadata = { token_endpoint: 'http://auth.dev.internal/token' }
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(Response.json(metadata))
+
+    const [error, data] = await fetchOAuth2Metadata(metadataUrl, 'https://proxy.scalar.com', fetcher, [
+      origin,
+      'http://auth.dev.internal',
+    ])
+    expect(error?.message).toBe('OAuth2 metadata endpoints must use HTTPS or HTTP for local development URLs')
+    expect(data).toBeNull()
+    expect(fetcher.mock.calls).toStrictEqual([[metadataUrl]])
+  })
+
   it('accepts metadata with only a device authorization endpoint', async () => {
     const metadata = { device_authorization_endpoint: 'https://auth.example.com/device' }
     const customFetch = vi.fn().mockResolvedValue(Response.json(metadata))

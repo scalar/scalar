@@ -13,15 +13,23 @@ import { DataTableRow } from '@/v2/components/data-table'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { scheme, name, environment, eventBus, proxyUrl, customFetch } =
-  defineProps<{
-    scheme: OAuth2Object
-    name: string
-    environment: XScalarEnvironment
-    eventBus: WorkspaceEventBus
-    proxyUrl: string
-    customFetch?: CustomFetch
-  }>()
+const {
+  scheme,
+  name,
+  environment,
+  eventBus,
+  proxyUrl,
+  customFetch,
+  trustedLocalOrigins,
+} = defineProps<{
+  scheme: OAuth2Object
+  name: string
+  environment: XScalarEnvironment
+  eventBus: WorkspaceEventBus
+  proxyUrl: string
+  customFetch?: CustomFetch
+  trustedLocalOrigins?: readonly string[]
+}>()
 const loader = useLoadingState()
 const { toast } = useToasts()
 
@@ -43,6 +51,7 @@ const fetchConfiguration = async (): Promise<void> => {
     url,
     proxyUrl,
     customFetch,
+    trustedLocalOrigins,
   )
   await loader.clear()
   // Store updates can replace the proxy without changing the selected authorization server.

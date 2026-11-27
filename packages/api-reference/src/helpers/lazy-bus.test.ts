@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, shallowRef } from 'vue'
 
+import type { ResponsePropertyLink } from './id-routing'
 import { getStickyHeaderOffset, requestLazyRender, scrollToLazy } from './lazy-bus'
 
 // ---------------------------------------------------------------------------
@@ -42,6 +43,78 @@ describe('lazy-bus', () => {
   describe('scrollToLazy', () => {
     it('expands the operation behind a request-body anchor', () => {
       expect(expandedIdsFor(`${operationId}.body.name`)).toContain(operationId)
+    })
+
+    it('expands the operation whose path contains a response marker', () => {
+      const dottedOperation = `${operationId}.responses.200.json`
+      const expanded: string[] = []
+      const link = { mediaType: 'application/xml', operationId: dottedOperation }
+      const target = shallowRef<ResponsePropertyLink>()
+
+      scrollToLazy(
+        `${dottedOperation}.responses.200.name`,
+        (id, value) => value && expanded.push(id),
+        (id) => (id === operationId || id === dottedOperation ? { id } : undefined),
+        { response: { link, target, root: null } },
+      )
+
+      expect(expanded).toStrictEqual([dottedOperation])
+      expect(target.value).toBe(link)
+    })
+
+    it.each([
+      { suffix: 'body.customer', link: undefined },
+      {
+        suffix: 'responses.200.customer',
+        link: { mediaType: 'application/xml', operationId },
+      },
+    ])('uses the owning operation when another path starts with $suffix', ({ suffix, link }) => {
+      const otherOperation = `${operationId}.${suffix}`
+      const expanded: string[] = []
+
+      scrollToLazy(
+        `${otherOperation}.id`,
+        (id, value) => value && expanded.push(id),
+        (id) => (id === operationId || id === otherOperation ? { id } : undefined),
+        { response: link ? { link, target: shallowRef(), root: null } : undefined },
+      )
+
+      expect(expanded).toStrictEqual([operationId])
+    })
+
+    it('waits for the property inside its operation when another section has the same ID', async () => {
+      vi.useFakeTimers()
+      const operation = document.createElement('section')
+      const duplicate = document.createElement('button')
+      const duplicateOwner = document.createElement('div')
+      const property = document.createElement('button')
+      const root = document.createElement('div')
+      operation.id = duplicateOwner.id = operationId
+      operation.setAttribute('data-scalar-operation', '')
+      duplicate.id = property.id = `${operationId}.responses.200.name`
+      duplicate.scrollIntoView = vi.fn()
+      property.scrollIntoView = vi.fn()
+      root.append(duplicate, duplicateOwner, operation)
+      document.body.append(root)
+      const link = { mediaType: 'application/xml', operationId }
+      const target = shallowRef<ResponsePropertyLink>()
+
+      try {
+        scrollToLazy(property.id, () => undefined, navigationTree(), { response: { link, target, root } })
+        await nextTick()
+        expect(target.value).toBe(link)
+        expect(duplicate.scrollIntoView).not.toHaveBeenCalled()
+
+        operation.append(property)
+        vi.advanceTimersToNextFrame()
+        expect(document.activeElement).toBe(property)
+        expect(property.scrollIntoView).toHaveBeenCalled()
+        expect(duplicate.scrollIntoView).not.toHaveBeenCalled()
+        expect(target.value).toBeUndefined()
+      } finally {
+        root.remove()
+        vi.useRealTimers()
+      }
     })
 
     it('expands the operation behind a callback anchor', () => {

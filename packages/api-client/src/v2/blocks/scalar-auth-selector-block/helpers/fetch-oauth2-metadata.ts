@@ -16,13 +16,14 @@ export const fetchOAuth2Metadata = async (
   url: string,
   proxyUrl: string,
   customFetch: CustomFetch = fetch,
+  trustedLocalOrigins?: readonly string[],
 ): Promise<ErrorResponse<AuthorizationServerMetadata>> => {
   try {
     const metadataUrl = new URL(url.trim())
     if (!isAllowedOAuthUrl(metadataUrl)) {
       return [new Error('OAuth2 metadata URL must use HTTPS or HTTP for local development URLs'), null]
     }
-    const response = await customFetch(redirectToProxy(proxyUrl, metadataUrl.href))
+    const response = await customFetch(redirectToProxy(proxyUrl, metadataUrl.href, trustedLocalOrigins))
     if (!response.ok) {
       return [new Error(`Failed to fetch OAuth2 metadata: ${response.status} ${response.statusText}`), null]
     }

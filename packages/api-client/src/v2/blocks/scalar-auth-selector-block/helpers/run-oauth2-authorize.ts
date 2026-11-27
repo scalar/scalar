@@ -94,6 +94,8 @@ export const runOAuth2Authorize = async (params: {
     getEnvironmentVariables(environment),
     options?.customFetch,
     options?.captureOAuth2Callback,
+    undefined,
+    options?.trustedLocalOrigins,
   )
   const tokens = result[1]
 

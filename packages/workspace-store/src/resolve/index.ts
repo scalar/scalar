@@ -1,7 +1,8 @@
 import { Type } from '@scalar/typebox'
 
+import { isDynamicRef, retainDynamicRefTarget } from '@/helpers/dynamic-ref'
 import { getBooleanSchema } from '@/helpers/get-boolean-schema'
-import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { followReferenceChain, getResolvedRef, mergeSchemaReferenceChain } from '@/helpers/get-resolved-ref'
 import { compose } from '@/schemas/compose'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
@@ -44,13 +45,15 @@ export const resolve = {
       return undefined as ResolvedSchema<T>
     }
 
-    // Resolve boolean targets before merging siblings, which assumes an object target.
-    const target = getResolvedRef(schema)
-    if (typeof target === 'boolean') {
-      return getBooleanSchema(target) as ResolvedSchema<T>
+    const resolved = getResolvedRef(schema, mergeSchemaReferenceChain)
+    if (typeof resolved === 'boolean') {
+      return getBooleanSchema(resolved) as ResolvedSchema<T>
     }
-
-    const resoled = getResolvedRef(schema, mergeSiblingReferences)
-    return coerceValue(resolvedSchemaSchema, resoled) as ResolvedSchema<T>
+    const view = coerceValue(resolvedSchemaSchema, resolved)
+    if (isDynamicRef(resolved)) {
+      const source = isDynamicRef(schema) ? schema : followReferenceChain(schema).value
+      retainDynamicRefTarget(source, view)
+    }
+    return view as ResolvedSchema<T>
   },
 }

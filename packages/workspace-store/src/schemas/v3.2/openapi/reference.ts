@@ -1,4 +1,3 @@
-import { isObject } from '@scalar/helpers/object/is-object'
 import {
   type Schema,
   boolean,
@@ -10,6 +9,8 @@ import {
   string,
   union,
 } from '@scalar/validation'
+
+import { followReferenceChain } from '@/helpers/get-resolved-ref'
 
 const referenceExtensions = object(
   {
@@ -49,21 +50,12 @@ const reference = object(
 
 export const normalRef = (schema: Schema): Schema => union([schema, reference])
 
-/**
- * Follows a chain of references to the value at its end. References can form a loop (`A` points at
- * `B` and `B` points back at `A`, or a schema points at itself), so we stop at the first reference we
- * have already passed. Without that, a loop in an untrusted document overflows the stack.
- */
-const e = (value: unknown): unknown => {
-  const seen = new Set<unknown>()
-  let current = value
-
-  while (isObject(current) && '$ref' in current && !seen.has(current)) {
-    seen.add(current)
-    current = current['$ref-value']
-  }
-
-  return current
-}
 export const recursiveRef = (schema: Schema): Schema =>
-  union([schema, intersection([reference, object({ '$ref-value': evaluate(e, schema) }), referenceExtensions])])
+  union([
+    schema,
+    intersection([
+      reference,
+      object({ '$ref-value': evaluate((value) => followReferenceChain(value).value, schema) }),
+      referenceExtensions,
+    ]),
+  ])

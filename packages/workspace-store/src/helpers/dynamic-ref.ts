@@ -1,14 +1,18 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import {
+  DYNAMIC_REF_VALUE,
   collectDynamicAnchors as collectDynamicAnchorsGeneric,
+  createDynamicRefResolver,
+  getRaw,
   isDynamicRef as isDynamicRefGeneric,
   pushDynamicScope as pushDynamicScopeGeneric,
   resolveDynamicRef as resolveDynamicRefGeneric,
 } from '@scalar/json-magic/magic-proxy'
 
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import type { SchemaObject } from '@/schemas/v3.2/strict/schema'
+import { getBooleanSchema } from '@/helpers/get-boolean-schema'
+import { followReferenceChain, getResolvedRef } from '@/helpers/get-resolved-ref'
+import { unpackProxyShallow } from '@/helpers/unpack-proxy'
+import type { MaybeRefSchemaObject, SchemaObject } from '@/schemas/v3.2/strict/schema'
 
 /**
  * Resolution of JSON Schema 2020-12 `$dynamicRef` / `$dynamicAnchor`.
@@ -18,7 +22,7 @@ import type { SchemaObject } from '@/schemas/v3.2/strict/schema'
  * that traverse the proxy never assemble the scope by hand. This module re-exports the same helpers
  * typed against `SchemaObject`, for the few callers that walk raw (unpacked) schemas and therefore
  * still thread the scope explicitly (e.g. the example builder). Proxies are unwrapped with the
- * workspace-store `unpackProxyObject`, which also strips override, detect-changes and Vue proxies, so
+ * workspace-store `unpackProxyShallow`, which also strips override, detect-changes and Vue proxies, so
  * cycle detection stays correct across those layers. See https://github.com/scalar/scalar/issues/9414.
  */
 
@@ -28,7 +32,7 @@ import type { SchemaObject } from '@/schemas/v3.2/strict/schema'
  * Module-level on purpose: json-magic keys its anchor cache by this function, so a fresh closure per
  * call would never hit the cache.
  */
-const unwrap = (value: unknown): unknown => unpackProxyObject(value, { depth: 0 })
+const unwrap = unpackProxyShallow
 
 /** The dynamic scope, ordered outermost-first (see the module docs and the generic resolver). */
 export type DynamicScope = SchemaObject[]
@@ -60,3 +64,47 @@ export const pushDynamicScope = (scope: DynamicScope, schema: SchemaObject): Dyn
 /** Resolve a `$dynamicRef` fragment against the dynamic scope, outermost-first. */
 export const resolveDynamicRef = (dynamicRef: string, scope: DynamicScope): SchemaObject | undefined =>
   resolveDynamicRefGeneric(dynamicRef, scope as Record<string, unknown>[], unwrap) as SchemaObject | undefined
+
+/** Retrieve the indexed target, including the link saved in a detached schema snapshot. */
+const readDynamicRefTarget = (schema: object): unknown => Reflect.get(schema, DYNAMIC_REF_VALUE)
+
+/** Preserve the synthetic link when schema coercion produces a new view of an indexed reference. */
+export const retainDynamicRefTarget = (source: unknown, view: object): void => {
+  if (
+    isDynamicRef(source) &&
+    source !== view &&
+    (getRaw(source) !== source || Object.hasOwn(source, DYNAMIC_REF_VALUE))
+  ) {
+    Object.defineProperty(view, DYNAMIC_REF_VALUE, { value: readDynamicRefTarget(source), configurable: true })
+  }
+}
+
+/** Normalize boolean targets for the object-based display and example consumers. */
+export const normalizeDynamicRefTarget = (target: unknown): SchemaObject | undefined => {
+  if (typeof target === 'boolean') {
+    return getBooleanSchema(target)
+  }
+  return isObject(target) ? (target as SchemaObject) : undefined
+}
+
+/** Resolve against the active proxy scope, even when schema coercion created a shallow view. */
+export const createSchemaDynamicRefResolver = (
+  root: SchemaObject,
+): ((source: MaybeRefSchemaObject, scope: DynamicScope, view?: SchemaObject) => SchemaObject | undefined) => {
+  const resolveDetached = createDynamicRefResolver(root, unwrap)
+  return (source, scope, view) => {
+    const resolved = isDynamicRef(source) ? source : followReferenceChain(source).value
+    const schema = isDynamicRef(resolved) ? resolved : view
+    if (!isDynamicRef(schema)) {
+      return undefined
+    }
+
+    // An unresolved proxy reference already performed lexical resolution. Detached example schemas
+    // can instead use their own root or the scope of a pre-resolved reference passed by the caller.
+    const target =
+      getRaw(schema) !== schema || Object.hasOwn(schema, DYNAMIC_REF_VALUE)
+        ? readDynamicRefTarget(schema)
+        : resolveDetached(schema, scope as Record<string, unknown>[])
+    return normalizeDynamicRefTarget(target)
+  }
+}

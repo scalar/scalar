@@ -1,6 +1,11 @@
-import { isDynamicRef } from '@scalar/workspace-store/helpers/dynamic-ref'
-import { DYNAMIC_REF_VALUE } from '@scalar/workspace-store/resolve'
-import type { SchemaObject, SchemaReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isDynamicRef, normalizeDynamicRefTarget } from '@scalar/workspace-store/helpers/dynamic-ref'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { DYNAMIC_REF_VALUE, resolve } from '@scalar/workspace-store/resolve'
+import type {
+  ReferenceType,
+  SchemaObject,
+  SchemaReferenceType,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /**
  * Resolving JSON Schema 2020-12 `$dynamicRef` while rendering a schema.
@@ -24,9 +29,31 @@ import type { SchemaObject, SchemaReferenceType } from '@scalar/workspace-store/
  * unchanged, so rendering falls back to its prior behavior with no regression.
  */
 export const resolveDynamicSchema = <T extends SchemaReferenceType<SchemaObject> | undefined>(schema: T): T => {
-  if (isDynamicRef(schema)) {
-    return ((schema as Record<string, unknown>)[DYNAMIC_REF_VALUE] as T) ?? schema
+  if (!isDynamicRef(schema)) {
+    return schema
   }
 
-  return schema
+  const seen = new Set<object>()
+  let current: unknown = schema
+  while (isDynamicRef(current) && !seen.has(current)) {
+    seen.add(current)
+    const target = normalizeDynamicRefTarget(Reflect.get(current, DYNAMIC_REF_VALUE))
+    if (!target) {
+      break
+    }
+    current = target
+  }
+  return current as T
+}
+
+/** Read a media or parameter schema while preserving the scopes of its referenced properties. */
+export const resolveDisplaySchema = (
+  source: ReferenceType<SchemaObject> | null | undefined,
+): SchemaObject | undefined => {
+  if (!source) {
+    return undefined
+  }
+  const target = getResolvedRef<SchemaObject>(source)
+  const schema = target && typeof target === 'object' && '$ref' in target ? resolve.schema(source) : target
+  return resolveDynamicSchema(schema)
 }

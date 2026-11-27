@@ -2,6 +2,8 @@ import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import { coerce } from '@scalar/validation'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   TraversedEntry,
   TraversedOperation,
@@ -10,11 +12,18 @@ import type {
   TraversedWebhook,
 } from '@scalar/workspace-store/schemas/navigation'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { type OpenApiDocument, ServerObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import {
+  type OpenApiDocument,
+  type SchemaObject,
+  ServerObjectSchema,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { dynamicReferencesDocument } from '@test/fixtures/dynamic-references'
 import type { ComponentProps } from '@test/utils/types'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
+
+import { getExampleContent } from '@/features/example-responses/helpers/get-example-content'
 
 vi.mock('@/plugins/hooks/usePluginManager', () => ({
   usePluginManager: () => ({
@@ -618,5 +627,67 @@ describe('TraversedEntry', () => {
     expect(wrapper.text()).toContain('PaginatedUserResponse')
     expect(wrapper.text()).toContain('Bound user record')
     expect(wrapper.text()).toContain('email')
+  })
+
+  it('renders the same URI-qualified dynamic bindings and static fallbacks as JSON and XML examples', async () => {
+    const store = createWorkspaceStore({ meta: { 'x-scalar-active-document': 'default' } })
+    await store.addDocument({ name: 'default', document: dynamicReferencesDocument })
+    const document = store.workspace.documents.default as OpenApiDocument
+    const result = document.components!.schemas!.Result as SchemaObject
+    expect(result.$id).toBe('https://example.com/bindings/result.json')
+    const wrapper = mount(TraversedEntryComponent, {
+      props: {
+        document,
+        selectedServer: mockServer,
+        selectedClient: store.workspace['x-scalar-default-client'],
+        selectedExample: store.workspace['x-scalar-default-example'],
+        securitySchemes: {},
+        eventBus,
+        authStore: store.auth,
+        clientOptions: [],
+        entries: [
+          createMockOperation({ id: 'get-items', title: 'Get items', path: '/items', ref: '#/paths/~1items/get' }),
+        ],
+        expandedItems: { 'get-items': true },
+        options: coerce(apiReferenceConfigurationSchema, {
+          layout: 'modern',
+          expandAllResponses: true,
+          expandAllSchemaProperties: true,
+        }),
+      },
+    })
+
+    const schemaText = wrapper.getComponent({ name: 'ParameterListItem' }).text()
+    expect(schemaText.split('bound').length - 1).toBe(3)
+    expect(schemaText).toContain('ordinary anchor')
+    expect(schemaText).toContain('pointer value')
+    const path = getResolvedPathItem(document.paths?.['/items'])
+    const response = getResolvedRef(getResolvedRef(path?.get)?.responses?.['200'])
+    expect(JSON.parse(getExampleContent(response?.content?.['application/json'], undefined)!)).toStrictEqual({
+      fragment: { bound: 'selected' },
+      relative: { bound: 'selected' },
+      absolute: { bound: 'selected' },
+      ordinary: 'ordinary anchor',
+      pointer: 'pointer value',
+      alias: 'pointer value',
+      indirect: 'pointer value',
+    })
+    expect(
+      getExampleContent(response?.content?.['application/xml'], undefined, {
+        openapiVersion: '3.2.0',
+        contentType: 'application/xml',
+      }),
+    ).toBe(
+      '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<result>\n' +
+        '  <fragment bound="selected"/>\n' +
+        '  <relative bound="selected"/>\n' +
+        '  <absolute bound="selected"/>\n' +
+        '  <ordinary>ordinary anchor</ordinary>\n' +
+        '  <pointer>pointer value</pointer>\n' +
+        '  <alias>pointer value</alias>\n' +
+        '  <indirect>pointer value</indirect>\n' +
+        '</result>',
+    )
   })
 })

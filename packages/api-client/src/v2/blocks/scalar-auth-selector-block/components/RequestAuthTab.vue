@@ -364,6 +364,7 @@ const handleAcquisitionRefresh = async (bearerName: string): Promise<void> => {
     server,
     getEnvironmentVariables(environment),
     options?.customFetch,
+    options?.trustedLocalOrigins,
   )
   await acquisitionLoader.clear()
   if (tokens?.accessToken) {
@@ -626,7 +627,8 @@ const handleConfigAuthorize = (): void => {
         :eventBus
         :name
         :proxyUrl
-        :scheme />
+        :scheme
+        :trustedLocalOrigins="options?.trustedLocalOrigins" />
 
       <!-- OpenID Connect -->
       <OpenIDConnect
@@ -637,7 +639,8 @@ const handleConfigAuthorize = (): void => {
         :getStaticBorderClass
         :name
         :proxyUrl
-        :scheme />
+        :scheme
+        :trustedLocalOrigins="options?.trustedLocalOrigins" />
 
       <!-- Flow selector tabs: shown when multiple visible flows are available -->
       <DataTableRow v-if="visibleFlowKeys.length > 1">

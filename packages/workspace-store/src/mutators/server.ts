@@ -2,7 +2,7 @@ import { findVariables } from '@scalar/helpers/regex/find-variables'
 import type { AsyncApiServerVariableObject } from '@scalar/types/asyncapi/3.1'
 
 import type { ServerEvents, ServerMeta } from '@/events/definitions/server'
-import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { getPathItemOperation, getPathItemServerTarget } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
@@ -11,8 +11,7 @@ import { type ServerObject, ServerObjectSchema } from '@/schemas/v3.2/strict/ope
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
 /**
- * Target for server mutators: has a servers array and optional selected-server storage.
- * Document and (resolved) operation both have this shape.
+ * Documents, path items, and operations hold their own server list and selection.
  */
 type ServerTarget = {
   servers?: ServerObject[]
@@ -20,8 +19,7 @@ type ServerTarget = {
 }
 
 /**
- * Resolves the server target (document or operation) from meta.
- * Document-level servers live on the document; operation-level servers on the operation object.
+ * Resolves the writable server target from its scope.
  */
 const getServerTarget = (document: WorkspaceDocument | null, meta: ServerMeta): ServerTarget | null => {
   if (!isOpenApiDocument(document)) {
@@ -29,6 +27,9 @@ const getServerTarget = (document: WorkspaceDocument | null, meta: ServerMeta): 
   }
   if (meta.type === 'document') {
     return document
+  }
+  if (meta.type === 'path') {
+    return getPathItemServerTarget(document.paths?.[meta.path]) ?? null
   }
   return getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method)) ?? null
 }

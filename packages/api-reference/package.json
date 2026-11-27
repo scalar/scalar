@@ -102,8 +102,7 @@
   "files": [
     "dist",
     "esm.js",
-    "!dist/browser/webpack-stats.json",
-    "!dist/browser/webpack-stats.esm.json",
+    "!dist/browser/bundle-manifest.json",
     "!dist/examples",
     "!dist/browser/examples",
     "!dist/_redirects",
@@ -161,7 +160,6 @@
     "hono": "catalog:*",
     "jsdom": "catalog:*",
     "posthog-js": "catalog:*",
-    "rollup-plugin-webpack-stats": "^4.0.2",
     "storybook": "10.6.8",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",

@@ -1,4 +1,7 @@
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
+
+import { encodeUriComponent } from './encode-uri-component'
 
 /**
  * Encodes a path parameter, preserving only path-safe reserved characters and
@@ -17,13 +20,79 @@ export const encodePathParameter = (value: string, allowReserved = false): strin
 }
 
 /** Style metadata retained until environment substitution and path encoding. */
-export type ReservedPathParameter = {
+export type PathParameterSerialization = {
   /** Structured input retains array items and object entries for style delimiters. */
   value: unknown
   /** Original preview value lets request hooks override path.variables. */
   originalValue: string
   style: string
   explode: boolean
+  /** OpenAPI 3.0 and 3.1 include the style prefix when a value is undefined. */
+  includeUndefinedPrefix?: boolean
+}
+
+/** OpenAPI 3.2 path parameter metadata for reserved expansion. */
+export type ReservedPathParameter = PathParameterSerialization
+
+/** OpenAPI 3.0 and 3.1 retain the matrix or label prefix for undefined values. */
+export const includesUndefinedPathPrefix = (version?: string): boolean => /^3\.[01]\./.test(version ?? '')
+
+/** Encodes individual keys and values before adding OpenAPI path style delimiters. */
+export const serializePathParameter = (
+  name: string,
+  parameter: Pick<PathParameterSerialization, 'value' | 'style' | 'explode' | 'includeUndefinedPrefix'>,
+  replace: (value: string) => string = (value) => value,
+  allowReserved = false,
+): string => {
+  const { value, style, explode, includeUndefinedPrefix } = parameter
+  const encode = (item: unknown): string => {
+    const text = replace(String(item))
+    return allowReserved ? encodePathParameter(text, true) : encodeUriComponent(text)
+  }
+  const encodeName = (): string => {
+    const encoded = encode(name)
+    // RFC 6570 treats percent-encoded triplets in template variable names as literal.
+    return allowReserved ? encoded : encoded.replace(/%25([0-9a-f]{2})/gi, '%$1')
+  }
+  const entries =
+    isObjectLike(value) && !Array.isArray(value)
+      ? Object.entries(value).filter(([, item]) => allowReserved || isDefined(item))
+      : undefined
+  const array = Array.isArray(value) ? value : undefined
+  const items = allowReserved ? array : array?.filter(isDefined)
+
+  if (!allowReserved && (!isDefined(value) || items?.length === 0 || entries?.length === 0)) {
+    if (includeUndefinedPrefix && style === 'matrix') {
+      return `;${encodeName()}`
+    }
+    return includeUndefinedPrefix && style === 'label' ? '.' : ''
+  }
+
+  if (style === 'matrix') {
+    const pair = (encodedKey: string, data: string): string => `${encodedKey}${data || allowReserved ? `=${data}` : ''}`
+    if (entries && explode) {
+      return entries.map(([key, item]) => `;${pair(encode(key), encode(item))}`).join('')
+    }
+
+    const encodedName = encodeName()
+    if (items && explode) {
+      return items.map((item) => `;${pair(encodedName, encode(item))}`).join('')
+    }
+    const parts = entries?.flatMap(([key, item]) => [key, item]) ?? items
+    if (parts) {
+      return `;${encodedName}=${parts.map(encode).join(',')}`
+    }
+    return `;${pair(encodedName, encode(value))}`
+  }
+
+  const delimiter = style === 'label' && explode ? '.' : ','
+  let data: string
+  if (entries) {
+    data = entries.map(([key, item]) => `${encode(key)}${explode ? '=' : delimiter}${encode(item)}`).join(delimiter)
+  } else {
+    data = items ? items.map(encode).join(delimiter) : encode(value)
+  }
+  return style === 'label' ? `.${data}` : data
 }
 
 /** Serializes OpenAPI reserved path expansion without exposing forbidden delimiters. */
@@ -31,40 +100,20 @@ export const serializeReservedPathParameter = (
   name: string,
   parameter: Pick<ReservedPathParameter, 'value' | 'style' | 'explode'>,
   replace: (value: string) => string = (value) => value,
-): string => {
-  const { value, style, explode } = parameter
-  const encode = (item: unknown): string => encodePathParameter(replace(String(item)), true)
-  const entries = isObjectLike(value) && !Array.isArray(value) ? Object.entries(value) : undefined
-  const array = Array.isArray(value) ? value : undefined
+): string => serializePathParameter(name, parameter, replace, true)
 
-  if (style === 'matrix') {
-    if (entries && explode) {
-      return entries.map(([key, item]) => `;${encode(key)}=${encode(item)}`).join('')
-    }
-    if (array && explode) {
-      return array.map((item) => `;${encode(name)}=${encode(item)}`).join('')
-    }
-    const parts = entries ? entries.flatMap(([key, item]) => [key, item]) : (array ?? [value])
-    const data = parts.map(encode).join(',')
-    return `;${encode(name)}=${data}`
-  }
-
-  const delimiter = style === 'label' && explode ? '.' : ','
-  let data: string
-  if (entries) {
-    data = entries
-      .map(([key, item]) => (explode ? `${encode(key)}=${encode(item)}` : `${encode(key)}${delimiter}${encode(item)}`))
-      .join(delimiter)
-  } else {
-    data = array ? array.map(encode).join(delimiter) : encode(value)
-  }
-  return style === 'label' ? `.${data}` : data
+/** Detects browser-normalized dot segments, optionally only where a path expansion was marked. */
+export const hasPathDotSegment = (url: string, markedUrl?: string): boolean => {
+  const getPathSegments = (value: string): string[] => (value.split(/[?#]/, 1)[0] ?? '').trim().split('/')
+  const markedSegments = markedUrl === undefined ? [] : getPathSegments(markedUrl)
+  return getPathSegments(url).some(
+    (segment, index) => segment !== markedSegments[index] && /^(?:\.|%2e){1,2}$/i.test(segment),
+  )
 }
 
 /** Rejects dot segments that browser URL parsing would silently remove. */
 export const assertReservedPathUrl = (url: string): void => {
-  const path = url.split(/[?#]/, 1)[0] ?? ''
-  if (path.split('/').some((segment) => /^(?:\.|%2e){1,2}$/i.test(segment))) {
-    throw new URIError('Reserved path parameters cannot form dot segments because browsers normalize them.')
+  if (hasPathDotSegment(url)) {
+    throw new URIError('Path parameters cannot form dot segments because browsers normalize them.')
   }
 }
