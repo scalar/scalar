@@ -453,6 +453,12 @@ describe('protobuf-specification', () => {
     ])
   })
 
+  it.each(['"', "'"])('rejects a string ending in an escaped %s without a closing delimiter', (quote) => {
+    const source = `message M { string value = 1 [json_name = ${quote}display\\${quote}]; }`
+
+    expect(() => readProtobuf(source, '3')).toThrow(/expected/)
+  })
+
   it.each(['oneof choice { string a = 1; }', 'reserved 90;'])(
     'preserves next-field documentation after %s',
     (declaration) => {

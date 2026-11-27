@@ -31,13 +31,14 @@ describe('published-parser', () => {
     }
   })
 
-  it('publishes the pbkit notice and a reader that runs without pbkit installed', { timeout: 75_000 }, async () => {
+  it('publishes the pbkit notice and a reader that runs without pbkit installed', { timeout: 150_000 }, async () => {
     const packageRoot = resolve(import.meta.dirname, '..')
     const [pack]: [{ files: { path: string }[] }] = JSON.parse(
       execSync('npm pack --dry-run --ignore-scripts --offline --json', {
         cwd: packageRoot,
         encoding: 'utf8',
-        timeout: 45_000,
+        // npm also compresses the browser assets during a dry run, which takes longer on shared runners.
+        timeout: 120_000,
       }),
     )
     const paths = pack.files.map(({ path }) => path)

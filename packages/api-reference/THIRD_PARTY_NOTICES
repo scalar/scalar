@@ -1,6 +1,7 @@
 pbkit 0.0.72
 https://github.com/pbkit/pbkit
-Distributed under the Apache License, Version 2.0.
+pbkit is available under either the MIT License or the Apache License, Version 2.0.
+Scalar distributes this copy under the Apache License, Version 2.0.
 Scalar modified token and string escape recognition, comment attachment, and the parser step limit.
 
                               Apache License
