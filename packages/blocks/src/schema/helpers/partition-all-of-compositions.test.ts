@@ -1,4 +1,5 @@
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { partitionAllOfCompositions } from './partition-all-of-compositions'
@@ -15,6 +16,49 @@ describe('partitionAllOfCompositions', () => {
       ],
     })
     expect(schema).toStrictEqual({ allOf: [false, { description: 'Authored description', allOf: [true] }] })
+  })
+
+  it('keeps the schema own description over a member description', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      description: 'Request desc',
+      allOf: [
+        { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
+        { type: 'object', properties: { entityType: { type: 'string' } } },
+      ],
+    })
+
+    const { segments } = partitionAllOfCompositions(schema)
+
+    expect(segments).toHaveLength(1)
+    expect(segments[0]?.kind === 'object' && segments[0].schema.description).toBe('Request desc')
+  })
+
+  it('keeps a member description when the schema has none of its own', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      allOf: [
+        { type: 'object', properties: { entityType: { type: 'string' } } },
+        { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
+      ],
+    })
+
+    const { segments } = partitionAllOfCompositions(schema)
+
+    expect(segments[0]?.kind === 'object' && segments[0].schema.description).toBe('Core desc')
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('keeps member descriptions after a leading %s picker', (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      description: 'Request desc',
+      allOf: [
+        { [keyword]: [{ type: 'object' }, { type: 'string' }] },
+        { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
+      ],
+    })
+
+    const { segments } = partitionAllOfCompositions(schema)
+
+    expect(segments.map((segment) => segment.kind)).toStrictEqual(['object', 'choice', 'object'])
+    expect(segments[2]?.kind === 'object' && segments[2].schema.description).toBe('Core desc')
   })
 
   it('returns a single object segment when there is no allOf', () => {

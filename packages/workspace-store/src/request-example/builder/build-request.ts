@@ -123,17 +123,15 @@ export type BuildRequestFailureCode = ResolveRequestFactoryUrlError | typeof BUI
 
 export type BuildRequestResult = Result<BuildRequestData, BuildRequestFailureCode>
 
-export const buildRequest = (
-  request: RequestFactory,
-  options: {
-    envVariables: Record<string, string>
-    /**
-     * When true, allows an empty resolved server base URL (embedded modal, API reference callbacks, tests).
-     * @default false
-     */
-    allowMissingRequestServerBase?: boolean
-  },
-): BuildRequestResult => {
+type BuildRequestOptions = {
+  envVariables: Record<string, string>
+  /** Allows an empty resolved server base for the embedded client and reference callbacks. */
+  allowMissingRequestServerBase?: boolean
+  /** Local origins supplied by the embedding application. */
+  trustedLocalOrigins?: readonly string[]
+}
+
+export const buildRequest = (request: RequestFactory, options: BuildRequestOptions): BuildRequestResult => {
   if (request.cookieErrors?.length) {
     return err(BUILD_REQUEST_FAILED, request.cookieErrors[0])
   }
@@ -144,13 +142,7 @@ export const buildRequest = (
   return guarded.data
 }
 
-const buildRequestInner = (
-  request: RequestFactory,
-  options: {
-    envVariables: Record<string, string>
-    allowMissingRequestServerBase?: boolean
-  },
-): BuildRequestResult => {
+const buildRequestInner = (request: RequestFactory, options: BuildRequestOptions): BuildRequestResult => {
   /** Replace the value with the environment variable or context function */
   const replace = createEnvReplaceFn(options.envVariables)
 
@@ -262,7 +254,7 @@ const buildRequestInner = (
   const requestUrl = requestUrlResult.data
 
   /** Check if the request should be proxied */
-  const isUsingProxy = shouldUseProxy(request.proxyUrl, requestUrl)
+  const isUsingProxy = shouldUseProxy(request.proxyUrl, requestUrl, options.trustedLocalOrigins)
 
   /** Create a new cookies array with the replaced values */
   const cookies: XScalarCookie[] = [...request.cookies, ...securityCookies].map((c) => ({
@@ -301,7 +293,9 @@ const buildRequestInner = (
 
   /** Encode the URL with the allowed reserved query parameters */
   const encodedUrl = applyAllowReservedToUrl(requestUrl, request.allowedReservedQueryParameters ?? new Set())
-  const finalUrl = isUsingProxy ? redirectToProxy(request.proxyUrl, encodedUrl) : encodedUrl
+  const finalUrl = isUsingProxy
+    ? redirectToProxy(request.proxyUrl, encodedUrl, options.trustedLocalOrigins)
+    : encodedUrl
 
   return ok({
     requestPayload: [

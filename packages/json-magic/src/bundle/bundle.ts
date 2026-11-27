@@ -8,7 +8,7 @@ import { getValueByPath } from '@/helpers/get-value-by-path'
 import { isFilePath } from '@/helpers/is-file-path'
 import { isHttpUrl } from '@/helpers/is-http-url'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
-import { resolveResourcePath } from '@/helpers/resolve-resource-path'
+import { resolveResourcePath, tryResolveResourcePath } from '@/helpers/resolve-resource-path'
 import { setValueAtPath } from '@/helpers/set-value-at-path'
 import { toRelativePath } from '@/helpers/to-relative-path'
 import { getRaw } from '@/magic-proxy/symbols'
@@ -30,6 +30,7 @@ import {
   type SchemaIdentity,
   bundledDocumentUri,
   documentReferences,
+  resolveInitialDynamicRef,
 } from './document-references'
 import { documentTraversal } from './document-traversal'
 import { type RelocationTarget, type SourceReference, relocateReferences } from './relocate-references'
@@ -836,14 +837,11 @@ export const bundleDocument = async (
   const setPath = (target: object, path: string, value: unknown): void => setValueAtPath(target, path, value, parsePath)
   const customTraversal = config.traversal === 'document' && config.includeCustomReferences === true
   const createTraversal = (): ReturnType<typeof documentTraversal> =>
-    documentTraversal(
-      config.traversal === 'document',
-      documentRoot['swagger'] === '2.0',
-      documentRoot['swagger'] !== '2.0' && !String(documentRoot['openapi']).startsWith('3.0.'),
-      config.traversal === 'document' || diagnostics !== undefined,
-      typeof documentRoot['asyncapi'] === 'string',
-      customTraversal,
-    )
+    documentTraversal(documentRoot, {
+      aware: config.traversal === 'document',
+      enabled: config.traversal === 'document' || diagnostics !== undefined,
+      includeCustomReferences: customTraversal,
+    })
   const traversal = createTraversal()
   /** Vocabulary changes must resolve authored references rather than bundled storage pointers. */
   const authoredReferences = customTraversal ? new WeakMap<object, string>() : undefined
@@ -869,14 +867,7 @@ export const bundleDocument = async (
   }
   /** Native references may reinterpret custom subtrees; caller-supplied visited nodes stay excluded. */
   const processedContexts = customTraversal ? new WeakMap<object, ReturnType<typeof traversal.location>[]>() : undefined
-  traversal.register(
-    documentRoot,
-    getDefaultOrigin(),
-    config.traversal === 'document' &&
-      !('openapi' in documentRoot || 'swagger' in documentRoot || 'asyncapi' in documentRoot)
-      ? 'schema'
-      : 'object',
-  )
+  traversal.register(documentRoot, getDefaultOrigin())
   const deferredCopies: (() => void)[] = []
   const copyReferences = (owner: object, ...args: Parameters<typeof resolveAndCopyReferences>): void => {
     const exposure = processedContexts?.get(owner)?.at(-1)
@@ -938,6 +929,7 @@ export const bundleDocument = async (
       id: typeof id === 'string' && id !== '' ? id : undefined,
       idKeyword: vocabulary.idKeyword,
       anchor: vocabulary.anchors && typeof node.$anchor === 'string' ? node.$anchor : undefined,
+      dynamicAnchor: vocabulary.anchors && typeof node.$dynamicAnchor === 'string' ? node.$dynamicAnchor : undefined,
     }
   }
   const references = documentReferences(
@@ -1275,6 +1267,13 @@ export const bundleDocument = async (
     }
   }
 
+  const dynamicDocuments = new Map<string, { document: unknown; retrievalUri: string }>()
+  const retainDynamicDocument = (key: string, document: unknown, retrievalUri: string): void => {
+    dynamicDocuments.set(key, { document, retrievalUri })
+    setPath(documentRoot, `/${config.externalDocumentsKey}/${escapeJsonPointer(key)}`, document)
+    setPath(documentRoot, `/${config.externalDocumentsMappingsKey}/${escapeJsonPointer(key)}`, retrievalUri)
+  }
+
   const bundler = async (
     root: unknown,
     origin: string = defaultOrigin,
@@ -1361,6 +1360,47 @@ export const bundleDocument = async (
 
     const authoredReference = hasRef(root) ? root.$ref : undefined
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
+
+    // Dynamic references keep their URI and the complete initial resource. Rewriting to a
+    // storage pointer or pruning anchor declarations would change which schema can bind.
+    if (
+      isObject(root) &&
+      typeof root.$dynamicRef === 'string' &&
+      (config.traversal !== 'document' ||
+        getSchemaVocabulary(location?.context, location?.customReferences)?.anchors) &&
+      !config.preserveReference?.(root.$dynamicRef, { origin: nodeOrigin })
+    ) {
+      const prefix = root.$dynamicRef.split('#', 1)[0]
+      // A retrieval base cannot make a relative reference valid under an opaque lexical base.
+      const lexicalUri = prefix ? tryResolveResourcePath(nodeOrigin, prefix) : undefined
+      const retrievalOrigin = references.retrievalOrigin(root) ?? nodeOrigin
+      const retrievalUri =
+        lexicalUri === undefined || retrievalOrigin === nodeOrigin
+          ? lexicalUri
+          : tryResolveResourcePath(retrievalOrigin, prefix)
+      if (retrievalUri !== undefined) {
+        const known = resolveInitialDynamicRef(references, prefix, nodeOrigin)
+        if (known?.documentPath.length) {
+          const source = isObject(known.document) ? references.source(known.document)?.uri : undefined
+          retainDynamicDocument(known.documentPath[1]!, known.document, source ?? retrievalUri)
+          await bundler(known.document, source ?? retrievalUri, false, depth + 1, known.documentPath)
+        } else if (
+          !known &&
+          (!isHttpUrl(references.sourceOrigin(root) ?? getDefaultOrigin()) || isHttpUrl(retrievalUri))
+        ) {
+          const result = await loadDocument(retrievalUri)
+          if (result.ok && result.data !== undefined) {
+            const document = await prepareDocument(result.data, retrievalUri)
+            const key = await generate(toRelativePath(retrievalUri, mappingOrigin))
+            const path = [config.externalDocumentsKey, key]
+            traversal.register(document, retrievalUri, 'schema')
+            references.register(document, retrievalUri, path)
+            retainDynamicDocument(key, document, retrievalUri)
+            await bundler(document, retrievalUri, false, depth + 1, path)
+          }
+        }
+      }
+    }
 
     const visitChild = (key: string, deferred = false): Promise<void> => {
       const parentNode: unknown = deferred
@@ -1834,6 +1874,9 @@ export const bundleDocument = async (
     }
   }
   applyDeferredCopies()
+  for (const [key, { document, retrievalUri }] of dynamicDocuments) {
+    retainDynamicDocument(key, document, retrievalUri)
+  }
 
   // Cache indexing reserves keys before we know which edges will be preserved.
   // Do not expose reservations for resources that were never included in the output.
@@ -1856,11 +1899,16 @@ export const bundleDocument = async (
       outputBase: config.outputBase,
     })
   }
-  if (relocate || customTraversal) {
+  // Dynamic targets need retrieval aliases even in a full bundle without an explicit URL map.
+  const keepAllMappings = config.urlMap || isPartialBundling
+  if (!keepAllMappings && dynamicDocuments.size === 0) {
+    delete documentRoot[config.externalDocumentsMappingsKey]
+  } else if (!keepAllMappings || relocate || customTraversal) {
     const documents = documentRoot[config.externalDocumentsKey]
     const mappings = Object.fromEntries(
       Object.entries(documentRoot[config.externalDocumentsMappingsKey]).filter(
-        ([key]) => isObject(documents) && Object.hasOwn(documents, key),
+        ([key]) =>
+          (keepAllMappings || dynamicDocuments.has(key)) && isObject(documents) && Object.hasOwn(documents, key),
       ),
     )
     Object.defineProperty(documentRoot, config.externalDocumentsMappingsKey, {
@@ -1869,13 +1917,6 @@ export const bundleDocument = async (
       configurable: true,
       writable: true,
     })
-  }
-
-  // Keep urlMappings when doing partial bundling to track hash values and handle collisions
-  // For full bundling without urlMap config, remove the mappings to clean up the output
-  if (!config.urlMap && !isPartialBundling) {
-    // Remove the external document mappings from the output when doing a full bundle without urlMap config
-    delete documentRoot[config.externalDocumentsMappingsKey]
   }
 
   return rawSpecification

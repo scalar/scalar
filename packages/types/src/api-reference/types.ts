@@ -323,6 +323,9 @@ export type BaseConfiguration = {
   proxyUrl?: string
   /** Default OAuth 2.0 redirect URI used to prefill auth flows in the API client. */
   oauth2RedirectUri?: string
+
+  /** HTTP(S) origins treated as local for API proxy routing and OAuth authorization. */
+  trustedLocalOrigins?: string[]
   /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey?:
     | 'a'

@@ -18,6 +18,8 @@ internal sealed class ScalarConfiguration
 {
     public required string? ProxyUrl { get; init; }
 
+    public required string[]? TrustedLocalOrigins { get; init; }
+
     public required ScalarLocalizationOptions? Localization { get; init; }
 
     public required string[]? ShowExtensions { get; init; }

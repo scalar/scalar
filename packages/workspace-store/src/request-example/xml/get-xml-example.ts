@@ -1,8 +1,8 @@
 import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
-import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { type DynamicScope, createSchemaDynamicRefResolver, pushDynamicScope } from '@/helpers/dynamic-ref'
+import { getResolvedRef, mergeSchemaReferenceChain, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 import type { XMLObject } from '@/schemas/v3.2/strict/xml'
 
@@ -74,6 +74,7 @@ const buildXmlExample = (
   options: XmlExampleOptions,
   evaluation?: ExampleEvaluation,
 ): XmlExampleResult => {
+  const resolveDynamicRef = createSchemaDynamicRefResolver(input)
   const diagnostics: XmlDiagnostic[] = []
   const report = (severity: XmlDiagnostic['severity'], code: string, message: string, path: string[]): void => {
     diagnostics.push({ severity, code, message, path })
@@ -138,14 +139,12 @@ const buildXmlExample = (
     if (version32 && '$ref-value' in source && source['$ref-value']) {
       return { schema: source as XmlSchema, scope: context.scope, evaluations: context.evaluation?.children ?? [] }
     }
-    let schema = getResolvedRef(source, mergeSiblingReferences) as XmlSchema
+    let schema = getResolvedRef(source, mergeSchemaReferenceChain) as XmlSchema
     // A reference declared on a resource bookends against that resource, matching the magic proxy.
     const scope = pushDynamicScope(context.scope, schema)
-    if (isDynamicRef(schema)) {
-      const bound = resolveDynamicRef(schema.$dynamicRef, scope)
-      if (bound) {
-        return shape(bound, { ...context, scope }, seen)
-      }
+    const bound = resolveDynamicRef(source, scope, schema)
+    if (bound) {
+      return shape(bound, { ...context, scope }, seen)
     }
     const evaluations = [...(context.evaluation?.children ?? [])]
     const contributions =
@@ -236,7 +235,7 @@ const buildXmlExample = (
     // Resolving them into one object would erase an explicit wrapper or a transparent target.
     const referenceTarget = source && '$ref-value' in source ? source['$ref-value'] : undefined
     const sourceScope = pushDynamicScope(context.scope, source)
-    const dynamicTarget = isDynamicRef(source) ? resolveDynamicRef(source.$dynamicRef, sourceScope) : undefined
+    const dynamicTarget = referenceTarget === undefined ? resolveDynamicRef(source, sourceScope) : undefined
     const target = referenceTarget ?? dynamicTarget
     if (version32 && target && typeof target === 'object') {
       const localXml = (source as XmlSchema).xml ?? {}

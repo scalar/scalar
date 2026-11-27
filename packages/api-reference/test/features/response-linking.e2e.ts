@@ -27,6 +27,91 @@ const mockLazyTimers = (page: Page) =>
     }) as typeof setTimeout
   })
 
+test.describe('response linking with multiple media types', () => {
+  for (const routing of ['hash', 'path'] as const) {
+    test(`copied property links restore the media type with ${routing} routing`, async ({ page, context }) => {
+      await context.grantPermissions(['clipboard-write', 'clipboard-read'])
+      const path = '/orders.responses.200.json'
+      const example = await serveExample({
+        pathRouting: routing === 'path' ? { basePath: '/docs' } : undefined,
+        // The redirect callback receives the path and hash without query parameters.
+        redirect: routing === 'path' ? (path) => path : undefined,
+        content: {
+          openapi: '3.1.0',
+          info: { title: 'Orders API', version: '1.0.0' },
+          paths: {
+            [path]: {
+              get: {
+                responses: {
+                  '200': {
+                    description: 'Order details',
+                    content: {
+                      'application/json': {
+                        schema: { type: 'object', properties: { status: { type: 'string' } } },
+                      },
+                      'application/xml': {
+                        schema: { type: 'object', properties: { xmlOnlyField: { type: 'string' } } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      await page.goto(routing === 'path' ? `${example}/docs` : example)
+      const responses = page.getByRole('list', { name: 'Responses', exact: true })
+      const disclosure = responses.getByRole('button', { name: /^200\b/ })
+      await expect(disclosure).toHaveAttribute('aria-expanded', 'false')
+      await disclosure.focus()
+      await page.keyboard.press('Tab')
+      await expect(responses.getByRole('button', { name: 'Selected Content Type: application/json' })).toBeFocused()
+      await page.keyboard.press('Enter')
+      await expect(page.getByRole('option', { name: 'application/xml', exact: true })).toBeVisible()
+      await page.keyboard.press('End')
+      await page.keyboard.press('Enter')
+      await disclosure.press('Enter')
+      await responses.getByRole('button', { name: 'Copy link to xmlOnlyField', exact: true }).press('Enter')
+      await expect(page.getByText('Copied to the clipboard', { exact: true })).toBeVisible()
+      const copiedUrl = await page.evaluate(() => navigator.clipboard.readText())
+      const parameters = new URL(copiedUrl).searchParams
+      expect(parameters.get('scalar-response-media-type')).toBe('application/xml')
+      expect(parameters.get('scalar-response-operation')).toBe(`GET${path}`)
+
+      const freshPage = await context.newPage()
+      await freshPage.goto(copiedUrl)
+      const freshResponses = freshPage.getByRole('list', { name: 'Responses', exact: true })
+      const freshDisclosure = freshResponses.getByRole('button', { name: /^200\b/ })
+      const xmlProperty = freshResponses.getByRole('button', { name: 'Copy link to xmlOnlyField', exact: true })
+      await expect(freshResponses.getByRole('button', { name: 'Selected Content Type: application/xml' })).toBeVisible()
+      await expect(freshDisclosure).toHaveAttribute('aria-expanded', 'true')
+      await expect(xmlProperty).toBeInViewport()
+      await expect(freshPage.locator('[id$=".responses.200.xmlOnlyField"]')).toBeFocused()
+      await expect(freshPage.getByRole('button', { name: 'Copy XML code' })).toBeVisible()
+
+      if (routing === 'hash') {
+        // Opening the same link in an already-rendered operation must reopen
+        // its disclosure and restore XML even after the reader selects JSON.
+        await freshDisclosure.press('Enter')
+        const picker = freshResponses.getByRole('button', { name: 'Selected Content Type: application/xml' })
+        await picker.press('Enter')
+        await freshPage.keyboard.press('Home')
+        await freshPage.keyboard.press('Enter')
+        await expect(
+          freshResponses.getByRole('button', { name: 'Selected Content Type: application/json' }),
+        ).toBeVisible()
+        await freshPage.evaluate((url) => history.replaceState({}, '', url), copiedUrl)
+        await freshPage.getByRole('link', { name: /HTTP Method: GET/ }).click()
+        await freshPage.goBack()
+        await expect(freshDisclosure).toHaveAttribute('aria-expanded', 'true')
+        await expect(xmlProperty).toBeInViewport()
+      }
+    })
+  }
+})
+
 test.describe('response linking', () => {
   /* We need to retry this test because it's flaky on CI */
   test.describe.configure({ retries: 3 })

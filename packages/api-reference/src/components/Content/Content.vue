@@ -103,6 +103,7 @@ const {
       | 'hideTestRequestButton'
       | 'layout'
       | 'oauth2RedirectUri'
+      | 'trustedLocalOrigins'
       | 'orderRequiredPropertiesFirst'
       | 'orderSchemaPropertiesBy'
       | 'expandAllSchemaProperties'
@@ -460,6 +461,7 @@ provideDocumentOutline('document')
       <TraversedEntry
         v-if="items.length && openApiDocument"
         :authStore
+        :clientDocument="openApiClientDocument"
         :clientOptions
         :document="openApiDocument"
         :entries="items"

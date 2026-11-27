@@ -51,6 +51,7 @@ export const fetchOpenIDConnectDiscovery = async (
   url: string,
   proxyUrl: string,
   customFetch: CustomFetch = fetch,
+  trustedLocalOrigins?: readonly string[],
 ): Promise<ErrorResponse<OpenIDConnectDiscovery>> => {
   try {
     // If the URL does not end with the well-known path, append it
@@ -70,7 +71,7 @@ export const fetchOpenIDConnectDiscovery = async (
       discoveryUrl = `${discoveryUrl}/.well-known/openid-configuration`
     }
 
-    const proxiedUrl = redirectToProxy(proxyUrl, discoveryUrl)
+    const proxiedUrl = redirectToProxy(proxyUrl, discoveryUrl, trustedLocalOrigins)
     const response = await customFetch(proxiedUrl)
 
     if (!response.ok) {

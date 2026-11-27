@@ -27,7 +27,10 @@ import { type ComputedRef, watch } from 'vue'
  */
 export const mapConfigPlugins = (
   config: ComputedRef<
-    Pick<ApiReferenceConfiguration, 'onBeforeRequest' | 'onRequestBuilt' | 'onRequestSent' | 'onResponseReceived'>
+    Pick<
+      ApiReferenceConfiguration,
+      'onBeforeRequest' | 'onRequestBuilt' | 'onRequestSent' | 'onResponseReceived' | 'trustedLocalOrigins'
+    >
   >,
   environment: ComputedRef<XScalarEnvironment>,
 ): ClientPlugin[] => {
@@ -56,6 +59,7 @@ export const mapConfigPlugins = (
             const built = buildRequest(payload.requestBuilder, {
               envVariables,
               allowMissingRequestServerBase: true,
+              trustedLocalOrigins: config.value.trustedLocalOrigins,
             })
             if (!built.ok) {
               console.error(

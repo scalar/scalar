@@ -7,7 +7,7 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 
-import type { ReservedPathParameter } from '@/helpers/encode-path-parameter'
+import type { PathParameterSerialization, ReservedPathParameter } from '@/helpers/encode-path-parameter'
 import { type QuerystringParameter, getQuerystringParameter } from '@/helpers/querystring-parameter'
 import { resolveServerUrl } from '@/request-example/builder/helpers/resolve-server-url'
 import {
@@ -113,6 +113,8 @@ export type RequestFactory = {
     serializedParameters?: Set<string>
     /** Schema-based values using OpenAPI 3.2 reserved expansion. */
     reservedParameters?: Record<string, ReservedPathParameter>
+    /** Matrix and label values to serialize after environment substitution. */
+    styledParameters?: Record<string, PathParameterSerialization>
     /**
      * The raw request path string, as entered by the user or read from the OpenAPI schema.
      * Placeholders are not yet substituted.
@@ -314,6 +316,7 @@ export const requestFactory = ({
       variables: params.pathVariables,
       ...(params.serializedPathParameters ? { serializedParameters: params.serializedPathParameters } : {}),
       ...(params.reservedPathParameters ? { reservedParameters: params.reservedPathParameters } : {}),
+      ...(params.styledPathParameters ? { styledParameters: params.styledPathParameters } : {}),
       raw: path,
     },
     query: params.urlParams,

@@ -2,7 +2,6 @@ import { resolve } from 'node:path'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
-import webpackStats from 'rollup-plugin-webpack-stats'
 import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
@@ -63,7 +62,6 @@ export default defineConfig({
     // `<meta property="csp-nonce">` tag, so the bundle's CSS can be served under a strict
     // Content Security Policy. See the `nonce` option in @scalar/client-side-rendering.
     cssInjectedByJsPlugin({ attributes: { id: 'scalar-style' }, useStrictCSP: true }),
-    webpackStats(),
   ],
   build: {
     emptyOutDir: false,

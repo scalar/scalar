@@ -5,6 +5,7 @@ import {
   getIdFromHashBasePath,
   getIdFromPath,
   getIdFromUrl,
+  getResponsePropertyFromUrl,
   getSchemaParamsFromId,
   makeHrefFromId,
   makeUrlFromId,
@@ -623,6 +624,34 @@ describe('makeUrlFromId', () => {
     vi.stubGlobal('window', {
       location: createLocationMock() as Location,
     })
+  })
+
+  it.each([undefined, '#docs', '/docs'])('preserves the raw anchor and response media type at %s', (basePath) => {
+    vi.stubGlobal('window', {
+      location: createLocationMock({ href: 'https://example.com/?view=compact' }),
+    })
+    const operationId = 'doc/GET/orders.responses.200.json'
+    const id = `${operationId}.responses.200.order.name`
+    const mediaType = 'application/vnd.example+json; profile="https://example.com/a~b?[q]#x"'
+    const responseProperty = { operationId, mediaType }
+    const url = makeUrlFromId(id, basePath, false, responseProperty)!
+
+    expect(getIdFromUrl(url, basePath, 'doc')).toBe(id)
+    expect(getResponsePropertyFromUrl(url, 'doc')).toStrictEqual(responseProperty)
+    expect(url.searchParams.get('view')).toBe('compact')
+  })
+
+  it('leaves an existing property name intact and clears media state on unrelated navigation', () => {
+    vi.stubGlobal('window', {
+      location: createLocationMock({
+        href: 'https://example.com/?view=compact&scalar-response-operation=GET%2Forders&scalar-response-media-type=application%2Fxml',
+      }),
+    })
+    const id = 'doc/POST/orders.body.responses.200[media=application~2Fxml].name'
+    const url = makeUrlFromId(id, undefined, false)!
+
+    expect(getIdFromUrl(url, undefined, 'doc')).toBe(id)
+    expect(url.search).toBe('?view=compact')
   })
 
   it('returns undefined when window is undefined', () => {
@@ -1360,5 +1389,12 @@ describe('resolveHashPrefix', () => {
     ['docs/my api/tag/users', ['doc/tag/users'], false, 'docs/my api'],
   ])('resolves %s against known navigation IDs', (hash, ids, multi, expected) => {
     expect(resolveHashPrefix(hash, ids, multi)).toBe(expected)
+  })
+
+  it.each(['', 'docs/'])('resolves a response link behind hash prefix "%s" using its operation ID', (prefix) => {
+    const operation = 'doc/GET/orders.responses.200.json'
+    const hash = `${prefix}GET/orders.responses.200.json.responses.200.name`
+
+    expect(resolveHashPrefix(hash, [operation], false, operation)).toBe(prefix.replace(/\/$/, ''))
   })
 })

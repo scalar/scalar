@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { collectDynamicAnchors, pushDynamicScope, resolveDynamicRef } from '@/magic-proxy/dynamic-ref'
 import { createMagicProxy } from '@/magic-proxy/proxy'
+import { DYNAMIC_REF_VALUE } from '@/magic-proxy/symbols'
 
 /** A proxied document read by path, including the virtual `$ref-value` and `$dynamicRef-value` keys. */
 type ProxyNode = { readonly [key: string]: ProxyNode }
@@ -316,6 +317,156 @@ describe('proxy-dynamic-ref', () => {
     expect(groupItems['$dynamicRef-value']).toMatchObject({ title: 'Group' })
   })
 
+  it('uses the lexical resource across pointer hops and URI-qualified dynamic references', () => {
+    const proxy = createMagicProxy({
+      template: {
+        $id: 'https://example.com/schemas/template.json',
+        $defs: {
+          nested: {
+            $id: 'nested/schema.json',
+            $defs: { item: { $dynamicAnchor: 'item', title: 'Nested' } },
+            properties: {
+              fragment: { $dynamicRef: '#%69tem' },
+              relative: { $dynamicRef: '../default.json#item' },
+              absolute: { $dynamicRef: 'https://example.com/schemas/default.json#item' },
+            },
+          },
+          fallback: { $id: 'default.json', $dynamicAnchor: 'item', title: 'Default' },
+        },
+      },
+      direct: { $ref: '#/template/$defs/nested/properties/fragment' },
+      first: {
+        $id: 'https://example.com/bindings/first.json',
+        $defs: { item: { $dynamicAnchor: 'item', title: 'First' } },
+        $ref: 'https://example.com/schemas/nested/schema.json',
+      },
+      second: {
+        $id: 'https://example.com/bindings/second.json',
+        $defs: { item: { $dynamicAnchor: 'item', title: 'Second' } },
+        $ref: 'https://example.com/schemas/nested/schema.json',
+      },
+    }) as unknown as ProxyNode
+
+    expect(proxy.direct['$ref-value']['$dynamicRef-value'].title).toBe('Nested')
+
+    const first = proxy.first['$ref-value'].properties
+    const firstItem = first.fragment['$dynamicRef-value']
+    expect(firstItem.title).toBe('First')
+    expect(first.relative['$dynamicRef-value']).toBe(firstItem)
+    expect(first.absolute['$dynamicRef-value']).toBe(firstItem)
+    expect(proxy.first['$ref-value'].properties.relative['$dynamicRef-value']).toBe(firstItem)
+
+    const second = proxy.second['$ref-value'].properties
+    expect(second.relative['$dynamicRef-value'].title).toBe('Second')
+    expect(second.relative['$dynamicRef-value']).not.toBe(firstItem)
+  })
+
+  it('indexes schema anchors inside named OpenAPI components and skips extension payloads', () => {
+    const proxy = createMagicProxy({
+      openapi: '3.2.0',
+      info: { title: 'Scopes', version: '1' },
+      components: {
+        parameters: {
+          default: {
+            name: 'query',
+            in: 'query',
+            schema: {
+              $id: 'https://example.com/query',
+              $defs: { item: { $dynamicAnchor: 'item', const: 'query' } },
+              properties: { term: { $dynamicRef: '#item' } },
+            },
+          },
+        },
+        schemas: {
+          Use: { $ref: 'https://example.com/query' },
+          Literal: { $dynamicRef: '#item' },
+        },
+      },
+      'x-custom': { payload: { $dynamicAnchor: 'item', const: 'literal' } },
+    }) as unknown as ProxyNode
+    const query = proxy.components.parameters.default.schema
+    expect(proxy.components.schemas.Use['$ref-value']).toBe(query)
+    expect(query.properties.term['$dynamicRef-value'].const).toBe('query')
+    expect(proxy.components.schemas.Literal['$dynamicRef-value']).toBeUndefined()
+  })
+
+  it('reuses a bundled implicit resource scope when entered through a pointer', () => {
+    const proxy = createMagicProxy({
+      template: { $id: 'https://example.com/default.json', $dynamicAnchor: 'item', const: 'default' },
+      whole: { $ref: 'https://example.com/external.json' },
+      part: { $ref: 'https://example.com/external.json#/properties/entry' },
+      'x-ext': {
+        external: {
+          properties: {
+            override: { $dynamicAnchor: 'item', const: 'override' },
+            entry: { $dynamicRef: 'https://example.com/default.json#item' },
+          },
+        },
+      },
+      'x-ext-urls': { external: 'https://example.com/external.json' },
+    }) as unknown as ProxyNode
+    const entry = proxy.whole['$ref-value'].properties.entry
+    expect(entry['$dynamicRef-value'].const).toBe('override')
+    expect(proxy.part['$ref-value']).toBe(entry)
+    expect(proxy.part['$ref-value']['$dynamicRef-value']).toBe(entry['$dynamicRef-value'])
+  })
+
+  it('resolves references to bundled resources by their retrieval URIs', () => {
+    const proxy = createMagicProxy(
+      {
+        schema: {
+          $id: 'https://example.com/schema.json',
+          $defs: { outer: { $dynamicAnchor: 'item', title: 'Override' } },
+          properties: {
+            dynamic: { $dynamicRef: './models/other.json#item' },
+            root: { $dynamicRef: './models/other.json' },
+          },
+        },
+        'x-ext': { other: { $id: 'urn:other', $dynamicAnchor: 'item', title: 'Bundled' } },
+        'x-ext-urls': { other: 'https://example.com/models/other.json' },
+      },
+      { documentUri: 'https://example.com/document.json' },
+    ) as unknown as ProxyNode
+
+    const properties = proxy.schema.properties
+    expect(properties.dynamic['$dynamicRef-value'].title).toBe('Override')
+    expect(properties.root['$dynamicRef-value'].title).toBe('Bundled')
+  })
+
+  it('resolves static targets without substituting a matching dynamic anchor', () => {
+    const proxy = createMagicProxy({
+      $id: 'https://example.com/root.json',
+      $defs: {
+        item: { $dynamicAnchor: 'item', title: 'Outer' },
+        nested: {
+          $id: 'nested/schema.json',
+          $defs: {
+            anchor: { $anchor: 'item', title: 'Static' },
+            'a/b': { $dynamicAnchor: 'pointer', title: 'Pointer' },
+            boolean: false,
+          },
+          properties: {
+            anchor: { $dynamicRef: '#item' },
+            qualified: { $dynamicRef: 'schema.json#item' },
+            pointer: { $dynamicRef: '#/$defs/a~1b' },
+            bool: { $dynamicRef: '#/$defs/boolean' },
+            missing: { $dynamicRef: 'missing.json#item' },
+            outside: { $dynamicRef: '#/$defs/pointer' },
+          },
+        },
+        pointer: { $dynamicAnchor: 'pointer', title: 'Outer pointer' },
+      },
+    }) as unknown as ProxyNode
+
+    const properties = proxy.$defs.nested.properties
+    expect(properties.anchor['$dynamicRef-value'].title).toBe('Static')
+    expect(properties.qualified['$dynamicRef-value']).toBe(properties.anchor['$dynamicRef-value'])
+    expect(properties.pointer['$dynamicRef-value'].title).toBe('Pointer')
+    expect(properties.bool['$dynamicRef-value']).toBe(false)
+    expect(properties.missing['$dynamicRef-value']).toBeUndefined()
+    expect(properties.outside['$dynamicRef-value']).toBeUndefined()
+  })
+
   it('returns undefined for an unresolvable $dynamicRef and leaves plain schemas untouched', () => {
     const document = {
       Widget: {
@@ -503,6 +654,49 @@ describe('proxy-dynamic-ref', () => {
     const shared = proxy.shared
     proxy.title = 'After'
     expect(proxy.shared).toBe(shared)
+  })
+
+  it('refreshes a retained dynamic reference when its lexical id and matching anchor are edited', () => {
+    const proxy = createMagicProxy({
+      $id: 'https://example.com/root.json',
+      $defs: {
+        source: { $id: 'one/source.json', properties: { value: { $dynamicRef: 'target.json#item' } } },
+        one: { $id: 'one/target.json', $dynamicAnchor: 'item', const: 'one' },
+        two: { $id: 'two/target.json', $dynamicAnchor: 'item', const: 'two' },
+      },
+    })
+    const value = proxy.$defs.source.properties.value
+    const read = (): unknown => Reflect.get(value, DYNAMIC_REF_VALUE)
+
+    expect(read()).toMatchObject({ const: 'one' })
+    proxy.$defs.source.$id = 'two/source.json'
+    expect(read()).toMatchObject({ const: 'two' })
+    proxy.$defs.two.$dynamicAnchor = 'other'
+    expect(read()).toBeUndefined()
+    value.$dynamicRef = 'target.json#other'
+    expect(read()).toMatchObject({ const: 'two' })
+  })
+
+  it('reuses the lexical index and dynamic target after annotation edits', () => {
+    const inspect = vi.fn(() => ({ type: 'string' }))
+    const proxy = createMagicProxy({
+      $id: 'urn:example:root',
+      title: 'Before',
+      $defs: { item: { $dynamicAnchor: 'item', const: 'selected' } },
+      properties: { value: { $dynamicRef: '#item' } },
+      get unrelated() {
+        return inspect()
+      },
+    })
+    const read = (): unknown => Reflect.get(proxy.properties.value, DYNAMIC_REF_VALUE)
+    const first = read()
+    expect(first).toMatchObject({ const: 'selected' })
+    expect(inspect).toHaveBeenCalledTimes(1)
+
+    proxy.title = 'After'
+
+    expect(read()).toBe(first)
+    expect(inspect).toHaveBeenCalledTimes(1)
   })
 
   it('activates a previously scanned anchor-free resource after an in-place edit', () => {

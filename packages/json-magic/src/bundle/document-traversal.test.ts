@@ -26,7 +26,7 @@ describe('document-traversal', () => {
         throw new Error('unnecessary traversal')
       },
     }
-    const traversal = documentTraversal(false, false, true, false)
+    const traversal = documentTraversal(input, { aware: false, enabled: false })
     traversal.register(input, '/')
     expect(traversal.location(input)).toBeUndefined()
   })
@@ -42,7 +42,7 @@ describe('document-traversal', () => {
     const selected = { $id: './selected', $anchor: 'selected', properties: { nested: { $ref: '#selected' } } }
     const other = { $anchor: 'other' }
     const input = { openapi: '3.1.0', 'x-data': { selected, other }, untouched }
-    const traversal = documentTraversal(true, false, true)
+    const traversal = documentTraversal(input)
     const references = documentReferences(
       'x-ext',
       undefined,
@@ -78,10 +78,36 @@ describe('document-traversal', () => {
     expect(references.origin(selected.properties.nested)).toBe('https://example.com/selected')
   })
 
+  it('reuses the custom traversal when refreshing a registered subtree', () => {
+    let reads = 0
+    const selected = { $id: 'https://example.com/selected', $dynamicAnchor: 'selected' }
+    const input = {
+      openapi: '3.1.0',
+      'x-schemas': { selected },
+      get untouched(): object {
+        reads++
+        return {}
+      },
+    }
+    const origin = 'https://example.com/root'
+    const references = documentReferences('x-ext', undefined, false, undefined, undefined, undefined, {
+      includeCustomReferences: true,
+    })
+    references.register(input, origin)
+    const initialReads = reads
+
+    selected.$dynamicAnchor = 'updated'
+    references.refresh(input, ['x-schemas', 'selected'])
+
+    expect(reads).toBe(initialReads)
+    expect(references.resolve('https://example.com/selected#selected', origin)).toBeUndefined()
+    expect(references.resolve('https://example.com/selected#updated', origin)?.value).toBe(selected)
+  })
+
   it('assigns authored source locations to previously embedded documents', () => {
     const external = { properties: { missing: { $ref: '#/absent' } } }
     const input = { 'x-ext': { external } }
-    const traversal = documentTraversal(true, false, true)
+    const traversal = documentTraversal(input)
     traversal.register(input, '/root.json')
     traversal.register(external, '/external.json')
     expect(traversal.location(external.properties.missing)).toStrictEqual({
@@ -94,7 +120,7 @@ describe('document-traversal', () => {
   it.each([false, true])('indexes message data at its authored location (proxied: %s)', (proxied) => {
     const source = structuredClone(document)
     const root = proxied ? createMagicProxy(source) : source
-    const traversal = documentTraversal(true, false, true)
+    const traversal = documentTraversal(root)
     traversal.register(root, '/')
     expect(traversal.location(root.components.messages.Event)).toStrictEqual({
       source: '/',
@@ -112,7 +138,7 @@ describe('document-traversal', () => {
       asyncapi: '3.1.0',
       components: { messages: { '$ref-value': { examples: [{ payload: { $ref: './literal.json' } }] } } },
     })
-    const traversal = documentTraversal(true, false, true)
+    const traversal = documentTraversal(root)
     traversal.register(root, '/')
     expect(traversal.location(root.components.messages['$ref-value'])?.context).toBe('message')
     expect(traversal.location(root.components.messages['$ref-value'].examples[0]!.payload)?.context).toBe('data')
@@ -138,7 +164,7 @@ describe('document-traversal', () => {
         },
       }
       const root = proxied ? createMagicProxy(input) : input
-      const traversal = documentTraversal(true, false, true)
+      const traversal = documentTraversal(root)
       traversal.register(root, '/')
       expect(traversal.location(root.components.schemas.Event.schema)?.context).toBe('draft-07-schema')
       expect(traversal.location(root.components.schemas.Event.schema.default.schema)?.context).toBe('data')

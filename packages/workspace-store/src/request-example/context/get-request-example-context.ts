@@ -3,7 +3,11 @@ import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@/client'
 import type { SelectedSecurity } from '@/entities/auth'
 import type { AuthMeta, ServerMeta } from '@/events'
-import { getPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
+import {
+  getPathItemOperation,
+  getPathItemServerTarget,
+  getResolvedPathItem,
+} from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 import { getActiveEnvironment } from '@/request-example/context/environment'
@@ -89,7 +93,8 @@ export const getRequestExampleContext = (
     }
   }
 
-  const pathItem = getResolvedPathItem(isWebhook ? document.webhooks?.[path] : document.paths?.[path])
+  const rawPathItem = isWebhook ? document.webhooks?.[path] : document.paths?.[path]
+  const pathItem = getResolvedPathItem(rawPathItem)
   if (!pathItem) {
     return {
       ok: false,
@@ -121,14 +126,25 @@ export const getRequestExampleContext = (
   //                                 SERVER CONTEXT
   //------------------------------------------------------------------------------------------------
   // Get server context for the request example
-  const configuredServers = isWebhook
-    ? (options.servers ?? operation.servers)
-    : (options.servers ?? operation.servers ?? document.servers)
+  const pathItemServerTarget = isWebhook ? undefined : getPathItemServerTarget(rawPathItem)
+  const configuredServers =
+    options.servers ?? operation.servers ?? pathItemServerTarget?.servers ?? (isWebhook ? undefined : document.servers)
   const serverList = getServers(configuredServers, {
     baseServerUrl: options.baseServerUrl,
     documentUrl: document['x-scalar-original-source-url'],
   })
-  const selectedServer = getSelectedServer(document, operation, options.servers ?? null, serverList)
+  const inheritedMeta: ServerMeta =
+    options.servers == null && pathItemServerTarget?.servers != null ? { type: 'path', path } : { type: 'document' }
+  const serverMeta: ServerMeta =
+    !isWebhook && options.servers == null && operation.servers != null
+      ? { type: 'operation', path, method }
+      : inheritedMeta
+  const selectedServer = getSelectedServer(
+    serverMeta.type === 'document' ? document : null,
+    serverMeta.type === 'path' ? (pathItemServerTarget ?? null) : operation,
+    options.servers ?? null,
+    serverList,
+  )
 
   //------------------------------------------------------------------------------------------------
   //                                 SECURITY CONTEXT
@@ -166,11 +182,6 @@ export const getRequestExampleContext = (
     securitySchemes,
     selectedSecurity.selectedSchemes[selectedSecurity.selectedIndex] ?? {},
   )
-
-  const serverMeta: ServerMeta =
-    !isWebhook && options.servers == null && operation.servers != null
-      ? { type: 'operation', path: path ?? '', method: method ?? 'get' }
-      : { type: 'document' }
 
   const authMeta: AuthMeta =
     operationSelectedSecurity !== undefined

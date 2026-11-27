@@ -8,7 +8,11 @@ import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 import { resolveResourcePath } from '@/helpers/resolve-resource-path'
 import { toResourceUri } from '@/helpers/to-resource-uri'
+import { type ScopeRole, getChildScopeRole } from '@/magic-proxy/dynamic-ref'
 import { getRaw } from '@/magic-proxy/symbols'
+
+import { type ReferenceContext, childReferenceContext, getSchemaVocabulary } from '../document/reference-context'
+import { documentTraversal, getDocumentTraversalDialect } from './document-traversal'
 
 /** Format-specific document identity, supplied by the caller. */
 export type DocumentIdentity = {
@@ -30,6 +34,7 @@ export type SchemaIdentity = {
   id?: string
   idKeyword?: 'id' | '$id'
   anchor?: string
+  dynamicAnchor?: string
 }
 
 /** A declared schema identity and its location in the output document. */
@@ -48,6 +53,7 @@ type Resource = {
   path: string[]
   schema: boolean
   identifier?: string
+  dynamicAnchor?: string
   embedded: boolean
   document: unknown
   documentPath: string[]
@@ -78,6 +84,10 @@ export type DocumentReferences = {
   ) => void
   refresh: (document: unknown, targetPath: string[]) => void
   isSchemaResource: (uri: string) => boolean
+  /** The owner of a schema resource, including a standalone schema's implicit retrieval root. */
+  schemaResource: (uri: string) => unknown
+  /** Dynamic references in complete API descriptions must occur at a modern schema position. */
+  dynamicSchemaPosition: (node: object) => boolean | undefined
   origin: (node: object) => string | undefined
   /** Retrieval source before authored identifiers change the reference base. */
   sourceOrigin: (node: object) => string | undefined
@@ -96,6 +106,8 @@ export type DocumentReferences = {
         preserveReference: boolean
         document: unknown
         documentPath: string[]
+        /** Plain-name fragment created by a dynamic anchor, when that fragment was used. */
+        dynamicAnchor?: string
       }
     | undefined
 }
@@ -103,6 +115,46 @@ export type DocumentReferences = {
 /** Give unmapped bundle entries separate bases so relative schema identifiers cannot collide. */
 export const bundledDocumentUri = (origin: string, key: string, source?: string): string =>
   resolveReferencePath(origin, source ?? `./__bundle_${encodeURIComponent(key)}/document`)
+
+/** An opaque resource URI cannot resolve a relative dynamic reference. */
+export const resolveInitialDynamicRef = (
+  references: DocumentReferences,
+  reference: string,
+  origin: string,
+): ReturnType<DocumentReferences['resolve']> => {
+  try {
+    return references.resolve(reference, origin)
+  } catch (error) {
+    if (!(error instanceof TypeError)) {
+      throw error
+    }
+    return undefined
+  }
+}
+
+const identifySchemaPosition = (
+  node: object,
+  role?: ScopeRole,
+  context?: ReferenceContext,
+): SchemaIdentity | undefined => {
+  if (!isObject(node) || (context === undefined && role)) {
+    return undefined
+  }
+  const vocabulary = context === undefined ? undefined : getSchemaVocabulary(context)
+  if (context !== undefined && vocabulary === undefined) {
+    return undefined
+  }
+  const keyword = context === undefined ? '$id' : vocabulary?.idKeyword
+  return {
+    id: keyword === '$id' ? getId(node) : undefined,
+    anchor:
+      (context === undefined || vocabulary?.anchors) && typeof node.$anchor === 'string' ? node.$anchor : undefined,
+    dynamicAnchor:
+      (context === undefined || vocabulary?.anchors) && typeof node.$dynamicAnchor === 'string'
+        ? node.$dynamicAnchor
+        : undefined,
+  }
+}
 
 /**
  * Indexes complete documents before following their references. A declared identity
@@ -113,14 +165,13 @@ export const documentReferences = (
   resolveDocument?: DocumentResolver,
   canonicalizeIds = false,
   shouldVisit: (node: object) => boolean = () => true,
-  identifySchema: (node: object) => SchemaIdentity | undefined = (node) => ({
-    id: getId(node),
-    anchor: isObject(node) && typeof node.$anchor === 'string' ? node.$anchor : undefined,
-  }),
+  identifySchema: typeof identifySchemaPosition = identifySchemaPosition,
   outputDocumentUri?: (retrievalUri: string) => string,
+  { includeCustomReferences = false }: { includeCustomReferences?: boolean } = {},
 ): DocumentReferences => {
   const identities = new Map<unknown, DocumentIdentity>()
   const resources = new Map<string, Resource>()
+  const schemaPositions = new WeakMap<object, ReferenceContext>()
   const sources = new WeakMap<object, DocumentLocation>()
   const origins = new WeakMap<object, string>()
   const sourceOrigins = new WeakMap<object, string>()
@@ -159,6 +210,8 @@ export const documentReferences = (
       sourceUri: string
       outputBase: string
       resource: Resource
+      dialect: ReturnType<typeof getDocumentTraversalDialect>
+      customTraversal?: ReturnType<typeof documentTraversal>
     }
   >()
 
@@ -199,6 +252,10 @@ export const documentReferences = (
     const outputRetrieval = outputDocumentUri?.(retrievalUri) ?? base
     const outputBase =
       outputDocumentUri && identity ? resolveResourcePath(outputRetrieval, identity.baseUri) : outputRetrieval
+    const dialect = identifySchema === identifySchemaPosition ? getDocumentTraversalDialect(document) : undefined
+    const customTraversal =
+      includeCustomReferences && dialect ? documentTraversal(document, { includeCustomReferences: true }) : undefined
+    customTraversal?.register(document, base)
     registrations.set(document, {
       base,
       path,
@@ -207,6 +264,8 @@ export const documentReferences = (
       sourceUri,
       outputBase,
       resource,
+      dialect,
+      customTraversal,
     })
     index(document, base, path, [], retrievalOrigin)
   }
@@ -219,7 +278,28 @@ export const documentReferences = (
     targetPath: string[] = [],
     retrievalBase = base,
   ): void => {
-    const outputBase = registrations.get(document)!.outputBase
+    const { outputBase, sourceUri, dialect, customTraversal } = registrations.get(document)!
+    const position = (node: object, fallback?: ReferenceContext): ReferenceContext | undefined => {
+      const location = customTraversal?.location(node)
+      if (location?.customReferences && getSchemaVocabulary(location.context, true)?.anchors) {
+        return 'schema'
+      }
+      return location?.context ?? fallback
+    }
+    const nextContext = (
+      parent: object,
+      context: ReferenceContext | undefined,
+      key: string,
+    ): ReferenceContext | undefined => {
+      if (!dialect || context === undefined || (Array.isArray(parent) && !['objects', 'messages'].includes(context))) {
+        return context
+      }
+      const schemaFormat = Reflect.get(parent, 'schemaFormat')
+      return childReferenceContext(context, key, {
+        ...dialect,
+        schemaFormat: typeof schemaFormat === 'string' ? schemaFormat : undefined,
+      })
+    }
     // Shared nodes use the first traversal path and base, including for $id and $anchor
     // registration. This also prevents cycles from being indexed repeatedly.
     const visited = new WeakSet<object>()
@@ -231,24 +311,29 @@ export const documentReferences = (
       inheritedIdentifier = '',
       retrievalOrigin = retrievalBase,
       outputOrigin = outputBase,
+      role?: ScopeRole,
+      inheritedContext?: ReferenceContext,
     ): void => {
       if (value === null || typeof value !== 'object' || visited.has(value) || !shouldVisit(value)) {
         return
       }
       visited.add(value)
-      sourceOrigins.set(value, registrations.get(document)!.sourceUri)
+      sourceOrigins.set(value, sourceUri)
       if (isObject(value)) {
         restoreLiteralIdentifier(value)
       }
-      const schemaIdentity = identifySchema(value)
+      const context = position(value, inheritedContext)
+      if (context !== undefined) {
+        schemaPositions.set(value, context)
+      }
+      const schemaIdentity = identifySchema(value, role, context)
       const id = schemaIdentity?.id
       const identifier = id ?? inheritedIdentifier
       const resolved =
         id === undefined ? origin : canonicalizeIds ? resolveResourcePath(origin, id) : resolveReferencePath(origin, id)
-      const current =
-        canonicalizeIds && id !== undefined
-          ? resolveResourcePath(toResourceUri(origin), id).replace(/#$/, '')
-          : resolved
+      const current = (
+        canonicalizeIds && id !== undefined ? resolveResourcePath(toResourceUri(origin), id) : resolved
+      ).replace(/#$/, '')
       // A refresh can encounter an identifier that this index already canonicalized.
       const currentRetrieval =
         canonicalizeIds && id === origins.get(value) && retrievalOrigins.has(value)
@@ -282,7 +367,8 @@ export const documentReferences = (
         value[keyword] = current
       }
       const anchor = schemaIdentity?.anchor
-      if (id !== undefined || anchor !== undefined) {
+      const dynamicAnchor = schemaIdentity?.dynamicAnchor
+      if (id !== undefined || anchor !== undefined || dynamicAnchor !== undefined) {
         const schemaResource = {
           value,
           path: location,
@@ -299,9 +385,13 @@ export const documentReferences = (
         if (anchor !== undefined) {
           resources.set(`${current}#${anchor}`, schemaResource)
         }
+        if (dynamicAnchor !== undefined) {
+          resources.set(`${current}#${dynamicAnchor}`, { ...schemaResource, dynamicAnchor })
+        }
       }
       for (const key of Object.keys(getRaw(value))) {
-        if (key !== externalDocumentsKey) {
+        // Pre-resolved links on in-memory schemas are traversal edges, not lexical children.
+        if (key !== externalDocumentsKey && (key !== '$ref-value' || role === 'map')) {
           visit(
             (value as Record<string, unknown>)[key],
             current,
@@ -309,6 +399,8 @@ export const documentReferences = (
             identifier,
             currentRetrieval,
             currentOutput,
+            getChildScopeRole(role, key),
+            nextContext(value, context, key),
           )
         }
       }
@@ -318,6 +410,8 @@ export const documentReferences = (
     let identifier = ''
     let retrievalOrigin = retrievalBase
     let outputOrigin = outputBase
+    let role: ScopeRole
+    let context: ReferenceContext | undefined = dialect ? 'object' : undefined
     for (const key of targetPath) {
       if (target === null || typeof target !== 'object') {
         return
@@ -325,10 +419,13 @@ export const documentReferences = (
       origin = origins.get(target) ?? origin
       retrievalOrigin = retrievalOrigins.get(target) ?? retrievalOrigin
       outputOrigin = outputOrigins.get(target) ?? outputOrigin
-      identifier = identifySchema(target)?.id ?? identifier
+      context = position(target, context)
+      identifier = identifySchema(target, role, context)?.id ?? identifier
+      role = getChildScopeRole(role, key)
+      context = nextContext(target, context, key)
       target = (target as Record<string, unknown>)[key]
     }
-    visit(target, origin, [...path, ...targetPath], identifier, retrievalOrigin, outputOrigin)
+    visit(target, origin, [...path, ...targetPath], identifier, retrievalOrigin, outputOrigin, role, context)
   }
 
   return {
@@ -340,14 +437,15 @@ export const documentReferences = (
       [...resources].flatMap(([uri, resource]) =>
         resource.schema &&
         isObject(resource.value) &&
-        identifySchema(resource.value)?.id !== undefined &&
+        identifySchema(resource.value, undefined, schemaPositions.get(resource.value))?.id !== undefined &&
         uri === origins.get(resource.value)
           ? [
               {
                 uri,
                 outputUri: outputDocumentUri ? outputOrigins.get(resource.value) : undefined,
                 path: resource.path,
-                idKeyword: identifySchema(resource.value)?.idKeyword ?? '$id',
+                idKeyword:
+                  identifySchema(resource.value, undefined, schemaPositions.get(resource.value))?.idKeyword ?? '$id',
               },
             ]
           : [],
@@ -367,13 +465,14 @@ export const documentReferences = (
           continue
         }
         restoreLiteralIdentifier(resource.value)
-        const identity = identifySchema(resource.value)
+        const identity = identifySchema(resource.value, undefined, schemaPositions.get(resource.value))
         const origin = origins.get(resource.value)
         if (
           shouldVisit(resource.value) &&
           ((identity?.id !== undefined &&
             (uri === origin || (canonicalizeIds && uri === retrievalOrigins.get(resource.value)))) ||
-            (identity?.anchor !== undefined && uri === `${origin}#${identity.anchor}`))
+            (identity?.anchor !== undefined && uri === `${origin}#${identity.anchor}`) ||
+            (identity?.dynamicAnchor !== undefined && uri === `${origin}#${identity.dynamicAnchor}`))
         ) {
           continue
         }
@@ -385,6 +484,16 @@ export const documentReferences = (
       }
     },
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,
+    schemaResource: (uri) => {
+      const resource = resources.get(uri)
+      return resource && (resource.schema || (isObject(resource.value) && !schemaPositions.has(resource.value)))
+        ? resource.value
+        : undefined
+    },
+    dynamicSchemaPosition: (node) => {
+      const context = schemaPositions.get(node)
+      return context === undefined ? undefined : (getSchemaVocabulary(context)?.anchors ?? false)
+    },
     origin: (node) => origins.get(node),
     retrievalOrigin: (node) => retrievalOrigins.get(node),
     sourceOrigin: (node) => sourceOrigins.get(node),
@@ -395,9 +504,7 @@ export const documentReferences = (
         ? canonicalizeIds
           ? resolveResourcePath(base, prefix)
           : resolveReferencePath(base, prefix)
-        : canonicalizeIds
-          ? base.split('#', 1)[0]!
-          : base
+        : base.split('#', 1)[0]!
       const pointer = fragment.startsWith('/') ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
       const documentResource = resources.get(uri)
       const localStorage = isObject(documentResource?.value) ? documentResource.value[externalDocumentsKey] : undefined
@@ -458,6 +565,7 @@ export const documentReferences = (
         value,
         document: resource.document,
         documentPath: resource.documentPath,
+        ...(resource.dynamicAnchor === undefined ? {} : { dynamicAnchor: resource.dynamicAnchor }),
         preserveReference:
           isUnresolved || isLocalSchemaReference || isDeclaredRootSchemaReference || isLocalRootDocumentReference,
       }

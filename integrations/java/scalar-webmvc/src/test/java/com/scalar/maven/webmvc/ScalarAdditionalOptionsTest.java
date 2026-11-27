@@ -56,6 +56,7 @@ class ScalarAdditionalOptionsTest {
                 Map.entry("scalar.featured-clients[0]", "node/fetch"),
                 Map.entry("scalar.url-routing", "false"),
                 Map.entry("scalar.oauth2-redirect-uri", "https://example.com/callback"),
+                Map.entry("scalar.trusted-local-origins[0]", "http://auth.dev.internal:8080"),
                 Map.entry("scalar.external-urls.registry-url", "https://registry.example.com"),
                 Map.entry("scalar.agent.hide-add-api", "true"),
                 Map.entry("scalar.sources[0].url", "/api.json"),
@@ -71,6 +72,7 @@ class ScalarAdditionalOptionsTest {
         assertThat(config.at("/featuredClients/0").textValue()).isEqualTo("node/fetch");
         assertThat(config.get("urlRouting").booleanValue()).isFalse();
         assertThat(config.get("oauth2RedirectUri").textValue()).isEqualTo("https://example.com/callback");
+        assertThat(config.get("trustedLocalOrigins").get(0).textValue()).isEqualTo("http://auth.dev.internal:8080");
         assertThat(config.at("/externalUrls/registryUrl").textValue()).isEqualTo("https://registry.example.com");
         assertThat(config.at("/externalUrls/dashboardUrl").isMissingNode()).isTrue();
         assertThat(config.at("/agent/hideAddApi").booleanValue()).isTrue();
@@ -132,7 +134,7 @@ class ScalarAdditionalOptionsTest {
         JsonNode config = bindAndRender(Map.of());
         for (String name : new String[] {"hideModelNames", "schemaKeyboardNav", "expandAllParameters",
                 "maxVisibleRequestBodyProperties", "defaultRequestBodyView", "multipartNaming", "showExtensions",
-                "featuredClients", "hiddenClients", "urlRouting", "oauth2RedirectUri", "externalUrls"}) {
+                "featuredClients", "hiddenClients", "urlRouting", "oauth2RedirectUri", "trustedLocalOrigins", "externalUrls"}) {
             assertThat(config.has(name)).as(name).isFalse();
         }
     }
