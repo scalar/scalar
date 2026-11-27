@@ -179,6 +179,46 @@ describe('oauth', () => {
     expect(error?.message).toBe('Captured')
   })
 
+  it('opens a trusted local OAuth origin and exchanges the code without the hosted proxy', async () => {
+    const origin = 'http://auth.dev.internal:8080'
+    const flows = {
+      authorizationCode: {
+        ...baseFlow,
+        authorizationUrl: '/authorize',
+        tokenUrl: '/token',
+        'x-usePkce': 'no',
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-client-secret': '',
+        'x-scalar-secret-redirect-uri': redirectUri,
+      },
+    } satisfies OAuthFlowsObjectSecret
+    const capture: CaptureOAuth2Callback = ({ authorizationUrl: url }) => {
+      const authorize = new URL(url)
+      expect(authorize.origin + authorize.pathname).toBe(`${origin}/authorize`)
+      return Promise.resolve([
+        null,
+        { callbackUrl: `${redirectUri}?code=local-code&state=${authorize.searchParams.get('state')}`, redirectUri },
+      ])
+    }
+    const customFetch = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ access_token: 'local-token' }))
+
+    expect(
+      await authorizeOauth2(
+        flows,
+        'authorizationCode',
+        [],
+        { url: origin },
+        'https://proxy.scalar.com',
+        {},
+        customFetch,
+        capture,
+        undefined,
+        [origin],
+      ),
+    ).toStrictEqual([null, { accessToken: 'local-token' }])
+    expect(customFetch.mock.calls.map(([url]) => url)).toStrictEqual([`${origin}/token`])
+  })
+
   it('rejects a relative authorization URL resolved against a file server', async () => {
     const captureCallback = vi.fn<CaptureOAuth2Callback>().mockResolvedValue([new Error('Unexpected capture'), null])
     const flows = {

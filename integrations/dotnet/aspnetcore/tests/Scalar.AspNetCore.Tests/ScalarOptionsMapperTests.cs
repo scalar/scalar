@@ -29,6 +29,17 @@ public class ScalarOptionsMapperTests
     }
 
     [Fact]
+    public void ToConfiguration_SerializesTrustedLocalOrigins()
+    {
+        var options = new ScalarOptions().WithTrustedLocalOrigins("http://auth.dev.internal:8080");
+        var configuration = options.ToScalarConfiguration();
+        var json = System.Text.Json.JsonSerializer.Serialize(configuration, ScalarConfigurationSerializerContext.Default.ScalarConfiguration);
+        using var serialized = System.Text.Json.JsonDocument.Parse(json);
+
+        serialized.RootElement.GetProperty("trustedLocalOrigins")[0].GetString().Should().Be("http://auth.dev.internal:8080");
+    }
+
+    [Fact]
     public void ToConfiguration_ShouldReturnCorrectDefaultConfiguration()
     {
         // Arrange
@@ -39,6 +50,7 @@ public class ScalarOptionsMapperTests
 
         // Assert
         configuration.ProxyUrl.Should().BeNull();
+        configuration.TrustedLocalOrigins.Should().BeNull();
         configuration.ShowSidebar.Should().BeNull();
         configuration.OperationTitleSource.Should().BeNull();
         configuration.HideModels.Should().BeNull();

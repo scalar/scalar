@@ -497,6 +497,7 @@ const handleExecute = async () => {
   const built = buildRequest(requestBuilder, {
     envVariables,
     allowMissingRequestServerBase: layout === 'modal',
+    trustedLocalOrigins: toValue(options)?.trustedLocalOrigins,
   })
   if (!built.ok) {
     // Save any pre-request script writes before bailing out on a build failure.

@@ -28,6 +28,7 @@ const { document, environment, eventBus, options, securitySchemes, authStore } =
       | 'authentication'
       | 'customFetch'
       | 'oauth2RedirectUri'
+      | 'trustedLocalOrigins'
       | 'persistAuth'
       | 'proxyUrl'
     >
@@ -106,6 +107,7 @@ const selectedSecurity = computed(() =>
     :meta="{ type: 'document' }"
     :options="{
       oauth2RedirectUri: options.oauth2RedirectUri,
+      trustedLocalOrigins: options.trustedLocalOrigins,
       customFetch: options.customFetch,
     }"
     :persistAuth="options.persistAuth"

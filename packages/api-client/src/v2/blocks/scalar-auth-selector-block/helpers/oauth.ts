@@ -149,6 +149,7 @@ export const authorizeOauth2 = async (
    */
   captureCallback?: CaptureOAuth2Callback,
   deviceOptions?: DeviceAuthorizationOptions,
+  trustedLocalOrigins?: readonly string[],
 ): Promise<ErrorResponse<OAuth2Tokens>> => {
   const flow = flows[type]
 
@@ -166,6 +167,7 @@ export const authorizeOauth2 = async (
         environmentVariables,
         customFetch,
         deviceOptions,
+        trustedLocalOrigins,
       )
     }
     if (type === 'deviceAuthorization') {
@@ -182,6 +184,7 @@ export const authorizeOauth2 = async (
         {
           proxyUrl,
           customFetch,
+          trustedLocalOrigins,
         },
         activeServer,
         environmentVariables,
@@ -198,7 +201,7 @@ export const authorizeOauth2 = async (
     const authorizationUrl = makeUrlAbsolute(authUrl, getActiveServerBase(activeServer, environmentVariables))
 
     const url = new URL(authorizationUrl)
-    if (!isAllowedOAuthUrl(url)) {
+    if (!isAllowedOAuthUrl(url, trustedLocalOrigins)) {
       return [new Error('Authorization URL must use HTTPS or HTTP for local development URLs'), null]
     }
 
@@ -306,6 +309,7 @@ export const authorizeOauth2 = async (
             pkce,
             proxyUrl,
             customFetch,
+            trustedLocalOrigins,
             // The token request must echo the exact redirect_uri used in the authorization request.
             redirectUri: capture.redirectUri,
           },
@@ -364,6 +368,7 @@ export const authorizeOauth2 = async (
                     pkce,
                     proxyUrl,
                     customFetch,
+                    trustedLocalOrigins,
                   },
                   activeServer,
                   environmentVariables,
@@ -407,6 +412,7 @@ const authorizeServers = async (
     proxyUrl,
     customFetch = fetch,
     redirectUri,
+    trustedLocalOrigins,
   }: {
     code?: string
     pkce?: PKCEState | null
@@ -414,6 +420,7 @@ const authorizeServers = async (
     customFetch?: CustomFetch
     /** Overrides the stored redirect_uri (the capture path owns the real target). */
     redirectUri?: string
+    trustedLocalOrigins?: readonly string[]
   } = {},
   activeServer: ServerObject | null,
   environmentVariables: Record<string, string> = {},
@@ -507,7 +514,7 @@ const authorizeServers = async (
       return [new Error('Token URL is required'), null]
     }
     const tokenUrl = makeUrlAbsolute(tokenUrlValue, getActiveServerBase(activeServer, environmentVariables))
-    const url = shouldUseProxy(proxyUrl, tokenUrl)
+    const url = shouldUseProxy(proxyUrl, tokenUrl, trustedLocalOrigins)
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', tokenUrl]]).toString()}`
       : tokenUrl
 
@@ -556,6 +563,7 @@ export const refreshOauth2Token = async (
   environmentVariables: Record<string, string> = {},
   /** Fetch used for the refresh request; the desktop app passes an IPC-backed fetch so it leaves the renderer's network stack. */
   customFetch: CustomFetch = fetch,
+  trustedLocalOrigins?: readonly string[],
 ): Promise<ErrorResponse<OAuth2Tokens>> => {
   const flow = flows[type]
 
@@ -614,7 +622,7 @@ export const refreshOauth2Token = async (
       return [new Error('Token URL is required'), null]
     }
     const absoluteRefreshUrl = makeUrlAbsolute(refreshUrl, getActiveServerBase(activeServer, environmentVariables))
-    const url = shouldUseProxy(proxyUrl, absoluteRefreshUrl)
+    const url = shouldUseProxy(proxyUrl, absoluteRefreshUrl, trustedLocalOrigins)
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', absoluteRefreshUrl]]).toString()}`
       : absoluteRefreshUrl
 

@@ -55,6 +55,10 @@ public class ScalarConfiguration {
     @JsonProperty("oauth2RedirectUri")
     private String oauth2RedirectUri;
 
+    /** HTTP(S) origins treated as local for API proxy routing and OAuth authorization. */
+    @JsonProperty("trustedLocalOrigins")
+    private List<String> trustedLocalOrigins;
+
     /** Whether navigation updates the browser URL and history. */
     @JsonProperty("urlRouting")
     private Boolean urlRouting;
@@ -810,6 +814,20 @@ public class ScalarConfiguration {
      */
     public void setOauth2RedirectUri(String oauth2RedirectUri) {
         this.oauth2RedirectUri = oauth2RedirectUri;
+    }
+
+    /** Returns the configured local origins, or null when no origins are configured. */
+    public List<String> getTrustedLocalOrigins() {
+        return trustedLocalOrigins;
+    }
+
+    /**
+     * Sets the HTTP(S) origins treated as local.
+     *
+     * @param trustedLocalOrigins the origins, including the scheme and any non-default port
+     */
+    public void setTrustedLocalOrigins(List<String> trustedLocalOrigins) {
+        this.trustedLocalOrigins = trustedLocalOrigins;
     }
 
     /**

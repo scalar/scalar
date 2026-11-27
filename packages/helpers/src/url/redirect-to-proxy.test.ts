@@ -29,6 +29,34 @@ describe('redirectToProxy', () => {
     expect(redirectToProxy(proxyUrl, url)).toBe(`${proxyUrl}?scalar_url=${encodeURIComponent(url)}`)
   })
 
+  it.each([
+    ['https://proxy.scalar.com', false],
+    ['//proxy.scalar.com', false],
+    ['/proxy', true],
+    ['http://localhost:5051/proxy', true],
+    ['https://proxy.dev.internal/proxy', true],
+  ])('uses %s for a trusted local origin only when the proxy is local', (proxy, expected) => {
+    const url = 'http://auth.dev.internal:8080/token'
+    const trustedLocalOrigins = ['http://auth.dev.internal:8080', 'https://proxy.dev.internal']
+    expect(shouldUseProxy(proxy, url, trustedLocalOrigins)).toBe(expected)
+    if (!expected) {
+      expect(redirectToProxy(proxy, url, trustedLocalOrigins)).toBe(url)
+    }
+  })
+
+  it('keeps URLs with user information on a trusted local origin away from the remote proxy', () => {
+    const url = 'http://test-user@auth.dev.internal:8080/token'
+    expect(redirectToProxy('https://proxy.scalar.com', url, ['http://auth.dev.internal:8080'])).toBe(url)
+  })
+
+  it('keeps using the remote proxy for a different port on the same host', () => {
+    expect(
+      shouldUseProxy('https://proxy.scalar.com', 'http://auth.dev.internal:8081/token', [
+        'http://auth.dev.internal:8080',
+      ]),
+    ).toBe(true)
+  })
+
   it('keeps query parameters', () => {
     expect(redirectToProxy('https://proxy.scalar.com?foo=bar', 'https://example.com')).toBe(
       'https://proxy.scalar.com/?foo=bar&scalar_url=https%3A%2F%2Fexample.com',

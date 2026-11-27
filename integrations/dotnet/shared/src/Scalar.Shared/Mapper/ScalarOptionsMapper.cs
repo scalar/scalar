@@ -24,6 +24,7 @@ internal static partial class ScalarOptionsMapper
         return new ScalarConfiguration
         {
             ProxyUrl = options.ProxyUrl,
+            TrustedLocalOrigins = options.TrustedLocalOrigins,
             Localization = options.Localization,
             ShowExtensions = options.ShowExtensions,
             MultipartNaming = options.MultipartNaming,

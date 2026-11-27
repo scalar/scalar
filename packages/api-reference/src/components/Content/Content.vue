@@ -103,6 +103,7 @@ const {
       | 'hideTestRequestButton'
       | 'layout'
       | 'oauth2RedirectUri'
+      | 'trustedLocalOrigins'
       | 'orderRequiredPropertiesFirst'
       | 'orderSchemaPropertiesBy'
       | 'expandAllSchemaProperties'

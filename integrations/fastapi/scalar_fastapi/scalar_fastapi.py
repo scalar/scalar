@@ -283,6 +283,10 @@ def get_scalar_api_reference(
             """
         ),
     ] = "",
+    trusted_local_origins: Annotated[
+        List[str] | None,
+        Doc("HTTP(S) origins treated as local for API proxy routing and OAuth authorization."),
+    ] = None,
     scalar_favicon_url: Annotated[
         str,
         Doc(
@@ -664,6 +668,8 @@ def get_scalar_api_reference(
     # Only add options that differ from defaults
     if scalar_proxy_url:
         config["proxyUrl"] = scalar_proxy_url
+    if trusted_local_origins is not None:
+        config["trustedLocalOrigins"] = trusted_local_origins
 
     if agent is not None:
         config["agent"] = agent.model_dump(exclude_none=True)
