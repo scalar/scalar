@@ -3293,6 +3293,17 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual({ '2': 1, additionalProperty: '', additionalProperty3: '' })
   })
 
+  it('keeps the first dictionary key when a property pattern cannot be classified', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 3,
+      patternProperties: { '^(foo|bar)$': { type: 'string' } },
+      additionalProperties: { type: 'string' },
+    }
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({ '^(foo|bar)$': '', additionalProperty: '' })
+  })
+
   it('limits the serialized size of extra dictionary values', () => {
     const value = { values: Array.from({ length: 2_000 }, () => 0) }
     const schema: SchemaObject = {
@@ -3302,6 +3313,24 @@ describe('getExampleFromSchema', () => {
     }
 
     expect(getExampleFromSchema(schema)).toStrictEqual({ additionalProperty: value })
+  })
+
+  it('tries the next dictionary key if its selected value would exceed the padding budget', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      propertyNames: { type: 'string', enum: ['cpu', 'memory', 'disk'] },
+      additionalProperties: {
+        type: 'object',
+        oneOf: [
+          { type: 'object', example: { values: [0] } },
+          { type: 'object', example: { values: Array.from({ length: 2_000 }, () => 0) } },
+        ],
+      },
+    }
+
+    const example = getExampleFromSchema(schema, { compositionSelection: { 'memory.oneOf': 1 } })
+    expect(example).toStrictEqual({ cpu: { values: [0] }, disk: { values: [0] } })
   })
 
   describe('additionalProperties', () => {

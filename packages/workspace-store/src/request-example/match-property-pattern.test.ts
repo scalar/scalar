@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { matchPropertyPattern } from './match-property-pattern'
 
-describe('match-xml-property-pattern', () => {
+describe('match-property-pattern', () => {
   it.each([
     ['^code_', 'code_a', true],
     ['^code_', 'other', false],

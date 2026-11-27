@@ -1017,7 +1017,10 @@ const handleObjectSchema = (
       let paddingNodesLeft = MAX_PADDING_NODES
       for (
         let index = 0;
-        index < candidateCount && added < additionalCount && attempted < MAX_ADDITIONAL_PROPERTIES;
+        index < candidateCount &&
+        added < additionalCount &&
+        attempted < MAX_ADDITIONAL_PROPERTIES &&
+        paddingNodesLeft > 0;
         index++
       ) {
         const suffix = index === 0 ? '' : String(index + 1)
@@ -1027,8 +1030,14 @@ const handleObjectSchema = (
           continue
         }
         attempted++
-        // When filling the minimum, a pattern-matched key would use a different value schema.
-        if (missingProperties > 0 && propertyPatterns.some((pattern) => matchPropertyPattern(pattern, key) !== false)) {
+        if (
+          missingProperties > 0 &&
+          propertyPatterns.some((pattern) => {
+            const matches = matchPropertyPattern(pattern, key)
+            // Keep the legacy first name if the bounded matcher cannot classify the pattern.
+            return matches === true || (matches === undefined && index > 0)
+          })
+        ) {
           continue
         }
         // The first enum key historically used the placeholder path for composition selection.
@@ -1045,10 +1054,10 @@ const handleObjectSchema = (
           : 'anything'
         if (added > 0 && value !== undefined) {
           const size = countExampleNodes(value, paddingNodesLeft + 1)
-          paddingNodesLeft -= size
-          if (paddingNodesLeft < 0) {
-            break
+          if (size > paddingNodesLeft) {
+            continue
           }
+          paddingNodesLeft -= size
           // An explicit value can contain many nodes even when generation visited just one schema.
           visitsLeft -= size - Number(!!additionalSchema)
         }
