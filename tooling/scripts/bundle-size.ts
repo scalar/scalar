@@ -311,14 +311,51 @@ export const createReport = (current: BundleSizes, baseline?: BundleSizes, expec
   ].join('\n')
 }
 
+const matchChunks = (current: ChunkSize[], previous: ChunkSize[]): Map<string, ChunkSize> => {
+  const previousByFile = new Map(previous.map((chunk) => [chunk.file, chunk]))
+  const matches = new Map<string, ChunkSize>()
+  const used = new Set<string>()
+  for (const { file } of current) {
+    const exact = previousByFile.get(file)
+    if (exact) {
+      matches.set(file, exact)
+      used.add(exact.file)
+    }
+  }
+
+  // Archived builds lack the source keys Vite records. Match their unique un-hashed filenames next.
+  const selectors = [
+    (chunk: ChunkSize): string => chunk.key,
+    (chunk: ChunkSize): string => withoutChunkHash(chunk.file),
+  ]
+  for (const keyOf of selectors) {
+    const currentGroups = Map.groupBy(current, keyOf)
+    const previousGroups = Map.groupBy(previous, keyOf)
+    for (const [key, group] of currentGroups) {
+      const candidates = previousGroups.get(key)
+      const file = group[0]?.file
+      const candidate = candidates?.[0]
+      if (
+        group.length === 1 &&
+        candidates?.length === 1 &&
+        file &&
+        candidate &&
+        !matches.has(file) &&
+        !used.has(candidate.file)
+      ) {
+        matches.set(file, candidate)
+        used.add(candidate.file)
+      }
+    }
+  }
+  return matches
+}
+
 /** Include every emitted ESM chunk, matching hashes by a unique logical chunk name when possible. */
 export const createChunkReport = (current: BundleSizes, baseline?: BundleSizes): string => {
   const previous = baseline?.esm ?? []
-  const previousByFile = new Map(previous.map((chunk) => [chunk.file, chunk]))
-  const previousByKey = Map.groupBy(previous, ({ key }) => key)
-  const currentByKey = Map.groupBy(current.esm, ({ key }) => key)
-  const currentFiles = new Set(current.esm.map(({ file }) => file))
-  const matched = new Set<string>()
+  const matches = matchChunks(current.esm, previous)
+  const matched = new Set([...matches.values()].map(({ file }) => file))
   const unmatchedChange = baseline ? 'New file' : '—'
   const lines = [
     '#### ESM chunks',
@@ -327,17 +364,8 @@ export const createChunkReport = (current: BundleSizes, baseline?: BundleSizes):
     '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
   ]
 
-  for (const { file, key, initial, size } of current.esm.toSorted((a, b) => b.size.minified - a.size.minified)) {
-    const candidates = previousByKey.get(key)
-    const candidate = candidates?.[0]
-    const uniqueMatch =
-      currentByKey.get(key)?.length === 1 && candidates?.length === 1 && candidate && !currentFiles.has(candidate.file)
-        ? candidate
-        : undefined
-    const before = previousByFile.get(file) ?? uniqueMatch
-    if (before) {
-      matched.add(before.file)
-    }
+  for (const { file, initial, size } of current.esm.toSorted((a, b) => b.size.minified - a.size.minified)) {
+    const before = matches.get(file)
     const change = before ? formatDelta(size.minified, before.size.minified) : [unmatchedChange, '—']
     lines.push(
       markdownRow([
@@ -383,6 +411,9 @@ const run = ([command, input, output, details, baselineFile, expectedBase]: stri
     }
     const baseline = readSizes(baselineFile)
     const base = isCommit(expectedBase) ? expectedBase : undefined
+    if (process.env.EXPECT_EXACT_BUNDLE_BASELINE === 'true' && (!base || baseline?.commit !== base)) {
+      throw new Error('The exact main baseline was found but could not be read')
+    }
     writeFileSync(output, createReport(current, baseline, base))
     writeFileSync(details, createChunkReport(current, baseline))
     console.log(`approval_required=${requiresApproval(current, baseline, base)}`)

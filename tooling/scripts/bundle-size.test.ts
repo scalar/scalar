@@ -227,4 +227,21 @@ describe('bundle-size', () => {
     expect(report).toContain('| `chunks/vendor-12345678.js` | Lazy | 8 B | 10 B | 420 B | New file | — |')
     expect(report).toContain('| `chunks/vendor-BcDEfghi.js` | Removed | — | — | — | 🟢 -320 B | -100.00% |')
   })
+
+  it('matches a changed chunk from an archived baseline by its unique filename', () => {
+    const baseline = snapshot(main)
+    baseline.esm[2] = { file: 'chunks/modal-AbcDEfgh.js', key: 'chunks/modal.js', initial: false, size: sizes(300) }
+    const current = snapshot(head)
+    current.esm[2] = {
+      file: 'chunks/modal-12345678.js',
+      key: 'src/features/modal.ts',
+      initial: false,
+      size: sizes(330),
+    }
+
+    const report = createChunkReport(current, baseline)
+
+    expect(report).toContain('| `chunks/modal-12345678.js` | Lazy | 8 B | 10 B | 330 B | 🟠 +30 B | +10.00% |')
+    expect(report).not.toContain('modal-AbcDEfgh.js')
+  })
 })

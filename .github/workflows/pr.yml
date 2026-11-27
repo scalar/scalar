@@ -244,7 +244,6 @@ jobs:
           echo "base=$(git cat-file -p HEAD | awk '/^parent / && !seen {print $2; seen = 1}')" >> "$GITHUB_OUTPUT"
       - name: Find the main baseline
         id: baseline
-        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
           BASE_SHA: ${{ steps.measure.outputs.base }}
@@ -260,12 +259,21 @@ jobs:
           exact_run=$(jq -r --arg base "$BASE_SHA" 'map(select(.head_sha == $base)) | last.id // empty' <<< "$snapshots")
           latest_run=$(jq -r 'last.id // empty' <<< "$snapshots")
           echo "run_id=${exact_run:-$latest_run}" >> "$GITHUB_OUTPUT"
+          echo "exact_run_id=${exact_run}" >> "$GITHUB_OUTPUT"
           # Before main begins recording snapshots, recover the exact baseline from its regular build artifact.
           if [[ -z "$exact_run" && -n "$BASE_SHA" ]]; then
-            archive_run=$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/workflows/main.yml/runs" \
-              -f branch=main -f event=push -f head_sha="$BASE_SHA" -f status=success -f per_page=1 \
-              --jq '.workflow_runs[0].id // empty')
-            echo "archive_run_id=${archive_run}" >> "$GITHUB_OUTPUT"
+            runs=$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/workflows/main.yml/runs" \
+              -f branch=main -f event=push -f head_sha="$BASE_SHA" \
+              --jq '.workflow_runs[] | select(.head_sha == env.BASE_SHA).id')
+            while IFS= read -r run; do
+              [[ -n "$run" ]] || continue
+              has_archive=$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/runs/${run}/artifacts" \
+                -f name=build-output --jq '.artifacts | any(.name == "build-output" and (.expired | not))')
+              if [[ "$has_archive" == true ]]; then
+                echo "archive_run_id=${run}" >> "$GITHUB_OUTPUT"
+                break
+              fi
+            done <<< "$runs"
           fi
       - if: steps.baseline.outputs.run_id != ''
         name: Download the main baseline
@@ -300,6 +308,7 @@ jobs:
         id: report
         env:
           BASE_SHA: ${{ steps.measure.outputs.base }}
+          EXPECT_EXACT_BUNDLE_BASELINE: ${{ steps.baseline.outputs.exact_run_id != '' || steps.baseline.outputs.archive_run_id != '' }}
         run: |
           set -euo pipefail
           node tooling/scripts/bundle-size.ts report bundle-size.json bundle-size.md chunks.md baseline/bundle-size.json "$BASE_SHA" >> "$GITHUB_OUTPUT"
@@ -318,6 +327,7 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 1
     permissions: {}
+    # Keep this environment's required reviewers in sync with the API Reference code owners.
     environment:
       name: api-reference-bundle-size
       deployment: false
@@ -798,7 +808,12 @@ jobs:
         env:
           JOB_RESULTS: ${{ toJSON(needs) }}
         run: |
+          if ! jq -e '."bundle-size".outputs.approval_required | . == "true" or . == "false"' <<< "$JOB_RESULTS"; then
+            echo '::error::Bundle size approval could not be evaluated. Check the bundle-size job.'
+            exit 1
+          fi
           jq -e '
-            (."bundle-size".outputs.approval_required != "true" or ."bundle-size-approval".result == "success")
+            ."bundle-size".outputs.approval_required as $approval
+            | ($approval == "false" or ($approval == "true" and ."bundle-size-approval".result == "success"))
             and (del(."bundle-size", ."bundle-size-approval") | all(.[]; .result == "success"))
           ' <<< "$JOB_RESULTS"
