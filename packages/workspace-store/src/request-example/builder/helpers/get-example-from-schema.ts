@@ -42,6 +42,9 @@ const MAX_REDUCED_EXAMPLE_VISITS = 2_000
 /** Default name used for additional properties when no custom name is provided */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
+/** Limit synthesized dictionary entries when a schema asks for an unusually large example. */
+const MAX_ADDITIONAL_PROPERTIES = 1_000
+
 /** Limit new padding when an API description asks for an unusually large example. */
 const MAX_STRING_PADDING = 4_096
 
@@ -969,41 +972,55 @@ const handleObjectSchema = (
   }
 
   if (!required && 'additionalProperties' in schema && schema.additionalProperties) {
-    const additional =
-      typeof schema.additionalProperties === 'boolean'
-        ? schema.additionalProperties
-        : resolve.schema(schema.additionalProperties)
-    const isAnyType =
-      schema.additionalProperties === true ||
-      (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
+    const minProperties = readLengthBound(schema.minProperties, 0)
+    const maxProperties = readLengthBound(schema.maxProperties, Number.POSITIVE_INFINITY)
+    const propertyCount = Object.keys(response).length
+    // Keep the usual single placeholder when the schema leaves room for one.
+    const additionalCount = Math.min(
+      Math.max(1, minProperties - propertyCount),
+      maxProperties - propertyCount,
+      MAX_ADDITIONAL_PROPERTIES,
+    )
 
-    // Check for explicit x-additionalPropertiesName first
-    const customName =
-      typeof additional === 'object' && 'x-additionalPropertiesName' in additional
-        ? additional['x-additionalPropertiesName']
-        : undefined
-    const hasCustomName = typeof customName === 'string' && customName.trim().length > 0
+    if (additionalCount > 0) {
+      const additional =
+        typeof schema.additionalProperties === 'boolean'
+          ? schema.additionalProperties
+          : resolve.schema(schema.additionalProperties)
+      const isAnyType =
+        schema.additionalProperties === true ||
+        (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
 
-    // Use propertyNames enum values as example keys when no custom name is set
-    const propertyNamesEnum = hasCustomName ? undefined : getPropertyNamesEnumValues(schema)
+      const customName =
+        typeof additional === 'object' && 'x-additionalPropertiesName' in additional
+          ? additional['x-additionalPropertiesName']
+          : undefined
+      const preferredName = typeof customName === 'string' ? customName.trim() : ''
+      const propertyNamesEnum = preferredName ? undefined : getPropertyNamesEnumValues(schema)
+      const baseName = preferredName || DEFAULT_ADDITIONAL_PROPERTIES_NAME
+      const candidateCount = propertyNamesEnum?.length ?? Number.POSITIVE_INFINITY
+      const declaredProperties = schema.properties ?? {}
 
-    const additionalName = hasCustomName ? customName.trim() : DEFAULT_ADDITIONAL_PROPERTIES_NAME
-
-    const additionalValue =
-      !isAnyType && typeof additional === 'object'
-        ? getExampleFromSchema(additional, options, {
-            level: level + 1,
-            schemaPath: [...schemaPath, additionalName],
-            seen,
-            dynamicScope: childScope,
-          })
-        : 'anything'
-
-    if (propertyNamesEnum && propertyNamesEnum.length > 0) {
-      // Use the first enum value as a realistic example key
-      response[String(propertyNamesEnum[0])] = additionalValue
-    } else {
-      response[additionalName] = additionalValue
+      let remaining = additionalCount
+      for (let index = 0; remaining > 0 && index < candidateCount; index++) {
+        const suffix = index === 0 ? '' : String(index + 1)
+        const key = propertyNamesEnum ? String(propertyNamesEnum[index]) : baseName + suffix
+        if (Object.hasOwn(response, key) || Object.hasOwn(declaredProperties, key)) {
+          continue
+        }
+        const value =
+          !isAnyType && typeof additional === 'object'
+            ? getExampleFromSchema(additional, options, {
+                level: level + 1,
+                schemaPath: [...schemaPath, key],
+                seen,
+                dynamicScope: childScope,
+              })
+            : 'anything'
+        // A dictionary key can have the same name as a property on Object.prototype.
+        Object.defineProperty(response, key, { value, enumerable: true, configurable: true, writable: true })
+        remaining--
+      }
     }
   }
 

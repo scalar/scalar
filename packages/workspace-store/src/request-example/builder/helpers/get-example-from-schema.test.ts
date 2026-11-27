@@ -3115,6 +3115,58 @@ describe('getExampleFromSchema', () => {
     ).toBe(undefined)
   })
 
+  it('generates nested dictionary examples within their property bounds', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      required: ['minimum', 'maximum'],
+      properties: {
+        minimum: { type: 'object', minProperties: 2, additionalProperties: { type: 'string' } },
+        maximum: { type: 'object', maxProperties: 0, additionalProperties: { type: 'string' } },
+      },
+    }
+
+    expect(getExampleFromSchema(schema, { mode: 'read', emptyString: 'string' })).toStrictEqual({
+      minimum: { additionalProperty: 'string', additionalProperty2: 'string' },
+      maximum: {},
+    })
+  })
+
+  it('counts declared properties before adding dictionary entries', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      properties: { additionalProperty: { type: 'integer' } },
+      minProperties: 2,
+      maxProperties: 2,
+      additionalProperties: { type: 'string' },
+    }
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({ additionalProperty: 1, additionalProperty2: '' })
+    expect(getExampleFromSchema({ ...schema, minProperties: 1, maxProperties: 1 })).toStrictEqual({
+      additionalProperty: 1,
+    })
+  })
+
+  it('uses distinct enum keys to meet the dictionary minimum', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      propertyNames: { type: 'string', enum: ['cpu', 'memory', 'disk'] },
+      additionalProperties: { type: 'integer' },
+    }
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({ cpu: 1, memory: 1 })
+  })
+
+  it('uses the custom key name for multiple additional properties', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      additionalProperties: { type: 'boolean', 'x-additionalPropertiesName': 'feature' },
+    }
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({ feature: true, feature2: true })
+  })
+
   describe('additionalProperties', () => {
     it('allows any additonalProperty', () => {
       expect(
