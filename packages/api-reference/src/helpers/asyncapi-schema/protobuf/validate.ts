@@ -7,6 +7,7 @@ import {
   int32Max,
   isEnum,
   isMessage,
+  isPackableField,
 } from './ast'
 
 const int32Min = -2147483648
@@ -142,10 +143,7 @@ export const validateField = (
   }
   const options: Record<string, unknown> = field.options ?? {}
   checkOptions(options, ['default', 'packed', 'deprecated', 'json_name', 'proto3_optional'])
-  if (
-    options.packed !== undefined &&
-    (field.rule !== 'repeated' || ['string', 'bytes'].includes(field.type.value) || isMessage(target))
-  ) {
+  if (options.packed !== undefined && !isPackableField(field, target)) {
     throw new Error('Only repeated numeric and enum fields can be packed')
   }
   if (

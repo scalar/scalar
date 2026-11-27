@@ -1,7 +1,15 @@
 import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
 
 import { type SchemaDocument, type SchemaNode, createBudget } from '../types'
-import { type Definition, type EnumDefinition, type MessageDefinition, isEnum, isMessage, isScalar } from './ast'
+import {
+  type Definition,
+  type EnumDefinition,
+  type MessageDefinition,
+  isEnum,
+  isMessage,
+  isPackableField,
+  isScalar,
+} from './ast'
 import { loadProtobufFiles, mergeProtobufNamespaces, visibleProtobufFiles } from './load-files'
 import { resolveType } from './resolve-type'
 import { checkOptions, validateEnum, validateField, validateNamespace } from './validate'
@@ -134,9 +142,14 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
             : literal
         details.push(`Default: ${display}`)
       }
-      for (const key of ['packed', 'deprecated', 'json_name']) {
-        if (field.options?.[key] !== undefined) {
-          details.push(`${key}: ${JSON.stringify(field.options[key])}`)
+      const fieldOptions = {
+        packed: field.options?.packed ?? (version === '2' && isPackableField(field, target) ? false : undefined),
+        deprecated: field.options?.deprecated,
+        json_name: field.options?.json_name,
+      }
+      for (const [key, value] of Object.entries(fieldOptions)) {
+        if (value !== undefined) {
+          details.push(`${key}: ${JSON.stringify(value)}`)
         }
       }
       if (details.length) {

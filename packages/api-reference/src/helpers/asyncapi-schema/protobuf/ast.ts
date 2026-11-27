@@ -76,3 +76,7 @@ export const isScalar = (name: string): boolean =>
     'string',
     'bytes',
   ].includes(name)
+
+/** Only repeated numeric, boolean, and enum fields can use packed encoding. */
+export const isPackableField = (field: FieldDefinition, target: Definition | null): boolean =>
+  field.rule === 'repeated' && field.type.value !== 'string' && field.type.value !== 'bytes' && !isMessage(target)

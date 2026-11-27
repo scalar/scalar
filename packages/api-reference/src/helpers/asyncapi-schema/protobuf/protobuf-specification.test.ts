@@ -292,6 +292,27 @@ describe('protobuf-specification', () => {
     expect(schema.nodes[1]?.children?.[0]?.children?.[0]?.name).toBe('inner')
   })
 
+  it.each(['2', '3'])('displays packing details for repeated proto%s fields', (version) => {
+    const source = `enum E { ZERO = 0; } message Child {} message M {
+      repeated int32 numbers = 1;
+      repeated E enums = 2;
+      repeated string labels = 3;
+      repeated bytes data = 4;
+      repeated Child children = 5;
+      repeated bool flags = 6 [packed = true];
+    }`
+    const automatic = version === '2' ? ['packed: false'] : undefined
+    const fields = readProtobuf(source, version).nodes[2]?.children
+    expect(fields?.map(({ name, details }) => [name, details])).toStrictEqual([
+      ['numbers', automatic],
+      ['enums', automatic],
+      ['labels', undefined],
+      ['data', undefined],
+      ['children', undefined],
+      ['flags', ['packed: true']],
+    ])
+  })
+
   it('accepts valid reserved fields and hexadecimal field numbers', () => {
     expect(
       readProtobuf('syntax = "proto3"; message M { reserved 2 to 4; reserved "removed"; string value = 0x05; }', '3')
@@ -633,6 +654,7 @@ describe('protobuf-specification', () => {
   it.each(['2', '3'])('decodes adjacent string literals in a proto%s syntax declaration', (version) => {
     const source = `syntax = "proto" '${version}'; message M { optional string value = 1; }`
     expect(readProtobuf(source, version).nodes[0]?.children?.[0]?.name).toBe('value')
+    expect(() => readProtobuf(source, version === '2' ? '3' : '2')).toThrow('Conflicting Protobuf version')
   })
 
   it('renders compact schemas', () => {
