@@ -41,7 +41,7 @@ Ruby gem name.
 
 Defaults to a `snake_case` name derived from `organization.name`, which is what RubyGems prefers for a gem that occupies a single namespace: a dash is read there as a namespace separator, so `acme-widget` conventionally means the `Acme::Widget` gem whose entrypoint is `lib/acme/widget.rb`, and the generated gem is flat.
 
-A dash spelled here is preserved, so a gem already published under a kebab-case name (`acme-billing`) keeps it. Each dash-delimited segment is normalized on its own, so other separators and casing still fold into `snake_case` — `acme.dev` becomes `acme_dev` and `MyGem` becomes `my_gem`. Changing this value renames the published gem and the release-please component, so pin it to the current name for a gem that has already shipped.
+A dash or a dot spelled here is preserved, so a gem already published under a kebab-case or dotted name (`acme-billing`, `acme.dev`) keeps it. Each dash- and dot-delimited segment is normalized on its own, so other separators and casing still fold into `snake_case` — `MyGem` becomes `my_gem`. A dot never reaches a path: the `acme.dev` gem is required as `acme_dev` and lays its sources out under `lib/acme_dev/`. Changing this value renames the published gem and the release-please component, so pin it to the current name for a gem that has already shipped.
 
 ## destinations
 
