@@ -660,6 +660,36 @@ describe('normalizeAuthSchemes', () => {
 })
 
 describe('normalizeRefs', () => {
+  it.each([true, false])('preserves the $global marker %s on an operation chunk reference', async ($global) => {
+    const input = {
+      paths: {
+        '/users': {
+          get: {
+            $ref: '#/x-ext/operation',
+            $global,
+            summary: 'List users',
+            description: 'A server operation chunk',
+            $status: 'pending',
+            extraProperty: 'removed',
+          },
+        },
+      },
+    }
+
+    await bundle(input, {
+      treeShake: false,
+      plugins: [normalizeRefs()],
+    })
+
+    expect(input.paths['/users'].get).toStrictEqual({
+      $ref: '#/x-ext/operation',
+      $global,
+      summary: 'List users',
+      description: 'A server operation chunk',
+      $status: 'pending',
+    })
+  })
+
   it('removes extra properties from a $ref node', async () => {
     const input = {
       paths: {

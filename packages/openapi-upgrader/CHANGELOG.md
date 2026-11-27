@@ -1,5 +1,45 @@
 # @scalar/openapi-upgrader
 
+## 0.5.3
+
+No changes in this release.
+
+## 0.5.2
+
+No changes in this release.
+
+## 0.5.1
+
+### Patch Changes
+
+- [#11105](https://github.com/scalar/scalar/pull/11105): Finish migrating legacy `nullable` schema keywords when upgrading OpenAPI 3.0 descriptions, so downstream request validators can compile the upgraded schemas and enforce the rest of the request contract.
+
+## 0.5.0
+
+### Minor Changes
+
+- [#10997](https://github.com/scalar/scalar/pull/10997): Upgrade referenced OpenAPI 2.0 and 3.0 resources before bundling, including bare fragments interpreted in their owning API description's dialect and media types. Preserve authored reference targets when schemas and parameters move, and retain their context through lazy loading, serialization, and export.
+
+  Add JSON Magic resource and target lifecycle hooks and the typed `upgradeFragment` API. Headerless external resources are traversed through referenced subtrees, including when reached from OpenAPI 3.1/3.2 descriptions. Exports retain compact `x-scalar-upgrade` bookkeeping only when lazy external references still need the original dialect, relocation mappings, or media types.
+
+  Resources already stored in an input bundle's `x-ext` keep their existing layout so saved references remain valid. Legacy keywords in those stored resources, including OpenAPI 2.0 schema `x-nullable` and `type: file`, deliberately remain unconverted; newly loaded legacy resources are upgraded.
+
+## 0.4.11
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.4.10
+
+### Patch Changes
+
+- [#10952](https://github.com/scalar/scalar/pull/10952): Fix shared Swagger 2.0 body and form-data parameters being left in parameter arrays instead of request bodies. Preserve operation media types, combine form fields, and inherit path-level bodies regardless of property order.
+
+## 0.4.9
+
+No changes in this release.
+
 ## 0.4.8
 
 ### Patch Changes

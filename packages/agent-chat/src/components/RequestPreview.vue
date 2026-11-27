@@ -44,9 +44,10 @@ const requestDestination = computed(() => {
   if (!request?.documentName || !request.path || !request.method) {
     return undefined
   }
-  const settings = createDocumentSettings(chatState.workspaceStore)[
-    request.documentName
-  ]
+  const settings = createDocumentSettings(
+    chatState.workspaceStore,
+    chatState.config.value.authentication,
+  )[request.documentName]
   if (!settings?.activeServer?.url) {
     return `${request.method.toUpperCase()} ${request.path} (no server selected)`
   }

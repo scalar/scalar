@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components/icon'
-import { isObject, isObjectLike } from '@scalar/helpers/object/is-object'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { onClickOutside, onKeyStroke } from '@vueuse/core'
 import { computed, ref, useId } from 'vue'
 
 import { formatExample } from './helpers/format-example'
+import { normalizeRenderedExamples } from './helpers/get-rendered-example'
 import LinkButton from './LinkButton.vue'
 import { useLocalization } from './localization'
 
@@ -27,39 +27,29 @@ const { translate } = useLocalization()
 // `undefined` as "not provided".
 const hasSingleExample = computed(() => example !== undefined)
 
-const normalizedExamples = computed<Record<string, unknown>>(() => {
-  if (isObjectLike(examples)) {
-    return examples
-  }
-
-  return {}
-})
-
-const hasMultipleExamples = computed(
-  () => Object.keys(normalizedExamples.value).length > 0,
+const normalizedExamples = computed<
+  { label: string | undefined; value: string | number; ariaLabel: string }[]
+>(() =>
+  normalizeRenderedExamples(examples, { allowRawObjects: true }).map(
+    (entry) => {
+      const label = entry.summary || entry.name
+      const value = formatExample(entry.value)
+      return {
+        label,
+        value,
+        ariaLabel: `${translate('common.copyExample')}: ${label ? `${label}: ` : ''}${value}`,
+      }
+    },
+  ),
 )
 
+const hasMultipleExamples = computed(() => normalizedExamples.value.length > 0)
+
 const multipleExamplesLabel = computed(() =>
-  Object.keys(normalizedExamples.value).length === 1
+  normalizedExamples.value.length === 1
     ? translate('schema.example')
     : translate('schema.examples'),
 )
-
-/**
- * Unwrap an OpenAPI 3 Example Object (`{ value, externalValue, summary, description }`)
- * to the actual sample. Plain values pass through untouched.
- */
-function unwrapExampleObject(value: unknown): unknown {
-  if (isObject(value)) {
-    if ('value' in value) {
-      return value.value
-    }
-    if ('externalValue' in value) {
-      return value.externalValue
-    }
-  }
-  return value
-}
 
 /**
  * Hover/`:focus-within` CSS alone left the popup unreachable by Enter, Escape
@@ -237,25 +227,33 @@ onKeyStroke('Escape', () => {
       </LinkButton>
       <div
         :id="multiplePopupId"
-        class="property-example-value-list"
+        class="property-example-value-list gap-3! p-3!"
         :class="{
           'flex!': isMultipleOpen,
           'property-example-value-list-start': align === 'start',
         }">
-        <button
+        <div
           v-for="(ex, key) in normalizedExamples"
           :key="key"
-          :aria-label="`${translate('common.copyExample')}: ${formatExample(unwrapExampleObject(ex))}`"
-          class="property-example-value group"
-          type="button"
-          @click="copyToClipboard(formatExample(unwrapExampleObject(ex)))">
-          <span>{{ formatExample(unwrapExampleObject(ex)) }} </span>
-          <ScalarIcon
-            aria-hidden="true"
-            class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3"
-            icon="Clipboard"
-            size="xs" />
-        </button>
+          class="flex min-w-0 flex-col gap-1.5">
+          <span
+            v-if="ex.label"
+            class="text-c-2 font-sans text-xs font-normal break-words">
+            {{ ex.label }}
+          </span>
+          <button
+            :aria-label="ex.ariaLabel"
+            class="property-example-value group text-left"
+            type="button"
+            @click="copyToClipboard(ex.value)">
+            <span>{{ ex.value }}</span>
+            <ScalarIcon
+              aria-hidden="true"
+              class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3"
+              icon="Clipboard"
+              size="xs" />
+          </button>
+        </div>
       </div>
     </div>
   </template>

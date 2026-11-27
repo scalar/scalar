@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.71.0",
+  "version": "0.78.0",
   "engines": {
     "node": ">=22.19.0"
   },
@@ -91,9 +91,9 @@
       "default": "./dist/request-example/index.js"
     },
     "./resolve": {
-      "import": "./dist/resolve.js",
-      "types": "./dist/resolve.d.ts",
-      "default": "./dist/resolve.js"
+      "import": "./dist/resolve/index.js",
+      "types": "./dist/resolve/index.d.ts",
+      "default": "./dist/resolve/index.js"
     },
     "./schemas": {
       "import": "./dist/schemas.js",
@@ -177,8 +177,10 @@
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",
+    "ajv": "catalog:*",
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
+    "google-auth-library": "catalog:*",
     "typescript": "7.0.2",
     "vite": "catalog:*",
     "vitest": "catalog:*"

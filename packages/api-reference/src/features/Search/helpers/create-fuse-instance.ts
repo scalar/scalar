@@ -36,7 +36,7 @@ export function createFuseInstance(): Fuse<FuseData> {
       // Endpoint paths.
       { name: 'path', weight: 0.5 },
       // Tag names — useful for categorization.
-      { name: 'tag', weight: 0.4 },
+      { name: 'tags', weight: 0.4 },
       // Verbose prose — helpful but often noisy.
       { name: 'description', weight: 0.3 },
       // HTTP method - useful for filtering.
@@ -45,6 +45,8 @@ export function createFuseInstance(): Fuse<FuseData> {
       { name: 'responseExamples', weight: 0.25 },
       // Verbose parameter descriptions — supplementary signal only.
       { name: 'parameterDescriptions', weight: 0.2 },
+      // Verbose response descriptions are supplementary search text.
+      { name: 'responseDescriptions', weight: 0.2 },
       // Verbose schema property descriptions — supplementary signal only.
       { name: 'bodyDescriptions', weight: 0.2 },
     ],

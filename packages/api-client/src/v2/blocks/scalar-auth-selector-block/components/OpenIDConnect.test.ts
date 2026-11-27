@@ -56,6 +56,7 @@ describe('OpenIDConnect', () => {
     custom: Partial<{
       openIdConnectUrl: string
       proxyUrl: string
+      trustedLocalOrigins: string[]
       pkce: 'SHA-256' | 'plain' | 'no'
     }> = {},
   ) =>
@@ -67,6 +68,7 @@ describe('OpenIDConnect', () => {
         getStaticBorderClass: () => false,
         name: 'OpenIDConnect',
         proxyUrl: custom.proxyUrl ?? '',
+        trustedLocalOrigins: custom.trustedLocalOrigins,
         scheme: {
           type: 'openIdConnect',
           openIdConnectUrl: custom.openIdConnectUrl ?? 'https://issuer.example.com',
@@ -115,6 +117,7 @@ describe('OpenIDConnect', () => {
     const wrapper = mountWithProps({
       openIdConnectUrl: 'https://issuer.example.com',
       proxyUrl: 'https://proxy.example.com',
+      trustedLocalOrigins: ['https://issuer.example.com'],
     })
     const emitted = vi.fn()
     eventBus.on('auth:update:security-scheme-secrets', emitted)
@@ -145,6 +148,7 @@ describe('OpenIDConnect', () => {
       'https://issuer.example.com',
       'https://proxy.example.com',
       undefined,
+      ['https://issuer.example.com'],
     )
     expect(mockOpenIDDiscoveryToFlows).toHaveBeenCalledWith(discovery)
     expect(emitted).toHaveBeenCalledTimes(1)

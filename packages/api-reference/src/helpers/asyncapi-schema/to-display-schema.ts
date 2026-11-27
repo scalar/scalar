@@ -10,8 +10,11 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
     .filter(Boolean)
     .join('\n\n')
   const common = {
+    ...(node.referenceName ? { title: node.referenceName } : {}),
     ...(node.presence ? { [protobufPresence]: node.presence } : {}),
-    ...(node.recursive ? { [schemaRecursiveTarget]: node.type.replace(/^(message |record )/, '') } : {}),
+    ...(node.recursive
+      ? { [schemaRecursiveTarget]: node.referenceName ?? node.type.replace(/^(message |record )/, '') }
+      : {}),
     ...(description ? { description } : {}),
     ...('readerDefault' in node ? { default: node.readerDefault } : {}),
     ...(node.fieldNumber !== undefined ? { [protobufFieldNumber]: node.fieldNumber } : {}),
@@ -50,7 +53,7 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
     return { ...common, type: 'object', additionalProperties: value ? toDisplaySchema(value) : true }
   }
   if (node.recursive) {
-    return { ...common, type: 'object', title: node.type }
+    return { ...common, type: 'object', title: node.referenceName ?? node.type }
   }
   if (node.type.startsWith('enum ')) {
     if (node.symbols) {

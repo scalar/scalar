@@ -55,6 +55,10 @@ public class ScalarConfiguration {
     @JsonProperty("oauth2RedirectUri")
     private String oauth2RedirectUri;
 
+    /** HTTP(S) origins treated as local for API proxy routing and OAuth authorization. */
+    @JsonProperty("trustedLocalOrigins")
+    private List<String> trustedLocalOrigins;
+
     /** Whether navigation updates the browser URL and history. */
     @JsonProperty("urlRouting")
     private Boolean urlRouting;
@@ -62,6 +66,10 @@ public class ScalarConfiguration {
     /** The clients hidden from code sample selection. */
     @JsonProperty("hiddenClients")
     private ScalarHiddenClients hiddenClients;
+
+    /** The built-in client IDs and target wildcards allowed in code sample pickers. */
+    @JsonProperty("httpClients")
+    private List<String> httpClients;
 
     /** The full client identifiers shown as tabs, in order. */
     @JsonProperty("featuredClients")
@@ -74,6 +82,10 @@ public class ScalarConfiguration {
     /** The initial request body view: form or raw. */
     @JsonProperty("defaultRequestBodyView")
     private ScalarRequestBodyView defaultRequestBodyView;
+
+    /** Naming convention for nested multipart form fields. */
+    @JsonProperty("multipartNaming")
+    private ScalarMultipartNaming multipartNaming;
 
     /** The maximum initially visible request body properties; zero shows all. */
     @JsonProperty("maxVisibleRequestBodyProperties")
@@ -96,6 +108,9 @@ public class ScalarConfiguration {
 
     @JsonProperty("proxyUrl")
     private String proxyUrl;
+
+    @JsonProperty("showBadgesInSidebar")
+    private Boolean showBadgesInSidebar;
 
     @JsonProperty("showSidebar")
     private Boolean showSidebar;
@@ -135,6 +150,9 @@ public class ScalarConfiguration {
 
     @JsonProperty("defaultHttpClient")
     private DefaultHttpClient defaultHttpClient;
+
+    @JsonProperty("showDefaultClientsWithSdkInstallation")
+    private Boolean showDefaultClientsWithSdkInstallation;
 
     @JsonProperty("authentication")
     private ScalarAuthenticationOptions authentication;
@@ -177,6 +195,9 @@ public class ScalarConfiguration {
 
     @JsonProperty("baseServerURL")
     private String baseServerUrl;
+
+    @JsonProperty("persistSelectedClient")
+    private Boolean persistSelectedClient;
 
     @JsonProperty("persistAuth")
     private Boolean persistAuth;
@@ -235,6 +256,14 @@ public class ScalarConfiguration {
 
     public void setProxyUrl(String proxyUrl) {
         this.proxyUrl = proxyUrl;
+    }
+
+    public Boolean getShowBadgesInSidebar() {
+        return showBadgesInSidebar;
+    }
+
+    public void setShowBadgesInSidebar(Boolean showBadgesInSidebar) {
+        this.showBadgesInSidebar = showBadgesInSidebar;
     }
 
     public Boolean getShowSidebar() {
@@ -331,6 +360,14 @@ public class ScalarConfiguration {
 
     public void setMetaData(Map<String, String> metaData) {
         this.metaData = metaData;
+    }
+
+    public Boolean getShowDefaultClientsWithSdkInstallation() {
+        return showDefaultClientsWithSdkInstallation;
+    }
+
+    public void setShowDefaultClientsWithSdkInstallation(Boolean showDefaultClientsWithSdkInstallation) {
+        this.showDefaultClientsWithSdkInstallation = showDefaultClientsWithSdkInstallation;
     }
 
     public DefaultHttpClient getDefaultHttpClient() {
@@ -451,6 +488,14 @@ public class ScalarConfiguration {
 
     public void setBaseServerUrl(String baseServerUrl) {
         this.baseServerUrl = baseServerUrl;
+    }
+
+    public Boolean getPersistSelectedClient() {
+        return persistSelectedClient;
+    }
+
+    public void setPersistSelectedClient(Boolean persistSelectedClient) {
+        this.persistSelectedClient = persistSelectedClient;
     }
 
     public Boolean getPersistAuth() {
@@ -639,6 +684,14 @@ public class ScalarConfiguration {
         this.maxVisibleRequestBodyProperties = maxVisibleRequestBodyProperties;
     }
 
+    public ScalarMultipartNaming getMultipartNaming() {
+        return multipartNaming;
+    }
+
+    public void setMultipartNaming(ScalarMultipartNaming multipartNaming) {
+        this.multipartNaming = multipartNaming;
+    }
+
     /**
      * Gets the initial request body view: form or raw.
      *
@@ -694,6 +747,22 @@ public class ScalarConfiguration {
     }
 
     /**
+     * Gets the built-in HTTP clients allowed in the code sample pickers.
+     * @return the configured client IDs and target wildcards, or null to use the default list
+     */
+    public List<String> getHttpClients() {
+        return httpClients;
+    }
+
+    /**
+     * Sets the HTTP client allowlist. An empty list hides all built-in clients.
+     * @param httpClients client IDs such as node/undici or target wildcards such as shell/*
+     */
+    public void setHttpClients(List<String> httpClients) {
+        this.httpClients = httpClients;
+    }
+
+    /**
      * Gets the clients hidden from code sample selection.
      *
      * @return the configured value, or null to use the frontend default
@@ -745,6 +814,20 @@ public class ScalarConfiguration {
      */
     public void setOauth2RedirectUri(String oauth2RedirectUri) {
         this.oauth2RedirectUri = oauth2RedirectUri;
+    }
+
+    /** Returns the configured local origins, or null when no origins are configured. */
+    public List<String> getTrustedLocalOrigins() {
+        return trustedLocalOrigins;
+    }
+
+    /**
+     * Sets the HTTP(S) origins treated as local.
+     *
+     * @param trustedLocalOrigins the origins, including the scheme and any non-default port
+     */
+    public void setTrustedLocalOrigins(List<String> trustedLocalOrigins) {
+        this.trustedLocalOrigins = trustedLocalOrigins;
     }
 
     /**

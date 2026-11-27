@@ -5,7 +5,7 @@
  * close circle in the corner (last in the Tab order).
  */
 import { ScalarIconX } from '@scalar/icons'
-import { useId } from 'vue'
+import { computed, useId } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 
@@ -13,11 +13,17 @@ const {
   title,
   description,
   divided = true,
+  compactHero = false,
 } = defineProps<{
   title: string
   description?: string
   /** A divider between the heading and the content; Deploy goes straight into its sign-up */
   divided?: boolean
+  /**
+   * A band only as tall as small artwork needs, as the API client popup sets its butterfly, instead
+   * of the 200px the tilted stickers stand in
+   */
+  compactHero?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -27,17 +33,30 @@ const emit = defineEmits<{
 defineSlots<{
   /** Artwork above the title, sitting on the wash */
   hero?(): unknown
-  /** The card's content; `titleId` names a form after the card */
-  default?(props: { titleId: string }): unknown
+  /**
+   * The card's content; `titleId` names a form after the card, and `descriptionId` points at the
+   * description, when the card has one
+   */
+  default?(props: {
+    titleId: string
+    descriptionId: string | undefined
+  }): unknown
 }>()
 
 const { translate } = useLocalization()
 const titleId = useId()
+const descriptionId = useId()
+
+/** 32px above small artwork and 24px between it and the title, like the API client popup */
+const heroBandClasses = computed<string>(() =>
+  compactHero ? 'pt-8 pb-4' : 'h-[200px] pb-6',
+)
 </script>
 <template>
   <div class="developer-tools-card bg-b-1 text-c-1 relative flex flex-col">
     <div
-      class="relative flex h-[200px] shrink-0 items-end justify-center overflow-hidden pb-6">
+      class="relative flex shrink-0 items-end justify-center overflow-hidden"
+      :class="heroBandClasses">
       <span
         aria-hidden="true"
         class="developer-tools-card-wash pointer-events-none absolute inset-x-0 top-0" />
@@ -55,6 +74,7 @@ const titleId = useId()
       </h2>
       <p
         v-if="description"
+        :id="descriptionId"
         class="text-c-2 m-0 text-sm leading-relaxed text-balance">
         {{ description }}
       </p>
@@ -65,7 +85,9 @@ const titleId = useId()
       class="border-border mx-8 mt-5 border-0 border-t" />
 
     <div class="px-8 pt-5 pb-6">
-      <slot :titleId />
+      <slot
+        :descriptionId="description ? descriptionId : undefined"
+        :titleId />
     </div>
 
     <button

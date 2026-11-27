@@ -1,32 +1,18 @@
-import { type EnumDefinition, type MessageDefinition, parse } from 'proto-parser'
+import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
+import type { EnumDefinition, MessageDefinition } from 'proto-parser'
 
 import { type SchemaDocument, type SchemaNode, createBudget } from '../types'
 import { type Definition, isEnum, isMessage, isScalar } from './ast'
+import { loadProtobufFiles, mergeProtobufNamespaces, visibleProtobufFiles } from './load-files'
 import { resolveType } from './resolve-type'
 import { checkOptions, validateEnum, validateField, validateNamespace } from './validate'
 
-/** Read the parser AST without loading imports or a Protobuf serialization runtime. */
-export const readProtobuf = (source: unknown, version: string): SchemaDocument => {
-  if (typeof source !== 'string') {
-    throw new Error('Expected Protobuf source')
-  }
-  const parsed = parse(source, {
-    keepCase: true,
-    alternateCommentMode: true,
-    defaultSyntax: version === '2' ? 'proto2' : 'proto3',
-    // Scalar resolves names lexically and rejects imports; parser resolution is unnecessary.
-    resolve: false,
-    weakResolve: false,
-  })
-  if (parsed.syntaxType === 'ProtoError') {
-    throw parsed.error
-  }
-  if (parsed.syntax !== `proto${version}`) {
-    throw new Error('Conflicting Protobuf version')
-  }
-  if (parsed.imports?.length || parsed.weakImports?.length) {
-    throw new Error('Unsupported Protobuf imports')
-  }
+/** Read a closed native dependency graph without a Protobuf serialization runtime. */
+export const readProtobuf = (source: unknown, version: string, resources?: AsyncApiSchemaResources): SchemaDocument => {
+  if (typeof source !== 'string') throw new Error('Expected Protobuf source')
+  const { root, files, owners } = loadProtobufFiles(source, version, resources)
+  const parsed = root.document
+  for (const file of files) if (file !== root) mergeProtobufNamespaces(parsed.root, file.document.root)
   const budget = createBudget()
   const definitions: (MessageDefinition | EnumDefinition)[] = []
   const parents = new WeakMap<Definition, Definition>()
@@ -61,6 +47,15 @@ export const readProtobuf = (source: unknown, version: string): SchemaDocument =
     depth = 0,
   ): SchemaNode => {
     budget(depth)
+    const file = owners.get(definition)
+    if (!file) throw new Error('Unknown Protobuf definition')
+    const version = file.document.syntax === 'proto2' ? '2' : '3'
+    const visible = visibleProtobufFiles(file)
+    const accessible = (node: Definition): boolean =>
+      node.syntaxType === 'ProtoRoot' ||
+      (node.syntaxType === 'NamespaceDefinition'
+        ? Object.values(node.nested ?? {}).some(accessible)
+        : visible.has(owners.get(node)!))
     const node: SchemaNode = {
       name,
       type: `${isEnum(definition) ? 'enum' : 'message'} ${(definition.fullName ?? definition.name).replace(/^\./, '')}`,
@@ -96,7 +91,9 @@ export const readProtobuf = (source: unknown, version: string): SchemaDocument =
       if (field.extend) {
         throw new Error('Unsupported Protobuf extension')
       }
-      const target = resolveType(definition, field.type.value, parents)
+      const target = resolveType(definition, field.type.value, parents, accessible)
+      if (version === '3' && isEnum(target) && owners.get(target)?.document.syntax === 'proto2')
+        throw new Error('Proto3 cannot directly use proto2 enums')
       validateField(definition, field, target, version)
       const valueNode =
         isMessage(target) || isEnum(target)
@@ -155,5 +152,8 @@ export const readProtobuf = (source: unknown, version: string): SchemaDocument =
     return node
   }
   // A file can declare several independent messages. Show each, rather than guessing a payload root.
-  return { nodes: definitions.map((definition) => visit(definition, definition.name)) }
+  const nodes = definitions.map((definition) => ({ definition, node: visit(definition, definition.name) }))
+  const local = nodes.filter(({ definition }) => owners.get(definition) === root).map(({ node }) => node)
+  if (!local.length) throw new Error('No local Protobuf definitions')
+  return { nodes: local }
 }

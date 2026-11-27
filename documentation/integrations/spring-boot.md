@@ -239,8 +239,9 @@ spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
 | `scalar.path`                  | `/scalar`                                                     | Path where the API reference will be available                                                                                                                   |
 | `scalar.url`                   | `https://registry.scalar.com/@scalar/apis/galaxy?format=json` | URL of your OpenAPI document                                                                                                                                     |
 | `scalar.actuatorEnabled`       | `false`                                                       | Whether to expose the Scalar UI as an actuator endpoint at /actuator/scalar                                                                                      |
+| `scalar.showBadgesInSidebar`   | `false`                                                       | Whether to show `x-badges` next to sidebar titles                                                                                                                  |
 | `scalar.showSidebar`           | `true`                                                        | Whether the sidebar should be shown                                                                                                                              |
-| `scalar.hideModels`            | `false`                                                       | Whether models (components.schemas or definitions) should be hidden from the sidebar, search, and content                                                        |
+| `scalar.hideModels`            | `false`                                                       | Hide schema models and reusable AsyncAPI messages from the sidebar, search, and content                                                                |
 | `scalar.hideTestRequestButton` | `false`                                                       | Whether to hide the "Test Request" button                                                                                                                        |
 | `scalar.hideSearch`            | `false`                                                       | Whether to show the sidebar search bar                                                                                                                           |
 | `scalar.customCss`             | `null`                                                        | Custom CSS to inject into the API reference                                                                                                                      |
@@ -256,7 +257,10 @@ spring.autoconfigure.exclude=com.scalar.maven.webjar.ScalarAutoConfiguration
 | `scalar.documentDownloadType`  | `both`                                                        | Sets the file type of the document to download. Can be "json", "yaml", "both", or "none"                                                                         |
 | `scalar.searchHotKey`          | `null`                                                        | Hotkey for search functionality (e.g., "ctrl+k")                                                                                                                 |
 | `scalar.servers`               | `null`                                                        | List of server configurations                                                                                                                                    |
-| `scalar.defaultHttpClient`     | `null`                                                        | Default HTTP client configuration                                                                                                                                |
+| `scalar.http-clients`          | `null`                                                        | Built-in client IDs and target wildcards such as `node/fetch` and `shell/*`. Set to `[]` to hide all built-in clients.                                           |
+| `scalar.default-http-client`   | `null`                                                        | Default built-in HTTP client ID such as `node/fetch`. The nested `target-key` and `client-key` properties are also supported.                                    |
+
+Selecting a custom code sample by its `custom/` ID is unsupported by `scalar.default-http-client`.
 
 ## Authentication Configuration
 

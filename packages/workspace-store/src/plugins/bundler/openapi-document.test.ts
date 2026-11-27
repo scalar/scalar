@@ -10,6 +10,19 @@ import { restoreOriginalRefs } from './index'
 import { openApiDocument, resolveOpenApiDocument } from './openapi-document'
 
 describe('openapi-document', () => {
+  it('does not interpret plugin fields as an OpenAPI document identity', () => {
+    expect(
+      resolveOpenApiDocument(
+        {
+          'x-scalar-document-type': 'custom',
+          openapi: '3.2.0',
+          $self: 'https://unrelated.example.com/document',
+        },
+        'https://example.com/input.json',
+      ),
+    ).toBeUndefined()
+  })
+
   it('preserves root-relative schema identifiers and anchors without a document identity', async () => {
     const document = {
       openapi: '3.1.2',

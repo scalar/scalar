@@ -1,7 +1,12 @@
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { deleteServer, updateSelectedServer } from '@/mutators/server'
+import { resolveExecutableRequestUrl } from '@/request-example/builder/build-request'
+import { resolveServerUrl } from '@/request-example/builder/helpers/resolve-server-url'
+import { requestFactory } from '@/request-example/builder/request-factory'
 import type { WorkspaceDocument } from '@/schemas'
+import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 
 import { getSelectedServer, getServers } from './servers'
@@ -14,6 +19,221 @@ describe('servers', () => {
         origin: 'https://example.com',
       },
     })
+  })
+
+  it.each<{
+    url: string
+    prefix: string
+    baseServerUrl?: string
+    envVariables?: Record<string, string>
+    expected: string
+  }>([
+    { url: '{prefix}/v2', prefix: '', expected: 'https://api.example.com/v2/planets' },
+    { url: '{prefix}', prefix: '', expected: 'https://api.example.com/docs/planets' },
+    { url: '{prefix}', prefix: 'release.v1', expected: 'https://api.example.com/docs/release.v1/planets' },
+    {
+      url: '{prefix}/v2',
+      prefix: '',
+      baseServerUrl: 'https://proxy.example.com/api',
+      expected: 'https://proxy.example.com/api/v2/planets',
+    },
+    {
+      url: '{prefix}',
+      prefix: '',
+      baseServerUrl: 'https://proxy.example.com/api',
+      expected: 'https://proxy.example.com/api/planets',
+    },
+    {
+      url: '{prefix}',
+      prefix: 'https://absolute.example.com/v1',
+      baseServerUrl: 'https://proxy.example.com/api',
+      expected: 'https://absolute.example.com/v1/planets',
+    },
+    {
+      url: '{prefix}/v2/{{tenant}}',
+      prefix: '',
+      envVariables: { tenant: 'tenant01' },
+      expected: 'https://api.example.com/v2/tenant01/planets',
+    },
+    {
+      url: '{prefix}/v2/{{tenant}}',
+      prefix: '',
+      baseServerUrl: 'https://proxy.example.com/api',
+      envVariables: { tenant: 'tenant01' },
+      expected: 'https://proxy.example.com/api/v2/tenant01/planets',
+    },
+    {
+      url: '{prefix}/{{tenant}}',
+      prefix: 'release.v1',
+      envVariables: { tenant: 'tenant01' },
+      expected: 'https://api.example.com/docs/release.v1/tenant01/planets',
+    },
+    {
+      url: '{prefix}/{{tenant}}',
+      prefix: '//cdn.example.com',
+      baseServerUrl: 'https://proxy.example.com/api',
+      envVariables: { tenant: 'tenant01' },
+      expected: 'https://cdn.example.com/tenant01/planets',
+    },
+    {
+      url: '{prefix}{{host}}/v2',
+      prefix: '//',
+      envVariables: { host: 'cdn.example.com' },
+      expected: 'https://cdn.example.com/v2/planets',
+    },
+    {
+      url: '{prefix}{{origin}}/v2',
+      prefix: '',
+      envVariables: { origin: 'https://absolute.example.com' },
+      expected: 'https://absolute.example.com/v2/planets',
+    },
+  ])(
+    'builds the request to $expected for $url with prefix $prefix',
+    ({ url, prefix, baseServerUrl, envVariables, expected }) => {
+      const servers = getServers([{ url, variables: { prefix: { default: prefix } } }], {
+        baseServerUrl,
+        documentUrl: 'https://api.example.com/docs/openapi.json',
+      })
+      const { request } = requestFactory({
+        defaultHeaders: {},
+        environment: { color: '#FFFFFF', variables: [] },
+        exampleName: 'default',
+        globalCookies: [],
+        isElectron: false,
+        method: 'get',
+        operation: { responses: {} },
+        path: '/planets',
+        proxyUrl: '',
+        selectedSecuritySchemes: [],
+        server: getSelectedServer(null, null, null, servers),
+      })
+
+      expect(resolveExecutableRequestUrl(request, envVariables ?? {}, { allowMissingRequestServerBase: false })).toBe(
+        expected,
+      )
+    },
+  )
+
+  it('preserves schemeless hosts when only the browser origin is available', () => {
+    const [server] = getServers([{ url: '{host}', variables: { host: { default: 'api.example.com' } } }])
+
+    expect(resolveServerUrl(server ?? null)).toBe('api.example.com')
+  })
+
+  it.each<{ server: ServerObject; expectedPath: string }>([
+    {
+      server: { url: '{host}/v1', variables: { host: { default: 'api.example.com' } } },
+      expectedPath: 'api.example.com/v1',
+    },
+    {
+      server: { url: '{host}:8080/v1', variables: { host: { default: 'api.example.com' } } },
+      expectedPath: 'api.example.com:8080/v1',
+    },
+    {
+      server: { url: 'api.example.com:{port}/v1', variables: { port: { default: '8080' } } },
+      expectedPath: 'api.example.com:8080/v1',
+    },
+    { server: { url: 'api.example.com/v1' }, expectedPath: 'api.example.com/v1' },
+    { server: { url: 'api.example.com:8080/v1' }, expectedPath: 'api.example.com:8080/v1' },
+    {
+      server: { url: '{host}:8080/v1', variables: { host: { default: 'myhost' } } },
+      expectedPath: 'myhost:8080/v1',
+    },
+    {
+      server: { url: 'myhost:{port}/v1', variables: { port: { default: '8080' } } },
+      expectedPath: 'myhost:8080/v1',
+    },
+    { server: { url: 'myhost:8080/v1' }, expectedPath: 'myhost:8080/v1' },
+    { server: { url: 'myhost:8080' }, expectedPath: 'myhost:8080' },
+  ])('resolves $server.url as a path when a document or configured base is available', ({ server, expectedPath }) => {
+    const documentUrl = 'https://docs.example.com/specs/openapi.json'
+    const [documentServer] = getServers([server], { documentUrl })
+    const [configuredServer] = getServers([server], { documentUrl, baseServerUrl: 'https://proxy.example.com/api' })
+
+    expect(resolveServerUrl(documentServer ?? null)).toBe(`https://docs.example.com/specs/${expectedPath}`)
+    expect(resolveServerUrl(configuredServer ?? null)).toBe(`https://proxy.example.com/api/${expectedPath}`)
+  })
+
+  it('resolves literal relative paths and explicit network hosts', () => {
+    const servers = getServers([{ url: 'v2' }, { url: '../api' }, { url: '//api.example.com:8080/v2' }], {
+      documentUrl: 'https://docs.example.com/specs/openapi.json',
+    })
+
+    expect(servers.map(resolveServerUrl)).toStrictEqual([
+      'https://docs.example.com/specs/v2',
+      'https://docs.example.com/api',
+      'https://api.example.com:8080/v2',
+    ])
+  })
+
+  it.each(['https://myhost:8080/v1', 'https:8080/v1', 'tel:1234', 'myhost:8080/v1'])(
+    'preserves %s when only the browser origin is available',
+    (url) => {
+      const [server] = getServers([{ url }])
+
+      expect(resolveServerUrl(server ?? null)).toBe(url)
+    },
+  )
+
+  it.each(['https://myhost:8080/v1', 'https:8080/v1', 'tel:1234'])(
+    'keeps explicit schemes in %s when a document or configured base is available',
+    (url) => {
+      const documentUrl = 'https://docs.example.com/specs/openapi.json'
+      const [documentServer] = getServers([{ url }], { documentUrl })
+      const [configuredServer] = getServers([{ url }], { documentUrl, baseServerUrl: 'https://proxy.example.com/api' })
+
+      expect(resolveServerUrl(documentServer ?? null)).toBe(url)
+      expect(resolveServerUrl(configuredServer ?? null)).toBe(url)
+    },
+  )
+
+  it('uses only the configured base for dotted paths in inline descriptions', () => {
+    const [server] = getServers([{ url: '{prefix}', variables: { prefix: { default: 'release.v1' } } }], {
+      baseServerUrl: 'https://api.example.com/base',
+    })
+
+    expect(resolveServerUrl(server ?? null)).toBe('https://api.example.com/base/release.v1')
+  })
+
+  it.each(['about:blank', 'file:///docs/openapi.json', 'ftp://docs.example.com/openapi.json'])(
+    'falls back to the browser origin for a description at %s',
+    (documentUrl) => {
+      const [server] = getServers([{ url: '{prefix}/v2', variables: { prefix: { default: '' } } }], {
+        documentUrl,
+      })
+
+      expect(resolveServerUrl(server ?? null)).toBe('https://example.com/v2')
+    },
+  )
+
+  it('excludes document credentials from rooted and templated server URLs', () => {
+    const servers = getServers(
+      [{ url: '/v2' }, { url: '{prefix}', variables: { prefix: { default: 'release.v1' } } }],
+      { documentUrl: 'https://test-user:test-password@api.example.com/docs/openapi.json' },
+    )
+
+    expect(servers.map(resolveServerUrl)).toStrictEqual([
+      'https://api.example.com/v2',
+      'https://api.example.com/docs/release.v1',
+    ])
+  })
+
+  it('selects the remaining server after deleting a selected root-relative server', () => {
+    const document: OpenApiDocument = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1' },
+      'x-scalar-original-document-hash': '',
+      servers: [{ url: 'https://other.example.com' }, { url: '/v2' }],
+    }
+    const options = { documentUrl: 'https://api.example.com/docs/openapi.json' }
+    const selected = getServers(document.servers, options)[1]
+    assert(selected)
+    updateSelectedServer(document, { url: selected.url, meta: { type: 'document' } })
+    deleteServer(document, { index: 1, meta: { type: 'document' } })
+
+    expect(getSelectedServer(document, null, null, getServers(document.servers, options))?.url).toBe(
+      'https://other.example.com',
+    )
   })
 
   describe('getServers', () => {

@@ -20,6 +20,7 @@ const reset = { documentName: 'api', meta, contentType }
 
 const setup = async (
   media: MediaTypeObject = { examples: { selected: { value: { name: 'original' } } } },
+  openapi = '3.2.0',
 ): Promise<{
   store: WorkspaceStore
   document: OpenApiDocument
@@ -31,7 +32,7 @@ const setup = async (
   await store.addDocument({
     name: 'api',
     document: {
-      openapi: '3.2.0',
+      openapi,
       info: { title: 'Reset', version: '1' },
       paths: {
         '/items': {
@@ -59,6 +60,26 @@ const setup = async (
 }
 
 describe('reset-request-body', () => {
+  it('uses the original version when regenerating an upgraded request body', async () => {
+    const { store, read, edit } = await setup(
+      {
+        schema: {
+          type: 'array',
+          items: { type: 'integer' },
+          minItems: 3,
+          maxItems: 3,
+          contains: { type: 'integer', const: 2 },
+          minContains: 1,
+          maxContains: 1,
+        },
+      },
+      '3.0.4',
+    )
+    edit('[9]')
+    await resetOperationRequestBody(store, reset)
+    expect(read()?.value).toStrictEqual([1, 1, 1])
+  })
+
   it('leaves method-shaped Paths extensions untouched when resetting a body', async () => {
     const { store, document, read, edit } = await setup()
     const extension = { post: { requestBody: { description: 'metadata' } } }

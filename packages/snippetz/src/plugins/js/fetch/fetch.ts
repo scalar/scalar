@@ -3,7 +3,7 @@ import type { Plugin } from '@scalar/types/snippetz'
 import { prepareBrowserCookies } from '@/libs/browser-request'
 import { buildFormData, formDataHeaders, urlSearchParams } from '@/libs/form-data'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
-import { Raw, formatSetup, objectToString } from '@/libs/javascript'
+import { Raw, escapeJsString, formatSetup, objectToString } from '@/libs/javascript'
 
 /**
  * js/fetch
@@ -79,6 +79,6 @@ export const jsFetch: Plugin = {
     const jsonOptions = Object.keys(options).length ? `, ${objectToString(options)}` : ''
 
     // Code Template
-    return `${prefix}fetch('${url}'${jsonOptions})`
+    return `${prefix}fetch('${escapeJsString(url)}'${jsonOptions})`
   },
 }

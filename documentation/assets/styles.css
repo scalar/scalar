@@ -120,9 +120,41 @@ button[data-sidebar-id] > .mr-1:has(> svg.size-full) {
 
 .scalar-component-preview + .t-editor__code-group .t-editor__code,
 .scalar-component-preview + .t-editor__code-container .t-editor__code {
+  /* The padding a block has on its own: a code group's panels take less to make room for a shell. */
+  --code-inline-padding: 16px;
+
   margin-top: 0;
   box-shadow: none;
   background: transparent;
+}
+
+/*
+ * The source is attached to the preview above it rather than standing as a block of its own, so a
+ * code group gives up the shell padding it has elsewhere and its copy button returns to the edge.
+ */
+.scalar-component-preview + .t-editor__code-group {
+  padding: 0;
+}
+
+.scalar-component-preview + .t-editor__code-group .code-group-nav {
+  margin: 0;
+}
+
+.scalar-component-preview + .t-editor__code-group .t-editor__code-container > .language-button {
+  top: -34px;
+  right: 16px;
+}
+
+/*
+ * Over code the renderer gives the copy button the color of the surface it sits on. An attached
+ * source panel has no surface, so its button keeps the chip it has today.
+ */
+.scalar-component-preview + .t-editor__code-container > .language-button {
+  background-color: var(--scalar-background-2);
+}
+
+.scalar-component-preview + .t-editor__code-container > .language-button:hover {
+  background-color: var(--scalar-background-3);
 }
 
 /* TODO: Remove these styles after cleaning up the docs pages */
@@ -299,15 +331,18 @@ button[data-sidebar-id] > .mr-1:has(> svg.size-full) {
 
 /* The meadow under the footer.
 
-   The band is the room under the footer card, 240px (165 on phones). Its
-   bottom padding is the room the AI chat bar that scalar.com floats over
-   the bottom of every page needs (48px tall, 20px up), so the band must
-   stay taller than that for the bar never to reach the card when the page
-   is at its end. While the marker in footer.html ([data-hl-footer-meadow])
-   is on the page, headless-hero.js makes the meadow's root
-   (.hl-footer-meadow) at the start of the band, once these rules apply:
-   the band positioned, and letting the meadow reach up out of it over the
-   card's lower part. The root comes after the card, so it is painted over
+   The band is the room under the footer card, 120px (83 on phones). The
+   meadow is painted for a band as tall again (240, 165) and only its top
+   shows: its canvas runs on under the band by --hl-footer-cut, which the
+   root cuts off, so the hills over the card are as they were painted.
+   The band's bottom padding is the room the AI chat bar that scalar.com
+   floats over the bottom of every page needs (48px tall, 20px up), so the
+   band must stay taller than that for the bar never to reach the card
+   when the page is at its end. While the marker in footer.html
+   ([data-hl-footer-meadow]) is on the page, headless-hero.js makes the
+   meadow's root (.hl-footer-meadow) at the start of the band, once these
+   rules apply: the band positioned, and letting the meadow reach up out of
+   it over the card's lower part. The root comes after the card, so it is painted over
    it, and the pointer goes through it to the card: its picture has the
    card cut out of everything behind the card, which shows there whole,
    and only the near hills, in front of the card, come up over its foot.
@@ -315,10 +350,12 @@ button[data-sidebar-id] > .mr-1:has(> svg.size-full) {
    of their own. */
 .docs-footer-band {
   position: relative;
-  height: 240px;
+  height: 120px;
   /* the chat bar's room */
   padding-bottom: 68px;
   overflow: visible;
+  /* the meadow's foot left off under the band (headless-hero.js reads it) */
+  --hl-footer-cut: 120px;
 }
 
 .hl-footer-meadow {
@@ -329,6 +366,7 @@ button[data-sidebar-id] > .mr-1:has(> svg.size-full) {
   z-index: 0;
   pointer-events: none;
   opacity: 0;
+  overflow: hidden;
   transition: opacity 200ms ease-out;
 }
 
@@ -347,12 +385,13 @@ button[data-sidebar-id] > .mr-1:has(> svg.size-full) {
 .hl-footer-meadow > canvas {
   display: block;
   width: 100%;
-  height: 100%;
+  height: calc(100% + var(--hl-footer-cut, 0px));
 }
 
 @media screen and (max-width: 640px) {
   .docs-footer-band {
-    height: 165px;
+    height: 83px;
+    --hl-footer-cut: 82px;
   }
 }
 

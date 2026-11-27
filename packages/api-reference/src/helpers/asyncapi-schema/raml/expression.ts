@@ -16,7 +16,13 @@ const builtins = new Set([
   'datetime',
 ])
 /** Parse the RAML type-expression grammar, preserving union and array precedence. */
-export const expression = (input: string, name: string, budget: (depth: number) => void, depth: number): SchemaNode => {
+export const expression = (
+  input: string,
+  name: string,
+  budget: (depth: number) => void,
+  depth: number,
+  resolve?: (type: string, depth: number) => SchemaNode,
+): SchemaNode => {
   const tokens = input.match(/[A-Za-z_][A-Za-z0-9_.-]*|\[\]|[|()]/g) ?? []
   if (tokens.join('') !== input.replace(/\s/g, '')) {
     throw new Error('Unsupported RAML expression')
@@ -36,12 +42,17 @@ export const expression = (input: string, name: string, budget: (depth: number) 
   const array = (level: number): SchemaNode => {
     budget(level)
     const token = tokens[cursor.index++]
-    const node = token === '(' ? union(level + 1) : { name, type: token ?? '' }
+    const node =
+      token === '('
+        ? union(level + 1)
+        : token && !builtins.has(token) && resolve
+          ? resolve(token, level + 1)
+          : { name, type: token ?? '' }
     if (token === '(') {
       if (tokens[cursor.index++] !== ')') {
         throw new Error('Unclosed RAML expression')
       }
-    } else if (!token || !builtins.has(token)) {
+    } else if (!token || (!builtins.has(token) && !resolve)) {
       throw new Error('Unresolved RAML type')
     }
     const wrap = (value: SchemaNode, nesting: number): SchemaNode => {

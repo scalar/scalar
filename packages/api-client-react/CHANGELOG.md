@@ -1,5 +1,45 @@
 # @scalar/api-client-react
 
+## 2.0.74
+
+No changes in this release.
+
+## 2.0.73
+
+No changes in this release.
+
+## 2.0.72
+
+No changes in this release.
+
+## 2.0.71
+
+No changes in this release.
+
+## 2.0.70
+
+No changes in this release.
+
+## 2.0.69
+
+No changes in this release.
+
+## 2.0.68
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+
+## 2.0.67
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
+## 2.0.66
+
+No changes in this release.
+
 ## 2.0.65
 
 ## 2.0.64

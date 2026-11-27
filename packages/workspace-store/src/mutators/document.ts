@@ -99,14 +99,14 @@ export const createEmptyDocument = async (
   }
 
   // Check if the document already exists by name for uniqueness
-  if (store.workspace.documents[payload.name]) {
+  if (Object.hasOwn(store.workspace.documents, payload.name)) {
     // Document name already exists, call callback with false
     payload.callback?.(false)
     return
   }
 
   // Add a new empty OpenAPI 3.1.0 document with minimal info and icon
-  await store.addDocument({
+  const added = await store.addDocument({
     name: payload.name,
     document: {
       openapi: '3.1.0',
@@ -121,7 +121,7 @@ export const createEmptyDocument = async (
   })
 
   // Notify success via callback
-  payload.callback?.(true)
+  payload.callback?.(added)
 }
 
 /**

@@ -8,7 +8,7 @@ import { assert, describe, expect, it } from 'vitest'
 
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 
-import { buildRequest } from './build-request'
+import { buildRequest, resolveExecutableRequestUrl } from './build-request'
 import { requestFactory } from './request-factory'
 
 type ExtendedParameter = ParameterObject & { value: string }
@@ -46,6 +46,203 @@ const createBaseArgs = (overrides: Partial<FactoryArgs> = {}): FactoryArgs => ({
 })
 
 describe('requestFactory', () => {
+  it.each([
+    { style: 'matrix', expected: ';id=abc' },
+    { style: 'label', expected: '.abc' },
+    { style: 'simple', expected: 'abc' },
+    { style: undefined, expected: 'abc' },
+  ])('uses path style $style for sending and copying the request URL', ({ style, expected }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/items/{id}',
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        openapiVersion: '3.1.0',
+        operation: {
+          parameters: [{ name: 'id', in: 'path', required: true, style, schema: { type: 'string' }, example: 'abc' }],
+        },
+      }),
+    )
+
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(built.data.requestPayload[0]).toBe(`https://api.example.test/items/${expected}`)
+    expect(resolveExecutableRequestUrl(request, {})).toBe(`https://api.example.test/items/${expected}`)
+  })
+
+  it.each([
+    { style: 'matrix', explode: false, expected: ';id=a%2Fb%2Cc,d%3Fe%3Bf%21' },
+    { style: 'matrix', explode: true, expected: ';id=a%2Fb%2Cc;id=d%3Fe%3Bf%21' },
+    { style: 'label', explode: false, expected: '.a%2Fb%2Cc,d%3Fe%3Bf%21' },
+    { style: 'label', explode: true, expected: '.a%2Fb%2Cc.d%3Fe%3Bf%21' },
+  ])('encodes array items before expanding $style with explode=$explode', ({ style, explode, expected }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/items/{id}',
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        openapiVersion: '3.0.4',
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              style,
+              explode,
+              schema: { type: 'array', items: { type: 'string' } },
+              example: '["{{first}}","d?e;f!"]',
+            },
+          ],
+        },
+      }),
+    )
+
+    const built = buildRequest(request, { envVariables: { first: 'a/b,c' } })
+    assert(built.ok)
+    expect(built.data.requestPayload[0]).toBe(`https://api.example.test/items/${expected}`)
+  })
+
+  it.each([
+    { style: 'matrix', explode: false, expected: ';id=k%3D1,a%23b,k%3B2,c%25d' },
+    { style: 'matrix', explode: true, expected: ';k%3D1=a%23b;k%3B2=c%25d' },
+    { style: 'label', explode: false, expected: '.k%3D1,a%23b,k%3B2,c%25d' },
+    { style: 'label', explode: true, expected: '.k%3D1=a%23b.k%3B2=c%25d' },
+  ])('encodes object entries before expanding $style with explode=$explode', ({ style, explode, expected }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/items/{id}',
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        openapiVersion: '3.2.1',
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              style,
+              explode,
+              schema: { type: 'object' },
+              example: { 'k=1': 'a#b', 'k;2': 'c%d' },
+            },
+          ],
+        },
+      }),
+    )
+
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(built.data.requestPayload[0]).toBe(`https://api.example.test/items/${expected}`)
+  })
+
+  it.each([
+    { openapiVersion: '3.0.4', style: 'matrix', expected: ';id' },
+    { openapiVersion: '3.1.2', style: 'label', expected: '.' },
+    { openapiVersion: '3.2.1', style: 'matrix', expected: '' },
+    { openapiVersion: '3.2.1', style: 'label', expected: '' },
+  ])('expands a null $style value using OpenAPI $openapiVersion', ({ openapiVersion, style, expected }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/items/prefix{id}',
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        openapiVersion,
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              style,
+              schema: { type: ['string', 'null'] },
+              example: null,
+            },
+          ],
+        },
+      }),
+    )
+
+    expect(resolveExecutableRequestUrl(request, {})).toBe(`https://api.example.test/items/prefix${expected}`)
+  })
+
+  it('preserves styled path expansion after a request hook replaces the preview value', () => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/items/{id}',
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              style: 'matrix',
+              schema: { type: 'string' },
+              example: 'original',
+            },
+          ],
+        },
+      }),
+    )
+    request.path.variables.id = 'updated/123'
+
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(built.data.requestPayload[0]).toBe('https://api.example.test/items/;id=updated%2F123')
+  })
+
+  it('preserves URL normalization for authored segments outside the label expansion', () => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/prefix/../items/{id}',
+        server: { url: 'https://api.example.test/v1/../v2' },
+        proxyUrl: '',
+        operation: {
+          parameters: [
+            { name: 'id', in: 'path', required: true, style: 'label', schema: { type: 'string' }, example: 'abc' },
+          ],
+        },
+      }),
+    )
+
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(built.data.requestPayload[0]).toBe('https://api.example.test/v2/items/.abc')
+  })
+
+  it.each([
+    { name: 'id', value: '' },
+    { name: 'id', value: null },
+    { name: 'id/part', value: '.' },
+    { name: 'id?part', value: '.' },
+    { name: 'id#part', value: '.' },
+  ])('explains why label parameter $name with value $value cannot form a path segment', ({ name, value }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: `/items/{${name}}`,
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        openapiVersion: '3.1.2',
+        operation: {
+          parameters: [
+            { name, in: 'path', required: true, style: 'label', schema: { type: ['string', 'null'] }, example: value },
+          ],
+        },
+      }),
+    )
+
+    const message =
+      'A label-style path parameter produces a dot segment that browsers remove. Enter a value that keeps the segment from becoming "." or "..".'
+    expect(buildRequest(request, { envVariables: {} })).toStrictEqual({
+      ok: false,
+      error: 'INVALID_REQUEST_FACTORY_URL',
+      message,
+    })
+    expect(() => resolveExecutableRequestUrl(request, {})).toThrow(message)
+  })
+
   it.each([
     { version: '3.2.0', allowReserved: true, expected: 'a:b%2Fc' },
     { version: '3.2.1', allowReserved: false, expected: 'a%3Ab%2Fc' },
@@ -93,8 +290,9 @@ describe('requestFactory', () => {
               in: 'path',
               required: true,
               allowReserved: true,
+              style: 'matrix',
               schema: { type: 'string' },
-              examples: { default: { serializedValue: 'a%2fb%3Fc' } },
+              examples: { default: { serializedValue: ';id=a%2fb%3Fc' } },
             },
           ],
         },
@@ -102,7 +300,7 @@ describe('requestFactory', () => {
     )
     const built = buildRequest(request, { envVariables: {} })
     assert(built.ok)
-    expect(String(built.data.requestPayload[0])).toBe('https://example.com/a%2fb%3Fc')
+    expect(built.data.requestPayload[0]).toBe('https://example.com/;id=a%2fb%3Fc')
   })
 
   it('preserves reserved path encoding after a request hook overrides the preview value', () => {
@@ -260,6 +458,57 @@ describe('requestFactory', () => {
     const { request } = requestFactory(createBaseArgs({ server }))
 
     expect(request.baseUrl).toBe('https://eu.example.com')
+  })
+
+  it.each<{ name: string; server: ServerObject; baseUrl: string; url: string }>([
+    {
+      name: 'an empty string default at the end of the host',
+      server: { url: 'https://api.example.com{basePath}', variables: { basePath: { default: '' } } },
+      baseUrl: 'https://api.example.com',
+      url: 'https://api.example.com/p',
+    },
+    {
+      name: 'an empty string default in the path',
+      server: { url: 'https://api.example.com/{path}', variables: { path: { default: '' } } },
+      baseUrl: 'https://api.example.com/',
+      url: 'https://api.example.com/p',
+    },
+    {
+      name: 'an empty string default for the Galaxy server',
+      server: {
+        url: '{protocol}://void.scalar.com/{path}',
+        variables: { protocol: { default: 'https' }, path: { default: '' } },
+      },
+      baseUrl: 'https://void.scalar.com/',
+      url: 'https://void.scalar.com/p',
+    },
+    {
+      name: 'an empty string default that is part of the enum',
+      server: {
+        url: 'https://api.example.com{basePath}',
+        variables: { basePath: { default: '', enum: ['', '/v2'] } },
+      },
+      baseUrl: 'https://api.example.com',
+      url: 'https://api.example.com/p',
+    },
+  ])('builds the request URL for $name', ({ server, baseUrl, url }) => {
+    const { request } = requestFactory(createBaseArgs({ server, path: '/p', proxyUrl: '' }))
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+
+    expect(request.baseUrl).toBe(baseUrl)
+    expect(String(built.data.requestPayload[0])).toBe(url)
+  })
+
+  it('keeps the placeholder of a server variable that is missing from the variables map', () => {
+    const server: ServerObject = {
+      url: 'https://api.example.com/{basePath}',
+      variables: { other: { default: '' } },
+    }
+
+    const { request } = requestFactory(createBaseArgs({ server }))
+
+    expect(request.baseUrl).toBe('https://api.example.com/{basePath}')
   })
 
   it('uses a static server URL when there are no variables', () => {

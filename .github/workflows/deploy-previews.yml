@@ -43,15 +43,8 @@ permissions:
   contents: read
 
 env:
-  # The Netlify CLI is pinned because netlify@27.3.0 and newer pull in
-  # @netlify/dev@5.0.4, which depends on an @netlify/ai version that was never
-  # published — every install fails to resolve. Drop the pin once upstream
-  # publishes a working release.
-  NETLIFY_CLI_VERSION: '27.1.2'
-  # netlify@27.1.2 pulls in esbuild, sharp and unix-dgram, which run build
-  # scripts. pnpm 12 turns unapproved build scripts into a hard error, so allow
-  # these explicitly when installing the Netlify CLI on the fly.
-  NETLIFY_ALLOW_BUILDS: '--allow-build=esbuild --allow-build=sharp --allow-build=unix-dgram'
+  # Pin the preview CLI so CI installs the reviewed version.
+  NETLIFY_CLI_VERSION: '27.20.1'
 
 jobs:
   deploy-api-reference:
@@ -66,18 +59,23 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
 
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
 
       - name: Build package root app
         run: pnpm --filter @scalar/api-reference exec vite build . -c ./vite.previews.config.ts
 
+      - name: Read installed Wrangler version
+        id: wrangler-version
+        run: node -p '"version=" + require("./node_modules/wrangler/package.json").version' >> "$GITHUB_OUTPUT"
+
       - name: Deploy to Cloudflare Pages
         id: deploy
-        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15
+        uses: cloudflare/wrangler-action@v4.1.3
         with:
+          wranglerVersion: ${{ steps.wrangler-version.outputs.version }}
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy ./packages/api-reference/dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_API_REFERENCE }} --branch=pr-${{ inputs.pr-number }} --commit-hash=${{ inputs.pr-head-sha }}
@@ -105,10 +103,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
 
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
 
       - name: Generate DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
@@ -118,7 +116,7 @@ jobs:
 
       - name: Deploy Storybook to Netlify (Preview)
         run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/components/storybook-static" \
+          pnpm dlx --ignore-scripts netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/components/storybook-static" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -164,10 +162,10 @@ jobs:
       preview-url: ${{ steps.set-preview-url.outputs.url }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@v7.0.1
 
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
 
       - name: Extract version and generate preview version
         id: preview-version

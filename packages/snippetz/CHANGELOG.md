@@ -1,5 +1,67 @@
 # @scalar/snippetz
 
+## 0.10.24
+
+### Patch Changes
+
+- [#11238](https://github.com/scalar/scalar/pull/11238): Keep repeated query parameters and form fields in the axios, Guzzle and Laravel examples, so `ids=1&ids=2` is no longer sent as `ids[]=1&ids[]=2` or `ids[0]=1&ids[1]=2`.
+
+  Send Laravel multipart parts in request order, preserving repeated names and empty values and supporting bodies that contain only text fields.
+
+## 0.10.23
+
+No changes in this release.
+
+## 0.10.22
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
+## 0.10.21
+
+No changes in this release.
+
+## 0.10.20
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.10.19
+
+### Patch Changes
+
+- [#11068](https://github.com/scalar/scalar/pull/11068): fix(snippetz): send text-only multipart forms as multipart
+
+  Code examples for a `multipart/form-data` body with only text fields kept a bare `Content-Type: multipart/form-data` header with no boundary, so clients sent either two Content-Type headers or a body the server cannot split. The header is now left to the HTTP client for every structured multipart body, as it already was for file uploads.
+
+  Python `requests` and `httpx` examples now pass text-only fields through `files=` as `(None, value)` tuples, and `aiohttp` uses `FormData(default_to_multipart=True)`, because all three send plain text fields urlencoded otherwise.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+- [#11063](https://github.com/scalar/scalar/pull/11063): fix(snippetz): stop F# examples from adding Content-Type to request headers
+
+  The `fsharp/httpclient` example no longer calls `httpRequestMessage.Headers.Add("Content-Type", ...)` when the request has a body. .NET throws `Misused header name 'Content-Type'` for that call, and the generated `StringContent` or form content already sets the content type.
+- [#11062](https://github.com/scalar/scalar/pull/11062): fix(snippetz): make Guzzle cookie and file upload examples run
+
+  The `php/guzzle` example now passes cookies as a `\GuzzleHttp\Cookie\CookieJar` scoped to the request host, because Guzzle throws when the `cookies` option is a plain array. Multipart file names are now escaped inside `fopen(...)`, so a name containing `'` or `\` no longer produces invalid PHP.
+- [#11066](https://github.com/scalar/scalar/pull/11066): fix(snippetz): send repeated query parameters in R httr2 examples
+
+  The `r/httr2` example now adds `.multi = "explode"` to `req_url_query()` when a query parameter repeats. httr2 rejects vector values there by default, so `status=active&status=inactive` failed with "All vector elements of `...` must be length 1" instead of being sent.
+
+## 0.10.18
+
+### Patch Changes
+
+- [#10981](https://github.com/scalar/scalar/pull/10981): Remove unnecessary curl_close from php
+- [#11048](https://github.com/scalar/scalar/pull/11048): Escape the request URL in the fetch, ofetch, undici, Guzzle, PHP cURL, Dart, Requests and HTTPX snippets, the method in the Guzzle and PHP cURL snippets, the Basic auth credentials in the PHP cURL and Dart snippets, array keys in the PHP snippets, and `#{`, `#$` and `#@` interpolation in the Ruby snippet.
+- [#11056](https://github.com/scalar/scalar/pull/11056): fix(snippetz): keep Ruby request bodies as written
+
+  The `ruby/native` JSON body now uses a quoted heredoc (`<<~'JSON'`), so Ruby no longer turns `\"` into `"`, `\\` into `\`, or runs `#{}` inside the payload. String bodies (the JSON fallback, `application/octet-stream` and other text types) also escape a `#` that would start `#{}`, `#$` or `#@` interpolation.
+
+## 0.10.17
+
+No changes in this release.
+
 ## 0.10.16
 
 ### Patch Changes

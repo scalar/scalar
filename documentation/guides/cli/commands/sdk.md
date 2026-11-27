@@ -62,6 +62,7 @@ scalar sdk create [options]
 | `-a, --api <api>` | Scalar Registry API slug. |
 | `-n, --namespace <namespace>` | Team namespace of the source API. |
 | `-l, --language <language>` | SDK language. One of `typescript`, `python`, `cli`, `csharp`, `java`, `ruby`, `php`, `go`, `rust`, `kotlin`, `swift`, `cpp`, `dart`. |
+| `-c, --config <path>` | Scalar, Stainless, Speakeasy, or Fern SDK config file (JSON or YAML) that sets the SDK languages. |
 | `--no-input` | Disable prompts and browser launches. |
 
 ## update
@@ -115,4 +116,9 @@ scalar sdk build [options]
 | `--json` | Output the mutation result as JSON without prompting. |
 | `-s, --slug <slug>` | SDK slug. |
 | `-n, --namespace <namespace>` | Team namespace. |
+| `--version <version>` | API description version to build (defaults to its latest version). |
+| `--custom-code-ref <ref>` | Branch, tag or commit to merge as custom code (defaults to each language's scalar-next). |
+| `-l, --language <language...>` | Languages to build (defaults to every language the config declares). One of `typescript`, `python`, `cli`, `csharp`, `java`, `ruby`, `php`, `go`, `rust`, `kotlin`, `swift`, `cpp`, `dart`. |
+| `-c, --config <path>` | Scalar, Stainless, Speakeasy, or Fern SDK config file (JSON or YAML) to build instead of the saved config. |
+| `--save` | Save the --config file as the SDK config before building (otherwise it is used for this build only). |
 | `--no-input` | Disable prompts and browser launches. |

@@ -31,9 +31,9 @@ if (CI) {
 
 // https://playwright.dev/docs/test-configuration
 export default defineConfig({
-  // Snapshot tests live next to the components they cover, so they never collide with the
+  // Storybook tests live next to the components they cover, so they never collide with the
   // document-level e2e suite in `test/**` (which uses its own playwright.config.ts).
-  testMatch: 'src/**/*.snapshot.e2e.ts',
+  testMatch: 'src/**/*.e2e.ts',
   workers: '100%',
   fullyParallel: true,
   reporter,

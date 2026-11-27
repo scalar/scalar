@@ -1,5 +1,83 @@
 # scalar-app
 
+## 1.1.57
+
+### Patch Changes
+
+- [#11175](https://github.com/scalar/scalar/pull/11175): Stop loading web fonts in the app. The code editors use the system monospace font, theme styles no longer append font definitions, and the content security policy no longer allows fonts.scalar.com.
+- [#11241](https://github.com/scalar/scalar/pull/11241): feat(themes): refresh the palettes of nine presets and remove their hero flares
+
+  `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `saturn`, `kepler`, `mars` and `deepSpace` get new light and dark palettes. A palette is a surface, an ink and an accent; the other tones are ink blended into the surface, so the sidebar sits one step under the page, cards one step above it, and links carry the accent. Body text, secondary text, the accent and every method hue reach 4.5:1 on the page, card and sidebar surfaces.
+
+  The decorative hero flares are gone from these nine presets, along with their gradient headings and scroll-driven header backgrounds. The other presets keep theirs. The `.section-flare` elements are still rendered, so custom CSS that styles them keeps working.
+
+## 1.1.56
+
+### Patch Changes
+
+- [#11164](https://github.com/scalar/scalar/pull/11164): Align the desktop builder with the workspace pnpm 12 release while retaining Node.js 24.
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+- [#11191](https://github.com/scalar/scalar/pull/11191): Keep equal signs, plus signs and bare percent signs in form values when importing a cURL command.
+
+## 1.1.55
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+- [#11136](https://github.com/scalar/scalar/pull/11136): Update the Scalar SDK to version 0.8 while preserving authenticated registry requests.
+- [#11142](https://github.com/scalar/scalar/pull/11142): Update the desktop runtime to Electron 45.
+- [#10829](https://github.com/scalar/scalar/pull/10829): Complete desktop login and registration through a state-checked browser redirect with PKCE, avoiding Safari's mixed-content block on the local callback. Requires the companion dashboard and auth-service update.
+
+  Allow 15 minutes to finish desktop registration so new users have time to verify their email before returning to the app.
+
+## 1.1.54
+
+No changes in this release.
+
+## 1.1.53
+
+### Patch Changes
+
+- [#11153](https://github.com/scalar/scalar/pull/11153): Invite API client users to the API Hosting beta with a one-time popup as the app starts. Sign-ups join the same waitlist as the other Hosting sign-ups and set the contact's `client` property.
+
+## 1.1.52
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11091](https://github.com/scalar/scalar/pull/11091): Import cURL data flags as the request body and default the method to POST, as curl does, so Chrome's copy as cURL for a POST is no longer a GET and a body before the URL is no longer a query parameter. Only `-G` or `--get`, also inside a bundle such as `-sG`, puts the data in the query string, repeated data flags are joined with an ampersand, `--data-urlencode` percent-encodes its content, `--json` sends JSON with its headers, attached flags such as `-XPOST` or `--request=PUT` are read, a Content-Type header of the command is kept in any case, `-d ''` no longer swallows the URL, commands copied from Chrome or Firefox for cmd.exe are read with their carets and quote escapes removed, and `-F`, `--form` and `--form-string` send a multipart form body with a POST method even with `-G`, unless the command sets a method or a Content-Type.
+
+  Consume ignored cURL options and their values, including bundled flags, without reading the values as methods or URLs, preserve separators for empty repeated data arguments, and keep empty form fields and mocked file fields in the imported request body.
+- [#11099](https://github.com/scalar/scalar/pull/11099): Validate Postman dynamic variables against patched Faker, align Django Ninja test dependencies with its runtime, and compare large desktop request bodies without expensive deep assertions.
+
+  The Postman Faker override and compatibility patch apply only inside this workspace. Published packages keep `postman-collection` external, so separately installed npm consumers still receive its Faker 5 dependency. Prebuilt vendor code is also unaffected. Workspace development uses Node.js 24, which supports loading Faker 10 ES modules from Postman’s CommonJS code.
+
+## 1.1.51
+
+### Patch Changes
+
+- [#10911](https://github.com/scalar/scalar/pull/10911): Render the active theme as a style element with escaped text content instead of injected HTML.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 1.1.50
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+- [#10999](https://github.com/scalar/scalar/pull/10999): Upgrade the Scalar SDK to 0.7.0 and adapt registry requests to its updated method parameters.
+- [#11015](https://github.com/scalar/scalar/pull/11015): Update Undici to address CVE-2026-116592 and allow compatible Undici 8 updates without requiring a new Scalar release.
+- [#10998](https://github.com/scalar/scalar/pull/10998): Reuse the discovery response when importing extensionless API description URLs, avoiding a duplicate download while preserving URL metadata and subsequent fetches.
+
+## 1.1.49
+
+### Patch Changes
+
+- [#10988](https://github.com/scalar/scalar/pull/10988): Use the shared theme reset for link text decoration.
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when parsing YAML in the collection editor.
+
 ## 1.1.48
 
 ### Patch Changes

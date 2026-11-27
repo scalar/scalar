@@ -48,6 +48,8 @@ type BaseProps = {
   lineNumbers?: boolean
   hideCredentials?: string | string[]
   copy?: 'always' | 'hover' | false
+  /** Show the language in the copy button for multiline code. */
+  showCopyLanguage?: boolean
   /** Original content to copy when the displayed content has been masked. */
   copyContent?: string
   /**
@@ -72,6 +74,7 @@ const {
   lang = 'plaintext',
   lineNumbers = false,
   copy = 'hover',
+  showCopyLanguage = true,
   label = 'Code sample',
   copyLabel,
   copyContent,
@@ -176,7 +179,7 @@ const { cx } = useBindCx()
       :content="copyContent ?? prettyContent"
       :copyLabel="copyLabel"
       :lang="lang"
-      :showLang="!isOneLine">
+      :showLang="showCopyLanguage && !isOneLine">
       <template #backdrop>
         <ScalarCopyBackdrop
           class="scalar-code-copy-backdrop"
@@ -191,7 +194,7 @@ const { cx } = useBindCx()
 </template>
 <style>
 @reference '../../style.css';
-@import '@scalar/code-highlight/css/code.css';
+@import '@scalar/highlight/compat/code.css';
 
 /** Match the pre line-box metrics to the code font so blank and highlighted lines have the same pitch. */
 .scalar-code-block-pre {
@@ -207,8 +210,23 @@ const { cx } = useBindCx()
 .scalar-code-block.bg-b-2 .scalar-code-copy-backdrop {
   @apply bg-b-2;
 }
+/**
+ * A transparent block shows the surface of the card it sits in, so the label takes that color.
+ * Outside a card there is nothing to match, and the label goes without a backdrop.
+ */
+.scalar-code-block.bg-transparent .scalar-code-copy-backdrop {
+  background: var(--scalar-card-surface, transparent);
+}
 /** Make the copy button one shade darker than the background */
 .scalar-code-block.bg-b-2 .scalar-code-copy {
   @apply bg-b-3;
+}
+/**
+ * On a card's surface the button's own fill is the color of the card behind the surface, which
+ * reads as a hole in a dark card. It takes the card's raised color instead, one step above the
+ * surface. Outside a card the button keeps its own fill.
+ */
+.scalar-code-block.bg-transparent .scalar-code-copy {
+  background: var(--scalar-card-surface-raised, var(--scalar-background-2));
 }
 </style>

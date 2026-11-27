@@ -339,6 +339,7 @@ Pages support layout configuration to customize how they are displayed. These op
 | Option        | Type      | Default | Description                              |
 | ------------- | --------- | ------- | ---------------------------------------- |
 | `toc`         | `boolean` | `true`  | Whether to show the table of contents    |
+| `tocLayout`   | `"default" \| "condensed"` | — | How the table of contents is laid out. Falls back to the site-level [`layout.tocLayout`](site-config.md#table-of-contents-layout) option |
 | `sidebar`     | `boolean` | `true`  | Whether to show the sidebar navigation   |
 | `tabs`        | `boolean` | `true`  | Whether to show the navigation tabs      |
 | `header`      | `boolean` | —       | Whether to show the header. Falls back to the site-level [`layout.header`](site-config.md#layout) option |

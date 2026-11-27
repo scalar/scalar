@@ -4,21 +4,59 @@ import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
+import {
+  type DynamicScope,
+  createSchemaDynamicRefResolver,
+  isDynamicRef,
+  pushDynamicScope,
+} from '@/helpers/dynamic-ref'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
-import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { unpackProxyShallow } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
+import { generateContainsArray, getArrayDialect } from './array-contains'
 import { EXAMPLE_EVALUATION, type ExampleEvaluation, type ExampleEvaluationState } from './example-evaluation'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
 
+/**
+ * How many schemas one example may visit at full depth. An example that fits is rendered exactly as the
+ * depth cap alone would render it.
+ *
+ * The depth cap bounds how deep the walk goes, not how wide. References to schemas that reference each
+ * other branch at every level, so a handful of them per schema is enough for the walk to never finish.
+ * The largest examples in big real-world documents (Stripe, GitHub, Kubernetes) stay just below this.
+ */
+const MAX_EXAMPLE_VISITS = 10_000
+
+/**
+ * How many schemas each shallower attempt may visit once an example does not fit at full depth. An example
+ * this large is already long to read, and up to nine of these attempts can run for a single example.
+ */
+const MAX_REDUCED_EXAMPLE_VISITS = 2_000
+
 /** Default name used for additional properties when no custom name is provided */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
+
+/** Limit new padding when an API description asks for an unusually large example. */
+const MAX_STRING_PADDING = 4_096
+
+/** Ignore malformed bounds from unvalidated descriptions. */
+const readLengthBound = (value: unknown, fallback: number): number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : fallback
+
+/**
+ * Base64 of the bytes "scalar". Six bytes encode without `=` padding and the output avoids `+`, `/`,
+ * `-` and `_`, so strict decoders accept it under both the standard and URL-safe alphabets (RFC 4648).
+ */
+const BASE64_EXAMPLE = 'c2NhbGFy'
+
+/** Content encodings whose example is the base64 placeholder (compared case-insensitively, as in RFC 2045). */
+const BASE64_CONTENT_ENCODINGS = new Set(['base64', 'base64url'])
 
 /**
  * Mapping of OpenAPI string formats to example values.
@@ -59,6 +97,160 @@ const genericExampleValues: Record<string, string> = {
   'object-id': '6592008029c8c3e4dc76256c',
 }
 
+/** Fit a free-form placeholder using JSON Schema character counts. */
+const fitPlainStringExample = (value: string, minLength: number, maxLength: number): string => {
+  if (minLength === 0 && maxLength === Number.POSITIVE_INFINITY) {
+    return value
+  }
+
+  const characters = Array.from(value)
+  if (characters.length > maxLength) {
+    return characters.slice(0, maxLength).join('')
+  }
+
+  const padding = Math.min(minLength, maxLength) - characters.length
+  return padding > 0 ? value + 'a'.repeat(Math.min(padding, MAX_STRING_PADDING)) : value
+}
+
+/** Distribute characters and separators evenly so no label exceeds its format's limit. */
+const buildLabels = (
+  length: number,
+  maxLabelLength: number,
+  separator: string,
+  character: string,
+  labelCount = Math.ceil((length + 1) / (maxLabelLength + 1)),
+): string => {
+  const labelCharacterCount = length - labelCount + 1
+  const size = Math.floor(labelCharacterCount / labelCount)
+  const remainder = labelCharacterCount % labelCount
+  return Array.from({ length: labelCount }, (_, index) => character.repeat(size + Number(index < remainder))).join(
+    separator,
+  )
+}
+
+/** The four octets and three separators take at least seven characters. */
+const buildIpv4Example = (length: number): string => {
+  const extraCharacters = length - 7
+  const octets = ['0', '10', '192']
+  const extraPerOctet = octets.length - 1
+  return Array.from({ length: 4 }, (_, index) => {
+    const padding = Math.max(0, Math.min(extraPerOctet, extraCharacters - index * extraPerOctet))
+    return octets[padding]
+  }).join('.')
+}
+
+/** Generate a length-compatible address without cutting through the local part or domain. */
+const fitEmailExample = (value: string, minLength: number, maxLength: number): string => {
+  if (value.length >= minLength && value.length <= maxLength) {
+    return value
+  }
+
+  const length = Math.max(minLength, Math.min(maxLength, 'a@b.co'.length))
+  // SMTP allows up to 254 characters for a mailbox and up to 64 in its local part.
+  if (length < 3 || length > 254 || length > maxLength) {
+    return value
+  }
+  if (length < 5) {
+    return `${'a'.repeat(length - 2)}@b`
+  }
+
+  const suffix = length >= 8 ? '.test' : '.co'.slice(0, length - 3)
+  const localLength = Math.min(64, length - suffix.length - 2)
+  const domainPrefixLength = length - localLength - suffix.length - 1
+  return `${'a'.repeat(localLength)}@${buildLabels(domainPrefixLength, 63, '.', 'b')}${suffix}`
+}
+
+/** Choose an RFC 4648 quantum that fits, retaining the existing encoding when no quantum fits. */
+const fitBase64Example = (minLength: number, maxLength: number): string => {
+  if (BASE64_EXAMPLE.length >= minLength && BASE64_EXAMPLE.length <= maxLength) {
+    return BASE64_EXAMPLE
+  }
+
+  // Complete quanta work with strict decoders for both alphabets.
+  const shortestLength = Math.ceil(minLength / 4) * 4
+  const preferredLength = Math.floor(Math.min(maxLength, BASE64_EXAMPLE.length) / 4) * 4
+  const length = Math.max(shortestLength, preferredLength)
+  return length <= maxLength && length <= MAX_STRING_PADDING ? 'A'.repeat(length) : BASE64_EXAMPLE
+}
+
+/** Vary the optional fractional seconds of an ISO timestamp without changing its timezone. */
+const fitTimeExample = (value: string, minLength: number, maxLength: number): string => {
+  if (value.length >= minLength && value.length <= maxLength) {
+    return value
+  }
+  const seconds = value.slice(0, -'.000Z'.length)
+  const milliseconds = value.slice(-4, -1)
+  const wholeLength = seconds.length + 1
+  if (wholeLength >= minLength && maxLength < wholeLength + 2 && wholeLength <= maxLength) {
+    return `${seconds}Z`
+  }
+  const length = Math.max(minLength, Math.min(maxLength, value.length), wholeLength + 2)
+  if (length > maxLength || length > MAX_STRING_PADDING) {
+    return value
+  }
+  const precision = length - wholeLength - 1
+  return `${seconds}.${milliseconds.slice(0, precision).padEnd(precision, '0')}Z`
+}
+
+/** Fit length bounds where possible, keeping the original formatted value when no suitable example can be generated. */
+const fitFormattedStringExample = (format: string, value: string, minLength: number, maxLength: number): string => {
+  if (value.length >= minLength && value.length <= maxLength) {
+    return value
+  }
+
+  const length = Math.max(minLength, Math.min(maxLength, value.length))
+  if (length > maxLength || length > MAX_STRING_PADDING) {
+    return value
+  }
+
+  switch (format) {
+    case 'hostname':
+    case 'idn-hostname':
+      return length >= 1 && length <= 253 ? buildLabels(length, 63, '.', 'b') : value
+    case 'ipv4':
+      return length >= 7 && length <= 15 ? buildIpv4Example(length) : value
+    case 'ipv6': {
+      if (length < 2 || length > 45) {
+        return value
+      }
+      if (length > 39) {
+        // RFC 4291 permits an IPv4 tail after six hextets, which can take up to 45 characters.
+        const prefix = '1111:1111:1111:1111:1111:1111:'
+        return prefix + buildIpv4Example(length - prefix.length)
+      }
+      if (length < 15) {
+        return length === 2 ? '::' : `::${buildLabels(length - 2, 4, ':', '1')}`
+      }
+      return buildLabels(length, 4, ':', '1', 8)
+    }
+    case 'uri':
+    case 'iri': {
+      const prefix = 'https://example.com/'
+      if (length >= prefix.length) {
+        return fitPlainStringExample(prefix, length, length)
+      }
+      return length >= 2 ? `x:${'a'.repeat(length - 2)}` : value
+    }
+    case 'uri-reference':
+    case 'iri-reference':
+    case 'uri-template':
+    case 'regex':
+      return 'a'.repeat(length)
+    case 'json-pointer':
+      return length === 0 ? '' : `/${'a'.repeat(length - 1)}`
+    case 'relative-json-pointer':
+      if (length < 2) {
+        return length === 1 ? '0' : value
+      }
+      return `0/${'a'.repeat(length - 2)}`
+    case 'duration':
+      return length >= 3 ? `P${'0'.repeat(length - 3)}1D` : value
+    default:
+      // Fixed-width formats such as UUID cannot fit a range that excludes their width.
+      return value
+  }
+}
+
 /**
  * Extract enum values from the propertyNames keyword of an object schema.
  * JSON Schema's propertyNames constrains which keys are valid in a map/dict.
@@ -77,42 +269,50 @@ const getPropertyNamesEnumValues = (schema: SchemaObject): unknown[] | undefined
 }
 
 /**
- * Generate example values for string types based on their format.
+ * Generate a string placeholder, honoring length bounds where the format allows it.
  * Binary examples use filename placeholders unless the caller requests File objects.
  */
-const guessFromFormat = (
-  schema: SchemaObject,
-  makeUpRandomData: boolean = false,
-  fallback: string = '',
-): string | File => {
+const getStringExample = (schema: SchemaObject, options: GetExampleFromSchemaOptions | undefined): string => {
+  const fallback = options?.emptyString ?? ''
   // Binary filename placeholders are converted to File objects only for multipart callers.
   if (isFileSchema(schema, false)) {
     return '@filename'
   }
 
-  if ('format' in schema && ['date', 'date-time', 'time'].includes(schema.format ?? '')) {
+  const minLength = readLengthBound('minLength' in schema ? schema.minLength : undefined, 0)
+  const maxLength = readLengthBound('maxLength' in schema ? schema.maxLength : undefined, Number.POSITIVE_INFINITY)
+  const format = 'format' in schema ? schema.format : undefined
+  const encoding = typeof schema.contentEncoding === 'string' ? schema.contentEncoding.toLowerCase() : undefined
+
+  // Encoding takes precedence over overlapping format hints and the legacy OpenAPI 3.0 byte format.
+  if ((encoding && BASE64_CONTENT_ENCODINGS.has(encoding)) || format === 'byte') {
+    return fitBase64Example(minLength, maxLength)
+  }
+
+  if (format === 'date' || format === 'date-time' || format === 'time') {
     // Do not persist enclosing objects or arrays with generated clock-dependent values.
     generatedCurrentTime = true
     const iso = new Date().toISOString()
-    if (schema.format === 'date') {
+    if (format === 'date') {
       return iso.split('T')[0]!
     }
-    if (schema.format === 'time') {
-      return iso.split('T')[1]!
-    }
-    return iso
+    return fitTimeExample(format === 'time' ? iso.split('T')[1]! : iso, minLength, maxLength)
   }
 
-  if ('format' in schema && schema.format && Object.hasOwn(genericExampleValues, schema.format)) {
-    // Password and object-id retain their opt-in placeholders; other known formats need valid syntax.
-    if (schema.format === 'password' || schema.format === 'object-id') {
-      return makeUpRandomData ? genericExampleValues[schema.format]! : fallback
+  if (format && Object.hasOwn(genericExampleValues, format)) {
+    const value = genericExampleValues[format]!
+    if (format === 'email' || format === 'idn-email') {
+      return fitEmailExample(value, minLength, maxLength)
     }
-
-    return genericExampleValues[schema.format]!
+    if (format === 'password') {
+      return fitPlainStringExample(fallback ? value : '', minLength, maxLength)
+    }
+    if (format !== 'object-id' || fallback || minLength > 0) {
+      return fitFormattedStringExample(format, value, minLength, maxLength)
+    }
   }
 
-  return fallback
+  return options?.preserveStringFallback ? fallback : fitPlainStringExample(fallback, minLength, maxLength)
 }
 
 /**
@@ -122,17 +322,32 @@ const guessFromFormat = (
 const resultCache = new WeakMap<object, Map<string, unknown>>()
 
 /**
- * Set once the depth cap has truncated something in the current top-level call.
+ * Set once the depth cap has truncated something in the current attempt, or the attempt ran out of visits.
  *
  * A truncated value only holds at the level it was produced at, but `resultCache` keys carry no level,
  * so a value assembled around one must not be stored. Composition reaches that case: an `allOf` member
  * climbs a level without growing `schemaPath`, so a schema rendered just above the cap in one chain
  * shares its key with the same schema used at the top of a document, and the shallow use is served the
  * truncated result. Widening the key would cost the cache its hits everywhere, so storing simply stops
- * for the rest of the call instead. The walk is synchronous, so resetting at level 0 scopes this to one
- * top-level call.
+ * for the rest of the attempt instead. The walk is synchronous, so resetting at level 0 scopes this to one
+ * attempt.
  */
 let truncated = false
+
+/** The depth cap of the attempt in progress. */
+let levelsDeep = MAX_LEVELS_DEEP
+
+/** Schemas the attempt in progress may still visit. Below zero, the attempt has been abandoned. */
+let visitsLeft = MAX_EXAMPLE_VISITS
+
+/** Whether an attempt is in progress, so that the calls it makes join it instead of starting another. */
+let resolveExampleDynamicRef: ReturnType<typeof createSchemaDynamicRefResolver> | undefined
+
+/**
+ * What the attempt in progress has cached. An abandoned attempt removes its entries: they would make the
+ * next call for the same schema cheaper, and so give it a different example than this one.
+ */
+let attemptCacheEntries: [entries: Map<string, unknown>, key: string][] = []
 
 /** Prevent cached containers from retaining generated dates and times across calls. */
 let generatedCurrentTime = false
@@ -141,7 +356,7 @@ let generatedCurrentTime = false
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
 
 /** Normalize schema identity for cache and cycle tracking */
-const getSchemaCacheTarget = (schema: object): object => unpackProxyObject(schema, { depth: 1 })
+const getSchemaCacheTarget = (schema: object): object => unpackProxyShallow(schema)
 
 /**
  * Retrieves the set of required property names from a schema.
@@ -182,13 +397,12 @@ const cache = (schema: SchemaObject, result: unknown, cacheKey: string, skip = f
   if (skip || truncated || generatedCurrentTime || typeof result !== 'object' || result === null) {
     return result
   }
-  const rawSchema = getSchemaCacheTarget(schema)
-
-  const cacheMap = resultCache.get(rawSchema) ?? new Map()
+  const cacheMap = resultCache.get(schema) ?? new Map()
   if (cacheMap) {
     cacheMap.set(cacheKey, result)
+    attemptCacheEntries.push([cacheMap, cacheKey])
   }
-  resultCache.set(rawSchema, cacheMap)
+  resultCache.set(schema, cacheMap)
   return result
 }
 
@@ -689,7 +903,7 @@ const handleObjectSchema = (
   // Past the cap only the properties the object requires are rendered: optional ones are what the cap
   // exists to stop descending into. Composition members share the names of the object they belong to.
   const required =
-    level > MAX_LEVELS_DEEP
+    level > levelsDeep
       ? (memberRequiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level, seen, dynamicScope))
       : undefined
 
@@ -866,19 +1080,32 @@ const countExampleNodes = (value: unknown, limit: number): number => {
   return count
 }
 
-/** Ignore malformed bounds from unvalidated descriptions. */
-const readArrayLengthBound = (value: unknown, fallback: number): number =>
-  typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : fallback
-
 /** Recognize an array described by its item keywords when no type was declared. */
 const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
   !('properties' in schema) && ('items' in schema || 'prefixItems' in schema) ? 'array' : undefined
 
 /** Apply the same explicit-type and inference precedence at either union selection site. */
-const getSelectedType = (variant: SchemaObject | undefined, holder: SchemaObject): string | string[] | undefined =>
-  (variant && 'type' in variant ? variant.type : undefined) ??
-  ('type' in holder ? holder.type : undefined) ??
-  (hasUnencodedJsonContent(holder) ? 'string' : ((variant && inferArrayType(variant)) ?? inferArrayType(holder)))
+const getSelectedType = (variant: SchemaObject | undefined, holder: SchemaObject): string | string[] | undefined => {
+  const explicitSchema = variant && 'type' in variant && variant.type !== undefined ? variant : holder
+  const type = 'type' in explicitSchema ? explicitSchema.type : undefined
+
+  if (Array.isArray(type)) {
+    const named = type.filter((name) => name !== 'null')
+    // Only normalize containers whose own keywords can generate a value; unconstrained lists keep their fallback.
+    if (
+      named.length === 1 &&
+      ((named[0] === 'object' && 'properties' in explicitSchema) ||
+        (named[0] === 'array' && ('items' in explicitSchema || 'prefixItems' in explicitSchema)))
+    ) {
+      return named[0]
+    }
+  }
+
+  return (
+    type ??
+    (hasUnencodedJsonContent(holder) ? 'string' : ((variant && inferArrayType(variant)) ?? inferArrayType(holder)))
+  )
+}
 
 /** These keywords describe values without restricting which values the schema accepts. */
 const ITEM_ANNOTATIONS = new Set([
@@ -901,28 +1128,62 @@ const ITEM_ANNOTATIONS = new Set([
   'externalDocs',
 ])
 
-/** Keep constraints from the surrounding array when selecting a composition branch. */
-const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArray: boolean): SchemaObject => {
+/** Intersect the parent's length bounds with those of a newly copied selected schema. */
+const applyParentStringBounds = (parent: SchemaObject, selected: SchemaObject): void => {
+  if ('minLength' in parent) {
+    Object.assign(selected, {
+      minLength: Math.max(
+        readLengthBound(parent.minLength, 0),
+        readLengthBound('minLength' in selected ? selected.minLength : undefined, 0),
+      ),
+    })
+  }
+  if ('maxLength' in parent) {
+    const unbounded = Number.POSITIVE_INFINITY
+    Object.assign(selected, {
+      maxLength: Math.min(
+        readLengthBound(parent.maxLength, unbounded),
+        readLengthBound('maxLength' in selected ? selected.maxLength : undefined, unbounded),
+      ),
+    })
+  }
+}
+
+/** Keep surrounding constraints when selecting a composition branch. */
+const mergeSelectedSchema = (
+  schema: SchemaObject,
+  variant: SchemaObject,
+  selectedType: string | string[],
+  inherit: 'all' | 'string-keywords' = 'all',
+): SchemaObject => {
   const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
-  const merged = { ...base, ...variant } as SchemaObject
-  // Object properties would otherwise take precedence in non-object schema dispatch.
-  if ('properties' in merged) {
+  // A generated string item inherits just the keywords needed to produce its value.
+  const format = 'format' in schema && !('format' in variant) ? { format: schema.format } : {}
+  const merged = { ...(inherit === 'all' ? base : format), ...variant } as SchemaObject
+  if (inherit === 'string-keywords') {
+    Object.assign(merged, { type: selectedType })
+    if (variant.contentEncoding === undefined && schema.contentEncoding !== undefined) {
+      merged.contentEncoding = schema.contentEncoding
+    }
+  } else if ('properties' in merged) {
+    // Object properties would otherwise take precedence in non-object schema dispatch.
     delete merged.properties
   }
-  if (isArray) {
+  applyParentStringBounds(schema, merged)
+  if (selectedType === 'array') {
     if ('minItems' in schema) {
       Object.assign(merged, {
         minItems: Math.max(
-          readArrayLengthBound(schema.minItems, 0),
-          readArrayLengthBound('minItems' in variant ? variant.minItems : undefined, 0),
+          readLengthBound(schema.minItems, 0),
+          readLengthBound('minItems' in variant ? variant.minItems : undefined, 0),
         ),
       })
     }
     if ('maxItems' in schema) {
       Object.assign(merged, {
         maxItems: Math.min(
-          readArrayLengthBound(schema.maxItems, Number.POSITIVE_INFINITY),
-          readArrayLengthBound('maxItems' in variant ? variant.maxItems : undefined, Number.POSITIVE_INFINITY),
+          readLengthBound(schema.maxItems, Number.POSITIVE_INFINITY),
+          readLengthBound('maxItems' in variant ? variant.maxItems : undefined, Number.POSITIVE_INFINITY),
         ),
       })
     }
@@ -946,9 +1207,9 @@ const handleArraySchema = (
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
-  const maxItems = readArrayLengthBound('maxItems' in schema ? schema.maxItems : undefined, Number.POSITIVE_INFINITY)
+  const maxItems = readLengthBound('maxItems' in schema ? schema.maxItems : undefined, Number.POSITIVE_INFINITY)
   const minItems = Math.min(
-    readArrayLengthBound('minItems' in schema ? schema.minItems : undefined, 0),
+    readLengthBound('minItems' in schema ? schema.minItems : undefined, 0),
     maxItems,
     MAX_ARRAY_PADDING_NODES,
   )
@@ -968,6 +1229,28 @@ const handleArraySchema = (
       }),
     ) ?? []
 
+  const counted = generateContainsArray(
+    schema,
+    values,
+    (item) =>
+      getExampleFromSchema(item as SchemaObject, options, {
+        level: level + 1,
+        schemaPath: [...schemaPath, 'items'],
+        seen,
+        dynamicScope: childScope,
+      }),
+    getArrayDialect(options?.jsonSchemaDialect, options?.originalOpenapiVersion ?? options?.openapiVersion),
+  )
+  if (counted) {
+    const items = 'items' in schema ? resolve.schema(schema.items) : undefined
+    const tag = items && 'xml' in items ? items.xml?.name : undefined
+    const result =
+      options?.xml && 'xml' in schema && schema.xml?.wrapped && tag
+        ? counted.map((item, index) => (index < (prefixes?.length ?? 0) ? item : { [tag]: item }))
+        : counted
+    return cache(schema, result, cacheKey, skipCache)
+  }
+
   if (prefixes && values.length >= minItems) {
     return cache(schema, values, cacheKey, skipCache)
   }
@@ -984,11 +1267,15 @@ const handleArraySchema = (
   // (e.g. a category whose children reference the same anchor) render their nested levels instead of
   // tripping the shared guard. Depth stays bounded by `MAX_LEVELS_DEEP`.
   let itemsSeen = seen
-  if (items && isDynamicRef(items)) {
-    const resolvedDynamic = resolveDynamicRef(items.$dynamicRef, childScope)
+  let itemsScope = childScope
+  if (items && isDynamicRef(items) && itemSchema && typeof itemSchema === 'object') {
+    const referenceScope = pushDynamicScope(childScope, items)
+    const resolvedDynamic = resolveExampleDynamicRef?.(itemSchema, referenceScope, items)
     if (resolvedDynamic) {
-      items = resolvedDynamic
+      // An anchor can specialize the item through a $ref wrapper.
+      items = resolve.schema(resolvedDynamic)
       itemsSeen = new WeakSet()
+      itemsScope = referenceScope
     }
   }
   const itemsSchemaPath = [...schemaPath, 'items']
@@ -1034,7 +1321,7 @@ const handleArraySchema = (
           parentSchema: schema,
           schemaPath: itemsSchemaPath,
           seen: itemsSeen,
-          dynamicScope: childScope,
+          dynamicScope: itemsScope,
         })
         return completeArrayExample(isDefined(merged) ? [merged] : [])
       }
@@ -1046,7 +1333,7 @@ const handleArraySchema = (
             parentSchema: schema,
             schemaPath: itemsSchemaPath,
             seen: itemsSeen,
-            dynamicScope: childScope,
+            dynamicScope: itemsScope,
           }),
         )
         .filter(isDefined)
@@ -1077,15 +1364,27 @@ const handleArraySchema = (
         return values.length > 0 || level === 0 ? cache(schema, values, cacheKey, skipCache) : undefined
       }
       const selectedType = getSelectedType(variant, items)
+      let selectedSchema = variant
+      if (variant && selectedType === 'array') {
+        selectedSchema = mergeSelectedSchema(items, variant, selectedType)
+      } else if (
+        variant &&
+        ('minLength' in items || 'maxLength' in items || 'minLength' in variant || 'maxLength' in variant) &&
+        (selectedType === 'string' || (Array.isArray(selectedType) && selectedType[0] === 'string')) &&
+        getDeclaredValue(variant) === undefined
+      ) {
+        // Type inheritance can change default validation, so use it only for generated examples.
+        selectedSchema = mergeSelectedSchema(items, variant, selectedType, 'string-keywords')
+      }
       const ex = getExampleFromSchema(
-        variant && selectedType === 'array' ? mergeSelectedSchema(items, variant, true) : variant,
+        selectedSchema,
         consumeCompositionSelection(options, itemsSchemaPath, compositionKeyword),
         {
           level: level + 1,
           parentSchema: schema,
           schemaPath: itemsSchemaPath,
           seen: itemsSeen,
-          dynamicScope: childScope,
+          dynamicScope: itemsScope,
         },
       )
       if (ex === undefined) {
@@ -1109,7 +1408,7 @@ const handleArraySchema = (
       level: level + 1,
       schemaPath: itemsSchemaPath,
       seen: itemsSeen,
-      dynamicScope: childScope,
+      dynamicScope: itemsScope,
     })
     // Propagate an omitted recursive item so optional arrays do not serialize it as null.
     if (ex === undefined) {
@@ -1123,12 +1422,18 @@ const handleArraySchema = (
     itemSchema === undefined ||
     target === true ||
     (target !== undefined && items && Object.keys(items).every((key) => ITEM_ANNOTATIONS.has(key)))
-  // The strict model does not yet expose contains, but runtime 3.1+ descriptions can provide it.
+  // Preserve best-effort sampling for complex contains schemas in recognized dialects.
+  // This fallback does not grade matches or enforce minContains/maxContains.
   const contains =
     'contains' in schema && schema.contains && typeof schema.contains === 'object' && !Array.isArray(schema.contains)
       ? resolve.schema(schema.contains as SchemaObject)
       : undefined
-  if (unrestricted && contains) {
+  if (
+    unrestricted &&
+    contains &&
+    getArrayDialect(options?.jsonSchemaDialect, options?.originalOpenapiVersion ?? options?.openapiVersion) !==
+      'unsupported'
+  ) {
     const sample = getExampleFromSchema(contains, options, {
       level: level + 1,
       schemaPath: [...schemaPath, 'contains'],
@@ -1141,11 +1446,14 @@ const handleArraySchema = (
 }
 
 /** Return primitive example value for single-type schemas, or undefined if not primitive */
-const getPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, emptyString: string | undefined) => {
+const getPrimitiveValue = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+): string | number | boolean | [] | undefined => {
   if ('type' in schema && schema.type && !Array.isArray(schema.type)) {
     switch (schema.type) {
       case 'string':
-        return guessFromFormat(schema, makeUpRandomData, emptyString ?? '')
+        return getStringExample(schema, options)
       case 'boolean':
         return true
       case 'integer':
@@ -1162,7 +1470,10 @@ const getPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, empt
 }
 
 /** Return primitive example value for union-type schemas (type: string[]) */
-const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean, emptyString: string | undefined) => {
+const getUnionPrimitiveValue = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+): string | number | boolean | null | undefined => {
   if ('type' in schema && Array.isArray(schema.type)) {
     if (schema.type.includes('null')) {
       return null
@@ -1172,7 +1483,7 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
     if (first) {
       switch (first) {
         case 'string':
-          return guessFromFormat(schema, makeUpRandomData, emptyString ?? '')
+          return getStringExample(schema, options)
         case 'boolean':
           return true
         case 'integer':
@@ -1191,12 +1502,20 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
 
 /** Options shared by data generation and schema-aware serializers. */
 export type GetExampleFromSchemaOptions = {
+  /** Declared document version; absent means a standalone modern schema. */
+  openapiVersion?: string
+  /** Original version when a loader upgraded the document. */
+  originalOpenapiVersion?: string
+  /** Default dialect, overridden by a schema resource's $schema. */
+  jsonSchemaDialect?: string
   /** Internal provenance capture, excluded from persistent result caches. */
   [EXAMPLE_EVALUATION]?: ExampleEvaluationState
   /** Preserve binary filename examples as File objects for multipart serializers. */
   binaryAsFile?: boolean
   /** Fallback string for empty string values. */
   emptyString?: string
+  /** Keep the fallback unchanged when it represents a placeholder such as a path parameter. */
+  preserveStringFallback?: boolean
   /** @deprecated Use getXmlExampleFromSchema for schema-aware XML serialization. */
   xml?: boolean
   /** Whether to show read-only/write-only properties. */
@@ -1212,8 +1531,12 @@ export type GetExampleFromSchemaOptions = {
 /** Create stable cache key from the options object */
 const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined) =>
   JSON.stringify({
+    openapiVersion: options?.openapiVersion,
+    originalOpenapiVersion: options?.originalOpenapiVersion,
+    jsonSchemaDialect: options?.jsonSchemaDialect,
     binaryAsFile: options?.binaryAsFile,
     emptyString: options?.emptyString,
+    preserveStringFallback: options?.preserveStringFallback,
     xml: options?.xml,
     mode: options?.mode,
     variables: options?.variables,
@@ -1254,17 +1577,17 @@ const MAX_DEPTH_EXCEEDED = '[Max Depth Exceeded]'
 const MAX_COMPOSITION_DEPTH = MAX_LEVELS_DEEP * 5
 
 /**
- * How deep the walk keeps going past `MAX_LEVELS_DEEP` to fill the properties a truncated object requires.
+ * How deep the walk goes to fill what a truncated object requires, as a multiple of the depth cap.
  *
  * Past the cap the walk still renders objects, but only their required properties, so a strict decoder
- * reading the example finds every key it insists on. This level bounds that, well below the XML
- * serializer's depth limit of 50 (which discards the whole body when crossed), and past it objects
+ * reading the example finds every key it insists on. At full depth this stops at level 20, well below the
+ * XML serializer's depth limit of 50 (which discards the whole body when crossed), and past it objects
  * stand in empty again.
  */
-const MAX_REQUIRED_LEVELS_DEEP = MAX_LEVELS_DEEP * 2
+const REQUIRED_LEVELS_FACTOR = 2
 
 /**
- * How many schemas the walk may enter past `MAX_LEVELS_DEEP` in one top-level call.
+ * How many schemas the walk may enter past the depth cap in one attempt.
  *
  * Cycle guards stop a schema that requires itself, but not a chain of distinct schemas that each point
  * at the next one twice, through two required properties or an `allOf` that lists the same member
@@ -1272,8 +1595,14 @@ const MAX_REQUIRED_LEVELS_DEEP = MAX_LEVELS_DEEP * 2
  */
 const MAX_REQUIRED_STEPS = 10_000
 
-/** Schemas the walk may still enter past `MAX_LEVELS_DEEP` in the current top-level call. */
+/** Schemas the walk may still enter past the depth cap in the current attempt. */
 let requiredSteps = MAX_REQUIRED_STEPS
+
+/**
+ * How many steps of the search for required properties cost an attempt one visit. Ordinary compositions
+ * take a few steps and cost nothing; one that keeps exhausting the search soon uses up the attempt.
+ */
+const REQUIRED_STEPS_PER_VISIT = 25
 
 /** Cache requirements within one walk; generated discriminator values may select a new branch next time. */
 let compositionRequiredNamesCache = new WeakMap<object, Map<string, ReadonlySet<string>>>()
@@ -1390,10 +1719,11 @@ const getCompositionRequiredNames = (
 
     // Requirements behind a dynamic reference constrain the same instance as its composition siblings.
     // Follow the same binding as the example walk, within this collector's existing depth and step bounds.
+    const childScope = pushDynamicScope(current.dynamicScope, current.schema)
     if (isDynamicRef(current.schema)) {
-      const resolved = resolveDynamicRef(current.schema.$dynamicRef, current.dynamicScope)
+      const resolved = resolveExampleDynamicRef?.(current.schema, childScope)
       if (resolved) {
-        pending.push({ ...current, schema: resolved, depth: current.depth + 1 })
+        pending.push({ ...current, schema: resolved, dynamicScope: childScope, depth: current.depth + 1 })
         continue
       }
     }
@@ -1412,7 +1742,7 @@ const getCompositionRequiredNames = (
     const keyword = current.schema.oneOf ? 'oneOf' : current.schema.anyOf ? 'anyOf' : undefined
     if (keyword) {
       const discriminator = current.schema.discriminator
-      const requiredOnly = level + current.depth > MAX_LEVELS_DEEP
+      const requiredOnly = level + current.depth > levelsDeep
       const omittedDiscriminator =
         requiredOnly &&
         discriminator?.defaultMapping !== undefined &&
@@ -1455,7 +1785,7 @@ const getCompositionRequiredNames = (
           schema: resolved,
           options: consumeCompositionSelection(current.options, current.schemaPath, keyword),
           schemaPath: current.schemaPath,
-          dynamicScope: pushDynamicScope(current.dynamicScope, current.schema),
+          dynamicScope: childScope,
           depth: current.depth + 1,
         })
       }
@@ -1471,12 +1801,15 @@ const getCompositionRequiredNames = (
           schema: resolved,
           options: current.options,
           schemaPath: isChoiceMember ? [...current.schemaPath, String(choiceIndex++)] : current.schemaPath,
-          dynamicScope: pushDynamicScope(current.dynamicScope, current.schema),
+          dynamicScope: childScope,
           depth: current.depth + 1,
         })
       }
     }
   }
+
+  // A long search does the work of many visits, so the attempt pays for it.
+  visitsLeft -= Math.floor(Math.min(MAX_REQUIRED_STEPS, MAX_REQUIRED_STEPS - steps) / REQUIRED_STEPS_PER_VISIT)
 
   if (dynamicScope.length === 0) {
     const contexts = compositionRequiredNamesCache.get(root) ?? new Map<string, ReadonlySet<string>>()
@@ -1487,7 +1820,7 @@ const getCompositionRequiredNames = (
 }
 
 /**
- * Whether the walk keeps rendering a schema past `MAX_LEVELS_DEEP` to fill its required properties.
+ * Whether the walk keeps rendering a schema past the depth cap to fill its required properties.
  *
  * Only an object or composition with a property marked `required` qualifies, either somewhere in its
  * own compositions or, for a composition member, in the object it belongs to (`requiredScope`):
@@ -1663,8 +1996,7 @@ const getMaxDepthValue = (
 
   // A schema with no children renders the same at every level, so nothing is lost and the cache stays
   // usable for the rest of the call.
-  const makeUpRandomData = !!options?.emptyString
-  const primitive = getPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  const primitive = getPrimitiveValue(schema, options)
   if (primitive !== undefined) {
     return primitive
   }
@@ -1690,7 +2022,7 @@ const getMaxDepthValue = (
     truncated = true
   }
 
-  const unionPrimitive = getUnionPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  const unionPrimitive = getUnionPrimitiveValue(schema, options)
   if (unionPrimitive !== undefined) {
     return unionPrimitive
   }
@@ -1758,7 +2090,7 @@ const generateExampleFromSchema = (
     isRequiredProperty: boolean
   }> = {},
 ): unknown => {
-  // Cache restrictions only apply to the current traversal, so every top-level call starts clean.
+  // Cache restrictions only apply to the current traversal, so every attempt starts clean.
   if (level === 0) {
     truncated = false
     generatedCurrentTime = false
@@ -1767,16 +2099,31 @@ const generateExampleFromSchema = (
     discriminatorExamples = new WeakMap()
   }
 
+  // The attempt is over budget and will be discarded. Anything finished from here on is missing children,
+  // so it must not reach the cache either.
+  if (--visitsLeft < 0) {
+    truncated = true
+    return undefined
+  }
+
   // Resolve any $ref references to get the actual schema
   const _schema = resolve.schema(schema)
   if (!isDefined(_schema)) {
     return undefined
   }
 
-  // Resolve a `$dynamicRef` against the active dynamic scope, then continue with the bound schema.
-  // When nothing matches, fall through and render the reference as before (no regression).
+  if (typeof _schema.$schema === 'string') {
+    options = { ...options, jsonSchemaDialect: _schema.$schema }
+  }
+
+  // Grow the scope with this schema so nested references can bind to its `$dynamicAnchor`s.
+  const childScope = pushDynamicScope(dynamicScope, _schema)
+
+  // Resolve a `$dynamicRef` against the scope including this schema, then continue with the bound schema.
+  // A reference declared on a resource belongs to that resource, matching the magic proxy's
+  // `$dynamicRef-value`. When nothing matches, fall through and render the reference as before.
   if (isDynamicRef(_schema)) {
-    const resolvedDynamic = resolveDynamicRef(_schema.$dynamicRef, dynamicScope)
+    const resolvedDynamic = resolveExampleDynamicRef?.(schema, childScope, _schema)
     if (resolvedDynamic) {
       // The `seen` set guards against cycles in the static schema graph, but a `$dynamicRef` is resolved
       // per evaluation path and intentionally points outside that graph. Re-entering the bound type with a
@@ -1788,15 +2135,13 @@ const generateExampleFromSchema = (
         name,
         seen: new WeakSet(),
         schemaPath,
-        dynamicScope,
+        dynamicScope: childScope,
         requiredScope,
         isRequiredProperty,
       })
     }
   }
 
-  // Grow the scope with this schema so nested references can bind to its `$dynamicAnchor`s.
-  const childScope = pushDynamicScope(dynamicScope, _schema)
   // The same shared node can resolve differently per scope, so skip the result cache under a scope.
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
@@ -1808,19 +2153,19 @@ const generateExampleFromSchema = (
   seen.add(targetValue)
 
   /** Make the cache key unique per options and schema path */
-  const cacheKey = getOptionsCacheKey(options, level) + (schemaPath.length > 0 ? `:path:${schemaPath.join('.')}` : '')
+  const cacheKey =
+    getOptionsCacheKey(options, level) +
+    (levelsDeep === MAX_LEVELS_DEEP ? '' : `:depth:${levelsDeep}`) +
+    (schemaPath.length > 0 ? `:path:${schemaPath.join('.')}` : '')
 
   // Check cache first for performance - avoid recomputing the same schema (skipped under a dynamic scope)
   if (!skipCache) {
-    const cached = resultCache.get(targetValue)?.get(cacheKey)
+    const cached = resultCache.get(_schema)?.get(cacheKey)
     if (typeof cached !== 'undefined') {
       seen.delete(targetValue)
       return cached
     }
   }
-
-  // Determine if we should generate realistic example data
-  const makeUpRandomData = !!options?.emptyString
 
   // Early exits for schemas that should not be included (readOnly, writeOnly, omitEmptyAndOptionalProperties)
   if (shouldOmitProperty(_schema, parentSchema, name, options, isRequiredProperty)) {
@@ -1876,18 +2221,19 @@ const generateExampleFromSchema = (
   // every rule that applies at a shallower level (read/write omission, composition selection, variables,
   // binary files) applies to them too. Required primitive compositions use the same walk so their
   // members retain those rules as well; arrays and anything past the bounds still stand in.
-  if (level > MAX_LEVELS_DEEP) {
+  if (level > levelsDeep) {
     if (
+      level > levelsDeep * REQUIRED_LEVELS_FACTOR ||
+      requiredSteps <= 0 ||
       (!(isRequiredProperty && getEmptyContainer(_schema) === undefined) &&
-        !fillsRequiredProperties(_schema, requiredScope, options, schemaPath, level, seen, dynamicScope)) ||
-      level > MAX_REQUIRED_LEVELS_DEEP ||
-      requiredSteps <= 0
+        !fillsRequiredProperties(_schema, requiredScope, options, schemaPath, level, seen, dynamicScope))
     ) {
       seen.delete(targetValue)
 
       // Deliberately not cached: the value holds only at this level, and the cache key carries none.
       // Constraint-only composition members must not replace a sibling's required fields with the depth marker.
-      const fallback = isRequiredProperty || requiredScope?.size ? null : MAX_DEPTH_EXCEEDED
+      // Neither must a shallower attempt show it where a full walk would have rendered the schema.
+      const fallback = isRequiredProperty || requiredScope?.size || level <= MAX_LEVELS_DEEP ? null : MAX_DEPTH_EXCEEDED
       return getMaxDepthValue(_schema, options, schemaPath, undefined, fallback)
     }
     requiredSteps--
@@ -1910,12 +2256,13 @@ const generateExampleFromSchema = (
   const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
   if (selectedComposition && selectedVariant) {
     const selectedType = getSelectedType(selectedVariant, _schema)
-    if (selectedType !== undefined && selectedType !== 'object') {
+    // A declared null must be selected directly: merging it into shared object properties loses it.
+    if (selectedType !== undefined && (selectedType !== 'object' || getDeclaredValue(selectedVariant) === null)) {
       if (seen.has(getSchemaCacheTarget(selectedVariant))) {
         seen.delete(targetValue)
         return undefined
       }
-      const selectedSchema = mergeSelectedSchema(_schema, selectedVariant, selectedType === 'array')
+      const selectedSchema = mergeSelectedSchema(_schema, selectedVariant, selectedType)
       // These keywords only constrain their own types, but also drive our type inference.
       if (selectedType !== 'array' && 'items' in selectedSchema) {
         delete selectedSchema.items
@@ -1978,7 +2325,7 @@ const generateExampleFromSchema = (
   }
 
   // Handle primitive types without allocating temporary objects
-  const primitive = getPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
+  const primitive = getPrimitiveValue(_schema, options)
   if (primitive !== undefined) {
     seen.delete(targetValue)
     return cache(_schema, primitive, cacheKey, skipCache)
@@ -2052,7 +2399,7 @@ const generateExampleFromSchema = (
   }
 
   // Handle union types (array of types)
-  const unionPrimitive = getUnionPrimitiveValue(_schema, makeUpRandomData, options?.emptyString)
+  const unionPrimitive = getUnionPrimitiveValue(_schema, options)
   if (unionPrimitive !== undefined) {
     seen.delete(targetValue)
     return cache(_schema, unionPrimitive, cacheKey, skipCache)
@@ -2079,15 +2426,15 @@ const asBinaryFile = (
   return value
 }
 
-/**
- * Generate data, optionally retaining the exact schema decisions for another output format.
- * Treat returned values as read-only: cached results and padded items can share object references.
- */
-export const getExampleFromSchema = (
+/** Generate data for one schema within the attempt in progress. */
+const generateWithCapture = (
   schema: SchemaObject,
-  options?: GetExampleFromSchemaOptions,
+  options: GetExampleFromSchemaOptions | undefined,
   context: Parameters<typeof generateExampleFromSchema>[2] = {},
 ): unknown => {
+  if (schema && typeof schema === 'object' && '$schema' in schema && typeof schema.$schema === 'string') {
+    options = { ...options, jsonSchemaDialect: schema.$schema }
+  }
   const capture = options?.[EXAMPLE_EVALUATION]
   if (!capture) {
     const value = generateExampleFromSchema(schema, options, context)
@@ -2113,5 +2460,73 @@ export const getExampleFromSchema = (
     return node.value
   } finally {
     capture.stack.pop()
+  }
+}
+
+/** One complete walk at a fixed depth, with the evaluation it recorded for other output formats. */
+type ExampleAttempt = { value: unknown; evaluation: ExampleEvaluation | undefined }
+
+/** Walks at one depth cap, returning nothing when the walk does not fit in the given number of visits. */
+const attemptExample = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  context: Parameters<typeof generateExampleFromSchema>[2],
+  depth: number,
+  visits: number,
+): ExampleAttempt | undefined => {
+  levelsDeep = depth
+  visitsLeft = visits
+  attemptCacheEntries = []
+  const value = generateWithCapture(schema, options, context)
+  if (visitsLeft < 0) {
+    for (const [entries, key] of attemptCacheEntries) {
+      entries.delete(key)
+    }
+    return undefined
+  }
+  return { value, evaluation: options?.[EXAMPLE_EVALUATION]?.root }
+}
+
+/**
+ * Generate data, optionally retaining the exact schema decisions for another output format.
+ * Treat returned values as read-only: cached results and padded items can share object references.
+ *
+ * An example too large to render at full depth is rendered at the deepest depth that fits instead, so
+ * every branch is cut at the same level rather than the first ones using up the budget.
+ */
+export const getExampleFromSchema = (
+  schema: SchemaObject,
+  options?: GetExampleFromSchemaOptions,
+  context: Parameters<typeof generateExampleFromSchema>[2] = {},
+): unknown => {
+  if (resolveExampleDynamicRef) {
+    return generateWithCapture(schema, options, context)
+  }
+
+  resolveExampleDynamicRef = createSchemaDynamicRefResolver(schema)
+  try {
+    const full = attemptExample(schema, options, context, MAX_LEVELS_DEEP, MAX_EXAMPLE_VISITS)
+    if (full) {
+      return full.value
+    }
+
+    // At depth zero every child stands in, so this walk is only as long as the root is wide.
+    let kept = attemptExample(schema, options, context, 0, Number.POSITIVE_INFINITY)!
+    for (let depth = 1; depth < MAX_LEVELS_DEEP; depth++) {
+      const attempt = attemptExample(schema, options, context, depth, MAX_REDUCED_EXAMPLE_VISITS)
+      if (!attempt) {
+        break
+      }
+      kept = attempt
+    }
+
+    const capture = options?.[EXAMPLE_EVALUATION]
+    if (capture) {
+      // The last walk may be one that was abandoned.
+      capture.root = kept.evaluation
+    }
+    return kept.value
+  } finally {
+    resolveExampleDynamicRef = undefined
   }
 }

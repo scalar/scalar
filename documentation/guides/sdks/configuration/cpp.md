@@ -6,6 +6,8 @@ pages outside this reference resolve.
 -->
 # C++
 
+**Minimum version:** C++20 (GCC 11, Clang 14, AppleClang 16, MSVC 19.38 or newer) and CMake 3.20 or newer.
+
 > [!NOTE]
 > The C++ target is experimental.
 
@@ -15,6 +17,7 @@ Add `cpp` under `targets` to generate a C++ SDK.
 {
   "targets": {
     "cpp": {
+      "packageName": "acme",
       "options": {
         "namespace": "acme"
       },
@@ -29,6 +32,12 @@ Add `cpp` under `targets` to generate a C++ SDK.
 ```
 
 C++ has no package registry the generator publishes to, so this target generates the library and its CI workflow but no publishing workflow. Distribute the build artifacts from your GitHub release.
+
+## packageName
+
+**Type:** `string`
+
+Package name the C++ SDK is published under: the default for `options.libraryName`, so it names the CMake project and library target, the package `find_package` looks for and the `<name>::<name>` target it imports, and the vcpkg port and Conan recipe. The value is converted to snake_case, so `acme-billing` becomes `acme_billing`. `options.libraryName` wins when both are set, and so does a package name passed to the generator. It does not change the namespace. A value that does not start with a letter once converted, or one CMake, a dependency or Windows reserves (such as `test`, `install` or `con`), fails generation.
 
 ## options
 
@@ -48,7 +57,7 @@ C++ namespace the generated client, models and resources are declared in, such a
 
 **Type:** `string`
 
-Name of the generated CMake project and library target, and of the package `find_package` looks for. The value is converted to snake_case. The public headers live under `include/` in a directory named after `namespace`, not this. Defaults to the package name passed to the generator, else the SDK's slug, converted to snake_case. A value that does not start with a letter once converted, or one CMake, a dependency or Windows reserves (such as `test`, `install` or `con`), fails generation.
+Name of the generated CMake project and library target, and of the package `find_package` looks for. The value is converted to snake_case. The public headers live under `include/` in a directory named after `namespace`, not this. Defaults to the package name passed to the generator, else `targets.cpp.packageName`, else the SDK's slug, converted to snake_case. A value that does not start with a letter once converted, or one CMake, a dependency or Windows reserves (such as `test`, `install` or `con`), fails generation.
 
 ### async
 
@@ -81,8 +90,9 @@ Primary repository this target's generated output is published to. Setting it tu
 | Property | Description |
 | --- | --- |
 | `repo`* | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
-| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the `scalar-generated` branch and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
+| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the generated branch (`generatedBranch`, `scalar-generated` by default) and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
 | `integrationBranch` | Branch where generated output is combined with your custom code; defaults to `scalar-next`. Commit customizations here: each regeneration is merged into it, release pull requests are opened from it, and each released version is synced back to it. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or collide with the branches Scalar and release-please manage, such as `scalar-generated`. |
+| `generatedBranch` | Branch Scalar pushes pristine generator output to before merging it into the integration branch; defaults to `scalar-generated`. Never commit here: every build replaces its contents. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or the integration branch, or collide with the other branches Scalar and release-please manage, such as `scalar-next` and `scalar-merge-conflict`. |
 
 ## installOrder
 

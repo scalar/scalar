@@ -1,10 +1,12 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { type VueWrapper, mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
 
 import ServerDropdown, { type ServerDropdownProps } from './ServerDropdown.vue'
 
 describe('ServerDropdown', () => {
-  const makeWrapper = (options?: Partial<ServerDropdownProps>) => {
+  const makeWrapper = (
+    options?: Partial<ServerDropdownProps> & { 'onUpdate:open'?: (open: boolean) => void },
+  ): VueWrapper<InstanceType<typeof ServerDropdown>> => {
     const servers = options?.servers ?? [
       { url: 'https://api-1.example.com', variables: {}, description: 'one' },
       { url: 'https://api-2.example.com/', variables: {} },
@@ -108,9 +110,10 @@ describe('ServerDropdown', () => {
   })
 
   it('emits update:open false when the popover content unmounts', () => {
-    const wrapper = makeWrapper()
+    const onOpenChange = vi.fn()
+    const wrapper = makeWrapper({ 'onUpdate:open': onOpenChange })
     wrapper.unmount()
-    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+    expect(onOpenChange).toHaveBeenLastCalledWith(false)
   })
 
   it('emits update:servers when the Update Servers button is clicked', async () => {

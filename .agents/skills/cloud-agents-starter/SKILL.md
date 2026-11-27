@@ -151,7 +151,6 @@ Playwright uses `PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/` for browser c
 
 - **CI**: Set `CI=1` for CI-like behavior (e.g. test servers, some Playwright runs).
 - **NODE_OPTIONS**: `openapi-parser` tests use `NODE_OPTIONS=--max_old_space_size=8192` for large specs.
-- **TEST_MODE=CDN**: Used for CDN snapshot tests in `api-reference`.
 
 ### Scripts (tooling/scripts)
 

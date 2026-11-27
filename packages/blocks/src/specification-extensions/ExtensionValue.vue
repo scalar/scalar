@@ -10,6 +10,7 @@ const {
   compact = false,
   arrayItem = false,
   ancestors = [],
+  topLevel = false,
 } = defineProps<{
   name: string
   value: unknown
@@ -20,11 +21,14 @@ const {
   arrayItem?: boolean
   /** Only ancestors count as cycles; shared sibling values remain independently expandable. */
   ancestors?: readonly unknown[]
+  /** Treat a direct child of the extensions disclosure as a top-level extension. */
+  topLevel?: boolean
 }>()
 
 const nameId = useId()
 const panelId = useId()
-const open = ref(depth === 0)
+const isTopLevel = computed<boolean>(() => depth === 0 || topLevel)
+const open = ref(isTopLevel.value)
 const circular = computed<boolean>(() => ancestors.includes(value))
 const children = computed<[string, unknown][]>(() => {
   if (value === null || typeof value !== 'object' || circular.value) {
@@ -59,7 +63,7 @@ const text = computed<string>(() => {
   <div
     class="relative min-w-0 py-0.5"
     :class="{
-      'ps-8': depth === 0 && (!compact || expandable),
+      'ps-8': compact ? isTopLevel && expandable : depth === 0,
       'flex items-baseline gap-x-2': !arrayItem && !expandable,
     }">
     <dt

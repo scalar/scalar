@@ -13,6 +13,31 @@ describe('fetch-oauth2-metadata', () => {
     expect(customFetch.mock.calls).toStrictEqual([['https://auth.example.com/custom?version=2']])
   })
 
+  it('fetches trusted HTTPS metadata directly and retains its endpoint TLS requirements', async () => {
+    const origin = 'https://auth.dev.internal'
+    const metadataUrl = `${origin}/metadata`
+    const metadata = { token_endpoint: 'http://auth.dev.internal/token' }
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(Response.json(metadata))
+
+    const [error, data] = await fetchOAuth2Metadata(metadataUrl, 'https://proxy.scalar.com', fetcher, [
+      origin,
+      'http://auth.dev.internal',
+    ])
+    expect(error?.message).toBe('OAuth2 metadata endpoints must use HTTPS or HTTP for local development URLs')
+    expect(data).toBeNull()
+    expect(fetcher.mock.calls).toStrictEqual([[metadataUrl]])
+  })
+
+  it('accepts metadata with only a device authorization endpoint', async () => {
+    const metadata = { device_authorization_endpoint: 'https://auth.example.com/device' }
+    const customFetch = vi.fn().mockResolvedValue(Response.json(metadata))
+
+    expect(await fetchOAuth2Metadata('https://auth.example.com/metadata', '', customFetch)).toStrictEqual([
+      null,
+      metadata,
+    ])
+  })
+
   it('routes metadata through the configured proxy', async () => {
     const customFetch = vi.fn().mockResolvedValue(Response.json({ token_endpoint: 'https://auth.example.com/token' }))
     await fetchOAuth2Metadata('https://auth.example.com/metadata', 'https://proxy.example.com', customFetch)
@@ -40,6 +65,9 @@ describe('fetch-oauth2-metadata', () => {
     {},
     null,
     { token_endpoint: 123 },
+    { token_endpoint: false },
+    [],
+    'invalid',
     { token_endpoint: 'http://example.com/token' },
     { token_endpoint: 'ftp://localhost/token' },
     { authorization_endpoint: 'file:///authorize' },
@@ -81,6 +109,26 @@ describe('fetch-oauth2-metadata', () => {
       vi.fn().mockResolvedValue(Response.json(metadata)),
     )
     expect(data).toStrictEqual({ token_endpoint: metadata.token_endpoint, scopes_supported: [] })
+  })
+
+  it.each([
+    [
+      ['client_credentials', 123, '', null, false, {}, 'refresh_token'],
+      ['client_credentials', 'refresh_token'],
+    ],
+    [[123, '', null, false, {}], []],
+    ['client_credentials', []],
+  ])('removes invalid and empty grant types from %j', async (grantTypes, expected) => {
+    const customFetch = vi
+      .fn()
+      .mockResolvedValue(
+        Response.json({ token_endpoint: 'https://example.com/token', grant_types_supported: grantTypes }),
+      )
+
+    expect(await fetchOAuth2Metadata('https://example.com/metadata', '', customFetch)).toStrictEqual([
+      null,
+      { token_endpoint: 'https://example.com/token', grant_types_supported: expected },
+    ])
   })
 
   it('returns HTTP failures', async () => {

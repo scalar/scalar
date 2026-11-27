@@ -283,6 +283,10 @@ def get_scalar_api_reference(
             """
         ),
     ] = "",
+    trusted_local_origins: Annotated[
+        List[str] | None,
+        Doc("HTTP(S) origins treated as local for API proxy routing and OAuth authorization."),
+    ] = None,
     scalar_favicon_url: Annotated[
         str,
         Doc(
@@ -311,6 +315,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = True,
+    show_badges_in_sidebar: Annotated[
+        bool,
+        Doc(
+            """
+            Whether to show x-badges in the sidebar.
+            Default is False.
+            """
+        ),
+    ] = False,
     hide_download_button: Annotated[
         bool,
         Doc(
@@ -344,8 +357,8 @@ def get_scalar_api_reference(
         bool,
         Doc(
             """
-            A boolean to hide all models.
-            Default is False which means all models are shown.
+            Hide schema models and reusable AsyncAPI messages.
+            Defaults to False.
             """
         ),
     ] = False,
@@ -395,6 +408,17 @@ def get_scalar_api_reference(
             """
         ),
     ] = SearchHotKey.K,
+    http_clients: Annotated[
+        list[str] | None,
+        Doc(
+            """Built-in HTTP clients to show. Use client IDs such as "node/undici" or target
+            wildcards such as "shell/*". An empty list hides all built-in clients."""
+        ),
+    ] = None,
+    default_http_client: Annotated[
+        str | None,
+        Doc('The default code sample client ID, such as "node/fetch".'),
+    ] = None,
     hidden_clients: Annotated[
         bool | dict[str, bool | list[str]] | list[str] | None,
         Doc(
@@ -492,6 +516,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = None,
+    show_default_clients_with_sdk_installation: Annotated[
+        bool,
+        Doc(
+            """
+            Show built-in HTTP clients alongside SDK installation tabs in the introduction.
+            Default is False, which shows only SDK tabs when installation instructions are available.
+            """
+        ),
+    ] = False,
     hide_client_button: Annotated[
         bool,
         Doc(
@@ -501,6 +534,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = False,
+    persist_selected_client: Annotated[
+        bool,
+        Doc(
+            """
+            Whether to save and restore the selected code sample client in local storage.
+            Default is True. Set to False to keep client selection on the current page only.
+            """
+        ),
+    ] = True,
     persist_auth: Annotated[
         bool,
         Doc(
@@ -514,8 +556,8 @@ def get_scalar_api_reference(
         bool,
         Doc(
             """
-            Whether to use default fonts (Inter and JetBrains Mono).
-            Default is True which means default fonts are used.
+            Deprecated: Scalar uses the system font stack and no longer loads web fonts,
+            so this option has no effect.
             """
         ),
     ] = True,
@@ -588,6 +630,10 @@ def get_scalar_api_reference(
             """
         ),
     ] = None,
+    multipart_naming: Annotated[
+        Literal["indexed-dot"] | None,
+        Doc("Use indexed dotted names for nested multipart form fields."),
+    ] = None,
 ) -> HTMLResponse:
     # Accept either the enum members or their plain string values, so callers
     # can pass, for example, theme="moon" instead of theme=Theme.MOON.
@@ -622,6 +668,8 @@ def get_scalar_api_reference(
     # Only add options that differ from defaults
     if scalar_proxy_url:
         config["proxyUrl"] = scalar_proxy_url
+    if trusted_local_origins is not None:
+        config["trustedLocalOrigins"] = trusted_local_origins
 
     if agent is not None:
         config["agent"] = agent.model_dump(exclude_none=True)
@@ -631,6 +679,9 @@ def get_scalar_api_reference(
 
     if not show_sidebar:  # Default is True
         config["showSidebar"] = show_sidebar
+
+    if show_badges_in_sidebar:  # Default is False
+        config["showBadgesInSidebar"] = show_badges_in_sidebar
 
     # Handle download button configuration
     if (
@@ -661,6 +712,10 @@ def get_scalar_api_reference(
     if search_hot_key != SearchHotKey.K.value:  # Default is K
         config["searchHotKey"] = search_hot_key
 
+    if http_clients is not None:
+        config["httpClients"] = http_clients
+    if default_http_client is not None:
+        config["defaultHttpClient"] = default_http_client
     if hidden_clients:  # Default is []
         config["hiddenClients"] = hidden_clients
 
@@ -691,8 +746,19 @@ def get_scalar_api_reference(
     if authentication:  # Default is {}
         config["authentication"] = authentication
 
+    if show_default_clients_with_sdk_installation:
+        config["showDefaultClientsWithSdkInstallation"] = (
+            show_default_clients_with_sdk_installation
+        )
+
+    if multipart_naming is not None:
+        config["multipartNaming"] = multipart_naming
+
     if hide_client_button:  # Default is False
         config["hideClientButton"] = hide_client_button
+
+    if not persist_selected_client:  # Default is True
+        config["persistSelectedClient"] = persist_selected_client
 
     if persist_auth:  # Default is False
         config["persistAuth"] = persist_auth

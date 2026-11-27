@@ -17,8 +17,13 @@ const emit = defineEmits<{
   (e: 'copyAnchorUrl'): void
 }>()
 
-/** The trigger owns `id` as its deep link target, so the region it controls needs one of its own */
-const contentId = computed<string>(() => `${id}-content`)
+// Standalone references can share a Vue ID prefix. Scope the IDs to the
+// document anchor and keep them outside the namespace used by navigation links.
+const instanceId = useId()
+const disclosureId = computed(
+  () => `~disclosure/${encodeURIComponent(id)}/${instanceId}`,
+)
+const contentId = computed(() => `${disclosureId.value}/content`)
 
 /**
  * Name the trigger after the heading it renders by pointing `aria-labelledby` at it,
@@ -26,7 +31,7 @@ const contentId = computed<string>(() => `${id}-content`)
  * the accessible name in sync with what is on screen, so it can never drift into a
  * WCAG 2.5.3 (Label in Name) failure the way a duplicated string can.
  */
-const labelId = useId()
+const labelId = computed(() => `${disclosureId.value}/label`)
 </script>
 <template>
   <section

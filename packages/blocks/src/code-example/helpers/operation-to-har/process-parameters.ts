@@ -1,7 +1,10 @@
 import { getCookieSerializationError } from '@scalar/helpers/http/get-cookie-serialization-error'
-import { isObjectLike } from '@scalar/helpers/object/is-object'
+import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import {
   assertReservedPathUrl,
+  hasPathDotSegment,
+  includesUndefinedPathPrefix,
+  serializePathParameter,
   serializeReservedPathParameter,
 } from '@scalar/workspace-store/helpers/encode-path-parameter'
 import { getParameterExample } from '@scalar/workspace-store/helpers/get-parameter-example'
@@ -95,7 +98,13 @@ const getParameterStyleAndExplode = (param: ParameterObject): { style: string; e
  * Prioritizes example data over schema examples.
  * Returns null if the parameter is disabled so we can skip it.
  */
-const getParameterValue = (param: ParameterObject, example: string | undefined, defaultDisabled: boolean): unknown => {
+const getParameterValue = (
+  param: ParameterObject,
+  example: string | undefined,
+  defaultDisabled: boolean,
+  openapiVersion?: string,
+  jsonSchemaDialect?: string,
+): unknown => {
   // Try to get value from example first
   const selected = getParameterExample(param, example)
   const exampleValue = selected.example
@@ -127,7 +136,11 @@ const getParameterValue = (param: ParameterObject, example: string | undefined, 
     return undefined
   }
 
-  const options = param.in === 'path' ? { emptyString: `{${param.name}}` } : {}
+  const options = {
+    openapiVersion,
+    jsonSchemaDialect,
+    ...(param.in === 'path' ? { emptyString: `{${param.name}}`, preserveStringFallback: true } : {}),
+  }
   const schema = getResolvedRef(param.schema)
   return schema ? getExampleFromSchema(schema, options) : undefined
 }
@@ -144,6 +157,7 @@ export const processParameters = ({
   example,
   defaultDisabled,
   openapiVersion,
+  jsonSchemaDialect,
 }: {
   harRequest: HarRequest
   parameters: OperationObject['parameters']
@@ -153,6 +167,7 @@ export const processParameters = ({
   defaultDisabled: boolean
   /** Originating API description version. */
   openapiVersion?: string
+  jsonSchemaDialect?: string
 }): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
   const newHeaders = [...harRequest.headers]
@@ -160,9 +175,18 @@ export const processParameters = ({
   const newCookies = [...harRequest.cookies]
   const cookieStyleEntries: HarRequest['cookies'] = []
   let newUrl = harRequest.url
+  let markedPathUrl = harRequest.url
+  let hasStyledLabel = false
   let hasReservedPathParameter = false
   const serializedQuery: string[] = []
   const serializedCookies: string[] = []
+
+  const substitutePathParameter = (name: string, value: string, markLabel = false): void => {
+    newUrl = replacePathVariables(newUrl, { [name]: value })
+    // Mark only label substitutions so literal dot segments keep their usual URL semantics.
+    markedPathUrl = replacePathVariables(markedPathUrl, { [name]: markLabel ? `x${value}` : value })
+    hasStyledLabel ||= markLabel
+  }
 
   const appendQueryParameter = (name: string, value: string, param: ParameterObject): void => {
     if (isAllowReserved(param)) {
@@ -182,7 +206,11 @@ export const processParameters = ({
     }
 
     if (param.in === 'querystring') {
-      const querystring = getQuerystringParameter(param, example, { defaultDisabled })
+      const querystring = getQuerystringParameter(param, example, {
+        defaultDisabled,
+        openapiVersion,
+        jsonSchemaDialect,
+      })
       if (querystring) {
         const hashIndex = newUrl.indexOf('#')
         const hash = hashIndex === -1 ? '' : newUrl.slice(hashIndex)
@@ -198,7 +226,7 @@ export const processParameters = ({
       const wireValue = String(selected.value)
       switch (param.in) {
         case 'path':
-          newUrl = newUrl.replaceAll(`{${param.name}}`, () => wireValue)
+          substitutePathParameter(param.name, wireValue)
           break
         case 'query':
           serializedQuery.push(wireValue)
@@ -222,7 +250,7 @@ export const processParameters = ({
           newHeaders.push({ name: param.name, value: text })
           break
         case 'path':
-          newUrl = newUrl.replaceAll(`{${param.name}}`, () => encodeURIComponent(text))
+          substitutePathParameter(param.name, encodeURIComponent(text))
           break
         case 'cookie':
           newCookies.push({ name: param.name, value: text })
@@ -230,24 +258,50 @@ export const processParameters = ({
       }
       continue
     }
-    const paramValue = getParameterValue(param, example, defaultDisabled)
-    if (paramValue === undefined) {
+    const { style, explode } = getParameterStyleAndExplode(param)
+    const isStyledPath = param.in === 'path' && (style === 'matrix' || style === 'label')
+    // Like Test Request, leave the template visible when no example supplies a styled path value.
+    const paramValue = isStyledPath
+      ? deSerializeParameter(selected.value, param)
+      : getParameterValue(param, example, defaultDisabled, openapiVersion, jsonSchemaDialect)
+    if (
+      isStyledPath
+        ? !selected.example || isParamDisabled(param, selected.example, defaultDisabled)
+        : paramValue === undefined
+    ) {
       continue
     }
-
-    const { style, explode } = getParameterStyleAndExplode(param)
 
     switch (param.in) {
       case 'path': {
         const allowReserved = openapiVersion?.startsWith('3.2.') && 'schema' in param && param.allowReserved === true
         hasReservedPathParameter ||= Boolean(allowReserved)
-        const pathValue = allowReserved
-          ? serializeReservedPathParameter(param.name, { value: paramValue, style, explode })
-          : undefined
-        newUrl =
-          pathValue === undefined
-            ? processPathParameters(newUrl, param, paramValue, style, explode)
-            : newUrl.replaceAll(`{${param.name}}`, () => pathValue)
+
+        if (isStyledPath) {
+          const value = serializePathParameter(
+            param.name,
+            {
+              value: paramValue,
+              style,
+              explode,
+              includeUndefinedPrefix: includesUndefinedPathPrefix(openapiVersion),
+            },
+            undefined,
+            allowReserved,
+          )
+          // Support older samples that include a URI template operator in the path.
+          const operator = style === 'matrix' ? ';' : '.'
+          const name = newUrl.includes(`{${param.name}}`) ? param.name : `${operator}${param.name}`
+          substitutePathParameter(name, value, style === 'label' && !allowReserved)
+        } else if (allowReserved) {
+          substitutePathParameter(
+            param.name,
+            serializeReservedPathParameter(param.name, { value: paramValue, style, explode }),
+          )
+        } else {
+          const value = style === 'simple' ? serializeSimpleStyle(paramValue, explode) : paramValue
+          substitutePathParameter(param.name, String(value))
+        }
         break
       }
 
@@ -392,6 +446,9 @@ export const processParameters = ({
   if (hasReservedPathParameter) {
     assertReservedPathUrl(newUrl)
   }
+  if (hasStyledLabel && hasPathDotSegment(newUrl, markedPathUrl)) {
+    throw new URIError('A label-style path parameter produces a dot segment that browsers remove.')
+  }
 
   return {
     url: newUrl,
@@ -400,109 +457,5 @@ export const processParameters = ({
     cookies: cookieStyleEntries.length || serializedCookies.length ? [] : newCookies,
     hasCookieStyleEntries: cookieStyleEntries.length > 0 || serializedCookies.length > 0,
     ...(serializedQuery.length ? { hasSerializedQuery: true } : {}),
-  }
-}
-
-/**
- * Process path parameters according to OpenAPI specification.
- * Handles matrix, label, and simple styles with explode options.
- *
- * @param url - The URL to process
- * @param param - The parameter object
- * @param paramValue - The value of the parameter
- * @param style - The style of the parameter (matrix, label, simple)
- * @param explode - Whether to explode the parameter
- * @returns The updated URL with processed path parameters
- */
-const processPathParameters = (
-  url: string,
-  param: ParameterObject,
-  paramValue: unknown,
-  style: string,
-  explode: boolean,
-): string => {
-  switch (style) {
-    case 'matrix': {
-      if (explode) {
-        // Matrix explode array: ;color=blue;color=black;color=brown
-        if (Array.isArray(paramValue)) {
-          const values = paramValue.map((v: unknown) => `${param.name}=${v}`).join(';')
-          return url.replace(`{;${param.name}}`, `;${values}`)
-        }
-
-        // Matrix explode object: ;R=100;G=200;B=150
-        if (isObjectLike(paramValue)) {
-          const values = Object.entries(paramValue)
-            .map(([k, v]) => `${k}=${v}`)
-            .join(';')
-          return url.replace(`{;${param.name}}`, `;${values}`)
-        }
-
-        // Matrix explode primitive: ;color=blue
-        return url.replace(`{;${param.name}}`, `;${param.name}=${paramValue}`)
-      }
-
-      // Matrix no explode array: ;color=blue,black,brown
-      if (Array.isArray(paramValue)) {
-        return url.replace(`{;${param.name}}`, `;${param.name}=${paramValue.join(',')}`)
-      }
-
-      // Matrix no explode object: ;color=R,100,G,200,B,150
-      if (isObjectLike(paramValue)) {
-        const values = Object.entries(paramValue)
-          .map(([k, v]) => `${k},${v}`)
-          .join(',')
-        return url.replace(`{;${param.name}}`, `;${param.name}=${values}`)
-      }
-
-      // Matrix no explode primitive: ;color=blue
-      return url.replace(`{;${param.name}}`, `;${param.name}=${paramValue}`)
-    }
-    case 'label': {
-      if (explode) {
-        // Label explode array: .blue.black.brown
-        if (Array.isArray(paramValue)) {
-          return url.replace(`{.${param.name}}`, `.${paramValue.join('.')}`)
-        }
-
-        // Label explode object: .R=100.G=200.B=150
-        if (isObjectLike(paramValue)) {
-          const values = Object.entries(paramValue)
-            .map(([k, v]) => `${k}=${v}`)
-            .join('.')
-
-          return url.replace(`{.${param.name}}`, `.${values}`)
-        }
-
-        // Label explode primitive: .blue
-        return url.replace(`{.${param.name}}`, `.${paramValue}`)
-      }
-
-      // Label no explode array: .blue,black,brown
-      if (Array.isArray(paramValue)) {
-        return url.replace(`{.${param.name}}`, `.${paramValue.join(',')}`)
-      }
-
-      // Label no explode object: .R,100,G,200,B,150
-      if (isObjectLike(paramValue)) {
-        const values = Object.entries(paramValue)
-          .map(([k, v]) => `${k},${v}`)
-          .join(',')
-
-        return url.replace(`{.${param.name}}`, `.${values}`)
-      }
-
-      // Label no explode primitive: .blue
-      return url.replace(`{.${param.name}}`, `.${paramValue}`)
-    }
-
-    case 'simple': {
-      const serialized = serializeSimpleStyle(paramValue, explode)
-      return url.replace(`{${param.name}}`, String(serialized))
-    }
-
-    // Default to simple style
-    default:
-      return url.replace(`{${param.name}}`, String(paramValue))
   }
 }

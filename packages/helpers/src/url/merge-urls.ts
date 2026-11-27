@@ -73,11 +73,15 @@ export const mergeUrls = (
     }
 
     // Extract search params from base URL if any
-    const [baseUrl = '', baseQuery] = base.split('?')
+    const baseQueryIndex = base.indexOf('?')
+    const baseUrl = baseQueryIndex === -1 ? base : base.slice(0, baseQueryIndex)
+    const baseQuery = baseQueryIndex === -1 ? '' : base.slice(baseQueryIndex + 1)
     const baseParams = new URLSearchParams(baseQuery || '')
 
     // Extract search params from path if any
-    const [pathWithoutQuery = '', pathQuery] = path.split('?')
+    const pathQueryIndex = path.indexOf('?')
+    const pathWithoutQuery = pathQueryIndex === -1 ? path : path.slice(0, pathQueryIndex)
+    const pathQuery = pathQueryIndex === -1 ? '' : path.slice(pathQueryIndex + 1)
     const pathParams = new URLSearchParams(pathQuery || '')
 
     // Merge the baseUrl and path

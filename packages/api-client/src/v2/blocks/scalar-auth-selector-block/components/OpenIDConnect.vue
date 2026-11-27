@@ -22,6 +22,7 @@ const {
   scheme,
   proxyUrl,
   customFetch,
+  trustedLocalOrigins,
 } = defineProps<{
   /** Current environment configuration */
   environment: XScalarEnvironment
@@ -37,6 +38,7 @@ const {
   scheme: OpenIdConnectObjectSecret
   /** Optional fetch override (IPC-backed on desktop) used for discovery requests */
   customFetch?: CustomFetch
+  trustedLocalOrigins?: readonly string[]
 }>()
 
 const { translate } = useLocalization()
@@ -57,6 +59,7 @@ const handleOpenIdConnect = async (): Promise<void> => {
     scheme.openIdConnectUrl,
     proxyUrl,
     customFetch,
+    trustedLocalOrigins,
   )
   await loader.clear()
 
@@ -110,16 +113,18 @@ const handleUpdateOpenIdConnectUrl = (value: string): void =>
   </DataTableRow>
 
   <DataTableRow class="min-w-full">
-    <div class="flex h-8 w-full items-center justify-end border-t">
-      <ScalarButton
-        class="mr-0.75 p-0 px-2 py-0.5"
-        :disabled="!scheme.openIdConnectUrl"
-        :loader
-        size="sm"
-        variant="outlined"
-        @click="handleOpenIdConnect">
-        {{ translate('apiClient.openIdConnect.fetchConfiguration') }}
-      </ScalarButton>
-    </div>
+    <td class="contents">
+      <div class="flex h-8 w-full items-center justify-end border-t">
+        <ScalarButton
+          class="mr-0.75 p-0 px-2 py-0.5"
+          :disabled="!scheme.openIdConnectUrl"
+          :loader
+          size="sm"
+          variant="outlined"
+          @click="handleOpenIdConnect">
+          {{ translate('apiClient.openIdConnect.fetchConfiguration') }}
+        </ScalarButton>
+      </div>
+    </td>
   </DataTableRow>
 </template>

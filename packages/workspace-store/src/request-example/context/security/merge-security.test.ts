@@ -17,6 +17,207 @@ import { buildRequestSecurity } from '@/request-example/builder/security/build-r
 import { mergeSecurity } from './merge-security'
 
 describe('mergeSecurity', () => {
+  it.each(['implicit', 'password', 'clientCredentials', 'authorizationCode', 'deviceAuthorization'] as const)(
+    'preserves configured defaults when coercing the %s flow',
+    (flowName) => {
+      // Configuration-only flows have not passed through document normalization.
+      const config = {
+        oauth: {
+          type: 'oauth2',
+          flows: {
+            [flowName]: {
+              authorizationUrl: 'https://example.com/authorize',
+              tokenUrl: 'https://example.com/token',
+              deviceAuthorizationUrl: 'https://example.com/device',
+              scopes: { read: 'Read access' },
+              'x-scalar-client-id': 'configured-client',
+              token: 'configured-token',
+              selectedScopes: ['read'],
+            },
+          },
+        },
+      } satisfies AuthenticationConfiguration['securitySchemes']
+      const original = structuredClone(config)
+      const result = mergeSecurity({}, config, createWorkspaceStore().auth, 'test').oauth
+      assert(result?.type === 'oauth2')
+      const flow = result.flows[flowName]
+      assert(flow)
+
+      expect(flow['x-scalar-secret-client-id']).toBe('configured-client')
+      expect(flow['x-scalar-secret-token']).toBe('configured-token')
+      expect(flow.refreshUrl).toBe('')
+      expect(result['x-default-scopes']).toStrictEqual(['read'])
+      expect(config).toStrictEqual(original)
+    },
+  )
+
+  it('preserves distinct client IDs when coercing two flows on the same scheme', () => {
+    const config = {
+      oauth: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/authorize',
+            tokenUrl: 'https://example.com/token',
+            scopes: {},
+            'x-scalar-client-id': 'authorization-code-client',
+          },
+          clientCredentials: {
+            tokenUrl: 'https://example.com/token',
+            scopes: {},
+            'x-scalar-client-id': 'client-credentials-client',
+          },
+        },
+      },
+    } satisfies AuthenticationConfiguration['securitySchemes']
+
+    const result = mergeSecurity({}, config, createWorkspaceStore().auth, 'test').oauth
+    assert(result?.type === 'oauth2')
+    expect(result.flows.authorizationCode?.['x-scalar-secret-client-id']).toBe('authorization-code-client')
+    expect(result.flows.clientCredentials?.['x-scalar-secret-client-id']).toBe('client-credentials-client')
+  })
+
+  it.each(['document', 'configuration'] as const)('preserves authorization code defaults from the %s', (source) => {
+    const flow = {
+      authorizationUrl: 'https://example.com/authorize',
+      tokenUrl: 'https://example.com/token',
+      scopes: {},
+      'x-usePkce': 'SHA-256',
+    } as const
+    const defaults = {
+      'x-scalar-client-id': 'configured-client',
+      clientSecret: 'configured-secret',
+      'x-scalar-redirect-uri': 'https://example.com/callback',
+    }
+    const schemes = {
+      oauth: {
+        type: 'oauth2',
+        flows: { authorizationCode: { ...flow, ...(source === 'document' ? defaults : {}) } },
+      },
+    } as const
+    const config: AuthenticationConfiguration['securitySchemes'] =
+      source === 'configuration' ? { oauth: { flows: { authorizationCode: defaults } } } : {}
+    const originalSchemes = structuredClone(schemes)
+    const originalConfig = structuredClone(config)
+    const auth = createWorkspaceStore().auth
+    const result = mergeSecurity(schemes, config, auth, 'test').oauth
+    assert(result?.type === 'oauth2')
+    const mergedFlow = result.flows.authorizationCode
+    assert(mergedFlow)
+
+    expect(mergedFlow['x-scalar-secret-client-id']).toBe('configured-client')
+    expect(mergedFlow['x-scalar-secret-client-secret']).toBe('configured-secret')
+    expect(mergedFlow['x-scalar-secret-redirect-uri']).toBe('https://example.com/callback')
+    expect(mergedFlow['x-usePkce']).toBe('SHA-256')
+    expect(mergedFlow.refreshUrl).toBe('')
+
+    auth.setAuthSecrets('test', 'oauth', {
+      type: 'oauth2',
+      authorizationCode: { 'x-scalar-secret-client-id': 'user-client' },
+    })
+    const edited = mergeSecurity(schemes, config, auth, 'test').oauth
+    assert(edited?.type === 'oauth2')
+    expect(edited.flows.authorizationCode?.['x-scalar-secret-client-id']).toBe('user-client')
+    expect(schemes).toStrictEqual(originalSchemes)
+    expect(config).toStrictEqual(originalConfig)
+  })
+
+  it('preserves AsyncAPI OAuth defaults while normalizing available scopes', () => {
+    const schemes = {
+      oauth: {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/authorize',
+            tokenUrl: 'https://example.com/token',
+            availableScopes: { read: 'Read access' },
+            'x-scalar-client-id': 'configured-client',
+          },
+        },
+      },
+    } as const
+    const result = mergeSecurity(schemes, {}, createWorkspaceStore().auth, 'test').oauth
+    assert(result?.type === 'oauth2')
+    expect(result.flows.authorizationCode?.scopes).toStrictEqual({ read: 'Read access' })
+    expect(result.flows.authorizationCode?.['x-scalar-secret-client-id']).toBe('configured-client')
+  })
+
+  it.each(['scopes', 'x-scalar-security-query', 'x-scalar-security-body'] as const)(
+    'normalizes malformed %s while preserving configured credentials',
+    (field) => {
+      // Malformed API descriptions can supply arrays where OAuth expects a map.
+      const schemes = {
+        oauth: {
+          type: 'oauth2',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: 'https://example.com/authorize',
+              tokenUrl: 'https://example.com/token',
+              scopes: {},
+              [field]: ['read'],
+              'x-scalar-client-id': 'configured-client',
+            },
+          },
+        },
+      } as unknown as ComponentsObject['securitySchemes']
+      const result = mergeSecurity(schemes, {}, createWorkspaceStore().auth, 'test').oauth
+      assert(result?.type === 'oauth2')
+      expect(result.flows.authorizationCode?.[field]).toStrictEqual({})
+      expect(result.flows.authorizationCode?.['x-scalar-secret-client-id']).toBe('configured-client')
+    },
+  )
+
+  it('normalizes an array supplied as an OAuth flow without retaining its entries', () => {
+    const schemes = {
+      oauth: {
+        type: 'oauth2',
+        flows: { authorizationCode: ['read'] },
+      },
+    } as unknown as ComponentsObject['securitySchemes']
+
+    const result = mergeSecurity(schemes, {}, createWorkspaceStore().auth, 'test').oauth
+    assert(result?.type === 'oauth2')
+    const flow = result.flows.authorizationCode
+    assert(flow)
+    expect(flow.scopes).toStrictEqual({})
+    expect(flow).not.toHaveProperty('0')
+  })
+
+  it('preserves configured OAuth flows with an own __proto__ property', () => {
+    const config: AuthenticationConfiguration['securitySchemes'] = JSON.parse(`{
+      "oauth": { "type": "oauth2", "flows": { "authorizationCode": {
+        "authorizationUrl": "https://example.com/authorize",
+        "tokenUrl": "https://example.com/token",
+        "scopes": {},
+        "x-scalar-client-id": "configured-client",
+        "__proto__": { "untrusted": true }
+      } } }
+    }`)
+    const original = structuredClone(config)
+    const result = mergeSecurity({}, config, createWorkspaceStore().auth, 'test').oauth
+    assert(result?.type === 'oauth2')
+    const flow = result.flows.authorizationCode
+    assert(flow)
+    expect(flow['x-scalar-secret-client-id']).toBe('configured-client')
+    expect(flow.refreshUrl).toBe('')
+    expect(Object.getOwnPropertyDescriptor(flow, '__proto__')?.value).toStrictEqual({ untrusted: true })
+    expect(config).toStrictEqual(original)
+  })
+
+  it('overrides document prefixes through configuration without changing credentials', () => {
+    const auth = createWorkspaceStore().auth
+    const document = {
+      key: { type: 'apiKey', in: 'header', name: 'Authorization', 'x-scalar-token-prefix': 'original' },
+    } as const
+    const merged = mergeSecurity(document, { key: { value: 'abc', 'x-scalar-token-prefix': 'token' } }, auth, 'test')
+    assert(merged.key?.type === 'apiKey' && merged.key.in === 'header')
+    expect(merged.key['x-scalar-secret-token']).toBe('abc')
+    expect(merged.key['x-scalar-token-prefix']).toBe('token')
+    const cleared = mergeSecurity(document, { key: { 'x-scalar-token-prefix': '' } }, auth, 'test')
+    assert(cleared.key?.type === 'apiKey' && cleared.key.in === 'header')
+    expect(cleared.key['x-scalar-token-prefix']).toBe('')
+  })
+
   it('keeps OIDC defaults separate until discovery and prefers the sole configured flow', () => {
     const auth = createWorkspaceStore().auth
     const schemes = { oidc: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery' } } as const

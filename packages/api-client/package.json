@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "3.25.0",
+  "version": "3.29.2",
   "engines": {
     "node": ">=22"
   },
@@ -286,6 +286,11 @@
       "types": "./dist/v2/features/modal/helpers/map-hidden-clients-config.d.ts",
       "default": "./dist/v2/features/modal/helpers/map-hidden-clients-config.js"
     },
+    "./modal/filter-http-clients": {
+      "import": "./dist/v2/features/modal/helpers/filter-http-clients.js",
+      "types": "./dist/v2/features/modal/helpers/filter-http-clients.d.ts",
+      "default": "./dist/v2/features/modal/helpers/filter-http-clients.js"
+    },
     "./features/operation": {
       "import": "./dist/v2/features/operation/index.js",
       "types": "./dist/v2/features/operation/index.d.ts",
@@ -314,6 +319,7 @@
   "dependencies": {
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
+    "@internationalized/date": "catalog:*",
     "@scalar/blocks": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
@@ -324,15 +330,15 @@
     "@scalar/sidebar": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
-    "@scalar/typebox": "^0.1.3",
     "@scalar/types": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
+    "@scalar/validation": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
-    "focus-trap": "^8.2.3",
+    "focus-trap": "^8.2.6",
     "fuse.js": "catalog:*",
     "js-base64": "catalog:*",
     "jsonc-parser": "catalog:*",

@@ -20,11 +20,13 @@ import {
   getExampleValue,
   getExplicitExampleText,
 } from '@scalar/workspace-store/helpers/get-example-value'
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExampleFromBody,
   getSchemaExampleFromBody,
   getSelectedBodyContentType,
+  usesAspNetFormNaming,
 } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -64,8 +66,10 @@ const {
   requestBody,
   exampleKey,
   environment,
+  multipartNaming,
   requestBodyCompositionSelection,
   openapiVersion,
+  jsonSchemaDialect,
   title,
   defaultView = 'raw',
 } = defineProps<{
@@ -79,6 +83,9 @@ const {
   environment: XScalarEnvironment
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
+  jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
   /**
@@ -238,6 +245,7 @@ const example = computed(
       exampleKey,
       requestBodyCompositionSelection,
       openapiVersion,
+      jsonSchemaDialect,
     ),
 )
 
@@ -271,6 +279,14 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
       requestBody?.content?.[selectedContentType.value]?.itemSchema,
   )
 })
+
+const aspNetFormNaming = computed<boolean>(() =>
+  usesAspNetFormNaming(
+    selectedContentType.value,
+    requestBody?.content?.[selectedContentType.value],
+    multipartNaming,
+  ),
+)
 
 /** Mixed and related bodies keep their ordered parts instead of named form-data rows. */
 const multipartBody = computed<
@@ -381,6 +397,7 @@ watch(
       selectedContentType.value,
       requestBodyCompositionSelection,
       openapiVersion,
+      jsonSchemaDialect,
     )
 
     if (isForm) {
@@ -389,6 +406,8 @@ watch(
         selectedContentType.value,
         bodySchema.value,
         requestBodyCompositionSelection,
+        requestBody.content?.[selectedContentType.value]?.encoding,
+        aspNetFormNaming.value,
       )
       emits('update:formValue', {
         contentType: selectedContentType.value,
@@ -637,6 +656,7 @@ const canGenerateExample = computed(() =>
             selectedContentType === 'application/x-www-form-urlencoded'
           ">
           <RequestBodyForm
+            :aspNetFormNaming
             :bodySchema
             :compositionSelection="requestBodyCompositionSelection"
             :encoding="requestBody?.content?.[selectedContentType]?.encoding"
@@ -656,7 +676,9 @@ const canGenerateExample = computed(() =>
           v-else-if="multipartBody"
           :key="selectedContentType"
           :compositionSelection="requestBodyCompositionSelection"
+          :jsonSchemaDialect
           :media="multipartBody.media"
+          :openapiVersion
           :value="multipartBody.value"
           @update:value="
             (payload) =>

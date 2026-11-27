@@ -1,6 +1,3 @@
-// Theming
-import '@scalar/themes/fonts.css'
-
 import type { Preview } from '@storybook/vue3-vite'
 
 // Blocks supplies the theme tokens, reset, and schema utilities used by its consumers.

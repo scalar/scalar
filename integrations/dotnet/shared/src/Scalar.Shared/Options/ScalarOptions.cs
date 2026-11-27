@@ -29,6 +29,11 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public string[]? ShowExtensions { get; set; }
 
     /// <summary>
+    /// Selects the naming convention for nested multipart form fields.
+    /// </summary>
+    public ScalarMultipartNaming? MultipartNaming { get; set; }
+
+    /// <summary>
     /// Shows structural types instead of model names in schema labels and operation headings (default: false).
     /// </summary>
     public bool? HideModelNames { get; set; }
@@ -74,9 +79,19 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public string? ProxyUrl { get; set; }
 
     /// <summary>
+    /// HTTP(S) origins treated as local for API proxy routing and OAuth authorization.
+    /// </summary>
+    public string[]? TrustedLocalOrigins { get; set; }
+
+    /// <summary>
     /// Controls whether the sidebar is shown (default: shown).
     /// </summary>
     public bool? ShowSidebar { get; set; }
+
+    /// <summary>
+    /// Controls whether x-badges are shown in the sidebar (default: hidden).
+    /// </summary>
+    public bool? ShowBadgesInSidebar { get; set; }
 
     /// <summary>
     /// Controls whether the sidebar and search use the operation summary or path (default: <see cref="OperationTitleSource.Summary" />).
@@ -84,7 +99,7 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public OperationTitleSource? OperationTitleSource { get; set; }
 
     /// <summary>
-    /// Controls whether models are hidden from the sidebar, search, and content (default: shown).
+    /// Hides schema models and reusable AsyncAPI messages from the sidebar, search, and content.
     /// </summary>
     public bool? HideModels { get; set; }
 
@@ -137,7 +152,8 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public ScalarLayout? Layout { get; set; }
 
     /// <summary>
-    /// Controls whether to use the default fonts (Inter and JetBrains Mono from CDN) (default: enabled).
+    /// Controls whether to use the default fonts (default: enabled).
+    /// Scalar uses the system font stack and no longer loads web fonts, so this setting has no effect.
     /// </summary>
     public bool? DefaultFonts { get; set; }
 
@@ -201,7 +217,28 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     /// <summary>
     /// Controls the default HTTP client (default: shell/curl).
     /// </summary>
-    public KeyValuePair<ScalarTarget, ScalarClient>? DefaultHttpClient { get; set; }
+    /// <remarks>Assigning this property clears <see cref="DefaultHttpClientId" />.</remarks>
+    public KeyValuePair<ScalarTarget, ScalarClient>? DefaultHttpClient
+    {
+        get;
+        set
+        {
+            field = value;
+            DefaultHttpClientId = null;
+        }
+    }
+
+    /// <summary>
+    /// Controls the default code sample client by ID, such as <c>node/fetch</c>.
+    /// </summary>
+    /// <remarks>When set, takes precedence until <see cref="DefaultHttpClient" /> is assigned again.</remarks>
+    public string? DefaultHttpClientId { get; set; }
+
+    /// <summary>
+    /// Allows the specified built-in HTTP client IDs or target wildcards, such as <c>node/undici</c> or <c>shell/*</c>.
+    /// </summary>
+    /// <remarks>An empty array hides all built-in clients. Other client exclusions still apply.</remarks>
+    public string[]? HttpClients { get; set; }
 
     /// <summary>
     /// Controls which HTTP clients appear as tabs in the Client Libraries block, in order.
@@ -211,6 +248,12 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     /// Clients excluded by EnabledClients or EnabledTargets are skipped. This does not change DefaultHttpClient.
     /// </remarks>
     public KeyValuePair<ScalarTarget, ScalarClient>[]? FeaturedClients { get; set; }
+
+    /// <summary>
+    /// Controls whether built-in HTTP clients appear alongside SDK installation tabs in the introduction.
+    /// </summary>
+    /// <remarks>Defaults to <c>false</c>, which shows only SDK tabs when installation instructions are available.</remarks>
+    public bool? ShowDefaultClientsWithSdkInstallation { get; set; }
 
     /// <summary>
     /// Controls the list of servers for the Scalar API Reference.
@@ -259,6 +302,14 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     /// When set to <c>true</c>, the authentication state will be stored in the browser's local storage and restored when the user returns to the page.
     /// </remarks>
     public bool? PersistentAuthentication { get; set; }
+
+    /// <summary>
+    /// Controls whether the selected code sample client is saved and restored in local storage (default: enabled).
+    /// </summary>
+    /// <remarks>
+    /// Set to <c>false</c> to keep client selection on the current page only. Authentication persistence is configured separately.
+    /// </remarks>
+    public bool? PersistSelectedClient { get; set; }
 
     /// <summary>
     /// Controls whether telemetry is enabled (default: enabled).

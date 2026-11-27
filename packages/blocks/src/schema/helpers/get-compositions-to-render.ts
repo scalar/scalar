@@ -6,7 +6,7 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-
 
 import { getRefName } from './get-ref-name'
 import { type CompositionKeyword, compositions } from './schema-composition'
-import { shouldRenderArrayItemComposition } from './should-render-array-item-composition'
+import { hasArrayItemComposition, shouldRenderArrayItemComposition } from './should-render-array-item-composition'
 import { unwrapForRead } from './unwrap-for-read'
 
 type CompositionToRender = {
@@ -125,16 +125,10 @@ export const getCompositionsToRender = (
       }
 
       // Check for property-level composition
-      if (value[composition]) {
-        // Skip if array items have this composition (even if complex/not rendered)
-        const hasArrayItemComposition =
-          isArraySchema(value) && value.items && typeof value.items === 'object' && composition in value.items
-
-        if (!hasArrayItemComposition) {
-          return {
-            composition,
-            value: resolve.schema(value),
-          }
+      if (value[composition] && !hasArrayItemComposition(value, composition)) {
+        return {
+          composition,
+          value: resolve.schema(value),
         }
       }
 

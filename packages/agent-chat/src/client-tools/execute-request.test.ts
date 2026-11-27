@@ -2,7 +2,7 @@ import { Chat } from '@ai-sdk/vue'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { UIDataTypes, UIMessage } from 'ai'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, assert, describe, expect, it, vi } from 'vitest'
 
 import { createDocumentSettings } from '@/helpers'
 import type { Tools } from '@/state/state'
@@ -54,6 +54,103 @@ const prepareRequest = async (
 
 describe('execute-request', () => {
   afterEach(() => vi.restoreAllMocks())
+
+  it.each([
+    [undefined, 'token', 'token abc'],
+    ['document', 'configured', 'configured abc'],
+    ['document', '', 'abc'],
+  ])('overrides document prefix %j with configured prefix %j', async (documentPrefix, configPrefix, expected) => {
+    const workspace = createWorkspaceStore()
+    await workspace.addDocument({
+      name: documentName,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'API key authentication', version: '1.0.0' },
+        servers: [{ url: 'https://api.example.com' }],
+        paths: {},
+        security: [{ key: [] }],
+        components: {
+          securitySchemes: {
+            key: {
+              type: 'apiKey',
+              in: 'header',
+              name: 'Authorization',
+              ...(documentPrefix === undefined ? {} : { 'x-scalar-token-prefix': documentPrefix }),
+            },
+          },
+        },
+      },
+    })
+    workspace.auth.setAuthSecrets(documentName, 'key', { type: 'apiKey', 'x-scalar-secret-token': 'abc' })
+    const request = await prepareRequest('/me')
+    request.documentSettings = createDocumentSettings(workspace, {
+      securitySchemes: { key: { type: 'apiKey', in: 'header', 'x-scalar-token-prefix': configPrefix } },
+    })
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ ok: true }))
+
+    const result = await executeRequestTool(request)
+
+    expect(result.success).toBe(true)
+    expect(fetch.mock.calls).toStrictEqual([
+      [
+        'https://api.example.com/me',
+        {
+          redirect: 'error',
+          method: 'GET',
+          body: undefined,
+          headers: { Authorization: expected, Cookie: '' },
+        },
+      ],
+    ])
+    const scheme = request.documentSettings[documentName]?.securitySchemes[0]
+    assert(scheme?.type === 'apiKey')
+    expect(scheme['x-scalar-secret-token']).toBe('abc')
+  })
+
+  it.each([
+    ['abc', 'token abc'],
+    [' abc ', 'token abc'],
+    ['   ', ''],
+    ['', ''],
+  ])('applies header API-key prefixes without changing the credential (%s)', async (token, expected) => {
+    const request = await prepareRequest('/me', [{ url: 'https://api.example.com' }])
+    const settings = request.documentSettings[documentName]
+    assert(settings)
+    settings.securitySchemes = [
+      {
+        type: 'apiKey',
+        in: 'header',
+        name: 'Authorization',
+        'x-scalar-token-prefix': 'token',
+        'x-scalar-secret-token': token,
+      },
+    ]
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ ok: true }))
+
+    const result = await executeRequestTool(request)
+
+    expect(result.success).toBe(true)
+    expect(fetch.mock.calls).toStrictEqual([
+      [
+        'https://api.example.com/me',
+        {
+          redirect: 'error',
+          method: 'GET',
+          body: undefined,
+          headers: { Authorization: expected, Cookie: '' },
+        },
+      ],
+    ])
+    expect(settings.securitySchemes).toStrictEqual([
+      {
+        type: 'apiKey',
+        in: 'header',
+        name: 'Authorization',
+        'x-scalar-token-prefix': 'token',
+        'x-scalar-secret-token': token,
+      },
+    ])
+  })
 
   it('finishes unknown API requests with a tool error without fetching', async () => {
     const request = await prepareRequest('/pets')

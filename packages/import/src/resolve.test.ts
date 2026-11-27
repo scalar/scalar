@@ -14,6 +14,44 @@ function createFetchResponse(data: string, headers: Record<string, string> = {})
 const globalFetchSpy = vi.spyOn(global, 'fetch').mockImplementation(vi.fn())
 
 describe('resolve', () => {
+  it('rejects excessive alias expansion in a fetched YAML document', async () => {
+    const yaml = [
+      'openapi: 3.1.0',
+      'l0: &l0 value',
+      ...Array.from(
+        { length: 5 },
+        (_, index) => `l${index + 1}: &l${index + 1} [${Array(10).fill(`*l${index}`).join(', ')}]`,
+      ),
+    ].join('\n')
+
+    expect(await resolve('https://example.com/api', { fetch: async () => new Response(yaml) })).toBeUndefined()
+  })
+
+  it.each(['document', 'script', 'configuration'] as const)(
+    'imports alias-heavy YAML from %s content',
+    async (source) => {
+      const yaml = [
+        'openapi: 3.1.0',
+        'info: { title: Example, version: 1.0.0 }',
+        'x-shared: &shared { description: Shared }',
+        ...Array.from({ length: 200 }, (_, index) => `x-item${index}: *shared`),
+      ].join('\n')
+      const body = {
+        document: yaml,
+        script: `<script id="api-reference">${yaml}</script>`,
+        configuration: `<script id="api-reference" data-configuration='${JSON.stringify({ content: yaml })}'></script>`,
+      }[source]
+      const url = 'https://example.com/api'
+      const result = await resolve(url, { fetch: async () => new Response(body) })
+
+      if (source === 'document') {
+        expect(result).toBe(url)
+      } else {
+        expect(typeof result === 'object' && result?.['x-item199']).toStrictEqual({ description: 'Shared' })
+      }
+    },
+  )
+
   beforeEach(() => {
     globalFetchSpy.mockClear()
   })

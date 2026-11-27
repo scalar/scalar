@@ -1,5 +1,74 @@
 # @scalar/mock-server
 
+## 0.21.9
+
+### Patch Changes
+
+- [#11215](https://github.com/scalar/scalar/pull/11215): Respect string length bounds when generating plain text and formatted string examples, including API reference examples and mock server responses. Preserve path parameter placeholders in code samples.
+
+## 0.21.8
+
+### Patch Changes
+
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11192](https://github.com/scalar/scalar/pull/11192): Validate JSON and plain-text request parameters declared with `content`. Malformed JSON is rejected, and JSON values keep their original types during validation, so `?filter={"price":"5"}` is rejected when `price` is an integer.
+- [#11178](https://github.com/scalar/scalar/pull/11178): Read an empty `matrix` path array (`;ids`) as an empty array during request validation instead of a one-element `['ids']` array.
+- [#11207](https://github.com/scalar/scalar/pull/11207): Validate and parse request bodies sent with structured `+json` media types such as `application/vnd.api+json` and `application/merge-patch+json`, so they are checked against the schema and reach `x-handler` as `req.body`.
+- [#11177](https://github.com/scalar/scalar/pull/11177): Strip the `label` and `matrix` prefixes from primitive path parameters before request validation, so `/users/.5` and `/users/;id=5` are accepted for an integer `id`.
+
+  Preserve percent-encoded delimiters in matrix parameter names and primitive values so validation checks the complete string.
+- [#11224](https://github.com/scalar/scalar/pull/11224): Send authored response header examples (`example`, `examples`, or a `content` media type) instead of values generated from the header schema.
+
+  Emit each cookie in its own field and escape Unicode in JSON and XML header examples. Use the referenced schema’s component name as the default XML root element.
+
+  Share HTTP quoted-string escaping and support character references for line breaks and Unicode in XML header data.
+- [#11204](https://github.com/scalar/scalar/pull/11204): Serve OpenAPI operations under the base path of their servers, so `GET /v1/pets` answers when the document declares `servers: [{ url: 'https://api.example.com/v1' }]`. OpenAPI 2.0 `basePath`, relative server URLs, and every enum value of a server variable in the path are served too, and operation and path item servers take precedence over the servers of the document. Operations keep answering at their bare path keys.
+
+  Descriptions that exceed the server URL expansion or generated route budget continue serving their bare operation routes.
+
+## 0.21.7
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
+## 0.21.6
+
+### Patch Changes
+
+- [#11105](https://github.com/scalar/scalar/pull/11105): Finish migrating legacy `nullable` schema keywords when upgrading OpenAPI 3.0 descriptions, so downstream request validators can compile the upgraded schemas and enforce the rest of the request contract.
+
+## 0.21.5
+
+### Patch Changes
+
+- [#11029](https://github.com/scalar/scalar/pull/11029): fix: respect contains match counts in simple array examples
+
+  Generate matching and nonmatching primitive items for direct contains constraints, counting tuple prefixes and respecting item schemas, length bounds, uniqueness, and the declared dialect. Authored examples remain authoritative. Candidate generation is bounded and may return a partial example for contradictory constraints.
+
+  Complex references and compositions, nested object or array candidate synthesis, and XML branch reconstruction retain existing best-effort behavior and are deferred to a follow-up.
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11108](https://github.com/scalar/scalar/pull/11108): Keep validating requests when a schema `pattern` is only valid without the unicode flag.
+  A pattern such as `^\d{5}(\-\d{4})?$` that uses an escape like `\-`, `\_` or `\ ` now compiles as a plain ECMA-262 regular expression, so the body or the parameters of that operation are no longer left unchecked, and a pattern that parses with the unicode flag keeps it.
+- [#11029](https://github.com/scalar/scalar/pull/11029): Preserve authored array item examples when contains constraints cannot be satisfied, and pass only dialect context to streaming example generation.
+
+## 0.21.4
+
+### Patch Changes
+
+- [#10816](https://github.com/scalar/scalar/pull/10816): Keep plugin document classification consistent through replacement, hydration, and rebasing. Exclude plugin documents from Ask AI and reject unsupported request, authentication, and mock-server processing even when plugin data contains OpenAPI or AsyncAPI fields.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.21.3
+
+No changes in this release.
+
+## 0.21.2
+
+### Patch Changes
+
+- [#10937](https://github.com/scalar/scalar/pull/10937): fix: generate valid base64 examples for `format: byte` and `contentEncoding: base64`/`base64url` strings
+
 ## 0.21.1
 
 ### Patch Changes

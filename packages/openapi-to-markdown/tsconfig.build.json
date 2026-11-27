@@ -3,6 +3,7 @@
   "include": ["src"],
   "exclude": ["**/*.test.ts", "**/*.bench.ts"],
   "compilerOptions": {
+    "allowImportingTsExtensions": false,
     "rootDir": "src",
     "outDir": "dist",
     "declaration": true,

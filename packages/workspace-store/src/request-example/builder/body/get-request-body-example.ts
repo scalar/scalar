@@ -30,6 +30,7 @@ export const getSchemaExampleFromBody = (
   contentType: string,
   requestBodyCompositionSelection?: Record<string, number>,
   openapiVersion?: string,
+  jsonSchemaDialect?: string,
 ): unknown => {
   const mediaType = requestBody.content?.[contentType]
   const schema =
@@ -40,6 +41,7 @@ export const getSchemaExampleFromBody = (
   if (isXmlMediaType(contentType)) {
     return getXmlBodyExample(mediaType?.schema as SchemaObject | undefined, undefined, {
       openapiVersion,
+      jsonSchemaDialect,
       mode: 'write',
       compositionSelection: requestBodyCompositionSelection,
       schemaPath: ['requestBody'],
@@ -53,6 +55,8 @@ export const getSchemaExampleFromBody = (
     snapshotSchema(schema) as SchemaObject,
     {
       mode: 'write',
+      openapiVersion,
+      jsonSchemaDialect,
       compositionSelection: requestBodyCompositionSelection,
     },
     {
@@ -71,6 +75,7 @@ export const getExampleFromBody = (
   exampleName: string,
   requestBodyCompositionSelection?: Record<string, number>,
   openapiVersion?: string,
+  jsonSchemaDialect?: string,
 ): ExampleObject | null => {
   // Return the existing example when it carries a usable value. An example that only has an
   // `externalValue` (not yet resolved to a `value`) is treated as missing, so we fall back to a
@@ -79,6 +84,7 @@ export const getExampleFromBody = (
   if (isXmlMediaType(contentType)) {
     const result = getXmlBodyExample(requestBody.content?.[contentType]?.schema as SchemaObject | undefined, example, {
       openapiVersion,
+      jsonSchemaDialect,
       mode: 'write',
       compositionSelection: requestBodyCompositionSelection,
       schemaPath: ['requestBody'],
@@ -109,6 +115,7 @@ export const getExampleFromBody = (
     contentType,
     requestBodyCompositionSelection,
     openapiVersion,
+    jsonSchemaDialect,
   )
   if (schemaExample === undefined || schemaExample === null) {
     return null

@@ -1,11 +1,11 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { Item, ItemGroup } from '@/types'
+import type { Auth, Item, ItemGroup } from '@/types'
 
-import { processAuth } from './auth'
+import { processAuth, resolveAuth } from './auth'
 import { parseMediaType, pickAcceptMediaType, readHeader } from './header-utils'
 import { parseMdTable } from './markdown'
-import { extractParameters } from './parameters'
+import { extractParameters, getParameterKey } from './parameters'
 import { processPostResponseScripts } from './post-response-scripts'
 import { processPreRequestScripts } from './pre-request-scripts'
 import { extractRequestBody } from './request-body'
@@ -33,6 +33,11 @@ export type ServerUsage = {
 }
 
 type CollectionVariableLookup = ReadonlyMap<string, string>
+
+type AuthContext = {
+  inheritedAuth?: Auth
+  securitySchemes: NonNullable<OpenAPIV3_1.ComponentsObject['securitySchemes']>
+}
 
 function ensureRequestBodyContent(requestBody: OpenAPIV3_1.RequestBodyObject): void {
   const content = requestBody.content ?? {}
@@ -67,6 +72,7 @@ export function processItem(
   resolveTagName?: (segments: string[]) => string | undefined,
   collectionVariableLookup: CollectionVariableLookup = new Map(),
   keepHeaders?: readonly string[],
+  authContext: AuthContext = { securitySchemes: {} },
 ): {
   paths: OpenAPIV3_1.PathsObject
   components: OpenAPIV3_1.ComponentsObject
@@ -88,6 +94,7 @@ export function processItem(
         resolveTagName,
         collectionVariableLookup,
         keepHeaders,
+        { ...authContext, inheritedAuth: resolveAuth(item.auth, authContext.inheritedAuth) },
       )
       // Merge child paths and components
       for (const [pathKey, pathItem] of Object.entries(childResult.paths)) {
@@ -217,7 +224,7 @@ export function processItem(
       if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
         return
       }
-      mergedParameters.set(param.name, param)
+      mergedParameters.set(getParameterKey(param), param)
     }
   })
 
@@ -233,7 +240,7 @@ export function processItem(
         if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
           return
         }
-        mergedParameters.set(param.name, param)
+        mergedParameters.set(getParameterKey(param), param)
       }
     })
   }
@@ -243,11 +250,14 @@ export function processItem(
     operationObject.parameters = Array.from(mergedParameters.values())
   }
 
-  if (typeof request !== 'string' && request.auth) {
+  // Only folder and request overrides need operation security; collection auth stays at the document root.
+  const auth = resolveAuth(typeof request === 'string' ? undefined : request.auth, authContext.inheritedAuth)
+  if (auth) {
     if (!operationObject.security) {
       operationObject.security = []
     }
-    const { securitySchemes, security } = processAuth(request.auth)
+    const { securitySchemes, security } = processAuth(auth, authContext.securitySchemes)
+    Object.assign(authContext.securitySchemes, securitySchemes)
 
     if (!components.securitySchemes) {
       components.securitySchemes = {}
@@ -390,8 +400,7 @@ function parseParametersFromDescription(description: string): {
   }
 
   const tableMarkdown = tableLines.join('\n')
-  const parsedTable = parseMdTable(tableMarkdown)
-  const parametersFromTable = Object.values(parsedTable)
+  const parametersFromTable = parseMdTable(tableMarkdown)
     .map((paramData) => {
       const row: ParameterRow = paramData
       if (row.object !== 'query' && row.object !== 'header' && row.object !== 'path') {

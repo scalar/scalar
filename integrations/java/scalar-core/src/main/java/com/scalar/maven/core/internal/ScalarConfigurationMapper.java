@@ -30,7 +30,9 @@ public class ScalarConfigurationMapper {
         // Basic properties
         config.setUrl(properties.getContent() == null ? properties.getUrl() : null);
         config.setProxyUrl(properties.getProxyUrl());
+        config.setTrustedLocalOrigins(properties.getTrustedLocalOrigins());
         config.setShowSidebar(properties.isShowSidebar());
+        config.setShowBadgesInSidebar(properties.isShowBadgesInSidebar());
         config.setHideModels(properties.isHideModels());
         config.setHideTestRequestButton(properties.isHideTestRequestButton());
         config.setDarkMode(properties.isDarkMode());
@@ -41,6 +43,7 @@ public class ScalarConfigurationMapper {
         config.setServers(properties.getServers());
         config.setMetaData(properties.getMetadata());
         config.setDefaultHttpClient(properties.getDefaultHttpClient());
+        config.setShowDefaultClientsWithSdkInstallation(properties.isShowDefaultClientsWithSdkInstallation());
         config.setAuthentication(properties.getAuthentication());
         config.setWithDefaultFonts(properties.isWithDefaultFonts());
         config.setDefaultOpenAllTags(properties.isDefaultOpenAllTags());
@@ -61,6 +64,7 @@ public class ScalarConfigurationMapper {
         }
         config.setBaseServerUrl(properties.getBaseServerUrl());
         config.setPersistAuth(properties.isPersistAuth());
+        config.setPersistSelectedClient(properties.isPersistSelectedClient());
         config.setTelemetry(properties.isTelemetry());
         config.setOrderRequiredPropertiesFirst(properties.isOrderRequiredPropertiesFirst());
         config.setShowOperationId(properties.isShowOperationId());
@@ -90,7 +94,11 @@ public class ScalarConfigurationMapper {
 
         config.setDefaultRequestBodyView(properties.getDefaultRequestBodyView());
 
+        config.setMultipartNaming(properties.getMultipartNaming());
+
         config.setShowExtensions(properties.getShowExtensions());
+
+        config.setHttpClients(properties.getHttpClients());
 
         config.setFeaturedClients(properties.getFeaturedClients());
 

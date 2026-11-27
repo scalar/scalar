@@ -18,7 +18,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.3.36",
+  "version": "0.3.43",
   "engines": {
     "node": ">=22"
   },
@@ -68,11 +68,11 @@
     "@scalar/client-side-rendering": "workspace:*"
   },
   "devDependencies": {
-    "@sveltejs/kit": "^3.0.0",
-    "@sveltejs/package": "^2.5.8",
+    "@sveltejs/kit": "^3.4.0",
+    "@sveltejs/package": "^3.0.3",
     "publint": "^0.3.25",
-    "svelte": "^5.57.2",
-    "svelte-check": "^4.7.6",
+    "svelte": "catalog:*",
+    "svelte-check": "^4.7.8",
     "vitest": "catalog:*"
   },
   "peerDependencies": {

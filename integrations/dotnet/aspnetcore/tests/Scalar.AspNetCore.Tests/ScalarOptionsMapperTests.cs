@@ -29,6 +29,17 @@ public class ScalarOptionsMapperTests
     }
 
     [Fact]
+    public void ToConfiguration_SerializesTrustedLocalOrigins()
+    {
+        var options = new ScalarOptions().WithTrustedLocalOrigins("http://auth.dev.internal:8080");
+        var configuration = options.ToScalarConfiguration();
+        var json = System.Text.Json.JsonSerializer.Serialize(configuration, ScalarConfigurationSerializerContext.Default.ScalarConfiguration);
+        using var serialized = System.Text.Json.JsonDocument.Parse(json);
+
+        serialized.RootElement.GetProperty("trustedLocalOrigins")[0].GetString().Should().Be("http://auth.dev.internal:8080");
+    }
+
+    [Fact]
     public void ToConfiguration_ShouldReturnCorrectDefaultConfiguration()
     {
         // Arrange
@@ -39,6 +50,7 @@ public class ScalarOptionsMapperTests
 
         // Assert
         configuration.ProxyUrl.Should().BeNull();
+        configuration.TrustedLocalOrigins.Should().BeNull();
         configuration.ShowSidebar.Should().BeNull();
         configuration.OperationTitleSource.Should().BeNull();
         configuration.HideModels.Should().BeNull();
@@ -142,8 +154,9 @@ public class ScalarOptionsMapperTests
         configuration.Servers.Should().ContainSingle().Which.Url.Should().Be("https://example.com");
         configuration.PluginUrls.Should().ContainSingle().Which.Should().Be("https://example.com/plugin.js");
         configuration.MetaData.Should().ContainKey("key").WhoseValue.Should().Be("value");
-        configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.CSharp);
-        configuration.DefaultHttpClient!.ClientKey.Should().Be(ScalarClient.HttpClient);
+        var defaultClient = configuration.DefaultHttpClient.Should().BeOfType<DefaultHttpClient>().Which;
+        defaultClient.TargetKey.Should().Be(ScalarTarget.CSharp);
+        defaultClient.ClientKey.Should().Be(ScalarClient.HttpClient);
         ((bool) configuration.HiddenClients!).Should().BeTrue();
         configuration.Authentication.Should().NotBeNull();
 #pragma warning disable CS0618 // Type or member is obsolete

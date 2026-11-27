@@ -25,7 +25,7 @@ const presetVariants = themeIds
     (variants, id) => {
       variants[id] = {
         label: themeLabels[id],
-        css: id === 'default' ? null : getThemeStyles(id, { fonts: false }),
+        css: id === 'default' ? null : getThemeStyles(id),
       }
       return variants
     },

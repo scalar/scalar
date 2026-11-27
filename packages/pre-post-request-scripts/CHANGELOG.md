@@ -1,5 +1,54 @@
 # @scalar/scripts
 
+## 0.4.72
+
+No changes in this release.
+
+## 0.4.71
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 0.4.70
+
+No changes in this release.
+
+## 0.4.69
+
+No changes in this release.
+
+## 0.4.68
+
+No changes in this release.
+
+## 0.4.67
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+- [#11099](https://github.com/scalar/scalar/pull/11099): Validate Postman dynamic variables against patched Faker, align Django Ninja test dependencies with its runtime, and compare large desktop request bodies without expensive deep assertions.
+
+  The Postman Faker override and compatibility patch apply only inside this workspace. Published packages keep `postman-collection` external, so separately installed npm consumers still receive its Faker 5 dependency. Prebuilt vendor code is also unaffected. Workspace development uses Node.js 24, which supports loading Faker 10 ES modules from Postman’s CommonJS code.
+
+## 0.4.66
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.4.65
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
+## 0.4.64
+
+No changes in this release.
+
 ## 0.4.63
 
 ## 0.4.62

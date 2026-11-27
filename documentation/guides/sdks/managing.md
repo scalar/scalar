@@ -4,8 +4,7 @@ After you [create an SDK](getting-started.md), the dashboard is where you build 
 
 <scalar-image
   src="/sdks/sdk-overview.png"
-  src-dark="/sdks/sdk-overview-dark.png"
-  alt="The SDK studio showing a generated TypeScript SDK, its configuration, and the build drawer with the GitHub release pipeline"
+  alt="The SDK overview page showing the active version, targets, and version history"
   size="full">
 </scalar-image>
 
@@ -71,11 +70,4 @@ You do not need a GitHub repository to use a generated SDK. From a version's det
 
 ## Settings
 
-<scalar-image
-  src="/sdks/sdk-settings.png"
-  src-dark="/sdks/sdk-settings-dark.png"
-  alt="The SDK settings tab with the SDK name, the linked API document, and the option to remove the SDK"
-  size="full">
-</scalar-image>
-
-From the SDK settings — the **General** card on the studio's **Settings** tab — you can rename the SDK, edit its description and namespace, set its registry visibility to public or private, manage which groups can access a private SDK, and delete the SDK. Renaming changes the display name only; the package names, registry URLs, and slug stay the same. Deleting an SDK removes its versions and registry entries; code already pushed to GitHub or published to a registry is not affected.
+From the SDK settings — the **General** card on the studio's **Advanced** tab — you can rename the SDK, edit its description and namespace, set its registry visibility to public or private, manage which groups can access a private SDK, and delete the SDK. Renaming changes the display name only; the package names, registry URLs, and slug stay the same. Deleting an SDK removes its versions and registry entries; code already pushed to GitHub or published to a registry is not affected.

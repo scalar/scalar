@@ -35,11 +35,11 @@
   --scalar-radius-full: calc(var(--scalar-radius) * 9999); /* pill, deliberately uncapped */
 
   /* TYPOGRAPHY ------------------------------------ */
+  /* System fonts only, so text matches the platform and no font files are downloaded */
   --scalar-font:
-    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-    "Noto Color Emoji";
-  --scalar-font-code:
-    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Helvetica", "Apple Color Emoji", "Arial",
+    sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  --scalar-font-code: ui-monospace, "SFMono-Regular", "SF Mono", menlo, consolas, "Liberation Mono", monospace;
 
   /** Font sizes for rendered text content (editor styles or static content) */
   --scalar-heading-1: 24px; /* Editor Page heading */
@@ -86,7 +86,6 @@
 }
 
 .dark-mode {
-  color-scheme: dark;
   --scalar-scrollbar-color: rgba(255, 255, 255, 0.18);
   --scalar-scrollbar-color-active: rgba(255, 255, 255, 0.36);
   --scalar-button-1: rgba(255, 255, 255, 1);
@@ -105,7 +104,6 @@
   --scalar-text-decoration-color-hover: currentColor;
 }
 .light-mode {
-  color-scheme: light;
   --scalar-scrollbar-color-active: rgba(0, 0, 0, 0.36);
   --scalar-scrollbar-color: rgba(0, 0, 0, 0.18);
   --scalar-button-1: rgba(0, 0, 0, 1);
@@ -122,9 +120,32 @@
   --scalar-text-decoration-color: currentColor;
   --scalar-text-decoration-color-hover: currentColor;
 }
-/* On some browsers, the light color scheme takes precedence when the light mode is active */
-.light-mode .dark-mode {
-  color-scheme: dark !important;
+/*
+ * Set the color scheme on Scalar elements, never on the mode class by itself. The mode class
+ * often sits on the host page's body, and setting the scheme there would switch the whole
+ * host page (native inputs, scrollbars, system colors) along with the reference.
+ *
+ * These rules share one specificity, so their order decides: later rules are more specific.
+ */
+/* The page's mode, for a top-level Scalar element */
+.dark-mode .scalar-app {
+  color-scheme: dark;
+}
+.light-mode .scalar-app {
+  color-scheme: light;
+}
+/* Nested apps (teleported popovers, say) follow their nearest Scalar ancestor, not the page */
+.scalar-app .scalar-app {
+  color-scheme: inherit;
+}
+/* An element's own mode class wins, for example a forced-dark block mounted on a light page */
+.scalar-app.dark-mode,
+.scalar-app .dark-mode {
+  color-scheme: dark;
+}
+.scalar-app.light-mode,
+.scalar-app .light-mode {
+  color-scheme: light;
 }
 @media (max-width: 460px) {
   :root,

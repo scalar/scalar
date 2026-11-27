@@ -7,10 +7,12 @@ import { type DOMWrapper, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import { defineComponent, h, isReactive, nextTick, ref } from 'vue'
 
+import Badge from '../shared/Badge.vue'
 import { type SchemaExpansionStore, createSchemaExpansionStore } from './helpers/schema-expansion'
 import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from './request-body-composition-index'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
+import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 const scrollTargetId = ref('')
 
@@ -73,6 +75,69 @@ describe('Schema', () => {
     expect(wrapper.text()).not.toContain('Order')
     expect(wrapper.text().match(/Type: object/g)?.length).toBe(2)
     expect(wrapper.text()).toContain('Type: string')
+  })
+
+  it('renders badges on nested, referenced, and composed properties from the workspace store', async () => {
+    const store = createWorkspaceStore()
+    const documentName = 'users'
+    await store.addDocument({
+      name: documentName,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Users', version: '1' },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                manager: {
+                  $ref: '#/components/schemas/Manager',
+                  'x-badges': [{ name: 'Expandable', color: '#34d399' }],
+                },
+                status: {
+                  oneOf: [{ type: 'string' }, { type: 'integer' }],
+                  'x-badges': [{ name: 'Legacy format' }],
+                },
+              },
+            },
+            Manager: {
+              type: 'object',
+              properties: {
+                login: {
+                  type: 'string',
+                  deprecated: true,
+                  'x-badges': [{ name: 'Legacy', position: 'before' }, { name: 'Use email instead' }],
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const document = store.workspace.documents[documentName]
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Expected an OpenAPI document')
+    }
+    const wrapper = mount(Schema, {
+      props: {
+        eventBus: null,
+        options: { expandAllSchemaProperties: true },
+        schema: getResolvedRef(document.components?.schemas?.User),
+      },
+    })
+
+    const status = wrapper.findAllComponents(SchemaProperty).find((property) => property.props('name') === 'status')
+    expect(status?.getComponent(SchemaPropertyHeading).getComponent(Badge).text()).toBe('Legacy format')
+    expect(wrapper.findAllComponents(Badge).map((badge) => badge.text())).toStrictEqual([
+      'Expandable',
+      'Legacy',
+      'deprecated',
+      'Use email instead',
+      'Legacy format',
+    ])
+    const text = wrapper.text()
+    expect(text.indexOf('Expandable')).toBeGreaterThan(text.indexOf('manager'))
+    expect(text.indexOf('Legacy')).toBeLessThan(text.indexOf('login'))
   })
 
   it('does not render internal markers from ingested boolean schemas', async () => {
@@ -365,8 +430,117 @@ describe('Schema', () => {
       // not repeat it, otherwise the same text would show twice.
       expect(text.split('A job.').length - 1).toBe(1)
 
-      // The allOf member still renders its own description, so nothing is lost.
-      expect(text).toContain('Base class for all searchable entities.')
+      // The schema's own description describes the whole composition, so a
+      // member's description is not shown under it (matching Swagger UI).
+      expect(text).not.toContain('Base class for all searchable entities.')
+    })
+
+    const coreRef = { $ref: '#/components/schemas/DistributionChainLinkCore' }
+    const requestFields = { type: 'object', properties: { entityType: { type: 'string' } } }
+    const choiceOptions = [
+      { type: 'object', properties: { choiceField: { type: 'string' } } },
+      { type: 'object', properties: { alternativeField: { type: 'string' } } },
+    ]
+
+    it.each([
+      ['a referenced base first', { allOf: [coreRef, requestFields] }, ['entityType', 'salesBranchId']],
+      ['the members reversed', { allOf: [requestFields, coreRef] }, ['entityType', 'salesBranchId']],
+      [
+        'an object type on the parent',
+        { type: 'object', allOf: [coreRef, requestFields] },
+        ['entityType', 'salesBranchId'],
+      ],
+      ['a nested allOf', { allOf: [{ allOf: [coreRef] }, requestFields] }, ['entityType', 'salesBranchId']],
+      [
+        'an intervening oneOf',
+        { allOf: [requestFields, { oneOf: choiceOptions }, coreRef] },
+        ['entityType', 'choiceField', 'salesBranchId'],
+      ],
+      [
+        'an intervening anyOf',
+        { allOf: [requestFields, { anyOf: choiceOptions }, coreRef] },
+        ['entityType', 'choiceField', 'salesBranchId'],
+      ],
+    ])('shows only the parent description for allOf with %s', async (_, schema, fieldOrder) => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'models',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Example', version: '1.0.0' },
+          paths: {},
+          components: {
+            schemas: {
+              DistributionChainLinkCore: {
+                type: 'object',
+                description: 'Core desc',
+                properties: { salesBranchId: { type: 'string' } },
+              },
+              DistributionChainLinkRequest: { description: 'Request desc', ...schema },
+            },
+          },
+        },
+      })
+      const document = store.workspace.documents.models
+      if (!isOpenApiDocument(document)) {
+        throw new Error('Expected an OpenAPI document')
+      }
+
+      const wrapper = mount(Schema, {
+        props: {
+          scrollTargetId: scrollTargetId.value,
+          eventBus: null,
+          level: 1,
+          noncollapsible: true,
+          hideHeading: true,
+          schema: getResolvedRef(document.components?.schemas?.DistributionChainLinkRequest),
+          options: {},
+        },
+      })
+
+      const text = wrapper.text()
+
+      expect(text.split('Request desc').length - 1).toBe(1)
+      expect(text).not.toContain('Core desc')
+      expect(text.match(/salesBranchId|entityType|choiceField/g)).toStrictEqual(fieldOrder)
+    })
+
+    it.each([
+      [
+        'a primitive',
+        {
+          allOf: [
+            { type: 'string', description: 'Member description' },
+            { type: 'string', minLength: 1 },
+          ],
+        },
+      ],
+      [
+        'an array with composed items',
+        {
+          type: 'array',
+          allOf: [
+            { type: 'array', description: 'Member description', minItems: 1 },
+            { type: 'array', maxItems: 5 },
+          ],
+          items: { allOf: [{ type: 'string' }, { type: 'string', minLength: 1 }] },
+        },
+      ],
+    ])('shows the allOf parent description once for %s', (_, schema) => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          level: 1,
+          noncollapsible: true,
+          hideHeading: true,
+          schema: coerceValue(SchemaObjectSchema, { description: 'Parent description', ...schema }),
+          options: {},
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text.split('Parent description').length - 1).toBe(1)
+      expect(text).not.toContain('Member description')
     })
 
     it('shows the parent description for discriminator-based oneOf schemas', () => {

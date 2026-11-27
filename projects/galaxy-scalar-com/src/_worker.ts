@@ -1,11 +1,28 @@
+import type { Hono } from 'hono'
+
 import { configureApiReference, createApp } from './galaxy-scalar-com'
 
-// Top-level await is supported for a Worker's entry module. The app — and its
-// seeded mock data — is created once at module initialization, not per request.
-const app = await createApp()
+// Mock server parsing and seeding exceed Cloudflare's startup CPU budget. Defer
+// them until a request arrives, sharing initialization across concurrent requests.
+let appPromise: Promise<Hono> | undefined
 
-configureApiReference(app)
+const getApp = (): Promise<Hono> => {
+  appPromise ??= createApp()
+    .then((app) => {
+      configureApiReference(app)
+      return app
+    })
+    .catch((error: unknown) => {
+      appPromise = undefined
+      throw error
+    })
+  return appPromise
+}
 
-// A Cloudflare Worker exports an object with a `fetch` handler. A Hono app
-// already satisfies that shape, so it can be exported directly.
-export default app
+export default {
+  /** Preserve Worker bindings and execution context when dispatching to Hono. */
+  fetch: async (...args: Parameters<Hono['fetch']>): Promise<Response> => {
+    const app = await getApp()
+    return app.fetch(...args)
+  },
+}

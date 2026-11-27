@@ -16,7 +16,7 @@
     "scalar",
     "api-reference"
   ],
-  "version": "0.4.5",
+  "version": "0.4.9",
   "engines": {
     "node": ">=22"
   },

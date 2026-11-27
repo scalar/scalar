@@ -1,5 +1,50 @@
 # @scalar/void-server
 
+## 2.5.29
+
+No changes in this release.
+
+## 2.5.28
+
+### Patch Changes
+
+- [#11195](https://github.com/scalar/scalar/pull/11195): Update compatible dependencies for AI chat, focus management, code and Markdown rendering, HTTP requests, mock servers, and application data fetching.
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 2.5.27
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
+## 2.5.26
+
+No changes in this release.
+
+## 2.5.25
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 2.5.24
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 2.5.23
+
+### Patch Changes
+
+- [#11032](https://github.com/scalar/scalar/pull/11032): Update the Hono Node adapter to fix request path handling and WebSocket upgrade vulnerabilities.
+
+## 2.5.22
+
+No changes in this release.
+
 ## 2.5.21
 
 ## 2.5.20

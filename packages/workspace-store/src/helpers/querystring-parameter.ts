@@ -4,6 +4,7 @@ import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 
+import { encodeUriComponent } from '@/helpers/encode-uri-component'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { serializeFormPropertyWithEncoding } from '@/request-example/builder/body/serialize-form-property'
 import { isParamDisabled } from '@/request-example/builder/header/is-param-disabled'
@@ -48,7 +49,11 @@ export const getQuerystringParameter = (
   {
     defaultDisabled = true,
     includeDisabled = false,
+    openapiVersion,
+    jsonSchemaDialect,
   }: {
+    openapiVersion?: string
+    jsonSchemaDialect?: string
     defaultDisabled?: boolean
     /** Editors must retain the value when its checkbox is off. */
     includeDisabled?: boolean
@@ -73,7 +78,7 @@ export const getQuerystringParameter = (
   const schema = getResolvedRef(mediaType?.schema)
   let resolvedValue = value
   if (resolvedValue === undefined) {
-    resolvedValue = schema ? getExampleFromSchema(schema) : ''
+    resolvedValue = schema ? getExampleFromSchema(schema, { openapiVersion, jsonSchemaDialect }) : ''
   }
   return {
     value: resolvedValue,
@@ -140,8 +145,5 @@ export const serializeQuerystringParameter = (
   }
   const serialized =
     parameter.kind !== 'serialized' && isJsonMediaType(contentType) ? JSON.stringify(value) : String(value)
-  return encodeURIComponent(serialized).replace(
-    /[!'()*]/g,
-    (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`,
-  )
+  return encodeUriComponent(serialized)
 }

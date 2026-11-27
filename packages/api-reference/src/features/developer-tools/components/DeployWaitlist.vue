@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 /**
- * Deploy in the localhost shell's side panel: a waitlist sign-up for hosting on Scalar, in the same
- * card as the Generate SDK content (brand wash, artwork, centred title, rounded actions).
+ * Deploy: a waitlist sign-up for hosting on Scalar, in the same card as the Generate SDK content
+ * (brand wash, artwork, centred title, rounded actions). The localhost shell shows it in its side
+ * panel, and the one-time API Hosting beta popup shows it in a dialog.
  *
  * It is about running the API itself on Scalar, not its documentation. When the reference is served
  * by a server framework (FastAPI, Elysia, Express, …), the card shows that framework's logo and
@@ -18,6 +19,7 @@ import { ScalarIcon } from '@scalar/components/icon'
 import { useLoadingState } from '@scalar/components/loading'
 import {
   ScalarIconArrowLeft,
+  ScalarIconButterfly,
   ScalarIconCpu,
   ScalarIconGitBranch,
   ScalarIconMoon,
@@ -27,16 +29,24 @@ import type {
   ApiReferenceConfiguration,
   ApiReferenceTranslationKey,
 } from '@scalar/types/api-reference'
-import { computed, nextTick, ref, useId, useTemplateRef } from 'vue'
+import { computed, nextTick, onMounted, ref, useId, useTemplateRef } from 'vue'
 
+import { rememberApiHostingBetaPromptSeen } from '@/features/api-hosting-beta/hooks/use-api-hosting-beta-prompt'
 import { useLocalization } from '@/features/localization'
 
 import { getServerFramework } from '../server-frameworks'
 import DeveloperToolsCard from './DeveloperToolsCard.vue'
 
-const { integration } = defineProps<{
+const { integration, popup = false } = defineProps<{
   /** The framework serving the reference, set by the Scalar integrations */
   integration?: ApiReferenceConfiguration['_integration']
+  /**
+   * Shown in the one-time API Hosting beta popup rather than the side panel. The artwork is the
+   * beta's butterfly, as in the API client's invitation, and a sign-up ends with Done, which closes
+   * the card, instead of Back to another sign-up: once someone has joined, the popup has nothing
+   * left to do.
+   */
+  popup?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -44,6 +54,10 @@ const emit = defineEmits<{
 }>()
 
 const framework = computed(() => getServerFramework(integration))
+
+// Opening this card anywhere counts as having seen the API Hosting beta popup, so the panel keeps the
+// popup from repeating the invitation on a later load (the popup has already remembered itself)
+onMounted(rememberApiHostingBetaPromptSeen)
 
 /** What running an app on Scalar includes, laid out like the Generate SDK card's feature rows */
 const HOSTING_FEATURES = [
@@ -90,10 +104,25 @@ const title = computed<string>(() =>
 
 const emailId = useId()
 const errorId = useId()
+const successId = useId()
 
 const email = ref('')
 const status = ref<'idle' | 'success' | 'error'>('idle')
 const errorMessage = ref('')
+
+/**
+ * What describes the email field: the error when there is one and, in the popup, where focus starts
+ * in the field, the card's description too, which a screen reader would otherwise pass over.
+ */
+const emailDescription = (
+  descriptionId: string | undefined,
+): string | undefined =>
+  [
+    popup ? descriptionId : undefined,
+    status.value === 'error' ? errorId : undefined,
+  ]
+    .filter(Boolean)
+    .join(' ') || undefined
 
 const emailInput = useTemplateRef<HTMLInputElement>('emailInput')
 
@@ -176,6 +205,26 @@ const submit = async (): Promise<void> => {
   }
 }
 
+/**
+ * The success button (Back, or Done in the popup) takes focus when the thanks replace the form.
+ * Otherwise focus falls out of the card along with the Join button it was on, which a popup showing
+ * this card cannot allow. The side panel is not modal, so focus only moves when it was left nowhere or
+ * is still in the card: someone who has gone back to reading while the sign-up was away keeps their
+ * place.
+ */
+const vFocus = {
+  mounted: (element: HTMLElement): void => {
+    const active = document.activeElement
+    if (
+      !active ||
+      active === document.body ||
+      element.closest('.developer-tools-card')?.contains(active)
+    ) {
+      element.focus()
+    }
+  },
+}
+
 /** Back to the form, with focus where the next sign-up starts */
 const reset = async (): Promise<void> => {
   status.value = 'idle'
@@ -187,13 +236,19 @@ const reset = async (): Promise<void> => {
 </script>
 <template>
   <DeveloperToolsCard
+    :compactHero="popup"
     :description="translate('developerTools.deployApiDescription')"
     :divided="false"
     :title
     @close="emit('close')">
     <template #hero>
+      <!-- The popup shows the beta's small butterfly, as the API client's popup does -->
+      <ScalarIconButterfly
+        v-if="popup"
+        class="text-green size-8" />
       <!-- The framework's logo on a sticker-like tile, or Scalar's own mark without one -->
       <span
+        v-else
         aria-hidden="true"
         class="deploy-waitlist-sticker bg-b-1 flex size-26 items-center justify-center rounded-3xl border shadow-lg">
         <ScalarIcon
@@ -206,15 +261,30 @@ const reset = async (): Promise<void> => {
           icon="Logo" />
       </span>
     </template>
-    <template #default="{ titleId }">
+    <template #default="{ titleId, descriptionId }">
       <div
         v-if="status === 'success'"
         class="flex flex-col items-center gap-3 text-center"
         role="status">
-        <p class="text-c-1 m-0 text-base font-medium">
+        <p
+          :id="successId"
+          class="text-c-1 m-0 text-base font-medium">
           {{ translate('developerTools.waitlistSuccess') }}
         </p>
+        <!-- Takes focus, and reads out the thanks with its name, as the status alone may not be announced -->
         <ScalarButton
+          v-if="popup"
+          v-focus
+          :aria-describedby="successId"
+          class="h-10 w-full rounded-full text-base"
+          variant="solid"
+          @click="emit('close')">
+          {{ translate('developerTools.waitlistDone') }}
+        </ScalarButton>
+        <ScalarButton
+          v-else
+          v-focus
+          :aria-describedby="successId"
           class="text-c-2 hover:text-c-1 h-10 rounded-full px-4 text-base"
           variant="ghost"
           @click="reset">
@@ -223,9 +293,10 @@ const reset = async (): Promise<void> => {
         </ScalarButton>
       </div>
 
+      <!-- Named after the card in the panel; in the popup the dialog already carries that name -->
       <form
         v-else
-        :aria-labelledby="titleId"
+        :aria-labelledby="popup ? undefined : titleId"
         class="flex flex-col gap-2"
         @submit.prevent="submit">
         <label
@@ -237,7 +308,7 @@ const reset = async (): Promise<void> => {
           :id="emailId"
           ref="emailInput"
           v-model="email"
-          :aria-describedby="status === 'error' ? errorId : undefined"
+          :aria-describedby="emailDescription(descriptionId)"
           :aria-invalid="status === 'error' || undefined"
           autocomplete="email"
           class="bg-b-2 text-c-1 placeholder:text-c-3 h-10 w-full rounded-full border-0 px-5 text-base outline-offset-[-1px] focus-visible:outline"

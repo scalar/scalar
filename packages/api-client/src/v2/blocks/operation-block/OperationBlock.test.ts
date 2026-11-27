@@ -63,7 +63,7 @@ vi.mock('@scalar/use-toasts', () => ({
 vi.mock('./components/Header.vue', () => ({
   default: {
     name: 'Header',
-    emits: ['execute', 'select:history:item', 'update:webhook-url'],
+    emits: ['execute', 'open:browser', 'select:history:item', 'update:webhook-url'],
     template: '<div data-test="header"></div>',
   },
 }))
@@ -249,6 +249,175 @@ describe('OperationBlock', () => {
 
   afterEach(() => {
     responseCache.clear()
+  })
+
+  it('opens the resolved GET destination without sending a request through the proxy', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    vi.mocked(requestFactory).mockReturnValue({
+      request: createDefaultRequestFactoryPayload({
+        baseUrl: 'https://{{host}}',
+        path: { raw: '/users/{id}', variables: { id: '42' } },
+        query: new URLSearchParams([
+          ['search', 'a b'],
+          ['tag', 'one'],
+          ['tag', 'two'],
+        ]),
+        security: [{ in: 'query', name: 'api_key', value: '{{token}}' }],
+        proxyUrl: 'https://proxy.example.com',
+      }),
+    })
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        environment: {
+          color: 'blue',
+          variables: [
+            { name: 'host', value: 'api.example.com' },
+            { name: 'token', value: 'secret' },
+          ],
+        },
+      },
+    })
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+    await flushPromises()
+
+    expect(open).toHaveBeenCalledExactlyOnceWith(
+      'https://api.example.com/users/42?search=a+b&tag=one&tag=two&api_key=secret',
+      '_blank',
+      'noopener,noreferrer',
+    )
+    expect(sendRequest).not.toHaveBeenCalled()
+    expect(buildRequest).not.toHaveBeenCalled()
+    wrapper.unmount()
+    open.mockRestore()
+  })
+
+  it.each(['javascript:alert(1)', 'data:text/html,test', 'file:///tmp/test', '/relative', ''])(
+    'rejects browser destination %s',
+    async (url) => {
+      const open = vi.spyOn(window, 'open').mockReturnValue(null)
+      vi.mocked(requestFactory).mockReturnValue({
+        request: createDefaultRequestFactoryPayload({ baseUrl: '', path: { raw: url, variables: {} } }),
+      })
+      const wrapper = mount(OperationBlock, { props: createDefaultProps() })
+
+      wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+      await flushPromises()
+
+      expect(open).not.toHaveBeenCalled()
+      expect(mockToast).toHaveBeenCalledExactlyOnceWith(
+        'Enter a valid HTTP or HTTPS URL to open in the browser.',
+        'error',
+      )
+      wrapper.unmount()
+      open.mockRestore()
+    },
+  )
+
+  it('opens a relative modal URL using the current origin without an absolute server', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    vi.mocked(requestFactory).mockReturnValue({
+      request: createDefaultRequestFactoryPayload({ baseUrl: '', path: { raw: '/users', variables: {} } }),
+    })
+    const wrapper = mount(OperationBlock, {
+      props: { ...createDefaultProps(), layout: 'modal', server: null, servers: [] },
+    })
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+    await flushPromises()
+
+    expect(open).toHaveBeenCalledExactlyOnceWith(
+      new URL('/users', window.location.origin).href,
+      '_blank',
+      'noopener,noreferrer',
+    )
+    expect(mockToast).not.toHaveBeenCalled()
+    wrapper.unmount()
+    open.mockRestore()
+  })
+
+  it.each([{ method: 'post' }, { externalExamplesPending: true }])(
+    'does not navigate when browser execution is unavailable: %j',
+    async (props) => {
+      const open = vi.spyOn(window, 'open').mockReturnValue(null)
+      const wrapper = mount(OperationBlock, { props: { ...createDefaultProps(), ...props } })
+
+      wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+      await flushPromises()
+
+      expect(open).not.toHaveBeenCalled()
+      expect(requestFactory).not.toHaveBeenCalled()
+      wrapper.unmount()
+      open.mockRestore()
+    },
+  )
+
+  it.each([
+    ['http://api.example.com', false],
+    ['https://api.example.com', true],
+    ['http://localhost:3000', true],
+  ])('respects the desktop browser policy for %s', async (baseUrl, allowed) => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    Object.defineProperty(window, 'electron', { value: {}, configurable: true })
+    vi.mocked(requestFactory).mockReturnValue({ request: createDefaultRequestFactoryPayload({ baseUrl }) })
+    const wrapper = mount(OperationBlock, { props: createDefaultProps() })
+    try {
+      wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+      await flushPromises()
+      if (allowed) {
+        expect(open).toHaveBeenCalledExactlyOnceWith(`${baseUrl}/api/users`, '_blank', 'noopener,noreferrer')
+        expect(mockToast).not.toHaveBeenCalled()
+      } else {
+        expect(open).not.toHaveBeenCalled()
+        expect(mockToast).toHaveBeenCalledExactlyOnceWith(
+          'The desktop app can only open HTTPS URLs or local HTTP servers in the browser.',
+          'error',
+        )
+      }
+    } finally {
+      Reflect.deleteProperty(window, 'electron')
+      wrapper.unmount()
+      open.mockRestore()
+    }
+  })
+
+  it('flushes pending edits before resolving the browser destination', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    const props = createDefaultProps()
+    const wrapper = mount(OperationBlock, { props })
+    props.eventBus.flushDebouncedEmits = vi.fn(() => {
+      void wrapper.setProps({ path: '/edited' })
+    })
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+    await flushPromises()
+
+    expect(props.eventBus.flushDebouncedEmits).toHaveBeenCalledExactlyOnceWith()
+    expect(vi.mocked(requestFactory).mock.calls[0]?.[0].path).toBe('/edited')
+    wrapper.unmount()
+    open.mockRestore()
+  })
+
+  it('requires path parameter values before browser navigation', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        path: '/users/{id}',
+        operation: createMockOperation({
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        }),
+      },
+    })
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+    await flushPromises()
+
+    expect(open).not.toHaveBeenCalled()
+    expect(requestFactory).not.toHaveBeenCalled()
+    wrapper.unmount()
+    open.mockRestore()
   })
 
   it.each(['CONNECT', 'connect', 'TRACE', 'Trace', 'TRACK', 'tRaCk'])(

@@ -1,5 +1,4 @@
 // Theming — imported in the same order as .storybook/preview.ts so the cascade resolves identically
-import '@scalar/themes/fonts.css'
 import '@scalar/themes/style.css'
 
 import { type App, type Component, createApp, h } from 'vue'
@@ -188,7 +187,7 @@ window.mount = async ({ story: storyId, props }) => {
     throw renderError
   }
 
-  // The Scalar fonts are served with font-display: swap, so text paints in a fallback face first
+  // Scalar uses system fonts, but a story can still load a web font, which paints in a fallback face first
   await document.fonts.ready
   await new Promise((resolve) => requestAnimationFrame(resolve))
 }

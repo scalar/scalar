@@ -1,5 +1,49 @@
 # @scalar/mock-server-docker
 
+## 0.2.86
+
+No changes in this release.
+
+## 0.2.85
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 0.2.84
+
+### Patch Changes
+
+- [#11146](https://github.com/scalar/scalar/pull/11146): Update compatible npm dependencies for AI chat, encoding, analytics, date handling, HTTP serving, and application query caching.
+
+## 0.2.83
+
+No changes in this release.
+
+## 0.2.82
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.2.81
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.2.80
+
+### Patch Changes
+
+- [#11032](https://github.com/scalar/scalar/pull/11032): Update the Hono Node adapter to fix request path handling and WebSocket upgrade vulnerabilities.
+
+## 0.2.79
+
+No changes in this release.
+
 ## 0.2.78
 
 ## 0.2.77

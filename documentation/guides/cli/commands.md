@@ -9,6 +9,7 @@ Run `scalar <command> --help` for the same details in your terminal, or `scalar 
 Work with OpenAPI and AsyncAPI descriptions.
 
 - [`scalar document bundle`](commands/document.md#bundle): Bundle external references into a single API description
+- [`scalar document transform`](commands/document.md#transform): Create public or environment-specific API descriptions
 - [`scalar document split`](commands/document.md#split): Split an OpenAPI or AsyncAPI description into referenced JSON files
 - [`scalar document join`](commands/document.md#join): Join API descriptions of the same format into one description
 - [`scalar document format`](commands/document.md#format): Format an OpenAPI or AsyncAPI description
@@ -19,7 +20,7 @@ Work with OpenAPI and AsyncAPI descriptions.
 - [`scalar document share`](commands/document.md#share): Publish an OpenAPI or AsyncAPI description to a public sandbox
 - [`scalar document validate`](commands/document.md#validate): Validate an OpenAPI or AsyncAPI description
 - [`scalar document void`](commands/document.md#void): Mirror HTTP requests with a local server
-- [`scalar document lint`](commands/document.md#lint): Lint an OpenAPI or AsyncAPI description with Spectral rules
+- [`scalar document lint`](commands/document.md#lint): Lint OpenAPI or AsyncAPI descriptions with Spectral rules
 - [`scalar document upgrade`](commands/document.md#upgrade): Upgrade an API description to OpenAPI 3.1 or the latest supported AsyncAPI version
 
 ## [scalar project](commands/project.md)

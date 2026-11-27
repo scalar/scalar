@@ -22,6 +22,7 @@ import { SpecificationExtension } from '@/features/specification-extension'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
 
 import Channel from './Channel.vue'
+import Message from './Message.vue'
 import SourceModel from './SourceModel.vue'
 
 const {
@@ -178,6 +179,39 @@ const resolvedEntries = computed(() =>
         :specificationExtension="specificationExtension" />
     </ModelTag>
 
+    <!-- Reusable messages -->
+    <ModelTag
+      v-else-if="entry.type === 'asyncapi-messages'"
+      :id="entry.id"
+      :class="{ 'mb-12': options.layout === 'classic' }"
+      :eventBus="eventBus"
+      :isCollapsed="!expandedItems[entry.id]"
+      :layout="options.layout"
+      :modelsSectionLabel="entry.title">
+      <AsyncApiTraversedEntry
+        :document="document"
+        :entries="entry.children"
+        :eventBus="eventBus"
+        :expandedItems="expandedItems"
+        :expansion="expansion"
+        :level="level + 1"
+        :options="options"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
+    </ModelTag>
+
+    <Message
+      v-else-if="entry.type === 'asyncapi-reusable-message'"
+      :document="document"
+      :eventBus="eventBus"
+      :expandedItems="expandedItems"
+      :expansion="expansion"
+      :message="entry"
+      :options="options"
+      parent="messages"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
+
     <Model
       v-else-if="isModel(entry) && schema?.kind === 'schema'"
       :id="entry.id"
@@ -200,6 +234,7 @@ const resolvedEntries = computed(() =>
       :layout="options.layout"
       :name="entry.name"
       :options="options"
+      :resources="schema.resources"
       :value="schema.value" />
   </Lazy>
 </template>

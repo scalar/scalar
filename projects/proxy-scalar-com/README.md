@@ -58,7 +58,7 @@ Hop-by-hop headers, including every field named by `Connection`, are removed fro
 You can start the proxy server in two ways. The default port is 1337:
 
 ```bash
-go run main.go
+go run .
 ```
 
 ```bash
@@ -68,18 +68,31 @@ go run main.go
 But you can customize it using the `PORT` environment variable:
 
 ```bash
-PORT=8080 go run main.go
+PORT=8080 go run .
 ```
+
+The Docker command keeps private-address checks and upstream TLS verification enabled,
+so local and LAN targets are blocked. It publishes the proxy only on localhost.
 
 ### Configuration
 
 | Environment variable          | Description                                                                                                                                                                                                                                                        |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `PORT`                        | The port to listen on. Defaults to `1337`.                                                                                                                                                                                                                         |
-| `ENV=dev`                     | Development mode: allows targets on private and loopback addresses, skips upstream certificate verification, and listens on `127.0.0.1` only.                                                                                                                      |
-| `PROXY_LISTEN_HOST`           | The address to listen on, for example `0.0.0.0` to accept connections from outside a container in development mode. Defaults to every interface, or `127.0.0.1` in development mode.                                                                               |
+| `ENV=dev`                     | Development mode: keeps private-address checks enabled, skips upstream certificate verification, and listens on `127.0.0.1` only.                                                                                                                                  |
+| `PROXY_LISTEN_HOST`           | The address to listen on outside development mode. Defaults to every interface. Development mode always uses `127.0.0.1`, regardless of this setting.                                                                                                              |
 | `ALLOW_INSECURE_UPSTREAM_TLS` | Set to `true` to skip upstream certificate verification outside development mode, for example to reach APIs with self-signed certificates. Anyone who can intercept that traffic can then read and change it.                                                      |
 | `PROXY_SELF_HOSTS`            | Comma-separated hosts that reach this proxy, like its custom domain and the Cloud Run URL (`proxy.example.com,proxy-xyz.a.run.app`; full URLs work too). Targets on these hosts are rejected before any request is sent. A host without a port matches every port. |
+
+### Local development
+
+`pnpm dev` binds the proxy to `127.0.0.1:5051`. Setting `ENV=dev` selects loopback binding but keeps private-address checks enabled. Outside development mode, the proxy listens on all interfaces so deployed services remain reachable.
+
+The normal executable always blocks local and private destinations. Environment variables, including `ALLOW_PRIVATE_ADDRESSES`, cannot disable these checks.
+
+The repository integration tests use `pnpm test:server`, a separate loopback-only harness compiled from Go test files. Only that harness allows private targets for fixtures; it is excluded from normal builds and Docker images. While the harness runs, local callers, including browser requests, can reach private targets through it.
+
+`pnpm docker:run` publishes the container only on `127.0.0.1:5051` and keeps private-address checks enabled. The process inside the container listens on all interfaces so Docker port forwarding can reach it.
 
 ### Example request
 

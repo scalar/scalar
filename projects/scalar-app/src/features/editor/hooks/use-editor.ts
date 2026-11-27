@@ -2,6 +2,7 @@ import * as monaco from 'monaco-editor'
 import { type MaybeRefOrGetter, toValue, watch } from 'vue'
 
 import type { EditorModel, Path } from '@/features/editor/helpers/model'
+import { MONACO_FONT_FAMILY } from '@/features/editor/helpers/monaco-font-family'
 
 const HIGHLIGHT_DECORATION_CLASS = 'json-focus-highlight'
 
@@ -61,7 +62,7 @@ export const useEditor = ({
     formatOnType: true,
     lineHeight: 20,
     renderLineHighlight: 'none',
-    fontFamily: `'JetBrains Mono', monospace`,
+    fontFamily: MONACO_FONT_FAMILY,
   })
 
   editor.updateOptions({ insertSpaces: true, tabSize: 2 })

@@ -14,6 +14,23 @@ const STUB_BOOKKEEPING_KEYS = new Set(['$global', '$status'])
 const isReferenceNode = (value: unknown): value is RefNode<unknown> =>
   typeof value === 'object' && value !== null && '$ref' in value
 
+/** Follow a reference chain while retaining the final link for coercion write-back. */
+export const followReferenceChain = (
+  value: unknown,
+  onReference?: (reference: Record<string, unknown> & RefNode<unknown>) => void,
+): { value: unknown; lastReference?: Record<string, unknown> } => {
+  const seen = new Set<unknown>()
+  let current = value
+  let lastReference: Record<string, unknown> | undefined
+  while (isObject(current) && isReferenceNode(current) && !seen.has(current)) {
+    seen.add(current)
+    lastReference = current
+    onReference?.(current)
+    current = current['$ref-value']
+  }
+  return { value: current, lastReference }
+}
+
 /**
  * Whether a reference is pure indirection: a `$ref` and the store's own bookkeeping, nothing more.
  *
@@ -75,14 +92,8 @@ const defaultTransform = <Node>(node: RefNode<Node>) => {
   return followPassThroughReferences(value, new Set([node])) as Node
 }
 
-/**
- * Transform for getResolvedRef that merges sibling properties of a $ref wrapper
- * onto the dereferenced value. Wrapper siblings take precedence over the resolved value,
- * which matches OpenAPI 3.1 semantics where annotations alongside $ref override the target.
- */
-export const mergeSiblingReferences = <Node>(node: RefNode<Node>): Node => {
-  const { '$ref-value': value, ...rest } = node
-  const target = value === undefined ? undefined : followPassThroughReferences(value, new Set([node]))
+const mergeReferenceSiblings = <Node>(node: RefNode<Node>, target: unknown): Node => {
+  const { '$ref-value': _, ...rest } = node
 
   // A reference can land on something that is not a record: a pointer that aims at a string
   // (`$ref: '#/info/title'`), one that was never resolved, or one whose target is an array. Spreading
@@ -107,6 +118,23 @@ export const mergeSiblingReferences = <Node>(node: RefNode<Node>): Node => {
   }
 
   return merged as Node
+}
+
+/** Merge a reference's siblings over its resolved target for display. */
+export const mergeSiblingReferences = <Node>(node: RefNode<Node>): Node => {
+  const value = node['$ref-value']
+  const target = value === undefined ? undefined : followPassThroughReferences(value, new Set([node]))
+  return mergeReferenceSiblings(node, target)
+}
+
+/** Create a display view of a schema chain, preserving the outermost sibling values. */
+export const mergeSchemaReferenceChain = <Node>(node: RefNode<Node>): Node | boolean => {
+  const wrappers: RefNode<unknown>[] = []
+  const { value } = followReferenceChain(node, (reference) => wrappers.push(reference))
+  if (typeof value === 'boolean') {
+    return value
+  }
+  return wrappers.reduceRight((target, reference) => mergeReferenceSiblings(reference, target), value) as Node
 }
 
 /**

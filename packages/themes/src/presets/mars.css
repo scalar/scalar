@@ -1,134 +1,98 @@
-/* basic theme */
-:root,
-:host {
-  --scalar-text-decoration: underline;
-  --scalar-text-decoration-hover: underline;
-}
+/**
+ * Mars
+ *
+ * A preset is one surface, one ink and one accent per mode. Every other tone is ink blended into
+ * the surface, so the greys stay on the palette's own tint. Text, accent and method hues are
+ * moved in lightness only, and only as far as a 4.5:1 ratio on the page, card and sidebar
+ * surfaces requires.
+ */
 .light-mode {
-  --scalar-background-1: #f9f6f0;
-  --scalar-background-2: #f2efe8;
-  --scalar-background-3: #e9e7e2;
-  --scalar-border-color: rgba(203, 165, 156, 0.6);
+  --scalar-background-1: #f9f9f7;
+  --scalar-background-2: #f1f1ef;
+  --scalar-background-3: #e5e5e3;
+  --scalar-background-accent: #f3e9e3;
 
-  --scalar-color-1: #b24c41;
-  --scalar-color-2: #b24c41;
-  --scalar-color-3: #b24c41;
+  --scalar-color-1: #2d2d2b;
+  --scalar-color-2: #6b6b69;
+  --scalar-color-3: #868684;
+  --scalar-color-accent: #a4593b;
 
-  --scalar-color-accent: #b24c41;
-  --scalar-background-accent: #dcbfa81f;
+  --scalar-border-color: #e1e1df;
 
-  --scalar-code-language-color-supersede: var(--scalar-color-1);
+  --scalar-button-1: #2d2d2b;
+  --scalar-button-1-hover: #4e4e4c;
+  --scalar-button-1-color: #f9f9f7;
+
+  --scalar-color-green: #0e7e34;
+  --scalar-color-red: #cd3506;
+  --scalar-color-yellow: #8b6900;
+  --scalar-color-blue: #096dd1;
+  --scalar-color-orange: #a05e0b;
+  --scalar-color-purple: #8944ec;
+  --scalar-color-query: #0e7c69;
+
+  --scalar-sidebar-background-1: #f1f1ef;
+  --scalar-sidebar-border-color: #dadad8;
+  --scalar-sidebar-item-hover-background: #e7e7e5;
+  --scalar-sidebar-item-active-background: #dededc;
+  --scalar-sidebar-search-background: #fafaf8;
 }
 .dark-mode {
-  --scalar-background-1: #140507;
-  --scalar-background-2: #20090c;
-  --scalar-background-3: #321116;
-  --scalar-border-color: #3c3031;
+  --scalar-background-1: #2d2d2b;
+  --scalar-background-2: #3b3b39;
+  --scalar-background-3: #474745;
+  --scalar-background-accent: #331f17;
 
-  --scalar-color-1: rgba(255, 255, 255, 0.9);
-  --scalar-color-2: rgba(255, 255, 255, 0.62);
-  --scalar-color-3: rgba(255, 255, 255, 0.44);
+  --scalar-color-1: #f9f9f7;
+  --scalar-color-2: #bebebc;
+  --scalar-color-3: #939391;
+  --scalar-color-accent: #e0b09d;
 
-  --scalar-color-accent: rgba(255, 255, 255, 0.9);
-  --scalar-background-accent: #441313;
+  --scalar-border-color: #4d4d4b;
 
-  --scalar-code-language-color-supersede: var(--scalar-color-1);
+  --scalar-button-1: #f9f9f7;
+  --scalar-button-1-hover: #d8d8d6;
+  --scalar-button-1-color: #191918;
+
+  --scalar-color-green: #00c853;
+  --scalar-color-red: #fd8163;
+  --scalar-color-yellow: #ffc300;
+  --scalar-color-blue: #60a7ff;
+  --scalar-color-orange: #f59211;
+  --scalar-color-purple: #b491ff;
+  --scalar-color-query: #04bb9f;
+
+  --scalar-sidebar-background-1: #262624;
+  --scalar-sidebar-border-color: #474745;
+  --scalar-sidebar-item-hover-background: #343432;
+  --scalar-sidebar-item-active-background: #3b3b39;
+  --scalar-sidebar-search-background: #393937;
 }
 
-/* Document Sidebar */
-.light-mode .t-doc__sidebar,
-.dark-mode .t-doc__sidebar {
-  --scalar-sidebar-background-1: var(--scalar-background-1);
+/* Sidebar: one step under the page, with the current item marked in ink rather than accent */
+.light-mode,
+.dark-mode {
   --scalar-sidebar-color-1: var(--scalar-color-1);
   --scalar-sidebar-color-2: var(--scalar-color-2);
-  --scalar-sidebar-border-color: var(--scalar-border-color);
 
-  --scalar-sidebar-item-hover-color: currentColor;
-  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+  --scalar-sidebar-item-hover-color: var(--scalar-sidebar-color-1);
+  --scalar-sidebar-color-active: var(--scalar-sidebar-color-1);
 
-  --scalar-sidebar-item-active-background: var(--scalar-background-3);
-  --scalar-sidebar-color-active: var(--scalar-color-accent);
+  --scalar-sidebar-indent-border: var(--scalar-sidebar-border-color);
+  --scalar-sidebar-indent-border-hover: var(--scalar-sidebar-border-color);
+  --scalar-sidebar-indent-border-active: var(--scalar-sidebar-border-color);
 
-  --scalar-sidebar-search-background: rgba(255, 255, 255, 0.1);
   --scalar-sidebar-search-color: var(--scalar-color-3);
-  --scalar-sidebar-search-border-color: var(--scalar-border-color);
-  z-index: 1;
-}
-/* advanced */
-.light-mode {
-  --scalar-color-green: #09533a;
-  --scalar-color-red: #aa181d;
-  --scalar-color-yellow: #ab8d2b;
-  --scalar-color-blue: #19689a;
-  --scalar-color-orange: #b26c34;
-  --scalar-color-purple: #4c2191;
-  --scalar-color-query: #086566;
+  --scalar-sidebar-search-border-color: var(--scalar-sidebar-border-color);
 
-  --scalar-button-1: rgba(0, 0, 0, 1);
-  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --scalar-button-1-color: #fff;
-}
-.dark-mode {
-  --scalar-color-green: rgba(69, 255, 165, 0.823);
-  --scalar-color-red: #ff8589;
-  --scalar-color-yellow: #ffcc4d;
-  --scalar-color-blue: #6bc1fe;
-  --scalar-color-orange: #f98943;
-  --scalar-color-purple: #b191f9;
-  --scalar-color-query: #79e2da;
-
-  --scalar-button-1: rgba(255, 255, 255, 1);
-  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
-  --scalar-button-1-color: black;
-}
-/* Custom Theme */
-.dark-mode h2.t-editor__heading,
-.dark-mode .t-editor__page-title h1,
-.dark-mode h1.section-header:not(::selection),
-.dark-mode .markdown h1,
-.dark-mode .markdown h2,
-.dark-mode .markdown h3,
-.dark-mode .markdown h4,
-.dark-mode .markdown h5,
-.dark-mode .markdown h6 {
-  -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(to right bottom, rgb(255, 255, 255) 30%, rgba(255, 255, 255, 0.38));
-  -webkit-background-clip: text;
-  background-clip: text;
-}
-.light-mode .t-doc__sidebar {
-  --scalar-sidebar-search-background: white;
-}
-.examples .scalar-card-footer {
-  --scalar-background-3: transparent;
-  padding-top: 0;
-}
-/* Hero section flare */
-.section-flare {
-  overflow-x: hidden;
-  height: 100vh;
-  left: initial;
-}
-.section-flare-item:nth-of-type(1) {
-  background: #d25019;
-  position: relative;
-  top: -150px;
-  right: -400px;
-  width: 80vw;
-  height: 500px;
-  margin-top: -150px;
-  border-radius: 50%;
-  filter: blur(100px);
-  z-index: 0;
-}
-.light-mode .section-flare {
-  display: none;
-}
-*::selection {
-  background-color: color-mix(in srgb, var(--scalar-color-red), transparent 75%);
+  /* Links are where the accent shows, as they are in the palette's own interface */
+  --scalar-link-color: var(--scalar-color-accent);
+  --scalar-link-color-hover: var(--scalar-color-accent);
 }
 
-/* document layout */
-.dark-mode .t-doc .layout-content {
-  background: transparent;
+.light-mode *::selection {
+  background-color: #f2e6e0;
+}
+.dark-mode *::selection {
+  background-color: #3c251b;
 }

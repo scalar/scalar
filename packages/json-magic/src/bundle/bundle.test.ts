@@ -12,6 +12,10 @@ import YAML from 'yaml'
 import { parseJson } from '@/bundle/plugins/parse-json'
 import { parseYaml } from '@/bundle/plugins/parse-yaml'
 import { getHash } from '@/bundle/value-generator'
+import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
+import { getValueByPath } from '@/helpers/get-value-by-path'
+import { createMagicProxy } from '@/magic-proxy/proxy'
+import { DYNAMIC_REF_VALUE } from '@/magic-proxy/symbols'
 
 import {
   type LoaderPlugin,
@@ -28,6 +32,120 @@ import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 
 describe('bundle', () => {
+  it.each([undefined, '/api/root.json', 'https://example.com/api/root.json'])(
+    'leaves relative dynamic references unresolved under an opaque base URI (origin: %s)',
+    async (origin) => {
+      const input = {
+        $id: 'urn:example:root',
+        properties: { item: { $dynamicRef: 'other.json#item' } },
+      }
+      const expected = structuredClone(input)
+      const validate = vi.fn(() => false)
+
+      await expect(
+        bundle(input, {
+          origin,
+          traversal: 'document',
+          treeShake: true,
+          plugins: [{ type: 'loader', validate, exec: vi.fn() }],
+        }),
+      ).resolves.toStrictEqual(expected)
+      expect(validate).not.toHaveBeenCalled()
+    },
+  )
+
+  it.each(['3.1.0', ''])(
+    'uses the OpenAPI schema dialect with unrelated asyncapi metadata (version: %j)',
+    async (openapi) => {
+      const schema = {
+        $defs: { item: { $dynamicAnchor: 'item', const: 'local' } },
+        properties: {
+          local: { $dynamicRef: '#item' },
+          external: { $dynamicRef: 'https://example.com/target.json#item' },
+        },
+      }
+      const input = {
+        openapi,
+        asyncapi: 'unrelated metadata',
+        components: { schemas: { Example: schema } },
+      }
+      const data = { $anchor: 'item', const: 'external' }
+      const load = vi.fn((_uri: string) => Promise.resolve({ ok: true as const, data, raw: JSON.stringify(data) }))
+
+      await bundle(input, {
+        traversal: 'document',
+        treeShake: true,
+        includeCustomReferences: true,
+        plugins: [{ type: 'loader', validate: () => true, exec: load }],
+      })
+
+      expect(load).toHaveBeenCalledExactlyOnceWith('https://example.com/target.json')
+      const proxy = createMagicProxy(input, { includeCustomReferences: true })
+      const { local, external } = proxy.components.schemas.Example.properties
+      expect(Reflect.get(local, DYNAMIC_REF_VALUE)?.const).toBe('local')
+      expect(Reflect.get(external, DYNAMIC_REF_VALUE)?.const).toBe('external')
+    },
+  )
+
+  it('bundles dynamic targets in opted-in custom schema positions while leaving examples opaque', async () => {
+    const input = {
+      openapi: '3.1.0',
+      'x-templates': {
+        $id: 'https://example.com/api/template.json',
+        $defs: { override: { $dynamicAnchor: 'item', const: 'local' } },
+        properties: { item: { $dynamicRef: '../schemas/target.json#item' } },
+        example: { $dynamicRef: '../schemas/example.json#item' },
+      },
+    }
+    const data = { $dynamicAnchor: 'item', const: 'external' }
+    const load = vi.fn((_uri: string) => Promise.resolve({ ok: true as const, data, raw: JSON.stringify(data) }))
+    await bundle(input, {
+      traversal: 'document',
+      treeShake: true,
+      includeCustomReferences: true,
+      plugins: [{ type: 'loader', validate: () => true, exec: load }],
+    })
+
+    expect(load).toHaveBeenCalledTimes(1)
+    expect(load.mock.calls[0]?.[0]).toBe('https://example.com/schemas/target.json')
+    const ordinary = createMagicProxy(input)['x-templates']
+    const custom = createMagicProxy(input, { includeCustomReferences: true })['x-templates']
+    expect(Reflect.get(ordinary.properties.item, DYNAMIC_REF_VALUE)).toBeUndefined()
+    expect(Reflect.get(custom.properties.item, DYNAMIC_REF_VALUE)?.const).toBe('local')
+    expect(Reflect.get(custom.example, DYNAMIC_REF_VALUE)).toBeUndefined()
+  })
+
+  it.each(['$anchor', '$dynamicAnchor'])(
+    'retains external resources named by a $dynamicRef with %s',
+    async (anchor) => {
+      const input = {
+        $id: 'https://example.com/api/root.json',
+        items: { $dynamicRef: '../schemas/target.json#item' },
+      }
+      const loads: string[] = []
+      await bundle(input, {
+        traversal: 'document',
+        treeShake: true,
+        plugins: [
+          {
+            type: 'loader',
+            validate: (uri) => uri === 'https://example.com/schemas/target.json',
+            exec: (uri) => {
+              loads.push(uri)
+              const data = { [anchor]: 'item', type: 'string', const: 'loaded' }
+              return Promise.resolve({ ok: true, data, raw: JSON.stringify(data) })
+            },
+          },
+        ],
+      })
+
+      expect(loads).toStrictEqual(['https://example.com/schemas/target.json'])
+      expect(input.items.$dynamicRef).toBe('../schemas/target.json#item')
+      expect(Object.values(Reflect.get(input, 'x-ext-urls'))).toStrictEqual(['https://example.com/schemas/target.json'])
+      expect(Reflect.get(createMagicProxy(input).items, DYNAMIC_REF_VALUE)?.const).toBe('loaded')
+    },
+  )
+
   it.each([
     [undefined, false],
     ['nested/Pet.yaml', false],
@@ -151,7 +269,9 @@ describe('bundle', () => {
       expect(child.$id).toBe('https://example.test/api/schemas/child.json')
       expect(index.resolve(child.self.$ref, child.$id)?.value).toBe(child)
       expect(index.resolve(child.value.$ref, child.$id)?.value).toBe(child.$defs.value)
-      expect(index.resolve(child.next.$ref, child.$id)?.value).toBe(exported['x-ext']['schemas%2Fnested.json'])
+      const next = getValueByPath(child, getSegmentsFromPath(new URL(child.next.$ref, child.$id).hash)).value
+      expect(index.resolve(child.next.$ref, child.$id)?.value).toBe(next)
+      expect(next).toEqual(exported['x-ext']['schemas%2Fnested.json'])
       const nested = child.$defs.nested
       expect(index.resolve(nested.self.$ref, nested.$id)?.value).toBe(nested)
       expect(nested.$id).toBe('https://example.test/api/schemas/nested-resource.json')

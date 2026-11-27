@@ -44,12 +44,12 @@ const waitForPoll = (milliseconds: number, signal: AbortSignal): Promise<void> =
     signal.addEventListener('abort', abort, { once: true })
   })
 
-const verificationUrl = (value: unknown): string => {
+const verificationUrl = (value: unknown, trustedLocalOrigins?: readonly string[]): string => {
   if (typeof value !== 'string') {
     throw new Error('Missing device verification URL')
   }
   const url = new URL(value)
-  if (!isAllowedOAuthUrl(url)) {
+  if (!isAllowedOAuthUrl(url, trustedLocalOrigins)) {
     throw new Error('Device verification URL must use HTTPS or HTTP for local development URLs')
   }
   return url.href
@@ -64,6 +64,7 @@ export const authorizeDevice = async (
   environment: Record<string, string>,
   customFetch: CustomFetch = fetch,
   options?: DeviceAuthorizationOptions,
+  trustedLocalOrigins?: readonly string[],
 ): Promise<ErrorResponse<OAuth2Tokens>> => {
   try {
     if (!options) {
@@ -71,7 +72,11 @@ export const authorizeDevice = async (
     }
     const resolveValue = (value: string): string => replaceEnvVariables(value, environment)
     const endpoint = (value: string): string =>
-      redirectToProxy(proxyUrl, makeUrlAbsolute(resolveValue(value), getActiveServerBase(server, environment)))
+      redirectToProxy(
+        proxyUrl,
+        makeUrlAbsolute(resolveValue(value), getActiveServerBase(server, environment)),
+        trustedLocalOrigins,
+      )
     const tokenUrl = flow['x-scalar-secret-token-url'] ?? flow.tokenUrl
     if (!tokenUrl.trim()) {
       throw new Error('Token URL is required')
@@ -125,9 +130,9 @@ export const authorizeDevice = async (
     const signal = AbortSignal.any([options.signal, expiry])
     options.onPrompt({
       userCode: data.user_code,
-      verificationUri: verificationUrl(data.verification_uri),
+      verificationUri: verificationUrl(data.verification_uri, trustedLocalOrigins),
       ...(data.verification_uri_complete
-        ? { verificationUriComplete: verificationUrl(data.verification_uri_complete) }
+        ? { verificationUriComplete: verificationUrl(data.verification_uri_complete, trustedLocalOrigins) }
         : {}),
     })
     const body = new URLSearchParams(credentials)

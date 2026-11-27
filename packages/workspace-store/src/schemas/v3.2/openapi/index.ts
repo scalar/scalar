@@ -56,6 +56,7 @@ import { XScalarCredentialsLocation } from '@/schemas/extensions/security/x-scal
 import { XScalarSecurityBody } from '@/schemas/extensions/security/x-scalar-security-body'
 import { XScalarSecurityQuery } from '@/schemas/extensions/security/x-scalar-security-query'
 import { XScalarAuthUrl, XScalarTokenUrl } from '@/schemas/extensions/security/x-scalar-security-secrets'
+import { XScalarTokenPrefix } from '@/schemas/extensions/security/x-scalar-token-prefix'
 import { XTokenName } from '@/schemas/extensions/security/x-tokenName'
 import { XusePkce } from '@/schemas/extensions/security/x-use-pkce'
 import { XScalarSelectedServer } from '@/schemas/extensions/server/x-scalar-selected-server'
@@ -154,6 +155,7 @@ export const generateSchemaObject = (maybeRef: (inner: Schema) => Schema): Schem
     XEnumDescriptions,
     XEnumVarNames,
     XAdditionalPropertiesName,
+    XBadges,
     XOrder,
     XTags,
   ] as const
@@ -274,11 +276,16 @@ export const generateSchemaObject = (maybeRef: (inner: Schema) => Schema): Schem
   )
 
   const arrayValidationKeywords = object({
+    contains: optional(union([boolean(), maybeRef(lazy((): Schema => schema))])),
+    minContains: optional(number({ typeComment: 'Minimum number of items matching contains.' })),
+    maxContains: optional(number({ typeComment: 'Maximum number of items matching contains.' })),
     maxItems: optional(number({ typeComment: 'Maximum number of items in array.' })),
     minItems: optional(number({ typeComment: 'Minimum number of items in array.' })),
     uniqueItems: optional(boolean({ typeComment: 'Whether array items must be unique.' })),
-    items: optional(maybeRef(lazy((): Schema => schema))),
-    prefixItems: optional(array(maybeRef(lazy((): Schema => schema)), { typeComment: 'Schema for tuple validation.' })),
+    items: optional(union([boolean(), maybeRef(lazy((): Schema => schema))])),
+    prefixItems: optional(
+      array(union([boolean(), maybeRef(lazy((): Schema => schema))]), { typeComment: 'Schema for tuple validation.' }),
+    ),
   })
 
   const arraySchema = intersection(
@@ -497,6 +504,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
   const apiKeySecurityScheme = object(
     {
       ...securitySchemeBase.properties,
+      ...XScalarTokenPrefix.properties,
       type: literal('apiKey'),
       name: string({ typeComment: 'REQUIRED. The name of the header, query or cookie parameter to be used.' }),
       in: union([literal('query'), literal('header'), literal('cookie')], {
@@ -1137,6 +1145,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
       ),
       servers: optional(array(servers, { typeName: 'PathItemServers' })),
       parameters: optional(array(maybeRef(lazy((): Schema => parameter)), { typeName: 'PathItemParameters' })),
+      ...XScalarSelectedServer.properties,
     },
     { typeName: 'PathItemObject' },
   )

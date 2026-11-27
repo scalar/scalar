@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { DialogTitle } from '@headlessui/vue'
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarModal, type ModalState } from '@scalar/components/modal'
 import { ScalarTooltip } from '@scalar/components/tooltip'
@@ -10,8 +9,9 @@ import {
   ScalarIconX,
 } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, useId, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import { useRegisterLink } from '@/hooks/use-register-link'
@@ -154,10 +154,11 @@ const changeStep = async (next: 'overview' | 'demo'): Promise<void> => {
   await resize.finished.catch(() => undefined)
 }
 
+const documentRoot = useDocumentRoot()
+
 /** The booking calendar follows the color mode of the surrounding reference */
 const isDarkMode = (): boolean =>
-  typeof document !== 'undefined' &&
-  document.querySelector('.dark-mode') !== null
+  documentRoot?.querySelector('.dark-mode') != null
 
 const showDemo = async (): Promise<void> => {
   calFailed.value = false
@@ -194,19 +195,19 @@ const wrapper = computed(() =>
     ? {
         is: ScalarModal,
         props: {
-          bodyClass: '!p-0 overflow-y-auto',
-          maxWidth: step.value === 'demo' ? '960px' : '540px',
-          size: 'lg' as const,
+          'bodyClass': '!p-0 overflow-y-auto',
+          'maxWidth': step.value === 'demo' ? '960px' : '540px',
+          'size': 'lg' as const,
           state,
+          // Falls through ScalarModal to the native dialog, which each step's heading names
+          'aria-labelledby': titleId,
         },
       }
     : { is: 'div', props: {} },
 )
 
-/** DialogTitle names the dialog, and only works inside one; the panel gets the same heading as an h2 */
-const titleTag = computed(() =>
-  presentation === 'dialog' ? DialogTitle : 'h2',
-)
+/** Each step's heading names the dialog; only one step renders at a time, so they share the id */
+const titleId = useId()
 </script>
 
 <template>
@@ -240,12 +241,11 @@ const titleTag = computed(() =>
         </div>
 
         <div class="px-8 pt-2 text-center">
-          <!-- Both render an h2 (DialogTitle's default element) -->
-          <component
-            :is="titleTag"
+          <h2
+            :id="titleId"
             class="text-c-1 m-0 text-xl leading-snug font-bold tracking-tight text-balance">
             {{ translate('exploreScalar.title') }}
-          </component>
+          </h2>
         </div>
 
         <!-- The actions sit right under the heading, before the feature rows. Sign-up comes first in the
@@ -372,11 +372,11 @@ const titleTag = computed(() =>
           <ScalarIconArrowLeft class="size-4 rtl:-scale-x-100" />
         </button>
         <!-- The calendar speaks for itself, so the title only names the dialog for assistive technology -->
-        <component
-          :is="titleTag"
+        <h2
+          :id="titleId"
           class="sr-only">
           {{ translate('exploreScalar.bookDemo') }}
-        </component>
+        </h2>
         <!-- Cal.com mounts its booking iframe in here -->
         <div
           ref="calEl"
@@ -409,10 +409,10 @@ const titleTag = computed(() =>
   </component>
 </template>
 
-<!-- The dialog is portaled to <body>, outside this component's scope, so these rules are global and prefixed by the Dialog root class -->
+<!-- ScalarModal renders the dialog, outside this component's scope, so these rules are global and keyed on the classes it passes through -->
 <style>
 /* The same corner as the dashboard's takeover card */
-.explore-scalar-modal .scalar-modal {
+.explore-scalar-modal.scalar-modal {
   border-radius: 28px;
   overflow: hidden;
 }
@@ -423,8 +423,8 @@ const titleTag = computed(() =>
  * !important beats the scoped rule and the opacity-0 utility regardless of layer order. The class
  * stays for the whole open session because re-enabling `animation` restarts it and flashes the panel.
  */
-.explore-scalar-modal--vt .scalar-modal-layout,
-.explore-scalar-modal--vt .scalar-modal {
+.explore-scalar-modal--vt.scalar-modal,
+.explore-scalar-modal--vt.scalar-modal::backdrop {
   animation: none !important;
   opacity: 1 !important;
   transform: none !important;
@@ -525,7 +525,7 @@ const titleTag = computed(() =>
  * The stickers are only named when the card side has visible counterparts (see `morphStickers`);
  * otherwise they stay part of the panel image and crossfade in with it.
  */
-:root[data-scalar-explore-vt] .explore-scalar-modal .scalar-modal {
+:root[data-scalar-explore-vt] .explore-scalar-modal.scalar-modal {
   view-transition-name: scalar-explore-card;
 }
 :root[data-scalar-explore-vt]

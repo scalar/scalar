@@ -246,6 +246,7 @@ class TestScalarConfig:
             title="Custom API",
             scalar_js_url="https://custom.cdn.com/scalar.js",
             scalar_proxy_url="https://proxy.example.com",
+            trusted_local_origins=["http://auth.dev.internal:8080"],
             scalar_favicon_url="https://example.com/favicon.ico",
             layout=Layout.CLASSIC,
             show_sidebar=False,
@@ -259,6 +260,7 @@ class TestScalarConfig:
         assert config.title == "Custom API"
         assert config.scalar_js_url == "https://custom.cdn.com/scalar.js"
         assert config.scalar_proxy_url == "https://proxy.example.com"
+        assert config.trusted_local_origins == ["http://auth.dev.internal:8080"]
         assert config.scalar_favicon_url == "https://example.com/favicon.ico"
         assert config.layout == Layout.CLASSIC
         assert config.show_sidebar is False
@@ -324,6 +326,37 @@ class TestScalarConfig:
 class TestGetScalarApiReference:
     """Test the get_scalar_api_reference function"""
 
+    @pytest.mark.parametrize(
+        "options",
+        [{}, {"show_badges_in_sidebar": False}, {"show_badges_in_sidebar": True}],
+    )
+    def test_show_badges_in_sidebar(self, options):
+        response = get_scalar_api_reference(
+            ScalarViewer(show_sidebar=False, **options).config
+        )
+        configuration, _ = json.JSONDecoder().raw_decode(
+            response.content.decode().split('Scalar.createApiReference("#app", ', 1)[1]
+        )
+
+        assert configuration["showSidebar"] is False
+        if options.get("show_badges_in_sidebar", False):
+            assert configuration["showBadgesInSidebar"] is True
+        else:
+            assert "showBadgesInSidebar" not in configuration
+
+    @pytest.mark.parametrize("enabled", [True, False])
+    def test_show_default_clients_with_sdk_installation(self, enabled):
+        response = get_scalar_api_reference(
+            ScalarConfig(show_default_clients_with_sdk_installation=enabled)
+        )
+        configuration, _ = json.JSONDecoder().raw_decode(
+            response.content.decode().split('Scalar.createApiReference("#app", ', 1)[1]
+        )
+        if enabled:
+            assert configuration["showDefaultClientsWithSdkInstallation"] is True
+        else:
+            assert "showDefaultClientsWithSdkInstallation" not in configuration
+
     def test_basic_functionality(self):
         """Test basic functionality with minimal parameters"""
         config = ScalarConfig(openapi_url="/openapi.json", title="Test API")
@@ -364,6 +397,8 @@ class TestGetScalarApiReference:
         assert "defaultOpenAllTags" not in config_section
         assert "authentication" not in config_section
         assert "hideClientButton" not in config_section
+        assert "multipartNaming" not in config_section
+        assert "showDefaultClientsWithSdkInstallation" not in config_section
         assert "theme" not in config_section
 
     def test_default_openapi_url(self):
@@ -390,6 +425,7 @@ class TestGetScalarApiReference:
             title="Custom API",
             scalar_js_url="https://custom.cdn.com/scalar.js",
             scalar_proxy_url="https://proxy.example.com",
+            trusted_local_origins=["http://auth.dev.internal:8080"],
             scalar_favicon_url="https://example.com/favicon.ico",
             layout=Layout.CLASSIC,
             show_sidebar=False,
@@ -402,6 +438,7 @@ class TestGetScalarApiReference:
             default_open_all_tags=True,
             authentication={"apiKey": "test-key"},
             hide_client_button=True,
+            multipart_naming="indexed-dot",
             integration="django-ninja",
             theme=Theme.MOON,
         )
@@ -412,6 +449,7 @@ class TestGetScalarApiReference:
         # Check custom values in the config
         assert '"url": "/custom/openapi.json"' in html_content
         assert '"proxyUrl": "https://proxy.example.com"' in html_content
+        assert '"trustedLocalOrigins": ["http://auth.dev.internal:8080"]' in html_content
         assert '"layout": "classic"' in html_content
         assert '"showSidebar": false' in html_content
         assert '"hideDownloadButton": true' in html_content
@@ -425,6 +463,7 @@ class TestGetScalarApiReference:
         )
         assert '"defaultOpenAllTags": true' in html_content
         assert '"authentication": {"apiKey": "test-key"}' in html_content
+        assert '"multipartNaming": "indexed-dot"' in html_content
         assert '"hideClientButton": true' in html_content
         assert '"_integration": "django-ninja"' in html_content
         assert '"theme": "moon"' in html_content
@@ -778,6 +817,20 @@ class TestEdgeCases:
         assert "oauth2" in html_content
         assert "authorizationCode" in html_content
 
+    @pytest.mark.parametrize("http_clients", [None, [], ["node/fetch", "shell/*"]])
+    def test_http_client_configuration(self, http_clients):
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            http_clients=http_clients,
+            default_http_client="node/fetch",
+        )
+        html = get_scalar_api_reference(config).content.decode()
+        if http_clients is None:
+            assert '"httpClients"' not in html
+        else:
+            assert f'"httpClients": {json.dumps(http_clients)}' in html
+        assert '"defaultHttpClient": "node/fetch"' in html
+
     def test_hidden_clients_dict_format(self):
         """Test hidden_clients parameter with dictionary format"""
         hidden_clients = {
@@ -981,3 +1034,27 @@ class TestHtmlEscaping:
             assert decoded[js_field][0]["url"] == "/openapi.json"
         else:
             assert decoded[js_field] == value
+
+
+class TestSelectedClientPersistence:
+    @pytest.mark.parametrize("options", [{}, {"persist_selected_client": True}])
+    def test_keeps_frontend_default_when_enabled(self, options):
+        config = ScalarConfig(openapi_url="/openapi.json", **options)
+        assert config.persist_selected_client is True
+        html = get_scalar_api_reference(config).content.decode()
+        assert '"persistSelectedClient"' not in html
+
+    def test_serializes_disabled_selection_with_auth_enabled(self):
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            persist_selected_client=False,
+            persist_auth=True,
+        )
+        html = get_scalar_api_reference(config).content.decode()
+        assert '"persistSelectedClient": false' in html
+        assert '"persistAuth": true' in html
+
+    def test_viewer_kwargs_forward_disabled_selection(self):
+        viewer = ScalarViewer(persist_selected_client=False)
+        html = get_scalar_api_reference(viewer.config).content.decode()
+        assert '"persistSelectedClient": false' in html

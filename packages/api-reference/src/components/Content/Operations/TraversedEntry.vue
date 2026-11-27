@@ -6,7 +6,10 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import {
+  getPathItemServerTarget,
+  getResolvedPathItem,
+} from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   TraversedEntry,
@@ -34,6 +37,7 @@ import { SpecificationExtension } from '@/features/specification-extension'
 const {
   specificationExtension = SpecificationExtension,
   level = 0,
+  clientDocument,
   clientOptions,
   document,
   authStore,
@@ -54,6 +58,8 @@ const {
      * child tag drops its own padding to keep every section flush left.
      */
     insideTagContainer?: boolean
+    /** Client state holds server selections and edits made in Try It. */
+    clientDocument?: OpenApiDocument
     /** Traversed entries to render */
     entries: TraversedEntry[]
     /** The document object */
@@ -63,6 +69,8 @@ const {
     /** The subset of the configuration object required for the operation component */
     options: Pick<
       ApiReferenceConfigurationRaw,
+      | 'baseServerURL'
+      | 'servers'
       | 'expandAllParameters'
       | 'expandAllResponses'
       | 'hideTestRequestButton'
@@ -75,6 +83,7 @@ const {
       | 'showExtensions'
       | 'maxVisibleRequestBodyProperties'
       | 'showOperationId'
+      | 'multipartNaming'
       | 'hideModels'
       | 'modelsSectionLabel'
     >
@@ -197,6 +206,11 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :method="entry.method"
         :options="options"
         :path="isWebhook(entry) ? entry.name : entry.path"
+        :pathItemServerTarget="
+          isOperation(entry)
+            ? getPathItemServerTarget(clientDocument?.paths?.[entry.path])
+            : undefined
+        "
         :pathValue="getPathValue(entry)"
         :scrollTargetId="scrollTargetId"
         :securitySchemes="securitySchemes"
@@ -220,6 +234,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       <template v-if="'children' in entry && entry.children?.length">
         <TraversedEntry
           :authStore
+          :clientDocument
           :clientOptions
           :document
           :entries="entry.children"
@@ -251,6 +266,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :id="entry.id">
       <TraversedEntry
         :authStore
+        :clientDocument
         :clientOptions
         :document
         :entries="entry.children || []"
@@ -279,6 +295,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :modelsSectionLabel="options.modelsSectionLabel">
       <TraversedEntry
         :authStore
+        :clientDocument
         :clientOptions
         :document
         :entries="entry.children || []"

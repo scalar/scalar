@@ -1,3 +1,4 @@
+export { toLanguageTag } from './to-language-tag'
 export {
   provideLocalization,
   resolveLocalization,

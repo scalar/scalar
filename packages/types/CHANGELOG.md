@@ -1,5 +1,80 @@
 # @scalar/types
 
+## 0.33.0
+
+### Minor Changes
+
+- [#11234](https://github.com/scalar/scalar/pull/11234): Configure available API Reference HTTP clients with `httpClients`. Use exact client IDs or target wildcards such as `shell/*`. The `defaultHttpClient` option also accepts a client ID string.
+
+  When all available clients are under **More**, such as with `featuredClients: []`, the Client Libraries block omits the empty tab list.
+
+### Patch Changes
+
+- [#11175](https://github.com/scalar/scalar/pull/11175): Deprecate the `withDefaultFonts` configuration option. Scalar no longer loads web fonts, so the option has no effect. It is still accepted, so existing configurations keep working.
+
+## 0.32.1
+
+### Patch Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+- [#11179](https://github.com/scalar/scalar/pull/11179): Add a `collapsible` option to `SpecificationExtensions`: the values fold under a localized "Extensions (n)" row, closed until opened with the same disclosure control as nested values.
+
+## 0.32.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+### Patch Changes
+
+- [#11176](https://github.com/scalar/scalar/pull/11176): feat(api-reference): invite developers to the API Hosting beta from the localhost reference
+
+  The localhost reference now shows the Deploy panel's waitlist card in a popup once, shortly after it loads (with several API descriptions, once all of them have loaded), if nobody has started reading yet, as the API client invites its users. It only ever appears when a development server on the developer's own machine serves the page (`localhost`, `*.localhost`, `127.0.0.1`, `[::1]`, on an explicit port), never in automated browsers or jsdom. It is remembered across every port on the same host, and opening the Deploy panel counts too. Hosted references never show it, and `showDeveloperTools: 'never'` turns it off. The localhost toolbar's Deploy button now uses the gradient style.
+- [#11145](https://github.com/scalar/scalar/pull/11145): Prevent CSP eval violation reports when loading OAuth authentication and AI Chat by configuring Zod before schemas are constructed.
+
+  This disables JIT compilation for the shared Zod instance, so applications using that same instance may also see slower object parsing.
+- [#11130](https://github.com/scalar/scalar/pull/11130): Update nanoid to version 6 for faster identifier generation while preserving existing identifier formats.
+
+## 0.31.0
+
+### Minor Changes
+
+- [#11103](https://github.com/scalar/scalar/pull/11103): Support `x-scalar-token-prefix` on header API keys. Generated code examples and outgoing requests add the configured prefix while stored credentials remain unchanged.
+- [#11020](https://github.com/scalar/scalar/pull/11020): feat: show `x-badges` in the sidebar with the new `showBadgesInSidebar` option
+
+  The option is off by default, so the sidebar looks the same as before. When it is on, the sidebar shows the `x-badges` of operations, webhooks, tags (including nested OpenAPI 3.2 tags), `x-tagGroups` entries and models next to their titles. Navigation entries of these types get an optional `badges` field.
+
+### Patch Changes
+
+- [#9778](https://github.com/scalar/scalar/pull/9778): Add API Client date picker translation keys for locale overrides.
+
+## 0.30.0
+
+### Minor Changes
+
+- [#10816](https://github.com/scalar/scalar/pull/10816): Add `documentTypes` to the API Reference plugin API, so a plugin can teach API Reference a document format it does not support natively. The plugin detects its documents, builds their sidebar entries and renders them with its own component, while API Reference handles loading, the document selector, routing and the sidebar.
+
+### Patch Changes
+
+- [#9591](https://github.com/scalar/scalar/pull/9591): Select multiple files for array-typed multipart fields and display them in one field with controls to add, remove, and disable individual files. Each enabled file is sent as a separate multipart part under the same field name. Preserve text editing for arrays that also accept text and individual file choices when toggling the field.
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.29.0
+
+### Minor Changes
+
+- [#11037](https://github.com/scalar/scalar/pull/11037): Load object-valued `x-codeSamples.source` and `x-code-samples.source` file references as raw code text, with relative origins and lazy operation loading. Retain failed references and show an unavailable sample instead of silently replacing them with an empty string. Preserve literal `$ref` values in other extensions and example data.
+- [#11036](https://github.com/scalar/scalar/pull/11036): Add `showDefaultClientsWithSdkInstallation` to show SDK installation tabs alongside built-in HTTP clients in the introduction.
+- [#11033](https://github.com/scalar/scalar/pull/11033): Add `persistSelectedClient` to disable saving and restoring the selected code sample client in local storage.
+
+### Patch Changes
+
+- [#10986](https://github.com/scalar/scalar/pull/10986): Add an Open in browser action for GET requests using the configured URL and parameters.
+
+## 0.28.1
+
+No changes in this release.
+
 ## 0.28.0
 
 ### Minor Changes

@@ -4,6 +4,7 @@ import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fetchUrl, fetchUrls } from '.'
+import { fetchUrls as browserFetchUrls } from './browser'
 
 describe('fetchUrl', () => {
   const noLimit = <T>(fn: () => Promise<T>) => fn()
@@ -146,6 +147,26 @@ describe('fetchUrl', () => {
 })
 
 describe('fetchUrls', () => {
+  const source = 'const value = {\r\n  text: "hello",\r\n};\r\n'
+
+  it.each([fetchUrls, browserFetchUrls])('reads code without JSON/YAML parsing using %s', async (createLoader) => {
+    const loader = createLoader({ fetch: () => Promise.resolve(new Response(source)) })
+    expect(await loader.exec('https://example.test/sample.js', { parseAs: 'text' })).toStrictEqual({
+      ok: true,
+      data: source,
+      raw: source,
+    })
+  })
+
+  it.each([fetchUrls, browserFetchUrls])('keeps default document parsing with %s', async (createLoader) => {
+    const loader = createLoader({ fetch: () => Promise.resolve(new Response('{"value":true}')) })
+    expect(await loader.exec('https://example.test/sample.json')).toStrictEqual({
+      ok: true,
+      data: { value: true },
+      raw: '{"value":true}',
+    })
+  })
+
   it('caps the number of concurrent requests when a limit is given', async () => {
     let active = 0
     let maxActive = 0

@@ -21,6 +21,7 @@ export const zhTw = {
     unknownType: '未知類型',
     propertyCount: '屬性：{count}',
     headerCount: '標頭：{count}',
+    extensionCount: '擴充（{count}）',
     recursiveReference: '遞迴參照 {name}',
     recursive: '遞迴',
     additionalProperties: '附加屬性',

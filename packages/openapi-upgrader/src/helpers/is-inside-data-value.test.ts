@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import { isInsideDataValue, isNamedSchemaMap } from './is-inside-data-value'
+import { isInsideDataValue, isNamedOpenApiMap, isNamedSchemaMap } from './is-inside-data-value'
 
 describe('isInsideDataValue', () => {
-  it.each(['example', 'default', 'const', 'enum', 'x-example'])(
+  it.each(['example', 'default', 'const', 'enum', 'x-example', 'x-examples'])(
     'distinguishes reusable objects named %s from their data values',
     (name) => {
       for (const prefix of [['responses'], ['parameters'], ['components', 'responses'], ['components', 'parameters']]) {
@@ -12,6 +12,34 @@ describe('isInsideDataValue', () => {
         expect(isInsideDataValue([...prefix, name, 'schema', 'default'], '2.0')).toBe(true)
         expect(isInsideDataValue([...prefix, name, 'examples', 'application/json', 'value'], '2.0')).toBe(true)
       }
+    },
+  )
+
+  it.each(['default', 'example', 'examples', 'enum', 'properties', 'headers'])(
+    'distinguishes reusable body and callback names %s from data',
+    (name) => {
+      const body = ['components', 'requestBodies', name, 'content', 'application/json', 'schema']
+      const callback = [
+        'paths',
+        '/subscribe',
+        'post',
+        'callbacks',
+        name,
+        '{$request.body#/url}',
+        'post',
+        'requestBody',
+        'content',
+        'application/json',
+        'schema',
+      ]
+      for (const schema of [body, callback]) {
+        expect(isInsideDataValue(schema, '3.0')).toBe(false)
+        expect(isInsideDataValue([...schema, 'default'], '3.0')).toBe(true)
+        expect(isInsideDataValue([...schema, 'example'], '3.0')).toBe(true)
+        expect(isNamedSchemaMap([...schema, 'properties'])).toBe(true)
+      }
+      expect(isNamedOpenApiMap(['components', 'requestBodies'])).toBe(true)
+      expect(isNamedOpenApiMap(['components', 'requestBodies', name])).toBe(false)
     },
   )
 
@@ -68,6 +96,9 @@ describe('isInsideDataValue', () => {
     const responseExample = ['paths', '/items', 'get', 'responses', '200', 'examples', 'application/json']
     expect(isInsideDataValue(extension, '2.0')).toBe(true)
     expect(isInsideDataValue(extension, '3.0')).toBe(false)
+    const namedExamples = ['parameters', 'Filter', 'x-examples', 'application/json', 'pet', 'value']
+    expect(isInsideDataValue(namedExamples, '2.0')).toBe(true)
+    expect(isInsideDataValue(namedExamples, '3.0')).toBe(false)
     expect(isInsideDataValue(responseExample, '2.0')).toBe(true)
     expect(isInsideDataValue(responseExample, '3.0')).toBe(false)
     expect(

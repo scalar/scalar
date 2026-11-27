@@ -5,6 +5,7 @@ export const resolveType = (
   scope: Definition,
   name: string,
   parents: WeakMap<Definition, Definition>,
+  accessible: (node: Definition) => boolean = () => true,
 ): Definition | null => {
   if (isScalar(name)) {
     return null
@@ -12,7 +13,7 @@ export const resolveType = (
   const get = (node: Definition, key: string): Definition | null => {
     // Schema identifiers can match Object.prototype names such as constructor.
     const own = (map: Record<string, Definition> | undefined): Definition | null =>
-      map && Object.hasOwn(map, key) ? (map[key] ?? null) : null
+      map && Object.hasOwn(map, key) && map[key] && accessible(map[key]) ? map[key] : null
     if (isMessage(node)) {
       return own(node.fields) ?? own(node.oneofs) ?? own(node.nested)
     }

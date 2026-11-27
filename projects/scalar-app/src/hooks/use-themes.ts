@@ -25,7 +25,7 @@ import { useUser } from '@/hooks/use-user'
  *
  * @example
  * ```ts
- * const { themeStyleTag, customThemes } = useThemes({ store: app.store })
+ * const { themeStyles, customThemes } = useThemes({ store: app.store })
  * ```
  */
 export const useThemes = ({
@@ -41,8 +41,6 @@ export const useThemes = ({
   fallbackThemeSlug: ComputedRef<string>
   /** The resolved theme styles for the current workspace */
   themeStyles: ComputedRef<{ themeStyles: string; themeSlug: string }>
-  /** A `<style>` tag string ready for DOM injection via `v-html` */
-  themeStyleTag: ComputedRef<string>
 } => {
   const { isLoggedIn } = useAuth()
   const queryKey = ['themes'] satisfies QueryKey
@@ -92,23 +90,16 @@ export const useThemes = ({
   const fallbackThemeSlug = computed<string>(() => currentUser.value?.theme || currentTeam.value?.theme || 'default')
 
   // ---------------------------------------------------------------------------
-  // CSS resolution — turns the active slug into injectable styles
+  // CSS resolution — turns the active slug into the styles to apply
   // ---------------------------------------------------------------------------
   const themeStyles = computed(() => {
     const storeValue = toValue(store)
     return getActiveThemeStyles(storeValue?.workspace['x-scalar-theme'], fallbackThemeSlug.value, customThemes.value)
   })
 
-  /** A `<style>` tag wrapping the resolved CSS, ready for `v-html` injection */
-  const themeStyleTag = computed<string>(
-    () =>
-      `<style id="scalar-theme" data-testid="${themeStyles.value.themeSlug}">${themeStyles.value.themeStyles}</style>`,
-  )
-
   return {
     customThemes,
     fallbackThemeSlug,
     themeStyles,
-    themeStyleTag,
   }
 }

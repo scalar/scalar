@@ -45,16 +45,15 @@ const contentToCopy = computed<string>(() => {
     : JSON.stringify(content, null, 2)
 })
 
-/** Type guard to check if the language is a standard language */
-const isStandardLanguage = (lang: string): lang is StandardLanguageKey =>
-  lang in LANGUAGE_LABELS
+const hasLanguageLabel = (lang: string): lang is keyof typeof LANGUAGE_LABELS =>
+  Object.hasOwn(LANGUAGE_LABELS, lang)
 
 /** The human readable language name shown next to the copy label */
 const langLabel = computed<string | undefined>(() => {
   if (!lang) {
     return undefined
   }
-  return isStandardLanguage(lang) ? LANGUAGE_LABELS[lang] : lang
+  return hasLanguageLabel(lang) ? LANGUAGE_LABELS[lang] : lang
 })
 
 /**
@@ -97,7 +96,7 @@ const { cx } = useBindCx()
         <span
           v-if="showLang"
           class="group-hocus/copy-button:sr-only"
-          :class="{ capitalize: !isStandardLanguage(lang) }">
+          :class="{ capitalize: !hasLanguageLabel(lang) }">
           {{ langLabel }}
         </span>
         <span

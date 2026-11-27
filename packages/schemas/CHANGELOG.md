@@ -1,5 +1,56 @@
 # @scalar/schemas
 
+## 0.21.0
+
+### Minor Changes
+
+- [#11234](https://github.com/scalar/scalar/pull/11234): Configure available API Reference HTTP clients with `httpClients`. Use exact client IDs or target wildcards such as `shell/*`. The `defaultHttpClient` option also accepts a client ID string.
+
+  When all available clients are under **More**, such as with `featuredClients: []`, the Client Libraries block omits the empty tab list.
+
+### Patch Changes
+
+- [#11175](https://github.com/scalar/scalar/pull/11175): Deprecate the `withDefaultFonts` configuration option. Scalar no longer loads web fonts, so the option has no effect. It is still accepted, so existing configurations keep working.
+
+## 0.20.1
+
+### Patch Changes
+
+- [#11180](https://github.com/scalar/scalar/pull/11180): Render reusable AsyncAPI messages in a searchable **Messages** section above **Models**. The section lists visible messages from `components.messages` with their headers, payload, examples, and applied traits. Set `hideModels` to hide the section.
+
+## 0.20.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+## 0.19.0
+
+### Minor Changes
+
+- [#11103](https://github.com/scalar/scalar/pull/11103): Support `x-scalar-token-prefix` on header API keys. Generated code examples and outgoing requests add the configured prefix while stored credentials remain unchanged.
+- [#11020](https://github.com/scalar/scalar/pull/11020): feat: show `x-badges` in the sidebar with the new `showBadgesInSidebar` option
+
+  The option is off by default, so the sidebar looks the same as before. When it is on, the sidebar shows the `x-badges` of operations, webhooks, tags (including nested OpenAPI 3.2 tags), `x-tagGroups` entries and models next to their titles. Navigation entries of these types get an optional `badges` field.
+
+## 0.18.1
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+
+## 0.18.0
+
+### Minor Changes
+
+- [#11037](https://github.com/scalar/scalar/pull/11037): Load object-valued `x-codeSamples.source` and `x-code-samples.source` file references as raw code text, with relative origins and lazy operation loading. Retain failed references and show an unavailable sample instead of silently replacing them with an empty string. Preserve literal `$ref` values in other extensions and example data.
+- [#11036](https://github.com/scalar/scalar/pull/11036): Add `showDefaultClientsWithSdkInstallation` to show SDK installation tabs alongside built-in HTTP clients in the introduction.
+- [#11033](https://github.com/scalar/scalar/pull/11033): Add `persistSelectedClient` to disable saving and restoring the selected code sample client in local storage.
+
+## 0.17.1
+
+No changes in this release.
+
 ## 0.17.0
 
 ### Minor Changes

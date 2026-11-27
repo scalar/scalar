@@ -85,7 +85,9 @@ export const pythonAiohttp: Plugin = {
       } else if (mimeType === 'application/octet-stream' && text) {
         requestArgs.push(`data=b"${text}"`)
       } else if (mimeType === 'multipart/form-data' && params) {
-        setupLines.push('data = aiohttp.FormData()')
+        // A FormData with only plain text fields is sent urlencoded unless multipart is requested explicitly.
+        const hasFile = params.some((param) => param.fileName !== undefined)
+        setupLines.push(hasFile ? 'data = aiohttp.FormData()' : 'data = aiohttp.FormData(default_to_multipart=True)')
 
         params.forEach((param) => {
           if (param.fileName !== undefined) {

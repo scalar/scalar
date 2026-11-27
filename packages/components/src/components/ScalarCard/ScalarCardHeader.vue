@@ -46,7 +46,7 @@ useCardHeading(id)
     </div>
     <div
       v-if="$slots.actions"
-      class="flex">
+      class="flex max-w-full">
       <slot name="actions" />
     </div>
   </ScalarCardSection>

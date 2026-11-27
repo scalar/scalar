@@ -65,6 +65,85 @@ const documentWithBrokenResponseHeader: Record<string, unknown> = {
 }
 
 describe('createMockServer', () => {
+  it.each(
+    ['3.0.4', '3.1.0'].flatMap((openapi) =>
+      [undefined, 'return res[200];', 'return undefined;'].map((handler) => ({ openapi, handler })),
+    ),
+  )('keeps declared array semantics after upgrading $openapi ($handler)', async ({ openapi, handler }) => {
+    const app = await createMockServer({
+      document: {
+        openapi,
+        info: { title: 'Numbers', version: '1' },
+        paths: {
+          '/numbers': {
+            get: {
+              ...(handler ? { 'x-handler': handler } : {}),
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'array',
+                        items: { type: 'integer' },
+                        minItems: 3,
+                        maxItems: 3,
+                        contains: { const: 2 },
+                        minContains: 1,
+                        maxContains: 1,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      logger: false,
+    })
+    expect(await (await app.request('/numbers')).json()).toStrictEqual(openapi === '3.0.4' ? [1, 1, 1] : [2, 1, 1])
+  })
+
+  it('keeps upgraded XML metadata while ignoring newer assertions from OpenAPI 3.0', async () => {
+    const app = await createMockServer({
+      document: {
+        openapi: '3.0.4',
+        info: { title: 'Numbers', version: '1' },
+        paths: {
+          '/numbers': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/xml': {
+                      schema: {
+                        type: 'array',
+                        xml: { name: 'numbers', wrapped: true },
+                        items: { type: 'integer', xml: { name: 'number' } },
+                        minItems: 3,
+                        maxItems: 3,
+                        contains: { const: 2 },
+                        maxContains: 1,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      logger: false,
+    })
+    const response = await app.request('/numbers')
+    expect(response.headers.get('X-Scalar-XML-Error')).toBeNull()
+    expect((await response.text()).replace(/>\s+</g, '><')).toContain(
+      '<numbers><number>1</number><number>1</number><number>1</number></numbers>',
+    )
+  })
+
   describe('document sources', () => {
     const document = {
       openapi: '3.1.0',
@@ -599,6 +678,46 @@ describe('createMockServer', () => {
     expect(await response.json()).toMatchObject({
       foo: 'bar',
     })
+  })
+
+  it.each([
+    ['3.0.4', { type: 'string', format: 'byte' }],
+    ['3.1.2', { type: 'string', contentEncoding: 'base64' }],
+    ['3.1.2', { type: 'string', contentEncoding: 'base64url' }],
+  ])('serves valid base64 for encoded strings in OpenAPI %s %j', async (openapi, encoded) => {
+    const app = await createMockServer({
+      document: {
+        openapi,
+        info: { title: 'Files', version: '1.0.0' },
+        paths: {
+          '/files/{id}': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          content: encoded,
+                          thumbnail: { ...encoded, example: 'aGVsbG8=' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await app.request('/files/1')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ content: 'c2NhbGFy', thumbnail: 'aGVsbG8=' })
   })
 
   it('GET /foobar -> example JSON', async () => {

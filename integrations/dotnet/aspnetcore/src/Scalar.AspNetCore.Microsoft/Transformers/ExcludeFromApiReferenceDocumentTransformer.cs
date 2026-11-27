@@ -16,11 +16,7 @@ internal sealed class ExcludeFromApiReferenceOpenApiDocumentTransformer : IOpenA
 
             foreach (var (_, operation) in path.Value.Operations)
             {
-#if NET10_0_OR_GREATER
                 var tags = operation.Tags ?? new HashSet<OpenApiTagReference>();
-#elif NET9_0
-                var tags = operation.Tags ?? [];
-#endif
 
                 foreach (var tagName in tags.Select(tag => tag.Name))
                 {
@@ -54,11 +50,7 @@ internal sealed class ExcludeFromApiReferenceOpenApiDocumentTransformer : IOpenA
             }
 
             tagToExclude.Extensions ??= new Dictionary<string, IOpenApiExtension>();
-#if NET10_0_OR_GREATER
             tagToExclude.Extensions.TryAdd(ScalarIgnore, new JsonNodeExtension(TrueNode));
-#elif NET9_0
-            tagToExclude.Extensions.TryAdd(ScalarIgnore, new OpenApiBoolean(true));
-#endif
 
             // Remove the ignore extension from all operations with this tag
             foreach (var openApiOperation in operations)

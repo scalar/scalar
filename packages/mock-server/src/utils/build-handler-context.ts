@@ -1,3 +1,4 @@
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
@@ -5,7 +6,8 @@ import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 
 import { store } from '../libs/store'
-import { generateResponseExample } from './generate-response-example'
+import { type ExampleGenerationContext, generateResponseExample } from './generate-response-example'
+import { isJsonContentType } from './is-json-content-type'
 import { normalizeResponseBody } from './normalize-response-body'
 import { parsePreferHeader } from './parse-prefer-header'
 import { pathParameters } from './path-parameters'
@@ -44,6 +46,7 @@ function getExampleFromResponse(
   c: Context,
   statusCode: string,
   responses: OpenAPIV3_1.ResponsesObject | undefined,
+  generationContext: ExampleGenerationContext = {},
 ): any {
   if (!responses) {
     return null
@@ -78,6 +81,7 @@ function getExampleFromResponse(
   }
 
   const streamingResponse = getStreamingResponse(acceptedResponse, acceptedContentType, {
+    ...generationContext,
     exampleName: parsePreferHeader(c.req.header('Prefer')).example,
     variables: pathParameters(c),
   })
@@ -92,7 +96,10 @@ function getExampleFromResponse(
     return normalizeResponseBody(acceptedResponse.example, responseSchema)
   }
   return responseSchema
-    ? normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
+    ? normalizeResponseBody(
+        generateResponseExample(responseSchema, pathParameters(c), generationContext),
+        responseSchema,
+      )
     : null
 }
 
@@ -103,21 +110,20 @@ export async function buildHandlerContext(
   c: Context,
   operation?: OpenAPIV3_1.OperationObject,
   pathItemParameters?: OpenAPIV3_1.PathItemObject['parameters'],
+  generationContext: ExampleGenerationContext = {},
 ): Promise<HandlerContextResult> {
   let body: any = undefined
 
   try {
-    // Compare case-insensitively, since media types are case-insensitive and request validation
-    // matches them the same way. Otherwise a body like `Application/JSON` could pass validation yet
-    // never reach the handler as `req.body`.
-    const contentType = (c.req.header('content-type') ?? '').toLowerCase()
-    // An empty/absent Content-Type is treated as JSON to match request validation, so a headerless
-    // JSON body that passes validation is still delivered to the handler as `req.body`.
-    if (contentType === '' || contentType.includes('application/json')) {
+    const contentType = c.req.header('content-type')?.trim() ?? ''
+    const mediaType = contentType ? parseMimeType(contentType) : undefined
+    // Treat an omitted header as JSON to match request validation.
+    if (!mediaType || isJsonContentType(mediaType)) {
       body = await c.req.json().catch(() => undefined)
-    } else if (contentType.includes('application/x-www-form-urlencoded')) {
+    } else if (mediaType.essence === 'application/x-www-form-urlencoded') {
       body = await c.req.parseBody().catch(() => undefined)
-    } else if (contentType.includes('text/')) {
+    } else if (mediaType.type === 'text' && /^text\//i.test(contentType)) {
+      // The MIME parser also returns text/plain for malformed headers.
       body = await c.req.text().catch(() => undefined)
     }
   } catch {
@@ -141,7 +147,7 @@ export async function buildHandlerContext(
   const res: Record<string, any> = {}
   if (operation?.responses) {
     for (const statusCode of Object.keys(operation.responses)) {
-      res[statusCode] = getExampleFromResponse(c, statusCode, operation.responses)
+      res[statusCode] = getExampleFromResponse(c, statusCode, operation.responses, generationContext)
     }
   }
 

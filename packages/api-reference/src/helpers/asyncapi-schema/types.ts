@@ -11,6 +11,8 @@ export type SchemaNode = {
   repeated?: boolean
   /** Stop expanding a reference to an ancestor definition. */
   recursive?: boolean
+  /** Native RAML name in its declaring file or library scope. */
+  referenceName?: string
   /** Presence tracking for optional Protobuf fields. */
   presence?: 'explicit' | 'implicit'
   /** Avro enum symbols, including an explicitly empty symbol list. */

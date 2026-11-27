@@ -16,12 +16,12 @@ describe('DeleteRequestAuthModal', () => {
     return { state, wrapper }
   }
 
-  // Headless UI teleports the dialog outside the mounted component.
-  const getDialog = (): ReturnType<DOMWrapper<Element>['get']> => new DOMWrapper(document.body).get('[role="dialog"]')
+  // The open native dialog, looked up from the body so it does not depend on the component tree.
+  const getDialog = (): ReturnType<DOMWrapper<Element>['get']> => new DOMWrapper(document.body).get('dialog[open]')
 
   it('renders the security scheme label and warning after opening', async () => {
     const { state } = mountModal('Test Label')
-    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(document.querySelector('dialog[open]')).toBeNull()
 
     state.show()
     await flushPromises()
@@ -64,12 +64,12 @@ describe('DeleteRequestAuthModal', () => {
     const { state, wrapper } = mountModal('Beta')
     state.show()
     await flushPromises()
-    expect(document.querySelector('[role="dialog"]')).not.toBeNull()
+    expect(document.querySelector('dialog[open]')).not.toBeNull()
 
     state.hide()
     await flushPromises()
 
-    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(document.querySelector('dialog[open]')).toBeNull()
     expect(wrapper.emitted('delete')).toBeUndefined()
   })
 })

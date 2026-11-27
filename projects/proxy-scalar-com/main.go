@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
 	"errors"
@@ -14,7 +13,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -249,8 +247,8 @@ func main() {
 	// Add our custom CORS middleware to handle cross-origin requests
 	handler := corsMiddleware(mux)
 
-	// A proxy that can reach private networks only listens on this machine
-	server := newHTTPServer(listenAddress(config.BypassCidr, os.Getenv("PROXY_LISTEN_HOST"), port), handler)
+	// Keep development binding independent of private-target access.
+	server := newHTTPServer(listenAddress(os.Getenv("ENV") == "dev", os.Getenv("PROXY_LISTEN_HOST"), port), handler)
 
 	log.Println("🥤 Proxy Server listening on " + server.Addr)
 
@@ -287,18 +285,18 @@ func proxyConfigFromEnv(getenv func(string) string) ProxyConfig {
 	}
 
 	return ProxyConfig{
-		BypassCidr: dev,
+		// Private fixture access is confined to the separate Go test harness.
+		BypassCidr: false,
 		// Local test APIs often use self-signed certificates
 		AllowInsecureUpstreamTLS: dev || allowInsecureUpstreamTLS,
 		SelfHosts:                selfHosts,
 	}
 }
 
-// listenAddress returns the address to listen on. In development mode the proxy
-// can reach private networks, so it only accepts connections from this machine,
-// unless a host is set explicitly (for example 0.0.0.0 inside a container).
+// listenAddress keeps development servers on loopback. Explicit hosts only
+// apply outside development mode, including container deployments.
 func listenAddress(dev bool, host string, port string) string {
-	if host == "" && dev {
+	if dev {
 		host = "127.0.0.1"
 	}
 
@@ -350,7 +348,7 @@ type ProxyServer struct {
 	responseBodyIdleTimeout time.Duration
 	bypassCidr              bool
 	selfHosts               []selfHost
-	// bufferedBodyBytes counts the request body bytes held in memory right now.
+	// bufferedBodyBytes counts bytes reserved by buffered uploads and replay copies.
 	bufferedBodyBytes atomic.Int64
 }
 
@@ -833,9 +831,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		defer releaseBody()
 		// The transport closes outbound bodies. Closing here could block on an
 		// unfinished upload before the server flushes an early response.
-		outreq.Body = body
-		outreq.ContentLength = r.ContentLength
-		outreq.GetBody = body.getBody
+		configureBodyReplay(outreq, body)
 	}
 
 	// Copy the headers but exclude Origin and Cookie.
@@ -1281,157 +1277,6 @@ func splitDirectives(value string) []string {
 	}
 
 	return directives
-}
-
-// maxReplayableBodySize is how much of a request body the proxy buffers so Go
-// can resend it when following a same-origin 307 or 308, like `curl -L`.
-// All bodies stream immediately; incomplete or larger uploads cannot be replayed.
-const maxReplayableBodySize = 10 << 20
-
-// maxBufferedBodyBytes limits the memory all requests can hold in buffered bodies
-// together. Without it, clients that send a body and then stall would each pin
-// up to maxReplayableBodySize, without any authentication. Past the limit bodies
-// are streamed, which costs no memory and only loses 307 and 308 replays. The
-// process uses about three times this at saturation, because of the room the
-// garbage collector leaves on top of the live heap.
-const maxBufferedBodyBytes = 128 << 20
-
-// bufferedBody owns the replay copy and counts readers still used by the transport.
-// A response can arrive before an upload finishes, so releasing replay ownership
-// alone must not return those bytes to the budget.
-type bufferedBody struct {
-	mu           sync.Mutex
-	data         []byte
-	readers      int
-	released     bool
-	complete     bool
-	releaseBytes func()
-}
-
-func (b *bufferedBody) release() {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-	b.releaseLocked()
-}
-
-func (b *bufferedBody) releaseLocked() {
-	b.released = true
-	b.data = nil
-	if b.readers == 0 {
-		b.releaseBytes()
-	}
-}
-
-// bufferedBodyReader clears its own reference on Close, even if net/http keeps
-// the request reachable for the lifetime of a streaming response.
-type bufferedBodyReader struct {
-	mu     sync.Mutex
-	buffer *bufferedBody
-	reader *bytes.Reader
-}
-
-func (r *bufferedBodyReader) Read(p []byte) (int, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	if r.reader == nil {
-		return 0, io.ErrClosedPipe
-	}
-	return r.reader.Read(p)
-}
-
-func (r *bufferedBodyReader) Close() error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	if r.reader == nil {
-		return nil
-	}
-	r.reader = nil
-	r.buffer.mu.Lock()
-	defer r.buffer.mu.Unlock()
-	r.buffer.readers--
-	if r.buffer.released && r.buffer.readers == 0 {
-		r.buffer.releaseBytes()
-	}
-	return nil
-}
-
-// streamingReplayBody records bytes as they are consumed by the transport.
-// Close must unblock Read, so the source is read outside the buffer mutex.
-// Closing the initial upload keeps replay ownership until redirects finish.
-type streamingReplayBody struct {
-	source        io.ReadCloser
-	buffer        *bufferedBody
-	proxy         *ProxyServer
-	length        int64
-	held          int64
-	consumed      int64
-	finished      bool
-	interruptRead func()
-	closeOnce     sync.Once
-	closeErr      error
-}
-
-func (r *streamingReplayBody) Read(p []byte) (int, error) {
-	n, err := r.source.Read(p)
-	r.buffer.mu.Lock()
-	defer r.buffer.mu.Unlock()
-	r.consumed += int64(n)
-	r.finished = err != nil || (r.length > 0 && r.consumed == r.length)
-	if r.buffer.released {
-		return n, err
-	}
-	if (err != nil && err != io.EOF) || len(r.buffer.data)+n > maxReplayableBodySize {
-		r.buffer.releaseLocked()
-		return n, err
-	}
-	if r.proxy.bufferedBodyBytes.Add(int64(n)) > maxBufferedBodyBytes {
-		r.proxy.bufferedBodyBytes.Add(-int64(n))
-		r.buffer.releaseLocked()
-		return n, err
-	}
-	r.held += int64(n)
-	r.buffer.data = append(r.buffer.data, p[:n]...)
-	// Known-length uploads may finish without a separate EOF read.
-	r.buffer.complete = r.finished && (r.length <= 0 || r.consumed == r.length)
-	return n, err
-}
-
-func (r *streamingReplayBody) Close() error {
-	r.closeOnce.Do(func() {
-		r.buffer.mu.Lock()
-		finished := r.finished
-		r.buffer.mu.Unlock()
-		if !finished && r.interruptRead != nil {
-			r.interruptRead()
-		}
-		r.closeErr = r.source.Close()
-	})
-	return r.closeErr
-}
-
-func (r *streamingReplayBody) getBody() (io.ReadCloser, error) {
-	r.buffer.mu.Lock()
-	defer r.buffer.mu.Unlock()
-	if !r.buffer.complete || r.buffer.released {
-		// net/http asks for the replay body before invoking CheckRedirect.
-		// That callback recognizes this sentinel and returns the redirect as-is.
-		return http.NoBody, nil
-	}
-	r.buffer.readers++
-	return &bufferedBodyReader{buffer: r.buffer, reader: bytes.NewReader(r.buffer.data)}, nil
-}
-
-// replayableBody retains at most the per-request and shared budgets without
-// reading ahead. The caller releases replay ownership after the redirect chain.
-func (ps *ProxyServer) replayableBody(body io.ReadCloser, length int64) (*streamingReplayBody, func()) {
-	if body == nil {
-		body = http.NoBody
-	}
-	reader := &streamingReplayBody{source: body, proxy: ps, length: length}
-	reader.buffer = &bufferedBody{releaseBytes: sync.OnceFunc(func() {
-		ps.bufferedBodyBytes.Add(-reader.held)
-	})}
-	return reader, reader.buffer.release
 }
 
 // setUntrustedContentHeaders protects the proxy origin from proxied content.

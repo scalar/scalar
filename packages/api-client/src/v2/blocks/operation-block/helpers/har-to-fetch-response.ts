@@ -1,7 +1,9 @@
 import type { HarResponse } from '@scalar/snippetz'
 
 import { getCookieHeaderKeys } from '@/v2/blocks/operation-block/helpers/get-cookie-header-keys'
-import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
+import type { ResponseBodyState, ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
+
+import { canResponseHaveBody } from './can-response-have-body'
 
 type HarToFetchResponseProps = {
   /** The HAR Response object to convert */
@@ -23,6 +25,8 @@ type ProcessedBody = {
   data: string | Blob
   /** Size in bytes */
   size: number
+  /** Whether history retained the body. */
+  bodyState: ResponseBodyState
 }
 
 /**
@@ -81,7 +85,7 @@ export const harToFetchResponse = ({
   duration = 0,
 }: HarToFetchResponseProps): ResponseInstance => {
   const headers = buildHeaders(harResponse)
-  const { body, data, size } = processBody(harResponse)
+  const { body, data, size, bodyState } = processBody(harResponse, method)
   const cookieHeaderKeys = getCookieHeaderKeys(headers)
 
   const response = new Response(body, {
@@ -101,6 +105,7 @@ export const harToFetchResponse = ({
     path,
     data,
     size,
+    bodyState,
     url,
   }
 }
@@ -122,18 +127,20 @@ const buildHeaders = (harResponse: HarResponse) => {
  * Processes HAR response body content.
  * Returns body, data and size for ResponseInstance.
  */
-const processBody = (harResponse: HarResponse): ProcessedBody => {
-  if (!harResponse.content.text) {
-    return { body: null, data: '', size: 0 }
+const processBody = (harResponse: HarResponse, method: string): ProcessedBody => {
+  const { text, encoding, size } = harResponse.content
+  const canHaveBody = canResponseHaveBody(method, harResponse.status)
+  if (!canHaveBody || !text) {
+    // History uses an empty string with size -1 when it omits a body.
+    const bodyState = canHaveBody && text === '' && size === 0 ? 'empty' : 'unavailable'
+    return { body: null, data: '', size: 0, bodyState }
   }
 
-  const { text, encoding } = harResponse.content
-
   if (encoding) {
-    return { body: null, data: text, size: text.length }
+    return { body: null, data: text, size: text.length, bodyState: 'present' }
   }
 
   const body = new TextEncoder().encode(text).buffer
 
-  return { body, data: text, size: body.byteLength }
+  return { body, data: text, size: body.byteLength, bodyState: 'present' }
 }

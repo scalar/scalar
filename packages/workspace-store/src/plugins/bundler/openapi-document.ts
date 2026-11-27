@@ -1,14 +1,11 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { type DocumentResolver, type LifecyclePlugin, resolveReferencePath } from '@scalar/json-magic/bundle'
 
+import { isOpenApiDocument } from '@/schemas/type-guards'
+
 /** Resolves an OpenAPI document's declared identity against its retrieval location. */
 export const resolveOpenApiDocument: DocumentResolver = (document, retrievalUri) => {
-  if (
-    !isObject(document) ||
-    typeof document.openapi !== 'string' ||
-    !/^3\.2\.\d+$/.test(document.openapi) ||
-    typeof document.$self !== 'string'
-  ) {
+  if (!isOpenApiDocument(document) || !/^3\.2\.\d+$/.test(document.openapi) || typeof document.$self !== 'string') {
     return undefined
   }
   const self = resolveReferencePath(retrievalUri, document.$self)
@@ -19,7 +16,11 @@ export const resolveOpenApiDocument: DocumentResolver = (document, retrievalUri)
 }
 
 /** Honors `$self` for complete OpenAPI documents, including external and cached documents. */
-export const openApiDocument = (): LifecyclePlugin => {
+export const openApiDocument = (options?: {
+  preserveOriginalRefs?: boolean
+  /** The caller already supplies the node location within the complete bundle. */
+  useContextPath?: boolean
+}): LifecyclePlugin => {
   const authoredRefs = new WeakMap<object, string>()
   const paths = new WeakMap<object, readonly string[]>()
   const indexPaths = (value: unknown, path: readonly string[]): void => {
@@ -35,10 +36,14 @@ export const openApiDocument = (): LifecyclePlugin => {
     type: 'lifecycle',
     resolveDocument: resolveOpenApiDocument,
     onBeforeNodeProcess: (node, context) => {
-      if (typeof node.$ref === 'string' && resolveOpenApiDocument(context.rootNode, context.origin)) {
+      if (
+        typeof node.$ref === 'string' &&
+        (options?.preserveOriginalRefs || resolveOpenApiDocument(context.rootNode, context.origin))
+      ) {
         // Partial bundles report paths relative to the selected subtree. Index the supplied root
         // so the saved references can also be restored when exporting the entire document.
-        indexPaths(context.rootNode, [])
+        if (options?.useContextPath) paths.set(node, context.path)
+        else indexPaths(context.rootNode, [])
         authoredRefs.set(node, node.$ref)
       }
     },

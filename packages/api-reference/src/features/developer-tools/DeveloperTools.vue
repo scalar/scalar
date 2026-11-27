@@ -209,6 +209,7 @@ const showDeveloperTools = computed<boolean>(() => {
           v-bind="toggleAttributes('deploy')"
           class="max-h-8 rounded-lg px-3"
           size="sm"
+          variant="gradient"
           @click="emit('togglePanel', 'deploy')">
           {{ deployLabel }}
         </ScalarButton>

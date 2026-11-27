@@ -1,5 +1,43 @@
 # @scalar/openapi-parser
 
+## 0.29.29
+
+No changes in this release.
+
+## 0.29.28
+
+No changes in this release.
+
+## 0.29.27
+
+No changes in this release.
+
+## 0.29.26
+
+No changes in this release.
+
+## 0.29.25
+
+No changes in this release.
+
+## 0.29.24
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.29.23
+
+No changes in this release.
+
+## 0.29.22
+
+### Patch Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): fix: parse YAML documents that merge shared anchors into many operations
+
+  Since yaml 2.9.1, merge keys (`<<: *anchor`) count toward the alias limit, so large API Gateway exports failed with "Excessive alias count indicates a resource exhaustion attack". The limit is now 100,000 and shared through `YAML_MAX_ALIAS_COUNT` from `@scalar/helpers`.
+
 ## 0.29.21
 
 ## 0.29.20

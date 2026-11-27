@@ -303,6 +303,55 @@ describe('path-items', () => {
     expect(params?.find((p: any) => p.name === 'limit')).toBeDefined()
   })
 
+  it('keeps a query parameter that shares its name with a path parameter', () => {
+    const item: Item = {
+      name: 'Get User',
+      request: {
+        method: 'GET',
+        url: {
+          raw: 'https://api.example.com/users/:id?id=7',
+          path: ['users', ':id'],
+          query: [{ key: 'id', value: '7' }],
+          variable: [{ key: 'id', value: '5' }],
+        },
+      },
+    }
+
+    const result = processItem(item, 'default')
+
+    const params = result.paths['/users/:id']?.get?.parameters
+    expect(params?.map(({ in: location, name }) => ({ location, name }))).toStrictEqual([
+      { location: 'query', name: 'id' },
+      { location: 'path', name: 'id' },
+    ])
+  })
+
+  it('lets a markdown table row replace only the parameter in the same location', () => {
+    const item: Item = {
+      name: 'List Users',
+      request: {
+        method: 'GET',
+        header: [{ key: 'version', value: '2' }],
+        url: {
+          raw: 'https://api.example.com/users?version=1',
+          path: ['users'],
+          query: [{ key: 'version', value: '1' }],
+        },
+        description: `| object | name | description |
+| --- | --- | --- |
+| header | version | API version header |`,
+      },
+    }
+
+    const result = processItem(item, 'default')
+
+    const params = result.paths['/users']?.get?.parameters
+    expect(params?.map(({ in: location, name, description }) => ({ location, name, description }))).toStrictEqual([
+      { location: 'query', name: 'version', description: undefined },
+      { location: 'header', name: 'version', description: 'API version header' },
+    ])
+  })
+
   it('extracts parameters from markdown table in description', () => {
     const item: Item = {
       name: 'Get Users',
@@ -1033,5 +1082,73 @@ describe('path-items', () => {
       expect((enabledHeader as any)?.['x-scalar-disabled']).toBeUndefined()
       expect((disabledHeader as any)?.['x-scalar-disabled']).toBe(true)
     })
+  })
+
+  it('leaves security to the collection when a request inherits authentication', () => {
+    const item: Item = {
+      name: 'Get User',
+      request: { method: 'GET', url: { raw: 'https://api.example.com/users' }, auth: { type: 'inherit' } },
+    }
+
+    const result = processItem(item)
+
+    expect(result.paths['/users']?.get?.security).toBeUndefined()
+    expect(result.components).toStrictEqual({})
+  })
+
+  it.each(['awsv4', 'oauth1', 'hawk', 'ntlm', 'edgegrid', 'jwt', 'asap', 'akamai'])(
+    'overrides inherited security with no requirement for %s authentication',
+    (type) => {
+      const item: Item = {
+        name: 'Get User',
+        request: { method: 'GET', url: { raw: 'https://api.example.com/users' }, auth: { type } },
+      }
+      const original = structuredClone(item)
+
+      const result = processItem(item)
+
+      expect(result.paths['/users']?.get?.security).toStrictEqual([])
+      expect(result.components).toStrictEqual({ securitySchemes: {} })
+      expect(item).toStrictEqual(original)
+    },
+  )
+
+  it('keeps API keys with different names under different scheme names', () => {
+    const itemGroup: ItemGroup = {
+      name: 'API',
+      item: [
+        {
+          name: 'Get User',
+          request: {
+            method: 'GET',
+            url: { raw: 'https://api.example.com/users' },
+            auth: { type: 'apikey', apikey: [{ key: 'key', value: 'X-API-Key' }] },
+          },
+        },
+        {
+          name: 'Create User',
+          request: {
+            method: 'POST',
+            url: { raw: 'https://api.example.com/users' },
+            auth: {
+              type: 'apikey',
+              apikey: [
+                { key: 'key', value: 'api_token' },
+                { key: 'in', value: 'query' },
+              ],
+            },
+          },
+        },
+      ],
+    }
+
+    const result = processItem(itemGroup)
+
+    expect(result.components.securitySchemes).toStrictEqual({
+      'apikeyAuth_header_X-API-Key': { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+      apikeyAuth_query_api_token: { type: 'apiKey', name: 'api_token', in: 'query' },
+    })
+    expect(result.paths['/users']?.get?.security).toStrictEqual([{ 'apikeyAuth_header_X-API-Key': [] }])
+    expect(result.paths['/users']?.post?.security).toStrictEqual([{ apikeyAuth_query_api_token: [] }])
   })
 })

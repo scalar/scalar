@@ -1,7 +1,7 @@
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { type VueWrapper, flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { type VueWrapper, enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw, nextTick } from 'vue'
 
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
@@ -40,6 +40,12 @@ const defaultProps = {
   documentSlug: 'test-document',
   defaultHeaders: {},
 } satisfies RequestBlockProps
+
+enableAutoUnmount(afterEach)
+
+afterEach(() => {
+  document.body.replaceChildren()
+})
 
 describe('RequestBlock', () => {
   it('preserves sibling values when editing a selected filter and resets selection across examples, operations, and documents', async () => {
@@ -234,6 +240,7 @@ describe('RequestBlock', () => {
 
   it('shows Auth section opened in modal layout when security is required', () => {
     const wrapper = mount(RequestBlock, {
+      attachTo: document.body,
       props: {
         ...defaultProps,
         layout: 'modal',
@@ -262,6 +269,7 @@ describe('RequestBlock', () => {
 
   it('shows Auth section collapsed in modal layout when no security requirement is configured', () => {
     const wrapper = mount(RequestBlock, {
+      attachTo: document.body,
       props: {
         ...defaultProps,
         layout: 'modal',
@@ -289,6 +297,7 @@ describe('RequestBlock', () => {
 
   it('hides Auth section in modal layout when no security is configured', () => {
     const wrapper = mount(RequestBlock, {
+      attachTo: document.body,
       props: {
         ...defaultProps,
         layout: 'modal',
@@ -308,6 +317,7 @@ describe('RequestBlock', () => {
 
   it('shows Auth section when not in modal layout', () => {
     const wrapper = mount(RequestBlock, {
+      attachTo: document.body,
       props: { ...defaultProps },
       global: {
         stubs: {
@@ -323,6 +333,7 @@ describe('RequestBlock', () => {
 
   it('hides request body for methods without a body', () => {
     const wrapper = mount(RequestBlock, {
+      attachTo: document.body,
       props: { ...defaultProps, method: 'get' },
       global: {
         stubs: {
@@ -338,6 +349,7 @@ describe('RequestBlock', () => {
 
   it.each(['post', 'query'] as const)('shows the request body for %s', (method) => {
     const wrapper = mount(RequestBlock, {
+      attachTo: document.body,
       props: { ...defaultProps, method },
       global: {
         stubs: {

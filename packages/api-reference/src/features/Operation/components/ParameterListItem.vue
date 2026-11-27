@@ -11,28 +11,34 @@ import {
   getSchemaType,
   hasComplexArrayItems,
   optimizeValueForDisplay,
+  resolveDisplaySchema,
 } from '@scalar/blocks/schema/helpers'
 import {
   ScalarMarkdown,
   ScalarMarkdownSummary,
 } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type {
+  ApiReferenceEvents,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
+import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
 import type {
   OpenApiDocument,
   ParameterObject,
   ResponseObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 import { isOnScrollTargetPath, scrollTargetId } from '@/helpers/lazy-bus'
+import { RESPONSE_PROPERTY_TARGET } from '@/helpers/response-property-target'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
+import { applySchemaExamples } from './helpers/apply-schema-examples'
 import { getParameterExamples } from './helpers/get-parameter-examples'
 
 const {
@@ -80,6 +86,7 @@ defineSlots<{
 }>()
 
 const { translate } = useLocalization()
+const responsePropertyTarget = inject(RESPONSE_PROPERTY_TARGET, undefined)
 
 /** Compact parameter rows also hide scalar details, unlike response rows. */
 const isCompactParameter = computed<boolean>(
@@ -92,7 +99,7 @@ const truncated = ref(false)
 /** Responses and params may both have a schema */
 const schema = computed<SchemaObject | null>(() =>
   'schema' in parameter && parameter.schema
-    ? (getResolvedRef(parameter.schema) ?? null)
+    ? (resolveDisplaySchema(parameter.schema) ?? null)
     : null,
 )
 
@@ -107,6 +114,10 @@ const content = computed(() => {
   }
   return parameter.content
 })
+
+const hasResponseContentPicker = computed<boolean>(
+  () => !('in' in parameter) && Object.keys(content.value ?? {}).length > 1,
+)
 
 const selectedContentType = ref<string>(
   Object.keys(content.value || {})[0] ?? '',
@@ -154,23 +165,30 @@ const schemaModelName = computed(() => {
 /** Computed value from the combined schema param and content param */
 const value = computed(() => {
   const base = baseSchema.value
-  const resolvedBase = content.value ? getResolvedRef(base) : schema.value
+  const resolvedBase = content.value ? resolveDisplaySchema(base) : schema.value
 
   const deprecated =
     'deprecated' in parameter ? parameter.deprecated : schema.value?.deprecated
 
-  /** Combine param/content/schema examples while ignoring undefined values. */
+  /** Explicit parameter/media examples override examples of the same schema value. */
   const examples = getParameterExamples({
     parameter,
-    schemaExamples: schema.value?.examples,
-    contentExamples: content.value?.[selectedContentType.value]?.examples,
+    content: content.value?.[selectedContentType.value],
   })
 
-  return {
-    ...resolvedBase,
-    deprecated: deprecated,
-    examples,
-  } as SchemaObject
+  if (!examples.length) {
+    return { ...resolvedBase, deprecated } as SchemaObject
+  }
+
+  // Response media examples describe the payload as a whole. Each variant can have its own examples.
+  return 'in' in parameter
+    ? { ...applySchemaExamples(resolvedBase, examples), deprecated }
+    : ({
+        ...resolvedBase,
+        example: undefined,
+        examples,
+        deprecated,
+      } as SchemaObject)
 })
 
 /** Composition keywords that render their members as nested rows. */
@@ -294,6 +312,76 @@ const headersBreadcrumb = computed<string[] | undefined>(() =>
   breadcrumb && name ? [...breadcrumb, name] : breadcrumb,
 )
 
+const responseAnchorId = computed<string | undefined>(() =>
+  hasResponseContentPicker.value
+    ? headersBreadcrumb.value?.join('.')
+    : undefined,
+)
+
+/** Carry the picker choice in copied body links while keeping the DOM breadcrumb stable. */
+const schemaEventBus = computed<WorkspaceEventBus | null>(() => {
+  const parentBus = eventBus
+  const responseId = responseAnchorId.value
+  const operationId = breadcrumb?.[0]
+  if (!parentBus || !operationId || !responseId) {
+    return parentBus
+  }
+
+  return {
+    ...parentBus,
+    emit: (...[event, payload, emitOptions]) => {
+      if (
+        event === 'copy-url:nav-item' &&
+        payload &&
+        typeof payload === 'object' &&
+        'id' in payload &&
+        typeof payload.id === 'string' &&
+        payload.id.startsWith(`${responseId}.`)
+      ) {
+        parentBus.emit(
+          event,
+          {
+            ...payload,
+            responseProperty: {
+              operationId,
+              mediaType: selectedContentType.value,
+            },
+          },
+          emitOptions,
+        )
+        return
+      }
+      parentBus.emit<keyof ApiReferenceEvents>(event, payload, emitOptions)
+    },
+  }
+})
+
+const targetResponseMediaType = computed<string | undefined>(() => {
+  const responseId = responseAnchorId.value
+  const target = responsePropertyTarget?.value
+  if (
+    !target ||
+    target.operationId !== breadcrumb?.[0] ||
+    !isOnScrollTargetPath(responseId)
+  ) {
+    return undefined
+  }
+
+  return Object.hasOwn(content.value ?? {}, target.mediaType)
+    ? target.mediaType
+    : undefined
+})
+
+watch(
+  targetResponseMediaType,
+  (mediaType) => {
+    if (mediaType) {
+      selectedContentType.value = mediaType
+    }
+  },
+  { immediate: true },
+)
+
 /**
  * Whether a deep link points at a property inside this collapsed item. When it
  * does, the disclosure opens on mount so a fresh navigation can render the target
@@ -301,7 +389,9 @@ const headersBreadcrumb = computed<string[] | undefined>(() =>
  */
 const isOnTargetPath = computed<boolean>(
   () =>
-    isOnScrollTargetPath(schemaBreadcrumb.value?.join('.')) ||
+    ((!responsePropertyTarget?.value ||
+      responsePropertyTarget.value.operationId === breadcrumb?.[0]) &&
+      isOnScrollTargetPath(schemaBreadcrumb.value?.join('.'))) ||
     Boolean(
       breadcrumb &&
       childParameters &&
@@ -309,19 +399,26 @@ const isOnTargetPath = computed<boolean>(
     ),
 )
 
-/** Headless UI only reads defaultOpen on mount; reopen a group for later navigation too. */
-const groupNavigationKey = ref<number>(0)
-const groupOpen = ref<boolean>(false)
+/** Headless UI reads defaultOpen on mount, so later navigation may have to remount a disclosure. */
+const disclosureNavigationKey = ref<number>(0)
+const disclosureOpen = ref<boolean>(false)
 
 /** Read Headless UI's slot state after rendering, including rail and keyboard closes. */
-const trackGroupOpen = (open: boolean): void => {
-  groupOpen.value = open
+const trackDisclosureOpen = (open: boolean): void => {
+  disclosureOpen.value = open
 }
-watch(isOnTargetPath, (onTargetPath) => {
-  if (childParameters && onTargetPath && !groupOpen.value) {
-    groupNavigationKey.value++
-  }
-})
+watch(
+  [isOnTargetPath, targetResponseMediaType],
+  ([onTargetPath, mediaType]) => {
+    if (
+      (childParameters || mediaType) &&
+      onTargetPath &&
+      !disclosureOpen.value
+    ) {
+      disclosureNavigationKey.value++
+    }
+  },
+)
 
 /**
  * The anchor id for a collapsible item's own row. The schema renders without
@@ -340,24 +437,31 @@ const triggerAnchorId = computed<string | undefined>(() =>
   <li
     :id="isCompactParameter ? triggerAnchorId : undefined"
     class="parameter-item group/parameter-item parameter-item--tree border-t-0!"
-    :class="{ 'scroll-mt-24': isCompactParameter }">
+    :class="[
+      hasResponseContentPicker
+        ? 'grid grid-cols-[minmax(0,1fr)_fit-content(50%)] gap-x-1.5'
+        : 'flex flex-col',
+      { 'scroll-mt-24': isCompactParameter },
+    ]">
     <!-- No separators between rows (the row zeroes its own top border); the
          section heading carries the one rule instead (see ParameterList /
          OperationResponses). -->
     <Disclosure
-      :key="groupNavigationKey"
+      :key="disclosureNavigationKey"
       v-slot="{ open, close }"
       :defaultOpen="isOnTargetPath">
-      <!-- The trigger spans the full row, so its focus ring must too: drawing
-           it on the 12px caret leaves the actual control with no visible
-           focus state. -->
+      <!-- Ring the disclosure itself so keyboard focus stays visible.
+           Give the picker a separate column so the summary can shrink. -->
       <component
         :is="shouldCollapse ? DisclosureButton : 'div'"
         v-if="collapsableItems && !isStaticTreeItem"
         :id="isCompactParameter ? undefined : triggerAnchorId"
-        :ref="() => trackGroupOpen(open)"
+        :ref="() => trackDisclosureOpen(open)"
         class="parameter-item-trigger group/trigger group/tree-control scroll-mt-24 focus-visible:rounded-(--scalar-radius) focus-visible:outline-(length:--scalar-border-width) focus-visible:outline-offset-2 focus-visible:outline-(--scalar-focus-color)"
-        :class="{ 'parameter-item-trigger-open': open }">
+        :class="{
+          'parameter-item-trigger-open': open,
+          'col-start-1 row-start-1 min-w-0': hasResponseContentPicker,
+        }">
         <div class="parameter-item-name min-w-0">
           <!-- The puck is the depth-0 gutter glyph, so a response row reads as
                part of the schema tree below it. Anchored to the first line so
@@ -391,6 +495,28 @@ const triggerAnchorId = computed<string | undefined>(() =>
           v-else
           class="flex-1" />
       </component>
+      <div
+        v-if="shouldCollapse && content"
+        class="flex items-center text-base"
+        :class="[
+          hasResponseContentPicker
+            ? 'col-start-2 row-start-1 min-w-0 self-center justify-self-end'
+            : 'absolute top-[calc(10px+0.5lh)] right-0 z-0 -translate-y-1/2',
+          {
+            'mb-1': hasResponseContentPicker && !collapsableItems,
+            'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
+              !hasResponseContentPicker && !open,
+          },
+        ]">
+        <div
+          v-if="!hasResponseContentPicker"
+          class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
+        <ContentTypeSelect
+          v-model="selectedContentType"
+          :class="{ 'max-w-full min-w-0': hasResponseContentPicker }"
+          :content="content"
+          :truncateLabel="hasResponseContentPicker" />
+      </div>
       <!-- Railed when collapsible: clicking the rail closes the row. The rail
            props only exist on SchemaRailPanel, so they bind only when it
            renders. The panel indents one gutter (restated here because the
@@ -418,6 +544,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
           'parameter-item-container--tree mt-1.5 mb-0.5 ps-[var(--schema-gutter,16px)]!':
             isRailedPanel,
           'parameter-item-container--static-tree': isStaticTreeItem,
+          'col-span-full row-start-2 min-w-0': hasResponseContentPicker,
         }"
         :static="!collapsableItems || isStaticTreeItem">
         <!-- The railed panel's own top margin already supplies the 6px gap to
@@ -440,12 +567,13 @@ const triggerAnchorId = computed<string | undefined>(() =>
         <SchemaProperty
           is="div"
           v-if="!childParameters"
+          :badges="getXBadges(baseSchema)"
           :breadcrumb="schemaBreadcrumb"
           compact
           :description="
             collapsableItems && !isStaticTreeItem ? '' : parameter.description
           "
-          :eventBus="eventBus"
+          :eventBus="schemaEventBus"
           :expansion="expansion"
           :extensionSource="'in' in parameter ? parameter : undefined"
           :hideWriteOnly="true"
@@ -480,7 +608,9 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :name="translate('common.streamItem')"
           :noncollapsible="true"
           :options="{ ...options, hideWriteOnly: true, document }"
-          :schema="getResolvedRef(content[selectedContentType]?.itemSchema)"
+          :schema="
+            resolveDisplaySchema(content[selectedContentType]?.itemSchema)
+          "
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension" />
 
@@ -528,27 +658,12 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :showExtensions="options.showExtensions"
           :specificationExtension="specificationExtension" />
       </component>
-      <div
-        v-if="shouldCollapse && content"
-        class="absolute top-[calc(10px+0.5lh)] right-0 z-0 flex -translate-y-1/2 items-center text-base"
-        :class="{
-          'opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100':
-            !open,
-        }">
-        <div
-          class="from-b-1 absolute inset-y-0 -left-6 -z-1 w-8 bg-linear-to-l from-40% to-transparent" />
-        <ContentTypeSelect
-          v-model="selectedContentType"
-          :content="content" />
-      </div>
     </Disclosure>
   </li>
 </template>
 
 <style scoped>
 .parameter-item {
-  display: flex;
-  flex-direction: column;
   position: relative;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }

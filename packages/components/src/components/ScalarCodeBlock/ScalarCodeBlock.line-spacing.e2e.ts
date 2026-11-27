@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { expect, test } from '@test/helpers'
 import { measureCodeLineSpacing } from '@test/measure-code-line-spacing'
 
-const highlightingStyles = readFileSync(new URL('../../../../code-highlight/src/css/code.css', import.meta.url), 'utf8')
+const highlightingStyles = readFileSync(new URL('../../../../highlight/src/compat/code.css', import.meta.url), 'utf8')
 
 const content = 'const alpha = 1\n\nalpha\n// comment'
 

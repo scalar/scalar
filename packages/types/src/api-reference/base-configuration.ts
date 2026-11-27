@@ -1,5 +1,4 @@
-import z from 'zod'
-
+import { z } from '../zod'
 import { apiClientPluginSchema } from './api-client-plugin'
 
 const externalUrlsSchema = z.object({
@@ -44,6 +43,8 @@ export const baseConfigurationSchema = z.object({
   hideClientButton: z.boolean().optional().default(false).catch(false),
   /** URL to a request proxy for the API client */
   proxyUrl: z.string().optional(),
+  /** HTTP(S) origins treated as local for API proxy routing and OAuth authorization. */
+  trustedLocalOrigins: z.array(z.string()).optional().catch(undefined),
   /**
    * Default OAuth 2.0 redirect URI used to prefill auth flows in the API client.
    *

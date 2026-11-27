@@ -20,6 +20,7 @@ export const zhCn = {
     unknownType: '未知类型',
     propertyCount: '属性：{count}',
     headerCount: '标头：{count}',
+    extensionCount: '扩展（{count}）',
     recursiveReference: '递归引用 {name}',
     recursive: '递归',
     additionalProperties: '附加属性',

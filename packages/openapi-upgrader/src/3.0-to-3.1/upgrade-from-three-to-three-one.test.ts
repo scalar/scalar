@@ -4,6 +4,482 @@ import { describe, expect, it } from 'vitest'
 import { upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
 
 describe('upgradeFromThreeToThreeOne', () => {
+  it.each(['oneOf', 'anyOf'])('migrates an untyped nullable %s to an explicit null union', (keyword) => {
+    const branches = [{ type: 'string' }, { type: 'integer' }]
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.3',
+      info: { title: 'Nullable unions', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Value: { nullable: true, [keyword]: branches, readOnly: true, enum: ['a'], description: 'A value' },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.Value).toStrictEqual({
+      readOnly: true,
+      enum: ['a'],
+      description: 'A value',
+      anyOf: [{ [keyword]: branches }, { type: 'null' }],
+    })
+  })
+
+  it.each(['allOf', 'anyOf', 'oneOf', '$ref'] as const)(
+    'migrates sibling bounds and examples on a nullable %s',
+    (keyword) => {
+      const reference = { $ref: '#/components/schemas/Number' }
+      const composition = keyword === '$ref' ? reference : { [keyword]: [reference] }
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.4',
+        info: { title: 'Nullable bounds', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Number: { type: 'number' },
+            Value: {
+              nullable: true,
+              ...composition,
+              minimum: 0,
+              maximum: 10,
+              exclusiveMinimum: true,
+              exclusiveMaximum: true,
+              example: 1,
+            },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.Value).toStrictEqual({
+        exclusiveMinimum: 0,
+        exclusiveMaximum: 10,
+        examples: [1],
+        anyOf: [keyword === '$ref' || keyword === 'allOf' ? reference : composition, { type: 'null' }],
+      })
+    },
+  )
+
+  it('preserves schema-like payloads in extensions outside schemas', () => {
+    const extension = {
+      schema: { nullable: true, oneOf: [{ type: 'number' }], minimum: 0, exclusiveMinimum: true, example: 1 },
+    }
+    const document = {
+      openapi: '3.0.4',
+      info: { title: 'Extension data', version: '1', 'x-metadata': extension },
+      'x-metadata': extension,
+      paths: {
+        '/records': {
+          'x-metadata': extension,
+          get: {
+            'x-metadata': extension,
+            parameters: [{ name: 'filter', in: 'query', schema: { type: 'string' }, 'x-metadata': extension }],
+            responses: { '200': { description: 'OK', 'x-metadata': extension } },
+          },
+        },
+      },
+    }
+    const before = structuredClone(document)
+
+    expect(upgradeFromThreeToThreeOne(document)).toStrictEqual({ ...before, openapi: '3.1.1' })
+  })
+
+  it('preserves every composition when adding the null alternative', () => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.3',
+      info: { title: 'Nullable compositions', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Value: {
+            nullable: true,
+            allOf: [{ minLength: 1 }],
+            anyOf: [{ type: 'string' }, { type: 'integer' }],
+            oneOf: [{ type: 'string', nullable: true }, { type: 'integer' }],
+          },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.Value).toStrictEqual({
+      anyOf: [
+        {
+          allOf: [{ minLength: 1 }],
+          anyOf: [{ type: 'string' }, { type: 'integer' }],
+          oneOf: [{ type: ['string', 'null'] }, { type: 'integer' }],
+        },
+        { type: 'null' },
+      ],
+    })
+  })
+
+  it.each(['#/x-ext/value', '#%2Fx-ext%2Fvalue'])('migrates a bundled standalone nullable schema at %s', (ref) => {
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.3',
+      info: { title: 'External schemas', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: ref } } },
+      'x-ext': { value: { nullable: true, oneOf: [{ type: 'string' }, { type: 'integer' }] } },
+    })
+
+    expect(result).toStrictEqual({
+      openapi: '3.1.1',
+      info: { title: 'External schemas', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: ref } } },
+      'x-ext': { value: { anyOf: [{ oneOf: [{ type: 'string' }, { type: 'integer' }] }, { type: 'null' }] } },
+    })
+  })
+
+  it('preserves unreferenced x-ext data even when it contains schema-like field names', () => {
+    const metadata = {
+      schema: { nullable: true, oneOf: [{ type: 'string' }], minimum: 0, exclusiveMinimum: true, example: 1 },
+    }
+    const before = structuredClone(metadata)
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Extension data', version: '1' },
+      paths: {},
+      'x-ext': { metadata },
+    })
+
+    expect(result['x-ext']).toStrictEqual({ metadata: before })
+  })
+
+  it.each([
+    { openapi: '3.0.4', schema: { nullable: true, oneOf: [{ type: 'string' }] } },
+    {
+      openapi: '3.0.4',
+      info: { title: 'Copied description', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { nullable: true, oneOf: [{ type: 'string' }] } } },
+    },
+  ])('preserves unreferenced x-ext data containing version fields: %j', (metadata) => {
+    const before = structuredClone(metadata)
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Extension data', version: '1' },
+      paths: {},
+      'x-ext': { metadata },
+    })
+
+    expect(result['x-ext']).toStrictEqual({ metadata: before })
+  })
+
+  it('converts only referenced fragments in an otherwise untyped external resource', () => {
+    const schema = { nullable: true, oneOf: [{ type: 'string' }] }
+    const metadata = { schema }
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Fragments', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: '#/x-ext/storage/Value' } } },
+      'x-ext': { storage: { Value: schema, metadata } },
+    })
+
+    expect(result['x-ext']).toStrictEqual({
+      storage: { Value: { anyOf: [{ oneOf: [{ type: 'string' }] }, { type: 'null' }] }, metadata },
+    })
+  })
+
+  it('preserves literal data inside a referenced standalone Example Object', () => {
+    const example = { value: { schema: { nullable: true, oneOf: [{ type: 'string' }] } } }
+    const before = structuredClone(example)
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Examples', version: '1' },
+      paths: {},
+      components: { examples: { Sample: { $ref: '#/x-ext/example' } } },
+      'x-ext': { example },
+    })
+
+    expect(result['x-ext']).toStrictEqual({ example: before })
+  })
+
+  it('keeps a referenced standalone schema independent of its consuming union arm', () => {
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Standalone schema', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { oneOf: [{ $ref: '#/x-ext/untyped' }, { type: 'string' }] } } },
+      'x-ext': { untyped: { nullable: true } },
+    })
+
+    expect(result['x-ext']).toStrictEqual({ untyped: {} })
+  })
+
+  it('migrates a schema stored directly in x-ext when an actual schema reference targets it', () => {
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Schema extension', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: '#/x-ext' } } },
+      'x-ext': { nullable: true, oneOf: [{ type: 'string' }] },
+    })
+
+    expect(result['x-ext']).toStrictEqual({ anyOf: [{ oneOf: [{ type: 'string' }] }, { type: 'null' }] })
+  })
+
+  it.each(['external', 'default', 'example', 'x-name'])(
+    'preserves nullable-named components in bundled document %s',
+    (resource) => {
+      const parameter = { name: 'limit', in: 'query', required: true, schema: { type: 'integer', nullable: true } }
+      const response = {
+        description: 'OK',
+        content: { 'application/json': { schema: { type: 'string', nullable: true } } },
+      }
+      const result = upgradeFromThreeToThreeOne({
+        openapi: '3.0.4',
+        info: { title: 'Bundled components', version: '1' },
+        paths: {},
+        components: {
+          parameters: { Limit: { $ref: `#/x-ext/${resource}/components/parameters/nullable` } },
+          responses: { Success: { $ref: `#/x-ext/${resource}/components/responses/nullable` } },
+        },
+        'x-ext': {
+          [resource]: {
+            openapi: '3.0.4',
+            info: { title: 'Shared', version: '1' },
+            paths: {},
+            components: { parameters: { nullable: parameter }, responses: { nullable: response } },
+          },
+        },
+      })
+
+      expect(result['x-ext']).toStrictEqual({
+        [resource]: {
+          openapi: '3.0.4',
+          info: { title: 'Shared', version: '1' },
+          paths: {},
+          components: {
+            parameters: { nullable: { ...parameter, schema: { type: ['integer', 'null'] } } },
+            responses: {
+              nullable: {
+                description: 'OK',
+                content: { 'application/json': { schema: { type: ['string', 'null'] } } },
+              },
+            },
+          },
+        },
+      })
+    },
+  )
+
+  it('follows schema references across standalone resources without rewriting unrelated fragments', () => {
+    const data = { nullable: true, oneOf: [{ type: 'string' }] }
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Bundled schema references', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: '#/x-ext/alias' } } },
+      'x-ext': {
+        value: data,
+        alias: { $ref: '#/x-ext/value' },
+        example: data,
+      },
+    })
+
+    expect(result['x-ext']).toStrictEqual({
+      value: { anyOf: [{ oneOf: [{ type: 'string' }] }, { type: 'null' }] },
+      alias: { $ref: '#/x-ext/value' },
+      example: data,
+    })
+  })
+
+  it('preserves specification extensions directly inside the Paths Object', () => {
+    const metadata = { schema: { nullable: true, oneOf: [{ type: 'string' }] } }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Path extensions', version: '1' },
+      paths: {
+        'x-metadata': metadata,
+        '/records': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: { 'application/json': { schema: { type: 'string', nullable: true } } },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths).toStrictEqual({
+      'x-metadata': metadata,
+      '/records': {
+        get: {
+          responses: {
+            '200': { description: 'OK', content: { 'application/json': { schema: { type: ['string', 'null'] } } } },
+          },
+        },
+      },
+    })
+  })
+
+  it.each([
+    [{ nullable: true }, {}],
+    [{ nullable: false }, {}],
+    [{ nullable: true, enum: ['a'] }, { enum: ['a'] }],
+    [{ nullable: false, type: 'string' }, { type: 'string' }],
+    [
+      { nullable: false, oneOf: [{ type: 'string' }, { type: 'integer' }] },
+      { oneOf: [{ type: 'string' }, { type: 'integer' }] },
+    ],
+  ])('removes an ineffective nullable from %j', (schema, expected) => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.3',
+      info: { title: 'Nullable cleanup', version: '1' },
+      paths: {},
+      components: { schemas: { Value: schema } },
+    })
+
+    expect(result.components?.schemas?.Value).toStrictEqual(expected)
+  })
+
+  it('preserves nullable property names, examples, defaults, enum values, and extension payloads', () => {
+    const value = { nullable: true, oneOf: [{ type: 'string' }, { type: 'integer' }] }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.3',
+      info: { title: 'Nullable data', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          nullable: {
+            type: 'object',
+            properties: { nullable: value },
+            default: value,
+            enum: [value],
+            example: value,
+            'x-metadata': value,
+          },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.nullable).toStrictEqual({
+      type: 'object',
+      properties: { nullable: { anyOf: [{ oneOf: value.oneOf }, { type: 'null' }] } },
+      default: value,
+      enum: [value],
+      examples: [value],
+      'x-metadata': value,
+    })
+  })
+
+  it.each(['3.1.0', '3.2.0'])('preserves a bundled description that declares OpenAPI %s', (openapi) => {
+    const resource = {
+      openapi,
+      info: { title: 'Native schemas', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { nullable: true, oneOf: [{ type: 'string' }] } } },
+    }
+    const before = structuredClone(resource)
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Legacy root', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: '#/x-ext/native/components/schemas/Value' } } },
+      'x-ext': { native: resource },
+    })
+
+    expect(result['x-ext']).toStrictEqual({ native: before })
+  })
+
+  it('preserves a bundled standalone schema with its own dialect', () => {
+    const resource = {
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      nullable: true,
+      oneOf: [{ type: 'string' }],
+    }
+    const before = structuredClone(resource)
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Legacy root', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { $ref: '#/x-ext/native' } } },
+      'x-ext': { native: resource },
+    })
+
+    expect(result['x-ext']).toStrictEqual({ native: before })
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('preserves local references into relocated nullable %s members', (keyword) => {
+    const ref = `#/components/schemas/Value~1Kind/${keyword}/0`
+    const literal = { $ref: ref }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Union references', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          'Value/Kind': { nullable: true, [keyword]: [{ type: 'string' }, { type: 'integer' }] },
+          Alias: { $ref: ref },
+          Annotated: { type: 'object', example: literal, default: literal, 'x-metadata': literal },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.Alias).toStrictEqual({
+      $ref: `#/components/schemas/Value~1Kind/anyOf/0/${keyword}/0`,
+    })
+    expect(result.components?.schemas?.Annotated).toStrictEqual({
+      type: 'object',
+      examples: [literal],
+      default: literal,
+      'x-metadata': literal,
+    })
+  })
+
+  it('relocates URI-encoded pointers without decoding literal percent sequences twice', () => {
+    const ref = `#${encodeURIComponent('/components/schemas/Value%2F/oneOf/0')}`
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Encoded union references', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          'Value%2F': { nullable: true, oneOf: [{ type: 'string' }] },
+          Alias: { $ref: ref },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.Alias).toStrictEqual({
+      $ref: '#/components/schemas/Value%252F/anyOf/0/oneOf/0',
+    })
+  })
+
+  it('composes reference relocations through nested nullable compositions', () => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Nested union references', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Value: { nullable: true, allOf: [{ nullable: true, oneOf: [{ type: 'string' }] }] },
+          Alias: { $ref: '#/components/schemas/Value/allOf/0/oneOf/0' },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.Alias).toStrictEqual({
+      $ref: '#/components/schemas/Value/anyOf/0/anyOf/0/oneOf/0',
+    })
+  })
+
+  it.each(['3.1.0', '3.2.0'])('leaves legacy nullable in an OpenAPI %s document unchanged', (openapi) => {
+    const document = {
+      openapi,
+      info: { title: 'Native schemas', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { nullable: true, oneOf: [{ type: 'string' }, { type: 'integer' }] } } },
+    }
+    const before = structuredClone(document)
+
+    expect(upgradeFromThreeToThreeOne(document)).toStrictEqual(before)
+  })
+
   it('preserves example data on a reusable parameter named headers', () => {
     const example = { type: 'string', nullable: true }
     const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
@@ -37,6 +513,163 @@ describe('upgradeFromThreeToThreeOne', () => {
 
     expect(result.components?.requestBodies?.['x-example']).toStrictEqual({
       content: { 'application/json': { schema: { type: ['string', 'null'] } } },
+    })
+  })
+
+  it('upgrades a reusable response named x-example and preserves its extensions', () => {
+    const extension = { schema: { nullable: true, oneOf: [{ type: 'number' }] } }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Responses', version: '1' },
+      paths: {},
+      components: {
+        responses: {
+          'x-example': {
+            description: 'OK',
+            content: { 'application/json': { schema: { type: 'string', nullable: true } } },
+            'x-metadata': extension,
+          },
+        },
+      },
+    })
+
+    expect(result.components?.responses?.['x-example']).toStrictEqual({
+      description: 'OK',
+      content: { 'application/json': { schema: { type: ['string', 'null'] } } },
+      'x-metadata': extension,
+    })
+  })
+
+  it.each(['x-event', 'default', 'example', 'examples'])('upgrades schemas in a legacy webhook named %s', (name) => {
+    const extension = { schema: { nullable: true, oneOf: [{ type: 'number' }] } }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Webhooks', version: '1' },
+      paths: {},
+      'x-webhooks': {
+        [name]: {
+          post: {
+            'x-metadata': extension,
+            requestBody: { content: { 'application/json': { schema: { type: 'string', nullable: true } } } },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+
+    expect(result.webhooks).toStrictEqual({
+      [name]: {
+        post: {
+          'x-metadata': extension,
+          requestBody: { content: { 'application/json': { schema: { type: ['string', 'null'] } } } },
+          responses: { '200': { description: 'OK' } },
+        },
+      },
+    })
+  })
+
+  it('preserves callback expression-map extensions while upgrading named callbacks', () => {
+    const metadata = { schema: { nullable: true, oneOf: [{ type: 'string' }] } }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Callback extensions', version: '1' },
+      paths: {
+        '/subscribe': {
+          post: {
+            responses: { '200': { description: 'OK' } },
+            callbacks: {
+              'x-event': {
+                'x-metadata': metadata,
+                '{$request.body#/url}': {
+                  post: {
+                    requestBody: { content: { 'application/json': { schema: { type: 'string', nullable: true } } } },
+                    responses: { '200': { description: 'OK' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/subscribe']?.post?.callbacks).toStrictEqual({
+      'x-event': {
+        'x-metadata': metadata,
+        '{$request.body#/url}': {
+          post: {
+            requestBody: { content: { 'application/json': { schema: { type: ['string', 'null'] } } } },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+  })
+
+  it.each(['default', 'example', 'examples'])('upgrades a reusable request body named %s', (name) => {
+    const example = { nullable: true }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Named bodies', version: '1' },
+      paths: {},
+      components: {
+        requestBodies: {
+          [name]: {
+            content: { 'application/json': { schema: { nullable: true, oneOf: [{ type: 'string' }], example } } },
+          },
+        },
+      },
+    })
+
+    expect(result.components?.requestBodies).toStrictEqual({
+      [name]: {
+        content: {
+          'application/json': {
+            schema: { anyOf: [{ oneOf: [{ type: 'string' }] }, { type: 'null' }], examples: [example] },
+          },
+        },
+      },
+    })
+  })
+
+  it.each(['default', 'example', 'examples'])('upgrades request schemas in a callback named %s', (name) => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Named callbacks', version: '1' },
+      paths: {
+        '/subscribe': {
+          post: {
+            responses: { '200': { description: 'OK' } },
+            callbacks: {
+              [name]: {
+                '{$request.body#/url}': {
+                  post: {
+                    requestBody: {
+                      content: { 'application/json': { schema: { nullable: true, oneOf: [{ type: 'string' }] } } },
+                    },
+                    responses: { '200': { description: 'OK' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/subscribe']?.post?.callbacks).toStrictEqual({
+      [name]: {
+        '{$request.body#/url}': {
+          post: {
+            requestBody: {
+              content: {
+                'application/json': { schema: { anyOf: [{ oneOf: [{ type: 'string' }] }, { type: 'null' }] } },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
     })
   })
 
@@ -455,7 +1088,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
-    it('migrates nullable types with properties', () => {
+    it('removes an untyped nullable without a composition', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -488,7 +1121,6 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
 
       expect(result.paths?.['/test']?.get?.responses?.['200']?.content['application/json'].schema).toEqual({
-        nullable: true,
         properties: {
           name: {
             type: 'string',
@@ -622,18 +1254,18 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
-    it('leaves a nullable arm that carries other keywords alone', () => {
+    it('preserves constraints on an untyped nullable arm', () => {
       expect(
         upgradeValue({ oneOf: [{ nullable: true, required: ['id'] }, { $ref: '#/components/schemas/Pet' }] }),
       ).toEqual({
-        oneOf: [{ nullable: true, required: ['id'] }, { $ref: '#/components/schemas/Pet' }],
+        oneOf: [{ required: ['id'] }, { $ref: '#/components/schemas/Pet' }],
       })
     })
 
-    it('leaves a bare `nullable: true` outside a union alone', () => {
-      expect(upgradeValue({ nullable: true })).toEqual({ nullable: true })
+    it('removes an ineffective nullable outside a union', () => {
+      expect(upgradeValue({ nullable: true })).toStrictEqual({})
       expect(upgradeValue({ allOf: [{ nullable: true }, { $ref: '#/components/schemas/Pet' }] })).toEqual({
-        allOf: [{ nullable: true }, { $ref: '#/components/schemas/Pet' }],
+        allOf: [{}, { $ref: '#/components/schemas/Pet' }],
       })
     })
 

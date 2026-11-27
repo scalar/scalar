@@ -15,11 +15,10 @@
     "coerce",
     "scalar"
   ],
-  "version": "0.6.7",
+  "version": "0.6.9",
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "pnpm@10.34.5",
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "tsx playground/index.ts",

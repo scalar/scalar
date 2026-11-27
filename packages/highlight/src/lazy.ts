@@ -36,6 +36,7 @@ const loaders = {
   json: () => import('./langs/json'),
   julia: () => import('./langs/julia'),
   kotlin: () => import('./langs/kotlin'),
+  log: () => import('./langs/log'),
   lua: () => import('./langs/lua'),
   makefile: () => import('./langs/makefile'),
   markdown: () => import('./langs/markdown'),

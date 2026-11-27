@@ -125,6 +125,10 @@ Request/reply operations show a **Replies** section with the reply channel, its 
 
 Reusable schemas defined under `components.schemas` are rendered in the **Models** section, just like OpenAPI.
 
+The **Messages** section above **Models** lists reusable messages from `components.messages`. Expand a message to see its headers, payload, correlation ID, bindings, and examples, including fields inherited from message traits.
+
+Messages keep their document order and are searchable. References are resolved, entries marked `x-internal` or `x-scalar-ignore` are hidden, and the section appears when there is at least one visible reusable message. Set `hideModels` to hide both **Messages** and **Models**.
+
 Multi Format Schema Objects use `schemaFormat` to choose how to display their schema. JSON Schema, AsyncAPI Schema, and OpenAPI Schema formats use the structured schema renderer. Self-contained Avro, RAML, and Protobuf schemas show expandable native fields and types in message payloads, application headers, and reusable models. Successfully parsed schemas use only the structured view. Unsupported or unparseable schemas display the original source with its declared format and a copy button.
 
 Supported schema formats:

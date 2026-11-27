@@ -1,7 +1,6 @@
 import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
-import { type Static, Type } from '@scalar/typebox'
-import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { type Static, array, coerce, evaluate, object, optional, string } from '@scalar/validation'
 
 import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 
@@ -11,19 +10,24 @@ import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-reque
  *
  * @see https://openid.net/specs/openid-connect-discovery-1_0.html
  */
-export const OpenIDConnectDiscoverySchema = Type.Object({
+export const OpenIDConnectDiscoverySchema = object({
   /** URL of the OAuth 2.0 Authorization Endpoint */
-  authorization_endpoint: Type.Optional(Type.String()),
+  authorization_endpoint: optional(string()),
   /** RFC8628 device authorization endpoint. */
-  device_authorization_endpoint: Type.Optional(Type.String()),
+  device_authorization_endpoint: optional(string()),
   /** URL of the OAuth 2.0 Token Endpoint */
-  token_endpoint: Type.Optional(Type.String()),
+  token_endpoint: optional(string()),
   /** List of OAuth 2.0 scope values that this server supports */
-  scopes_supported: Type.Optional(Type.Array(Type.String())),
+  scopes_supported: optional(array(string())),
   /** List of OAuth 2.0 grant type values that this server supports */
-  grant_types_supported: Type.Optional(Type.Array(Type.String())),
+  grant_types_supported: optional(
+    evaluate(
+      (value) => (Array.isArray(value) ? value.filter((item) => typeof item === 'string' && item.length > 0) : value),
+      array(string()),
+    ),
+  ),
   /** Supported PKCE code challenge methods (RFC 7636) */
-  code_challenge_methods_supported: Type.Optional(Type.Array(Type.String())),
+  code_challenge_methods_supported: optional(array(string())),
 })
 
 export type OpenIDConnectDiscovery = Static<typeof OpenIDConnectDiscoverySchema>
@@ -47,6 +51,7 @@ export const fetchOpenIDConnectDiscovery = async (
   url: string,
   proxyUrl: string,
   customFetch: CustomFetch = fetch,
+  trustedLocalOrigins?: readonly string[],
 ): Promise<ErrorResponse<OpenIDConnectDiscovery>> => {
   try {
     // If the URL does not end with the well-known path, append it
@@ -66,7 +71,7 @@ export const fetchOpenIDConnectDiscovery = async (
       discoveryUrl = `${discoveryUrl}/.well-known/openid-configuration`
     }
 
-    const proxiedUrl = redirectToProxy(proxyUrl, discoveryUrl)
+    const proxiedUrl = redirectToProxy(proxyUrl, discoveryUrl, trustedLocalOrigins)
     const response = await customFetch(proxiedUrl)
 
     if (!response.ok) {
@@ -76,7 +81,7 @@ export const fetchOpenIDConnectDiscovery = async (
       ]
     }
 
-    const data = coerceValue(OpenIDConnectDiscoverySchema, await response.json())
+    const data = coerce(OpenIDConnectDiscoverySchema, await response.json())
 
     // Validate that we have the essential fields
     if (!data.authorization_endpoint && !data.token_endpoint) {

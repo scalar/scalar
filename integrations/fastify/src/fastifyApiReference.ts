@@ -128,10 +128,19 @@ const fastifyApiReference = fp<
       }
     }
 
-    const getSpecFilenameSlug = (spec: unknown): string => {
+    const getContentDisposition = (spec: unknown, extension: 'json' | 'yaml'): string => {
       // Same GitHub Slugger and default file name as in `@scalar/api-reference`, when generating the download
-      const title: unknown = getValueByPath(spec, ['specification', 'info', 'title']).value
-      return slug(typeof title === 'string' ? title : 'spec')
+      const title: unknown = getValueByPath(spec, ['info', 'title']).value
+      const filename = `${slug(typeof title === 'string' ? title : 'spec') || 'spec'}.${extension}`
+
+      // Slugs retain Unicode, which must be encoded rather than written directly into HTTP headers.
+      if (!/^[\x20-\x7E]+$/.test(filename)) {
+        // Replace lone UTF-16 surrogates so URI encoding cannot prevent serving the document.
+        const utf8Filename = Buffer.from(filename, 'utf8').toString('utf8')
+        return `inline; filename="spec.${extension}"; filename*=UTF-8''${encodeURIComponent(utf8Filename)}`
+      }
+
+      return `inline; filename="${filename}"`
     }
 
     // Only expose the document endpoints when we can serve the document ourselves.
@@ -148,12 +157,11 @@ const fastifyApiReference = fp<
         ...(options.logLevel && { logLevel: options.logLevel }),
         handler(_, reply) {
           const spec = normalize(specSource.get())
-          const filename = getSpecFilenameSlug(spec)
           const json = JSON.parse(JSON.stringify(spec)) // parsing minifies the JSON
 
           return reply
             .header('Content-Type', 'application/json')
-            .header('Content-Disposition', `filename=${filename}.json`)
+            .header('Content-Disposition', getContentDisposition(spec, 'json'))
             .header('Access-Control-Allow-Origin', '*')
             .header('Access-Control-Allow-Methods', '*')
             .send(json)
@@ -169,11 +177,10 @@ const fastifyApiReference = fp<
         ...(options.logLevel && { logLevel: options.logLevel }),
         handler(_, reply) {
           const spec = normalize(specSource.get())
-          const filename = getSpecFilenameSlug(spec)
           const yaml = stringify(spec)
           return reply
             .header('Content-Type', 'application/yaml')
-            .header('Content-Disposition', `filename=${filename}.yaml`)
+            .header('Content-Disposition', getContentDisposition(spec, 'yaml'))
             .header('Access-Control-Allow-Origin', '*')
             .header('Access-Control-Allow-Methods', '*')
             .send(yaml)

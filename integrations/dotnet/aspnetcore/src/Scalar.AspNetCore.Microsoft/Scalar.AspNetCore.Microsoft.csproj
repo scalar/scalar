@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>$(ScalarMicrosoftOpenApiTargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,12 +9,12 @@
     <Description>Provides OpenAPI transformers for Microsoft.AspNetCore.OpenApi that enable Scalar-specific extensions in your OpenAPI document.</Description>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
   </ItemGroup>
 
+  <!-- On .NET 10, lift Microsoft.OpenApi to the centrally pinned 2.x version. From .NET 11 on, Microsoft.AspNetCore.OpenApi brings Microsoft.OpenApi 3.x itself. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.OpenApi" />
   </ItemGroup>
 

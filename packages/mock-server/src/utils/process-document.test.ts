@@ -18,6 +18,22 @@ const processOpenApiDocument = async (
 }
 
 describe('process-document', () => {
+  it.each(['object', 'json'] as const)(
+    'rejects plugin documents supplied as %s despite built-in version fields',
+    async (format) => {
+      const document = {
+        'x-scalar-document-type': 'workflows',
+        openapi: '3.1.0',
+        asyncapi: '3.1.0',
+        info: { title: 'Workflows', version: '1' },
+        paths: {},
+      }
+      await expect(processDocument(format === 'json' ? JSON.stringify(document) : document)).rejects.toThrow(
+        'Plugin documents are not supported by the mock server',
+      )
+    },
+  )
+
   it('retains incompatible 3.1 XML descriptions without partial migrations', async () => {
     const document = {
       openapi: '3.1.2',

@@ -1,5 +1,33 @@
 # @scalar/sveltekit
 
+## 0.3.43
+
+No changes in this release.
+
+## 0.3.42
+
+No changes in this release.
+
+## 0.3.41
+
+No changes in this release.
+
+## 0.3.40
+
+No changes in this release.
+
+## 0.3.39
+
+No changes in this release.
+
+## 0.3.38
+
+No changes in this release.
+
+## 0.3.37
+
+No changes in this release.
+
 ## 0.3.36
 
 ## 0.3.35

@@ -5,6 +5,23 @@ import { describe, expect, it } from 'vitest'
 import { getExampleContent } from './get-example-content'
 
 describe('get-example-content', () => {
+  it.each([
+    { openapiVersion: '3.0.4', jsonSchemaDialect: undefined, expected: [1, 1, 1] },
+    { openapiVersion: '3.1.2', jsonSchemaDialect: undefined, expected: [2, 1, 1] },
+    { openapiVersion: '3.1.2', jsonSchemaDialect: 'http://json-schema.org/draft-07/schema#', expected: [2, 1, 1] },
+  ])('uses response document dialect: %j', ({ expected, ...options }) => {
+    const schema = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 3,
+      maxItems: 3,
+      contains: { const: 2 },
+      minContains: options.jsonSchemaDialect ? 0 : 1,
+      maxContains: options.jsonSchemaDialect ? 0 : 1,
+    } as SchemaObject
+    expect(JSON.parse(getExampleContent({ schema }, undefined, options)!)).toStrictEqual(expected)
+  })
+
   it.each([false, true])('generates finite recursive array examples with a root reference: %s', (rootReference) => {
     const schema: SchemaObject = {
       type: 'object',
@@ -21,6 +38,18 @@ describe('get-example-content', () => {
       JSON.stringify({ name: 'Earth', planets: [{ name: 'Earth' }] }, null, 2),
     )
   })
+  it('generates examples for schemas with several references to themselves', () => {
+    const schema: SchemaObject = { type: 'object', properties: { id: { type: 'integer', example: 1 } } }
+    for (const name of ['a1', 'a2', 'a3', 'a4', 'a5']) {
+      schema.properties![name] = { $ref: '#/components/schemas/A', '$ref-value': schema }
+    }
+
+    const content = getExampleContent({ schema: { $ref: '#/components/schemas/A', '$ref-value': schema } }, undefined)
+
+    expect(JSON.parse(content!).a5.a5.id).toBe(1)
+    expect(content!.length).toBeLessThan(100_000)
+  })
+
   it('applies response composition selection to XML serialization', () => {
     const response = {
       schema: coerceValue(SchemaObjectSchema, {

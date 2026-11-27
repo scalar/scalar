@@ -1,5 +1,37 @@
 # @scalar/nextjs-api-reference
 
+## 0.12.24
+
+No changes in this release.
+
+## 0.12.23
+
+No changes in this release.
+
+## 0.12.22
+
+No changes in this release.
+
+## 0.12.21
+
+No changes in this release.
+
+## 0.12.20
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+
+## 0.12.19
+
+### Patch Changes
+
+- [#11011](https://github.com/scalar/scalar/pull/11011): Make Vite configuration imports compatible with the native config loader.
+
+## 0.12.18
+
+No changes in this release.
+
 ## 0.12.17
 
 ## 0.12.16

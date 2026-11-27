@@ -33,6 +33,9 @@ export const baseConfigurationSchema = object({
   proxyUrl: optional(string(), {
     typeComment: 'URL to a request proxy for the API client',
   }),
+  trustedLocalOrigins: optional(array(string()), {
+    typeComment: 'HTTP(S) origins treated as local for API proxy routing and OAuth authorization.',
+  }),
   oauth2RedirectUri: optional(string(), {
     typeComment: 'Default OAuth 2.0 redirect URI used to prefill auth flows in the API client.',
   }),

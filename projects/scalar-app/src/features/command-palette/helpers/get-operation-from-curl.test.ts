@@ -13,6 +13,17 @@ describe('get-operation-from-curl', () => {
     expect(result.operation.parameters).toEqual([])
   })
 
+  it.each([`-A '-XPOST'`, `-sA '-XPOST'`, `--user-agent '-XPOST'`, `--proxy 'https://proxy.example.com'`])(
+    'imports GET after consuming ignored option %s',
+    (options) => {
+      const result = getOperationFromCurl(`curl ${options} https://example.com/users`)
+      expect(result.method).toBe('get')
+      expect(result.path).toBe('/users')
+      expect(result.operation.parameters).toStrictEqual([])
+      expect(result.operation.servers).toStrictEqual([{ url: 'https://example.com' }])
+    },
+  )
+
   it('parses POST request with JSON body', () => {
     const curl = 'curl -X POST http://example.com/api/users -d \'{"name":"John","age":30}\''
     const result = getOperationFromCurl(curl)
@@ -263,7 +274,7 @@ describe('get-operation-from-curl', () => {
     })
   })
 
-  it('handles form-encoded data with missing values', () => {
+  it('handles form-encoded data with explicitly empty values', () => {
     const curl = 'curl -X POST http://example.com/api/users -d "name=John&age="'
     const result = getOperationFromCurl(curl)
 
@@ -272,7 +283,20 @@ describe('get-operation-from-curl', () => {
 
     expect(curlExample?.value).toEqual({
       name: 'John',
+      age: '',
     })
+  })
+
+  it.each([
+    ['equal signs in a value', 'token=YWJjZA==&next=/a?b=c', { token: 'YWJjZA==', next: '/a?b=c' }],
+    ['a plus sign as a space', 'q=hello+world&phone=%2B49', { q: 'hello world', phone: '+49' }],
+    ['a bare percent sign', 'discount=50%&name=John', { discount: '50%', name: 'John' }],
+  ])('handles form-encoded data with %s', (_, body, value) => {
+    const result = getOperationFromCurl(`curl -X POST https://api.example.com/forms -d '${body}'`)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+    const content = requestBody?.content['application/x-www-form-urlencoded']
+    expect(getResolvedRef(content?.examples?.curl)?.value).toStrictEqual(value)
   })
 
   it('handles form-encoded data with malformed pairs', () => {
@@ -562,5 +586,200 @@ describe('get-operation-from-curl', () => {
     const tagParams = result.operation.parameters?.filter((p) => getResolvedRef(p)?.name === 'tag')
     // Note: parseCurlCommand may only keep the last value when there are duplicate keys
     expect(tagParams?.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it.each([
+    [
+      '--data-raw',
+      `curl 'https://api.example.com/v1/users' -H 'content-type: application/json' --data-raw '{"name":"Ada","age":36}'`,
+    ],
+    [
+      '-d before the URL',
+      `curl -H 'Content-Type: application/json' -d '{"name":"Ada","age":36}' https://api.example.com/v1/users`,
+    ],
+    [
+      '--data-binary',
+      `curl https://api.example.com/v1/users -H 'Content-Type: application/json' --data-binary '{"name":"Ada","age":36}'`,
+    ],
+  ])('imports a request with %s and no method flag as a POST with the body', (_, curl) => {
+    const result = getOperationFromCurl(curl)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe('post')
+    expect(result.path).toBe('/v1/users')
+    expect(requestBody?.content['application/json']?.examples).toStrictEqual({
+      curl: { value: { name: 'Ada', age: 36 } },
+    })
+    expect(result.operation.parameters?.map((parameter) => getResolvedRef(parameter)?.in)).not.toContain('query')
+  })
+
+  it('imports form data before the URL as body fields without query parameters', () => {
+    const result = getOperationFromCurl('curl -X POST -d "user=ada&pass=x" https://api.example.com/login')
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe('post')
+    expect(result.operation.parameters).toStrictEqual([])
+    expect(requestBody?.content['application/x-www-form-urlencoded']?.examples).toStrictEqual({
+      curl: { value: { user: 'ada', pass: 'x' } },
+    })
+  })
+
+  it('imports -G data as query parameters of a GET', () => {
+    const result = getOperationFromCurl('curl -G -d "q=ada" -d "limit=10" https://api.example.com/search')
+
+    expect(result.method).toBe('get')
+    expect(result.operation.parameters?.map((parameter) => getResolvedRef(parameter)?.name)).toStrictEqual([
+      'q',
+      'limit',
+    ])
+  })
+
+  it('keeps an explicit method when data is sent', () => {
+    const result = getOperationFromCurl(`curl -X PUT https://api.example.com/v1/users/1 -d '{"name":"Ada"}'`)
+
+    expect(result.method).toBe('put')
+  })
+
+  it('imports --json as a JSON body of a POST', () => {
+    const result = getOperationFromCurl(`curl --json '{"name":"Ada","age":36}' https://api.example.com/v1/users`)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe('post')
+    expect(requestBody?.content['application/json']?.examples).toStrictEqual({
+      curl: { value: { name: 'Ada', age: 36 } },
+    })
+    expect(result.operation.parameters?.map((parameter) => getResolvedRef(parameter)?.name)).toStrictEqual([
+      'Content-Type',
+      'Accept',
+    ])
+  })
+
+  it('imports a bundled -sG command as a GET with query parameters', () => {
+    const result = getOperationFromCurl('curl -sG -d "q=ada" https://api.example.com/search')
+
+    expect(result.method).toBe('get')
+    expect(result.operation.parameters?.map((parameter) => getResolvedRef(parameter)?.name)).toStrictEqual(['q'])
+  })
+
+  it('imports an attached -XPOST with data', () => {
+    const result = getOperationFromCurl(`curl -XPOST -d '{"name":"Ada"}' https://api.example.com/v1/users`)
+
+    expect(result.method).toBe('post')
+    expect(result.path).toBe('/v1/users')
+  })
+
+  it('imports empty data as a POST to the URL', () => {
+    const result = getOperationFromCurl(`curl -d '' https://api.example.com/v1/users`)
+
+    expect(result.method).toBe('post')
+    expect(result.path).toBe('/v1/users')
+    expect(result.operation.servers).toStrictEqual([{ url: 'https://api.example.com' }])
+  })
+
+  it.each([
+    ['content-type', 'text/plain'],
+    ['CONTENT-TYPE', 'text/plain'],
+    ['content-type', 'application/vnd.api+json'],
+    ['Content-Type', 'application/vnd.api+json'],
+  ])('keeps the %s header %s of the command over the type of the body', (name, contentType) => {
+    const result = getOperationFromCurl(
+      `curl -H '${name}: ${contentType}' -d '{"name":"Ada"}' https://api.example.com/v1/users`,
+    )
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(Object.keys(requestBody?.content ?? {})).toStrictEqual([contentType])
+    expect(requestBody?.['x-scalar-selected-content-type']).toStrictEqual({ curl: contentType })
+  })
+
+  it.each([
+    `curl --url=https://api.example.com/v1/users --data='{"name":"Ada"}'`,
+    `curl --json='{"name":"Ada"}' https://api.example.com/v1/users`,
+  ])('imports attached long flag values in %s as a POST with the body', (curl) => {
+    const result = getOperationFromCurl(curl)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe('post')
+    expect(result.path).toBe('/v1/users')
+    expect(requestBody?.content['application/json']?.examples).toStrictEqual({
+      curl: { value: { name: 'Ada' } },
+    })
+  })
+
+  it('imports --data-urlencode content with an ampersand as one body field', () => {
+    const result = getOperationFromCurl(`curl --data-urlencode 'note=a&b' https://api.example.com/v1/notes`)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(requestBody?.content['application/x-www-form-urlencoded']?.examples).toStrictEqual({
+      curl: { value: { note: 'a&b' } },
+    })
+  })
+
+  it.each([
+    [
+      'Chrome',
+      [
+        'curl --url ^"https://api.example.com/v1/users^" ^',
+        '  -H ^"Content-Type: application/json^" ^',
+        `  --data-raw ^"^{^"^"name^"^":^"^"it's^"^"^}^"`,
+      ].join('\n'),
+    ],
+    [
+      'Firefox',
+      [
+        'curl.exe ^"https://api.example.com/v1/users^" ^',
+        '  -H ^"Content-Type: application/json^" ^',
+        String.raw`  --data-raw ^"^{^\^"name^\^":^\^"it's^\^"^}^"`,
+      ].join('\n'),
+    ],
+  ])('imports a command copied from %s for cmd as a POST with the body', (_browser, curl) => {
+    const result = getOperationFromCurl(curl)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe('post')
+    expect(result.path).toBe('/v1/users')
+    expect(requestBody?.content['application/json']?.examples).toStrictEqual({
+      curl: { value: { name: "it's" } },
+    })
+  })
+
+  it.each([
+    ['', 'post'],
+    ['-G', 'post'],
+    ['-X PUT', 'put'],
+  ])('imports -F fields with %s as a multipart body of a %s', (flag, method) => {
+    const result = getOperationFromCurl(`curl ${flag} -F 'name=Ada' -F 'city=Pune' https://api.example.com/v1/users`)
+
+    const requestBody = getResolvedRef(result.operation.requestBody)
+
+    expect(result.method).toBe(method)
+    expect(Object.keys(requestBody?.content ?? {})).toStrictEqual(['multipart/form-data'])
+    expect(requestBody?.content['multipart/form-data']?.examples).toStrictEqual({
+      curl: { value: { name: 'Ada', city: 'Pune' } },
+    })
+    expect(requestBody?.['x-scalar-selected-content-type']).toStrictEqual({ curl: 'multipart/form-data' })
+  })
+
+  it.each([
+    [`-F 'name='`, 'name', 'multipart/form-data'],
+    [`--form-string 'name='`, 'name', 'multipart/form-data'],
+    [`-F 'file=@file.txt'`, 'file', 'multipart/form-data'],
+    [`-F 'file=<file.txt'`, 'file', 'multipart/form-data'],
+    [`-d 'name='`, 'name', 'application/x-www-form-urlencoded'],
+  ])('preserves empty body fields for %s', (options, field, contentType) => {
+    const result = getOperationFromCurl(`curl ${options} https://example.com`)
+    const requestBody = getResolvedRef(result.operation.requestBody)
+    expect(result.method).toBe('post')
+    expect(requestBody?.content[contentType]?.examples).toStrictEqual({ curl: { value: { [field]: '' } } })
+    expect(requestBody?.content[contentType]?.schema).toStrictEqual({
+      type: 'object',
+      properties: { [field]: { type: 'string' } },
+    })
   })
 })

@@ -6,6 +6,7 @@ import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-r
 import { isHidden } from '@/helpers/is-hidden'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
 import type { OperationTitleSource, TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import { getXBadges } from '@/schemas/extensions/get-x-badges'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation'
 import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject } from '@/schemas/v3.2/strict/openapi-document'
@@ -59,6 +60,7 @@ const createOperationEntry = ({
   const title = operationTitleSource !== 'path' && operation.summary?.trim() ? operation.summary : path
 
   const isDeprecated = isDeprecatedOperation(operation)
+  const badges = getXBadges(operation)
 
   const examples: TraversedExample[] = traverseOperationExamples(operation).map((example) => ({
     type: 'example',
@@ -79,6 +81,7 @@ const createOperationEntry = ({
     ref,
     type: 'operation',
     isDeprecated,
+    ...(badges ? { badges } : {}),
     children: examples.length ? examples : undefined,
   } satisfies TraversedOperation
 

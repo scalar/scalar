@@ -7,7 +7,9 @@ export const XCodeSample = object(
     lang: optional(string({ typeComment: 'Programming language for syntax highlighting' })),
     label: optional(string({ typeComment: 'Label shown in the code sample picker' })),
     group: optional(string({ typeComment: 'Optional heading in the code sample picker' })),
-    source: string({ typeComment: 'Source code for the sample' }),
+    source: union([string(), object({ $ref: string() })], {
+      typeComment: 'Inline source, or a code-file reference supported by x-codeSamples and x-code-samples',
+    }),
     example: optional(string({ typeComment: 'Request body example key used by this sample' })),
     contentType: optional(string({ typeComment: 'Request body media type used by this sample' })),
   },

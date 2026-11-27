@@ -8,11 +8,53 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it.each([
+    { config: {}, expected: true },
+    { config: { persistSelectedClient: true }, expected: true },
+    { config: { persistSelectedClient: false }, expected: false },
+  ])('preserves selected client persistence as $expected for $config', ({ config, expected }) => {
+    expect(apiReferenceConfigurationWithSourceSchema({ ...config, url: '/openapi.json' }).persistSelectedClient).toBe(
+      expected,
+    )
+  })
+
+  it.each([undefined, false, true])('preserves combined SDK/client mode %s through normalization', (value) => {
+    expect(
+      coerce(apiReferenceConfigurationSchema, { showDefaultClientsWithSdkInstallation: value })
+        .showDefaultClientsWithSdkInstallation,
+    ).toBe(value)
+    expect(
+      apiReferenceConfigurationWithSourceSchema({ showDefaultClientsWithSdkInstallation: value, url: '/openapi.json' })
+        .showDefaultClientsWithSdkInstallation,
+    ).toBe(value)
+  })
+
+  it.each([undefined, [], ['node/undici', 'shell/*']].map((httpClients) => ({ httpClients })))(
+    'preserves the HTTP client allowlist $httpClients',
+    ({ httpClients }) => {
+      const config = apiReferenceConfigurationWithSourceSchema({ httpClients, url: '/openapi.json' })
+      expect(config.httpClients).toStrictEqual(httpClients)
+    },
+  )
+
+  it.each(['node/fetch', 'custom/python/1'])('preserves the string default client %s', (defaultHttpClient) => {
+    const config = apiReferenceConfigurationWithSourceSchema({ defaultHttpClient, url: '/openapi.json' })
+    expect(config.defaultHttpClient).toBe(defaultHttpClient)
+  })
+
   it('preserves a custom default client through normalization', () => {
     const defaultHttpClient = { targetKey: 'custom', clientKey: 'python/1' }
     expect(coerce(apiReferenceConfigurationSchema, { defaultHttpClient }).defaultHttpClient).toStrictEqual(
       defaultHttpClient,
     )
+  })
+
+  it('turns sidebar badges off by default and keeps them on when set', () => {
+    expect(coerce(apiReferenceConfigurationSchema, {}).showBadgesInSidebar).toBe(false)
+    expect(
+      apiReferenceConfigurationWithSourceSchema({ showBadgesInSidebar: true, url: '/openapi.json' })
+        .showBadgesInSidebar,
+    ).toBe(true)
   })
 
   it.each([undefined, true, false])('preserves urlRouting %s through configuration normalization', (urlRouting) => {
@@ -76,6 +118,7 @@ describe('api-reference-configuration', () => {
         content: '{"openapi": "3.1.0"}',
         proxyUrl: 'https://proxy.example.com',
         oauth2RedirectUri: 'myapp://oauth/callback',
+        trustedLocalOrigins: ['http://auth.dev.internal:8080'],
         isEditable: true,
         showSidebar: true,
         hideModels: false,
@@ -129,9 +172,10 @@ describe('api-reference-configuration', () => {
       expect(coerce(apiReferenceConfigurationSchema, config)).toMatchObject(config)
     })
 
-    it('validates oauth2RedirectUri configuration', () => {
+    it('preserves the OAuth redirect URI and trusted local origins', () => {
       const config = {
         oauth2RedirectUri: 'myapp://oauth/callback',
+        trustedLocalOrigins: ['http://auth.dev.internal:8080'],
       }
 
       expect(coerce(apiReferenceConfigurationSchema, config)).toMatchObject(config)
@@ -183,6 +227,13 @@ describe('api-reference-configuration', () => {
       validLayouts.forEach((layout) => {
         expect(coerce(apiReferenceConfigurationSchema, { layout })).toMatchObject({ layout })
       })
+    })
+
+    it('keeps the indexed multipart naming mode in runtime configuration', () => {
+      expect(coerce(apiReferenceConfigurationSchema, { multipartNaming: 'indexed-dot' }).multipartNaming).toBe(
+        'indexed-dot',
+      )
+      expect(coerce(apiReferenceConfigurationSchema, {}).multipartNaming).toBeUndefined()
     })
 
     it('keeps defaultRequestBodyView enum values', () => {

@@ -1,5 +1,48 @@
 # scalar-ninja
 
+## 0.6.0
+
+### Minor Changes
+
+- [#11234](https://github.com/scalar/scalar/pull/11234): Configure available API Reference HTTP clients with `httpClients`. Use exact client IDs or target wildcards such as `shell/*`. The `defaultHttpClient` option also accepts a client ID string.
+
+  When all available clients are under **More**, such as with `featuredClients: []`, the Client Libraries block omits the empty tab list.
+
+### Patch Changes
+
+- [#11175](https://github.com/scalar/scalar/pull/11175): Deprecate the `withDefaultFonts` configuration option. Scalar no longer loads web fonts, so the option has no effect. It is still accepted, so existing configurations keep working.
+
+## 0.5.1
+
+### Patch Changes
+
+- [#11163](https://github.com/scalar/scalar/pull/11163): Refresh the Rust dependency lockfile and Python integration and playground dependencies while preserving existing public dependency ranges and runtime support.
+
+## 0.5.0
+
+### Minor Changes
+
+- [#11137](https://github.com/scalar/scalar/pull/11137): Add an opt-in ASP.NET Core form naming mode through the API Reference configuration option `multipartNaming: "indexed-dot"`. The body editor, sent requests, and code samples use indexed dotted names such as `Certificates[0].name` for nested fields in multipart and URL-encoded request bodies.
+
+## 0.4.1
+
+### Patch Changes
+
+- [#11143](https://github.com/scalar/scalar/pull/11143): Expose the `showBadgesInSidebar` option in Java, FastAPI, Django Ninja, and .NET integrations so applications can enable sidebar badges. Badges remain hidden by default.
+
+## 0.4.0
+
+### Minor Changes
+
+- [#11036](https://github.com/scalar/scalar/pull/11036): Expose `showDefaultClientsWithSdkInstallation` through the Python, Java, and .NET integrations to show built-in HTTP clients alongside SDK installation tabs.
+- [#11033](https://github.com/scalar/scalar/pull/11033): Expose the selected code sample client persistence option in .NET, Java, FastAPI, and Django Ninja. Disable it to avoid reading or writing the selected-client local storage key while keeping page-local selection available.
+
+## 0.3.3
+
+### Patch Changes
+
+- [#10994](https://github.com/scalar/scalar/pull/10994): Publish a new patch release through PyPI trusted publishing to recover from the previous failed uploads.
+
 ## 0.3.2
 
 ### Patch Changes

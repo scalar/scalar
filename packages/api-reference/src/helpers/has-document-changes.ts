@@ -20,7 +20,7 @@ export const hasDocumentChanges = (updated: Record<string, unknown>, previous: R
 
     const value = updated[key]
     const oldValue = previous[key]
-    if (value !== oldValue && diff({ value }, { value: oldValue }).length) {
+    if (!Object.is(value, oldValue) && diff({ value }, { value: oldValue }).length) {
       return true
     }
   }

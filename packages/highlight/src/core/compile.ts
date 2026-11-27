@@ -264,6 +264,11 @@ const compileState = (grammar: Grammar, name: string): CompiledState => {
             `gm${caseFlag}`,
           ),
           holes: state.embed.holes ? new RegExp(normalizeLineTerminators(state.embed.holes), `gm${caseFlag}`) : null,
+          preserveHoleScope: state.embed.preserveHoleScope ?? false,
+          holePunctuation: state.embed.holePunctuation
+            ? new RegExp(normalizeLineTerminators(state.embed.holePunctuation), `gm${caseFlag}`)
+            : null,
+          validate: state.embed.validate && { ...state.embed.validate },
         }
       : null,
   }

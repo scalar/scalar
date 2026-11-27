@@ -9,6 +9,23 @@ const compact = { format: false, xmlDeclaration: false }
 const schema = (value: unknown): SchemaObject => value as SchemaObject
 
 describe('get-xml-example', () => {
+  it('serializes simple contains matches with the item XML name', () => {
+    const input = schema({
+      type: 'array',
+      items: { type: 'integer', xml: { name: 'number' } },
+      xml: { name: 'numbers', wrapped: true },
+      minItems: 3,
+      maxItems: 3,
+      uniqueItems: true,
+      contains: { const: 2 },
+      maxContains: 1,
+    })
+    expect(getXmlExampleFromSchema(input, compact)).toStrictEqual({
+      xml: '<numbers><number>2</number><number>1</number><number>3</number></numbers>',
+      diagnostics: [],
+    })
+  })
+
   it('pads array items through XML serialization', () => {
     const input: SchemaObject = {
       type: 'array',
@@ -433,6 +450,75 @@ describe('get-xml-example', () => {
     })
     expect(getXmlExampleFromSchema(input, compact)).toStrictEqual({ xml: '<root id="42"/>', diagnostics: [] })
     expect(serializeXmlExample({ id: 8 }, input, compact).xml).toBe('<root id="8"/>')
+  })
+
+  it('bookends dynamic references at their own resource during XML serialization', () => {
+    const input = schema({
+      $id: 'urn:outer',
+      $defs: {
+        item: {
+          $dynamicAnchor: 'item',
+          type: 'object',
+          properties: { id: { type: 'string', xml: { attribute: true } } },
+        },
+      },
+      type: 'object',
+      xml: { name: 'root' },
+      properties: { value: { $id: 'urn:inner', $dynamicRef: '#item' } },
+    })
+
+    expect(serializeXmlExample({ value: { id: 'x' } }, input, { ...compact, openapiVersion: '3.2.0' })).toStrictEqual({
+      xml: '<root><value><id>x</id></value></root>',
+      diagnostics: [],
+    })
+  })
+
+  it('resolves URI-qualified dynamic references and ordinary anchors in a detached schema', () => {
+    const input = schema({
+      $id: 'https://example.com/root.json',
+      type: 'object',
+      xml: { name: 'root' },
+      $defs: {
+        outer: { $dynamicAnchor: 'item', type: 'string', const: 'outer', xml: { nodeType: 'attribute' } },
+        defaults: { $id: 'defaults.json', $dynamicAnchor: 'item', type: 'boolean' },
+      },
+      properties: {
+        nested: {
+          $id: 'nested/schema.json',
+          type: 'object',
+          $defs: { anchor: { $anchor: 'item', type: 'string', const: 'static' } },
+          properties: {
+            dynamic: { $dynamicRef: '../defaults.json#item' },
+            ordinary: { $dynamicRef: '#item' },
+            pointer: { $dynamicRef: '#/$defs/anchor' },
+          },
+        },
+      },
+    })
+
+    expect(getXmlExampleFromSchema(input, { ...compact, openapiVersion: '3.2.0' })).toStrictEqual({
+      xml: '<root><nested dynamic="outer"><ordinary>static</ordinary><pointer>static</pointer></nested></root>',
+      diagnostics: [],
+    })
+  })
+
+  it('resolves detached references from the pre-resolved target resource', () => {
+    const input = schema({
+      '$ref': 'https://example.com/nested/target.json',
+      '$ref-value': {
+        $id: 'https://example.com/nested/target.json',
+        type: 'object',
+        xml: { name: 'target' },
+        $defs: { other: { $id: '../other.json', $anchor: 'label', type: 'string', const: 'ok' } },
+        properties: { value: { $dynamicRef: '../other.json#label' } },
+      },
+    })
+
+    expect(getExampleFromSchema(input)).toStrictEqual({ value: 'ok' })
+    expect(getXmlExampleFromSchema(input, { ...compact, openapiVersion: '3.2.0' })).toStrictEqual({
+      xml: '<target><value>ok</value></target>',
+      diagnostics: [],
+    })
   })
 
   it('keeps dynamic XML item bindings isolated between calls', () => {

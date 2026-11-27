@@ -1,3 +1,4 @@
+import { formatTokenPrefix } from '@scalar/helpers/http/format-token-prefix'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { X_SCALAR_DATE, X_SCALAR_DNT, X_SCALAR_REFERER, X_SCALAR_USER_AGENT } from '@scalar/helpers/http/scalar-headers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
@@ -49,7 +50,7 @@ const formatSecurityValue = (
     return `Bearer ${substitutedValue.trim()}`
   }
 
-  return substitutedValue
+  return formatTokenPrefix(substitutedValue, security.tokenPrefix)
 }
 
 const createEnvReplaceFn = (envVariables: Record<string, string>): ((value: string) => string | null) => {
@@ -122,17 +123,15 @@ export type BuildRequestFailureCode = ResolveRequestFactoryUrlError | typeof BUI
 
 export type BuildRequestResult = Result<BuildRequestData, BuildRequestFailureCode>
 
-export const buildRequest = (
-  request: RequestFactory,
-  options: {
-    envVariables: Record<string, string>
-    /**
-     * When true, allows an empty resolved server base URL (embedded modal, API reference callbacks, tests).
-     * @default false
-     */
-    allowMissingRequestServerBase?: boolean
-  },
-): BuildRequestResult => {
+type BuildRequestOptions = {
+  envVariables: Record<string, string>
+  /** Allows an empty resolved server base for the embedded client and reference callbacks. */
+  allowMissingRequestServerBase?: boolean
+  /** Local origins supplied by the embedding application. */
+  trustedLocalOrigins?: readonly string[]
+}
+
+export const buildRequest = (request: RequestFactory, options: BuildRequestOptions): BuildRequestResult => {
   if (request.cookieErrors?.length) {
     return err(BUILD_REQUEST_FAILED, request.cookieErrors[0])
   }
@@ -143,13 +142,7 @@ export const buildRequest = (
   return guarded.data
 }
 
-const buildRequestInner = (
-  request: RequestFactory,
-  options: {
-    envVariables: Record<string, string>
-    allowMissingRequestServerBase?: boolean
-  },
-): BuildRequestResult => {
+const buildRequestInner = (request: RequestFactory, options: BuildRequestOptions): BuildRequestResult => {
   /** Replace the value with the environment variable or context function */
   const replace = createEnvReplaceFn(options.envVariables)
 
@@ -225,7 +218,7 @@ const buildRequestInner = (
       // Format the security value based on its authentication scheme.
       // - For 'basic': prefix with 'Basic' and base64-encode the value (username:password).
       // - For 'bearer': prefix with 'Bearer'.
-      // - Otherwise: use the substituted value as is (for API keys, etc).
+      // - Otherwise: apply any configured API-key prefix to the substituted credential.
       const securityValue = formatSecurityValue(security, replace)
 
       if (security.in === 'header') {
@@ -261,7 +254,7 @@ const buildRequestInner = (
   const requestUrl = requestUrlResult.data
 
   /** Check if the request should be proxied */
-  const isUsingProxy = shouldUseProxy(request.proxyUrl, requestUrl)
+  const isUsingProxy = shouldUseProxy(request.proxyUrl, requestUrl, options.trustedLocalOrigins)
 
   /** Create a new cookies array with the replaced values */
   const cookies: XScalarCookie[] = [...request.cookies, ...securityCookies].map((c) => ({
@@ -300,7 +293,9 @@ const buildRequestInner = (
 
   /** Encode the URL with the allowed reserved query parameters */
   const encodedUrl = applyAllowReservedToUrl(requestUrl, request.allowedReservedQueryParameters ?? new Set())
-  const finalUrl = isUsingProxy ? redirectToProxy(request.proxyUrl, encodedUrl) : encodedUrl
+  const finalUrl = isUsingProxy
+    ? redirectToProxy(request.proxyUrl, encodedUrl, options.trustedLocalOrigins)
+    : encodedUrl
 
   return ok({
     requestPayload: [

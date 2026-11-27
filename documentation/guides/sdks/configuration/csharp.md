@@ -6,8 +6,7 @@ pages outside this reference resolve.
 -->
 # C#
 
-> [!NOTE]
-> The C# target is experimental.
+**Minimum version:** .NET 8.0 or newer, or any runtime that supports .NET Standard 2.0.
 
 Add `csharp` under `targets` to generate a C# SDK package.
 
@@ -55,8 +54,9 @@ Primary repository this target's generated output is published to. Setting it tu
 | Property | Description |
 | --- | --- |
 | `repo`* | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
-| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the `scalar-generated` branch and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
+| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the generated branch (`generatedBranch`, `scalar-generated` by default) and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
 | `integrationBranch` | Branch where generated output is combined with your custom code; defaults to `scalar-next`. Commit customizations here: each regeneration is merged into it, release pull requests are opened from it, and each released version is synced back to it. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or collide with the branches Scalar and release-please manage, such as `scalar-generated`. |
+| `generatedBranch` | Branch Scalar pushes pristine generator output to before merging it into the integration branch; defaults to `scalar-generated`. Never commit here: every build replaces its contents. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or the integration branch, or collide with the other branches Scalar and release-please manage, such as `scalar-next` and `scalar-merge-conflict`. |
 
 ## publish
 
@@ -110,7 +110,7 @@ C# generation options.
 
 **Type:** `object`
 
-Signs the generated assembly with a strong-name key, so the package can be referenced from a strong-named assembly. Consumers on .NET Framework, or building with warnings as errors, cannot load or reference an unsigned assembly from a signed one. Turning signing on or off changes the assembly's identity, so a consumer bound to the old identity has to rebuild: decide it before the first release. The key is yours, and the generator never creates or writes one: commit the `.snk` file to the destination repository yourself. Without the key file the SDK still builds, unsigned, but packing it for release fails; see the C# publishing guide.
+Signs the generated assembly with a strong-name key, so the package can be referenced from a strong-named assembly. Consumers on .NET Framework, or building with warnings as errors, cannot load or reference an unsigned assembly from a signed one. Turning signing on or off changes the assembly's identity, so a consumer bound to the old identity has to rebuild: decide it before the first release. The key is yours, and the generator never creates or writes one: commit the `.snk` file to the destination repository at `keyFile`, or store it base64-encoded in a `STRONG_NAME_KEY` secret, which the release workflows write to `keyFile` before building. Without either the SDK still builds, unsigned, but packing it for release fails; the generated CI fails the release PR first, so a release is not tagged without a key (with `publish.nuget.releaseEnvironment` set it only warns, since a pull request run cannot read environment secrets). See the C# publishing guide.
 
 #### keyFile
 

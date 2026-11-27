@@ -1,7 +1,7 @@
 // @vitest-environment node
 
 import { execFileSync } from 'node:child_process'
-import { cp, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve, sep } from 'node:path'
 
@@ -18,6 +18,13 @@ describe('published-parser', () => {
         // npm never includes nested node_modules directories in published packages.
         filter: (source) => !source.split(sep).includes('node_modules'),
       })
+      // The reader also uses the package's normal workspace-store runtime dependency.
+      // Do not expose proto-parser: that dependency must still be shipped in the bundle.
+      await mkdir(join(consumer, 'node_modules/@scalar'), { recursive: true })
+      await symlink(
+        resolve(import.meta.dirname, '../node_modules/@scalar/workspace-store'),
+        join(consumer, 'node_modules/@scalar/workspace-store'),
+      )
       await writeFile(join(consumer, 'package.json'), JSON.stringify({ type: 'module' }))
       const result = execFileSync(
         process.execPath,

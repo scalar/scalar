@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Schema, type SchemaOptions } from '@scalar/blocks/schema'
+import { useAsyncApiSchemaResources } from '@scalar/workspace-store/helpers/use-async-api-schema-resources'
 import { computed } from 'vue'
+import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
 
 import { readSchema } from '@/helpers/asyncapi-schema/read-schema'
 import { toDisplaySchema } from '@/helpers/asyncapi-schema/to-display-schema'
@@ -11,16 +13,23 @@ import SchemaSource from './SchemaSource.vue'
 const {
   value,
   format,
+  resources,
   headers = false,
   options = {},
 } = defineProps<{
   value: unknown
   format: string
+  resources?: AsyncApiSchemaResources
   headers?: boolean
   options?: SchemaOptions
 }>()
+const loadedResources = useAsyncApiSchemaResources(() => ({
+  format,
+  value,
+  resources,
+}))
 const document = computed<SchemaDocument | undefined>(() => {
-  const result = readSchema(format, value)
+  const result = readSchema(format, value, loadedResources.value)
   return headers &&
     !result?.nodes.some((node) =>
       /^(object$|map$|record |message )/.test(node.type),

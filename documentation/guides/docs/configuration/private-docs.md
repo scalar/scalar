@@ -65,3 +65,26 @@ The Private Docs toggle, access groups and login portal are also stored in your 
 ```
 
 See [Access Control](site-config.md#access-control) for every property.
+
+<a id="show-pages-to-specific-access-groups"></a>
+
+## Restrict some pages to certain groups
+
+Access groups apply to the whole site, so you cannot limit individual pages of a site to some access groups. Everyone who can sign in can open every page on it, including pages you leave out of their navigation with `groups`. Those pages also still appear in features such as search and Ask AI (see [Personalization limitations](personalization.md#current-limitations)).
+
+To keep pages from some visitors, publish them as a separate private project with its own access groups. With subpath hosting, available on the Business plan, that project can share your domain. For example, a `partners` project at `docs.example.com/partners` next to your main docs at `docs.example.com`:
+
+```json
+{
+  "siteConfig": {
+    "customDomain": "docs.example.com",
+    "subpath": "/partners",
+    "isPrivate": true,
+    "accessGroups": ["partners"]
+  }
+}
+```
+
+See [Deploying multiple projects on the same domain](scalar.config.json.md#deploying-multiple-projects-on-the-same-domain) to set it up.
+
+To change what each access group sees in the navigation without restricting what it can open, use `groups`. See [Filter by access group on a private site](personalization.md#filter-by-access-group-on-a-private-site).

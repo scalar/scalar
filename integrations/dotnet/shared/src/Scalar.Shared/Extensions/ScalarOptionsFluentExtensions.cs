@@ -17,7 +17,7 @@ namespace Scalar.AspNetCore;
 public static partial class ScalarOptionsExtensions
 {
     /// <summary>
-    /// Hides the models section from the sidebar, search, and content.
+    /// Hides schema models and reusable AsyncAPI messages from the sidebar, search, and content.
     /// </summary>
     /// <param name="options">The options to configure.</param>
     public static TOptions HideModels<TOptions>(this TOptions options) where TOptions : ScalarOptions
@@ -147,6 +147,16 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Disables saving and restoring the selected code sample client in local storage.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    public static TOptions DisableSelectedClientPersistence<TOptions>(this TOptions options) where TOptions : ScalarOptions
+    {
+        options.PersistSelectedClient = false;
+        return options;
+    }
+
+    /// <summary>
     /// Enables persistent authentication in local storage.
     /// </summary>
     /// <param name="options">The options to configure.</param>
@@ -167,7 +177,8 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
-    /// Disables the default fonts (Inter and JetBrains Mono from CDN).
+    /// Disables the default fonts.
+    /// Scalar uses the system font stack and no longer loads web fonts, so this setting has no effect.
     /// </summary>
     /// <param name="options">The options to configure.</param>
     public static TOptions DisableDefaultFonts<TOptions>(this TOptions options) where TOptions : ScalarOptions
@@ -184,6 +195,17 @@ public static partial class ScalarOptionsExtensions
     public static TOptions WithProxy<TOptions>(this TOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string proxyUrl) where TOptions : ScalarOptions
     {
         options.ProxyUrl = proxyUrl;
+        return options;
+    }
+
+    /// <summary>
+    /// Sets the HTTP(S) origins treated as local for API proxy routing and OAuth authorization.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="origins">The trusted origins, including the scheme and any non-default port.</param>
+    public static TOptions WithTrustedLocalOrigins<TOptions>(this TOptions options, params string[] origins) where TOptions : ScalarOptions
+    {
+        options.TrustedLocalOrigins = origins;
         return options;
     }
 

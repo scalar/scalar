@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import ts from 'typescript'
+import ts5 from 'typescript-5'
 import { describe, expect, it } from 'vitest'
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -140,16 +141,30 @@ describe('versioned-types', () => {
         ].join('\n'),
       )
 
-      const program = ts.createProgram([entryFile], {
-        ...compilerOptions,
+      const options = {
         noEmit: true,
         strict: true,
         skipLibCheck: false,
         // The consumer fixture has no ambient dependencies, regardless of the workspace running this test.
         types: [],
-      })
+      }
 
-      expect(formatDiagnostics(program)).toStrictEqual([])
+      // Keep exercising legacy consumers with the last compiler that supports node10 without deprecations.
+      const diagnostics =
+        compilerOptions.moduleResolution === ts.ModuleResolutionKind.Node10
+          ? ts5
+              .getPreEmitDiagnostics(
+                ts5.createProgram([entryFile], {
+                  ...options,
+                  module: ts5.ModuleKind.CommonJS,
+                  moduleResolution: ts5.ModuleResolutionKind.Node10,
+                  esModuleInterop: true,
+                }),
+              )
+              .map((diagnostic) => ts5.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+          : formatDiagnostics(ts.createProgram([entryFile], { ...compilerOptions, ...options }))
+
+      expect(diagnostics).toStrictEqual([])
     } finally {
       rmSync(temporaryDirectory, { recursive: true, force: true })
     }

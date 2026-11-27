@@ -12,6 +12,9 @@ import { z } from 'zod'
 import { getWorkspaceRoot } from '@/helpers'
 import { latestVersion } from '@/helpers/npm-version'
 
+// Repository commands must also work before workspace packages have been built.
+import { YAML_MAX_ALIAS_COUNT } from '../../../../../packages/helpers/src/general/yaml-max-alias-count'
+
 export const outdated = new Command('outdated')
   .description('Check for outdated packages')
   .argument('[packages...]', 'The packages to check')
@@ -75,7 +78,7 @@ function loadWorkspace() {
   console.log(as.green(`Loading ${filepath}...`))
   const packages = readFileSync(filepath, 'utf8')
 
-  return pnpmWorkspaceSchema.parse(yaml.parse(packages, { merge: true, maxAliasCount: 10000 }))
+  return pnpmWorkspaceSchema.parse(yaml.parse(packages, { merge: true, maxAliasCount: YAML_MAX_ALIAS_COUNT }))
 }
 
 /** Check each catalog version to see if there is a newer version available */

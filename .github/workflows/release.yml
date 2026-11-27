@@ -66,13 +66,12 @@ jobs:
       id-token: write
     # 'true' when this commit released at least one public package — every
     # release-gated job downstream (production galaxy deploy, GitHub release,
-    # integration publishes, CDN purge, production web deploy) keys off this.
+    # integration publishes, production web deploy) keys off this.
     #
     # We deliberately do NOT use changesets/action's own `published` output:
-    # that action only reports a package as published when the publish command
-    # prints changesets' `New tag:` lines, which only `changeset publish`
-    # emits. Our publish command is `pnpm -r publish`, whose output it cannot
-    # parse, so `steps.changesets.outputs.published` is always 'false' even
+    # that action reads published packages from the CHANGESETS_OUTPUT file
+    # written by `changeset publish`. Our `pnpm -r publish` command does not
+    # write that file, so `steps.changesets.outputs.published` is 'false' even
     # though packages do reach npm. Instead we detect a release by diffing
     # public package.json versions against the previous commit (see the
     # "Detect package release" step).
@@ -96,11 +95,11 @@ jobs:
       # protection rules.
       - name: Generate GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@v3.4.0
         with:
           client-id: ${{ secrets.RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
@@ -154,7 +153,7 @@ jobs:
           done < <(git diff --name-only HEAD~1 HEAD)
           echo "published=$published" >> "$GITHUB_OUTPUT"
       - name: Build
-        uses: ./.github/actions/build
+        uses: $/.github/actions/build
         with:
           # Every public package lives under packages/ or integrations/, so
           # those are all `pnpm -r publish` can reach. We also build tooling/
@@ -171,10 +170,10 @@ jobs:
       # Request provenance explicitly to retain the previous provenance=true behavior.
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+        uses: changesets/action@v2.1.2
         with:
           # The pull request title.
-          title: 'chore: release'
+          pr-title: 'chore: release'
           # Bumps versions, updates CHANGELOG.md, and appends an
           # AI-written entry to projects/scalar-app/RELEASE_NOTES.json
           # (the source of truth bundled with the in-app "What's new"
@@ -184,51 +183,41 @@ jobs:
           # headline dependency that ships inside the desktop and web
           # builds. The release-notes step short-circuits silently when
           # ANTHROPIC_API_KEY is not available (forks, contributor PRs).
-          version: 'pnpm release:version'
+          version-script: 'pnpm release:version'
           # The commit message to use.
-          commit: 'chore: version packages'
+          commit-message: 'chore: version packages'
           # The command to use to build and publish packages.
-          publish: 'pnpm -r publish --access public --no-git-checks --provenance'
+          publish-script: 'pnpm -r publish --access public --no-git-checks --provenance --report-summary'
+          # Pass the app token explicitly so the release PR triggers CI.
+          github-token: ${{ steps.app-token.outputs.token }}
+          # Preserve the existing Git CLI push behavior.
+          push-with-git-cli: true
+          # The create-github-release job owns the dated release and its tag.
+          create-github-releases: false
+          push-git-tags: false
         env:
-          # The app token (not GITHUB_TOKEN) is what makes the release PR
-          # trigger CI — see the "Generate GitHub App token" step above.
+          # The custom changelog generator also reads the token from the environment.
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          # No NPM_TOKEN on purpose. Without one, changesets/action leaves
-          # ~/.npmrc alone and npm exchanges this job's OIDC id-token for a
-          # short-lived, package-scoped publish token — see the trusted
-          # publishing note at the top of this file. Setting NPM_TOKEN again
-          # would put a static credential back in front of that exchange.
+          # No NPM_TOKEN: pnpm uses this job's OIDC id-token for trusted publishing.
           # Used by `pnpm release:version` to summarise the just-bumped
           # CHANGELOG.md section into a friendly release-notes entry.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
-      - name: Purge CDN Cache
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
-          method: 'GET'
-
-      - name: Purge CDN Cache (standalone bundle)
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.js'
-          method: 'GET'
-
-      - name: Purge CDN Cache (ESM entry point)
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/esm.js'
-          method: 'GET'
-
-      - name: Purge CDN Cache (standalone ESM bundle)
-        if: steps.release-check.outputs.published == 'true'
-        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
-        with:
-          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/dist/browser/standalone.esm.js'
-          method: 'GET'
+      # pnpm writes this report when the publish command runs. A release PR
+      # can leave an unpublished version for a later Main run to publish.
+      - name: Read pnpm publish summary
+        id: publish-summary
+        run: |
+          if [ -f pnpm-publish-summary.json ]; then
+            version=$(jq -er .version packages/api-reference/package.json)
+            published=$(jq --arg version "$version" \
+              'any(.publishedPackages[]; .name == "@scalar/api-reference" and .version == $version)' pnpm-publish-summary.json)
+            echo "api_reference=$published" >> "$GITHUB_OUTPUT"
+          fi
+      # purge-cdn.yml reads this step's conclusion from the triggering attempt.
+      - name: API Reference published to npm
+        if: steps.publish-summary.outputs.api_reference == 'true'
+        run: echo 'The CDN aliases need a global purge.'
 
       # Record this job's own result so the main-push deploys can gate on the
       # npm publish alone. `always()` ensures it runs even if an earlier step
@@ -251,7 +240,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
       - name: Generate release tag
@@ -302,14 +291,14 @@ jobs:
     needs: [npm-publish]
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
       - name: Build @scalar/galaxy
-        uses: ./.github/actions/build
+        uses: $/.github/actions/build
         with:
           packages: '@scalar/galaxy...'
       - name: Check whether there's a new version of @scalar/galaxy
         id: changed-files
-        uses: step-security/changed-files@60967b822d3001fa82242f8d6b4ed46bc3600a68 # v47
+        uses: step-security/changed-files@v47.0.5
         with:
           files_yaml: |
             galaxy:

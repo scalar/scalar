@@ -52,6 +52,12 @@ export default defineConfig({
   build: {
     outDir: resolve(packageRoot, './gallery-static'),
     emptyOutDir: true,
+    rolldownOptions: {
+      input: {
+        gallery: resolve(import.meta.dirname, 'index.html'),
+        hydration: resolve(import.meta.dirname, 'hydration.html'),
+      },
+    },
   },
   server: {
     port: 5101,

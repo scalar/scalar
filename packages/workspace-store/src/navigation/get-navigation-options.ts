@@ -98,6 +98,20 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
       return `${props.parentId}/operation/${slugify(props.operationName)}`
     }
 
+    if (props.type === 'asyncapi-reusable-message') {
+      if (props.name === undefined) {
+        // The reserved prefix keeps the Messages section separate from a Models label of the same name.
+        return `${props.parentId}/~components/messages`
+      }
+      // Escape dots so URL dot segments and schema path markers cannot consume message keys.
+      // Fixed-width escapes preserve distinct keys without relying on URL decoding.
+      const name = props.name.replace(
+        /[^a-zA-Z0-9_-]/g,
+        (char) => `~${char.charCodeAt(0).toString(16).padStart(4, '0')}`,
+      )
+      return `${props.parentId}/${name || '~'}`
+    }
+
     // -------- Default operation id generation logic --------
     if (props.type === 'operation') {
       const prefixTag = props.parentTag

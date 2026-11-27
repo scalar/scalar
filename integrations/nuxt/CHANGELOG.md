@@ -1,5 +1,51 @@
 # @scalar/nuxt
 
+## 0.6.98
+
+No changes in this release.
+
+## 0.6.97
+
+### Patch Changes
+
+- [#11165](https://github.com/scalar/scalar/pull/11165): Update compatible npm dependencies for Vue rendering, HTTP requests and serving, editor utilities, and query caching while preserving supported consumer TypeScript versions.
+
+  Keep string target IDs valid in the production-built Floating component after the Vue update.
+
+## 0.6.96
+
+No changes in this release.
+
+## 0.6.95
+
+No changes in this release.
+
+## 0.6.94
+
+No changes in this release.
+
+## 0.6.93
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.6.92
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Support TypeScript 6 builds and compiler API consumers while preserving runtime output and public handler types. Keep Nuxt build tooling on its supported TypeScript 5 compiler.
+
+## 0.6.91
+
+### Patch Changes
+
+- [#11057](https://github.com/scalar/scalar/pull/11057): Update @nuxt/kit and @nuxt/schema to 4.6.4 to keep the module utilities and schema types aligned.
+
+## 0.6.90
+
+No changes in this release.
+
 ## 0.6.89
 
 ## 0.6.88

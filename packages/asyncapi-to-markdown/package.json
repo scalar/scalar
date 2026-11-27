@@ -15,7 +15,7 @@
     "markdown",
     "llm"
   ],
-  "version": "0.2.7",
+  "version": "0.2.16",
   "engines": {
     "node": ">=22"
   },
@@ -49,12 +49,10 @@
     "@scalar/asyncapi-upgrader": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
+    "@scalar/markdown": "workspace:*",
     "@scalar/openapi-to-markdown": "workspace:*",
     "@scalar/types": "workspace:*",
-    "@scalar/workspace-store": "workspace:*",
-    "remark-gfm": "catalog:*",
-    "remark-stringify": "catalog:*",
-    "unified": "catalog:*"
+    "@scalar/workspace-store": "workspace:*"
   },
   "devDependencies": {
     "@scalar/components": "workspace:*",
@@ -62,12 +60,13 @@
     "@tailwindcss/vite": "catalog:*",
     "@types/mdast": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "marked": "^18.1.1",
+    "marked": "^18.2.1",
     "rehype-parse": "^9.0.1",
     "rehype-sanitize": "^6.0.0",
     "rehype-stringify": "^10.0.1",
     "tailwindcss": "catalog:*",
     "tsx": "catalog:*",
+    "unified": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "vue": "catalog:*",

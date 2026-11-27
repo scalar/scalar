@@ -28,8 +28,8 @@ Mode-agnostic (`:root`):
 | `--scalar-radius-3xl` | `16px` (derived, capped) |
 | `--scalar-radius-full` | pill (derived, uncapped) |
 | `--scalar-radius-max` | `20px` — ceiling so a big radius cannot swallow a container's content |
-| `--scalar-font` | Inter stack (`"Inter", -apple-system, …, sans-serif`) |
-| `--scalar-font-code` | JetBrains Mono stack (`"JetBrains Mono", ui-monospace, …, monospace`) |
+| `--scalar-font` | System UI stack (`-apple-system-body, ui-sans-serif, -apple-system, system-ui, …, sans-serif`) |
+| `--scalar-font-code` | System monospace stack (`ui-monospace, "SFMono-Regular", "SF Mono", …, monospace`) |
 | `--scalar-heading-1…6` | `24, 20, 16, 16, 16, 16` px |
 | `--scalar-page-description` | `16px` |
 | `--scalar-paragraph` | `16px` |
@@ -95,7 +95,7 @@ In component code, prefer these classes over raw variables.
 **Utility colors:** `border` (= `--scalar-border-color`), `backdrop`, `backdrop-dark`, `border-tooltip`, `brand`.
 **Radius:** `rounded` & `rounded-md` = 3px, `rounded-lg` = 6px, `rounded-xl` = 8px, `rounded-2xl` = 12px, `rounded-3xl` = 16px, `rounded-px` = 1px, `rounded-full` (pill). Every step except `rounded-px` derives from `--scalar-radius`, so a theme that sets it to `0` squares off the whole interface. There is no `rounded-sm` or `rounded-4xl`; those emit no CSS.
 **Shadows:** `shadow`/`shadow-md` (shadow-1), `shadow-lg` (shadow-2), `shadow-sm`, `shadow-border` (inset hairline), `inset-shadow-border` (the same hairline, stackable with `shadow-*`).
-**Fonts:** `font-sans` (Inter), `font-code` (JetBrains Mono).
+**Fonts:** `font-sans` (system UI font), `font-code` (system monospace). No web fonts are loaded.
 **Text sizes:** `text-3xs` 10, `text-xxs` 12, `text-xs` 12, `text-sm` 13, `text-base` 14, `text-lg` 16, `text-xl` 21.
 **Font weights:** `font-normal` 400, `font-medium` 500, `font-bold` 600 (plus `font-weight-sidebar` / `-active`).
 **Brightness:** `brightness-backdrop`. (`brightness-lifted` is deprecated; lift floating surfaces with `bg-b-1 dark:bg-b-1.5`.)
@@ -113,29 +113,28 @@ In component code, prefer these classes over raw variables.
 | Theme | `slug` | Light (text / bg / accent) | Dark (text / bg / accent) |
 |---|---|---|---|
 | Default | `default` | `#1b1b1b` / `#fff` / `#0099ff` | `#e7e7e7` / `#0f0f0f` / `#00aeff` |
-| Alternate | `alternate` | `#1b1b1b` / `#f9f9f9` / mono | `rgba(255,255,255,.9)` / `#131313` / mono |
-| Moon | `moon` | `#000000` / `#ccc9b3` / `#645b0f` | `#fffef3` / `#313332` / `#c3b531` |
-| Purple | `purple` | `#1b1b1b` / `#fff` / `#5469d4` | `#fafafa` / `#15171c` / `#5469d4` |
-| Solarized | `solarized` | `#584c27` / `#fdf6e3` / `#b58900` | `#fff` / `#00212b` / `#007acc` |
-| Blue Planet | `blue-planet` | `rgb(9,9,11)` / `#f0f2f5` / mono | `#fafafa` / `#000e23` / mono |
-| Deep Space | `deep-space` | `rgb(9,9,11)` / `#fff` / mono | `#fafafa` / `#09090b` / mono |
-| Saturn | `saturn` | `#1b1b1b` / `#f3f3ee` / `#1763a6` | `#fafafa` / `#09090b` / `#4eb3ec` |
-| Kepler-11e | `kepler-11e` | `#1b1b1b` / `#fff` / `#7070ff` | `#f7f8f8` / `#000212` / `#828fff` |
-| Mars | `mars` | `#b94f44` / `#f9f6f0` / `#b94f44` | `rgba(255,255,255,.9)` / `#140507` / mono |
+| Alternate | `alternate` | `#383a42` / `#fafafa` / `#465fee` | `#bdc4d1` / `#282c34` / `#92ade0` |
+| Moon | `moon` | `#45525a` / `#fdf6e3` / `#5b7719` | `#ded1b5` / `#2d353b` / `#c9d9b2` |
+| Purple | `purple` | `#484b65` / `#eff1f5` / `#8839ef` | `#cdd6f4` / `#1e1e2e` / `#dfc9fa` |
+| Solarized | `solarized` | `#3f545c` / `#fdf6e3` / `#8b6905` | `#abbdbf` / `#002b36` / `#ec6c6c` |
+| Blue Planet | `blue-planet` | `#1f2328` / `#ffffff` / `#0969da` | `#e6edf3` / `#0d1117` / `#76a7f3` |
+| Deep Space | `deep-space` | `#171717` / `#ffffff` / `#0868f6` | `#ededed` / `#000000` / `#5ba2fe` |
+| Saturn | `saturn` | `#3c3836` / `#fbf1c7` / `#327376` | `#ebdbb2` / `#282828` / `#8eb5b6` |
+| Kepler-11e | `kepler-11e` | `#1b1b1b` / `#fcfcfd` / `#5a65cd` | `#e3e4e6` / `#0f0f11` / `#9ea4e0` |
+| Mars | `mars` | `#2d2d2b` / `#f9f9f7` / `#a4593b` | `#f9f9f7` / `#2d2d2b` / `#e0b09d` |
 | Laserwave | `laserwave` | `#322b3b` / `#fff` / `#40b4c4` | `#fff` / `#27212e` / `#ed78c2` |
 | Elysia.js | `elysiajs` | `#1b1b1b` / `#fff` / `#f06292` | `rgba(255,255,255,.9)` / `#111728` / `#f06292` |
 | Fastify | `fastify` | `#1c1e21` / `#fff` / `#2f8555` | `rgba(255,255,255,.9)` / `#1b1b1d` / `#27c2a0` |
-
-"mono" = the theme sets `--scalar-color-accent: var(--scalar-color-1)`, i.e. a monochrome accent equal to the text color.
 
 ## Applying a theme in code
 
 ```ts
 import { getThemeStyles } from '@scalar/themes'
 
-// CSS string for a theme (+ base variables + optional fonts + optional layer)
-const css = getThemeStyles('alternate', { layer: 'scalar-theme', variables: true, fonts: true })
+// CSS string for one theme preset, in a cascade layer. The base variables, including the font stacks,
+// come from @scalar/themes/style.css.
+const css = getThemeStyles('alternate', { layer: 'scalar-theme' })
 document.head.insertAdjacentHTML('beforeend', `<style>${css}</style>`)
 ```
 
-Or import the stylesheets directly: `@scalar/themes/style.css` (reset + base + default), `@scalar/themes/tailwind.css` (Tailwind integration), `@scalar/themes/fonts.css` (fonts only). A `ThemeId` is the type-safe union of all slugs; `presets[id].theme` is the raw CSS for one theme.
+Or import the stylesheets directly: `@scalar/themes/style.css` (reset + base + default), `@scalar/themes/tailwind.css` (Tailwind integration). A `ThemeId` is the type-safe union of all slugs; `presets[id].theme` is the raw CSS for one theme.

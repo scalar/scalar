@@ -43,6 +43,32 @@ const mountStructured = ({
   })
 
 describe('RequestBodyStructured', () => {
+  it('names each date picker after its body field', () => {
+    const wrapper = mount(RequestBodyStructured, {
+      props: {
+        parsedValue: { startsAt: '2026-11-18', endsAt: '2026-11-20' },
+        bodySchema: {
+          type: 'object',
+          properties: {
+            startsAt: { type: 'string', format: 'date' },
+            endsAt: { type: 'string', format: 'date' },
+          },
+        },
+        contentType: 'application/json',
+        environment: defaultEnvironment,
+      },
+    })
+
+    try {
+      const pickerNames = wrapper
+        .findAll('button[aria-label^="Pick a date for"]')
+        .map((button) => button.attributes('aria-label'))
+      expect(pickerNames).toStrictEqual(['Pick a date for startsAt', 'Pick a date for endsAt'])
+    } finally {
+      wrapper.unmount()
+    }
+  })
+
   it.each(['application/json', 'application/yaml'])('preserves enum arrays in %s bodies', async (contentType) => {
     const wrapper = mount(RequestBodyStructured, {
       props: {

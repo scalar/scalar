@@ -8,6 +8,7 @@ import { type RequestFactory, requestFactory } from '@/request-example/builder/r
 import { buildRequestBody } from './body/build-request-body'
 import { buildRequest, resolveExecutableRequestUrl } from './build-request'
 import { INVALID_REQUEST_FACTORY_URL, MISSING_REQUEST_SERVER_BASE } from './resolve-request-factory-url'
+import { buildRequestSecurity } from './security/build-request-security'
 
 const createFactory = (overrides: Partial<RequestFactory> = {}): RequestFactory => ({
   options: {},
@@ -35,6 +36,57 @@ const unwrap = (factory: RequestFactory, options: Parameters<typeof buildRequest
 }
 
 describe('buildRequest', () => {
+  it.each([
+    ['abc', 'token abc'],
+    ['', ''],
+    ['token abc', 'token token abc'],
+  ])('formats header API-key prefixes after resolving variables (%s)', (token, expected) => {
+    const scheme = {
+      type: 'apiKey',
+      in: 'header',
+      name: 'Authorization',
+      'x-scalar-token-prefix': 'token',
+      'x-scalar-secret-token': '{{token}}',
+    } as const
+    const security = buildRequestSecurity([scheme])
+    expect(security).toStrictEqual([{ in: 'header', name: 'Authorization', value: '{{token}}', tokenPrefix: 'token' }])
+    const result = unwrap(createFactory({ security }), { envVariables: { token } })
+    expect(new Headers(result.requestPayload[1]?.headers).get('Authorization')).toBe(expected)
+    expect(scheme['x-scalar-secret-token']).toBe('{{token}}')
+    result.controller.abort()
+  })
+
+  it.each([
+    ['https://example.com/api?token=a?b', '/users', { token: 'a?b' }],
+    [
+      'https://example.com/api',
+      '/users?redirect=https://example.com/callback?code=abc',
+      { redirect: 'https://example.com/callback?code=abc' },
+    ],
+    ['https://example.com/api?token=a?b?c', '/users?next=x?y?z', { token: 'a?b?c', next: 'x?y?z' }],
+  ])('preserves raw client URL query values from %s and %s', (baseUrl, path, expected) => {
+    const { request } = requestFactory({
+      exampleName: 'default',
+      method: 'get',
+      path,
+      environment: { color: '#FFFFFF', variables: [] },
+      globalCookies: [],
+      proxyUrl: '',
+      server: { url: baseUrl },
+      defaultHeaders: {},
+      isElectron: false,
+      selectedSecuritySchemes: [],
+      operation: {},
+    })
+    const result = unwrap(request, { envVariables: {} })
+    try {
+      expect(result.isUsingProxy).toBe(false)
+      expect(Object.fromEntries(new URL(result.requestPayload[0]).searchParams)).toEqual(expected)
+    } finally {
+      result.controller.abort()
+    }
+  })
+
   it('preserves serialized parameter text through the final request URL and headers', () => {
     const { request } = requestFactory({
       exampleName: 'default',
@@ -646,6 +698,23 @@ describe('buildRequest', () => {
 
     expect((requestInit.headers as Headers).get('X-Scalar-User-Agent')).toBe(null)
     expect((requestInit.headers as Headers).get('User-Agent')).toBe('ScalarTest/1.0')
+  })
+
+  it('builds the request for the trusted origin with direct-request headers', () => {
+    const baseUrl = 'http://api.dev.internal:8080'
+    const { requestPayload } = unwrap(
+      createFactory({
+        baseUrl,
+        proxyUrl: 'https://proxy.scalar.com',
+        headers: new Headers({ 'Date': 'Wed, 01 Jan 2025 12:00:00 GMT' }),
+      }),
+      { envVariables: {}, trustedLocalOrigins: [baseUrl] },
+    )
+
+    expect(requestPayload[0]).toBe(`${baseUrl}/users`)
+    const headers = new Headers(requestPayload[1].headers)
+    expect(headers.get('Date')).toBe('Wed, 01 Jan 2025 12:00:00 GMT')
+    expect(headers.get('X-Scalar-Date')).toBeNull()
   })
 
   it('rewrites the request URL through the proxy when shouldUseProxy is true', () => {

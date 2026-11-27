@@ -55,6 +55,37 @@ const postRecursiveBody = async (schemas: Record<string, unknown>, body: unknown
   })
 }
 
+const NULLABLE_SCHEMAS = {
+  oneOf: { nullable: true, oneOf: [{ type: 'string' }, { type: 'integer' }] },
+  anyOf: { nullable: true, anyOf: [{ type: 'string' }, { type: 'integer' }] },
+  allOf: { nullable: true, allOf: [{ $ref: '#/components/schemas/Name' }] },
+  'a nullable only schema': { nullable: true },
+  'nullable false': { nullable: false, oneOf: [{ type: 'string' }, { type: 'integer' }] },
+} as const
+
+const postRecord = async (openapi: string, value: unknown, body: unknown): Promise<Response> => {
+  const document = {
+    ...documentWith('/records', 'post', {
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { type: 'object', required: ['name'], properties: { name: { type: 'string' }, value } },
+          },
+        },
+      },
+    }),
+    openapi,
+    components: { schemas: { Name: { type: 'string' } } },
+  }
+  const server = await createMockServer({ document, validateRequest: true })
+  return server.request('/records', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+}
+
 describe('validate-request', () => {
   it('passes a valid request through to the normal mock response', async () => {
     const document = documentWith('/items', 'get', {
@@ -606,6 +637,8 @@ describe('validate-request', () => {
     const arrayServer = await createMockServer({ document: arrayDoc, validateRequest: true })
     expect((await arrayServer.request('/items/;ids=1;ids=2;ids=3')).status).toBe(200)
     expect((await arrayServer.request('/items/;ids=1;ids=nope')).status).toBe(422)
+    // An empty array (`;ids`) has no elements, so it is valid without `minItems` instead of failing as `['ids']`.
+    expect((await arrayServer.request('/items/;ids')).status).toBe(200)
 
     const objectDoc = documentWith('/points/{point}', 'get', {
       parameters: [
@@ -623,6 +656,141 @@ describe('validate-request', () => {
     // Non-exploded matrix object: `;point=x,1,y,2`.
     expect((await objectServer.request('/points/;point=x,1,y,2')).status).toBe(200)
     expect((await objectServer.request('/points/;point=x,nope')).status).toBe(422)
+  })
+
+  it('validates label- and matrix-style primitive path params', async () => {
+    const documentFor = (style: string) =>
+      documentWith('/users/{id}', 'get', {
+        parameters: [{ name: 'id', in: 'path', required: true, style, schema: { type: 'integer' } }],
+      })
+
+    // A `label` primitive is dot-prefixed: `.5`.
+    const labelServer = await createMockServer({ document: documentFor('label'), validateRequest: true })
+    expect((await labelServer.request('/users/.5')).status).toBe(200)
+    expect((await labelServer.request('/users/.nope')).status).toBe(422)
+
+    // A `matrix` primitive is `;name=value`: `;id=5`.
+    const matrixServer = await createMockServer({ document: documentFor('matrix'), validateRequest: true })
+    expect((await matrixServer.request('/users/;id=5')).status).toBe(200)
+    expect((await matrixServer.request('/users/;id=nope')).status).toBe(422)
+  })
+
+  it.each([false, true])('preserves encoded delimiters in matrix primitives with explode=%s', async (explode) => {
+    const document = documentWith('/users/{id}', 'get', {
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          style: 'matrix',
+          explode,
+          schema: { type: 'string', enum: ['a', 'a;b=c'] },
+        },
+      ],
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    expect((await server.request('/users/;id=a%3Bb%3Dc')).status).toBe(200)
+    expect((await server.request('/users/;id=a%3Bignored')).status).toBe(422)
+  })
+
+  it.each([false, true])('validates encoded matrix parameter names with explode=%s', async (explode) => {
+    const documentFor = (schema: OpenAPIV3_1.SchemaObject): ReturnType<typeof documentWith> =>
+      documentWith('/users/{a=b}', 'get', {
+        parameters: [{ name: 'a=b', in: 'path', required: true, style: 'matrix', explode, schema }],
+      })
+    const integerServer = await createMockServer({
+      document: documentFor({ type: 'integer' }),
+      validateRequest: true,
+    })
+    expect((await integerServer.request('/users/;a%3Db=5')).status).toBe(200)
+    expect((await integerServer.request('/users/;a%3Db=nope')).status).toBe(422)
+
+    const stringServer = await createMockServer({
+      document: documentFor({ type: 'string', enum: ['', 'b=5', 'x;y=z'] }),
+      validateRequest: true,
+    })
+    expect((await stringServer.request('/users/;a%3Db=5')).status).toBe(422)
+    expect((await stringServer.request('/users/;a%3Db=b%3D5')).status).toBe(200)
+    expect((await stringServer.request('/users/;a%3Db=x%3By%3Dz')).status).toBe(200)
+    expect((await stringServer.request('/users/;a%3Db')).status).toBe(200)
+    expect((await stringServer.request('/users/;a%3Db=')).status).toBe(200)
+  })
+
+  it.each(['application/json', 'application/vnd.scalar+json; charset=utf-8'])(
+    'validates content typed as %s',
+    async (mediaType) => {
+      const document = documentWith('/items', 'get', {
+        parameters: [
+          { name: 'limit', in: 'query', required: true, schema: { type: 'integer' } },
+          {
+            name: 'filter',
+            in: 'query',
+            required: true,
+            content: {
+              [mediaType]: {
+                schema: { type: 'object', required: ['price'], properties: { price: { type: 'integer' } } },
+              },
+            },
+          },
+        ],
+      })
+
+      const server = await createMockServer({ document, validateRequest: true })
+      const request = (value: string) => server.request(`/items?limit=10&filter=${encodeURIComponent(value)}`)
+
+      expect((await request('{"price":5}')).status).toBe(200)
+
+      const wrongType = await request('{"price":"5"}')
+      expect(wrongType.status).toBe(422)
+      expect((await wrongType.json()).violations).toStrictEqual([
+        { location: 'query', path: '/filter/price', message: 'filter/price must be integer' },
+      ])
+
+      // A value that is not JSON cannot satisfy an object schema.
+      expect((await request('price=5')).status).toBe(422)
+      expect((await server.request('/items?limit=10')).status).toBe(422)
+    },
+  )
+
+  it.each([
+    {
+      mediaType: 'text/plain',
+      valid: 'short',
+      invalid: 'far too long',
+      message: 'X-Note must NOT have more than 5 characters',
+    },
+    { mediaType: 'application/json', valid: '"short"', invalid: 'short', message: 'X-Note must be valid JSON' },
+  ])('validates a string header declared as $mediaType', async ({ mediaType, valid, invalid, message }) => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        { name: 'X-Note', in: 'header', content: { [mediaType]: { schema: { type: 'string', maxLength: 5 } } } },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+    expect((await server.request('/items', { headers: { 'X-Note': valid } })).status).toBe(200)
+    const rejected = await server.request('/items', { headers: { 'X-Note': invalid } })
+    expect(rejected.status).toBe(422)
+    expect((await rejected.json()).violations).toStrictEqual([{ location: 'header', path: '/X-Note', message }])
+  })
+
+  it('checks presence and false schemas for unsupported parameter media types', async () => {
+    const document = documentWith('/items', 'get', {
+      parameters: [
+        { name: 'filter', in: 'query', required: true, content: { 'application/xml': { schema: { type: 'object' } } } },
+        { name: 'forbidden', in: 'query', content: { 'application/xml': { schema: false } } },
+      ],
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    expect((await server.request('/items?filter=%3Citem%2F%3E')).status).toBe(200)
+    const invalid = await server.request('/items?forbidden=%3Citem%2F%3E')
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations).toStrictEqual([
+      { location: 'query', path: '/filter', message: 'filter is required' },
+      { location: 'query', path: '/forbidden', message: 'forbidden boolean schema is false' },
+    ])
   })
 
   it('returns 422 with body violations for an invalid JSON body', async () => {
@@ -1119,12 +1287,13 @@ describe('validate-request', () => {
     expect(response.status).toBe(200)
   })
 
-  it('validates and delivers a JSON body sent without a Content-Type header', async () => {
+  it('validates and delivers a headerless JSON body using the bare media type', async () => {
     const document = documentWith('/items', 'post', {
       'x-handler': 'return { received: req.body };',
       requestBody: {
         required: true,
         content: {
+          'application/json; charset=utf-8': { schema: { type: 'object', required: ['localized'] } },
           'application/json': {
             schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
           },
@@ -1144,7 +1313,9 @@ describe('validate-request', () => {
     // No Content-Type header: validation must reject an invalid body...
     const invalid = await server.request(withoutContentType(JSON.stringify({})))
     expect(invalid.status).toBe(422)
-    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'body' })
+    expect((await invalid.json()).violations).toStrictEqual([
+      { location: 'body', path: '/name', message: "must have required property 'name'" },
+    ])
 
     // ...and a valid body must still reach the handler as `req.body`.
     const valid = await server.request(withoutContentType(JSON.stringify({ name: 'Alice' })))
@@ -1174,6 +1345,163 @@ describe('validate-request', () => {
     })
 
     expect((await response.json()).received).toEqual({ name: 'Alice' })
+  })
+
+  it('validates and delivers bodies sent with a structured +json media type', async () => {
+    const document = documentWith('/items', 'post', {
+      'x-handler': 'return { received: req.body };',
+      requestBody: {
+        required: true,
+        content: {
+          'application/vnd.api+json': {
+            schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
+          },
+        },
+      },
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+    const post = async (body: unknown): Promise<Response> =>
+      server.request('/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/vnd.api+json' },
+        body: JSON.stringify(body),
+      })
+
+    const invalid = await post({})
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations[0]).toMatchObject({ location: 'body' })
+
+    // A valid body passes validation and reaches the handler as `req.body`.
+    expect((await (await post({ name: 'Alice' })).json()).received).toEqual({ name: 'Alice' })
+  })
+
+  it.each([
+    ['application/json', { name: 'Ada' }, 200],
+    ['application/json', { active: true }, 422],
+    ['Application/Merge-Patch+JSON; charset=utf-8', { active: true }, 200],
+    ['application/merge-patch+json', { name: 'Ada' }, 422],
+    ['application/vnd.api+json', { data: {} }, 200],
+    ['application/vnd.api+json', { active: true }, 422],
+    ['application/other+json', { active: true }, 200],
+  ])('selects the request schema for %s and %j', async (contentType, body, status) => {
+    const document = documentWith('/items', 'patch', {
+      requestBody: {
+        content: {
+          'application/json': { schema: { type: 'object', required: ['name'] } },
+          'application/merge-patch+json': { schema: { type: 'object', required: ['active'] } },
+          'application/vnd.api+json': { schema: { type: 'object', required: ['data'] } },
+        },
+      },
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request('/items', {
+      method: 'PATCH',
+      headers: { 'Content-Type': contentType },
+      body: JSON.stringify(body),
+    })
+
+    expect(response.status).toBe(status)
+  })
+
+  it.each([
+    ['application/unknown+json', { id: 42 }, 200],
+    ['application/unknown+json', {}, 422],
+    ['text/unknown+json', { id: 42 }, 422],
+    ['application/vnd.api+json', {}, 200],
+    ['application/vnd.api+json; profile="https://example.com/Profile"', {}, 422],
+    ['application/vnd.api+json; profile="https://example.com/profile"', {}, 200],
+    ['application/vnd.api+json; profile="https://example.com/profile;v2"', { versionTwo: true }, 200],
+    ['application/vnd.api+json; profile="https://example.com/profile;v2"', { versionOne: true }, 422],
+  ])('matches the most specific body media type for %s and %j', async (contentType, body, status) => {
+    const document = documentWith('/items', 'post', {
+      requestBody: {
+        content: {
+          '*/*': { schema: false },
+          'application/*': { schema: { type: 'object', required: ['id'] } },
+          'application/vnd.api+json': {},
+          'application/vnd.api+json; profile="https://example.com/Profile"': {
+            schema: { type: 'object', required: ['data'] },
+          },
+          'application/vnd.api+json; profile="https://example.com/profile;v1"': {
+            schema: { type: 'object', required: ['versionOne'] },
+          },
+          'application/vnd.api+json; profile="https://example.com/profile;v2"': {
+            schema: { type: 'object', required: ['versionTwo'] },
+          },
+        },
+      },
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': contentType },
+      body: JSON.stringify(body),
+    })
+
+    expect(response.status).toBe(status)
+  })
+
+  it('rejects a structured JSON body when its schema is false', async () => {
+    const document = documentWith('/items', 'post', {
+      requestBody: {
+        content: { 'application/merge-patch+json': { schema: false } },
+      },
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/merge-patch+json' },
+      body: '{}',
+    })
+
+    expect(response.status).toBe(422)
+  })
+
+  it('passes text/json to the handler as a raw string', async () => {
+    const document = documentWith('/items', 'post', {
+      'x-handler': 'return { received: req.body };',
+      requestBody: {
+        content: {
+          'application/json': { schema: { type: 'object', required: ['name'] } },
+          'text/json': { schema: { type: 'string' } },
+        },
+      },
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+    const body = '{"example":true}'
+
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/json' },
+      body,
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ received: body })
+  })
+
+  it.each([
+    'application/json-seq',
+    'application/json-seq; profile="https://example.com/text/md"',
+    'application/json-seq; profile="https://example.com/application/x-www-form-urlencoded"',
+    'invalid',
+  ])('leaves the handler body unset for %s', async (contentType) => {
+    const document = documentWith('/items', 'post', {
+      'x-handler': 'return { hasBody: req.body !== undefined };',
+    })
+    const server = await createMockServer({ document })
+    const response = await server.request('/items', {
+      method: 'POST',
+      headers: { 'Content-Type': contentType },
+      body: '\x1E{"name":"Ada"}\n',
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ hasBody: false })
   })
 
   it('calls onRequest even when the request is rejected by validation', async () => {
@@ -1619,5 +1947,301 @@ describe('validate-request', () => {
       error: 'Request validation failed',
       violations: [{ location: 'body', path: '/1', message: 'must be multiple of 0.01' }],
     })
+  })
+  describe('patterns that only parse without the unicode flag', () => {
+    const ZIP_PATTERN = String.raw`^\d{5}(\-\d{4})?$`
+
+    it.each([
+      [{}, 422],
+      [{ name: 'x', zip: '12345-6789' }, 200],
+      [{ name: 'x', zip: '1234' }, 422],
+    ])('keeps body validation on for %j', async (body, status) => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const document = documentWith('/addresses', 'post', {
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name'],
+                properties: { name: { type: 'string' }, zip: { type: 'string', pattern: ZIP_PATTERN } },
+              },
+            },
+          },
+        },
+      })
+      const server = await createMockServer({ document, validateRequest: true })
+
+      const response = await server.request('/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
+      expect(response.status).toBe(status)
+
+      consoleErrorSpy.mockRestore()
+    })
+
+    it.each([
+      ['/addresses', {}, 422],
+      ['/addresses?limit=5', { 'X-Zip': '12345-6789' }, 200],
+      ['/addresses?limit=5&zip=12345-6789', {}, 200],
+      ['/addresses?limit=5&zip=1234', {}, 422],
+      ['/addresses?limit=5', { 'X-Zip': '1234' }, 422],
+    ])('keeps parameter validation on for %s with headers %j', async (url, headers, status) => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const document = documentWith('/addresses', 'get', {
+        parameters: [
+          { name: 'limit', in: 'query', required: true, schema: { type: 'integer' } },
+          { name: 'zip', in: 'query', schema: { type: 'string', pattern: ZIP_PATTERN } },
+          { name: 'X-Zip', in: 'header', schema: { type: 'string', pattern: ZIP_PATTERN } },
+        ],
+      })
+      const server = await createMockServer({ document, validateRequest: true })
+
+      const response = await server.request(url, { headers })
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
+      expect(response.status).toBe(status)
+
+      consoleErrorSpy.mockRestore()
+    })
+  })
+
+  it.each(['3.0.3', '3.0.4'])(
+    'keeps body validation on for a nullable union in an OpenAPI %s document',
+    async (openapi) => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      const response = await postRecord(openapi, NULLABLE_SCHEMAS.oneOf, {})
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
+      expect(response.status).toBe(422)
+      expect((await response.json()).violations).toStrictEqual([
+        { location: 'body', path: '/name', message: "must have required property 'name'" },
+      ])
+
+      consoleErrorSpy.mockRestore()
+    },
+  )
+
+  it.each([
+    ['oneOf', 'text', 200],
+    ['oneOf', 3, 200],
+    ['oneOf', null, 200],
+    ['oneOf', true, 422],
+    ['anyOf', 'text', 200],
+    ['anyOf', null, 200],
+    ['anyOf', true, 422],
+    ['allOf', 'text', 200],
+    ['allOf', null, 200],
+    ['allOf', 3, 422],
+    ['a nullable only schema', { any: 'thing' }, 200],
+    ['a nullable only schema', null, 200],
+    ['nullable false', 'text', 200],
+    ['nullable false', null, 422],
+  ] as const)('validates a property with %s next to nullable against %j', async (kind, value, status) => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const response = await postRecord('3.0.3', NULLABLE_SCHEMAS[kind], { name: 'x', value })
+
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+    expect(response.status).toBe(status)
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it.each(['default', 'example', 'examples'])('validates a reusable request body named %s', async (name) => {
+    const document = {
+      ...documentWith('/records', 'post', { requestBody: { $ref: `#/components/requestBodies/${name}` } }),
+      openapi: '3.0.4',
+      components: {
+        requestBodies: {
+          [name]: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['name'],
+                  properties: { name: { type: 'string' }, value: NULLABLE_SCHEMAS.oneOf },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const server = await createMockServer({ document, validateRequest: true })
+    const post = async (body: unknown): Promise<Response> =>
+      await server.request('/records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+    expect((await post({})).status).toBe(422)
+    expect((await post({ name: 'x', value: null })).status).toBe(200)
+    expect((await post({ name: 'x', value: true })).status).toBe(422)
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('validates sibling exclusive bounds on a nullable %s', async (keyword) => {
+    const schema = {
+      nullable: true,
+      [keyword]: [{ type: 'number' }],
+      minimum: 0,
+      maximum: 10,
+      exclusiveMinimum: true,
+      exclusiveMaximum: true,
+    }
+
+    expect((await postRecord('3.0.4', schema, {})).status).toBe(422)
+    expect((await postRecord('3.0.4', schema, { name: 'x', value: null })).status).toBe(200)
+    expect((await postRecord('3.0.4', schema, { name: 'x', value: 5 })).status).toBe(200)
+    expect((await postRecord('3.0.4', schema, { name: 'x', value: 0 })).status).toBe(422)
+    expect((await postRecord('3.0.4', schema, { name: 'x', value: 10 })).status).toBe(422)
+  })
+
+  it.each([
+    ['a', 200],
+    ['b', 422],
+    [null, 422],
+  ])('preserves an enum beside a nullable union for %j', async (value, status) => {
+    const response = await postRecord('3.0.3', { ...NULLABLE_SCHEMAS.oneOf, enum: ['a'] }, { name: 'x', value })
+
+    expect(response.status).toBe(status)
+  })
+
+  it.each([
+    ['3.0.3', 'text', 200],
+    ['3.0.3', null, 200],
+    ['3.0.3', 3, 422],
+    ['3.0.4', 'text', 200],
+    ['3.0.4', null, 200],
+    ['3.0.4', 3, 422],
+  ])(
+    'reads a oneOf arm that only says nullable as null in an OpenAPI %s document for %j',
+    async (openapi, value, status) => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      const response = await postRecord(
+        openapi,
+        { oneOf: [{ nullable: true }, { type: 'string' }] },
+        { name: 'x', value },
+      )
+
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
+      expect(response.status).toBe(status)
+
+      consoleErrorSpy.mockRestore()
+    },
+  )
+
+  it.each([
+    ['null', { type: 'null' }],
+    ['a list with null', { type: ['string', 'null'] }],
+  ])('keeps body validation on for the native OpenAPI 3.1 type %s', async (_name, value) => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const response = await postRecord('3.1.0', value, { name: 1 })
+
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+    expect(response.status).toBe(422)
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('keeps validating every location of the operation', async () => {
+    const document = documentWith('/records', 'get', {
+      parameters: [
+        { name: 'limit', in: 'query', required: true, schema: { type: 'integer' } },
+        { name: 'filter', in: 'query', schema: NULLABLE_SCHEMAS.anyOf },
+      ],
+    })
+    document.openapi = '3.0.3'
+    const server = await createMockServer({ document, validateRequest: true })
+
+    expect((await server.request('/records')).status).toBe(422)
+    expect((await server.request('/records?limit=5&filter=text')).status).toBe(200)
+    expect((await server.request('/records?limit=nope&filter=text')).status).toBe(422)
+  })
+
+  it('keeps validating a JSON encoded property of a form querystring', async () => {
+    const document = {
+      ...documentWith('/records', 'get', {
+        parameters: [
+          {
+            name: 'wholeQuery',
+            in: 'querystring',
+            required: true,
+            content: {
+              'application/x-www-form-urlencoded': {
+                schema: {
+                  type: 'object',
+                  required: ['filter'],
+                  properties: {
+                    filter: {
+                      anyOf: [
+                        {
+                          oneOf: [
+                            { type: 'object', required: ['id'], properties: { id: { type: 'integer' } } },
+                            { type: 'object', required: ['name'], properties: { name: { type: 'string' } } },
+                          ],
+                        },
+                        { type: 'null' },
+                      ],
+                    },
+                  },
+                },
+                encoding: { filter: { contentType: 'application/json' } },
+              },
+            },
+          },
+        ] as never,
+      }),
+      openapi: '3.2.0',
+    }
+    const server = await createMockServer({ document, validateRequest: true })
+    const get = async (query: string): Promise<Response> => await server.request(`/records?${query}`)
+    const filter = (value: unknown): string => `filter=${encodeURIComponent(JSON.stringify(value))}`
+
+    expect((await get(filter({ id: 1 }))).status).toBe(200)
+    expect((await get(filter(null))).status).toBe(200)
+    expect((await get(filter({ id: 'x' }))).status).toBe(422)
+    expect((await get('other=1')).status).toBe(422)
+  })
+
+  it('still drops a required read-only property from a nullable union body', async () => {
+    const document = documentWith('/records', 'post', {
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['id', 'name'],
+              properties: {
+                id: { readOnly: true, nullable: true, oneOf: [{ type: 'string' }, { type: 'integer' }] },
+                name: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    })
+    document.openapi = '3.0.3'
+    const server = await createMockServer({ document, validateRequest: true })
+    const post = async (body: unknown): Promise<Response> =>
+      await server.request('/records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+    expect((await post({ name: 'x' })).status).toBe(200)
+    expect((await post({})).status).toBe(422)
   })
 })

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MultipartNaming } from '@scalar/types/api-reference'
 import type { ClientOptionGroup } from '@scalar/blocks/code-example'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
@@ -79,6 +80,9 @@ export type RequestBlockProps = {
   securitySchemes: MergedSecuritySchemes
   /** Originating OpenAPI version, used for XML mapping rules. */
   openapiVersion?: string
+  /** Document-level JSON Schema dialect used when generating array `contains` examples. */
+  jsonSchemaDialect?: string
+  multipartNaming?: MultipartNaming
   requestBodyCompositionSelection?: Record<string, number>
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   selectedSecurity: SelectedSecurity
@@ -108,8 +112,10 @@ const {
   path,
   plugins,
   proxyUrl,
+  multipartNaming,
   requestBodyCompositionSelection,
   openapiVersion,
+  jsonSchemaDialect,
   securityRequirements,
   securitySchemes,
   selectedClient,
@@ -230,6 +236,8 @@ const sections = computed(() =>
         return []
       }
       return createParameterRows(param, exampleKey, {
+        openapiVersion,
+        jsonSchemaDialect,
         hiddenValuePaths:
           param.in === 'query' ? getHiddenValuePaths(param) : [],
         renamedValuePaths:
@@ -601,6 +609,8 @@ const handleGenerateExample = ({
     requestBody,
     contentType,
     requestBodyCompositionSelection,
+    openapiVersion,
+    jsonSchemaDialect,
   )
 
   // A schema that generates nothing writable would leave the user on an empty new example.
@@ -806,6 +816,8 @@ const filterLabels = computed(() => ({
         :defaultView="defaultRequestBodyView"
         :environment
         :exampleKey
+        :jsonSchemaDialect
+        :multipartNaming
         :openapiVersion
         :requestBody="getResolvedRef(operation.requestBody)"
         :requestBodyCompositionSelection
@@ -838,7 +850,9 @@ const filterLabels = computed(() => ({
         :eventBus
         :globalCookies
         integration="client"
+        :jsonSchemaDialect
         :method
+        :multipartNaming
         :openapiVersion
         :operation
         :path

@@ -9,6 +9,116 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.57 (2026-11-26)
+
+### System fonts, refreshed theme palettes, and HTTP client filtering
+
+The app now uses your operating system's native fonts instead of downloading web fonts. Nine theme presets receive updated color palettes with improved contrast and simplified styling. You can now control which HTTP clients appear in the API Reference.
+
+- The app uses system fonts for text and code instead of downloading web fonts, making pages load faster
+- Nine theme presets (purple, moon, solarized, bluePlanet, saturn, kepler, mars, deepSpace, and alternate) have refreshed color palettes with better contrast and simpler styling
+- Configure which HTTP clients appear in the API Reference using exact client IDs or wildcards like shell/*
+- Empty file attachments can now be downloaded from API responses
+- Filenames with semicolons and special characters are preserved when downloading response attachments
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1157)
+
+## 1.1.56 (2026-11-25)
+
+### Improved cURL imports and server variable handling
+
+This release fixes how form data is handled when importing cURL commands and resolves issues with empty OpenAPI server variable defaults in request URLs.
+
+- Form values with equal signs, plus signs, and percent signs now import correctly from cURL commands
+- Empty OpenAPI server variable defaults are properly substituted in request URLs and code snippets
+- Shadow root support added for future web component integrations
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1156)
+
+## 1.1.55 (2026-11-22)
+
+### Desktop login now works in Safari, plus Electron 45 and dependency updates
+
+Desktop authentication now completes through a secure browser redirect that works in Safari and other browsers that block mixed-content requests. The desktop runtime has been updated to Electron 45 for improved performance and security.
+
+- Desktop login and registration now work in Safari through a secure browser redirect with PKCE authentication
+- New users have 15 minutes to verify their email during desktop registration before the flow times out
+- The desktop app now runs on Electron 45 with the latest Chromium runtime and upstream fixes
+- ASP.NET Core users can enable indexed dot notation for multipart form fields through the new multipartNaming configuration option
+- Response cookies now parse correctly following browser UTC expiration rules, and empty cookies are ignored
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1155)
+
+## 1.1.54 (2026-11-20)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1154)
+
+## 1.1.53 (2026-11-19)
+
+### API Hosting beta invites and improved date input
+
+This release invites API Client users to join the API Hosting beta and makes working with date and time fields easier.
+
+- A one-time popup invites users to join the API Hosting beta waitlist as the app starts
+- Date, date-time, and time fields now offer an accessible calendar and clock picker alongside free-text entry
+- Date-time fields include shortcuts to insert faker variables like {{$isoTimestamp}} and {{$randomDateFuture}}
+- Header-based API keys support token prefixes with x-scalar-token-prefix, keeping stored credentials clean while adding the prefix to outgoing requests
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1153)
+
+## 1.1.52 (2026-11-18)
+
+### Better cURL import and improved contrast for colored badges
+
+This release fixes how the cURL importer handles data flags and improves readability for colored badges and environment indicators.
+
+- cURL commands copied from Chrome or Firefox now import correctly with their data as the request body and POST as the default method
+- cURL data flags like --json, --data-urlencode, and multipart form fields are now properly recognized
+- Colored badges and environment checkmarks now automatically choose readable black or white text based on the background color
+- Array examples now respect contains constraints and generate the correct number of matching items
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1152)
+
+## 1.1.51 (2026-11-17)
+
+### Multi-file uploads, improved schema tooltips, and TypeScript 6 support
+
+This release brings a more powerful file upload experience for array-typed multipart fields, along with visual polish for schema tooltips and internal TypeScript compiler upgrades.
+
+- Select multiple files at once for array-typed multipart fields and manage them with add, remove, and disable controls
+- Schema tooltips now use balanced spacing and prevent clipped text; empty tooltips no longer appear
+- Schema type arrays display as readable alternatives in tooltips
+- Upgraded to TypeScript 6 while preserving all runtime output and public APIs
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1151)
+
+## 1.1.50 (2026-11-16)
+
+### Open GET requests in browser and faster import with polish
+
+This release adds a one-click browser navigation option for GET requests, speeds up API description imports from extensionless URLs, and fixes server-side rendering hydration issues.
+
+- Open GET requests directly in a browser tab with configured URL and query parameters
+- Import API descriptions from extensionless URLs without duplicate downloads
+- Fix server-rendered references hydrating without replacing markup or logging mismatches
+- Update Undici dependency to address CVE-2026-116592
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1150)
+
+## 1.1.49 (2026-11-12)
+
+### Improved handling for large API specifications with merge keys
+
+This release fixes an issue where importing large API specifications that use YAML merge keys would fail with a resource exhaustion error. The YAML alias limit has been raised across the application to support documents with hundreds of operations that share common response definitions.
+
+- YAML documents with up to 100,000 merge key expansions now parse successfully
+- Large API Gateway exports that merge shared error responses into every operation no longer fail to import
+- The higher alias limit applies to all YAML parsing in the app, including request body editors and collection imports
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1149)
+
 ## 1.1.48 (2026-11-10)
 
 ### Improved multipart uploads and OpenID Connect configuration

@@ -1,5 +1,29 @@
 # @scalar/import
 
+## 0.5.41
+
+No changes in this release.
+
+## 0.5.40
+
+No changes in this release.
+
+## 0.5.39
+
+No changes in this release.
+
+## 0.5.38
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.5.37
+
+### Patch Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when importing API descriptions from URLs and embedded content.
+
 ## 0.5.36
 
 ## 0.5.35

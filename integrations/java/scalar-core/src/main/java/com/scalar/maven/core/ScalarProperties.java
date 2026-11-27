@@ -61,11 +61,17 @@ public class ScalarProperties {
     /** The default OAuth 2.0 redirect URI. */
     private String oauth2RedirectUri;
 
+    /** HTTP(S) origins treated as local for API proxy routing and OAuth authorization. */
+    private List<String> trustedLocalOrigins;
+
     /** Whether navigation updates the browser URL and history. */
     private Boolean urlRouting;
 
     /** The clients hidden from code sample selection. */
     private ScalarHiddenClients hiddenClients;
+
+    /** The built-in client IDs and target wildcards allowed in code sample pickers. */
+    private List<String> httpClients;
 
     /** The full client identifiers shown as tabs, in order. */
     private List<String> featuredClients;
@@ -75,6 +81,9 @@ public class ScalarProperties {
 
     /** The initial request body view: form or raw. */
     private ScalarRequestBodyView defaultRequestBodyView;
+
+    /** Naming convention for nested multipart form fields. */
+    private ScalarMultipartNaming multipartNaming;
 
     /** The maximum initially visible request body properties; zero shows all. */
     private Integer maxVisibleRequestBodyProperties;
@@ -125,7 +134,13 @@ public class ScalarProperties {
     private boolean showSidebar = true;
 
     /**
-     * Whether models (components.schemas or definitions) should be hidden from the
+     * Whether to show x-badges in the sidebar.
+     * Defaults to false.
+     */
+    private boolean showBadgesInSidebar = false;
+
+    /**
+     * Hide schema models and reusable AsyncAPI messages from the
      * sidebar, search, and content.
      * Defaults to false.
      */
@@ -203,6 +218,12 @@ public class ScalarProperties {
     private DefaultHttpClient defaultHttpClient;
 
     /**
+     * Shows built-in HTTP clients alongside SDK installation tabs in the introduction.
+     * Defaults to false, which shows only SDK tabs when installation instructions are available.
+     */
+    private boolean showDefaultClientsWithSdkInstallation = false;
+
+    /**
      * Controls the list of servers for the Scalar API Reference.
      * This list will override the servers defined in the OpenAPI document.
      */
@@ -215,8 +236,8 @@ public class ScalarProperties {
     private Map<String, String> metadata;
 
     /**
-     * Controls whether to use the default fonts (Inter and JetBrains Mono from
-     * CDN).
+     * Controls whether to use the default fonts. Scalar uses the system font
+     * stack and no longer loads web fonts, so this setting has no effect.
      * Defaults to true.
      */
     private boolean withDefaultFonts = true;
@@ -250,6 +271,12 @@ public class ScalarProperties {
      * Defaults to false (not persisted).
      */
     private boolean persistAuth = false;
+
+    /**
+     * Controls whether the selected code sample client is saved and restored in local storage.
+     * Defaults to true. Set to false to keep client selection on the current page only.
+     */
+    private boolean persistSelectedClient = true;
 
     /**
      * Controls whether telemetry is enabled.
@@ -405,6 +432,14 @@ public class ScalarProperties {
         this.pageTitle = pageTitle;
     }
 
+    public boolean isShowBadgesInSidebar() {
+        return showBadgesInSidebar;
+    }
+
+    public void setShowBadgesInSidebar(boolean showBadgesInSidebar) {
+        this.showBadgesInSidebar = showBadgesInSidebar;
+    }
+
     public boolean isShowSidebar() {
         return showSidebar;
     }
@@ -509,6 +544,14 @@ public class ScalarProperties {
         this.authentication = authentication;
     }
 
+    public boolean isShowDefaultClientsWithSdkInstallation() {
+        return showDefaultClientsWithSdkInstallation;
+    }
+
+    public void setShowDefaultClientsWithSdkInstallation(boolean showDefaultClientsWithSdkInstallation) {
+        this.showDefaultClientsWithSdkInstallation = showDefaultClientsWithSdkInstallation;
+    }
+
     public DefaultHttpClient getDefaultHttpClient() {
         return defaultHttpClient;
     }
@@ -571,6 +614,14 @@ public class ScalarProperties {
 
     public void setBaseServerUrl(String baseServerUrl) {
         this.baseServerUrl = baseServerUrl;
+    }
+
+    public boolean isPersistSelectedClient() {
+        return persistSelectedClient;
+    }
+
+    public void setPersistSelectedClient(boolean persistSelectedClient) {
+        this.persistSelectedClient = persistSelectedClient;
     }
 
     public boolean isPersistAuth() {
@@ -815,6 +866,14 @@ public class ScalarProperties {
         this.maxVisibleRequestBodyProperties = maxVisibleRequestBodyProperties;
     }
 
+    public ScalarMultipartNaming getMultipartNaming() {
+        return multipartNaming;
+    }
+
+    public void setMultipartNaming(ScalarMultipartNaming multipartNaming) {
+        this.multipartNaming = multipartNaming;
+    }
+
     /**
      * Gets the initial request body view: form or raw.
      *
@@ -870,6 +929,22 @@ public class ScalarProperties {
     }
 
     /**
+     * Gets the built-in HTTP clients allowed in the code sample pickers.
+     * @return the configured client IDs and target wildcards, or null to use the default list
+     */
+    public List<String> getHttpClients() {
+        return httpClients;
+    }
+
+    /**
+     * Sets the HTTP client allowlist. An empty list hides all built-in clients.
+     * @param httpClients client IDs such as node/undici or target wildcards such as shell/*
+     */
+    public void setHttpClients(List<String> httpClients) {
+        this.httpClients = httpClients;
+    }
+
+    /**
      * Gets the clients hidden from code sample selection.
      *
      * @return the configured value, or null to use the frontend default
@@ -921,6 +996,20 @@ public class ScalarProperties {
      */
     public void setOauth2RedirectUri(String oauth2RedirectUri) {
         this.oauth2RedirectUri = oauth2RedirectUri;
+    }
+
+    /** Returns the configured local origins, or null when no origins are configured. */
+    public List<String> getTrustedLocalOrigins() {
+        return trustedLocalOrigins;
+    }
+
+    /**
+     * Sets the HTTP(S) origins treated as local.
+     *
+     * @param trustedLocalOrigins the origins, including the scheme and any non-default port
+     */
+    public void setTrustedLocalOrigins(List<String> trustedLocalOrigins) {
+        this.trustedLocalOrigins = trustedLocalOrigins;
     }
 
     /**

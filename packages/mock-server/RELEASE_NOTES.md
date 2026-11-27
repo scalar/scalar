@@ -9,6 +9,93 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.9 (2026-11-26)
+
+### Generated strings now respect length constraints
+
+Mock responses and API reference examples now honor minLength and maxLength constraints when generating string values, including formatted strings like emails and strings inside oneOf or anyOf branches.
+
+- Generated string examples now respect minLength and maxLength bounds from your OpenAPI schema.
+- Formatted strings like emails produce valid syntax within the specified length constraints.
+- Path parameter placeholders are preserved in code samples.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0219)
+
+## 0.21.8 (2026-11-25)
+
+### Better request validation and response header handling
+
+This release improves how the mock server validates incoming requests and generates response headers. Path parameters with label and matrix styles are now properly validated, JSON content parameters maintain their types during validation, and response headers respect authored examples instead of only generating values from schemas.
+
+- Operations are now served under the base path of their servers, so a mock server for an API at `/v1` will answer requests to `/v1/pets` instead of returning 404.
+- Request bodies with structured JSON media types like `application/vnd.api+json` and `application/merge-patch+json` are validated against their schemas and made available to custom handlers.
+- Response headers now send authored examples from `example` or `examples` fields instead of only generating values from the header schema.
+- Path parameters using label (`.5`) and matrix (`;id=5`) styles are properly validated against their schemas when request validation is enabled.
+- Query parameters declared with JSON content are validated with correct types, so `?filter={"price":"5"}` is rejected when price must be an integer.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0218)
+
+## 0.21.7 (2026-11-22)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0217)
+
+## 0.21.6 (2026-11-20)
+
+### Request validation now works for nullable schemas without explicit types
+
+Previously, OpenAPI 3.0 schemas with nullable but no type keyword could bypass validation entirely after upgrade, allowing invalid requests through. The mock server now properly enforces the full request contract for these schemas.
+
+- Fixed request validation being skipped when OpenAPI 3.0 schemas use nullable without an explicit type.
+- Nullable compositions are now converted to explicit unions with null during OpenAPI upgrade.
+- Invalid requests that previously returned 200 now correctly return 422 when required fields are missing.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0216)
+
+## 0.21.5 (2026-11-18)
+
+### Better array example generation and pattern validation
+
+This release fixes how the mock server generates examples for arrays with contains constraints and resolves an issue where certain regex patterns would prevent request validation from running.
+
+- Array examples now respect contains, minContains, and maxContains constraints when generating primitive items.
+- Generated arrays honor tuple prefixes, length bounds, uniqueness requirements, and the OpenAPI dialect you are using.
+- Request validation no longer fails silently when a schema pattern uses escape sequences like \-, \_, or \ that are only valid without the unicode flag.
+- Patterns that work with the unicode flag keep it, so astral characters and \p{L} continue to behave as expected.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0215)
+
+## 0.21.4 (2026-11-17)
+
+### Plugin document handling and TypeScript 6 support
+
+This release improves how plugin documents are classified and processed throughout the application, ensuring they are handled consistently and excluded from features that do not support them.
+
+- Plugin documents now maintain consistent classification during replacement, hydration, and rebasing operations.
+- Plugin documents are excluded from Ask AI features and authentication processing.
+- Builds with TypeScript 6 now preserve package output paths and application aliases correctly.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0214)
+
+## 0.21.3 (2026-11-16)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0213)
+
+## 0.21.2 (2026-11-12)
+
+### Mock server now generates valid base64 examples
+
+The mock server previously returned invalid base64 strings for byte format fields, causing strict decoders to reject responses. It now generates valid base64 examples that decode correctly.
+
+- Generated examples for format byte fields are now valid base64 strings instead of the placeholder string.
+- Content encoding base64 and base64url schemas receive proper base64 examples.
+- Custom examples, defaults, and enums still take precedence over generated values.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0212)
+
 ## 0.21.1 (2026-11-10)
 
 ### Decimal validation and deep nesting fixes

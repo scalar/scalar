@@ -13,15 +13,23 @@ import { DataTableRow } from '@/v2/components/data-table'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { scheme, name, environment, eventBus, proxyUrl, customFetch } =
-  defineProps<{
-    scheme: OAuth2Object
-    name: string
-    environment: XScalarEnvironment
-    eventBus: WorkspaceEventBus
-    proxyUrl: string
-    customFetch?: CustomFetch
-  }>()
+const {
+  scheme,
+  name,
+  environment,
+  eventBus,
+  proxyUrl,
+  customFetch,
+  trustedLocalOrigins,
+} = defineProps<{
+  scheme: OAuth2Object
+  name: string
+  environment: XScalarEnvironment
+  eventBus: WorkspaceEventBus
+  proxyUrl: string
+  customFetch?: CustomFetch
+  trustedLocalOrigins?: readonly string[]
+}>()
 const loader = useLoadingState()
 const { toast } = useToasts()
 
@@ -43,6 +51,7 @@ const fetchConfiguration = async (): Promise<void> => {
     url,
     proxyUrl,
     customFetch,
+    trustedLocalOrigins,
   )
   await loader.clear()
   // Store updates can replace the proxy without changing the selected authorization server.
@@ -76,15 +85,17 @@ const fetchConfiguration = async (): Promise<void> => {
   <DataTableRow
     v-if="scheme.oauth2MetadataUrl"
     class="min-w-full">
-    <div class="flex h-8 w-full items-center justify-end border-t">
-      <ScalarButton
-        class="mr-0.75 p-0 px-2 py-0.5"
-        :loader
-        size="sm"
-        variant="outlined"
-        @click="fetchConfiguration">
-        Fetch Configuration
-      </ScalarButton>
-    </div>
+    <td class="contents">
+      <div class="flex h-8 w-full items-center justify-end border-t">
+        <ScalarButton
+          class="mr-0.75 p-0 px-2 py-0.5"
+          :loader
+          size="sm"
+          variant="outlined"
+          @click="fetchConfiguration">
+          Fetch Configuration
+        </ScalarButton>
+      </div>
+    </td>
   </DataTableRow>
 </template>

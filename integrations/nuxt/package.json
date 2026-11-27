@@ -20,7 +20,7 @@
     "testing",
     "vue"
   ],
-  "version": "0.6.89",
+  "version": "0.6.98",
   "engines": {
     "node": ">=22"
   },
@@ -61,8 +61,8 @@
     "documentation": "https://scalar.com/products/api-references/integrations/nuxt"
   },
   "dependencies": {
-    "@nuxt/kit": "4.5.2",
-    "@nuxt/schema": "4.5.2",
+    "@nuxt/kit": "4.6.4",
+    "@nuxt/schema": "4.6.4",
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/types": "workspace:*",
@@ -73,7 +73,8 @@
     "@nuxt/module-builder": "1.0.2",
     "@types/node": "catalog:*",
     "cross-env": "catalog:*",
-    "nuxt": "^4.6.3",
+    "nuxt": "^4.6.4",
+    "typescript": "5.9.3",
     "vitest": "catalog:*"
   }
 }

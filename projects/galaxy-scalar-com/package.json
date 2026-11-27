@@ -16,7 +16,7 @@
     "swagger",
     "petstore"
   ],
-  "version": "0.2.30",
+  "version": "0.2.32",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -37,6 +37,6 @@
     "@scalar/mock-server": "workspace:*",
     "@types/node": "catalog:*",
     "hono": "catalog:*",
-    "wrangler": "^4.151.1"
+    "wrangler": "catalog:*"
   }
 }

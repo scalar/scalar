@@ -16,5 +16,5 @@ export const createMockServer = async (configuration: MockServerOptions): Promis
   )
   return processed.type === 'asyncapi'
     ? createAsyncApiMockServer(configuration, processed.document)
-    : createOpenApiMockServer(configuration, processed.document)
+    : createOpenApiMockServer(configuration, processed)
 }

@@ -1,5 +1,47 @@
 # @scalar/openapi-validator
 
+## 0.1.27
+
+No changes in this release.
+
+## 0.1.26
+
+No changes in this release.
+
+## 0.1.25
+
+No changes in this release.
+
+## 0.1.24
+
+No changes in this release.
+
+## 0.1.23
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.1.22
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.1.21
+
+### Patch Changes
+
+- [#11008](https://github.com/scalar/scalar/pull/11008): Report duplicate operation IDs in active paths, webhooks and callbacks, including local references.
+
+  Reusing a callback or Path Item component in multiple locations now reports duplicate operation IDs when the component's operations declare an `operationId`. Each reference is checked as a separate occurrence in the API. Give those operations unique IDs at each location, or omit their optional `operationId` fields when sharing the component.
+- [#11009](https://github.com/scalar/scalar/pull/11009): Reject duplicate parameter names and locations within each parameter list while preserving operation-level overrides.
+- [#11010](https://github.com/scalar/scalar/pull/11010): Reject server variable defaults outside their enum values in OpenAPI 3.1 and 3.2, while preserving OpenAPI 3.0 behavior.
+
+## 0.1.20
+
+No changes in this release.
+
 ## 0.1.19
 
 ## 0.1.18

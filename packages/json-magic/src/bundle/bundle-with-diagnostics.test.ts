@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { createMagicProxy } from '@/magic-proxy/proxy'
+
 import { type LoaderPlugin, type ResolveResult, bundle } from './bundle'
 import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { fetchUrls } from './plugins/fetch-urls'
@@ -166,6 +168,734 @@ describe('bundle-with-diagnostics', () => {
       },
     ])
     expect(result.document['components'].schemas.Test.example).toStrictEqual(literal)
+  })
+
+  it.each([
+    'schemas',
+    'servers',
+    'channels',
+    'operations',
+    'messages',
+    'securitySchemes',
+    'serverVariables',
+    'parameters',
+    'correlationIds',
+    'replies',
+    'replyAddresses',
+    'externalDocs',
+    'tags',
+    'operationTraits',
+    'messageTraits',
+    'serverBindings',
+    'channelBindings',
+    'operationBindings',
+    'messageBindings',
+  ])('resolves AsyncAPI component names that resemble data keywords in %s', async (section) => {
+    const entries = Object.fromEntries(
+      ['default', 'examples', 'enum', 'const', 'value', 'x-entry'].map((name) => [
+        name,
+        { $ref: 'https://example.test/entry.json' },
+      ]),
+    )
+    const literal = { $ref: 'https://example.test/literal.json', name: 'kept' }
+    const loader = sources({ 'https://example.test/entry.json': { description: 'Entry', 'x-data': literal } })
+    const result = await bundleWithDiagnostics(
+      { asyncapi: '3.1.0', components: { [section]: entries } },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: () => 'entry' },
+    )
+    expect(result.complete).toBe(true)
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/entry.json'])
+    for (const entry of Object.values(entries)) expect(entry).toStrictEqual({ $ref: '#/x-ext/entry' })
+    expect(result.document['x-ext'].entry['x-data']).toStrictEqual(literal)
+  })
+
+  it.each([
+    ['operationBindings', 'http', 'query'],
+    ['messageBindings', 'http', 'headers'],
+    ['channelBindings', 'ws', 'query'],
+    ['channelBindings', 'ws', 'headers'],
+    ['messageBindings', 'anypointmq', 'headers'],
+    ['messageBindings', 'jms', 'headers'],
+    ['operationBindings', 'kafka', 'groupId'],
+    ['operationBindings', 'kafka', 'clientId'],
+    ['messageBindings', 'kafka', 'key'],
+    ['serverBindings', 'mqtt', 'sessionExpiryInterval'],
+    ['serverBindings', 'mqtt', 'maximumPacketSize'],
+    ['operationBindings', 'mqtt', 'messageExpiryInterval'],
+    ['messageBindings', 'mqtt', 'correlationData'],
+    ['messageBindings', 'mqtt', 'responseTopic'],
+    ['serverBindings', 'mqtt5', 'sessionExpiryInterval'],
+    ['operationBindings', 'solace', 'timeToLive'],
+    ['operationBindings', 'solace', 'priority'],
+  ])('resolves schema references in %s.%s.%s', async (section, protocol, field) => {
+    const literal = { $ref: 'https://example.test/literal.json', name: 'kept' }
+    const schema = {
+      type: 'object',
+      properties: {
+        default: { $ref: 'https://example.test/id.json' },
+        'x-id': { $ref: 'https://example.test/id.json' },
+      },
+      default: structuredClone(literal),
+      examples: [structuredClone(literal)],
+    }
+    const loader = sources({ 'https://example.test/id.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        info: { title: 'Bindings', version: '1' },
+        components: { [section]: { Shared: { [protocol]: { [field]: schema } } } },
+      },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: () => 'id' },
+    )
+    expect(result.complete).toBe(true)
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/id.json'])
+    expect(schema.properties).toStrictEqual({
+      default: { $ref: '#/x-ext/id' },
+      'x-id': { $ref: '#/x-ext/id' },
+    })
+    expect(schema.default).toStrictEqual(literal)
+    expect(schema.examples).toStrictEqual([literal])
+  })
+
+  it.each(['3.1.0', '3.2.0'])(
+    'preserves custom schemaFormat and schema fields in OpenAPI %s schemas',
+    async (openapi) => {
+      const customSchema = {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { $ref: './literal.json' },
+        properties: { value: { $ref: './value.json' } },
+      }
+      const input = { openapi, components: { schemas: { Custom: customSchema } } }
+      const loader = sources({ '/value.json': { type: 'string' } })
+      const result = await bundleWithDiagnostics(input, {
+        origin: '/root.json',
+        plugins: [loader.plugin],
+        treeShake: false,
+        traversal: 'document',
+        compress: (uri) => (uri.includes('literal') ? 'literal' : 'value'),
+      })
+      expect(result.diagnostics).toStrictEqual([])
+      expect(loader.calls).toStrictEqual(['/value.json'])
+      expect(customSchema).toStrictEqual({
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { $ref: './literal.json' },
+        properties: { value: { $ref: '#/x-ext/value' } },
+      })
+    },
+  )
+
+  it.each(['3.0.0', '3.1.0'])('resolves external Multi Format Schema wrappers in AsyncAPI %s', async (asyncapi) => {
+    const input = { asyncapi, components: { schemas: { Event: { $ref: './wrapper.json' } } } }
+    const loader = sources({
+      '/wrapper.json': {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { $ref: './value.json' },
+      },
+      '/value.json': { type: 'string' },
+    })
+    const result = await bundleWithDiagnostics(input, {
+      origin: '/root.json',
+      plugins: [loader.plugin],
+      treeShake: false,
+      traversal: 'document',
+      compress: (uri) => (uri.includes('wrapper') ? 'wrapper' : 'value'),
+    })
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['/wrapper.json', '/value.json'])
+    expect(result.document['x-ext']).toStrictEqual({
+      wrapper: {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { $ref: '#/x-ext/value' },
+      },
+      value: { type: 'string' },
+    })
+  })
+
+  it.each([false, true])('preserves the target wrapper vocabulary (wrapper first: %s)', async (wrapperFirst) => {
+    const wrapper = {
+      schemaFormat: 'application/schema+json;version=draft-07',
+      schema: { $ref: 'https://example.test/value.json' },
+    }
+    const native = { properties: { value: { $ref: '#/components/schemas/Wrapped' } } }
+    const loader = sources({ 'https://example.test/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: wrapperFirst ? { Wrapped: wrapper, Native: native } : { Native: native, Wrapped: wrapper },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: () => 'value' },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/value.json'])
+    expect(wrapper.schema).toStrictEqual({ $ref: '#/x-ext/value' })
+  })
+
+  it('ignores AsyncAPI 2.x parameter schema reference siblings', async () => {
+    const ignored = { properties: { sibling: { $ref: 'https://example.test/ignored.json' } } }
+    const parameter = { schema: { $ref: 'https://example.test/value.json', ...ignored } }
+    const loader = sources({ 'https://example.test/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      { asyncapi: '2.6.0', channels: { 'events/{id}': { parameters: { id: parameter } } } },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: (uri) => uri.split('/').at(-1)! },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/value.json'])
+    expect(parameter.schema).toStrictEqual({ $ref: '#/x-ext/value.json', ...ignored })
+  })
+
+  it.each([
+    'application/schema+json;version=draft-04',
+    'application/schema+yaml;version=draft-06',
+    'application/vnd.oai.openapi;version=3.0.0',
+    'application/vnd.oai.openapi+json;version=3.0.4',
+    'application/vnd.oai.openapi+yaml;version=3.0.0',
+  ])('ignores reference siblings in %s wrappers and their subschemas', async (schemaFormat) => {
+    const ignored = { properties: { sibling: { $ref: 'https://example.test/ignored.json' } } }
+    const reference = { $ref: 'https://example.test/value.json', ...ignored }
+    const wrapper = { schemaFormat, schema: structuredClone(reference) }
+    const nested = { schemaFormat, schema: { properties: { value: structuredClone(reference) } } }
+    const loader = sources({
+      'https://example.test/value.json': { $ref: './actual.json', ...ignored },
+      'https://example.test/actual.json': { type: 'string' },
+    })
+    const result = await bundleWithDiagnostics(
+      { asyncapi: '3.1.0', components: { schemas: { Wrapped: wrapper, Nested: nested } } },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: (uri) => uri.split('/').at(-1)! },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/value.json', 'https://example.test/actual.json'])
+    expect(wrapper.schema).toStrictEqual({ $ref: '#/x-ext/value.json', ...ignored })
+    expect(nested.schema.properties.value).toStrictEqual({ $ref: '#/x-ext/value.json', ...ignored })
+    expect(result.document['x-ext']['value.json']).toStrictEqual({ $ref: '#/x-ext/actual.json', ...ignored })
+  })
+
+  it.each(['own', 'nested'])('does not register %s identities in ignored reference siblings', async (kind) => {
+    const uri = 'https://example.test/ignored.json'
+    const ignored = kind === 'own' ? { $id: uri } : { definitions: { Hidden: { $id: uri, type: 'string' } } }
+    const wrapper = {
+      schemaFormat: 'application/schema+json;version=draft-07',
+      schema: { $ref: '#/components/schemas/Base', ...ignored },
+    }
+    const other = { schemaFormat: wrapper.schemaFormat, schema: { $ref: uri } }
+    const loader = sources({ [uri]: { type: 'boolean' } })
+    const result = await bundleWithDiagnostics(
+      { asyncapi: '3.1.0', components: { schemas: { Base: { type: 'number' }, Wrapped: wrapper, Other: other } } },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: () => 'ignored' },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual([uri])
+    expect(wrapper.schema).toStrictEqual({ $ref: '#/components/schemas/Base', ...ignored })
+    expect(other.schema).toStrictEqual({ $ref: '#/x-ext/ignored' })
+    expect(result.document['x-ext']).toStrictEqual({ ignored: { type: 'boolean' } })
+  })
+
+  it('removes ignored cached identities after inheriting a wrapper dialect', async () => {
+    const cached = { $ref: 'https://example.test/actual.json', $id: 'https://example.test/ignored.json' }
+    const schemaFormat = 'application/schema+json;version=draft-07'
+    const loader = sources({
+      'https://example.test/actual.json': { type: 'number' },
+      'https://example.test/ignored.json': { type: 'boolean' },
+    })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Wrapped: { schemaFormat, schema: { $ref: 'https://example.test/cached.json' } },
+            Other: { schemaFormat, schema: { $ref: 'https://example.test/ignored.json' } },
+          },
+        },
+      },
+      {
+        traversal: 'document',
+        treeShake: false,
+        plugins: [loader.plugin],
+        cache: new Map([
+          [
+            'https://example.test/cached.json',
+            Promise.resolve({ ok: true, data: cached, raw: JSON.stringify(cached) }),
+          ],
+        ]),
+        compress: (uri) => uri.split('/').at(-1)!,
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/actual.json', 'https://example.test/ignored.json'])
+    expect(result.document['components'].schemas.Other.schema).toStrictEqual({ $ref: '#/x-ext/ignored.json' })
+    expect(result.document['x-ext']['ignored.json']).toStrictEqual({ type: 'boolean' })
+  })
+
+  it('does not register anchors in ignored reference siblings', async () => {
+    const wrapper = {
+      schemaFormat: 'application/schema+json;version=draft-07',
+      schema: { $ref: '#/components/schemas/Base', $anchor: 'ignored' },
+    }
+    const loader = sources({})
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Base: { type: 'number' },
+            Wrapped: wrapper,
+            Other: { schemaFormat: wrapper.schemaFormat, schema: { $ref: '#ignored' } },
+          },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin] },
+    )
+    expect(result.diagnostics).toStrictEqual([
+      { kind: 'missing-target', reference: '#ignored', source: '/', pointer: '#/components/schemas/Other/schema/$ref' },
+    ])
+    expect(loader.calls).toStrictEqual([])
+    expect(wrapper.schema).toStrictEqual({ $ref: '#/components/schemas/Base', $anchor: 'ignored' })
+  })
+
+  it.each(['04', '06', '07'])('preserves unknown keywords in inline and external draft-%s schemas', async (draft) => {
+    const literal = { $ref: 'https://example.test/literal.json', note: 'keep' }
+    const annotations = {
+      $defs: { Named: structuredClone(literal) },
+      dependentSchemas: { value: structuredClone(literal) },
+      prefixItems: [structuredClone(literal)],
+      contentSchema: structuredClone(literal),
+      unevaluatedProperties: structuredClone(literal),
+      unevaluatedItems: structuredClone(literal),
+      ...(draft === '04' ? { contains: structuredClone(literal), propertyNames: structuredClone(literal) } : {}),
+      ...(draft !== '07'
+        ? { if: structuredClone(literal), then: structuredClone(literal), else: structuredClone(literal) }
+        : {}),
+    }
+    const schema = {
+      type: 'object',
+      properties: { value: { $ref: 'https://example.test/value.json' } },
+      ...annotations,
+    }
+    const schemaFormat = `application/schema+json;version=draft-${draft}`
+    const loader = sources({
+      'https://example.test/value.json': { type: 'string' },
+      'https://example.test/external.json': structuredClone(schema),
+    })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Inline: { schemaFormat, schema },
+            External: { schemaFormat, schema: { $ref: 'https://example.test/external.json' } },
+          },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: (uri) => uri.split('/').at(-1)! },
+    )
+    const expected = { type: 'object', properties: { value: { $ref: '#/x-ext/value.json' } }, ...annotations }
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/value.json', 'https://example.test/external.json'])
+    expect(schema).toStrictEqual(expected)
+    expect(result.document['x-ext']['external.json']).toStrictEqual(expected)
+  })
+
+  it.each([
+    { draft: '04', keyword: 'contains', resolves: false },
+    { draft: '06', keyword: 'contains', resolves: true },
+    { draft: '07', keyword: 'contains', resolves: true },
+    { draft: '04', keyword: 'if', resolves: false },
+    { draft: '06', keyword: 'if', resolves: false },
+    { draft: '07', keyword: 'if', resolves: true },
+  ])('uses the draft-$draft vocabulary for $keyword', async ({ draft, keyword, resolves }) => {
+    const child = { $ref: 'https://example.test/value.json' }
+    const loader = sources({ 'https://example.test/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Wrapped: { schemaFormat: `application/schema+json;version=draft-${draft}`, schema: { [keyword]: child } },
+          },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: () => 'value' },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(resolves ? ['https://example.test/value.json'] : [])
+    expect(child).toStrictEqual({ $ref: resolves ? '#/x-ext/value' : 'https://example.test/value.json' })
+  })
+
+  it.each([
+    { draft: '04', idKeyword: 'id' },
+    { draft: '06', idKeyword: '$id' },
+    { draft: '07', idKeyword: '$id' },
+  ] as const)('uses $idKeyword as the draft-$draft identifier', async ({ draft, idKeyword }) => {
+    const schema = {
+      id: 'https://ignored.test/',
+      $id: 'https://ignored.test/',
+      [idKeyword]: 'https://example.test/nested/base.json',
+      properties: { value: { $ref: 'value.json' } },
+    }
+    const loader = sources({ 'https://example.test/nested/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: { Wrapped: { schemaFormat: `application/schema+json;version=draft-${draft}`, schema } },
+        },
+      },
+      {
+        origin: 'https://example.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [loader.plugin],
+        compress: () => 'value',
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/nested/value.json'])
+    expect(schema.properties.value.$ref).toBe('#/x-ext/value')
+  })
+
+  it.each([
+    'application/schema+json;version=draft-04',
+    'application/schema+json;version=draft-06',
+    'application/schema+json;version=draft-07',
+    'application/vnd.oai.openapi+json;version=3.0.0',
+    'application/vnd.aai.asyncapi+json;version=3.1.0',
+  ])('does not register $anchor annotations in %s', async (schemaFormat) => {
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Target: { schemaFormat, schema: { type: 'string', $anchor: 'literal-anchor' } },
+            Source: { schemaFormat, schema: { $ref: '#literal-anchor' } },
+          },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [] },
+    )
+    expect(result.diagnostics).toStrictEqual([
+      {
+        kind: 'missing-target',
+        reference: '#literal-anchor',
+        source: '/',
+        pointer: '#/components/schemas/Source/schema/$ref',
+      },
+    ])
+  })
+
+  it('ignores OpenAPI 3.0 wrapper $id annotations when resolving relative references', async () => {
+    const schema = { $id: 'https://ignored.test/', properties: { value: { $ref: 'value.json' } } }
+    const loader = sources({ 'https://example.test/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: { schemas: { Wrapped: { schemaFormat: 'application/vnd.oai.openapi;version=3.0.0', schema } } },
+      },
+      {
+        origin: 'https://example.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [loader.plugin],
+        compress: () => 'value',
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/value.json'])
+  })
+
+  it('canonicalizes draft-04 id without promoting its $id annotation', async () => {
+    const schema = { id: './nested/', $id: 'https://ignored.test/', properties: { value: { $ref: 'value.json' } } }
+    const loader = sources({ 'https://example.test/nested/value.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: { schemas: { Wrapped: { schemaFormat: 'application/schema+json;version=draft-04', schema } } },
+      },
+      {
+        origin: 'https://example.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        plugins: [loader.plugin],
+        compress: () => 'value',
+        preserveReference: () => false,
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/nested/value.json'])
+    expect(schema.id).toBe('https://example.test/nested/')
+    expect(schema.$id).toBe('https://ignored.test/')
+  })
+
+  it('restores cached annotations after selecting a draft-04 vocabulary', async () => {
+    const cached = { $id: './literal/', type: 'string' }
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Wrapped: {
+              schemaFormat: 'application/schema+json;version=draft-04',
+              schema: { $ref: 'https://example.test/cached.json' },
+            },
+          },
+        },
+      },
+      {
+        origin: 'https://example.test/root.json',
+        traversal: 'document',
+        treeShake: false,
+        preserveReference: () => false,
+        cache: new Map([
+          [
+            'https://example.test/cached.json',
+            Promise.resolve({ ok: true, data: cached, raw: JSON.stringify(cached) }),
+          ],
+        ]),
+        plugins: [],
+        compress: () => 'cached',
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(result.document['x-ext']).toStrictEqual({ cached: { $id: './literal/', type: 'string' } })
+    expect(cached).toStrictEqual({ $id: './literal/', type: 'string' })
+  })
+
+  it.each([false, true])('indexes authored identity paths with proxied input: %s', async (proxied) => {
+    const input = {
+      asyncapi: '3.1.0',
+      components: {
+        messages: { M: { payload: { $ref: '#/components/schemas/S' } } },
+        schemas: {
+          S: { $id: './schema.json', properties: { id: { $ref: './id.json' } } },
+          Other: { $ref: 'https://example.test/schema.json' },
+        },
+      },
+    }
+    const loader = sources({ 'https://example.test/id.json': { type: 'string' } })
+    const result = await bundleWithDiagnostics(proxied ? createMagicProxy(input) : input, {
+      traversal: 'document',
+      treeShake: false,
+      origin: 'https://example.test/root.json',
+      plugins: [loader.plugin],
+      compress: () => 'id',
+    })
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/id.json'])
+    expect(input.components.schemas.Other.$ref).toBe('#/components/schemas/S')
+    expect(JSON.parse(JSON.stringify(input)).components.schemas.Other).toStrictEqual({
+      $ref: '#/components/schemas/S',
+    })
+  })
+
+  it('resolves draft-04 fragment identifiers declared with id', async () => {
+    const schemaFormat = 'application/schema+json;version=draft-04'
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Target: { schemaFormat, schema: { id: '#named', type: 'string' } },
+            Source: { schemaFormat, schema: { $ref: '#named' } },
+          },
+        },
+      },
+      { traversal: 'document', treeShake: false, plugins: [] },
+    )
+    expect(result.diagnostics).toStrictEqual([])
+    expect(result.complete).toBe(true)
+  })
+
+  it('drops cached legacy anchors while keeping valid identifiers', async () => {
+    const cached = { $id: 'https://example.test/cached.json', $anchor: 'ignored', type: 'string' }
+    const schemaFormat = 'application/schema+json;version=draft-07'
+    const result = await bundleWithDiagnostics(
+      {
+        asyncapi: '3.1.0',
+        components: {
+          schemas: {
+            Wrapped: { schemaFormat, schema: { $ref: 'https://example.test/cached.json' } },
+            Other: { schemaFormat, schema: { $ref: 'https://example.test/cached.json#ignored' } },
+          },
+        },
+      },
+      {
+        traversal: 'document',
+        treeShake: false,
+        plugins: [],
+        cache: new Map([
+          [
+            'https://example.test/cached.json',
+            Promise.resolve({ ok: true, data: cached, raw: JSON.stringify(cached) }),
+          ],
+        ]),
+        compress: () => 'cached',
+      },
+    )
+    expect(result.diagnostics).toStrictEqual([
+      {
+        kind: 'missing-target',
+        reference: 'https://example.test/cached.json#ignored',
+        source: '/',
+        pointer: '#/components/schemas/Other/schema/$ref',
+      },
+    ])
+    expect(cached).toStrictEqual({ $id: 'https://example.test/cached.json', $anchor: 'ignored', type: 'string' })
+  })
+
+  it('resolves supported siblings in a newer JSON Schema wrapper', async () => {
+    const wrapper = {
+      schemaFormat: 'application/schema+json;version=draft-2020-12',
+      schema: {
+        $ref: 'https://example.test/base.json',
+        properties: { extra: { $ref: 'https://example.test/extra.json' } },
+      },
+    }
+    const loader = sources({
+      'https://example.test/base.json': { type: 'object' },
+      'https://example.test/extra.json': { type: 'string' },
+    })
+    const result = await bundleWithDiagnostics(
+      { asyncapi: '3.1.0', components: { schemas: { Wrapped: wrapper } } },
+      { traversal: 'document', treeShake: false, plugins: [loader.plugin], compress: (uri) => uri.split('/').at(-1)! },
+    )
+    expect(result.complete).toBe(true)
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual(['https://example.test/extra.json', 'https://example.test/base.json'])
+    expect(wrapper.schema).toStrictEqual({
+      $ref: '#/x-ext/base.json',
+      properties: { extra: { $ref: '#/x-ext/extra.json' } },
+    })
+  })
+
+  it.each(['3.1.0', '3.2.0', 'standalone'])(
+    'preserves schemaFormat and schema annotations in %s schemas',
+    async (version) => {
+      const schema = {
+        type: 'object',
+        schemaFormat: 'annotation',
+        schema: { $ref: 'https://example.test/literal.json', name: 'kept' },
+        externalDocs: { $ref: 'https://example.test/docs.json' },
+        additionalItems: { $ref: 'https://example.test/item.json' },
+      }
+      const original = structuredClone(schema)
+      const input =
+        version === 'standalone'
+          ? schema
+          : {
+              openapi: version,
+              info: { title: 'Annotations', version: '1' },
+              components: { schemas: { Metadata: schema } },
+            }
+      const loader = sources({})
+      const result = await bundleWithDiagnostics(input, {
+        traversal: 'document',
+        treeShake: false,
+        plugins: [loader.plugin],
+      })
+      expect(result.complete).toBe(true)
+      expect(result.diagnostics).toStrictEqual([])
+      expect(loader.calls).toStrictEqual([])
+      expect(schema).toStrictEqual(original)
+    },
+  )
+
+  it.each(['3.0.0', '3.1.0'])(
+    'resolves external AsyncAPI %s wrappers while preserving nested schema annotations',
+    async (asyncapi) => {
+      const annotation = {
+        schemaFormat: 'annotation',
+        schema: { $ref: 'https://example.test/literal.json', name: 'kept' },
+      }
+      const wrapper = {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { type: 'object', properties: { metadata: annotation, id: { $ref: './id.json' } } },
+      }
+      const loader = sources({
+        '/message.json': { payload: { $ref: './wrapper.json' }, headers: { $ref: './wrapper.json' } },
+        '/wrapper.json': wrapper,
+        '/id.json': { type: 'string' },
+      })
+      const result = await bundleWithDiagnostics(
+        {
+          asyncapi,
+          info: { title: 'Events', version: '1' },
+          components: {
+            messages: { Event: { $ref: './message.json' } },
+            schemas: { Event: { $ref: './wrapper.json' } },
+          },
+        },
+        {
+          origin: '/root.json',
+          traversal: 'document',
+          treeShake: false,
+          plugins: [loader.plugin],
+          compress: (uri) => uri.split('/').at(-1)!,
+        },
+      )
+      expect(result.complete).toBe(true)
+      expect(result.diagnostics).toStrictEqual([])
+      expect(loader.calls).toStrictEqual(['/message.json', '/wrapper.json', '/id.json'])
+      expect(result.document['x-ext']['wrapper.json']).toStrictEqual({
+        schemaFormat: wrapper.schemaFormat,
+        schema: { type: 'object', properties: { metadata: annotation, id: { $ref: '#/x-ext/id.json' } } },
+      })
+    },
+  )
+
+  it.each(['default', 'example', 'enum', 'const', 'x-name'])(
+    'resolves itemSchema properties named %s while preserving literal defaults',
+    async (name) => {
+      const literal = { $ref: '/literal.json' }
+      const itemSchema = { properties: { [name]: { $ref: './value.json' } }, default: literal }
+      const input = {
+        openapi: '3.2.0',
+        paths: {
+          '/events': {
+            get: { responses: { '200': { description: 'Events', content: { 'application/jsonl': { itemSchema } } } } },
+          },
+        },
+      }
+      const loader = sources({ '/value.json': { type: 'string' } })
+      const result = await bundleWithDiagnostics(input, {
+        origin: '/root.json',
+        plugins: [loader.plugin],
+        treeShake: false,
+        traversal: 'document',
+        compress: () => 'value',
+      })
+      expect(result.diagnostics).toStrictEqual([])
+      expect(loader.calls).toStrictEqual(['/value.json'])
+      expect(itemSchema).toStrictEqual({
+        properties: { [name]: { $ref: '#/x-ext/value' } },
+        default: literal,
+      })
+    },
+  )
+
+  it('indexes itemSchema identifiers and anchors without fetching their canonical URLs', async () => {
+    const itemSchema = { $id: './stream.json', $anchor: 'event', type: 'object' }
+    const input = {
+      openapi: '3.2.0',
+      paths: {
+        '/events': {
+          get: { responses: { '200': { description: 'Events', content: { 'application/jsonl': { itemSchema } } } } },
+        },
+      },
+      components: { schemas: { Event: { $ref: './stream.json#event' } } },
+    }
+    const loader = sources({})
+    const result = await bundleWithDiagnostics(input, {
+      origin: '/root.json',
+      plugins: [loader.plugin],
+      treeShake: false,
+      traversal: 'document',
+    })
+    expect(result.diagnostics).toStrictEqual([])
+    expect(loader.calls).toStrictEqual([])
+    expect(result.complete).toBe(true)
+    expect(input.components.schemas.Event.$ref).toBe('./stream.json#event')
   })
 
   it('processes real Example Object and callback references', async () => {

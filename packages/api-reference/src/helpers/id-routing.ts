@@ -1,5 +1,6 @@
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { slugify } from '@scalar/helpers/string/slugify'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 
 /**
  * Strips leading slashes.
@@ -72,6 +73,38 @@ const encodeBasePath = (sanitized: string) => {
     .split('/')
     .map((segment) => encodeURIComponent(segment))
     .join('/')}`
+}
+
+const RESPONSE_MEDIA_TYPE_PARAM = 'scalar-response-media-type'
+const RESPONSE_OPERATION_PARAM = 'scalar-response-operation'
+
+/** Routing information carried by a response property link. */
+export type ResponsePropertyLink = NonNullable<ApiReferenceEvents['copy-url:nav-item']['responseProperty']>
+
+/** Read the owning operation and selected media type independently of the property anchor. */
+export const getResponsePropertyFromUrl = (
+  url: URL,
+  slugPrefix: string | undefined,
+): ResponsePropertyLink | undefined => {
+  const operationId = url.searchParams.get(RESPONSE_OPERATION_PARAM)
+  const mediaType = url.searchParams.get(RESPONSE_MEDIA_TYPE_PARAM)
+  return operationId && mediaType ? { operationId: applySlugPrefix(operationId, slugPrefix), mediaType } : undefined
+}
+
+/** Apply a response link's URL-relative operation ID and media type. */
+export const setResponsePropertyInUrl = (url: URL, responseProperty: ResponsePropertyLink | undefined): void => {
+  if (responseProperty) {
+    const { operationId, mediaType } = responseProperty
+    url.searchParams.set(RESPONSE_OPERATION_PARAM, operationId)
+    url.searchParams.set(RESPONSE_MEDIA_TYPE_PARAM, mediaType)
+    return
+  }
+
+  for (const key of [RESPONSE_OPERATION_PARAM, RESPONSE_MEDIA_TYPE_PARAM]) {
+    if (url.searchParams.has(key)) {
+      url.searchParams.delete(key)
+    }
+  }
 }
 
 /** Extracts an element id from the hash when using hash routing */
@@ -166,8 +199,14 @@ const stripFirstSegment = (id: string): string => {
  * @param id - The id to apply to the URL
  * @param basePath - The base path used in path routing
  * @param isMultiDocument - Whether the document is multi-document or single-document. Single-document documents will strip the document slug from the id
+ * @param responseProperty - The operation and selected media type for a copied response property
  */
-export const makeUrlFromId = (_id: string, basePath: string | undefined, isMultiDocument: boolean) => {
+export const makeUrlFromId = (
+  _id: string,
+  basePath: string | undefined,
+  isMultiDocument: boolean,
+  responseProperty?: ResponsePropertyLink,
+): URL | undefined => {
   if (typeof window === 'undefined') {
     return undefined
   }
@@ -175,6 +214,14 @@ export const makeUrlFromId = (_id: string, basePath: string | undefined, isMulti
   /** When there is only 1 document we don't need to include the document name in the URL */
   const id = isMultiDocument ? _id : stripFirstSegment(_id)
   const url = new URL(window.location.href)
+
+  setResponsePropertyInUrl(
+    url,
+    responseProperty && {
+      ...responseProperty,
+      operationId: isMultiDocument ? responseProperty.operationId : stripFirstSegment(responseProperty.operationId),
+    },
+  )
 
   if (typeof basePath === 'string') {
     if (isHashBasePath(basePath)) {
@@ -201,8 +248,21 @@ export const resolveHashPrefix = (
   currentHash: string,
   navigationIds: Iterable<string>,
   isMultiDocument: boolean,
+  responseOperationId?: string,
 ): string => {
   const ids = new Set(Array.from(navigationIds, (id) => (isMultiDocument ? id : stripFirstSegment(id))).filter(Boolean))
+
+  // A copied response link carries its operation so dots in either the
+  // operation path or the property name cannot change where the hash splits.
+  if (responseOperationId) {
+    const operationId = isMultiDocument ? responseOperationId : stripFirstSegment(responseOperationId)
+    if (ids.has(operationId)) {
+      const start = `/${currentHash}`.indexOf(`/${operationId}.`)
+      if (start !== -1) {
+        return currentHash.slice(0, Math.max(0, start - 1))
+      }
+    }
+  }
 
   const { rawId: sectionHash } = getSchemaParamsFromId(currentHash)
 
@@ -570,10 +630,9 @@ export const redirectUrl = (
 
 /** Extracts the schema parameters from the id if they are present */
 export const getSchemaParamsFromId = (id: string): { rawId: string; params: string } => {
-  // Split at the first marker: an operation id never contains one, so everything
-  // before the first marker is the operation id and the rest is the schema path.
-  // (Splitting at the last marker would mishandle a property named like a marker
-  // keyword, e.g. a request body field called `responses`.) A plain string scan
+  // Without the navigation index, the first marker is the best fallback for the
+  // operation boundary. Later markers can belong to properties, such as a request
+  // body field called `responses`. A plain string scan
   // avoids the polynomial backtracking a `(.*)marker(.*)` regex would incur on
   // long, marker-less ids.
   let markerIndex = -1

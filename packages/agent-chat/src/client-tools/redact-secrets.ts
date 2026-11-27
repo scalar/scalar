@@ -5,9 +5,13 @@ import { encode as encodeBase64 } from 'js-base64'
 export const createSecretRedactor = (security: ReturnType<typeof buildRequestSecurity>): (<T>(value: T) => T) => {
   const secrets = [
     ...new Set(
-      security.flatMap(({ value, format }) => {
+      security.flatMap(({ value, format, tokenPrefix }) => {
         // Basic usernames are identifiers and can appear in unrelated response text.
         const values = format === 'basic' ? [value, value.slice(value.indexOf(':') + 1), encodeBase64(value)] : [value]
+        // Prefixed API keys are trimmed for transmission; redact both stored and transmitted forms.
+        if (tokenPrefix?.trim()) {
+          values.push(value.trim())
+        }
         return values
           .filter(Boolean)
           .flatMap((secret) => [

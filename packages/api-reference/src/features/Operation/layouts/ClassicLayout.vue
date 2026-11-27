@@ -93,6 +93,10 @@ defineSlots<{
 
 const { translate } = useLocalization()
 
+const openapiVersion = computed<string | undefined>(
+  () => document?.['x-original-oas-version'] || document?.openapi,
+)
+
 const operationTitle = computed(() => operation.summary || path || '')
 
 const pathsExtensions = usePathsExtensions(() => document?.paths)
@@ -152,6 +156,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
     :id="id"
     :aria-label="operationTitle"
     class="reference-endpoint"
+    data-scalar-operation
     :modelValue="!isCollapsed"
     transparent
     @update:modelValue="
@@ -343,7 +348,8 @@ const { level: headingLevel } = useDocumentOutline('operation')
         v-if="operation.responses"
         class="operation-example-card"
         :eventBus
-        :openapiVersion="document?.openapi"
+        :jsonSchemaDialect="document?.jsonSchemaDialect"
+        :openapiVersion
         :responses="operation.responses"
         :selectedContentTypes="selectedResponseContentTypes"
         :selectedExample />
@@ -369,8 +375,10 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :eventBus
             fallback
             :isWebhook
+            :jsonSchemaDialect="document?.jsonSchemaDialect"
             :method
-            :openapiVersion="document?.openapi"
+            :multipartNaming="options.multipartNaming"
+            :openapiVersion
             :operation
             :path
             :requestBodyCompositionSelection="

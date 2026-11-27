@@ -77,6 +77,7 @@ beforeEach(() => {
     takeRecords = vi.fn(() => [])
     root = null
     rootMargin = ''
+    scrollMargin = ''
     thresholds = [] as number[]
   }
 
@@ -151,6 +152,64 @@ const createBasicDocument = (title = 'Test API') => ({
 })
 
 describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
+  it.each([undefined, false, true])(
+    'shows built-in clients with SDK installation only when enabled (%s)',
+    async (enabled) => {
+      const wrapper = mount(ApiReference, {
+        props: {
+          configuration: {
+            showDefaultClientsWithSdkInstallation: enabled,
+            featuredClients: ['shell/curl', 'node/undici'],
+            hiddenClients: ['node'],
+            defaultHttpClient: { targetKey: 'custom', clientKey: 'php' },
+            content: {
+              openapi: '3.1.0',
+              info: {
+                title: 'SDK example',
+                version: '1.0.0',
+                'x-scalar-sdk-installation': [{ lang: 'php', label: 'PHP SDK', description: 'Install PHP SDK' }],
+              },
+              paths: {},
+            },
+          },
+        },
+      })
+      await flushPromises()
+      const card = wrapper.getComponent({ name: 'SdkInstallationInstructions' })
+      expect(card.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(
+        enabled ? ['PHP SDK', 'Shell'] : ['PHP SDK'],
+      )
+      expect(card.get('[role="tabpanel"]').text()).toBe('Install PHP SDK')
+      if (enabled) {
+        await card.findAll('[role="tab"]')[1]?.trigger('click')
+        await flushPromises()
+        expect(card.props('selectedClient')).toBe('shell/curl')
+        expect(card.get('[role="tabpanel"]').text()).toBe('Shell Curl')
+        await card.findAll('[role="tab"]')[0]?.trigger('click')
+        await flushPromises()
+        expect(card.props('selectedClient')).toBe('custom/php')
+      }
+    },
+  )
+
+  it('keeps the built-in selector when combined mode has no renderable SDK', async () => {
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          showDefaultClientsWithSdkInstallation: true,
+          content: {
+            openapi: '3.1.0',
+            info: { title: 'Empty SDK', version: '1.0.0', 'x-scalar-sdk-installation': [{ lang: 'php' }] },
+            paths: {},
+          },
+        },
+      },
+    })
+    await flushPromises()
+    expect(wrapper.findComponent({ name: 'SdkInstallationInstructions' }).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'ClientSelector' }).exists()).toBe(true)
+  })
+
   it.each([
     ['http://localhost:3000/?api=second#second/tag/users', undefined, true],
     ['http://localhost:3000/#second/model/User', undefined, false],
@@ -404,6 +463,74 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     expect(wrapper.findComponent(ServerSelector).props('selectedServer')?.url).toBe(`${baseServerURL}${url}`)
   })
 
+  it('updates code samples when editing a selected relative server template', async () => {
+    const baseServerURL = 'https://api.example.com/base'
+    const content = {
+      ...createBasicDocument(),
+      servers: [
+        { url: 'https://absolute.example.com' },
+        { url: '{prefix}', variables: { prefix: { default: '/v2' } } },
+      ],
+    }
+    const wrapper = mountComponent({ props: { configuration: { content, baseServerURL } } })
+    await flushPromises()
+
+    wrapper.vm.eventBus.emit('server:update:selected', { url: '{prefix}', meta: { type: 'document' } })
+    await flushPromises()
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v2/users'))
+
+    const selector = wrapper.findComponent(ServerSelector)
+    await selector.get('input').setValue('release.v1')
+    await flushPromises()
+
+    expect(selector.props('selectedServer')?.url).toBe('{prefix}')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/release.v1/users'))
+  })
+
+  it('resolves an operation server template in the generated sample', async () => {
+    const content = {
+      ...createBasicDocument(),
+      paths: {
+        '/planets': {
+          get: {
+            servers: [{ url: '{prefix}/v2', variables: { prefix: { default: '' } } }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const wrapper = mountComponent({
+      props: { configuration: { content, baseServerURL: 'https://api.example.com/base' } },
+    })
+    await flushPromises()
+
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v2/planets'))
+  })
+
+  it('updates code samples after selecting and editing a path-item server in Try It', async () => {
+    const content = {
+      ...createBasicDocument(),
+      servers: [{ url: 'https://document.example.com' }],
+      paths: {
+        '/planets': {
+          servers: [{ url: 'v1' }, { url: '{version}', variables: { version: { default: 'v2' } } }],
+          get: { responses: { '200': { description: 'OK' } } },
+        },
+      },
+    }
+    const wrapper = mountComponent({
+      props: { configuration: { content, baseServerURL: 'https://api.example.com/base' } },
+    })
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v1/planets'))
+
+    const meta = { type: 'path', path: '/planets' } as const
+    wrapper.vm.eventBus.emit('server:update:selected', { url: '{version}', meta })
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v2/planets'))
+
+    wrapper.vm.eventBus.emit('server:update:variables', { index: 1, key: 'version', value: 'v3', meta })
+    await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v3/planets'))
+  })
+
   it('default configuration values', async () => {
     const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
     await flushPromises()
@@ -549,7 +676,7 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
 
     // theme: solarized
     const html = wrapper.html()
-    expect(html).toContain('--scalar-background-1: #00212b')
+    expect(html).toContain('--scalar-background-1: #002b36')
 
     // defaultOpenAllTags: true
     expect(wrapper.findComponent({ name: 'Content' }).text().includes('Get others')).toBe(true)
@@ -1248,4 +1375,98 @@ describe('host-app hash routing', () => {
       }
     },
   )
+})
+
+describe('ApiReference developer tools theme', () => {
+  /** Picks a theme in the localhost developer tools, the way the toolbar does it */
+  const pickToolbarTheme = async (wrapper: ReturnType<typeof mountComponent>, theme: string): Promise<void> => {
+    const developerTools = wrapper.findComponent({ name: 'DeveloperTools' })
+    expect(developerTools.exists()).toBe(true)
+    await developerTools.vm.$emit('update:overrides', { theme })
+    await flushPromises()
+  }
+
+  const getStyleContent = (wrapper: ReturnType<typeof mountComponent>): string =>
+    wrapper.find('style').element.textContent ?? ''
+
+  it('wraps the theme in the scalar-theme layer without an override', async () => {
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument() } },
+    })
+    await flushPromises()
+
+    expect(getStyleContent(wrapper)).toContain('@layer scalar-theme {')
+  })
+
+  it('emits a toolbar theme without a layer so it beats unlayered integration styles', async () => {
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument() } },
+    })
+    await flushPromises()
+
+    await pickToolbarTheme(wrapper, 'moon')
+
+    const styleContent = getStyleContent(wrapper)
+    expect(styleContent).not.toContain('@layer')
+    // The Moon background color
+    expect(styleContent).toContain('#fdf6e3')
+  })
+
+  it('keeps customCss after the unlayered toolbar theme', async () => {
+    const customCss = '.custom-class { color: red; }'
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument(), customCss } },
+    })
+    await flushPromises()
+
+    await pickToolbarTheme(wrapper, 'moon')
+
+    const styles = wrapper.findAll('style')
+    expect(styles.map((style) => style.element.textContent).slice(1)).toStrictEqual([customCss])
+    expect(styles[0]?.element.textContent).toContain('#fdf6e3')
+  })
+
+  it('keeps custom CSS imports valid after picking a toolbar theme', async () => {
+    const customCss = '@import url("data:text/css,.light-mode%7B--scalar-background-1:%23ff00ff%7D");'
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument(), customCss } },
+    })
+    await flushPromises()
+
+    await pickToolbarTheme(wrapper, 'moon')
+
+    const styles = wrapper.findAll('style')
+    const customStyle = styles[1]?.element as HTMLStyleElement | undefined
+    expect(customStyle?.sheet?.cssRules[0]?.type).toBe(CSSRule.IMPORT_RULE)
+    expect(customStyle?.textContent).toBe(customCss)
+
+    await pickToolbarTheme(wrapper, 'default')
+
+    expect(wrapper.findAll('style').length).toBe(1)
+    expect(getStyleContent(wrapper).startsWith(customCss)).toBe(true)
+  })
+
+  it('keeps the layered theme when the toolbar picks the configured theme', async () => {
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument(), theme: 'moon' } },
+    })
+    await flushPromises()
+
+    await pickToolbarTheme(wrapper, 'moon')
+
+    const styleContent = getStyleContent(wrapper)
+    expect(styleContent).toContain('@layer scalar-theme {')
+    expect(styleContent).toContain('#fdf6e3')
+  })
+
+  it('keeps the layered theme when the toolbar picks default and no theme is configured', async () => {
+    const wrapper = mountComponent({
+      props: { configuration: { content: createBasicDocument() } },
+    })
+    await flushPromises()
+
+    await pickToolbarTheme(wrapper, 'default')
+
+    expect(getStyleContent(wrapper)).toContain('@layer scalar-theme {')
+  })
 })

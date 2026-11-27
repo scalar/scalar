@@ -1,8 +1,8 @@
 import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
-import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { type DynamicScope, createSchemaDynamicRefResolver, pushDynamicScope } from '@/helpers/dynamic-ref'
+import { getResolvedRef, mergeSchemaReferenceChain, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 import type { XMLObject } from '@/schemas/v3.2/strict/xml'
 
@@ -74,6 +74,7 @@ const buildXmlExample = (
   options: XmlExampleOptions,
   evaluation?: ExampleEvaluation,
 ): XmlExampleResult => {
+  const resolveDynamicRef = createSchemaDynamicRefResolver(input)
   const diagnostics: XmlDiagnostic[] = []
   const report = (severity: XmlDiagnostic['severity'], code: string, message: string, path: string[]): void => {
     diagnostics.push({ severity, code, message, path })
@@ -138,14 +139,13 @@ const buildXmlExample = (
     if (version32 && '$ref-value' in source && source['$ref-value']) {
       return { schema: source as XmlSchema, scope: context.scope, evaluations: context.evaluation?.children ?? [] }
     }
-    let schema = getResolvedRef(source, mergeSiblingReferences) as XmlSchema
-    if (isDynamicRef(schema)) {
-      const bound = resolveDynamicRef(schema.$dynamicRef, context.scope)
-      if (bound) {
-        return shape(bound, context, seen)
-      }
-    }
+    let schema = getResolvedRef(source, mergeSchemaReferenceChain) as XmlSchema
+    // A reference declared on a resource bookends against that resource, matching the magic proxy.
     const scope = pushDynamicScope(context.scope, schema)
+    const bound = resolveDynamicRef(source, scope, schema)
+    if (bound) {
+      return shape(bound, { ...context, scope }, seen)
+    }
     const evaluations = [...(context.evaluation?.children ?? [])]
     const contributions =
       context.evaluation?.children.filter(
@@ -234,7 +234,8 @@ const buildXmlExample = (
     // In 3.2 a reference site and its target can describe different XML nodes.
     // Resolving them into one object would erase an explicit wrapper or a transparent target.
     const referenceTarget = source && '$ref-value' in source ? source['$ref-value'] : undefined
-    const dynamicTarget = isDynamicRef(source) ? resolveDynamicRef(source.$dynamicRef, context.scope) : undefined
+    const sourceScope = pushDynamicScope(context.scope, source)
+    const dynamicTarget = referenceTarget === undefined ? resolveDynamicRef(source, sourceScope) : undefined
     const target = referenceTarget ?? dynamicTarget
     if (version32 && target && typeof target === 'object') {
       const localXml = (source as XmlSchema).xml ?? {}
@@ -252,7 +253,7 @@ const buildXmlExample = (
         {
           ...context,
           depth: context.depth + 1,
-          scope: pushDynamicScope(context.scope, source),
+          scope: sourceScope,
           evaluation: dynamicTarget ? context.evaluation?.children[0] : context.evaluation,
         },
         attributes,

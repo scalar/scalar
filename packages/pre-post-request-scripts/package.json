@@ -19,7 +19,7 @@
     "post-response scripts",
     "api client"
   ],
-  "version": "0.4.63",
+  "version": "0.4.72",
   "engines": {
     "node": ">=22"
   },
@@ -70,7 +70,7 @@
     "@scalar/workspace-store": "workspace:*",
     "@types/postman-collection": "^3.5.11",
     "postman-collection": "^5.3.1",
-    "postman-sandbox": "^6.7.4",
+    "postman-sandbox": "^6.9.0",
     "vue": "catalog:*"
   },
   "devDependencies": {

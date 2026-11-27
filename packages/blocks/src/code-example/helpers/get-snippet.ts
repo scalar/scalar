@@ -9,7 +9,7 @@ const INVALID_URLS_PREFIX = 'ws://replace.me'
  * Returns a code example for given operation
  */
 export const getSnippet = <T extends TargetId>(
-  target: T | 'javascript',
+  target: T,
   client: ClientId<T>,
   harRequest: HarRequest,
 ): ErrorResponse<string> => {
@@ -36,11 +36,8 @@ export const getSnippet = <T extends TargetId>(
         return [new Error('Invalid JSON body'), null]
       }
     }
-    // TODO: Fix this, use js (instead of javascript) everywhere
-    const snippetzTargetKey = target.replace('javascript', 'js') as TargetId
-
-    if (snippetz().hasPlugin(snippetzTargetKey, client)) {
-      const payload = snippetz().print(snippetzTargetKey, client, harRequest)
+    if (snippetz().hasPlugin(target, client)) {
+      const payload = snippetz().print(target, client, harRequest)
       if (!payload) {
         return [new Error('Error generating snippet'), null]
       }

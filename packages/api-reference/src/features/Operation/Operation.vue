@@ -10,6 +10,8 @@ export type OperationProps = {
   /** The subset of the configuration object required for the operation component */
   options: Pick<
     ApiReferenceConfigurationRaw,
+    | 'baseServerURL'
+    | 'servers'
     | 'expandAllParameters'
     | 'expandAllResponses'
     | 'hideModels'
@@ -22,6 +24,7 @@ export type OperationProps = {
     | 'maxVisibleRequestBodyProperties'
     | 'schemaKeyboardNav'
     | 'showOperationId'
+    | 'multipartNaming'
     | 'showExtensions'
   >
   /** Document object */
@@ -30,6 +33,8 @@ export type OperationProps = {
   path: string
   /** OpenAPI path object that will include the operation */
   pathValue: PathItemObject | undefined
+  /** The writable path-item server scope shared with Try It. */
+  pathItemServerTarget?: PathItemObject
   /** Currently selected server for the document */
   server: ServerObject | null
   /** The merged security schemes for the document and the authentication configuration */
@@ -63,6 +68,8 @@ import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   combineParams,
+  getSelectedServer,
+  getServers,
   type MergedSecuritySchemes,
 } from '@scalar/workspace-store/request-example'
 import type {
@@ -93,6 +100,7 @@ const {
   method,
   options,
   path,
+  pathItemServerTarget,
   pathValue,
   securitySchemes,
   server,
@@ -123,16 +131,31 @@ const operation = computed(() => {
 /**
  * Determine the effective server for the code examples.
  */
-const selectedServer = computed<ServerObject | null>(() =>
-  getFirstServer(
-    // 1) Operation
-    operation.value?.servers ?? null,
-    // 2) Path Item
-    pathValue?.servers ?? null,
-    // 3) Document
-    server,
-  ),
-)
+const selectedServer = computed<ServerObject | null>(() => {
+  if (options.servers != null) {
+    return server
+  }
+
+  const bases = {
+    baseServerUrl: options.baseServerURL,
+    documentUrl: document['x-scalar-original-source-url'],
+  }
+  const operationServer = getFirstServer(operation.value?.servers ?? null)
+  if (operationServer) {
+    return getServers([{ ...operationServer }], bases)[0] ?? null
+  }
+
+  const pathScope = pathItemServerTarget ?? pathValue
+  if (pathScope?.servers == null) {
+    return server
+  }
+
+  const servers = getServers(
+    pathScope.servers.map((entry) => ({ ...entry })),
+    bases,
+  )
+  return getSelectedServer(null, pathScope, null, servers)
+})
 
 const requiredSecurity = computed<RequiredSecurity>(() =>
   getRequiredSecurity(operation.value, document),

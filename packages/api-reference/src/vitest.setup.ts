@@ -16,6 +16,13 @@ vi.mock('@/plugins/hooks/usePluginManager', () => ({
   usePluginManager: vi.fn(() => createPluginManager({})),
 }))
 
+/**
+ * Tests run unattended, so they report themselves as automated, as the Playwright suites do. The API
+ * Hosting beta popup never opens then; otherwise it would open partway through any test that mounts
+ * the reference on jsdom's localhost. jsdom does not define the flag itself.
+ */
+Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => true })
+
 afterEach(() => {
   /**
    * Make sure we didn't log any warnings or errors on all tests

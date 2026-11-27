@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
 import type { SchemaOptions } from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, defineAsyncComponent, useTemplateRef } from 'vue'
@@ -12,17 +13,27 @@ import {
 import { useDocumentOutline } from '@/features/document-outline'
 import { useIntersection } from '@/hooks/use-intersection'
 
-const { id, name, format, value, layout, isCollapsed, eventBus, options } =
-  defineProps<{
-    id: string
-    name: string
-    format: string
-    value: unknown
-    layout: 'classic' | 'modern'
-    isCollapsed: boolean
-    eventBus: WorkspaceEventBus
-    options?: SchemaOptions
-  }>()
+const {
+  id,
+  name,
+  format,
+  value,
+  resources,
+  layout,
+  isCollapsed,
+  eventBus,
+  options,
+} = defineProps<{
+  id: string
+  name: string
+  format: string
+  resources?: AsyncApiSchemaResources
+  value: unknown
+  layout: 'classic' | 'modern'
+  isCollapsed: boolean
+  eventBus: WorkspaceEventBus
+  options?: SchemaOptions
+}>()
 
 // Native schema readers are only needed when a non-JSON Schema is displayed.
 const SchemaLanguage = defineAsyncComponent(
@@ -67,6 +78,7 @@ const toggle = (open: boolean): void => {
       <SchemaLanguage
         :format="format"
         :options="options"
+        :resources="resources"
         :value="value" />
     </component>
   </div>

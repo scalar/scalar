@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { createMagicProxy, getRaw } from './proxy'
+import { createMagicProxy } from './proxy'
+import { getRaw } from './symbols'
 
 describe('createMagicProxy', () => {
   it.each(['#/__proto__/debugPolluted', '#/constructor/prototype/debugPolluted', '#/__proto__'])(

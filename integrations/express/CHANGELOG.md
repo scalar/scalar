@@ -1,5 +1,37 @@
 # @scalar/express-api-reference
 
+## 0.10.43
+
+No changes in this release.
+
+## 0.10.42
+
+### Patch Changes
+
+- [#11217](https://github.com/scalar/scalar/pull/11217): Add `Scalar` as the recommended Express middleware export and deprecate `apiReference` as an alias.
+
+## 0.10.41
+
+No changes in this release.
+
+## 0.10.40
+
+No changes in this release.
+
+## 0.10.39
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.10.38
+
+No changes in this release.
+
+## 0.10.37
+
+No changes in this release.
+
 ## 0.10.36
 
 ## 0.10.35

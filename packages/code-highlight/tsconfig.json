@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]

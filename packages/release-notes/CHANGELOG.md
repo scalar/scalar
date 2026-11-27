@@ -1,5 +1,33 @@
 # @scalar/release-notes
 
+## 0.3.6
+
+No changes in this release.
+
+## 0.3.5
+
+No changes in this release.
+
+## 0.3.4
+
+No changes in this release.
+
+## 0.3.3
+
+### Patch Changes
+
+- [#11099](https://github.com/scalar/scalar/pull/11099): Update compatible runtime and styling dependencies, align editor dependency versions, and preserve document-change comparisons with updated microdiff semantics.
+
+## 0.3.2
+
+### Patch Changes
+
+- [#11004](https://github.com/scalar/scalar/pull/11004): Preserve package output paths and application aliases when building with TypeScript 6.
+
+## 0.3.1
+
+No changes in this release.
+
 ## 0.3.0
 
 ### Minor Changes

@@ -86,6 +86,10 @@ defineSlots<{
 
 const { translate } = useLocalization()
 
+const openapiVersion = computed<string | undefined>(
+  () => document?.['x-original-oas-version'] || document?.openapi,
+)
+
 const operationTitle = computed(() => operation.summary || path || '')
 
 const labelId = useId()
@@ -126,6 +130,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
   <Section
     :id="id"
     :aria-labelledby="labelId"
+    data-scalar-operation
     :label="operationTitle"
     tabindex="-1"
     @intersecting="() => eventBus?.emit('intersecting:nav-item', { id })">
@@ -296,8 +301,10 @@ const { level: headingLevel } = useDocumentOutline('operation')
               :eventBus
               fallback
               :isWebhook
+              :jsonSchemaDialect="document?.jsonSchemaDialect"
               :method
-              :openapiVersion="document?.openapi"
+              :multipartNaming="options.multipartNaming"
+              :openapiVersion
               :operation
               :path
               :requestBodyCompositionSelection="
@@ -337,7 +344,8 @@ const { level: headingLevel } = useDocumentOutline('operation')
             <ExampleResponses
               v-if="operation.responses"
               :eventBus
-              :openapiVersion="document?.openapi"
+              :jsonSchemaDialect="document?.jsonSchemaDialect"
+              :openapiVersion
               :responses="operation.responses"
               :selectedContentTypes="selectedResponseContentTypes"
               :selectedExample

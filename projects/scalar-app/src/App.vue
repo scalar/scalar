@@ -232,9 +232,13 @@ const registryDocuments = computed(() => {
       namespace,
       slug,
       title: title ?? 'Default Title',
-      versions: versions.map(({ version, versionSha }) => ({
-        version,
-        commitHash: versionSha,
+      versions: versions.map((registryVersion) => ({
+        version: registryVersion.version,
+        commitHash:
+          'versionSha' in registryVersion &&
+          typeof registryVersion.versionSha === 'string'
+            ? registryVersion.versionSha
+            : undefined,
       })),
     }),
   )

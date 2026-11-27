@@ -3,12 +3,14 @@ import { resolve } from 'node:path'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
-import webpackStats from 'rollup-plugin-webpack-stats'
 import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
-import { name, version } from './package.json'
-import { createEsmEntry } from './src/standalone/lib/create-esm-entry'
+import { hasModuleSideEffects } from '../../tooling/scripts/vite-lib-config.ts'
+import packageJson from './package.json' with { type: 'json' }
+import { createEsmEntry } from './src/standalone/lib/create-esm-entry.ts'
+
+const { name, version } = packageJson
 
 // Opens with `/*!` (a legal comment) rather than `/**` so the oxc minifier keeps it
 // when `output.comments.legal` is enabled. See the `banner`/`comments` output options.
@@ -57,7 +59,6 @@ export default defineConfig({
     // `<meta property="csp-nonce">` tag, so the bundle's CSS can be served under a strict
     // Content Security Policy. See the `nonce` option in @scalar/client-side-rendering.
     cssInjectedByJsPlugin({ attributes: { id: 'scalar-style' }, useStrictCSP: true }),
-    webpackStats({ fileName: 'webpack-stats.esm.json' }),
     // `esm.js`, the short CDN entry point at the package root, loads the bundle pinned to the
     // version it was published with (see `createEsmEntry`). Generating it here keeps that version
     // in step with the bundle it points at.
@@ -72,6 +73,7 @@ export default defineConfig({
     emptyOutDir: false,
     outDir: 'dist/browser',
     cssCodeSplit: false,
+    manifest: 'bundle-manifest.json',
     // Ship linked source maps (external `.map` + a `//# sourceMappingURL=` comment)
     // so consumers can debug config errors against readable source. Browsers only
     // fetch the map when devtools is open and downstream bundlers strip the link, so
@@ -89,7 +91,7 @@ export default defineConfig({
       // module specifier". So the ESM build must be fully self-contained: bundle
       // everything and let tree-shaking drop whatever is genuinely unreachable.
       treeshake: {
-        moduleSideEffects: (id) => id.includes('.css'),
+        moduleSideEffects: hasModuleSideEffects,
       },
       output: {
         entryFileNames: '[name].js',
@@ -101,7 +103,7 @@ export default defineConfig({
         // `legalComments: 'none'`, which would otherwise strip it.
         comments: { legal: true },
         // Rolldown names a shared chunk after an arbitrary member module. The large
-        // eager chunk that holds the rendering core (highlight.js, zod, typebox, yaml,
+        // eager chunk that holds the rendering core (the highlighter, zod, typebox, yaml,
         // parse5, plus the shared workspace-store/components code) would otherwise be
         // named after `map-hidden-clients-config` — a tiny helper that merely happens
         // to anchor that chunk boundary — which is misleading in bundle stats. Give it

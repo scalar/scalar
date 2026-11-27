@@ -1,15 +1,15 @@
 # Build image
-FROM golang:1.26.2-alpine AS build
+FROM golang:1.27.4-alpine AS build
 WORKDIR /app
 
 ARG COMMIT_SHA=dev
 
-COPY ./main.go ./
+COPY ./go.mod ./*.go ./
 COPY ./public ./public
 
 RUN sed -i "s/__COMMIT_SHA__/${COMMIT_SHA}/" public/openapi.yaml
 
-RUN go build main.go
+RUN go build -o main .
 
 # Build distroless image
 FROM gcr.io/distroless/static-debian12

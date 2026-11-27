@@ -1,38 +1,59 @@
-import { type DynamicScope, isDynamicRef, resolveDynamicRef } from '@scalar/workspace-store/helpers/dynamic-ref'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { type InjectionKey, inject } from 'vue'
+import { isDynamicRef, normalizeDynamicRefTarget } from '@scalar/workspace-store/helpers/dynamic-ref'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { DYNAMIC_REF_VALUE, resolve } from '@scalar/workspace-store/resolve'
+import type {
+  ReferenceType,
+  SchemaObject,
+  SchemaReferenceType,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /**
- * The dynamic scope — the outermost-first chain of schema resources on the current render path.
+ * Resolving JSON Schema 2020-12 `$dynamicRef` while rendering a schema.
  *
- * JSON Schema 2020-12 `$dynamicRef` does not resolve to a fixed location. It binds to the active
- * `$dynamicAnchor` in the chain of resources entered to reach it, so the same
+ * Unlike `$ref`, a `$dynamicRef` does not resolve to a fixed location: it binds to the active
+ * `$dynamicAnchor` in the chain of schema resources entered to reach it, so the same
  * `{ "$dynamicRef": "#itemType" }` inside a shared generic template resolves to a different concrete
  * type depending on the path taken (e.g. `User` via a user page, `Group` via a group page).
  *
- * Each object `Schema` node injects this scope, appends its own resource, and re-provides it to its
- * descendants. `SchemaProperty` reads it to bind a `$dynamicRef` property or array item to the
- * concrete schema while walking the tree. See https://github.com/scalar/scalar/issues/9414.
+ * Resolution is owned by the workspace-store magic proxy, not by these components: the proxy threads the
+ * dynamic scope as the document is walked and exposes the bound schema through the virtual
+ * `$dynamicRef-value` property (mirroring `$ref-value`). Rendering simply reads that property, so the
+ * scope never has to be assembled here. See https://github.com/scalar/scalar/issues/9414.
  */
-export const SCHEMA_DYNAMIC_SCOPE_SYMBOL: InjectionKey<DynamicScope> = Symbol('schema-dynamic-scope')
-
-/** Shared empty scope used as the inject default at the root, where nothing has been entered yet. */
-const EMPTY_SCOPE: DynamicScope = []
-
-/** Read the dynamic scope provided by ancestor schema nodes (empty at the root of the tree). */
-export const useDynamicScope = (): DynamicScope => inject(SCHEMA_DYNAMIC_SCOPE_SYMBOL, EMPTY_SCOPE)
 
 /**
- * Resolve a schema that may be a `$dynamicRef` against the active dynamic scope.
+ * Resolve a schema that may be a `$dynamicRef` to its bound concrete type.
  *
- * Returns the bound concrete schema when the reference matches a `$dynamicAnchor` in scope. When
- * nothing matches (or the schema is not a `$dynamicRef`) the input is returned unchanged, so
- * rendering falls back to its prior behavior with no regression.
+ * Returns the schema the proxy binds through `$dynamicRef-value`. When the reference cannot be resolved
+ * — the schema is not a `$dynamicRef`, or has been detached from the proxy — the input is returned
+ * unchanged, so rendering falls back to its prior behavior with no regression.
  */
-export const resolveDynamicSchema = <T extends SchemaObject | undefined>(schema: T, scope: DynamicScope): T => {
-  if (isDynamicRef(schema)) {
-    return (resolveDynamicRef(schema.$dynamicRef, scope) as T) ?? schema
+export const resolveDynamicSchema = <T extends SchemaReferenceType<SchemaObject> | undefined>(schema: T): T => {
+  if (!isDynamicRef(schema)) {
+    return schema
   }
 
-  return schema
+  const seen = new Set<object>()
+  let current: unknown = schema
+  while (isDynamicRef(current) && !seen.has(current)) {
+    seen.add(current)
+    const target = normalizeDynamicRefTarget(Reflect.get(current, DYNAMIC_REF_VALUE))
+    if (!target) {
+      break
+    }
+    current = target
+  }
+  return current as T
+}
+
+/** Read a media or parameter schema while preserving the scopes of its referenced properties. */
+export const resolveDisplaySchema = (
+  source: ReferenceType<SchemaObject> | null | undefined,
+): SchemaObject | undefined => {
+  if (!source) {
+    return undefined
+  }
+  const target = getResolvedRef<SchemaObject>(source)
+  const schema = target && typeof target === 'object' && '$ref' in target ? resolve.schema(source) : target
+  return resolveDynamicSchema(schema)
 }

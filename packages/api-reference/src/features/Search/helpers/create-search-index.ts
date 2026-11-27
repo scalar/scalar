@@ -16,6 +16,7 @@ import type {
 import type { FuseData } from '@/features/Search/types'
 import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
 import { isIntroductionEntry } from '@/helpers/is-introduction-entry'
+import { isResponseKey } from '@/helpers/is-response-key'
 import { createSearchFieldExtractor, extractParameterDescriptions, extractParameterNames } from '@/helpers/openapi'
 
 import { createAsyncApiSearchEntry } from './create-async-api-search-entry'
@@ -71,6 +72,22 @@ function mediaTypeExamplesToStrings(mediaType: MediaTypeObject): string[] {
     'example' in mediaType && mediaType.example !== undefined ? responseExampleValueToString(mediaType.example) : ''
 
   return mediaTypeExample ? [mediaTypeExample, ...examplesFromNamedMap] : examplesFromNamedMap
+}
+
+/** Collects distinct response descriptions, including responses with no payload. */
+const extractResponseDescriptions = (responses: ResponsesObject | undefined): string[] => {
+  const descriptions = new Set<string>()
+  for (const [key, response] of Object.entries(responses ?? {})) {
+    if (!isResponseKey(key)) {
+      continue
+    }
+
+    const description = getResolvedRef(response)?.description
+    if (typeof description === 'string' && description.trim()) {
+      descriptions.add(description)
+    }
+  }
+  return [...descriptions]
 }
 
 function extractResponseExamples(responses: ResponsesObject | undefined): string[] {
@@ -129,6 +146,11 @@ export function createSearchIndex(
   const extractFields = createSearchFieldExtractor(isOpenApiDocument(document) && /^3\.[12]\./.test(document.openapi))
   const modelsSectionTitle = options?.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
   const labels = options?.labels ?? DEFAULT_SEARCH_INDEX_LABELS
+  const tagTitles = new Map(
+    isOpenApiDocument(document)
+      ? document.tags?.map((tag) => [tag.name, tag['x-displayName'] ?? tag.summary ?? tag.name])
+      : [],
+  )
 
   const asyncApiEntries = new Set<string>()
 
@@ -154,7 +176,7 @@ export function createSearchIndex(
           }
         }
       } else {
-        addEntryToIndex(entry, index, document, modelsSectionTitle, labels, extractFields)
+        addEntryToIndex(entry, index, document, modelsSectionTitle, labels, extractFields, tagTitles)
       }
 
       // Recursively process children if they exist
@@ -181,6 +203,7 @@ function addEntryToIndex(
   modelsSectionTitle: string,
   labels: SearchIndexLabels,
   extractFields: ReturnType<typeof createSearchFieldExtractor>,
+  tagTitles: ReadonlyMap<string, string>,
 ): void {
   // OpenAPI-only branches read fields that do not exist on AsyncAPI documents (paths, webhooks,
   // components.schemas). Narrow once here so each branch can dereference safely.
@@ -212,8 +235,13 @@ function addEntryToIndex(
       bodyDescriptions,
       parameters,
       parameterDescriptions,
+      responseDescriptions: extractResponseDescriptions(operation.responses),
       responseExamples,
       operationId: operationWithPathParams.operationId,
+      tags: operation.tags?.flatMap((name) => {
+        const title = tagTitles.get(name)
+        return title && title !== name ? [name, title] : [name]
+      }),
       entry,
     })
 
@@ -234,6 +262,7 @@ function addEntryToIndex(
       method: entry.method,
       body: names.length ? names : '',
       bodyDescriptions: webhookDescription ? [webhookDescription, ...descriptions] : descriptions,
+      responseDescriptions: extractResponseDescriptions(webhook.responses),
       operationId: webhook.operationId,
       entry,
     })

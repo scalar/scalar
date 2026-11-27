@@ -7,11 +7,38 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it.each([
+    { config: {}, expected: true },
+    { config: { persistSelectedClient: true }, expected: true },
+    { config: { persistSelectedClient: false }, expected: false },
+  ])('parses selected client persistence as $expected for $config', ({ config, expected }) => {
+    expect(apiReferenceConfigurationSchema.parse(config).persistSelectedClient).toBe(expected)
+  })
+
+  it('preserves the opt-in combined SDK and built-in client setting', () => {
+    expect(apiReferenceConfigurationSchema.parse({}).showDefaultClientsWithSdkInstallation).toBeUndefined()
+    for (const value of [true, false]) {
+      expect(
+        apiReferenceConfigurationSchema.parse({ showDefaultClientsWithSdkInstallation: value })
+          .showDefaultClientsWithSdkInstallation,
+      ).toBe(value)
+    }
+    expect(apiReferenceConfigurationSchema.safeParse({ showDefaultClientsWithSdkInstallation: 'true' }).success).toBe(
+      false,
+    )
+  })
+
   it('preserves a custom default client', () => {
     const defaultHttpClient = { targetKey: 'custom', clientKey: 'python/1' }
     expect(apiReferenceConfigurationSchema.parse({ defaultHttpClient }).defaultHttpClient).toStrictEqual(
       defaultHttpClient,
     )
+  })
+
+  it('turns sidebar badges off by default and keeps them on when set', () => {
+    expect(apiReferenceConfigurationSchema.parse({}).showBadgesInSidebar).toBe(false)
+    expect(apiReferenceConfigurationSchema.parse({ showBadgesInSidebar: true }).showBadgesInSidebar).toBe(true)
+    expect(apiReferenceConfigurationSchema.parse({ showBadgesInSidebar: 'yes' }).showBadgesInSidebar).toBe(false)
   })
 
   it('preserves an explicit extension allowlist and disables it by default', () => {
@@ -84,6 +111,7 @@ describe('api-reference-configuration', () => {
         content: '{"openapi": "3.1.0"}',
         proxyUrl: 'https://proxy.example.com',
         oauth2RedirectUri: 'myapp://oauth/callback',
+        trustedLocalOrigins: ['http://auth.dev.internal:8080'],
         isEditable: true,
         showSidebar: true,
         hideModels: false,
@@ -125,9 +153,10 @@ describe('api-reference-configuration', () => {
       expect(() => apiReferenceConfigurationSchema.parse(completeConfig)).not.toThrow()
     })
 
-    it('validates oauth2RedirectUri configuration', () => {
+    it('preserves the OAuth redirect URI and trusted local origins', () => {
       const config = {
         oauth2RedirectUri: 'myapp://oauth/callback',
+        trustedLocalOrigins: ['http://auth.dev.internal:8080'],
       }
 
       expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject(config)
@@ -195,6 +224,13 @@ describe('api-reference-configuration', () => {
       validLayouts.forEach((layout) => {
         expect(apiReferenceConfigurationSchema.parse({ layout })).toMatchObject({ layout })
       })
+    })
+
+    it('accepts the indexed multipart naming mode', () => {
+      expect(apiReferenceConfigurationSchema.parse({ multipartNaming: 'indexed-dot' }).multipartNaming).toBe(
+        'indexed-dot',
+      )
+      expect(apiReferenceConfigurationSchema.safeParse({ multipartNaming: 'unsupported' }).success).toBe(false)
     })
 
     it('validates defaultRequestBodyView enum values', () => {

@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.34.0",
+  "version": "0.36.1",
   "engines": {
     "node": ">=22"
   },
@@ -76,6 +76,11 @@
       "types": "./dist/components/ScalarCopy/index.d.ts",
       "import": "./dist/components/ScalarCopy/index.js",
       "default": "./dist/components/ScalarCopy/index.js"
+    },
+    "./dialog": {
+      "types": "./dist/components/ScalarDialog/index.d.ts",
+      "import": "./dist/components/ScalarDialog/index.js",
+      "default": "./dist/components/ScalarDialog/index.js"
     },
     "./dropdown": {
       "types": "./dist/components/ScalarDropdown/index.d.ts",
@@ -234,23 +239,24 @@
     "@floating-ui/vue": "catalog:*",
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
-    "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/highlight": "workspace:*",
     "@scalar/icons": "workspace:*",
+    "@scalar/markdown": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@vueuse/core": "catalog:*",
     "cva": "1.0.0-beta.4",
     "radix-vue": "catalog:*",
     "vue": "catalog:*",
-    "vue-component-type-helpers": "^3.3.13"
+    "vue-component-type-helpers": "^3.3.14"
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",
-    "@storybook/addon-docs": "10.6.2",
-    "@storybook/addon-links": "10.6.2",
-    "@storybook/vue3-vite": "10.6.2",
+    "@scalar/use-toasts": "workspace:*",
+    "@storybook/addon-docs": "10.6.8",
+    "@storybook/addon-links": "10.6.8",
+    "@storybook/vue3-vite": "10.6.8",
     "@tailwindcss/cli": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/jsdom": "catalog:*",
@@ -259,10 +265,10 @@
     "@vue/test-utils": "catalog:*",
     "concurrently": "catalog:*",
     "jsdom": "catalog:*",
-    "storybook": "10.6.2",
+    "storybook": "10.6.8",
     "svglint": "^4.2.1",
     "tailwindcss": "catalog:*",
-    "typescript": "^5.9.3",
+    "typescript": "6.0.3",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",
     "vitest": "catalog:*"

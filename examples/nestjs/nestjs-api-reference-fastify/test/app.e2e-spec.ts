@@ -1,19 +1,21 @@
-import type { INestApplication } from '@nestjs/common'
+import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Test } from '@nestjs/testing'
-import * as request from 'supertest'
+import request from 'supertest'
 
-import { AppModule } from './../src/app.module'
+import { AppModule } from '../src/app.module'
 
 describe('AppController (e2e)', () => {
-  let app: INestApplication
+  let app: NestFastifyApplication
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile()
 
-    app = moduleFixture.createNestApplication()
+    const adapter = new FastifyAdapter()
+    app = moduleFixture.createNestApplication<NestFastifyApplication>(adapter)
     await app.init()
+    await adapter.getInstance().ready()
   })
 
   afterAll(async () => {

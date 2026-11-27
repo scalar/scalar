@@ -18,6 +18,10 @@ Or use the shorthand script:
 pnpm script <command>
 ```
 
+## Native TypeScript compiler
+
+The workspace `tsgo` command runs stable TypeScript 7 through an isolated dependency. The root `tsc` and compiler API stay on TypeScript 6 for Vue and other tools that require it. Existing package scripts keep their working directory and compiler arguments.
+
 ## Commands
 
 ### `packages format`
@@ -138,20 +142,48 @@ The command runs:
 - `@scalar/void-server` on its default port
 - `proxy-scalar-com` on its default port
 
-Both servers run with `CI=1` environment variable set.
+Both servers run with `CI=1` environment variable set. The proxy uses `test:server`, a separate Go test harness bound to `127.0.0.1` that allows private targets for local fixtures. This harness is excluded from normal proxy builds and Docker images; the normal executable always blocks private targets. While the harness runs, local callers, including browser requests, can use it to reach private targets. An existing server on port 5051 is reused only if its health response identifies it as the fixture harness; otherwise the command fails without stopping that server.
 
-### `update-playwright-docker`
+### Playwright Docker images
 
-Update the Playwright Docker images to the latest version.
+The Playwright Docker Images workflow builds and smoke-tests `scalarapi/playwright`
+and `scalarapi/playwright-runner` on amd64 and arm64 when their build files or
+the workspace `@playwright/test` pin change. It validates browser startup through
+`playwright run-server` and checks the runner's WebGL default and opt-in.
 
-This command builds and pushes Docker images for Playwright testing. It creates two images:
-- `scalarapi/playwright:${version}` - Base Playwright image
-- `scalarapi/playwright-runner:${version}` - Runner image
+Set `src/commands/playwright-docker/release-tag` to the Playwright version the
+images should install (for example, `1.65.1`). Add a suffix to release another
+image with the same Playwright version. After a successful package release on
+`main`, CI checks Docker Hub and builds and smoke-tests the selected tag if
+either image is missing. It publishes only the missing images using the
+`production-dockerhub` environment.
+
+The workflow summary lists the published tags. After publishing, update the
+runner tags in `.github/workflows/pr.yml` and `.github/workflows/main.yml`,
+and the image tag in `packages/helpers/src/playwright/docker.ts`, to the full tag.
+Update the workspace `@playwright/test` pin and lockfile in the same change
+if the Playwright version changed. PR validation checks these pins together when
+any runner image pin changes. The pins can stay on the previous release while
+the selected tag is pending.
+
+#### `update-playwright-docker` manual fallback
+
+This command reads the same `release-tag` as CI and skips images that already
+have that tag. Use a new tag for another image revision. The manual command
+builds and publishes missing images without running the workflow's smoke tests:
+- `scalarapi/playwright:<tag>` - Base Playwright image
+- `scalarapi/playwright-runner:<tag>` - Runner image
 
 Both images are built for `linux/amd64` and `linux/arm64` with buildx and pushed as a
 multi-arch manifest, so the runner works on amd64 CI runners as well as arm64 (Apple
 Silicon) machines. The command creates a reusable `scalar-multiarch` buildx builder on
 first run.
+
+In the runner image, the default headless browser starts with `--disable-webgl`, because
+software-rendered WebGL makes pages that draw continuously too slow to test. Start the
+container with `-e SCALAR_RUNNER_ENABLE_WEBGL=1` to turn WebGL back on; any other value
+keeps it off. The flag applies to HTML canvas in the default headless browser.
+Full Chromium (including headed mode) and `OffscreenCanvas` are unaffected.
 
 **Usage:**
 ```bash

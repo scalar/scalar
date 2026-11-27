@@ -38,6 +38,7 @@ import {
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
 import { escapeCssForStyleTag } from '@scalar/helpers/dom/escape-css-for-style-tag'
+import { getActiveElement } from '@scalar/helpers/dom/get-active-element'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
@@ -58,11 +59,13 @@ import {
 } from '@scalar/types/api-reference'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { ASYNC_API_SCHEMA_RESOURCES } from '@scalar/workspace-store/helpers/use-async-api-schema-resources'
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
   getActiveEnvironment,
@@ -72,6 +75,7 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
+import { isPluginDocument } from '@scalar/workspace-store/schemas/plugin-document'
 import {
   isAsyncApiDocument,
   isOpenApiDocument,
@@ -105,6 +109,15 @@ import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
+/*
+ * The one-time invitation to the API Hosting beta, mounted only by the localhost shell on this
+ * machine's own addresses. It is imported directly rather than as a lazy chunk on purpose: a lazy
+ * chunk shares modules with the main bundle, and the ESM build splits every shared module into a
+ * chunk of its own that every page then fetches, hosted ones included. In the main bundle it is
+ * inert code that hosted pages never run.
+ */
+import ApiHostingBetaPrompt from '@/features/api-hosting-beta/components/ApiHostingBetaPrompt.vue'
+import { isLocalDevelopmentPage } from '@/features/api-hosting-beta/helpers/is-local-development-page'
 import { DeveloperTools } from '@/features/developer-tools'
 import {
   useShellPanel,
@@ -117,6 +130,7 @@ import {
 import {
   provideLocalization,
   resolveLocalization,
+  toLanguageTag,
 } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
@@ -130,12 +144,15 @@ import {
   serializeHydrationState,
 } from '@/helpers/hydration-state'
 import {
+  type ResponsePropertyLink,
   getIdFromUrl,
+  getResponsePropertyFromUrl,
   makeHrefFromId,
   makeUrlFromId,
   matchesBasePath,
   redirectUrl,
   resolveHashPrefix,
+  setResponsePropertyInUrl,
   type WebhookRedirectSource,
 } from '@/helpers/id-routing'
 import {
@@ -160,7 +177,9 @@ import {
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
 import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
+import { RESPONSE_PROPERTY_TARGET } from '@/helpers/response-property-target'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
+import { toStoreDocumentTypes } from '@/helpers/to-store-document-types'
 import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
@@ -182,11 +201,13 @@ defineSlots<{
   'content-end'?(): { breadcrumb: string }
   'sidebar-start'?(): { breadcrumb: string }
   'sidebar-end'?(): { breadcrumb: string }
-  'editor-placeholder'?(): { breadcrumb: string }
   'footer'?(): { breadcrumb: string }
 }>()
 
 const { copyToClipboard } = useClipboard()
+
+/** Where to look things up by id or selector, the shadow root when the reference is embedded in one */
+const documentRoot = useDocumentRoot()
 
 /**
  * Used to inject the environment into built packages
@@ -225,6 +246,8 @@ provideUseId(() => useId())
  * be called twice on one page, and two references must not share expansion.
  */
 const expansion = useSchemaExpansion(scrollTargetId)
+const responsePropertyTarget = shallowRef<ResponsePropertyLink>()
+provide(RESPONSE_PROPERTY_TARGET, responsePropertyTarget)
 
 // ---------------------------------------------------------------------------
 /**
@@ -269,6 +292,10 @@ if (
       idFromUrl,
       configList.value[apiParam].config.pathRouting?.basePath,
       isMultiDocument.value,
+      getResponsePropertyFromUrl(
+        url,
+        isMultiDocument.value ? undefined : apiParam,
+      ),
     )
     if (newUrl) {
       newUrl.searchParams.delete('api')
@@ -362,9 +389,16 @@ const withLocalizedConfigurationDefaults = (
 /** Any dev toolbar modifications are merged with the active configuration */
 const mergedConfig = computed<ApiReferenceConfiguration>(() => {
   const activeConfig = configList.value[activeSlug.value]?.config
+  const initialConfig = Array.isArray(props.configuration)
+    ? (props.configuration.find((config) => config.default) ??
+      props.configuration[0])
+    : props.configuration
   const merged = {
     // Provides a default set of values when the lookup fails
-    ...coerce(apiReferenceConfigurationSchema, {}),
+    ...coerce(apiReferenceConfigurationSchema, {
+      // Embeddings may supply their source later; honor their storage preference from the first render.
+      persistSelectedClient: initialConfig?.persistSelectedClient,
+    }),
     // The active configuration based on the slug
     ...activeConfig,
     // Any overrides from the localhost toolbar
@@ -392,12 +426,9 @@ const poweredByUrl = computed(() =>
   makePoweredByUrl(mergedConfig.value._integration),
 )
 
-/**
- * Locale string for the `lang` attribute. We normalize underscores to hyphens so values like
- * `es_MX` become valid BCP-47 language tags (`es-MX`).
- */
+/** Locale string for the `lang` attribute, as a valid BCP-47 language tag (`es_MX` becomes `es-MX`). */
 const documentLang = computed(() =>
-  apiReferenceLocalization.locale.value.replace('_', '-'),
+  toLanguageTag(apiReferenceLocalization.locale.value),
 )
 
 /** Embeds can keep navigation local without taking over the host page URL. */
@@ -426,14 +457,46 @@ provide(NAVIGATION_HREF, (id: string): string =>
 const getSidebarItemHref = (item: Item): string =>
   makeHrefFromId(item.id, basePath.value, isMultiDocument.value)
 
+/**
+ * The theme picked in the localhost developer tools, if it differs from the configured one.
+ *
+ * Integrations (FastAPI, Django Ninja, the JavaScript server integrations) inject their own
+ * default theme as unlayered CSS when no theme is configured. Unlayered styles always beat the
+ * `scalar-theme` cascade layer, so a theme picked in the toolbar would have no visible effect.
+ * We therefore emit the picked theme without a layer, which wins because our style tag comes
+ * after the integration styles in the document.
+ */
+const toolbarTheme = computed<ApiReferenceConfiguration['theme'] | undefined>(
+  () => {
+    const overrideTheme = configurationOverrides.value.theme
+    if (!overrideTheme) {
+      return undefined
+    }
+
+    const configuredTheme =
+      configList.value[activeSlug.value]?.config?.theme ?? 'default'
+
+    return overrideTheme === configuredTheme ? undefined : overrideTheme
+  },
+)
+
 const themeStyle = computed(() =>
-  getThemeStyles(mergedConfig.value.theme, {
-    fonts: mergedConfig.value.withDefaultFonts,
+  getThemeStyles(toolbarTheme.value ?? mergedConfig.value.theme, {
+    // Only the toolbar theme is unlayered, so hosted pages keep the layered output
+    layer: toolbarTheme.value ? false : undefined,
   }),
 )
 
 /**
- * Custom CSS plus the theme styles, injected into a single `<style>` tag.
+ * Keep the unlayered toolbar theme in its own style element before custom CSS.
+ * This preserves custom CSS priority without invalidating its leading `@import` rules.
+ */
+const toolbarStyleContent = computed(() =>
+  toolbarTheme.value ? escapeCssForStyleTag(themeStyle.value) : '',
+)
+
+/**
+ * Custom CSS plus the layered theme when there is no toolbar override.
  *
  * This is rendered with `v-html` so the CSS is emitted verbatim. Interpolating
  * it as text content makes Vue HTML-escape characters like `"` into `&quot;` on
@@ -445,11 +508,13 @@ const themeStyle = computed(() =>
  * `customCss` coming from a docs platform where readers can supply their own
  * theme would otherwise be able to close the tag and open a `<script>`.
  */
-const styleContent = computed(() =>
-  escapeCssForStyleTag(
-    `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`,
-  ),
-)
+const styleContent = computed(() => {
+  const customCss = mergedConfig.value.customCss ?? ''
+
+  return escapeCssForStyleTag(
+    toolbarTheme.value ? customCss : `${customCss}\n${themeStyle.value}`,
+  )
+})
 
 // ---------------------------------------------------------------------------
 /** Navigation State Handling */
@@ -498,7 +563,15 @@ if (
       window.location.hash,
   )
   if (newPath) {
-    window.history.replaceState({}, '', newPath)
+    const currentUrl = new URL(window.location.href)
+    const responseProperty = getResponsePropertyFromUrl(currentUrl, undefined)
+    const redirected = responseProperty
+      ? new URL(newPath, currentUrl)
+      : undefined
+    if (redirected) {
+      setResponsePropertyInUrl(redirected, responseProperty)
+    }
+    window.history.replaceState({}, '', redirected ?? newPath)
   }
 }
 
@@ -511,12 +584,14 @@ function syncSlugAndUrlWithDocument(
   slug: string,
   elementId: string | undefined,
   config: ApiReferenceConfigurationRaw,
+  responseProperty?: ResponsePropertyLink,
 ) {
   // We create a new URL and go to the root element if an ID is not provided
   const url = makeUrlFromId(
     elementId || slug,
     config.pathRouting?.basePath ?? inferredHashBasePath.value,
     isMultiDocument.value,
+    responseProperty,
   )
 
   if (config.urlRouting !== false && url) {
@@ -528,6 +603,46 @@ function syncSlugAndUrlWithDocument(
 }
 
 // ---------------------------------------------------------------------------
+/** Plugin Initialization */
+
+/**
+ * Plugin injection is not reactive. All plugins must be provided at first render.
+ *
+ * Created before the stores so they can be given the plugins' document types. The auth accessor
+ * reads the client store lazily: the reference-side Authentication panel (Content → Auth.vue)
+ * persists credentials into `clientStore.auth`, so plugins must read the same store to see what the
+ * user entered. Hooks only run from `notifyInit` onwards, once the client store exists.
+ */
+const pluginManager = createPluginManager({
+  plugins: Object.values(configList.value).flatMap(
+    (c) => c.config.plugins ?? [],
+  ),
+  /**
+   * Read-only view of the global authentication state, so plugins can read stored secrets and
+   * the selected security schemes without being able to mutate them. Wraps the client store's
+   * auth methods (rather than passing the store directly) to keep the setters out of the plugin API.
+   *
+   * The getters return a deep copy (`export` already snapshots internally, the others go through
+   * `toJsonCompatible`) so plugins receive plain data rather than the store's live reactive proxies —
+   * mutating what they get back can never leak into the store.
+   */
+  auth: {
+    export: () => clientStore.auth.export(),
+    getAuthSecrets: (documentName, schemeName) =>
+      toJsonCompatible(
+        clientStore.auth.getAuthSecrets(documentName, schemeName),
+      ),
+    getAuthSelectedSchemas: (payload) =>
+      toJsonCompatible(clientStore.auth.getAuthSelectedSchemas(payload)),
+  },
+})
+provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+provide(MARKDOWN_RENDER_HOOKS, pluginManager.getMarkdownRenderHooks())
+
+/** Document formats contributed by plugins, registered with both stores so they agree on every document. */
+const documentTypes = toStoreDocumentTypes(pluginManager.getDocumentTypes())
+
+// ---------------------------------------------------------------------------
 /** Workspace Store Initialization */
 
 /**
@@ -535,8 +650,12 @@ function syncSlugAndUrlWithDocument(
  */
 const workspaceStore = createWorkspaceStore({
   verbose: isDevelopment,
+  documentTypes,
 })
 
+provide(ASYNC_API_SCHEMA_RESOURCES, () =>
+  workspaceStore.asyncApiSchemaResources(),
+)
 provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
 
 /**
@@ -545,9 +664,12 @@ provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
  */
 const clientStore = createWorkspaceStore({
   verbose: isDevelopment,
+  documentTypes,
   plugins: [
     persistencePlugin({
       persistAuth: () => mergedConfig.value.persistAuth ?? false,
+      persistSelectedClient: () =>
+        mergedConfig.value.persistSelectedClient ?? true,
     }),
   ],
 })
@@ -594,47 +716,14 @@ const runtimeConfig = computed<ApiReferenceConfiguration>(() => {
     : config
 })
 
-/**
- * Plugin injection is not reactive. All plugins must be provided at first render.
- *
- * Created after the client store so the auth accessor below can read from it — plugin `onInit`
- * hooks may call `auth` synchronously during `notifyInit`. The reference-side Authentication panel
- * (Content → Auth.vue) persists credentials into `clientStore.auth`, so plugins must read the same
- * store to see what the user entered.
- */
-const pluginManager = createPluginManager({
-  plugins: Object.values(configList.value).flatMap(
-    (c) => c.config.plugins ?? [],
-  ),
-  /**
-   * Read-only view of the global authentication state, so plugins can read stored secrets and
-   * the selected security schemes without being able to mutate them. Wraps the client store's
-   * auth methods (rather than passing the store directly) to keep the setters out of the plugin API.
-   *
-   * The getters return a deep copy (`export` already snapshots internally, the others go through
-   * `toJsonCompatible`) so plugins receive plain data rather than the store's live reactive proxies —
-   * mutating what they get back can never leak into the store.
-   */
-  auth: {
-    export: () => clientStore.auth.export(),
-    getAuthSecrets: (documentName, schemeName) =>
-      toJsonCompatible(
-        clientStore.auth.getAuthSecrets(documentName, schemeName),
-      ),
-    getAuthSelectedSchemas: (payload) =>
-      toJsonCompatible(clientStore.auth.getAuthSelectedSchemas(payload)),
-  },
-})
-provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
-provide(MARKDOWN_RENDER_HOOKS, pluginManager.getMarkdownRenderHooks())
-
+// Plugin `onInit` hooks may call `auth` synchronously, so they only run once the client store exists.
 pluginManager.notifyInit(mergedConfig.value)
 
 watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 
 // TODO: persistence should be hoisted into standalone
 // Client side integrations will want to handle dark mode externally
-const { toggleColorMode, isDarkMode } = useColorMode({
+const { toggleColorMode, isDarkMode: browserIsDarkMode } = useColorMode({
   initialColorMode: {
     true: 'dark' as const,
     false: 'light' as const,
@@ -643,13 +732,23 @@ const { toggleColorMode, isDarkMode } = useColorMode({
   overrideColorMode: mergedConfig.value.forceDarkModeState,
 })
 
+/** Browser preferences must not overwrite the server's controls before hydration finishes. */
+const hydratedIsDarkMode = hydrationState.value
+  ? workspaceStore.workspace['x-scalar-color-mode'] === 'dark'
+  : browserIsDarkMode.value
+const isDarkMode = computed(() =>
+  hydrationState.value ? hydratedIsDarkMode : browserIsDarkMode.value,
+)
+
 /**
  * The active document passed to the search modal. Both OpenAPI and AsyncAPI
  * documents are surfaced so the search index can include their navigation content.
+ * Documents of a registered document type are not indexed yet.
  */
-const activeSearchableDocument = computed(
-  () => workspaceStore.workspace.activeDocument,
-)
+const activeSearchableDocument = computed(() => {
+  const document = workspaceStore.workspace.activeDocument
+  return isPluginDocument(document) ? undefined : document
+})
 
 /**
  * Sidebar entries contributed by plugin views (content.start / content.end).
@@ -690,6 +789,9 @@ const localizeNavigationEntries = (
   )
   const modelsSectionLabel =
     mergedConfig.value.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
+  const messagesSectionLabel = apiReferenceLocalization.translate(
+    'navigation.messages',
+  )
 
   const localize = (list: TraversedEntry[]): TraversedEntry[] => {
     let changed = false
@@ -719,6 +821,15 @@ const localizeNavigationEntries = (
           title: modelsSectionLabel,
           name: modelsSectionLabel,
         } as TraversedEntry
+      } else if (
+        entry.type === 'asyncapi-messages' &&
+        entry.title !== messagesSectionLabel
+      ) {
+        localized = {
+          ...entry,
+          title: messagesSectionLabel,
+          name: messagesSectionLabel,
+        }
       }
 
       if ('children' in entry && entry.children) {
@@ -787,7 +898,11 @@ const sidebarState = createSidebarState<TraversedEntry>(itemsFromWorkspace, {
 /** Recursively set all children of the given items to open */
 const setChildrenOpen = (items: TraversedEntry[]): void => {
   items.forEach((item) => {
-    if (item.type === 'tag' || item.type === 'models') {
+    if (
+      item.type === 'tag' ||
+      item.type === 'models' ||
+      item.type === 'asyncapi-messages'
+    ) {
       sidebarState.setExpanded(item.id, true)
     }
     if ('children' in item && item.children) {
@@ -845,11 +960,37 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
   return docItems
 })
 
-/** Find the sidebar entry that represents the introduction section */
+/** The tag that is opened by default when the URL does not point at a specific target */
+const getFirstTag = (): TraversedEntry | undefined =>
+  sidebarItems.value.find((item) => item.type === 'tag')
+
+/**
+ * The server opens the first tag by default, because it cannot see the URL fragment. The first
+ * browser render has to open the same tag, or Vue replaces the server-rendered sidebar and tag
+ * content. A deep link closes it again after hydration, unless it was open for another reason
+ * such as `defaultOpenAllTags`.
+ */
+let hydratedFirstTagId: string | undefined
+if (hydrationState.value && mergedConfig.value.defaultOpenFirstTag) {
+  const firstTag = getFirstTag()
+  if (firstTag && !sidebarState.isExpanded(firstTag.id)) {
+    sidebarState.setExpanded(firstTag.id, true)
+    hydratedFirstTagId = firstTag.id
+  }
+}
+
+/**
+ * Find the sidebar entry that represents the introduction section.
+ *
+ * A plugin document has no introduction, so the top of the page belongs to the document itself.
+ * Falling through to the suffix would put an id in the URL that resolves to nothing.
+ */
 const infoSectionId = computed(
   () =>
     sidebarItems.value.find(isIntroductionEntry)?.id ??
-    `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`,
+    (isPluginDocument(workspaceStore.workspace.activeDocument)
+      ? activeSlug.value
+      : `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`),
 )
 
 /**
@@ -918,10 +1059,23 @@ const contextChain = computed(() => {
   return crumbs
 })
 
-const scrollToLazyElement = (id: string) => {
+const scrollToLazyElement = (
+  id: string,
+  {
+    focusTarget,
+    responseProperty,
+  }: { focusTarget?: boolean; responseProperty?: ResponsePropertyLink } = {},
+): void => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
-  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
+  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById, {
+    focusTarget,
+    response: responseProperty && {
+      link: responseProperty,
+      target: responsePropertyTarget,
+      root: referenceLayout.value,
+    },
+  })
 }
 
 /**
@@ -1165,6 +1319,13 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
 let isPreloadStopped = false
 /** Cancels the currently scheduled idle preload callback, if one is pending */
 let cancelScheduledPreload: (() => void) | undefined
+/**
+ * Whether idle preloading has run out of documents to load. Until then a large document can still
+ * hold the page for a moment while it is parsed, so the localhost API Hosting beta popup waits for
+ * it rather than open in the middle of that and leave its email field unresponsive. A document that
+ * never finishes loading keeps the popup away for that page load.
+ */
+const hasPreloadedDocuments = ref(false)
 
 /**
  * Stop any in-progress idle preloading. Without this, an orphaned instance (an Astro view
@@ -1209,6 +1370,7 @@ const preloadDocumentsWhenIdle = () => {
     const slug = pendingSlugs.shift()
 
     if (!slug) {
+      hasPreloadedDocuments.value = true
       return
     }
 
@@ -1233,6 +1395,7 @@ const preloadDocumentsWhenIdle = () => {
 const changeSelectedDocument = async (
   slug: string,
   elementId?: string | undefined,
+  responseProperty?: ResponsePropertyLink,
 ) => {
   const normalized = configList.value[slug]
 
@@ -1253,7 +1416,7 @@ const changeSelectedDocument = async (
   const onDocumentSelectPromise = config.onDocumentSelect?.()
 
   // Set the active slug and update any routing
-  syncSlugAndUrlWithDocument(slug, elementId, config)
+  syncSlugAndUrlWithDocument(slug, elementId, config, responseProperty)
 
   // Sync the modal to the new document without naming an operation. Leaving path and
   // method out resolves them to the document's first operation instead of a route that
@@ -1314,15 +1477,20 @@ const changeSelectedDocument = async (
 
   // When loading to a specified element we need to freeze and scroll
   if (scrollTargetId && scrollTargetId !== slug) {
-    scrollToLazyElement(scrollTargetId)
+    // The target replaces the first tag that was only open to match the server render
+    if (hydratedFirstTagId) {
+      sidebarState.setExpanded(hydratedFirstTagId, false)
+    }
+    scrollToLazyElement(scrollTargetId, { responseProperty })
   }
   // If there is no child element of the document specified and defaultOpenFirstTag is enabled, we expand the first tag
   else if (config.defaultOpenFirstTag) {
-    const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
+    const firstTag = getFirstTag()
     if (firstTag) {
       sidebarState.setExpanded(firstTag.id, true)
     }
   }
+  hydratedFirstTagId = undefined
 
   // Reflect the freshly selected document in the browser tab title
   updatePageTitle(
@@ -1447,7 +1615,9 @@ onBeforeMount(async () => {
   }
 
   // We read the client from the client store so we need to set it to the client store
-  loadClientFromStorage(clientStore)
+  if (mergedConfig.value.persistSelectedClient !== false) {
+    loadClientFromStorage(clientStore)
+  }
 
   if (
     urlRouting.value &&
@@ -1464,6 +1634,10 @@ onBeforeMount(async () => {
     )
     await Promise.all(candidates.map((slug) => ensureDocumentLoaded(slug)))
 
+    const responseProperty = getResponsePropertyFromUrl(
+      new URL(window.location.href),
+      isMultiDocument.value ? undefined : activeSlug.value,
+    )
     const prefix = resolveHashPrefix(
       hash,
       [
@@ -1472,6 +1646,7 @@ onBeforeMount(async () => {
         ...candidates.map((slug) => `${slug}${INTRODUCTION_ENTRY_ID_SUFFIX}`),
       ],
       isMultiDocument.value,
+      responseProperty?.operationId,
     )
     inferredHashBasePath.value = prefix ? `#${prefix}` : undefined
 
@@ -1484,15 +1659,12 @@ onBeforeMount(async () => {
     }
   }
 
+  const url = urlRouting.value ? new URL(window.location.href) : undefined
+  const slugPrefix = isMultiDocument.value ? undefined : activeSlug.value
   await changeSelectedDocument(
     activeSlug.value,
-    urlRouting.value
-      ? getIdFromUrl(
-          window.location.href,
-          basePath.value,
-          isMultiDocument.value ? undefined : activeSlug.value,
-        )
-      : undefined,
+    url && getIdFromUrl(url, basePath.value, slugPrefix),
+    url && getResponsePropertyFromUrl(url, slugPrefix),
   )
 
   // Warm up the remaining documents in the background so switching between them is instant
@@ -1526,6 +1698,11 @@ const agent = useAgent({
   agentEnabled: computed(() => {
     const currentConfiguration = configList.value[activeSlug.value]
 
+    const document = workspaceStore.workspace.activeDocument
+    if (!isOpenApiDocument(document) && !isAsyncApiDocument(document)) {
+      return false
+    }
+
     if (currentConfiguration?.agent?.disabled) {
       return false
     }
@@ -1536,6 +1713,11 @@ const agent = useAgent({
 
     return Boolean(configList.value[activeSlug.value]?.agent?.key)
   }),
+})
+watch(agent.agentEnabled, (enabled) => {
+  if (!enabled) {
+    agent.closeAgent()
+  }
 })
 provide(AGENT_CONTEXT_SYMBOL, agent)
 
@@ -1699,13 +1881,15 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
     }
   }
   const item = sidebarState.getEntryById(id)
+  const isSection =
+    item?.type === 'tag' ||
+    item?.type === 'models' ||
+    item?.type === 'asyncapi-messages'
 
   updatePageTitle(id)
 
   if (
-    (item?.type === 'tag' ||
-      item?.type === 'models' ||
-      item?.type === 'text') &&
+    (isSection || item?.type === 'text') &&
     sidebarState.isExpanded(id) && // Only close if the item is expanded
     sidebarState.selectedItem.value === id // Only close if the item is not the currently selected item
   ) {
@@ -1719,12 +1903,16 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
     return
   }
 
-  // Close the mobile menu upon selecting any item that's not a tag or model
-  if (item?.type !== 'tag' && item?.type !== 'models') {
+  // Keep focus in the open mobile menu while scrolling to the group beneath it.
+  const keepSidebarFocus =
+    isSection &&
+    caller === 'sidebar' &&
+    isSidebarOpen.value &&
+    !isWideViewport.value
+  if (!isSection) {
     isSidebarOpen.value = false
   }
-
-  scrollToLazyElement(id)
+  scrollToLazyElement(id, { focusTarget: !keepSidebarFocus })
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {
@@ -1791,7 +1979,7 @@ eventBus.on('intersecting:nav-item', ({ id: intersectingId }) => {
   updatePageTitle(id)
 
   // Scroll the sidebar to keep the selected element near the top
-  scrollSidebarToTop(id)
+  scrollSidebarToTop(id, undefined, documentRoot)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (urlRouting.value && url && workspaceStore.workspace.activeDocument) {
@@ -1816,11 +2004,12 @@ eventBus.on('toggle:nav-item', ({ id, open }) => {
   sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
 })
 
-eventBus.on('copy-url:nav-item', ({ id }) => {
+eventBus.on('copy-url:nav-item', ({ id, responseProperty }) => {
   const url = makeUrlFromId(
     id,
     basePath.value,
     isMultiDocument.value,
+    responseProperty,
   )?.toString()
   return url && copyToClipboard(url)
 })
@@ -1832,13 +2021,13 @@ const handlePopState = (): void => {
   if (!urlRouting.value) {
     return
   }
-  const id = getIdFromUrl(
-    window.location.href,
-    basePath.value,
-    isMultiDocument.value ? undefined : activeSlug.value,
-  )
+  const url = new URL(window.location.href)
+  const slugPrefix = isMultiDocument.value ? undefined : activeSlug.value
+  const id = getIdFromUrl(url, basePath.value, slugPrefix)
   if (id) {
-    scrollToLazyElement(id)
+    scrollToLazyElement(id, {
+      responseProperty: getResponsePropertyFromUrl(url, slugPrefix),
+    })
   }
 }
 
@@ -1947,8 +2136,9 @@ const onShellPanelFocusOut = (event: FocusEvent): void => {
 
 /** Whether focus is in the panel, which then hands it back to the trigger when the panel goes away */
 const isFocusInShellPanel = (): boolean =>
-  document.getElementById(shellPanel.id)?.contains(document.activeElement) ??
-  false
+  documentRoot
+    ?.getElementById(shellPanel.id)
+    ?.contains(getActiveElement(documentRoot)) ?? false
 
 /**
  * Closes the panel from outside it (the window narrowed, its tool stopped applying). Focus inside it
@@ -1964,7 +2154,7 @@ const closeShellPanelFromOutside = (): void => {
   shellPanelHadFocus.value = false
   shellPanel.close({ restoreFocus: hadFocus })
 
-  const active = document.activeElement
+  const active = getActiveElement(documentRoot)
   const backOnTrigger =
     active instanceof HTMLElement &&
     active !== document.body &&
@@ -2070,7 +2260,7 @@ const referenceLayout = useTemplateRef<HTMLElement>('documentEl')
  */
 const findReadingAnchor = (): Element | null => {
   const content = referenceLayout.value?.querySelector('.references-rendered')
-  const toolbar = document.querySelector('.references-shell-toolbar')
+  const toolbar = documentRoot?.querySelector('.references-shell-toolbar')
   if (!content || !toolbar) {
     return null
   }
@@ -2094,7 +2284,7 @@ const findReadingAnchor = (): Element | null => {
 
   for (let y = line + 4; y < line + 240; y += 12) {
     for (const fraction of [0.05, 0.15, 0.3]) {
-      const hit = document.elementFromPoint(
+      const hit = documentRoot?.elementFromPoint(
         area.left + area.width * fraction,
         y,
       )
@@ -2109,7 +2299,7 @@ const findReadingAnchor = (): Element | null => {
   }
 
   const selectedId = sidebarState.selectedItem.value
-  const section = selectedId ? document.getElementById(selectedId) : null
+  const section = selectedId ? documentRoot?.getElementById(selectedId) : null
   return section && content.contains(section) ? section : null
 }
 
@@ -2161,7 +2351,7 @@ const openGenerateSdk = (): void => {
   }
 
   const fromToolbar =
-    document.activeElement?.closest('.references-shell-toolbar') != null
+    getActiveElement(documentRoot)?.closest('.references-shell-toolbar') != null
   void loadShellPanel()
   shellPanel.toggle('sdk', { focus: !fromToolbar })
 }
@@ -2223,8 +2413,12 @@ const sidebarCta = computed((): SidebarCta => {
       type="application/json"
       v-html="hydrationState" />
     <!-- eslint-enable vue/no-v-text-v-html-on-component -->
-    <!-- Inject any custom CSS directly into a style tag -->
+    <!-- Keep imports at the start of the custom CSS stylesheet. -->
     <!-- eslint-disable vue/no-v-text-v-html-on-component -->
+    <component
+      :is="'style'"
+      v-if="toolbarStyleContent"
+      v-html="toolbarStyleContent" />
     <component
       :is="'style'"
       v-html="styleContent" />
@@ -2269,6 +2463,17 @@ const sidebarCta = computed((): SidebarCta => {
       <div
         aria-hidden="true"
         class="references-shell-frame" />
+      <!-- One-time invitation to the API Hosting beta, once the document is on screen, and only when
+           this machine serves the page to itself: the shell also covers `.test` and other reserved
+           names, which can be shared sites. It opens only after the other documents have loaded in
+           the background, but it notices someone starting to read from the moment it mounts. The
+           popup renders in a portal, so where it sits here does not matter. -->
+      <ApiHostingBetaPrompt
+        v-if="
+          workspaceStore.workspace.activeDocument && isLocalDevelopmentPage()
+        "
+        :integration="mergedConfig._integration"
+        :ready="hasPreloadedDocuments" />
     </template>
     <div
       ref="documentEl"
@@ -2461,6 +2666,7 @@ const sidebarCta = computed((): SidebarCta => {
           :contextChain
           :document="workspaceStore.workspace.activeDocument"
           :documentSlug="activeSlug"
+          :documents="workspaceStore.workspace.documents"
           :environment
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"
@@ -2537,14 +2743,6 @@ const sidebarCta = computed((): SidebarCta => {
             </div>
             <slot
               name="content-start"
-              v-bind="slotProps" />
-          </template>
-          <!-- TODO: Remove this; we no longer directly support an inline editor -->
-          <template
-            v-if="mergedConfig.isEditable"
-            #empty-state>
-            <slot
-              name="editor-placeholder"
               v-bind="slotProps" />
           </template>
           <template #end>

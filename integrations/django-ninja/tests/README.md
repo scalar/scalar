@@ -147,11 +147,7 @@ A test Django Ninja API with sample endpoints:
 
 ## Continuous Integration
 
-These tests are designed to run in CI/CD pipelines. They require:
-- Python 3.8+
-- Django 4.2+
-- django-ninja 1.1+
-- pytest 7.4+
+These tests require Python 3.12 or newer because the runtime requirements use Django 6. Install dependencies from `tests/requirements.txt`, which includes the shared runtime requirements, so local tests and CI use the same Django Ninja and Pydantic versions.
 
 ## Adding New Tests
 

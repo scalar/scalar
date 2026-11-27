@@ -1,41 +1,7 @@
-import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { accumulateRepeatedValue, joinUrlAndQuery, normalizeMethod } from '@/libs/http'
-import { objectToString } from '@/libs/php'
-
-const escapePhpString = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
-
-const quotePhpString = (value: string): string => `'${escapePhpString(value)}'`
-
-const escapePhpObjectKey = escapePhpString
-
-const escapeObjectKeys = (value: unknown): unknown => {
-  if (Array.isArray(value)) {
-    return value.map((item) => escapeObjectKeys(item))
-  }
-
-  if (isObjectLike(value)) {
-    return Object.entries(value).reduce<Record<string, unknown>>((acc, [key, nestedValue]) => {
-      acc[escapePhpObjectKey(key)] = escapeObjectKeys(nestedValue)
-      return acc
-    }, {})
-  }
-
-  return value
-}
-
-const getCookieDomain = (url: string): string => {
-  if (!url) {
-    return 'localhost'
-  }
-
-  try {
-    return new URL(url).hostname || 'localhost'
-  } catch {
-    return 'localhost'
-  }
-}
+import { accumulateRepeatedValue, hasRepeatedName, joinUrlAndQuery, normalizeMethod } from '@/libs/http'
+import { Raw, getCookieDomain, objectToString, quotePhpString } from '@/libs/php'
 
 /**
  * php/laravel
@@ -62,14 +28,29 @@ export const phpLaravel: Plugin = {
       )
     }
 
-    if (normalizedRequest.headers?.length) {
+    const postData = normalizedRequest.postData
+    const multipartParams = postData?.mimeType === 'multipart/form-data' ? postData.params : undefined
+    const isContentType = (name: string): boolean => name.toLowerCase() === 'content-type'
+    // Laravel encodes form arrays with indexed names, so repeated fields are sent with withBody(), which sets the
+    // Content-Type itself and would duplicate a header whose name is spelled differently.
+    const repeatedFormContentType =
+      postData?.mimeType === 'application/x-www-form-urlencoded' && hasRepeatedName(postData.params)
+        ? normalizedRequest.headers?.find(({ name }) => isContentType(name))?.value || postData.mimeType
+        : undefined
+    // Guzzle needs to set the Content-Type with the boundary it generates for structured multipart parts.
+    const generatesContentType = multipartParams !== undefined || repeatedFormContentType !== undefined
+    const requestHeaders = normalizedRequest.headers?.filter(
+      ({ name }) => !generatesContentType || !isContentType(name),
+    )
+
+    if (requestHeaders?.length) {
       const headers: Record<string, string | string[]> = {}
 
-      normalizedRequest.headers.forEach((header) => {
+      requestHeaders.forEach((header) => {
         accumulateRepeatedValue(headers, header.name, header.value)
       })
 
-      chain.push(`withHeaders(${objectToString(escapeObjectKeys(headers))})`)
+      chain.push(`withHeaders(${objectToString(headers)})`)
     }
 
     if (normalizedRequest.cookies?.length) {
@@ -80,72 +61,39 @@ export const phpLaravel: Plugin = {
       })
 
       chain.push(
-        `withCookies(${objectToString(escapeObjectKeys(cookies))}, ${quotePhpString(getCookieDomain(normalizedRequest.url ?? ''))})`,
+        `withCookies(${objectToString(cookies)}, ${quotePhpString(getCookieDomain(normalizedRequest.url ?? ''))})`,
       )
     }
 
     let payload: unknown
 
-    if (normalizedRequest.postData) {
-      if (normalizedRequest.postData.mimeType === 'application/json') {
-        if (normalizedRequest.postData.text) {
+    if (postData && !multipartParams) {
+      if (postData.mimeType === 'application/json') {
+        if (postData.text) {
           try {
-            payload = JSON.parse(normalizedRequest.postData.text)
+            payload = JSON.parse(postData.text)
           } catch {
-            chain.push(`withBody(${quotePhpString(normalizedRequest.postData.text)}, 'application/json')`)
+            chain.push(`withBody(${quotePhpString(postData.text)}, 'application/json')`)
           }
         }
-      } else if (
-        normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
-        normalizedRequest.postData.params
-      ) {
-        const formData: Record<string, string | string[]> = {}
+      } else if (postData.mimeType === 'application/x-www-form-urlencoded' && postData.params) {
+        const fields = postData.params.map(({ name, value }) => [name, value ?? ''])
 
-        normalizedRequest.postData.params.forEach((param) => {
-          accumulateRepeatedValue(formData, param.name, param.value ?? '')
-        })
-
-        chain.push('asForm()')
-        payload = formData
-      } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
-        const multipartData: Record<string, string | string[]> = {}
-
-        normalizedRequest.postData.params.forEach((param) => {
-          if (param.fileName !== undefined) {
-            const args = [
-              quotePhpString(param.name),
-              `file_get_contents(${quotePhpString(param.fileName)})`,
-              quotePhpString(param.fileName),
-            ]
-
-            if (param.contentType) {
-              args.push(objectToString(escapeObjectKeys({ 'Content-Type': param.contentType })))
-            }
-
-            chain.push(`attach(${args.join(', ')})`)
-          } else if (param.contentType) {
-            chain.push(
-              `attach(${quotePhpString(param.name)}, ${quotePhpString(param.value ?? '')}, null, ${objectToString(
-                escapeObjectKeys({ 'Content-Type': param.contentType }),
-              )})`,
-            )
-          } else {
-            accumulateRepeatedValue(multipartData, param.name, param.value ?? '')
-          }
-        })
-
-        if (Object.keys(multipartData).length > 0) {
-          payload = multipartData
-        }
-      } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
-        chain.push(`withBody(${quotePhpString(normalizedRequest.postData.text ?? '')}, 'application/octet-stream')`)
-      } else if (normalizedRequest.postData.text) {
-        try {
-          payload = JSON.parse(normalizedRequest.postData.text)
-        } catch {
+        if (repeatedFormContentType !== undefined) {
           chain.push(
-            `withBody(${quotePhpString(normalizedRequest.postData.text)}, ${quotePhpString(normalizedRequest.postData.mimeType || 'text/plain')})`,
+            `withBody(${quotePhpString(new URLSearchParams(fields).toString())}, ${quotePhpString(repeatedFormContentType)})`,
           )
+        } else {
+          chain.push('asForm()')
+          payload = Object.fromEntries(fields)
+        }
+      } else if (postData.mimeType === 'application/octet-stream') {
+        chain.push(`withBody(${quotePhpString(postData.text ?? '')}, 'application/octet-stream')`)
+      } else if (postData.text) {
+        try {
+          payload = JSON.parse(postData.text)
+        } catch {
+          chain.push(`withBody(${quotePhpString(postData.text)}, ${quotePhpString(postData.mimeType || 'text/plain')})`)
         }
       }
     }
@@ -154,15 +102,26 @@ export const phpLaravel: Plugin = {
     const supportsDirectMethod = ['delete', 'get', 'head', 'patch', 'post', 'put'].includes(requestMethod)
 
     let requestCall: string
-    if (supportsDirectMethod) {
+    if (multipartParams) {
+      // Explicit parts preserve request order and falsey values on older Laravel releases.
+      // Passing them as a send() option also keeps the multipart body on DELETE.
+      const multipart = multipartParams.map(({ name, value, fileName, contentType }) => ({
+        name,
+        contents: fileName === undefined ? (value ?? '') : new Raw(`file_get_contents(${quotePhpString(fileName)})`),
+        ...(fileName === undefined ? {} : { filename: fileName }),
+        ...(contentType ? { headers: { 'Content-Type': contentType } } : {}),
+      }))
+      chain.push('asMultipart()')
+      requestCall = `send(${quotePhpString(normalizedRequest.method)}, ${quotePhpString(url)}, ${objectToString({ multipart }, 1)})`
+    } else if (supportsDirectMethod) {
       requestCall =
         payload !== undefined && requestMethod !== 'head'
-          ? `${requestMethod}(${quotePhpString(url)}, ${objectToString(escapeObjectKeys(payload), 1)})`
+          ? `${requestMethod}(${quotePhpString(url)}, ${objectToString(payload, 1)})`
           : `${requestMethod}(${quotePhpString(url)})`
     } else {
       requestCall =
         payload !== undefined
-          ? `send(${quotePhpString(normalizedRequest.method)}, ${quotePhpString(url)}, ${objectToString(escapeObjectKeys(payload), 1)})`
+          ? `send(${quotePhpString(normalizedRequest.method)}, ${quotePhpString(url)}, ${objectToString(payload, 1)})`
           : `send(${quotePhpString(normalizedRequest.method)}, ${quotePhpString(url)})`
     }
 

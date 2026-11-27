@@ -22,15 +22,8 @@ concurrency:
 env:
   # Exclude these packages from turbo as they are handled by dedicated jobs
   TURBO_FLAGS: '--concurrency=100% --filter "!./integrations/{java,rust,dotnet,docker,fastapi,django-ninja}/**" --filter "!./projects/proxy-scalar-com/**"'
-  # The Netlify CLI is pinned because netlify@27.3.0 and newer pull in
-  # @netlify/dev@5.0.4, which depends on an @netlify/ai version that was never
-  # published — every install fails to resolve. Drop the pin once upstream
-  # publishes a working release.
-  NETLIFY_CLI_VERSION: '27.1.2'
-  # netlify@27.1.2 pulls in esbuild, sharp and unix-dgram, which run build
-  # scripts. pnpm 12 turns unapproved build scripts into a hard error, so allow
-  # these explicitly when installing the Netlify CLI on the fly.
-  NETLIFY_ALLOW_BUILDS: '--allow-build=esbuild --allow-build=sharp --allow-build=unix-dgram'
+  # Pin the preview CLI so CI installs the reviewed version.
+  NETLIFY_CLI_VERSION: '27.20.1'
 
 jobs:
   # Initial build.
@@ -47,11 +40,11 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - name: Build
-        uses: ./.github/actions/build
+        uses: $/.github/actions/build
         with:
           packages: './{packages,integrations}/**'
           archive-output: 'true'
@@ -60,13 +53,13 @@ jobs:
           mkdir -p temp-artifacts
           cp packages/api-reference/dist/browser/standalone.js temp-artifacts/scalar.js
       - name: Upload scalar.js artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
       - name: Upload mock server docker entrypoint artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: mock-server-docker-entrypoint
           path: packages/mock-server/docker/dist/docker-entrypoint.js
@@ -75,7 +68,7 @@ jobs:
       # restore-build composite so downstream JS jobs can fan out without
       # rerunning the build.
       - name: Upload build-output artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: build-output
           path: build-output.tar.gz
@@ -83,14 +76,6 @@ jobs:
           # The tarball is already gzip-compressed; skip the upload action's
           # outer zip-compression pass.
           compression-level: 0
-      # Dependabot runs cannot read Actions secrets, including the RelativeCI key.
-      - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]')
-        name: Upload webpack stats to RelativeCI
-        uses: relative-ci/agent-action@fcf45416581928e8dd62eded78ce98c78e5149f8 # v3.2.3
-        with:
-          key: ${{ secrets.RELATIVE_CI_KEY }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
   check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -110,21 +95,21 @@ jobs:
       api_client_changed: ${{ steps.changes.outputs.api_client_changed }}
       api_reference_changed: ${{ steps.changes.outputs.api_reference_changed }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - id: changes
-        uses: ./.github/actions/check-changes
+        uses: $/.github/actions/check-changes
 
   format:
     if: github.event_name == 'pull_request'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.1
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        uses: actions/setup-node@v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -146,10 +131,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.1
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        uses: actions/setup-node@v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -170,10 +155,10 @@ jobs:
       # Required so the lint results can be posted back to the PR.
       pull-requests: write
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.1
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        uses: actions/setup-node@v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -218,7 +203,7 @@ jobs:
           } > lint-comment.md
       - name: Post lint results to the PR
         if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        uses: thollander/actions-comment-pull-request@v3.0.1
         with:
           file-path: lint-comment.md
           # Reuse (update) the same comment on every new commit instead of
@@ -229,14 +214,158 @@ jobs:
         if: ${{ !cancelled() }}
         run: exit ${{ steps.lint.outputs.exit_code }}
 
+  bundle-size:
+    needs: [build]
+    if: github.event_name == 'pull_request'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    continue-on-error: true
+    outputs:
+      approval_required: ${{ steps.report.outputs.approval_required }}
+      comment_required: ${{ steps.report.outputs.comment_required }}
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+      - uses: $/.github/actions/restore-standalone-bundles
+      - name: Measure API Reference bundles
+        id: measure
+        run: |
+          set -euo pipefail
+          node tooling/scripts/bundle-size.ts measure packages/api-reference/dist/browser "$GITHUB_SHA" bundle-size.json
+          # The test merge commit's first parent is the main commit included in this build.
+          echo "base=$(git cat-file -p HEAD | awk '/^parent / && !seen {print $2; seen = 1}')" >> "$GITHUB_OUTPUT"
+      - name: Find the main baseline
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_SHA: ${{ steps.measure.outputs.base }}
+        run: |
+          set -euo pipefail
+          snapshots=$(gh api --paginate -X GET "repos/${GITHUB_REPOSITORY}/actions/artifacts" \
+            -f name=api-reference-bundle-size -f per_page=100 |
+            jq -cs '
+              [.[].artifacts[]
+                | select(.expired | not)
+                | select(.workflow_run.head_branch == "main" and .workflow_run.head_repository_id == .workflow_run.repository_id)]
+              | sort_by(.created_at) | map(.workflow_run)')
+          exact_run=$(jq -r --arg base "$BASE_SHA" 'map(select(.head_sha == $base)) | last.id // empty' <<< "$snapshots")
+          latest_run=$(jq -r 'last.id // empty' <<< "$snapshots")
+          echo "run_id=${exact_run:-$latest_run}" >> "$GITHUB_OUTPUT"
+          echo "exact_run_id=${exact_run}" >> "$GITHUB_OUTPUT"
+          # Before main begins recording snapshots, recover the exact baseline from its regular build artifact.
+          if [[ -z "$exact_run" && -n "$BASE_SHA" ]]; then
+            runs=$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/workflows/main.yml/runs" \
+              -f branch=main -f event=push -f head_sha="$BASE_SHA" \
+              --jq '.workflow_runs[] | select(.head_sha == env.BASE_SHA).id')
+            while IFS= read -r run; do
+              [[ -n "$run" ]] || continue
+              has_archive=$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/runs/${run}/artifacts" \
+                -f name=build-output --jq '.artifacts | any(.name == "build-output" and (.expired | not))')
+              if [[ "$has_archive" == true ]]; then
+                echo "archive_run_id=${run}" >> "$GITHUB_OUTPUT"
+                break
+              fi
+            done <<< "$runs"
+          fi
+      - if: steps.baseline.outputs.run_id != ''
+        name: Download the main baseline
+        continue-on-error: true
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: api-reference-bundle-size
+          path: baseline
+          run-id: ${{ steps.baseline.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - if: steps.baseline.outputs.archive_run_id != ''
+        name: Download the archived main build
+        id: archived-main
+        continue-on-error: true
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: build-output
+          path: baseline-build
+          run-id: ${{ steps.baseline.outputs.archive_run_id }}
+          github-token: ${{ github.token }}
+      - if: steps.archived-main.outcome == 'success'
+        name: Measure the archived main build
+        continue-on-error: true
+        env:
+          BASE_SHA: ${{ steps.measure.outputs.base }}
+        run: |
+          set -euo pipefail
+          mkdir -p baseline
+          tar -xzf baseline-build/build-output.tar.gz -C baseline-build --exclude='*.map' -- packages/api-reference/dist/browser
+          node tooling/scripts/bundle-size.ts measure-archive baseline-build/packages/api-reference/dist/browser "$BASE_SHA" baseline/bundle-size.json
+      - name: Write the bundle size report
+        id: report
+        env:
+          BASE_SHA: ${{ steps.measure.outputs.base }}
+          EXPECT_EXACT_BUNDLE_BASELINE: ${{ steps.baseline.outputs.exact_run_id != '' || steps.baseline.outputs.archive_run_id != '' }}
+        run: |
+          set -euo pipefail
+          node tooling/scripts/bundle-size.ts report bundle-size.json bundle-size.md chunks.md baseline/bundle-size.json "$BASE_SHA" >> "$GITHUB_OUTPUT"
+          cat bundle-size.md chunks.md >> "$GITHUB_STEP_SUMMARY"
+          printf '\n[Per-chunk ESM sizes](%s/%s/actions/runs/%s#summary)\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> bundle-size.md
+      - if: github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') && steps.report.outputs.comment_required == 'true'
+        name: Upload the bundle size PR report
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: api-reference-bundle-size-report
+          path: bundle-size.md
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
+  bundle-size-comment:
+    needs: [bundle-size]
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') && (needs.bundle-size.outputs.comment_required == 'true' || needs.bundle-size.outputs.comment_required == 'false')
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - if: needs.bundle-size.outputs.comment_required == 'true'
+        name: Download the bundle size PR report
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: api-reference-bundle-size-report
+      - name: Update the bundle size PR comment
+        uses: thollander/actions-comment-pull-request@v3.0.1
+        with:
+          file-path: ${{ needs.bundle-size.outputs.comment_required == 'true' && 'bundle-size.md' || '' }}
+          comment-tag: api-reference-bundle-size
+          mode: ${{ needs.bundle-size.outputs.comment_required == 'true' && 'upsert' || 'delete' }}
+          create-if-not-exists: ${{ needs.bundle-size.outputs.comment_required == 'true' }}
+
+  bundle-size-approval:
+    needs: [bundle-size]
+    if: needs.bundle-size.outputs.approval_required == 'true'
+    runs-on: ubuntu-slim
+    timeout-minutes: 1
+    permissions: {}
+    # Keep this environment's required reviewers in sync with the API Reference code owners.
+    environment:
+      name: api-reference-bundle-size
+      deployment: false
+    steps:
+      - run: echo 'Bundle size regression approved.'
+
   types:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       # `--only` skips the `build` dependencies of types:check: restore-build
       # already put every package dist/ in place, and turbo used to rebuild
       # whatever missed its cache before it could start checking types.
@@ -259,9 +388,9 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Build examples, projects and tooling
         run: >-
           pnpm turbo --only --cache=local:
@@ -277,9 +406,9 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       # restore-build only restores dist/, while Nuxt configs extend generated .nuxt files.
       - name: Prepare Nuxt configs for Knip
         run: |
@@ -298,7 +427,7 @@ jobs:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
     container:
-      image: scalarapi/playwright-runner:1.62.1
+      image: scalarapi/playwright-runner:1.65.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -310,9 +439,9 @@ jobs:
       HOME: '/root'
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Run tests
         run: pnpm turbo --filter './integrations/**' --only test
         # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
@@ -324,9 +453,9 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
       - name: Setup Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        uses: actions/setup-go@v7.1.0
         with:
           go-version-file: projects/proxy-scalar-com/go.mod
           cache: false
@@ -340,9 +469,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Start SSR playground and verify it responds
         run: |
           pnpm --filter @scalar/server-side-rendering dev &
@@ -357,7 +486,7 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     environment: production-netlify
     container:
-      image: scalarapi/playwright-runner:1.62.1
+      image: scalarapi/playwright-runner:1.65.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -370,9 +499,9 @@ jobs:
       pull-requests: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build Storybook (@scalar/blocks)
@@ -382,8 +511,9 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
+        continue-on-error: true
         run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/blocks/playwright-report-storybook" \
+          pnpm dlx --ignore-scripts netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/blocks/playwright-report-storybook" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -392,9 +522,11 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
+        continue-on-error: true
+        uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar Blocks Snapshot Test Results'
+          icon-style: emojis
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/blocks/playwright-results-storybook.json
           report-tag: test-blocks-snapshots
@@ -404,7 +536,7 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     environment: production-netlify
     container:
-      image: scalarapi/playwright-runner:1.62.1
+      image: scalarapi/playwright-runner:1.65.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -418,9 +550,9 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build storybook (@scalar/api-reference)
@@ -429,11 +561,14 @@ jobs:
         run: pnpm --filter api-reference test:e2e:storybook:ci
       - name: Run e2e tests (@scalar/api-reference)
         run: pnpm --filter api-reference test:e2e:ci
+      - name: Run documentation browser tests
+        run: pnpm exec playwright test documentation/playwright/test
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
+        continue-on-error: true
         run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/api-reference/playwright-report" \
+          pnpm dlx --ignore-scripts netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/api-reference/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -442,9 +577,11 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
+        continue-on-error: true
+        uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar References End to End Test Results'
+          icon-style: emojis
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/api-reference/playwright-results.json
           report-tag: test-references-e2e
@@ -457,7 +594,7 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     environment: production-netlify
     container:
-      image: scalarapi/playwright-runner:1.62.1
+      image: scalarapi/playwright-runner:1.65.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -471,9 +608,9 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run e2e tests (scalar-app)
@@ -481,7 +618,7 @@ jobs:
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./projects/scalar-app/playwright-report" \
+          pnpm dlx --ignore-scripts netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./projects/scalar-app/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -489,9 +626,10 @@ jobs:
             --alias=${{env.DEPLOY_ID}}
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
+        uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar App End to End Test Results'
+          icon-style: emojis
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: projects/scalar-app/playwright-results.json
           report-tag: test-scalar-app-e2e
@@ -502,7 +640,7 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     environment: production-netlify
     container:
-      image: scalarapi/playwright-runner:1.62.1
+      image: scalarapi/playwright-runner:1.65.1
       options: --privileged
       env:
         VM_ID: ${{ env.VM_ID }}
@@ -515,9 +653,9 @@ jobs:
       pull-requests: write
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v7.0.1
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Run e2e tests (@scalar/components)
@@ -525,8 +663,9 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
+        continue-on-error: true
         run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/components/playwright-report" \
+          pnpm dlx --ignore-scripts netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --no-build --dir "./packages/components/playwright-report" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
@@ -535,64 +674,14 @@ jobs:
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
+        continue-on-error: true
+        uses: daun/playwright-report-summary@v4.0.0
         with:
           comment-title: 'Scalar Components Snapshot Test Results'
+          icon-style: emojis
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/components/playwright-results.json
           report-tag: test-components-snapshots
-
-  test-cdn-snapshots:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
-    needs: [build]
-    runs-on: blacksmith-8vcpu-ubuntu-2204
-    environment: production-netlify
-    container:
-      image: scalarapi/playwright-runner:1.62.1
-      options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
-    permissions:
-      contents: read
-      pull-requests: write
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-      - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
-      - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
-      - name: Run snapshot tests (@scalar/api-reference)
-        run: pnpm --filter api-reference test:e2e:cdn:ci
-        # Only when the PR is from the same repository
-      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
-        name: Deploy Playwright Report to Netlify
-        run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/api-reference/playwright-report-cdn" \
-            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
-            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
-            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
-            --filter @scalar/components \
-            --alias=${{env.DEPLOY_ID}}
-        # Only when the PR is from the same repository
-      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
-        name: Add Netlify Playwright Report URL to the PR
-        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
-        with:
-          comment-title: 'Scalar CDN Snapshot Diff Results'
-          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
-          report-file: packages/api-reference/playwright-results-cdn.json
-          report-tag: test-cdn-snapshots
-          custom-info: These tests are **non-blocking** and will not prevent merging of your PR.
-          footer: |
-            > [!IMPORTANT]
-            > These tests detect visual differences between the current PR and the latest CDN build which means **they may be affected by other changes in `main` that haven't been released yet**.
-            >
-            > They can help determine if the changes in the PR are causing any unexpected visual regressions but may be less helpful in isolating the exact cause. For more details see the [readme](https://github.com/scalar/scalar/blob/main/packages/api-reference/test/snapshots-cdn/README.md).
 
   # Path-gated integration build-tests (dotnet/java/rust/python/docker).
   integration-builds:
@@ -670,7 +759,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Add combined preview URLs to the PR
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
+        uses: thollander/actions-comment-pull-request@v3.0.1
         with:
           message: ${{ steps.build-message.outputs.message }}
           comment-tag: 'deployment-preview'
@@ -723,17 +812,32 @@ jobs:
       [
         build,
         build-apps,
+        bundle-size,
+        bundle-size-approval,
         test-server-side-rendering,
         format,
         knip,
         test-js,
         test-integrations,
         test-proxy-server,
+        test-block-snapshots,
+        test-component-snapshots,
+        test-e2e-api-reference,
         test-e2e-scalar-app,
         types,
         verify-generated-docs,
       ]
     steps:
-      - name: Exit with error if some jobs are not successful
-        run: exit 1
-        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
+      - name: Verify required jobs and bundle size approval
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          if ! jq -e '."bundle-size".outputs.approval_required | . == "true" or . == "false"' <<< "$JOB_RESULTS"; then
+            echo '::error::Bundle size approval could not be evaluated. Check the bundle-size job.'
+            exit 1
+          fi
+          jq -e '
+            ."bundle-size".outputs.approval_required as $approval
+            | ($approval == "false" or ($approval == "true" and ."bundle-size-approval".result == "success"))
+            and (del(."bundle-size", ."bundle-size-approval") | all(.[]; .result == "success"))
+          ' <<< "$JOB_RESULTS"

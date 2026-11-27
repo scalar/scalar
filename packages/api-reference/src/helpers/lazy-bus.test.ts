@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, shallowRef } from 'vue'
 
+import type { ResponsePropertyLink } from './id-routing'
 import { getStickyHeaderOffset, requestLazyRender, scrollToLazy } from './lazy-bus'
 
 // ---------------------------------------------------------------------------
@@ -42,6 +43,78 @@ describe('lazy-bus', () => {
   describe('scrollToLazy', () => {
     it('expands the operation behind a request-body anchor', () => {
       expect(expandedIdsFor(`${operationId}.body.name`)).toContain(operationId)
+    })
+
+    it('expands the operation whose path contains a response marker', () => {
+      const dottedOperation = `${operationId}.responses.200.json`
+      const expanded: string[] = []
+      const link = { mediaType: 'application/xml', operationId: dottedOperation }
+      const target = shallowRef<ResponsePropertyLink>()
+
+      scrollToLazy(
+        `${dottedOperation}.responses.200.name`,
+        (id, value) => value && expanded.push(id),
+        (id) => (id === operationId || id === dottedOperation ? { id } : undefined),
+        { response: { link, target, root: null } },
+      )
+
+      expect(expanded).toStrictEqual([dottedOperation])
+      expect(target.value).toBe(link)
+    })
+
+    it.each([
+      { suffix: 'body.customer', link: undefined },
+      {
+        suffix: 'responses.200.customer',
+        link: { mediaType: 'application/xml', operationId },
+      },
+    ])('uses the owning operation when another path starts with $suffix', ({ suffix, link }) => {
+      const otherOperation = `${operationId}.${suffix}`
+      const expanded: string[] = []
+
+      scrollToLazy(
+        `${otherOperation}.id`,
+        (id, value) => value && expanded.push(id),
+        (id) => (id === operationId || id === otherOperation ? { id } : undefined),
+        { response: link ? { link, target: shallowRef(), root: null } : undefined },
+      )
+
+      expect(expanded).toStrictEqual([operationId])
+    })
+
+    it('waits for the property inside its operation when another section has the same ID', async () => {
+      vi.useFakeTimers()
+      const operation = document.createElement('section')
+      const duplicate = document.createElement('button')
+      const duplicateOwner = document.createElement('div')
+      const property = document.createElement('button')
+      const root = document.createElement('div')
+      operation.id = duplicateOwner.id = operationId
+      operation.setAttribute('data-scalar-operation', '')
+      duplicate.id = property.id = `${operationId}.responses.200.name`
+      duplicate.scrollIntoView = vi.fn()
+      property.scrollIntoView = vi.fn()
+      root.append(duplicate, duplicateOwner, operation)
+      document.body.append(root)
+      const link = { mediaType: 'application/xml', operationId }
+      const target = shallowRef<ResponsePropertyLink>()
+
+      try {
+        scrollToLazy(property.id, () => undefined, navigationTree(), { response: { link, target, root } })
+        await nextTick()
+        expect(target.value).toBe(link)
+        expect(duplicate.scrollIntoView).not.toHaveBeenCalled()
+
+        operation.append(property)
+        vi.advanceTimersToNextFrame()
+        expect(document.activeElement).toBe(property)
+        expect(property.scrollIntoView).toHaveBeenCalled()
+        expect(duplicate.scrollIntoView).not.toHaveBeenCalled()
+        expect(target.value).toBeUndefined()
+      } finally {
+        root.remove()
+        vi.useRealTimers()
+      }
     })
 
     it('expands the operation behind a callback anchor', () => {
@@ -160,6 +233,7 @@ describe('lazy-bus', () => {
       vi.advanceTimersToNextFrame()
       expect(scrolledTo).toStrictEqual([targets[2]])
 
+      await vi.advanceTimersByTimeAsync(200)
       scrolledTo.length = 0
       vi.advanceTimersToNextFrame()
       expect(scrolledTo).toStrictEqual([])
@@ -168,13 +242,15 @@ describe('lazy-bus', () => {
     }
   })
 
-  it('scrolls for one final settling frame after lazy rendering completes', async () => {
+  it('holds the target until delayed layout changes settle after lazy rendering completes', async () => {
     vi.useFakeTimers()
 
     try {
       const id = 'tag/settling/GET/settling'
       const element = document.createElement('section')
       element.id = id
+      let top = 1000
+      vi.spyOn(element, 'getBoundingClientRect').mockImplementation(() => new DOMRect(0, top, 400, 30))
       const scrollIntoView = vi.fn()
       element.scrollIntoView = scrollIntoView
       document.body.append(element)
@@ -194,13 +270,20 @@ describe('lazy-bus', () => {
       await nextTick()
       await nextTick()
 
-      // Completing the bus must leave one frame to settle the rendered layout.
+      // The queue can finish before later sections change height.
       scrollIntoView.mockClear()
       vi.advanceTimersToNextFrame()
       expect(scrollIntoView).toHaveBeenCalledTimes(1)
 
+      await vi.advanceTimersByTimeAsync(80)
+      top += 1200
+      await vi.advanceTimersByTimeAsync(100)
       scrollIntoView.mockClear()
       vi.advanceTimersToNextFrame()
+      expect(scrollIntoView).toHaveBeenCalledTimes(1)
+
+      await vi.advanceTimersByTimeAsync(200)
+      scrollIntoView.mockClear()
       vi.advanceTimersToNextFrame()
       expect(scrollIntoView).not.toHaveBeenCalled()
     } finally {
@@ -208,9 +291,251 @@ describe('lazy-bus', () => {
     }
   })
 
+  it.each(['wheel', 'touchstart', 'pointerdown', 'keydown'])(
+    'releases the target and pending retries when the reader sends %s input',
+    async (eventType) => {
+      vi.useFakeTimers()
+      const id = `cancel-${eventType}`
+      scrollToLazy(
+        id,
+        () => undefined,
+        () => undefined,
+      )
+      await nextTick()
+      const event = eventType === 'keydown' ? new KeyboardEvent('keydown', { key: 'PageDown' }) : new Event(eventType)
+      window.dispatchEvent(event)
+
+      // The target appears after cancellation, as it can during slow lazy rendering.
+      const element = document.createElement('h2')
+      element.id = id
+      element.scrollIntoView = vi.fn()
+      document.body.append(element)
+      await vi.advanceTimersByTimeAsync(500)
+      expect(element.scrollIntoView).not.toHaveBeenCalled()
+    },
+  )
+
+  it('does not retry an obsolete destination after a newer navigation', async () => {
+    vi.useFakeTimers()
+    scrollToLazy(
+      'obsolete-target',
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    const latest = document.createElement('h2')
+    latest.id = 'latest-target'
+    latest.scrollIntoView = vi.fn()
+    document.body.append(latest)
+    scrollToLazy(
+      latest.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+
+    const obsolete = document.createElement('h2')
+    obsolete.id = 'obsolete-target'
+    obsolete.scrollIntoView = vi.fn()
+    document.body.append(obsolete)
+    await vi.advanceTimersByTimeAsync(100)
+    expect(obsolete.scrollIntoView).not.toHaveBeenCalled()
+    expect(latest.scrollIntoView).toHaveBeenCalled()
+  })
+
+  it('bounds the hold when layout keeps changing', async () => {
+    vi.useFakeTimers()
+    const element = document.createElement('h2')
+    element.id = 'continuously-moving-target'
+    element.scrollIntoView = vi.fn()
+    vi.spyOn(element, 'getBoundingClientRect').mockImplementation(() => new DOMRect(0, Date.now(), 400, 30))
+    document.body.append(element)
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(3300)
+    vi.mocked(element.scrollIntoView).mockClear()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(element.scrollIntoView).not.toHaveBeenCalled()
+  })
+
+  it('keeps retrying a missing property before falling back to its operation', async () => {
+    vi.useFakeTimers()
+    const fallback = document.createElement('h2')
+    fallback.id = 'tag/fallback/GET/fallback'
+    fallback.scrollIntoView = vi.fn()
+    document.body.append(fallback)
+    const missing = `${fallback.id}.body.missing`
+    scrollToLazy(
+      missing,
+      () => undefined,
+      (id) => (id === fallback.id ? { id } : undefined),
+    )
+    // A large document can spend time flushing Vue before the first scroll attempt.
+    vi.advanceTimersByTime(200)
+    await nextTick()
+    requestLazyRender(missing, true)
+    await nextTick()
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(3100)
+    expect(fallback.scrollIntoView).toHaveBeenCalledTimes(1)
+  })
+
+  it('holds an already-rendered target while other layout work settles', async () => {
+    vi.useFakeTimers()
+    const element = document.createElement('h2')
+    element.id = 'ready-target'
+    element.scrollIntoView = vi.fn()
+    document.body.append(element)
+    requestLazyRender(element.id, true)
+    await nextTick()
+    await nextTick()
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(80)
+    vi.mocked(element.scrollIntoView).mockClear()
+    vi.advanceTimersToNextFrame()
+    expect(element.scrollIntoView).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps intersection tracking paused through settling and releases it afterward', async () => {
+    vi.useFakeTimers()
+    vi.resetModules()
+    const bus = await import('./lazy-bus')
+    const element = document.createElement('h2')
+    element.id = 'intersection-target'
+    element.scrollIntoView = vi.fn()
+    document.body.append(element)
+    bus.scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    bus.requestLazyRender(element.id, true)
+    await nextTick()
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(120)
+    expect(bus.intersectionEnabled.value).toBe(false)
+    await vi.advanceTimersByTimeAsync(200)
+    expect(bus.intersectionEnabled.value).toBe(true)
+  })
+
+  it.each([false, true])('releases a scrollbar movement without pointer input (nested: %s)', async (nested) => {
+    vi.useFakeTimers()
+    const wrapper = document.createElement('main')
+    wrapper.style.overflowY = 'auto'
+    const container = nested ? wrapper : document.documentElement
+    container.scrollTop = 0
+    const element = document.createElement('h2')
+    element.id = `scrollbar-target-${nested}`
+    vi.spyOn(element, 'getBoundingClientRect').mockImplementation(
+      () => new DOMRect(0, 1000 - container.scrollTop, 400, 30),
+    )
+    element.scrollIntoView = vi.fn(() => {
+      container.scrollTop = 1000
+    })
+    wrapper.append(element)
+    document.body.append(wrapper)
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+
+    container.scrollTop = 1200
+    container.dispatchEvent(new Event('scroll'))
+    vi.mocked(element.scrollIntoView).mockClear()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(container.scrollTop).toBe(1200)
+    expect(element.scrollIntoView).not.toHaveBeenCalled()
+  })
+
+  it('ignores scroll events from its own position corrections', async () => {
+    vi.useFakeTimers()
+    const element = document.createElement('h2')
+    element.id = 'own-scroll-target'
+    vi.spyOn(element, 'getBoundingClientRect').mockImplementation(
+      () => new DOMRect(0, 1000 - document.documentElement.scrollTop, 400, 30),
+    )
+    element.scrollIntoView = vi.fn(() => {
+      document.documentElement.scrollTop = 1000
+    })
+    document.body.append(element)
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    document.dispatchEvent(new Event('scroll'))
+    vi.mocked(element.scrollIntoView).mockClear()
+    vi.advanceTimersToNextFrame()
+    expect(element.scrollIntoView).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps holding when native anchoring scrolls during a layout change', async () => {
+    vi.useFakeTimers()
+    const element = document.createElement('h2')
+    element.id = 'anchored-scroll-target'
+    let layoutTop = 1000
+    vi.spyOn(element, 'getBoundingClientRect').mockImplementation(
+      () => new DOMRect(0, layoutTop - document.documentElement.scrollTop, 400, 30),
+    )
+    element.scrollIntoView = vi.fn(() => {
+      document.documentElement.scrollTop = layoutTop
+    })
+    document.body.append(element)
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+
+    layoutTop = 2200
+    document.documentElement.scrollTop = 2200
+    document.dispatchEvent(new Event('scroll'))
+    vi.mocked(element.scrollIntoView).mockClear()
+    vi.advanceTimersToNextFrame()
+    expect(element.scrollIntoView).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not read non-scrolling ancestors on each holding frame', async () => {
+    vi.useFakeTimers()
+    const wrapper = document.createElement('div')
+    wrapper.style.overflowY = 'visible'
+    const readScrollTop = vi.fn(() => 0)
+    Object.defineProperty(wrapper, 'scrollTop', { get: readScrollTop })
+    const element = document.createElement('h2')
+    element.id = 'cached-scroll-target'
+    element.scrollIntoView = vi.fn()
+    wrapper.append(element)
+    document.body.append(wrapper)
+    scrollToLazy(
+      element.id,
+      () => undefined,
+      () => undefined,
+    )
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(readScrollTop).not.toHaveBeenCalled()
+  })
+
   afterEach(() => {
+    window.dispatchEvent(new Event('wheel'))
+    vi.useRealTimers()
     vi.restoreAllMocks()
     document.body.replaceChildren()
+    document.documentElement.scrollTop = 0
   })
 
   it.each([

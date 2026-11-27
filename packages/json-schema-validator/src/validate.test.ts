@@ -11,6 +11,33 @@ const schema = {
 }
 
 describe('validate', () => {
+  it('validates YAML with many references to a shared value', () => {
+    const document = [
+      'shared: &shared value',
+      ...Array.from({ length: 200 }, (_, index) => `item${index}: *shared`),
+    ].join('\n')
+
+    expect(validate(document, { type: 'object', additionalProperties: { const: 'value' } })).toStrictEqual({
+      valid: true,
+      errors: [],
+    })
+  })
+
+  it('reports excessive YAML alias expansion and respects throwOnError', () => {
+    const document = [
+      'l0: &l0 value',
+      ...Array.from(
+        { length: 5 },
+        (_, index) => `l${index + 1}: &l${index + 1} [${Array(10).fill(`*l${index}`).join(', ')}]`,
+      ),
+    ].join('\n')
+
+    const result = validate(document, { type: 'object' })
+    expect(result.valid).toBe(false)
+    expect(result.errors[0]?.message).toContain('Excessive alias count')
+    expect(() => validate(document, { type: 'object' }, { throwOnError: true })).toThrow('Excessive alias count')
+  })
+
   it('passes a valid document', () => {
     expect(validate({ name: 'Hello' }, schema).valid).toBe(true)
   })

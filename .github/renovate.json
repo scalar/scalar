@@ -1,369 +1,95 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["security:only-security-updates", "helpers:pinGitHubActionDigests"],
-  "dependencyDashboard": false,
+  "dependencyDashboard": {
+    "enabled": false
+  },
+  "timezone": "Europe/Berlin",
+  "schedule": ["* 6-9 * * 1"],
   "prConcurrentLimit": 5,
   "prHourlyLimit": 0,
   "labels": ["dependencies"],
   "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps",
   "rangeStrategy": "bump",
+  "constraints": {
+    "ghActionsLock": "v0.5.1"
+  },
   "vulnerabilityAlerts": {
-    "prConcurrentLimit": 5,
     "rangeStrategy": "bump",
-    "assignees": ["@hanspagel"]
+    "assignees": ["@hanspagel"],
+    "labels": ["dependencies", "security"]
   },
   "recreateWhen": "never",
+  "enabledManagers": [
+    "npm",
+    "github-actions",
+    "dockerfile",
+    "docker-compose",
+    "devcontainer",
+    "cargo",
+    "gomod",
+    "maven",
+    "nuget",
+    "pip_requirements",
+    "pep621",
+    "nvm",
+    "custom.regex"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/.*\\.ya?ml$/"],
+      "matchStrings": ["NETLIFY_CLI_VERSION:\\s*['\"]?(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)"],
+      "depNameTemplate": "netlify",
+      "datasourceTemplate": "npm"
+    }
+  ],
   "packageRules": [
     {
-      "description": "Keep this in sync with package.json minimumReleaseAge",
+      "description": "Keep npm release age aligned with pnpm-workspace.yaml",
       "matchDatasources": ["npm"],
-      "minimumReleaseAge": "5 days"
-    },
-
-    {
-      "description": "Group minor and patch dependencies",
-      "matchUpdateTypes": ["patch", "minor"],
-      "matchPackageNames": ["*"],
-      "groupName": "minor patch dependencies"
-    },
-
-    {
-      "description": "Update commit prefix for separate scope",
-      "matchFileNames": [
-        "packages/**",
-        "package.json",
-        "pnpm-workspace.yaml",
-        "integrations/**",
-        "examples/**",
-        "projects/**",
-        "tooling/**"
-      ],
-      "semanticCommits": "enabled",
-      "semanticCommitScope": "{{{additionalBranchPrefix}}}",
-      "semanticCommitType": "chore"
-    },
-
-    {
-      "description": "Packages - API Client",
-      "matchFileNames": ["packages/api-client/**"],
-      "additionalBranchPrefix": "api-client"
+      "minimumReleaseAge": "1 day"
     },
     {
-      "description": "Packages - API Client React",
-      "matchFileNames": ["packages/api-client-react/**"],
-      "additionalBranchPrefix": "api-client-react"
+      "description": "One weekly npm dependency PR, including npm tools pinned in CI",
+      "matchDatasources": ["npm", "node-version"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "npm dependencies",
+      "semanticCommitScope": "deps"
     },
     {
-      "description": "Packages - API Reference",
-      "matchFileNames": ["packages/api-reference/**"],
-      "additionalBranchPrefix": "api-reference"
-    },
-    {
-      "description": "Packages - API Reference React",
-      "matchFileNames": ["packages/api-reference-react/**"],
-      "additionalBranchPrefix": "api-reference-react"
-    },
-    {
-      "description": "Packages - Build Tooling",
-      "matchFileNames": ["packages/build-tooling/**"],
-      "additionalBranchPrefix": "build-tooling"
-    },
-    {
-      "description": "Packages - Code Highlight",
-      "matchFileNames": ["packages/code-highlight/**"],
-      "additionalBranchPrefix": "code-highlight"
-    },
-    {
-      "description": "Packages - Components",
-      "matchFileNames": ["packages/components/**"],
-      "additionalBranchPrefix": "components"
-    },
-    {
-      "description": "Packages - Config",
-      "matchFileNames": ["packages/config/**"],
-      "additionalBranchPrefix": "config"
-    },
-    {
-      "description": "Packages - Core",
-      "matchFileNames": ["packages/core/**"],
-      "additionalBranchPrefix": "core"
-    },
-    {
-      "description": "Packages - Draggable",
-      "matchFileNames": ["packages/draggable/**"],
-      "additionalBranchPrefix": "draggable"
-    },
-    {
-      "description": "Packages - Galaxy",
-      "matchFileNames": ["packages/galaxy/**"],
-      "additionalBranchPrefix": "galaxy"
-    },
-    {
-      "description": "Packages - Helpers",
-      "matchFileNames": ["packages/helpers/**"],
-      "additionalBranchPrefix": "helpers"
-    },
-    {
-      "description": "Packages - Icons",
-      "matchFileNames": ["packages/icons/**"],
-      "additionalBranchPrefix": "icons"
-    },
-    {
-      "description": "Packages - Import",
-      "matchFileNames": ["packages/import/**"],
-      "additionalBranchPrefix": "import"
-    },
-    {
-      "description": "Packages - JSON Diff",
-      "matchFileNames": ["packages/json-diff/**"],
-      "additionalBranchPrefix": "json-diff"
-    },
-    {
-      "description": "Packages - Mock Server",
-      "matchFileNames": ["packages/mock-server/**"],
-      "additionalBranchPrefix": "mock-server"
-    },
-    {
-      "description": "Packages - NextJS OpenAPI",
-      "matchFileNames": ["packages/nextjs-openapi/**"],
-      "additionalBranchPrefix": "nextjs-openapi"
-    },
-    {
-      "description": "Packages - OAS Utils",
-      "matchFileNames": ["packages/oas-utils/**"],
-      "additionalBranchPrefix": "oas-utils"
-    },
-    {
-      "description": "Packages - Object Utils",
-      "matchFileNames": ["packages/object-utils/**"],
-      "additionalBranchPrefix": "object-utils"
-    },
-    {
-      "description": "Packages - OpenAPI Parser",
-      "matchFileNames": ["packages/openapi-parser/**"],
-      "additionalBranchPrefix": "openapi-parser"
-    },
-    {
-      "description": "Packages - OpenAPI to Markdown",
-      "matchFileNames": ["packages/openapi-to-markdown/**"],
-      "additionalBranchPrefix": "openapi-to-markdown"
-    },
-    {
-      "description": "Packages - OpenAPI Types",
-      "matchFileNames": ["packages/openapi-types/**"],
-      "additionalBranchPrefix": "openapi-types"
-    },
-    {
-      "description": "Packages - Postman to OpenAPI",
-      "matchFileNames": ["packages/postman-to-openapi/**"],
-      "additionalBranchPrefix": "postman-to-openapi"
-    },
-    {
-      "description": "Packages - React Renderer",
-      "matchFileNames": ["packages/react-renderer/**"],
-      "additionalBranchPrefix": "react-renderer"
-    },
-    {
-      "description": "Packages - Scripts",
-      "matchFileNames": ["packages/scripts/**"],
-      "additionalBranchPrefix": "scripts"
-    },
-    {
-      "description": "Packages - Snippetz",
-      "matchFileNames": ["packages/snippetz/**"],
-      "additionalBranchPrefix": "snippetz"
-    },
-    {
-      "description": "Packages - Themes",
-      "matchFileNames": ["packages/themes/**"],
-      "additionalBranchPrefix": "themes"
-    },
-    {
-      "description": "Packages - TypeScript to OpenAPI",
-      "matchFileNames": ["packages/ts-to-openapi/**"],
-      "additionalBranchPrefix": "ts-to-openapi"
-    },
-    {
-      "description": "Packages - Types",
-      "matchFileNames": ["packages/types/**"],
-      "additionalBranchPrefix": "types"
-    },
-    {
-      "description": "Packages - Use CodeMirror",
-      "matchFileNames": ["packages/use-codemirror/**"],
-      "additionalBranchPrefix": "use-codemirror"
-    },
-    {
-      "description": "Packages - Use Hooks",
-      "matchFileNames": ["packages/use-hooks/**"],
-      "additionalBranchPrefix": "use-hooks"
-    },
-    {
-      "description": "Packages - Use Toasts",
-      "matchFileNames": ["packages/use-toasts/**"],
-      "additionalBranchPrefix": "use-toasts"
-    },
-    {
-      "description": "Packages - Void Server",
-      "matchFileNames": ["packages/void-server/**"],
-      "additionalBranchPrefix": "void-server"
-    },
-    {
-      "description": "Packages - Workspace Store",
-      "matchFileNames": ["packages/workspace-store/**"],
-      "additionalBranchPrefix": "workspace-store"
-    },
-    {
-      "description": "Packages - OpenAPI Upgrader",
-      "matchFileNames": ["packages/openapi-upgrader/**"],
-      "additionalBranchPrefix": "openapi-upgrader"
-    },
-    {
-      "description": "Packages - Pre Post Request Scripts",
-      "matchFileNames": ["packages/pre-post-request-scripts/**"],
-      "additionalBranchPrefix": "pre-post-request-scripts"
-    },
-    {
-      "description": "Packages - Sidebar",
-      "matchFileNames": ["packages/sidebar/**"],
-      "additionalBranchPrefix": "sidebar"
-    },
-    {
-      "description": "Packages - Use Tooltip",
-      "matchFileNames": ["packages/use-tooltip/**"],
-      "additionalBranchPrefix": "use-tooltip"
-    },
-
-    {
-      "description": "Workspace Dependencies",
-      "matchFileNames": ["pnpm-workspace.yaml"],
-      "additionalBranchPrefix": "workspace"
-    },
-
-    {
-      "description": "Root Dependencies",
-      "matchFileNames": ["package.json"],
-      "additionalBranchPrefix": "root"
-    },
-
-    {
-      "description": "Tooling",
-      "matchFileNames": ["tooling/**"],
-      "additionalBranchPrefix": "tooling"
-    },
-
-    {
-      "description": "Integrations - .NET",
-      "matchFileNames": ["integrations/dotnet/**"],
-      "additionalBranchPrefix": "dotnet"
-    },
-    {
-      "description": "Integrations - Django Ninja",
-      "matchFileNames": ["integrations/django-ninja/**"],
-      "additionalBranchPrefix": "django-ninja"
-    },
-    {
-      "description": "Integrations - Docker",
-      "matchFileNames": ["integrations/docker/**"],
-      "additionalBranchPrefix": "docker"
-    },
-    {
-      "description": "Integrations - Docusaurus",
-      "matchFileNames": ["integrations/docusaurus/**"],
-      "additionalBranchPrefix": "docusaurus"
-    },
-    {
-      "description": "Integrations - FastAPI",
-      "matchFileNames": ["integrations/fastapi/**"],
-      "additionalBranchPrefix": "fastapi"
-    },
-    {
-      "description": "Integrations - Fastify",
-      "matchFileNames": ["integrations/fastify/**"],
-      "additionalBranchPrefix": "fastify"
-    },
-    {
-      "description": "Integrations - Hono",
-      "matchFileNames": ["integrations/hono/**"],
-      "additionalBranchPrefix": "hono"
-    },
-    {
-      "description": "Integrations - Java",
-      "matchFileNames": ["integrations/java/**"],
-      "additionalBranchPrefix": "java"
-    },
-    {
-      "description": "Integrations - NestJS",
-      "matchFileNames": ["integrations/nestjs/**", "examples/nestjs/**"],
-      "additionalBranchPrefix": "nestjs"
-    },
-    {
-      "description": "Integrations - Next.js",
-      "matchFileNames": ["integrations/nextjs/**", "examples/nextjs-api-reference/**"],
-      "additionalBranchPrefix": "nextjs"
-    },
-    {
-      "description": "Integrations - Nuxt",
-      "matchFileNames": ["integrations/nuxt/**", "examples/nuxt/**"],
-      "additionalBranchPrefix": "nuxt"
-    },
-    {
-      "description": "Integrations - Rust",
-      "matchFileNames": ["integrations/rust/**"],
-      "additionalBranchPrefix": "rust"
-    },
-    {
-      "description": "Integrations - SvelteKit",
-      "matchFileNames": ["integrations/sveltekit/**", "examples/sveltekit/**"],
-      "additionalBranchPrefix": "sveltekit"
-    },
-    {
-      "description": "Integrations - Astro",
-      "matchFileNames": ["integrations/astro/**"],
-      "additionalBranchPrefix": "astro"
-    },
-
-    {
-      "description": "Projects - Proxy Scalar.com",
-      "matchFileNames": ["projects/proxy-scalar-com/**"],
-      "additionalBranchPrefix": "proxy-scalar-com"
-    },
-    {
-      "description": "Scripts",
-      "matchFileNames": ["tooling/scripts/**"],
-      "additionalBranchPrefix": "tooling-scripts"
-    },
-
-    {
-      "description": "Examples - React",
-      "matchFileNames": ["examples/react/**", "examples/react-webpack/**"],
-      "additionalBranchPrefix": "react-example"
-    },
-    {
-      "description": "Examples - SSG",
-      "matchFileNames": ["examples/ssg/**"],
-      "additionalBranchPrefix": "ssg-example"
-    },
-
-    {
-      "description": "Do not group GitHub actions",
+      "description": "One weekly GitHub Actions PR across all workflows",
+      "matchManagers": ["github-actions"],
       "matchDepTypes": ["action"],
-      "groupName": null
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "GitHub Actions",
+      "semanticCommitScope": "actions"
     },
-
     {
-      "description": "Group official patch and minor updates for official GitHub actions",
-      "matchDepTypes": ["action"],
-      "matchPackageNames": ["actions/**"],
-      "matchUpdateTypes": ["patch", "minor", "digest"],
-      "groupName": "official-github-actions"
+      "description": "One weekly Docker PR, including container images used by GitHub Actions",
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "Docker images",
+      "semanticCommitScope": "docker"
     },
-
     {
-      "description": "Third-party GitHub Actions that receive secrets at runtime. Updates must be reviewed individually — never auto-merge, never group.",
+      "description": "One weekly native dependency PR across Python, Rust, Go, Java, and .NET",
+      "matchManagers": ["cargo", "gomod", "maven", "nuget", "pip_requirements", "pep621"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "native dependencies",
+      "semanticCommitScope": "deps"
+    },
+    {
+      "description": "Keep updates Renovate flags as breaking out of the weekly groups",
+      "matchIsBreaking": true,
+      "groupName": null,
+      "semanticCommitScope": "deps"
+    },
+    {
+      "description": "Retain review warnings for secret-consuming actions in the weekly GitHub Actions group",
       "matchDepTypes": ["action"],
       "matchPackageNames": [
-        "relative-ci/agent-action",
         "cloudflare/wrangler-action",
         "changesets/action",
         "peter-evans/create-pull-request",
@@ -372,31 +98,82 @@
         "daun/playwright-report-summary",
         "thollander/actions-comment-pull-request",
         "amannn/action-semantic-pull-request",
-        "fjogeleit/http-request-action",
         "useblacksmith/build-push-action",
         "docker/login-action"
       ],
-      "groupName": null,
       "automerge": false,
-      "labels": ["dependencies", "security-sensitive"],
+      "addLabels": ["security-sensitive"],
       "prBodyNotes": [
-        ":lock: **Security-sensitive update.** This action receives secrets at runtime. Review the diff between the current and target commit SHAs before merging. Check the action's changelog and any third-party dependencies it pulls in."
+        ":lock: **Security-sensitive update.** This PR includes one or more actions that receive secrets at runtime. Review each affected action's diff between the current and target commit SHAs, its changelog, and any third-party dependencies it pulls in before merging."
       ]
     },
-
+    {
+      "description": "Keep public peer compatibility ranges for deliberate manual changes",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["peerDependencies"],
+      "enabled": false
+    },
+    {
+      "description": "Preserve the Node 24 runtime and type lane; Node 26 is deferred",
+      "matchDatasources": ["npm", "node-version"],
+      "matchPackageNames": ["node", "@types/node"],
+      "allowedVersions": "^24.0.0"
+    },
+    {
+      "description": "Preserve TypeScript 5 consumer and Nuxt compatibility",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["typescript"],
+      "matchCurrentVersion": "^5.0.0",
+      "allowedVersions": "^5.0.0"
+    },
+    {
+      "description": "Preserve the TypeScript 6 compiler API lane",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["typescript"],
+      "matchCurrentVersion": "^6.0.0",
+      "allowedVersions": "^6.0.0"
+    },
+    {
+      "description": "Defer type-fest 6 to preserve existing consumer compiler support",
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["type-fest"],
+      "allowedVersions": "^5.0.0"
+    },
+    {
+      "description": "Hold vue-tsc until the known compiler crashes and diagnostics are resolved",
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["vue-tsc"],
+      "allowedVersions": "3.3.11"
+    },
+    {
+      "description": "Hold Nuxt module-builder until its transformer peer mismatch is resolved",
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["@nuxt/module-builder"],
+      "allowedVersions": "1.0.2"
+    },
+    {
+      "description": "Hold CVA at the beta supporting existing public consumers",
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["cva"],
+      "allowedVersions": "1.0.0-beta.4"
+    },
+    {
+      "description": "Keep the deliberate Rolldown and Astro alignment until reviewed together",
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["rolldown"],
+      "allowedVersions": "1.3.2"
+    },
     {
       "description": "Disable engine updates like node, github runner, and uses-with",
       "matchDepTypes": ["engines", "github-runner", "uses-with"],
       "enabled": false
     },
-
     {
       "description": "Keep these packages as low as possible for best compatibility",
       "matchFileNames": ["integrations/dotnet/Directory.Packages.props"],
       "matchPackageNames": ["Microsoft.AspNetCore.OpenApi", "Swashbuckle.AspNetCore.SwaggerGen"],
       "enabled": false
     },
-
     {
       "description": "Disable patch updates for Aspire.Hosting for best compatibility",
       "matchFileNames": ["integrations/dotnet/Directory.Packages.props"],
@@ -404,45 +181,122 @@
       "matchUpdateTypes": ["patch"],
       "enabled": false
     },
-
     {
       "description": "Allow unstable updates for Aspire.Hosting.Docker and Aspire.Hosting.Keycloak since no stable packages exist yet",
       "matchPackageNames": ["Aspire.Hosting.Docker", "Aspire.Hosting.Keycloak"],
       "ignoreUnstable": false
     },
-
     {
       "description": "Disable any docker updates for Aspire",
       "matchFileNames": ["**/aspire/**"],
       "matchDatasources": ["docker"],
       "enabled": false
     },
-
     {
       "description": "Disable .NET SDK updates",
       "matchFileNames": ["**/global.json"],
       "enabled": false
     },
-
     {
       "description": "Disable major updates for Microsoft.AspNetCore packages",
       "matchPackageNames": ["Microsoft.AspNetCore**"],
       "matchUpdateTypes": ["major"],
       "enabled": false
     },
-
     {
       "description": "Keep Spring Boot dependencies as low as possible for best compatibility",
       "matchFileNames": ["integrations/java/**"],
       "matchPackageNames": ["org.springframework.boot:*"],
       "enabled": false
     },
-
     {
       "description": "Disable updates for node docker images. We update images manually.",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["node**"],
       "enabled": false
+    },
+    {
+      "description": "Runner pins are synchronized by the image-gated npm update, never independently",
+      "matchManagers": ["github-actions"],
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["scalarapi/playwright-runner"],
+      "enabled": false
     }
-  ]
+  ],
+  "npm": {
+    "packageRules": [
+      {
+        "description": "Run after generated npm advisory rules, then gate Playwright lookup on published runner tags",
+        "matchManagers": ["npm"],
+        "matchPackageNames": ["@playwright/test"],
+        "overrideDatasource": "docker",
+        "overridePackageName": "scalarapi/playwright-runner",
+        "versioning": "semver"
+      },
+      {
+        "description": "Use one native npm update to synchronize every Playwright companion pin",
+        "matchDatasources": ["docker"],
+        "matchPackageNames": ["scalarapi/playwright-runner"],
+        "groupName": "Playwright client and runner",
+        "versioning": "semver",
+        "semanticCommitScope": "playwright",
+        "matchManagers": ["npm"],
+        "minimumReleaseAge": "1 day",
+        "bumpVersions": [
+          {
+            "name": "Playwright helper default",
+            "filePatterns": ["packages/helpers/src/playwright/docker.ts"],
+            "matchStrings": ["DEFAULT_PLAYWRIGHT_VERSION = '(?<version>[^']+)'"],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright selected image tag",
+            "filePatterns": ["tooling/scripts/src/commands/playwright-docker/release-tag"],
+            "matchStrings": ["^(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)\\s*$"],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright test-integrations runner",
+            "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
+            "matchStrings": [
+              "(?:^|\\n)  test-integrations:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
+            ],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright test-block-snapshots runner",
+            "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
+            "matchStrings": [
+              "(?:^|\\n)  test-block-snapshots:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
+            ],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright test-component-snapshots runner",
+            "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
+            "matchStrings": [
+              "(?:^|\\n)  test-component-snapshots:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
+            ],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright test-e2e-api-reference runner",
+            "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
+            "matchStrings": [
+              "(?:^|\\n)  test-e2e-api-reference:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
+            ],
+            "bumpType": "sync"
+          },
+          {
+            "name": "Playwright test-e2e-scalar-app runner",
+            "filePatterns": [".github/workflows/pr.yml", ".github/workflows/main.yml"],
+            "matchStrings": [
+              "(?:^|\\n)  test-e2e-scalar-app:[\\s\\S]*?scalarapi/playwright-runner:(?<version>[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9_.-]+)?)"
+            ],
+            "bumpType": "sync"
+          }
+        ]
+      }
+    ]
+  }
 }

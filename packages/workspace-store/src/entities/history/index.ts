@@ -1,3 +1,4 @@
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { reactive } from 'vue'
 
 import { type DocumentHistory, DocumentHistorySchema, type HistoryEntry } from '@/entities/history/schema'
@@ -110,38 +111,44 @@ export const createHistoryStore = ({
   const history = reactive<DocumentHistory>({})
 
   const getHistory: HistoryStore['getHistory'] = (documentName, path, method) => {
-    return history[documentName]?.[path]?.[method]
+    return getOwnEntry(getOwnEntry(getOwnEntry(history, documentName), path), method)
   }
 
   const addHistory: HistoryStore['addHistory'] = (documentName, path, method, entry) => {
-    history[documentName] ||= {}
-    history[documentName][path] ||= {}
-    history[documentName][path][method] ||= []
-
-    // We want to make sure that the history is not full
-    if (history[documentName][path][method].length >= HISTORY_LIMIT) {
-      // Delete the oldest entry
-      // We need to unpack the history array to avoid proxy object issues
-      history[documentName][path][method] = unpackProxyObject(
-        history[documentName][path][method].filter((_, i) => i !== 0),
-        { depth: 1 },
-      )
+    if ([documentName, path, method].includes('__proto__')) {
+      return
     }
 
-    // Add the new entry to the history
-    history[documentName][path][method].push(entry)
+    if (!getOwnEntry(history, documentName)) {
+      history[documentName] = {}
+    }
+    const documentHistory = history[documentName]!
+    if (!getOwnEntry(documentHistory, path)) {
+      documentHistory[path] = {}
+    }
+    const pathHistory = documentHistory[path]!
+    if (!getOwnEntry(pathHistory, method)) {
+      pathHistory[method] = []
+    }
+
+    // Keep only the most recent entries and unpack them before writing them back.
+    const entries = pathHistory[method]!
+    if (entries.length >= HISTORY_LIMIT) {
+      pathHistory[method] = unpackProxyObject(entries.slice(1), { depth: 1 })
+    }
+    pathHistory[method]!.push(entry)
 
     // Explicitly trigger the change event once after all modifications
     hooks?.onHistoryChange?.(documentName)
   }
 
   const clearOperationHistory: HistoryStore['clearOperationHistory'] = (documentName, path, method) => {
-    delete history[documentName]?.[path]?.[method]
+    delete getOwnEntry(getOwnEntry(history, documentName), path)?.[method]
     hooks?.onHistoryChange?.(documentName)
   }
 
   const clearPathHistory: HistoryStore['clearPathHistory'] = (documentName, path) => {
-    delete history[documentName]?.[path]
+    delete getOwnEntry(history, documentName)?.[path]
     hooks?.onHistoryChange?.(documentName)
   }
 
@@ -151,7 +158,8 @@ export const createHistoryStore = ({
   }
 
   const load: HistoryStore['load'] = (data) => {
-    const coercedData = coerceValue(DocumentHistorySchema, data)
+    const { __proto__: _reserved, ...documents } = data
+    const coercedData = coerceValue(DocumentHistorySchema, documents)
     safeAssign(history, coercedData)
 
     // Trigger change events for all loaded documents
