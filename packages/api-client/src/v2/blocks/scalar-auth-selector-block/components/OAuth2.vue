@@ -48,6 +48,10 @@ import {
   refreshOauth2Token,
   type CaptureOAuth2Callback,
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
+import {
+  PKCE_OPTIONS,
+  isPkceOption,
+} from '@/v2/blocks/scalar-auth-selector-block/helpers/pkce-options'
 import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
 import { DataTableRow } from '@/v2/components/data-table'
 import { useLocalization } from '@/v2/features/localization'
@@ -243,19 +247,6 @@ const canReset = (
       : ''
   return canResetSecretField(flow.value, field, value, fallback)
 }
-
-/**
- * The values the `x-usePkce` extension accepts.
- *
- * They live here rather than coming from `@scalar/types/entities`, because that module builds its
- * Zod schemas as soon as it loads, which would put all of Zod into the initial API Reference bundle
- * just for this list. Passing them to `handleOauth2Update` keeps them type-checked against the
- * workspace store's `x-usePkce` type.
- */
-const pkceOptions = ['SHA-256', 'plain', 'no'] as const
-
-const isPkceOption = (value: string): value is (typeof pkceOptions)[number] =>
-  (pkceOptions as readonly string[]).includes(value)
 
 /** Fixed-choice fields must never write an empty string into the document. */
 const handlePkceUpdate = (value: string): void => {
@@ -737,7 +728,7 @@ const handleSecretLocationUpdate = (value: string): void => {
 
     <DataTableRow v-if="'x-usePkce' in flow">
       <RequestAuthDataTableInput
-        :enum="pkceOptions"
+        :enum="PKCE_OPTIONS"
         :environment
         :modelValue="flow['x-usePkce']"
         readOnly
