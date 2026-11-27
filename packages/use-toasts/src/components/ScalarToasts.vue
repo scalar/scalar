@@ -89,8 +89,17 @@ const handleHostClose = async (): Promise<void> => {
   raise()
 }
 
-/** Move the toaster into the topmost open modal, or back home when there is none */
+/**
+ * Move the toaster into the topmost open modal, or back home when there is none
+ *
+ * A toast is often fired right before the modal it reports on closes, as in `toast(); modal.hide()`.
+ * So the caller and the render it queues finish first: a modal that is unmounted fires no `close`,
+ * and a toaster moved into it would be left in a detached dialog.
+ */
 const followModalHost = async (): Promise<void> => {
+  await Promise.resolve()
+  await nextTick()
+
   const next = findModalHost()
   if (next !== host.value) {
     host.value?.removeEventListener('close', handleHostClose)
