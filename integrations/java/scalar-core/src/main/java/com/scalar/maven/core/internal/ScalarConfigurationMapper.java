@@ -30,6 +30,7 @@ public class ScalarConfigurationMapper {
         // Basic properties
         config.setUrl(properties.getContent() == null ? properties.getUrl() : null);
         config.setProxyUrl(properties.getProxyUrl());
+        config.setTrustedLocalOrigins(properties.getTrustedLocalOrigins());
         config.setShowSidebar(properties.isShowSidebar());
         config.setShowBadgesInSidebar(properties.isShowBadgesInSidebar());
         config.setHideModels(properties.isHideModels());

@@ -111,6 +111,7 @@ describe('api-reference-configuration', () => {
         content: '{"openapi": "3.1.0"}',
         proxyUrl: 'https://proxy.example.com',
         oauth2RedirectUri: 'myapp://oauth/callback',
+        trustedLocalOrigins: ['http://auth.dev.internal:8080'],
         isEditable: true,
         showSidebar: true,
         hideModels: false,
@@ -152,9 +153,10 @@ describe('api-reference-configuration', () => {
       expect(() => apiReferenceConfigurationSchema.parse(completeConfig)).not.toThrow()
     })
 
-    it('validates oauth2RedirectUri configuration', () => {
+    it('preserves the OAuth redirect URI and trusted local origins', () => {
       const config = {
         oauth2RedirectUri: 'myapp://oauth/callback',
+        trustedLocalOrigins: ['http://auth.dev.internal:8080'],
       }
 
       expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject(config)

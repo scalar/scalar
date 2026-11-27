@@ -43,6 +43,39 @@ describe('oauth-device-authorization', () => {
     expect(fetcher).not.toHaveBeenCalled()
   })
 
+  it('verifies and polls on a trusted local origin without the hosted proxy', async () => {
+    vi.useFakeTimers()
+    const origin = 'http://auth.dev.internal:8080'
+    const verificationUri = `${origin}/verify`
+    const verificationUriComplete = `${verificationUri}?user_code=USER-CODE`
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        json({
+          ...device,
+          verification_uri: verificationUri,
+          verification_uri_complete: verificationUriComplete,
+        }),
+      )
+      .mockResolvedValueOnce(json({ access_token: 'access' }))
+    const onPrompt = vi.fn()
+    const result = authorizeDevice(
+      { ...flow, deviceAuthorizationUrl: `${origin}/device`, tokenUrl: `${origin}/token` },
+      [],
+      null,
+      'https://proxy.scalar.com',
+      {},
+      fetcher,
+      { onPrompt, signal: new AbortController().signal },
+      [origin],
+    )
+
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(await result).toStrictEqual([null, { accessToken: 'access' }])
+    expect(onPrompt.mock.calls).toStrictEqual([[{ userCode: 'USER-CODE', verificationUri, verificationUriComplete }]])
+    expect(fetcher.mock.calls.map(([url]) => url)).toStrictEqual([`${origin}/device`, `${origin}/token`])
+  })
+
   it('displays the code, waits between polls, backs off, and returns tokens', async () => {
     vi.useFakeTimers()
     const fetcher = vi

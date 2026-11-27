@@ -19,6 +19,26 @@ describe('is-allowed-oauth-url', () => {
   })
 
   it.each([
+    ['http://AUTH.dev.internal:8080/', true],
+    ['http://auth.dev.internal', false],
+    ['https://auth.dev.internal:8080', false],
+    ['http://auth.dev.internal.evil:8080', false],
+    ['http://auth.dev.internal:8080/authorize', false],
+    ['http://user@auth.dev.internal:8080', false],
+    ['http://auth.dev.internal:8080?option', false],
+  ])('checks configured origin %s exactly', (origin, expected) => {
+    expect(isAllowedOAuthUrl(new URL('http://auth.dev.internal:8080/authorize'), [origin])).toBe(expected)
+  })
+
+  it('rejects HTTP authorization URLs with user information on a configured origin', () => {
+    expect(
+      isAllowedOAuthUrl(new URL('http://test-user@auth.dev.internal:8080/authorize'), [
+        'http://auth.dev.internal:8080',
+      ]),
+    ).toBe(false)
+  })
+
+  it.each([
     'file:///tmp/authorization',
     'smb://example.invalid/share',
     'javascript:void(0)//',

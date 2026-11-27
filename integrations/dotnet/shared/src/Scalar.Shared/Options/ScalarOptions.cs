@@ -79,6 +79,11 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public string? ProxyUrl { get; set; }
 
     /// <summary>
+    /// HTTP(S) origins treated as local for API proxy routing and OAuth authorization.
+    /// </summary>
+    public string[]? TrustedLocalOrigins { get; set; }
+
+    /// <summary>
     /// Controls whether the sidebar is shown (default: shown).
     /// </summary>
     public bool? ShowSidebar { get; set; }

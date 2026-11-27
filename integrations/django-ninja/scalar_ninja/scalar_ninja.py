@@ -153,6 +153,11 @@ class ScalarConfig(BaseModel):
         description="The URL to use to set the Scalar Proxy. It is normally set to a Scalar API URL (https://proxy.scalar.com).",
     )
 
+    trusted_local_origins: list[str] | None = Field(
+        default=None,
+        description="HTTP(S) origins treated as local for API proxy routing and OAuth authorization.",
+    )
+
     scalar_favicon_url: str = Field(
         default="https://django-ninja.dev/img/favicon.png",
         description="The URL of the favicon to use. It is normally shown in the browser tab.",
@@ -450,6 +455,8 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
     # Only add options that differ from defaults
     if config.scalar_proxy_url:
         js_config["proxyUrl"] = config.scalar_proxy_url
+    if config.trusted_local_origins is not None:
+        js_config["trustedLocalOrigins"] = config.trusted_local_origins
 
     if config.layout != Layout.MODERN:
         js_config["layout"] = config.layout.value
