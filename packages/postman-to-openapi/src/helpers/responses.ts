@@ -1,3 +1,4 @@
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { HeaderList, Item, Response } from '@/types'
@@ -56,15 +57,18 @@ export function extractResponses(
     const savedContentType = parseMediaType(readHeader(response.header, 'Content-Type'))
     const mediaType = savedContentType ?? acceptMediaType ?? 'application/json'
 
+    const example = tryParseJson(response.body || '')
+
     const content =
       hasNoContentStatusCode && !hasExplicitBodyExample
         ? undefined
         : {
             [mediaType]: {
-              schema: inferSchemaFromExample(response.body || ''),
+              // Describe a JSON body by its parsed shape, not by the text it was saved as.
+              schema: inferSchemaFromExample(isJsonMediaType(mediaType) ? example : (response.body ?? '')),
               examples: {
                 default: {
-                  value: tryParseJson(response.body || ''),
+                  value: example,
                 },
               },
             },
