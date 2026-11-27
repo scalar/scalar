@@ -3212,6 +3212,24 @@ describe('getExampleFromSchema', () => {
     expect(JSON.parse(JSON.stringify(example))).toStrictEqual({ visible: null, additionalProperty: '' })
   })
 
+  it('continues to another dictionary key when a selected value is omitted', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      propertyNames: { type: 'string', enum: ['cpu', 'memory', 'disk'] },
+      additionalProperties: {
+        type: 'string',
+        oneOf: [
+          { type: 'string', const: 'visible' },
+          { type: 'string', const: 'hidden', writeOnly: true },
+        ],
+      },
+    }
+
+    const example = getExampleFromSchema(schema, { mode: 'read', compositionSelection: { 'memory.oneOf': 1 } })
+    expect(example).toStrictEqual({ cpu: 'visible', disk: 'visible' })
+  })
+
   it('uses allowed keys when adding entries after a custom name', () => {
     const schema: SchemaObject = {
       type: 'object',
@@ -3223,13 +3241,26 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual({ cpu: 1, memory: 1 })
   })
 
-  it('counts untyped dictionary entries against the example traversal budget', () => {
-    const dictionary: SchemaObject = { type: 'object', minProperties: 1_000, additionalProperties: true }
-    const names = Array.from({ length: 12 }, (_, index) => `dictionary${index}`)
+  it.each([
+    {
+      name: 'counts extra untyped dictionary entries against the traversal budget',
+      size: 12,
+      minProperties: 1_000,
+      expected: {},
+    },
+    {
+      name: 'keeps the single untyped entry in wide examples',
+      size: 5_000,
+      minProperties: undefined,
+      expected: { additionalProperty: 'anything' },
+    },
+  ])('$name', ({ size, minProperties, expected }) => {
+    const dictionary: SchemaObject = { type: 'object', minProperties, additionalProperties: true }
+    const names = Array.from({ length: size }, (_, index) => `dictionary${index}`)
     const properties = Object.fromEntries(names.map((name) => [name, dictionary]))
     const schema: SchemaObject = { type: 'object', properties }
 
-    expect(getExampleFromSchema(schema)).toStrictEqual(Object.fromEntries(names.map((name) => [name, {}])))
+    expect(getExampleFromSchema(schema)).toStrictEqual(Object.fromEntries(names.map((name) => [name, expected])))
   })
 
   describe('additionalProperties', () => {

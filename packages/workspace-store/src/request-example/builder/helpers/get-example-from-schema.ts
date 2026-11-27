@@ -42,7 +42,7 @@ const MAX_REDUCED_EXAMPLE_VISITS = 2_000
 /** Default name used for additional properties when no custom name is provided */
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
-/** Limit synthesized dictionary entries when a schema asks for an unusually large example. */
+/** Bound dictionary padding and retries when keys do not yield a renderable value. */
 const MAX_ADDITIONAL_PROPERTIES = 1_000
 
 /** Limit new padding when an API description asks for an unusually large example. */
@@ -1004,8 +1004,13 @@ const handleObjectSchema = (
       const candidateCount = propertyNamesEnum ? propertyNamesEnum.length + enumOffset : Number.POSITIVE_INFINITY
       const declaredProperties = schema.properties ?? {}
 
-      let remaining = additionalCount
-      for (let index = 0; remaining > 0 && index < candidateCount; index++) {
+      let added = 0
+      let evaluated = 0
+      for (
+        let index = 0;
+        index < candidateCount && added < additionalCount && evaluated < MAX_ADDITIONAL_PROPERTIES;
+        index++
+      ) {
         const suffix = index === 0 ? '' : String(index + 1)
         const enumIndex = index - enumOffset
         const key = propertyNamesEnum && enumIndex >= 0 ? String(propertyNamesEnum[enumIndex]) : baseName + suffix
@@ -1013,7 +1018,8 @@ const handleObjectSchema = (
           continue
         }
         // The first enum key historically used the placeholder path for composition selection.
-        const pathName = propertyNamesEnum && remaining === additionalCount ? baseName : key
+        const pathName = propertyNamesEnum && evaluated === 0 ? baseName : key
+        evaluated++
         let value: unknown = 'anything'
         if (!isAnyType && typeof additional === 'object') {
           value = getExampleFromSchema(additional, options, {
@@ -1023,17 +1029,20 @@ const handleObjectSchema = (
             seen,
             dynamicScope: childScope,
           })
-        } else {
-          // An untyped placeholder does not visit a child schema, but still expands the example.
+        } else if (added > 0) {
+          // Charge extra untyped placeholders without changing the cost of the usual single entry.
           visitsLeft--
         }
         if (visitsLeft < 0) {
           truncated = true
           break
         }
+        if (value === undefined && propertyCount + added < minProperties) {
+          continue
+        }
         // A dictionary key can have the same name as a property on Object.prototype.
         Object.defineProperty(response, key, { value, enumerable: true, configurable: true, writable: true })
-        remaining--
+        added++
       }
     }
   }
