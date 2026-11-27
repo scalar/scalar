@@ -334,12 +334,11 @@ export const createApiReference: CreateApiReference = (
         beforeMount.push(loadPluginsFromUrls(props.configuration))
       }
 
-      // Server-rendered markup is already in the configured locale. Built-in locales other than English
-      // load on demand, so hydrating before that dictionary arrives would render the English fallback
-      // and mismatch. Only wait when something actually needs to load, so English hydrates synchronously.
-      const localesToLoad = shouldHydrate
-        ? getConfiguredLocales(props.configuration).filter((locale) => !isLocaleLoaded(locale))
-        : []
+      // Built-in locales other than English load on demand. Mounting before the configured dictionary
+      // arrives would paint the English fallback and then switch languages, and hydrating would also
+      // mismatch the server markup, which is already translated. So both wait, alongside the plugins
+      // above. Only wait when something actually needs to load, so English mounts synchronously.
+      const localesToLoad = getConfiguredLocales(props.configuration).filter((locale) => !isLocaleLoaded(locale))
 
       if (localesToLoad.length) {
         beforeMount.push(Promise.all(localesToLoad.map((locale) => loadLocale(locale))))

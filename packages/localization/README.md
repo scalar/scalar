@@ -70,7 +70,7 @@ Instances register when their module is evaluated, so import the packages you re
 
 ### Server rendering
 
-Providers and consumers hold back server rendering (through Vue's `onServerPrefetch`) until the active locale has loaded, so `renderToString` produces translated markup without any host code. Before hydrating that markup in the browser, await `loadLocale` with the same locale; otherwise the client renders the English fallback first and the hydration does not match. `createApiReference` from `@scalar/api-reference` and the Nuxt integration already wait for the configured locale before they hydrate.
+Providers and consumers hold back server rendering (through Vue's `onServerPrefetch`) until the active locale has loaded, so `renderToString` produces translated markup without any host code. Before hydrating that markup in the browser, await `loadLocale` with the same locale; otherwise the client renders the English fallback first and the hydration does not match. `createApiReference` from `@scalar/api-reference` and the Nuxt integration already wait for the configured locale before they mount or hydrate.
 
 ## Community
 
