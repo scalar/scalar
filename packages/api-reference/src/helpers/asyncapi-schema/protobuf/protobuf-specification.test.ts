@@ -351,6 +351,10 @@ describe('protobuf-specification', () => {
     'option go_package. = "example"; message M {}',
     'option example = whatever.; message M {}',
     'option example = .unknown.; message M {}',
+    `syntax = 'proto3"; message M {}`,
+    'message M { string f = 1 [depre cated = true]; }',
+    'message M { string f = 1 [deprecated) = true]; }',
+    'enum E { ZERO = 0; ONE = +1; }',
   ])('falls back for malformed lists or qualified names: %s', (source) => {
     expect(() => readProtobuf(source, '3')).toThrow()
   })
@@ -372,6 +376,33 @@ describe('protobuf-specification', () => {
       'The second field.\nSecond line.',
       'The third field.',
       'The fourth field.',
+    ])
+  })
+
+  it.each([
+    [String.raw`\u0041`, 'A'],
+    [String.raw`\U0001F600`, '😀'],
+    [String.raw`\xA`, '\n'],
+    [String.raw`\41`, '!'],
+  ])('renders a proto2 default with escape %s', (literal, value) => {
+    const source = `message M { optional string x = 1 [default = "${literal}"]; }`
+    expect(readProtobuf(source, '2').nodes[0]?.children?.[0]?.details).toStrictEqual([
+      `Default: ${JSON.stringify(value)}`,
+    ])
+  })
+
+  it('keeps a continued trailing comment on the same field', () => {
+    const [node] = readProtobuf(
+      `message M {
+        string x = 1; // First line.
+        // Second line.
+        string y = 2;
+      }`,
+      '3',
+    ).nodes
+    expect(node?.children?.map(({ description }) => description)).toStrictEqual([
+      'First line.\nSecond line.',
+      undefined,
     ])
   })
 

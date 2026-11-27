@@ -1,13 +1,11 @@
 // @vitest-environment node
 
-import { execFileSync } from 'node:child_process'
+import { execFileSync, execSync } from 'node:child_process'
 import { cp, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve, sep } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
-
-import packageJson from '../package.json' with { type: 'json' }
 
 describe('published-parser', () => {
   it('includes the pbkit license in npm and in the browser assets that contain the parser', async () => {
@@ -17,7 +15,13 @@ describe('published-parser', () => {
     const standalone = await readFile(join(browser, 'standalone.js'), 'utf8')
     expect(normalize(standalone)).toContain(notice)
 
-    expect(packageJson.files).toContain('THIRD_PARTY_NOTICES')
+    const [pack]: [{ files: { path: string }[] }] = JSON.parse(
+      execSync('npm pack --dry-run --ignore-scripts --offline --json', {
+        cwd: resolve(import.meta.dirname, '..'),
+        encoding: 'utf8',
+      }),
+    )
+    expect(pack.files.map(({ path }) => path)).toContain('THIRD_PARTY_NOTICES')
 
     const directory = join(browser, 'chunks')
     const chunks = (await readdir(directory)).filter((file) => file.endsWith('.js.map'))

@@ -30,7 +30,7 @@ const validateReservations = (definition: MessageDefinition | EnumDefinition): v
 /** Reject options whose semantics the documentation adapter does not understand. */
 export const checkOptions = (options: Record<string, unknown> | undefined, allowed?: readonly string[]): void => {
   for (const [key, value] of Object.entries(options ?? {})) {
-    if (key.startsWith('(') || (allowed && !allowed.includes(key))) {
+    if (allowed && !allowed.includes(key)) {
       throw new Error('Unsupported Protobuf option')
     }
     if (['deprecated', 'allow_alias', 'packed', 'proto3_optional'].includes(key) && typeof value !== 'boolean') {

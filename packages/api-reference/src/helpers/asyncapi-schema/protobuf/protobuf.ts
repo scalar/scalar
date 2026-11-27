@@ -21,9 +21,6 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
     for (const value of Object.values(('nested' in namespace ? namespace.nested : undefined) ?? {})) {
       parents.set(value, namespace)
       value.fullName = `${namespace.fullName ?? ''}.${value.name}`
-      if (value.options && Object.keys(value.options).some((key) => key.startsWith('('))) {
-        throw new Error('Unsupported custom Protobuf options')
-      }
       if (isMessage(value) || isEnum(value)) {
         definitions.push(value)
       }

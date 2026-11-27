@@ -11,3 +11,5 @@ Allow sufficient lookahead for compact valid schemas while keeping a step limit 
 Keep a block comment adjacent when a single newline separates it from its declaration.
 
 Preserve inline descriptions when they belong to the next declaration.
+
+Recognize the Protobuf string escape forms used by proto2 defaults. Keep consecutive line comments together.

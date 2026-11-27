@@ -45,7 +45,10 @@ const qualifiedName = ({ identOrDots }: { identOrDots: { text: string }[] }): st
 
 const integer = (text: string): number => (/^0[0-7]+$/.test(text) ? Number.parseInt(text, 8) : Number(text))
 
-const signedInteger = ({ sign, value }: SignedIntLit): number => (sign?.text === '-' ? -1 : 1) * integer(value.text)
+const signedInteger = ({ sign, value }: SignedIntLit, context: 'declaration' | 'option' = 'declaration'): number => {
+  if (context === 'declaration' && sign?.text === '+') throw new Error('Malformed Protobuf integer')
+  return (sign?.text === '-' ? -1 : 1) * integer(value.text)
+}
 
 const escapeCharacters: Record<string, string> = {
   a: '\x07',
@@ -60,11 +63,14 @@ const escapeCharacters: Record<string, string> = {
 const stringLiteral = ({ tokens }: StrLit): string =>
   tokens
     .map(({ text }) =>
-      text.slice(1, -1).replace(/\\(x[\da-f]{2}|[0-7]{1,3}|.)/gi, (_match, escape: string) => {
-        if (escape[0]?.toLowerCase() === 'x') return String.fromCharCode(Number.parseInt(escape.slice(1), 16))
-        if (/^[0-7]/.test(escape)) return String.fromCharCode(Number.parseInt(escape, 8))
-        return escapeCharacters[escape] ?? escape
-      }),
+      text
+        .slice(1, -1)
+        .replace(/\\(u[\da-fA-F]{4}|U[\da-fA-F]{8}|[xX][\da-fA-F]{1,2}|[0-7]{1,3}|.)/g, (_match, escape: string) => {
+          if (escape[0] === 'u' || escape[0] === 'U') return String.fromCodePoint(Number.parseInt(escape.slice(1), 16))
+          if (escape[0]?.toLowerCase() === 'x') return String.fromCharCode(Number.parseInt(escape.slice(1), 16))
+          if (/^[0-7]/.test(escape)) return String.fromCharCode(Number.parseInt(escape, 8) % 256)
+          return escapeCharacters[escape] ?? escape
+        }),
     )
     .join('')
 
@@ -82,7 +88,7 @@ const constantValue = (constant: Constant): string | number | boolean => {
       return name
     }
     case 'signed-int-lit':
-      return signedInteger(constant)
+      return signedInteger(constant, 'option')
     case 'signed-float-lit': {
       const value = constant.value.text === 'inf' ? Number.POSITIVE_INFINITY : Number(constant.value.text)
       return constant.sign?.text === '-' ? -value : value
@@ -108,9 +114,10 @@ const addOption = (
   scope: 'file' | 'declaration' = 'declaration',
 ): void => {
   const name = optionName.optionNameSegmentOrDots
-    .map((segment) => {
+    .map((segment, index) => {
+      if ((segment.type === 'dot') !== (index % 2 === 1)) throw new Error('Malformed Protobuf option name')
       if (segment.type === 'dot') return '.'
-      if (segment.bracketOpen) throw new Error('Unsupported custom Protobuf option')
+      if (segment.bracketOpen || segment.bracketClose) throw new Error('Unsupported custom Protobuf option')
       return qualifiedName(segment.name)
     })
     .join('')
@@ -315,6 +322,8 @@ export const parseProtobuf = (source: string, defaultSyntax: Syntax): ProtoDocum
     switch (statement.type) {
       case 'syntax':
         if (statement !== declaration) throw new Error('Misplaced Protobuf syntax declaration')
+        if (statement.quoteOpen.text !== statement.quoteClose.text)
+          throw new Error('Malformed Protobuf syntax declaration')
         break
       case 'package': {
         if (scope !== root || seenDefinition) throw new Error('Misplaced Protobuf package declaration')
