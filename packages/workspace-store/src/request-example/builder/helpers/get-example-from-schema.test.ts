@@ -3131,6 +3131,15 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  it('fills the minimum with implicitly allowed additional properties', () => {
+    expect(getExampleFromSchema({ type: 'object', minProperties: 2 })).toStrictEqual({
+      additionalProperty: 'anything',
+      additionalProperty2: 'anything',
+    })
+    expect(getExampleFromSchema({ type: 'object', minProperties: 2, additionalProperties: false })).toStrictEqual({})
+    expect(getExampleFromSchema({ type: 'object', minProperties: 0 })).toStrictEqual({})
+  })
+
   it.each(['allOf', 'oneOf', 'anyOf'] as const)(
     'counts properties supplied by %s before padding the dictionary',
     (composition) => {
@@ -3189,7 +3198,7 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual({ feature: true, feature2: true })
   })
 
-  it('preserves composition selection for the first enum key', () => {
+  it('uses the dictionary composition selection for every enum key', () => {
     const schema: SchemaObject = {
       type: 'object',
       minProperties: 2,
@@ -3205,8 +3214,108 @@ describe('getExampleFromSchema', () => {
 
     expect(getExampleFromSchema(schema, { compositionSelection: { 'additionalProperty.oneOf': 1 } })).toStrictEqual({
       cpu: 'second',
-      memory: 'first',
+      memory: 'second',
     })
+    expect(
+      getExampleFromSchema(schema, { compositionSelection: { 'additionalProperty.oneOf': 1, 'memory.oneOf': 0 } }),
+    ).toStrictEqual({ cpu: 'second', memory: 'first' })
+  })
+
+  it('uses the custom composition path for every generated dictionary key', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      additionalProperties: {
+        type: 'boolean',
+        'x-additionalPropertiesName': 'feature',
+        anyOf: [
+          { type: 'boolean', const: false },
+          { type: 'boolean', const: true },
+        ],
+      },
+    }
+
+    expect(getExampleFromSchema(schema, { compositionSelection: { 'feature.anyOf': 1 } })).toStrictEqual({
+      feature: true,
+      feature2: true,
+    })
+  })
+
+  it.each([
+    { title: undefined, selection: 'propertyName.oneOf' },
+    { title: 'Metric', selection: 'Metric.oneOf' },
+  ])('uses the schema row selection at $selection', ({ title, selection }) => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      propertyNames: { type: 'string', title },
+      additionalProperties: {
+        type: 'string',
+        oneOf: [
+          { type: 'string', const: 'first' },
+          { type: 'string', const: 'second' },
+        ],
+      },
+    }
+
+    expect(getExampleFromSchema(schema, { compositionSelection: { [selection]: 1 } })).toStrictEqual({
+      additionalProperty: 'second',
+      additionalProperty2: 'second',
+    })
+  })
+
+  it('uses a propertyNames constant only once', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        minProperties: 2,
+        propertyNames: { type: 'string', const: 'cpu' },
+        additionalProperties: { type: 'integer', 'x-additionalPropertiesName': 'memory' },
+      }),
+    ).toStrictEqual({ cpu: 1 })
+  })
+
+  it('fits distinct generated keys within propertyNames length bounds', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        minProperties: 2,
+        propertyNames: { type: 'string', minLength: 1, maxLength: 1 },
+        additionalProperties: { type: 'integer' },
+      }),
+    ).toStrictEqual({ a: 1, '2': 1 })
+  })
+
+  it('generates dictionary keys that match the propertyNames pattern', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        minProperties: 2,
+        propertyNames: { type: 'string', pattern: '^metric-[0-9]+$', maxLength: 8 },
+        additionalProperties: { type: 'integer' },
+      }),
+    ).toStrictEqual({ 'metric-1': 1, 'metric-2': 1 })
+  })
+
+  it('uses the pattern schema for a matching key before padding with implicit additional entries', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        minProperties: 2,
+        patternProperties: { '^metric-[0-9]+$': { type: 'integer' } },
+      }),
+    ).toStrictEqual({ 'metric-1': 1, additionalProperty: 'anything' })
+  })
+
+  it('uses the pattern schema for every padded key matched by a catch-all pattern', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      patternProperties: { '^.*$': { type: 'integer' } },
+    }
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({ property: 1, additionalProperty: 1 })
+    expect(getExampleFromSchema({ ...schema, maxProperties: 0 })).toStrictEqual({})
   })
 
   it('limits the number of synthesized dictionary entries', () => {
@@ -3243,11 +3352,11 @@ describe('getExampleFromSchema', () => {
       expected: { cpu: 'visible', disk: 'visible' },
     },
     {
-      name: 'uses an allowed key when the preferred value is omitted',
+      name: 'omits every entry when the selected dictionary variant is write-only',
       minProperties: 1,
       preferredName: 'cpu',
       omittedName: 'cpu',
-      expected: { memory: 'visible' },
+      expected: {},
     },
   ])('$name', ({ minProperties, preferredName, omittedName, expected }) => {
     const schema: SchemaObject = {
@@ -3315,7 +3424,7 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual({ '2': 1, additionalProperty: '', additionalProperty3: '' })
   })
 
-  it('keeps the first dictionary key when a property pattern cannot be classified', () => {
+  it('uses a literal alternative as the pattern property key', () => {
     const schema: SchemaObject = {
       type: 'object',
       minProperties: 3,
@@ -3323,20 +3432,31 @@ describe('getExampleFromSchema', () => {
       additionalProperties: { type: 'string' },
     }
 
-    expect(getExampleFromSchema(schema)).toStrictEqual({ '^(foo|bar)$': '', additionalProperty: '' })
+    expect(getExampleFromSchema(schema)).toStrictEqual({ foo: '', additionalProperty: '', additionalProperty2: '' })
+  })
+
+  it('omits generated keys when a property pattern cannot be classified', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      patternProperties: { '^foo(bar|baz)$': { type: 'string' } },
+      additionalProperties: { type: 'string' },
+    }
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({})
   })
 
   it('bounds pattern checks during dictionary padding', () => {
-    const patterns = Array.from({ length: 501 }, (_, index) => `^named${index}$`)
+    const names = Array.from({ length: 501 }, (_, index) => `named${index}`)
     const schema: SchemaObject = {
       type: 'object',
-      minProperties: patterns.length + 2,
-      patternProperties: Object.fromEntries(patterns.map((pattern) => [pattern, { type: 'integer' }])),
+      minProperties: names.length + 2,
+      patternProperties: Object.fromEntries(names.map((name) => [`^${name}$`, { type: 'integer' }])),
       additionalProperties: { type: 'string' },
     }
 
     expect(getExampleFromSchema(schema)).toStrictEqual({
-      ...Object.fromEntries(patterns.map((pattern) => [pattern, 1])),
+      ...Object.fromEntries(names.map((name) => [name, 1])),
       additionalProperty: '',
     })
   })
@@ -3926,7 +4046,7 @@ describe('getExampleFromSchema', () => {
         }),
       ),
     ).toStrictEqual({
-      '^(.*)$': {
+      property: {
         dataId: '',
         link: 'https://example.com',
       },

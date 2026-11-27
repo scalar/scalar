@@ -8,6 +8,9 @@ describe('match-property-pattern', () => {
     ['^code_', 'other', false],
     ['^[a-z]+$', 'person', true],
     ['^x-.*$', 'x-example', true],
+    ['^(.*)$', 'property', true],
+    ['^(foo|bar)$', 'bar', true],
+    ['^(foo|bar)$', 'baz', false],
     ['[+()*|]+', '+++', true],
     ['\\(literal\\)', '(literal)', true],
   ] as const)('matches bounded pattern %s against %s', (pattern, name, expected) => {
