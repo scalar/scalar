@@ -657,6 +657,13 @@ describe('protobuf-specification', () => {
     expect(() => readProtobuf(source, version === '2' ? '3' : '2')).toThrow('Conflicting Protobuf version')
   })
 
+  it.each(['\r', '\r\n'])('accepts %j as whitespace between field tokens', (space) => {
+    const source = `message M { string id${space}=${space}1${space}; }`
+    expect(readProtobuf(source, '3').nodes[0]?.children).toStrictEqual([
+      { name: 'id', type: 'string', fieldNumber: 1, presence: 'implicit' },
+    ])
+  })
+
   it('renders compact schemas', () => {
     expect(readProtobuf('message M{string x=1;}', '3').nodes[0]?.children?.[0]?.name).toBe('x')
     expect(readProtobuf('message M{}', '3').nodes[0]?.type).toBe('message M')

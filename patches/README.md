@@ -15,3 +15,5 @@ Preserve inline descriptions when they belong to the next declaration.
 Recognize Protobuf string escapes in proto2 defaults and structured file options. Keep consecutive line comments together.
 
 Require complete numeric tokens in structured file options, including hexadecimal values.
+
+Treat standalone carriage returns as whitespace and CRLF as line breaks.

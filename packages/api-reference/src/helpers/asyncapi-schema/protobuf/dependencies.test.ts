@@ -40,9 +40,15 @@ describe('dependencies', () => {
   it('validates imported files with their own syntax and defaults unversioned dependencies to proto2', () => {
     const source = root.replace('models/a.proto', 'a.proto')
     expect(
-      readSchema(format, source, resources({ '/a.proto': 'package pkg; message A { required string id=1; }' }))
-        ?.nodes[0]?.children?.[0]?.children,
-    ).toStrictEqual([{ name: 'id', type: 'string', required: true, fieldNumber: 1 }])
+      readSchema(
+        format,
+        source,
+        resources({ '/a.proto': 'package pkg; message A { required string id=1; repeated int32 numbers=2; }' }),
+      )?.nodes[0]?.children?.[0]?.children,
+    ).toStrictEqual([
+      { name: 'id', type: 'string', required: true, fieldNumber: 1 },
+      { name: 'numbers', type: 'int32', fieldNumber: 2, repeated: true, details: ['packed: false'] },
+    ])
     expect(
       readSchema(
         format,
