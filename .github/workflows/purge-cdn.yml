@@ -1,0 +1,111 @@
+name: Purge CDN
+
+# Purge jsDelivr's cached @scalar/api-reference URLs once npm serves a new
+# release, and check that the CDN then serves it.
+#
+# npm scans every new version before it becomes installable (about five
+# minutes, sometimes 15 or more), so a purge sent straight after publishing
+# makes jsDelivr cache the previous version for another seven days. Waiting
+# for npm inside release.yml would hold the Main workflow, and with it the
+# CI-main-base-ci concurrency group, open for that long and queue the next
+# push to main. Running after Main completes keeps that wait off the release
+# path entirely.
+#
+# Each Main completion starts a runner. An ordinary run exits after four HEAD
+# requests if every alias is fresh. A release purges all aliases because a
+# fresh response from this runner cannot account for other CDN caches.
+
+on:
+  workflow_run:
+    workflows: [Main]
+    types: [completed]
+    branches: [main]
+  # Re-run the purge by hand, for example after a jsDelivr outage.
+  workflow_dispatch: null
+
+permissions:
+  contents: read
+
+concurrency:
+  # A later Main completion could otherwise replace a pending release purge.
+  # https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency#example-queueing-multiple-pending-runs
+  group: purge-cdn
+  queue: max
+
+jobs:
+  purge:
+    # Nothing here builds anything; a GitHub-hosted runner is free for this
+    # public repository, which matters because most of the job is waiting.
+    # ubuntu-slim is not an option because it caps jobs at 15 minutes.
+    runs-on: ubuntu-24.04
+    # The script allows 40 minutes for npm, leaving 20 minutes for setup,
+    # the 90-second cache settle, and up to five purge and verification rounds.
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      # Read the triggering Main run's jobs to see whether it published.
+      actions: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          # The purge script comes from the same revision as this workflow.
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /.nvmrc
+            /tooling/scripts/package.json
+            /tooling/scripts/purge-jsdelivr.ts
+          sparse-checkout-cone-mode: false
+
+      - name: Check whether the Main run published to npm
+        id: published
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+        run: |
+          # A manual run always waits for npm; that is why someone started it.
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
+            echo "wait_for_npm=true" >> "$GITHUB_OUTPUT"
+            echo "purge_all=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # A partial rerun can inherit the publish job from an earlier attempt.
+          for ((attempt = RUN_ATTEMPT; attempt > 0; attempt--)); do
+            result=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/attempts/$attempt/jobs" --paginate \
+              --jq '.jobs[] | select(.name == "release / npm-publish") |
+                {success: (.conclusion == "success"), published: any(.steps[]?; .name == "API Reference published to npm" and .conclusion == "success")}')
+            if [ -n "$result" ]; then
+              break
+            fi
+          done
+          # Other successful runs can repair stale aliases. Only publication
+          # of this package requires purging even when the local route is fresh.
+          jq -nr --argjson job "${result:-null}" \
+            '"wait_for_npm=\($job.success == true)", "purge_all=\($job.success == true and $job.published == true)"' >> "$GITHUB_OUTPUT"
+
+      - name: Read the API Reference version
+        id: release-version
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Use the triggering Main commit, or the selected ref's commit for a manual run.
+          VERSION_REF: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          gh api --header 'Accept: application/vnd.github.raw+json' \
+            "repos/$GITHUB_REPOSITORY/contents/packages/api-reference/package.json?ref=$VERSION_REF" | \
+            jq -er '.version | strings | select(test("^[0-9A-Za-z.+-]+$")) | "version=\(.)"' >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+          package-manager-cache: false
+
+      - name: Purge jsDelivr once npm serves the release
+        env:
+          VERSION: ${{ steps.release-version.outputs.version }}
+          PURGE_ALL: ${{ steps.published.outputs.purge_all }}
+          WAIT_FOR_NPM: ${{ steps.published.outputs.wait_for_npm }}
+        run: node ./tooling/scripts/purge-jsdelivr.ts

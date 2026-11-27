@@ -98,13 +98,15 @@ workflows:
         - 'peter-evans/dockerhub-description@v5.0.0'
         - 'useblacksmith/build-push-action@v2.3.0'
         - 'useblacksmith/setup-docker-builder@v2.4.0'
+    '.github/workflows/purge-cdn.yml':
+        - 'actions/checkout@v7.0.1'
+        - 'actions/setup-node@v7.1.0'
     '.github/workflows/release.yml':
         - 'actions/cache@v6.1.0'
         - 'actions/checkout@v7.0.1'
         - 'actions/create-github-app-token@v3.4.0'
         - 'actions/setup-node@v7.1.0'
         - 'changesets/action@v2.1.2'
-        - 'fjogeleit/http-request-action@v2.0.1'
         - 'pnpm/action-setup@v6.1.1'
         - 'step-security/changed-files@v47.0.5'
         - 'useblacksmith/stickydisk@v1.7.2'
@@ -287,11 +289,6 @@ dependencies:
         commit: 'sha1-a71ae3c1c05fa3c6fae4065438844513d41d893e'
         owner_id: 255444337
         repo_id: 1135911389
-    'fjogeleit/http-request-action@v2.0.1':
-        ref: 'v2.0.1'
-        commit: 'sha1-f98bb26551cd1af7d3eb2674578a80754ece88db'
-        owner_id: 16627596
-        repo_id: 242669075
     'nuget/login@v1.2.0':
         ref: 'v1.2.0'
         commit: 'sha1-8d196754b4036150537f80ac539e15c2f1028841'
