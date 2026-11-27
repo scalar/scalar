@@ -1,3 +1,4 @@
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 
 import type { WorkspaceStore } from '@/client'
@@ -18,7 +19,7 @@ import { getSecurityRequirements } from '@/request-example/context/security/get-
 import { getSecuritySchemes } from '@/request-example/context/security/get-security-schemes'
 import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
 import { type MergedSecuritySchemes, mergeSecurity } from '@/request-example/context/security/merge-security'
-import { getSelectedServer, getServers } from '@/request-example/context/servers'
+import { findSelectedServer, getOperationServerScope, getServers } from '@/request-example/context/servers'
 import type { RequestExampleMeta, Result } from '@/request-example/types'
 import type { XScalarEnvironment } from '@/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
@@ -93,8 +94,8 @@ export const getRequestExampleContext = (
     }
   }
 
-  const rawPathItem = isWebhook ? document.webhooks?.[path] : document.paths?.[path]
-  const pathItem = getResolvedPathItem(rawPathItem)
+  const pathItemNode = getOwnEntry(isWebhook ? document.webhooks : document.paths, path)
+  const pathItem = getResolvedPathItem(pathItemNode)
   if (!pathItem) {
     return {
       ok: false,
@@ -125,26 +126,28 @@ export const getRequestExampleContext = (
   //------------------------------------------------------------------------------------------------
   //                                 SERVER CONTEXT
   //------------------------------------------------------------------------------------------------
-  // Get server context for the request example
-  const pathItemServerTarget = isWebhook ? undefined : getPathItemServerTarget(rawPathItem)
-  const configuredServers =
-    options.servers ?? operation.servers ?? pathItemServerTarget?.servers ?? (isWebhook ? undefined : document.servers)
-  const serverList = getServers(configuredServers, {
+  // Webhook Test Request uses a recipient URL entered by the user.
+  const scope = isWebhook
+    ? getOperationServerScope({})
+    : getOperationServerScope({
+        configuredServers: options.servers,
+        operation: resolvedOperation,
+        pathItem: getPathItemServerTarget(pathItemNode),
+        document,
+      })
+  const serverList = getServers(scope.servers, {
+    allowSchemelessHost: options.servers != null,
     baseServerUrl: options.baseServerUrl,
     documentUrl: document['x-scalar-original-source-url'],
   })
-  const inheritedMeta: ServerMeta =
-    options.servers == null && pathItemServerTarget?.servers != null ? { type: 'path', path } : { type: 'document' }
-  const serverMeta: ServerMeta =
-    !isWebhook && options.servers == null && operation.servers != null
-      ? { type: 'operation', path, method }
-      : inheritedMeta
-  const selectedServer = getSelectedServer(
-    serverMeta.type === 'document' ? document : null,
-    serverMeta.type === 'path' ? (pathItemServerTarget ?? null) : operation,
-    options.servers ?? null,
-    serverList,
-  )
+  const selectedServer = findSelectedServer(serverList, scope.target?.['x-scalar-selected-server'])
+
+  let serverMeta: ServerMeta = { type: 'document' }
+  if (scope.type === 'operation') {
+    serverMeta = { type: 'operation', path, method }
+  } else if (scope.type === 'path') {
+    serverMeta = { type: 'path', path }
+  }
 
   //------------------------------------------------------------------------------------------------
   //                                 SECURITY CONTEXT

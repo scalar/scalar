@@ -71,6 +71,7 @@ export { getMultipartItemSchema, needsMultipartEncoding } from './builder/body/b
 export { buildRequestBody } from './builder/body/build-request-body'
 export { serializeMultipartBody } from './builder/body/encode-multipart-body'
 export { MAX_MULTIPART_NESTING } from './builder/body/multipart-limits'
+export { resolveServerUrlTemplate, resolveServerUrlWithEnvironment } from './builder/helpers/resolve-server-url'
 export type { MergedSecuritySchemes } from './context'
 export {
   type BuildRequestExampleContext,
@@ -79,6 +80,7 @@ export {
   getActiveEnvironment,
   getActiveProxyUrl,
   getDefaultHeaders,
+  getOperationServerScope,
   getRequestExampleContext,
   getSecurityRequirements,
   getSecuritySchemes,
@@ -87,6 +89,8 @@ export {
   getServers,
   isAuthOptional,
   mergeSecurity,
+  prepareServer,
+  prepareServerSelection,
   restoreConventionalDefaultHeaderNames,
   restoreConventionalHeaderName,
 } from './context'

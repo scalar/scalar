@@ -55,6 +55,7 @@ import type {
   ServerMeta,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
+import { resolveServerUrlTemplate } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
@@ -260,14 +261,25 @@ const extractAndSelectServer = (targetPath: string): string => {
 
   const [url, remainingPath] = extracted
 
-  // Server is already selected — nothing to do
-  if (url === server?.url) {
+  const authoredMatch = servers.find((s) => s.url === url)
+
+  // Prefer the authored match when relative and absolute templates resolve to the same URL.
+  if (
+    server &&
+    (authoredMatch
+      ? server.url === url
+      : resolveServerUrlTemplate(server) === url)
+  ) {
     return remainingPath
   }
 
-  const matchingServer = servers.find((s) => s.url === url)
+  const matchingServer =
+    authoredMatch ?? servers.find((s) => resolveServerUrlTemplate(s) === url)
   if (matchingServer) {
-    eventBus.emit('server:update:selected', { url, meta: serverMeta })
+    eventBus.emit('server:update:selected', {
+      url: matchingServer.url,
+      meta: serverMeta,
+    })
   } else {
     eventBus.emit('server:add:server', {
       url,
@@ -446,12 +458,12 @@ const requestCopyUrl = (): void => {
 // ───────────────────────────────────────────────────────────────────
 
 const navigateToServersPage = (): void => {
-  if (serverMeta.type === 'operation') {
+  if (serverMeta.type !== 'document') {
     eventBus.emit('ui:navigate', {
       page: 'operation',
       path: 'servers',
       operationPath: serverMeta.path,
-      method: serverMeta.method,
+      method: serverMeta.type === 'operation' ? serverMeta.method : method,
     })
     return
   }

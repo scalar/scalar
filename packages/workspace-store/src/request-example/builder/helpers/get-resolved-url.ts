@@ -25,6 +25,4 @@ export const getResolvedUrl = ({
   path: string
   urlParams?: URLSearchParams
   allowReservedQueryParameters?: Set<string>
-}): string => {
-  return mergeUrls(resolveServerUrl(server), path, urlParams)
-}
+}): string => mergeUrls(resolveServerUrl(server), path, urlParams, { appendPath: true })

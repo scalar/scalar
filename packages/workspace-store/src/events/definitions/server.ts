@@ -1,5 +1,6 @@
 import type { ServerObject } from '@/schemas/v3.2/strict/openapi-document'
 
+/** Identifies the OpenAPI object that owns a list of servers. */
 export type ServerMeta =
   | {
       type: 'document'

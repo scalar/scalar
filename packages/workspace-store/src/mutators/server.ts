@@ -1,3 +1,4 @@
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 import type { AsyncApiServerVariableObject } from '@scalar/types/asyncapi/3.1'
 
@@ -28,17 +29,18 @@ const getServerTarget = (document: WorkspaceDocument | null, meta: ServerMeta): 
   if (meta.type === 'document') {
     return document
   }
+  const pathItem = getOwnEntry(document.paths, meta.path)
   if (meta.type === 'path') {
-    return getPathItemServerTarget(document.paths?.[meta.path]) ?? null
+    return getPathItemServerTarget(pathItem) ?? null
   }
-  return getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method)) ?? null
+  return getResolvedRef(getPathItemOperation(pathItem, meta.method)) ?? null
 }
 
 /**
- * Initializes the servers for the document or operation based on meta.
+ * Initializes the server list for the target.
  *
  * @param document - The document to initialize the servers for
- * @param meta - Target context (document or operation)
+ * @param meta - Owner of the server list
  */
 export const initializeServers = (
   document: WorkspaceDocument | null,
@@ -55,7 +57,7 @@ export const initializeServers = (
 }
 
 /**
- * Adds a new ServerObject to the document or operation based on meta.
+ * Adds a new ServerObject to the target server list.
  *
  * @param document - The document to add the server to
  * @returns the new server object or undefined if the target is not found
@@ -163,14 +165,14 @@ const syncVariablesForUrlChange = (
 }
 
 /**
- * Updates a ServerObject in the document or operation based on meta.
+ * Updates a ServerObject in the target server list.
  * When the URL changes, intelligently syncs variables by preserving configurations
  * for renamed variables (detected by position) and existing variables.
  *
  * @param document - The document containing the server to update
  * @param index - The index of the server to update
  * @param server - The partial server object with fields to update
- * @param meta - Target context (document or operation)
+ * @param meta - Owner of the server list
  * @returns the updated server object or undefined if the server is not found
  */
 export const updateServer = (
@@ -211,11 +213,11 @@ export const updateServer = (
 }
 
 /**
- * Deletes a ServerObject at the specified index from the document or operation based on meta.
+ * Deletes a ServerObject at the specified index from the target server list.
  *
  * @param document - The document to delete the server from
  * @param index - The index of the server to delete
- * @param meta - Target context (document or operation)
+ * @param meta - Owner of the server list
  */
 export const deleteServer = (
   document: WorkspaceDocument | null,
@@ -235,10 +237,10 @@ export const deleteServer = (
 }
 
 /**
- * Clears all servers from the document or operation based on meta.
+ * Removes the target server list and clears its selection.
  *
  * @param document - The document to clear the servers from
- * @param meta - Target context (document or operation)
+ * @param meta - Owner of the server list
  */
 export const clearServers = (document: WorkspaceDocument | null, { meta }: ServerEvents['server:clear:servers']) => {
   const target = getServerTarget(document, meta)
@@ -252,13 +254,13 @@ export const clearServers = (document: WorkspaceDocument | null, { meta }: Serve
 }
 
 /**
- * Updates a server variable for the document or operation based on meta.
+ * Updates a variable for a server in the target list.
  *
  * @param document - The document to update the server variables in
  * @param index - The index of the server to update
  * @param key - The key of the variable to update
  * @param value - The new value of the variable
- * @param meta - Target context (document or operation)
+ * @param meta - Owner of the server list
  * @returns the updated variable or undefined if the variable is not found
  */
 export const updateServerVariables = (
@@ -277,11 +279,11 @@ export const updateServerVariables = (
 }
 
 /**
- * Updates the selected server for the document or operation based on meta.
+ * Updates the selection for the target server list.
  *
  * @param document - The document to update the selected server in
  * @param url - The URL of the server to select (or '' to clear)
- * @param meta - Target context (document or operation)
+ * @param meta - Owner of the server list
  * @returns the url of the selected server or undefined if the target is not found
  */
 export const updateSelectedServer = (

@@ -14,6 +14,8 @@ import {
 import { serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 
+import { resolveServerUrlWithBase } from './helpers/resolve-server-url'
+
 /**
  * Discriminated error code when the merged request URL is not a complete absolute target
  * (for example no OpenAPI server, or unresolved `{{environment}}` segments left in the merged URL).
@@ -80,10 +82,14 @@ export const resolveRequestFactoryUrl = (
   }
   const pathVariables = pathVariablesEncoded.data
 
-  const baseUrl = replaceEnvVariables(request.baseUrl, variables)
+  const context = request.serverUrlContext
+  const baseUrl = resolveServerUrlWithBase(
+    replaceEnvVariables(request.baseUrl, variables),
+    context?.template === request.baseUrl ? context.base : undefined,
+  )
   const rawPath = replaceEnvVariables(request.path.raw, variables)
   const path = replacePathVariables(rawPath, pathVariables)
-  const mergedUrl = mergeUrls(baseUrl, path)
+  const mergedUrl = mergeUrls(baseUrl, path, undefined, { appendPath: true })
 
   if (!options.allowMissingRequestServerBase && isRelativePath(mergedUrl)) {
     return err(MISSING_REQUEST_SERVER_BASE, INCOMPLETE_MERGED_URL_MESSAGE)

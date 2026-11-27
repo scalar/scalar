@@ -253,11 +253,11 @@ describe('mount', () => {
     expect(element.textContent).toContain('api.example.com')
   })
 
-  it('resolves a templated server against its API description URL', async () => {
+  it('uses the description directory without exposing its credentials in a code sample', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
       name: 'default',
-      documentSource: 'https://api.example.com/docs/openapi.json',
+      documentSource: 'https://test-user:test-password@api.example.com/docs/openapi.json',
       document: {
         openapi: '3.1.0',
         info: { title: 'Relative server', version: '1' },
@@ -269,7 +269,44 @@ describe('mount', () => {
     mounted.push(createCodeExample(element, { store, path: '/hello', method: 'get', selectedClient: 'shell/curl' }))
 
     expect(element.textContent).toContain('https://api.example.com/docs/release.v1/hello')
+    expect(element.textContent).not.toContain('test-password')
   })
+  it.each(['document', 'path', 'operation'] as const)(
+    'uses the saved %s server and its description base',
+    async (scope) => {
+      const store = createWorkspaceStore()
+      const selected = {
+        servers: [
+          { url: 'https://production.example.com' },
+          { url: '{prefix}release.next/base', variables: { prefix: { default: '' } } },
+        ],
+        'x-scalar-selected-server': '{prefix}release.next/base',
+      }
+      await store.addDocument({
+        name: 'default',
+        documentSource: 'https://api.example.com/docs/openapi.json',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Petstore', version: '1.0.0' },
+          ...(scope === 'document' ? selected : {}),
+          paths: {
+            '/hello': {
+              ...(scope === 'path' ? selected : {}),
+              get: {
+                ...(scope === 'operation' ? selected : {}),
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+          },
+        },
+      })
+
+      const element = document.createElement('div')
+      mounted.push(createCodeExample(element, { store, path: '/hello', method: 'get', selectedClient: 'shell/curl' }))
+
+      expect(element.textContent).toContain('https://api.example.com/docs/release.next/base/hello')
+    },
+  )
 
   it('keeps the operation and its server from the same document when the operation disappears', async () => {
     const store = createWorkspaceStore()

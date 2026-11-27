@@ -30,6 +30,17 @@ export const deepClone = <T>(value: T, hash = new WeakMap()): T => {
   hash.set(value, result)
 
   Object.keys(value).forEach((key) => {
+    if (key === '__proto__') {
+      // Preserve authored JSON keys without invoking the prototype setter.
+      Object.defineProperty(result, key, {
+        value: deepClone(Reflect.get(value, key), hash),
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      })
+      return
+    }
+
     // @ts-expect-error: Index signature for generic object
     result[key] = deepClone(value[key], hash)
   })

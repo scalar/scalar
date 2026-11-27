@@ -129,6 +129,36 @@ describe('mergeSearchParams', () => {
 })
 
 describe('mergeUrls', () => {
+  it('preserves interior slashes on either side of the join', () => {
+    expect(mergeUrls('https://api.example.com//v1/', '/accounts//active', undefined, { appendPath: true })).toBe(
+      'https://api.example.com//v1/accounts//active',
+    )
+    expect(mergeUrls('https://api.example.com//v1/', '/accounts//active', undefined, true)).toBe(
+      'https://api.example.com/v1/accounts/active',
+    )
+  })
+
+  it('appends a matching relative path when requested', () => {
+    expect(mergeUrls('/v1', '/v1', undefined, { appendPath: true, disableOriginPrefix: true })).toBe('/v1/v1')
+    expect(mergeUrls('/v1', '/v1', undefined, true)).toBe('/v1')
+  })
+
+  it('returns a matching absolute URL even when appending operation paths', () => {
+    const url = 'https://api.example.com/v1'
+
+    expect(mergeUrls(url, url, undefined, { appendPath: true })).toBe(url)
+  })
+
+  it('joins a pathname ending in a colon with a single separator', () => {
+    expect(mergeUrls('https://api.example.com/v1:/', '/p', undefined, { appendPath: true })).toBe(
+      'https://api.example.com/v1:/p',
+    )
+  })
+
+  it('preserves the scheme delimiter when the path supplies the host', () => {
+    expect(mergeUrls('https://', 'example.com', undefined, { appendPath: true })).toBe('https://example.com')
+  })
+
   it.each([
     ['https://api.example.com?token=a?b', '/users', 'token=a%3Fb'],
     [

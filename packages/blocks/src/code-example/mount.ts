@@ -3,12 +3,19 @@ import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { AvailableClients } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
-import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server'
+import {
+  getPathItemOperation,
+  getPathItemServerTarget,
+} from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
-import { type SecuritySchemeObjectSecret, getServers } from '@scalar/workspace-store/request-example'
+import {
+  type SecuritySchemeObjectSecret,
+  getOperationServerScope,
+  prepareServer,
+  prepareServerSelection,
+} from '@scalar/workspace-store/request-example'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type App, createApp, h, reactive } from 'vue'
@@ -128,16 +135,22 @@ export const createCodeExample = (
     if (!isOpenApiDocument(activeDocument)) {
       return undefined
     }
-    const pathItem = getResolvedRef(activeDocument.paths?.[options.path])
+    const pathItem = activeDocument.paths?.[options.path]
     const operation = getResolvedRef(getPathItemOperation(pathItem, options.method))
     if (!operation) {
       return undefined
     }
-    const server = getFirstServer(operation.servers ?? null, pathItem?.servers ?? null, activeDocument.servers ?? null)
-    const [preparedServer] = getServers(server ? [{ ...server }] : [], {
-      documentUrl: activeDocument['x-scalar-original-source-url'],
+    const scope = getOperationServerScope({
+      operation,
+      pathItem: getPathItemServerTarget(pathItem),
+      document: activeDocument,
     })
-    return { operation, server: preparedServer ?? null }
+    const documentUrl = activeDocument['x-scalar-original-source-url']
+    const server =
+      options.selectedServer === undefined
+        ? prepareServerSelection(scope.target ?? activeDocument, { documentUrl })
+        : prepareServer(options.selectedServer, { documentUrl, allowSchemelessHost: true })
+    return { operation, server }
   }
 
   // Fail loudly if the path and method do not point at an operation in the store,
@@ -197,9 +210,7 @@ export const createCodeExample = (
       return options.store.workspace['x-scalar-default-example'] ?? options.selectedExample
     },
     get selectedServer() {
-      // An explicit option wins (including an explicit `null` for "no server");
-      // otherwise derive it from the same document the operation resolved from.
-      return options.selectedServer !== undefined ? options.selectedServer : currentContext().server
+      return currentContext().server
     },
   })
 

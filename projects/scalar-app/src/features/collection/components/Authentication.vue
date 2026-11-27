@@ -6,14 +6,18 @@ import {
 import { ScalarToggle } from '@scalar/components/toggle'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { AuthMeta } from '@scalar/workspace-store/events'
-import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import {
+  getPathItemOperation,
+  getPathItemServerTarget,
+} from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getActiveProxyUrl,
+  getOperationServerScope,
   getSelectedSecurity,
-  getServers,
   mergeSecurity,
+  prepareServerSelection,
 } from '@scalar/workspace-store/request-example'
 import { computed, ref, toValue, watchEffect } from 'vue'
 
@@ -130,22 +134,22 @@ const proxyUrl = computed(
     ) ?? '',
 )
 
-const servers = computed(() => {
-  return getServers(operation.value?.servers ?? document?.servers, {
-    documentUrl: document?.['x-scalar-original-source-url'],
-  })
-})
-
 /** Grab the currently selected server for relative auth URIs */
 const server = computed(() => {
-  const documentServer = document?.['x-scalar-selected-server']
-  const operationServer = operation.value?.['x-scalar-selected-server']
-  const selectedServerUrl = operationServer ?? documentServer
-  return (
-    servers.value.find(({ url }) => url === selectedServerUrl) ??
-    servers.value[0] ??
-    null
-  )
+  const pathItem =
+    collectionType === 'operation' && path
+      ? getPathItemServerTarget(document?.paths?.[path])
+      : undefined
+  const scope = getOperationServerScope({
+    document: document ?? undefined,
+    pathItem,
+    operation: operation.value,
+  })
+  return scope.target
+    ? prepareServerSelection(scope.target, {
+        documentUrl: document?.['x-scalar-original-source-url'],
+      })
+    : null
 })
 
 /**

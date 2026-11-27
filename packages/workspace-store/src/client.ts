@@ -39,6 +39,7 @@ import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
 import { type RefNode, getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
+import { migrateServerSelections } from '@/helpers/migrate-server-selections'
 import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
@@ -1972,6 +1973,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             })
             const documentOverrides = getOwnEntry(loadedOverrides, name)
             if (isAsyncApiDocument(magicDocument)) checkNativeSchemaEdits(magicDocument)
+            if (isOpenApiDocument(magicDocument)) {
+              migrateServerSelections(magicDocument)
+            }
 
             return [
               name,

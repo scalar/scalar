@@ -9,7 +9,10 @@ import { debounce } from '@scalar/helpers/general/debounce'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { ScalarIconPlus, ScalarIconTrash } from '@scalar/icons'
 import type { ServerMeta } from '@scalar/workspace-store/events'
-import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import {
+  getPathItemOperation,
+  getResolvedPathItem,
+} from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, watchEffect } from 'vue'
@@ -44,10 +47,27 @@ watchEffect(() => {
   useOperationServers.value = operation.value?.servers !== undefined
 })
 
+/** Path servers remain editable while the operation inherits them. */
+const pathServers = computed(() =>
+  isOperation.value && path
+    ? getResolvedPathItem(document?.paths?.[path])?.servers
+    : undefined,
+)
+const usesPathServers = computed(
+  () => !useOperationServers.value && pathServers.value !== undefined,
+)
+const canEditServers = computed(
+  () =>
+    !isOperation.value || useOperationServers.value || usesPathServers.value,
+)
+
 /** Grab the servers for the collection */
 const servers = computed(() => {
   if (collectionType === 'operation' && operation.value) {
-    return operation.value.servers ?? []
+    return (
+      (usesPathServers.value ? pathServers.value : operation.value.servers) ??
+      []
+    )
   }
   return document?.servers ?? []
 })
@@ -55,9 +75,12 @@ const servers = computed(() => {
 /** Grab whichever server we are working on */
 const selectedServer = computed(() => servers.value[selectedServerIndex.value])
 
-/** Meta for server events: document-level or operation-level based on collection type */
+/** Addresses edits to the owner of the displayed servers. */
 const serverMeta = computed<ServerMeta>(() => {
   if (collectionType === 'operation' && path && isHttpMethod(method)) {
+    if (usesPathServers.value) {
+      return { type: 'path', path }
+    }
     return { type: 'operation', path, method }
   }
   return { type: 'document' }
@@ -111,25 +134,33 @@ const handleServerUpdate = (
   index: number,
   key: string,
   value: string | number,
-) =>
-  execute(`${index}-${key}-${serverMeta.value.type}`, () =>
+): void => {
+  const meta = serverMeta.value
+  execute(`${index}-${key}-${meta.type}`, () =>
     eventBus.emit('server:update:server', {
       index,
       server: { [key]: value },
-      meta: serverMeta.value,
+      meta,
     }),
   )
+}
 
 /** Handles server variable updates with debouncing */
-const handleVariableUpdate = (index: number, key: string, value: string) =>
-  execute(`${index}-${key}-${serverMeta.value.type}`, () =>
+const handleVariableUpdate = (
+  index: number,
+  key: string,
+  value: string,
+): void => {
+  const meta = serverMeta.value
+  execute(`${index}-${key}-${meta.type}`, () =>
     eventBus.emit('server:update:variables', {
       index,
       key,
       value,
-      meta: serverMeta.value,
+      meta,
     }),
   )
+}
 
 /** Handles adding a new server */
 const handleAddServer = () =>
@@ -144,20 +175,17 @@ const getServerDisplayName = (server?: ServerObject, index = 0): string =>
 /** Handles toggling the operation servers */
 const handleToggleOperationServers = (value: boolean) => {
   // Only toggle for operation collections
-  if (serverMeta.value.type !== 'operation') {
+  if (!isOperation.value || !path || !isHttpMethod(method)) {
     return
   }
 
-  // update the operation servers
+  const meta = { type: 'operation', path, method } as const
   useOperationServers.value = value
 
   if (value) {
-    // Initialize the servers with an empty array so we will infer the servers from the operation
-    return eventBus.emit('server:initialize:servers', {
-      meta: serverMeta.value,
-    })
+    return eventBus.emit('server:initialize:servers', { meta })
   }
-  return eventBus.emit('server:clear:servers', { meta: serverMeta.value })
+  return eventBus.emit('server:clear:servers', { meta })
 }
 </script>
 
@@ -172,7 +200,15 @@ const handleToggleOperationServers = (value: boolean) => {
         <span class="mt-1 block">
           <strong>On</strong> — Servers below apply only to this operation.
         </span>
-        <span class="mt-1 block">
+        <span
+          v-if="pathServers !== undefined"
+          class="mt-1 block">
+          <strong>Off</strong> — Servers below apply to all operations on
+          <code class="font-code text-c-2">{{ path }}</code>.
+        </span>
+        <span
+          v-else
+          class="mt-1 block">
           <strong>Off</strong> — Removes operation servers; this operation uses
           document or path servers from the OpenAPI spec.
         </span>
@@ -198,12 +234,11 @@ const handleToggleOperationServers = (value: boolean) => {
       </div>
     </template>
 
-    <div :class="isOperation && !useOperationServers && 'cursor-not-allowed'">
+    <div :class="!canEditServers && 'cursor-not-allowed'">
       <div
         class="flex flex-col gap-4"
         :class="
-          isOperation &&
-          !useOperationServers &&
+          !canEditServers &&
           'pointer-events-none cursor-not-allowed opacity-50 mix-blend-luminosity'
         ">
         <!-- Server List -->

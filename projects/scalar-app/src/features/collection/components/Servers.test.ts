@@ -52,6 +52,9 @@ describe('Servers', () => {
     custom: Partial<{
       document: any
       environment: any
+      collectionType: 'document' | 'operation'
+      path: string
+      method: 'get'
     }> = {},
   ) => {
     const document = custom.document ?? baseDocument
@@ -69,7 +72,9 @@ describe('Servers', () => {
           securitySchemes: {},
           layout: 'web',
           workspaceStore: createWorkspaceStore(),
-          collectionType: 'document',
+          collectionType: custom.collectionType ?? 'document',
+          path: custom.path,
+          method: custom.method,
           documentSlug: 'test-document',
           activeWorkspace: {
             id: 'test-workspace',
@@ -92,6 +97,37 @@ describe('Servers', () => {
     await addButton!.trigger('click')
 
     expect(emitSpy).toHaveBeenCalledWith('server:add:server', { meta: { type: 'document' } })
+  })
+
+  it('shows the inherited path servers and sends edits to the path item', async () => {
+    const { wrapper, eventBus } = mountWithProps({
+      collectionType: 'operation',
+      path: '/pets',
+      method: 'get',
+      document: {
+        ...baseDocument,
+        paths: {
+          '/pets': {
+            servers: [{ url: 'https://pets.example.com', description: 'Pets API' }],
+            get: { responses: {} },
+          },
+        },
+      },
+    })
+    const emitSpy = vi.spyOn(eventBus, 'emit')
+    const forms = wrapper.findAllComponents({ name: 'Form' })
+    expect(forms).toHaveLength(1)
+    expect(forms[0]?.props('data')).toMatchObject({ url: 'https://pets.example.com' })
+
+    forms[0]?.props('onUpdate')('url', 'https://updated.example.com')
+    await vi.runAllTimersAsync()
+
+    expect(emitSpy).toHaveBeenCalledWith('server:update:server', {
+      index: 0,
+      server: { url: 'https://updated.example.com' },
+      meta: { type: 'path', path: '/pets' },
+    })
+    wrapper.unmount()
   })
 
   it('emits server:delete:server event with correct index when deleting a server', async () => {

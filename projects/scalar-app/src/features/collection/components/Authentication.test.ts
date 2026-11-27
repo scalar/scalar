@@ -2,7 +2,7 @@ import { AuthSelector } from '@scalar/api-client/blocks/scalar-auth-selector-blo
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
+import { type MergedSecuritySchemes, resolveServerUrl } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
@@ -116,6 +116,39 @@ const mountWithProps = (
     workspaceStore,
   }
 }
+
+it('uses the selected Path Item server when configuring operation authentication', () => {
+  const document = {
+    ...baseDocument,
+    paths: {
+      '/pets': {
+        ...baseDocument.paths['/pets'],
+        servers: [{ url: 'https://first.example.com' }, { url: 'https://sandbox.example.com' }],
+        'x-scalar-selected-server': 'https://sandbox.example.com',
+      },
+    },
+  }
+  const { wrapper } = mountWithProps({ document, collectionType: 'operation', path: '/pets' })
+
+  expect(wrapper.getComponent(AuthSelector).props('server')?.url).toBe('https://sandbox.example.com')
+  expect(document['x-scalar-selected-server']).toBe('https://api.example.com')
+})
+
+it('leaves the document server choice intact when an operation has a matching relative server', () => {
+  const document = {
+    ...baseDocument,
+    'x-scalar-original-source-url': 'https://api.example.com/openapi.json',
+    'x-scalar-selected-server': 'https://api.example.com/v1',
+    servers: [{ url: 'https://api.example.com/v1' }],
+    paths: { '/pets': { get: { ...baseDocument.paths['/pets'].get, servers: [{ url: '/v1' }] } } },
+  }
+  const { wrapper } = mountWithProps({ document, collectionType: 'operation', path: '/pets' })
+
+  const server = wrapper.getComponent(AuthSelector).props('server') ?? null
+  expect(server?.url).toBe('/v1')
+  expect(resolveServerUrl(server)).toBe('https://api.example.com/v1')
+  expect(document['x-scalar-selected-server']).toBe('https://api.example.com/v1')
+})
 
 describe('document collection', () => {
   it('does not show operation security toggle', () => {
