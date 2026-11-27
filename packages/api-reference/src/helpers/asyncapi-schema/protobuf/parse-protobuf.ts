@@ -126,6 +126,7 @@ const validateAggregate = (statements: TextprotoMessageStatement[]): void => {
     if (
       semiOrComma?.type === 'textproto-semi' ||
       value.type === 'textproto-list-value' ||
+      (value.type === 'textproto-signed-ident' && value.sign && !/^(?:inf(?:inity)?|nan)$/i.test(value.value.text)) ||
       (value.type === 'textproto-message-value' ? value.bracketOpen.text !== '{' : !colon)
     ) {
       throw new Error('Unsupported Protobuf aggregate option')

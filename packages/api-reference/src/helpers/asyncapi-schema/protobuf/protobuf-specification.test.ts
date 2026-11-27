@@ -154,7 +154,7 @@ describe('protobuf-specification', () => {
 
   it.each([
     '{ flags { enabled: true }, second: false, }',
-    String.raw`{ number: 0x10, symbol: "\u002a" }`,
+    String.raw`{ number: 0x10, symbol: "\u002a", extra: -inf }`,
     'true.foo',
     'inf.foo',
   ])('renders a schema with file metadata %s', (value) => {
@@ -169,6 +169,7 @@ describe('protobuf-specification', () => {
     '{ a:1b:2 }',
     '{ a:0x10b:2 }',
     '{ a:1.2b:2 }',
+    '{ a: -Thing }',
   ])('uses source fallback for malformed aggregate metadata %s', (value) => {
     expect(() => readProtobuf(`option example = ${value}; message M {}`, '3')).toThrow()
   })
@@ -437,6 +438,32 @@ describe('protobuf-specification', () => {
       expect(readProtobuf(source, '3').nodes[0]?.children?.at(-1)?.description).toBe('Documents b.')
     },
   )
+
+  it.each(['/* Documents the choice. */ oneof choice', 'oneof choice /* Documents the choice. */'])(
+    'preserves inline oneof header documentation: %s',
+    (header) => {
+      const source = `message M {
+        ${header} {
+          string a = 1;
+          string b = 2;
+        }
+      }`
+      expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
+        'Documents the choice.',
+        undefined,
+      ])
+    },
+  )
+
+  it('keeps a oneof member description when the header also has a block comment', () => {
+    const source = `message M {
+      /* Documents the choice. */ oneof choice {
+        // Documents the first field.
+        string a = 1;
+      }
+    }`
+    expect(readProtobuf(source, '3').nodes[0]?.children?.[0]?.description).toBe('Documents the first field.')
+  })
 
   it('preserves next-field documentation when its block comment closes on the field line', () => {
     const source = `message M {

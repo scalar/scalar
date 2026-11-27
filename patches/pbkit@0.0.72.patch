@@ -73,7 +73,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
          for (const acceptStatementFn of acceptStatementFns) {
              const statement = acceptStatementFn(parser, leadingComments, leadingDetachedComments);
              if (statement) {
-@@ -94,11 +125,13 @@
+@@ -94,11 +125,14 @@
  const multilineCommentPattern = /^\/\*(?:.|\r?\n)*?\*\//;
  const singlelineCommentPattern = /^\/\/.*(?:\r?\n|$)/;
  const intLitPattern = /^0(?:x[0-9a-f]+|[0-7]*)|^[1-9]\d*/i;
@@ -87,11 +87,12 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
 +const strLitPattern = misc_1.strLitPattern;
  const identPattern = /^[a-z_][a-z0-9_]*/i;
 -const messageBodyStatementKeywordPattern = /^(?:enum|message|extend|extensions|group|option|oneof|map|reserved)\b/;
++const fieldLabelPattern = /^(?:required|optional|repeated)\b(?!\.)/;
 +const messageBodyStatementKeywordPattern = /^(?:enum|message|extend|extensions|group|option|oneof|map|reserved)\b(?!\.)/;
  const acceptDot = (0, misc_1.acceptPatternAndThen)(".", (dot) => ({ type: "dot", ...dot }));
  const acceptComma = (0, misc_1.acceptPatternAndThen)(",", (comma) => ({ type: "comma", ...comma }));
  const acceptSemi = (0, misc_1.acceptPatternAndThen)(";", (semi) => ({ type: "semi", ...semi }));
-@@ -110,10 +143,19 @@
+@@ -110,10 +144,19 @@
  }
  const acceptIdent = (0, misc_1.acceptPatternAndThen)(identPattern, (ident) => ({ type: "ident", ...ident }));
  function acceptKeyword(parser, pattern = identPattern) {
@@ -113,7 +114,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
  }
  function acceptCommentGroup(parser) {
      const loc = parser.loc;
-@@ -163,7 +205,16 @@
+@@ -163,7 +206,16 @@
          }
          const singlelineComment = (0, misc_1.acceptSpecialToken)(parser, "singleline-comment", singlelineCommentPattern);
          if (singlelineComment) {
@@ -131,7 +132,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
              break;
          }
          break;
-@@ -194,7 +245,10 @@
+@@ -194,7 +246,10 @@
              continue;
          const newline = parser.accept(newlinePattern);
          if (newline) {
@@ -143,7 +144,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
              continue;
          }
          break;
-@@ -315,8 +369,9 @@
+@@ -315,8 +370,9 @@
          return signedIntLit;
      throw new recursive_descent_parser_1.SyntaxError(parser, ["-", intLitPattern]);
  }
@@ -155,7 +156,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!floatLit)
          return;
      return { type: "float-lit", ...floatLit };
-@@ -325,7 +380,7 @@
+@@ -325,7 +381,7 @@
      var _a;
      const loc = parser.loc;
      const sign = (_a = parser.accept("-")) !== null && _a !== void 0 ? _a : parser.accept("+");
@@ -164,7 +165,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!floatLit) {
          parser.loc = loc;
          return;
-@@ -501,7 +556,7 @@
+@@ -501,7 +557,7 @@
      if (!keyword)
          return;
      skipWsAndComments(parser);
@@ -173,7 +174,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      skipWsAndComments(parser);
      const strLit = expectStrLit(parser);
      skipWsAndComments(parser);
-@@ -552,7 +607,7 @@
+@@ -552,7 +608,7 @@
      };
  }
  function acceptOption(parser, leadingComments, leadingDetachedComments) {
@@ -182,21 +183,41 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -713,7 +768,7 @@
+@@ -713,7 +769,7 @@
  }
  function acceptField(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;
 -    const fieldLabel = acceptKeyword(parser, /^required|^optional|^repeated/);
-+    const fieldLabel = acceptKeyword(parser, /^(?:required|optional|repeated)\b(?!\.)/);
++    const fieldLabel = acceptKeyword(parser, fieldLabelPattern);
      skipWsAndComments(parser);
      const fieldType = acceptType(parser);
      if (!fieldType) {
-@@ -1031,13 +1086,13 @@
+@@ -855,10 +911,17 @@
+     const keyword = acceptKeyword(parser, "oneof");
+     if (!keyword)
+         return;
+-    skipWsAndComments(parser);
++    const beforeName = skipWsAndSweepComments(parser).commentGroups;
+     const oneofName = parser.expect(identPattern);
+-    skipWsAndComments(parser);
++    const beforeBody = skipWsAndSweepComments(parser).commentGroups;
+     const oneofBody = expectOneofBody(parser);
++    // The documentation reader displays inline oneof header comments on its first member.
++    const header = [...leadingComments, ...beforeName, ...beforeBody].findLast((group) =>
++        group.comments.at(-1)?.type === "multiline-comment" &&
++        !/[\r\n]/.test(parser.input.slice(group.end, oneofBody.bracketOpen.start)));
++    const firstField = oneofBody.statements.find((statement) => statement.type === "oneof-field");
++    if (header && firstField && !firstField.leadingComments.length && !firstField.trailingComments.length)
++        firstField.leadingComments.push(header);
+     const trailingComments = acceptTrailingComments(parser);
+     return {
+         ...(0, misc_1.mergeSpans)([
+@@ -1031,13 +1094,13 @@
  }
  function acceptGroup(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;
 -    const groupLabel = acceptKeyword(parser, /^required|^optional|^repeated/);
-+    const groupLabel = acceptKeyword(parser, /^(?:required|optional|repeated)\b(?!\.)/);
++    const groupLabel = acceptKeyword(parser, fieldLabelPattern);
      if (!groupLabel) {
          parser.loc = loc;
          return;
