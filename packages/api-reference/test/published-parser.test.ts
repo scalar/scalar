@@ -42,15 +42,19 @@ describe('published-parser', () => {
     expect(pack.files.map(({ path }) => path)).toContain('THIRD_PARTY_NOTICES')
   })
 
-  it('ships the parser for consumers without the pbkit package installed', async () => {
+  it('ships the parser for consumers without the pbkit package installed', { timeout: 30_000 }, async () => {
     // CI builds the package before tests. Copy its output outside the workspace so
     // Node cannot accidentally resolve pbkit from this workspace.
     const consumer = await mkdtemp(join(tmpdir(), 'scalar-parser-consumer-'))
     try {
-      await cp(resolve(import.meta.dirname, '../dist'), join(consumer, 'dist'), {
+      const distribution = resolve(import.meta.dirname, '../dist')
+      await cp(distribution, join(consumer, 'dist'), {
         recursive: true,
-        // npm never includes nested node_modules directories in published packages.
-        filter: (source) => !source.split(sep).includes('node_modules'),
+        // The browser assets and source maps do not participate in Node's module resolution.
+        filter: (source) => {
+          const parts = source.slice(distribution.length + 1).split(sep)
+          return parts[0] !== 'browser' && !parts.includes('node_modules') && !source.endsWith('.map')
+        },
       })
       // The reader also uses the package's normal workspace-store runtime dependency.
       // Expose only that runtime dependency so the parser must resolve from the bundle.
@@ -77,7 +81,7 @@ describe('published-parser', () => {
         process.stdout.write('ok');
       `,
         ],
-        { cwd: consumer, encoding: 'utf8' },
+        { cwd: consumer, encoding: 'utf8', timeout: 15_000 },
       )
       expect(result).toBe('ok')
     } finally {
