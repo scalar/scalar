@@ -12,4 +12,6 @@ Keep a block comment adjacent when a single newline separates it from its declar
 
 Preserve inline descriptions when they belong to the next declaration.
 
-Recognize the Protobuf string escape forms used by proto2 defaults. Keep consecutive line comments together.
+Recognize Protobuf string escapes in proto2 defaults and structured file options. Keep consecutive line comments together.
+
+Require complete numeric tokens in structured file options, including hexadecimal values.

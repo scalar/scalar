@@ -152,20 +152,26 @@ describe('protobuf-specification', () => {
     ])
   })
 
-  it.each(['{ flags { enabled: true }, second: false, }', 'true.foo', 'inf.foo'])(
-    'renders a schema with file metadata %s',
-    (value) => {
-      const source = `option example = ${value}; message M {}`
-      expect(readProtobuf(source, '3').nodes).toStrictEqual([{ name: 'M', type: 'message M', children: [] }])
-    },
-  )
+  it.each([
+    '{ flags { enabled: true }, second: false, }',
+    String.raw`{ number: 0x10, symbol: "\u002a" }`,
+    'true.foo',
+    'inf.foo',
+  ])('renders a schema with file metadata %s', (value) => {
+    const source = `option example = ${value}; message M {}`
+    expect(readProtobuf(source, '3').nodes).toStrictEqual([{ name: 'M', type: 'message M', children: [] }])
+  })
 
-  it.each(['{ enabled: true,, }', '{ enabled true }', '{ outer { enabled: true,, } }'])(
-    'uses source fallback for malformed aggregate metadata %s',
-    (value) => {
-      expect(() => readProtobuf(`option example = ${value}; message M {}`, '3')).toThrow()
-    },
-  )
+  it.each([
+    '{ enabled: true,, }',
+    '{ enabled true }',
+    '{ outer { enabled: true,, } }',
+    '{ a:1b:2 }',
+    '{ a:0x10b:2 }',
+    '{ a:1.2b:2 }',
+  ])('uses source fallback for malformed aggregate metadata %s', (value) => {
+    expect(() => readProtobuf(`option example = ${value}; message M {}`, '3')).toThrow()
+  })
 
   it.each([1, 18999, 20000, 536870911])('accepts legal field-number boundary %i', (id) => {
     expect(
@@ -346,6 +352,15 @@ describe('protobuf-specification', () => {
     expect(readProtobuf(source, '3').nodes[1]?.children?.[0]?.type).toBe(`message ${name}`)
   })
 
+  it.each(['map', 'repeated'])('resolves qualified type names that start with %s', (name) => {
+    const source = `package ${name}; message V {} message M { ${name}.V value = 1; repeated .${name}.V values = 2; }`
+    const fields = readProtobuf(source, '3').nodes[1]?.children
+    expect(fields?.map(({ type, repeated }) => [type, repeated])).toStrictEqual([
+      [`message ${name}.V`, undefined],
+      [`message ${name}.V`, true],
+    ])
+  })
+
   it('rejects joined declarations', () => {
     expect(() => readProtobuf('messageItem {}', '3')).toThrow('Trailing Protobuf source')
   })
@@ -411,6 +426,14 @@ describe('protobuf-specification', () => {
         ${declaration} /* Documents b. */
         string b = 2;
       }`
+      expect(readProtobuf(source, '3').nodes[0]?.children?.at(-1)?.description).toBe('Documents b.')
+    },
+  )
+
+  it.each(['oneof choice { string a = 1; }', 'reserved 90;', 'enum E { ZERO = 0; }'])(
+    'preserves same-line field documentation after %s',
+    (declaration) => {
+      const source = `message M { ${declaration} /* Documents b. */ string b = 2; }`
       expect(readProtobuf(source, '3').nodes[0]?.children?.at(-1)?.description).toBe('Documents b.')
     },
   )
