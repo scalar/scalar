@@ -975,9 +975,10 @@ const handleObjectSchema = (
     const minProperties = readLengthBound(schema.minProperties, 0)
     const maxProperties = readLengthBound(schema.maxProperties, Number.POSITIVE_INFINITY)
     const propertyCount = Object.values(response).filter((value) => value !== undefined).length
+    const missingProperties = minProperties - propertyCount
     // Keep the usual single placeholder when the schema leaves room for one.
     const additionalCount = Math.min(
-      Math.max(1, minProperties - propertyCount),
+      Math.max(1, missingProperties),
       maxProperties - propertyCount,
       MAX_ADDITIONAL_PROPERTIES,
     )
@@ -996,9 +997,12 @@ const handleObjectSchema = (
           ? additional['x-additionalPropertiesName']
           : undefined
       const preferredName = typeof customName === 'string' ? customName.trim() : ''
-      const propertyNamesEnum = preferredName && additionalCount === 1 ? undefined : getPropertyNamesEnumValues(schema)
+      const propertyNamesEnum = getPropertyNamesEnumValues(schema)
       const usePreferredName =
-        preferredName !== '' && (!propertyNamesEnum || propertyNamesEnum.some((name) => String(name) === preferredName))
+        preferredName !== '' &&
+        (missingProperties <= 0 ||
+          !propertyNamesEnum ||
+          propertyNamesEnum.some((name) => String(name) === preferredName))
       const baseName = usePreferredName ? preferredName : DEFAULT_ADDITIONAL_PROPERTIES_NAME
       const enumOffset = Number(usePreferredName)
       const candidateCount = propertyNamesEnum ? propertyNamesEnum.length + enumOffset : Number.POSITIVE_INFINITY
@@ -1018,7 +1022,7 @@ const handleObjectSchema = (
           continue
         }
         // The first enum key historically used the placeholder path for composition selection.
-        const pathName = propertyNamesEnum && evaluated === 0 ? baseName : key
+        const pathName = propertyNamesEnum && !usePreferredName && evaluated === 0 ? baseName : key
         evaluated++
         let value: unknown = 'anything'
         if (!isAnyType && typeof additional === 'object') {
@@ -1037,7 +1041,7 @@ const handleObjectSchema = (
           truncated = true
           break
         }
-        if (value === undefined && propertyCount + added < minProperties) {
+        if (value === undefined && added < missingProperties) {
           continue
         }
         // A dictionary key can have the same name as a property on Object.prototype.

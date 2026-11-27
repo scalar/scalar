@@ -3212,13 +3212,29 @@ describe('getExampleFromSchema', () => {
     expect(JSON.parse(JSON.stringify(example))).toStrictEqual({ visible: null, additionalProperty: '' })
   })
 
-  it('continues to another dictionary key when a selected value is omitted', () => {
+  it.each([
+    {
+      name: 'continues to another dictionary key when a selected value is omitted',
+      minProperties: 2,
+      preferredName: undefined,
+      omittedName: 'memory',
+      expected: { cpu: 'visible', disk: 'visible' },
+    },
+    {
+      name: 'uses an allowed key when the preferred value is omitted',
+      minProperties: 1,
+      preferredName: 'cpu',
+      omittedName: 'cpu',
+      expected: { memory: 'visible' },
+    },
+  ])('$name', ({ minProperties, preferredName, omittedName, expected }) => {
     const schema: SchemaObject = {
       type: 'object',
-      minProperties: 2,
+      minProperties,
       propertyNames: { type: 'string', enum: ['cpu', 'memory', 'disk'] },
       additionalProperties: {
         type: 'string',
+        'x-additionalPropertiesName': preferredName,
         oneOf: [
           { type: 'string', const: 'visible' },
           { type: 'string', const: 'hidden', writeOnly: true },
@@ -3226,8 +3242,11 @@ describe('getExampleFromSchema', () => {
       },
     }
 
-    const example = getExampleFromSchema(schema, { mode: 'read', compositionSelection: { 'memory.oneOf': 1 } })
-    expect(example).toStrictEqual({ cpu: 'visible', disk: 'visible' })
+    const example = getExampleFromSchema(schema, {
+      mode: 'read',
+      compositionSelection: { [`${omittedName}.oneOf`]: 1 },
+    })
+    expect(example).toStrictEqual(expected)
   })
 
   it('uses allowed keys when adding entries after a custom name', () => {
