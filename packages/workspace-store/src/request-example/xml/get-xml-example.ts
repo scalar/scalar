@@ -16,7 +16,7 @@ import {
   getExampleFromSchema,
   selectExampleComposition,
 } from '../builder/helpers/get-example-from-schema'
-import { matchXmlPropertyPattern } from './match-xml-property-pattern'
+import { matchPropertyPattern } from '../match-property-pattern'
 import { type WriteXmlOptions, writeXml } from './write-xml'
 import type { XmlAttribute, XmlDiagnostic, XmlExampleResult, XmlName, XmlNode } from './xml-node'
 
@@ -381,7 +381,7 @@ const buildXmlExample = (
         const property = properties?.[key]
         const patterns = 'patternProperties' in schema ? schema.patternProperties : undefined
         const matchingPatterns = Object.entries(patterns ?? {}).flatMap(([pattern, patternSchema]) => {
-          const matches = matchXmlPropertyPattern(pattern, key)
+          const matches = matchPropertyPattern(pattern, key)
           if (matches === undefined) {
             report('error', 'unsupported-pattern', 'Property patterns must use the bounded XML matching subset.', [
               ...context.path,
