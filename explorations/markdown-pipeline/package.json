@@ -1,0 +1,36 @@
+{
+  "name": "@scalar-internal/markdown-pipeline-exploration",
+  "private": true,
+  "description": "Harness comparing the Markdown pipeline in @scalar/markdown with the unified renderer it replaced",
+  "type": "module",
+  "scripts": {
+    "setup": "node bench/corpus.mjs && node bench/build.mjs",
+    "build": "node bench/build.mjs",
+    "test": "vitest run",
+    "spec": "node bench/spec.mjs",
+    "spec:compare": "node bench/spec-vs.mjs",
+    "size": "node bench/size.mjs baseline && node bench/size-proto.mjs && node bench/size-alt.mjs",
+    "size:breakdown": "node bench/compose.mjs",
+    "bench": "node bench/bench-proto.mjs",
+    "bench:alternatives": "node bench/bench.mjs",
+    "parity": "node bench/diff-corpus.mjs",
+    "security": "node bench/attack.mjs 300000",
+    "sanitizer": "node bench/sanitizer-suites.mjs && node --stack-size=4000 bench/sanitizer-run.mjs --baseline",
+    "pathological": "node --stack-size=4000 bench/patho.mjs 30000",
+    "corpora": "node bench/apis-guru.mjs && node bench/markdown-files.mjs && node bench/fixtures.mjs && node bench/fuzz-corpus.mjs 25000 7",
+    "gamut": "for l in apis-guru markdown-files fixtures fuzz; do node bench/differential.mjs .out/$l.json $l${SHIPPED:+-shipped} && node bench/classify.mjs $l${SHIPPED:+-shipped}; done",
+    "minimize": "node bench/minimize.mjs fuzz 1000",
+    "visual": "for l in apis-guru markdown-files fixtures; do node bench/visual.mjs diff $l 2000 && node bench/visual.mjs same $l 3000; done"
+  },
+  "devDependencies": {
+    "commonmark": "0.31.2",
+    "commonmark-spec": "0.31.2",
+    "markdown-it": "14.3.3",
+    "marked": "14.1.4",
+    "micromark": "4.0.0",
+    "micromark-extension-gfm": "3.0.0",
+    "parse5": "7.3.0",
+    "rolldown": "1.2.14",
+    "vitest": "4.1.12"
+  }
+}

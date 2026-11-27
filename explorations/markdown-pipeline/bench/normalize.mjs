@@ -1,0 +1,107 @@
+import { parseFragment } from 'parse5'
+
+const BLOCK = new Set(
+  'address article aside blockquote body caption center col colgroup dd details dialog dir div dl dt fieldset figcaption figure footer form frame frameset h1 h2 h3 h4 h5 h6 head header hr html iframe legend li link main menu menuitem meta nav noframes ol optgroup option p param pre section source summary table tbody td tfoot th thead title tr track ul'.split(
+    ' ',
+  ),
+)
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+/**
+ * Canonical HTML: decoded entities, sorted attributes, and whitespace collapsed
+ * the way the browser renders it with `white-space: normal`. A run of spaces is
+ * one space; a space right after another collapsible space is dropped, even
+ * across an inline element boundary; spaces at the start and end of a line
+ * (block edges, around `<br>`) are dropped. Two outputs that normalize the same
+ * render the same text; `pre` keeps its whitespace exactly.
+ *
+ * A `<th>` with only whitespace in it stays apart from an empty one: Scalar's
+ * styles hide `th:empty`, so the two render differently.
+ */
+/** `pre` text is hidden from the whitespace passes behind these, and restored at the end. */
+const PRE = { ' ': '\u0001', '\n': '\u0002', '\t': '\u0003', '\r': '\u0004', '\f': '\u0005' }
+const UNPRE = Object.fromEntries(Object.entries(PRE).map(([k, v]) => [v, k]))
+export const normalize = (html, { dropAttrs = [] } = {}) => {
+  let out = ''
+  /** Whether the last rendered character was collapsible space, or a line start. */
+  let space = true
+  const walk = (node, pre) => {
+    for (const c of node.childNodes ?? []) {
+      if (c.nodeName === '#text') {
+        if (pre) {
+          out += esc(c.value).replace(/[ \n\t\r\f]/g, (ch) => PRE[ch])
+          space = false
+          continue
+        }
+        let v = esc(c.value).replace(/[ \t\n\r\f]+/g, ' ')
+        if (space && v.startsWith(' ')) v = v.slice(1)
+        if (v) space = v.endsWith(' ')
+        out += v
+      } else if (c.nodeName === '#comment') out += '<!--' + c.data + '-->'
+      else if (c.tagName) {
+        const tag = c.tagName
+        const attrs = c.attrs
+          .filter((a) => !dropAttrs.includes(a.name))
+          .map(
+            (a) =>
+              ' ' +
+              a.name +
+              '="' +
+              esc(
+                a.name === 'href' || a.name === 'src'
+                  ? (() => {
+                      try {
+                        return decodeURI(a.value)
+                      } catch {
+                        return a.value
+                      }
+                    })()
+                  : a.value,
+              ) +
+              '"',
+          )
+          .sort()
+          .join('')
+        if (BLOCK.has(tag) || tag === 'br') space = true
+        if (BLOCK.has(tag)) out += '\n'
+        out += '<' + tag + attrs + '>'
+        if (BLOCK.has(tag)) out += '\n'
+        const kids = c.childNodes ?? []
+        if (
+          tag === 'th' &&
+          kids.length > 0 &&
+          kids.every((k) => k.nodeName === '#text' && !/[^ \t\n\r\f]/.test(k.value))
+        ) {
+          out += '<!--whitespace only-->'
+        }
+        walk(c.tagName === 'template' ? c.content : c, pre || tag === 'pre')
+        if (!['br', 'hr', 'img', 'input', 'source', 'wbr', 'meta', 'link', 'col'].includes(tag)) {
+          if (BLOCK.has(tag)) out += '\n'
+          out += '</' + tag + '>'
+          if (BLOCK.has(tag)) {
+            out += '\n'
+            space = true
+          }
+        }
+      }
+    }
+  }
+  walk(parseFragment(html), false)
+  let prev
+  do {
+    prev = out
+    out = out
+      // A space just inside an inline element's edge renders like one just outside it.
+      .replace(/(<(?!\/)(?!br|img|input|hr)[a-z0-9]+(?: [^>]*)?>) /g, ' $1')
+      .replace(/ (<\/[a-z0-9]+>)/g, '$1 ')
+      .replace(/ {2,}/g, ' ')
+  } while (out !== prev)
+  return (
+    out
+      // A space at the end of a line (before a block edge or a `<br>`) does not render, even with
+      // empty elements in between. Images and inputs render, so a space before them stays.
+      .replace(/ ((?:<(?!img|input)[^>]+>)*)(?=\n|<br>)/g, '$1')
+      .replace(/[ \t]*\n[ \t\n]*/g, '\n')
+      .trim()
+      .replace(/[\u0001-\u0005]/g, (ch) => UNPRE[ch])
+  )
+}

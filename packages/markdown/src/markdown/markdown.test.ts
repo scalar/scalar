@@ -28,7 +28,7 @@ describe('htmlFromMarkdown', () => {
       allowTags: ['script'],
     })
 
-    expect(html.trim()).toEqual(`<h1>Example Heading\n  <script>alert('foobar');</script>\n</h1>`)
+    expect(html.trim()).toEqual(`<h1>Example Heading<script>alert('foobar');</script></h1>`)
   })
 
   it('allows to add ids', () => {
@@ -56,7 +56,7 @@ describe('htmlFromMarkdown', () => {
 
     expect(second).toEqual(first)
     expect(first).toEqual(
-      '\n<p>The <code>id</code> of the <strong>customer</strong> this charge is for, if one exists.</p>\n',
+      '<p>The <code>id</code> of the <strong>customer</strong> this charge is for, if one exists.</p>',
     )
   })
 
@@ -65,28 +65,28 @@ describe('htmlFromMarkdown', () => {
     const images = '<img src="x.png" alt="x"> and <picture><img src="y.png"></picture>'
 
     // Two different strings under the same options
-    expect(htmlFromMarkdown('Property number 12', removeImages)).toEqual('\n<p>Property number 12</p>\n')
-    expect(htmlFromMarkdown('A model.', removeImages)).toEqual('\n<p>A model.</p>\n')
+    expect(htmlFromMarkdown('Property number 12', removeImages)).toEqual('<p>Property number 12</p>')
+    expect(htmlFromMarkdown('A model.', removeImages)).toEqual('<p>A model.</p>')
 
     // Then variants of allowTags and removeTags, interleaved with the first set
     expect(htmlFromMarkdown(`# Example Heading<script>alert('foobar');</script>`, { allowTags: ['script'] })).toEqual(
-      `\n<h1>Example Heading\n  <script>alert('foobar');</script>\n</h1>\n`,
+      `<h1>Example Heading<script>alert('foobar');</script></h1>`,
     )
     expect(htmlFromMarkdown('# <i>Example</i> <em>Heading</em>', { removeTags: ['i'] })).toEqual(
-      '\n<h1>Example <em>Heading</em></h1>\n',
+      '<h1>Example <em>Heading</em></h1>',
     )
-    expect(htmlFromMarkdown(images, removeImages)).toEqual('\n<p>and</p>\n')
+    expect(htmlFromMarkdown(images, removeImages)).toEqual('<p> and </p>')
     expect(htmlFromMarkdown(images, { removeTags: [] })).toEqual(
-      '\n<p>\n  <img src="x.png" alt="x"> and \n  <picture>\n    <img src="y.png">\n  </picture>\n</p>\n',
+      '<p><img src="x.png" alt="x"> and <picture><img src="y.png"></picture></p>',
     )
     expect(htmlFromMarkdown(images)).toEqual(
-      '\n<p>\n  <img src="x.png" alt="x"> and \n  <picture>\n    <img src="y.png">\n  </picture>\n</p>\n',
+      '<p><img src="x.png" alt="x"> and <picture><img src="y.png"></picture></p>',
     )
 
     // And the first set again, unchanged
-    expect(htmlFromMarkdown('Property number 12', removeImages)).toEqual('\n<p>Property number 12</p>\n')
+    expect(htmlFromMarkdown('Property number 12', removeImages)).toEqual('<p>Property number 12</p>')
     expect(htmlFromMarkdown(`# Example Heading<script>alert('foobar');</script>`, removeImages)).toEqual(
-      '\n<h1>Example Heading</h1>\n',
+      '<h1>Example Heading</h1>',
     )
   })
 
@@ -229,7 +229,7 @@ curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
   it('preserves literal angle-bracket text while parsing inline markdown inside HTML paragraphs', () => {
     const html = htmlFromMarkdown('<p>Use &lt;span&gt; with `className`</p>')
 
-    expect(html.trim()).toBe('<p>Use &#x3C;span> with <code>className</code></p>')
+    expect(html.trim()).toBe('<p>Use &lt;span&gt; with <code>className</code></p>')
   })
 
   it('does not parse markdown inside unsupported HTML tags', () => {
@@ -293,7 +293,7 @@ curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
     })
 
     it('wraps plain text in a paragraph', () => {
-      expect(htmlFromMarkdown('Integer numbers.')).toBe('\n<p>Integer numbers.</p>\n')
+      expect(htmlFromMarkdown('Integer numbers.')).toBe('<p>Integer numbers.</p>')
     })
 
     it('still removes the paragraph when p is a removed tag', () => {
@@ -355,8 +355,15 @@ curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
       expect(htmlFromMarkdown(markdown)).toBe(throughPipeline(markdown))
     })
 
-    it.each(Object.entries(dangerous))('never returns the raw interpolation for a %s (%j)', (_name, markdown) => {
-      expect(htmlFromMarkdown(markdown)).not.toBe(`\n<p>${markdown}</p>\n`)
+    /**
+     * A character reference is the exception: `&lt;` decodes to `<` and escapes
+     * straight back to `&lt;`, so the correct output happens to equal the
+     * interpolation. The check above still pins that it goes through the pipeline.
+     */
+    const changedByThePipeline = Object.entries(dangerous).filter(([name]) => name !== 'character reference')
+
+    it.each(changedByThePipeline)('never returns the raw interpolation for a %s (%j)', (_name, markdown) => {
+      expect(htmlFromMarkdown(markdown)).not.toBe(`<p>${markdown}</p>`)
     })
 
     it('never lets an inline event handler through', () => {

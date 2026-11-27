@@ -1,3 +1,8 @@
+/**
+ * The unified/remark/rehype renderer, kept for `@scalar/markdown/renderer`, which
+ * `@scalar/code-highlight` builds on with its own highlighter. `htmlFromMarkdown`,
+ * `getHeadings` and `splitContent` from the package root use `../pipeline` instead.
+ */
 import type { Element as HastElement, ElementContent as HastElementContent, Root as HastRoot } from 'hast'
 import type { Heading, Root as MdastRoot, RootContent as MdastRootContent, Node, PhrasingContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'

@@ -1,0 +1,816 @@
+/**
+ * Block parser: CommonMark's line-by-line container algorithm (ported from
+ * commonmark.js), plus GFM tables, task list items and footnote definitions.
+ */
+import { CLOSETAG, type Inline, InlineParser, OPENTAG, type Refs, normalizeLabel, unescapeString } from './inline'
+import { trim, trimEnd } from './text'
+
+type Kind =
+  | 'root'
+  | 'blockquote'
+  | 'list'
+  | 'listItem'
+  | 'paragraph'
+  | 'heading'
+  | 'thematicBreak'
+  | 'code'
+  | 'html'
+  | 'table'
+  | 'footnoteDefinition'
+
+type ListData = {
+  ordered: boolean
+  bullet: string
+  delimiter: string
+  start: number
+  markerOffset: number
+  padding: number
+}
+
+/** Internal block. Converted to mdast once the whole document is parsed. */
+type B = {
+  kind: Kind
+  parent: B | null
+  children: B[]
+  open: boolean
+  startLine: number
+  endLine: number
+  content: string
+  // per kind
+  depth?: number
+  list?: ListData
+  fenced?: boolean
+  fenceChar?: string
+  fenceLength?: number
+  fenceOffset?: number
+  htmlType?: number
+  rows?: string[]
+  align?: (string | null)[]
+  label?: string
+  /** A list that took in two or more line endings after its content, which makes it loose in micromark. */
+  looseTail?: boolean
+  /** Indented code: lines so far, and the last one indented by four columns or more. */
+  codeLines?: number
+  lastDeep?: number
+}
+
+export type Block =
+  | { type: 'paragraph'; children: Inline[]; position: Pos; data?: NodeData }
+  | {
+      type: 'heading'
+      depth: number
+      children: Inline[]
+      position: Pos
+      data?: NodeData
+    }
+  | { type: 'thematicBreak'; position: Pos }
+  | { type: 'blockquote'; children: Block[]; position: Pos; data?: NodeData }
+  | { type: 'list'; ordered: boolean; start: number | null; spread: boolean; children: ListItem[]; position: Pos }
+  | { type: 'code'; lang: string | null; meta: string | null; value: string; position: Pos }
+  | { type: 'html'; value: string; position: Pos }
+  | { type: 'table'; align: (string | null)[]; children: TableRow[]; position: Pos; data?: NodeData }
+  | { type: 'footnoteDefinition'; identifier: string; label: string; children: Block[]; position: Pos }
+export type ListItem = { type: 'listItem'; checked: boolean | null; spread: boolean; children: Block[]; position: Pos }
+export type TableRow = { type: 'tableRow'; children: { type: 'tableCell'; children: Inline[] }[] }
+/** Extra data a `transform` callback attaches to a node, as in mdast. */
+export type NodeData = { hName?: string; hProperties?: Record<string, unknown>; [key: string]: unknown }
+export type Pos = { start: { line: number }; end: { line: number } }
+export type Root = { type: 'root'; children: Block[]; footnotes: Map<string, Block & { type: 'footnoteDefinition' }> }
+
+const CODE_INDENT = 4
+const MAX_DEPTH = 100
+const ATX = /^#{1,6}(?:[ \t]+|$)/
+const FENCE = /^`{3,}(?!.*`)|^~{3,}/
+const CLOSING_FENCE = /^(?:`{3,}|~{3,})(?=[ \t]*$)/
+const THEMATIC = /^(?:\*[ \t]*){3,}$|^(?:_[ \t]*){3,}$|^(?:-[ \t]*){3,}$/
+const SETEXT = /^(?:=+|-+)[ \t]*$/
+const BULLET = /^[*+-]/
+const ORDERED = /^(\d{1,9})([.)])/
+const MAYBE_SPECIAL = /^[#`~*+_=<>0-9|:[-]/
+/**
+ * A GFM delimiter row. The trailing pipe is `(?:\|[ \t]*)?` rather than `\|?[ \t]*` so that no
+ * two whitespace runs are adjacent: with them, a long run of tabs that fails to match
+ * backtracked quadratically.
+ */
+const TABLE_DELIM = /^\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*(?:\|[ \t]*)?$/
+const FOOTNOTE_DEF = /^\[\^([^\]\s][^\]]*)\]:/
+const HTML_OPEN = [
+  /./,
+  /^<(?:script|pre|textarea|style)(?:\s|>|$)/i,
+  /^<!--/,
+  /^<[?]/,
+  /^<![A-Za-z]/,
+  /^<!\[CDATA\[/,
+  /^<[/]?(?:address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[123456]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul)(?:\s|[/]?[>]|$)/i,
+  new RegExp(`^(?:${OPENTAG}|${CLOSETAG})\\s*$`, 'i'),
+]
+const HTML_CLOSE = [/./, /<\/(?:script|pre|textarea|style)>/i, /-->/, /\?>/, />/, /\]\]>/]
+
+const isSpaceOrTab = (c: string | undefined): boolean => c === ' ' || c === '\t'
+
+/**
+ * Removes an ATX heading's optional closing sequence: spaces or tabs, `#`s, then
+ * spaces or tabs to the end. Content that is only `#`s is all closing sequence.
+ *
+ * commonmark.js does this with `/^[ \t]*#+[ \t]*$/` and `/[ \t]+#+[ \t]*$/`, but the
+ * second backtracks quadratically on a long run of tabs not followed by `#`. Scanning
+ * from the end gives the same result in linear time.
+ */
+const stripClosingSequence = (s: string): string => {
+  let end = s.length
+  while (end > 0 && isSpaceOrTab(s[end - 1])) end--
+  let hashes = end
+  while (hashes > 0 && s[hashes - 1] === '#') hashes--
+  if (hashes === end) return s
+  let space = hashes
+  while (space > 0 && isSpaceOrTab(s[space - 1])) space--
+  if (space === 0) return ''
+  return space === hashes ? s : s.slice(0, space)
+}
+
+const canContain = (parent: Kind, child: Kind): boolean => {
+  switch (parent) {
+    case 'root':
+    case 'blockquote':
+    case 'listItem':
+    case 'footnoteDefinition':
+      return child !== 'listItem'
+    case 'list':
+      return child === 'listItem'
+    default:
+      return false
+  }
+}
+const acceptsLines = (k: Kind): boolean => k === 'paragraph' || k === 'code' || k === 'html' || k === 'table'
+
+/** Splits a table row into cells on unescaped pipes. */
+const splitRow = (line: string): string[] => {
+  // GFM trims spaces and tabs only: a no-break space is cell content.
+  let s = trim(line, ' \t')
+  if (s.startsWith('|')) s = s.slice(1)
+  // A final pipe ends the row unless an odd number of backslashes escapes it.
+  if (s.endsWith('|') && (s.length - 1 - trimEnd(s.slice(0, -1), '\\').length) % 2 === 0) s = s.slice(0, -1)
+  const cells: string[] = []
+  let cell = ''
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i]
+    if (c === '\\' && s[i + 1] === '|') {
+      cell += '|'
+      i++
+    } else if (c === '\\' && s[i + 1] === '\\') {
+      // An escaped backslash: the pipe after it is not escaped.
+      cell += '\\\\'
+      i++
+    } else if (c === '|') {
+      cells.push(trim(cell, ' \t'))
+      cell = ''
+    } else cell += c
+  }
+  cells.push(trim(cell, ' \t'))
+  return cells
+}
+
+export class BlockParser {
+  private doc: B = this.node('root', 0)
+  private tip: B = this.doc
+  private oldtip: B = this.doc
+  private line = ''
+  private lineNumber = 0
+  private offset = 0
+  private column = 0
+  private nextNonspace = 0
+  private nextNonspaceColumn = 0
+  private indent = 0
+  private indented = false
+  private blank = false
+  private partiallyConsumedTab = false
+  private allClosed = true
+  private lines: string[] = []
+  /** Set while a container (list, block quote, footnote) starts, which takes the line into the list it closes. */
+  private startingContainer = false
+  private done = false
+  private unterminated = false
+  private lastMatched: B = this.doc
+  readonly refs: Refs = new Map()
+  readonly footnotes = new Set<string>()
+  private inline = new InlineParser(this.refs, this.footnotes)
+  /** Empty cells tables may still be padded with in this document. */
+  private paddingBudget = 0
+
+  /** `htmlAsText`: raw HTML in the input is literal text, for Markdown found inside raw HTML. */
+  constructor(options?: { htmlAsText?: boolean }) {
+    this.inline.htmlAsText = options?.htmlAsText ?? false
+  }
+
+  private node(kind: Kind, line: number): B {
+    return { kind, parent: null, children: [], open: true, startLine: line, endLine: line, content: '' }
+  }
+
+  parse(input: string): Root {
+    // Generated content may not outgrow the input: padding cells and reference expansion each get
+    // the input's length, or 100,000 for small documents.
+    const budget = Math.max(input.length, 100_000)
+    this.paddingBudget = budget
+    this.inline.referenceBudget = budget
+    const lines = input.replace(/^\ufeff/, '').split(/\r\n|\r|\n/)
+    this.unterminated = lines.at(-1) !== ''
+    if (!this.unterminated) lines.pop()
+    this.lines = lines
+    for (const l of lines) this.incorporateLine(l)
+    this.done = true
+    while (this.tip !== this.doc) this.finalize(this.tip, lines.length)
+    this.finalize(this.doc, lines.length)
+    const footnotes = new Map()
+    const children = this.convertChildren(this.doc, footnotes)
+    return { type: 'root', children, footnotes }
+  }
+
+  private findNextNonspace(): void {
+    const ln = this.line
+    let i = this.offset
+    let cols = this.column
+    let c: string | undefined
+    while ((c = ln[i]) !== undefined) {
+      if (c === ' ') {
+        i++
+        cols++
+      } else if (c === '\t') {
+        i++
+        cols += 4 - (cols % 4)
+      } else break
+    }
+    this.blank = c === undefined
+    this.nextNonspace = i
+    this.nextNonspaceColumn = cols
+    this.indent = cols - this.column
+    this.indented = this.indent >= CODE_INDENT
+  }
+
+  private advanceNextNonspace(): void {
+    this.offset = this.nextNonspace
+    this.column = this.nextNonspaceColumn
+    this.partiallyConsumedTab = false
+  }
+
+  private advanceOffset(count: number, columns: boolean): void {
+    let c: string | undefined
+    while (count > 0 && (c = this.line[this.offset]) !== undefined) {
+      if (c === '\t') {
+        const toTab = 4 - (this.column % 4)
+        if (columns) {
+          this.partiallyConsumedTab = toTab > count
+          const adv = toTab > count ? count : toTab
+          this.column += adv
+          this.offset += this.partiallyConsumedTab ? 0 : 1
+          count -= adv
+        } else {
+          this.partiallyConsumedTab = false
+          this.column += toTab
+          this.offset++
+          count--
+        }
+      } else {
+        this.partiallyConsumedTab = false
+        this.offset++
+        this.column++
+        count--
+      }
+    }
+  }
+
+  private addLine(): void {
+    if (this.partiallyConsumedTab) {
+      this.offset++
+      this.tip.content += ' '.repeat(4 - (this.column % 4))
+    }
+    this.tip.content += this.line.slice(this.offset) + '\n'
+  }
+
+  private addChild(kind: Kind): B {
+    this.startingContainer = kind === 'list' || kind === 'blockquote' || kind === 'footnoteDefinition'
+    while (!canContain(this.tip.kind, kind)) this.finalize(this.tip, this.lineNumber - 1)
+    this.startingContainer = false
+    const b = this.node(kind, this.lineNumber)
+    b.parent = this.tip
+    this.tip.children.push(b)
+    this.tip = b
+    return b
+  }
+
+  private closeUnmatchedBlocks(): void {
+    if (this.allClosed) return
+    while (this.oldtip !== this.lastMatched) {
+      const parent = this.oldtip.parent!
+      this.finalize(this.oldtip, this.lineNumber - 1)
+      this.oldtip = parent
+    }
+    this.allClosed = true
+  }
+
+  /** 0: matched, 1: not matched, 2: matched and consumed the line. */
+  private continues(b: B): 0 | 1 | 2 {
+    const ln = this.line
+    switch (b.kind) {
+      case 'blockquote':
+        if (!this.indented && ln[this.nextNonspace] === '>') {
+          this.advanceNextNonspace()
+          this.advanceOffset(1, false)
+          if (isSpaceOrTab(ln[this.offset])) this.advanceOffset(1, true)
+          return 0
+        }
+        return 1
+      case 'listItem': {
+        const l = b.list!
+        if (this.blank) {
+          if (b.children.length === 0) return 1
+          // Only the item's own indentation, as in micromark: the rest can still continue indented code.
+          if (this.indent >= l.markerOffset + l.padding) this.advanceOffset(l.markerOffset + l.padding, true)
+          else this.advanceNextNonspace()
+        } else if (this.indent >= l.markerOffset + l.padding) {
+          this.advanceOffset(l.markerOffset + l.padding, true)
+        } else return 1
+        return 0
+      }
+      case 'footnoteDefinition':
+        if (this.blank) {
+          this.advanceNextNonspace()
+          return 0
+        }
+        if (this.indent >= 4) {
+          this.advanceOffset(4, true)
+          return 0
+        }
+        return 1
+      case 'heading':
+      case 'thematicBreak':
+        return 1
+      case 'code':
+        if (b.fenced) {
+          const m =
+            this.indent <= 3 && ln[this.nextNonspace] === b.fenceChar && CLOSING_FENCE.exec(ln.slice(this.nextNonspace))
+          if (m && m[0].length >= b.fenceLength!) {
+            this.finalize(b, this.lineNumber)
+            return 2
+          }
+          let i = b.fenceOffset!
+          while (i > 0 && isSpaceOrTab(ln[this.offset])) {
+            this.advanceOffset(1, true)
+            i--
+          }
+          return 0
+        }
+        if (this.indent >= CODE_INDENT) {
+          b.codeLines = (b.codeLines ?? 1) + 1
+          b.lastDeep = b.codeLines - 1
+          this.advanceOffset(CODE_INDENT, true)
+        } else if (this.blank) {
+          b.codeLines = (b.codeLines ?? 1) + 1
+          this.advanceNextNonspace()
+        } else return 1
+        return 0
+      case 'html':
+        return this.blank && (b.htmlType === 6 || b.htmlType === 7) ? 1 : 0
+      case 'paragraph':
+      case 'table':
+        return this.blank ? 1 : 0
+      default:
+        return 0
+    }
+  }
+
+  /** Tries each block start in order. 0: none, 1: container started, 2: leaf started. */
+  private tryStarts(container: B): 0 | 1 | 2 {
+    // Past this depth, container markers are read as text: deeper nesting has no
+    // real use, and unbounded depth would overflow the stack when rendering.
+    let depth = 0
+    for (let p: B | null = this.tip; p; p = p.parent) depth++
+    if (depth > MAX_DEPTH) return 0
+    const ln = this.line
+    const rest = ln.slice(this.nextNonspace)
+    const c = ln[this.nextNonspace]
+    if (!this.indented) {
+      // Block quote
+      if (c === '>') {
+        this.advanceNextNonspace()
+        this.advanceOffset(1, false)
+        if (isSpaceOrTab(ln[this.offset])) this.advanceOffset(1, true)
+        this.closeUnmatchedBlocks()
+        this.addChild('blockquote')
+        return 1
+      }
+      // ATX heading
+      let m = c === '#' ? ATX.exec(rest) : null
+      if (m) {
+        this.advanceNextNonspace()
+        this.advanceOffset(m[0].length, false)
+        this.closeUnmatchedBlocks()
+        const h = this.addChild('heading')
+        h.depth = m[0].trim().length
+        h.content = stripClosingSequence(ln.slice(this.offset))
+        this.advanceOffset(ln.length - this.offset, false)
+        return 2
+      }
+      // Fenced code
+      if ((c === '`' || c === '~') && (m = FENCE.exec(rest))) {
+        this.closeUnmatchedBlocks()
+        const b = this.addChild('code')
+        b.fenced = true
+        b.fenceLength = m[0].length
+        b.fenceChar = m[0][0]
+        b.fenceOffset = this.indent
+        this.advanceNextNonspace()
+        this.advanceOffset(m[0].length, false)
+        return 2
+      }
+      // HTML block
+      if (c === '<') {
+        for (let t = 1; t <= 7; t++) {
+          // The last kind cannot interrupt a paragraph.
+          if (!HTML_OPEN[t]!.test(rest) || (t === 7 && container.kind === 'paragraph')) continue
+          const lazy = !this.allClosed && !this.blank && this.tip.kind === 'paragraph'
+          const last = this.lineNumber === this.lines.length && this.unterminated
+          if (t === 7 && lazy && !last) {
+            // micromark does not take it as a lazy line either: the paragraph ends, and the block
+            // goes into the paragraph's container, which closes on a line that does not continue it.
+            this.finalize(this.tip, this.lineNumber - 1)
+            this.allClosed = true
+          } else this.closeUnmatchedBlocks()
+          const b = this.addChild('html')
+          b.htmlType = t
+          return 2
+        }
+      }
+      // Setext heading
+      if (container.kind === 'paragraph' && (c === '=' || c === '-') && SETEXT.test(rest)) {
+        this.closeUnmatchedBlocks()
+        this.extractReferences(container)
+        if (container.content.length > 0) {
+          container.kind = 'heading'
+          container.depth = c === '=' ? 1 : 2
+          this.advanceOffset(ln.length - this.offset, false)
+          return 2
+        }
+      }
+      // GFM table: a delimiter row turns the paragraph's last line into a header row.
+      // A delimiter row that is also a list item (`- | -`) starts the list, as in micromark.
+      if (
+        container.kind === 'paragraph' &&
+        (c === '|' || c === ':' || c === '-') &&
+        TABLE_DELIM.test(rest) &&
+        !/^[-+*][ \t]+\S/.test(rest)
+      ) {
+        // Only the last line can be the header. Splitting the whole paragraph for every
+        // delimiter-like line was quadratic in a long paragraph.
+        const content = container.content.endsWith('\n') ? container.content.slice(0, -1) : container.content
+        const lastBreak = content.lastIndexOf('\n')
+        const header = content.slice(lastBreak + 1)
+        const align = splitRow(rest).map((d) => {
+          const l = d.startsWith(':')
+          const r = d.endsWith(':')
+          return l && r ? 'center' : l ? 'left' : r ? 'right' : null
+        })
+        // micromark needs no pipe when the delimiter row cannot be anything else, but a lone `|`
+        // is a row without cells, so not a header.
+        const head = trim(header, ' \t')
+        if (head !== '' && head !== '|' && splitRow(header).length === align.length) {
+          this.closeUnmatchedBlocks()
+          const before = lastBreak === -1 ? [] : content.slice(0, lastBreak).split('\n')
+          const table = this.node('table', this.lineNumber - 1)
+          table.parent = container.parent
+          table.align = align
+          table.rows = [header]
+          if (before.length) {
+            container.content = before.join('\n') + '\n'
+            container.parent!.children.push(table)
+            this.finalize(container, this.lineNumber - 2)
+          } else {
+            const siblings = container.parent!.children
+            siblings[siblings.indexOf(container)] = table
+          }
+          this.tip = table
+          this.advanceOffset(ln.length - this.offset, false)
+          return 2
+        }
+      }
+      // Thematic break
+      if ((c === '*' || c === '-' || c === '_') && THEMATIC.test(rest)) {
+        this.closeUnmatchedBlocks()
+        this.addChild('thematicBreak')
+        this.advanceOffset(ln.length - this.offset, false)
+        return 2
+      }
+      // GFM footnote definition
+      if (c === '[' && (m = FOOTNOTE_DEF.exec(rest))) {
+        this.closeUnmatchedBlocks()
+        const b = this.addChild('footnoteDefinition')
+        b.label = m[1]!
+        this.footnotes.add(normalizeLabel(`[${m[1]}]`))
+        this.advanceNextNonspace()
+        this.advanceOffset(m[0].length, false)
+        // Spaces after the marker are stripped, so they never make an indented code block.
+        while (isSpaceOrTab(ln[this.offset])) this.advanceOffset(1, false)
+        return 1
+      }
+    }
+    // List item
+    if (!this.indented || container.kind === 'list') {
+      const data = this.parseListMarker(container)
+      if (data) {
+        this.closeUnmatchedBlocks()
+        const l = this.tip.list
+        if (
+          this.tip.kind !== 'list' ||
+          !l ||
+          l.ordered !== data.ordered ||
+          l.delimiter !== data.delimiter ||
+          l.bullet !== data.bullet
+        ) {
+          this.addChild('list').list = data
+        }
+        this.addChild('listItem').list = data
+        return 1
+      }
+    }
+    // Indented code
+    if (this.indented && this.tip.kind !== 'paragraph' && !this.blank) {
+      this.advanceOffset(CODE_INDENT, true)
+      this.closeUnmatchedBlocks()
+      this.addChild('code')
+      return 2
+    }
+    return 0
+  }
+
+  private parseListMarker(container: B): ListData | null {
+    if (this.indent >= 4) return null
+    const rest = this.line.slice(this.nextNonspace)
+    const data: ListData = {
+      ordered: false,
+      bullet: '',
+      delimiter: '',
+      start: 1,
+      markerOffset: this.indent,
+      padding: 0,
+    }
+    let m = BULLET.exec(rest)
+    if (m) data.bullet = m[0]
+    else if ((m = ORDERED.exec(rest)) && (container.kind !== 'paragraph' || m[1] === '1')) {
+      data.ordered = true
+      data.start = Number.parseInt(m[1]!, 10)
+      data.delimiter = m[2]!
+    } else return null
+    const next = this.line[this.nextNonspace + m[0].length]
+    if (!(next === undefined || next === '\t' || next === ' ')) return null
+    if (container.kind === 'paragraph' && !/[^ \t]/.test(this.line.slice(this.nextNonspace + m[0].length))) return null
+    this.advanceNextNonspace()
+    this.advanceOffset(m[0].length, true)
+    const startCol = this.column
+    const startOffset = this.offset
+    do {
+      this.advanceOffset(1, true)
+    } while (this.column - startCol < 5 && isSpaceOrTab(this.line[this.offset]))
+    const blankItem = this.line[this.offset] === undefined
+    const spaces = this.column - startCol
+    if (spaces >= 5 || spaces < 1 || blankItem) {
+      data.padding = m[0].length + 1
+      this.column = startCol
+      this.offset = startOffset
+      if (isSpaceOrTab(this.line[this.offset])) this.advanceOffset(1, true)
+    } else data.padding = m[0].length + spaces
+    return data
+  }
+
+  private incorporateLine(ln: string): void {
+    let container = this.doc
+    this.oldtip = this.tip
+    this.offset = 0
+    this.column = 0
+    this.blank = false
+    this.partiallyConsumedTab = false
+    this.lineNumber++
+    this.line = ln.includes('\0') ? ln.replace(/\0/g, '�') : ln
+
+    let last: B | undefined
+    while ((last = container.children.at(-1)) && last.open) {
+      container = last
+      this.findNextNonspace()
+      const r = this.continues(container)
+      if (r === 2) return
+      if (r === 1) {
+        container = container.parent!
+        break
+      }
+    }
+    this.allClosed = container === this.oldtip
+    this.lastMatched = container
+
+    let matchedLeaf = acceptsLines(container.kind) && container.kind !== 'paragraph' && container.kind !== 'table'
+    while (!matchedLeaf) {
+      this.findNextNonspace()
+      if (!this.indented && !MAYBE_SPECIAL.test(ln.slice(this.nextNonspace))) {
+        this.advanceNextNonspace()
+        break
+      }
+      const r = this.tryStarts(container)
+      if (r === 0) {
+        this.advanceNextNonspace()
+        break
+      }
+      container = this.tip
+      if (r === 2) matchedLeaf = true
+    }
+
+    if (!this.allClosed && !this.blank && this.tip.kind === 'paragraph') {
+      // Lazy paragraph continuation
+      this.addLine()
+      return
+    }
+    this.closeUnmatchedBlocks()
+    const k = container.kind
+    if (k === 'table') {
+      // The delimiter row itself was consumed when the table started.
+      if (this.offset < this.line.length) container.rows!.push(this.line.slice(this.offset))
+    } else if (acceptsLines(k)) {
+      this.addLine()
+      if (
+        k === 'html' &&
+        container.htmlType! <= 5 &&
+        HTML_CLOSE[container.htmlType!]!.test(this.line.slice(this.offset))
+      ) {
+        this.finalize(container, this.lineNumber)
+      }
+    } else if (this.offset < ln.length && !this.blank) {
+      this.addChild('paragraph')
+      this.advanceNextNonspace()
+      this.addLine()
+    }
+  }
+
+  private extractReferences(b: B): void {
+    let pos: number
+    while (b.content[0] === '[' && (pos = this.inline.parseReference(b.content))) b.content = b.content.slice(pos)
+  }
+
+  private finalize(b: B, line: number): void {
+    const parent = b.parent
+    b.open = false
+    b.endLine = line
+    switch (b.kind) {
+      case 'paragraph':
+        if (b.content[0] === '[') {
+          this.extractReferences(b)
+          if (!/[^ \t\n]/.test(b.content)) b.content = ''
+        }
+        break
+      case 'code':
+        if (!b.fenced) {
+          // As in micromark, the code runs to its last line indented by four columns, even a
+          // line of only spaces, and only the final line ending is dropped. commonmark.js drops
+          // every trailing blank line instead, so micromark shows one more empty line.
+          const last = b.lastDeep ?? 0
+          const value = b.content
+            .split('\n')
+            .slice(0, last + 1)
+            .join('\n')
+            .replace(/\n$/, '')
+          b.content = value + '\n'
+          b.endLine = b.startLine + last
+        }
+        break
+      // Both take in the blank lines after them, so they end where their content does.
+      case 'listItem':
+      case 'footnoteDefinition':
+        b.endLine = b.children.at(-1)?.endLine ?? b.startLine
+        break
+      case 'list': {
+        b.endLine = b.children.at(-1)!.endLine
+        // As in micromark, a list runs on to the last blank line after it that has a container
+        // prefix (indentation, `>`), or to the line that starts another container in the same
+        // parent. Taking in two or more line endings makes it loose, and its parent does not see
+        // those blank lines (`- a\n  - b\n  \n  c` stays tight, `- a\n\n  \nc` is loose).
+        const next = this.done ? this.lines.length + 1 : this.lineNumber
+        let last = b.endLine
+        for (let n = last + 1; n < next; n++) if (this.lines[n - 1] !== '') last = n
+        if (this.startingContainer && parent !== this.doc) last = next
+        b.looseTail = last - b.endLine >= 2
+        b.endLine = Math.min(last, next - 1)
+        break
+      }
+    }
+    this.tip = parent ?? this.doc
+  }
+
+  private convertChildren(b: B, footnotes: Root['footnotes']): Block[] {
+    const out: Block[] = []
+    for (const c of b.children) {
+      const block = this.convert(c, footnotes)
+      if (block) out.push(block)
+    }
+    return out
+  }
+
+  private convert(b: B, footnotes: Root['footnotes']): Block | null {
+    const position: Pos = { start: { line: b.startLine }, end: { line: b.endLine } }
+    const inline = (s: string): Inline[] => this.inline.parse(trim(s, ' \t\n'))
+    switch (b.kind) {
+      case 'paragraph':
+        if (b.content === '') return null
+        return { type: 'paragraph', children: inline(b.content), position }
+      case 'heading':
+        return { type: 'heading', depth: b.depth!, children: inline(b.content), position }
+      case 'thematicBreak':
+        return { type: 'thematicBreak', position }
+      case 'blockquote':
+        return { type: 'blockquote', children: this.convertChildren(b, footnotes), position }
+      case 'html':
+        return { type: 'html', value: b.content.replace(/\n$/, ''), position }
+      case 'code': {
+        if (!b.fenced) return { type: 'code', lang: null, meta: null, value: b.content.replace(/\n$/, ''), position }
+        const nl = b.content.indexOf('\n')
+        const info = unescapeString(b.content.slice(0, nl).trim())
+        const [lang, ...meta] = info.split(/[ \t]+/)
+        const value = b.content.slice(nl + 1).replace(/\n$/, '')
+        return { type: 'code', lang: lang || null, meta: meta.join(' ') || null, value, position }
+      }
+      case 'list': {
+        const items = b.children.map((item) => {
+          const children = this.convertChildren(item, footnotes)
+          let checked: boolean | null = null
+          const first = children[0]
+          const head = first?.type === 'paragraph' ? first.children[0] : undefined
+          // A task marker needs whitespace after it and content after that. Trailing spaces
+          // before a line ending count as that whitespace, though they became a hard break.
+          const m = head?.type === 'text' ? /^\[([ \txX])\](?:[ \t\n]+|$)/.exec(head.value) : null
+          const next = first?.type === 'paragraph' ? first.children[1] : undefined
+          const spaced = m?.[0].length !== 3 || (next?.type === 'break' && next.trailing === true)
+          if (
+            head?.type === 'text' &&
+            m &&
+            spaced &&
+            (head.value.length > m[0].length || (first as { children: Inline[] }).children.length > 1)
+          ) {
+            checked = m[1] === 'x' || m[1] === 'X'
+            head.value = head.value.slice(m[0].length)
+            if (!head.value) (first as { children: Inline[] }).children.shift()
+          }
+          // An item is spread when a blank line separates its children.
+          let spread = false
+          for (let j = 0; j + 1 < item.children.length; j++) {
+            if (item.children[j]!.endLine !== item.children[j + 1]!.startLine - 1) spread = true
+          }
+          return {
+            type: 'listItem' as const,
+            checked,
+            spread,
+            children,
+            position: { start: { line: item.startLine }, end: { line: item.endLine } },
+          }
+        })
+        // A list is loose when blank lines separate its items or the children of any item.
+        let spread = b.looseTail === true || items.some((it) => it.spread)
+        for (let j = 0; j + 1 < b.children.length; j++) {
+          if (b.children[j]!.endLine !== b.children[j + 1]!.startLine - 1) spread = true
+        }
+        const l = b.list!
+        return {
+          type: 'list',
+          ordered: l.ordered,
+          start: l.ordered ? l.start : null,
+          spread,
+          children: items,
+          position,
+        }
+      }
+      case 'table': {
+        const width = b.align!.length
+        const rows = b.rows!.map((r) => {
+          const cells = splitRow(r).slice(0, width)
+          // Short rows are padded to the header's width, within a budget, as in cmark-gfm: a wide
+          // header over many short rows would otherwise turn kilobytes into hundreds of megabytes.
+          const missing = Math.min(width - cells.length, this.paddingBudget)
+          this.paddingBudget -= Math.max(missing, 0)
+          for (let k = 0; k < missing; k++) cells.push('')
+          return {
+            type: 'tableRow' as const,
+            children: cells.map((c) => ({ type: 'tableCell' as const, children: this.inline.parse(c) })),
+          }
+        })
+        return { type: 'table', align: b.align!, children: rows, position }
+      }
+      case 'footnoteDefinition': {
+        const id = normalizeLabel(`[${b.label}]`)
+        const def = {
+          type: 'footnoteDefinition' as const,
+          identifier: id,
+          label: b.label!,
+          children: this.convertChildren(b, footnotes),
+          position,
+        }
+        if (!footnotes.has(id)) footnotes.set(id, def)
+        return null
+      }
+      default:
+        return null
+    }
+  }
+}

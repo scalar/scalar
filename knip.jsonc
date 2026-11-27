@@ -29,6 +29,8 @@
     "documentation/assets/free-tools/*.js"
   ],
   "ignore": [
+    // Benchmark harnesses outside the pnpm workspace, run by hand with their own dependencies
+    "explorations/**",
     // Loaded at runtime by `@scalar/release-notes` (release:version script), not statically imported
     "release-notes.config.ts",
     // We will use this in the future, just removed it from the workspace store for now
@@ -243,6 +245,10 @@
         "!src/langs/*.test.ts",
         "bench/*.ts"
       ]
+    },
+    "packages/markdown": {
+      // Every published `exports` entry: `./renderer` keeps the unified renderer for @scalar/code-highlight
+      "entry": ["src/index.ts", "src/markdown/markdown.ts"]
     },
     "packages/icons": {
       "ignoreFiles": ["src/library/.svglintrc.js"],

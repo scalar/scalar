@@ -31,6 +31,14 @@ import '@scalar/highlight/compat/code.css'
 
 A fence without a language is left as plain text. There is no language detection, because guessing wrong is worse than not colouring at all.
 
+### How it renders
+
+`htmlFromMarkdown`, `getHeadings` and `splitContent` run on a purpose-built CommonMark and GitHub Flavored Markdown parser (ported from commonmark.js) instead of unified, remark and rehype. Raw HTML goes through an allowlist writer that re-serializes every tag, so no HTML parser ships either. The tree is shaped like mdast, so `transform` callbacks written for remark keep working.
+
+The output has the same DOM as the unified pipeline, but it is not formatted: there is no indentation and no leading or trailing newline.
+
+The unified renderer is still available as `createHtmlFromMarkdown` from `@scalar/markdown/renderer`, for packages that bring their own rehype highlighter. See [`explorations/markdown-pipeline`](https://github.com/scalar/scalar/tree/main/explorations/markdown-pipeline) for how the two compare on size, speed, parity and safety.
+
 ### Other exports
 
 | export | purpose |

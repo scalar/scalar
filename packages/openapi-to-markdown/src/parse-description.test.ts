@@ -57,9 +57,10 @@ describe('parse-description', () => {
   })
 
   it('converts raw HTML and strips dangerous elements while retaining inline Markdown', async () => {
+    // The space between the two runs survives: the unified renderer used to drop it.
     expect(
       await stringify('<p>**Hello** <em>world</em></p><script>alert(1)</script><style>bad</style><img src="x">'),
-    ).toBe('**Hello***world*\n')
+    ).toBe('**Hello** *world*\n')
   })
 
   it('retains Scalar alerts', async () => {
