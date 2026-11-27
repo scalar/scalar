@@ -2466,6 +2466,197 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toBe('BAD_REQUEST_EXCEPTION')
   })
 
+  it('generates numeric properties within their bounds and multiples', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      required: ['bounded', 'increment', 'strict'],
+      properties: {
+        bounded: { type: 'integer', maximum: 0 },
+        increment: { type: 'number', minimum: 5, maximum: 8, multipleOf: 2 },
+        strict: { type: 'integer', exclusiveMinimum: 10 },
+      },
+    }
+
+    expect(getExampleFromSchema(schema, { openapiVersion: '3.1.0', mode: 'read' })).toStrictEqual({
+      bounded: 0,
+      increment: 6,
+      strict: 11,
+    })
+  })
+
+  it.each<{ name: string; schema: SchemaObject; expected: number | null }>([
+    { name: 'negative exclusive upper bound', schema: { type: 'number', exclusiveMaximum: -2 }, expected: -3 },
+    { name: 'negative exclusive lower bound', schema: { type: 'number', exclusiveMinimum: -2 }, expected: -1 },
+    {
+      name: 'open interval between zero and one',
+      schema: { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 1 },
+      expected: 0.5,
+    },
+    {
+      name: 'negative open interval with no whole number',
+      schema: { type: 'number', exclusiveMinimum: -1, exclusiveMaximum: 0 },
+      expected: -0.5,
+    },
+    {
+      name: 'open interval with decimal bounds',
+      schema: { type: 'number', exclusiveMinimum: 0.1, exclusiveMaximum: 0.2 },
+      expected: 0.15,
+    },
+    {
+      name: 'open interval containing one representable value',
+      schema: { type: 'number', exclusiveMinimum: 0.1, exclusiveMaximum: 0.10000000000000003 },
+      expected: 0.10000000000000002,
+    },
+    {
+      name: 'stronger inclusive upper bound below the midpoint',
+      schema: { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 1, maximum: 0.25 },
+      expected: 0.25,
+    },
+    {
+      name: 'stronger inclusive lower bound',
+      schema: { type: 'number', minimum: 0.2, exclusiveMinimum: 0.1 },
+      expected: 0.2,
+    },
+    {
+      name: 'strict bound at the same threshold',
+      schema: { type: 'integer', minimum: 5, exclusiveMinimum: 5 },
+      expected: 6,
+    },
+    {
+      name: 'fractional integer bounds',
+      schema: { type: 'integer', minimum: -2.5, maximum: -1.5 },
+      expected: -2,
+    },
+    {
+      name: 'fractional multiple on an integer',
+      schema: { type: 'integer', minimum: 2, multipleOf: 1.5 },
+      expected: 3,
+    },
+    {
+      name: 'decimal multiple on a strict interval',
+      schema: { type: 'number', exclusiveMinimum: 0.2, exclusiveMaximum: 0.4, multipleOf: 0.1 },
+      expected: 0.3,
+    },
+    {
+      name: 'negative decimal multiple at an inclusive upper bound',
+      schema: { type: 'number', maximum: -0.3, multipleOf: 0.1 },
+      expected: -0.3,
+    },
+    {
+      name: 'large strict lower bound',
+      schema: { type: 'integer', exclusiveMinimum: 2 ** 53 },
+      expected: 2 ** 53 + 2,
+    },
+    {
+      name: 'multiple smaller than the representable spacing',
+      schema: { type: 'integer', minimum: 1e20, maximum: 1.000000000000001e20, multipleOf: 3 },
+      expected: 1.0000000000000002e20,
+    },
+    {
+      name: 'exact multiple between rounded grid values',
+      schema: { type: 'number', minimum: 15.2, maximum: 16.2, multipleOf: 0.1234567890123465 },
+      expected: 15.802468993580352,
+    },
+    {
+      name: 'exact multiple between widely spaced integers',
+      schema: {
+        type: 'integer',
+        minimum: 10_000_000_000_000_000_000,
+        maximum: 10_000_000_000_000_102_000,
+        multipleOf: 19,
+      },
+      expected: 10_000_000_000_000_053_000,
+    },
+    {
+      name: 'subnormal multiple between rounded grid values',
+      schema: { type: 'number', minimum: 8.940166805434e-311, maximum: 8.946573223303e-311, multipleOf: 1.000033e-318 },
+      expected: 8.940167015776e-311,
+    },
+    {
+      name: 'numeric type array',
+      schema: { type: ['integer', 'string'], exclusiveMinimum: 0, multipleOf: 2 },
+      expected: 2,
+    },
+    {
+      name: 'type array that allows fractions',
+      schema: { type: ['integer', 'number'], minimum: 0.1, maximum: 0.3, multipleOf: 0.2 },
+      expected: 0.2,
+    },
+    {
+      name: 'nullable numeric type array',
+      schema: { type: ['number', 'null'], exclusiveMinimum: 5 },
+      expected: null,
+    },
+    {
+      name: 'contradictory bounds',
+      schema: { type: 'number', minimum: 3, maximum: 2 },
+      expected: 3,
+    },
+    {
+      name: 'interval with no multiple',
+      schema: { type: 'integer', minimum: 5, maximum: 5, multipleOf: 2 },
+      expected: 5,
+    },
+  ])('generates numeric examples with $name', ({ schema, expected }) => {
+    expect(getExampleFromSchema(schema)).toBe(expected)
+  })
+
+  it.each<{ name: string; schema: SchemaObject; expected: number }>([
+    {
+      name: 'an int32 minimum above the format range',
+      schema: { type: 'integer', format: 'int32', minimum: 3e9 },
+      expected: 2_147_483_647,
+    },
+    {
+      name: 'an int32 exclusive maximum below the format range',
+      schema: { type: 'integer', format: 'int32', exclusiveMaximum: -3e9 },
+      expected: -2_147_483_648,
+    },
+    {
+      name: 'an int32 format on a number schema',
+      schema: { type: 'number', format: 'int32', minimum: 1.5 },
+      expected: 2,
+    },
+    {
+      name: 'an int32 range that contains a valid multiple',
+      schema: { type: 'integer', format: 'int32', minimum: 2_147_483_641, maximum: 3e9, multipleOf: 5 },
+      expected: 2_147_483_645,
+    },
+    {
+      name: 'a float minimum above the format range',
+      schema: { type: 'number', format: 'float', minimum: 1e40 },
+      expected: 3.4028234663852886e38,
+    },
+    {
+      name: 'a double minimum above the float range',
+      schema: { type: 'number', format: 'double', minimum: 1e40 },
+      expected: 1e40,
+    },
+  ])('generates numeric examples with $name', ({ schema, expected }) => {
+    expect(getExampleFromSchema(schema)).toBe(expected)
+  })
+
+  it.each<{ schema: SchemaObject; expected: string }>([
+    { schema: { type: 'integer', format: 'int64', minimum: 1e20 }, expected: '9223372036854775000' },
+    { schema: { type: 'integer', format: 'int64', maximum: -1e20 }, expected: '-9223372036854775000' },
+  ])('serializes an int64 example within the signed 64-bit range for $schema', ({ schema, expected }) => {
+    expect(JSON.stringify(getExampleFromSchema(schema))).toBe(expected)
+  })
+
+  it.each(['examples', 'example', 'default', 'const', 'enum'] as const)(
+    'keeps numeric values declared in %s',
+    (key) => {
+      const value = 8
+      const schema: SchemaObject = {
+        type: 'number',
+        maximum: 2,
+        [key]: key === 'examples' || key === 'enum' ? [value] : value,
+      }
+
+      expect(getExampleFromSchema(schema)).toBe(value)
+    },
+  )
+
   it('uses 1 as the default for a number', () => {
     expect(
       getExampleFromSchema(

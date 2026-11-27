@@ -1,3 +1,4 @@
+import { upgrade } from '@scalar/openapi-upgrader'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   type RequestBodyObject,
@@ -20,6 +21,45 @@ describe('get-request-body-example', () => {
     expect(getSchemaExampleFromBody({ content: { [contentType]: { schema } } }, contentType)).toStrictEqual({
       coordinates: [1, 1],
     })
+  })
+
+  it.each([
+    {
+      bound: 'exclusive minimum',
+      schema: { type: 'integer', minimum: -12, exclusiveMinimum: true, multipleOf: 3 },
+      expected: -9,
+    },
+    {
+      bound: 'exclusive maximum',
+      schema: { type: 'integer', maximum: -9, exclusiveMaximum: true, multipleOf: 3 },
+      expected: -12,
+    },
+  ])('generates a numeric JSON request body from an upgraded OpenAPI 3.0 $bound', ({ schema, expected }) => {
+    const contentType = 'application/json'
+    const document = upgrade(
+      {
+        openapi: '3.0.4',
+        info: { title: 'Numeric bounds', version: '1' },
+        paths: {
+          '/limits': {
+            post: {
+              requestBody: {
+                content: {
+                  [contentType]: {
+                    schema,
+                  },
+                },
+              },
+              responses: { '204': { description: 'Done' } },
+            },
+          },
+        },
+      },
+      '3.1',
+    )
+    const requestBody = coerceValue(RequestBodyObjectSchema, document.paths?.['/limits']?.post?.requestBody)
+
+    expect(getSchemaExampleFromBody(requestBody, contentType, undefined, document.openapi)).toBe(expected)
   })
 
   it.each(['application/json', 'application/x-www-form-urlencoded', 'multipart/form-data'])(

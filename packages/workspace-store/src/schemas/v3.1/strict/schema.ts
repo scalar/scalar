@@ -248,11 +248,11 @@ const NumericValidationKeywords = Type.Object({
   /** Maximum value (inclusive). */
   maximum: Type.Optional(Type.Number()),
   /** Maximum value (exclusive). */
-  exclusiveMaximum: Type.Optional(Type.Number({ minimum: 0 })),
+  exclusiveMaximum: Type.Optional(Type.Number()),
   /** Minimum value (inclusive). */
   minimum: Type.Optional(Type.Number()),
   /** Minimum value (exclusive). */
-  exclusiveMinimum: Type.Optional(Type.Number({ minimum: 0 })),
+  exclusiveMinimum: Type.Optional(Type.Number()),
 })
 
 const NumericProperties = compose(
