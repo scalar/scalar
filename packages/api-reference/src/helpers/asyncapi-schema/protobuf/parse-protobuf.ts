@@ -68,12 +68,19 @@ const stringLiteral = ({ tokens }: StrLit): string =>
     )
     .join('')
 
+const fullIdentifier = /^[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*$/
+
 const constantValue = (constant: Constant): string | number | boolean => {
   switch (constant.type) {
     case 'bool-lit':
       return constant.text === 'true'
-    case 'full-ident':
-      return qualifiedName(constant)
+    case 'full-ident': {
+      const name = qualifiedName(constant)
+      if (!fullIdentifier.test(name.startsWith('.') ? name.slice(1) : name)) {
+        throw new Error('Malformed Protobuf option value')
+      }
+      return name
+    }
     case 'signed-int-lit':
       return signedInteger(constant)
     case 'signed-float-lit': {
@@ -94,8 +101,6 @@ const commaItems = <Item extends FieldOption | Range | StrLit>(tokens: (Item | C
   }
   return tokens.filter((token): token is Item => token.type !== 'comma')
 }
-
-const fullIdentifier = /^[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*$/
 
 const addOption = (
   options: Options,

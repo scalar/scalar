@@ -349,6 +349,8 @@ describe('protobuf-specification', () => {
     'package .foo; message M {}',
     'package .; message M {}',
     'option go_package. = "example"; message M {}',
+    'option example = whatever.; message M {}',
+    'option example = .unknown.; message M {}',
   ])('falls back for malformed lists or qualified names: %s', (source) => {
     expect(() => readProtobuf(source, '3')).toThrow()
   })
@@ -370,6 +372,19 @@ describe('protobuf-specification', () => {
       'The second field.\nSecond line.',
       'The third field.',
       'The fourth field.',
+    ])
+  })
+
+  it('preserves comments across file metadata and top-level declarations', () => {
+    const { nodes } = readProtobuf(
+      `/* The message. */
+      package example; option feature = .test.VALUE; message M {} // The enum.
+      enum E { ZERO = 0; }`,
+      '3',
+    )
+    expect(nodes.map(({ name, description }) => ({ name, description }))).toStrictEqual([
+      { name: 'M', description: 'The message.' },
+      { name: 'E', description: 'The enum.' },
     ])
   })
 
