@@ -92,11 +92,11 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
       if (target && !(isMessage(target) || isEnum(target))) {
         throw new Error('Invalid Protobuf type')
       }
-      const child: SchemaNode = field.map
+      const child: SchemaNode = field.keyType
         ? {
             name: field.name,
-            type: `map<${field.keyType?.value}, ${field.type.value}>`,
-            mapKey: field.keyType?.value,
+            type: `map<${field.keyType.value}, ${field.type.value}>`,
+            mapKey: field.keyType.value,
             mapValue: { ...valueNode, name: 'Values' },
           }
         : valueNode
@@ -106,9 +106,9 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
       child.fieldNumber = field.id
       const details: string[] = []
       const oneof = Object.values(definition.oneofs ?? {}).find((group) => group.oneof.includes(field.name))
-      if (field.map) {
+      if (field.keyType) {
         // Maps have neither singular presence nor a repeated field label.
-      } else if (field.repeated) {
+      } else if (field.rule === 'repeated') {
         child.repeated = true
       } else if (field.rule === 'required') {
         child.required = true

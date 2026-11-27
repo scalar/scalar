@@ -152,10 +152,20 @@ describe('protobuf-specification', () => {
     ])
   })
 
-  it('renders a schema with structured file metadata', () => {
-    const source = 'option example = { enabled: true }; message M {}'
-    expect(readProtobuf(source, '3').nodes).toStrictEqual([{ name: 'M', type: 'message M', children: [] }])
-  })
+  it.each(['{ flags { enabled: true }, second: false, }', 'true.foo', 'inf.foo'])(
+    'renders a schema with file metadata %s',
+    (value) => {
+      const source = `option example = ${value}; message M {}`
+      expect(readProtobuf(source, '3').nodes).toStrictEqual([{ name: 'M', type: 'message M', children: [] }])
+    },
+  )
+
+  it.each(['{ enabled: true,, }', '{ enabled true }', '{ outer { enabled: true,, } }'])(
+    'uses source fallback for malformed aggregate metadata %s',
+    (value) => {
+      expect(() => readProtobuf(`option example = ${value}; message M {}`, '3')).toThrow()
+    },
+  )
 
   it.each([1, 18999, 20000, 536870911])('accepts legal field-number boundary %i', (id) => {
     expect(
@@ -331,9 +341,12 @@ describe('protobuf-specification', () => {
     },
   )
 
-  it('preserves type names that start with field labels and rejects joined declarations', () => {
-    const source = 'message repeatedItem {} message Inventory { repeatedItem value = 1; }'
-    expect(readProtobuf(source, '3').nodes[1]?.children?.[0]?.type).toBe('message repeatedItem')
+  it.each(['repeatedItem', 'mapValue'])('preserves type names that start with keywords: %s', (name) => {
+    const source = `message ${name} {} message Inventory { ${name} value = 1; }`
+    expect(readProtobuf(source, '3').nodes[1]?.children?.[0]?.type).toBe(`message ${name}`)
+  })
+
+  it('rejects joined declarations', () => {
     expect(() => readProtobuf('messageItem {}', '3')).toThrow('Trailing Protobuf source')
   })
 
@@ -389,6 +402,41 @@ describe('protobuf-specification', () => {
     expect(readProtobuf(source, '2').nodes[0]?.children?.[0]?.details).toStrictEqual([
       `Default: ${JSON.stringify(value)}`,
     ])
+  })
+
+  it.each(['oneof choice { string a = 1; }', 'reserved 90;'])(
+    'preserves next-field documentation after %s',
+    (declaration) => {
+      const source = `message M {
+        ${declaration} /* Documents b. */
+        string b = 2;
+      }`
+      expect(readProtobuf(source, '3').nodes[0]?.children?.at(-1)?.description).toBe('Documents b.')
+    },
+  )
+
+  it('preserves next-field documentation when its block comment closes on the field line', () => {
+    const source = `message M {
+      string a = 1; /* Documents b.
+       * Second line. */ string b = 2;
+    }`
+    expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
+      undefined,
+      'Documents b.\nSecond line.',
+    ])
+  })
+
+  it.each([
+    ['float', '-Inf', '-Infinity'],
+    ['float', 'INF', 'Infinity'],
+    ['bool', 'TRUE', 'true'],
+  ])('preserves a proto2 %s default written as %s', (type, value, display) => {
+    const source = `message M { optional ${type} x = 1 [default = ${value}]; }`
+    expect(readProtobuf(source, '2').nodes[0]?.children?.[0]?.details).toStrictEqual([`Default: ${display}`])
+  })
+
+  it('rejects an unquoted boolean as a proto2 string default', () => {
+    expect(() => readProtobuf('message M { optional string x = 1 [default = TRUE]; }', '2')).toThrow()
   })
 
   it('keeps a continued trailing comment on the same field', () => {

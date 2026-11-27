@@ -15,6 +15,7 @@ import type {
   SignedIntLit,
   StatementBase,
   StrLit,
+  TextprotoMessageStatement,
 } from 'pbkit/core/ast/index.js'
 import { parse } from 'pbkit/core/parser/proto.js'
 
@@ -76,21 +77,24 @@ const stringLiteral = ({ tokens }: StrLit): string =>
 
 const fullIdentifier = /^[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*$/
 
-const constantValue = (constant: Constant): string | number | boolean => {
+const floatValue = (text: string): number => (text.toLowerCase() === 'inf' ? Number.POSITIVE_INFINITY : Number(text))
+
+const constantValue = (constant: Constant, scalarDefault: boolean): string | number | boolean => {
   switch (constant.type) {
     case 'bool-lit':
-      return constant.text === 'true'
+      return constant.text.toLowerCase() === 'true'
     case 'full-ident': {
       const name = qualifiedName(constant)
       if (!fullIdentifier.test(name.startsWith('.') ? name.slice(1) : name)) {
         throw new Error('Malformed Protobuf option value')
       }
+      if (scalarDefault && /^(?:inf|nan)$/i.test(name)) return floatValue(name)
       return name
     }
     case 'signed-int-lit':
       return signedInteger(constant, 'option')
     case 'signed-float-lit': {
-      const value = constant.value.text === 'inf' ? Number.POSITIVE_INFINITY : Number(constant.value.text)
+      const value = floatValue(constant.value.text)
       return constant.sign?.text === '-' ? -value : value
     }
     case 'str-lit':
@@ -108,10 +112,34 @@ const commaItems = <Item extends FieldOption | Range | StrLit>(tokens: (Item | C
   return tokens.filter((token): token is Item => token.type !== 'comma')
 }
 
+const validateAggregate = (statements: TextprotoMessageStatement[]): void => {
+  let canSeparate = false
+  for (const statement of statements) {
+    if (statement.type === 'textproto-comma' && canSeparate) {
+      canSeparate = false
+      continue
+    }
+    if (statement.type !== 'textproto-field' || statement.fieldName.type !== 'textproto-ident') {
+      throw new Error('Malformed Protobuf aggregate option')
+    }
+    const { value, colon, semiOrComma } = statement
+    if (
+      semiOrComma?.type === 'textproto-semi' ||
+      value.type === 'textproto-list-value' ||
+      (value.type === 'textproto-message-value' ? value.bracketOpen.text !== '{' : !colon)
+    ) {
+      throw new Error('Unsupported Protobuf aggregate option')
+    }
+    if (value.type === 'textproto-message-value') validateAggregate(value.statements)
+    canSeparate = !semiOrComma
+  }
+}
+
 const addOption = (
   options: Options,
   { optionName, constant }: FieldOption | Option,
   scope: 'file' | 'declaration' = 'declaration',
+  scalarField = false,
 ): void => {
   const name = optionName.optionNameSegmentOrDots
     .map((segment, index) => {
@@ -123,14 +151,17 @@ const addOption = (
     .join('')
   if (!fullIdentifier.test(name)) throw new Error('Malformed Protobuf option name')
   // Structured file metadata does not affect the schema view.
-  if (scope === 'file' && constant.type === 'aggregate') return
-  insert<unknown>(options, name, constantValue(constant))
+  if (scope === 'file' && constant.type === 'aggregate') {
+    validateAggregate(constant.statements)
+    return
+  }
+  insert<unknown>(options, name, constantValue(constant, scalarField && name === 'default'))
 }
 
-const fieldOptions = (node: FieldOptions | undefined): Options => {
+const fieldOptions = (node: FieldOptions | undefined, scalarField = false): Options => {
   const options: Options = Object.create(null)
   if (node) {
-    for (const item of commaItems(node.fieldOptionOrCommas)) addOption(options, item)
+    for (const item of commaItems(node.fieldOptionOrCommas)) addOption(options, item, 'declaration', scalarField)
   }
   return options
 }
@@ -181,16 +212,15 @@ const readField = (field: Field | MapField | OneofField, syntax: Syntax): FieldD
   if (key !== undefined && (!isScalar(key) || ['bytes', 'double', 'float'].includes(key))) {
     throw new Error('Invalid Protobuf map key')
   }
+  const type = qualifiedName(map ? field.valueType : field.fieldType)
   return {
     syntaxType: 'FieldDefinition',
     name: map ? field.mapName.text : field.fieldName.text,
     id: integer(field.fieldNumber.text),
-    type: { value: qualifiedName(map ? field.valueType : field.fieldType) },
+    type: { value: type },
     rule,
-    repeated: rule === 'repeated',
-    map,
     ...(key === undefined ? {} : { keyType: { value: key } }),
-    options: fieldOptions(field.fieldOptions),
+    options: fieldOptions(field.fieldOptions, isScalar(type)),
     comment: description(field),
   }
 }

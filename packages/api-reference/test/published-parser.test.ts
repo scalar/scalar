@@ -8,20 +8,12 @@ import { join, resolve, sep } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 describe('published-parser', () => {
-  it('includes the pbkit license in npm and in the browser assets that contain the parser', async () => {
+  it('includes the pbkit license in the browser assets that contain the parser', async () => {
     const normalize = (text: string): string => text.replace(/\s+/g, ' ').trim()
     const notice = normalize(await readFile(resolve(import.meta.dirname, '../THIRD_PARTY_NOTICES'), 'utf8'))
     const browser = resolve(import.meta.dirname, '../dist/browser')
     const standalone = await readFile(join(browser, 'standalone.js'), 'utf8')
     expect(normalize(standalone)).toContain(notice)
-
-    const [pack]: [{ files: { path: string }[] }] = JSON.parse(
-      execSync('npm pack --dry-run --ignore-scripts --offline --json', {
-        cwd: resolve(import.meta.dirname, '..'),
-        encoding: 'utf8',
-      }),
-    )
-    expect(pack.files.map(({ path }) => path)).toContain('THIRD_PARTY_NOTICES')
 
     const directory = join(browser, 'chunks')
     const chunks = (await readdir(directory)).filter((file) => file.endsWith('.js.map'))
@@ -37,6 +29,17 @@ describe('published-parser', () => {
     for (const file of bundledParserFiles) {
       expect(normalize(await readFile(file, 'utf8')), file).toContain(notice)
     }
+  })
+
+  it('includes the pbkit notice in the npm package', { timeout: 60_000 }, () => {
+    const [pack]: [{ files: { path: string }[] }] = JSON.parse(
+      execSync('npm pack --dry-run --ignore-scripts --offline --json', {
+        cwd: resolve(import.meta.dirname, '..'),
+        encoding: 'utf8',
+        timeout: 45_000,
+      }),
+    )
+    expect(pack.files.map(({ path }) => path)).toContain('THIRD_PARTY_NOTICES')
   })
 
   it('ships the parser for consumers without the pbkit package installed', async () => {

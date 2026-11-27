@@ -20,9 +20,7 @@ export type FieldDefinition = Node<'FieldDefinition'> & {
   id: number
   type: { value: string }
   rule?: 'optional' | 'required' | 'repeated'
-  repeated?: boolean
   keyType?: { value: string }
-  map?: boolean
 }
 
 /** A named set of sibling fields with mutually exclusive presence. */

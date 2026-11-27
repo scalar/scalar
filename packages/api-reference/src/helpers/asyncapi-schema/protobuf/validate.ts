@@ -58,7 +58,7 @@ export const validateNamespace = (namespace: Definition): void => {
     validateReservations(namespace)
     for (const field of Object.values(namespace.fields)) {
       add(field.name)
-      if (field.map) {
+      if (field.keyType) {
         const entryName = `${field.name.replace(/(^|_|[0-9])([a-z])/g, (_match, prefix: string, letter: string) => `${/^\d$/.test(prefix) ? prefix : ''}${letter.toUpperCase()}`).replaceAll('_', '')}Entry`
         add(entryName)
       }
@@ -144,16 +144,16 @@ export const validateField = (
   checkOptions(options, ['default', 'packed', 'deprecated', 'json_name', 'proto3_optional'])
   if (
     options.packed !== undefined &&
-    (!field.repeated || ['string', 'bytes'].includes(field.type.value) || isMessage(target))
+    (field.rule !== 'repeated' || ['string', 'bytes'].includes(field.type.value) || isMessage(target))
   ) {
     throw new Error('Only repeated numeric and enum fields can be packed')
   }
   if (
     Object.hasOwn(options, 'default') &&
     (version !== '2' ||
-      field.repeated ||
+      field.rule === 'repeated' ||
       Object.values(definition.oneofs ?? {}).some((oneof) => oneof.oneof.includes(field.name)) ||
-      field.map ||
+      field.keyType ||
       isMessage(target) ||
       !validDefault(field, target, options.default))
   ) {
