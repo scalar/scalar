@@ -1,8 +1,15 @@
 import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
-import type { EnumDefinition, MessageDefinition } from 'proto-parser'
 
 import { type SchemaDocument, type SchemaNode, createBudget } from '../types'
-import { type Definition, isEnum, isMessage, isScalar } from './ast'
+import {
+  type Definition,
+  type EnumDefinition,
+  type MessageDefinition,
+  isEnum,
+  isMessage,
+  isPackableField,
+  isScalar,
+} from './ast'
 import { loadProtobufFiles, mergeProtobufNamespaces, visibleProtobufFiles } from './load-files'
 import { resolveType } from './resolve-type'
 import { checkOptions, validateEnum, validateField, validateNamespace } from './validate'
@@ -22,12 +29,6 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
     for (const value of Object.values(('nested' in namespace ? namespace.nested : undefined) ?? {})) {
       parents.set(value, namespace)
       value.fullName = `${namespace.fullName ?? ''}.${value.name}`
-      if (value.options && Object.keys(value.options).some((key) => key.startsWith('('))) {
-        throw new Error('Unsupported custom Protobuf options')
-      }
-      if (value.syntaxType === 'ServiceDefinition' || value.syntaxType === 'FieldDefinition') {
-        throw new Error('Unsupported Protobuf declaration')
-      }
       if (isMessage(value) || isEnum(value)) {
         definitions.push(value)
       }
@@ -81,16 +82,10 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
       })
       return node
     }
-    if (definition.group || definition.extensions?.length) {
-      throw new Error('Unsupported Protobuf groups or extensions')
-    }
     checkOptions(definition.options, ['deprecated'])
     const path = new Set([...ancestors, definition])
     node.children = Object.values(definition.fields).map((field) => {
       budget(depth + 1)
-      if (field.extend) {
-        throw new Error('Unsupported Protobuf extension')
-      }
       const target = resolveType(definition, field.type.value, parents, accessible)
       if (version === '3' && isEnum(target) && owners.get(target)?.document.syntax === 'proto2')
         throw new Error('Proto3 cannot directly use proto2 enums')
@@ -105,11 +100,11 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
       if (target && !(isMessage(target) || isEnum(target))) {
         throw new Error('Invalid Protobuf type')
       }
-      const child: SchemaNode = field.map
+      const child: SchemaNode = field.keyType
         ? {
             name: field.name,
-            type: `map<${field.keyType?.value}, ${field.type.value}>`,
-            mapKey: field.keyType?.value,
+            type: `map<${field.keyType.value}, ${field.type.value}>`,
+            mapKey: field.keyType.value,
             mapValue: { ...valueNode, name: 'Values' },
           }
         : valueNode
@@ -119,9 +114,9 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
       child.fieldNumber = field.id
       const details: string[] = []
       const oneof = Object.values(definition.oneofs ?? {}).find((group) => group.oneof.includes(field.name))
-      if (field.map) {
+      if (field.keyType) {
         // Maps have neither singular presence nor a repeated field label.
-      } else if (field.repeated) {
+      } else if (field.rule === 'repeated') {
         child.repeated = true
       } else if (field.rule === 'required') {
         child.required = true
@@ -134,14 +129,27 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
       } else {
         child.presence = isMessage(target) ? 'explicit' : 'implicit'
       }
-      if (field.options?.default !== undefined) {
-        details.push(
-          `Default: ${typeof field.options.default === 'number' && !Number.isFinite(field.options.default) ? String(field.options.default) : JSON.stringify(field.options.default)}`,
-        )
+      const defaultValue = field.options?.default
+      if (defaultValue !== undefined) {
+        const literal =
+          typeof defaultValue === 'number' && !Number.isFinite(defaultValue)
+            ? String(defaultValue)
+            : JSON.stringify(defaultValue)
+        // A bytes default is a sequence of octets. Escape non-ASCII octets to display the exact bytes.
+        const display =
+          field.type.value === 'bytes'
+            ? literal.replace(/[^\x20-\x7e]/g, (byte) => `\\x${byte.charCodeAt(0).toString(16).padStart(2, '0')}`)
+            : literal
+        details.push(`Default: ${display}`)
       }
-      for (const key of ['packed', 'deprecated', 'json_name']) {
-        if (field.options?.[key] !== undefined) {
-          details.push(`${key}: ${JSON.stringify(field.options[key])}`)
+      const fieldOptions = {
+        packed: field.options?.packed ?? (version === '2' && isPackableField(field, target) ? false : undefined),
+        deprecated: field.options?.deprecated,
+        json_name: field.options?.json_name,
+      }
+      for (const [key, value] of Object.entries(fieldOptions)) {
+        if (value !== undefined) {
+          details.push(`${key}: ${JSON.stringify(value)}`)
         }
       }
       if (details.length) {

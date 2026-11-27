@@ -1,0 +1,495 @@
+diff --git a/core/ast/index.d.ts b/core/ast/index.d.ts
+--- a/core/ast/index.d.ts
++++ b/core/ast/index.d.ts
+@@ -1,3 +1,4 @@
++/*! Modified by Scalar to represent syntax declarations as string literals. */
+ import { Span, Token } from "../parser/recursive-descent-parser";
+ import { CommentGroup, Constant, Dot, Empty, FullIdent, Keyword, Semi, StrLit } from "./lexical-elements";
+ import { Enum, EnumBodyStatement, Extend, ExtendBodyStatement, Message, MessageBodyStatement, RpcBodyStatement, Service, ServiceBodyStatement } from "./top-level-definitions";
+@@ -31,9 +32,7 @@
+     type: "syntax";
+     keyword: Keyword;
+     eq: Token;
+-    quoteOpen: Token;
+-    syntax: Token;
+-    quoteClose: Token;
++    syntax: StrLit;
+     semi: Semi;
+ }
+ export interface Edition extends StatementBase {
+diff --git a/core/parser/misc.js b/core/parser/misc.js
+--- a/core/parser/misc.js
++++ b/core/parser/misc.js
+@@ -1,5 +1,10 @@
+ "use strict";
++/*! Modified by Scalar to share Protobuf string and comment recognition. */
+ Object.defineProperty(exports, "__esModule", { value: true });
++// Each escape length has a distinct match, even when a string has no closing quote.
++exports.strLitPattern = /^'(?:\\[xX](?:[0-9a-fA-F]{2}|[0-9a-fA-F](?![0-9a-fA-F]))|\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8}|\\(?:[0-7]{3}|[0-7]{1,2}(?![0-7]))|\\[abfnrtv\\\?'"]|[^'\0\n\\])*'|^"(?:\\[xX](?:[0-9a-fA-F]{2}|[0-9a-fA-F](?![0-9a-fA-F]))|\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8}|\\(?:[0-7]{3}|[0-7]{1,2}(?![0-7]))|\\[abfnrtv\\\?'"]|[^"\0\n\\])*"/;
++exports.multilineCommentPattern = /^\/\*[\s\S]*?\*\//;
++exports.singlelineCommentPattern = /^\/\/[^\n]*(?:\n|$)/;
+ exports.many = many;
+ exports.flipFlop = flipFlop;
+ exports.choice = choice;
+diff --git a/core/parser/proto.js b/core/parser/proto.js
+--- a/core/parser/proto.js
++++ b/core/parser/proto.js
+@@ -1,4 +1,5 @@
+ "use strict";
++/*! Modified by Scalar to preserve token boundaries and adjacent block comments. */
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.parse = parse;
+ exports.parseConstant = parseConstant;
+@@ -9,6 +10,7 @@
+ function parse(text) {
+     const comments = [];
+     const parser = createProtoParser(text);
++    parser.sourceComments = comments;
+     parser.on("comment", (comment) => comments.push(comment));
+     const statements = acceptStatements(parser, [
+         acceptSyntax,
+@@ -21,7 +23,7 @@
+         acceptExtend,
+         acceptService,
+         acceptEmpty,
+-    ]);
++    ], true);
+     const ast = { statements };
+     return { ast, parser, comments };
+ }
+@@ -57,7 +59,73 @@
+     }
+     return { partial, result };
+ }
+-function acceptStatements(parser, acceptStatementFns) {
++// Scalar retains adjacent descriptions that were left unused by the previous statement.
++function carryUnusedDescription(parser, previous, leadingComments, detachedComments, topLevel) {
++    if (!previous)
++        return;
++    const unrendered = ["syntax", "import", "package", "option", "reserved", "oneof", "empty"].includes(previous.type);
++    const trailing = previous.trailingComments[0];
++    if (!trailing) {
++        // Metadata leaves its leading comment available to a declaration on the same line.
++        const leading = previous.leadingComments.at(-1);
++        if (unrendered && previous.semi && leading && !leadingComments.length && !detachedComments.length &&
++            /^[^\S\n]*$/.test(parser.input.slice(previous.semi.end, parser.loc)))
++            leadingComments.push(leading);
++        return;
++    }
++    const spansLines = trailing.comments.some((comment) => comment.type === "multiline-comment" && /\n/.test(comment.text));
++    const block = previous.type === "message" || previous.type === "enum";
++    if (!unrendered && !block && !spansLines && !previous.leadingComments.length)
++        return;
++    previous.trailingComments = [];
++    if (leadingComments.length || detachedComments.length)
++        return;
++    const gap = parser.input.slice(trailing.end, parser.loc);
++    const consumedNewline = trailing.comments.at(-1)?.text.endsWith("\n");
++    const adjacent = /^[^\S\n]*\n[^\S\n]*$/.test(gap) && !consumedNewline;
++    const inline = spansLines || unrendered || (!topLevel && block) || previous.leadingComments.length > 0;
++    const sameLine = (consumedNewline || inline) && /^[^\S\n]*$/.test(gap);
++    if (adjacent || sameLine)
++        leadingComments.push(trailing);
++}
++function isDocumentedField(statement) {
++    return ["field", "map-field", "oneof-field", "enum-field"].includes(statement.type);
++}
++// A field's inline comments are documentation when the field has no leading comment.
++function attachInlineFieldDescription(parser, statement, start, commentIndex) {
++    if (commentIndex === parser.sourceComments.length || statement.leadingComments.length ||
++        !isDocumentedField(statement))
++        return;
++    const byOffset = new Map();
++    for (const comment of parser.sourceComments.slice(commentIndex)) {
++        if (comment.start >= start && comment.end <= statement.semi.start)
++            byOffset.set(comment.start, comment);
++    }
++    const comments = [...byOffset.values()].sort((a, b) => a.start - b.start);
++    const groups = [];
++    for (const comment of comments) {
++        const group = groups.at(-1);
++        const last = group?.comments.at(-1);
++        if (last?.type === "singleline-comment" && comment.type === "singleline-comment" &&
++            /^[^\S\n]*$/.test(parser.input.slice(last.end, comment.start))) {
++            group.comments.push(comment);
++            group.end = comment.end;
++        }
++        else {
++            groups.push({ type: "comment-group", start: comment.start, end: comment.end, comments: [comment] });
++        }
++    }
++    const inline = groups.findLast((group) => {
++        // Comments splitting the field's type, name, and number belong to the declaration.
++        if (group.start < statement.fieldNumber.start)
++            return true;
++        const lineStart = Math.max(start, parser.input.lastIndexOf("\n", group.start - 1) + 1);
++        return /\S/.test(parser.input.slice(lineStart, group.start));
++    });
++    if (inline)
++        statement.leadingComments.push(inline);
++}
++function acceptStatements(parser, acceptStatementFns, topLevel = false) {
+     const statements = [];
+     statements: while (true) {
+         const { commentGroups, trailingNewline } = skipWsAndSweepComments(parser);
+@@ -77,9 +145,13 @@
+                 leadingDetachedComments = commentGroups;
+             }
+         }
++        carryUnusedDescription(parser, statements.at(-1), leadingComments, leadingDetachedComments, topLevel);
++        const statementStart = parser.loc;
++        const commentIndex = parser.sourceComments.length;
+         for (const acceptStatementFn of acceptStatementFns) {
+             const statement = acceptStatementFn(parser, leadingComments, leadingDetachedComments);
+             if (statement) {
++                attachInlineFieldDescription(parser, statement, statementStart, commentIndex);
+                 statements.push(statement);
+                 continue statements;
+             }
+@@ -89,16 +161,19 @@
+     return statements;
+ }
+ const whitespacePattern = /^\s+/;
+-const whitespaceWithoutNewlinePattern = /^[ \f\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+/;
++const whitespaceWithoutNewlinePattern = /^(?:[ \f\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]|\r(?!\n))+/;
+ const newlinePattern = /^\r?\n/;
+-const multilineCommentPattern = /^\/\*(?:.|\r?\n)*?\*\//;
+-const singlelineCommentPattern = /^\/\/.*(?:\r?\n|$)/;
+-const intLitPattern = /^0(?:x[0-9a-f]+|[0-7]*)|^[1-9]\d*/i;
+-const floatLitPattern = /^\d+\.\d*(?:e[-+]?\d+)?|^\d+e[-+]?\d+|^\.\d+(?:e[-+]?\d+)?|^inf|^nan/i;
+-const boolLitPattern = /^true|^false/;
+-const strLitPattern = /^'(?:\\x[0-9a-f]{2}|\\[0-7]{3}|\\[0-7]|\\[abfnrtv\\\?'"]|[^'\0\n\\])*'|^"(?:\\x[0-9a-f]{2}|\\[0-7]{3}|\\[0-7]|\\[abfnrtv\\\?'"]|[^"\0\n\\])*"/i;
++const multilineCommentPattern = misc_1.multilineCommentPattern;
++const singlelineCommentPattern = misc_1.singlelineCommentPattern;
++const intLitPattern = /^(?:0(?:x[0-9a-f]+|[0-7]*)|[1-9]\d*)\b(?!\.)/i;
++const floatLitPattern = /^(?:\d+\.\d*(?:e[-+]?\d+)?|\d+e[-+]?\d+|\.\d+(?:e[-+]?\d+)?)(?![\w.])/i;
++const specialFloatLitPattern = /^(?:inf|nan)\b(?!\.)/;
++const signedSpecialFloatLitPattern = /^(?:inf|nan)\b(?!\.)/i;
++const boolLitPattern = /^(?:true|false|TRUE|FALSE)\b(?!\.)/;
++const strLitPattern = misc_1.strLitPattern;
+ const identPattern = /^[a-z_][a-z0-9_]*/i;
+-const messageBodyStatementKeywordPattern = /^(?:enum|message|extend|extensions|group|option|oneof|map|reserved)\b/;
++const fieldLabelPattern = /^(?:required|optional|repeated)\b(?!\.)/;
++const messageBodyStatementKeywordPattern = /^(?:enum|message|extend|extensions|group|option|oneof|map|reserved)\b(?!\.)/;
+ const acceptDot = (0, misc_1.acceptPatternAndThen)(".", (dot) => ({ type: "dot", ...dot }));
+ const acceptComma = (0, misc_1.acceptPatternAndThen)(",", (comma) => ({ type: "comma", ...comma }));
+ const acceptSemi = (0, misc_1.acceptPatternAndThen)(";", (semi) => ({ type: "semi", ...semi }));
+@@ -110,10 +185,19 @@
+ }
+ const acceptIdent = (0, misc_1.acceptPatternAndThen)(identPattern, (ident) => ({ type: "ident", ...ident }));
+ function acceptKeyword(parser, pattern = identPattern) {
+-    return (0, misc_1.acceptSpecialToken)(parser, "keyword", pattern);
++    const loc = parser.loc;
++    const keyword = (0, misc_1.acceptSpecialToken)(parser, "keyword", pattern);
++    if (keyword && typeof pattern === "string" && /[A-Za-z0-9_.]/.test(parser.input.charAt(parser.loc))) {
++        parser.loc = loc;
++        return;
++    }
++    return keyword;
+ }
+ function expectKeyword(parser, pattern = identPattern) {
+-    return (0, misc_1.expectSpecialToken)(parser, "keyword", pattern);
++    const keyword = acceptKeyword(parser, pattern);
++    if (keyword)
++        return keyword;
++    throw new recursive_descent_parser_1.SyntaxError(parser, [pattern]);
+ }
+ function acceptCommentGroup(parser) {
+     const loc = parser.loc;
+@@ -163,7 +247,16 @@
+         }
+         const singlelineComment = (0, misc_1.acceptSpecialToken)(parser, "singleline-comment", singlelineCommentPattern);
+         if (singlelineComment) {
+-            comments.push(singlelineComment);
++            // Scalar groups consecutive line comments into the trailing documentation.
++            let line = singlelineComment;
++            while (line) {
++                comments.push(line);
++                const cursor = parser.loc;
++                parser.accept(whitespaceWithoutNewlinePattern);
++                line = (0, misc_1.acceptSpecialToken)(parser, "singleline-comment", singlelineCommentPattern);
++                if (!line)
++                    parser.loc = cursor;
++            }
+             break;
+         }
+         break;
+@@ -194,7 +287,10 @@
+             continue;
+         const newline = parser.accept(newlinePattern);
+         if (newline) {
+-            trailingNewline = true;
++            const previousComment = commentGroups.at(-1)?.comments.at(-1);
++            // Line comments consume their newline. A block comment still touches the next declaration after one newline.
++            trailingNewline ||= previousComment?.type !== "multiline-comment" ||
++                /\n/.test(parser.input.slice(previousComment.end, newline.start));
+             continue;
+         }
+         break;
+@@ -315,8 +411,9 @@
+         return signedIntLit;
+     throw new recursive_descent_parser_1.SyntaxError(parser, ["-", intLitPattern]);
+ }
+-function acceptFloatLit(parser) {
+-    const floatLit = parser.accept(floatLitPattern);
++function acceptFloatLit(parser, signed) {
++    const floatLit = parser.accept(floatLitPattern) ||
++        parser.accept(signed ? signedSpecialFloatLitPattern : specialFloatLitPattern);
+     if (!floatLit)
+         return;
+     return { type: "float-lit", ...floatLit };
+@@ -325,7 +422,7 @@
+     var _a;
+     const loc = parser.loc;
+     const sign = (_a = parser.accept("-")) !== null && _a !== void 0 ? _a : parser.accept("+");
+-    const floatLit = acceptFloatLit(parser);
++    const floatLit = acceptFloatLit(parser, sign);
+     if (!floatLit) {
+         parser.loc = loc;
+         return;
+@@ -437,10 +534,7 @@
+     skipWsAndComments(parser);
+     const eq = parser.expect("=");
+     skipWsAndComments(parser);
+-    const quoteOpen = parser.expect(/^['"]/);
+-    const syntax = parser.expect(/^[^'"]+/);
+-    const quoteClose = parser.expect(/^['"]/);
+-    skipWsAndComments(parser);
++    const syntax = expectStrLit(parser);
+     const semi = expectSemi(parser);
+     const trailingComments = acceptTrailingComments(parser);
+     return {
+@@ -457,9 +551,7 @@
+         type: "syntax",
+         keyword,
+         eq,
+-        quoteOpen,
+         syntax,
+-        quoteClose,
+         semi,
+     };
+ }
+@@ -501,7 +593,7 @@
+     if (!keyword)
+         return;
+     skipWsAndComments(parser);
+-    const weakOrPublic = parser.accept(/^weak|^public/);
++    const weakOrPublic = parser.accept(/^(?:weak|public)\b/);
+     skipWsAndComments(parser);
+     const strLit = expectStrLit(parser);
+     skipWsAndComments(parser);
+@@ -552,7 +644,7 @@
+     };
+ }
+ function acceptOption(parser, leadingComments, leadingDetachedComments) {
+-    const keyword = acceptKeyword(parser, /^option\b/);
++    const keyword = acceptKeyword(parser, "option");
+     if (!keyword)
+         return;
+     skipWsAndComments(parser);
+@@ -685,14 +777,54 @@
+         bracketClose,
+     };
+ }
++// Scalar retains descriptions adjacent to a name or the first documented member.
++function readNamedBlockHeader(parser, keyword, leadingComments) {
++    const beforeName = skipWsAndSweepComments(parser);
++    const name = parser.expect(identPattern);
++    const beforeBody = skipWsAndSweepComments(parser);
++    const nameComment = beforeName.trailingNewline ? undefined : beforeName.commentGroups.at(-1);
++    const bodyComment = beforeBody.trailingNewline ? undefined : beforeBody.commentGroups.at(-1);
++    const precedesName = nameComment && (nameComment.comments.at(-1)?.text.endsWith("\n") ||
++        /\n/.test(parser.input.slice(nameComment.end, name.start)));
++    if (precedesName && keyword.text !== "oneof" && !leadingComments.length)
++        leadingComments.push(nameComment);
++    const leading = keyword.text === "oneof" ? leadingComments.at(-1) : undefined;
++    const inlineLeading = leading && !/\n/.test(parser.input.slice(leading.end, keyword.start)) ? leading : undefined;
++    return { name, memberComment: bodyComment ?? (precedesName ? undefined : nameComment) ?? inlineLeading };
++}
++// A named declaration on its own line can receive the preceding header description.
++function firstDescriptionTarget(input, commentEnd, statements) {
++    for (const statement of statements) {
++        if (isDocumentedField(statement))
++            return { node: statement, start: statement.start };
++        const name = statement.messageName ?? statement.enumName ?? statement.oneofName;
++        if (name && input.slice(commentEnd, name.start).includes("\n"))
++            return { node: statement, start: name.start };
++        const body = statement.messageBody ?? statement.enumBody ?? statement.oneofBody;
++        if (body) {
++            const target = firstDescriptionTarget(input, commentEnd, body.statements);
++            if (target)
++                return target;
++        }
++    }
++}
++function attachBlockMemberDescription(parser, comment, statements) {
++    if (!comment)
++        return;
++    const start = comment.comments.at(-1)?.text.endsWith("\n") ? comment.end - 1 : comment.end;
++    const member = firstDescriptionTarget(parser.input, start, statements);
++    if (!member || member.node.leadingComments.length || member.node.leadingDetachedComments.length)
++        return;
++    if (parser.input.slice(start, member.start).split("\n", 3).length <= 2)
++        member.node.leadingComments.push(comment);
++}
+ function acceptEnum(parser, leadingComments, leadingDetachedComments) {
+     const keyword = acceptKeyword(parser, "enum");
+     if (!keyword)
+         return;
+-    skipWsAndComments(parser);
+-    const enumName = parser.expect(identPattern);
+-    skipWsAndComments(parser);
++    const { name: enumName, memberComment } = readNamedBlockHeader(parser, keyword, leadingComments);
+     const enumBody = expectEnumBody(parser);
++    attachBlockMemberDescription(parser, memberComment, enumBody.statements);
+     const trailingComments = acceptTrailingComments(parser);
+     return {
+         ...(0, misc_1.mergeSpans)([
+@@ -713,7 +845,7 @@
+ }
+ function acceptField(parser, leadingComments, leadingDetachedComments) {
+     const loc = parser.loc;
+-    const fieldLabel = acceptKeyword(parser, /^required|^optional|^repeated/);
++    const fieldLabel = acceptKeyword(parser, fieldLabelPattern);
+     skipWsAndComments(parser);
+     const fieldType = acceptType(parser);
+     if (!fieldType) {
+@@ -855,10 +987,9 @@
+     const keyword = acceptKeyword(parser, "oneof");
+     if (!keyword)
+         return;
+-    skipWsAndComments(parser);
+-    const oneofName = parser.expect(identPattern);
+-    skipWsAndComments(parser);
++    const { name: oneofName, memberComment } = readNamedBlockHeader(parser, keyword, leadingComments);
+     const oneofBody = expectOneofBody(parser);
++    attachBlockMemberDescription(parser, memberComment, oneofBody.statements);
+     const trailingComments = acceptTrailingComments(parser);
+     return {
+         ...(0, misc_1.mergeSpans)([
+@@ -1031,13 +1162,13 @@
+ }
+ function acceptGroup(parser, leadingComments, leadingDetachedComments) {
+     const loc = parser.loc;
+-    const groupLabel = acceptKeyword(parser, /^required|^optional|^repeated/);
++    const groupLabel = acceptKeyword(parser, fieldLabelPattern);
+     if (!groupLabel) {
+         parser.loc = loc;
+         return;
+     }
+     skipWsAndComments(parser);
+-    const keyword = acceptKeyword(parser, /^group\b/);
++    const keyword = acceptKeyword(parser, "group");
+     if (!keyword) {
+         parser.loc = loc;
+         return;
+@@ -1134,10 +1265,9 @@
+     const keyword = acceptKeyword(parser, "message");
+     if (!keyword)
+         return;
+-    skipWsAndComments(parser);
+-    const messageName = parser.expect(identPattern);
+-    skipWsAndComments(parser);
++    const { name: messageName, memberComment } = readNamedBlockHeader(parser, keyword, leadingComments);
+     const messageBody = expectMessageBody(parser);
++    attachBlockMemberDescription(parser, memberComment, messageBody.statements);
+     const trailingComments = acceptTrailingComments(parser);
+     return {
+         ...(0, misc_1.mergeSpans)([
+diff --git a/core/parser/recursive-descent-parser.js b/core/parser/recursive-descent-parser.js
+--- a/core/parser/recursive-descent-parser.js
++++ b/core/parser/recursive-descent-parser.js
+@@ -1,4 +1,5 @@
+ "use strict";
++/*! Modified by Scalar to allow normal token lookahead in compact Protobuf input. */
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.SyntaxError = exports.eof = void 0;
+ exports.createRecursiveDescentParser = createRecursiveDescentParser;
+@@ -7,6 +8,8 @@
+ function createRecursiveDescentParser(input, config) {
+     const debug = !!(config === null || config === void 0 ? void 0 : config.debug);
+     let cnt = 0;
++    // Even a single-character statement requires several speculative token matches.
++    const maxAttempts = 64 + input.length * 32;
+     const lines = input.split("\n");
+     const parser = {
+         ...(0, event_emitter_1.createEventEmitter)(),
+@@ -26,8 +29,8 @@
+         },
+         accept(pattern) {
+             cnt++;
+-            if (cnt > input.length * 5)
+-                throw `infinite loop`;
++            if (cnt > maxAttempts)
++                throw new Error("Protobuf parser exceeded its step budget");
+             if (pattern === exports.eof)
+                 return acceptEof();
+             if (typeof pattern === "string")
+diff --git a/core/parser/textproto.js b/core/parser/textproto.js
+--- a/core/parser/textproto.js
++++ b/core/parser/textproto.js
+@@ -1,4 +1,5 @@
+ "use strict";
++/*! Modified by Scalar to recognize complete numeric tokens and Protobuf string escapes. */
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.parseTextprotoMessage = parseTextprotoMessage;
+ exports.acceptTextprotoStatements = acceptTextprotoStatements;
+@@ -23,9 +24,9 @@
+     ]));
+ }
+ const whitespacePattern = /^\s+/;
+-const multilineCommentPattern = /^\/\*(?:.|\r?\n)*?\*\//;
+-const singlelineCommentPattern = /^\/\/.*(?:\r?\n|$)/;
+-const textprotoCommentPattern = /^#.*(?:\r?\n|$)/;
++const multilineCommentPattern = misc_1.multilineCommentPattern;
++const singlelineCommentPattern = misc_1.singlelineCommentPattern;
++const textprotoCommentPattern = /^#[^\n]*(?:\n|$)/;
+ function skipWsAndTextprotoComments(parser) {
+     while (true) {
+         const whitespace = parser.accept(whitespacePattern);
+@@ -80,7 +81,7 @@
+             "-",
+             octLitPattern,
+             decLitPattern,
+-            // TODO: hexPattern
++            hexLitPattern,
+             floatLitPattern,
+         ]);
+     }
+@@ -177,14 +178,15 @@
+ }
+ const identPattern = /^[a-z_][a-z0-9_]*/i;
+ const acceptTextprotoIdent = (0, misc_1.acceptPatternAndThen)(identPattern, (ident) => ({ type: "textproto-ident", ...ident }));
+-const floatLitPattern = /^\d+f|(?:^\d+\.\d*(?:e[-+]?\d+)?|^\d+e[-+]?\d+|^\.\d+(?:e[-+]?\d+)?)f?/i;
++const floatLitPattern = /^(?:\d+f|(?:\d+\.\d*(?:e[-+]?\d+)?|\d+e[-+]?\d+|\.\d+(?:e[-+]?\d+)?)f?)(?![\w.])/i;
+ const acceptTextprotoFloatLit = (0, misc_1.acceptPatternAndThen)(floatLitPattern, (float) => ({ type: "textproto-float-lit", ...float }));
+-const octLitPattern = /^0[0-7]+/;
++const octLitPattern = /^0[0-7]+\b(?!\.)/;
+ const acceptTextprotoOctLit = (0, misc_1.acceptPatternAndThen)(octLitPattern, (oct) => ({ type: "textproto-oct-lit", ...oct }));
+-const decLitPattern = /^(?:0(?=$|[^0-9])|[1-9][0-9]*)/;
++const decLitPattern = /^(?:0|[1-9][0-9]*)\b(?!\.)/;
+ const acceptTextprotoDecLit = (0, misc_1.acceptPatternAndThen)(decLitPattern, (dec) => ({ type: "textproto-dec-lit", ...dec }));
+-// TODO: fix regex
+-const strLitPattern = /^'(?:\\x[0-9a-f]{2}|\\[0-7]{3}|\\[0-7]|\\[abfnrtv\\\?'"]|[^'\0\n\\])*'|^"(?:\\x[0-9a-f]{2}|\\[0-7]{3}|\\[0-7]|\\[abfnrtv\\\?'"]|[^"\0\n\\])*"/i;
++const hexLitPattern = /^0x[0-9a-f]+\b(?!\.)/i;
++const acceptTextprotoHexLit = (0, misc_1.acceptPatternAndThen)(hexLitPattern, (hex) => ({ type: "textproto-hex-lit", ...hex }));
++const strLitPattern = misc_1.strLitPattern;
+ function acceptTextprotoStrLit(parser) {
+     const strLit = parser.accept(strLitPattern);
+     if (!strLit)
+@@ -222,13 +224,14 @@
+ const acceptTextprotoSignedFloatLit = signed(acceptTextprotoFloatLit, "textproto-signed-float-lit");
+ const acceptTextprotoSignedOctLit = signed(acceptTextprotoOctLit, "textproto-signed-oct-lit");
+ const acceptTextprotoSignedDecLit = signed(acceptTextprotoDecLit, "textproto-signed-dec-lit");
++const acceptTextprotoSignedHexLit = signed(acceptTextprotoHexLit, "textproto-signed-hex-lit");
+ const acceptTextprotoScalarValue = (0, misc_1.choice)([
+     acceptTextprotoStrLit,
+     acceptTextprotoSignedIdent,
+     acceptTextprotoSignedFloatLit,
+     acceptTextprotoSignedOctLit,
+     acceptTextprotoSignedDecLit,
+-    // TODO
++    acceptTextprotoSignedHexLit,
+ ]);
+ const acceptTextprotoFieldValue = (0, misc_1.choice)([
+     skipWsAndTextprotoComments,

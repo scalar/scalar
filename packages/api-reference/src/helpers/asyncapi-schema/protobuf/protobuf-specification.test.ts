@@ -7,7 +7,7 @@ import { readProtobuf } from './protobuf'
 // https://protobuf.dev/reference/protobuf/proto2-spec/
 // https://protobuf.dev/reference/protobuf/proto3-spec/
 // Semantic restrictions also come from the official proto2/proto3 language guides.
-// Syntax parsing alone in protobufjs does not enforce all of these restrictions.
+// Scalar validates semantic restrictions after parsing.
 describe('protobuf-specification', () => {
   it.each([
     'double',
@@ -130,6 +130,58 @@ describe('protobuf-specification', () => {
     expect(result.nodes[0]?.children?.[0]?.details).toStrictEqual(['deprecated: true', 'json_name: "userId"'])
   })
 
+  it('preserves adjacent block comments and ignores detached block comments', () => {
+    const [node] = readProtobuf(
+      `/** The message.
+       * Second line.
+       */
+      message M {
+        /* The first field.
+           Second line. */
+        string a = 1;
+        /* A detached comment. */
+
+        string b = 2;
+      }`,
+      '3',
+    ).nodes
+    expect(node?.description).toBe('The message.\nSecond line.')
+    expect(node?.children?.map(({ description }) => description)).toStrictEqual([
+      'The first field.\nSecond line.',
+      undefined,
+    ])
+  })
+
+  it.each([
+    ['// Date saved.\u2028Always in UTC.', 'Date saved.\u2028Always in UTC.'],
+    ['/* Date saved.\u2029Always in UTC. */', 'Date saved.\u2029Always in UTC.'],
+  ])('preserves Unicode separators in Protobuf comments', (comment, description) => {
+    const source = `${comment}\nmessage M {}`
+    expect(readProtobuf(source, '3').nodes[0]?.description).toBe(description)
+  })
+
+  it.each([
+    '{ flags { enabled: true }, second: false, }',
+    String.raw`{ number: 0x10, symbol: "\u002a", extra: -inf }`,
+    'true.foo',
+    'inf.foo',
+  ])('renders a schema with file metadata %s', (value) => {
+    const source = `option example = ${value}; message M {}`
+    expect(readProtobuf(source, '3').nodes).toStrictEqual([{ name: 'M', type: 'message M', children: [] }])
+  })
+
+  it.each([
+    '{ enabled: true,, }',
+    '{ enabled true }',
+    '{ outer { enabled: true,, } }',
+    '{ a:1b:2 }',
+    '{ a:0x10b:2 }',
+    '{ a:1.2b:2 }',
+    '{ a: -Thing }',
+  ])('rejects malformed aggregate metadata %s', (value) => {
+    expect(() => readProtobuf(`option example = ${value}; message M {}`, '3')).toThrow()
+  })
+
   it.each([1, 18999, 20000, 536870911])('accepts legal field-number boundary %i', (id) => {
     expect(
       readProtobuf(`syntax = "proto3"; message M { int32 x = ${id}; }`, '3').nodes[0]?.children?.[0]?.fieldNumber,
@@ -240,6 +292,27 @@ describe('protobuf-specification', () => {
     expect(schema.nodes[1]?.children?.[0]?.children?.[0]?.name).toBe('inner')
   })
 
+  it.each(['2', '3'])('displays packing details for repeated proto%s fields', (version) => {
+    const source = `enum E { ZERO = 0; } message Child {} message M {
+      repeated int32 numbers = 1;
+      repeated E enums = 2;
+      repeated string labels = 3;
+      repeated bytes data = 4;
+      repeated Child children = 5;
+      repeated bool flags = 6 [packed = true];
+    }`
+    const automatic = version === '2' ? ['packed: false'] : undefined
+    const fields = readProtobuf(source, version).nodes[2]?.children
+    expect(fields?.map(({ name, details }) => [name, details])).toStrictEqual([
+      ['numbers', automatic],
+      ['enums', automatic],
+      ['labels', undefined],
+      ['data', undefined],
+      ['children', undefined],
+      ['flags', ['packed: true']],
+    ])
+  })
+
   it('accepts valid reserved fields and hexadecimal field numbers', () => {
     expect(
       readProtobuf('syntax = "proto3"; message M { reserved 2 to 4; reserved "removed"; string value = 0x05; }', '3')
@@ -287,11 +360,434 @@ describe('protobuf-specification', () => {
   ])('does not resolve through unrelated nested scopes or a shadowed prefix: %s', (body) => {
     expect(() => readProtobuf(`syntax = "proto3"; ${body}`, '3')).toThrow()
   })
-  it('falls back when protobufjs loses the enum reserved max endpoint', () => {
-    // protobufjs 7.5.4 parses max as the field limit, not the signed enum limit.
+  it('uses the signed enum maximum for reserved ranges', () => {
+    expect(
+      readProtobuf('syntax = "proto3"; enum E { ZERO = 0; reserved 600000000 to max; }', '3').nodes[0]?.children,
+    ).toStrictEqual([{ name: 'ZERO', type: '0' }])
     expect(() =>
       readProtobuf('syntax = "proto3"; enum E { ZERO = 0; reserved 1 to max; HIGH = 600000000; }', '3'),
     ).toThrow()
+  })
+
+  it.each(['infinite', 'nanoseconds', 'true_value', 'false_value', 'INF'])(
+    'preserves enum defaults whose names start with literal tokens: %s',
+    (name) => {
+      const source = `enum E { ${name} = 1; } message M { optional E value = 1 [default = ${name}]; }`
+      expect(readProtobuf(source, '2').nodes[1]?.children?.[0]?.details).toStrictEqual([`Default: "${name}"`])
+    },
+  )
+
+  it.each(['repeatedItem', 'mapValue'])('preserves type names that start with keywords: %s', (name) => {
+    const source = `message ${name} {} message Inventory { ${name} value = 1; }`
+    expect(readProtobuf(source, '3').nodes[1]?.children?.[0]?.type).toBe(`message ${name}`)
+  })
+
+  it.each(['map', 'repeated'])('resolves qualified type names that start with %s', (name) => {
+    const source = `package ${name}; message V {} message M { ${name}.V value = 1; repeated .${name}.V values = 2; }`
+    const fields = readProtobuf(source, '3').nodes[1]?.children
+    expect(fields?.map(({ type, repeated }) => [type, repeated])).toStrictEqual([
+      [`message ${name}.V`, undefined],
+      [`message ${name}.V`, true],
+    ])
+  })
+
+  it('rejects joined declarations', () => {
+    expect(() => readProtobuf('messageItem {}', '3')).toThrow('Trailing Protobuf source')
+  })
+
+  it.each([
+    'message M { string f = 1 [deprecated = true json_name = "g"]; }',
+    'message M { string f = 1 [deprecated = true,]; }',
+    'message M { string f = 1 [,deprecated = true]; }',
+    'message M { string f = 1 []; }',
+    'message M { reserved 2 3; string f = 1; }',
+    'message M { reserved 2,,3; string f = 1; }',
+    'message M { reserved 2to 4; string f = 1; }',
+    'enum E { ZERO = 0; reserved -2to -1; }',
+    'message M { reserved "foo" "bar"; string f = 1; }',
+    'package foo.; message M {}',
+    'package .foo; message M {}',
+    'package .; message M {}',
+    'option go_package. = "example"; message M {}',
+    'option example = whatever.; message M {}',
+    'option example = .unknown.; message M {}',
+    `syntax = 'proto3"; message M {}`,
+    'message M { string f = 1 [depre cated = true]; }',
+    'message M { string f = 1 [deprecated) = true]; }',
+    'enum E { ZERO = 0; ONE = +1; }',
+  ])('rejects malformed lists or qualified names: %s', (source) => {
+    expect(() => readProtobuf(source, '3')).toThrow()
+  })
+
+  it('preserves inline comments that describe the next field', () => {
+    const [node] = readProtobuf(
+      `message M {
+        string a = 1; /* The second field.
+          * Second line. */
+        string b = 2;
+        // The third field.
+        string c = 3; // The fourth field.
+        string d = 4;
+      }`,
+      '3',
+    ).nodes
+    expect(node?.children?.map(({ description }) => description)).toStrictEqual([
+      undefined,
+      'The second field.\nSecond line.',
+      'The third field.',
+      'The fourth field.',
+    ])
+  })
+
+  it.each([
+    [String.raw`\u0041`, 'A'],
+    [String.raw`\U0001F600`, '😀'],
+    [String.raw`\xA`, '\n'],
+    [String.raw`\41`, '!'],
+    [String.raw`\x414`, 'A4'],
+    [String.raw`\1014`, 'A4'],
+  ])('renders a proto2 default with escape %s', (literal, value) => {
+    const source = `message M { optional string x = 1 [default = "${literal}"]; }`
+    expect(readProtobuf(source, '2').nodes[0]?.children?.[0]?.details).toStrictEqual([
+      `Default: ${JSON.stringify(value)}`,
+    ])
+  })
+
+  it.each(['"', "'"])('rejects a string ending in an escaped %s without a closing delimiter', (quote) => {
+    const source = `message M { string value = 1 [json_name = ${quote}display\\${quote}]; }`
+
+    expect(() => readProtobuf(source, '3')).toThrow(/expected/)
+  })
+
+  it.each(['oneof choice { string a = 1; }', 'reserved 90;'])(
+    'preserves next-field documentation after %s',
+    (declaration) => {
+      const source = `message M {
+        ${declaration} /* Documents b. */
+        string b = 2;
+      }`
+      expect(readProtobuf(source, '3').nodes[0]?.children?.at(-1)?.description).toBe('Documents b.')
+    },
+  )
+
+  it.each(['oneof choice { string a = 1; }', 'reserved 90;', 'enum E { ZERO = 0; }'])(
+    'preserves same-line field documentation after %s',
+    (declaration) => {
+      const source = `message M { ${declaration} /* Documents b. */ string b = 2; }`
+      expect(readProtobuf(source, '3').nodes[0]?.children?.at(-1)?.description).toBe('Documents b.')
+    },
+  )
+
+  it.each([
+    '/* Documents the choice. */ oneof choice',
+    'oneof choice /* Documents the choice. */',
+    'oneof choice /* Documents the choice. */\n',
+  ])('preserves inline oneof header documentation: %s', (header) => {
+    const source = `message M {
+      ${header} { string a = 1; string b = 2; }
+    }`
+    expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
+      'Documents the choice.',
+      undefined,
+    ])
+  })
+
+  it('keeps a oneof member description when the header also has a block comment', () => {
+    const source = `message M {
+      /* Documents the choice. */ oneof choice {
+        // Documents the first field.
+        string a = 1;
+      }
+    }`
+    expect(readProtobuf(source, '3').nodes[0]?.children?.[0]?.description).toBe('Documents the first field.')
+  })
+
+  it('preserves next-field documentation when its block comment closes on the field line', () => {
+    const source = `message M {
+      string a = 1; /* Documents b.
+       * Second line. */ string b = 2;
+    }`
+    expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
+      undefined,
+      'Documents b.\nSecond line.',
+    ])
+  })
+
+  it.each([
+    ['float', '-Inf', '-Infinity'],
+    ['float', 'INF', 'Infinity'],
+    ['bool', 'TRUE', 'true'],
+  ])('preserves a proto2 %s default written as %s', (type, value, display) => {
+    const source = `message M { optional ${type} x = 1 [default = ${value}]; }`
+    expect(readProtobuf(source, '2').nodes[0]?.children?.[0]?.details).toStrictEqual([`Default: ${display}`])
+  })
+
+  it.each([
+    ['2', 'message M { optional int32 x = 1 [default = +1]; }'],
+    ['2', 'message M { optional double x = 1 [default = +1.5]; }'],
+    ['3', 'option optimize_for = +1; message M {}'],
+  ])('rejects numeric options with an explicit plus sign in proto%s: %s', (version, source) => {
+    expect(() => readProtobuf(source, version)).toThrow()
+  })
+
+  it('rejects an unquoted boolean as a proto2 string default', () => {
+    expect(() => readProtobuf('message M { optional string x = 1 [default = TRUE]; }', '2')).toThrow()
+  })
+
+  it('decodes UTF-8 byte escapes across proto2 string tokens', () => {
+    const source = String.raw`message M {
+      optional string city = 1 [default = "caf\xC3" "\251"];
+    }`
+    expect(readProtobuf(source, '2').nodes[0]?.children?.[0]?.details).toStrictEqual(['Default: "café"'])
+  })
+
+  it('displays the exact octets of proto2 bytes defaults', () => {
+    const source = String.raw`message M {
+      optional bytes raw = 1 [default = "é"];
+      optional bytes unicode = 2 [default = "\u00E9"];
+      optional bytes utf8 = 3 [default = "\xC3\xA9"];
+      optional bytes octet = 4 [default = "\xE9"];
+    }`
+    expect(readProtobuf(source, '2').nodes[0]?.children?.map(({ details }) => details)).toStrictEqual([
+      [String.raw`Default: "\xc3\xa9"`],
+      [String.raw`Default: "\xc3\xa9"`],
+      [String.raw`Default: "\xc3\xa9"`],
+      [String.raw`Default: "\xe9"`],
+    ])
+  })
+
+  it.each([
+    'string id = 1 /* Stable identifier. */;',
+    'map<string, string> id = 1 /* Stable identifier. */;',
+    'string\n/* Stable identifier. */\nid = 1;',
+    'map<string, string>\n/* Stable identifier. */ id = 1;',
+    'oneof identity { string id = /* Stable identifier. */ 1; }',
+    'string id = 1 [deprecated = /* Stable identifier. */ true];',
+  ])('preserves descriptions within field declarations: %s', (field) => {
+    const source = `message M { ${field} }`
+    expect(readProtobuf(source, '3').nodes[0]?.children?.[0]?.description).toBe('Stable identifier.')
+  })
+
+  it('keeps consecutive comments between the tokens of a wrapped field', () => {
+    const source = `message M {
+      optional string
+      // First line.
+      // Second line.
+      id = 1;
+    }`
+    expect(readProtobuf(source, '2').nodes[0]?.children?.[0]?.description).toBe('First line.\nSecond line.')
+  })
+
+  it('leaves out detached comments after a field number', () => {
+    const source = 'message M { string id = 1\n/* Detached. */; }'
+    expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
+      undefined,
+    ])
+  })
+
+  it('preserves inline enum value descriptions', () => {
+    const source = 'enum E { ZERO = /* Default value. */ 0; }'
+    expect(readProtobuf(source, '3').nodes[0]?.children?.[0]?.description).toBe('Default value.')
+  })
+
+  it('uses leading comments before inline and trailing comments', () => {
+    const source = `message M {
+      // Leading description.
+      string id = 1 /* Inline description. */; // Trailing description.
+    }`
+    expect(readProtobuf(source, '3').nodes[0]?.children?.[0]?.description).toBe('Leading description.')
+  })
+
+  it('keeps a continued trailing comment on the same field', () => {
+    const [node] = readProtobuf(
+      `message M {
+        string x = 1; // First line.
+        // Second line.
+        string y = 2;
+      }`,
+      '3',
+    ).nodes
+    expect(node?.children?.map(({ description }) => description)).toStrictEqual([
+      'First line.\nSecond line.',
+      undefined,
+    ])
+  })
+
+  it.each(['2', '3'])('preserves descriptions inside wrapped proto%s declaration headers', (version) => {
+    const source = `message
+      // Payload tracked by the carrier.
+      Envelope {}
+      enum
+      /* Delivery status. */
+      Status { QUEUED = 0; }
+    `
+    const nodes = readProtobuf(source, version).nodes
+    expect(nodes.map(({ name, description }) => ({ name, description }))).toStrictEqual([
+      { name: 'Envelope', description: 'Payload tracked by the carrier.' },
+      { name: 'Status', description: 'Delivery status.' },
+    ])
+  })
+
+  it.each([
+    ['message Sample /* Header text. */ { string field = 1; }', 'field'],
+    ['message Sample /* Header text. */ { oneof choice { string field = 1; } }', 'field'],
+    ['message /* Header text. */ Sample { string field = 1; }', 'field'],
+    ['enum Sample // Header text.\n{ ZERO = 0; }', 'ZERO'],
+    ['message Sample { oneof choice // Header text.\n{ string field = 1; } }', 'field'],
+  ])('preserves first-member descriptions from a block header: %s', (source, name) => {
+    const [node] = readProtobuf(source, '3').nodes
+    expect(node?.description).toBeUndefined()
+    expect(node?.children?.map(({ name, description }) => ({ name, description }))).toStrictEqual([
+      { name, description: 'Header text.' },
+    ])
+  })
+
+  it('attaches a header description to the first value of a preceding nested enum', () => {
+    const source = 'message M /* Header text. */ { enum E { ZERO = 0; } string id = 1; }'
+    const descriptions = readProtobuf(source, '3').nodes.map(({ name, children }) => ({
+      name,
+      children: children?.map(({ name, description }) => ({ name, description })),
+    }))
+    expect(descriptions).toStrictEqual([
+      { name: 'M', children: [{ name: 'id', description: undefined }] },
+      { name: 'E', children: [{ name: 'ZERO', description: 'Header text.' }] },
+    ])
+  })
+
+  it.each([
+    ['enum E { ZERO = 0; }', 'E', 'ZERO'],
+    ['enum E {\n  ZERO = 0;\n}', 'E', 'ZERO'],
+    ['message N {\n  string nested = 1;\n}', 'N', 'nested'],
+  ])('preserves descriptions on nested blocks that begin on the next line: %s', (declaration, name, field) => {
+    const source = `message M /* Header text. */ {
+      ${declaration}
+      string id = 1;
+    }`
+    const nodes = readProtobuf(source, '3').nodes.map(({ name, description, children }) => ({
+      name,
+      description,
+      children: children?.map(({ name, description }) => ({ name, description })),
+    }))
+    expect(nodes).toStrictEqual([
+      { name: 'M', description: undefined, children: [{ name: 'id', description: undefined }] },
+      { name, description: 'Header text.', children: [{ name: field, description: undefined }] },
+    ])
+  })
+
+  it.each([
+    ['message', 'string value = 1;', 'value'],
+    ['enum', 'ZERO = 0;', 'ZERO'],
+  ])('uses the nested %s name line for header descriptions', (keyword, body, member) => {
+    const layouts = [
+      { beforeName: ' ', beforeBrace: ' ', description: undefined, fieldDescription: 'Header text.' },
+      { beforeName: '\n', beforeBrace: '\n', description: 'Header text.', fieldDescription: undefined },
+      { beforeName: '\n\n', beforeBrace: ' ', description: undefined, fieldDescription: undefined },
+    ]
+    for (const { beforeName, beforeBrace, description, fieldDescription } of layouts) {
+      const source = `message M /* Header text. */ { ${keyword}${beforeName}Nested${beforeBrace}{ ${body} } }`
+      const nodes = readProtobuf(source, '3').nodes.map(({ name, description, children }) => ({
+        name,
+        description,
+        fields: children?.map(({ name, description }) => ({ name, description })),
+      }))
+      expect(nodes).toStrictEqual([
+        { name: 'M', description: undefined, fields: [] },
+        { name: 'Nested', description, fields: [{ name: member, description: fieldDescription }] },
+      ])
+    }
+  })
+
+  it.each([
+    [
+      'oneof choice { string a = 1; }',
+      [
+        ['a', 'Header text.'],
+        ['b', undefined],
+      ],
+    ],
+    [
+      '\noneof choice { string a = 1; }',
+      [
+        ['a', undefined],
+        ['b', undefined],
+      ],
+    ],
+    [
+      'oneof\nchoice { string a = 1; }',
+      [
+        ['a', undefined],
+        ['b', undefined],
+      ],
+    ],
+    ['\noneof choice {}', [['b', undefined]]],
+  ] as const)('preserves header comment ownership around a nested oneof: %j', (declaration, fields) => {
+    const source = `message M /* Header text. */ { ${declaration} string b = 2; }`
+    expect(
+      readProtobuf(source, '3').nodes[0]?.children?.map(({ name, description }) => [name, description]),
+    ).toStrictEqual(fields)
+  })
+
+  it('keeps a header comment detached after a blank line', () => {
+    const source = 'message M /* Detached. */ {\n\n string id = 1; }'
+    expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
+      undefined,
+    ])
+  })
+
+  it('preserves descriptions after a top-level empty statement', () => {
+    const source = 'message A {}; // Documents B.\nmessage B {}'
+    expect(readProtobuf(source, '3').nodes[1]?.description).toBe('Documents B.')
+  })
+
+  it('preserves next-field descriptions after a nested empty statement', () => {
+    const source = `message M {
+      oneof choice { string a = 1; }; // Documents b.
+      string b = 2;
+    }`
+    expect(readProtobuf(source, '3').nodes[0]?.children?.at(-1)?.description).toBe('Documents b.')
+  })
+
+  it('preserves comments across file metadata and top-level declarations', () => {
+    const { nodes } = readProtobuf(
+      `/* The message. */
+      package example; option feature = .test.VALUE; message M {} // The enum.
+      enum E { ZERO = 0; }`,
+      '3',
+    )
+    expect(nodes.map(({ name, description }) => ({ name, description }))).toStrictEqual([
+      { name: 'M', description: 'The message.' },
+      { name: 'E', description: 'The enum.' },
+    ])
+  })
+
+  it.each(['2', '3'])('decodes adjacent string literals in a proto%s syntax declaration', (version) => {
+    const source = `syntax = "proto" '${version}'; message M { optional string value = 1; }`
+    expect(readProtobuf(source, version).nodes[0]?.children?.[0]?.name).toBe('value')
+    expect(() => readProtobuf(source, version === '2' ? '3' : '2')).toThrow('Conflicting Protobuf version')
+  })
+
+  it.each(['\r', '\r\n'])('accepts %j as whitespace between field tokens', (space) => {
+    const source = `message M { string id${space}=${space}1${space}; }`
+    expect(readProtobuf(source, '3').nodes[0]?.children).toStrictEqual([
+      { name: 'id', type: 'string', fieldNumber: 1, presence: 'implicit' },
+    ])
+  })
+
+  it('consumes carriage returns in line comments through LF or EOF', () => {
+    const source = 'message M { string id = 1; // first\rsecond\n } // footer\r'
+    expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
+      'first\rsecond',
+    ])
+  })
+
+  it('renders compact schemas', () => {
+    expect(readProtobuf('message M{string x=1;}', '3').nodes[0]?.children?.[0]?.name).toBe('x')
+    expect(readProtobuf('message M{}', '3').nodes[0]?.type).toBe('message M')
+  })
+
+  it('rejects a partially parsed file and accepts trailing comments', () => {
+    expect(() => readProtobuf('message M {} garbage', '3')).toThrow('Trailing Protobuf source')
+    expect(readProtobuf('message M {} // trailing comment\n', '3').nodes[0]?.type).toBe('message M')
   })
 
   it('rejects map fields whose generated entry names collide', () => {

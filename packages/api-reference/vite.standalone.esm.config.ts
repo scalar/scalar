@@ -9,31 +9,9 @@ import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { hasModuleSideEffects } from '../../tooling/scripts/vite-lib-config.ts'
 import packageJson from './package.json' with { type: 'json' }
 import { createEsmEntry } from './src/standalone/lib/create-esm-entry.ts'
+import { licenseBanner, parserNotice } from './standalone-license-banners.ts'
 
-const { name, version } = packageJson
-
-// Opens with `/*!` (a legal comment) rather than `/**` so the oxc minifier keeps it
-// when `output.comments.legal` is enabled. See the `banner`/`comments` output options.
-const licenseBannerTemplate = String.raw`/*!
- *    _____ _________    __    ___    ____
- *   / ___// ____/   |  / /   /   |  / __ \
- *   \__ \/ /   / /| | / /   / /| | / /_/ /
- *  ___/ / /___/ ___ |/ /___/ ___ |/ _, _/
- * /____/\____/_/  |_/_____/_/  |_/_/ |_|
- *
- * {{ packageName }} {{ version }}
- *
- * Website: https://scalar.com
- * GitHub:  https://github.com/scalar/scalar
- * License: https://github.com/scalar/scalar/blob/main/LICENSE
-**/
-`
-
-const replaceVariables = (template: string, variables: Record<string, string>) =>
-  Object.entries(variables).reduce(
-    (content, [key, value]) => content.replace(new RegExp(`\\{\\{ ${key} \\}\\}`, 'g'), value),
-    template,
-  )
+const { version } = packageJson
 
 export default defineConfig({
   define: {
@@ -98,7 +76,10 @@ export default defineConfig({
         // Prepend the license banner through Rolldown (not vite-plugin-banner) so the
         // source map stays aligned: Rolldown accounts for the banner in the map,
         // whereas vite-plugin-banner rewrites the file after the map is emitted.
-        banner: replaceVariables(licenseBannerTemplate, { packageName: name, version }),
+        banner: (chunk) =>
+          chunk.moduleIds.some((id) => id.includes('/node_modules/pbkit/'))
+            ? licenseBanner + parserNotice
+            : licenseBanner,
         // Keep the `/*!` license banner through minification. Vite defaults oxc to
         // `legalComments: 'none'`, which would otherwise strip it.
         comments: { legal: true },

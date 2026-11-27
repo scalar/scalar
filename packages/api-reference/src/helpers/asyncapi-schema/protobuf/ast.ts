@@ -1,24 +1,56 @@
-import type {
-  EnumDefinition,
-  FieldDefinition,
-  MessageDefinition,
-  NamespaceDefinition,
-  OneofDefinition,
-  ProtoRoot,
-  ServiceDefinition,
-} from 'proto-parser'
+/** Highest legal field number before the reserved implementation range is considered. */
+export const fieldMax = 536870911
+
+/** Upper bound for signed 32-bit field defaults and enum values. */
+export const int32Max = 2147483647
+
+type Node<Kind> = {
+  syntaxType: Kind
+  name: string
+  fullName?: string
+  comment?: string
+  options?: Record<string, unknown>
+}
+
+/** Inclusive ranges and names reserved by a message or enum. */
+export type Reservation = string | [number, number]
+
+/** A Protobuf field, before Scalar resolves its type across files. */
+export type FieldDefinition = Node<'FieldDefinition'> & {
+  id: number
+  type: { value: string }
+  rule?: 'optional' | 'required' | 'repeated'
+  keyType?: { value: string }
+}
+
+/** A named set of sibling fields with mutually exclusive presence. */
+export type OneofDefinition = Node<'OneofDefinition'> & { oneof: string[] }
+
+/** A declared message with its own field and type scope. */
+export type MessageDefinition = Node<'MessageDefinition'> & {
+  fields: Record<string, FieldDefinition>
+  nested: { [name: string]: Definition }
+  oneofs: Record<string, OneofDefinition>
+  reserved: Reservation[]
+}
+
+/** A declared enum with values and their source metadata. */
+export type EnumDefinition = Node<'EnumDefinition'> & {
+  values: Record<string, number>
+  comments: Record<string, string | undefined>
+  valuesOptions: Record<string, Record<string, unknown>>
+  reserved: Reservation[]
+}
+
+/** A package namespace or the root scope of one parsed file. */
+export type Scope = Node<'ProtoRoot' | 'NamespaceDefinition'> & {
+  nested: { [name: string]: Definition }
+}
 
 /** Nodes that can participate in lexical Protobuf name resolution. */
-export type Definition =
-  | ProtoRoot
-  | NamespaceDefinition
-  | MessageDefinition
-  | EnumDefinition
-  | ServiceDefinition
-  | FieldDefinition
-  | OneofDefinition
+export type Definition = Scope | MessageDefinition | EnumDefinition | FieldDefinition | OneofDefinition
 
-/** Narrow the parser AST without depending on its internal reflection classes. */
+/** Narrow the schema model to a message. */
 export const isMessage = (node: Definition | null): node is MessageDefinition =>
   node?.syntaxType === 'MessageDefinition'
 
@@ -44,3 +76,7 @@ export const isScalar = (name: string): boolean =>
     'string',
     'bytes',
   ].includes(name)
+
+/** Only repeated numeric, boolean, and enum fields can use packed encoding. */
+export const isPackableField = (field: FieldDefinition, target: Definition | null): boolean =>
+  field.rule === 'repeated' && field.type.value !== 'string' && field.type.value !== 'bytes' && !isMessage(target)

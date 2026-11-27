@@ -1,30 +1,19 @@
 # Dependency patches
 
-## proto-parser 0.0.9
+## pbkit 0.0.72
 
-The AsyncAPI Protobuf reader uses this parser to avoid shipping the Protobuf
-serialization runtime. Keep the patch while this version is installed:
+Keep Protobuf keywords, labels, and special literals from consuming the start
+of an identifier. The AsyncAPI schema reader tests cover enum defaults such as
+`infinite` and type names such as `repeatedItem`.
 
-- Preserve the literal `optional` rule and leave unlabeled proto3 fields without
-  a rule. The renderer needs to distinguish explicit and implicit presence.
-- Preserve enum-value comments and options in the JSON AST. Dropping options
-  would also prevent Scalar from rejecting unsupported custom options.
-- Accept a default syntax supplied by AsyncAPI `schemaFormat` for fragments
-  without a `syntax` declaration. An explicit declaration still takes precedence
-  and Scalar checks it against `schemaFormat`.
-- Reject duplicate namespace declarations before they overwrite earlier definitions.
-- Use null-prototype dictionaries so schema identifiers such as `constructor`,
-  `toString`, and `__proto__` are ordinary names.
-- Include field discriminants in the JSON AST and correct the corresponding
-  TypeScript declarations for options, ranges, groups, and nested definitions.
+Allow sufficient lookahead for compact valid schemas while keeping a step limit proportional to the source length.
 
-Scalar disables the parser's type resolution and retains its own lexical lookup
-and semantic validation. Regression coverage lives in
-`packages/api-reference/src/helpers/asyncapi-schema/protobuf/`.
+Keep a block comment adjacent when a single newline separates it from its declaration.
 
-When updating or replacing this dependency, run the schema reader tests before
-removing any part of the patch.
+Preserve inline descriptions when they belong to the next declaration.
 
-The default library build includes the patched runtime under `dist/vendor/` so
-installed npm consumers do not depend on workspace patch configuration. Standalone
-builds also bundle the corrected parser.
+Recognize Protobuf string escapes in proto2 defaults and structured file options. Keep consecutive line comments together.
+
+Require complete numeric tokens in structured file options, including hexadecimal values.
+
+Treat standalone carriage returns as whitespace and CRLF as line breaks.

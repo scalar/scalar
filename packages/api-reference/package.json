@@ -107,7 +107,8 @@
     "!dist/browser/examples",
     "!dist/_redirects",
     "!dist/browser/_redirects",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "THIRD_PARTY_NOTICES"
   ],
   "browser": "./dist/browser/standalone.js",
   "esm.sh": {
@@ -140,7 +141,6 @@
     "fuse.js": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
-    "proto-parser": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"
   },
@@ -159,6 +159,7 @@
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
     "jsdom": "catalog:*",
+    "pbkit": "catalog:*",
     "posthog-js": "catalog:*",
     "storybook": "10.6.8",
     "tailwindcss": "catalog:*",
