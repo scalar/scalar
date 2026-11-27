@@ -1,6 +1,7 @@
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
+import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
@@ -270,7 +271,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   })
 
   const globalConsumes = (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
-  const globalProduces = (document.produces as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
+  const globalProduces = Array.isArray(document.produces) ? document.produces : [DEFAULT_MEDIA_TYPE]
   // Keep the source fields and examples for operation-specific media types and combined forms.
   const sharedBodyParameters = new Map<string, OpenAPIV2.ParameterObject>()
 
@@ -291,7 +292,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
         typeof schema.$ref === 'string' &&
         schema.$ref.startsWith('#/parameters/')
       ) {
-        const schemaName = parseParameterReference(schema.$ref)[1]
+        const schemaName = parseLocalReference(schema.$ref)[1]
 
         if (schemaName === undefined) {
           return schema
@@ -352,14 +353,14 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     delete document.parameters
   }
 
-  // Keep the source responses for operations that override the global produces.
-  const sharedResponses = new Map<string, UnknownObject>()
+  let sharedResponses: UnknownObject | undefined
 
   // Handle global responses defined in #/responses
   if (Object.hasOwn(document, 'responses') && typeof document.responses === 'object' && document.responses !== null) {
     // Update all $refs from #/responses/ to #/components/responses/
-    document = traverse(document, (schema) => {
-      if (typeof schema.$ref === 'string' && schema.$ref.startsWith('#/responses/')) {
+    document = traverse(document, (schema, path) => {
+      const isResponseExtension = path?.[0] === 'paths' && path[3] === 'responses' && path[4]?.startsWith('x-')
+      if (!isResponseExtension && typeof schema.$ref === 'string' && schema.$ref.startsWith('#/responses/')) {
         schema.$ref = schema.$ref.replace(/^#\/responses\//, '#/components/responses/')
       }
       return schema
@@ -368,18 +369,17 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     document.components ??= {}
 
     const migratedResponses: Record<string, OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject> = {}
-    const responses = document.responses as Record<string, unknown>
+    sharedResponses = document.responses as UnknownObject
 
-    for (const [name, response] of Object.entries(responses)) {
+    for (const [name, response] of Object.entries(sharedResponses)) {
       if (isObjectLike(response)) {
-        sharedResponses.set(name, structuredClone(response))
-
         // Handle reference objects
         if ('$ref' in response) {
           migratedResponses[name] = response as OpenAPIV3.ReferenceObject
         } else {
           // Transform the response object
-          const responseObj = transformResponseObject(response, globalProduces)
+          // Convert a copy so each operation can still use the original schema and examples.
+          const responseObj = transformResponseObject(structuredClone(response), globalProduces)
 
           migratedResponses[name] = responseObj as OpenAPIV3.ResponseObject
         }
@@ -467,16 +467,15 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
             // Responses
             if (operationItem.responses) {
-              const produces: string[] = operationItem.produces ?? globalProduces
-              const overridesProduces = produces.join() !== globalProduces.join()
-              for (const response in operationItem.responses) {
-                if (Object.hasOwn(operationItem.responses, response)) {
-                  operationItem.responses[response] = transformResponseObject(
-                    overridesProduces
-                      ? resolveSharedResponse(operationItem.responses[response], sharedResponses)
-                      : operationItem.responses[response],
-                    produces,
-                  )
+              const produces = Array.isArray(operationItem.produces) ? operationItem.produces : globalProduces
+              const overridesProduces = !isObjectEqual(produces, globalProduces)
+              for (const status in operationItem.responses) {
+                if (Object.hasOwn(operationItem.responses, status) && !status.startsWith('x-')) {
+                  const response = operationItem.responses[status]
+                  const shared = overridesProduces
+                    ? copySharedResponse(response, sharedResponses, ['components', 'responses'])
+                    : undefined
+                  operationItem.responses[status] = transformResponseObject(shared ?? response, produces)
                 }
               }
             }
@@ -995,7 +994,7 @@ export function migrateFormDataParameter(
 type SwaggerParameter = OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject
 
 /** Keep malformed percent escapes from aborting an otherwise usable API description. */
-const parseParameterReference = (reference: string): string[] => {
+const parseLocalReference = (reference: string): string[] => {
   try {
     return parseJsonPointerSegments(reference.slice(1))
   } catch {
@@ -1019,7 +1018,7 @@ const resolveSharedBodyName = (name: string, parameters: UnknownObject): string 
     if (!parameter.$ref.startsWith('#/parameters/')) {
       return undefined
     }
-    const segments = parseParameterReference(parameter.$ref)
+    const segments = parseLocalReference(parameter.$ref)
     if (segments.length !== 2 || segments[1] === undefined) {
       return undefined
     }
@@ -1034,31 +1033,41 @@ const resolveBodyParameter = (
   sharedBodyParameters: ReadonlyMap<string, OpenAPIV2.ParameterObject>,
 ): SwaggerParameter => {
   if ('$ref' in parameter && parameter.$ref.startsWith('#/components/requestBodies/')) {
-    const segments = parseParameterReference(parameter.$ref)
+    const segments = parseLocalReference(parameter.$ref)
     const name = segments[2]
     return (segments.length === 3 && name !== undefined ? sharedBodyParameters.get(name) : undefined) ?? parameter
   }
   return parameter
 }
 
-/** Inline a shared response so an operation that overrides the global produces gets its own media types. */
-const resolveSharedResponse = (
-  response: UnknownObject,
-  sharedResponses: ReadonlyMap<string, UnknownObject>,
-): UnknownObject => {
-  if (typeof response.$ref !== 'string' || !response.$ref.startsWith('#/components/responses/')) {
-    return response
+/** Copy the source of a local shared response so it can be converted in the operation's media types. */
+export const copySharedResponse = (
+  response: unknown,
+  sharedResponses: unknown,
+  section: readonly string[],
+): UnknownObject | undefined => {
+  if (
+    !isObjectLike(sharedResponses) ||
+    !isObjectLike(response) ||
+    typeof response.$ref !== 'string' ||
+    !response.$ref.startsWith('#/')
+  ) {
+    return undefined
   }
 
-  const segments = parseParameterReference(response.$ref)
-  const name = segments[2]
-  const sharedResponse = segments.length === 3 && name !== undefined ? sharedResponses.get(name) : undefined
-
-  if (sharedResponse === undefined || typeof sharedResponse.$ref === 'string') {
-    return response
+  const segments = parseLocalReference(response.$ref)
+  const name = segments.at(-1)
+  if (
+    segments.length !== section.length + 1 ||
+    !section.every((segment, index) => segment === segments[index]) ||
+    name === undefined ||
+    !Object.hasOwn(sharedResponses, name)
+  ) {
+    return undefined
   }
 
-  return structuredClone(sharedResponse)
+  const target = sharedResponses[name]
+  return isObjectLike(target) && typeof target.$ref !== 'string' ? structuredClone(target) : undefined
 }
 
 const isRequestBodyParameter = (parameter: SwaggerParameter): parameter is OpenAPIV2.ParameterObject =>

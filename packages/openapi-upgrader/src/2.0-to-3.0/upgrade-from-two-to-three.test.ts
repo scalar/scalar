@@ -396,6 +396,48 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('falls back to the global media types when operation produces is malformed', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      paths: {
+        '/export': {
+          get: {
+            produces: 'text/csv',
+            responses: { '200': { description: 'Export', schema: { type: 'string' } } },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/export']?.get?.responses?.['200']).toStrictEqual({
+      description: 'Export',
+      content: { 'application/json': { schema: { type: 'string' } } },
+    })
+  })
+
+  it('preserves response extensions containing literal references', () => {
+    const metadata = { $ref: '#/responses/Export', label: 'keep' }
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      responses: { Export: { description: 'CSV export', schema: { type: 'string' } } },
+      paths: {
+        '/export': {
+          get: {
+            produces: ['text/csv'],
+            responses: { '200': { $ref: '#/responses/Export' }, 'x-metadata': metadata },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/export']?.get?.responses).toStrictEqual({
+      '200': { description: 'CSV export', content: { 'text/csv': { schema: { type: 'string' } } } },
+      'x-metadata': metadata,
+    })
+  })
+
   it('uses global produces for responses', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

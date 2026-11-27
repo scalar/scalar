@@ -1,10 +1,12 @@
 import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import { isObject } from '@scalar/helpers/object/is-object'
+import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 import type { OpenAPIV2 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { migrateDiscriminatorMappings } from './2.0-to-3.0/migrate-discriminator-mappings'
 import {
+  copySharedResponse,
   migrateBodyParameter,
   migrateFormDataParameter,
   migrateSchema,
@@ -118,6 +120,9 @@ export const upgradeFragment = async (
   const locations: FragmentLocation[] = []
   const contexts: FragmentUpgradeResult['contexts'] = []
   const v2 = options.from === '2.0'
+  // Keep source response schemas and examples available after the component traversal.
+  const sharedResponses =
+    v2 && options.kind === 'document' && isObject(input) ? structuredClone(input.responses) : undefined
   const resolvedParameters = new Map<string, Promise<unknown>>()
   const resolveParameter = (parameter: unknown): Promise<unknown> => {
     if (!v2 || !isObject(parameter) || typeof parameter.$ref !== 'string' || !options.resolveSource) {
@@ -437,9 +442,15 @@ export const upgradeFragment = async (
       }
       if (isObject(value.responses)) {
         const convertedResponses: UnknownObject = {}
+        const overridesProduces = sharedResponses !== undefined && !isObjectEqual(effectiveProduces, produces)
         result.responses = convertedResponses
         for (const [status, response] of Object.entries(value.responses)) {
-          const converted = await visit(response, {
+          if (v2 && status.startsWith('x-')) {
+            setOwn(convertedResponses, status, response)
+            continue
+          }
+          const shared = overridesProduces ? copySharedResponse(response, sharedResponses, ['responses']) : undefined
+          const converted = await visit(shared ?? response, {
             kind: 'response',
             source: [...source, 'responses', status],
             output: [...output, 'responses', status],

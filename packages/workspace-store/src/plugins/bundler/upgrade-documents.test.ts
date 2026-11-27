@@ -3,6 +3,7 @@ import { type LoaderPlugin, bundle, bundleWithDiagnostics } from '@scalar/json-m
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { describe, expect, it, vi } from 'vitest'
 
+import { openApiDocument } from './openapi-document'
 import { upgradeDocuments } from './upgrade-documents'
 
 const loader = (documents: Record<string, unknown>): LoaderPlugin => ({
@@ -213,6 +214,36 @@ describe('upgrade-documents', () => {
       ],
     })
     expect(read(input, ['components', 'schemas', 'Name', '$ref-value', 'type'])).toBe('string')
+  })
+
+  it('uses operation media types for shared 2.0 responses when loading a document', async () => {
+    const input = {
+      swagger: '2.0',
+      info: { title: 'CSV export', version: '1.0' },
+      produces: ['application/json'],
+      responses: { Export: { description: 'Export', schema: { $ref: '#/definitions/Row' } } },
+      definitions: { Row: { type: 'string' } },
+      paths: {
+        '/export': {
+          get: { produces: ['text/csv'], responses: { '200': { $ref: '#/responses/Export' } } },
+          post: { responses: { '200': { $ref: '#/responses/Export' } } },
+        },
+      },
+    }
+    await bundle(input, {
+      traversal: 'document',
+      origin: 'https://example.com/api.json',
+      treeShake: false,
+      plugins: [upgradeDocuments('2.0'), openApiDocument()],
+    })
+
+    const csv = ['paths', '/export', 'get', 'responses', '200', 'content']
+    expect(Object.keys(read(input, csv) as object)).toStrictEqual(['text/csv'])
+    expect(read(input, [...csv, 'text/csv', 'schema', '$ref-value', 'type'])).toBe('string')
+    expect(read(input, ['paths', '/export', 'post', 'responses', '200', '$ref'])).toBe('#/components/responses/Export')
+    expect(getRaw(read(input, ['components', 'responses', 'Export', 'content']))).toStrictEqual({
+      'application/json': { schema: { $ref: '#/components/schemas/Row' } },
+    })
   })
 
   it('converts an external body parameter using the operation media type', async () => {
