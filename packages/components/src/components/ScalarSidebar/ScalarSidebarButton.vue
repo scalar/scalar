@@ -20,6 +20,9 @@
  *       <!-- After the button text -->
  *     </template>
  *   </ScalarSidebarButton>
+ *
+ * Stable hooks for styling from outside the component:
+ * - `.scalar-sidebar-button` targets the button
  */
 export default {}
 </script>
@@ -36,7 +39,7 @@ defineSlots<ScalarSidebarButtonSlots>()
 
 const variants = cva({
   base: [
-    'group/button peer/button flex items-stretch rounded p-2',
+    'scalar-sidebar-button group/button peer/button flex items-stretch rounded p-2',
     'font-sidebar text-base/4  text-sidebar-c-2 no-underline wrap-break-word',
   ],
   variants: {

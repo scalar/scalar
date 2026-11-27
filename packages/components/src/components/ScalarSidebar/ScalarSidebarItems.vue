@@ -11,6 +11,11 @@
  *   <ScalarSidebarItem>...</ScalarSidebarItem>
  *   <ScalarSidebarItem>...</ScalarSidebarItem>
  * </ScalarSidebarItems>
+ *
+ * Stable hooks for styling from outside the component:
+ * - `.scalar-sidebar-items` targets the list
+ * - `[data-nested-open]` is set while a nested list inside it is open,
+ *   which slides this list out of view
  */
 export default {}
 </script>
@@ -34,10 +39,11 @@ const { cx } = useBindCx()
     :is="is"
     v-bind="
       cx(
-        'group/items relative flex flex-col p-(--scalar-sidebar-padding) gap-px transition-transform duration-300',
+        'scalar-sidebar-items group/items relative flex flex-col p-(--scalar-sidebar-padding) gap-px transition-transform duration-300',
         open ? '-translate-x-full' : 'translate-x-0',
       )
-    ">
+    "
+    :data-nested-open="open || undefined">
     <slot />
   </component>
 </template>
@@ -45,7 +51,7 @@ const { cx } = useBindCx()
 @reference "../../style.css";
 
 /* Hide the buttons from the keyboard when a nested item is open */
-.group\/items.-translate-x-full .group\/button {
+.scalar-sidebar-items[data-nested-open] .scalar-sidebar-button {
   /* Required to prevent the button from being focused */
   display: none;
   /* Required to prevent the button from taking up scroll space */
@@ -58,10 +64,10 @@ const { cx } = useBindCx()
 }
 
 /* Show the buttons within a nested item when it is open */
-.group\/item.group\/nested-items-open
+.scalar-sidebar-nested-items[data-open]
   > *
-  > .group\/items.translate-x-0
-  .group\/button {
+  > .scalar-sidebar-items:not([data-nested-open])
+  .scalar-sidebar-button {
   max-height: calc(infinity * 1px);
   display: flex;
 }

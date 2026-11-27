@@ -548,8 +548,9 @@ describe('ScalarSidebarNestedItems', () => {
     await nextTick()
     await vi.advanceTimersByTimeAsync(350)
 
-    // While the nested item is open, the items container is translated off-screen
+    // While the nested item is open, the items container reports it so layouts can target it
     const items = wrapper.findComponent(ScalarSidebarItems).element as HTMLElement
+    expect(items.hasAttribute('data-nested-open')).toBe(true)
     expect(items.className).toContain('-translate-x-full')
 
     // Unmount the nested item while it is still open
@@ -558,8 +559,87 @@ describe('ScalarSidebarNestedItems', () => {
     await vi.advanceTimersByTimeAsync(350)
 
     // Parent should no longer report any open children and snap back
+    expect(items.hasAttribute('data-nested-open')).toBe(false)
     expect(items.className).toContain('translate-x-0')
     expect(items.className).not.toContain('-translate-x-full')
+  })
+
+  it('exposes stable hooks for the open state', async () => {
+    const TestComponent = defineComponent({
+      components: {
+        ScalarSidebarItems,
+        ScalarSidebarNestedItems,
+        ScalarSidebarItem,
+      },
+      template: `
+        <ScalarSidebarItems>
+          <ScalarSidebarNestedItems>
+            Nested Item
+            <template #items>
+              <ScalarSidebarItem>Item 1</ScalarSidebarItem>
+            </template>
+          </ScalarSidebarNestedItems>
+        </ScalarSidebarItems>
+      `,
+    })
+
+    const wrapper = mount(TestComponent)
+    const nested = wrapper.find('.scalar-sidebar-nested-items')
+    const items = wrapper.find('.scalar-sidebar-items')
+
+    expect(nested.attributes('data-open')).toBeUndefined()
+    expect(nested.classes()).not.toContain('group/nested-items-open')
+    expect(items.attributes('data-nested-open')).toBeUndefined()
+    expect(wrapper.find('.scalar-sidebar-nested-items-panel').exists()).toBe(false)
+
+    await nested.find('.scalar-sidebar-button').trigger('click')
+
+    expect(nested.attributes('data-open')).toBeDefined()
+    // The deprecated class stays until existing selectors move to [data-open]
+    expect(nested.classes()).toContain('group/nested-items-open')
+    expect(items.attributes('data-nested-open')).toBeDefined()
+    expect(wrapper.find('.scalar-sidebar-nested-items-panel').text()).toContain('Item 1')
+  })
+
+  it('only marks the lists that a nested item is open in', async () => {
+    const TestComponent = defineComponent({
+      components: {
+        ScalarSidebarItems,
+        ScalarSidebarNestedItems,
+        ScalarSidebarItem,
+      },
+      template: `
+        <ScalarSidebarItems>
+          <ScalarSidebarNestedItems>
+            Outer
+            <template #items>
+              <ScalarSidebarNestedItems>
+                Inner
+                <template #items>
+                  <ScalarSidebarItem>Item 1</ScalarSidebarItem>
+                </template>
+              </ScalarSidebarNestedItems>
+            </template>
+          </ScalarSidebarNestedItems>
+        </ScalarSidebarItems>
+      `,
+    })
+
+    const wrapper = mount(TestComponent)
+    const outerItems = wrapper.find('.scalar-sidebar-items')
+
+    await wrapper.find('.scalar-sidebar-nested-items > .scalar-sidebar-button').trigger('click')
+
+    // The outer list is covered, the list it opened is still in view
+    const innerItems = wrapper.find('.scalar-sidebar-nested-items-panel > .scalar-sidebar-items')
+    expect(outerItems.attributes('data-nested-open')).toBeDefined()
+    expect(innerItems.attributes('data-nested-open')).toBeUndefined()
+
+    await innerItems.find('.scalar-sidebar-nested-items > .scalar-sidebar-button').trigger('click')
+
+    // Opening the inner item covers the inner list, and the outer list stays covered
+    expect(outerItems.attributes('data-nested-open')).toBeDefined()
+    expect(innerItems.attributes('data-nested-open')).toBeDefined()
   })
 
   it('renders with correct indent level', () => {
