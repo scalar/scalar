@@ -5,7 +5,7 @@ export type ServerMeta =
       type: 'document'
     }
   | {
-      type: 'path-item'
+      type: 'path'
       path: string
     }
   | {

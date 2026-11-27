@@ -134,16 +134,14 @@ export const getRequestExampleContext = (
     documentUrl: document['x-scalar-original-source-url'],
   })
   const inheritedMeta: ServerMeta =
-    options.servers == null && pathItemServerTarget?.servers != null
-      ? { type: 'path-item', path }
-      : { type: 'document' }
+    options.servers == null && pathItemServerTarget?.servers != null ? { type: 'path', path } : { type: 'document' }
   const serverMeta: ServerMeta =
     !isWebhook && options.servers == null && operation.servers != null
       ? { type: 'operation', path, method }
       : inheritedMeta
   const selectedServer = getSelectedServer(
     serverMeta.type === 'document' ? document : null,
-    serverMeta.type === 'path-item' ? (pathItemServerTarget ?? null) : operation,
+    serverMeta.type === 'path' ? (pathItemServerTarget ?? null) : operation,
     options.servers ?? null,
     serverList,
   )

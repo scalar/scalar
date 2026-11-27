@@ -135,6 +135,16 @@ describe('servers', () => {
     },
     { server: { url: 'api.example.com/v1' }, expectedPath: 'api.example.com/v1' },
     { server: { url: 'api.example.com:8080/v1' }, expectedPath: 'api.example.com:8080/v1' },
+    {
+      server: { url: '{host}:8080/v1', variables: { host: { default: 'myhost' } } },
+      expectedPath: 'myhost:8080/v1',
+    },
+    {
+      server: { url: 'myhost:{port}/v1', variables: { port: { default: '8080' } } },
+      expectedPath: 'myhost:8080/v1',
+    },
+    { server: { url: 'myhost:8080/v1' }, expectedPath: 'myhost:8080/v1' },
+    { server: { url: 'myhost:8080' }, expectedPath: 'myhost:8080' },
   ])('resolves $server.url as a path when a document or configured base is available', ({ server, expectedPath }) => {
     const documentUrl = 'https://docs.example.com/specs/openapi.json'
     const [documentServer] = getServers([server], { documentUrl })
@@ -155,6 +165,27 @@ describe('servers', () => {
       'https://api.example.com:8080/v2',
     ])
   })
+
+  it.each(['https://myhost:8080/v1', 'https:8080/v1', 'tel:1234', 'myhost:8080/v1'])(
+    'preserves %s when only the browser origin is available',
+    (url) => {
+      const [server] = getServers([{ url }])
+
+      expect(resolveServerUrl(server ?? null)).toBe(url)
+    },
+  )
+
+  it.each(['https://myhost:8080/v1', 'https:8080/v1', 'tel:1234'])(
+    'keeps explicit schemes in %s when a document or configured base is available',
+    (url) => {
+      const documentUrl = 'https://docs.example.com/specs/openapi.json'
+      const [documentServer] = getServers([{ url }], { documentUrl })
+      const [configuredServer] = getServers([{ url }], { documentUrl, baseServerUrl: 'https://proxy.example.com/api' })
+
+      expect(resolveServerUrl(documentServer ?? null)).toBe(url)
+      expect(resolveServerUrl(configuredServer ?? null)).toBe(url)
+    },
+  )
 
   it('uses only the configured base for dotted paths in inline descriptions', () => {
     const [server] = getServers([{ url: '{prefix}', variables: { prefix: { default: 'release.v1' } } }], {

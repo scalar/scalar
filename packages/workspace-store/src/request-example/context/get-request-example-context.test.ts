@@ -88,7 +88,7 @@ describe('getRequestExampleContext', () => {
     const inherited = requestContext('get')
     assert(inherited.ok)
     const { meta } = inherited.data.servers
-    expect(meta).toStrictEqual({ type: 'path-item', path: '/pets' })
+    expect(meta).toStrictEqual({ type: 'path', path: '/pets' })
     expect(resolveServerUrl(inherited.data.servers.selected)).toBe('https://configured.example.com/api/v1')
 
     updateSelectedServer(document, { url: '{version}', meta })

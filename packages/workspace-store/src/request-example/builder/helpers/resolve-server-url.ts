@@ -13,7 +13,9 @@ type ServerUrlBase = { url: string; source: 'configuration' | 'document' | 'brow
 // and structured cloning drop it. Prepare the server again after restoring a serialized document.
 const serverUrlBase = Symbol('serverUrlBase')
 const urlScheme = /^[a-z][a-z\d+.-]*:/i
-const schemelessHostWithPort = /^(?:localhost|[a-z\d-]+(?:\.[a-z\d-]+)+|\[[\da-f:]+\]):(?:\d+|\{[^}]+\})(?:[/?#]|$)/i
+// Numeric ports on single-label hosts can look like schemes. Keep known schemes with that syntax.
+const schemelessHostWithPort =
+  /^(?!(?:https?|wss?|ftp|file|tel):)(?:[a-z\d-]+(?:\.[a-z\d-]+)*|\[[\da-f:]+\]):(?:\d+|\{[^}]+\})(?:[/?#]|$)/i
 
 type ServerWithUrlBase = ServerObject & { [serverUrlBase]?: ServerUrlBase }
 

@@ -430,7 +430,9 @@ This overrides the same extension in the API description. Set it to an empty str
 
 Sets the base for relative OpenAPI server URLs after Scalar substitutes server variables. A configured base includes its path prefix. Without a configured base, Scalar resolves relative server URLs against the API description's HTTP(S) URL when available. An empty expansion uses the configured base or the directory containing the API description.
 
-With either base, bare values such as `api.example.com/v1` and `api.example.com:8080/v1` resolve as paths. To target that host, use an explicit URL such as `https://api.example.com:8080/v1` or `//api.example.com:8080/v1`.
+With either base, bare values such as `api.example.com/v1`, `api.example.com:8080/v1`, and `myhost:8080/v1` resolve as paths. To target that host, use an explicit URL such as `https://api.example.com:8080/v1` or `//api.example.com:8080/v1`.
+
+When you pass an API description inline through `content` and omit `baseServerURL`, Scalar still recognizes dotted values such as `api.example.com/v1` as hostnames. Use an explicit URL to target the same host whether you load the description by URL or pass it inline.
 
 ```javascript
 {

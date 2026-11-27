@@ -523,7 +523,7 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     })
     await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v1/planets'))
 
-    const meta = { type: 'path-item', path: '/planets' } as const
+    const meta = { type: 'path', path: '/planets' } as const
     wrapper.vm.eventBus.emit('server:update:selected', { url: '{version}', meta })
     await vi.waitFor(() => expect(wrapper.text()).toContain('https://api.example.com/base/v2/planets'))
 

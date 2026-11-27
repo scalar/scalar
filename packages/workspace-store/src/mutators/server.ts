@@ -28,7 +28,7 @@ const getServerTarget = (document: WorkspaceDocument | null, meta: ServerMeta): 
   if (meta.type === 'document') {
     return document
   }
-  if (meta.type === 'path-item') {
+  if (meta.type === 'path') {
     return getPathItemServerTarget(document.paths?.[meta.path]) ?? null
   }
   return getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method)) ?? null
