@@ -10,6 +10,7 @@ import OAuth2 from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import RequestAuthDataTableInput from '@/v2/blocks/scalar-auth-selector-block/components/RequestAuthDataTableInput.vue'
 import type { CaptureOAuth2Callback } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
+import { DataTableInput } from '@/v2/components/data-table'
 
 describe('OAuth2', () => {
   const baseEnv = {
@@ -441,6 +442,46 @@ describe('OAuth2', () => {
       name: 'OAuth2',
       payload: { type: 'oauth2', flows: { authorizationCode: { 'x-usePkce': 'plain' } } },
     })
+    stop()
+    wrapper.unmount()
+  })
+
+  it('offers every PKCE method in the PKCE dropdown', () => {
+    const wrapper = mountWithProps()
+    const pkce = wrapper
+      .findAllComponents(RequestAuthDataTableInput)
+      .find((input) => input.text().includes('Use PKCE'))!
+    expect(pkce.findComponent(DataTableInput).props('enum')).toStrictEqual(['SHA-256', 'plain', 'no'])
+    wrapper.unmount()
+  })
+
+  it.each(['SHA-256', 'plain', 'no'] as const)('writes the PKCE method %s to the flow', async (method) => {
+    const wrapper = mountWithProps()
+    const update = vi.fn()
+    const stop = eventBus.on('auth:update:security-scheme', update)
+    const pkce = wrapper
+      .findAllComponents(RequestAuthDataTableInput)
+      .find((input) => input.text().includes('Use PKCE'))!
+    pkce.vm.$emit('update:modelValue', method)
+    await nextTick()
+    expect(update).toHaveBeenCalledExactlyOnceWith({
+      name: 'OAuth2',
+      payload: { type: 'oauth2', flows: { authorizationCode: { 'x-usePkce': method } } },
+    })
+    stop()
+    wrapper.unmount()
+  })
+
+  it.each(['S256', 'toString', '__proto__'])('ignores the invalid PKCE value %j', async (value) => {
+    const wrapper = mountWithProps()
+    const update = vi.fn()
+    const stop = eventBus.on('auth:update:security-scheme', update)
+    const pkce = wrapper
+      .findAllComponents(RequestAuthDataTableInput)
+      .find((input) => input.text().includes('Use PKCE'))!
+    pkce.vm.$emit('update:modelValue', value)
+    await nextTick()
+    expect(update).not.toHaveBeenCalled()
     stop()
     wrapper.unmount()
   })

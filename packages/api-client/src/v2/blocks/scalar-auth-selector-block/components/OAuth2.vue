@@ -15,7 +15,6 @@ export type OAuth2Options = Pick<
 import { ScalarButton } from '@scalar/components/button'
 import { useLoadingState } from '@scalar/components/loading'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
-import { pkceOptions } from '@scalar/types/entities'
 import { useToasts } from '@scalar/use-toasts'
 import type { SecretsOAuthFlows } from '@scalar/workspace-store/entities/auth'
 import type {
@@ -49,6 +48,10 @@ import {
   refreshOauth2Token,
   type CaptureOAuth2Callback,
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
+import {
+  PKCE_OPTIONS,
+  isPkceOption,
+} from '@/v2/blocks/scalar-auth-selector-block/helpers/pkce-options'
 import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
 import { DataTableRow } from '@/v2/components/data-table'
 import { useLocalization } from '@/v2/features/localization'
@@ -247,7 +250,7 @@ const canReset = (
 
 /** Fixed-choice fields must never write an empty string into the document. */
 const handlePkceUpdate = (value: string): void => {
-  if (value === 'SHA-256' || value === 'plain' || value === 'no') {
+  if (isPkceOption(value)) {
     handleOauth2Update({ 'x-usePkce': value })
   }
 }
@@ -725,7 +728,7 @@ const handleSecretLocationUpdate = (value: string): void => {
 
     <DataTableRow v-if="'x-usePkce' in flow">
       <RequestAuthDataTableInput
-        :enum="pkceOptions"
+        :enum="PKCE_OPTIONS"
         :environment
         :modelValue="flow['x-usePkce']"
         readOnly
