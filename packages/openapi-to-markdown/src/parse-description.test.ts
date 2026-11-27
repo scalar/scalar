@@ -78,18 +78,19 @@ describe('parse-description', () => {
     expect(await stringify('**Keep ![hidden](https://example.com/image.png) this**')).toBe('**Keep  this**\n')
   })
 
-  it('isolates definitions within a page and keeps namespaces independent of render order', async () => {
+  it('resolves reference links within each description, independent of render order', async () => {
     const descriptions = createDescriptionParser()
     const render = descriptions()
     const a = '[read][docs]\n\n[docs]: https://a.example'
     const b = '[read][docs]\n\n[docs]: https://b.example'
     const first = await render(a)
     const second = await render(b)
-    expect(first.flatMap(identifiers)).toStrictEqual(['description-0-docs', 'description-0-docs'])
-    expect(second.flatMap(identifiers)).toStrictEqual(['description-1-docs', 'description-1-docs'])
+    // The parser resolves references while it reads them, so two descriptions on one page cannot
+    // share a definition: there are none left to share.
+    expect([...first, ...second].flatMap(identifiers)).toStrictEqual([])
     expect(await descriptions()(b)).toStrictEqual(await createDescriptionParser()()(b))
     expect(serializer.stringify({ type: 'root', children: [...first, ...second] })).toBe(
-      '[read][description-0-docs]\n\n[description-0-docs]: https://a.example\n\n[read][description-1-docs]\n\n[description-1-docs]: https://b.example\n',
+      '[read](https://a.example)\n\n[read](https://b.example)\n',
     )
   })
 

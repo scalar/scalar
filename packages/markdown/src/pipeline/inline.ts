@@ -152,6 +152,11 @@ export class InlineParser {
   private literals: Literals | null = null
   /** Raw HTML is literal text when inline Markdown runs inside raw HTML. */
   htmlAsText = false
+  /**
+   * How destinations are stored. Rendering percent-encodes them as CommonMark asks, but mdast keeps
+   * the URL as written (unescaped, references decoded), as `mdast-util-from-markdown` does.
+   */
+  url: (url: string) => string = normalizeUri
 
   constructor(
     readonly refs: Refs,
@@ -176,7 +181,7 @@ export class InlineParser {
     const root: N = { type: 'root' }
     while (this.pos < this.s.length) this.parseInline(root)
     this.processEmphasis(null)
-    return toMdast(root, true)
+    return toMdast(root, true, this.url)
   }
 
   private match(re: RegExp): string | null {
@@ -269,7 +274,7 @@ export class InlineParser {
     const end = literalAt(this.s, this.pos, this.literals!, this.literalMemo)
     if (!end) return false
     const value = this.s.slice(this.pos, end.end)
-    const link: N = { type: 'link', url: normalizeUri(end.prefix + value), title: null }
+    const link: N = { type: 'link', url: this.url(end.prefix + value), title: null }
     append(link, text(value))
     append(block, link)
     this.pos = end.end
@@ -331,13 +336,13 @@ export class InlineParser {
     let m = this.match(EMAIL_AUTOLINK)
     if (m) {
       const dest = m.slice(1, -1)
-      const link: N = { type: 'link', url: normalizeUri('mailto:' + dest), title: null }
+      const link: N = { type: 'link', url: this.url('mailto:' + dest), title: null }
       append(link, text(dest))
       return append(block, link)
     }
     if ((m = this.match(AUTOLINK))) {
       const dest = m.slice(1, -1)
-      const link: N = { type: 'link', url: normalizeUri(dest), title: null }
+      const link: N = { type: 'link', url: this.url(dest), title: null }
       append(link, text(dest))
       return append(block, link)
     }
@@ -534,7 +539,7 @@ export class InlineParser {
 
   private parseLinkDestination(): string | null {
     const braced = this.match(DEST_BRACES)
-    if (braced !== null) return normalizeUri(unescapeString(braced.slice(1, -1)))
+    if (braced !== null) return this.url(unescapeString(braced.slice(1, -1)))
     if (this.s[this.pos] === '<') return null
     const start = this.pos
     let parens = 0
@@ -555,7 +560,7 @@ export class InlineParser {
     }
     if (this.pos === start && c !== ')') return null
     if (parens !== 0) return null
-    return normalizeUri(unescapeString(this.s.slice(start, this.pos)))
+    return this.url(unescapeString(this.s.slice(start, this.pos)))
   }
 
   private parseLinkTitle(): string | null {
@@ -996,7 +1001,7 @@ const URL_PATH = /[^ \t\r\n]*/y
  * then the domain. A `www.` candidate inside a rejected domain, up to its second-to-last label,
  * shares the labels the check looks at, so it is rejected without scanning again.
  */
-const findUrls = (value: string): Inline[] => {
+const findUrls = (value: string, normalize: (url: string) => string): Inline[] => {
   const out: Inline[] = []
   let start = 0
   let rejectedWwwUntil = -1
@@ -1028,7 +1033,7 @@ const findUrls = (value: string): Inline[] => {
     if (index !== start) out.push({ type: 'text', value: value.slice(start, index) })
     out.push({
       type: 'link',
-      url: normalizeUri((www ? 'http://' : '') + protocol + url),
+      url: normalize((www ? 'http://' : '') + protocol + url),
       title: null,
       children: [{ type: 'text', value: protocol + url }],
     })
@@ -1070,7 +1075,7 @@ const emailDomainEnd = (value: string, at: number): number => {
  * Every candidate for an `@` shares its domain, and its start can only move right within
  * the local part before it, so the first start that passes `previousOk` is the match.
  */
-const findEmails = (value: string): Inline[] => {
+const findEmails = (value: string, normalize: (url: string) => string): Inline[] => {
   const out: Inline[] = []
   let start = 0
   let at = value.indexOf('@')
@@ -1096,7 +1101,7 @@ const findEmails = (value: string): Inline[] => {
     const literal = value.slice(match, end)
     out.push({
       type: 'link',
-      url: normalizeUri(`mailto:${literal}`),
+      url: normalize(`mailto:${literal}`),
       title: null,
       children: [{ type: 'text', value: literal }],
     })
@@ -1107,10 +1112,10 @@ const findEmails = (value: string): Inline[] => {
   return out
 }
 
-const linkLiterals = (value: string, out: Inline[]): void => {
-  const urls = /[wW:]/.test(value) ? findUrls(value) : [{ type: 'text' as const, value }]
+const linkLiterals = (value: string, out: Inline[], normalize: (url: string) => string): void => {
+  const urls = /[wW:]/.test(value) ? findUrls(value, normalize) : [{ type: 'text' as const, value }]
   for (const node of urls) {
-    if (node.type === 'text' && node.value.includes('@')) out.push(...findEmails(node.value))
+    if (node.type === 'text' && node.value.includes('@')) out.push(...findEmails(node.value, normalize))
     else out.push(node)
   }
 }
@@ -1136,13 +1141,13 @@ const flatText = (root: N): string => {
   return s
 }
 
-const toMdast = (parent: N, literals: boolean, depth = 0): Inline[] => {
+const toMdast = (parent: N, literals: boolean, normalize: (url: string) => string, depth = 0): Inline[] => {
   if (depth > MAX_INLINE_DEPTH) return [{ type: 'text', value: flatText(parent) }]
   const out: Inline[] = []
   let buffer = ''
   const flush = (): void => {
     if (!buffer) return
-    if (literals) linkLiterals(buffer, out)
+    if (literals) linkLiterals(buffer, out, normalize)
     else out.push({ type: 'text', value: buffer })
     buffer = ''
   }
@@ -1156,13 +1161,23 @@ const toMdast = (parent: N, literals: boolean, depth = 0): Inline[] => {
       case 'emphasis':
       case 'strong':
       case 'delete':
-        out.push({ type: c.type, children: toMdast(c, literals, depth + 1) })
+        out.push({ type: c.type, children: toMdast(c, literals, normalize, depth + 1) })
         break
       case 'link':
-        out.push({ type: 'link', url: c.url!, title: c.title ?? null, children: toMdast(c, false, depth + 1) })
+        out.push({
+          type: 'link',
+          url: c.url!,
+          title: c.title ?? null,
+          children: toMdast(c, false, normalize, depth + 1),
+        })
         break
       case 'image':
-        out.push({ type: 'image', url: c.url!, title: c.title ?? null, alt: plain(toMdast(c, false, depth + 1)) })
+        out.push({
+          type: 'image',
+          url: c.url!,
+          title: c.title ?? null,
+          alt: plain(toMdast(c, false, normalize, depth + 1)),
+        })
         break
       case 'inlineCode':
       case 'html':

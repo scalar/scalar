@@ -74,6 +74,52 @@ The package now emits one file per module, dependencies included, under `vendor/
 
 The entity table (24.8 KB minified) could go too. `decode-named-character-reference` has a browser build that asks the DOM instead, but the package forces the universal build so that its bundle runs in Node. Switching would need its own parity and sanitizer run, because that build writes the name into `innerHTML`.
 
+#### Copy as Markdown without unified
+
+The Copy as Markdown packages now convert with the pipeline too: `parseMarkdown` is the pipeline's parser, `mdastFromHtml` converts the pipeline's own HTML with its tokenizer, and `createMarkdownSerializer` is a port of `mdast-util-to-markdown` and the GFM extensions (`packages/markdown/src/convert`). Neither standalone build contains a unified, remark, rehype, micromark, `mdast-util-*`, `hast-util-*`, `unist-util-*`, vfile or parse5 module any more, checked by listing the modules of each output chunk. Before and after, on #11256's head, with gzip level 9:
+
+| `@scalar/api-reference` | before | after | change |
+| --- | ---: | ---: | ---: |
+| `standalone.js` (UMD), minified | 4,705.2 KB | 4,382.2 KB | −323.0 KB (−6.9%) |
+| `standalone.js` (UMD), gzip | 1,368.0 KB | 1,272.3 KB | −95.6 KB (−7.0%) |
+| `standalone.esm.js`, all 126 chunks, gzip | 1,448.5 KB | 1,358.1 KB | −90.4 KB (−6.2%) |
+| `standalone.esm.js`, initial load (entry and its static imports, 32 files), gzip | 837.3 KB | 838.3 KB | +1.0 KB (+0.1%) |
+
+The initial load does not change in content: the pipeline modules are now shared with the lazy Copy as Markdown chunk, so Rolldown splits them into a chunk of their own, which compresses slightly worse (256 bytes more before compression). Of the 243 dependency modules (84 packages) that `@scalar/markdown` bundled into the API Reference, only `decode-named-character-reference` and its entity table remain.
+
+How the new converters compare with the unified ones is measured by [`bench/copy-parity.mjs`](./bench/copy-parity.mjs), [`bench/copy-documents.mjs`](./bench/copy-documents.mjs), [`bench/copy-roundtrip.mjs`](./bench/copy-roundtrip.mjs) and [`bench/copy-security.mjs`](./bench/copy-security.mjs). `bench/copy-build.mjs` builds the OpenAPI and AsyncAPI packages three times from the same source: with the unified converters as they shipped (vendored in `bench/copy-baseline.ts`, with the unified stack pinned to the shipped versions), with the new ones, and with the unified ones plus the intended changes (`bench/copy-explain.mjs`), which is how every difference gets a class.
+
+**Every APIs.guru description** (463,780; `copy-parity.mjs`), through `createDescriptionParser`'s three paths (347,861 plain-text fast path, 76,415 Markdown, 39,504 HTML or alerts; both sides always take the same path) and serialized with the OpenAPI package's options: **462,079 identical (99.63%)**, and every one of the other 1,701 is one of the intended changes, none unexplained:
+
+| class | descriptions | example (old → new) |
+| --- | ---: | --- |
+| CRLF line endings become LF (the parser splits lines) | 1,080 | `appropriate\r\nApiError` → `appropriate\nApiError` |
+| emphasis encoded so it parses back (`mdast-util-to-markdown` 2.1.2 over the 2.1.0 that shipped) | 444 | `in the* AWS…*` → `in th&#x65;*&#x20;AWS…*` |
+| reference-style links become inline links (the parser resolves references) | 72 | `[Checkbox tabs][description-0-checkbox]` + definition → `[Checkbox tabs](/docs/…)` |
+| line endings in code spans become spaces (CommonMark; micromark keeps them in the tree) | 63 | `` `…decimal\nbest_offer…` `` → `` `…decimal best_offer…` `` |
+| blocks inside inline content written inline (HTML `<td><pre>`, `<b>` around a list) | 30 | a fenced block inside a table row → a code span in the cell |
+| empty code spans dropped, adjacent ones joined | 7 | ` `` ` → nothing |
+| inline content in a list item written as a paragraph | 6 | `- **OR**\n  JSONPath…` → `- **OR**\n\n  JSONPath…`, as the HTML renders |
+| table rows fit the header (padded, or extra cells dropped, as GFM renders them) | 3 | a row with an extra cell no longer adds an empty header column |
+| upper case `HTTPS://` and `:/` escaped | 1 | `shareIP:/InstanceID` → `shareIP\:/InstanceID` |
+
+The serializer was also checked directly against upstream, on all 927,560 trees (two option sets): **927,430 byte for byte the same** as `remark-stringify` with `mdast-util-to-markdown` 2.1.2, and the other 130 are exactly the fixes below.
+
+**Whole documents** (`copy-documents.mjs`): 299 OpenAPI documents from APIs.guru (88.8 MB of Markdown) and the AsyncAPI specification's 19 examples. 277 OpenAPI and all 19 AsyncAPI outputs are identical; the other 22 differ only by the classes above. One document fails on both sides.
+
+**Round trips** (`copy-roundtrip.mjs`). For 100,000 random trees, and the trees the description path makes from 24,216 random and 5,081 real Markdown files, `parse(serialize(tree))` is compared with the tree, with the pipeline's parser and with remark, ignoring `spread` and how text is split. Nothing came back with markup the tree did not have (raw HTML, or a link or image to a new URL): 0 for both parsers on every corpus. What does not round-trip is what upstream does not round-trip either, with the same counts for both parsers: text with a literal URL or email becomes an autolink to itself (GFM finds them in decoded text, so no escape stops them), emphasis that cannot open next to other emphasis stays text, and markup is lost or moved but none gained (1,100 trees, 2,044 descriptions), where the document's structure cannot be written as GFM.
+
+**Security** (`copy-security.mjs`). The 6,582 sanitizer vectors in 21 description contexts (the 16 of `sanitizer-run.mjs` plus code blocks in table cells, emphasis, headings and paragraphs, and blocks in cells), and in 5 kinds of value the packages build nodes from directly (inline code, also with blank lines, text, headings, links). The Markdown is checked with `problems()` after `htmlFromMarkdown`, with `problems()` after rendering it with the sanitizer off, and as trees from both parsers (no `html` or image node, every URL allowed by `safeUrl`):
+
+| | outputs | sanitized | unsanitized | pipeline tree | remark tree |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| old, descriptions | 59,102 | 0 | 12,616 | 15,897 | 15,820 |
+| **new, descriptions** | 57,798 | **0** | **0** | **0** | **0** |
+| old, values | 32,910 | – | 5,011 | 6,286 | 6,270 |
+| **new, values** | 32,910 | – | **0** | **0** | **0** |
+
+The old pipeline's hits are all upstream serializer gaps, which the port closes where upstream's output does not parse back: blocks inside inline content are written inline (a code block in an HTML table cell came back as raw HTML), line endings in code spans are written as spaces (a blank line in an inline code value ended the paragraph), empty and adjacent code spans are dropped or joined, inline nodes in a list item or the root go into paragraphs (HTML list text got no inline escapes), blank lines in text and line endings in titles are character references, a URL starting with `<` gets angle brackets, `:` in an upper case `HTTPS://` is escaped, a pipe after a backslash in a code span in a table cell gets another backslash, and a table, an HTML block, or a list that cannot interrupt a paragraph gets a blank line in a tight list. Every one has a unit test in `packages/markdown/src/convert/to-markdown.test.ts`.
+
 ### Speed
 
 Every `description` in the Stripe and GitHub API descriptions, rendered the way `ScalarMarkdown` does (`removeTags: ['img', 'picture']`). "Slow path" excludes the plain one-line strings that both implementations short-circuit with the same `PLAIN_PARAGRAPH` check (58–65% of descriptions).
@@ -261,12 +307,12 @@ Four decisions account for most of the size and speed:
 
 In rough order:
 
-Items 1, 2 and 6 are done: the pipeline renders `@scalar/markdown`'s output.
+Items 1, 2, 4 and 6 are done: the pipeline renders `@scalar/markdown`'s output, and converts it for Copy as Markdown.
 
 1. ~~**Wire in `@scalar/highlight`.**~~ Done. `packages/markdown/src/markdown/highlight.ts` highlights through `@scalar/highlight/compat`. `main` dropped language detection in the meantime, so there was nothing to port. Pass a `highlight(code, lang)` that returns the highlighted HTML, and port the "guess only when it can be confirmed" detection from #10739's `rehypeHighlight`. The rest of `render.ts` already emits the `hljs language-x custom-scroll` classes.
 2. ~~**Decide on byte-for-byte compatibility.**~~ Done: DOM-equivalent, and the exact-string tests were updated. Output is DOM-equivalent, not string-equal: there is no `rehype-format` indentation and no leading `\n`. Tests that compare exact strings (in this package and in snapshot tests elsewhere) need to compare DOM or be updated, and visual snapshots need a review pass. The differences listed under [Did anything change?](#rendering-parity-did-anything-change) are intended fixes.
 3. **Table insertion modes in the `Writer`.** Insert implied `<tbody>`/`<tr>` and move content that is not allowed inside a table out of it, so the browser builds exactly the written tree. This is fidelity only, about 50 lines.
-4. **Move the Copy as Markdown packages off unified, or `standalone.js` gets bigger.** `@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown` use unified for Markdown→mdast, HTML→mdast (`rehype-remark`) and mdast→Markdown (`remark-stringify`). ESM builds load them only on click, so apps bundling the package save right away. The standalone build is UMD and inlines them, though, so swapping only the renderer makes `standalone.js` 1% larger than #10739 (see [In the real bundle](#in-the-real-api-reference-bundle)). The prototype's mdast-shaped tree covers their Markdown→mdast step. They still need an mdast→Markdown serializer and a small HTML→Markdown converter. Alternatively, ship them as a lazy chunk if the standalone build can load one.
+4. ~~**Move the Copy as Markdown packages off unified, or `standalone.js` gets bigger.**~~ Done. `parseMarkdown`, `mdastFromHtml` and `createMarkdownSerializer` in `packages/markdown/src/convert` run on the pipeline's parser and tokenizer, with a port of `mdast-util-to-markdown` and its GFM extensions, so neither standalone build has any unified, remark, rehype, micromark, mdast or hast utility, vfile or parse5 module left, and `standalone.js` is 7.0% smaller gzipped. Parity, round-trip and security results are under [Copy as Markdown without unified](#copy-as-markdown-without-unified). The serializer also fixes the places where upstream's output let escaped text come back as raw HTML.
 5. **Security sign-off.** A human review of `html.ts`, the DOMPurify and html5sec vector suites, and the invariant fuzzer from `bench/` kept in CI.
 6. ~~**Packaging.**~~ Done, with the remark-based renderer kept as the reference in the kitchen-sink test. Make this the implementation inside `@scalar/markdown` (#10739) behind the same exports, and keep the remark-based version as the reference in its tests, the way `@scalar/highlight` freezes lowlight output. Then the usual: types, Knip, changesets.
 
@@ -300,6 +346,11 @@ pnpm bench             # throughput
 pnpm security          # vectors plus 300,000 fuzzed inputs
 pnpm sanitizer         # 6,582 vectors from other projects' suites, 16 contexts, policy check and Chromium
 pnpm pathological      # cmark's pathological inputs (the current pipeline takes minutes)
+pnpm copy:build        # build the Copy as Markdown packages with the unified converters, the new ones, and the unified ones plus the intended changes
+pnpm copy:parity .out/apis-guru.json apis-guru  # every description through the real description path, every difference classified
+pnpm copy:documents    # whole OpenAPI (APIs.guru) and AsyncAPI (the specification's examples) documents
+pnpm copy:roundtrip 100000 .out/fuzz.json 25000  # round-trip property fuzz: random trees, then random Markdown
+pnpm copy:security     # the sanitizer vectors in every description context and every value the packages build nodes from
 ```
 
 To measure the real API Reference bundle, build it on this branch and on `main` (`pnpm --filter "@scalar/api-reference^..." run build`, then `pnpm --filter @scalar/api-reference build:standalone`) and compare `packages/api-reference/dist/browser/standalone.js`.
