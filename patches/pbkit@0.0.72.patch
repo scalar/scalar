@@ -7,7 +7,39 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
  Object.defineProperty(exports, "__esModule", { value: true });
  exports.parse = parse;
  exports.parseConstant = parseConstant;
-@@ -94,8 +95,8 @@
+@@ -57,6 +58,23 @@
+     }
+     return { partial, result };
+ }
++// Scalar retains adjacent descriptions that were left unused by the previous statement.
++function carryTrailingDescription(parser, previous, leadingComments, detachedComments) {
++    const trailing = previous?.trailingComments[0];
++    if (!trailing)
++        return;
++    const spansLines = trailing.comments.some((comment) => comment.type === "multiline-comment" && /[\r\n]/.test(comment.text));
++    if (!spansLines && !previous.leadingComments.length)
++        return;
++    previous.trailingComments = [];
++    if (leadingComments.length || detachedComments.length)
++        return;
++    const gap = parser.input.slice(trailing.end, parser.loc);
++    const consumedNewline = trailing.comments.at(-1)?.text.endsWith("\n");
++    const adjacent = consumedNewline ? /^[^\S\r\n]*$/.test(gap) : /^[^\S\r\n]*\r?\n[^\S\r\n]*$/.test(gap);
++    if (adjacent)
++        leadingComments.push(trailing);
++}
+ function acceptStatements(parser, acceptStatementFns) {
+     const statements = [];
+     statements: while (true) {
+@@ -77,6 +95,7 @@
+                 leadingDetachedComments = commentGroups;
+             }
+         }
++        carryTrailingDescription(parser, statements.at(-1), leadingComments, leadingDetachedComments);
+         for (const acceptStatementFn of acceptStatementFns) {
+             const statement = acceptStatementFn(parser, leadingComments, leadingDetachedComments);
+             if (statement) {
+@@ -94,8 +113,8 @@
  const multilineCommentPattern = /^\/\*(?:.|\r?\n)*?\*\//;
  const singlelineCommentPattern = /^\/\/.*(?:\r?\n|$)/;
  const intLitPattern = /^0(?:x[0-9a-f]+|[0-7]*)|^[1-9]\d*/i;
@@ -18,7 +50,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
  const strLitPattern = /^'(?:\\x[0-9a-f]{2}|\\[0-7]{3}|\\[0-7]|\\[abfnrtv\\\?'"]|[^'\0\n\\])*'|^"(?:\\x[0-9a-f]{2}|\\[0-7]{3}|\\[0-7]|\\[abfnrtv\\\?'"]|[^"\0\n\\])*"/i;
  const identPattern = /^[a-z_][a-z0-9_]*/i;
  const messageBodyStatementKeywordPattern = /^(?:enum|message|extend|extensions|group|option|oneof|map|reserved)\b/;
-@@ -194,7 +195,10 @@
+@@ -194,7 +213,10 @@
              continue;
          const newline = parser.accept(newlinePattern);
          if (newline) {
@@ -30,7 +62,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
              continue;
          }
          break;
-@@ -431,7 +435,7 @@
+@@ -431,7 +453,7 @@
      throw new recursive_descent_parser_1.SyntaxError(parser, ["(", identPattern]);
  }
  function acceptSyntax(parser, leadingComments, leadingDetachedComments) {
@@ -39,7 +71,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -464,7 +468,7 @@
+@@ -464,7 +486,7 @@
      };
  }
  function acceptEdition(parser, leadingComments, leadingDetachedComments) {
@@ -48,7 +80,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -497,11 +501,11 @@
+@@ -497,11 +519,11 @@
      };
  }
  function acceptImport(parser, leadingComments, leadingDetachedComments) {
@@ -62,7 +94,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      skipWsAndComments(parser);
      const strLit = expectStrLit(parser);
      skipWsAndComments(parser);
-@@ -526,7 +530,7 @@
+@@ -526,7 +548,7 @@
      };
  }
  function acceptPackage(parser, leadingComments, leadingDetachedComments) {
@@ -71,7 +103,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -686,7 +690,7 @@
+@@ -686,7 +708,7 @@
      };
  }
  function acceptEnum(parser, leadingComments, leadingDetachedComments) {
@@ -80,7 +112,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -713,7 +717,7 @@
+@@ -713,7 +735,7 @@
  }
  function acceptField(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;
@@ -89,7 +121,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      skipWsAndComments(parser);
      const fieldType = acceptType(parser);
      if (!fieldType) {
-@@ -785,7 +789,7 @@
+@@ -785,7 +807,7 @@
      };
  }
  function acceptMapField(parser, leadingComments, leadingDetachedComments) {
@@ -98,7 +130,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -852,7 +856,7 @@
+@@ -852,7 +874,7 @@
      };
  }
  function acceptOneof(parser, leadingComments, leadingDetachedComments) {
@@ -107,7 +139,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -884,7 +888,7 @@
+@@ -884,7 +906,7 @@
      if (!rangeStart)
          return;
      skipWsAndComments(parser);
@@ -116,7 +148,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!to) {
          return {
              start: rangeStart.start,
-@@ -918,7 +922,7 @@
+@@ -918,7 +940,7 @@
      };
  }
  function acceptExtensions(parser, leadingComments, leadingDetachedComments) {
@@ -125,7 +157,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -960,7 +964,7 @@
+@@ -960,7 +982,7 @@
  }
  function acceptReserved(parser, leadingComments, leadingDetachedComments) {
      var _a;
@@ -134,7 +166,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -1004,7 +1008,7 @@
+@@ -1004,7 +1026,7 @@
      };
  }
  function acceptExtend(parser, leadingComments, leadingDetachedComments) {
@@ -143,7 +175,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -1031,7 +1035,7 @@
+@@ -1031,7 +1053,7 @@
  }
  function acceptGroup(parser, leadingComments, leadingDetachedComments) {
      const loc = parser.loc;
@@ -152,7 +184,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!groupLabel) {
          parser.loc = loc;
          return;
-@@ -1075,7 +1079,7 @@
+@@ -1075,7 +1097,7 @@
      };
  }
  function acceptOneofGroup(parser, leadingComments, leadingDetachedComments) {
@@ -161,7 +193,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -1131,7 +1135,7 @@
+@@ -1131,7 +1153,7 @@
      };
  }
  function acceptMessage(parser, leadingComments, leadingDetachedComments) {
@@ -170,7 +202,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -1159,7 +1163,7 @@
+@@ -1159,7 +1181,7 @@
  function expectRpcType(parser) {
      const bracketOpen = parser.expect("(");
      skipWsAndComments(parser);
@@ -179,7 +211,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      skipWsAndComments(parser);
      const messageType = expectType(parser);
      skipWsAndComments(parser);
-@@ -1174,7 +1178,7 @@
+@@ -1174,7 +1196,7 @@
  }
  function acceptRpc(parser, leadingComments, leadingDetachedComments) {
      var _a;
@@ -188,7 +220,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      if (!keyword)
          return;
      skipWsAndComments(parser);
-@@ -1182,7 +1186,7 @@
+@@ -1182,7 +1204,7 @@
      skipWsAndComments(parser);
      const reqType = expectRpcType(parser);
      skipWsAndComments(parser);
@@ -197,7 +229,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
      skipWsAndComments(parser);
      const resType = expectRpcType(parser);
      skipWsAndComments(parser);
-@@ -1240,7 +1244,7 @@
+@@ -1240,7 +1262,7 @@
      };
  }
  function acceptService(parser, leadingComments, leadingDetachedComments) {

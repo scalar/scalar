@@ -3,8 +3,8 @@ import {
   type EnumDefinition,
   type FieldDefinition,
   type MessageDefinition,
-  enumMax,
   fieldMax,
+  int32Max,
   isEnum,
   isMessage,
 } from './ast'
@@ -19,7 +19,7 @@ const isReserved = (definition: MessageDefinition | EnumDefinition, name: string
 
 const validateReservations = (definition: MessageDefinition | EnumDefinition): void => {
   const minimum = isEnum(definition) ? int32Min : 1
-  const maximum = isEnum(definition) ? enumMax : fieldMax
+  const maximum = isEnum(definition) ? int32Max : fieldMax
   for (const range of definition.reserved ?? []) {
     if (typeof range !== 'string' && (range[0] < minimum || range[1] > maximum || range[0] > range[1])) {
       throw new Error('Invalid Protobuf reserved range')
@@ -91,7 +91,7 @@ export const validateEnum = (definition: EnumDefinition, version: string): void 
       throw new Error('Duplicate Protobuf enum value without allow_alias')
     }
     numbers.add(value)
-    if (value < int32Min || value > enumMax || isReserved(definition, name, value)) {
+    if (value < int32Min || value > int32Max || isReserved(definition, name, value)) {
       throw new Error('Invalid or reserved Protobuf enum value')
     }
     checkOptions(definition.valuesOptions?.[name], ['deprecated'])
@@ -118,7 +118,7 @@ const validDefault = (field: FieldDefinition, target: Definition | null, value: 
     return value >= 0 && value <= 4294967295
   }
   if (['int32', 'sint32', 'sfixed32'].includes(field.type.value)) {
-    return value >= int32Min && value <= enumMax
+    return value >= int32Min && value <= int32Max
   }
   // Source fallback preserves 64-bit defaults beyond JavaScript's exact numeric range.
   return !['uint64', 'fixed64'].includes(field.type.value) || value >= 0

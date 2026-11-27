@@ -1,4 +1,5 @@
 import type {
+  Comma,
   Constant,
   Enum,
   Field,
@@ -9,6 +10,7 @@ import type {
   Oneof,
   OneofField,
   Option,
+  Range,
   Reserved,
   SignedIntLit,
   StatementBase,
@@ -22,8 +24,8 @@ import {
   type MessageDefinition,
   type Reservation,
   type Scope,
-  enumMax,
   fieldMax,
+  int32Max,
   isScalar,
 } from './ast'
 
@@ -85,6 +87,16 @@ const constantValue = (constant: Constant): string | number | boolean => {
   }
 }
 
+const commaItems = <Item extends FieldOption | Range | StrLit>(tokens: (Item | Comma)[]): Item[] => {
+  // pbkit's editor parser can return partial lists. Scalar renders only complete definitions.
+  if (tokens.length % 2 === 0 || tokens.some((token, index) => (token.type === 'comma') !== (index % 2 === 1))) {
+    throw new Error('Malformed Protobuf list')
+  }
+  return tokens.filter((token): token is Item => token.type !== 'comma')
+}
+
+const fullIdentifier = /^[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*$/
+
 const addOption = (
   options: Options,
   { optionName, constant }: FieldOption | Option,
@@ -97,6 +109,7 @@ const addOption = (
       return qualifiedName(segment.name)
     })
     .join('')
+  if (!fullIdentifier.test(name)) throw new Error('Malformed Protobuf option name')
   // Structured file metadata does not affect the schema view.
   if (scope === 'file' && constant.type === 'aggregate') return
   insert<unknown>(options, name, constantValue(constant))
@@ -104,8 +117,8 @@ const addOption = (
 
 const fieldOptions = (node: FieldOptions | undefined): Options => {
   const options: Options = Object.create(null)
-  for (const item of node?.fieldOptionOrCommas ?? []) {
-    if (item.type === 'field-option') addOption(options, item)
+  if (node) {
+    for (const item of commaItems(node.fieldOptionOrCommas)) addOption(options, item)
   }
   return options
 }
@@ -131,18 +144,17 @@ const description = ({ leadingComments, trailingComments }: StatementBase): stri
 const reservations = ({ reserved }: Reserved, maximum: number): Reservation[] => {
   const result: Reservation[] = []
   if (reserved.type === 'field-names') {
-    for (const name of reserved.strLitOrCommas) {
-      if (name.type === 'str-lit') result.push(stringLiteral(name))
+    for (const name of commaItems(reserved.strLitOrCommas)) {
+      if (name.tokens.length !== 1) throw new Error('Malformed Protobuf reserved name')
+      result.push(stringLiteral(name))
     }
   } else {
-    for (const range of reserved.rangeOrCommas) {
-      if (range.type === 'comma') continue
+    for (const range of commaItems(reserved.rangeOrCommas)) {
       const start = signedInteger(range.rangeStart)
       const end = range.rangeEnd
       result.push([start, end?.type === 'max' ? maximum : end ? signedInteger(end) : start])
     }
   }
-  if (!result.length) throw new Error('Empty Protobuf reservation')
   return result
 }
 
@@ -189,7 +201,7 @@ const readEnum = (node: Enum): EnumDefinition => {
         addOption(options, statement)
         break
       case 'reserved':
-        definition.reserved.push(...reservations(statement, enumMax))
+        definition.reserved.push(...reservations(statement, int32Max))
         break
       case 'enum-field': {
         const name = statement.fieldName.text
@@ -299,9 +311,11 @@ export const parseProtobuf = (source: string, defaultSyntax: Syntax): ProtoDocum
       case 'syntax':
         if (statement !== declaration) throw new Error('Misplaced Protobuf syntax declaration')
         break
-      case 'package':
+      case 'package': {
         if (scope !== root || seenDefinition) throw new Error('Misplaced Protobuf package declaration')
-        for (const name of qualifiedName(statement.fullIdent).split('.')) {
+        const packageName = qualifiedName(statement.fullIdent)
+        if (!fullIdentifier.test(packageName)) throw new Error('Malformed Protobuf package name')
+        for (const name of packageName.split('.')) {
           const nested: Scope = {
             syntaxType: 'NamespaceDefinition',
             name,
@@ -311,6 +325,7 @@ export const parseProtobuf = (source: string, defaultSyntax: Syntax): ProtoDocum
           scope = nested
         }
         break
+      }
       case 'import':
         if (seenDefinition) throw new Error('Misplaced Protobuf import')
         importCount++

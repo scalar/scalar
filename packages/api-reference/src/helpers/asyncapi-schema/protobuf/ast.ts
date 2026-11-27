@@ -1,8 +1,8 @@
 /** Highest legal field number before the reserved implementation range is considered. */
 export const fieldMax = 536870911
 
-/** Highest legal signed enum value. */
-export const enumMax = 2147483647
+/** Upper bound for signed 32-bit field defaults and enum values. */
+export const int32Max = 2147483647
 
 type Node<Kind> = {
   syntaxType: Kind

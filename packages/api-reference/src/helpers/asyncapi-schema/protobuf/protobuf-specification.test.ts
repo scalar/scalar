@@ -337,6 +337,42 @@ describe('protobuf-specification', () => {
     expect(() => readProtobuf('messageItem {}', '3')).toThrow('Trailing Protobuf source')
   })
 
+  it.each([
+    'message M { string f = 1 [deprecated = true json_name = "g"]; }',
+    'message M { string f = 1 [deprecated = true,]; }',
+    'message M { string f = 1 [,deprecated = true]; }',
+    'message M { string f = 1 []; }',
+    'message M { reserved 2 3; string f = 1; }',
+    'message M { reserved 2,,3; string f = 1; }',
+    'message M { reserved "foo" "bar"; string f = 1; }',
+    'package foo.; message M {}',
+    'package .foo; message M {}',
+    'package .; message M {}',
+    'option go_package. = "example"; message M {}',
+  ])('falls back for malformed lists or qualified names: %s', (source) => {
+    expect(() => readProtobuf(source, '3')).toThrow()
+  })
+
+  it('preserves inline comments that describe the next field', () => {
+    const [node] = readProtobuf(
+      `message M {
+        string a = 1; /* The second field.
+          * Second line. */
+        string b = 2;
+        // The third field.
+        string c = 3; // The fourth field.
+        string d = 4;
+      }`,
+      '3',
+    ).nodes
+    expect(node?.children?.map(({ description }) => description)).toStrictEqual([
+      undefined,
+      'The second field.\nSecond line.',
+      'The third field.',
+      'The fourth field.',
+    ])
+  })
+
   it('renders compact schemas', () => {
     expect(readProtobuf('message M{string x=1;}', '3').nodes[0]?.children?.[0]?.name).toBe('x')
     expect(readProtobuf('message M{}', '3').nodes[0]?.type).toBe('message M')
