@@ -59,7 +59,6 @@ workflows:
         - 'actions/upload-artifact@v7.0.2'
         - 'pnpm/action-setup@v6.1.1'
         - 'pypa/gh-action-pypi-publish@v1.14.3'
-        - 'relative-ci/agent-action@v3.2.4'
         - 'step-security/changed-files@v47.0.5'
         - 'useblacksmith/stickydisk@v1.7.2'
     '.github/workflows/nextjs-compatibility.yml':
@@ -80,7 +79,6 @@ workflows:
         - 'actions/upload-artifact@v7.0.2'
         - 'daun/playwright-report-summary@v4.0.0'
         - 'pnpm/action-setup@v6.1.1'
-        - 'relative-ci/agent-action@v3.2.4'
         - 'step-security/changed-files@v47.0.5'
         - 'thollander/actions-comment-pull-request@v3.0.1'
         - 'useblacksmith/stickydisk@v1.7.2'
@@ -316,11 +314,6 @@ dependencies:
         repo_id: 178055147
         uses:
             - 'actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405'
-    'relative-ci/agent-action@v3.2.4':
-        ref: 'v3.2.4'
-        commit: 'sha1-711f3a8fa1b928e6afde280011110c9b0a224a60'
-        owner_id: 43522883
-        repo_id: 398376354
     'step-security/changed-files@v47.0.5':
         ref: 'v47.0.5'
         commit: 'sha1-2e07db73e5ccdb319b9a6c7766bd46d39d304bad'

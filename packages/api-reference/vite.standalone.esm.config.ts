@@ -3,7 +3,6 @@ import { resolve } from 'node:path'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
-import webpackStats from 'rollup-plugin-webpack-stats'
 import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
@@ -60,7 +59,6 @@ export default defineConfig({
     // `<meta property="csp-nonce">` tag, so the bundle's CSS can be served under a strict
     // Content Security Policy. See the `nonce` option in @scalar/client-side-rendering.
     cssInjectedByJsPlugin({ attributes: { id: 'scalar-style' }, useStrictCSP: true }),
-    webpackStats({ fileName: 'webpack-stats.esm.json' }),
     // `esm.js`, the short CDN entry point at the package root, loads the bundle pinned to the
     // version it was published with (see `createEsmEntry`). Generating it here keeps that version
     // in step with the bundle it points at.
@@ -75,6 +73,7 @@ export default defineConfig({
     emptyOutDir: false,
     outDir: 'dist/browser',
     cssCodeSplit: false,
+    manifest: 'bundle-manifest.json',
     // Ship linked source maps (external `.map` + a `//# sourceMappingURL=` comment)
     // so consumers can debug config errors against readable source. Browsers only
     // fetch the map when devtools is open and downstream bundlers strip the link, so

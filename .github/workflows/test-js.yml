@@ -47,6 +47,9 @@ jobs:
       - name: Run NestJS example end-to-end tests
         if: matrix.shard-index == 1
         run: pnpm --filter '@scalar-examples/nestjs-api-reference-*' test:e2e --runInBand
+      - name: Test API Reference bundle size reporting
+        if: matrix.shard-index == 1
+        run: pnpm --filter @scalar-internal/build-scripts exec vitest run bundle-size.test.ts
       # Packages are spread across shards by their rough test duration, so the
       # few slow suites never pile up on one shard. Every shard runs the same
       # deterministic greedy assignment (heaviest package to the lightest

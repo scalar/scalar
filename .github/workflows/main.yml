@@ -84,13 +84,32 @@ jobs:
           path: build-output.tar.gz
           retention-days: 1
           compression-level: 0
-      - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
-        name: Upload webpack stats to RelativeCI
-        uses: relative-ci/agent-action@v3.2.4
+
+  bundle-size:
+    needs: [build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 5
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
         with:
-          key: ${{ secrets.RELATIVE_CI_KEY }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+      - uses: $/.github/actions/restore-standalone-bundles
+      - name: Measure API Reference bundles
+        run: node tooling/scripts/bundle-size.ts measure packages/api-reference/dist/browser "$GITHUB_SHA" bundle-size.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the bundle size baseline
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: api-reference-bundle-size
+          path: bundle-size.json
+          retention-days: 30
 
   check-changes:
     runs-on: blacksmith-2vcpu-ubuntu-2204
