@@ -65,25 +65,50 @@ const escapeCharacters: Record<string, string> = {
   v: '\v',
 }
 
-const stringLiteral = ({ tokens }: StrLit): string =>
-  tokens
-    .map(({ text }) =>
-      text
-        .slice(1, -1)
-        .replace(/\\(u[\da-fA-F]{4}|U[\da-fA-F]{8}|[xX][\da-fA-F]{1,2}|[0-7]{1,3}|.)/g, (_match, escape: string) => {
-          if (escape[0] === 'u' || escape[0] === 'U') return String.fromCodePoint(Number.parseInt(escape.slice(1), 16))
-          if (escape[0]?.toLowerCase() === 'x') return String.fromCharCode(Number.parseInt(escape.slice(1), 16))
-          if (/^[0-7]/.test(escape)) return String.fromCharCode(Number.parseInt(escape, 8) % 256)
-          return escapeCharacters[escape] ?? escape
-        }),
-    )
-    .join('')
+const stringParts = /\\(u[\da-fA-F]{4}|U[\da-fA-F]{8}|[xX][\da-fA-F]{1,2}|[0-7]{1,3}|.)|[^\\]+/g
+const utf8Decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true })
+
+const stringLiteral = ({ tokens }: StrLit, asBytes = false): string => {
+  // A UTF-8 sequence can span multiple adjacent string tokens.
+  const byteEscapes: number[] = []
+  const takeByteEscapes = (): string => {
+    if (!byteEscapes.length) {
+      return ''
+    }
+    const text = utf8Decoder.decode(Uint8Array.from(byteEscapes))
+    byteEscapes.length = 0
+    return text
+  }
+
+  let decoded = ''
+  for (const { text } of tokens) {
+    for (const [part, escape] of text.slice(1, -1).matchAll(stringParts)) {
+      if (escape && /^[xX0-7]/.test(escape)) {
+        const byte = /^\d/.test(escape) ? Number.parseInt(escape, 8) % 256 : Number.parseInt(escape.slice(1), 16)
+        if (asBytes) {
+          decoded += String.fromCharCode(byte)
+        } else {
+          byteEscapes.push(byte)
+        }
+        continue
+      }
+
+      decoded += takeByteEscapes()
+      if (escape && /^[uU]/.test(escape)) {
+        decoded += String.fromCodePoint(Number.parseInt(escape.slice(1), 16))
+      } else {
+        decoded += escape ? (escapeCharacters[escape] ?? escape) : part
+      }
+    }
+  }
+  return decoded + takeByteEscapes()
+}
 
 const fullIdentifier = /^[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*$/
 
 const floatValue = (text: string): number => (text.toLowerCase() === 'inf' ? Number.POSITIVE_INFINITY : Number(text))
 
-const constantValue = (constant: Constant, scalarDefault: boolean): string | number | boolean => {
+const constantValue = (constant: Constant, defaultType?: string): string | number | boolean => {
   switch (constant.type) {
     case 'bool-lit':
       return constant.text.toLowerCase() === 'true'
@@ -92,7 +117,7 @@ const constantValue = (constant: Constant, scalarDefault: boolean): string | num
       if (!fullIdentifier.test(name.startsWith('.') ? name.slice(1) : name)) {
         throw new Error('Malformed Protobuf option value')
       }
-      if (scalarDefault && /^(?:inf|nan)$/i.test(name)) return floatValue(name)
+      if (defaultType && isScalar(defaultType) && /^(?:inf|nan)$/i.test(name)) return floatValue(name)
       return name
     }
     case 'signed-int-lit':
@@ -100,7 +125,7 @@ const constantValue = (constant: Constant, scalarDefault: boolean): string | num
     case 'signed-float-lit':
       return numericSign(constant.sign) * floatValue(constant.value.text)
     case 'str-lit':
-      return stringLiteral(constant)
+      return stringLiteral(constant, defaultType === 'bytes')
     case 'aggregate':
       throw new Error('Unsupported aggregate Protobuf option')
   }
@@ -142,7 +167,7 @@ const addOption = (
   options: Options,
   { optionName, constant }: FieldOption | Option,
   scope: 'file' | 'declaration' = 'declaration',
-  scalarField = false,
+  fieldType?: string,
 ): void => {
   const name = optionName.optionNameSegmentOrDots
     .map((segment, index) => {
@@ -158,13 +183,13 @@ const addOption = (
     validateAggregate(constant.statements)
     return
   }
-  insert<unknown>(options, name, constantValue(constant, scalarField && name === 'default'))
+  insert<unknown>(options, name, constantValue(constant, name === 'default' ? fieldType : undefined))
 }
 
-const fieldOptions = (node: FieldOptions | undefined, scalarField = false): Options => {
+const fieldOptions = (node: FieldOptions | undefined, fieldType?: string): Options => {
   const options: Options = Object.create(null)
   if (node) {
-    for (const item of commaItems(node.fieldOptionOrCommas)) addOption(options, item, 'declaration', scalarField)
+    for (const item of commaItems(node.fieldOptionOrCommas)) addOption(options, item, 'declaration', fieldType)
   }
   return options
 }
@@ -223,7 +248,7 @@ const readField = (field: Field | MapField | OneofField, syntax: Syntax): FieldD
     type: { value: type },
     rule,
     ...(key === undefined ? {} : { keyType: { value: key } }),
-    options: fieldOptions(field.fieldOptions, isScalar(type)),
+    options: fieldOptions(field.fieldOptions, type),
     comment: description(field),
   }
 }

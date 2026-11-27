@@ -78,6 +78,8 @@ export default defineConfig({
       external: (id) => !/^pbkit(?:\/|$)/.test(id) && external.some((pattern) => pattern.test(id)),
       output: {
         ...preserveModulesOutput,
+        // Preserve each modified pbkit module's attribution in the npm distribution.
+        comments: { legal: true },
         entryFileNames: (chunk) => {
           const parserPath = chunk.facadeModuleId?.split('/node_modules/pbkit/')[1]
           // npm excludes nested node_modules directories, including those emitted by preserveModules.

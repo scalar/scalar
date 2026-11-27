@@ -178,7 +178,7 @@ describe('protobuf-specification', () => {
     '{ a:0x10b:2 }',
     '{ a:1.2b:2 }',
     '{ a: -Thing }',
-  ])('uses source fallback for malformed aggregate metadata %s', (value) => {
+  ])('rejects malformed aggregate metadata %s', (value) => {
     expect(() => readProtobuf(`option example = ${value}; message M {}`, '3')).toThrow()
   })
 
@@ -394,7 +394,7 @@ describe('protobuf-specification', () => {
     'message M { string f = 1 [depre cated = true]; }',
     'message M { string f = 1 [deprecated) = true]; }',
     'enum E { ZERO = 0; ONE = +1; }',
-  ])('falls back for malformed lists or qualified names: %s', (source) => {
+  ])('rejects malformed lists or qualified names: %s', (source) => {
     expect(() => readProtobuf(source, '3')).toThrow()
   })
 
@@ -507,6 +507,17 @@ describe('protobuf-specification', () => {
 
   it('rejects an unquoted boolean as a proto2 string default', () => {
     expect(() => readProtobuf('message M { optional string x = 1 [default = TRUE]; }', '2')).toThrow()
+  })
+
+  it('decodes UTF-8 byte escapes across proto2 string tokens and preserves raw bytes', () => {
+    const source = String.raw`message M {
+      optional string city = 1 [default = "caf\xC3" "\251"];
+      optional bytes octet = 2 [default = "\xFF"];
+    }`
+    expect(readProtobuf(source, '2').nodes[0]?.children?.map(({ details }) => details)).toStrictEqual([
+      ['Default: "café"'],
+      ['Default: "ÿ"'],
+    ])
   })
 
   it('keeps a continued trailing comment on the same field', () => {

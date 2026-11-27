@@ -3,7 +3,7 @@ diff --git a/core/parser/misc.js b/core/parser/misc.js
 +++ b/core/parser/misc.js
 @@ -1,5 +1,10 @@
  "use strict";
-+// Modified by Scalar to share Protobuf string and comment recognition.
++/*! Modified by Scalar to share Protobuf string and comment recognition. */
  Object.defineProperty(exports, "__esModule", { value: true });
 +// Each escape length has a distinct match, even when a string has no closing quote.
 +exports.strLitPattern = /^'(?:\\[xX](?:[0-9a-fA-F]{2}|[0-9a-fA-F](?![0-9a-fA-F]))|\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8}|\\(?:[0-7]{3}|[0-7]{1,2}(?![0-7]))|\\[abfnrtv\\\?'"]|[^'\0\n\\])*'|^"(?:\\[xX](?:[0-9a-fA-F]{2}|[0-9a-fA-F](?![0-9a-fA-F]))|\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8}|\\(?:[0-7]{3}|[0-7]{1,2}(?![0-7]))|\\[abfnrtv\\\?'"]|[^"\0\n\\])*"/;
@@ -17,7 +17,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
 +++ b/core/parser/proto.js
 @@ -1,4 +1,5 @@
  "use strict";
-+// Modified by Scalar to preserve token boundaries and adjacent block comments.
++/*! Modified by Scalar to preserve token boundaries and adjacent block comments. */
  Object.defineProperty(exports, "__esModule", { value: true });
  exports.parse = parse;
  exports.parseConstant = parseConstant;
@@ -242,7 +242,7 @@ diff --git a/core/parser/recursive-descent-parser.js b/core/parser/recursive-des
 +++ b/core/parser/recursive-descent-parser.js
 @@ -1,4 +1,5 @@
  "use strict";
-+// Modified by Scalar to allow normal token lookahead in compact Protobuf input.
++/*! Modified by Scalar to allow normal token lookahead in compact Protobuf input. */
  Object.defineProperty(exports, "__esModule", { value: true });
  exports.SyntaxError = exports.eof = void 0;
  exports.createRecursiveDescentParser = createRecursiveDescentParser;
@@ -271,7 +271,7 @@ diff --git a/core/parser/textproto.js b/core/parser/textproto.js
 +++ b/core/parser/textproto.js
 @@ -1,4 +1,5 @@
  "use strict";
-+// Modified by Scalar to recognize complete numeric tokens and Protobuf string escapes.
++/*! Modified by Scalar to recognize complete numeric tokens and Protobuf string escapes. */
  Object.defineProperty(exports, "__esModule", { value: true });
  exports.parseTextprotoMessage = parseTextprotoMessage;
  exports.acceptTextprotoStatements = acceptTextprotoStatements;

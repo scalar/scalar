@@ -55,6 +55,11 @@ describe('published-parser', () => {
         await mkdir(dirname(target), { recursive: true })
         await copyFile(join(packageRoot, path), target)
       }
+      const modifiedModules = ['misc.js', 'proto.js', 'recursive-descent-parser.js', 'textproto.js']
+      for (const file of modifiedModules) {
+        const source = await readFile(join(consumer, 'dist/vendor/pbkit/core/parser', file), 'utf8')
+        expect(source, file).toContain('/*! Modified by Scalar')
+      }
       // The reader also uses the package's normal workspace-store runtime dependency.
       // Expose only that runtime dependency so the parser must resolve from the bundle.
       await mkdir(join(consumer, 'node_modules/@scalar'), { recursive: true })
