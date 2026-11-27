@@ -10,7 +10,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, onTestFinished } from 'vitest'
 import { defineComponent, h } from 'vue'
 
-import { provideLocalization } from '@/features/localization'
+import { loadLocale, provideLocalization } from '@/features/localization'
 import { SpecificationExtension } from '@/features/specification-extension'
 
 import RequestBody from './RequestBody.vue'
@@ -210,7 +210,8 @@ describe('RequestBody', () => {
   it.each([
     [1, '1 weitere Eigenschaft anzeigen'],
     [2, '2 weitere Eigenschaften anzeigen'],
-  ])('localizes the overflow label for %s hidden properties', (count, label) => {
+  ])('localizes the overflow label for %s hidden properties', async (count, label) => {
+    await loadLocale('de')
     const wrapper = mount(
       defineComponent({
         setup() {

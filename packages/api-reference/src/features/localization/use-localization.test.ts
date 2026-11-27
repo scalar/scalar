@@ -1,13 +1,68 @@
 import { useLocalization as useClientLocalization } from '@scalar/api-client/features/localization'
+import { loadLocale } from '@scalar/localization'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { describe, expect, it, vi } from 'vitest'
+import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
+import { renderToString } from 'vue/server-renderer'
 
 import { localeTranslations } from './translations'
 import { provideLocalization, resolveLocalization, useLocalization } from './use-localization'
 
+/** Every built-in locale, so a test can warm them all before asserting synchronous output. */
+const loadAllLocales = (): Promise<unknown> =>
+  Promise.all(Object.keys(localeTranslations).map((locale) => loadLocale(locale)))
+
+/**
+ * Imports the reference and client localization in a fresh module graph, so no earlier test has
+ * already loaded the locale under test.
+ */
+const importFreshLocalization = async () => {
+  vi.resetModules()
+  const reference = await import('./use-localization')
+  const client = await import('@scalar/api-client/features/localization')
+
+  const Consumer = defineComponent({
+    setup() {
+      const { translate } = reference.useLocalization()
+      const { translate: translateClient } = client.useLocalization()
+      return () =>
+        h('p', [
+          translate('search.label'),
+          ' / ',
+          translate('schema.required'),
+          ' / ',
+          translateClient('apiClient.addressBar.send'),
+        ])
+    },
+  })
+  const Provider = defineComponent({
+    setup() {
+      reference.provideLocalization({ locale: 'de-DE' })
+      return () => h(Consumer)
+    },
+  })
+
+  return { Provider }
+}
+
 describe('use-localization', () => {
+  it('renders English until German loads, then updates reference, schema and client strings', async () => {
+    const { Provider } = await importFreshLocalization()
+    const wrapper = mount(Provider)
+
+    expect(wrapper.text()).toBe('Search / required / Send')
+    await vi.waitFor(() => expect(wrapper.text()).toBe('Suchen / erforderlich / Senden'))
+    wrapper.unmount()
+  })
+
+  it('server-renders the loaded locale without any host code', async () => {
+    const { Provider } = await importFreshLocalization()
+
+    expect(await renderToString(createSSRApp(Provider))).toBe('<p>Suchen / erforderlich / Senden</p>')
+  })
+
   it('localizes client consumers in every built-in reference locale and reacts to changes', async () => {
+    await loadAllLocales()
     const localization = ref({ locale: 'en' })
     const expected: Record<keyof typeof localeTranslations, string> = {
       en: 'Send',
@@ -51,29 +106,36 @@ describe('use-localization', () => {
     expect(localization.translations.operation.testRequest).toBe('Test Request')
   })
 
-  it('resolves built-in locales from regional locale values', () => {
+  it('resolves built-in locales from regional locale values', async () => {
+    await loadAllLocales()
     expect(resolveLocalization({ locale: 'ru-RU' }).translations.search.label).toBe('Поиск')
     expect(resolveLocalization({ locale: 'es_MX' }).translations.search.label).toBe('Buscar')
     expect(resolveLocalization({ locale: 'zh-Hans' }).translations.search.label).toBe('搜索')
     expect(resolveLocalization({ locale: 'unknown' }).translations.search.label).toBe('Search')
   })
 
-  it.each(['zh-TW', 'zh-tw', 'zh_TW'])('selects Traditional Chinese reference and schema labels for %s', (locale) => {
-    const { translations, direction } = resolveLocalization({ locale })
+  it.each(['zh-TW', 'zh-tw', 'zh_TW'])(
+    'selects Traditional Chinese reference and schema labels for %s',
+    async (locale) => {
+      await loadLocale(locale)
+      const { translations, direction } = resolveLocalization({ locale })
 
-    expect(translations.search.label).toBe('搜尋')
-    expect(translations.operation.responses).toBe('回應')
-    expect(translations.developerTools.configure).toBe('設定')
-    expect(translations.schema.default).toBe('預設值')
-    expect(direction).toBe('ltr')
-  })
+      expect(translations.search.label).toBe('搜尋')
+      expect(translations.operation.responses).toBe('回應')
+      expect(translations.developerTools.configure).toBe('設定')
+      expect(translations.schema.default).toBe('預設值')
+      expect(direction).toBe('ltr')
+    },
+  )
 
-  it.each(['zh-Hans', 'zh-Hant', 'zh-HK', 'zh-MO'])('keeps the Simplified Chinese fallback for %s', (locale) => {
+  it.each(['zh-Hans', 'zh-Hant', 'zh-HK', 'zh-MO'])('keeps the Simplified Chinese fallback for %s', async (locale) => {
+    await loadLocale(locale)
     expect(resolveLocalization({ locale }).translations.search.label).toBe('搜索')
   })
 
-  it('includes every Traditional Chinese reference key and preserves interpolation placeholders', () => {
-    const { en, 'zh-TW': dictionary } = localeTranslations
+  it('includes every Traditional Chinese reference key and preserves interpolation placeholders', async () => {
+    const { en } = localeTranslations
+    const dictionary = await localeTranslations['zh-TW']()
 
     expect(Object.keys(dictionary).sort()).toStrictEqual(Object.keys(en).sort())
     for (const group of Object.keys(en) as (keyof typeof en)[]) {
@@ -86,7 +148,8 @@ describe('use-localization', () => {
     }
   })
 
-  it('merges built-in locale translations with custom overrides', () => {
+  it('merges built-in locale translations with custom overrides', async () => {
+    await loadLocale('es')
     const localization = resolveLocalization({
       locale: 'es',
       translations: {
@@ -146,7 +209,8 @@ describe('use-localization', () => {
     expect(contexts[1]?.translations.value.operation.testRequest).toBe('Test Request')
   })
 
-  it('receives the provided context when a provider exists', () => {
+  it('receives the provided context when a provider exists', async () => {
+    await loadLocale('es')
     let provided: ReturnType<typeof provideLocalization> | undefined
     let injected: ReturnType<typeof useLocalization> | undefined
 
@@ -185,7 +249,8 @@ describe('use-localization', () => {
     expect(mount(Consumer).text()).toBe('does.not.exist')
   })
 
-  it('provides client overrides alongside reference strings and built-in client translations', () => {
+  it('provides client overrides alongside reference strings and built-in client translations', async () => {
+    await loadLocale('de')
     const Consumer = defineComponent({
       setup() {
         const { translate } = useClientLocalization()

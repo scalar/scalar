@@ -26,11 +26,13 @@ import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
 import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
 import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
+import { getClientLanguage } from '@scalar/blocks/code-example'
 import { useSchemaExpansion } from '@scalar/blocks/schema/expansion'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
 } from '@scalar/components/color-mode-toggle'
+import { preloadGrammars } from '@scalar/components/code-block'
 import { addScalarClassesToHeadless } from '@scalar/components/helpers'
 import { MARKDOWN_RENDER_HOOKS } from '@scalar/components/markdown'
 import {
@@ -1594,6 +1596,24 @@ watch(
   {
     deep: true,
   },
+)
+
+/**
+ * Start loading the grammar of the selected code example client as soon as it is known.
+ *
+ * The selection comes from the configuration or from the one the reader saved last time, and both are
+ * known long before the first code example renders, often far down the page. Loading its grammar here
+ * means the snippet is usually coloured by the time it appears. Synchronous so the request starts the
+ * moment the saved selection is restored, and a no-op for the grammars that are bundled already.
+ */
+watch(
+  () => clientStore.workspace['x-scalar-default-client'],
+  (clientId) => {
+    if (clientId) {
+      void preloadGrammars([getClientLanguage(clientId)])
+    }
+  },
+  { immediate: true, flush: 'sync' },
 )
 
 /** Preload the first document during SSR */

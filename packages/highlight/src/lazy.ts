@@ -161,6 +161,9 @@ const aliases: Record<string, BundledLanguage> = {
 
 export const bundledLanguages = Object.keys(loaders) as BundledLanguage[]
 
+/** The aliases `resolveLanguageName` accepts, each mapped to the bundled language it loads. */
+export const languageAliases: Readonly<Record<string, BundledLanguage>> = aliases
+
 /** Resolves a name or alias to a bundled language, or `undefined`. */
 export const resolveLanguageName = (name: string): BundledLanguage | undefined => {
   const key = name.toLowerCase()

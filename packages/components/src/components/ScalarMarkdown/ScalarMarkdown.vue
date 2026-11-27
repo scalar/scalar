@@ -21,7 +21,9 @@ import {
   type Node,
 } from '@scalar/markdown'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, useTemplateRef } from 'vue'
+import { computed, onServerPrefetch, useTemplateRef } from 'vue'
+
+import { ensureGrammar, preloadGrammars } from '@/helpers/load-grammar'
 
 import type { ScalarMarkdownProps } from './types'
 import { useMarkdownRenderHooks } from './useMarkdownRenderHooks'
@@ -73,14 +75,31 @@ const transformHeading = (node: Node) => {
   return node
 }
 
-const html = computed(() => {
-  return htmlFromMarkdown(value ?? '', {
+/** The rendered HTML, and the languages of the code blocks that still wait on a grammar */
+const rendered = computed(() => {
+  const missingLanguages: string[] = []
+
+  const html = htmlFromMarkdown(value ?? '', {
     removeTags: withImages ? [] : ['img', 'picture'],
     transform:
       withAnchors && transformType === 'heading' ? transformHeading : transform,
     transformType,
+    onMissingLanguage: (lang) => {
+      missingLanguages.push(lang)
+      // Starts the grammar download and re-runs this computed once it arrives
+      ensureGrammar(lang)
+    },
   })
+
+  return { html, missingLanguages }
 })
+
+const html = computed(() => rendered.value.html)
+
+// Server rendering waits for the grammars the document uses, so the page is highlighted as it
+// always was. The preload bumps the counter `rendered` subscribed to while it waited, so the
+// render after this prefetch runs it again with the grammars loaded.
+onServerPrefetch(() => preloadGrammars(rendered.value.missingLanguages))
 useMarkdownRenderHooks(
   templateRef,
   () => value ?? '',

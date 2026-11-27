@@ -55,6 +55,47 @@ Scalar is an open-source API platform for teams who want beautiful developer int
 </html>
 ```
 
+## Localization
+
+Set `localization.locale` to render the interface in one of the built-in languages (see [Localization](https://github.com/scalar/scalar/blob/main/documentation/localization.md)). English is bundled; every other locale is downloaded on demand the first time it is used. `createApiReference` waits for that small chunk before it renders, so the interface appears in the configured language from the first paint.
+
+If you mount the `ApiReference` component yourself, await `loadLocale` before you mount, or it renders English until the locale arrives. One call loads the locale for the API Reference, the embedded API Client and the schema blocks:
+
+```ts
+import { ApiReference, loadLocale } from '@scalar/api-reference'
+import { createApp } from 'vue'
+
+await loadLocale('de')
+
+createApp(ApiReference, {
+  configuration: { url: '/openapi.json', localization: { locale: 'de' } },
+}).mount('#app')
+```
+
+`loadLocale` never rejects: when a locale fails to load, the reference keeps English and tries again on the next request.
+
+Server rendering waits for the configured locale on its own. When you hydrate server-rendered markup yourself (instead of through `createApiReference` or the Nuxt integration, which already wait), await `loadLocale` with the same locale before calling `createSSRApp(...).mount()`.
+
+## Hydrating server-rendered markup yourself
+
+Non-English locales and syntax highlighting grammars load on demand. Server rendering waits for both, so the markup arrives complete. `createApiReference` and the Nuxt integration also wait for them in the browser before rendering. When you render `<ApiReference>` with your own server rendering, wait for them yourself before mounting:
+
+```ts
+import { getRenderedLanguages, loadLocale, preloadGrammars } from '@scalar/api-reference'
+
+const root = document.getElementById('app')!
+
+await Promise.all([
+  loadLocale('de'),
+  // The languages of the highlighted code in the server markup
+  preloadGrammars(getRenderedLanguages(root)),
+])
+
+createSSRApp(App).mount(root)
+```
+
+Skipping a preload does not break the page, but it shows. A locale that has not loaded renders English for a moment. A grammar that has not loaded turns its highlighted code plain until the grammar arrives, and Vue logs no hydration mismatch for that.
+
 ## AsyncAPI Markdown actions
 
 AsyncAPI channels and operations include a **Copy as Markdown** button in both layouts. Copies contain the selected section and its relevant context, using `@scalar/asyncapi-to-markdown`. Tags and introduction support custom actions but do not show a copy button by default.

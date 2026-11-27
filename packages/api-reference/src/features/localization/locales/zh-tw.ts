@@ -1,5 +1,4 @@
-import { schemaTranslations } from '@scalar/blocks/schema'
-import type { ApiReferenceTranslations } from '@scalar/types/api-reference'
+import type { ReferenceTranslations } from '../translations'
 
 /** Built-in API Reference translations for zh-TW. */
 export const zhTw = {
@@ -94,7 +93,6 @@ export const zhTw = {
     showSchema: '顯示結構描述',
     status: '狀態',
   },
-  schema: schemaTranslations['zh-TW'].schema,
   download: {
     openapi: '下載 OpenAPI 文件',
     asyncapi: '下載 AsyncAPI 文件',
@@ -265,4 +263,4 @@ export const zhTw = {
     requires: '需要',
     scopes: 'OAuth 權限範圍',
   },
-} satisfies ApiReferenceTranslations
+} satisfies ReferenceTranslations

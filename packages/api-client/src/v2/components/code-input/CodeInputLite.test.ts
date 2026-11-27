@@ -1,7 +1,9 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { defineComponent, h, nextTick, useTemplateRef, watch } from 'vue'
+
+import { loadFuse } from '@/v2/features/environments/components/load-fuse'
 
 import CodeInputLite from './CodeInputLite.vue'
 
@@ -312,6 +314,9 @@ describe('CodeInputLite', () => {
   })
 
   describe('combobox accessibility', () => {
+    // These tests are about the filtered list, so have fuzzy matching ready before typing
+    beforeAll(() => loadFuse())
+
     it('exposes combobox semantics on the editor when variables are enabled', () => {
       const editor = mountInput({ modelValue: '' }).get('.code-input-lite__editor')
       expect(editor.attributes('role')).toBe('combobox')

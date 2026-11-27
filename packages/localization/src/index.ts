@@ -1,5 +1,7 @@
 export type {
   Locale,
+  LocaleTranslationsLoader,
+  LocaleTranslationsSource,
   LocalizationConfig,
   LocalizationContext,
   LocalizationInput,
@@ -10,3 +12,4 @@ export type {
   TranslateParams,
 } from './create-localization'
 export { createLocalization } from './create-localization'
+export { isLocaleLoaded, loadLocale } from './locale-registry'

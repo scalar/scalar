@@ -131,6 +131,16 @@ modal.updateOptions({
 
 ```
 
+### Localization
+
+Pass `options.localization` (for example `{ locale: 'de' }`) to translate the client. English is bundled; every other built-in locale loads on demand the first time it is used, and the client switches to it once it arrives. Await `loadLocale` from `@scalar/api-client/features/localization` before mounting to render the configured language right away:
+
+```ts
+import { loadLocale } from '@scalar/api-client/features/localization'
+
+await loadLocale('de')
+```
+
 ## Configuration
 
 `createApiClientModal` accepts these top-level properties:

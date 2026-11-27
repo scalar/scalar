@@ -1,6 +1,7 @@
 export { type DiscriminatorSchema, schemaDiscriminator } from './discriminator-metadata'
 export { inferDiscriminatorMappingComposition } from './helpers/get-compositions-to-render'
 export { default as LinkButton } from './LinkButton.vue'
+export { type SchemaTranslations, schemaLocaleTranslations } from './localization/locale-translations'
 export { schemaTranslations } from './localization/translations'
 export { type ProtobufSchema, protobufFieldNumber, protobufPresence } from './protobuf-metadata'
 export { type RecursiveSchema, schemaRecursiveTarget } from './recursive-metadata'

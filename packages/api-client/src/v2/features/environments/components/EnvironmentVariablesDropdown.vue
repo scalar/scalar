@@ -5,10 +5,11 @@ import { ScalarIconPlus } from '@scalar/icons'
 import { POPULAR_CONTEXT_FUNCTION_KEYS } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { onClickOutside } from '@vueuse/core'
-import Fuse from 'fuse.js'
-import { computed, onMounted, ref, watch, type CSSProperties } from 'vue'
+import { computed, onMounted, ref, type CSSProperties } from 'vue'
 
 import { useLocalization } from '@/v2/features/localization'
+
+import { loadFuse, useFuse } from './load-fuse'
 
 const {
   query,
@@ -49,7 +50,18 @@ type DropdownRow =
 
 const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
-const selectedVariableIndex = ref(0)
+
+/** Identifies a row across renders, whatever its position in the list */
+const rowId = (row: DropdownRow): string => `${row.kind}-${row.key}`
+
+/**
+ * The row the user moved the highlight to, or `null` while they have not.
+ *
+ * Kept by identity rather than position: the list can change without the user doing anything, for
+ * example when fuse.js arrives and the fuzzy matches replace the plain ones. An index would then point
+ * at another variable, and Enter would insert something the user never highlighted.
+ */
+const activeRowId = ref<string | null>(null)
 
 const redirectToEnvironment = () => {
   emit('redirect')
@@ -101,20 +113,25 @@ const contextFuseSource = computed((): FuseRow[] =>
   })),
 )
 
-const fuseEnv = computed(
-  () =>
-    new Fuse(envFuseSource.value, {
-      keys: ['fuseText'],
-      threshold: 0.35,
-    }),
+/** fuse.js loads the first time a dropdown opens, so these are `null` until it arrives */
+const Fuse = useFuse()
+
+const fuseEnv = computed(() =>
+  Fuse.value
+    ? new Fuse.value(envFuseSource.value, {
+        keys: ['fuseText'],
+        threshold: 0.35,
+      })
+    : null,
 )
 
-const fuseContext = computed(
-  () =>
-    new Fuse(contextFuseSource.value, {
-      keys: ['fuseText'],
-      threshold: 0.35,
-    }),
+const fuseContext = computed(() =>
+  Fuse.value
+    ? new Fuse.value(contextFuseSource.value, {
+        keys: ['fuseText'],
+        threshold: 0.35,
+      })
+    : null,
 )
 
 const popularContextRows = computed((): DropdownRow[] => {
@@ -142,6 +159,17 @@ const filteredVariables = computed((): DropdownRow[] => {
   }
 
   const q = query.trim()
+
+  // Until fuse.js has loaded (or if it failed to), match plain substrings, so the list is already
+  // close to the fuzzy result rather than unfiltered
+  if (!fuseEnv.value || !fuseContext.value) {
+    const needle = q.toLowerCase()
+    return [...envFuseSource.value, ...contextFuseSource.value]
+      .filter(({ fuseText }) => fuseText.toLowerCase().includes(needle))
+      .slice(0, DROPDOWN_LIMIT)
+      .map(({ kind, key, secondary }) => ({ kind, key, secondary }))
+  }
+
   const envMatches = fuseEnv.value
     .search(q, { limit: DROPDOWN_LIMIT })
     .map((res) => {
@@ -178,16 +206,21 @@ const selectVariable = (variableKey: string): void => {
   emit('select', variableKey)
 }
 
-// Narrowing the query shrinks the list; keep the highlight in range so both the
-// visible selection and `aria-activedescendant` never reference a dropped option.
-watch(
-  () => filteredVariables.value.length,
-  (length) => {
-    if (selectedVariableIndex.value > length - 1) {
-      selectedVariableIndex.value = Math.max(0, length - 1)
-    }
-  },
-)
+/**
+ * Position of the highlighted row. The first row until the user moves the highlight, and the first row
+ * again once the row they moved to is no longer listed.
+ */
+const selectedVariableIndex = computed((): number => {
+  if (activeRowId.value === null) {
+    return 0
+  }
+
+  const index = filteredVariables.value.findIndex(
+    (row) => rowId(row) === activeRowId.value,
+  )
+
+  return Math.max(index, 0)
+})
 
 const handleArrowKey = (direction: 'up' | 'down') => {
   const offset = direction === 'up' ? -1 : 1
@@ -197,17 +230,17 @@ const handleArrowKey = (direction: 'up' | 'down') => {
     return
   }
 
-  selectedVariableIndex.value =
-    (selectedVariableIndex.value + offset + length) % length
+  const next =
+    filteredVariables.value[
+      (selectedVariableIndex.value + offset + length) % length
+    ]
+  activeRowId.value = next ? rowId(next) : null
 }
 
 const handleSelect = () => {
-  if (selectedVariableIndex.value >= 0) {
-    const selectedVariable =
-      filteredVariables.value[selectedVariableIndex.value]
-    if (selectedVariable) {
-      selectVariable(selectedVariable.key)
-    }
+  const selectedVariable = filteredVariables.value[selectedVariableIndex.value]
+  if (selectedVariable) {
+    selectVariable(selectedVariable.key)
   }
 }
 
@@ -218,8 +251,10 @@ defineExpose({
 })
 
 onMounted(() => {
-  // Reset selected index to the first item when dropdown opens
-  selectedVariableIndex.value = 0
+  // Highlight the first item when the dropdown opens
+  activeRowId.value = null
+  // The dropdown mounts when it opens, so this is the first moment fuzzy matching can be needed
+  void loadFuse()
 })
 
 const dropdownStyle = computed<CSSProperties>(() => {

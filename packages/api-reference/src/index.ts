@@ -1,5 +1,17 @@
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
+/**
+ * `preloadGrammars` preloads the syntax highlighting grammars for a list of languages, such as
+ * `['json', 'python']`, and `getRenderedLanguages` reads that list from server-rendered markup.
+ * Await `preloadGrammars(getRenderedLanguages(root))` before hydrating so code blocks stay
+ * highlighted on the first paint.
+ */
+export { getRenderedLanguages, preloadGrammars } from '@scalar/components/code-block'
+/**
+ * Preloads a built-in locale for the API Reference, the API Client and the schema blocks at once.
+ * Await it before mounting or hydrating to render a non-English locale on the first paint.
+ */
+export { loadLocale } from '@scalar/localization'
 export type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 export { default as ApiReference } from '@/components/ApiReference.vue'

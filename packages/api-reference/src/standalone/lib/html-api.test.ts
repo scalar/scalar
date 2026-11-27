@@ -261,6 +261,54 @@ describe('createApiReference', () => {
     expect(document.getElementById('scalar-style')).toBeNull()
   })
 
+  it('waits for a lazy locale before mounting, so the English fallback never paints', async () => {
+    // A fresh browser starts without any lazy locale loaded
+    vi.resetModules()
+    const browser = await import('./html-api')
+    const { isLocaleLoaded } = await import('@scalar/localization')
+    expect(isLocaleLoaded('pt')).toBe(false)
+
+    const element = document.createElement('div')
+    document.body.append(element)
+    let paintedEnglish = false
+    const observer = new MutationObserver(() => {
+      paintedEnglish ||= element.textContent?.includes('Client Libraries') ?? false
+    })
+    observer.observe(element, { subtree: true, childList: true, characterData: true })
+
+    const reference = browser.createApiReference(element, {
+      localization: { locale: 'pt' },
+      content: { openapi: '3.1.0', info: { title: 'Localized API', version: '1.0.0' }, paths: {} },
+    })
+    try {
+      // Nothing renders until Portuguese has loaded
+      expect(element.textContent).toBe('')
+      await vi.waitFor(() => expect(element.textContent).toContain('Bibliotecas Cliente'))
+
+      expect(isLocaleLoaded('pt')).toBe(true)
+      expect(paintedEnglish).toBe(false)
+    } finally {
+      observer.disconnect()
+      reference.destroy()
+      element.remove()
+    }
+  })
+
+  it('mounts English straight away', () => {
+    const element = document.createElement('div')
+    document.body.append(element)
+
+    const reference = createApiReference(element, {
+      content: { openapi: '3.1.0', info: { title: 'English API', version: '1.0.0' }, paths: {} },
+    })
+    try {
+      expect(element.textContent).not.toBe('')
+    } finally {
+      reference.destroy()
+      element.remove()
+    }
+  })
+
   it('allows mounting after creation', async () => {
     const config = { _integration: 'html' }
     const app = createApiReference(coerce(apiReferenceConfigurationSchema, config))

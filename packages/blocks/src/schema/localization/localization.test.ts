@@ -1,9 +1,10 @@
-import { createLocalization } from '@scalar/localization'
+import { createLocalization, loadLocale } from '@scalar/localization'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { useLocalization } from './index'
+import { schemaLocaleTranslations } from './locale-translations'
 import { schemaTranslations } from './translations'
 
 const host = createLocalization<{ apiClient: { send: string } }, 'apiClient.send'>({
@@ -41,9 +42,20 @@ describe('localization', () => {
     }
   })
 
+  it('loads the same dictionaries on demand that the static map bundles', async () => {
+    for (const [locale, source] of Object.entries(schemaLocaleTranslations)) {
+      const dictionary = typeof source === 'function' ? await source() : source
+      expect(dictionary, locale).toStrictEqual(schemaTranslations[locale as keyof typeof schemaTranslations])
+    }
+    // English is the synchronous fallback, so it must never be lazy.
+    expect(typeof schemaLocaleTranslations.en).toBe('object')
+  })
+
   it.each(['zh-TW', 'zh-tw', 'zh_TW'])(
     'contributes Traditional Chinese schema labels beneath a client host for %s',
-    (locale) => {
+    async (locale) => {
+      await loadLocale(locale)
+
       const wrapper = mount(
         defineComponent({
           setup() {
@@ -75,7 +87,9 @@ describe('localization', () => {
       }),
     )
 
-    expect(wrapper.text()).toBe('erforderlich')
+    // German loads on demand: English renders first, then the context updates by itself.
+    expect(wrapper.text()).toBe('required')
+    await vi.waitFor(() => expect(wrapper.text()).toBe('erforderlich'))
     locale.value = 'en'
     await nextTick()
     expect(wrapper.text()).toBe('required')

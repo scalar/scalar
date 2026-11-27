@@ -120,6 +120,23 @@ The floating element also paints its own surface: `rounded-xl bg-b-1 dark:bg-b-1
 <ScalarPopover class="bg-b-2 dark:bg-b-2">...</ScalarPopover>
 ```
 
+## Code Highlighting
+
+`ScalarCodeBlock` and `ScalarMarkdown` highlight code with [`@scalar/highlight`](https://github.com/scalar/scalar/tree/main/packages/highlight). The grammars nearly every page shows are bundled and highlight on the first render: curl, JSON, JavaScript (which also covers TypeScript, TSX and JSX), HTTP and bash (which also covers `sh`, `shell` and `zsh`). Every other grammar loads on demand, so a page only downloads the ones it shows. A block whose grammar has not loaded yet renders its code as plain text and colours in once the grammar arrives, without changing size.
+
+Server rendering waits for the grammars, so server-rendered markup is already highlighted. Hydrating replaces each block's highlighted markup with what the client renders, so if a grammar has not loaded on the client yet, its code visibly flashes to plain text and back. Vue logs no hydration mismatch for this. Load the grammars the server markup uses before mounting:
+
+```ts
+import { getRenderedLanguages, preloadGrammars } from '@scalar/components/code-block'
+
+const root = document.getElementById('app')!
+
+await preloadGrammars(getRenderedLanguages(root))
+app.mount(root)
+```
+
+`getRenderedLanguages` reads the `language-*` (and `lang-*`) classes of the highlighted code in the markup. `preloadGrammars` takes the same names as the `lang` prop, aliases included (`js`, `ts`, `sh`), so you can also pass a list of your own, such as `['json', 'shell', 'python']`. Unknown names are skipped, and a grammar that fails to load leaves only its own blocks plain.
+
 ## CSS Layers
 
 The components package uses the same [CSS Layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer) as the themes package to apply the theme styles. For more information see the [themes README](https://github.com/scalar/scalar/tree/main/packages/themes).

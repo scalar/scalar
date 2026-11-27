@@ -15,7 +15,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { computed, defineComponent, h, nextTick, ref } from 'vue'
 
 import { GENERATE_SDK_CONTEXT_SYMBOL, type GenerateSdkContext } from '@/features/generate-sdk/use-generate-sdk'
-import { provideLocalization } from '@/features/localization'
+import { loadLocale, provideLocalization } from '@/features/localization'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 
 import ClassicLayout from './ClassicLayout.vue'
@@ -197,6 +197,7 @@ describe('ClassicLayout', () => {
     { name: 'classic', Layout: ClassicLayout },
     { name: 'modern', Layout: ModernLayout },
   ])('localizes missing linked samples in the $name layout', async ({ Layout }) => {
+    await Promise.all([loadLocale('de'), loadLocale('fr')])
     const localization = ref<ApiReferenceLocalization>({ locale: 'de' })
     const wrapper = mount(
       defineComponent({

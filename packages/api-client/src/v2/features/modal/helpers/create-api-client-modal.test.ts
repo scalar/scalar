@@ -11,6 +11,7 @@ import 'fake-indexeddb/auto'
 
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 
+import { loadLocale } from '@/v2/features/localization'
 import Modal, { type ModalProps } from '@/v2/features/modal/Modal.vue'
 import type { ApiClientOptions, ApiClientOptionsRef } from '@/v2/types/options'
 
@@ -91,6 +92,7 @@ describe('createApiClientModal', () => {
   })
 
   it('updates localized labels and direction in the separately mounted modal app', async () => {
+    await Promise.all([loadLocale('de'), loadLocale('ar')])
     const options = ref<ApiClientOptions>({
       localization: {
         locale: 'de',

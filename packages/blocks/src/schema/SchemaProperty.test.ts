@@ -1,5 +1,5 @@
 import { ScalarListbox } from '@scalar/components/listbox'
-import { createLocalization } from '@scalar/localization'
+import { createLocalization, loadLocale } from '@scalar/localization'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -39,7 +39,10 @@ describe('SchemaProperty', () => {
     expect(mountProperty('other').findComponent(WithBreadcrumb).exists()).toBe(false)
   })
 
-  it('translates the description of a built-in format into the host locale', () => {
+  it('translates the description of a built-in format into the host locale', async () => {
+    // Built-in locales other than English load on demand; warm Russian so the first render is final.
+    await loadLocale('ru')
+
     const host = createLocalization<Record<string, never>, never>({
       localeTranslations: { en: {} },
       defaultLocale: 'en',

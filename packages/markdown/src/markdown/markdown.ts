@@ -12,6 +12,7 @@ import remarkRehype from 'remark-rehype'
 import remarkStringify from 'remark-stringify'
 import { type Plugin, unified } from 'unified'
 import { SKIP, visit } from 'unist-util-visit'
+import type { VFile } from 'vfile'
 
 import { rehypeAlert } from '../rehype-alert'
 
@@ -129,6 +130,15 @@ type HtmlFromMarkdownOptions = {
   allowTags?: string[]
   transform?: (node: Node) => Node
   transformType?: string
+  /**
+   * Called with the language of each code block that rendered as plain text
+   * because its grammar is not registered yet, once per language.
+   *
+   * Grammars are not bundled with this package, so load the language (for
+   * example with `loadLanguage` from `@scalar/highlight/lazy`) and render again
+   * to highlight it.
+   */
+  onMissingLanguage?: (lang: string) => void
 }
 
 /**
@@ -239,9 +249,10 @@ export const createHtmlFromMarkdown = (
     const tagNames = [...(defaultSchema.tagNames ?? []), ...allowTags].filter((t) => !removeTags.includes(t))
 
     if (options?.transform) {
-      return createProcessor(tagNames, options.transform, options.transformType, highlight)
-        .processSync(markdown)
-        .toString()
+      return reportMissingLanguages(
+        createProcessor(tagNames, options.transform, options.transformType, highlight).processSync(markdown),
+        options.onMissingLanguage,
+      )
     }
 
     const key = [[...removeTags].sort().join(','), [...allowTags].sort().join(','), options?.transformType ?? ''].join(
@@ -255,8 +266,17 @@ export const createHtmlFromMarkdown = (
       processorCache.set(key, processor)
     }
 
-    return processor.processSync(markdown).toString()
+    return reportMissingLanguages(processor.processSync(markdown), options?.onMissingLanguage)
   }
+}
+
+/** Hands the languages the highlighter could not highlight to the caller, and returns the HTML. */
+const reportMissingLanguages = (file: VFile, onMissingLanguage: ((lang: string) => void) | undefined): string => {
+  for (const lang of file.data.missingLanguages ?? []) {
+    onMissingLanguage?.(lang)
+  }
+
+  return file.toString()
 }
 
 /**

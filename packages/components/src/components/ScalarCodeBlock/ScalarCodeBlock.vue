@@ -1,23 +1,4 @@
 <script lang="ts">
-import { languages, registerLanguage } from '@scalar/highlight/all'
-
-/**
- * Registers every bundled grammar, once per module rather than once per block.
- *
- * `@scalar/highlight/all` already registers them when it is evaluated, so a
- * bare `import '@scalar/highlight/all'` reads like enough. It is not: that is a
- * side-effect-only import of an external package, and the library build drops
- * it from the emitted module. Storybook hid this because it compiles from
- * source, while the API reference consumes `dist` and lost highlighting
- * entirely — every block fell back to escaped, unscoped text.
- *
- * Registering from a named import keeps a binding the bundler can see used, so
- * the module survives. It lives in this block rather than in `<script setup>`
- * because setup runs for every instance, and a page of API reference renders
- * hundreds of code blocks.
- */
-registerLanguage(...languages)
-
 /**
  * Scalar Code Block component
  *
@@ -32,11 +13,12 @@ export default {}
 </script>
 <script lang="ts" setup>
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import { syntaxHighlight } from '@scalar/highlight/compat'
+import { canonicalName, syntaxHighlight } from '@scalar/highlight/compat'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, useId } from 'vue'
+import { computed, onServerPrefetch, useId } from 'vue'
 
 import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
+import { ensureGrammar, preloadGrammars } from '@/helpers/load-grammar'
 
 import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
 import type { StandardLanguageKey } from './types'
@@ -107,7 +89,18 @@ const prettyContent = computed(
   () => prettyPrintedContent || prettyPrintJson(content ?? ''),
 )
 
+/** The language name after the highlight.js aliases, as it lands in the `language-*` class */
+const language = computed(() => canonicalName(lang.trim()))
+
+// Server rendering waits for the grammar, so the page is highlighted as it always was
+onServerPrefetch(() => preloadGrammars([language.value]))
+
 const highlightedCode = computed(() => {
+  // Starts the grammar download when it is missing, and re-runs this computed once it
+  // arrives. Until then `syntaxHighlight` renders the same plain markup as an unknown
+  // language.
+  ensureGrammar(language.value)
+
   const html = syntaxHighlight(prettyContent.value, {
     lang: lang.trim(),
     lineNumbers: lineNumbers,

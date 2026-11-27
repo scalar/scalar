@@ -114,6 +114,126 @@ describe('html-api hydration', () => {
     }
   })
 
+  it('waits for a lazy locale before hydrating server-rendered translations', async () => {
+    const config = apiReferenceConfigurationWithSourceSchema({
+      _integration: 'html',
+      localization: { locale: 'de' },
+      content: {
+        openapi: '3.1.0',
+        info: { title: 'Localized API', version: '1.0.0' },
+        paths: {
+          '/hello': { get: { summary: 'Say hello', responses: { '200': { description: 'Hello' } } } },
+        },
+      },
+    })
+    // The server waits for German on its own (serverPrefetch), so the markup is already translated.
+    const ssrApp = createSSRApp({ render: () => h(ApiReference, { configuration: config }) })
+    ssrApp.config.idPrefix = 'scalar-refs'
+    const element = document.createElement('div')
+    element.innerHTML = await renderToString(ssrApp)
+    document.body.append(element)
+    expect(element.textContent).toContain('Client-Bibliotheken')
+    expect(element.textContent).not.toContain('Client Libraries')
+
+    // A browser starts without any lazy locale, like a fresh page load.
+    vi.resetModules()
+    const browser = await import('./html-api')
+    const { isLocaleLoaded } = await import('@scalar/localization')
+    expect(isLocaleLoaded('de')).toBe(false)
+
+    const heading = element.querySelector('h1')
+    // The sidebar link the server rendered in German, which hydration must adopt rather than replace.
+    const sidebarLink = [...element.querySelectorAll('aside *')].find((node) => node.textContent === 'Einführung')
+    expect(sidebarLink).toBeDefined()
+    let renderedEnglish = false
+    const observer = new MutationObserver(() => {
+      renderedEnglish ||= element.textContent?.includes('Client Libraries') ?? false
+    })
+    observer.observe(element, { subtree: true, childList: true, characterData: true })
+    consoleWarnSpy.mockClear()
+    consoleErrorSpy.mockClear()
+
+    const reference = browser.createApiReference(element, config)
+    try {
+      await vi.waitFor(() => expect(isLocaleLoaded('de')).toBe(true))
+      await flushPromises()
+      await nextTick()
+      expect(renderedEnglish).toBe(false)
+      expect(element.querySelector('h1')).toBe(heading)
+      expect(sidebarLink?.isConnected).toBe(true)
+      expect(sidebarLink?.textContent).toBe('Einführung')
+      expect(element.textContent).toContain('Client-Bibliotheken')
+      const hydrationMessages = [...consoleWarnSpy.mock.calls, ...consoleErrorSpy.mock.calls]
+        .flat()
+        .map(String)
+        .filter((message) => /hydration/i.test(message))
+      expect(hydrationMessages).toStrictEqual([])
+    } finally {
+      observer.disconnect()
+      reference.destroy()
+    }
+  })
+
+  it.each([
+    ['a fenced code block', '```python\ndef greet(name):\n    return name\n```', 'code.language-python'],
+    // The Markdown renderer keeps raw HTML code blocks, so their languages count too
+    [
+      'a raw HTML code block',
+      '<pre><code class="language-ruby">def greet\n  1\nend</code></pre>',
+      'code.language-ruby',
+    ],
+  ])('waits for the grammars of server-rendered code in %s before hydrating', async (_, description, selector) => {
+    const config = apiReferenceConfigurationWithSourceSchema({
+      _integration: 'html',
+      content: {
+        openapi: '3.1.0',
+        info: { title: 'Highlighted API', version: '1.0.0', description },
+        paths: {},
+      },
+    })
+    // The server waits for the grammar on its own (serverPrefetch), so the markup is highlighted.
+    const ssrApp = createSSRApp({ render: () => h(ApiReference, { configuration: config }) })
+    ssrApp.config.idPrefix = 'scalar-refs'
+    const element = document.createElement('div')
+    element.innerHTML = await renderToString(ssrApp)
+    document.body.append(element)
+    const isHighlighted = (): boolean => element.querySelector(selector)?.querySelector('[class^="hljs-"]') !== null
+    expect(element.querySelector(selector)).not.toBeNull()
+    expect(isHighlighted()).toBe(true)
+
+    // A browser starts without any grammar, like a fresh page load.
+    vi.resetModules()
+    const browser = await import('./html-api')
+
+    let renderedPlain = false
+    const observer = new MutationObserver(() => {
+      renderedPlain ||= !isHighlighted()
+    })
+    observer.observe(element, { subtree: true, childList: true, characterData: true })
+    consoleWarnSpy.mockClear()
+    consoleErrorSpy.mockClear()
+
+    const reference = browser.createApiReference(element, config)
+    try {
+      // Hydration waits for the grammar rather than mounting straight away
+      const isMounted = (): boolean => '__vue_app__' in element
+      expect(isMounted()).toBe(false)
+      await vi.waitFor(() => expect(isMounted()).toBe(true))
+      await flushPromises()
+      await nextTick()
+      expect(renderedPlain).toBe(false)
+      expect(isHighlighted()).toBe(true)
+      const hydrationMessages = [...consoleWarnSpy.mock.calls, ...consoleErrorSpy.mock.calls]
+        .flat()
+        .map(String)
+        .filter((message) => /hydration/i.test(message))
+      expect(hydrationMessages).toStrictEqual([])
+    } finally {
+      observer.disconnect()
+      reference.destroy()
+    }
+  })
+
   /** Two tags, so the first one is opened by default and the second one stays closed. */
   const taggedDocument = {
     openapi: '3.1.0',

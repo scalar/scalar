@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-import { ApiReference } from '@scalar/api-reference'
+import {
+  ApiReference,
+  getRenderedLanguages,
+  loadLocale,
+  preloadGrammars,
+} from '@scalar/api-reference'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import {
@@ -141,6 +146,27 @@ const config: Partial<ApiReferenceConfiguration> = {
   // Set the fetched spec to the config content to prevent ApiReferenceLayout from fetching it again on the client side
   content: document.value,
 }
+
+// Built-in locales other than English and syntax highlighting grammars load on demand. Nuxt suspends
+// this async setup both while server rendering and before hydrating, so waiting here keeps the server
+// markup translated and lets the browser hydrate it without rendering the English fallback first.
+//
+// Hydration also patches `v-html`, so a code block whose grammar has not loaded yet would replace the
+// server's highlighted code with plain text until the grammar arrives. The server markup says which
+// grammars it used, so the browser loads exactly those first. On the server there is no markup yet,
+// and the code blocks wait for their own grammars. (This reads `window.document`, because `document`
+// in this component is the OpenAPI document.)
+const renderedLanguages =
+  typeof window === 'undefined'
+    ? []
+    : [...window.document.querySelectorAll('.scalar-api-reference')].flatMap(
+        (element) => getRenderedLanguages(element),
+      )
+
+await Promise.all([
+  loadLocale(config.localization?.locale),
+  preloadGrammars(renderedLanguages),
+])
 </script>
 
 <template>

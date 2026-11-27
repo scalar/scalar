@@ -81,6 +81,32 @@ change.
 ```
 
 
+### Loading locales
+
+English is bundled with the API Reference. Every other built-in locale is downloaded on demand, as a small
+separate file, the first time it is used. `createApiReference` waits for the configured locale before it
+renders, so the interface appears in that language from the first paint, with no English in between.
+Server rendering and the Nuxt integration wait for it too.
+
+If you mount the `ApiReference` Vue component yourself, await `loadLocale` before mounting, or the
+interface renders in English (with your custom `translations` applied) until the locale arrives. One call
+loads the locale for the API Reference, the embedded API Client and the schema labels:
+
+```javascript
+import { ApiReference, loadLocale } from '@scalar/api-reference'
+import { createApp } from 'vue'
+
+await loadLocale('de')
+
+createApp(ApiReference, {
+  configuration: { url: '/openapi.json', localization: { locale: 'de' } },
+}).mount('#app')
+```
+
+`loadLocale` never rejects. When a locale fails to load, the interface keeps English and tries again
+the next time the locale is requested. If you hydrate server-rendered markup yourself, await `loadLocale`
+with the same locale first.
+
 ## API Client
 
 The embedded API Client accepts overrides under `localization.translations.apiClient`. Pass them to

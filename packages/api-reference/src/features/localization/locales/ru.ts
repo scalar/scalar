@@ -1,5 +1,4 @@
-import { schemaTranslations } from '@scalar/blocks/schema'
-import type { ApiReferenceTranslations } from '@scalar/types/api-reference'
+import type { ReferenceTranslations } from '../translations'
 
 export const ru = {
   common: {
@@ -95,7 +94,6 @@ export const ru = {
     showSchema: 'Показать схему',
     status: 'Статус',
   },
-  schema: schemaTranslations['ru'].schema,
   download: {
     openapi: 'Скачать OpenAPI-документ',
     asyncapi: 'Скачать AsyncAPI-документ',
@@ -271,4 +269,4 @@ export const ru = {
     requires: 'Требуется',
     scopes: 'Области OAuth',
   },
-} satisfies ApiReferenceTranslations
+} satisfies ReferenceTranslations

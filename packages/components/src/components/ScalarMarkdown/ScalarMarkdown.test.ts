@@ -1,5 +1,8 @@
+import { grammarFor } from '@scalar/highlight/compat'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { createSSRApp, h } from 'vue'
+import { renderToString } from 'vue/server-renderer'
 
 import ScalarMarkdown from './ScalarMarkdown.vue'
 
@@ -131,5 +134,36 @@ describe('ScalarMarkdown', () => {
     expect(wrapper.find('p').exists()).toBe(true)
     expect(wrapper.find('code').exists()).toBe(true)
     expect(wrapper.find('code').text()).toBe('Foobar')
+  })
+
+  describe('loading grammars on demand', () => {
+    it('renders a code block plain first and highlights it once the grammar has loaded', async () => {
+      // Grammars stay loaded for the whole file, so check nothing loaded Go already
+      expect(grammarFor('go')).toBeUndefined()
+      const wrapper = mount(ScalarMarkdown, { props: { value: '```go\nfunc main() {}\n```' } })
+
+      expect(wrapper.get('code').html()).toBe('<code class="hljs language-go custom-scroll">func main() {}\n</code>')
+
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+      expect(wrapper.get('code').text()).toBe('func main() {}')
+    })
+
+    it('renders highlighted markup on the server for a grammar that was not loaded', async () => {
+      // The server render has to wait for Dart, so check nothing loaded it already
+      expect(grammarFor('dart')).toBeUndefined()
+      const html = await renderToString(
+        createSSRApp({ render: () => h(ScalarMarkdown, { value: '```dart\nvoid main() {}\n```' }) }),
+      )
+
+      expect(html).toContain('<span class="hljs-built_in">void</span>')
+    })
+
+    it('loads the grammar for a code block in new content', async () => {
+      const wrapper = mount(ScalarMarkdown, { props: { value: 'No code yet' } })
+
+      await wrapper.setProps({ value: '```kotlin\nval answer = 42\n```' })
+
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+    })
   })
 })

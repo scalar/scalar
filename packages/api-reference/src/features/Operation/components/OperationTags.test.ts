@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
 
-import { provideLocalization } from '@/features/localization'
+import { loadLocale, provideLocalization } from '@/features/localization'
 
 import OperationTags from './OperationTags.vue'
 
@@ -40,7 +40,8 @@ describe('OperationTags', () => {
     expect(mount(OperationTags, { props: { document } }).text()).toBe('')
   })
 
-  it('localizes the audience label', () => {
+  it('localizes the audience label', async () => {
+    await loadLocale('de')
     const wrapper = mount(
       defineComponent({
         setup: () => {

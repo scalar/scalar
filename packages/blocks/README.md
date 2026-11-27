@@ -55,13 +55,13 @@ const expansion = useSchemaExpansion(scrollTargetId)
 
 The tree supports nested properties, composition selectors, constraints, examples, and keyboard navigation. Pass schemas from the workspace store to retain resolved references. Display options are typed by `SchemaOptions`.
 
-Translations inherit the host's `@scalar/localization` provider, including locale and custom overrides. Without a provider, labels use English.
+Translations inherit the host's `@scalar/localization` provider, including locale and custom overrides. Without a provider, labels use English. English is bundled; every other built-in locale loads on demand (`schemaLocaleTranslations`), so call `loadLocale` from `@scalar/localization` before mounting to render it on the first paint.
 
 Hosts pass `scrollTargetId`, `specificationExtension`, and `expansion` as props. Create a shared store with `useSchemaExpansion(scrollTargetId)` from `@scalar/blocks/schema/expansion` inside the host’s setup and pass it to each tree. Without an expansion prop, a standalone tree owns its own store. The extension component receives the schema through its `value` prop. Request-body composition selectors share selections with code samples through `REQUEST_BODY_COMPOSITION_INDEX_SYMBOL`.
 
 ### Entry points
 
-- `@scalar/blocks/schema` exposes the schema renderers, rail controls, `SchemaOptions`, translations, `SchemaRenderingProps`, and the composition-selection key.
+- `@scalar/blocks/schema` exposes the schema renderers, rail controls, `SchemaOptions`, translations (`schemaLocaleTranslations`), `SchemaRenderingProps`, and the composition-selection key.
 - `@scalar/blocks/schema/expansion` exposes `useSchemaExpansion`, the expansion store and its controls, and breadcrumb node keys for hosts that render their own schema rows.
 - `@scalar/blocks/schema/helpers` exposes the schema classification, composition, naming, ordering, and keyboard helpers shared with those host rows.
 - `@scalar/blocks/shared` exposes the general-purpose `Badge` and `ScreenReader` components.
