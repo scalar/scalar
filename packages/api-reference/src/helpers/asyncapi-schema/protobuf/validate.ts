@@ -1,39 +1,27 @@
-import type * as protobuf from 'proto-parser'
-
-import { type Definition, isEnum, isMessage } from './ast'
+import {
+  type Definition,
+  type EnumDefinition,
+  type FieldDefinition,
+  type MessageDefinition,
+  enumMax,
+  fieldMax,
+  isEnum,
+  isMessage,
+} from './ast'
 
 const int32Min = -2147483648
-const int32Max = 2147483647
-const fieldMax = 536870911
 
-/** proto-parser stores parsed reserved ranges with inclusive endpoints. Check after all declarations. */
-const isReserved = (
-  definition: protobuf.MessageDefinition | protobuf.EnumDefinition,
-  name: string,
-  id: number,
-): boolean =>
+/** Check inclusive reserved ranges after all declarations are available. */
+const isReserved = (definition: MessageDefinition | EnumDefinition, name: string, id: number): boolean =>
   definition.reserved?.some((range) =>
-    typeof range === 'string'
-      ? range === name
-      : range[0] !== undefined && range[1] !== undefined && range[0] <= id && id <= range[1],
+    typeof range === 'string' ? range === name : range[0] <= id && id <= range[1],
   ) ?? false
 
-const validateReservations = (definition: protobuf.MessageDefinition | protobuf.EnumDefinition): void => {
+const validateReservations = (definition: MessageDefinition | EnumDefinition): void => {
   const minimum = isEnum(definition) ? int32Min : 1
-  const maximum = isEnum(definition) ? int32Max : fieldMax
+  const maximum = isEnum(definition) ? enumMax : fieldMax
   for (const range of definition.reserved ?? []) {
-    // proto-parser collapses enum `max` to the field-number limit; the original endpoint is lost.
-    if (isEnum(definition) && typeof range !== 'string' && range[1] === fieldMax) {
-      throw new Error('Ambiguous Protobuf enum reserved endpoint')
-    }
-    if (
-      typeof range !== 'string' &&
-      (range[0] === undefined ||
-        range[1] === undefined ||
-        range[0] < minimum ||
-        range[1] > maximum ||
-        range[0] > range[1])
-    ) {
+    if (typeof range !== 'string' && (range[0] < minimum || range[1] > maximum || range[0] > range[1])) {
       throw new Error('Invalid Protobuf reserved range')
     }
   }
@@ -90,22 +78,27 @@ export const validateNamespace = (namespace: Definition): void => {
 }
 
 /** Enforce enum value and reservation rules that syntax parsing alone does not guarantee. */
-export const validateEnum = (definition: protobuf.EnumDefinition, version: string): void => {
+export const validateEnum = (definition: EnumDefinition, version: string): void => {
   validateReservations(definition)
   checkOptions(definition.options, ['allow_alias', 'deprecated'])
   const values = Object.entries(definition.values)
   if (!values.length || (version === '3' && values[0]?.[1] !== 0)) {
     throw new Error('Invalid Protobuf first enum value')
   }
+  const numbers = new Set<number>()
   for (const [name, value] of values) {
-    if (value < int32Min || value > int32Max || isReserved(definition, name, value)) {
+    if (numbers.has(value) && definition.options?.allow_alias !== true) {
+      throw new Error('Duplicate Protobuf enum value without allow_alias')
+    }
+    numbers.add(value)
+    if (value < int32Min || value > enumMax || isReserved(definition, name, value)) {
       throw new Error('Invalid or reserved Protobuf enum value')
     }
     checkOptions(definition.valuesOptions?.[name], ['deprecated'])
   }
 }
 
-const validDefault = (field: protobuf.FieldDefinition, target: Definition | null, value: unknown): boolean => {
+const validDefault = (field: FieldDefinition, target: Definition | null, value: unknown): boolean => {
   if (isEnum(target)) {
     return typeof value === 'string' && Object.hasOwn(target.values, value)
   }
@@ -125,7 +118,7 @@ const validDefault = (field: protobuf.FieldDefinition, target: Definition | null
     return value >= 0 && value <= 4294967295
   }
   if (['int32', 'sint32', 'sfixed32'].includes(field.type.value)) {
-    return value >= int32Min && value <= int32Max
+    return value >= int32Min && value <= enumMax
   }
   // Source fallback preserves 64-bit defaults beyond JavaScript's exact numeric range.
   return !['uint64', 'fixed64'].includes(field.type.value) || value >= 0
@@ -133,8 +126,8 @@ const validDefault = (field: protobuf.FieldDefinition, target: Definition | null
 
 /** Check semantic field restrictions without resolving features or generating constructors. */
 export const validateField = (
-  definition: protobuf.MessageDefinition,
-  field: protobuf.FieldDefinition,
+  definition: MessageDefinition,
+  field: FieldDefinition,
   target: Definition | null,
   version: string,
 ): void => {

@@ -401,6 +401,9 @@ catalogs:
     next:
       specifier: ^16.4.6
       version: 16.4.6
+    pbkit:
+      specifier: 0.0.72
+      version: 0.0.72
     picomatch:
       specifier: ^4.0.7
       version: 4.0.7
@@ -410,9 +413,6 @@ catalogs:
     posthog-js:
       specifier: 1.453.2
       version: 1.453.2
-    proto-parser:
-      specifier: 0.0.9
-      version: 0.0.9
     quickjs-emscripten:
       specifier: 0.32.0
       version: 0.32.0
@@ -520,8 +520,8 @@ overrides:
   undici@>=8: ^8.13.1
 
 patchedDependencies:
+  pbkit@0.0.72: 6f0f5f49799b3ba9af2b772128e3d27fd5265e22af0dc38ed909bc36ce3b4901
   postman-collection@5.3.1: b4f135fe799f683b090d71fb24e3416a351cdd03f1870ac9fa23c3e55a3af5e5
-  proto-parser@0.0.9: 9a9f39b59d1e305dc00a2afd937042507255aee61b36f8e56836e83741936aeb
 
 importers:
 
@@ -1740,9 +1740,6 @@ importers:
       nanoid:
         specifier: catalog:*
         version: 6.0.2
-      proto-parser:
-        specifier: catalog:*
-        version: 0.0.9(patch_hash=9a9f39b59d1e305dc00a2afd937042507255aee61b36f8e56836e83741936aeb)
       vue:
         specifier: catalog:*
         version: 3.5.46(typescript@6.0.3)
@@ -1792,6 +1789,9 @@ importers:
       jsdom:
         specifier: catalog:*
         version: 31.0.1(@noble/hashes@1.8.0)
+      pbkit:
+        specifier: catalog:*
+        version: 0.0.72(patch_hash=6f0f5f49799b3ba9af2b772128e3d27fd5265e22af0dc38ed909bc36ce3b4901)
       posthog-js:
         specifier: catalog:*
         version: 1.453.2(@types/react@19.3.0)(react@19.3.1)
@@ -10383,6 +10383,9 @@ packages:
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
+  '@types/emscripten@1.41.6':
+    resolution: {integrity: sha512-uN+9i8bFT5CUcZfyIEYDrSueACEyKGbUs5kC/72DGlZZoinh84sJfVV0i8UOJD1asdzkvLPBRrKs41kZ8MdEXg==}
+
   '@types/eslint@8.56.10':
     resolution: {integrity: sha512-Shavhk87gCtY2fhXDctcfS3e6FdxWkCx1iUZ9eEUbh7rTqlZT0/IzOkCOVt0fCjcFuZ9FPYfuezTBImfHCDBGQ==}
 
@@ -11363,6 +11366,14 @@ packages:
 
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
+
+  '@yarnpkg/fslib@2.10.4':
+    resolution: {integrity: sha512-WhaLwvXEMjCjGxOraQx+Qtmst13iAPOlSElSZfQFdLohva5owlqACRapJ78zZFEW6M9ArqdQlZaHKVN5/mM+SA==}
+    engines: {node: '>=12 <14 || 14.2 - 14.9 || >14.10.0'}
+
+  '@yarnpkg/libzip@2.3.0':
+    resolution: {integrity: sha512-6xm38yGVIa6mKm/DUCF2zFFJhERh/QWp1ufm4cNUvxsONBmfPg8uZ9pZBdOmF6qFGr/HlT6ABBkCSx/dlEtvWg==}
+    engines: {node: '>=12 <14 || 14.2 - 14.9 || >14.10.0'}
 
   abbrev@3.0.1:
     resolution: {integrity: sha512-AO2ac6pjRB3SJmGJo+v5/aK6Omggp6fsLrs6wN9bd35ulu4cCwaAU9+7ZhXjeqHVkaHThLuzH0nZr0YpCDhygg==}
@@ -12505,6 +12516,9 @@ packages:
 
   core-js-compat@3.47.0:
     resolution: {integrity: sha512-IGfuznZ/n7Kp9+nypamBhvwdwLsW6KC8IOaURw2doAK5e98AG3acVLdh0woOnEqCfUtS+Vu882JE4k/DAm3ItQ==}
+
+  core-js@3.34.0:
+    resolution: {integrity: sha512-aDdvlDder8QmY91H88GzNi9EtQi2TjvQhpCX6B1v/dAZHU1AuLgHvRh54RiOerpEhEW46Tkf+vgAViB/CWC0ag==}
 
   core-js@3.49.0:
     resolution: {integrity: sha512-es1U2+YTtzpwkxVLwAFdSpaIMyQaq0PBgm3YD1W3Qpsn1NAmO3KSgZfu+oGSWVu6NvLHoHCV/aYcsE5wiB7ALg==}
@@ -16861,6 +16875,10 @@ packages:
     resolution: {integrity: sha512-//nshmD55c46FuFw26xV/xFAaB5HF9Xdap7HJBBnrKdAd6/GxDBaNA1870O79+9ueg61cZLSVc+OaFlfmObYVQ==}
     engines: {node: '>= 14.16'}
 
+  pbkit@0.0.72:
+    resolution: {integrity: sha512-0UxzLyZF4Zyred7IOGRAGfQj7hmJ8q7eEzRYMNkzsK1HEsTFpyJieynedOoLkWs9H24nEpYcizpXi87dxutBuw==}
+    hasBin: true
+
   pend@1.2.0:
     resolution: {integrity: sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==}
 
@@ -17765,9 +17783,6 @@ packages:
 
   proto-list@1.2.4:
     resolution: {integrity: sha512-vtK/94akxsTMhe0/cbfpR+syPuszcuwhqVjJq26CuNDgFGj682oRBXOP5MJpv2r7JtE8MsiepGIqvvOTBwn2vA==}
-
-  proto-parser@0.0.9:
-    resolution: {integrity: sha512-1rFsUdeZ1bKOGfhy1Pw2RWNiAPj7luwBIFeVSJQXZA2G3sh4a24sHtNgnYfisdi4YvAe7TsDNq1xREos+Iwfww==}
 
   protobufjs@7.6.6:
     resolution: {integrity: sha512-dYDWdjSl5RNb7SgPxGQcRU+GtvP7s2fpkrY0r432PcOIaZ0/rBcxEZnQN67iJhFuQiVw754JDoPruPCNdGsbjg==}
@@ -29708,6 +29723,8 @@ snapshots:
 
   '@types/deep-eql@4.0.2': {}
 
+  '@types/emscripten@1.41.6': {}
+
   '@types/eslint@8.56.10':
     dependencies:
       '@types/estree': 1.0.10
@@ -31099,6 +31116,16 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
+  '@yarnpkg/fslib@2.10.4':
+    dependencies:
+      '@yarnpkg/libzip': 2.3.0
+      tslib: 1.14.1
+
+  '@yarnpkg/libzip@2.3.0':
+    dependencies:
+      '@types/emscripten': 1.41.6
+      tslib: 1.14.1
+
   abbrev@3.0.1: {}
 
   abbrev@5.0.0: {}
@@ -32416,6 +32443,8 @@ snapshots:
   core-js-compat@3.47.0:
     dependencies:
       browserslist: 4.29.5
+
+  core-js@3.34.0: {}
 
   core-js@3.49.0: {}
 
@@ -38769,6 +38798,13 @@ snapshots:
 
   pathval@2.0.1: {}
 
+  pbkit@0.0.72(patch_hash=6f0f5f49799b3ba9af2b772128e3d27fd5265e22af0dc38ed909bc36ce3b4901):
+    dependencies:
+      '@yarnpkg/fslib': 2.10.4
+      '@yarnpkg/libzip': 2.3.0
+      core-js: 3.34.0
+      mri: 1.2.0
+
   pend@1.2.0: {}
 
   perfect-debounce@2.1.0: {}
@@ -39730,8 +39766,6 @@ snapshots:
   property-information@7.2.0: {}
 
   proto-list@1.2.4: {}
-
-  proto-parser@0.0.9(patch_hash=9a9f39b59d1e305dc00a2afd937042507255aee61b36f8e56836e83741936aeb): {}
 
   protobufjs@7.6.6:
     dependencies:

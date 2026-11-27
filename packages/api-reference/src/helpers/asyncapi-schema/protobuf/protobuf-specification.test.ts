@@ -7,7 +7,7 @@ import { readProtobuf } from './protobuf'
 // https://protobuf.dev/reference/protobuf/proto2-spec/
 // https://protobuf.dev/reference/protobuf/proto3-spec/
 // Semantic restrictions also come from the official proto2/proto3 language guides.
-// Syntax parsing alone in protobufjs does not enforce all of these restrictions.
+// Scalar validates semantic restrictions after parsing.
 describe('protobuf-specification', () => {
   it.each([
     'double',
@@ -128,6 +128,33 @@ describe('protobuf-specification', () => {
     expect(result.nodes[0]?.description?.trim()).toBe('A user')
     expect(result.nodes[0]?.children?.[0]?.description?.trim()).toBe('Stable ID')
     expect(result.nodes[0]?.children?.[0]?.details).toStrictEqual(['deprecated: true', 'json_name: "userId"'])
+  })
+
+  it('preserves adjacent block comments and ignores detached block comments', () => {
+    const [node] = readProtobuf(
+      `/** The message.
+       * Second line.
+       */
+      message M {
+        /* The first field.
+           Second line. */
+        string a = 1;
+        /* A detached comment. */
+
+        string b = 2;
+      }`,
+      '3',
+    ).nodes
+    expect(node?.description).toBe('The message.\nSecond line.')
+    expect(node?.children?.map(({ description }) => description)).toStrictEqual([
+      'The first field.\nSecond line.',
+      undefined,
+    ])
+  })
+
+  it('renders a schema with structured file metadata', () => {
+    const source = 'option example = { enabled: true }; message M {}'
+    expect(readProtobuf(source, '3').nodes).toStrictEqual([{ name: 'M', type: 'message M', children: [] }])
   })
 
   it.each([1, 18999, 20000, 536870911])('accepts legal field-number boundary %i', (id) => {
@@ -287,11 +314,37 @@ describe('protobuf-specification', () => {
   ])('does not resolve through unrelated nested scopes or a shadowed prefix: %s', (body) => {
     expect(() => readProtobuf(`syntax = "proto3"; ${body}`, '3')).toThrow()
   })
-  it('falls back when protobufjs loses the enum reserved max endpoint', () => {
-    // protobufjs 7.5.4 parses max as the field limit, not the signed enum limit.
+  it('uses the signed enum maximum for reserved ranges', () => {
+    expect(
+      readProtobuf('syntax = "proto3"; enum E { ZERO = 0; reserved 600000000 to max; }', '3').nodes[0]?.children,
+    ).toStrictEqual([{ name: 'ZERO', type: '0' }])
     expect(() =>
       readProtobuf('syntax = "proto3"; enum E { ZERO = 0; reserved 1 to max; HIGH = 600000000; }', '3'),
     ).toThrow()
+  })
+
+  it.each(['infinite', 'nanoseconds', 'true_value', 'false_value', 'INF'])(
+    'preserves enum defaults whose names start with literal tokens: %s',
+    (name) => {
+      const source = `enum E { ${name} = 1; } message M { optional E value = 1 [default = ${name}]; }`
+      expect(readProtobuf(source, '2').nodes[1]?.children?.[0]?.details).toStrictEqual([`Default: "${name}"`])
+    },
+  )
+
+  it('preserves type names that start with field labels and rejects joined declarations', () => {
+    const source = 'message repeatedItem {} message Inventory { repeatedItem value = 1; }'
+    expect(readProtobuf(source, '3').nodes[1]?.children?.[0]?.type).toBe('message repeatedItem')
+    expect(() => readProtobuf('messageItem {}', '3')).toThrow('Trailing Protobuf source')
+  })
+
+  it('renders compact schemas', () => {
+    expect(readProtobuf('message M{string x=1;}', '3').nodes[0]?.children?.[0]?.name).toBe('x')
+    expect(readProtobuf('message M{}', '3').nodes[0]?.type).toBe('message M')
+  })
+
+  it('rejects a partially parsed file and accepts trailing comments', () => {
+    expect(() => readProtobuf('message M {} garbage', '3')).toThrow('Trailing Protobuf source')
+    expect(readProtobuf('message M {} // trailing comment\n', '3').nodes[0]?.type).toBe('message M')
   })
 
   it('rejects map fields whose generated entry names collide', () => {

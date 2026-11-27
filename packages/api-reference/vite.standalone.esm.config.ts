@@ -1,4 +1,4 @@
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import tailwindcss from '@tailwindcss/vite'
@@ -34,6 +34,9 @@ const replaceVariables = (template: string, variables: Record<string, string>) =
     (content, [key, value]) => content.replace(new RegExp(`\\{\\{ ${key} \\}\\}`, 'g'), value),
     template,
   )
+
+const licenseBanner = replaceVariables(licenseBannerTemplate, { packageName: name, version })
+const parserNotice = `/*!\n${readFileSync(resolve(import.meta.dirname, 'THIRD_PARTY_NOTICES'), 'utf8')}*/\n`
 
 export default defineConfig({
   define: {
@@ -98,7 +101,10 @@ export default defineConfig({
         // Prepend the license banner through Rolldown (not vite-plugin-banner) so the
         // source map stays aligned: Rolldown accounts for the banner in the map,
         // whereas vite-plugin-banner rewrites the file after the map is emitted.
-        banner: replaceVariables(licenseBannerTemplate, { packageName: name, version }),
+        banner: (chunk) =>
+          chunk.moduleIds.some((id) => id.includes('/node_modules/pbkit/'))
+            ? licenseBanner + parserNotice
+            : licenseBanner,
         // Keep the `/*!` license banner through minification. Vite defaults oxc to
         // `legalComments: 'none'`, which would otherwise strip it.
         comments: { legal: true },

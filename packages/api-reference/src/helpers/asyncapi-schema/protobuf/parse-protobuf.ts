@@ -1,0 +1,335 @@
+import type {
+  Constant,
+  Enum,
+  Field,
+  FieldOption,
+  FieldOptions,
+  MapField,
+  Message,
+  Oneof,
+  OneofField,
+  Option,
+  Reserved,
+  SignedIntLit,
+  StatementBase,
+  StrLit,
+} from 'pbkit/core/ast/index.js'
+import { parse } from 'pbkit/core/parser/proto.js'
+
+import {
+  type EnumDefinition,
+  type FieldDefinition,
+  type MessageDefinition,
+  type Reservation,
+  type Scope,
+  enumMax,
+  fieldMax,
+  isScalar,
+} from './ast'
+
+type Syntax = 'proto2' | 'proto3'
+type Options = Record<string, unknown>
+
+/** Syntax and type scope of one file before imports are resolved. */
+export type ProtoDocument = { syntax: Syntax; root: Scope; importCount: number }
+
+const insert = <Value>(entries: Record<string, Value>, key: string, value: Value): void => {
+  if (Object.hasOwn(entries, key)) throw new Error('Duplicate Protobuf declaration')
+  entries[key] = value
+}
+
+const qualifiedName = ({ identOrDots }: { identOrDots: { text: string }[] }): string =>
+  identOrDots.map(({ text }) => text).join('')
+
+const integer = (text: string): number => (/^0[0-7]+$/.test(text) ? Number.parseInt(text, 8) : Number(text))
+
+const signedInteger = ({ sign, value }: SignedIntLit): number => (sign?.text === '-' ? -1 : 1) * integer(value.text)
+
+const escapeCharacters: Record<string, string> = {
+  a: '\x07',
+  b: '\b',
+  f: '\f',
+  n: '\n',
+  r: '\r',
+  t: '\t',
+  v: '\v',
+}
+
+const stringLiteral = ({ tokens }: StrLit): string =>
+  tokens
+    .map(({ text }) =>
+      text.slice(1, -1).replace(/\\(x[\da-f]{2}|[0-7]{1,3}|.)/gi, (_match, escape: string) => {
+        if (escape[0]?.toLowerCase() === 'x') return String.fromCharCode(Number.parseInt(escape.slice(1), 16))
+        if (/^[0-7]/.test(escape)) return String.fromCharCode(Number.parseInt(escape, 8))
+        return escapeCharacters[escape] ?? escape
+      }),
+    )
+    .join('')
+
+const constantValue = (constant: Constant): string | number | boolean => {
+  switch (constant.type) {
+    case 'bool-lit':
+      return constant.text === 'true'
+    case 'full-ident':
+      return qualifiedName(constant)
+    case 'signed-int-lit':
+      return signedInteger(constant)
+    case 'signed-float-lit': {
+      const value = constant.value.text === 'inf' ? Number.POSITIVE_INFINITY : Number(constant.value.text)
+      return constant.sign?.text === '-' ? -value : value
+    }
+    case 'str-lit':
+      return stringLiteral(constant)
+    case 'aggregate':
+      throw new Error('Unsupported aggregate Protobuf option')
+  }
+}
+
+const addOption = (
+  options: Options,
+  { optionName, constant }: FieldOption | Option,
+  scope: 'file' | 'declaration' = 'declaration',
+): void => {
+  const name = optionName.optionNameSegmentOrDots
+    .map((segment) => {
+      if (segment.type === 'dot') return '.'
+      if (segment.bracketOpen) throw new Error('Unsupported custom Protobuf option')
+      return qualifiedName(segment.name)
+    })
+    .join('')
+  // Structured file metadata does not affect the schema view.
+  if (scope === 'file' && constant.type === 'aggregate') return
+  insert<unknown>(options, name, constantValue(constant))
+}
+
+const fieldOptions = (node: FieldOptions | undefined): Options => {
+  const options: Options = Object.create(null)
+  for (const item of node?.fieldOptionOrCommas ?? []) {
+    if (item.type === 'field-option') addOption(options, item)
+  }
+  return options
+}
+
+const description = ({ leadingComments, trailingComments }: StatementBase): string | undefined => {
+  const group = leadingComments.at(-1) ?? trailingComments[0]
+  return (
+    group?.comments
+      .map(({ text, type }) =>
+        type === 'singleline-comment'
+          ? text.replace(/^\/\/\/? ?/, '').trimEnd()
+          : text
+              .slice(2, -2)
+              .split('\n')
+              .map((line) => line.trim().replace(/^\*+\s*/, ''))
+              .join('\n'),
+      )
+      .join('\n')
+      .trim() || undefined
+  )
+}
+
+const reservations = ({ reserved }: Reserved, maximum: number): Reservation[] => {
+  const result: Reservation[] = []
+  if (reserved.type === 'field-names') {
+    for (const name of reserved.strLitOrCommas) {
+      if (name.type === 'str-lit') result.push(stringLiteral(name))
+    }
+  } else {
+    for (const range of reserved.rangeOrCommas) {
+      if (range.type === 'comma') continue
+      const start = signedInteger(range.rangeStart)
+      const end = range.rangeEnd
+      result.push([start, end?.type === 'max' ? maximum : end ? signedInteger(end) : start])
+    }
+  }
+  if (!result.length) throw new Error('Empty Protobuf reservation')
+  return result
+}
+
+const readField = (field: Field | MapField | OneofField, syntax: Syntax): FieldDefinition => {
+  const rule = field.type === 'field' ? field.fieldLabel?.text : undefined
+  if (rule !== undefined && rule !== 'required' && rule !== 'optional' && rule !== 'repeated') {
+    throw new Error('Invalid Protobuf field label')
+  }
+  if (field.type === 'field' && syntax === 'proto2' && !rule) throw new Error('Missing proto2 field label')
+  const map = field.type === 'map-field'
+  const key = map ? qualifiedName(field.keyType) : undefined
+  if (key !== undefined && (!isScalar(key) || ['bytes', 'double', 'float'].includes(key))) {
+    throw new Error('Invalid Protobuf map key')
+  }
+  return {
+    syntaxType: 'FieldDefinition',
+    name: map ? field.mapName.text : field.fieldName.text,
+    id: integer(field.fieldNumber.text),
+    type: { value: qualifiedName(map ? field.valueType : field.fieldType) },
+    rule,
+    repeated: rule === 'repeated',
+    map,
+    ...(key === undefined ? {} : { keyType: { value: key } }),
+    options: fieldOptions(field.fieldOptions),
+    comment: description(field),
+  }
+}
+
+const readEnum = (node: Enum): EnumDefinition => {
+  const options: Options = Object.create(null)
+  const definition: EnumDefinition = {
+    syntaxType: 'EnumDefinition',
+    name: node.enumName.text,
+    comment: description(node),
+    options,
+    values: Object.create(null),
+    comments: Object.create(null),
+    valuesOptions: Object.create(null),
+    reserved: [],
+  }
+  for (const statement of node.enumBody.statements) {
+    switch (statement.type) {
+      case 'option':
+        addOption(options, statement)
+        break
+      case 'reserved':
+        definition.reserved.push(...reservations(statement, enumMax))
+        break
+      case 'enum-field': {
+        const name = statement.fieldName.text
+        insert(definition.values, name, signedInteger(statement.fieldNumber))
+        definition.comments[name] = description(statement)
+        definition.valuesOptions[name] = fieldOptions(statement.fieldOptions)
+        break
+      }
+    }
+  }
+  return definition
+}
+
+const addOneof = (
+  message: MessageDefinition,
+  node: Oneof,
+  syntax: Syntax,
+  addField: (field: FieldDefinition) => void,
+): void => {
+  const options: Options = Object.create(null)
+  const oneof: string[] = []
+  for (const statement of node.oneofBody.statements) {
+    if (statement.type === 'oneof-field') {
+      const field = readField(statement, syntax)
+      addField(field)
+      oneof.push(field.name)
+    } else if (statement.type === 'option') {
+      addOption(options, statement)
+    } else if (statement.type !== 'empty') {
+      throw new Error('Unsupported Protobuf oneof declaration')
+    }
+  }
+  const name = node.oneofName.text
+  insert(message.oneofs, name, { syntaxType: 'OneofDefinition', name, oneof, options })
+}
+
+const readMessage = (node: Message, syntax: Syntax, depth: number): MessageDefinition => {
+  if (depth > 40) throw new Error('Protobuf is too large')
+  const options: Options = Object.create(null)
+  const definition: MessageDefinition = {
+    syntaxType: 'MessageDefinition',
+    name: node.messageName.text,
+    comment: description(node),
+    options,
+    fields: Object.create(null),
+    nested: Object.create(null),
+    oneofs: Object.create(null),
+    reserved: [],
+  }
+  const numbers = new Set<number>()
+  const addField = (field: FieldDefinition): void => {
+    if (numbers.has(field.id)) throw new Error('Duplicate Protobuf field number')
+    numbers.add(field.id)
+    insert(definition.fields, field.name, field)
+  }
+  for (const statement of node.messageBody.statements) {
+    switch (statement.type) {
+      case 'option':
+        addOption(options, statement)
+        break
+      case 'reserved':
+        definition.reserved.push(...reservations(statement, fieldMax))
+        break
+      case 'field':
+      case 'map-field':
+        addField(readField(statement, syntax))
+        break
+      case 'oneof':
+        addOneof(definition, statement, syntax, addField)
+        break
+      case 'message':
+      case 'enum': {
+        const child = statement.type === 'enum' ? readEnum(statement) : readMessage(statement, syntax, depth + 1)
+        insert(definition.nested, child.name, child)
+        break
+      }
+      case 'empty':
+        break
+      default:
+        throw new Error('Unsupported or malformed Protobuf declaration')
+    }
+  }
+  return definition
+}
+
+/** Parse a complete file using pbkit, then retain the fields used by Scalar's schema reader. */
+export const parseProtobuf = (source: string, defaultSyntax: Syntax): ProtoDocument => {
+  const { ast, parser } = parse(source)
+  // pbkit can return an AST for only the valid prefix of a file.
+  if (parser.loc !== source.length) throw new Error('Trailing Protobuf source')
+
+  const declaration = ast.statements[0]
+  const syntax = declaration?.type === 'syntax' ? declaration.syntax.text : defaultSyntax
+  if (syntax !== 'proto2' && syntax !== 'proto3') throw new Error('Unsupported Protobuf syntax')
+
+  const root: Scope = {
+    syntaxType: 'ProtoRoot',
+    name: '',
+    nested: Object.create(null),
+    options: Object.create(null),
+  }
+  let scope: Scope = root
+  let importCount = 0
+  let seenDefinition = false
+  for (const statement of ast.statements) {
+    switch (statement.type) {
+      case 'syntax':
+        if (statement !== declaration) throw new Error('Misplaced Protobuf syntax declaration')
+        break
+      case 'package':
+        if (scope !== root || seenDefinition) throw new Error('Misplaced Protobuf package declaration')
+        for (const name of qualifiedName(statement.fullIdent).split('.')) {
+          const nested: Scope = {
+            syntaxType: 'NamespaceDefinition',
+            name,
+            nested: Object.create(null),
+          }
+          insert(scope.nested, name, nested)
+          scope = nested
+        }
+        break
+      case 'import':
+        if (seenDefinition) throw new Error('Misplaced Protobuf import')
+        importCount++
+        break
+      case 'option':
+        addOption((scope.options ??= Object.create(null)), statement, 'file')
+        break
+      case 'message':
+      case 'enum': {
+        seenDefinition = true
+        const child = statement.type === 'enum' ? readEnum(statement) : readMessage(statement, syntax, 0)
+        insert(scope.nested, child.name, child)
+        break
+      }
+      case 'empty':
+        break
+      default:
+        throw new Error('Unsupported Protobuf declaration')
+    }
+  }
+  return { root, syntax, importCount }
+}

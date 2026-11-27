@@ -1,9 +1,9 @@
 import { protobufImports } from '@scalar/workspace-store/helpers/async-api-schema-resources/protobuf-imports'
 import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
 import { schemaResourcePath } from '@scalar/workspace-store/helpers/async-api-schema-resources/schema-resource-path'
-import { type ProtoDocument, parse } from 'proto-parser'
 
 import type { Definition } from './ast'
+import { type ProtoDocument, parseProtobuf } from './parse-protobuf'
 
 /** File identity and syntax remain available after namespaces are combined. */
 export type ProtobufFile = { document: ProtoDocument; imports: { file: ProtobufFile; public: boolean }[] }
@@ -29,14 +29,7 @@ export const loadProtobufFiles = (
     if (cached) return cached
     if (files.size >= 65) throw new Error('Too many Protobuf dependencies')
     active.add(uri)
-    const document = parse(text, {
-      keepCase: true,
-      alternateCommentMode: true,
-      defaultSyntax: root && version === '3' ? 'proto3' : 'proto2',
-      resolve: false,
-      weakResolve: false,
-    })
-    if (document.syntaxType === 'ProtoError') throw document.error
+    const document = parseProtobuf(text, root && version === '3' ? 'proto3' : 'proto2')
     if (root && document.syntax !== `proto${version}`) throw new Error('Conflicting Protobuf version')
     const file: ProtobufFile = { document, imports: [] }
     files.set(uri, file)
@@ -51,8 +44,7 @@ export const loadProtobufFiles = (
     }
     own(document.root, 0)
     const imports = protobufImports(text)
-    if (imports.length !== (document.imports?.length ?? 0) + (document.weakImports?.length ?? 0))
-      throw new Error('Unsupported Protobuf imports')
+    if (imports.length !== document.importCount) throw new Error('Unsupported Protobuf imports')
     for (const dependency of imports) {
       // Weak-import runtime substitution is outside this documentation reader's supported subset.
       if (dependency.visibility === 'weak' || !resources) throw new Error('Unsupported Protobuf import')

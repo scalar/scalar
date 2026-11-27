@@ -74,14 +74,14 @@ export default defineConfig({
       treeshake: {
         moduleSideEffects: hasModuleSideEffects,
       },
-      // The workspace patch is not installed by npm consumers. Ship the corrected parser.
-      external: (id) => !/^proto-parser(?:\/|$)/.test(id) && external.some((pattern) => pattern.test(id)),
+      // Include only the pbkit parser modules so consumers avoid installing the CLI and its dependencies.
+      external: (id) => !/^pbkit(?:\/|$)/.test(id) && external.some((pattern) => pattern.test(id)),
       output: {
         ...preserveModulesOutput,
         entryFileNames: (chunk) => {
-          const parserPath = chunk.facadeModuleId?.split('/node_modules/proto-parser/')[1]
+          const parserPath = chunk.facadeModuleId?.split('/node_modules/pbkit/')[1]
           // npm excludes nested node_modules directories, including those emitted by preserveModules.
-          return parserPath ? `vendor/proto-parser/${parserPath}` : preserveModulesOutput.entryFileNames(chunk)
+          return parserPath ? `vendor/pbkit/${parserPath}` : preserveModulesOutput.entryFileNames(chunk)
         },
       },
     },

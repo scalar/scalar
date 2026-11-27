@@ -92,8 +92,8 @@ catalogs:
     nanoid: ^6.0.2
     next: ^16.4.6
     neverpanic: 0.0.8
+    pbkit: 0.0.72
     picomatch: ^4.0.7
-    proto-parser: 0.0.9
     postcss: ^8.5.33
     quickjs-emscripten: 0.32.0
     radix-vue: ^1.9.17
@@ -187,5 +187,5 @@ minimumReleaseAgeExclude:
   # Trust packages published by Scalar.
   - '@scalar/*'
 patchedDependencies:
+  pbkit@0.0.72: patches/pbkit@0.0.72.patch
   postman-collection@5.3.1: patches/postman-collection@5.3.1.patch
-  proto-parser@0.0.9: patches/proto-parser@0.0.9.patch

@@ -1,8 +1,7 @@
 import type { AsyncApiSchemaResources } from '@scalar/workspace-store/helpers/async-api-schema-resources/resources'
-import type { EnumDefinition, MessageDefinition } from 'proto-parser'
 
 import { type SchemaDocument, type SchemaNode, createBudget } from '../types'
-import { type Definition, isEnum, isMessage, isScalar } from './ast'
+import { type Definition, type EnumDefinition, type MessageDefinition, isEnum, isMessage, isScalar } from './ast'
 import { loadProtobufFiles, mergeProtobufNamespaces, visibleProtobufFiles } from './load-files'
 import { resolveType } from './resolve-type'
 import { checkOptions, validateEnum, validateField, validateNamespace } from './validate'
@@ -24,9 +23,6 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
       value.fullName = `${namespace.fullName ?? ''}.${value.name}`
       if (value.options && Object.keys(value.options).some((key) => key.startsWith('('))) {
         throw new Error('Unsupported custom Protobuf options')
-      }
-      if (value.syntaxType === 'ServiceDefinition' || value.syntaxType === 'FieldDefinition') {
-        throw new Error('Unsupported Protobuf declaration')
       }
       if (isMessage(value) || isEnum(value)) {
         definitions.push(value)
@@ -81,16 +77,10 @@ export const readProtobuf = (source: unknown, version: string, resources?: Async
       })
       return node
     }
-    if (definition.group || definition.extensions?.length) {
-      throw new Error('Unsupported Protobuf groups or extensions')
-    }
     checkOptions(definition.options, ['deprecated'])
     const path = new Set([...ancestors, definition])
     node.children = Object.values(definition.fields).map((field) => {
       budget(depth + 1)
-      if (field.extend) {
-        throw new Error('Unsupported Protobuf extension')
-      }
       const target = resolveType(definition, field.type.value, parents, accessible)
       if (version === '3' && isEnum(target) && owners.get(target)?.document.syntax === 'proto2')
         throw new Error('Proto3 cannot directly use proto2 enums')
