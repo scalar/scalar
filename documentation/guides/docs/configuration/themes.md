@@ -26,4 +26,6 @@ You can also set `theme` to:
 - the path to a `.css` file in your project, like `"./theme.css"`
 - the slug of one of your team's custom themes
 
+A theme changes how your site looks. To change how it is arranged, such as centering it in one column or showing the content in a raised panel, see [Layouts](layouts.md).
+
 Your documentation site and your API references share the same theme system. To see what each theme looks like, and to customize colors, fonts, and layouts with CSS variables, see the [Themes reference](../../../themes.md).
