@@ -114,24 +114,37 @@ const flattenInline = (nodes) => {
   }
   return out
 }
-const hasLineEnding = (n) => /\r|\n/.test(n.value ?? '') || n.type === 'break' || (n.children ?? []).some(hasLineEnding)
-const text = (n) => n.value ?? (n.children ?? []).map(text).join('')
-/**
- * Blocks inside inline content (a code block in an HTML table cell, say) become inline: each
- * block's content after a line break, and code blocks code spans, whose line endings are spaces
- * where a line ending would end the cell or ATX heading.
- */
-export const inlineBlocks = (nodes, lineEndingsUnsafe = false) =>
+/** Blocks inside inline content (a code block in an HTML table cell, say) become inline. */
+export const inlineBlocks = (nodes) =>
   nodes.map((n) => {
     const copy = { ...n }
-    if (copy.children) {
-      const children = INLINE_PARENTS.has(n.type) ? flattenInline(copy.children) : copy.children
-      const atx = n.type === 'heading' && !((n.depth ?? 1) < 3 && text({ children }) && hasLineEnding({ children }))
-      copy.children = inlineBlocks(children, lineEndingsUnsafe || n.type === 'tableCell' || atx)
-    }
-    if (n.type === 'inlineCode' && lineEndingsUnsafe) copy.value = n.value.replace(/\r\n|\r|\n/g, ' ')
+    if (copy.children)
+      copy.children = inlineBlocks(INLINE_PARENTS.has(n.type) ? flattenInline(copy.children) : copy.children)
     return copy
   })
+
+/** Line endings in code spans are written as the spaces they render as. */
+export const codeSpanSpaces = (nodes) =>
+  nodes.map((n) => {
+    const copy = { ...n }
+    if (n.type === 'inlineCode') copy.value = n.value.replace(/\r\n|\r|\n/g, ' ')
+    if (copy.children) copy.children = codeSpanSpaces(copy.children)
+    return copy
+  })
+
+/**
+ * The serializer's one change to joining, as a `join` handler for upstream: a blank line after a
+ * table, and before a list that cannot interrupt a paragraph, in a tight list.
+ */
+export const joinFix = (left, right, parent) => {
+  if (!('spread' in parent)) return undefined
+  const interrupts = (list) => (!list.ordered || (list.start ?? 1) === 1) && Boolean(list.children[0]?.children.length)
+  if (left.type === 'table' || (left.type === 'paragraph' && right.type === 'list' && !interrupts(right))) return 1
+  return undefined
+}
+
+/** What the serializer does differently from upstream, for any tree, as changes to the tree. */
+export const explainSerializer = (nodes) => codeSpanSpaces(inlineBlocks(nodes))
 
 export const EXPLANATIONS = [
   ['reference link becomes inline link', resolveReferences],
@@ -139,5 +152,6 @@ export const EXPLANATIONS = [
   ['table rows fit the header', fitRows],
   ['line ending in a code span becomes a space', codeSpanLineEndings],
   ['block in inline content written inline', inlineBlocks],
+  ['line ending in a code span written as a space', codeSpanSpaces],
 ]
 export const explain = (nodes) => EXPLANATIONS.reduce((tree, [, change]) => change(tree), nodes)

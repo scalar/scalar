@@ -14,6 +14,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { gfmToMarkdown } from 'mdast-util-gfm'
 import { toMarkdown as toMarkdownLatest } from 'mdast-util-to-markdown-latest'
 
+import { explainSerializer, joinFix } from './copy-explain.mjs'
 import { OUT } from './paths.mjs'
 
 const [count = '100000', corpusPath, limit = '20000', label = 'roundtrip'] = process.argv.slice(2)
@@ -30,6 +31,11 @@ const join = [
 ]
 const serialize = neu.createMarkdownSerializer({ bullet: '-', join })
 const upstream = (tree) => toMarkdownLatest(tree, { bullet: '-', join, extensions: [gfmToMarkdown()] })
+const upstreamFixed = (tree) =>
+  toMarkdownLatest(
+    { ...tree, children: explainSerializer(tree.children) },
+    { bullet: '-', join: [joinFix, ...join], extensions: [gfmToMarkdown()] },
+  )
 
 // Deterministic PRNG (mulberry32), so failures reproduce.
 let seed = 0x5ca1a
@@ -129,6 +135,10 @@ const URLS = [
   '',
   'http://a.b/c?d=e&f=g',
   'x y)z',
+  '<p>x</p>',
+  '<',
+  '<>',
+  'javascript:alert(1)',
 ]
 
 const phrasing = (depth, { inLink = false, breaks = true } = {}) => {
@@ -145,7 +155,8 @@ const phrasing = (depth, { inLink = false, breaks = true } = {}) => {
       out.push({
         type: 'link',
         url: pick(URLS),
-        title: chance(0.3) ? inlineText() : null,
+        // A title can hold blank lines (from an HTML `title`), which a raw one would end the paragraph at.
+        title: chance(0.3) ? textValue() : null,
         children: chance(0.1) ? [] : phrasing(depth + 1, { inLink: true, breaks }),
       })
     } else if (breaks && i > 0 && i < n - 1) out.push({ type: 'break' })
@@ -303,11 +314,32 @@ const markup = (node, out = [], literals = false) => {
   for (const c of (literals && isLiteral(node) ? [] : node.children) ?? []) markup(c, out, literals)
   return out
 }
+/**
+ * What the round trip gained that the tree did not have: raw HTML that is not the tree's own, or a
+ * link (other than an autolink literal) to a URL the tree has no link to.
+ */
+const injection = (tree, back) => {
+  const html = (n, out = []) => {
+    if (n.type === 'html') out.push(n.value)
+    for (const c of n.children ?? []) html(c, out)
+    return out
+  }
+  const urls = (n, out = new Set()) => {
+    if ((n.type === 'link' || n.type === 'image') && !isLiteral(n)) out.add(`${n.type}:${n.url}`)
+    for (const c of n.children ?? []) urls(c, out)
+    return out
+  }
+  const own = html(tree).join('')
+  if (html(back).some((value) => !own.includes(value))) return 'raw HTML'
+  const before = urls(tree)
+  if ([...urls(back)].some((url) => !before.has(url))) return 'link or image'
+  return undefined
+}
 const textOf = (node) => (node.type === 'text' ? node.value : (node.children ?? []).map(textOf).join(''))
 
 const results = {
-  trees: { total: 0, sameAsUpstream: 0, ours: 0, remark: 0, injection: 0 },
-  markdown: { total: 0, sameAsUpstream: 0, ours: 0, remark: 0, injection: 0, skipped: 0 },
+  trees: { total: 0, sameAsUpstream: 0, sameAsUpstreamWithFixes: 0, ours: 0, remark: 0, injection: 0 },
+  markdown: { total: 0, sameAsUpstream: 0, sameAsUpstreamWithFixes: 0, ours: 0, remark: 0, injection: 0, skipped: 0 },
 }
 const failures = { trees: {}, markdown: {} }
 const note = (kind, cls, sample) => {
@@ -316,11 +348,20 @@ const note = (kind, cls, sample) => {
   if (list.samples.length < 10) list.samples.push(sample)
 }
 
+/** What the serializer writes differently on purpose: a link title with line endings, a URL starting with `<`, blank lines in text. */
+const hasIntendedDifference = (node) =>
+  (node.type === 'link' && (/[\r\n]/.test(node.title ?? '') || node.url.startsWith('<'))) ||
+  // A line ending at the start of text can follow another (the paragraph's start, a hard break).
+  (node.type === 'text' && /^(?:\r\n|\r|\n)|(?:\r\n|\r|\n)(?:\r\n|\r|\n)/.test(node.value)) ||
+  (node.children ?? []).some(hasIntendedDifference)
+
 const check = (kind, tree) => {
   const r = results[kind]
   r.total++
   const markdown = serialize(tree)
   if (markdown === upstream(tree)) r.sameAsUpstream++
+  else if (markdown === upstreamFixed(tree)) r.sameAsUpstreamWithFixes++
+  else if (hasIntendedDifference(tree)) r.sameAsUpstreamWithFixes++
   else note(kind, 'PORT DIFFERS FROM UPSTREAM', { tree, markdown, upstream: upstream(tree) })
   const expected = JSON.stringify(comparable(tree))
   for (const [name, parse] of [
@@ -333,17 +374,20 @@ const check = (kind, tree) => {
       continue
     }
     // Text may lose structure (emphasis that cannot close, say), but must never gain markup.
-    const injected = markup(back, [], true).join('\n') !== markup(tree, [], true).join('\n')
-    const literal = !injected && markup(back).join('\n') !== markup(tree).join('\n')
+    const changed = markup(back, [], true).join('\n') !== markup(tree, [], true).join('\n')
+    const literal = !changed && markup(back).join('\n') !== markup(tree).join('\n')
+    const injected = changed ? injection(tree, back) : undefined
     if (injected && name === 'ours') r.injection++
     const cls = `${name}: ${
       injected
-        ? 'MARKUP CHANGED'
-        : literal
-          ? 'text with a literal URL or email became an autolink'
-          : textOf(back) === textOf(tree)
-            ? 'same text, different structure'
-            : 'text changed'
+        ? `INJECTED ${injected}`
+        : changed
+          ? 'markup lost or moved (none gained)'
+          : literal
+            ? 'text with a literal URL or email became an autolink'
+            : textOf(back) === textOf(tree)
+              ? 'same text, different structure'
+              : 'text changed'
     }`
     note(kind, cls, { markdown, tree: injected ? tree : JSON.stringify(tree).slice(0, 3000) })
   }

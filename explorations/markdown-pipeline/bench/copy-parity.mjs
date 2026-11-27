@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { gfmToMarkdown } from 'mdast-util-gfm'
 import { toMarkdown as toMarkdownLatest } from 'mdast-util-to-markdown-latest'
 
-import { EXPLANATIONS } from './copy-explain.mjs'
+import { EXPLANATIONS, explainSerializer, joinFix } from './copy-explain.mjs'
 import { OUT } from './paths.mjs'
 
 const [corpusPath = `${OUT}apis-guru.json`, label = 'apis-guru', limit] = process.argv.slice(2)
@@ -38,6 +38,9 @@ const serializers = Object.fromEntries(
       neu: neu.createMarkdownSerializer(options),
       // What `remark-stringify` does with the current `mdast-util-to-markdown` (2.1.2), which the port follows.
       latest: (tree) => toMarkdownLatest(tree, { ...options, extensions: [gfmToMarkdown()] }),
+      // The same with the serializer's join fix, so only the tree fixes are left to explain.
+      latestJoined: (tree) =>
+        toMarkdownLatest(tree, { ...options, join: [joinFix, ...(options.join ?? [])], extensions: [gfmToMarkdown()] }),
     },
   ]),
 )
@@ -99,7 +102,13 @@ const corpus = (limit ? raw.slice(0, Number(limit)) : raw).map((entry) => (Array
 
 const oldParser = old.createDescriptionParser()
 const newParser = neu.createDescriptionParser()
-const stats = { total: 0, paths: {}, identical: 0, classes: {}, serializerPort: { checked: 0, identical: 0 } }
+const stats = {
+  total: 0,
+  paths: {},
+  identical: 0,
+  classes: {},
+  serializerPort: { checked: 0, identical: 0, identicalWithFixes: 0 },
+}
 const samples = {}
 const record = (cls, sample) => {
   stats.classes[cls] = (stats.classes[cls] ?? 0) + 1
@@ -141,7 +150,10 @@ for (const [value, source] of corpus) {
     stats.serializerPort.checked++
     const latest = s.latest({ type: 'root', children: newNodes })
     if (latest === after) stats.serializerPort.identical++
-    else if (portMismatches.length < 50) portMismatches.push({ value, source, options: name, latest, after })
+    else if (s.latestJoined({ type: 'root', children: explainSerializer(newNodes) }) === after) {
+      // The tree needed one of the two fixes to upstream: blocks in inline content, or line endings in code spans.
+      stats.serializerPort.identicalWithFixes++
+    } else if (portMismatches.length < 50) portMismatches.push({ value, source, options: name, latest, after })
 
     if (name !== 'openapi') continue
     if (before === after) {
@@ -158,7 +170,7 @@ for (const [value, source] of corpus) {
       tree = next
     }
     const explained = s.old({ type: 'root', children: tree })
-    const upstream = has(tree, UNSUPPORTED) ? undefined : s.latest({ type: 'root', children: tree })
+    const upstream = has(tree, UNSUPPORTED) ? undefined : s.latestJoined({ type: 'root', children: tree })
     if (explained === after || upstream === after) {
       if (explained !== after) steps.push('serializer: mdast-util-to-markdown 2.1.2 attention encoding')
       sample.roundTrip = { before: roundTrips(before, tree), after: roundTrips(after, tree) }

@@ -12,16 +12,18 @@
  * The fidelity errors of `problems()` (`restructured`, `reparse not stable`, `unbalanced`,
  * `unclosed`) are about how the HTML nests, not what it can do, and are ignored.
  *
- *   node bench/copy-security.mjs [vectors.json]
+ *   node bench/copy-security.mjs [vectors.json] [old | new]
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 
 import { OUT } from './paths.mjs'
 import { problems } from './security.mjs'
 
-const [vectorsPath = `${OUT}sanitizer-vectors.json`] = process.argv.slice(2)
+const [vectorsPath = `${OUT}sanitizer-vectors.json`, only] = process.argv.slice(2)
 const vectors = JSON.parse(readFileSync(vectorsPath, 'utf8'))
 const sides = { old: await import(`${OUT}copy-old.mjs`), new: await import(`${OUT}copy-new.mjs`) }
+/** The checks render and parse with both sides' code, so both are loaded; `only` limits which side serializes. */
+const serializing = only ? { [only]: sides[only] } : sides
 
 const CONTEXTS = {
   raw: (v) => v,
@@ -81,7 +83,7 @@ const join = [
 const results = {}
 const hits = []
 const started = Date.now()
-for (const [name, side] of Object.entries(sides)) {
+for (const [name, side] of Object.entries(serializing)) {
   const serialize = side.createMarkdownSerializer({ bullet: '-', join })
   const parser = side.createDescriptionParser()
   const r = (results[name] = {
@@ -121,15 +123,62 @@ for (const [name, side] of Object.entries(sides)) {
       for (const [check, errors] of Object.entries(found)) {
         if (!errors.length) continue
         r[check]++
-        if (hits.length < 2000)
+        if (r[check] <= 500) {
           hits.push({ side: name, check, source, context, vector, markdown, errors: [...new Set(errors)] })
+        }
       }
     }
   }
 }
+// Values the packages build nodes from directly (schema defaults, enum values, server URLs,
+// names), with the node helpers of packages/openapi-to-markdown/src/markdown-nodes.ts.
+const text = (value) => ({ type: 'text', value: String(value).replace(/[\t\n\f\r ]+/g, ' ') })
+const inlineCode = (value) => ({ type: 'inlineCode', value: String(value) })
+const paragraph = (...children) => ({ type: 'paragraph', children })
+const item = (...children) => ({ type: 'listItem', spread: false, children })
+const VALUES = {
+  'inline code': (v) => [paragraph(text('Default: '), inlineCode(v))],
+  'inline code with blank lines': (v) => [paragraph(inlineCode(`x\n\n\n${v}\n\ny`))],
+  'inline code in a list item': (v) => [
+    { type: 'list', ordered: false, spread: false, children: [item(paragraph(inlineCode(v), text(` ${v}`)))] },
+  ],
+  heading: (v) => [{ type: 'heading', depth: 3, children: [text(v)] }],
+  link: (v) => [paragraph({ type: 'link', url: urlAllowed(v) ? v : '', children: [text(v)] })],
+}
+for (const [name, side] of Object.entries(serializing)) {
+  const serialize = side.createMarkdownSerializer({ bullet: '-', join })
+  const r = (results[`${name}, values`] = { values: 0, unsanitized: 0, ourTree: 0, remarkTree: 0, threw: 0 })
+  for (const [vector, source] of vectors) {
+    for (const [context, build] of Object.entries(VALUES)) {
+      r.values++
+      let markdown
+      try {
+        markdown = serialize({ type: 'root', children: build(vector) })
+      } catch (error) {
+        r.threw++
+        hits.push({ side: name, source, context, vector, error: String(error) })
+        continue
+      }
+      const found = {
+        unsanitized: problems(sides.new.htmlFromMarkdown(markdown, { unsafe: true }), REMOVED).filter(
+          (e) => !FIDELITY.test(e),
+        ),
+        ourTree: treeProblems(sides.new.parseMarkdown(markdown)),
+        remarkTree: treeProblems(sides.old.parseMarkdown(markdown)),
+      }
+      for (const [check, errors] of Object.entries(found)) {
+        if (!errors.length) continue
+        r[check]++
+        if (r[check] <= 200)
+          hits.push({ side: `${name}, values`, check, source, context, vector, markdown, errors: [...new Set(errors)] })
+      }
+    }
+  }
+}
+
 results.seconds = Math.round((Date.now() - started) / 1000)
 console.log(JSON.stringify(results, null, 2))
-for (const name of Object.keys(sides)) {
+for (const name of Object.keys(results)) {
   const mine = hits.filter((h) => h.side === name)
   if (mine.length) console.log(name, 'first hit:', JSON.stringify(mine[0], null, 2))
 }
