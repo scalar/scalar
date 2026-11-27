@@ -3,7 +3,7 @@ import { EditorView } from '@codemirror/view'
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 
-import { useCodeMirror } from '../hooks/useCodeMirror'
+import { useCodeMirror } from '../index'
 
 describe('useCodeMirror', () => {
   it('should initialize with basic configuration', () => {

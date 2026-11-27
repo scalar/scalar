@@ -43,11 +43,11 @@ import { ScalarIconArrowElbowDownLeft } from '@scalar/icons'
 import {
   colorPicker as colorPickerExtension,
   EditorView,
-  useCodeMirror,
   useDropdown,
   type CodeMirrorLanguage,
   type Extension,
 } from '@scalar/use-codemirror'
+import { useCodeMirrorEditor } from '@scalar/use-codemirror/editor'
 import {
   CONTEXT_FUNCTION_NAMES,
   getContextFunctionComment,
@@ -82,6 +82,7 @@ const {
   lint = false,
   lineWrapping = false,
   language,
+  createEditor,
   extensions = [],
   disableTabIndent = false,
   disableEnter = false,
@@ -137,6 +138,8 @@ type Props = {
   lineWrapping?: boolean
   /** CodeMirror language mode */
   language?: CodeMirrorLanguage
+  /** Editor hook used to configure the built-in language modes. */
+  createEditor?: typeof useCodeMirrorEditor
   /** Additional CodeMirror extensions */
   extensions?: Extension[]
   /** Disable tab key for indentation */
@@ -327,7 +330,9 @@ const serializeValue = (value: CodeInputModelValue): string => {
   return JSON.stringify(value)
 }
 
-const { codeMirror, setCodeMirrorContent } = useCodeMirror({
+const { codeMirror, setCodeMirrorContent } = (
+  createEditor ?? useCodeMirrorEditor
+)({
   content: toRef(() => serializeValue(modelValue)),
   onChange: (value) => {
     handleChange(value)

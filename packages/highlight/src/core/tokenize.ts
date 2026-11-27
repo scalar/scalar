@@ -4,124 +4,146 @@ import type { CompiledGrammar, CompiledRule, CompiledState, Emit, Token } from '
 import { REMEMBERED } from './types'
 
 /**
- * Runs the state machine over `code`, calling `emit` for every range.
- *
- * Ranges are emitted in order and cover the input exactly — concatenating
- * every emitted slice reproduces the source. Nothing is allocated per token,
- * which is why the HTML renderer can build its output in a single pass.
+ * Creates a scanner that can pause between grammar matches. Each advance still
+ * matches against the complete source, so lookaheads and embedded code see the
+ * same context as a single scan. Returns the offset reached, which can pass the
+ * requested offset when a match spans it.
  */
-export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): void => {
+export const createTokenizer = (code: string, grammar: CompiledGrammar, emit: Emit): Advance =>
+  createScanner(code, grammar, emit, 0)
+
+type Advance = (through?: number) => number
+
+const createScanner = (code: string, grammar: CompiledGrammar, emit: Emit, depth: number): Advance => {
   const len = code.length
   const stack: CompiledState[] = [grammar.root]
   // What each stack entry remembered (see `Rule.remember`), in step with `stack`.
   const memory: string[] = ['']
   let top = grammar.root
   let pos = 0
+  let embedded: { stop: number; advance: Advance } | undefined
   // Zero-length matches are legal (a pure state transition on a lookahead),
   // but a rule that neither consumes nor eventually changes state would spin.
   let spin = 0
 
-  while (pos < len) {
-    if (top.embed !== null) {
-      pos = embedded(code, pos, top, memory[memory.length - 1]!, grammar, emit)
-      // An embedding state pops itself. A rule that `set` into it from the
-      // only state on the stack leaves nothing below, so the root takes over.
-      if (stack.length > 1) {
-        stack.length -= 1
-        memory.length -= 1
-      } else {
-        stack[0] = grammar.root
-        memory[0] = ''
+  return (through = len) => {
+    const limit = Math.min(through, len)
+    while (pos < limit) {
+      if (top.embed !== null) {
+        embedded ??= createEmbeddedScanner(code, pos, top, memory[memory.length - 1]!, grammar, emit, depth)
+        pos = embedded.advance(limit)
+        if (pos < embedded.stop) {
+          break
+        }
+        embedded = undefined
+        // An embedding state pops itself. A rule that `set` into it from the
+        // only state on the stack leaves nothing below, so the root takes over.
+        if (stack.length > 1) {
+          stack.length -= 1
+          memory.length -= 1
+        } else {
+          stack[0] = grammar.root
+          memory[0] = ''
+        }
+        top = stack[stack.length - 1]!
+        continue
       }
-      top = stack[stack.length - 1]!
-      continue
-    }
 
-    const dyn = top.dynamic === null ? null : dynamicRegExps(top, memory[memory.length - 1]!)
-    const re = dyn === null ? top.re : dyn.re
-    re.lastIndex = pos
-    const m = re.exec(code)
-    if (m === null) {
-      break
-    }
-
-    const start = m.index
-    if (start > pos) {
-      emit(top.default, pos, start)
-      pos = start
-    }
-
-    const rules = top.rules
-    let rule: CompiledRule | undefined
-    let index = 0
-    for (; index < rules.length; index++) {
-      if (m[rules[index]!.group] !== undefined) {
-        rule = rules[index]
+      const dyn = top.dynamic === null ? null : dynamicRegExps(top, memory[memory.length - 1]!)
+      const re = dyn === null ? top.re : dyn.re
+      re.lastIndex = pos
+      const m = re.exec(code)
+      if (m === null) {
+        emit(top.default, pos, len)
+        pos = len
         break
       }
-    }
-    if (rule === undefined) {
-      break // unreachable: some alternative matched
-    }
 
-    const end = start + m[0].length
-    if (end > start) {
-      if (rule.captures !== null) {
-        // Only rules that use the remembered text are rebuilt per value; the
-        // rest of a dynamic state's capture rules keep their own pattern.
-        emitCaptures(code, start, rule, dyn?.own[index] ?? rule.own!, top, emit)
-      } else {
-        emit(rule.scope ?? top.default, start, end)
+      const start = m.index
+      if (start > pos) {
+        emit(top.default, pos, start)
+        pos = start
+      }
+
+      const rules = top.rules
+      let rule: CompiledRule | undefined
+      let index = 0
+      for (; index < rules.length; index++) {
+        if (m[rules[index]!.group] !== undefined) {
+          rule = rules[index]
+          break
+        }
+      }
+      if (rule === undefined) {
+        emit(top.default, pos, len)
+        pos = len
+        break // unreachable: some alternative matched
+      }
+
+      const end = start + m[0].length
+      if (end > start) {
+        if (rule.captures !== null) {
+          // Only rules that use the remembered text are rebuilt per value; the
+          // rest of a dynamic state's capture rules keep their own pattern.
+          emitCaptures(code, start, rule, dyn?.own[index] ?? rule.own!, top, emit)
+        } else {
+          emit(rule.scope ?? top.default, start, end)
+        }
+      }
+
+      // Read before the stack changes: an entered state inherits the memory of
+      // the state that entered it unless the rule remembers something new.
+      let remembered = memory[memory.length - 1]!
+      if (rule.remember > 0) {
+        // The merged regex captures only which rule won, so the group comes from
+        // the rule's own pattern, re-run where the merged one matched.
+        const own = dyn?.own[index] ?? rule.own!
+        own.lastIndex = start
+        const text = own.exec(code)?.[rule.remember] ?? ''
+        remembered = rule.rememberIndent ? ' '.repeat(text.length) : text
+      }
+
+      if (rule.pop > 0) {
+        // Never pop the root state off.
+        const n = Math.min(rule.pop, stack.length - 1)
+        stack.length -= n
+        memory.length -= n
+        if (rule.remember === 0) {
+          remembered = memory[memory.length - 1]!
+        }
+      }
+      if (rule.set !== null) {
+        stack[stack.length - 1] = grammar.states[rule.set]!
+        memory[memory.length - 1] = remembered
+      }
+      if (rule.push !== null) {
+        stack.push(grammar.states[rule.push]!)
+        memory.push(remembered)
+      }
+      top = stack[stack.length - 1]!
+
+      if (end > pos) {
+        pos = end
+        spin = 0
+      } else if (++spin > 32) {
+        // Give up on the cycle and consume a whole code point so we always
+        // terminate — stepping by one UTF-16 unit could bisect a surrogate pair.
+        const step = code.codePointAt(pos)! > 0xffff ? 2 : 1
+        emit(top.default, pos, pos + step)
+        pos += step
+        spin = 0
       }
     }
 
-    // Read before the stack changes: an entered state inherits the memory of
-    // the state that entered it unless the rule remembers something new.
-    let remembered = memory[memory.length - 1]!
-    if (rule.remember > 0) {
-      // The merged regex captures only which rule won, so the group comes from
-      // the rule's own pattern, re-run where the merged one matched.
-      const own = dyn?.own[index] ?? rule.own!
-      own.lastIndex = start
-      const text = own.exec(code)?.[rule.remember] ?? ''
-      remembered = rule.rememberIndent ? ' '.repeat(text.length) : text
-    }
-
-    if (rule.pop > 0) {
-      // Never pop the root state off.
-      const n = Math.min(rule.pop, stack.length - 1)
-      stack.length -= n
-      memory.length -= n
-      if (rule.remember === 0) {
-        remembered = memory[memory.length - 1]!
-      }
-    }
-    if (rule.set !== null) {
-      stack[stack.length - 1] = grammar.states[rule.set]!
-      memory[memory.length - 1] = remembered
-    }
-    if (rule.push !== null) {
-      stack.push(grammar.states[rule.push]!)
-      memory.push(remembered)
-    }
-    top = stack[stack.length - 1]!
-
-    if (end > pos) {
-      pos = end
-      spin = 0
-    } else if (++spin > 32) {
-      // Give up on the cycle and consume a whole code point so we always
-      // terminate — stepping by one UTF-16 unit could bisect a surrogate pair.
-      const step = code.codePointAt(pos)! > 0xffff ? 2 : 1
-      emit(top.default, pos, pos + step)
-      pos += step
-      spin = 0
-    }
+    return pos
   }
+}
 
-  if (pos < len) {
-    emit(top.default, pos, len)
-  }
+/**
+ * Runs the state machine over `code`, emitting ordered ranges that cover the input exactly.
+ */
+export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): void => {
+  createTokenizer(code, grammar, emit)()
 }
 
 /**
@@ -133,26 +155,23 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
  */
 const MAX_EMBED_DEPTH = 8
 
-/** How many embedded bodies are being tokenized right now, one inside another. */
-let depth = 0
-
 /**
- * Tokenizes the body of an embedding state with its language and returns the
- * position after it.
+ * Prepares a resumable scan of an embedding state with its language.
  *
  * The body runs to the first match of the state's `until`, which is left for
  * the state below to tokenize. The slice is tokenized on its own, so the
  * embedded grammar starts in its root state and cannot read past the body —
  * an unterminated string in a `<script>` cannot swallow the `</script>`.
  */
-const embedded = (
+const createEmbeddedScanner = (
   code: string,
   pos: number,
   state: CompiledState,
   remembered: string,
   host: CompiledGrammar,
   emit: Emit,
-): number => {
+  depth: number,
+): { stop: number; advance: Advance } => {
   const embedding = state.embed!
   const { boundary, holes, language, validate } = embedding
   boundary.lastIndex = pos
@@ -165,15 +184,23 @@ const embedded = (
     found = boundary.exec(code)
   }
   const stop = found === null ? code.length : found.index
+  let unscopedPosition = pos
+  const advanceUnscoped: Advance = (through = stop) => {
+    const end = Math.min(through, stop)
+    if (end > unscopedPosition) {
+      emit(state.default, unscopedPosition, end)
+      unscopedPosition = end
+    }
+    return unscopedPosition
+  }
   if (stop === pos) {
-    return pos
+    return { stop, advance: advanceUnscoped }
   }
   // `{{remembered}}` takes the language from the text the entering rule
   // remembered, which is how a Markdown fence names its language at runtime.
   const grammar = getLanguage(language === REMEMBERED ? remembered : language)
   if (grammar === undefined || depth >= MAX_EMBED_DEPTH) {
-    emit(state.default, pos, stop)
-    return stop
+    return { stop, advance: advanceUnscoped }
   }
 
   const body = code.slice(pos, stop)
@@ -186,18 +213,12 @@ const embedded = (
           : body,
       )
     } catch {
-      emit(state.default, pos, stop)
-      return stop
+      return { stop, advance: advanceUnscoped }
     }
   }
 
-  depth += 1
-  try {
-    withHoles(body, pos, grammar, embedding, host, emit)
-  } finally {
-    depth -= 1
-  }
-  return stop
+  const scan = createScannerWithHoles(body, pos, grammar, embedding, host, emit, depth + 1)
+  return { stop, advance: (through = stop) => pos + scan(through - pos) }
 }
 
 /**
@@ -211,14 +232,15 @@ const embedded = (
  * text. An escape can instead keep the embedded scope across line breaks
  * and emit only selected text as punctuation.
  */
-const withHoles = (
+const createScannerWithHoles = (
   body: string,
   offset: number,
   grammar: CompiledGrammar,
   { holes, preserveHoleScope, holePunctuation }: NonNullable<CompiledState['embed']>,
   host: CompiledGrammar,
   emit: Emit,
-): void => {
+  depth: number,
+): Advance => {
   // Flat [start, end, …] offsets for text that overrides the embedded scope.
   const ranges: number[] = []
   const pieces: string[] = []
@@ -251,31 +273,40 @@ const withHoles = (
   }
   const masked = cursor === 0 ? body : pieces.join('') + body.slice(cursor)
   if (ranges.length === 0) {
-    tokenize(masked, grammar, (scope, from, to) => emit(scope, from + offset, to + offset))
-    return
+    return createScanner(masked, grammar, (scope, from, to) => emit(scope, from + offset, to + offset), depth)
   }
 
   let next = 0
   // Everything before `done` has been emitted, by one grammar or the other.
   let done = 0
-  tokenize(masked, grammar, (scope, from, to) => {
-    for (let at = Math.max(from, done); at < to; at = done) {
-      const start = ranges[next] ?? to
-      if (start <= at) {
-        const end = ranges[next + 1]!
-        if (preserveHoleScope) {
-          emit('punctuation', start + offset, end + offset)
+  return createScanner(
+    masked,
+    grammar,
+    (scope, from, to) => {
+      for (let at = Math.max(from, done); at < to; at = done) {
+        const start = ranges[next] ?? to
+        if (start <= at) {
+          const end = ranges[next + 1]!
+          if (preserveHoleScope) {
+            emit('punctuation', start + offset, end + offset)
+          } else {
+            createScanner(
+              body.slice(start, end),
+              host,
+              (s, a, b) => emit(s, a + start + offset, b + start + offset),
+              depth,
+            )()
+          }
+          next += 2
+          done = end
         } else {
-          tokenize(body.slice(start, end), host, (s, a, b) => emit(s, a + start + offset, b + start + offset))
+          done = Math.min(to, start)
+          emit(scope, at + offset, done + offset)
         }
-        next += 2
-        done = end
-      } else {
-        done = Math.min(to, start)
-        emit(scope, at + offset, done + offset)
       }
-    }
-  })
+    },
+    depth,
+  )
 }
 
 /**

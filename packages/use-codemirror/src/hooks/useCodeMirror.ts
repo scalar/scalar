@@ -1,13 +1,10 @@
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
 import { history, historyKeymap, indentWithTab, insertNewline } from '@codemirror/commands'
-import { css } from '@codemirror/lang-css'
-import { html } from '@codemirror/lang-html'
 import { json } from '@codemirror/lang-json'
 import { xml } from '@codemirror/lang-xml'
 import { yaml } from '@codemirror/lang-yaml'
 import {
   type LanguageSupport,
-  type StreamLanguage,
   bracketMatching,
   defaultHighlightStyle,
   foldGutter,
@@ -46,6 +43,9 @@ import { variables } from './variables'
  */
 // @ts-expect-error this is the workaround suggested by codemirror
 EditorView.EDIT_CONTEXT = false
+
+/** Language factories used when configuring a CodeMirror instance. */
+export type CodeMirrorLanguageExtensions = Partial<Record<CodeMirrorLanguage, () => LanguageSupport>>
 
 type BaseParameters = {
   /** Element Ref to mount codemirror to */
@@ -108,8 +108,9 @@ const selectAllKeyBinding: KeyBinding = {
 }
 
 /** Reactive CodeMirror Integration */
-export const useCodeMirror = (
+export const useCodeMirrorEditor = (
   params: UseCodeMirrorParameters,
+  languageExtensions: CodeMirrorLanguageExtensions = editorLanguages,
 ): {
   setCodeMirrorContent: (content?: string) => void
   codeMirror: Ref<EditorView | null>
@@ -178,6 +179,7 @@ export const useCodeMirror = (
       const provider = hasProvider(params) ? toValue(params.provider) : null
       const extensions = getCodeMirrorExtensions({
         ...extensionConfig.value,
+        languageExtensions,
         provider,
       })
 
@@ -218,6 +220,7 @@ export const useCodeMirror = (
       const provider = hasProvider(params) ? toValue(params.provider) : null
       const extensions = getCodeMirrorExtensions({
         ...extensionConfig.value,
+        languageExtensions,
         provider,
       })
 
@@ -256,15 +259,8 @@ export const useCodeMirror = (
 
 // ---------------------------------------------------------------------------
 
-const languageExtensions: {
-  [lang in CodeMirrorLanguage]: () => LanguageSupport | StreamLanguage<any>
-} = {
-  html: html,
-  json: json,
-  yaml: yaml,
-  css: css,
-  xml: xml,
-}
+/** The language modes used by the API Client request editor. */
+export const editorLanguages = { json, xml, yaml } satisfies CodeMirrorLanguageExtensions
 
 /** Generate  the list of extension from parameters */
 function getCodeMirrorExtensions({
@@ -273,6 +269,7 @@ function getCodeMirrorExtensions({
   onFocus,
   provider,
   language,
+  languageExtensions,
   classes = [],
   readOnly = false,
   lineNumbers = false,
@@ -288,6 +285,7 @@ function getCodeMirrorExtensions({
 }: {
   classes?: string[]
   language?: CodeMirrorLanguage
+  languageExtensions: CodeMirrorLanguageExtensions
   readOnly?: boolean
   lineNumbers?: boolean
   disableCloseBrackets?: boolean
@@ -467,8 +465,10 @@ function getCodeMirrorExtensions({
   }
 
   // Syntax highlighting
-  if (language && languageExtensions[language]) {
-    extensions.push(languageExtensions[language]())
+  const languageExtension =
+    language && Object.hasOwn(languageExtensions, language) ? languageExtensions[language] : undefined
+  if (languageExtension) {
+    extensions.push(languageExtension())
     if (!forceFoldGutter) {
       extensions.push(
         foldGutter({

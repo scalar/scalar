@@ -53,7 +53,7 @@ import {
   type MultipartBodyValue,
 } from '@/v2/blocks/request-block/helpers/multipart-body'
 import { getStructuredBodyCodec } from '@/v2/blocks/request-block/helpers/structured-body-codec'
-import { CodeInput } from '@/v2/components/code-input'
+import CodeInput from '@/v2/components/code-input/CodeInput.vue'
 import {
   DataTable,
   DataTableHeader,
