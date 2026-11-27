@@ -3,7 +3,7 @@
  */
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { type Mock, afterEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import { toast } from 'vue-sonner'
 
 import { type ToastFunction, useToasts } from '../hooks/useToasts'
@@ -150,6 +150,28 @@ describe('ScalarToasts', () => {
       await flushPromises()
       expect(dialog.querySelector('.scalar-toaster-layer')).toBeNull()
       expect(document.querySelector('.scalar-toaster-layer')).not.toBeNull()
+    })
+
+    it('stays home when the modal is unmounted right after the toast fires', async () => {
+      stubPseudoClasses(stubPopover())
+      const toasts = captureToastCallback()
+      const isModalOpen = ref(true)
+      const Page = defineComponent({
+        setup: () => () => [h(ScalarToasts), isModalOpen.value ? h('dialog', { open: '' }) : null],
+      })
+      mount(Page, { attachTo: document.body })
+      await flushPromises()
+
+      toasts.callback()('Successfully updated password')
+      isModalOpen.value = false
+      await flushPromises()
+
+      expect(document.querySelector('dialog')).toBeNull()
+      expect(document.querySelector('.scalar-toaster-layer')?.isConnected).toBe(true)
+      expect(vi.mocked(toast)).toHaveBeenCalledWith('Successfully updated password', {
+        duration: 3000,
+        description: undefined,
+      })
     })
   })
 })
