@@ -361,7 +361,7 @@ export const parseProtobuf = (source: string, defaultSyntax: Syntax): ProtoDocum
   if (parser.loc !== source.length) throw new Error('Trailing Protobuf source')
 
   const declaration = ast.statements[0]
-  const syntax = declaration?.type === 'syntax' ? declaration.syntax.text : defaultSyntax
+  const syntax = declaration?.type === 'syntax' ? stringLiteral(declaration.syntax) : defaultSyntax
   if (syntax !== 'proto2' && syntax !== 'proto3') throw new Error('Unsupported Protobuf syntax')
 
   const root: Scope = {
@@ -377,8 +377,6 @@ export const parseProtobuf = (source: string, defaultSyntax: Syntax): ProtoDocum
     switch (statement.type) {
       case 'syntax':
         if (statement !== declaration) throw new Error('Misplaced Protobuf syntax declaration')
-        if (statement.quoteOpen.text !== statement.quoteClose.text)
-          throw new Error('Malformed Protobuf syntax declaration')
         break
       case 'package': {
         if (scope !== root || seenDefinition) throw new Error('Misplaced Protobuf package declaration')

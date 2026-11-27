@@ -630,6 +630,11 @@ describe('protobuf-specification', () => {
     ])
   })
 
+  it.each(['2', '3'])('decodes adjacent string literals in a proto%s syntax declaration', (version) => {
+    const source = `syntax = "proto" '${version}'; message M { optional string value = 1; }`
+    expect(readProtobuf(source, version).nodes[0]?.children?.[0]?.name).toBe('value')
+  })
+
   it('renders compact schemas', () => {
     expect(readProtobuf('message M{string x=1;}', '3').nodes[0]?.children?.[0]?.name).toBe('x')
     expect(readProtobuf('message M{}', '3').nodes[0]?.type).toBe('message M')

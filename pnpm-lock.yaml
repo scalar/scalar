@@ -520,7 +520,7 @@ overrides:
   undici@>=8: ^8.13.1
 
 patchedDependencies:
-  pbkit@0.0.72: 4624ce5f7ccd9ce1e03a652dc66c44f36700bb4b15861cd5e54dbd2557552da5
+  pbkit@0.0.72: f1ea41e2ab71d087e363515cac8bb1edaddd95f9c0c591159d00145b794b9215
   postman-collection@5.3.1: b4f135fe799f683b090d71fb24e3416a351cdd03f1870ac9fa23c3e55a3af5e5
 
 importers:
@@ -1791,7 +1791,7 @@ importers:
         version: 31.0.1(@noble/hashes@1.8.0)
       pbkit:
         specifier: catalog:*
-        version: 0.0.72(patch_hash=4624ce5f7ccd9ce1e03a652dc66c44f36700bb4b15861cd5e54dbd2557552da5)
+        version: 0.0.72(patch_hash=f1ea41e2ab71d087e363515cac8bb1edaddd95f9c0c591159d00145b794b9215)
       posthog-js:
         specifier: catalog:*
         version: 1.453.2(@types/react@19.3.0)(react@19.3.1)
@@ -38798,7 +38798,7 @@ snapshots:
 
   pathval@2.0.1: {}
 
-  pbkit@0.0.72(patch_hash=4624ce5f7ccd9ce1e03a652dc66c44f36700bb4b15861cd5e54dbd2557552da5):
+  pbkit@0.0.72(patch_hash=f1ea41e2ab71d087e363515cac8bb1edaddd95f9c0c591159d00145b794b9215):
     dependencies:
       '@yarnpkg/fslib': 2.10.4
       '@yarnpkg/libzip': 2.3.0
