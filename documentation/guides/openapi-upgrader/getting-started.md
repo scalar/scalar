@@ -75,6 +75,11 @@ console.log(locations)
 `consumes` and `produces` media types. Both default to `application/json`; form
 parameters use form-compatible types and fall back to `multipart/form-data`.
 
+For `kind: 'document'`, the optional `sourceUrl` supplies the description's retrieval URL.
+When an OpenAPI 2.0 description sets `host` and omits `schemes`, the upgrader
+uses the retrieval URL's HTTP or HTTPS scheme for the generated server URL.
+The fallback is HTTP when the description has no HTTP or HTTPS retrieval URL.
+
 The result contains:
 
 - `value`: the converted API description or fragment. Literal examples, defaults,

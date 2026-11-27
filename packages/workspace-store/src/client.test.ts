@@ -1080,6 +1080,25 @@ describe('create-workspace-store', () => {
     }
   })
 
+  it('inherits HTTPS for a prefetched OpenAPI 2.0 description that omits schemes', async () => {
+    const document = {
+      swagger: '2.0',
+      info: { title: 'Orders API', version: '1.0' },
+      host: 'api.example.test',
+      basePath: '/api',
+      paths: { '/orders': { get: { responses: { '200': { description: 'OK' } } } } },
+    }
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'orders',
+      url: 'https://docs.example.test/swagger.json',
+      response: Response.json(document),
+    })
+
+    expect(getOpenApiDocument(store, 'orders')?.servers).toStrictEqual([{ url: 'https://api.example.test/api' }])
+  })
+
   it('load files form the remote url', async () => {
     // Send the default document
     server.get('/', (_, reply) => {

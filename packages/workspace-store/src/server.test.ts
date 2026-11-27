@@ -71,6 +71,32 @@ describe('create-server-store', () => {
     expect(clientDocument['x-original-oas-version']).toBe('3.0.4')
   })
 
+  it('inherits HTTPS when the server store loads an OpenAPI 2.0 description that omits schemes', async () => {
+    const document = {
+      swagger: '2.0',
+      info: { title: 'Orders API', version: '1.0' },
+      host: 'api.example.test',
+      basePath: '/api',
+      paths: { '/orders': { get: { responses: { '200': { description: 'OK' } } } } },
+    }
+    const fetchDocument = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json(document))
+
+    try {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'orders', url: 'https://docs.example.test/swagger.json' }],
+        documentLoading: { allowPrivateNetworks: true },
+      })
+
+      expect(getOpenApiServerDocument(store, 'orders')?.servers).toStrictEqual([
+        { url: 'https://api.example.test/api' },
+      ])
+    } finally {
+      fetchDocument.mockRestore()
+    }
+  })
+
   it('preserves Paths Object extensions when externalizing operations', () => {
     const extensions = {
       'x-origins': ['https://example.com'],

@@ -18,6 +18,31 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.swagger).toBeUndefined()
   })
 
+  // Keep the converter a one-argument callback so collection indexes and keys cannot become retrieval context.
+  it('upgrades descriptions when passed directly to Array.map', () => {
+    const descriptions = [
+      { swagger: '2.0', host: 'api.example.com', basePath: '/v1' },
+      { swagger: '2.0', host: 'api.example.com', basePath: '/v2' },
+    ]
+
+    const upgraded = descriptions.map(upgradeFromTwoToThree)
+
+    expect(upgraded.map((document) => document.servers)).toStrictEqual([
+      [{ url: 'http://api.example.com/v1' }],
+      [{ url: 'http://api.example.com/v2' }],
+    ])
+    expect(upgradeFromTwoToThree.length).toBe(1)
+  })
+
+  it('uses the default HTTP scheme when passed directly to Map.forEach', () => {
+    const description: Record<string, unknown> = { swagger: '2.0', host: 'api.example.com', basePath: '/v1' }
+    const descriptions = new Map([['https://docs.example.com/swagger.json', description]])
+
+    descriptions.forEach(upgradeFromTwoToThree)
+
+    expect(description.servers).toStrictEqual([{ url: 'http://api.example.com/v1' }])
+  })
+
   it('upgrades URLs to new server syntax', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

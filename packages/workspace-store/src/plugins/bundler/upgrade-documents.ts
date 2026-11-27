@@ -208,7 +208,13 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
       if (!from || metadata(document)) {
         return document
       }
-      const result = await upgradeFragment(document, { from, to: '3.1', kind: 'document', resolveSource })
+      const result = await upgradeFragment(document, {
+        from,
+        to: '3.1',
+        kind: 'document',
+        sourceUrl: uri,
+        resolveSource,
+      })
       if (!isObject(result.value)) {
         return result.value
       }

@@ -52,6 +52,36 @@ describe('upgrade-fragment', () => {
     )
   })
 
+  const host = 'api.example.com'
+  const httpsSource = { sourceUrl: 'https://docs.example.com/swagger.json' }
+  const httpServer = 'http://api.example.com/v1'
+  const httpsServer = 'https://api.example.com/v1'
+
+  it.each([
+    [httpsSource, { host }, [httpsServer]],
+    [{ sourceUrl: 'HTTPS://docs.example.com/swagger.json' }, { host }, [httpsServer]],
+    [{ sourceUrl: 'http://docs.example.com/swagger.json' }, { host }, [httpServer]],
+    [{ sourceUrl: 'file:///docs/swagger.json' }, { host }, [httpServer]],
+    [{ sourceUrl: '/docs/swagger.json' }, { host }, [httpServer]],
+    [{}, { host }, [httpServer]],
+    [httpsSource, {}, ['/v1']],
+    [httpsSource, { host, schemes: ['http', 'wss'] }, [httpServer, 'wss://api.example.com/v1']],
+    [httpsSource, { host, schemes: [] }, [httpServer]],
+  ])('uses retrieval context %j and description fields %j to generate servers %j', async (retrieval, fields, urls) => {
+    const info = { title: 'Test', version: '1' }
+    const { value } = await upgradeFragment(
+      { swagger: '2.0', info, paths: {}, basePath: '/v1', ...fields },
+      { from: '2.0', to: '3.1', kind: 'document', ...retrieval },
+    )
+
+    expect(value).toStrictEqual({
+      openapi: '3.1.1',
+      info,
+      paths: {},
+      servers: urls.map((url) => ({ url })),
+    })
+  })
+
   it('upgrades a 2.0 path item including query, header and body parameters', async () => {
     const result = await upgradeFragment(
       {

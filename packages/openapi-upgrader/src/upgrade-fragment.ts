@@ -39,6 +39,8 @@ export type FragmentUpgradeOptions = {
   from: '2.0' | '3.0'
   to: '3.1'
   kind: FragmentKind
+  /** Retrieval URL for a complete OpenAPI 2.0 description with `host` and omitted `schemes`. */
+  sourceUrl?: string
   consumes?: readonly string[]
   produces?: readonly string[]
   /**
@@ -92,6 +94,15 @@ type FragmentTraversalContext = {
 /** Define authored keys without invoking inherited setters. */
 const setOwn = (target: UnknownObject, key: string, value: unknown): void => {
   Object.defineProperty(target, key, { value, enumerable: true, configurable: true, writable: true })
+}
+
+/** Local paths and malformed source URLs use the converter's HTTP fallback. */
+const isHttpsRetrievalUrl = (sourceUrl?: string): boolean => {
+  try {
+    return sourceUrl !== undefined && new URL(sourceUrl).protocol === 'https:'
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -198,6 +209,16 @@ export const upgradeFragment = async (
       }
       // The existing document converter owns root-only metadata such as servers and security schemes.
       const { paths, definitions, parameters, responses, components, ...metadata } = result
+      // OpenAPI 2.0 inherits the retrieval scheme when schemes is absent. The converter already defaults to HTTP.
+      if (
+        v2 &&
+        metadata.swagger === '2.0' &&
+        metadata.host &&
+        metadata.schemes === undefined &&
+        isHttpsRetrievalUrl(options.sourceUrl)
+      ) {
+        metadata.schemes = ['https']
+      }
       result = v2 ? upgradeFromTwoToThree(metadata) : result
       result.openapi = '3.1.1'
       if (v2 && isObject(definitions)) {
