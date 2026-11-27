@@ -46,10 +46,14 @@ const qualifiedName = ({ identOrDots }: { identOrDots: { text: string }[] }): st
 
 const integer = (text: string): number => (/^0[0-7]+$/.test(text) ? Number.parseInt(text, 8) : Number(text))
 
-const signedInteger = ({ sign, value }: SignedIntLit, context: 'declaration' | 'option' = 'declaration'): number => {
-  if (context === 'declaration' && sign?.text === '+') throw new Error('Malformed Protobuf integer')
-  return (sign?.text === '-' ? -1 : 1) * integer(value.text)
+const numericSign = (sign: SignedIntLit['sign']): number => {
+  if (sign?.text === '+') {
+    throw new Error('Unexpected plus sign in Protobuf numeric value')
+  }
+  return sign?.text === '-' ? -1 : 1
 }
+
+const signedInteger = ({ sign, value }: SignedIntLit): number => numericSign(sign) * integer(value.text)
 
 const escapeCharacters: Record<string, string> = {
   a: '\x07',
@@ -92,11 +96,9 @@ const constantValue = (constant: Constant, scalarDefault: boolean): string | num
       return name
     }
     case 'signed-int-lit':
-      return signedInteger(constant, 'option')
-    case 'signed-float-lit': {
-      const value = floatValue(constant.value.text)
-      return constant.sign?.text === '-' ? -value : value
-    }
+      return signedInteger(constant)
+    case 'signed-float-lit':
+      return numericSign(constant.sign) * floatValue(constant.value.text)
     case 'str-lit':
       return stringLiteral(constant)
     case 'aggregate':

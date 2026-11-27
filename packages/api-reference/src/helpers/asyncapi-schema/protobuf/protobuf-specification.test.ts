@@ -153,6 +153,14 @@ describe('protobuf-specification', () => {
   })
 
   it.each([
+    ['// Date saved.\u2028Always in UTC.', 'Date saved.\u2028Always in UTC.'],
+    ['/* Date saved.\u2029Always in UTC. */', 'Date saved.\u2029Always in UTC.'],
+  ])('preserves Unicode separators in Protobuf comments', (comment, description) => {
+    const source = `${comment}\nmessage M {}`
+    expect(readProtobuf(source, '3').nodes[0]?.description).toBe(description)
+  })
+
+  it.each([
     '{ flags { enabled: true }, second: false, }',
     String.raw`{ number: 0x10, symbol: "\u002a", extra: -inf }`,
     'true.foo',
@@ -413,6 +421,8 @@ describe('protobuf-specification', () => {
     [String.raw`\U0001F600`, '😀'],
     [String.raw`\xA`, '\n'],
     [String.raw`\41`, '!'],
+    [String.raw`\x414`, 'A4'],
+    [String.raw`\1014`, 'A4'],
   ])('renders a proto2 default with escape %s', (literal, value) => {
     const source = `message M { optional string x = 1 [default = "${literal}"]; }`
     expect(readProtobuf(source, '2').nodes[0]?.children?.[0]?.details).toStrictEqual([
@@ -483,6 +493,14 @@ describe('protobuf-specification', () => {
   ])('preserves a proto2 %s default written as %s', (type, value, display) => {
     const source = `message M { optional ${type} x = 1 [default = ${value}]; }`
     expect(readProtobuf(source, '2').nodes[0]?.children?.[0]?.details).toStrictEqual([`Default: ${display}`])
+  })
+
+  it.each([
+    ['2', 'message M { optional int32 x = 1 [default = +1]; }'],
+    ['2', 'message M { optional double x = 1 [default = +1.5]; }'],
+    ['3', 'option optimize_for = +1; message M {}'],
+  ])('rejects numeric options with an explicit plus sign in proto%s: %s', (version, source) => {
+    expect(() => readProtobuf(source, version)).toThrow()
   })
 
   it('rejects an unquoted boolean as a proto2 string default', () => {

@@ -31,7 +31,7 @@ describe('published-parser', () => {
     }
   })
 
-  it('includes the pbkit notice in the npm package', { timeout: 60_000 }, () => {
+  it('includes the pbkit notice and reader modules in the npm package', { timeout: 60_000 }, () => {
     const [pack]: [{ files: { path: string }[] }] = JSON.parse(
       execSync('npm pack --dry-run --ignore-scripts --offline --json', {
         cwd: resolve(import.meta.dirname, '..'),
@@ -39,7 +39,17 @@ describe('published-parser', () => {
         timeout: 45_000,
       }),
     )
-    expect(pack.files.map(({ path }) => path)).toContain('THIRD_PARTY_NOTICES')
+    expect(pack.files.map(({ path }) => path)).toEqual(
+      expect.arrayContaining([
+        'THIRD_PARTY_NOTICES',
+        'dist/helpers/asyncapi-schema/protobuf/protobuf.js',
+        'dist/vendor/pbkit/core/parser/misc.js',
+        'dist/vendor/pbkit/core/parser/proto.js',
+        'dist/vendor/pbkit/core/parser/recursive-descent-parser.js',
+        'dist/vendor/pbkit/core/parser/textproto.js',
+        'dist/vendor/pbkit/core/runtime/async/event-emitter.js',
+      ]),
+    )
   })
 
   it('ships the parser for consumers without the pbkit package installed', { timeout: 30_000 }, async () => {
