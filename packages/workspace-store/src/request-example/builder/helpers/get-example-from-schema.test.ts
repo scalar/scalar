@@ -3198,6 +3198,40 @@ describe('getExampleFromSchema', () => {
     expect(Object.keys(example as object).length).toBe(1_000)
   })
 
+  it('counts only serialized dictionary entries toward the bounds', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      maxProperties: 2,
+      properties: { visible: { type: 'null' } },
+      patternProperties: { '^hidden': { type: 'string', writeOnly: true } },
+      additionalProperties: { type: 'string' },
+    }
+
+    const example = getExampleFromSchema(schema, { mode: 'read' })
+    expect(JSON.parse(JSON.stringify(example))).toStrictEqual({ visible: null, additionalProperty: '' })
+  })
+
+  it('uses allowed keys when adding entries after a custom name', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      propertyNames: { type: 'string', enum: ['memory', 'disk', 'cpu'] },
+      additionalProperties: { type: 'integer', 'x-additionalPropertiesName': 'cpu' },
+    }
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({ cpu: 1, memory: 1 })
+  })
+
+  it('counts untyped dictionary entries against the example traversal budget', () => {
+    const dictionary: SchemaObject = { type: 'object', minProperties: 1_000, additionalProperties: true }
+    const names = Array.from({ length: 12 }, (_, index) => `dictionary${index}`)
+    const properties = Object.fromEntries(names.map((name) => [name, dictionary]))
+    const schema: SchemaObject = { type: 'object', properties }
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(Object.fromEntries(names.map((name) => [name, {}])))
+  })
+
   describe('additionalProperties', () => {
     it('allows any additonalProperty', () => {
       expect(

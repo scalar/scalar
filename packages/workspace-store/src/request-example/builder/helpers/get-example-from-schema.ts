@@ -974,7 +974,7 @@ const handleObjectSchema = (
   if (!required && 'additionalProperties' in schema && schema.additionalProperties) {
     const minProperties = readLengthBound(schema.minProperties, 0)
     const maxProperties = readLengthBound(schema.maxProperties, Number.POSITIVE_INFINITY)
-    const propertyCount = Object.keys(response).length
+    const propertyCount = Object.values(response).filter((value) => value !== undefined).length
     // Keep the usual single placeholder when the schema leaves room for one.
     const additionalCount = Math.min(
       Math.max(1, minProperties - propertyCount),
@@ -996,30 +996,41 @@ const handleObjectSchema = (
           ? additional['x-additionalPropertiesName']
           : undefined
       const preferredName = typeof customName === 'string' ? customName.trim() : ''
-      const propertyNamesEnum = preferredName ? undefined : getPropertyNamesEnumValues(schema)
-      const baseName = preferredName || DEFAULT_ADDITIONAL_PROPERTIES_NAME
-      const candidateCount = propertyNamesEnum?.length ?? Number.POSITIVE_INFINITY
+      const propertyNamesEnum = preferredName && additionalCount === 1 ? undefined : getPropertyNamesEnumValues(schema)
+      const usePreferredName =
+        preferredName !== '' && (!propertyNamesEnum || propertyNamesEnum.some((name) => String(name) === preferredName))
+      const baseName = usePreferredName ? preferredName : DEFAULT_ADDITIONAL_PROPERTIES_NAME
+      const enumOffset = Number(usePreferredName)
+      const candidateCount = propertyNamesEnum ? propertyNamesEnum.length + enumOffset : Number.POSITIVE_INFINITY
       const declaredProperties = schema.properties ?? {}
 
       let remaining = additionalCount
       for (let index = 0; remaining > 0 && index < candidateCount; index++) {
         const suffix = index === 0 ? '' : String(index + 1)
-        const key = propertyNamesEnum ? String(propertyNamesEnum[index]) : baseName + suffix
+        const enumIndex = index - enumOffset
+        const key = propertyNamesEnum && enumIndex >= 0 ? String(propertyNamesEnum[enumIndex]) : baseName + suffix
         if (Object.hasOwn(response, key) || Object.hasOwn(declaredProperties, key)) {
           continue
         }
         // The first enum key historically used the placeholder path for composition selection.
         const pathName = propertyNamesEnum && remaining === additionalCount ? baseName : key
-        const value =
-          !isAnyType && typeof additional === 'object'
-            ? getExampleFromSchema(additional, options, {
-                level: level + 1,
-                schemaPath: [...schemaPath, pathName],
-                name: key,
-                seen,
-                dynamicScope: childScope,
-              })
-            : 'anything'
+        let value: unknown = 'anything'
+        if (!isAnyType && typeof additional === 'object') {
+          value = getExampleFromSchema(additional, options, {
+            level: level + 1,
+            schemaPath: [...schemaPath, pathName],
+            name: key,
+            seen,
+            dynamicScope: childScope,
+          })
+        } else {
+          // An untyped placeholder does not visit a child schema, but still expands the example.
+          visitsLeft--
+        }
+        if (visitsLeft < 0) {
+          truncated = true
+          break
+        }
         // A dictionary key can have the same name as a property on Object.prototype.
         Object.defineProperty(response, key, { value, enumerable: true, configurable: true, writable: true })
         remaining--
