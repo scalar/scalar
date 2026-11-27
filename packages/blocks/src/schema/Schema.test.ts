@@ -435,53 +435,57 @@ describe('Schema', () => {
       expect(text).not.toContain('Base class for all searchable entities.')
     })
 
+    const coreRef = { $ref: '#/components/schemas/DistributionChainLinkCore' }
+    const requestFields = { type: 'object', properties: { entityType: { type: 'string' } } }
+    const choiceOptions = [
+      { type: 'object', properties: { choiceField: { type: 'string' } } },
+      { type: 'object', properties: { alternativeField: { type: 'string' } } },
+    ]
+
     it.each([
-      [
-        'a referenced base first',
-        {
-          description: 'Request desc',
-          allOf: [
-            { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
-            { type: 'object', properties: { entityType: { type: 'string' } } },
-          ],
-        },
-      ],
-      [
-        'the members reversed',
-        {
-          description: 'Request desc',
-          allOf: [
-            { type: 'object', properties: { entityType: { type: 'string' } } },
-            { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
-          ],
-        },
-      ],
+      ['a referenced base first', { allOf: [coreRef, requestFields] }, ['entityType', 'salesBranchId']],
+      ['the members reversed', { allOf: [requestFields, coreRef] }, ['entityType', 'salesBranchId']],
       [
         'an object type on the parent',
-        {
-          type: 'object',
-          description: 'Request desc',
-          allOf: [
-            { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
-            { type: 'object', properties: { entityType: { type: 'string' } } },
-          ],
-        },
+        { type: 'object', allOf: [coreRef, requestFields] },
+        ['entityType', 'salesBranchId'],
+      ],
+      ['a nested allOf', { allOf: [{ allOf: [coreRef] }, requestFields] }, ['entityType', 'salesBranchId']],
+      [
+        'an intervening oneOf',
+        { allOf: [requestFields, { oneOf: choiceOptions }, coreRef] },
+        ['entityType', 'choiceField', 'salesBranchId'],
       ],
       [
-        'a nested allOf',
-        {
-          description: 'Request desc',
-          allOf: [
-            {
-              allOf: [
-                { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
-                { type: 'object', properties: { entityType: { type: 'string' } } },
-              ],
-            },
-          ],
-        },
+        'an intervening anyOf',
+        { allOf: [requestFields, { anyOf: choiceOptions }, coreRef] },
+        ['entityType', 'choiceField', 'salesBranchId'],
       ],
-    ])('shows only the own description of an allOf schema with %s', (_, schema) => {
+    ])('shows only the parent description for allOf with %s', async (_, schema, fieldOrder) => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'models',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Example', version: '1.0.0' },
+          paths: {},
+          components: {
+            schemas: {
+              DistributionChainLinkCore: {
+                type: 'object',
+                description: 'Core desc',
+                properties: { salesBranchId: { type: 'string' } },
+              },
+              DistributionChainLinkRequest: { description: 'Request desc', ...schema },
+            },
+          },
+        },
+      })
+      const document = store.workspace.documents.models
+      if (!isOpenApiDocument(document)) {
+        throw new Error('Expected an OpenAPI document')
+      }
+
       const wrapper = mount(Schema, {
         props: {
           scrollTargetId: scrollTargetId.value,
@@ -489,7 +493,7 @@ describe('Schema', () => {
           level: 1,
           noncollapsible: true,
           hideHeading: true,
-          schema: coerceValue(SchemaObjectSchema, schema),
+          schema: getResolvedRef(document.components?.schemas?.DistributionChainLinkRequest),
           options: {},
         },
       })
@@ -498,8 +502,45 @@ describe('Schema', () => {
 
       expect(text.split('Request desc').length - 1).toBe(1)
       expect(text).not.toContain('Core desc')
-      expect(text).toContain('salesBranchId')
-      expect(text).toContain('entityType')
+      expect(text.match(/salesBranchId|entityType|choiceField/g)).toStrictEqual(fieldOrder)
+    })
+
+    it.each([
+      [
+        'a primitive',
+        {
+          allOf: [
+            { type: 'string', description: 'Member description' },
+            { type: 'string', minLength: 1 },
+          ],
+        },
+      ],
+      [
+        'an array with composed items',
+        {
+          type: 'array',
+          allOf: [
+            { type: 'array', description: 'Member description', minItems: 1 },
+            { type: 'array', maxItems: 5 },
+          ],
+          items: { allOf: [{ type: 'string' }, { type: 'string', minLength: 1 }] },
+        },
+      ],
+    ])('shows the allOf parent description once for %s', (_, schema) => {
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          level: 1,
+          noncollapsible: true,
+          hideHeading: true,
+          schema: coerceValue(SchemaObjectSchema, { description: 'Parent description', ...schema }),
+          options: {},
+        },
+      })
+
+      const text = wrapper.text()
+      expect(text.split('Parent description').length - 1).toBe(1)
+      expect(text).not.toContain('Member description')
     })
 
     it('shows the parent description for discriminator-based oneOf schemas', () => {

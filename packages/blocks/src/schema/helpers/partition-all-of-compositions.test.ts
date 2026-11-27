@@ -46,6 +46,21 @@ describe('partitionAllOfCompositions', () => {
     expect(segments[0]?.kind === 'object' && segments[0].schema.description).toBe('Core desc')
   })
 
+  it.each(['oneOf', 'anyOf'] as const)('keeps member descriptions after a leading %s picker', (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      description: 'Request desc',
+      allOf: [
+        { [keyword]: [{ type: 'object' }, { type: 'string' }] },
+        { type: 'object', description: 'Core desc', properties: { salesBranchId: { type: 'string' } } },
+      ],
+    })
+
+    const { segments } = partitionAllOfCompositions(schema)
+
+    expect(segments.map((segment) => segment.kind)).toStrictEqual(['object', 'choice', 'object'])
+    expect(segments[2]?.kind === 'object' && segments[2].schema.description).toBe('Core desc')
+  })
+
   it('returns a single object segment when there is no allOf', () => {
     const schema = { type: 'object', properties: { id: { type: 'string' } } } as SchemaObject
     const { segments } = partitionAllOfCompositions(schema)
