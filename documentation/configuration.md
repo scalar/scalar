@@ -1293,9 +1293,13 @@ Please note: You may not use just any reverse proxy, but need to use a proxy tha
 
 **Type:** `string[]`
 
-Explicit HTTP or HTTPS origins on your development network. Scalar sends API and OAuth requests to these origins directly when a remote proxy is configured. A same-origin proxy or a proxy that Scalar treats as local remains eligible. The authorization popup and device verification links accept HTTP on a listed origin. OAuth metadata URLs follow their own TLS requirements.
+Explicit HTTP or HTTPS origins on your development network. Requests from the API Client and OAuth requests to these origins bypass remote proxies. A same-origin proxy or a proxy that Scalar treats as local remains eligible. The authorization popup and device verification links accept HTTP on a listed origin. OAuth metadata URLs follow their own TLS requirements.
 
-Each entry matches the scheme, hostname, and port. Configure the option in your Scalar application configuration and include the origin of the token endpoint if it differs from the authorization endpoint. Direct requests are subject to browser CORS and mixed-content rules. Use HTTPS for identity providers that handle real credentials.
+Use one exact origin per entry, with the scheme, literal hostname, and port if needed. A trailing slash is optional. List each subdomain explicitly, without wildcards. Scalar ignores entries with paths, query strings, fragments, or credentials.
+
+Configure the option in your Scalar application configuration and include the origin of the token endpoint if it differs from the authorization endpoint. Direct requests are subject to browser CORS and mixed-content rules. Use HTTPS for identity providers that handle real credentials.
+
+API description fetching, temporary share-link uploads, and requests sent by Scalar Agent use the standard proxy rules.
 
 ```javascript
 {
