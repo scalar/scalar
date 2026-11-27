@@ -194,6 +194,8 @@ export class BlockParser {
   readonly refs: Refs = new Map()
   readonly footnotes = new Set<string>()
   private inline = new InlineParser(this.refs, this.footnotes)
+  /** Empty cells tables may still be padded with in this document. */
+  private paddingBudget = 0
 
   /** `htmlAsText`: raw HTML in the input is literal text, for Markdown found inside raw HTML. */
   constructor(options?: { htmlAsText?: boolean }) {
@@ -205,6 +207,11 @@ export class BlockParser {
   }
 
   parse(input: string): Root {
+    // Generated content may not outgrow the input: padding cells and reference expansion each get
+    // the input's length, or 100,000 for small documents.
+    const budget = Math.max(input.length, 100_000)
+    this.paddingBudget = budget
+    this.inline.referenceBudget = budget
     const lines = input.replace(/^\ufeff/, '').split(/\r\n|\r|\n/)
     this.unterminated = lines.at(-1) !== ''
     if (!this.unterminated) lines.pop()
@@ -452,8 +459,11 @@ export class BlockParser {
         TABLE_DELIM.test(rest) &&
         !/^[-+*][ \t]+\S/.test(rest)
       ) {
-        const lines = container.content.replace(/\n$/, '').split('\n')
-        const header = lines.at(-1)!
+        // Only the last line can be the header. Splitting the whole paragraph for every
+        // delimiter-like line was quadratic in a long paragraph.
+        const content = container.content.endsWith('\n') ? container.content.slice(0, -1) : container.content
+        const lastBreak = content.lastIndexOf('\n')
+        const header = content.slice(lastBreak + 1)
         const align = splitRow(rest).map((d) => {
           const l = d.startsWith(':')
           const r = d.endsWith(':')
@@ -464,7 +474,7 @@ export class BlockParser {
         const head = trim(header, ' \t')
         if (head !== '' && head !== '|' && splitRow(header).length === align.length) {
           this.closeUnmatchedBlocks()
-          const before = lines.slice(0, -1)
+          const before = lastBreak === -1 ? [] : content.slice(0, lastBreak).split('\n')
           const table = this.node('table', this.lineNumber - 1)
           table.parent = container.parent
           table.align = align
@@ -775,7 +785,11 @@ export class BlockParser {
         const width = b.align!.length
         const rows = b.rows!.map((r) => {
           const cells = splitRow(r).slice(0, width)
-          while (cells.length < width) cells.push('')
+          // Short rows are padded to the header's width, within a budget, as in cmark-gfm: a wide
+          // header over many short rows would otherwise turn kilobytes into hundreds of megabytes.
+          const missing = Math.min(width - cells.length, this.paddingBudget)
+          this.paddingBudget -= Math.max(missing, 0)
+          for (let k = 0; k < missing; k++) cells.push('')
           return {
             type: 'tableRow' as const,
             children: cells.map((c) => ({ type: 'tableCell' as const, children: this.inline.parse(c) })),

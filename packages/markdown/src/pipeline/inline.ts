@@ -141,6 +141,14 @@ export class InlineParser {
    */
   private noTicks = new Map<number, number>()
   private noCommentAfter = -1
+  /** Characters references may still expand to in this document; the block parser sets it. */
+  referenceBudget = Number.POSITIVE_INFINITY
+  /** Like `noCommentAfter`, for `<?` with no `?>` and `<!X` with no `>` after it. */
+  private noInstructionAfter = -1
+  private noDeclarationAfter = -1
+  private noCdataAfter = -1
+  /** Caches that keep autolink-literal scans linear within one parse. */
+  private literalMemo: LiteralMemo = newLiteralMemo()
   private literals: Literals | null = null
   /** Raw HTML is literal text when inline Markdown runs inside raw HTML. */
   htmlAsText = false
@@ -161,6 +169,10 @@ export class InlineParser {
     this.brackets = null
     this.noTicks.clear()
     this.noCommentAfter = -1
+    this.noInstructionAfter = -1
+    this.noDeclarationAfter = -1
+    this.noCdataAfter = -1
+    this.literalMemo = newLiteralMemo()
     const root: N = { type: 'root' }
     while (this.pos < this.s.length) this.parseInline(root)
     this.processEmphasis(null)
@@ -231,7 +243,14 @@ export class InlineParser {
         if (!m) return append(block, text((this.pos++, c)))
         // Stop the run where an autolink literal could start, so it is tried there.
         const cut = this.literals
-          ? literalCandidate(this.s, start + 1, this.pos, this.literals, this.s[this.atextEnd(this.pos)] === '@')
+          ? literalCandidate(
+              this.s,
+              start + 1,
+              this.pos,
+              this.literals,
+              this.s[this.atextEnd(this.pos)] === '@',
+              this.literalMemo,
+            )
           : -1
         if (cut !== -1) this.pos = cut
         append(block, text(this.s.slice(start, this.pos)))
@@ -247,7 +266,7 @@ export class InlineParser {
    */
   private parseLiteral(block: N): boolean {
     if (this.brackets) return false
-    const end = literalAt(this.s, this.pos, this.literals!)
+    const end = literalAt(this.s, this.pos, this.literals!, this.literalMemo)
     if (!end) return false
     const value = this.s.slice(this.pos, end.end)
     const link: N = { type: 'link', url: normalizeUri(end.prefix + value), title: null }
@@ -258,7 +277,8 @@ export class InlineParser {
   }
 
   private isFootnoteCall(at: number): boolean {
-    const m = /\[\^([^\]\s]+)\]/y
+    // The label stops at `[`, as micromark's does, so it cannot run over a long series of openers.
+    const m = /\[\^([^\]\s[]{1,999})\]/y
     m.lastIndex = at
     const found = m.exec(this.s)
     return !!found && this.footnotes.has(normalizeLabel(`[${found[1]}]`))
@@ -330,6 +350,32 @@ export class InlineParser {
         (this.noCommentAfter !== -1 && this.noCommentAfter <= this.pos) || this.s.indexOf('-->', this.pos + 4) === -1
       if (unclosed) {
         this.noCommentAfter = this.pos
+        this.pos++
+        return append(block, text('<'))
+      }
+    }
+    // An instruction or declaration that never closes is text, and so is every later one: remember
+    // that, as for comments, instead of searching to the end from each.
+    const next = this.s[this.pos + 1]
+    // The expression matches `<![CDATA[` case-insensitively, so the memo does too.
+    if (next === '!' && this.s.slice(this.pos, this.pos + 9).toUpperCase() === '<![CDATA[') {
+      const unclosed =
+        (this.noCdataAfter !== -1 && this.noCdataAfter <= this.pos) || this.s.indexOf(']]>', this.pos + 9) === -1
+      if (unclosed) {
+        this.noCdataAfter = this.pos
+        this.pos++
+        return append(block, text('<'))
+      }
+    }
+    if (next === '?' || (next === '!' && isAsciiAlpha(this.s[this.pos + 2]))) {
+      const instruction = next === '?'
+      const after = instruction ? this.noInstructionAfter : this.noDeclarationAfter
+      const unclosed =
+        (after !== -1 && after <= this.pos) ||
+        (instruction ? this.s.indexOf('?>', this.pos + 2) : this.s.indexOf('>', this.pos + 3)) === -1
+      if (unclosed) {
+        if (instruction) this.noInstructionAfter = this.pos
+        else this.noDeclarationAfter = this.pos
         this.pos++
         return append(block, text('<'))
       }
@@ -539,7 +585,9 @@ export class InlineParser {
     let title: string | null = null
 
     // GFM footnote call: `[^label]`, when the label is defined.
-    if (!image && this.s[opener.index + 1] === '^') {
+    // A label is at most 999 characters, as in micromark; checking that first keeps a run of `[^`
+    // openers from slicing ever longer labels.
+    if (!image && this.s[opener.index + 1] === '^' && start - opener.index <= 1001) {
       const id = normalizeLabel(this.s.slice(opener.index + 1, start).replace(/^\[\^/, '['))
       if (this.footnotes.has(id)) {
         let t = opener.node.next
@@ -583,7 +631,11 @@ export class InlineParser {
       if (n === 0) this.pos = save
       if (label) {
         const ref = this.refs.get(normalizeLabel(label))
-        if (ref) {
+        const size = ref ? ref.url.length + (ref.title?.length ?? 0) : 0
+        // Past the budget a reference stays text, as in cmark: a long URL used many times
+        // would otherwise turn kilobytes of input into hundreds of megabytes of output.
+        if (ref && size <= this.referenceBudget) {
+          this.referenceBudget -= size
           dest = ref.url
           title = ref.title
           matched = true
@@ -661,51 +713,138 @@ const isControl = (c: string | undefined): boolean => c !== undefined && (c.char
 type Literals = { email: boolean; http: boolean; www: boolean }
 const PREVIOUS_WWW = /[(*_[\]~ \t\n\r]/
 
+/**
+ * Caches for one parse. `trail` remembers `isTrail` by position. `scan` remembers where the last
+ * domain run ends, and the labels near its end, because every candidate inside the run stops
+ * at the same place. Without them, a long run rescanned from every `.`, `_` or `www.` took
+ * quadratic time.
+ */
+type LiteralMemo = {
+  trail: Map<number, boolean>
+  scan: { from: number; end: number; labels?: DomainLabels } | null
+}
+type DomainLabels = {
+  lastDot: number
+  prevDot: number
+  underscore: boolean
+  underscoreBefore: boolean
+  lastWord: number
+}
+const newLiteralMemo = (): LiteralMemo => ({ trail: new Map(), scan: null })
+
 /** Whether the rest from `i` is trailing punctuation that is not part of a URL. */
-const isTrail = (s: string, i: number): boolean => {
+const isTrail = (s: string, i: number, memo: LiteralMemo): boolean => {
+  const visited: number[] = []
+  let result: boolean
   for (;;) {
+    const known = memo.trail.get(i)
+    if (known !== undefined) {
+      result = known
+      break
+    }
+    visited.push(i)
     const c = s[i]
-    if (c === '<' || isBreak(c)) return true
+    if (c === '<' || isBreak(c)) {
+      result = true
+      break
+    }
     if (c !== undefined && '!"\')*,.:;?_~'.includes(c)) {
       i++
     } else if (c === '&') {
       i++
-      if (!isAsciiAlpha(s[i])) return false
+      if (!isAsciiAlpha(s[i])) {
+        result = false
+        break
+      }
       while (isAsciiAlpha(s[i])) i++
-      if (s[i] !== ';') return false
+      if (s[i] !== ';') {
+        result = false
+        break
+      }
       i++
     } else if (c === ']') {
       i++
       const d = s[i]
-      if (d === '(' || d === '[' || isBreak(d)) return true
-    } else return false
+      if (d === '(' || d === '[' || isBreak(d)) {
+        result = true
+        break
+      }
+    } else {
+      result = false
+      break
+    }
   }
+  // Every position the scan passed reaches the same end, so they share the result.
+  for (const v of visited) memo.trail.set(v, result)
+  return result
 }
 
-const domainEnd = (s: string, i: number): number => {
-  let underscore = false
-  let underscoreBefore = false
-  let seen = false
+/** Where a domain starting at `i` stops: at trailing punctuation, a break, or punctuation other than `-`. */
+const domainStop = (s: string, i: number, memo: LiteralMemo): number => {
+  const scan = memo.scan
+  if (scan && i >= scan.from && i <= scan.end) return scan.end
+  let j = i
   for (;;) {
-    const c = s[i]
+    const c = s[j]
     if (c === '.' || c === '_') {
-      if (isTrail(s, i)) break
-      if (c === '_') underscore = true
-      else {
-        underscoreBefore = underscore
-        underscore = false
-      }
-      i++
+      if (isTrail(s, j, memo)) break
+      j++
       continue
     }
     if (isBreak(c) || (c !== '-' && isUnicodePunct(c))) break
-    seen = true
-    i++
+    j++
   }
-  return underscoreBefore || underscore || !seen ? -1 : i
+  memo.scan = { from: i, end: j }
+  return j
 }
 
-const pathEnd = (s: string, i: number): number => {
+/** The dots and underscores near the end of the cached run, computed once per run. */
+const domainLabels = (s: string, memo: LiteralMemo): DomainLabels => {
+  const scan = memo.scan!
+  if (scan.labels) return scan.labels
+  let lastDot = -1
+  let prevDot = -1
+  let underscore = false
+  let underscoreBefore = false
+  let lastWord = -1
+  for (let k = scan.end - 1; k >= scan.from; k--) {
+    const c = s[k]
+    if (c === '.') {
+      if (lastDot === -1) lastDot = k
+      else if (prevDot === -1) prevDot = k
+    } else if (c === '_') {
+      if (lastDot === -1) underscore = true
+      else if (prevDot === -1) underscoreBefore = true
+    } else if (lastWord === -1) lastWord = k
+    if (prevDot !== -1 && lastWord !== -1) break
+  }
+  scan.labels = { lastDot, prevDot, underscore, underscoreBefore, lastWord }
+  return scan.labels
+}
+
+const domainEnd = (s: string, i: number, memo: LiteralMemo): number => {
+  const end = domainStop(s, i, memo)
+  const labels = domainLabels(s, memo)
+  const seen = labels.lastWord >= i
+  let underscore = labels.underscore
+  let underscoreBefore = labels.underscoreBefore
+  // A start inside the last two labels sees fewer of them: work it out directly, which is cheap there.
+  if (labels.prevDot < i) {
+    underscore = false
+    underscoreBefore = false
+    for (let k = i; k < end; k++) {
+      const c = s[k]
+      if (c === '_') underscore = true
+      else if (c === '.') {
+        underscoreBefore = underscore
+        underscore = false
+      }
+    }
+  }
+  return underscoreBefore || underscore || !seen ? -1 : end
+}
+
+const pathEnd = (s: string, i: number, memo: LiteralMemo): number => {
   let open = 0
   let close = 0
   for (;;) {
@@ -717,7 +856,7 @@ const pathEnd = (s: string, i: number): number => {
       close++
       i++
     } else if (c !== undefined && '!"&\')*,.:;<?]_~'.includes(c)) {
-      if (isTrail(s, i)) return i
+      if (isTrail(s, i, memo)) return i
       if (c === ')') close++
       i++
     } else if (isBreak(c)) return i
@@ -726,7 +865,12 @@ const pathEnd = (s: string, i: number): number => {
 }
 
 /** The end of a `www.`, `http(s)://` or email literal starting at `i`, and the prefix its URL needs. */
-const literalAt = (s: string, i: number, kinds: Literals): { end: number; prefix: string } | null => {
+const literalAt = (
+  s: string,
+  i: number,
+  kinds: Literals,
+  memo: LiteralMemo,
+): { end: number; prefix: string } | null => {
   const prev = s[i - 1]
   const c = s[i]!
   // Email: tried first at every character, as in micromark.
@@ -756,8 +900,8 @@ const literalAt = (s: string, i: number, kinds: Literals): { end: number; prefix
       const after = i + m[0].length
       const d = s[after]
       if (!isBreak(d) && !isControl(d) && !isUnicodePunct(d)) {
-        const domain = domainEnd(s, after)
-        if (domain !== -1) return { end: pathEnd(s, domain), prefix: '' }
+        const domain = domainEnd(s, after, memo)
+        if (domain !== -1) return { end: pathEnd(s, domain, memo), prefix: '' }
       }
     }
   }
@@ -768,8 +912,8 @@ const literalAt = (s: string, i: number, kinds: Literals): { end: number; prefix
     /^www\./i.test(s.slice(i, i + 4)) &&
     s[i + 4] !== undefined
   ) {
-    const domain = domainEnd(s, i)
-    if (domain !== -1) return { end: pathEnd(s, domain), prefix: 'http://' }
+    const domain = domainEnd(s, i, memo)
+    if (domain !== -1) return { end: pathEnd(s, domain, memo), prefix: 'http://' }
   }
   return null
 }
@@ -779,7 +923,14 @@ const literalAt = (s: string, i: number, kinds: Literals): { end: number; prefix
  * text run. A literal can reach past the run: `atAfter` says an email `@` follows its last
  * email characters (`user_id@` is cut at `_`), and `http://` or `www.` ends within a few characters.
  */
-const literalCandidate = (s: string, from: number, to: number, kinds: Literals, atAfter: boolean): number => {
+const literalCandidate = (
+  s: string,
+  from: number,
+  to: number,
+  kinds: Literals,
+  atAfter: boolean,
+  memo: LiteralMemo,
+): number => {
   if (!atAfter && !/[@:.]/.test(s.slice(from, to + 6))) return -1
   for (let i = from; i < to; i++) {
     const c = s[i]!
@@ -788,7 +939,7 @@ const literalCandidate = (s: string, from: number, to: number, kinds: Literals, 
     const email = kinds.email && prev !== '/' && !isAtext(prev)
     const http = kinds.http && (c === 'h' || c === 'H') && !isAsciiAlpha(prev)
     const www = kinds.www && (c === 'w' || c === 'W') && PREVIOUS_WWW.test(prev ?? ' ')
-    if ((email || http || www) && literalAt(s, i, kinds)) return i
+    if ((email || http || www) && literalAt(s, i, kinds, memo)) return i
   }
   return -1
 }
@@ -798,7 +949,6 @@ const literalCandidate = (s: string, from: number, to: number, kinds: Literals, 
  * `mdast-util-gfm-autolink-literal`: a find-and-replace over text outside
  * links, for literals the tokenizer did not take.
  */
-const FIND_URL = /(https?:\/\/|www(?=\.))([-.\w]+)([^ \t\r\n]*)/gi
 
 const previousOk = (input: string, index: number, email: boolean): boolean => {
   const c = input[index - 1]
@@ -834,27 +984,60 @@ const splitUrl = (url: string): [string, string | undefined] => {
   return [url.slice(0, cut), url.slice(cut)]
 }
 
-type Replace = (m: RegExpExecArray) => Inline[] | false
+const URL_START = /https?:\/\/|www(?=\.)/gi
+const URL_DOMAIN = /[-.\w]+/y
+const URL_PATH = /[^ \t\r\n]*/y
 
-const findUrl: Replace = (m) => {
-  if (!previousOk(m.input, m.index, false)) return false
-  let [, protocol, domain, path] = m as unknown as [string, string, string, string]
-  let prefix = ''
-  if (/^w/i.test(protocol)) {
-    domain = protocol + domain
-    protocol = ''
-    prefix = 'http://'
+/**
+ * URL literals in one text value, as `mdast-util-gfm-autolink-literal` finds them with
+ * `/(https?:\/\/|www(?=\.))([-.\w]+)([^ \t\r\n]*)/gi` and `mdast-util-find-and-replace`, which
+ * retries a rejected match one character later. Each retry ran the greedy match to the end of
+ * the run again, which was quadratic, so the cheap checks come first: the character before,
+ * then the domain. A `www.` candidate inside a rejected domain, up to its second-to-last label,
+ * shares the labels the check looks at, so it is rejected without scanning again.
+ */
+const findUrls = (value: string): Inline[] => {
+  const out: Inline[] = []
+  let start = 0
+  let rejectedWwwUntil = -1
+  URL_START.lastIndex = 0
+  for (let m = URL_START.exec(value); m; m = URL_START.exec(value)) {
+    const index = m.index
+    URL_START.lastIndex = index + 1
+    const www = m[0][0] === 'w' || m[0][0] === 'W'
+    if ((www && index < rejectedWwwUntil) || !previousOk(value, index, false)) continue
+    URL_DOMAIN.lastIndex = index + m[0].length
+    const run = URL_DOMAIN.exec(value)
+    if (!run) continue
+    const domainEnd = URL_DOMAIN.lastIndex
+    const protocol = www ? '' : m[0]
+    const domain = www ? m[0] + run[0] : run[0]
+    if (!isCorrectDomain(domain)) {
+      // A later `www.` candidate shares the last two labels only if it starts no later than the
+      // second-to-last one; one inside it sees a shorter label and gets its own check.
+      if (www) {
+        const lastDot = value.lastIndexOf('.', domainEnd - 1)
+        rejectedWwwUntil = Math.max(value.lastIndexOf('.', lastDot - 1) + 1, index) + 1
+      }
+      continue
+    }
+    URL_PATH.lastIndex = domainEnd
+    const path = URL_PATH.exec(value)![0]
+    const [url, trail] = splitUrl(domain + path)
+    if (!url) continue
+    if (index !== start) out.push({ type: 'text', value: value.slice(start, index) })
+    out.push({
+      type: 'link',
+      url: normalizeUri((www ? 'http://' : '') + protocol + url),
+      title: null,
+      children: [{ type: 'text', value: protocol + url }],
+    })
+    if (trail) out.push({ type: 'text', value: trail })
+    start = domainEnd + path.length
+    URL_START.lastIndex = start
   }
-  if (!isCorrectDomain(domain)) return false
-  const [url, trail] = splitUrl(domain + path)
-  if (!url) return false
-  const link: Inline = {
-    type: 'link',
-    url: normalizeUri(prefix + protocol + url),
-    title: null,
-    children: [{ type: 'text', value: protocol + url }],
-  }
-  return trail ? [link, { type: 'text', value: trail }] : [link]
+  if (start < value.length) out.push({ type: 'text', value: value.slice(start) })
+  return out
 }
 
 const isWord = (c: string | undefined): boolean => c !== undefined && /\w/.test(c)
@@ -924,29 +1107,8 @@ const findEmails = (value: string): Inline[] => {
   return out
 }
 
-/** `mdast-util-find-and-replace` on one text value: a rejected match is retried one character later. */
-const findAndReplace = (value: string, find: RegExp, replace: Replace): Inline[] => {
-  const out: Inline[] = []
-  let start = 0
-  find.lastIndex = 0
-  let m: RegExpExecArray | null
-  while ((m = find.exec(value))) {
-    const result = replace(m)
-    if (result === false) {
-      find.lastIndex = m.index + 1
-      continue
-    }
-    if (m.index !== start) out.push({ type: 'text', value: value.slice(start, m.index) })
-    out.push(...result)
-    start = m.index + m[0].length
-    find.lastIndex = start
-  }
-  if (start < value.length) out.push({ type: 'text', value: value.slice(start) })
-  return out
-}
-
 const linkLiterals = (value: string, out: Inline[]): void => {
-  const urls = /[wW:]/.test(value) ? findAndReplace(value, FIND_URL, findUrl) : [{ type: 'text' as const, value }]
+  const urls = /[wW:]/.test(value) ? findUrls(value) : [{ type: 'text' as const, value }]
   for (const node of urls) {
     if (node.type === 'text' && node.value.includes('@')) out.push(...findEmails(node.value))
     else out.push(node)

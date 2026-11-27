@@ -12,7 +12,7 @@
  *    loaded, the DOM the browser built is audited for event handlers,
  *    script-capable elements and script URLs.
  *
- *   node bench/sanitizer-run.mjs [--baseline]
+ *   node bench/sanitizer-run.mjs [--baseline] [--policy-only]
  *
  * `--baseline` also runs the unified renderer, so a hit can be compared with
  * what shipped before. Hits go to `.out/sanitizer-hits.json`.
@@ -94,6 +94,15 @@ console.log(
     (withBaseline ? `, baseline ${count(policyHits, 'baseline')} violations (${fidelity.baseline} fidelity-only)` : ''),
 )
 
+if (process.argv.includes('--policy-only')) {
+  writeFileSync(`${OUT}sanitizer-hits.json`, JSON.stringify({ policyHits }, null, 1))
+  console.log(
+    'policy hits, shipped, by kind:',
+    [...new Set(policyHits.filter((h) => h.renderer === 'shipped').flatMap((h) => h.errs ?? [h.error]))].slice(0, 20),
+  )
+  process.exit(0)
+}
+
 // 2. Real Chromium.
 const playwright = readdirSync(`${ROOT}node_modules/.pnpm`).find((d) => /^playwright@\d/.test(d))
 const { chromium } = await import(`${ROOT}node_modules/.pnpm/${playwright}/node_modules/playwright/index.mjs`)
@@ -121,6 +130,8 @@ const CONTROLS = [
   '<details open ontoggle=confirm(1)>',
   '<math><mi>x</mi></math>',
   '<form><button formaction=javascript:alert(1)>x</button></form>',
+  // Writes one end tag the browser has already applied, so the second closes the container.
+  '<table><div><table></table></div></table>',
 ]
 const controls = CONTROLS.map((html) => ({ renderer: 'control', html }))
 const list = [...controls, ...outputs.values()]
@@ -139,7 +150,9 @@ for (let i = 0; i < list.length; i += BATCH) {
         const f = document.createElement('iframe')
         // Scripts run, so any that the output smuggles in executes; the sandbox only stops it navigating this page.
         f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-modals')
-        f.srcdoc = `<!doctype html><meta charset="utf-8">${hook(id)}<body>${html}</body>`
+        // Inside a host, as a server-rendered page concatenates it: the output must not close the
+        // container, which the marker after it and the sibling after the container show.
+        f.srcdoc = `<!doctype html><meta charset="utf-8">${hook(id)}<body><div id="__h"><div id="__m">${html}<i id="__z"></i></div><p id="__s"></p></div></body>`
         document.body.append(f)
         return new Promise((resolve) => {
           const done = () => resolve([id, f])
@@ -188,8 +201,15 @@ for (let i = 0; i < list.length; i += BATCH) {
       for (const [id, f] of loaded) {
         const doc = f.contentDocument
         if (!doc) continue
+        const host = doc.getElementById('__h')
+        const container = doc.getElementById('__m')
+        const marker = doc.getElementById('__z')
+        if (!container || !marker || !container.contains(marker))
+          hits.push([id, 'escapes container: content after the output left it'])
+        if (!host || doc.getElementById('__s')?.parentNode !== host)
+          hits.push([id, 'escapes container: the next sibling moved'])
         for (const el of doc.body?.querySelectorAll('*') ?? []) {
-          if (el.hasAttribute('data-hook')) continue
+          if (el.hasAttribute('data-hook') || ['__h', '__m', '__z', '__s'].includes(el.id)) continue
           const tag = el.localName
           if (DANGEROUS.has(tag)) hits.push([id, `element <${tag}>`])
           if (el.namespaceURI !== 'http://www.w3.org/1999/xhtml') hits.push([id, `foreign element <${tag}>`])

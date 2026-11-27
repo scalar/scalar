@@ -1,4 +1,4 @@
-import { parseFragment, serialize } from 'parse5'
+import { parse, parseFragment, serialize } from 'parse5'
 
 import { PROTOTYPE, SHIPPED } from './paths.mjs'
 
@@ -49,8 +49,52 @@ const urlOk = (v, list) => {
   return !m || list.includes(m[1].toLowerCase())
 }
 
-export const problems = (out, removed) => {
+/**
+ * Server-rendered pages concatenate the output into their own HTML, so it must not close or move
+ * anything outside its container. Each host is parsed as a whole document with the output
+ * inside: every node of the output must stay inside the container, and the container's next
+ * sibling must stay where it was.
+ */
+const HOSTS = {
+  div: (out) => `<div id="h"><div id="m">${out}</div><p id="s">after</p></div><p id="z">end</p>`,
+  'table cell': (out) =>
+    `<table id="h"><tr><td id="m">${out}</td><td id="s">sibling</td></tr></table><p id="z">end</p>`,
+  'list item': (out) => `<ul id="h"><li id="m">${out}</li><li id="s">sibling</li></ul><p id="z">end</p>`,
+}
+const byId = (node, id) => {
+  if (node.attrs?.some((a) => a.name === 'id' && a.value === id)) return node
+  for (const c of node.childNodes ?? []) {
+    const found = byId(c, id)
+    if (found) return found
+  }
+  return null
+}
+/** Text of the output, so it can be found again in the host document. */
+const MARKER = 'zq9marker'
+export const escapesContainer = (out) => {
   const errs = []
+  for (const [name, host] of Object.entries(HOSTS)) {
+    const doc = parse(host(`${out}<i>${MARKER}</i>`))
+    const container = byId(doc, 'm')
+    const sibling = byId(doc, 's')
+    const end = byId(doc, 'z')
+    const inside = (n) => {
+      for (let p = n; p; p = p.parentNode) if (p === container) return true
+      return false
+    }
+    const marker = (n) =>
+      n.childNodes?.some((c) => c.value === MARKER) ? n : (n.childNodes ?? []).map(marker).find(Boolean)
+    const m = marker(doc)
+    if (!container || !m || !inside(m)) errs.push(`escapes container (${name}): content after the output left it`)
+    if (!sibling || sibling.parentNode !== container?.parentNode)
+      errs.push(`escapes container (${name}): the next sibling moved`)
+    if (!end || end.parentNode?.nodeName !== 'body') errs.push(`escapes container (${name}): the page after it moved`)
+  }
+  return errs
+}
+
+export const problems = (out, removed) => {
+  const errs = [...escapesContainer(out)]
   for (const scriptingEnabled of [true, false]) {
     const walk = (n) => {
       for (const c of n.childNodes ?? []) {
