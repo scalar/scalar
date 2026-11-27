@@ -248,10 +248,11 @@ describe('pipeline', () => {
       )
     })
 
-    it('drops a list item outside any list, whose start tag would close a list item around the output', () => {
-      expect(htmlFromMarkdown('<li>a<li>b')).toBe('ab')
-      expect(htmlFromMarkdown('<div><dd>x</dd></div>')).toBe('<div>x</div>')
+    it('puts a list item outside any list in a list of its own, whose start tag would otherwise reach the page', () => {
+      expect(htmlFromMarkdown('<li>a<li>b')).toBe('<ul><li>a</li></ul><ul><li>b</li></ul>')
+      expect(htmlFromMarkdown('<div><dd>x</dd></div>')).toBe('<div><dl><dd>x</dd></dl></div>')
       expect(htmlFromMarkdown('<ul><li>a<li>b</ul>')).toBe('<ul><li>a</li><li>b</li></ul>')
+      expect(htmlFromMarkdown('<li>a', { removeTags: ['ul'] })).toBe('a')
     })
   })
 

@@ -196,6 +196,9 @@ type Frame = {
   attrs?: string
   start?: number
   code?: RawCode
+  /** A list the writer opened around a list item outside any list (`wrapper`), and that item (`wrapped`). */
+  wrapper?: true
+  wrapped?: true
 }
 type RawCode = { start: number; lang: string; text: string }
 
@@ -392,14 +395,19 @@ export class Writer {
     this.body = true
     this.implicitCloses(tag)
     if (!NO_RECONSTRUCT.has(tag)) this.reconstruct()
-    const hidden = !this.allowed(tag) || this.listItemEscapes(tag)
+    let hidden = !this.allowed(tag)
+    let wrapped = false
+    if (!hidden && this.listItemEscapes(tag)) {
+      wrapped = this.wrapListItem(tag)
+      hidden = !wrapped
+    }
     // A code span inside a raw `<pre>` is a `<pre><code>` too, and `rehypeHighlight` gave it the classes.
     const top = this.stack.at(-1)
     if (tag === 'code' && this.options.highlight && top?.tag === 'pre' && !top.hidden && !this.generated.has(top.id)) {
       attrs = this.codeClasses(attrs)?.attrs ?? attrs
     }
     if (!hidden) this.out += `<${tag}${attrs}>`
-    if (!VOID.has(tag)) this.stack.push({ tag, id, hidden, attrs })
+    if (!VOID.has(tag)) this.stack.push(wrapped ? { tag, id, hidden, attrs, wrapped } : { tag, id, hidden, attrs })
     if (!VOID.has(tag)) this.generated.set(id, tag)
     return id
   }
@@ -517,6 +525,8 @@ export class Writer {
   }
 
   private popTo(at: number): void {
+    // A list item outside any list closes together with the list the writer opened around it.
+    if (this.stack[at]?.wrapped && this.stack[at - 1]?.wrapper) at--
     if (this.skip && at < this.skip.at) this.skip = null
     const implicit: Frame[] = []
     for (let i = this.stack.length - 1; i >= at; i--) {
@@ -563,7 +573,7 @@ export class Writer {
    * the output. The search passes over `<div>`, `<p>` and `<address>`, so without a list item or
    * another special element of the output's own in the way, it reaches the page around it: in
    * server-rendered HTML a description inside an `<li>` would close that `<li>`. Such an item is
-   * outside any list anyway, so its tag is dropped and its content kept.
+   * outside any list, so the writer opens one around it (`wrapListItem`), which stops the search.
    */
   private listItemEscapes(tag: string): boolean {
     if (tag !== 'li' && tag !== 'dd' && tag !== 'dt') return false
@@ -572,6 +582,18 @@ export class Writer {
       if (f.hidden) continue
       if (SPECIAL.has(f.tag) && f.tag !== 'address' && f.tag !== 'div' && f.tag !== 'p') return false
     }
+    return true
+  }
+
+  /**
+   * Opens a list around a list item outside any list, closed together with the item, so the item
+   * keeps its marker. Returns false when the list's tag is not allowed, and the item is dropped.
+   */
+  private wrapListItem(tag: string): boolean {
+    const list = tag === 'li' ? 'ul' : 'dl'
+    if (!this.allowed(list)) return false
+    this.out += `<${list}>`
+    this.stack.push({ tag: list, id: this.nextId++, hidden: false, wrapper: true })
     return true
   }
 
@@ -744,7 +766,8 @@ export class Writer {
     // parser would close for it. That only adds end tags, which the browser applies itself.
     this.implicitCloses(tag)
     if (!NO_RECONSTRUCT.has(tag)) this.reconstruct()
-    if (!this.allowed(tag) || this.listItemEscapes(tag)) {
+    const wrapped = this.allowed(tag) && this.listItemEscapes(tag) && this.wrapListItem(tag)
+    if (!this.allowed(tag) || (this.listItemEscapes(tag) && !wrapped)) {
       if (STRIP.has(tag) && !VOID.has(tag)) this.skip = { tag, depth: 1, at: this.stack.length }
       // Today's pipeline parses first and sanitizes after, so a dropped tag still shapes the tree
       // (`</aside>` closes the paragraph inside it). A hidden frame keeps that, and writes nothing.
@@ -773,6 +796,7 @@ export class Writer {
         attrs: s,
         start: this.out.length,
         code: code ? { start: this.out.length, lang: code.lang, text: '' } : undefined,
+        ...(wrapped ? { wrapped: true as const } : {}),
       })
       if (code) this.rawCodeDepth++
     }
