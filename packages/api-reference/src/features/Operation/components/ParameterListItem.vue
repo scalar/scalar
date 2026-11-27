@@ -17,7 +17,10 @@ import {
   ScalarMarkdownSummary,
 } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type {
+  ApiReferenceEvents,
+  WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getXBadges } from '@scalar/workspace-store/schemas/extensions/get-x-badges'
 import type {
@@ -26,11 +29,12 @@ import type {
   ResponseObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 import { isOnScrollTargetPath, scrollTargetId } from '@/helpers/lazy-bus'
+import { RESPONSE_PROPERTY_TARGET } from '@/helpers/response-property-target'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -82,6 +86,7 @@ defineSlots<{
 }>()
 
 const { translate } = useLocalization()
+const responsePropertyTarget = inject(RESPONSE_PROPERTY_TARGET, undefined)
 
 /** Compact parameter rows also hide scalar details, unlike response rows. */
 const isCompactParameter = computed<boolean>(
@@ -307,6 +312,76 @@ const headersBreadcrumb = computed<string[] | undefined>(() =>
   breadcrumb && name ? [...breadcrumb, name] : breadcrumb,
 )
 
+const responseAnchorId = computed<string | undefined>(() =>
+  hasResponseContentPicker.value
+    ? headersBreadcrumb.value?.join('.')
+    : undefined,
+)
+
+/** Carry the picker choice in copied body links while keeping the DOM breadcrumb stable. */
+const schemaEventBus = computed<WorkspaceEventBus | null>(() => {
+  const parentBus = eventBus
+  const responseId = responseAnchorId.value
+  const operationId = breadcrumb?.[0]
+  if (!parentBus || !operationId || !responseId) {
+    return parentBus
+  }
+
+  return {
+    ...parentBus,
+    emit: (...[event, payload, emitOptions]) => {
+      if (
+        event === 'copy-url:nav-item' &&
+        payload &&
+        typeof payload === 'object' &&
+        'id' in payload &&
+        typeof payload.id === 'string' &&
+        payload.id.startsWith(`${responseId}.`)
+      ) {
+        parentBus.emit(
+          event,
+          {
+            ...payload,
+            responseProperty: {
+              operationId,
+              mediaType: selectedContentType.value,
+            },
+          },
+          emitOptions,
+        )
+        return
+      }
+      parentBus.emit<keyof ApiReferenceEvents>(event, payload, emitOptions)
+    },
+  }
+})
+
+const targetResponseMediaType = computed<string | undefined>(() => {
+  const responseId = responseAnchorId.value
+  const target = responsePropertyTarget?.value
+  if (
+    !target ||
+    target.operationId !== breadcrumb?.[0] ||
+    !isOnScrollTargetPath(responseId)
+  ) {
+    return undefined
+  }
+
+  return Object.hasOwn(content.value ?? {}, target.mediaType)
+    ? target.mediaType
+    : undefined
+})
+
+watch(
+  targetResponseMediaType,
+  (mediaType) => {
+    if (mediaType) {
+      selectedContentType.value = mediaType
+    }
+  },
+  { immediate: true },
+)
+
 /**
  * Whether a deep link points at a property inside this collapsed item. When it
  * does, the disclosure opens on mount so a fresh navigation can render the target
@@ -314,7 +389,9 @@ const headersBreadcrumb = computed<string[] | undefined>(() =>
  */
 const isOnTargetPath = computed<boolean>(
   () =>
-    isOnScrollTargetPath(schemaBreadcrumb.value?.join('.')) ||
+    ((!responsePropertyTarget?.value ||
+      responsePropertyTarget.value.operationId === breadcrumb?.[0]) &&
+      isOnScrollTargetPath(schemaBreadcrumb.value?.join('.'))) ||
     Boolean(
       breadcrumb &&
       childParameters &&
@@ -322,19 +399,26 @@ const isOnTargetPath = computed<boolean>(
     ),
 )
 
-/** Headless UI only reads defaultOpen on mount; reopen a group for later navigation too. */
-const groupNavigationKey = ref<number>(0)
-const groupOpen = ref<boolean>(false)
+/** Headless UI reads defaultOpen on mount, so later navigation may have to remount a disclosure. */
+const disclosureNavigationKey = ref<number>(0)
+const disclosureOpen = ref<boolean>(false)
 
 /** Read Headless UI's slot state after rendering, including rail and keyboard closes. */
-const trackGroupOpen = (open: boolean): void => {
-  groupOpen.value = open
+const trackDisclosureOpen = (open: boolean): void => {
+  disclosureOpen.value = open
 }
-watch(isOnTargetPath, (onTargetPath) => {
-  if (childParameters && onTargetPath && !groupOpen.value) {
-    groupNavigationKey.value++
-  }
-})
+watch(
+  [isOnTargetPath, targetResponseMediaType],
+  ([onTargetPath, mediaType]) => {
+    if (
+      (childParameters || mediaType) &&
+      onTargetPath &&
+      !disclosureOpen.value
+    ) {
+      disclosureNavigationKey.value++
+    }
+  },
+)
 
 /**
  * The anchor id for a collapsible item's own row. The schema renders without
@@ -363,7 +447,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
          section heading carries the one rule instead (see ParameterList /
          OperationResponses). -->
     <Disclosure
-      :key="groupNavigationKey"
+      :key="disclosureNavigationKey"
       v-slot="{ open, close }"
       :defaultOpen="isOnTargetPath">
       <!-- Ring the disclosure itself so keyboard focus stays visible.
@@ -372,7 +456,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
         :is="shouldCollapse ? DisclosureButton : 'div'"
         v-if="collapsableItems && !isStaticTreeItem"
         :id="isCompactParameter ? undefined : triggerAnchorId"
-        :ref="() => trackGroupOpen(open)"
+        :ref="() => trackDisclosureOpen(open)"
         class="parameter-item-trigger group/trigger group/tree-control scroll-mt-24 focus-visible:rounded-(--scalar-radius) focus-visible:outline-(length:--scalar-border-width) focus-visible:outline-offset-2 focus-visible:outline-(--scalar-focus-color)"
         :class="{
           'parameter-item-trigger-open': open,
@@ -489,7 +573,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :description="
             collapsableItems && !isStaticTreeItem ? '' : parameter.description
           "
-          :eventBus="eventBus"
+          :eventBus="schemaEventBus"
           :expansion="expansion"
           :extensionSource="'in' in parameter ? parameter : undefined"
           :hideWriteOnly="true"

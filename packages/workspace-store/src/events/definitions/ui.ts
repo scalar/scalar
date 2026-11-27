@@ -276,7 +276,13 @@ export type UIEvents = {
    * Copy the URL with anchor details for a navigation item.
    * Useful for sharing direct links to specific sections.
    */
-  'copy-url:nav-item': NavigationItemPayload
+  'copy-url:nav-item': NavigationItemPayload & {
+    /** Owning operation and selected media type for a response property link. */
+    responseProperty?: {
+      operationId: string
+      mediaType: string
+    }
+  }
 
   /**
    * Copies the whole URL in the addressbar including server and path
