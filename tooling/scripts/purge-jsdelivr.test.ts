@@ -69,7 +69,21 @@ const run = async (options: RunOptions = {}): Promise<{ status: number | null; s
 
   const server = createServer((request, response) => {
     const url = request.url ?? ''
-    const path = url.replace(/^\/npm\//, '')
+    if (url === '/status/request-id' && request.method === 'GET') {
+      appendFileSync(logFile, 'status /status/request-id\n')
+      response.setHeader('Content-Type', 'application/json')
+      response.end(JSON.stringify(options.statusResult))
+      return
+    }
+    if (url === '/redirect-target' && request.method === 'HEAD') {
+      response.end()
+      return
+    }
+    const path = PATHS.find((alias) => url === `/npm/${alias}`)
+    if (!path) {
+      response.writeHead(404).end()
+      return
+    }
     if (request.method === 'HEAD') {
       if (path === PATHS[0] && options.headFailure) {
         if (options.headFailure === 'disconnect') {
@@ -84,10 +98,6 @@ const run = async (options: RunOptions = {}): Promise<{ status: number | null; s
           .end()
         return
       }
-      if (url === '/redirect-target') {
-        response.end()
-        return
-      }
       const count = log().filter((line) => line === `purge ${path}`).length
       const needed = options.purgesNeeded?.[path] ?? 1
       response.setHeader(
@@ -97,17 +107,24 @@ const run = async (options: RunOptions = {}): Promise<{ status: number | null; s
       response.end()
       return
     }
-    if (url.startsWith('/status/')) {
-      appendFileSync(logFile, `status ${url}\n`)
-      response.end(JSON.stringify(options.statusResult))
+    if (request.method !== 'GET') {
+      response.writeHead(405).end()
       return
     }
     const previous = log().filter((line) => line === `purge ${path}`).length
     appendFileSync(logFile, `purge ${path}\n`)
     response.statusCode = Number(options.purgeStatus ?? 200)
     const result = path === PATHS[0] ? options.purgeResults?.[previous] : undefined
-    const success = { status: 'finished', paths: { [url]: { throttled: false, providers: { CF: true, FY: true } } } }
-    response.end(response.statusCode === 200 ? JSON.stringify(result ?? success) : 'Internal error')
+    const success = {
+      status: 'finished',
+      paths: { [`/npm/${path}`]: { throttled: false, providers: { CF: true, FY: true } } },
+    }
+    if (response.statusCode === 200) {
+      response.setHeader('Content-Type', 'application/json')
+      response.end(JSON.stringify(result ?? success))
+    } else {
+      response.end('Internal error')
+    }
   })
 
   try {
