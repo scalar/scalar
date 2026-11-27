@@ -668,6 +668,29 @@ describe('protobuf-specification', () => {
     ])
   })
 
+  it.each([
+    ['message', 'string value = 1;', 'value'],
+    ['enum', 'ZERO = 0;', 'ZERO'],
+  ])('uses the nested %s name line for header descriptions', (keyword, body, member) => {
+    const layouts = [
+      { beforeName: ' ', beforeBrace: ' ', description: undefined, fieldDescription: 'Header text.' },
+      { beforeName: '\n', beforeBrace: '\n', description: 'Header text.', fieldDescription: undefined },
+      { beforeName: '\n\n', beforeBrace: ' ', description: undefined, fieldDescription: undefined },
+    ]
+    for (const { beforeName, beforeBrace, description, fieldDescription } of layouts) {
+      const source = `message M /* Header text. */ { ${keyword}${beforeName}Nested${beforeBrace}{ ${body} } }`
+      const nodes = readProtobuf(source, '3').nodes.map(({ name, description, children }) => ({
+        name,
+        description,
+        fields: children?.map(({ name, description }) => ({ name, description })),
+      }))
+      expect(nodes).toStrictEqual([
+        { name: 'M', description: undefined, fields: [] },
+        { name: 'Nested', description, fields: [{ name: member, description: fieldDescription }] },
+      ])
+    }
+  })
+
   it('keeps a header comment detached after a blank line', () => {
     const source = 'message M /* Detached. */ {\n\n string id = 1; }'
     expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([

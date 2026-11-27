@@ -310,10 +310,10 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
 +function firstDescriptionTarget(input, commentEnd, statements) {
 +    for (const statement of statements) {
 +        if (isDocumentedField(statement))
-+            return statement;
-+        if ((statement.type === "message" || statement.type === "enum") &&
-+            input.slice(commentEnd, statement.keyword.start).includes("\n"))
-+            return statement;
++            return { node: statement, start: statement.start };
++        const name = statement.messageName ?? statement.enumName;
++        if (name && input.slice(commentEnd, name.start).includes("\n"))
++            return { node: statement, start: name.start };
 +        const body = statement.messageBody ?? statement.enumBody ?? statement.oneofBody;
 +        if (body) {
 +            const target = firstDescriptionTarget(input, commentEnd, body.statements);
@@ -327,10 +327,10 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
 +        return;
 +    const start = comment.comments.at(-1)?.text.endsWith("\n") ? comment.end - 1 : comment.end;
 +    const member = firstDescriptionTarget(parser.input, start, statements);
-+    if (!member || member.leadingComments.length || member.leadingDetachedComments.length)
++    if (!member || member.node.leadingComments.length || member.node.leadingDetachedComments.length)
 +        return;
 +    if (parser.input.slice(start, member.start).split("\n", 3).length <= 2)
-+        member.leadingComments.push(comment);
++        member.node.leadingComments.push(comment);
 +}
  function acceptEnum(parser, leadingComments, leadingDetachedComments) {
      const keyword = acceptKeyword(parser, "enum");
