@@ -28,25 +28,18 @@ const displayContent = computed((): string => {
     ? prettifyJsoncString(text)
     : text
 })
+
+// Render legacy CR-only responses with the same line breaks as CRLF and LF.
+const codeContent = computed(() => displayContent.value.replace(/\r\n?/g, '\n'))
 </script>
 
 <template>
   <div
     class="group/code-block relative grid min-h-0 min-w-0 overflow-hidden"
     data-testid="response-body-raw">
-    <ScalarCodeBlock
-      class="max-h-[75dvh] text-base"
-      :copy="false"
-      foldable
-      label="Response body"
-      :lang="language"
-      lineNumbers
-      :prettyPrintedContent="displayContent"
-      virtualize
-      :wrap="isLineWrapping" />
     <div
       v-if="displayContent"
-      class="group-hocus-within/code-block:opacity-100 absolute top-2 right-2 flex items-center gap-1.5 opacity-0 transition-opacity duration-150">
+      class="group-hocus-within/code-block:opacity-100 absolute top-2 right-2 z-10 flex items-center gap-1.5 opacity-0 transition-opacity duration-150">
       <ScalarIconButton
         aria-label="Wrap lines"
         :aria-pressed="isLineWrapping"
@@ -61,5 +54,15 @@ const displayContent = computed((): string => {
         :content="displayContent"
         copyLabel="Copy response body" />
     </div>
+    <ScalarCodeBlock
+      class="max-h-[75dvh] text-base"
+      :copy="false"
+      foldable
+      label="Response body"
+      :lang="language"
+      lineNumbers
+      :prettyPrintedContent="codeContent"
+      virtualize
+      :wrap="isLineWrapping" />
   </div>
 </template>

@@ -59,6 +59,18 @@ const classesOf = (html: string): Set<string> => {
 }
 
 describe('createLineHighlighter', () => {
+  it('resumes a large embedded stylesheet without changing its highlighting', () => {
+    const options = { lang: 'html' }
+    const code = `<style>\n${'a { color: red }\n'.repeat(1000)}</style>\n<p>Done</p>`
+    const highlighter = createLineHighlighter(code, options)
+    const first = highlighter.advance(4096)
+    expect(first).toBeGreaterThanOrEqual(4096)
+    expect(first).toBeLessThan(4200)
+    expect(highlighter.lines.length).toBeLessThan(500)
+    expect(highlighter.advance(code.length)).toBe(code.length)
+    expect(highlighter.lines).toEqual(syntaxHighlightLines(code, options))
+  })
+
   it.each([
     ['html', '<style>\n/* comment\ncontinues */\na { color: red }\n</style>\n<p>&amp;</p>\n'],
     ['javascript', 'const a = `key=secret\nmultiline ${name}`;\nconst b = 42\n'],

@@ -1,8 +1,9 @@
-import { type Ref, computed, onUpdated, ref, watch } from 'vue'
+import { type ComputedRef, type Ref, computed, onUpdated, ref, watch } from 'vue'
 
 const LINE_HEIGHT = 24
 const OVERSCAN = 8
 const INITIAL_VIEWPORT_HEIGHT = 480
+// Match the scroller padding, number spacing and fold button in ScalarCodeBlock.vue.
 const INLINE_PADDING = 16
 const FOLD_GUTTER_WIDTH = 28
 
@@ -19,6 +20,13 @@ const rowAtOffset = (offset: number, offsets: Float64Array): number => {
     }
   }
   return low
+}
+
+type CodeViewport = {
+  lineWindow: ComputedRef<{ start: number; end: number; top: number; bottom: number }>
+  maxColumns: ComputedRef<number>
+  onScroll: () => void
+  sourceLine: (row: number) => number
 }
 
 /** Windows the expanded source lines, with measured heights when wrapping is on. */
@@ -38,7 +46,7 @@ export const useCodeViewport = ({
   lineNumbers: () => boolean
   scroll: Ref<HTMLElement | null>
   characterWidthProbe: Ref<HTMLElement | null>
-}) => {
+}): CodeViewport => {
   const scrollTop = ref(0)
   const width = ref(0)
   const height = ref(INITIAL_VIEWPORT_HEIGHT)
@@ -56,7 +64,9 @@ export const useCodeViewport = ({
   )
   const maxColumns = computed(() => {
     let max = 0
-    for (const columns of columnCounts.value) max = Math.max(max, columns)
+    for (const columns of columnCounts.value) {
+      max = Math.max(max, columns)
+    }
     return max
   })
 
@@ -68,11 +78,15 @@ export const useCodeViewport = ({
   })
 
   const offsets = computed(() => {
-    if (!enabled() || !wrap()) return undefined
+    if (!enabled() || !wrap()) {
+      return undefined
+    }
     // Changes to measurements are batched, so we rebuild the offsets once.
     void measurementRevision.value
     const availableColumns = columnsPerRow.value
-    if (!measurements.size && maxColumns.value <= availableColumns) return undefined
+    if (!measurements.size && maxColumns.value <= availableColumns) {
+      return undefined
+    }
     const columns = columnCounts.value
     const expanded = expandedLines()
     const offsets = new Float64Array(count.value + 1)
@@ -87,8 +101,10 @@ export const useCodeViewport = ({
   const rowAt = (offset: number, starts: Float64Array | undefined): number =>
     starts ? rowAtOffset(offset, starts) : Math.floor(offset / LINE_HEIGHT)
 
-  const window = computed(() => {
-    if (!enabled()) return { start: 0, end: count.value, top: 0, bottom: 0 }
+  const lineWindow = computed(() => {
+    if (!enabled()) {
+      return { start: 0, end: count.value, top: 0, bottom: 0 }
+    }
     const starts = offsets.value
     const offsetOf = (row: number): number => starts?.[row] ?? row * LINE_HEIGHT
     const start = Math.max(0, Math.min(rowAt(scrollTop.value, starts), count.value) - OVERSCAN)
@@ -106,12 +122,16 @@ export const useCodeViewport = ({
   }
 
   const updateSize = (): void => {
-    if (!enabled() || !scroll.value) return
+    if (!enabled() || !scroll.value) {
+      return
+    }
     const newWidth = scroll.value.clientWidth
     const newCharacterWidth = (characterWidthProbe.value?.getBoundingClientRect().width ?? 0) / 32
     if (width.value !== newWidth || (newCharacterWidth > 0 && newCharacterWidth !== characterWidth.value)) {
       width.value = newWidth
-      if (newCharacterWidth > 0) characterWidth.value = newCharacterWidth
+      if (newCharacterWidth > 0) {
+        characterWidth.value = newCharacterWidth
+      }
       clearMeasurements()
     }
     height.value = scroll.value.clientHeight
@@ -119,7 +139,9 @@ export const useCodeViewport = ({
   }
 
   const measureRows = (): void => {
-    if (!enabled() || !wrap() || !scroll.value) return
+    if (!enabled() || !wrap() || !scroll.value) {
+      return
+    }
     const starts = offsets.value
     const anchor = rowAt(scrollTop.value, starts)
     const columns = columnCounts.value
@@ -163,5 +185,5 @@ export const useCodeViewport = ({
   )
   onUpdated(measureRows)
 
-  return { window, maxColumns, onScroll, sourceLine }
+  return { lineWindow, maxColumns, onScroll, sourceLine }
 }

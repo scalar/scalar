@@ -41,7 +41,10 @@ import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
 
 import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
 import { getCodeFoldRanges } from './get-code-fold-ranges'
-import { useCodeHighlighting } from './use-code-highlighting'
+import {
+  MAX_HIGHLIGHTED_LINE_LENGTH,
+  useCodeHighlighting,
+} from './use-code-highlighting'
 import { useCodeViewport } from './use-code-viewport'
 import type { StandardLanguageKey } from './types'
 
@@ -135,9 +138,12 @@ const sourceLines = computed(() => prettyContent.value.split('\n'))
 // Credentials must never be exposed on plain lines while highlighting catches up.
 const isVirtual = computed(
   () =>
-    virtualize && !hideCredentials?.length && sourceLines.value.length > 100,
+    virtualize &&
+    !hideCredentials?.length &&
+    (prettyContent.value.length > MAX_HIGHLIGHTED_LINE_LENGTH ||
+      sourceLines.value.length > 100),
 )
-const { document: virtualDocument, revision } = useCodeHighlighting({
+const { highlightedDocument, revision } = useCodeHighlighting({
   enabled: () => isVirtual.value,
   code: () => prettyContent.value,
   lang: () => lang,
@@ -146,7 +152,7 @@ const { document: virtualDocument, revision } = useCodeHighlighting({
 })
 const foldRanges = computed(() =>
   isVirtual.value
-    ? virtualDocument.value?.ranges
+    ? highlightedDocument.value?.ranges
     : foldable
       ? getCodeFoldRanges(prettyContent.value, lang)
       : undefined,
@@ -155,7 +161,7 @@ const folded = ref(new Map<number, number>())
 const scroll = ref<HTMLElement | null>(null)
 const characterWidthProbe = ref<HTMLElement | null>(null)
 
-watch([prettyContent, () => lang], () => folded.value.clear())
+watch([prettyContent, () => lang, () => foldable], () => folded.value.clear())
 
 const highlightedLines = computed(() =>
   !isVirtual.value && foldRanges.value?.size
@@ -180,12 +186,7 @@ const renderedAsRows = computed(
   () => isVirtual.value || !!foldRanges.value?.size,
 )
 
-const {
-  window: lineWindow,
-  maxColumns,
-  onScroll,
-  sourceLine,
-} = useCodeViewport({
+const { lineWindow, maxColumns, onScroll, sourceLine } = useCodeViewport({
   enabled: () => isVirtual.value,
   lines: () => sourceLines.value,
   expandedLines: () => expandedLines.value,
@@ -206,14 +207,18 @@ const visibleLines = computed(() => {
   }[] = []
   void revision.value
   const highlights =
-    virtualDocument.value?.highlighter.lines ?? highlightedLines.value
+    highlightedDocument.value?.highlighter.lines ?? highlightedLines.value
   const ranges = foldRanges.value
 
   for (let row = start; row < end; row++) {
     const index = sourceLine(row)
+    const text = sourceLines.value[index] ?? ''
     lines.push({
-      html: highlights[index],
-      text: sourceLines.value[index] ?? '',
+      html:
+        isVirtual.value && text.length > MAX_HIGHLIGHTED_LINE_LENGTH
+          ? undefined
+          : highlights[index],
+      text,
       index,
       canFold: ranges?.has(index) ?? false,
       collapsed: folded.value.has(index),

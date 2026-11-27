@@ -95,7 +95,12 @@ const MASK_CLOSE = '</span></span>'
  * length, so it always lands inside a single span, the way a credential inside
  * a string literal did with lowlight.
  */
-const createLineRenderer = (code: string, lineMode: boolean, masked: Masked[]) => {
+const createLineRenderer = (
+  code: string,
+  lineMode: boolean,
+  masked: Masked[],
+  maxLineLength = Number.POSITIVE_INFINITY,
+): { lines: string[]; emit: Emit; endLine: () => void } => {
   const lines: string[] = []
   let line = ''
 
@@ -112,6 +117,7 @@ const createLineRenderer = (code: string, lineMode: boolean, masked: Masked[]) =
   // sorted and disjoint, so a cursor keeps each flush from rescanning them all.
   let textIndex = 0
   let newline = lineMode ? code.indexOf('\n') : -1
+  let skipLine = lineMode && (newline === -1 ? code.length : newline) > maxLineLength
 
   /** Escaped text of `[from, to)`, with masked ranges wrapped. */
   const text = (from: number, to: number): string => {
@@ -154,7 +160,7 @@ const createLineRenderer = (code: string, lineMode: boolean, masked: Masked[]) =
     while (at < e) {
       const stop = newline === -1 || newline >= e ? e : newline
 
-      if (stop > at) {
+      if (!skipLine && stop > at) {
         if (next !== cls || at !== end) {
           flush()
           cls = next
@@ -172,6 +178,7 @@ const createLineRenderer = (code: string, lineMode: boolean, masked: Masked[]) =
       endLine()
       at = stop + 1
       newline = code.indexOf('\n', at)
+      skipLine = (newline === -1 ? code.length : newline) - at > maxLineLength
       cls = null
       start = at
       end = at
@@ -234,14 +241,21 @@ export const syntaxHighlightLines = (code: string, options: SyntaxHighlightOptio
 /**
  * Highlights successive slices of one document, keeping grammar state between
  * calls. Completed lines are appended to `lines` as the scanner advances.
+ * Lines longer than `maxLineLength` emit no HTML. Their tokens still reach
+ * `onToken` so later lines keep the same highlighting and folding context.
  */
 export const createLineHighlighter = (
   code: string,
-  options: SyntaxHighlightOptions,
+  options: SyntaxHighlightOptions & { maxLineLength?: number },
   onToken?: Emit,
 ): { lines: string[]; advance: (through: number) => number } => {
   const grammar = grammarFor(canonicalName(options.lang))
-  const { lines, emit, endLine } = createLineRenderer(code, true, findCredentials(code, options.maskCredentials))
+  const { lines, emit, endLine } = createLineRenderer(
+    code,
+    true,
+    findCredentials(code, options.maskCredentials),
+    options.maxLineLength,
+  )
   const scan =
     grammar &&
     createTokenizer(code, grammar, (scope, start, end) => {
@@ -251,7 +265,9 @@ export const createLineHighlighter = (
 
   let offset = 0
   const advance = (through: number): number => {
-    if (offset >= code.length) return offset
+    if (offset >= code.length) {
+      return offset
+    }
     if (scan) {
       offset = scan(through)
     } else {
@@ -259,11 +275,15 @@ export const createLineHighlighter = (
       emit(null, offset, limit)
       offset = limit
     }
-    if (offset === code.length) endLine()
+    if (offset === code.length) {
+      endLine()
+    }
     return offset
   }
 
-  if (!code.length) endLine()
+  if (!code.length) {
+    endLine()
+  }
   return { lines, advance }
 }
 

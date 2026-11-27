@@ -9,13 +9,19 @@ import { REMEMBERED } from './types'
  * same context as a single scan. Returns the offset reached, which can pass the
  * requested offset when a match spans it.
  */
-export const createTokenizer = (code: string, grammar: CompiledGrammar, emit: Emit): ((through?: number) => number) => {
+export const createTokenizer = (code: string, grammar: CompiledGrammar, emit: Emit): Advance =>
+  createScanner(code, grammar, emit, 0)
+
+type Advance = (through?: number) => number
+
+const createScanner = (code: string, grammar: CompiledGrammar, emit: Emit, depth: number): Advance => {
   const len = code.length
   const stack: CompiledState[] = [grammar.root]
   // What each stack entry remembered (see `Rule.remember`), in step with `stack`.
   const memory: string[] = ['']
   let top = grammar.root
   let pos = 0
+  let embedded: { stop: number; advance: Advance } | undefined
   // Zero-length matches are legal (a pure state transition on a lookahead),
   // but a rule that neither consumes nor eventually changes state would spin.
   let spin = 0
@@ -24,7 +30,12 @@ export const createTokenizer = (code: string, grammar: CompiledGrammar, emit: Em
     const limit = Math.min(through, len)
     while (pos < limit) {
       if (top.embed !== null) {
-        pos = embedded(code, pos, top, memory[memory.length - 1]!, grammar, emit)
+        embedded ??= createEmbeddedScanner(code, pos, top, memory[memory.length - 1]!, grammar, emit, depth)
+        pos = embedded.advance(limit)
+        if (pos < embedded.stop) {
+          break
+        }
+        embedded = undefined
         // An embedding state pops itself. A rule that `set` into it from the
         // only state on the stack leaves nothing below, so the root takes over.
         if (stack.length > 1) {
@@ -144,26 +155,23 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
  */
 const MAX_EMBED_DEPTH = 8
 
-/** How many embedded bodies are being tokenized right now, one inside another. */
-let depth = 0
-
 /**
- * Tokenizes the body of an embedding state with its language and returns the
- * position after it.
+ * Prepares a resumable scan of an embedding state with its language.
  *
  * The body runs to the first match of the state's `until`, which is left for
  * the state below to tokenize. The slice is tokenized on its own, so the
  * embedded grammar starts in its root state and cannot read past the body —
  * an unterminated string in a `<script>` cannot swallow the `</script>`.
  */
-const embedded = (
+const createEmbeddedScanner = (
   code: string,
   pos: number,
   state: CompiledState,
   remembered: string,
   host: CompiledGrammar,
   emit: Emit,
-): number => {
+  depth: number,
+): { stop: number; advance: Advance } => {
   const embedding = state.embed!
   const { boundary, holes, language, validate } = embedding
   boundary.lastIndex = pos
@@ -176,15 +184,23 @@ const embedded = (
     found = boundary.exec(code)
   }
   const stop = found === null ? code.length : found.index
+  let unscopedPosition = pos
+  const advanceUnscoped: Advance = (through = stop) => {
+    const end = Math.min(through, stop)
+    if (end > unscopedPosition) {
+      emit(state.default, unscopedPosition, end)
+      unscopedPosition = end
+    }
+    return unscopedPosition
+  }
   if (stop === pos) {
-    return pos
+    return { stop, advance: advanceUnscoped }
   }
   // `{{remembered}}` takes the language from the text the entering rule
   // remembered, which is how a Markdown fence names its language at runtime.
   const grammar = getLanguage(language === REMEMBERED ? remembered : language)
   if (grammar === undefined || depth >= MAX_EMBED_DEPTH) {
-    emit(state.default, pos, stop)
-    return stop
+    return { stop, advance: advanceUnscoped }
   }
 
   const body = code.slice(pos, stop)
@@ -197,18 +213,12 @@ const embedded = (
           : body,
       )
     } catch {
-      emit(state.default, pos, stop)
-      return stop
+      return { stop, advance: advanceUnscoped }
     }
   }
 
-  depth += 1
-  try {
-    withHoles(body, pos, grammar, embedding, host, emit)
-  } finally {
-    depth -= 1
-  }
-  return stop
+  const scan = createScannerWithHoles(body, pos, grammar, embedding, host, emit, depth + 1)
+  return { stop, advance: (through = stop) => pos + scan(through - pos) }
 }
 
 /**
@@ -222,14 +232,15 @@ const embedded = (
  * text. An escape can instead keep the embedded scope across line breaks
  * and emit only selected text as punctuation.
  */
-const withHoles = (
+const createScannerWithHoles = (
   body: string,
   offset: number,
   grammar: CompiledGrammar,
   { holes, preserveHoleScope, holePunctuation }: NonNullable<CompiledState['embed']>,
   host: CompiledGrammar,
   emit: Emit,
-): void => {
+  depth: number,
+): Advance => {
   // Flat [start, end, …] offsets for text that overrides the embedded scope.
   const ranges: number[] = []
   const pieces: string[] = []
@@ -262,31 +273,40 @@ const withHoles = (
   }
   const masked = cursor === 0 ? body : pieces.join('') + body.slice(cursor)
   if (ranges.length === 0) {
-    tokenize(masked, grammar, (scope, from, to) => emit(scope, from + offset, to + offset))
-    return
+    return createScanner(masked, grammar, (scope, from, to) => emit(scope, from + offset, to + offset), depth)
   }
 
   let next = 0
   // Everything before `done` has been emitted, by one grammar or the other.
   let done = 0
-  tokenize(masked, grammar, (scope, from, to) => {
-    for (let at = Math.max(from, done); at < to; at = done) {
-      const start = ranges[next] ?? to
-      if (start <= at) {
-        const end = ranges[next + 1]!
-        if (preserveHoleScope) {
-          emit('punctuation', start + offset, end + offset)
+  return createScanner(
+    masked,
+    grammar,
+    (scope, from, to) => {
+      for (let at = Math.max(from, done); at < to; at = done) {
+        const start = ranges[next] ?? to
+        if (start <= at) {
+          const end = ranges[next + 1]!
+          if (preserveHoleScope) {
+            emit('punctuation', start + offset, end + offset)
+          } else {
+            createScanner(
+              body.slice(start, end),
+              host,
+              (s, a, b) => emit(s, a + start + offset, b + start + offset),
+              depth,
+            )()
+          }
+          next += 2
+          done = end
         } else {
-          tokenize(body.slice(start, end), host, (s, a, b) => emit(s, a + start + offset, b + start + offset))
+          done = Math.min(to, start)
+          emit(scope, at + offset, done + offset)
         }
-        next += 2
-        done = end
-      } else {
-        done = Math.min(to, start)
-        emit(scope, at + offset, done + offset)
       }
-    }
-  })
+    },
+    depth,
+  )
 }
 
 /**

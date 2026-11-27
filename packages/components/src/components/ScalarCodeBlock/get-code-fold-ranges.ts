@@ -4,6 +4,12 @@ import { type Emit, tokenizeWith } from '@scalar/highlight/core'
 type AddFold = (start: number, end: number) => void
 
 const voidElements = new Set('area base br col embed hr img input link meta param source track wbr'.split(' '))
+// Common paragraph boundaries with optional HTML end tags, as defined by the HTML Standard.
+const paragraphEndTags = new Set(
+  'address article aside blockquote details dialog div dl fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr main menu nav ol p pre search section table ul'.split(
+    ' ',
+  ),
+)
 const closingBrackets = { '}': '{', ']': '[' } as const
 
 /** Fold YAML block mappings, sequences and scalars using their indentation. */
@@ -49,17 +55,31 @@ export const createCodeFoldCollector = (
 
   // The highlighter already distinguishes structural punctuation from strings and comments.
   const brackets: { value: string; line: number }[] = []
-  const openTags = new Map<string, number[]>()
+  const openTags: { name: string; line: number }[] = []
   const isHtml = lang.trim().toLowerCase() === 'html'
   let tagStart: '<' | '</' | undefined
   let tagName: string | undefined
+  let tagLine = 0
+  let endBeforeTag = 0
   let line = 0
+  let lineStart = 0
   let newline = code.indexOf('\n')
+
+  // Keep a dedicated closing line visible. A mixed closing line belongs to
+  // the body being folded, so hide it together with the other body lines.
+  const lineBefore = (offset: number): number => {
+    let before = offset - 1
+    while (before >= lineStart && (code[before] === ' ' || code[before] === '\t')) {
+      before--
+    }
+    return before >= lineStart ? line : line - 1
+  }
 
   const onToken: Emit = (scope, start, end) => {
     while (newline !== -1 && newline < start) {
       line += 1
-      newline = code.indexOf('\n', newline + 1)
+      lineStart = newline + 1
+      newline = code.indexOf('\n', lineStart)
     }
 
     if (scope === 'tag' && tagStart && !tagName) {
@@ -82,7 +102,9 @@ export const createCodeFoldCollector = (
         const open = brackets.at(-1)
         if (open?.value === closingBrackets[value]) {
           brackets.pop()
-          addFold(open.line, line - 1)
+          if (open.line < line) {
+            addFold(open.line, lineBefore(start))
+          }
         }
         break
       }
@@ -90,19 +112,40 @@ export const createCodeFoldCollector = (
       case '</':
         tagStart = value
         tagName = undefined
+        tagLine = line
+        endBeforeTag = lineBefore(start)
         break
       case '>':
       case '/>': {
-        if (value === '>' && tagName && (!isHtml || !voidElements.has(tagName))) {
-          const openings = openTags.get(tagName) ?? []
-          if (tagStart === '<') {
-            openings.push(line)
-            openTags.set(tagName, openings)
-          } else {
-            const open = openings.pop()
-            if (open !== undefined) {
-              addFold(open, line - 1)
+        if (tagName && tagStart === '<') {
+          const previous = openTags.at(-1)
+          if (
+            isHtml &&
+            previous &&
+            ((previous.name === 'li' && tagName === 'li') || (previous.name === 'p' && paragraphEndTags.has(tagName)))
+          ) {
+            openTags.pop()
+            addFold(previous.line, endBeforeTag)
+          }
+          if (value === '>' && (!isHtml || !voidElements.has(tagName))) {
+            openTags.push({ name: tagName, line: tagLine })
+          }
+        } else if (value === '>' && tagName && tagStart === '</') {
+          let opening = openTags.length - 1
+          while (opening >= 0 && openTags[opening]?.name !== tagName) {
+            opening--
+          }
+          if (opening !== -1) {
+            if (isHtml) {
+              for (let index = opening + 1; index < openTags.length; index++) {
+                const child = openTags[index]!
+                if (child.name === 'p' || child.name === 'li') {
+                  addFold(child.line, endBeforeTag)
+                }
+              }
             }
+            addFold(openTags[opening]!.line, endBeforeTag)
+            openTags.length = opening
           }
         }
         tagStart = undefined

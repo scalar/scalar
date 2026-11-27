@@ -1,7 +1,17 @@
 import { createLineHighlighter } from '@scalar/highlight/compat'
-import { computed, ref, watch } from 'vue'
+import { type ComputedRef, type Ref, computed, ref, watch } from 'vue'
 
 import { createCodeFoldCollector } from './get-code-fold-ranges'
+
+/** Longer physical lines stay readable as plain text without creating thousands of spans. */
+export const MAX_HIGHLIGHTED_LINE_LENGTH = 8_192
+
+type HighlightedDocument = {
+  highlighter: ReturnType<typeof createLineHighlighter>
+  ranges: ReadonlyMap<number, number> | undefined
+  length: number
+  firstScreenEnd: number
+}
 
 const INITIAL_LINES = 40
 const SLICE_LENGTH = 4_096
@@ -20,16 +30,28 @@ export const useCodeHighlighting = ({
   lang: () => string
   foldable: () => boolean
   sourceLines: () => string[]
-}) => {
-  const document = computed(() => {
-    if (!enabled()) return undefined
+}): { highlightedDocument: ComputedRef<HighlightedDocument | undefined>; revision: Ref<number> } => {
+  const highlightedDocument = computed(() => {
+    if (!enabled()) {
+      return undefined
+    }
     const text = code()
+    const lines = sourceLines()
+    if (lines.length === 1 && text.length > MAX_HIGHLIGHTED_LINE_LENGTH) {
+      return undefined
+    }
     const collector = foldable() ? createCodeFoldCollector(text, lang()) : undefined
-    const highlighter = createLineHighlighter(text, { lang: lang() }, collector?.onToken)
+    const highlighter = createLineHighlighter(
+      text,
+      { lang: lang(), maxLineLength: MAX_HIGHLIGHTED_LINE_LENGTH },
+      collector?.onToken,
+    )
     let firstScreenEnd = 0
-    for (const line of sourceLines().slice(0, INITIAL_LINES)) {
+    for (const line of lines.slice(0, INITIAL_LINES)) {
       firstScreenEnd += line.length + 1
-      if (firstScreenEnd >= SLICE_LENGTH) break
+      if (firstScreenEnd >= SLICE_LENGTH) {
+        break
+      }
     }
     return {
       highlighter,
@@ -41,12 +63,16 @@ export const useCodeHighlighting = ({
 
   const revision = ref(0)
   watch(
-    document,
+    highlightedDocument,
     (document, _, onCleanup) => {
-      if (!document) return
+      if (!document) {
+        return
+      }
       const { highlighter, length, firstScreenEnd } = document
       let position = highlighter.advance(firstScreenEnd)
-      if (position >= length || typeof window === 'undefined') return
+      if (position >= length || typeof window === 'undefined') {
+        return
+      }
 
       const schedule = (run: (deadline?: IdleDeadline) => void): (() => void) => {
         if (typeof window.requestIdleCallback === 'function') {
@@ -64,7 +90,9 @@ export const useCodeHighlighting = ({
           position = highlighter.advance(position + SLICE_LENGTH)
         } while (position < length && performance.now() < end)
         revision.value++
-        if (position < length) cancel = schedule(scan)
+        if (position < length) {
+          cancel = schedule(scan)
+        }
       }
 
       let cancel = schedule(scan)
@@ -73,5 +101,5 @@ export const useCodeHighlighting = ({
     { immediate: true },
   )
 
-  return { document, revision }
+  return { highlightedDocument, revision }
 }

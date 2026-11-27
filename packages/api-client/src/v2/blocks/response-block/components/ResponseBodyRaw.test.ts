@@ -49,4 +49,18 @@ describe('ResponseBodyRaw', () => {
       wrapper.unmount()
     }
   })
+
+  it('renders CR-delimited wire text on separate lines and copies the original bytes', () => {
+    const content = '{\r  "a": 1\r}'
+    const wrapper = mount(ResponseBodyRaw, { props: { content, language: 'json' } })
+    try {
+      expect(wrapper.get('button[aria-label="Toggle code fold at line 1"]').attributes('aria-expanded')).toBe('true')
+      expect(wrapper.getComponent(ScalarCodeBlockCopy).props('content')).toBe(content)
+      const buttons = wrapper.findAll('button')
+      expect(buttons[0]?.attributes('aria-label')).toBe('Wrap lines')
+      expect(buttons[1]?.attributes('aria-label')).toBe('Copy response body')
+    } finally {
+      wrapper.unmount()
+    }
+  })
 })

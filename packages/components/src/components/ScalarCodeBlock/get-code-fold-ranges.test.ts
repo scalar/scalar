@@ -20,6 +20,10 @@ describe('getCodeFoldRanges', () => {
     expect([...getCodeFoldRanges(content, 'css')]).toStrictEqual([[0, 2]])
   })
 
+  it('folds a JSON body that ends on the closing bracket line', () => {
+    expect([...getCodeFoldRanges('{\n  "item": 42 }', 'json')]).toStrictEqual([[0, 1]])
+  })
+
   it('folds HTML elements and embedded CSS with the closing tags still visible', () => {
     const content = '<DIV>\n<br>\n<style>\na {\n  color: red;\n}\n</style>\n</div>'
     expect([...getCodeFoldRanges(content, 'html')]).toStrictEqual([
@@ -34,6 +38,16 @@ describe('getCodeFoldRanges', () => {
     expect([...getCodeFoldRanges(content, 'xml')]).toStrictEqual([
       [2, 3],
       [0, 4],
+    ])
+  })
+
+  it('folds multiline HTML list items and paragraphs with implied closing tags', () => {
+    const content = '<ul>\n<li>\n<p>\n  paragraph\n<div>other</div>\n<li>\n  next\n</ul>'
+    expect([...getCodeFoldRanges(content, 'html')]).toStrictEqual([
+      [2, 3],
+      [1, 4],
+      [5, 6],
+      [0, 6],
     ])
   })
 

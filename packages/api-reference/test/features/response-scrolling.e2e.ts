@@ -32,8 +32,7 @@ test.describe('response scrolling', () => {
       const dialog = page.getByRole('dialog')
       await dialog.getByRole('button', { name: /Send Request/ }).click()
       const body = dialog.getByTestId('response-body-raw')
-      // This focusable viewport owns scrolling, while CodeMirror virtualizes its content.
-      const scroller = body.locator(':scope > [tabindex="0"]')
+      const scroller = body.getByRole('group', { name: 'Response body' })
       await expect(body).toContainText('User 0')
       await scroller.scrollIntoViewIfNeeded()
       await expect.poll(() => scroller.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true)
