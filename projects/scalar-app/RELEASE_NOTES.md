@@ -9,6 +9,17 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.58 (2026-11-27)
+
+### Support for trusted local development origins in OAuth flows
+
+This release adds support for OAuth authorization flows on internal development hosts. You can now explicitly configure local origins to bypass HTTPS requirements and remote proxies during development.
+
+- Added trustedLocalOrigins configuration to allow HTTP endpoints on internal development hosts like auth.dev.internal
+- API and OAuth requests to trusted local origins now bypass remote proxies while keeping same-origin and local proxies eligible
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1158)
+
 ## 1.1.57 (2026-11-26)
 
 ### System fonts, refreshed theme palettes, and HTTP client filtering

@@ -1,5 +1,9 @@
 # @scalar/server-side-rendering
 
+## 0.1.78
+
+No changes in this release.
+
 ## 0.1.77
 
 No changes in this release.

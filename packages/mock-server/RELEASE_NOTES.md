@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.10 (2026-11-27)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#02110)
+
 ## 0.21.9 (2026-11-26)
 
 ### Generated strings now respect length constraints

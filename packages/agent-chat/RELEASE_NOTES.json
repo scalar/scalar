@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.12.61",
+    "date": "2026-11-27",
+    "title": "Polish and bug fixes",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01261",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.12.60",
     "date": "2026-11-26",
     "title": "Fixed download filenames with special characters",

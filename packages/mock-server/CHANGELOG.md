@@ -1,5 +1,9 @@
 # @scalar/mock-server
 
+## 0.21.10
+
+No changes in this release.
+
 ## 0.21.9
 
 ### Patch Changes

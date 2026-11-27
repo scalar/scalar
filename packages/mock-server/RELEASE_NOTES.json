@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.21.10",
+    "date": "2026-11-27",
+    "title": "Polish and bug fixes shipped",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#02110",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.21.9",
     "date": "2026-11-26",
     "title": "Generated strings now respect length constraints",

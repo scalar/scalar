@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.61 (2026-11-27)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01261)
+
 ## 0.12.60 (2026-11-26)
 
 ### Fixed download filenames with special characters

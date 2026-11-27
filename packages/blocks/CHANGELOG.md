@@ -1,5 +1,19 @@
 # @scalar/blocks
 
+## 0.11.1
+
+### Patch Changes
+
+- [#11259](https://github.com/scalar/scalar/pull/11259): Show only a composed schema's own description. When a schema with its own `description` used `allOf` with a member that has a description of its own (for example a referenced base schema), the Models section showed the member's description under the schema's, unlike Swagger UI.
+- [#11235](https://github.com/scalar/scalar/pull/11235): Resolve JSON Schema dynamic references using their lexical resource, and use the same dynamic bindings and static targets for schema rendering and JSON and XML examples.
+
+  - Bundling loads URI-qualified `$dynamicRef` targets through configured loader plugins, including externally referenced meta-schemas. Relative references under an opaque schema identifier stay unresolved. Full bundles retain `x-ext-urls` entries for loaded targets when no URL map is supplied.
+  - Media type `schema` and `itemSchema` use the shared schema validator. They preserve chained `$ref-value` links during coercion and retain their existing public TypeScript types.
+- [#11236](https://github.com/scalar/scalar/pull/11236): Resolve literal and templated relative OpenAPI server URLs against the configured base server URL or the API description's HTTP(S) location. With either base, `api.example.com/v1`, `api.example.com:8080/v1`, and `myhost:8080/v1` resolve as paths, including when produced by server variables. Use an explicit URL such as `https://api.example.com:8080/v1` or `//api.example.com:8080/v1` to target that host.
+
+  Use path-item servers in Try It and code samples, including selections and server variable edits made in Try It.
+- [#11270](https://github.com/scalar/scalar/pull/11270): Honor OpenAPI matrix and label path parameter styles in requests, copied URLs, and generated code samples.
+
 ## 0.11.0
 
 ### Minor Changes

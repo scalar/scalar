@@ -1,5 +1,9 @@
 # @scalar/postman-to-openapi
 
+## 0.7.38
+
+No changes in this release.
+
 ## 0.7.37
 
 ### Patch Changes

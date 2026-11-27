@@ -1,5 +1,15 @@
 # @scalar/aspnetcore
 
+## 3.4.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.86.0
+
+### Minor Changes
+
+- [#11272](https://github.com/scalar/scalar/pull/11272): Add `trustedLocalOrigins` so explicitly configured development origins can use HTTP for OAuth authorization and bypass remote proxies for API and OAuth requests.
+
 ## 3.3.0
 
 ### Bundled API Reference

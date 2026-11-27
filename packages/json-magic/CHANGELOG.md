@@ -1,5 +1,18 @@
 # @scalar/json-magic
 
+## 0.24.0
+
+### Minor Changes
+
+- [#11231](https://github.com/scalar/scalar/pull/11231): Add opt-in custom reference traversal to `checkDocument` so pruning keeps targets reached through extensions and unknown schema keywords, including bundled literal copies and their dependencies.
+
+### Patch Changes
+
+- [#11235](https://github.com/scalar/scalar/pull/11235): Resolve JSON Schema dynamic references using their lexical resource, and use the same dynamic bindings and static targets for schema rendering and JSON and XML examples.
+
+  - Bundling loads URI-qualified `$dynamicRef` targets through configured loader plugins, including externally referenced meta-schemas. Relative references under an opaque schema identifier stay unresolved. Full bundles retain `x-ext-urls` entries for loaded targets when no URL map is supplied.
+  - Media type `schema` and `itemSchema` use the shared schema validator. They preserve chained `$ref-value` links during coercion and retain their existing public TypeScript types.
+
 ## 0.23.1
 
 No changes in this release.

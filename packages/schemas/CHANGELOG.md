@@ -1,5 +1,11 @@
 # @scalar/schemas
 
+## 0.22.0
+
+### Minor Changes
+
+- [#11272](https://github.com/scalar/scalar/pull/11272): Add `trustedLocalOrigins` so explicitly configured development origins can use HTTP for OAuth authorization and bypass remote proxies for API and OAuth requests.
+
 ## 0.21.0
 
 ### Minor Changes

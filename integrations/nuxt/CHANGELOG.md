@@ -1,5 +1,9 @@
 # @scalar/nuxt
 
+## 0.6.99
+
+No changes in this release.
+
 ## 0.6.98
 
 No changes in this release.
