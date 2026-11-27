@@ -194,10 +194,17 @@ export class BlockParser {
   readonly refs: Refs = new Map()
   readonly footnotes = new Set<string>()
   private inline = new InlineParser(this.refs, this.footnotes)
+  private mdast: boolean
 
-  /** `htmlAsText`: raw HTML in the input is literal text, for Markdown found inside raw HTML. */
-  constructor(options?: { htmlAsText?: boolean }) {
+  /**
+   * `htmlAsText`: raw HTML in the input is literal text, for Markdown found inside raw HTML.
+   * `mdast`: build the tree `mdast-util-from-markdown` would, for converting Markdown rather than
+   * rendering it. URLs stay as written, and footnote definitions stay where they are.
+   */
+  constructor(options?: { htmlAsText?: boolean; mdast?: boolean }) {
     this.inline.htmlAsText = options?.htmlAsText ?? false
+    this.mdast = options?.mdast ?? false
+    if (this.mdast) this.inline.url = (url) => url
   }
 
   private node(kind: Kind, line: number): B {
@@ -717,9 +724,17 @@ export class BlockParser {
       case 'code': {
         if (!b.fenced) return { type: 'code', lang: null, meta: null, value: b.content.replace(/\n$/, ''), position }
         const nl = b.content.indexOf('\n')
+        const value = b.content.slice(nl + 1).replace(/\n$/, '')
+        if (this.mdast) {
+          // As in micromark: the info string splits at its first whitespace, then each part is decoded.
+          const info = trim(b.content.slice(0, nl), ' \t')
+          const space = info.search(/[ \t]/)
+          const lang = unescapeString(space === -1 ? info : info.slice(0, space))
+          const meta = space === -1 ? '' : unescapeString(trim(info.slice(space), ' \t'))
+          return { type: 'code', lang: lang || null, meta: meta || null, value, position }
+        }
         const info = unescapeString(b.content.slice(0, nl).trim())
         const [lang, ...meta] = info.split(/[ \t]+/)
-        const value = b.content.slice(nl + 1).replace(/\n$/, '')
         return { type: 'code', lang: lang || null, meta: meta.join(' ') || null, value, position }
       }
       case 'list': {
@@ -756,8 +771,10 @@ export class BlockParser {
             position: { start: { line: item.startLine }, end: { line: item.endLine } },
           }
         })
-        // A list is loose when blank lines separate its items or the children of any item.
-        let spread = b.looseTail === true || items.some((it) => it.spread)
+        // A list is loose when blank lines separate its items or the children of any item. In
+        // mdast, as `mdast-util-from-markdown` builds it, the list's own `spread` is only the
+        // first: the items say whether their children are apart.
+        let spread = b.looseTail === true || (!this.mdast && items.some((it) => it.spread))
         for (let j = 0; j + 1 < b.children.length; j++) {
           if (b.children[j]!.endLine !== b.children[j + 1]!.startLine - 1) spread = true
         }
@@ -793,7 +810,7 @@ export class BlockParser {
           position,
         }
         if (!footnotes.has(id)) footnotes.set(id, def)
-        return null
+        return this.mdast ? def : null
       }
       default:
         return null

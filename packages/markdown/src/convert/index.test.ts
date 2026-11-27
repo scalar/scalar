@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { createMarkdownSerializer, mdastFromHtml, parseMarkdown } from './convert'
+import { createMarkdownSerializer, mdastFromHtml, parseMarkdown } from './index'
 
-describe('convert', () => {
+describe('index', () => {
   it('parses GitHub Flavored Markdown', () => {
     const tree = parseMarkdown('| a |\n| - |\n| b |\n\n~~gone~~')
 

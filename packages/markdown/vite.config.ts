@@ -65,7 +65,7 @@ export default defineConfig({
         // One file per module, dependencies included. With shared chunks, every bundled
         // dependency landed in one chunk that the root entry imported, so `htmlFromMarkdown`
         // dragged the whole unified stack (and parse5) into every consumer's initial load,
-        // even though only the "Copy as Markdown" helpers use it. Separate files let a
+        // even though only the legacy `@scalar/markdown/renderer` uses it. Separate files let a
         // consumer's bundler drop what it never imports, as `sideEffects: false` allows.
         preserveModules: true,
         preserveModulesRoot: './src',

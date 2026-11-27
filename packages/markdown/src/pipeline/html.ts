@@ -12,7 +12,7 @@
 
 import { decodeHtml } from './entities'
 
-const VOID = new Set([
+export const VOID = new Set([
   'area',
   'base',
   'br',
@@ -649,12 +649,15 @@ export class Writer {
 const ATTR_NAME = /[^\t\n\f\r />][^\t\n\f\r /=>]*/y
 const WS = /[\t\n\f\r ]*/y
 
+/** What the tokenizer reports to: the `Writer`, or a tree builder. */
+export type TokenSink = Pick<Writer, 'onText' | 'onComment' | 'onStart' | 'onEnd' | 'onRawText'>
+
 /**
  * Splits HTML into text, tags and raw text, following the HTML tokenizer's
  * rules closely enough for well-formed input. Comments, doctypes and
  * processing instructions are dropped, as the sanitizer drops them today.
  */
-const tokenize = (s: string, w: Writer): void => {
+export const tokenize = (s: string, w: TokenSink): void => {
   let i = 0
   const n = s.length
   while (i < n) {

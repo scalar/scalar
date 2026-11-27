@@ -50,10 +50,16 @@ The unified renderer is still available as `createHtmlFromMarkdown` from `@scala
 | `rehypeAlert` | rehype plugin for GitHub alerts (`> [!NOTE]`) |
 | `rehypeHighlight` | rehype plugin for syntax highlighting |
 | `parseMarkdown` | GitHub Flavored Markdown string to an mdast tree |
-| `mdastFromHtml` | HTML fragment to a sanitized mdast tree |
-| `createMarkdownSerializer` | Build a reusable mdast to GitHub Flavored Markdown serializer, with `remark-stringify` options |
+| `mdastFromHtml` | HTML fragment (such as `htmlFromMarkdown` output) to a sanitized mdast tree |
+| `createMarkdownSerializer` | Build a reusable mdast to GitHub Flavored Markdown serializer |
 
-`parseMarkdown`, `mdastFromHtml` and `createMarkdownSerializer` exist so packages that work on Markdown trees can share the unified stack this package bundles, rather than shipping a second copy of it.
+### Converting Markdown
+
+`parseMarkdown`, `mdastFromHtml` and `createMarkdownSerializer` are what `@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown` build "Copy as Markdown" with. They use no unified, remark, rehype or parse5 either:
+
+- `parseMarkdown` is the renderer's own parser, returning standard mdast without `position`. It resolves reference-style links while it parses, so the tree has `link` nodes where remark would have `linkReference` and `definition` nodes. Footnotes keep their `footnoteReference` and `footnoteDefinition` nodes.
+- `mdastFromHtml` sanitizes its input with the renderer's allowlist, builds a tree with the renderer's HTML tokenizer, and converts it as `rehype-remark` does. It is meant for HTML that `htmlFromMarkdown` wrote: other HTML is made safe, but only parsed as well as a stack of open elements can.
+- `createMarkdownSerializer` is a port of `mdast-util-to-markdown` and its GFM extensions (tables, strikethrough, task lists, footnotes, autolink literals), with `remark-stringify`'s defaults. It takes the `bullet` and `join` options and handles the nodes those two packages build and parse. It throws on any other node, such as `image`, `definition` or `linkReference`, rather than writing something it was not checked for. Its escaping is the same as upstream's, so text never turns into raw HTML, emphasis or links, with one exception that remark shares: GFM finds autolink literals in decoded text, so text such as `www.example.com` comes back as a link to itself.
 
 ## Community
 

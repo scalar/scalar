@@ -55,7 +55,6 @@
     "rehype-format": "^5.0.1",
     "rehype-parse": "^9.0.1",
     "rehype-raw": "^7.0.0",
-    "rehype-remark": "^10.0.1",
     "rehype-sanitize": "^6.0.0",
     "rehype-stringify": "^10.0.1",
     "remark-gfm": "catalog:*",
