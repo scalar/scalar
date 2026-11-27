@@ -52,30 +52,33 @@ describe('upgrade-fragment', () => {
     )
   })
 
+  const host = 'api.example.com'
+  const httpsSource = { sourceUrl: 'https://docs.example.com/swagger.json' }
+  const httpServer = 'http://api.example.com/v1'
+  const httpsServer = 'https://api.example.com/v1'
+
   it.each([
-    { sourceUrl: 'https://docs.example.com/swagger.json', fields: {}, schemes: ['https'] },
-    { sourceUrl: 'HTTPS://docs.example.com/swagger.json', fields: {}, schemes: ['https'] },
-    { sourceUrl: 'http://docs.example.com/swagger.json', fields: {}, schemes: ['http'] },
-    { sourceUrl: 'file:///docs/swagger.json', fields: {}, schemes: ['http'] },
-    { sourceUrl: '/docs/swagger.json', fields: {}, schemes: ['http'] },
-    {
-      sourceUrl: 'https://docs.example.com/swagger.json',
-      fields: { schemes: ['http', 'wss'] },
-      schemes: ['http', 'wss'],
-    },
-    { sourceUrl: 'https://docs.example.com/swagger.json', fields: { schemes: [] }, schemes: ['http'] },
-  ])('uses $schemes for a 2.0 description with $fields at $sourceUrl', async ({ sourceUrl, fields, schemes }) => {
+    [httpsSource, { host }, [httpsServer]],
+    [{ sourceUrl: 'HTTPS://docs.example.com/swagger.json' }, { host }, [httpsServer]],
+    [{ sourceUrl: 'http://docs.example.com/swagger.json' }, { host }, [httpServer]],
+    [{ sourceUrl: 'file:///docs/swagger.json' }, { host }, [httpServer]],
+    [{ sourceUrl: '/docs/swagger.json' }, { host }, [httpServer]],
+    [{}, { host }, [httpServer]],
+    [httpsSource, {}, ['/v1']],
+    [httpsSource, { host, schemes: ['http', 'wss'] }, [httpServer, 'wss://api.example.com/v1']],
+    [httpsSource, { host, schemes: [] }, [httpServer]],
+  ])('uses retrieval context %j and description fields %j to generate servers %j', async (retrieval, fields, urls) => {
     const info = { title: 'Test', version: '1' }
     const { value } = await upgradeFragment(
-      { swagger: '2.0', info, paths: {}, host: 'api.example.com', basePath: '/v1', ...fields },
-      { from: '2.0', to: '3.1', kind: 'document', sourceUrl },
+      { swagger: '2.0', info, paths: {}, basePath: '/v1', ...fields },
+      { from: '2.0', to: '3.1', kind: 'document', ...retrieval },
     )
 
     expect(value).toStrictEqual({
       openapi: '3.1.1',
       info,
       paths: {},
-      servers: schemes.map((scheme) => ({ url: `${scheme}://api.example.com/v1` })),
+      servers: urls.map((url) => ({ url })),
     })
   })
 
