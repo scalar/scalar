@@ -30,6 +30,13 @@ const purgesNeeded = JSON.parse(process.env.PURGES_NEEDED || '{}')
 
 if (args.includes('--head')) {
   const path = url.replace('https://cdn.jsdelivr.net/npm/', '')
+  const response = JSON.parse(process.env.HEAD_RESPONSES || '{}')[path]
+  if (response) {
+    process.stdout.write(response.output ?? '')
+    process.exitCode = response.exitCode ?? 0
+    return
+  }
+
   const purges = existsSync(log)
     ? readFileSync(log, 'utf8').split('\n').filter((line) => line === 'purge ' + path).length
     : 0
@@ -66,6 +73,7 @@ type RunOptions = {
   waitForNpm?: boolean
   npmReadyAfter?: number
   purgesNeeded?: Record<string, number>
+  headResponses?: Record<string, { output?: string; exitCode?: number }>
   purgeStatus?: string
   npmTimeoutSeconds?: number
 }
@@ -98,6 +106,7 @@ const run = (options: RunOptions = {}): { status: number | null; stdout: string;
       INITIALLY_FRESH: options.initiallyFresh ? 'true' : 'false',
       NPM_READY_AFTER: String(options.npmReadyAfter ?? 1),
       PURGES_NEEDED: JSON.stringify(options.purgesNeeded ?? {}),
+      HEAD_RESPONSES: JSON.stringify(options.headResponses ?? {}),
       PURGE_STATUS: options.purgeStatus ?? '200',
     },
   })
@@ -150,6 +159,22 @@ describe('purge-jsdelivr', () => {
     expect(log.filter((line) => line === 'purge @scalar/api-reference/esm.js')).toHaveLength(3)
     expect(stdout).toContain('jsDelivr still does not serve @scalar/api-reference@2.0.0 after 3 attempt(s) for:')
     expect(stdout).toContain('  @scalar/api-reference/esm.js')
+  })
+
+  it.each([
+    ['the HEAD request fails', { exitCode: 7 }],
+    [
+      'only the redirect reports the expected version',
+      { output: 'HTTP/2 302\r\nx-jsd-version: 2.0.0\r\n\r\nHTTP/2 200\r\n\r\n' },
+    ],
+    ['the final response is an error', { output: 'HTTP/2 503\r\nx-jsd-version: 2.0.0\r\n\r\n' }],
+  ])('fails verification when %s', (_, response) => {
+    const path = '@scalar/api-reference'
+    const { status, stdout, log } = run({ headResponses: { [path]: response } })
+
+    expect(status).toBe(1)
+    expect(log).toStrictEqual(['npm view', ...PATHS.map((entry) => `purge ${entry}`), `purge ${path}`, `purge ${path}`])
+    expect(stdout.trim().split('\n').at(-1)).toBe(`  ${path}`)
   })
 
   it('fails without purging when npm never serves the version', () => {

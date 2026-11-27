@@ -26,10 +26,10 @@ permissions:
   contents: read
 
 concurrency:
-  # A newer run checks the same or a newer version, so it can replace an
-  # older one that is still waiting for npm.
+  # Keep pending purges queued so a later Main completion cannot interrupt
+  # a release that is still waiting for npm.
   group: purge-cdn
-  cancel-in-progress: true
+  queue: max
 
 jobs:
   purge:
@@ -45,11 +45,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
         with:
-          # The commit Main ran on, not whatever main points at by now.
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          # The purge script comes from the same revision as this workflow.
+          ref: ${{ github.workflow_sha }}
           persist-credentials: false
           sparse-checkout: |
-            packages/api-reference/package.json
             tooling/scripts/purge-jsdelivr.sh
           sparse-checkout-cone-mode: false
 
@@ -76,10 +75,21 @@ jobs:
             echo "wait_for_npm=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Read the API Reference version
+        id: release-version
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION_REF: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          # Read the manifest from the triggering commit as data.
+          version=$(gh api --header 'Accept: application/vnd.github.raw+json' \
+            "repos/$GITHUB_REPOSITORY/contents/packages/api-reference/package.json?ref=$VERSION_REF" | \
+            jq -er '.version | strings | select(test("^[0-9A-Za-z.+-]+$"))')
+          printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
+
       - name: Purge jsDelivr once npm serves the release
         env:
+          VERSION: ${{ steps.release-version.outputs.version }}
           WAIT_FOR_NPM: ${{ steps.published.outputs.wait_for_npm }}
-        run: |
-          VERSION=$(jq -r .version packages/api-reference/package.json)
-          export VERSION
-          bash ./tooling/scripts/purge-jsdelivr.sh
+        run: bash ./tooling/scripts/purge-jsdelivr.sh

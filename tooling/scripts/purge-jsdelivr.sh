@@ -55,21 +55,23 @@ paths=(
   "$package/dist/browser/standalone.esm.js"
 )
 
-# Print the version jsDelivr serves for a path, or nothing when the request
-# fails. `--location` follows the bare package URL's redirect to the file, and
-# the last `x-jsd-version` header belongs to that final response.
+# Check the final response because redirects may carry a version header of
+# their own. Only a successful file response confirms the served version.
 cdn_version() {
-  "$curl_command" --silent --head --location "$cdn_base_url/$1" 2>/dev/null |
-    tr -d '\r' |
-    awk 'tolower($1) == "x-jsd-version:" { version = $2 } END { print version }'
+  "$curl_command" --silent --show-error --head --location "$cdn_base_url/$1" |
+    awk '
+      { sub(/\r$/, "") }
+      /^HTTP\// { status = $2; version = "" }
+      tolower($1) == "x-jsd-version:" { version = $2 }
+      END { if (status ~ /^2[0-9][0-9]$/) print version }
+    '
 }
 
 # Print the paths the CDN does not yet serve $VERSION for, one per line.
 stale_paths() {
   local path served
   for path in "${paths[@]}"; do
-    served="$(cdn_version "$path")"
-    if [ "$served" != "$VERSION" ]; then
+    if ! served="$(cdn_version "$path")" || [ "$served" != "$VERSION" ]; then
       echo "$path"
     fi
   done
