@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { brotliCompressSync, constants, gzipSync } from 'node:zlib'
 
@@ -6,6 +6,7 @@ import { brotliCompressSync, constants, gzipSync } from 'node:zlib'
 type ByteSizes = { minified: number; gzip: number; brotli: number }
 
 type ChunkSize = { file: string; key: string; initial: boolean; size: ByteSizes }
+type EsmFile = Omit<ChunkSize, 'size'>
 
 /** Standalone API Reference bundle sizes at one build commit. */
 export type BundleSizes = { commit: string; umd: ByteSizes; esm: ChunkSize[] }
@@ -88,12 +89,9 @@ const measureFile = (directory: string, file: string): ByteSizes => {
   }
 }
 
-/** Measure the emitted UMD file and each ESM chunk once, including injected CSS. */
-export const measureBundles = (directory: string, commit: string): BundleSizes => {
-  if (!isCommit(commit)) {
-    throw new Error(`Expected a commit SHA, got ${JSON.stringify(commit)}`)
-  }
+const withoutChunkHash = (file: string): string => file.replace(/-[A-Za-z0-9_-]{8}\.js$/, '.js')
 
+const readEsmFiles = (directory: string): EsmFile[] => {
   const chunks = readManifest(directory)
   const entry = [...chunks].find(([, chunk]) => chunk.isEntry && chunk.file === 'standalone.esm.js')
   if (!entry) {
@@ -112,7 +110,7 @@ export const measureBundles = (directory: string, commit: string): BundleSizes =
     }
   }
 
-  const esm = new Map<string, ChunkSize>()
+  const esm = new Map<string, EsmFile>()
   for (const [key, { file }] of chunks) {
     const existing = esm.get(file)
     if (existing) {
@@ -123,13 +121,64 @@ export const measureBundles = (directory: string, commit: string): BundleSizes =
     esm.set(file, {
       file,
       // Vite keys entry chunks by source and shared chunks by their hashed output names.
-      key: key.startsWith('_') ? file.replace(/-[A-Za-z0-9_-]{8}\.js$/, '.js') : key,
+      key: key.startsWith('_') ? withoutChunkHash(file) : key,
       initial: initialKeys.has(key),
-      size: measureFile(directory, file),
     })
   }
 
-  return { commit, umd: measureFile(directory, 'standalone.js'), esm: [...esm.values()] }
+  return [...esm.values()]
+}
+
+// Builds created before size snapshots used this file to record which chunks load initially.
+// Read only the chunk metadata and measure the emitted files, including the injected stylesheet.
+const readArchivedEsmFiles = (directory: string): EsmFile[] => {
+  const stats: unknown = JSON.parse(readFileSync(join(directory, 'webpack-stats.esm.json'), 'utf8'))
+  if (!isRecord(stats) || !Array.isArray(stats.chunks)) {
+    throw new Error('Expected a list of archived ESM chunks')
+  }
+
+  const chunks = new Map<string, EsmFile>()
+  for (const chunk of stats.chunks as unknown[]) {
+    if (
+      !isRecord(chunk) ||
+      typeof chunk.initial !== 'boolean' ||
+      !Array.isArray(chunk.files) ||
+      !chunk.files.every(isChunkFile)
+    ) {
+      throw new Error('Invalid archived ESM chunk')
+    }
+    for (const file of chunk.files) {
+      chunks.set(file, {
+        file,
+        key: withoutChunkHash(file),
+        initial: chunk.initial || chunks.get(file)?.initial === true,
+      })
+    }
+  }
+  if (!chunks.get('standalone.esm.js')?.initial) {
+    throw new Error('Missing standalone.esm.js from the archived initial load')
+  }
+
+  return [...chunks.values()]
+}
+
+/** Measure the emitted UMD file and each ESM chunk once, including injected CSS. */
+export const measureBundles = (
+  directory: string,
+  commit: string,
+  mode: 'current' | 'archive' = 'current',
+): BundleSizes => {
+  if (!isCommit(commit)) {
+    throw new Error(`Expected a commit SHA, got ${JSON.stringify(commit)}`)
+  }
+
+  const hasManifest = mode === 'current' || existsSync(join(directory, 'bundle-manifest.json'))
+  const files = hasManifest ? readEsmFiles(directory) : readArchivedEsmFiles(directory)
+  return {
+    commit,
+    umd: measureFile(directory, 'standalone.js'),
+    esm: files.map((chunk) => ({ ...chunk, size: measureFile(directory, chunk.file) })),
+  }
 }
 
 const sumSizes = (chunks: ChunkSize[]): ByteSizes =>
@@ -142,6 +191,32 @@ const sumSizes = (chunks: ChunkSize[]): ByteSizes =>
     { minified: 0, gzip: 0, brotli: 0 },
   )
 
+const bundleTotals = ({ umd, esm }: BundleSizes): { umd: ByteSizes; initial: ByteSizes; all: ByteSizes } => ({
+  umd,
+  initial: sumSizes(esm.filter(({ initial }) => initial)),
+  all: sumSizes(esm),
+})
+
+const minimumIncreaseBytes = 10_000
+const minimumIncreasePercent = 5
+const isLargeIncrease = (current: number, baseline: number): boolean => {
+  const delta = current - baseline
+  return baseline > 0 && delta >= minimumIncreaseBytes && delta * 100 >= baseline * minimumIncreasePercent
+}
+
+/** Compare Brotli sizes against the exact main commit so unrelated main changes cannot trigger approval. */
+export const requiresApproval = (current: BundleSizes, baseline?: BundleSizes, expectedBase?: string): boolean => {
+  if (!baseline || baseline.commit !== expectedBase) {
+    return false
+  }
+
+  const before = bundleTotals(baseline)
+  const after = bundleTotals(current)
+  return (['umd', 'initial', 'all'] as const).some((group) =>
+    isLargeIncrease(after[group].brotli, before[group].brotli),
+  )
+}
+
 const formatBytes = (size: number): string => {
   if (size < 1000) {
     return `${size} B`
@@ -152,25 +227,40 @@ const formatBytes = (size: number): string => {
   return `${(size / 1_000_000).toFixed(2)} MB`
 }
 
-const formatDelta = (current: number, baseline: number): string => {
+const formatDelta = (current: number, baseline: number): [string, string] => {
   const delta = current - baseline
   if (delta === 0) {
-    return '0 B'
+    return ['0 B', '0%']
   }
 
   const sign = delta > 0 ? '+' : '-'
-  const percentage = baseline === 0 ? '' : ` (${sign}${((Math.abs(delta) / baseline) * 100).toFixed(2)}%)`
-  return `${sign}${formatBytes(Math.abs(delta))}${percentage}`
+  const percent = baseline > 0 ? (delta / baseline) * 100 : undefined
+  const increaseMarker = isLargeIncrease(current, baseline) ? '🔴' : '🟠'
+  const marker = delta < 0 ? '🟢' : increaseMarker
+  return [
+    `${marker} ${sign}${formatBytes(Math.abs(delta))}`,
+    percent === undefined ? '—' : `${sign}${Math.abs(percent).toFixed(2)}%`,
+  ]
+}
+
+const markdownRow = (cells: string[]): string => `| ${cells.join(' | ')} |`
+
+const tableHeader = (labels: string[], compared: boolean): string[] => {
+  const columns = compared ? ['`main`', 'This build', 'Δ bytes', 'Δ %'] : ['This build']
+  return [
+    markdownRow([...labels, 'Encoding', ...columns]),
+    markdownRow([...labels, 'Encoding'].map(() => '---').concat(columns.map(() => '---:'))),
+  ]
 }
 
 const encodings = ['brotli', 'gzip', 'minified'] as const
-const sizeRows = (label: string, current: ByteSizes, baseline: ByteSizes | undefined): string[] =>
+const sizeRows = (labels: string[], current: ByteSizes, baseline: ByteSizes | undefined): string[] =>
   encodings.map((encoding) => {
     const size = formatBytes(current[encoding])
-    if (!baseline) {
-      return `| ${label} | ${encoding} | ${size} |`
-    }
-    return `| ${label} | ${encoding} | ${formatBytes(baseline[encoding])} | ${size} | ${formatDelta(current[encoding], baseline[encoding])} |`
+    const values = baseline
+      ? [formatBytes(baseline[encoding]), size, ...formatDelta(current[encoding], baseline[encoding])]
+      : [size]
+    return markdownRow([...labels, encoding, ...values])
   })
 
 /** Summarize UMD and ESM independently and identify the baseline used for comparison. */
@@ -184,28 +274,37 @@ export const createReport = (current: BundleSizes, baseline?: BundleSizes, expec
         ? `Compared with \`main\` at \`${sha}\`.`
         : `Compared with the latest available \`main\` build at \`${sha}\`. The baseline for \`${expectedBase.slice(0, 7)}\` is unavailable.`,
       '',
-      '| Bundle | Encoding | `main` | This build | Change |',
-      '| --- | --- | ---: | ---: | ---: |',
     )
   } else {
-    lines.push(
-      'No `main` baseline is available for comparison.',
-      '',
-      '| Bundle | Encoding | This build |',
-      '| --- | --- | ---: |',
-    )
+    lines.push('No `main` baseline is available for comparison.', '')
   }
+
+  if (requiresApproval(current, baseline, expectedBase)) {
+    lines.push('**Bundle size approval required.** A Brotli total met the review threshold.', '')
+  }
+
+  const before = baseline && bundleTotals(baseline)
+  const after = bundleTotals(current)
 
   return [
     ...lines,
-    ...sizeRows('UMD standalone', current.umd, baseline?.umd),
-    ...sizeRows(
-      'ESM initial load',
-      sumSizes(current.esm.filter(({ initial }) => initial)),
-      baseline && sumSizes(baseline.esm.filter(({ initial }) => initial)),
-    ),
-    ...sizeRows('ESM all chunks', sumSizes(current.esm), baseline && sumSizes(baseline.esm)),
+    '#### UMD',
     '',
+    ...tableHeader([], Boolean(baseline)),
+    ...sizeRows([], after.umd, before?.umd),
+    '',
+    '#### ESM',
+    '',
+    ...tableHeader(['Load'], Boolean(baseline)),
+    ...sizeRows(['Initial load'], after.initial, before?.initial),
+    ...sizeRows(['All chunks'], after.all, before?.all),
+    '',
+    ...(baseline
+      ? [
+          `🟢 decrease · 🟠 smaller increase · 🔴 increase of at least ${minimumIncreasePercent}% and ${formatBytes(minimumIncreaseBytes)}.`,
+          '',
+        ]
+      : []),
     'ESM initial load includes the entry point and its static imports. ESM all chunks also includes lazy imports.',
     `Measured commit \`${current.commit.slice(0, 7)}\`.`,
     '',
@@ -224,8 +323,8 @@ export const createChunkReport = (current: BundleSizes, baseline?: BundleSizes):
   const lines = [
     '#### ESM chunks',
     '',
-    '| File | Load | Brotli | Gzip | Minified | Minified change |',
-    '| --- | --- | ---: | ---: | ---: | ---: |',
+    '| File | Load | Brotli | Gzip | Minified | Minified Δ bytes | Minified Δ % |',
+    '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
   ]
 
   for (const { file, key, initial, size } of current.esm.toSorted((a, b) => b.size.minified - a.size.minified)) {
@@ -239,14 +338,21 @@ export const createChunkReport = (current: BundleSizes, baseline?: BundleSizes):
     if (before) {
       matched.add(before.file)
     }
-    const change = before ? formatDelta(size.minified, before.size.minified) : unmatchedChange
+    const change = before ? formatDelta(size.minified, before.size.minified) : [unmatchedChange, '—']
     lines.push(
-      `| \`${file}\` | ${initial ? 'Initial' : 'Lazy'} | ${formatBytes(size.brotli)} | ${formatBytes(size.gzip)} | ${formatBytes(size.minified)} | ${change} |`,
+      markdownRow([
+        `\`${file}\``,
+        initial ? 'Initial' : 'Lazy',
+        formatBytes(size.brotli),
+        formatBytes(size.gzip),
+        formatBytes(size.minified),
+        ...change,
+      ]),
     )
   }
 
   for (const { file, size } of previous.filter(({ file }) => !matched.has(file))) {
-    lines.push(`| \`${file}\` | Removed | — | — | — | ${formatDelta(0, size.minified)} |`)
+    lines.push(markdownRow([`\`${file}\``, 'Removed', '—', '—', '—', ...formatDelta(0, size.minified)]))
   }
 
   return [...lines, ''].join('\n')
@@ -264,8 +370,8 @@ const readSizes = (file: string | undefined): BundleSizes | undefined => {
 }
 
 const run = ([command, input, output, details, baselineFile, expectedBase]: string[]): void => {
-  if (command === 'measure' && input && output && details) {
-    const sizes = measureBundles(input, output)
+  if ((command === 'measure' || command === 'measure-archive') && input && output && details) {
+    const sizes = measureBundles(input, output, command === 'measure-archive' ? 'archive' : 'current')
     writeFileSync(details, `${JSON.stringify(sizes)}\n`)
     console.log(createReport(sizes))
     return
@@ -276,13 +382,15 @@ const run = ([command, input, output, details, baselineFile, expectedBase]: stri
       throw new Error(`Could not read bundle sizes from ${input}`)
     }
     const baseline = readSizes(baselineFile)
-    writeFileSync(output, createReport(current, baseline, isCommit(expectedBase) ? expectedBase : undefined))
+    const base = isCommit(expectedBase) ? expectedBase : undefined
+    writeFileSync(output, createReport(current, baseline, base))
     writeFileSync(details, createChunkReport(current, baseline))
+    console.log(`approval_required=${requiresApproval(current, baseline, base)}`)
     return
   }
 
   throw new Error(
-    'Usage: bundle-size.ts measure <browser-dir> <commit> <sizes.json> or report <sizes.json> <report.md> <chunks.md> [baseline.json] [base-sha]',
+    'Usage: bundle-size.ts measure|measure-archive <browser-dir> <commit> <sizes.json> or report <sizes.json> <report.md> <chunks.md> [baseline.json] [base-sha]',
   )
 }
 

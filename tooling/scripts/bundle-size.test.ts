@@ -5,7 +5,14 @@ import { brotliCompressSync, gzipSync } from 'node:zlib'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { type BundleSizes, createChunkReport, createReport, measureBundles, parseBundleSizes } from './bundle-size'
+import {
+  type BundleSizes,
+  createChunkReport,
+  createReport,
+  measureBundles,
+  parseBundleSizes,
+  requiresApproval,
+} from './bundle-size'
 
 const main = 'a'.repeat(40)
 const head = 'b'.repeat(40)
@@ -87,6 +94,31 @@ describe('bundle-size', () => {
     expect(() => measureBundles(directory, head)).toThrow('Static import missing from the build manifest: missing')
   })
 
+  it('measures real files from an archived build that predates the Vite manifest', () => {
+    mkdirSync(join(directory, 'chunks'))
+    writeFileSync(join(directory, 'standalone.js'), 'a'.repeat(100))
+    writeFileSync(join(directory, 'standalone.esm.js'), 'a'.repeat(120))
+    writeFileSync(join(directory, 'chunks/lazy-AbcDEfgh.js'), 'a'.repeat(140))
+    writeFileSync(
+      join(directory, 'webpack-stats.esm.json'),
+      JSON.stringify({
+        chunks: [
+          { files: ['standalone.esm.js'], initial: true },
+          { files: ['chunks/lazy-AbcDEfgh.js'], initial: false },
+        ],
+      }),
+    )
+
+    expect(measureBundles(directory, main, 'archive')).toStrictEqual({
+      commit: main,
+      umd: repeatedFileSizes(100),
+      esm: [
+        { file: 'standalone.esm.js', key: 'standalone.esm.js', initial: true, size: repeatedFileSizes(120) },
+        { file: 'chunks/lazy-AbcDEfgh.js', key: 'chunks/lazy.js', initial: false, size: repeatedFileSizes(140) },
+      ],
+    })
+  })
+
   it('accepts a recorded baseline and skips reports with missing or malformed details', () => {
     const valid = snapshot(main)
 
@@ -108,13 +140,60 @@ describe('bundle-size', () => {
     expect(report).toContain(
       'Compared with the latest available `main` build at `aaaaaaa`. The baseline for `ccccccc` is unavailable.',
     )
-    expect(report).toContain('| UMD standalone | minified | 1.20 kB | 1.30 kB | +100 B (+8.33%) |')
-    expect(report).toContain('| ESM initial load | minified | 300 B | 300 B | 0 B |')
-    expect(report).toContain('| ESM all chunks | minified | 600 B | 600 B | 0 B |')
+    expect(report).toContain('#### UMD\n\n| Encoding | `main` | This build | Δ bytes | Δ % |')
+    expect(report).toContain('#### ESM\n\n| Load | Encoding | `main` | This build | Δ bytes | Δ % |')
+    expect(report).toContain('| minified | 1.20 kB | 1.30 kB | 🟠 +100 B | +8.33% |')
+    expect(report).toContain('| Initial load | minified | 300 B | 300 B | 0 B | 0% |')
+    expect(report).toContain('| All chunks | minified | 600 B | 600 B | 0 B | 0% |')
     expect(report).toContain('Measured commit `bbbbbbb`.')
     expect(createReport(current, baseline, main)).toContain('Compared with `main` at `aaaaaaa`.')
-    expect(createReport(current)).toContain('| UMD standalone | minified | 1.30 kB |')
+    expect(createReport(current)).toContain('| minified | 1.30 kB |')
     expect(createReport(current)).toContain('No `main` baseline is available for comparison.')
+  })
+
+  it('marks decreases green and increases at the percentage and byte thresholds red', () => {
+    const baseline = { ...snapshot(main), umd: sizes(200_000, 20_000, 20_000) }
+    const current = { ...snapshot(head), umd: sizes(210_000, 20_100, 18_000) }
+
+    const report = createReport(current, baseline)
+
+    expect(report).toContain('| brotli | 20.00 kB | 18.00 kB | 🟢 -2.00 kB | -10.00% |')
+    expect(report).toContain('| gzip | 20.00 kB | 20.10 kB | 🟠 +100 B | +0.50% |')
+    expect(report).toContain('| minified | 200.00 kB | 210.00 kB | 🔴 +10.00 kB | +5.00% |')
+  })
+
+  it('requires approval at both Brotli limits only against the exact baseline', () => {
+    const baseline = { ...snapshot(main), umd: sizes(300_000, 240_000, 200_000) }
+    const current = { ...snapshot(head), umd: sizes(300_000, 240_000, 210_000) }
+
+    expect(requiresApproval(current, baseline, main)).toBe(true)
+    expect(requiresApproval(current, baseline, 'c'.repeat(40))).toBe(false)
+    expect(requiresApproval(current, undefined, main)).toBe(false)
+    expect(requiresApproval({ ...current, umd: sizes(350_000, 250_000, 209_999) }, baseline, main)).toBe(false)
+    expect(
+      requiresApproval(
+        { ...current, umd: sizes(350_000, 250_000, 310_000) },
+        { ...baseline, umd: sizes(350_000, 250_000, 300_000) },
+        main,
+      ),
+    ).toBe(false)
+    expect(createReport(current, baseline, main)).toContain('**Bundle size approval required.**')
+  })
+
+  it('checks ESM initial and total Brotli sizes independently', () => {
+    const baseline = snapshot(main)
+    baseline.esm = baseline.esm.map((chunk) => ({ ...chunk, size: sizes(200_000, 150_000, 100_000) }))
+    const earlyGrowth = snapshot(head)
+    earlyGrowth.esm = baseline.esm.map((chunk) =>
+      chunk.file === 'standalone.esm.js' ? { ...chunk, size: sizes(210_000, 160_000, 110_000) } : chunk,
+    )
+    const lazyGrowth = snapshot(head)
+    lazyGrowth.esm = baseline.esm.map((chunk) =>
+      chunk.initial ? chunk : { ...chunk, size: sizes(215_000, 165_000, 115_000) },
+    )
+
+    expect(requiresApproval(earlyGrowth, baseline, main)).toBe(true)
+    expect(requiresApproval(lazyGrowth, baseline, main)).toBe(true)
   })
 
   it('matches a renamed chunk by key, and shows new and removed chunks', () => {
@@ -130,9 +209,9 @@ describe('bundle-size', () => {
 
     const report = createChunkReport(current, baseline)
 
-    expect(report).toContain('| `chunks/vendor-12345678.js` | Initial | 8 B | 10 B | 250 B | +50 B (+25.00%) |')
-    expect(report).toContain('| `chunks/new-AbcDEfgh.js` | Lazy | 8 B | 10 B | 80 B | New file |')
-    expect(report).toContain('| `chunks/lazy-AbcDEfgh.js` | Removed | — | — | — | -300 B (-100.00%) |')
+    expect(report).toContain('| `chunks/vendor-12345678.js` | Initial | 8 B | 10 B | 250 B | 🟠 +50 B | +25.00% |')
+    expect(report).toContain('| `chunks/new-AbcDEfgh.js` | Lazy | 8 B | 10 B | 80 B | New file | — |')
+    expect(report).toContain('| `chunks/lazy-AbcDEfgh.js` | Removed | — | — | — | 🟢 -300 B | -100.00% |')
     expect(report).not.toContain('vendor-AbcDEfgh.js')
   })
 
@@ -144,8 +223,8 @@ describe('bundle-size', () => {
 
     const report = createChunkReport(current, baseline)
 
-    expect(report).toContain('| `chunks/vendor-AbcDEfgh.js` | Initial | 8 B | 10 B | 200 B | 0 B |')
-    expect(report).toContain('| `chunks/vendor-12345678.js` | Lazy | 8 B | 10 B | 420 B | New file |')
-    expect(report).toContain('| `chunks/vendor-BcDEfghi.js` | Removed | — | — | — | -320 B (-100.00%) |')
+    expect(report).toContain('| `chunks/vendor-AbcDEfgh.js` | Initial | 8 B | 10 B | 200 B | 0 B | 0% |')
+    expect(report).toContain('| `chunks/vendor-12345678.js` | Lazy | 8 B | 10 B | 420 B | New file | — |')
+    expect(report).toContain('| `chunks/vendor-BcDEfghi.js` | Removed | — | — | — | 🟢 -320 B | -100.00% |')
   })
 })

@@ -220,6 +220,8 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 5
     continue-on-error: true
+    outputs:
+      approval_required: ${{ steps.report.outputs.approval_required }}
     permissions:
       contents: read
       actions: read
@@ -248,15 +250,23 @@ jobs:
           BASE_SHA: ${{ steps.measure.outputs.base }}
         run: |
           set -euo pipefail
-          run_id=$(gh api --paginate -X GET "repos/${GITHUB_REPOSITORY}/actions/artifacts" \
+          snapshots=$(gh api --paginate -X GET "repos/${GITHUB_REPOSITORY}/actions/artifacts" \
             -f name=api-reference-bundle-size -f per_page=100 |
-            jq -rs --arg base "$BASE_SHA" '
+            jq -cs '
               [.[].artifacts[]
                 | select(.expired | not)
                 | select(.workflow_run.head_branch == "main" and .workflow_run.head_repository_id == .workflow_run.repository_id)]
-              | sort_by(.created_at)
-              | ((map(select(.workflow_run.head_sha == $base)) | last) // last).workflow_run.id // empty')
-          echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
+              | sort_by(.created_at) | map(.workflow_run)')
+          exact_run=$(jq -r --arg base "$BASE_SHA" 'map(select(.head_sha == $base)) | last.id // empty' <<< "$snapshots")
+          latest_run=$(jq -r 'last.id // empty' <<< "$snapshots")
+          echo "run_id=${exact_run:-$latest_run}" >> "$GITHUB_OUTPUT"
+          # Before main begins recording snapshots, recover the exact baseline from its regular build artifact.
+          if [[ -z "$exact_run" && -n "$BASE_SHA" ]]; then
+            archive_run=$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/workflows/main.yml/runs" \
+              -f branch=main -f event=push -f head_sha="$BASE_SHA" -f status=success -f per_page=1 \
+              --jq '.workflow_runs[0].id // empty')
+            echo "archive_run_id=${archive_run}" >> "$GITHUB_OUTPUT"
+          fi
       - if: steps.baseline.outputs.run_id != ''
         name: Download the main baseline
         continue-on-error: true
@@ -266,12 +276,33 @@ jobs:
           path: baseline
           run-id: ${{ steps.baseline.outputs.run_id }}
           github-token: ${{ github.token }}
-      - name: Write the bundle size report
+      - if: steps.baseline.outputs.archive_run_id != ''
+        name: Download the archived main build
+        id: archived-main
+        continue-on-error: true
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: build-output
+          path: baseline-build
+          run-id: ${{ steps.baseline.outputs.archive_run_id }}
+          github-token: ${{ github.token }}
+      - if: steps.archived-main.outcome == 'success'
+        name: Measure the archived main build
+        continue-on-error: true
         env:
           BASE_SHA: ${{ steps.measure.outputs.base }}
         run: |
           set -euo pipefail
-          node tooling/scripts/bundle-size.ts report bundle-size.json bundle-size.md chunks.md baseline/bundle-size.json "$BASE_SHA"
+          mkdir -p baseline
+          tar -xzf baseline-build/build-output.tar.gz -C baseline-build --exclude='*.map' -- packages/api-reference/dist/browser
+          node tooling/scripts/bundle-size.ts measure-archive baseline-build/packages/api-reference/dist/browser "$BASE_SHA" baseline/bundle-size.json
+      - name: Write the bundle size report
+        id: report
+        env:
+          BASE_SHA: ${{ steps.measure.outputs.base }}
+        run: |
+          set -euo pipefail
+          node tooling/scripts/bundle-size.ts report bundle-size.json bundle-size.md chunks.md baseline/bundle-size.json "$BASE_SHA" >> "$GITHUB_OUTPUT"
           cat bundle-size.md chunks.md >> "$GITHUB_STEP_SUMMARY"
           printf '\n[Per-chunk ESM sizes](%s/%s/actions/runs/%s#summary)\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> bundle-size.md
       - if: github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
@@ -280,6 +311,18 @@ jobs:
         with:
           file-path: bundle-size.md
           comment-tag: api-reference-bundle-size
+
+  bundle-size-approval:
+    needs: [bundle-size]
+    if: needs.bundle-size.outputs.approval_required == 'true'
+    runs-on: ubuntu-slim
+    timeout-minutes: 1
+    permissions: {}
+    environment:
+      name: api-reference-bundle-size
+      deployment: false
+    steps:
+      - run: echo 'Bundle size regression approved.'
 
   types:
     needs: [build]
@@ -735,6 +778,8 @@ jobs:
       [
         build,
         build-apps,
+        bundle-size,
+        bundle-size-approval,
         test-server-side-rendering,
         format,
         knip,
@@ -749,6 +794,11 @@ jobs:
         verify-generated-docs,
       ]
     steps:
-      - name: Exit with error if some jobs are not successful
-        run: exit 1
-        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
+      - name: Verify required jobs and bundle size approval
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          jq -e '
+            (."bundle-size".outputs.approval_required != "true" or ."bundle-size-approval".result == "success")
+            and (del(."bundle-size", ."bundle-size-approval") | all(.[]; .result == "success"))
+          ' <<< "$JOB_RESULTS"
