@@ -7,9 +7,10 @@ type ByteSizes = { minified: number; gzip: number; brotli: number }
 
 type ChunkSize = { file: string; key: string; initial: boolean; size: ByteSizes }
 type EsmFile = Omit<ChunkSize, 'size'>
+type CompressionVersions = { zlib: string; brotli: string }
 
 /** Standalone API Reference bundle sizes at one build commit. */
-export type BundleSizes = { commit: string; umd: ByteSizes; esm: ChunkSize[] }
+export type BundleSizes = { commit: string; compression: CompressionVersions; umd: ByteSizes; esm: ChunkSize[] }
 
 type ManifestChunk = { file: string; imports?: string[]; isEntry?: boolean }
 
@@ -41,6 +42,9 @@ export const parseBundleSizes = (value: unknown): BundleSizes | undefined => {
   if (
     !isRecord(value) ||
     !isCommit(value.commit) ||
+    !isRecord(value.compression) ||
+    typeof value.compression.zlib !== 'string' ||
+    typeof value.compression.brotli !== 'string' ||
     !isByteSizes(value.umd) ||
     !Array.isArray(value.esm) ||
     !value.esm.every(isChunkSize) ||
@@ -50,7 +54,12 @@ export const parseBundleSizes = (value: unknown): BundleSizes | undefined => {
     return undefined
   }
 
-  return { commit: value.commit, umd: value.umd, esm: value.esm }
+  return {
+    commit: value.commit,
+    compression: { zlib: value.compression.zlib, brotli: value.compression.brotli },
+    umd: value.umd,
+    esm: value.esm,
+  }
 }
 
 const readManifest = (directory: string): Map<string, ManifestChunk> => {
@@ -171,11 +180,16 @@ export const measureBundles = (
   if (!isCommit(commit)) {
     throw new Error(`Expected a commit SHA, got ${JSON.stringify(commit)}`)
   }
+  const { zlib, brotli } = process.versions
+  if (!brotli) {
+    throw new Error('Node.js did not report its Brotli version')
+  }
 
   const hasManifest = mode === 'current' || existsSync(join(directory, 'bundle-manifest.json'))
   const files = hasManifest ? readEsmFiles(directory) : readArchivedEsmFiles(directory)
   return {
     commit,
+    compression: { zlib, brotli },
     umd: measureFile(directory, 'standalone.js'),
     esm: files.map((chunk) => ({ ...chunk, size: measureFile(directory, chunk.file) })),
   }
@@ -285,7 +299,9 @@ export const createReport = (
     lines.push('No `main` baseline is available for comparison.', '')
   }
 
-  if (requiresApproval(current, baseline, expectedBase)) {
+  if (expectedBase && baseline?.commit !== expectedBase) {
+    lines.push('**Bundle size approval could not be evaluated.** The exact baseline is required.', '')
+  } else if (requiresApproval(current, baseline, expectedBase)) {
     lines.push('**Bundle size approval required.** A Brotli total met the review threshold.', '')
   }
 
@@ -424,31 +440,65 @@ const readSizes = (file: string | undefined): BundleSizes | undefined => {
   return undefined
 }
 
-const run = ([command, input, output, details, baselineFile, expectedBase]: string[]): void => {
-  if ((command === 'measure' || command === 'measure-archive') && input && output && details) {
-    const sizes = measureBundles(input, output, command === 'measure-archive' ? 'archive' : 'current')
-    writeFileSync(details, `${JSON.stringify(sizes)}\n`)
-    console.log(createReport(sizes))
-    return
+const writeReport = (
+  sizesFile: string,
+  reportFile: string,
+  chunksFile: string,
+  baselineFile?: string,
+  expectedBase?: string,
+): void => {
+  const current = readSizes(sizesFile)
+  if (!current) {
+    throw new Error(`Could not read bundle sizes from ${sizesFile}`)
   }
-  if (command === 'report' && input && output && details) {
-    const current = readSizes(input)
-    if (!current) {
-      throw new Error(`Could not read bundle sizes from ${input}`)
+  if (expectedBase !== undefined && !isCommit(expectedBase)) {
+    throw new Error(`Expected a base commit SHA, got ${JSON.stringify(expectedBase)}`)
+  }
+
+  const snapshot = readSizes(baselineFile)
+  if (process.env.EXPECT_EXACT_BUNDLE_BASELINE === 'true' && (!expectedBase || snapshot?.commit !== expectedBase)) {
+    throw new Error('The exact main baseline was found but could not be read')
+  }
+  const compatible =
+    snapshot?.compression.zlib === current.compression.zlib &&
+    snapshot.compression.brotli === current.compression.brotli
+  const baseline = compatible ? snapshot : undefined
+  if (snapshot && !compatible) {
+    console.warn(
+      '::warning::The available main bundle size snapshot was measured with different compression libraries.',
+    )
+  }
+  if (expectedBase && baseline?.commit !== expectedBase) {
+    console.warn(
+      `::warning::Bundle size approval could not be evaluated without measurements for main at ${expectedBase}.`,
+    )
+  }
+
+  const { GITHUB_SERVER_URL, GITHUB_REPOSITORY } = process.env
+  const repositoryUrl = GITHUB_SERVER_URL && GITHUB_REPOSITORY ? `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}` : undefined
+  writeFileSync(reportFile, createReport(current, baseline, expectedBase, repositoryUrl))
+  writeFileSync(chunksFile, createChunkReport(current, baseline))
+  console.log(`approval_required=${requiresApproval(current, baseline, expectedBase)}`)
+  console.log(`comment_required=${requiresComment(current, baseline, expectedBase)}`)
+}
+
+const run = ([command, ...args]: string[]): void => {
+  if (command === 'measure' || command === 'measure-archive') {
+    const [bundleDirectory, commit, sizesFile] = args
+    if (bundleDirectory && commit && sizesFile) {
+      const sizes = measureBundles(bundleDirectory, commit, command === 'measure-archive' ? 'archive' : 'current')
+      writeFileSync(sizesFile, `${JSON.stringify(sizes)}\n`)
+      console.log(createReport(sizes))
+      return
     }
-    const baseline = readSizes(baselineFile)
-    const base = isCommit(expectedBase) ? expectedBase : undefined
-    if (process.env.EXPECT_EXACT_BUNDLE_BASELINE === 'true' && (!base || baseline?.commit !== base)) {
-      throw new Error('The exact main baseline was found but could not be read')
+  }
+
+  if (command === 'report') {
+    const [sizesFile, reportFile, chunksFile, baselineFile, expectedBase] = args
+    if (sizesFile && reportFile && chunksFile) {
+      writeReport(sizesFile, reportFile, chunksFile, baselineFile, expectedBase)
+      return
     }
-    const { GITHUB_SERVER_URL, GITHUB_REPOSITORY } = process.env
-    const repositoryUrl =
-      GITHUB_SERVER_URL && GITHUB_REPOSITORY ? `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}` : undefined
-    writeFileSync(output, createReport(current, baseline, base, repositoryUrl))
-    writeFileSync(details, createChunkReport(current, baseline))
-    console.log(`approval_required=${requiresApproval(current, baseline, base)}`)
-    console.log(`comment_required=${requiresComment(current, baseline, base)}`)
-    return
   }
 
   throw new Error(

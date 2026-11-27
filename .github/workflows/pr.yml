@@ -222,10 +222,10 @@ jobs:
     continue-on-error: true
     outputs:
       approval_required: ${{ steps.report.outputs.approval_required }}
+      comment_required: ${{ steps.report.outputs.comment_required }}
     permissions:
       contents: read
       actions: read
-      pull-requests: write
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -314,14 +314,36 @@ jobs:
           node tooling/scripts/bundle-size.ts report bundle-size.json bundle-size.md chunks.md baseline/bundle-size.json "$BASE_SHA" >> "$GITHUB_OUTPUT"
           cat bundle-size.md chunks.md >> "$GITHUB_STEP_SUMMARY"
           printf '\n[Per-chunk ESM sizes](%s/%s/actions/runs/%s#summary)\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> bundle-size.md
-      - if: github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') && (steps.report.outputs.comment_required == 'true' || steps.report.outputs.comment_required == 'false')
-        name: Update the bundle size PR comment
+      - if: github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') && steps.report.outputs.comment_required == 'true'
+        name: Upload the bundle size PR report
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: api-reference-bundle-size-report
+          path: bundle-size.md
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
+  bundle-size-comment:
+    needs: [bundle-size]
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') && (needs.bundle-size.outputs.comment_required == 'true' || needs.bundle-size.outputs.comment_required == 'false')
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - if: needs.bundle-size.outputs.comment_required == 'true'
+        name: Download the bundle size PR report
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: api-reference-bundle-size-report
+      - name: Update the bundle size PR comment
         uses: thollander/actions-comment-pull-request@v3.0.1
         with:
-          file-path: bundle-size.md
+          file-path: ${{ needs.bundle-size.outputs.comment_required == 'true' && 'bundle-size.md' || '' }}
           comment-tag: api-reference-bundle-size
-          mode: ${{ steps.report.outputs.comment_required == 'true' && 'upsert' || 'delete' }}
-          create-if-not-exists: ${{ steps.report.outputs.comment_required == 'true' }}
+          mode: ${{ needs.bundle-size.outputs.comment_required == 'true' && 'upsert' || 'delete' }}
+          create-if-not-exists: ${{ needs.bundle-size.outputs.comment_required == 'true' }}
 
   bundle-size-approval:
     needs: [bundle-size]

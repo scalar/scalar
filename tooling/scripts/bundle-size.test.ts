@@ -1,6 +1,8 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { brotliCompressSync, gzipSync } from 'node:zlib'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -17,6 +19,7 @@ import {
 
 const main = 'a'.repeat(40)
 const head = 'b'.repeat(40)
+const compression = { zlib: process.versions.zlib, brotli: process.versions.brotli ?? '' }
 const sizes = (minified: number, gzip = 10, brotli = 8): BundleSizes['umd'] => ({ minified, gzip, brotli })
 
 const repeatedFileSizes = (byteCount: number): BundleSizes['umd'] => {
@@ -26,6 +29,7 @@ const repeatedFileSizes = (byteCount: number): BundleSizes['umd'] => {
 
 const snapshot = (commit: string): BundleSizes => ({
   commit,
+  compression,
   umd: sizes(1200, 500, 400),
   esm: [
     { file: 'standalone.esm.js', key: 'src/esm.ts', initial: true, size: sizes(100) },
@@ -77,6 +81,7 @@ describe('bundle-size', () => {
     const measured = measureBundles(directory, head)
 
     expect(measured.commit).toBe(head)
+    expect(measured.compression).toStrictEqual(compression)
     expect(measured.umd).toStrictEqual(repeatedFileSizes(100))
     expect(measured.esm).toStrictEqual([
       { file: 'standalone.esm.js', key: 'src/esm.ts', initial: true, size: repeatedFileSizes(120) },
@@ -112,6 +117,7 @@ describe('bundle-size', () => {
 
     expect(measureBundles(directory, main, 'archive')).toStrictEqual({
       commit: main,
+      compression,
       umd: repeatedFileSizes(100),
       esm: [
         { file: 'standalone.esm.js', key: 'standalone.esm.js', initial: true, size: repeatedFileSizes(120) },
@@ -125,6 +131,7 @@ describe('bundle-size', () => {
 
     expect(parseBundleSizes(valid)).toStrictEqual(valid)
     expect(parseBundleSizes({ ...valid, commit: '[bad](https://example.com)' })).toBeUndefined()
+    expect(parseBundleSizes({ ...valid, compression: { zlib: compression.zlib } })).toBeUndefined()
     expect(parseBundleSizes({ ...valid, umd: { ...valid.umd, gzip: -1 } })).toBeUndefined()
     expect(parseBundleSizes({ ...valid, esm: [{ ...valid.esm[0], initial: false }] })).toBeUndefined()
     expect(
@@ -141,6 +148,7 @@ describe('bundle-size', () => {
     expect(report).toContain(
       'Compared with the latest available `main` build at `aaaaaaa`. The baseline for `ccccccc` is unavailable.',
     )
+    expect(report).toContain('**Bundle size approval could not be evaluated.**')
     expect(report).toContain('#### UMD\n\n| Encoding | `main` | This build | Δ bytes | Δ % |')
     expect(report).toContain('#### ESM\n\n| Load | Encoding | `main` | This build | Δ bytes | Δ % |')
     expect(report).toContain('| minified | 1.20 kB | 1.30 kB | 🟠 +100 B | +8.33% |')
@@ -151,6 +159,43 @@ describe('bundle-size', () => {
     expect(createReport(current)).toContain('| minified | 1.30 kB |')
     expect(createReport(current)).toContain('No `main` baseline is available for comparison.')
   })
+
+  it.each(['zlib', 'brotli'] as const)(
+    'skips comparison when the exact baseline uses a different %s version',
+    (library) => {
+      const sizesFile = join(directory, 'sizes.json')
+      const reportFile = join(directory, 'report.md')
+      const chunksFile = join(directory, 'chunks.md')
+      const baselineFile = join(directory, 'baseline.json')
+      const current = { ...snapshot(head), umd: sizes(300_000, 240_000, 210_000) }
+      const baseline = {
+        ...snapshot(main),
+        compression: { ...compression, [library]: '0.0.0' },
+        umd: sizes(300_000, 240_000, 200_000),
+      }
+      writeFileSync(sizesFile, JSON.stringify(current))
+      writeFileSync(baselineFile, JSON.stringify(baseline))
+
+      const script = fileURLToPath(new URL('./bundle-size.ts', import.meta.url))
+      const result = spawnSync(
+        process.execPath,
+        [script, 'report', sizesFile, reportFile, chunksFile, baselineFile, main],
+        {
+          encoding: 'utf8',
+          env: { EXPECT_EXACT_BUNDLE_BASELINE: 'true' },
+        },
+      )
+
+      expect(result.status).toBe(0)
+      expect(result.stderr).toContain(
+        '::warning::The available main bundle size snapshot was measured with different compression libraries.',
+      )
+      expect(result.stderr).toContain('::warning::Bundle size approval could not be evaluated')
+      expect(result.stdout).toBe('approval_required=false\ncomment_required=true\n')
+      expect(readFileSync(reportFile, 'utf8')).toBe(createReport(current, undefined, main))
+      expect(readFileSync(chunksFile, 'utf8')).toBe(createChunkReport(current))
+    },
+  )
 
   it('marks decreases green and increases at the percentage and byte thresholds red', () => {
     const baseline = { ...snapshot(main), umd: sizes(200_000, 20_000, 20_000) }
