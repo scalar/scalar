@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { assertReservedPathUrl, encodePathParameter, serializeReservedPathParameter } from './encode-path-parameter'
+import {
+  assertReservedPathUrl,
+  encodePathParameter,
+  serializePathParameter,
+  serializeReservedPathParameter,
+} from './encode-path-parameter'
 
 describe('encode-path-parameter', () => {
   it.each(['%2e', '%2e%2E', '.%2e', '%2e.', '.', '..'])('rejects the browser-normalized dot segment %s', (value) => {
@@ -30,6 +35,34 @@ describe('encode-path-parameter', () => {
 
   it('rejects invalid Unicode instead of silently corrupting a value', () => {
     expect(() => encodePathParameter('\ud800', true)).toThrow(URIError)
+  })
+
+  it.each([
+    { style: 'label', value: { empty: '', missing: null, present: 'abc' }, expected: '.empty=.present=abc' },
+    { style: 'matrix', value: { empty: '', missing: null, present: 'abc' }, expected: ';empty;present=abc' },
+    { style: 'label', value: [null, 'abc'], expected: '.abc' },
+    { style: 'matrix', value: [null, 'abc'], expected: ';id=abc' },
+    { style: 'label', value: [null], expected: '' },
+    { style: 'matrix', value: '', expected: ';id' },
+    { style: 'label', value: null, expected: '' },
+    { style: 'matrix', value: null, expected: '' },
+    { style: 'label', value: 'null', expected: '.null' },
+    { style: 'matrix', value: 'null', expected: ';id=null' },
+  ])('expands empty and undefined values in $style style ($expected)', ({ style, value, expected }) => {
+    expect(serializePathParameter('id', { value, style, explode: true }, (text) => text)).toBe(expected)
+  })
+
+  it('preserves existing percent escapes in matrix template names and encodes percent signs in values', () => {
+    expect(
+      serializePathParameter('id%20name', { value: 'a%20b', style: 'matrix', explode: false }, (text) => text),
+    ).toBe(';id%20name=a%2520b')
+    expect(
+      serializePathParameter('id%20name', { value: ['a', 'b'], style: 'matrix', explode: true }, (text) => text),
+    ).toBe(';id%20name=a;id%20name=b')
+  })
+
+  it('keeps a single empty item in a non-exploded matrix array', () => {
+    expect(serializePathParameter('id', { value: [''], style: 'matrix', explode: false }, (text) => text)).toBe(';id=')
   })
 
   it('encodes environment values before adding style delimiters', () => {

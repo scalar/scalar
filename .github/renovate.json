@@ -90,7 +90,6 @@
       "description": "Retain review warnings for secret-consuming actions in the weekly GitHub Actions group",
       "matchDepTypes": ["action"],
       "matchPackageNames": [
-        "relative-ci/agent-action",
         "cloudflare/wrangler-action",
         "changesets/action",
         "peter-evans/create-pull-request",
@@ -99,7 +98,6 @@
         "daun/playwright-report-summary",
         "thollander/actions-comment-pull-request",
         "amannn/action-semantic-pull-request",
-        "fjogeleit/http-request-action",
         "useblacksmith/build-push-action",
         "docker/login-action"
       ],

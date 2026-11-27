@@ -158,13 +158,21 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
   if (Object.keys(rest).length > 0) {
     members.push({ kind: 'object', schema: rest })
   }
+  const firstMemberIndex = members.length
+  const ownDescription = typeof rest.description === 'string' ? rest.description : undefined
   const schemaRef = '$ref' in schema ? schema.$ref : undefined
   const seenRefs = new Set<string>(typeof schemaRef === 'string' ? [schemaRef] : [])
-  for (const rawMember of allOf) {
+  let startsWithChoice = false
+  for (const [index, rawMember] of allOf.entries()) {
     if (typeof rawMember === 'boolean' || (rawMember && typeof rawMember === 'object')) {
       const resolved: SchemaObject & { $ref?: string } = resolve.schema(rawMember)
       const ref = resolved.$ref
       collectMembers(rawMember, members, typeof ref === 'string' ? new Set(seenRefs).add(ref) : seenRefs)
+      if (index === 0) {
+        startsWithChoice = Boolean(
+          resolved.oneOf?.length || resolved.anyOf?.length || members[firstMemberIndex]?.kind === 'choice',
+        )
+      }
     }
   }
 
@@ -174,12 +182,24 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
   let objectRun: SchemaObject[] = []
   let choiceIndex = 0
 
-  const flushObjectRun = () => {
+  const flushObjectRun = (): void => {
     if (objectRun.length === 0) {
       return
     }
     const merged = objectRun.length === 1 ? objectRun[0]! : mergeAllOfSchemas({ allOf: objectRun } as SchemaObject)
-    segments.push({ kind: 'object', schema: merged })
+    const includesParent = objectRun[0] === rest
+    let segment = merged
+    if (ownDescription !== undefined) {
+      // The parent's description covers the whole composition, including fields in later segments.
+      // A leading choice keeps its existing display, including descriptions after the picker.
+      if (includesParent && merged.description !== ownDescription) {
+        segment = { ...merged, description: ownDescription }
+      } else if (!includesParent && !startsWithChoice && merged.description !== undefined) {
+        const { description: _description, ...fields } = merged
+        segment = fields
+      }
+    }
+    segments.push({ kind: 'object', schema: segment })
     objectRun = []
   }
 

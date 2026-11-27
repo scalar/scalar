@@ -146,12 +146,15 @@ import {
   serializeHydrationState,
 } from '@/helpers/hydration-state'
 import {
+  type ResponsePropertyLink,
   getIdFromUrl,
+  getResponsePropertyFromUrl,
   makeHrefFromId,
   makeUrlFromId,
   matchesBasePath,
   redirectUrl,
   resolveHashPrefix,
+  setResponsePropertyInUrl,
   type WebhookRedirectSource,
 } from '@/helpers/id-routing'
 import {
@@ -176,6 +179,7 @@ import {
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
 import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
+import { RESPONSE_PROPERTY_TARGET } from '@/helpers/response-property-target'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { toStoreDocumentTypes } from '@/helpers/to-store-document-types'
 import { useDocumentEnvironment } from '@/helpers/use-document-environment'
@@ -244,6 +248,8 @@ provideUseId(() => useId())
  * be called twice on one page, and two references must not share expansion.
  */
 const expansion = useSchemaExpansion(scrollTargetId)
+const responsePropertyTarget = shallowRef<ResponsePropertyLink>()
+provide(RESPONSE_PROPERTY_TARGET, responsePropertyTarget)
 
 // ---------------------------------------------------------------------------
 /**
@@ -288,6 +294,10 @@ if (
       idFromUrl,
       configList.value[apiParam].config.pathRouting?.basePath,
       isMultiDocument.value,
+      getResponsePropertyFromUrl(
+        url,
+        isMultiDocument.value ? undefined : apiParam,
+      ),
     )
     if (newUrl) {
       newUrl.searchParams.delete('api')
@@ -555,7 +565,15 @@ if (
       window.location.hash,
   )
   if (newPath) {
-    window.history.replaceState({}, '', newPath)
+    const currentUrl = new URL(window.location.href)
+    const responseProperty = getResponsePropertyFromUrl(currentUrl, undefined)
+    const redirected = responseProperty
+      ? new URL(newPath, currentUrl)
+      : undefined
+    if (redirected) {
+      setResponsePropertyInUrl(redirected, responseProperty)
+    }
+    window.history.replaceState({}, '', redirected ?? newPath)
   }
 }
 
@@ -568,12 +586,14 @@ function syncSlugAndUrlWithDocument(
   slug: string,
   elementId: string | undefined,
   config: ApiReferenceConfigurationRaw,
+  responseProperty?: ResponsePropertyLink,
 ) {
   // We create a new URL and go to the root element if an ID is not provided
   const url = makeUrlFromId(
     elementId || slug,
     config.pathRouting?.basePath ?? inferredHashBasePath.value,
     isMultiDocument.value,
+    responseProperty,
   )
 
   if (config.urlRouting !== false && url) {
@@ -1041,11 +1061,22 @@ const contextChain = computed(() => {
   return crumbs
 })
 
-const scrollToLazyElement = (id: string, focusTarget = true): void => {
+const scrollToLazyElement = (
+  id: string,
+  {
+    focusTarget,
+    responseProperty,
+  }: { focusTarget?: boolean; responseProperty?: ResponsePropertyLink } = {},
+): void => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
   _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById, {
     focusTarget,
+    response: responseProperty && {
+      link: responseProperty,
+      target: responsePropertyTarget,
+      root: referenceLayout.value,
+    },
   })
 }
 
@@ -1366,6 +1397,7 @@ const preloadDocumentsWhenIdle = () => {
 const changeSelectedDocument = async (
   slug: string,
   elementId?: string | undefined,
+  responseProperty?: ResponsePropertyLink,
 ) => {
   const normalized = configList.value[slug]
 
@@ -1386,7 +1418,7 @@ const changeSelectedDocument = async (
   const onDocumentSelectPromise = config.onDocumentSelect?.()
 
   // Set the active slug and update any routing
-  syncSlugAndUrlWithDocument(slug, elementId, config)
+  syncSlugAndUrlWithDocument(slug, elementId, config, responseProperty)
 
   // Sync the modal to the new document without naming an operation. Leaving path and
   // method out resolves them to the document's first operation instead of a route that
@@ -1451,7 +1483,7 @@ const changeSelectedDocument = async (
     if (hydratedFirstTagId) {
       sidebarState.setExpanded(hydratedFirstTagId, false)
     }
-    scrollToLazyElement(scrollTargetId)
+    scrollToLazyElement(scrollTargetId, { responseProperty })
   }
   // If there is no child element of the document specified and defaultOpenFirstTag is enabled, we expand the first tag
   else if (config.defaultOpenFirstTag) {
@@ -1622,6 +1654,10 @@ onBeforeMount(async () => {
     )
     await Promise.all(candidates.map((slug) => ensureDocumentLoaded(slug)))
 
+    const responseProperty = getResponsePropertyFromUrl(
+      new URL(window.location.href),
+      isMultiDocument.value ? undefined : activeSlug.value,
+    )
     const prefix = resolveHashPrefix(
       hash,
       [
@@ -1630,6 +1666,7 @@ onBeforeMount(async () => {
         ...candidates.map((slug) => `${slug}${INTRODUCTION_ENTRY_ID_SUFFIX}`),
       ],
       isMultiDocument.value,
+      responseProperty?.operationId,
     )
     inferredHashBasePath.value = prefix ? `#${prefix}` : undefined
 
@@ -1642,15 +1679,12 @@ onBeforeMount(async () => {
     }
   }
 
+  const url = urlRouting.value ? new URL(window.location.href) : undefined
+  const slugPrefix = isMultiDocument.value ? undefined : activeSlug.value
   await changeSelectedDocument(
     activeSlug.value,
-    urlRouting.value
-      ? getIdFromUrl(
-          window.location.href,
-          basePath.value,
-          isMultiDocument.value ? undefined : activeSlug.value,
-        )
-      : undefined,
+    url && getIdFromUrl(url, basePath.value, slugPrefix),
+    url && getResponsePropertyFromUrl(url, slugPrefix),
   )
 
   // Warm up the remaining documents in the background so switching between them is instant
@@ -1898,7 +1932,7 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
   if (!isSection) {
     isSidebarOpen.value = false
   }
-  scrollToLazyElement(id, !keepSidebarFocus)
+  scrollToLazyElement(id, { focusTarget: !keepSidebarFocus })
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {
@@ -1990,11 +2024,12 @@ eventBus.on('toggle:nav-item', ({ id, open }) => {
   sidebarState.setExpanded(id, open ?? !sidebarState.isExpanded(id))
 })
 
-eventBus.on('copy-url:nav-item', ({ id }) => {
+eventBus.on('copy-url:nav-item', ({ id, responseProperty }) => {
   const url = makeUrlFromId(
     id,
     basePath.value,
     isMultiDocument.value,
+    responseProperty,
   )?.toString()
   return url && copyToClipboard(url)
 })
@@ -2006,13 +2041,13 @@ const handlePopState = (): void => {
   if (!urlRouting.value) {
     return
   }
-  const id = getIdFromUrl(
-    window.location.href,
-    basePath.value,
-    isMultiDocument.value ? undefined : activeSlug.value,
-  )
+  const url = new URL(window.location.href)
+  const slugPrefix = isMultiDocument.value ? undefined : activeSlug.value
+  const id = getIdFromUrl(url, basePath.value, slugPrefix)
   if (id) {
-    scrollToLazyElement(id)
+    scrollToLazyElement(id, {
+      responseProperty: getResponsePropertyFromUrl(url, slugPrefix),
+    })
   }
 }
 

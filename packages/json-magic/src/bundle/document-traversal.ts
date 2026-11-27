@@ -3,14 +3,13 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getRaw } from '@/magic-proxy/symbols'
 
+import { type ReferenceContext, isSchemaContext } from '../document/reference-context'
 import {
-  type ReferenceContext,
-  childReferenceContext,
-  getSchemaVocabulary,
-  isReferenceContext,
-  isSchemaContext,
-  isSchemaMapContext,
-} from '../document/reference-context'
+  childReferencePosition,
+  declaresSchema,
+  ignoresReferenceSiblings,
+  referencePosition,
+} from '../document/reference-position'
 
 /** The authored location survives relocation into external document storage. */
 type SourceLocation = {
@@ -22,25 +21,37 @@ type SourceLocation = {
   customReferences?: true
 }
 
-const schemaTypes = new Set(['null', 'boolean', 'object', 'array', 'number', 'integer', 'string'])
+type TraversalDialect = { swagger: boolean; openapi30: boolean; asyncapi: boolean }
 
-/** Explicit schema declarations distinguish schema maps from arbitrary custom objects. */
-const declaresSchema = (value: unknown): boolean =>
-  isObject(value) &&
-  (typeof value.$id === 'string' ||
-    typeof value.$schema === 'string' ||
-    typeof value.$anchor === 'string' ||
-    (typeof value.type === 'string' && schemaTypes.has(value.type)) ||
-    (Array.isArray(value.type) && value.type.every((type) => typeof type === 'string' && schemaTypes.has(type))))
+/** Select the traversal dialect for a complete API description. */
+export const getDocumentTraversalDialect = (document: unknown): TraversalDialect | undefined => {
+  if (!isObject(document)) return undefined
+
+  const format = document['x-scalar-document-type']
+  if (
+    (format === undefined || format === 'asyncapi') &&
+    typeof document.asyncapi === 'string' &&
+    /^\d+\.\d+(?:\.|$)/.test(document.asyncapi)
+  ) {
+    return { swagger: false, openapi30: false, asyncapi: true }
+  }
+  if (format !== undefined && format !== 'openapi') return undefined
+  if (document.swagger === '2.0') return { swagger: true, openapi30: false, asyncapi: false }
+  // Workspace normalization uses an empty version for versionless OpenAPI input.
+  if (typeof document.openapi === 'string') {
+    return { swagger: false, openapi30: /^3\.0(?:\.|$)/.test(document.openapi), asyncapi: false }
+  }
+  return undefined
+}
 
 /** Index traversal context separately from the mutable document and reference registry. */
 export const documentTraversal = (
-  aware: boolean,
-  swagger: boolean,
-  schemaSiblings: boolean,
-  enabled = true,
-  asyncapi = false,
-  includeCustomReferences = false,
+  root: unknown,
+  {
+    aware = true,
+    enabled = true,
+    includeCustomReferences = false,
+  }: { aware?: boolean; enabled?: boolean; includeCustomReferences?: boolean } = {},
 ): {
   register: (
     document: unknown,
@@ -53,6 +64,7 @@ export const documentTraversal = (
   registerCopy: (document: unknown, location: SourceLocation) => void
   location: (node: object) => SourceLocation | undefined
 } => {
+  const rootDialect = getDocumentTraversalDialect(root)
   const exposures = new WeakMap<object, ReferenceContext>()
   const locations = new WeakMap<object, SourceLocation>()
   const registered = new WeakSet<object>()
@@ -68,14 +80,18 @@ export const documentTraversal = (
       return
     }
     let visited = new WeakSet<object>()
-    const api = isObject(document) && ['openapi', 'swagger', 'asyncapi'].some((key) => key in document)
     // External fragments inherit the root API type; complete documents use their own.
-    const isAsyncApi = api ? typeof document.asyncapi === 'string' : asyncapi
+    const dialect = document === root ? rootDialect : getDocumentTraversalDialect(document)
+    const api = dialect !== undefined
+    const { swagger, openapi30, asyncapi } = dialect ??
+      rootDialect ?? {
+        swagger: false,
+        openapi30: false,
+        asyncapi: false,
+      }
     const targetContext = context ?? (api ? 'object' : 'schema')
-    const isSwagger = api ? document.swagger === '2.0' : swagger
-    const siblings = api
-      ? document.swagger !== '2.0' && !String(document.openapi).startsWith('3.0.')
-      : (referenceSiblings ?? schemaSiblings)
+    const schemaSiblings = !swagger && !openapi30
+    const siblings = api ? schemaSiblings : (referenceSiblings ?? schemaSiblings)
     const visit = (
       value: unknown,
       path: string[],
@@ -86,59 +102,25 @@ export const documentTraversal = (
       if (value === null || typeof value !== 'object' || visited.has(value)) return
       visited.add(value)
       const inheritedContext = !aware ? 'generic' : (exposures.get(value) ?? inherited)
-      const customSchema = customReferences && inheritedContext === 'object' && declaresSchema(value)
-      const current = customSchema ? 'schema' : inheritedContext
-      const vocabularySiblings = customSchema ? true : inheritedSiblings
-      const currentSiblings =
-        isObject(value) && typeof value.$schema === 'string'
-          ? vocabularySiblings && !/draft-0[3467]/.test(value.$schema)
-          : vocabularySiblings
-      // Keep the inherited dialect separate for wrappers containing newer schemas.
-      const schemaSiblings =
-        customReferences && !isSchemaContext(current)
-          ? true
-          : currentSiblings && (getSchemaVocabulary(current)?.referenceSiblings ?? true)
+      const position = referencePosition(value, inheritedContext, inheritedSiblings, customReferences)
       locations.set(value, {
         source,
         pointer: `#${path.map((key) => `/${escapeJsonPointer(key)}`).join('')}`,
-        context: current,
-        schemaSiblings,
+        context: position.context,
+        schemaSiblings: position.schemaSiblings,
         ...(customReferences ? { customReferences: true as const } : {}),
       })
-      const ignoredSiblings =
-        aware &&
-        current !== 'generic' &&
-        current !== 'path-item' &&
-        isReferenceContext(current) &&
-        isObject(value) &&
-        typeof value.$ref === 'string' &&
-        ((!isSchemaContext(current) && !customReferences) || !schemaSiblings)
-      const schemaFormat = isObject(value) && typeof value.schemaFormat === 'string' ? value.schemaFormat : undefined
+      const ignoredSiblings = aware && ignoresReferenceSiblings(value, position)
       // Virtual $ref-value links can reach a message before its authored location and
       // give it the wrong context. Enumerate authored keys but retain proxied reads
       // so locations use the same identities as the bundler and preserve overrides.
       // Keys present only in an overrides layer are not indexed.
       for (const key of Object.keys(getRaw(value))) {
         const child = (value as Record<string, unknown>)[key]
-        // Ignored reference siblings must not introduce schema resources or anchors.
         const next = ignoredSiblings
-          ? 'data'
-          : Array.isArray(value) && !['objects', 'messages'].includes(current) && !isSchemaMapContext(current)
-            ? current
-            : childReferenceContext(current, key, {
-                swagger: isSwagger,
-                openapi30: api ? String(document.openapi).startsWith('3.0.') : !schemaSiblings && !asyncapi && !swagger,
-                asyncapi: isAsyncApi,
-                schemaFormat,
-                includeCustomReferences,
-                customReferences,
-              })
-        const customChild =
-          customReferences ||
-          (includeCustomReferences &&
-            next !== 'data' &&
-            childReferenceContext(current, key, { swagger: isSwagger, asyncapi: isAsyncApi, schemaFormat }) === 'data')
-        visit(child, [...path, key], next, currentSiblings, customChild)
+          ? { context: 'data' as const, customReferences }
+          : childReferencePosition(value, key, position, { swagger, openapi30, asyncapi }, includeCustomReferences)
+        visit(child, [...path, key], next.context, position.childSchemaSiblings, next.customReferences)
       }
     }
     // Index a document once; later references only expose their target subtree.

@@ -322,7 +322,7 @@ In short: use `hidden: true` when the page should be invisible to search engines
 
 ### Layout Options
 
-Pages support layout configuration to customize how they are displayed. These options override the site-wide defaults in [`siteConfig.layout`](site-config.md#layout) for a single page:
+Pages support layout configuration to customize how they are displayed. These options override the site-wide defaults in [`siteConfig.layout`](site-config.md#layout) for a single page. The [layout preset](layouts.md) is the one setting a page cannot override:
 
 ```json
 "/introduction": {

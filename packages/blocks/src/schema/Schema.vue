@@ -24,6 +24,7 @@ import {
   useSchemaExpansion,
 } from './helpers/schema-expansion'
 import { handleTreeKeydown } from './helpers/schema-keyboard-nav'
+import { hasArrayItemComposition } from './helpers/should-render-array-item-composition'
 import { unwrapForRead } from './helpers/unwrap-for-read'
 import { useLocalization } from './localization'
 import SchemaComposition from './SchemaComposition.vue'
@@ -238,9 +239,8 @@ const schemaDescription = computed(() => {
     return null
   }
 
-  // Will be shown in the properties anyway. A composed schema is the exception:
-  // its members render as their own cards with their own descriptions, so the
-  // schema's own description has nowhere else to go.
+  // A primitive description normally belongs to its property row. A composed
+  // schema can show its own description here if none of its segments displays it.
   if (
     !('properties' in value) &&
     !('patternProperties' in value) &&
@@ -250,18 +250,21 @@ const schemaDescription = computed(() => {
     return null
   }
 
-  // An allOf object segment already displays the merged description. Keep a
-  // distinct outer description, but do not repeat text carried by that segment.
+  // A merged segment can show the same description in its object card or its
+  // primitive property row. If array items declare allOf, the renderer uses
+  // the item schema for that composition.
   if (
     rawSchema?.allOf &&
+    !hasArrayItemComposition(value, 'allOf') &&
     partitionAllOfCompositions(rawSchema).segments.some(
       (segment) =>
         segment.kind === 'object' &&
         segment.schema.description === value.description &&
-        ('properties' in segment.schema ||
-          'patternProperties' in segment.schema ||
-          'additionalProperties' in segment.schema) &&
-        !segment.schema.enum,
+        (!isTypeObject(segment.schema) ||
+          (!segment.schema.enum &&
+            ('properties' in segment.schema ||
+              'patternProperties' in segment.schema ||
+              'additionalProperties' in segment.schema))),
     )
   ) {
     return null

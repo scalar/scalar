@@ -199,6 +199,17 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets the HTTP(S) origins treated as local for API proxy routing and OAuth authorization.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="origins">The trusted origins, including the scheme and any non-default port.</param>
+    public static TOptions WithTrustedLocalOrigins<TOptions>(this TOptions options, params string[] origins) where TOptions : ScalarOptions
+    {
+        options.TrustedLocalOrigins = origins;
+        return options;
+    }
+
+    /// <summary>
     /// Sets the layout to classic style.
     /// </summary>
     /// <param name="options">The options to configure.</param>

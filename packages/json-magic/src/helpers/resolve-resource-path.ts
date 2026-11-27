@@ -2,16 +2,17 @@ import { resolveReferencePath } from './resolve-reference-path'
 import { toResourceUri } from './to-resource-uri'
 
 /** Resolve URI syntax without turning filesystem retrieval paths into encoded filenames. */
-export const resolveResourcePath = (base: string, reference: string): string => {
+export const tryResolveResourcePath = (base: string, reference: string): string | undefined => {
   const baseUri = toResourceUri(base)
-  const resolved = ((): string => {
-    try {
-      return resolveReferencePath(baseUri, reference)
-    } catch {
-      // Invalid URI syntax must reach the normal unresolved-document diagnostic.
-      return reference
+  let resolved: string
+  try {
+    resolved = resolveReferencePath(baseUri, reference)
+  } catch (error) {
+    if (!(error instanceof TypeError)) {
+      throw error
     }
-  })()
+    return undefined
+  }
   if (baseUri === base || !resolved.startsWith('file:')) {
     return resolved
   }
@@ -26,3 +27,7 @@ export const resolveResourcePath = (base: string, reference: string): string => 
     return resolved
   }
 }
+
+/** Preserve the authored value so the ordinary reference loader can report an unresolved document. */
+export const resolveResourcePath = (base: string, reference: string): string =>
+  tryResolveResourcePath(base, reference) ?? reference

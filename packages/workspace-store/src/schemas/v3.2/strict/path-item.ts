@@ -1,5 +1,10 @@
 import { Type } from '@scalar/typebox'
 
+import {
+  type XScalarSelectedServer,
+  XScalarSelectedServerSchema,
+} from '@/schemas/extensions/server/x-scalar-selected-server'
+
 import type { OperationObject } from './operation'
 import type { ParameterObject } from './parameter'
 import { OperationObjectRef, ParameterObjectRef, ServerObjectRef } from './ref-definitions'
@@ -43,6 +48,7 @@ export const PathItemObjectSchemaDefinition = Type.Object({
   ),
   /** An alternative servers array to service all operations in this path. If a servers array is specified at the OpenAPI Object level, it will be overridden by this value. */
   servers: Type.Optional(Type.Array(ServerObjectRef)),
+  ...XScalarSelectedServerSchema.properties,
   /** A list of parameters that are applicable for all the operations described under this path. These parameters can be overridden at the operation level, but cannot be removed there. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined in the OpenAPI Object's components.parameters. */
   parameters: Type.Optional(Type.Array(Type.Union([ParameterObjectRef, reference(ParameterObjectRef)]))),
 })
@@ -84,4 +90,4 @@ export type PathItemObject = {
   servers?: ServerObject[]
   /** A list of parameters that are applicable for all the operations described under this path. These parameters can be overridden at the operation level, but cannot be removed there. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined in the OpenAPI Object's components.parameters. */
   parameters?: ReferenceType<ParameterObject>[]
-}
+} & XScalarSelectedServer

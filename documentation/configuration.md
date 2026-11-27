@@ -428,7 +428,11 @@ This overrides the same extension in the API description. Set it to an empty str
 
 **Type:** `string`
 
-If you want to prefix all relative servers with a base URL, you can do so here.
+Sets the base for relative OpenAPI server URLs after Scalar substitutes server variables. A configured base includes its path prefix. Without a configured base, Scalar resolves relative server URLs against the API description's HTTP(S) URL when available. An empty expansion uses the configured base or the directory containing the API description.
+
+With either base, bare values such as `api.example.com/v1`, `api.example.com:8080/v1`, and `myhost:8080/v1` resolve as paths. To target that host, use an explicit URL such as `https://api.example.com:8080/v1` or `//api.example.com:8080/v1`.
+
+When you pass an API description inline through `content` and omit `baseServerURL`, Scalar still recognizes dotted values such as `api.example.com/v1` as hostnames. Use an explicit URL to target the same host whether you load the description by URL or pass it inline.
 
 ```javascript
 {
@@ -1288,6 +1292,28 @@ You can use our hosted proxy:
 If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/projects/proxy-scalar-com).
 
 Please note: You may not use just any reverse proxy, but need to use a proxy that adheres to the Scalar Proxy API. See the example to learn more.
+
+### trustedLocalOrigins
+
+**Type:** `string[]`
+
+Explicit HTTP or HTTPS origins on your development network. Requests from the API Client and OAuth requests to these origins bypass remote proxies. A same-origin proxy or a proxy that Scalar treats as local remains eligible. The authorization popup and device verification links accept HTTP on a listed origin. OAuth metadata URLs follow their own TLS requirements.
+
+Use one exact origin per entry, with the scheme, literal hostname, and port if needed. A trailing slash is optional. List each subdomain explicitly, without wildcards. Scalar ignores entries with paths, query strings, fragments, or credentials.
+
+Configure the option in your Scalar application configuration and include the origin of the token endpoint if it differs from the authorization endpoint. Direct requests are subject to browser CORS and mixed-content rules. Use HTTPS for identity providers that handle real credentials.
+
+API description fetching, temporary share-link uploads, and requests sent by Scalar Agent use the standard proxy rules.
+
+```javascript
+{
+  trustedLocalOrigins: ['http://auth.dev.internal:8080'],
+}
+```
+
+For ASP.NET Core, use `options.WithTrustedLocalOrigins("http://auth.dev.internal:8080")`. For Spring Boot, use `scalar.trusted-local-origins[0]=http://auth.dev.internal:8080`. For FastAPI or Django Ninja, use `trusted_local_origins=["http://auth.dev.internal:8080"]`.
+
+The Electron desktop app applies its own policy for opening URLs in the system browser. This setting is available to embedded API Reference and browser API Client integrations.
 
 ### oauth2RedirectUri
 

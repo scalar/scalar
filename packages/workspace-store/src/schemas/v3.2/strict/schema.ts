@@ -43,7 +43,7 @@ export type SchemaReferenceType<Value> = Value | (ReferenceObject & { '$ref-valu
  * (genuinely invalid input, never a reference) falls back to an empty schema
  * object rather than a bogus `{ $ref: '' }` that would read as a real reference.
  */
-const schemaOrReference = Type.Union([
+export const schemaOrReference = Type.Union([
   SchemaObjectRef,
   compose(ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Optional(Type.Unknown()) })),
 ])

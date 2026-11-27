@@ -2,7 +2,7 @@
 /**  Any config options required for the OAuth2 flow */
 export type OAuth2Options = Pick<
   ApiClientConfiguration,
-  'oauth2RedirectUri'
+  'oauth2RedirectUri' | 'trustedLocalOrigins'
 > & {
   /** Optional fetch override (IPC-backed on desktop) used for token exchange, refresh, and OIDC discovery */
   customFetch?: typeof fetch
@@ -364,6 +364,7 @@ const handleAuthorize = async (): Promise<void> => {
         devicePrompt.value = prompt
       },
     },
+    options.trustedLocalOrigins,
   )
   devicePrompt.value = null
 
@@ -424,6 +425,7 @@ const handleRefresh = async (): Promise<void> => {
     server,
     getEnvironmentVariables(environment),
     options.customFetch,
+    options.trustedLocalOrigins,
   )
 
   await loader.clear()

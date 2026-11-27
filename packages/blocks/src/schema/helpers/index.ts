@@ -1,3 +1,4 @@
+export { resolveDisplaySchema } from './dynamic-scope'
 export { inferDiscriminatorMappingComposition } from './get-compositions-to-render'
 export { getRefName } from './get-ref-name'
 export { type RenderedExample, getRenderedExample, normalizeRenderedExamples } from './get-rendered-example'

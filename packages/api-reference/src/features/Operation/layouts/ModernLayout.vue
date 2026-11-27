@@ -130,6 +130,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
   <Section
     :id="id"
     :aria-labelledby="labelId"
+    data-scalar-operation
     :label="operationTitle"
     tabindex="-1"
     @intersecting="() => eventBus?.emit('intersecting:nav-item', { id })">

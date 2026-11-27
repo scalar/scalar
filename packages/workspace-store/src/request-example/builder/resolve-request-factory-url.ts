@@ -1,3 +1,4 @@
+import { getOwnEntry } from '@scalar/helpers/object/get-own-entry'
 import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { type Result, err, ok } from '@scalar/helpers/types/result'
 import { safeRun } from '@scalar/helpers/types/safe-run'
@@ -7,7 +8,8 @@ import { mergeSearchParams, mergeUrls } from '@scalar/helpers/url/merge-urls'
 import {
   assertReservedPathUrl,
   encodePathParameter,
-  serializeReservedPathParameter,
+  hasPathDotSegment,
+  serializePathParameter,
 } from '@/helpers/encode-path-parameter'
 import { serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
@@ -53,21 +55,20 @@ export const resolveRequestFactoryUrl = (
     Object.fromEntries(
       Object.entries(request.path.variables).map(([key, value]) => {
         const replace = (text: string): string => replaceEnvVariables(text, variables)
-        const reserved =
-          request.path.reservedParameters && Object.hasOwn(request.path.reservedParameters, key)
-            ? request.path.reservedParameters[key]
-            : undefined
         if (request.path.serializedParameters?.has(key)) {
           return [key, replace(value)]
         }
-        const encoded = reserved
-          ? serializeReservedPathParameter(
+        const reserved = getOwnEntry(request.path.reservedParameters, key)
+        const serialization = reserved ?? getOwnEntry(request.path.styledParameters, key)
+        const encoded = serialization
+          ? serializePathParameter(
               key,
               {
-                ...reserved,
-                value: value === reserved.originalValue ? reserved.value : value,
+                ...serialization,
+                value: value === serialization.originalValue ? serialization.value : value,
               },
               replace,
+              reserved !== undefined,
             )
           : encodePathParameter(replace(value))
         return [key, encoded]
@@ -86,6 +87,29 @@ export const resolveRequestFactoryUrl = (
 
   if (!options.allowMissingRequestServerBase && isRelativePath(mergedUrl)) {
     return err(MISSING_REQUEST_SERVER_BASE, INCOMPLETE_MERGED_URL_MESSAGE)
+  }
+
+  const styled = request.path.styledParameters
+  if (styled && Object.values(styled).some(({ style }) => style === 'label')) {
+    // Mark label expansions before splitting the path, since template names may
+    // themselves contain URI separators. Literal segments must keep normal URL semantics.
+    const markedPath = replacePathVariables(
+      rawPath,
+      Object.fromEntries(
+        Object.entries(pathVariables).map(([name, value]) => [
+          name,
+          getOwnEntry(styled, name)?.style === 'label' && !request.path.serializedParameters?.has(name)
+            ? `x${value}`
+            : value,
+        ]),
+      ),
+    )
+    if (hasPathDotSegment(path, markedPath)) {
+      return err(
+        INVALID_REQUEST_FACTORY_URL,
+        'A label-style path parameter produces a dot segment that browsers remove. Enter a value that keeps the segment from becoming "." or "..".',
+      )
+    }
   }
 
   // When rendered inside an iframe with srcdoc, the browser reports

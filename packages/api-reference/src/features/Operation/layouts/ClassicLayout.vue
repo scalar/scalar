@@ -156,6 +156,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
     :id="id"
     :aria-label="operationTitle"
     class="reference-endpoint"
+    data-scalar-operation
     :modelValue="!isCollapsed"
     transparent
     @update:modelValue="

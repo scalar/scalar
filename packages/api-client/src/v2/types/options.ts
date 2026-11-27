@@ -19,6 +19,7 @@ export type ApiClientOptions = Partial<
     | 'multipartNaming'
     | 'proxyUrl'
     | 'servers'
+    | 'trustedLocalOrigins'
   >
 > & {
   /**

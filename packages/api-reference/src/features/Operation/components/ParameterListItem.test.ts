@@ -1,4 +1,5 @@
 import { SchemaProperty, SchemaRailPanel } from '@scalar/blocks/schema'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   ParameterObjectSchema,
@@ -6,11 +7,13 @@ import {
   SchemaObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import { nextTick } from 'vue'
+import { describe, expect, it, vi } from 'vitest'
+import { nextTick, shallowRef } from 'vue'
 
 import { SpecificationExtension } from '@/features/specification-extension'
+import type { ResponsePropertyLink } from '@/helpers/id-routing'
 import { scrollTargetId } from '@/helpers/lazy-bus'
+import { RESPONSE_PROPERTY_TARGET } from '@/helpers/response-property-target'
 
 import ParameterListItem from './ParameterListItem.vue'
 
@@ -23,6 +26,73 @@ const baseOptions = {
 }
 
 describe('ParameterListItem', () => {
+  it('forwards schema events with their emit options', () => {
+    const operationId = 'api/GET/orders'
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('toggle:nav-item', listener)
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: '200',
+        breadcrumb: [operationId, 'responses'],
+        eventBus,
+        options: { ...baseOptions, hideModelNames: true },
+        parameter: coerceValue(ResponseObjectSchema, {
+          description: 'OK',
+          content: {
+            'application/json': { schema: { type: 'object' } },
+            'application/xml': { schema: { type: 'object' } },
+          },
+        }),
+      },
+    })
+
+    const schemaBus = wrapper.getComponent(SchemaProperty).props('eventBus')!
+    const payload = { id: operationId, open: true }
+    schemaBus.emit('toggle:nav-item', payload, { debounceKey: 'schema' })
+
+    expect(listener).not.toHaveBeenCalled()
+    eventBus.flushDebouncedEmits?.()
+    expect(listener).toHaveBeenCalledExactlyOnceWith(payload)
+    wrapper.unmount()
+  })
+
+  it('restores the media type only in the reference that received the link', async () => {
+    const operationId = 'api-1/GET/orders'
+    const props = {
+      name: '200',
+      breadcrumb: [operationId, 'responses'],
+      eventBus: null,
+      options: baseOptions,
+      parameter: coerceValue(ResponseObjectSchema, {
+        description: 'OK',
+        content: {
+          'application/json': { schema: { type: 'object', properties: { status: { type: 'string' } } } },
+          'application/xml': { schema: { type: 'object', properties: { xmlOnlyField: { type: 'string' } } } },
+        },
+      }),
+    }
+    const target = shallowRef<ResponsePropertyLink>()
+    const first = mount(ParameterListItem, { props, global: { provide: { [RESPONSE_PROPERTY_TARGET]: target } } })
+    const second = mount(ParameterListItem, {
+      props,
+      global: { provide: { [RESPONSE_PROPERTY_TARGET]: shallowRef() } },
+    })
+
+    try {
+      target.value = { mediaType: 'application/xml', operationId }
+      scrollTargetId.value = `${operationId}.responses.200.xmlOnlyField`
+      await nextTick()
+
+      expect(first.emitted('update:selectedContentType')).toStrictEqual([['application/xml']])
+      expect(second.emitted('update:selectedContentType')).toBeUndefined()
+    } finally {
+      scrollTargetId.value = ''
+      first.unmount()
+      second.unmount()
+    }
+  })
+
   it('preserves expanded fields when navigating inside an open deep-object group', async () => {
     const wrapper = mount(ParameterListItem, {
       props: {
