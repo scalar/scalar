@@ -9,13 +9,25 @@ name: JS Tests
 
 on:
   workflow_call:
+    inputs:
+      run-all:
+        description: "'true' tests every workspace. pr.yml passes check-changes' run_all, which is 'false' when a change is contained to some workspaces."
+        type: string
+        default: 'true'
+      affected-paths:
+        description: 'Newline-separated workspace paths to test when run-all is not true: the changed workspaces and everything that depends on them.'
+        type: string
+        default: ''
 
 permissions:
   contents: read
 
 jobs:
   test-packages:
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    # Stays on Blacksmith: on GitHub-hosted runners the shards run their
+    # packages about twice as slowly, and CPU-budget tests (workspace-store's
+    # example size budget, the request-scripts plugin) hit their timeouts.
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 10
     permissions:
       contents: read
@@ -29,20 +41,22 @@ jobs:
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Check built declaration alias imports
-        if: matrix.shard-index == 1
+        if: matrix.shard-index == 1 && (inputs.run-all == 'true' || contains(inputs.affected-paths, 'packages/'))
         run: pnpm lint:check:dist-dts-aliases
+      # check-changes sets run-all for any change under .github/ or
+      # documentation/assets/ scripts, which is all these two cover.
       - name: Check contributor README generation
-        if: matrix.shard-index == 1
+        if: matrix.shard-index == 1 && inputs.run-all == 'true'
         run: |
           pnpm exec tsc --project .github/actions/update-contributors/tsconfig.json
           pnpm vitest .github/actions/update-contributors --run
       - name: Check documentation scripts
-        if: matrix.shard-index == 1
+        if: matrix.shard-index == 1 && inputs.run-all == 'true'
         run: |
           pnpm exec tsc --project documentation/assets/tsconfig.test.json
           pnpm vitest documentation/assets --run
       - name: Run NestJS example end-to-end tests
-        if: matrix.shard-index == 1
+        if: matrix.shard-index == 1 && (inputs.run-all == 'true' || contains(inputs.affected-paths, 'examples/nestjs/'))
         run: pnpm --filter '@scalar-examples/nestjs-api-reference-*' test:e2e --runInBand
       # Packages are spread across shards by their rough test duration, so the
       # few slow suites never pile up on one shard. Every shard runs the same
@@ -52,39 +66,53 @@ jobs:
       # `--only` skips the `^build` dependencies: restore-build already put
       # every dist/ in place, and letting turbo rebuild them on a cache miss
       # used to cost each shard a minute or more.
+      #
+      # When RUN_ALL is not true, only the packages in AFFECTED_PATHS are
+      # spread across the shards; a shard left without any exits early.
       - name: Run tests
+        env:
+          RUN_ALL: ${{ inputs.run-all }}
+          AFFECTED_PATHS: ${{ inputs.affected-paths }}
         run: |
-          # Rough test durations in seconds, measured in CI. Only the suites
-          # that dominate the run are listed; everything else counts as 5.
-          # Update these when a suite grows or shrinks a lot.
+          # Rough test durations in seconds: the median vitest Duration of
+          # each package across CI shards. Only the suites that dominate the
+          # run are listed; everything else counts as 5. Update these when a
+          # suite grows or shrinks a lot.
           declare -A weights=(
-            [api-reference]=160
-            [api-client]=140
-            [components]=110
-            [blocks]=110
-            [workspace-store]=60
-            [mock-server]=50
-            [helpers]=50
-            [sidebar]=45
-            [openapi-types]=40
-            [openapi-validator]=40
-            [asyncapi-to-markdown]=35
-            [openapi-parser]=35
-            [highlight]=35
-            [schemas]=35
-            [server-side-rendering]=35
+            [api-reference]=155
+            [api-client]=120
+            [blocks]=80
+            [components]=75
+            [workspace-store]=65
+            [server-side-rendering]=55
+            [agent-chat]=45
+            [mock-server]=45
+            [helpers]=40
+            [openapi-validator]=35
+            [sidebar]=35
+            [openapi-parser]=30
             [openapi-to-markdown]=30
-            [pre-post-request-scripts]=30
-            [agent-chat]=30
-            [snippetz]=25
+            [asyncapi-to-markdown]=30
+            [schemas]=30
+            [openapi-types]=25
+            [highlight]=25
+            [pre-post-request-scripts]=15
+            [snippetz]=15
             [oas-utils]=15
             [json-magic]=10
+            [openapi-upgrader]=10
+            [code-highlight]=10
+            [postman-to-openapi]=10
+            [use-hooks]=10
           )
           shard_total=${{ matrix.shard-total }}
           shard_index=${{ matrix.shard-index }}
 
           entries=()
           for dir in packages/*/; do
+            if [ "$RUN_ALL" != 'true' ] && ! grep -qxF "${dir%/}" <<< "$AFFECTED_PATHS"; then
+              continue
+            fi
             if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
               name=$(basename "$dir")
               entries+=("${weights[$name]:-5} ${dir%/}")
@@ -116,7 +144,8 @@ jobs:
   # pnpm workspaces under projects/* with a `test` script. Excludes
   # projects/proxy-scalar-com (Go) — those run in test-proxy-server.
   test-projects:
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    if: inputs.run-all == 'true' || contains(inputs.affected-paths, 'projects/')
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read
@@ -125,11 +154,17 @@ jobs:
       - name: Restore pre-built workspace
         uses: $/.github/actions/restore-build
       - name: Run project tests
+        env:
+          RUN_ALL: ${{ inputs.run-all }}
+          AFFECTED_PATHS: ${{ inputs.affected-paths }}
         run: |
           args=()
           for dir in projects/*/; do
             [ -f "${dir}package.json" ] || continue
             [ "${dir}" = 'projects/proxy-scalar-com/' ] && continue
+            if [ "$RUN_ALL" != 'true' ] && ! grep -qxF "${dir%/}" <<< "$AFFECTED_PATHS"; then
+              continue
+            fi
             if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
               args+=(--filter "./${dir%/}")
             fi

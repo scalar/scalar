@@ -55,6 +55,8 @@ env:
 jobs:
   docker-build:
     if: inputs.docker_changed == 'true'
+    # Builds with Blacksmith's Docker builder actions
+    # (useblacksmith/setup-docker-builder and build-push-action).
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     permissions:
@@ -94,6 +96,8 @@ jobs:
 
   dotnet-build-test:
     if: inputs.dotnet_changed == 'true'
+    # Builds with Blacksmith's Docker builder actions
+    # (useblacksmith/setup-docker-builder and build-push-action).
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     permissions:
@@ -206,7 +210,7 @@ jobs:
 
   fastapi-build-test:
     if: inputs.fastapi_changed == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -240,7 +244,7 @@ jobs:
 
   django-ninja-build-test:
     if: inputs.django_ninja_changed == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -274,7 +278,7 @@ jobs:
 
   rust-build-test:
     if: inputs.rust_changed == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -340,7 +344,7 @@ jobs:
       matrix:
         # Exercise the POM default without duplicating its current version here.
         spring-boot: ['3', 'default']
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     timeout-minutes: 10
@@ -374,7 +378,7 @@ jobs:
   java-release-smoke-test:
     needs: java-build-test
     if: ${{ !cancelled() && needs.java-build-test.result == 'success' }}
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
       passed: ${{ steps.passed.outputs.passed }}

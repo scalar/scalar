@@ -3,8 +3,6 @@
 # Docs: https://gh.io/actions-lockfile
 version: 'v0.0.3'
 workflows:
-    '.github/workflows/blacksmith-cleanup.yml':
-        - 'useblacksmith/stickydisk-delete@v1'
     '.github/workflows/cache-refresh.yml':
         - 'actions/cache@v6.1.0'
         - 'actions/checkout@v7.0.1'
@@ -344,11 +342,6 @@ dependencies:
         commit: 'sha1-9657a6e02ca6445e6d6ce5ffaf370f4828dea50d'
         owner_id: 156274793
         repo_id: 1030038037
-    'useblacksmith/stickydisk-delete@v1':
-        ref: 'v1'
-        commit: 'sha1-b41313d28b8647d72114c9ba3c96bb04061562b6'
-        owner_id: 156274793
-        repo_id: 1068686872
     'useblacksmith/stickydisk@v1.7.2':
         ref: 'v1.7.2'
         commit: 'sha1-3f6be1451e3cad893b778bc93495c80452a5da26'

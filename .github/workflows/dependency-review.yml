@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   dependency-review:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
         with:

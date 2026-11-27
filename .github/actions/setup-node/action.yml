@@ -1,8 +1,13 @@
 name: 'Setup Node'
 description: |
-  Set up pnpm, Node.js, and the branch-scoped caches used by every JS job
-  in this repo. Cache keys include `github.ref_name` so a PR can never
+  Set up pnpm, Node.js, and the branch-scoped turbo cache used by every JS
+  job in this repo. Cache keys include `github.ref_name` so a PR can never
   overwrite the cache a main-branch run will read.
+inputs:
+  turbo-cache:
+    description: 'When false, skip the turbo cache. For jobs that run no cached turbo task.'
+    required: false
+    default: 'true'
 runs:
   using: 'composite'
   steps:
@@ -22,26 +27,17 @@ runs:
 
     # Branch-scoped persistent turbo cache.
     # Bump the `v1` suffix in the cache keys below to invalidate every cache.
-    - if: startsWith(runner.name, 'blacksmith')
+    - if: inputs.turbo-cache == 'true' && startsWith(runner.name, 'blacksmith')
       name: Setup persistent turbo cache
       uses: useblacksmith/stickydisk@v1.7.2
       with:
         key: ${{ github.repository }}-${{ github.ref_name }}-turbo-cache-${{ steps.node-version.outputs.version }}-v1
         path: ./.turbo
 
-    # Branch-scoped pnpm store cache. pnpm verifies tarball integrity at
-    # install time, so a poisoned tarball with a mismatched hash is rejected.
-    - if: startsWith(runner.name, 'blacksmith')
-      name: Setup persistent pnpm store cache
-      uses: useblacksmith/stickydisk@v1.7.2
-      with:
-        key: ${{ github.repository }}-${{ github.ref_name }}-pnpm-store-${{ steps.node-version.outputs.version }}-${{ hashFiles('pnpm-lock.yaml') }}-v1
-        path: ~/.local/share/pnpm/store
-
     # Fallback turbo cache for GitHub-hosted runners, where the stickydisk
     # steps never run — notably npm-publish, which must stay GitHub-hosted
     # (npm provenance rejects self-hosted OIDC) and otherwise rebuilds cold.
-    - if: ${{ !startsWith(runner.name, 'blacksmith') }}
+    - if: ${{ inputs.turbo-cache == 'true' && !startsWith(runner.name, 'blacksmith') }}
       name: Setup turbo cache (GitHub-hosted fallback)
       uses: actions/cache@v6.1.0
       with:
@@ -53,7 +49,7 @@ runs:
     # Turbo never prunes ./.turbo/cache, so drop entries untouched for two
     # weeks to keep the saved tarball bounded. A pruned-but-hot entry just
     # rebuilds once on the next run.
-    - if: ${{ !startsWith(runner.name, 'blacksmith') }}
+    - if: ${{ inputs.turbo-cache == 'true' && !startsWith(runner.name, 'blacksmith') }}
       name: Prune stale turbo cache entries
       shell: bash
       run: |

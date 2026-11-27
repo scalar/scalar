@@ -36,7 +36,7 @@ jobs:
   build:
     # Every other JS job waits on this one, and a PR's first push builds with
     # an empty turbo cache, so the extra cores pay for themselves here.
-    runs-on: blacksmith-8vcpu-ubuntu-2204
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     timeout-minutes: 10
     permissions:
       contents: read
@@ -93,7 +93,7 @@ jobs:
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
   check-changes:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: read
@@ -123,7 +123,7 @@ jobs:
 
   lint-icons:
     if: needs.check-changes.outputs.icons_changed == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [build, check-changes]
     permissions:
@@ -145,7 +145,7 @@ jobs:
 
   types:
     needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
@@ -170,7 +170,7 @@ jobs:
   # The cache stays off for the same reason as in the types job above.
   build-apps:
     needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
@@ -193,16 +193,10 @@ jobs:
 
   test-integrations:
     needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     container:
       image: scalarapi/playwright-runner:1.65.1
       options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     env:
       HOME: '/root'
     timeout-minutes: 10
@@ -217,7 +211,7 @@ jobs:
 
   test-proxy-server:
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
@@ -231,7 +225,7 @@ jobs:
 
   test-server-side-rendering:
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -249,16 +243,10 @@ jobs:
 
   test-block-snapshots:
     needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     container:
       image: scalarapi/playwright-runner:1.65.1
       options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
     timeout-minutes: 15
@@ -273,16 +261,10 @@ jobs:
 
   test-component-snapshots:
     needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     container:
       image: scalarapi/playwright-runner:1.65.1
       options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
     timeout-minutes: 15
@@ -295,7 +277,7 @@ jobs:
 
   test-e2e-api-reference:
     needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     container:
       image: scalarapi/playwright-runner:1.65.1
       options: --privileged
@@ -323,16 +305,10 @@ jobs:
 
   test-e2e-scalar-app:
     needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     container:
       image: scalarapi/playwright-runner:1.65.1
       options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
     timeout-minutes: 15
@@ -359,7 +335,7 @@ jobs:
 
   required-jobs-main:
     if: ${{ always() }}
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 1
     permissions: {}
     needs:
@@ -479,7 +455,7 @@ jobs:
       needs.check-changes.outputs.fastapi_package_changed == 'true' &&
       needs.integration-builds.outputs.fastapi_build_passed == 'true'
     needs: [check-changes, integration-builds, release]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -543,7 +519,7 @@ jobs:
       needs.check-changes.outputs.django_ninja_package_changed == 'true' &&
       needs.integration-builds.outputs.django_ninja_build_passed == 'true'
     needs: [check-changes, integration-builds, release]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -616,7 +592,7 @@ jobs:
   deploy-components:
     if: github.ref == 'refs/heads/main'
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     environment: production-netlify
     timeout-minutes: 10
     concurrency:

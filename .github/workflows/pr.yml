@@ -32,7 +32,7 @@ jobs:
   build:
     # Every other JS job waits on this one, and a PR's first push builds with
     # an empty turbo cache, so the extra cores pay for themselves here.
-    runs-on: blacksmith-8vcpu-ubuntu-2204
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     timeout-minutes: 10
     permissions:
       contents: read
@@ -85,12 +85,31 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
+  # Besides the path flags, decides which JS jobs a pull request needs. turbo
+  # lists the workspaces the change touches plus everything that depends on
+  # them; each gated job runs when a workspace it exercises is in that list.
+  # A change turbo cannot attribute to a workspace (lockfile, workspace or
+  # turbo config, root package.json, root configs, .github/) runs everything,
+  # and so does any failure to compute the list.
   check-changes:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: read
     outputs:
+      run_all: ${{ steps.affected.outputs.run_all }}
+      affected_paths: ${{ steps.affected.outputs.affected_paths }}
+      run_types: ${{ steps.affected.outputs.run_types }}
+      run_build_apps: ${{ steps.affected.outputs.run_build_apps }}
+      run_test_js: ${{ steps.affected.outputs.run_test_js }}
+      run_test_integrations: ${{ steps.affected.outputs.run_test_integrations }}
+      run_test_proxy_server: ${{ steps.affected.outputs.run_test_proxy_server }}
+      run_test_server_side_rendering: ${{ steps.affected.outputs.run_test_server_side_rendering }}
+      run_test_block_snapshots: ${{ steps.affected.outputs.run_test_block_snapshots }}
+      run_test_component_snapshots: ${{ steps.affected.outputs.run_test_component_snapshots }}
+      run_test_e2e_api_reference: ${{ steps.affected.outputs.run_test_e2e_api_reference }}
+      run_test_e2e_scalar_app: ${{ steps.affected.outputs.run_test_e2e_scalar_app }}
+      skipped_by_scope: ${{ steps.affected.outputs.skipped_by_scope }}
       dotnet_changed: ${{ steps.changes.outputs.dotnet_changed }}
       java_changed: ${{ steps.changes.outputs.java_changed }}
       fastapi_changed: ${{ steps.changes.outputs.fastapi_changed }}
@@ -106,12 +125,83 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
+          # A pull_request run checks out the merge commit; its first parent
+          # is the base the change is diffed against.
+          fetch-depth: 2
       - id: changes
         uses: $/.github/actions/check-changes
+      - uses: pnpm/action-setup@v6.1.1
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+          cache-dependency-path: 'package.json'
+      # Root dependencies only: turbo reads the workspace graph from the
+      # package.json files and the lockfile, not from node_modules.
+      - name: Install turbo
+        run: pnpm install --filter .
+      - name: Find affected workspaces
+        id: affected
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -uo pipefail
+          run_all=false
+          paths=''
+          if [ "$EVENT_NAME" != 'pull_request' ]; then
+            echo "Not a pull request: running everything."
+            run_all=true
+          elif ! changed=$(git diff --name-only HEAD^1 HEAD); then
+            echo "::warning::Could not diff against the base: running everything."
+            run_all=true
+          elif grep -qE '^(pnpm-lock\.yaml|pnpm-workspace\.yaml|turbo\.json|package\.json|\.npmrc|\.nvmrc|vitest\.config\.ts|biome\.json|tsconfig[^/]*\.json|\.github/|documentation/assets/[^/]*\.(js|ts|json)$)' <<< "$changed"; then
+            echo "A root or CI file changed: running everything."
+            run_all=true
+          elif ! paths=$(TURBO_SCM_BASE=HEAD^1 pnpm exec turbo ls --affected --output=json | jq -r '.packages.items[].path' | sort); then
+            echo "::warning::turbo could not list the affected workspaces: running everything."
+            run_all=true
+            paths=''
+          fi
+          echo "Affected workspaces:"
+          echo "${paths:-(none)}"
+
+          # One line per gated job: its pr.yml job id and a regex over the
+          # affected paths for the workspaces it exercises. The Go proxy has
+          # its own job, so only that job looks at it.
+          js_paths=$(grep -vx 'projects/proxy-scalar-com' <<< "$paths" || true)
+          skipped=()
+          flag() {
+            local job=$1 pattern=$2 list=${3-$js_paths} run=false
+            if [ "$run_all" = 'true' ] || grep -qE "$pattern" <<< "$list"; then run=true; fi
+            echo "run_${job//-/_}=$run" >> "$GITHUB_OUTPUT"
+            if [ "$run" = 'false' ]; then skipped+=("$job"); fi
+          }
+          # types runs through TURBO_FLAGS, which leaves these integrations out.
+          typed_paths=$(grep -vE '^integrations/(java|rust|dotnet|docker|fastapi|django-ninja)(/|$)' <<< "$js_paths" || true)
+          flag types '.' "$typed_paths"
+          flag build-apps '^(examples|projects|tooling)/'
+          flag test-js '^(packages|projects|examples/nestjs)/'
+          flag test-integrations '^integrations/'
+          flag test-proxy-server '^projects/proxy-scalar-com$' "$paths"
+          flag test-server-side-rendering '^packages/server-side-rendering$'
+          flag test-block-snapshots '^packages/blocks$'
+          flag test-component-snapshots '^packages/components$'
+          flag test-e2e-api-reference '^packages/api-reference$'
+          flag test-e2e-scalar-app '^projects/scalar-app$'
+
+          echo "run_all=$run_all" >> "$GITHUB_OUTPUT"
+          echo "skipped_by_scope=${skipped[*]}" >> "$GITHUB_OUTPUT"
+          {
+            echo 'affected_paths<<AFFECTED_EOF'
+            echo "$paths"
+            echo 'AFFECTED_EOF'
+          } >> "$GITHUB_OUTPUT"
+          echo "Skipped by scope: ${skipped[*]:-(none)}"
 
   format:
     if: github.event_name == 'pull_request'
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
@@ -133,7 +223,7 @@ jobs:
 
   lint-icons:
     if: needs.check-changes.outputs.icons_changed == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [build, check-changes]
     permissions:
@@ -155,7 +245,7 @@ jobs:
 
   lint-galaxy:
     if: needs.check-changes.outputs.galaxy_changed == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [check-changes]
     permissions:
@@ -223,8 +313,9 @@ jobs:
         run: exit ${{ steps.lint.outputs.exit_code }}
 
   types:
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    if: needs.check-changes.outputs.run_types == 'true'
+    needs: [build, check-changes]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
@@ -238,9 +329,22 @@ jobs:
       # stay off. With `--only`, a task's hash no longer covers the packages
       # it depends on, so a cached pass would be replayed even after an
       # upstream package changed its types.
+      #
+      # Unless check-changes ran everything, only the affected workspaces are
+      # checked. They include every dependent, and with `--only` those are
+      # exactly the packages whose types a change can break.
       - name: Check types
+        env:
+          RUN_ALL: ${{ needs.check-changes.outputs.run_all }}
+          AFFECTED_PATHS: ${{ needs.check-changes.outputs.affected_paths }}
         run: |
-          pnpm turbo ${{ env.TURBO_FLAGS }} --only --cache=local: types:check
+          args=()
+          if [ "$RUN_ALL" != 'true' ]; then
+            while IFS= read -r path; do
+              if [ -n "$path" ]; then args+=(--filter "./$path"); fi
+            done <<< "$AFFECTED_PATHS"
+          fi
+          pnpm turbo ${{ env.TURBO_FLAGS }} "${args[@]}" --only --cache=local: types:check
 
   # Builds the examples, projects and tooling that the build job leaves out
   # (it only builds packages and integrations). They depend on those packages,
@@ -248,8 +352,9 @@ jobs:
   # an example or scalar-app that no longer builds would only fail after merge.
   # The cache stays off for the same reason as in the types job above.
   build-apps:
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    if: needs.check-changes.outputs.run_build_apps == 'true'
+    needs: [build, check-changes]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
@@ -267,7 +372,7 @@ jobs:
   knip:
     if: github.event_name == 'pull_request'
     needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
@@ -284,21 +389,20 @@ jobs:
   # test-packages (sharded) and test-projects live in test-js.yml so the shell
   # loops cannot drift between pr.yml and main.yml.
   test-js:
-    needs: [build]
+    if: needs.check-changes.outputs.run_test_js == 'true'
+    needs: [build, check-changes]
     uses: ./.github/workflows/test-js.yml
+    with:
+      run-all: ${{ needs.check-changes.outputs.run_all }}
+      affected-paths: ${{ needs.check-changes.outputs.affected_paths }}
 
   test-integrations:
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    if: needs.check-changes.outputs.run_test_integrations == 'true'
+    needs: [build, check-changes]
+    runs-on: ubuntu-latest
     container:
       image: scalarapi/playwright-runner:1.65.1
       options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     env:
       HOME: '/root'
     timeout-minutes: 10
@@ -313,8 +417,9 @@ jobs:
         run: pnpm --filter @scalar/nuxt test:e2e
 
   test-proxy-server:
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    if: needs.check-changes.outputs.run_test_proxy_server == 'true'
+    needs: [build, check-changes]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
@@ -327,8 +432,9 @@ jobs:
         run: cd projects/proxy-scalar-com && go test -v
 
   test-server-side-rendering:
-    needs: [build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    if: needs.check-changes.outputs.run_test_server_side_rendering == 'true'
+    needs: [build, check-changes]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -345,19 +451,13 @@ jobs:
         timeout-minutes: 2
 
   test-block-snapshots:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    if: needs.check-changes.outputs.run_test_block_snapshots == 'true'
+    needs: [build, check-changes]
+    runs-on: ubuntu-latest
     environment: production-netlify
     container:
       image: scalarapi/playwright-runner:1.65.1
       options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
       pull-requests: write
@@ -396,8 +496,9 @@ jobs:
           report-tag: test-blocks-snapshots
 
   test-e2e-api-reference:
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    if: needs.check-changes.outputs.run_test_e2e_api_reference == 'true'
+    needs: [build, check-changes]
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     environment: production-netlify
     container:
       image: scalarapi/playwright-runner:1.65.1
@@ -454,18 +555,13 @@ jobs:
             > These tests include snapshots that may need to be updated if there are intentional changes to the UI components. To update the snapshots run `pnpm test:e2e --update-snapshots` in `packages/api-reference` and commit the changes.
 
   test-e2e-scalar-app:
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    if: needs.check-changes.outputs.run_test_e2e_scalar_app == 'true'
+    needs: [build, check-changes]
+    runs-on: ubuntu-latest
     environment: production-netlify
     container:
       image: scalarapi/playwright-runner:1.65.1
       options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
       pull-requests: write
@@ -499,19 +595,13 @@ jobs:
           report-tag: test-scalar-app-e2e
 
   test-component-snapshots:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
-    needs: [build]
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    if: needs.check-changes.outputs.run_test_component_snapshots == 'true'
+    needs: [build, check-changes]
+    runs-on: ubuntu-latest
     environment: production-netlify
     container:
       image: scalarapi/playwright-runner:1.65.1
       options: --privileged
-      env:
-        VM_ID: ${{ env.VM_ID }}
-        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
-        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
-        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
-        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
     permissions:
       contents: read
       pull-requests: write
@@ -596,7 +686,7 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       !contains(github.actor, '[bot]')
     needs: [deploy-previews]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       pull-requests: write
@@ -667,13 +757,18 @@ jobs:
 
           echo "Only Markdown files changed."
 
+  # Every needed job must succeed. The only skip that passes is one
+  # check-changes asked for (its skipped_by_scope list); any other skip, a
+  # cancel or a failure fails the gate, and so does check-changes failing,
+  # because its list then comes through empty.
   required-jobs-pull-requests:
     if: ${{ always() && github.event_name == 'pull_request' }}
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 1
     permissions: {}
     needs:
       [
+        check-changes,
         build,
         build-apps,
         test-server-side-rendering,
@@ -691,5 +786,20 @@ jobs:
       ]
     steps:
       - name: Exit with error if some jobs are not successful
-        run: exit 1
-        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+          SKIPPED_BY_SCOPE: ${{ needs.check-changes.outputs.skipped_by_scope }}
+        run: |
+          failed=$(jq -r --arg allowed "$SKIPPED_BY_SCOPE" '
+            ($allowed | split(" ")) as $allowed
+            | to_entries[]
+            | select(.value.result != "success")
+            | select(.value.result != "skipped" or (.key | IN($allowed[]) | not))
+            | "\(.key): \(.value.result)"
+          ' <<< "$NEEDS")
+          if [ -n "$failed" ]; then
+            echo "These required jobs did not succeed:"
+            echo "$failed"
+            exit 1
+          fi
+          echo "Skipped by check-changes: ${SKIPPED_BY_SCOPE:-(none)}"
