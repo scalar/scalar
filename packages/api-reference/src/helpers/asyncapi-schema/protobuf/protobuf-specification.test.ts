@@ -381,6 +381,8 @@ describe('protobuf-specification', () => {
     'message M { string f = 1 []; }',
     'message M { reserved 2 3; string f = 1; }',
     'message M { reserved 2,,3; string f = 1; }',
+    'message M { reserved 2to 4; string f = 1; }',
+    'enum E { ZERO = 0; reserved -2to -1; }',
     'message M { reserved "foo" "bar"; string f = 1; }',
     'package foo.; message M {}',
     'package .foo; message M {}',
@@ -520,6 +522,19 @@ describe('protobuf-specification', () => {
       'First line.\nSecond line.',
       undefined,
     ])
+  })
+
+  it('preserves descriptions after a top-level empty statement', () => {
+    const source = 'message A {}; // Documents B.\nmessage B {}'
+    expect(readProtobuf(source, '3').nodes[1]?.description).toBe('Documents B.')
+  })
+
+  it('preserves next-field descriptions after a nested empty statement', () => {
+    const source = `message M {
+      oneof choice { string a = 1; }; // Documents b.
+      string b = 2;
+    }`
+    expect(readProtobuf(source, '3').nodes[0]?.children?.at(-1)?.description).toBe('Documents b.')
   })
 
   it('preserves comments across file metadata and top-level declarations', () => {

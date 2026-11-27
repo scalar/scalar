@@ -1,9 +1,9 @@
 // @vitest-environment node
 
 import { execFileSync, execSync } from 'node:child_process'
-import { cp, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join, resolve, sep } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
@@ -31,41 +31,30 @@ describe('published-parser', () => {
     }
   })
 
-  it('includes the pbkit notice and reader modules in the npm package', { timeout: 60_000 }, () => {
+  it('publishes the pbkit notice and a reader that runs without pbkit installed', { timeout: 75_000 }, async () => {
+    const packageRoot = resolve(import.meta.dirname, '..')
     const [pack]: [{ files: { path: string }[] }] = JSON.parse(
       execSync('npm pack --dry-run --ignore-scripts --offline --json', {
-        cwd: resolve(import.meta.dirname, '..'),
+        cwd: packageRoot,
         encoding: 'utf8',
         timeout: 45_000,
       }),
     )
-    expect(pack.files.map(({ path }) => path)).toEqual(
-      expect.arrayContaining([
-        'THIRD_PARTY_NOTICES',
-        'dist/helpers/asyncapi-schema/protobuf/protobuf.js',
-        'dist/vendor/pbkit/core/parser/misc.js',
-        'dist/vendor/pbkit/core/parser/proto.js',
-        'dist/vendor/pbkit/core/parser/recursive-descent-parser.js',
-        'dist/vendor/pbkit/core/parser/textproto.js',
-        'dist/vendor/pbkit/core/runtime/async/event-emitter.js',
-      ]),
-    )
-  })
+    const paths = pack.files.map(({ path }) => path)
+    expect(paths).toContain('THIRD_PARTY_NOTICES')
 
-  it('ships the parser for consumers without the pbkit package installed', { timeout: 30_000 }, async () => {
-    // CI builds the package before tests. Copy its output outside the workspace so
-    // Node cannot accidentally resolve pbkit from this workspace.
     const consumer = await mkdtemp(join(tmpdir(), 'scalar-parser-consumer-'))
     try {
-      const distribution = resolve(import.meta.dirname, '../dist')
-      await cp(distribution, join(consumer, 'dist'), {
-        recursive: true,
-        // The browser assets and source maps do not participate in Node's module resolution.
-        filter: (source) => {
-          const parts = source.slice(distribution.length + 1).split(sep)
-          return parts[0] !== 'browser' && !parts.includes('node_modules') && !source.endsWith('.map')
-        },
-      })
+      // Recreate the Node distribution from npm's file list. Include supporting modules
+      // so the smoke test fails if any dependency of the reader is excluded from npm.
+      for (const path of paths) {
+        if (!path.startsWith('dist/') || path.startsWith('dist/browser/') || path.endsWith('.map')) {
+          continue
+        }
+        const target = join(consumer, path)
+        await mkdir(dirname(target), { recursive: true })
+        await copyFile(join(packageRoot, path), target)
+      }
       // The reader also uses the package's normal workspace-store runtime dependency.
       // Expose only that runtime dependency so the parser must resolve from the bundle.
       await mkdir(join(consumer, 'node_modules/@scalar'), { recursive: true })

@@ -39,7 +39,7 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
 +function carryUnusedDescription(parser, previous, leadingComments, detachedComments, topLevel) {
 +    if (!previous)
 +        return;
-+    const unrendered = ["syntax", "import", "package", "option", "reserved", "oneof"].includes(previous.type);
++    const unrendered = ["syntax", "import", "package", "option", "reserved", "oneof", "empty"].includes(previous.type);
 +    const trailing = previous.trailingComments[0];
 +    if (!trailing) {
 +        // Metadata leaves its leading comment available to a declaration on the same line.
@@ -82,13 +82,14 @@ diff --git a/core/parser/proto.js b/core/parser/proto.js
  const newlinePattern = /^\r?\n/;
 -const multilineCommentPattern = /^\/\*(?:.|\r?\n)*?\*\//;
 -const singlelineCommentPattern = /^\/\/.*(?:\r?\n|$)/;
-+const multilineCommentPattern = misc_1.multilineCommentPattern;
-+const singlelineCommentPattern = misc_1.singlelineCommentPattern;
- const intLitPattern = /^0(?:x[0-9a-f]+|[0-7]*)|^[1-9]\d*/i;
+-const intLitPattern = /^0(?:x[0-9a-f]+|[0-7]*)|^[1-9]\d*/i;
 -const floatLitPattern = /^\d+\.\d*(?:e[-+]?\d+)?|^\d+e[-+]?\d+|^\.\d+(?:e[-+]?\d+)?|^inf|^nan/i;
 -const boolLitPattern = /^true|^false/;
 -const strLitPattern = /^'(?:\\x[0-9a-f]{2}|\\[0-7]{3}|\\[0-7]|\\[abfnrtv\\\?'"]|[^'\0\n\\])*'|^"(?:\\x[0-9a-f]{2}|\\[0-7]{3}|\\[0-7]|\\[abfnrtv\\\?'"]|[^"\0\n\\])*"/i;
-+const floatLitPattern = /^\d+\.\d*(?:e[-+]?\d+)?|^\d+e[-+]?\d+|^\.\d+(?:e[-+]?\d+)?/i;
++const multilineCommentPattern = misc_1.multilineCommentPattern;
++const singlelineCommentPattern = misc_1.singlelineCommentPattern;
++const intLitPattern = /^(?:0(?:x[0-9a-f]+|[0-7]*)|[1-9]\d*)\b(?!\.)/i;
++const floatLitPattern = /^(?:\d+\.\d*(?:e[-+]?\d+)?|\d+e[-+]?\d+|\.\d+(?:e[-+]?\d+)?)(?![\w.])/i;
 +const specialFloatLitPattern = /^(?:inf|nan)\b(?!\.)/;
 +const signedSpecialFloatLitPattern = /^(?:inf|nan)\b(?!\.)/i;
 +const boolLitPattern = /^(?:true|false|TRUE|FALSE)\b(?!\.)/;
