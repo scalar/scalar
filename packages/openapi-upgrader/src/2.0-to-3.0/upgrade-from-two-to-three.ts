@@ -197,12 +197,24 @@ const upgradeFlow = (flow: string): 'implicit' | 'password' | 'clientCredentials
   }
 }
 
+/** Swagger 2.0 uses the retrieval scheme when specified, with HTTP as the fallback for local input. */
+const getDefaultServerScheme = (sourceUrl?: string): 'http' | 'https' => {
+  try {
+    return sourceUrl && new URL(sourceUrl).protocol === 'https:' ? 'https' : 'http'
+  } catch {
+    return 'http'
+  }
+}
+
 /**
  * Upgrade Swagger 2.0 to OpenAPI 3.0
  *
  * https://swagger.io/blog/news/whats-new-in-openapi-3-0/
  */
-export function upgradeFromTwoToThree(originalSpecification: UnknownObject, sourceUrl?: string): OpenAPIV3.Document {
+export function upgradeFromTwoToThree(
+  originalSpecification: UnknownObject,
+  sourceUrl?: string,
+): UnknownObject | OpenAPIV3.Document {
   let document = originalSpecification
 
   // Version
@@ -221,10 +233,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject, sour
 
   // Servers
   if (document.host) {
-    // Swagger 2.0 defaults to the scheme used to retrieve the description.
-    const sourceProtocol = sourceUrl && URL.canParse(sourceUrl) ? new URL(sourceUrl).protocol : undefined
-    const defaultScheme = sourceProtocol === 'https:' ? 'https' : 'http'
-    const schemes = Array.isArray(document.schemes) && document.schemes.length ? document.schemes : [defaultScheme]
+    const schemes =
+      Array.isArray(document.schemes) && document.schemes.length
+        ? document.schemes
+        : [getDefaultServerScheme(sourceUrl)]
 
     document.servers = schemes.map((scheme: string) => ({
       url: `${scheme}://${document.host}${document.basePath ?? ''}`,

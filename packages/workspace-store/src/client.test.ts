@@ -1088,9 +1088,13 @@ describe('create-workspace-store', () => {
       basePath: '/api',
       paths: { '/orders': { get: { responses: { '200': { description: 'OK' } } } } },
     }
-    const store = createWorkspaceStore({ fetch: () => Promise.resolve(Response.json(document)) })
+    const store = createWorkspaceStore()
 
-    await store.addDocument({ name: 'orders', url: 'https://docs.example.test/swagger.json' })
+    await store.addDocument({
+      name: 'orders',
+      url: 'https://docs.example.test/swagger.json',
+      response: Response.json(document),
+    })
 
     expect(getOpenApiDocument(store, 'orders')?.servers).toStrictEqual([{ url: 'https://api.example.test/api' }])
   })

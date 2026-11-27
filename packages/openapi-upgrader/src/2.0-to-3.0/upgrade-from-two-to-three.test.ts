@@ -43,7 +43,7 @@ describe('upgradeFromTwoToThree', () => {
     { sourceUrl: 'http://docs.example.com/swagger.json', expected: 'http' },
     { sourceUrl: 'file:///docs/swagger.json', expected: 'http' },
     { sourceUrl: '/docs/swagger.json', expected: 'http' },
-  ])('inherits the scheme from $sourceUrl when available', ({ sourceUrl, expected }) => {
+  ])('defaults to $expected for a description at $sourceUrl', ({ sourceUrl, expected }) => {
     const result = upgradeFromTwoToThree({ swagger: '2.0', host: 'api.example.com', basePath: '/v1' }, sourceUrl)
 
     expect(result.servers).toStrictEqual([{ url: `${expected}://api.example.com/v1` }])
