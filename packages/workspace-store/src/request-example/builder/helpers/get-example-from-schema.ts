@@ -14,6 +14,7 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
 import { unpackProxyShallow } from '@/helpers/unpack-proxy'
+import { matchPropertyPattern } from '@/request-example/match-property-pattern'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
@@ -991,6 +992,7 @@ const handleObjectSchema = (
       const isAnyType =
         schema.additionalProperties === true ||
         (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
+      const additionalSchema = !isAnyType && typeof additional === 'object' ? additional : undefined
 
       const customName =
         typeof additional === 'object' && 'x-additionalPropertiesName' in additional
@@ -1007,12 +1009,15 @@ const handleObjectSchema = (
       const enumOffset = Number(usePreferredName)
       const candidateCount = propertyNamesEnum ? propertyNamesEnum.length + enumOffset : Number.POSITIVE_INFINITY
       const declaredProperties = schema.properties ?? {}
+      const propertyPatterns = Object.keys(schema.patternProperties ?? {})
 
       let added = 0
-      let evaluated = 0
+      let attempted = 0
+      let isFirstValue = true
+      let paddingNodesLeft = MAX_PADDING_NODES
       for (
         let index = 0;
-        index < candidateCount && added < additionalCount && evaluated < MAX_ADDITIONAL_PROPERTIES;
+        index < candidateCount && added < additionalCount && attempted < MAX_ADDITIONAL_PROPERTIES;
         index++
       ) {
         const suffix = index === 0 ? '' : String(index + 1)
@@ -1021,21 +1026,31 @@ const handleObjectSchema = (
         if (Object.hasOwn(response, key) || Object.hasOwn(declaredProperties, key)) {
           continue
         }
+        attempted++
+        // When filling the minimum, a pattern-matched key would use a different value schema.
+        if (missingProperties > 0 && propertyPatterns.some((pattern) => matchPropertyPattern(pattern, key) !== false)) {
+          continue
+        }
         // The first enum key historically used the placeholder path for composition selection.
-        const pathName = propertyNamesEnum && !usePreferredName && evaluated === 0 ? baseName : key
-        evaluated++
-        let value: unknown = 'anything'
-        if (!isAnyType && typeof additional === 'object') {
-          value = getExampleFromSchema(additional, options, {
-            level: level + 1,
-            schemaPath: [...schemaPath, pathName],
-            name: key,
-            seen,
-            dynamicScope: childScope,
-          })
-        } else if (added > 0) {
-          // Charge extra untyped placeholders without changing the cost of the usual single entry.
-          visitsLeft--
+        const pathName = propertyNamesEnum && !usePreferredName && isFirstValue ? baseName : key
+        isFirstValue = false
+        const value = additionalSchema
+          ? getExampleFromSchema(additionalSchema, options, {
+              level: level + 1,
+              schemaPath: [...schemaPath, pathName],
+              name: key,
+              seen,
+              dynamicScope: childScope,
+            })
+          : 'anything'
+        if (added > 0 && value !== undefined) {
+          const size = countExampleNodes(value, paddingNodesLeft + 1)
+          paddingNodesLeft -= size
+          if (paddingNodesLeft < 0) {
+            break
+          }
+          // An explicit value can contain many nodes even when generation visited just one schema.
+          visitsLeft -= size - Number(!!additionalSchema)
         }
         if (visitsLeft < 0) {
           truncated = true
@@ -1106,8 +1121,8 @@ const handleObjectSchema = (
   return cache(schema, response, cacheKey, skipCache)
 }
 
-/** Bound padding per array, counting repeated values by their serialized size; not a global output limit. */
-const MAX_ARRAY_PADDING_NODES = 1_000
+/** Bound padding per collection by the size of the values it would serialize. */
+const MAX_PADDING_NODES = 1_000
 
 const countExampleNodes = (value: unknown, limit: number): number => {
   if (limit <= 1 || value === null || typeof value !== 'object') {
@@ -1255,7 +1270,7 @@ const handleArraySchema = (
   const minItems = Math.min(
     readLengthBound('minItems' in schema ? schema.minItems : undefined, 0),
     maxItems,
-    MAX_ARRAY_PADDING_NODES,
+    MAX_PADDING_NODES,
   )
 
   if (maxItems === 0) {
@@ -1342,8 +1357,8 @@ const handleArraySchema = (
     // uniqueness, and inventing distinct values can violate enum, bounds, or other constraints.
     if (sample !== undefined && values.length < minItems && !('uniqueItems' in schema && schema.uniqueItems)) {
       const value = wrapItems ? { [itemsXmlTagName]: sample } : sample
-      const remaining = MAX_ARRAY_PADDING_NODES - countExampleNodes(values, MAX_ARRAY_PADDING_NODES)
-      const size = countExampleNodes(value, MAX_ARRAY_PADDING_NODES)
+      const remaining = MAX_PADDING_NODES - countExampleNodes(values, MAX_PADDING_NODES)
+      const size = countExampleNodes(value, MAX_PADDING_NODES)
       const copies = Math.min(minItems - values.length, Math.floor(remaining / size))
       for (let index = 0; index < copies; index++) {
         values.push(value)

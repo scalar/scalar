@@ -6,7 +6,7 @@
  * cannot interact to create exponential backtracking. The single quantified atom may
  * still backtrack or restart matching, so both pattern and input lengths are bounded.
  */
-export const matchXmlPropertyPattern = (pattern: string, name: string): boolean | undefined => {
+export const matchPropertyPattern = (pattern: string, name: string): boolean | undefined => {
   if (pattern.length > 256 || name.length > 256) {
     return undefined
   }

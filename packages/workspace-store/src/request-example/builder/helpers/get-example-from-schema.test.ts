@@ -3282,6 +3282,28 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual(Object.fromEntries(names.map((name) => [name, expected])))
   })
 
+  it('skips extra dictionary keys that match a property pattern', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 3,
+      patternProperties: { '2': { type: 'integer' } },
+      additionalProperties: { type: 'string' },
+    }
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({ '2': 1, additionalProperty: '', additionalProperty3: '' })
+  })
+
+  it('limits the serialized size of extra dictionary values', () => {
+    const value = { values: Array.from({ length: 2_000 }, () => 0) }
+    const schema: SchemaObject = {
+      type: 'object',
+      minProperties: 2,
+      additionalProperties: { type: 'object', example: value },
+    }
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({ additionalProperty: value })
+  })
+
   describe('additionalProperties', () => {
     it('allows any additonalProperty', () => {
       expect(
