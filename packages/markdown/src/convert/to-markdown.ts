@@ -6,8 +6,9 @@
  *
  * The escaping (`./unsafe`) is the security-relevant part: text must parse back to the same text,
  * never to emphasis, links or raw HTML. The output is byte for byte upstream's, except where
- * upstream's does not parse back: blocks inside inline content (see `inlineContent`), and line
- * endings in code spans where they would end a table cell or heading.
+ * upstream's does not parse back, and can leave raw HTML behind: blocks inside inline content
+ * (`inlineContent`), line endings in code spans, URLs that start with `<`, line endings in titles
+ * and blank lines in text (`./unsafe`), and tables and lists in tight lists (`joinDefaults`).
  */
 import type {
   Blockquote,
@@ -35,14 +36,7 @@ import type {
 } from 'mdast'
 
 import { unescapeString } from '../pipeline/inline'
-import {
-  type ConstructName,
-  UNSAFE,
-  compilePattern,
-  encodeCharacterReference,
-  patternInScope,
-  safe as safeFor,
-} from './unsafe'
+import { type ConstructName, UNSAFE, encodeCharacterReference, patternInScope, safe as safeFor } from './unsafe'
 
 /** What the serializer exposes to `join` handlers. */
 type SerializerState = {
@@ -209,9 +203,14 @@ const inlineContent = (nodes: Nodes[]): Nodes[] => {
   return out
 }
 
-/** Whether a line ending would end the construct the serializer is in (a table cell, an ATX heading). */
+/**
+ * Whether a line ending would end the construct the serializer is in (a table cell, an ATX
+ * heading): a pattern that makes every line ending unsafe there, not only one after another.
+ */
 const lineEndingsUnsafe = (state: State): boolean =>
-  UNSAFE.some((pattern) => pattern.character === '\n' && patternInScope(state.stack, pattern))
+  UNSAFE.some(
+    (pattern) => pattern.character === '\n' && pattern.before === undefined && patternInScope(state.stack, pattern),
+  )
 
 const containerPhrasing = (parent: Parents, state: State, info: Info): string => {
   const indexStack = state.indexStack
@@ -286,12 +285,22 @@ const containerFlow = (parent: Parents, state: State): string => {
   return results.join('')
 }
 
+/** Whether a list can start right after a paragraph line: a bullet or `1.`, with content on its first line. */
+const interruptsParagraph = (list: List): boolean =>
+  (!list.ordered || (list.start ?? 1) === 1) && Boolean(list.children[0]?.children.length)
+
 /**
  * Children of lists and list items are as far apart as the parent's `spread` says, except where
  * a line ending would merge them: a paragraph followed by a paragraph or a setext heading.
  */
 const joinDefaults: Join = (left, right, parent) => {
   if ('spread' in parent && typeof parent.spread === 'boolean') {
+    // Not in `mdast-util-to-markdown`, which writes these on consecutive lines in a tight list:
+    // a table takes in the lines after it as rows, and a list that cannot interrupt a paragraph
+    // becomes part of it. Either way the text that follows is read anew, so it gets a blank line.
+    if (left.type === 'table' || (left.type === 'paragraph' && right.type === 'list' && !interruptsParagraph(right))) {
+      return 1
+    }
     if (
       left.type === 'paragraph' &&
       (left.type === right.type ||
@@ -388,28 +397,17 @@ const strikethrough: Handler<Delete> = (node, _, state) => {
 strikethrough.peek = () => '~'
 
 const inlineCode: Handler<InlineCode> = (node, _, state) => {
-  let value = node.value || ''
-  // A line ending in a code span reads as a space anyway, and where it would end the table cell or
-  // heading, it has to be one. `mdast-util-to-markdown` keeps it, which breaks the row.
-  if (lineEndingsUnsafe(state)) value = value.replace(/\r\n|\r|\n/g, ' ')
+  // Code cannot be escaped, so a line ending in it could start a block, or end the paragraph,
+  // table cell or heading, and leave the rest as Markdown and raw HTML. A line ending in a code
+  // span reads as a space anyway, so it is written as one. `mdast-util-to-markdown` only replaces
+  // a line ending before block syntax, which a blank line in the code (`a\n\n\n<img>`) defeats.
+  let value = (node.value || '').replace(/\r\n|\r|\n/g, ' ')
   let sequence = '`'
   // A fence one longer than any run of backticks of that length inside.
   while (new RegExp(`(^|[^\`])${sequence}([^\`]|$)`).test(value)) sequence += '`'
   // Padding, so a leading or trailing backtick or space survives.
-  if (/[^ \r\n]/.test(value) && ((/^[ \r\n]/.test(value) && /[ \r\n]$/.test(value)) || /^`|`$/.test(value))) {
+  if (/[^ ]/.test(value) && ((/^ /.test(value) && / $/.test(value)) || /^`|`$/.test(value))) {
     value = ` ${value} `
-  }
-  // Code cannot be escaped. A line ending followed by block syntax would start a block, and line
-  // endings in code render as spaces anyway, so those become spaces.
-  for (const pattern of UNSAFE) {
-    if (!pattern.atBreak) continue
-    const expression = compilePattern(pattern)
-    let match: RegExpExecArray | null
-    while ((match = expression.exec(value))) {
-      let position = match.index
-      if (value.charCodeAt(position) === 10 && value.charCodeAt(position - 1) === 13) position--
-      value = `${value.slice(0, position)} ${value.slice(match.index + 1)}`
-    }
   }
   // A pipe would end a table cell, and inside a cell the table's own escape applies to code too.
   if (state.stack.includes('tableCell')) value = value.replace(/\|/g, '\\$&')
@@ -455,8 +453,11 @@ const link: Handler<Link> = (node, _, state) => {
   let subexit = enter(state, 'label')
   let value = `[${containerPhrasing(node, state, { before: '[', after: '](' })}](`
   subexit()
+  // Whitespace and control characters need a destination in angle brackets, and so does a leading
+  // `<`: a raw destination cannot start with one, so the parser would read an angle bracket
+  // destination up to the first `>`, and the rest as raw HTML. `mdast-util-to-markdown` writes it raw.
   // biome-ignore lint/suspicious/noControlCharactersInRegex: Whitespace and control characters need a destination in angle brackets.
-  if ((!node.url && node.title) || /[\0- \u007F]/.test(node.url)) {
+  if ((!node.url && node.title) || /[\0- \u007F]/.test(node.url) || node.url.startsWith('<')) {
     subexit = enter(state, 'destinationLiteral')
     value += `<${safe(state, node.url, { before: `${value}<`, after: '>' })}>`
   } else {

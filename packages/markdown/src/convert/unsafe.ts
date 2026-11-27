@@ -93,12 +93,21 @@ export const UNSAFE: UnsafePattern[] = [
       'headingAtx',
     ],
   },
+  // Not in `mdast-util-to-markdown`: a blank line in text ends the paragraph, and with it any link
+  // whose label it is in, which leaves the link's destination and title as Markdown and raw HTML.
+  // Encoding the second line ending keeps the text and the paragraph.
+  { character: '\n', before: '\\n', inConstruct: 'phrasing' },
+  { character: '\r', before: '[\\r\\n]', inConstruct: 'phrasing' },
   { character: ' ', after: '[\\r\\n]', inConstruct: 'phrasing' },
   { character: ' ', before: '[\\r\\n]', inConstruct: 'phrasing' },
   { character: ' ', inConstruct: ['codeFencedLangGraveAccent', 'codeFencedLangTilde'] },
   // An exclamation mark followed by a link would make an image.
   { character: '!', after: '\\[', inConstruct: 'phrasing', notInConstruct: fullPhrasingSpans },
   { character: '"', inConstruct: 'titleQuote' },
+  // Not in `mdast-util-to-markdown`: a blank line ends the paragraph, which leaves the rest of the
+  // title as Markdown and raw HTML. A character reference keeps the line ending.
+  { character: '\n', inConstruct: 'titleQuote' },
+  { character: '\r', inConstruct: 'titleQuote' },
   { atBreak: true, character: '#' },
   { character: '#', inConstruct: 'headingAtx', after: '(?:[\r\n]|$)' },
   // A character reference.
@@ -163,7 +172,7 @@ export const UNSAFE: UnsafePattern[] = [
 const compiled = new Map<UnsafePattern, RegExp>()
 
 /** The pattern as a global regular expression, whose first group (if any) is what precedes the character. */
-export const compilePattern = (pattern: UnsafePattern): RegExp => {
+const compilePattern = (pattern: UnsafePattern): RegExp => {
   let expression = compiled.get(pattern)
   if (!expression) {
     const before = (pattern.atBreak ? '[\\r\\n][\\t ]*' : '') + (pattern.before ? `(?:${pattern.before})` : '')

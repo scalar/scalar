@@ -1,4 +1,4 @@
-import type { Nodes, PhrasingContent, Root, RootContent } from 'mdast'
+import type { List, Nodes, Paragraph, PhrasingContent, Root, RootContent } from 'mdast'
 import { describe, expect, it } from 'vitest'
 
 import { mdastFromHtml } from './mdast-from-html'
@@ -63,6 +63,32 @@ describe('to-markdown', () => {
     expect(together(tree)).toBe('* a\n  ```\n  b\n  ```\n* c\n')
   })
 
+  it('separates a table, or a list that cannot interrupt a paragraph, from what follows in a tight list', () => {
+    const item = (...children: RootContent[]): RootContent => ({
+      type: 'list',
+      ordered: false,
+      spread: false,
+      children: [{ type: 'listItem', spread: false, children: children as never }],
+    })
+    const table: RootContent = {
+      type: 'table',
+      align: [null],
+      children: [{ type: 'tableRow', children: [{ type: 'tableCell', children: [text('a')] }] }],
+    }
+    const ordered: List = {
+      type: 'list',
+      ordered: true,
+      start: 5,
+      spread: false,
+      children: [{ type: 'listItem', spread: false, children: [paragraph(text('b')) as Paragraph] }],
+    }
+
+    // Upstream writes these without the blank line, so `x` becomes a table row and `5. b` text.
+    expect(serialize(root(item(table, paragraph(text('x')))))).toBe('* | a |\n  | - |\n\n  x\n')
+    expect(serialize(root(item(paragraph(text('a')), ordered)))).toBe('* a\n\n  5. b\n')
+    expect(serialize(root(item(paragraph(text('a')), { ...ordered, start: 1 })))).toBe('* a\n  1. b\n')
+  })
+
   it('writes tables with aligned, padded cells', () => {
     expect(serialize(parseMarkdown('| a | long header | c |\n| :-: | -: | :- |\n| 1 | 2 | 3 |'))).toBe(
       '|  a  | long header | c  |\n| :-: | ----------: | :- |\n|  1  |           2 | 3  |\n',
@@ -99,6 +125,16 @@ describe('to-markdown', () => {
     expect(serialize(tree)).toBe(
       '<https://example.com> <a@b.example> [x](<https://example.com/a b> "Say \\"hi\\"") [y](https://example.com/\\(a\\))\n',
     )
+  })
+
+  it('writes a URL that starts with < and a title with line endings so they cannot leave the link', () => {
+    const tree = root(
+      paragraph({ type: 'link', url: '<p>x</p>', title: 'a\n\n<img src=x onerror=alert(1)>', children: [text('y')] }),
+    )
+    const markdown = serialize(tree)
+
+    expect(markdown).toBe('[y](<\\<p\\>x\\</p\\>> "a&#xA;&#xA;<img src=x onerror=alert(1)>")\n')
+    expect(comparable(parseMarkdown(markdown))).toStrictEqual(comparable(tree))
   })
 
   it('picks a code fence longer than any run of backticks inside', () => {
@@ -142,6 +178,30 @@ describe('to-markdown', () => {
 
       expect(html(tree)).toBe(false)
     }
+  })
+
+  it('encodes a blank line in text, so it cannot end the paragraph and break a link open', () => {
+    const tree = root(
+      paragraph({
+        type: 'link',
+        url: 'https://example.com',
+        title: '<img src=x onerror=alert(1)>',
+        children: [text('a\n\nb')],
+      }),
+    )
+    const markdown = serialize(tree)
+
+    expect(markdown).toBe('[a\n&#xA;b](https://example.com "<img src=x onerror=alert(1)>")\n')
+    expect(comparable(parseMarkdown(markdown))).toStrictEqual(comparable(tree))
+  })
+
+  it('writes line endings in code spans as spaces, so a blank line cannot end the paragraph', () => {
+    // `mdast-util-to-markdown` keeps the line endings, and the blank line leaves `<img>` as raw HTML.
+    const tree = root(
+      paragraph(text('Default: '), { type: 'inlineCode', value: 'x\n\n\n<img src=x onerror=alert(1)>' }),
+    )
+
+    expect(serialize(tree)).toBe('Default: `x   <img src=x onerror=alert(1)>`\n')
   })
 
   it('throws on nodes it does not support, instead of writing something else', () => {
