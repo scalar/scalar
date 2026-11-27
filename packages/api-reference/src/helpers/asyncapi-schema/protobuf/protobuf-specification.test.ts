@@ -478,11 +478,8 @@ describe('protobuf-specification', () => {
     'oneof choice /* Documents the choice. */\n',
   ])('preserves inline oneof header documentation: %s', (header) => {
     const source = `message M {
-        ${header} {
-          string a = 1;
-          string b = 2;
-        }
-      }`
+      ${header} { string a = 1; string b = 2; }
+    }`
     expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
       'Documents the choice.',
       undefined,
@@ -625,6 +622,26 @@ describe('protobuf-specification', () => {
     ])
   })
 
+  it.each([
+    ['message Sample /* Header text. */ { string field = 1; }', 'field'],
+    ['message /* Header text. */ Sample { string field = 1; }', 'field'],
+    ['enum Sample // Header text.\n{ ZERO = 0; }', 'ZERO'],
+    ['message Sample { oneof choice // Header text.\n{ string field = 1; } }', 'field'],
+  ])('preserves first-member descriptions from a block header: %s', (source, name) => {
+    const [node] = readProtobuf(source, '3').nodes
+    expect(node?.description).toBeUndefined()
+    expect(node?.children?.map(({ name, description }) => ({ name, description }))).toStrictEqual([
+      { name, description: 'Header text.' },
+    ])
+  })
+
+  it('keeps a header comment detached after a blank line', () => {
+    const source = 'message M /* Detached. */ {\n\n string id = 1; }'
+    expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
+      undefined,
+    ])
+  })
+
   it('preserves descriptions after a top-level empty statement', () => {
     const source = 'message A {}; // Documents B.\nmessage B {}'
     expect(readProtobuf(source, '3').nodes[1]?.description).toBe('Documents B.')
@@ -661,6 +678,13 @@ describe('protobuf-specification', () => {
     const source = `message M { string id${space}=${space}1${space}; }`
     expect(readProtobuf(source, '3').nodes[0]?.children).toStrictEqual([
       { name: 'id', type: 'string', fieldNumber: 1, presence: 'implicit' },
+    ])
+  })
+
+  it('consumes carriage returns in line comments through LF or EOF', () => {
+    const source = 'message M { string id = 1; // first\rsecond\n } // footer\r'
+    expect(readProtobuf(source, '3').nodes[0]?.children?.map(({ description }) => description)).toStrictEqual([
+      'first\rsecond',
     ])
   })
 
