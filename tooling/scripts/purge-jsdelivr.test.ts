@@ -24,6 +24,9 @@ const PATHS = [
 const fakeCurl = String.raw`
 const { appendFileSync, existsSync, readFileSync } = require('node:fs')
 const args = process.argv.slice(2)
+if (args[args.indexOf('--max-time') + 1] !== '10') {
+  throw new Error('Missing CDN request deadline')
+}
 const url = args.find((arg) => arg.startsWith('https://'))
 const log = process.env.LOG_FILE
 const purgesNeeded = JSON.parse(process.env.PURGES_NEEDED || '{}')
@@ -53,25 +56,38 @@ process.stdout.write(status === '200' ? '{"status":"finished","paths":{}}' : 'In
 process.stdout.write('\n' + status)
 `
 
-/** Fake npm: serves 2.0.0 from its NPM_READY_AFTER-th call on (0 never does). */
+/** Fake npm range lookups, with optional delays or changes to the latest tag. */
 const fakeNpm = String.raw`
 const { appendFileSync, existsSync, readFileSync } = require('node:fs')
+if (process.argv[3] !== '@scalar/api-reference@>=2.0.0') {
+  throw new Error('Expected an npm version range starting at the release')
+}
 const log = process.env.LOG_FILE
 const calls = (existsSync(log) ? readFileSync(log, 'utf8').split('\n').filter((line) => line === 'npm view').length : 0) + 1
 appendFileSync(log, 'npm view\n')
 const readyAfter = Number(process.env.NPM_READY_AFTER || '1')
-if (readyAfter > 0 && calls >= readyAfter) {
-  process.stdout.write('2.0.0\n')
-  process.exit(0)
-}
-process.stderr.write('npm error 404 Not Found\n')
-process.exit(1)
+setTimeout(() => {
+  if (readyAfter === 0 || calls < readyAfter) {
+    process.stderr.write('npm error 404 Not Found\n')
+    process.exitCode = 1
+    return
+  }
+
+  const tags = JSON.parse(process.env.NPM_LATEST_TAGS || '[]')
+  const latest = tags[Math.min(calls - 1, tags.length - 1)] ?? '2.0.0'
+  const release = { version: '2.0.0', 'dist-tags.latest': latest }
+  const result = latest === '2.1.0' ? [release, { version: latest, 'dist-tags.latest': latest }] : release
+  process.stdout.write(JSON.stringify(result))
+}, Number(process.env.NPM_RESPONSE_DELAY || '0'))
 `
 
 type RunOptions = {
   initiallyFresh?: boolean
+  purgeAll?: boolean
   waitForNpm?: boolean
   npmReadyAfter?: number
+  npmLatestTags?: string[]
+  npmResponseDelay?: number
   purgesNeeded?: Record<string, number>
   headResponses?: Record<string, { output?: string; exitCode?: number }>
   purgeStatus?: string
@@ -94,8 +110,10 @@ const run = (options: RunOptions = {}): { status: number | null; stdout: string;
     env: {
       ...process.env,
       VERSION: '2.0.0',
+      PURGE_ALL: options.purgeAll ? 'true' : 'false',
       WAIT_FOR_NPM: options.waitForNpm === false ? 'false' : 'true',
-      NPM_TIMEOUT_SECONDS: String(options.npmTimeoutSeconds ?? 1),
+      REQUEST_TIMEOUT_SECONDS: '10',
+      NPM_TIMEOUT_SECONDS: String(options.npmTimeoutSeconds ?? 10),
       NPM_POLL_SECONDS: '1',
       SETTLE_SECONDS: '0',
       VERIFY_ATTEMPTS: '3',
@@ -105,6 +123,8 @@ const run = (options: RunOptions = {}): { status: number | null; stdout: string;
       LOG_FILE: logFile,
       INITIALLY_FRESH: options.initiallyFresh ? 'true' : 'false',
       NPM_READY_AFTER: String(options.npmReadyAfter ?? 1),
+      NPM_LATEST_TAGS: JSON.stringify(options.npmLatestTags ?? []),
+      NPM_RESPONSE_DELAY: String(options.npmResponseDelay ?? 0),
       PURGES_NEEDED: JSON.stringify(options.purgesNeeded ?? {}),
       HEAD_RESPONSES: JSON.stringify(options.headResponses ?? {}),
       PURGE_STATUS: options.purgeStatus ?? '200',
@@ -136,8 +156,41 @@ describe('purge-jsdelivr', () => {
     const { status, stdout, log } = run({ npmReadyAfter: 2, npmTimeoutSeconds: 10 })
 
     expect(status).toBe(0)
-    expect(log).toStrictEqual(['npm view', 'npm view', ...PATHS.map((path) => `purge ${path}`)])
+    expect(log).toStrictEqual(['npm view', 'npm view', 'npm view', ...PATHS.map((path) => `purge ${path}`)])
     expect(stdout).toContain('jsDelivr serves @scalar/api-reference@2.0.0 for every URL')
+  })
+
+  it('purges every alias on a release even when this CDN route is fresh', () => {
+    const { status, log } = run({ initiallyFresh: true, purgeAll: true })
+
+    expect(status).toBe(0)
+    expect(log).toStrictEqual(['npm view', 'npm view', ...PATHS.map((path) => `purge ${path}`)])
+  })
+
+  it('requires a successful release purge even when this CDN route is fresh', () => {
+    const { status, stdout, log } = run({ initiallyFresh: true, purgeAll: true, purgeStatus: '500' })
+
+    expect(status).toBe(1)
+    expect(log.filter((line) => line === 'purge @scalar/api-reference')).toHaveLength(3)
+    expect(stdout).toContain('Could not confirm jsDelivr purge for @scalar/api-reference@2.0.0 after 3 attempt(s) for:')
+  })
+
+  it('waits if npm still tags an older version as latest', () => {
+    const { status, log } = run({ purgeAll: true, npmLatestTags: ['1.0.0', '2.0.0'] })
+
+    expect(status).toBe(0)
+    expect(log).toStrictEqual(['npm view', 'npm view', 'npm view', ...PATHS.map((path) => `purge ${path}`)])
+  })
+
+  it.each([
+    ['before the wait', ['2.1.0']],
+    ['during the cache settle', ['2.0.0', '2.1.0']],
+  ])('skips purging when a newer release is latest %s', (_, npmLatestTags) => {
+    const { status, stdout, log } = run({ purgeAll: true, npmLatestTags })
+
+    expect(status).toBe(0)
+    expect(stdout).toContain('Skipping @scalar/api-reference@2.0.0 because npm latest is now 2.1.0')
+    expect(log).toStrictEqual(npmLatestTags.map(() => 'npm view'))
   })
 
   it('purges only the URLs that are still stale on the next attempt', () => {
@@ -146,7 +199,9 @@ describe('purge-jsdelivr', () => {
     expect(status).toBe(0)
     expect(log).toStrictEqual([
       'npm view',
+      'npm view',
       ...PATHS.map((path) => `purge ${path}`),
+      'npm view',
       'purge @scalar/api-reference/esm.js',
     ])
     expect(stdout).toContain('Still stale after attempt 1: @scalar/api-reference/esm.js')
@@ -157,7 +212,7 @@ describe('purge-jsdelivr', () => {
 
     expect(status).toBe(1)
     expect(log.filter((line) => line === 'purge @scalar/api-reference/esm.js')).toHaveLength(3)
-    expect(stdout).toContain('jsDelivr still does not serve @scalar/api-reference@2.0.0 after 3 attempt(s) for:')
+    expect(stdout).toContain('Could not confirm jsDelivr purge for @scalar/api-reference@2.0.0 after 3 attempt(s) for:')
     expect(stdout).toContain('  @scalar/api-reference/esm.js')
   })
 
@@ -173,16 +228,33 @@ describe('purge-jsdelivr', () => {
     const { status, stdout, log } = run({ headResponses: { [path]: response } })
 
     expect(status).toBe(1)
-    expect(log).toStrictEqual(['npm view', ...PATHS.map((entry) => `purge ${entry}`), `purge ${path}`, `purge ${path}`])
+    expect(log).toStrictEqual([
+      'npm view',
+      'npm view',
+      ...PATHS.map((entry) => `purge ${entry}`),
+      'npm view',
+      `purge ${path}`,
+      'npm view',
+      `purge ${path}`,
+      'npm view',
+    ])
     expect(stdout.trim().split('\n').at(-1)).toBe(`  ${path}`)
   })
 
   it('fails without purging when npm never serves the version', () => {
-    const { status, stdout, log } = run({ npmReadyAfter: 0 })
+    const { status, stdout, log } = run({ npmReadyAfter: 0, npmTimeoutSeconds: 1 })
 
     expect(status).toBe(1)
-    expect(stdout).toContain('npm still does not serve @scalar/api-reference@2.0.0 after 1s')
+    expect(stdout).toContain('npm still does not serve @scalar/api-reference@2.0.0 as latest after 1s')
     expect(log.some((line) => line.startsWith('purge'))).toBe(false)
+  })
+
+  it('stops a registry request that would succeed after the polling deadline', () => {
+    const { status, stdout, log } = run({ purgeAll: true, npmTimeoutSeconds: 1, npmResponseDelay: 3000 })
+
+    expect(status).toBe(1)
+    expect(stdout).toContain('npm still does not serve @scalar/api-reference@2.0.0 as latest after 1s')
+    expect(log).toStrictEqual(['npm view'])
   })
 
   it('reports a failed purge request and lets the CDN check decide the result', () => {

@@ -11,8 +11,8 @@ name: Purge CDN
 # push to main. Running after Main completes keeps that wait off the release
 # path entirely.
 #
-# Every Main run triggers this, but when nothing new was released jsDelivr
-# already serves the version in package.json and the job exits within seconds.
+# Every Main run triggers this. A release purges all aliases once because a
+# fresh response from this runner cannot account for other CDN caches.
 
 on:
   workflow_run:
@@ -58,6 +58,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           EVENT_NAME: ${{ github.event_name }}
           RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
         run: |
           # A manual run always waits for npm; that is why someone started it.
           if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
@@ -66,8 +67,15 @@ jobs:
           fi
           # Without a successful npm-publish job the version in package.json
           # may never reach npm, and waiting for it would only time out.
-          conclusion=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/jobs" --paginate \
-            --jq '.jobs[] | select(.name | endswith("npm-publish")) | .conclusion')
+          conclusion=''
+          for ((attempt = RUN_ATTEMPT; attempt > 0; attempt--)); do
+            conclusion=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/attempts/$attempt/jobs" --paginate \
+              --jq '.jobs[] | select(.name == "release / npm-publish") | .conclusion')
+            # A partial rerun can inherit the publish job from an earlier attempt.
+            if [ -n "$conclusion" ]; then
+              break
+            fi
+          done
           echo "npm-publish conclusion: ${conclusion:-not found}"
           if [ "$conclusion" = 'success' ]; then
             echo "wait_for_npm=true" >> "$GITHUB_OUTPUT"
@@ -80,16 +88,33 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
           VERSION_REF: ${{ github.event.workflow_run.head_sha || github.sha }}
+          WAIT_FOR_NPM: ${{ steps.published.outputs.wait_for_npm }}
         run: |
-          # Read the manifest from the triggering commit as data.
-          version=$(gh api --header 'Accept: application/vnd.github.raw+json' \
-            "repos/$GITHUB_REPOSITORY/contents/packages/api-reference/package.json?ref=$VERSION_REF" | \
-            jq -er '.version | strings | select(test("^[0-9A-Za-z.+-]+$"))')
+          read_version() {
+            gh api --header 'Accept: application/vnd.github.raw+json' \
+              "repos/$GITHUB_REPOSITORY/contents/packages/api-reference/package.json?ref=$1" | \
+              jq -er '.version | strings | select(test("^[0-9A-Za-z.+-]+$"))'
+          }
+
+          version=$(read_version "$VERSION_REF")
           printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
+          purge_all=false
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
+            purge_all=true
+          elif [ "$WAIT_FOR_NPM" = 'true' ]; then
+            # Like release.yml, compare the commit with its first parent.
+            previous_version=$(read_version "$VERSION_REF%5E")
+            if [ "$version" != "$previous_version" ]; then
+              purge_all=true
+            fi
+          fi
+          printf 'purge_all=%s\n' "$purge_all" >> "$GITHUB_OUTPUT"
 
       - name: Purge jsDelivr once npm serves the release
         env:
           VERSION: ${{ steps.release-version.outputs.version }}
+          PURGE_ALL: ${{ steps.release-version.outputs.purge_all }}
           WAIT_FOR_NPM: ${{ steps.published.outputs.wait_for_npm }}
         run: bash ./tooling/scripts/purge-jsdelivr.sh

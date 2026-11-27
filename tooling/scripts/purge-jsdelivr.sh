@@ -8,8 +8,10 @@
 # `npm publish` does not help: jsDelivr refetches, still sees the previous
 # version as `latest`, and caches that for another seven days. So this script:
 #
-#   1. Exits early when the CDN already serves $VERSION (nothing was released).
-#   2. Waits until npm serves $PACKAGE@$VERSION (skipped with WAIT_FOR_NPM=false).
+#   1. Skips fresh aliases on ordinary runs. A release or manual run starts
+#      with all four because the runner sees only its own CDN route.
+#   2. Waits until npm serves $PACKAGE@$VERSION as latest, or exits if a newer
+#      version has superseded this one (skipped with WAIT_FOR_NPM=false).
 #   3. Waits a little longer, because jsDelivr caches npm version info for
 #      about 60 seconds.
 #   4. Purges every URL, checks which version the CDN serves through the
@@ -21,8 +23,10 @@
 #
 # Optional environment variables (the defaults suit CI; tests shorten them):
 #   PACKAGE                  npm package name (default: @scalar/api-reference)
+#   PURGE_ALL                Purge all aliases on the first attempt (default: false)
 #   WAIT_FOR_NPM             `false` to skip the npm check and exit when the
 #                            CDN is stale (default: true)
+#   REQUEST_TIMEOUT_SECONDS  Cap each npm and CDN request (default: 10)
 #   NPM_TIMEOUT_SECONDS      Give up waiting for npm after this long (default: 2400)
 #   NPM_POLL_SECONDS         Pause between npm checks (default: 30)
 #   SETTLE_SECONDS           Pause after npm serves the version (default: 90)
@@ -34,7 +38,9 @@ set -euo pipefail
 : "${VERSION:?Missing VERSION}"
 
 package="${PACKAGE:-@scalar/api-reference}"
+purge_all="${PURGE_ALL:-false}"
 wait_for_npm="${WAIT_FOR_NPM:-true}"
+request_timeout_seconds="${REQUEST_TIMEOUT_SECONDS:-10}"
 npm_timeout_seconds="${NPM_TIMEOUT_SECONDS:-2400}"
 npm_poll_seconds="${NPM_POLL_SECONDS:-30}"
 settle_seconds="${SETTLE_SECONDS:-90}"
@@ -54,11 +60,12 @@ paths=(
   "$package/esm.js"
   "$package/dist/browser/standalone.esm.js"
 )
+declare -A pending_global_purges=()
 
 # Check the final response because redirects may carry a version header of
 # their own. Only a successful file response confirms the served version.
 cdn_version() {
-  "$curl_command" --silent --show-error --head --location "$cdn_base_url/$1" |
+  "$curl_command" --silent --show-error --max-time "$request_timeout_seconds" --head --location "$cdn_base_url/$1" |
     awk '
       { sub(/\r$/, "") }
       /^HTTP\// { status = $2; version = "" }
@@ -67,34 +74,36 @@ cdn_version() {
     '
 }
 
-# Print the paths the CDN does not yet serve $VERSION for, one per line.
+# Include any alias that still needs its first successful global purge.
 stale_paths() {
   local path served
   for path in "${paths[@]}"; do
-    if ! served="$(cdn_version "$path")" || [ "$served" != "$VERSION" ]; then
+    if [[ -v 'pending_global_purges[$path]' ]] || ! served="$(cdn_version "$path")" || [ "$served" != "$VERSION" ]; then
       echo "$path"
     fi
   done
 }
 
-# Purge one path. A failed purge is reported but does not stop the run: the
-# check that follows decides whether the run succeeded.
+# Require a successful request before clearing an alias's initial global purge.
 purge() {
   local path="$1" response status_code
-  response="$("$curl_command" --silent --show-error --write-out '\n%{http_code}' "$purge_base_url/$path" 2>&1 || true)"
+  if ! response="$("$curl_command" --silent --show-error --max-time "$request_timeout_seconds" \
+    --write-out '\n%{http_code}' "$purge_base_url/$path" 2>&1)"; then
+    printf 'Failed to purge %s\n%s\n' "$path" "$response"
+    return 1
+  fi
   status_code="${response##*$'\n'}"
 
-  # A curl failure leaves an error message here instead of a status code.
   if ! [[ "$status_code" =~ ^2[0-9][0-9]$ ]]; then
     echo "Failed to purge $path (HTTP $status_code)"
     echo "${response%$'\n'*}"
-    return
+    return 1
   fi
 
   # jsDelivr limits how often a single URL can be purged and says so here.
   if [[ "$response" == *'"throttled": true'* || "$response" == *'"throttled":true'* ]]; then
-    echo "Purged $path (throttled by jsDelivr)"
-    return
+    echo "Purge of $path throttled by jsDelivr"
+    return 1
   fi
 
   echo "Purged $path"
@@ -110,7 +119,29 @@ read_stale_paths() {
   done < <(stale_paths)
 }
 
-read_stale_paths
+# Let npm apply its semver rules. A latest tag below VERSION is still pending,
+# while a newer installable latest makes this run obsolete.
+npm_latest_at_or_after_release() {
+  timeout --kill-after=1s "${1}s" "$npm_command" view "$package@>=$VERSION" version dist-tags.latest \
+    --json --prefer-online --fetch-retries=0 2>/dev/null |
+    jq -er '(if type == "array" then . else [.] end)[] | select(.version == .["dist-tags.latest"]) | .version // empty'
+}
+
+exit_if_superseded() {
+  if [ -n "$1" ] && [ "$1" != "$VERSION" ]; then
+    echo "Skipping $package@$VERSION because npm latest is now $1"
+    exit 0
+  fi
+}
+
+if [ "$purge_all" = 'true' ]; then
+  stale=("${paths[@]}")
+  for path in "${paths[@]}"; do
+    pending_global_purges["$path"]=1
+  done
+else
+  read_stale_paths
+fi
 if [ "${#stale[@]}" -eq 0 ]; then
   echo "jsDelivr already serves $package@$VERSION; nothing to purge"
   exit 0
@@ -122,24 +153,41 @@ if [ "$wait_for_npm" != 'true' ]; then
 fi
 
 echo "Waiting for npm to serve $package@$VERSION"
-# Measure wall-clock time rather than adding up poll intervals, so slow npm
-# requests count towards the timeout too.
 wait_started=$SECONDS
-until [ "$("$npm_command" view "$package@$VERSION" version --prefer-online 2>/dev/null || true)" = "$VERSION" ]; do
-  if [ $((SECONDS - wait_started)) -ge "$npm_timeout_seconds" ]; then
-    echo "npm still does not serve $package@$VERSION after ${npm_timeout_seconds}s"
-    exit 1
+deadline=$((wait_started + npm_timeout_seconds))
+latest=''
+while (( (remaining = deadline - SECONDS) > 0 )); do
+  if latest=$(npm_latest_at_or_after_release "$((remaining < request_timeout_seconds ? remaining : request_timeout_seconds))"); then
+    break
   fi
-  sleep "$npm_poll_seconds"
+  latest=''
+  remaining=$((deadline - SECONDS))
+  if (( remaining > 0 )); then
+    sleep "$((remaining < npm_poll_seconds ? remaining : npm_poll_seconds))"
+  fi
 done
+if [ -z "$latest" ]; then
+  echo "npm still does not serve $package@$VERSION as latest after ${npm_timeout_seconds}s"
+  exit 1
+fi
+exit_if_superseded "$latest"
 echo "npm serves $package@$VERSION after about $((SECONDS - wait_started))s"
 
 sleep "$settle_seconds"
 
 attempt=1
 while true; do
+  # A newer version can become latest during the cache settle or a retry.
+  if ! latest=$(npm_latest_at_or_after_release "$request_timeout_seconds"); then
+    echo "Could not confirm npm still serves $package@$VERSION as latest before purging:"
+    printf '  %s\n' "${stale[@]}"
+    exit 1
+  fi
+  exit_if_superseded "$latest"
   for path in "${stale[@]}"; do
-    purge "$path"
+    if purge "$path"; then
+      unset 'pending_global_purges[$path]'
+    fi
   done
 
   sleep "$verify_interval_seconds"
@@ -156,6 +204,9 @@ while true; do
   attempt=$((attempt + 1))
 done
 
-echo "jsDelivr still does not serve $package@$VERSION after $verify_attempts attempt(s) for:"
+if latest=$(npm_latest_at_or_after_release "$request_timeout_seconds"); then
+  exit_if_superseded "$latest"
+fi
+echo "Could not confirm jsDelivr purge for $package@$VERSION after $verify_attempts attempt(s) for:"
 printf '  %s\n' "${stale[@]}"
 exit 1
