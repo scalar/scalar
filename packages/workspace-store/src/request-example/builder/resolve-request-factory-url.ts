@@ -5,7 +5,12 @@ import { safeRun } from '@scalar/helpers/types/safe-run'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { mergeSearchParams, mergeUrls } from '@scalar/helpers/url/merge-urls'
 
-import { assertReservedPathUrl, encodePathParameter, serializePathParameter } from '@/helpers/encode-path-parameter'
+import {
+  assertReservedPathUrl,
+  encodePathParameter,
+  hasPathDotSegment,
+  serializePathParameter,
+} from '@/helpers/encode-path-parameter'
 import { serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 
@@ -84,6 +89,29 @@ export const resolveRequestFactoryUrl = (
     return err(MISSING_REQUEST_SERVER_BASE, INCOMPLETE_MERGED_URL_MESSAGE)
   }
 
+  const styled = request.path.styledParameters
+  if (styled && Object.values(styled).some(({ style }) => style === 'label')) {
+    // Mark label expansions before splitting the path, since template names may
+    // themselves contain URI separators. Literal segments must keep normal URL semantics.
+    const markedPath = replacePathVariables(
+      rawPath,
+      Object.fromEntries(
+        Object.entries(pathVariables).map(([name, value]) => [
+          name,
+          getOwnEntry(styled, name)?.style === 'label' && !request.path.serializedParameters?.has(name)
+            ? `x${value}`
+            : value,
+        ]),
+      ),
+    )
+    if (hasPathDotSegment(path, markedPath)) {
+      return err(
+        INVALID_REQUEST_FACTORY_URL,
+        'A label-style path parameter produces a dot segment that browsers remove. Enter a value that keeps the segment from becoming "." or "..".',
+      )
+    }
+  }
+
   // When rendered inside an iframe with srcdoc, the browser reports
   // window.location.origin as the string "null" instead of a real origin.
   // Fall back to localhost so relative URLs can still be resolved.
@@ -93,29 +121,6 @@ export const resolveRequestFactoryUrl = (
   const urlParsed = safeRun(() => {
     if (request.path.reservedParameters && Object.keys(request.path.reservedParameters).length) {
       assertReservedPathUrl(mergedUrl)
-    }
-    const styled = request.path.styledParameters
-    if (styled && Object.values(styled).some(({ style }) => style === 'label')) {
-      // Mark label expansions before splitting the path, since template names may
-      // themselves contain URI separators. Literal segments must keep normal URL semantics.
-      const markedPath = replacePathVariables(
-        rawPath,
-        Object.fromEntries(
-          Object.entries(pathVariables).map(([name, value]) => [
-            name,
-            getOwnEntry(styled, name)?.style === 'label' && !request.path.serializedParameters?.has(name)
-              ? `x${value}`
-              : value,
-          ]),
-        ),
-      )
-      const getPathSegments = (value: string): string[] => (value.split(/[?#]/, 1)[0] ?? '').trim().split('/')
-      const markedSegments = getPathSegments(markedPath)
-      getPathSegments(path).forEach((segment, index) => {
-        if (segment !== markedSegments[index]) {
-          assertReservedPathUrl(segment)
-        }
-      })
     }
     return new URL(mergedUrl, urlBase)
   })

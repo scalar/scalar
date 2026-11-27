@@ -38,7 +38,7 @@ describe('encode-path-parameter', () => {
   })
 
   it.each([
-    { style: 'label', value: { empty: '', missing: null, present: 'abc' }, expected: '.empty.present=abc' },
+    { style: 'label', value: { empty: '', missing: null, present: 'abc' }, expected: '.empty=.present=abc' },
     { style: 'matrix', value: { empty: '', missing: null, present: 'abc' }, expected: ';empty;present=abc' },
     { style: 'label', value: [null, 'abc'], expected: '.abc' },
     { style: 'matrix', value: [null, 'abc'], expected: ';id=abc' },

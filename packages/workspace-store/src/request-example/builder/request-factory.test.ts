@@ -212,29 +212,36 @@ describe('requestFactory', () => {
     expect(built.data.requestPayload[0]).toBe('https://api.example.test/v2/items/.abc')
   })
 
-  it.each(['id', 'id/part', 'id?part', 'id#part'])(
-    'rejects a label for %s that the browser would normalize into another path',
-    (name) => {
-      const { request } = requestFactory(
-        createBaseArgs({
-          path: `/items/{${name}}`,
-          server: { url: 'https://api.example.test' },
-          proxyUrl: '',
-          operation: {
-            parameters: [
-              { name, in: 'path', required: true, style: 'label', schema: { type: 'string' }, example: '.' },
-            ],
-          },
-        }),
-      )
+  it.each([
+    { name: 'id', value: '' },
+    { name: 'id', value: null },
+    { name: 'id/part', value: '.' },
+    { name: 'id?part', value: '.' },
+    { name: 'id#part', value: '.' },
+  ])('explains why label parameter $name with value $value cannot form a path segment', ({ name, value }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: `/items/{${name}}`,
+        server: { url: 'https://api.example.test' },
+        proxyUrl: '',
+        openapiVersion: '3.1.2',
+        operation: {
+          parameters: [
+            { name, in: 'path', required: true, style: 'label', schema: { type: ['string', 'null'] }, example: value },
+          ],
+        },
+      }),
+    )
 
-      expect(buildRequest(request, { envVariables: {} })).toStrictEqual({
-        ok: false,
-        error: 'INVALID_REQUEST_FACTORY_URL',
-        message: 'The request URL could not be parsed. Check the server URL and path for invalid characters.',
-      })
-    },
-  )
+    const message =
+      'A label-style path parameter produces a dot segment that browsers remove. Enter a value that keeps the segment from becoming "." or "..".'
+    expect(buildRequest(request, { envVariables: {} })).toStrictEqual({
+      ok: false,
+      error: 'INVALID_REQUEST_FACTORY_URL',
+      message,
+    })
+    expect(() => resolveExecutableRequestUrl(request, {})).toThrow(message)
+  })
 
   it.each([
     { version: '3.2.0', allowReserved: true, expected: 'a:b%2Fc' },

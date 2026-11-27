@@ -9,7 +9,11 @@ import {
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import type { PathParameterSerialization, ReservedPathParameter } from '@/helpers/encode-path-parameter'
+import {
+  type PathParameterSerialization,
+  type ReservedPathParameter,
+  includesUndefinedPathPrefix,
+} from '@/helpers/encode-path-parameter'
 import { getParameterExample } from '@/helpers/get-parameter-example'
 import { deSerializeParameter } from '@/request-example/builder/header/de-serialize-parameter'
 
@@ -188,7 +192,7 @@ export const buildRequestParameters = (
         } else if (style === 'matrix' || style === 'label') {
           ;(result.styledPathParameters ??= {})[paramName] = {
             ...serialization,
-            includeUndefinedPrefix: /^3\.[01]\./.test(openapiVersion ?? ''),
+            includeUndefinedPrefix: includesUndefinedPathPrefix(openapiVersion),
           }
         }
         break

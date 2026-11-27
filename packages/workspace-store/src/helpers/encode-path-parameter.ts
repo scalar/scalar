@@ -34,11 +34,14 @@ export type PathParameterSerialization = {
 /** OpenAPI 3.2 path parameter metadata for reserved expansion. */
 export type ReservedPathParameter = PathParameterSerialization
 
+/** OpenAPI 3.0 and 3.1 retain the matrix or label prefix for undefined values. */
+export const includesUndefinedPathPrefix = (version?: string): boolean => /^3\.[01]\./.test(version ?? '')
+
 /** Encodes individual keys and values before adding OpenAPI path style delimiters. */
 export const serializePathParameter = (
   name: string,
   parameter: Pick<PathParameterSerialization, 'value' | 'style' | 'explode' | 'includeUndefinedPrefix'>,
-  replace: (value: string) => string,
+  replace: (value: string) => string = (value) => value,
   allowReserved = false,
 ): string => {
   const { value, style, explode, includeUndefinedPrefix } = parameter
@@ -65,8 +68,8 @@ export const serializePathParameter = (
     return includeUndefinedPrefix && style === 'label' ? '.' : ''
   }
 
-  const pair = (encodedKey: string, data: string): string => `${encodedKey}${data || allowReserved ? `=${data}` : ''}`
   if (style === 'matrix') {
+    const pair = (encodedKey: string, data: string): string => `${encodedKey}${data || allowReserved ? `=${data}` : ''}`
     if (entries && explode) {
       return entries.map(([key, item]) => `;${pair(encode(key), encode(item))}`).join('')
     }
@@ -85,9 +88,7 @@ export const serializePathParameter = (
   const delimiter = style === 'label' && explode ? '.' : ','
   let data: string
   if (entries) {
-    data = entries
-      .map(([key, item]) => (explode ? pair(encode(key), encode(item)) : `${encode(key)}${delimiter}${encode(item)}`))
-      .join(delimiter)
+    data = entries.map(([key, item]) => `${encode(key)}${explode ? '=' : delimiter}${encode(item)}`).join(delimiter)
   } else {
     data = items ? items.map(encode).join(delimiter) : encode(value)
   }
@@ -101,10 +102,18 @@ export const serializeReservedPathParameter = (
   replace: (value: string) => string = (value) => value,
 ): string => serializePathParameter(name, parameter, replace, true)
 
+/** Detects browser-normalized dot segments, optionally only where a path expansion was marked. */
+export const hasPathDotSegment = (url: string, markedUrl?: string): boolean => {
+  const getPathSegments = (value: string): string[] => (value.split(/[?#]/, 1)[0] ?? '').trim().split('/')
+  const markedSegments = markedUrl === undefined ? [] : getPathSegments(markedUrl)
+  return getPathSegments(url).some(
+    (segment, index) => segment !== markedSegments[index] && /^(?:\.|%2e){1,2}$/i.test(segment),
+  )
+}
+
 /** Rejects dot segments that browser URL parsing would silently remove. */
 export const assertReservedPathUrl = (url: string): void => {
-  const path = url.split(/[?#]/, 1)[0] ?? ''
-  if (path.split('/').some((segment) => /^(?:\.|%2e){1,2}$/i.test(segment))) {
+  if (hasPathDotSegment(url)) {
     throw new URIError('Path parameters cannot form dot segments because browsers normalize them.')
   }
 }
