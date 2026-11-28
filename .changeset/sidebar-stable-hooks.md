@@ -1,5 +1,5 @@
 ---
-'@scalar/components': patch
+'@scalar/components': minor
 ---
 
 feat(components): add stable styling hooks to the sidebar
