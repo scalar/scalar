@@ -158,7 +158,7 @@ describe('schemas', () => {
       const result = inferSchemaFromExample(example)
 
       expect(result).toEqual({
-        type: 'object',
+        type: 'null',
       })
     })
   })

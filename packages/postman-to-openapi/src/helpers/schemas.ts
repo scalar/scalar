@@ -12,7 +12,10 @@ export function inferSchemaFromExample(example: any): OpenAPIV3_1.SchemaObject {
       items: example.length > 0 ? inferSchemaFromExample(example[0]) : {},
     }
   }
-  if (typeof example === 'object' && example !== null) {
+  if (example === null) {
+    return { type: 'null' }
+  }
+  if (typeof example === 'object') {
     const properties: { [key: string]: OpenAPIV3_1.SchemaObject } = {}
     for (const [key, value] of Object.entries(example)) {
       properties[key] = inferSchemaFromExample(value)

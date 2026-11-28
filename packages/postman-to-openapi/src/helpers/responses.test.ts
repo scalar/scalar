@@ -107,10 +107,47 @@ describe('responses', () => {
 
     const result = extractResponses(responses)
 
-    // The function infers schema from the string itself, not parsed JSON
     expect(result?.['200']?.content?.['application/json']?.schema).toEqual({
-      type: 'string',
+      type: 'object',
+      properties: {
+        id: { type: 'number' },
+        name: { type: 'string' },
+      },
     })
+  })
+
+  it('infers the schema of a +json body and its null fields', () => {
+    const responses: Response[] = [
+      {
+        code: 404,
+        header: [{ key: 'Content-Type', value: 'application/problem+json' }],
+        body: '{"title": "Not found", "detail": null}',
+      },
+    ]
+
+    const result = extractResponses(responses)
+
+    expect(result?.['404']?.content?.['application/problem+json']?.schema).toEqual({
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        detail: { type: 'null' },
+      },
+    })
+  })
+
+  it('keeps a string schema for a non-JSON body that looks like JSON', () => {
+    const responses: Response[] = [
+      {
+        code: 200,
+        header: [{ key: 'Content-Type', value: 'text/plain' }],
+        body: '42',
+      },
+    ]
+
+    const result = extractResponses(responses)
+
+    expect(result?.['200']?.content?.['text/plain']?.schema).toEqual({ type: 'string' })
   })
 
   it('includes example from body', () => {
@@ -385,9 +422,12 @@ describe('responses', () => {
 
     const result = extractResponses(responses)
 
-    // The function infers schema from the string itself, not parsed JSON
     expect(result?.['200']?.content?.['application/json']?.schema).toEqual({
-      type: 'string',
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { id: { type: 'number' } },
+      },
     })
   })
 
