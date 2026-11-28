@@ -104,6 +104,7 @@ export const baseConfigurationSchema = object({
       literal('mars'),
       literal('laserwave'),
       literal('halloween'),
+      literal('winterHolidays'),
       literal('none'),
     ],
     {

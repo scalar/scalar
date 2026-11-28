@@ -38,6 +38,13 @@ const CELEBRATIONS: readonly Celebration[] = [
     start: { month: 10, day: 1 },
     end: { month: 10, day: 31 },
   },
+  {
+    // Through Twelfth Night, so the lights stay up for New Year's Eve and the week after.
+    name: 'Christmas and New Year',
+    theme: 'winterHolidays',
+    start: { month: 12, day: 1 },
+    end: { month: 1, day: 6 },
+  },
 ]
 
 /** The theme used outside every celebration window. */

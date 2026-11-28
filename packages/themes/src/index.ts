@@ -13,6 +13,7 @@ import moonTheme from './presets/moon.css?inline'
 import purpleTheme from './presets/purple.css?inline'
 import saturnTheme from './presets/saturn.css?inline'
 import solarizedTheme from './presets/solarized.css?inline'
+import winterHolidaysTheme from './presets/winterHolidays.css?inline'
 
 export { hasObtrusiveScrollbars } from './utilities/has-obtrusive-scrollbars'
 
@@ -43,6 +44,7 @@ export {
   purpleTheme,
   saturnTheme,
   solarizedTheme,
+  winterHolidaysTheme,
 }
 
 /** Theme definition for Scalar platform themes. Matches user provided theme definitions. */
@@ -80,6 +82,7 @@ export const themeIds = [
   'mars',
   'laserwave',
   'halloween',
+  'winterHolidays',
   'none',
 ] as const
 
@@ -103,6 +106,7 @@ export const themeLabels = {
   deepSpace: 'Deep Space',
   laserwave: 'Laserwave',
   halloween: 'Halloween',
+  winterHolidays: 'Winter Holidays',
   none: 'None',
 } as const satisfies Record<ThemeId, string>
 
@@ -198,6 +202,13 @@ export const presets = {
     description: 'Spooky season Scalar theme with a moonlit sky, bats, and pumpkin accents',
     theme: halloweenTheme,
     slug: 'halloween',
+  },
+  winterHolidays: {
+    uid: 'wH7tXm3Qa-Lc9nRb2KpVs',
+    name: 'Winter Holidays',
+    description: 'Festive Scalar theme for Christmas and New Year with string lights, snowfall, and fireworks',
+    theme: winterHolidaysTheme,
+    slug: 'winter-holidays',
   },
   elysiajs: {
     uid: 'nEVZkRmCylPkT0o9YJa7y',
