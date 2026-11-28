@@ -165,6 +165,31 @@ Or get more advanced by styling our sidebar!
 </style>
 ```
 
+### Targeting sidebar parts
+
+When variables aren't enough, the sidebar has stable class names and data attributes you can select on. Use these rather than the utility classes you'll see in the markup, since those can change in any release.
+
+| Selector                             | Targets                                                                       |
+| ------------------------------------ | ----------------------------------------------------------------------------- |
+| `.scalar-sidebar-items`              | A list of sidebar entries                                                     |
+| `.scalar-sidebar-button`             | A sidebar entry's link or button                                              |
+| `.scalar-sidebar-search-shortcut`    | The keyboard shortcut hint in the search button                               |
+| `.scalar-sidebar-nested-items`       | An entry that opens a nested list in place of the current one                 |
+| `.scalar-sidebar-nested-items-panel` | The layer the nested list is drawn in, on top of the list it opened from      |
+| `[data-open]`                        | Set on `.scalar-sidebar-nested-items` while its nested list is open           |
+| `[data-nested-open]`                 | Set on `.scalar-sidebar-items` while a nested list inside it is open          |
+
+The `group/nested-items-open` class is deprecated. Use `.scalar-sidebar-nested-items[data-open]` instead.
+
+```html
+<style>
+  /* Hide the search shortcut hint */
+  .scalar-sidebar-search-shortcut {
+    display: none;
+  }
+</style>
+```
+
 ### Syntax highlighting
 
 Code blocks take their colors from a set of `--scalar-code-*` variables, one for each kind of token. By default they're derived from the theme's hues (`--scalar-color-purple`, `--scalar-color-blue` and so on), darkened on light backgrounds and lightened on dark ones so small code stays readable. Change a hue and the code colors built on it follow.

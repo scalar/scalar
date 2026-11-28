@@ -9,6 +9,9 @@
  * <ScalarSidebarSearchButton>
  *   <template #shortcut>⌘K</template>
  * </ScalarSidebarSearchButton>
+ *
+ * Stable hooks for styling from outside the component:
+ * - `.scalar-sidebar-search-shortcut` targets the keyboard shortcut hint
  */
 export default {}
 </script>
@@ -41,7 +44,7 @@ const { cx } = useBindCx()
     </span>
     <span
       v-if="$slots.shortcut"
-      class="text-sidebar-c-2 rounded border px-1.25 py-1 text-xs leading-none font-medium uppercase">
+      class="scalar-sidebar-search-shortcut text-sidebar-c-2 rounded border px-1.25 py-1 text-xs leading-none font-medium uppercase">
       <span class="sr-only">{{ shortcutLabel }}</span>
       <kbd dir="ltr">
         <slot name="shortcut" />

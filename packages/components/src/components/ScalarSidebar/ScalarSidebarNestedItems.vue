@@ -14,6 +14,11 @@
  *     <ScalarSidebarItem>...</ScalarSidebarItem>
  *   </template>
  * </ScalarSidebarNestedItems>
+ *
+ * Stable hooks for styling from outside the component:
+ * - `.scalar-sidebar-nested-items` targets the item, with `[data-open]` while open
+ * - `.scalar-sidebar-nested-items-panel` targets the layer the opened list is
+ *   drawn in, positioned over the parent list
  */
 export default {}
 </script>
@@ -118,8 +123,12 @@ const handleBack = (event: MouseEvent) => {
 <template>
   <li
     ref="el"
-    class="group/item group/nested-items contents"
-    :class="{ 'group/nested-items-open': open }"
+    class="scalar-sidebar-nested-items group/item group/nested-items contents"
+    :class="{
+      // Deprecated: kept for existing selectors, use [data-open] instead
+      'group/nested-items-open': open,
+    }"
+    :data-open="open || undefined"
     :style="{ '--nested-items-offset': `${offset}px` }">
     <slot name="button">
       <ScalarSidebarButton
@@ -154,7 +163,7 @@ const handleBack = (event: MouseEvent) => {
       @leave="onClose">
       <div
         v-if="open"
-        class="absolute inset-0 translate-x-full">
+        class="scalar-sidebar-nested-items-panel absolute inset-0 translate-x-full">
         <ScalarSidebarItems v-bind="$attrs">
           <div
             class="bg-sidebar-b-1 animate-sidebar-border-bottom border-b-sidebar-border sticky top-(--scalar-sidebar-sticky-offset,0) z-1 -mx-(--scalar-sidebar-padding) -mt-(--scalar-sidebar-padding) flex flex-col gap-px px-(--scalar-sidebar-padding) pt-(--scalar-sidebar-padding)">
