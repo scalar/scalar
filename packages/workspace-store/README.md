@@ -39,6 +39,53 @@ For trusted local development inputs, `documentLoading.allowPrivateNetworks: tru
 network URLs and redirects. Configure these permissions in the application, never from untrusted
 request parameters. The approved directory also applies to references in remote documents.
 
+#### Custom loaders
+
+To apply your own policy to every external load (timeouts, size limits, redirect and network rules,
+or a record of what was requested), pass `documentLoading.loaders`. These are `@scalar/json-magic`
+loader plugins, the same kind `fetchUrls` and `readFiles` return. They replace the built-in loaders,
+so the store performs no fetch or file read of its own: URL and file documents, external references,
+URI security requirements, code sample sources, and AsyncAPI schema resources (Protobuf imports, RAML
+includes and libraries) all go through the first loader whose `validate` accepts the location. Only
+plugins with `type: 'loader'` are used. An empty array disables external loading.
+
+External references to other documents are loaded only where the server store bundles them today,
+which is OpenAPI 3.2 documents (including their URI security requirements). OpenAPI 2.0 and 3.0
+documents keep their external references for the client to resolve on demand, and the server store
+does not load the external `$ref`s of OpenAPI 3.1 or AsyncAPI documents at all. Code sample sources
+(every OpenAPI version) and AsyncAPI schema resources are loaded on the server. Your loaders see the
+same requests the built-in loaders would.
+
+`exec` resolves `{ ok: true, data, raw }`, with the parsed content in `data` and the source text in
+`raw`, or `{ ok: false }` when the location cannot be loaded. Code sample sources and AsyncAPI schema
+resources call it with `{ parseAs: 'text' }` and read the text from `raw`. A `validate` that throws
+counts as that loader not accepting the location, so the next loader is tried. A load fails when no
+loader accepts the location, or when the accepting loader resolves `{ ok: false }` or anything that is
+not a result, or throws or rejects (a timeout, for example). The document is then skipped, a reference
+stays unresolved, or the schema resources are marked as failed, and the cause is logged. To make a
+refusal final, supply a single loader or make each `validate` total.
+
+`allowPrivateNetworks` and `basePath` only configure the built-in loaders, so they cannot be combined
+with `loaders`. The built-in private-network block and base-path confinement do not apply to your
+loaders, which are responsible for any network and file rules.
+
+A document input with more than one source loads from `url`, else from `path`, and ignores `document`,
+with or without custom loaders.
+
+```ts
+import { fetchUrls } from '@scalar/json-magic/bundle/plugins/node'
+
+const store = await createServerWorkspaceStore({
+  mode: 'ssr',
+  baseUrl: '/docs',
+  documents: [{ name: 'api', url: 'https://example.com/openapi.json' }],
+  documentLoading: {
+    // `fetchWithPolicy` is your own transport, which enforces your network rules.
+    loaders: [fetchUrls({ fetch: fetchWithPolicy })],
+  },
+})
+```
+
 #### Usage
 
 Create a new store in SSR mode

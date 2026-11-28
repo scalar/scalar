@@ -7,6 +7,8 @@ import { tmpdir } from 'node:os'
 import path, { join, relative } from 'node:path'
 import { cwd } from 'node:process'
 
+import type { LoaderPlugin } from '@scalar/json-magic/bundle'
+import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { literalReferencesDocument } from '@test/literal-references'
 import { type FastifyInstance, fastify } from 'fastify'
@@ -30,6 +32,12 @@ import {
   externalizePathReferences,
   filterHttpMethodsOnly,
 } from './server'
+
+// Pass-through spies, so tests can check that supplied loaders replace the built-in ones entirely.
+vi.mock('@scalar/json-magic/bundle/plugins/node', async (importOriginal) => {
+  const plugins = await importOriginal<typeof import('@scalar/json-magic/bundle/plugins/node')>()
+  return { ...plugins, fetchUrls: vi.fn(plugins.fetchUrls), readFiles: vi.fn(plugins.readFiles) }
+})
 
 describe('create-server-store', () => {
   it.each(['3.1.0', '3.2.0'])('preserves literal references when loading OpenAPI %s', async (openapi) => {
@@ -204,6 +212,433 @@ describe('create-server-store', () => {
     } finally {
       await fs.rm(directory, { recursive: true, force: true })
     }
+  })
+
+  describe('caller-supplied loaders', () => {
+    /** Serves fixed responses for locations under `prefix` and records every request. */
+    const fixedLoader = (prefix: string, files: Record<string, unknown>, requested: string[]): LoaderPlugin => ({
+      type: 'loader',
+      validate: (value) => value.startsWith(prefix),
+      exec: (value) => {
+        requested.push(value)
+        const data = files[value]
+        if (!Object.hasOwn(files, value)) {
+          return Promise.resolve({ ok: false, status: 404 })
+        }
+        return Promise.resolve({ ok: true, data, raw: typeof data === 'string' ? data : JSON.stringify(data) })
+      },
+    })
+
+    /** Ways a caller's `exec` can fail, each of which must count as a failed load. */
+    const failures: Record<string, () => ReturnType<LoaderPlugin['exec']>> = {
+      rejects: () => Promise.reject(new Error('Timed out')),
+      throws: () => {
+        throw new Error('Broken loader')
+      },
+      'resolves undefined': () => Promise.resolve(undefined as never),
+      'resolves null': () => Promise.resolve(null as never),
+      'resolves a string': () => Promise.resolve('not a result' as never),
+    }
+
+    beforeEach(() => {
+      vi.mocked(fetchUrls).mockClear()
+      vi.mocked(readFiles).mockClear()
+    })
+
+    it('loads URL and file documents and their external references only through the supplied loaders', async () => {
+      const requested: string[] = []
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [
+          { name: 'remote', url: 'https://example.com/openapi.json' },
+          { name: 'file', path: '/virtual/openapi.json' },
+        ],
+        documentLoading: {
+          loaders: [
+            fixedLoader(
+              'https://example.com/',
+              {
+                'https://example.com/openapi.json': { ...loadingDocument, paths: { '/pets': { $ref: './pets.json' } } },
+                'https://example.com/pets.json': { get: { summary: 'List pets' } },
+              },
+              requested,
+            ),
+            fixedLoader('/virtual/', { '/virtual/openapi.json': loadingDocument }, requested),
+          ],
+        },
+      })
+
+      expect(Object.keys(store.getWorkspace().documents).sort()).toStrictEqual(['file', 'remote'])
+      expect(JSON.stringify(getRaw(store.getResolvedDocument('remote')))).toContain('List pets')
+      expect(requested.sort()).toStrictEqual([
+        '/virtual/openapi.json',
+        'https://example.com/openapi.json',
+        'https://example.com/pets.json',
+      ])
+      expect(fetchUrls).not.toHaveBeenCalled()
+      expect(readFiles).not.toHaveBeenCalled()
+    })
+
+    it('skips documents that no supplied loader accepts or loads, without falling back to the built-in loaders', async () => {
+      const directory = await fs.mkdtemp(join(tmpdir(), 'workspace-loaders-'))
+      const file = join(directory, 'openapi.json')
+      const requested: string[] = []
+      try {
+        await fs.writeFile(file, JSON.stringify(loadingDocument))
+        const loaders = [fixedLoader('https://example.com/', {}, requested)]
+        const store = await createServerWorkspaceStore({
+          mode: 'ssr',
+          baseUrl: '/docs',
+          documents: [
+            { name: 'missing', url: 'https://example.com/missing.json' },
+            { name: 'unaccepted', url: 'https://example.org/openapi.json' },
+            { name: 'file', path: file },
+          ],
+          // @ts-expect-error basePath configures the built-in file loader, which supplied loaders replace
+          documentLoading: { loaders, basePath: directory },
+        })
+        await store.addDocument({ name: 'added', url: 'https://example.org/openapi.json' })
+
+        expect(store.getWorkspace().documents).toStrictEqual({})
+        expect(requested).toStrictEqual(['https://example.com/missing.json'])
+        expect(fetchUrls).not.toHaveBeenCalled()
+        expect(readFiles).not.toHaveBeenCalled()
+      } finally {
+        await fs.rm(directory, { recursive: true, force: true })
+      }
+    })
+
+    it('loads an input that also carries a document from its url or path, through the supplied loaders', async () => {
+      const requested: string[] = []
+      const inline = { ...loadingDocument, info: { title: 'Inline', version: '1' } }
+      const loaded = { ...loadingDocument, info: { title: 'Loaded', version: '1' } }
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [
+          { name: 'remote', url: 'https://example.com/openapi.json', document: inline },
+          { name: 'file', path: '/virtual/openapi.json', document: inline },
+        ],
+        documentLoading: {
+          loaders: [
+            fixedLoader('https://example.com/', { 'https://example.com/openapi.json': loaded }, requested),
+            fixedLoader('/virtual/', { '/virtual/openapi.json': loaded }, requested),
+          ],
+        },
+      })
+
+      const documents = store.getWorkspace().documents
+      expect([documents.remote?.info.title, documents.file?.info.title]).toStrictEqual(['Loaded', 'Loaded'])
+      expect(requested.sort()).toStrictEqual(['/virtual/openapi.json', 'https://example.com/openapi.json'])
+      expect(fetchUrls).not.toHaveBeenCalled()
+      expect(readFiles).not.toHaveBeenCalled()
+    })
+
+    it('resolves URI security requirements through the supplied loaders', async () => {
+      const requested: string[] = []
+      const key = 'https://example.com/auth.json#/components/securitySchemes/Key'
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'api', document: { ...loadingDocument, security: [{ [key]: [] }] } }],
+        documentLoading: {
+          loaders: [
+            fixedLoader(
+              'https://example.com/',
+              {
+                'https://example.com/auth.json': {
+                  components: { securitySchemes: { Key: { type: 'apiKey', in: 'header', name: 'X-Key' } } },
+                },
+              },
+              requested,
+            ),
+          ],
+        },
+      })
+
+      expect(JSON.stringify(getRaw(store.getResolvedDocument('api')))).toContain('X-Key')
+      expect(requested).toStrictEqual(['https://example.com/auth.json'])
+      expect(fetchUrls).not.toHaveBeenCalled()
+    })
+
+    it.each(['3.1.0', '3.2.0'])(
+      'loads OpenAPI %s code sample sources as text through the supplied loaders',
+      async (openapi) => {
+        const source = 'print("sample")\n'
+        const calls: [string, unknown][] = []
+        const store = await createServerWorkspaceStore({
+          mode: 'ssr',
+          baseUrl: '/docs',
+          documents: [{ name: 'api', url: 'https://example.com/openapi.json' }],
+          documentLoading: {
+            loaders: [
+              {
+                type: 'loader',
+                validate: (value) => value.startsWith('https://example.com/'),
+                exec: (value, options) => {
+                  calls.push([value, options])
+                  const document = {
+                    openapi,
+                    info: { title: 'Samples', version: '1' },
+                    paths: {
+                      '/sample': { get: { 'x-codeSamples': [{ lang: 'python', source: { $ref: './sample.py' } }] } },
+                    },
+                  }
+                  return Promise.resolve(
+                    value.endsWith('.py')
+                      ? { ok: true, data: source, raw: source }
+                      : { ok: true, data: document, raw: JSON.stringify(document) },
+                  )
+                },
+              },
+            ],
+          },
+        })
+
+        const document = getRaw(store.getResolvedDocument('api'))
+        assert(document && isOpenApiDocument(document))
+        const operation = getResolvedRef(getResolvedRef(document.paths?.['/sample'])?.get)
+        expect(operation?.['x-codeSamples']?.[0]?.source).toBe(source)
+        expect(calls).toContainEqual(['https://example.com/sample.py', { parseAs: 'text' }])
+        expect(fetchUrls).not.toHaveBeenCalled()
+      },
+    )
+
+    it.each(['2.0', '3.0.3'])(
+      'keeps external references of an upgraded %s document lazy, loading only the entry through the supplied loaders',
+      async (version) => {
+        const requested: string[] = []
+        const store = await createServerWorkspaceStore({
+          mode: 'ssr',
+          baseUrl: '/docs',
+          documents: [{ name: 'api', url: 'https://example.com/openapi.json' }],
+          documentLoading: {
+            loaders: [
+              fixedLoader(
+                'https://example.com/',
+                {
+                  'https://example.com/openapi.json': {
+                    ...(version === '2.0' ? { swagger: version } : { openapi: version }),
+                    info: { title: 'Upgraded', version: '1' },
+                    paths: { '/pets': { $ref: './pets.json' } },
+                  },
+                  'https://example.com/pets.json': { get: { summary: 'List pets', responses: {} } },
+                },
+                requested,
+              ),
+            ],
+          },
+        })
+
+        // The upgrade bundle preserves external references for the client to resolve on demand.
+        expect(Object.keys(store.getWorkspace().documents)).toStrictEqual(['api'])
+        expect(JSON.stringify(getRaw(store.getResolvedDocument('api')))).toContain('./pets.json')
+        expect(requested).toStrictEqual(['https://example.com/openapi.json'])
+        expect(fetchUrls).not.toHaveBeenCalled()
+      },
+    )
+
+    it.each([
+      ...Object.keys(failures).map((failure) => ['path item reference', failure]),
+      ['path item reference', 'throws while validating'],
+      ['security requirement', 'rejects'],
+    ])('keeps a document whose %s loader %s, leaving the reference unresolved', async (reference, failure) => {
+      const requested: string[] = []
+      const target =
+        reference === 'security requirement' ? 'https://example.com/auth.json' : 'https://example.com/pets.json'
+      const authored =
+        reference === 'security requirement' ? `${target}#/components/securitySchemes/Key` : './pets.json'
+      const document =
+        reference === 'security requirement'
+          ? { ...loadingDocument, security: [{ [authored]: [] }] }
+          : { ...loadingDocument, paths: { '/pets': { $ref: authored } } }
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'api', url: 'https://example.com/openapi.json' }],
+        documentLoading: {
+          loaders: [
+            {
+              type: 'loader',
+              validate: (value) => {
+                if (failure === 'throws while validating' && value === target) {
+                  throw new Error('Unsupported location')
+                }
+                return value.startsWith('https://example.com/')
+              },
+              exec: (value) => {
+                requested.push(value)
+                return value === target
+                  ? (failures[failure] ?? failures.rejects!)()
+                  : Promise.resolve({ ok: true, data: document, raw: JSON.stringify(document) })
+              },
+            },
+          ],
+        },
+      })
+
+      expect(Object.keys(store.getWorkspace().documents)).toStrictEqual(['api'])
+      expect(JSON.stringify(getRaw(store.getResolvedDocument('api')))).toContain(authored)
+      expect(requested.includes(target)).toBe(failure !== 'throws while validating')
+      expect(fetchUrls).not.toHaveBeenCalled()
+    })
+
+    it('uses only loader plugins and treats a rejected entry document load as a failed load', async () => {
+      const exec = vi.fn(() => Promise.resolve({ ok: true as const, data: loadingDocument, raw: '' }))
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [
+          { name: 'unused', url: 'https://example.com/openapi.json' },
+          { name: 'rejected', url: 'https://example.org/openapi.json' },
+        ],
+        documentLoading: {
+          loaders: [
+            // A JavaScript caller can pass a plugin of another type; like the bundler, the store ignores it.
+            { type: 'lifecycle', validate: () => true, exec } as unknown as LoaderPlugin,
+            {
+              type: 'loader',
+              validate: (value) => value.startsWith('https://example.org/'),
+              exec: () => Promise.reject(new Error('Timed out')),
+            },
+          ],
+        },
+      })
+
+      expect(store.getWorkspace().documents).toStrictEqual({})
+      expect(exec).not.toHaveBeenCalled()
+      expect(fetchUrls).not.toHaveBeenCalled()
+    })
+
+    it.each(Object.keys(failures))('skips an entry document whose loader %s', async (failure) => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'api', url: 'https://example.com/openapi.json' }],
+        documentLoading: { loaders: [{ type: 'loader', validate: () => true, exec: failures[failure]! }] },
+      })
+      expect(store.getWorkspace().documents).toStrictEqual({})
+    })
+
+    it('tries the next loader when a loader throws while validating', async () => {
+      const requested: string[] = []
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'api', url: 'https://example.com/openapi.json' }],
+        documentLoading: {
+          loaders: [
+            {
+              type: 'loader',
+              validate: () => {
+                throw new Error('Unsupported location')
+              },
+              exec: failures.rejects!,
+            },
+            fixedLoader('https://example.com/', { 'https://example.com/openapi.json': loadingDocument }, requested),
+          ],
+        },
+      })
+      expect(Object.keys(store.getWorkspace().documents)).toStrictEqual(['api'])
+      expect(requested).toStrictEqual(['https://example.com/openapi.json'])
+    })
+
+    it.each(['rejects', 'throws while validating'])(
+      'keeps a code sample reference whose loader %s',
+      async (failure) => {
+        const sample = 'https://example.com/sample.py'
+        const document = {
+          openapi: '3.1.0',
+          info: { title: 'Samples', version: '1' },
+          paths: { '/sample': { get: { 'x-codeSamples': [{ lang: 'python', source: { $ref: './sample.py' } }] } } },
+        }
+        const store = await createServerWorkspaceStore({
+          mode: 'ssr',
+          baseUrl: '/docs',
+          documents: [{ name: 'api', url: 'https://example.com/openapi.json' }],
+          documentLoading: {
+            loaders: [
+              {
+                type: 'loader',
+                validate: (value) => {
+                  if (failure === 'throws while validating' && value === sample) {
+                    throw new Error('Unsupported location')
+                  }
+                  return value.startsWith('https://example.com/')
+                },
+                exec: (value) =>
+                  value === sample
+                    ? failures.rejects!()
+                    : Promise.resolve({ ok: true, data: document, raw: JSON.stringify(document) }),
+              },
+            ],
+          },
+        })
+
+        const resolved = getRaw(store.getResolvedDocument('api'))
+        assert(resolved && isOpenApiDocument(resolved))
+        const operation = getResolvedRef(getResolvedRef(resolved.paths?.['/sample'])?.get)
+        expect(operation?.['x-codeSamples']?.[0]?.source).toStrictEqual({ $ref: sample })
+      },
+    )
+
+    it('builds the built-in loaders from the permissions when no loaders are supplied', async () => {
+      await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [
+          { name: 'default', document: loadingDocument },
+          { name: 'unreadable', path: '/virtual/openapi.json' },
+        ],
+      })
+      expect(vi.mocked(fetchUrls).mock.calls).toContainEqual([{ blockPrivateNetworks: true }])
+      expect(vi.mocked(fetchUrls).mock.calls).not.toContainEqual([{ blockPrivateNetworks: false }])
+      expect(readFiles).not.toHaveBeenCalled()
+
+      await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'default', document: loadingDocument }],
+        documentLoading: { allowPrivateNetworks: true, basePath: '/approved' },
+      })
+      expect(vi.mocked(fetchUrls).mock.calls.at(-1)).toStrictEqual([{ blockPrivateNetworks: false }])
+      expect(vi.mocked(readFiles).mock.calls).toStrictEqual([[{ basePath: '/approved' }]])
+    })
+
+    it('loads an input that also carries a document from its url when no loaders are supplied', async () => {
+      // The url wins over the inline document, so this private address is refused and nothing is added.
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'private', url: 'http://127.0.0.1:9/openapi.json', document: loadingDocument }],
+      })
+      expect(store.getWorkspace().documents).toStrictEqual({})
+      expect(vi.mocked(fetchUrls).mock.calls).toStrictEqual([[{ blockPrivateNetworks: true }]])
+    })
+
+    it('loads an input that also carries a document from its path when no loaders are supplied', async () => {
+      // The path wins over the inline document, and file access is disabled without a basePath.
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'file', path: '/virtual/openapi.json', document: loadingDocument }],
+      })
+      expect(store.getWorkspace().documents).toStrictEqual({})
+      expect(readFiles).not.toHaveBeenCalled()
+    })
+
+    it('treats null document loading options as the defaults', async () => {
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'inline', document: loadingDocument }],
+        // A JavaScript caller can pass null, which the types do not allow.
+        documentLoading: null as never,
+      })
+      expect(Object.keys(store.getWorkspace().documents)).toStrictEqual(['inline'])
+      expect(vi.mocked(fetchUrls).mock.calls).toStrictEqual([[{ blockPrivateNetworks: true }]])
+    })
   })
 
   it('loads unnamed inline XML bodies without upgrading the document to 3.2', async () => {

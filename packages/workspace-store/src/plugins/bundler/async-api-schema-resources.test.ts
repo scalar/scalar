@@ -3,8 +3,9 @@ import os from 'node:os'
 import path from 'node:path'
 
 import { isObject } from '@scalar/helpers/object/is-object'
-import { bundle } from '@scalar/json-magic/bundle'
-import { describe, expect, it } from 'vitest'
+import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
+import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { type WorkspaceStore, createWorkspaceStore } from '@/client'
 import { getResolvedAsyncApiRef } from '@/helpers/get-resolved-async-api-ref'
@@ -13,6 +14,12 @@ import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { createServerWorkspaceStore } from '@/server'
 
 import { asyncApiSchemaResources } from './async-api-schema-resources'
+
+// Pass-through spies, so tests can check that supplied loaders replace the built-in server loaders.
+vi.mock('@scalar/json-magic/bundle/plugins/node', async (importOriginal) => {
+  const plugins = await importOriginal<typeof import('@scalar/json-magic/bundle/plugins/node')>()
+  return { ...plugins, fetchUrls: vi.fn(plugins.fetchUrls), readFiles: vi.fn(plugins.readFiles) }
+})
 
 const format = 'application/vnd.google.protobuf;version=3'
 const value = 'syntax="proto3"; import "types/user.proto"; message Root { User user=1; }'
@@ -217,6 +224,117 @@ describe('async-api-schema-resources', () => {
     if (!loaded || !isAsyncApiDocument(loaded)) throw new Error('Missing AsyncAPI document')
     await expand(client, getResolvedAsyncApiRef(loaded.components)?.schemas?.User)
     expect(requested).toStrictEqual(['/virtual/types/user.proto'])
+  })
+
+  describe('server loaders supplied by the caller', () => {
+    const origin = 'https://example.test/api.json'
+    const ramlFormat = 'application/raml+yaml;version=1.0'
+    const ramlFiles = {
+      'https://example.test/schemas/user.raml':
+        '#%RAML 1.0 DataType\nuses:\n  lib: ../libraries/types.raml\ntype: lib.User',
+      'https://example.test/libraries/types.raml': '#%RAML 1.0 Library\ntypes:\n  User: !include ./user.raml',
+      'https://example.test/libraries/user.raml': 'type: object\nproperties:\n  id: string',
+    }
+    const authored = {
+      ...document(),
+      components: {
+        schemas: {
+          User: schema(),
+          Account: {
+            schemaFormat: ramlFormat,
+            schema: 'type: object\nproperties:\n  user: !include schemas/user.raml',
+          },
+        },
+      },
+    }
+
+    /** Loads the document from the supplied loader and returns the prepared schema resources. */
+    const prepare = async (
+      files: Record<string, string>,
+      exec: LoaderPlugin['exec'] = (uri) =>
+        Promise.resolve(Object.hasOwn(files, uri) ? { ok: true, data: files[uri]!, raw: files[uri]! } : { ok: false }),
+    ): Promise<{ requested: string[]; user: unknown; account: unknown }> => {
+      const requested: string[] = []
+      const server = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://docs.example.test',
+        documentLoading: {
+          loaders: [
+            {
+              type: 'loader',
+              validate: (uri) => uri.startsWith('https://example.test/'),
+              exec: (uri, options) => {
+                requested.push(uri)
+                return uri === origin
+                  ? Promise.resolve({ ok: true, data: structuredClone(authored), raw: JSON.stringify(authored) })
+                  : exec(uri, options)
+              },
+            },
+          ],
+        },
+        documents: [{ name: 'test', url: origin }],
+      })
+      const loaded = server.getResolvedDocument('test')
+      assert(loaded && isAsyncApiDocument(loaded))
+      const schemas = getResolvedAsyncApiRef(loaded.components)?.schemas
+      return {
+        requested,
+        user: resolveAsyncApiSchema(schemas?.User),
+        account: resolveAsyncApiSchema(schemas?.Account),
+      }
+    }
+
+    beforeEach(() => {
+      vi.mocked(fetchUrls).mockClear()
+      vi.mocked(readFiles).mockClear()
+      return () => {
+        expect(fetchUrls).not.toHaveBeenCalled()
+        expect(readFiles).not.toHaveBeenCalled()
+      }
+    })
+
+    it('loads Protobuf imports and RAML includes through the supplied loaders', async () => {
+      const files = { 'https://example.test/types/user.proto': user, ...ramlFiles }
+      const { requested, user: userSchema, account } = await prepare(files)
+      expect(userSchema).toMatchObject({
+        resources: { origin, files: { 'https://example.test/types/user.proto': user } },
+      })
+      expect(account).toMatchObject({ resources: { origin, files: ramlFiles } })
+      expect(requested.sort()).toStrictEqual([origin, ...Object.keys(files)].sort())
+    })
+
+    it.each([
+      ['reports a failure', (): ReturnType<LoaderPlugin['exec']> => Promise.resolve({ ok: false, status: 503 })],
+      ['rejects', (): ReturnType<LoaderPlugin['exec']> => Promise.reject(new Error('Timed out'))],
+    ])('marks schema resources as failed when the supplied loader %s', async (_, exec) => {
+      const { requested, user: userSchema, account } = await prepare({}, exec)
+      expect(userSchema).toMatchObject({ resources: { origin, files: {}, failed: true } })
+      expect(account).toMatchObject({ resources: { origin, files: {}, failed: true } })
+      expect(requested).toContain('https://example.test/types/user.proto')
+      expect(requested).toContain('https://example.test/schemas/user.raml')
+    })
+
+    it('marks schema resources as failed when no supplied loader accepts their location', async () => {
+      const proto = 'syntax="proto3"; import "https://example.org/user.proto"; message Root { User user=1; }'
+      const server = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://docs.example.test',
+        documentLoading: {
+          loaders: [{ type: 'loader', validate: () => false, exec: () => Promise.resolve({ ok: false }) }],
+        },
+        documents: [
+          {
+            name: 'test',
+            document: { ...document(), components: { schemas: { User: { schemaFormat: format, schema: proto } } } },
+          },
+        ],
+      })
+      const loaded = server.getResolvedDocument('test')
+      assert(loaded && isAsyncApiDocument(loaded))
+      expect(resolveAsyncApiSchema(getResolvedAsyncApiRef(loaded.components)?.schemas?.User)).toMatchObject({
+        resources: { origin: '/', files: {}, failed: true },
+      })
+    })
   })
 
   it.each([false, true])('prepares server-side headers in message traits (reusable: %s)', async (reusable) => {
